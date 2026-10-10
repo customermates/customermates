@@ -15,7 +15,7 @@ import {
   SYNTHETIC_CONTACT_ORGANIZATION_LINKS,
 } from "../seeds/contacts";
 import { SEED_IDS } from "../seeds/context";
-import { SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS, SYNTHETIC_CUSTOM_OPTION_IDS } from "../seeds/custom-fields";
+import { SYNTHETIC_CUSTOM_FIELD_DEFINITIONS, SYNTHETIC_CUSTOM_OPTION_IDS } from "../seeds/custom-fields";
 import { SYNTHETIC_DEAL_NAMES, SYNTHETIC_DEAL_ORGANIZATION_LINKS, SYNTHETIC_SERVICE_DEAL_LINKS } from "../seeds/deals";
 import { fixtureId } from "../seeds/helpers";
 import { SYNTHETIC_AUTH_IDENTITY_DEFINITIONS, SYNTHETIC_SUBSCRIPTION } from "../seeds/identity";
@@ -35,11 +35,11 @@ import { SYNTHETIC_SEED_TIMELINE } from "../seeds/timeline";
 import { SYNTHETIC_WIDGET_NAMES } from "../seeds/widgets";
 
 const SYNTHETIC_FIXTURE_COUNTS = {
-  auditLogs: 161,
+  auditLogs: 12,
   authAccounts: 3,
   authUsers: 3,
   contacts: 30,
-  customColumns: 10,
+  customFields: 10,
   customFieldValues: 234,
   deals: 10,
   organizations: 19,
@@ -197,9 +197,9 @@ describe("canonical synthetic CRM fixture contract", () => {
       id: SEED_IDS.role,
       permissions: [],
     });
-    expect(SYNTHETIC_ROLE_DEFINITIONS[1]?.permissions).toHaveLength(30);
-    expect(SYNTHETIC_ROLE_DEFINITIONS[2]?.permissions).toHaveLength(23);
-    expect(SYNTHETIC_ROLE_PERMISSION_COUNT).toBe(53);
+    expect(SYNTHETIC_ROLE_DEFINITIONS[1]?.permissions).toHaveLength(13);
+    expect(SYNTHETIC_ROLE_DEFINITIONS[2]?.permissions).toHaveLength(9);
+    expect(SYNTHETIC_ROLE_PERMISSION_COUNT).toBe(22);
 
     const permissions = SYNTHETIC_ROLE_DEFINITIONS.flatMap(({ permissions }) => permissions);
     expect(new Set(permissions.map(({ id }) => id))).toHaveLength(permissions.length);
@@ -376,20 +376,21 @@ Loop in legal team
 `),
     );
     expect(
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS.map(
-        ({ entityType, label, optionLabels, type }) => `${entityType}:${label}:${type}:${optionLabels.join(",")}`,
+      SYNTHETIC_CUSTOM_FIELD_DEFINITIONS.map(
+        ({ recordType, label, optionLabels, valueType }) =>
+          `${recordType}:${label}:${valueType}:${optionLabels.join(",")}`,
       ),
     ).toEqual([
       "contact:Phones:phone:",
-      "service:Type:singleSelect:Service,Hardware",
-      "organization:Type:singleSelect:Direct customer,Affiliated company",
-      "organization:Website:link:",
-      "task:Priority:singleSelect:Low,Medium,High",
-      "deal:Status:singleSelect:Open,Won,Lost,Abandoned",
-      "task:Status:singleSelect:Open,In Progress,Blocked,On Hold,Done,Archived",
+      "service:Type:select:Service,Hardware",
+      "organization:Type:select:Direct customer,Affiliated company",
+      "organization:Website:url:",
+      "task:Priority:select:Low,Medium,High",
+      "deal:Status:select:Open,Won,Lost,Abandoned",
+      "task:Status:select:Open,In Progress,Blocked,On Hold,Done,Archived",
       "deal:Project Period:dateRange:",
-      "contact:Sales Pipeline:singleSelect:New,Contact,Qualified,In Progress,Won,Lost",
-      "service:Pricing model:singleSelect:Fixed,Monthly,Daily",
+      "contact:Sales Pipeline:select:New,Contact,Qualified,In Progress,Won,Lost",
+      "service:Pricing model:select:Fixed,Monthly,Daily",
     ]);
     expect(SYNTHETIC_WIDGET_NAMES).toEqual([
       "Deal Value By Organizations",
@@ -404,11 +405,11 @@ Loop in legal team
 
   it("pins the canonical entity and relationship counts", () => {
     expect(SYNTHETIC_FIXTURE_COUNTS).toEqual({
-      auditLogs: 161,
+      auditLogs: 12,
       authAccounts: 3,
       authUsers: 3,
       contacts: 30,
-      customColumns: 10,
+      customFields: 10,
       customFieldValues: 234,
       deals: 10,
       organizations: 19,
@@ -442,7 +443,7 @@ Loop in legal team
     expect(SYNTHETIC_SERVICE_NAMES).toHaveLength(SYNTHETIC_FIXTURE_COUNTS.services);
     expect(SYNTHETIC_DEAL_NAMES).toHaveLength(SYNTHETIC_FIXTURE_COUNTS.deals);
     expect(SYNTHETIC_TASK_NAMES).toHaveLength(SYNTHETIC_FIXTURE_COUNTS.tasks);
-    expect(SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS).toHaveLength(SYNTHETIC_FIXTURE_COUNTS.customColumns);
+    expect(SYNTHETIC_CUSTOM_FIELD_DEFINITIONS).toHaveLength(SYNTHETIC_FIXTURE_COUNTS.customFields);
     expect(SYNTHETIC_WIDGET_NAMES).toHaveLength(SYNTHETIC_FIXTURE_COUNTS.widgets);
     const optionIds = Object.values(SYNTHETIC_CUSTOM_OPTION_IDS).flatMap((group) => Object.values(group));
     expect(optionIds).toEqual(Array.from({ length: 26 }, (_, index) => fixtureId("17000000", index + 1)));

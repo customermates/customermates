@@ -6,12 +6,16 @@ import { Dialog as SheetPrimitive } from "radix-ui";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/core/utils/cn";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
 import {
   OVERLAY_CLOSE_CLASS,
   OVERLAY_HEADER_ALIGNMENT_CLASS,
   OVERLAY_SAFE_CLOSE_POSITION_CLASS,
   OVERLAY_SCROLL_REGION,
+  isSheetHandoff,
 } from "./overlay-contract";
+
+const SHEET_HANDOFF_CLASS = "data-[state=closed]:animate-none! data-[state=open]:animate-none!";
 
 function Sheet({ ...props }: React.ComponentProps<typeof SheetPrimitive.Root>) {
   return <SheetPrimitive.Root data-slot="sheet" {...props} />;
@@ -33,7 +37,7 @@ function SheetOverlay({ className, ...props }: React.ComponentProps<typeof Sheet
   return (
     <SheetPrimitive.Overlay
       className={cn(
-        "fixed inset-0 z-50 bg-black/30 backdrop-blur-[2px] data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
+        "fixed inset-0 z-50 bg-scrim/30 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
         className,
       )}
       data-slot="sheet-overlay"
@@ -47,16 +51,19 @@ function SheetContent({
   children,
   side = "right",
   showCloseButton = true,
+  overlayClassName,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
   side?: "top" | "right" | "bottom" | "left";
   showCloseButton?: boolean;
+  overlayClassName?: string;
 }) {
   const t = useTranslations();
+  const handoff = isSheetHandoff();
 
   return (
     <SheetPortal>
-      <SheetOverlay />
+      <SheetOverlay className={cn(handoff && SHEET_HANDOFF_CLASS, overlayClassName)} />
 
       <SheetPrimitive.Content
         className={cn(
@@ -69,6 +76,7 @@ function SheetContent({
             "inset-x-0 top-0 h-auto max-h-(--sheet-block-budget) border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
           side === "bottom" &&
             "inset-x-0 bottom-0 h-auto max-h-(--sheet-block-budget) border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+          handoff && SHEET_HANDOFF_CLASS,
           className,
         )}
         data-overlay-close={showCloseButton ? "" : undefined}
@@ -79,14 +87,22 @@ function SheetContent({
         {children}
 
         {showCloseButton && (
-          <SheetPrimitive.Close
-            className={cn(OVERLAY_CLOSE_CLASS, OVERLAY_SAFE_CLOSE_POSITION_CLASS)}
-            data-slot="sheet-close"
-          >
-            <XIcon />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <SheetPrimitive.Close
+                  className={cn(OVERLAY_CLOSE_CLASS, OVERLAY_SAFE_CLOSE_POSITION_CLASS)}
+                  data-slot="sheet-close"
+                >
+                  <XIcon />
 
-            <span className="sr-only">{t("Common.actions.close")}</span>
-          </SheetPrimitive.Close>
+                  <span className="sr-only">{t("Common.actions.close")}</span>
+                </SheetPrimitive.Close>
+              </TooltipTrigger>
+
+              <TooltipContent>{t("Common.actions.close")}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
       </SheetPrimitive.Content>
     </SheetPortal>
@@ -97,7 +113,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "flex shrink-0 flex-col gap-1.5 p-4 pt-[calc(1rem+var(--safe-top))] pr-[calc(1rem+var(--safe-right))] pl-[calc(1rem+var(--safe-left))]",
+        "flex shrink-0 flex-col gap-1.5 p-4 pt-[calc(1.5rem+var(--safe-top))] pr-[calc(1rem+var(--safe-right))] pl-[calc(1rem+var(--safe-left))]",
         OVERLAY_HEADER_ALIGNMENT_CLASS,
         className,
       )}
@@ -137,7 +153,7 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
 function SheetTitle({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Title>) {
   return (
     <SheetPrimitive.Title
-      className={cn("font-semibold text-foreground", className)}
+      className={cn("text-lg font-semibold text-foreground", className)}
       data-slot="sheet-title"
       {...props}
     />

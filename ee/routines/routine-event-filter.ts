@@ -1,18 +1,6 @@
-import { EntityType } from "@/generated/prisma";
-
-import { extractAuditChanges } from "@/features/audit-log/audit-log-changes";
-
-const ENTITY_TYPE_BY_EVENT_PREFIX: Record<string, EntityType> = {
-  contact: EntityType.contact,
-  organization: EntityType.organization,
-  deal: EntityType.deal,
-  service: EntityType.service,
-  task: EntityType.task,
-};
-
-export function entityTypeForEvent(event: string): EntityType | null {
-  return ENTITY_TYPE_BY_EVENT_PREFIX[event.split(".")[0]] ?? null;
-}
+import { EventEnvelopeSchema } from "@/features/event/event-envelope";
+import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";
+import { RECORD_EVENT_KINDS } from "@/features/records/record-event.schema";
 
 const MESSAGING_ENTITY_KIND: Record<string, RoutineTriggerEntityKind> = {
   "messaging.message.received": "message",
@@ -28,60 +16,29 @@ const MESSAGING_ENTITY_KIND: Record<string, RoutineTriggerEntityKind> = {
   "messaging.relation.created": "activity",
 };
 
-export type RoutineTriggerEntityKind = EntityType | "message" | "thread" | "calendar" | "calendarEvent" | "activity";
+export type RoutineTriggerEntityKind = "record" | "message" | "thread" | "calendar" | "calendarEvent" | "activity";
 
 export function entityKindForEvent(event: string): RoutineTriggerEntityKind | null {
-  return entityTypeForEvent(event) ?? MESSAGING_ENTITY_KIND[event] ?? null;
-}
-
-export function entityTypeForEvents(events: readonly string[]): EntityType | null {
-  const resolved = events.map(entityTypeForEvent);
-  if (resolved.some((type) => type === null)) return null;
-
-  const types = new Set(resolved);
-
-  return types.size === 1 ? ([...types][0] ?? null) : null;
+  if ((RECORD_EVENT_KINDS as readonly string[]).includes(event)) return "record";
+  return MESSAGING_ENTITY_KIND[event] ?? null;
 }
 
 export function isRecordChangeEvent(event: string): boolean {
-  return entityTypeForEvent(event) !== null && event.endsWith(".updated");
+  return event === "record.updated";
 }
 
 export function isRecordRemovalEvent(event: string): boolean {
-  return entityTypeForEvent(event) !== null && event.endsWith(".deleted");
-}
-
-export function carriesChangedFields(eventData: unknown): boolean {
-  if (!eventData || typeof eventData !== "object" || Array.isArray(eventData)) return false;
-
-  const { payload } = eventData as { payload?: unknown };
-  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return false;
-
-  return "changes" in payload;
+  return event === "record.deleted" || event === "record.deletedPermanently";
 }
 
 export function changedFieldsOf(eventData: unknown): string[] {
-  if (!carriesChangedFields(eventData)) return [];
-
-  return extractAuditChanges(eventData).map((change) => change.columnId ?? change.field);
+  const record = RecordDeliveryEnvelopeSchema.safeParse(eventData);
+  return record.success ? record.data.data.record.fields.map((field) => field.fieldId) : [];
 }
 
 export function threadIdOf(eventData: unknown): string | null {
-  if (!eventData || typeof eventData !== "object" || Array.isArray(eventData)) return null;
-
-  const { payload } = eventData as { payload?: unknown };
-  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return null;
-
-  const { threadId } = payload as { threadId?: unknown };
+  const envelope = EventEnvelopeSchema.safeParse(eventData);
+  const threadId = envelope.success ? envelope.data.data.threadId : null;
 
   return typeof threadId === "string" ? threadId : null;
-}
-
-export function matchesChangedFields(required: readonly string[], changed: readonly string[]): boolean {
-  if (required.length === 0) return true;
-  if (changed.length === 0) return false;
-
-  const changedSet = new Set(changed);
-
-  return required.some((field) => changedSet.has(field));
 }

@@ -43,11 +43,15 @@ function messageAt(messages: Record<string, unknown>, path: string): string {
 }
 
 describe("routine trigger empty-state guidance", () => {
-  it("covers exactly every selectable event", () => {
-    expect(ROUTINE_TRIGGER_EVENTS).toHaveLength(24);
+  it("offers guidance for every event that is still emitted", () => {
+    expect(ROUTINE_TRIGGER_EVENTS).toHaveLength(13);
+    expect(ROUTINE_TRIGGER_EVENTS.filter((event) => /^(contact|organization|deal|service|task)\./.test(event))).toEqual(
+      [],
+    );
     expect(Object.keys(ROUTINE_TRIGGER_GUIDANCE)).toEqual([...ROUTINE_TRIGGER_EVENTS]);
 
     for (const event of ROUTINE_TRIGGER_EVENTS) expect(routineTriggerGuidance(event)).not.toBeNull();
+    expect(routineTriggerGuidance("deal.updated")).toBeNull();
     expect(routineTriggerGuidance("messaging.email.deleted")).toBeNull();
     expect(routineTriggerGuidance("messaging.chat.deleted")).toBeNull();
   });
@@ -66,7 +70,7 @@ describe("routine trigger empty-state guidance", () => {
   });
 
   it("distinguishes record deletion from message deletion for filter guidance", () => {
-    expect(routineTriggerGuidance("contact.deleted")?.action).toBe("recordDeleted");
+    expect(routineTriggerGuidance("record.deleted")?.action).toBe("recordDeleted");
     expect(routineTriggerGuidance("messaging.message.deleted")?.action).toBe("messageDeleted");
   });
 

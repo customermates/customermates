@@ -2,6 +2,7 @@
 
 import type { ChipColor } from "@/constants/chip-colors";
 
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 
 import { AppChip } from "@/components/chip/app-chip";
@@ -48,6 +49,7 @@ export const FormSelectChip = observer(
     containerClassName,
   }: Props) => {
     const store = useAppForm();
+    const [open, setOpen] = useState(false);
     const resolvedLabel = useResolvedFieldLabel(id, label);
     const raw = store?.getValue(id);
     const value = raw == null ? "" : String(raw);
@@ -58,7 +60,12 @@ export const FormSelectChip = observer(
     const selected = itemsArray.find((i) => i.key === value);
     const isDisabled = Boolean(disabled) || Boolean(store?.isLoading);
     const isReadOnly = !isDisabled && (Boolean(readOnly) || Boolean(store?.isReadOnly));
+    const canEdit = !isDisabled && !isReadOnly;
     const domId = inputId ?? id;
+
+    useEffect(() => {
+      if (!canEdit) setOpen(false);
+    }, [canEdit]);
 
     return (
       <div className={cn("space-y-1.5", containerClassName)}>
@@ -72,9 +79,10 @@ export const FormSelectChip = observer(
 
         <Select
           disabled={isDisabled}
-          open={isReadOnly ? false : undefined}
+          open={canEdit && open}
           value={value}
-          onValueChange={isReadOnly ? undefined : (next) => store?.onChange(id, next)}
+          onOpenChange={(next) => setOpen(canEdit && next)}
+          onValueChange={!canEdit ? undefined : (next) => store?.onChange(id, next)}
         >
           <SelectTrigger
             aria-invalid={hasError}

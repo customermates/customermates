@@ -34,7 +34,7 @@ describe("UpsertWebhookSchema", () => {
       ],
     ],
     [{ url: "https://example.com/webhook" }, [{ error: CustomErrorCode.webhookEventsRequired, path: ["events"] }]],
-    [{ events: ["contact.created"] }, [{ error: CustomErrorCode.invalidUrl, path: ["url"] }]],
+    [{ events: ["messaging.message.received"] }, [{ error: CustomErrorCode.invalidUrl, path: ["url"] }]],
     [
       { url: "https://example.com/webhook", events: [] },
       [{ error: CustomErrorCode.webhookEventsRequired, path: ["events"] }],
@@ -62,7 +62,19 @@ describe("UpsertWebhookSchema", () => {
 
   it("accepts a complete create payload", () => {
     expect(
+      UpsertWebhookSchema.safeParse({
+        url: "https://example.com/webhook",
+        events: ["messaging.message.received"],
+      }).success,
+    ).toBe(true);
+  });
+
+  it("rejects retired type-specific record events for new subscriptions", () => {
+    expect(
       UpsertWebhookSchema.safeParse({ url: "https://example.com/webhook", events: ["contact.created"] }).success,
+    ).toBe(false);
+    expect(
+      UpsertWebhookSchema.safeParse({ url: "https://example.com/webhook", events: ["record.created"] }).success,
     ).toBe(true);
   });
 
@@ -80,7 +92,7 @@ function makeWebhookDto(overrides: Record<string, unknown> = {}) {
     id: WEBHOOK_ID,
     url: "https://example.com/webhook",
     description: null,
-    events: ["contact.created"],
+    events: ["messaging.message.received"],
     secret: null,
     headers: null,
     bodyTemplate: null,
@@ -122,7 +134,7 @@ describe("UpsertWebhookInteractor (create)", () => {
     const interactor = createInteractor();
     await interactor.invoke({
       url: "https://example.com/webhook",
-      events: ["contact.created"],
+      events: ["messaging.message.received"],
       enabled: true,
     });
 
@@ -141,7 +153,7 @@ describe("UpsertWebhookInteractor (create)", () => {
     const interactor = createInteractor();
     await interactor.invoke({
       url: "https://example.com/webhook",
-      events: ["contact.created"],
+      events: ["messaging.message.received"],
       enabled: true,
     });
 
@@ -158,7 +170,7 @@ describe("UpsertWebhookInteractor (create)", () => {
     const interactor = createInteractor();
     const result: any = await interactor.invoke({
       url: "https://example.com/webhook",
-      events: ["contact.created"],
+      events: ["messaging.message.received"],
       enabled: true,
     });
 
@@ -214,7 +226,7 @@ describe("UpsertWebhookInteractor (update)", () => {
     await interactor.invoke({
       id: WEBHOOK_ID,
       url: "https://example.com/webhook-v2",
-      events: ["contact.created"],
+      events: ["messaging.message.received"],
       enabled: true,
     });
 
@@ -331,7 +343,7 @@ describe("webhook targets stay strict about relative values", () => {
   it.each([["/evil"], ["//attacker.example/hook"], ["/"]])(
     "rejects the relative target %j on the url field instead of resolving it to another host",
     (url) => {
-      const result = UpsertWebhookSchema.safeParse({ url, events: ["contact.created"] });
+      const result = UpsertWebhookSchema.safeParse({ url, events: ["messaging.message.received"] });
 
       expect(result.success).toBe(false);
       if (result.success) return;
@@ -340,7 +352,10 @@ describe("webhook targets stay strict about relative values", () => {
   );
 
   it("still accepts a bare host and normalises it to https", () => {
-    const result = UpsertWebhookSchema.safeParse({ url: "receiver.example/hook", events: ["contact.created"] });
+    const result = UpsertWebhookSchema.safeParse({
+      url: "receiver.example/hook",
+      events: ["messaging.message.received"],
+    });
 
     expect(result).toMatchObject({ success: true, data: { url: "https://receiver.example/hook" } });
   });

@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { Status } from "@/generated/prisma";
 import { ForbiddenError, isExpectedError, appErrorResponse } from "@/core/errors/app-errors";
 import { UserService } from "../user.service";
-import type { FindUserRepo } from "../user.service";
+import type { FindUserRepo } from "../find-user.repo";
 import type { AuthService } from "@/features/auth/auth.service";
 import type { TenantUser } from "../user.schema";
 

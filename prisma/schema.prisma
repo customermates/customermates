@@ -156,21 +156,20 @@ model OauthConsent {
 }
 
 model User {
-  id                              String                  @id @default(uuid())
-  email                           String                  @unique
+  id                              String                    @id @default(uuid())
+  email                           String                    @unique
   firstName                       String
   lastName                        String
   companyId                       String
   roleId                          String?
-  role                            UserRole?               @relation(fields: [roleId], references: [id])
-  status                          Status                  @default(pendingAuthorization)
-  displayLanguage                 Locale                  @default(system)
-  formattingLocale                Locale                  @default(system)
-  auditLogs                       AuditLog[]
-  theme                           Theme                   @default(system)
-  country                         CountryCode             @default(de)
+  role                            UserRole?                 @relation(fields: [roleId], references: [id])
+  status                          Status                    @default(pendingAuthorization)
+  displayLanguage                 Locale                    @default(system)
+  formattingLocale                Locale                    @default(system)
+  theme                           Theme                     @default(system)
+  country                         CountryCode               @default(de)
   avatarUrl                       String?
-  agreeToTerms                    Boolean                 @default(false)
+  agreeToTerms                    Boolean                   @default(false)
   lastActiveAt                    DateTime?
   welcomeEmailSentAt              DateTime?
   trialExpiredOfferSentAt         DateTime?
@@ -180,17 +179,11 @@ model User {
   onboardingWizardProgress        Json?
   onboardingWikiStepCompletedAt   DateTime?
   agentCreditActivatedAt          DateTime?
-  isPlatformOperator              Boolean                 @default(false)
-  createdAt                       DateTime                @default(now())
-  updatedAt                       DateTime                @updatedAt
-  company                         Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  createdTokens                   InviteToken[]           @relation("TokenCreator")
-  deals                           DealUser[]
-  contacts                        ContactUser[]
-  organizations                   OrganizationUser[]
-  services                        ServiceUser[]
-  tasks                           TaskUser[]
-  relatedTasks                    Task[]                  @relation("TaskRelatedUser")
+  isPlatformOperator              Boolean                   @default(false)
+  createdAt                       DateTime                  @default(now())
+  updatedAt                       DateTime                  @updatedAt
+  company                         Company                   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdTokens                   InviteToken[]             @relation("TokenCreator")
   widgets                         Widget[]
   p13n                            P13n[]
   dataViews                       DataView[]
@@ -200,45 +193,24 @@ model User {
   ownedRoutines                   Routine[]
   agentCreditAdjustments          AgentCreditAdjustment[]
   adAttributions                  AdAttribution[]
+  recordAssignments               RecordAssignment[]
+  recordEventSubscriptions        RecordEventSubscription[]
 
+  @@unique([companyId, id])
   @@index([companyId])
   @@index([companyId, status])
   @@index([roleId])
 }
 
 model Company {
-  id                          String                       @id @default(uuid())
-  currency                    Currency                     @default(eur)
-  dealWeightingColumnId       String?
-  dealWeightingColumn         CustomColumn?                @relation("CompanyDealWeightingColumn", fields: [dealWeightingColumnId], references: [id], onDelete: SetNull)
-  createdAt                   DateTime                     @default(now())
-  updatedAt                   DateTime                     @updatedAt
-  tags                        String[]                     @default([])
-  tasks                       Task[]
+  id                          String                         @id @default(uuid())
+  createdAt                   DateTime                       @default(now())
+  updatedAt                   DateTime                       @updatedAt
+  tags                        String[]                       @default([])
   users                       User[]
   adAttributions              AdAttribution[]
   conversionEvents            ConversionEvent[]
   inviteTokens                InviteToken[]
-  contacts                    Contact[]
-  organizations               Organization[]
-  deals                       Deal[]
-  services                    Service[]
-  CustomColumn                CustomColumn[]
-  auditLogs                   AuditLog[]
-  customFieldValues           CustomFieldValue[]
-  serviceDeals                ServiceDeal[]
-  dealOrganizations           DealOrganization[]
-  dealUsers                   DealUser[]
-  dealContacts                DealContact[]
-  contactUsers                ContactUser[]
-  contactOrganizations        ContactOrganization[]
-  organizationUsers           OrganizationUser[]
-  serviceUsers                ServiceUser[]
-  taskUsers                   TaskUser[]
-  taskContacts                TaskContact[]
-  taskOrganizations           TaskOrganization[]
-  taskDeals                   TaskDeal[]
-  taskServices                TaskService[]
   widgets                     Widget[]
   userRoles                   UserRole[]
   rolePermissions             RolePermission[]
@@ -251,11 +223,9 @@ model Company {
   messagingMessages           MessagingMessage[]
   messagingThreadParticipants MessagingThreadParticipant[]
   accountActivities           AccountActivity[]
-  contactIdentifiers          ContactIdentifier[]
   calendars                   Calendar[]
   calendarEvents              CalendarEvent[]
   subscription                Subscription?
-  entityTerminology           EntityTerminology[]
   agentConversations          AgentConversation[]
   agentRunLeases              AgentRunLease[]
   agentRunRounds              AgentRunRound[]
@@ -268,10 +238,29 @@ model Company {
   agentUiCommandResults       AgentUiCommandResult[]
   routines                    Routine[]
   routineRuns                 RoutineRun[]
+  recordTypes                 RecordTypeDefinition[]
+  recordFields                RecordFieldDefinition[]
+  recordRelationships         RecordRelationshipDefinition[]
+  records                     CrmRecord[]
+  recordValues                RecordValue[]
+  recordLinks                 RecordLink[]
+  recordAssignments           RecordAssignment[]
+  recordTypeGrants            RecordTypeGrant[]
+  recordSchemaState           RecordSchemaState?
+  recordSchemaRevisions       RecordSchemaRevision[]
+  recordOperations            RecordOperation[]
+  recordStageRows             RecordStageRow[]
+  recordMutationReceipts      RecordMutationReceipt[]
+  events                      EventLog[]
+  recordEventSubscriptions    RecordEventSubscription[]
+  recordEventMatches          RecordEventMatch[]
+  recordIdentities            RecordIdentity[]
   wikiPages                   WikiPage[]
   wikiPageChunks              WikiPageChunk[]
+  searchCatalogEntries        SearchCatalogEntry[]
   wikiWebsiteCrawls           WikiWebsiteCrawl[]
   wikiSourceDocuments         WikiSourceDocument[]
+  trashItems                  TrashItem[]
 }
 
 enum WikiPageKind {
@@ -295,6 +284,7 @@ model WikiPage {
   sourceFetchedAt         DateTime?
   sourceContentHash       String?
   sourceImportedUpdatedAt DateTime?
+  deletedAt               DateTime?
   createdAt               DateTime                 @default(now())
   updatedAt               DateTime                 @updatedAt
   company                 Company                  @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -413,6 +403,25 @@ model DocsChunk {
   @@index([searchVector], type: Gin)
 }
 
+model SearchCatalogEntry {
+  id          String                      @id @default(uuid())
+  companyId   String?
+  buildHash   String?
+  locale      String?
+  targetId    String
+  text        String
+  contentHash String
+  model       String?
+  embedding   Unsupported("vector(768)")?
+  claimedAt   DateTime?
+  createdAt   DateTime                    @default(now())
+  company     Company?                    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@unique([buildHash, locale, targetId])
+  @@unique([companyId, targetId])
+  @@index([contentHash])
+}
+
 model HostedAiPlatformUsage {
   id             String   @id @default(uuid())
   purpose        String
@@ -426,20 +435,8 @@ model HostedAiPlatformUsage {
   @@unique([purpose, accrualMonth])
 }
 
-model EntityTerminology {
-  id         String     @id @default(uuid())
-  companyId  String
-  company    Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  entityType EntityType
-  presetKey  String
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-
-  @@unique([companyId, entityType])
-  @@index([companyId])
-}
-
 model P13n {
+  viewStateKeys    Json?
   id               String   @id @default(uuid())
   userId           String
   companyId        String
@@ -455,6 +452,7 @@ model P13n {
   groupingColumnId String?
   grouping         Json?
   detailOptions    Json?
+  settings         Json?
   activeViewKey    String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
@@ -467,12 +465,12 @@ model P13n {
 }
 
 model DataView {
-  id               String   @id @default(uuid())
+  id               String    @id @default(uuid())
   companyId        String
   userId           String
   surfaceKey       String
   name             String
-  position         Int      @default(0)
+  position         Int       @default(0)
   filters          Json?
   searchTerm       String?
   sortDescriptor   Json?
@@ -483,39 +481,16 @@ model DataView {
   columnWidths     Json?
   hiddenColumns    Json?
   pageSize         Int?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  company          Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  deletedAt        DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company          Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  widgets          Widget[]
 
   @@index([companyId])
   @@index([userId])
   @@index([companyId, surfaceKey, userId])
-}
-
-model Task {
-  id                String             @id @default(uuid())
-  type              TaskType
-  companyId         String
-  name              String
-  relatedUserId     String?
-  notes             Json?
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  company           Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  relatedUser       User?              @relation("TaskRelatedUser", fields: [relatedUserId], references: [id])
-  users             TaskUser[]
-  contacts          TaskContact[]
-  organizations     TaskOrganization[]
-  deals             TaskDeal[]
-  services          TaskService[]
-  customFieldValues CustomFieldValue[]
-
-  @@index([companyId])
-  @@index([type, companyId])
-  @@index([relatedUserId])
-  @@index([companyId, createdAt])
-  @@index([companyId, updatedAt])
 }
 
 model InviteToken {
@@ -534,459 +509,47 @@ model InviteToken {
   @@index([expiresAt])
 }
 
-model AuditLog {
-  id        String   @id @default(uuid())
-  event     String
-  eventData Json
-  createdAt DateTime @default(now())
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  entityId  String
-
-  @@index([event])
-  @@index([companyId])
-  @@index([userId])
-  @@index([entityId])
-}
-
-model Contact {
-  id                String                @id @default(uuid())
-  firstName         String
-  lastName          String
-  companyId         String
-  avatarUrl         String?
-  notes             Json?
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime              @updatedAt
-  company           Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  organizations     ContactOrganization[]
-  users             ContactUser[]
-  deals             DealContact[]
-  tasks             TaskContact[]
-  customFieldValues CustomFieldValue[]
-  identifiers       ContactIdentifier[]
-
-  @@index([companyId])
-  @@index([firstName])
-  @@index([lastName])
-  @@index([companyId, createdAt])
-  @@index([companyId, updatedAt])
-}
-
-model Organization {
-  id                String                @id @default(uuid())
-  name              String
-  companyId         String
-  notes             Json?
-  createdAt         DateTime              @default(now())
-  updatedAt         DateTime              @updatedAt
-  company           Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  contacts          ContactOrganization[]
-  deals             DealOrganization[]
-  users             OrganizationUser[]
-  tasks             TaskOrganization[]
-  customFieldValues CustomFieldValue[]
-
-  @@index([companyId])
-  @@index([name])
-  @@index([companyId, createdAt])
-  @@index([companyId, updatedAt])
-}
-
-model CustomColumn {
-  id               String             @id @default(uuid())
-  label            String
-  type             CustomColumnType
-  entityType       EntityType
-  options          Json?
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
-  companyId        String
-  Company          Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  CustomFieldValue CustomFieldValue[]
-  weightingFor     Company[]          @relation("CompanyDealWeightingColumn")
-
-  @@index([companyId])
-  @@index([companyId, entityType])
-}
-
-model CustomFieldValue {
-  id             String           @id @default(uuid())
-  entityType     EntityType
-  columnId       String
-  value          String?
-  rangeStart     String?          @default(dbgenerated("custom_field_range_start(value)"))
-  rangeEnd       String?          @default(dbgenerated("custom_field_range_end(value)"))
-  numericValue   Decimal?         @db.Decimal(20, 4)
-  type           CustomColumnType
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
-  column         CustomColumn     @relation(fields: [columnId], references: [id], onDelete: Cascade)
-  companyId      String
-  company        Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  contactId      String?
-  contact        Contact?         @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  organizationId String?
-  organization   Organization?    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  dealId         String?
-  deal           Deal?            @relation(fields: [dealId], references: [id], onDelete: Cascade)
-  serviceId      String?
-  service        Service?         @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  taskId         String?
-  task           Task?            @relation(fields: [taskId], references: [id], onDelete: Cascade)
-
-  @@index([entityType, columnId])
-  @@index([columnId])
-  @@index([columnId, value])
-  @@index([value])
-  @@index([rangeStart])
-  @@index([rangeEnd])
-  @@index([companyId])
-  @@index([contactId])
-  @@index([organizationId])
-  @@index([dealId])
-  @@index([serviceId])
-  @@index([taskId])
-  @@index([dealId, columnId])
-  @@index([contactId, columnId])
-  @@index([organizationId, columnId])
-  @@index([serviceId, columnId])
-  @@index([taskId, columnId])
-}
-
-model Deal {
-  id                String             @id @default(uuid())
-  name              String
-  totalValue        Float              @default(0)
-  totalQuantity     Float              @default(0)
-  weightedValue     Float?
-  companyId         String
-  notes             Json?
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  company           Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  organizations     DealOrganization[]
-  users             DealUser[]
-  contacts          DealContact[]
-  services          ServiceDeal[]
-  tasks             TaskDeal[]
-  customFieldValues CustomFieldValue[]
-
-  @@index([companyId])
-  @@index([name])
-  @@index([createdAt])
-  @@index([totalValue])
-  @@index([totalQuantity])
-  @@index([weightedValue])
-  @@index([companyId, createdAt])
-  @@index([companyId, updatedAt])
-}
-
-model Service {
-  id                String             @id @default(uuid())
-  name              String
-  amount            Float
-  companyId         String
-  notes             Json?
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  company           Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  users             ServiceUser[]
-  deals             ServiceDeal[]
-  tasks             TaskService[]
-  customFieldValues CustomFieldValue[]
-
-  @@index([companyId])
-  @@index([name])
-  @@index([companyId, createdAt])
-  @@index([companyId, updatedAt])
-}
-
-model ServiceDeal {
-  id        String   @id @default(uuid())
-  serviceId String
-  dealId    String
-  quantity  Float    @default(1)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  deal      Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@unique([serviceId, dealId])
-  @@index([dealId])
-  @@index([serviceId])
-  @@index([companyId])
-  @@index([companyId, serviceId])
-  @@index([companyId, dealId])
-}
-
-model ServiceUser {
-  id        String   @id @default(uuid())
-  serviceId String
-  userId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@unique([serviceId, userId])
-  @@index([serviceId])
-  @@index([userId])
-  @@index([companyId])
-  @@index([companyId, userId])
-}
-
-model DealOrganization {
-  id             String       @id @default(uuid())
-  dealId         String
-  organizationId String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  deal           Deal         @relation(fields: [dealId], references: [id], onDelete: Cascade)
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  companyId      String
-  company        Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@unique([dealId, organizationId])
-  @@index([dealId])
-  @@index([organizationId])
-  @@index([companyId])
-  @@index([companyId, organizationId])
-  @@index([companyId, dealId])
-}
-
-model DealUser {
-  id        String   @id @default(uuid())
-  dealId    String
-  userId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deal      Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@unique([dealId, userId])
-  @@index([dealId])
-  @@index([userId])
-  @@index([companyId])
-  @@index([companyId, userId])
-}
-
-model DealContact {
-  id        String   @id @default(uuid())
-  dealId    String
-  contactId String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deal      Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
-  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@unique([dealId, contactId])
-  @@index([dealId])
-  @@index([contactId])
-  @@index([companyId])
-  @@index([companyId, dealId])
-  @@index([companyId, contactId])
-}
-
-model ContactUser {
-  id        String   @id @default(uuid())
-  contactId String
-  userId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@unique([contactId, userId])
-  @@index([contactId])
-  @@index([userId])
-  @@index([companyId])
-  @@index([companyId, userId])
-}
-
-model OrganizationUser {
-  id             String       @id @default(uuid())
-  organizationId String
-  userId         String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  companyId      String
-  company        Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@unique([organizationId, userId])
-  @@index([organizationId])
-  @@index([userId])
-  @@index([companyId])
-  @@index([companyId, userId])
-}
-
-model TaskUser {
-  id        String   @id @default(uuid())
-  taskId    String
-  userId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@unique([taskId, userId])
-  @@index([taskId])
-  @@index([userId])
-  @@index([companyId])
-  @@index([companyId, userId])
-}
-
-model TaskContact {
-  id        String   @id @default(uuid())
-  taskId    String
-  contactId String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  contact   Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@unique([taskId, contactId])
-  @@index([taskId])
-  @@index([contactId])
-  @@index([companyId])
-  @@index([companyId, taskId])
-  @@index([companyId, contactId])
-}
-
-model TaskOrganization {
-  id             String       @id @default(uuid())
-  taskId         String
-  organizationId String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  task           Task         @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  companyId      String
-  company        Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@unique([taskId, organizationId])
-  @@index([taskId])
-  @@index([organizationId])
-  @@index([companyId])
-  @@index([companyId, taskId])
-  @@index([companyId, organizationId])
-}
-
-model TaskDeal {
-  id        String   @id @default(uuid())
-  taskId    String
-  dealId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  deal      Deal     @relation(fields: [dealId], references: [id], onDelete: Cascade)
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@unique([taskId, dealId])
-  @@index([taskId])
-  @@index([dealId])
-  @@index([companyId])
-  @@index([companyId, taskId])
-  @@index([companyId, dealId])
-}
-
-model TaskService {
-  id        String   @id @default(uuid())
-  taskId    String
-  serviceId String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  service   Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
-  companyId String
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@unique([taskId, serviceId])
-  @@index([taskId])
-  @@index([serviceId])
-  @@index([companyId])
-  @@index([companyId, taskId])
-  @@index([companyId, serviceId])
-}
-
-model ContactOrganization {
-  id             String       @id @default(uuid())
-  contactId      String
-  organizationId String
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  contact        Contact      @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  companyId      String
-  company        Company      @relation(fields: [companyId], references: [id], onDelete: Cascade)
-
-  @@unique([contactId, organizationId])
-  @@index([contactId])
-  @@index([organizationId])
-  @@index([companyId])
-  @@index([companyId, organizationId])
-  @@index([companyId, contactId])
-}
-
 model Widget {
-  id                    String             @id @default(uuid())
-  userId                String
-  companyId             String
-  name                  String
-  kind                  WidgetKind         @default(chart)
-  entityType            EntityType?
-  entityFilters         Json?
-  dealFilters           Json?
-  displayOptions        Json?
-  groupByType           WidgetGroupByType?
-  groupByCustomColumnId String?            @db.Uuid
-  aggregationType       AggregationType?
-  timelineFilters       Json?
-  layout                Json?
-  isTemplate            Boolean            @default(false)
+  activityQuery  Json?
+  measure        Json?
+  version        Int        @default(1)
+  id             String     @id @default(uuid())
+  userId         String
+  companyId      String
+  name           String
+  kind           WidgetKind @default(chart)
+  displayOptions Json?
+  layout         Json?
+  isTemplate     Boolean    @default(false)
+  viewId         String?
+  deletedAt      DateTime?
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  view      DataView? @relation(fields: [viewId], references: [id], onDelete: SetNull)
 
   @@index([userId])
   @@index([companyId])
   @@index([companyId, isTemplate])
-  @@index([companyId, entityType])
+  @@index([viewId])
 }
 
 model UserRole {
-  id           String           @id @default(uuid())
-  name         String
-  description  String?
-  isSystemRole Boolean          @default(false)
-  companyId    String
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  company      Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  users        User[]
-  permissions  RolePermission[]
+  id               String            @id @default(uuid())
+  name             String
+  description      String?
+  isSystemRole     Boolean           @default(false)
+  companyId        String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  company          Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  users            User[]
+  permissions      RolePermission[]
+  recordTypeGrants RecordTypeGrant[]
 
+  @@unique([companyId, id])
   @@unique([name, companyId])
   @@index([companyId])
   @@index([companyId, isSystemRole])
@@ -1010,19 +573,22 @@ model RolePermission {
 }
 
 model Webhook {
-  id           String   @id @default(uuid())
+  id           String            @id @default(uuid())
   url          String
   description  String?
   events       String[]
   secret       String?
   headers      Json?
   bodyTemplate String?
-  enabled      Boolean  @default(true)
+  enabled      Boolean           @default(true)
+  pausedReason String?
   companyId    String
-  company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  company      Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  deliveries   WebhookDelivery[]
 
+  @@unique([companyId, id])
   @@index([companyId])
 }
 
@@ -1034,22 +600,36 @@ enum WebhookDeliveryStatus {
 }
 
 model WebhookDelivery {
-  id              String                @id @default(uuid())
-  url             String
-  companyId       String
-  company         Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  event           String
-  requestBody     Json
-  statusCode      Int?
-  responseMessage String?
-  success         Boolean               @default(false)
-  status          WebhookDeliveryStatus @default(pending)
-  deliveredAt     DateTime?
-  createdAt       DateTime              @default(now())
+  id                   String                @id @default(uuid())
+  url                  String
+  companyId            String
+  company              Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  event                String
+  requestBody          Json
+  webhookId            String?
+  eventId              String?
+  admissionKey         String?
+  subscriptionRevision Int?
+  attempts             Int                   @default(0)
+  nextAttemptAt        DateTime?             @default(now())
+  leaseToken           String?
+  leaseExpiresAt       DateTime?
+  webhook              Webhook?              @relation(fields: [companyId, webhookId], references: [companyId, id], onDelete: NoAction)
+  eventLog             EventLog?             @relation(fields: [companyId, eventId], references: [companyId, id], onDelete: Cascade)
+  statusCode           Int?
+  responseMessage      String?
+  success              Boolean               @default(false)
+  status               WebhookDeliveryStatus @default(pending)
+  deliveredAt          DateTime?
+  createdAt            DateTime              @default(now())
 
+  @@unique([companyId, admissionKey])
   @@index([companyId])
   @@index([createdAt])
   @@index([companyId, createdAt])
+  @@index([companyId, webhookId, createdAt])
+  @@index([companyId, eventId])
+  @@index([nextAttemptAt, status])
 }
 
 model Subscription {
@@ -1105,13 +685,9 @@ model OperatorAuditEvent {
 }
 
 enum Resource {
-  contacts
-  deals
-  organizations
-  services
+  dataModel
   users
   company
-  tasks
   api
   auditLog
   inboxMessages
@@ -1358,209 +934,9 @@ enum CountryCode {
   zw
 }
 
-enum TaskType {
-  userPendingAuthorization
-  custom
-}
-
-enum CustomColumnType {
-  currency
-  date
-  dateRange
-  dateTime
-  dateTimeRange
-  email
-  plain
-  link
-  phone
-  singleSelect
-}
-
-enum EntityType {
-  contact
-  organization
-  deal
-  service
-  task
-}
-
-enum Currency {
-  eur
-  usd
-  gbp
-  jpy
-  cny
-  inr
-  brl
-  cad
-  aud
-  chf
-  sek
-  nok
-  dkk
-  pln
-  czk
-  huf
-  try
-  twd
-  zar
-  mxn
-  krw
-  hkd
-  sgd
-  nzd
-  aed
-  sar
-  ils
-  afn
-  all
-  amd
-  aoa
-  ars
-  awg
-  azn
-  bam
-  bbd
-  bdt
-  bhd
-  bif
-  bmd
-  bnd
-  bob
-  bsd
-  btn
-  bwp
-  byn
-  bzd
-  cdf
-  clp
-  cop
-  crc
-  cup
-  cve
-  djf
-  dop
-  dzd
-  egp
-  ern
-  etb
-  fjd
-  fkp
-  gel
-  ghs
-  gip
-  gmd
-  gnf
-  gtq
-  gyd
-  hnl
-  htg
-  idr
-  iqd
-  irr
-  isk
-  jmd
-  jod
-  kes
-  kgs
-  khr
-  kmf
-  kpw
-  kwd
-  kyd
-  kzt
-  lak
-  lbp
-  lkr
-  lrd
-  lsl
-  lyd
-  mad
-  mdl
-  mga
-  mkd
-  mmk
-  mnt
-  mop
-  mru
-  mur
-  mvr
-  mwk
-  myr
-  mzn
-  nad
-  ngn
-  nio
-  npr
-  omr
-  pab
-  pen
-  pgk
-  php
-  pkr
-  pyg
-  qar
-  ron
-  rsd
-  rub
-  rwf
-  sbd
-  scr
-  sdg
-  shp
-  sle
-  sos
-  srd
-  ssp
-  stn
-  svc
-  syp
-  szl
-  thb
-  tjs
-  tmt
-  tnd
-  top
-  ttd
-  tzs
-  uah
-  ugx
-  uyu
-  uzs
-  ved
-  ves
-  vnd
-  vuv
-  wst
-  xaf
-  xcd
-  xcg
-  xof
-  xpf
-  yer
-  zmw
-  zwg
-}
-
 enum WidgetKind {
   chart
   activityTimeline
-}
-
-enum WidgetGroupByType {
-  contact
-  organization
-  deal
-  service
-  customColumn
-  none
-}
-
-enum AggregationType {
-  count
-  dealValue
-  dealQuantity
-  dealWeightedValue
 }
 
 enum SubscriptionStatus {
@@ -1640,7 +1016,9 @@ model MessagingThread {
   updatedAt           DateTime                     @updatedAt
   messages            MessagingMessage[]
   participants        MessagingThreadParticipant[]
+  recordLinks         MessagingThreadRecordLink[]
 
+  @@unique([companyId, id])
   @@unique([connectedAccountId, unipileThreadId])
   @@index([companyId])
   @@index([companyId, state])
@@ -1650,28 +1028,30 @@ model MessagingThread {
 }
 
 model MessagingThreadParticipant {
-  id                String            @id @default(uuid())
-  companyId         String
-  company           Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  messagingThreadId String
-  thread            MessagingThread   @relation(fields: [messagingThreadId], references: [id], onDelete: Cascade)
-  provider          MessagingProvider
-  providerUserId    String
-  identifier        String?
-  displayName       String?
-  pictureUrl        String?
-  profileUrl        String?
-  headline          String?
-  occupation        String?
-  isSelf            Boolean           @default(false)
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+  id                  String            @id @default(uuid())
+  companyId           String
+  company             Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  messagingThreadId   String
+  thread              MessagingThread   @relation(fields: [messagingThreadId], references: [id], onDelete: Cascade)
+  provider            MessagingProvider
+  providerUserId      String
+  identifier          String?
+  identityLookupValue String?
+  displayName         String?
+  pictureUrl          String?
+  profileUrl          String?
+  headline            String?
+  occupation          String?
+  isSelf              Boolean           @default(false)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
 
   @@unique([messagingThreadId, providerUserId])
   @@unique([messagingThreadId, identifier])
   @@index([companyId])
   @@index([messagingThreadId])
   @@index([companyId, provider, identifier])
+  @@index([companyId, provider, identityLookupValue], map: "MessagingThreadParticipant_identity_lookup_idx")
 }
 
 model MessagingMessage {
@@ -1761,26 +1141,6 @@ enum MessagingMessageOrigin {
 
 enum AccountActivityKind {
   linkedin_connection_accepted
-}
-
-model ContactIdentifier {
-  id           String            @id @default(uuid())
-  companyId    String
-  company      Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  contactId    String
-  contact      Contact           @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  provider     MessagingProvider
-  channelClass String
-  value        String
-  messagingId  String?
-  displayName  String?
-  profileUrl   String?
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-
-  @@unique([companyId, channelClass, value])
-  @@unique([companyId, provider, messagingId])
-  @@index([contactId])
 }
 
 model Calendar {
@@ -1958,6 +1318,8 @@ enum AgentUsagePurpose {
   wikiRetrieval
   wikiIndexing
   wikiSynthesis
+  calculationDraft
+  commandResolve
 }
 
 enum AgentUsageCostSource {
@@ -2173,13 +1535,13 @@ model Routine {
   cronExpression  String?
   timezone        String?
   triggerEvents   String[]
-  changedFields   String[]
   triggerFilters  Json               @default("[]")
   debounceSeconds Int                @default(300)
   nextRunAt       DateTime?
   lastRunAt       DateTime?
   lastRunStatus   RoutineRunStatus?
   disabledReason  String?
+  deletedAt       DateTime?
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
   company         Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
@@ -2264,6 +1626,417 @@ model ConversionEvent {
 enum ConversionEventType {
   signup
   paid
+}
+
+enum TrashKind {
+  record
+  list
+  field
+  relationship
+  view
+  widget
+  routine
+  wikiPage
+}
+
+model TrashItem {
+  companyId   String
+  id          String    @default(uuid())
+  kind        TrashKind
+  targetId    String
+  typeId      String?
+  surfaceKey  String?
+  ownerUserId String?
+  label       String
+  deletedById String?
+  deletedAt   DateTime  @default(now())
+  expiresAt   DateTime
+  batchId     String
+  payload     Json?
+  company     Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, id])
+  @@unique([companyId, kind, targetId])
+  @@index([companyId, deletedAt])
+  @@index([companyId, batchId])
+  @@index([expiresAt])
+}
+
+model RecordSchemaState {
+  companyId         String  @id
+  revision          Int     @default(0)
+  activeOperationId String?
+  company           Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+}
+
+model RecordTypeDefinition {
+  companyId          String
+  id                 String                         @default(uuid())
+  label              String
+  pluralLabel        String
+  archived           Boolean                        @default(false)
+  embedded           Boolean                        @default(false)
+  position           Int                            @default(0)
+  definition         Json
+  capabilities       Json                           @default("{}")
+  createdAt          DateTime                       @default(now())
+  updatedAt          DateTime                       @updatedAt
+  company            Company                        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  fields             RecordFieldDefinition[]
+  records            CrmRecord[]
+  outgoing           RecordRelationshipDefinition[] @relation("RecordRelationshipSource")
+  incoming           RecordRelationshipDefinition[] @relation("RecordRelationshipTarget")
+  grants             RecordTypeGrant[]
+  eventSubscriptions RecordEventSubscription[]
+
+  @@id([companyId, id])
+  @@index([companyId, archived, position])
+}
+
+model RecordFieldDefinition {
+  companyId  String
+  typeId     String
+  id         String               @default(uuid())
+  valueType  String
+  behavior   String
+  archived   Boolean              @default(false)
+  definition Json
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+  company    Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type       RecordTypeDefinition @relation(fields: [companyId, typeId], references: [companyId, id], onDelete: Cascade)
+  values     RecordValue[]
+
+  @@id([companyId, id])
+  @@unique([companyId, typeId, id])
+  @@index([companyId, typeId, archived])
+}
+
+model RecordRelationshipDefinition {
+  companyId    String
+  id           String               @default(uuid())
+  sourceTypeId String
+  targetTypeId String
+  definition   Json
+  archived     Boolean              @default(false)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  company      Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  sourceType   RecordTypeDefinition @relation("RecordRelationshipSource", fields: [companyId, sourceTypeId], references: [companyId, id], onDelete: Cascade)
+  targetType   RecordTypeDefinition @relation("RecordRelationshipTarget", fields: [companyId, targetTypeId], references: [companyId, id], onDelete: Cascade)
+  links        RecordLink[]
+
+  @@id([companyId, id])
+  @@unique([companyId, id, sourceTypeId, targetTypeId])
+  @@index([companyId, sourceTypeId])
+  @@index([companyId, targetTypeId])
+}
+
+model CrmRecord {
+  companyId     String
+  typeId        String
+  id            String                      @default(uuid())
+  version       Int                         @default(1)
+  protectedKind String?
+  systemData    Json?
+  rank          String?
+  deletedAt     DateTime?
+  trashItemId   String?
+  createdAt     DateTime                    @default(now())
+  updatedAt     DateTime                    @updatedAt
+  company       Company                     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type          RecordTypeDefinition        @relation(fields: [companyId, typeId], references: [companyId, id], onDelete: Cascade)
+  values        RecordValue[]
+  outgoing      RecordLink[]                @relation("RecordLinkSource")
+  incoming      RecordLink[]                @relation("RecordLinkTarget")
+  assignments   RecordAssignment[]
+  identities    RecordIdentityLink[]
+  threads       MessagingThreadRecordLink[]
+
+  @@id([companyId, typeId, id])
+  @@index([companyId, typeId, createdAt, id])
+  @@index([companyId, typeId, updatedAt, id])
+}
+
+model RecordIdentity {
+  companyId    String
+  id           String               @default(uuid())
+  provider     MessagingProvider
+  channelClass String
+  value        String
+  messagingId  String?
+  displayName  String?
+  profileUrl   String?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  company      Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  keys         RecordIdentityKey[]
+  records      RecordIdentityLink[]
+
+  @@id([companyId, id])
+  @@unique([companyId, id, channelClass])
+}
+
+model RecordIdentityLink {
+  companyId  String
+  identityId String
+  typeId     String
+  recordId   String
+  createdAt  DateTime       @default(now())
+  identity   RecordIdentity @relation(fields: [companyId, identityId], references: [companyId, id], onDelete: Cascade)
+  record     CrmRecord      @relation(fields: [companyId, typeId, recordId], references: [companyId, typeId, id], onDelete: Cascade)
+
+  @@id([companyId, identityId, typeId, recordId])
+  @@index([companyId, typeId, recordId])
+}
+
+model MessagingThreadRecordLink {
+  companyId String
+  threadId  String
+  typeId    String
+  recordId  String
+  createdAt DateTime        @default(now())
+  thread    MessagingThread @relation(fields: [companyId, threadId], references: [companyId, id], onDelete: Cascade)
+  record    CrmRecord       @relation(fields: [companyId, typeId, recordId], references: [companyId, typeId, id], onDelete: Cascade)
+
+  @@id([companyId, threadId, typeId, recordId])
+  @@index([companyId, typeId, recordId, threadId])
+}
+
+model RecordIdentityKey {
+  companyId    String
+  channelClass String
+  value        String
+  identityId   String
+  identity     RecordIdentity @relation(fields: [companyId, identityId, channelClass], references: [companyId, id, channelClass], onDelete: Cascade)
+
+  @@id([companyId, channelClass, value])
+  @@index([companyId, identityId, channelClass])
+}
+
+model RecordValue {
+  companyId      String
+  typeId         String
+  recordId       String
+  fieldId        String
+  state          String                  @default("missing")
+  textValue      String?
+  textListValue  String[]                @default([])
+  lexicalValue   String?
+  decimalValue   Decimal?                @db.Decimal(65, 30)
+  currency       String?
+  booleanValue   Boolean?
+  instantValue   DateTime?               @db.Timestamp(6)
+  rangeStart     DateTime?               @db.Timestamp(6)
+  rangeEnd       DateTime?               @db.Timestamp(6)
+  jsonValue      Json?
+  errorCode      String?
+  schemaRevision Int
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+  company        Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  record         CrmRecord               @relation(fields: [companyId, typeId, recordId], references: [companyId, typeId, id], onDelete: Cascade)
+  field          RecordFieldDefinition   @relation(fields: [companyId, typeId, fieldId], references: [companyId, typeId, id], onDelete: Cascade)
+  dependencies   RecordValueDependency[]
+
+  @@id([companyId, typeId, recordId, fieldId])
+  @@index([companyId, typeId, fieldId, recordId])
+  @@index([textValue(ops: raw("gin_trgm_ops"))], type: Gin)
+  @@index([textListValue], type: Gin)
+  @@index([companyId, typeId, fieldId, decimalValue, recordId])
+  @@index([companyId, typeId, fieldId, instantValue, recordId])
+  @@index([companyId, typeId, fieldId, rangeStart, recordId])
+  @@index([companyId, typeId, fieldId, rangeEnd, recordId])
+  @@index([companyId, typeId, fieldId, booleanValue, recordId])
+}
+
+model RecordValueDependency {
+  companyId    String
+  typeId       String
+  recordId     String
+  fieldId      String
+  sourceTypeId String
+  sourceId     String
+  value        RecordValue @relation(fields: [companyId, typeId, recordId, fieldId], references: [companyId, typeId, recordId, fieldId], onDelete: Cascade)
+
+  @@id([companyId, typeId, recordId, fieldId, sourceTypeId, sourceId])
+  @@index([companyId, sourceTypeId, sourceId])
+}
+
+model RecordLink {
+  companyId    String
+  id           String                       @default(uuid())
+  relationId   String
+  sourceTypeId String
+  sourceId     String
+  targetTypeId String
+  targetId     String
+  deletedAt    DateTime?
+  createdAt    DateTime                     @default(now())
+  updatedAt    DateTime                     @updatedAt
+  company      Company                      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  relationship RecordRelationshipDefinition @relation(fields: [companyId, relationId, sourceTypeId, targetTypeId], references: [companyId, id, sourceTypeId, targetTypeId], onDelete: Cascade)
+  source       CrmRecord                    @relation("RecordLinkSource", fields: [companyId, sourceTypeId, sourceId], references: [companyId, typeId, id], onDelete: Cascade)
+  target       CrmRecord                    @relation("RecordLinkTarget", fields: [companyId, targetTypeId, targetId], references: [companyId, typeId, id], onDelete: Cascade)
+
+  @@id([companyId, relationId, id])
+  @@unique([companyId, relationId, sourceId, targetId])
+  @@index([companyId, sourceTypeId, sourceId, relationId])
+  @@index([companyId, targetTypeId, targetId, relationId])
+}
+
+model RecordAssignment {
+  companyId String
+  typeId    String
+  recordId  String
+  userId    String
+  createdAt DateTime  @default(now())
+  company   Company   @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  record    CrmRecord @relation(fields: [companyId, typeId, recordId], references: [companyId, typeId, id], onDelete: Cascade)
+  user      User      @relation(fields: [companyId, userId], references: [companyId, id], onDelete: Cascade)
+
+  @@id([companyId, typeId, recordId, userId])
+  @@index([companyId, userId, typeId, recordId])
+}
+
+model RecordTypeGrant {
+  companyId String
+  typeId    String
+  roleId    String
+  actions   Action[]
+  company   Company              @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type      RecordTypeDefinition @relation(fields: [companyId, typeId], references: [companyId, id], onDelete: Cascade)
+  role      UserRole             @relation(fields: [companyId, roleId], references: [companyId, id], onDelete: Cascade)
+
+  @@id([companyId, typeId, roleId])
+  @@index([companyId, roleId])
+}
+
+model RecordSchemaRevision {
+  companyId String
+  revision  Int
+  actorId   String
+  snapshot  Json
+  change    Json?
+  createdAt DateTime @default(now())
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, revision])
+}
+
+model RecordOperation {
+  companyId        String
+  id               String           @default(uuid())
+  userId           String
+  kind             String
+  state            String           @default("pending")
+  expectedRevision Int
+  request          Json
+  stagedSchema     Json?
+  result           Json?
+  errorCode        String?
+  cursor           Json?
+  processed        Int              @default(0)
+  total            Int              @default(0)
+  leaseUntil       DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  company          Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  stageRows        RecordStageRow[]
+
+  @@id([companyId, id])
+  @@index([companyId, state, createdAt])
+  @@index([state, leaseUntil])
+}
+
+model RecordStageRow {
+  companyId   String
+  operationId String
+  kind        String
+  key         String
+  payload     Json
+  company     Company         @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  operation   RecordOperation @relation(fields: [companyId, operationId], references: [companyId, id], onDelete: Cascade)
+
+  @@id([companyId, operationId, kind, key])
+}
+
+model RecordMutationReceipt {
+  companyId      String
+  userId         String
+  idempotencyKey String
+  requestHash    String
+  result         Json
+  createdAt      DateTime @default(now())
+  company        Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@id([companyId, userId, idempotencyKey])
+}
+
+// One log for record history, administrative events and the webhook/routine outbox. subjectKind is the
+// prefix of kind ("record", "role", "messaging", ...); subjectTypeId is the record type of record events.
+// actorId is not a foreign key so history outlives its users; null is the system.
+model EventLog {
+  companyId         String
+  id                String             @default(uuid())
+  subjectKind       String
+  subjectTypeId     String?
+  subjectId         String
+  actorId           String?
+  causeId           String?
+  kind              String
+  payload           Json
+  createdAt         DateTime           @default(now())
+  deliveredAt       DateTime?
+  attempts          Int                @default(0)
+  nextAttemptAt     DateTime           @default(now())
+  company           Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  matches           RecordEventMatch[]
+  webhookDeliveries WebhookDelivery[]
+  lastFailureCode   String?
+
+  @@id([companyId, id])
+  @@index([companyId, subjectKind, subjectTypeId, subjectId, createdAt], map: "EventLog_subject_idx")
+  @@index([companyId, kind, createdAt])
+  @@index([subjectKind, createdAt])
+  @@index([deliveredAt, nextAttemptAt])
+}
+
+// Shared record-trigger configuration. The owning routine or webhook retains its
+// own lifecycle; a revision change invalidates already captured pending matches.
+model RecordEventSubscription {
+  companyId       String
+  id              String
+  kind            String
+  ownerUserId     String
+  typeId          String?
+  events          String[]
+  changedFieldIds String[]
+  query           Json?
+  sources         Json?
+  revision        Int                   @default(1)
+  enabled         Boolean               @default(true)
+  company         Company               @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  owner           User                  @relation(fields: [companyId, ownerUserId], references: [companyId, id], onDelete: Cascade)
+  type            RecordTypeDefinition? @relation(fields: [companyId, typeId], references: [companyId, id], onDelete: Restrict)
+  matches         RecordEventMatch[]
+
+  @@id([companyId, id])
+  @@index([companyId, enabled, typeId])
+  @@index([companyId, ownerUserId])
+}
+
+model RecordEventMatch {
+  companyId            String
+  eventId              String
+  subscriptionId       String
+  subscriptionRevision Int
+  company              Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  event                EventLog                @relation(fields: [companyId, eventId], references: [companyId, id], onDelete: Cascade)
+  subscription         RecordEventSubscription @relation(fields: [companyId, subscriptionId], references: [companyId, id], onDelete: Cascade)
+
+  @@id([companyId, eventId, subscriptionId])
+  @@index([companyId, subscriptionId])
 }
 
 model HostedAiPlatformReservation {

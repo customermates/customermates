@@ -7,7 +7,7 @@ import type { ViewMetaDraft } from "./use-view-commands";
 
 import { ChevronDownIcon, Sparkles } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useRouter, usePathname as useLocalePathname } from "@/i18n/navigation";
@@ -17,24 +17,35 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { FormSaveMenuItem } from "@/components/forms/form-footer-actions";
 import { OverflowRail } from "@/components/shared/overflow-rail";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
+import type { FocusKind } from "@/components/focus/focus-href";
+import { useFocusTarget } from "@/components/focus/focus-target";
 import { cn } from "@/core/utils/cn";
+import { runUserAction } from "@/core/errors/report-application-error";
+import { useRootStore } from "@/core/stores/root-store.provider";
 
-import { VIEW_SURFACE_CLASS, VIEW_TAB_CLASS, ViewChip } from "./view-chip";
+import { VIEW_TAB_CLASS, ViewChip } from "./view-chip";
 import { ViewMenuItems } from "./view-menu-items";
 import { VIEW_META_NAME_INPUT_ID, ViewMetaOverlay } from "./view-meta-overlay";
 import { allViewMenuItems, orderChips, sortViewsByPosition, viewMenuItems } from "./view-rail-model";
-import { viewHref } from "./view-actions";
+import { surfaceKeyOf, viewHref } from "./view-actions";
 import { useRovingFocus } from "./use-roving-focus";
-import { useViewCommands } from "./use-view-commands";
+import { type ViewDeleteNotice, useViewCommands } from "./use-view-commands";
 import { useViewAi } from "./use-view-ai";
 
 type Props<E extends HasId> = {
+  actions?: ReactNode;
+  allLabel?: string;
+  countLabel?: (count: number) => string;
+  allowDuplicate?: boolean;
+  deleteNotice?: (view: DataViewChipDto) => ViewDeleteNotice;
   joinsTopBar?: boolean;
   detailParam?: string;
   store: BaseDataViewStore<E>;
@@ -51,7 +62,14 @@ function isPlainClick(event: MouseEvent<HTMLAnchorElement>): boolean {
   );
 }
 
+const VIEW_FOCUS_KINDS: FocusKind[] = ["view"];
+
 export const DataViewViewsRail = observer(function DataViewViewsRail<E extends HasId>({
+  actions,
+  allLabel,
+  allowDuplicate = true,
+  countLabel,
+  deleteNotice,
   joinsTopBar = false,
   detailParam,
   store,
@@ -64,48 +82,77 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
   const [meta, setMeta] = useState<ViewMetaDraft | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const pendingAi = useRef<(() => void) | null>(null);
+  const owningRail = useRef<{ element: HTMLElement; store: BaseDataViewStore<E> } | null>(null);
   const ai = useViewAi(store);
   const offersViews = Boolean(store.p13nId);
+  useFocusTarget(VIEW_FOCUS_KINDS, () => true, store.isReady);
 
   const commands = useViewCommands({
     closeMeta: () => setMeta(null),
+    deleteNotice,
     openMeta: setMeta,
     pathname,
     store,
+    owningRail: () => (owningRail.current?.store === store ? owningRail.current.element : null),
   });
 
+  const { viewPickerStore } = useRootStore();
+  const selectView = (viewKey: string) => {
+    if (detailParam && searchParams.get(detailParam)) {
+      router.push(viewHref(localePathname, viewKey));
+      return;
+    }
+
+    commands.select(viewKey);
+  };
+  const latestSelect = useRef(selectView);
+  latestSelect.current = selectView;
+  const allName = allLabel ?? t("DataView.views.all");
+
+  useEffect(() => {
+    if (!joinsTopBar || !offersViews) return;
+    const surface = {
+      options: () => [{ id: ALL_VIEW_KEY, name: allName }, ...sortViewsByPosition(store.views)],
+      activeViewKey: () => store.activeViewKey,
+      select: (viewKey: string) => latestSelect.current(viewKey),
+    };
+    viewPickerStore.register(surface);
+    return () => viewPickerStore.unregister(surface);
+  }, [allName, joinsTopBar, offersViews, store, viewPickerStore]);
+
   const chips = orderChips(store.views, store.activeViewKey);
+  const proposedName = store.proposal?.isNew ? (store.proposal.name ?? null) : null;
   const activeView = store.views.find((view) => view.id === store.activeViewKey);
   const tabbableIndex = chips.findIndex((chip) => chip.isActive);
   const { onKeyDownAt, tabIndexAt } = useRovingFocus(chips.length, Math.max(tabbableIndex, 0));
 
   if (!offersViews) return null;
 
-  const activeName = activeView?.name ?? t("DataView.views.all");
+  const activeName = activeView?.name ?? allName;
   const ordered = sortViewsByPosition(store.views);
   const isDrafting = meta !== null && meta.mode !== "edit";
   const menuTarget: DataViewChipDto = activeView ?? {
     id: ALL_VIEW_KEY,
-    name: t("DataView.views.all"),
+    name: allName,
     position: -1,
     state: store.allViewState,
   };
-  const menuItems = activeView
-    ? viewMenuItems({
-        index: ordered.findIndex((candidate) => candidate.id === activeView.id),
-        total: ordered.length,
-      })
-    : allViewMenuItems();
+  const menuItems = (
+    activeView
+      ? viewMenuItems({
+          index: ordered.findIndex((candidate) => candidate.id === activeView.id),
+          total: ordered.length,
+        })
+      : allViewMenuItems()
+  ).filter((item) => allowDuplicate || item.id !== "duplicate");
 
   const previewFor = (name: string, isActive: boolean): ReactNode => (
     <>
       <span className="block font-medium">{name}</span>
 
-      {isActive && (
+      {isActive && store.pagination && (
         <span className="block text-[11px] text-muted-foreground">
-          {t("DataView.views.recordCount", {
-            count: store.pagination?.total ?? 0,
-          })}
+          {(countLabel ?? ((count: number) => t("DataView.views.recordCount", { count })))(store.pagination.total ?? 0)}
         </span>
       )}
     </>
@@ -115,21 +162,21 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
     if (!isPlainClick(event)) return;
 
     event.preventDefault();
-
-    if (detailParam && searchParams.get(detailParam)) {
-      router.push(viewHref(localePathname, viewKey));
-      return;
-    }
-
-    commands.select(viewKey);
+    selectView(viewKey);
   };
 
   return (
     <nav
+      ref={(element) => {
+        owningRail.current = element ? { element, store } : null;
+      }}
       aria-label={t("DataView.views.railLabel")}
       className={cn(
-        "flex shrink-0 items-start gap-1.5 border-b border-border bg-background px-4 ps-[calc(1rem+var(--safe-left,0px))] pe-[calc(1rem+var(--safe-right,0px))]",
-        store.hasSelection && store.entityType && "hidden md:flex",
+        "flex shrink-0 gap-1.5",
+        joinsTopBar
+          ? "items-start border-b border-border bg-background px-4 ps-[calc(1rem+var(--safe-left,0px))] pe-[calc(1rem+var(--safe-right,0px))]"
+          : "items-center",
+        store.hasSelection && store.supportsSelection && "hidden md:flex",
       )}
       data-data-view-rail=""
       data-joins-top-bar={joinsTopBar ? "" : undefined}
@@ -142,7 +189,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
           className="min-w-0 flex-1"
           focusable={false}
           observedKey={chips.length}
-          railClassName="items-center gap-1 pt-0 pb-4"
+          railClassName={cn("items-center gap-1 pt-0", joinsTopBar && "pb-4")}
           railProps={{
             "aria-label": t("DataView.views.railLabel"),
             "aria-orientation": "horizontal",
@@ -159,11 +206,17 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                 return (
                   <ViewChip
                     key={ALL_VIEW_KEY}
-                    href={viewHref(pathname, ALL_VIEW_KEY)}
+                    href={viewHref(
+                      store.viewPathname ?? pathname,
+                      ALL_VIEW_KEY,
+                      store.viewPathname ? surfaceKeyOf(store) : undefined,
+                    )}
                     id="global-data-views-all"
-                    isActive={chip.isActive}
-                    label={t("DataView.views.all")}
-                    preview={previewFor(t("DataView.views.all"), chip.isActive)}
+                    isActive={chip.isActive && !proposedName}
+                    isModified={chip.isActive && !proposedName && store.isQueryModified}
+                    label={allName}
+                    modifiedLabel={t("DataView.views.modified")}
+                    preview={previewFor(allName, chip.isActive)}
                     tabIndex={tabIndexAt(index)}
                     onKeyDown={onKeyDownAt(index)}
                     onSelect={onChipClick(ALL_VIEW_KEY)}
@@ -174,9 +227,16 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
               return (
                 <ViewChip
                   key={chip.view.id}
-                  href={viewHref(pathname, chip.view.id)}
-                  isActive={chip.isActive}
+                  focusKey={`view:${chip.view.id}`}
+                  href={viewHref(
+                    store.viewPathname ?? pathname,
+                    chip.view.id,
+                    store.viewPathname ? surfaceKeyOf(store) : undefined,
+                  )}
+                  isActive={chip.isActive && !proposedName}
+                  isModified={chip.isActive && !proposedName && store.isQueryModified}
                   label={chip.view.name}
+                  modifiedLabel={t("DataView.views.modified")}
                   preview={previewFor(chip.view.name, chip.isActive)}
                   tabIndex={tabIndexAt(index)}
                   onKeyDown={onKeyDownAt(index)}
@@ -184,6 +244,19 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                 />
               );
             })}
+
+          {store.isReady && proposedName && (
+            <ViewChip
+              isActive
+              isModified
+              href={store.viewPathname ?? pathname}
+              id="global-data-views-proposed"
+              label={proposedName}
+              modifiedLabel={t("DataView.views.modified")}
+              preview={previewFor(proposedName, true)}
+              tabIndex={-1}
+            />
+          )}
 
           {store.isReady && (
             <ViewMetaOverlay
@@ -214,12 +287,14 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
         </OverflowRail>
       </TooltipProvider>
 
+      {actions}
+
       {store.isReady && (
         <DropdownMenu modal={false} open={menuOpen} onOpenChange={setMenuOpen}>
           <DropdownMenuTrigger asChild>
             <Button
               aria-label={t("DataView.views.menu")}
-              className={cn(VIEW_SURFACE_CLASS, "size-7 rounded-full")}
+              className={cn(joinsTopBar && "size-7")}
               id="global-data-views-menu"
               size="icon-sm"
               variant="ghost"
@@ -258,6 +333,18 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 
                 {t("DataView.views.askAi")}
               </DropdownMenuItem>
+            )}
+
+            {store.isQueryModified && (
+              <>
+                <FormSaveMenuItem id="global-data-views-save" onSave={store.saveQueryToView} />
+
+                <DropdownMenuItem id="global-data-views-reset" onSelect={() => runUserAction(store.resetQueryToView)}>
+                  {t("DataView.views.resetChanges")}
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+              </>
             )}
 
             <ViewMenuItems commands={commands} items={menuItems} view={menuTarget} />

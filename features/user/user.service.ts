@@ -1,4 +1,6 @@
+import { rolePermits } from "@/core/base/permission.service";
 import type { TenantUser } from "./user.schema";
+import type { FindUserRepo } from "./find-user.repo";
 import type { AuthService } from "@/features/auth/auth.service";
 
 import { Status } from "@/generated/prisma";
@@ -9,19 +11,7 @@ import { AppErrorCode, AuthError, ForbiddenError } from "@/core/errors/app-error
 import { tenantStorage } from "@/core/decorators/tenant-context";
 
 export type { TenantUser } from "./user.schema";
-
-export type AuthUserAccountState = {
-  companyId: string | null;
-  emailVerified: boolean;
-};
-
-export abstract class FindUserRepo {
-  abstract findAuthUserCompanyIdUnscoped(userId: string): Promise<string | null | undefined>;
-  abstract findAuthUserAccountStateUnscoped(userId: string): Promise<AuthUserAccountState | undefined>;
-  abstract findCurrentUserUnscoped(email: string): Promise<TenantUser | null>;
-  abstract findCurrentUserOrThrowUnscoped(email: string): Promise<TenantUser>;
-  abstract findUserByIdOrThrowUnscoped(userId: string): Promise<TenantUser>;
-}
+export type { AuthUserAccountState, FindUserRepo } from "./find-user.repo";
 
 export class UserService {
   constructor(
@@ -67,16 +57,14 @@ export class UserService {
   }
 
   hasPermissionForUser(user: TenantUser, resource: Resource, action: Action): boolean {
-    if (!user.role) return false;
-    if (user.role.isSystemRole) return true;
-
-    return user.role.permissions.some((p) => p.resource === resource && p.action === action);
+    return rolePermits(user.role, resource, action);
   }
 
-  async getActiveUserByIdOrThrow(userId: string) {
+  async getActiveUserByIdOrThrow(userId: string, options: { allowInactive?: boolean } = {}) {
     const user = await this.repo.findUserByIdOrThrowUnscoped(userId);
 
-    if (user.status !== Status.active) throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
+    if (user.status !== Status.active && !options.allowInactive)
+      throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
 
     return user;
   }

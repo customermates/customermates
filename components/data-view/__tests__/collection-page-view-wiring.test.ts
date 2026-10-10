@@ -1,25 +1,21 @@
 import type { ReactElement, ReactNode } from "react";
 
+import { ViewMode } from "@/core/base/base-query-builder";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { EntityType } from "@/generated/prisma";
-import { ViewMode } from "@/core/base/base-query-builder";
 
 const harness = vi.hoisted(() => ({
-  auditInit: vi.fn(),
-  auditOpen: vi.fn(),
   contentProps: vi.fn(),
   generateInvite: vi.fn(),
   getRootStore: vi.fn(),
   inviteOpen: vi.fn(),
   layoutProps: vi.fn(),
-  openEntity: vi.fn(),
   roleAdd: vi.fn(),
-  roleOpen: vi.fn(),
-  roleSet: vi.fn(),
+  roleEdit: vi.fn(),
   routineCreate: vi.fn(),
   routineEdit: vi.fn(),
+  routerPush: vi.fn(),
   setTopBarActions: vi.fn(),
   sync: vi.fn(),
   toolbarProps: vi.fn(),
@@ -31,6 +27,11 @@ const harness = vi.hoisted(() => ({
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
+}));
+
+vi.mock("@/i18n/navigation", async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  useRouter: () => ({ push: harness.routerPush }),
 }));
 
 vi.mock("@/app/components/topbar-actions-context", () => ({
@@ -45,18 +46,6 @@ vi.mock("@/components/data-view/use-data-view-sync", () => ({
   useDataViewSync: harness.sync,
 }));
 
-vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
-  useEntityHref: () => (entityType: EntityType, id: string) => `/${entityType}/${id}`,
-  useOpenEntity: () => harness.openEntity,
-}));
-
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({
-    plural: (entityType: EntityType) => `${entityType}-plural`,
-    singular: (entityType: EntityType) => entityType,
-  }),
-}));
-
 vi.mock("@/components/data-view/header/display-options", () => ({
   DataViewDisplayOptions: () => null,
 }));
@@ -65,13 +54,11 @@ vi.mock("@/components/data-view/header/filter-popover", () => ({
   FilterPopover: () => null,
 }));
 
-vi.mock("@/components/data-view/header/search", () => ({
-  DataViewSearch: () => null,
-}));
-
 vi.mock("@/components/data-view/data-view-toolbar", async (importOriginal) => {
   const React = await import("react");
-  const actual = await importOriginal<{ DataViewToolbar: (props: Record<string, unknown>) => ReactElement | null }>();
+  const actual = await importOriginal<{
+    DataViewToolbar: (props: Record<string, unknown>) => ReactElement | null;
+  }>();
 
   return {
     ...actual,
@@ -96,43 +83,40 @@ vi.mock("@/components/data-view/data-view-content", () => ({
   },
 }));
 
-vi.mock("@/app/[locale]/(protected)/deals/components/use-deal-columns", () => ({ useDealColumns: () => [] }));
+vi.mock("@/app/[locale]/(protected)/deals/components/use-deal-columns", () => ({
+  useDealColumns: () => [],
+}));
 vi.mock("@/app/[locale]/(protected)/services/components/use-service-columns", () => ({
   useServiceColumns: () => [],
 }));
-vi.mock("@/app/[locale]/(protected)/tasks/components/use-task-columns", () => ({ useTaskColumns: () => [] }));
-vi.mock("@/app/[locale]/(protected)/company/components/user/use-member-columns", () => ({
+vi.mock("@/app/[locale]/(protected)/tasks/components/use-task-columns", () => ({
+  useTaskColumns: () => [],
+}));
+vi.mock("@/app/[locale]/(protected)/settings/(workspace)/components/user/use-member-columns", () => ({
   useMemberColumns: () => [],
 }));
-vi.mock("@/app/[locale]/(protected)/company/components/role/use-role-columns", () => ({
+vi.mock("@/app/[locale]/(protected)/settings/(workspace)/components/role/use-role-columns", () => ({
   useRoleColumns: () => [],
 }));
-vi.mock("@/app/[locale]/(protected)/company/components/audit-log/use-audit-log-columns", () => ({
-  useAuditLogColumns: () => [],
-}));
-vi.mock("@/app/[locale]/(protected)/company/components/webhook/use-webhook-columns", () => ({
+vi.mock("@/app/[locale]/(protected)/settings/(workspace)/components/webhook/use-webhook-columns", () => ({
   useWebhookColumns: () => [],
 }));
-vi.mock("@/app/[locale]/(protected)/company/components/webhook/use-webhook-delivery-columns", () => ({
+vi.mock("@/app/[locale]/(protected)/settings/(workspace)/components/webhook/use-webhook-delivery-columns", () => ({
   useWebhookDeliveryColumns: () => [],
 }));
 vi.mock("@/app/[locale]/(protected)/routines/components/use-routine-columns", () => ({
   useRoutineColumns: () => [],
 }));
 
-vi.mock("@/app/[locale]/(protected)/company/components/role/role-modal", () => ({
+vi.mock("@/app/[locale]/(protected)/settings/(workspace)/components/role/role-modal", () => ({
   RoleModal: () => createElement("div", { "data-role-modal": true }),
 }));
 
-import { AuditLogsPageView } from "@/app/[locale]/(protected)/company/components/audit-log/audit-logs-page-view";
-import { RolesPageView } from "@/app/[locale]/(protected)/company/components/role/roles-page-view";
-import { MembersPageView } from "@/app/[locale]/(protected)/company/components/user/members-page-view";
-import { WebhookDeliveriesPageView } from "@/app/[locale]/(protected)/company/components/webhook/webhook-deliveries-page-view";
-import { WebhooksPageView } from "@/app/[locale]/(protected)/company/components/webhook/webhooks-page-view";
-import { DealsPageView } from "@/app/[locale]/(protected)/deals/components/deals-page-view";
+import { RolesPageView } from "@/app/[locale]/(protected)/settings/(workspace)/components/role/roles-page-view";
+import { MembersPageView } from "@/app/[locale]/(protected)/settings/(workspace)/components/user/members-page-view";
+import { WebhookDeliveriesPageView } from "@/app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-deliveries-page-view";
+import { WebhooksPageView } from "@/app/[locale]/(protected)/settings/(workspace)/components/webhook/webhooks-page-view";
 import { RoutinesPageView } from "@/app/[locale]/(protected)/routines/components/routines-page-view";
-import { ServicesPageView } from "@/app/[locale]/(protected)/services/components/services-page-view";
-import { TasksPageView } from "@/app/[locale]/(protected)/tasks/components/tasks-page-view";
 
 type Store = ReturnType<typeof store>;
 type Fixture = {
@@ -145,7 +129,12 @@ type Fixture = {
 };
 type Result = {
   items: Array<Record<string, unknown>>;
-  pagination: { page: number; pageSize: number; total: number; totalPages: number };
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+    totalPages: number;
+  };
 };
 
 function store(items: Array<Record<string, unknown>>, canManage = true) {
@@ -163,7 +152,12 @@ function store(items: Array<Record<string, unknown>>, canManage = true) {
     isGrouped: false,
     isReady: true,
     items,
-    pagination: { page: 1, pageSize: 25, total: items.length, totalPages: items.length ? 1 : 0 },
+    pagination: {
+      page: 1,
+      pageSize: 25,
+      total: items.length,
+      totalPages: items.length ? 1 : 0,
+    },
     refreshQuery: vi.fn().mockResolvedValue(undefined),
     searchTerm: "",
     setItems: vi.fn(),
@@ -185,22 +179,32 @@ function expectOnlyTransferButtons(html: string) {
 function result(items: Array<Record<string, unknown>>): Result {
   return {
     items,
-    pagination: { page: 1, pageSize: 25, total: items.length, totalPages: items.length ? 1 : 0 },
+    pagination: {
+      page: 1,
+      pageSize: 25,
+      total: items.length,
+      totalPages: items.length ? 1 : 0,
+    },
   };
 }
 
 function setRoot(key: string, value: Store, extras: Record<string, unknown> = {}) {
   const root = {
-    auditLogModalStore: { onInitOrRefresh: harness.auditInit, open: harness.auditOpen },
-    companyInviteModalStore: { generateInviteLink: harness.generateInvite, open: harness.inviteOpen },
-    roleModalStore: { add: harness.roleAdd, open: harness.roleOpen, setRole: harness.roleSet },
+    companyInviteModalStore: {
+      generateInviteLink: harness.generateInvite,
+      open: harness.inviteOpen,
+    },
+    roleModalStore: { add: harness.roleAdd, allows: () => false, editRole: harness.roleEdit },
     userModalStore: { loadById: harness.userLoad },
     webhookDeliveryModalStore: {
       onInitOrRefresh: harness.webhookDeliveryInit,
       open: harness.webhookDeliveryOpen,
     },
-    routineModalStore: { openForCreate: harness.routineCreate, openForEdit: harness.routineEdit },
-    webhookModalStore: { openWith: harness.webhookOpen },
+    routineModalStore: {
+      openForCreate: harness.routineCreate,
+      openForEdit: harness.routineEdit,
+    },
+    webhookModalStore: { allows: () => false, openWith: harness.webhookOpen },
     [key]: value,
     ...extras,
   };
@@ -211,57 +215,14 @@ function setRoot(key: string, value: Store, extras: Record<string, unknown> = {}
 const fixtures: Fixture[] = [
   {
     creator: true,
-    name: "Deals",
-    render: (value, initial) => {
-      const linked = { contactsStore: {}, organizationsStore: {}, servicesStore: {} };
-      setRoot("dealsStore", value, linked);
-      return renderToStaticMarkup(createElement(DealsPageView, { deals: initial as never }));
-    },
-    verifyAdd: () => expect(harness.openEntity).toHaveBeenCalledWith(EntityType.deal, "new"),
-    verifyRow: (props) => expect((props.rowHref as (item: { id: string }) => string)({ id: "row" })).toBe("/deal/row"),
-    verifySync: (value, initial) => {
-      const root = harness.getRootStore.mock.results.at(-1)?.value;
-      expect(harness.sync).toHaveBeenCalledWith(value, initial, [
-        root.organizationsStore,
-        root.contactsStore,
-        root.servicesStore,
-      ]);
-    },
-  },
-  {
-    creator: true,
-    name: "Services",
-    render: (value, initial) => {
-      const linked = { dealsStore: {} };
-      setRoot("servicesStore", value, linked);
-      return renderToStaticMarkup(createElement(ServicesPageView, { services: initial as never }));
-    },
-    verifyAdd: () => expect(harness.openEntity).toHaveBeenCalledWith(EntityType.service, "new"),
-    verifyRow: (props) =>
-      expect((props.rowHref as (item: { id: string }) => string)({ id: "row" })).toBe("/service/row"),
-    verifySync: (value, initial) => {
-      const root = harness.getRootStore.mock.results.at(-1)?.value;
-      expect(harness.sync).toHaveBeenCalledWith(value, initial, [root.dealsStore]);
-    },
-  },
-  {
-    creator: true,
-    name: "Tasks",
-    render: (value, initial) => {
-      setRoot("tasksStore", value);
-      return renderToStaticMarkup(createElement(TasksPageView, { tasks: initial as never }));
-    },
-    verifyAdd: () => expect(harness.openEntity).toHaveBeenCalledWith(EntityType.task, "new"),
-    verifyRow: (props) => expect((props.rowHref as (item: { id: string }) => string)({ id: "row" })).toBe("/task/row"),
-    verifySync: (value, initial) => expect(harness.sync).toHaveBeenCalledWith(value, initial),
-  },
-  {
-    creator: true,
     name: "Members",
     render: (value, initial) => {
       setRoot("usersStore", value, { rolesStore: { setItems: vi.fn() } });
       return renderToStaticMarkup(
-        createElement(MembersPageView, { initialRoles: result([]) as never, initialUsers: initial as never }),
+        createElement(MembersPageView, {
+          initialRoles: result([]) as never,
+          initialUsers: initial as never,
+        }),
       );
     },
     verifyAdd: () => {
@@ -285,25 +246,9 @@ const fixtures: Fixture[] = [
     verifyRow: (props) => {
       const role = { id: "row" };
       (props.onRowClick as (item: typeof role) => void)(role);
-      expect(harness.roleSet).toHaveBeenCalledWith(role);
-      expect(harness.roleOpen).toHaveBeenCalledTimes(1);
+      expect(harness.roleEdit).toHaveBeenCalledExactlyOnceWith(role);
     },
     verifySync: () => expect(harness.sync).not.toHaveBeenCalled(),
-  },
-  {
-    creator: false,
-    name: "Audit Logs",
-    render: (value, initial) => {
-      setRoot("auditLogsStore", value);
-      return renderToStaticMarkup(createElement(AuditLogsPageView, { initialAuditLogs: initial as never }));
-    },
-    verifyRow: (props) => {
-      const item = { id: "row" };
-      (props.onRowClick as (value: typeof item) => void)(item);
-      expect(harness.auditInit).toHaveBeenCalledWith(item);
-      expect(harness.auditOpen).toHaveBeenCalledTimes(1);
-    },
-    verifySync: (value, initial) => expect(harness.sync).toHaveBeenCalledWith(value, initial),
   },
   {
     creator: true,
@@ -314,6 +259,9 @@ const fixtures: Fixture[] = [
     },
     verifyAdd: () =>
       expect(harness.webhookOpen).toHaveBeenCalledWith({
+        id: undefined,
+        recordTrigger: null,
+        recordOwnerUserId: undefined,
         url: "",
         description: undefined,
         events: [],
@@ -334,6 +282,9 @@ const fixtures: Fixture[] = [
       (props.onRowClick as (value: typeof item) => void)(item);
       expect(harness.webhookOpen).toHaveBeenCalledWith({
         id: "row",
+        recordTrigger: null,
+        recordSources: null,
+        recordOwnerUserId: undefined,
         url: "https://example.com",
         description: undefined,
         events: [],
@@ -341,7 +292,15 @@ const fixtures: Fixture[] = [
         headers: "",
         bodyTemplate: undefined,
         enabled: true,
+        pausedReason: null,
       });
+      const actions = (
+        props.rowActions as (value: typeof item) => { props: { contextAction: { onSelect: () => void } } }
+      )(item);
+      actions.props.contextAction.onSelect();
+      expect(harness.routerPush).toHaveBeenCalledExactlyOnceWith(
+        "/settings/webhook-deliveries?filters=webhookId%3Ain%3Arow",
+      );
     },
     verifySync: (value, initial) => expect(harness.sync).toHaveBeenCalledWith(value, initial),
   },
@@ -350,7 +309,11 @@ const fixtures: Fixture[] = [
     name: "Webhook Deliveries",
     render: (value, initial) => {
       setRoot("webhookDeliveriesStore", value);
-      return renderToStaticMarkup(createElement(WebhookDeliveriesPageView, { initialDeliveries: initial as never }));
+      return renderToStaticMarkup(
+        createElement(WebhookDeliveriesPageView, {
+          initialDeliveries: initial as never,
+        }),
+      );
     },
     verifyRow: (props) => {
       const item = { id: "row" };
@@ -386,10 +349,16 @@ describe("migrated collection page wiring", () => {
     const item = { id: "row" };
     const initial = result([item]);
     const value = store([item]);
-    value.dataRequest = { status: "refresh-error", error: new Error("retained") } as never;
+    value.dataRequest = {
+      status: "refresh-error",
+      error: new Error("retained"),
+    } as never;
     const html = fixture.render(value, initial);
     const content = harness.contentProps.mock.lastCall?.[0] as Record<string, unknown>;
-    const layout = harness.layoutProps.mock.lastCall?.[0] as { showPagination: boolean; store: unknown };
+    const layout = harness.layoutProps.mock.lastCall?.[0] as {
+      showPagination: boolean;
+      store: unknown;
+    };
 
     expect(html).toContain('data-data-view-content="true"');
     expect(content.store).toBe(value);
@@ -405,7 +374,9 @@ describe("migrated collection page wiring", () => {
     const value = store([item]);
     value.isGrouped = true;
     fixture.render(value, result([item]));
-    const layout = harness.layoutProps.mock.lastCall?.[0] as { showPagination: boolean };
+    const layout = harness.layoutProps.mock.lastCall?.[0] as {
+      showPagination: boolean;
+    };
 
     expect(layout.showPagination).toBe(false);
   });
@@ -462,7 +433,9 @@ describe("migrated collection page wiring", () => {
     const value = store([]);
     const html = fixture.render(value, initial);
     const topBar = renderToStaticMarkup(harness.setTopBarActions.mock.lastCall?.[0] as ReactElement);
-    const toolbar = harness.toolbarProps.mock.lastCall?.[0] as { onAdd?: () => void };
+    const toolbar = harness.toolbarProps.mock.lastCall?.[0] as {
+      onAdd?: () => void;
+    };
 
     expect(html, `${fixture.name}: the view rail is layout owned, not page owned`).not.toContain("data-data-view-rail");
 
@@ -495,7 +468,7 @@ describe("migrated collection page wiring", () => {
     value.dataRequest = { status: "refreshing" } as never;
     value.viewMode = ViewMode.card;
     (value as unknown as { canBoard: boolean }).canBoard = true;
-    const html = fixtures.find(({ name }) => name === "Deals")?.render(value, result([item])) ?? "";
+    const html = fixtures.find(({ name }) => name === "Members")?.render(value, result([item])) ?? "";
 
     expect(html).toContain('data-page-state="loading"');
     expect(html).toContain('data-skeleton-view="board"');
@@ -506,14 +479,19 @@ describe("migrated collection page wiring", () => {
   it("keeps Roles off URL sync and makes its rejected retry caller-safe", () => {
     const initial = result([]);
     const value = store([]);
-    value.dataRequest = { status: "refresh-error", error: new Error("failed") } as never;
+    value.dataRequest = {
+      status: "refresh-error",
+      error: new Error("failed"),
+    } as never;
     value.refreshQuery.mockRejectedValue(new Error("failed"));
     const html = fixtures.find(({ name }) => name === "Roles")?.render(value, initial) ?? "";
     renderToStaticMarkup(harness.setTopBarActions.mock.lastCall?.[0] as ReactElement);
-    const toolbar = harness.toolbarProps.mock.lastCall?.[0] as { isSearchable: boolean };
+    const toolbar = harness.toolbarProps.mock.lastCall?.[0] as {
+      searchLabel?: string;
+    };
 
     expect(html).toContain('data-page-state="error"');
-    expect(toolbar.isSearchable).toBe(false);
+    expect(toolbar.searchLabel).toBeUndefined();
     expect(harness.sync).not.toHaveBeenCalled();
   });
 });

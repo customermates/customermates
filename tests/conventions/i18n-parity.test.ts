@@ -72,6 +72,15 @@ const REQUIRED_TRANSLATION_FRAGMENTS: Record<string, Record<string, readonly str
 };
 
 const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
+  // German dashboards abbreviate quarters with Q, as in English.
+  "de:RecordWidgets.quarterLabel",
+  // "Configuration" is the French word as well.
+  "fr:EntityTimeline.types.configuration",
+  // The board count is pure ICU plural syntax around user-defined record type labels.
+  "de:DataView.kanbanCount",
+  "es:DataView.kanbanCount",
+  "fr:DataView.kanbanCount",
+  "it:DataView.kanbanCount",
   // The localized view type and name use the same colon syntax in these languages.
   "de:AgentChat.context.viewLabel",
   "es:AgentChat.context.viewLabel",
@@ -116,7 +125,6 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "es:ContactPage.form.founderName",
   "fr:ContactPage.form.founderName",
   "it:ContactPage.form.founderName",
-  "de:Common.inputs.defaultOption",
   "es:Dashboard.widgetEditor.appearance.colorOption",
   "de:DocsSidebar.openapi",
   "de:DocsSidebar.selfHosting",
@@ -127,7 +135,6 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "fr:AgplGithubBadge.label",
   "fr:RoutineDetail.triggerThread",
   "fr:Common.defaultData.deal.options.qualification",
-  "fr:Common.inputs.defaultOption",
   "fr:Common.filters.fields.participants",
   "fr:Common.filters.fields.timelineThreadId",
   "fr:ConnectedAccountsCard.channels.linkedinClassic",
@@ -451,28 +458,6 @@ describe("i18n parity", () => {
       if (!value || !/claves? de API/i.test(value)) mismatches.push(`es:${key} must use clave(s) de API`);
     }
     expect(mismatches, `Spanish API-key terminology drift:\n${mismatches.join("\n")}`).toEqual([]);
-  });
-
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps distinct Spanish deal presets unambiguous", () => {
-    const leaves = loadLocaleLeaves("es");
-    const deal = {
-      plural: leaves.get("EntityTerminology.presets.deal.deal.plural"),
-      singular: leaves.get("EntityTerminology.presets.deal.deal.singular"),
-    };
-    const opportunity = {
-      plural: leaves.get("EntityTerminology.presets.deal.opportunity.plural"),
-      singular: leaves.get("EntityTerminology.presets.deal.opportunity.singular"),
-    };
-
-    expect(deal).toEqual({
-      plural: "Oportunidades",
-      singular: "Oportunidad",
-    });
-    expect(opportunity).toEqual({
-      plural: "Oportunidades comerciales",
-      singular: "Oportunidad comercial",
-    });
-    expect(deal).not.toEqual(opportunity);
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("preserves reviewed semantic translation fragments", () => {

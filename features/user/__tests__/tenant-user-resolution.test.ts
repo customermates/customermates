@@ -4,7 +4,8 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { runWithTenant, runWithoutTenant } from "@/core/decorators/tenant-context";
 import { Action, Resource } from "@/generated/prisma";
 
-import { UserService, type FindUserRepo } from "../user.service";
+import type { FindUserRepo } from "../find-user.repo";
+import { UserService } from "../user.service";
 
 const sessionUser = createMockUser({ id: "session-user" });
 const tenantUser = createMockUser({ id: "tenant-user" });
@@ -60,13 +61,13 @@ describe("resolving the user an operation runs as", () => {
       role: {
         id: "r",
         isSystemRole: false,
-        permissions: [{ resource: Resource.contacts, action: Action.readAll }],
+        permissions: [{ resource: Resource.routines, action: Action.readAll }],
       } as never,
     });
 
-    expect(users.hasPermissionForUser(withRole, Resource.contacts, Action.readAll)).toBe(true);
-    expect(users.hasPermissionForUser(withRole, Resource.deals, Action.readAll)).toBe(false);
-    expect(users.hasPermissionForUser({ ...withRole, role: null } as never, Resource.contacts, Action.readAll)).toBe(
+    expect(users.hasPermissionForUser(withRole, Resource.routines, Action.readAll)).toBe(true);
+    expect(users.hasPermissionForUser(withRole, Resource.wiki, Action.readAll)).toBe(false);
+    expect(users.hasPermissionForUser({ ...withRole, role: null } as never, Resource.routines, Action.readAll)).toBe(
       false,
     );
   });

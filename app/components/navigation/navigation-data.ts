@@ -1,11 +1,13 @@
-import type { Company } from "@/generated/prisma";
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
-import type { EntityTerminologyOverride } from "@/features/entity-terminology/entity-terminology.types";
 import type { AccountState } from "@/features/auth/account-state";
+import type { RecordNavigation } from "@/features/records/record-navigation.schema";
+import type { SidebarLayout } from "@/features/p13n/sidebar-layout.schema";
+import type { KeyboardPreferences } from "@/features/p13n/keyboard-preferences.schema";
 
 type NavigationData = {
-  company: Company | null;
-  terminology: EntityTerminologyOverride[];
+  records: RecordNavigation | null;
+  sidebarLayout: SidebarLayout | null;
+  keyboardPreferences: KeyboardPreferences | null;
   subscription: SubscriptionDto | null;
   trialDaysLeft: number | null;
   systemTaskCount: number;
@@ -14,10 +16,9 @@ type NavigationData = {
 };
 
 export type NavigationDataLoaders = {
-  company: () => Promise<{
-    company: Company;
-    terminology: EntityTerminologyOverride[];
-  }>;
+  records: () => Promise<RecordNavigation>;
+  sidebarLayout: () => Promise<SidebarLayout | null>;
+  keyboardPreferences: () => Promise<KeyboardPreferences | null>;
   subscription: () => Promise<SubscriptionDto | null>;
   systemTaskCount: () => Promise<number>;
   unreadThreadCount: () => Promise<number>;
@@ -25,8 +26,9 @@ export type NavigationDataLoaders = {
 };
 
 const EMPTY_NAVIGATION_DATA: NavigationData = {
-  company: null,
-  terminology: [],
+  records: null,
+  sidebarLayout: null,
+  keyboardPreferences: null,
   subscription: null,
   trialDaysLeft: null,
   systemTaskCount: 0,
@@ -40,12 +42,22 @@ export async function loadNavigationData(
 ): Promise<NavigationData> {
   if (accountState !== "allowed") return { ...EMPTY_NAVIGATION_DATA };
 
-  const [company, subscription, systemTaskCount, unreadThreadCount, channelsNeedingActionCount] = await Promise.all([
-    loaders.company(),
+  const [
+    subscription,
+    systemTaskCount,
+    unreadThreadCount,
+    channelsNeedingActionCount,
+    records,
+    sidebarLayout,
+    keyboardPreferences,
+  ] = await Promise.all([
     loaders.subscription(),
     loaders.systemTaskCount(),
     loaders.unreadThreadCount(),
     loaders.channelsNeedingActionCount(),
+    loaders.records(),
+    loaders.sidebarLayout(),
+    loaders.keyboardPreferences(),
   ]);
   const trialEndDate = subscription?.trialEndDate ?? null;
   const trialDaysLeft = trialEndDate
@@ -53,8 +65,9 @@ export async function loadNavigationData(
     : null;
 
   return {
-    company: company.company,
-    terminology: company.terminology,
+    records,
+    sidebarLayout,
+    keyboardPreferences,
     subscription,
     trialDaysLeft,
     systemTaskCount,

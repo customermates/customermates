@@ -1,7 +1,5 @@
-import type { Prisma } from "@/generated/prisma";
-
 import type { SeedContext } from "./context";
-import { fixtureId, relationshipTargets, upsertFixturesById } from "./helpers";
+import { fixtureId, relationshipTargets } from "./helpers";
 import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
 export const SYNTHETIC_TASK_NAMES = [
@@ -60,14 +58,22 @@ export type TaskDefinition = readonly [
   statusIndex: number,
 ];
 
-export type TaskFixture = Prisma.TaskCreateManyInput & { id: string };
+export type TaskFixture = {
+  id: string;
+  companyId: string;
+  name: string;
+  relatedUserId: null;
+  type: "custom";
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 export type TaskSeedData = {
   taskDefinitions: readonly TaskDefinition[];
   tasks: TaskFixture[];
 };
 
-export async function seedTasks(context: SeedContext): Promise<TaskSeedData> {
+export function seedTasks(context: SeedContext): Promise<TaskSeedData> {
   const taskDefinitions: readonly TaskDefinition[] = SYNTHETIC_TASK_NAMES.map(
     (name, index) =>
       [
@@ -89,22 +95,8 @@ export async function seedTasks(context: SeedContext): Promise<TaskSeedData> {
         relatedUserId: null,
         type: "custom",
         ...SYNTHETIC_SEED_TIMELINE.task(index),
-      }) satisfies Prisma.TaskCreateManyInput,
+      }) satisfies TaskFixture,
   );
 
-  await upsertFixturesById(tasks, (task) =>
-    context.prisma.task.upsert({
-      where: { id: task.id },
-      update: task,
-      create: task,
-    }),
-  );
-  await context.prisma.task.deleteMany({
-    where: {
-      companyId: context.ids.company,
-      id: { startsWith: "a0000000-", notIn: tasks.map(({ id }) => id) },
-    },
-  });
-
-  return { taskDefinitions, tasks };
+  return Promise.resolve({ taskDefinitions, tasks });
 }

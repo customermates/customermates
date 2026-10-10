@@ -7,7 +7,6 @@ const mockUser = createMockUser();
 const spies = vi.hoisted(() => ({
   adminUpdateUserDetails: vi.fn(),
   getTeamMember: vi.fn(),
-  updateCompanySettings: vi.fn(),
   updateUserDetails: vi.fn(),
 }));
 
@@ -22,9 +21,6 @@ vi.mock("@/core/di", () => ({
   getAdminUpdateUserDetailsInteractor: () => ({ invoke: spies.adminUpdateUserDetails }),
   getGetTeamMemberInteractor: () => ({ invoke: spies.getTeamMember }),
   getInviteUsersByEmailInteractor: vi.fn(),
-  getUpdateCompanySettingsInteractor: () => ({
-    invoke: spies.updateCompanySettings,
-  }),
   getUpdateUserDetailsInteractor: () => ({ invoke: spies.updateUserDetails }),
 }));
 
@@ -51,7 +47,6 @@ describe("update_workspace_settings", () => {
       },
     });
     const input = updateWorkspaceSettingsTool.inputSchema.parse({
-      target: "profile",
       country: "de",
       avatarUrl: "https://example.com/ada.png",
     });
@@ -79,7 +74,6 @@ describe("update_workspace_settings", () => {
       },
     });
     const input = updateWorkspaceSettingsTool.inputSchema.parse({
-      target: "profile",
       firstName: "Grace",
     });
 
@@ -91,77 +85,33 @@ describe("update_workspace_settings", () => {
     expect(mcpToolResultText(result)).not.toContain("avatarUrl");
   });
 
-  it("exposes the existing company terminology operation for onboarding", async () => {
-    const terminology = [
-      { entityType: "contact" as const, presetKey: "client" },
-      { entityType: "deal" as const, presetKey: "project" },
-    ];
-    spies.updateCompanySettings.mockResolvedValue({
-      ok: true,
-      data: { terminology },
-    });
-    const input = updateWorkspaceSettingsTool.inputSchema.parse({
-      target: "company",
-      terminology,
-    });
-
-    const result = await updateWorkspaceSettingsTool.execute(input);
-
-    expect(spies.updateCompanySettings).toHaveBeenCalledWith({ terminology });
-    expect(mcpToolResultText(result)).toContain("Company settings updated");
-    expect(mcpToolResultText(result)).toContain("client");
-    expect(mcpToolResultText(result)).toContain("project");
-    expect(mcpToolResultText(result)).not.toContain("currency");
+  it("points record type renaming and field currencies to the generic configuration contract", () => {
+    expect(updateWorkspaceSettingsTool.description).toContain("configure_record_model");
+    expect(updateWorkspaceSettingsTool.description).toContain("currency");
   });
 
-  it("reports only a changed currency when terminology was omitted", async () => {
-    spies.updateCompanySettings.mockResolvedValue({
-      ok: true,
-      data: { currency: "eur" },
-    });
-    const input = updateWorkspaceSettingsTool.inputSchema.parse({
-      target: "company",
-      currency: "eur",
-    });
+  it("rejects the removed company target and workspace currency", () => {
+    expect(
+      updateWorkspaceSettingsTool.inputSchema.safeParse({
+        target: "company",
+        currency: "eur",
+      }).success,
+    ).toBe(false);
 
-    const result = await updateWorkspaceSettingsTool.execute(input);
-
-    expect(spies.updateCompanySettings).toHaveBeenCalledWith({
-      currency: "eur",
-    });
-    expect(mcpToolResultText(result)).toContain("currency: eur");
-    expect(mcpToolResultText(result)).not.toContain("terminology");
-  });
-
-  it("rejects an empty company update instead of reporting a no-op as success", async () => {
-    const input = updateWorkspaceSettingsTool.inputSchema.parse({
-      target: "company",
-    });
-
-    const result = await updateWorkspaceSettingsTool.execute(input);
-
-    expect(mcpToolResultText(result)).toContain("Validation error:");
-    expect(spies.updateCompanySettings).not.toHaveBeenCalled();
+    expect(
+      updateWorkspaceSettingsTool.inputSchema.safeParse({
+        currency: "eur",
+      }).success,
+    ).toBe(false);
   });
 
   it("rejects an empty profile update instead of publishing a no-op as success", async () => {
-    const input = updateWorkspaceSettingsTool.inputSchema.parse({
-      target: "profile",
-    });
+    const input = updateWorkspaceSettingsTool.inputSchema.parse({});
 
     const result = await updateWorkspaceSettingsTool.execute(input);
 
     expect(mcpToolResultText(result)).toContain("Validation error:");
     expect(spies.updateUserDetails).not.toHaveBeenCalled();
-  });
-
-  it("rejects terminology presets outside the canonical catalog", () => {
-    expect(() =>
-      updateWorkspaceSettingsTool.inputSchema.parse({
-        target: "company",
-        terminology: [{ entityType: "deal", presetKey: "banana" }],
-      }),
-    ).toThrow();
   });
 });
 
@@ -193,14 +143,9 @@ describe("manage_team update_member", () => {
 
 describe("admin tool descriptions", () => {
   it("state the role permissions the interactors check instead of admin rights", () => {
-    const texts = [
-      updateWorkspaceSettingsTool.description,
-      updateWorkspaceSettingsTool.inputSchema.shape.target.description ?? "",
-      manageTeamTool.description,
-    ];
+    const texts = [updateWorkspaceSettingsTool.description, manageTeamTool.description];
 
     for (const text of texts) expect(text).not.toContain("admin rights");
-    expect(updateWorkspaceSettingsTool.description).toContain("update permission on the company");
     expect(manageTeamTool.description).toContain("invite requires create permission on users");
     expect(manageTeamTool.description).toContain("update_member requires update permission");
   });

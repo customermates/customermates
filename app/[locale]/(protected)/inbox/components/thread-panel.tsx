@@ -86,7 +86,7 @@ export function resolveThreadPanelPageState({
   return { status: "content", thread };
 }
 
-export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) => {
+const ThreadPanelContent = observer(({ threadDetail, locked = false }: Props) => {
   const t = useTranslations();
   const { messagingThreadDetailStore: store } = useRootStore();
 
@@ -129,7 +129,7 @@ export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) =>
       const replyRecipients = deriveReplyRecipients(thread.participants, messages);
       const avatarByIdentifier = new Map<string, string>();
       for (const participant of thread.participants) {
-        const url = participant.contact?.avatarUrl ?? participant.pictureUrl;
+        const url = participantAvatar(participant);
         if (participant.identifier && url) avatarByIdentifier.set(participant.identifier, url);
       }
 
@@ -140,7 +140,7 @@ export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) =>
           <ThreadTopBar thread={thread} />
 
           <MessagesScrollContainer
-            jumpToLatestLabel={t("Inbox.jumpToLatest")}
+            jumpToLatestLabel={t("Common.actions.jumpToLatest")}
             latestItemKey={store.messages.at(-1)?.id}
             scrollKey={`thread:${thread.id}`}
             scrollRegionLabel={t("Inbox.conversationRegion")}
@@ -193,3 +193,7 @@ export const ThreadPanel = observer(({ threadDetail, locked = false }: Props) =>
 
   return body;
 });
+import { participantAvatar } from "@/ee/messaging/thread-display";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+
+export const ThreadPanel = serverRenderedClient(ThreadPanelContent);

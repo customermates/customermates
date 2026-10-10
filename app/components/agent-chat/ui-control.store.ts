@@ -1,19 +1,20 @@
+import { getRecordAction, getRecordNavigationAction } from "@/app/[locale]/(protected)/records/actions";
 import { makeObservable, observable, action } from "mobx";
 
 import type { RootStore } from "@/core/stores/root.store";
 
 import { BaseStore } from "@/core/base/base.store";
-import { ENTITY_URL_SEGMENT } from "@/components/entity-detail/entity-relations";
-import { EntityType } from "@/generated/prisma";
 import {
   agentRouteVisible,
   agentSidebarGroupId,
+  SETTINGS_MENU_TARGET,
   findAgentNavigationTarget,
   findAgentUiTarget,
-  isToolbarSearchTarget,
   type AgentUiTarget,
 } from "@/ee/agent-chat/ui-targets";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
+import { isResolvedAppLinkPath } from "@/features/docs/app-links";
+import { focusTargetOfHref } from "@/components/focus/focus-href";
 import { NavigateRecordTargetSchema } from "@/ee/agent-chat/ui-operations";
 import { agentGuidedTour, type AgentGuidedTourStep, type AgentTourStepData } from "@/ee/agent-chat/agent-tours";
 import {
@@ -33,16 +34,19 @@ export type AgentNavigationOutcome = "navigated" | "blocked" | "timeout";
 
 function resolveAgentNavigationRoute(input: Record<string, unknown>): { path: string; done: string } | null {
   const record = NavigateRecordTargetSchema.safeParse(input);
-  if (record.success) {
-    const segment = ENTITY_URL_SEGMENT[EntityType[record.data.entity]];
-    return { path: `/${segment}/${record.data.recordId}`, done: `Opened the ${record.data.entity} on its page.` };
-  }
+  if (record.success)
+    return { path: `/records/${record.data.typeId}/${record.data.recordId}`, done: "Opened the record on its page." };
+
+  if (typeof input.href === "string" && isResolvedAppLinkPath(input.href))
+    return { path: input.href, done: `Opened ${input.href}.` };
+
   const target = findAgentNavigationTarget(String(input.targetId ?? ""));
   return target ? { path: target.route, done: `Navigated to ${target.route}.` } : null;
 }
 
 function describeNavigationInput(input: Record<string, unknown>) {
-  return input.targetId !== undefined ? String(input.targetId) : `${String(input.entity)}:${String(input.recordId)}`;
+  if (input.href !== undefined) return String(input.href);
+  return input.targetId !== undefined ? String(input.targetId) : `${String(input.typeId)}:${String(input.recordId)}`;
 }
 
 function currentAppPathname() {
@@ -67,7 +71,9 @@ function unavailableRouteMessage(path: string) {
 }
 
 export function findAgentTargetElement(targetId: string) {
-  const element = document.getElementById(targetId);
+  const target = findAgentUiTarget(targetId);
+  if (target?.elementId && currentAppPathname() !== target.route) return null;
+  const element = document.getElementById(target?.elementId ?? targetId);
   return element?.isConnected && element.getClientRects().length > 0 ? element : null;
 }
 
@@ -137,14 +143,16 @@ function sidebarRevealStep(target: AgentUiTarget) {
   const group = agentSidebarGroupId(target.id);
   const anchor = document.getElementById(group ?? target.id);
   const groupClosed = group !== null && document.getElementById(target.id) === null;
+  const openGroup = (where: string) =>
+    group === SETTINGS_MENU_TARGET ? `open ${group}${where} and choose Settings` : `open ${group}${where}`;
   if (!anchor) {
     const groupOpensItself = currentAppPathname()?.startsWith(`/${target.route.split("/")[1]}/`) ?? false;
-    const thenOpenGroup = group && !groupOpensItself ? `, then open ${group} in it` : "";
+    const thenOpenGroup = group && !groupOpensItself ? `, then ${openGroup(" in it")}` : "";
     return `open the sidebar with the sidebar button at the top left of the header${thenOpenGroup}`;
   }
   if (anchor.closest('[data-collapsible="icon"]'))
-    return `expand the collapsed sidebar with the sidebar button at the top left of the header${groupClosed ? `, then open ${group} in it` : ""}`;
-  return groupClosed ? `open ${group} in the sidebar` : null;
+    return `expand the collapsed sidebar with the sidebar button at the top left of the header${groupClosed ? `, then ${openGroup(" in it")}` : ""}`;
+  return groupClosed ? openGroup(" in the sidebar") : null;
 }
 
 export class AgentUiControlStore extends BaseStore {
@@ -180,7 +188,18 @@ export class AgentUiControlStore extends BaseStore {
         result: `Navigation target ${describeNavigationInput(input)} is not allowed.`,
       };
     }
-    if (!this.canOpen(route.path)) return { ok: false, result: unavailableRouteMessage(route.path) };
+    const record = NavigateRecordTargetSchema.safeParse(input);
+    if (record.success) {
+      const result = await getRecordAction(record.data);
+      if (!result.ok)
+        return { ok: false, result: "The record is unavailable or cannot be read with your current access." };
+    } else if (route.path.startsWith("/records/") || focusTargetOfHref(route.path)?.kind === "list") {
+      const navigation = await getRecordNavigationAction();
+      const typeId = /[0-9a-f-]{36}/.exec(route.path)?.[0];
+      if (!navigation.types.some((type) => type.id === typeId) || !this.canOpen(route.path.split("?")[0]))
+        return { ok: false, result: unavailableRouteMessage(route.path) };
+    } else if (!this.canOpen(route.path.split("?")[0]))
+      return { ok: false, result: unavailableRouteMessage(route.path) };
     if (!this.navigateCallback) return { ok: false, result: "Navigation is not available right now." };
 
     const outcome = await this.navigateCallback(route.path);
@@ -405,8 +424,6 @@ export class AgentUiControlStore extends BaseStore {
     const revealStep = isSidebarTarget(target) ? sidebarRevealStep(target) : null;
     if (revealStep)
       return `Target ${targetId} is a sidebar entry that is not visible right now. Ask the user to ${revealStep}, then highlight it again.`;
-    if (isToolbarSearchTarget(targetId) && document.getElementById(targetId))
-      return `Target ${targetId} is the list's search box, which narrower screens collapse behind the Search button (magnifier icon) in the toolbar. Ask the user to click that button, then highlight it again.`;
     const opener = target.prerequisite ? ` (${target.prerequisite})` : "";
     return `Target ${targetId} belongs to this page but is not rendered right now. It may be inside a dialog, tab or menu the user must open first${opener}, or hidden by role, plan or state.`;
   }

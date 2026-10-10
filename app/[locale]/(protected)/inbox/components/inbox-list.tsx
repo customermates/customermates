@@ -22,13 +22,15 @@ import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";
 import { DataViewPagination } from "@/components/data-view/header/pagination";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { TopBarActionButtons, TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons";
 import { PageState } from "@/components/page-state/page-state";
 import { DataViewEmptyState } from "@/components/data-view/data-view-empty-state";
 import { resolveDataViewPageState, type DataViewPageState } from "@/components/data-view/data-view-state";
-import { runUserAction } from "@/core/errors/report-application-error";
 
 import { InboxPageSkeleton } from "./inbox-page-skeleton";
 import { ThreadRow } from "./thread-row";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 type Props = {
   canConnect: boolean;
@@ -42,7 +44,7 @@ type InboxListPageState = DataViewPageState | "locked";
 let didAutoScrollToThread = false;
 let savedListScrollTop = 0;
 
-export const InboxList = observer(({ canConnect, threads, selectedThreadId, locked = false }: Props) => {
+const InboxListContent = observer(({ canConnect, threads, selectedThreadId, locked = false }: Props) => {
   const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
@@ -76,51 +78,41 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
         request,
         total: pagination?.total,
       });
-  const searchPlaceholder = t("Common.table.search");
   const topBarNode = useMemo(
     () =>
       locked ? null : (
         <div className="flex items-center gap-1">
           <DataViewToolbar
-            isSearchable
-            searchPlaceholder={searchPlaceholder}
+            searchLabel={t("Common.filters.searchFields.inbox")}
             showDisplayOptions={false}
             store={messagingThreadsStore}
           />
 
           {canUpdate && (
-            <Button
-              aria-label={t("Inbox.refresh")}
-              className="h-8"
-              disabled={isRefreshing}
-              size="sm"
-              variant="secondary"
-              onClick={() => runUserAction(() => messagingThreadsStore.refreshInbox())}
-            >
-              <RefreshCw className={cn("size-3.5", isRefreshing && "animate-spin")} />
-
-              <span className="hidden sm:inline">{t("Inbox.refresh")}</span>
-            </Button>
+            <TopBarActionButtons
+              actions={[
+                {
+                  id: "refresh",
+                  icon: RefreshCw,
+                  label: t("Common.actions.refresh"),
+                  busy: isRefreshing,
+                  onClick: () => messagingThreadsStore.refreshInbox(),
+                },
+              ]}
+            />
           )}
 
           {canConnect && (
-            <Button asChild className="h-8" size="sm" variant="default">
-              <Link aria-label={t("ConnectedAccountsCard.title")} href="/profile/connected-accounts">
-                <Cable className="size-3.5" />
-
-                <span className="hidden sm:inline">{t("ConnectedAccountsCard.title")}</span>
-
-                {channelsNeedingAction > 0 && (
-                  <span className="bg-warning/25 text-warning inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md px-1.5 text-[11px] font-medium tabular-nums">
-                    {channelsNeedingAction}
-                  </span>
-                )}
-              </Link>
-            </Button>
+            <TopBarPrimaryButton
+              count={channelsNeedingAction}
+              href={settingsHref("channels")}
+              icon={Cable}
+              label={t("ConnectedAccountsCard.title")}
+            />
           )}
         </div>
       ),
-    [isRefreshing, messagingThreadsStore, searchPlaceholder, t, channelsNeedingAction, canConnect, canUpdate, locked],
+    [isRefreshing, messagingThreadsStore, t, channelsNeedingAction, canConnect, canUpdate, locked],
   );
   useSetTopBarActions(topBarNode);
 
@@ -212,7 +204,7 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
               fallback={
                 canConnect ? (
                   <Button asChild size="sm" variant="secondary">
-                    <Link href="/profile/connected-accounts">
+                    <Link href={settingsHref("channels")}>
                       <Cable className="size-3.5" />
 
                       {t("ConnectedAccountsCard.title")}
@@ -267,3 +259,5 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
     </div>
   );
 });
+
+export const InboxList = serverRenderedClient(InboxListContent);

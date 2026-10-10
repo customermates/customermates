@@ -1,20 +1,20 @@
-import type { Root } from "react-dom/client";
-import type { ColumnDef } from "@tanstack/react-table";
-import type { ReactNode } from "react";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import type { DataViewGroup, GroupingResult } from "@/core/base/grouping/grouping.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
+import type { ReactNode } from "react";
+import type { Root } from "react-dom/client";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock("mobx-react-lite", () => ({ observer: <T,>(component: T) => component }));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key}:${Object.values(values).join(",")}` : key,
 }));
-vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
+vi.mock("@/components/shared/use-navigate-to-href", () => ({
   useNavigateToHref: () => vi.fn(),
 }));
 vi.mock("@/components/ui/tooltip", () => ({
@@ -26,7 +26,7 @@ vi.mock("@/components/ui/tooltip", () => ({
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ customColumnModalStore: { openForCreate: vi.fn(), openWithColumn: vi.fn() } }),
 }));
-vi.mock("@/components/entity-terminology/use-filter-field-label", () => ({
+vi.mock("@/components/data-view/use-filter-field-label", () => ({
   useFilterFieldLabel: () => (field: string) => field,
 }));
 vi.mock("@/components/ui/select", () => ({
@@ -44,18 +44,13 @@ vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
     formatDescriptiveShortDate: (date: Date) => `date:${date.toISOString()}`,
   }),
 }));
-vi.mock("@/components/entity-terminology/use-column-label", () => ({ useColumnLabel: () => (uid: string) => uid }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ singular: () => "deal", plural: () => "deals" }),
-}));
+vi.mock("@/components/data-view/use-column-label", () => ({ useColumnLabel: () => (uid: string) => uid }));
 
 import { DataKanbanView } from "../data-kanban-view";
 
 type Item = { id: string; name: string };
 
-const columns: ColumnDef<Item>[] = [
-  { id: "name", accessorKey: "name", header: "Name", cell: ({ row }) => row.original.name },
-];
+const renderCard = (item: Item) => item.name;
 
 const ITEMS: Item[] = [
   { id: "e-won", name: "Won deal" },
@@ -109,6 +104,7 @@ function groupingResult(overrides: Partial<GroupingResult> = {}): GroupingResult
 export function boardStore(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewStore<Item> {
   return {
     customColumns: [STORED_COLUMN_WHOSE_ARRAY_ORDER_DISAGREES_WITH_THE_SERVER],
+    columnWidths: {},
     entityType: "deal",
     hiddenColumns: [],
     isGrouped: true,
@@ -116,6 +112,13 @@ export function boardStore(overrides: Partial<BaseDataViewStore<Item>> = {}): Ba
     items: ITEMS,
     groupingResult: groupingResult(),
     loadMoreInGroup: vi.fn(),
+    isBoardStrip: () => false,
+    isGroupHidden: () => false,
+    hideGroup: vi.fn(),
+    toggleBoardStrip: vi.fn(),
+    canCreateInGroup: () => false,
+    createInGroup: vi.fn(),
+    groupEditHref: () => undefined,
     moveItemBetweenGroups: vi.fn(),
     ...overrides,
   } as unknown as BaseDataViewStore<Item>;
@@ -123,13 +126,16 @@ export function boardStore(overrides: Partial<BaseDataViewStore<Item>> = {}): Ba
 
 const roots = new Set<Root>();
 
-export function renderBoard(value: BaseDataViewStore<Item>): HTMLElement {
+export function renderBoard(
+  value: BaseDataViewStore<Item>,
+  options: { onCardClick?: (item: Item) => void; cardHref?: (item: Item) => string | undefined } = {},
+): HTMLElement {
   const host = document.createElement("div");
   document.body.append(host);
   const root = createRoot(host);
   roots.add(root);
   act(() => {
-    root.render(createElement(DataKanbanView<Item>, { columns, store: value }) as ReactNode);
+    root.render(createElement(DataKanbanView<Item>, { renderCard, store: value, ...options }) as ReactNode);
   });
 
   return host;
@@ -154,6 +160,18 @@ describe("board column order and labels", () => {
     expect(columnLabels(host)).toEqual(["NEW", "WON", "Common.inputs.unavailableSelection", "DataView.noValue"]);
   });
 
+  it("makes the column chip an Edit field link only where the store offers one", () => {
+    const plain = renderBoard(boardStore());
+    expect(plain.querySelectorAll("[data-kanban-edit-option]")).toHaveLength(0);
+
+    const editable = renderBoard(
+      boardStore({ groupEditHref: (groupKey: string) => (groupKey === "new" ? "/configure" : undefined) }),
+    );
+    const links = editable.querySelectorAll("[data-kanban-edit-option]");
+    expect(links).toHaveLength(1);
+    expect(links[0]?.textContent).toBe("NEW");
+  });
+
   it("draws each column's cards from the group's own itemIds", () => {
     const host = renderBoard(boardStore());
     const cards = [...host.querySelectorAll('[data-slot="card"]')];
@@ -171,6 +189,40 @@ describe("board column order and labels", () => {
     expect(buttons).toHaveLength(1);
     act(() => buttons[0].click());
     expect(loadMoreInGroup).toHaveBeenCalledWith("won");
+  });
+
+  it("opens a readable, non-draggable card by pointer or keyboard without disabling its navigation", () => {
+    const onCardClick = vi.fn();
+    const host = renderBoard(boardStore({ canMoveItemBetweenGroups: () => false }), { onCardClick });
+    const card = host.querySelector<HTMLElement>('[data-item-id="e-new"]');
+
+    expect(card).not.toBeNull();
+    expect(card?.getAttribute("role")).toBe("button");
+    expect(card?.getAttribute("tabindex")).toBe("0");
+    expect(card?.hasAttribute("aria-disabled")).toBe(false);
+
+    act(() => card?.click());
+    expect(onCardClick).toHaveBeenCalledWith(ITEMS[1]);
+
+    act(() => card?.focus());
+    expect(document.activeElement).toBe(card);
+
+    for (const key of ["Enter", " "]) {
+      act(() => {
+        card?.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, cancelable: true, key }));
+      });
+    }
+    expect(onCardClick).toHaveBeenCalledTimes(3);
+  });
+
+  it("retains dnd keyboard attributes on a writable card", () => {
+    const host = renderBoard(boardStore(), { onCardClick: vi.fn() });
+    const card = host.querySelector<HTMLElement>('[data-item-id="e-new"]');
+
+    expect(card?.getAttribute("role")).toBe("button");
+    expect(card?.getAttribute("tabindex")).toBe("0");
+    expect(card?.getAttribute("aria-describedby")).toBeTruthy();
+    expect(card?.getAttribute("aria-disabled")).not.toBe("true");
   });
 
   it("keeps an empty no-value column on the board so a card can be dragged back out of every group", () => {
@@ -213,6 +265,7 @@ describe("board column order and labels", () => {
     const host = renderBoard(
       boardStore({
         canManage: true,
+        schemaSettingsHref: "/configure?typeId=00000000-0000-4000-8000-000000000001",
         currentGroupableFieldId: "",
         groupableFields: [],
         groupingResult: undefined,

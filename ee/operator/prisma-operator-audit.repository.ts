@@ -1,13 +1,13 @@
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { DateBucket } from "@/core/base/grouping/grouping.schema";
-import type { GroupCountRow } from "@/core/base/grouping/group-count";
+import type { GroupCountRow } from "@/core/base/grouping/group-axis";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { OperatorAuditRowDto } from "./operator-lists.schema";
 import type { GetOperatorAuditLogsRepo } from "@/ee/operator/get/get-operator-audit-logs.repo";
 
 import type { Prisma } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { QueryRepository } from "@/core/base/query-repository";
 import { dateGroupables, enumGroupables } from "@/core/base/grouping/groupable-field";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -35,7 +35,7 @@ const OPERATOR_READ_ACTIONS: string[] = [
 
 const AUDIT_MAX_SKIP = 10_000;
 
-export class PrismaOperatorAuditRepo extends BaseRepository implements GetOperatorAuditLogsRepo {
+export class PrismaOperatorAuditRepo extends QueryRepository implements GetOperatorAuditLogsRepo {
   getSortableFields() {
     return [{ field: "createdAt", resolvedFields: ["createdAt"] }];
   }
@@ -82,11 +82,12 @@ export class PrismaOperatorAuditRepo extends BaseRepository implements GetOperat
     return { sources, workspaceIds, createdAt, take, skip, search, beyondWindow };
   }
 
-  private productWhere(plan: ReturnType<PrismaOperatorAuditRepo["plan"]>): Prisma.AuditLogWhereInput {
+  private productWhere(plan: ReturnType<PrismaOperatorAuditRepo["plan"]>): Prisma.EventLogWhereInput {
     return {
+      subjectKind: { notIn: ["record", "messaging"] },
       ...(plan.workspaceIds ? { companyId: { in: plan.workspaceIds } } : {}),
       ...(plan.createdAt.length > 0 ? { AND: plan.createdAt.map((createdAt) => ({ createdAt })) } : {}),
-      ...(plan.search ? { event: { contains: plan.search, mode: "insensitive" as const } } : {}),
+      ...(plan.search ? { kind: { contains: plan.search, mode: "insensitive" as const } } : {}),
     };
   }
 
@@ -126,19 +127,11 @@ export class PrismaOperatorAuditRepo extends BaseRepository implements GetOperat
 
     const [productRows, operatorRows] = await Promise.all([
       includeProduct
-        ? this.prisma.auditLog.findMany({
+        ? this.prisma.eventLog.findMany({
             where: this.productWhere(plan),
             orderBy: [{ createdAt: order }, { id: order }],
             take: window,
-            select: {
-              id: true,
-              event: true,
-              userId: true,
-              companyId: true,
-              entityId: true,
-              createdAt: true,
-              user: { select: { email: true } },
-            },
+            select: { id: true, kind: true, actorId: true, companyId: true, subjectId: true, createdAt: true },
           })
         : Promise.resolve([]),
       includeOperator
@@ -159,19 +152,24 @@ export class PrismaOperatorAuditRepo extends BaseRepository implements GetOperat
         : Promise.resolve([]),
     ]);
 
-    const actorIds = [...new Set(operatorRows.map((row) => row.actorUserId))];
+    const actorIds = [
+      ...new Set([
+        ...operatorRows.map((row) => row.actorUserId),
+        ...productRows.flatMap((row) => (row.actorId ? [row.actorId] : [])),
+      ]),
+    ];
     const actors = await this.actorEmailsUnscoped(actorIds);
 
     const merged: OperatorAuditRowDto[] = [
       ...productRows.map((row) => ({
         id: row.id,
         source: OPERATOR_AUDIT_SOURCE.product,
-        action: row.event,
-        actorLabel: row.user?.email ?? null,
-        actorUserId: row.userId,
+        action: row.kind,
+        actorLabel: row.actorId ? (actors.get(row.actorId) ?? null) : null,
+        actorUserId: row.actorId,
         workspaceId: row.companyId,
         workspaceLabel: null,
-        targetId: row.entityId,
+        targetId: row.subjectId,
         reason: null,
         createdAt: row.createdAt,
       })),
@@ -216,7 +214,7 @@ export class PrismaOperatorAuditRepo extends BaseRepository implements GetOperat
 
     const [product, operator] = await Promise.all([
       plan.sources.includes(OPERATOR_AUDIT_SOURCE.product)
-        ? this.prisma.auditLog.count({ where: this.productWhere(plan) })
+        ? this.prisma.eventLog.count({ where: this.productWhere(plan) })
         : Promise.resolve(0),
       plan.sources.includes(OPERATOR_AUDIT_SOURCE.operator)
         ? this.prisma.operatorAuditEvent.count({ where: this.operatorWhere(plan) })

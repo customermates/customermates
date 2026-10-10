@@ -30,6 +30,8 @@ vi.mock("@/components/ui/use-overlay-focus-return", () => ({ useOverlayFocusRetu
 vi.mock("@/components/modal/app-modal-action", () => ({
   APP_MODAL_ACTION_RAIL_CLASS: "",
   AppModalAction: () => null,
+  AppModalActionRail: () => null,
+  appModalActionSlots: (actions: unknown[]) => actions.length,
 }));
 vi.mock("@/components/ui/dialog", () => ({
   Dialog: ({ children }: { children: ReactNode }) => createElement("section", null, children),
@@ -43,7 +45,7 @@ vi.mock("@/components/ui/drawer", () => ({
   DrawerTitle: ({ children }: { children: ReactNode }) => createElement("h1", null, children),
   DrawerDescription: ({ children }: { children: ReactNode }) => createElement("p", null, children),
 }));
-vi.mock("@/components/modal/unsaved-changes-guard", () => ({ UnsavedChangesGuard: () => null }));
+vi.mock("@/components/modal/confirm-dialog", () => ({ DiscardChangesDialog: () => null }));
 
 import { AppModal } from "@/components/modal/app-modal";
 import { NavigationGuardController } from "@/core/stores/navigation-guard.controller";
@@ -66,7 +68,6 @@ function createStore(navigationGuard: NavigationGuardController) {
     servicesStore: refreshStore(),
     tasksStore: refreshStore(),
     widgetsStore: refreshStore(),
-    terminologyStore: refreshStore(),
     messagingThreadsStore: refreshStore(),
     agentUiControlStore,
   };
@@ -148,7 +149,7 @@ describe("agent route reload integration", () => {
         seq: 1,
         type: "activity",
         id: "write-integration",
-        activity: { kind: "records.update", resource: "contacts", affectedResources: [], risk: "write" },
+        activity: { kind: "records.update", resource: "wiki", affectedResources: [], risk: "write" },
       });
       internalStore.handleEvent({
         seq: 2,

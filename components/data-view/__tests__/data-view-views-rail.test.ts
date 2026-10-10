@@ -25,7 +25,7 @@ vi.mock("next-intl", () => ({
     values ? `${key}(${Object.values(values).join(",")})` : key,
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({
-  useRootStore: () => ({ appMode: harness.appMode.current, terminologyStore: { overrides: [] } }),
+  useRootStore: () => ({ appMode: harness.appMode.current, recordWorkspaceStore: { navigation: null } }),
 }));
 vi.mock("@/app/components/topbar-actions-context", () => ({}));
 
@@ -51,7 +51,7 @@ const THREE_VIEWS = [
 function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewStore<Item> {
   return {
     activeViewKey: ALL_VIEW_KEY,
-    entityType: "DEAL",
+    supportsSelection: true,
     hasSelection: false,
     isDisabled: false,
     isReady: true,
@@ -212,27 +212,33 @@ describe("data view rail", () => {
     expect(declared[0]).not.toBe(declared[1]);
   });
 
-  it("gives the view menu control the icon geometry, its chevron and an inactive tab's resting surface", () => {
+  it("gives the view menu control the shared ghost icon button with its chevron under the top bar", () => {
     const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
     const control = controlOf(html, "global-data-views-menu");
     const classes = classesOf(control);
 
-    expect(restingTabs(html)).toHaveLength(3);
     expect(control).toContain("lucide-chevron-down");
     expect(classes).toContain("size-7");
-    expect(classes).toContain("rounded-full");
-    expect(classes).not.toContain("size-8");
-    expect(classes).not.toContain("rounded-md");
-    expect(classes).not.toContain("max-w-36");
-    expect(control).toContain("hover:bg-accent hover:text-foreground");
+    expect(control).toContain("hover:bg-accent");
+    for (const token of ["rounded-full", "bg-secondary", "shadow-xs", "border-border", "max-w-36"])
+      expect(classes, token).not.toContain(token);
+  });
 
-    for (const token of ["border", "border-border", "bg-secondary", "text-muted-foreground", "shadow-xs"]) {
-      expect(classes, token).toContain(token);
-      expect(
-        restingTabs(html).every((tab) => classesOf(tab).includes(token)),
-        token,
-      ).toBe(true);
+  it("sits flush inside a panel without border, background or padding and with a ghost view menu", () => {
+    const inline = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }), false);
+    const rail = classesOf(inline.match(/<nav[^>]*>/)?.[0] ?? "");
+    const menu = classesOf(controlOf(inline, "global-data-views-menu"));
+    const joined = classesOf(
+      render(store({ activeViewKey: "v-a", views: THREE_VIEWS })).match(/<nav[^>]*>/)?.[0] ?? "",
+    );
+
+    for (const token of ["border-b", "border-border", "bg-background", "px-4"]) {
+      expect(rail, token).not.toContain(token);
+      expect(joined, token).toContain(token);
     }
+    expect(menu).toContain("size-8");
+    for (const token of ["rounded-full", "bg-secondary", "shadow-xs", "border-border"])
+      expect(menu, token).not.toContain(token);
   });
 
   it("renders the create control as a dashed New view pill with no plus icon", () => {
@@ -260,7 +266,7 @@ describe("data view rail", () => {
     expect(classes).not.toContain("rounded-md");
   });
 
-  it("sits flush under the top bar, on the rhythm the entity detail summary rail uses", () => {
+  it("sits flush under the top bar", () => {
     const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
     const items = html.match(/<[^>]*data-data-view-rail-items[^>]*>/)?.[0] ?? "";
 
@@ -268,12 +274,6 @@ describe("data view rail", () => {
     expect(items).toContain("pb-4");
     expect(items).not.toContain("py-2.5");
     expect(tabs(html).every((tab) => tab.includes("h-7"))).toBe(true);
-
-    const summary = readFileSync(resolve(process.cwd(), "components/entity-detail/entity-detail-summary.tsx"), "utf8");
-    const summaryRail = summary.match(/railClassName="([^"]*)"/)?.[1] ?? "";
-
-    expect(summaryRail).toContain("pt-0");
-    expect(summaryRail).toContain("pb-4");
   });
 
   it("starts its controls at the top edge so the actions control lines up with the tabs", () => {
@@ -362,7 +362,7 @@ describe("data view rail", () => {
 
   it("hides the rail below md while a selection is active", () => {
     expect(render(store({ hasSelection: true, views: THREE_VIEWS }))).toContain("hidden md:flex");
-    expect(render(store({ hasSelection: true, entityType: undefined, views: THREE_VIEWS }))).not.toContain(
+    expect(render(store({ hasSelection: true, supportsSelection: false, views: THREE_VIEWS }))).not.toContain(
       "hidden md:flex",
     );
     expect(render(store({ views: THREE_VIEWS }))).not.toContain("hidden md:flex");

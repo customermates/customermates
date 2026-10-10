@@ -296,7 +296,7 @@ export const manageWikiPagesTool = {
     "kind: guide = the one Operating Guide; procedure = numbered steps + whenToUse; default knowledge. " +
     "list: 5 per page, guide pinned first, remaining pages in saved order; search: follow hasMore to continue; total is a lower bound unless totalIsExact. Returns snippets and section offsets, plus didYouMean when a misspelled word was corrected. " +
     "get: one Markdown chunk (outline at 0); repeat with nextOffset until null; restart at 0 if updatedAt changes. " +
-    "delete is IRREVERSIBLE. " +
+    "delete moves the page to Trash, where it is deleted permanently after 30 days unless manage_trash restores it with the returned trashBatchId. " +
     "Link pages as /wiki?page=<id>; ids survive renames.",
   annotations: {
     readOnlyHint: false,
@@ -373,7 +373,7 @@ export const manageWikiPagesTool = {
         ...parsed.data,
         expectedUpdatedAt: new Date(parsed.data.expectedUpdatedAt),
       }),
-      (page) => toonResult({ deleted: true, id: page.id }),
+      (page) => toonResult({ deleted: true, id: page.id, trashBatchId: page.trashBatchId }),
     );
   },
 };

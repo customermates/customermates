@@ -14,6 +14,7 @@ export const WEBHOOK_RESERVED_HEADERS = [
   "host",
   "transfer-encoding",
   "x-webhook-signature",
+  "x-customermates-delivery-id",
 ] as const;
 
 const RESERVED = new Set<string>(WEBHOOK_RESERVED_HEADERS);

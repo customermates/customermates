@@ -7,6 +7,31 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { decodeGetParams, encodeGetParams } from "@/core/utils/get-params";
 
 describe("filter URL parameters", () => {
+  it("preserves dynamic references, delimiters in selected values and system sorting/grouping", () => {
+    const filters: Filter[] = [
+      { field: "relationship:8f1c1a4e-0b2d-4a9e-9d7c-1f2a3b4c5d6e:outgoing", operator: FilterOperatorKey.hasSome },
+      { field: "system:assignedTo", operator: FilterOperatorKey.in, value: ["8f1c1a4e-0b2d-4a9e-9d7c-1f2a3b4c5d6e"] },
+      { field: "system:updatedAt", operator: FilterOperatorKey.inLastDays, value: 7 },
+      { field: "name", operator: FilterOperatorKey.in, value: ["Smith, Taylor", "Text: includes, delimiters"] },
+    ];
+    const sortDescriptor = { field: "system:createdAt", direction: "desc" as const };
+    const grouping = { field: "system:createdAt", bucket: "month" as const };
+    const decoded = decodeGetParams(
+      new URLSearchParams(encodeGetParams({ filters, sortDescriptor, grouping }).toString()),
+    );
+    expect(decoded).toMatchObject({ filters, sortDescriptor, grouping });
+  });
+
+  it("decodes existing dynamic URLs and rejects malformed versioned filter tokens", () => {
+    const encoded = new URLSearchParams();
+    encoded.append("filters", "system:updatedAt:inLastDays:7");
+    encoded.append("filters", "v2.{malformed}");
+    encoded.append("filters", 'v2.{"field":"name","operator":"execute","value":"unsafe"}');
+    expect(decodeGetParams(encoded).filters).toEqual([
+      { field: "system:updatedAt", operator: FilterOperatorKey.inLastDays, value: 7 },
+    ]);
+  });
+
   it.each([FilterOperatorKey.in, FilterOperatorKey.notIn] as const)(
     "preserves account folder references for %s after a real URL round trip",
     (operator) => {
@@ -32,27 +57,25 @@ describe("filter URL parameters", () => {
     expect(decodeGetParams(new URLSearchParams({ filters: `emailFolder:in:${value}` })).filters).toEqual([]);
   });
 
+  it("round trips multiple choice filters as option lists", () => {
+    const filters: Filter[] = [
+      { field: "10000000-0000-4000-8000-000000000001", operator: FilterOperatorKey.hasAnyOf, value: ["a"] },
+      { field: "10000000-0000-4000-8000-000000000001", operator: FilterOperatorKey.hasAllOf, value: ["a", "b"] },
+      { field: "10000000-0000-4000-8000-000000000001", operator: FilterOperatorKey.hasNoneOf, value: ["c"] },
+    ];
+    expect(decodeGetParams(new URLSearchParams(encodeGetParams({ filters }).toString())).filters).toEqual(filters);
+  });
+
   it("round trips relation existence filters without a value token", () => {
     const filters: Filter[] = [
-      { field: FilterFieldKey.userIds, operator: FilterOperatorKey.hasNone },
-      { field: FilterFieldKey.contactIds, operator: FilterOperatorKey.hasSome },
+      { field: FilterFieldKey.ownerUserId, operator: FilterOperatorKey.hasNone },
+      { field: FilterFieldKey.timelineThreadId, operator: FilterOperatorKey.hasSome },
     ];
 
     const encoded = encodeGetParams({ filters });
 
-    expect(encoded.getAll("filters")).toEqual(["userIds:hasNone", "contactIds:hasSome"]);
+    expect(encoded.getAll("filters")).toEqual(["ownerUserId:hasNone", "timelineThreadId:hasSome"]);
     expect(decodeGetParams(encoded).filters).toEqual(filters);
-  });
-
-  it("preserves legacy value-taking tokens as membership filters", () => {
-    const encoded = new URLSearchParams();
-    encoded.append("filters", "userIds:hasNone:u1,u2");
-    encoded.append("filters", "contactIds:hasSome:c1");
-
-    expect(decodeGetParams(encoded).filters).toEqual([
-      { field: FilterFieldKey.userIds, operator: FilterOperatorKey.notIn, value: ["u1", "u2"] },
-      { field: FilterFieldKey.contactIds, operator: FilterOperatorKey.in, value: ["c1"] },
-    ]);
   });
 
   it("round trips filters alongside the view, view mode and grouping parameters", () => {
@@ -90,14 +113,5 @@ describe("filter URL parameters", () => {
 
     expect(decoded.sortDescriptor).toBeUndefined();
     expect(decoded.filters).toEqual([]);
-  });
-
-  it("normalizes legacy filter objects before encoding", () => {
-    const filters = [
-      { field: FilterFieldKey.userIds, operator: FilterOperatorKey.hasNone, value: ["u1"] },
-      { field: FilterFieldKey.contactIds, operator: FilterOperatorKey.hasSome, value: ["c1"] },
-    ] as unknown as Filter[];
-
-    expect(encodeGetParams({ filters }).getAll("filters")).toEqual(["userIds:notIn:u1", "contactIds:in:c1"]);
   });
 });

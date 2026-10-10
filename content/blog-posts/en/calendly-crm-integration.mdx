@@ -224,49 +224,61 @@ Add any transformation logic here: split "John Smith" into first name and last n
 
 ### Step 3: Create or Update the Contact in Customermates
 
-Add an **HTTP Request** node:
+First call `POST <BASE_URL>/api/v1/model/discover` with `{}` and save the current schema revision, the Contacts type ID, and the field and relationship IDs you need. These stable IDs still work if someone renames a type or field. Then add an **HTTP Request** node:
 
 - **Method:** POST
-- **URL:** `<BASE_URL>/api/v1/contacts` (the address you open Customermates at)
+- **URL:** `<BASE_URL>/api/v1/records/mutate` (the address you open Customermates at)
 - **Headers:** `x-api-key: YOUR_API_KEY`
-- **Body (JSON):**
+- **Body (JSON, with placeholders filled from discovery and Calendly):**
 
 ```json
 {
-  "firstName": "{{firstName}}",
-  "lastName": "{{lastName}}",
-  "identifiers": [{ "provider": "mail", "value": "{{email}}" }],
-  "customFieldValues": [
-    { "columnId": "<id of your Lead source column>", "value": "Calendly - {{eventType}}" }
-  ]
+  "expectedRevision": {{schemaRevision}},
+  "idempotencyKey": "calendly-contact-{{eventId}}",
+  "mutation": {
+    "action": "create",
+    "typeId": "{{contactTypeId}}",
+    "fields": [
+      { "fieldId": "{{firstNameFieldId}}", "value": { "kind": "text", "value": "{{firstName}}" } },
+      { "fieldId": "{{lastNameFieldId}}", "value": { "kind": "text", "value": "{{lastName}}" } },
+      { "fieldId": "{{leadSourceFieldId}}", "value": { "kind": "text", "value": "Calendly - {{eventType}}" } }
+    ],
+    "identities": [{ "provider": "mail", "value": "{{email}}" }]
+  }
 }
 ```
 
-Fields such as phone, lead source, or company size are custom columns in your workspace; `GET /api/v1/contacts/configuration` lists their ids. Link the company by creating or finding an organization and passing its id in `organizationIds`.
+Add Lead source as an input field in Data model before using that assignment, or omit it. To link an organization, use the relationship ID from discovery and a `link` mutation with both record references.
 
-To avoid duplicates, add a preceding HTTP Request node that searches for the contact by email (`POST /api/v1/contacts/search`). If found, update instead of create (`PUT /api/v1/contacts/{id}`). Use an **IF** node to branch between the two paths.
+To avoid duplicates, search first with `POST /api/v1/records/search`. If the contact already exists, read its current version and send an `update` mutation to the same endpoint instead. Use an **IF** node to branch between those paths. Keep the Calendly event ID as the idempotency key so retries do not create another record.
 
 ### Step 4: Create a Deal Automatically
 
 Add another **HTTP Request** node:
 
 - **Method:** POST
-- **URL:** `<BASE_URL>/api/v1/deals`
+- **URL:** `<BASE_URL>/api/v1/records/mutate`
 - **Body (JSON):**
 
 ```json
 {
-  "name": "{{contactName}} - {{eventType}}",
-  "contactIds": ["{{contactId}}"],
-  "userIds": ["{{assignedRepUserId}}"],
-  "customFieldValues": [
-    { "columnId": "<id of your Stage column>", "value": "<Meeting Booked option>" },
-    { "columnId": "<id of your Expected close date column>", "value": "{{30 days from now}}" }
-  ]
+  "expectedRevision": {{schemaRevision}},
+  "idempotencyKey": "calendly-deal-{{eventId}}",
+  "mutation": {
+    "action": "create",
+    "typeId": "{{dealTypeId}}",
+    "fields": [
+      { "fieldId": "{{dealNameFieldId}}", "value": { "kind": "text", "value": "{{contactName}} - {{eventType}}" } },
+      { "fieldId": "{{stageFieldId}}", "value": { "kind": "select", "value": "{{meetingBookedOptionId}}" } },
+      { "fieldId": "{{expectedCloseFieldId}}", "value": { "kind": "date", "value": "{{expectedCloseDate}}" } }
+    ],
+    "assignedUserIds": ["{{assignedRepUserId}}"],
+    "links": [{ "relationId": "{{dealContactsRelationId}}", "direction": "outgoing", "record": { "typeId": "{{contactTypeId}}", "recordId": "{{contactId}}" } }]
+  }
 }
 ```
 
-The deal stage is a configurable single-select column, and an expected close date is a custom date column you add yourself; `GET /api/v1/deals/configuration` shows the column ids and options in your workspace. Map the Calendly host's email to the matching Customermates user id in n8n.
+Stage is a configurable select field with stable option IDs. Add Expected close as an input date field before using it, or omit that assignment. Discover the IDs and current revision from the model endpoint; map the Calendly host's email to a Customermates user ID in n8n. The [OpenAPI spec](/docs/openapi) defines the complete request and response shapes.
 
 ### Step 5: Add Follow-Up Actions
 

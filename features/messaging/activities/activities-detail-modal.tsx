@@ -25,10 +25,11 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { EmailFrame } from "../email-frame";
 import { Button } from "@/components/ui/button";
 import { isEmailProvider } from "@/ee/messaging/provider";
-import { messageSenderName } from "@/ee/messaging/thread-display";
+import { participantAvatar, messageSenderName } from "@/ee/messaging/thread-display";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { AuditDetail } from "./audit-detail";
+import { RecordAuditDetail } from "./record-audit-detail";
 import { calendarEventTitle } from "./activity-labels";
 import { DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
 import { hasLoadableRemoteImages, MessageBody } from "../message-body";
@@ -74,7 +75,7 @@ export const MessageDetail = observer(({ entry }: { entry: Extract<ActivityEntry
             badge={<TypeBadge icon={DirectionIcon} label={directionLabel} tone={isOutbound ? "sent" : "received"} />}
             name={senderName}
             size="xl"
-            src={message.sender.contact?.avatarUrl || message.sender.pictureUrl}
+            src={participantAvatar(message.sender)}
           />
         }
         provider={message.provider}
@@ -254,7 +255,7 @@ export const TimelineDetailModal = observer(() => {
   const intlStore = useHydratedIntlStore();
   const t = useTranslations();
   const { isOpen } = store;
-  const { entry, customColumns } = store.form;
+  const { entry } = store.form;
 
   const title = !entry
     ? ""
@@ -266,7 +267,7 @@ export const TimelineDetailModal = observer(() => {
           (entry.senderIsMine ? t("Inbox.senderYou") : t("Inbox.senderUnknownSender")))
       : entry.kind === "calendar_event"
         ? calendarEventTitle(entry.event.title, t("ContactHistory.calendarNoTitle"))
-        : entry.kind === "audit"
+        : entry.kind === "audit" || entry.kind === "configuration" || entry.kind === "record"
           ? t("AuditLogModal.eventAt", {
               event: t(`Common.events.${entry.event}`),
               date: intlStore.formatNumericalShortDateTime(entry.at),
@@ -321,7 +322,9 @@ export const TimelineDetailModal = observer(() => {
 
       {entry?.kind === "activity" && <ActivityDetail entry={entry} />}
 
-      {entry?.kind === "audit" && <AuditDetail customColumns={customColumns} entry={entry} />}
+      {(entry?.kind === "audit" || entry?.kind === "configuration") && <AuditDetail entry={entry} />}
+
+      {entry?.kind === "record" && <RecordAuditDetail entry={entry} />}
     </AppModal>
   );
 });

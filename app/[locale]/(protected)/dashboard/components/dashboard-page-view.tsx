@@ -1,32 +1,32 @@
 "use client";
 
+import type { DiscoveredRecordTypes } from "@/features/records/discover-record-types.interactor";
+import type { DashboardWidgets } from "@/features/widget/get-widgets.interactor";
 import type { ComponentType, ReactNode } from "react";
 import type { Layout, ResponsiveLayouts } from "react-grid-layout/legacy";
-import type { FilterableField } from "@/core/base/base-get.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { WidgetDto } from "@/features/widget/widget.schema";
-import type { EntityType } from "@/generated/prisma";
 
-import dynamic from "next/dynamic";
-import { BarChart3, Plus } from "lucide-react";
+import { BarChart3 } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 
 import "@/styles/react-grid-layout.css";
 
 import { AgentStarterActions } from "@/app/components/agent-chat/suggested-questions";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
+import { TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons";
 import { PageState } from "@/components/page-state/page-state";
+import { connectDataViewUrlSync } from "@/components/data-view/data-view-url-sync";
+import { DataViewViewsRail } from "@/components/data-view/views/data-view-views-rail";
 import { resolveResourcePageState } from "@/components/page-state/resource-page-state";
-import { Icon } from "@/components/shared/icon";
 import { Button } from "@/components/ui/button";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useIsTouchDevice } from "@/core/utils/use-is-touch-device";
-import { runUserAction } from "@/core/errors/report-application-error";
 
 import { DashboardPageSkeleton } from "./dashboard-page-skeleton";
-import { GRID_BREAKPOINTS, GRID_COLS } from "./grid.constants";
+import { DASHBOARD_GRID_MARGIN, DASHBOARD_ROW_HEIGHT, GRID_BREAKPOINTS, GRID_COLS } from "./grid.constants";
 import { WidgetCard } from "./widget-card";
 import {
   isInteractiveTarget,
@@ -35,6 +35,9 @@ import {
   WIDGET_INTERACTIVE_SELECTOR,
 } from "./widget-interaction";
 import { WidgetModal } from "./widget-modal";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+import type { FocusKind } from "@/components/focus/focus-href";
+import { useFocusTarget } from "@/components/focus/focus-target";
 
 const ResponsiveGridLayout = dynamic(
   () =>
@@ -45,21 +48,19 @@ const ResponsiveGridLayout = dynamic(
 );
 
 type Props = {
-  customColumns: CustomColumnDto[];
-  filterableFields: Record<EntityType, FilterableField[]>;
-  widgets: WidgetDto[];
-  activityFilterableFields: FilterableField[];
+  dashboard: DashboardWidgets;
+  recordTypes?: DiscoveredRecordTypes;
 };
 
-export const DashboardPageView = observer(function DashboardPageView({
-  activityFilterableFields,
-  customColumns,
-  filterableFields,
-  widgets,
-}: Props) {
+const WIDGET_FOCUS_KINDS: FocusKind[] = ["widget"];
+
+const DashboardPageViewContent = observer(function DashboardPageView({ dashboard, recordTypes }: Props) {
   const { widgetModalStore, widgetsStore } = useRootStore();
   const { items, layouts } = widgetsStore;
-  const canAddWidget = widgetModalStore.availableEntityTypes.length > 0;
+  const canAddWidget = widgetModalStore.availableKinds.length > 0;
+  useEffect(() => {
+    if (recordTypes) widgetModalStore.setRecordTypes(recordTypes);
+  }, [recordTypes, widgetModalStore]);
   const isTouchDevice = useIsTouchDevice();
   const pointerStart = useRef<{
     id: string;
@@ -70,10 +71,8 @@ export const DashboardPageView = observer(function DashboardPageView({
   } | null>(null);
   const t = useTranslations();
 
-  useLayoutEffect(
-    () => widgetsStore.setItems({ items: widgets, customColumns }),
-    [customColumns, widgets, widgetsStore],
-  );
+  useLayoutEffect(() => widgetsStore.setItems(dashboard), [dashboard, widgetsStore]);
+  useEffect(() => connectDataViewUrlSync(widgetsStore), [widgetsStore]);
 
   useEffect(() => {
     if (typeof window === "undefined" || items.length === 0) return;
@@ -116,22 +115,22 @@ export const DashboardPageView = observer(function DashboardPageView({
     };
   }, []);
   const pageState = resolveResourcePageState(widgetsStore.dataRequest, items.length);
+  useFocusTarget(
+    WIDGET_FOCUS_KINDS,
+    (target) => {
+      runUserAction(() => openWidgetEditor(widgetModalStore, target.id));
+      return true;
+    },
+    pageState === "content",
+  );
   const topBarActions = useMemo(
     () =>
       pageState !== "loading" && pageState !== "error" && canAddWidget ? (
-        <div className="flex items-center gap-1">
-          <Button
-            aria-label={t("Dashboard.addCard")}
-            id="dashboard-add-widget"
-            size="sm"
-            variant="default"
-            onClick={() => widgetModalStore.add(t("Dashboard.activityWidget.title"))}
-          >
-            <Icon icon={Plus} />
-
-            <span className="hidden sm:inline">{t("Dashboard.addCard")}</span>
-          </Button>
-        </div>
+        <TopBarPrimaryButton
+          anchorId="dashboard-add-widget"
+          label={t("Dashboard.addCard")}
+          onClick={() => widgetModalStore.add(t("Dashboard.activityWidget.title"))}
+        />
       ) : null,
     [canAddWidget, pageState, t, widgetModalStore],
   );
@@ -205,15 +204,19 @@ export const DashboardPageView = observer(function DashboardPageView({
           draggableCancel={WIDGET_INTERACTIVE_SELECTOR}
           isDraggable={!isTouchDevice}
           layouts={layouts}
-          margin={[16, 16]}
+          margin={[DASHBOARD_GRID_MARGIN, DASHBOARD_GRID_MARGIN]}
           resizeHandles={["n", "s", "e", "w", "ne", "nw", "se", "sw"]}
-          rowHeight={124}
+          rowHeight={DASHBOARD_ROW_HEIGHT}
           onLayoutChange={(layout: Layout, nextLayouts: ResponsiveLayouts) =>
             widgetsStore.onLayoutChange(layout, nextLayouts)
           }
         >
           {items.map((widget) => (
-            <div key={widget.id} onPointerDown={(event) => handlePointerDown(widget.id, event)}>
+            <div
+              key={widget.id}
+              data-focus-target={`widget:${widget.id}`}
+              onPointerDown={(event) => handlePointerDown(widget.id, event)}
+            >
               <WidgetCard widget={widget} />
             </div>
           ))}
@@ -228,13 +231,25 @@ export const DashboardPageView = observer(function DashboardPageView({
 
   return (
     <>
-      {body}
-
-      <WidgetModal
-        activityFilterableFields={activityFilterableFields}
-        customColumns={customColumns}
-        filterableFields={filterableFields}
+      <DataViewViewsRail
+        joinsTopBar
+        allLabel={t("Dashboard.mainView")}
+        allowDuplicate={false}
+        deleteNotice={(view) => {
+          const widgets = widgetsStore.activeViewKey === view.id ? widgetsStore.items.map((widget) => widget.name) : [];
+          return {
+            message: t("Dashboard.deleteView", { name: view.name, count: widgets.length }),
+            details: widgets,
+          };
+        }}
+        store={widgetsStore}
       />
+
+      <div className="relative flex min-h-0 w-full flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">{body}</div>
+
+      <WidgetModal />
     </>
   );
 });
+
+export const DashboardPageView = serverRenderedClient(DashboardPageViewContent);

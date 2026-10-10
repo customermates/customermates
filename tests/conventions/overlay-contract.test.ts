@@ -88,9 +88,7 @@ const PRIMITIVE_DEFAULTS: { file: string; mustContain: string[] }[] = [
 
 const CONTROLLED_FOCUS_RETURN_SURFACES = [
   "components/modal/app-modal.tsx",
-  "components/entity-detail/entity-drawer.tsx",
-  "components/modal/unsaved-changes-guard.tsx",
-  "components/modal/delete-confirmation-modal.tsx",
+  "components/modal/confirm-dialog.tsx",
   "components/ui/command.tsx",
 ];
 
@@ -106,13 +104,7 @@ const DOCUMENTED_OVERLAY_TYPES = [
   "CommandDialog",
 ];
 
-const OVERLAY_FOOTER_COMPONENTS = [
-  "DialogFooter",
-  "DrawerFooter",
-  "SheetFooter",
-  "AlertDialogFooter",
-  "PopoverFooter",
-];
+const OVERLAY_FOOTER_COMPONENTS = ["DialogFooter", "DrawerFooter", "SheetFooter", "AlertDialogFooter", "PopoverFooter"];
 
 const OVERLAY_FOOTER_DIVIDER = new RegExp(
   `<(?:${OVERLAY_FOOTER_COMPONENTS.join("|")})\\b(?:(?!>).)*\\bborder-(?:t|b)\\b(?:(?!>).)*>`,
@@ -185,7 +177,7 @@ const OVERLAY_FOOTER_BLOCK = /<AppCardFooter\b[^>]*>[\s\S]*?<\/AppCardFooter>/g;
  * Components that render their own AppCardFooter. Wrapping one in a second footer doubles the
  * padding and the safe-area inset, and neither is visible in a static read of the call site.
  */
-const SELF_FOOTERING_COMPONENTS = /<FormActions\b/;
+const SELF_FOOTERING_COMPONENTS = /<FormFooterActions\b/;
 
 function nestedOverlayFooterViolations(sources: { file: string; text: string }[]) {
   const found: string[] = [];
@@ -245,16 +237,20 @@ describe("overlay contract", () => {
     expect(found, `Use var(--safe-top|right|bottom|left) from styles/globals.css:\n${found.join("\n")}`).toEqual([]);
   });
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("routes floating surfaces through a collision-aware primitive", () => {
-    const found = violations(
-      (line) => FIXED_FLOATING_SURFACE.test(line.text),
-      (file) => FIXED_SURFACE_ALLOWLIST.has(file),
-    );
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "routes floating surfaces through a collision-aware primitive",
+    () => {
+      const found = violations(
+        (line) => FIXED_FLOATING_SURFACE.test(line.text),
+        (file) => FIXED_SURFACE_ALLOWLIST.has(file),
+      );
 
-    expect(found, `Compose Popover, Dialog, Sheet or Drawer instead of a raw fixed layer:\n${found.join("\n")}`).toEqual(
-      [],
-    );
-  });
+      expect(
+        found,
+        `Compose Popover, Dialog, Sheet or Drawer instead of a raw fixed layer:\n${found.join("\n")}`,
+      ).toEqual([]);
+    },
+  );
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("has no detached absolute dropdown panels", () => {
     const found = violations((line) => DETACHED_ABSOLUTE_PANEL.test(line.text));
@@ -333,17 +329,24 @@ describe("overlay contract", () => {
       `AppModal headers contain titles and metadata only. Pass controls through <AppModal actions={...}>:\n${found.join("\n")}`,
     ).toEqual([]);
     expect(appModal).toContain("actions?: AppModalActions");
-    expect(appModal).toContain("actions.map((action)");
-    expect(appModal).toContain('data-slot="app-modal-actions"');
+    expect(appModalAction).toContain("orderAppModalActions(actions).map((action)");
+    expect(appModal).toContain("<AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />");
+    expect(appModalAction).toContain('data-slot="app-modal-actions"');
     expect(appModal).toContain("data-overlay-action-count={hasActions");
     expect(appModal).toContain("data-overlay-actions={hasActions");
-    expect(appModalAction).toContain("OVERLAY_ICON_CONTROL_CLASS");
+    expect(appModalAction).toContain("overlayIconControlClass(variant)");
     expect(appModalAction).toContain('data-slot="app-modal-action"');
     expect(appModalAction).toContain('data-size="icon"');
     expect(appModalAction).toContain("OVERLAY_ACTION_RAIL_CLASS");
-    expect(overlayContract).toContain("size-9");
-    expect(overlayContract).toContain("[&_svg]:size-4");
-    expect(overlayContract).toContain("`absolute ${OVERLAY_ICON_CONTROL_CLASS}");
+    expect(overlayContract).toContain('variant: variant === "destructive" ? "ghostDestructive" : "ghost"');
+    expect(overlayContract).toContain('size: "icon-sm"');
+    expect(overlayContract).toContain("`absolute ${overlayIconControlClass()}`");
+    expect(overlayContract).not.toContain("rounded-xs");
+    for (const surface of [dialog, drawer, sheet]) {
+      expect(surface).toMatch(/className=\{cn\(\s*OVERLAY_CLOSE_CLASS,/);
+      expect(surface).toContain('<span className="sr-only">{t("Common.actions.close")}</span>');
+      expect(surface).toContain('<TooltipContent>{t("Common.actions.close")}</TooltipContent>');
+    }
     expect(dialog).toContain("OVERLAY_CLOSE_POSITION_CLASS");
     expect(drawer).toContain("OVERLAY_CLOSE_POSITION_CLASS");
     expect(sheet).toContain("OVERLAY_SAFE_CLOSE_POSITION_CLASS");
@@ -401,10 +404,10 @@ describe("overlay contract", () => {
   });
 
   it("never nests a shared footer inside another overlay footer", () => {
-    // FormActions renders its own AppCardFooter, so wrapping it in one applies p-6 pt-0 twice
+    // FormFooterActions renders its own AppCardFooter, so wrapping it in one applies p-6 pt-0 twice
     // and the drawer and sheet safe-area inset twice, both of which are in-* descendant
     // variants that match at any depth. It also leaves a bare padded strip for a reader whose
-    // FormActions returns null. The footer belongs beside AppCardBody, not around FormActions.
+    // FormFooterActions returns null. The footer belongs beside AppCardBody, not around FormFooterActions.
     const violations = nestedOverlayFooterViolations(
       sourceFiles().map((file) => ({ file: relative(REPO_ROOT, file), text: readFileSync(file, "utf8") })),
     );
@@ -417,24 +420,25 @@ describe("overlay contract", () => {
     // The probe lives here rather than in a fixture file, because sourceFiles() walks __tests__.
     expect(
       nestedOverlayFooterViolations([
-        { file: "bad.tsx", text: "<AppCardFooter>\n  <FormActions store={s} />\n</AppCardFooter>" },
+        { file: "bad.tsx", text: "<AppCardFooter>\n  <FormFooterActions store={s} />\n</AppCardFooter>" },
       ]),
     ).toHaveLength(1);
-    expect(
-      nestedOverlayFooterViolations([{ file: "good.tsx", text: "<FormActions store={s} />" }]),
-    ).toHaveLength(0);
+    expect(nestedOverlayFooterViolations([{ file: "good.tsx", text: "<FormFooterActions store={s} />" }])).toHaveLength(
+      0,
+    );
   });
 
   it("keeps delegated sheet card footers above the bottom safe area", () => {
     const appCardFooter = readFileSync(join(REPO_ROOT, "components/card/app-card-footer.tsx"), "utf8");
 
-    expect(appCardFooter).toContain(
-      "in-data-[overlay-surface=sheet]:pb-[calc(1.5rem+var(--safe-bottom))]",
-    );
+    expect(appCardFooter).toContain("in-data-[overlay-surface=sheet]:pb-[calc(1.5rem+var(--safe-bottom))]");
   });
 
   it("keeps task-overlay headers and action footers divider-free", () => {
-    const entityDetail = readFileSync(join(REPO_ROOT, "components/entity-detail/entity-detail-body.tsx"), "utf8");
+    const entityDetail = readFileSync(
+      join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor-content.tsx"),
+      "utf8",
+    );
     const responsiveOverlay = readFileSync(join(REPO_ROOT, "components/modal/responsive-overlay.tsx"), "utf8");
     const footerViolations = sourcePatternViolations(OVERLAY_FOOTER_DIVIDER);
 
@@ -470,26 +474,19 @@ describe("overlay contract", () => {
     expect(focusTarget).toContain("[data-overlay-surface][data-state='closed']");
     expect(focusTarget).toContain("element.focus({ preventScroll: true })");
 
-    const entityDrawerStack = readFileSync(
-      join(REPO_ROOT, "components/entity-detail/hooks/use-entity-drawer-stack.ts"),
+    const entityDrawer = readFileSync(
+      join(REPO_ROOT, "app/[locale]/(protected)/records/[typeId]/components/record-editor.tsx"),
       "utf8",
     );
-    expect(entityDrawerStack).toContain(
-      "stack.length === 0) rememberEntityDrawerInvoker(preferredInvoker, fallbackInvoker)",
-    );
-    expect(entityDrawerStack).toContain("stack.length === 1) prepareEntityDrawerInvokerRestore()");
-    expect(entityDrawerStack).toContain("focusOverlayTarget(entityDrawerInvoker, entityDrawerFallback)");
-    expect(entityDrawerStack).not.toContain("document.getElementById(");
-    expect(entityDrawerStack).not.toContain(".focus(");
-    expect(entityDrawerStack).not.toContain("window.setTimeout(");
-
-    const entityDrawer = readFileSync(join(REPO_ROOT, "components/entity-detail/entity-drawer.tsx"), "utf8");
-    expect(entityDrawer).toContain("if (focusEntityDrawerInvoker())");
-    expect(entityDrawer).toContain("focusReturn.onCloseAutoFocus(event)");
+    expect(entityDrawer).toContain("focusReturnTarget={store.focusReturnTarget}");
+    expect(entityDrawer).toContain("focusReturnFallback={store.focusReturnFallback}");
 
     const appSidebar = readFileSync(join(REPO_ROOT, "app/components/app-sidebar.tsx"), "utf8");
     expect(appSidebar).toContain("globalSearchModalStore.openFrom(invoker");
-    expect(appSidebar).toContain("feedbackModalStore.openFrom(invoker");
+    expect(appSidebar).toContain("sendFeedback(invoker");
+    expect(readFileSync(join(REPO_ROOT, "app/components/navigation/use-account-actions.ts"), "utf8")).toContain(
+      "feedbackModalStore.openFrom(invoker",
+    );
     expect(appSidebar).toContain('document.getElementById("sidebar-trigger")');
 
     const missing = CONTROLLED_FOCUS_RETURN_SURFACES.filter(

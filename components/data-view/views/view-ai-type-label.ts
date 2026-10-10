@@ -1,40 +1,47 @@
-import type { AiManageableDataViewSurfaceKey } from "@/core/data-view/ai-manageable-surfaces";
-import type { EntityType } from "@/generated/prisma";
+import {
+  isRecordDataViewSurface,
+  type AiManageableDataViewSurfaceKey,
+  type BuiltinAiManageableDataViewSurfaceKey,
+} from "@/core/data-view/ai-manageable-surfaces";
 
 import { SURFACE } from "@/core/data-view/data-view-keys";
 
-const LOCATIONS: Record<
-  Exclude<AiManageableDataViewSurfaceKey, typeof SURFACE.entityTimeline>,
-  { entity: EntityType } | { labelKey: string }
-> = {
-  [SURFACE.contacts]: { entity: "contact" },
-  [SURFACE.organizations]: { entity: "organization" },
-  [SURFACE.deals]: { entity: "deal" },
-  [SURFACE.services]: { entity: "service" },
-  [SURFACE.tasks]: { entity: "task" },
-  [SURFACE.users]: { labelKey: "NavigationBar.members" },
-  [SURFACE.roles]: { labelKey: "RolesCard.title" },
-  [SURFACE.webhooks]: { labelKey: "WebhooksCard.title" },
-  [SURFACE.webhookDeliveries]: { labelKey: "WebhookDeliveriesCard.title" },
-  [SURFACE.auditLogs]: { labelKey: "AuditLogsCard.title" },
-  [SURFACE.messagingThreads]: { labelKey: "NavigationBar.inbox" },
-  [SURFACE.routines]: { labelKey: "NavigationBar.routines" },
+const LOCATIONS: Record<BuiltinAiManageableDataViewSurfaceKey, string> = {
+  [SURFACE.users]: "SettingsNav.members",
+  [SURFACE.roles]: "SettingsNav.roles",
+  [SURFACE.webhooks]: "SettingsNav.webhooks",
+  [SURFACE.webhookDeliveries]: "SettingsNav.deliveries",
+  [SURFACE.messagingThreads]: "NavigationBar.inbox",
+  [SURFACE.entityTimeline]: "EntityTimeline.types.activities",
+  [SURFACE.activity]: "SettingsNav.activity",
+  [SURFACE.routines]: "NavigationBar.routines",
+  [SURFACE.dashboard]: "NavigationBar.dashboard",
 };
 
 export function viewAiTypeLabel(
   surfaceKey: AiManageableDataViewSurfaceKey,
   translate: (key: string, values?: Record<string, string>) => string,
-  entitySingular: (entity: EntityType) => string,
   form: "embedded" | "standalone",
+  recordLabel?: string,
 ): string {
   const t = translate;
   if (surfaceKey === SURFACE.entityTimeline) {
-    if (form === "standalone") return t("AgentChat.context.timelineViewTypeStandalone");
-    return t("AgentChat.context.timelineViewType");
+    return form === "standalone"
+      ? t("AgentChat.context.timelineViewTypeStandalone")
+      : t("AgentChat.context.timelineViewType");
+  }
+  if (isRecordDataViewSurface(surfaceKey)) {
+    return t(
+      form === "standalone" ? "AgentChat.context.surfaceViewTypeStandalone" : "AgentChat.context.surfaceViewType",
+      { location: recordLabel ?? t("RecordModel.records") },
+    );
   }
 
-  const location = LOCATIONS[surfaceKey];
-  const label = "entity" in location ? entitySingular(location.entity) : translate(location.labelKey);
-  if (form === "standalone") return t("AgentChat.context.surfaceViewTypeStandalone", { location: label });
+  const label = translate(LOCATIONS[surfaceKey]);
+  if (form === "standalone") {
+    return t("AgentChat.context.surfaceViewTypeStandalone", {
+      location: label,
+    });
+  }
   return t("AgentChat.context.surfaceViewType", { location: label });
 }

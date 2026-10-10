@@ -8,21 +8,10 @@ import {
   smallestIntervalMinutes,
 } from "@/ee/routines/routine-schedule";
 import { ROUTINE_TIMEZONE, SYNTHETIC_ROUTINES } from "../seeds/routines";
-import { isCustomField } from "@/core/utils/custom-field";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
-import enMessages from "@/i18n/locales/en.json";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const itDatabase = databaseUrl ? it : it.skip;
-
-const TRIGGER_REFS = {
-  dealId: "80000000-0000-4000-8000-000000000001",
-  organizationId: "70000000-0000-4000-8000-000000000001",
-  serviceId: "90000000-0000-4000-8000-000000000001",
-  contactId: "60000000-0000-4000-8000-000000000001",
-  statusColumnId: null,
-  thread: { id: "thread-1", connectedAccountId: "account-1" },
-};
 
 const scheduled = SYNTHETIC_ROUTINES.filter((routine) => routine.trigger.kind === "schedule");
 const evented = SYNTHETIC_ROUTINES.filter((routine) => routine.trigger.kind === "event");
@@ -77,6 +66,15 @@ describe("synthetic routine fixtures", () => {
     }
   });
 
+  it("uses current CRM tools and contract discovery in every shipped routine prompt", () => {
+    for (const routine of SYNTHETIC_ROUTINES) {
+      expect(routine.prompt, routine.name).toContain("discover_record_types");
+      expect(routine.prompt, routine.name).toContain("get_record_model");
+      expect(routine.prompt, routine.name).toContain("typeId and recordId");
+      expect(routine.prompt, routine.name).not.toMatch(/aggregationType|groupByType|entityType|customFieldValues/);
+    }
+  });
+
   it("uses schedules the runtime accepts", () => {
     for (const routine of scheduled) {
       if (routine.trigger.kind !== "schedule") continue;
@@ -92,7 +90,7 @@ describe("synthetic routine fixtures", () => {
     }
   });
 
-  it("only triggers on events a routine is allowed to watch", () => {
+  it("only stores events a routine is allowed to watch", () => {
     const allowed = new Set<string>(ROUTINE_TRIGGER_EVENTS);
 
     for (const routine of evented) {
@@ -110,9 +108,7 @@ describe("synthetic routine fixtures", () => {
       if (!routine.prompt.includes("routine_trigger")) continue;
       if (routine.runs.length === 0) continue;
 
-      expect(typeof routine.trigger.sample, `${routine.name} reads the trigger block but seeds no sample`).toBe(
-        "function",
-      );
+      expect(routine.trigger.sample, `${routine.name} reads the trigger block but seeds no sample`).toBeDefined();
     }
   });
 
@@ -130,27 +126,14 @@ describe("synthetic routine fixtures", () => {
     }
   });
 
-  it("never seeds a changed field that would render as a raw translation key", () => {
-    const columns = new Set(Object.keys(enMessages.Common.table.columns));
-    const auditFields = new Set(Object.keys(enMessages.AuditLogModal.fields));
-
-    // Mirrors useCanonicalColumnLabel: a catalogued key is translated, anything else is
-    // humanised. A field name carrying a dot would survive humanising as a key-looking
-    // string, which is the shape the run detail used to display.
-    const rendersAsKey = (field: string) =>
-      !isCustomField(field) && !columns.has(field) && !auditFields.has(field) && field.includes(".");
-
-    const offenders: string[] = [];
-
+  it("watches record events only together with the record types they come from", () => {
     for (const routine of evented) {
       if (routine.trigger.kind !== "event") continue;
-      const sample = routine.trigger.sample?.(TRIGGER_REFS);
-      const changes = (sample?.payload as { changes?: Record<string, unknown> } | undefined)?.changes ?? {};
-
-      for (const field of Object.keys(changes)) if (rendersAsKey(field)) offenders.push(`${routine.name}: ${field}`);
+      const watchesRecords = routine.trigger.events.some((event) => event.startsWith("record."));
+      expect(Boolean(routine.trigger.recordTypes?.length), routine.name).toBe(watchesRecords);
+      if (routine.trigger.sample)
+        expect(routine.trigger.sample.kind, routine.name).toBe(watchesRecords ? "record" : "messaging");
     }
-
-    expect(offenders, offenders.join("\n")).toEqual([]);
   });
 
   it("never instructs the demo agent to delete records or send outbound messages", () => {

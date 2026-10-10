@@ -1,0 +1,495 @@
+import ts from "typescript";
+import { describe, expect, it } from "vitest";
+
+import {
+  PRODUCT_SOURCES,
+  type Finding,
+  type SourceFile,
+  attributesOf,
+  finding,
+  formatFindings,
+  moduleReferences,
+  outsideAllowlist,
+  patternFindings,
+  resolvedSpecifier,
+  staleAllowlistEntries,
+  tagNameOf,
+  visit,
+} from "./design-system-scan";
+
+type Allowlist = Readonly<Record<string, string>>;
+
+function sourcesExcept(owners: ReadonlySet<string>, exemptions: Allowlist = {}) {
+  return PRODUCT_SOURCES.filter(({ file }) => !owners.has(file) && !(file in exemptions));
+}
+
+function enforce(findings: Finding[], allowlist: Allowlist) {
+  expect(outsideAllowlist(findings, allowlist)).toEqual([]);
+  expect(staleAllowlistEntries(findings, allowlist)).toEqual([]);
+}
+
+function importFindings(sources: SourceFile[], modulePattern: RegExp) {
+  return sources.flatMap((source) =>
+    moduleReferences(source)
+      .filter(({ specifier }) => modulePattern.test(specifier))
+      .map(({ position, specifier }) => finding(source, position, `import ${specifier}`)),
+  );
+}
+
+const TABS_OWNERS = new Set(["components/ui/segmented-control.tsx"]);
+
+const TABS_ALLOWLIST: Allowlist = {};
+
+describe("rule 57: sections and segments instead of tab bars", () => {
+  it("renders the Tabs primitive and the tabbed editor only through the shared segmented control", () => {
+    const sources = sourcesExcept(TABS_OWNERS);
+    enforce(importFindings(sources, /\/components\/(?:ui\/tabs|editor-tabs\/editor-tabs)$/), TABS_ALLOWLIST);
+  });
+});
+
+const OVERLAY_PRIMITIVE_OWNER_PREFIXES = ["components/ui/", "components/modal/"];
+
+const OVERLAY_PRIMITIVE_EXEMPTIONS: Allowlist = {
+  "app/components/app-sidebar.tsx": "the mobile sidebar is the navigation shell, not a dialog or drawer",
+};
+
+const OVERLAY_PRIMITIVE_ALLOWLIST: Allowlist = {};
+
+describe("rules 31 and 35: dialogs and drawers through the shared overlay components", () => {
+  it("imports the raw dialog, drawer and sheet primitives only inside the shared overlay components", () => {
+    const sources = PRODUCT_SOURCES.filter(
+      ({ file }) =>
+        !OVERLAY_PRIMITIVE_OWNER_PREFIXES.some((prefix) => file.startsWith(prefix)) &&
+        !(file in OVERLAY_PRIMITIVE_EXEMPTIONS),
+    );
+
+    enforce(importFindings(sources, /\/components\/ui\/(?:dialog|drawer|sheet)$/), OVERLAY_PRIMITIVE_ALLOWLIST);
+  });
+});
+
+const ACTION_TAGS = new Set([
+  "Button",
+  "IconButton",
+  "DropdownMenuItem",
+  "ContextMenuItem",
+  "CommandItem",
+  "AlertDialogAction",
+  "RowAction",
+]);
+
+const DELETE_LABEL = /\bt\(\s*["'`][\w.]*\.(?:\w*D|d)elete\w*["'`]/;
+const TRASH_ICON = /<Trash\w*\b|\bicon[:=]\s*\{?\s*Trash\w*\b/;
+const NAVIGATION = /\bhref=/;
+const DESTRUCTIVE_VARIANT = /[dD]estructive/;
+
+function isDeleteAction(text: string) {
+  return TRASH_ICON.test(text) || DELETE_LABEL.test(text);
+}
+
+function isActionElement(node: ts.Node): node is ts.JsxElement | ts.JsxSelfClosingElement {
+  const tag = tagNameOf(node);
+  return tag !== undefined && ACTION_TAGS.has(tag);
+}
+
+function containsNestedDeleteAction(source: SourceFile, node: ts.Node) {
+  let nested = false;
+  node.forEachChild((child) =>
+    visit(child, (descendant) => {
+      if (isActionElement(descendant) && isDeleteAction(descendant.getText(source.ast))) nested = true;
+    }),
+  );
+  return nested;
+}
+
+function objectProperty(node: ts.ObjectLiteralExpression, name: string) {
+  return node.properties.find(
+    (property) =>
+      (ts.isPropertyAssignment(property) || ts.isShorthandPropertyAssignment(property)) &&
+      property.name.getText() === name,
+  );
+}
+
+function isAlwaysDestructive(expression: ts.Expression | undefined): boolean {
+  if (!expression) return false;
+  if (ts.isParenthesizedExpression(expression) || ts.isAsExpression(expression) || ts.isSatisfiesExpression(expression))
+    return isAlwaysDestructive(expression.expression);
+  if (ts.isConditionalExpression(expression))
+    return isAlwaysDestructive(expression.whenTrue) && isAlwaysDestructive(expression.whenFalse);
+  return ts.isStringLiteralLike(expression) && DESTRUCTIVE_VARIANT.test(expression.text);
+}
+
+function variantExpression(node: ts.Node) {
+  if (isActionElement(node)) {
+    const attribute = attributesOf(node).properties.find(
+      (property) => ts.isJsxAttribute(property) && property.name.getText() === "variant",
+    );
+    if (!attribute || !ts.isJsxAttribute(attribute) || !attribute.initializer) return undefined;
+    return ts.isJsxExpression(attribute.initializer) ? attribute.initializer.expression : attribute.initializer;
+  }
+  if (!ts.isObjectLiteralExpression(node)) return undefined;
+  const variant = objectProperty(node, "variant");
+  return variant && ts.isPropertyAssignment(variant) ? variant.initializer : undefined;
+}
+
+function hasDestructiveVariant(node: ts.Node) {
+  return isAlwaysDestructive(variantExpression(node));
+}
+
+function isActionDescriptor(node: ts.Node): node is ts.ObjectLiteralExpression {
+  return (
+    ts.isObjectLiteralExpression(node) &&
+    objectProperty(node, "icon") !== undefined &&
+    (objectProperty(node, "onClick") !== undefined || objectProperty(node, "onSelect") !== undefined)
+  );
+}
+
+function destructiveActionFindings(sources: SourceFile[]) {
+  const findings: Finding[] = [];
+
+  for (const source of sources)
+    visit(source.ast, (node) => {
+      if (!isActionElement(node) && !isActionDescriptor(node)) return;
+      const text = node.getText(source.ast);
+      if (!isDeleteAction(text) || NAVIGATION.test(text)) return;
+      if (hasDestructiveVariant(node) || containsNestedDeleteAction(source, node)) return;
+      findings.push(finding(source, node.getStart(source.ast), text));
+    });
+
+  return findings;
+}
+
+const DESTRUCTIVE_ALLOWLIST: Allowlist = {};
+
+const DESTRUCTIVE_EXEMPTIONS: Allowlist = {
+  "components/modal/delete-confirmation-modal.tsx": "the shared confirm dialog; each caller sets its confirm variant",
+};
+
+describe("rule 54: delete actions use the destructive variant", () => {
+  it("marks every delete button, menu item and header action as destructive", () => {
+    enforce(destructiveActionFindings(sourcesExcept(new Set(), DESTRUCTIVE_EXEMPTIONS)), DESTRUCTIVE_ALLOWLIST);
+  });
+});
+
+const TOP_BAR_HOOKS = new Set(["useSetTopBarActions", "useSetTopBarActionsOverride"]);
+const RAW_TOP_BAR_CONTROL = /<(?:Button|button|IconButton)\b/;
+const PAGE_COMPONENT_SPECIFIER = /^@\/app\/\[locale\]\//;
+
+function declaredInitializer(scope: ts.Node, name: string): ts.Expression | undefined {
+  const statements = ts.isSourceFile(scope) || ts.isBlock(scope) ? scope.statements : [];
+  for (const statement of statements) {
+    if (!ts.isVariableStatement(statement)) continue;
+    for (const declaration of statement.declarationList.declarations)
+      if (ts.isIdentifier(declaration.name) && declaration.name.text === name) return declaration.initializer;
+  }
+  return undefined;
+}
+
+function resolvedTopBarNode(argument: ts.Expression): ts.Expression | undefined {
+  if (!ts.isIdentifier(argument)) return argument;
+  for (let scope: ts.Node | undefined = argument.parent; scope; scope = scope.parent) {
+    const initializer = declaredInitializer(scope, argument.text);
+    if (initializer) return initializer;
+  }
+  return undefined;
+}
+
+function sourceOfFile(file: string) {
+  return PRODUCT_SOURCES.find((candidate) => candidate.file === file);
+}
+
+function pageComponentSource(source: SourceFile, tag: string): string | undefined {
+  for (const statement of source.ast.statements) {
+    if (ts.isFunctionDeclaration(statement) && statement.name?.text === tag) return statement.getText(source.ast);
+    if (
+      ts.isVariableStatement(statement) &&
+      statement.declarationList.declarations.some((d) => d.name.getText(source.ast) === tag)
+    )
+      return statement.getText(source.ast);
+    if (!ts.isImportDeclaration(statement) || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
+    const bindings = statement.importClause?.namedBindings;
+    if (!bindings || !ts.isNamedImports(bindings) || !bindings.elements.some((element) => element.name.text === tag))
+      continue;
+    const specifier = resolvedSpecifier(source, statement.moduleSpecifier.text);
+    if (!PAGE_COMPONENT_SPECIFIER.test(specifier)) return undefined;
+    const base = specifier.slice(2);
+    return (sourceOfFile(`${base}.tsx`) ?? sourceOfFile(`${base}.ts`))?.text;
+  }
+  return undefined;
+}
+
+function rendersRawTopBarControl(source: SourceFile, node: ts.Expression) {
+  if (RAW_TOP_BAR_CONTROL.test(node.getText(source.ast))) return true;
+  let found = false;
+  visit(node, (child) => {
+    const tag = tagNameOf(child);
+    if (!tag || !/^[A-Z]/.test(tag) || found) return;
+    const component = pageComponentSource(source, tag);
+    if (component && RAW_TOP_BAR_CONTROL.test(component)) found = true;
+  });
+  return found;
+}
+
+function topBarFindings(sources: SourceFile[]) {
+  const findings: Finding[] = [];
+
+  for (const source of sources)
+    visit(source.ast, (node) => {
+      if (!ts.isCallExpression(node) || !TOP_BAR_HOOKS.has(node.expression.getText(source.ast))) return;
+      const [argument] = node.arguments;
+      if (!argument) return;
+      const resolved = resolvedTopBarNode(argument);
+      if (!resolved || rendersRawTopBarControl(source, resolved))
+        findings.push(finding(source, node.getStart(source.ast), node.getText(source.ast)));
+    });
+
+  return findings;
+}
+
+const TOP_BAR_ALLOWLIST: Allowlist = {};
+
+describe("rules 5, 6 and 58: top-bar actions and view chips through their shared components", () => {
+  it("builds every top-bar action node from DataViewToolbar or the shared top-bar action buttons", () => {
+    enforce(topBarFindings(PRODUCT_SOURCES), TOP_BAR_ALLOWLIST);
+  });
+
+  it("renders saved-view chips only through the shared views rail", () => {
+    const sources = PRODUCT_SOURCES.filter(({ file }) => !file.startsWith("components/data-view/views/"));
+    const findings = [
+      ...importFindings(sources, /\/components\/data-view\/views\/view-chip$/),
+      ...patternFindings(sources, /\bVIEW_(?:TAB|TAB_ACTIVE|SURFACE)_CLASS\b|\bdata-view-chip\b/),
+    ];
+
+    enforce(findings, {});
+  });
+});
+
+const VALUE_FORMAT =
+  /\bIntl\.(?:DateTimeFormat(?!\(\)\.resolvedOptions)|NumberFormat|RelativeTimeFormat)\b|\.toLocale(?:Date|Time)?String\(|\buseFormatter\(\)|\bformat\.(?:dateTime|number|relativeTime)\(/;
+
+const VALUE_RENDERER_OWNERS = new Set(["app/[locale]/(protected)/records/[typeId]/components/record-value.tsx"]);
+
+const VALUE_RENDERER_ALLOWLIST: Allowlist = {};
+
+function isRenderingSource({ file }: SourceFile) {
+  if (file.startsWith("components/ui/")) return false;
+  return file.startsWith("app/") || file.startsWith("components/") || file.endsWith(".tsx");
+}
+
+describe("rule 47: one value renderer per data type", () => {
+  it("formats dates, numbers and money only inside the shared value renderers", () => {
+    const sources = sourcesExcept(VALUE_RENDERER_OWNERS).filter(isRenderingSource);
+
+    enforce(patternFindings(sources, VALUE_FORMAT), VALUE_RENDERER_ALLOWLIST);
+  });
+});
+
+const PALETTE_COLOR =
+  /\b(?:text|bg|border|ring|fill|stroke|from|to|via|outline|decoration|shadow|divide|accent|caret|placeholder)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|black|white)(?:-\d{2,3})?(?:\/\d+)?\b/;
+const LITERAL_COLOR =
+  /(?<=^|[[(:,\s=])#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3,4})(?![\w-])|\b(?:rgba?|hsla?|oklch)\(/;
+
+const COLOR_OWNERS = new Set(["components/ui/button.tsx"]);
+
+const COLOR_EXEMPTIONS: Allowlist = {
+  "features/messaging/email-frame.tsx": "styles the sandboxed email document, which cannot read app tokens",
+  "ee/messaging/email-settings.ts": "outgoing email HTML, rendered by mail clients without app tokens",
+  "ee/messaging/email-styles.ts": "outgoing email HTML, rendered by mail clients without app tokens",
+  "features/messaging/message-body.tsx": "renders email bodies on white paper, as mail clients do",
+  "components/ai-connection/ai-client-logo.tsx": "third-party brand mark in its own brand color",
+  "app/layout.tsx": "browser theme-color metadata, which cannot reference CSS tokens",
+};
+
+function stringLiteralFindings(sources: SourceFile[], pattern: RegExp) {
+  const findings: Finding[] = [];
+
+  for (const source of sources)
+    visit(source.ast, (node) => {
+      if (!(ts.isStringLiteralLike(node) || ts.isTemplateLiteralToken(node) || ts.isJsxText(node))) return;
+      const text = ts.isJsxText(node) ? node.getText(source.ast) : node.text;
+      const match = new RegExp(pattern.source, pattern.flags.replace(/[gy]/g, "")).exec(text);
+      if (match) findings.push(finding(source, node.getStart(source.ast), match[0]));
+    });
+
+  return findings;
+}
+
+const COLOR_ALLOWLIST: Allowlist = {};
+
+describe("rule 58: colors only through design tokens", () => {
+  it("uses no Tailwind palette colors or literal color values outside the token owners", () => {
+    const sources = sourcesExcept(COLOR_OWNERS, COLOR_EXEMPTIONS);
+    const findings = [
+      ...stringLiteralFindings(sources, PALETTE_COLOR),
+      ...stringLiteralFindings(sources, LITERAL_COLOR),
+    ];
+
+    enforce(findings, COLOR_ALLOWLIST);
+  });
+});
+
+const ICON_LIBRARY = "lucide-react";
+const FOREIGN_ICON_LIBRARY =
+  /^(?:@tabler\/icons|react-icons|@heroicons|@radix-ui\/react-icons|@phosphor-icons|react-feather)/;
+
+const INLINE_SVG_EXEMPTIONS: Allowlist = {
+  "components/ai-connection/ai-client-logo.tsx": "third-party brand mark, not part of the icon set",
+  "app/components/agent-chat/usage-ring.tsx": "data graphic (usage progress ring), not an icon",
+  "app/[locale]/(protected)/onboarding/wizard/components/onboarding-artwork.tsx": "illustration, not an icon",
+  "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx": "chart preview illustration",
+};
+
+const INLINE_SVG_ALLOWLIST: Allowlist = {};
+
+describe("rule 58: icons from the shared icon set", () => {
+  it(`imports icons only from ${ICON_LIBRARY}`, () => {
+    enforce(importFindings(PRODUCT_SOURCES, FOREIGN_ICON_LIBRARY), {});
+  });
+
+  it("draws no inline svg icons on product surfaces", () => {
+    enforce(patternFindings(sourcesExcept(new Set(), INLINE_SVG_EXEMPTIONS), /<svg\b/), INLINE_SVG_ALLOWLIST);
+  });
+});
+
+const KEY_CAP_OWNERS = new Set(["components/keyboard/shortcut-keys.tsx", "components/keyboard/key-matching.ts"]);
+const RAW_KEY_HINT = /<kbd\b|&#8984;|⌘|\\u2318/;
+
+const KEY_CAP_ALLOWLIST: Allowlist = {};
+
+describe("rule 52: key hints only through the shared key caps", () => {
+  it("renders keyboard hints only inside the shared key cap component", () => {
+    enforce(patternFindings(sourcesExcept(KEY_CAP_OWNERS), RAW_KEY_HINT), KEY_CAP_ALLOWLIST);
+  });
+});
+
+const NATIVE_TITLE_HOSTS = new Set([
+  "Button",
+  "DropdownMenuItem",
+  "CommandItem",
+  "SelectItem",
+  "DropdownMenuSubTrigger",
+]);
+const TITLE_EXEMPT_TAGS = new Set(["iframe", "title", "svg"]);
+
+function nativeTitleFindings(sources: SourceFile[]) {
+  const findings: Finding[] = [];
+
+  for (const source of sources)
+    visit(source.ast, (node) => {
+      if (!ts.isJsxOpeningElement(node) && !ts.isJsxSelfClosingElement(node)) return;
+      const tag = node.tagName.getText(source.ast);
+      const intrinsic = /^[a-z]/.test(tag) && !tag.includes(".");
+      if (TITLE_EXEMPT_TAGS.has(tag) || (!intrinsic && !NATIVE_TITLE_HOSTS.has(tag))) return;
+      const title = node.attributes.properties.find(
+        (property) => ts.isJsxAttribute(property) && property.name.getText(source.ast) === "title",
+      );
+      if (title) findings.push(finding(source, title.getStart(source.ast), `<${tag} ${title.getText(source.ast)}`));
+    });
+
+  return findings;
+}
+
+const NATIVE_TITLE_EXEMPTIONS: Allowlist = {
+  "components/shared/locale-menu.tsx": "public website and docs language menu, outside the product UI",
+};
+
+const NATIVE_TITLE_ALLOWLIST: Allowlist = {};
+
+describe("rule 4: tooltips through the app Tooltip, never title attributes", () => {
+  it("sets no native title attribute on product elements", () => {
+    enforce(nativeTitleFindings(sourcesExcept(new Set(), NATIVE_TITLE_EXEMPTIONS)), NATIVE_TITLE_ALLOWLIST);
+  });
+});
+
+const ROW_CONTAINER_TAGS = new Set(["CollapsibleSection", "AppCardBody"]);
+const INSET_ROW_DIVIDER = /(?:^|\s)(?:divide-y|border-y)(?:\s|$)/;
+const OWN_FRAME = /(?=.*(?:^|\s)rounded-\w+(?:\s|$))(?=.*(?:^|\s)border(?:\s|$))/;
+
+function stringConstants(source: SourceFile) {
+  const constants = new Map<string, ts.Node>();
+  visit(source.ast, (node) => {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer)
+      constants.set(node.name.text, node.initializer);
+  });
+  return constants;
+}
+
+function insetRowDividerFindings(sources: SourceFile[]) {
+  const findings: Finding[] = [];
+
+  for (const source of sources) {
+    const constants = stringConstants(source);
+    visit(source.ast, (container) => {
+      const tag = tagNameOf(container);
+      if (!tag || !ROW_CONTAINER_TAGS.has(tag)) return;
+      visit(container, (node) => {
+        if (!ts.isJsxAttribute(node) || node.name.getText(source.ast) !== "className") return;
+        const expression = node.initializer && ts.isJsxExpression(node.initializer) ? node.initializer.expression : undefined;
+        const resolved = expression && ts.isIdentifier(expression) ? constants.get(expression.text) : undefined;
+        visit(resolved ?? node, (literal) => {
+          if (
+            (ts.isStringLiteral(literal) || ts.isNoSubstitutionTemplateLiteral(literal)) &&
+            INSET_ROW_DIVIDER.test(literal.text) &&
+            !OWN_FRAME.test(literal.text)
+          )
+            findings.push(finding(source, node.getStart(source.ast), `<${tag}> rows: ${literal.text}`));
+        });
+      });
+    });
+  }
+
+  return findings;
+}
+
+describe("rule 68: rows inside cards and sections through SectionRows", () => {
+  it("draws no inset row dividers inside a card body or collapsible section", () => {
+    expect(formatFindings(insetRowDividerFindings(PRODUCT_SOURCES))).toEqual([]);
+  });
+});
+
+const SENTENCE_COMPONENT = /^[A-Z]\w*Sentence\w*$/;
+const SENTENCE_ATTRIBUTE = /^data-[\w-]*sentence[\w-]*$/;
+const CHIP_TAGS = new Set(["AppChip", "ClickableChip", "MemberChip"]);
+
+function sentenceScopes(source: SourceFile) {
+  const scopes: ts.Node[] = [];
+  visit(source.ast, (node) => {
+    if (ts.isFunctionDeclaration(node) && node.name && SENTENCE_COMPONENT.test(node.name.text)) scopes.push(node);
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && SENTENCE_COMPONENT.test(node.name.text))
+      scopes.push(node);
+    if (
+      (ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node)) &&
+      attributesOf(node).properties.some(
+        (property) => ts.isJsxAttribute(property) && SENTENCE_ATTRIBUTE.test(property.name.getText(source.ast)),
+      )
+    )
+      scopes.push(node);
+  });
+  return scopes;
+}
+
+function sentenceChipFindings(sources: SourceFile[]) {
+  const findings: Finding[] = [];
+  let scopeCount = 0;
+
+  for (const source of sources)
+    for (const scope of sentenceScopes(source)) {
+      scopeCount += 1;
+      visit(scope, (node) => {
+        if (!ts.isJsxElement(node) && !ts.isJsxSelfClosingElement(node)) return;
+        const tag = tagNameOf(node);
+        if (tag && CHIP_TAGS.has(tag))
+          findings.push(finding(source, node.getStart(source.ast), `<${tag}> inside a sentence, use <InlineChip>`));
+      });
+    }
+
+  return { findings, scopeCount };
+}
+
+describe("rule 66: chips inside sentences use the inline chip", () => {
+  it("renders every chip inside a sentence component as the shared InlineChip", () => {
+    const { findings, scopeCount } = sentenceChipFindings(PRODUCT_SOURCES);
+
+    expect(scopeCount).toBeGreaterThan(0);
+    expect(formatFindings(findings)).toEqual([]);
+  });
+});

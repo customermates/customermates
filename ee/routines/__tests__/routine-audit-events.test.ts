@@ -32,9 +32,9 @@ import { DeleteRoutineInteractor } from "../delete-routine.interactor";
 import { PauseRoutineInteractor } from "../pause-routine.interactor";
 import { UpsertRoutineInteractor } from "../upsert-routine.interactor";
 import { DomainEvent } from "@/features/event/domain-events";
-import { AUDIT_EVENT_ENTITY_TYPE } from "@/features/event/audit-entity-type";
-import { getEntityName } from "@/features/event/entity-name.utils";
-import { WEBHOOK_EVENTS } from "@/features/webhook/webhook-event-registry";
+import { WEBHOOK_CURRENT_EVENTS } from "@/features/webhook/webhook-event-registry";
+
+const trashStub = () => ({ add: vi.fn(), remove: vi.fn() }) as never;
 
 const ROUTINE_ID = "00000000-0000-4000-8000-000000000001";
 const OWNER_ID = "00000000-0000-4000-8000-000000000002";
@@ -77,7 +77,6 @@ function routine(overrides: Partial<RoutineDto> = {}): RoutineDto {
     cronExpression: "0 9 * * *",
     timezone: "Europe/Berlin",
     triggerEvents: [],
-    changedFields: [],
     triggerFilters: [],
     debounceSeconds: 300,
     nextRunAt: null,
@@ -207,11 +206,11 @@ describe("routine audit events", () => {
     const deleted = routine();
     const repo = {
       isActiveSystemAdministrator: vi.fn().mockResolvedValue(true),
-      deleteRoutineOrThrow: vi.fn().mockResolvedValue(deleted),
+      trashRoutineOrThrow: vi.fn().mockResolvedValue(deleted),
     };
     const { publish, service } = eventService();
 
-    const result = await new DeleteRoutineInteractor(repo as never, service).invoke({ id: ROUTINE_ID });
+    const result = await new DeleteRoutineInteractor(repo as never, service, trashStub()).invoke({ id: ROUTINE_ID });
 
     expect(result.ok).toBe(true);
     expect(publish).toHaveBeenCalledExactlyOnceWith(DomainEvent.ROUTINE_DELETED, {
@@ -248,43 +247,6 @@ describe("routine audit events", () => {
 });
 
 describe("routine audit event wiring", () => {
-  it("classifies every routine event as unlinked to a record entity type", () => {
-    expect(AUDIT_EVENT_ENTITY_TYPE[DomainEvent.ROUTINE_CREATED]).toBeNull();
-    expect(AUDIT_EVENT_ENTITY_TYPE[DomainEvent.ROUTINE_UPDATED]).toBeNull();
-    expect(AUDIT_EVENT_ENTITY_TYPE[DomainEvent.ROUTINE_DELETED]).toBeNull();
-  });
-
-  it("names the routine in the audit row for each event", () => {
-    const current = routine();
-
-    expect(
-      getEntityName(DomainEvent.ROUTINE_CREATED, {
-        userId: OWNER_ID,
-        companyId: "company",
-        entityId: ROUTINE_ID,
-        payload: current,
-      }),
-    ).toBe("Daily deal digest");
-
-    expect(
-      getEntityName(DomainEvent.ROUTINE_UPDATED, {
-        userId: OWNER_ID,
-        companyId: "company",
-        entityId: ROUTINE_ID,
-        payload: { routine: current, changes: {} },
-      }),
-    ).toBe("Daily deal digest");
-
-    expect(
-      getEntityName(DomainEvent.ROUTINE_DELETED, {
-        userId: OWNER_ID,
-        companyId: "company",
-        entityId: ROUTINE_ID,
-        payload: current,
-      }),
-    ).toBe("Daily deal digest");
-  });
-
   it("keeps routine events out of the webhook catalog, so a routine edit cannot trigger a routine", () => {
     const routineEvents: string[] = [
       DomainEvent.ROUTINE_CREATED,
@@ -292,6 +254,6 @@ describe("routine audit event wiring", () => {
       DomainEvent.ROUTINE_DELETED,
     ];
 
-    for (const event of routineEvents) expect(WEBHOOK_EVENTS).not.toContain(event);
+    for (const event of routineEvents) expect(WEBHOOK_CURRENT_EVENTS).not.toContain(event);
   });
 });

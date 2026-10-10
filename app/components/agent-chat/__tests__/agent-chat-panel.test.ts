@@ -14,7 +14,7 @@ vi.mock("@/core/utils/clipboard", () => ({ copyToClipboard: vi.fn() }));
 vi.mock("@/hooks/use-media-query", () => ({ useIsWiderThan: () => true }));
 vi.mock("@/i18n/navigation", () => ({
   IntlLink: ({ children, ...props }: { children: ReactNode; href: string }) => createElement("a", props, children),
-  usePathname: () => "/company/webhooks",
+  usePathname: () => "/settings/webhooks",
   useRouter: () => ({ push: vi.fn() }),
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({

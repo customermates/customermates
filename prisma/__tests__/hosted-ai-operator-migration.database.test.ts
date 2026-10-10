@@ -1,14 +1,15 @@
 import { randomUUID } from "node:crypto";
-import { readFileSync, readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Client } from "pg";
 import { describe, expect, it } from "vitest";
 
-import { PrismaClient } from "@/generated/prisma";
 import { SYNTHETIC_SEED_USER } from "@/core/config/synthetic-seed-user";
+import { PrismaClient } from "@/generated/prisma";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
+import { CONFIGURABLE_RECORDS_MIGRATION } from "@/tests/helpers/legacy-migration-database";
 
 import { createSeedContext, SEED_IDS } from "../seeds/context";
 import { seedHostedAiOperatorFixtures, seedLocalHostedAiOperatorAccess } from "../seeds/hosted-ai-operator";
@@ -19,7 +20,7 @@ const migrationsRoot = join(process.cwd(), "prisma/migrations");
 
 function migrationNames() {
   return readdirSync(migrationsRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
+    .filter((entry) => entry.isDirectory() && entry.name < CONFIGURABLE_RECORDS_MIGRATION)
     .map((entry) => entry.name)
     .sort();
 }

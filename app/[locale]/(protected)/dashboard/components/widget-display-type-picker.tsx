@@ -7,13 +7,64 @@ import { SelectableCard } from "@/components/forms/selectable-card";
 import { RadioGroup } from "@/components/ui/radio-group";
 import { cn } from "@/core/utils/cn";
 import { DisplayType } from "@/features/widget/widget.schema";
+import type { WidgetDisplayRequirement } from "@/features/widget/widget-display-rules";
 
 type IllustrationProps = {
   className?: string;
   type: DisplayType;
 };
 
-function ChartTypeIllustration({ className, type }: IllustrationProps) {
+export function ChartTypeIllustration({ className, type }: IllustrationProps) {
+  if (type === DisplayType.number) {
+    return (
+      <div className={cn("flex flex-col items-center justify-center gap-1.5", className)}>
+        <span className="h-6 w-16 rounded-sm bg-primary" />
+
+        <span className="h-1.5 w-10 rounded-full bg-border-strong" />
+      </div>
+    );
+  }
+
+  if (type === DisplayType.areaChart) {
+    return (
+      <div className={cn("flex items-end justify-center", className)}>
+        <svg aria-hidden className="h-full w-24 text-primary" preserveAspectRatio="none" viewBox="0 0 96 56">
+          <path d="M0 44 L20 30 L40 36 L60 16 L80 22 L96 8 L96 56 L0 56 Z" fill="currentColor" fillOpacity={0.25} />
+
+          <path d="M0 44 L20 30 L40 36 L60 16 L80 22 L96 8" fill="none" stroke="currentColor" strokeWidth={3} />
+        </svg>
+      </div>
+    );
+  }
+
+  if (type === DisplayType.rankedTable) {
+    return (
+      <div className={cn("flex flex-col justify-center gap-1.5", className)}>
+        {["w-full", "w-3/4", "w-1/2"].map((width, index) => (
+          <div key={width} className="flex items-center gap-1.5">
+            <span className="h-1.5 w-2 rounded-full bg-border-strong" />
+
+            <span className="flex-1">
+              <span className={cn("block h-2 rounded-sm bg-primary", width, index > 0 && "bg-primary/55")} />
+            </span>
+
+            <span className="h-1.5 w-4 rounded-full bg-border-strong" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (type === DisplayType.funnelChart) {
+    return (
+      <div className={cn("flex flex-col items-center justify-center gap-1", className)}>
+        {["w-full", "w-4/5", "w-3/5", "w-2/5"].map((width, index) => (
+          <span key={width} className={cn("h-2.5 rounded-sm bg-primary", width, index % 2 === 1 && "bg-primary/55")} />
+        ))}
+      </div>
+    );
+  }
+
   if (type === DisplayType.doughnutChart) {
     return (
       <div className={cn("flex items-center justify-center", className)}>
@@ -63,11 +114,12 @@ function ChartTypeIllustration({ className, type }: IllustrationProps) {
 
 type Props = {
   disabled?: boolean;
+  unavailable?: Partial<Record<DisplayType, WidgetDisplayRequirement>>;
   value: DisplayType;
   onValueChange: (value: DisplayType) => void;
 };
 
-export function WidgetDisplayTypePicker({ disabled, value, onValueChange }: Props) {
+export function WidgetDisplayTypePicker({ disabled, unavailable = {}, value, onValueChange }: Props) {
   const t = useTranslations();
 
   return (
@@ -84,10 +136,12 @@ export function WidgetDisplayTypePicker({ disabled, value, onValueChange }: Prop
       >
         {Object.values(DisplayType).map((type) => {
           const id = `display-type-${type}`;
+          const requirement = unavailable[type];
           return (
             <SelectableCard
               key={type}
-              disabled={disabled}
+              description={requirement ? t(`Dashboard.displayTypeRequirements.${requirement}`) : undefined}
+              disabled={disabled || Boolean(requirement)}
               id={id}
               label={t(`Dashboard.displayTypes.${type}`)}
               labelClassName="min-h-28 gap-2"

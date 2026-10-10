@@ -124,7 +124,7 @@ function asTenant<T>(fn: () => Promise<T>) {
   return runWithTenant(mockUser, fn);
 }
 
-const ownerWhere = { companyId: mockUser.companyId, surfaceKey: SURFACE, userId: mockUser.id };
+const ownerWhere = { companyId: mockUser.companyId, surfaceKey: SURFACE, userId: mockUser.id, deletedAt: null };
 
 describe("PrismaDataViewRepo scoping", () => {
   beforeEach(() => {
@@ -165,16 +165,17 @@ describe("PrismaDataViewRepo scoping", () => {
     expect(dataViewFindMany.mock.calls[0][0].select).not.toHaveProperty("visibility");
   });
 
-  it("scopes the owner-only lookup, update and delete by both companyId and userId", async () => {
+  it("scopes the owner-only lookup, update and move to Trash by companyId, userId and live rows", async () => {
     await asTenant(() => new PrismaDataViewRepo().findOwnedOrNull(A_VIEW_ID));
     await asTenant(() => new PrismaDataViewRepo().updateOwned({ id: A_VIEW_ID, name: "Renamed" }));
-    await asTenant(() => new PrismaDataViewRepo().deleteOwned(A_VIEW_ID));
+    await asTenant(() => new PrismaDataViewRepo().trashOwned(A_VIEW_ID));
 
-    const ownedWhere = { id: A_VIEW_ID, companyId: mockUser.companyId, userId: mockUser.id };
+    const ownedWhere = { id: A_VIEW_ID, companyId: mockUser.companyId, userId: mockUser.id, deletedAt: null };
 
     expect(dataViewFindFirst).toHaveBeenCalledWith(expect.objectContaining({ where: ownedWhere }));
     expect(dataViewUpdateMany).toHaveBeenCalledWith({ where: ownedWhere, data: { name: "Renamed" } });
-    expect(dataViewDeleteMany).toHaveBeenCalledWith({ where: ownedWhere });
+    expect(dataViewUpdateMany).toHaveBeenCalledWith({ where: ownedWhere, data: { deletedAt: expect.any(Date) } });
+    expect(dataViewDeleteMany).not.toHaveBeenCalled();
   });
 
   it("returns null from updateOwned when the row is not owned, and never re-reads it", async () => {
@@ -213,6 +214,7 @@ describe("PrismaDataViewRepo scoping", () => {
       companyId: mockUser.companyId,
       userId: mockUser.id,
       surfaceKey: SURFACE,
+      deletedAt: null,
     });
     expect(Object.keys(dataViewUpdateMany.mock.calls[0][0].data).sort()).toEqual(EVERY_STATE_COLUMN);
     expect(dataViewFindFirst).not.toHaveBeenCalled();
@@ -284,7 +286,7 @@ describe("PrismaDataViewRepo scoping", () => {
     expect(await asTenant(() => new PrismaDataViewRepo().nextPosition(SURFACE))).toBe(5);
 
     expect(dataViewAggregate).toHaveBeenCalledWith({
-      where: { companyId: mockUser.companyId, userId: mockUser.id, surfaceKey: SURFACE },
+      where: { companyId: mockUser.companyId, userId: mockUser.id, surfaceKey: SURFACE, deletedAt: null },
       _max: { position: true },
     });
   });
@@ -297,28 +299,15 @@ describe("PrismaDataViewRepo stored state", () => {
     p13nFindUnique.mockResolvedValue(null);
   });
 
-  it("normalizes legacy relation filters on a view and on the All tab alike", async () => {
-    const legacy = [{ field: FilterFieldKey.dealIds, operator: FilterOperatorKey.hasNone, value: ["d1"] }];
-    dataViewFindMany.mockResolvedValue([storedView({ filters: legacy })]);
-    p13nFindUnique.mockResolvedValue(storedPersonalization({ filters: legacy }));
-
-    const surface = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
-
-    const normalized = [{ field: FilterFieldKey.dealIds, operator: FilterOperatorKey.notIn, value: ["d1"] }];
-    expect(surface.views[0].state.filters).toEqual(normalized);
-    expect(surface.allState.filters).toEqual(normalized);
-  });
-
   it("reads a malformed stored filter entry without throwing", async () => {
-    const malformed = [null, { field: FilterFieldKey.dealIds, operator: FilterOperatorKey.hasSome, value: ["d2"] }];
+    const malformed = [null, { field: FilterFieldKey.status, operator: FilterOperatorKey.in, value: ["active"] }];
     dataViewFindMany.mockResolvedValue([storedView({ filters: malformed })]);
     p13nFindUnique.mockResolvedValue(storedPersonalization({ filters: malformed }));
 
     const surface = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
 
-    const tolerated = [null, { field: FilterFieldKey.dealIds, operator: FilterOperatorKey.in, value: ["d2"] }];
-    expect(surface.views[0].state.filters).toEqual(tolerated);
-    expect(surface.allState.filters).toEqual(tolerated);
+    expect(surface.views[0].state.filters).toEqual(malformed);
+    expect(surface.allState.filters).toEqual(malformed);
   });
 
   it("distinguishes an unset column from a cleared value", async () => {

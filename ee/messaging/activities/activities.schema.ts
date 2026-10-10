@@ -2,15 +2,9 @@ import type { GetResult } from "@/core/base/base-get.interactor";
 
 import { z } from "zod";
 
-import { EntityType, MessagingProvider, MessagingThreadType } from "@/generated/prisma";
+import { MessagingProvider, MessagingThreadType } from "@/generated/prisma";
 import { CalendarEventSchema } from "@/ee/calendar/calendar.schema";
-import {
-  GetQueryParamsApiSchema,
-  GetQueryParamsSchema,
-  PaginationRequestSchema,
-  createApiGetResultSchema,
-  DataViewResultFields,
-} from "@/core/base/base-get.schema";
+import { createApiGetResultSchema, DataViewResultFields } from "@/core/base/base-get.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -18,9 +12,11 @@ import { TIMELINE_KIND_FILTER_VALUES } from "@/core/types/filter-field-value-kin
 
 import { MessagingMessageDtoSchema } from "../inbox/inbox.schema";
 import { MessagingProviderSchema } from "../messaging.schema";
-import { AuditChangeSchema } from "@/features/audit-log/audit-log-changes";
+import { AuditChangeSchema } from "@/features/event/audit-changes";
 import { ACTIVITY_RELATED_RECORD_LIMIT } from "./activity-record-refs";
-import { ACTIVITY_MAX_PAGE, ActivityScopeSchema } from "./activity-scope.schema";
+import { RecordRefSchema } from "@/features/records/record-model.schema";
+import { RecordHistoryChangesSchema } from "@/features/records/record-event.schema";
+import { CHIP_COLORS } from "@/constants/chip-colors";
 
 const CalendarEventDtoSchema = CalendarEventSchema.pick({
   id: true,
@@ -52,6 +48,19 @@ export const ActorSchema = z.object({
   email: z.string(),
 });
 
+export const ActivityMemberSchema = z.object({
+  id: z.uuid(),
+  firstName: z.string(),
+  lastName: z.string(),
+  avatarUrl: z.string().nullable(),
+});
+export type ActivityMemberDto = z.infer<typeof ActivityMemberSchema>;
+
+export const ActivityListAppearanceSchema = z.object({
+  icon: z.string(),
+  color: z.enum(CHIP_COLORS).nullable(),
+});
+
 export const ActivityThreadRefSchema = z.object({
   id: z.uuid(),
   type: z.enum(MessagingThreadType),
@@ -61,12 +70,11 @@ export const ActivityThreadRefSchema = z.object({
 export type ActivityThreadRef = z.infer<typeof ActivityThreadRefSchema>;
 
 export const ActivityRecordRefSchema = z.object({
-  entityType: z.enum(EntityType),
-  id: z.uuid(),
+  ref: RecordRefSchema,
   label: z.string(),
-  avatarUrl: z.string().nullish(),
+  avatarUrl: z.string().nullable(),
+  icon: z.string(),
 });
-
 export type ActivityRecordRefDto = z.infer<typeof ActivityRecordRefSchema>;
 
 export const ActivityRecordContextSchema = z.object({
@@ -77,13 +85,39 @@ export const ActivityRecordContextSchema = z.object({
 
 export type ActivityRecordContextDto = z.infer<typeof ActivityRecordContextSchema>;
 
+export const CONFIGURATION_ACTIVITY_EVENTS = [
+  "record_model.initialized",
+  "record_model.updated",
+  "record_grants.updated",
+] as const;
+
 export const ActivityEntryDtoSchema = z.union([
+  z.object({
+    kind: z.literal("record"),
+    id: z.string(),
+    at: z.date(),
+    actor: ActorSchema,
+    event: z.enum(["record.created", "record.updated", "record.deleted"]),
+    changes: RecordHistoryChangesSchema,
+    members: z.array(ActivityMemberSchema),
+    lists: z.record(z.uuid(), ActivityListAppearanceSchema),
+    records: ActivityRecordContextSchema,
+  }),
   z.object({
     kind: z.literal("audit"),
     id: z.string(),
     at: z.date(),
     actor: ActorSchema,
     event: z.string(),
+    changes: z.array(AuditChangeSchema),
+    records: ActivityRecordContextSchema,
+  }),
+  z.object({
+    kind: z.literal("configuration"),
+    id: z.string(),
+    at: z.date(),
+    actor: ActorSchema,
+    event: z.enum(CONFIGURATION_ACTIVITY_EVENTS),
     changes: z.array(AuditChangeSchema),
     records: ActivityRecordContextSchema,
   }),
@@ -115,79 +149,43 @@ export const ActivityEntryDtoSchema = z.union([
 export type ActivityEntryDto = z.infer<typeof ActivityEntryDtoSchema>;
 export type ActivityKind = ActivityEntryDto["kind"];
 
-export const ACTIVITY_KINDS = ["audit", "message", "activity", "calendar_event"] as const;
+export const CHANGE_ACTIVITY_KINDS = ["record", "audit", "configuration"] as const;
+export const ACTIVITY_KINDS = [...CHANGE_ACTIVITY_KINDS, "message", "activity", "calendar_event"] as const;
+
+export function isChangeActivityKind(kind: ActivityKind): kind is (typeof CHANGE_ACTIVITY_KINDS)[number] {
+  return CHANGE_ACTIVITY_KINDS.some((change) => change === kind);
+}
 
 const ActivityInOperatorSchema = z.literal(FilterOperatorKey.in).meta({ title: "in" });
 const ActivityNotInOperatorSchema = z.literal(FilterOperatorKey.notIn).meta({ title: "notIn" });
-const ActivityHasSomeOperatorSchema = z.literal(FilterOperatorKey.hasSome).meta({ title: "hasSome" });
-const ActivityHasNoneOperatorSchema = z.literal(FilterOperatorKey.hasNone).meta({ title: "hasNone" });
 export const ACTIVITY_FILTER_VALUE_MAX = 50;
 const ActivityIdValuesSchema = z.array(z.uuid()).min(1).max(ACTIVITY_FILTER_VALUE_MAX);
 
-const RELATION_EXISTENCE_OPERATORS = new Set<string>([FilterOperatorKey.hasSome, FilterOperatorKey.hasNone]);
+const ACTIVITY_ID_FILTER_FIELDS = [FilterFieldKey.timelineThreadId, FilterFieldKey.connectedAccountId] as const;
 
-function stripAbsentExistenceValue(input: unknown): unknown {
-  if (!input || typeof input !== "object" || Array.isArray(input)) return input;
-
-  const filter = input as Record<string, unknown>;
-  if (!RELATION_EXISTENCE_OPERATORS.has(filter.operator as string)) return input;
-  if (!("value" in filter) || filter.value !== undefined) return input;
-
-  const withoutValue: Record<string, unknown> = { ...filter };
-  delete withoutValue.value;
-
-  return withoutValue;
-}
-
-const ACTIVITY_ID_FILTER_FIELDS = [
-  FilterFieldKey.timelineThreadId,
-  FilterFieldKey.connectedAccountId,
-  FilterFieldKey.contactIds,
-  FilterFieldKey.organizationIds,
-  FilterFieldKey.dealIds,
-  FilterFieldKey.serviceIds,
-  FilterFieldKey.taskIds,
-] as const;
-const ACTIVITY_RELATION_FILTER_FIELDS = [
-  FilterFieldKey.contactIds,
-  FilterFieldKey.organizationIds,
-  FilterFieldKey.dealIds,
-  FilterFieldKey.serviceIds,
-  FilterFieldKey.taskIds,
-] as const;
-
-export const ActivityFilterSchema = z.preprocess(
-  stripAbsentExistenceValue,
-  z.union([
-    z
-      .object({
-        field: z.literal(FilterFieldKey.timelineKind),
-        operator: z.union([ActivityInOperatorSchema, ActivityNotInOperatorSchema]),
-        value: z.array(z.enum(TIMELINE_KIND_FILTER_VALUES)).min(1).max(TIMELINE_KIND_FILTER_VALUES.length),
-      })
-      .strict(),
-    z
-      .object({
-        field: z.literal(FilterFieldKey.provider),
-        operator: ActivityInOperatorSchema,
-        value: z.array(z.enum(MessagingProvider)).min(1).max(Object.keys(MessagingProvider).length),
-      })
-      .strict(),
-    z
-      .object({
-        field: z.enum(ACTIVITY_ID_FILTER_FIELDS),
-        operator: z.union([ActivityInOperatorSchema, ActivityNotInOperatorSchema]),
-        value: ActivityIdValuesSchema,
-      })
-      .strict(),
-    z
-      .object({
-        field: z.enum(ACTIVITY_RELATION_FILTER_FIELDS),
-        operator: z.union([ActivityHasSomeOperatorSchema, ActivityHasNoneOperatorSchema]),
-      })
-      .strict(),
-  ]),
-);
+export const ActivityFilterSchema = z.union([
+  z
+    .object({
+      field: z.literal(FilterFieldKey.timelineKind),
+      operator: z.union([ActivityInOperatorSchema, ActivityNotInOperatorSchema]),
+      value: z.array(z.enum(TIMELINE_KIND_FILTER_VALUES)).min(1).max(TIMELINE_KIND_FILTER_VALUES.length),
+    })
+    .strict(),
+  z
+    .object({
+      field: z.literal(FilterFieldKey.provider),
+      operator: ActivityInOperatorSchema,
+      value: z.array(z.enum(MessagingProvider)).min(1).max(Object.keys(MessagingProvider).length),
+    })
+    .strict(),
+  z
+    .object({
+      field: z.enum(ACTIVITY_ID_FILTER_FIELDS),
+      operator: z.union([ActivityInOperatorSchema, ActivityNotInOperatorSchema]),
+      value: ActivityIdValuesSchema,
+    })
+    .strict(),
+]);
 
 export const ActivityFiltersSchema = z
   .array(ActivityFilterSchema)
@@ -207,55 +205,12 @@ export const ActivityFiltersSchema = z
   })
   .describe("At most one rule per field; combine alternatives within one membership rule.");
 
-const ActivitiesPaginationSchema = PaginationRequestSchema.extend({
-  page: z.number().int().min(1),
-});
-
-function refineActivityPage(data: { pagination?: { page?: number } }, ctx: z.RefinementCtx) {
-  const page = data.pagination?.page;
-
-  if (page !== undefined && page > ACTIVITY_MAX_PAGE) {
-    ctx.addIssue({
-      code: "custom",
-      params: { error: CustomErrorCode.activityPageOutOfRange },
-      path: ["pagination", "page"],
-    });
-  }
-}
-
 export const ActivityThreadOptionDtoSchema = z.object({
   id: z.uuid(),
   label: z.string(),
   provider: z.string(),
 });
 export type ActivityThreadOptionDto = z.infer<typeof ActivityThreadOptionDtoSchema>;
-
-export const ActivitiesParamsSchema = GetQueryParamsSchema.pick({
-  filters: true,
-  sortDescriptor: true,
-  p13nId: true,
-  viewId: true,
-})
-  .extend({
-    filters: ActivityFiltersSchema.optional(),
-    pagination: ActivitiesPaginationSchema.optional(),
-    scope: ActivityScopeSchema.optional(),
-  })
-  .superRefine(refineActivityPage);
-export type ActivitiesParams = z.infer<typeof ActivitiesParamsSchema>;
-
-export const ActivitiesApiParamsSchema = GetQueryParamsApiSchema.pick({
-  filters: true,
-  sortDescriptor: true,
-})
-  .extend({
-    filters: ActivityFiltersSchema.optional(),
-    pagination: ActivitiesPaginationSchema.optional(),
-    scope: ActivityScopeSchema.optional(),
-  })
-  .strict()
-  .superRefine(refineActivityPage);
-export type ActivitiesApiParams = z.infer<typeof ActivitiesApiParamsSchema>;
 
 export const ActivitiesResultSchema = createApiGetResultSchema(ActivityEntryDtoSchema).extend({
   filters: ActivityFiltersSchema.optional(),

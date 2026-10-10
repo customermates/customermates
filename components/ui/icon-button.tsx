@@ -22,11 +22,12 @@ type BaseProps = {
 
 type Props = BaseProps &
   (
-    | { href: string }
+    | { href: string; external?: boolean }
     | {
         onClick: () => void;
         disabled?: boolean;
         pressed?: boolean;
+        tabIndex?: number;
         type?: "button" | "submit";
       }
   );
@@ -43,15 +44,28 @@ export function IconButton({
   const controlIconClassName = cn(iconButtonIconClass, fieldAction && fieldActionIconClass, iconClassName);
   const control =
     "href" in rest ? (
-      <IntlLink aria-label={label} className={controlClassName} href={rest.href}>
-        <IconComponent aria-hidden className={controlIconClassName} />
-      </IntlLink>
+      rest.external ? (
+        <a
+          aria-label={label}
+          className={controlClassName}
+          href={rest.href}
+          rel={/^https?:/i.test(rest.href) ? "noopener noreferrer" : undefined}
+          target={/^https?:/i.test(rest.href) ? "_blank" : undefined}
+        >
+          <IconComponent aria-hidden className={controlIconClassName} />
+        </a>
+      ) : (
+        <IntlLink aria-label={label} className={controlClassName} href={rest.href}>
+          <IconComponent aria-hidden className={controlIconClassName} />
+        </IntlLink>
+      )
     ) : (
       <button
         aria-label={label}
         aria-pressed={rest.pressed}
         className={controlClassName}
         disabled={rest.disabled}
+        tabIndex={rest.tabIndex}
         type={rest.type ?? "button"}
         onClick={rest.onClick}
       >

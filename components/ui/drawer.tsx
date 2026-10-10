@@ -7,9 +7,11 @@ import { useTranslations } from "next-intl";
 import { XIcon } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
 import {
   OVERLAY_CLOSE_CLASS,
   OVERLAY_CLOSE_POSITION_CLASS,
+  OVERLAY_DRAWER_HANDLE_CLOSE_CLASS,
   OVERLAY_HEADER_ALIGNMENT_CLASS,
   OVERLAY_SCROLL_REGION,
 } from "./overlay-contract";
@@ -34,7 +36,7 @@ function DrawerOverlay({ className, ...props }: React.ComponentProps<typeof Draw
   return (
     <DrawerPrimitive.Overlay
       className={cn(
-        "fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
+        "fixed inset-0 z-50 bg-scrim/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
         className,
       )}
       data-slot="drawer-overlay"
@@ -78,14 +80,27 @@ function DrawerContent({
         {children}
 
         {showCloseButton && (
-          <DrawerPrimitive.Close
-            className={cn(OVERLAY_CLOSE_CLASS, OVERLAY_CLOSE_POSITION_CLASS, "z-10")}
-            data-slot="drawer-close"
-          >
-            <XIcon />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DrawerPrimitive.Close
+                  className={cn(
+                    OVERLAY_CLOSE_CLASS,
+                    OVERLAY_CLOSE_POSITION_CLASS,
+                    OVERLAY_DRAWER_HANDLE_CLOSE_CLASS,
+                    "z-10",
+                  )}
+                  data-slot="drawer-close"
+                >
+                  <XIcon />
 
-            <span className="sr-only">{t("Common.actions.close")}</span>
-          </DrawerPrimitive.Close>
+                  <span className="sr-only">{t("Common.actions.close")}</span>
+                </DrawerPrimitive.Close>
+              </TooltipTrigger>
+
+              <TooltipContent>{t("Common.actions.close")}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
       </DrawerPrimitive.Content>
     </DrawerPortal>

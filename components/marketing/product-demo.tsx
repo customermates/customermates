@@ -5,16 +5,23 @@ import { localProductDemoSrc } from "./product-demo-src";
 import { cn } from "@/core/utils/cn";
 import { type ContentLocale, contentLocaleOrDefault } from "@/i18n/locale-registry";
 
+export const DEMO_RECORD_LIST_PATHS = {
+  deals: "/records/3ba14418-0840-8ae7-8c7e-52a2a79a481d",
+  contacts: "/records/be3cd172-da59-82bd-8ad7-23ef34431a27",
+  organizations: "/records/9d9707c5-d1a2-8048-803b-a501301e2bc3",
+  tasks: "/records/7fee95c9-d304-8b5e-8c96-4c0e1019f331",
+} as const;
+
 export const PRODUCT_DEMO_PATHS = [
   "/dashboard",
   "/inbox",
-  "/deals",
-  "/contacts",
-  "/organizations",
-  "/tasks",
-  "/profile/api-keys",
-  "/profile/connected-accounts",
-  "/company/webhooks",
+  DEMO_RECORD_LIST_PATHS.deals,
+  DEMO_RECORD_LIST_PATHS.contacts,
+  DEMO_RECORD_LIST_PATHS.organizations,
+  DEMO_RECORD_LIST_PATHS.tasks,
+  "/settings/api-keys",
+  "/settings/channels",
+  "/settings/webhooks",
 ] as const;
 
 export type ProductDemoPath = (typeof PRODUCT_DEMO_PATHS)[number];
@@ -37,22 +44,38 @@ const COPY = {
     guideLabel: "Try these three things",
     guidedTasks: {
       "/dashboard": ["Scan the seeded overview", "Open a core CRM record", "Check how the workspace is organized"],
-      "/contacts": ["Scan the contact list", "Open one seeded contact", "Review its linked CRM context"],
-      "/deals": ["Review the pipeline stages", "Open one seeded deal", "Compare total and weighted value"],
+      [DEMO_RECORD_LIST_PATHS.contacts]: [
+        "Scan the contact list",
+        "Open one seeded contact",
+        "Review its linked CRM context",
+      ],
+      [DEMO_RECORD_LIST_PATHS.deals]: [
+        "Review the pipeline stages",
+        "Open one seeded deal",
+        "Compare total and weighted value",
+      ],
       "/inbox": ["Open a seeded conversation", "Check its participant context", "Compare the connected channels"],
-      "/organizations": ["Scan the account list", "Open one seeded organization", "Review its linked records"],
-      "/tasks": ["Switch between task views", "Open one seeded task", "Review its owner and linked records"],
-      "/profile/api-keys": [
+      [DEMO_RECORD_LIST_PATHS.organizations]: [
+        "Scan the account list",
+        "Open one seeded organization",
+        "Review its linked records",
+      ],
+      [DEMO_RECORD_LIST_PATHS.tasks]: [
+        "Switch between task views",
+        "Open one seeded task",
+        "Review its owner and linked records",
+      ],
+      "/settings/api-keys": [
         "Review the API-key controls",
         "Check how a key is created",
         "Review key status and access",
       ],
-      "/profile/connected-accounts": [
+      "/settings/channels": [
         "Review the available providers",
         "Open one connected account",
         "Check its sharing and sync state",
       ],
-      "/company/webhooks": [
+      "/settings/webhooks": [
         "Review the configured endpoints",
         "Open the create-webhook flow",
         "Inspect the available event choices",
@@ -64,14 +87,14 @@ const COPY = {
       "Public, seeded demo of hosted Customermates. It uses synthetic sample data; no customer account or customer data is shown. When Mate is enabled for this demo environment, it starts closed. This illustrates the managed product UI, not a self-hosted deployment.",
     titles: {
       "/dashboard": "Customermates dashboard with synthetic sample data",
-      "/contacts": "Customermates contact list with synthetic sample data",
-      "/deals": "Customermates deal pipeline with synthetic sample data",
+      [DEMO_RECORD_LIST_PATHS.contacts]: "Customermates contact list with synthetic sample data",
+      [DEMO_RECORD_LIST_PATHS.deals]: "Customermates deal pipeline with synthetic sample data",
       "/inbox": "Customermates unified inbox with synthetic sample data",
-      "/organizations": "Customermates organization list with synthetic sample data",
-      "/tasks": "Customermates task workspace with synthetic sample data",
-      "/profile/api-keys": "Customermates API-key settings with synthetic sample data",
-      "/profile/connected-accounts": "Customermates connected-account settings with synthetic sample data",
-      "/company/webhooks": "Customermates webhook settings with synthetic sample data",
+      [DEMO_RECORD_LIST_PATHS.organizations]: "Customermates organization list with synthetic sample data",
+      [DEMO_RECORD_LIST_PATHS.tasks]: "Customermates task workspace with synthetic sample data",
+      "/settings/api-keys": "Customermates API-key settings with synthetic sample data",
+      "/settings/channels": "Customermates connected-account settings with synthetic sample data",
+      "/settings/webhooks": "Customermates webhook settings with synthetic sample data",
     },
   },
   de: {
@@ -85,12 +108,12 @@ const COPY = {
         "Öffnen Sie einen CRM-Datensatz",
         "Prüfen Sie den Aufbau des Workspaces",
       ],
-      "/contacts": [
+      [DEMO_RECORD_LIST_PATHS.contacts]: [
         "Prüfen Sie die Kontaktliste",
         "Öffnen Sie einen Beispielkontakt",
         "Prüfen Sie den verknüpften CRM-Kontext",
       ],
-      "/deals": [
+      [DEMO_RECORD_LIST_PATHS.deals]: [
         "Prüfen Sie die Pipeline-Phasen",
         "Öffnen Sie einen Beispiel-Deal",
         "Vergleichen Sie Gesamt- und gewichteten Wert",
@@ -100,27 +123,27 @@ const COPY = {
         "Prüfen Sie den Teilnehmerkontext",
         "Vergleichen Sie die verbundenen Kanäle",
       ],
-      "/organizations": [
+      [DEMO_RECORD_LIST_PATHS.organizations]: [
         "Prüfen Sie die Unternehmensliste",
         "Öffnen Sie ein Beispielunternehmen",
         "Prüfen Sie die verknüpften Datensätze",
       ],
-      "/tasks": [
+      [DEMO_RECORD_LIST_PATHS.tasks]: [
         "Wechseln Sie zwischen den Aufgabenansichten",
         "Öffnen Sie eine Beispielaufgabe",
         "Prüfen Sie Verantwortliche und Verknüpfungen",
       ],
-      "/profile/api-keys": [
+      "/settings/api-keys": [
         "Prüfen Sie die API-Key-Verwaltung",
         "Öffnen Sie den Erstellungsablauf",
         "Prüfen Sie Status und Zugriff",
       ],
-      "/profile/connected-accounts": [
+      "/settings/channels": [
         "Prüfen Sie die verfügbaren Anbieter",
         "Öffnen Sie ein verbundenes Konto",
         "Prüfen Sie Freigabe und Synchronisierung",
       ],
-      "/company/webhooks": [
+      "/settings/webhooks": [
         "Prüfen Sie die konfigurierten Endpunkte",
         "Öffnen Sie den Webhook-Dialog",
         "Prüfen Sie die verfügbaren Ereignisse",
@@ -132,14 +155,14 @@ const COPY = {
       "Öffentliche, vorbefüllte Demo der gehosteten Customermates-Version mit synthetischen Beispieldaten. Es werden weder ein Kundenkonto noch Kundendaten angezeigt. Ist Mate in dieser Demo aktiviert, bleibt das Mate-Fenster anfangs geschlossen. Die Demo zeigt die Oberfläche der verwalteten Cloud, keine selbst gehostete Installation.",
     titles: {
       "/dashboard": "Customermates-Dashboard mit synthetischen Beispieldaten",
-      "/contacts": "Customermates-Kontaktliste mit synthetischen Beispieldaten",
-      "/deals": "Customermates-Deal-Pipeline mit synthetischen Beispieldaten",
+      [DEMO_RECORD_LIST_PATHS.contacts]: "Customermates-Kontaktliste mit synthetischen Beispieldaten",
+      [DEMO_RECORD_LIST_PATHS.deals]: "Customermates-Deal-Pipeline mit synthetischen Beispieldaten",
       "/inbox": "Einheitlicher Customermates-Posteingang mit synthetischen Beispieldaten",
-      "/organizations": "Customermates-Unternehmensliste mit synthetischen Beispieldaten",
-      "/tasks": "Customermates-Aufgabenbereich mit synthetischen Beispieldaten",
-      "/profile/api-keys": "Customermates-API-Key-Einstellungen mit synthetischen Beispieldaten",
-      "/profile/connected-accounts": "Einstellungen für verbundene Customermates-Konten mit Beispieldaten",
-      "/company/webhooks": "Customermates-Webhook-Einstellungen mit synthetischen Beispieldaten",
+      [DEMO_RECORD_LIST_PATHS.organizations]: "Customermates-Unternehmensliste mit synthetischen Beispieldaten",
+      [DEMO_RECORD_LIST_PATHS.tasks]: "Customermates-Aufgabenbereich mit synthetischen Beispieldaten",
+      "/settings/api-keys": "Customermates-API-Key-Einstellungen mit synthetischen Beispieldaten",
+      "/settings/channels": "Einstellungen für verbundene Customermates-Konten mit Beispieldaten",
+      "/settings/webhooks": "Customermates-Webhook-Einstellungen mit synthetischen Beispieldaten",
     },
   },
 } as const satisfies Record<ContentLocale, DemoCopy>;

@@ -112,7 +112,6 @@ describe("OnboardingWizard", () => {
     expect(html).toContain(`OnboardingWizard.progress current=${current} total=4`);
     expect(html).toContain(`OnboardingWizard.steps.${step}.title`);
     expect(html).toContain('<h1 class="text-2xl font-semibold" tabindex="-1">');
-    expect(html).not.toContain("OnboardingWizard.steps.terminology");
   });
 
   it("keeps shared Back and Next navigation off Profile and Wiki", () => {

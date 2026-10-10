@@ -282,12 +282,12 @@ describe("proxy locale routing", () => {
   });
 
   it("negotiates an unprefixed application path into any routing locale", async () => {
-    const subscription = await call("/company/subscription", "fr-FR,fr;q=0.9");
+    const subscription = await call("/settings/billing", "fr-FR,fr;q=0.9");
     expect(subscription.status).toBe(307);
     expect(
       subscription.location,
       "an application page exists in every routing locale, so the reader keeps their own language",
-    ).toContain("/fr/company/subscription");
+    ).toContain("/fr/settings/billing");
     expect(subscription.response.headers.get("vary")).toBe("accept-language, cookie");
 
     const contact = await call("/contact", "fr-FR,fr;q=0.9");
@@ -329,9 +329,9 @@ describe("proxy locale routing", () => {
     expect(contentOnly.location).toContain("/en/dashboard");
     expect(contentOnly.location).not.toContain("/nl/auth/signin");
 
-    const germanDeals = await call("/de/deals");
-    expect(germanDeals.status).toBe(307);
-    expect(germanDeals.location).toContain("/de/auth/signin");
+    const germanRecords = await call("/de/records/40000000-0000-4000-8000-000000000002");
+    expect(germanRecords.status).toBe(307);
+    expect(germanRecords.location).toContain("/de/auth/signin");
   });
 
   it("answers a signed-out request for a path no route serves through the app router instead of sign-in", async () => {
@@ -340,7 +340,7 @@ describe("proxy locale routing", () => {
       "/de/profile/nope",
       "/en/profile",
       "/en/operator",
-      "/en/contacts/40000000-0000-4000-8000-000000000001/extra",
+      "/en/records/40000000-0000-4000-8000-000000000002/40000000-0000-4000-8000-000000000001/extra",
     ]) {
       const { status, location } = await call(path);
       expect(location, `${path} must not redirect to sign-in`).toBeNull();
@@ -359,7 +359,7 @@ describe("proxy locale routing", () => {
   });
 
   it("matches a percent-encoded protected path on its decoded form and fails closed on broken encoding", async () => {
-    for (const path of ["/en/%64ashboard", "/en/%63ontacts/40000000-0000-4000-8000-000000000001", "/en/dash%E0%A4%A"]) {
+    for (const path of ["/en/%64ashboard", "/en/%72ecords/40000000-0000-4000-8000-000000000002", "/en/dash%E0%A4%A"]) {
       const { status, location } = await call(path);
       expect(status, `${path} should redirect to sign-in`).toBe(307);
       expect(location, path).toContain("/en/auth/signin");

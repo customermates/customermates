@@ -2,7 +2,7 @@ import type { Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { MessagingFilterOptions } from "./messaging-filter-options.schema";
 
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -12,13 +12,7 @@ import { MessagingFilterOptionsSchema } from "./messaging-filter-options.schema"
 import type { MessagingFilterOptionsRepo } from "./messaging-filter-options.repo";
 
 @AllowInDemoMode
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.inboxMessages, action: Action.readAll },
-    { resource: Resource.inboxMessages, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.inboxMessages, read: true })
 export class GetMessagingFilterOptionsInteractor extends AuthenticatedInteractor<void, MessagingFilterOptions> {
   constructor(
     private repo: MessagingFilterOptionsRepo,

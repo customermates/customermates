@@ -1,11 +1,8 @@
 import type { ComponentType, ReactNode } from "react";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { CustomFieldValueDto } from "@/core/base/base-entity.schema";
 
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { CustomColumnType, EntityType } from "@/generated/prisma";
 
 const harness = vi.hoisted(() => ({ isTruncated: false }));
 
@@ -19,19 +16,13 @@ vi.mock("@/components/ui/tooltip", () => ({
   TooltipContent: ({ children }: { children: ReactNode }) =>
     createElement("span", { "data-tooltip-content": true }, children),
 }));
-vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
-  useHydratedIntlStore: () => ({}),
-}));
-vi.mock("@/core/utils/use-copy-to-clipboard", () => ({
-  useCopyToClipboard: () => vi.fn(),
-}));
 
 import { AppChip } from "../app-chip";
-import { CustomFieldValue } from "@/components/data-view/custom-columns/custom-field-value";
 
 const TestAppChip = AppChip as ComponentType<{
   children?: ReactNode;
   interactive?: boolean;
+  tooltip?: ReactNode;
 }>;
 
 beforeEach(() => {
@@ -62,42 +53,38 @@ describe("AppChip overflow tooltip accessibility", () => {
     expect(markup).not.toContain("tabindex=");
     expect(markup).toContain("data-tooltip-content");
   });
+});
 
-  it("exposes a truncated read-only single-select custom-field value to keyboard users", () => {
+describe("AppChip tooltip repeating its own label", () => {
+  const name = "Implementation workshop";
+  const nestedLabel = () => createElement("button", { type: "button" }, name);
+
+  it("shows the label of a nested element only when it is truncated", () => {
+    const complete = renderToStaticMarkup(createElement(TestAppChip, null, nestedLabel()));
+
+    expect(complete).not.toContain("data-tooltip-content");
+
     harness.isTruncated = true;
-    const columnId = "10000000-0000-4000-8000-000000000001";
-    const optionValue = "enterprise";
-    const optionLabel = "Enterprise procurement and strategic transformation";
-    const column: CustomColumnDto = {
-      id: columnId,
-      entityType: EntityType.deal,
-      label: "Sales pipeline",
-      type: CustomColumnType.singleSelect,
-      options: {
-        options: [
-          {
-            color: "secondary",
-            index: 0,
-            isDefault: false,
-            label: optionLabel,
-            value: optionValue,
-          },
-        ],
-      },
-    };
-    const item = {
-      id: "20000000-0000-4000-8000-000000000001",
-      customFieldValues: [{ columnId, value: optionValue }] satisfies CustomFieldValueDto[],
-    };
-    const ReadOnlyCustomFieldValue = CustomFieldValue as ComponentType<{
-      column: CustomColumnDto;
-      item: typeof item;
-    }>;
+    const truncated = renderToStaticMarkup(createElement(TestAppChip, null, nestedLabel()));
 
-    const markup = renderToStaticMarkup(createElement(ReadOnlyCustomFieldValue, { column, item }));
+    expect(truncated).toContain(`data-tooltip-content="true">${name}</span>`);
+  });
 
-    expect(markup).toContain('data-slot="badge"');
-    expect(markup).toContain('tabindex="0"');
-    expect(markup).toContain(`data-tooltip-content="true">${optionLabel}</span>`);
+  it("treats a tooltip equal to the label as a truncation tooltip", () => {
+    expect(renderToStaticMarkup(createElement(TestAppChip, { tooltip: name }, name))).not.toContain(
+      "data-tooltip-content",
+    );
+
+    harness.isTruncated = true;
+
+    expect(renderToStaticMarkup(createElement(TestAppChip, { tooltip: name }, name))).toContain(
+      `data-tooltip-content="true">${name}</span>`,
+    );
+  });
+
+  it("always shows a tooltip that adds information", () => {
+    const markup = renderToStaticMarkup(createElement(TestAppChip, { tooltip: "Services" }, nestedLabel()));
+
+    expect(markup).toContain('data-tooltip-content="true">Services</span>');
   });
 });

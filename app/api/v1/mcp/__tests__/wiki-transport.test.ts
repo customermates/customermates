@@ -15,21 +15,10 @@ vi.mock("@/core/di", () => ({
   getGetWikiPageInteractor: () => ({ invoke: calls.get }),
   getSearchWikiPagesInteractor: () => ({ invoke: calls.search }),
   getSearchExternalizedWikiPagesInteractor: () => ({ invoke: calls.search }),
-  getGetContactByIdInteractor: vi.fn(),
-  getGetDealByIdInteractor: vi.fn(),
-  getGetOrganizationByIdInteractor: vi.fn(),
-  getGetServiceByIdInteractor: vi.fn(),
-  getGetTaskByIdInteractor: vi.fn(),
-}));
-vi.mock("@/features/search/entity-list-executors", () => ({
-  entityListExecutors: {
-    contact: calls.records,
-    organization: calls.records,
-    deal: calls.records,
-    service: calls.records,
-    task: calls.records,
-  },
-  entityNameExtractors: {},
+  getSearchRecordsInteractor: () => ({ invoke: calls.records }),
+  getGetRecordInteractor: vi.fn(),
+  getGetRecordModelInteractor: vi.fn(),
+  getResolveRecordSearchInteractor: vi.fn(),
 }));
 vi.mock("@/features/mcp-tools/docs.mcp-tools", () => ({
   getDocsPageRaw: vi.fn(),
@@ -158,7 +147,7 @@ beforeEach(() => {
       pageSize: 5,
     },
   });
-  calls.records.mockResolvedValue({ ok: true, data: { items: [] } });
+  calls.records.mockResolvedValue({ ok: true, data: { results: [], schemaRevision: 1, nextCursor: null } });
 });
 
 describe("Wiki MCP transport", () => {

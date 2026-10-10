@@ -5,7 +5,7 @@ import { afterAll, describe, expect, it, vi } from "vitest";
 
 import type { Filter, GetQueryParams } from "@/core/base/base-get.schema";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
-import type { GroupCountRow } from "@/core/base/grouping/group-count";
+import type { GroupCountRow } from "@/core/base/grouping/group-axis";
 
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
@@ -573,13 +573,14 @@ describeDatabase("merged operator audit log against a real database", { timeout:
 
     await runWithoutTenant(async () => {
       for (let index = 0; index < 3; index += 1) {
-        await prisma.auditLog.create({
+        await prisma.eventLog.create({
           data: {
             companyId: workspace.companyId,
-            userId: actorId,
-            event: `contact.created.${marker}`,
-            eventData: {},
-            entityId: randomUUID(),
+            actorId,
+            subjectKind: "contact",
+            kind: `contact.created.${marker}`,
+            payload: {},
+            subjectId: randomUUID(),
             createdAt: new Date(`2026-08-0${index + 1}T10:00:00.000Z`),
           },
         });
@@ -647,7 +648,7 @@ describeDatabase("merged operator audit log against a real database", { timeout:
 
     await runWithoutTenant(async () => {
       await prisma.operatorAuditEvent.deleteMany({ where: { targetCompanyId: workspace.companyId } });
-      await prisma.auditLog.deleteMany({ where: { companyId: workspace.companyId } });
+      await prisma.eventLog.deleteMany({ where: { companyId: workspace.companyId } });
     });
   });
 
@@ -663,13 +664,14 @@ describeDatabase("merged operator audit log against a real database", { timeout:
 
     await runWithoutTenant(async () => {
       for (let index = 0; index < 3; index += 1) {
-        await prisma.auditLog.create({
+        await prisma.eventLog.create({
           data: {
             companyId: workspace.companyId,
-            userId: actorId,
-            event: `deal.created.${marker}`,
-            eventData: {},
-            entityId: randomUUID(),
+            actorId,
+            subjectKind: "deal",
+            kind: `deal.created.${marker}`,
+            payload: {},
+            subjectId: randomUUID(),
             createdAt: new Date(`2026-0${index === 2 ? 7 : 8}-1${index}T10:00:00.000Z`),
           },
         });
@@ -768,7 +770,7 @@ describeDatabase("merged operator audit log against a real database", { timeout:
 
     await runWithoutTenant(async () => {
       await prisma.operatorAuditEvent.deleteMany({ where: { targetCompanyId: workspace.companyId } });
-      await prisma.auditLog.deleteMany({ where: { companyId: workspace.companyId } });
+      await prisma.eventLog.deleteMany({ where: { companyId: workspace.companyId } });
     });
   });
 

@@ -9,7 +9,8 @@ import { loadNavigationData } from "./navigation-data";
 import { toSidebarUser } from "./sidebar-user";
 
 import {
-  getGetCompanySettingsInteractor,
+  getGetRecordNavigationInteractor,
+  getGetP13nInteractor,
   getCountSystemTasksInteractor,
   getGetSubscriptionInteractor,
   getGetUnreadThreadCountInteractor,
@@ -21,6 +22,11 @@ import { resolveRequestAccountState } from "@/features/auth/next/resolve-account
 import { isAgentChatAvailable } from "@/ee/agent-chat/agent-availability";
 import { RootStoreProvider } from "@/core/stores/root-store.provider";
 import { DEFAULT_LOCALE, isRoutingLocale } from "@/i18n/locale-registry";
+import { unwrapValidated } from "@/core/validation/validation.utils";
+import { ForbiddenError } from "@/core/errors/app-errors";
+import { SIDEBAR_P13N_ID } from "@/features/p13n/sidebar-layout.schema";
+import { KEYBOARD_P13N_ID } from "@/features/p13n/keyboard-preferences.schema";
+import { readP13nSettings } from "@/features/p13n/p13n-settings.schema";
 
 type Props = {
   children: React.ReactNode;
@@ -35,16 +41,28 @@ export async function AppShell({ children, displayLanguage }: Props) {
     getMessages(),
   ]);
   const navigation = await loadNavigationData(account.state, {
-    company: async () => {
-      const result = await getGetCompanySettingsInteractor().invoke();
-      return {
-        company: result.data,
-        terminology: result.data.terminology.presets,
-      };
-    },
+    records: () => unwrapValidated(getGetRecordNavigationInteractor().invoke()),
+    sidebarLayout: async () =>
+      readP13nSettings(
+        SIDEBAR_P13N_ID,
+        (await getGetP13nInteractor().invoke({ p13nId: SIDEBAR_P13N_ID })).data?.settings,
+      ),
+    keyboardPreferences: async () =>
+      readP13nSettings(
+        KEYBOARD_P13N_ID,
+        (await getGetP13nInteractor().invoke({ p13nId: KEYBOARD_P13N_ID })).data?.settings,
+      ),
     subscription: async () => (await getGetSubscriptionInteractor().invoke()).data,
     systemTaskCount: async () => (await getCountSystemTasksInteractor().invoke()).data,
-    unreadThreadCount: async () => (await getGetUnreadThreadCountInteractor().invoke()).data,
+    unreadThreadCount: async () => {
+      try {
+        const result = await getGetUnreadThreadCountInteractor().invoke();
+        return result.ok ? result.data : 0;
+      } catch (error) {
+        if (error instanceof ForbiddenError) return 0;
+        throw error;
+      }
+    },
     channelsNeedingActionCount: async () => (await getCountChannelsNeedingActionInteractor().invoke()).data,
   });
 
@@ -61,24 +79,24 @@ export async function AppShell({ children, displayLanguage }: Props) {
         initialState={{
           locale: isRoutingLocale(displayLanguage) ? displayLanguage : DEFAULT_LOCALE,
           user: appUser,
-          company: accountAllowed ? navigation.company : null,
-          terminology: accountAllowed ? navigation.terminology : [],
           subscription: accountAllowed ? navigation.subscription : null,
+          recordNavigation: accountAllowed ? navigation.records : null,
         }}
       >
         <NavigationSwitch
           accountState={account.state}
           appUser={appUser}
           channelsNeedingActionCount={navigation.channelsNeedingActionCount}
-          company={navigation.company}
           defaultSidebarOpen={initialSidebarOpen}
           emailVerified={accountAllowed ? account.emailVerified : null}
+          keyboardPreferences={navigation.keyboardPreferences}
           legalStatus={accountAllowed ? account.legalStatus : null}
           operatorConsoleVisible={operatorConsoleVisible}
+          recordNavigation={navigation.records}
+          sidebarLayout={navigation.sidebarLayout}
           sidebarUser={toSidebarUser(account.user)}
           subscription={navigation.subscription}
           systemTaskCount={navigation.systemTaskCount}
-          terminology={navigation.terminology}
           trialDaysLeft={navigation.trialDaysLeft}
           unreadThreadCount={navigation.unreadThreadCount}
           userDisplayLanguage={account.user?.displayLanguage}

@@ -1,40 +1,51 @@
 ---
 title: "Globale Suche (Cmd/Ctrl+K)"
-description: "Das Cmd/Ctrl+K-Suchmodal: welche Datensatztypen es durchsucht, seine stabilen Ids, wo ein Ergebnis öffnet und wo Nachrichten stattdessen liegen."
+description: "Durchsuchen Sie mit Cmd/Ctrl+K überall alle lesbaren Listen: was die Suche findet, wo ein Ergebnis öffnet und wo Sie stattdessen Nachrichten suchen."
 ---
 
-Die globale Suche ist ein Modal, keine Seite: Sie öffnet überall in der App mit **Cmd/Ctrl+K** oder über `#nav-search` (**Suchen**) in der Sidebar. Diese Seite dokumentiert sie für Menschen und für KI-Agents, die die UI steuern.
+Die globale Suche öffnet sich überall in der App über der aktuellen Seite: Drücken Sie Cmd/Ctrl+K, drücken Sie /, wenn kein Feld den Fokus hat, oder klicken Sie in der Sidebar auf **Suchen**.
 
 ## Was findet die globale Suche, und welche Kontaktfelder durchsucht sie? [#what-does-global-search-find]
 
-Die globale Suche zeigt bis zu 50 Treffer pro Datensatztyp: Das Modal durchsucht **Kontakte, Organisationen, Deals, Services und Aufgaben**. Kontakte werden über Vorname, Nachname, jeden Kanal-Identifikator (etwa eine E-Mail-Adresse oder eine WhatsApp-Nummer) und die Namen verknüpfter Organisationen gefunden, Organisationen über ihren Namen und die Vor- und Nachnamen ihrer Kontakte, Deals, Services und Aufgaben nur über ihren Namen. Jedes eingegebene Wort muss treffen, ohne Beachtung der Groß- und Kleinschreibung, "anna schmidt" findet also nur Datensätze, die beide Wörter treffen.
+Die Suche durchsucht Datensätze in allen Listen, die Sie lesen dürfen, auch in Listen, die Ihr Workspace angelegt hat, und gruppiert die Treffer nach Liste. Sie findet Titel und durchsuchbare Feldwerte, auch E-Mail-Felder, und Kontakte über jede E-Mail-Adresse oder Telefonnummer in ihren **Kanälen**. Werte, die Sie nicht sehen dürfen, werden nicht durchsucht. Darf Ihre Rolle eine Liste nur mit **Zugewiesen** lesen, erhalten Sie nur Datensätze, denen Sie zugewiesen sind. **Mehr laden** ruft weitere Treffer ab.
 
-Sie sehen nur die Datensatztypen, die Ihre Rolle lesen darf, und **Lesen** mit **Zugewiesen** beschränkt die Treffer auf Datensätze, denen Sie zugewiesen sind. Vor der Eingabe zeigt **Zuletzt geöffnet** Ihre letzten 8 Auswahlen aus dieser Suche, nur in diesem Browser gespeichert; **Leeren** leert die Liste. Die Pfeiltasten bewegen sich durch die Treffer, Enter öffnet einen.
+Vor der Eingabe zeigt **Zuletzt geöffnet** Ihre letzten Auswahlen aus der Suche, nur in diesem Browser gespeichert; **Leeren** leert die Liste. **Vorschläge** darunter bieten an, was zur aktuellen Seite passt, zum Beispiel einen Datensatz in der geöffneten Liste hinzuzufügen. Die Pfeiltasten bewegen sich durch die Treffer, Enter öffnet einen. Ein ausgewählter Datensatz öffnet sich im Details-Drawer.
 
-Nachrichten werden nicht durchsucht; der Posteingang hat seine eigene Suche.
+## Wie springe ich zu einer Liste, Ansicht, Seite oder Einstellung? [#how-do-i-jump-to-a-page-or-setting]
 
-Die Auswahl eines Ergebnisses öffnet die Detailseite des Datensatzes unter `/{type}/{id}`. Um stattdessen einen Datensatz anzulegen, nutzen Sie das Steuerelement **Hinzufügen** seiner Listenseite oder den Deep-Link `?open={entityType}:new`, dokumentiert in [CRM-Datensätze](/docs/app-records).
+Tippen Sie ihren Namen oder die Anfänge seiner Wörter; Füllwörter wie „öffne", „gehe zu" oder „einrichten" werden ignoriert, und ein kleiner Tippfehler in einem einzelnen längeren Wort wird verziehen. Die Suche findet auch jede Liste mit ihren gespeicherten Ansichten, die Seiten der App, jede Einstellung unter [Profil & Einstellungen](app:settings/profile) und auf den anderen Einstellungsseiten sowie Aktionen wie das Wechseln der Darstellung oder das Einladen von Mitgliedern, auch über Alltagswörter wie „dunkel" oder „Team". Das wahrscheinlichste Ziel steht als **Bester Treffer** oben, Enter öffnet es. Unter einer Liste stehen eingerückt ihre gespeicherten Ansichten: Enter öffnet die Liste, Pfeil nach unten wählt eine Ansicht. Eine Einstellung öffnet ihre Seite und hebt die Einstellung hervor. Aktionen zeigen rechts ihr Tastenkürzel.
 
-**Link:** keine Seite; öffnen Sie das Modal auf jeder App-Seite mit Cmd+K oder Ctrl+K oder über **Suchen** in der Sidebar. **Mate:** `highlight_element` mit `nav-search` (Mate kann weder mit `navigate` dorthin wechseln noch das Modal öffnen); das Suchfeld und die Treffer sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+Um die Suche einzugrenzen, beginnen Sie mit einem Buchstaben und einem Leerzeichen: **l** Listen, **v** Ansichten, **s** Einstellungen, **d** Dokumentation und **r** Datensätze, zum Beispiel „v offene Deals".
 
-## Welche stabilen Ids hat die globale Suche? [#which-stable-ids-does-it-have]
+## Wie ändere ich den geöffneten Datensatz? [#how-do-i-change-the-open-record]
 
-| Control | Id |
-|---|---|
-| Sidebar-Trigger | `#nav-search` (**Suchen**) |
-| Container des Suchfelds im Modal | `#global-search-input` |
+Ist ein Datensatz im Drawer oder auf seiner Seite geöffnet, bietet die Suche Aktionen für ihn an: ein Auswahl-, Ja/Nein- oder Mitgliedsfeld **ändern**, **Zuweisen an**, **Zu** einer verknüpften Liste **hinzufügen** und **Löschen**. Eine Aktion öffnet ihre Optionen direkt im Suchfeld; Esc geht einen Schritt zurück. Eine Änderung wird sofort gespeichert, Löschen fragt wie gewohnt nach. Diese Aktionen erscheinen nur, wenn Sie den Datensatz bearbeiten dürfen und er keine ungespeicherten Änderungen hat.
 
-Für einen Agent passiert die Eingabe nach dem Öffnen des Modals im Textfeld innerhalb von `#global-search-input`; Ergebnisse sind normale Optionen, ausgewählt über ihren sichtbaren Namen. Für gefilterte, sortierte oder gezählte Abfragen sind die Listenseiten oder `list_records` besser, denn sie liefern Gesamtzahlen. Der gehostete Assistent Mate kann `#nav-search` hervorheben, aber das Modal weder öffnen noch etwas hineintippen.
+Nachrichten werden hier nicht durchsucht; der [Posteingang](app:inbox) hat eine eigene Suche. Für eine gefilterte oder sortierte Liste von Datensätzen nutzen Sie eine Liste, zum Beispiel [Kontakte](app:records/contact) mit [Filter](app:records/contact?focus=filter). Wie Sie einen Datensatz anlegen, steht unter [CRM-Datensätze](/docs/app-records#how-do-i-add-a-record).
 
-**Link:** keine Seite; das Modal öffnet sich auf jeder App-Seite mit Cmd+K oder Ctrl+K. **Mate:** `highlight_element` mit `nav-search`; `#global-search-input` ist kein Highlight-Ziel, deshalb nennt Mate das Suchfeld beim Namen.
+## Wie sucht die Suche nach Bedeutung, und was wird gesendet? [#how-does-search-match-by-meaning]
+
+Die Suche findet auch nach Bedeutung und sprachübergreifend: „language" findet die **Anzeigesprache**, „Nachtmodus" die dunkle Darstellung, und die Wörter, die Sie für eine Liste oder Ansicht verwenden würden, finden sie auch dann, wenn sie anders heißt. Bis zu drei passende Abschnitte dieser Dokumentation erscheinen unter **Dokumentation**, bis zu acht, wenn Sie mit **d** beginnen; jeder öffnet die beschriebene Stelle in der App oder sonst die Dokumentationsseite. Datensätze werden nur über ihre Wörter gefunden: Eine Datensatz-ID findet diesen Datensatz, eine Wortgruppe in doppelten Anführungszeichen wie "Acme GmbH" passt nur genau so geschrieben, und wenn nichts passt, erscheinen Datensätze mit ähnlich geschriebenem Titel.
+
+Nach Bedeutung sucht die Suche nur, wenn nichts über den Namen passt: wenn keine Seite, Einstellung, Aktion, Liste oder Ansicht ein klarer **Bester Treffer** ist und kein Datensatz Ihre Wörter enthält. Nur dann erhält ein Embedding-Modell, betrieben von Google über den Vercel AI Gateway, Ihren Suchtext, was einen kleinen Teil Ihrer KI-Credits verbraucht. Es erhält außerdem die Namen der Seiten, Einstellungen, Aktionen, Listen, Ansichten und Felder Ihres Workspaces, die nur nach einer Änderung erneut gesendet werden, nie den Inhalt von Datensätzen. Ist der Dienst langsam oder nicht erreichbar, zeigt die Suche sofort die Treffer nach Namen. Ohne KI, zum Beispiel bei einer selbst gehosteten Installation, sucht sie nur nach Namen.
+
+## Wie öffne ich eine gefilterte Liste, indem ich sie beschreibe? [#how-do-i-describe-what-to-open]
+
+Passt kein Ergebnis eindeutig, steht in der ersten Zeile **Zu „…“ springen** mit Ihren Worten. Drücken Sie Enter, und ein kleines KI-Modell macht aus der Anfrage ein Ziel: eine Liste mit Filtern, eine ihrer Ansichten, eine Seite, eine Einstellung oder eine Aktion. Zum Beispiel öffnet „gewonnene Deals mit Abschluss diesen Monat“ die [Deals](app:records/deal) und zeigt nur gewonnene Deals, die in diesem Monat abschließen. Die Filter werden nicht gespeichert: Die Ansicht ist als geändert markiert, und **Speichern** oder **Zurücksetzen** unter [Filter](app:records/deal?focus=filter) übernimmt oder verwirft sie. Passt die Anfrage zu nichts, geht sie stattdessen an [Mate](/docs/app-assistant).
+
+Das Modell erhält Ihre Worte und die Namen Ihrer Listen, Ansichten, Felder und Auswahlwerte, nie den Inhalt von Datensätzen, und verbraucht einen kleinen Teil Ihrer KI-Guthaben. Es meldet Sie nie ab und ändert, weist zu oder löscht keinen Datensatz; diese Aktionen bleiben in den Suchergebnissen.
+
+## Für Agents [#which-stable-ids-does-it-have]
+
+Mate kann auf **Suchen** in der Sidebar zeigen, die Suche aber weder öffnen noch etwas hineintippen. Für gefilterte, sortierte oder aggregierte Abfragen verwenden Sie die Tools für Datensatzabfragen statt der globalen Suche.
 
 ## Häufige Fragen [#frequently-asked-questions]
 
 <Faq>
 <FaqItem question="Was ist das Tastenkürzel?">
-Cmd+K oder Ctrl+K, auf jedem Betriebssystem, überall in der App. Der Sidebar-Trigger **Suchen**, der ⌘K anzeigt, öffnet dasselbe Modal.
+Cmd+K auf dem Mac, Strg+K unter Windows und Linux, überall in der App, oder /, wenn kein Textfeld den Fokus hat. Tippen Sie eine Frage und drücken Sie Tab, um sie stattdessen an [Mate](/docs/app-assistant) zu geben; **Mate fragen** ist außerdem die letzte Zeile der Ergebnisse. **Suchen** in der Sidebar zeigt die Taste für Ihren Computer und öffnet dieselbe Suche. Alle Kürzel stehen unter [Welche Tastenkürzel gibt es?](/docs/app-dashboard#keyboard-shortcuts).
 </FaqItem>
 <FaqItem question="Wo öffnen sich Ergebnisse?">
-Auf der Detailseite des Datensatzes unter `/{type}/{id}`, dokumentiert in CRM-Datensätze.
+Im Details-Drawer des Datensatzes, über der Seite, auf der Sie waren. Von dort öffnen Sie die vollständige Datensatzseite, beschrieben unter [CRM-Datensätze](/docs/app-records#what-is-the-shared-layout-of-a-record-type).
 </FaqItem>
 </Faq>

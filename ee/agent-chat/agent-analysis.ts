@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-import { ACTIVITY_SCOPE_CONTACT_MAX } from "@/ee/messaging/activities/activity-scope.schema";
 import { executeMcpTool, validationError, type McpTool } from "@/features/mcp-tools/mcp-tool";
 
 import { checkAnalysisCode, runAnalysisCode, type AnalysisLimits } from "./agent-analysis-isolate";
@@ -10,6 +9,7 @@ export const ANALYSIS_MAX_READS = 10;
 export const ANALYSIS_MAX_ROWS = 10_000;
 export const ANALYSIS_MAX_BYTES = 8 * 1024 * 1024;
 const ANALYSIS_PAGE_SIZE = 100;
+const ANALYSIS_MAX_PAGE_SIZE = 500;
 const CURSOR_PAGE_DEFAULT_LIMIT = 10;
 const CURSOR_PAGE_MAX_LIMIT = 100;
 
@@ -20,12 +20,12 @@ export const AnalyzeRecordsSchema = z.object({
         tool: z
           .string()
           .min(1)
-          .describe("A read-only workspace tool, for example list_records or get_messaging_threads"),
+          .describe("A read-only workspace tool, for example query_crm_records or get_messaging_threads"),
         input: z
           .union([z.record(z.string(), z.unknown()), z.string()])
           .optional()
           .describe(
-            'That tool\'s input as a JSON object (a JSON string is also accepted), for example {"entity":"deal","filters":[{"field":"name","operator":"startsWith","value":"Atlas-"}]}. Paging is handled for you: omit page and pageSize.',
+            'That tool\'s input as a JSON object (a JSON string is also accepted), for example {"typeId":"<type id>","filters":[{"fieldId":"<field id>","operator":"startsWith","value":{"kind":"text","value":"Atlas-"}}]}. Paging is handled for you: omit page and pageSize.',
           ),
       }),
     )
@@ -46,14 +46,14 @@ export const AnalyzeRecordsSchema = z.object({
 type AnalyzeRecordsInput = z.infer<typeof AnalyzeRecordsSchema>;
 
 export const ANALYZE_RECORDS_DESCRIPTION =
-  "Use this when an answer needs arithmetic over many records that no filter or sum expresses: a median, a ranking with a tie-break, a per-record ratio, normalized duplicates, a join across two entity types, or counting rows by a field the list returns. " +
+  "Use this when an answer needs arithmetic over many records that no filter, grouping or measure expresses: a median, a ranking with a tie-break, a per-record ratio, normalized duplicates, a join across two record types, or counting rows by a field the query returns. " +
   `It runs up to ${ANALYSIS_MAX_READS} read-only workspace tool calls (never LinkedIn or social provider tools), collects every page of each list (up to 10,000 rows and 8 MB in total, never a truncated set), and passes the results to your JavaScript function (data) => result, which runs in an isolated sandbox with no network, clock or tools. ` +
   "The function may be async, but there is nothing to await: tools cannot be called from the code, so every read goes in reads. " +
-  "data[i] is reads[i]'s structured result; list results carry total and items across all pages. " +
-  "In an analysis a list_records item carries id, name, userIds (its owners), the ids of its linked records (such as dealIds and taskIds), customFieldValues [{columnId, value}], createdAt and updatedAt, and for deals totalValue, totalQuantity and weightedValue, which is missing when the stage has no win probability. Pass include: [] on a list read that needs only id, name and the deal totals. " +
-  "In userIds and the link arrays an empty array means none you can see is linked; a missing key means you cannot read that relation. " +
-  "So a join, such as the deals that have an open task, is two list reads and one function. A single-select value is the option id, not its label: get_record_schema maps option ids to labels. Date is undefined in the sandbox: createdAt, updatedAt and date custom-field values are ISO strings to compare or slice as text, for example value.slice(0, 7) for the month. " +
-  "When the answer is a count or total per status, owner, or created or updated month, prefer filters, sums or list_records groupBy, and report figures exactly as the result states them.";
+  "data[i] is reads[i]'s structured result; a query_crm_records result carries total and records across all pages. " +
+  'In an analysis a query_crm_records record carries ref {typeId, recordId}, version, createdAt, updatedAt, assignedUserIds and fields [{fieldId, result}], where result is {state: value, value} with a typed value, or a missing, restricted or error state; decimal and currency values are exact strings such as "1250.50", never numbers. Pass fields with only the field ids the code needs to keep reads small, and includeRelationships to get linked record refs. ' +
+  "Relationships list only records you can read, so an empty records array means none you can see is linked; a relationship whose hasMore is true holds only part of its links, and the analysis refuses it: join from the other type instead. " +
+  "So a join, such as the deals that have an open task, is two query reads and one function. A single-select value is the option id and a multiple-choice value an array of option ids, not labels: get_record_model maps option ids to labels. Date is undefined in the sandbox: createdAt, updatedAt and date values are ISO strings to compare or slice as text, for example value.slice(0, 7) for the month. " +
+  "When the answer is a count or total per status, owner, or created or updated month, prefer query_crm_measure or query_crm_records grouping with groupSummaries, and report figures exactly as the result states them.";
 
 export type AnalysisDeps = { tools: readonly McpTool[]; resultMaxChars: number; limits?: AnalysisLimits };
 
@@ -64,11 +64,7 @@ type DataUsage = { bytes: number };
 
 const TOO_MUCH_DATA: TooMuchData = { ok: false, tooMuchData: true };
 const TOO_MUCH_DATA_ERROR =
-  "The reads returned more than 8 MB of data. Narrow them, or pass include: [] on list_records reads that need no links or custom fields; the analysis code was not run.";
-
-const ANALYSIS_READ_DEFAULTS: Record<string, Record<string, unknown>> = {
-  list_records: { include: ["owners", "links", "customFields", "dates"] },
-};
+  "The reads returned more than 8 MB of data. Narrow them, or pass fields with only the needed field ids and no includeRelationships on query_crm_records reads; the analysis code was not run.";
 
 function resultTooLarge(chars: number, resultMaxChars: number): { ok: false; result: string } {
   return {
@@ -100,11 +96,47 @@ function pagesByCursorOrOffset(mcp: McpTool): boolean {
   return !isPageable(mcp) && ("cursor" in shape || "offset" in shape);
 }
 
+function numberBound(schema: unknown): number | null {
+  const unwrapped = schema instanceof z.ZodDefault || schema instanceof z.ZodOptional ? schema.unwrap() : schema;
+  return unwrapped instanceof z.ZodNumber && Number.isFinite(unwrapped.maxValue ?? Number.NaN)
+    ? (unwrapped.maxValue as number)
+    : null;
+}
+
+function analysisPageSize(mcp: McpTool): number {
+  const largest = numberBound(inputShape(mcp).pageSize);
+  return largest === null ? ANALYSIS_PAGE_SIZE : Math.min(largest, ANALYSIS_MAX_PAGE_SIZE);
+}
+
 function readableRows(mcp: McpTool): number {
-  const page = inputShape(mcp).page;
-  const bounded = page instanceof z.ZodDefault ? page.unwrap() : page;
-  const lastPage = bounded instanceof z.ZodNumber ? bounded.maxValue : null;
-  return lastPage === null ? Number.POSITIVE_INFINITY : lastPage * ANALYSIS_PAGE_SIZE;
+  const lastPage = numberBound(inputShape(mcp).page);
+  return lastPage === null ? Number.POSITIVE_INFINITY : lastPage * analysisPageSize(mcp);
+}
+
+const LIST_KEYS = ["items", "records"] as const;
+
+function listKey(content: Record<string, unknown>): (typeof LIST_KEYS)[number] | null {
+  return LIST_KEYS.find((key) => Array.isArray(content[key])) ?? null;
+}
+
+function incompleteGrouping(grouping: unknown): boolean {
+  if (!grouping || typeof grouping !== "object") return false;
+  const { partial, groups } = grouping as { partial?: unknown; groups?: unknown };
+  if (partial === true || !Array.isArray(groups)) return true;
+  return groups.some((group) => {
+    const { hasMore, materialised } = (group ?? {}) as { hasMore?: unknown; materialised?: unknown };
+    return hasMore === true || materialised === false;
+  });
+}
+
+function truncatedRelationship(rows: readonly unknown[]): boolean {
+  return rows.some((row) => {
+    const relationships = (row as { relationships?: unknown } | null)?.relationships;
+    return (
+      Array.isArray(relationships) &&
+      relationships.some((relationship) => (relationship as { hasMore?: unknown } | null)?.hasMore === true)
+    );
+  });
 }
 
 function parseReadInput(read: Read): Record<string, unknown> | string {
@@ -199,7 +231,7 @@ async function cursorPageResult(
 async function runRead(mcp: McpTool, read: Read, rowBudget: number, usage: DataUsage): Promise<ReadResult> {
   const parsed = parseReadInput(read);
   if (typeof parsed === "string") return { ok: false, error: parsed };
-  const input = { ...ANALYSIS_READ_DEFAULTS[mcp.name], ...parsed };
+  const input = { ...parsed };
   const byCursor = pagesByCursorOrOffset(mcp);
   if (byCursor && (input.cursor !== undefined || (typeof input.offset === "number" && input.offset > 0))) {
     return {
@@ -216,16 +248,25 @@ async function runRead(mcp: McpTool, read: Read, rowBudget: number, usage: DataU
     );
   }
 
-  const first = await runPage(mcp, { ...input, page: 1, pageSize: ANALYSIS_PAGE_SIZE });
+  const pageSize = analysisPageSize(mcp);
+  const first = await runPage(mcp, { ...input, page: 1, pageSize });
   if (!first.ok) return first;
   const firstContent = Object.fromEntries(
     Object.entries(first.content).filter(([key]) => key !== "page" && key !== "pageSize"),
   );
-  const firstItems = firstContent.items;
+  const key = listKey(firstContent);
+  const firstItems = key ? firstContent[key] : firstContent.items;
   if (firstContent.scopeTruncated === true) {
     return {
       ok: false,
-      error: `${mcp.name} left out every message, activity and calendar event because its filters or scope reach more than ${ACTIVITY_SCOPE_CONTACT_MAX} contacts. Narrow them.`,
+      error: `${mcp.name} left out every message, activity and calendar event because its filters or scope reach too many contacts. Narrow them.`,
+    };
+  }
+  if (firstContent.grouping !== undefined) {
+    if (!incompleteGrouping(firstContent.grouping)) return counted(usage, { ok: true, data: firstContent, rows: 0 });
+    return {
+      ok: false,
+      error: `${mcp.name} returned only some groups or only part of some groups' records, so the analysis did not run on a partial set. Read the records without grouping and group them in the code.`,
     };
   }
   if (Array.isArray(firstContent.groups)) {
@@ -258,9 +299,9 @@ async function runRead(mcp: McpTool, read: Read, rowBudget: number, usage: DataU
   if (!withinDataCap(usage, firstItems)) return TOO_MUCH_DATA;
   const items: unknown[] = [...firstItems];
   for (let page = 2; items.length < total; page += 1) {
-    const next = await runPage(mcp, { ...input, page, pageSize: ANALYSIS_PAGE_SIZE });
+    const next = await runPage(mcp, { ...input, page, pageSize });
     if (!next.ok) return next;
-    const pageItems = next.content.items;
+    const pageItems = next.content[key ?? "items"];
     if (!Array.isArray(pageItems) || pageItems.length === 0) break;
     if (next.content.pageLimitReached === true) {
       return {
@@ -272,7 +313,13 @@ async function runRead(mcp: McpTool, read: Read, rowBudget: number, usage: DataU
     items.push(...pageItems);
   }
   if (items.length < total) return { ok: false, error: partialSetError(mcp, items.length, total) };
-  return { ok: true, data: { ...firstContent, items }, rows: items.length };
+  if (truncatedRelationship(items)) {
+    return {
+      ok: false,
+      error: `${mcp.name} returned a relationship that lists only part of its linked records, so the analysis did not run on a partial set. Read the linked type and join from its side instead.`,
+    };
+  }
+  return { ok: true, data: { ...firstContent, [key ?? "items"]: items }, rows: items.length };
 }
 
 async function readAll(

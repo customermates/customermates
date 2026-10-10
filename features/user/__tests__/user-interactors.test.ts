@@ -41,6 +41,7 @@ describe("RegisterUserInteractor", () => {
   let mockEventService: any;
   let mockRouteGuardService: any;
   let mockCompanyRepo: any;
+  let mockRecordModel: { initialize: ReturnType<typeof vi.fn<() => Promise<void>>> };
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -75,6 +76,7 @@ describe("RegisterUserInteractor", () => {
         subscription: null,
       }),
     };
+    mockRecordModel = { initialize: vi.fn<() => Promise<void>>().mockResolvedValue(undefined) };
     mockCompanyRepo = { existsUnscoped: vi.fn().mockResolvedValue(true) };
   });
 
@@ -85,6 +87,7 @@ describe("RegisterUserInteractor", () => {
       mockEventService,
       mockRouteGuardService,
       mockCompanyRepo,
+      mockRecordModel,
     );
   }
 
@@ -117,6 +120,7 @@ describe("RegisterUserInteractor", () => {
       authUserId: USER_ID,
       companyId: mockTenantUser.companyId,
     });
+    expect(mockRecordModel.initialize).toHaveBeenCalledOnce();
   });
 
   it("records current company-wide legal acceptance for a new cloud company", async () => {
@@ -246,6 +250,7 @@ describe("RegisterUserInteractor", () => {
 
     expect("ok" in result && result.ok).toBe(false);
     expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRecordModel.initialize).not.toHaveBeenCalled();
     expect(mockEventService.publish).not.toHaveBeenCalled();
   });
 
@@ -693,11 +698,12 @@ describe("UpdateUserDetailsInteractor", () => {
       DomainEvent.USER_UPDATED,
       expect.objectContaining({
         entityId: USER_ID,
-        payload: expect.objectContaining({
-          firstName: "Janet",
-          lastName: "Doe",
-          country: "de",
-        }),
+        payload: {
+          changes: {
+            firstName: { previous: "Test", current: "Janet" },
+            lastName: { previous: "User", current: "Doe" },
+          },
+        },
       }),
     );
   });
@@ -718,9 +724,17 @@ describe("UpdateUserDetailsInteractor", () => {
     expect(mockEventService.publish).toHaveBeenCalledWith(
       DomainEvent.USER_UPDATED,
       expect.objectContaining({
-        payload: expect.objectContaining({ firstName: "Janet" }),
+        payload: { changes: expect.objectContaining({ firstName: { previous: "Test", current: "Janet" } }) },
       }),
     );
+  });
+
+  it("publishes nothing when the saved profile keeps its name and country", async () => {
+    mockRepo.updateDetails.mockResolvedValue({ ...profileResult, firstName: "Test", lastName: "User", country: "de" });
+    const result: any = await createInteractor().invoke({ theme: "dark" } as never);
+
+    expect(result.ok).toBe(true);
+    expect(mockEventService.publish).not.toHaveBeenCalled();
   });
 
   it("returns { ok: true, data: details }", async () => {

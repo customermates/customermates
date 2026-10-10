@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 
 import { defineRouting } from "next-intl/routing";
 
-import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES } from "./locale-registry";
+import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES, buildLocalePath } from "./locale-registry";
 
 export const NOINDEX_PUBLIC_ROUTES = [
   "/auth/signin",
@@ -79,42 +79,52 @@ export const PUBLIC_ROUTES = [
 
 export const PROTECTED_ROUTES = [
   "/auth/mcp-consent",
-  "/company/audit-logs",
-  "/company/members",
-  "/company/roles",
-  "/company/settings",
-  "/company/subscription",
-  "/company/webhook-deliveries",
-  "/company/webhooks",
-  "/contacts",
-  "/contacts/:id",
+  "/configure",
   "/dashboard",
-  "/deals",
-  "/deals/:id",
   "/inbox",
   "/legal-update",
   "/onboarding",
   "/onboarding/join",
   "/onboarding/wizard",
+  "/open/:area/:preset",
   "/operator/audit",
   "/operator/overview",
   "/operator/users",
   "/operator/workspaces",
-  "/organizations",
-  "/organizations/:id",
-  "/profile/api-keys",
-  "/profile/connected-accounts",
-  "/profile/settings",
+  "/records/:typeId",
+  "/records/:typeId/:recordId",
   "/routines",
-  "/services",
-  "/services/:id",
+  "/settings/activity",
+  "/settings/api-keys",
+  "/settings/channels",
+  "/settings/members",
+  "/settings/billing",
+  "/settings/profile",
+  "/settings/roles",
+  "/settings/webhooks",
+  "/settings/webhook-deliveries",
   "/subscription-expired",
-  "/tasks",
-  "/tasks/:id",
   "/test/error",
   "/test/overlays",
+  "/trash",
   "/wiki",
 ] as const;
+
+export const MOVED_PROTECTED_ROUTES = {
+  "/configure/deleted": "/trash",
+  "/settings/webhooks/deliveries": "/settings/webhook-deliveries",
+} as const satisfies Record<string, (typeof PROTECTED_ROUTES)[number]>;
+
+export function movedProtectedRouteRedirects() {
+  return Object.entries(MOVED_PROTECTED_ROUTES).flatMap(([moved, destination]) => [
+    ...APP_LOCALES.map((locale) => ({
+      source: buildLocalePath(locale, moved),
+      destination: buildLocalePath(locale, destination),
+      permanent: true as const,
+    })),
+    { source: moved, destination: buildLocalePath(DEFAULT_LOCALE, destination), permanent: true as const },
+  ]);
+}
 
 export const CONTENT_ROUTES = [
   ...PUBLIC_ROUTES_SEO.filter((route) => !route.startsWith("/auth/")),
@@ -194,7 +204,7 @@ function decodePathname(pathname: string): string | null {
   }
 }
 
-function escapeRegExp(value: string): string {
+export function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 

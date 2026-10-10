@@ -151,6 +151,8 @@ Useful scripts:
 - `yarn db:provision`
 - `yarn db:reset`
 
+For configurable CRM architecture review, isolated databases, production-build browser journeys and SSH verification, see [the browser verification guide](tests/e2e/README.md).
+
 ## 📚 Documentation
 
 The docs cover:

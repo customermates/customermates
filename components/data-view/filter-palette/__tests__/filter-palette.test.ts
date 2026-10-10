@@ -1,21 +1,23 @@
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 import type { Filter, FilterableField } from "@/core/base/base-get.schema";
-import type { ComponentProps, ReactNode } from "react";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { RootStore } from "@/core/stores/root.store";
+import type { ComponentProps, ReactNode } from "react";
 
-import { createElement } from "react";
-import { describe, expect, it, vi } from "vitest";
-import { join } from "node:path";
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it, vi } from "vitest";
 
-import { CustomColumnType, EntityType } from "@/generated/prisma";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { CustomColumnType } from "@/core/data-view/column-presentation.types";
 
 const harness = vi.hoisted(() => ({ palette: { current: null as unknown } }));
 
-vi.mock("mobx-react-lite", () => ({ observer: <T>(component: T) => component }));
+vi.mock("mobx-react-lite", () => ({
+  observer: <T>(component: T) => component,
+}));
 function formatValues(values: Record<string, unknown>) {
   return Object.entries(values)
     .map(([name, value]) => `${name}=${String(value)}`)
@@ -35,7 +37,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
       parseNumberToCanonical: (value: string) => value,
       use12Hour: false,
     },
-    terminologyStore: { overrides: [] },
+    recordWorkspaceStore: { navigation: null },
   }),
 }));
 vi.mock("@/components/forms/form-context", () => ({
@@ -43,8 +45,9 @@ vi.mock("@/components/forms/form-context", () => ({
   useAppForm: () => harness.palette.current,
 }));
 
-import { ACTIVITY_FILTER_VALUE_MAX } from "@/ee/messaging/activities/activities.schema";
 import { Command } from "@/components/ui/command";
+import { ACTIVITY_FILTER_VALUE_MAX } from "@/ee/messaging/activities/activities.schema";
+import { TIMELINE_KIND_VIEW_VALUES } from "@/core/types/filter-field-value-kind";
 import { ActivityQueryProvider } from "@/features/messaging/activities/activity-query-context";
 import { FilterPalette } from "../filter-palette";
 import { FilterPaletteStore } from "../filter-palette.store";
@@ -56,8 +59,14 @@ type ActivityQueryProviderProps = ComponentProps<typeof ActivityQueryProvider>;
 const CURRENCY_COLUMN = "11111111-1111-4111-8111-111111111111";
 
 const FILTERABLE_FIELDS: FilterableField[] = [
-  { field: "name", operators: [FilterOperatorKey.contains, FilterOperatorKey.equals] },
-  { field: "status", operators: [FilterOperatorKey.in, FilterOperatorKey.notIn] },
+  {
+    field: "name",
+    operators: [FilterOperatorKey.contains, FilterOperatorKey.equals],
+  },
+  {
+    field: "status",
+    operators: [FilterOperatorKey.in, FilterOperatorKey.notIn],
+  },
   {
     field: "createdAt",
     operators: [
@@ -69,7 +78,10 @@ const FILTERABLE_FIELDS: FilterableField[] = [
       FilterOperatorKey.inLastDays,
     ],
   },
-  { field: "adProvider", operators: [FilterOperatorKey.in, FilterOperatorKey.notIn] },
+  {
+    field: "adProvider",
+    operators: [FilterOperatorKey.in, FilterOperatorKey.notIn],
+  },
   {
     field: CURRENCY_COLUMN,
     operators: [FilterOperatorKey.gte, FilterOperatorKey.lte, FilterOperatorKey.isNull],
@@ -124,12 +136,17 @@ describe("account-grouped folder choices", () => {
 });
 
 const CUSTOM_COLUMNS = [
-  { id: CURRENCY_COLUMN, label: "Budget", entityType: EntityType.deal, type: CustomColumnType.currency },
+  {
+    id: CURRENCY_COLUMN,
+    label: "Budget",
+    entityType: "deal",
+    type: CustomColumnType.currency,
+  },
 ] as unknown as CustomColumnDto[];
 
 function tableStore(filters: Filter[] = []) {
   const table = {
-    customColumns: CUSTOM_COLUMNS,
+    filterColumns: CUSTOM_COLUMNS,
     filterableFields: FILTERABLE_FIELDS,
     filters,
     p13nId: "deals",
@@ -142,7 +159,10 @@ function tableStore(filters: Filter[] = []) {
 }
 
 function openPalette(table: ReturnType<typeof tableStore>) {
-  const root = { registerModalStore: vi.fn(), localeStore: { getTranslation: (key: string) => key } };
+  const root = {
+    registerModalStore: vi.fn(),
+    localeStore: { getTranslation: (key: string) => key },
+  };
   const palette = new FilterPaletteStore(root as unknown as RootStore);
   palette.openFor(table as unknown as BaseDataViewStore<HasId>);
   harness.palette.current = palette;
@@ -151,7 +171,12 @@ function openPalette(table: ReturnType<typeof tableStore>) {
 }
 
 function render(table: ReturnType<typeof tableStore>) {
-  return renderToStaticMarkup(createElement(FilterPalette, { store: table as unknown as BaseDataViewStore<HasId> }));
+  return renderToStaticMarkup(
+    createElement(FilterPalette, {
+      palette: harness.palette.current as FilterPaletteStore,
+      store: table as unknown as BaseDataViewStore<HasId>,
+    }),
+  );
 }
 
 function occurrences(markup: string, needle: string) {
@@ -177,7 +202,10 @@ const THEME_TOKENS = readThemeTokens();
 function readThemeTokens() {
   const css = readFileSync(join(process.cwd(), "styles/globals.css"), "utf8");
 
-  return { light: declarationsAfter(css, "\n:root,\n.light,"), dark: declarationsAfter(css, "\n.dark,\n") };
+  return {
+    light: declarationsAfter(css, "\n:root,\n.light,"),
+    dark: declarationsAfter(css, "\n.dark,\n"),
+  };
 }
 
 function declarationsAfter(css: string, opener: string) {
@@ -280,8 +308,16 @@ describe("filter palette pages", () => {
 
   it("shows the applied filters above the fields and counts them per field", () => {
     const table = tableStore([
-      { field: "status", operator: FilterOperatorKey.in, value: ["open"] } as Filter,
-      { field: "status", operator: FilterOperatorKey.in, value: ["won"] } as Filter,
+      {
+        field: "status",
+        operator: FilterOperatorKey.in,
+        value: ["open"],
+      } as Filter,
+      {
+        field: "status",
+        operator: FilterOperatorKey.in,
+        value: ["won"],
+      } as Filter,
     ]);
     openPalette(table);
 
@@ -299,7 +335,12 @@ describe("filter palette pages", () => {
     const table = tableStore(
       Array.from(
         { length: 50 },
-        (_, index) => ({ field: "name", operator: FilterOperatorKey.contains, value: `q${index}` }) as Filter,
+        (_, index) =>
+          ({
+            field: "name",
+            operator: FilterOperatorKey.contains,
+            value: `q${index}`,
+          }) as Filter,
       ),
     );
     openPalette(table);
@@ -394,7 +435,13 @@ describe("filter palette pages", () => {
   });
 
   it("shapes an applied filter as a wrapping chip, never as a full-width row", () => {
-    const table = tableStore([{ field: "status", operator: FilterOperatorKey.in, value: ["open"] } as Filter]);
+    const table = tableStore([
+      {
+        field: "status",
+        operator: FilterOperatorKey.in,
+        value: ["open"],
+      } as Filter,
+    ]);
     openPalette(table);
 
     const markup = render(table);
@@ -412,7 +459,13 @@ describe("filter palette pages", () => {
   });
 
   it("keeps an applied chip readable on its own tint", () => {
-    const table = tableStore([{ field: "status", operator: FilterOperatorKey.in, value: ["open"] } as Filter]);
+    const table = tableStore([
+      {
+        field: "status",
+        operator: FilterOperatorKey.in,
+        value: ["open"],
+      } as Filter,
+    ]);
     openPalette(table);
 
     const applied = openingTag(render(table), "data-filter-index=");
@@ -432,7 +485,13 @@ describe("filter palette pages", () => {
   });
 
   it("keeps the keyboard cursor perceptible on a plain field row", () => {
-    const table = tableStore([{ field: "status", operator: FilterOperatorKey.in, value: ["open"] } as Filter]);
+    const table = tableStore([
+      {
+        field: "status",
+        operator: FilterOperatorKey.in,
+        value: ["open"],
+      } as Filter,
+    ]);
     openPalette(table);
 
     const field = openingTag(render(table), 'data-palette-field="status"');
@@ -464,7 +523,13 @@ describe("filter palette pages", () => {
   });
 
   it("labels both zones with the section typography the app uses elsewhere", () => {
-    const table = tableStore([{ field: "status", operator: FilterOperatorKey.in, value: ["open"] } as Filter]);
+    const table = tableStore([
+      {
+        field: "status",
+        operator: FilterOperatorKey.in,
+        value: ["open"],
+      } as Filter,
+    ]);
     openPalette(table);
 
     const markup = render(table);
@@ -479,7 +544,11 @@ describe("filter palette pages", () => {
 });
 
 describe("palette value select on an activity surface", () => {
-  const timelineFilter = { field: "timelineKind", operator: FilterOperatorKey.in, value: [] } as unknown as Filter;
+  const timelineFilter = {
+    field: "timelineKind",
+    operator: FilterOperatorKey.in,
+    value: [],
+  } as unknown as Filter;
 
   function renderSelect(selected: string[], inActivityQuery: boolean) {
     const page = createElement(
@@ -507,7 +576,7 @@ describe("palette value select on an activity surface", () => {
 
     expect(markup).toContain("Common.filters.selectionLimit");
     expect(markup).toContain('role="status"');
-    expect(occurrences(markup, 'aria-disabled="true"')).toBe(3);
+    expect(occurrences(markup, 'aria-disabled="true"')).toBe(TIMELINE_KIND_VIEW_VALUES.length);
   });
 
   it("leaves the same page uncapped outside an activity query", () => {

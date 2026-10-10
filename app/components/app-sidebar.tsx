@@ -2,60 +2,64 @@
 
 import type { SubscriptionDto } from "@/ee/subscription/get-subscription.interactor";
 import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
-import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import type { NavGroup } from "./navigation/nav-main";
 import type { NavSecondaryItem } from "./navigation/nav-secondary";
 import type { SidebarUser } from "./navigation/sidebar-user";
 
-import { startTransition, useEffect, useMemo, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { usePathname as useIntlPathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
-import { useTheme } from "next-themes";
 import {
-  Building,
-  Building2,
-  CheckCircle2,
-  MessageCircle,
-  FileText,
+  Settings2,
+  Settings,
+  CreditCard,
   Inbox,
-  Mail,
-  Package,
   Plus,
   LayoutGrid,
   Repeat,
   ShieldCheck,
-  TrendingUp,
-  UserCircle,
+  UserPlus,
   Users,
+  RotateCcw,
   BookOpen,
+  Trash2,
 } from "lucide-react";
-import { Resource, Theme as ThemeEnum } from "@/generated/prisma";
+import { Action, Locale, Resource } from "@/generated/prisma";
+import { DISPLAY_LANGUAGE_VALUES } from "@/i18n/user-locale";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
-import { useOpenEntity } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
 import { AppChip } from "@/components/chip/app-chip";
 import { Sidebar, SidebarContent, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
+import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { AppLink } from "@/components/shared/app-link";
 import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { OVERLAY_SIDE_SHEET_CLASS, handOffSheet } from "@/components/ui/overlay-contract";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { Icon } from "@/components/shared/icon";
-import { signOutAction } from "@/app/[locale]/actions";
-import { FeedbackType } from "@/features/feedback/send-feedback.schema";
-import { EntityType } from "@/generated/prisma";
+import { recordNavigationKey } from "@/features/records/record-navigation.schema";
+import { assistantEntryVisible } from "./navigation/assistant-entry-visibility";
+import { recordTypeIcon } from "@/components/records/record-type-icon";
 
 import { NavHeader } from "./navigation/nav-header";
 import { resolvePlanChip } from "./navigation/plan-subtitle";
 import { OPERATOR_SUBROUTES } from "./navigation/operator-sections";
-import { visibleSubroutes } from "./navigation/workspace-sections";
-import { NavMain } from "./navigation/nav-main";
+import { SETTINGS_SECTIONS, type SettingsSection, visibleSubroutes } from "./navigation/settings-sections";
+import { SETTINGS_ENTRY_HREF, settingsHref } from "./navigation/settings-routes";
+import { AreaNav, type AreaNavGroup } from "./navigation/area-nav";
+import { NavSections, useResolvedSidebar } from "./navigation/nav-sections";
+import { shortcutDestinations } from "./navigation/shortcut-destinations";
+import { SidebarCustomize } from "./navigation/sidebar-customize";
+import { useAccountActions } from "./navigation/use-account-actions";
 import { NavSecondary } from "./navigation/nav-secondary";
 import { NavUser } from "./navigation/nav-user";
 import { LegalUpdateAlert } from "./navigation/legal-update-alert";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { sidebarUserCanAccess, sidebarUserCanManage } from "./navigation/sidebar-user";
+import { sidebarUserCanAccess } from "./navigation/sidebar-user";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { startBackgroundPoll } from "@/core/utils/background-poll";
+
+const UNREAD_REFRESH_INTERVAL_MS = 10000;
 
 type FullProps = {
   systemTaskCount: number;
@@ -124,10 +128,12 @@ const FullAppSidebar = observer(
   }: SidebarContentProps) => {
     const t = useTranslations();
     const pathname = usePathname();
+    const searchParams = useSearchParams();
     const intlPathname = useIntlPathname();
     const router = useRouter();
     const rootStore = useRootStore();
-    const { feedbackModalStore, globalSearchModalStore, terminologyStore, userStore } = rootStore;
+    const { addPickerStore, globalSearchModalStore, keyboardShortcutsStore, recordWorkspaceStore, userStore } =
+      rootStore;
     const { messagingThreadsStore } = rootStore;
     const isDocsRoute = pathname.split("/")[2] === "docs";
     const inboxVisible =
@@ -137,68 +143,35 @@ const FullAppSidebar = observer(
       sidebarUserCanAccess(user, Resource.inboxMessages);
     const currentUnreadThreadCount = inboxVisible ? (messagingThreadsStore.unreadThreadCount ?? unreadThreadCount) : 0;
     const onInbox = intlPathname === "/inbox";
-    const { singular, plural } = useEntityTerminology();
 
     const { isMobile, setOpenMobile } = useSidebar();
-    const { resolvedTheme, setTheme } = useTheme();
-    const openEntity = useOpenEntity();
+    const { theme, changeTheme, signOut, inviteMembers, sendFeedback } = useAccountActions(restricted);
     const subscriptionStatus = subscription?.status ?? null;
     const subscriptionPlan = subscription?.plan ?? null;
-    const [selectedKey, setSelectedKey] = useState<string | null>(pathname.split("/")[2]);
-    const [isAddPickerOpen, setIsAddPickerOpen] = useState(false);
-    const addPickerInvokerRef = useRef<HTMLElement | null>(null);
-    const addPickerFallbackRef = useRef<HTMLElement | null>(null);
+    const [selectedKey, setSelectedKey] = useState<string | null>(recordNavigationKey(intlPathname));
 
-    function handleThemeChange() {
-      const next = resolvedTheme === "dark" ? ThemeEnum.light : ThemeEnum.dark;
-      setTheme(next);
-      if (!restricted) runUserAction(() => userStore.updateTheme(next));
-    }
-
-    async function handleSignOut() {
-      const res = await signOutAction();
-      if (!res.ok) toastZodErrorTree(res.error);
-    }
+    const area = restricted ? null : areaOf(intlPathname, operatorConsoleVisible);
+    const [lastWorkPath, setLastWorkPath] = useState("/dashboard");
+    const [customizeOpen, setCustomizeOpen] = useState(false);
+    useEffect(() => {
+      if (!area) setLastWorkPath(`${intlPathname}${window.location.search}`);
+    }, [area, intlPathname, searchParams]);
 
     function recheckAccountState() {
       router.push("/dashboard");
     }
 
-    useEffect(() => setSelectedKey(pathname.split("/")[2] ?? null), [pathname]);
+    useEffect(() => setSelectedKey(recordNavigationKey(intlPathname)), [intlPathname]);
 
     useEffect(() => {
       if (!inboxVisible) return;
-      let stopped = false;
-      let pending = false;
-      const refresh = async () => {
-        if (stopped || pending || document.visibilityState !== "visible") return;
-        pending = true;
-        try {
-          await messagingThreadsStore.refreshUnreadCount();
-        } finally {
-          pending = false;
-        }
-      };
-      const scheduleRefresh = () => {
-        void refresh().catch((error) => {
-          if (!stopped) reportApplicationError(error);
-        });
-      };
-      scheduleRefresh();
-      if (onInbox) {
-        return () => {
-          stopped = true;
-        };
-      }
-      const timer = window.setInterval(scheduleRefresh, 10000);
-      document.addEventListener("visibilitychange", scheduleRefresh);
-      window.addEventListener("focus", scheduleRefresh);
-      return () => {
-        stopped = true;
-        window.clearInterval(timer);
-        document.removeEventListener("visibilitychange", scheduleRefresh);
-        window.removeEventListener("focus", scheduleRefresh);
-      };
+      return startBackgroundPoll({
+        refresh: () => messagingThreadsStore.refreshUnreadCount(),
+        onError: reportApplicationError,
+        intervalMs: UNREAD_REFRESH_INTERVAL_MS,
+        immediate: true,
+        repeat: !onInbox,
+      });
     }, [inboxVisible, onInbox, messagingThreadsStore]);
 
     function closeMobileSidebar(cb?: () => void) {
@@ -208,8 +181,6 @@ const FullAppSidebar = observer(
 
     const navGroups: NavGroup[] = useMemo(() => {
       const canAccess = (resource: Resource) => sidebarUserCanAccess(user, resource);
-      const profileSubroutes = visibleSubroutes("profile", rootStore.appMode, canAccess);
-      const companySubroutes = visibleSubroutes("company", rootStore.appMode, canAccess);
 
       return [
         {
@@ -248,187 +219,111 @@ const FullAppSidebar = observer(
           ].filter((i) => i.visible),
         },
         {
-          key: "crm",
-          label: t("NavigationBar.crm"),
+          key: "data",
+          label: t("NavigationBar.data"),
           items: [
-            {
-              key: "contacts",
-              title: plural(EntityType.contact),
-              href: "/contacts",
-              icon: Users,
-              visible: canAccess(Resource.contacts),
-            },
-            {
-              key: "organizations",
-              title: plural(EntityType.organization),
-              href: "/organizations",
-              icon: Building2,
-              visible: canAccess(Resource.organizations),
-            },
-            {
-              key: "deals",
-              title: plural(EntityType.deal),
-              href: "/deals",
-              icon: TrendingUp,
-              visible: canAccess(Resource.deals),
-            },
-            {
-              key: "services",
-              title: plural(EntityType.service),
-              href: "/services",
-              icon: Package,
-              visible: canAccess(Resource.services),
-            },
-            {
-              key: "tasks",
-              title: plural(EntityType.task),
-              href: "/tasks",
-              icon: CheckCircle2,
-              visible: canAccess(Resource.tasks),
-              badge: systemTaskCount,
-            },
-          ].filter((i) => i.visible),
+            ...(recordWorkspaceStore.navigation?.types ?? []).map((type) => ({
+              key: `records:${type.id}`,
+              title: type.pluralLabel,
+              href: `/records/${type.id}`,
+              icon: recordTypeIcon(type.icon),
+              visible: true,
+              badge: type.hasAuthorizationTasks ? systemTaskCount : undefined,
+            })),
+            ...(recordWorkspaceStore.navigation?.canManageSchema
+              ? [
+                  {
+                    key: "configure-records",
+                    title: t("RecordModel.configure"),
+                    href: "/configure",
+                    icon: Settings2,
+                    visible: true,
+                  },
+                ]
+              : []),
+          ],
         },
         {
-          key: "workspace",
-          label: t("NavigationBar.workspace"),
+          key: "top-level",
+          label: t("SidebarCustomize.topLevel"),
+          topLevel: true,
           items: [
             {
-              key: "profile",
-              title: t("UserAvatar.profile"),
-              href: `/profile/${profileSubroutes[0]?.slug ?? "settings"}`,
-              icon: UserCircle,
-              visible: profileSubroutes.length > 0,
-              items: profileSubroutes.map((subroute) => ({
-                key: `profile-${subroute.slug}`,
-                title: t(subroute.labelKey),
-                href: `/profile/${subroute.slug}`,
-                icon: subroute.slug === "connected-accounts" ? Mail : UserCircle,
-                visible: true,
-                badge: subroute.slug === "connected-accounts" ? channelsNeedingActionCount : undefined,
-              })),
+              key: "trash",
+              title: t("NavigationBar.trash"),
+              href: "/trash",
+              icon: Trash2,
+              visible: true,
             },
-            {
-              key: "company",
-              title: t("UserAvatar.company"),
-              href: `/company/${companySubroutes[0]?.slug ?? "settings"}`,
-              icon: Building,
-              visible: companySubroutes.length > 0,
-              items: companySubroutes.map((subroute) => ({
-                key: `company-${subroute.slug}`,
-                title: t(subroute.labelKey),
-                href: `/company/${subroute.slug}`,
-                icon: Building,
-                visible: true,
-              })),
-            },
-          ].filter((i) => i.visible),
-        },
-        {
-          key: "admin",
-          label: t("NavigationBar.admin"),
-          items: [
-            {
-              key: "operator",
-              title: t("NavigationBar.operator"),
-              href: `/operator/${OPERATOR_SUBROUTES[0]?.slug ?? "overview"}`,
-              icon: ShieldCheck,
-              visible: operatorConsoleVisible,
-              items: OPERATOR_SUBROUTES.map((subroute) => ({
-                key: `operator-${subroute.slug}`,
-                title: t(subroute.labelKey),
-                href: `/operator/${subroute.slug}`,
-                icon: ShieldCheck,
-                visible: true,
-              })),
-            },
-          ].filter((i) => i.visible),
+          ],
         },
       ].filter((g) => g.items.length > 0);
-    }, [
-      operatorConsoleVisible,
-      t,
-      plural,
-      terminologyStore.overrides,
-      rootStore.appMode,
-      subscriptionStatus,
-      user,
-      systemTaskCount,
-      currentUnreadThreadCount,
-      channelsNeedingActionCount,
-    ]);
+    }, [t, recordWorkspaceStore.navigation, rootStore.appMode, user, systemTaskCount, currentUnreadThreadCount]);
 
-    const secondaryItems: NavSecondaryItem[] = [
-      {
-        key: "documentation",
-        title: t("UserAvatar.documentation"),
-        icon: FileText,
-        href: restricted ? "/dashboard" : "/docs",
-      },
-      {
-        key: "feedback",
-        title: t("Common.inputs.feedback"),
-        icon: MessageCircle,
-        onSelect: (invoker) => {
-          if (restricted) {
-            closeMobileSidebar(recheckAccountState);
-            return;
-          }
+    const areaGroups: AreaNavGroup[] = useMemo(() => {
+      if (area === "operator") {
+        return [
+          {
+            key: "operator",
+            label: t("NavigationBar.operator"),
+            items: OPERATOR_SUBROUTES.map((subroute) => ({
+              key: `operator-${subroute.slug}`,
+              title: t(subroute.labelKey),
+              href: `/operator/${subroute.slug}`,
+              icon: subroute.icon,
+            })),
+          },
+        ];
+      }
+      if (area !== "settings") return [];
+      const canAccess = (resource: Resource) => sidebarUserCanAccess(user, resource);
+      return (Object.keys(SETTINGS_SECTIONS) as SettingsSection[])
+        .map((section) => ({
+          key: section,
+          label: section === "account" ? t("SettingsNav.account") : t("SettingsNav.workspace"),
+          items: visibleSubroutes(section, rootStore.appMode, canAccess).map((subroute) => ({
+            key: `settings-${subroute.slug}`,
+            title: t(subroute.labelKey),
+            href: settingsHref(subroute.slug),
+            icon: subroute.icon,
+            badge: subroute.slug === "channels" ? channelsNeedingActionCount : undefined,
+          })),
+        }))
+        .filter((group) => group.items.length > 0);
+    }, [area, t, user, rootStore.appMode, channelsNeedingActionCount]);
 
-          closeMobileSidebar(() => {
-            feedbackModalStore.onInitOrRefresh({
-              type: FeedbackType.general,
-              feedback: "",
-            });
-            const sidebarTrigger = document.getElementById("sidebar-trigger");
-            feedbackModalStore.openFrom(invoker, sidebarTrigger);
-          });
-        },
-      },
-    ];
+    const resolvedSidebar = useResolvedSidebar(navGroups);
 
-    const addItems = [
-      {
-        resource: Resource.contacts,
-        key: "add_contact",
-        label: t("NavigationBar.addEntity", {
-          entity: singular(EntityType.contact),
-        }),
-        entity: EntityType.contact,
-      },
-      {
-        resource: Resource.organizations,
-        key: "add_organization",
-        label: t("NavigationBar.addEntity", {
-          entity: singular(EntityType.organization),
-        }),
-        entity: EntityType.organization,
-      },
-      {
-        resource: Resource.deals,
-        key: "add_deal",
-        label: t("NavigationBar.addEntity", {
-          entity: singular(EntityType.deal),
-        }),
-        entity: EntityType.deal,
-      },
-      {
-        resource: Resource.services,
-        key: "add_service",
-        label: t("NavigationBar.addEntity", {
-          entity: singular(EntityType.service),
-        }),
-        entity: EntityType.service,
-      },
-      {
-        resource: Resource.tasks,
-        key: "add_task",
-        label: t("NavigationBar.addEntity", {
-          entity: singular(EntityType.task),
-        }),
-        entity: EntityType.task,
-      },
-    ];
+    useEffect(
+      () => keyboardShortcutsStore.setDestinations(shortcutDestinations(navGroups, resolvedSidebar)),
+      [keyboardShortcutsStore, navGroups, resolvedSidebar],
+    );
+
+    const secondaryItems: NavSecondaryItem[] =
+      recordWorkspaceStore.navigationRefreshFailed && !restricted
+        ? [
+            {
+              key: "record-navigation-retry",
+              title: t("RecordModel.reloadLists"),
+              icon: RotateCcw,
+              onSelect: () => runUserAction(recordWorkspaceStore.refreshNavigation),
+            },
+          ]
+        : [];
+
+    function openFeedback(invoker: HTMLElement) {
+      closeMobileSidebar(() => sendFeedback(invoker, document.getElementById("sidebar-trigger")));
+    }
+
+    const addItems: AddPickerItem[] = (recordWorkspaceStore.navigation?.types ?? [])
+      .filter((type) => type.canCreate)
+      .map((type) => ({
+        key: `add:${type.id}`,
+        label: t("NavigationBar.addEntity", { entity: type.label }),
+        typeId: type.id,
+      }));
+    if (recordWorkspaceStore.navigation?.canManageSchema)
+      addItems.push({ key: "create-list", label: t("RecordModel.createList"), typeId: null });
 
     if (isDocsRoute && !restricted) return null;
 
@@ -442,13 +337,104 @@ const FullAppSidebar = observer(
         : assistantRouteSyncStatus === "refreshing"
           ? t("AgentChat.ui.routeSyncRefreshing")
           : t("AgentChat.ui.finalizing");
-    const planSubtitle = buildPlanSubtitle(
-      isCloudHosted ? subscriptionStatus : null,
-      isCloudHosted ? subscriptionPlan : null,
-      trialDaysLeft,
-      emailVerified,
+    const planChip = resolvePlanChip(
+      {
+        status: isCloudHosted ? subscriptionStatus : null,
+        plan: isCloudHosted ? subscriptionPlan : null,
+        trialDaysLeft,
+      },
       t,
-      router.push,
+    );
+    const planChipNode = planChip ? (
+      <AppChip className="h-[16px] px-1 text-[10px]" variant={planChip.variant}>
+        {planChip.label}
+      </AppChip>
+    ) : undefined;
+    const canAccess = (resource: Resource) => sidebarUserCanAccess(user, resource);
+    const workspaceRoutes = visibleSubroutes("workspace", rootStore.appMode, canAccess).map(
+      (subroute) => subroute.slug,
+    );
+    const workspaceMenu = restricted ? null : (
+      <>
+        {userStore.can(Resource.users, Action.create) && (
+          <DropdownMenuItem
+            id="workspace-menu-invite"
+            onSelect={() =>
+              closeMobileSidebar(() => {
+                inviteMembers();
+              })
+            }
+          >
+            <UserPlus />
+
+            <span>{t("WorkspaceMenu.inviteMembers")}</span>
+          </DropdownMenuItem>
+        )}
+
+        {workspaceRoutes.includes("members") && (
+          <DropdownMenuItem asChild>
+            <AppLink
+              appearance="unstyled"
+              href={settingsHref("members")}
+              id="workspace-menu-members"
+              onClick={() => closeMobileSidebar()}
+            >
+              <Users />
+
+              <span>{t("SettingsNav.members")}</span>
+            </AppLink>
+          </DropdownMenuItem>
+        )}
+
+        <DropdownMenuItem asChild>
+          <AppLink
+            appearance="unstyled"
+            href={SETTINGS_ENTRY_HREF}
+            id="workspace-menu-settings"
+            onClick={() => closeMobileSidebar()}
+          >
+            <Settings />
+
+            <span>{t("NavigationBar.settings")}</span>
+          </AppLink>
+        </DropdownMenuItem>
+
+        {workspaceRoutes.includes("billing") && (
+          <DropdownMenuItem asChild>
+            <AppLink
+              appearance="unstyled"
+              href={settingsHref("billing")}
+              id="workspace-menu-billing"
+              onClick={() => closeMobileSidebar()}
+            >
+              <CreditCard />
+
+              <span className="flex-1">{t("SettingsNav.billing")}</span>
+
+              {planChipNode}
+            </AppLink>
+          </DropdownMenuItem>
+        )}
+
+        {operatorConsoleVisible && (
+          <>
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem asChild>
+              <AppLink
+                appearance="unstyled"
+                href={`/operator/${OPERATOR_SUBROUTES[0]?.slug ?? "overview"}`}
+                id="workspace-menu-operator"
+                onClick={() => closeMobileSidebar()}
+              >
+                <ShieldCheck />
+
+                <span>{t("NavigationBar.operator")}</span>
+              </AppLink>
+            </DropdownMenuItem>
+          </>
+        )}
+      </>
     );
 
     return (
@@ -459,29 +445,29 @@ const FullAppSidebar = observer(
             assistantBusy={assistantBusy}
             assistantBusyLabel={assistantBusyLabel}
             assistantLabel={
-              rootStore.agentChatEnabled && (restricted || rootStore.agentChatStore.enabled === true)
+              assistantEntryVisible({
+                agentChatEnabled: rootStore.agentChatEnabled,
+                restricted,
+                configEnabled: rootStore.agentChatStore.enabled,
+                subscription,
+              })
                 ? t("AgentChat.askAi")
                 : undefined
             }
-            assistantShortcut="⌘J"
             brandName="Customermates"
-            brandSubtitle={planSubtitle}
-            homeHref={
-              restricted ? "/dashboard" : rootStore.appMode === "demo" ? "https://customermates.com" : "/dashboard"
-            }
             logoAlt={t("Common.imageAlt.logo")}
+            overlaysDisabled={!restricted && !recordWorkspaceStore.routeReady(intlPathname)}
+            quickActions={!area}
             searchLabel={t("NavigationBar.search")}
+            workspaceMenu={workspaceMenu}
+            workspaceMenuLabel={t("WorkspaceMenu.label")}
             onAdd={(invoker) => {
               if (restricted) {
                 closeMobileSidebar(recheckAccountState);
                 return;
               }
 
-              closeMobileSidebar(() => {
-                addPickerInvokerRef.current = invoker;
-                addPickerFallbackRef.current = document.getElementById("sidebar-trigger");
-                setIsAddPickerOpen(true);
-              });
+              closeMobileSidebar(() => addPickerStore.openFrom(invoker, document.getElementById("sidebar-trigger")));
             }}
             onAssistant={() => {
               if (restricted) {
@@ -506,47 +492,107 @@ const FullAppSidebar = observer(
           <SidebarContent>
             {legalStatus ? <LegalUpdateAlert status={legalStatus} onNavigate={() => closeMobileSidebar()} /> : null}
 
-            <NavMain
-              groups={navGroups}
-              pathname={intlPathname}
-              selectedKey={restricted ? null : selectedKey}
-              onNavigate={(key) => closeMobileSidebar(restricted ? undefined : () => setSelectedKey(key))}
-            />
+            {area ? (
+              <AreaNav
+                area={area === "settings" ? t("NavigationBar.settings") : t("NavigationBar.operator")}
+                backHref={lastWorkPath}
+                backLabel={t("Common.actions.back")}
+                groups={areaGroups}
+                pathname={intlPathname}
+                onNavigate={() => closeMobileSidebar()}
+              />
+            ) : (
+              <NavSections
+                customizable={!restricted}
+                groups={navGroups}
+                pathname={intlPathname}
+                selectedKey={restricted ? null : selectedKey}
+                onNavigate={(key) => closeMobileSidebar(restricted ? undefined : () => setSelectedKey(key))}
+              />
+            )}
 
-            <NavSecondary className="mt-auto" items={secondaryItems} />
+            {secondaryItems.length > 0 && <NavSecondary className="mt-auto" items={secondaryItems} />}
           </SidebarContent>
 
           <SidebarFooter>
             <NavUser
+              customizable={!area}
+              docsHref="/docs"
+              emailVerified={emailVerified}
               labels={{
+                menu: t("UserAvatar.menu"),
+                profile: t("SettingsNav.profile"),
+                notVerified: t("EmailVerification.notVerified"),
+                theme: t("UserAvatar.theme"),
+                themes: {
+                  system: t("Common.themes.system"),
+                  light: t("Common.themes.light"),
+                  dark: t("Common.themes.dark"),
+                },
+                language: t("UserAvatar.language"),
+                documentation: t("UserAvatar.documentation"),
+                feedback: t("UserAvatar.sendFeedback"),
+                customizeSidebar: t("SidebarCustomize.title"),
                 signOut: t("UserAvatar.signOut"),
-                lightMode: t("UserAvatar.lightMode"),
-                darkMode: t("UserAvatar.darkMode"),
+                keyboardShortcuts: t("KeyboardShortcuts.title"),
               }}
-              theme={resolvedTheme}
+              language={userStore.user?.displayLanguage ?? Locale.system}
+              languages={DISPLAY_LANGUAGE_VALUES.map((value) => ({
+                value,
+                label: value === Locale.system ? t("Common.locales.system") : t(`Common.locales.${value}`),
+              }))}
+              profileHref={settingsHref("profile")}
+              restricted={restricted}
+              theme={theme === "light" || theme === "dark" ? theme : "system"}
               user={user}
+              onCustomizeSidebar={() => closeMobileSidebar(() => setCustomizeOpen(true))}
+              onFeedback={openFeedback}
+              onKeyboardShortcuts={
+                restricted
+                  ? undefined
+                  : (invoker) =>
+                      closeMobileSidebar(() =>
+                        keyboardShortcutsStore.openFrom(
+                          invoker ?? document.body,
+                          document.getElementById("sidebar-trigger"),
+                        ),
+                      )
+              }
+              onLanguageChange={(value) =>
+                closeMobileSidebar(() =>
+                  runUserAction(() =>
+                    userStore.updateDisplayLanguage(value as Locale, `${intlPathname}${window.location.search}`),
+                  ),
+                )
+              }
+              onNavigate={() => closeMobileSidebar()}
               onSignOut={() =>
                 closeMobileSidebar(() => {
-                  runUserAction(handleSignOut);
+                  signOut();
                 })
               }
-              onThemeChange={handleThemeChange}
+              onThemeChange={changeTheme}
             />
           </SidebarFooter>
         </Sidebar>
 
+        {!restricted && <SidebarCustomize groups={navGroups} open={customizeOpen} onOpenChange={setCustomizeOpen} />}
+
         {!restricted ? (
           <AddPickerDrawer
-            items={addItems.filter((item) => sidebarUserCanManage(user, item.resource))}
-            open={isAddPickerOpen}
-            returnFocusFallback={addPickerFallbackRef.current}
-            returnFocusTarget={addPickerInvokerRef.current}
-            onOpenChange={setIsAddPickerOpen}
-            onPick={(entity) => {
-              startTransition(() => {
-                setIsAddPickerOpen(false);
-                openEntity(entity, "new", addPickerInvokerRef.current, addPickerFallbackRef.current);
-              });
+            items={addItems}
+            open={addPickerStore.isOpen}
+            returnFocusFallback={addPickerStore.focusReturnFallback}
+            returnFocusTarget={addPickerStore.focusReturnTarget}
+            onOpenChange={(open) => {
+              if (!open) addPickerStore.close();
+            }}
+            onPick={(item) => {
+              const { focusReturnTarget, focusReturnFallback } = addPickerStore;
+              addPickerStore.close();
+              if (item.typeId)
+                recordWorkspaceStore.open({ typeId: item.typeId }, focusReturnTarget, focusReturnFallback);
+              else router.push("/configure?create=true");
             }}
           />
         ) : null}
@@ -558,7 +604,7 @@ const FullAppSidebar = observer(
 type AddPickerItem = {
   key: string;
   label: string;
-  entity: EntityType;
+  typeId: string | null;
 };
 
 function AddPickerDrawer({
@@ -574,7 +620,7 @@ function AddPickerDrawer({
   returnFocusFallback: HTMLElement | null;
   returnFocusTarget: HTMLElement | null;
   onOpenChange: (o: boolean) => void;
-  onPick: (entity: EntityType) => void;
+  onPick: (item: AddPickerItem) => void;
 }) {
   const t = useTranslations();
   const isHandingOffRef = useRef(false);
@@ -592,13 +638,8 @@ function AddPickerDrawer({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        className="gap-0 sm:max-w-[420px]"
-        side="left"
-        {...focusReturn}
-        onCloseAutoFocus={handleCloseAutoFocus}
-      >
-        <SheetHeader className="px-6 pt-6">
+      <SheetContent className={OVERLAY_SIDE_SHEET_CLASS} {...focusReturn} onCloseAutoFocus={handleCloseAutoFocus}>
+        <SheetHeader className="px-6">
           <SheetTitle>{t("NavigationBar.addPickerTitle")}</SheetTitle>
 
           <SheetDescription>{t("NavigationBar.addPickerDescription")}</SheetDescription>
@@ -612,7 +653,8 @@ function AddPickerDrawer({
               type="button"
               onClick={() => {
                 isHandingOffRef.current = true;
-                onPick(item.entity);
+                if (item.typeId) handOffSheet();
+                onPick(item);
               }}
             >
               <span>{item.label}</span>
@@ -626,55 +668,9 @@ function AddPickerDrawer({
   );
 }
 
-function buildPlanSubtitle(
-  status: SubscriptionStatus | null,
-  plan: SubscriptionPlan | null,
-  trialDaysLeft: number | null,
-  emailVerified: boolean | null,
-  t: (key: string, values?: Record<string, string | number>) => string,
-  navigate: (href: string) => void,
-): React.ReactNode {
-  const chipButton = (href: string, children: React.ReactNode) => (
-    <button
-      className="flex min-w-0 shrink rounded-md outline-none cursor-pointer focus-visible:ring-2 focus-visible:ring-ring"
-      type="button"
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        navigate(href);
-      }}
-    >
-      {children}
-    </button>
-  );
-
-  const planModel = resolvePlanChip({ status, plan, trialDaysLeft }, t);
-  const planChip = planModel
-    ? chipButton(
-        planModel.href,
-        <AppChip className="h-[16px] px-1 text-[10px]" variant={planModel.variant}>
-          {planModel.label}
-        </AppChip>,
-      )
-    : null;
-
-  const verificationChip =
-    emailVerified === false
-      ? chipButton(
-          "/profile/settings",
-          <AppChip className="h-[16px] px-1 text-[10px]" variant="warning">
-            {t("EmailVerification.notVerified")}
-          </AppChip>,
-        )
-      : null;
-
-  if (!planChip && !verificationChip) return undefined;
-
-  return (
-    <>
-      {planChip}
-
-      {verificationChip}
-    </>
-  );
+function areaOf(pathname: string, operatorConsoleVisible: boolean): "settings" | "operator" | null {
+  const first = pathname.split("/")[1];
+  if (first === "settings") return "settings";
+  if (first === "operator" && operatorConsoleVisible) return "operator";
+  return null;
 }

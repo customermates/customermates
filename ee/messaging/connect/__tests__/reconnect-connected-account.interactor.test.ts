@@ -64,7 +64,7 @@ describe("ReconnectConnectedAccountInteractor", () => {
 
     expect(messagingService.createReconnectAuthLink).toHaveBeenCalledWith(
       expect.objectContaining({
-        redirectUri: "https://feat-inbox.customermates.com/profile/connected-accounts",
+        redirectUri: "https://feat-inbox.customermates.com/settings/channels",
       }),
     );
   });

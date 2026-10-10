@@ -2,9 +2,12 @@ import type { ContactSeedData } from "./contacts";
 import type { SeedContext } from "./context";
 import type { DealSeedData } from "./deals";
 import type { OrganizationSeedData } from "./organizations";
+import { calculateSyntheticRecords, seedRecordFixtures } from "./records";
 import type { ServiceSeedData } from "./services";
 import type { TaskSeedData } from "./tasks";
 
+import { seedAgentConversations } from "./agent-chat";
+import { seedSyntheticAuditLogs } from "./audit-logs";
 import { seedContacts } from "./contacts";
 import { seedCustomFields } from "./custom-fields";
 import { seedDataViews } from "./data-views";
@@ -15,11 +18,10 @@ import {
   seedLocalHostedAiOperatorAccess,
 } from "./hosted-ai-operator";
 import { seedIdentity } from "./identity";
-import { seedAgentConversations } from "./agent-chat";
 import { seedDemoMessagingFixtures } from "./messaging/seed";
-import { seedSyntheticAuditLogs } from "./audit-logs";
 import { seedOrganizations } from "./organizations";
 import { seedPersonalization } from "./personalization";
+import { seedRecordHistory } from "./record-history";
 import { seedRelationships } from "./relationships";
 import { seedRoutines } from "./routines";
 import { seedServices } from "./services";
@@ -52,19 +54,22 @@ export async function runSyntheticSeed(
     ...taskData,
   };
 
-  const customFieldData = await seedCustomFields(context, entities);
+  const customFieldData = seedCustomFields(context, entities);
+  await seedRecordFixtures(context, entities, customFieldData);
+  await seedRelationships(context, entities);
+  await calculateSyntheticRecords(context.prisma, context.ids.company);
   await seedWidgets(context, customFieldData);
   await seedDataViews(context, customFieldData);
   await seedPersonalization(context, customFieldData);
-  await seedRelationships(context, entities);
-  await seedWebhooks(context);
   await seedDemoMessagingFixtures(context.prisma, {
     companyId: context.ids.company,
     contactIds: contactData.contacts.map(({ id }) => id),
     seedUserEmail: context.seedUserEmail,
     userId: context.ids.user,
   });
-  await seedSyntheticAuditLogs(context, entities);
+  await seedRecordHistory(context, entities);
+  await seedWebhooks(context);
+  await seedSyntheticAuditLogs(context);
   await seedWikiPages(context);
   await seedAgentConversations(context);
   await seedRoutines(context);

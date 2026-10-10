@@ -1,6 +1,7 @@
+import type { MovedToTrash } from "@/features/trash/moved-to-trash";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
-import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
+import type { DataViewChipDto } from "@/core/data-view/data-view-state.schema";
 
 import { toJS } from "mobx";
 
@@ -12,35 +13,23 @@ import { sortViewsByPosition } from "./view-rail-model";
 
 type UpsertResult = Awaited<ReturnType<typeof upsertDataViewAction>>;
 
-export function currentViewState<E extends HasId>(store: BaseDataViewStore<E>): DataViewState {
-  return {
-    columnOrder: toJS(store.columnOrder),
-    columnWidths: toJS(store.columnWidths),
-    filters: toJS(store.filters) ?? [],
-    grouping: toJS(store.grouping) ?? null,
-    hiddenColumns: toJS(store.hiddenColumns),
-    pageSize: store.pagination?.pageSize,
-    searchTerm: store.searchTerm ?? "",
-    sortDescriptor: toJS(store.sortDescriptor) ?? null,
-    viewMode: toJS(store.viewMode),
-  };
-}
-
 export function surfaceKeyOf<E extends HasId>(store: BaseDataViewStore<E>): DataViewSurfaceKey {
   return store.p13nId as DataViewSurfaceKey;
 }
 
-export function viewHref(pathname: string, viewKey: string): string {
+export function viewHref(pathname: string, viewKey: string, surfaceKey?: DataViewSurfaceKey): string {
+  if (surfaceKey) return `${pathname}?${new URLSearchParams({ view: viewKey, viewSurface: surfaceKey })}`;
   return viewKey === ALL_VIEW_KEY ? pathname : `${pathname}?view=${encodeURIComponent(viewKey)}`;
 }
 
-export function viewLink(pathname: string, viewKey: string): string {
-  return new URL(viewHref(pathname, viewKey), window.location.origin).toString();
+export function viewLink(pathname: string, viewKey: string, surfaceKey?: DataViewSurfaceKey): string {
+  return new URL(viewHref(pathname, viewKey, surfaceKey), window.location.origin).toString();
 }
 
 export function selectView<E extends HasId>(store: BaseDataViewStore<E>, viewKey: string, pathname: string): void {
   store.applyView(viewKey);
-  window.history.pushState(null, "", viewHref(pathname, viewKey));
+  if (store.viewSyncToUrl === false || (store.viewPathname && store.viewPathname !== pathname)) return;
+  window.history.pushState(null, "", viewHref(pathname, viewKey, store.viewPathname ? surfaceKeyOf(store) : undefined));
 }
 
 function unwrap(result: UpsertResult): DataViewChipDto | null {
@@ -57,11 +46,13 @@ export async function createViewFromCurrent<E extends HasId>(
   const created = unwrap(
     await upsertDataViewAction({
       name: args.name,
-      state: currentViewState(store),
+      state: store.viewStateSnapshot({ includeQuery: true }),
       surfaceKey: surfaceKeyOf(store),
     }),
   );
   if (!created) return null;
+
+  store.forgetQueryDraft(store.activeViewKey);
 
   await store.refresh();
   return created;
@@ -95,7 +86,7 @@ export async function updateViewMeta<E extends HasId>(
       id: view.id,
       name: changes.name ?? view.name,
       position: changes.position,
-      state: view.id === store.activeViewKey ? currentViewState(store) : toJS(view.state),
+      state: view.id === store.activeViewKey ? store.viewStateSnapshot({ includeQuery: false }) : toJS(view.state),
       surfaceKey: surfaceKeyOf(store),
     }),
   );
@@ -122,7 +113,7 @@ export async function moveView<E extends HasId>(
 export async function deleteView<E extends HasId>(
   store: BaseDataViewStore<E>,
   view: DataViewChipDto,
-): Promise<boolean> {
+): Promise<boolean | MovedToTrash> {
   const isActive = store.activeViewKey === view.id;
   if (isActive) store.discardPendingViewState();
 
@@ -132,8 +123,13 @@ export async function deleteView<E extends HasId>(
     return false;
   }
 
-  if (isActive) store.applyView(ALL_VIEW_KEY);
-  else await store.refresh();
+  store.forgetQueryDraft(view.id);
 
-  return true;
+  if (isActive && store.activeViewKey === view.id) {
+    store.applyView(ALL_VIEW_KEY);
+    if (store.viewPathname && store.viewSyncToUrl && window.location.pathname === store.viewPathname)
+      window.history.replaceState(null, "", viewHref(store.viewPathname, ALL_VIEW_KEY, surfaceKeyOf(store)));
+  } else await store.refresh();
+
+  return { trashBatchId: result.data.trashBatchId };
 }

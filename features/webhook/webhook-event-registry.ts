@@ -1,19 +1,8 @@
-export const WEBHOOK_EVENTS = [
-  "contact.created",
-  "contact.updated",
-  "contact.deleted",
-  "organization.created",
-  "organization.updated",
-  "organization.deleted",
-  "deal.created",
-  "deal.updated",
-  "deal.deleted",
-  "service.created",
-  "service.updated",
-  "service.deleted",
-  "task.created",
-  "task.updated",
-  "task.deleted",
+import { RECORD_EVENT_KINDS } from "@/features/records/record-event.schema";
+
+export const WEBHOOK_RECORD_EVENTS = RECORD_EVENT_KINDS;
+
+export const WEBHOOK_MESSAGING_EVENTS = [
   "messaging.message.received",
   "messaging.message.updated",
   "messaging.message.deleted",
@@ -27,6 +16,8 @@ export const WEBHOOK_EVENTS = [
   "messaging.relation.created",
 ] as const;
 
-export const WEBHOOK_EVENT_COUNT = WEBHOOK_EVENTS.length;
-export const WEBHOOK_MESSAGING_EVENT_COUNT = WEBHOOK_EVENTS.filter((event) => event.startsWith("messaging.")).length;
-export const WEBHOOK_RECORD_EVENT_COUNT = WEBHOOK_EVENT_COUNT - WEBHOOK_MESSAGING_EVENT_COUNT;
+export const WEBHOOK_CURRENT_EVENTS = [...WEBHOOK_RECORD_EVENTS, ...WEBHOOK_MESSAGING_EVENTS] as const;
+
+export const WEBHOOK_EVENT_COUNT = WEBHOOK_CURRENT_EVENTS.length;
+export const WEBHOOK_MESSAGING_EVENT_COUNT = WEBHOOK_MESSAGING_EVENTS.length;
+export const WEBHOOK_RECORD_EVENT_COUNT = WEBHOOK_RECORD_EVENTS.length;

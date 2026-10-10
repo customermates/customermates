@@ -46,11 +46,11 @@ Das schreiben wir lieber auf, als die Seite ein Produkt andeuten zu lassen, das 
 
 Das Muster ist immer dasselbe: Customermates feuert einen Webhook, Ihr Automatisierungstool empfängt ihn, formatiert eine Nachricht und postet sie nach Slack. Legen Sie den Webhook unter **Unternehmen → Webhooks → Neu** an und wählen Sie die Events, die Sie brauchen. Die Payload-Struktur ist unter [Webhooks](/docs/webhooks) dokumentiert.
 
-**Benachrichtigungen bei Deal-Änderungen.** Abonnieren Sie `deal.created` und `deal.updated` und posten Sie in einen Kanal, wenn sich ein Deal ändert. Die Deal-Phase ist eine Einfachauswahl-Spalte und kein festes Produktfeld, Ihr Workflow liest den Spaltenwert also aus der Payload und verzweigt darauf. Damit können Sie auf jede benutzerdefinierte Spalte reagieren, nicht nur auf die Phase.
+**Benachrichtigungen bei Deal-Änderungen.** Abonnieren Sie `record.created` und `record.updated` für den Datensatztyp Deals und posten Sie in einen Kanal, wenn sich ein Deal ändert. Die Phase ist ein konfiguriertes Auswahlfeld; Ihr Workflow liest den Feldwert aus der Datensatz-Payload und verzweigt darauf. Das funktioniert auch für selbst angelegte Datensatztypen.
 
-**Alarme bei neuen Leads.** Abonnieren Sie `contact.created` und informieren Sie das Team in dem Moment, in dem ein Datensatz entsteht. Nehmen Sie die Felder auf, die Sie brauchen, plus einen Link zurück auf den Datensatz.
+**Alarme bei neuen Leads.** Abonnieren Sie `record.created` für den Datensatztyp Kontakte und informieren Sie das Team, wenn ein Datensatz entsteht. Nehmen Sie die benötigten Felder und einen Link zum Datensatz auf.
 
-**Pipeline-Zusammenfassungen.** Webhooks sind ereignisgetrieben, ein Digest ist deshalb ein geplanter Job in Ihrem Automatisierungstool (eine eingebaute Benachrichtigungs- oder Digest-Funktion hat Customermates nicht): per Cron laufen lassen, `GET /api/v1/deals` aufrufen, aggregieren, Zusammenfassung posten. Die REST API ist in der [OpenAPI-Spezifikation](/docs/openapi) dokumentiert.
+**Pipeline-Zusammenfassungen.** Webhooks sind ereignisgetrieben; ein Digest läuft daher als geplanter Job in Ihrem Automatisierungstool. Rufen Sie per Cron eine konfigurierte Kennzahl über `POST /api/v1/reports/query` ab und posten Sie die Zusammenfassung. Die REST API ist in der [OpenAPI-Spezifikation](/docs/openapi) dokumentiert.
 
 **Messaging-Alarme.** Abonnieren Sie `messaging.message.received` oder `messaging.email.received`, um neue eingehende Konversationen nach Slack zu leiten. Diese Events setzen den einheitlichen Posteingang voraus, der in Customermates Cloud ab Pro verfügbar ist; Starter und Self-Hosting kennen keine Messaging-Events.
 
@@ -58,11 +58,11 @@ Das Muster ist immer dasselbe: Customermates feuert einen Webhook, Ihr Automatis
 
 Die Gegenrichtung läuft über die REST API oder MCP, wieder gesteuert von Ihrem Automatisierungstool.
 
-**Datensätze aus Slack erstellen.** Ein Slack-Shortcut oder Slash-Befehl löst Ihren Workflow aus, der `POST /api/v1/contacts` mit einem `x-api-key`-Header aufruft. Dasselbe Muster funktioniert für Unternehmen, Deals, Services und Aufgaben.
+**Datensätze aus Slack erstellen.** Ein Slack-Shortcut oder Slash-Befehl löst Ihren Workflow aus. Er ermittelt Typ- und Feld-IDs über `POST /api/v1/model/discover` und sendet dann eine Erstellen-Mutation an `POST /api/v1/records/mutate` mit einem `x-api-key`-Header. Derselbe Vertrag gilt für die fünf Starttypen und selbst angelegte Typen.
 
-**Datensätze aus Slack aktualisieren.** `PATCH` auf den Datensatz. Beziehungen sind ein eigener Fall: Sie ändern sich ausschließlich über den dedizierten Links-Endpoint und das MCP-Tool `manage_record_links`, nie über ein einfaches Feld-Update.
+**Datensätze aus Slack aktualisieren.** Senden Sie eine Aktualisieren-Mutation mit der aktuellen Datensatzversion an `POST /api/v1/records/mutate`. Beziehungen ändern Sie mit einer Verknüpfen- oder Trennen-Mutation. Das entsprechende MCP-Tool ist `mutate_crm_record`.
 
-**Notizen aus Slack schreiben.** Schreiben Sie den Text der Slack-Nachricht über die API oder das MCP-Tool `update_record_notes` in die Notizen des Datensatzes.
+**Notizen aus Slack schreiben.** Aktualisieren Sie das konfigurierte Notizenfeld des Datensatzes über dieselbe Mutations-API oder das MCP-Tool `mutate_crm_record`.
 
 **Einen Agenten machen lassen.** Statt jeden Aufruf von Hand zu bauen, richten Sie einen MCP-fähigen Agenten auf `/api/v1/mcp` und lassen ihn die Slack-Nachricht interpretieren. Das ist dieselbe Oberfläche aus [[derived.mcp.tools.total]] Tools, die Claude, ChatGPT und Gemini nutzen.
 
@@ -114,4 +114,4 @@ Sie steht nicht als zugesagter Punkt auf der Roadmap, und wir führen sie hier n
 
 ## Loslegen
 
-Lesen Sie [Webhooks](/docs/webhooks) für die Event-Payloads und [n8n](/docs/n8n) für die Verdrahtungsmuster. Legen Sie einen Webhook unter **Unternehmen → Webhooks** an, richten Sie ihn auf Ihr Automatisierungstool, ergänzen Sie den Slack-Node und schicken Sie Ihre erste `deal.updated`-Nachricht in einen Kanal. Von dort ist alles andere auf dieser Seite dasselbe Muster mit anderen Events.
+Lesen Sie [Webhooks](/docs/webhooks) für die Event-Payloads und [n8n](/docs/n8n) für die Verdrahtungsmuster. Legen Sie unter **Unternehmen → Webhooks** einen Webhook an, filtern Sie `record.updated` auf den Typ Deals, richten Sie ihn auf Ihr Automatisierungstool und schicken Sie die erste Deal-Änderung in einen Slack-Kanal. Dasselbe Muster funktioniert für weitere Datensatztypen und Events.

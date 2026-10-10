@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { createHash, randomUUID } from "node:crypto";
@@ -66,44 +67,28 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
   const user: TenantUser = createMockUser({ id: randomUUID(), companyId });
 
   const eventService = () =>
-    new EventService(
-      [],
-      {
-        getWebhooksForEvent: () => Promise.resolve([]),
-        getWebhooksForEventUnscoped: () => Promise.resolve([]),
-      },
-      {
-        create: () => Promise.resolve([]),
-        createUnscoped: () => Promise.resolve([]),
-      },
-      { log: () => Promise.resolve(), logUnscoped: () => Promise.resolve() },
-      { dispatch: () => Promise.resolve() } as never,
-      {
-        findEventRoutinesUnscoped: () => Promise.resolve([]),
-        admitEventRoutineRunsUnscoped: () => Promise.resolve([]),
-      },
-      {
-        matchesCurrentUser: () => Promise.resolve(true),
-        matchesUserUnscoped: () => Promise.resolve(true),
-        canUserAccessUnscoped: () => Promise.resolve(true),
-      },
-    );
+    new EventService([], {
+      appendUnscoped: () => Promise.resolve(),
+      hasSubscribersUnscoped: () => Promise.resolve(false),
+    });
   const service = () =>
     new WikiWebsiteCrawlService(
-      new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo()),
-      new CreateWikiPagesInteractor(new PrismaWikiPageRepo(), eventService()),
-      new UpdateWikiPageInteractor(new PrismaWikiPageRepo(), eventService()),
+      new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService())),
+      new CreateWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), eventService()),
+      new UpdateWikiPageInteractor(new PrismaWikiPageRepo(new PermissionService()), eventService()),
     );
   const startCrawl = (mode: "initial" | "refresh" | "extend" = "initial", homepageUrl = "https://example.com/") =>
     runWithTenant(user, async () => {
-      const created = await new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo()).createCrawl({
-        clientRequestId: randomUUID(),
-        homepageUrl,
-        registrableDomain: "example.com",
-        locale: "en",
-        mode,
-        extraHosts: mode === "extend" ? ["acme.zendesk.com"] : [],
-      });
+      const created = await new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService())).createCrawl(
+        {
+          clientRequestId: randomUUID(),
+          homepageUrl,
+          registrableDomain: "example.com",
+          locale: "en",
+          mode,
+          extraHosts: mode === "extend" ? ["acme.zendesk.com"] : [],
+        },
+      );
       if (created.status !== "created") throw new Error("crawl not created");
       return created.crawl.id;
     });
@@ -165,13 +150,13 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       [companyId, sourceText("Support"), german],
     );
     await runWithTenant(user, async () => {
-      expect(await new PrismaWikiPageRepo().dominantWikiLanguage()).toBe("de");
+      expect(await new PrismaWikiPageRepo(new PermissionService()).dominantWikiLanguage()).toBe("de");
     });
   });
 
   it.each(["", "unknown", "INITIAL"])("rejects invalid crawl mode %j before writes or provider work", async (mode) => {
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo());
+      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService()));
       await expect(
         repo.createCrawl({
           clientRequestId: randomUUID(),
@@ -187,7 +172,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     });
     const crawlId = await startCrawl();
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo());
+      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService()));
       const before = await client.query(
         'SELECT "mode", "status", "discovered", "fetched", "failed", "updatedAt" FROM "WikiWebsiteCrawl" WHERE "id"=$1',
         [crawlId],
@@ -227,7 +212,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     const crawlId = await startCrawl();
     const url = "https://example.com/help";
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo());
+      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService()));
       await repo.updateCrawl(crawlId, {
         status: "fetching",
         targets: [{ url, category: "help", status: "pending" }],
@@ -280,7 +265,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     const crawlId = await startCrawl();
     const url = "https://example.com/help";
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo());
+      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService()));
       await repo.updateCrawl(crawlId, {
         status: "fetching",
         targets: [{ url, category: "help", status: "pending" }],
@@ -308,7 +293,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
   it("rejects missing persisted target states without changing aggregate totals", async () => {
     const crawlId = await startCrawl();
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo());
+      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService()));
       const targets = [{ url: "https://example.com/invalid", category: "help" }];
       await expect(repo.updateCrawl(crawlId, { targets: targets as never })).rejects.toThrow(
         "Knowledge Base crawl progress is invalid.",
@@ -334,7 +319,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       { url: "https://example.com/b", category: "help", status: "pending" },
     ];
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo());
+      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService()));
       await repo.updateCrawl(crawlId, { status: "fetching", targets, discovered: 2 });
       expect(await repo.updateTargetStatus(crawlId, targets[0].url, "read")).toBe(false);
       expect(await Promise.all(targets.map(({ url }) => repo.updateTargetStatus(crawlId, url, "reading")))).toEqual([
@@ -368,7 +353,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     const crawlId = await startCrawl();
     const url = "https://example.com/a";
     await runWithTenant(user, () =>
-      new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo()).updateCrawl(crawlId, {
+      new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService())).updateCrawl(crawlId, {
         status: "fetching",
         targets: [{ url, category: "help", status: "pending" }],
         discovered: 1,
@@ -376,11 +361,15 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     );
     await runWithTenant(createMockUser({ companyId: randomUUID() }), async () => {
       expect(
-        await new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo()).updateTargetStatus(crawlId, url, "reading"),
+        await new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService())).updateTargetStatus(
+          crawlId,
+          url,
+          "reading",
+        ),
       ).toBe(false);
     });
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo());
+      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService()));
       expect((await repo.getCrawl(crawlId))?.targets).toEqual([{ url, category: "help", status: "pending" }]);
       await repo.updateCrawl(crawlId, { status: "completed" });
       expect(await repo.updateTargetStatus(crawlId, url, "reading")).toBe(false);
@@ -482,9 +471,9 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
           `UPDATE "WikiWebsiteCrawl" SET "status"='fetching', "targets"=$2::jsonb, "discovered"=1, "fetched"=1 WHERE "id"=$1`,
           [crawlId, JSON.stringify([{ url, category: "help", status: "read" }])],
         );
-        const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo());
-        const create = new CreateWikiPagesInteractor(new PrismaWikiPageRepo(), eventService());
-        const update = new UpdateWikiPageInteractor(new PrismaWikiPageRepo(), eventService());
+        const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService()));
+        const create = new CreateWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), eventService());
+        const update = new UpdateWikiPageInteractor(new PrismaWikiPageRepo(new PermissionService()), eventService());
         const importer = new WikiWebsiteCrawlService(repo, create, update);
         await repo.saveSource(crawlId, {
           ...PAGES[url],
@@ -528,7 +517,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
         `UPDATE "WikiWebsiteCrawl" SET "status"='fetching', "targets"=$2::jsonb, "discovered"=40, "fetched"=40 WHERE "id"=$1`,
         [crawlId, JSON.stringify(targets)],
       );
-      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo());
+      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService()));
       for (let index = 0; index < 40; index += 1) {
         const url = `https://example.com/help/topic-${index}`;
         await repo.saveSource(crawlId, {
@@ -629,7 +618,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
   it("allows only one workflow to own a crawl, including replay of the winning claim", async () => {
     const crawlId = await startCrawl();
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo());
+      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService()));
       const claims = await Promise.all([repo.claimWorkflow(crawlId, "run-a"), repo.claimWorkflow(crawlId, "run-b")]);
       expect(claims.filter(Boolean)).toHaveLength(1);
       expect(await repo.claimWorkflow(crawlId, claims[0] ? "run-a" : "run-b")).toBe(true);
@@ -641,7 +630,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
   it("recovers a failed dispatch without allowing its ambiguous delayed workflow to duplicate work", async () => {
     const crawlId = await startCrawl();
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo());
+      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService()));
       await repo.failDispatch(crawlId);
       expect((await repo.getCrawl(crawlId))?.status).toBe("failed");
       expect(await repo.claimWorkflow(crawlId, "late-run")).toBe(false);
@@ -656,10 +645,12 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
 
   it("does not requeue a failed dispatch over another active crawl", async () => {
     const crawlId = await startCrawl();
-    await runWithTenant(user, () => new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo()).failDispatch(crawlId));
+    await runWithTenant(user, () =>
+      new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService())).failDispatch(crawlId),
+    );
     await startCrawl();
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo());
+      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService()));
       expect(await repo.retryFailedDispatch(crawlId)).toBeNull();
       expect((await repo.getCrawl(crawlId))?.status).toBe("failed");
     });
@@ -668,10 +659,13 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
   it("does not mark a concurrent edit as an imported revision", async () => {
     await runCrawl(await startCrawl());
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo());
+      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService()));
       const before = await repo.findImportedPage("https://example.com/pricing");
       if (!before) throw new Error("Missing imported fixture");
-      const edited = await new UpdateWikiPageInteractor(new PrismaWikiPageRepo(), eventService()).invoke({
+      const edited = await new UpdateWikiPageInteractor(
+        new PrismaWikiPageRepo(new PermissionService()),
+        eventService(),
+      ).invoke({
         id: before.id,
         expectedUpdatedAt: before.updatedAt,
         markdown: "Manual racing edit",
@@ -777,7 +771,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
       [crawlId],
     );
     await runWithTenant(user, async () => {
-      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo());
+      const repo = new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService()));
       await repo.storePlannedTopics(crawlId, [topic, { ...topic, title: "Dispatch" }] as never, null);
       await repo.storePlannedTopics(crawlId, [{ ...topic, title: "Ignored" }] as never, "synthesis");
       expect((await repo.getCrawl(crawlId))?.topics?.map(({ title }) => title)).toEqual(["Scheduling", "Dispatch"]);
@@ -803,7 +797,7 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     await startCrawl();
     await expect(
       runWithTenant(user, () =>
-        new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo()).createCrawl({
+        new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService())).createCrawl({
           clientRequestId: randomUUID(),
           homepageUrl: "https://example.com/",
           registrableDomain: "example.com",

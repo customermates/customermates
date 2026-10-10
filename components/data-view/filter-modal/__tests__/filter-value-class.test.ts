@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import type { Filter } from "@/core/base/base-get.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { FilterValueClass } from "../filter-value-class";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
 
 import {
   resolveFilterDateGranularity,
@@ -83,7 +83,7 @@ describe("filter value class", () => {
     ];
 
     for (const operator of standalone) {
-      expect(resolveFilterValueClass(FilterFieldKey.userIds, operator)).toBe("none");
+      expect(resolveFilterValueClass(FilterFieldKey.ownerUserId, operator)).toBe("none");
       expect(resolveFilterValueClass(COLUMN_ID, operator, column("currency"))).toBe("none");
     }
   });
@@ -94,8 +94,6 @@ describe("filter value class", () => {
 
   it("classifies every operator each standard field actually offers", () => {
     const expected: Record<string, string> = {
-      [FilterFieldKey.userIds]: "stringArray",
-      [FilterFieldKey.contactIds]: "stringArray",
       [FilterFieldKey.timelineKind]: "stringArray",
       [FilterFieldKey.participantContactId]: "stringArray",
       [FilterFieldKey.url]: "text",
@@ -170,7 +168,7 @@ describe("filter value class", () => {
 
 describe("preserving a filter value across an operator change", () => {
   it("keeps the selection when a relation field flips between in and notIn", () => {
-    const current = filter(FilterFieldKey.userIds, FilterOperatorKey.in, valueFor("stringArray"));
+    const current = filter(FilterFieldKey.ownerUserId, FilterOperatorKey.in, valueFor("stringArray"));
 
     expect(shouldPreserveFilterValue(current, FilterOperatorKey.notIn)).toBe(true);
   });
@@ -209,14 +207,14 @@ describe("preserving a filter value across an operator change", () => {
   });
 
   it("never carries a value onto a value-less operator", () => {
-    const current = filter(FilterFieldKey.userIds, FilterOperatorKey.in, valueFor("stringArray"));
+    const current = filter(FilterFieldKey.ownerUserId, FilterOperatorKey.in, valueFor("stringArray"));
 
     expect(shouldPreserveFilterValue(current, FilterOperatorKey.hasSome)).toBe(false);
     expect(shouldPreserveFilterValue(current, FilterOperatorKey.hasNone)).toBe(false);
   });
 
   it("never carries a value a value-less operator was already holding", () => {
-    const poisoned = filter(FilterFieldKey.userIds, FilterOperatorKey.hasSome, valueFor("stringArray"));
+    const poisoned = filter(FilterFieldKey.ownerUserId, FilterOperatorKey.hasSome, valueFor("stringArray"));
 
     expect(shouldPreserveFilterValue(poisoned, FilterOperatorKey.in)).toBe(false);
   });
@@ -234,7 +232,7 @@ describe("preserving a filter value across an operator change", () => {
   });
 
   it("clears a value the new operator could not use even when the class matches", () => {
-    const emptySelection = filter(FilterFieldKey.userIds, FilterOperatorKey.in, []);
+    const emptySelection = filter(FilterFieldKey.ownerUserId, FilterOperatorKey.in, []);
     const blankText = filter(COLUMN_ID, FilterOperatorKey.contains, "");
     const unparseableAmount = filter(COLUMN_ID, FilterOperatorKey.gt, "abc");
 

@@ -14,32 +14,12 @@ function operationsById(): Map<string, Operation> {
   return operations;
 }
 
-const NULL_ON_MISSING = [
-  "getContactById",
-  "getDealById",
-  "getOrganizationById",
-  "getServiceById",
-  "getTaskById",
-  "getWebhook",
-  "getCalendarById",
-  "getCalendarEventById",
-];
+const NULL_ON_MISSING = ["getWebhook", "getCalendarById", "getCalendarEventById"];
 
 const NOT_FOUND_ON_MISSING = [
-  "updateContact",
-  "deleteContact",
-  "updateManyContacts",
-  "deleteManyContacts",
-  "createContact",
-  "getContacts",
-  "updateDeal",
-  "deleteDeal",
-  "updateOrganization",
-  "deleteOrganization",
-  "updateService",
-  "deleteService",
-  "updateTask",
-  "deleteTask",
+  "readRecord",
+  "mutateRecord",
+  "queryRecords",
   "createWebhook",
   "deleteWebhook",
   "getMessagingThread",
@@ -47,7 +27,7 @@ const NOT_FOUND_ON_MISSING = [
   "searchSalesPeople",
 ];
 
-const NEVER_NOT_FOUND = ["getContactConfiguration", "getUserProfile", "getUsers", "getConnectedAccounts"];
+const NEVER_NOT_FOUND = ["getUserProfile", "getUsers", "getConnectedAccounts"];
 
 describe("documented 404 responses", () => {
   const operations = operationsById();

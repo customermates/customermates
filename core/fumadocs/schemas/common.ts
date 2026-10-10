@@ -35,19 +35,17 @@ export const ACQUISITION_FACT_SOURCES = {
   "product:cloud-only-unified-inbox": ["ee/subscription/entitlements.ts"],
   "product:core-crm-records": [
     "features/mcp-tools/server-instructions.ts",
-    "features/mcp-tools/contact.mcp-tools.ts",
-    "features/mcp-tools/organization.mcp-tools.ts",
-    "app/api/v1/contacts/route.ts",
-    "app/api/v1/contacts/[id]/route.ts",
-    "app/api/v1/organizations/route.ts",
-    "app/api/v1/organizations/[id]/route.ts",
+    "features/mcp-tools/record-model.mcp-tools.ts",
+    "features/records/crm-preset.ts",
+    "features/records/record-model.schema.ts",
   ],
   "product:custom-fields-and-views": [
-    "features/custom-column/custom-column.schema.ts",
+    "features/records/record-model.schema.ts",
+    "features/data-view/manage-data-views.schema.ts",
     "components/data-view/data-view-content.tsx",
   ],
   "product:deal-pipelines": [
-    "features/deals/deal.schema.ts",
+    "features/records/crm-preset.ts",
     "features/mcp-tools/server-instructions.ts",
     "components/data-view/data-kanban-view.tsx",
   ],
@@ -90,7 +88,7 @@ export const ACQUISITION_FACT_SOURCES = {
     "content/docs/en/mcp.mdx",
   ],
   "product:self-hosted-starter-entitlements": ["ee/subscription/entitlements.ts"],
-  "product:services-and-tasks": ["features/services/service.schema.ts", "features/tasks/task.schema.ts"],
+  "product:services-and-tasks": ["features/records/crm-preset.ts", "features/records/record-model.schema.ts"],
   "product:cloud-plan-catalog": ["core/commercial/plan-catalog.ts", "ee/subscription/entitlements.ts"],
   "product:unified-inbox-channels": ["ee/messaging/provider.ts", "ee/messaging/connect/connect-channels.ts"],
   "product:unified-inbox-entitlements": [
@@ -99,7 +97,7 @@ export const ACQUISITION_FACT_SOURCES = {
     "ee/messaging/connect/create-auth-link.interactor.ts",
     "ee/messaging/persistence/prisma-connected-account.repository.ts",
   ],
-  "product:weighted-deal-values": ["features/deals/deal-weighting.ts"],
+  "product:weighted-deal-values": ["features/records/crm-preset.ts", "features/records/calculation.ts"],
 } as const satisfies Record<z.infer<typeof acquisitionFactReferenceSchema>, readonly string[]>;
 
 const acquisitionExcludedClaimSchema = z.enum([

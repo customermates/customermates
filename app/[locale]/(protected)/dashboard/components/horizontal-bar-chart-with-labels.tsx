@@ -1,111 +1,73 @@
 "use client";
 
 import type { ChartDataPoint } from "./chart.types";
-import { isCurrencyAggregation } from "@/features/widget/widget-aggregation";
 
-import { Bar, BarChart, LabelList, XAxis, YAxis, Cell } from "recharts";
 import { observer } from "mobx-react-lite";
-import type { AggregationType } from "@/generated/prisma";
 
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { ChartTooltip } from "@/components/chart/chart-tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-import { DashboardChartContainer } from "./dashboard-chart-container";
+import { useChartFormatter } from "./use-chart-formatter";
 
 type Props = {
-  aggregationType?: AggregationType;
+  currency?: string | null;
   chartData: ChartDataPoint[];
-  textColor: string;
   reverseXAxis?: boolean;
   reverseYAxis?: boolean;
 };
 
-const CHAR_WIDTH = 7;
-const LABEL_PADDING_LEFT = 4;
-const LABEL_PADDING_RIGHT = 4;
+export const HorizontalBarChartWithLabels = observer(({ currency, chartData, reverseXAxis, reverseYAxis }: Props) => {
+  const formatValue = useChartFormatter(currency);
+  const rows = reverseYAxis ? [...chartData].reverse() : chartData;
+  const minimum = Math.min(0, ...rows.map((row) => row.value));
+  const maximum = Math.max(0, ...rows.map((row) => row.value));
+  const range = maximum - minimum || 1;
+  const zero = (-minimum / range) * 100;
 
-function truncateToWidth(text: string, maxWidth: number) {
-  if (maxWidth <= CHAR_WIDTH) return "…";
-  const maxChars = Math.max(1, Math.floor(maxWidth / CHAR_WIDTH));
-  if (text.length <= maxChars) return text;
-  return `${text.slice(0, Math.max(1, maxChars - 1))}…`;
-}
+  return (
+    <TooltipProvider>
+      <div aria-hidden className="h-full min-h-0 overflow-y-auto pr-1" data-slot="widget-bar-list">
+        <ul className="flex min-h-full flex-col justify-around gap-2">
+          {rows.map((row, index) => {
+            const value = row.formattedValue ?? formatValue(row.value);
+            const width = (Math.abs(row.value) / range) * 100;
+            const start = row.value < 0 ? zero - width : zero;
+            return (
+              <Tooltip key={`${index}:${row.label}`}>
+                <TooltipTrigger asChild>
+                  <li className="min-w-0 space-y-1" data-slot="widget-bar-row">
+                    <div className="flex min-w-0 items-baseline justify-between gap-3 text-xs">
+                      <span className="min-w-0 truncate text-foreground">{row.label}</span>
 
-export const HorizontalBarChartWithLabels = observer(
-  ({ aggregationType, chartData, textColor, reverseXAxis, reverseYAxis }: Props) => {
-    const intlStore = useHydratedIntlStore();
+                      <span className="shrink-0 font-medium tabular-nums text-muted-foreground">{value}</span>
+                    </div>
 
-    const formatValue = (value: number) =>
-      isCurrencyAggregation(aggregationType) ? intlStore.formatCurrency(value) : intlStore.formatNumber(value);
+                    <div className="relative h-2 overflow-hidden rounded-full bg-muted">
+                      <span
+                        className="absolute inset-y-0 rounded-full transition-[width,left,right] duration-500 motion-reduce:transition-none"
+                        style={{
+                          backgroundColor: row.fill,
+                          width: `${Math.max(width, row.value === 0 ? 0 : 1)}%`,
+                          ...(reverseXAxis ? { right: `${start}%` } : { left: `${start}%` }),
+                        }}
+                      />
+                    </div>
+                  </li>
+                </TooltipTrigger>
 
-    const maxValue = chartData[0].value;
-    const formattedMaxValue = formatValue(maxValue);
+                <TooltipContent side="top">
+                  <span className="flex items-center gap-2">
+                    <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: row.color }} />
 
-    const valueMargin = Math.max(formattedMaxValue.length * CHAR_WIDTH + 12, 56);
-    const right = reverseXAxis ? 0 : valueMargin;
-    const left = reverseXAxis ? valueMargin : 0;
+                    <span className="font-semibold">{row.label}</span>
 
-    return (
-      <DashboardChartContainer>
-        <BarChart data={chartData} layout="vertical" margin={{ right, left }}>
-          <XAxis
-            hide
-            domain={[0, "dataMax"]}
-            padding={{ right: 1, left: 1 }}
-            reversed={Boolean(reverseXAxis)}
-            type="number"
-          />
-
-          <YAxis hide dataKey="label" reversed={Boolean(reverseYAxis)} type="category" />
-
-          <ChartTooltip aggregationType={aggregationType} />
-
-          <Bar dataKey="value" radius={4}>
-            {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.fill} stroke={entry.strokeColor} strokeWidth={1.5} />
-            ))}
-
-            <LabelList
-              content={(props) => {
-                const { x, y, height, width, value, index } = props;
-                const entry = chartData[index as number];
-                if (!entry) return null;
-                const text = String(value ?? "");
-                const available = Number(width) - LABEL_PADDING_LEFT - LABEL_PADDING_RIGHT;
-                const display = truncateToWidth(text, available);
-                return (
-                  <text
-                    dominantBaseline="middle"
-                    fill={entry.labelColor}
-                    fontSize={12}
-                    textAnchor="start"
-                    x={Number(x) + LABEL_PADDING_LEFT}
-                    y={Number(y) + Number(height) / 2 + 1}
-                  >
-                    <title>{text}</title>
-
-                    {display}
-                  </text>
-                );
-              }}
-              dataKey="label"
-            />
-
-            <LabelList
-              dataKey="value"
-              formatter={(value) => {
-                const numValue = typeof value === "number" ? value : Number(value) || 0;
-                return formatValue(numValue);
-              }}
-              position="right"
-              style={{
-                fill: textColor,
-                fontSize: 12,
-              }}
-            />
-          </Bar>
-        </BarChart>
-      </DashboardChartContainer>
-    );
-  },
-);
+                    <span className="tabular-nums">{value}</span>
+                  </span>
+                </TooltipContent>
+              </Tooltip>
+            );
+          })}
+        </ul>
+      </div>
+    </TooltipProvider>
+  );
+});

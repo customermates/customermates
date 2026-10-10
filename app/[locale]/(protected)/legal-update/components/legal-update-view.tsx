@@ -5,7 +5,7 @@
 import type { LegalUpdateStatus } from "@/features/legal/get-legal-status.interactor";
 
 import { useEffect } from "react";
-import { useFormatter, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 
 import { AppCard } from "@/components/card/app-card";
@@ -17,22 +17,21 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = { status: LegalUpdateStatus };
 
-export const LegalUpdateView = observer(({ status }: Props) => {
+const LegalUpdateViewContent = observer(({ status }: Props) => {
   const t = useTranslations();
-  const format = useFormatter();
+  const intlStore = useHydratedIntlStore();
   const { legalUpdateStore: store, loadingOverlayStore } = useRootStore();
 
   useEffect(() => store.onInitOrRefresh(), [store]);
 
   const deadline = status.effectiveAt
-    ? format.dateTime(new Date(status.effectiveAt), {
-        dateStyle: "long",
-        timeZone: "UTC",
-      })
+    ? intlStore.formatDescriptiveLongDate(new Date(status.effectiveAt), { timeZone: "UTC" })
     : null;
 
   return (
@@ -100,3 +99,5 @@ export const LegalUpdateView = observer(({ status }: Props) => {
     </AppCard>
   );
 });
+
+export const LegalUpdateView = serverRenderedClient(LegalUpdateViewContent);

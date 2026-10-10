@@ -8,6 +8,7 @@ import { withWorkflow } from "workflow/next";
 
 import { env } from "@/env";
 import { permanentAliasRedirects } from "@/core/seo/route-aliases";
+import { movedProtectedRouteRedirects } from "@/i18n/routing";
 import { resolveBenchmarkBuildSource } from "@/scripts/agent-benchmark/build-source";
 import { configureBenchmarkWorkflowWorld } from "@/scripts/agent-benchmark/workflow-world";
 
@@ -30,9 +31,7 @@ const nextConfig: NextConfig = {
 
   htmlLimitedBots: /.*/,
 
-  devIndicators: {
-    position: "top-left",
-  },
+  devIndicators: process.env.CRM_LOCAL_TEST_TRANSPORT === "true" ? false : { position: "top-left" },
 
   compress: true,
 
@@ -49,6 +48,7 @@ const nextConfig: NextConfig = {
   },
 
   experimental: {
+    ...(process.env.CRM_LOCAL_TEST_TRANSPORT === "true" ? { turbopackFileSystemCacheForDev: false } : {}),
     globalNotFound: true,
     serverActions: {
       bodySizeLimit: "25mb",
@@ -67,10 +67,11 @@ const nextConfig: NextConfig = {
   },
 
   // Next runs config redirects before the proxy middleware, so a retired URL answers with a single
-  // clean 308 rather than chaining through locale negotiation. Every entry comes from
-  // PERMANENT_ROUTE_ALIASES, which the sitemap and its test read from the same declaration.
+  // clean 308 rather than chaining through locale negotiation. Public entries come from
+  // PERMANENT_ROUTE_ALIASES, which the sitemap and its test read from the same declaration;
+  // moved signed-in pages come from MOVED_PROTECTED_ROUTES.
   redirects() {
-    return Promise.resolve(permanentAliasRedirects());
+    return Promise.resolve([...permanentAliasRedirects(), ...movedProtectedRouteRedirects()]);
   },
 
   headers() {

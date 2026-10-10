@@ -55,11 +55,11 @@ vi.mock("@/components/forms/use-form-field", () => ({
   useResolvedFieldLabel: (_id: string, label?: string | null) => label,
 }));
 
-vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
+vi.mock("@/components/shared/use-navigate-to-href", () => ({
   useNavigateToHref: () => vi.fn(),
 }));
 
-vi.mock("@/components/entity-terminology/use-filter-field-label", () => ({
+vi.mock("@/components/data-view/use-filter-field-label", () => ({
   useFilterFieldLabel: () => () => "Contacts",
 }));
 
@@ -178,7 +178,7 @@ function filterSelect(maxSelectedValues?: number) {
   testContext.filterMaxSelectedValues = maxSelectedValues;
   return createElement(FilterInputSelect, {
     filter: {
-      field: FilterFieldKey.contactIds,
+      field: FilterFieldKey.participantContactId,
       operator: FilterOperatorKey.in,
       value: Array.isArray(testContext.formValue) ? testContext.formValue : [],
     },
@@ -374,6 +374,81 @@ describe("FormAutocomplete command behavior", () => {
   });
 });
 
+describe("Select editability transitions", () => {
+  for (const component of ["select", "chip"] as const) {
+    for (const blockedState of ["readOnly", "loading"] as const) {
+      it(`${component} closes across ${blockedState}, stays closed after recovery and rejects blocked interaction`, async () => {
+        testContext.formValue = "alpha";
+        const warnings = vi.spyOn(console, "warn");
+        const errors = vi.spyOn(console, "error");
+        const element = () =>
+          component === "select"
+            ? createElement(FormSelect, {
+                id: "transition-status",
+                items: [
+                  { value: "alpha", label: "Alpha" },
+                  { value: "beta", label: "Beta" },
+                ],
+                label: "Status",
+              })
+            : createElement(FormSelectChip, {
+                id: "transition-status",
+                items: [{ key: "alpha" }, { key: "beta" }],
+                label: "Status",
+                translateFn: (key) => key,
+              });
+        const container = mount(element());
+        const root = roots.at(-1);
+        if (!root) throw new Error("The mounted Select root must exist");
+        const trigger = requiredElement(container.querySelector<HTMLButtonElement>("#transition-status"));
+        const rerender = async (blocked: boolean) => {
+          testContext.formIsReadOnly = blocked && blockedState === "readOnly";
+          testContext.formIsLoading = blocked && blockedState === "loading";
+          await act(async () => {
+            root.render(element());
+            await Promise.resolve();
+          });
+        };
+
+        try {
+          await press(trigger, "ArrowDown");
+          expect(trigger.getAttribute("aria-expanded")).toBe("true");
+          expect(document.querySelector('[role="listbox"]')).not.toBeNull();
+          await rerender(true);
+          expect(trigger.getAttribute("aria-expanded")).toBe("false");
+          expect(trigger.disabled).toBe(blockedState === "loading");
+          expect(trigger.getAttribute("aria-readonly")).toBe(blockedState === "readOnly" ? "true" : null);
+          expect(document.querySelector('[role="listbox"]')).toBeNull();
+          await press(trigger, "ArrowDown");
+          expect(document.querySelector('[role="listbox"]')).toBeNull();
+          expect(testContext.onChange).not.toHaveBeenCalled();
+          await rerender(false);
+          expect(trigger.getAttribute("aria-expanded")).toBe("false");
+          expect(document.querySelector('[role="listbox"]')).toBeNull();
+          expect(
+            [...warnings.mock.calls, ...errors.mock.calls]
+              .map((args) => args.join(" "))
+              .filter((message) => message.includes("Select is changing")),
+          ).toEqual([]);
+          await press(trigger, "ArrowDown");
+          expect(document.querySelector('[role="listbox"]')).not.toBeNull();
+          const beta = requiredElement(
+            Array.from(document.querySelectorAll<HTMLElement>('[role="option"]')).find((item) =>
+              item.textContent?.includes(component === "select" ? "Beta" : "beta"),
+            ),
+          );
+          await press(beta, "Enter");
+          expect(testContext.onChange).toHaveBeenCalledOnce();
+          expect(testContext.onChange).toHaveBeenCalledWith("transition-status", "beta");
+        } finally {
+          warnings.mockRestore();
+          errors.mockRestore();
+        }
+      });
+    }
+  }
+});
+
 describe("selection field state semantics", () => {
   it("keeps contextual help beside the visible FormSelect label", () => {
     testContext.formValue = "plain";
@@ -558,12 +633,12 @@ describe("FilterInputSelect command behavior", () => {
           baseId: "filters[0]",
           customColumns: undefined,
           filter: {
-            field: FilterFieldKey.contactIds,
+            field: FilterFieldKey.participantContactId,
             operator,
           },
           filterableFields: [
             {
-              field: FilterFieldKey.contactIds,
+              field: FilterFieldKey.participantContactId,
               operators: [
                 FilterOperatorKey.in,
                 FilterOperatorKey.notIn,
@@ -579,13 +654,13 @@ describe("FilterInputSelect command behavior", () => {
     },
   );
 
-  it("never renders unresolved entity IDs when no option loader exists", () => {
+  it("never renders unresolved IDs when the field cannot be resolved", () => {
     const rawId = "8b2ce431-63b2-4671-8954-cdd93d05fe6d";
     const container = mount(
       createElement(FilterChipValue, {
         customColumns: undefined,
         filter: {
-          field: FilterFieldKey.contactIds,
+          field: "11111111-1111-4111-8111-111111111111",
           operator: FilterOperatorKey.in,
           value: [rawId],
         },

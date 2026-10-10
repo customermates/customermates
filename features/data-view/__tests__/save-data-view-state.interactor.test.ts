@@ -26,7 +26,7 @@ import { interactorFailureKind } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { SaveDataViewStateResultSchema } from "../data-view.schema";
 
-const SURFACE = "contacts-card-store";
+const SURFACE = "webhooks-card-store";
 const VIEW_ID = "3a7b2c11-5d4e-4f60-8a91-2b3c4d5e6f70";
 const A_GROUPING_COLUMN = "8f1c1a4e-0b2d-4a9e-9d7c-1f2a3b4c5d6e";
 

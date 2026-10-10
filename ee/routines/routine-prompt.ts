@@ -1,6 +1,7 @@
-import { changedFieldsOf, entityKindForEvent, entityTypeForEvent, threadIdOf } from "./routine-event-filter";
-import { getEntityName } from "@/features/event/entity-name.utils";
+import { changedFieldsOf, entityKindForEvent, threadIdOf } from "./routine-event-filter";
 import { ROUTINE_TRIGGER_FIELD_LIMIT } from "./routine-run-trigger-context";
+import { routineRecordReference } from "./routine-record-reference";
+import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";
 
 export type RoutineTriggerContext = {
   routineName: string;
@@ -24,23 +25,25 @@ function attribute(name: string, value: string | null | undefined): string | nul
   return value ? `${name}="${attributeValue(value)}"` : null;
 }
 
-function recordName(context: RoutineTriggerContext): string | null {
-  if (!context.triggerEvent || !entityTypeForEvent(context.triggerEvent)) return null;
-
-  return getEntityName(context.triggerEvent as never, context.triggerPayload as never) ?? null;
-}
-
 export function composeRoutinePrompt(prompt: string, context: RoutineTriggerContext): string {
   if (!context.triggerEvent) return prompt;
 
   const changed = changedFieldsOf(context.triggerPayload);
+  const record = RecordDeliveryEnvelopeSchema.safeParse(context.triggerPayload);
+  const ref = routineRecordReference(context.triggerPayload);
+  const recordLabels = record.success
+    ? Object.fromEntries(
+        record.data.data.record.fields.map((field) => [field.fieldId, field.after?.label ?? field.before?.label]),
+      )
+    : {};
   const fields = changed.slice(0, ROUTINE_TRIGGER_FIELD_LIMIT);
-  const labels = fields.map((field) => context.changedFieldLabels?.[field] ?? field);
+  const labels = fields.map((field) => recordLabels[field] ?? context.changedFieldLabels?.[field] ?? field);
   const attributes = [
     attribute("event", context.triggerEvent),
     attribute("entity", entityKindForEvent(context.triggerEvent)),
     attribute("entityId", context.triggerEntityId),
-    attribute("entityName", recordName(context)),
+    attribute("typeId", ref?.typeId),
+    attribute("recordId", ref?.recordId),
     attribute("threadId", threadIdOf(context.triggerPayload)),
     attribute("changedFields", fields.length > 0 ? fields.join(",") : null),
     attribute("changedFieldLabels", fields.length > 0 ? labels.join(",") : null),

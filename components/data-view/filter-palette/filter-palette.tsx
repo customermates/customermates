@@ -1,6 +1,6 @@
 "use client";
 
-import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
+import type { FilterPaletteSearch, FilterTarget } from "./filter-target";
 import type { Filter } from "@/core/base/base-get.schema";
 import type { KeyboardEvent } from "react";
 
@@ -17,7 +17,7 @@ import { PaletteOperatorMenu } from "@/components/data-view/filter-palette/palet
 import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 import { resolveFilterValueClass } from "@/components/data-view/filter-modal/filter-value-class";
 import { FilterOptionsProvider } from "@/components/data-view/filter-options-context";
-import { useRootStore } from "@/core/stores/root-store.provider";
+import type { FilterPaletteStore } from "./filter-palette.store";
 
 import { declaredOperatorsOf, palettePageKind } from "./palette-field-plan";
 import { PaletteRootList } from "./palette-root-list";
@@ -27,14 +27,18 @@ import { PaletteValueNumber } from "./palette-value-number";
 import { PaletteValueOperator } from "./palette-value-operator";
 import { PaletteValueSelect } from "./palette-value-select";
 import { PaletteValueText } from "./palette-value-text";
+import { FilterInputValues } from "@/components/data-view/filter-modal/inputs/filter-input-values";
+import { isShortcutPress } from "@/components/keyboard/shortcut-registry";
 
 type Props = {
-  store: BaseDataViewStore<any>;
+  store: FilterTarget;
+  palette: FilterPaletteStore;
+  search?: FilterPaletteSearch;
 };
 
-export const FilterPalette = observer(function FilterPalette({ store }: Props) {
+export const FilterPalette = observer(function FilterPalette({ store: host, palette, search }: Props) {
   const t = useTranslations();
-  const { filterPaletteStore: palette } = useRootStore();
+  const store = palette.activeTarget ?? host;
   const paletteRef = useRef<HTMLDivElement>(null);
   const usedCommandRef = useRef(true);
 
@@ -44,7 +48,7 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
   const field = isRoot ? "" : page.field;
   const operator = isRoot ? undefined : draft.operator;
   const declaredOperators = isRoot ? [] : declaredOperatorsOf(field, store.filterableFields);
-  const pageKind = palettePageKind(resolveFilterValueClass(field, operator, store.customColumns));
+  const pageKind = palettePageKind(resolveFilterValueClass(field, operator, store.filterColumns));
   const showDateRows = page.kind === "value" && pageKind === "date" && page.editIndex === undefined;
   const usesCommand = isRoot || pageKind === "select" || pageKind === "operatorOnly" || showDateRows;
   const draftFilter = { field, operator, value: draft.value } as Filter;
@@ -61,7 +65,7 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
 
   function handleKeyDownCapture(event: KeyboardEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement;
-    if (event.key !== "Enter" || usesCommand || target.tagName !== "INPUT") return;
+    if (event.key !== "Enter" || usesCommand || pageKind === "values" || target.tagName !== "INPUT") return;
     if (!event.currentTarget.contains(target)) return;
 
     event.preventDefault();
@@ -84,7 +88,7 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
       return;
     }
 
-    if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+    if (isShortcutPress(event.nativeEvent, "save")) {
       event.preventDefault();
       palette.pop();
     }
@@ -94,11 +98,21 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
     if (isRoot) {
       return (
         <PaletteRootList
+          disabled={palette.isDisabled}
           filters={palette.appliedFilters}
           isAtLimit={palette.isAtFilterLimit}
+          query={palette.query}
+          search={store === host ? search : undefined}
           store={store}
+          onApplySearch={(term) => {
+            search?.apply(term);
+            palette.setQuery("");
+            palette.close();
+          }}
           onPickField={palette.pickField}
           onPickFilter={palette.editFilterAt}
+          onPickGroup={palette.openGroup}
+          onRemoveFilter={palette.removeFilterAt}
         />
       );
     }
@@ -106,12 +120,25 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
     if (pageKind === "select") {
       return (
         <PaletteValueSelect
-          customColumns={store.customColumns}
+          customColumns={store.filterColumns}
           filter={draftFilter}
           query={palette.query}
           selected={palette.selectedValues}
           onToggle={palette.toggleValue}
         />
+      );
+    }
+
+    if (pageKind === "values") {
+      return (
+        <div className="p-2">
+          <FilterInputValues
+            key={`${field}-${operator}`}
+            customColumns={store.filterColumns}
+            field={field}
+            id="draft.value"
+          />
+        </div>
       );
     }
 
@@ -130,7 +157,7 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
         />
       ) : (
         <PaletteValueDateInput
-          customColumns={store.customColumns}
+          customColumns={store.filterColumns}
           field={field}
           isValidFilter={isValidFilter}
           operator={operator}
@@ -147,7 +174,7 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
     <FilterOptionsProvider fields={store.filterableFields}>
       <AppForm store={palette}>
         <div ref={paletteRef} className="flex min-h-0 flex-col" onKeyDownCapture={handleKeyDownCapture}>
-          {!isRoot && (
+          {(!isRoot || palette.pages.length > 1) && (
             <div className="flex shrink-0 items-center gap-1.5 px-2 pt-2 pb-1">
               <Button
                 aria-label={t("Common.actions.back")}
@@ -161,7 +188,9 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
                 <ChevronLeftIcon />
               </Button>
 
-              <PaletteOperatorMenu current={operator} operators={declaredOperators} onSelect={handleHeaderOperator} />
+              {!isRoot && (
+                <PaletteOperatorMenu current={operator} operators={declaredOperators} onSelect={handleHeaderOperator} />
+              )}
             </div>
           )}
 
@@ -174,8 +203,14 @@ export const FilterPalette = observer(function FilterPalette({ store }: Props) {
             >
               <div className="shrink-0" id="filter-palette-search">
                 <CommandInput
-                  autoFocus={!isRoot}
-                  placeholder={isRoot ? t("Common.filters.palette.addFilter") : t("Common.table.search")}
+                  autoFocus={!isRoot || search !== undefined}
+                  placeholder={
+                    !isRoot
+                      ? t("Common.table.search")
+                      : search
+                        ? t("Common.filters.palette.searchOrAddFilter")
+                        : t("Common.filters.palette.addFilter")
+                  }
                   value={palette.query}
                   onKeyDown={handleInputKeyDown}
                   onValueChange={palette.setQuery}

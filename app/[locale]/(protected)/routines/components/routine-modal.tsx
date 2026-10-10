@@ -14,11 +14,11 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AgentChatStoreProvider } from "@/app/components/agent-chat/agent-chat-store-context";
 import { AgentRouteReloadBridge } from "@/app/components/agent-chat/agent-route-reload";
-import { FormActions } from "@/components/card/form-actions";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { AppForm } from "@/components/forms/form-context";
 import { AppModal } from "@/components/modal";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useIsWiderThan } from "@/hooks/use-media-query";
 import { useRouter } from "@/i18n/navigation";
@@ -67,7 +67,13 @@ export const RoutineModal = observer(() => {
     icon: Trash2,
     variant: "destructive",
     disabled: routineModalStore.isLoading,
-    onClick: () => showDeleteConfirmation(() => routineModalStore.delete(), form.name),
+    onClick: () =>
+      showDeleteConfirmation(
+        () => routineModalStore.delete(),
+        form.name,
+        undefined,
+        () => routineModalStore.rootStore.routinesStore.refresh(),
+      ),
   };
   const backAction: AppModalActionProps = {
     id: "routine-run-back",
@@ -161,40 +167,35 @@ export const RoutineModal = observer(() => {
                 </div>
               </AppCardBody>
             ) : isExistingRoutine ? (
-              <Tabs
+              <SegmentedControl
                 className="flex min-h-0 flex-1 flex-col gap-0"
+                idPrefix="routine"
+                items={[
+                  { value: "details", label: t("RoutineModal.detailsTab") },
+                  { value: "runs", label: t("RoutineDetail.runs") },
+                ]}
+                label={t("RoutineModal.tabsLabel")}
+                listClassName="mx-6 mt-4 w-auto"
                 value={routineModalStore.activeTab}
-                onValueChange={(value) => routineModalStore.setActiveTab(value as "details" | "runs")}
+                onValueChange={routineModalStore.setActiveTab}
               >
-                <div className="px-6 pt-4">
-                  <TabsList aria-label={t("RoutineModal.tabsLabel")} variant="segmented">
-                    <TabsTrigger id="routine-tab-details" value="details">
-                      {t("RoutineModal.detailsTab")}
-                    </TabsTrigger>
-
-                    <TabsTrigger id="routine-tab-runs" value="runs">
-                      {t("RoutineDetail.runs")}
-                    </TabsTrigger>
-                  </TabsList>
-                </div>
-
                 <AppCardBody data-routine-layout="compact">
-                  <TabsContent aria-labelledby="routine-tab-details" className="mt-0" value="details">
+                  <SegmentedControlPanel className="mt-0" value="details">
                     <RoutineConfigurationPane store={routineModalStore} onPause={confirmPause} />
-                  </TabsContent>
+                  </SegmentedControlPanel>
 
-                  <TabsContent aria-labelledby="routine-tab-runs" className="mt-0" value="runs">
+                  <SegmentedControlPanel className="mt-0" value="runs">
                     <RoutineRunsPane store={routineModalStore} />
-                  </TabsContent>
+                  </SegmentedControlPanel>
                 </AppCardBody>
-              </Tabs>
+              </SegmentedControl>
             ) : (
               <AppCardBody data-routine-layout="create">
                 <RoutineConfigurationPane store={routineModalStore} onPause={confirmPause} />
               </AppCardBody>
             )}
 
-            {!openRun && <FormActions showInitially anchorScope="routine-modal" store={routineModalStore} />}
+            {!openRun && <FormFooterActions anchorScope="routine-modal" store={routineModalStore} />}
           </AppCard>
         </AppForm>
       </AppModal>

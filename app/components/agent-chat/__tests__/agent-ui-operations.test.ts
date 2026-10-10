@@ -1,12 +1,25 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RootStore } from "@/core/stores/root.store";
 import type { AppMode } from "@/core/config/environment";
 
 import { Resource } from "@/generated/prisma";
-import { AGENT_RECORD_ENTITIES } from "@/ee/agent-chat/ui-operations";
+import { getRecordAction, getRecordNavigationAction } from "@/app/[locale]/(protected)/records/actions";
+vi.mock("@/app/[locale]/(protected)/records/actions", () => ({
+  getRecordAction: vi.fn(),
+  getRecordNavigationAction: vi.fn(),
+}));
+const RECORD_TYPES = [
+  "10000000-0000-4000-8000-000000000001",
+  "10000000-0000-4000-8000-000000000002",
+  "10000000-0000-4000-8000-000000000003",
+  "10000000-0000-4000-8000-000000000004",
+  "10000000-0000-4000-8000-000000000005",
+  "10000000-0000-4000-8000-000000000006",
+];
+beforeEach(() => vi.mocked(getRecordAction).mockResolvedValue({ ok: true, data: {} } as never));
 
-import { AgentUiControlStore } from "../ui-control.store";
+import { AgentUiControlStore, findAgentTargetElement } from "../ui-control.store";
 
 function controlStore({
   appMode = "cloud",
@@ -23,20 +36,20 @@ const CUSTOMER_SUCCESS_READS = Object.values(Resource).filter(
 );
 
 describe("AgentUiControlStore.navigate", () => {
-  it("opens an existing record on its page from entity and record id and propagates a blocked navigation", async () => {
+  it("opens an existing record on its page from type and record id and propagates a blocked navigation", async () => {
     const navigate = vi.fn().mockResolvedValue("navigated");
     const store = controlStore();
     store.registerNavigate(navigate);
 
-    await expect(store.navigate({ entity: "deal", recordId: "00000000-0000-4000-8000-000000000001" })).resolves.toEqual(
-      {
-        ok: true,
-        result: "Opened the deal on its page.",
-      },
-    );
-    expect(navigate).toHaveBeenLastCalledWith("/deals/00000000-0000-4000-8000-000000000001");
+    await expect(
+      store.navigate({ typeId: RECORD_TYPES[0], recordId: "00000000-0000-4000-8000-000000000001" }),
+    ).resolves.toEqual({
+      ok: true,
+      result: "Opened the record on its page.",
+    });
+    expect(navigate).toHaveBeenLastCalledWith(`/records/${RECORD_TYPES[0]}/00000000-0000-4000-8000-000000000001`);
 
-    await expect(store.navigate({ entity: "contact", recordId: "new" })).resolves.toMatchObject({ ok: false });
+    await expect(store.navigate({ typeId: RECORD_TYPES[2], recordId: "new" })).resolves.toMatchObject({ ok: false });
     await expect(
       store.navigate({ entity: "company", recordId: "00000000-0000-4000-8000-000000000001" }),
     ).resolves.toMatchObject({
@@ -46,11 +59,47 @@ describe("AgentUiControlStore.navigate", () => {
 
     navigate.mockResolvedValue("blocked");
     await expect(
-      store.navigate({ entity: "task", recordId: "00000000-0000-4000-8000-000000000002" }),
+      store.navigate({ typeId: RECORD_TYPES[1], recordId: "00000000-0000-4000-8000-000000000002" }),
     ).resolves.toMatchObject({
       ok: false,
       result: "Navigation requires the user to resolve unsaved changes.",
     });
+  });
+
+  it("rechecks record visibility before opening a page and type access before using a list target", async () => {
+    const navigate = vi.fn().mockResolvedValue("navigated");
+    const store = controlStore();
+    store.registerNavigate(navigate);
+    vi.mocked(getRecordAction).mockResolvedValueOnce({ ok: false, error: {} } as never);
+    await expect(
+      store.navigate({ typeId: RECORD_TYPES[0], recordId: "00000000-0000-4000-8000-000000000001" }),
+    ).resolves.toMatchObject({ ok: false });
+    expect(navigate).not.toHaveBeenCalled();
+    vi.mocked(getRecordNavigationAction).mockResolvedValue({
+      companyId: "company",
+      schemaRevision: 1,
+      canManageSchema: false,
+      types: [],
+    });
+    await expect(store.navigate({ targetId: `nav-records:${RECORD_TYPES[0]}` })).resolves.toMatchObject({ ok: false });
+    expect(navigate).not.toHaveBeenCalled();
+    vi.mocked(getRecordNavigationAction).mockResolvedValue({
+      companyId: "company",
+      schemaRevision: 1,
+      canManageSchema: false,
+      types: [
+        {
+          id: RECORD_TYPES[0],
+          label: "Project",
+          pluralLabel: "Projects",
+          icon: "folder",
+          canCreate: false,
+          hasAuthorizationTasks: false,
+        },
+      ],
+    });
+    await expect(store.navigate({ targetId: `nav-records:${RECORD_TYPES[0]}` })).resolves.toMatchObject({ ok: true });
+    expect(navigate).toHaveBeenLastCalledWith(`/records/${RECORD_TYPES[0]}`);
   });
 
   it("never builds a drawer path for any record type", async () => {
@@ -58,10 +107,10 @@ describe("AgentUiControlStore.navigate", () => {
     const store = controlStore();
     store.registerNavigate(navigate);
 
-    for (const entity of AGENT_RECORD_ENTITIES)
-      await store.navigate({ entity, recordId: "00000000-0000-4000-8000-000000000003" });
+    for (const typeId of RECORD_TYPES)
+      await store.navigate({ typeId, recordId: "00000000-0000-4000-8000-000000000003" });
 
-    expect(navigate).toHaveBeenCalledTimes(AGENT_RECORD_ENTITIES.length);
+    expect(navigate).toHaveBeenCalledTimes(RECORD_TYPES.length);
     for (const [path] of navigate.mock.calls) expect(String(path)).not.toContain("?open=");
   });
 
@@ -71,9 +120,9 @@ describe("AgentUiControlStore.navigate", () => {
     store.registerNavigate(navigate);
 
     for (const [targetId, route] of [
-      ["nav-company-webhooks", "/company/webhooks"],
-      ["nav-profile-api-keys", "/profile/api-keys"],
-      ["nav-company-audit-logs", "/company/audit-logs"],
+      ["nav-settings-webhooks", "/settings/webhooks"],
+      ["nav-settings-api-keys", "/settings/api-keys"],
+      ["nav-settings-activity", "/settings/activity"],
     ]) {
       await expect(store.navigate({ targetId })).resolves.toEqual({
         ok: false,
@@ -82,21 +131,22 @@ describe("AgentUiControlStore.navigate", () => {
     }
     expect(navigate).not.toHaveBeenCalled();
 
-    await expect(store.navigate({ targetId: "nav-company-members" })).resolves.toMatchObject({ ok: true });
-    expect(navigate).toHaveBeenCalledWith("/company/members");
+    await expect(store.navigate({ targetId: "nav-settings-members" })).resolves.toMatchObject({ ok: true });
+    expect(navigate).toHaveBeenCalledWith("/settings/members");
   });
 
   it("refuses records and Cloud pages the sidebar hides for the role or installation", async () => {
     const navigate = vi.fn().mockResolvedValue("navigated");
-    const withoutDeals = controlStore({ readable: Object.values(Resource).filter((r) => r !== Resource.deals) });
-    withoutDeals.registerNavigate(navigate);
+    const withoutRecord = controlStore();
+    withoutRecord.registerNavigate(navigate);
+    vi.mocked(getRecordAction).mockResolvedValueOnce({ ok: false, error: {} } as never);
     await expect(
-      withoutDeals.navigate({ entity: "deal", recordId: "00000000-0000-4000-8000-000000000001" }),
+      withoutRecord.navigate({ typeId: RECORD_TYPES[0], recordId: "00000000-0000-4000-8000-000000000001" }),
     ).resolves.toMatchObject({ ok: false });
 
     const selfHosted = controlStore({ appMode: "self-hosted" });
     selfHosted.registerNavigate(navigate);
-    for (const targetId of ["nav-inbox", "nav-routines", "nav-profile-connected-accounts", "nav-company-subscription"])
+    for (const targetId of ["nav-inbox", "nav-routines", "nav-settings-channels", "nav-settings-billing"])
       await expect(selfHosted.navigate({ targetId }), targetId).resolves.toMatchObject({ ok: false });
     expect(navigate).not.toHaveBeenCalled();
 
@@ -134,6 +184,13 @@ describe("AgentUiControlStore.highlight", () => {
     return lookup;
   }
 
+  it("resolves shared controls only on their declared record type's page", () => {
+    const filter = element(1);
+    onPage(`/en/records/${RECORD_TYPES[0]}`, (id) => (id === "records-filter" ? filter : null));
+    expect(findAgentTargetElement(`records:${RECORD_TYPES[0]}:filter`)).toBe(filter);
+    expect(findAgentTargetElement(`records:${RECORD_TYPES[1]}:filter`)).toBeNull();
+  });
+
   function onSidebarPage(pathname: string, elements: Record<string, ReturnType<typeof element>>) {
     onPage(pathname, (id) => (id === "sidebar-trigger" ? element(1) : (elements[id] ?? null)));
   }
@@ -153,20 +210,20 @@ describe("AgentUiControlStore.highlight", () => {
   }
 
   it("names what the user must open when a target of the current page is not rendered", async () => {
-    onPage("/de/company/members");
+    onPage("/de/settings/members");
 
     await expect(settled(controlStore().highlight("member-modal-role"))).resolves.toEqual({
       ok: false,
       result:
         "Target member-modal-role belongs to this page but is not rendered right now. It may be inside a dialog, tab or menu the user must open first (a member row), or hidden by role, plan or state.",
     });
-    expect((await settled(controlStore().highlight("company-members-search"))).result).toBe(
-      "Target company-members-search belongs to this page but is not rendered right now. It may be inside a dialog, tab or menu the user must open first, or hidden by role, plan or state.",
+    expect((await settled(controlStore().highlight("settings-members-filter"))).result).toBe(
+      "Target settings-members-filter belongs to this page but is not rendered right now. It may be inside a dialog, tab or menu the user must open first, or hidden by role, plan or state.",
     );
   });
 
   it("asks to navigate first when the target belongs to another page", async () => {
-    onPage("/company/members");
+    onPage("/settings/members");
 
     await expect(controlStore().highlight("webhook-modal-url")).resolves.toEqual({
       ok: false,
@@ -176,7 +233,7 @@ describe("AgentUiControlStore.highlight", () => {
 
   it("treats a mounted target without layout as not rendered instead of spotlighting nothing", async () => {
     const hidden = element(0);
-    onPage("/profile/connected-accounts", (id) => (id === "connected-account-signature" ? hidden : null));
+    onPage("/settings/channels", (id) => (id === "connected-account-signature" ? hidden : null));
     const store = controlStore();
 
     await expect(settled(store.highlight("connected-account-signature"))).resolves.toEqual({
@@ -189,69 +246,69 @@ describe("AgentUiControlStore.highlight", () => {
   });
 
   it("waits for a target of the current page that renders after the address changed", async () => {
-    const currency = element(1);
+    const filter = element(1);
     let lookups = 0;
-    onPage("/company/settings", (id) => (id === "company-settings-currency" && ++lookups > 5 ? currency : null));
+    onPage("/settings/webhooks", (id) => (id === "settings-webhooks-filter" && ++lookups > 5 ? filter : null));
     const store = controlStore();
 
-    await expect(settled(store.highlight("company-settings-currency"))).resolves.toEqual({
+    await expect(settled(store.highlight("settings-webhooks-filter"))).resolves.toEqual({
       ok: true,
-      result: "Highlighted company-settings-currency.",
+      result: "Highlighted settings-webhooks-filter.",
     });
-    expect(store.active?.targetId).toBe("company-settings-currency");
-    expect(currency.scrollIntoView).toHaveBeenCalled();
+    expect(store.active?.targetId).toBe("settings-webhooks-filter");
+    expect(filter.scrollIntoView).toHaveBeenCalled();
   });
 
   it("names the collapsed sidebar group of a sub-entry instead of asking to navigate", async () => {
-    onSidebarPage("/de/dashboard", { "nav-company": element(1) });
+    onSidebarPage("/de/dashboard", { "nav-workspace-menu": element(1) });
 
-    await expect(settled(controlStore().highlight("nav-company-members"))).resolves.toEqual({
+    await expect(settled(controlStore().highlight("nav-settings-members"))).resolves.toEqual({
       ok: false,
       result:
-        "Target nav-company-members is a sidebar entry that is not visible right now. Ask the user to open nav-company in the sidebar, then highlight it again.",
+        "Target nav-settings-members is a sidebar entry that is not visible right now. Ask the user to open nav-workspace-menu in the sidebar and choose Settings, then highlight it again.",
     });
   });
 
   it("highlights a sub-entry of a group that is already open without asking for the group toggle", async () => {
     const members = element(1);
-    onSidebarPage("/company/settings", { "nav-company": element(1), "nav-company-members": members });
+    onSidebarPage("/settings/roles", { "nav-workspace-menu": element(1), "nav-settings-members": members });
     const store = controlStore();
 
-    await expect(store.highlight("nav-company-members")).resolves.toEqual({
+    await expect(store.highlight("nav-settings-members")).resolves.toEqual({
       ok: true,
-      result: "Highlighted nav-company-members.",
+      result: "Highlighted nav-settings-members.",
     });
     expect(members.scrollIntoView).toHaveBeenCalled();
   });
 
   it("asks to expand the icon rail instead of toggling the group that hides the entry", async () => {
-    onSidebarPage("/company/settings", {
-      "nav-company": element(1, { rail: true }),
-      "nav-company-members": element(0),
+    onSidebarPage("/settings/roles", {
+      "nav-workspace-menu": element(1, { rail: true }),
+      "nav-settings-members": element(0),
     });
 
-    expect((await settled(controlStore().highlight("nav-company-members"))).result).toBe(
-      "Target nav-company-members is a sidebar entry that is not visible right now. Ask the user to expand the collapsed sidebar with the sidebar button at the top left of the header, then highlight it again.",
+    expect((await settled(controlStore().highlight("nav-settings-members"))).result).toBe(
+      "Target nav-settings-members is a sidebar entry that is not visible right now. Ask the user to expand the collapsed sidebar with the sidebar button at the top left of the header, then highlight it again.",
     );
 
-    onSidebarPage("/dashboard", { "nav-company": element(1, { rail: true }) });
-    expect((await settled(controlStore().highlight("nav-company-members"))).result).toBe(
-      "Target nav-company-members is a sidebar entry that is not visible right now. Ask the user to expand the collapsed sidebar with the sidebar button at the top left of the header, then open nav-company in it, then highlight it again.",
+    onSidebarPage("/dashboard", { "nav-workspace-menu": element(1, { rail: true }) });
+    expect((await settled(controlStore().highlight("nav-settings-members"))).result).toBe(
+      "Target nav-settings-members is a sidebar entry that is not visible right now. Ask the user to expand the collapsed sidebar with the sidebar button at the top left of the header, then open nav-workspace-menu in it and choose Settings, then highlight it again.",
     );
   });
 
   it("asks to open the phone sidebar instead of naming a group toggle that is not on screen", async () => {
     onSidebarPage("/dashboard", {});
-    expect((await settled(controlStore().highlight("nav-company-members"))).result).toBe(
-      "Target nav-company-members is a sidebar entry that is not visible right now. Ask the user to open the sidebar with the sidebar button at the top left of the header, then open nav-company in it, then highlight it again.",
+    expect((await settled(controlStore().highlight("nav-settings-members"))).result).toBe(
+      "Target nav-settings-members is a sidebar entry that is not visible right now. Ask the user to open the sidebar with the sidebar button at the top left of the header, then open nav-workspace-menu in it and choose Settings, then highlight it again.",
     );
-    expect((await settled(controlStore().highlight("nav-contacts"))).result).toBe(
-      "Target nav-contacts is a sidebar entry that is not visible right now. Ask the user to open the sidebar with the sidebar button at the top left of the header, then highlight it again.",
+    expect((await settled(controlStore().highlight("nav-dashboard"))).result).toBe(
+      "Target nav-dashboard is a sidebar entry that is not visible right now. Ask the user to open the sidebar with the sidebar button at the top left of the header, then highlight it again.",
     );
 
-    onSidebarPage("/en/company/settings", {});
-    expect((await settled(controlStore().highlight("nav-company-roles"))).result).toBe(
-      "Target nav-company-roles is a sidebar entry that is not visible right now. Ask the user to open the sidebar with the sidebar button at the top left of the header, then highlight it again.",
+    onSidebarPage("/en/settings/roles", {});
+    expect((await settled(controlStore().highlight("nav-settings-roles"))).result).toBe(
+      "Target nav-settings-roles is a sidebar entry that is not visible right now. Ask the user to open the sidebar with the sidebar button at the top left of the header, then highlight it again.",
     );
   });
 
@@ -259,62 +316,53 @@ describe("AgentUiControlStore.highlight", () => {
     const lookup = onPage("/dashboard");
     const store = controlStore({ readable: CUSTOMER_SUCCESS_READS });
     const unavailable =
-      "The page /company/webhooks is not available to this user's role or installation; the app would redirect to the Dashboard. Tell the user instead of navigating or highlighting.";
+      "The page /settings/webhooks is not available to this user's role or installation; the app would redirect to the Dashboard. Tell the user instead of navigating or highlighting.";
 
-    for (const targetId of ["nav-company-webhooks", "company-webhooks-add"]) {
+    for (const targetId of ["nav-settings-webhooks", "settings-webhooks-add"]) {
       expect(await immediately(store.highlight(targetId)), targetId).toEqual({
         ok: false,
         result: `Target ${targetId} cannot be shown. ${unavailable}`,
       });
     }
-    expect(lookup.mock.calls.filter(([id]) => id === "nav-company-webhooks")).toHaveLength(1);
+    expect(lookup.mock.calls.filter(([id]) => id === "nav-settings-webhooks")).toHaveLength(1);
   });
 
   it("still highlights a rendered group toggle whose first page the role cannot open", async () => {
     const group = element(1);
-    onSidebarPage("/dashboard", { "nav-company": group });
+    onSidebarPage("/dashboard", { "nav-workspace-menu": group });
 
-    await expect(controlStore({ readable: [Resource.users] }).highlight("nav-company")).resolves.toEqual({
+    await expect(controlStore({ readable: [Resource.users] }).highlight("nav-workspace-menu")).resolves.toEqual({
       ok: true,
-      result: "Highlighted nav-company.",
+      result: "Highlighted nav-workspace-menu.",
     });
   });
 
-  it("names the toolbar Search button when a narrower screen collapses the search box", async () => {
-    const collapsed = element(0);
-    onPage("/contacts", (id) => (id === "contacts-search" ? collapsed : null));
-
-    expect((await settled(controlStore().highlight("contacts-search"))).result).toBe(
-      "Target contacts-search is the list's search box, which narrower screens collapse behind the Search button (magnifier icon) in the toolbar. Ask the user to click that button, then highlight it again.",
-    );
-  });
-
   it("keeps waiting for a target of the current page while the page still shows its loading state", async () => {
-    const currency = element(1);
+    const filter = element(1);
     let rendered = false;
     onPage(
-      "/company/settings",
-      (id) => (id === "company-settings-currency" && rendered ? currency : null),
+      "/settings/webhooks",
+      (id) => (id === "settings-webhooks-filter" && rendered ? filter : null),
       () => !rendered,
     );
     setTimeout(() => {
       rendered = true;
     }, 3200);
 
-    const highlighted = controlStore().highlight("company-settings-currency");
+    const highlighted = controlStore().highlight("settings-webhooks-filter");
     await vi.advanceTimersByTimeAsync(3500);
 
-    await expect(highlighted).resolves.toEqual({ ok: true, result: "Highlighted company-settings-currency." });
+    await expect(highlighted).resolves.toEqual({ ok: true, result: "Highlighted settings-webhooks-filter." });
   });
 
   it("stops waiting for a target of a page that never finishes loading", async () => {
     onPage(
-      "/company/settings",
+      "/settings/webhooks",
       () => null,
       () => true,
     );
 
-    const highlighted = controlStore().highlight("company-settings-currency");
+    const highlighted = controlStore().highlight("settings-webhooks-filter");
     await vi.advanceTimersByTimeAsync(8100);
 
     await expect(highlighted).resolves.toMatchObject({ ok: false });
@@ -373,7 +421,7 @@ describe("AgentUiControlStore guided tour", () => {
   ].map((targetId) => ({ targetId, note: `Fill ${targetId}.` }));
 
   it("gives unrendered stops on one page one shared wait instead of one wait each", async () => {
-    const navigate = onApp("/company/webhooks", new Map());
+    const navigate = onApp("/settings/webhooks", new Map());
     const store = controlStore();
     store.registerNavigate(navigate);
 
@@ -392,7 +440,7 @@ describe("AgentUiControlStore guided tour", () => {
     const store = controlStore();
     store.registerNavigate(navigate);
     const stops = Array.from({ length: 20 }, (_, index) => ({
-      targetId: index % 2 === 0 ? "company-members-add" : "company-roles-add",
+      targetId: index % 2 === 0 ? "settings-members-add" : "settings-roles-add",
       note: "Look here.",
     }));
 
@@ -416,20 +464,20 @@ describe("AgentUiControlStore guided tour", () => {
     await expect(
       store.startGuidedTour([
         { targetId: "nav-dashboard", note: "Start here." },
-        { targetId: "company-webhooks-add", note: "Not for this role." },
-        { targetId: "contacts-add", note: "Add a contact." },
+        { targetId: "settings-webhooks-add", note: "Not for this role." },
+        { targetId: "routines-add", note: "Add a routine." },
       ]),
     ).resolves.toMatchObject({ ok: true });
     setTimeout(() => {
       pageLoaded = true;
-      rendered.set("contacts-add", laidOut());
+      rendered.set("routines-add", laidOut());
     }, 3200);
 
     store.nextStep();
     await vi.advanceTimersByTimeAsync(3500);
 
-    expect(store.active?.targetId).toBe("contacts-add");
-    expect(navigate).toHaveBeenLastCalledWith("/contacts");
+    expect(store.active?.targetId).toBe("routines-add");
+    expect(navigate).toHaveBeenLastCalledWith("/routines");
   });
 
   it("moves on from a stop whose control disappears after the user acts on it", async () => {
@@ -469,7 +517,7 @@ describe("AgentUiControlStore guided tour", () => {
 
   it("ends the tour when the control of its stop disappears and no later stop is on screen", async () => {
     const rendered = new Map([["connected-account-signature", laidOut()]]);
-    const navigate = onApp("/profile/connected-accounts", rendered);
+    const navigate = onApp("/settings/channels", rendered);
     const store = controlStore();
     store.registerNavigate(navigate);
 
@@ -511,21 +559,21 @@ describe("AgentUiControlStore guided tour", () => {
 
   it("ends the tour instead of pulling the user back when they leave the page of a stop", async () => {
     const rendered = new Map([
-      ["contacts-add", laidOut()],
-      ["contacts-filter", laidOut()],
+      ["settings-webhooks-add", laidOut()],
+      ["settings-webhooks-filter", laidOut()],
     ]);
-    const navigate = onApp("/contacts", rendered);
+    const navigate = onApp("/settings/webhooks", rendered);
     const store = controlStore();
     store.registerNavigate(navigate);
 
     await store.startGuidedTour([
-      { targetId: "contacts-add", note: "Click Add." },
-      { targetId: "contacts-filter", note: "Filter the list." },
+      { targetId: "settings-webhooks-add", note: "Click Add." },
+      { targetId: "settings-webhooks-filter", note: "Filter the list." },
     ]);
     const stop = currentStop(store);
     navigate.mockClear();
 
-    window.location.pathname = "/deals";
+    window.location.pathname = "/settings/roles";
     rendered.clear();
     store.reportTourTarget(stop, false);
     await vi.advanceTimersByTimeAsync(2100);
@@ -540,8 +588,8 @@ describe("AgentUiControlStore guided tour", () => {
     const rendered = new Map<string, ReturnType<typeof laidOut>>();
     let loading = false;
     const load = { ms: 0 };
-    const navigate = onApp("/contacts", rendered, () => loading);
-    rendered.set(pages["/contacts"], laidOut());
+    const navigate = onApp("/settings/webhooks", rendered, () => loading);
+    rendered.set(pages["/settings/webhooks"], laidOut());
     navigate.mockImplementation((path: string) => {
       if (window.location.pathname !== path) {
         window.location.pathname = path;
@@ -567,52 +615,52 @@ describe("AgentUiControlStore guided tour", () => {
 
   it("keeps a Back across pages while the earlier page is still loading its stop", async () => {
     const { navigate, rendered, load } = onSlowPages({
-      "/contacts": "contacts-add",
-      "/deals": "deals-add",
-      "/tasks": "tasks-add",
+      "/settings/webhooks": "settings-webhooks-add",
+      "/settings/roles": "settings-roles-add",
+      "/routines": "routines-add",
     });
     const store = controlStore();
     store.registerNavigate(navigate);
 
     await store.startGuidedTour([
-      { targetId: "contacts-add", note: "Add a contact." },
-      { targetId: "deals-add", note: "Add a deal." },
-      { targetId: "tasks-add", note: "Add a task." },
+      { targetId: "settings-webhooks-add", note: "Add a webhook." },
+      { targetId: "settings-roles-add", note: "Add a role." },
+      { targetId: "routines-add", note: "Add a routine." },
     ]);
     store.nextStep();
     await reportTargetsFor(store, rendered, 600);
-    expect(currentStop(store).targetId).toBe("deals-add");
+    expect(currentStop(store).targetId).toBe("settings-roles-add");
 
     load.ms = 3000;
     store.previousStep();
     await reportTargetsFor(store, rendered, 6000);
 
-    expect(currentStop(store)).toMatchObject({ targetId: "contacts-add", stepIndex: 0 });
-    expect(window.location.pathname).toBe("/contacts");
-    expect(navigate).not.toHaveBeenCalledWith("/tasks");
+    expect(currentStop(store)).toMatchObject({ targetId: "settings-webhooks-add", stepIndex: 0 });
+    expect(window.location.pathname).toBe("/settings/webhooks");
+    expect(navigate).not.toHaveBeenCalledWith("/routines");
   });
 
   it("ends the tour after a Back that found no earlier stop leaves the user off the shown stop's page", async () => {
     const { navigate, rendered, load } = onSlowPages({
-      "/contacts": "contacts-add",
-      "/deals": "deals-add",
+      "/settings/webhooks": "settings-webhooks-add",
+      "/settings/roles": "settings-roles-add",
     });
     const store = controlStore();
     store.registerNavigate(navigate);
 
     await store.startGuidedTour([
-      { targetId: "contacts-add", note: "Add a contact." },
-      { targetId: "deals-add", note: "Add a deal." },
+      { targetId: "settings-webhooks-add", note: "Add a webhook." },
+      { targetId: "settings-roles-add", note: "Add a role." },
     ]);
     store.nextStep();
     await reportTargetsFor(store, rendered, 600);
-    expect(currentStop(store).targetId).toBe("deals-add");
+    expect(currentStop(store).targetId).toBe("settings-roles-add");
 
     load.ms = 60_000;
     store.previousStep();
     await reportTargetsFor(store, rendered, 13_000);
 
     expect(store.active).toBeNull();
-    expect(navigate).toHaveBeenLastCalledWith("/contacts");
+    expect(navigate).toHaveBeenLastCalledWith("/settings/webhooks");
   });
 });

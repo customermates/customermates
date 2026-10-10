@@ -1,3 +1,4 @@
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 import type { GetMessagingThreadsRepo } from "./get-messaging-threads.repo";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
@@ -6,7 +7,7 @@ import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { MessagingThread } from "../messaging.schema";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { MessagingThreadSchema } from "../messaging.schema";
 
@@ -18,13 +19,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { GetQueryParamsSchema, createGetResultSchema } from "@/core/base/base-get.schema";
 
 @AllowInDemoMode
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.inboxMessages, action: Action.readAll },
-    { resource: Resource.inboxMessages, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.inboxMessages, read: true })
 export class GetMessagingThreadsInteractor extends BaseGetInteractor<MessagingThread> {
   constructor(
     repo: GetMessagingThreadsRepo,
@@ -33,7 +28,7 @@ export class GetMessagingThreadsInteractor extends BaseGetInteractor<MessagingTh
     queryParamsPrecheck: QueryParamsPrecheckInteractor,
     private entitlements: EntitlementService,
   ) {
-    super(repo, viewStateRepo, mode, undefined, { pagination: { page: 1, pageSize: 25 } }, queryParamsPrecheck);
+    super(repo, viewStateRepo, mode, { pagination: { page: 1, pageSize: 25 } }, queryParamsPrecheck);
   }
 
   @Validate(GetQueryParamsSchema)
@@ -42,6 +37,6 @@ export class GetMessagingThreadsInteractor extends BaseGetInteractor<MessagingTh
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
-    return await super.invoke(params);
+    return runInTransaction(() => super.invoke(params), { readOnly: true });
   }
 }

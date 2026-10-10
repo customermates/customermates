@@ -34,6 +34,7 @@ type TestContentProps = {
   onOpenAutoFocus?: () => void;
 };
 
+vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/hooks/use-media-query", () => ({
   useIsWiderThan: () => testContext.isWide,
 }));
@@ -87,8 +88,8 @@ vi.mock("@/components/ui/drawer", () => ({
   DrawerDescription: ({ children }: { children: ReactNode }) => createElement("p", null, children),
 }));
 
-vi.mock("../unsaved-changes-guard", () => ({
-  UnsavedChangesGuard: () => null,
+vi.mock("../confirm-dialog", () => ({
+  DiscardChangesDialog: () => null,
 }));
 
 import { AppModal } from "../app-modal";
@@ -155,8 +156,8 @@ describe("AppModal actions", () => {
     expect(html).toContain(`data-root="${surface}"`);
     expect(html).toContain('data-overlay-actions=""');
     expect(html).toContain('data-overlay-action-count="1"');
-    expect(html).toContain("top-1.5 right-[3.125rem]");
-    expect(html).toContain("min-h-9");
+    expect(html).toContain("top-[1.375rem] right-12");
+    expect(html).toContain("min-h-8");
     expect(html).toContain("gap-2");
     expect(html).toContain('data-overlay-action=""');
     expect(html).toContain('data-size="icon"');
@@ -201,14 +202,22 @@ describe("AppModal actions", () => {
     expect(html).toContain('data-overlay-action-count="2"');
   });
 
-  it("rejects more actions than the fixed header rail supports", () => {
-    expect(() =>
-      renderModal([
-        { id: "one", icon: RefreshCw, label: "One", onClick: vi.fn() },
-        { id: "two", icon: RefreshCw, label: "Two", onClick: vi.fn() },
-        { id: "three", icon: RefreshCw, label: "Three", onClick: vi.fn() },
-      ] as unknown as AppModalActions),
-    ).toThrow("AppModal supports at most two header actions");
+  it("orders header actions as Ask AI, Customize, other, Delete, then navigation", () => {
+    testContext.isWide = true;
+    const html = renderModal([
+      { id: "open", icon: RefreshCw, label: "Open page", href: "/records" },
+      { id: "delete", icon: Trash2, label: "Delete", variant: "destructive", onClick: vi.fn() },
+      { id: "sync", icon: RefreshCw, label: "Sync", onClick: vi.fn() },
+      { id: "customize", icon: RefreshCw, label: "Customize", kind: "customize", onClick: vi.fn() },
+      { id: "ai", icon: RefreshCw, label: "Ask AI", kind: "assistant", onClick: vi.fn() },
+    ]);
+    const order = [
+      'data-slot="ask-ai-action"',
+      ...["Customize", "Sync", "Delete", "Open page"].map((label) => `aria-label="${label}"`),
+    ].map((marker) => html.indexOf(marker));
+    expect(order.every((index) => index >= 0)).toBe(true);
+    expect([...order].sort((a, b) => a - b)).toEqual(order);
+    expect(html).toContain('data-overlay-action-count="6"');
   });
 });
 
@@ -238,7 +247,7 @@ describe("AppModal beside the assistant", () => {
     [
       "an assistant highlight or tour step is shown",
       () => {
-        testContext.rootStore.agentUiControlStore.active = { targetId: "company-webhooks-add" };
+        testContext.rootStore.agentUiControlStore.active = { targetId: "settings-webhooks-add" };
       },
     ],
   ] as const;
@@ -337,13 +346,13 @@ describe.each([
     expect(testContext.focusReturn.onOpenAutoFocus).toHaveBeenCalledOnce();
   });
 
-  it.each([true, false])("passes controlled targets and open=%s to the shared focus hook", (open) => {
+  it.each([true, false])("defers requested open=%s during SSR while retaining controlled focus targets", (open) => {
     const target = { id: "controlled-target" } as HTMLElement;
     const fallback = { id: "controlled-fallback" } as HTMLElement;
 
     renderFocusModal({ open, focusReturnTarget: target, focusReturnFallback: fallback });
 
-    expect(testContext.useOverlayFocusReturn).toHaveBeenLastCalledWith(open, target, fallback);
+    expect(testContext.useOverlayFocusReturn).toHaveBeenLastCalledWith(false, target, fallback);
   });
 
   it("prefers the store's focus targets and open state over controlled targets", () => {

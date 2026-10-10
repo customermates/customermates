@@ -48,8 +48,16 @@ const INPUT = { query: "check that a webhook came from you", locale: "en" as con
 
 describe("unified documentation search", () => {
   it.each([
-    ["en", "How is the weighted pipeline value calculated?", "multiplied by the weight of its current option"],
-    ["de", "Wie wird der gewichtete Pipeline-Wert berechnet?", "multipliziert mit dem Gewicht seiner aktuellen Option"],
+    [
+      "en",
+      "How is the weighted pipeline value calculated?",
+      "Weighted deal value = deal value × stage probability / 100",
+    ],
+    [
+      "de",
+      "Wie wird der gewichtete Pipeline-Wert berechnet?",
+      "Gewichteter Deal-Wert = Deal-Wert × Phasenwahrscheinlichkeit / 100",
+    ],
   ] as const)(
     "keeps the pipeline formula in a query-only two-section excerpt in %s",
     async (locale, query, formula) => {
@@ -65,28 +73,40 @@ describe("unified documentation search", () => {
       expect(markdown.startsWith(`## ${total.headingPath.at(-1)}`)).toBe(true);
       expect(markdown).toContain(weighted.headingPath.at(-1));
       expect(markdown).toContain(formula);
-      expect(markdown).toContain("**Link:** `/company/settings`.");
       expect(markdown.length).toBeLessThanOrEqual(1_400);
     },
   );
 
   it.each([
-    ["en", "How is the weighted pipeline value calculated?", "multiplied by the weight of its current option"],
-    ["de", "Wie wird der gewichtete Pipeline-Wert berechnet?", "multipliziert mit dem Gewicht seiner aktuellen Option"],
-  ] as const)("fetches the complete pipeline formula and section link in %s", async (locale, query, formula) => {
-    const section = docsCorpusSections("docs", locale).find(
-      (value) => value.slug === "concepts" && value.anchor === "how-does-a-weighted-pipeline-work",
-    );
-    if (!section) throw new Error("Missing weighted-pipeline documentation");
-    const fetched = await unifiedDocsPageResult(
-      { slug: section.slug, anchor: section.anchor, query, locale, source: "docs" },
-      { repo: repo([row(section)]), embed: null, ranker: undefined },
-    );
-    const markdown = (fetched as { structuredContent: { markdown: string } }).structuredContent.markdown;
-    expect(markdown).toContain(formula);
-    expect(markdown).toContain("**Link:** `/company/settings`.");
-    expect(markdown.length).toBeLessThanOrEqual(1_400);
-  });
+    [
+      "en",
+      "How is the weighted pipeline value calculated?",
+      "Weighted deal value = deal value × stage probability / 100",
+      "[Deals configure page](http://localhost:4000/open/configure/deal)",
+    ],
+    [
+      "de",
+      "Wie wird der gewichtete Pipeline-Wert berechnet?",
+      "Gewichteter Deal-Wert = Deal-Wert × Phasenwahrscheinlichkeit / 100",
+      "[Konfigurationsseite von Deals](http://localhost:4000/open/configure/deal)",
+    ],
+  ] as const)(
+    "fetches the complete pipeline formula and section app link in %s",
+    async (locale, query, formula, link) => {
+      const section = docsCorpusSections("docs", locale).find(
+        (value) => value.slug === "concepts" && value.anchor === "how-does-a-weighted-pipeline-work",
+      );
+      if (!section) throw new Error("Missing weighted-pipeline documentation");
+      const fetched = await unifiedDocsPageResult(
+        { slug: section.slug, anchor: section.anchor, query, locale, source: "docs" },
+        { repo: repo([row(section)]), embed: null, ranker: undefined },
+      );
+      const markdown = (fetched as { structuredContent: { markdown: string } }).structuredContent.markdown;
+      expect(markdown).toContain(formula);
+      expect(markdown).toContain(link);
+      expect(markdown.length).toBeLessThanOrEqual(1_400);
+    },
+  );
 
   it("fetches complete stage setup instructions from the section returned by search", async () => {
     const section = docsCorpusSections("docs", "en").find(
@@ -121,9 +141,11 @@ describe("unified documentation search", () => {
       deps,
     );
     const markdown = (fetched as { structuredContent: { markdown: string } }).structuredContent.markdown;
-    expect(markdown).toContain("To add or rename stages, open the column's **Edit Field** dialog");
-    expect(markdown).toContain("Changing a column needs **Manage** on that record type");
-    expect(markdown).toContain("`/deals`");
+    expect(markdown).toContain("Stage and status are **Single choice** fields");
+    expect(markdown).toContain(
+      "To edit the stages or their probabilities, open the field in [Configure for Deals](http://localhost:4000/open/configure/deal)",
+    );
+    expect(markdown).toContain("[Deals](http://localhost:4000/open/records/deal)");
     expect(markdown.length).toBeLessThanOrEqual(1_400);
     expect(ranker).toHaveBeenCalledTimes(1);
   });
@@ -454,6 +476,61 @@ describe("unified documentation search", () => {
   });
 });
 
+describe("exact tool and tool-catalog questions", () => {
+  const firstHit = (result: Awaited<ReturnType<typeof unifiedDocsSearchResult>>) =>
+    result.structuredContent.results.map(({ slug, anchor }) => `${slug}#${anchor}`)[0];
+
+  it("leads with the section documenting an exact snake_case tool name, ahead of the fused and re-ranked order", async () => {
+    const records = docsCorpusSections("docs", "en").find(
+      (section) => section.slug === "mcp" && section.text.includes("#### `query_crm_records`"),
+    );
+    if (!records) throw new Error("The MCP catalog lost its query_crm_records entry.");
+    const ranker = vi.fn((_query: string, candidates: readonly RankableSection[]) =>
+      Promise.resolve({
+        order: candidates.filter(({ section }) => (section as DocsSection).slug === "webhooks").map(({ id }) => id),
+        abstained: false,
+      }),
+    );
+
+    const result = await unifiedDocsSearchResult(
+      { query: "what does query_crm_records return", locale: "en", source: "docs" },
+      { repo: repo([row(webhooks[0]), row(signature)]), embed: null, ranker },
+    );
+
+    expect(firstHit(result)).toBe(`mcp#${records.anchor}`);
+    expect(result.structuredContent.results.some(({ slug }) => slug === "webhooks")).toBe(true);
+  });
+
+  it.each([
+    ["en", "What can the MCP server do?"],
+    ["en", "show me all MCP tools"],
+    ["de", "Welche Tools bietet der MCP-Server?"],
+    ["de", "Was kann der MCP Server?"],
+  ] as const)("answers %s %j with the MCP tool catalog", async (locale, query) => {
+    const result = await unifiedDocsSearchResult(
+      { query, locale, source: "docs" },
+      { repo: repo([row(webhooks[0])]), embed: null, ranker: undefined },
+    );
+    expect(firstHit(result)).toBe("mcp#tool-catalog");
+  });
+
+  it("keeps the catalog question pinned when the stored index is unavailable, but not for assistant tool questions", async () => {
+    const offline = repo([]);
+    offline.storedBuild.mockResolvedValue(null as never);
+    const catalog = await unifiedDocsSearchResult(
+      { query: "list of mcp tools", locale: "en", source: "docs" },
+      { repo: offline, embed: null, ranker: undefined },
+    );
+    expect(firstHit(catalog)).toBe("mcp#tool-catalog");
+
+    const assistantTools = await unifiedDocsSearchResult(
+      { query: "Which tools can Mate use?", locale: "en", source: "docs" },
+      { repo: repo([row(assistant[0])]), embed: null, ranker: undefined },
+    );
+    expect(firstHit(assistantTools)).not.toBe("mcp#tool-catalog");
+  });
+});
+
 describe("search and page section coherence", () => {
   it("uses the same global candidate set and chosen section for a page read instead of reranking only that page", async () => {
     const sections = docsCorpusSections("docs", "en");
@@ -493,23 +570,21 @@ describe("search and page section coherence", () => {
   });
 
   it.each([
-    { query: "webhooks page URL", anchor: "webhooks-tab" },
-    { query: "link to the members page", anchor: "members-tab" },
+    { query: "webhooks page URL", anchor: "webhooks-tab", link: "[Webhooks](http://localhost:4000/settings/webhooks)" },
+    {
+      query: "link to the members page",
+      anchor: "members-tab",
+      link: "[Members](http://localhost:4000/settings/members)",
+    },
   ])(
-    "retains a chosen child section's canonical Link within the page excerpt cap: $anchor",
-    async ({ query, anchor }) => {
+    "retains a chosen child section's destination app link within the page excerpt cap: $anchor",
+    async ({ query, anchor, link }) => {
       const sections = docsCorpusSections("docs", "en");
       const overview = sections.find(
         (section) => section.slug === "app-company" && section.anchor === "what-lives-on-the-company-screen",
       );
       const destination = sections.find((section) => section.slug === "app-company" && section.anchor === anchor);
-      if (!overview || !destination) throw new Error("Missing selected navigation metadata fixtures.");
-      const expectedLink = destination.text
-        .split("\n")
-        .find((line) => line.startsWith("**Link:**"))
-        ?.split("**Mate:**")[0]
-        .trimEnd();
-      if (!expectedLink) throw new Error("Selected child lost its canonical Link metadata.");
+      if (!overview || !destination) throw new Error("Missing selected navigation fixtures.");
       const ranker = (_query: string, candidates: readonly RankableSection[]) =>
         Promise.resolve({
           order: [overview, destination].flatMap((section) => {
@@ -525,23 +600,16 @@ describe("search and page section coherence", () => {
       expect(search.structuredContent.results[0]).toMatchObject({ slug: "app-company", anchor: overview.anchor });
       expect(markdown.split("\n")[0]).toContain(overview.headingPath.at(-1));
       expect(markdown.length).toBeLessThanOrEqual(1_400);
-      expect(markdown.split("\n").find((line) => line.startsWith("**Link:**"))).toBe(expectedLink);
-      const destinationHeading = `${"#".repeat(Math.min(3, destination.headingPath.length + 1))} ${destination.headingPath.at(-1)}`;
-      expect(markdown).toContain(`${destinationHeading}\n\n${expectedLink}`);
+      expect(destination.text).toContain(link);
+      expect(markdown).toContain(link);
     },
   );
 
-  it("prioritizes the first chosen section's own Link metadata", async () => {
+  it("leads with the first chosen section's own app link", async () => {
     const sections = docsCorpusSections("docs", "en");
     const primary = sections.find((section) => section.slug === "app-company" && section.anchor === "webhooks-tab");
     const secondary = sections.find((section) => section.slug === "app-company" && section.anchor === "members-tab");
-    if (!primary || !secondary) throw new Error("Missing primary navigation metadata fixtures.");
-    const expectedLink = primary.text
-      .split("\n")
-      .find((line) => line.startsWith("**Link:**"))
-      ?.split("**Mate:**")[0]
-      .trimEnd();
-    if (!expectedLink) throw new Error("Primary section lost its canonical Link metadata.");
+    if (!primary || !secondary) throw new Error("Missing primary navigation fixtures.");
     const ranker = (_query: string, candidates: readonly RankableSection[]) =>
       Promise.resolve({
         order: [primary, secondary].flatMap((section) => {
@@ -557,120 +625,9 @@ describe("search and page section coherence", () => {
     const markdown = (page as { structuredContent: { markdown: string } }).structuredContent.markdown;
     expect(markdown.split("\n")[0]).toContain(primary.headingPath.at(-1));
     expect(markdown.length).toBeLessThanOrEqual(1_400);
-    expect(markdown.split("\n").find((line) => line.startsWith("**Link:**"))).toBe(expectedLink);
-  });
-
-  it("does not borrow Link metadata from an offered but unselected child section", async () => {
-    const sections = docsCorpusSections("docs", "en");
-    const overview = sections.find(
-      (section) => section.slug === "app-company" && section.anchor === "what-lives-on-the-company-screen",
+    expect(markdown).toContain(
+      "\n[Webhooks](http://localhost:4000/settings/webhooks) sends workspace events to your systems",
     );
-    const destination = sections.find((section) => section.slug === "app-company" && section.anchor === "webhooks-tab");
-    if (!overview || !destination) throw new Error("Missing unselected navigation metadata fixtures.");
-    const ranker = (_query: string, candidates: readonly RankableSection[]) => {
-      const choice = candidates.find((candidate) => candidate.section === overview);
-      return Promise.resolve(choice ? { order: [choice.id], abstained: false } : null);
-    };
-    const page = await unifiedDocsPageResult(
-      { slug: "app-company", query: "webhooks page URL", locale: "en", source: "docs" },
-      { repo: repo([row(overview), row(destination)]), embed: null, ranker },
-    );
-    const markdown = (page as { structuredContent: { markdown: string } }).structuredContent.markdown;
-    expect(markdown.split("\n")[0]).toContain(overview.headingPath.at(-1));
-    expect(markdown.length).toBeLessThanOrEqual(1_400);
-    expect(markdown).not.toMatch(/^\*\*Link:\*\*/m);
-  });
-
-  it("keeps the original excerpt when a chosen child's complete metadata exceeds the suffix budget", async () => {
-    const manifest = await import("../docs-manifest");
-    const sections = docsCorpusSections("docs", "en");
-    const overview = sections.find(
-      (section) => section.slug === "app-company" && section.anchor === "what-lives-on-the-company-screen",
-    );
-    const destination = sections.find((section) => section.slug === "app-company" && section.anchor === "members-tab");
-    if (!overview || !destination) throw new Error("Missing oversized metadata fixtures.");
-    const input = {
-      slug: "app-company",
-      query: "link to the members page",
-      locale: "en" as const,
-      source: "docs" as const,
-    };
-    const baseline = await unifiedDocsPageResult(input, {
-      repo: repo([row(overview)]),
-      embed: null,
-      ranker: (_query: string, candidates: readonly RankableSection[]) => {
-        const choice = candidates.find((candidate) => candidate.section === overview);
-        return Promise.resolve(choice ? { order: [choice.id], abstained: false } : null);
-      },
-    });
-    const link = `**Link:** \`/${"x".repeat(600)}\`.`;
-    const oversized = { ...destination, text: destination.text.replace(/^\*\*Link:\*\*[^\n]*/m, link) };
-    const sectionsSpy = vi
-      .spyOn(manifest, "docsCorpusSections")
-      .mockReturnValue(sections.map((section) => (section === destination ? oversized : section)));
-    let selected: RankableSection["section"] | undefined;
-    try {
-      const page = await unifiedDocsPageResult(input, {
-        repo: repo([row(overview)]),
-        embed: null,
-        ranker: (_query: string, candidates: readonly RankableSection[]) => {
-          const first = candidates.find((candidate) => candidate.section === overview);
-          const second = candidates.find((candidate) => candidate.section === oversized);
-          if (!first || !second) throw new Error("Oversized selected fixture was not offered.");
-          selected = second.section;
-          return Promise.resolve({ order: [first.id, second.id], abstained: false });
-        },
-      });
-      const markdown = (page as { structuredContent: { markdown: string } }).structuredContent.markdown;
-      expect(selected).toBe(oversized);
-      expect(markdown.length).toBeLessThanOrEqual(1_400);
-      expect(markdown).toBe((baseline as { structuredContent: { markdown: string } }).structuredContent.markdown);
-      expect(markdown).not.toContain(link);
-    } finally {
-      sectionsSpy.mockRestore();
-    }
-  });
-
-  it("delivers a chosen child's complete Link metadata when the secondary block is below the prose minimum", async () => {
-    const manifest = await import("../docs-manifest");
-    const sections = docsCorpusSections("docs", "en");
-    const overview = sections.find(
-      (section) => section.slug === "app-company" && section.anchor === "what-lives-on-the-company-screen",
-    );
-    const destination = sections.find((section) => section.slug === "app-company" && section.anchor === "webhooks-tab");
-    if (!overview || !destination) throw new Error("Missing short selected metadata fixtures.");
-    const link = "**Link:** `/x`.";
-    const short = { ...destination, headingPath: ["Go"], text: link };
-    const metadata = `## Go\n\n${link}`;
-    expect(metadata.length).toBeLessThanOrEqual(40);
-    const sectionsSpy = vi
-      .spyOn(manifest, "docsCorpusSections")
-      .mockReturnValue(sections.map((section) => (section === destination ? short : section)));
-    let selected: RankableSection["section"] | undefined;
-    try {
-      const page = await unifiedDocsPageResult(
-        { slug: "app-company", query: "webhooks page URL", locale: "en", source: "docs" },
-        {
-          repo: repo([row(overview)]),
-          embed: null,
-          ranker: (_query: string, candidates: readonly RankableSection[]) => {
-            const first = candidates.find((candidate) => candidate.section === overview);
-            const second = candidates.find((candidate) => candidate.section === short);
-            if (!first || !second) throw new Error("Short selected fixture was not offered.");
-            selected = second.section;
-            return Promise.resolve({ order: [first.id, second.id], abstained: false });
-          },
-        },
-      );
-      const markdown = (page as { structuredContent: { markdown: string } }).structuredContent.markdown;
-      expect(selected).toBe(short);
-      expect(markdown.split("\n")[0]).toContain(overview.headingPath.at(-1));
-      expect(markdown.length).toBeLessThanOrEqual(1_400);
-      expect(markdown).toContain(metadata);
-      expect(markdown.split("\n").find((line) => line.startsWith("**Link:**"))).toBe(link);
-    } finally {
-      sectionsSpy.mockRestore();
-    }
   });
 
   it("falls back to the requested page when the global result names only another page", async () => {
@@ -732,10 +689,9 @@ describe("authoritative action and condition excerpts", () => {
       anchor: "how-do-i-import-or-export-records",
       query: "Wie läuft der Import ab?",
       facts: [
-        "**Aus Datei hinzufügen** öffnet einen Wizard",
-        "10 MB und 10.000 Zeilen",
-        "CSV-Dateien werden nicht akzeptiert",
-        "`/contacts`",
+        "Öffnen Sie [Weitere Aktionen](http://localhost:4000/open/records/contact?focus=more) in der Toolbar, zum Beispiel bei [Kontakte](http://localhost:4000/open/records/contact)",
+        "Dateien einer anderen Liste, von vor einer Strukturänderung oder mit mehr als 100 Datensätzen oder 500 Verknüpfungen werden abgelehnt",
+        "Excel- und CSV-Dateien müssen zuerst in das Exportformat übertragen werden",
       ],
     },
     {
@@ -744,10 +700,9 @@ describe("authoritative action and condition excerpts", () => {
       anchor: "how-do-i-connect-a-channel",
       query: "Fehler beim Verbinden des Gmail-Kanals",
       facts: [
-        "**Kanalverbindung fehlgeschlagen**",
-        "Beginnen Sie erneut mit **Kanal verbinden**",
-        "beim **Fehler**-Status eines vorhandenen Kanals nutzt der Besitzer **Reaktivieren**",
-        "`/profile/connected-accounts`",
+        "Klicken Sie auf [Kanal verbinden](http://localhost:4000/settings/channels?focus=control%3Asettings-channels-connect)",
+        "**Konto bereits verbunden** heißt, ein Mitglied des Workspace hat es schon verbunden",
+        "Bei jedem anderen Fehler beginnen Sie erneut mit **Kanal verbinden**",
       ],
     },
     {
@@ -759,31 +714,30 @@ describe("authoritative action and condition excerpts", () => {
         "Die Verbindung hängt an Ihrem Claude-Konto, nicht an einem Gerät",
         "erneuert sich im Hintergrund",
         "ohne diese Berechtigung fügen Sie die URL wie oben ein",
-        "`/profile/api-keys`",
+        "[API-Schlüssel](http://localhost:4000/settings/api-keys)",
       ],
     },
     {
       locale: "de" as const,
       slug: "app-company",
       anchor: "how-does-the-role-editor-work",
-      query: "Nur eigene Kontakte sehen",
+      query: "Leserecht nur für zugewiesene Datensätze",
       facts: [
-        "**Zugewiesen** nur die Datensätze, denen das Mitglied zugewiesen ist",
-        "**Keine** blendet die Seite und ihre Datensätze aus",
-        "**Kontakte**",
-        "`/company/roles`",
+        "**Zugewiesen** (dem Mitglied zugewiesene Datensätze oder seine eigene Mitgliedszeile oder Routinen) oder **Keine**",
+        "Datensätze bearbeiten oder löschen erfordert zusätzlich Zugriff auf den jeweiligen Datensatz",
+        "**Datensatztypen**: eine Zeile je Liste unter ihrem aktuellen Namen",
+        "Klicken Sie auf [Hinzufügen](http://localhost:4000/settings/roles?focus=control%3Asettings-roles-add)",
       ],
     },
     {
       locale: "en" as const,
       slug: "concepts",
-      anchor: "how-do-relationships-link-records",
+      anchor: "how-is-a-deals-total-value-calculated",
       query: "Is the link between a deal and its services stored with a quantity?",
       facts: [
-        "a deal can carry several services with quantities",
-        "`update_deals` keeps `services`",
-        "Every other relation changes only through `manage_record_links`",
-        "`null` or `[]` clears it",
+        "A deal's **Line items** are a sub-list of Deals: each line belongs to one deal",
+        "Each line has a service, a quantity, a pricing mode and an effective unit price",
+        "The same service can appear on several lines",
       ],
     },
   ])(

@@ -118,13 +118,13 @@ HubSpot, Salesforce, Pipedrive, and Zoho CRM run official MCP servers next to th
 
 [Customermates](/) is an open-source CRM built MCP-first. It exposes [[derived.mcp.tools.total]] native MCP tools: [[derived.mcp.tools.grouped]] across [[derived.mcp.toolsets.count]] toolsets that cover every entity in the data model, plus [[derived.mcp.tools.alwaysOn]] always-on deep-research connectors.
 
-- **Records ([[derived.mcp.tools.groups.records]]):** filter, count, search, get, create, update, link, unlink, delete, plus note and custom-field edits across contacts, organizations, deals, services, and tasks
+- **Records ([[derived.mcp.tools.groups.records]]):** discover record types, query, search, read, create, update, link and delete records through the record contracts; preview deletion, query measures and read operation status
 - **Messaging ([[derived.mcp.tools.groups.messaging]]):** read, draft, and send across email, LinkedIn, WhatsApp, Instagram, and Telegram
 - **Social and Sales Navigator ([[derived.mcp.tools.groups.social]]):** social-post tracking and LinkedIn Sales Navigator search
 - **Docs ([[derived.mcp.tools.groups.docs]]):** search and read the product documentation
 - **Workspace ([[derived.mcp.tools.groups.workspace]]):** current user and workspace context
 - **Admin ([[derived.mcp.tools.groups.admin]]):** roles and company management
-- **Custom columns ([[derived.mcp.tools.groups.custom-columns]]):** manage typed custom fields
+- **Data model ([[derived.mcp.tools.groups.record-model]]):** preview and apply type, field, relationship and calculation changes; cancel or resume configuration operations
 - **Widgets ([[derived.mcp.tools.groups.widgets]]):** dashboard widgets
 - **Webhooks ([[derived.mcp.tools.groups.webhooks]]):** manage webhook subscriptions
 - **Support ([[derived.mcp.tools.groups.support]]):** request product support
@@ -138,7 +138,7 @@ What that looks like in practice. A user opens Claude and types:
 
 > "Create a contact for Sarah Lee at Northwind, VP Sales. Link her to the Northwind organization. Add a deal for €25,000 at Discovery stage. Create a task for me to send her the proposal."
 
-Claude reads the MCP tool list, identifies `create_contacts`, `manage_record_links`, `create_deals`, and `create_tasks`. It runs them in sequence, returns the new records, and confirms what it did. No webhook configuration, no Zapier, no admin work.
+Claude reads the MCP tool list, looks up the contact, deal, and task types with `discover_record_types` and `get_record_model`, and finds Northwind with `search_crm_records`. It then runs `mutate_crm_record` in sequence to create the contact, link her to Northwind, create the deal, and create the task, returns the new records, and confirms what it did. No webhook configuration, no Zapier, no admin work.
 
 That is the third path: not building a CRM with Claude Code, not connecting Claude to a CRM through a paid connector, but using a CRM that was designed for Claude (and ChatGPT, and Gemini) to operate from day one.
 

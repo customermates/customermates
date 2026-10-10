@@ -14,6 +14,7 @@ import {
   ROUTINE_NAME_MAX_CHARS,
   ROUTINE_PROMPT_MAX_CHARS,
   RoutineTriggerEventSchema,
+  RoutineRecordTriggerSchema,
 } from "@/ee/routines/routine.schema";
 
 import {
@@ -61,18 +62,23 @@ const ManageRoutinesSchema = z.object({
     .array(RoutineTriggerEventSchema)
     .optional()
     .describe("Events an event routine reacts to. Required for triggerKind event."),
-  changedFields: z
-    .array(z.string())
-    .optional()
-    .describe(
-      "Restricts an update event to these field keys or custom-column ids. Dropped unless every event shares one entity type.",
-    ),
   triggerFilters: z
     .array(FilterSchema)
     .optional()
     .describe(
       "Restricts an event routine to records matching these filters. Dropped unless every event shares one entity type.",
     ),
+  recordTrigger: RoutineRecordTriggerSchema.nullable()
+    .optional()
+    .describe(
+      "For record.created/updated/deleted: a query with stable typeId, filters and relationships, plus watched field IDs. Discover the type schema first. Deletion filters match before removal; creation and update filters match the resulting state and are rechecked at admission. Current owner access is always rechecked. Do not mix record events with messaging events.",
+    ),
+  expectedSchemaRevision: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe("Required when supplying recordTrigger. Use the schema revision returned by type discovery."),
   debounceSeconds: z.number().int().min(0).max(86_400).optional(),
 });
 
@@ -107,7 +113,7 @@ export const manageRoutinesTool = {
     "action update changes only the fields supplied, but a change of triggerKind must arrive with that kind's schedule or events or validation fails. " +
     "action pause disables a routine and settles its queued runs to skipped; re-enabling restores the schedule but never those runs. Only an active system administrator may pause. " +
     "action run_now starts a scheduled routine immediately; it is rejected for an event routine, for a routine the caller does not own, and for one that is not enabled. " +
-    "action delete removes the routine and its history and is IRREVERSIBLE. " +
+    "action delete moves the routine to Trash, where it stops running; restore it with manage_trash and the returned trashBatchId, and only deleting it permanently removes its history. " +
     "A routine whose owner has been deactivated cannot be enabled, and creating one may be refused when the owner has used their plan's per-user routine allowance.",
   annotations: {
     readOnlyHint: false,
@@ -159,8 +165,9 @@ export const manageRoutinesTool = {
           cronExpression: params.cronExpression,
           timezone: params.timezone,
           triggerEvents: params.triggerEvents,
-          changedFields: params.changedFields,
           triggerFilters: params.triggerFilters,
+          recordTrigger: params.recordTrigger,
+          expectedSchemaRevision: params.expectedSchemaRevision,
           debounceSeconds: params.debounceSeconds,
         }),
         (routine) => toonResult({ id: routine.id, name: routine.name, enabled: routine.enabled }),
@@ -182,8 +189,8 @@ export const manageRoutinesTool = {
       );
     }
 
-    return runInteractor(getDeleteRoutineInteractor().invoke({ id: parsed.data.id }), () =>
-      toonResult({ deleted: true, id: parsed.data.id }),
+    return runInteractor(getDeleteRoutineInteractor().invoke({ id: parsed.data.id }), (deleted) =>
+      toonResult({ deleted: true, id: deleted.id, trashBatchId: deleted.trashBatchId }),
     );
   },
 };

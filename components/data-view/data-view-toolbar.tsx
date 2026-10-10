@@ -2,33 +2,31 @@
 
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 
-import { ArrowDownToLine, ArrowUpFromLine, Plus } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, MoreHorizontal } from "lucide-react";
+import type { ReactNode } from "react";
+
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { AskAiAction } from "@/components/ui/ask-ai-action";
+import { TopBarPrimaryButton, TopBarMenuButton } from "@/components/shared/top-bar-action-buttons";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 import { DataViewDisplayOptions } from "./header/display-options";
-import { DataViewSearch } from "./header/search";
 import { FilterPopover } from "./header/filter-popover";
+import { useViewAi } from "./views/use-view-ai";
 
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
   onAdd?: () => void;
   onExport?: () => Promise<void> | void;
   onImport?: () => void;
-  isSearchable?: boolean;
-  searchPlaceholder?: string;
+  searchLabel?: string;
   showDisplayOptions?: boolean;
   anchorScope?: string;
   addLabel?: string;
+  menuItems?: ReactNode;
 };
 
 export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId>({
@@ -36,88 +34,74 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
   onAdd,
   onExport,
   onImport,
-  isSearchable = true,
-  searchPlaceholder,
+  searchLabel,
   showDisplayOptions = true,
   anchorScope,
   addLabel,
+  menuItems,
 }: Props<E>) {
   const t = useTranslations();
+  const ai = useViewAi(store, { registerPageContext: false });
   if (!store.isReady) return null;
+
+  const canExport = Boolean(onExport) && store.canExport;
+  const canImport = Boolean(onImport) && store.canExport && !store.isDisabled;
+  const hasMenu = canExport || canImport || Boolean(menuItems);
 
   return (
     <div className="flex items-center gap-1">
-      {isSearchable && (
-        <div className="shrink-0">
-          <DataViewSearch
-            id={anchorScope ? `${anchorScope}-search` : undefined}
-            placeholder={searchPlaceholder}
-            store={store}
-          />
-        </div>
+      {ai.available && (
+        <AskAiAction
+          id={anchorScope ? `${anchorScope}-ask-ai` : undefined}
+          placement="topbar"
+          onClick={ai.openCurrent}
+        />
       )}
 
-      <div className="flex items-center gap-1">
-        <FilterPopover id={anchorScope ? `${anchorScope}-filter` : undefined} store={store} />
+      <FilterPopover id={anchorScope ? `${anchorScope}-filter` : undefined} searchLabel={searchLabel} store={store} />
 
-        {showDisplayOptions && (
-          <DataViewDisplayOptions
-            anchorScope={anchorScope}
-            id={anchorScope ? `${anchorScope}-display-options` : undefined}
-            store={store}
-          />
-        )}
+      {showDisplayOptions && (
+        <DataViewDisplayOptions
+          anchorScope={anchorScope}
+          id={anchorScope ? `${anchorScope}-display-options` : undefined}
+          store={store}
+        />
+      )}
 
-        {(onExport || onImport) && store.canExport && (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                aria-label={t("DataTransfer.menu")}
-                className="h-8"
-                data-transfer-menu=""
-                id={anchorScope ? `${anchorScope}-transfer` : undefined}
-                size="icon-sm"
-                variant="secondary"
-              >
-                <ArrowDownToLine className="size-4" />
-              </Button>
-            </DropdownMenuTrigger>
+      {hasMenu && (
+        <TopBarMenuButton
+          anchorId={anchorScope ? `${anchorScope}-more` : undefined}
+          data-transfer-menu=""
+          icon={MoreHorizontal}
+          label={t("DataView.moreActions")}
+        >
+          {canExport && (
+            <DropdownMenuItem onSelect={() => runUserAction(() => onExport?.())}>
+              <ArrowDownToLine className="size-4" />
 
-            <DropdownMenuContent align="end" aria-labelledby={anchorScope ? `${anchorScope}-transfer` : undefined}>
-              {onExport && (
-                <DropdownMenuItem onSelect={() => runUserAction(() => onExport())}>
-                  <ArrowDownToLine className="size-4" />
+              {t("DataTransfer.export.action")}
+            </DropdownMenuItem>
+          )}
 
-                  {t("DataTransfer.export.action")}
-                </DropdownMenuItem>
-              )}
+          {canImport && (
+            <DropdownMenuItem onSelect={() => onImport?.()}>
+              <ArrowUpFromLine className="size-4" />
 
-              {onImport && !store.isDisabled && (
-                <DropdownMenuItem onSelect={() => onImport()}>
-                  <ArrowUpFromLine className="size-4" />
+              {t("DataTransfer.import.action")}
+            </DropdownMenuItem>
+          )}
 
-                  {t("DataTransfer.import.action")}
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        )}
+          {menuItems}
+        </TopBarMenuButton>
+      )}
 
-        {onAdd && !store.isDisabled && (
-          <Button
-            aria-label={addLabel ?? t("Common.actions.add")}
-            className="h-8"
-            id={anchorScope ? `${anchorScope}-add` : undefined}
-            size="sm"
-            variant="default"
-            onClick={onAdd}
-          >
-            <Plus className="size-3.5" />
-
-            <span className="hidden sm:inline">{addLabel ?? t("Common.actions.add")}</span>
-          </Button>
-        )}
-      </div>
+      {onAdd && !store.isDisabled && (
+        <TopBarPrimaryButton
+          anchorId={anchorScope ? `${anchorScope}-add` : undefined}
+          label={addLabel ?? t("Common.actions.add")}
+          onClick={onAdd}
+        />
+      )}
     </div>
   );
 });

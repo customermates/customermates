@@ -10,11 +10,7 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
 }));
 
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ plural: (entity: string) => entity }),
-}));
-
-vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
+vi.mock("@/components/shared/use-navigate-to-href", () => ({
   useNavigateToHref: () => vi.fn(),
 }));
 
@@ -78,5 +74,26 @@ describe("FormAutocomplete accessible name", () => {
 
     expect(markup).toContain("Services");
     expect(markup).not.toContain('aria-label="Service"');
+  });
+});
+
+describe("stacked picker label ownership", () => {
+  it.each([false, true])("binds identical form keys to their own DOM labels when readOnly=%s", (readOnly) => {
+    form.isReadOnly = readOnly;
+    const first = render({ id: "assignedUserIds", inputId: "assigned-first", label: "First record assignees" });
+    const second = render({ id: "assignedUserIds", inputId: "assigned-second", label: "Second record assignees" });
+    expect(first).toContain('id="assigned-first-label"');
+    expect(first).toContain('id="assigned-first"');
+    expect(first).not.toContain("assigned-second");
+    expect(second).toContain('id="assigned-second-label"');
+    expect(second).toContain('id="assigned-second"');
+    expect(second).not.toContain("assigned-first");
+    if (readOnly) {
+      expect(first).toContain('aria-labelledby="assigned-first-label"');
+      expect(second).toContain('aria-labelledby="assigned-second-label"');
+    } else {
+      expect(first).toContain('for="assigned-first"');
+      expect(second).toContain('for="assigned-second"');
+    }
   });
 });

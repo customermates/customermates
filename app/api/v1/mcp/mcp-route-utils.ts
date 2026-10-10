@@ -58,7 +58,7 @@ type McpServer = Parameters<Parameters<typeof createMcpHandler>[0]>[0];
 
 function registerPrompts(server: McpServer, tools: McpTool[]) {
   const names = new Set(tools.map((tool) => tool.name));
-  if (!names.has("get_workspace_context") || !names.has("get_record_schema")) return;
+  if (!names.has("get_workspace_context") || !names.has("discover_record_types")) return;
   server.registerPrompt(
     "get-started",
     {
@@ -147,7 +147,6 @@ export function createMcpRoute(
 
   return async (request: Request) => {
     if (!(await isMcpRequestAuthorized(request))) return unauthorizedChallenge();
-
     return handlerFor(resolveToolsetKey(request, knownKeys))(request);
   };
 }

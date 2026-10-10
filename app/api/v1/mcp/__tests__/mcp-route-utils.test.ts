@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { manageCustomColumnsTool } from "@/features/mcp-tools/custom-column.mcp-tools";
+import { mutateRecordV2Tool } from "@/features/mcp-tools/record-model.mcp-tools";
 import { mcpInteractorFailure, type McpTool } from "@/features/mcp-tools/mcp-tool";
 
 const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
@@ -27,8 +27,8 @@ const expectedFailureTool: McpTool = {
   outputSchema: z.object({ value: z.string() }),
   execute: () =>
     mcpInteractorFailure(
-      createZodError("Service missing", ["id"], {
-        error: CustomErrorCode.serviceNotFound,
+      createZodError("Webhook missing", ["id"], {
+        error: CustomErrorCode.webhookNotFound,
       }),
     ),
 };
@@ -79,18 +79,20 @@ async function rpc(
     }),
   );
   const text = await response.text();
-  const data = text
-    .split("\n")
-    .filter((line) => line.startsWith("data: "))
-    .map((line) => JSON.parse(line.slice(6)) as Record<string, unknown>)
-    .at(-1);
+  const data = response.headers.get("content-type")?.includes("application/json")
+    ? JSON.parse(text)
+    : text
+        .split("\n")
+        .filter((line) => line.startsWith("data: "))
+        .map((line) => JSON.parse(line.slice(6)) as Record<string, unknown>)
+        .at(-1);
   return { response, data, text };
 }
 
 describe("public MCP execution boundary", () => {
   it("round-trips structured expected failures and redacts unexpected failures", async () => {
     const handler = createMcpRoute({
-      test: [expectedFailureTool, unexpectedFailureTool, manageCustomColumnsTool],
+      test: [expectedFailureTool, unexpectedFailureTool, mutateRecordV2Tool],
     });
     const initialized = await rpc(handler, requestBody("initialize", 1));
     const sessionId = initialized.response.headers.get("mcp-session-id") ?? undefined;
@@ -106,12 +108,13 @@ describe("public MCP execution boundary", () => {
       properties: { value: { type: "string" } },
       required: ["value"],
     });
-    const customColumnsDefinition = tools.find((tool) => tool.name === "manage_custom_columns");
-    const customColumnsInput = customColumnsDefinition?.inputSchema as
-      | { properties?: Record<string, unknown> }
-      | undefined;
-    expect(customColumnsInput?.properties?.selectOptions).toMatchObject({ type: "array", minItems: 1 });
-    expect(JSON.stringify(customColumnsInput?.properties?.id)).toContain('"null"');
+    const recordDefinition = tools.find((tool) => tool.name === "mutate_crm_record");
+    expect(recordDefinition?.inputSchema).toMatchObject({
+      type: "object",
+      required: ["expectedRevision", "idempotencyKey", "mutation"],
+    });
+    expect(JSON.stringify(recordDefinition?.inputSchema)).toContain("recordId");
+    expect(JSON.stringify(recordDefinition?.inputSchema)).toContain("typeId");
 
     const expected = await rpc(
       handler,
@@ -130,8 +133,8 @@ describe("public MCP execution boundary", () => {
           kind: "not_found",
           issues: [
             {
-              customCode: "serviceNotFound",
-              message: "Service missing",
+              customCode: "webhookNotFound",
+              message: "Webhook missing",
               path: ["id"],
             },
           ],

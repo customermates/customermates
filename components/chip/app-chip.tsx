@@ -2,7 +2,7 @@
 
 import type { ComponentProps, ReactNode } from "react";
 
-import { useRef } from "react";
+import { isValidElement, useRef } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +16,7 @@ const chipVariants = cva("", {
       sm: "px-1.5 py-0.5 text-[11px] h-[22px] [&>svg]:size-3",
       md: "px-2 py-0.5 text-xs h-[26px] [&>svg]:size-3.5",
       lg: "px-2.5 py-0.5 text-sm h-[30px] [&>svg]:size-4",
+      inline: "h-[1lh] gap-1 px-1 py-0 align-top text-[length:inherit] [&>svg]:size-[1em]",
     },
   },
   defaultVariants: {
@@ -30,6 +31,12 @@ type Props = Omit<ComponentProps<typeof Badge>, "children"> & {
   tooltip?: ReactNode;
   focusableTooltip?: boolean;
 } & VariantProps<typeof chipVariants>;
+
+function labelText(node: ReactNode): string {
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) return node.map(labelText).join("");
+  return isValidElement<{ children?: ReactNode }>(node) ? labelText(node.props.children) : "";
+}
 
 export function AppChip({
   children,
@@ -46,7 +53,9 @@ export function AppChip({
 }: Props) {
   const labelRef = useRef<HTMLSpanElement | null>(null);
   const isTruncated = useIsTruncated(labelRef, children);
-  const showTooltip = tooltip != null || (isTruncated && typeof children === "string");
+  const label = labelText(children);
+  const addsInformation = tooltip != null && tooltip !== label;
+  const showTooltip = addsInformation || (isTruncated && label !== "");
   const keyboardTooltipTabIndex = focusableTooltip && !interactive && isTruncated && showTooltip ? 0 : undefined;
 
   const chip = (
@@ -74,7 +83,7 @@ export function AppChip({
       <Tooltip>
         <TooltipTrigger asChild>{chip}</TooltipTrigger>
 
-        {showTooltip && <TooltipContent className="max-w-xs">{tooltip ?? children}</TooltipContent>}
+        {showTooltip && <TooltipContent className="max-w-xs">{addsInformation ? tooltip : label}</TooltipContent>}
       </Tooltip>
     </TooltipProvider>
   );

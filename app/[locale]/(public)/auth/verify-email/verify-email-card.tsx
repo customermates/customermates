@@ -14,6 +14,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Alert } from "@/components/shared/alert";
 import { useRouter } from "@/i18n/navigation";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   email?: string;
@@ -23,7 +24,7 @@ type Props = {
   onboardingIntent?: string;
 };
 
-export const VerifyEmailCard = observer(
+const VerifyEmailCardContent = observer(
   ({ email, inviterName, justVerified, linkProblem, onboardingIntent }: Props) => {
     const t = useTranslations();
     const router = useRouter();
@@ -94,3 +95,5 @@ export const VerifyEmailCard = observer(
     );
   },
 );
+
+export const VerifyEmailCard = serverRenderedClient(VerifyEmailCardContent);

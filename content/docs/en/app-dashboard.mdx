@@ -1,97 +1,96 @@
 ---
 title: "Dashboard Widgets and the Activity Timeline"
 heading: "Configure your CRM dashboard"
-description: "The landing screen after sign-in: chart and activity-timeline widgets over your CRM data, the widget editor, and the stable anchor ids agents can drive."
+description: "The landing screen after sign-in: chart and activity timeline widgets over your CRM data, dashboard views, the widget editor and every keyboard shortcut."
 ---
-
-Customermates is an open-source, AI-native CRM. This page documents the **Dashboard** screen of the web app for humans and for AI agents that drive the UI. Route: `/dashboard`, locale-prefixed like `/en/dashboard`, sidebar id `#nav-dashboard`.
 
 ## What does the Dashboard show, and can I share widgets with my team? [#what-does-the-dashboard-show]
 
-The Dashboard is the landing screen after sign-in. It shows configurable widgets over your CRM data: pipelines, task counts, recent activity, whatever you set up. Every widget belongs to you as a user; teammates see it only after you share it with **Share as a template**, which lets them start their own copy from it. Adding widgets needs no role permission, but a chart counts only the records your role can read (**Read access** **Assigned** or **All**), so a teammate's copy of your template can show other numbers. **Add widget** appears only if your role can read at least one record type; the **Activity timeline** kind needs read access to the **Audit Log** or, on a plan with messaging, to **Inbox messages**.
+The [Dashboard](app:dashboard) is where you land after sign-in. It shows widgets over your CRM data: pipelines, task counts, recent activity, whatever you set up. Every widget belongs to you. Teammates see it only after you turn on **Share as a template** in its editor, and then they start their own copy from it. Adding widgets needs no role permission, but a chart counts only the records your role can read, so a teammate's copy can show other numbers. [Add widget](app:dashboard?focus=add-widget) appears only if your role can read at least one list.
 
-**Link:** the **Dashboard** page, `/dashboard`. **Mate:** `navigate` and `highlight_element` with `nav-dashboard` or `dashboard-add-widget`; inside the editor `widget-modal-kind` (the two kinds on step 1), `widget-modal-save` (**Create widget** on step 2, **Save changes** when editing) and `widget-modal-reset` (**Reset**, when editing with unsaved changes) are targets too, while the tabs, switches and widgets are not, so Mate names them.
+## Can I have several dashboards? [#dashboard-views]
+
+Yes. The view chips above the widgets switch between **Main** and your own named dashboards, for example one per team or purpose; **New view** adds one, and V opens the view picker, as on a list. Each view keeps its own widgets and arrangement, a new widget lands on the view you are looking at, and a link to a view opens that dashboard. Views are personal. Deleting a view moves it to [Trash](/docs/app-trash) together with its widgets, and the confirmation names them; **Undo** or **Restore** brings both back.
 
 ## Which widget types exist, and which charts can they show? [#which-widget-types-exist]
 
-Press **Add widget** (`#dashboard-add-widget`) to choose one of two widget types, a **Chart**, which aggregates one record type into bars, a doughnut or a radar, or an **Activity timeline**, or a template a teammate shared:
+Click [Add widget](app:dashboard?focus=add-widget) to open **Choose a Widget**. **Start from scratch** comes first, with one card per chart style (**Number**, **Bar chart**, **Horizontal bars**, **Area over time**, **Ranked table**, **Doughnut**, **Funnel** and **Radar**) plus **Activity timeline**; a chart card opens the editor with that style already chosen, and you pick the data. **Start from a template** lists widgets teammates shared. To have a widget built for you, describe it with **Ask AI** in the widget editor.
 
-- **Chart**: aggregates one record type. On the **Data** tab choose the **Element** (the record type), a **Metric** and a **Grouping**. Every type can be counted; contacts, organizations and deals also offer deal value, plus weighted deal value once a deal stage field is set under **My Company › Settings**; services offer deal value and the number of services in deals; tasks can only be counted. Deal-based metrics need read access to deals. **Grouping** offers **No Grouping**, a single-select custom field of that record type, or, with a metric other than count, each record itself, for example deal value per contact (not for tasks). **Chart style** on the **Appearance** tab: **Vertical Bar Chart** or **Horizontal Bar Chart**, each also **with Labels**, **Doughnut Chart** or **Radar Chart**. Filters narrow the data set; a chart over contacts, organizations or services with a deal-based metric gets a separate filter for the related deals.
-- **Activity timeline**: a newest-first feed of changes, messages and connected-account activity. Its filters belong to that widget, so several timeline widgets can show different views without changing each other or the timeline on a record page.
+- **Chart** aggregates one list: count, sum, average, minimum or maximum of a number field. Group by a field, by each record, by **Assigned to** (a record with two assignees counts for both) or through a relationship, for example Deal value by stage or line item amounts by service. Each source record counts once per group, so a deal linked to two organizations counts fully for both. To plot a time series, group by a date field, **Created at** or **Updated at** and choose a **Time interval** (day, week starting Monday, month, quarter or year). Times are bucketed in the time zone of the browser that saved the widget; date-only values never shift, and records without a date are counted below the chart.
+- **Activity timeline** is a newest-first feed of changes, messages and channel activity. Its filters belong to that widget, so several timelines can show different things without affecting each other or a record's Activities view.
 
-Over MCP, `manage_widgets` lists, reads, creates, updates and deletes both kinds with a reduced option set: a chart is created from name, entity type, display type, group-by and aggregation plus optional filters and group-by column, and an update can change everything except the record type and the widget kind (name, display type, aggregation, group-by, filters, axis direction, bar colors); **Share as a template**, **Show legend**, **Use option colors** and **Show metric and filters** are set in the app only. A timeline takes a name, timeline filters and the show-filters flag.
+Under **Appearance**, a chart can be a vertical or horizontal bar chart (with or without labels), a doughnut or a radar chart, or one of these:
 
-**Link:** the **Dashboard** page, `/dashboard`. **Mate:** `navigate` and `highlight_element` with `dashboard-add-widget` for **Add widget**, then `widget-modal-kind` for the two kinds once the editor is open; the template choices are not highlight targets, so Mate names them.
+| Style | Shows | Needs |
+| --- | --- | --- |
+| **Number** | One overall value | **No grouping** |
+| **Area over time** | A value per period; empty periods are zero for counts and sums and a gap otherwise | A time interval |
+| **Ranked table** | Groups by value with their share of the total, top ten plus the rest | A grouping |
+| **Funnel** | Each option in order with step-to-step conversion; a stage with probability 0, such as Lost, is listed below | A single choice field such as a stage |
+
+A style that does not fit the grouping is disabled with a hint. Calculated values need access to their inputs.
 
 ### What can an activity timeline show, including calendar events? [#what-can-an-activity-timeline-show]
 
-An activity timeline widget shows entries from three categories. The **Record changes** category contains audit-log changes. **Messages** contains Inbox messages. **Account & calendar** contains connected-account activity, such as accepted LinkedIn connections, and calendar events. Customermates has no calendar page of its own: on Customermates Cloud, events from the calendar of a connected Gmail or Outlook account appear in this category, and `get_calendars` reads them over MCP.
+A timeline shows the same entries as [Activity](app:settings/activity): record changes with their previous and current values, admin and configuration changes, messages, channel activity such as accepted LinkedIn connections, and meetings from the calendar of a connected Gmail or Outlook account (Customermates has no calendar page of its own). Filter it by **Activity type**, **Provider**, **Channel**, **Conversation** or **Related records**, and limit it to record types or records, or to a **From** and **Until** date. Related records use **Includes any of**, **Excludes all of**, **Has a linked record** and **Has no linked record**. Different filters must all match; several values in one filter match any of them.
 
-All accessible records are the implicit baseline. Filter a timeline by category, provider, connected account, conversation, or related contacts, organizations, deals, services, and tasks. Each field can be configured once. Relationship filters use the same operators as record lists: **in** and **not in** accept one or more records, while **has some** and **has none** need no value. Different filter fields are AND-combined, and multiple values within one **in** filter are OR-combined. Unlinked entries fail positive relationship filters and pass negative ones. Filters become persistent when you save the widget.
+**Load older** shows the next page. A row can link one primary record and up to three related records, and a message can open its Inbox thread. Rows without a record stay visible without a link.
 
-Entries are shown newest first. Use **Load older** for the next bounded page. A row can show one primary record, up to three related records, and a remaining-record count. Permitted record links open the relevant record, and message details can open the permitted Inbox thread. Rows without a CRM association remain visible without a record link.
-
-**Link:** the **Dashboard** page, `/dashboard`. **Mate:** `navigate` and `highlight_element` with `dashboard-add-widget` for **Add widget**, then `widget-modal-kind` for the **Activity timeline** kind once the editor is open; the timeline filters and rows are not highlight targets, so Mate names them.
-
-### Who sees what in a timeline?
+### Who sees what in a timeline? [#who-sees-what-in-a-timeline]
 
 | Access | Visible content |
-|---|---|
-| Audit log only | Permitted changes |
-| Inbox messages only, on a plan with messaging | Permitted messages, connected-account activities, and calendar events |
-| Both permissions, on a plan with messaging | One merged timeline containing all permitted sources |
-| Neither | A non-sensitive unavailable state |
+| --- | --- |
+| Audit Log only | Permitted changes |
+| Inbox messages only, on a plan with messaging | Permitted messages, channel activity and meetings |
+| Both | One merged timeline |
+| Neither | A notice that no activity is available |
 
-The two permissions are the **Audit Log** and **Inbox messages** rows of the member's role under **My Company › Roles**, each with **Read access** set to **All**. Audit-log changes are available independently of the messaging entitlement. Messages, connected-account activities, and calendar events require cloud mode, Inbox access, and a plan with messaging (Pro and above); on Starter, **Inbox** shows **Upgrade to unlock messaging** with an **Upgrade your plan** button that opens **My Company › Subscription**. A missing connected messaging account removes messaging-based sources but does not hide permitted audit changes. Deleted or newly inaccessible filter values stop matching, are shown as **Filter not available** on the filter chip and **Selection unavailable** in the value picker for safe removal, and never expose their raw ids.
-
-**Link:** the **Dashboard** page, `/dashboard`, and for the role rows `/company/roles`. **Mate:** `navigate` and `highlight_element` with `nav-dashboard` or `nav-company-roles`; the timeline and the role rows are not highlight targets, so Mate names them.
+The two permissions are the **Audit Log** and **Inbox messages** rows of the member's role in [Roles](app:settings/roles), each with **Read access** **All**. Messages, channel activity and meetings also need Customermates Cloud and a plan with messaging (Pro and above); changes stay visible without it. A deleted or no longer accessible filter value stops matching and shows as **Filter not available** on the chip and **Selection unavailable** in the picker, so you can remove it.
 
 ## How do I create or edit a chart or timeline widget in the widget editor? [#how-does-the-widget-editor-work]
 
-Adding a widget is a two-step wizard (**Step 1 of 2**). Step 1, **Choose a Widget**, offers the two kinds (`#widget-modal-kind`) and, when any widget in the workspace is shared as a template, **Start from a template** (`#widget-template-heading`), each entry marked **Shared by** and the owner's name. Step 2 configures the widget. For a chart widget the modal is organized in three tabs: `#widget-tab-data` holds the name, record type, metric and grouping, `#widget-tab-filters` narrows what counts (`#widget-entity-filters-heading` marks the record filter block), and `#widget-tab-appearance` sets the chart style, colors, axes, **Show legend** for doughnuts, **Show metric and filters** and **Share as a template**. A live preview under `#widget-preview-heading` reflects every change before you save. While adding, the footer offers **Back** and `#widget-modal-save` (**Create widget**). An activity-timeline widget has two tabs: `#widget-tab-data`, which also holds its timeline filters, and `#widget-tab-appearance`.
+Pick a chart style, **Activity timeline** or a template in **Choose a Widget**; all of them open the same editor. Give the widget a name, then switch between **Data** and **Appearance**. **Data** holds the source and what to count; filters and grouping are collapsible sections inside it and use the same searchable Filters palette as a list: the source and the grouping each have their own, and linked fields appear as **List › Field**. **Appearance** holds the chart style, colors, the legend, **Show metric and filters** and **Share as a template**. The **Live preview** next to the settings (below them on narrow screens) shows the widget with real data at its dashboard size and updates as you change things. Click **Save** in the footer.
 
-To change a widget, click it, or click one of its filter chips to open the editor at that filter. The editor is titled **Edit** plus the widget's name; `#widget-modal-save` reads **Save changes**, and `#widget-modal-reset` (**Reset**) appears once you change something and restores the saved values. The trash icon **Delete widget** in the editor's header removes the widget after a confirmation. Drag a widget to move it and drag an edge or corner to resize it; moving is off on touch devices. The layout is saved for you only.
+To change a widget, click it, or click one of its filter chips to open the editor at that filter. **Reset** restores the saved values once you changed something, and the trash icon in the editor's header moves the widget to [Trash](/docs/app-trash) after a confirmation. A new widget takes the first free spot. Drag a widget to move it and drag an edge or corner to resize it (moving is off on touch devices); the arrangement is saved for you only.
 
-**Link:** the **Dashboard** page, `/dashboard`. **Mate:** `navigate` and `highlight_element` with `dashboard-add-widget`, then `widget-modal-kind` on step 1, then `widget-modal-save` (**Create widget** / **Save changes**) or `widget-modal-reset` (**Reset**) once the editor shows them: **Create widget** after the user picks a kind (`list_ui_targets` gives `widget-modal-kind` as its prerequisite), **Reset** after the user has clicked a widget (`a widget card`); the tabs, **Back**, **Delete widget** and the widgets themselves are not highlight targets, so Mate names them.
+## Which controls does the sidebar add? [#which-controls-does-the-sidebar-add]
 
-## Which controls does the sidebar add?
+The sidebar holds your work and looks the same on every screen. At the top are **Search** (Cmd/Ctrl+K, see [Global search](/docs/app-search)), **Ask Mate** (Cmd/Ctrl+J, see [the assistant](/docs/app-assistant)) and **Add** (C). Below are **Overview** with the [Dashboard](app:dashboard), [Knowledge Base](app:wiki), [Inbox](app:inbox) and [Routines](app:routines), then **Data** with your lists, then your personal sections. Entries your role cannot open are hidden. **Inbox** counts unread conversations.
 
-The sidebar is the same on every screen; its controls are documented here because the Dashboard is where you land.
+The sidebar is yours: drag an entry to reorder it or move it to another section, or use its **…** menu for **Move up**, **Move down**, **Move to section** (including **New section**) and **Hide from sidebar**. Click a section title to collapse it; its **…** menu (or a right-click) offers **Move up** and **Move down**, and on sections you created also **Rename** and **Delete section**. Deleting a section moves its entries back to their default place; hidden entries stay hidden. **Customize sidebar** in the personal menu opens a dialog with a switch per entry to show or hide it, **New section**, and, once you changed something, **Reset to default**, which after a confirmation restores the standard layout. Nobody else sees your changes.
 
-Entries sit in three groups: **Overview** (**Dashboard** and **Knowledge Base**, plus **Inbox** and **Routines** on Cloud), **CRM** (the five record types, under your workspace's names for them) and **Workspace** (**My Profile** and **My Company**). An entry your role cannot read is hidden, a group with no visible entries disappears, and opening a hidden page by its URL brings you back to the Dashboard. **My Profile** and **My Company** only expand or collapse; their sub-entries open the pages and carry their own ids: `#nav-profile-settings`, `#nav-profile-connected-accounts`, `#nav-profile-api-keys`, `#nav-company-subscription`, `#nav-company-settings`, `#nav-company-members`, `#nav-company-roles`, `#nav-company-audit-logs`, `#nav-company-webhooks` and `#nav-company-webhook-deliveries`. Mate can navigate to each of them your role can open (for any other it tells you that your role cannot open it), but highlight one only while its group is expanded, which it is by default on that group's own pages. Three entries show a number: **Inbox** counts unread conversations, the tasks entry shows members who manage **Users & Roles** how many **Approve User** tasks are open, and **Channels** counts channels that need attention.
+**Customermates** at the top opens the workspace menu: **Invite members** (if you may invite), [Members](app:settings/members), **Settings**, [Billing](app:settings/billing) with a chip for your plan and its status, and, for Customermates operators, **Operator Console**. Your avatar opens the personal menu: [Profile & preferences](app:settings/profile), **Theme** (System, Light or Dark), **Language**, **Keyboard shortcuts**, **Documentation**, **Send feedback**, **Customize sidebar** and **Sign Out**. **Settings** and G then S open Profile & preferences, and the sidebar switches to the settings navigation with Account ([Profile & preferences](app:settings/profile), [Channels](app:settings/channels), [API keys](app:settings/api-keys)) and Workspace ([Members](app:settings/members), [Roles](app:settings/roles), [Billing](app:settings/billing), [Activity](app:settings/activity), [Webhooks](app:settings/webhooks)); **Back** at its top returns to the page you came from. **Customize sidebar** is not offered while the settings navigation is shown. Until you confirm your address, your avatar and the Profile & preferences entry show **Email not verified**.
 
-| Action | Where | Anchor id | What happens |
-|---|---|---|---|
-| Go to Dashboard | App sidebar | `#nav-dashboard` | Opens `/dashboard` |
-| Add widget | Page header | `#dashboard-add-widget` | Opens the widget modal |
-| Global search | Top of sidebar | `#nav-search` | Opens the search modal (also Cmd/Ctrl+K); see [Global search](/docs/app-search) |
-| Search field | Search modal | `#global-search-input` | Finds contacts, organizations, deals, services and tasks by name |
-| Create a record | Top of sidebar | `#nav-add` | Opens the record type picker |
-| Open documentation | Sidebar footer | `#nav-documentation` | Opens `/docs` |
-| Send feedback | Sidebar footer | `#nav-feedback` | Opens the feedback dialog |
-| Ask Mate | Top of sidebar when Mate is enabled, also visible during onboarding | `#nav-assistant` | **Ask Mate** opens or closes the [AI assistant](/docs/app-assistant) panel (also Cmd/Ctrl+J); during onboarding it rechecks account state and returns to the permitted route |
-| Plan and status | Under the brand name, Cloud only | none | Shows the plan, or the plan with its status, for example **Pro · Trial · 5 days left**; green, amber with 3 or fewer trial days left, red for **Past Due**, **Unpaid**, **Cancelled** or **Expired**; opens **My Company › Subscription** |
-| Verify your email | Under the brand name | none | **Email not verified** is shown until you confirm your address; opens **My Profile › Settings** |
-| Personal settings | Workspace group | `#nav-profile` | **My Profile** expands or collapses **Settings**, **Channels** and **API & Connectors**; see [My Profile](/docs/app-profile) |
-| Workspace administration | Workspace group | `#nav-company` | **My Company** expands or collapses **Subscription**, **Settings**, **Members**, **Roles**, **Audit Logs**, **Webhooks** and **Recent Deliveries**; see [My Company](/docs/app-company) |
-| Theme and sign-out | Sidebar footer, your name | none | **Dark Mode** or **Light Mode** switches and saves your theme; **Sign Out** ends the session |
+## Which keyboard shortcuts are there? [#keyboard-shortcuts]
 
-**Link:** the sidebar appears everywhere in the app; the **Dashboard** is `/dashboard`. **Mate:** `navigate` and `highlight_element` with each `nav-*` id in this section that your role can open, except `nav-search`, `nav-documentation` and `nav-feedback`, which it can only highlight, and `#nav-add` and `#nav-assistant`, which are not targets; entries under **My Profile** and **My Company** can be highlighted only while their group is expanded. The plan chip, **Email not verified** and the menu under your name are not highlight targets, so Mate names them.
+Press ? or choose **Keyboard shortcuts** in the personal menu to see every shortcut with the keys of your computer (⌘ on a Mac, Ctrl elsewhere), grouped and searchable. Cmd/Ctrl shortcuts and Esc work everywhere, even while you type. Single keys and G sequences work only when no text field has focus and no menu or dialog is open.
 
-## What happens on first run?
+| Group | Keys | What it does |
+| --- | --- | --- |
+| General | Cmd/Ctrl+K or / | Search; type a question and press Tab to ask Mate instead |
+| General | Cmd/Ctrl+J | Ask Mate (opens or closes the assistant) |
+| General | ? | Show keyboard shortcuts |
+| General | Cmd/Ctrl+\ | Show or hide the sidebar |
+| Navigation | G then D, I, K, R, C | Dashboard, Inbox, Knowledge Base, Routines, Configure |
+| Navigation | G then S | Settings |
+| Create | C | Add a record or list |
+| Lists and views | G then 1 to 9 | Lists by their position in your sidebar; hidden lists are skipped |
+| Lists and views | V | Switch view on a list or the Dashboard |
+| Lists and views | F | Open search and filters on a list |
+| Forms | Cmd/Ctrl+Enter | Save the open form |
+| Forms | Esc | Close the topmost dialog or drawer |
 
-New accounts land in the [onboarding wizard](/docs/app-onboarding) at `/onboarding/wizard` before they see the Dashboard. It has four steps: your profile, Knowledge Base, team invites, and connecting an AI client. The owner can skip website import, invitations, and an AI connection; invited members see only their profile. Only the invite step carries the stable ids `#onboarding-next` and `#onboarding-back`.
+After G you have about one second for the second key; a hint shows that the app is waiting. Shortcuts for pages your role cannot open are left out. Search lists the same commands with their keys: **Ask Mate** on top, the views of the list you are on, the pages and **Add**. If you use speech input or press keys by accident, turn off **Single-key shortcuts** at the bottom of the shortcut dialog; Cmd/Ctrl shortcuts keep working. The setting is personal and follows you to every device.
 
-**Link:** the onboarding wizard, `/onboarding/wizard`, until onboarding is finished; afterwards the **Dashboard** page, `/dashboard`. **Mate:** the wizard controls are not highlight targets; website setup displays the read-only conversation inline. On the Dashboard, `navigate` and `highlight_element` with `nav-dashboard`.
+## What happens on first run? [#what-happens-on-first-run]
 
-## Tips for agents
+New accounts go through the [onboarding wizard](/docs/app-onboarding) before they see the Dashboard: your profile, the Knowledge Base, team invites and connecting an AI client. The owner can skip website import, invitations and the AI connection; invited members see only their profile.
 
-- The hosted assistant can navigate here and highlight `#nav-dashboard` and `#dashboard-add-widget`, and inside the widget editor `#widget-modal-kind`, `#widget-modal-save` and `#widget-modal-reset` (see the Mate lines above for when each is shown); it creates widgets through `manage_widgets` instead of driving the modal.
-- Rows never carry ids. Open a record via its page URL `/{type}/{id}`. Create records with the **Add** button at the top right of each list page. The drawer deep-link `?open={entityType}:new` also adds a record and works on every signed-in page, the Dashboard included.
-- Prefer [MCP](/docs/mcp) tools over clicking when a tool exists. Reading and writing CRM data is faster and safer through tools than through the UI.
-- `#nav-search`, `#nav-documentation` and `#nav-feedback` can be highlighted but are not navigation targets. Navigating to `#nav-profile` or `#nav-company` opens that group's **Settings** page. `#nav-add`, `#nav-assistant`, the two chips and the menu under your name are not assistant targets.
+## For agents [#tips-for-agents]
 
-## Related
+Create and change widgets with `manage_widgets` rather than driving the editor; it supports the same options as the app. Read a widget before updating it, because a supplied `measure` or `displayOptions` object replaces the whole object, and pass the current `expectedRevision`, an `idempotencyKey` and, for updates, `expectedVersion`. A time series sets `groupBy.dateInterval` and an IANA `groupBy.timeZone`; timelines use `activityQuery`. The widget kind cannot change. An optional `layout` (`x`, `y`, `w`, `h` on the 12-column grid) places a widget in the same call; overlapping positions are refused. `get_calendars` reads calendar events. Exact schemas are in the [MCP catalog](/docs/mcp#tool-catalog).
+
+## Related [#related]
 
 - [Quickstart](/docs/quickstart)
 - [App guide, Records](/docs/app-records)

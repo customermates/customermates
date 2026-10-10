@@ -55,6 +55,7 @@ export function connectDataViewUrlSync<E extends HasId>(
   const boundPathname = browser.location.pathname;
   let updateTimer: number | undefined;
   let isRestoringFromHistory = false;
+  let isNavigatingAway = false;
 
   const clearPendingUpdate = () => {
     if (updateTimer === undefined) return;
@@ -68,7 +69,7 @@ export function connectDataViewUrlSync<E extends HasId>(
       isRestoringFromHistory = false;
       return;
     }
-    if (browser.location.pathname !== boundPathname) return;
+    if (isNavigatingAway || browser.location.pathname !== boundPathname) return;
 
     const currentSearch = browser.location.search.slice(1);
     if (!needsUrlUpdate(store, currentSearch)) return;
@@ -77,8 +78,20 @@ export function connectDataViewUrlSync<E extends HasId>(
     browser.history.replaceState(null, "", queryString ? `${boundPathname}?${queryString}` : boundPathname);
   };
 
+  const pauseForNavigation = (event: MouseEvent) => {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const anchor = event.target instanceof Element ? event.target.closest("a[href]") : null;
+    if (!(anchor instanceof HTMLAnchorElement) || anchor.hasAttribute("download")) return;
+    if (anchor.target && anchor.target !== "_self") return;
+    const destination = new URL(anchor.href, browser.location.href);
+    if (destination.origin !== browser.location.origin || destination.pathname === boundPathname) return;
+    isNavigatingAway = true;
+    clearPendingUpdate();
+  };
+
   const restoreFromHistory = () => {
     if (browser.location.pathname !== boundPathname) return;
+    isNavigatingAway = false;
 
     const restored = new URLSearchParams(browser.location.search).get("view") ?? ALL_VIEW_KEY;
     if (restored === store.activeViewKey) return;
@@ -104,18 +117,20 @@ export function connectDataViewUrlSync<E extends HasId>(
       viewMode: store.viewMode,
     }),
     () => {
-      if (store.isRefreshing) return;
+      if (isNavigatingAway || store.isRefreshing) return;
       clearPendingUpdate();
       updateTimer = browser.setTimeout(syncUrlToState, 100);
     },
   );
 
+  browser.addEventListener("click", pauseForNavigation);
   browser.addEventListener("popstate", restoreFromHistory);
 
   if ((store.filters?.length ?? 0) > 0 || Boolean(store.searchTerm) || store.activeViewKey !== ALL_VIEW_KEY)
     syncUrlToState();
 
   return () => {
+    browser.removeEventListener("click", pauseForNavigation);
     browser.removeEventListener("popstate", restoreFromHistory);
     disposeReaction();
     clearPendingUpdate();

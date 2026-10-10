@@ -1,0 +1,1257 @@
+{
+  "scope": "Interim verification checkpoint of PR #203 on the SSH development VM at 4223d7deb: exact synthetic gate counts at the tested source plus the redacted production-copy rehearsal and local owner/administrator UI comparison. The final source will change (the owner is editing the CRM migration inside #203); this receipt does not describe later heads.",
+  "checkpoint": "interim",
+  "testedCommit": "4223d7deb6fb7b1030ad5a5762d4a35bf3a6eb7c",
+  "testedTree": "09e1e0313fadd6e2adb52098747fa9f5a3284549",
+  "testedSourceNote": "All gates below ran at testedCommit except harnessFixVerification, which ran at the test-only commit ba4a643f9 on top of it. The commit that adds this receipt changes only tests/e2e/review/2026-10-06-summary.json, tests/e2e/review/2026-10-06-rehearsal.md and the tests/e2e/README.md receipt link.",
+  "publishedStartingHead": "a7a897053c7ad383b6aa6bbe744c8f0fb0d3f71d",
+  "mainCommit": "89f336f1978401d945ba7ba75141d2e435208a3e",
+  "continuationCommits": [
+    {
+      "sha": "5ac1de79596e7ee32e4027f90b560c6102f90877",
+      "subject": "refactor(data-view): drop value sums, legacy grouped pagination and drag-transfer helpers"
+    },
+    {
+      "sha": "2200a5696f46b8df5e0f85f23b0982698127f286",
+      "subject": "refactor(data-view): remove the empty custom column plumbing"
+    },
+    {
+      "sha": "161b2d51a9593bbd6e2808c8a604f5d60a210746",
+      "subject": "refactor(filters): remove legacy CRM relation filter keys and token rewrites"
+    },
+    {
+      "sha": "5d076b949928eb27217521c094fc355025cd9ad0",
+      "subject": "refactor(widgets): drop legacy widget compatibility checks"
+    },
+    {
+      "sha": "cea28bf7e485b06f28af666136fd42284e471f55",
+      "subject": "refactor(activities): drop legacy audit decoding and legacy CRM enums"
+    },
+    {
+      "sha": "50b75af937da583a202e3680b1c7b2e00a232215",
+      "subject": "refactor(benchmark): build record fixtures generically and delete legacy-conversion"
+    },
+    {
+      "sha": "60813d05e50e9ebc47fccf49df52766abb59550b",
+      "subject": "test(records): align removed routes and preserve oracle safety coverage"
+    },
+    {
+      "sha": "af89174d78263c6930f4754dc8477ac3482f4349",
+      "subject": "test(data-view): assert active configuration reads stay bypassed"
+    },
+    {
+      "sha": "410115417826ad45aab3dea1a66dc3e8d66daf9d",
+      "subject": "fix(migration): inventory every automation configuration change"
+    },
+    {
+      "sha": "78468b3f73695c295b45bb76ae6ee5eaf3be521a",
+      "subject": "test(records): isolate platform fixtures and align retrieval routes"
+    },
+    {
+      "sha": "63d4406887ad8b056a97b4f999a1dfd76c9180f0",
+      "subject": "chore(merge): integrate isolated cleanup verification fixes"
+    },
+    {
+      "sha": "86d0be7265f90631a0b045cf6ec888141ef13974",
+      "subject": "test(operator): follow the no-comments convention"
+    },
+    {
+      "sha": "c68803d0d8814e544c4abee217b39c9c19ef2419",
+      "subject": "chore(merge): preserve cleanup verification conventions"
+    },
+    {
+      "sha": "24e25f99af0f88a9204802c189b5b1e07f80fa4b",
+      "subject": "test(e2e): validate upgraded records through generic routes"
+    },
+    {
+      "sha": "2b56c2b82f4db626216f87f9200ee8e79ee8f751",
+      "subject": "test(e2e): open the persistent wiki toolbar before refreshing"
+    },
+    {
+      "sha": "24f6a48521e5cd3f3db3c09305814f84175d8962",
+      "subject": "test(e2e): await calendar dismissal and restored trigger focus"
+    },
+    {
+      "sha": "35888697e1efa94575049de1f303f0773952231c",
+      "subject": "fix(ui): preserve record drafts and defer blocked email resources"
+    },
+    {
+      "sha": "917dfef7ca572af5b1031f4730c8b3ccce9b013b",
+      "subject": "test(e2e): target the global search input when reopening a record"
+    },
+    {
+      "sha": "338b3259017942c5196e93205a22e035bc9399b0",
+      "subject": "fix(records): prefer fresh drawer permissions when record revisions tie"
+    },
+    {
+      "sha": "8b7ebb0136ac6014395dca56fd88a720d5b8db21",
+      "subject": "fix(ui): cancel deferred focus return after overlay unmount"
+    },
+    {
+      "sha": "f090d4f48a3d053c4ed0e66c34c2de68b04b8344",
+      "subject": "fix(records): avoid duplicate navigation after same-page handoff"
+    },
+    {
+      "sha": "519d6200ba2a8c98e42a9108fe8e533d4695e94f",
+      "subject": "test(records): await relationship reads before page reload"
+    },
+    {
+      "sha": "56d404f57e46f5550b3d510a194c0513cf09c830",
+      "subject": "test(e2e): keep missing-page rewrites inside the local server"
+    },
+    {
+      "sha": "d465c47f26031fcad90b1221f3ff7899e0383459",
+      "subject": "test(records): await the responsive search toolbar"
+    },
+    {
+      "sha": "6f296dbec1648ca92317d43f91675bbf32f04e86",
+      "subject": "test(records): await saved search state before reload"
+    },
+    {
+      "sha": "0b26e0ae957866a6fda33fe84481f635c415dba3",
+      "subject": "test(records): verify native saved-search response completion"
+    },
+    {
+      "sha": "8b1fcb24ce4767c3fdda4f7fb6ec68ff3913dac7",
+      "subject": "fix(widgets): preserve explicit preview ownership during automatic refresh"
+    },
+    {
+      "sha": "5a16978571057396433b22a7effea101e6129cb6",
+      "subject": "fix(records): disable detail layout controls during record transactions"
+    },
+    {
+      "sha": "4223d7deb6fb7b1030ad5a5762d4a35bf3a6eb7c",
+      "subject": "test(verification): synchronize widget faults and speed console checks"
+    },
+    {
+      "sha": "ba4a643f96ccd0736473c9abe54c03883352bb8c",
+      "subject": "test(e2e): settle inbox navigations and outlast keep-alive socket reuse"
+    }
+  ],
+  "harnessFixVerification": {
+    "commit": "ba4a643f96ccd0736473c9abe54c03883352bb8c",
+    "tree": "5f02db7058c010a9d064191098849583822fb3c4",
+    "change": "Test-only: tests/e2e/inbox-records.spec.ts waits for settled network before navigations that follow UI actions; tests/e2e/start-server.ts starts the e2e production server with --keepAliveTimeout 30000. Assertions, deadlines, retries and noise filters unchanged.",
+    "changedPaths": [
+      "tests/e2e/inbox-records.spec.ts",
+      "tests/e2e/start-server.ts"
+    ],
+    "commitHooks": {
+      "exitCode": 0,
+      "seconds": 613.052,
+      "lintSeconds": 569.74,
+      "unmodifiedHooks": ".husky/pre-commit (yarn lint --max-warnings=0; tsc --noEmit; clean-tree check) and .husky/commit-msg (commitlint)",
+      "node": "v24.18.0",
+      "nodeOptions": "--max-old-space-size=8192"
+    },
+    "productionBuildId": "FkgrnzhExd1owM-kQGPIZ",
+    "gates": [
+      {
+        "name": "generated-clean",
+        "command": "node -e const c=require(\"node:child_process\");const r=c.spawnSync(\"git\",[\"status\",\"--porcelain\",\"--untracked-files=no\"],{encoding:\"utf8\"});if(r.status!==0||r.stdout.trim())process.exit(1);",
+        "exitCode": 0,
+        "seconds": 0.045
+      },
+      {
+        "name": "build",
+        "command": "yarn build",
+        "exitCode": 0,
+        "seconds": 111.192
+      },
+      {
+        "name": "conventions",
+        "command": "node_modules/.bin/vitest run tests/conventions --maxWorkers=2 --reporter=default --reporter=json --outputFile=.runs/pr203-final-20261006/harness-conventions-results.json",
+        "exitCode": 0,
+        "seconds": 44.532
+      },
+      {
+        "name": "e2e-migrate",
+        "command": "node_modules/.bin/prisma migrate deploy",
+        "exitCode": 0,
+        "seconds": 1.878
+      },
+      {
+        "name": "e2e-seed1",
+        "command": "node_modules/.bin/tsx prisma/seed.ts",
+        "exitCode": 0,
+        "seconds": 12.461
+      },
+      {
+        "name": "e2e-seed2",
+        "command": "node_modules/.bin/tsx prisma/seed.ts",
+        "exitCode": 0,
+        "seconds": 10.014
+      },
+      {
+        "name": "e2e-bootstrap",
+        "command": "node_modules/.bin/bootstrap",
+        "exitCode": 0,
+        "seconds": 0.807
+      },
+      {
+        "name": "affected-focus",
+        "command": "node_modules/.bin/playwright test inbox-records.spec.ts record-access-ui.spec.ts --workers=1 --retries=0",
+        "exitCode": 1,
+        "seconds": 1059.113
+      }
+    ],
+    "conventions": {
+      "total": 895,
+      "passed": 890,
+      "failed": 0,
+      "skipped": 5,
+      "physicalFiles": 109
+    },
+    "affectedSpecsAllProfiles": {
+      "specs": [
+        "inbox-records.spec.ts",
+        "record-access-ui.spec.ts"
+      ],
+      "stats": {
+        "expected": 39,
+        "unexpected": 1,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "perProfile": {
+        "chromium:expected": 10,
+        "firefox:expected": 10,
+        "mobile:expected": 9,
+        "mobile:unexpected": 1,
+        "webkit:expected": 10
+      },
+      "nonExpected": [
+        {
+          "profile": "mobile",
+          "file": "record-access-ui.spec.ts",
+          "line": 1732,
+          "status": "unexpected"
+        }
+      ],
+      "workers": 1,
+      "retries": 0,
+      "fixedCasesAllProfilesPassed": {
+        "inbox-records.spec.ts:5": "expected in chromium, firefox, webkit, mobile",
+        "record-access-ui.spec.ts:1229": "expected in chromium, firefox, webkit, mobile"
+      },
+      "nonExpectedClassification": [
+        {
+          "case": "mobile record-access-ui.spec.ts:1732",
+          "error": "page.screenshot: Target crashed",
+          "class": "browser-engine page crash (same WebKit content-process crash class as the classified matrix crashes)",
+          "qualification": "Kernel log access became restricted on the host (dmesg: Operation not permitted) before this run, so the ThreadedCompositor offset was not re-verified for this occurrence; classification rests on Playwright's Target crashed report."
+        }
+      ]
+    },
+    "carriedOverFrom4223": "Full database Vitest, PostgreSQL 16 subset, integration/generator gates and the copy UI replay are not re-executed: the only changed paths are the two e2e files above, which no Vitest inventory collects.",
+    "fullMatrixAtThisCommit": "Deferred to the final source (the owner is editing the migration; the WebKit compositor crash is mitigated separately)."
+  },
+  "runtime": {
+    "host": "Ubuntu 24.04 x86_64 SSH VM, 16 vCPU, 64 GB (resized from 8 vCPU / 31 GB before these final gates; earlier timings are not comparable)",
+    "sharedHostLoadNote": "A separate review flow shared the VM; load averages were about 13-22 during the browser matrix. Gates ran pinned: root runner CPUs 8-15, second-checkout suites CPUs 6-7 with two workers, copy servers CPUs 0-5.",
+    "node": "24.18.0",
+    "postgres": [
+      "17.8 (pgvector 0.8.1 image)",
+      "16.15 (postgres:16-alpine)"
+    ],
+    "productionBuildId": "GCxlDvR3_aYwveTcv359b",
+    "productionBuildSeconds": 122.017,
+    "browsersUseProductionBuild": true
+  },
+  "gates": [
+    {
+      "name": "migrate1",
+      "checkout": "root",
+      "command": "node_modules/.bin/prisma migrate deploy",
+      "exitCode": 0,
+      "seconds": 2.28
+    },
+    {
+      "name": "seed1",
+      "checkout": "root",
+      "command": "node_modules/.bin/tsx prisma/seed.ts",
+      "exitCode": 0,
+      "seconds": 13.863
+    },
+    {
+      "name": "migrate2",
+      "checkout": "root",
+      "command": "node_modules/.bin/prisma migrate deploy",
+      "exitCode": 0,
+      "seconds": 1.211
+    },
+    {
+      "name": "seed2",
+      "checkout": "root",
+      "command": "node_modules/.bin/tsx prisma/seed.ts",
+      "exitCode": 0,
+      "seconds": 17.974
+    },
+    {
+      "name": "bootstrap",
+      "checkout": "root",
+      "command": "node_modules/.bin/bootstrap",
+      "exitCode": 0,
+      "seconds": 1.507
+    },
+    {
+      "name": "rawdocs",
+      "checkout": "root",
+      "command": "yarn raw-docs:generate",
+      "exitCode": 0,
+      "seconds": 2.204
+    },
+    {
+      "name": "catalog",
+      "checkout": "root",
+      "command": "yarn docs:generate-catalog",
+      "exitCode": 0,
+      "seconds": 11.585
+    },
+    {
+      "name": "openapi",
+      "checkout": "root",
+      "command": "yarn openapi:generate",
+      "exitCode": 0,
+      "seconds": 6.107
+    },
+    {
+      "name": "generated-clean",
+      "checkout": "root",
+      "command": "node -e const {spawnSync}=require(\"node:child_process\");const r=spawnSync(\"git\",[\"status\",\"--porcelain\",\"--untracked-files=no\"],{encoding:\"utf8\"});if(r.status!==0||r.stdout.trim())process.exit(1);",
+      "exitCode": 0,
+      "seconds": 0.08
+    },
+    {
+      "name": "typecheck",
+      "checkout": "root",
+      "command": "yarn typecheck",
+      "exitCode": 0,
+      "seconds": 20.699
+    },
+    {
+      "name": "i18n",
+      "checkout": "root",
+      "command": "yarn i18n:audit",
+      "exitCode": 0,
+      "seconds": 0.831
+    },
+    {
+      "name": "build",
+      "checkout": "root",
+      "command": "yarn build",
+      "exitCode": 0,
+      "seconds": 122.017
+    },
+    {
+      "name": "e2e-migrate",
+      "checkout": "root",
+      "command": "node_modules/.bin/prisma migrate deploy",
+      "exitCode": 0,
+      "seconds": 2.414
+    },
+    {
+      "name": "e2e-seed1",
+      "checkout": "root",
+      "command": "node_modules/.bin/tsx prisma/seed.ts",
+      "exitCode": 0,
+      "seconds": 18.328
+    },
+    {
+      "name": "e2e-seed2",
+      "checkout": "root",
+      "command": "node_modules/.bin/tsx prisma/seed.ts",
+      "exitCode": 0,
+      "seconds": 13.227
+    },
+    {
+      "name": "e2e-bootstrap",
+      "checkout": "root",
+      "command": "node_modules/.bin/bootstrap",
+      "exitCode": 0,
+      "seconds": 0.863
+    },
+    {
+      "name": "final-matrix-migrate",
+      "checkout": "root",
+      "command": "node_modules/.bin/prisma migrate deploy",
+      "exitCode": 0,
+      "seconds": 2.011
+    },
+    {
+      "name": "final-matrix-seed1",
+      "checkout": "root",
+      "command": "node_modules/.bin/tsx prisma/seed.ts",
+      "exitCode": 0,
+      "seconds": 12.345
+    },
+    {
+      "name": "final-matrix-seed2",
+      "checkout": "root",
+      "command": "node_modules/.bin/tsx prisma/seed.ts",
+      "exitCode": 0,
+      "seconds": 9.447
+    },
+    {
+      "name": "final-matrix-bootstrap",
+      "checkout": "root",
+      "command": "node_modules/.bin/bootstrap",
+      "exitCode": 0,
+      "seconds": 0.851
+    },
+    {
+      "name": "layout-focus",
+      "checkout": "root",
+      "command": "node_modules/.bin/playwright test record-detail-layout.spec.ts --workers=1 --retries=0",
+      "exitCode": 0,
+      "seconds": 143.655
+    },
+    {
+      "name": "browser-search-focus",
+      "checkout": "root",
+      "command": "node_modules/.bin/playwright test record-controls-recovery.spec.ts --grep retains readable list content after a failed refresh --workers=1 --retries=0",
+      "exitCode": 0,
+      "seconds": 48.51
+    },
+    {
+      "name": "widget-preview-focus",
+      "checkout": "root",
+      "command": "node_modules/.bin/playwright test record-controls-recovery.spec.ts --grep uses Average, Minimum and Maximum at record grain, groups through relationships, edits group colors and retries an owned preview --workers=1 --retries=0",
+      "exitCode": 0,
+      "seconds": 239.846
+    },
+    {
+      "name": "browser-focus",
+      "checkout": "root",
+      "command": "node_modules/.bin/playwright test record-page.spec.ts record-channel-compose.spec.ts --workers=1 --retries=0",
+      "exitCode": 0,
+      "seconds": 411.759
+    },
+    {
+      "name": "playwright",
+      "checkout": "root",
+      "command": "node_modules/.bin/playwright test --workers=1 --retries=0",
+      "exitCode": 1,
+      "seconds": 6861.23
+    },
+    {
+      "name": "rendered-hubs",
+      "checkout": "root",
+      "command": "node_modules/.bin/vitest run tests/conventions/hub-reachability.test.ts tests/conventions/sitemap-reachability.test.ts tests/conventions/sitemap-membership.test.ts --reporter=default --reporter=json --outputFile=.runs/pr203-final-20261006/settlement-rendered-hubs-results.json",
+      "exitCode": 0,
+      "seconds": 29.748
+    },
+    {
+      "name": "widgets-install",
+      "checkout": "second clean checkout at the same commit",
+      "exitCode": 0,
+      "seconds": 4.298
+    },
+    {
+      "name": "widgets-rawdocs",
+      "checkout": "second clean checkout at the same commit",
+      "exitCode": 0,
+      "seconds": 1.985
+    },
+    {
+      "name": "widgets-catalog",
+      "checkout": "second clean checkout at the same commit",
+      "exitCode": 0,
+      "seconds": 13.305
+    },
+    {
+      "name": "widgets-openapi",
+      "checkout": "second clean checkout at the same commit",
+      "exitCode": 0,
+      "seconds": 6.253
+    },
+    {
+      "name": "widgets-i18n",
+      "checkout": "second clean checkout at the same commit",
+      "exitCode": 0,
+      "seconds": 1.25
+    },
+    {
+      "name": "widgets-verify-migrate-1",
+      "checkout": "second clean checkout at the same commit",
+      "exitCode": 0,
+      "seconds": 2.679
+    },
+    {
+      "name": "widgets-verify-seed-1",
+      "checkout": "second clean checkout at the same commit",
+      "exitCode": 0,
+      "seconds": 15.386
+    },
+    {
+      "name": "widgets-verify-migrate-2",
+      "checkout": "second clean checkout at the same commit",
+      "exitCode": 0,
+      "seconds": 1.672
+    },
+    {
+      "name": "widgets-verify-seed-2",
+      "checkout": "second clean checkout at the same commit",
+      "exitCode": 0,
+      "seconds": 12.368
+    },
+    {
+      "name": "widgets-verify-workflow",
+      "checkout": "second clean checkout at the same commit",
+      "exitCode": 0,
+      "seconds": 1.313
+    },
+    {
+      "name": "widgets-conventions",
+      "checkout": "second clean checkout at the same commit",
+      "exitCode": 0,
+      "seconds": 84.533
+    },
+    {
+      "name": "widgets-application",
+      "checkout": "second clean checkout at the same commit",
+      "exitCode": 0,
+      "seconds": 1654.837
+    },
+    {
+      "name": "pg16-migrate-1",
+      "checkout": "second clean checkout at the same commit",
+      "exitCode": 0,
+      "seconds": 4.088
+    },
+    {
+      "name": "pg16-seed-1",
+      "checkout": "second clean checkout at the same commit",
+      "exitCode": 0,
+      "seconds": 17.651
+    },
+    {
+      "name": "pg16-migrate-2",
+      "checkout": "second clean checkout at the same commit",
+      "exitCode": 0,
+      "seconds": 1.307
+    },
+    {
+      "name": "pg16-seed-2",
+      "checkout": "second clean checkout at the same commit",
+      "exitCode": 0,
+      "seconds": 14.746
+    },
+    {
+      "name": "pg16-workflow",
+      "checkout": "second clean checkout at the same commit",
+      "exitCode": 0,
+      "seconds": 1.397
+    },
+    {
+      "name": "pg16-subset",
+      "checkout": "second clean checkout at the same commit",
+      "exitCode": 0,
+      "seconds": 433.459
+    }
+  ],
+  "lintTypecheckCommitHooks": {
+    "commit": "4223d7deb6fb7b1030ad5a5762d4a35bf3a6eb7c",
+    "subject": "test(verification): synchronize widget faults and speed console checks",
+    "exitCode": 0,
+    "fullUnmodifiedLintAndTypecheck": true,
+    "node": "v24.18.0",
+    "seconds": 224.436
+  },
+  "application": {
+    "total": 9800,
+    "passed": 9780,
+    "failed": 0,
+    "skipped": 20,
+    "pending": 0,
+    "todo": 0,
+    "physicalFiles": {
+      "total": 999,
+      "executed": 998,
+      "passed": 998,
+      "failed": 0,
+      "entirelySkipped": 1,
+      "empty": 0
+    },
+    "unhandledErrors": 0,
+    "durationSeconds": 1654.837,
+    "workers": 2,
+    "databaseTestsEnabled": true
+  },
+  "namedSkips": [
+    {
+      "file": "tests/conventions/hub-reachability.test.ts",
+      "name": "hub pagination and rendered reachability answers a signed-out request for a path no route serves with a 404, and keeps protected routes behind sign-in",
+      "reason": "Opt-in served HTTP case requires HUB_E2E_BASE_URL; separately require the actual final served-hubs/sitemap gate."
+    },
+    {
+      "file": "tests/conventions/hub-reachability.test.ts",
+      "name": "hub pagination and rendered reachability answers every proxy-detected missing page with a server-rendered 404, not a soft 404",
+      "reason": "Opt-in served HTTP case requires HUB_E2E_BASE_URL; separately require the actual final served-hubs/sitemap gate."
+    },
+    {
+      "file": "tests/conventions/hub-reachability.test.ts",
+      "name": "hub pagination and rendered reachability permanently sends unprefixed content paths to the default locale and negotiates only the root",
+      "reason": "Opt-in served HTTP case requires HUB_E2E_BASE_URL; separately require the actual final served-hubs/sitemap gate."
+    },
+    {
+      "file": "tests/conventions/hub-reachability.test.ts",
+      "name": "hub pagination and rendered reachability crawls the production server output, metadata, semantic pagination outcomes, sitemap, and every localized detail route",
+      "reason": "Opt-in served HTTP case requires HUB_E2E_BASE_URL; separately require the actual final served-hubs/sitemap gate."
+    },
+    {
+      "file": "tests/conventions/sitemap-reachability.test.ts",
+      "name": "sitemap reachability submits only URLs that answer 200 and point their canonical at themselves",
+      "reason": "Opt-in served HTTP case requires HUB_E2E_BASE_URL; separately require the actual final served-hubs/sitemap gate."
+    },
+    {
+      "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+      "name": "documentation retrieval exact regression contracts answers a page-link question with a section whose link line names that page",
+      "reason": "Paid live retrieval contracts require LIVE_DOCS_RETRIEVAL_CONTRACTS and spending authorization; paid model calls are prohibited for this task."
+    },
+    {
+      "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+      "name": "documentation retrieval exact regression contracts answers task and permission questions with the section that handles them and that section's link line",
+      "reason": "Paid live retrieval contracts require LIVE_DOCS_RETRIEVAL_CONTRACTS and spending authorization; paid model calls are prohibited for this task."
+    },
+    {
+      "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+      "name": "documentation retrieval exact regression contracts answers where-is and take-me-to questions with the section that introduces that page, and its link line",
+      "reason": "Paid live retrieval contracts require LIVE_DOCS_RETRIEVAL_CONTRACTS and spending authorization; paid model calls are prohibited for this task."
+    },
+    {
+      "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+      "name": "documentation retrieval exact regression contracts matches the user's words to the docs' words for sharing, change history, trial end and mailboxes",
+      "reason": "Paid live retrieval contracts require LIVE_DOCS_RETRIEVAL_CONTRACTS and spending authorization; paid model calls are prohibited for this task."
+    },
+    {
+      "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+      "name": "documentation retrieval exact regression contracts keeps a question that uses link as a verb on the relationships section, not on a section of record-page links",
+      "reason": "Paid live retrieval contracts require LIVE_DOCS_RETRIEVAL_CONTRACTS and spending authorization; paid model calls are prohibited for this task."
+    },
+    {
+      "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+      "name": "documentation retrieval exact regression contracts keeps a question about the link between two records on the relationships section",
+      "reason": "Paid live retrieval contracts require LIVE_DOCS_RETRIEVAL_CONTRACTS and spending authorization; paid model calls are prohibited for this task."
+    },
+    {
+      "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+      "name": "documentation retrieval exact regression contracts keeps questions about sharing a view or a filter with a colleague off the channel-sharing section",
+      "reason": "Paid live retrieval contracts require LIVE_DOCS_RETRIEVAL_CONTRACTS and spending authorization; paid model calls are prohibited for this task."
+    },
+    {
+      "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+      "name": "documentation retrieval exact regression contracts answers common CRM question families with the section that handles them, whatever words the question uses",
+      "reason": "Paid live retrieval contracts require LIVE_DOCS_RETRIEVAL_CONTRACTS and spending authorization; paid model calls are prohibited for this task."
+    },
+    {
+      "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+      "name": "documentation retrieval exact regression contracts answers a page-address question with a German page compound through that page's link line",
+      "reason": "Paid live retrieval contracts require LIVE_DOCS_RETRIEVAL_CONTRACTS and spending authorization; paid model calls are prohibited for this task."
+    },
+    {
+      "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+      "name": "documentation retrieval exact regression contracts keeps responsibility and deal-worth questions off the plans table, and sort questions off the theme and signature",
+      "reason": "Paid live retrieval contracts require LIVE_DOCS_RETRIEVAL_CONTRACTS and spending authorization; paid model calls are prohibited for this task."
+    },
+    {
+      "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+      "name": "documentation retrieval exact regression contracts keeps a question about a new column off the section that adds records",
+      "reason": "Paid live retrieval contracts require LIVE_DOCS_RETRIEVAL_CONTRACTS and spending authorization; paid model calls are prohibited for this task."
+    },
+    {
+      "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+      "name": "documentation retrieval exact regression contracts puts the requested detail inside the bounded agent-visible prefix",
+      "reason": "Paid live retrieval contracts require LIVE_DOCS_RETRIEVAL_CONTRACTS and spending authorization; paid model calls are prohibited for this task."
+    },
+    {
+      "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+      "name": "documentation retrieval exact regression contracts excerpts the section search_docs names, with that section's own link line",
+      "reason": "Paid live retrieval contracts require LIVE_DOCS_RETRIEVAL_CONTRACTS and spending authorization; paid model calls are prohibited for this task."
+    },
+    {
+      "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+      "name": "documentation retrieval exact regression contracts answers a channel status question with the instruction to reactivate the channel",
+      "reason": "Paid live retrieval contracts require LIVE_DOCS_RETRIEVAL_CONTRACTS and spending authorization; paid model calls are prohibited for this task."
+    },
+    {
+      "file": "features/mcp-tools/__tests__/docs-retrieval-regression.database.test.ts",
+      "name": "documentation retrieval exact regression contracts keeps the definition of the read access a who-sees-what question names",
+      "reason": "Paid live retrieval contracts require LIVE_DOCS_RETRIEVAL_CONTRACTS and spending authorization; paid model calls are prohibited for this task."
+    }
+  ],
+  "skipQualification": "Five opt-in served HTTP cases pass in the separate 25-case served gate; fifteen live hosted docs-retrieval contracts require paid gateway calls and stay skipped. No skip is counted as a pass.",
+  "conventions": {
+    "total": 895,
+    "passed": 890,
+    "failed": 0,
+    "skipped": 5,
+    "pending": 0,
+    "todo": 0,
+    "physicalFiles": {
+      "total": 109,
+      "executed": 108,
+      "passed": 108,
+      "failed": 0,
+      "entirelySkipped": 1,
+      "empty": 0
+    },
+    "unhandledErrors": 0,
+    "durationSeconds": 84.533,
+    "workers": 2
+  },
+  "renderedHubsAndSitemap": {
+    "total": 25,
+    "passed": 25,
+    "failed": 0,
+    "skipped": 0,
+    "pending": 0,
+    "todo": 0,
+    "physicalFiles": {
+      "total": 3,
+      "executed": 3,
+      "passed": 3,
+      "failed": 0,
+      "entirelySkipped": 0,
+      "empty": 0
+    },
+    "unhandledErrors": 0,
+    "durationSeconds": 29.748
+  },
+  "browser": {
+    "fullMatrix": {
+      "registeredCases": 312,
+      "physicalSpecFilesPerProfile": 41,
+      "workers": 1,
+      "retries": {
+        "chromium": 0,
+        "firefox": 0,
+        "webkit": 0,
+        "mobile": 0
+      },
+      "stats": {
+        "expected": 307,
+        "unexpected": 5,
+        "skipped": 0,
+        "flaky": 0
+      },
+      "durationSeconds": 6859.18,
+      "globalErrors": 0,
+      "profiles": {
+        "chromium": {
+          "registeredCases": 78,
+          "expected": 78,
+          "unexpected": 0,
+          "skipped": 0,
+          "flaky": 0,
+          "attempts": 78,
+          "retryAttempts": 0
+        },
+        "firefox": {
+          "registeredCases": 78,
+          "expected": 78,
+          "unexpected": 0,
+          "skipped": 0,
+          "flaky": 0,
+          "attempts": 78,
+          "retryAttempts": 0
+        },
+        "webkit": {
+          "registeredCases": 78,
+          "expected": 75,
+          "unexpected": 3,
+          "skipped": 0,
+          "flaky": 0,
+          "attempts": 78,
+          "retryAttempts": 0
+        },
+        "mobile": {
+          "registeredCases": 78,
+          "expected": 76,
+          "unexpected": 2,
+          "skipped": 0,
+          "flaky": 0,
+          "attempts": 78,
+          "retryAttempts": 0
+        }
+      },
+      "nonExpectedCases": [
+        {
+          "file": "configure-layout.spec.ts",
+          "line": 190,
+          "title": "adds and edits definitions in a side drawer and reorders fields with drag and drop",
+          "profile": "mobile",
+          "status": "unexpected",
+          "attemptStatuses": [
+            "failed"
+          ],
+          "errorCount": 1
+        },
+        {
+          "file": "inbox-records.spec.ts",
+          "line": 5,
+          "title": "creates, unlinks and relinks a generic person from the inbox",
+          "profile": "webkit",
+          "status": "unexpected",
+          "attemptStatuses": [
+            "failed"
+          ],
+          "errorCount": 1
+        },
+        {
+          "file": "record-access-ui.spec.ts",
+          "line": 1229,
+          "title": "configures a two-hop relationship path and lets a genuine read-only user navigate it without changing links",
+          "profile": "webkit",
+          "status": "unexpected",
+          "attemptStatuses": [
+            "failed"
+          ],
+          "errorCount": 1
+        },
+        {
+          "file": "record-access-ui.spec.ts",
+          "line": 2062,
+          "title": "publishes and withdraws a private-input summary through the field UI without granting the delegated reader access to its inputs",
+          "profile": "webkit",
+          "status": "unexpected",
+          "attemptStatuses": [
+            "failed"
+          ],
+          "errorCount": 1
+        },
+        {
+          "file": "record-field-controls.spec.ts",
+          "line": 236,
+          "title": "builds every calculation operator with the linear editor and persists results and visible errors",
+          "profile": "mobile",
+          "status": "unexpected",
+          "attemptStatuses": [
+            "failed"
+          ],
+          "errorCount": 1
+        }
+      ],
+      "acceptancePassed": false,
+      "attempt": 2,
+      "failureClassification": [
+        {
+          "case": "webkit inbox-records.spec.ts:5",
+          "class": "test synchronization race",
+          "cause": "page.reload() fired 16 ms before a post-save getRecordChoicesAction server action; WebKit cancelled it and reported the framework (Next.js fetchServerAction) rejection as a page error. The application caller already handles failures.",
+          "fixedIn": "ba4a643f96ccd0736473c9abe54c03883352bb8c"
+        },
+        {
+          "case": "webkit record-access-ui.spec.ts:1229",
+          "class": "test-harness keep-alive race",
+          "cause": "Playwright request context reused an idle socket (~6.0 s after the previous response) as the e2e server closed it at Node's 5 s keepAliveTimeout: socket hang up. Server process unchanged and healthy.",
+          "fixedIn": "ba4a643f96ccd0736473c9abe54c03883352bb8c"
+        },
+        {
+          "case": "webkit record-access-ui.spec.ts:2062",
+          "class": "browser-engine crash",
+          "cause": "Playwright WebKit (WPE) content-process segfault in ThreadedCompositor: three kernel-logged NULL reads at the identical libWPEWebKit-2.0.so offset 0x5898f8a, matching three observer Page:crash events, all while Configure drawers/menus animate. Reported attribution: WebKit bug 323720 (fixed upstream 361bf1bd5a, not in Playwright webkit-2359), triggered by tw-animate-css overlay keyframes animating filter: blur(0); real Safari is very likely unaffected. Not masked; no filter widened. A keyframe override is being integrated separately."
+        },
+        {
+          "case": "mobile configure-layout.spec.ts:190",
+          "class": "browser-engine crash",
+          "cause": "Playwright WebKit (WPE) content-process segfault in ThreadedCompositor: three kernel-logged NULL reads at the identical libWPEWebKit-2.0.so offset 0x5898f8a, matching three observer Page:crash events, all while Configure drawers/menus animate. Reported attribution: WebKit bug 323720 (fixed upstream 361bf1bd5a, not in Playwright webkit-2359), triggered by tw-animate-css overlay keyframes animating filter: blur(0); real Safari is very likely unaffected. Not masked; no filter widened. A keyframe override is being integrated separately."
+        },
+        {
+          "case": "mobile record-field-controls.spec.ts:236",
+          "class": "browser-engine crash",
+          "cause": "Playwright WebKit (WPE) content-process segfault in ThreadedCompositor: three kernel-logged NULL reads at the identical libWPEWebKit-2.0.so offset 0x5898f8a, matching three observer Page:crash events, all while Configure drawers/menus animate. Reported attribution: WebKit bug 323720 (fixed upstream 361bf1bd5a, not in Playwright webkit-2359), triggered by tw-animate-css overlay keyframes animating filter: blur(0); real Safari is very likely unaffected. Not masked; no filter widened. A keyframe override is being integrated separately."
+        }
+      ]
+    },
+    "matrixAttempt1": {
+      "result": "stopped and preserved",
+      "stats": {
+        "expected": 96,
+        "unexpected": 1,
+        "skipped": 215,
+        "flaky": 0
+      },
+      "completed": "chromium 78/78 passed; firefox 18 passed, 1 failed, 1 interrupted by the controlled stop; webkit and mobile not attempted",
+      "failure": "firefox record-access-ui.spec.ts:1040 action timeout during host memory thrash (9.6 GB swap in use, load ~40 from a concurrent review flow): the Playwright driver's own 15 s timer fired after 27.2 s and the page painted no frames for up to 13.5 s; all 116 browser processes exited cleanly. The concurrent flow was then confined to other CPUs and attempt 2 ran on a fresh database."
+    },
+    "focus": {
+      "recordDetailLayout": {
+        "registeredCases": 4,
+        "physicalSpecFilesPerProfile": 1,
+        "workers": 1,
+        "retries": {
+          "chromium": 0,
+          "firefox": 0,
+          "webkit": 0,
+          "mobile": 0
+        },
+        "stats": {
+          "expected": 4,
+          "unexpected": 0,
+          "skipped": 0,
+          "flaky": 0
+        },
+        "durationSeconds": 142.873,
+        "globalErrors": 0,
+        "profiles": {
+          "chromium": {
+            "registeredCases": 1,
+            "expected": 1,
+            "unexpected": 0,
+            "skipped": 0,
+            "flaky": 0,
+            "attempts": 1,
+            "retryAttempts": 0
+          },
+          "firefox": {
+            "registeredCases": 1,
+            "expected": 1,
+            "unexpected": 0,
+            "skipped": 0,
+            "flaky": 0,
+            "attempts": 1,
+            "retryAttempts": 0
+          },
+          "webkit": {
+            "registeredCases": 1,
+            "expected": 1,
+            "unexpected": 0,
+            "skipped": 0,
+            "flaky": 0,
+            "attempts": 1,
+            "retryAttempts": 0
+          },
+          "mobile": {
+            "registeredCases": 1,
+            "expected": 1,
+            "unexpected": 0,
+            "skipped": 0,
+            "flaky": 0,
+            "attempts": 1,
+            "retryAttempts": 0
+          }
+        },
+        "nonExpectedCases": []
+      },
+      "searchRecovery": {
+        "registeredCases": 4,
+        "physicalSpecFilesPerProfile": 1,
+        "workers": 1,
+        "retries": {
+          "chromium": 0,
+          "firefox": 0,
+          "webkit": 0,
+          "mobile": 0
+        },
+        "stats": {
+          "expected": 4,
+          "unexpected": 0,
+          "skipped": 0,
+          "flaky": 0
+        },
+        "durationSeconds": 47.821,
+        "globalErrors": 0,
+        "profiles": {
+          "chromium": {
+            "registeredCases": 1,
+            "expected": 1,
+            "unexpected": 0,
+            "skipped": 0,
+            "flaky": 0,
+            "attempts": 1,
+            "retryAttempts": 0
+          },
+          "firefox": {
+            "registeredCases": 1,
+            "expected": 1,
+            "unexpected": 0,
+            "skipped": 0,
+            "flaky": 0,
+            "attempts": 1,
+            "retryAttempts": 0
+          },
+          "webkit": {
+            "registeredCases": 1,
+            "expected": 1,
+            "unexpected": 0,
+            "skipped": 0,
+            "flaky": 0,
+            "attempts": 1,
+            "retryAttempts": 0
+          },
+          "mobile": {
+            "registeredCases": 1,
+            "expected": 1,
+            "unexpected": 0,
+            "skipped": 0,
+            "flaky": 0,
+            "attempts": 1,
+            "retryAttempts": 0
+          }
+        },
+        "nonExpectedCases": []
+      },
+      "widgetPreviewFaultRecovery": {
+        "registeredCases": 4,
+        "stats": {
+          "expected": 4,
+          "unexpected": 0,
+          "skipped": 0,
+          "flaky": 0
+        },
+        "durationSeconds": 239.209,
+        "profiles": [
+          "chromium",
+          "firefox",
+          "mobile",
+          "webkit"
+        ],
+        "workers": 1,
+        "retries": 0,
+        "note": "Changed spec of the final test-only correction, run before the matrix."
+      },
+      "recordPageAndChannelCompose": {
+        "registeredCases": 8,
+        "physicalSpecFilesPerProfile": 2,
+        "workers": 1,
+        "retries": {
+          "chromium": 0,
+          "firefox": 0,
+          "webkit": 0,
+          "mobile": 0
+        },
+        "stats": {
+          "expected": 8,
+          "unexpected": 0,
+          "skipped": 0,
+          "flaky": 0
+        },
+        "durationSeconds": 410.967,
+        "globalErrors": 0,
+        "profiles": {
+          "chromium": {
+            "registeredCases": 2,
+            "expected": 2,
+            "unexpected": 0,
+            "skipped": 0,
+            "flaky": 0,
+            "attempts": 2,
+            "retryAttempts": 0
+          },
+          "firefox": {
+            "registeredCases": 2,
+            "expected": 2,
+            "unexpected": 0,
+            "skipped": 0,
+            "flaky": 0,
+            "attempts": 2,
+            "retryAttempts": 0
+          },
+          "webkit": {
+            "registeredCases": 2,
+            "expected": 2,
+            "unexpected": 0,
+            "skipped": 0,
+            "flaky": 0,
+            "attempts": 2,
+            "retryAttempts": 0
+          },
+          "mobile": {
+            "registeredCases": 2,
+            "expected": 2,
+            "unexpected": 0,
+            "skipped": 0,
+            "flaky": 0,
+            "attempts": 2,
+            "retryAttempts": 0
+          }
+        },
+        "nonExpectedCases": []
+      }
+    },
+    "focusOverlapNote": "Focus runs overlap the full matrix and are not added to its totals.",
+    "nativeProcessForensics": {
+      "focus": {
+        "nativeLaunches": 12,
+        "nativeExits": 12,
+        "nativeMissingExits": 0,
+        "nativeSignalCounts": {
+          "none": 12
+        },
+        "observerProcessExits": 5,
+        "pageCrashSignals": {
+          "server": 0,
+          "client": 0
+        },
+        "deliveryFailures": 0,
+        "captureCompleteness": "incomplete-or-pending"
+      },
+      "matrix": {
+        "nativeLaunches": 381,
+        "nativeExits": 381,
+        "nativeMissingExits": 0,
+        "nativeSignalCounts": {
+          "none": 381
+        },
+        "observerProcessExits": 10,
+        "pageCrashSignals": {
+          "server": 3,
+          "client": 3
+        },
+        "deliveryFailures": 0,
+        "captureCompleteness": "incomplete-or-pending"
+      }
+    }
+  },
+  "postgres16": {
+    "server": "16.15",
+    "migrations": 50,
+    "secondDeployNoop": true,
+    "seedTwiceCountsStable": true,
+    "total": 307,
+    "passed": 307,
+    "failed": 0,
+    "skipped": 0,
+    "physicalFiles": 16,
+    "databaseCases": 197,
+    "unitCases": 110,
+    "helperDatabasesSurviving": 0,
+    "subsetSeconds": 433.459,
+    "workers": 2
+  },
+  "productionRehearsal": {
+    "receipt": "2026-10-06-rehearsal.md",
+    "sqlExecutedCommit": "410115417826ad45aab3dea1a66dc3e8d66daf9d",
+    "migration": "20261004000000_configurable_records",
+    "migrationSqlSha256": "bc553c17285d59c22d3289e79ce32cd2446f44da841da7ae3bb4b653a7676309",
+    "migrationSqlAndSchemaByteIdenticalAtTestedCommit": true,
+    "workspaces": 145,
+    "starterRecords": 8131,
+    "lineItems": 433,
+    "allRecords": 8564,
+    "typedValues": 64243,
+    "links": 5703,
+    "assignments": 2836,
+    "identities": 5233,
+    "independentExpectationGroups": 3156,
+    "unexplainedDifferences": 0,
+    "commandSeconds": {
+      "initialDeploy": 31.482374,
+      "initialReconciliation": 174.552239,
+      "secondDeploy": 1.706404,
+      "secondReconciliation": 170.145349,
+      "interruptedDeploy": 9.489063,
+      "interruptionWitness": 8.065212,
+      "legacyIntactReconciliation": 88.732867,
+      "resolveRolledBack": 1.776941,
+      "recoveryDeploy": 23.281952,
+      "recoveryReconciliation": 174.648849
+    },
+    "uiReplay": {
+      "finalCommit": "4223d7deb6fb7b1030ad5a5762d4a35bf3a6eb7c",
+      "legacyCommit": "89f336f1978401d945ba7ba75141d2e435208a3e",
+      "copyBuilds": {
+        "final": "3RIx41n_ae7jIGTWiUyXM",
+        "legacy": "5TpPBbvKOIRe49U58AYLf"
+      },
+      "mainSeconds": 488.964411369,
+      "supplementSeconds": 26.3536256,
+      "accounts": [
+        {
+          "account": "owner",
+          "app": "legacy",
+          "pass": 27,
+          "fail": 1,
+          "notApplicable": 5,
+          "notApplicablePaths": [
+            "deals-stages-values",
+            "configure-inventory",
+            "custom-field-add-and-use",
+            "webhooks-disabled",
+            "event-routines-disabled"
+          ],
+          "failedPaths": [
+            "browser-errors"
+          ]
+        },
+        {
+          "account": "owner",
+          "app": "migrated",
+          "pass": 32,
+          "fail": 0,
+          "notApplicable": 1,
+          "notApplicablePaths": [
+            "deals-stages-values"
+          ],
+          "failedPaths": []
+        },
+        {
+          "account": "largestAdmin",
+          "app": "legacy",
+          "pass": 28,
+          "fail": 0,
+          "notApplicable": 5,
+          "notApplicablePaths": [
+            "deals-stages-values",
+            "linked-inbox-threads",
+            "configure-inventory",
+            "custom-field-add-and-use",
+            "event-routines-disabled"
+          ],
+          "failedPaths": []
+        },
+        {
+          "account": "largestAdmin",
+          "app": "migrated",
+          "pass": 31,
+          "fail": 0,
+          "notApplicable": 2,
+          "notApplicablePaths": [
+            "deals-stages-values",
+            "linked-inbox-threads"
+          ],
+          "failedPaths": []
+        }
+      ],
+      "combined": {
+        "pass": 118,
+        "fail": 1,
+        "notApplicable": 13
+      },
+      "distinctChecks": 132,
+      "legacyFailure": "Owner legacy app: one legacy-only embedded-image img-src CSP console error; no production or pre-existing attribution is claimed."
+    }
+  },
+  "copyDestruction": {
+    "status": "held",
+    "reason": "Held at owner direction: the sanitized loopback copy is retained on the VM (private 0700 storage, loopback-only) to re-rehearse the edited migration. No copied data leaves the VM; destruction will be recorded when performed."
+  },
+  "failuresFixedInThisContinuation": [
+    {
+      "source": "5a1697857",
+      "failure": "Browser fault injection hit an automatic grouped widget preview before the manual Preview click (1 unexpected among 67 completed matrix cases; run stopped).",
+      "fix": "4223d7deb: the spec first proves the automatic total/groups/chart and an enabled Preview button, then arms the manual fault. Assertions, deadlines, retries and noise filters unchanged."
+    },
+    {
+      "source": "5a1697857",
+      "failure": "Hosted CI console-boundary scan exceeded its existing 5000 ms deadline (no boundary mismatch).",
+      "fix": "4223d7deb: a conservative text prefilter skips AST creation only for files containing neither \"console\" nor a backslash; all 2,058 runtime files keep identical method/line/order findings; 17/17 focused cases."
+    }
+  ],
+  "historicalNotRelabeled": "Earlier heads (5a1697857 partial matrix stopped after a diagnosed fixture failure, 8b1fcb24c with one mobile layout-control failure, 0b26e0ae9) remain historical evidence and are not counted here.",
+  "knownOpenFinding": "Playwright WebKit (WPE) content-process segfault in ThreadedCompositor: three kernel-logged NULL reads at the identical libWPEWebKit-2.0.so offset 0x5898f8a, matching three observer Page:crash events, all while Configure drawers/menus animate. Reported attribution: WebKit bug 323720 (fixed upstream 361bf1bd5a, not in Playwright webkit-2359), triggered by tw-animate-css overlay keyframes animating filter: blur(0); real Safari is very likely unaffected. Not masked; no filter widened. A keyframe override is being integrated separately.",
+  "remainingHumanSteps": [
+    "owner's separate deep exploratory UI session",
+    "Code Owner review",
+    "PR merge",
+    "release-window selection"
+  ],
+  "limitations": [
+    "No production system, hosted application or paid model call was used; hosted docs-retrieval/model reliability is not covered.",
+    "Copy rehearsal deploy and reconciliation timings were measured on the earlier 8 vCPU host and are observations, not production-duration guarantees.",
+    "Populated deal-stage, saved-price and populated event-routine samples were unavailable in the copy and have synthetic coverage only."
+  ],
+  "copiedRecordsIdentifiersEmailsValuesFingerprintsIncluded": false,
+  "generatedAtUtc": "2026-10-06T19:27:48.770575+00:00"
+}

@@ -146,7 +146,7 @@ Die Card-View gruppiert nach einer Single-Select-Spalte, sodass unterstützte Da
 
 Odoos CRM-Modul ist ausgereift im Lead-Management. Lead Mining, Lead Scoring (KI-basiert auf historischen Daten), UTM-Tracking, Dublettenerkennung, GeoIP und Lead-Routing sind nativ verfügbar. Wer aus Marketing-Quellen viele Leads generiert und sie systematisch bewerten und verteilen muss, bekommt mit Odoo eine Lösung, die seit Jahren auf diesen Workflow optimiert ist.
 
-Customermates liefert fünf Entitätstypen als erstklassige Bürger: Kontakte, Unternehmen, Deals, Services und Aufgaben. Alle verlinken bidirektional über die `manage_record_links`-Operation. Custom Fields sind typisiert (zehn Typen: currency, date, dateRange, dateTime, dateTimeRange, email, plain, link, phone, singleSelect), ab Tag eins verfügbar statt als Studio-Upsell. Lead Mining, Lead-Scoring und Anreicherung gibt es nicht. Wer so etwas braucht, schreibt Ergebnisse externer Dienste über REST-API, MCP oder eine separat betriebene n8n-Instanz in das CRM, mit den Kosten dieser Dienste.
+Customermates liefert fünf Entitätstypen als erstklassige Bürger: Kontakte, Unternehmen, Deals, Services und Aufgaben. Alle verlinken bidirektional über die Aktionen link und unlink von `mutate_crm_record`. Custom Fields sind typisiert (zehn Typen: currency, date, dateRange, dateTime, dateTimeRange, email, plain, link, phone, singleSelect), ab Tag eins verfügbar statt als Studio-Upsell. Lead Mining, Lead-Scoring und Anreicherung gibt es nicht. Wer so etwas braucht, schreibt Ergebnisse externer Dienste über REST-API, MCP oder eine separat betriebene n8n-Instanz in das CRM, mit den Kosten dieser Dienste.
 
 ## KI: Lead-Scoring vs. ein Agent, der das CRM bedient
 

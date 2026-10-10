@@ -1,0 +1,317 @@
+{
+  "scope": "Fifth interim checkpoint of PR #203 at pr203/integration 0513f4a98 (adds design system convention tests, scoped configure previews with unique names and formula redaction, personal dashboard views, the shared form footer/confirm dialog/segmented control, and the I1 spec fix for the delegated field editor; two new migrations). Slim coordinator scope: production build, a production-mode Chromium smoke of eight key specs, and a smoke of all migrations (including the two new ones) on a fresh scratch production copy. Not final verification; the full four-browser matrix, served hubs and the full migration re-rehearsal belong to the final source.",
+  "checkpoint": "interim",
+  "testedCommit": "0513f4a9887bb482ceeebeee8853334243656198",
+  "testedTree": "8d85738f29099881bc6415d99a297c70b538384c",
+  "testedSourceNote": "The commit that adds this receipt changes only tests/e2e/review/2026-10-07-interim-5-summary.json and the tests/e2e/README.md receipt link.",
+  "runtime": {
+    "host": "Ubuntu 24.04 x86_64 SSH VM, 16 vCPU, 64 GB, shared with a concurrent review flow; this run pinned to CPUs 8-15",
+    "node": "24.18.0",
+    "postgres": [
+      "17.8 (pgvector 0.8.1 image)"
+    ],
+    "productionBuildId": "K3jY9zGo40W0_3OvKe95G"
+  },
+  "citedIntegrationGates": {
+    "source": "Coordinator pipeline gates (pr203-prompts/pipeline/state/<item>.gate.log; not re-executed here). Gate SHAs can differ from the final integration commits where an item was re-merged.",
+    "results": [
+      "I25p1 design system convention tests: full database-enabled Vitest 9,986 passed, 1 failed, 21 skipped (10,008); the failed tests/shared/__tests__/overlapping-stack-trigger.test.ts passed on its automatic rerun; production build ok; GATE GREEN",
+      "I18r2 scoped configure previews, unique names, formula redaction: Vitest 10,014 passed, 21 skipped (10,035); production build ok; item e2e 17 passed on each of chromium, webkit and mobile; GATE GREEN",
+      "I16 multiple choice field: Vitest 9,995 passed, 21 skipped (10,016); production build ok; item e2e 14 passed on each of three projects; GATE GREEN",
+      "I6 dashboard views: Vitest 10,018 passed, 1 failed, 21 skipped (10,040); the same overlapping-stack-trigger test passed on its automatic rerun; production build ok; item e2e 7, 7 and 6 passed plus 1 skipped; GATE GREEN",
+      "I20p1 shared form footer, confirm dialog, segmented control: Vitest 10,040 passed, 21 skipped (10,061); production build ok; item e2e 18 passed on each of three projects; GATE GREEN"
+    ]
+  },
+  "gates": [
+    {
+      "name": "build",
+      "command": "yarn build",
+      "exitCode": 0,
+      "seconds": 237.658
+    },
+    {
+      "name": "e2e-migrate",
+      "command": "node_modules/.bin/prisma migrate deploy",
+      "exitCode": 0,
+      "seconds": 2.818
+    },
+    {
+      "name": "e2e-seed1",
+      "command": "node_modules/.bin/tsx prisma/seed.ts",
+      "exitCode": 0,
+      "seconds": 17.423
+    },
+    {
+      "name": "e2e-seed2",
+      "command": "node_modules/.bin/tsx prisma/seed.ts",
+      "exitCode": 0,
+      "seconds": 9.632
+    },
+    {
+      "name": "e2e-bootstrap",
+      "command": "node_modules/.bin/bootstrap",
+      "exitCode": 0,
+      "seconds": 0.852
+    },
+    {
+      "name": "chromium-smoke",
+      "command": "node_modules/.bin/playwright test record-configuration.spec.ts shared-channels.spec.ts dashboard-views.spec.ts record-access-ui.spec.ts record-field-controls.spec.ts configure-layout.spec.ts company-activity.spec.ts widget-types.spec.ts --project=chromium --workers=1 --retries=0",
+      "exitCode": 0,
+      "seconds": 748.363
+    }
+  ],
+  "chromiumSmoke": {
+    "specs": [
+      "company-activity.spec.ts",
+      "configure-layout.spec.ts",
+      "dashboard-views.spec.ts",
+      "record-access-ui.spec.ts",
+      "record-configuration.spec.ts",
+      "record-field-controls.spec.ts",
+      "shared-channels.spec.ts",
+      "widget-types.spec.ts"
+    ],
+    "profile": "chromium",
+    "workers": 1,
+    "retries": 0,
+    "productionBuild": true,
+    "stats": {
+      "expected": 26,
+      "unexpected": 0,
+      "skipped": 0,
+      "flaky": 0
+    },
+    "durationSeconds": 747.435,
+    "globalErrors": 0,
+    "perStatus": {
+      "chromium:expected": 26
+    },
+    "nonExpected": [],
+    "nonExpectedClassification": [],
+    "classificationNote": "No failures. record-access-ui.spec.ts:3214 passes after the I1 spec fix (20d303232) included in this head; record-access-ui.spec.ts:2132 also passed. Unique names: 2 field labels end in a numbered suffix after the migration; whether they were renamed duplicates or pre-existing names is not distinguished here.",
+    "isolationReruns": null
+  },
+  "migrationSmokeOnScratchCopy": {
+    "basis": "Fresh clone of the frozen sanitized production-copy baseline (legacy schema, 117 ledger entries), deployed through the loopback-guarded copy runtime with providers paused. Independent expectations from plain SQL on the untouched legacy clone. Aggregates only.",
+    "migrations": [
+      "20261004000000_configurable_records (edited by I7: one event log; only legal-consent and connected-account audit rows carried)",
+      "20261006130000_remove_legacy_record_permissions (I9)",
+      "20261006200000_p13n_settings (I4)",
+      "20261007000000_field_currency (I13)",
+      "20261007010000_widget_dashboard_views (I6)",
+      "20261007020000_unique_config_names (I18r2)"
+    ],
+    "i7EventLog": {
+      "eventLogRows": 195,
+      "carriedMissing": 0,
+      "unexpectedEventRows": 0,
+      "fieldMismatches": 0,
+      "bySubjectKind": {
+        "connected_account": 39,
+        "legal": 156
+      },
+      "byKind": {
+        "connected_account.created": 19,
+        "connected_account.deleted": 9,
+        "connected_account.reconnected": 5,
+        "connected_account.resynced": 3,
+        "connected_account.updated": 3,
+        "legal.documents_accepted": 28,
+        "legal.notice_sent": 128
+      },
+      "deliveredAtNull": 0,
+      "deliveredOrNextNotCreatedAt": 0,
+      "subjectTypeOrCauseSet": 0,
+      "attemptsOrFailureSet": 0,
+      "auditLogTable": false,
+      "recordEventTable": false,
+      "subjectKindCreatedAtIndex": [
+        true
+      ],
+      "eventLogIndexes": [
+        "EventLog_companyId_kind_createdAt_idx",
+        "EventLog_deliveredAt_nextAttemptAt_idx",
+        "EventLog_pkey",
+        "EventLog_subjectKind_createdAt_idx",
+        "EventLog_subject_idx"
+      ],
+      "webhookDeliveries": 11118,
+      "webhookDeliveriesWithEventId": 0,
+      "recordEventMatchRows": 0,
+      "recordEventSubscriptionRows": 0,
+      "dataViewRows": 7
+    },
+    "widgetDashboardViews": {
+      "viewIdColumn": 1,
+      "viewIdSet": 0,
+      "widgets": 0,
+      "index": 1,
+      "foreignKey": 1
+    },
+    "uniqueConfigurationNames": {
+      "duplicateKeysAfterMigration": {
+        "lists": 0,
+        "fields": 0,
+        "relationshipEnds": 0,
+        "options": 0
+      },
+      "labelsEndingInNumberedSuffix": {
+        "lists": 0,
+        "fields": 2,
+        "relationshipEnds": 0,
+        "options": 0
+      },
+      "basis": "Current schema snapshot of every workspace; names compared after NFD, accent removal, whitespace collapse, trim and lowercase (the migration's documented key); scopes: active lists (singular and plural), fields per list, relationship end labels per list side, options per field."
+    },
+    "tableCounts": {
+      "legacyOnlyDropped": [
+        "AuditLog",
+        "Contact",
+        "ContactIdentifier",
+        "ContactOrganization",
+        "ContactUser",
+        "CustomColumn",
+        "CustomFieldValue",
+        "Deal",
+        "DealContact",
+        "DealOrganization",
+        "DealUser",
+        "EntityTerminology",
+        "Organization",
+        "OrganizationUser",
+        "Service",
+        "ServiceDeal",
+        "ServiceUser",
+        "Task",
+        "TaskContact",
+        "TaskDeal",
+        "TaskOrganization",
+        "TaskService",
+        "TaskUser"
+      ],
+      "newTables": 21,
+      "retainedChanged": [
+        {
+          "table": "DataView",
+          "before": 13,
+          "after": 7
+        },
+        {
+          "table": "P13n",
+          "before": 672,
+          "after": 183
+        },
+        {
+          "table": "RolePermission",
+          "before": 156,
+          "after": 46
+        },
+        {
+          "table": "Widget",
+          "before": 421,
+          "after": 0
+        }
+      ],
+      "retainedUnchanged": 45,
+      "generic": {
+        "CrmRecord": 8564,
+        "RecordValue": 64243,
+        "RecordLink": 5703,
+        "RecordAssignment": 2836,
+        "RecordIdentity": 5233
+      }
+    },
+    "carriedAuditRowsExpected": 195,
+    "carriedByKindExpected": {
+      "connected_account.created": 19,
+      "connected_account.deleted": 9,
+      "connected_account.reconnected": 5,
+      "connected_account.resynced": 3,
+      "connected_account.updated": 3,
+      "legal.documents_accepted": 28,
+      "legal.notice_sent": 128
+    },
+    "auditLogRowsBefore": 27479,
+    "firstDeploy": {
+      "exitCode": 0,
+      "durationSeconds": 15.790090615999999,
+      "blockedConnections": 0
+    },
+    "secondDeploy": {
+      "exitCode": 0,
+      "durationSeconds": 1.221065723,
+      "noPendingMigrations": true
+    },
+    "ledger": {
+      "ledgerEntries": 123,
+      "ledgerFinished": 123,
+      "ledgerUnfinishedOrRolledBack": 0,
+      "newMigrationsFinished": 6
+    },
+    "workspaces": 145,
+    "formerCompanyCurrencyDistribution": {
+      "EUR": 111,
+      "AUD": 2,
+      "SEK": 2,
+      "MXN": 1,
+      "USD": 21,
+      "INR": 3,
+      "BRL": 3,
+      "GBP": 1,
+      "SGD": 1
+    },
+    "i13FieldCurrency": {
+      "companyCurrencyColumn": 0,
+      "currencyType": 0,
+      "currencyDefinitions": 887,
+      "definitionsWithoutCurrency": 0,
+      "currentSnapshotFieldsWithoutCurrency": 0,
+      "activeOperations": 0,
+      "starterMoneyFields": {
+        "workspacesWithSchemaState": 145,
+        "checked": 870,
+        "missingStarterFields": 0,
+        "currencyMismatchVsLegacyCompanyCurrency": 0,
+        "currentSnapshotChecked": 870,
+        "currentSnapshotMismatch": 0
+      }
+    },
+    "i9RolePermissions": {
+      "legacyRows": 156,
+      "independentlyExpectedAfter": 46,
+      "rolePermissions": 46,
+      "missingVsIndependentExpectation": 0,
+      "unexpectedVsIndependentExpectation": 0,
+      "resourceEnum": [
+        "dataModel",
+        "users",
+        "company",
+        "api",
+        "auditLog",
+        "inboxMessages",
+        "wiki",
+        "routines"
+      ],
+      "storageModeColumn": 0,
+      "presetKeyColumn": 0
+    },
+    "i4P13nSettings": {
+      "expectedRows": 183,
+      "settingsColumn": 1,
+      "settingsNonNull": 0,
+      "p13nRows": 183
+    },
+    "dataViewExpected": 7,
+    "schemaEqualsPrismaSchema": true,
+    "timingsNote": "Deploy durations are observations on a shared 16 vCPU VM, not production-duration guarantees."
+  },
+  "notCoveredByThisInterim": [
+    "full four-browser matrix and served hubs",
+    "item I6",
+    "full re-rehearsal with the independent reconciliation oracle, interruption/recovery and owner/administrator UI replay",
+    "copy destruction (held at the owner's direction)"
+  ],
+  "previousCheckpoint": "2026-10-07-interim-4-summary.json (1182c57ea), earlier interim receipts, and 2026-10-06-summary.json (4223d7deb, latest four-browser matrix and full rehearsal evidence).",
+  "copiedRecordsIdentifiersEmailsValuesFingerprintsIncluded": false,
+  "generatedAtUtc": "2026-10-07T22:17:35.176849+00:00"
+}

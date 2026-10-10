@@ -1,9 +1,12 @@
+import type { RegisterUserCompanyRepo } from "./register-user-company.repo";
+import type { RegisterUserRepo } from "./register-user.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
-import type { TenantUser } from "@/features/user/user.service";
 import type { AuthService } from "@/features/auth/auth.service";
 import type { EventService } from "@/features/event/event.service";
 import type { RouteGuardService } from "@/features/auth/route-guard.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
+import type { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
+import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
 
 import { z } from "zod";
 import { CountryCode, Status } from "@/generated/prisma";
@@ -71,23 +74,6 @@ type RegistrationContext = {
   target: RegistrationTarget;
 };
 
-export abstract class RegisterUserRepo {
-  abstract findAuthUserCompanyIdUnscoped(userId: string): Promise<string | null | undefined>;
-  abstract findAuthUserCompanyIdForUpdateUnscoped(userId: string): Promise<string | null | undefined>;
-  abstract findCurrentUserUnscoped(email: string): Promise<TenantUser | null>;
-  abstract bindAuthUserToCompanyOrThrowUnscoped(args: { authUserId: string; companyId: string }): Promise<void>;
-  abstract createCompanyAndUser(
-    args: RegisterUserData & {
-      adAttribution?: RegistrationAdAttribution[];
-    },
-  ): Promise<TenantUser>;
-  abstract registerExistingCompany(args: RegisterUserData & { companyId: string }): Promise<TenantUser>;
-}
-
-export abstract class RegisterUserCompanyRepo {
-  abstract existsUnscoped(companyId: string): Promise<boolean>;
-}
-
 @SystemInteractor
 export class RegisterUserInteractor {
   constructor(
@@ -96,6 +82,7 @@ export class RegisterUserInteractor {
     private eventService: EventService,
     private routeGuardService: RouteGuardService,
     private companyRepo: RegisterUserCompanyRepo,
+    private recordModel: Pick<InitializeRecordModelService, "initialize">,
   ) {}
 
   async invoke(
@@ -124,10 +111,14 @@ export class RegisterUserInteractor {
           ? await this.repo.findAuthUserCompanyIdUnscoped(data.sessionUserId)
           : null;
 
-    return runInTransaction(
-      () => this.registerLocked(data, plannedCompanyId),
-      plannedCompanyId ? { companyId: plannedCompanyId } : undefined,
-    );
+    try {
+      return await runInTransaction(
+        () => this.registerLocked(data, plannedCompanyId),
+        plannedCompanyId ? { companyId: plannedCompanyId } : undefined,
+      );
+    } catch (error) {
+      return recordWriteFailure(error);
+    }
   }
 
   @ValidateOutput(OutputSchema)
@@ -184,6 +175,7 @@ export class RegisterUserInteractor {
     });
 
     await runWithTenant(tenantUser, async () => {
+      if (target.type === "createCompany") await this.recordModel.initialize();
       if (isNewCloudCompany) {
         await this.eventService.publish(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, {
           entityId: tenantUser.companyId,

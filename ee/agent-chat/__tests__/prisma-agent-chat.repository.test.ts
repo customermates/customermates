@@ -78,9 +78,10 @@ vi.mock("@/env", () => ({
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { env } from "@/env";
 
-import { PrismaAgentChatRepo } from "../prisma-agent-chat.repository";
-import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "../agent-run-limits";
 import { pendingAgentApprovalToolName } from "../agent-approval";
+import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "../agent-run-limits";
+import { PrismaAgentChatRepo } from "../prisma-agent-chat.repository";
+import { LIVE_WIDGET } from "@/features/widget/live-widget";
 
 const user = createMockUserWithPermissions([]);
 
@@ -386,7 +387,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
             {
               reference: {
                 kind: "dataView",
-                surfaceKey: "contacts-card-store",
+                surfaceKey: "records:10000000-0000-4000-8000-000000000011",
                 viewKey: "11111111-1111-4111-8111-111111111111",
                 requestedAction: "update",
               },
@@ -443,7 +444,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
             context: {
               reference: {
                 kind: "dataView",
-                surfaceKey: "contacts-card-store",
+                surfaceKey: "records:10000000-0000-4000-8000-000000000011",
                 viewKey: "11111111-1111-4111-8111-111111111111",
                 requestedAction: "update",
               },
@@ -818,41 +819,6 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     expect(result[0]?.preview).toBe("Opened [internal reference].");
   });
 
-  it("removes the legacy route envelope from user conversation previews", async () => {
-    prismaMock.agentConversation.findMany.mockResolvedValue([
-      {
-        id: "conversation-1",
-        title: '\uFEFF <page_context route="/en/deals"/>\nLegacy context',
-        updatedAt: new Date("2026-08-06T10:00:00.000Z"),
-        userLastReadAt: null,
-        messages: [
-          {
-            role: "user",
-            parts: [
-              {
-                type: "text",
-                text: '<page_context route="/en/deals"/>\nShow open deals',
-              },
-            ],
-            createdAt: new Date("2026-08-06T10:00:00.000Z"),
-          },
-        ],
-      },
-    ]);
-    prismaMock.agentMessage.findMany.mockResolvedValue([]);
-
-    const result = await runWithTenant(user, () =>
-      new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies())
-        .listConversationPage({ archived: false })
-        .then((page) => page.conversations),
-    );
-
-    expect(result[0]).toMatchObject({
-      title: "Legacy context",
-      preview: "Show open deals",
-    });
-  });
-
   it("keeps routine runs out of the chat list", async () => {
     prismaMock.agentConversation.findMany.mockResolvedValue([]);
     prismaMock.agentMessage.findMany.mockResolvedValue([]);
@@ -1016,7 +982,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
     });
   });
 
-  it("permission-scopes entity signals and reads only the current user's dashboard widgets", async () => {
+  it("reads routine, widget and connected-account signals without consulting retired CRM tables", async () => {
     prismaMock.widget.findFirst.mockResolvedValue({ id: "widget-1" });
     prismaMock.routine.findFirst.mockResolvedValue({ id: "routine-1" });
 
@@ -1024,16 +990,13 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()).getSuggestionSignals(),
     );
 
-    expect(prismaMock.contact.findFirst).toHaveBeenCalledWith({
-      where: { id: { in: [] }, companyId: user.companyId },
-      select: { id: true },
-    });
+    expect(prismaMock.contact.findFirst).not.toHaveBeenCalled();
     expect(prismaMock.connectedAccount.findFirst).toHaveBeenCalledWith({
       where: { companyId: user.companyId, id: { in: [] } },
       select: { id: true },
     });
     expect(prismaMock.routine.findFirst).toHaveBeenCalledWith({
-      where: { id: { in: [] }, companyId: user.companyId },
+      where: { id: { in: [] }, companyId: user.companyId, deletedAt: null },
       select: { id: true },
     });
     expect(prismaMock.wikiPage.findFirst).toHaveBeenCalledWith({
@@ -1041,7 +1004,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       select: { id: true },
     });
     expect(prismaMock.widget.findFirst).toHaveBeenCalledWith({
-      where: { companyId: user.companyId, userId: user.id },
+      where: { companyId: user.companyId, userId: user.id, ...LIVE_WIDGET },
       select: { id: true },
     });
     expect(signals.widgets).toBe(true);
@@ -1720,7 +1683,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
           parts: [{ type: "text", text: "Done" }],
           terminalCode: "completed",
           stopReason: null,
-          affectedResources: ["contacts"],
+          affectedResources: ["wiki"],
           usageSettlement: {
             model: "claude-test",
             inputTokens: 100,
@@ -1744,7 +1707,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       assistantMessage: { id: "assistant-message-1" },
       terminalCode: "completed",
       stopReason: null,
-      affectedResources: ["contacts"],
+      affectedResources: ["wiki"],
       costMicrocents: 123,
     });
     expect(prismaMock.agentUsageEvent.updateMany).toHaveBeenCalledWith({
@@ -1792,7 +1755,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
         assistantMessageId: "assistant-message-1",
         terminalCode: "completed",
         stopReason: null,
-        affectedResources: ["contacts"],
+        affectedResources: ["wiki"],
         terminalAt: completedAt,
       },
     });

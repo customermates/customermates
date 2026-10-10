@@ -3,71 +3,59 @@
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import { AppCard } from "@/components/card/app-card";
-import { AppCardBody } from "@/components/card/app-card-body";
-import { AppCardFooter } from "@/components/card/app-card-footer";
-import { AppCardHeader } from "@/components/card/app-card-header";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { runUserAction } from "@/core/errors/report-application-error";
+
+import { ConfirmDialog } from "./confirm-dialog";
+import { ConfirmationSentenceView } from "./confirmation-sentence";
 
 export const DeleteConfirmationModal = observer(() => {
   const t = useTranslations();
   const { deleteConfirmationModalStore: store } = useRootStore();
   const { isLoading, form, close } = store;
-  const title = form.title || t("Common.deleteConfirmation.title");
-  const focusReturn = useOverlayFocusReturn(store.isOpen);
+  const blocked = Boolean(form.blockers?.length);
 
   return (
-    <AlertDialog
+    <ConfirmDialog
+      anchorScope="confirm-delete"
+      busy={isLoading}
+      confirmLabel={form.confirmLabel || t("Common.actions.delete")}
+      confirmVariant={form.confirmVariant || "destructive"}
+      confirmationText={form.confirmationText}
+      description={form.message || t("Common.deleteConfirmation.message")}
       open={store.isOpen}
-      onOpenChange={(next) => {
-        if (!next) close();
+      title={form.title || t("Common.deleteConfirmation.title")}
+      onCancel={close}
+      onCloseAutoFocus={(event) => {
+        if (store.restoreConfirmedFocus()) event.preventDefault();
       }}
+      onConfirm={blocked ? undefined : () => store.onSubmit()}
     >
-      <AlertDialogContent
-        className="flex flex-col gap-0 border-0 bg-transparent p-0 shadow-none"
-        size="sm"
-        {...focusReturn}
-      >
-        <AppCard>
-          <AppCardHeader>
-            <AlertDialogTitle className="text-base font-semibold">{title}</AlertDialogTitle>
-          </AppCardHeader>
+      {form.details?.length ? (
+        <ul className="list-disc space-y-1 ps-5 text-sm" data-delete-confirmation-details="">
+          {form.details.map((detail, index) => (
+            <li key={index}>
+              <ConfirmationSentenceView sentence={typeof detail === "string" ? [detail] : detail} onNavigate={close} />
+            </li>
+          ))}
+        </ul>
+      ) : null}
 
-          <AppCardBody>
-            <AlertDialogDescription className="text-sm text-foreground">
-              {form.message || t("Common.deleteConfirmation.message")}
-            </AlertDialogDescription>
-          </AppCardBody>
+      {form.blockers?.length ? (
+        <div className="space-y-1 text-sm" data-delete-confirmation-blockers="">
+          <p className="font-medium text-destructive">{t("Common.deleteConfirmation.blocked")}</p>
 
-          <AppCardFooter>
-            <AlertDialogCancel disabled={isLoading} id="confirm-delete-cancel">
-              {t("Common.actions.cancel")}
-            </AlertDialogCancel>
-
-            <AlertDialogAction
-              disabled={isLoading}
-              id="confirm-delete"
-              variant={form.confirmVariant || "destructive"}
-              onClick={(event) => {
-                event.preventDefault();
-                runUserAction(() => store.onSubmit());
-              }}
-            >
-              {form.confirmLabel || t("Common.actions.delete")}
-            </AlertDialogAction>
-          </AppCardFooter>
-        </AppCard>
-      </AlertDialogContent>
-    </AlertDialog>
+          <ul className="list-disc space-y-1 ps-5">
+            {form.blockers.map((blocker, index) => (
+              <li key={index}>
+                <ConfirmationSentenceView
+                  sentence={typeof blocker === "string" ? [blocker] : blocker}
+                  onNavigate={close}
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+    </ConfirmDialog>
   );
 });

@@ -3,9 +3,7 @@ title: Nachrichten-Ratenlimits
 description: Warum verbundene Kanäle Ratenlimits haben, welche Lese- und Sendelimits pro Anbieter gelten und was passiert, wenn ein Limit erreicht wird.
 ---
 
-Wenn Sie einen Kanal verbinden (LinkedIn, WhatsApp, E-Mail und so weiter), kommuniziert Customermates über Unipile mit diesem Anbieter. Jeder Anbieter erzwingt eigene Anfragelimits, und ein Überschreiten kann das zugrunde liegende Konto drosseln oder sperren. Um innerhalb sicherer Grenzen zu bleiben, wendet Customermates pro Kanal ein konservatives Anfragebudget an und pausiert, bevor ein Anbieter eingreifen würde.
-
-Eine pausierte Synchronisierung ist erwartetes Verhalten: Sie hält das verbundene Konto innerhalb der Anbieterlimits und setzt von selbst fort.
+Verbundene Kanäle (LinkedIn, WhatsApp, E-Mail und so weiter) kommunizieren über Unipile mit ihrem Anbieter. Jeder Anbieter erzwingt eigene Anfragelimits, und ein Überschreiten kann das Konto drosseln oder sperren. Customermates wendet deshalb pro Kanal ein konservatives Anfragebudget an und pausiert, bevor ein Anbieter eingreifen würde. Eine pausierte Synchronisierung ist erwartetes Verhalten: Sie hält das Konto innerhalb der Anbieterlimits und setzt von selbst fort.
 
 ## Wie funktionieren die Limits? [#how-do-the-limits-work]
 
@@ -31,11 +29,11 @@ Lesevorgänge synchronisieren den Verlauf. Sie sind höher angesetzt als Schreib
 | Outlook | 100 | keine |
 | IMAP | 100 | keine |
 
-LinkedIn bleibt am konservativsten, da die Erkennung automatisierter Aktivität dort am strengsten ist. Einige Werte richten sich nach den Obergrenzen des Anbieters: soziale Kanäle begrenzen das Minuten-Leselimit auf 50, E-Mail-Kanäle auf 100, und das Tageslimit bewegt sich in 30er-Schritten (ein Zielwert von 500 wird daher als 510 angewendet). Telegram und die E-Mail-Anbieter bieten kein separates Tages-Leselimit.
+LinkedIn bleibt am konservativsten, da die Erkennung automatisierter Aktivität dort am strengsten ist. Einige Werte richten sich nach den Obergrenzen des Anbieters: Soziale Kanäle begrenzen das Minuten-Leselimit auf 50, E-Mail-Kanäle auf 100, und das Tageslimit bewegt sich in 30er-Schritten (ein Zielwert von 500 wird daher als 510 angewendet). Telegram und die E-Mail-Anbieter haben kein separates Tages-Leselimit.
 
 ## Welche Limits gelten für Senden und Profilabrufe? [#what-are-the-limits-for-sending-and-profile-lookups]
 
-Die riskanteren Operationen bleiben unabhängig vom Lesebudget konservativ: Profilabrufe (die Anbieter als scraping-sensibel behandeln) und jede Sendeaktion.
+Profilabrufe (die Anbieter als scraping-sensibel behandeln) und jede Sendeaktion bleiben unabhängig vom Lesebudget konservativ.
 
 | Anbieter | Aktion | Limit |
 | --- | --- | --- |
@@ -60,13 +58,11 @@ Weitere Aufrufe für dieses Konto werden abgelehnt, bis sich das Fenster erneuer
 Andere Aktionen formulieren es anders:
 
 - **Konversation neu synchronisieren**, ältere Nachrichten am Anfang einer Konversation und Medien in einer Nachricht: „Das Rate-Limit dieses Kanals wurde erreicht.“ mit der Wartezeit und **Mehr erfahren**.
-- **Aktualisieren** im Posteingang: „Einige Kanäle haben ihr Rate-Limit erreicht. Bitte in ein paar Minuten erneut versuchen.“
+- **Aktualisieren** im [Posteingang](app:inbox): „Einige Kanäle haben ihr Rate-Limit erreicht. Bitte in ein paar Minuten erneut versuchen.“
 - Eine E-Mail in einen anderen Ordner verschieben: „Ablegen in `{folder}` gestoppt, weil der Anbieter die Rate begrenzt.“ mit der Wartezeit für den Rest.
 
-Die Wartezeit in der Meldung stammt aus dem `Retry-After`-Wert der Rate-Limit-Antwort, die Unipile zurückgibt; fehlt er, setzt die Meldung ersatzweise 60 Sekunden an und lautet „in 1 Minute“. Customermates wiederholt die Aktion nicht selbst: Die Wartezeit ist nur ein Hinweis, und sobald das angegebene Fenster vorbei ist, können Sie es erneut versuchen. Es geht nichts verloren. Über MCP und die REST-API schlägt der Aufruf mit derselben Meldung und Wartezeit fehl: Die REST-API antwortet mit HTTP-Status 429, und MCP liefert einen Fehler der Art `rate_limit`, dessen Eintrag in `_meta.failure` `customCode: "unipileRateLimit"` trägt.
-
-**Link:** die Seite **Posteingang**, `/inbox`. **Mate:** `navigate` und `highlight_element` mit `nav-inbox`; **Aktualisieren** und **Konversation neu synchronisieren** sind keine Highlight-Ziele, deshalb nennt Mate sie beim Namen.
+Die Wartezeit stammt aus dem `Retry-After`-Wert der Rate-Limit-Antwort, die Unipile zurückgibt; fehlt er, gelten ersatzweise 60 Sekunden, und die Meldung lautet „in 1 Minute“. Customermates wiederholt die Aktion nicht selbst: Versuchen Sie es erneut, sobald das Fenster vorbei ist. Es geht nichts verloren. Über die REST-API und MCP schlägt der Aufruf mit derselben Meldung und Wartezeit fehl: Die REST-API antwortet mit HTTP-Status 429, und MCP liefert einen Fehler der Art `rate_limit`, dessen Eintrag in `_meta.failure` `customCode: "unipileRateLimit"` trägt.
 
 ## Setzt der Verlaufsimport von selbst fort? [#does-the-history-import-resume-by-itself]
 
-Der Import des gesamten Nachrichtenverlaufs kann umfangreich sein, etwa eine Anfrage pro Unterhaltung. Wird mitten im Import ein Limit erreicht, **pausiert der Hintergrund-Import und setzt automatisch fort**, sobald sich das Fenster erneuert; Sie müssen nichts tun. Eine Wartezeit von mehr als zehn Minuten verschiebt den Import auf einen späteren Durchlauf. Mit **Verwalten** bei **Inbox-Nachrichten** lädt Scrollen bis zum Anfang einer Unterhaltung oder **Konversation neu synchronisieren** ältere Nachrichten vom Anbieter, und beides zählt gegen dieselben Limits; neue Aktivität trifft in Echtzeit über Webhooks ein.
+Ja. Der Import des gesamten Nachrichtenverlaufs braucht etwa eine Anfrage pro Unterhaltung. Wird mitten im Import ein Limit erreicht, **pausiert der Hintergrund-Import und setzt automatisch fort**, sobald sich das Fenster erneuert; eine Wartezeit von mehr als zehn Minuten verschiebt den Import auf einen späteren Durchlauf. Mit **Bearbeiten** bei **Inbox-Nachrichten** lädt Scrollen bis zum Anfang einer Unterhaltung oder **Konversation neu synchronisieren** ältere Nachrichten vom Anbieter, und beides zählt gegen dieselben Limits. Neue Aktivität trifft in Echtzeit über Webhooks ein.

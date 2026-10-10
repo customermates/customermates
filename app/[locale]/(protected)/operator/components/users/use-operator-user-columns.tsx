@@ -13,7 +13,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { OperatorTagsCell } from "../tags/operator-tags-cell";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
 import { agentMicrocentsToCredits } from "@/core/commercial/agent-credits";
-import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/company/components/subscription/subscription-panel";
+import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-panel";
 
 function displayName(user: OperatorUserRowDto): string {
   return `${user.firstName} ${user.lastName}`.trim() || user.email;

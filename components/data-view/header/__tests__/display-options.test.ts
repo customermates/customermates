@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
-import type * as TabsModule from "@/components/ui/tabs";
+import type * as SegmentedControlModule from "@/components/ui/segmented-control";
 
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -13,14 +13,14 @@ const harness = vi.hoisted(() => ({
   onLayoutChange: undefined as ((value: string) => void) | undefined,
 }));
 
-vi.mock("@/components/ui/tabs", async (importOriginal) => {
-  const actual = await importOriginal<typeof TabsModule>();
+vi.mock("@/components/ui/segmented-control", async (importOriginal) => {
+  const actual = await importOriginal<typeof SegmentedControlModule>();
 
   return {
     ...actual,
-    Tabs: (props: Parameters<typeof actual.Tabs>[0]) => {
+    SegmentedControl: (props: Parameters<typeof actual.SegmentedControl>[0]) => {
       harness.onLayoutChange = props.onValueChange;
-      return createElement(actual.Tabs, props);
+      return createElement(actual.SegmentedControl, props);
     },
   };
 });
@@ -30,9 +30,11 @@ vi.mock("next/navigation", async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   usePathname: () => "/en/deals",
 }));
-vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => ({ terminologyStore: { overrides: [] } }) }));
-vi.mock("@/components/entity-terminology/use-column-label", () => ({ useColumnLabel: () => (uid: string) => uid }));
-vi.mock("@/components/entity-terminology/use-filter-field-label", () => ({
+vi.mock("@/core/stores/root-store.provider", () => ({
+  useRootStore: () => ({ recordWorkspaceStore: { navigation: null } }),
+}));
+vi.mock("@/components/data-view/use-column-label", () => ({ useColumnLabel: () => (uid: string) => uid }));
+vi.mock("@/components/data-view/use-filter-field-label", () => ({
   useFilterFieldLabel: () => (field: string) =>
     field === "organizationIds" ? "Account" : `Common.filters.fields.${field}`,
 }));
@@ -58,6 +60,8 @@ function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewSt
   return {
     activeViewKey: ALL_VIEW_KEY,
     canBoard: true,
+    supportsBoard: true,
+    primaryColumnId: "name",
     columnsDefinition: [],
     currentGroupableFieldId: "",
     customColumns: [],
@@ -206,29 +210,18 @@ describe("display options", () => {
   it("renders exactly the table and board layout controls as a segmented list under the anchor scope", () => {
     const html = render(store(), "deals");
 
-    expect(html).toContain('data-variant="segmented"');
+    expect(html).toContain('data-slot="segmented-control"');
     expect(html).toContain('id="deals-layout-table"');
     expect(html).toContain('id="deals-layout-board"');
     expect(html).not.toContain("deals-layout-cards");
     expect(html).not.toContain("deals-layout-kanban");
     expect(html).not.toContain("bg-primary data-[state=active]");
-    expect(html).toContain("Common.ariaLabels.switchToBoardView");
     expect(html).not.toContain('disabled=""');
   });
 
-  it("draws each layout as a labelled card rather than a bare icon", () => {
-    const html = render(store(), "deals");
-
-    expect(html).toContain("Common.table.layouts.table");
-    expect(html).toContain("Common.table.layouts.board");
-    expect(html).toContain("grid-cols-2");
-    for (const id of ["deals-layout-table", "deals-layout-board"]) {
-      const trigger = html.match(new RegExp(`<button[^>]*id="${id}"[^>]*>`))?.[0] ?? "";
-
-      expect(trigger, id).toContain("min-h-16");
-      expect(trigger, id).toContain("flex-col");
-      expect(trigger, id).toContain("data-[state=active]:border-primary/60");
-    }
+  it("labels each layout segment and explains a disabled board", () => {
+    expect(render(store(), "deals")).toContain("Common.table.layouts.board");
+    expect(render(store({ canBoard: false }), "deals")).toContain("Common.ariaLabels.switchToBoardViewDisabled");
   });
 
   it("names the layout tab list and both pickers and points no layout tab at a panel that is never rendered", () => {
@@ -252,12 +245,17 @@ describe("display options", () => {
     expect(html).toContain('aria-label="Common.sort.field"');
   });
 
-  it("disables the board control when the store cannot board", () => {
-    const html = render(store({ canBoard: false }), "company-roles");
+  it("disables the board control when a record list cannot board yet", () => {
+    const html = render(store({ canBoard: false }), "deals");
 
-    expect(html).toMatch(
-      /id="company-roles-layout-board"[^>]*disabled=""|disabled=""[^>]*id="company-roles-layout-board"/,
-    );
+    expect(html).toMatch(/id="deals-layout-board"[^>]*disabled=""|disabled=""[^>]*id="deals-layout-board"/);
+  });
+
+  it("offers no layout control on surfaces without a card renderer (rule 61)", () => {
+    const html = render(store({ canBoard: false, supportsBoard: false }), "settings-roles");
+
+    expect(html).not.toContain("settings-roles-layout-board");
+    expect(html).not.toContain('aria-label="Common.table.layout"');
   });
 
   it("shows the table as active for a stored card mode the surface cannot board", () => {

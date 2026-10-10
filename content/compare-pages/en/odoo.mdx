@@ -146,7 +146,7 @@ The Card view groups by a single-select column, so supported records such as dea
 
 Odoo's CRM module is mature on lead management. Lead mining, AI-based lead scoring on historical data, UTM tracking, deduplication, GeoIP, and lead routing are all native. Teams generating high lead volume from marketing channels and needing systematic scoring and distribution get a workflow Odoo has been refining for years.
 
-Customermates ships five entity types as first-class citizens: Contacts, Organizations, Deals, Services, and Tasks. They link bidirectionally through the `manage_record_links` operation. Custom fields are unlimited and typed (ten types: currency, date, dateRange, dateTime, dateTimeRange, email, plain, link, phone, singleSelect), available from day one rather than as a Studio upsell. Lead mining and enrichment aren't built in but can connect through the MCP server, a separately run n8n instance, or Apify because the API exposes the relevant operations.
+Customermates ships five entity types as first-class citizens: Contacts, Organizations, Deals, Services, and Tasks. They link bidirectionally through the link and unlink actions of `mutate_crm_record`. Custom fields are unlimited and typed (ten types: currency, date, dateRange, dateTime, dateTimeRange, email, plain, link, phone, singleSelect), available from day one rather than as a Studio upsell. Lead mining and enrichment aren't built in but can connect through the MCP server, a separately run n8n instance, or Apify because the API exposes the relevant operations.
 
 ## AI: lead scoring vs. an agent that operates the CRM
 

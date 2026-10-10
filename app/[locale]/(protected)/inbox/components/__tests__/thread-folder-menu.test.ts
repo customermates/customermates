@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import type { EmailFolder } from "@/ee/messaging/email-folders";
 
 import { createElement } from "react";
@@ -35,8 +35,9 @@ vi.mock("@/components/ui/dropdown-menu", () => ({
   DropdownMenuTrigger: ({ children }: { children: ReactNode }) => children,
   DropdownMenuContent: ({ children }: { children: ReactNode }) => createElement("div", {}, children),
   DropdownMenuLabel: ({ children }: { children: ReactNode }) => createElement("span", {}, children),
-  DropdownMenuItem: (props: { children: ReactNode; title: string; onSelect: () => unknown; disabled?: boolean }) => {
-    harness.items.push(props);
+  DropdownMenuItem: (props: { children: ReactNode[]; onSelect: () => unknown; disabled?: boolean }) => {
+    const label = (props.children[1] as ReactElement<{ children: string }>).props.children;
+    harness.items.push({ ...props, title: label });
     return createElement("button", { disabled: props.disabled }, props.children);
   },
 }));
@@ -44,6 +45,7 @@ vi.mock("@/components/ui/tooltip", () => ({
   Tooltip: ({ children }: { children: ReactNode }) => children,
   TooltipTrigger: ({ children }: { children: ReactNode }) => children,
   TooltipContent: () => null,
+  TooltipProvider: ({ children }: { children: ReactNode }) => children,
 }));
 
 import { ThreadFolderMenu } from "../thread-folder-menu";

@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import type { TenantUser } from "@/features/user/user.schema";
 import type { WikiSearchResult } from "../wiki.schema";
 
@@ -103,7 +104,7 @@ describeDatabase("Workspace Wiki retrieval quality", () => {
     const misses: string[] = [];
     for (const labelled of WIKI_RETRIEVAL_QUERIES) {
       const result = await runWithTenant(user, () =>
-        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(), "stored").invoke({
+        new SearchWikiPagesInteractor(new PrismaWikiPageRepo(new PermissionService()), "stored").invoke({
           query: labelled.query,
           page: 1,
           pageSize: 5,

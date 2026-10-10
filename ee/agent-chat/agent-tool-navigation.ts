@@ -16,3 +16,15 @@ export function agentToolSavedViewHref(toolName: string | undefined, output: unk
   if (navigation.kind !== "saved-view") return null;
   return dataViewNavigationHref(navigation.href);
 }
+
+export function agentToolViewProposal(toolName: string | undefined, output: unknown) {
+  if (toolName !== "manage_data_views") return null;
+  const result = unwrapToolOutput(output);
+  if (!result || typeof result !== "object" || Array.isArray(result)) return null;
+  const record = result as { ok?: unknown; viewProposal?: unknown };
+  if (record.ok !== true) return null;
+  const proposal = record.viewProposal;
+  return proposal && typeof proposal === "object" && !Array.isArray(proposal)
+    ? (proposal as Record<string, unknown>)
+    : null;
+}

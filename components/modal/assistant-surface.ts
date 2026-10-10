@@ -1,6 +1,6 @@
 import type { CSSProperties, FocusEvent, SyntheticEvent } from "react";
 
-const ASSISTANT_SURFACE_SELECTOR = "[data-agent-surface]";
+export const ASSISTANT_SURFACE_SELECTOR = "[data-agent-surface]";
 const escapesLeftToAssistant = new WeakSet<Event>();
 
 export function keepOpenForAssistantSurface(event: Event) {

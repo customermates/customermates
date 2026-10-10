@@ -13,11 +13,7 @@ import {
   agentContextsFromMessageParts,
   type AgentContextAttachment,
 } from "./agent-context";
-import {
-  sanitizeAgentPlainText,
-  sanitizeAgentVisibleText,
-  stripLegacyUserPageContextPrefix,
-} from "./agent-output-safety";
+import { sanitizeAgentPlainText, sanitizeAgentVisibleText } from "./agent-output-safety";
 import { internalToolIdentity } from "./tool-identity";
 import { agentViewRequestTarget } from "./agent-page-context";
 
@@ -91,7 +87,6 @@ export function clientSafeAgentMessageParts(
   value: unknown,
   options: {
     sanitizeText?: boolean;
-    stripLegacyUserContext?: boolean;
     wikiBaseUrl?: string;
     allowContext?: boolean;
   } = {},
@@ -103,15 +98,10 @@ export function clientSafeAgentMessageParts(
     const part = raw as Record<string, unknown>;
 
     if (part.type === "text" && typeof part.text === "string") {
-      const withoutLegacyContext = options.stripLegacyUserContext
-        ? stripLegacyUserPageContextPrefix(part.text)
-        : part.text;
       return [
         {
           type: "text",
-          text: options.sanitizeText
-            ? sanitizeAgentVisibleText(withoutLegacyContext, options.wikiBaseUrl)
-            : withoutLegacyContext,
+          text: options.sanitizeText ? sanitizeAgentVisibleText(part.text, options.wikiBaseUrl) : part.text,
         },
       ];
     }
@@ -172,10 +162,7 @@ export function hasSuccessfulAgentMutation(parts: readonly AgentMessagePart[]) {
 
 export const AgentDataCountsSchema = z.object({
   contacts: z.boolean(),
-  organizations: z.boolean(),
   deals: z.boolean(),
-  services: z.boolean(),
-  tasks: z.boolean(),
   routines: z.boolean(),
   wiki: z.boolean(),
   widgets: z.boolean(),
@@ -193,24 +180,12 @@ export const AgentConversationSummarySchema = z.object({
 
 export type AgentConversationSummary = Data<typeof AgentConversationSummarySchema>;
 
-export const SUGGESTION_PAGE_IDS = [
-  "dashboard",
-  "inbox",
-  "tasks",
-  "contacts",
-  "organizations",
-  "deals",
-  "services",
-  "routines",
-  "wiki",
-  "connected-accounts",
-  "default",
-] as const;
+export const SUGGESTION_PAGE_IDS = ["dashboard", "inbox", "routines", "wiki", "connected-accounts", "default"] as const;
 
 export type SuggestionPageId = (typeof SUGGESTION_PAGE_IDS)[number];
 
 export function suggestionPageId(pathname: string): SuggestionPageId {
-  if (pathname.startsWith("/profile/connected-accounts")) return "connected-accounts";
+  if (pathname.startsWith("/settings/channels")) return "connected-accounts";
   const first = pathname.split("/")[1] ?? "";
   return SUGGESTION_PAGE_IDS.includes(first as SuggestionPageId) && first !== "default"
     ? (first as SuggestionPageId)
@@ -237,9 +212,7 @@ export function formatSupportTranscript(messages: { role: string; parts: unknown
   return messages
     .map((message) => {
       const rawText = partsToText(message.parts);
-      const text = sanitizeAgentPlainText(
-        message.role === "user" ? stripLegacyUserPageContextPrefix(rawText) : rawText,
-      ).slice(0, SUPPORT_TRANSCRIPT_LINE_MAX_CHARS);
+      const text = sanitizeAgentPlainText(rawText).slice(0, SUPPORT_TRANSCRIPT_LINE_MAX_CHARS);
       return `${message.role === "user" ? "user" : "assistant"}: ${text}`;
     })
     .filter((line) => !line.endsWith(": "))

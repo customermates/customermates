@@ -3,17 +3,17 @@ title: Connect CLI & editor clients (API key)
 description: "Connect Claude Code, Codex, Cursor, or the Gemini CLI to Customermates with an API key: one section per client, plus the Claude Desktop fallback."
 ---
 
-Customermates is the open-source, AI-native CRM. Once connected, your coding agent reads and writes contacts, deals, and notes without leaving the terminal. Every client on this page authenticates the same way: an API key sent in the `x-api-key` header against `<BASE_URL>/api/v1/mcp`, where `<BASE_URL>` is the address you open Customermates at, in the cloud or on your own instance. The snippets below already carry the address of the site showing this page; if you open Customermates at a different address, for example your own instance, replace that address as well as `YOUR_KEY`.
+Customermates is the open-source, AI-native CRM. Once connected, your coding agent reads and writes contacts, deals, and notes without leaving the terminal. Every client here authenticates the same way: an API key in the `x-api-key` header against `<BASE_URL>/api/v1/mcp`, where `<BASE_URL>` is the address you open Customermates at, in the cloud or on your own instance. The snippets below already carry the address of the site showing this page; if you open Customermates elsewhere, replace that address as well as `YOUR_KEY`.
 
 > Using Claude's or ChatGPT's **app** instead? Those connect with [the custom connector](/docs/connect-custom-connector) (OAuth, no key).
 
-## Create an API key
+## Create an API key [#create-an-api-key]
 
-In Customermates, open **My Profile → API & Connectors**, press **Add** and choose **Standard API key**. Name it for the client (e.g. `Claude Code`); without an **Expires in** date it never expires. The 64-character key is shown once, so copy it immediately. **Quick connections** in the same dialog does this for you: it names the key after the client, sets it to expire after 365 days, and shows the setup snippet with the key filled in and the key's expiry date below it. Creating a key needs **Manage** set to **Yes** on the **API & Webhooks** row of your role, and the page itself needs **Read access** **All** on that row; the built-in **Admin** role has both. See [API keys](/docs/api-keys). A key inherits the permissions of the user who created it; there is no per-key scoping. Create one key per client so you can revoke one client without touching the others; the audit log records the user a key belongs to, not the key itself. API keys and MCP work on every plan and on self-hosted instances.
+In Customermates, open [API keys](app:settings/api-keys), click [Add](app:settings/api-keys?focus=generate) and choose **Standard API key**. Name it for the client (for example `Claude Code`); without an **Expires in** date it never expires. The 64-character key is shown once, so copy it immediately. **Quick connections** in the same dialog does this for you: it names the key after the client, sets it to expire after 365 days, and shows the setup snippet with the key filled in and its expiry below.
 
-**Link:** the **API & Connectors** page, `/profile/api-keys`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys`; `highlight_element` also takes `profile-api-keys-generate` for **Add** (roles with **API & Webhooks** **Manage**), then `api-key-option-standard` for **Standard API key** (prerequisite `profile-api-keys-generate`) and `api-key-name`, `api-key-expires` and `api-key-save` for **Name**, **Expires in** and **Save** (prerequisite `api-key-option-standard`). The **Quick connections** tiles are not highlight targets, so Mate names them.
+Creating a key needs **Create** on the **API & Webhooks** row of your role, and the page itself needs **Read access** **All** on that row; the built-in **Admin** role has both. A key inherits the permissions of the user who created it; there is no per-key scoping. Create one key per client so you can revoke one without touching the others; the audit log records the user a key belongs to, not the key itself. API keys and MCP work on every plan and on self-hosted instances. Details: [API keys](/docs/api-keys).
 
-## Claude Code
+## Claude Code [#claude-code]
 
 Claude Code adds MCP servers via its CLI. One command does the setup. Run this in any terminal, replacing `YOUR_KEY`:
 
@@ -23,7 +23,7 @@ There is no restart or config-file edit. Claude Code connects automatically. Run
 
 **Scope:** the command defaults to local scope. Add `--scope user` to make Customermates available everywhere on your machine, or `--scope project` to write it to a repo's `.mcp.json` so teammates pick it up.
 
-## Codex
+## Codex [#codex]
 
 OpenAI's Codex CLI uses a TOML config file. The `codex mcp add` subcommand only handles stdio servers, so for an HTTP MCP server like Customermates you add the block manually. Open `~/.codex/config.toml` (create it if missing) and append, replacing `YOUR_KEY`:
 
@@ -37,15 +37,15 @@ env_http_headers = { "x-api-key" = "CUSTOMERMATES_API_KEY" }
 
 Then export `CUSTOMERMATES_API_KEY` in your shell profile. New sessions pick the server up, so end the current one and start fresh.
 
-## Cursor
+## Cursor [#cursor]
 
-Open **Settings → Tools & MCP → Add new MCP server** and paste this, replacing `YOUR_KEY`:
+For the Cursor setup, open **Settings → Tools & MCP → Add new MCP server** and paste this, replacing `YOUR_KEY`:
 
 <McpInstallSnippet tool="cursor" />
 
 Cursor hot-reloads, so no restart is needed. The tools appear in Composer right away. To edit the file directly, the same block goes in `~/.cursor/mcp.json` (global) or `<project>/.cursor/mcp.json` (per-project), wrapped under `mcpServers`.
 
-## Gemini CLI
+## Gemini CLI [#gemini-cli]
 
 The Gemini CLI loads MCP servers from `~/.gemini/settings.json`. Merge this in, replacing `YOUR_KEY`:
 
@@ -53,7 +53,7 @@ The Gemini CLI loads MCP servers from `~/.gemini/settings.json`. Merge this in, 
 
 If `mcpServers` already has entries, add `customermates` alongside the existing ones rather than overwriting the object.
 
-## Claude Desktop (config file)
+## Claude Desktop (config file) [#claude-desktop-config-file]
 
 The recommended path for Claude Desktop is the [connector path](/docs/connect-custom-connector#claude): OAuth, no key, synced across your devices. On a free plan, or if you prefer a static key, the config file below works too.
 
@@ -70,30 +70,28 @@ Merge this in, replacing `YOUR_KEY`:
 
 Then restart: fully quit (⌘Q on macOS, not just close the window) and reopen. Customermates appears in the tools panel with the CRM tools listed.
 
-## Try your first prompt
+## Try your first prompt [#try-your-first-prompt]
 
 The server provides connection instructions describing its tool surface, safety rules, and how to retrieve relevant Knowledge Base pages. Clients decide whether to pass those instructions to their agent. If yours does not, add the Knowledge Base retrieval rule to that client's persistent instructions. In clients that support MCP prompts (like Claude Code), you can run the built-in `get-started` prompt for a guided kickoff: it reads your workspace and relevant Knowledge Base pages first, then asks only for missing information.
 
-- *"Set the Acme deal's Status column to 'Won' and add a note that the contract was signed today."*
+- *"Set the Acme deal's Status field to 'Won' and add a note that the contract was signed today."*
 - *"Pull the last ten contacts I created. Any without an email address?"*
 - *"Create a contact for Jane Doe at Initech, link it to the Initech organization, and start a deal for 12 hours of consulting."*
 
-The available record types are contact, organization, deal, service, and task. Deals and tasks have no fixed pipeline field. Attributes like a deal's status or a task's priority are configurable custom columns, so the values in a prompt depend on how your workspace is set up. Call `get_record_schema` to see the columns a record type currently has.
+Contacts, organizations, deals, services, and tasks are the starting record types; your workspace can add more. Attributes such as a deal's stage or a task's priority depend on the workspace configuration. Call `discover_record_types` and then `get_record_model` for the relevant type IDs before writing.
 
-## Troubleshooting
+## Troubleshooting [#troubleshooting]
 
 | Client | Symptom | Cause | Fix |
 |---|---|---|---|
 | Claude Desktop | `npx: command not found` | No Node on `PATH` | Install Node 18+ from [nodejs.org](https://nodejs.org/en) |
 | Claude Desktop | Tools panel empty after a config edit | Claude Desktop does not hot-reload MCP configs | Fully quit (⌘Q) and reopen |
 | Codex | TOML parse error | Inline-table values use `=`, not `:` | Check the `env_http_headers = { ... }` line |
-| All | Tools are listed, but every call that reads or changes workspace data fails with "Sign in to use this action." | The key is wrong or truncated, or a key that worked has expired (keys from **Quick connections** expire after 365 days) or was deleted. The server lists tools for any `x-api-key` header and checks the key only when a tool reads or changes workspace data; `search_docs`, `get_docs_page` and `fetch` of a `doc:` id need no valid key, so a working documentation lookup does not prove the key is valid | Create a new key under **My Profile → API & Connectors**, paste the full 64 characters, and update the client |
-| All | A connection that worked now fails with "Your user account is inactive. Contact a workspace administrator." | The key's owner was set to **Inactive** | A member with **Manage** on **Users & Roles** sets them back to **Active** under **My Company → Members**, and the existing key works again |
-| All | Relation update rejected | `update_*` tools do not accept relation id fields; only `services` on `update_deals` is accepted, and it replaces the deal's whole service list | Ask the agent to use `manage_record_links` to add or remove links |
+| All | Tools are listed, but every call that reads or changes workspace data fails with "Sign in to use this action." | The key is wrong or truncated, or a key that worked has expired (keys from **Quick connections** expire after 365 days) or was deleted. The server lists tools for any `x-api-key` header and checks the key only when a tool reads or changes workspace data; `search_docs`, `get_docs_page` and `fetch` of a `doc:` id need no valid key, so a working documentation lookup does not prove the key is valid | Create a new key under [API keys](app:settings/api-keys), paste the full 64 characters, and update the client |
+| All | A connection that worked now fails with "Your user account is inactive. Contact a workspace administrator." | The key's owner was set to **Inactive** | A member with **Edit** on **Users & Roles** sets them back to **Active** under [Members](app:settings/members), and the existing key works again |
+| All | Relationship update rejected | A relationship ID or endpoint is missing or inaccessible | Ask the agent to read `get_record_model`, then use `mutate_crm_record` with `link` or `unlink` and stable record references |
 
-**Link:** the **API & Connectors** page, `/profile/api-keys`, and the **Members** page, `/company/members`. **Mate:** `navigate` and `highlight_element` with `nav-profile-api-keys` or `nav-company-members`, and `highlight_element` with `profile-api-keys-generate` for **Add** (roles with **Manage** on **API & Webhooks**); the key cards and the member rows are not highlight targets, so Mate names them; once a member row is open, `member-modal-status` highlights **Status** and `member-modal-save` highlights **Save** in the **User** dialog (roles with **Manage** on **Users & Roles**).
-
-## Next
+## Next [#next]
 
 - [Custom connector](/docs/connect-custom-connector): the OAuth path for Claude and ChatGPT apps.
 - [MCP tool catalog](/docs/mcp#tool-catalog): every tool the agent can call.

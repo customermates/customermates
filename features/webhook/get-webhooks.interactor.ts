@@ -4,7 +4,7 @@ import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { Validated } from "@/core/validation/validation.utils";
 
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { type WebhookDto } from "./webhook.schema";
 
@@ -17,7 +17,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { WebhookDtoSchema } from "./webhook.schema";
 
 @AllowInDemoMode
-@TenantInteractor({ resource: Resource.api, action: Action.readAll })
+@TenantInteractor({ resource: Resource.api, read: "all" })
 export class GetWebhooksInteractor extends BaseGetInteractor<WebhookDto> {
   constructor(
     repo: GetWebhooksRepo,
@@ -29,7 +29,6 @@ export class GetWebhooksInteractor extends BaseGetInteractor<WebhookDto> {
       repo,
       viewStateRepo,
       mode,
-      undefined,
       { sortDescriptor: { field: "createdAt", direction: "desc" } },
       queryParamsPrecheck,
     );

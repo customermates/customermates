@@ -1,15 +1,8 @@
-import { CustomColumnType } from "@/generated/prisma";
+import { CustomColumnType } from "@/core/data-view/column-presentation.types";
 
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 
 import { FilterFieldKey } from "./filter-field-key";
-
-const relationOperators = [
-  FilterOperatorKey.in,
-  FilterOperatorKey.notIn,
-  FilterOperatorKey.hasNone,
-  FilterOperatorKey.hasSome,
-];
 
 const dateOperators = [
   FilterOperatorKey.gt,
@@ -52,17 +45,11 @@ export const CUSTOM_COLUMN_DEFAULT_OPERATORS: Record<CustomColumnType, FilterOpe
 const draftOperators = [FilterOperatorKey.hasSome, FilterOperatorKey.hasNone];
 
 export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperatorKey[]> = {
-  [FilterFieldKey.userIds]: relationOperators,
-  [FilterFieldKey.serviceIds]: relationOperators,
-  [FilterFieldKey.dealIds]: relationOperators,
-  [FilterFieldKey.organizationIds]: relationOperators,
-  [FilterFieldKey.contactIds]: relationOperators,
   [FilterFieldKey.participantContactId]: scalarSelectOperators,
   [FilterFieldKey.ownerUserId]: scalarSelectOperators,
   [FilterFieldKey.participants]: [FilterOperatorKey.hasUnset, FilterOperatorKey.allSet],
   [FilterFieldKey.timelineKind]: scalarSelectOperators,
   [FilterFieldKey.timelineThreadId]: scalarSelectOperators,
-  [FilterFieldKey.taskIds]: relationOperators,
   [FilterFieldKey.updatedAt]: dateOperators,
   [FilterFieldKey.createdAt]: dateOperators,
   [FilterFieldKey.event]: scalarSelectOperators,
@@ -72,6 +59,7 @@ export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperat
   [FilterFieldKey.state]: scalarSelectOperators,
   [FilterFieldKey.draft]: draftOperators,
   [FilterFieldKey.connectedAccountId]: scalarSelectOperators,
+  [FilterFieldKey.webhookId]: scalarSelectOperators,
   [FilterFieldKey.emailFolder]: scalarSelectOperators,
   [FilterFieldKey.lastMessageDirection]: scalarSelectOperators,
   [FilterFieldKey.lastMessageSentAt]: dateOperators,
@@ -89,4 +77,6 @@ export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperat
   [FilterFieldKey.name]: textFieldOperators,
   [FilterFieldKey.firstName]: textFieldOperators,
   [FilterFieldKey.lastName]: textFieldOperators,
+  [FilterFieldKey.trashKind]: [FilterOperatorKey.in],
+  [FilterFieldKey.trashList]: [FilterOperatorKey.in],
 };

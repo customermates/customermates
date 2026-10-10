@@ -104,6 +104,7 @@ const BASE: MessagingMessageDto = {
   provider: "google",
   direction: "outbound",
   sender: {
+    records: [],
     attendeeId: "sender",
     identifier: "sender@example.com",
     displayName: "Sender",
@@ -112,6 +113,7 @@ const BASE: MessagingMessageDto = {
   recipients: {
     to: [
       {
+        records: [],
         attendeeId: "recipient",
         identifier: "recipient@example.com",
         displayName: "Recipient",
@@ -343,9 +345,10 @@ describe("shared message presentation", () => {
     };
     render(createElement(MessageItem, { message, isMine: true, accountOwner: null }));
     expect(container.querySelector("iframe")?.srcdoc).toContain("img-src data:;");
-    expect(container.querySelector("iframe")?.srcdoc).toContain('background="https://example.test/background.png"');
+    expect(container.querySelector("iframe")?.srcdoc).not.toContain('background="https://example.test/background.png"');
     act(() => button("Inbox.compose.loadRemoteImages").click());
     expect(container.querySelector("iframe")?.srcdoc).toContain("img-src data: https:;");
+    expect(container.querySelector("iframe")?.srcdoc).toContain('background="https://example.test/background.png"');
     expect(container.querySelector("iframe")?.srcdoc).toContain("Authored email");
     expect(hasLoadableRemoteImages('<body background="data:image/png;base64,abcd">')).toBe(false);
   });
@@ -353,7 +356,7 @@ describe("shared message presentation", () => {
 
 describe("Inbox and activity consumers", () => {
   it("discloses and copies every recipient without changing the message's folder", () => {
-    const person = (id: string, identifier: string) => ({ attendeeId: id, identifier, displayName: null });
+    const person = (id: string, identifier: string) => ({ attendeeId: id, identifier, displayName: null, records: [] });
     const message = {
       ...BASE,
       folderIds: ["inbox"],
@@ -399,10 +402,10 @@ describe("Inbox and activity consumers", () => {
           recipients: {
             to: [],
             cc: [
-              { attendeeId: "cc-1", identifier: "first@example.test", displayName: null },
-              { attendeeId: "cc-2", identifier: "second@example.test", displayName: null },
+              { attendeeId: "cc-1", identifier: "first@example.test", displayName: null, records: [] },
+              { attendeeId: "cc-2", identifier: "second@example.test", displayName: null, records: [] },
             ],
-            bcc: [{ attendeeId: "bcc", identifier: "hidden@example.test", displayName: null }],
+            bcc: [{ attendeeId: "bcc", identifier: "hidden@example.test", displayName: null, records: [] }],
           },
         },
         folders: [],
@@ -517,7 +520,7 @@ describe("Inbox and activity consumers", () => {
     expect(harness.sendDraft).toHaveBeenCalledExactlyOnceWith(message);
     expect(harness.loadDraft).toHaveBeenCalledOnce();
     expect(harness.send).not.toHaveBeenCalled();
-    act(() => button("Inbox.compose.draftDiscard").click());
+    act(() => button("Common.actions.discard").click());
     expect(harness.discardDraft).toHaveBeenCalledWith(message.id, message.draftRevision);
   });
 
@@ -526,7 +529,7 @@ describe("Inbox and activity consumers", () => {
     const message = { ...BASE, isDraft: true, draftRevision: "2026-09-05T12:00:00.000Z" };
     render(createElement(MessageItem, { message, isMine: true, accountOwner: null }));
 
-    for (const label of ["Inbox.compose.draftEdit", "Inbox.compose.draftDiscard"])
+    for (const label of ["Inbox.compose.draftEdit", "Common.actions.discard"])
       expect(container.querySelector(`button[aria-label="${label}"]`)).toBeNull();
     expect(container.textContent).not.toContain("Inbox.compose.draftSendNow");
   });

@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import type { WikiCrawlStatus } from "../wiki-website-crawl.service";
 
 import { randomUUID } from "node:crypto";
@@ -17,7 +18,7 @@ describeDatabase("Website import cleanup with an unavailable owner", () => {
   const client = new Client({ connectionString: databaseUrl ?? undefined });
   const companyId = randomUUID();
   const ownerId = randomUUID();
-  const repo = () => new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo());
+  const repo = () => new PrismaWikiWebsiteCrawlRepo(new PrismaWikiPageRepo(new PermissionService()));
 
   const createCrawl = async (status: WikiCrawlStatus, workflowRunId: string | null) => {
     const id = randomUUID();

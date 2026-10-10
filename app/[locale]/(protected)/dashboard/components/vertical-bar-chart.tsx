@@ -1,60 +1,66 @@
 "use client";
 
 import type { ChartDataPoint } from "./chart.types";
-import { isCurrencyAggregation } from "@/features/widget/widget-aggregation";
 
-import { Bar, BarChart, XAxis, YAxis, Cell } from "recharts";
+import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts";
 import { observer } from "mobx-react-lite";
-import type { AggregationType } from "@/generated/prisma";
+import { useReducedMotion } from "framer-motion";
 
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { useChartFormatter } from "./use-chart-formatter";
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
 
+import { CHART_MAX_BAR_SIZE, TruncatedTick, chartAxisProps, chartBarCursor, chartGridProps } from "./chart-theme";
 import { DashboardChartContainer } from "./dashboard-chart-container";
 
 type Props = {
-  aggregationType?: AggregationType;
+  currency?: string | null;
   chartData: ChartDataPoint[];
   colors: string[];
-  gridColor: string;
-  textColor: string;
   reverseXAxis?: boolean;
   reverseYAxis?: boolean;
+  allowDecimals?: boolean;
 };
 
 export const VerticalBarChart = observer(
-  ({ aggregationType, chartData, colors, gridColor, textColor, reverseXAxis, reverseYAxis }: Props) => {
-    const intlStore = useHydratedIntlStore();
+  ({ currency, chartData, colors, reverseXAxis, reverseYAxis, allowDecimals = true }: Props) => {
+    const formatValue = useChartFormatter(currency);
+    const reducedMotion = useReducedMotion();
 
     return (
       <DashboardChartContainer>
-        <BarChart data={chartData}>
+        <BarChart barCategoryGap="24%" data={chartData} margin={{ top: 8, right: 4, bottom: 0, left: 0 }}>
+          <CartesianGrid {...chartGridProps} vertical={false} />
+
           <XAxis
+            {...chartAxisProps}
             dataKey="label"
+            interval={0}
             reversed={Boolean(reverseXAxis)}
-            stroke={gridColor}
-            tick={{ fill: textColor, fontSize: 12 }}
+            tick={<TruncatedTick />}
             type="category"
           />
 
           <YAxis
-            domain={[0, "dataMax"]}
-            padding={{ top: 1, bottom: 1 }}
+            {...chartAxisProps}
+            allowDecimals={allowDecimals}
+            domain={[(minimum: number) => Math.min(0, minimum), "auto"]}
             reversed={Boolean(reverseYAxis)}
-            stroke={gridColor}
-            tick={{ fill: textColor, fontSize: 12 }}
-            tickFormatter={(value) =>
-              isCurrencyAggregation(aggregationType) ? intlStore.formatCurrency(value) : intlStore.formatNumber(value)
-            }
+            tickFormatter={(value) => formatValue(value, true)}
             type="number"
             width="auto"
           />
 
-          <ChartTooltip aggregationType={aggregationType} />
+          <ChartTooltip currency={currency} cursor={chartBarCursor} />
 
-          <Bar dataKey="value" fill={colors[0]} radius={4}>
+          <Bar
+            dataKey="value"
+            fill={colors[0]}
+            isAnimationActive={reducedMotion === false}
+            maxBarSize={CHART_MAX_BAR_SIZE}
+            radius={reverseYAxis ? [0, 0, 4, 4] : [4, 4, 0, 0]}
+          >
             {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.fill} stroke={entry.strokeColor} strokeWidth={1.5} />
+              <Cell key={`cell-${index}`} fill={entry.fill} />
             ))}
           </Bar>
         </BarChart>

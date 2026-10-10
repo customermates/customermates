@@ -6,10 +6,9 @@ import { loadNavigationData, type NavigationDataLoaders } from "../navigation-da
 
 function loaders(): NavigationDataLoaders {
   return {
-    company: vi.fn().mockResolvedValue({
-      company: { id: "company-1" },
-      terminology: [],
-    }),
+    records: vi.fn().mockResolvedValue({ companyId: "company-1", schemaRevision: 1, canManageSchema: true, types: [] }),
+    sidebarLayout: vi.fn().mockResolvedValue(null),
+    keyboardPreferences: vi.fn().mockResolvedValue({ singleKeyShortcuts: false }),
     subscription: vi.fn().mockResolvedValue({
       status: "active",
       plan: "pro",
@@ -33,8 +32,9 @@ describe("loadNavigationData", () => {
       const deps = loaders();
 
       expect(await loadNavigationData(state, deps)).toEqual({
-        company: null,
-        terminology: [],
+        records: null,
+        sidebarLayout: null,
+        keyboardPreferences: null,
         subscription: null,
         trialDaysLeft: null,
         systemTaskCount: 0,
@@ -51,8 +51,8 @@ describe("loadNavigationData", () => {
     const result = await loadNavigationData("allowed", deps);
 
     expect(result).toMatchObject({
-      company: { id: "company-1" },
       subscription: { status: "active", plan: "pro" },
+      keyboardPreferences: { singleKeyShortcuts: false },
       systemTaskCount: 2,
       unreadThreadCount: 3,
       channelsNeedingActionCount: 4,

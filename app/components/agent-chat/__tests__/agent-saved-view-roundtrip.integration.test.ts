@@ -5,13 +5,13 @@ import { act, createElement, forwardRef } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createMockUser } from "@/tests/helpers/mock-user";
 import {
   createMockDiModule,
   MOCK_ENV_MODULE,
   MOCK_PRISMA_DB_MODULE,
   MOCK_ZOD_MODULE,
 } from "@/tests/helpers/interactor-test-setup";
+import { createMockUser } from "@/tests/helpers/mock-user";
 
 const user = createMockUser();
 const harness = vi.hoisted(() => ({
@@ -20,6 +20,7 @@ const harness = vi.hoisted(() => ({
   getAgentConversationAction: vi.fn(),
   listAgentConversationsAction: vi.fn(),
   manageDataViewsInvoke: vi.fn(),
+  manageDataViewsPropose: vi.fn(),
   navigatedTo: [] as string[],
   sendAgentMessageInvoke: vi.fn(),
 }));
@@ -31,6 +32,7 @@ vi.mock("@/core/di", () => ({
   ...createMockDiModule(() => user),
   getManageDataViewsInteractor: () => ({
     invoke: harness.manageDataViewsInvoke,
+    propose: harness.manageDataViewsPropose,
   }),
   getSendAgentMessageInteractor: () => ({
     invoke: harness.sendAgentMessageInvoke,
@@ -61,15 +63,12 @@ vi.mock("@/core/errors/report-application-error", () => ({
   reportApplicationError: vi.fn(),
   runUserAction: (run: () => unknown) => run(),
 }));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ plural: () => "Contacts" }),
-}));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ agentChatStore: { enabled: true, isOpen: true }, agentUiControlStore: { active: null } }),
 }));
 vi.mock("@/i18n/navigation", () => ({
   IntlLink: ({ children, href }: { children?: ReactNode; href: string }) => createElement("a", { href }, children),
-  usePathname: () => "/contacts",
+  usePathname: () => "/records/10000000-0000-4000-8000-000000000101",
 }));
 vi.mock("@/components/shared/app-link", () => {
   const MockAppLink = forwardRef<HTMLAnchorElement, ComponentProps<"a"> & { appearance?: string }>(
@@ -106,26 +105,26 @@ vi.mock("../actions", () => ({
 }));
 
 import { POST } from "@/app/api/agent/messages/route";
-import { AgentActivity } from "../agent-chat-items";
-import { AgentChatStore, type AgentChatItem } from "../agent-chat.store";
 import { SURFACE } from "@/core/data-view/data-view-keys";
-import { SendAgentMessageSchema, type AgentMessagePart } from "@/ee/agent-chat/agent-chat.schema";
 import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
-import type { AgentTranscriptEvent } from "@/ee/agent-chat/agent-turn-transcript";
-import { AgentTurnTranscript } from "@/ee/agent-chat/agent-turn-transcript";
+import { SendAgentMessageSchema, type AgentMessagePart } from "@/ee/agent-chat/agent-chat.schema";
 import { sse } from "@/ee/agent-chat/agent-stream-utils";
 import { getAgentAiTools, type AgentToolDeps } from "@/ee/agent-chat/agent-tools";
+import type { AgentTranscriptEvent } from "@/ee/agent-chat/agent-turn-transcript";
+import { AgentTurnTranscript } from "@/ee/agent-chat/agent-turn-transcript";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
+import { AgentActivity } from "../agent-chat-items";
+import { AgentChatStore, type AgentChatItem } from "../agent-chat.store";
 
 const CONVERSATION_ID = "10000000-0000-4000-8000-000000000001";
 const USER_MESSAGE_ID = "10000000-0000-4000-8000-000000000002";
 const ASSISTANT_MESSAGE_ID = "10000000-0000-4000-8000-000000000003";
 const TOOL_CALL_ID = "view-call";
-const VIEW_ROUTE = `/en/contacts?view=__all__&viewSurface=${SURFACE.contacts}&viewAction=update`;
+const VIEW_ROUTE = `/en/settings/members?view=__all__&viewSurface=${SURFACE.users}&viewAction=update`;
 const VIEW_CONTEXT = {
   reference: {
     kind: "dataView",
-    surfaceKey: SURFACE.contacts,
+    surfaceKey: SURFACE.users,
     viewKey: "__all__",
     requestedAction: "update",
   },
@@ -133,11 +132,11 @@ const VIEW_CONTEXT = {
 } as const;
 const TOOL_INPUT = {
   action: "update",
-  surfaceKey: SURFACE.contacts,
+  surfaceKey: SURFACE.users,
   viewKey: "__all__",
   state: { viewMode: "card" },
 } as const;
-const VIEW_HREF = "/contacts?view=__all__";
+const VIEW_HREF = "/settings/members?view=__all__";
 
 type StoredMessage = {
   id: string;
@@ -198,7 +197,6 @@ function rootStore() {
     servicesStore: refresh(),
     tasksStore: refresh(),
     widgetsStore: refresh(),
-    terminologyStore: refresh(),
     messagingThreadsStore: refresh(),
     agentUiControlStore: {
       active: null,
@@ -290,8 +288,8 @@ describe("saved-view Assistant round trip", () => {
       ok: true,
       data: {
         action: "update",
-        surfaceKey: SURFACE.contacts,
-        path: "/contacts",
+        surfaceKey: SURFACE.users,
+        path: "/records/10000000-0000-4000-8000-000000000101",
         viewKey: "__all__",
         state: { viewMode: "card" },
         link: VIEW_HREF,
@@ -458,5 +456,88 @@ describe("saved-view Assistant round trip", () => {
     expect(container.textContent).not.toContain(VIEW_HREF);
     act(() => link?.click());
     expect(harness.navigatedTo).toEqual([VIEW_HREF]);
+  });
+
+  it("streams an app proposal to the open page instead of writing the view", async () => {
+    harness.manageDataViewsPropose.mockImplementation(() =>
+      Promise.resolve({
+        ok: true,
+        data: {
+          action: "update",
+          surfaceKey: SURFACE.users,
+          path: "/settings/members",
+          viewKey: "__all__",
+          state: { viewMode: "card" },
+          proposed: true,
+          link: VIEW_HREF,
+        },
+      }),
+    );
+    const proposal = { surfaceKey: SURFACE.users, viewKey: "__all__", state: { viewMode: "card" } };
+    harness.sendAgentMessageInvoke.mockImplementation(async (input: unknown) => {
+      const request = SendAgentMessageSchema.parse(input);
+      const pageRoute = request.pageContext?.route;
+      if (!pageRoute) throw new Error("The contextual view request must retain its page route.");
+      const output = await executeTool(
+        getAgentAiTools(toolDeps(pageRoute), { surface: "chat" }).manage_data_views,
+        TOOL_INPUT,
+      );
+      expect(harness.manageDataViewsPropose).toHaveBeenCalledWith(TOOL_INPUT);
+      expect(harness.manageDataViewsInvoke).not.toHaveBeenCalled();
+      expect(output).toMatchObject({ ok: true, viewProposal: proposal });
+
+      const transcriptEvents: AgentTranscriptEvent[] = [];
+      const transcript = new AgentTurnTranscript((event) => transcriptEvents.push(event));
+      transcript.beginToolCall({
+        toolCallId: TOOL_CALL_ID,
+        toolName: "manage_data_views",
+        activity: describeAgentTool(internalToolIdentity("manage_data_views"), TOOL_INPUT),
+      });
+      transcript.completeToolCall({
+        toolCallId: TOOL_CALL_ID,
+        toolName: "manage_data_views",
+        status: "done",
+        failed: false,
+        output: { type: "json", value: output },
+      });
+      expect(transcriptEvents).toContainEqual(
+        expect.objectContaining({
+          type: "activity_result",
+          payload: expect.objectContaining({ viewProposal: proposal }),
+        }),
+      );
+      harness.agentTurnSseStream.mockReturnValueOnce(stream(transcriptEvents));
+      return {
+        ok: true,
+        data: {
+          disposition: "run",
+          externalRunId: "wrun_view_proposal",
+          conversationId: CONVERSATION_ID,
+          userMessageId: USER_MESSAGE_ID,
+          clientRequestId: request.clientRequestId,
+        },
+      };
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((input: RequestInfo | URL, init?: RequestInit) =>
+        POST(new Request(`http://localhost:4000${String(input)}`, init) as Parameters<typeof POST>[0]),
+      ),
+    );
+    window.history.replaceState(null, "", "/en/settings/members");
+
+    const liveStore = new AgentChatStore(rootStore() as never);
+    const propose = vi.fn();
+    liveStore.viewContext.register(
+      "/en/settings/members",
+      () => ({ surfaceKey: SURFACE.users, viewKey: "__all__" }),
+      undefined,
+      undefined,
+      propose,
+    );
+    liveStore.openWithContextDraft({ context: VIEW_CONTEXT, draft: "Show this view as cards", pageRoute: VIEW_ROUTE });
+    liveStore.submitDraft();
+
+    await vi.waitFor(() => expect(propose).toHaveBeenCalledExactlyOnceWith(proposal));
   });
 });

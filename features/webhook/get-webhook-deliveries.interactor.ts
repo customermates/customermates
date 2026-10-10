@@ -1,12 +1,11 @@
 import type { GetWebhookDeliveriesRepo } from "./get-webhook-deliveries.repo";
-import type { DomainEvent, DomainEventMap } from "@/features/event/domain-events";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import type { WebhookDeliveryStatus } from "@/generated/prisma";
 
@@ -20,12 +19,9 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 export type WebhookDeliveryDto = {
   id: string;
   url: string;
-  event: DomainEvent;
-  requestBody: {
-    event: DomainEvent;
-    data: DomainEventMap[DomainEvent];
-    timestamp: string;
-  };
+  event: string;
+  requestBody: Record<string, unknown> | null;
+  nextAttemptAt: Date | null;
   statusCode: number | null;
   responseMessage: string | null;
   success: boolean;
@@ -39,6 +35,7 @@ const OutputSchema = z.object({
   url: z.string(),
   event: z.string(),
   requestBody: z.any(),
+  nextAttemptAt: z.date().nullable(),
   statusCode: z.number().nullable(),
   responseMessage: z.string().nullable(),
   success: z.boolean(),
@@ -48,7 +45,7 @@ const OutputSchema = z.object({
 });
 
 @AllowInDemoMode
-@TenantInteractor({ resource: Resource.api, action: Action.readAll })
+@TenantInteractor({ resource: Resource.api, read: "all" })
 export class GetWebhookDeliveriesInteractor extends BaseGetInteractor<WebhookDeliveryDto> {
   constructor(
     repo: GetWebhookDeliveriesRepo,
@@ -60,7 +57,6 @@ export class GetWebhookDeliveriesInteractor extends BaseGetInteractor<WebhookDel
       repo,
       viewStateRepo,
       mode,
-      undefined,
       { sortDescriptor: { field: "createdAt", direction: "desc" }, pagination: { pageSize: 25, page: 1 } },
       queryParamsPrecheck,
     );

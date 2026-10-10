@@ -7,13 +7,15 @@ import { useTranslations } from "next-intl";
 import { ArrowUpRight, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { focusFirstInvalidField } from "@/components/forms/focus-first-invalid-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
 
-import { ViewAiAction } from "./view-ai-action";
+import { AskAiAction } from "@/components/ui/ask-ai-action";
 
 export type ViewMetaMode = "create" | "duplicate" | "edit";
 
@@ -46,12 +48,24 @@ export function ViewMetaOverlay({
 }: Props) {
   const t = useTranslations();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [baseline, setBaseline] = useState({ open, name });
+  const [showError, setShowError] = useState(false);
   const pendingAi = useRef<(() => void) | null>(null);
   const trimmed = name.trim();
+  if (baseline.open !== open) {
+    setBaseline({ open, name });
+    setShowError(false);
+  }
+  const invalid = showError && !trimmed;
+  const dirty = mode === "duplicate" || name !== baseline.name;
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!trimmed || isSubmitting) return;
+  function submit() {
+    if (isSubmitting) return;
+    if (!trimmed) {
+      setShowError(true);
+      focusFirstInvalidField(document.getElementById(FORM_ID));
+      return;
+    }
 
     setIsSubmitting(true);
     runUserAction(async () => {
@@ -63,33 +77,38 @@ export function ViewMetaOverlay({
     });
   }
 
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (dirty) submit();
+  }
+
   const footer = (
-    <>
-      {mode === "edit" && onAskAi && (
-        <ViewAiAction
-          className="mr-auto"
-          id="view-editor-ask-ai"
-          onClick={() => {
-            pendingAi.current = onAskAi;
-            onOpenChange(false);
-          }}
-        />
-      )}
-
-      <Button size="sm" variant="secondary" onClick={() => onOpenChange(false)}>
-        {t("Common.actions.cancel")}
-      </Button>
-
-      <Button disabled={!trimmed || isSubmitting} form={FORM_ID} size="sm" type="submit">
-        {t("Common.actions.save")}
-      </Button>
-    </>
+    <FormFooterActions
+      anchorScope="view-editor"
+      dirty={dirty}
+      formId={FORM_ID}
+      placement="overlay"
+      saving={isSubmitting}
+      onCancel={() => onOpenChange(false)}
+    />
   );
 
   return (
     <ResponsiveOverlay
       align="end"
       footer={footer}
+      headerAction={
+        mode === "edit" &&
+        onAskAi && (
+          <AskAiAction
+            id="view-editor-ask-ai"
+            onClick={() => {
+              pendingAi.current = onAskAi;
+              onOpenChange(false);
+            }}
+          />
+        )
+      }
       open={open}
       popoverClassName="w-80"
       title={mode === "edit" ? t("DataView.views.editTitle") : t("DataView.views.createTitle")}
@@ -110,12 +129,20 @@ export function ViewMetaOverlay({
           <Input
             autoFocus
             required
+            aria-describedby={invalid ? `${VIEW_META_NAME_INPUT_ID}-error` : undefined}
+            aria-invalid={invalid || undefined}
             id={VIEW_META_NAME_INPUT_ID}
             maxLength={DATA_VIEW_NAME_MAX_LENGTH}
             placeholder={t("DataView.views.namePlaceholder")}
             value={name}
             onChange={(event) => onChange({ name: event.target.value })}
           />
+
+          {invalid && (
+            <p className="text-xs text-destructive" id={`${VIEW_META_NAME_INPUT_ID}-error`}>
+              {t("DataView.views.nameRequired")}
+            </p>
+          )}
         </div>
 
         {mode === "create" && onCreateWithAi && (

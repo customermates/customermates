@@ -18,7 +18,7 @@ import {
 import { coreToolNames, onDemandToolsetOfTool, toolNamesOfToolset } from "../agent-toolsets";
 
 const TOOLS = [
-  { name: "list_records", toolset: null },
+  { name: "query_crm_records", toolset: null },
   { name: "search_docs", toolset: null },
   { name: "load_toolset", toolset: null },
   { name: "manage_data_views", toolset: "views" },
@@ -41,7 +41,7 @@ describe("toolset partition", () => {
     for (const toolset of AGENT_ON_DEMAND_TOOLSETS)
       for (const name of toolNamesOfToolset(toolset)) expect(onDemandToolsetOfTool(name)).toBe(toolset);
     for (const name of coreToolNames()) expect(onDemandToolsetOfTool(name)).toBeNull();
-    expect(coreToolNames().size).toBe(25);
+    expect(coreToolNames().size).toBe(19);
     expect(coreToolNames().has("get_activities")).toBe(true);
     expect(coreToolNames().has("manage_wiki_pages")).toBe(true);
     expect(coreToolNames().has("manage_data_views")).toBe(false);
@@ -63,6 +63,33 @@ describe("toolset lexicon", () => {
 });
 
 describe("toolsetsForRequest", () => {
+  it("discovers personal detail layout controls in all application locales", () => {
+    for (const text of [
+      "Change my detail layout",
+      "Feld anheften",
+      "Masquer le champ",
+      "Ocultar campo",
+      "Nascondi campo",
+    ])
+      expect(toolsetsForRequest({ text, pageRoute: null }).has("views")).toBe(true);
+    expect(onDemandToolsetOfTool("manage_record_detail_layout")).toBe("views");
+  });
+  it("loads record configuration tools for stable contexts regardless of route or label", () => {
+    for (const reference of [
+      { kind: "dataModel" as const },
+      { kind: "recordType" as const, typeId: "11111111-1111-4111-8111-111111111111" },
+      {
+        kind: "record" as const,
+        typeId: "11111111-1111-4111-8111-111111111111",
+        recordId: "22222222-2222-4222-8222-222222222222",
+      },
+    ]) {
+      expect([
+        ...toolsetsForRequest({ text: "Change this", pageRoute: null, contexts: [{ reference, label: "Renamed" }] }),
+      ]).toEqual(["record-model"]);
+    }
+  });
+
   it("routes by user vocabulary in English and German", () => {
     expect([...toolsetsForRequest({ text: "Reply to the email from ACME", pageRoute: null })]).toEqual(["messaging"]);
     expect([...toolsetsForRequest({ text: "Erstelle eine Routine, die jeden Morgen läuft", pageRoute: null })]).toEqual(
@@ -87,13 +114,13 @@ describe("toolsetsForRequest", () => {
     expect(route("Ajoute un graphique au tableau de bord")).toEqual(["widgets"]);
     expect(route("Aggiungi un grafico al cruscotto")).toEqual(["widgets"]);
     expect(route("Invita a Ana como miembro del equipo")).toEqual(["admin"]);
-    expect(route("Change la devise de l'espace de travail")).toEqual(["admin"]);
+    expect(route("Change la devise du champ Montant")).toEqual(["record-model"]);
     expect(route("Cambia il ruolo di Marco")).toEqual(["admin"]);
     expect(route("Muestra el perfil de LinkedIn de Ana")).toEqual(["social"]);
   });
 
   it("routes by the current page and strips the locale prefix", () => {
-    expect([...toolsetsForRequest({ text: "What is this?", pageRoute: "/de/company/webhooks" })]).toEqual([
+    expect([...toolsetsForRequest({ text: "What is this?", pageRoute: "/de/settings/webhooks" })]).toEqual([
       "webhooks",
       "admin",
     ]);
@@ -101,16 +128,17 @@ describe("toolsetsForRequest", () => {
     expect([
       ...toolsetsForRequest({
         text: "Only show records with deals",
-        pageRoute: "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+        pageRoute:
+          "/en/records/10000000-0000-4000-8000-000000000011?view=__all__&viewSurface=records:10000000-0000-4000-8000-000000000011&viewAction=update",
       }),
-    ]).toEqual(["views"]);
+    ]).toEqual(["views", "record-model"]);
     expect([
       ...toolsetsForRequest({
         text: "Nur Änderungen anzeigen",
         pageRoute:
-          "/de/contacts/00000000-0000-4000-8000-000000000001?view=__all__&viewSurface=entity-timeline&viewAction=update",
+          "/de/records/10000000-0000-4000-8000-000000000011/00000000-0000-4000-8000-000000000001?view=__all__&viewSurface=entity-timeline&viewAction=update",
       }),
-    ]).toEqual(["views"]);
+    ]).toEqual(["views", "record-model"]);
   });
 
   it("routes a selected data view context without relying on localized prompt text", () => {
@@ -122,7 +150,7 @@ describe("toolsetsForRequest", () => {
           {
             reference: {
               kind: "dataView",
-              surfaceKey: "contacts-card-store",
+              surfaceKey: "records:10000000-0000-4000-8000-000000000011",
               viewKey: "11111111-1111-4111-8111-111111111111",
               requestedAction: "update",
             },
@@ -134,7 +162,7 @@ describe("toolsetsForRequest", () => {
   });
 
   it("keeps a plain records question on the core set", () => {
-    expect(toolsetsForRequest({ text: "How many open deals do we have?", pageRoute: "/en/deals" }).size).toBe(0);
+    expect(toolsetsForRequest({ text: "How many open deals do we have?", pageRoute: "/en/wiki" }).size).toBe(0);
   });
 });
 
@@ -142,7 +170,7 @@ describe("toolsetsFromActivities", () => {
   it("re-enables the sets a conversation already used", () => {
     const toolsets = toolsetsFromActivities([
       { kind: "messages.read" },
-      { kind: "workspace.terminology" },
+      { kind: "team.manage" },
       { kind: "views.configure" },
       { kind: "records.read" },
       { kind: "generic", consequence: { action: "salesList.save" } },
@@ -154,7 +182,7 @@ describe("toolsetsFromActivities", () => {
 describe("activeAgentToolNames", () => {
   it("starts from the core set plus the requested sets", () => {
     expect(activeAgentToolNames({ tools: TOOLS, initialToolsets: [], messages: [] })).toEqual([
-      "list_records",
+      "query_crm_records",
       "search_docs",
       "load_toolset",
     ]);

@@ -11,8 +11,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { DashboardChartContainer } from "../dashboard-chart-container";
 
 const CHART_MODULES = [
+  "area-time-chart.tsx",
   "doughnut-chart.tsx",
-  "horizontal-bar-chart-with-labels.tsx",
   "horizontal-bar-chart.tsx",
   "radar-chart.tsx",
   "vertical-bar-chart-with-labels.tsx",

@@ -6,6 +6,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const harness = vi.hoisted(() => ({
+  pathname: "/records/00000000-0000-4000-8000-000000000001",
   focusComposer: vi.fn(),
   openWithDraft: vi.fn(),
   root: {} as Record<string, unknown>,
@@ -18,12 +19,9 @@ vi.mock("next-intl", () => ({
   useLocale: () => "en",
   useTranslations: () => (key: string) => key,
 }));
-vi.mock("@/i18n/navigation", () => ({ usePathname: () => "/contacts" }));
+vi.mock("@/i18n/navigation", () => ({ usePathname: () => harness.pathname }));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => harness.root,
-}));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ map: () => ({}) }),
 }));
 vi.mock("../chat-ui", () => ({ focusAgentComposer: harness.focusComposer }));
 
@@ -43,6 +41,12 @@ beforeEach(() => {
       openWithDraft: harness.openWithDraft,
     },
     userStore: { can: () => true },
+    recordWorkspaceStore: {
+      navigation: {
+        canManageSchema: true,
+        types: [{ id: "00000000-0000-4000-8000-000000000001", canCreate: true }],
+      },
+    },
   };
 });
 
@@ -70,7 +74,7 @@ describe("AgentStarterActions", () => {
     act(() => {
       reactRoot.render(
         createElement(AgentStarterActions, {
-          pageId: "contacts",
+          pageId: "dashboard",
           state: "empty",
           surface: "page",
         }),
@@ -83,9 +87,7 @@ describe("AgentStarterActions", () => {
 
     act(() => buttons[0]?.click());
 
-    expect(harness.openWithDraft).toHaveBeenCalledWith(
-      "AgentChat.suggestions.pages.contacts.empty.setup-contacts.prompt",
-    );
+    expect(harness.openWithDraft).toHaveBeenCalledWith("AgentChat.suggestions.pages.dashboard.empty.setup.prompt");
     expect(harness.focusComposer).toHaveBeenCalledOnce();
   });
 
@@ -154,6 +156,7 @@ describe("AgentStarterActions", () => {
         openWithDraft: harness.openWithDraft,
       },
       userStore: { can: () => false },
+      recordWorkspaceStore: { navigation: null },
     };
 
     act(() => {
@@ -185,7 +188,7 @@ describe("AgentStarterActions", () => {
       reactRoot.render(
         createElement(AgentStarterActions, {
           fallback: createElement("button", null, "Manual add"),
-          pageId: "contacts",
+          pageId: "routines",
           state: "empty",
           surface: "page",
         }),
@@ -211,7 +214,7 @@ describe("AgentStarterActions", () => {
       reactRoot.render(
         createElement(AgentStarterActions, {
           fallback: createElement("button", null, "Manual add"),
-          pageId: "contacts",
+          pageId: "routines",
           state: "empty",
           surface: "page",
         }),

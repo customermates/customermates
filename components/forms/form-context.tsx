@@ -10,6 +10,8 @@ import { useNavigationGuard } from "@/components/modal/use-navigation-guard";
 import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
 
+import { focusFirstInvalidField } from "./focus-first-invalid-field";
+
 type AppFormProps = Omit<FormHTMLAttributes<HTMLFormElement>, "onSubmit"> & {
   store: BaseFormStore;
   children: ReactNode;
@@ -34,8 +36,14 @@ export const AppForm = observer(({ store, onSubmit, className, children, ...prop
         {...props}
         className={cn("contents", className)}
         onSubmit={(event) => {
+          if (event.target !== event.currentTarget) return;
           event.preventDefault();
-          if (handleSubmit) runUserAction(() => handleSubmit(event));
+          if (!handleSubmit) return;
+          const formElement = event.currentTarget;
+          runUserAction(async () => {
+            await handleSubmit(event);
+            if (store.error) focusFirstInvalidField(formElement);
+          });
         }}
       >
         {children}

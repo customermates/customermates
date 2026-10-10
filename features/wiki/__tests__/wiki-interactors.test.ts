@@ -33,6 +33,8 @@ import { SearchWikiPagesInteractor } from "../search-wiki-pages.interactor";
 import { UpdateWikiPageInteractor } from "../update-wiki-page.interactor";
 import { WikiMarkdownSchema, WikiPageDtoSchema, WikiPageInputSchema, type WikiPageDto } from "../wiki.schema";
 
+const trashStub = () => ({ add: vi.fn(), remove: vi.fn() }) as never;
+
 const PAGE_ID = "00000000-0000-4000-8000-000000000001";
 const UPDATED_AT = new Date("2026-09-08T10:00:00.000Z");
 
@@ -262,12 +264,12 @@ describe("DeleteWikiPageInteractor", () => {
     };
     const events = eventService();
 
-    const result = await new DeleteWikiPageInteractor(repo as never, events as never).invoke({
+    const result = await new DeleteWikiPageInteractor(repo as never, events as never, trashStub()).invoke({
       id: PAGE_ID,
       expectedUpdatedAt: UPDATED_AT,
     });
 
-    expect(result).toEqual({ ok: true, data: deleted });
+    expect(result).toEqual({ ok: true, data: { ...deleted, trashBatchId: expect.any(String) } });
     expect(events.publish).toHaveBeenCalledWith(DomainEvent.WIKI_PAGE_DELETED, {
       entityId: PAGE_ID,
       payload: deleted,
@@ -281,7 +283,7 @@ describe("DeleteWikiPageInteractor", () => {
     const repo = { deletePage: vi.fn().mockResolvedValue({ status }) };
     const events = eventService();
 
-    const result = await new DeleteWikiPageInteractor(repo as never, events as never).invoke({
+    const result = await new DeleteWikiPageInteractor(repo as never, events as never, trashStub()).invoke({
       id: PAGE_ID,
       expectedUpdatedAt: UPDATED_AT,
     });
@@ -380,7 +382,7 @@ describe("Wiki permission boundary", () => {
           title: "Updated",
         }),
       () =>
-        new DeleteWikiPageInteractor({ deletePage: vi.fn() }, events as never).invoke({
+        new DeleteWikiPageInteractor({ deletePage: vi.fn() }, events as never, trashStub()).invoke({
           id: PAGE_ID,
           expectedUpdatedAt: UPDATED_AT,
         }),
@@ -429,6 +431,7 @@ describe("Wiki permission boundary", () => {
             deletePage: vi.fn().mockResolvedValue({ status: "deleted", page: updated }),
           },
           events as never,
+          trashStub(),
         ).invoke({ id: PAGE_ID, expectedUpdatedAt: updated.updatedAt }),
     ];
 

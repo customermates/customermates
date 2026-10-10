@@ -6,10 +6,32 @@ import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
+import { socialErrorMessageKeys } from "@/app/[locale]/(public)/auth/social-error-keys";
+import { CHIP_COLORS } from "@/constants/chip-colors";
+import { RECORD_TYPE_ICON_KEYS } from "@/components/records/record-type-icon";
+import { ALL_LEGAL_DOCUMENTS } from "@/constants/legal-documents";
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { AGENT_ACTIVITY_KINDS, AGENT_APPROVAL_COPY_KINDS } from "@/ee/agent-chat/agent-activity";
+import { ACCOUNT_REMOVAL_REASONS } from "@/ee/messaging/connect/account-removal-reason";
+import { SignatureTemplate } from "@/ee/messaging/email-settings";
+import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
+import { ROUTINE_RUN_REASONS } from "@/ee/routines/routine-run-outcome";
+import { ROUTINE_SCHEDULE_PRESETS } from "@/ee/routines/routine-schedule-preset";
+import { RECORD_PRESET_KEYS } from "@/features/records/record-navigation.schema";
+import { DomainEvent } from "@/features/event/domain-events";
+import { FeedbackType } from "@/features/feedback/send-feedback.schema";
+import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";
+import { CONFIGURATION_ACTIVITY_EVENTS } from "@/ee/messaging/activities/activities.schema";
+import { FieldBehaviorSchema, RecordValueTypeSchema } from "@/features/records/record-model.schema";
+import { RECORD_MEASURE_DATE_INTERVALS, RecordMeasureSchema } from "@/features/records/record-measure.schema";
+import { WIDGET_DISPLAY_REQUIREMENTS } from "@/features/widget/widget-display-rules";
+import { WIDGET_STARTER_DISPLAY_TYPES } from "@/features/widget/widget-display-rules";
+import { DeletionBlockerSchema } from "@/features/records/configuration.schema";
+import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget.schema";
 import {
-  AggregationType,
   ConnectedAccountStatus,
-  CustomColumnType,
   MessagingProvider,
   MessagingMessageDirection,
   MessagingThreadState,
@@ -19,42 +41,73 @@ import {
   Status,
   SubscriptionPlan,
   SubscriptionStatus,
-  TaskType,
   Theme,
   WebhookDeliveryStatus,
-  WidgetKind,
 } from "@/generated/prisma";
-import { ACTIVITY_TYPE_VALUES } from "@/app/[locale]/(protected)/dashboard/components/activity-filter-form";
-import { socialErrorMessageKeys } from "@/app/[locale]/(public)/auth/social-error-keys";
-import { CHIP_COLORS } from "@/constants/chip-colors";
-import { IMPORT_ISSUE_CODES } from "@/features/data-transfer/import/import-plan";
-import { ALL_LEGAL_DOCUMENTS } from "@/constants/legal-documents";
-import { FilterOperatorKey } from "@/core/base/base-query-builder";
-import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { SignatureTemplate } from "@/ee/messaging/email-settings";
-import { CustomErrorCode } from "@/core/validation/validation.types";
-import { AGENT_ACTIVITY_KINDS, AGENT_APPROVAL_COPY_KINDS } from "@/ee/agent-chat/agent-activity";
-import { ROUTINE_SCHEDULE_PRESETS } from "@/ee/routines/routine-schedule-preset";
-import { ROUTINE_RUN_REASONS } from "@/ee/routines/routine-run-outcome";
-import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
-import { DomainEvent } from "@/features/event/domain-events";
-import { FeedbackType } from "@/features/feedback/send-feedback.schema";
-import {
-  ENTITY_TERMINOLOGY_PRESETS,
-  FILTER_FIELD_TERMINOLOGY,
-} from "@/features/entity-terminology/entity-terminology.constants";
-import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget.schema";
-import { ACCOUNT_REMOVAL_REASONS } from "@/ee/messaging/connect/account-removal-reason";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
+import { SHORTCUTS, SHORTCUT_GROUPS } from "@/components/keyboard/shortcut-registry";
+import { STATIC_COMMANDS } from "@/components/keyboard/command-registry";
 import { WIKI_PAGE_KINDS } from "@/features/wiki/wiki.schema";
+import { TRASH_KINDS } from "@/features/trash/trash.schema";
 
-const ENTITY_TERMINOLOGY_KEYS = Object.entries(ENTITY_TERMINOLOGY_PRESETS).flatMap(([entityType, presets]) =>
-  presets.flatMap((preset) =>
-    (["plural", "singular"] as const).map((form) => `EntityTerminology.presets.${entityType}.${preset}.${form}`),
-  ),
+const STARTER_TYPE_KEYS = RECORD_PRESET_KEYS.flatMap((preset) =>
+  (["plural", "singular"] as const).map((form) => `RecordModel.starterTypes.${preset}.${form}`),
 );
 
-const DOMAIN_EVENT_KEYS = Object.values(DomainEvent).map((event) => `Common.events.${event}`);
+const ACTIVITY_EVENTS = [
+  ...Object.values(DomainEvent),
+  ...RecordDeliveryEnvelopeSchema.shape.event.options,
+  ...CONFIGURATION_ACTIVITY_EVENTS,
+];
+const DOMAIN_EVENT_KEYS = ACTIVITY_EVENTS.map((event) => `Common.events.${event}`);
+const CLICK_ACTION_KEYS = ["email", "phone", "url", "channels"].flatMap((kind) =>
+  ["open", "copy"].map((action) => `RecordModel.clickActions.${kind}.${action}`),
+);
+const RECORD_VALUE_TYPE_KEYS = [...RecordValueTypeSchema.options, "multiSelect"].map(
+  (value) => `RecordModel.types.${value}`,
+);
+const RECORD_BEHAVIOR_KEYS = FieldBehaviorSchema.options.map(
+  (behavior) => `RecordModel.behaviors.${behavior.shape.kind.value}`,
+);
+const RECORD_REDUCER_KEYS = ["one", "sum", "count", "average", "min", "max"].map(
+  (reducer) => `RecordModel.reducers.${reducer}`,
+);
+const RECORD_OPERATOR_KEYS = [
+  "add",
+  "subtract",
+  "multiply",
+  "divide",
+  "equal",
+  "lessThan",
+  "greaterThan",
+  "and",
+  "or",
+  "not",
+  "if",
+  "coalesce",
+  "concat",
+  "lower",
+  "upper",
+  "trim",
+  "daysBetween",
+].map((operator) => `RecordModel.operators.${operator}`);
+const RECORD_TOP_LEVEL_DYNAMIC_KEYS = [
+  "assignedTo",
+  "createdAt",
+  "updatedAt",
+  "missing",
+  "restricted",
+  "calculationError",
+  "relationship",
+  "option",
+  "member",
+  "multipleValues",
+  ...RECORD_VALUE_TYPE_KEYS.map((key) => key.replace("RecordModel.", "")),
+  ...RECORD_REDUCER_KEYS.map((key) => key.replace("RecordModel.", "")),
+  ...RECORD_OPERATOR_KEYS.map((key) => key.replace("RecordModel.", "")),
+  "yes",
+  "no",
+].map((key) => `RecordModel.${key}`);
 const ACCOUNT_REMOVAL_REASON_KEYS = ACCOUNT_REMOVAL_REASONS.map((reason) => `AccountRemovalReason.${reason}`);
 const ROUTINE_RUN_STATUS_KEYS = Object.values(RoutineRunStatus).map((status) => `RoutineRunStatus.${status}`);
 const ROUTINE_TRIGGER_KIND_KEYS = Object.values(RoutineTriggerKind).map((kind) => `RoutineTriggerKind.${kind}`);
@@ -72,23 +125,25 @@ const ROUTINE_WEEKDAY_KEYS = [
 const FEEDBACK_DESCRIPTION_KEYS = Object.values(FeedbackType).map((type) => `feedback.${type}.description`);
 const FEEDBACK_TITLE_KEYS = Object.values(FeedbackType).map((type) => `feedback.${type}.title`);
 const CUSTOM_ERROR_CODE_KEYS = Object.values(CustomErrorCode).map((code) => `Common.errors.${code}`);
-const FILTER_FIELD_KEYS = Object.values(FilterFieldKey)
-  .filter((field) => !(field in FILTER_FIELD_TERMINOLOGY))
-  .map((field) => `Common.filters.fields.${field}`);
+const FILTER_FIELD_KEYS = Object.values(FilterFieldKey).map((field) => `Common.filters.fields.${field}`);
 const ROLE_RESOURCE_KEYS = Object.values(Resource).map((resource) => `RoleModal.resources.${resource}`);
 const DISPLAY_TYPE_KEYS = Object.values(DisplayType).map((displayType) => `Dashboard.displayTypes.${displayType}`);
-const WIDGET_KIND_KEYS = Object.values(WidgetKind).map((kind) => `Dashboard.widgetKinds.${kind}`);
-const WIDGET_KIND_DESCRIPTION_KEYS = Object.values(WidgetKind).map(
-  (kind) => `Dashboard.widgetEditor.kind.${kind}Description`,
+const WIDGET_DISPLAY_REQUIREMENT_KEYS = WIDGET_DISPLAY_REQUIREMENTS.map(
+  (requirement) => `Dashboard.displayTypeRequirements.${requirement}`,
 );
-const activityTypeOptionKeys = (leaf: "description" | "label") =>
-  ACTIVITY_TYPE_VALUES.map((value) => `Dashboard.widgetEditor.filters.activityTypeOptions.${value}.${leaf}`);
+const WIDGET_STARTER_TITLE_KEYS = WIDGET_STARTER_DISPLAY_TYPES.map(
+  (displayType) => `Dashboard.widgetEditor.starters.${displayType}.title`,
+);
+const WIDGET_STARTER_DESCRIPTION_KEYS = WIDGET_STARTER_DISPLAY_TYPES.map(
+  (displayType) => `Dashboard.widgetEditor.starters.${displayType}.description`,
+);
+const RECORD_MEASURE_INTERVAL_KEYS = RECORD_MEASURE_DATE_INTERVALS.map(
+  (interval) => `RecordWidgets.intervals.${interval}`,
+);
 const DIAGRAM_SYSTEM_KEYS = DIAGRAM_SYSTEM_LABEL_KEYS.map((key) => `Diagrams.${key}`);
-const AGGREGATION_TYPE_KEYS = [
-  ...Object.values(AggregationType).map((aggregationType) => `Dashboard.aggregationTypes.${aggregationType}`),
-  "Dashboard.aggregationTypes.dealValueRelated",
-  "Dashboard.aggregationTypes.dealWeightedValueRelated",
-] as const;
+const AGGREGATION_TYPE_KEYS = RecordMeasureSchema.shape.aggregation.options.map(
+  (aggregation) => `RecordModel.reducers.${aggregation}`,
+);
 const DATE_BUCKET_KEYS = [
   "Common.dateBuckets.day",
   "Common.dateBuckets.earlier",
@@ -96,8 +151,8 @@ const DATE_BUCKET_KEYS = [
   "Common.dateBuckets.month",
   "Common.dateBuckets.week",
 ] as const;
-const TASK_TYPE_KEYS = Object.values(TaskType).map((type) => `Common.taskTypes.${type}`);
 const WIKI_PAGE_KIND_KEYS = WIKI_PAGE_KINDS.map((kind) => `Wiki.kind.${kind}`);
+const TRASH_KIND_KEYS = [...TRASH_KINDS, "dashboardView"].map((kind) => `Trash.kinds.${kind}`);
 const DATE_PRESET_KEYS = [
   "Common.datePresets.endTime",
   "Common.datePresets.inAMonth",
@@ -168,22 +223,30 @@ const AUDIT_FIELD_KEYS = [
   "AuditLogModal.fields.changedFields",
   "AuditLogModal.fields.city",
   "AuditLogModal.fields.country",
+  "AuditLogModal.fields.createType",
   "AuditLogModal.fields.cronExpression",
   "AuditLogModal.fields.currency",
-  "AuditLogModal.fields.dealStageWeights",
-  "AuditLogModal.fields.dealWeightingColumnId",
   "AuditLogModal.fields.debounceSeconds",
+  "AuditLogModal.fields.delete",
+  "AuditLogModal.fields.deletePermanently",
   "AuditLogModal.fields.disabledReason",
   "AuditLogModal.fields.effectiveAt",
   "AuditLogModal.fields.emails",
   "AuditLogModal.fields.headers",
   "AuditLogModal.fields.isNewCompany",
+  "AuditLogModal.fields.markdown",
   "AuditLogModal.fields.postalCode",
   "AuditLogModal.fields.prompt",
+  "AuditLogModal.fields.publishSummary",
+  "AuditLogModal.fields.putAccessPreset",
+  "AuditLogModal.fields.putCapability",
+  "AuditLogModal.fields.putField",
+  "AuditLogModal.fields.putRelationship",
+  "AuditLogModal.fields.putType",
   "AuditLogModal.fields.recipientEmail",
   "AuditLogModal.fields.removalReason",
+  "AuditLogModal.fields.restore",
   "AuditLogModal.fields.street",
-  "AuditLogModal.fields.terminology",
   "AuditLogModal.fields.timezone",
   "AuditLogModal.fields.triggerEvents",
   "AuditLogModal.fields.triggerFilters",
@@ -262,15 +325,11 @@ const TABLE_COLUMN_KEYS = [
 ] as const;
 
 const PROVIDER_KEYS = Object.values(MessagingProvider).map((provider) => `Common.providers.${provider}`);
-const IMPORT_ISSUE_KEYS = IMPORT_ISSUE_CODES.map((code) => `DataTransfer.import.issues.${code}`);
 const USER_STATUS_KEYS = Object.values(Status).map((status) => `Common.userStatuses.${status}`);
 const LOCALE_KEYS = [...ROUTING_LOCALES, "system"].map((locale) => `Common.locales.${locale}`);
 const THEME_KEYS = Object.values(Theme).map((theme) => `Common.themes.${theme}`);
 const FILTER_OPERATOR_KEYS = Object.values(FilterOperatorKey).map((operator) => `Common.filters.operators.${operator}`);
 const COLOR_KEYS = CHIP_COLORS.map((color) => `Common.colors.${color}`);
-const CUSTOM_COLUMN_TYPE_KEYS = Object.values(CustomColumnType).map(
-  (columnType) => `Common.customColumnTypes.${columnType}`,
-);
 const LAST_MESSAGE_DIRECTION_KEYS = Object.values(MessagingMessageDirection).map(
   (direction) => `Inbox.lastMessageDirections.${direction}`,
 );
@@ -294,8 +353,10 @@ const SUBSCRIPTION_FEATURE_KEYS = [...loadCatalogPaths().leafPaths].filter((key)
 );
 const ENTITY_TIMELINE_TYPE_KEYS = [
   "EntityTimeline.types.activities",
-  "EntityTimeline.types.changes",
+  "EntityTimeline.types.audit",
+  "EntityTimeline.types.configuration",
   "EntityTimeline.types.messages",
+  "EntityTimeline.types.record",
 ] as const;
 const ERROR_CARD_DYNAMIC_KEYS = [
   "ErrorCard.inactiveUser",
@@ -374,13 +435,7 @@ const AGENT_APPROVAL_RESOLUTION_KEYS = ["approve", "cancelled", "reject", "timeo
   (resolution) => `AgentChat.approval.${resolution}`,
 );
 const AGENT_ACTIVITY_RESOURCE_KEYS = [
-  "AgentChat.activity.resource.contacts",
-  "AgentChat.activity.resource.deals",
   "AgentChat.activity.resource.messages",
-  "AgentChat.activity.resource.organizations",
-  "AgentChat.activity.resource.services",
-  "AgentChat.activity.resource.tasks",
-  "AgentChat.activity.resource.terminology",
   "AgentChat.activity.resource.widgets",
   "AgentChat.activity.resource.wiki",
 ];
@@ -397,13 +452,7 @@ const AGENT_READ_ONLY_SUGGESTION_KEYS = [
 ];
 
 const AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS = [
-  "AgentChat.activity.resourceSingular.contacts",
-  "AgentChat.activity.resourceSingular.deals",
   "AgentChat.activity.resourceSingular.messages",
-  "AgentChat.activity.resourceSingular.organizations",
-  "AgentChat.activity.resourceSingular.services",
-  "AgentChat.activity.resourceSingular.tasks",
-  "AgentChat.activity.resourceSingular.terminology",
   "AgentChat.activity.resourceSingular.widgets",
   "AgentChat.activity.resourceSingular.wiki",
 ];
@@ -418,24 +467,12 @@ const AGENT_SUGGESTION_KEYS = [
   "AgentChat.suggestions.pages.connected-accounts.empty.accounts-connect-email",
   "AgentChat.suggestions.pages.connected-accounts.empty.accounts-connect-linkedin",
   "AgentChat.suggestions.pages.connected-accounts.empty.accounts-connect-whatsapp",
-  "AgentChat.suggestions.pages.contacts.data.contacts-cleanup",
-  "AgentChat.suggestions.pages.contacts.data.contacts-summary",
-  "AgentChat.suggestions.pages.contacts.data.create-contact",
-  "AgentChat.suggestions.pages.contacts.empty.contacts-tour",
-  "AgentChat.suggestions.pages.contacts.empty.first-contact",
-  "AgentChat.suggestions.pages.contacts.empty.setup-contacts",
   "AgentChat.suggestions.pages.dashboard.data.dashboard-tour",
   "AgentChat.suggestions.pages.dashboard.data.next-actions",
   "AgentChat.suggestions.pages.dashboard.data.summary",
   "AgentChat.suggestions.pages.dashboard.empty.capabilities",
   "AgentChat.suggestions.pages.dashboard.empty.setup",
   "AgentChat.suggestions.pages.dashboard.empty.tour",
-  "AgentChat.suggestions.pages.deals.data.create-deal",
-  "AgentChat.suggestions.pages.deals.data.pipeline-gaps",
-  "AgentChat.suggestions.pages.deals.data.pipeline-summary",
-  "AgentChat.suggestions.pages.deals.empty.deals-tour",
-  "AgentChat.suggestions.pages.deals.empty.first-deal",
-  "AgentChat.suggestions.pages.deals.empty.setup-pipeline",
   "AgentChat.suggestions.pages.default.data.default-contact-count",
   "AgentChat.suggestions.pages.default.data.default-open-deals",
   "AgentChat.suggestions.pages.default.data.default-tour",
@@ -448,12 +485,6 @@ const AGENT_SUGGESTION_KEYS = [
   "AgentChat.suggestions.pages.inbox.empty.inbox-connect-email",
   "AgentChat.suggestions.pages.inbox.empty.inbox-connect-whatsapp",
   "AgentChat.suggestions.pages.inbox.empty.inbox-explain",
-  "AgentChat.suggestions.pages.organizations.data.create-organization",
-  "AgentChat.suggestions.pages.organizations.data.organization-gaps",
-  "AgentChat.suggestions.pages.organizations.data.organizations-summary",
-  "AgentChat.suggestions.pages.organizations.empty.first-organization",
-  "AgentChat.suggestions.pages.organizations.empty.organizations-tour",
-  "AgentChat.suggestions.pages.organizations.empty.setup-organizations",
   "AgentChat.suggestions.pages.routines.data.create-routine",
   "AgentChat.suggestions.pages.routines.data.routine-health",
   "AgentChat.suggestions.pages.routines.data.routines-tour-data",
@@ -466,18 +497,6 @@ const AGENT_SUGGESTION_KEYS = [
   "AgentChat.suggestions.pages.wiki.empty.first-wiki-page",
   "AgentChat.suggestions.pages.wiki.empty.wiki-structure",
   "AgentChat.suggestions.pages.wiki.empty.wiki-tour",
-  "AgentChat.suggestions.pages.services.data.create-service",
-  "AgentChat.suggestions.pages.services.data.service-gaps",
-  "AgentChat.suggestions.pages.services.data.services-summary",
-  "AgentChat.suggestions.pages.services.empty.first-service",
-  "AgentChat.suggestions.pages.services.empty.services-tour",
-  "AgentChat.suggestions.pages.services.empty.setup-services",
-  "AgentChat.suggestions.pages.tasks.data.create-task",
-  "AgentChat.suggestions.pages.tasks.data.task-gaps",
-  "AgentChat.suggestions.pages.tasks.data.task-priorities",
-  "AgentChat.suggestions.pages.tasks.empty.first-task",
-  "AgentChat.suggestions.pages.tasks.empty.setup-tasks",
-  "AgentChat.suggestions.pages.tasks.empty.tasks-tour",
 ];
 
 const AGENT_CREDIT_BLOCKED_KEYS = [
@@ -488,13 +507,61 @@ const AGENT_CREDIT_BLOCKED_KEYS = [
 ].map((reason) => `AgentChat.credits.blocked.${reason}`);
 
 const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
+  [
+    "Dashboard.activityWidget.${*}",
+    ["error", "noPermission", "noMatches", "noActivity", "noAccount", "scopeTooBroad"].map(
+      (state) => `Dashboard.activityWidget.${state}`,
+    ),
+  ],
+  ["RecordModel.${*}", RECORD_TOP_LEVEL_DYNAMIC_KEYS],
+  ["RecordModel.range${*}", ["Start", "End"].map((key) => `RecordModel.range${key}`)],
+  ["RecordModel.behaviors.${*}", RECORD_BEHAVIOR_KEYS],
+  ["RecordModel.starterTypes.${*}.singular", STARTER_TYPE_KEYS.filter((key) => key.endsWith(".singular"))],
+  ["RecordModel.starterTypes.${*}.plural", STARTER_TYPE_KEYS.filter((key) => key.endsWith(".plural"))],
+  ["RecordModel.deletion.${*}", ["unlink", "restrict", "cascade"].map((value) => `RecordModel.deletion.${value}`)],
+  [
+    "RecordModel.configurationDeletion.blockers.${*}",
+    DeletionBlockerSchema.shape.reason.options.map((reason) => `RecordModel.configurationDeletion.blockers.${reason}`),
+  ],
+  [
+    "RecordModel.configurationDeletion.cleaned.${*}",
+    [
+      "listDefaults",
+      "personalLayouts",
+      "view",
+      "widget",
+      "widgetCount",
+      "webhookTrigger",
+      "webhookPaused",
+      "bindingAvatar",
+      "bindingCalendar",
+    ].map(
+      (key) => `RecordModel.configurationDeletion.cleaned.${key}`,
+    ),
+  ],
+  [
+    "RecordModel.configurationDeletion.issues.${*}",
+    ["existingValues", "savedView", "detailLayout", "summaryApproval", "readAll", "dependency"].map(
+      (key) => `RecordModel.configurationDeletion.issues.${key}`,
+    ),
+  ],
+  ["RecordModel.operators.${*}", RECORD_OPERATOR_KEYS],
+  ["RecordModel.reducers.${*}", RECORD_REDUCER_KEYS],
+  ["RecordModel.types.${*}", RECORD_VALUE_TYPE_KEYS],
+  ["RecordModel.clickActions.${*}.${*}", CLICK_ACTION_KEYS],
+  ["RecordModel.clickActions.${*}.open", CLICK_ACTION_KEYS.filter((key) => key.endsWith(".open"))],
+  ["RecordModel.clickActions.${*}.copy", CLICK_ACTION_KEYS.filter((key) => key.endsWith(".copy"))],
+  [
+    "RecordModel.cardinality.${*}",
+    ["oneToOne", "oneToMany", "manyToOne", "manyToMany"].map((value) => `RecordModel.cardinality.${value}`),
+  ],
   ["AuditLogModal.fields.${*}", AUDIT_FIELD_KEYS],
   ["AuthSocialErrors.${*}", AUTH_SOCIAL_ERROR_KEYS],
   ["Common.colors.${*}", COLOR_KEYS],
-  ["Common.customColumnTypes.${*}", CUSTOM_COLUMN_TYPE_KEYS],
   ["Common.dateBuckets.${*}", DATE_BUCKET_KEYS],
   ["Common.datePresets.${*}", DATE_PRESET_KEYS],
   ["Common.defaultData.${*}.columnLabel", DEFAULT_DATA_COLUMN_KEYS],
+  ["RecordModel.priceModes.${*}", ["RecordModel.priceModes.live", "RecordModel.priceModes.saved"]],
   ["Common.defaultData.${*}.options.${*}", DEFAULT_DATA_OPTION_KEYS],
   ["Common.errors.${*}", CUSTOM_ERROR_CODE_KEYS],
   ["Common.events.${*}", DOMAIN_EVENT_KEYS],
@@ -508,17 +575,20 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Common.locales.${*}", LOCALE_KEYS],
   ["LegalDocumentNotice.documents.${*}", LEGAL_DOCUMENT_KEYS],
   ["Common.providers.${*}", PROVIDER_KEYS],
-  ["DataTransfer.import.issues.${*}", IMPORT_ISSUE_KEYS],
   ["Common.themes.${*}", THEME_KEYS],
   ["Common.userStatuses.${*}", USER_STATUS_KEYS],
+  ["Trash.kinds.${*}", TRASH_KIND_KEYS],
   ["ConnectedAccountsCard.statusLabels.${*}", CONNECTED_ACCOUNT_STATUS_KEYS],
   ["ConnectedAccountsCard.signatureTemplates.${*}", SIGNATURE_TEMPLATE_KEYS],
   ["Dashboard.displayTypes.${*}", DISPLAY_TYPE_KEYS],
-  ["Dashboard.widgetEditor.filters.activityTypeOptions.${*}.description", activityTypeOptionKeys("description")],
-  ["Dashboard.widgetEditor.filters.activityTypeOptions.${*}.label", activityTypeOptionKeys("label")],
-  ["Dashboard.widgetEditor.kind.${*}Description", WIDGET_KIND_DESCRIPTION_KEYS],
-  ["Dashboard.widgetKinds.${*}", WIDGET_KIND_KEYS],
+  ["Dashboard.displayTypeRequirements.${*}", WIDGET_DISPLAY_REQUIREMENT_KEYS],
+  ["Dashboard.widgetEditor.starters.${*}.title", WIDGET_STARTER_TITLE_KEYS],
+  ["Dashboard.widgetEditor.starters.${*}.description", WIDGET_STARTER_DESCRIPTION_KEYS],
+  ["RecordWidgets.intervals.${*}", RECORD_MEASURE_INTERVAL_KEYS],
   ["EntityTimeline.types.${*}", ENTITY_TIMELINE_TYPE_KEYS],
+  ["KeyboardShortcuts.actions.${*}", SHORTCUTS.map((entry) => `KeyboardShortcuts.actions.${entry.id}`)],
+  ["CommandPalette.synonyms.${*}", STATIC_COMMANDS.map((entry) => `CommandPalette.synonyms.${entry.id}`)],
+  ["KeyboardShortcuts.groups.${*}", SHORTCUT_GROUPS.map((group) => `KeyboardShortcuts.groups.${group}`)],
   ["ErrorCard.${*}", ERROR_CARD_DYNAMIC_KEYS],
   ["HomepagePricing.${*}.${*}", HOMEPAGE_PRICING_VARIABLE_KEYS],
   ["HomepagePricing.${*}.ctaText", ["HomepagePricing.cloud.ctaText", "HomepagePricing.selfHosted.ctaText"]],
@@ -569,103 +639,133 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
 
 const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
   [
-    "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
+    "app/[locale]/(protected)/settings/(workspace)/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
     FEEDBACK_DESCRIPTION_KEYS,
   ],
   [
-    "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.title",
+    "app/[locale]/(protected)/settings/(workspace)/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.title",
     FEEDBACK_TITLE_KEYS,
   ],
-  ["components/entity-terminology/use-column-label.ts :: t :: Common.table.columns.${columnId}", TABLE_COLUMN_KEYS],
-  ["components/entity-terminology/use-column-label.ts :: t.has :: Common.table.columns.${columnId}", TABLE_COLUMN_KEYS],
+  ["components/data-view/use-column-label.ts :: t :: Common.table.columns.${columnId}", TABLE_COLUMN_KEYS],
+  ["components/data-view/use-column-label.ts :: t.has :: Common.table.columns.${columnId}", TABLE_COLUMN_KEYS],
   [
-    'components/entity-terminology/use-filter-field-label.ts :: t :: Common.filters.fields.${field.replace(/\\./g, "_")}',
+    'components/data-view/use-filter-field-label.ts :: t :: Common.filters.fields.${field.replace(/\\./g, "_")}',
     FILTER_FIELD_KEYS,
   ],
   ["components/forms/use-form-field.ts :: t :: Common.inputs.${id}", FORM_FIELD_INPUT_KEYS],
+  [
+    "components/records/form-record-type-icon.tsx :: t :: RecordModel.icons.${key}",
+    RECORD_TYPE_ICON_KEYS.map((key) => `RecordModel.icons.${key}`),
+  ],
   ["ee/subscription/entitlement.service.ts :: t :: ConnectedAccountsCard.${code}", ENTITLEMENT_DENIAL_KEYS],
 ]);
 
 const ENFORCED = true;
 
 export const DYNAMIC_KEY_SITES = [
-  "app/[locale]/(protected)/operator/components/workspaces/operator-workspace-modal.tsx :: t :: Common.providers.${channel.provider}",
-  "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx :: t :: Common.userStatuses.${row.original.status}",
-  "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx :: t :: Subscription.planNames.${row.original.plan}",
-  "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx :: t :: Subscription.status.${row.original.subscriptionStatus}",
-  "app/[locale]/(protected)/operator/components/workspaces/operator-workspace-modal.tsx :: t :: Subscription.planNames.${workspace.plan}",
-  "app/[locale]/(protected)/operator/components/workspaces/use-operator-workspace-columns.tsx :: t :: Subscription.planNames.${row.original.plan}",
-  "app/[locale]/(protected)/operator/components/workspaces/use-operator-workspace-columns.tsx :: t :: Subscription.status.${row.original.subscriptionStatus}",
-  "app/[locale]/(protected)/operator/components/operator-value-labels.tsx :: t :: Common.events.${action}",
-  "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Common.userStatuses.${status}",
-  "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Subscription.planNames.${plan}",
-  "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Subscription.status.${status}",
-  "app/[locale]/(protected)/company/components/audit-log/audit-log-modal.tsx :: t :: Common.events.${auditLog.event}",
-  "components/data-transfer/import-wizard.tsx :: t :: Common.providers.${provider}",
-  "components/data-transfer/import-wizard.tsx :: t :: DataTransfer.import.issues.${issue.code}",
-  "app/[locale]/(protected)/company/components/audit-log/use-audit-log-columns.tsx :: t :: Common.events.${row.original.event}",
-  "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
-  "app/[locale]/(protected)/company/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.title",
-  "app/[locale]/(protected)/company/components/role/role-modal.tsx :: t :: RoleModal.resources.${resource}",
-  "app/[locale]/(protected)/company/components/subscription/plan-picker.tsx :: t :: Subscription.planNames.${plan}",
-  "app/[locale]/(protected)/company/components/subscription/plan-picker.tsx :: t.raw :: Subscription.picker.features.${plan}",
-  "app/[locale]/(protected)/company/components/subscription/subscription-panel.tsx :: t :: Subscription.planNames.${subscription?.plan ?? SubscriptionPlan.pro}",
-  "app/[locale]/(protected)/company/components/subscription/subscription-panel.tsx :: t :: Subscription.status.${subscription?.status ?? SubscriptionStatus.trial}",
-  "app/[locale]/(protected)/company/components/user/use-member-columns.tsx :: t :: Common.userStatuses.${row.original.status}",
-  "app/[locale]/(protected)/company/components/user/user-modal.tsx :: t :: Common.userStatuses.${key}",
-  "app/[locale]/(protected)/company/components/webhook/use-webhook-columns.tsx :: t :: Common.events.${event}",
-  "app/[locale]/(protected)/company/components/webhook/use-webhook-delivery-columns.tsx :: t :: Common.events.${row.original.event}",
-  "app/[locale]/(protected)/company/components/webhook/use-webhook-delivery-columns.tsx :: t :: WebhookDeliveryModal.deliveryStatus.${row.original.status}",
-  "app/[locale]/(protected)/company/components/webhook/webhook-delivery-modal.tsx :: t :: Common.events.${delivery.event}",
-  "app/[locale]/(protected)/company/components/webhook/webhook-delivery-modal.tsx :: t :: WebhookDeliveryModal.deliveryStatus.${delivery.status}",
-  "app/[locale]/(protected)/company/components/webhook/webhook-modal.tsx :: t :: Common.events.${item.key}",
-  "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: Common.events.${item.key}",
-  "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: Common.userStatuses.${form.owner.status}",
-  "app/[locale]/(protected)/routines/components/routine-empty-state.tsx :: t :: Common.events.${event}",
-  "app/[locale]/(protected)/routines/components/routine-run-detail.tsx :: t :: RoutineRunStatus.${run.status}",
-  "app/[locale]/(protected)/routines/components/routine-runs-pane.tsx :: t :: Common.events.${run.triggerEvent}",
-  "app/[locale]/(protected)/routines/components/routine-runs-pane.tsx :: t :: RoutineRunStatus.${run.status}",
-  "app/[locale]/(protected)/routines/components/routine-run-trigger-card.tsx :: t :: Common.events.${run.triggerEvent}",
-  "app/[locale]/(protected)/routines/components/routine-run-trigger-card.tsx :: t :: RoutineTriggerKind.${run.triggerKind}",
-  "app/[locale]/(protected)/routines/components/routine-runs-pane.tsx :: t :: RoutineTriggerKind.${run.triggerKind}",
-  "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: RoutineSchedulePreset.${value}",
-  "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: RoutineWeekday.${key}",
-  "ee/routines/routine-run-outcome.ts :: t :: RoutineRunReason.${reason}",
-  "ee/routines/routine-run-outcome.ts :: t :: Common.errors.${reason}",
-  "ee/routines/routine-schedule-preset.ts :: t :: RoutineSchedulePreset.${schedule.preset}",
-  "ee/routines/routine-schedule-preset.ts :: t :: RoutineWeekday.${ROUTINE_WEEKDAY_KEYS[schedule.weekday]}",
-  "app/[locale]/(protected)/routines/components/use-routine-columns.tsx :: t :: RoutineRunStatus.${row.original.lastRunStatus}",
-  "app/[locale]/(protected)/routines/components/use-routine-columns.tsx :: t :: Common.userStatuses.${owner.status}",
-  "app/[locale]/(protected)/contacts/components/add-channel-popover.tsx :: t :: Common.providers.${provider}",
-  "app/[locale]/(protected)/contacts/components/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(id.provider)}",
-  "app/[locale]/(protected)/contacts/components/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
-  "app/[locale]/(protected)/contacts/components/contact-channels.tsx :: t :: Common.providers.${channelLabelKey(identifier.provider)}",
-  "app/[locale]/(protected)/contacts/components/contact-compose-popover.tsx :: t :: Common.providers.${provider}",
-  "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx :: t :: Common.filters.operators.${filter.operator}",
-  "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx :: t :: Dashboard.widgetEditor.filters.activityTypeOptions.${value}.description",
-  "app/[locale]/(protected)/dashboard/components/activity-filter-fields.tsx :: t :: Dashboard.widgetEditor.filters.activityTypeOptions.${value}.label",
+  "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Trash.kinds.${kind}",
+  "app/[locale]/(protected)/trash/components/use-trash-columns.tsx :: t :: Trash.kinds.${trashKindLabelKey(item)}",
+  "app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: RecordModel.cardinality.${cardinality}",
+  "features/records/calculation-sentence.ts :: t :: RecordModel.operators.${operator}",
+  "app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: RecordModel.operators.${operator}",
+  "app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: RecordModel.types.${valueType}",
+  "app/[locale]/(protected)/configure/components/calculation-literal-input.tsx :: t :: RecordModel.${key}",
+  'app/[locale]/(protected)/configure/components/calculation-literal-input.tsx :: t :: RecordModel.range${end === "start" ? "Start" : "End"}',
+  "app/[locale]/(protected)/settings/(workspace)/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.description",
+  "app/[locale]/(protected)/settings/(workspace)/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.title",
+  "app/[locale]/(protected)/settings/(workspace)/components/role/role-modal.tsx :: t :: RoleModal.resources.${resource}",
+  "app/[locale]/(protected)/settings/(workspace)/components/subscription/plan-picker.tsx :: t :: Subscription.planNames.${plan}",
+  "app/[locale]/(protected)/settings/(workspace)/components/subscription/plan-picker.tsx :: t.raw :: Subscription.picker.features.${plan}",
+  "app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-panel.tsx :: t :: Subscription.planNames.${subscription?.plan ?? SubscriptionPlan.pro}",
+  "app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-panel.tsx :: t :: Subscription.status.${subscription?.status ?? SubscriptionStatus.trial}",
+  "app/[locale]/(protected)/settings/(workspace)/components/user/use-member-columns.tsx :: t :: Common.userStatuses.${row.original.status}",
+  "app/[locale]/(protected)/settings/(workspace)/components/user/user-modal.tsx :: t :: Common.userStatuses.${key}",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/use-webhook-columns.tsx :: t :: Common.events.${event}",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/use-webhook-delivery-columns.tsx :: t :: Common.events.${row.original.event}",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/use-webhook-delivery-columns.tsx :: t :: WebhookDeliveryModal.deliveryStatus.${row.original.status}",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-delivery-modal.tsx :: t :: Common.events.${delivery.event}",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-delivery-modal.tsx :: t :: WebhookDeliveryModal.deliveryStatus.${delivery.status}",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-modal.tsx :: t :: Common.events.${event}",
+  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-modal.tsx :: t :: Common.events.${item.key}",
+  "app/[locale]/(protected)/configure/components/configure-list-pane.tsx :: t :: RecordModel.cardinality.${cardinality}",
+  "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
+  "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: RecordModel.cardinality.${edge.cardinality}",
+  "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: RecordModel.types.${recordFieldTypeKey(field)}",
+  "app/[locale]/(protected)/configure/components/configure-list-pane.tsx :: t :: RecordModel.types.${recordFieldTypeKey(field)}",
+  "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.clickActions.${store.valueType}.${value}",
+  "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.behaviors.${store.form.source}",
+  "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.behaviors.${value}",
+  "app/[locale]/(protected)/configure/components/field-modal.tsx :: t :: RecordModel.types.${value}",
+  "app/[locale]/(protected)/configure/components/field-options-editor.tsx :: t :: Common.colors.${color}",
+  "app/[locale]/(protected)/configure/components/field-options-editor.tsx :: t :: RecordModel.types.${value}",
+  "app/[locale]/(protected)/configure/components/relationship-modal.tsx :: t :: RecordModel.cardinality.${value}",
+  "app/[locale]/(protected)/configure/components/relationship-modal.tsx :: t :: RecordModel.deletion.${value}",
+  "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: RecordModel.configurationDeletion.blockers.${blocker.reason}",
+  "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: RecordModel.configurationDeletion.cleaned.${key}",
+  "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: RecordModel.configurationDeletion.issues.${key}",
+  "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: Common.dateBuckets.${field.bucket}",
+  "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: RecordModel.${column.label}",
+  "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: RecordModel.${field.label}",
+  "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: RecordModel.reducers.${aggregation}",
+  "app/[locale]/(protected)/dashboard/components/record-activity-widget-card.tsx :: t :: Dashboard.activityWidget.${state}",
+  "components/records/record-activity-filters.tsx :: t :: Common.providers.${id}",
+  'app/[locale]/(protected)/dashboard/components/record-widget-chart.tsx :: t :: RecordModel.${result.state === "error" ? "calculationError" : result.state}',
+  'app/[locale]/(protected)/dashboard/components/record-widget-chart.tsx :: t :: RecordModel.${value.value ? "yes" : "no"}',
+  "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx :: t :: Dashboard.displayTypeRequirements.${displayIssue}",
+  "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx :: t :: RecordModel.reducers.${value}",
+  "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx :: t :: RecordWidgets.intervals.${interval}",
+  "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypeRequirements.${requirement}",
   "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypes.${type}",
-  "app/[locale]/(protected)/dashboard/components/widget-filter-chip.tsx :: t :: Common.filters.operators.${filter.operator}",
-  "app/[locale]/(protected)/dashboard/components/widget-preview.tsx :: t :: Dashboard.displayTypes.${displayType}",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.kind.${kind}Description",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetKinds.${kind}",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetKinds.${widget.kind}",
+  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.starters.${displayType}.description",
+  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.starters.${displayType}.title",
   "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: Common.providers.${thread.provider}",
   "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: Inbox.threadStates.${thread.state}",
   "app/[locale]/(protected)/inbox/components/thread-state-picker.tsx :: t :: Inbox.threadStates.${state}",
   "app/[locale]/(protected)/inbox/components/thread-state-picker.tsx :: t :: Inbox.threadStates.${s}",
   "app/[locale]/(protected)/onboarding/wizard/components/onboarding-wizard.tsx :: t :: OnboardingWizard.steps.${currentStep}.subtitle",
   "app/[locale]/(protected)/onboarding/wizard/components/onboarding-wizard.tsx :: t :: OnboardingWizard.steps.${currentStep}.title",
-  "app/[locale]/(protected)/profile/components/account-status-color.ts :: t :: Common.providers.${account.provider}",
-  "app/[locale]/(protected)/profile/components/api-key-modal.tsx :: t :: OnboardingWizard.ai.choices.${aiConnectionStore.route.provider}",
-  "app/[locale]/(protected)/profile/components/connected-account-modal.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
-  "app/[locale]/(protected)/profile/components/signature-template-picker.tsx :: t :: ConnectedAccountsCard.signatureTemplates.${template}",
-  "app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
-  "app/[locale]/(protected)/profile/components/profile-settings-form.tsx :: t :: Common.locales.${detectBrowserUiLocale()}",
-  "app/[locale]/(protected)/profile/components/profile-settings-form.tsx :: t :: Common.locales.${key}",
-  "app/[locale]/(protected)/profile/components/profile-settings-form.tsx :: t :: Common.themes.${key}",
-  "app/[locale]/(protected)/profile/components/profile-settings-form.tsx :: t :: Common.themes.${systemTheme}",
-  "app/[locale]/(protected)/profile/components/user-details-avatar.tsx :: t :: Common.userStatuses.${status}",
+  "app/[locale]/(protected)/operator/components/operator-value-labels.tsx :: t :: Common.events.${action}",
+  "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Common.userStatuses.${status}",
+  "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Subscription.planNames.${plan}",
+  "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Subscription.status.${status}",
+  "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx :: t :: Common.userStatuses.${row.original.status}",
+  "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx :: t :: Subscription.planNames.${row.original.plan}",
+  "app/[locale]/(protected)/operator/components/users/use-operator-user-columns.tsx :: t :: Subscription.status.${row.original.subscriptionStatus}",
+  "app/[locale]/(protected)/operator/components/workspaces/operator-workspace-modal.tsx :: t :: Common.providers.${channel.provider}",
+  "app/[locale]/(protected)/operator/components/workspaces/operator-workspace-modal.tsx :: t :: Subscription.planNames.${workspace.plan}",
+  "app/[locale]/(protected)/operator/components/workspaces/use-operator-workspace-columns.tsx :: t :: Subscription.planNames.${row.original.plan}",
+  "app/[locale]/(protected)/operator/components/workspaces/use-operator-workspace-columns.tsx :: t :: Subscription.status.${row.original.subscriptionStatus}",
+  "app/[locale]/(protected)/settings/(account)/components/account-status-color.ts :: t :: Common.providers.${account.provider}",
+  "app/[locale]/(protected)/settings/(account)/components/api-key-modal.tsx :: t :: OnboardingWizard.ai.choices.${aiConnectionStore.route.provider}",
+  "app/[locale]/(protected)/settings/(account)/components/connected-account-modal.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
+  "app/[locale]/(protected)/settings/(account)/components/connected-accounts-page-view.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
+  "app/components/app-sidebar.tsx :: t :: Common.locales.${value}",
+  "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.locales.${detectBrowserUiLocale()}",
+  "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.locales.${key}",
+  "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.themes.${key}",
+  "app/[locale]/(protected)/settings/(account)/components/profile-settings-form.tsx :: t :: Common.themes.${systemTheme}",
+  "app/[locale]/(protected)/settings/(account)/components/signature-template-picker.tsx :: t :: ConnectedAccountsCard.signatureTemplates.${template}",
+  "app/[locale]/(protected)/settings/(account)/components/user-details-avatar.tsx :: t :: Common.userStatuses.${status}",
+  "app/[locale]/(protected)/records/[typeId]/components/contact-compose-popover.tsx :: t :: Common.providers.${provider}",
+  "app/[locale]/(protected)/records/[typeId]/components/record-channels.tsx :: t :: Common.providers.${channelLabelKey(identifier.provider)}",
+  "app/[locale]/(protected)/records/[typeId]/components/record-detail-chip-row.tsx :: t :: RecordModel.${column.label}",
+  "app/[locale]/(protected)/records/[typeId]/components/record-detail-overview.tsx :: t :: RecordModel.${column.label}",
+  "app/[locale]/(protected)/records/[typeId]/components/record-identity-editor.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
+  "app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx :: t :: RecordModel.operators.${operator}",
+  "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: Common.events.${event}",
+  "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: Common.events.${item.key}",
+  "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: Common.userStatuses.${form.owner.status}",
+  "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: RoutineSchedulePreset.${value}",
+  "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: RoutineWeekday.${key}",
+  "app/[locale]/(protected)/routines/components/routine-empty-state.tsx :: t :: Common.events.${event}",
+  "app/[locale]/(protected)/routines/components/routine-run-detail.tsx :: t :: RoutineRunStatus.${run.status}",
+  "app/[locale]/(protected)/routines/components/routine-run-trigger-card.tsx :: t :: Common.events.${run.triggerEvent}",
+  "app/[locale]/(protected)/routines/components/routine-run-trigger-card.tsx :: t :: RoutineTriggerKind.${run.triggerKind}",
+  "app/[locale]/(protected)/routines/components/routine-runs-pane.tsx :: t :: Common.events.${run.triggerEvent}",
+  "app/[locale]/(protected)/routines/components/routine-runs-pane.tsx :: t :: RoutineRunStatus.${run.status}",
+  "app/[locale]/(protected)/routines/components/routine-runs-pane.tsx :: t :: RoutineTriggerKind.${run.triggerKind}",
+  "app/[locale]/(protected)/routines/components/use-routine-columns.tsx :: t :: Common.userStatuses.${owner.status}",
+  "app/[locale]/(protected)/routines/components/use-routine-columns.tsx :: t :: RoutineRunStatus.${row.original.lastRunStatus}",
   "app/[locale]/(public)/auth/error/error-page-content.tsx :: t :: ErrorCard.${errorKey}",
   "app/[locale]/(public)/auth/social-error-toast.tsx :: t :: AuthSocialErrors.${key}",
   "app/[locale]/(static)/components/homepage-pricing.tsx :: t :: HomepagePricing.${card.titleKey}.${card.badgeKey}",
@@ -679,8 +779,14 @@ export const DYNAMIC_KEY_SITES = [
   "app/components/agent-chat/agent-chat-items.tsx :: t :: AgentChat.approval.${item.resolution}",
   "app/components/agent-chat/credit-blocked-notice.tsx :: t :: AgentChat.credits.blocked.${reason}",
   "app/components/agent-chat/usage-ring.tsx :: t :: Subscription.planNames.${usage.plan}",
+  "components/keyboard/command-registry.ts :: t :: CommandPalette.synonyms.${id}",
+  "app/components/keyboard-shortcuts/keyboard-shortcuts-dialog.tsx :: t :: KeyboardShortcuts.actions.${entry.id}",
+  "app/components/keyboard-shortcuts/keyboard-shortcuts-dialog.tsx :: t :: KeyboardShortcuts.groups.${group}",
   "app/components/navigation/plan-subtitle.ts :: t :: Subscription.planNames.${plan}",
   "app/components/navigation/plan-subtitle.ts :: t :: Subscription.status.${status}",
+  "components/records/contact-value.tsx :: t :: RecordModel.clickActions.${kind}.copy",
+  "components/records/contact-value.tsx :: t :: RecordModel.clickActions.${kind}.open",
+  "components/records/form-record-type-icon.tsx :: t :: RecordModel.icons.${key}",
   "components/ai-connection/ai-connection-api-key-setup.tsx :: t :: OnboardingWizard.ai.choices.${tool}",
   "components/ai-connection/ai-connection-api-key-setup.tsx :: t :: OnboardingWizard.ai.install.instruction.${tool}",
   "components/ai-connection/ai-connection-claude-setup.tsx :: t :: OnboardingWizard.ai.choices.${candidate}",
@@ -694,9 +800,6 @@ export const DYNAMIC_KEY_SITES = [
   "components/ai-connection/ai-connection-openai-setup.tsx :: t :: OnboardingWizard.ai.openai.methods.${candidate}.note",
   "components/ai-connection/ai-connection-openai-setup.tsx :: t :: OnboardingWizard.ai.openai.methods.${candidate}.title",
   "components/ai-connection/ai-connection-provider-grid.tsx :: t :: OnboardingWizard.ai.choices.${provider}",
-  "components/data-view/custom-columns/custom-column-modal.tsx :: t :: Common.colors.${color}",
-  "components/data-view/custom-columns/custom-column-modal.tsx :: t :: Common.colors.${option.color}",
-  "components/data-view/custom-columns/custom-column-modal.tsx :: t :: Common.customColumnTypes.${item.value}",
   "components/data-view/filter-modal/filter-field.tsx :: t :: Common.filters.operators.${key}",
   "components/data-view/filter-modal/inputs/filter-input-iso-date-range.tsx :: t :: Common.datePresets.${key}",
   "components/data-view/filter-modal/inputs/filter-input-iso-date.tsx :: t :: Common.datePresets.${preset.key}",
@@ -704,77 +807,109 @@ export const DYNAMIC_KEY_SITES = [
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${account.provider}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${option.provider}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${provider}",
+  "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${result.thread.provider}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${thread.provider}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.userStatuses.${status}",
+  "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: EntityTimeline.types.${option.value}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: EntityTimeline.types.${type}",
+  "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Inbox.lastMessageDirections.${direction}",
+  "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Inbox.threadStates.${state}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Subscription.planNames.${plan}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Subscription.status.${status}",
-  "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Inbox.threadStates.${state}",
-  "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Inbox.lastMessageDirections.${direction}",
   "components/data-view/filter-modal/use-filter-operator-label.ts :: t :: Common.filters.operators.${operator}",
   "components/data-view/group-label.ts :: t :: Common.dateBuckets.${bucket}",
-  "components/entity-terminology/use-column-label.ts :: t :: AuditLogModal.fields.${columnId}",
-  "components/entity-terminology/use-column-label.ts :: t :: Common.table.columns.${columnId}",
-  "components/entity-terminology/use-column-label.ts :: t.has :: AuditLogModal.fields.${columnId}",
-  "components/entity-terminology/use-column-label.ts :: t.has :: Common.table.columns.${columnId}",
+  "components/data-view/group-summaries.tsx :: t :: RecordModel.reducers.${summary.aggregation}",
+  "components/data-view/use-column-label.ts :: t :: AuditLogModal.fields.${columnId}",
+  "components/data-view/use-column-label.ts :: t :: Common.table.columns.${columnId}",
+  "components/data-view/use-column-label.ts :: t.has :: AuditLogModal.fields.${columnId}",
+  "components/data-view/use-column-label.ts :: t.has :: Common.table.columns.${columnId}",
+  'components/data-view/use-filter-field-label.ts :: t :: Common.filters.fields.${field.replace(/\\./g, "_")}',
+  "features/records/workspace-record-preset.ts :: t :: RecordModel.starterTypes.${key}.plural",
+  "features/records/workspace-record-preset.ts :: t :: RecordModel.starterTypes.${key}.singular",
   "components/forms/form-iso-date-picker.tsx :: t :: Common.datePresets.${preset.key}",
   "components/forms/form-iso-date-range-picker.tsx :: t :: Common.datePresets.${key}",
   "components/forms/use-form-field.ts :: t :: Common.inputs.${id}",
+  "components/shared/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(id.provider)}",
+  "components/shared/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${currentLocale}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${locale}",
   "components/wiki/wiki-homepage-setup.tsx :: t :: Common.locales.${locale}",
   "core/validation/zod-error-map-server.ts :: t.raw :: Common.errors.${code}",
-  "ee/lifecycle/send-legal-document-notices.interactor.ts :: t :: documents.${document}",
-  "features/auth/sign-in-with-email.interactor.ts :: t :: Common.errors.${res.error}",
-  "features/auth/sign-up-with-email.interactor.ts :: t :: Common.errors.${res.error}",
-  "ee/messaging/connect/delete-accounts-for-plan.interactor.ts :: t :: Common.providers.${account.provider}",
-  "ee/messaging/connect/delete-accounts-for-plan.interactor.ts :: t :: Subscription.planNames.${plan}",
-  "ee/subscription/entitlement.service.ts :: t :: ConnectedAccountsCard.${code}",
+  "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.approval.${activity.kind}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.label.${name}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resource.${activity.resource}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resourceSingular.${resourceKey}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.state.${activity.kind}.${name}",
-  "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.approval.${activity.kind}",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.label",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.prompt",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.readOnly.${id}.label",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.readOnly.${id}.prompt",
+  "ee/lifecycle/send-legal-document-notices.interactor.ts :: t :: documents.${document}",
+  "ee/messaging/connect/delete-accounts-for-plan.interactor.ts :: t :: Common.providers.${account.provider}",
+  "ee/messaging/connect/delete-accounts-for-plan.interactor.ts :: t :: Subscription.planNames.${plan}",
+  "ee/routines/routine-run-outcome.ts :: t :: Common.errors.${reason}",
+  "ee/routines/routine-run-outcome.ts :: t :: RoutineRunReason.${reason}",
+  "ee/routines/routine-schedule-preset.ts :: t :: RoutineSchedulePreset.${schedule.preset}",
+  "ee/routines/routine-schedule-preset.ts :: t :: RoutineWeekday.${ROUTINE_WEEKDAY_KEYS[schedule.weekday]}",
+  "ee/subscription/entitlement.service.ts :: t :: ConnectedAccountsCard.${code}",
+  "features/auth/sign-in-with-email.interactor.ts :: t :: Common.errors.${res.error}",
+  "features/auth/sign-up-with-email.interactor.ts :: t :: Common.errors.${res.error}",
   "features/messaging/activities/activities-detail-modal.tsx :: t :: Common.events.${entry.event}",
   "features/messaging/activities/activities-detail-modal.tsx :: t :: Common.providers.${event.provider}",
   "features/messaging/activities/activities-detail-modal.tsx :: t :: Common.providers.${message.provider}",
   "features/messaging/activities/activities-list.tsx :: t :: Common.events.${entry.event}",
   "features/messaging/activities/activities-list.tsx :: t :: Common.providers.${ev.provider}",
   "features/messaging/activities/activities-list.tsx :: t :: Common.providers.${message.provider}",
-  "features/messaging/activities/audit-detail.tsx :: t :: AccountRemovalReason.${String(value)}",
-  "features/messaging/activities/audit-detail.tsx :: t :: Common.customColumnTypes.${String(value)}",
   "features/messaging/activities/audit-detail.tsx :: t :: Common.events.${entry.event}",
-  "features/messaging/activities/audit-detail.tsx :: t :: Wiki.kind.${kind.data}",
-  "features/messaging/activities/audit-detail.tsx :: t :: Common.providers.${String(value)}",
-  "features/messaging/activities/audit-detail.tsx :: t :: Common.userStatuses.${String(value)}",
-  "features/messaging/activities/audit-detail.tsx :: t :: LegalDocumentNotice.documents.${document}",
-  "features/messaging/activities/audit-detail.tsx :: t.has :: AccountRemovalReason.${String(value)}",
-  "features/messaging/activities/audit-detail.tsx :: t.has :: Common.customColumnTypes.${String(value)}",
-  "features/messaging/activities/audit-detail.tsx :: t.has :: Common.providers.${String(value)}",
-  "features/messaging/activities/audit-detail.tsx :: t.has :: Common.userStatuses.${String(value)}",
-  "features/messaging/activities/audit-detail.tsx :: t.has :: LegalDocumentNotice.documents.${document}",
-  "features/user/prisma-user.repository.ts :: t :: Common.defaultData.${column.entityType}.columnLabel",
-  "features/user/prisma-user.repository.ts :: t :: Common.defaultData.${column.entityType}.options.${option.key}",
-  'components/entity-terminology/use-filter-field-label.ts :: t :: Common.filters.fields.${field.replace(/\\./g, "_")}',
+  "features/messaging/activities/change-value.tsx :: t :: AccountRemovalReason.${code}",
+  "features/messaging/activities/change-value.tsx :: t :: Common.events.${code}",
+  "features/messaging/activities/change-value.tsx :: t :: Common.providers.${code}",
+  "features/messaging/activities/change-value.tsx :: t :: Common.userStatuses.${code}",
+  "features/messaging/activities/change-value.tsx :: t :: LegalDocumentNotice.documents.${code}",
+  "features/messaging/activities/change-value.tsx :: t :: Wiki.kind.${code}",
+  "features/messaging/activities/change-value.tsx :: t :: RoleModal.resources.${code}",
+  "features/messaging/activities/change-value.tsx :: t.has :: RoleModal.resources.${code}",
+  "features/messaging/activities/change-value.tsx :: t.has :: AccountRemovalReason.${code}",
+  "features/messaging/activities/change-value.tsx :: t.has :: Common.events.${code}",
+  "features/messaging/activities/change-value.tsx :: t.has :: Common.providers.${code}",
+  "features/messaging/activities/change-value.tsx :: t.has :: Common.userStatuses.${code}",
+  "features/messaging/activities/change-value.tsx :: t.has :: LegalDocumentNotice.documents.${code}",
+  "features/messaging/activities/record-audit-detail.tsx :: t :: Common.events.${entry.event}",
+  "features/records/record-detail-layout-reader.ts :: t :: RecordModel.${column.label}",
+  "features/records/workspace-record-preset.ts :: t :: Common.defaultData.${preset.entityType}.columnLabel",
+  "features/records/workspace-record-preset.ts :: t :: Common.defaultData.${preset.entityType}.options.${option.key}",
+  "features/records/workspace-record-preset.ts :: t :: RecordModel.priceModes.${option.id}",
 ];
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
-  ['ee/agent-chat/agent-page-actions.ts :: t :: terminologyMessageKey(entityType, "", form)', 1],
-  ["ee/agent-chat/agent-page-actions.ts :: t :: terminologyMessageKey(entityType, preset, form)", 1],
+  ["ee/command-resolver/resolve-command.interactor.ts :: t :: command.labelKey", 1],
+  ["ee/command-resolver/resolve-command.interactor.ts :: t :: parent.labelKey", 1],
+  ["app/components/global-search-modal.tsx :: t :: key", 1],
+  ["app/components/command-palette/palette-entries.ts :: t :: entry.labelKey", 1],
+  ["app/components/command-palette/palette-entries.ts :: t :: parent.labelKey", 1],
+  ["features/command-palette/search-catalog-corpus.ts :: t :: command.labelKey", 1],
+  ["features/command-palette/search-catalog-corpus.ts :: t :: parent.labelKey", 1],
+  ["app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: key", 2],
+  ["app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx :: t :: key", 1],
+  ["app/[locale]/(protected)/configure/components/field-options-editor.tsx :: t :: key", 2],
   ["core/validation/interactor-failure-server.ts :: t.raw :: code", 1],
   ["features/mcp-tools/mcp-tool.ts :: t.raw :: customCode", 1],
   [
-    'features/messaging/activities/audit-detail.tsx :: t :: terminologyMessageKey(selection.entityType, presetKey, "plural") as never',
+    'app/[locale]/(protected)/records/[typeId]/components/record-editor-fields.tsx :: t :: captureStaged ? "RecordModel.captureOnSave" : "RecordModel.captureValue"',
     1,
   ],
-  ["app/[locale]/(protected)/operator/components/operator-value-labels.tsx :: t :: key", 1],
-  ["app/[locale]/(protected)/contacts/components/add-channel-popover.tsx :: t :: SOURCE_HINT_KEYS[source]", 1],
-  ["app/[locale]/(protected)/contacts/components/use-contact-columns.tsx :: t :: nameKey", 1],
-  ["app/[locale]/(protected)/deals/components/use-deal-columns.tsx :: t :: nameKey", 1],
+  [
+    'app/[locale]/(protected)/records/[typeId]/components/record-editor-fields.tsx :: t :: captureStaged ? "RecordModel.captureOnSaveField" : "RecordModel.captureValueField"',
+    1,
+  ],
+  [
+    "app/[locale]/(protected)/records/[typeId]/components/record-identity-editor.tsx :: t :: SOURCE_HINT_KEYS[source]",
+    1,
+  ],
+  [
+    'components/records/record-activity-filters.tsx :: t :: isChangeActivityKind(id) ? `EntityTimeline.types.${id}` : id === "message" ? "EntityTimeline.types.messages" : id === "calendar_event" ? "ContactHistory.calendarMeeting" : "EntityTimeline.types.activities"',
+    1,
+  ],
   ["app/[locale]/(protected)/inbox/components/attachment-classify.ts :: t :: typeLabelKey", 2],
   ["app/[locale]/(protected)/inbox/components/email-message-header.tsx :: t :: labelKey", 1],
   ["app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: PREVIEW_KIND_LABEL[thread.previewKind]", 1],
@@ -782,52 +917,57 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     'app/[locale]/(protected)/onboarding/wizard/components/step-profile.tsx :: t.rich :: isInvited ? "OnboardingForm.invitedAgreeToTerms" : "OnboardingForm.agreeToTerms"',
     1,
   ],
-  ["app/[locale]/(protected)/organizations/components/use-organization-columns.tsx :: t :: nameKey", 1],
-  ["app/[locale]/(protected)/profile/components/connected-accounts-page-view.tsx :: t :: option.labelKey", 1],
-  ["app/[locale]/(protected)/profile/components/connected-accounts-status-toast.tsx :: t :: keys.descriptionKey", 1],
-  ["app/[locale]/(protected)/profile/components/connected-accounts-status-toast.tsx :: t :: keys.titleKey", 1],
-  ["app/[locale]/(protected)/services/components/use-service-columns.tsx :: t :: nameKey", 1],
+  ["app/[locale]/(protected)/operator/components/operator-value-labels.tsx :: t :: key", 1],
   [
-    "app/[locale]/(protected)/tasks/components/task-detail-view.tsx :: t.rich :: systemTaskAlertConfig.translationKey",
+    "app/[locale]/(protected)/settings/(account)/components/connected-accounts-page-view.tsx :: t :: option.labelKey",
     1,
   ],
-  ["app/[locale]/(protected)/tasks/components/task-detail.store.ts :: this.t :: nameTranslationKey", 1],
-  ["app/[locale]/(protected)/tasks/components/use-task-columns.tsx :: t :: nameKey", 1],
+  [
+    "app/[locale]/(protected)/settings/(account)/components/connected-accounts-status-toast.tsx :: t :: keys.descriptionKey",
+    1,
+  ],
+  [
+    "app/[locale]/(protected)/settings/(account)/components/connected-accounts-status-toast.tsx :: t :: keys.titleKey",
+    1,
+  ],
   ["app/[locale]/(static)/docs/[slug]/page.tsx :: t :: navKey", 1],
-  ["app/[locale]/(static)/docs/openapi/page.tsx :: t :: navKey", 1],
-  ["app/[locale]/(static)/docs/page.tsx :: t :: navKey", 1],
   ["app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: group.i18nKey", 1],
   ["app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: item.i18nKey", 1],
-  ["app/components/app-sidebar.tsx :: t :: subroute.labelKey", 3],
-  ["app/components/app-topbar-crumbs.ts :: t :: leafKey", 1],
-  ["app/components/app-topbar-crumbs.ts :: t :: operatorSubroute.labelKey", 1],
-  ["app/components/app-topbar-crumbs.ts :: t :: route.labelKey", 2],
+  ["app/[locale]/(static)/docs/openapi/page.tsx :: t :: navKey", 1],
+  ["app/[locale]/(static)/docs/page.tsx :: t :: navKey", 1],
+  ["app/components/app-sidebar.tsx :: t :: subroute.labelKey", 2],
+  ["app/components/app-topbar-crumbs.ts :: t :: labelKey", 1],
   ["app/components/app-topbar-crumbs.ts :: t :: subroute.labelKey", 1],
-  ["components/card/form-actions.tsx :: t :: primaryButtonLabel", 1],
-  ["components/data-transfer/import-wizard.tsx :: t :: field.labelKey", 1],
   ["components/data-view/group-label.ts :: t :: group.labelKey", 1],
   ["components/data-view/use-groupable-field-label.ts :: t :: field.labelKey", 1],
-  ["components/data-transfer/import-wizard.tsx :: t :: labelKey", 1],
-  ["components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: nameKey", 1],
-  ["components/entity-detail/entity-detail.registry.tsx :: t :: key", 1],
-  ["components/entity-detail/relation-fields.tsx :: t :: nameKey", 1],
-  ["components/entity-terminology/use-entity-terminology.ts :: t :: key", 1],
+  [
+    'components/data-view/views/view-ai-type-label.ts :: t :: form === "standalone" ? "AgentChat.context.surfaceViewTypeStandalone" : "AgentChat.context.surfaceViewType"',
+    1,
+  ],
+  ["app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: duplicate", 1],
+  [
+    'components/records/record-operation-progress.tsx :: t :: status.state === "failed" ? "RecordModel.operationFailed" : "RecordModel.operationCancelled"',
+    1,
+  ],
   ["core/base/base.store.ts :: this.t :: action.labelKey", 1],
   ["core/base/base.store.ts :: this.t :: key", 2],
   ["core/base/base.store.ts :: this.t :: options.descriptionKey", 1],
+  ["core/validation/interactor-failure-server.ts :: t.raw :: code", 1],
   ["ee/agent-chat/agent-tools.ts :: t :: labelKey", 1],
   ["ee/messaging/connect/create-auth-link.interactor.ts :: t :: denial.key", 1],
-  ["features/company/get-company-settings.interactor.ts :: t :: key", 1],
+  ["features/mcp-tools/mcp-tool.ts :: t.raw :: customCode", 1],
   ["features/mcp-tools/utils.ts :: t.raw :: code", 1],
   ["features/messaging/activities/activities-detail-modal.tsx :: t :: responseKey as never", 1],
   [
     "features/messaging/activities/activities-list.tsx :: t :: PREVIEW_KIND_LABEL[classifyAttachment(firstAttachment)]",
     1,
   ],
-  ["features/messaging/activities/audit-detail.tsx :: t :: nameKey", 1],
-  ["features/messaging/activities/audit-detail.tsx :: t :: systemTaskKey as never", 1],
+  [
+    'features/messaging/activities/change-value.tsx :: t :: action === "update" ? "RoleModal.edit" : action === "delete" ? "Common.actions.delete" : "RoleModal.create"',
+    1,
+  ],
+  ["features/records/workspace-record-preset.ts :: t :: key", 1],
 ]);
-
 const SOURCE_DIRECTORIES = ["app", "components", "constants", "core", "ee", "features", "hooks", "i18n", "workflows"];
 
 type SourceEvidence = {
@@ -856,48 +996,91 @@ const OPERATOR_AUDIT_ACTION_LABEL_EVIDENCE = Object.fromEntries(
     ],
   ]),
 );
-const TERMINOLOGY_TEMPLATE_EVIDENCE = Object.fromEntries(
-  ENTITY_TERMINOLOGY_KEYS.map((key) => [
-    key,
-    [
-      {
-        kind: "template" as const,
-        value:
-          "`EntityTerminology.presets.${entityType}.${resolveTerminologyPresetKey(entityType, presetKey)}.${form}`",
-      },
-    ],
-  ]),
-);
 
 const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
+  {
+    file: "app/[locale]/(protected)/trash/components/trash.store.ts",
+    keys: [
+      "Trash.restoreBlocked.listDeleted",
+      "Trash.restoreBlocked.parentDeleted",
+      "Trash.restoreBlocked.notFound",
+      "Trash.restoreBlocked.requiresRestore",
+      "Trash.restoreBlocked.nameTaken",
+    ],
+  },
+  {
+    file: "app/[locale]/(protected)/records/[typeId]/components/record-editor-fields.tsx",
+    keys: [
+      "RecordModel.captureOnSave",
+      "RecordModel.captureValue",
+      "RecordModel.captureOnSaveField",
+      "RecordModel.captureValueField",
+    ],
+  },
+  {
+    file: "app/[locale]/(protected)/records/[typeId]/components/record-identity-editor.tsx",
+    keys: ["EntityChannels.addChannel.sourceConversations", "EntityChannels.addChannel.sourceLookup"],
+  },
+  {
+    file: "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts",
+    keys: ["RecordModel.configurationDeletion.moved"],
+  },
+  {
+    file: "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts",
+    keys: [
+      "RecordModel.duplicateListName",
+      "RecordModel.duplicateFieldName",
+      "RecordModel.duplicateOptionLabel",
+      "RecordModel.duplicateRelationshipLabel",
+    ],
+  },
+  {
+    file: "components/records/record-operation-progress.tsx",
+    keys: ["RecordModel.operationFailed", "RecordModel.operationCancelled"],
+  },
+  {
+    file: "app/[locale]/(protected)/records/[typeId]/components/use-record-deletion.ts",
+    keys: ["RecordModel.deletionAccepted"],
+  },
+  {
+    file: "features/records/workspace-record-preset.ts",
+    keys: [
+      "RecordModel.lineItem",
+      "RecordModel.lineItems",
+      "RecordModel.lineFields.quantity",
+      "RecordModel.lineFields.pricingMode",
+      "RecordModel.lineFields.savedPrice",
+      "RecordModel.lineFields.effectivePrice",
+      "RecordModel.lineFields.amount",
+      "RecordModel.contactFullName",
+      "RecordModel.priceModes.live",
+      "RecordModel.priceModes.saved",
+    ],
+    evidence: Object.fromEntries([
+      ...["quantity", "pricingMode", "savedPrice", "effectivePrice", "amount"].map((key) => [
+        `RecordModel.lineFields.${key}`,
+        [
+          {
+            kind: "template" as const,
+            value: "`RecordModel.lineFields.${key}`",
+          },
+        ],
+      ]),
+      ...["live", "saved"].map((mode) => [
+        `RecordModel.priceModes.${mode}`,
+        [
+          {
+            kind: "template" as const,
+            value: "`RecordModel.priceModes.${option.id}`",
+          },
+        ],
+      ]),
+    ]),
+  },
   {
     file: "app/[locale]/(protected)/operator/components/operator-value-labels.tsx",
     keys: OPERATOR_AUDIT_ACTION_LABEL_KEYS,
     evidence: OPERATOR_AUDIT_ACTION_LABEL_EVIDENCE,
-  },
-  {
-    file: "app/[locale]/(protected)/contacts/components/add-channel-popover.tsx",
-    keys: [
-      "EntityChannels.addChannel.sourceContacts",
-      "EntityChannels.addChannel.sourceConversations",
-      "EntityChannels.addChannel.sourceLookup",
-    ],
-  },
-  {
-    file: "features/entity-terminology/entity-terminology.constants.ts",
-    keys: ENTITY_TERMINOLOGY_KEYS,
-    evidence: TERMINOLOGY_TEMPLATE_EVIDENCE,
-  },
-  {
-    file: "features/event/entity-name.utils.ts",
-    keys: ["Common.company"],
-  },
-  {
-    file: "core/base/grouping/groupable-field.ts",
-    keys: TASK_TYPE_KEYS,
-    evidence: Object.fromEntries(
-      TASK_TYPE_KEYS.map((key) => [key, [{ kind: "template" as const, value: "`Common.taskTypes.${value}`" }]]),
-    ),
   },
   {
     file: "app/[locale]/(protected)/dashboard/components/widget-label.ts",
@@ -957,24 +1140,11 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
     keys: ["OnboardingForm.agreeToTerms", "OnboardingForm.invitedAgreeToTerms"],
   },
   {
-    file: "app/components/app-topbar-crumbs.ts",
-    keys: ["UserAvatar.settings"],
-    evidence: {
-      "UserAvatar.settings": [
-        { kind: "template", value: "`UserAvatar.${entry.labelKey}`" },
-        {
-          kind: "property",
-          value: 'settings: { group: "settings", labelKey: "settings" }',
-        },
-      ],
-    },
-  },
-  {
     file: "ee/messaging/connect/create-auth-link.interactor.ts",
     keys: ["ConnectedAccountsCard.accountLimitReached", "ConnectedAccountsCard.upgradeToBusinessForMoreAccounts"],
   },
   {
-    file: "app/[locale]/(protected)/profile/components/connected-accounts-status-toast.tsx",
+    file: "app/[locale]/(protected)/settings/(account)/components/connected-accounts-status-toast.tsx",
     keys: [
       "ConnectedAccountsCard.alreadyExistsToastDescription",
       "ConnectedAccountsCard.alreadyExistsToastTitle",
@@ -995,11 +1165,12 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
 const T_CALL_PATTERN =
   /(?:(?<![\w$.])|(?<=this\.))(t(?:\.(?:rich|raw|markup|has))?)\(\s*("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g;
 const GET_TRANSLATION_PATTERN = /(?<![\w$])(getTranslation)\(\s*("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g;
+const TRANSLATION_REF_CALL_PATTERN = /(?<![\w$.])(translationRef\.current)\(\s*("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g;
 const NAMESPACE_PATTERN = /(?:useTranslations|getTranslations)\(\s*"([^"]+)"\s*\)/g;
 const TRANSLATOR_NAMESPACE_PATTERN = /getTranslator\(\s*[^,)]+,\s*"([^"]+)"\s*\)/g;
 const STRING_LITERAL_PATTERN = /"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|`((?:[^`\\]|\\.)*)`/g;
 const INDIRECT_TRANSLATION_KEY_PATTERN =
-  /(?:alertTranslationKey|descriptionKey|i18nKey|labelKey|nameTranslationKey|primaryButtonLabel|titleKey|translationKey)\s*(?::|=)\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g;
+  /(?:alertTranslationKey|descriptionKey|i18nKey|labelKey|nameTranslationKey|primaryButtonLabel|successKey|titleKey|translationKey)\s*(?::|=)\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g;
 const TOAST_CALL_PATTERN = /toast(?:Success|Error)\(([\s\S]*?)\);/g;
 
 function loadCatalogPaths(): {
@@ -1052,6 +1223,8 @@ function normalizeNodeText(value: string): string {
 function translationCallee(node: ts.Expression): string | undefined {
   if (ts.isIdentifier(node) && node.text === "t") return "t";
   if (!ts.isPropertyAccessExpression(node)) return undefined;
+  if (node.name.text === "current" && ts.isIdentifier(node.expression) && node.expression.text === "translationRef")
+    return "translationRef.current";
   if (node.name.text === "t" && node.expression.kind === ts.SyntaxKind.ThisKeyword) return "this.t";
   if (!T_METHODS.has(node.name.text)) return undefined;
 
@@ -1161,7 +1334,7 @@ function scanSources(): {
         ...[...source.matchAll(NAMESPACE_PATTERN)].map((match) => match[1]),
         ...[...source.matchAll(TRANSLATOR_NAMESPACE_PATTERN)].map((match) => match[1]),
       ];
-      for (const pattern of [T_CALL_PATTERN, GET_TRANSLATION_PATTERN]) {
+      for (const pattern of [T_CALL_PATTERN, GET_TRANSLATION_PATTERN, TRANSLATION_REF_CALL_PATTERN]) {
         for (const match of source.matchAll(pattern)) {
           const [full, callee, argument] = match;
           const matchIndex = match.index ?? 0;
@@ -1271,6 +1444,20 @@ function scanSources(): {
 describe("i18n key resolution", () => {
   const { staticViolations, dynamicSites, consumerKeys, indirectViolations, nonliteralSites } = scanSources();
 
+  it("checks literal translator-ref calls and registers nonliteral ones", () => {
+    const call = 'translationRef.current("DataTransfer.export.missing")';
+    const match = [...call.matchAll(TRANSLATION_REF_CALL_PATTERN)][0];
+    expect(match?.[1]).toBe("translationRef.current");
+    expect(match?.[2]).toBe('"DataTransfer.export.missing"');
+    expect(resolves("DataTransfer.export.missing", [], loadCatalogPaths())).toBe(false);
+    expect(consumerKeys.has("DataTransfer.export.success")).toBe(true);
+    expect(consumerKeys.has("DataTransfer.export.failed")).toBe(true);
+
+    const nonliteral = new Map<string, number>();
+    scanNonliteralTranslationCalls("translationRef.current(variableKey);", "fixture.ts", nonliteral);
+    expect([...nonliteral]).toEqual([["fixture.ts :: translationRef.current :: variableKey", 1]]);
+  });
+
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("resolves every static translation key against the catalog", () => {
     expect(staticViolations, `unresolvable translation keys:\n${staticViolations.join("\n")}`).toEqual([]);
   });
@@ -1305,14 +1492,14 @@ describe("i18n key resolution", () => {
       .filter((key) => key.startsWith("Common.events."))
       .map((key) => key.slice("Common.events.".length))
       .sort();
-    const domainEvents = Object.values(DomainEvent).sort();
+    const domainEvents = [...ACTIVITY_EVENTS].sort();
     expect(translatedEvents).toEqual(domainEvents);
   });
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps terminology translations aligned with presets", () => {
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps starter type translations aligned with presets", () => {
     const { leafPaths } = loadCatalogPaths();
-    const translatedPresets = [...leafPaths].filter((key) => key.startsWith("EntityTerminology.presets.")).sort();
-    expect(translatedPresets).toEqual([...ENTITY_TERMINOLOGY_KEYS].sort());
+    const translated = [...leafPaths].filter((key) => key.startsWith("RecordModel.starterTypes.")).sort();
+    expect(translated).toEqual([...STARTER_TYPE_KEYS].sort());
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
@@ -1347,7 +1534,7 @@ describe("i18n key resolution", () => {
     () => {
       const { leafPaths } = loadCatalogPaths();
       const translatedAggregationTypes = [...leafPaths]
-        .filter((key) => key.startsWith("Dashboard.aggregationTypes."))
+        .filter((key) => key.startsWith("RecordModel.reducers.") && key !== "RecordModel.reducers.one")
         .sort();
       expect(translatedAggregationTypes).toEqual([...AGGREGATION_TYPE_KEYS].sort());
     },

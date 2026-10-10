@@ -2,71 +2,95 @@ import { describe, expect, it } from "vitest";
 
 import { composeRoutinePrompt, stripRoutineTriggerBlock } from "@/ee/routines/routine-prompt";
 
+const COMPANY_ID = "30000000-0000-4000-8000-000000000040";
+const TYPE_ID = "30000000-0000-4000-8000-000000000041";
+const RECORD_ID = "30000000-0000-4000-8000-000000000042";
+
+function fieldId(index: number) {
+  return `30000000-0000-4000-8000-${String(100 + index).padStart(12, "0")}`;
+}
+
+function envelope(labels: string[]) {
+  return {
+    event: "record.updated",
+    id: "30000000-0000-4000-8000-000000000043",
+    timestamp: "2026-01-01T00:00:00.000Z",
+    companyId: COMPANY_ID,
+    actorId: "30000000-0000-4000-8000-000000000044",
+    data: {
+      causeId: "cause-1",
+      cause: { kind: "mutation" },
+      record: {
+        ref: { typeId: TYPE_ID, recordId: RECORD_ID },
+        schemaRevision: 1,
+        beforeVersion: 1,
+        afterVersion: 2,
+        assignments: null,
+        identities: null,
+        links: [],
+        related: [],
+        fields: labels.map((label, index) => ({
+          fieldId: fieldId(index),
+          before: null,
+          after: { fieldId: fieldId(index), label, valueType: "text", options: [], value: { state: "restricted" } },
+        })),
+      },
+    },
+  };
+}
+
+function messagingEnvelope(data: Record<string, unknown>) {
+  return {
+    event: "messaging.message.received",
+    id: "30000000-0000-4000-8000-000000000045",
+    timestamp: "2026-01-01T00:00:00.000Z",
+    companyId: COMPANY_ID,
+    actorId: null,
+    data,
+  };
+}
+
 describe("routine prompt composition", () => {
   it("sends a scheduled routine's instructions unchanged", () => {
     expect(composeRoutinePrompt("Summarise yesterday", { routineName: "Digest" })).toBe("Summarise yesterday");
   });
 
-  it("prefixes an event trigger with the event and entity", () => {
+  it("prefixes a record trigger with the event, entity and typed record reference", () => {
     expect(
       composeRoutinePrompt("Check the deal", {
         routineName: "Deal watch",
-        triggerEvent: "deal.updated",
-        triggerEntityId: "deal-1",
-      }),
-    ).toBe('<routine_trigger event="deal.updated" entity="deal" entityId="deal-1" />\nCheck the deal');
-  });
-
-  it("names the fields that changed so the agent need not guess", () => {
-    expect(
-      composeRoutinePrompt("Check it", {
-        routineName: "Deal watch",
-        triggerEvent: "deal.updated",
-        triggerEntityId: "deal-1",
-        triggerPayload: { payload: { changes: { name: {}, notes: {} } } },
+        triggerEvent: "record.updated",
+        triggerEntityId: RECORD_ID,
+        triggerPayload: envelope([]),
       }),
     ).toBe(
-      '<routine_trigger event="deal.updated" entity="deal" entityId="deal-1" changedFields="name,notes" changedFieldLabels="name,notes" />\nCheck it',
+      `<routine_trigger event="record.updated" entity="record" entityId="${RECORD_ID}" typeId="${TYPE_ID}" recordId="${RECORD_ID}" />\nCheck the deal`,
     );
   });
 
-  it("labels a changed custom column so the agent is not handed a bare uuid", () => {
-    const columnId = "8f1c1a4e-0b2d-4a9e-9d7c-1f2a3b4c5d6e";
+  it("names the fields that changed with their labels so the agent need not guess", () => {
+    const composed = composeRoutinePrompt("Check it", {
+      routineName: "Deal watch",
+      triggerEvent: "record.updated",
+      triggerEntityId: RECORD_ID,
+      triggerPayload: envelope(["Name", "Notes"]),
+    });
 
-    expect(
-      composeRoutinePrompt("Check it", {
-        routineName: "Deal watch",
-        triggerEvent: "deal.updated",
-        triggerEntityId: "deal-1",
-        triggerPayload: { payload: { changes: { [columnId]: {} } } },
-        changedFieldLabels: { [columnId]: "Deal stage" },
-      }),
-    ).toBe(
-      `<routine_trigger event="deal.updated" entity="deal" entityId="deal-1" changedFields="${columnId}" changedFieldLabels="Deal stage" />\nCheck it`,
-    );
+    expect(composed).toContain(`changedFields="${fieldId(0)},${fieldId(1)}"`);
+    expect(composed).toContain('changedFieldLabels="Name,Notes"');
   });
 
   it("says how many fields changed when the list is capped", () => {
-    const changes = Object.fromEntries(Array.from({ length: 30 }, (_, index) => [`field${index}`, {}]));
     const composed = composeRoutinePrompt("Go", {
       routineName: "Deal watch",
-      triggerEvent: "deal.updated",
-      triggerEntityId: "deal-1",
-      triggerPayload: { payload: { changes } },
+      triggerEvent: "record.updated",
+      triggerEntityId: RECORD_ID,
+      triggerPayload: envelope(Array.from({ length: 30 }, (_, index) => `Field ${index}`)),
     });
 
     expect(composed).toContain('changedFieldCount="30"');
-  });
-
-  it("names a record that a deletion has already removed", () => {
-    const composed = composeRoutinePrompt("Clean up", {
-      routineName: "Deal watch",
-      triggerEvent: "deal.deleted",
-      triggerEntityId: "deal-1",
-      triggerPayload: { payload: { id: "deal-1", name: "Digital Customer Platform" } },
-    });
-
-    expect(composed).toContain('entityName="Digital Customer Platform"');
+    expect(composed).toContain("Field 23");
+    expect(composed).not.toContain("Field 24");
   });
 
   it("hands a messaging trigger the thread the message belongs to", () => {
@@ -75,7 +99,7 @@ describe("routine prompt composition", () => {
         routineName: "Inbox watch",
         triggerEvent: "messaging.message.received",
         triggerEntityId: "message-1",
-        triggerPayload: { payload: { threadId: "thread-9" } },
+        triggerPayload: messagingEnvelope({ entityId: "message-1", threadId: "thread-9" }),
       }),
     ).toBe(
       '<routine_trigger event="messaging.message.received" entity="message" entityId="message-1" threadId="thread-9" />\nReply',
@@ -94,21 +118,9 @@ describe("routine prompt composition", () => {
     expect(composed).not.toContain('id="" />');
   });
 
-  it("caps a runaway field list", () => {
-    const fields = Array.from({ length: 40 }, (_, index) => `field${index}`);
-    const composed = composeRoutinePrompt("Go", {
-      routineName: "R",
-      triggerEvent: "deal.updated",
-      triggerPayload: { payload: { changes: Object.fromEntries(fields.map((field) => [field, {}])) } },
-    });
-
-    expect(composed).toContain("field23");
-    expect(composed).not.toContain("field24");
-  });
-
   it("omits the entity id when the event carries none", () => {
-    expect(composeRoutinePrompt("Look", { routineName: "R", triggerEvent: "contact.created" })).toBe(
-      '<routine_trigger event="contact.created" entity="contact" />\nLook',
+    expect(composeRoutinePrompt("Look", { routineName: "R", triggerEvent: "record.created" })).toBe(
+      '<routine_trigger event="record.created" entity="record" />\nLook',
     );
   });
 });
@@ -123,7 +135,7 @@ describe("routine trigger block stripping", () => {
         routineName: "R",
         triggerEvent: "deal.updated",
         triggerEntityId: "abc-123",
-        triggerPayload: { payload: { changes: { name: {} } } },
+        triggerPayload: messagingEnvelope({ changes: { name: {} } }),
       },
     ],
     [
@@ -132,7 +144,7 @@ describe("routine trigger block stripping", () => {
         routineName: "R",
         triggerEvent: "messaging.message.received",
         triggerEntityId: "m-1",
-        triggerPayload: { payload: { threadId: "t-1" } },
+        triggerPayload: messagingEnvelope({ threadId: "t-1" }),
       },
     ],
   ])("round-trips back to the author's instructions for %s", (_label, context) => {

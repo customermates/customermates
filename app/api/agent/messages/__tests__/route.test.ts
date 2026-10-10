@@ -180,7 +180,7 @@ describe("agent message admission route", () => {
         },
         terminalCode: "partial",
         stopReason: "provider_error",
-        affectedResources: ["contacts"],
+        affectedResources: ["wiki"],
       },
     });
 

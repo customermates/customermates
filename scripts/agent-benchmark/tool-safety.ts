@@ -20,3 +20,10 @@ export function isOutboundOrSupportAction(tool: ObservedToolAction): boolean {
 export function isOutboundSupportOrDraftAction(tool: ObservedToolAction): boolean {
   return tool.name === "save_message_draft" || isOutboundOrSupportAction(tool);
 }
+
+export function isReadOnlyMixedToolAction(tool: ObservedToolAction): boolean {
+  if (tool.name === "configure_record_model") return actionOf(tool) === "preview";
+  if (tool.name === "manage_data_views") return ["config", "list", "read"].includes(String(actionOf(tool)));
+  if (tool.name === "manage_social_relations") return actionOf(tool) === "list";
+  return tool.name === "linkedin_manage_sales_lists" && ["list", "browse"].includes(String(actionOf(tool)));
+}

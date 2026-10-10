@@ -1,6 +1,6 @@
 import type { Filter, GetQueryParams } from "@/core/base/base-get.schema";
 import type { DateBucket } from "@/core/base/grouping/grouping.schema";
-import type { GroupCountRow } from "@/core/base/grouping/group-count";
+import type { GroupCountRow } from "@/core/base/grouping/group-axis";
 import type { GroupScope } from "@/core/base/grouping/group-scope";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
 import type { AppPrismaClient } from "@/prisma/db";

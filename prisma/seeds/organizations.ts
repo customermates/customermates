@@ -1,7 +1,5 @@
-import type { Prisma } from "@/generated/prisma";
-
 import type { SeedContext } from "./context";
-import { fixtureId, upsertFixturesById } from "./helpers";
+import { fixtureId } from "./helpers";
 import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
 export const SYNTHETIC_ORGANIZATION_DEFINITIONS = [
@@ -102,7 +100,7 @@ export type OrganizationSeedData = {
   organizations: OrganizationFixture[];
 };
 
-export async function seedOrganizations(context: SeedContext): Promise<OrganizationSeedData> {
+export function seedOrganizations(context: SeedContext): Promise<OrganizationSeedData> {
   const organizations = SYNTHETIC_ORGANIZATION_DEFINITIONS.map(
     ({ emailDomain, name, website }, index) =>
       ({
@@ -115,27 +113,5 @@ export async function seedOrganizations(context: SeedContext): Promise<Organizat
       }) satisfies OrganizationFixture,
   );
 
-  await upsertFixturesById(organizations, (organization) => {
-    const data = {
-      companyId: organization.companyId,
-      id: organization.id,
-      name: organization.name,
-      createdAt: organization.createdAt,
-      updatedAt: organization.updatedAt,
-    } satisfies Prisma.OrganizationCreateManyInput;
-
-    return context.prisma.organization.upsert({
-      where: { id: organization.id },
-      update: data,
-      create: data,
-    });
-  });
-  await context.prisma.organization.deleteMany({
-    where: {
-      companyId: context.ids.company,
-      id: { startsWith: "70000000-", notIn: organizations.map(({ id }) => id) },
-    },
-  });
-
-  return { organizations };
+  return Promise.resolve({ organizations });
 }

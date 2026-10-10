@@ -4,7 +4,7 @@ import { relative } from "node:path";
 import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
-import { REPO_ROOT, walkFiles } from "./walk";
+import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, walkFiles } from "./walk";
 
 const SOURCE_ROOTS = ["core", "features", "ee"];
 const ACCESS_ERROR_CONSTRUCTORS = new Set([
@@ -112,7 +112,7 @@ describe("interactor error contract", () => {
       visit(file);
     }
     expect(violations).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("requires tenant interactors to return expected failures instead of throwing them", () => {
     const violations: string[] = [];

@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import { randomUUID } from "node:crypto";
 
 import { Client } from "pg";
@@ -25,7 +26,7 @@ class ReadUsersProbe {
 
 const GuardedProbe = TenantInteractor<typeof ReadUsersProbe>({
   resource: Resource.users,
-  action: Action.readAll,
+  read: "all",
 })(ReadUsersProbe);
 
 describeDatabase("background tenant context on PostgreSQL", () => {
@@ -82,8 +83,12 @@ describeDatabase("background tenant context on PostgreSQL", () => {
   });
 
   it("scopes a tenant repository to the background tenant's company", async () => {
-    const own = await runAsBackgroundTenant(activeUserId, () => new PrismaUserRepo().getUserById(activeUserId));
-    const foreign = await runAsBackgroundTenant(activeUserId, () => new PrismaUserRepo().getUserById(outsiderId));
+    const own = await runAsBackgroundTenant(activeUserId, () =>
+      new PrismaUserRepo(new PermissionService()).getUserById(activeUserId),
+    );
+    const foreign = await runAsBackgroundTenant(activeUserId, () =>
+      new PrismaUserRepo(new PermissionService()).getUserById(outsiderId),
+    );
 
     expect(own?.id).toBe(activeUserId);
     expect(foreign).toBeNull();

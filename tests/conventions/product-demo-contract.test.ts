@@ -8,9 +8,12 @@ import {
   INDUSTRY_PRODUCT_DEMOS,
 } from "@/components/marketing/product-demo-config";
 import {
+  DEMO_RECORD_LIST_PATHS,
   PRODUCT_DEMO_PATHS,
   buildProductDemoUrl,
 } from "@/components/marketing/product-demo";
+import { presetId } from "@/features/records/crm-preset";
+import { SEED_IDS } from "@/prisma/seeds/context";
 import { REPO_ROOT, walkFiles } from "./walk";
 
 type PageDemo = {
@@ -56,25 +59,23 @@ describe("seeded public product demo", () => {
     expect(PRODUCT_DEMO_PATHS).toStrictEqual([
       "/dashboard",
       "/inbox",
-      "/deals",
-      "/contacts",
-      "/organizations",
-      "/tasks",
-      "/profile/api-keys",
-      "/profile/connected-accounts",
-      "/company/webhooks",
+      `/records/${presetId(SEED_IDS.company, "deal")}`,
+      `/records/${presetId(SEED_IDS.company, "contact")}`,
+      `/records/${presetId(SEED_IDS.company, "organization")}`,
+      `/records/${presetId(SEED_IDS.company, "task")}`,
+      "/settings/api-keys",
+      "/settings/channels",
+      "/settings/webhooks",
     ]);
     expect(buildProductDemoUrl("en", "/inbox")).toBe(
       "https://demo.customermates.com/en/inbox?agentChat=closed",
     );
-    expect(buildProductDemoUrl("de", "/deals")).toBe(
-      "https://demo.customermates.com/de/deals?agentChat=closed",
+    expect(buildProductDemoUrl("de", DEMO_RECORD_LIST_PATHS.deals)).toBe(
+      `https://demo.customermates.com/de/records/${presetId(SEED_IDS.company, "deal")}?agentChat=closed`,
     );
-    expect(buildProductDemoUrl("en", "/contacts")).toBe(
-      "https://demo.customermates.com/en/contacts?agentChat=closed",
-    );
-    expect(() => buildProductDemoUrl("en", "/services")).toThrow(
-      "Unsupported product demo path: /services",
+    expect(() => buildProductDemoUrl("en", "/deals")).toThrow("Unsupported product demo path: /deals");
+    expect(() => buildProductDemoUrl("en", `/records/${presetId(SEED_IDS.company, "service")}`)).toThrow(
+      "Unsupported product demo path",
     );
   });
 
@@ -113,10 +114,10 @@ describe("seeded public product demo", () => {
     ).toBe(true);
     expect(FEATURE_PRODUCT_DEMOS["self-hosted"].hostedBoundary).toBe(true);
     expect(FEATURE_PRODUCT_DEMOS["crm-integration"]).toStrictEqual({
-      path: "/company/webhooks",
+      path: "/settings/webhooks",
     });
     expect(FEATURE_PRODUCT_DEMOS["sales-automation"]).toStrictEqual({
-      path: "/company/webhooks",
+      path: "/settings/webhooks",
     });
     for (const slug of [
       "customer-service",
@@ -129,7 +130,7 @@ describe("seeded public product demo", () => {
       expect(FEATURE_PRODUCT_DEMOS[slug].hostedBoundary, slug).toBe(true);
     }
     expect(INDUSTRY_PRODUCT_DEMOS).toStrictEqual({
-      "professional-services": { path: "/deals" },
+      "professional-services": { path: DEMO_RECORD_LIST_PATHS.deals },
     });
 
     const featureRoute = read("app/[locale]/(static)/features/[slug]/page.tsx");

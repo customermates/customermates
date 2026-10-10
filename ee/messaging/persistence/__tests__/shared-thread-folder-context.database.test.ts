@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import { randomUUID } from "node:crypto";
 
 import { Client } from "pg";
@@ -104,7 +105,10 @@ describeDatabase("shared-thread folder context on PostgreSQL", () => {
 
   it("names only the visible folders the shared conversation sits in", async () => {
     const context = await runWithTenant(colleague, () =>
-      new PrismaConnectedAccountRepo().findSharedThreadFolderContext(sharedThreadId, ["archive", "hidden"]),
+      new PrismaConnectedAccountRepo(new PermissionService()).findSharedThreadFolderContext(sharedThreadId, [
+        "archive",
+        "hidden",
+      ]),
     );
 
     expect(context).toEqual({ folders: [folder("archive", "Archive", "ARCHIVE")], selectedFolderIds: ["archive"] });
@@ -122,14 +126,18 @@ describeDatabase("shared-thread folder context on PostgreSQL", () => {
 
   it("keeps the whole-account catalog private from a colleague", async () => {
     expect(
-      await runWithTenant(colleague, () => new PrismaConnectedAccountRepo().findFolderContextById(accountId)),
+      await runWithTenant(colleague, () =>
+        new PrismaConnectedAccountRepo(new PermissionService()).findFolderContextById(accountId),
+      ),
     ).toBeNull();
   });
 
   it("reveals nothing for a conversation that is not shared", async () => {
     expect(
       await runWithTenant(colleague, () =>
-        new PrismaConnectedAccountRepo().findSharedThreadFolderContext(privateThreadId, ["inbox"]),
+        new PrismaConnectedAccountRepo(new PermissionService()).findSharedThreadFolderContext(privateThreadId, [
+          "inbox",
+        ]),
       ),
     ).toBeNull();
   });
@@ -137,7 +145,9 @@ describeDatabase("shared-thread folder context on PostgreSQL", () => {
   it("reveals nothing across workspaces", async () => {
     expect(
       await runWithTenant(outsider, () =>
-        new PrismaConnectedAccountRepo().findSharedThreadFolderContext(sharedThreadId, ["inbox"]),
+        new PrismaConnectedAccountRepo(new PermissionService()).findSharedThreadFolderContext(sharedThreadId, [
+          "inbox",
+        ]),
       ),
     ).toBeNull();
   });

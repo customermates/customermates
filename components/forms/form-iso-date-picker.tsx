@@ -24,6 +24,7 @@ import { useFormFieldErrors } from "./use-form-field";
 
 type Props = {
   id: string;
+  inputId?: string;
   label?: string | null;
   placeholder?: string;
   required?: boolean;
@@ -32,6 +33,7 @@ type Props = {
   clearable?: boolean;
   value?: string;
   onValueChange?: (value: string | undefined) => void;
+  onPicked?: () => void;
   className?: string;
   containerClassName?: string;
 };
@@ -39,6 +41,7 @@ type Props = {
 export const FormIsoDatePicker = observer(
   ({
     id,
+    inputId,
     label,
     placeholder,
     required,
@@ -47,6 +50,7 @@ export const FormIsoDatePicker = observer(
     clearable = true,
     value: controlledValue,
     onValueChange,
+    onPicked,
     className,
     containerClassName,
   }: Props) => {
@@ -56,19 +60,20 @@ export const FormIsoDatePicker = observer(
     const intlStore = useHydratedIntlStore();
 
     const raw = controlledValue ?? store?.getValue(id);
+    const domId = inputId ?? id;
     const isoValue = typeof raw === "string" && raw !== "" ? raw : undefined;
     const parsed = parseIsoDate(isoValue);
     const { hasError } = useFormFieldErrors(id);
     const isLoading = store?.isLoading ?? false;
     const isReadOnly = !isLoading && (store?.isReadOnly ?? false);
     const canEdit = !isReadOnly && !isLoading;
-    const [open, setOpen] = useState(false);
 
     const resolvedLabel = label ?? undefined;
 
     const formatter = dateOnly ? intlStore.dateFormatMap[displayFormat] : intlStore.dateTimeFormatMap[displayFormat];
 
     const [currentMonth, setCurrentMonth] = useState<Date>(() => startOfMonth(parsed ?? new Date()));
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
       if (parsed) setCurrentMonth(startOfMonth(parsed));
@@ -98,6 +103,13 @@ export const FormIsoDatePicker = observer(
       if (!dateOnly && parsed) next.setHours(parsed.getHours(), parsed.getMinutes(), parsed.getSeconds(), 0);
 
       commit(next);
+      finishPick();
+    }
+
+    function finishPick() {
+      if (!dateOnly || !onPicked) return;
+      setOpen(false);
+      onPicked();
     }
 
     function handleTimeChange(value: string) {
@@ -116,6 +128,7 @@ export const FormIsoDatePicker = observer(
       const next = compute(baseToday);
       if (!dateOnly && parsed) next.setHours(parsed.getHours(), parsed.getMinutes(), parsed.getSeconds(), 0);
       commit(next);
+      finishPick();
     }
 
     const timeValue = parsed ? localTimeValue(parsed) : "";
@@ -123,7 +136,7 @@ export const FormIsoDatePicker = observer(
     return (
       <div className={cn("flex flex-col gap-1.5", containerClassName)}>
         {resolvedLabel && (
-          <FormLabel htmlFor={id}>
+          <FormLabel fieldId={id} htmlFor={domId}>
             {resolvedLabel}
 
             {required ? <span className="text-destructive"> *</span> : null}
@@ -142,7 +155,7 @@ export const FormIsoDatePicker = observer(
               )}
               data-field-state={isReadOnly ? "read-only" : undefined}
               disabled={isLoading}
-              id={id}
+              id={domId}
               type="button"
               variant="field"
             >
@@ -162,7 +175,6 @@ export const FormIsoDatePicker = observer(
             onOpenAutoFocus={focusCalendarDay}
           >
             <Calendar
-              autoFocus
               disabled={isLoading}
               mode="single"
               month={currentMonth}
@@ -176,13 +188,13 @@ export const FormIsoDatePicker = observer(
                 <Separator />
 
                 <div className="flex flex-col gap-2 p-3">
-                  <FormLabel className="text-xs text-muted-foreground" htmlFor={`${id}-time`}>
+                  <FormLabel className="text-xs text-muted-foreground" htmlFor={`${domId}-time`}>
                     {t("Common.datePresets.startTime")}
                   </FormLabel>
 
                   <TimeInput
                     disabled={isLoading}
-                    id={`${id}-time`}
+                    id={`${domId}-time`}
                     use12Hour={intlStore.use12Hour}
                     value={timeValue}
                     onChange={handleTimeChange}

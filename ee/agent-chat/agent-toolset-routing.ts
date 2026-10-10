@@ -2,8 +2,9 @@ import { agentViewRequestTarget } from "./agent-page-context";
 import type { AgentContextAttachment } from "./agent-context";
 import type { LocaleCode } from "@/i18n/locale-registry";
 
-export const AGENT_CORE_TOOLSETS = ["records", "workspace", "wiki", "docs", "custom-columns", "support"] as const;
+export const AGENT_CORE_TOOLSETS = ["records", "workspace", "wiki", "docs", "support"] as const;
 export const AGENT_ON_DEMAND_TOOLSETS = [
+  "record-model",
   "views",
   "messaging",
   "social",
@@ -21,20 +22,56 @@ export const LOAD_TOOLSET_TOOL_NAME = "load_toolset";
 export const ANALYZE_RECORDS_TOOL_NAME = "analyze_records";
 
 export const AGENT_TOOLSET_SUMMARY: Record<AgentOnDemandToolset, string> = {
-  views: "saved views, filters, sorting, grouping and layouts",
+  "record-model": "configure CRM types, fields, relationships, calculations, access presets and operation recovery",
+  views: "saved views, filters, sorting, grouping and personal detail pins, hidden fields and ordering",
   messaging: "inbox, email, chat, calendar and connected messaging accounts",
   social: "LinkedIn, Instagram, posts, profiles, engagement and Sales Navigator",
   widgets: "dashboard widgets",
   webhooks: "webhooks and their deliveries",
   routines: "routines: scheduled or event-driven automations",
-  admin: "team members, terminology, workspace settings and profile",
+  admin: "team members, roles, record access and profile",
 };
 
 export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCode | "any", readonly string[]>> = {
+  "record-model": {
+    any: [],
+    en: [
+      "record type",
+      "data model",
+      "create a list",
+      "create projects",
+      "calculated field",
+      "rollup",
+      "lookup field",
+      "weighted pipeline",
+      "saved pricing",
+      "currency",
+    ],
+    de: ["datenmodell", "datensatztyp", "berechnetes feld", "währung"],
+    es: ["modelo de datos", "moneda"],
+    fr: ["modèle de données", "devise"],
+    it: ["modello dati", "valuta"],
+  },
   views: {
     any: ["kanban"],
-    en: ["saved view", "current view", "new view", "my view", "create a view", "update a view", "delete a view"],
+    en: [
+      "pin field",
+      "pin the",
+      "hide field",
+      "detail layout",
+      "record details",
+      "saved view",
+      "current view",
+      "new view",
+      "my view",
+      "create a view",
+      "update a view",
+      "delete a view",
+    ],
     de: [
+      "detailansicht",
+      "feld anheften",
+      "feld ausblenden",
       "gespeicherte ansicht",
       "aktuelle ansicht",
       "neue ansicht",
@@ -42,9 +79,33 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
       "ansicht erstellen",
       "ansicht löschen",
     ],
-    es: ["vista guardada", "vista actual", "nueva vista", "mi vista", "crear una vista"],
-    fr: ["vue enregistrée", "vue actuelle", "nouvelle vue", "ma vue", "créer une vue"],
-    it: ["vista salvata", "vista attuale", "nuova vista", "mia vista", "crea una vista"],
+    es: [
+      "vista de detalle",
+      "ocultar campo",
+      "vista guardada",
+      "vista actual",
+      "nueva vista",
+      "mi vista",
+      "crear una vista",
+    ],
+    fr: [
+      "fiche détaillée",
+      "masquer le champ",
+      "vue enregistrée",
+      "vue actuelle",
+      "nouvelle vue",
+      "ma vue",
+      "créer une vue",
+    ],
+    it: [
+      "dettagli del record",
+      "nascondi campo",
+      "vista salvata",
+      "vista attuale",
+      "nuova vista",
+      "mia vista",
+      "crea una vista",
+    ],
   },
   messaging: {
     any: ["whatsapp", "telegram"],
@@ -180,53 +241,20 @@ export const AGENT_TOOLSET_LEXICON: Record<AgentOnDemandToolset, Record<LocaleCo
   },
   admin: {
     any: ["avatar"],
-    en: [
-      "team member",
-      "teammate",
-      "invite",
-      "role",
-      "permission",
-      "terminology",
-      "rename",
-      "currency",
-      "workspace setting",
-      "my name",
-    ],
-    de: ["teammitglied", "einladen", "rolle", "berechtigung", "terminologie", "umbenennen", "währung", "einstellung"],
+    en: ["team member", "teammate", "invite", "role", "permission", "rename", "workspace setting", "my name"],
+    de: ["teammitglied", "einladen", "rolle", "berechtigung", "umbenennen", "einstellung"],
     es: [
       "miembro del equipo",
       "invita",
       "roles",
       "permiso",
-      "terminología",
       "cambiar el nombre",
       "renombrar",
-      "moneda",
       "configuración",
       "mi nombre",
     ],
-    fr: [
-      "membre de l'équipe",
-      "inviter",
-      "rôle",
-      "autorisation",
-      "terminologie",
-      "renommer",
-      "devise",
-      "paramètres",
-      "mon nom",
-    ],
-    it: [
-      "membro del team",
-      "invita",
-      "ruolo",
-      "permesso",
-      "terminologia",
-      "rinominare",
-      "valuta",
-      "impostazioni",
-      "il mio nome",
-    ],
+    fr: ["membre de l'équipe", "inviter", "rôle", "autorisation", "renommer", "paramètres", "mon nom"],
+    it: ["membro del team", "invita", "ruolo", "permesso", "rinominare", "impostazioni", "il mio nome"],
   },
 };
 
@@ -235,13 +263,14 @@ const TOOLSET_TERMS = new Map(
 );
 
 const TOOLSET_ROUTES: Record<AgentOnDemandToolset, readonly string[]> = {
+  "record-model": ["/records", "/configure"],
   views: [],
   messaging: ["/inbox", "/calendar"],
   social: ["/social"],
   widgets: ["/dashboard"],
-  webhooks: ["/company/webhooks"],
+  webhooks: ["/settings/webhooks"],
   routines: ["/routines"],
-  admin: ["/company", "/profile"],
+  admin: ["/settings"],
 };
 
 const ACTIVITY_KIND_TOOLSETS: Record<string, AgentOnDemandToolset> = {
@@ -256,8 +285,6 @@ const ACTIVITY_KIND_TOOLSETS: Record<string, AgentOnDemandToolset> = {
 };
 
 const ACTIVITY_KIND_EXACT_TOOLSETS: Record<string, AgentOnDemandToolset> = {
-  "workspace.settings": "admin",
-  "workspace.terminology": "admin",
   "workspace.configure": "admin",
 };
 
@@ -289,6 +316,15 @@ export function toolsetsForRequest(args: {
   const matched = new Set<AgentOnDemandToolset>();
   if (agentViewRequestTarget(args.pageRoute).kind === "target") matched.add("views");
   if (args.contexts?.some((context) => context.reference.kind === "dataView")) matched.add("views");
+  if (args.contexts?.some((context) => context.reference.kind === "widget")) matched.add("widgets");
+  if (
+    args.contexts?.some(
+      ({ reference }) =>
+        ["dataModel", "recordType", "recordField", "widget"].includes(reference.kind) ||
+        (reference.kind === "record" && "typeId" in reference),
+    )
+  )
+    matched.add("record-model");
   for (const toolset of AGENT_ON_DEMAND_TOOLSETS) {
     if (TOOLSET_TERMS.get(toolset)?.some((term) => text.includes(term))) matched.add(toolset);
     if (route && TOOLSET_ROUTES[toolset].some((prefix) => route === prefix || route.startsWith(`${prefix}/`)))
@@ -364,7 +400,7 @@ export function toolsetIndexSentence(loadedToolsets: readonly string[] = []): st
   const loaded = AGENT_ON_DEMAND_TOOLSETS.filter((toolset) => loadedToolsets.includes(toolset));
   const loadable = AGENT_ON_DEMAND_TOOLSETS.filter((toolset) => !loadedToolsets.includes(toolset));
   const always =
-    "Tool sets: records, workspace, Knowledge Base, documentation, custom fields, interface and support tools are always in your list.";
+    "Tool sets: records, workspace, Knowledge Base, documentation, interface and support tools are always in your list.";
   const already = loaded.length > 0 ? ` Already loaded for this turn: ${loaded.join(", ")}.` : "";
   if (loadable.length === 0)
     return `${always}${already} Every on-demand set is loaded, so there is nothing left to load.`;

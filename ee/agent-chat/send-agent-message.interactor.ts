@@ -34,7 +34,7 @@ import type { AgentUsageService } from "./agent-usage.service";
 import type { PrismaAgentChatRepo } from "./prisma-agent-chat.repository";
 import { AGENT_RUN_LEASE_MS, decideAgentTurnAdmission, type AgentTurnRequestSnapshot } from "./agent-turn-request";
 import { agentSystemPromptParts, routineTriggerEventOf } from "./system-prompt";
-import { agentToolDefinitionsForTurn } from "./agent-tools";
+import { agentToolDefinitionsForToolsets, agentToolDefinitionsForTurn } from "./agent-tools";
 import { toolsetsForRequest, toolsetsFromActivities } from "./agent-toolset-routing";
 import { AgentActivityDescriptorSchema, type AgentActivityDescriptor } from "./agent-activity";
 import { conservativeAgentInitialContextBytes } from "./agent-provider-context";
@@ -45,7 +45,7 @@ import { isAgentModelKey, resolveAgentModel, SHIPPED_AGENT_MODEL_KEY } from "./m
 import { BENCHMARK_MODEL_KEY_PREFIX } from "./benchmark-model-registry";
 import { recordsBenchmarkToolOutputs } from "./benchmark-tool-output";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
-import type { GetCustomColumnsRepo } from "@/features/custom-column/get-custom-columns.interactor";
+import type { DiscoverRecordTypesInteractor } from "@/features/records/discover-record-types.interactor";
 import {
   fail,
   failConflict,
@@ -111,7 +111,7 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
     private usageService: AgentUsageService,
     private entitlements: EntitlementService,
     private backgroundTaskService: BackgroundTaskService,
-    private customColumns: GetCustomColumnsRepo,
+    private recordTypes: Pick<DiscoverRecordTypesInteractor, "invoke">,
     private wikiCatalog: Pick<GetWikiCatalogInteractor, "invoke">,
     private userService?: Pick<UserService, "hasPermission">,
     private wikiCrawls?: {
@@ -128,7 +128,8 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
 
   private async schemaDigest() {
     try {
-      return renderAgentSchemaDigest(await this.customColumns.getCustomColumns());
+      const discovery = await this.recordTypes.invoke({ includeEmbedded: false, page: 1, pageSize: 25 });
+      return discovery.ok ? renderAgentSchemaDigest(discovery.data) : null;
     } catch (error) {
       Sentry.captureException(error);
       return null;
@@ -313,10 +314,13 @@ export class SendAgentMessageInteractor extends AuthenticatedInteractor<SendAgen
       currentText: data.text,
       contexts,
       pageRoute,
-      toolDefinitions: agentToolDefinitionsForTurn({
-        servingProvider: turnModel.servingProvider,
-        ...toolOptions,
-      }),
+      toolDefinitions: agentToolDefinitionsForToolsets(
+        agentToolDefinitionsForTurn({
+          servingProvider: turnModel.servingProvider,
+          ...toolOptions,
+        }),
+        [...requestedToolsets],
+      ),
       wikiCatalog,
     });
     if (requiredContextBytes === null) throw new Error("The Assistant request context could not be measured safely.");

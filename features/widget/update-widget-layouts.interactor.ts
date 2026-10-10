@@ -1,8 +1,9 @@
+import type { UpdateWidgetLayoutsRepo } from "./update-widget-layouts.repo";
 import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
-import { WidgetLayoutItemSchema } from "./widget.schema";
+import { WidgetLayoutItemSchema, WidgetLayoutSchema } from "./widget.schema";
 
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -20,19 +21,24 @@ const Schema = z.object({
 });
 export type UpdateWidgetLayoutsData = Data<typeof Schema>;
 
-export abstract class UpdateWidgetLayoutsRepo {
-  abstract updateWidgetLayouts(args: UpdateWidgetLayoutsData): Promise<void>;
-}
+export const SavedWidgetLayoutSchema = z.object({
+  id: z.uuid(),
+  version: z.number().int().positive(),
+  layout: WidgetLayoutSchema,
+});
+export type SavedWidgetLayout = Data<typeof SavedWidgetLayoutSchema>;
 
 @TenantInteractor()
-export class UpdateWidgetLayoutsInteractor extends AuthenticatedInteractor<UpdateWidgetLayoutsData, null> {
+export class UpdateWidgetLayoutsInteractor extends AuthenticatedInteractor<
+  UpdateWidgetLayoutsData,
+  SavedWidgetLayout[]
+> {
   constructor(private repo: UpdateWidgetLayoutsRepo) {
     super();
   }
 
   @Enforce(Schema)
-  async invoke(data: UpdateWidgetLayoutsData): Promise<{ ok: true; data: null }> {
-    await this.repo.updateWidgetLayouts(data);
-    return { ok: true as const, data: null };
+  async invoke(data: UpdateWidgetLayoutsData): Promise<{ ok: true; data: SavedWidgetLayout[] }> {
+    return { ok: true as const, data: await this.repo.updateWidgetLayouts(data) };
   }
 }

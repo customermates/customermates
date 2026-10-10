@@ -1,35 +1,36 @@
 "use client";
 
-import type { ReactElement } from "react";
 import type { Filter, FilterableField } from "@/core/base/base-get.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
+import type { ReactElement } from "react";
 
+import { XIcon } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useCallback } from "react";
-import { XIcon } from "lucide-react";
 
-import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 import {
   resolveFilterDateGranularity,
   resolveFilterValueClass,
   shouldPreserveFilterValue,
 } from "@/components/data-view/filter-modal/filter-value-class";
-import { FilterInputSelect } from "@/components/data-view/filter-modal/inputs/filter-input-select";
-import { FilterInputNumber } from "@/components/data-view/filter-modal/inputs/filter-input-number";
-import { FilterInputText } from "@/components/data-view/filter-modal/inputs/filter-input-text";
+import { FilterInputDaysCount } from "@/components/data-view/filter-modal/inputs/filter-input-days-count";
 import { FilterInputIsoDate } from "@/components/data-view/filter-modal/inputs/filter-input-iso-date";
 import { FilterInputIsoDateRange } from "@/components/data-view/filter-modal/inputs/filter-input-iso-date-range";
-import { FilterInputDaysCount } from "@/components/data-view/filter-modal/inputs/filter-input-days-count";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { FilterInputNumber } from "@/components/data-view/filter-modal/inputs/filter-input-number";
+import { FilterInputSelect } from "@/components/data-view/filter-modal/inputs/filter-input-select";
+import { FilterInputText } from "@/components/data-view/filter-modal/inputs/filter-input-text";
+import { FilterInputValues } from "@/components/data-view/filter-modal/inputs/filter-input-values";
+import { hasValidFilterConfiguration } from "@/components/data-view/table-view.utils";
 import { useAppForm } from "@/components/forms/form-context";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { FilterOperatorKey } from "@/core/base/base-query-builder";
 
 import { isStandaloneOperator } from "@/core/base/base-query-builder";
 import { cn } from "@/core/utils/cn";
 
 type Props = {
-  customColumns?: CustomColumnDto[];
+  customColumns?: ColumnPresentation[];
   filter: Filter;
   filterableFields: FilterableField[];
   baseId: string;
@@ -85,6 +86,15 @@ export const FilterField = observer(({ customColumns, filter, filterableFields, 
             id={id}
             isValidFilter={isValidFilter}
             onValueChange={() => onFilterChange?.(filter.field)}
+          />
+        );
+      case "scalarArray":
+        return (
+          <FilterInputValues
+            key={`${filter.field}-${operator}`}
+            customColumns={customColumns}
+            field={filter.field}
+            id={id}
           />
         );
       case "numericString":

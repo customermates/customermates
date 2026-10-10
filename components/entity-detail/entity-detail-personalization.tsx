@@ -24,7 +24,7 @@ export type EntityDetailPreviewItem = {
   data?: unknown;
 };
 
-type EntityDetailPersonalizationValue = {
+export type EntityDetailPersonalizationValue = {
   enabled: boolean;
   applyFieldVisibility: boolean;
   isPersonalizing: boolean;
@@ -34,6 +34,7 @@ type EntityDetailPersonalizationValue = {
   fieldOrder: string[];
   columnOrder: string[];
   previewFieldValues: Record<string, EntityDetailPreviewItem[]>;
+  fieldSettingsHref?: (fieldId: string) => string | null;
   setIsPersonalizing: (value: boolean) => void;
   toggleStarredField: (fieldId: string) => void;
   toggleFieldVisibility: (fieldId: string) => void;
@@ -59,7 +60,7 @@ const EMPTY_VALUE: EntityDetailPersonalizationValue = {
   setPreviewFieldValue: () => undefined,
 };
 
-const EntityDetailPersonalizationContext = createContext<EntityDetailPersonalizationValue>(EMPTY_VALUE);
+export const EntityDetailPersonalizationContext = createContext<EntityDetailPersonalizationValue>(EMPTY_VALUE);
 
 type ProviderProps = {
   children: ReactNode;

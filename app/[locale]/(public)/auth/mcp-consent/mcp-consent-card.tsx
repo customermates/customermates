@@ -10,6 +10,7 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   clientName: string;
@@ -18,7 +19,7 @@ type Props = {
   scopes: string[];
 };
 
-export const McpConsentCard = observer(({ clientName, consentCode, redirectHost, scopes }: Props) => {
+const McpConsentCardContent = observer(({ clientName, consentCode, redirectHost, scopes }: Props) => {
   const t = useTranslations();
   const { mcpConsentStore, navigationGuard } = useRootStore();
 
@@ -83,3 +84,5 @@ export const McpConsentCard = observer(({ clientName, consentCode, redirectHost,
     </AppCard>
   );
 });
+
+export const McpConsentCard = serverRenderedClient(McpConsentCardContent);

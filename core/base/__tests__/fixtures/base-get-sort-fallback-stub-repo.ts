@@ -1,4 +1,4 @@
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { Filter, FilterableField, GetQueryParams, SortDescriptor } from "../../base-get.schema";
 import { BaseGetRepo } from "@/core/base/base-get.repo";
 
@@ -44,9 +44,5 @@ export class StubRepo extends BaseGetRepo<Item> {
     return this.getSortableFields().some((sortable) => sortable.field === sortDescriptor.field)
       ? sortDescriptor
       : undefined;
-  }
-
-  sumNumericFields<F extends string>(): Promise<Partial<Record<F, number | null>>> {
-    return Promise.resolve({} as Partial<Record<F, number | null>>);
   }
 }

@@ -6,7 +6,7 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 import { z } from "zod";
 import * as Sentry from "@sentry/node";
 
-import { Action, Resource, MessagingThreadType } from "@/generated/prisma";
+import { Resource, MessagingThreadType } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Enforce } from "@/core/decorators/enforce.decorator";
@@ -32,7 +32,7 @@ type ResyncThreadResult = {
   retryAfter?: string;
 };
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.update })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThreadData, ResyncThreadResult> {
   constructor(
     private repo: ResyncThreadRepo,

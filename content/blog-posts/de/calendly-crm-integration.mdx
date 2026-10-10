@@ -224,50 +224,61 @@ Fügen Sie hier jede Transformationslogik hinzu: "Max Mustermann" in Vor- und Na
 
 ### Schritt 3: Kontakt in Customermates erstellen oder aktualisieren
 
-Fügen Sie einen **HTTP Request**-Knoten hinzu:
+Rufen Sie zuerst `POST <BASE_URL>/api/v1/model/discover` mit `{}` auf und speichern Sie die aktuelle Schema-Revision sowie die IDs des Kontakttyps und der benötigten Felder und Beziehungen. Diese stabilen IDs bleiben auch nach einer Umbenennung gültig. Fügen Sie dann einen **HTTP Request**-Knoten hinzu:
 
 - **Methode:** POST
-- **URL:** `<BASE_URL>/api/v1/contacts` (die Adresse, unter der Sie Customermates öffnen)
+- **URL:** `<BASE_URL>/api/v1/records/mutate` (die Adresse, unter der Sie Customermates öffnen)
 - **Headers:** `x-api-key: IHR_API_KEY`
-- **Body (JSON):**
+- **Body (JSON, mit Werten aus der Schema-Abfrage und Calendly):**
 
 ```json
 {
-  "firstName": "{{firstName}}",
-  "lastName": "{{lastName}}",
-  "identifiers": [{ "provider": "mail", "value": "{{email}}" }],
-  "customFieldValues": [
-    { "columnId": "{{spalteLeadQuelle}}", "value": "Calendly - {{eventType}}" }
-  ]
+  "expectedRevision": {{schemaRevision}},
+  "idempotencyKey": "calendly-contact-{{eventId}}",
+  "mutation": {
+    "action": "create",
+    "typeId": "{{contactTypeId}}",
+    "fields": [
+      { "fieldId": "{{firstNameFieldId}}", "value": { "kind": "text", "value": "{{firstName}}" } },
+      { "fieldId": "{{lastNameFieldId}}", "value": { "kind": "text", "value": "{{lastName}}" } },
+      { "fieldId": "{{leadSourceFieldId}}", "value": { "kind": "text", "value": "Calendly - {{eventType}}" } }
+    ],
+    "identities": [{ "provider": "mail", "value": "{{email}}" }]
+  }
 }
 ```
 
-Firma, Telefon oder Lead-Quelle legen Sie als eigene Spalten an oder verknüpfen eine Organisation; welche Spalten Ihr Workspace hat, zeigt `GET /api/v1/contacts/configuration`, das Schema steht in der [OpenAPI-Spec](/docs/openapi).
+Legen Sie Lead-Quelle zuvor als Eingabefeld im Datenmodell an oder lassen Sie diese Zuweisung weg. Eine Organisation verknüpfen Sie mit ihrer Beziehungs-ID und einer `link`-Mutation zwischen den beiden Datensatzreferenzen.
 
-Um Duplikate zu vermeiden, fügen Sie einen vorgelagerten HTTP-Request-Knoten hinzu, der den Kontakt per E-Mail sucht. Falls gefunden, aktualisieren statt neu erstellen. Nutzen Sie einen **IF**-Knoten, um zwischen beiden Pfaden zu verzweigen.
+Um Duplikate zu vermeiden, suchen Sie zuerst mit `POST /api/v1/records/search`. Falls der Kontakt schon existiert, lesen Sie seine aktuelle Version und senden eine `update`-Mutation an denselben Mutations-Endpunkt. Ein **IF**-Knoten trennt beide Pfade. Verwenden Sie die Calendly-Event-ID als Idempotenzschlüssel, damit Wiederholungen keinen zweiten Datensatz anlegen.
 
 ### Schritt 4: Deal automatisch erstellen
 
 Fügen Sie einen weiteren **HTTP Request**-Knoten hinzu:
 
 - **Methode:** POST
-- **URL:** `<BASE_URL>/api/v1/deals`
+- **URL:** `<BASE_URL>/api/v1/records/mutate`
 - **Body (JSON):**
 
 ```json
 {
-  "name": "{{kontaktName}} - {{eventType}}",
-  "contactIds": ["{{contactId}}"],
-  "userIds": ["{{zustaendigerUserId}}"],
-  "customFieldValues": [
-    { "columnId": "{{spalteStufe}}", "value": "{{optionMeetingGebucht}}" },
-    { "columnId": "{{spalteAbschlussdatum}}", "value": "{{in30Tagen}}" }
-  ],
-  "notes": "Gebucht via Calendly am {{scheduledTime}}. Event: {{eventType}}."
+  "expectedRevision": {{schemaRevision}},
+  "idempotencyKey": "calendly-deal-{{eventId}}",
+  "mutation": {
+    "action": "create",
+    "typeId": "{{dealTypeId}}",
+    "fields": [
+      { "fieldId": "{{dealNameFieldId}}", "value": { "kind": "text", "value": "{{kontaktName}} - {{eventType}}" } },
+      { "fieldId": "{{stageFieldId}}", "value": { "kind": "select", "value": "{{optionMeetingGebuchtId}}" } },
+      { "fieldId": "{{expectedCloseFieldId}}", "value": { "kind": "date", "value": "{{abschlussdatum}}" } }
+    ],
+    "assignedUserIds": ["{{zustaendigerUserId}}"],
+    "links": [{ "relationId": "{{dealContactsRelationId}}", "direction": "outgoing", "record": { "typeId": "{{contactTypeId}}", "recordId": "{{contactId}}" } }]
+  }
 }
 ```
 
-Die Deal-Stufe ist eine konfigurierbare Auswahlspalte; ihre Spalten- und Options-IDs liefert `GET /api/v1/deals/configuration`. Den zuständigen Vertriebler ordnen Sie über `userIds` zu, nachdem Sie die Calendly-Host-E-Mail einem Customermates-Nutzer zugeordnet haben.
+Die Deal-Phase ist ein konfigurierbares Auswahlfeld mit stabilen Options-IDs. Legen Sie Erwarteter Abschluss zuvor als Eingabe-Datumsfeld an oder lassen Sie diese Zuweisung weg. Die IDs und die aktuelle Revision liefert die Schema-Abfrage; die Calendly-Host-E-Mail ordnen Sie in n8n einer Customermates-Nutzer-ID zu. Die [OpenAPI-Spec](/docs/openapi) beschreibt die vollständigen Anfrage- und Antwortformate.
 
 ### Schritt 5: Follow-up-Aktionen hinzufügen
 

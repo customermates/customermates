@@ -2,12 +2,13 @@ import type { Data } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
-import { ALL_VIEW_KEY, DATA_VIEW_SURFACE_KEYS } from "@/core/data-view/data-view-keys";
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { DataViewStateSchema, DataViewStateWireSchema, ViewKeySchema } from "@/core/data-view/data-view-state.schema";
 import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-export const SurfaceKeyInputSchema = z.enum(DATA_VIEW_SURFACE_KEYS);
+export { SurfaceKeySchema as SurfaceKeyInputSchema } from "@/core/data-view/data-view-identity.schema";
+import { SurfaceKeySchema as SurfaceKeyInputSchema } from "@/core/data-view/data-view-identity.schema";
 
 export const GetDataViewsSchema = z.object({ surfaceKey: SurfaceKeyInputSchema }).strict();
 export type GetDataViewsData = Data<typeof GetDataViewsSchema>;
@@ -66,13 +67,20 @@ export const SelectDataViewSchema = z.object({ surfaceKey: SurfaceKeyInputSchema
 export type SelectDataViewData = Data<typeof SelectDataViewSchema>;
 
 export const SaveDataViewStateResultSchema = z.union([
-  z.object({ viewKey: z.literal(ALL_VIEW_KEY), state: DataViewStateWireSchema }).strict(),
+  z
+    .object({
+      viewKey: z.literal(ALL_VIEW_KEY),
+      state: DataViewStateWireSchema,
+    })
+    .strict(),
   z.object({ viewKey: z.uuid() }).strict(),
 ]);
 export type SaveDataViewStateResult = Data<typeof SaveDataViewStateResultSchema>;
 
-export const SelectDataViewResultSchema = z.object({ activeViewKey: z.string() });
+export const SelectDataViewResultSchema = z.object({
+  activeViewKey: z.string(),
+});
 export type SelectDataViewResult = Data<typeof SelectDataViewResultSchema>;
 
-export const DeleteDataViewResultSchema = z.object({ id: z.string() });
+export const DeleteDataViewResultSchema = z.object({ id: z.string(), trashBatchId: z.uuid() });
 export type DeleteDataViewResult = Data<typeof DeleteDataViewResultSchema>;

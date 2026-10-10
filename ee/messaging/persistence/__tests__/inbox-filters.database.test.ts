@@ -1,3 +1,4 @@
+import { PermissionService } from "@/core/base/permission.service";
 import type { Filter } from "@/core/base/base-get.schema";
 
 import { randomUUID } from "node:crypto";
@@ -115,8 +116,13 @@ describeDatabase("inbox filters on PostgreSQL", () => {
 
   beforeAll(async () => {
     await client.connect();
-    for (const id of [companyId, foreignCompanyId])
+    for (const id of [companyId, foreignCompanyId]) {
       await client.query('INSERT INTO "Company" (id,"updatedAt") VALUES ($1,NOW())', [id]);
+      await client.query(
+        'INSERT INTO "UserRole" (id,name,"isSystemRole","companyId","updatedAt") VALUES ($1,\'Admin\',TRUE,$1,NOW())',
+        [id],
+      );
+    }
 
     for (const [id, company] of [
       [userId, companyId],
@@ -124,7 +130,7 @@ describeDatabase("inbox filters on PostgreSQL", () => {
       [foreignUserId, foreignCompanyId],
     ]) {
       await client.query(
-        'INSERT INTO "User" (id,email,"firstName","lastName","companyId","updatedAt") VALUES ($1,$2,\'Filter\',\'Fixture\',$3,NOW())',
+        'INSERT INTO "User" (id,email,"firstName","lastName","companyId","roleId",status,"updatedAt") VALUES ($1,$2,\'Filter\',\'Fixture\',$3,$3,\'active\',NOW())',
         [id, `${id}@example.invalid`, company],
       );
     }
@@ -324,7 +330,9 @@ describeDatabase("inbox filters on PostgreSQL", () => {
   });
 
   it("scopes options to caller access and only exposes placements of individually shared threads", async () => {
-    const options = await runWithTenant(tenant, () => new PrismaConnectedAccountRepo().listInboxFilterOptions());
+    const options = await runWithTenant(tenant, () =>
+      new PrismaConnectedAccountRepo(new PermissionService()).listInboxFilterOptions(),
+    );
     expect(options.accounts.map((option) => option.value).sort()).toEqual(
       [account.a, account.b, account.shared, account.individual, account.chat].sort(),
     );
@@ -366,7 +374,9 @@ describeDatabase("inbox filters on PostgreSQL", () => {
       companyId: foreignCompanyId,
     });
     expect(await query([filter(FilterFieldKey.lastMessageDirection, ["outbound"])], foreign)).toEqual(ids(["foreign"]));
-    const options = await runWithTenant(foreign, () => new PrismaConnectedAccountRepo().listInboxFilterOptions());
+    const options = await runWithTenant(foreign, () =>
+      new PrismaConnectedAccountRepo(new PermissionService()).listInboxFilterOptions(),
+    );
     expect(options.accounts.map((option) => option.value)).toEqual([account.foreign]);
     expect(options.folders.map((option) => option.value)).toContain(folder("foreign"));
     expect(options.folders.some((option) => option.value.includes(account.a))).toBe(false);

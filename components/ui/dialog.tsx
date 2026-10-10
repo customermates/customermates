@@ -6,6 +6,7 @@ import { Dialog as DialogPrimitive } from "radix-ui";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/core/utils/cn";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
 import { OVERLAY_CLOSE_CLASS, OVERLAY_CLOSE_POSITION_CLASS, OVERLAY_HEADER_ALIGNMENT_CLASS } from "./overlay-contract";
 import { Button } from "@/components/ui/button";
 
@@ -29,7 +30,7 @@ function DialogOverlay({ className, ...props }: React.ComponentProps<typeof Dial
   return (
     <DialogPrimitive.Overlay
       className={cn(
-        "fixed inset-0 z-50 bg-black/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
+        "fixed inset-0 z-50 bg-scrim/50 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0",
         className,
       )}
       data-slot="dialog-overlay"
@@ -67,14 +68,22 @@ function DialogContent({
         {children}
 
         {showCloseButton && (
-          <DialogPrimitive.Close
-            className={cn(OVERLAY_CLOSE_CLASS, OVERLAY_CLOSE_POSITION_CLASS)}
-            data-slot="dialog-close"
-          >
-            <XIcon />
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DialogPrimitive.Close
+                  className={cn(OVERLAY_CLOSE_CLASS, OVERLAY_CLOSE_POSITION_CLASS)}
+                  data-slot="dialog-close"
+                >
+                  <XIcon />
 
-            <span className="sr-only">{t("Common.actions.close")}</span>
-          </DialogPrimitive.Close>
+                  <span className="sr-only">{t("Common.actions.close")}</span>
+                </DialogPrimitive.Close>
+              </TooltipTrigger>
+
+              <TooltipContent>{t("Common.actions.close")}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
       </DialogPrimitive.Content>
     </DialogPortal>

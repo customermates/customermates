@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { ActivityEntryDto } from "@/ee/messaging/activities/activities.schema";
-import type { AuditChange } from "@/features/audit-log/audit-log-changes";
+import type { AuditChange } from "@/features/event/audit-changes";
 
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -22,11 +22,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => ({ use
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({ formatNumericalShortDateTime: () => "date" }),
 }));
-vi.mock("@/components/entity-detail/hooks/use-entity-drawer-stack", () => ({
-  useEntityHref: () => () => undefined,
-  useOpenEntity: () => vi.fn(),
-}));
-vi.mock("@/components/entity-terminology/use-column-label", () => ({
+vi.mock("@/components/data-view/use-column-label", () => ({
   useCanonicalColumnLabel: () => (field: string) => field,
 }));
 vi.mock("../activities-row", () => ({
@@ -50,7 +46,7 @@ function renderDetail(changes: AuditChange[], event: DomainEvent = DomainEvent.W
     changes,
     records: { primary: null, related: [], relatedOverflow: 0 },
   };
-  return renderToStaticMarkup(createElement(AuditDetail, { customColumns: [], entry }));
+  return renderToStaticMarkup(createElement(AuditDetail, { entry }));
 }
 
 describe("Wiki activity detail", () => {
@@ -73,14 +69,12 @@ describe("Wiki activity detail", () => {
     expect(markup).toContain("Wiki.kind.procedure");
     expect(markup).toContain("Wiki.whenToUse.label");
     expect(markup).toContain("When a customer asks to cancel");
-    expect(markup).toContain("AuditLogModal.noValue");
+    expect(markup).toContain('data-empty-value=""');
+    expect(markup).not.toContain("—");
   });
 
   it("preserves the normal field/value contract for a non-Wiki event", () => {
-    const markup = renderDetail(
-      [{ field: "kind", previous: "knowledge", current: "guide" }],
-      DomainEvent.CONTACT_UPDATED,
-    );
+    const markup = renderDetail([{ field: "kind", previous: "knowledge", current: "guide" }], DomainEvent.ROLE_UPDATED);
 
     expect(markup).toContain("knowledge");
     expect(markup).toContain("guide");

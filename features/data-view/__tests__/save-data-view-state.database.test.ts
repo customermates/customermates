@@ -26,7 +26,7 @@ import { SaveDataViewStateInteractor } from "../save-data-view-state.interactor"
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
 
-const SURFACE = "deals-card-store";
+const SURFACE = "webhooks-card-store";
 const viewFilter: Filter = { field: "name", operator: FilterOperatorKey.contains, value: "acme" };
 const surfaceDefaults: DataViewDefaultsLayer = {
   filters: [{ field: "name", operator: FilterOperatorKey.contains, value: "default" }],

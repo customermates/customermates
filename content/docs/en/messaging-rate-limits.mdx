@@ -3,11 +3,9 @@ title: Messaging rate limits
 description: Why connected channels are rate-limited, the per-provider read and send limits that apply, and what happens when one is reached.
 ---
 
-When you connect a channel (LinkedIn, WhatsApp, email, and so on), Customermates talks to that provider through Unipile. Every provider enforces its own request limits, and exceeding them can get the underlying account throttled or suspended. To stay within safe bounds, Customermates applies a conservative request budget per channel and pauses before a provider would push back.
+Connected channels (LinkedIn, WhatsApp, email and so on) talk to their provider through Unipile. Every provider enforces its own request limits, and exceeding them can get the account throttled or suspended. Customermates therefore applies a conservative request budget per channel and pauses before a provider would push back. A paused sync is expected: it keeps the account within provider limits and resumes on its own.
 
-A paused sync is expected behavior: it keeps the connected account within provider limits and resumes on its own.
-
-## How do the limits work?
+## How do the limits work? [#how-do-the-limits-work]
 
 Limits are configured in the Unipile dashboard and enforced by Unipile. They apply **per connected account** at three levels at once:
 
@@ -17,9 +15,9 @@ Limits are configured in the Unipile dashboard and enforced by Unipile. They app
 
 When a window is full, further calls are rejected until it rolls over.
 
-## What are the read limits per provider?
+## What are the read limits per provider? [#what-are-the-read-limits-per-provider]
 
-Read operations sync history. They are set higher than writes because reads rarely trigger a provider ban.
+Reads sync history. They are set higher than writes because reads rarely trigger a provider ban.
 
 | Provider | Reads / minute | Reads / day |
 | --- | --- | --- |
@@ -31,11 +29,11 @@ Read operations sync history. They are set higher than writes because reads rare
 | Outlook | 100 | none |
 | IMAP | 100 | none |
 
-LinkedIn stays the most conservative because its automated-activity detection is the strictest. Some values are shaped by the provider's own ceilings: social channels cap the per-minute read limit at 50, email channels at 100, and the daily limit moves in steps of 30 (so a target of 500 is applied as 510). Telegram and the email providers do not expose a separate daily read limit.
+LinkedIn stays the most conservative because its automated-activity detection is the strictest. Some values follow the provider's own ceilings: social channels cap the per-minute read limit at 50, email channels at 100, and the daily limit moves in steps of 30 (so a target of 500 is applied as 510). Telegram and the email providers have no separate daily read limit.
 
-## What are the limits for sending and profile lookups?
+## What are the limits for sending and profile lookups? [#what-are-the-limits-for-sending-and-profile-lookups]
 
-The riskier operations stay conservative regardless of the read budget: profile lookups (which providers treat as scraping-sensitive) and any send action.
+Profile lookups (which providers treat as scraping-sensitive) and every send action stay conservative regardless of the read budget.
 
 | Provider | Action | Limit |
 | --- | --- | --- |
@@ -51,7 +49,7 @@ The riskier operations stay conservative regardless of the read budget: profile 
 
 Operations without a row here, such as sending a LinkedIn message or InMail and LinkedIn Sales Navigator searches, still fall under the per-endpoint and per-account caps and return the same rate-limit message when a window is full.
 
-## What happens when a limit is reached?
+## What happens when a limit is reached? [#what-happens-when-a-limit-is-reached]
 
 Further calls for that account are rejected until the window rolls over, and the action tells you how long to wait. Sending a message or starting a conversation shows:
 
@@ -60,13 +58,11 @@ Further calls for that account are rejected until the window rolls over, and the
 Other actions word it differently:
 
 - **Resync thread**, older messages loading at the top of a conversation, and media in a message: "This channel hit its rate limit. You can try again in 2 minutes." with **Learn more**.
-- **Refresh** in the Inbox: "Some channels hit their rate limit. Try again in a few minutes."
+- **Refresh** in the [Inbox](app:inbox): "Some channels hit their rate limit. Try again in a few minutes."
 - Moving an email to another folder: "Stopped filing into `{folder}` because the provider is rate limiting." with the waiting time for the rest.
 
-The waiting time in the message comes from the `Retry-After` value of the rate-limited response Unipile returns; without one, the message falls back to 60 seconds and reads "in 1 minute". Customermates does not retry the action for you: the waiting time is only a hint, and you can retry once the indicated window passes. Nothing is lost in the meantime. Over MCP and the REST API the call fails with the same message and waiting time: the REST API answers with HTTP status 429, and MCP returns a failure of kind `rate_limit` whose issue in `_meta.failure` has `customCode: "unipileRateLimit"`.
+The waiting time comes from the `Retry-After` value of the rate-limited response Unipile returns; without one, it falls back to 60 seconds and reads "in 1 minute". Customermates does not retry the action for you: retry once the window has passed. Nothing is lost in the meantime. Over the REST API and MCP the call fails with the same message and waiting time: the REST API answers with HTTP status 429, and MCP returns a failure of kind `rate_limit` whose issue in `_meta.failure` has `customCode: "unipileRateLimit"`.
 
-**Link:** the **Inbox** page, `/inbox`. **Mate:** `navigate` and `highlight_element` with `nav-inbox`; **Refresh** and **Resync thread** are not highlight targets, so Mate names them.
+## Does the history import resume by itself? [#does-the-history-import-resume-by-itself]
 
-## Does the history import resume by itself?
-
-Importing a full message history can be large, roughly one request per conversation. If a limit is reached mid-import, the background importer **pauses and resumes automatically** when the window frees up, with no action needed on your part; a wait longer than ten minutes defers the import to a later sweep. With **Manage** on **Inbox messages**, scrolling to the top of a conversation or pressing **Resync thread** fetches older messages from the provider, and both count against the same limits; new activity arrives in real time over webhooks.
+Yes. Importing a full message history can take roughly one request per conversation. If a limit is reached mid-import, the background importer **pauses and resumes automatically** when the window frees up; a wait longer than ten minutes defers the import to a later sweep. With **Edit** on **Inbox messages**, scrolling to the top of a conversation or pressing **Resync thread** fetches older messages from the provider, and both count against the same limits. New activity arrives in real time over webhooks.

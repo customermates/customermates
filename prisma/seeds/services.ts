@@ -1,7 +1,5 @@
-import type { Prisma } from "@/generated/prisma";
-
 import type { SeedContext } from "./context";
-import { fixtureId, upsertFixturesById } from "./helpers";
+import { fixtureId } from "./helpers";
 import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
 
 export const SYNTHETIC_SERVICE_NAMES = [
@@ -74,7 +72,7 @@ export type ServiceSeedData = {
   services: ServiceFixture[];
 };
 
-export async function seedServices(context: SeedContext): Promise<ServiceSeedData> {
+export function seedServices(context: SeedContext): Promise<ServiceSeedData> {
   const serviceDefinitions = SYNTHETIC_SERVICE_NAMES.map(
     (name, index) => [name, SYNTHETIC_SERVICE_AMOUNTS[index]] as const,
   );
@@ -86,22 +84,8 @@ export async function seedServices(context: SeedContext): Promise<ServiceSeedDat
         companyId: context.ids.company,
         name,
         ...SYNTHETIC_SEED_TIMELINE.service(index),
-      }) satisfies Prisma.ServiceCreateManyInput,
+      }) satisfies ServiceFixture,
   );
 
-  await upsertFixturesById(services, (service) =>
-    context.prisma.service.upsert({
-      where: { id: service.id },
-      update: service,
-      create: service,
-    }),
-  );
-  await context.prisma.service.deleteMany({
-    where: {
-      companyId: context.ids.company,
-      id: { startsWith: "90000000-", notIn: services.map(({ id }) => id) },
-    },
-  });
-
-  return { services };
+  return Promise.resolve({ services });
 }

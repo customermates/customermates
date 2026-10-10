@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { PermissionService } from "@/core/base/permission.service";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { readOnboardingWizardProgress } from "../onboarding-wizard-progress.schema";
 
@@ -57,44 +58,62 @@ describeDatabase("durable onboarding progress on PostgreSQL", () => {
   });
 
   it("restores progress through a fresh repository and fresh tenant context", async () => {
-    expect(await runWithTenant(tenant(), () => new PrismaUserRepo().saveOnboardingWizardProgress(progress))).toBe(true);
-    expect(await runWithTenant(tenant(), () => new PrismaUserRepo().findOnboardingWizardProgressOrThrow())).toEqual(
-      progress,
-    );
+    expect(
+      await runWithTenant(tenant(), () =>
+        new PrismaUserRepo(new PermissionService()).saveOnboardingWizardProgress(progress),
+      ),
+    ).toBe(true);
+    expect(
+      await runWithTenant(tenant(), () =>
+        new PrismaUserRepo(new PermissionService()).findOnboardingWizardProgressOrThrow(),
+      ),
+    ).toEqual(progress);
   });
 
   it("keeps another member and another workspace independent", async () => {
     expect(
-      await runWithTenant(tenant(colleagueId), () => new PrismaUserRepo().findOnboardingWizardProgressOrThrow()),
+      await runWithTenant(tenant(colleagueId), () =>
+        new PrismaUserRepo(new PermissionService()).findOnboardingWizardProgressOrThrow(),
+      ),
     ).toBeNull();
     expect(
       await runWithTenant(tenant(outsiderId, otherCompanyId), () =>
-        new PrismaUserRepo().findOnboardingWizardProgressOrThrow(),
+        new PrismaUserRepo(new PermissionService()).findOnboardingWizardProgressOrThrow(),
       ),
     ).toBeNull();
     expect(
       await runWithTenant(tenant(userId, otherCompanyId), () =>
-        new PrismaUserRepo().saveOnboardingWizardProgress(progress),
+        new PrismaUserRepo(new PermissionService()).saveOnboardingWizardProgress(progress),
       ),
     ).toBe(false);
     await expect(
-      runWithTenant(tenant(userId, otherCompanyId), () => new PrismaUserRepo().findOnboardingWizardProgressOrThrow()),
+      runWithTenant(tenant(userId, otherCompanyId), () =>
+        new PrismaUserRepo(new PermissionService()).findOnboardingWizardProgressOrThrow(),
+      ),
     ).rejects.toThrow();
   });
 
   it("preserves navigation choices backwards as well as forwards", async () => {
     const backwards = { ...progress, step: "invite" as const };
-    await runWithTenant(tenant(), () => new PrismaUserRepo().saveOnboardingWizardProgress(backwards));
-    expect(await runWithTenant(tenant(), () => new PrismaUserRepo().findOnboardingWizardProgressOrThrow())).toEqual(
-      backwards,
+    await runWithTenant(tenant(), () =>
+      new PrismaUserRepo(new PermissionService()).saveOnboardingWizardProgress(backwards),
     );
+    expect(
+      await runWithTenant(tenant(), () =>
+        new PrismaUserRepo(new PermissionService()).findOnboardingWizardProgressOrThrow(),
+      ),
+    ).toEqual(backwards);
   });
 
   it("keeps completion final even when an older tab saves afterward", async () => {
-    await runWithTenant(tenant(), () => new PrismaUserRepo().markOnboardingWizardCompleted({ userId }));
-    expect(await runWithTenant(tenant(), () => new PrismaUserRepo().saveOnboardingWizardProgress(progress))).toBe(
-      false,
+    await runWithTenant(tenant(), () =>
+      new PrismaUserRepo(new PermissionService()).markOnboardingWizardCompleted({ userId }),
     );
+    expect(
+      await runWithTenant(tenant(), () =>
+        new PrismaUserRepo(new PermissionService()).saveOnboardingWizardProgress(progress),
+      ),
+    ).toBe(false);
     const { rows } = await client.query(
       'SELECT "onboardingWizardCompletedAt", "onboardingWizardProgress" FROM "User" WHERE "id" = $1',
       [userId],

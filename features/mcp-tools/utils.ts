@@ -21,6 +21,11 @@ import {
   type McpToolFailureResult,
   type McpToolResult,
 } from "./mcp-tool";
+import {
+  UNTRUSTED_RECORD_TEXT_HANDLING,
+  UNTRUSTED_RECORD_TEXT_OPEN,
+  withUntrustedRecordText,
+} from "./untrusted-record-content";
 
 export { mcpInteractorFailure, mcpValidationFailure, VALIDATION_ERROR_PREFIX } from "./mcp-tool";
 
@@ -166,6 +171,7 @@ export function formatDatesInResponse<T>(data: T): SerializedDates<T> {
 export const FILTER_OPERATOR_GROUPS = {
   singleValue: [
     FilterOperatorKey.equals,
+    FilterOperatorKey.notEquals,
     FilterOperatorKey.contains,
     FilterOperatorKey.startsWith,
     FilterOperatorKey.gt,
@@ -173,7 +179,14 @@ export const FILTER_OPERATOR_GROUPS = {
     FilterOperatorKey.lt,
     FilterOperatorKey.lte,
   ],
-  multiValue: [FilterOperatorKey.in, FilterOperatorKey.notIn, FilterOperatorKey.between],
+  multiValue: [
+    FilterOperatorKey.in,
+    FilterOperatorKey.notIn,
+    FilterOperatorKey.between,
+    FilterOperatorKey.hasAnyOf,
+    FilterOperatorKey.hasAllOf,
+    FilterOperatorKey.hasNoneOf,
+  ],
   relativeWindow: [FilterOperatorKey.inLastDays, FilterOperatorKey.notInLastDays],
   noValue: [
     FilterOperatorKey.isNull,
@@ -188,7 +201,7 @@ export const FILTER_OPERATOR_GROUPS = {
 export const FILTER_OPERATORS: readonly FilterOperatorKey[] = Object.values(FILTER_OPERATOR_GROUPS).flat();
 
 export const FILTER_SYNTAX = {
-  rule: "{ field, operator, value? }, rules are AND-combined",
+  rule: "{field, operator, value?}, AND-combined",
   operators: {
     singleValue: FILTER_OPERATOR_GROUPS.singleValue,
     multiValue: FILTER_OPERATOR_GROUPS.multiValue,
@@ -197,7 +210,7 @@ export const FILTER_SYNTAX = {
   },
   values: {
     singleValue: "one string",
-    multiValue: "string array; between needs exactly two values",
+    multiValue: "string array; between takes two",
     relativeWindow: "positive integer number of days",
     noValue: "omit value",
   },
@@ -213,6 +226,8 @@ export const SORT_SYNTAX = {
   fieldKinds: {
     builtin: "Built-in field name (e.g. name, totalValue, createdAt). See sortableFields entries without columnType.",
     customColumn: "Custom column UUID. See sortableFields entries with columnType.",
+    manual:
+      "system:manual on record lists: the list's manual order (asc only), set by moving records with an update placement.",
   },
   comparison: {
     currency: "numeric",
@@ -235,15 +250,6 @@ export const SORT_SYNTAX = {
   ],
 };
 
-export const FILTER_FIELD_DESCRIPTION =
-  "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. " +
-  `Operators with one string value: ${FILTER_OPERATOR_GROUPS.singleValue.join(", ")}; with a string array: ${FILTER_OPERATOR_GROUPS.multiValue.join(", ")} (between needs exactly two); with a positive integer of days: ${FILTER_OPERATOR_GROUPS.relativeWindow.join(", ")}; without a value: ${FILTER_OPERATOR_GROUPS.noValue.join(", ")}. ` +
-  'Example: [{"field":"name","operator":"contains","value":"acme"},{"field":"createdAt","operator":"inLastDays","value":30}]. ' +
-  "On custom columns isNull means the column has no value and isNotNull that it has one, so isNull finds records missing a value. " +
-  "On a linked-record id field, in and notIn take ids (linked to any or to none of them); hasSome and hasNone take no value (any link or no link): " +
-  'to find deals with no open task, list the open tasks, then filter [{"field":"taskIds","operator":"notIn","value":["<task-id>"]}]. ' +
-  "get_record_schema lists every filterable field and its operators.";
-
 export const filtersDescription = (filterableFields: string) =>
   "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. " +
   "Use only the operators listed in each field's hint; value-less operators take no value. " +
@@ -253,29 +259,9 @@ export const filtersDescription = (filterableFields: string) =>
 export const sortDescription = (sortableFields: string) =>
   `Sort by one field: { field, direction: "asc" | "desc" }. Sortable fields: ${sortableFields}.`;
 
-export function forbidNullFields<T extends z.ZodObject<z.ZodRawShape>>(schema: T, fields: readonly string[]) {
-  return schema.superRefine((value, ctx) => {
-    if (!value || typeof value !== "object") return;
-    const record = value as Record<string, unknown>;
-    for (const field of fields) {
-      if (record[field] === null) {
-        ctx.addIssue({
-          code: "custom",
-          path: [field],
-          message:
-            `Refusing to set '${field}' to null because that would wipe the relationship. ` +
-            `Omit the field to keep existing links, pass [] to explicitly clear, ` +
-            `or use manage_record_links to remove specific ids.`,
-        });
-      }
-    }
-  });
+export function enumHint(values: readonly string[]): string {
+  return `(one of: ${values.join(", ")})`;
 }
-
-export const NO_NULL_WIPE_WARNING =
-  "NEVER pass null on relationship arrays; it would wipe existing links. " +
-  "Omit the field to keep existing, pass [] to explicitly clear all, " +
-  "or use manage_record_links to remove specific ids.";
 
 export async function runInteractor<T>(
   result: InteractorResult<T>,
@@ -321,20 +307,14 @@ export function toonResult(payload: Record<string, unknown>): McpToolResult {
   return { text: encodeToToon(payload), structuredContent: payload };
 }
 
-export const CreatedRecordsOutputSchema = z.object({
-  items: z.array(z.object({ id: z.string(), name: z.string() })).describe("The created records, in input order"),
-});
-
-export const UpdatedRecordsOutputSchema = z.object({ updated: z.number() });
-
-export const CUSTOM_FIELDS_MERGE_NOTE =
-  "customFieldValues is a per-column merge: only columns you include change; to clear one pass { columnId, value: null }. " +
-  "A date or dateTime value is an instant: send ISO 8601 carrying the offset of the time the user named, for example 2026-09-14T09:00:00+02:00 for 09:00 Europe/Berlin; a trailing Z means UTC, so never append it to a local time.";
-
-export const relationsViaLinkNote = (relations: string) =>
-  `Relations (${relations}) are NOT changed here - add or remove them with manage_record_links so existing links are preserved.`;
-
-export const CONTACT_KEY_FIELD_NOTE =
-  "For contacts, this may instead be a channel the contact owns: an email (e.g. 'jane@example.com'), " +
-  "a phone (e.g. '+491234567890'), or 'provider:value' for a handle where provider is one of linkedin, telegram, " +
-  "instagram (e.g. 'linkedin:john-doe').";
+export function recordToonResult(payload: Record<string, unknown>): {
+  text: string;
+  structuredContent: Record<string, unknown>;
+} {
+  const marked = withUntrustedRecordText(payload) as Record<string, unknown>;
+  const text = encodeToToon(marked);
+  return {
+    text: text.includes(UNTRUSTED_RECORD_TEXT_OPEN) ? `${UNTRUSTED_RECORD_TEXT_HANDLING}\n\n${text}` : text,
+    structuredContent: payload,
+  };
+}

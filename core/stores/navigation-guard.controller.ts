@@ -2,9 +2,13 @@ import { makeObservable, observable, computed, action, when, type IReactionDispo
 
 import type { BaseFormStore } from "../base/base-form.store";
 
+type NavigationGuardState = Pick<BaseFormStore, "withUnsavedChangesGuard" | "hasUnsavedChanges" | "isLoading"> & {
+  captureNavigationDiscard?: () => (() => void) | undefined;
+};
+
 export class NavigationGuardController {
   pendingNavigation: (() => void) | null = null;
-  private stores = observable.map<BaseFormStore, number>([], { deep: false });
+  private stores = observable.map<NavigationGuardState, number>([], { deep: false });
   private pendingRouteRefresh: (() => void) | null = null;
   private pendingRouteRefreshDisposer: IReactionDisposer | null = null;
   private bypass = false;
@@ -24,11 +28,11 @@ export class NavigationGuardController {
     });
   }
 
-  register = (store: BaseFormStore): void => {
+  register = (store: NavigationGuardState): void => {
     this.stores.set(store, (this.stores.get(store) ?? 0) + 1);
   };
 
-  unregister = (store: BaseFormStore): void => {
+  unregister = (store: NavigationGuardState): void => {
     const registrations = this.stores.get(store) ?? 0;
     if (registrations <= 1) this.stores.delete(store);
     else this.stores.set(store, registrations - 1);
@@ -63,10 +67,17 @@ export class NavigationGuardController {
     const navigate = this.pendingNavigation;
     this.pendingNavigation = null;
     if (!navigate) return;
+    const discardCallbacks: Array<() => void> = [];
+    for (const store of this.stores.keys()) {
+      if (!store.withUnsavedChangesGuard || !store.hasUnsavedChanges) continue;
+      const discard = store.captureNavigationDiscard?.();
+      if (discard) discardCallbacks.push(discard);
+    }
 
     this.bypass = true;
     try {
       navigate();
+      for (const discard of discardCallbacks) discard();
     } finally {
       void Promise.resolve().then(() => {
         this.bypass = false;

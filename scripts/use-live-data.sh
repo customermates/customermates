@@ -194,6 +194,25 @@ if (( dump_major < production_major || restore_major < production_major || resto
   exit 1
 fi
 
+if ! production_extensions="$(PGOPTIONS='-c default_transaction_read_only=on' psql "$production_url" --no-psqlrc --quiet --tuples-only --no-align --set=ON_ERROR_STOP=1 -c "SELECT format('%s %s', e.extname, n.nspname) FROM pg_extension e JOIN pg_namespace n ON n.oid = e.extnamespace WHERE e.extname <> 'plpgsql' ORDER BY e.extname;")"; then
+  unset production_url
+  echo "Could not read the Production extensions. No export was taken and the local database was not changed." >&2
+  exit 1
+fi
+while read -r extension_name extension_schema; do
+  [[ -z "$extension_name" ]] && continue
+  if [[ ! "$extension_name" =~ ^[a-z0-9_]+$ || ! "$extension_schema" =~ ^[a-z0-9_]+$ ]]; then
+    unset production_url
+    echo "Unexpected Production extension name. No export was taken and the local database was not changed." >&2
+    exit 1
+  fi
+  if [[ "$(psql "$destination_url" --no-psqlrc --quiet --tuples-only --no-align --set=ON_ERROR_STOP=1 -c "SELECT count(*) FROM pg_available_extensions WHERE name = '$extension_name';" | tr -d '[:space:]')" != "1" ]]; then
+    unset production_url
+    echo "The local destination cannot install the Production extension $extension_name. Run yarn db:provision --recreate to use the provisioned image, update .env with its printed URL, and retry. No export was taken and the local database was not changed." >&2
+    exit 1
+  fi
+done <<< "$production_extensions"
+
 echo "Preflight: Production and destination are PostgreSQL $production_major; pg_dump $dump_major and pg_restore $restore_major are compatible."
 
 temporary_directory="$(mktemp -d "${TMPDIR:-/tmp}/customermates-live-data.XXXXXX")"
@@ -216,15 +235,24 @@ echo "      Archive is readable and contains $archive_tables tables with data."
 echo "[3/6] Dropping and recreating the local database \"$database_name\"."
 dropdb --if-exists --force --maintenance-db="$admin_url" "$database_name"
 createdb --maintenance-db="$admin_url" "$database_name"
-psql "$destination_url" --no-psqlrc --quiet --set=ON_ERROR_STOP=1 -c 'DROP SCHEMA IF EXISTS public CASCADE;'
-echo "      Recreated. Any data previously in \"$database_name\" is gone."
+psql "$destination_url" --no-psqlrc --quiet --set=ON_ERROR_STOP=1 -c 'DROP SCHEMA IF EXISTS public CASCADE;' -c 'CREATE SCHEMA public;'
+while read -r extension_name extension_schema; do
+  [[ -z "$extension_name" ]] && continue
+  psql "$destination_url" --no-psqlrc --quiet --set=ON_ERROR_STOP=1 \
+    -c "CREATE SCHEMA IF NOT EXISTS \"$extension_schema\";" \
+    -c "CREATE EXTENSION IF NOT EXISTS \"$extension_name\" WITH SCHEMA \"$extension_schema\";"
+done <<< "$production_extensions"
+echo "      Recreated with the Production extensions. Any data previously in \"$database_name\" is gone."
 
 echo "[4/6] Restoring the snapshot into \"$database_name\". This is the slow step."
+restore_list="$temporary_directory/restore.list"
+pg_restore --list "$archive" | grep -v -E '^[0-9]+; [0-9]+ [0-9]+ SCHEMA - public ' > "$restore_list"
 pg_restore \
   --exit-on-error \
   --single-transaction \
   --no-owner \
   --no-privileges \
+  --use-list "$restore_list" \
   --dbname "$destination_url" \
   "$archive"
 echo "      Restore complete."
@@ -270,6 +298,8 @@ UPDATE "OauthAccessToken"
 SET "accessToken" = 'disabled-access-' || "id",
     "refreshToken" = 'disabled-refresh-' || "id";
 UPDATE "ConnectedAccount" SET "unipileAccountId" = 'disabled-' || "id";
+UPDATE "Apikey" SET "key" = 'disabled-' || "id", "enabled" = false;
+UPDATE "AuthVerification" SET "value" = 'disabled-' || "id";
 SQL
 
 live_credentials="$(psql "$destination_url" --no-psqlrc --quiet --tuples-only --no-align --set=ON_ERROR_STOP=1 <<'SQL'
@@ -279,10 +309,12 @@ SELECT (SELECT count(*) FROM "AuthAccount" WHERE "accessToken" IS NOT NULL OR "r
      + (SELECT count(*) FROM "AuthSession" WHERE "token" NOT LIKE 'disabled-%')
      + (SELECT count(*) FROM "InviteToken" WHERE "token" NOT LIKE 'disabled-%')
      + (SELECT count(*) FROM "OauthAccessToken" WHERE "accessToken" NOT LIKE 'disabled-%' OR "refreshToken" NOT LIKE 'disabled-%')
-     + (SELECT count(*) FROM "ConnectedAccount" WHERE "unipileAccountId" NOT LIKE 'disabled-%');
+     + (SELECT count(*) FROM "ConnectedAccount" WHERE "unipileAccountId" NOT LIKE 'disabled-%')
+     + (SELECT count(*) FROM "Apikey" WHERE "key" NOT LIKE 'disabled-%' OR "enabled" IS DISTINCT FROM false)
+     + (SELECT count(*) FROM "AuthVerification" WHERE "value" NOT LIKE 'disabled-%');
 SQL
 )"
-echo "      Provider tokens, session and invite tokens, OAuth secrets, billing and messaging account ids replaced."
+echo "      Provider tokens, session, invite and verification tokens, API keys, OAuth secrets, billing and messaging account ids replaced."
 echo "      Verification: $live_credentials usable credentials remain in the copy."
 
 if [[ "$live_credentials" != "0" ]]; then

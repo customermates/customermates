@@ -1,380 +1,237 @@
 import { z } from "zod";
-import { EntityType, WidgetGroupByType, AggregationType, WidgetKind } from "@/generated/prisma";
-
+import { WidgetKind } from "@/generated/prisma";
 import {
-  encodeToToon,
-  runInteractor,
-  customMcpFailure,
-  formatDatesInResponse,
-  FILTER_FIELD_DESCRIPTION,
-  mcpInteractorFailure,
-  mcpValidationFailure,
-  nestedCustomErrorText,
-  nestedValidationErrorText,
-  toonResult,
-} from "./utils";
-
-import {
-  getUpsertWidgetInteractor,
+  getUpsertRecordWidgetInteractor,
+  getUpsertRecordActivityWidgetInteractor,
   getGetWidgetsInteractor,
   getGetWidgetByIdInteractor,
   getDeleteWidgetInteractor,
 } from "@/core/di";
-import type { UpsertActivityWidgetData, UpsertChartWidgetData } from "@/features/widget/upsert-widget.interactor";
+import { RecordWidgetInputSchema } from "@/features/widget/record-widget.schema";
+import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
+import { WidgetDisplayOptionsSchema, isRecordWidget, type WidgetLayout } from "@/features/widget/widget.schema";
+import { WidgetPlacementSchema, occupiedGrid } from "@/features/widget/widget-grid";
+import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
+import { RecordActivityWidgetInputSchema } from "@/features/widget/record-activity-widget.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
-import { FilterSchema } from "@/core/base/base-get.schema";
-import { ActivityFiltersSchema } from "@/ee/messaging/activities/activities.schema";
+import {
+  customMcpFailure,
+  formatDatesInResponse,
+  mcpInteractorFailure,
+  mcpMessageFailure,
+  mcpValidationFailure,
+  nestedValidationErrorText,
+  nestedCustomErrorText,
+  toonResult,
+} from "./utils";
 
-const ChartCreateWidgetSchema = z
+const ManageWidgetsSchema = z
   .object({
-    action: z.literal("create"),
-    kind: z.literal(WidgetKind.chart).optional(),
-    name: z.string().min(1).describe("Human-readable widget title shown on the dashboard"),
-    entityType: z.enum(EntityType).describe("Entity type the widget counts/aggregates"),
-    entityFilters: z
-      .array(FilterSchema)
+    action: z.enum(["create", "update", "delete", "get", "list"]),
+    kind: z.enum(WidgetKind).optional(),
+    id: z.uuid().optional(),
+    ids: z.array(z.uuid()).min(1).max(100).optional(),
+    name: z.string().trim().min(1).max(255).optional(),
+    expectedRevision: z
+      .number()
+      .int()
+      .nonnegative()
       .optional()
-      .describe(`Filters applied to the entity. ${FILTER_FIELD_DESCRIPTION}`),
-    dealFilters: z
-      .array(FilterSchema)
+      .describe("Widget writes require the discovered configuration revision."),
+    expectedVersion: z
+      .number()
+      .int()
+      .positive()
       .optional()
-      .describe(
-        `Filters applied to deals when aggregating dealValue/dealQuantity. Not allowed when entityType is deal. ${FILTER_FIELD_DESCRIPTION}`,
-      ),
-    displayType: z.enum(DisplayType).describe("Chart type"),
-    groupByType: z.enum(WidgetGroupByType).describe("How to group the data"),
-    groupByCustomColumnId: z
+      .describe("Widget updates require the saved widget version."),
+    idempotencyKey: z
+      .string()
+      .min(8)
+      .max(200)
+      .optional()
+      .describe("Widget writes require a stable retry key. Use a new key for a different change."),
+    measure: RecordMeasureSchema.optional().describe(
+      "Count or aggregate records at source.typeId. Field and relationship references are stable IDs. Group paths and assignee groups use full attribution; the separate overall total counts each source record once. groupBy.dateInterval buckets a date grouping into calendar periods for time series.",
+    ),
+    displayOptions: WidgetDisplayOptionsSchema.optional(),
+    isTemplate: z.boolean().optional(),
+    activityQuery: RecordActivityQuerySchema.optional(),
+    showFilters: z
+      .boolean()
+      .optional()
+      .describe("Activity timeline appearance only. Chart options belong in displayOptions."),
+    layout: WidgetPlacementSchema.optional(),
+    viewId: z
       .uuid()
+      .nullable()
       .optional()
-      .describe("Custom-column id to group by. Required if groupByType is customColumn."),
-    aggregationType: z
-      .enum(AggregationType)
       .describe(
-        "Aggregation to compute. " +
-          "count = number of entities; dealValue = sum of related deal values; dealQuantity = sum of related deal quantities.",
+        "Dashboard view (manage_data_views surfaceKey dashboard) that holds the widget, or null for the main dashboard. Omit it to use the caller's current dashboard view on create or to keep the widget's view on update.",
       ),
   })
   .strict();
 
-const ActivityCreateWidgetSchema = z
-  .object({
-    action: z.literal("create"),
-    kind: z.literal(WidgetKind.activityTimeline),
-    name: z.string().min(1).describe("Human-readable widget title shown on the dashboard"),
-    timelineFilters: ActivityFiltersSchema.optional(),
-    showFilters: z.boolean().optional().describe("Show the activity count and active filters below the title"),
-  })
-  .strict();
+function placementOf(layout: WidgetLayout | null | undefined) {
+  const large = layout?.lg;
+  return large && large.y !== null && large.y !== undefined
+    ? { layout: { x: large.x, y: large.y, w: large.w, h: large.h } }
+    : {};
+}
 
-const ChartUpdateWidgetSchema = z
-  .object({
-    action: z.literal("update"),
-    id: z.uuid().describe("Widget id"),
-    name: z.string().min(1).optional(),
-    groupByType: z.enum(WidgetGroupByType).optional(),
-    groupByCustomColumnId: z.uuid().optional().describe("Custom-column id. Required if groupByType is customColumn."),
-    aggregationType: z.enum(AggregationType).optional(),
-    entityFilters: z.array(FilterSchema).optional().describe(`REPLACES entity filters. ${FILTER_FIELD_DESCRIPTION}`),
-    dealFilters: z.array(FilterSchema).optional().describe(`REPLACES deal filters. ${FILTER_FIELD_DESCRIPTION}`),
-    displayType: z.enum(DisplayType).optional(),
-    reverseXAxis: z.boolean().optional(),
-    reverseYAxis: z.boolean().optional(),
-    barColors: z.array(z.enum(ChartColor)).optional().describe("Chart colors"),
-  })
-  .strict();
-
-const ActivityUpdateWidgetSchema = z
-  .object({
-    action: z.literal("update"),
-    id: z.uuid().describe("Widget id"),
-    name: z.string().min(1).optional(),
-    timelineFilters: ActivityFiltersSchema.optional().describe("REPLACES the activity filter array"),
-    showFilters: z.boolean().optional().describe("Show the activity count and active filters below the title"),
-  })
-  .strict();
-
-const GetWidgetsSchema = z
-  .object({
-    action: z.literal("get"),
-    ids: z.array(z.uuid()).min(1).max(100).describe("Widget ids to fetch"),
-  })
-  .strict();
-
-const DeleteWidgetSchema = z.object({ action: z.literal("delete"), id: z.uuid().describe("Widget id") });
-const ListWidgetsSchema = z.object({ action: z.literal("list") });
-
-const ManageWidgetsSchema = z.object({
-  action: z
-    .enum(["create", "update", "delete", "get", "list"])
-    .describe(
-      "list = ids, names, and kinds (no other keys); get = full config with computed chart data (ids); create = name, entityType, displayType, groupByType, aggregationType, plus optional entityFilters, dealFilters, groupByCustomColumnId for a chart, or kind activityTimeline with optional timelineFilters and showFilters; update = id plus the fields to change (chart: name, displayType, aggregationType, groupByType, groupByCustomColumnId, entityFilters, dealFilters, reverseXAxis, reverseYAxis, barColors; activityTimeline: name, timelineFilters, showFilters); delete = id.",
-    ),
-  kind: z
-    .enum(WidgetKind)
-    .optional()
-    .describe("create only. Omit for a chart; use activityTimeline for an activity widget."),
-  id: z.uuid().optional().describe("Widget id. Required for update and delete."),
-  ids: z.array(z.uuid()).min(1).max(100).optional().describe("get only. Widget ids to fetch."),
-  name: z
-    .string()
-    .min(1)
-    .optional()
-    .describe("Human-readable widget title shown on the dashboard. Required for create; optional rename on update."),
-  entityType: z
-    .enum(EntityType)
-    .optional()
-    .describe("Entity type the widget counts/aggregates. Required for create; immutable on update."),
-  entityFilters: z
-    .array(FilterSchema)
-    .optional()
-    .describe(
-      `create and update; on update REPLACES the entity filter array. Filters applied to the entity. ${FILTER_FIELD_DESCRIPTION}`,
-    ),
-  dealFilters: z
-    .array(FilterSchema)
-    .optional()
-    .describe(
-      "create and update; on update REPLACES the deal filter array. Applied when aggregating dealValue/dealQuantity. Not allowed when entityType is deal. Same rule syntax as entityFilters.",
-    ),
-  displayType: z.enum(DisplayType).optional().describe("Chart type. Required for create."),
-  groupByType: z.enum(WidgetGroupByType).optional().describe("How to group the data. Required for create."),
-  groupByCustomColumnId: z
-    .uuid()
-    .optional()
-    .describe("create and update. Custom-column id to group by. Required when groupByType is customColumn."),
-  aggregationType: z
-    .enum(AggregationType)
-    .optional()
-    .describe(
-      "Aggregation to compute. Required for create. " +
-        "count = number of entities; dealValue = sum of related deal values; dealQuantity = sum of related deal quantities.",
-    ),
-  reverseXAxis: z.boolean().optional().describe("update only."),
-  reverseYAxis: z.boolean().optional().describe("update only."),
-  barColors: z.array(z.enum(ChartColor)).optional().describe("update only. Chart colors."),
-  timelineFilters: ActivityFiltersSchema.optional().describe(
-    "activityTimeline create/update only; each field may appear once. On update REPLACES the activity filter array. Create rejects inaccessible relationship UUIDs; update may retain or remove only unavailable UUIDs already stored on that widget.",
-  ),
-  showFilters: z
-    .boolean()
-    .optional()
-    .describe("activityTimeline create/update only. Show the activity count and active filters below the title."),
+const ActivityChangeSchema = ManageWidgetsSchema.pick({
+  action: true,
+  kind: true,
+  id: true,
+  name: true,
+  isTemplate: true,
+  activityQuery: true,
+  expectedVersion: true,
+  expectedRevision: true,
+  idempotencyKey: true,
+  showFilters: true,
+  layout: true,
+  viewId: true,
 });
-
-const ManageWidgetsOutputSchema = z
-  .looseObject({
-    items: z.array(z.looseObject({ id: z.string(), error: z.string().optional() })).optional(),
-    id: z.string().optional(),
-    kind: z.string().optional(),
-    name: z.string().optional(),
-    deleted: z.literal(true).optional(),
-  })
-  .describe(
-    "action list and get return items or the widget fields; get returns { id, error } for an id that was not found; create and update return id, kind and name; delete returns deleted and id.",
-  );
+const ChartChangeSchema = ManageWidgetsSchema.omit({ activityQuery: true, showFilters: true, ids: true });
 
 export const manageWidgetsTool = {
   name: "manage_widgets",
   title: "Manage widgets",
   description:
-    "Use this when the user asks to see, create, change or delete their dashboard widgets. A widget you create stays on their dashboard, so never create or update one to work out an answer; answer data questions with list_records filters, sums or groupBy instead. " +
-    "action list returns { id, name, kind } entries. " +
-    "action get returns full configuration; chart widgets include computed data points, while activityTimeline widgets expose timelineFilters for reuse with get_activities; an id that was not found returns { id, error }, so inspect every item. " +
-    "Each chart data point has value and either { labelKind: literal, label } or { labelKind: system, systemLabelKey }. " +
-    "Updates infer the immutable stored kind; only provided fields change and filter arrays replace their previous values. " +
-    "Create rejects inaccessible relationship UUIDs; update may retain or remove an unavailable UUID only when that same UUID is already stored. " +
-    "action delete is IRREVERSIBLE.",
-  annotations: {
-    readOnlyHint: false,
-    destructiveHint: true,
-    idempotentHint: false,
-    openWorldHint: false,
-  },
+    "Use this when the user asks to see, create, change or delete their dashboard widgets. A widget you create stays on their dashboard, so never create or update one to work out an answer; answer data questions with query_crm_measure or query_crm_records instead. Dashboard widgets. list returns IDs, names, each widget's dashboard view (viewId, null for the main dashboard) and its current layout within that view; get (ids) returns saved configuration and access-filtered results. Create a chart with name, measure, displayOptions, expectedRevision and idempotencyKey. Discover type and field IDs first. displayOptions.displayType must fit the measure: number needs groupBy null, areaChart needs groupBy.dateInterval, rankedTable needs a grouping and funnelChart needs a single-choice grouping field; other chart styles accept any grouping. Update a chart with id, expectedVersion, expectedRevision, idempotencyKey and changed fields; measure and displayOptions replace the complete previous value. Results preserve exact decimal strings and missing, restricted or error states. Activity timelines use kind activityTimeline, name, activityQuery, expectedRevision, idempotencyKey and showFilters. activityQuery scopes stable record/type IDs and combines typed inclusion/exclusion filters; updates also require expectedVersion. isTemplate controls sharing of configuration; viewers still need access to the underlying data. Position and size: layout {x, y, w, h} on the 12-column desktop grid (rows of 124 px) is optional on create and update; omit it to auto-place a new widget in the first free spot with a size that fits its display type, or to keep an existing widget where it is. A layout that overlaps another widget is refused, widgets float up into empty rows above them, and the result returns the saved layout. Dashboard views are saved views of manage_data_views surface dashboard; viewId puts a widget on one (default: the caller's current view on create, unchanged on update) and layouts are per view. To build a dashboard, list or get the existing widgets first and place new ones beside them. Delete requires id and moves the widget to Trash, where it is deleted permanently after 30 days unless manage_trash restores it with the returned trashBatchId; it never touches its source records.",
+  annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: false },
   inputSchema: ManageWidgetsSchema,
-  outputSchema: ManageWidgetsOutputSchema,
-  execute: async (params: z.infer<typeof ManageWidgetsSchema>) => {
+  outputSchema: z.looseObject({
+    items: z.array(z.looseObject({ id: z.string() })).optional(),
+    id: z.string().optional(),
+    kind: z.string().optional(),
+    name: z.string().optional(),
+    version: z.number().optional(),
+    layout: z.looseObject({ x: z.number(), y: z.number(), w: z.number(), h: z.number() }).optional(),
+    deleted: z.boolean().optional(),
+  }),
+  execute: async (input: unknown) => {
+    const parsed = ManageWidgetsSchema.safeParse(input);
+    if (!parsed.success) return mcpValidationFailure(parsed.error);
+    const params = parsed.data;
     if (params.action === "list") {
-      const parsed = ListWidgetsSchema.safeParse(params);
-      if (!parsed.success) return mcpValidationFailure(parsed.error);
-      const result = await getGetWidgetsInteractor().invoke();
-      const widgets = result.data;
+      const valid = z
+        .object({ action: z.literal("list") })
+        .strict()
+        .safeParse(params);
+      if (!valid.success) return mcpValidationFailure(valid.error);
+      const result = await getGetWidgetsInteractor().invoke({ allViews: true });
+      const widgets = result.data.items;
+      const grids = new Map<string | null, ReturnType<typeof occupiedGrid>>();
+      for (const viewId of new Set(widgets.map((widget) => widget.viewId)))
+        grids.set(viewId, occupiedGrid(widgets.filter((widget) => widget.viewId === viewId)));
       return toonResult({
         total: widgets.length,
-        items: widgets.map((widget) => ({
-          id: widget.id,
-          name: widget.name,
-          kind: widget.kind,
-        })),
+        items: widgets.map((widget) => {
+          const rect = grids.get(widget.viewId)?.find((placed) => placed.id === widget.id);
+          return {
+            id: widget.id,
+            name: widget.name,
+            kind: widget.kind,
+            version: widget.version,
+            viewId: widget.viewId,
+            ...(rect ? { layout: { x: rect.x, y: rect.y, w: rect.w, h: rect.h } } : {}),
+          };
+        }),
       });
     }
     if (params.action === "get") {
-      const parsed = GetWidgetsSchema.safeParse(params);
-      if (!parsed.success) return mcpValidationFailure(parsed.error);
-      const results = await Promise.all(
-        parsed.data.ids.map(async (id) => {
+      const valid = z
+        .object({ action: z.literal("get"), ids: z.array(z.uuid()).min(1).max(100) })
+        .strict()
+        .safeParse(params);
+      if (!valid.success) return mcpValidationFailure(valid.error);
+      const items = await Promise.all(
+        valid.data.ids.map(async (id) => {
           const result = await getGetWidgetByIdInteractor().invoke({ id });
           if (!result.ok) return { id, error: nestedValidationErrorText(result.error) };
-          const widget = result.data;
-          if (!widget) {
-            return {
-              id,
-              error: await nestedCustomErrorText(CustomErrorCode.widgetNotFound),
-            };
-          }
-          return widget;
+          return result.data ?? { id, error: await nestedCustomErrorText(CustomErrorCode.widgetNotFound) };
         }),
       );
-      const detail = formatDatesInResponse(results);
-      return { text: encodeToToon(detail), structuredContent: { items: detail } };
+      return toonResult({ items: formatDatesInResponse(items) });
     }
-    if (params.action === "create") {
-      const kind = params.kind ?? WidgetKind.chart;
-      const parsed =
-        kind === WidgetKind.activityTimeline
-          ? ActivityCreateWidgetSchema.safeParse(params)
-          : ChartCreateWidgetSchema.safeParse(params);
-      if (!parsed.success) return mcpValidationFailure(parsed.error);
-      const payload =
-        parsed.data.kind === WidgetKind.activityTimeline
-          ? ({
-              kind: WidgetKind.activityTimeline,
-              name: parsed.data.name,
-              timelineFilters: parsed.data.timelineFilters ?? [],
-              displayOptions: { showFilters: parsed.data.showFilters ?? true },
-              isTemplate: false,
-            } satisfies UpsertActivityWidgetData)
-          : ({
-              kind: WidgetKind.chart,
-              name: parsed.data.name,
-              entityType: parsed.data.entityType,
-              groupByType: parsed.data.groupByType,
-              groupByCustomColumnId: parsed.data.groupByCustomColumnId,
-              aggregationType: parsed.data.aggregationType,
-              entityFilters: parsed.data.entityFilters ?? [],
-              dealFilters: parsed.data.dealFilters ?? [],
-              displayOptions: {
-                displayType: parsed.data.displayType,
-                reverseXAxis: false,
-                reverseYAxis: false,
-                barColors: [ChartColor.primary1, ChartColor.primary2],
-              },
-              isTemplate: false,
-            } satisfies UpsertChartWidgetData);
-      return runInteractor(getUpsertWidgetInteractor().invoke(payload), (data) =>
-        toonResult({
-          id: data.id,
-          kind: data.kind,
-          name: data.name,
-          message: `Widget "${data.name}" created successfully`,
-        }),
-      );
+    if (params.action === "delete") {
+      const valid = z
+        .object({ action: z.literal("delete"), id: z.uuid() })
+        .strict()
+        .safeParse(params);
+      if (!valid.success) return mcpValidationFailure(valid.error);
+      const result = await getDeleteWidgetInteractor().invoke({ id: valid.data.id });
+      return result.ok
+        ? toonResult({ id: valid.data.id, deleted: true, trashBatchId: result.data.trashBatchId })
+        : mcpInteractorFailure(result.error);
     }
-    if (params.action === "update") {
-      const target = z.object({ id: z.uuid() }).safeParse(params);
-      if (!target.success) return mcpValidationFailure(target.error);
-      const widgetResult = await getGetWidgetByIdInteractor().invoke({
-        id: target.data.id,
+    if (params.action === "create" && !params.name)
+      return mcpMessageFailure("Creation requires a widget name.", ["name"]);
+    if (params.action === "create" && (params.id || params.expectedVersion))
+      return mcpMessageFailure("Creation cannot supply an existing widget ID or version.");
+    if (params.action === "update" && !params.id) return mcpMessageFailure("An update requires the widget ID.", ["id"]);
+    const existing = params.id ? await getGetWidgetByIdInteractor().invoke({ id: params.id }) : null;
+    if (existing && !existing.ok) return mcpInteractorFailure(existing.error);
+    if (existing && !existing.data) return customMcpFailure(CustomErrorCode.widgetNotFound);
+    const widget = existing?.data;
+    if (widget && params.kind && params.kind !== widget.kind)
+      return customMcpFailure(CustomErrorCode.widgetKindImmutable);
+    const kind = widget?.kind ?? params.kind ?? WidgetKind.chart;
+    if (kind === WidgetKind.activityTimeline) {
+      const valid = ActivityChangeSchema.safeParse(params);
+      if (!valid.success) return mcpValidationFailure(valid.error);
+      if (widget && widget.kind !== WidgetKind.activityTimeline)
+        return customMcpFailure(CustomErrorCode.widgetKindImmutable);
+      const change = RecordActivityWidgetInputSchema.safeParse({
+        id: params.id,
+        expectedVersion: params.expectedVersion,
+        expectedRevision: params.expectedRevision,
+        idempotencyKey: params.idempotencyKey,
+        name: params.name ?? widget?.name,
+        activityQuery: params.activityQuery ?? widget?.activityQuery,
+        displayOptions: { showFilters: params.showFilters ?? widget?.displayOptions.showFilters ?? true },
+        isTemplate: params.isTemplate ?? widget?.isTemplate ?? false,
+        layout: params.layout,
+        viewId: params.viewId,
       });
-      if (!widgetResult.ok) return mcpInteractorFailure(widgetResult.error);
-      const widget = widgetResult.data;
-      if (!widget) return customMcpFailure(CustomErrorCode.widgetNotFound);
-
-      if (widget.kind === WidgetKind.activityTimeline) {
-        const parsed = ActivityUpdateWidgetSchema.safeParse(params);
-        if (!parsed.success) return mcpValidationFailure(parsed.error);
-        const updateParams = parsed.data;
-        const displayOptions =
-          updateParams.showFilters === undefined
-            ? (widget.displayOptions ?? undefined)
-            : {
-                ...(widget.displayOptions ?? {}),
-                showFilters: updateParams.showFilters,
-              };
-        const result = await getUpsertWidgetInteractor().invoke({
-          id: widget.id,
-          kind: WidgetKind.activityTimeline,
-          name: updateParams.name ?? widget.name,
-          ...(updateParams.timelineFilters !== undefined ? { timelineFilters: updateParams.timelineFilters } : {}),
-          displayOptions,
-          isTemplate: widget.isTemplate,
-        });
-        if (!result.ok) return mcpInteractorFailure(result.error);
-
-        return toonResult({
+      if (!change.success) return mcpValidationFailure(change.error);
+      const result = await getUpsertRecordActivityWidgetInteractor().invoke(change.data);
+      return result.ok
+        ? toonResult({
+            id: result.data.id,
+            kind: result.data.kind,
+            name: result.data.name,
+            version: result.data.version,
+            ...placementOf(result.data.layout),
+          })
+        : mcpInteractorFailure(result.error);
+    }
+    const chart = widget && isRecordWidget(widget) ? widget : undefined;
+    const valid = ChartChangeSchema.safeParse(params);
+    if (!valid.success) return mcpValidationFailure(valid.error);
+    const change = RecordWidgetInputSchema.safeParse({
+      id: params.id,
+      expectedVersion: params.expectedVersion,
+      expectedRevision: params.expectedRevision,
+      idempotencyKey: params.idempotencyKey,
+      name: params.name ?? widget?.name,
+      measure: params.measure ?? chart?.measure,
+      displayOptions: params.displayOptions ?? widget?.displayOptions,
+      isTemplate: params.isTemplate ?? widget?.isTemplate ?? false,
+      layout: params.layout,
+      viewId: params.viewId,
+    });
+    if (!change.success) return mcpValidationFailure(change.error);
+    const result = await getUpsertRecordWidgetInteractor().invoke(change.data);
+    return result.ok
+      ? toonResult({
           id: result.data.id,
           kind: result.data.kind,
           name: result.data.name,
-          message: `Widget "${result.data.name}" updated`,
-        });
-      }
-
-      const parsed = ChartUpdateWidgetSchema.safeParse(params);
-      if (!parsed.success) return mcpValidationFailure(parsed.error);
-      const updateParams = parsed.data;
-
-      const displayOptionsChanged =
-        updateParams.displayType !== undefined ||
-        updateParams.reverseXAxis !== undefined ||
-        updateParams.reverseYAxis !== undefined ||
-        updateParams.barColors !== undefined;
-
-      const updates: Partial<Omit<UpsertChartWidgetData, "id" | "kind">> = {};
-      if (updateParams.name !== undefined) updates.name = updateParams.name;
-      if (updateParams.groupByType !== undefined) updates.groupByType = updateParams.groupByType;
-      if (updateParams.groupByCustomColumnId !== undefined)
-        updates.groupByCustomColumnId = updateParams.groupByCustomColumnId;
-      if (updateParams.aggregationType !== undefined) updates.aggregationType = updateParams.aggregationType;
-      if (Array.isArray(updateParams.entityFilters)) updates.entityFilters = updateParams.entityFilters;
-      if (Array.isArray(updateParams.dealFilters)) updates.dealFilters = updateParams.dealFilters;
-      if (displayOptionsChanged) {
-        updates.displayOptions = {
-          ...(widget.displayOptions ?? {}),
-          displayType: updateParams.displayType ?? widget.displayOptions?.displayType ?? DisplayType.verticalBarChart,
-          reverseXAxis: updateParams.reverseXAxis ?? widget.displayOptions?.reverseXAxis,
-          reverseYAxis: updateParams.reverseYAxis ?? widget.displayOptions?.reverseYAxis,
-          barColors: updateParams.barColors ?? widget.displayOptions?.barColors,
-        };
-      }
-
-      const result = await getUpsertWidgetInteractor().invoke({
-        id: updateParams.id,
-        kind: WidgetKind.chart,
-        name: widget.name,
-        entityType: widget.entityType,
-        groupByType: widget.groupByType,
-        groupByCustomColumnId: widget.groupByCustomColumnId ?? undefined,
-        aggregationType: widget.aggregationType,
-        entityFilters: widget.entityFilters,
-        dealFilters: widget.dealFilters,
-        displayOptions: widget.displayOptions ?? undefined,
-        isTemplate: widget.isTemplate,
-        ...updates,
-      });
-
-      if (!result.ok) return mcpInteractorFailure(result.error);
-
-      return toonResult({
-        id: result.data.id,
-        kind: result.data.kind,
-        name: result.data.name,
-        message: `Widget "${result.data.name}" updated`,
-      });
-    }
-    const parsed = DeleteWidgetSchema.safeParse(params);
-    if (!parsed.success) return mcpValidationFailure(parsed.error);
-    const widgetResult = await getGetWidgetByIdInteractor().invoke({
-      id: parsed.data.id,
-    });
-    if (!widgetResult.ok) return mcpInteractorFailure(widgetResult.error);
-    if (!widgetResult.data) return customMcpFailure(CustomErrorCode.widgetNotFound);
-    const result = await getDeleteWidgetInteractor().invoke({
-      id: parsed.data.id,
-    });
-    if (!result.ok) return mcpInteractorFailure(result.error);
-    return {
-      text: `Deleted widget ${parsed.data.id}`,
-      structuredContent: { deleted: true, id: parsed.data.id },
-    };
+          version: result.data.version,
+          ...placementOf(result.data.layout),
+        })
+      : mcpInteractorFailure(result.error);
   },
 };

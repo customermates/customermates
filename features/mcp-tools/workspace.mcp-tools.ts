@@ -18,17 +18,17 @@ import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
 import {
-  getGetCompanySettingsInteractor,
   getGetMyConnectedAccountsContextInteractor,
   getGetRolesApiInteractor,
   getGetUserDetailsInteractor,
   getGetUsersApiInteractor,
   getGetWikiCatalogInteractor,
+  getGetCompanyInteractor,
 } from "@/core/di";
 
 const WorkspaceContextOutputSchema = z.looseObject({
   user: z.looseObject({}),
-  company: z.looseObject({ id: z.string(), currency: z.string().nullable().optional() }),
+  company: z.looseObject({ id: z.string() }),
   roles: z.array(z.looseObject({ id: z.string() })),
   connectedAccounts: z.array(z.looseObject({ id: z.string() })),
   wiki: z
@@ -58,9 +58,7 @@ const ListUsersOutputSchema = z.object({
 });
 
 const WORKSPACE_CONTEXT_FIELDS_DESCRIPTION =
-  "company.terminology gives the singular and plural label this workspace uses for each record type, keyed by the canonical entity type. " +
-  'Always phrase answers with those labels (for example say "People" when contact.plural is People) and map the words the user types back onto the canonical entity type. ' +
-  "Tool names, filter fields and ids stay canonical regardless of the labels. " +
+  "Discover accessible types and their editable labels with discover_record_types; get_record_model returns their current fields and permissions. " +
   "Each role carries its full permission list; match roleId values from list_users against it. " +
   "Each connected account includes { id, provider, status, emailAddress, displayName, shared, isOwner, lastSyncedAt, linkedinProducts }; " +
   "use the id as connectedAccountId for send_email and send_chat_message and check status before sending. " +
@@ -69,7 +67,7 @@ const WORKSPACE_CONTEXT_FIELDS_DESCRIPTION =
 async function workspaceContext(wikiPage: number | null) {
   const [userResult, companyResult, rolesResult, accountsResult, wikiResult] = await Promise.all([
     getGetUserDetailsInteractor().invoke(),
-    getGetCompanySettingsInteractor().invoke(),
+    getGetCompanyInteractor().invoke(),
     getGetRolesApiInteractor().invoke({ pagination: { page: 1, pageSize: 100 } }),
     getGetMyConnectedAccountsContextInteractor().invoke(),
     wikiPage === null
@@ -84,18 +82,11 @@ async function workspaceContext(wikiPage: number | null) {
   if (!rolesResult.ok) return mcpInteractorFailure(rolesResult.error);
   if (!accountsResult.ok) return mcpInteractorFailure(accountsResult.error);
   if (wikiResult && !wikiResult.ok) return mcpInteractorFailure(wikiResult.error);
-  const company = companyResult.data;
   const wiki = wikiResult?.data;
   return toonResult(
     formatDatesInResponse({
       user: userResult.data,
-      company: {
-        id: company.id,
-        currency: company.currency,
-        createdAt: company.createdAt,
-        updatedAt: company.updatedAt,
-        terminology: company.terminology.labels,
-      },
+      company: companyResult.data,
       ...(wiki
         ? {
             wiki: {
@@ -162,7 +153,7 @@ export const listUsersTool = {
   description:
     "Use this when you need the workspace members: returns { id, firstName, lastName, email, roleId, status } per user. " +
     "Optional: searchTerm (matches firstName/lastName), filters, sortDescriptor, page, pageSize. " +
-    "Use list_users.items[].id as userId for manage_team update_member and for userIds in record tools; match roleId against get_workspace_context.roles[].id for the role name and permissions.",
+    "Use list_users.items[].id as userId for manage_team update_member and for assignedUserIds in record tools; match roleId against get_workspace_context.roles[].id for the role name and permissions.",
   annotations: { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   inputSchema: ListUsersSchema,
   outputSchema: ListUsersOutputSchema,

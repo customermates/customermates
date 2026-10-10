@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { REPO_ROOT, walkFiles } from "./walk";
 
 const CAST = "as CustomColumnDto";
-const OWNER = "features/custom-column/custom-column.dto.ts";
+const OWNER = "features/records/record-storage.ts";
 
 function isTestFile(path: string): boolean {
   return path.includes("__tests__") || path.endsWith(".test.ts") || path.endsWith(".test.tsx");
@@ -19,7 +19,7 @@ const offenders = walkFiles(REPO_ROOT, (path) => path.endsWith(".ts") || path.en
   .map((path) => relative(REPO_ROOT, path))
   .sort();
 
-describe("every custom column DTO crosses one boundary", () => {
+describe("typed record values cross the validated storage boundary", () => {
   it("casts a stored row to a CustomColumnDto in exactly one non test source file", () => {
     expect(offenders).toEqual([]);
   });
@@ -27,7 +27,9 @@ describe("every custom column DTO crosses one boundary", () => {
   it("keeps that boundary function present and exported", () => {
     const source = readFileSync(`${REPO_ROOT}/${OWNER}`, "utf8");
 
-    expect(source).toContain("export function toCustomColumnDto");
-    expect(source).toContain("orderByOptionIndex");
+    expect(source).toContain("export function decodeRecordValue");
+    expect(source).toContain("export function encodeRecordValue");
+    expect(source).toContain("CalculatedValueSchema.parse");
+    expect(source).toContain("toFixed()");
   });
 });

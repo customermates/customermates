@@ -14,13 +14,14 @@ import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { detectKeyboardPlatform } from "@/components/keyboard/key-matching";
+import { matchesShortcut } from "@/components/keyboard/shortcut-registry";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
 const SIDEBAR_WIDTH_ICON = "3rem";
-const SIDEBAR_KEYBOARD_SHORTCUT = "b";
 
 type SidebarContextProps = {
   state: "expanded" | "collapsed";
@@ -75,11 +76,12 @@ function SidebarProvider({
   }, [isMobile, setOpen, setOpenMobile]);
 
   React.useEffect(() => {
+    const platform = detectKeyboardPlatform(navigator);
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
-        event.preventDefault();
-        toggleSidebar();
-      }
+      if (event.defaultPrevented) return;
+      if (!matchesShortcut(event, "toggleSidebar", platform)) return;
+      event.preventDefault();
+      toggleSidebar();
     };
 
     window.addEventListener("keydown", handleKeyDown);
@@ -236,8 +238,9 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<t
       size="icon"
       variant="ghost"
       onClick={(event) => {
+        if (props["aria-disabled"] === true || props["aria-disabled"] === "true") return;
         onClick?.(event);
-        toggleSidebar();
+        if (!event.defaultPrevented) toggleSidebar();
       }}
       {...props}
     >

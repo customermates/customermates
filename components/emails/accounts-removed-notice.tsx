@@ -5,8 +5,9 @@ import { EmailSection } from "@/components/emails/base/email-section";
 import { EmailText } from "@/components/emails/base/email-text";
 import { PREVIEW_EMAIL_LAYOUT_PROPS } from "@/components/emails/preview-layout-props";
 import { env } from "@/env";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
-const CONNECTED_ACCOUNTS_HREF = `${env.BASE_URL}/profile/connected-accounts`;
+const CONNECTED_ACCOUNTS_HREF = `${env.BASE_URL}${settingsHref("channels")}`;
 
 type Props = EmailLayoutSharedProps & {
   greeting: string;

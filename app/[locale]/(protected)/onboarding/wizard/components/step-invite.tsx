@@ -5,12 +5,12 @@ import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { Loader2 } from "lucide-react";
 
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
 import { CopyableCode } from "@/components/shared/copyable-code";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 
-import { InviteByEmailForm } from "../../../company/components/company-invite/invite-by-email-form";
+import { InviteByEmailForm } from "@/app/[locale]/(protected)/settings/(workspace)/components/company-invite/invite-by-email-form";
 
 const InviteLink = observer(() => {
   const t = useTranslations();
@@ -47,24 +47,23 @@ export const StepInvite = observer(() => {
   const { onboardingWizardStore } = useRootStore();
 
   return (
-    <Tabs className="w-full" value={onboardingWizardStore.inviteTab} onValueChange={onboardingWizardStore.setInviteTab}>
-      <TabsList variant="line">
-        <TabsTrigger disabled={onboardingWizardStore.isSaving} value="link">
-          {t("OnboardingWizard.invite.tabs.link")}
-        </TabsTrigger>
-
-        <TabsTrigger disabled={onboardingWizardStore.isSaving} value="email">
-          {t("OnboardingWizard.invite.tabs.email")}
-        </TabsTrigger>
-      </TabsList>
-
-      <TabsContent className="mt-3" value="link">
+    <SegmentedControl
+      className="w-full"
+      items={[
+        { value: "link", label: t("OnboardingWizard.invite.tabs.link"), disabled: onboardingWizardStore.isSaving },
+        { value: "email", label: t("OnboardingWizard.invite.tabs.email"), disabled: onboardingWizardStore.isSaving },
+      ]}
+      label={t("CompanyInviteModal.title")}
+      value={onboardingWizardStore.inviteTab}
+      onValueChange={onboardingWizardStore.setInviteTab}
+    >
+      <SegmentedControlPanel value="link">
         <InviteLink />
-      </TabsContent>
+      </SegmentedControlPanel>
 
-      <TabsContent className="mt-3" value="email">
+      <SegmentedControlPanel value="email">
         <InviteByEmailForm />
-      </TabsContent>
-    </Tabs>
+      </SegmentedControlPanel>
+    </SegmentedControl>
   );
 });

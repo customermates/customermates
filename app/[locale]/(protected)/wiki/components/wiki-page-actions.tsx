@@ -3,20 +3,17 @@
 import type { WikiPageStore } from "./wiki-page.store";
 
 import { observer } from "mobx-react-lite";
-import { Link, MoreHorizontal, Plus, RotateCcw, Save, Trash2, X } from "lucide-react";
+import { Link, MoreHorizontal, RotateCcw, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { TopBarMenuButton, TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { wikiPageUrl } from "@/features/wiki/wiki-links";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
+import { Action } from "@/generated/prisma";
 
 type Props = {
   canManage: boolean;
@@ -37,94 +34,58 @@ export const WikiPageActions = observer((props: Props) => {
 
   return (
     <div className="flex items-center gap-1">
-      {store.creating && (
-        <Button
-          aria-label={t("Common.actions.cancel")}
-          disabled={store.isLoading}
-          size="sm"
-          variant="secondary"
-          onClick={onCancelCreate}
-        >
-          <X aria-hidden="true" className="size-4 sm:hidden" />
-
-          <span className="hidden sm:inline">{t("Common.actions.cancel")}</span>
-        </Button>
-      )}
-
-      {hasDocument && store.form.id && store.hasUnsavedChanges && (
-        <Button
-          aria-label={t("Common.actions.reset")}
-          disabled={store.isLoading}
-          size="sm"
-          type="button"
-          variant="secondary"
-          onClick={store.resetDocument}
-        >
-          <RotateCcw aria-hidden="true" className="size-4 sm:hidden" />
-
-          <span className="hidden sm:inline">{t("Common.actions.reset")}</span>
-        </Button>
-      )}
-
       {hasDocument && store.form.id && !store.hasUnsavedChanges && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button aria-label={t("Wiki.pageActions")} disabled={store.isLoading} size="icon-sm" variant="secondary">
-              <MoreHorizontal aria-hidden="true" />
-            </Button>
-          </DropdownMenuTrigger>
+        <TopBarMenuButton busy={store.isLoading} icon={MoreHorizontal} label={t("Wiki.pageActions")}>
+          <DropdownMenuItem
+            onSelect={() =>
+              runUserAction(() => copyToClipboard(wikiPageUrl(window.location.origin, store.form.id as string)))
+            }
+          >
+            <Link aria-hidden="true" />
 
-          <DropdownMenuContent align="end">
+            {t("Wiki.copyLink")}
+          </DropdownMenuItem>
+
+          <DropdownMenuItem onSelect={onReload}>
+            <RotateCcw aria-hidden="true" />
+
+            {t("Wiki.reload")}
+          </DropdownMenuItem>
+
+          {store.allows(Action.delete) && (
             <DropdownMenuItem
-              onSelect={() =>
-                runUserAction(() => copyToClipboard(wikiPageUrl(window.location.origin, store.form.id as string)))
-              }
+              variant="destructive"
+              onSelect={() => {
+                const pageId = store.form.id;
+                showDeleteConfirmation(
+                  () => store.delete(),
+                  store.form.title,
+                  undefined,
+                  () => pageId && store.showRestored(pageId),
+                );
+              }}
             >
-              <Link aria-hidden="true" />
+              <Trash2 aria-hidden="true" />
 
-              {t("Wiki.copyLink")}
+              {t("Wiki.delete")}
             </DropdownMenuItem>
-
-            <DropdownMenuItem onSelect={onReload}>
-              <RotateCcw aria-hidden="true" />
-
-              {t("Wiki.reload")}
-            </DropdownMenuItem>
-
-            {canManage && (
-              <DropdownMenuItem
-                variant="destructive"
-                onSelect={() => showDeleteConfirmation(() => store.delete(), store.form.title)}
-              >
-                <Trash2 aria-hidden="true" />
-
-                {t("Wiki.delete")}
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+          )}
+        </TopBarMenuButton>
       )}
 
-      {canManage && canCreate && !store.creating && !store.hasUnsavedChanges && (
-        <Button
-          aria-label={t("Wiki.newPage")}
-          disabled={store.isLoading}
-          size="sm"
-          variant="default"
-          onClick={onCreate}
-        >
-          <Plus aria-hidden="true" className="size-4" />
-
-          <span className="hidden sm:inline">{t("Wiki.newPage")}</span>
-        </Button>
+      {store.allows(Action.create) && canCreate && !store.creating && !store.hasUnsavedChanges && (
+        <TopBarPrimaryButton disabled={store.isLoading} label={t("Wiki.newPage")} onClick={onCreate} />
       )}
 
-      {hasDocument && canManage && store.hasUnsavedChanges && (
-        <Button aria-label={t("Common.actions.save")} disabled={store.isLoading} form={formId} size="sm" type="submit">
-          <Save aria-hidden="true" className="size-4 sm:hidden" />
-
-          <span className="hidden sm:inline">{t("Common.actions.save")}</span>
-        </Button>
+      {hasDocument && (
+        <FormFooterActions
+          editable={canManage}
+          formId={formId}
+          placement="topbar"
+          reset={store.creating ? undefined : { differs: store.hasUnsavedChanges, onReset: store.resetDocument }}
+          store={store}
+          onCancel={store.creating ? onCancelCreate : undefined}
+        />
       )}
     </div>
   );

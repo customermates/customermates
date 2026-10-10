@@ -1,5 +1,6 @@
 import type { TenantUser } from "@/features/user/user.schema";
 
+import { presetId } from "@/features/records/crm-preset";
 import { randomUUID } from "node:crypto";
 
 import { Client } from "pg";
@@ -7,7 +8,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { Action, Resource } from "@/generated/prisma";
 
-import { PrismaRoutineRepo } from "../prisma-routine.repository";
+import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { runWithTenant } from "@/core/decorators/tenant-context";
@@ -33,13 +34,40 @@ describeDatabase("routine run projection on PostgreSQL", () => {
     companyId,
   };
 
+  const typeId = presetId(companyId, "contact");
+  const nameFieldId = presetId(companyId, "contact.firstName");
   const triggerPayload = {
+    id: randomUUID(),
     companyId,
-    userId: ownerId,
-    entityId: contactId,
-    payload: {
-      contact: { id: contactId, firstName: "Private", lastName: "Person", email: "private@example.com" },
-      changes: { firstName: { from: "Old", to: "Private" } },
+    event: "record.updated",
+    timestamp: "2026-01-01T00:00:00.000Z",
+    actorId: ownerId,
+    data: {
+      causeId: "cause-1",
+      cause: { kind: "mutation" },
+      record: {
+        ref: { typeId, recordId: contactId },
+        schemaRevision: 1,
+        beforeVersion: 1,
+        afterVersion: 2,
+        assignments: null,
+        identities: null,
+        links: [],
+        related: [],
+        fields: [
+          {
+            fieldId: nameFieldId,
+            before: null,
+            after: {
+              fieldId: nameFieldId,
+              label: "First name",
+              valueType: "text",
+              options: [],
+              value: { state: "value", value: { kind: "text", value: "private@example.com" } },
+            },
+          },
+        ],
+      },
     },
   };
 
@@ -57,7 +85,7 @@ describeDatabase("routine run projection on PostgreSQL", () => {
     );
 
     for (const [id, event, payload] of [
-      [eventRunId, "contact.updated", JSON.stringify(triggerPayload)],
+      [eventRunId, "record.updated", JSON.stringify(triggerPayload)],
       [scheduleRunId, null, null],
     ] as const) {
       await client.query(
@@ -80,7 +108,7 @@ describeDatabase("routine run projection on PostgreSQL", () => {
   });
 
   async function runs() {
-    return runWithTenant(viewer, () => new PrismaRoutineRepo().getRoutineRuns(routineId, 10));
+    return runWithTenant(viewer, () => createTestRoutineRepo().getRoutineRuns(routineId, 10));
   }
 
   it("never puts the raw event envelope on the wire", async () => {
@@ -97,10 +125,11 @@ describeDatabase("routine run projection on PostgreSQL", () => {
 
     expect(triggered?.triggerEntityId).toBe(contactId);
     expect(triggered?.triggerContext).toEqual({
-      entityType: "contact",
+      recordRef: { typeId, recordId: contactId },
       threadId: null,
-      changedFields: ["firstName"],
+      changedFields: [nameFieldId],
       changedFieldsTruncated: false,
+      changedFieldLabels: { [nameFieldId]: "First name" },
     });
   });
 

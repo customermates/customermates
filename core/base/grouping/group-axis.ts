@@ -1,11 +1,12 @@
 import type { DataViewGroup, DateBucket, GroupOverflow, Grouping } from "./grouping.schema";
-import type { GroupCountRow } from "./group-count";
-import type { GroupLabel } from "./group-labels";
 import type { GroupableFieldSpec } from "./groupable-field";
 
-import { DEFAULT_DATE_BUCKET, MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "./grouping.schema";
 import { dateBucketLadder } from "./date-buckets";
-import { orderByOptionIndex } from "./option-order";
+import { DEFAULT_DATE_BUCKET, MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "./grouping.schema";
+
+export type GroupCountRow = { key: string; count: number };
+
+export type GroupLabel = { label: string; avatarUrl?: string | null };
 
 export type ResolvedGrouping = { spec: GroupableFieldSpec; grouping: Grouping };
 
@@ -29,11 +30,15 @@ export function resolveGrouping(
   const spec = specs.find((candidate) => candidate.field === grouping.field);
   if (!spec) return undefined;
 
-  if (spec.kind !== "dateBucket") return { spec, grouping: { field: spec.field } };
+  const presentation = {
+    ...(grouping.hidden?.length ? { hidden: grouping.hidden } : {}),
+    ...(grouping.hideEmpty ? { hideEmpty: true } : {}),
+  };
+  if (spec.kind !== "dateBucket") return { spec, grouping: { field: spec.field, ...presentation } };
 
   const bucket = grouping.bucket && spec.buckets.includes(grouping.bucket) ? grouping.bucket : DEFAULT_DATE_BUCKET;
 
-  return { spec, grouping: { field: spec.field, bucket } };
+  return { spec, grouping: { field: spec.field, bucket, ...presentation } };
 }
 
 export function resolveGroupAxis(input: GroupAxisInput): GroupAxis {
@@ -41,27 +46,6 @@ export function resolveGroupAxis(input: GroupAxisInput): GroupAxis {
   const countByKey = new Map(input.rows.map((row) => [row.key, row]));
 
   switch (spec.kind) {
-    case "customSingleSelect": {
-      const ordered = orderByOptionIndex(spec.options);
-      const declared = new Set(ordered.map((option) => option.value));
-      const groups = ordered.map((option) =>
-        group({
-          key: option.value,
-          row: countByKey.get(option.value),
-          labelKind: "value",
-          label: option.label,
-          color: option.color,
-          weight: option.weight,
-        }),
-      );
-
-      const unavailable = input.rows
-        .filter((row) => row.key !== NO_VALUE_GROUP_KEY && !declared.has(row.key))
-        .map((row) => group({ key: row.key, row, labelKind: "unavailable" }));
-
-      return truncate([...groups, ...unavailable], noValueGroup(countByKey.get(NO_VALUE_GROUP_KEY), true));
-    }
-
     case "enum": {
       const groups = spec.values.map((value) =>
         group({
@@ -135,7 +119,6 @@ function group(args: {
     ...(args.color === undefined ? {} : { color: args.color }),
     ...(args.weight === undefined ? {} : { weight: args.weight }),
     ...(args.avatarUrl === undefined ? {} : { avatarUrl: args.avatarUrl }),
-    ...(args.row?.sums === undefined ? {} : { valueSums: args.row.sums }),
     isNoValue: args.isNoValue ?? false,
     materialised: false,
     itemIds: [],

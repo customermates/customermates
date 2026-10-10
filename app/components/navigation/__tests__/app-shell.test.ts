@@ -15,7 +15,6 @@ vi.mock("@/features/auth/next/resolve-account-state", () => ({
 }));
 vi.mock("@/core/di", () => ({
   getGetOperatorConsoleVisibilityInteractor: () => ({ invoke: () => Promise.resolve(false) }),
-  getGetCompanySettingsInteractor: vi.fn(),
   getCountSystemTasksInteractor: vi.fn(),
   getGetSubscriptionInteractor: vi.fn(),
   getGetUnreadThreadCountInteractor: vi.fn(),
@@ -24,8 +23,6 @@ vi.mock("@/core/di", () => ({
 vi.mock("../navigation-data", () => ({
   loadNavigationData: () =>
     Promise.resolve({
-      company: null,
-      terminology: [],
       subscription: null,
       trialDaysLeft: null,
       systemTaskCount: 0,

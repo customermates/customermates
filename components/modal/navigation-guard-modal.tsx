@@ -5,7 +5,7 @@ import { useLayoutEffect } from "react";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
 
-import { UnsavedChangesGuard } from "./unsaved-changes-guard";
+import { DiscardChangesDialog } from "./confirm-dialog";
 import { connectNavigationHistoryGuard } from "./navigation-history-guard";
 
 export const NavigationGuardModal = observer(() => {
@@ -13,7 +13,7 @@ export const NavigationGuardModal = observer(() => {
   useLayoutEffect(() => connectNavigationHistoryGuard(navigationGuard), [navigationGuard]);
 
   return (
-    <UnsavedChangesGuard
+    <DiscardChangesDialog
       open={navigationGuard.isPending}
       onCancel={() => navigationGuard.cancel()}
       onConfirm={() => navigationGuard.confirm()}

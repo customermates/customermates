@@ -92,7 +92,10 @@ jobs:
             exit 1
           fi
       - run: yarn typecheck
-      - run: yarn lint
+      - name: Lint with the documented heap
+        run: yarn lint
+        env:
+          NODE_OPTIONS: --max-old-space-size=8192
       - run: yarn test
       - name: Audit the message catalogs across locales
         run: yarn i18n:audit

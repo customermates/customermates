@@ -4,14 +4,13 @@ import { describe, expect, it } from "vitest";
 
 import { DashboardPageSkeleton } from "@/app/[locale]/(protected)/dashboard/components/dashboard-page-skeleton";
 import { InboxPageSkeleton } from "@/app/[locale]/(protected)/inbox/components/inbox-page-skeleton";
-import { CompanySettingsPageSkeleton } from "@/app/[locale]/(protected)/company/components/company-settings/company-settings-page-skeleton";
-import { SubscriptionPageSkeleton } from "@/app/[locale]/(protected)/company/components/subscription/subscription-page-skeleton";
+import { SubscriptionPageSkeleton } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-page-skeleton";
 import { OnboardingPageSkeleton } from "@/app/[locale]/(protected)/onboarding/wizard/components/onboarding-page-skeleton";
 import {
   ApiKeysPageSkeleton,
   ConnectedAccountsPageSkeleton,
-} from "@/app/[locale]/(protected)/profile/components/profile-resource-page-skeleton";
-import { ProfileSettingsPageSkeleton } from "@/app/[locale]/(protected)/profile/components/profile-settings-page-skeleton";
+} from "@/app/[locale]/(protected)/settings/(account)/components/profile-resource-page-skeleton";
+import { ProfileSettingsPageSkeleton } from "@/app/[locale]/(protected)/settings/(account)/components/profile-settings-page-skeleton";
 import {
   EntityDetailDrawerSkeleton,
   EntityDetailPageSkeleton,
@@ -24,8 +23,7 @@ describe("page skeleton families", () => {
   it.each([
     ["dashboard", DashboardPageSkeleton],
     ["detail", EntityDetailPageSkeleton],
-    ["profile-settings", ProfileSettingsPageSkeleton],
-    ["company-settings", CompanySettingsPageSkeleton],
+    ["settings-profile", ProfileSettingsPageSkeleton],
     ["subscription", SubscriptionPageSkeleton],
     ["api-keys", ApiKeysPageSkeleton],
     ["connected-accounts", ConnectedAccountsPageSkeleton],
@@ -63,14 +61,10 @@ describe("page skeleton families", () => {
     expect(detail).toContain("@container/detail size-full min-h-0");
     expect(detail).toContain("data-entity-detail-skeleton-shell");
     expect(detail).toContain("data-entity-detail-skeleton-summary");
-    expect(detail).toContain('data-summary-variant="pinned-mini-cards"');
-    expect(detail).toContain('data-summary-geometry="cards"');
-    expect(detail).not.toContain("h-[68px]");
-    expect(detail).toContain("-mx-4 overflow-hidden px-4");
-    expect(detail).toContain("flex w-max min-w-full items-stretch gap-2 pt-0 pb-4");
-    expect(detail).toContain("flex min-h-4 items-center");
-    expect(detail).toContain("mt-0.5 flex min-h-6 items-center");
-    expect(detail).toContain("rounded-md border border-border/60 bg-card/40 px-3 py-2");
+    expect(detail).toContain('data-summary-variant="chip-row"');
+    expect(detail).toContain("flex flex-wrap items-center gap-1");
+    expect(detail).toContain("h-[22px] rounded-md");
+    expect(detail).not.toContain("rounded-md border border-border/60 bg-card/40 px-3 py-2");
     expect(count(detail, "data-summary-panel-divider")).toBe(0);
     expect(count(detail, 'data-summary-overflow="true"')).toBe(0);
     expect(detail).toContain("overflow-y-auto @6xl/detail:overflow-y-visible");
@@ -84,17 +78,12 @@ describe("page skeleton families", () => {
     expect(detail).toContain("@6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]");
   });
 
-  it("matches profile, company, and subscription settings geometry without fabricated branches", () => {
+  it("matches profile and subscription settings geometry without fabricated branches", () => {
     const profile = renderToStaticMarkup(createElement(ProfileSettingsPageSkeleton));
-    const company = renderToStaticMarkup(createElement(CompanySettingsPageSkeleton));
     const subscription = renderToStaticMarkup(createElement(SubscriptionPageSkeleton));
 
     expect(profile).toContain("data-profile-settings-avatar");
     expect(count(profile, "data-settings-field")).toBe(7);
-    expect(count(company, "data-settings-field")).toBe(2);
-    expect(count(company, "data-company-terminology-node")).toBe(5);
-    expect(company).toContain("sm:grid-cols-2");
-    expect(company).toContain("sm:min-h-14");
     expect(count(subscription, "data-settings-field")).toBe(1);
     expect(subscription).toContain("data-subscription-plan-field");
     expect(subscription).toContain("data-subscription-status-chip");

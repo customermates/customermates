@@ -25,7 +25,7 @@ async function resultOf(savedSort: SortDescriptor | null, params: GetQueryParams
   const repo = new StubRepo();
   const surface: SurfaceViewState = { activeViewKey: null, views: [], allState: { sortDescriptor: savedSort } };
   const viewStateRepo: DataViewStateRepo = { loadSurfaceState: () => Promise.resolve(surface) };
-  const interactor = new ProbeInteractor(repo, viewStateRepo, "interactive", undefined, SURFACE_DEFAULTS);
+  const interactor = new ProbeInteractor(repo, viewStateRepo, "interactive", SURFACE_DEFAULTS);
   const outcome = await interactor.invoke(params);
 
   if (!outcome.ok) throw new Error("the probe interactor rejected the request");

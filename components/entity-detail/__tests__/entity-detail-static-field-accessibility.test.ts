@@ -40,6 +40,25 @@ function renderField(value: ReactNode, help?: ReactNode) {
 }
 
 describe("EntityDetailStaticField", () => {
+  it("shows the value plainly without input chrome and its source line underneath", () => {
+    const markup = renderToStaticMarkup(
+      createElement(EntityDetailStaticField, {
+        fieldId: "totalValue",
+        label: "Deal value",
+        value: "€12,500",
+        source: "Calculated · Quantity × Price",
+      }),
+    );
+    const output = markup.match(/<div[^>]*data-field-state="read-only"[^>]*>/)?.[0] ?? "";
+
+    expect(output).toContain("border-transparent");
+    expect(output).toContain("bg-transparent");
+    expect(output).not.toContain("border-border");
+    expect(markup).toContain("select-text");
+    expect(markup).not.toContain("<input");
+    expect(markup).toContain("Calculated · Quantity × Price");
+  });
+
   it("associates its read-only output with the visible label and keeps help and pin actions named", () => {
     const markup = renderField("€12,500", "Calculated from linked services.");
 
@@ -67,15 +86,18 @@ describe("EntityDetailStaticField", () => {
     expect(pinPosition).toBeLessThan(outputPosition);
   });
 
-  it.each([null, undefined, ""])("renders the empty-value fallback for %s", (value) => {
-    expect(renderField(value)).toContain("—");
+  it.each([null, undefined, ""])("renders the shared empty value for %s", (value) => {
+    const markup = renderField(value);
+
+    expect(markup).toContain('data-empty-value=""');
+    expect(markup).not.toContain("—");
   });
 
   it("preserves zero as a meaningful value", () => {
     const markup = renderField(0);
 
     expect(markup).toContain(">0</span>");
-    expect(markup).not.toContain("—");
+    expect(markup).not.toContain("data-empty-value");
   });
 
   it("omits the help action when no explanation is supplied", () => {

@@ -1,8 +1,6 @@
-import { z } from "zod";
-
 import { SurfaceKeySchema, ViewKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { SURFACE, type DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
-import { DATA_VIEW_PATHS, ENTITY_TIMELINE_PARENT_PATHS } from "@/core/data-view/data-view-paths";
+import { dataViewPath, isRecordTimelinePath } from "@/core/data-view/data-view-paths";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
 
 const CONTEXT_ORIGIN = "https://local.invalid";
@@ -18,11 +16,9 @@ function contextRoute(pageRoute: string | null | undefined): URL | null {
 
 function routeMatchesSurface(route: URL, surfaceKey: DataViewSurfaceKey): boolean {
   const path = stripLocalePrefix(route.pathname);
-  if (surfaceKey !== SURFACE.entityTimeline) return DATA_VIEW_PATHS[surfaceKey] === path;
+  if (surfaceKey !== SURFACE.entityTimeline) return dataViewPath(surfaceKey) === path;
 
-  const parent = ENTITY_TIMELINE_PARENT_PATHS.find((candidate) => path.startsWith(`${candidate}/`));
-  if (!parent) return false;
-  return z.uuid().safeParse(path.slice(parent.length + 1)).success;
+  return isRecordTimelinePath(path);
 }
 
 export function agentViewRequestTarget(pageRoute: string | null | undefined) {
@@ -46,7 +42,12 @@ export function agentViewRequestTarget(pageRoute: string | null | undefined) {
     (action !== "create" && action !== "update")
   )
     return { kind: "invalid" as const };
-  return { kind: "target" as const, action, surfaceKey: surface.data, viewKey: view.data };
+  return {
+    kind: "target" as const,
+    action,
+    surfaceKey: surface.data,
+    viewKey: view.data,
+  };
 }
 
 export function agentViewRequestMismatch(pageRoute: string | null | undefined, input: unknown): string | null {
@@ -58,7 +59,7 @@ export function agentViewRequestMismatch(pageRoute: string | null | undefined, i
     return "The Ask AI request has invalid view context. No change was made. Ask the user to reopen Ask AI from the intended view.";
   if (
     request.surfaceKey === target.surfaceKey &&
-    request.action === target.action &&
+    (request.action === target.action || (target.action === "update" && request.action === "reset")) &&
     (target.action === "create" || request.viewKey === target.viewKey)
   )
     return null;
@@ -71,10 +72,10 @@ export function agentViewToolMismatch(
   input: unknown,
 ): string | null {
   if (toolName === "manage_data_views") return agentViewRequestMismatch(pageRoute, input);
-  if (toolName !== "manage_custom_columns" || !input || typeof input !== "object") return null;
+  if (toolName !== "configure_record_model" || !input || typeof input !== "object") return null;
 
   const action = (input as Record<string, unknown>).action;
-  if (action !== "upsert" && action !== "delete") return null;
+  if (action !== "apply") return null;
 
   const target = agentViewRequestTarget(pageRoute);
   if (target.kind === "ordinary") return null;

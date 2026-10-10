@@ -1,8 +1,6 @@
-import type { Prisma } from "@/generated/prisma";
-
 import { SYNTHETIC_CONTACT_AVATAR_URLS } from "./avatars";
 import type { SeedContext } from "./context";
-import { fixtureId, relationshipTarget, upsertFixturesById } from "./helpers";
+import { fixtureId, relationshipTarget } from "./helpers";
 import type { OrganizationFixture } from "./organizations";
 import { SYNTHETIC_ORGANIZATION_DEFINITIONS } from "./organizations";
 import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
@@ -136,7 +134,7 @@ export type ContactSeedData = {
   contacts: ContactFixture[];
 };
 
-export async function seedContacts(
+export function seedContacts(
   context: SeedContext,
   organizations: ReadonlyArray<OrganizationFixture>,
 ): Promise<ContactSeedData> {
@@ -159,22 +157,8 @@ export async function seedContacts(
       firstName,
       lastName,
       ...SYNTHETIC_SEED_TIMELINE.contact(index),
-    } satisfies Prisma.ContactCreateManyInput;
+    } satisfies ContactFixture;
   });
 
-  await upsertFixturesById(contacts, (contact) =>
-    context.prisma.contact.upsert({
-      where: { id: contact.id },
-      update: contact,
-      create: contact,
-    }),
-  );
-  await context.prisma.contact.deleteMany({
-    where: {
-      companyId: context.ids.company,
-      id: { startsWith: "60000000-", notIn: contacts.map(({ id }) => id) },
-    },
-  });
-
-  return { contactDefinitions, contacts };
+  return Promise.resolve({ contactDefinitions, contacts });
 }

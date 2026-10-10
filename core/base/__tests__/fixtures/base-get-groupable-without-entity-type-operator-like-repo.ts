@@ -1,7 +1,7 @@
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { Filter, FilterableField, GetQueryParams, SortDescriptor } from "../../base-get.schema";
 import type { GroupableFieldSpec } from "@/core/base/grouping/groupable-field";
-import type { GroupCountRow } from "@/core/base/grouping/group-count";
+import type { GroupCountRow } from "@/core/base/grouping/group-axis";
 import { vi } from "vitest";
 import { BaseGetRepo } from "@/core/base/base-get.repo";
 import { enumGroupables } from "@/core/base/grouping/groupable-field";
@@ -58,6 +58,4 @@ export class OperatorLikeRepo extends BaseGetRepo<Item> {
   validateSortDescriptor(): SortDescriptor | undefined {
     return undefined;
   }
-
-  sumNumericFields = vi.fn(<F extends string>(): Promise<Partial<Record<F, number | null>>> => Promise.resolve({}));
 }

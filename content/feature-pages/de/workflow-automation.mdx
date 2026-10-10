@@ -44,7 +44,7 @@ Customermates liefert keine Automatisierungs-Engine aus. Es bietet [[derived.web
 
 **Visueller Workflow-Builder.** n8n bietet eine Drag-and-Drop-Oberfläche zum Erstellen von Automatisierungen. Sie verbinden Knoten visuell, die jeweils einen Trigger, eine Bedingung, eine Transformation oder eine Aktion repräsentieren. Es sind keine Programmierkenntnisse erforderlich. Wenn Sie ein Flussdiagramm zeichnen können, können Sie eine Automatisierung bauen.
 
-**CRM-Event-Trigger.** Workflows lassen sich über die [[derived.webhooks.events.total]] Webhook-Events auslösen, die Customermates sendet: Datensätze werden erstellt, aktualisiert oder gelöscht über Kontakte, Unternehmen, Deals, Services und Aufgaben, dazu Messaging- und Kalender-Events. Die Deal-Phase ist eine benutzerdefinierte Spalte, ein Phasenwechsel kommt also als `deal.updated` an, und Ihr Workflow verzweigt auf den Spaltenwert. Diese ereignisbasierten Trigger stellen sicher, dass Ihre Automatisierungen genau im richtigen Moment Ihres Geschäftsprozesses greifen.
+**CRM-Event-Trigger.** Workflows reagieren auf `record.created`, `record.updated` und `record.deleted` für die fünf Starttypen und selbst angelegte Typen sowie auf Messaging- und Kalender-Events. Ein Phasenwechsel kommt als `record.updated` für einen Deal an; filtern Sie nach dem Deal-Typ und der konfigurierten Feld-ID der Phase, bevor Sie auf ihren Wert verzweigen.
 
 **400+ App-Integrationen.** n8n unterstützt Verbindungen zu über 400 externen Diensten ab Werk. Senden Sie Nachrichten an Slack oder Microsoft Teams, wenn Deals abgeschlossen werden. Erstellen Sie Rechnungen in Ihrer Buchhaltungssoftware, wenn ein Deal gewonnen wird. Synchronisieren Sie Kontakte mit Ihrer [E-Mail-Marketing-Plattform](/features/email-integration). Pushen Sie Daten an Google Sheets für Berichte.
 
@@ -56,7 +56,7 @@ Customermates liefert keine Automatisierungs-Engine aus. Es bietet [[derived.web
 
 ## Gängige Beispiele für Workflow-Automatisierung
 
-**Zeitgesteuerte Follow-ups in einem externen Tool.** Customermates hat keine E-Mail-Serien und keinen eingebauten Scheduler. Wenn ein neuer Lead in Ihre [Pipeline](/features/pipeline) gelangt, kann ein `contact.created`- oder `deal.created`-Webhook einen n8n-Workflow starten, der eine Einführungs-E-Mail über Ihren eigenen E-Mail-Anbieter sendet, per REST eine Anrufaufgabe in Customermates anlegt und eine Woche später prüft, ob sich der Datensatz geändert hat. Zeitsteuerung und Versand laufen in n8n, nicht in Customermates.
+**Zeitgesteuerte Follow-ups in einem externen Tool.** Customermates hat keine E-Mail-Serien und keinen eingebauten Scheduler. Wenn ein neuer Kontakt oder Deal in Ihre [Pipeline](/features/pipeline) gelangt, kann ein nach Typ gefilterter `record.created`-Webhook einen n8n-Workflow starten, der eine Einführungs-E-Mail über Ihren eigenen E-Mail-Anbieter sendet, per REST eine Anrufaufgabe in Customermates anlegt und eine Woche später prüft, ob sich der Datensatz geändert hat. Zeitsteuerung und Versand laufen in n8n, nicht in Customermates.
 
 **Deal-Phasen-Benachrichtigungen.** Wenn ein Deal in eine neue Phase wechselt, benachrichtigen Sie automatisch die relevanten Teammitglieder. Informieren Sie den Account Manager bei der Verhandlungsphase. Geben Sie der Finanzabteilung bei einem gewonnenen Deal Bescheid. Senden Sie eine Zusammenfassung an den Vertriebsleiter, wenn ein Deal einen bestimmten Wert überschreitet. Die Nachrichten laufen über die Kanäle, die Ihr Workflow anbindet, denn eingebaute Benachrichtigungen hat Customermates nicht.
 

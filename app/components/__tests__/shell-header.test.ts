@@ -7,17 +7,19 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("@/components/ui/separator", () => ({
   Separator: () => createElement("span", { "data-separator": true }),
 }));
+vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("@/components/ui/tooltip", () => ({
+  Tooltip: ({ children }: { children: unknown }) => children,
+  TooltipTrigger: ({ children }: { children: unknown }) => children,
+  TooltipContent: () => null,
+}));
 vi.mock("@/components/ui/sidebar", () => ({
   SidebarTrigger: () => createElement("button", { "data-sidebar-trigger": true }),
 }));
 
 import { ShellHeader } from "../shell-header";
 
-const JOINED_STRIPS = [
-  "components/data-view/views/data-view-views-rail.tsx",
-  "components/entity-detail/entity-detail-summary.tsx",
-  "components/entity-detail/entity-detail-page-skeleton.tsx",
-];
+const JOINED_STRIPS = ["components/data-view/views/data-view-views-rail.tsx"];
 
 function source(path: string) {
   return readFileSync(resolve(process.cwd(), path), "utf8");

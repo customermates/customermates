@@ -37,6 +37,7 @@ function ZonedText() {
     "div",
     null,
     createElement("span", { "data-zoned-value": true }, intlStore.formatNumericalShortDateTime(date)),
+    createElement("span", { "data-month-value": true }, intlStore.formatMonthYear(date, { timeZone: "UTC" })),
     createElement("span", { "data-number-value": true }, intlStore.formatNumber(1234.5)),
   );
 }
@@ -56,7 +57,6 @@ beforeEach(() => {
   hydrationDelay = null;
 
   const rootStore = {
-    companyStore: { company: null },
     localeStore: { locale: "de" },
     userStore: { user: { formattingLocale: Locale.system } },
   } as unknown as RootStore;
@@ -105,6 +105,7 @@ describe("useHydratedIntlStore", () => {
     mountedRoots.push(root);
 
     expect(container.querySelector("[data-zoned-value]")?.textContent).toBe("");
+    expect(container.querySelector("[data-month-value]")?.textContent).toBe("");
     expect(container.querySelector("[data-number-value]")?.textContent).toBe("1.234,5");
 
     await act(async () => {
@@ -115,6 +116,7 @@ describe("useHydratedIntlStore", () => {
 
     await vi.waitFor(() => {
       expect(container.querySelector("[data-zoned-value]")?.textContent).not.toBe("");
+      expect(container.querySelector("[data-month-value]")?.textContent).toContain("2025");
     });
     expect(container.querySelector("[data-number-value]")?.textContent).toBe("1.234,5");
     expect(recoverableErrors).toEqual([]);

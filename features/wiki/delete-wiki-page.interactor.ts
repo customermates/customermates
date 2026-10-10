@@ -1,10 +1,13 @@
 import type { DeleteWikiPageRepo } from "./delete-wiki-page.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 import type { EventService } from "@/features/event/event.service";
+import type { TrashRepo } from "@/features/trash/trash.repo";
+
+import { randomUUID } from "node:crypto";
 import type { WikiPageDto } from "./wiki.schema";
 
 import { z } from "zod";
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -21,31 +24,48 @@ export const DeleteWikiPageSchema = z.object({
 });
 export type DeleteWikiPageData = Data<typeof DeleteWikiPageSchema>;
 
+const DeleteWikiPageResultSchema = WikiPageDtoSchema.extend({ trashBatchId: z.uuid() });
+export type DeleteWikiPageResult = Data<typeof DeleteWikiPageResultSchema>;
+
 export type DeleteWikiPageRepoResult =
   | { status: "deleted"; page: WikiPageDto }
   | { status: "not-found" }
   | { status: "conflict" };
 
-@TenantInteractor({ resource: Resource.wiki, action: Action.delete })
-export class DeleteWikiPageInteractor extends AuthenticatedInteractor<DeleteWikiPageData, WikiPageDto> {
+@TenantInteractor({ resource: Resource.wiki, manage: "delete" })
+export class DeleteWikiPageInteractor extends AuthenticatedInteractor<DeleteWikiPageData, DeleteWikiPageResult> {
   constructor(
     private repo: DeleteWikiPageRepo,
     private eventService: EventService,
+    private trash: TrashRepo,
   ) {
     super();
   }
 
-  @Write({ input: DeleteWikiPageSchema, output: WikiPageDtoSchema })
-  async invoke(data: DeleteWikiPageData): Validated<WikiPageDto> {
+  @Write({ input: DeleteWikiPageSchema, output: DeleteWikiPageResultSchema })
+  async invoke(data: DeleteWikiPageData): Validated<DeleteWikiPageResult> {
     const result = await this.repo.deletePage(data);
     if (result.status === "not-found") return failNotFound(CustomErrorCode.wikiPageNotFound, ["id"]);
     if (result.status === "conflict") return failConflict(CustomErrorCode.wikiPageConflict, ["expectedUpdatedAt"]);
+
+    const trashBatchId = randomUUID();
+    await this.trash.add([
+      {
+        id: randomUUID(),
+        kind: "wikiPage",
+        targetId: result.page.id,
+        typeId: null,
+        label: result.page.title,
+        deletedById: this.user.id,
+        batchId: trashBatchId,
+      },
+    ]);
 
     await this.eventService.publish(DomainEvent.WIKI_PAGE_DELETED, {
       entityId: result.page.id,
       payload: result.page,
     });
 
-    return { ok: true as const, data: result.page };
+    return { ok: true as const, data: { ...result.page, trashBatchId } };
   }
 }

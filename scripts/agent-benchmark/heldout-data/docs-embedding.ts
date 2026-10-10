@@ -174,7 +174,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "concepts",
     anchors: ["concepts#what-are-custom-columns"],
     alternatives: ["concepts#how-do-i-add-change-or-delete-a-custom-column"],
-    fact: "Ten custom column types: text, date, date range, date & time, date & time range, currency, single select, link, email and phone; a dropdown is the single select type.",
+    fact: "Fourteen field value types: text, rich text, number, currency, boolean, date, date and time, date range, date and time range, select, email, phone, URL and member; a dropdown is the select type.",
   },
   {
     id: "de-de-06",
@@ -304,7 +304,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "n8n",
     anchors: ["n8n#how-do-i-write-to-customermates-from-n8n"],
     alternatives: [],
-    fact: "Use an HTTP Request node with the x-api-key header and POST /api/v1/contacts (or /api/v1/contacts/many for up to 100) with a JSON body matching the OpenAPI spec.",
+    fact: "Use an HTTP Request node with the x-api-key header: discover the contact type with POST /api/v1/model/discover, then POST /api/v1/records/mutate with a create mutation whose JSON body matches the OpenAPI spec.",
   },
   {
     id: "de-es-07",
@@ -344,7 +344,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "app-profile",
     anchors: ["app-profile#how-do-i-verify-my-email-address"],
     alternatives: [],
-    fact: "Open My Profile > Settings (/profile/settings), for example from Email not verified in the sidebar, and press Resend verification email in the top bar.",
+    fact: "Open My Profile > Settings (/settings/profile), for example from Email not verified in the sidebar, and press Resend verification email in the top bar.",
   },
   {
     id: "de-es-11",
@@ -546,7 +546,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "app-company",
     anchors: ["app-company#deliveries-tab"],
     alternatives: ["webhooks#how-do-i-debug-a-delivery", "webhooks#how-do-retries-and-failed-deliveries-work"],
-    fact: "On My Company > Recent Deliveries (/company/webhook-deliveries), the webhook delivery log, where each delivery shows its status (Delivered or Failed) and status code.",
+    fact: "On My Company > Recent Deliveries (/settings/webhooks/deliveries), the webhook delivery log, where each delivery shows its status (Delivered or Failed) and status code.",
   },
   {
     id: "de-it-07",
@@ -566,7 +566,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "filter-syntax",
     anchors: ["filter-syntax#which-operators-work-on-custom-columns"],
     alternatives: ["filter-syntax#which-field-names-can-i-use"],
-    fact: "Yes: use the custom column's UUID as the field; the operators depend on its type, for example in, notIn, isNull and isNotNull for a single select.",
+    fact: "Yes: use the custom field's ID from get_record_model, never its label; the operators depend on its value type, and select filters use stable option IDs.",
   },
   {
     id: "de-it-09",
@@ -576,7 +576,7 @@ export const DOCS_EMBEDDING_HELDOUT: readonly DocsHeldoutItem[] = [
     slug: "filter-syntax",
     anchors: ["filter-syntax#which-field-names-can-i-use"],
     alternatives: [],
-    fact: "Whatever get_record_schema lists under filterableFields: createdAt and updatedAt, firstName and lastName on contacts, name on the other types, relationship id arrays such as organizationIds, and custom column UUIDs.",
+    fact: "Stable field IDs from get_record_model, the system keys system:createdAt, system:updatedAt and system:assignedTo where supported, and relationship definition IDs instead of names such as organizationIds.",
   },
   {
     id: "de-it-10",

@@ -1,51 +1,50 @@
 import { z } from "zod";
+import { recordUiTarget } from "./record-ui-targets";
 
 import type { AppMode } from "@/core/config/environment";
 import type { Resource } from "@/generated/prisma";
 
 import {
-  WORKSPACE_SECTIONS,
+  SETTINGS_SECTIONS,
+  settingsSectionOf,
   visibleSubroutes,
-  type WorkspaceSection,
-} from "@/app/components/navigation/workspace-sections";
+  type SettingsSection,
+} from "@/app/components/navigation/settings-sections";
+import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 import {
   CONTROL_PAGES,
   FORM_PAGES,
   PRIMARY_NAV_PAGES,
   SCOPES_WITHOUT_FILTER,
-  SCOPES_WITHOUT_SEARCH,
-  STATIC_NAV_PAGES,
+  MENU_NAV_TARGETS,
+  SETTINGS_NAV_DESCRIPTIONS,
   TOOLBAR_PAGES_WITH_ADD,
   TOOLBAR_PAGES_WITHOUT_ADD,
-  WORKSPACE_NAV_GROUPS,
   type AnchorPage,
+  type FormAnchorPage,
   type ControlPage,
-  TRANSFERABLE_SCOPES,
 } from "./ui-anchors";
 
 export type AgentUiTarget = {
   id: string;
+  elementId?: string;
   route: string;
   description: string;
   prerequisite?: string;
   labelKey?: string;
 };
 
+export const SETTINGS_MENU_TARGET = "nav-workspace-menu";
+
 function navTargets(): AgentUiTarget[] {
-  const workspace = WORKSPACE_NAV_GROUPS.flatMap((group) => [
-    {
-      id: `nav-${group.section}`,
-      route: group.route,
-      description: group.description,
-      labelKey: group.labelKey,
-    },
-    ...WORKSPACE_SECTIONS[group.section].map((subroute) => ({
-      id: `nav-${group.section}-${subroute.slug}`,
-      route: `/${group.section}/${subroute.slug}`,
-      description: `Sidebar link to ${group.section} ${subroute.slug.replace(/-/g, " ")}`,
+  const settings = (Object.keys(SETTINGS_SECTIONS) as SettingsSection[]).flatMap((section) =>
+    SETTINGS_SECTIONS[section].map((subroute) => ({
+      id: `nav-settings-${subroute.slug}`,
+      route: settingsHref(subroute.slug),
+      description: `${SETTINGS_NAV_DESCRIPTIONS[subroute.slug]} (${section} settings); outside Settings, open the workspace menu and choose Settings first`,
     })),
-  ]);
+  );
 
   return [
     ...PRIMARY_NAV_PAGES.map((page) => ({
@@ -59,13 +58,13 @@ function navTargets(): AgentUiTarget[] {
       description: "Global search button in the sidebar (Cmd+K)",
       labelKey: "NavigationBar.search",
     },
-    ...workspace,
-    ...STATIC_NAV_PAGES.map((page) => ({
-      id: `nav-${page.key}`,
-      route: page.route,
-      description: page.description,
-      labelKey: page.labelKey,
+    ...MENU_NAV_TARGETS.map((menu) => ({
+      id: `nav-${menu.key}`,
+      route: "*",
+      description: menu.description,
+      labelKey: menu.labelKey,
     })),
+    ...settings,
   ];
 }
 
@@ -80,31 +79,13 @@ function toolbarTargets(page: AnchorPage, hasAdd: boolean): AgentUiTarget[] {
           },
         ]
       : []),
-    ...(SCOPES_WITHOUT_SEARCH.has(page.scope)
-      ? []
-      : [
-          {
-            id: `${page.scope}-search`,
-            route: page.route,
-            description: `Search input over ${page.label}`,
-          },
-        ]),
-    ...(TRANSFERABLE_SCOPES.has(page.scope)
-      ? [
-          {
-            id: `${page.scope}-transfer`,
-            route: page.route,
-            description: `Menu that exports ${page.label} to a spreadsheet or adds them from one`,
-          },
-        ]
-      : []),
     ...(SCOPES_WITHOUT_FILTER.has(page.scope)
       ? []
       : [
           {
             id: `${page.scope}-filter`,
             route: page.route,
-            description: `Filter popover for ${page.label}`,
+            description: `Filter popover for ${page.label}: search by text and add filters`,
           },
         ]),
     {
@@ -125,20 +106,27 @@ function prerequisiteOf(opener: string | undefined) {
   return opener ? { prerequisite: opener } : {};
 }
 
-function formTargets(page: AnchorPage): AgentUiTarget[] {
+function formTargets(page: FormAnchorPage): AgentUiTarget[] {
+  const discard =
+    page.discard === "cancel"
+      ? {
+          id: `${page.scope}-cancel`,
+          description: `Cancel button that closes the ${page.label} without saving and asks before discarding changes`,
+          ...prerequisiteOf(page.opener),
+        }
+      : {
+          id: `${page.scope}-reset`,
+          description: `Reset button that discards unsaved changes in the ${page.label}; shown once something changed`,
+          ...prerequisiteOf(page.resetOpener ?? page.opener),
+        };
   return [
     {
       id: `${page.scope}-save`,
       route: page.route,
-      description: `Save button of the ${page.label}; ${page.hiddenUntilDirty ? "shown" : "enabled"} once something changed`,
+      description: `Save button of the ${page.label}; always shown, enabled once something changed`,
       ...prerequisiteOf(page.opener),
     },
-    {
-      id: `${page.scope}-reset`,
-      route: page.route,
-      description: `Reset button that discards unsaved changes in the ${page.label}; shown once something changed`,
-      ...prerequisiteOf(page.resetOpener ?? page.opener),
-    },
+    { route: page.route, ...discard },
   ];
 }
 
@@ -154,8 +142,8 @@ function controlTargets(page: ControlPage): AgentUiTarget[] {
 export const AGENT_UI_TARGETS: AgentUiTarget[] = [
   ...navTargets(),
   {
-    id: "profile-connected-accounts-connect",
-    route: "/profile/connected-accounts",
+    id: "settings-channels-connect",
+    route: settingsHref("channels"),
     description: "Connected accounts page button for email, LinkedIn, WhatsApp, Instagram, and Telegram",
   },
   {
@@ -176,7 +164,7 @@ function exactTargetIdSchema(ids: readonly string[], label: string) {
   return z
     .string()
     .max(100)
-    .refine((value) => allowedIds.has(value), `Unknown ${label} target id.`);
+    .refine((value) => allowedIds.has(value) || recordUiTarget(value) !== null, `Unknown ${label} target id.`);
 }
 
 export const UiTargetIdSchema = exactTargetIdSchema(AGENT_UI_TARGET_IDS, "interface");
@@ -187,7 +175,7 @@ export const AGENT_NAV_TARGET_IDS = AGENT_UI_TARGETS.filter((target) => target.r
 export const NavigationUiTargetIdSchema = exactTargetIdSchema(AGENT_NAV_TARGET_IDS, "navigation");
 
 export function findAgentUiTarget(targetId: string) {
-  return AGENT_UI_TARGETS.find((target) => target.id === targetId) ?? null;
+  return AGENT_UI_TARGETS.find((target) => target.id === targetId) ?? recordUiTarget(targetId);
 }
 
 export function unopenedUiPrerequisite(targetId: string, openedBefore: readonly string[] = []): string | null {
@@ -209,8 +197,8 @@ function routeSegments(path: string) {
   return path.split("?")[0].split("/").filter(Boolean);
 }
 
-function isWorkspaceSection(segment: string | undefined): segment is WorkspaceSection {
-  return segment === "profile" || segment === "company";
+function settingsSectionOfRoute(section: string | undefined, slug: string | undefined) {
+  return section === "settings" && slug ? settingsSectionOf(slug) : null;
 }
 
 function primaryNavPage(section: string | undefined) {
@@ -219,8 +207,9 @@ function primaryNavPage(section: string | undefined) {
 
 export function agentUiPageLabelKeys(route: string): string[] {
   const [section, slug] = routeSegments(route);
-  if (isWorkspaceSection(section)) {
-    const labelKey = WORKSPACE_SECTIONS[section].find((subroute) => subroute.slug === slug)?.labelKey;
+  const settingsSection = settingsSectionOfRoute(section, slug);
+  if (settingsSection) {
+    const labelKey = SETTINGS_SECTIONS[settingsSection].find((subroute) => subroute.slug === slug)?.labelKey;
     return labelKey ? [labelKey] : [];
   }
   return primaryNavPage(section)?.labelKeys ?? [];
@@ -228,24 +217,15 @@ export function agentUiPageLabelKeys(route: string): string[] {
 
 export function agentSidebarGroupId(targetId: string) {
   const [section] = routeSegments(findAgentUiTarget(targetId)?.route ?? "");
-  const group = `nav-${section}`;
-  return isWorkspaceSection(section) && targetId.startsWith(`${group}-`) ? group : null;
-}
-
-const TOOLBAR_SEARCH_TARGET_IDS = new Set(
-  [...TOOLBAR_PAGES_WITH_ADD, ...TOOLBAR_PAGES_WITHOUT_ADD]
-    .filter((page) => !SCOPES_WITHOUT_SEARCH.has(page.scope))
-    .map((page) => `${page.scope}-search`),
-);
-
-export function isToolbarSearchTarget(targetId: string) {
-  return TOOLBAR_SEARCH_TARGET_IDS.has(targetId);
+  return section === "settings" && targetId.startsWith("nav-settings-") ? SETTINGS_MENU_TARGET : null;
 }
 
 export function agentRouteVisible(path: string, appMode: AppMode, canAccess: (resource: Resource) => boolean) {
   const [section, slug] = routeSegments(path);
-  if (isWorkspaceSection(section))
-    return visibleSubroutes(section, appMode, canAccess).some((subroute) => subroute.slug === slug);
+  const settingsSection = settingsSectionOfRoute(section, slug);
+  if (settingsSection)
+    return visibleSubroutes(settingsSection, appMode, canAccess).some((subroute) => subroute.slug === slug);
+  if (section === "settings") return false;
   const page = primaryNavPage(section);
   return !page || ((appMode !== "self-hosted" || !page.cloudOnly) && (!page.resource || canAccess(page.resource)));
 }

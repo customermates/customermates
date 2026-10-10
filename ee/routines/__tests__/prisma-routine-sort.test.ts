@@ -9,7 +9,7 @@ vi.mock("@/prisma/db", () => ({ prisma: prismaMock }));
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 
-import { PrismaRoutineRepo } from "../prisma-routine.repository";
+import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
 
 const reader = createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readAll }]);
 
@@ -22,7 +22,7 @@ describe("PrismaRoutineRepo sorting", () => {
   it.each(["nextRunAt", "lastRunAt"])("lists routines without a %s last in both directions", async (field) => {
     for (const direction of ["asc", "desc"] as const) {
       prismaMock.routine.findMany.mockClear();
-      await runWithTenant(reader, () => new PrismaRoutineRepo().getItems({ sortDescriptor: { field, direction } }));
+      await runWithTenant(reader, () => createTestRoutineRepo().getItems({ sortDescriptor: { field, direction } }));
 
       expect(prismaMock.routine.findMany.mock.calls[0][0].orderBy).toEqual([
         { [field]: { sort: direction, nulls: "last" } },
@@ -33,7 +33,7 @@ describe("PrismaRoutineRepo sorting", () => {
 
   it("keeps required fields on a plain database sort", async () => {
     await runWithTenant(reader, () =>
-      new PrismaRoutineRepo().getItems({ sortDescriptor: { field: "createdAt", direction: "desc" } }),
+      createTestRoutineRepo().getItems({ sortDescriptor: { field: "createdAt", direction: "desc" } }),
     );
 
     expect(prismaMock.routine.findMany.mock.calls[0][0].orderBy).toEqual([{ createdAt: "desc" }, { id: "desc" }]);
@@ -46,7 +46,7 @@ describe("PrismaRoutineRepo sorting", () => {
     ]);
 
     await runWithTenant(reader, () =>
-      new PrismaRoutineRepo().getItems({ sortDescriptor: { field: "name", direction: "asc" } }),
+      createTestRoutineRepo().getItems({ sortDescriptor: { field: "name", direction: "asc" } }),
     );
 
     expect(prismaMock.routine.findMany.mock.calls[0][0]).toMatchObject({

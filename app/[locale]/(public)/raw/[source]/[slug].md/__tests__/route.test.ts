@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { env } from "@/env";
 
 import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
-import { WEBHOOK_EVENTS } from "@/features/webhook/webhook-event-registry";
+import { WEBHOOK_CURRENT_EVENTS } from "@/features/webhook/webhook-event-registry";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
 vi.mock("@/env", async (importOriginal) => {
@@ -49,11 +49,11 @@ describe("raw markdown twin route", () => {
   it.each(CONTENT_LOCALES)(
     "serves REST operation twins that name the endpoint, without an APIPage stub or a build-time origin (%s)",
     async (locale) => {
-      const { status, text } = await getRaw(locale, "openapi", "createContact.md");
+      const { status, text } = await getRaw(locale, "openapi", "mutateRecord.md");
 
       expect(status).toBe(200);
-      expect(text.startsWith("# Create a contact\n")).toBe(true);
-      expect(text).toContain("**Endpoint:** `POST /api/v1/contacts`, operationId `createContact`.");
+      expect(text.startsWith("# Create, update, delete or link records\n")).toBe(true);
+      expect(text).toContain("**Endpoint:** `POST /api/v1/records/mutate`, operationId `mutateRecord`.");
       expect(text).toContain("Parameters and schemas: `/api/v1/openapi`.");
       expect(text).not.toContain("<APIPage");
       expect(text).not.toContain("{/*");
@@ -62,11 +62,11 @@ describe("raw markdown twin route", () => {
   );
 
   it("serves webhook twins that name the event and how it is delivered", async () => {
-    const { status, text } = await getRaw("en", "openapi", "webhookContactCreated.md");
+    const { status, text } = await getRaw("en", "openapi", "record_created.md");
 
     expect(status).toBe(200);
     expect(text).toContain(
-      "**Webhook:** `contact.created`, sent as `POST` to your webhook URL, operationId `webhookContactCreated`.",
+      "**Webhook:** `record.created`, sent as `POST` to your webhook URL, operationId `record_created`.",
     );
     expect(text).not.toContain("`contactCreated`");
     expect(text).not.toContain("<APIPage");
@@ -88,7 +88,7 @@ describe("raw markdown twin route", () => {
       named.push(text.slice(start + marker.length, text.indexOf("`", start + marker.length)));
     }
 
-    expect(named.sort()).toEqual([...WEBHOOK_EVENTS].sort());
+    expect(named.sort()).toEqual([...WEBHOOK_CURRENT_EVENTS].sort());
   });
 
   it.each([

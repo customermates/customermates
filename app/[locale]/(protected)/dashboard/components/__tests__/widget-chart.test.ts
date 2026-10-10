@@ -5,7 +5,6 @@ import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { AggregationType } from "@/generated/prisma";
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 
 const chartMocks = vi.hoisted(() => ({
@@ -15,9 +14,16 @@ const chartMocks = vi.hoisted(() => ({
 
 vi.mock("next/dynamic", () => ({
   default: () => {
-    const chart = ["vertical", "horizontal", "verticalWithLabels", "horizontalWithLabels", "doughnut", "radar"][
-      chartMocks.nextDynamicIndex++
-    ];
+    const chart = [
+      "vertical",
+      "horizontal",
+      "verticalWithLabels",
+      "horizontalWithLabels",
+      "area",
+      "funnel",
+      "doughnut",
+      "radar",
+    ][chartMocks.nextDynamicIndex++];
 
     return (props: Record<string, unknown>) => {
       chartMocks.calls.push({ chart, props });
@@ -68,9 +74,14 @@ function renderChart(displayType: DisplayType, overrides: Partial<React.Componen
   chartMocks.calls.length = 0;
   mount(
     createElement(WidgetChart, {
-      aggregationType: AggregationType.dealValue,
+      currency: "EUR",
       data: [
-        { labelKind: "system", systemLabelKey: "noGroup", optionColor: "success", value: 200 },
+        {
+          labelKind: "system",
+          systemLabelKey: "noGroup",
+          optionColor: "success",
+          value: 200,
+        },
         { labelKind: "literal", label: "Hardware", value: 100 },
       ],
       displayOptions: {
@@ -109,21 +120,51 @@ describe("WidgetChart", () => {
     [DisplayType.horizontalBarChartWithLabels, "horizontalWithLabels"],
     [DisplayType.doughnutChart, "doughnut"],
     [DisplayType.radarChart, "radar"],
+    [DisplayType.areaChart, "area"],
   ])("renders %s through the expected chart implementation", (displayType, expectedChart) => {
     const call = renderChart(displayType);
 
     expect(call.chart).toBe(expectedChart);
     expect(call.props).toMatchObject({
-      aggregationType: AggregationType.dealValue,
+      currency: "EUR",
       reverseXAxis: true,
       reverseYAxis: true,
     });
   });
 
-  it.each(Object.values(AggregationType))("forwards the %s aggregation to the chart", (aggregationType) => {
-    const call = renderChart(DisplayType.verticalBarChart, { aggregationType });
+  it("colors a time series with the configured color and passes period details through", () => {
+    const call = renderChart(DisplayType.areaChart, {
+      data: [{ labelKind: "literal", label: "January 2026", axisLabel: "Jan 26", missing: true, value: 0 }],
+    });
+    expect(call.props.colors).toEqual(["fill-danger2", "fill-secondary1"]);
+    expect(call.props.strokeColors).toEqual(["stroke-danger2", "stroke-secondary1"]);
+    expect(call.props.chartData).toMatchObject([{ label: "January 2026", axisLabel: "Jan 26", missing: true }]);
+  });
 
-    expect(call.props.aggregationType).toBe(aggregationType);
+  it("asks value axes for whole-number ticks only when the series holds integers", () => {
+    expect(renderChart(DisplayType.verticalBarChart, { integerValues: true }).props.allowDecimals).toBe(false);
+    expect(renderChart(DisplayType.horizontalBarChart, { integerValues: true }).props.allowDecimals).toBe(false);
+    expect(renderChart(DisplayType.areaChart, { integerValues: true }).props.allowDecimals).toBe(false);
+    expect(renderChart(DisplayType.verticalBarChart).props.allowDecimals).toBe(true);
+  });
+
+  it("renders funnels with each step's group color and conversion detail", () => {
+    const call = renderChart(DisplayType.funnelChart, {
+      data: [
+        { labelKind: "literal", label: "New", optionColor: "success", value: 4, detail: "4" },
+        { labelKind: "literal", label: "Won", value: 1, detail: "1 · 25%" },
+      ],
+    });
+    expect(call.chart).toBe("funnel");
+    expect(call.props.chartData).toMatchObject([
+      { label: "New", fill: "fill-success1", detail: "4" },
+      { label: "Won", fill: "fill-secondary1", detail: "1 · 25%" },
+    ]);
+  });
+
+  it.each(["EUR", "USD", null])("forwards the %s formatting currency to the chart", (currency) => {
+    const call = renderChart(DisplayType.verticalBarChart, { currency });
+    expect(call.props.currency).toBe(currency);
   });
 
   it("maps option colors, fallback colors, labels, and strokes into chart data", () => {

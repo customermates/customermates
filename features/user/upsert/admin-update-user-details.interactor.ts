@@ -1,15 +1,17 @@
+import type { AdminUpdateUserSubscriptionRepo } from "./admin-update-user-subscription.repo";
+import type { UpdateUserRoleRepo } from "./update-user-role.repo";
+import type { AdminUpdateUserDetailsRepo } from "./admin-update-user-details.repo";
 import type { EventService } from "@/features/event/event.service";
 import type { ReleaseOwnerRoutinesInteractor } from "@/ee/routines/release-owner-routines.interactor";
-import type { TenantUser } from "@/features/user/user.schema";
 import type { Data } from "@/core/validation/validation.utils";
 import type { SubscriptionService } from "@/ee/subscription/subscription.service";
 import type { CountActiveUsersRepo } from "@/features/user/count-active-users.repo";
+import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
+import { calculateChanges } from "@/core/utils/calculate-changes";
 
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
-import { CountryCode, Status, Resource, Action, SubscriptionPlan } from "@/generated/prisma";
-
-import type { Subscription } from "@/generated/prisma";
+import { CountryCode, Status, Resource, SubscriptionPlan } from "@/generated/prisma";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -31,25 +33,7 @@ export const AdminUpdateUserDetailsSchema = z.object({
 });
 export type AdminUpdateUserDetailsData = Data<typeof AdminUpdateUserDetailsSchema>;
 
-export abstract class AdminUpdateUserDetailsRepo {
-  abstract isPlatformOperatorCompanyWide(userId: string): Promise<boolean>;
-  abstract findExistingEmailsCompanyWide(emails: Set<string>): Promise<Set<string>>;
-  abstract findOrThrowCompanyWide(email: string): Promise<TenantUser>;
-  abstract adminUpdateDetailsOrThrow(args: { userId: string } & AdminUpdateUserDetailsData): Promise<void>;
-  abstract markAgentCreditActivatedOrThrow(userId: string): Promise<void>;
-  abstract clearAgentCreditActivatedOrThrow(userId: string): Promise<void>;
-}
-
-export abstract class UpdateUserRoleRepo {
-  abstract isSystemRoleOrThrow(id: string): Promise<boolean>;
-  abstract hasAnotherActiveSystemRoleUser(excludeUserId: string): Promise<boolean>;
-}
-
-export abstract class AdminUpdateUserSubscriptionRepo {
-  abstract getSubscriptionOrThrow(): Promise<Subscription>;
-}
-
-@TenantInteractor({ resource: Resource.users, action: Action.update })
+@TenantInteractor({ resource: Resource.users, manage: "update" })
 export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
   AdminUpdateUserDetailsData,
   AdminUpdateUserDetailsData
@@ -116,17 +100,27 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     if (leavingActive)
       await this.releaseOwnerRoutines.invoke({ companyId: this.user.companyId, ownerUserId: targetUserId });
 
-    await this.eventService.publish(DomainEvent.USER_UPDATED, {
-      entityId: targetUserId,
-      payload: {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        country: data.country,
-        status: data.status,
-        avatarUrl: data.avatarUrl,
-        roleId: data.roleId,
+    const previousRole = targetUser.role?.name ?? null;
+    const role =
+      data.roleId === targetUser.roleId
+        ? previousRole
+        : ((await this.roleRepo.findRoleById(data.roleId))?.name ?? null);
+    const changes = calculateChanges(
+      {
+        firstName: targetUser.firstName,
+        lastName: targetUser.lastName,
+        country: targetUser.country,
+        status: targetUser.status,
+        role: previousRole,
       },
-    });
+      { firstName: data.firstName, lastName: data.lastName, country: data.country, status: data.status, role },
+    );
+    try {
+      if (Object.keys(changes).length)
+        await this.eventService.publish(DomainEvent.USER_UPDATED, { entityId: targetUserId, payload: { changes } });
+    } catch (error) {
+      return recordWriteFailure(error);
+    }
 
     return { ok: true as const, data };
   }

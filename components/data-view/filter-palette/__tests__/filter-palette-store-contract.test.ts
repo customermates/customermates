@@ -18,7 +18,7 @@ const FILTERABLE_FIELDS: FilterableField[] = [
 
 class ResourceScopedStore extends BaseModalStore<{ draft: { value: unknown } }> {
   constructor(rootStore: RootStore) {
-    super(rootStore, { draft: { value: undefined } }, Resource.contacts);
+    super(rootStore, { draft: { value: undefined } }, Resource.routines);
   }
 }
 

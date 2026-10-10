@@ -1,3 +1,5 @@
+import type { PermissionService } from "@/core/base/permission.service";
+import { routineAccessWhere } from "@/ee/routines/routine-access";
 import { randomUUID } from "node:crypto";
 
 import {
@@ -12,7 +14,7 @@ import {
   type SubscriptionStatus,
 } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { env } from "@/env";
@@ -34,12 +36,7 @@ import {
   parsePendingAgentApprovalToolName,
   pendingAgentApprovalToolName,
 } from "./agent-approval";
-import {
-  agentPlainTextPreview,
-  sanitizeAgentConversationTitle,
-  sanitizeAgentVisibleText,
-  stripLegacyUserPageContextPrefix,
-} from "./agent-output-safety";
+import { agentPlainTextPreview, sanitizeAgentConversationTitle, sanitizeAgentVisibleText } from "./agent-output-safety";
 import {
   areAgentTurnAffectedResources,
   AGENT_RUN_LEASE_MS,
@@ -60,6 +57,7 @@ import {
   workspaceIndexingShareMicrocents,
 } from "./agent-credit-policy";
 import { isAgentTurnClassifierTrace, type AgentTurnClassifierTrace } from "./agent-classifier-trace";
+import { LIVE_WIDGET } from "@/features/widget/live-widget";
 
 type StoredAgentTurnRow = {
   id: string;
@@ -224,8 +222,11 @@ export type AgentUsageReservationExtension =
   | { disposition: "hosted_ai_unavailable" }
   | { disposition: "turn_error" };
 
-export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRepo {
-  constructor(private readonly wikiSuggestions: GetWikiSuggestionSignalRepo) {
+export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageRepo {
+  constructor(
+    private readonly wikiSuggestions: GetWikiSuggestionSignalRepo,
+    private readonly permissions: PermissionService,
+  ) {
     super();
   }
 
@@ -475,9 +476,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
         id: row.id,
         title: sanitizeAgentConversationTitle(row.title),
         preview: agentPlainTextPreview(
-          latest?.role === AgentMessageRole.user
-            ? stripLegacyUserPageContextPrefix(latestText)
-            : sanitizeAgentVisibleText(latestText, env.BASE_URL),
+          latest?.role === AgentMessageRole.user ? latestText : sanitizeAgentVisibleText(latestText, env.BASE_URL),
           140,
         ),
         updatedAt: row.updatedAt,
@@ -725,58 +724,32 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
 
   async getSuggestionSignals() {
     const select = { id: true };
-    const [contact, organization, deal, service, task, routine, wikiPage, widget, connectedAccount] = await Promise.all(
-      [
-        this.prisma.contact.findFirst({
-          where: this.accessWhere("contact"),
-          select,
-        }),
-        this.prisma.organization.findFirst({
-          where: this.accessWhere("organization"),
-          select,
-        }),
-        this.prisma.deal.findFirst({
-          where: this.accessWhere("deal"),
-          select,
-        }),
-        this.prisma.service.findFirst({
-          where: this.accessWhere("service"),
-          select,
-        }),
-        this.prisma.task.findFirst({
-          where: this.accessWhere("task"),
-          select,
-        }),
-        this.prisma.routine.findFirst({
-          where: this.accessWhere("routine"),
-          select,
-        }),
-        this.wikiSuggestions.findSuggestionWikiPage(),
-        this.prisma.widget.findFirst({
-          where: {
-            companyId: this.companyId,
-            userId: this.userId,
-          },
-          select,
-        }),
-        this.prisma.connectedAccount.findFirst({
-          where: this.canAccess(Resource.inboxMessages)
-            ? {
-                companyId: this.companyId,
-                OR: [{ userId: this.userId }, { shared: true }],
-              }
-            : { companyId: this.companyId, id: { in: [] } },
-          select,
-        }),
-      ],
-    );
+    const [routine, wikiPage, widget, connectedAccount] = await Promise.all([
+      this.prisma.routine.findFirst({
+        where: routineAccessWhere(this.permissions),
+        select,
+      }),
+      this.wikiSuggestions.findSuggestionWikiPage(),
+      this.prisma.widget.findFirst({
+        where: {
+          companyId: this.companyId,
+          userId: this.userId,
+          ...LIVE_WIDGET,
+        },
+        select,
+      }),
+      this.prisma.connectedAccount.findFirst({
+        where: this.permissions.canRead(Resource.inboxMessages)
+          ? {
+              companyId: this.companyId,
+              OR: [{ userId: this.userId }, { shared: true }],
+            }
+          : { companyId: this.companyId, id: { in: [] } },
+        select,
+      }),
+    ]);
 
     return {
-      contacts: Boolean(contact),
-      organizations: Boolean(organization),
-      deals: Boolean(deal),
-      services: Boolean(service),
-      tasks: Boolean(task),
       routines: Boolean(routine),
       wiki: Boolean(wikiPage),
       widgets: Boolean(widget),
@@ -2738,7 +2711,7 @@ export class PrismaAgentChatRepo extends BaseRepository implements AgentUsageRep
     >`
       UPDATE "AgentUsageEvent" SET "state" = 'released', "chargedMicrocents" = 0,
         "settledAt" = ${args.now}
-      WHERE "purpose" IN ('wikiRetrieval', 'wikiIndexing', 'wikiSynthesis') AND "state" = 'reserved'
+      WHERE "purpose" IN ('wikiRetrieval', 'wikiIndexing', 'wikiSynthesis', 'calculationDraft', 'commandResolve') AND "state" = 'reserved'
         AND "createdAt" < ${args.reservedBefore}
         AND (${args.companyId ?? null}::text IS NULL OR "companyId" = ${args.companyId ?? null}::text)
       RETURNING "model", "reservedMicrocents", "providerStartedAt", "createdAt"

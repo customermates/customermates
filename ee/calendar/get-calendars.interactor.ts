@@ -5,7 +5,7 @@ import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-pre
 import type { Validated } from "@/core/validation/validation.utils";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { type CalendarDto, CalendarDtoSchema } from "./calendar.schema";
 
@@ -17,13 +17,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 @AllowInDemoMode
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.inboxMessages, action: Action.readAll },
-    { resource: Resource.inboxMessages, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.inboxMessages, read: true })
 export class GetCalendarsInteractor extends BaseGetInteractor<CalendarDto> {
   constructor(
     repo: GetCalendarsRepo,
@@ -32,7 +26,7 @@ export class GetCalendarsInteractor extends BaseGetInteractor<CalendarDto> {
     queryParamsPrecheck: QueryParamsPrecheckInteractor,
     private entitlements: EntitlementService,
   ) {
-    super(repo, viewStateRepo, mode, undefined, undefined, queryParamsPrecheck);
+    super(repo, viewStateRepo, mode, undefined, queryParamsPrecheck);
   }
 
   @Validate(GetQueryParamsSchema)

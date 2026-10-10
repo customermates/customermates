@@ -20,7 +20,7 @@ import { cn } from "@/core/utils/cn";
 import { useEntityDetailPersonalization } from "./entity-detail-personalization";
 import { resolveDetailFieldOrder } from "./entity-detail-personalization.utils";
 
-type Field = { id: string; content: ReactNode };
+type Field = { id: string; label?: string; content: ReactNode };
 
 const SortableFieldContext = createContext<ReturnType<typeof useSortable> | null>(null);
 
@@ -84,6 +84,7 @@ export function EntityDetailFields({ fields }: { fields: Field[] }) {
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
+      scrollBehavior: "auto",
     }),
   );
   const availableFields = fields.filter(
@@ -97,6 +98,8 @@ export function EntityDetailFields({ fields }: { fields: Field[] }) {
   const visibleIds = orderedIds.filter(
     (id) => !enabled || !applyFieldVisibility || isPersonalizing || !hiddenFieldIds.includes(id),
   );
+  const t = useTranslations();
+  const label = (id: string | number) => fieldsById.get(String(id))?.label ?? t("EntityDetail.overview");
 
   function handleDragEnd({ active, over }: DragEndEvent) {
     if (!enabled || !isPersonalizing || !over || active.id === over.id) return;
@@ -108,7 +111,22 @@ export function EntityDetailFields({ fields }: { fields: Field[] }) {
   }
 
   return (
-    <DndContext collisionDetection={closestCenter} id={contextId} sensors={sensors} onDragEnd={handleDragEnd}>
+    <DndContext
+      accessibility={{
+        screenReaderInstructions: { draggable: t("EntityDetail.reorderInstructions") },
+        announcements: {
+          onDragStart: ({ active }) => t("EntityDetail.fieldPickedUp", { field: label(active.id) }),
+          onDragOver: ({ active, over }) =>
+            over ? t("EntityDetail.fieldMoved", { field: label(active.id), target: label(over.id) }) : undefined,
+          onDragEnd: ({ active }) => t("EntityDetail.fieldDropped", { field: label(active.id) }),
+          onDragCancel: ({ active }) => t("EntityDetail.fieldCancelled", { field: label(active.id) }),
+        },
+      }}
+      collisionDetection={closestCenter}
+      id={contextId}
+      sensors={sensors}
+      onDragEnd={handleDragEnd}
+    >
       <SortableContext items={visibleIds} strategy={verticalListSortingStrategy}>
         <div className="flex min-w-0 flex-col gap-4" data-detail-field-list="overview">
           {visibleIds.map((id) => (

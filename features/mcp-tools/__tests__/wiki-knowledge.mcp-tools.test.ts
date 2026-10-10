@@ -27,15 +27,16 @@ vi.mock("@/core/di", () => ({
   getSearchExternalizedWikiPagesInteractor: () => ({ invoke: calls.search }),
   getGetWikiPageInteractor: () => ({ invoke: calls.get }),
   getGetWikiCatalogInteractor: () => ({ invoke: calls.catalog }),
-  getGetContactByIdInteractor: () => ({ invoke: calls.fetchRecord }),
+  getSearchRecordsInteractor: () => ({ invoke: calls.records }),
+  getGetRecordInteractor: () => ({ invoke: calls.fetchRecord }),
   getGetUserDetailsInteractor: () => ({
     invoke: () => Promise.resolve({ ok: true, data: { id: "user" } }),
   }),
-  getGetCompanySettingsInteractor: () => ({
+  getGetCompanyInteractor: () => ({
     invoke: () =>
       Promise.resolve({
         ok: true,
-        data: { id: "company", terminology: { labels: {} } },
+        data: { id: "company" },
       }),
   }),
   getGetRolesApiInteractor: () => ({
@@ -44,16 +45,6 @@ vi.mock("@/core/di", () => ({
   getGetMyConnectedAccountsContextInteractor: () => ({
     invoke: calls.accounts,
   }),
-}));
-vi.mock("@/features/search/entity-list-executors", () => ({
-  entityListExecutors: {
-    contact: calls.records,
-    organization: calls.records,
-    deal: calls.records,
-    service: calls.records,
-    task: calls.records,
-  },
-  entityNameExtractors: { contact: (row: { name: string }) => row.name },
 }));
 vi.mock("../docs.mcp-tools", () => ({
   searchDocsHits: async (...args: unknown[]) => ((await calls.docs(...args)) as { results: unknown[] }).results,
@@ -75,6 +66,7 @@ import {
 } from "../server-instructions";
 
 const id = "00000000-0000-4000-8000-000000000001";
+const contactType = "00000000-0000-4000-8000-0000000000c1";
 const page = {
   id,
   title: "Sales voice",
@@ -99,7 +91,7 @@ const catalog = {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  calls.records.mockResolvedValue({ ok: true, data: { items: [] } });
+  calls.records.mockResolvedValue({ ok: true, data: { results: [], schemaRevision: 1, nextCursor: null } });
   calls.docs.mockReturnValue({
     results: [
       {
@@ -179,7 +171,11 @@ describe("read-only Wiki search and fetch compatibility", () => {
     });
 
     const searched = await searchTool.execute({ query: "who approves refunds" });
-    const [hit] = searched.structuredContent.results as Array<{ id: string; offset: number; section: string }>;
+    const [hit] = searched.structuredContent.results as unknown as Array<{
+      id: string;
+      offset: number;
+      section: string;
+    }>;
     expect(hit).toMatchObject({ id: `wiki:${id}`, section: "Approval" });
     expect(hit.offset).toBeGreaterThan(markdown.indexOf("## Approval"));
     expect(calls.get).not.toHaveBeenCalled();
@@ -305,7 +301,7 @@ describe("read-only Wiki search and fetch compatibility", () => {
     const result = await searchTool.execute(searchTool.inputSchema.parse({ query }));
 
     expect(calls.search).toHaveBeenCalledWith({ query: query.slice(0, 200), page: 1, pageSize: 5 });
-    expect(calls.records).toHaveBeenCalledWith({ searchTerm: query, pagination: { page: 1, pageSize: 5 } });
+    expect(calls.records).toHaveBeenCalledWith({ searchTerm: query.slice(0, 200), limit: 15, cursor: null });
     expect(calls.docs).toHaveBeenCalledWith(query, "en", "docs");
     expect(result.structuredContent.results.map((item) => item.id)).toEqual([`wiki:${id}`, "doc:en:guide"]);
   });
@@ -335,20 +331,32 @@ describe("read-only Wiki search and fetch compatibility", () => {
   it("lets a Wiki-only reader search Wiki and documentation without CRM permissions", async () => {
     calls.records.mockRejectedValue(new ForbiddenError("CRM access denied"));
     const result = await searchTool.execute({ query: "sales voice" });
-    expect(calls.records).toHaveBeenCalledTimes(5);
+    expect(calls.records).toHaveBeenCalledTimes(1);
     expect(result.structuredContent.results.map((item) => item.id)).toEqual([`wiki:${id}`, "doc:en:guide"]);
   });
 
-  it("omits only denied CRM entities while preserving readable records", async () => {
-    calls.records.mockRejectedValue(new ForbiddenError("CRM access denied"));
+  it("keeps readable CRM records from the access-checked record search between Wiki and documentation", async () => {
     calls.records.mockResolvedValueOnce({
       ok: true,
-      data: { items: [{ id, name: "Readable contact" }] },
+      data: {
+        results: [
+          {
+            ref: { typeId: contactType, recordId: id },
+            title: { state: "value", value: { kind: "text", value: "Readable contact" } },
+            typeLabel: "Contact",
+            typePluralLabel: "Contacts",
+            icon: "user",
+            pictureUrl: null,
+          },
+        ],
+        schemaRevision: 1,
+        nextCursor: null,
+      },
     });
     const result = await searchTool.execute({ query: "sales voice" });
     expect(result.structuredContent.results.map((item) => item.id)).toEqual([
       `wiki:${id}`,
-      `record:contact:${id}`,
+      `record:${contactType}:${id}`,
       "doc:en:guide",
     ]);
   });
@@ -398,22 +406,8 @@ describe("read-only Wiki search and fetch compatibility", () => {
     expect(calls.get).not.toHaveBeenCalled();
   });
 
-  it("returns a CRM record unchanged and refuses a Wiki offset for it", async () => {
-    calls.fetchRecord.mockResolvedValue({ ok: true, data: { contact: { id, name: "Ada Lovelace" } } });
-
-    const result = await fetchTool.execute({ id: `record:contact:${id}` });
-    if (!("structuredContent" in result)) throw new Error("Expected a CRM record.");
-    expect(calls.fetchRecord).toHaveBeenCalledWith({ id });
-    expect(result.structuredContent).toEqual({
-      id: `record:contact:${id}`,
-      title: "Ada Lovelace",
-      text: JSON.stringify({ id, name: "Ada Lovelace" }, null, 2),
-      url: `http://localhost:4000/contacts/${id}`,
-      metadata: { entity: "contact" },
-    });
-
-    calls.fetchRecord.mockClear();
-    const withOffset = await fetchTool.execute({ id: `record:contact:${id}`, offset: 5 });
+  it("refuses a Wiki offset for a CRM record without reading the record", async () => {
+    const withOffset = await fetchTool.execute({ id: `record:${contactType}:${id}`, offset: 5 });
     expect(mcpToolResultText(withOffset)).toContain("offset is supported only for Knowledge Base results.");
     expect(calls.fetchRecord).not.toHaveBeenCalled();
     expect(calls.get).not.toHaveBeenCalled();

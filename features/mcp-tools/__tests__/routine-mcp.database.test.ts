@@ -119,14 +119,17 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
     expect(runs.structured).toMatchObject({ nextCursor: null });
 
     const deleted = await run({ action: "delete", id });
-    expect(deleted.structured).toMatchObject({ deleted: true, id });
+    expect(deleted.structured).toMatchObject({ deleted: true, id, trashBatchId: expect.any(String) });
 
-    const gone = await runWithoutTenant(() => prisma.routine.findUnique({ where: { id }, select: { id: true } }));
-    expect(gone).toBeNull();
+    const trashed = await runWithoutTenant(() =>
+      prisma.routine.findUnique({ where: { id }, select: { deletedAt: true } }),
+    );
+    expect(trashed?.deletedAt).toBeInstanceOf(Date);
+    expect((await run({ action: "list" })).text).not.toContain("MCP probe renamed");
   });
 
   it("leaves an audit row for every routine change made through the tool", async () => {
-    await runWithoutTenant(() => prisma.auditLog.deleteMany({ where: { companyId: company } }));
+    await runWithoutTenant(() => prisma.eventLog.deleteMany({ where: { companyId: company } }));
 
     const created = await run({
       action: "create",
@@ -142,14 +145,14 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
     await run({ action: "update", id, name: "MCP audit probe renamed" });
     await run({ action: "delete", id });
 
-    const rows = await runWithoutTenant(() => prisma.auditLog.findMany({ where: { companyId: company } }));
-    const events = rows.map((row) => row.event);
+    const rows = await runWithoutTenant(() => prisma.eventLog.findMany({ where: { companyId: company } }));
+    const events = rows.map((row) => row.kind);
 
     expect(events).toHaveLength(3);
     expect(new Set(events)).toEqual(new Set(["routine.created", "routine.updated", "routine.deleted"]));
-    expect(rows.every((row) => row.userId === user && row.entityId === id)).toBe(true);
-    expect(rows.find((row) => row.event === "routine.updated")?.eventData).toMatchObject({
-      payload: { changes: { name: { previous: "MCP audit probe", current: "MCP audit probe renamed" } } },
+    expect(rows.every((row) => row.actorId === user && row.subjectId === id)).toBe(true);
+    expect(rows.find((row) => row.kind === "routine.updated")?.payload).toMatchObject({
+      changes: { name: { previous: "MCP audit probe", current: "MCP audit probe renamed" } },
     });
   });
 
@@ -168,7 +171,9 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
   });
 
   it("rejects an update without an id instead of creating a new routine", async () => {
-    const before = await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company } }));
+    const before = await runWithoutTenant(() =>
+      prisma.routine.count({ where: { companyId: company, name: "MCP too frequent" } }),
+    );
     const result = await run({
       action: "update",
       name: "Must not be created",
@@ -180,7 +185,9 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
     });
 
     expect(result.structured).not.toHaveProperty("id");
-    expect(await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company } }))).toBe(before);
+    expect(
+      await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company, name: "MCP too frequent" } })),
+    ).toBe(before);
   });
 
   it("refuses a schedule tighter than the interval floor", async () => {
@@ -195,7 +202,9 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
     });
 
     expect(result.text.toLowerCase()).toContain("minute");
-    expect(await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company } }))).toBe(0);
+    expect(
+      await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company, name: "MCP too frequent" } })),
+    ).toBe(0);
   });
 
   it("refuses to delete for a caller who is not an active system administrator", async () => {

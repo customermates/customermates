@@ -60,7 +60,9 @@ describeDatabase("a routine whose owner becomes unavailable", { timeout: 120_000
       .join("\n");
 
     expect(sql).not.toMatch(/CREATE\s+TRIGGER/i);
-    expect(sql).not.toMatch(/LANGUAGE\s+plpgsql/i);
+    const persistentSql = sql.replace(/CREATE FUNCTION crm_upgrade\.[\s\S]*?\$\$;/g, "");
+    expect(persistentSql).not.toMatch(/LANGUAGE\s+plpgsql/i);
+    expect(sql).toContain("DROP SCHEMA crm_upgrade;");
   });
 
   it("refuses to leave an enabled routine without an owner", async () => {

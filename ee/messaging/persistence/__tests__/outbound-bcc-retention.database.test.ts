@@ -31,6 +31,7 @@ describeDatabase("outbound Bcc retention on PostgreSQL", () => {
     headline: null,
     occupation: null,
     isSelf,
+    records: [],
   });
   const message = (bcc: string[]): IngestMessage => ({
     unipileMessageId: `sent-${accountId}`,

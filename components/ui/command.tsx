@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Command as CommandPrimitive, useCommandState } from "cmdk";
+import { Command as CommandPrimitive, defaultFilter as commandScore, useCommandState } from "cmdk";
 import { SearchIcon } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
@@ -28,6 +28,7 @@ function CommandDialog({
   focusReturnTarget,
   focusReturnFallback,
   open,
+  onEscapeKeyDown,
   ...props
 }: React.ComponentProps<typeof Dialog> & {
   title: string;
@@ -37,6 +38,7 @@ function CommandDialog({
   showCloseButton?: boolean;
   focusReturnTarget?: HTMLElement | null;
   focusReturnFallback?: HTMLElement | null;
+  onEscapeKeyDown?: (event: KeyboardEvent) => void;
 }) {
   const focusReturn = useOverlayFocusReturn(open, focusReturnTarget, focusReturnFallback);
 
@@ -45,6 +47,7 @@ function CommandDialog({
       <DialogContent
         className={cn("overflow-hidden p-0", className)}
         showCloseButton={showCloseButton}
+        onEscapeKeyDown={onEscapeKeyDown}
         {...focusReturn}
       >
         <DialogHeader className="sr-only">
@@ -56,7 +59,7 @@ function CommandDialog({
         <Command
           {...commandProps}
           className={cn(
-            "**:data-[slot=command-input-wrapper]:h-12 **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground **:[[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:size-5 **:[[cmdk-input]]:h-12 **:[[cmdk-item]]:px-2 **:[[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:size-5",
+            "**:data-[slot=command-input-wrapper]:h-11 **:[[cmdk-group-heading]]:pt-2 **:[[cmdk-group-heading]]:pb-1 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 **:[[cmdk-input]]:h-11 **:[[cmdk-item]]:min-h-10 md:**:[[cmdk-item]]:min-h-8 md:**:[[cmdk-item]]:py-1",
             commandProps?.className,
           )}
         >
@@ -123,8 +126,23 @@ function CommandList({ className, ...props }: React.ComponentProps<typeof Comman
   );
 }
 
-function CommandEmpty({ ...props }: React.ComponentProps<typeof CommandPrimitive.Empty>) {
-  return <CommandPrimitive.Empty className="py-6 text-center text-sm" data-slot="command-empty" {...props} />;
+function CommandEmpty({
+  persistent = false,
+  className,
+  ...props
+}: React.ComponentProps<typeof CommandPrimitive.Empty> & { persistent?: boolean }) {
+  if (persistent) {
+    return (
+      <div className={cn("py-6 text-center text-sm", className)} data-slot="command-empty" role="status" {...props} />
+    );
+  }
+  return (
+    <CommandPrimitive.Empty
+      className={cn("py-6 text-center text-sm", className)}
+      data-slot="command-empty"
+      {...props}
+    />
+  );
 }
 
 function CommandGroup({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Group>) {
@@ -185,4 +203,5 @@ export {
   CommandShortcut,
   CommandSeparator,
   useCommandInputAria,
+  commandScore,
 };

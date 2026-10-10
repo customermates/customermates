@@ -32,10 +32,6 @@
   "AgentChat": {
     "activity": {
       "approval": {
-        "customFields": {
-          "configure": "Listo para cambiar los campos personalizados",
-          "delete": "Listo para eliminar de forma permanente un campo personalizado"
-        },
         "generic": "Listo para hacer un cambio que necesita tu aprobación",
         "messages": {
           "discard": "Listo para descartar el borrador",
@@ -45,6 +41,9 @@
         },
         "records": {
           "delete": "{count, plural, one {Listo para eliminar de forma permanente {target}} other {Listo para eliminar de forma permanente {target}}}"
+        },
+        "roles": {
+          "manage": "Aprobar este cambio de rol"
         },
         "routines": {
           "configure": "Listo para pausar o ejecutar la rutina",
@@ -68,9 +67,7 @@
           "delete": "Listo para eliminar de forma permanente un widget del panel"
         },
         "workspace": {
-          "configure": "Listo para eliminar de forma permanente esta página de la base de conocimientos",
-          "settings": "Listo para cambiar la configuración del espacio de trabajo, incluidos los nombres de los tipos de registro",
-          "terminology": "Listo para renombrar tipos de registro en todo el espacio de trabajo"
+          "configure": "Listo para cambiar el modelo de datos del espacio de trabajo"
         }
       },
       "cancelled": "Detenido",
@@ -83,8 +80,8 @@
         "emailSend": "Enviar un correo a los destinatarios seleccionados",
         "externalManage": "Cambiar datos en la cuenta externa conectada",
         "recordsDelete": "Esta acción no se puede deshacer.",
-        "recordsLink": "Vincular registros",
-        "recordsUnlink": "Eliminar vínculos",
+        "roleDelete": "Eliminar el rol seleccionado",
+        "roleSave": "Guardar el rol y su acceso a registros",
         "routineDelete": "Eliminar definitivamente la rutina seleccionada y su historial",
         "routinePause": "Pausar la rutina seleccionada",
         "routineRun": "Ejecutar ahora la rutina seleccionada",
@@ -121,24 +118,12 @@
         "to": "Para"
       },
       "resource": {
-        "contacts": "contactos",
-        "deals": "oportunidades",
         "messages": "conversaciones",
-        "organizations": "organizaciones",
-        "services": "servicios",
-        "tasks": "tareas",
-        "terminology": "terminología del espacio de trabajo",
         "widgets": "widgets del Dashboard",
         "wiki": "páginas de la base de conocimientos"
       },
       "resourceSingular": {
-        "contacts": "contacto",
-        "deals": "oportunidad",
         "messages": "conversación",
-        "organizations": "organización",
-        "services": "servicio",
-        "tasks": "tarea",
-        "terminology": "término del espacio de trabajo",
         "widgets": "widget del dashboard",
         "wiki": "página de la base de conocimientos"
       },
@@ -151,30 +136,10 @@
           }
         },
         "customFields": {
-          "configure": {
-            "done": "Campos personalizados configurados",
-            "error": "No se pudieron configurar los campos personalizados",
-            "running": "Configurando campos personalizados"
-          },
-          "create": {
-            "done": "Campo personalizado creado",
-            "error": "No se pudo crear el campo personalizado",
-            "running": "Creando un campo personalizado"
-          },
-          "delete": {
-            "done": "Campo personalizado eliminado",
-            "error": "No se pudo eliminar el campo personalizado",
-            "running": "Eliminando un campo personalizado"
-          },
           "read": {
             "done": "Campos personalizados revisados",
             "error": "No se pudieron revisar los campos personalizados",
             "running": "Revisando campos personalizados"
-          },
-          "update": {
-            "done": "Campo personalizado actualizado",
-            "error": "No se pudo actualizar el campo personalizado",
-            "running": "Actualizando un campo personalizado"
           }
         },
         "docs": {
@@ -271,11 +236,6 @@
             "error": "No se pudieron vincular los registros",
             "running": "Vinculando registros relacionados"
           },
-          "note": {
-            "done": "Notas actualizadas",
-            "error": "No se pudieron actualizar las notas",
-            "running": "Actualizando las notas"
-          },
           "read": {
             "done": "Revisión de {resource} completada",
             "error": "Error al revisar {resource}",
@@ -285,6 +245,13 @@
             "done": "{count, plural, one {Actualización de {target} completada} other {Actualización de {target} completada}}",
             "error": "{count, plural, one {Error al actualizar {target}} other {Error al actualizar {target}}}",
             "running": "{count, plural, one {Actualizando {target}} other {Actualizando {target}}}"
+          }
+        },
+        "roles": {
+          "manage": {
+            "done": "Permisos del rol cambiados",
+            "error": "No se pudo cambiar el rol",
+            "running": "Cambiando los permisos del rol"
           }
         },
         "routines": {
@@ -408,16 +375,6 @@
             "done": "Espacio de trabajo revisado",
             "error": "No se pudo comprobar su espacio de trabajo",
             "running": "Revisando el espacio de trabajo"
-          },
-          "settings": {
-            "done": "Configuración del espacio de trabajo actualizada",
-            "error": "No se pudo actualizar la configuración del espacio de trabajo",
-            "running": "Actualizando la configuración del espacio de trabajo"
-          },
-          "terminology": {
-            "done": "Terminología del espacio de trabajo actualizada",
-            "error": "No se pudo actualizar la terminología del espacio de trabajo",
-            "running": "Actualizando la terminología del espacio de trabajo"
           }
         }
       },
@@ -536,36 +493,6 @@
             }
           }
         },
-        "contacts": {
-          "data": {
-            "contacts-cleanup": {
-              "label": "Detectar huecos de datos",
-              "prompt": "Revisa mis contactos en busca de información incompleta o inconsistente y sugiere qué corregir."
-            },
-            "contacts-summary": {
-              "label": "Resumir contactos",
-              "prompt": "Resume mis contactos y señala patrones útiles o información que falte."
-            },
-            "create-contact": {
-              "label": "Crear un contacto",
-              "prompt": "Ayúdame a crear un contacto. Pregunta solo por los datos imprescindibles."
-            }
-          },
-          "empty": {
-            "contacts-tour": {
-              "label": "Descubrir cómo funcionan los contactos",
-              "prompt": "Enséñame la página de contactos y explícame cómo se conectan los contactos con el resto del CRM."
-            },
-            "first-contact": {
-              "label": "Crear mi primer contacto",
-              "prompt": "Ayúdame a crear mi primer contacto real con datos confirmados de mi base de conocimientos, el espacio de trabajo o lo que te indique. Pregunta qué persona es y solo por los datos obligatorios que falten; no crees un contacto de ejemplo ni uno a partir de un testimonio."
-            },
-            "setup-contacts": {
-              "label": "Configurar los contactos",
-              "prompt": "Configura campos y vistas de contactos útiles a partir de mi base de conocimientos y el espacio de trabajo. No crees contactos de ejemplo ni conviertas testimonios públicos en contactos. Pregunta solo por decisiones pendientes."
-            }
-          }
-        },
         "dashboard": {
           "data": {
             "dashboard-tour": {
@@ -593,36 +520,6 @@
             "tour": {
               "label": "Enséñame la aplicación",
               "prompt": "Dame una visita guiada a fondo de Customermates y explícame cómo encajan entre sí las áreas principales."
-            }
-          }
-        },
-        "deals": {
-          "data": {
-            "create-deal": {
-              "label": "Crear una oportunidad",
-              "prompt": "Ayúdame a crear una oportunidad y a conectar todos los registros relevantes."
-            },
-            "pipeline-gaps": {
-              "label": "Detectar huecos en el pipeline",
-              "prompt": "Revisa mis oportunidades en busca de relaciones, importes o próximos pasos que falten."
-            },
-            "pipeline-summary": {
-              "label": "Resumir mi pipeline",
-              "prompt": "Resume mi pipeline de oportunidades, sus riesgos y las próximas acciones más útiles."
-            }
-          },
-          "empty": {
-            "deals-tour": {
-              "label": "Descubrir cómo funcionan las oportunidades",
-              "prompt": "Enséñame las oportunidades y explícame cómo gestionar un pipeline en Customermates."
-            },
-            "first-deal": {
-              "label": "Crear mi primera oportunidad",
-              "prompt": "Ayúdame a crear mi primera oportunidad real a partir de una oportunidad confirmada que yo identifique. Usa mi base de conocimientos y el espacio de trabajo, vincula únicamente organizaciones, contactos y servicios confirmados y pregunta por los datos obligatorios que falten, como el importe o la etapa actual, antes de crearla."
-            },
-            "setup-pipeline": {
-              "label": "Configurar mi pipeline",
-              "prompt": "Configura un pipeline de ventas sencillo a partir de mi base de conocimientos y el espacio de trabajo. No crees oportunidades de ejemplo ni trates casos de estudio públicos como oportunidades actuales. Pregunta solo por decisiones pendientes del pipeline; nunca inventes importes, presupuestos o etapas actuales."
             }
           }
         },
@@ -686,36 +583,6 @@
             }
           }
         },
-        "organizations": {
-          "data": {
-            "create-organization": {
-              "label": "Crear una organización",
-              "prompt": "Ayúdame a crear una organización y a vincular los registros relevantes."
-            },
-            "organization-gaps": {
-              "label": "Detectar huecos en las relaciones",
-              "prompt": "Busca organizaciones a las que les falten relaciones útiles con contactos, oportunidades o tareas."
-            },
-            "organizations-summary": {
-              "label": "Resumir organizaciones",
-              "prompt": "Resume mis organizaciones y destaca las relaciones que merecen atención."
-            }
-          },
-          "empty": {
-            "first-organization": {
-              "label": "Crear mi primera organización",
-              "prompt": "Ayúdame a crear mi primera organización real con datos confirmados de mi base de conocimientos, el espacio de trabajo o lo que te indique. Pregunta qué organización es y solo por los datos obligatorios que falten. Vincula únicamente personas u oportunidades confirmadas; no inventes una relación de cliente."
-            },
-            "organizations-tour": {
-              "label": "Descubrir cómo funcionan las organizaciones",
-              "prompt": "Enséñame las organizaciones y explícame cómo conectan contactos, oportunidades y tareas."
-            },
-            "setup-organizations": {
-              "label": "Configurar las organizaciones",
-              "prompt": "Configura campos y vistas de organizaciones útiles a partir de mi base de conocimientos y el espacio de trabajo. No crees organizaciones de ejemplo ni trates casos de estudio públicos como relaciones comerciales actuales. Pregunta solo por decisiones pendientes."
-            }
-          }
-        },
         "routines": {
           "data": {
             "create-routine": {
@@ -743,66 +610,6 @@
             "routines-tour": {
               "label": "Aprender cómo funcionan",
               "prompt": "Guíame por la página Rutinas y explica las programaciones, los eventos desencadenantes, las pruebas, los créditos y el historial de ejecuciones. No hagas ningún cambio."
-            }
-          }
-        },
-        "services": {
-          "data": {
-            "create-service": {
-              "label": "Crear una oferta",
-              "prompt": "Ayúdame a crear un servicio o producto con los datos comerciales adecuados."
-            },
-            "service-gaps": {
-              "label": "Detectar huecos en el catálogo",
-              "prompt": "Revisa mis servicios o productos en busca de precios que falten, relaciones ausentes u ofertas duplicadas."
-            },
-            "services-summary": {
-              "label": "Resumir las ofertas",
-              "prompt": "Resume mis servicios o productos y cómo se usan en las oportunidades."
-            }
-          },
-          "empty": {
-            "first-service": {
-              "label": "Crear mi primera oferta",
-              "prompt": "Ayúdame a crear mi primer servicio o producto real a partir de mi base de conocimientos y el espacio de trabajo. Pregunta solo qué oferta elegir y por los datos obligatorios que falten. Si su precio obligatorio es desconocido, pregunta antes de crearlo; nunca adivines un precio ni uses un valor provisional."
-            },
-            "services-tour": {
-              "label": "Descubrir cómo funcionan las ofertas",
-              "prompt": "Enséñame los servicios y explícame cómo se conectan las ofertas con las oportunidades y las tareas."
-            },
-            "setup-services": {
-              "label": "Configurar mis ofertas",
-              "prompt": "Crea únicamente servicios o productos reales documentados en mi base de conocimientos, evitando duplicados en el espacio de trabajo. Usa precios confirmados. Si falta un precio obligatorio u otro dato comercial obligatorio, pregunta antes de crear esa oferta; nunca inventes un precio ni uses un valor provisional."
-            }
-          }
-        },
-        "tasks": {
-          "data": {
-            "create-task": {
-              "label": "Crear una tarea",
-              "prompt": "Ayúdame a crear una tarea y a conectarla con los registros adecuados."
-            },
-            "task-gaps": {
-              "label": "Detectar seguimientos pendientes",
-              "prompt": "Busca registros importantes que parezcan no tener una tarea de seguimiento clara."
-            },
-            "task-priorities": {
-              "label": "Planificar mis próximas acciones",
-              "prompt": "Revisa mis tareas y los datos del CRM relacionados y recomiéndame qué hacer a continuación."
-            }
-          },
-          "empty": {
-            "first-task": {
-              "label": "Crear mi primera tarea",
-              "prompt": "Ayúdame a crear mi primera tarea real que yo identifique, usando mi base de conocimientos y el espacio de trabajo. Vincula solo registros confirmados y pregunta solo por las decisiones obligatorias que falten. No inventes una tarea, un responsable o una fecha de vencimiento."
-            },
-            "setup-tasks": {
-              "label": "Configurar mi flujo de trabajo",
-              "prompt": "Configura un flujo de tareas mínimo con campos y vistas útiles a partir de mi base de conocimientos y el espacio de trabajo. No crees tareas de ejemplo ni inventes responsables o fechas de vencimiento. Pregunta solo por decisiones pendientes del flujo de trabajo."
-            },
-            "tasks-tour": {
-              "label": "Descubrir cómo funcionan las tareas",
-              "prompt": "Enséñame las tareas y explícame cómo se conectan con contactos, organizaciones, oportunidades y servicios."
             }
           }
         },
@@ -859,7 +666,6 @@
       "skip": "Omitir"
     },
     "tourUi": {
-      "back": "Atrás",
       "title": "Visita guiada"
     },
     "ui": {
@@ -871,7 +677,6 @@
       "archivedChats": "Chats archivados",
       "assistantWorking": "Mate está respondiendo",
       "back": "Volver al chat",
-      "cancel": "Cancelar",
       "chats": "Chats",
       "copyCode": "Copiar código",
       "copyLink": "Copiar enlace",
@@ -889,13 +694,13 @@
       "finalizing": "Finalizando y guardando los cambios…",
       "history": "Historial de chats",
       "imageNotAvailable": "Imagen no disponible",
-      "jumpToLatest": "Ir a lo más reciente",
       "linkCopied": "Enlace copiado",
       "loadChatFailed": "No se pudo cargar el chat. Vuelva a seleccionarlo para reintentar.",
       "loadingChat": "Cargando el chat…",
       "loadingOlderMessages": "Cargando mensajes anteriores",
       "loadMoreChats": "Cargar más chats",
       "loadOlderMessages": "Cargar mensajes anteriores",
+      "moreActions": "Más acciones para {name}",
       "newChat": "Nuevo chat",
       "noChats": "Aún no hay chats",
       "noChatsBody": "Inicie un chat para volver más tarde a sus preguntas y al trabajo completado.",
@@ -930,7 +735,6 @@
     "addDescription": "Crea una clave para tu propia integración o elige un cliente de IA para recibir una configuración guiada.",
     "addTitle": "Añadir una clave de API",
     "backToOptions": "Todas las opciones de claves de API",
-    "done": "Listo",
     "expiresIn": "Caduca en",
     "expiresInPlaceholder": "Nunca caduca",
     "keyCreated": "Clave de API creada",
@@ -942,18 +746,10 @@
     "title": "Crear una clave de API"
   },
   "ApiKeysCard": {
-    "title": "API y conectores",
     "unnamed": "Sin nombre"
   },
   "AuditLogModal": {
-    "createdAt": "Creado el",
-    "deletedField": "Campo eliminado",
-    "deletedFieldChanged": "Valor modificado en un campo que se ha eliminado desde entonces.",
-    "entity": "Elemento",
-    "entityId": "ID del elemento",
-    "event": "Evento",
     "eventAt": "{event} el {date}",
-    "eventData": "Datos del evento",
     "fields": {
       "acceptanceType": "Tipo de aceptación",
       "acceptingEmail": "Aceptado por",
@@ -961,11 +757,12 @@
       "changedFields": "Campos vigilados",
       "city": "Ciudad",
       "country": "País",
+      "createType": "Nuevo tipo",
       "cronExpression": "Programación",
       "currency": "Moneda",
-      "dealStageWeights": "Probabilidades de etapa",
-      "dealWeightingColumnId": "Campo de etapa",
       "debounceSeconds": "Retardo",
+      "delete": "Movido a la papelera",
+      "deletePermanently": "Eliminado definitivamente",
       "disabledReason": "Motivo de desactivación",
       "effectiveAt": "Vigente desde",
       "emails": "Direcciones de correo",
@@ -974,10 +771,16 @@
       "markdown": "Markdown",
       "postalCode": "Código postal",
       "prompt": "Instrucciones",
+      "publishSummary": "Resumen publicado",
+      "putAccessPreset": "Plantilla de acceso",
+      "putCapability": "Funcionalidad",
+      "putField": "Campo",
+      "putRelationship": "Relación",
+      "putType": "Tipo",
       "recipientEmail": "Enviado a",
       "removalReason": "Motivo de eliminación",
+      "restore": "Restaurado",
       "street": "Calle",
-      "terminology": "Nombres de registros",
       "timezone": "Zona horaria",
       "triggerEvents": "Eventos del disparador",
       "triggerFilters": "Filtros del disparador",
@@ -985,18 +788,9 @@
       "versions": "Versiones de documentos",
       "visibility": "Visibilidad"
     },
-    "noValue": "Sin valor",
     "relationsAdded": "Elementos añadidos en {field}",
     "relationsDeleted": "Elementos eliminados de {field}",
-    "title": "Detalles del registro de auditoría",
-    "unchangedLines": "{count, plural, one {# línea sin cambios} other {# líneas sin cambios}}",
-    "userId": "Usuario"
-  },
-  "AuditLogsCard": {
-    "emptyBody": "Los cambios del espacio de trabajo se registran aquí a medida que ocurren.",
-    "emptyTitle": "Aún no hay actividad",
-    "searchTooltip": "Buscar por ID de elemento",
-    "title": "Registros de auditoría"
+    "unchangedLines": "{count, plural, one {# línea sin cambios} other {# líneas sin cambios}}"
   },
   "AuthSocialErrors": {
     "accessDenied": "El inicio de sesión se canceló en el proveedor.",
@@ -1036,10 +830,97 @@
     "liveDemoTitle": "Demo en directo de Customermates",
     "open": "Abrir en una nueva pestaña"
   },
+  "CommandPalette": {
+    "fieldOf": "Campo de {list}",
+    "groups": {
+      "actions": "Acciones",
+      "bestMatch": "Mejor resultado",
+      "docs": "Documentación",
+      "listsAndViews": "Listas y vistas",
+      "pagesAndSettings": "Páginas y ajustes",
+      "records": "Registros",
+      "suggestions": "Sugerencias"
+    },
+    "labels": {
+      "addRole": "Añadir rol",
+      "addWebhook": "Añadir webhook",
+      "connectChannel": "Conectar un canal",
+      "createApiKey": "Crear clave de API",
+      "themeDark": "Cambiar al tema oscuro",
+      "themeLight": "Cambiar al tema claro",
+      "themeSystem": "Usar el tema del sistema"
+    },
+    "record": {
+      "addTo": "Añadir a {list}…",
+      "assign": "Asignar a…",
+      "change": "Cambiar {field}…",
+      "deleteNamed": "Eliminar {name}"
+    },
+    "resolve": "Ir a «{query}»",
+    "resolveNoCredits": "No te quedan créditos de IA, así que esta solicitud no se puede resolver.",
+    "resolveUnavailable": "Ahora no se pueden resolver solicitudes. Elige un resultado o inténtalo más tarde.",
+    "resolving": "Buscando el mejor resultado…",
+    "synonyms": {
+      "action": {
+        "add": "nuevo, crear, nuevo registro",
+        "inviteMembers": "añadir usuario, invitar compañero, equipo",
+        "sendFeedback": "informar de un problema, sugerencia, soporte",
+        "shortcuts": "teclas rápidas, teclas, teclado",
+        "signOut": "salir, desconectar, logout",
+        "switchView": "cambiar vista, vistas guardadas",
+        "themeDark": "modo oscuro, modo noche",
+        "themeLight": "modo claro",
+        "themeSystem": "tema automático, seguir el sistema"
+      },
+      "page": {
+        "configure": "modelo de datos, esquema, listas, campos, relaciones",
+        "dashboard": "inicio, resumen, widgets, gráficos",
+        "documentation": "docs, ayuda, guía, manual",
+        "inbox": "mensajes, correo, email, conversaciones, chats",
+        "knowledgeBase": "wiki, notas, páginas, artículos",
+        "routines": "automatizaciones, programaciones, tareas recurrentes",
+        "settings": "preferencias, opciones, cuenta, espacio de trabajo",
+        "trash": "elementos eliminados, papelera, restaurar, deshacer eliminación"
+      },
+      "setting": {
+        "apiKeys": {
+          "create": "nueva clave de API, generar token"
+        },
+        "channels": {
+          "connect": "conectar correo, añadir cuenta, LinkedIn, WhatsApp"
+        },
+        "profile": {
+          "avatarUrl": "foto de perfil, foto, imagen",
+          "country": "ubicación, región",
+          "displayLanguage": "idioma, lengua, traducción",
+          "firstName": "nombre, nombre de pila",
+          "formattingLocale": "formato de fecha, formato de número, región",
+          "lastName": "apellido, apellidos",
+          "theme": "apariencia, modo oscuro, modo claro, colores"
+        },
+        "roles": {
+          "create": "nuevo rol, permisos"
+        },
+        "webhooks": {
+          "create": "nuevo webhook"
+        }
+      },
+      "settings": {
+        "activity": "registro de auditoría, historial, cambios",
+        "api-keys": "tokens, API, MCP, desarrollador, claves de acceso",
+        "billing": "plan, suscripción, facturas, pago, precios",
+        "channels": "cuentas conectadas, cuentas de correo, LinkedIn, WhatsApp, integraciones",
+        "members": "equipo, usuarios, personas, compañeros",
+        "profile": "mi perfil, cuenta, preferencias, personal",
+        "roles": "permisos, acceso, derechos",
+        "webhook-deliveries": "entregas de webhook, registro de webhooks, eventos enviados",
+        "webhooks": "integraciones, callbacks, eventos, HTTP"
+      }
+    }
+  },
   "Common": {
     "actions": {
       "add": "Añadir",
-      "addCustomField": "Añadir campo",
       "back": "Atrás",
       "cancel": "Cancelar",
       "clear": "Borrar",
@@ -1050,16 +931,12 @@
       "continueSetup": "Continuar con la configuración",
       "copy": "Copiar al portapapeles",
       "delete": "Eliminar",
-      "deleteCustomFields": "Eliminar campo",
       "discard": "Descartar",
-      "editCustomFields": "Editar campo",
       "expand": "Ampliar",
-      "labelHistory": "Historial",
-      "labelNotes": "Notas",
+      "jumpToLatest": "Ir a lo más reciente",
       "loadMore": "Cargar más",
       "open": "Abrir",
       "openApp": "Abrir la aplicación",
-      "openList": "Abrir la lista",
       "refresh": "Actualizar",
       "remove": "Quitar",
       "reset": "Restablecer",
@@ -1068,21 +945,16 @@
     },
     "ariaLabels": {
       "breadcrumb": "Ruta de navegación",
-      "collapseSearch": "Contraer la búsqueda",
       "explainField": "Acerca de {field}",
       "hidePassword": "Ocultar contraseña",
-      "optionName": "Nombre de la opción {number}",
       "selectOption": "Selecciona una opción",
       "showPassword": "Mostrar contraseña",
-      "switchToBoardView": "Cambiar a la vista de tablero",
       "switchToBoardViewDisabled": "Esta lista no tiene ningún campo por el que agrupar",
-      "switchToTableView": "Cambiar a la vista de tabla",
       "themeSwitcher": "Selector de tema",
       "tooltipFields": "Apariencia",
       "tooltipFilters": "Filtros"
     },
     "avatarUrlDescription": "Puedes indicar el enlace de una imagen que se usará como avatar. La imagen debe ser de acceso público.",
-    "clearDefault": "Quitar predeterminado",
     "colors": {
       "default": "Azul",
       "destructive": "Rojo",
@@ -1091,25 +963,7 @@
       "success": "Verde",
       "warning": "Amarillo"
     },
-    "company": "Empresa",
     "creditsBelowMinimum": "<{amount}",
-    "customColumnTypes": {
-      "currency": "Moneda",
-      "date": "Fecha",
-      "dateRange": "Intervalo de fechas",
-      "dateTime": "Fecha y hora",
-      "dateTimeRange": "Intervalo de fecha y hora",
-      "email": "Correo electrónico",
-      "link": "Enlace",
-      "phone": "Teléfono",
-      "plain": "Texto",
-      "singleSelect": "Selección única"
-    },
-    "customFieldHelp": {
-      "deleteWeightingColumnPermission": "Este campo determina la cartera ponderada en «{company}», así que eliminarlo desactiva la ponderación. Solicita a un administrador permiso para actualizar «{company}».",
-      "immutableType": "El tipo de campo queda fijo después de crearlo. Crea un nuevo campo personalizado para usar otro tipo.",
-      "probabilityPermission": "Las probabilidades de etapa se gestionan en «{company}». Solicita a un administrador permiso para actualizarlas."
-    },
     "dateBuckets": {
       "day": "Día",
       "earlier": "Anterior",
@@ -1129,7 +983,6 @@
       "thisMonth": "Este mes",
       "today": "Hoy"
     },
-    "default": "Predeterminado",
     "defaultData": {
       "contact": {
         "columnLabel": "Pipeline de ventas",
@@ -1167,9 +1020,11 @@
       }
     },
     "deleteConfirmation": {
+      "blocked": "Resuelve esto primero:",
       "message": "¿Seguro que quieres eliminar este elemento? Esta acción no se puede deshacer.",
       "messageWithName": "¿Seguro que quieres eliminar \"{name}\"? Esta acción no se puede deshacer.",
-      "title": "Confirmar la eliminación"
+      "title": "Confirmar la eliminación",
+      "typeToConfirm": "Escribe {name} para confirmar"
     },
     "details": "Detalles",
     "email": "Correo electrónico",
@@ -1189,9 +1044,6 @@
     },
     "errors": {
       "activityDuplicateFilterField": "Cada campo de filtro de actividad solo se puede configurar una vez.",
-      "activityPageOutOfRange": "La cronología de actividad no puede retroceder tanto. Acota los filtros en su lugar.",
-      "activityScopeTooManyIds": "Un ámbito de actividad no puede seleccionar más de 50 registros de un mismo tipo.",
-      "activitySourcesUnavailable": "No tienes acceso a ninguna fuente de la cronología de actividad.",
       "agentApprovalUnavailable": "Esta solicitud de aprobación no está disponible o ha caducado.",
       "agentConversationNotFound": "No se encontró esta conversación o ya no es accesible.",
       "agentLimitReached": "No quedan suficientes créditos de IA para iniciar otra solicitud.",
@@ -1206,31 +1058,14 @@
       "calendarEventNotFound": "ID de evento de calendario no encontrado o no accesible.",
       "channelAlreadyLinked": "Este canal ya está vinculado a otro contacto.",
       "connectedAccountNotFound": "ID de canal no encontrado o no accesible.",
-      "contactNotFound": "ID de contacto no encontrado o no accesible.",
-      "contactRefRequired": "id debe ser un UUID de contacto, un correo o un teléfono, o bien 'provider:value' para un identificador (por ejemplo 'linkedin:jdoe').",
-      "customColumnIdNotFound": "ID de columna personalizada no encontrado o no accesible.",
-      "customColumnNotFound": "ID de columna personalizada no encontrado o no accesible. Columnas disponibles: {validValues}.",
-      "customColumnTypeMismatch": "Esta columna personalizada es de tipo {actualType}, no {expectedType}. Establece el tipo en {actualType} para actualizarla.",
-      "customColumnUsedByRoutineCannotDelete": "Esta columna personalizada se usa en uno o varios filtros de rutinas. Quítala de esas rutinas antes de eliminarla.",
-      "customFieldInvalidCurrency": "El valor de moneda no es válido. Debe ser un número válido.",
       "customFieldInvalidDate": "La fecha no es válida. Debe estar en formato ISO 8601 (por ejemplo 2024-01-15) o en formato fecha-hora ISO 8601 (por ejemplo 2024-01-15T00:00:00Z).",
-      "customFieldInvalidDateRange": "El intervalo de fechas no es válido. Debe contener dos fechas ISO 8601 separadas por una coma, con el inicio anterior o igual al fin (por ejemplo 2024-01-15,2024-01-22).",
-      "customFieldInvalidDateTime": "La fecha-hora no es válida. Debe estar en formato fecha-hora ISO 8601 con la hora (por ejemplo 2024-01-15T10:30:00Z).",
-      "customFieldInvalidDateTimeRange": "El intervalo de fecha-hora no es válido. Debe contener dos fechas-hora ISO 8601 separadas por una coma, con el inicio anterior o igual al fin (por ejemplo 2024-01-15T09:00:00Z,2024-01-15T17:00:00Z).",
-      "customFieldInvalidEmail": "La dirección de correo no es válida. Debe respetar el formato de una dirección de correo (por ejemplo user@example.com). Para varias direcciones, sepáralas con una coma (por ejemplo user1@example.com, user2@example.com).",
-      "customFieldInvalidPhone": "El número de teléfono no es válido. Debe estar en formato E.164 (por ejemplo +491234567890). Para varios números, sepáralos con una coma (por ejemplo +491234567890, +499876543210).",
-      "customFieldInvalidSingleSelect": "El valor de selección única no es válido. Debe ser una de las opciones permitidas: {validValues}.",
-      "customFieldInvalidUrl": "La URL no es válida. Debe respetar el formato de una URL (por ejemplo https://example.com). Para varias URL, sepáralas con una coma (por ejemplo https://example.com, https://example.org).",
       "dataViewAllNameImmutable": "La vista Todas no se puede renombrar. Omite name y actualiza solo los ajustes solicitados en state. Consulta config para los ajustes compatibles y list para el estado actual antes de reintentar.",
-      "dataViewLayoutReadOnly": "El orden, el ancho y la visibilidad de las columnas solo se pueden cambiar en la aplicación. Omite columnOrder, columnWidths y hiddenColumns, o envíalos exactamente como los devolvió list.",
       "dataViewNotFound": "No se encontró esta vista guardada.",
       "dataViewUpdateEmpty": "Indica un nombre o al menos un ajuste de vista para actualizar.",
-      "dealNotFound": "ID de oportunidad no encontrado o no accesible.",
       "demoMode": "Esta acción no está disponible en el modo de demostración. Inicia sesión para acceder a todas las funciones.",
       "draftMessageNotFound": "No se ha encontrado ese borrador. Puede que ya se haya enviado o descartado.",
       "draftThreadNotSent": "Este borrador aún no tiene conversación. Envíalo desde la bandeja de entrada.",
       "draftToRecipientsLocked": "Un mensaje nuevo guardado mantiene sus destinatarios en Para. Descarta el borrador y empieza un mensaje nuevo para escribir a otra persona.",
-      "duplicateChannel": "Este canal aparece más de una vez. Añade cada dirección de correo, número de teléfono o identificador una sola vez.",
       "duplicateOutboundSuppressed": "Hace un momento se envió un mensaje idéntico a esta conversación. Cambia el texto o espera un minuto antes de reintentar.",
       "duplicateWebhookEvents": "No se permiten eventos duplicados.",
       "duplicateWebhookHeaders": "No se permiten nombres de cabecera duplicados.",
@@ -1276,12 +1111,26 @@
       "operatorCreditPrecision": "Usa como máximo un decimal para el ajuste de créditos.",
       "operatorTrialEndRequired": "La fecha de fin de prueba no se puede quitar, solo mover. Borrarla dejaría el espacio de trabajo en una prueba que nunca caduca.",
       "operatorUnavailable": "La corrección solicitada no está disponible para la configuración actual de la cuenta.",
-      "organizationNotFound": "ID de organización no encontrado o no accesible.",
       "passwordInvalid": "La contraseña debe tener entre 8 y 128 caracteres e incluir al menos una mayúscula, una minúscula, un número y un carácter especial.",
       "passwordMismatch": "Las contraseñas deben coincidir.",
       "permissionDenied": "Esta acción no está disponible con tus permisos actuales.",
       "privacyAcknowledgementRequired": "Confirma que has leído la Política de privacidad.",
-      "relationNotAllowed": "La relación '{relation}' no está permitida en {entity}. Relaciones permitidas: {allowed}.",
+      "recordCalculationBudget": "Este cambio requiere un recálculo en segundo plano.",
+      "recordConfigurationInvalid": "Revisa los campos y las relaciones de esta configuración.",
+      "recordDependencies": "Actualiza primero los campos, las vistas, los widgets o las asociaciones dependientes.",
+      "recordIdempotencyConflict": "Esta clave de solicitud se usó para otro cambio. Inicia una nueva solicitud.",
+      "recordIdUnavailable": "Este ID ya perteneció a un registro anterior. Importa el registro con un ID nuevo.",
+      "recordMeasureDateIntervalInvalid": "Los intervalos de tiempo requieren agrupar por un campo de fecha, fecha y hora, creación o actualización, y una zona horaria requiere un intervalo de tiempo.",
+      "recordNotFound": "Este registro no está disponible.",
+      "recordProtected": "Este registro está gestionado por un proceso del sistema.",
+      "recordReadOnlyField": "Este campo se calcula. Cambia su definición para introducir valores manualmente.",
+      "recordRelationConflict": "Este enlace no cumple las reglas de la relación.",
+      "recordSchemaChanged": "El modelo de datos ha cambiado. Actualiza la página e inténtalo de nuevo.",
+      "recordTypeNotFound": "Este tipo de registro no está disponible.",
+      "recordValueInvalid": "Revisa los valores resaltados del registro.",
+      "recordVersionChanged": "Este registro ha cambiado. Actualízalo antes de guardar.",
+      "recordWritePaused": "El modelo de datos se está actualizando. Tu borrador se conserva; inténtalo cuando termine.",
+      "roleAccessPresetInUse": "Una plantilla de acceso utiliza este rol. Actualiza la plantilla antes de eliminar el rol.",
       "roleAssignedCannotDelete": "No se puede eliminar un rol asignado a usuarios.",
       "roleNotFound": "ID de rol no encontrado o no accesible.",
       "roleSelfEditForbidden": "No puedes cambiar los permisos del rol que tienes asignado.",
@@ -1291,7 +1140,6 @@
       "routineDeleteHasRunningRun": "Espera a que termine la ejecución activa antes de eliminar esta rutina.",
       "routineEditNotOwner": "Solo el propietario puede cambiar la configuración o activación de esta rutina.",
       "routineLimitReached": "Tu plan incluye {limit} rutinas por usuario. Cambia de plan para obtener un límite mayor.",
-      "routineNotFound": "ID de rutina no encontrado o no accesible.",
       "routineOwnerIneligible": "El propietario de la rutina debe ser un miembro activo de esta empresa.",
       "routineRunNotOwner": "Solo quien posee esta rutina puede ejecutarla, porque consume sus créditos de IA.",
       "routineRunNowRequiresSchedule": "Solo las rutinas programadas se pueden probar manualmente.",
@@ -1304,16 +1152,13 @@
       "salesNavigatorNotAvailable": "Esta cuenta de LinkedIn no tiene Sales Navigator conectado.",
       "salesNavigatorRequiresLinkedin": "Sales Navigator requiere una cuenta de LinkedIn conectada, pero esta cuenta es {provider}.",
       "sendEmailTargetRequired": "Selecciona una conversación o una cuenta desde la que enviar.",
-      "serviceNotFound": "ID de servicio no encontrado o no accesible.",
       "socialActionRequiresSocialAccount": "Esta acción requiere una cuenta de LinkedIn o Instagram conectada, pero esta cuenta es {provider}.",
       "socialPostsRequireSocialAccount": "Las publicaciones sociales requieren una cuenta de LinkedIn o Instagram conectada, pero esta cuenta es {provider}.",
       "subjectRequired": "Añade un asunto.",
-      "taskNameCannotBeChangedForSystemTasks": "El nombre de las tareas del sistema no se puede cambiar.",
-      "taskNotFound": "ID de tarea no encontrado o no accesible.",
-      "taskOnlyCustomTasksCanBeDeleted": "Solo se pueden eliminar las tareas personalizadas.",
-      "terminologyInvalidPreset": "Elige una de las plantillas de nombre disponibles.",
       "termsNotAgreed": "Debes aceptar los términos y condiciones.",
       "threadNotFound": "ID de conversación no encontrado o no accesible.",
+      "trashChanged": "La papelera ha cambiado mientras tanto. Revisa lo que se eliminará e inténtalo de nuevo.",
+      "trashItemNotFound": "Este elemento ya no está en la papelera.",
       "unipileAccountRestricted": "El proveedor ha restringido este canal. Reconectarlo no lo soluciona; resuelve primero la restricción con el proveedor.",
       "unipileDisconnectedAccount": "El canal está desconectado. Su propietario debe volver a conectarlo en Canales antes de poder usarlo de nuevo.",
       "unipileFeatureUnavailable": "Esto no está disponible en este canal. Reintentar no ayudará; se ha notificado al equipo.",
@@ -1341,18 +1186,13 @@
       "webhookHeadersTooMany": "Demasiadas cabeceras.",
       "webhookHeaderValueInvalid": "Los valores de cabecera solo pueden contener texto Latin-1, sin saltos de línea ni caracteres de control.",
       "webhookNotFound": "ID de webhook no encontrado o no accesible.",
-      "widgetDealAggregationNotAllowedForTask": "Los tipos de agregación de oportunidades no están permitidos para el tipo de elemento Tarea.",
-      "widgetDealFiltersNotAllowedForDealEntityType": "Los filtros de oportunidad no están permitidos cuando el tipo de elemento es Oportunidad.",
-      "widgetDealQuantityOnlyForService": "La agregación de cantidad de oportunidades solo está permitida para el tipo de elemento Servicio.",
-      "widgetGroupByCustomColumnIdRequired": "El ID de columna personalizada es obligatorio al agrupar por columna personalizada.",
-      "widgetGroupByEntityTypeNotAllowedForCount": "No se permite agrupar por tipo de elemento cuando el tipo de agregación es el recuento.",
-      "widgetGroupByTypeMustMatchEntityType": "El tipo de agrupación debe coincidir con el tipo de elemento del gráfico.",
+      "webhookTriggerRequired": "Elige qué cambios de campo o condiciones disparan este webhook antes de volver a activarlo.",
+      "widgetDisplayTypeUnsupported": "Este estilo de gráfico no encaja con la agrupación seleccionada. Elige otro estilo o cambia la agrupación.",
       "widgetKindImmutable": "El tipo de un widget no se puede cambiar después de crearlo.",
+      "widgetLayoutOverlap": "Esta posición se superpone con otro widget. Elige un hueco libre en la cuadrícula de 12 columnas u omite el diseño para colocarlo automáticamente.",
+      "widgetLayoutTooSmall": "Este widget necesita al menos 2 columnas y 3 filas.",
       "widgetNotFound": "ID de widget no encontrado o no accesible.",
-      "widgetTaskCanOnlyGroupByCustomColumn": "Las tareas solo se pueden agrupar por columnas personalizadas, no por tipos de elemento.",
-      "widgetWeightedValueNotAllowedForService": "La agregación de valor ponderado no está permitida para el tipo de elemento Servicio.",
       "wikiGuideExists": "Esta base de conocimientos ya tiene una guía operativa. Actualiza la guía existente.",
-      "wikiHomepageSetupStartFailed": "Mate no pudo iniciar la configuración de la base de conocimientos. Inténtalo de nuevo.",
       "wikiNotEmpty": "Esta acción requiere que la base de conocimientos esté vacía.",
       "wikiPageConflict": "Esta página de la base de conocimientos cambió después de que la abrieras. Vuelve a cargarla e inténtalo de nuevo.",
       "wikiPageNotFound": "Página de la base de conocimientos no encontrada o no accesible.",
@@ -1362,30 +1202,12 @@
       "wikiWhenToUseRequired": "Un procedimiento necesita una breve descripción de cuándo usarlo."
     },
     "events": {
-      "company": {
-        "updated": "Empresa actualizada"
-      },
       "connected_account": {
         "created": "Cuenta conectada",
         "deleted": "Cuenta desconectada",
         "reconnected": "Cuenta reconectada",
         "resynced": "Cuenta resincronizada",
         "updated": "Visibilidad de la cuenta modificada"
-      },
-      "contact": {
-        "created": "Contacto creado",
-        "deleted": "Contacto eliminado",
-        "updated": "Contacto actualizado"
-      },
-      "custom_column": {
-        "created": "Columna personalizada creada",
-        "deleted": "Columna personalizada eliminada",
-        "updated": "Columna personalizada actualizada"
-      },
-      "deal": {
-        "created": "Oportunidad creada",
-        "deleted": "Oportunidad eliminada",
-        "updated": "Oportunidad actualizada"
       },
       "legal": {
         "documents_accepted": "Documentos legales aceptados",
@@ -1416,10 +1238,19 @@
           "created": "Relación creada"
         }
       },
-      "organization": {
-        "created": "Organización creada",
-        "deleted": "Organización eliminada",
-        "updated": "Organización actualizada"
+      "record": {
+        "created": "Registro creado",
+        "deleted": "Registro movido a la papelera",
+        "deletedPermanently": "Registro eliminado definitivamente",
+        "restored": "Registro restaurado",
+        "updated": "Registro actualizado"
+      },
+      "record_grants": {
+        "updated": "Acceso a registros cambiado"
+      },
+      "record_model": {
+        "initialized": "Modelo de datos configurado",
+        "updated": "Modelo de datos cambiado"
       },
       "records": {
         "exported": "Registros exportados"
@@ -1431,18 +1262,10 @@
       },
       "routine": {
         "created": "Rutina creada",
-        "deleted": "Rutina eliminada",
+        "deleted": "Rutina movida a la papelera",
+        "deletedPermanently": "Rutina eliminada definitivamente",
+        "restored": "Rutina restaurada",
         "updated": "Rutina actualizada"
-      },
-      "service": {
-        "created": "Servicio creado",
-        "deleted": "Servicio eliminado",
-        "updated": "Servicio actualizado"
-      },
-      "task": {
-        "created": "Tarea creada",
-        "deleted": "Tarea eliminada",
-        "updated": "Tarea actualizada"
       },
       "user": {
         "registered": "Usuario registrado",
@@ -1455,7 +1278,9 @@
       },
       "wiki_page": {
         "created": "Página de la base de conocimientos creada",
-        "deleted": "Página de la base de conocimientos eliminada",
+        "deleted": "Página de la base de conocimiento movida a la papelera",
+        "deletedPermanently": "Página de la base de conocimiento eliminada definitivamente",
+        "restored": "Página de la base de conocimiento restaurada",
         "updated": "Página de la base de conocimientos actualizada"
       }
     },
@@ -1482,6 +1307,7 @@
         "lastName": "Apellidos",
         "name": "Nombre",
         "ownerUserId": "Propietario",
+        "participantContactId": "Registros vinculados",
         "participants": "Participantes",
         "plan": "Plan",
         "provider": "Proveedor",
@@ -1491,9 +1317,11 @@
         "subscriptionStatus": "Suscripción",
         "timelineKind": "Tipo",
         "timelineThreadId": "Conversación",
+        "trashKind": "Tipo",
+        "trashList": "Lista",
         "updatedAt": "Actualizado el",
         "url": "URL",
-        "userIds": "Asignado a",
+        "webhookId": "Webhook",
         "workspaceId": "Espacio de trabajo",
         "workspaceTags": "Etiquetas"
       },
@@ -1504,7 +1332,10 @@
         "equals": "=",
         "gt": ">",
         "gte": "≥",
+        "hasAllOf": "tiene todos de",
+        "hasAnyOf": "tiene alguno de",
         "hasNone": "no tiene ninguno",
+        "hasNoneOf": "no tiene ninguno de",
         "hasSome": "tiene alguno",
         "hasUnset": "no totalmente vinculado",
         "in": "es uno de",
@@ -1513,6 +1344,7 @@
         "isNull": "está vacío",
         "lt": "<",
         "lte": "≤",
+        "notEquals": "No es igual a",
         "notIn": "no es uno de",
         "notInLastDays": "más antiguo que",
         "startsWith": "Empieza por"
@@ -1534,7 +1366,22 @@
         "fieldsGroup": "Filtrar por",
         "limitReached": "Puedes aplicar hasta {count} filtros.",
         "removeFilter": "Quitar filtro",
-        "title": "Filtros"
+        "searchContains": "{field} contiene «{text}»",
+        "searchOrAddFilter": "Buscar o añadir filtro…",
+        "title": "Filtros",
+        "trigger": "Filtro"
+      },
+      "searchFields": {
+        "inbox": "Asunto, mensaje o participante",
+        "members": "Nombre",
+        "operatorAudit": "Acción",
+        "operatorUsers": "Nombre o correo",
+        "operatorWorkspaces": "Correo de un miembro",
+        "records": "Cualquier campo de texto",
+        "routines": "Nombre",
+        "trash": "Nombre",
+        "webhookDeliveries": "URL o evento",
+        "webhooks": "URL"
       },
       "selectionLimit": "Puedes seleccionar hasta {count} valores.",
       "selectOperator": "Selecciona una condición…",
@@ -1546,8 +1393,6 @@
     },
     "inputs": {
       "addOption": "Añadir \"{value}\"",
-      "addService": "Añadir servicio",
-      "aggregationType": "Métrica",
       "amount": "Importe",
       "avatarUrl": "URL del avatar",
       "bodyTemplate": "Plantilla del cuerpo",
@@ -1559,7 +1404,6 @@
       "currency": "Moneda",
       "datePlaceholder": "Seleccionar una fecha",
       "dateRangePlaceholder": "Seleccionar un intervalo",
-      "defaultOption": "Opción {number}",
       "description": "Descripción",
       "displayLanguage": "Idioma de la interfaz",
       "displayOptions": {
@@ -1572,25 +1416,14 @@
       "emails": "Correos electrónicos",
       "emptyContent": "Sin resultados",
       "enabled": "Activa",
-      "entityType": "Elemento",
       "events": "Eventos",
       "feedback": "Comentarios",
       "firstName": "Nombre",
       "formattingLocale": "Formato regional",
-      "groupByValue": "Agrupación",
       "headers": "Cabeceras personalizadas",
-      "label": "Etiqueta",
       "lastName": "Apellidos",
       "message": "Mensaje",
       "name": "Nombre",
-      "options": {
-        "addOption": "Añadir opción",
-        "allowMultiple": "Permitir varios valores",
-        "color": "Color",
-        "currency": "Moneda",
-        "displayFormat": "Formato",
-        "lastOption": "Una selección única necesita al menos una opción"
-      },
       "password": "Contraseña",
       "prompt": "Instrucciones",
       "roleId": "Rol",
@@ -1605,7 +1438,6 @@
       "triggerEvents": "Eventos",
       "triggerFilters": "Filtros de registro",
       "triggerKind": "Disparador",
-      "type": "Tipo",
       "unavailableSelection": "Selección no disponible",
       "url": "URL",
       "userIds": "Asignado a"
@@ -1633,8 +1465,6 @@
       "updated": "Actualizado"
     },
     "pageNumber": "Página {page}",
-    "probability": "Probabilidad",
-    "probabilityRange": "Introduce una probabilidad entre 0 y 100 %.",
     "providers": {
       "google": "Gmail",
       "instagram": "Instagram",
@@ -1649,7 +1479,6 @@
     "scroll": {
       "backToTop": "Back to top"
     },
-    "setAsDefault": "Establecer como predeterminado",
     "sidebar": {
       "description": "Muestra la barra lateral móvil.",
       "title": "Barra lateral",
@@ -1658,13 +1487,13 @@
     "sort": {
       "ascending": "Ascendente",
       "descending": "Descendente",
-      "field": "Ordenar por"
+      "field": "Ordenar por",
+      "manual": "Manual"
     },
     "stageProbability": "Probabilidad de la etapa",
     "systemTasks": {
       "userPendingAuthorization": {
-        "alert": "Esta es una tarea del sistema que no se puede eliminar manualmente. Aprueba al usuario en la <link>configuración de la empresa</link> para resolverla.",
-        "title": "Aprobar al usuario"
+        "alert": "Esta es una tarea del sistema que no se puede eliminar manualmente. Aprueba al usuario en la <link>configuración de la empresa</link> para resolverla."
       }
     },
     "table": {
@@ -1750,10 +1579,6 @@
       "rowsPerPage": "Filas por página",
       "search": "Buscar..."
     },
-    "taskTypes": {
-      "custom": "Personalizada",
-      "userPendingAuthorization": "Autorización pendiente"
-    },
     "themes": {
       "dark": "Oscuro",
       "light": "Claro",
@@ -1780,24 +1605,9 @@
     "label": "Enlace de invitación",
     "title": "Invitar a un usuario"
   },
-  "CompanySettings": {
-    "currencyDescription": "Se usa para todos los valores monetarios del CRM, por ejemplo: {deals}, {services}.",
-    "dataModelTitle": "Modelo de datos",
-    "forecasting": {
-      "columnLabel": "Campo de etapa de {deal}",
-      "columnPlaceholder": "Selecciona un campo",
-      "currentTotal": "Cartera ponderada",
-      "currentTotalHelp": "Suma del valor × la probabilidad de etapa de cada registro con etapa. Los cambios proceden de «{services}», cantidades o etapas en «{deals}»; las probabilidades se gestionan arriba.",
-      "description": "Pondera cada etapa de {deal} por su probabilidad de cierre para ver un valor de cartera descontado.",
-      "noColumn": "Sin configurar",
-      "totalPipeline": "Pipeline total",
-      "totalPipelineHelp": "Suma de todos los valores en «{deals}». Los cambios proceden de «{services}» o cantidades en esos registros.",
-      "withoutStage": "Sin ponderar · sin {column}",
-      "withoutStageHelp": "Valor de los registros en «{deals}» sin selección en «{column}». Al seleccionar una etapa, pasan a la cartera ponderada."
-    }
-  },
   "CompanyUserModal": {
     "activeUserWarning": "Puedes editar tu propia cuenta en tus <settingsLink>ajustes</settingsLink>.",
+    "deleteMessage": "{name} se desactiva y pierde el acceso a este espacio de trabajo. Sus registros e historial se conservan y puedes reactivarlo desde sus detalles.",
     "title": "Usuario"
   },
   "ComparePage": {
@@ -1863,7 +1673,6 @@
     "emailPreviewLink": "Enlace de ejemplo",
     "emailPreviewSample": "Así se verá el texto de tu correo.",
     "emailPreviewTitle": "Vista previa",
-    "emailSave": "Guardar ajustes de correo",
     "emailSaved": "Ajustes de correo guardados",
     "emailSignatureContent": "Contenido de la firma",
     "emailSignatureDescription": "Se añade automáticamente a los correos enviados desde esta cuenta.",
@@ -1954,11 +1763,7 @@
     "calendarResponseNoreply": "Sin respuesta",
     "calendarResponseYes": "Aceptado",
     "linkedinConnectionAccepted": "Invitación de LinkedIn aceptada",
-    "linkedinOpenProfile": "Abrir el perfil de LinkedIn",
-    "noActivity": "Aún no hay actividad para este contacto."
-  },
-  "ContactModal": {
-    "title": "Contacto"
+    "linkedinOpenProfile": "Abrir el perfil de LinkedIn"
   },
   "ContactPage": {
     "description": "¿Tienes una pregunta, quieres una demostración o estás explorando una colaboración? Escríbeme y te respondo en un día.",
@@ -2003,39 +1808,34 @@
     "activityWidget": {
       "activityCount": "{count, plural, =1 {1 actividad} other {# actividades}}",
       "error": "No se ha podido cargar la actividad.",
-      "loadOlderError": "No se ha podido cargar la actividad más antigua. Las entradas ya mostradas siguen disponibles.",
       "noAccount": "Conecta una cuenta de mensajería o de calendario para ver la actividad.",
       "noActivity": "Aún no hay actividad.",
       "noMatches": "Ninguna actividad coincide con los filtros actuales.",
       "noPermission": "No tienes acceso a ninguna actividad de este espacio de trabajo.",
-      "pageLimitReached": "Se ha alcanzado la página disponible más antigua. Acota la selección actual para revisar actividad más antigua.",
       "scopeTooBroad": "Estos filtros de relación coinciden con demasiados contactos para cargarlos de forma segura. Selecciona menos registros.",
       "title": "Actividad reciente"
     },
     "addCard": "Añadir widget",
-    "aggregationTypes": {
-      "count": "Número de {entities}",
-      "dealQuantity": "Número de {services} en {deals}",
-      "dealValue": "Valor de {deal}",
-      "dealValueRelated": "Valor de {deal} relacionado con {entity}",
-      "dealWeightedValue": "Valor ponderado de {deal}",
-      "dealWeightedValueRelated": "Valor ponderado de {deal} relacionado con {entity}"
+    "deleteView": "¿Eliminar «{name}»? {count, plural, =0 {No tiene widgets.} one {Su widget va con ella a la papelera:} other {Sus # widgets van con ella a la papelera:}}",
+    "displayTypeRequirements": {
+      "grouping": "Elige una agrupación para clasificar los grupos.",
+      "noGrouping": "Establece Agrupar por en Sin agrupación para mostrar un número.",
+      "singleChoice": "Agrupa por un campo de selección única, como una etapa.",
+      "timeInterval": "Agrupa por un campo de fecha y elige un intervalo de tiempo."
     },
     "displayTypes": {
+      "areaChart": "Área en el tiempo",
       "doughnutChart": "Gráfico de anillo",
+      "funnelChart": "Embudo",
       "horizontalBarChart": "Gráfico de barras horizontal",
       "horizontalBarChartWithLabels": "Gráfico de barras horizontal con etiquetas",
+      "number": "Número",
       "radarChart": "Gráfico radar",
+      "rankedTable": "Tabla de clasificación",
       "verticalBarChart": "Gráfico de barras vertical",
       "verticalBarChartWithLabels": "Gráfico de barras vertical con etiquetas"
     },
-    "groupBys": {
-      "none": "Sin agrupación"
-    },
-    "tabs": {
-      "dealFilters": "Filtros para {deals}",
-      "filters": "Filtros de {entityType}"
-    },
+    "mainView": "Principal",
     "widgetEditor": {
       "addTitle": "Añadir widget",
       "appearance": {
@@ -2045,61 +1845,74 @@
         "showFilters": "Mostrar el número de actividades y los filtros",
         "showMetricAndFilters": "Mostrar la métrica y los filtros"
       },
-      "create": "Crear widget",
       "danger": {
         "deleteLabel": "Eliminar el widget {name}"
       },
       "editTitle": "Editar «{name}»",
-      "filters": {
-        "activityTypeOptions": {
-          "activities": {
-            "description": "Eventos de cuentas conectadas y calendarios.",
-            "label": "Cuenta y calendario"
-          },
-          "changes": {
-            "description": "Actualizaciones de registros, campos y relaciones del CRM.",
-            "label": "Cambios en registros"
-          },
-          "messages": {
-            "description": "Mensajes enviados o recibidos a través de canales conectados.",
-            "label": "Mensajes"
-          }
-        },
-        "activityTypes": "Tipos de actividad",
-        "noneAvailable": "No hay filtros disponibles para este widget.",
-        "removeUnavailable": "Quitar el filtro no disponible «{field}»",
-        "title": "Filtros",
-        "unavailable": "{count, plural, =1 {Un filtro guardado ya no está disponible. Puedes conservarlo o quitarlo.} other {# filtros guardados ya no están disponibles. Puedes conservarlos o quitarlos.}}"
-      },
       "kind": {
         "activityTimelineDescription": "Sigue en orden cronológico los cambios en registros, los mensajes y la actividad de cuentas y calendario.",
-        "chartDescription": "Compara los datos del CRM en un gráfico.",
+        "change": "Elegir otro widget",
+        "description": "Elige un formato y selecciona tú mismo los datos.",
+        "scratchTitle": "Empezar desde cero",
         "title": "Elegir un widget"
       },
       "preview": {
-        "activitySummary": "{title}. Filtros: {filters, plural, =0 {ninguno} =1 {1 activo} other {# activos}}.",
-        "chartSummary": "{title}. {summary}. Métrica: {metric}. Estilo del gráfico: {chart}.",
-        "filterSummary": "{count, plural, =1 {1 filtro} other {# filtros}}",
-        "groupLabel": "Grupo {number}",
-        "title": "Vista previa",
+        "incomplete": "Completa la configuración de datos para ver una vista previa.",
+        "live": "Vista previa en vivo",
+        "size": "Tamaño en el panel {w} × {h}",
         "untitled": "Widget sin título"
       },
-      "progress": "Paso {current} de {total}",
-      "progressLabel": "Progreso de creación del widget",
-      "save": "Guardar cambios",
+      "sections": {
+        "activeFilters": "{count, plural, =0 {Ninguno} one {1 activo} other {# activos}}",
+        "filters": "Filtros",
+        "grouping": "Agrupación"
+      },
+      "settings": "Configuración del widget",
       "sharing": {
         "template": "Compartir como plantilla"
       },
+      "starters": {
+        "areaChart": {
+          "description": "Muestra cómo evoluciona un valor con el tiempo.",
+          "title": "Área en el tiempo"
+        },
+        "doughnutChart": {
+          "description": "Muestra cómo se reparte un total en partes.",
+          "title": "Anillo"
+        },
+        "funnelChart": {
+          "description": "Sigue los registros por las etapas de un campo de opción.",
+          "title": "Embudo"
+        },
+        "horizontalBarChart": {
+          "description": "Compara grupos con nombres más largos.",
+          "title": "Barras horizontales"
+        },
+        "number": {
+          "description": "Un total, como un recuento o una suma.",
+          "title": "Número"
+        },
+        "radarChart": {
+          "description": "Compara grupos en una escala común.",
+          "title": "Radar"
+        },
+        "rankedTable": {
+          "description": "Enumera los grupos principales en orden.",
+          "title": "Tabla de clasificación"
+        },
+        "verticalBarChart": {
+          "description": "Compara un valor entre grupos.",
+          "title": "Gráfico de barras"
+        }
+      },
       "steps": {
-        "chooseDescription": "Elige un formato o parte de una configuración compartida en tu espacio de trabajo.",
+        "chooseDescription": "Empieza con una recomendación, un formato en blanco o una configuración compartida en tu espacio de trabajo.",
         "configureDescription": "Elige qué muestra este widget y qué aspecto tiene."
       },
       "tabs": {
         "appearance": "Apariencia",
         "data": "Datos",
-        "filters": "Filtros",
-        "filtersLabel": "{count, plural, =0 {Filtros, ninguno activo} =1 {Filtros, 1 activo} other {Filtros, # activos}}",
-        "label": "Configuración del widget"
+        "filtersLabel": "{count, plural, =0 {Filtros, ninguno activo} =1 {Filtros, 1 activo} other {Filtros, # activos}}"
       },
       "templates": {
         "by": "Compartido por {name}",
@@ -2108,86 +1921,73 @@
       }
     },
     "widgetKinds": {
-      "activityTimeline": "Cronología de actividad",
-      "chart": "Gráfico"
+      "activityTimeline": "Cronología de actividad"
     }
   },
   "DataTransfer": {
     "export": {
       "action": "Exportar",
-      "failed": "No se pudo crear el archivo.",
-      "success": "{count, plural, one {# registro exportado} other {# registros exportados}}",
-      "truncated": "Solo se exportaron los primeros {limit} registros."
+      "failed": "No se pudieron exportar los registros. Comprueba tus filtros y permisos.",
+      "success": "Se exportaron {count, plural, one {# registro} other {# registros}}."
     },
     "import": {
       "action": "Añadir desde archivo",
-      "batchProgress": "Lote {done} de {total}",
-      "channelOption": "{provider} (canal)",
       "chooseFile": "Elegir archivo",
-      "commit": "Añadir registros",
-      "description": "Asocia las columnas de la hoja a los campos, revisa el resultado y añade los registros.",
-      "duplicateTargets": "{count, plural, one {# campo recibe datos de más de una columna. Corrígelo antes de continuar.} other {# campos reciben datos de más de una columna. Corrígelos antes de continuar.}}",
-      "fileHint": "Elige una hoja de cálculo. Se admiten libros de Excel.",
-      "fileRejected": "No se pudo leer ese archivo.",
-      "groupChannels": "Canales",
-      "groupCustomFields": "Campos personalizados",
-      "groupFields": "Campos",
-      "ignoreColumn": "No añadir",
-      "issueCount": "{count, plural, one {# problema encontrado} other {# problemas encontrados}}",
-      "issues": {
-        "channelsNotUpdated": "Los canales no cambian en un registro que ya existe",
-        "duplicateRecordId": "La fila {row} ya actualiza este registro",
-        "invalidChannelValue": "\"{value}\" no es una dirección de {provider} válida",
-        "notANumber": "\"{value}\" no es un número",
-        "notAPhoneNumber": "\"{value}\" no es un número de teléfono",
-        "relationAmbiguous": "\"{value}\" coincide con más de un registro",
-        "relationNotFound": "No se encontró \"{value}\"",
-        "unknownOption": "\"{value}\" no es una de las opciones de {column}",
-        "unknownProvider": "\"{value}\" no es un tipo de canal compatible"
-      },
-      "mappingHint": "{file}, {rows} filas",
-      "moreIssues": "y {count} más",
-      "noIssues": "No se encontraron problemas.",
-      "previewCounts": "{create} para añadir, {update} para actualizar",
-      "progress": "Paso {current} de {total}",
-      "progressLabel": "Progreso",
-      "recordId": "ID del registro",
-      "resultCounts": "{created} añadidos, {updated} actualizados",
-      "resultSkipped": "{count, plural, one {# fila omitida} other {# filas omitidas}}",
-      "row": "Fila",
-      "rowsAffected": "{count, plural, one {# fila} other {# filas}}",
-      "skipInvalid": "{count, plural, one {Importar el resto y omitir # fila} other {Importar el resto y omitir # filas}}",
-      "stopped": "Detenido en la fila {row}. {remaining} filas no se procesaron.",
-      "title": "Añadir registros desde un archivo",
-      "unnamedColumn": "Columna sin nombre",
-      "validate": "Comprobar el archivo",
-      "warningCount": "{count, plural, one {# aviso} other {# avisos}}"
+      "fileRejected": "No se pudo leer ese archivo."
     },
-    "menu": "Importar y exportar"
+    "recordImport": {
+      "create": "Crear con los ID exportados",
+      "failed": "No se pudieron importar los registros. Revisa el archivo y los permisos.",
+      "fileHint": "Elige una exportación JSON de Customermates para esta lista.",
+      "ready": "{count, plural, one {# registro} other {# registros}} y {links, plural, one {# vínculo} other {# vínculos}} están listos para importar.",
+      "schemaMismatch": "La estructura de la lista cambió desde la exportación.",
+      "submit": "Importar registros",
+      "success": "Se importaron {count, plural, one {# registro} other {# registros}}.",
+      "title": "Importar registros",
+      "tooLarge": "Importa hasta 100 registros y 500 vínculos por vez.",
+      "typeMismatch": "Este archivo pertenece a otra lista.",
+      "update": "Actualizar los ID coincidentes"
+    }
   },
   "DataView": {
+    "addToGroup": "Añadir a {group}",
     "board": {
       "chooseField": "Agrupar por campo",
       "createField": "Crear un campo de selección única",
       "promptBody": "Elige un campo por el que agrupar. Cada valor se convierte en una columna del tablero.",
       "promptTitle": "Elige cómo agrupar este tablero"
     },
+    "boardKeyboardInstructions": "Pulsa Intro para abrir un registro y Espacio para seleccionarlo. Usa las flechas izquierda y derecha para elegir un grupo y pulsa Espacio para moverlo. Pulsa Escape para cancelar.",
+    "boardMoveCancelled": "Movimiento cancelado.",
+    "boardMoveRequested": "Movimiento a {group} solicitado.",
+    "boardMoveTarget": "Mover registro a {group}.",
+    "boardPickedUp": "Registro seleccionado.",
+    "collapseColumn": "Contraer columna",
     "collapseGroup": "Contraer el grupo {group}",
     "dragToReorder": "Arrastrar para reordenar",
-    "editColumn": "Editar columna",
+    "editOption": "Editar opción",
+    "expandColumn": "Expandir {name}",
     "expandGroup": "Expandir el grupo {group}",
     "groupOverflow": "Solo se muestran {count} grupos",
+    "hiddenColumns": "Columnas ocultas",
+    "hideColumn": "Ocultar columna",
+    "hideEmptyColumns": "Ocultar columnas vacías",
+    "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
+    "moreActions": "Más acciones",
     "noValue": "Sin valor",
     "resizeColumn": "Redimensiona la columna {column}. Arrastra o usa las teclas de flecha; toca dos veces o pulsa Intro para restablecer.",
     "resizeHint": "Arrastra para redimensionar. Haz doble clic para restablecer.",
+    "rowActions": "Acciones de fila",
     "selectAllRows": "Seleccionar todas las filas",
     "selectGroup": "Seleccionar el grupo {group}",
     "selectRow": "Seleccionar fila {id}",
     "views": {
+      "activityCount": "{count, plural, one {# actividad} other {# actividades}}",
       "aiLabel": "Preguntar a la IA sobre {name}",
       "all": "Todas",
       "applied": "Mostrando {name}",
       "askAi": "Preguntar a la IA",
+      "conversationCount": "{count, plural, one {# conversación} other {# conversaciones}}",
       "copyLink": "Copiar enlace",
       "createTitle": "Nueva vista",
       "createWithAi": "Crear con IA",
@@ -2198,22 +1998,21 @@
       "editTitle": "Editar vista",
       "linkCopied": "Enlace copiado",
       "menu": "Acciones de vista",
+      "modified": "Cambios sin guardar",
       "moveLeft": "Mover a la izquierda",
       "moveRight": "Mover a la derecha",
       "name": "Nombre",
       "namePlaceholder": "Nombre de la vista",
+      "nameRequired": "Introduce un nombre para la vista.",
+      "pickerEmpty": "Ninguna vista coincide",
+      "pickerPlaceholder": "Buscar una vista…",
+      "pickerTitle": "Cambiar de vista",
       "railLabel": "Vistas guardadas",
-      "recordCount": "{count, plural, one {# registro} other {# registros}}"
+      "recordCount": "{count, plural, one {# registro} other {# registros}}",
+      "resetChanges": "Restablecer cambios"
     }
   },
-  "DealModal": {
-    "noServicesAdded": "Aún no se ha añadido ningún elemento «{entity}»",
-    "quantityLabel": "Cantidad",
-    "title": "Oportunidad",
-    "valueLabel": "Valor"
-  },
   "Diagrams": {
-    "groups": "grupos",
     "noData": "No hay datos disponibles",
     "noGroup": "Sin asignar",
     "total": "Total"
@@ -2255,6 +2054,7 @@
     "appRecords": "Registros",
     "appRoutines": "Rutinas",
     "appSearch": "Búsqueda global",
+    "appTrash": "Papelera",
     "architectureSecurity": "Arquitectura y seguridad",
     "concepts": "Conceptos clave",
     "connectCli": "CLI y editores",
@@ -2305,6 +2105,9 @@
     "underline": "Subrayado",
     "urlPlaceholder": "Introduce una URL..."
   },
+  "EditorTabs": {
+    "invalid": "Contiene errores"
+  },
   "EmailLayout": {
     "tagline": "El CRM agéntico de código abierto"
   },
@@ -2321,19 +2124,16 @@
       "noResults": "Sin coincidencias.",
       "searching": "Buscando…",
       "searchPlaceholder": "Busca o pega un correo, un teléfono o un identificador…",
-      "sourceContacts": "Contacto existente",
       "sourceConversations": "De tus conversaciones",
       "sourceLookup": "Encontrado por búsqueda",
       "trigger": "Añadir canal"
     },
-    "ariaCopy": "Copiar",
     "ariaStartThread": "Redactar un mensaje de {provider}",
     "ariaUnlink": "Desvincular el canal de {provider}",
     "compose": {
       "noAccount": "No hay ninguna cuenta de {provider} utilizable conectada. Conecta una en Mi perfil."
     },
-    "emptyHint": "Aún no hay canales. Añade un correo, LinkedIn, WhatsApp, …",
-    "heading": "Canales",
+    "emptyHint": "Aún no hay canales. Direcciones de correo, números de teléfono de WhatsApp y cuentas sociales que asocian los mensajes con este registro.",
     "tooltipOpenInbox": "Ir a la bandeja de entrada",
     "tooltipStartNewThread": "Mensaje nuevo",
     "tooltipUnlinkChannel": "Desvincular el canal",
@@ -2341,145 +2141,36 @@
     "unverified": "Sin verificar"
   },
   "EntityDetail": {
-    "computedFieldHelp": {
-      "dealValue": "Suma del precio unitario × la cantidad de cada registro vinculado en «{services}». Edita allí los registros vinculados o las cantidades para actualizarlo.",
-      "serviceLineValue": "Precio de «{service}» × cantidad. Cambia aquí el registro o la cantidad; edita el registro vinculado para cambiar su precio.",
-      "serviceQuantity": "Suma de las cantidades de todos los registros vinculados en «{services}». Edita allí las cantidades para actualizar el valor.",
-      "weightedValue": "{dealValue} × {percent} % de probabilidad de cierre de la etapa actual ({stage}). Edita «{services}», las cantidades o la etapa; gestiona las probabilidades en «{company}».",
-      "weightedValueUnconfigured": "{dealValue} × probabilidad de cierre de la etapa seleccionada. Configura las probabilidades en «{company}» y selecciona una etapa; edita «{services}» o las cantidades."
-    },
+    "configureField": "Editar campo {field}",
     "donePersonalizing": "Listo",
-    "fields": {
-      "createdAt": "Creado el",
-      "updatedAt": "Actualizado el"
-    },
+    "fieldCancelled": "Se ha cancelado el movimiento de {field}.",
+    "fieldDropped": "Se ha colocado {field}.",
+    "fieldMoved": "Se ha movido {field} a {target}.",
+    "fieldPickedUp": "Se ha seleccionado {field}.",
     "hideField": "Ocultar {field} de los detalles",
     "overview": "Vista general",
     "personalize": "Personalizar",
     "pinField": "Fijar {field} en el resumen",
+    "pinMore": "Fijar o soltar campos",
+    "reorderInstructions": "Pulsa Espacio o Intro para seleccionar un campo. Usa las flechas para moverlo, Espacio o Intro para soltarlo y Escape para cancelar.",
     "sections": {
       "notes": "Notas"
     },
     "showField": "Mostrar {field} en los detalles",
     "unpinField": "Desfijar {field} del resumen"
   },
-  "EntityTerminology": {
-    "presets": {
-      "contact": {
-        "client": {
-          "plural": "Clientes",
-          "singular": "Cliente"
-        },
-        "contact": {
-          "plural": "Contactos",
-          "singular": "Contacto"
-        },
-        "lead": {
-          "plural": "Leads",
-          "singular": "Lead"
-        },
-        "person": {
-          "plural": "Personas",
-          "singular": "Persona"
-        }
-      },
-      "deal": {
-        "deal": {
-          "plural": "Oportunidades",
-          "singular": "Oportunidad"
-        },
-        "job": {
-          "plural": "Trabajos",
-          "singular": "Trabajo"
-        },
-        "opportunity": {
-          "plural": "Oportunidades comerciales",
-          "singular": "Oportunidad comercial"
-        },
-        "project": {
-          "plural": "Proyectos",
-          "singular": "Proyecto"
-        }
-      },
-      "organization": {
-        "account": {
-          "plural": "Cuentas",
-          "singular": "Cuenta"
-        },
-        "company": {
-          "plural": "Empresas",
-          "singular": "Empresa"
-        },
-        "organization": {
-          "plural": "Organizaciones",
-          "singular": "Organización"
-        }
-      },
-      "service": {
-        "offering": {
-          "plural": "Ofertas",
-          "singular": "Oferta"
-        },
-        "package": {
-          "plural": "Paquetes",
-          "singular": "Paquete"
-        },
-        "product": {
-          "plural": "Productos",
-          "singular": "Producto"
-        },
-        "service": {
-          "plural": "Servicios",
-          "singular": "Servicio"
-        }
-      },
-      "task": {
-        "actionItem": {
-          "plural": "Acciones",
-          "singular": "Acción"
-        },
-        "followUp": {
-          "plural": "Seguimientos",
-          "singular": "Seguimiento"
-        },
-        "task": {
-          "plural": "Tareas",
-          "singular": "Tarea"
-        },
-        "todo": {
-          "plural": "Pendientes",
-          "singular": "Pendiente"
-        }
-      }
-    },
-    "relationships": {
-      "contactDealSummary": "Los elementos «{contacts}» participan en los elementos «{deals}».",
-      "contactOrganizationSummary": "Los elementos «{contacts}» trabajan en los elementos «{organizations}».",
-      "dataModelLabel": "Tu modelo de datos: elige los nombres que usa tu equipo; las relaciones no cambian.",
-      "dealServiceSummary": "Los elementos «{deals}» incluyen elementos «{services}».",
-      "howRecordsConnect": "Cómo se conectan los registros",
-      "include": "incluyen",
-      "involvedIn": "participan en",
-      "linkedTo": "están vinculados a",
-      "organizationDealSummary": "Los elementos «{organizations}» están vinculados a los elementos «{deals}».",
-      "selectLabel": "Nombre para {entity}",
-      "taskScope": "Los elementos «{tasks}» pueden vincularse a cualquier registro de este modelo.",
-      "workAt": "trabajan en"
-    }
-  },
   "EntityTimeline": {
     "detailDescription": "Detalles de la actividad y contexto del registro relacionado.",
     "error": "No se ha podido cargar la actividad.",
     "loadOlder": "Cargar más antiguos",
-    "loadOlderError": "No se ha podido cargar la actividad más antigua. Las entradas ya mostradas siguen disponibles.",
     "moreRecords": "+{count} más",
     "noFurtherDetail": "No se registraron más detalles para este evento.",
-    "pageLimitReached": "Se ha alcanzado la página disponible más antigua. Acota la selección actual para revisar actividad más antigua.",
-    "scopeTooBroad": "Estos filtros de relación coinciden con demasiados contactos para cargarlos de forma segura. Selecciona menos registros.",
     "types": {
       "activities": "Actividades",
-      "changes": "Cambios",
-      "messages": "Mensajes"
+      "audit": "Administración y sistema",
+      "configuration": "Configuración",
+      "messages": "Mensajes",
+      "record": "Cambios de registros"
     }
   },
   "ErrorCard": {
@@ -2558,10 +2249,11 @@
     "title": "Contraseña olvidada"
   },
   "GlobalSearch": {
-    "clearRecent": "Borrar",
-    "emptyDescription": "Busca {contacts}, {organizations}, {deals}, {services} y {tasks} en un solo lugar.",
+    "askMateWith": "Preguntar a Mate: {question}",
+    "emptyDescription": "Busca registros en las listas a las que tienes acceso.",
     "emptyTitle": "Encuentra todo en tu espacio de trabajo",
     "groupRecent": "Abiertos recientemente",
+    "hintAskMate": "Preguntar a Mate",
     "hintNavigate": "Navegar",
     "hintOpen": "Abrir",
     "loading": "Buscando...",
@@ -2628,7 +2320,6 @@
       "ccLabel": "Cc",
       "createContact": "Crear \"{query}\"",
       "draftAttachmentsUnsupported": "Elimina los archivos adjuntos antes de guardar este borrador.",
-      "draftDiscard": "Descartar",
       "draftDiscardFailed": "No se pudo descartar el borrador",
       "draftEdit": "Editar",
       "draftSaved": "Borrador guardado. Lo encontrarás en la bandeja de entrada.",
@@ -2641,7 +2332,7 @@
       "loadRemoteImages": "Cargar las imágenes remotas",
       "messageSent": "Mensaje enviado.",
       "moreSendOptions": "Más opciones de envío",
-      "noContacts": "Sin contactos.",
+      "noContacts": "Sin registros.",
       "retry": "Reintentar",
       "saveDraft": "Guardar como borrador",
       "send": "Enviar",
@@ -2682,7 +2373,6 @@
     },
     "groupThread": "Grupo ({count, plural, one {# miembro} other {# miembros}})",
     "hideQuotedText": "Ocultar el texto citado",
-    "jumpToLatest": "Ir a lo más reciente",
     "lastMessageDirections": {
       "inbound": "Recibido",
       "outbound": "Enviado"
@@ -2694,10 +2384,15 @@
     "messageDeleted": "Este mensaje se ha eliminado",
     "messageDetails": "Detalles del mensaje",
     "participants": {
+      "conversationRecords": "Registros de la conversación",
+      "conversationRecordsHint": "Vincula esta conversación a un registro sin vincular otras conversaciones de este participante.",
       "link": "Vincular",
-      "linkUpdateFailed": "No se pudo actualizar el vínculo con el contacto",
-      "openContact": "Abrir el contacto",
-      "unlink": "Desvincular el contacto"
+      "linkRecord": "Vincular registro",
+      "linkUpdateFailed": "No se pudo actualizar el vínculo con el registro",
+      "noRecords": "Sin registros vinculados",
+      "openRecordNamed": "Abrir registro: {name}",
+      "unlinkRecord": "Desvincular registro",
+      "unlinkRecordNamed": "Desvincular registro: {name}"
     },
     "previewAudio": "🎵 Audio",
     "previewFile": "📄 Archivo adjunto",
@@ -2709,7 +2404,6 @@
     "previewVideo": "🎥 Vídeo",
     "previewVoice": "🎙️ Mensaje de voz",
     "rateLimited": "Este canal ha alcanzado su límite de frecuencia. Puedes reintentar {retryAfter, select, later {más tarde} other {{retryAfter}}}.",
-    "refresh": "Actualizar",
     "refreshDone": "Bandeja de entrada actualizada.",
     "refreshNeedsReconnect": "{count, plural, one {# canal debe} other {# canales deben}} volver a conectarse antes de sincronizarse. Abre Canales para reconectarlos.",
     "refreshPartial": "{count, plural, one {No se pudo actualizar # canal} other {No se pudieron actualizar # canales}}. La bandeja muestra lo último sincronizado.",
@@ -2745,7 +2439,7 @@
       "spam": "Spam",
       "unread": "Sin leer"
     },
-    "unlinkedParticipants": "Algunos participantes no están vinculados a un contacto",
+    "unlinkedParticipants": "Algunos participantes no tienen ningún registro vinculado que puedas ver",
     "voice": {
       "pause": "Pausar",
       "play": "Reproducir",
@@ -2785,6 +2479,45 @@
     "stepsTitle": "Cómo unirte",
     "subtitle": "Un administrador del espacio de trabajo debe invitar a {email}.",
     "title": "Unirte a un espacio de trabajo existente"
+  },
+  "KeyboardShortcuts": {
+    "actions": {
+      "add": "Añadir un registro o una lista",
+      "askMate": "Preguntar a Mate",
+      "close": "Cerrar el diálogo o panel superior",
+      "goConfigure": "Configurar",
+      "goDashboard": "Panel",
+      "goInbox": "Bandeja de entrada",
+      "goKnowledgeBase": "Base de conocimientos",
+      "goList": "Listas según su posición en tu barra lateral",
+      "goRoutines": "Rutinas",
+      "goSettings": "Ajustes",
+      "openFilters": "Abrir los filtros de una lista",
+      "save": "Guardar el formulario abierto",
+      "search": "Buscar",
+      "searchAlias": "Buscar",
+      "shortcuts": "Mostrar atajos de teclado",
+      "switchView": "Cambiar de vista en una lista",
+      "toggleSidebar": "Mostrar u ocultar la barra lateral"
+    },
+    "groups": {
+      "create": "Crear",
+      "forms": "Formularios",
+      "general": "General",
+      "listsAndViews": "Listas y vistas",
+      "navigation": "Navegación"
+    },
+    "noMatches": "Ningún atajo coincide con tu búsqueda.",
+    "or": "o",
+    "pendingGo": "Ir a… pulsa una letra o un número de lista",
+    "searchLabel": "Buscar atajos",
+    "searchPlaceholder": "Buscar atajos…",
+    "singleKey": {
+      "description": "C, /, V, ? y las secuencias G. Desactívalos si usas entrada por voz o pulsas teclas por error.",
+      "label": "Atajos de una tecla"
+    },
+    "then": "luego",
+    "title": "Atajos de teclado"
   },
   "LegalDocumentNotice": {
     "contractBody": "Hemos actualizado los documentos legales que se indican a continuación. Revísalos en nombre del cliente empresarial y organiza su aceptación electrónica por parte de un administrador del sistema autorizado.",
@@ -2831,17 +2564,16 @@
     "text": "Cargando..."
   },
   "MassActions": {
-    "apply": "Aplicar a la selección",
     "clearField": "Vaciar campo",
     "delete": "Eliminar la selección",
+    "edit": "Editar",
     "keepInView": "Conservar solo las filas visibles",
     "limitReached": "Puedes seleccionar hasta {limit} registros a la vez.",
     "noMatchingFields": "Ningún campo coincide con tu búsqueda.",
     "offView": "{count, plural, one {# fuera de la vista actual} other {# fuera de la vista actual}}",
     "scopeStale": "Los filtros han cambiado desde que hiciste esta selección.",
     "searchFieldPlaceholder": "Buscar campos…",
-    "selectedCount": "{count, plural, one {# elemento seleccionado} other {# elementos seleccionados}}",
-    "update": "Actualizar"
+    "selectedCount": "{count, plural, one {# elemento seleccionado} other {# elementos seleccionados}}"
   },
   "McpConsentCard": {
     "approve": "Aprobar",
@@ -2867,15 +2599,12 @@
     "addEntity": "Añadir {entity}",
     "addPickerDescription": "Elige el tipo de registro que quieres crear.",
     "addPickerTitle": "Crear nuevo…",
-    "admin": "Administración",
     "affiliate": "Programa de afiliados",
-    "connectedAccounts": "Canales",
-    "crm": "CRM",
     "dashboard": "Panel",
+    "data": "Datos",
     "docs": "Documentación",
     "features": "Funciones",
     "inbox": "Bandeja de entrada",
-    "members": "Miembros",
     "operator": "Consola del operador",
     "overview": "Resumen",
     "pricing": "Precios",
@@ -2929,9 +2658,8 @@
     "routines": "Rutinas",
     "search": "Buscar",
     "settings": "Ajustes",
-    "subscription": "Suscripción",
-    "wiki": "Base de conocimientos",
-    "workspace": "Espacio de trabajo"
+    "trash": "Papelera",
+    "wiki": "Base de conocimientos"
   },
   "NotFoundPage": {
     "body": "Se nos ha avisado automáticamente de que esta página se ha ido de vacaciones. ¡La localizaremos y la traeremos de vuelta pronto!",
@@ -3059,7 +2787,6 @@
         }
       }
     },
-    "back": "Atrás",
     "continue": "Continuar",
     "finish": "Finalizar",
     "invite": {
@@ -3111,7 +2838,6 @@
     "emptyBody": "Ajusta la búsqueda o los filtros para ampliar el registro.",
     "emptyTitle": "Ningún evento coincide con estos filtros",
     "navigation": "Registro de auditoría",
-    "searchPlaceholder": "Buscar por acción",
     "values": {
       "action": {
         "auditRead": "Auditoría de operador leída",
@@ -3140,6 +2866,7 @@
   "OperatorConsole": {
     "confirm": {
       "allowance": "¿Establecer la asignación Enterprise de {name} en {value} créditos por usuario? Se aplica a todo el espacio de trabajo.",
+      "changes": "¿Guardar estos cambios para {name}? Se aplican a todo el espacio de trabajo.",
       "plan": "¿Establecer el plan de {name} en {value}? Se aplica a todo el espacio de trabajo.",
       "subscription": "¿Establecer el estado de suscripción de {name} en {value}? Se aplica a todo el espacio de trabajo y no contacta con ningún proveedor de facturación.",
       "tags": "¿Establecer las etiquetas de {name} en {value}? Se aplica a todo el espacio de trabajo.",
@@ -3237,7 +2964,6 @@
       "title": "Restablecimiento de créditos",
       "zeroBalance": "Poner a cero el saldo restante"
     },
-    "searchPlaceholder": "Buscar por nombre o correo de la cuenta",
     "values": {
       "noSubscription": "Sin suscripción",
       "operator": "Operador de la plataforma"
@@ -3265,11 +2991,8 @@
     },
     "delete": {
       "action": "Eliminar espacio de trabajo",
-      "confirmLabel": "Escribe {name} para confirmar",
-      "confirmMessage": "{name} y {members, plural, =1 {su única cuenta de miembro} other {todas sus # cuentas de miembro}} se eliminarán de forma permanente. Esta acción no se puede deshacer.",
       "confirmTitle": "Eliminar permanentemente este espacio de trabajo",
       "reasonLabel": "Motivo",
-      "title": "Eliminar este espacio de trabajo",
       "warningDescription": "Al eliminar {name} se borran de forma permanente el espacio de trabajo y {members, plural, =1 {su única cuenta de miembro} other {todas sus # cuentas de miembro}}, junto con sus contactos, negocios, mensajes, credenciales de acceso y registros de facturación. Esta acción no se puede deshacer."
     },
     "emptyBody": "Ajusta la búsqueda o los filtros para ampliar la lista.",
@@ -3280,7 +3003,6 @@
       "workspaceId": "ID del espacio de trabajo"
     },
     "navigation": "Espacios de trabajo",
-    "searchPlaceholder": "Buscar por correo de un miembro",
     "stats": {
       "assistantConversations": "Chats del asistente",
       "connectedAccounts": "Cuentas conectadas",
@@ -3315,13 +3037,8 @@
       "members": "{active} de {total}"
     }
   },
-  "OrganizationModal": {
-    "title": "Organización"
-  },
   "PageState": {
-    "loading": "Cargando la página",
-    "notFoundDescription": "Es posible que este registro se haya eliminado o que no tengas acceso a él.",
-    "notFoundTitle": "Registro no encontrado"
+    "loading": "Cargando la página"
   },
   "PendingCard": {
     "body": "Podrás iniciar sesión en cuanto el administrador de tu empresa apruebe tu cuenta.",
@@ -3330,6 +3047,696 @@
   },
   "ProfileSections": {
     "apiKeysDescription": "Claves de API de larga duración para el acceso programático."
+  },
+  "RecordActivityWidgets": {
+    "after": "Desde",
+    "allRecords": "Sin selección se incluyen todos los registros accesibles de este tipo.",
+    "before": "Hasta",
+    "filterKinds": {
+      "provider": "Proveedor"
+    },
+    "records": "Registros",
+    "savedFilters": "Filtros de alcance guardados",
+    "scopeHelp": "Sin selección se muestran todas las actividades accesibles. Los tipos y registros seleccionados se combinan; todos los filtros adicionales deben coincidir.",
+    "types": "Tipos de registro"
+  },
+  "RecordModel": {
+    "access": "Acceso",
+    "accessDescription": "Solo los administradores pueden acceder a esta lista, salvo que selecciones un acceso predefinido aprobado.",
+    "addAttribute": "Añadir atributo",
+    "addEmbedded": "Añadir {type}",
+    "addField": "Añadir campo",
+    "addGroupSummary": "Añadir resumen",
+    "addInput": "Añadir entrada",
+    "addMenu": {
+      "calculation": "Campo calculado",
+      "channels": "Canales",
+      "field": "Campo",
+      "list": "Lista",
+      "relationship": "Relación",
+      "sublist": "Sublista"
+    },
+    "addOption": "Añadir opción",
+    "addPathStep": "Añadir un paso de relación",
+    "addProperty": "Añadir propiedad",
+    "addRelationship": "Añadir relación",
+    "aggregation": "Agregación",
+    "ascending": "Ascendente",
+    "assignedTo": "Asignado a",
+    "attribute": "Nombre del atributo",
+    "attributeNameTaken": "Otro atributo ya tiene este nombre",
+    "behavior": "Origen del valor",
+    "behaviors": {
+      "formula": "Calculado a partir de este registro",
+      "input": "Introducido manualmente",
+      "lookup": "Tomado de un registro vinculado",
+      "rollup": "Contado o totalizado de registros vinculados",
+      "snapshot": "Guardado en un evento"
+    },
+    "board": "Tablero",
+    "calculatedValue": "Calculado: {formula}",
+    "calculatedValuePlain": "Valor calculado",
+    "calculationError": "Cálculo no disponible",
+    "calculationFlow": {
+      "addStep": "Añadir paso",
+      "aggregates": {
+        "average": "Promedio",
+        "count": "Número",
+        "max": "Máximo",
+        "min": "Mínimo",
+        "sum": "Suma"
+      },
+      "describe": {
+        "failed": "No se pudo convertir en un cálculo. Prueba a describirlo de otra forma.",
+        "label": "Describe el cálculo",
+        "pending": "Preparando el cálculo",
+        "placeholder": "Por ejemplo: total de los importes de todas las líneas vinculadas",
+        "stop": "Detener el borrador",
+        "unavailable": "La redacción no está disponible ahora."
+      },
+      "example": {
+        "next": "Mostrar otro ejemplo",
+        "none": "Añade un registro a esta lista para ver un ejemplo.",
+        "restricted": "No puedes ver todos los registros que usa, así que no hay ejemplo.",
+        "title": "Ejemplo",
+        "unavailable": "Demasiados registros vinculados para mostrar un ejemplo."
+      },
+      "inputs": "Entradas",
+      "linkedList": "Lista vinculada",
+      "missing": {
+        "average": "Elige qué valor promediar.",
+        "input": "Elige un valor para empezar.",
+        "max": "Elige de qué valor tomar el mayor.",
+        "min": "Elige de qué valor tomar el menor.",
+        "mismatch": "Estos valores no encajan.",
+        "relationship": "Elige qué registros vinculados usar.",
+        "step": "Elige los valores para {operation}.",
+        "sum": "Elige qué valor sumar.",
+        "take": "Elige qué valor tomar.",
+        "trigger": "Elige el campo que activa el guardado.",
+        "triggerValue": "Elige el valor que activa el guardado."
+      },
+      "moreOptions": "Más opciones",
+      "of": "de",
+      "ofLinked": "de {list} vinculados",
+      "picker": {
+        "fields": "Campos",
+        "fixedValue": "Valor fijo",
+        "goFurther": "Ir más allá",
+        "operations": {
+          "compare": "Comparar",
+          "dates": "Fechas",
+          "logic": "Lógica",
+          "math": "Matemáticas",
+          "text": "Texto"
+        },
+        "relationships": "Registros vinculados",
+        "use": "Usar este valor"
+      },
+      "pickField": "Elegir un campo",
+      "pickRelationship": "Elegir una relación",
+      "pickValue": "Elegir un valor",
+      "private": "Privado",
+      "sentence": {
+        "average": "{field} es el promedio de {value} de todos los {list} vinculados.",
+        "count": "{field} cuenta los {list} vinculados.",
+        "formula": "{field} se calcula como {formula}.",
+        "lookup": "{field} muestra {value} del registro vinculado ({list}).",
+        "max": "{field} es el mayor {value} de todos los {list} vinculados.",
+        "min": "{field} es el menor {value} de todos los {list} vinculados.",
+        "savedOnCreate": "Se guarda al crear el registro.",
+        "savedOnRequest": "Se guarda cuando alguien lo pide.",
+        "savedWhenChanged": "Se guarda cuando cambia {field}.",
+        "savedWhenChangedTo": "Se guarda cuando {field} cambia a {value}.",
+        "sum": "{field} suma {value} de todos los {list} vinculados.",
+        "throughList": "{list} de {via}",
+        "typeOver": "Se puede escribir encima."
+      },
+      "shown": "Visible para todos",
+      "showToEveryone": "Mostrar a todos los que pueden ver el registro ({list})",
+      "showToEveryoneHelp": "Verán este valor aunque no puedan abrir el registro vinculado ({list}).",
+      "step": "Paso {number}",
+      "take": "Tomar",
+      "text": {
+        "average": "promedio de {value} de los {list} vinculados",
+        "count": "número de {list} vinculados",
+        "daysBetween": "días de {from} a {to}",
+        "if": "si {condition} entonces {then}, si no {otherwise}",
+        "linkedValue": "{value} de {list}",
+        "lower": "{value} en minúsculas",
+        "max": "mayor {value} de los {list} vinculados",
+        "min": "menor {value} de los {list} vinculados",
+        "not": "no {value}",
+        "sum": "suma de {value} de los {list} vinculados",
+        "trim": "{value} sin espacios alrededor",
+        "upper": "{value} en mayúsculas"
+      },
+      "thisField": "Este campo",
+      "thisList": "Esta lista",
+      "typeOver": "Permitir escribir encima",
+      "updateModes": {
+        "create": "Se guarda al crear el registro",
+        "explicit": "Se guarda bajo petición",
+        "live": "Siempre actualizado",
+        "whenChanged": "Se guarda cuando cambia un campo"
+      },
+      "updates": "Actualización"
+    },
+    "cancelOperation": "Cancelar cambio",
+    "captureOnSave": "Capturar al guardar",
+    "captureOnSaveField": "Capturar {field} al guardar",
+    "captureValue": "Capturar valor",
+    "captureValueField": "Capturar {field}",
+    "cardinality": {
+      "manyToMany": "Varios a varios",
+      "manyToOne": "Varios a uno",
+      "oneToMany": "Uno a varios",
+      "oneToOne": "Uno a uno"
+    },
+    "changeBlocked": "Este cambio todavía no se puede aplicar",
+    "channelsHelp": "Direcciones de correo, números de teléfono de WhatsApp y cuentas sociales que asocian los mensajes con este registro. Los números de teléfono solo se asocian en los chats de WhatsApp. Un identificador puede vincularse con varios registros.",
+    "clickAction": "Al hacer clic",
+    "clickActions": {
+      "channels": {
+        "copy": "Copiar",
+        "open": "Abrir correo, llamada o perfil"
+      },
+      "email": {
+        "copy": "Copiar dirección",
+        "open": "Abrir en la app de correo"
+      },
+      "phone": {
+        "copy": "Copiar número",
+        "open": "Llamar al número"
+      },
+      "url": {
+        "copy": "Copiar enlace",
+        "open": "Abrir enlace"
+      }
+    },
+    "color": "Color",
+    "conditionIf": "Condición",
+    "conditionOtherwise": "Si no",
+    "conditionThen": "Entonces",
+    "configurationDeletion": {
+      "blockedMessage": "{name} no se puede eliminar mientras otras partes de tu configuración lo sigan usando.",
+      "blockers": {
+        "binding": "{target} controla el acceso al espacio de trabajo de {source} y no se puede eliminar.",
+        "calculation": "{source} se calcula a partir de {target}.",
+        "parentAccess": "{source} obtiene su acceso a través de {target}.",
+        "protected": "{source} controla el acceso al espacio de trabajo y no se puede eliminar.",
+        "requiresRestore": "Restaura primero {target}, {source} pertenece a él.",
+        "routine": "La rutina {source} reacciona a {target}.",
+        "snapshotTrigger": "{source} guarda su valor cuando cambia {target}.",
+        "webhook": "El webhook {source} envía cambios de {target}.",
+        "widget": "El widget {source} mide {target}."
+      },
+      "cleaned": {
+        "bindingAvatar": "{target} deja de usarse como foto de perfil de {consumers}.",
+        "bindingCalendar": "{target} deja de usarse para los eventos de calendario de {consumers}.",
+        "listDefaults": "{target} se quita del diseño predeterminado de {consumers}.",
+        "nameField": "{consumers} se mostrará con {replacement} en su lugar.",
+        "nameFieldNone": "Ningún campo de {consumers} puede ya dar nombre a sus registros, así que aparecen como «{singular} sin nombre».",
+        "personalLayouts": "{target} se quita de {count, plural, one {# diseño personal} other {# diseños personales}}.",
+        "view": "{count, plural, one {{target} se quita de la vista {consumers}.} other {{target} se quita de # vistas: {consumers}.}}",
+        "webhookPaused": "{count, plural, one {El webhook {consumers} queda en pausa porque {target} era su único disparador. Elige un nuevo disparador antes de volver a activarlo.} other {# webhooks quedan en pausa porque {target} era su único disparador: {consumers}. Elige un nuevo disparador antes de volver a activarlos.}}",
+        "webhookTrigger": "{count, plural, one {{target} se quita del disparador del webhook {consumers}.} other {{target} se quita del disparador de # webhooks: {consumers}.}}",
+        "widget": "{count, plural, one {{target} se quita de los filtros o la agrupación del widget {consumers}.} other {{target} se quita de los filtros o la agrupación de # widgets: {consumers}.}}",
+        "widgetCount": "{count, plural, one {El widget {consumers} cuenta registros en lugar de medir {target}.} other {# widgets cuentan registros en lugar de medir {target}: {consumers}.}}"
+      },
+      "configureActions": "Acciones de Configurar",
+      "deleteColumn": "Eliminar columna",
+      "deleteColumnMessage": "La columna de registros relacionados {name} se quita de {list}.",
+      "deleteColumnTitle": "¿Eliminar la columna {name}?",
+      "deleteField": "Eliminar campo",
+      "deleteList": "Eliminar lista",
+      "deleteMessage": "{name} pasa a la Papelera. Puedes restaurarlo allí durante 30 días.",
+      "deleteRelationship": "Eliminar relación",
+      "deleteTitle": "¿Eliminar {name}?",
+      "issues": {
+        "dependency": "{subject} depende de este cambio. Actualízalo primero.",
+        "detailLayout": "Diseños personales de registros todavía usan {subject}.",
+        "existingValues": "Algunos valores existentes de {subject} no encajan con el cambio.",
+        "readAll": "{subject} todavía contiene registros que no puede ver. Solo quien puede leer todos sus registros, o un administrador, puede eliminarlo definitivamente.",
+        "savedView": "Vistas guardadas o diseños personales todavía usan {subject}.",
+        "summaryApproval": "{subject} necesita una nueva aprobación del resumen."
+      },
+      "moved": "Movido a la Papelera"
+    },
+    "configure": "Configurar",
+    "configureList": "Configurar {list}",
+    "connectionType": "Conexión",
+    "constant": "Valor fijo",
+    "contactFullName": "Nombre completo",
+    "createdAt": "Creado el",
+    "createList": "Crear lista",
+    "createSublist": "Nueva sublista de {list}",
+    "currency": "Moneda",
+    "decimalPlaces": "Decimales",
+    "decimalPlacesHelp": "Déjalo vacío para usar el formato predeterminado. Solo cambia cómo se muestran los valores, no su cálculo.",
+    "defaultColumns": "Columnas predeterminadas",
+    "defaultGrouping": "Agrupación predeterminada",
+    "defaultLayout": "Diseño predeterminado",
+    "defaultOrder": "Orden de creación",
+    "defaultSort": "Orden predeterminado",
+    "defaultValue": "Valor predeterminado",
+    "deleteRecord": "Eliminar {name}",
+    "deletion": {
+      "cascade": "Eliminar también los registros vinculados",
+      "restrict": "Impedir la eliminación mientras esté vinculado",
+      "unlink": "Eliminar el vínculo"
+    },
+    "deletionAccepted": "Eliminación aceptada.",
+    "deletionCalculations": "Cálculos que pueden verse afectados: {fields}.",
+    "deletionLinks": "Enlaces eliminados: {count}.",
+    "deletionRecords": "Se eliminarán: {records}.",
+    "deletionRestrictedLinks": "La cantidad de enlaces está oculta porque algunos registros vinculados tienen acceso restringido.",
+    "dependencyHelp": "Resuelve las dependencias afectadas antes de aplicar este cambio.",
+    "descending": "Descendente",
+    "description": "Descripción",
+    "detailLayoutReadFailed": "No se pudo cargar tu diseño guardado.",
+    "detailLayoutSaveFailed": "No se pudieron guardar los cambios de diseño.",
+    "directRelationship": "Relación directa",
+    "disabled": "Desactivado",
+    "duplicateFieldName": "Otro campo de esta lista ya usa este nombre, incluidos los campos eliminados recientemente. Elige otro nombre.",
+    "duplicateListName": "Otra lista ya usa este nombre. Los nombres de lista deben ser únicos, sin distinguir mayúsculas, acentos ni espacios adicionales.",
+    "duplicateOptionLabel": "Dos opciones de este campo tienen la misma etiqueta. Las etiquetas de opción deben ser únicas.",
+    "duplicateRelationshipLabel": "Otra relación de esta lista ya usa esta etiqueta. Elige otra etiqueta.",
+    "edit": "Editar",
+    "editField": "Editar campo",
+    "editValue": "Editar {field}",
+    "empty": "Todavía no hay registros",
+    "emptyDescription": "Crea tu primer registro para empezar.",
+    "enabled": "Activado",
+    "fields": "Campos",
+    "fieldSource": {
+      "formula": "Fórmula",
+      "lookup": "Valor de {list}",
+      "rollup": "Total de {list}"
+    },
+    "fieldTabs": {
+      "calculation": "Cálculo"
+    },
+    "general": "General",
+    "graph": {
+      "accountEdge": "Sincroniza conversaciones en {list}",
+      "accounts": "Cuentas conectadas",
+      "accountUnit": "{count, plural, one {cuenta} other {cuentas}}",
+      "addTo": "Añadir a {list}",
+      "calculatedFrom": "a partir de {sources}",
+      "calculationEdge": "Calculado a partir de esta lista: {fields}",
+      "connectDescription": "Conecta Gmail, Outlook u otro canal para traer las conversaciones a tus listas.",
+      "connectTitle": "Conectar correo y calendario",
+      "controls": "Controles del gráfico",
+      "fitView": "Ajustar a la vista",
+      "handle": "Punto de conexión",
+      "help": "Selecciona una lista o un campo para editarlo, el chip de una línea para editar una relación o arrastra desde el punto de una lista a otra para conectarlas.",
+      "helpReadOnly": "Selecciona una lista para abrirla. Las líneas muestran cómo se relacionan las listas y de dónde salen los valores calculados.",
+      "label": "Gráfico de listas, campos y cuentas conectadas",
+      "moreAccounts": "{count, plural, one {# cuenta más} other {# cuentas más}}",
+      "moreFields": "{count, plural, one {# campo más} other {# campos más}}",
+      "recordsRestricted": "Número de registros no disponible",
+      "recordUnit": "{count, plural, one {registro} other {registros}}",
+      "relationshipLabel": "{label}: {source} con {target}, {cardinality}",
+      "resetLayout": "Restablecer diseño",
+      "showFewer": "Mostrar menos",
+      "zoomIn": "Acercar",
+      "zoomOut": "Alejar"
+    },
+    "groupSummaries": "Resúmenes de grupo",
+    "groupSummariesDescription": "Muestra totales y otras métricas en los grupos de tabla y las columnas del tablero. Cada registro contribuye una vez por grupo, incluidos los de páginas posteriores.",
+    "hiddenList": "Oculta",
+    "icon": "Icono",
+    "iconChoose": "Elegir icono",
+    "iconNoMatch": "Ningún icono coincide",
+    "icons": {
+      "alarm": "Recordatorio",
+      "alert": "Incidencia",
+      "award": "Premio",
+      "bag": "Compra",
+      "banknote": "Pago",
+      "barcode": "Código de barras",
+      "book": "Libro",
+      "box": "Producto",
+      "boxes": "Inventario",
+      "briefcase": "Maletín",
+      "bug": "Error",
+      "building": "Edificio",
+      "calendar": "Calendario",
+      "calendarCheck": "Cita",
+      "camera": "Foto",
+      "car": "Vehículo",
+      "cart": "Pedido",
+      "chart": "Gráfico",
+      "check": "Marca de verificación",
+      "clipboard": "Lista de control",
+      "clock": "Tiempo",
+      "coins": "Monedas",
+      "contact": "Personas",
+      "contactCard": "Tarjeta de contacto",
+      "contract": "Contrato",
+      "creditCard": "Tarjeta de crédito",
+      "database": "Base de datos",
+      "deal": "Apretón de manos",
+      "document": "Documento",
+      "factory": "Fábrica",
+      "files": "Archivos",
+      "filter": "Embudo",
+      "flag": "Bandera",
+      "folder": "Carpeta",
+      "gavel": "Caso",
+      "gift": "Regalo",
+      "globe": "Sitio web",
+      "graduationCap": "Formación",
+      "hammer": "Herramienta",
+      "handshake": "Crecimiento",
+      "hardDrive": "Almacenamiento",
+      "headset": "Centro de atención",
+      "heart": "Favorito",
+      "home": "Inmueble",
+      "hotel": "Hotel",
+      "idCard": "Documento de identidad",
+      "inbox": "Bandeja de entrada",
+      "kanban": "Tablero",
+      "key": "Llave",
+      "landmark": "Institución",
+      "laptop": "Portátil",
+      "layers": "Capas",
+      "leaf": "Naturaleza",
+      "lifeBuoy": "Soporte",
+      "lightbulb": "Idea",
+      "link": "Enlace",
+      "list": "Lista",
+      "mail": "Correo",
+      "map": "Mapa",
+      "mapPin": "Ubicación",
+      "megaphone": "Campaña",
+      "message": "Mensaje",
+      "milestone": "Hito",
+      "music": "Música",
+      "network": "Red",
+      "newspaper": "Noticias",
+      "notebook": "Cuaderno",
+      "package": "Paquete",
+      "palette": "Diseño",
+      "percent": "Descuento",
+      "phone": "Llamada",
+      "piggyBank": "Ahorros",
+      "pill": "Medicamento",
+      "plane": "Viaje",
+      "receipt": "Factura",
+      "repeat": "Recurrente",
+      "rocket": "Lanzamiento",
+      "scale": "Legal",
+      "server": "Servidor",
+      "shield": "Política",
+      "signature": "Firma",
+      "smartphone": "Móvil",
+      "stamp": "Aprobación",
+      "star": "Estrella",
+      "stethoscope": "Salud",
+      "store": "Tienda",
+      "tag": "Etiqueta",
+      "target": "Objetivo",
+      "ticket": "Ticket",
+      "trophy": "Trofeo",
+      "truck": "Envío",
+      "user": "Persona",
+      "userCheck": "Persona aprobada",
+      "userPlus": "Nueva persona",
+      "usersRound": "Equipo",
+      "utensils": "Restaurante",
+      "wallet": "Cartera",
+      "warehouse": "Almacén",
+      "wrench": "Mantenimiento"
+    },
+    "iconSearch": "Buscar iconos",
+    "identityChannels": "Canales",
+    "invalidConfiguration": "Este cambio requiere revisión antes de aplicarlo.",
+    "invalidPhone": "Introduce un número de teléfono en formato internacional, por ejemplo +4930123456.",
+    "invalidValue": "Introduce un valor válido.",
+    "lineFields": {
+      "amount": "Importe",
+      "effectivePrice": "Precio unitario",
+      "pricingMode": "Precio",
+      "quantity": "Cantidad",
+      "savedPrice": "Precio unitario guardado"
+    },
+    "lineItem": "Partida",
+    "lineItems": "Partidas",
+    "linkedRecordCount": "{count} registros vinculados",
+    "linkedType": "Vincular a",
+    "linkRecord": "Vincular un registro",
+    "listActions": "Acciones de la lista",
+    "listCounts": "{fields, plural, one {# campo} other {# campos}} · {relationships, plural, one {# relación} other {# relaciones}}",
+    "listUnavailable": "Esta lista no está disponible. Elige otra lista.",
+    "member": "Miembro",
+    "missing": "Sin valor",
+    "moreActions": "Más acciones para {name}",
+    "moveDown": "Bajar {field}",
+    "moveUp": "Subir {field}",
+    "multipleValues": "Permitir varios valores",
+    "name": "Nombre",
+    "newRecord": "Nuevo registro",
+    "no": "No",
+    "noGrouping": "Sin agrupación",
+    "noneYet": "Todavía ninguno",
+    "noOptions": "Todavía no hay opciones. Añade la primera opción para elegir.",
+    "onePerLine": "Introduce un valor por línea.",
+    "onSourceDelete": "Al eliminar este registro",
+    "onTargetDelete": "Al eliminar el registro vinculado",
+    "openDetails": "Abrir detalles",
+    "openPage": "Abrir página",
+    "openRecord": "Abrir {name}",
+    "operation": "Cálculo",
+    "operationCancelled": "El cambio se canceló.",
+    "operationFailed": "El cambio falló. El estado completo anterior sigue activo.",
+    "operationPending": "Se están preparando los cambios. Los datos existentes siguen disponibles.",
+    "operationProgress": "{processed} de {total} preparados",
+    "operators": {
+      "add": "Sumar",
+      "and": "Todas las condiciones",
+      "coalesce": "Primer valor disponible",
+      "concat": "Unir texto",
+      "daysBetween": "Días entre",
+      "divide": "Dividir",
+      "equal": "Es igual a",
+      "greaterThan": "Mayor que",
+      "if": "Si, entonces, si no",
+      "lessThan": "Menor que",
+      "lower": "Minúsculas",
+      "multiply": "Multiplicar",
+      "not": "No",
+      "or": "Cualquier condición",
+      "subtract": "Restar",
+      "trim": "Eliminar espacios al principio y al final",
+      "upper": "Mayúsculas"
+    },
+    "oppositeLabel": "Etiqueta en el otro lado",
+    "option": "Opción",
+    "optionCount": "{count, plural, =0 {Sin opciones} one {# opción} other {# opciones}}",
+    "options": "Opciones",
+    "pinnedFields": "Campos de detalle fijados",
+    "pluralDescription": "Se muestra en la navegación y en los títulos de lista. Se sugiere a partir del nombre hasta que lo cambies.",
+    "pluralName": "Nombre en plural",
+    "previewReady": "Listo para aplicar. Se comprobarán {count} registros.",
+    "previewReadyHidden": "Listo para aplicar. Incluye registros que no puede ver.",
+    "priceModes": {
+      "live": "Precio actual",
+      "saved": "Precio guardado"
+    },
+    "privateAccess": "Solo administradores",
+    "probability": "Probabilidad %",
+    "probabilityNeedsNumber": "La probabilidad es un atributo numérico. Añádela con Añadir atributo.",
+    "progressUnavailable": "No se pudo cargar el progreso. Tu borrador se conserva.",
+    "rangeEnd": "Hasta",
+    "rangeStart": "Desde",
+    "record": "Registro",
+    "recordConflictFields": "También se modificó en otro lugar: {fields}. Elige qué versión conservar antes de guardar.",
+    "recordReload": "Volver a cargar el registro",
+    "recordReloadKeepChanges": "Volver a cargar y conservar mis cambios",
+    "records": "Registros",
+    "recordStale": "Este registro se modificó en otro lugar. Vuelve a cargarlo para seguir editando.",
+    "recordStaleDraft": "Este registro cambió desde que empezaste a editarlo. Vuelve a cargarlo para continuar; tus cambios sin guardar se conservan.",
+    "reducers": {
+      "average": "Media",
+      "count": "Recuento",
+      "max": "Máximo",
+      "min": "Mínimo",
+      "one": "Un valor vinculado",
+      "sum": "Suma"
+    },
+    "relationship": "Relación",
+    "relationshipChange": "{count} relaciones modificadas",
+    "relationshipEditor": {
+      "cardinality": "Cuántos registros se vinculan",
+      "messagesHelp": "Los mensajes proceden de registros vinculados con canales o de conversaciones vinculadas. Los permisos de registros y mensajes siguen aplicándose.",
+      "onDelete": "Al eliminar",
+      "otherList": "la lista vinculada",
+      "showMessagesOn": "Mostrar sus mensajes en {list}",
+      "showMessagesOnSide": "Mostrar sus mensajes en {list} ({side})",
+      "shownOn": "Se muestra en los registros de {list}",
+      "thisList": "Esta lista"
+    },
+    "relationshipLabel": "Etiqueta en este lado",
+    "relationshipPath": "A través de registros vinculados",
+    "relationshipPathHelp": "Muestra registros a través de relaciones existentes. Edita los vínculos originales para cambiar estos registros.",
+    "relationships": "Relaciones",
+    "relationshipsEmpty": "Aún no hay relaciones. Vincula esta lista con otra para ver los registros relacionados juntos.",
+    "reloadLists": "Recargar listas",
+    "removeGroupSummary": "Eliminar resumen",
+    "removeInput": "Eliminar entrada",
+    "removePathStep": "Eliminar {label} y los pasos siguientes",
+    "renameAttribute": "Cambiar nombre",
+    "renewPublishedSummaries": "Renovar los resúmenes publicados",
+    "renewPublishedSummariesHelp": "Aprobar los datos modificados de estos resúmenes. Sus valores seguirán visibles para quienes no puedan acceder a los datos vinculados.",
+    "required": "Obligatorio",
+    "resetDefaults": "Restablecer valores compartidos",
+    "resetDetailLayout": "Restablecer valores predeterminados",
+    "restricted": "Restringido",
+    "resume": "Reanudar",
+    "retry": "Reintentar",
+    "returnToDraft": "Volver al borrador",
+    "saveBeforeEmbedded": "Guarda este registro antes de modificar los elementos vinculados.",
+    "savingDetailLayout": "Guardando diseño…",
+    "setDefaultValue": "Definir un valor predeterminado",
+    "sharedDefaults": "Valores predeterminados compartidos",
+    "sharedDefaultsDescription": "Estos valores se aplican hasta que alguien personaliza su vista. Se conservan las preferencias personales existentes.",
+    "showInNavigation": "Mostrar en la navegación",
+    "sortDirection": "Dirección del orden",
+    "stagedValidation": "Los datos existentes se validarán en segundo plano. El estado completo anterior seguirá activo hasta que la validación y el recálculo finalicen correctamente.",
+    "staleControlConflict": "Se modificó una opción en otro lugar. Elige qué versión usar antes de volver a revisar.",
+    "staleKeepDraft": "Conservar mi borrador",
+    "staleLoadLatest": "Usar la versión más reciente",
+    "staleRefresh": "Actualizar modelo de datos",
+    "staleRefreshFailed": "No se pudo actualizar el modelo de datos. Tu borrador sigue aquí; inténtalo de nuevo.",
+    "staleRefreshRequired": "El modelo de datos cambió. Actualízalo para seguir editando este borrador.",
+    "staleTargetMissing": "Se eliminó esta definición. Tu borrador se conserva, pero no se puede aplicar.",
+    "starterTypes": {
+      "contact": {
+        "plural": "Contactos",
+        "singular": "Contacto"
+      },
+      "deal": {
+        "plural": "Oportunidades",
+        "singular": "Oportunidad"
+      },
+      "organization": {
+        "plural": "Organizaciones",
+        "singular": "Organización"
+      },
+      "service": {
+        "plural": "Servicios",
+        "singular": "Servicio"
+      },
+      "task": {
+        "plural": "Tareas",
+        "singular": "Tarea"
+      }
+    },
+    "sublistSentence": "Sublista de {list} · cada entrada vive dentro de un registro de {parent}, comparte su acceso y se elimina con él.",
+    "suggestedAttribute": "Sugerencia",
+    "summaryAggregation": "Cálculo",
+    "summaryApprovalRequired": "Este resumen está publicado. Un administrador debe aprobar los cambios en los datos usados en el cálculo.",
+    "summaryField": "Campo del resumen",
+    "systemActor": "Sistema",
+    "table": "Tabla",
+    "triggerField": "Cuando cambie este campo",
+    "triggerValue": "A este valor",
+    "types": {
+      "boolean": "Sí o no",
+      "channels": "Canales",
+      "currency": "Importe",
+      "date": "Fecha",
+      "dateRange": "Intervalo de fechas",
+      "dateTime": "Fecha y hora",
+      "dateTimeRange": "Intervalo de fechas y horas",
+      "email": "Correo electrónico",
+      "member": "Miembro",
+      "multiSelect": "Opción múltiple",
+      "number": "Número",
+      "phone": "Teléfono",
+      "richText": "Texto con formato",
+      "select": "Selección única",
+      "text": "Texto",
+      "url": "Dirección web"
+    },
+    "typeSettings": "Configuración del tipo",
+    "unavailableOption": "Opción no disponible",
+    "unlinkRecord": "Desvincular {name}",
+    "untitledRecord": "{singular} sin nombre",
+    "updatedAt": "Actualizado el",
+    "useChannelAvatar": "Usar la foto de perfil del canal",
+    "usedBy": {
+      "blocking": "Impediría la eliminación",
+      "blockingCount": "{count, plural, one {# impediría la eliminación} other {# impedirían la eliminación}}",
+      "cleaned": "Se limpia al eliminar",
+      "cleanedCount": "{count, plural, one {# se limpia} other {# se limpian}}",
+      "layouts": "También se quita de {count, plural, one {# diseño} other {# diseños}}.",
+      "title": "Usado por"
+    },
+    "valueSource": {
+      "calculated": "Calculado · {formula}",
+      "from": "De {list} · {value}",
+      "savedOnCreate": "Se guarda al crear {list}",
+      "savedOnRequest": "Se guarda bajo petición",
+      "savedWhenChanged": "Se guarda cuando cambia {field}",
+      "savedWhenChangedTo": "Se guarda cuando {field} cambia a {value}"
+    },
+    "valueType": "Tipo de valor",
+    "yes": "Sí"
+  },
+  "RecordTriggers": {
+    "changedFieldsHelp": "Déjalo vacío para incluir todos los cambios.",
+    "triggerFiltersHelp": "Déjalo vacío para incluir todos los registros."
+  },
+  "RecordWidgets": {
+    "attribution": "Un registro puede aparecer en varios grupos. La suma de los grupos puede superar el total.",
+    "funnelClosedStage": "{label}: {value}, una etapa perdida que se muestra fuera del embudo.",
+    "funnelTooltip": "{value} ({conversion} del paso anterior)",
+    "group": "Agrupar por",
+    "groupFilterHelp": "Elige qué registros aparecen como grupos. El total general sigue usando los filtros de origen de arriba.",
+    "groupFilters": "Filtros de grupos",
+    "groupFilterSummary": "Los grupos están filtrados. El total general incluye todos los registros de origen que coinciden.",
+    "groupPath": "Seguir relaciones",
+    "groupRecord": "Cada registro",
+    "interval": "Intervalo de tiempo",
+    "intervals": {
+      "day": "Día",
+      "month": "Mes",
+      "none": "Valor exacto",
+      "quarter": "Trimestre",
+      "week": "Semana (empieza el lunes)",
+      "year": "Año"
+    },
+    "loadingSchema": "Cargando campos…",
+    "measure": "Medida",
+    "noRecordsInPeriod": "Sin registros",
+    "notes": "Sobre estas cifras",
+    "overall": "Total: {value}",
+    "previewFailed": "No se pudo cargar la vista previa. Inténtalo de nuevo.",
+    "quarterLabel": "T{quarter} {year}",
+    "ranked": {
+      "group": "Grupo",
+      "more": "+ {count} más",
+      "rank": "#",
+      "share": "Parte",
+      "value": "Valor"
+    },
+    "recordCount": "{count, plural, one {# registro} other {# registros}}",
+    "relatedAny": "Coincide al menos un registro vinculado accesible",
+    "relatedNone": "No coincide ningún registro vinculado accesible",
+    "search": "Buscar registros",
+    "signedChart": "Los valores negativos se muestran en una lista. Elige un gráfico de barras para representarlos.",
+    "source": "Registros de",
+    "unavailable": "Esta medida no está disponible. Revisa su configuración o los permisos.",
+    "unavailableMember": "Usuario no disponible",
+    "unplacedGroups": "Algunos registros están restringidos o no se pudieron calcular y no se muestran.",
+    "value": "Campo de valor",
+    "weekOf": "Semana del {date}",
+    "weekShort": "Sem. {week} {year}",
+    "withoutDate": "{count, plural, one {# registro no tiene fecha y no se muestra.} other {# registros no tienen fecha y no se muestran.}}",
+    "withoutValue": "{count, plural, one {# registro no tiene valor y no se muestra.} other {# registros no tienen valor y no se muestran.}}"
   },
   "ResetPassword": {
     "cta": "Restablecer la contraseña",
@@ -3347,25 +3754,25 @@
     "resize": "Redimensiona {before} y {after}. Arrastra o usa las flechas; toca dos veces o pulsa Intro para restablecer."
   },
   "RoleModal": {
+    "create": "Crear",
+    "dataModelNote": "Crear y cambiar listas, campos y relaciones en Configurar.",
+    "edit": "Editar",
     "manageAccess": "Gestión",
-    "no": "No",
     "ownRoleAlert": "Este rol está asignado a ti y no se puede editar. Pide a otro administrador que lo cambie.",
     "readAccess": "Acceso de lectura",
     "readAll": "Todos",
     "readNone": "Ninguno",
     "readOwn": "Asignados",
+    "recordTypes": "Tipos de registro",
+    "recordTypesHint": "Los tipos nuevos empiezan sin acceso. Los elementos integrados heredan el acceso de su registro principal.",
     "resourceHeader": "Recurso",
     "resources": {
       "api": "API y webhooks",
       "auditLog": "Registro de auditoría",
       "company": "Empresa",
-      "contacts": "Contactos",
-      "deals": "Oportunidades",
+      "dataModel": "Modelo de datos",
       "inboxMessages": "Mensajes de la bandeja de entrada",
-      "organizations": "Organizaciones",
       "routines": "Rutinas",
-      "services": "Servicios",
-      "tasks": "Tareas",
       "users": "Usuarios y roles",
       "wiki": "Base de conocimientos del espacio de trabajo"
     },
@@ -3373,12 +3780,11 @@
     "systemDescription": "Acceso completo a todas las funciones y ajustes. No se puede modificar ni eliminar.",
     "systemName": "Administrador",
     "title": "Rol",
-    "yes": "Sí"
+    "workspacePermissions": "Espacio de trabajo"
   },
   "RolesCard": {
     "custom": "Personalizado",
-    "system": "Sistema",
-    "title": "Roles"
+    "system": "Sistema"
   },
   "RoutineAdministration": {
     "help": "Como administrador de la empresa, puedes pausar o eliminar esta rutina, pero no editarla, probarla ni ejecutarla.",
@@ -3401,7 +3807,8 @@
           "messageReceived": "Recibe un mensaje entrante nuevo que no sea un duplicado mediante una cuenta conectada.",
           "messageUpdated": "Edita un mensaje en el proveedor de mensajería conectado.",
           "recordCreated": "Crea un registro en Customermates: {entity}.",
-          "recordDeleted": "Elimina un registro en Customermates: {entity}.",
+          "recordDeleted": "Mover un registro a la papelera en Customermates: {entity}.",
+          "recordRestored": "Restaurar un registro de la papelera en Customermates: {entity}.",
           "recordUpdated": "Realiza un cambio efectivo en un registro de Customermates: {entity}.",
           "relationCreated": "Haz que se acepte una solicitud de conexión de LinkedIn mediante una cuenta conectada."
         },
@@ -3456,7 +3863,6 @@
   },
   "RoutineModal": {
     "at": "a las",
-    "changedFieldsHelp": "Déjalo vacío para ejecutar en cada cambio. Acotar ahorra créditos.",
     "configurationHeading": "Configuración",
     "customSchedule": "Esta rutina usa una programación personalizada: {expression}",
     "detailsTab": "Detalles",
@@ -3471,7 +3877,6 @@
     "scheduleTimeZone": "Las horas se muestran en {timezone}.",
     "tabsLabel": "Secciones de la rutina",
     "title": "Rutina",
-    "triggerFiltersHelp": "Déjalo vacío para ejecutar con cualquier registro.",
     "useSchedulePreset": "Cambiar a una frecuencia predefinida"
   },
   "RoutineRunReason": {
@@ -3540,8 +3945,46 @@
     "tuesday": "Martes",
     "wednesday": "Miércoles"
   },
-  "ServiceModal": {
-    "title": "Servicio"
+  "SettingsNav": {
+    "account": "Cuenta",
+    "activity": "Actividad",
+    "apiKeys": "Claves de API",
+    "billing": "Facturación",
+    "channels": "Canales",
+    "deliveries": "Entregas",
+    "members": "Miembros",
+    "profile": "Perfil y preferencias",
+    "roles": "Roles",
+    "webhooks": "Webhooks",
+    "workspace": "Espacio de trabajo"
+  },
+  "SidebarCustomize": {
+    "deleteSection": "Eliminar sección",
+    "deleteSectionEmpty": "La sección está vacía, así que no se mueve ningún elemento.",
+    "deleteSectionMoves": "Sus elementos pasan al nivel superior de tu barra lateral; los elementos ocultos siguen ocultos:",
+    "deleteSectionTitle": "¿Eliminar la sección «{section}»?",
+    "dragItem": "Mover {item}",
+    "dragSection": "Mover la sección {section}",
+    "emptySection": "Arrastra elementos aquí o usa Mover a la sección",
+    "hide": "Ocultar de la barra lateral",
+    "hint": "Arrastra los controles para reordenar elementos y secciones, o usa los menús …. Los elementos pueden estar en el nivel superior o dentro de una sección. Haz clic en el nombre de una sección para cambiarle el nombre.",
+    "itemActions": "Opciones de {item}",
+    "moveDown": "Bajar",
+    "moveToSection": "Mover a la sección",
+    "moveUp": "Subir",
+    "newSection": "Nueva sección",
+    "newSectionName": "Nueva sección",
+    "rename": "Cambiar nombre",
+    "reset": "Restablecer valores predeterminados",
+    "resetDone": "Barra lateral restablecida",
+    "resetMessage": "Tus secciones personales, el orden y los elementos ocultos vuelven a la configuración predeterminada. Las barras laterales de otras personas no cambian.",
+    "resetTitle": "¿Restablecer la barra lateral?",
+    "sectionActions": "Opciones de {section}",
+    "sectionDeleted": "Sección eliminada",
+    "sectionName": "Nombre de la sección",
+    "show": "Mostrar {item}",
+    "title": "Personalizar barra lateral",
+    "topLevel": "Nivel superior"
   },
   "SignInForm": {
     "agreeToTerms": "Al continuar, aceptas nuestros <termsOfServiceLink>Términos</termsOfServiceLink> y reconoces haber leído nuestra <dataPrivacyLink>Política de privacidad</dataPrivacyLink>. Consulta nuestro <dpaLink>DPA</dpaLink>.",
@@ -3585,7 +4028,7 @@
       "planManage": "Se sincroniza con la facturación. Usa «{billing}» para hacer cambios.",
       "planPicker": "Elige un plan abajo para iniciar o cambiar la suscripción.",
       "planReadOnly": "Se sincroniza con la facturación. Pide los cambios a un administrador del espacio de trabajo.",
-      "quantity": "Se sincroniza con el número de miembros activos del espacio de trabajo. Los administradores pueden activar o desactivar miembros en «{company}».",
+      "quantity": "Se sincroniza con el número de miembros activos del espacio de trabajo. Los administradores pueden activar o desactivar miembros en «{members}».",
       "trialEndsManage": "Lo determina el periodo de prueba. Usa «{billing}» para gestionar la suscripción.",
       "trialEndsPicker": "Lo determina el periodo de prueba. Elige un plan antes de esta fecha para continuar sin interrupciones.",
       "trialEndsReadOnly": "Lo determina el periodo de prueba. Pide a un administrador del espacio de trabajo que gestione la suscripción."
@@ -3620,7 +4063,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Plazas activas",
-    "refresh": "Actualizar",
     "refreshSuccess": "Suscripción actualizada correctamente",
     "seatBillingNote": "Pagas por usuario activo. Los cambios de plazas se prorratean en tu próxima factura.",
     "status": {
@@ -3654,11 +4096,58 @@
     "subject": "Tu cuenta está inactiva: podemos ayudarte a recuperar el acceso",
     "title": "Suscripción desactivada"
   },
-  "TaskModal": {
-    "title": "Tarea"
-  },
-  "TasksCard": {
-    "systemTaskTooltip": "Elemento «{task}» gestionado por el sistema. No se puede eliminar manualmente; ábrelo para obtener más información."
+  "Trash": {
+    "bannerDeleted": "Eliminado el {date}. {count, plural, =0 {Se elimina definitivamente hoy} one {Se elimina definitivamente en # día} other {Se elimina definitivamente en # días}}.",
+    "columns": {
+      "deletedAt": "Eliminado el",
+      "deletedBy": "Eliminado por",
+      "expiresAt": "Eliminación definitiva",
+      "kind": "Tipo"
+    },
+    "daysLeft": "{count, plural, =0 {Se elimina definitivamente hoy} one {Se elimina definitivamente en # día} other {Se elimina definitivamente en # días}}",
+    "deletedPermanently": "Eliminado definitivamente",
+    "deletePermanently": "Eliminar definitivamente",
+    "deletePermanentlyManyTitle": "¿Eliminar {count, plural, one {# elemento} other {# elementos}} definitivamente?",
+    "deletePermanentlyTitle": "¿Eliminar {name} definitivamente?",
+    "deletionPartlyFailed": "Algunos elementos no se pudieron eliminar y permanecen en la Papelera. Todo lo demás se eliminó de forma permanente.",
+    "deletionPending": "Algunos elementos se siguen eliminando en segundo plano. Permanecen en la Papelera hasta que termine.",
+    "empty": "Vaciar papelera",
+    "emptyBody": "Los elementos eliminados se quedan aquí 30 días y después se eliminan definitivamente.",
+    "emptyConfirmation": "vaciar papelera",
+    "emptyTitle": "¿Vaciar la papelera?",
+    "emptyTitleState": "La papelera está vacía",
+    "inTrash": "En la papelera",
+    "kindInList": "{kind} en {list}",
+    "kinds": {
+      "dashboardView": "Vista del panel",
+      "field": "Campo",
+      "list": "Lista",
+      "record": "Registro",
+      "relationship": "Relación",
+      "routine": "Rutina",
+      "view": "Vista",
+      "widget": "Widget",
+      "wikiPage": "Página de la base de conocimiento"
+    },
+    "movedToTrash": "Movido a la papelera",
+    "movesToTrash": "Se mueve a la papelera, donde puedes restaurarlo durante 30 días.",
+    "moving": "{count, plural, one {Moviendo # elemento a la papelera…} other {Moviendo # elementos a la papelera…}}",
+    "permanentIrreversible": "Esto no se puede deshacer.",
+    "permanentMessage": "{count, plural, one {Este elemento se elimina} other {Estos # elementos se eliminan}} definitivamente.",
+    "permanentRecords": "{list}: {count, plural, one {# registro} other {# registros}}",
+    "restore": "Restaurar",
+    "restoreBlocked": {
+      "listDeleted": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque su lista está en la papelera. Restaura primero la lista.",
+      "nameTaken": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque otro elemento usa ahora su nombre o lugar.",
+      "notFound": "{count, plural, one {# elemento ya no existe y salió} other {# elementos ya no existen y salieron}} de la papelera.",
+      "parentDeleted": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque aquello a lo que pertenecen está en la papelera. Restáuralo primero.",
+      "requiresRestore": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque algo que necesitan está en la papelera. Restáuralo primero."
+    },
+    "restored": "{count, plural, one {# elemento restaurado} other {# elementos restaurados}}",
+    "restoredInBackground": "Restaurado",
+    "restoredWithDroppedLinks": "Restaurado. {count, plural, one {# vínculo no se pudo} other {# vínculos no se pudieron}} restaurar porque el registro vinculado se eliminó definitivamente.",
+    "restoring": "Restaurando…",
+    "undo": "Deshacer"
   },
   "TrialExpiredOffer": {
     "body": "Tu prueba terminó hace poco, pero me encantaría ayudarte a sacarle valor real a Customermates. Si quieres, puedo ampliar tu prueba y repasar contigo tu configuración.",
@@ -3699,14 +4188,13 @@
     "title": "Te damos la bienvenida a tu prueba"
   },
   "UserAvatar": {
-    "company": "Mi empresa",
-    "darkMode": "Modo oscuro",
     "documentation": "Documentación",
     "home": "Inicio",
-    "lightMode": "Modo claro",
-    "profile": "Mi perfil",
-    "settings": "Ajustes",
-    "signOut": "Cerrar sesión"
+    "language": "Idioma",
+    "menu": "Menú personal",
+    "sendFeedback": "Enviar comentarios",
+    "signOut": "Cerrar sesión",
+    "theme": "Tema"
   },
   "UserSettingsForm": {
     "displayLanguageHint": "Define el idioma de la interfaz: etiquetas, botones, etc.",
@@ -3733,8 +4221,7 @@
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Los intentos de entrega aparecerán aquí cuando se active un webhook.",
-    "emptyTitle": "Aún no hay entregas",
-    "title": "Entregas recientes"
+    "emptyTitle": "Aún no hay entregas"
   },
   "WebhookDeliveryModal": {
     "createdAt": "Creado el",
@@ -3754,10 +4241,16 @@
     "url": "URL"
   },
   "WebhookModal": {
+    "allAccessibleTypes": "Todos los tipos accesibles",
     "bodyTemplateDescription": "Plantilla JSON opcional para el cuerpo de la petición, para receptores que esperan una forma fija. Déjala vacía para enviar el sobre de evento estándar.",
+    "currentUser": "Usuario actual",
     "disabled": "Desactivado",
     "enabled": "Activado",
     "headersDescription": "Cabeceras opcionales enviadas en cada entrega, una por línea como Nombre: valor. Úsalas para receptores que exigen su propia autenticación. Content-Type y la cabecera de firma no se pueden sobrescribir.",
+    "paused": "En pausa",
+    "pausedTriggerFieldDeleted": "Este webhook se pausó porque se eliminó el campo que lo disparaba. Elige un nuevo disparador y vuelve a activarlo.",
+    "recordOwner": "Miembro cuyos permisos se usan",
+    "recordOwnerHelp": "Los envíos usan los permisos actuales de este miembro. Solo un administrador puede elegir otro miembro. Los filtros se evalúan al cambiar el registro, no al eliminarlo.",
     "secretDescription": "Secreto opcional que se usa para generar una firma HMAC-SHA256 enviada en la cabecera X-Webhook-Signature. Para verificarla, calcula el hash del cuerpo de la solicitud con este secreto usando HMAC-SHA256 y compáralo con el valor de la cabecera.",
     "title": "Webhook",
     "urlDescription": "La URL del endpoint a la que se enviarán los eventos de webhook mediante solicitudes POST."
@@ -3765,7 +4258,7 @@
   "WebhooksCard": {
     "emptyBody": "Añade un webhook para enviar los eventos del espacio de trabajo a tus sistemas.",
     "emptyTitle": "Aún no hay webhooks",
-    "title": "Webhooks"
+    "showDeliveries": "Ver entregas"
   },
   "Wiki": {
     "conflict": "Esta página ha cambiado. Tus cambios siguen aquí. Recarga para usar la versión más reciente.",
@@ -3875,5 +4368,9 @@
     },
     "tryAnother": "Probar otro sitio",
     "unavailable": "La configuración con Mate no está disponible ahora. Puedes crear páginas más adelante desde la base de conocimientos."
+  },
+  "WorkspaceMenu": {
+    "inviteMembers": "Invitar miembros",
+    "label": "Menú del espacio de trabajo"
   }
 }

@@ -1,0 +1,127 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { observer } from "mobx-react-lite";
+import { useTranslations } from "next-intl";
+
+import type { RecordEditorStore } from "./record-editor.store";
+import type { RecordRelationshipPath } from "@/features/records/record-relationship-path.schema";
+
+import { Button } from "@/components/ui/button";
+import { RecordChipIcon } from "@/components/records/record-chip-icon";
+import { AppChip } from "@/components/chip/app-chip";
+import { SelectionValueSkeleton } from "@/components/forms/selection-loading";
+import { recordDisplayName } from "@/features/records/record-display-name";
+import { recordLinkColor } from "@/features/records/record-presentation";
+import { cn } from "@/core/utils/cn";
+import {
+  RECORD_LINK_FRAME_CLASS,
+  RECORD_LINK_FRAME_READ_ONLY_CLASS,
+  useRecordChoices,
+} from "./record-relationship-editor";
+import { RecordDetailField } from "./record-detail-field";
+import { EmptyValue } from "@/components/shared/empty-value";
+import { relationshipPathColumnKey } from "@/features/records/record-column.schema";
+
+export const RecordPathRecords = observer(function RecordPathRecords({
+  store,
+  path,
+  targetTypeId,
+}: {
+  store: RecordEditorStore;
+  path: RecordRelationshipPath;
+  targetTypeId: string;
+}) {
+  const t = useTranslations();
+  const [page, setPage] = useState(1);
+  const [attempt, setAttempt] = useState(0);
+  const result = useRecordChoices(
+    {
+      typeId: targetTypeId,
+      page,
+      pageSize: 25,
+      ...(store.record ? { throughPath: { ref: store.record.ref, pathId: path.id } } : {}),
+    },
+    store.isOpen && store.record !== null && !store.trash,
+    attempt + store.relatedRevision,
+  );
+  useEffect(() => {
+    const data = result.data;
+    if (data) setPage((current) => Math.min(current, Math.max(1, Math.ceil(data.total / data.pageSize))));
+  }, [result.data]);
+  return (
+    <section aria-label={path.label} className="space-y-1.5">
+      <RecordDetailField fieldId={relationshipPathColumnKey(path.id)} label={path.label}>
+        {result.failed ? (
+          <div className="flex items-center gap-2 text-sm" role="alert">
+            <span>{t("Common.notifications.unexpectedError")}</span>
+
+            <Button size="sm" type="button" variant="secondary" onClick={() => setAttempt((attempt) => attempt + 1)}>
+              {t("ErrorCard.retry")}
+            </Button>
+          </div>
+        ) : (
+          <div
+            aria-busy={result.loading || undefined}
+            className={cn(RECORD_LINK_FRAME_CLASS, RECORD_LINK_FRAME_READ_ONLY_CLASS)}
+            data-relationship-path-field=""
+          >
+            {result.loading && !result.data && (
+              <span aria-label={t("Loading.text")} role="status">
+                <SelectionValueSkeleton />
+              </span>
+            )}
+
+            {result.data?.records.map((record) => {
+              const title = recordDisplayName(record.title, store.presentation.linkLabels[record.ref.typeId], t);
+              return (
+                <AppChip
+                  key={`${record.ref.typeId}:${record.ref.recordId}`}
+                  startContent={<RecordChipIcon icons={store.presentation.linkIcons} typeId={record.ref.typeId} />}
+                  variant={recordLinkColor(store.presentation.linkColors, record.ref.typeId)}
+                >
+                  <button
+                    aria-label={t("RecordModel.openRecord", { name: title })}
+                    className="max-w-full rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    type="button"
+                    onClick={(event) => store.rootStore.recordWorkspaceStore.open(record.ref, event.currentTarget)}
+                  >
+                    {title}
+                  </button>
+                </AppChip>
+              );
+            })}
+
+            {result.data?.total === 0 && <EmptyValue />}
+          </div>
+        )}
+
+        {result.data && result.data.total > result.data.pageSize && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Button
+              disabled={page === 1 || result.loading}
+              size="sm"
+              type="button"
+              variant="ghost"
+              onClick={() => setPage((page) => page - 1)}
+            >
+              {t("Common.table.previousPage")}
+            </Button>
+
+            <span>{t("RecordModel.linkedRecordCount", { count: result.data.total })}</span>
+
+            <Button
+              disabled={page * result.data.pageSize >= result.data.total || result.loading}
+              size="sm"
+              type="button"
+              variant="ghost"
+              onClick={() => setPage((page) => page + 1)}
+            >
+              {t("Common.table.nextPage")}
+            </Button>
+          </div>
+        )}
+      </RecordDetailField>
+    </section>
+  );
+});

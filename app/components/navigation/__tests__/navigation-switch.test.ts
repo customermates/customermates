@@ -18,10 +18,9 @@ const state = vi.hoisted(() => ({
   navigationRenderActive: false,
   renderPhaseUserWrites: [] as Array<{ id: string } | null>,
   closeAllModals: vi.fn(),
-  setCompany: vi.fn(),
-  setOverrides: vi.fn(),
   setSubscription: vi.fn(),
   setUser: vi.fn(),
+  setRecordNavigation: vi.fn(),
 }));
 
 state.setUser.mockImplementation((user: { id: string } | null) => {
@@ -31,6 +30,7 @@ state.setUser.mockImplementation((user: { id: string } | null) => {
 
 vi.mock("next/navigation", () => ({
   useSearchParams: () => ({
+    get: (key: string) => state.searchParams[key]?.[0] ?? null,
     getAll: (key: string) => state.searchParams[key] ?? [],
   }),
 }));
@@ -43,9 +43,10 @@ vi.mock("@/core/stores/root-store.provider", () => ({
     appMode: state.appMode,
     navigationGuard: state.navigationGuard,
     closeAllModals: state.closeAllModals,
-    companyStore: { setCompany: state.setCompany },
     subscriptionStore: { setSubscription: state.setSubscription },
-    terminologyStore: { setOverrides: state.setOverrides },
+    recordWorkspaceStore: { setNavigation: state.setRecordNavigation },
+    sidebarLayoutStore: { setLayout: () => undefined },
+    keyboardShortcutsStore: { setPreferences: () => undefined },
     userStore: {
       get user() {
         return state.currentUser;
@@ -142,7 +143,6 @@ function allowedProps(): Omit<NavigationSwitchProps, "children"> {
     accountState: "allowed",
     appUser: null,
     channelsNeedingActionCount: 0,
-    company: null,
     emailVerified: true,
     legalStatus: null,
     operatorConsoleVisible: false,
@@ -155,7 +155,6 @@ function allowedProps(): Omit<NavigationSwitchProps, "children"> {
     },
     subscription: null,
     systemTaskCount: 0,
-    terminology: [],
     trialDaysLeft: null,
     unreadThreadCount: 0,
     userDisplayLanguage: "en",

@@ -1,142 +1,98 @@
-import type { RoleDto } from "../role.schema";
-import type { EventService } from "@/features/event/event.service";
-import type { ValidateRoleIdsInteractor } from "@/core/validation/validators/validate-role-ids.interactor";
+import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
+import { describe, expect, it } from "vitest";
+import { UpsertRoleSchema } from "../role-management.schema";
+import { requiresApproval } from "@/ee/agent-chat/gated-tools";
+import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
-import { Resource, Action } from "@/generated/prisma";
-import { runWithTenant } from "@/core/decorators/tenant-context";
-import { createMockUser } from "@/tests/helpers/mock-user";
-import {
-  createMockDiModule,
-  MOCK_ENV_MODULE,
-  MOCK_PRISMA_DB_MODULE,
-  MOCK_ZOD_MODULE,
-} from "@/tests/helpers/interactor-test-setup";
-
-const OWN_ROLE_ID = "20000000-0000-4000-8000-000000000001";
-const OTHER_ROLE_ID = "20000000-0000-4000-8000-000000000002";
-const SYSTEM_ROLE_ID = "20000000-0000-4000-8000-000000000003";
-
-const mockUser = createMockUser({
-  roleId: OWN_ROLE_ID,
-  role: {
-    id: OWN_ROLE_ID,
-    name: "Member Admin",
-    description: null,
-    isSystemRole: false,
-    createdAt: new Date(0),
-    updatedAt: new Date(0),
-    permissions: [
-      { id: "perm-create", resource: Resource.users, action: Action.create },
-      { id: "perm-update", resource: Resource.users, action: Action.update },
-    ],
-  },
-});
-
-vi.mock("@/env", () => MOCK_ENV_MODULE);
-vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
-vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
-vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
-vi.mock("next-intl/server", () => ({
-  getTranslations: () => Promise.resolve((key: string) => key),
-}));
-
-import { UpsertRoleInteractor, type UpsertRoleData } from "../upsert-role.interactor";
-import { UpsertRoleRepo } from "@/features/role/upsert-role.repo";
-
-const roleDto = (id: string, isSystemRole = false): RoleDto => ({
-  id,
-  name: "Member Admin",
-  description: "Manages members",
-  isSystemRole,
-  createdAt: new Date(0),
-  updatedAt: new Date(0),
-  permissions: [],
-});
-
-class MockRepo extends UpsertRoleRepo {
-  isSystemRoleOrThrow = vi.fn((id: string) => Promise.resolve(id === SYSTEM_ROLE_ID));
-  upsertRoleOrThrow = vi.fn((data: UpsertRoleData) => Promise.resolve(roleDto(data.id ?? OTHER_ROLE_ID)));
-  getRoleByIdOrThrow = vi.fn((id: string) => Promise.resolve(roleDto(id)));
-}
-
-const escalatingPermissions = (): UpsertRoleData["permissions"] => ({
-  contacts: { canManage: "yes", readAccess: "all" },
-  deals: { canManage: "yes", readAccess: "all" },
-  organizations: { canManage: "yes", readAccess: "all" },
-  services: { canManage: "yes", readAccess: "all" },
-  users: { canManage: "yes", readAccess: "all" },
-  company: { canManage: "yes" },
-  api: { canManage: "yes", readAccess: "all" },
-  tasks: { canManage: "yes", readAccess: "all" },
-  inboxMessages: { canManage: "yes", readAccess: "all" },
-  wiki: { canManage: "yes", readAccess: "all" },
-  auditLog: { readAccess: "all" },
-  routines: { canManage: "yes", readAccess: "all" },
-});
-
-const payload = (id?: string): UpsertRoleData => ({
-  id,
-  name: "Member Admin",
-  description: "Manages members",
-  permissions: escalatingPermissions(),
-});
-
-const invoke = (repo: MockRepo, data: UpsertRoleData) => {
-  const eventService = { publish: vi.fn().mockResolvedValue(undefined) } as unknown as EventService;
-  const validator = { invoke: vi.fn() } as unknown as ValidateRoleIdsInteractor;
-
-  return runWithTenant(mockUser, () => new UpsertRoleInteractor(repo, eventService, validator).invoke(data));
+const input = {
+  name: "Sales",
+  description: "Pipeline access",
+  expectedRevision: 2,
+  idempotencyKey: "role-request-1",
+  recordGrants: [{ typeId: "20000000-0000-4000-8000-000000000001", actions: ["create", "readOwn"] }],
+  permissions: [
+    { resource: "users", actions: ["readOwn"] },
+    { resource: "company", actions: [] },
+    { resource: "dataModel", actions: [] },
+    { resource: "api", actions: [] },
+    { resource: "inboxMessages", actions: [] },
+    { resource: "wiki", actions: ["readAll"] },
+    { resource: "auditLog", actions: [] },
+    { resource: "routines", actions: [] },
+  ],
 };
+const withPermission = (resource: string, actions: string[]) => ({
+  ...input,
+  permissions: [...input.permissions.filter((grant) => grant.resource !== resource), { resource, actions }],
+});
 
-beforeEach(() => vi.clearAllMocks());
-
-describe("UpsertRoleInteractor self-escalation guard", () => {
-  it("refuses to update the role the caller currently holds", async () => {
-    const repo = new MockRepo();
-
-    const result = await invoke(repo, payload(OWN_ROLE_ID));
-
-    expect(result.ok).toBe(false);
-    expect(repo.upsertRoleOrThrow).not.toHaveBeenCalled();
+describe("role mutation contract", () => {
+  it("accepts arbitrary type IDs and exact actions", () => {
+    expect(UpsertRoleSchema.parse(input).recordGrants).toEqual(input.recordGrants);
   });
-
-  it("still updates a different non-system role", async () => {
-    const repo = new MockRepo();
-
-    const result = await invoke(repo, payload(OTHER_ROLE_ID));
-
-    expect(result.ok).toBe(true);
-    expect(repo.upsertRoleOrThrow).toHaveBeenCalledOnce();
+  it("requires the revision and idempotency key", () => {
+    expect(UpsertRoleSchema.safeParse({ ...input, expectedRevision: undefined }).success).toBe(false);
+    expect(UpsertRoleSchema.safeParse({ ...input, idempotencyKey: undefined }).success).toBe(false);
   });
-
-  it("still refuses a system role, now as a validation result rather than a throw", async () => {
-    const repo = new MockRepo();
-
-    const result = await invoke(repo, payload(SYSTEM_ROLE_ID));
-
-    expect(result.ok).toBe(false);
-    expect(repo.upsertRoleOrThrow).not.toHaveBeenCalled();
+  it("rejects retired entity-name permissions", () => {
+    expect(UpsertRoleSchema.safeParse(withPermission("contacts", ["create", "readAll"])).success).toBe(false);
   });
-
-  it("still creates a new role when no id is supplied", async () => {
-    const repo = new MockRepo();
-
-    const result = await invoke(repo, payload(undefined));
-
-    expect(result.ok).toBe(true);
-    expect(repo.upsertRoleOrThrow).toHaveBeenCalledOnce();
+  it("carries the Knowledge Base permission group with read none or all", () => {
+    expect(UpsertRoleSchema.parse(input).permissions.find((grant) => grant.resource === "wiki")?.actions).toEqual([
+      "readAll",
+    ]);
+    expect(UpsertRoleSchema.safeParse(withPermission("wiki", ["create", "readOwn"])).success).toBe(false);
   });
-
-  it("requires the Wiki permission like every other resource", async () => {
-    const repo = new MockRepo();
-    const permissions: Partial<UpsertRoleData["permissions"]> = escalatingPermissions();
-    delete permissions.wiki;
-
-    const result = await invoke(repo, { ...payload(OTHER_ROLE_ID), permissions } as unknown as UpsertRoleData);
-
-    expect(result.ok).toBe(false);
-    expect(repo.upsertRoleOrThrow).not.toHaveBeenCalled();
+  it.each([
+    ["api", ["create", "update", "delete", "readAll"], true],
+    ["api", ["readOwn"], false],
+    ["users", ["create", "update", "delete", "readOwn"], true],
+    ["company", ["update"], true],
+    ["company", ["create"], false],
+    ["company", ["delete"], false],
+    ["company", ["readAll"], false],
+    ["dataModel", ["update"], true],
+    ["dataModel", ["delete"], false],
+    ["auditLog", ["readAll"], true],
+    ["auditLog", ["update"], false],
+    ["inboxMessages", ["create", "update", "delete", "readAll"], true],
+    ["inboxMessages", ["readOwn"], false],
+    ["routines", ["create", "update", "delete", "readOwn"], true],
+  ])("accepts only the applicable actions for %s %j", (resource, actions, valid) => {
+    expect(UpsertRoleSchema.safeParse(withPermission(resource, actions)).success).toBe(valid);
   });
+  it("rejects a resource listed twice", () => {
+    expect(
+      UpsertRoleSchema.safeParse({ ...input, permissions: [...input.permissions, input.permissions[0]] }).success,
+    ).toBe(false);
+  });
+  it("rejects duplicate grants and actions", () => {
+    expect(
+      UpsertRoleSchema.safeParse({ ...input, recordGrants: [...input.recordGrants, ...input.recordGrants] }).success,
+    ).toBe(false);
+    expect(
+      UpsertRoleSchema.safeParse({
+        ...input,
+        recordGrants: [{ ...input.recordGrants[0], actions: ["readOwn", "readOwn"] }],
+      }).success,
+    ).toBe(false);
+  });
+  it.each([
+    ["read", false],
+    ["save", true],
+    ["delete", true],
+    ["unknown", true],
+  ])("keeps %s in the existing approval policy", (action, expected) => {
+    expect(
+      requiresApproval(internalToolIdentity("manage_roles"), { annotations: { destructiveHint: true } }, { action }),
+    ).toBe(expected);
+  });
+});
+
+it.each([
+  ["read", "read"],
+  ["save", "sensitive"],
+  ["delete", "sensitive"],
+])("describes the role %s action accurately", (action, risk) => {
+  expect(describeAgentTool(internalToolIdentity("manage_roles"), { action }).risk).toBe(risk);
 });

@@ -65,7 +65,7 @@ describe("protectedHrefFromContent", () => {
   });
 
   it("does not rewrite links from application pages, public targets, or external origins", () => {
-    expect(protectedHrefFromContent("/dashboard", "/profile/settings")).toBeNull();
+    expect(protectedHrefFromContent("/dashboard", "/settings/profile")).toBeNull();
     expect(protectedHrefFromContent("/contact", "/pricing")).toBeNull();
     expect(protectedHrefFromContent("https://example.com/dashboard", "/pricing")).toBeNull();
   });

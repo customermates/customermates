@@ -16,18 +16,12 @@ describe("guarded account-state route contract", () => {
       /requireAccountState\(\s*activeIntent\s*\?\s*\[\s*"overdueVerification",\s*"unregistered"\s*\]\s*:\s*\[\s*"overdueVerification",\s*"unregistered",\s*"unauthenticated"\s*\]\s*,/,
     ],
     ["app/[locale]/(public)/auth/pending/page.tsx", /requireAccountState\(\s*"pending"\s*\)/],
-    [
-      "app/[locale]/(protected)/onboarding/page.tsx",
-      /requireAccountState\(\s*"unregistered"(?:\s*,|\s*\))/,
-    ],
-    [
-      "app/[locale]/(protected)/onboarding/join/page.tsx",
-      /requireAccountState\(\s*"unregistered"(?:\s*,|\s*\))/,
-    ],
+    ["app/[locale]/(protected)/onboarding/page.tsx", /requireAccountState\(\s*"unregistered"(?:\s*,|\s*\))/],
+    ["app/[locale]/(protected)/onboarding/join/page.tsx", /requireAccountState\(\s*"unregistered"(?:\s*,|\s*\))/],
     ["app/[locale]/(protected)/legal-update/page.tsx", /requireAccountState\(\s*\[\s*"allowed",\s*"legal"\s*\]\s*\)/],
     [
       "app/[locale]/(protected)/subscription-expired/page.tsx",
-      /requireAccountState\(\s*"subscription",\s*"\/company\/subscription",?\s*\)/,
+      /requireAccountState\(\s*"subscription",\s*settingsHref\("billing"\),?\s*\)/,
     ],
     [
       "app/[locale]/(public)/auth/mcp-consent/page.tsx",
@@ -43,9 +37,7 @@ describe("guarded account-state route contract", () => {
     const registerInteractor = source("features/user/register/register-user.interactor.ts");
     const registrationBoundary = source("features/user/register/register-onboarding-profile.interactor.ts");
     const completeInteractor = source("features/onboarding-wizard/complete-onboarding-wizard.interactor.ts");
-    const completeWikiStepInteractor = source(
-      "features/onboarding-wizard/complete-onboarding-wiki-step.interactor.ts",
-    );
+    const completeWikiStepInteractor = source("features/onboarding-wizard/complete-onboarding-wiki-step.interactor.ts");
 
     expect(page).toMatch(/requireAccountState\(\s*\[\s*"unregistered",\s*"onboarding"\s*\](?:\s*,|\s*\))/);
     expect(actions).toMatch(
@@ -101,7 +93,7 @@ describe("guarded account-state route contract", () => {
     expect(source("app/[locale]/(protected)/legal-update/actions.ts")).toContain("refresh()");
   });
 
-  it("keeps tenant enhancements and keyboard search unmounted for restricted shells", () => {
+  it("keeps tenant enhancements and keyboard shortcuts unmounted for restricted shells", () => {
     const layout = source("app/[locale]/(protected)/protected-shell.tsx");
     const navigation = source("app/components/navigation/navigation-switch.tsx");
     const context = source("app/components/navigation/protected-enhancements-context.tsx");
@@ -111,20 +103,18 @@ describe("guarded account-state route contract", () => {
     expect(context).toContain("createContext<boolean | null>(null)");
     expect(context).not.toContain("AccountState");
     expect(layout).toContain("useProtectedEnhancementsAllowed()");
-    expect(layout).toContain("if (!protectedEnhancementsAllowed) return;");
-    expect(layout.indexOf("if (!protectedEnhancementsAllowed) return;")).toBeLessThan(
-      layout.indexOf('document.addEventListener("keydown"'),
-    );
+    expect(layout).not.toContain('addEventListener("keydown"');
     expect(guardedMarkup).toBeGreaterThan(0);
     for (const component of [
+      "<GlobalKeyboardShortcuts />",
+      "<KeyboardShortcutsDialog />",
       "<GlobalSearchModal />",
       "<CompanyUserModal />",
       "<CompanyInviteModal />",
-      "<EntityDrawer />",
+      "<WorkspaceRecordEditor />",
       "<ConnectedAccountModal />",
-    ]) {
+    ])
       expect(layout.lastIndexOf(component), component).toBeGreaterThan(guardedMarkup);
-    }
   });
 
   it("keeps mutation policy in interactors and page guards server-authoritative", () => {
@@ -150,9 +140,11 @@ describe("guarded account-state route contract", () => {
 
   it("uses the existing avatar sign-out and never duplicates it inside recovery cards", () => {
     const sidebar = source("app/components/app-sidebar.tsx");
+    const accountActions = source("app/components/navigation/use-account-actions.ts");
     expect(sidebar).toContain("<NavUser");
-    expect(sidebar).toContain("signOutAction()");
-    expect(sidebar).toContain("if (!restricted) runUserAction(() => userStore.updateTheme(next))");
+    expect(sidebar).toContain("useAccountActions(restricted)");
+    expect(accountActions).toContain("signOutAction()");
+    expect(accountActions).toContain("if (!restricted) runUserAction(() => userStore.updateTheme(next))");
     expect(source("app/[locale]/(protected)/legal-update/components/legal-update-view.tsx")).not.toContain(
       "signOutAction",
     );

@@ -22,7 +22,7 @@ import { PageState } from "@/components/page-state/page-state";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { FormFieldHelp } from "@/components/forms/form-field-help";
-import { Sheet, SheetBody, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useNavigationGuard } from "@/components/modal/use-navigation-guard";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -47,6 +47,8 @@ import { resolveWikiPageState } from "./wiki-page-state";
 import { WIKI_LAYOUT_P13N_ID, WIKI_PANEL_LAYOUT_ID } from "./wiki-personalization";
 import { useWikiPages } from "./use-wiki-pages";
 import { WikiPageKindSchema, WIKI_PAGE_KINDS, WIKI_WHEN_TO_USE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+import { Action } from "@/generated/prisma";
 
 const WIKI_PANEL_IDS = ["pages", "document"] as const;
 
@@ -60,7 +62,7 @@ type Props = {
   unavailable?: boolean;
 };
 
-export const WikiPageView = observer(function WikiPageView({
+const WikiPageViewContent = observer(function WikiPageView({
   initialPage,
   initialSetupState = EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
   layoutInitial,
@@ -142,7 +144,7 @@ export const WikiPageView = observer(function WikiPageView({
     });
   };
   const reload = useCallback(() => tryNavigate(() => runUserAction(store.reload)), [store, tryNavigate]);
-  const cancelCreate = useCallback(() => tryNavigate(() => store.load(initialPage)), [initialPage, store, tryNavigate]);
+  const cancelCreate = useCallback(() => store.load(initialPage), [initialPage, store]);
   const savePanelSizes = useCallback(
     (sizes: readonly number[] | null) => {
       commitColumnWidths((current) =>
@@ -191,7 +193,7 @@ export const WikiPageView = observer(function WikiPageView({
   const pageList = (
     <WikiPageRail
       busy={railBusy}
-      canManage={canManage}
+      canManage={store.allows(Action.update)}
       currentPageId={store.creating ? null : store.form.id}
       pages={pages}
       pinnedPage={pinnedRailPage}
@@ -229,7 +231,7 @@ export const WikiPageView = observer(function WikiPageView({
           action={
             <AgentStarterActions
               fallback={
-                canManage ? (
+                store.allows(Action.create) ? (
                   <Button disabled={store.isLoading} size="sm" variant="secondary" onClick={create}>
                     <Plus aria-hidden="true" />
 
@@ -243,7 +245,7 @@ export const WikiPageView = observer(function WikiPageView({
             />
           }
           background={<WikiPageSkeleton documentOnly animated={false} />}
-          description={canManage ? t("Wiki.emptyBody") : t("Wiki.emptyBodyReadOnly")}
+          description={store.allows(Action.create) ? t("Wiki.emptyBody") : t("Wiki.emptyBodyReadOnly")}
           icon={BookOpen}
           state="empty"
           title={t("Wiki.emptyTitle")}
@@ -379,9 +381,13 @@ export const WikiPageView = observer(function WikiPageView({
           className="@container/wiki flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto"
           id="wiki-document-panel"
         >
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <div className="flex min-w-0 items-center border-b border-border px-4 py-2 lg:hidden">
-              <SheetTrigger asChild>
+          <div className="flex min-w-0 items-center border-b border-border px-4 py-2 lg:hidden">
+            <ResponsiveOverlay
+              align="start"
+              open={mobileOpen}
+              popoverClassName="flex h-96 w-80 flex-col p-0"
+              title={t("Wiki.pagesLabel")}
+              trigger={
                 <Button className="min-w-0 max-w-full justify-between gap-3 font-normal" variant="ghost">
                   <BookOpen aria-hidden="true" className="shrink-0" />
 
@@ -389,19 +395,14 @@ export const WikiPageView = observer(function WikiPageView({
 
                   <ChevronDown aria-hidden="true" className="shrink-0" />
                 </Button>
-              </SheetTrigger>
-            </div>
+              }
+              onOpenChange={setMobileOpen}
+            >
+              <div className="flex min-h-0 flex-1 flex-col overflow-hidden">{pageList}</div>
+            </ResponsiveOverlay>
+          </div>
 
-            <SheetContent aria-describedby={undefined} className="gap-0" side="left">
-              <SheetHeader>
-                <SheetTitle>{t("Wiki.pagesLabel")}</SheetTitle>
-              </SheetHeader>
-
-              <SheetBody className="flex min-h-0 flex-1 flex-col overflow-hidden p-0">{pageList}</SheetBody>
-            </SheetContent>
-          </Sheet>
-
-          {((canManage && initialSetupState.status === "failed") || (setupActive && hasDocument)) && (
+          {((store.allows(Action.create) && initialSetupState.status === "failed") || (setupActive && hasDocument)) && (
             <div className="mx-auto w-full max-w-6xl px-6 py-3 md:px-10">
               {initialSetupState.status === "failed" ? (
                 <Alert color="danger" description={setupFailedBody} />
@@ -437,3 +438,5 @@ export const WikiPageView = observer(function WikiPageView({
     />
   );
 });
+
+export const WikiPageView = serverRenderedClient(WikiPageViewContent);

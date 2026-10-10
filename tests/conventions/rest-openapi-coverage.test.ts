@@ -5,7 +5,7 @@ import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
 import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
-import { REPO_ROOT, walkFiles } from "./walk";
+import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, walkFiles } from "./walk";
 
 const ENFORCED = true;
 
@@ -37,13 +37,7 @@ const SAFE_REQUEST_METADATA_MEMBERS = new Set([
   "signal",
   "url",
 ]);
-const BODY_REQUIRED_DELETE_PATHS = new Set([
-  "/v1/contacts/many",
-  "/v1/deals/many",
-  "/v1/organizations/many",
-  "/v1/services/many",
-  "/v1/tasks/many",
-]);
+const BODY_REQUIRED_DELETE_PATHS = new Set<string>();
 
 type JsonReader = {
   line: number;
@@ -463,7 +457,9 @@ function inspectRouteSource(path: string, text: string): Map<string, RouteOperat
 
   const source = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
   const file = path.slice(REPO_ROOT.length + 1);
-  const hasExactHandleErrorImport = hasExactValueImport(source, "@/core/api/interactor-handler", "handleError");
+  const hasExactHandleErrorImport = ["@/core/api/interactor-handler", "@/core/api/structured-interactor-handler"].some(
+    (errorBoundary) => hasExactValueImport(source, errorBoundary, "handleError"),
+  );
   const hasExactMapperImport = hasExactValueImport(source, "@/core/api/request-json-error", "mapRequestJsonError");
   const setOperation = (name: string, node: ts.Node, operation: RouteOperation) => {
     if (!HTTP_HANDLER_NAMES.has(name)) return;
@@ -644,7 +640,10 @@ function orphanedSpecViolations(
 ): string[] {
   return [...documented]
     .filter(([operation]) => !routes.has(operation))
-    .map(([operation]) => `${operation} is in generateOpenApiSpec() but has no route handler under app/api/v1`);
+    .map(
+      ([operation]) =>
+        `${operation} is in generateOpenApiSpec() but has no route handler under the versioned app/api routes`,
+    );
 }
 
 function jsonContractViolations(
@@ -766,7 +765,9 @@ function interactorFailureViolations(file: string, text: string): string[] {
 
 function appRouteFailureViolations(file: string, text: string): string[] {
   return [...text.matchAll(INTERACTOR_FAILURE_BRANCH)]
-    .filter(([, name, statement]) => !new RegExp(`interactorFailure(?:Response|Status)\\(${name}\\.error\\)`).test(statement))
+    .filter(
+      ([, name, statement]) => !new RegExp(`interactorFailure(?:Response|Status)\\(${name}\\.error\\)`).test(statement),
+    )
     .map(([statement]) => `${file} maps a failure without the shared status mapping: ${statement}`);
 }
 
@@ -1217,7 +1218,7 @@ describe("REST route analyzer self-tests", () => {
     ],
     [
       "status 400 literal",
-      "if (!result.ok) return interactorFailureResponse(result.error);\n    if (!ready) return NextResponse.json(\"x\", { status: 400 });",
+      'if (!result.ok) return interactorFailureResponse(result.error);\n    if (!ready) return NextResponse.json("x", { status: 400 });',
       ["probe/route.ts hard-codes status 400"],
     ],
     [
@@ -1266,15 +1267,21 @@ describe("REST route analyzer self-tests", () => {
   });
 });
 
-describe("v1 REST OpenAPI coverage", () => {
+describe("versioned REST OpenAPI coverage", () => {
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("documents every route handler in the OpenAPI spec", () => {
     const undocumented = undocumentedRouteViolations(routeOperations(), specOperations());
     expect(undocumented).toEqual([]);
-  });
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("has a route handler for every spec operation", () => {
     const orphaned = orphanedSpecViolations(routeOperations(), specOperations());
     expect(orphaned).toEqual([]);
+  });
+
+  it("publishes the record API under version one only", () => {
+    const spec = generateOpenApiSpec() as { paths?: Record<string, unknown> };
+    expect(Object.keys(spec.paths ?? {}).filter((path) => !path.startsWith("/v1/"))).toEqual([]);
+    expect(spec.paths?.["/v1/records/mutate"]).toBeDefined();
   });
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("documents a requestBody for every write-verb operation", () => {
@@ -1298,9 +1305,9 @@ describe("v1 REST OpenAPI coverage", () => {
   });
 
   it("returns every interactor failure through the shared status mapping", () => {
-    const violations = walkFiles(join(REPO_ROOT, "app", "api", "v1"), (path) => ROUTE_MODULE_PATTERN.test(path)).flatMap(
-      (path) => interactorFailureViolations(path.slice(REPO_ROOT.length + 1), readFileSync(path, "utf8")),
-    );
+    const violations = walkFiles(join(REPO_ROOT, "app", "api", "v1"), (path) =>
+      ROUTE_MODULE_PATTERN.test(path),
+    ).flatMap((path) => interactorFailureViolations(path.slice(REPO_ROOT.length + 1), readFileSync(path, "utf8")));
 
     expect(violations).toEqual([]);
   });

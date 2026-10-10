@@ -1,3 +1,4 @@
+import { recordSearchHit } from "@/tests/helpers/record-search";
 import type { ReactNode } from "react";
 import type { Root } from "react-dom/client";
 
@@ -23,6 +24,10 @@ const harness = vi.hoisted(() => ({
   globalSearchAction: vi.fn(),
 }));
 
+vi.mock("@/core/stores/root-store.provider", () => ({
+  useRootStore: () => ({ userStore: { user: { id: "user", companyId: "company" } } }),
+}));
+
 vi.mock("mobx-react-lite", () => ({
   observer: <T>(component: T) => component,
 }));
@@ -34,9 +39,6 @@ vi.mock("next-intl", () => ({
 }));
 vi.mock("@/app/[locale]/(protected)/search/actions", () => ({
   globalSearchAction: harness.globalSearchAction,
-}));
-vi.mock("@/components/entity-terminology/use-entity-terminology", () => ({
-  useEntityTerminology: () => ({ singular: (value: string) => value }),
 }));
 vi.mock("@/components/entity-detail/entity-relations", () => ({
   ENTITY_ICON: {
@@ -153,25 +155,24 @@ describe("AgentContextPicker focus return", () => {
     harness.globalSearchAction.mockResolvedValue({
       ok: true,
       data: {
+        schemaRevision: 1,
+        nextCursor: null,
         results: [
-          {
-            id: "10000000-0000-4000-8000-000000000001",
-            name: "Ada Lovelace",
-            pictureUrl: null,
-            type: "contact",
-          },
-          {
-            id: "10000000-0000-4000-8000-000000000002",
-            name: "Analytical Engines",
-            pictureUrl: null,
-            type: "organization",
-          },
-          {
-            id: "10000000-0000-4000-8000-000000000003",
-            name: "Review proposal",
-            pictureUrl: null,
-            type: "task",
-          },
+          recordSearchHit(
+            "40000000-0000-4000-8000-000000000001",
+            "10000000-0000-4000-8000-000000000001",
+            "Ada Lovelace",
+          ),
+          recordSearchHit(
+            "40000000-0000-4000-8000-000000000002",
+            "10000000-0000-4000-8000-000000000002",
+            "Analytical Engines",
+          ),
+          recordSearchHit(
+            "40000000-0000-4000-8000-000000000003",
+            "10000000-0000-4000-8000-000000000003",
+            "Review proposal",
+          ),
         ],
       },
     });
@@ -198,7 +199,7 @@ describe("AgentContextPicker focus return", () => {
     await act(async () => {
       await vi.advanceTimersByTimeAsync(300);
     });
-    expect(harness.globalSearchAction).toHaveBeenCalledWith({ searchTerm: "a", limitPerEntity: 8 });
+    expect(harness.globalSearchAction).toHaveBeenCalledWith({ searchTerm: "a", limit: 40, cursor: null });
     expect(container.textContent).toContain("Ada Lovelace");
     expect(container.textContent).toContain("Analytical Engines");
     expect(container.textContent).toContain("Review proposal");
@@ -213,7 +214,7 @@ describe("AgentContextPicker focus return", () => {
       {
         reference: {
           kind: "record",
-          entityType: "task",
+          typeId: "40000000-0000-4000-8000-000000000003",
           recordId: "10000000-0000-4000-8000-000000000003",
         },
         label: "Review proposal",
@@ -232,7 +233,7 @@ describe("AgentContextPicker focus return", () => {
         context: {
           reference: {
             kind: "record",
-            entityType: "contact",
+            typeId: "40000000-0000-4000-8000-000000000001",
             recordId: "10000000-0000-4000-8000-000000000001",
           },
           label: "Ada Lovelace",
@@ -243,13 +244,14 @@ describe("AgentContextPicker focus return", () => {
     harness.globalSearchAction.mockResolvedValue({
       ok: true,
       data: {
+        schemaRevision: 1,
+        nextCursor: null,
         results: [
-          {
-            id: "10000000-0000-4000-8000-000000000001",
-            name: "Ada Lovelace",
-            pictureUrl: null,
-            type: "contact",
-          },
+          recordSearchHit(
+            "40000000-0000-4000-8000-000000000001",
+            "10000000-0000-4000-8000-000000000001",
+            "Ada Lovelace",
+          ),
         ],
       },
     });
@@ -276,7 +278,8 @@ describe("AgentContextPicker focus return", () => {
 
     expect(harness.globalSearchAction).toHaveBeenCalledWith({
       searchTerm: "ada@example.com",
-      limitPerEntity: 8,
+      limit: 40,
+      cursor: null,
     });
     expect(container.textContent).toContain("Ada Lovelace");
   });

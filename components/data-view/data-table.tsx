@@ -2,45 +2,43 @@
 
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { ColumnDef, Row, SortingState, VisibilityState } from "@tanstack/react-table";
-import type { KeyboardEvent, PointerEvent, ReactNode } from "react";
+import type { ReactNode } from "react";
+import type { RecordGroupSummaryResult } from "@/features/records/record-grouping.schema";
 
-import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, ChevronsUpDown } from "lucide-react";
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, ChevronsUpDown, Plus } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Fragment, useMemo, useState } from "react";
 
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppChip } from "@/components/chip/app-chip";
+import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useNavigateToHref } from "@/components/entity-detail/hooks/use-entity-drawer-stack";
-import type { Prisma } from "@/generated/prisma";
+import { IconButton } from "@/components/ui/icon-button";
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/core/utils/cn";
+import type { Prisma } from "@/generated/prisma";
 
-import { isResizeDoubleTap } from "@/components/shared/resize-interaction";
-
-import { isInteractiveClick } from "./is-interactive-click";
+import { columnResizeLabel, MIN_COLUMN_WIDTH, withoutColumnWidth, type ColumnResizeSession } from "./data-table-resize";
+import { ColumnResizeHandle } from "./column-resize-handle";
 import { useGroupLabel, visibleGroups } from "./group-label";
-import {
-  beginColumnResize,
-  columnResizeLabel,
-  keyboardColumnWidth,
-  MIN_COLUMN_WIDTH,
-  shouldCommitColumnResize,
-  updateColumnResize,
-  withoutColumnWidth,
-  type ColumnResizeSession,
-} from "./data-table-resize";
+import { GroupSummaries } from "./group-summaries";
+import { isInteractiveClick } from "./is-interactive-click";
 
 type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
   columns: ColumnDef<E>[];
   className?: string;
   onRowClick?: (item: E) => void;
+  rowActions?: (item: E) => ReactNode;
   onRowHref?: (item: E) => string | undefined;
+  columnStyle?: (columnId: string) => DataTableColumnStyle;
+  rowFocusKey?: (item: E) => string | undefined;
+  totals?: RecordGroupSummaryResult[];
 };
+
+export type DataTableColumnStyle = { align?: "end"; emphasis?: boolean };
 
 const fixedWidthStyle = (width: number) => ({
   width,
@@ -53,17 +51,16 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   columns,
   className,
   onRowClick,
+  rowActions,
   onRowHref,
+  columnStyle,
+  rowFocusKey,
+  totals,
 }: Props<E>) {
   const t = useTranslations();
   const navigateToHref = useNavigateToHref();
   const groupLabel = useGroupLabel(store.groupingResult);
   const [resizeSession, setResizeSession] = useState<ColumnResizeSession>();
-  const activeResizeRef = useRef<{
-    handle: HTMLButtonElement;
-    session: ColumnResizeSession;
-  }>();
-  const lastTouchTapRef = useRef<{ columnId: string; at: number }>();
 
   function resetColumnWidth(columnId: string) {
     store.setViewOptions({
@@ -74,112 +71,6 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   const getColumnWidth = (columnId: string) =>
     resizeSession?.columnId === columnId ? resizeSession.currentWidth : store.columnWidths[columnId];
 
-  const cancelActiveResize = useCallback(() => {
-    const active = activeResizeRef.current;
-    if (!active) return;
-
-    activeResizeRef.current = undefined;
-    setResizeSession(undefined);
-    if (active.handle.hasPointerCapture(active.session.pointerId))
-      active.handle.releasePointerCapture(active.session.pointerId);
-  }, []);
-
-  useEffect(() => {
-    const onVisibilityChange = () => {
-      if (document.visibilityState === "hidden") cancelActiveResize();
-    };
-    const onKeyDown = (event: globalThis.KeyboardEvent) => {
-      if (event.key === "Escape") cancelActiveResize();
-    };
-
-    window.addEventListener("blur", cancelActiveResize);
-    window.addEventListener("resize", cancelActiveResize);
-    window.addEventListener("keydown", onKeyDown);
-    document.addEventListener("visibilitychange", onVisibilityChange);
-    return () => {
-      window.removeEventListener("blur", cancelActiveResize);
-      window.removeEventListener("resize", cancelActiveResize);
-      window.removeEventListener("keydown", onKeyDown);
-      document.removeEventListener("visibilitychange", onVisibilityChange);
-    };
-  }, [cancelActiveResize]);
-
-  function onResizePointerDown(event: PointerEvent<HTMLButtonElement>, columnId: string) {
-    if (!event.isPrimary || (event.pointerType === "mouse" && event.button !== 0)) return;
-
-    const headerCell = event.currentTarget.closest("th");
-    if (!headerCell) return;
-
-    event.stopPropagation();
-    const session = beginColumnResize({
-      columnId,
-      pointerId: event.pointerId,
-      pointerType: event.pointerType,
-      clientX: event.clientX,
-      renderedWidth: headerCell.getBoundingClientRect().width,
-    });
-
-    activeResizeRef.current = { handle: event.currentTarget, session };
-    setResizeSession(session);
-    event.currentTarget.focus({ preventScroll: true });
-    event.currentTarget.setPointerCapture(event.pointerId);
-  }
-
-  function onResizePointerMove(event: PointerEvent<HTMLButtonElement>) {
-    const active = activeResizeRef.current;
-    if (!active || active.session.pointerId !== event.pointerId) return;
-
-    event.preventDefault();
-    const session = updateColumnResize(active.session, event.clientX);
-    active.session = session;
-    setResizeSession(session);
-  }
-
-  function onResizePointerUp(event: PointerEvent<HTMLButtonElement>) {
-    const active = activeResizeRef.current;
-    if (!active || active.session.pointerId !== event.pointerId) return;
-
-    event.stopPropagation();
-    const session = updateColumnResize(active.session, event.clientX);
-    cancelActiveResize();
-
-    if (shouldCommitColumnResize(session)) {
-      lastTouchTapRef.current = undefined;
-      store.setViewOptions({
-        columnWidth: { uid: session.columnId, width: session.currentWidth },
-      });
-      return;
-    }
-
-    if (session.pointerType !== "touch" || session.hasMoved) return;
-    const previousTap = lastTouchTapRef.current;
-    if (previousTap?.columnId === session.columnId && isResizeDoubleTap(previousTap.at, event.timeStamp)) {
-      lastTouchTapRef.current = undefined;
-      resetColumnWidth(session.columnId);
-      return;
-    }
-
-    lastTouchTapRef.current = {
-      columnId: session.columnId,
-      at: event.timeStamp,
-    };
-  }
-
-  function onResizeKeyDown(event: KeyboardEvent<HTMLButtonElement>, columnId: string) {
-    if (event.key === "Enter" || event.key === " ") {
-      event.preventDefault();
-      resetColumnWidth(columnId);
-      return;
-    }
-
-    const headerCell = event.currentTarget.closest("th");
-    if (!headerCell) return;
-    const width = keyboardColumnWidth(headerCell.getBoundingClientRect().width, event.key, event.shiftKey);
-    if (width === undefined) return;
-
-    event.preventDefault();
-    store.setViewOptions({ columnWidth: { uid: columnId, width } });
-  }
   const sorting: SortingState = useMemo(
     () =>
       store.sortDescriptor
@@ -196,8 +87,10 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   const columnVisibility: VisibilityState = useMemo(() => {
     const visibility: VisibilityState = {};
     for (const uid of store.hiddenColumns) visibility[uid] = false;
+    const groupedBy = store.isGrouped ? store.groupingResult?.grouping.field : undefined;
+    if (groupedBy) visibility[groupedBy] = false;
     return visibility;
-  }, [store.hiddenColumns]);
+  }, [store.hiddenColumns, store.isGrouped, store.groupingResult?.grouping.field]);
 
   const selectionColumn: ColumnDef<E> = useMemo(
     () => ({
@@ -232,10 +125,23 @@ export const DataTable = observer(function DataTable<E extends HasId>({
     [store, t],
   );
 
-  const canBulkAct = Boolean(store.entityType);
+  const canBulkAct = store.supportsSelection;
+  const actionsColumn = useMemo<ColumnDef<E> | null>(
+    () =>
+      rowActions
+        ? {
+            id: "__actions",
+            header: () => <span className="sr-only">{t("DataView.rowActions")}</span>,
+            enableSorting: false,
+            enableResizing: false,
+            cell: ({ row }) => rowActions(row.original),
+          }
+        : null,
+    [rowActions, t],
+  );
   const allColumns = useMemo(
-    () => (canBulkAct ? [selectionColumn, ...columns] : columns),
-    [canBulkAct, selectionColumn, columns],
+    () => [...(canBulkAct ? [selectionColumn] : []), ...columns, ...(actionsColumn ? [actionsColumn] : [])],
+    [canBulkAct, selectionColumn, columns, actionsColumn],
   );
 
   const table = useReactTable<E>({
@@ -263,10 +169,12 @@ export const DataTable = observer(function DataTable<E extends HasId>({
     return (
       <TableRow
         key={row.id}
-        className={cn((onRowClick || onRowHref) && "cursor-pointer")}
+        className={cn("group/row", (onRowClick || onRowHref) && "cursor-pointer")}
+        data-focus-target={rowFocusKey?.(row.original)}
+        data-row-id={row.original.id}
         data-state={store.selectedIds.has(row.original.id) ? "selected" : undefined}
         onClick={(e) => {
-          if (isInteractiveClick(e)) return;
+          if (!e.currentTarget.contains(e.target as Node) || isInteractiveClick(e)) return;
           if (store.selectedIds.size > 0 && canBulkAct) {
             store.toggleItemSelection(row.original.id);
             return;
@@ -282,8 +190,8 @@ export const DataTable = observer(function DataTable<E extends HasId>({
       >
         {row.getVisibleCells().map((cell) => {
           const columnId = cell.column.id;
-          const isSelectionCell = columnId === "__select";
-          const isNameCell = columnId === "name";
+          const isSelectionCell = columnId === "__select" || columnId === "__actions";
+          const isNameCell = columnId === (store.primaryColumnId ?? store.columnsDefinition[0]?.uid);
           const liveWidth = getColumnWidth(columnId);
           const content = flexRender(cell.column.columnDef.cell, cell.getContext());
           const rowHref = onRowHref?.(row.original);
@@ -328,10 +236,22 @@ export const DataTable = observer(function DataTable<E extends HasId>({
             ) : (
               content
             );
+          const style = isSelectionCell ? undefined : columnStyle?.(columnId);
           return (
             <TableCell
               key={cell.id}
-              className={isSelectionCell ? "w-10" : undefined}
+              className={
+                columnId === "__actions"
+                  ? "sticky right-0 w-px py-0 pl-0 whitespace-nowrap any-pointer-coarse:static md:pointer-fine:not-any-pointer-coarse:w-0 md:pointer-fine:not-any-pointer-coarse:p-0 focus-within:bg-background group-hover/row:bg-background group-hover/row:bg-[image:linear-gradient(var(--accent),var(--accent))] group-data-[state=selected]/row:bg-[image:linear-gradient(var(--selected),var(--selected))]"
+                  : isSelectionCell
+                    ? "w-10"
+                    : cn(
+                        style && !style.emphasis && !isNameCell && "text-muted-foreground",
+                        style?.align === "end" &&
+                          "text-right [&_[data-edit-target]]:justify-end [&_[data-inline-edit-space]]:justify-end",
+                      )
+              }
+              data-align={style?.align}
               style={liveWidth != null && !isSelectionCell ? fixedWidthStyle(liveWidth) : undefined}
             >
               {liveWidth != null && !isSelectionCell ? (
@@ -351,16 +271,17 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   const rowsById = new Map(table.getRowModel().rows.map((row) => [row.original.id, row]));
   const leafColumnCount = table.getVisibleLeafColumns().length;
   const groups = visibleGroups(store.groupingResult);
+
   const overflow = store.groupingResult?.overflow;
 
   return (
     <Table className={className}>
-      <TableHeader>
+      <TableHeader className="sticky top-0 z-10 bg-background">
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
               const columnId = header.column.id;
-              const isSelectionCol = columnId === "__select";
+              const isSelectionCol = columnId === "__select" || columnId === "__actions";
               const canSort = header.column.getCanSort() && !isSelectionCol;
               const canResize = header.column.getCanResize() && !isSelectionCol;
               const sorted = header.column.getIsSorted();
@@ -376,9 +297,11 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                   key={header.id}
                   className={cn(
                     "relative",
+                    columnStyle?.(columnId)?.align === "end" && "text-right [&_button]:ml-auto",
                     canResize && "group/resize-header",
                     canSort && "cursor-pointer select-none",
-                    isSelectionCol && "w-10",
+                    columnId === "__select" && "w-10",
+                    columnId === "__actions" && "w-px md:pointer-fine:w-0 md:pointer-fine:p-0",
                   )}
                   style={
                     liveWidth != null
@@ -429,43 +352,15 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                   )}
 
                   {canResize && (
-                    <Tooltip delayDuration={500}>
-                      <TooltipTrigger asChild>
-                        <button
-                          aria-keyshortcuts="ArrowLeft ArrowRight Home Enter Space"
-                          aria-label={t("DataView.resizeColumn", {
-                            column: accessibleColumnLabel,
-                          })}
-                          className="group/resize-handle absolute inset-y-0 right-0 z-10 flex w-3 translate-x-1/2 cursor-col-resize touch-none select-none justify-center border-0 bg-transparent p-0 opacity-0 outline-none group-hover/resize-header:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-foreground/50 focus-visible:ring-offset-1 focus-visible:ring-offset-background data-[state=resizing]:opacity-100 any-pointer-coarse:w-6 any-pointer-coarse:opacity-100"
-                          data-slot="column-resize-handle"
-                          data-state={isResizing ? "resizing" : undefined}
-                          type="button"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            if (event.detail === 0) resetColumnWidth(columnId);
-                          }}
-                          onDoubleClick={(event) => {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            resetColumnWidth(columnId);
-                          }}
-                          onKeyDown={(event) => onResizeKeyDown(event, columnId)}
-                          onLostPointerCapture={cancelActiveResize}
-                          onPointerCancel={cancelActiveResize}
-                          onPointerDown={(event) => onResizePointerDown(event, columnId)}
-                          onPointerMove={onResizePointerMove}
-                          onPointerUp={onResizePointerUp}
-                        >
-                          <span
-                            aria-hidden="true"
-                            className="w-0.5 rounded-full bg-foreground/45 transition-colors group-hover/resize-handle:bg-foreground/70 group-focus-visible/resize-handle:bg-foreground/70 group-data-[state=resizing]/resize-handle:bg-foreground/70"
-                            data-slot="column-resize-indicator"
-                          />
-                        </button>
-                      </TooltipTrigger>
-
-                      <TooltipContent>{t("DataView.resizeHint")}</TooltipContent>
-                    </Tooltip>
+                    <ColumnResizeHandle
+                      columnId={columnId}
+                      label={t("DataView.resizeColumn", { column: accessibleColumnLabel })}
+                      measure={(handle) => handle.closest("th")?.getBoundingClientRect().width}
+                      resizing={isResizing}
+                      onCommit={(width) => store.setViewOptions({ columnWidth: { uid: columnId, width } })}
+                      onLiveWidth={setResizeSession}
+                      onReset={() => resetColumnWidth(columnId)}
+                    />
                   )}
                 </TableHead>
               );
@@ -531,9 +426,16 @@ export const DataTable = observer(function DataTable<E extends HasId>({
 
                         <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{group.count}</span>
 
-                        {store.isGroupedByDealWeightingColumn && group.weight !== undefined && (
-                          <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{group.weight}%</span>
+                        {store.canCreateInGroup(group.key) && (
+                          <IconButton
+                            fieldAction
+                            icon={Plus}
+                            label={t("DataView.addToGroup", { group: label })}
+                            onClick={() => store.createInGroup(group.key)}
+                          />
                         )}
+
+                        {group.summaries?.length ? <GroupSummaries summaries={group.summaries} /> : null}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -567,6 +469,21 @@ export const DataTable = observer(function DataTable<E extends HasId>({
           </TableRow>
         )}
       </TableBody>
+
+      {totals?.length ? (
+        <TableFooter data-slot="table-totals">
+          <TableRow className="hover:bg-transparent">
+            {table.getVisibleLeafColumns().map((column) => {
+              const summaries = totals.filter((summary) => summary.fieldId === column.id);
+              return (
+                <TableCell key={column.id}>
+                  {summaries.length ? <GroupSummaries summaries={summaries} /> : null}
+                </TableCell>
+              );
+            })}
+          </TableRow>
+        </TableFooter>
+      ) : null}
     </Table>
   );
 });

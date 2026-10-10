@@ -55,7 +55,7 @@ class TestStore extends BaseDataViewStore<Item> {
 
     return Promise.resolve({
       items: [],
-      p13nId: SURFACE.deals,
+      p13nId: SURFACE.routines,
       pagination: { page: 1, pageSize: 25, total: 0, totalPages: 1 },
       views: [],
       activeViewKey: ALL_VIEW_KEY,
@@ -77,7 +77,7 @@ function hydrated(): TestStore {
   const store = new TestStore(rootStore());
   store.setItems({
     items: [],
-    p13nId: SURFACE.deals,
+    p13nId: SURFACE.routines,
     pagination: { page: 1, pageSize: 25, total: 0, totalPages: 1 },
     views: [],
     activeViewKey: ALL_VIEW_KEY,
@@ -138,7 +138,7 @@ describe("view mode survives the refresh that races its own persistence", () => 
 
     store.setItems({
       items: [],
-      p13nId: SURFACE.deals,
+      p13nId: SURFACE.routines,
       viewMode: ViewMode.card,
       grouping: groupingResult({ field: GROUPING_COLUMN_ID }),
       viewPersistable: true,
@@ -161,13 +161,13 @@ describe("board group sums after a regroup in table layout", () => {
     vi.useRealTimers();
   });
 
-  it("refetches the groups with their value sums when the layout switches back to board", async () => {
+  it("refetches the groups when the layout switches back to board", async () => {
     const store = hydrated();
 
     store.setViewOptions({ grouping: { field: GROUPING_COLUMN_ID } });
     await vi.advanceTimersByTimeAsync(0);
 
-    expect(store.requestedParams.at(-1)?.groupPage?.includeValueSums).toBe(false);
+    expect(store.requestedParams.at(-1)?.groupPage).toEqual({ perGroup: 10 });
 
     store.requestedParams = [];
     store.setViewOptions({ viewMode: ViewMode.card });
@@ -175,7 +175,7 @@ describe("board group sums after a regroup in table layout", () => {
 
     expect(store.requestedParams).toHaveLength(1);
     expect(store.requestedParams[0]?.viewMode).toBe(ViewMode.card);
-    expect(store.requestedParams[0]?.groupPage?.includeValueSums).toBe(true);
+    expect(store.requestedParams[0]?.groupPage).toEqual({ perGroup: 10 });
   });
 
   it("does not refetch when the layout switches to table or to board without a grouping", async () => {

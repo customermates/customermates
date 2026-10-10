@@ -92,7 +92,7 @@ Here is a setup that takes about ten minutes and replaces "rep enters data into 
 }
 ```
 
-**Step 3.** Send the agent the email, transcript, or context. Tell it to update the CRM. The agent picks the right tools (`list_records` to find the deal, `update_deals` to advance the stage, `update_record_notes` to add a summary) and executes.
+**Step 3.** Send the agent the email, transcript, or context. Tell it to update the CRM. The agent picks the right tools (`search_crm_records` to find the deal, `mutate_crm_record` to advance the stage and add a summary to its notes) and executes.
 
 **Step 4.** Review and audit. The same agent can read back changes for verification. Webhook events fire on record changes, so a separately run n8n flow or your own endpoint can show what changed.
 

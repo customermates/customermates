@@ -1,9 +1,10 @@
-import type { RoutineDto, UpsertRoutineData } from "./routine.schema";
+import type { UpsertRoutineSubscriptionRepo } from "./upsert-routine-subscription.repo";
+import type { UpsertRoutineRepo } from "./upsert-routine.repo";
+import type { RoutineDto, RoutineValidationData, UpsertRoutineData } from "./routine.schema";
 import type { Validated } from "@/core/validation/validation.utils";
-import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 import type { EventService } from "@/features/event/event.service";
 
-import { Action, Resource, RoutineTriggerKind } from "@/generated/prisma";
+import { Resource, RoutineTriggerKind } from "@/generated/prisma";
 
 import { RoutineDtoSchema, UpsertRoutineSchema, validateRoutineFinalState } from "./routine.schema";
 
@@ -16,9 +17,12 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { runPrecheck } from "@/core/validation/run-precheck";
-import { RoutineLimitExceededError, type RoutineCountLimit } from "./routine-run-limits";
+import { RoutineLimitExceededError } from "./routine-run-limits";
+import { isRoutineTriggerEvent } from "./routine-trigger-events";
+import { RecordWriteError } from "@/features/records/record-write.service";
+import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
 
-function mergeRoutineFinalState(previous: RoutineDto, update: UpsertRoutineData): UpsertRoutineData {
+function mergeRoutineFinalState(previous: RoutineDto, update: UpsertRoutineData): RoutineValidationData {
   const triggerKind = update.triggerKind ?? previous.triggerKind;
   const switchingToSchedule =
     previous.triggerKind !== RoutineTriggerKind.schedule && triggerKind === RoutineTriggerKind.schedule;
@@ -43,34 +47,26 @@ function mergeRoutineFinalState(previous: RoutineDto, update: UpsertRoutineData)
           : previous.timezone
         : update.timezone
       : null,
-    triggerEvents: update.triggerEvents ?? previous.triggerEvents,
-    changedFields: update.changedFields ?? previous.changedFields,
+    triggerEvents: update.triggerEvents ?? previous.triggerEvents.filter(isRoutineTriggerEvent),
     triggerFilters: update.triggerFilters ?? previous.triggerFilters,
+    recordTrigger:
+      scheduled || update.recordSources?.length
+        ? null
+        : update.recordTrigger === undefined
+          ? previous.recordTrigger
+          : update.recordTrigger,
+    recordSources: scheduled
+      ? null
+      : update.recordSources !== undefined
+        ? update.recordSources
+        : update.recordTrigger !== undefined
+          ? null
+          : previous.recordSources,
     debounceSeconds: update.debounceSeconds ?? previous.debounceSeconds,
   };
 }
 
-export abstract class UpsertRoutineRepo {
-  abstract upsertRoutineOrThrow(args: UpsertRoutineData, routineLimit?: RoutineCountLimit): Promise<RoutineDto>;
-  abstract getRoutineByIdOrThrow(id: string): Promise<RoutineDto>;
-  abstract isEligibleRoutineOwner(userId: string): Promise<boolean>;
-}
-
-export abstract class UpsertRoutineSubscriptionRepo {
-  abstract getSubscriptionOrThrow(): Promise<{
-    status: SubscriptionStatus;
-    trialEndDate: Date | null;
-    plan: SubscriptionPlan;
-  }>;
-}
-
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.routines, action: Action.create },
-    { resource: Resource.routines, action: Action.update },
-  ],
-  condition: "AND",
-})
+@TenantInteractor({ resource: Resource.routines, manage: "upsert" })
 export class UpsertRoutineInteractor extends AuthenticatedInteractor<UpsertRoutineData, RoutineDto> {
   constructor(
     private repo: UpsertRoutineRepo,
@@ -103,6 +99,7 @@ export class UpsertRoutineInteractor extends AuthenticatedInteractor<UpsertRouti
     try {
       routine = await this.repo.upsertRoutineOrThrow(data, routineLimit);
     } catch (error) {
+      if (error instanceof RecordWriteError) return recordWriteFailure(error);
       if (!(error instanceof RoutineLimitExceededError)) throw error;
       return failConflict(CustomErrorCode.routineLimitReached, ["name"], { limit: error.limit });
     }

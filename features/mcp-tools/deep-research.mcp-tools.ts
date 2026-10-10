@@ -3,75 +3,46 @@ import { z } from "zod";
 import type { ContentLocale } from "@/i18n/locale-registry";
 import type { WikiOutlineEntry } from "@/features/wiki/wiki-markdown-sections";
 
-import { customMcpFailure, formatDatesInResponse, mcpInteractorFailure, mcpMessageFailure } from "./utils";
+import { customMcpFailure, mcpInteractorFailure, mcpMessageFailure } from "./utils";
 import { getDocsPageRaw, listDocsSlugs, searchDocsHits } from "./docs.mcp-tools";
-import {
-  UNTRUSTED_NOTES_CLOSE,
-  UNTRUSTED_NOTES_HANDLING,
-  UNTRUSTED_NOTES_OPEN,
-  stripUntrustedNotesMarkers,
-} from "./entity-generic.mcp-tools";
+import { UNTRUSTED_RECORD_TEXT_HANDLING, untrustedRecordText } from "./untrusted-record-content";
 
 import { env } from "@/env";
 import { CONTENT_LOCALES, DEFAULT_LOCALE, isContentLocale } from "@/i18n/locale-registry";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
-import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
-import { entityListExecutors, entityNameExtractors } from "@/features/search/entity-list-executors";
 import {
-  getGetContactByIdInteractor,
-  getGetDealByIdInteractor,
-  getGetOrganizationByIdInteractor,
-  getGetServiceByIdInteractor,
-  getGetTaskByIdInteractor,
+  getGetRecordInteractor,
+  getGetRecordModelInteractor,
+  getSearchRecordsInteractor,
   getGetWikiPageInteractor,
   getSearchExternalizedWikiPagesInteractor,
 } from "@/core/di";
+import { RecordRefSchema, type RecordRef } from "@/features/records/record-model.schema";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { extractWikiPageLinks, externalizeWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 import { parseWikiPageReference, wikiPageFetchId, wikiPageUrl } from "@/features/wiki/wiki-links";
 import { boundedWikiChunk, WIKI_CHUNK_SIZE_FAILURE, wikiCodePointBoundary } from "@/features/wiki/wiki-page-chunk";
 import { wikiOutline } from "@/features/wiki/wiki-markdown-sections";
 
-type Entity = "contact" | "organization" | "deal" | "service" | "task";
+const englishTitleText = (key: string, values?: Record<string, string>) =>
+  key === "RecordModel.restricted"
+    ? "Restricted value"
+    : key === "RecordModel.untitledRecord"
+      ? `Untitled ${values?.singular ?? "record"}`
+      : key === "RecordModel.record"
+        ? "Record"
+        : "Calculation error";
 
-const ENTITIES: Entity[] = ["contact", "organization", "deal", "service", "task"];
 const WIKI_FETCH_TEXT_TARGET_LENGTH = 5_500;
 const WIKI_SEARCH_QUERY_MAX_LENGTH = 200;
-
-const entityRoutes: Record<Entity, string> = {
-  contact: "contacts",
-  organization: "organizations",
-  deal: "deals",
-  service: "services",
-  task: "tasks",
-};
-
-const detailsExecutors: Record<Entity, (id: string) => Promise<any>> = {
-  contact: async (id) => getGetContactByIdInteractor().invoke({ id }),
-  organization: async (id) => getGetOrganizationByIdInteractor().invoke({ id }),
-  deal: async (id) => getGetDealByIdInteractor().invoke({ id }),
-  service: async (id) => getGetServiceByIdInteractor().invoke({ id }),
-  task: async (id) => getGetTaskByIdInteractor().invoke({ id }),
-};
-
-const entityNotFoundCode: Record<Entity, CustomErrorCode> = {
-  contact: CustomErrorCode.contactNotFound,
-  organization: CustomErrorCode.organizationNotFound,
-  deal: CustomErrorCode.dealNotFound,
-  service: CustomErrorCode.serviceNotFound,
-  task: CustomErrorCode.taskNotFound,
-};
-
-function isEntity(value: string): value is Entity {
-  return (ENTITIES as string[]).includes(value);
-}
 
 const SearchOutputSchema = z.object({
   results: z.array(
     z.object({
       id: z
         .string()
-        .describe("Result id, pass to fetch: 'wiki:<uuid>', 'record:<entity>:<uuid>', or 'doc:<locale>:<slug>'"),
+        .describe("Result id, pass to fetch: 'wiki:<uuid>', 'record:<typeId>:<recordId>', or 'doc:<locale>:<slug>'"),
       title: z.string().describe("Display name of the Knowledge Base page, record, or product docs page"),
       url: z.string().describe("Canonical app or docs URL"),
       snippet: z
@@ -132,30 +103,40 @@ const FetchOutputSchema = z.object({
     .describe("At offset 0 of a multi-chunk Knowledge Base page: its H1-H3 headings with the offset each starts at"),
 });
 
-async function fetchRecord(entity: Entity, key: string) {
-  const result = await detailsExecutors[entity](key);
+async function fetchRecord(ref: RecordRef) {
+  const [result, configuration] = await Promise.all([
+    getGetRecordInteractor().invoke(ref),
+    getGetRecordModelInteractor().invoke({ typeIds: [ref.typeId] }),
+  ]);
   if (!result.ok) return mcpInteractorFailure(result.error);
-
-  const row = result.data?.[entity];
-  if (!row) return customMcpFailure(entityNotFoundCode[entity]);
-
-  const { notes, ...masterData } = row as Record<string, unknown> & {
-    notes?: unknown;
-  };
-  const noteMarkdown = notes ? serializeJSONToMarkdown(notes as object) : null;
-  const masterText = JSON.stringify(formatDatesInResponse(masterData), null, 2);
-  const text = noteMarkdown
-    ? `${masterText}\n\nNotes:\n${UNTRUSTED_NOTES_HANDLING}\n${UNTRUSTED_NOTES_OPEN}\n${stripUntrustedNotesMarkers(noteMarkdown)}\n${UNTRUSTED_NOTES_CLOSE}`
-    : masterText;
-  const recordId = String(masterData.id);
+  if (!configuration.ok) return mcpInteractorFailure(configuration.error);
+  if (result.data.schemaRevision !== configuration.data.revision)
+    return customMcpFailure(CustomErrorCode.recordSchemaChanged);
+  const record = result.data;
+  const type = configuration.data.types.find((item) => item.id === ref.typeId);
+  if (!type) return customMcpFailure(CustomErrorCode.recordNotFound);
+  const title = recordDisplayName(
+    record.fields.find((field) => field.fieldId === type.primaryFieldId)?.result,
+    type.label,
+    englishTitleText,
+  );
+  const documents: string[] = [];
+  const fields = record.fields.map((field) => {
+    if (field.result.state !== "value" || field.result.value.kind !== "richText") return field;
+    documents.push(`Field ${field.fieldId}:\n${untrustedRecordText(field.result.value.documentJson)}`);
+    return { fieldId: field.fieldId, result: { state: "value", format: "markdown below" } };
+  });
+  const text = [
+    JSON.stringify({ ...record, fields }, null, 2),
+    ...(documents.length ? [UNTRUSTED_RECORD_TEXT_HANDLING, ...documents] : []),
+  ].join("\n\n");
   const output = {
-    id: `record:${entity}:${recordId}`,
-    title: entityNameExtractors[entity](row),
+    id: `record:${ref.typeId}:${ref.recordId}`,
+    title,
     text,
-    url: `${env.BASE_URL}/${entityRoutes[entity]}/${recordId}`,
-    metadata: { entity },
+    url: `${env.BASE_URL}/records/${ref.typeId}/${ref.recordId}`,
+    metadata: { typeId: ref.typeId },
   };
-
   return { text: JSON.stringify(output), structuredContent: output };
 }
 
@@ -279,8 +260,8 @@ export const searchTool = {
     "Required by ChatGPT company-knowledge and deep-research connectors. Returns relevant Knowledge Base pages, CRM records, and product documentation in one list, without totals or filters. " +
     "Knowledge Base results match the query's words in full text and, with AI credits, also by meaning, and carry a snippet with the matched terms in **, the matched section, and its offset: fetch with that offset to open at the answer, then follow linked Knowledge Base pages. " +
     "A misspelled word that matches no Knowledge Base page is corrected from the Knowledge Base's own words, and didYouMean names the corrected query; when no Knowledge Base page fits, search again with other words. " +
-    "For focused CRM or product-doc queries prefer search_records or list_records, which carry totals and filters, or search_docs. " +
-    "App routes in the docs text that fetch returns, such as `/company/subscription`, are relative: for a full link, put the route after the origin of the result's url; that origin is the instance's configured BASE_URL.",
+    "For focused CRM or product-doc queries prefer search_crm_records or query_crm_records, query_crm_measure for totals, or search_docs. " +
+    "Links into the app in the docs are full URLs on this instance and open the reader's own workspace; pass them on unchanged.",
   annotations: {
     readOnlyHint: true,
     idempotentHint: true,
@@ -296,26 +277,23 @@ export const searchTool = {
   }),
   outputSchema: SearchOutputSchema,
   execute: async ({ query }: { query: string }) => {
-    const [recordGroups, wiki, docHits] = await Promise.all([
-      Promise.all(
-        ENTITIES.map(async (entity) => {
-          try {
-            const result = await entityListExecutors[entity]({
-              searchTerm: query,
-              pagination: { page: 1, pageSize: 5 },
-            });
-            if (!result.ok) return [];
-            return result.data.items.slice(0, 3).map((item: any) => ({
-              id: `record:${entity}:${item.id}`,
-              title: entityNameExtractors[entity](item),
-              url: `${env.BASE_URL}/${entityRoutes[entity]}/${item.id}`,
-            }));
-          } catch (error) {
-            if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied) return [];
-            throw error;
-          }
+    const recordQuery = query.slice(0, wikiCodePointBoundary(query, WIKI_SEARCH_QUERY_MAX_LENGTH));
+    const [recordResults, wiki, docHits] = await Promise.all([
+      getSearchRecordsInteractor()
+        .invoke({ searchTerm: recordQuery, limit: 15, cursor: null })
+        .then((records) =>
+          records.ok
+            ? records.data.results.map((item) => ({
+                id: `record:${item.ref.typeId}:${item.ref.recordId}`,
+                title: recordDisplayName(item.title, item.typeLabel, englishTitleText),
+                url: `${env.BASE_URL}/records/${item.ref.typeId}/${item.ref.recordId}`,
+              }))
+            : [],
+        )
+        .catch((error: unknown) => {
+          if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied) return [];
+          throw error;
         }),
-      ),
       searchWiki(query),
       searchDocsHits(query, DEFAULT_LOCALE, "docs"),
     ]);
@@ -327,7 +305,7 @@ export const searchTool = {
     }));
 
     const output = {
-      results: [...wiki.results, ...recordGroups.flat(), ...docResults],
+      results: [...wiki.results, ...recordResults, ...docResults],
       ...(wiki.didYouMean.length > 0 ? { didYouMean: wiki.didYouMean } : {}),
     };
 
@@ -343,8 +321,8 @@ export const fetchTool = {
     "Knowledge Base pages may also be fetched by their exact relative, localized, or same-origin absolute Knowledge Base URL. " +
     "Knowledge Base content is returned in bounded chunks with absolute internal links and a source URL for citations; pass nextOffset back as offset until it is null. If updatedAt differs from the previous chunk, restart at offset 0. Knowledge Base Read is required for Knowledge Base pages. " +
     "Start at a search result's offset to land on the matched section; at offset 0 a multi-chunk page also returns an outline of its headings with their offsets. " +
-    "Compatible with ChatGPT company knowledge and deep research. For focused CRM or product-documentation retrieval, prefer get_records or get_docs_page. " +
-    "For a docs result, app routes in text, such as `/company/subscription`, are relative: for a full link, put the route after the origin of url; that origin is the instance's configured BASE_URL.",
+    "Compatible with ChatGPT company knowledge and deep research. For focused CRM or product-documentation retrieval, prefer read_crm_record or get_docs_page. " +
+    "Links into the app in the docs are full URLs on this instance and open the reader's own workspace; pass them on unchanged.",
   annotations: {
     readOnlyHint: true,
     idempotentHint: true,
@@ -355,7 +333,9 @@ export const fetchTool = {
     id: z
       .string()
       .min(1)
-      .describe("A result id returned by search: 'wiki:<uuid>', 'record:<entity>:<id>', or 'doc:<locale>:<slug>'"),
+      .describe(
+        "A result id returned by search: 'wiki:<uuid>', 'record:<typeId>:<recordId>', or 'doc:<locale>:<slug>'",
+      ),
     offset: z.coerce
       .number()
       .int()
@@ -374,10 +354,13 @@ export const fetchTool = {
     const key = rest.join(":");
     if (offset !== 0) return mcpMessageFailure("offset is supported only for Knowledge Base results.");
 
-    if (kind === "record" && qualifier && isEntity(qualifier) && key.length > 0) return fetchRecord(qualifier, key);
+    if (kind === "record") {
+      const ref = RecordRefSchema.safeParse({ typeId: qualifier, recordId: key });
+      if (ref.success) return fetchRecord(ref.data);
+    }
     if (kind === "doc" && isContentLocale(qualifier) && key.length > 0) return fetchDoc(qualifier, key);
     return mcpMessageFailure(
-      `Unknown id "${id}". Expected "record:<entity>:<id>" with entity one of contact, organization, deal, service, task, ` +
+      `Unknown id "${id}". Expected "record:<typeId>:<recordId>" with two UUIDs, ` +
         `"wiki:<uuid>" or an exact Customermates Knowledge Base URL, or "doc:<locale>:<slug>" with locale ${CONTENT_LOCALES.join(" or ")}.`,
     );
   },

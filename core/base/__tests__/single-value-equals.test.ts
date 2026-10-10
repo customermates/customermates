@@ -3,7 +3,6 @@ import type { Filter, FilterableField } from "../base-get.schema";
 
 import { describe, expect, it, vi } from "vitest";
 
-import { EntityType } from "@/generated/prisma";
 import { MOCK_ZOD_MODULE } from "@/tests/helpers/interactor-test-setup";
 
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
@@ -11,7 +10,7 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 import { Repo } from "./fixtures/single-value-equals-repo";
 import { SingleValueEqualsInteractor } from "./fixtures/single-value-equals-interactor";
 
-import { acceptSingleValueEquals } from "../filter-compat";
+import { acceptSingleValueEquals } from "../filter-value";
 
 const SELECT_COLUMN = "11111111-1111-4111-8111-111111111111";
 const OPTION = "22222222-2222-4222-8222-222222222222";
@@ -42,19 +41,12 @@ describe("BaseGetInteractor in api mode", () => {
   it("prechecks and applies the rewritten filter, so a single-select equals is accepted", async () => {
     const prechecked: unknown[] = [];
     const precheck = {
-      invoke: (_fields: unknown, _entity: unknown, data: { filters?: Filter[] }) => {
+      invoke: (_fields: unknown, data: { filters?: Filter[] }) => {
         prechecked.push(...(data.filters ?? []));
       },
     } as unknown as QueryParamsPrecheckInteractor;
     const repo = new Repo();
-    const interactor = new SingleValueEqualsInteractor(
-      repo,
-      { loadSurfaceState: vi.fn() },
-      "api",
-      EntityType.task,
-      undefined,
-      precheck,
-    );
+    const interactor = new SingleValueEqualsInteractor(repo, { loadSurfaceState: vi.fn() }, "api", undefined, precheck);
 
     const result = await interactor.invoke({
       filters: [{ field: SELECT_COLUMN, operator: "equals", value: OPTION } as Filter],

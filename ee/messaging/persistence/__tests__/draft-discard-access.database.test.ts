@@ -35,6 +35,7 @@ describeDatabase("draft discard access on PostgreSQL", () => {
     headline: null,
     occupation: null,
     isSelf: true,
+    records: [],
   };
 
   async function insertDraft() {
@@ -133,7 +134,7 @@ describeDatabase("draft discard access on PostgreSQL", () => {
           threadId: chatThreadId,
           connectedAccountId: chatAccountId,
           provider: MessagingProvider.linkedin,
-          sender: { ...sender, identifier: "owner-handle", attendeeId: "owner-handle", contact: null },
+          sender: { ...sender, identifier: "owner-handle", attendeeId: "owner-handle", records: [] },
           subject: null,
           bodyText,
           recipients: { to: [], cc: [], bcc: [] },

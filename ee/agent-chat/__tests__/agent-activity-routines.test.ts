@@ -77,26 +77,10 @@ describe("manage_routines activity", () => {
       expect(deletion.detail).toBeTruthy();
       const send = agentActivityCopy(describeInternalTool("send_email", { to: ["a@b.c"], subject: "s" }), t);
       expect(send.approval).not.toBe(send.running);
-      const read = agentActivityCopy(describeInternalTool("list_records", { entity: "deal" }), t);
+      const read = agentActivityCopy(describeInternalTool("query_crm_records", { typeId: "x" }), t);
       expect(read.approval).toBe(read.running);
     }
     expect(ROUTING_LOCALES.length).toBeGreaterThan(0);
-  });
-
-  it("carries distinct, localized approval copy for renaming record types", () => {
-    const rename = { target: "company", terminology: [{ entityType: "deal", presetKey: "opportunity" }] };
-    for (const input of [rename, { ...rename, currency: "EUR" }]) {
-      const activity = describeInternalTool("update_workspace_settings", input);
-      expect(requiresApproval(internalToolIdentity("update_workspace_settings"), { annotations: {} }, input)).toBe(
-        true,
-      );
-      expect(AGENT_APPROVAL_COPY_KINDS).toContain(activity.kind);
-      for (const locale of ROUTING_LOCALES) {
-        const copy = agentActivityCopy(activity, translatorFor(locale));
-        expect(copy.approval.length, `${locale} ${activity.kind}`).toBeGreaterThan(0);
-        expect(copy.approval, `${locale} ${activity.kind}`).not.toBe(copy.running);
-      }
-    }
   });
 
   it("carries approval copy for every kind that can still reach an approval card", () => {

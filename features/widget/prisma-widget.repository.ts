@@ -1,57 +1,42 @@
+import { runInTransaction } from "@/core/decorators/transaction-runner";
+import deepEqual from "fast-deep-equal";
+import { recordJson } from "@/features/records/record-storage";
 import type { RepoArgs } from "@/core/utils/types";
-import type { GetWidgetsRepo } from "./get-widgets.interactor";
-import type { UpsertWidgetRepo } from "./upsert-widget.interactor";
-import type { DeleteWidgetRepo } from "./delete-widget.interactor";
+import type { DeleteWidgetRepo } from "./delete-widget.repo";
+import type { FindWidgetsByIdsRepo } from "./find-widgets-by-ids.repo";
 import type { GetCompanyWidgetsRepo } from "./get-company-widgets.interactor";
 import type { GetWidgetByIdRepo } from "./get-widget-by-id.interactor";
-import type { UpdateWidgetLayoutsRepo } from "./update-widget-layouts.interactor";
-import type { FindWidgetsByIdsRepo } from "./find-widgets-by-ids.repo";
-import type { WidgetDisplayOptions, WidgetDto, WidgetLayout } from "./widget.schema";
-import type { Filter } from "@/core/base/base-get.schema";
-import type { AggregationType, Prisma, WidgetGroupByType, EntityType } from "@/generated/prisma";
+import type { GetWidgetsRepo } from "./get-widgets.repo";
+import { RecordActivityWidgetDtoSchema } from "./record-activity-widget.schema";
+import { RecordWidgetDtoSchema } from "./record-widget.schema";
+import type { UpdateWidgetLayoutsRepo } from "./update-widget-layouts.repo";
+import type { WidgetDto, WidgetLayout } from "./widget.schema";
 
-import { Action, Resource, WidgetKind } from "@/generated/prisma";
+import type { Prisma } from "@/generated/prisma";
+import { WidgetKind } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
-import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BREAKPOINTS } from "@/constants/breakpoints";
-import { getWidgetCalculatorRepo } from "@/core/di";
-import { ActivityWidgetDtoSchema } from "./widget.schema";
-import { activityFilterableFieldsForViewer } from "@/ee/messaging/activities/activity-filterable-fields";
-import { normalizeFilters } from "@/core/base/filter-compat";
+import { TenantRepository } from "@/core/base/tenant-repository";
+import { Transaction } from "@/core/decorators/transaction.decorator";
+import { getRecordActivityWidgetReader, getRecordWidgetReader } from "@/core/di";
+import { LIVE_WIDGET } from "./live-widget";
 
 export class PrismaWidgetRepo
-  extends BaseRepository
+  extends TenantRepository
   implements
     GetWidgetsRepo,
-    UpsertWidgetRepo,
     DeleteWidgetRepo,
     GetCompanyWidgetsRepo,
     GetWidgetByIdRepo,
     UpdateWidgetLayoutsRepo,
     FindWidgetsByIdsRepo
 {
-  private messagingSourcesEnabled = false;
-
-  canReadMessagingSources() {
-    return (
-      this.hasPermission(Resource.inboxMessages, Action.readAll) ||
-      this.hasPermission(Resource.inboxMessages, Action.readOwn)
-    );
+  constructor(private readonly scopedCompanyId?: string) {
+    super();
   }
 
-  setMessagingSourcesEnabled(enabled: boolean) {
-    this.messagingSourcesEnabled = enabled;
-  }
-
-  getActivityFilterableFields() {
-    return Promise.resolve(
-      activityFilterableFieldsForViewer({
-        canAccess: (resource) => this.canAccess(resource),
-        canReadMessages: this.messagingSourcesEnabled && this.canReadMessagingSources(),
-        hasPermission: (resource, action) => this.hasPermission(resource, action),
-      }),
-    );
+  override get companyId(): string {
+    return this.scopedCompanyId ?? super.companyId;
   }
 
   private get dtoSelect() {
@@ -61,15 +46,12 @@ export class PrismaWidgetRepo
       companyId: true,
       name: true,
       kind: true,
-      entityType: true,
-      entityFilters: true,
-      dealFilters: true,
+      measure: true,
+      activityQuery: true,
+      version: true,
       displayOptions: true,
-      groupByType: true,
-      groupByCustomColumnId: true,
-      aggregationType: true,
-      timelineFilters: true,
       layout: true,
+      viewId: true,
       isTemplate: true,
       createdAt: true,
       updatedAt: true,
@@ -79,127 +61,84 @@ export class PrismaWidgetRepo
   private async toDto(
     row: Prisma.WidgetGetPayload<{ select: PrismaWidgetRepo["dtoSelect"] }>,
   ): Promise<WidgetDto | null> {
-    const base = {
-      id: row.id,
-      userId: row.userId,
-      companyId: row.companyId,
-      name: row.name,
-      layout: (row.layout as unknown as WidgetLayout | null) ?? null,
-      isTemplate: row.isTemplate,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-    };
-
-    if (row.kind === WidgetKind.activityTimeline) {
-      const timelineFilters = Array.isArray(row.timelineFilters)
-        ? normalizeFilters(row.timelineFilters as unknown as Filter[])
-        : (row.timelineFilters ?? []);
-      const parsed = ActivityWidgetDtoSchema.safeParse({
-        ...base,
-        kind: WidgetKind.activityTimeline,
-        timelineFilters,
-        displayOptions: row.displayOptions ?? null,
-      });
-
-      return parsed.success ? parsed.data : null;
+    if (row.kind === WidgetKind.activityTimeline && row.activityQuery) {
+      const stored = RecordActivityWidgetDtoSchema.omit({ schemaRevision: true, data: true, status: true })
+        .strip()
+        .parse({ ...row, viewId: row.userId === this.user.id ? row.viewId : null });
+      return getRecordActivityWidgetReader().read(stored);
     }
-
-    const entityType = row.entityType as EntityType;
-    const aggregationType = row.aggregationType as AggregationType;
-    const entityFilters = normalizeFilters((row.entityFilters as unknown as Filter[] | null) ?? []);
-    const dealFilters = normalizeFilters((row.dealFilters as unknown as Filter[] | null) ?? []);
-    const chart = {
-      ...base,
-      kind: WidgetKind.chart,
-      entityType,
-      groupByType: row.groupByType as WidgetGroupByType,
-      groupByCustomColumnId: row.groupByCustomColumnId,
-      aggregationType,
-      entityFilters,
-      dealFilters,
-      displayOptions: (row.displayOptions as unknown as WidgetDisplayOptions | null) ?? null,
-    };
-
-    return {
-      ...chart,
-      data: await getWidgetCalculatorRepo().calculateWidgetData(chart),
-    };
+    if (row.measure !== null && row.measure !== undefined) {
+      const stored = RecordWidgetDtoSchema.omit({ data: true, status: true, groupOptions: true })
+        .strip()
+        .parse({
+          ...row,
+          viewId: row.userId === this.user.id ? row.viewId : null,
+        });
+      return getRecordWidgetReader().read(stored);
+    }
+    throw new Error(`Widget ${row.id} has no record definition`);
   }
 
-  async getWidgets() {
-    const { id: userId, companyId } = this.user;
+  async getWidgets(viewId?: string | null) {
+    return runInTransaction(
+      async () => {
+        const { id: userId, companyId } = this.user;
 
-    const rows = await this.prisma.widget.findMany({
-      where: {
-        userId,
-        companyId,
+        const rows = await this.prisma.widget.findMany({
+          where: {
+            userId,
+            companyId,
+            ...(viewId === undefined ? {} : { viewId }),
+            ...LIVE_WIDGET,
+          },
+          select: this.dtoSelect,
+          orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+        });
+
+        const widgets = await Promise.all(rows.map((row) => this.toDto(row)));
+        return widgets.filter((widget): widget is WidgetDto => widget !== null);
       },
-      select: this.dtoSelect,
-    });
-
-    const widgets = await Promise.all(rows.map((row) => this.toDto(row)));
-    return widgets.filter((widget): widget is WidgetDto => widget !== null);
+      { readOnly: true, timeout: 30000 },
+    );
   }
 
   @Transaction
-  async upsertWidget(data: RepoArgs<UpsertWidgetRepo, "upsertWidget">) {
+  async trashWidget(id: string) {
     const { id: userId, companyId } = this.user;
-    const { data: widgetData } = data;
-
-    const displayOptions = widgetData.displayOptions === undefined ? {} : { displayOptions: widgetData.displayOptions };
-
-    const widgetDataForDb: Prisma.WidgetUncheckedCreateInput =
-      widgetData.kind === WidgetKind.activityTimeline
-        ? {
-            userId,
-            companyId,
-            name: widgetData.name,
-            kind: WidgetKind.activityTimeline,
-            entityType: null,
-            groupByType: null,
-            groupByCustomColumnId: null,
-            aggregationType: null,
-            timelineFilters: widgetData.timelineFilters ?? [],
-            ...displayOptions,
-            isTemplate: widgetData.isTemplate,
-          }
-        : {
-            userId,
-            companyId,
-            name: widgetData.name,
-            kind: WidgetKind.chart,
-            entityType: widgetData.entityType,
-            entityFilters: widgetData.entityFilters ?? [],
-            dealFilters: widgetData.dealFilters ?? [],
-            ...displayOptions,
-            groupByType: widgetData.groupByType ?? null,
-            groupByCustomColumnId: widgetData.groupByCustomColumnId ?? null,
-            aggregationType: widgetData.aggregationType,
-            isTemplate: widgetData.isTemplate,
-          };
-    const widgetUpdateData: Prisma.WidgetUncheckedUpdateInput = {
-      ...widgetDataForDb,
-    };
-    if (widgetData.kind === WidgetKind.activityTimeline && widgetData.timelineFilters === undefined)
-      delete widgetUpdateData.timelineFilters;
-
-    const row = await this.prisma.widget.upsert({
-      where: { id: widgetData.id ?? "", companyId, userId },
-      create: widgetDataForDb,
-      update: widgetUpdateData,
-      select: this.dtoSelect,
+    const widget = await this.prisma.widget.findFirst({
+      where: { id, companyId, userId, ...LIVE_WIDGET },
+      select: { name: true },
     });
-
-    const widget = await this.toDto(row);
-    if (!widget) throw new Error("Persisted widget configuration is invalid");
+    if (!widget) return null;
+    await this.prisma.widget.updateMany({ where: { id, companyId, userId }, data: { deletedAt: new Date() } });
     return widget;
   }
 
-  @Transaction
-  async deleteWidget(id: string) {
-    const { id: userId, companyId } = this.user;
+  async restoreTrashed(ids: string[]) {
+    const rows = await this.prisma.widget.findMany({
+      where: { id: { in: ids }, companyId: this.companyId, deletedAt: { not: null } },
+      select: { id: true },
+    });
+    const restored = rows.map((row) => row.id);
+    await this.prisma.widget.updateMany({
+      where: { id: { in: restored }, companyId: this.companyId },
+      data: { deletedAt: null },
+    });
+    return restored;
+  }
 
-    await this.prisma.widget.deleteMany({ where: { id, companyId, userId } });
+  async purgeTrashed(ids: string[]) {
+    await this.prisma.widget.deleteMany({
+      where: { id: { in: ids }, companyId: this.companyId, deletedAt: { not: null } },
+    });
+  }
+
+  async widgetsOnTrashedViews(ids: string[]) {
+    const rows = await this.prisma.widget.findMany({
+      where: { id: { in: ids }, companyId: this.companyId, view: { is: { deletedAt: { not: null } } } },
+      select: { id: true },
+    });
+    return rows.map((row) => row.id);
   }
 
   async findIds(ids: Set<string>) {
@@ -208,7 +147,7 @@ export class PrismaWidgetRepo
     const { id: userId, companyId } = this.user;
 
     const widgets = await this.prisma.widget.findMany({
-      where: { id: { in: Array.from(ids) }, companyId, userId },
+      where: { id: { in: Array.from(ids) }, companyId, userId, ...LIVE_WIDGET },
       select: { id: true },
     });
 
@@ -222,6 +161,7 @@ export class PrismaWidgetRepo
       where: {
         companyId,
         isTemplate: true,
+        ...LIVE_WIDGET,
       },
       include: {
         user: {
@@ -250,7 +190,7 @@ export class PrismaWidgetRepo
   async getWidgetKind(id: string) {
     const { id: userId, companyId } = this.user;
     const widget = await this.prisma.widget.findFirst({
-      where: { id, companyId, OR: [{ userId }, { isTemplate: true }] },
+      where: { id, companyId, OR: [{ userId }, { isTemplate: true }], ...LIVE_WIDGET },
       select: { kind: true },
     });
 
@@ -258,18 +198,24 @@ export class PrismaWidgetRepo
   }
 
   async getWidgetById(id: string) {
-    const { id: userId, companyId } = this.user;
+    return runInTransaction(
+      async () => {
+        const { id: userId, companyId } = this.user;
 
-    const row = await this.prisma.widget.findFirst({
-      where: {
-        id,
-        companyId,
-        OR: [{ userId }, { isTemplate: true }],
+        const row = await this.prisma.widget.findFirst({
+          where: {
+            id,
+            companyId,
+            OR: [{ userId }, { isTemplate: true }],
+            ...LIVE_WIDGET,
+          },
+          select: this.dtoSelect,
+        });
+
+        return row ? this.toDto(row) : null;
       },
-      select: this.dtoSelect,
-    });
-
-    return row ? this.toDto(row) : null;
+      { readOnly: true, timeout: 30000 },
+    );
   }
 
   @Transaction
@@ -284,24 +230,29 @@ export class PrismaWidgetRepo
         id: { in: Array.from(widgetIds) },
         companyId,
         userId,
+        ...LIVE_WIDGET,
       },
-      select: { id: true },
+      select: { id: true, layout: true },
     });
 
-    await Promise.all(
-      widgets.map((widget) => {
+    const results = await Promise.all(
+      widgets.map(async (widget) => {
         const layout: WidgetLayout = {
           xs: args.layouts.xs.find((l) => l.i === widget.id),
           sm: args.layouts.sm.find((l) => l.i === widget.id),
           md: args.layouts.md.find((l) => l.i === widget.id),
           lg: args.layouts.lg.find((l) => l.i === widget.id),
         };
+        if (deepEqual(widget.layout, recordJson(layout))) return null;
 
-        return this.prisma.widget.update({
-          where: { id: widget.id, companyId, userId },
-          data: { layout },
+        const saved = await this.prisma.widget.update({
+          where: { id: widget.id, companyId, userId, deletedAt: null },
+          data: { layout, version: { increment: 1 } },
+          select: { id: true, version: true },
         });
+        return { ...saved, layout };
       }),
     );
+    return results.filter((result) => result !== null);
   }
 }

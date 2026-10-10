@@ -1,65 +1,79 @@
-import { EntityType, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
-import { WORKSPACE_SECTIONS, type WorkspaceSection } from "@/app/components/navigation/workspace-sections";
-import {
-  ENTITY_TERMINOLOGY_PRESETS,
-  terminologyMessageKey,
-} from "@/features/entity-terminology/entity-terminology.constants";
+import { SETTINGS_SECTIONS, type SettingsSection } from "@/app/components/navigation/settings-sections";
+import { type SettingsSlug, settingsHref, WEBHOOK_DELIVERIES_HREF } from "@/app/components/navigation/settings-routes";
 
 export type AnchorPage = {
   scope: string;
   route: string;
   label: string;
   opener?: string;
-  resetOpener?: string;
-  hiddenUntilDirty?: boolean;
 };
 
-export type AnchorControl = { control: string; description: string; prerequisite?: string };
+export type FormAnchorPage = AnchorPage & {
+  discard: "reset" | "cancel";
+  resetOpener?: string;
+};
 
-export type ControlPage = { scope: string; route: string; controls: AnchorControl[] };
+export type AnchorControl = {
+  control: string;
+  description: string;
+  prerequisite?: string;
+};
+
+export type ControlPage = {
+  scope: string;
+  route: string;
+  controls: AnchorControl[];
+};
 
 export const TOOLBAR_PAGES_WITH_ADD: AnchorPage[] = [
-  { scope: "contacts", route: "/contacts", label: "contacts" },
-  { scope: "organizations", route: "/organizations", label: "organizations" },
-  { scope: "deals", route: "/deals", label: "deals" },
-  { scope: "services", route: "/services", label: "services" },
-  { scope: "tasks", route: "/tasks", label: "tasks" },
   { scope: "routines", route: "/routines", label: "routines" },
-  { scope: "company-members", route: "/company/members", label: "team members" },
-  { scope: "company-webhooks", route: "/company/webhooks", label: "webhooks" },
-  { scope: "company-roles", route: "/company/roles", label: "roles" },
+  {
+    scope: "settings-members",
+    route: settingsHref("members"),
+    label: "team members",
+  },
+  { scope: "settings-webhooks", route: settingsHref("webhooks"), label: "webhooks" },
+  { scope: "settings-roles", route: settingsHref("roles"), label: "roles" },
 ];
 
 export const TOOLBAR_PAGES_WITHOUT_ADD: AnchorPage[] = [
-  { scope: "company-audit-logs", route: "/company/audit-logs", label: "audit log entries" },
-  { scope: "company-webhook-deliveries", route: "/company/webhook-deliveries", label: "webhook deliveries" },
+  { scope: "trash", route: "/trash", label: "trash" },
+  {
+    scope: "settings-webhook-deliveries",
+    route: WEBHOOK_DELIVERIES_HREF,
+    label: "webhook deliveries",
+  },
 ];
 
-export const FORM_PAGES: AnchorPage[] = [
-  { scope: "profile-settings", route: "/profile/settings", label: "profile settings form", hiddenUntilDirty: true },
+export const FORM_PAGES: FormAnchorPage[] = [
   {
-    scope: "company-settings",
-    route: "/company/settings",
-    label: "company settings form (roles with company Manage only)",
+    scope: "settings-profile",
+    route: settingsHref("profile"),
+    label: "profile settings form",
+    discard: "reset",
   },
   {
     scope: "member-modal",
-    route: "/company/members",
+    route: settingsHref("members"),
     label: "member dialog (roles with Manage only)",
     opener: "a member row",
+    discard: "cancel",
   },
   {
     scope: "webhook-modal",
-    route: "/company/webhooks",
+    route: settingsHref("webhooks"),
     label: "webhook dialog (roles with API Manage only; open it first)",
-    opener: "company-webhooks-add",
+    opener: "settings-webhooks-add",
+    discard: "cancel",
   },
   {
     scope: "role-modal",
-    route: "/company/roles",
-    label: "role dialog (roles with Manage only; disabled for the system role and your own role; open it first)",
-    opener: "company-roles-add",
+    route: "/settings/roles",
+    label: "role dialog (roles with Manage only; not shown for the system role and your own role; open it first)",
+    opener: "settings-roles-add",
+    discard: "cancel",
   },
   {
     scope: "widget-modal",
@@ -68,8 +82,15 @@ export const FORM_PAGES: AnchorPage[] = [
       "dashboard widget dialog (a new widget shows Save after you pick its type, and Reset exists only when editing a widget)",
     opener: "widget-modal-kind",
     resetOpener: "a widget card",
+    discard: "reset",
   },
-  { scope: "routine-modal", route: "/routines", label: "routine dialog (open it first)", opener: "routines-add" },
+  {
+    scope: "routine-modal",
+    route: "/routines",
+    label: "routine dialog (open it first)",
+    opener: "routines-add",
+    discard: "cancel",
+  },
 ];
 
 export const CONTROL_PAGES: ControlPage[] = [
@@ -86,69 +107,8 @@ export const CONTROL_PAGES: ControlPage[] = [
     ],
   },
   {
-    scope: "company-settings",
-    route: "/company/settings",
-    controls: [
-      { control: "currency", description: "Company currency select for deal and service amounts" },
-      {
-        control: "deal-stage-field",
-        description: "Deal stage field select that turns on the weighted pipeline forecast",
-      },
-      {
-        control: "stage-weights",
-        description:
-          "Win probability percent per deal stage for the weighted pipeline (choose a deal stage field first; members who can read deals)",
-      },
-      {
-        control: "total-pipeline",
-        description:
-          "Total pipeline value summed over all deals (shown once a deal stage field is chosen, for members who can read deals)",
-      },
-      {
-        control: "weighted-pipeline",
-        description:
-          "Weighted pipeline value from the win probability per deal stage (shown once a deal stage field is chosen, for members who can read deals)",
-      },
-      {
-        control: "data-model",
-        description: "Data model section that renames contacts, organizations, deals, services and tasks",
-      },
-    ],
-  },
-  {
-    scope: "terminology",
-    route: "/company/settings",
-    controls: [
-      {
-        control: "contact",
-        description:
-          "Data model select that renames contacts (only for roles with company Manage; others see the name as plain text)",
-      },
-      {
-        control: "organization",
-        description:
-          "Data model select that renames organizations (only for roles with company Manage; others see the name as plain text)",
-      },
-      {
-        control: "deal",
-        description:
-          "Data model select that renames deals (only for roles with company Manage; others see the name as plain text)",
-      },
-      {
-        control: "service",
-        description:
-          "Data model select that renames services (only for roles with company Manage; others see the name as plain text)",
-      },
-      {
-        control: "task",
-        description:
-          "Data model select that renames tasks (only for roles with company Manage; others see the name as plain text)",
-      },
-    ],
-  },
-  {
-    scope: "company-subscription",
-    route: "/company/subscription",
+    scope: "settings-billing",
+    route: settingsHref("billing"),
     controls: [
       {
         control: "manage",
@@ -168,8 +128,8 @@ export const CONTROL_PAGES: ControlPage[] = [
     ],
   },
   {
-    scope: "profile-settings",
-    route: "/profile/settings",
+    scope: "settings-profile",
+    route: settingsHref("profile"),
     controls: [
       {
         control: "verify-email",
@@ -178,15 +138,27 @@ export const CONTROL_PAGES: ControlPage[] = [
       { control: "first-name", description: "Your first name input" },
       { control: "last-name", description: "Your last name input" },
       { control: "country", description: "Your country select" },
-      { control: "avatar-url", description: "Avatar URL input for your profile picture" },
-      { control: "display-language", description: "Display language select for the app interface" },
-      { control: "formatting-locale", description: "Formatting locale select for dates, numbers and currency" },
-      { control: "theme", description: "Theme select for light, dark or system appearance" },
+      {
+        control: "avatar-url",
+        description: "Avatar URL input for your profile picture",
+      },
+      {
+        control: "display-language",
+        description: "Display language select for the app interface",
+      },
+      {
+        control: "formatting-locale",
+        description: "Formatting locale select for dates, numbers and currency",
+      },
+      {
+        control: "theme",
+        description: "Theme select for light, dark or system appearance",
+      },
     ],
   },
   {
     scope: "member-modal",
-    route: "/company/members",
+    route: settingsHref("members"),
     controls: [
       {
         control: "email",
@@ -229,27 +201,27 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
   {
     scope: "invite-modal",
-    route: "/company/members",
+    route: settingsHref("members"),
     controls: [
       {
         control: "tab-link",
         description: "Share link tab of the invite dialog, shown when the dialog opens",
-        prerequisite: "company-members-add",
+        prerequisite: "settings-members-add",
       },
       {
         control: "link",
         description: "Read-only invite link on the Share link tab of the invite dialog",
-        prerequisite: "company-members-add",
+        prerequisite: "settings-members-add",
       },
       {
         control: "copy-link",
         description: "Button that copies the invite link on the Share link tab of the invite dialog",
-        prerequisite: "company-members-add",
+        prerequisite: "settings-members-add",
       },
       {
         control: "tab-email",
         description: "Send emails tab of the invite dialog for inviting members by email",
-        prerequisite: "company-members-add",
+        prerequisite: "settings-members-add",
       },
       {
         control: "emails",
@@ -265,42 +237,42 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
   {
     scope: "webhook-modal",
-    route: "/company/webhooks",
+    route: settingsHref("webhooks"),
     controls: [
       {
         control: "url",
         description: "Endpoint URL input of the webhook dialog",
-        prerequisite: "company-webhooks-add",
+        prerequisite: "settings-webhooks-add",
       },
       {
         control: "description",
         description: "Description input of the webhook dialog",
-        prerequisite: "company-webhooks-add",
+        prerequisite: "settings-webhooks-add",
       },
       {
         control: "events",
         description: "Events select that picks which record events the webhook sends",
-        prerequisite: "company-webhooks-add",
+        prerequisite: "settings-webhooks-add",
       },
       {
         control: "secret",
         description: "Signing secret input of the webhook dialog",
-        prerequisite: "company-webhooks-add",
+        prerequisite: "settings-webhooks-add",
       },
       {
         control: "headers",
         description: "Custom request headers input of the webhook dialog",
-        prerequisite: "company-webhooks-add",
+        prerequisite: "settings-webhooks-add",
       },
       {
         control: "body-template",
         description: "Custom request body template input of the webhook dialog",
-        prerequisite: "company-webhooks-add",
+        prerequisite: "settings-webhooks-add",
       },
       {
         control: "enabled",
         description: "Enabled checkbox that pauses or resumes the webhook",
-        prerequisite: "company-webhooks-add",
+        prerequisite: "settings-webhooks-add",
       },
       {
         control: "delete",
@@ -311,7 +283,7 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
   {
     scope: "role-modal",
-    route: "/company/roles",
+    route: settingsHref("roles"),
     controls: [
       {
         control: "delete",
@@ -323,7 +295,7 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
   {
     scope: "webhook-delivery-modal",
-    route: "/company/webhook-deliveries",
+    route: WEBHOOK_DELIVERIES_HREF,
     controls: [
       {
         control: "resend",
@@ -334,8 +306,8 @@ export const CONTROL_PAGES: ControlPage[] = [
     ],
   },
   {
-    scope: "profile-api-keys",
-    route: "/profile/api-keys",
+    scope: "settings-api-keys",
+    route: settingsHref("api-keys"),
     controls: [
       {
         control: "generate",
@@ -345,12 +317,12 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
   {
     scope: "api-key",
-    route: "/profile/api-keys",
+    route: settingsHref("api-keys"),
     controls: [
       {
         control: "option-standard",
         description: "Standard API key option on the first step of the API key dialog",
-        prerequisite: "profile-api-keys-generate",
+        prerequisite: "settings-api-keys-generate",
       },
       {
         control: "name",
@@ -376,7 +348,7 @@ export const CONTROL_PAGES: ControlPage[] = [
   },
   {
     scope: "connected-account",
-    route: "/profile/connected-accounts",
+    route: settingsHref("channels"),
     controls: [
       {
         control: "tab-details",
@@ -439,18 +411,19 @@ export type PrimaryNavPage = {
   cloudOnly?: boolean;
 };
 
-function entityPageLabelKeys(entityType: EntityType) {
-  return ENTITY_TERMINOLOGY_PRESETS[entityType].map((presetKey) =>
-    terminologyMessageKey(entityType, presetKey, "plural"),
-  );
-}
-
 export const PRIMARY_NAV_PAGES: PrimaryNavPage[] = [
   {
     key: "dashboard",
     route: "/dashboard",
     description: "Sidebar link to the dashboard with pipeline widgets",
     labelKeys: ["NavigationBar.dashboard"],
+  },
+  {
+    key: "wiki",
+    route: "/wiki",
+    description: "Sidebar link to the Knowledge Base, the workspace's own pages that Mate reads as reference",
+    labelKeys: ["NavigationBar.wiki"],
+    resource: Resource.wiki,
   },
   {
     key: "inbox",
@@ -461,39 +434,11 @@ export const PRIMARY_NAV_PAGES: PrimaryNavPage[] = [
     cloudOnly: true,
   },
   {
-    key: "tasks",
-    route: "/tasks",
-    description: "Sidebar link to the tasks list",
-    labelKeys: entityPageLabelKeys(EntityType.task),
-    resource: Resource.tasks,
-  },
-  {
-    key: "contacts",
-    route: "/contacts",
-    description: "Sidebar link to the contacts list",
-    labelKeys: entityPageLabelKeys(EntityType.contact),
-    resource: Resource.contacts,
-  },
-  {
-    key: "organizations",
-    route: "/organizations",
-    description: "Sidebar link to the organizations list",
-    labelKeys: entityPageLabelKeys(EntityType.organization),
-    resource: Resource.organizations,
-  },
-  {
-    key: "deals",
-    route: "/deals",
-    description: "Sidebar link to the deals pipeline",
-    labelKeys: entityPageLabelKeys(EntityType.deal),
-    resource: Resource.deals,
-  },
-  {
-    key: "services",
-    route: "/services",
-    description: "Sidebar link to the services list",
-    labelKeys: entityPageLabelKeys(EntityType.service),
-    resource: Resource.services,
+    key: "configure-records",
+    route: "/configure",
+    description:
+      "Sidebar link to Configure, where schema managers edit lists, fields, calculations, relationships and the map of lists",
+    labelKeys: ["RecordModel.configure"],
   },
   {
     key: "routines",
@@ -503,59 +448,61 @@ export const PRIMARY_NAV_PAGES: PrimaryNavPage[] = [
     resource: Resource.routines,
     cloudOnly: true,
   },
+  {
+    key: "trash",
+    route: "/trash",
+    description: "Sidebar link to Trash, where deleted items wait 30 days and can be restored or deleted permanently",
+    labelKeys: ["NavigationBar.trash"],
+  },
 ];
 
-export const WORKSPACE_NAV_GROUPS: {
-  section: WorkspaceSection;
-  route: string;
+export const MENU_NAV_TARGETS: {
+  key: string;
   description: string;
   labelKey: string;
 }[] = [
   {
-    section: "profile",
-    route: "/profile/settings",
-    description: "Sidebar group for personal settings",
-    labelKey: "UserAvatar.profile",
+    key: "workspace-menu",
+    description:
+      "Workspace menu on the workspace name at the top of the sidebar: Invite members, Members, Settings, Billing and, for operators, the Operator console",
+    labelKey: "WorkspaceMenu.label",
   },
   {
-    section: "company",
-    route: "/company/settings",
-    description: "Sidebar group for company settings (admin)",
-    labelKey: "UserAvatar.company",
+    key: "personal-menu",
+    description:
+      "Personal menu on the avatar at the bottom of the sidebar: Profile & preferences, Theme, Language, Keyboard shortcuts, Documentation, Send feedback, Customize sidebar and Sign out",
+    labelKey: "UserAvatar.menu",
   },
 ];
 
-export const STATIC_NAV_PAGES: { key: string; route: string; description: string; labelKey: string }[] = [
-  {
-    key: "documentation",
-    route: "*",
-    description: "Sidebar link that opens the product documentation",
-    labelKey: "UserAvatar.documentation",
-  },
-  {
-    key: "feedback",
-    route: "*",
-    description: "Sidebar link that opens the feedback dialog",
-    labelKey: "Common.inputs.feedback",
-  },
-];
+export const SETTINGS_NAV_DESCRIPTIONS: Record<SettingsSlug, string> = {
+  profile: "Settings link to Profile & preferences: name, avatar, language, theme and email verification",
+  channels: "Settings link to Channels, the connected accounts for email, LinkedIn, WhatsApp, Instagram and Telegram",
+  "api-keys": "Settings link to API keys for the REST API, MCP clients and connectors",
+  members: "Settings link to Members, the team members of the workspace and their roles",
+  roles: "Settings link to Roles and their permissions",
+  billing: "Settings link to Billing, the plan, subscription, trial status and invoices",
+  activity: "Settings link to Activity, the audit log of changes in the workspace",
+  webhooks: "Settings link to Webhooks; each webhook row offers Show deliveries for its sent deliveries",
+  "webhook-deliveries": "Settings link to Deliveries, the sent webhook deliveries, directly below Webhooks",
+};
 
-export function workspaceNavKeys(section: WorkspaceSection): string[] {
-  return WORKSPACE_SECTIONS[section].map((subroute) => `${section}-${subroute.slug}`);
+export function settingsNavKeys(section: SettingsSection): string[] {
+  return SETTINGS_SECTIONS[section].map((subroute) => `settings-${subroute.slug}`);
 }
 
-export const TRANSFERABLE_SCOPES = new Set(["contacts", "organizations", "deals", "services", "tasks"]);
-
-export const SCOPES_WITHOUT_FILTER = new Set(["company-roles"]);
-
-export const SCOPES_WITHOUT_SEARCH = new Set(["company-roles"]);
+export const SCOPES_WITHOUT_FILTER = new Set(["settings-roles"]);
 
 export const TOOLBAR_SCOPES_WITH_ADD = TOOLBAR_PAGES_WITH_ADD.map((page) => page.scope);
 export const TOOLBAR_SCOPES_WITHOUT_ADD = TOOLBAR_PAGES_WITHOUT_ADD.map((page) => page.scope);
 export const FORM_SCOPES = FORM_PAGES.map((page) => page.scope);
 
+export function formDiscardSuffix(page: FormAnchorPage) {
+  return page.discard === "cancel" ? "-cancel" : "-reset";
+}
+
 export const NAV_KEYS = [
   ...PRIMARY_NAV_PAGES.map((page) => page.key),
-  ...WORKSPACE_NAV_GROUPS.flatMap((group) => [group.section, ...workspaceNavKeys(group.section)]),
-  ...STATIC_NAV_PAGES.map((page) => page.key),
+  ...MENU_NAV_TARGETS.map((menu) => menu.key),
+  ...(Object.keys(SETTINGS_SECTIONS) as SettingsSection[]).flatMap(settingsNavKeys),
 ];

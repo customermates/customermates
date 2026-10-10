@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
-import { CustomErrorCode } from "../validation.types";
 import type * as LocaleRegistry from "@/i18n/locale-registry";
+import { CustomErrorCode } from "../validation.types";
 
 const registry = vi.hoisted(() => ({
   locale: "en",
@@ -22,10 +22,9 @@ vi.mock("@/i18n/locale-registry", async (importOriginal) => {
   return { ...actual, validationTagFor: registry.validationTagFor };
 });
 
-import { getZodParseContext } from "../zod-error-map-server";
-import { APP_LOCALES } from "@/i18n/locale-registry";
 import { ConnectedAccountEmailSchema, defaultEmailSettings } from "@/ee/messaging/email-settings";
-import { BaseCreateDealSchema } from "@/features/deals/upsert/create-deal-base.schema";
+import { APP_LOCALES } from "@/i18n/locale-registry";
+import { getZodParseContext } from "../zod-error-map-server";
 
 afterEach(() => {
   registry.locale = "en";
@@ -67,7 +66,9 @@ describe("getZodParseContext", () => {
     registry.locale = locale;
     const context = await getZodParseContext();
 
-    const blank = BaseCreateDealSchema.safeParse({ name: "Deal", services: [{ serviceId: "", quantity: 1 }] }, context);
+    const blank = z
+      .object({ name: z.string(), services: z.array(z.object({ serviceId: z.uuid(), quantity: z.number() })) })
+      .safeParse({ name: "Deal", services: [{ serviceId: "", quantity: 1 }] }, context);
     const malformed = z.uuid().safeParse("not-a-uuid", context);
 
     expect(blank.success).toBe(false);

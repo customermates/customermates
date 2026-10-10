@@ -1,35 +1,29 @@
+import type { StartChatThreadRepo } from "./start-chat-thread.repo";
+import type { StartChatContactRepo } from "./start-chat-contact.repo";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
+import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 import type { ConnectedAccount } from "@/generated/prisma";
 import type { MessagingAttendee } from "../messaging.schema";
 import type { MessagingService, StartChatSpecifics } from "../messaging.service";
-import type { EntitlementService } from "@/ee/subscription/entitlement.service";
 
-import { z } from "zod";
-import { randomUUID } from "node:crypto";
 import * as Sentry from "@sentry/node";
+import { randomUUID } from "node:crypto";
+import { z } from "zod";
 
+import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { Write } from "@/core/decorators/write.decorator";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { normalizeChannelValue } from "@/features/records/channel-value";
 import {
-  Resource,
-  Action,
   MessagingMessageDirection,
   MessagingMessageOrigin,
   MessagingProvider,
   MessagingThreadType,
+  Resource,
 } from "@/generated/prisma";
-import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Write } from "@/core/decorators/write.decorator";
-import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { CustomErrorCode } from "@/core/validation/validation.types";
-import { normalizeChannelValue } from "@/features/contacts/channel-value";
-import {
-  LINKEDIN_PRODUCTS,
-  LINKEDIN_PRODUCT_PRIMARY_INBOX,
-  isDraftThreadId,
-  isHandleProvider,
-  type LinkedinProduct,
-} from "../provider";
 import {
   DraftRevisionSchema,
   draftRevisionMatches,
@@ -37,6 +31,13 @@ import {
   draftUpdatedAtFromRevision,
   hasCompleteDraftBinding,
 } from "../draft-thread";
+import {
+  LINKEDIN_PRODUCTS,
+  LINKEDIN_PRODUCT_PRIMARY_INBOX,
+  isDraftThreadId,
+  isHandleProvider,
+  type LinkedinProduct,
+} from "../provider";
 import { retryAfterPhrase } from "../retry-after.server";
 import { EMPTY_ATTENDEE, buildChatAttendee } from "../unipile.mappers";
 import { UnipileInboxSchema } from "../unipile.schema";
@@ -44,8 +45,6 @@ import { SendAttachmentSchema } from "./send-email.interactor";
 
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 import { accountNeedsReconnect } from "../account-health";
-import type { StartChatContactRepo } from "./start-chat-contact.repo";
-import type { StartChatThreadRepo } from "./start-chat-thread.repo";
 
 export const LinkedinProductSchema = z.enum(LINKEDIN_PRODUCTS);
 
@@ -119,7 +118,7 @@ const PRODUCT_LABEL: Record<LinkedinProduct, string> = {
   recruiter: "Recruiter",
 };
 
-@TenantInteractor({ resource: Resource.inboxMessages, action: Action.create })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "create" })
 export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, StartChatResult> {
   constructor(
     private accountRepo: FindUsableAccountRepo,

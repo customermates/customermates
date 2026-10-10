@@ -7,20 +7,17 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { MOCK_ENV_MODULE, MOCK_ZOD_MODULE, createMockDiModule } from "@/tests/helpers/interactor-test-setup";
 
 const mockUser = createMockUser();
-const listed = vi.hoisted(() => ({ deal: vi.fn(), task: vi.fn(), reactions: vi.fn() }));
+const listed = vi.hoisted(() => ({ query: vi.fn(), reactions: vi.fn() }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/core/di", () => ({
   ...createMockDiModule(() => mockUser),
   getListSocialPostReactionsInteractor: () => ({ invoke: listed.reactions }),
-}));
-vi.mock("@/features/search/entity-list-executors", () => ({
-  entityListExecutors: { deal: listed.deal, task: listed.task },
-  entityNameExtractors: { deal: (item: { name: string }) => item.name, task: (item: { name: string }) => item.name },
+  getQueryRecordsInteractor: () => ({ invoke: listed.query }),
 }));
 
-import { listRecordsTool } from "@/features/mcp-tools/entity-generic.mcp-tools";
+import { queryRecordsV2Tool } from "@/features/mcp-tools/record-model.mcp-tools";
 import { getSocialPostEngagementTool } from "@/features/mcp-tools/social-posts.mcp-tools";
 
 import {
@@ -35,8 +32,7 @@ import {
 import { ANALYSIS_LIMITS } from "../agent-analysis-isolate";
 
 const TOO_MUCH_DATA =
-  "The reads returned more than 8 MB of data. Narrow them, or pass include: [] on list_records reads that need no links or custom fields; the analysis code was not run.";
-const EVERY_INCLUDE = ["owners", "links", "customFields", "dates"];
+  "The reads returned more than 8 MB of data. Narrow them, or pass fields with only the needed field ids and no includeRelationships on query_crm_records reads; the analysis code was not run.";
 
 function tooLarge(chars: number, resultMaxChars: number) {
   return {
@@ -100,6 +96,43 @@ function deps(...tools: McpTool[]): AnalysisDeps {
   return { tools, resultMaxChars: 6_000 };
 }
 
+type QueryField = { fieldId: string; result: unknown };
+type QueryRelationship = {
+  relationId: string;
+  direction: "outgoing" | "incoming";
+  records: unknown[];
+  readableCount: number;
+  hasMore: boolean;
+};
+
+function record(typeId: string, recordId: string, fields: QueryField[], relationships: QueryRelationship[] = []) {
+  return {
+    ref: { typeId, recordId },
+    version: 1,
+    schemaRevision: 1,
+    createdAt: "2026-08-01T08:00:00.000Z",
+    updatedAt: "2026-08-01T08:00:00.000Z",
+    fields,
+    assignedUserIds: [],
+    assignedUsers: [],
+    relationships,
+  };
+}
+
+function pagedQuery(rows: unknown[]) {
+  return ({ page, pageSize }: { page: number; pageSize: number }) =>
+    Promise.resolve({
+      ok: true,
+      data: {
+        records: rows.slice((page - 1) * pageSize, page * pageSize),
+        total: rows.length,
+        page,
+        pageSize,
+        schemaRevision: 1,
+      },
+    });
+}
+
 describe("analyze_records", () => {
   it("refuses code that does not parse before it runs any read", async () => {
     const { tool, execute } = listTool("list_things", 5);
@@ -153,7 +186,7 @@ describe("analyze_records", () => {
       return { text: JSON.stringify(payload), structuredContent: payload };
     });
     const grouped: McpTool = {
-      name: "list_records",
+      name: "list_grouped",
       title: "list",
       description: "list",
       annotations: { readOnlyHint: true, openWorldHint: false },
@@ -165,7 +198,7 @@ describe("analyze_records", () => {
       execute: execute as never,
     };
     const outcome = await analyzeRecords(
-      { reads: [read("list_records", { groupBy: { field: "userIds" } })], code: "(data) => data[0].groups[0].count" },
+      { reads: [read("list_grouped", { groupBy: { field: "userIds" } })], code: "(data) => data[0].groups[0].count" },
       deps(grouped),
     );
     expect(outcome).toEqual({ ok: true, result: JSON.stringify({ rowsRead: 0, result: 40 }) });
@@ -319,7 +352,7 @@ describe("analyze_records", () => {
       pagedRead("get_messaging_threads", { total: 1, messages: [{ body: large }] }),
       read("get_messaging_threads"),
     ],
-    ["a grouped list", pagedRead("list_records", { groups: [{ label: large, count: 1 }] }), read("list_records")],
+    ["a grouped list", pagedRead("list_grouped", { groups: [{ label: large, count: 1 }] }), read("list_grouped")],
   ])("counts the data of %s toward the same 8 MB as the reads after it", async (_, first, firstRead) => {
     const { tool, execute } = listTool("list_things", 1_000, "x".repeat(20_000));
 
@@ -549,182 +582,144 @@ describe("analyze_records", () => {
     expect((await run({ id: "row-1" })).calls).toEqual([{ id: "row-1" }]);
   });
 
-  it("gives every page of a list_records read every include value unless the read passes include, and no other tool any", async () => {
-    const run = async (name: string, input?: Record<string, unknown>) => {
-      const { tool, execute } = listTool(name, 150);
-      const includeAware = {
-        ...tool,
-        inputSchema: (tool.inputSchema as z.ZodObject).extend({ include: z.array(z.string()).optional() }),
-      };
-      const outcome = await analyzeRecords(
-        { reads: [{ tool: name, input }], code: "(data) => data[0].items.length" },
-        deps(includeAware),
-      );
-      return { outcome, includes: execute.mock.calls.map(([call]) => (call as { include?: unknown }).include) };
-    };
-
-    expect(await run("list_records")).toEqual({
-      outcome: { ok: true, result: JSON.stringify({ rowsRead: 150, result: 150 }) },
-      includes: [EVERY_INCLUDE, EVERY_INCLUDE],
-    });
-    expect((await run("list_records", { include: [] })).includes).toEqual([[], []]);
-    expect((await run("list_records", { include: ["owners"] })).includes).toEqual([["owners"], ["owners"]]);
-    expect((await run("list_things")).includes).toEqual([undefined, undefined]);
+  it("reads query_crm_records in its largest pages without adding inputs the read did not pass", async () => {
+    listed.query.mockReset();
+    const typeId = "00000000-0000-4000-8000-0000000000a1";
+    const rows = Array.from({ length: 750 }, (_, index) =>
+      record(typeId, `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`, []),
+    );
+    listed.query.mockImplementation(pagedQuery(rows));
+    const outcome = await analyzeRecords(
+      { reads: [read("query_crm_records", { typeId })], code: "(data) => [data[0].records.length, data[0].total]" },
+      deps(queryRecordsV2Tool as McpTool),
+    );
+    expect(outcome).toEqual({ ok: true, result: JSON.stringify({ rowsRead: 750, result: [750, 750] }) });
+    expect(listed.query.mock.calls.map(([input]) => [input.page, input.pageSize, input.includeRelationships])).toEqual([
+      [1, 500, undefined],
+      [2, 500, undefined],
+    ]);
   });
 
-  it("replays the N13-r3 join over list_records rows and gets the answer its thin rows had turned silently wrong", async () => {
-    const dealStatus = "82cac13a-5078-59bc-906e-7d63bd5706d3";
+  it("joins two record types over typed query_crm_records rows with exact decimal strings", async () => {
+    const dealType = "00000000-0000-4000-8000-0000000000d1";
+    const taskType = "00000000-0000-4000-8000-0000000000e1";
+    const dealTasks = "00000000-0000-4000-8000-0000000000f1";
+    const amount = "00000000-0000-4000-8000-0000000000a2";
     const taskStatus = "1336405e-b7d6-5f21-a683-4af722371c89";
     const open = "1171e71e-4f98-5ac3-9364-11fd1730c223";
     const done = "5d2c6f0e-3a51-5b8e-9c47-8e1f0a6b2d93";
-    const createdAt = new Date("2026-08-01T08:00:00.000Z");
-    const sofia = { id: "sofia", firstName: "Sofia", lastName: "Rossi", avatarUrl: null, email: "sofia@example.com" };
-    const task = (index: number, dealIndex: number | null, status: string) => ({
-      id: `task-${index}`,
-      name: `Kestrel task ${index}`,
-      type: "custom",
-      notes: null,
-      createdAt,
-      updatedAt: createdAt,
-      users: [sofia],
-      contacts: [],
-      organizations: [],
-      deals: dealIndex === null ? [] : [{ id: `kestrel-${dealIndex}`, name: `Kestrel-${dealIndex}` }],
-      services: [],
-      customFieldValues: [{ columnId: taskStatus, value: status }],
-    });
-    const tasks = [
-      ...Array.from({ length: 15 }, (_, index) => task(index + 1, index + 1, open)),
-      ...Array.from({ length: 15 }, (_, index) => task(index + 16, index + 16, done)),
-      ...Array.from({ length: 4 }, (_, index) => task(index + 31, null, open)),
-    ];
-    const deals = Array.from({ length: 60 }, (_, index) => ({
-      id: `kestrel-${index + 1}`,
-      name: `Kestrel-${String(index + 1).padStart(3, "0")}`,
-      totalValue: 100 * (index + 1),
-      totalQuantity: index + 1,
-      weightedValue: null,
-      notes: null,
-      createdAt,
-      updatedAt: createdAt,
-      organizations: [],
-      users: [sofia],
-      contacts: [],
-      services: [],
-      tasks: index < 30 ? [{ id: `task-${index + 1}`, name: `Kestrel task ${index + 1}`, type: "custom" }] : [],
-      customFieldValues: [{ columnId: dealStatus, value: open }],
-    }));
-    const readable = ["contactIds", "organizationIds", "dealIds", "serviceIds", "taskIds", "userIds"].map((id) => ({
-      id,
-      kind: "relation",
-    }));
-    const paged =
-      (rows: unknown[]) =>
-      ({ pagination }: { pagination: { page: number; pageSize: number } }) =>
-        Promise.resolve({
-          ok: true,
-          data: {
-            items: rows.slice((pagination.page - 1) * pagination.pageSize, pagination.page * pagination.pageSize),
-            pagination: { total: rows.length },
-            groupableFields: readable,
+    const id = (prefix: string, index: number) => `00000000-0000-4000-${prefix}-${String(index).padStart(12, "0")}`;
+    const tasks = Array.from({ length: 34 }, (_, index) =>
+      record(taskType, id("8001", index + 1), [
+        {
+          fieldId: taskStatus,
+          result: { state: "value", value: { kind: "select", value: index < 15 || index >= 30 ? open : done } },
+        },
+      ]),
+    );
+    const deals = Array.from({ length: 60 }, (_, index) =>
+      record(
+        dealType,
+        id("8002", index + 1),
+        [
+          {
+            fieldId: amount,
+            result: { state: "value", value: { kind: "decimal", value: `${100 * (index + 1)}.00`, currency: "EUR" } },
           },
-        });
-    listed.deal.mockImplementation(paged(deals));
-    listed.task.mockImplementation(paged(tasks));
-
+        ],
+        [
+          {
+            relationId: dealTasks,
+            direction: "outgoing",
+            records:
+              index < 30
+                ? [{ ref: { typeId: taskType, recordId: id("8001", index + 1) }, title: { state: "missing" } }]
+                : [],
+            readableCount: index < 30 ? 1 : 0,
+            hasMore: false,
+          },
+        ],
+      ),
+    );
+    listed.query.mockImplementation((input: { typeId: string; page: number; pageSize: number }) =>
+      pagedQuery(input.typeId === dealType ? deals : tasks)(input),
+    );
     const reads = [
-      {
-        tool: "list_records",
-        input: JSON.stringify({
-          entity: "deal",
-          filters: [
-            { field: "name", operator: "startsWith", value: "Kestrel-" },
-            { field: dealStatus, operator: "equals", value: open },
-          ],
-          pageSize: 100,
-        }),
-      },
-      { tool: "list_records", input: JSON.stringify({ entity: "task", pageSize: 100 }) },
+      read("query_crm_records", {
+        typeId: dealType,
+        fields: [amount],
+        includeRelationships: [{ relationId: dealTasks, direction: "outgoing", limit: 25 }],
+      }),
+      read("query_crm_records", { typeId: taskType, fields: [taskStatus] }),
     ];
     const code = [
       "(data) => {",
-      "  const deals = data[0].items;",
-      "  const tasks = data[1].items;",
-      "  const taskStatusMap = {};",
-      "  tasks.forEach(t => {",
-      "    const fields = t.customFieldValues || [];",
-      `    const statusField = fields.find(f => f.columnId === "${taskStatus}");`,
-      "    taskStatusMap[t.id] = statusField ? statusField.value : null;",
-      "  });",
-      "  let unblockedCount = 0;",
-      "  let blockedCount = 0;",
-      "  let unblockedTotalEur = 0;",
-      "  deals.forEach(deal => {",
-      "    const tIds = deal.taskIds || [];",
-      "    let isBlocked = false;",
-      "    if (tIds.length > 0) {",
-      "      for (const tid of tIds) {",
-      `        if (taskStatusMap[tid] === "${open}") {`,
-      "          isBlocked = true;",
-      "          break;",
-      "        }",
-      "      }",
-      "    }",
-      "    if (isBlocked) {",
-      "      blockedCount++;",
-      "    } else {",
-      "      unblockedCount++;",
-      "      unblockedTotalEur += (deal.totalValue || 0);",
-      "    }",
-      "  });",
-      "  return { unblockedCount, blockedCount, unblockedTotalEur };",
+      "  const status = {};",
+      `  for (const task of data[1].records) status[task.ref.recordId] = task.fields.find((field) => field.fieldId === "${taskStatus}").result.value.value;`,
+      "  let unblockedCount = 0; let blockedCount = 0; let unblockedTotal = 0;",
+      "  for (const deal of data[0].records) {",
+      "    const linked = deal.relationships[0].records.map((link) => link.ref.recordId);",
+      `    if (linked.some((taskId) => status[taskId] === "${open}")) blockedCount++;`,
+      `    else { unblockedCount++; unblockedTotal += Number(deal.fields.find((field) => field.fieldId === "${amount}").result.value.value); }`,
+      "  }",
+      "  return { unblockedCount, blockedCount, unblockedTotal };",
       "}",
     ].join("\n");
-
-    await expect(analyzeRecords({ reads, code }, deps(listRecordsTool))).resolves.toEqual({
+    await expect(analyzeRecords({ reads, code }, deps(queryRecordsV2Tool as McpTool))).resolves.toEqual({
       ok: true,
       result: JSON.stringify({
         rowsRead: 94,
-        result: { unblockedCount: 45, blockedCount: 15, unblockedTotalEur: 171_000 },
-      }),
-    });
-    const thinReads = reads.map((read) => ({ tool: read.tool, input: { ...JSON.parse(read.input), include: [] } }));
-    await expect(analyzeRecords({ reads: thinReads, code }, deps(listRecordsTool))).resolves.toEqual({
-      ok: true,
-      result: JSON.stringify({
-        rowsRead: 94,
-        result: { unblockedCount: 60, blockedCount: 0, unblockedTotalEur: 183_000 },
+        result: { unblockedCount: 45, blockedCount: 15, unblockedTotal: 171_000 },
       }),
     });
   });
 
-  it("tells the model which fields its list rows carry, and to prefer filters, sums and groupBy for figures per group", () => {
+  it("refuses a query_crm_records read whose relationship lists only part of its links", async () => {
+    const typeId = "00000000-0000-4000-8000-0000000000d2";
+    listed.query.mockImplementation(
+      pagedQuery([
+        record(
+          typeId,
+          "00000000-0000-4000-8000-000000000101",
+          [],
+          [
+            {
+              relationId: "00000000-0000-4000-8000-0000000000f2",
+              direction: "outgoing",
+              records: [],
+              readableCount: 30,
+              hasMore: true,
+            },
+          ],
+        ),
+      ]),
+    );
+    await expect(
+      analyzeRecords(
+        { reads: [read("query_crm_records", { typeId })], code: "(data) => data[0].records.length" },
+        deps(queryRecordsV2Tool as McpTool),
+      ),
+    ).resolves.toEqual({
+      ok: false,
+      result:
+        "query_crm_records returned a relationship that lists only part of its linked records, so the analysis did not run on a partial set. Read the linked type and join from its side instead. The analysis code was not run.",
+    });
+  });
+
+  it("tells the model what a query_crm_records row carries and to prefer measures and grouping for figures per group", () => {
     for (const text of [
-      "userIds",
-      "dealIds",
-      "taskIds",
-      "customFieldValues",
-      "createdAt and updatedAt",
-      "a join, such as the deals that have an open task, is two list reads and one function",
-      "get_record_schema maps option ids to labels",
-      "Pass include: [] on a list read that needs only id, name and the deal totals",
-      "prefer filters, sums or list_records groupBy",
-      "an empty array means none you can see is linked; a missing key means you cannot read that relation",
+      "ref {typeId, recordId}",
+      "fields [{fieldId, result}]",
+      "decimal and currency values are exact strings",
+      "a join, such as the deals that have an open task, is two query reads and one function",
+      "get_record_model maps option ids to labels",
+      "Pass fields with only the field ids the code needs",
+      "prefer query_crm_measure or query_crm_records grouping with groupSummaries",
+      "an empty records array means none you can see is linked",
+      "hasMore is true holds only part of its links",
     ])
       expect(ANALYZE_RECORDS_DESCRIPTION).toContain(text);
-    expect(ANALYZE_RECORDS_DESCRIPTION).not.toMatch(/no owners, links or custom fields/);
-    expect(ANALYZE_RECORDS_DESCRIPTION).not.toContain("an empty array means none is linked");
-  });
-
-  it("puts the include: [] advice directly after the sentence that lists the list_records fields, before the date note", () => {
-    const listing =
-      "and for deals totalValue, totalQuantity and weightedValue, which is missing when the stage has no win probability. ";
-    const advice = "Pass include: [] on a list read that needs only id, name and the deal totals. ";
-    expect(ANALYZE_RECORDS_DESCRIPTION).toContain(`${listing}${advice}In userIds and the link arrays`);
-    expect(ANALYZE_RECORDS_DESCRIPTION.split(advice)).toHaveLength(2);
-    expect(ANALYZE_RECORDS_DESCRIPTION.indexOf(advice)).toBeLessThan(
-      ANALYZE_RECORDS_DESCRIPTION.indexOf("Date is undefined in the sandbox"),
-    );
+    expect(ANALYZE_RECORDS_DESCRIPTION).not.toMatch(/list_records|get_record_schema|customFieldValues/);
   });
 
   it("tells the code that Date is undefined and dates are ISO strings, and names only the months groupBy groups by", async () => {
@@ -734,7 +729,7 @@ describe("analyze_records", () => {
       expect(text).toContain("ISO strings to compare or slice as text");
       expect(text).toContain("value.slice(0, 7) for the month");
     }
-    expect(ANALYZE_RECORDS_DESCRIPTION).toContain("createdAt, updatedAt and date custom-field values are ISO strings");
+    expect(ANALYZE_RECORDS_DESCRIPTION).toContain("createdAt, updatedAt and date values are ISO strings");
     expect(ANALYZE_RECORDS_DESCRIPTION).not.toContain("per status, owner or month");
     expect(ANALYZE_RECORDS_DESCRIPTION).toContain("per status, owner, or created or updated month");
 
@@ -1026,61 +1021,60 @@ describe("analyze_records on a read that holds only part of its rows", () => {
     ).resolves.toEqual({ ok: true, result: JSON.stringify({ rowsRead: 0, result: 2 }) });
   });
 
-  it("refuses a grouped list_records read that lists only some groups or some groups' sums, and takes a complete one", async () => {
-    const group = (index: number, sums?: Record<string, number>) => ({
-      key: `org-${index}`,
-      label: `Org ${index}`,
+  it("refuses a grouped query_crm_records read that holds only part of some groups, and takes a complete one", async () => {
+    listed.query.mockReset();
+    const typeId = "00000000-0000-4000-8000-0000000000d3";
+    const group = (index: number, partial: { hasMore?: boolean; materialised?: boolean } = {}) => ({
+      key: `value:${index}`,
       count: 3,
       labelKind: "value",
       isNoValue: false,
-      materialised: false,
+      materialised: partial.materialised ?? true,
       itemIds: [],
-      hasMore: false,
-      ...(sums ? { valueSums: sums } : {}),
+      hasMore: partial.hasMore ?? false,
     });
-    const grouped = (groups: ReturnType<typeof group>[], overflow?: { shown: number; withRecords: boolean }) =>
-      listed.deal.mockResolvedValue({
+    const grouped = (groups: ReturnType<typeof group>[], partial = false) =>
+      listed.query.mockResolvedValue({
         ok: true,
         data: {
-          items: [],
-          pagination: { total: 170 },
+          records: [],
+          total: groups.length * 3,
+          page: 1,
+          pageSize: 500,
+          schemaRevision: 1,
           grouping: {
-            grouping: { field: "organizationIds" },
-            kind: "relation",
+            grouping: { field: "00000000-0000-4000-8000-0000000000c3" },
+            kind: "customSingleSelect",
             supportsDragWriteBack: false,
-            total: 170,
+            total: groups.length * 3,
+            membershipTotal: groups.length * 3,
+            ...(partial ? { partial: true } : {}),
             groups,
-            ...(overflow ? { overflow } : {}),
           },
         },
       });
     const analyze = () =>
       analyzeRecords(
         {
-          reads: [read("list_records", { entity: "deal", groupBy: { field: "organizationIds" } })],
-          code: "(data) => data[0].groups.length",
+          reads: [read("query_crm_records", { typeId, grouping: { field: "00000000-0000-4000-8000-0000000000c3" } })],
+          code: "(data) => data[0].grouping.groups.length",
         },
-        deps(listRecordsTool as McpTool),
+        deps(queryRecordsV2Tool as McpTool),
       );
     const refused = {
       ok: false,
-      result: `list_records listed only some groups, or the sums of only some groups, so the analysis did not run on a partial set. Read the rows without groupBy and group them in the code. ${NOT_RUN}`,
+      result: `query_crm_records returned only some groups or only part of some groups' records, so the analysis did not run on a partial set. Read the records without grouping and group them in the code. ${NOT_RUN}`,
     };
 
-    grouped(
-      Array.from({ length: 50 }, (_, index) => group(index)),
-      { shown: 50, withRecords: true },
-    );
+    grouped([group(1), group(2, { hasMore: true })]);
     await expect(analyze()).resolves.toEqual(refused);
-    grouped(
-      Array.from({ length: 2 }, (_, index) => group(index, { totalValue: 100 })),
-      { shown: 50, withRecords: false },
-    );
+    grouped([group(1), group(2, { materialised: false })]);
+    await expect(analyze()).resolves.toEqual(refused);
+    grouped([group(1)], true);
+    await expect(analyze()).resolves.toEqual(refused);
+    grouped([group(1), group(2)]);
     await expect(analyze()).resolves.toEqual({ ok: true, result: JSON.stringify({ rowsRead: 0, result: 2 }) });
-    grouped(Array.from({ length: 30 }, (_, index) => group(index, index < 25 ? { totalValue: 100 } : undefined)));
-    await expect(analyze()).resolves.toEqual(refused);
-    grouped(Array.from({ length: 20 }, (_, index) => group(index, { totalValue: 100 })));
-    await expect(analyze()).resolves.toEqual({ ok: true, result: JSON.stringify({ rowsRead: 0, result: 20 }) });
+    expect(listed.query).toHaveBeenCalledTimes(4);
   });
 
   it("refuses an activity read that left out every contact source because its scope reached too many contacts", async () => {
@@ -1108,7 +1102,7 @@ describe("analyze_records on a read that holds only part of its rows", () => {
       analyzeRecords({ reads: [read("get_activities")], code: "(data) => data[0].items.length" }, deps(activities)),
     ).resolves.toEqual({
       ok: false,
-      result: `get_activities left out every message, activity and calendar event because its filters or scope reach more than 500 contacts. Narrow them. ${NOT_RUN}`,
+      result: `get_activities left out every message, activity and calendar event because its filters or scope reach too many contacts. Narrow them. ${NOT_RUN}`,
     });
     expect(execute).toHaveBeenCalledTimes(1);
   });
@@ -1168,9 +1162,7 @@ describe("analyze_records on a read that holds only part of its rows", () => {
     expect(execute).toHaveBeenCalledTimes(2);
   });
 
-  it("tells the code that a deal without a win probability has no weightedValue", () => {
-    expect(ANALYZE_RECORDS_DESCRIPTION).toContain(
-      "weightedValue, which is missing when the stage has no win probability",
-    );
+  it("tells the code that calculated, restricted, missing and failed values are distinct states", () => {
+    expect(ANALYZE_RECORDS_DESCRIPTION).toContain("or a missing, restricted or error state");
   });
 });

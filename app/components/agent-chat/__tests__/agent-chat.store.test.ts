@@ -1,9 +1,9 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createTranslator } from "next-intl";
 import { autorun, observable, runInAction } from "mobx";
+import { createTranslator } from "next-intl";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import en from "@/i18n/locales/en.json";
 import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
+import en from "@/i18n/locales/en.json";
 
 const englishTranslator = createTranslator({
   locale: "en",
@@ -70,7 +70,7 @@ const CONFIG = {
 const CONTACTS_VIEW_CONTEXT = {
   reference: {
     kind: "dataView",
-    surfaceKey: "contacts-card-store",
+    surfaceKey: "records:10000000-0000-4000-8000-000000000101",
     viewKey: "__all__",
     requestedAction: "update",
   },
@@ -80,7 +80,7 @@ const CONTACTS_VIEW_CONTEXT = {
 const DEALS_VIEW_CONTEXT = {
   reference: {
     kind: "dataView",
-    surfaceKey: "deals-card-store",
+    surfaceKey: "records:10000000-0000-4000-8000-000000000012",
     requestedAction: "create",
   },
   label: "New deal view",
@@ -90,7 +90,7 @@ function recordContext(index: number, label = `Contact ${index}`): AgentContextA
   return {
     reference: {
       kind: "record",
-      entityType: "contact",
+      typeId: "10000000-0000-4000-8000-000000000001",
       recordId: `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
     },
     label,
@@ -120,11 +120,10 @@ function root(
     servicesStore: refreshStore(),
     tasksStore: refreshStore(),
     widgetsStore: refreshStore(),
-    terminologyStore: refreshStore(),
     messagingThreadsStore: refreshStore(),
     agentUiControlStore: {
-      navigate: vi.fn().mockResolvedValue({ ok: true, result: "Navigated to /contacts." }),
-      highlight: vi.fn().mockReturnValue({ ok: true, result: "Highlighted contacts-add." }),
+      navigate: vi.fn().mockResolvedValue({ ok: true, result: "Navigated to /routines." }),
+      highlight: vi.fn().mockReturnValue({ ok: true, result: "Highlighted routines-add." }),
       startGuidedTour: vi.fn().mockReturnValue({ ok: true, result: "Tour started." }),
       ...uiOverrides,
     },
@@ -184,15 +183,15 @@ function streamEventsUntilAborted(events: readonly Record<string, unknown>[], in
 
 describe("AgentChatStore", () => {
   it("waits for pending view saves before admitting the assistant turn", async () => {
-    stubBrowser("/en/contacts");
+    stubBrowser("/en/records/10000000-0000-4000-8000-000000000101");
     const store = new AgentChatStore(root() as never);
     let resolveSave!: () => void;
     const save = new Promise<void>((resolve) => {
       resolveSave = resolve;
     });
     store.viewContext.register(
-      "/en/contacts",
-      () => ({ surfaceKey: "contacts-card-store", viewKey: "__all__" }),
+      "/en/records/10000000-0000-4000-8000-000000000101",
+      () => ({ surfaceKey: "records:10000000-0000-4000-8000-000000000101", viewKey: "__all__" }),
       () => save,
     );
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
@@ -208,9 +207,12 @@ describe("AgentChatStore", () => {
   });
 
   it("sends the active saved-view identity and preserves an explicit retry target", async () => {
-    stubBrowser("/en/contacts");
+    stubBrowser("/en/records/10000000-0000-4000-8000-000000000101");
     const store = new AgentChatStore(root() as never);
-    store.viewContext.register("/en/contacts", () => ({ surfaceKey: "contacts-card-store", viewKey: "__all__" }));
+    store.viewContext.register("/en/records/10000000-0000-4000-8000-000000000101", () => ({
+      surfaceKey: "records:10000000-0000-4000-8000-000000000101",
+      viewKey: "__all__",
+    }));
     const fetchMock = vi.spyOn(globalThis, "fetch").mockImplementation(() =>
       Promise.resolve(
         new Response('data: {"type":"turn_done","isError":false,"affectedResources":[]}\n\n', {
@@ -220,21 +222,24 @@ describe("AgentChatStore", () => {
     );
     await store.sendMessage("Create a view");
     expect(JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body)).pageContext.route).toBe(
-      "/en/contacts?view=__all__&viewSurface=contacts-card-store",
+      "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records%3A10000000-0000-4000-8000-000000000101",
     );
-    await store.sendMessage("Retry", { pageRoute: "/en/deals?view=__all__&viewSurface=deals-card-store" });
+    await store.sendMessage("Retry", {
+      pageRoute:
+        "/en/records/10000000-0000-4000-8000-000000000103?view=__all__&viewSurface=records%3A10000000-0000-4000-8000-000000000103",
+    });
     expect(JSON.parse(String(fetchMock.mock.calls[1]?.[1]?.body)).pageContext.route).toBe(
-      "/en/deals?view=__all__&viewSurface=deals-card-store",
+      "/en/records/10000000-0000-4000-8000-000000000103?view=__all__&viewSurface=records%3A10000000-0000-4000-8000-000000000103",
     );
   });
 
   it.each(["rejected", "stalled"])("does not admit a turn after a %s view save", async (failure) => {
     vi.useFakeTimers();
-    stubBrowser("/en/contacts");
+    stubBrowser("/en/records/10000000-0000-4000-8000-000000000101");
     const store = new AgentChatStore(root() as never);
     store.viewContext.register(
-      "/en/contacts",
-      () => ({ surfaceKey: "contacts-card-store", viewKey: "__all__" }),
+      "/en/records/10000000-0000-4000-8000-000000000101",
+      () => ({ surfaceKey: "records:10000000-0000-4000-8000-000000000101", viewKey: "__all__" }),
       () => (failure === "rejected" ? Promise.reject(new Error("Save failed")) : new Promise<void>(() => undefined)),
     );
     const fetchMock = vi.spyOn(globalThis, "fetch");
@@ -249,13 +254,16 @@ describe("AgentChatStore", () => {
     const replaceState = vi.fn();
     vi.stubGlobal("window", {
       location: {
-        pathname: "/en/contacts",
-        href: "http://localhost:4016/en/contacts?view=old&searchTerm=old&contact=keep",
+        pathname: "/en/records/10000000-0000-4000-8000-000000000101",
+        href: "http://localhost:4016/en/records/10000000-0000-4000-8000-000000000101?view=old&searchTerm=old&contact=keep",
       },
       history: { replaceState },
     });
     const store = new AgentChatStore(root() as never);
-    store.viewContext.register("/en/contacts", () => ({ surfaceKey: "contacts-card-store", viewKey: "__all__" }));
+    store.viewContext.register("/en/records/10000000-0000-4000-8000-000000000101", () => ({
+      surfaceKey: "records:10000000-0000-4000-8000-000000000101",
+      viewKey: "__all__",
+    }));
     vi.spyOn(globalThis, "fetch").mockImplementation(() =>
       Promise.resolve(
         new Response(
@@ -267,7 +275,7 @@ describe("AgentChatStore", () => {
                 kind: "views.configure",
                 risk: "write",
                 affectedResources: [],
-                viewSurfaceKey: "contacts-card-store",
+                viewSurfaceKey: "records:10000000-0000-4000-8000-000000000101",
                 viewAction: "update",
                 viewKey: "__all__",
               },
@@ -284,7 +292,11 @@ describe("AgentChatStore", () => {
     await store.sendMessage("Update this view");
     expect(store.hasPendingRouteReload).toBe(true);
     store.prepareViewReload();
-    expect(replaceState).toHaveBeenCalledWith(null, "", "/en/contacts?contact=keep&view=__all__");
+    expect(replaceState).toHaveBeenCalledWith(
+      null,
+      "",
+      "/en/records/10000000-0000-4000-8000-000000000101?contact=keep&view=__all__",
+    );
     replaceState.mockClear();
     store.prepareViewReload();
     expect(replaceState).not.toHaveBeenCalled();
@@ -294,13 +306,16 @@ describe("AgentChatStore", () => {
     const replaceState = vi.fn();
     vi.stubGlobal("window", {
       location: {
-        pathname: "/en/contacts",
-        href: "http://localhost:4016/en/contacts?view=old&viewMode=list&filters=old&contact=keep",
+        pathname: "/en/records/10000000-0000-4000-8000-000000000101",
+        href: "http://localhost:4016/en/records/10000000-0000-4000-8000-000000000101?view=old&viewMode=list&filters=old&contact=keep",
       },
       history: { replaceState },
     });
     const store = new AgentChatStore(root() as never);
-    store.viewContext.register("/en/contacts", () => ({ surfaceKey: "contacts-card-store", viewKey: "__all__" }));
+    store.viewContext.register("/en/records/10000000-0000-4000-8000-000000000101", () => ({
+      surfaceKey: "records:10000000-0000-4000-8000-000000000101",
+      viewKey: "__all__",
+    }));
     const handleEvent = (store as unknown as { handleEvent: (event: Record<string, unknown>) => void }).handleEvent;
 
     handleEvent({
@@ -311,7 +326,7 @@ describe("AgentChatStore", () => {
         kind: "views.configure",
         risk: "write",
         affectedResources: [],
-        viewSurfaceKey: "contacts-card-store",
+        viewSurfaceKey: "records:10000000-0000-4000-8000-000000000101",
         viewAction: "update",
         viewKey: "__all__",
       },
@@ -327,7 +342,11 @@ describe("AgentChatStore", () => {
 
     expect(store.hasPendingRouteReload).toBe(true);
     store.prepareViewReload();
-    expect(replaceState).toHaveBeenCalledWith(null, "", "/en/contacts?contact=keep&view=__all__");
+    expect(replaceState).toHaveBeenCalledWith(
+      null,
+      "",
+      "/en/records/10000000-0000-4000-8000-000000000101?contact=keep&view=__all__",
+    );
   });
 
   beforeEach(() => {
@@ -378,7 +397,7 @@ describe("AgentChatStore", () => {
   });
 
   it("restores the user's explicit open and closed state across reloads", async () => {
-    const stored = stubBrowser("/en/deals");
+    const stored = stubBrowser("/en/records/10000000-0000-4000-8000-000000000103");
     const first = new AgentChatStore(root() as never);
 
     first.open();
@@ -460,7 +479,7 @@ describe("AgentChatStore", () => {
   });
 
   it("opens the composer with a starter prompt without submitting it", () => {
-    const stored = stubBrowser("/en/contacts");
+    const stored = stubBrowser("/en/records/10000000-0000-4000-8000-000000000101");
     const store = new AgentChatStore(root() as never);
     store.isHistoryOpen = true;
 
@@ -513,12 +532,12 @@ describe("AgentChatStore", () => {
   });
 
   it("removes composer contexts from the end and clears a removed data view's pinned route", () => {
-    stubBrowser("/en/contacts");
+    stubBrowser("/en/records/10000000-0000-4000-8000-000000000101");
     const store = new AgentChatStore(root() as never);
     store.addComposerContext(recordContext(1));
     store.addComposerContext(
       CONTACTS_VIEW_CONTEXT,
-      "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+      "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records%3A10000000-0000-4000-8000-000000000101&viewAction=update",
     );
 
     expect(store.removeLastComposerContext()).toBe(true);
@@ -532,13 +551,14 @@ describe("AgentChatStore", () => {
     store.submitDraft();
     expect(send).toHaveBeenCalledWith("Continue without context", {
       contexts: [],
-      pageRoute: "/en/contacts",
+      pageRoute: "/en/records/10000000-0000-4000-8000-000000000101",
     });
   });
 
   it("prioritizes an exact data-view target when five record contexts are already selected", () => {
-    stubBrowser("/en/contacts");
-    const route = "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update";
+    stubBrowser("/en/records/10000000-0000-4000-8000-000000000101");
+    const route =
+      "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records%3A10000000-0000-4000-8000-000000000101&viewAction=update";
     const store = new AgentChatStore(root() as never);
     for (let index = 1; index <= 5; index += 1) store.addComposerContext(recordContext(index));
 
@@ -560,14 +580,15 @@ describe("AgentChatStore", () => {
   });
 
   it("opens with context and seeds only a blank composer draft", () => {
-    stubBrowser("/en/contacts");
+    stubBrowser("/en/records/10000000-0000-4000-8000-000000000101");
     const store = new AgentChatStore(root() as never);
     store.isHistoryOpen = true;
 
     store.openWithContextDraft({
       context: CONTACTS_VIEW_CONTEXT,
       draft: "Update this view",
-      pageRoute: "/en/contacts?view=__all__&viewSurface=contacts-card-store",
+      pageRoute:
+        "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records%3A10000000-0000-4000-8000-000000000101",
     });
 
     expect(store.isOpen).toBe(true);
@@ -579,7 +600,8 @@ describe("AgentChatStore", () => {
     store.openWithContextDraft({
       context: DEALS_VIEW_CONTEXT,
       draft: "Create a deal view",
-      pageRoute: "/en/deals?viewSurface=deals-card-store&viewAction=create",
+      pageRoute:
+        "/en/records/10000000-0000-4000-8000-000000000103?viewSurface=records:10000000-0000-4000-8000-000000000103&viewAction=create",
     });
 
     expect(store.composerDraft).toBe("Keep my unrelated draft");
@@ -587,8 +609,9 @@ describe("AgentChatStore", () => {
   });
 
   it("dismisses only an untouched context starter while preserving its context and pinned route", () => {
-    stubBrowser("/en/deals");
-    const route = "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update";
+    stubBrowser("/en/records/10000000-0000-4000-8000-000000000103");
+    const route =
+      "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records%3A10000000-0000-4000-8000-000000000101&viewAction=update";
     const store = new AgentChatStore(root() as never);
     store.openWithContextDraft({ context: CONTACTS_VIEW_CONTEXT, draft: "Update this view", pageRoute: route });
 
@@ -652,11 +675,11 @@ describe("AgentChatStore", () => {
   });
 
   it("clears a stale pinned route when replacing a data-view context without a route", () => {
-    stubBrowser("/en/contacts");
+    stubBrowser("/en/records/10000000-0000-4000-8000-000000000101");
     const store = new AgentChatStore(root() as never);
     store.addComposerContext(
       CONTACTS_VIEW_CONTEXT,
-      "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update",
+      "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records%3A10000000-0000-4000-8000-000000000101&viewAction=update",
     );
 
     store.addComposerContext(DEALS_VIEW_CONTEXT);
@@ -666,13 +689,14 @@ describe("AgentChatStore", () => {
 
     expect(send).toHaveBeenCalledWith("Update the selected view", {
       contexts: [DEALS_VIEW_CONTEXT],
-      pageRoute: "/en/contacts",
+      pageRoute: "/en/records/10000000-0000-4000-8000-000000000101",
     });
   });
 
   it("submits composer contexts with their pinned data-view route and then clears the composer", async () => {
-    stubBrowser("/en/deals");
-    const route = "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update";
+    stubBrowser("/en/records/10000000-0000-4000-8000-000000000103");
+    const route =
+      "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records%3A10000000-0000-4000-8000-000000000101&viewAction=update";
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
       .mockResolvedValue(
@@ -861,8 +885,9 @@ describe("AgentChatStore", () => {
   });
 
   it("restores queued contexts and their pinned route when editing the follow-up", () => {
-    stubBrowser("/en/deals");
-    const route = "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update";
+    stubBrowser("/en/records/10000000-0000-4000-8000-000000000103");
+    const route =
+      "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records%3A10000000-0000-4000-8000-000000000101&viewAction=update";
     const store = new AgentChatStore(root() as never);
     store.isWorking = true;
     store.addComposerContext(CONTACTS_VIEW_CONTEXT, route, "Update this view");
@@ -888,8 +913,9 @@ describe("AgentChatStore", () => {
   });
 
   it("automatically sends a queued follow-up with its original contexts and pinned route", async () => {
-    stubBrowser("/en/deals");
-    const route = "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update";
+    stubBrowser("/en/records/10000000-0000-4000-8000-000000000103");
+    const route =
+      "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records%3A10000000-0000-4000-8000-000000000101&viewAction=update";
     let resolveFirst!: (response: Response) => void;
     const completed = () =>
       new Response(
@@ -929,8 +955,9 @@ describe("AgentChatStore", () => {
   });
 
   it("retains contexts and the pinned route when retrying a failed turn", async () => {
-    stubBrowser("/en/deals");
-    const route = "/en/contacts?view=__all__&viewSurface=contacts-card-store&viewAction=update";
+    stubBrowser("/en/records/10000000-0000-4000-8000-000000000103");
+    const route =
+      "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records%3A10000000-0000-4000-8000-000000000101&viewAction=update";
     const messageId = "00000000-0000-4000-8000-000000000091";
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
@@ -1002,8 +1029,8 @@ describe("AgentChatStore", () => {
       id: "item-activity",
       activity: {
         kind: "records.read",
-        resource: "deals",
-        affectedResources: ["deals"],
+        resource: "widgets",
+        affectedResources: ["widgets"],
         risk: "read",
       },
       status: "running",
@@ -1203,8 +1230,8 @@ describe("AgentChatStore", () => {
       id: "stable-read",
       activity: {
         kind: "records.read",
-        resource: "contacts",
-        affectedResources: ["contacts"],
+        resource: "wiki",
+        affectedResources: ["wiki"],
         risk: "read",
       },
     });
@@ -1219,8 +1246,8 @@ describe("AgentChatStore", () => {
       id: "discarded-read",
       activity: {
         kind: "records.read",
-        resource: "deals",
-        affectedResources: ["deals"],
+        resource: "widgets",
+        affectedResources: ["widgets"],
         risk: "read",
       },
     });
@@ -1256,8 +1283,8 @@ describe("AgentChatStore", () => {
         requestId: "request-continuing",
         activity: {
           kind: "records.delete",
-          resource: "contacts",
-          affectedResources: ["contacts"],
+          resource: "wiki",
+          affectedResources: ["wiki"],
           risk: "sensitive",
         },
         pendingDecision: null,
@@ -1623,7 +1650,7 @@ describe("AgentChatStore", () => {
       type: "ui_command",
       commandId: "cursor-command",
       name: "navigate",
-      input: { targetId: "nav-contacts" },
+      input: { targetId: "nav-routines" },
     };
     actionsMock.getAgentConversationAction
       .mockResolvedValueOnce({
@@ -1842,8 +1869,8 @@ describe("AgentChatStore", () => {
     };
     const approvalActivity = {
       kind: "records.update",
-      resource: "contacts",
-      affectedResources: ["contacts"],
+      resource: "wiki",
+      affectedResources: ["wiki"],
       risk: "write",
     };
     actionsMock.getAgentConversationAction
@@ -1903,7 +1930,7 @@ describe("AgentChatStore", () => {
             terminalCode: "completed",
             stopReason: null,
             assistantMessageId: "approval-reload-assistant",
-            affectedResources: ["contacts"],
+            affectedResources: ["wiki"],
           })}`,
           "",
         ].join("\n\n"),
@@ -2292,7 +2319,7 @@ describe("AgentChatStore", () => {
       type: "ui_command",
       commandId: "command-1",
       name: "navigate",
-      input: { targetId: "nav-contacts" },
+      input: { targetId: "nav-routines" },
     });
 
     await vi.waitFor(() =>
@@ -2339,14 +2366,14 @@ describe("AgentChatStore", () => {
       type: "ui_command",
       commandId: "contacts",
       name: "navigate",
-      input: { targetId: "nav-contacts" },
+      input: { targetId: "nav-routines" },
     });
     handleEvent({
       seq: 2,
       type: "ui_command",
       commandId: "deals",
       name: "navigate",
-      input: { targetId: "nav-deals" },
+      input: { targetId: "nav-dashboard" },
     });
 
     await vi.waitFor(() => expect(navigate).toHaveBeenCalledOnce());
@@ -2382,14 +2409,14 @@ describe("AgentChatStore", () => {
       type: "ui_command",
       commandId: "contacts",
       name: "navigate",
-      input: { targetId: "nav-contacts" },
+      input: { targetId: "nav-routines" },
     });
     handleEvent({
       seq: 2,
       type: "ui_command",
       commandId: "deals",
       name: "navigate",
-      input: { targetId: "nav-deals" },
+      input: { targetId: "nav-dashboard" },
     });
 
     await vi.advanceTimersByTimeAsync(3000);
@@ -2431,11 +2458,11 @@ describe("AgentChatStore", () => {
       type: "ui_command",
       commandId: "command-race",
       name: "navigate",
-      input: { targetId: "nav-contacts" },
+      input: { targetId: "nav-routines" },
     });
     await vi.waitFor(() => expect(navigate).toHaveBeenCalledOnce());
     store.conversationId = "00000000-0000-4000-8000-000000000002";
-    resolveNavigation({ ok: true, result: "Navigated to /contacts." });
+    resolveNavigation({ ok: true, result: "Navigated to /routines." });
 
     await vi.waitFor(() =>
       expect(actionsMock.respondToUiCommandAction).toHaveBeenCalledWith({
@@ -2443,7 +2470,7 @@ describe("AgentChatStore", () => {
         commandId: "command-race",
         name: "navigate",
         ok: true,
-        result: "Navigated to /contacts.",
+        result: "Navigated to /routines.",
       }),
     );
   });
@@ -2461,7 +2488,7 @@ describe("AgentChatStore", () => {
       type: "ui_command",
       commandId: "command-2",
       name: "click_ui_target",
-      input: { targetId: "contacts-display-options" },
+      input: { targetId: "routines-display-options" },
     });
     await Promise.resolve();
 
@@ -3003,9 +3030,9 @@ describe("AgentChatStore", () => {
       requestId: "request-1",
       activity: {
         kind: "records.create" as const,
-        resource: "contacts" as const,
+        resource: "wiki" as const,
         risk: "write" as const,
-        affectedResources: ["contacts" as const],
+        affectedResources: ["wiki" as const],
       },
       pendingDecision: null,
       submittedDecision: null,
@@ -3041,9 +3068,9 @@ describe("AgentChatStore", () => {
       requestId: "request-1",
       activity: {
         kind: "records.delete",
-        resource: "contacts",
+        resource: "wiki",
         risk: "sensitive",
-        affectedResources: ["contacts"],
+        affectedResources: ["wiki"],
       },
     });
     const approval = store.items.find(
@@ -3097,9 +3124,9 @@ describe("AgentChatStore", () => {
       requestId: "hung-approval-request",
       activity: {
         kind: "records.update",
-        resource: "contacts",
+        resource: "wiki",
         risk: "write",
-        affectedResources: ["contacts"],
+        affectedResources: ["wiki"],
       },
     });
     const approval = store.items.find(
@@ -3157,9 +3184,9 @@ describe("AgentChatStore", () => {
       requestId: "request-retry",
       activity: {
         kind: "records.delete",
-        resource: "contacts",
+        resource: "wiki",
         risk: "sensitive",
-        affectedResources: ["contacts"],
+        affectedResources: ["wiki"],
       },
     });
     const approval = store.items.find(
@@ -3270,7 +3297,7 @@ describe("AgentChatStore", () => {
       id: "item-error",
       messageId: "00000000-0000-4000-8000-000000000009",
       text: "try this again",
-      pageRoute: "/en/deals",
+      pageRoute: "/en/records/10000000-0000-4000-8000-000000000103",
       retry: true,
     };
     store.items = [
@@ -3316,7 +3343,7 @@ describe("AgentChatStore", () => {
       id: "old-error",
       messageId: "old-request",
       text: "old request",
-      pageRoute: "/en/deals",
+      pageRoute: "/en/records/10000000-0000-4000-8000-000000000103",
       retry: true,
     };
     store.items = [
@@ -3344,7 +3371,7 @@ describe("AgentChatStore", () => {
 
   it("turns only a proven pre-provider 409 failure into an explicit retry", async () => {
     const conversationId = "00000000-0000-4000-8000-000000000010";
-    const clientRequestId = "00000000-0000-4000-8000-000000000011";
+    const clientRequestId = "00000000-0000-4000-8000-000000000101";
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(
         JSON.stringify({
@@ -3367,7 +3394,7 @@ describe("AgentChatStore", () => {
 
     await store.sendMessage("Retry safely", {
       messageId: clientRequestId,
-      pageRoute: "/en/contacts",
+      pageRoute: "/en/records/10000000-0000-4000-8000-000000000101",
     });
 
     expect(store.conversationId).toBe(conversationId);
@@ -3401,10 +3428,10 @@ describe("AgentChatStore", () => {
               kind: "views.configure",
               affectedResources: [],
               risk: "write",
-              viewSurfaceKey: "contacts-card-store",
+              viewSurfaceKey: "records:10000000-0000-4000-8000-000000000101",
               viewAction: "update",
               viewKey: "__all__",
-              viewHref: "/contacts?view=__all__",
+              viewHref: "/records/10000000-0000-4000-8000-000000000101?view=__all__",
             },
             status: "done",
           },
@@ -3436,7 +3463,7 @@ describe("AgentChatStore", () => {
       expect.objectContaining({
         kind: "activity",
         status: "done",
-        activity: expect.objectContaining({ viewHref: "/contacts?view=__all__" }),
+        activity: expect.objectContaining({ viewHref: "/records/10000000-0000-4000-8000-000000000101?view=__all__" }),
       }),
     );
     fetchMock.mockRestore();
@@ -3701,7 +3728,7 @@ describe("AgentChatStore", () => {
 
     const sending = store.sendMessage("Long request", {
       messageId: clientRequestId,
-      pageRoute: "/en/tasks",
+      pageRoute: "/en/records/10000000-0000-4000-8000-000000000105",
     });
     await vi.waitFor(() => expect(actionsMock.getAgentConfigAction).toHaveBeenCalledOnce());
     expect(store.isWorking).toBe(true);
@@ -3781,7 +3808,7 @@ describe("AgentChatStore", () => {
 
     const sending = store.sendMessage("Stop the recovered turn", {
       messageId: clientRequestId,
-      pageRoute: "/en/tasks",
+      pageRoute: "/en/records/10000000-0000-4000-8000-000000000105",
     });
     await vi.waitFor(() => expect(actionsMock.getAgentConfigAction).toHaveBeenCalledOnce());
 
@@ -3853,7 +3880,7 @@ describe("AgentChatStore", () => {
 
     const sending = store.sendMessage("Preserve this prompt", {
       messageId: clientRequestId,
-      pageRoute: "/en/tasks",
+      pageRoute: "/en/records/10000000-0000-4000-8000-000000000105",
     });
     await vi.waitFor(() => expect(actionsMock.getAgentConfigAction).toHaveBeenCalledOnce());
     expect(store.isWorking).toBe(true);
@@ -3897,7 +3924,7 @@ describe("AgentChatStore", () => {
         kind: "views.configure",
         affectedResources: [],
         risk: "write",
-        viewSurfaceKey: "contacts-card-store",
+        viewSurfaceKey: "records:10000000-0000-4000-8000-000000000101",
         viewAction: "update",
         viewKey: "__all__",
       },
@@ -3908,13 +3935,13 @@ describe("AgentChatStore", () => {
       id: "view-write",
       isError: false,
       status: "done",
-      viewHref: "/contacts?view=__all__",
+      viewHref: "/records/10000000-0000-4000-8000-000000000101?view=__all__",
     });
 
     const activity = store.items.find(
       (item): item is Extract<AgentChatItem, { kind: "activity" }> => item.kind === "activity",
     );
-    expect(activity?.activity.viewHref).toBe("/contacts?view=__all__");
+    expect(activity?.activity.viewHref).toBe("/records/10000000-0000-4000-8000-000000000101?view=__all__");
 
     handleEvent({
       seq: 3,
@@ -3932,7 +3959,7 @@ describe("AgentChatStore", () => {
       id: "invalid-view-write",
       isError: false,
       status: "done",
-      viewHref: "https://example.com/contacts?view=__all__",
+      viewHref: "https://example.com/records/10000000-0000-4000-8000-000000000101?view=__all__",
     });
     const invalid = store.items.find(
       (item): item is Extract<AgentChatItem, { kind: "activity" }> =>
@@ -4051,7 +4078,7 @@ describe("AgentChatStore", () => {
       id: "read-1",
       activity: {
         kind: "records.read",
-        resource: "contacts",
+        resource: "wiki",
         affectedResources: [],
         risk: "read",
       },
@@ -4068,7 +4095,7 @@ describe("AgentChatStore", () => {
       id: "write-error",
       activity: {
         kind: "records.update",
-        resource: "contacts",
+        resource: "wiki",
         affectedResources: [],
         risk: "write",
       },
@@ -4085,7 +4112,7 @@ describe("AgentChatStore", () => {
       id: "write-cancelled",
       activity: {
         kind: "records.update",
-        resource: "contacts",
+        resource: "wiki",
         affectedResources: [],
         risk: "write",
       },
@@ -4115,7 +4142,7 @@ describe("AgentChatStore", () => {
       seq: 1,
       type: "turn_done",
       assistantMessageId: "assistant-fallback",
-      affectedResources: ["contacts"],
+      affectedResources: ["wiki"],
     });
 
     expect(store.routeRefreshRevision).toBe(1);
@@ -4159,7 +4186,7 @@ describe("AgentChatStore", () => {
       id: "activity-with-missed-result",
       activity: {
         kind: "records.read",
-        resource: "contacts",
+        resource: "wiki",
         affectedResources: [],
         risk: "read",
       },
@@ -4200,8 +4227,8 @@ describe("AgentChatStore", () => {
       requestId: "approval-with-missed-resolution",
       activity: {
         kind: "records.delete",
-        resource: "contacts",
-        affectedResources: ["contacts"],
+        resource: "wiki",
+        affectedResources: ["wiki"],
         risk: "sensitive",
       },
     });
@@ -4553,7 +4580,7 @@ describe("AgentChatStore", () => {
 
     const sending = store.sendMessage("Keep this retryable", {
       messageId: clientRequestId,
-      pageRoute: "/en/contacts",
+      pageRoute: "/en/records/10000000-0000-4000-8000-000000000101",
     });
     await vi.advanceTimersByTimeAsync(10_250);
     await sending;
@@ -4564,7 +4591,7 @@ describe("AgentChatStore", () => {
         kind: "turn_error",
         messageId: clientRequestId,
         text: "Keep this retryable",
-        pageRoute: "/en/contacts",
+        pageRoute: "/en/records/10000000-0000-4000-8000-000000000101",
         retry: false,
       }),
     );
@@ -4633,14 +4660,14 @@ describe("AgentChatStore", () => {
     const conversationId = "00000000-0000-4000-8000-000000000059";
     const canonicalActivity = {
       kind: "records.update",
-      resource: "contacts",
-      affectedResources: ["contacts"],
+      resource: "wiki",
+      affectedResources: ["wiki"],
       risk: "write",
     };
     const canonicalApproval = {
       kind: "records.delete",
-      resource: "contacts",
-      affectedResources: ["contacts"],
+      resource: "wiki",
+      affectedResources: ["wiki"],
       risk: "sensitive",
     };
     actionsMock.getAgentConversationAction.mockResolvedValue({
@@ -4681,7 +4708,7 @@ describe("AgentChatStore", () => {
             terminalCode: "completed",
             stopReason: null,
             assistantMessageId: "assistant-authoritative-parts",
-            affectedResources: ["contacts"],
+            affectedResources: ["wiki"],
           })}`,
           "",
         ].join("\n\n"),
@@ -4724,7 +4751,7 @@ describe("AgentChatStore", () => {
 
     const sending = store.sendMessage("Recover this admission", {
       messageId: clientRequestId,
-      pageRoute: "/en/contacts",
+      pageRoute: "/en/records/10000000-0000-4000-8000-000000000101",
     });
     await vi.advanceTimersByTimeAsync(15000);
     await sending;
@@ -4889,8 +4916,8 @@ describe("AgentChatStore", () => {
               id: "snapshot-failure-write",
               activity: {
                 kind: "records.update",
-                resource: "contacts",
-                affectedResources: ["contacts"],
+                resource: "wiki",
+                affectedResources: ["wiki"],
                 risk: "write",
               },
             })}`,
@@ -4911,7 +4938,7 @@ describe("AgentChatStore", () => {
 
     const sending = store.sendMessage("Do not reconnect forever", {
       messageId: clientRequestId,
-      pageRoute: "/en/contacts",
+      pageRoute: "/en/records/10000000-0000-4000-8000-000000000101",
     });
     await vi.advanceTimersByTimeAsync(250);
     await sending;
@@ -4923,7 +4950,7 @@ describe("AgentChatStore", () => {
         kind: "turn_error",
         messageId: clientRequestId,
         text: "Do not reconnect forever",
-        pageRoute: "/en/contacts",
+        pageRoute: "/en/records/10000000-0000-4000-8000-000000000101",
         retry: false,
       }),
     );
@@ -4956,7 +4983,7 @@ describe("AgentChatStore", () => {
 
     const sending = store.sendMessage("Recover from null snapshots", {
       messageId: clientRequestId,
-      pageRoute: "/en/tasks",
+      pageRoute: "/en/records/10000000-0000-4000-8000-000000000105",
     });
     await vi.advanceTimersByTimeAsync(250);
     await sending;
@@ -4968,7 +4995,7 @@ describe("AgentChatStore", () => {
         kind: "turn_error",
         messageId: clientRequestId,
         text: "Recover from null snapshots",
-        pageRoute: "/en/tasks",
+        pageRoute: "/en/records/10000000-0000-4000-8000-000000000105",
         retry: false,
       }),
     );
@@ -5134,7 +5161,7 @@ describe("AgentChatStore", () => {
     const conversationId = "00000000-0000-4000-8000-000000000052";
     const descriptor = {
       kind: "records.update",
-      resource: "contacts",
+      resource: "wiki",
       affectedResources: [],
       risk: "write",
     };
@@ -5242,7 +5269,7 @@ describe("AgentChatStore", () => {
         id: "write-before-eof",
         activity: {
           kind: "records.update",
-          resource: "contacts",
+          resource: "wiki",
           affectedResources: [],
           risk: "write",
         },
@@ -5287,7 +5314,7 @@ describe("AgentChatStore", () => {
                       id: "write-before-stop",
                       activity: {
                         kind: "records.update",
-                        resource: "contacts",
+                        resource: "wiki",
                         affectedResources: [],
                         risk: "write",
                       },
@@ -5349,7 +5376,7 @@ describe("AgentChatStore", () => {
         id: "reattached-write",
         activity: {
           kind: "records.create",
-          resource: "tasks",
+          resource: "messages",
           affectedResources: [],
           risk: "write",
         },
@@ -5420,7 +5447,7 @@ describe("AgentChatStore", () => {
     ).handleEvent;
     const descriptor = {
       kind: "records.create",
-      resource: "contacts",
+      resource: "wiki",
       affectedResources: [],
       risk: "write",
     };
@@ -5450,7 +5477,7 @@ describe("AgentChatStore", () => {
       id: "tool-1",
       activity: {
         kind: "records.read",
-        resource: "contacts",
+        resource: "wiki",
         affectedResources: [],
         risk: "read",
       },
@@ -5470,7 +5497,7 @@ describe("AgentChatStore", () => {
         status: "done",
         activity: expect.objectContaining({
           kind: "records.read",
-          resource: "contacts",
+          resource: "wiki",
         }),
       }),
     );
@@ -5486,7 +5513,7 @@ describe("AgentChatStore", () => {
         turnKey: "message-old",
         activity: {
           kind: "records.read",
-          resource: "contacts",
+          resource: "wiki",
           affectedResources: [],
           risk: "read",
         },
@@ -5505,7 +5532,7 @@ describe("AgentChatStore", () => {
       id: "tool-1",
       activity: {
         kind: "records.read",
-        resource: "deals",
+        resource: "widgets",
         affectedResources: [],
         risk: "read",
       },
@@ -6012,7 +6039,7 @@ describe("AgentChatStore", () => {
         providerCallId: "tool-1",
         activity: {
           kind: "records.read",
-          resource: "contacts",
+          resource: "wiki",
           affectedResources: [],
           risk: "read",
         },
@@ -6046,7 +6073,7 @@ describe("AgentChatStore", () => {
         turnKey: "stream-0",
         activity: {
           kind: "records.update",
-          resource: "contacts",
+          resource: "wiki",
           affectedResources: [],
           risk: "write",
         },
@@ -6082,8 +6109,8 @@ describe("AgentChatStore", () => {
         requestId: "request-stop-race",
         activity: {
           kind: "records.delete",
-          resource: "contacts",
-          affectedResources: ["contacts"],
+          resource: "wiki",
+          affectedResources: ["wiki"],
           risk: "sensitive",
         },
         pendingDecision: null,
@@ -6186,7 +6213,7 @@ describe("AgentChatStore", () => {
         providerCallId: "tool-1",
         activity: {
           kind: "records.read",
-          resource: "contacts",
+          resource: "wiki",
           affectedResources: [],
           risk: "read",
         },
@@ -6303,8 +6330,8 @@ describe("AgentChatStore", () => {
             {
               type: "tool_use",
               id: "tool-1",
-              name: "list_records",
-              input: { entity: "contact" },
+              name: "query_crm_records",
+              input: { typeId: "contact-type" },
               status: "done",
               resultPreview: "Found 12 contacts.",
             },
@@ -6350,8 +6377,8 @@ describe("AgentUiControlStore", () => {
 
   it("self-navigates the connected-account walkthrough and reaches its connect control", async () => {
     const elements = new Map([
-      ["nav-profile-connected-accounts", new FakeHTMLElement()],
-      ["profile-connected-accounts-connect", new FakeHTMLElement()],
+      ["nav-settings-channels", new FakeHTMLElement()],
+      ["settings-channels-connect", new FakeHTMLElement()],
     ]);
     vi.stubGlobal("HTMLElement", FakeHTMLElement);
     vi.stubGlobal("document", {
@@ -6371,21 +6398,21 @@ describe("AgentUiControlStore", () => {
       await expect(
         store.startGuidedTour([
           {
-            targetId: "nav-profile-connected-accounts",
+            targetId: "nav-settings-channels",
             note: "Open connected accounts.",
           },
           {
-            targetId: "profile-connected-accounts-connect",
+            targetId: "settings-channels-connect",
             note: "Choose WhatsApp here.",
           },
         ]),
       ).resolves.toMatchObject({ ok: true });
-      expect(navigate).toHaveBeenCalledWith("/profile/connected-accounts");
-      expect(store.active?.targetId).toBe("nav-profile-connected-accounts");
+      expect(navigate).toHaveBeenCalledWith("/settings/channels");
+      expect(store.active?.targetId).toBe("nav-settings-channels");
 
       store.nextStep();
-      await vi.waitFor(() => expect(store.active?.targetId).toBe("profile-connected-accounts-connect"));
-      expect(navigate).toHaveBeenLastCalledWith("/profile/connected-accounts");
+      await vi.waitFor(() => expect(store.active?.targetId).toBe("settings-channels-connect"));
+      expect(navigate).toHaveBeenLastCalledWith("/settings/channels");
     } finally {
       vi.unstubAllGlobals();
     }
@@ -6395,8 +6422,8 @@ describe("AgentUiControlStore", () => {
     vi.useFakeTimers();
 
     const elements = new Map([
-      ["nav-contacts", new FakeHTMLElement()],
-      ["contacts-search", new FakeHTMLElement()],
+      ["nav-routines", new FakeHTMLElement()],
+      ["routines-filter", new FakeHTMLElement()],
     ]);
     vi.stubGlobal("HTMLElement", FakeHTMLElement);
     vi.stubGlobal("document", {
@@ -6415,12 +6442,12 @@ describe("AgentUiControlStore", () => {
       await expect(
         store.startGuidedTour([
           {
-            targetId: "nav-contacts",
-            note: "Contacts are the people you work with.",
+            targetId: "nav-routines",
+            note: "Routines run your saved instructions.",
           },
-          { targetId: "contacts-add", note: "Add a contact from here." },
+          { targetId: "routines-add", note: "Add a routine from here." },
           {
-            targetId: "contacts-search",
+            targetId: "routines-filter",
             note: "Search narrows the current list.",
           },
         ]),
@@ -6433,7 +6460,7 @@ describe("AgentUiControlStore", () => {
       store.previousStep();
       await vi.advanceTimersByTimeAsync(2500);
       expect(store.active?.stepIndex).toBe(0);
-      expect(store.active?.targetId).toBe("nav-contacts");
+      expect(store.active?.targetId).toBe("nav-routines");
     } finally {
       vi.unstubAllGlobals();
     }
@@ -6513,9 +6540,9 @@ describe("AgentUiControlStore", () => {
   it("waits for a cross-page stop to render instead of skipping it and ending the tour", async () => {
     vi.useFakeTimers();
 
-    const rendered = new Set(["company-subscription-refresh"]);
+    const rendered = new Set(["settings-billing-refresh"]);
     const elements = new Map(
-      ["company-subscription-refresh", "company-members-add", "company-roles-add"].map((id) => [
+      ["settings-billing-refresh", "settings-members-add", "settings-roles-add"].map((id) => [
         id,
         new FakeHTMLElement(),
       ]),
@@ -6531,8 +6558,8 @@ describe("AgentUiControlStore", () => {
     });
     const navigate = vi.fn((path: string) => {
       setTimeout(() => {
-        if (path === "/company/members") rendered.add("company-members-add");
-        if (path === "/company/roles") rendered.add("company-roles-add");
+        if (path === "/settings/members") rendered.add("settings-members-add");
+        if (path === "/settings/roles") rendered.add("settings-roles-add");
       }, 700);
       return Promise.resolve("navigated" as const);
     });
@@ -6541,20 +6568,20 @@ describe("AgentUiControlStore", () => {
 
     await expect(
       store.startGuidedTour([
-        { targetId: "company-subscription-refresh", note: "Refresh the status." },
-        { targetId: "company-members-add", note: "Invite a member." },
-        { targetId: "company-roles-add", note: "Add a role." },
+        { targetId: "settings-billing-refresh", note: "Refresh the status." },
+        { targetId: "settings-members-add", note: "Invite a member." },
+        { targetId: "settings-roles-add", note: "Add a role." },
       ]),
     ).resolves.toMatchObject({ ok: true });
 
     store.nextStep();
     await vi.advanceTimersByTimeAsync(1000);
-    expect(store.active?.targetId).toBe("company-members-add");
-    expect(navigate).toHaveBeenLastCalledWith("/company/members");
+    expect(store.active?.targetId).toBe("settings-members-add");
+    expect(navigate).toHaveBeenLastCalledWith("/settings/members");
 
     store.nextStep();
     await vi.advanceTimersByTimeAsync(1000);
-    expect(store.active?.targetId).toBe("company-roles-add");
+    expect(store.active?.targetId).toBe("settings-roles-add");
     expect(store.active?.stepIndex).toBe(2);
   });
 
@@ -6563,7 +6590,7 @@ describe("AgentUiControlStore", () => {
 
     const elements = new Map([
       ["nav-dashboard", new FakeHTMLElement()],
-      ["company-members-add", new FakeHTMLElement()],
+      ["settings-members-add", new FakeHTMLElement()],
     ]);
     vi.stubGlobal("HTMLElement", FakeHTMLElement);
     vi.stubGlobal("document", {
@@ -6582,24 +6609,24 @@ describe("AgentUiControlStore", () => {
     await expect(
       store.startGuidedTour([
         { targetId: "nav-dashboard", note: "Start here." },
-        { targetId: "company-webhooks-add", note: "Add a webhook." },
-        { targetId: "company-members-add", note: "Invite a member." },
+        { targetId: "settings-webhooks-add", note: "Add a webhook." },
+        { targetId: "settings-members-add", note: "Invite a member." },
       ]),
     ).resolves.toMatchObject({ ok: true });
 
     store.nextStep();
     await vi.advanceTimersByTimeAsync(0);
-    expect(store.active?.targetId).toBe("company-members-add");
-    expect(navigate).not.toHaveBeenCalledWith("/company/webhooks");
+    expect(store.active?.targetId).toBe("settings-members-add");
+    expect(navigate).not.toHaveBeenCalledWith("/settings/webhooks");
   });
 
   it("skips a tour stop that is mounted but has no layout", async () => {
     vi.useFakeTimers();
 
     const elements = new Map([
-      ["nav-profile-connected-accounts", new FakeHTMLElement(1)],
+      ["nav-settings-channels", new FakeHTMLElement(1)],
       ["connected-account-signature", new FakeHTMLElement(0)],
-      ["profile-connected-accounts-connect", new FakeHTMLElement(1)],
+      ["settings-channels-connect", new FakeHTMLElement(1)],
     ]);
     vi.stubGlobal("HTMLElement", FakeHTMLElement);
     vi.stubGlobal("document", {
@@ -6616,15 +6643,15 @@ describe("AgentUiControlStore", () => {
 
     await expect(
       store.startGuidedTour([
-        { targetId: "nav-profile-connected-accounts", note: "Open channels." },
+        { targetId: "nav-settings-channels", note: "Open channels." },
         { targetId: "connected-account-signature", note: "Turn on the signature." },
-        { targetId: "profile-connected-accounts-connect", note: "Connect one." },
+        { targetId: "settings-channels-connect", note: "Connect one." },
       ]),
     ).resolves.toMatchObject({ ok: true });
 
     store.nextStep();
     await vi.advanceTimersByTimeAsync(2500);
-    expect(store.active?.targetId).toBe("profile-connected-accounts-connect");
+    expect(store.active?.targetId).toBe("settings-channels-connect");
     expect(store.active?.stepIndex).toBe(2);
   });
 
@@ -6647,10 +6674,10 @@ describe("AgentUiControlStore", () => {
     });
     expect(navigate).not.toHaveBeenCalled();
 
-    await expect(store.navigate({ targetId: "nav-contacts" })).resolves.toEqual({
+    await expect(store.navigate({ targetId: "nav-routines" })).resolves.toEqual({
       ok: true,
-      result: "Navigated to /contacts.",
+      result: "Navigated to /routines.",
     });
-    expect(navigate).toHaveBeenCalledWith("/contacts");
+    expect(navigate).toHaveBeenCalledWith("/routines");
   });
 });

@@ -1,23 +1,34 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
 import { IntlLink } from "@/i18n/navigation";
 import {
   OVERLAY_ACTION_RAIL_CLASS,
-  OVERLAY_ICON_CONTROL_CLASS,
-  OVERLAY_ICON_CONTROL_DESTRUCTIVE_CLASS,
-  OVERLAY_ICON_CONTROL_NEUTRAL_CLASS,
+  overlayIconControlClass,
+  type OverlayIconControlVariant,
 } from "@/components/ui/overlay-contract";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { AskAiAction } from "@/components/ui/ask-ai-action";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { runUserAction } from "@/core/errors/report-application-error";
 
-export type AppModalActionVariant = "neutral" | "destructive";
+export type AppModalActionVariant = OverlayIconControlVariant;
+
+export type AppModalActionKind = "assistant" | "customize" | "other" | "destructive" | "navigate";
+
+const ACTION_KIND_ORDER: Record<AppModalActionKind, number> = {
+  assistant: 0,
+  customize: 1,
+  other: 2,
+  destructive: 3,
+  navigate: 4,
+};
 
 type SharedActionProps = {
   id: string;
+  kind?: AppModalActionKind;
   anchorId?: string;
   icon: LucideIcon;
   label: string;
@@ -25,9 +36,10 @@ type SharedActionProps = {
   variant?: AppModalActionVariant;
 };
 
-type ButtonActionProps = SharedActionProps & {
+export type AppModalButtonActionProps = SharedActionProps & {
   busy?: boolean;
   disabled?: boolean;
+  pressed?: boolean;
   external?: never;
   href?: never;
   onClick: () => void | Promise<void>;
@@ -36,29 +48,35 @@ type ButtonActionProps = SharedActionProps & {
 type LinkActionProps = SharedActionProps & {
   busy?: never;
   disabled?: never;
+  pressed?: never;
   external?: boolean;
   href: string;
+  onNavigate?: (event: MouseEvent<HTMLAnchorElement>) => void;
   onClick?: never;
 };
 
-export type AppModalActionProps = ButtonActionProps | LinkActionProps;
+export type AppModalActionProps = AppModalButtonActionProps | LinkActionProps;
 
 export const APP_MODAL_ACTION_RAIL_CLASS = OVERLAY_ACTION_RAIL_CLASS;
-
-const actionVariantClassMap: Record<AppModalActionVariant, string> = {
-  neutral: OVERLAY_ICON_CONTROL_NEUTRAL_CLASS,
-  destructive: OVERLAY_ICON_CONTROL_DESTRUCTIVE_CLASS,
-};
 
 function isLinkAction(props: AppModalActionProps): props is LinkActionProps {
   return typeof props.href === "string";
 }
 
+export function isAskAiAction(action: AppModalActionProps) {
+  return action.kind === "assistant" && !isLinkAction(action);
+}
+
+export function appModalActionSlots(actions: readonly AppModalActionProps[]) {
+  return actions.reduce((slots, action) => slots + (isAskAiAction(action) ? 2 : 1), 0);
+}
+
 export function AppModalAction(props: AppModalActionProps) {
+  if (isAskAiAction(props) && props.onClick) return <AskAiAction id={props.anchorId} onClick={props.onClick} />;
   const { icon: Icon, label, tooltip, variant = "neutral" } = props;
   const isBusy = "busy" in props && props.busy === true;
   const isDisabled = !isLinkAction(props) && (props.disabled === true || isBusy);
-  const className = cn(OVERLAY_ICON_CONTROL_CLASS, actionVariantClassMap[variant]);
+  const className = overlayIconControlClass(variant);
   const content = <Icon aria-hidden className={cn("size-4", isBusy && "animate-spin")} />;
 
   const control = isLinkAction(props) ? (
@@ -81,12 +99,14 @@ export function AppModalAction(props: AppModalActionProps) {
       <IntlLink
         aria-label={label}
         className={className}
+        data-navigation-guard-handled={props.onNavigate ? "" : undefined}
         data-overlay-action=""
         data-size="icon"
         data-slot="app-modal-action"
         data-variant={variant}
         href={props.href}
         id={props.anchorId}
+        onClick={props.onNavigate}
       >
         {content}
       </IntlLink>
@@ -95,6 +115,7 @@ export function AppModalAction(props: AppModalActionProps) {
     <button
       aria-hidden={isDisabled || undefined}
       aria-label={isDisabled ? undefined : label}
+      aria-pressed={props.pressed}
       className={className}
       data-overlay-action=""
       data-size="icon"
@@ -130,5 +151,37 @@ export function AppModalAction(props: AppModalActionProps) {
 
       <TooltipContent>{tooltip ?? label}</TooltipContent>
     </Tooltip>
+  );
+}
+
+function actionKind(action: AppModalActionProps): AppModalActionKind {
+  return (
+    action.kind ?? (action.variant === "destructive" ? "destructive" : isLinkAction(action) ? "navigate" : "other")
+  );
+}
+
+export function orderAppModalActions(actions: readonly AppModalActionProps[]) {
+  return [...actions].sort((a, b) => ACTION_KIND_ORDER[actionKind(a)] - ACTION_KIND_ORDER[actionKind(b)]);
+}
+
+export function AppModalActionRail({
+  actions,
+  className,
+}: {
+  actions: readonly AppModalActionProps[];
+  className?: string;
+}) {
+  if (actions.length === 0) return null;
+  return (
+    <TooltipProvider>
+      <div
+        className={cn("flex min-h-8 shrink-0 items-center gap-2 self-start", className)}
+        data-slot="app-modal-actions"
+      >
+        {orderAppModalActions(actions).map((action) => (
+          <AppModalAction key={action.id} {...action} />
+        ))}
+      </div>
+    </TooltipProvider>
   );
 }

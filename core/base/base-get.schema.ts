@@ -1,15 +1,14 @@
 import type { Data } from "../validation/validation.utils";
 
-import { z } from "zod";
 import { Prisma } from "@/generated/prisma";
+import { z } from "zod";
 
 import { FilterOperatorKey, ViewMode } from "./base-query-builder";
-import { normalizeFilterInput } from "./filter-compat";
+import { normalizeFilterInput } from "./filter-value";
 
+import { GroupPageRequestSchema, GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
-import { CustomColumnDtoSchema } from "@/features/custom-column/custom-column.schema";
-import { GROUP_PAGE_SIZE_MAX, GroupPageRequestSchema, GroupingSchema } from "@/core/base/grouping/grouping.schema";
 
 import type { GroupScope } from "@/core/base/grouping/group-scope";
 
@@ -21,6 +20,7 @@ export const FilterSchema = z.preprocess(
         field: z.string(),
         operator: z.union([
           z.literal(FilterOperatorKey.equals).meta({ title: "equals" }),
+          z.literal(FilterOperatorKey.notEquals).meta({ title: "notEquals" }),
           z.literal(FilterOperatorKey.contains).meta({ title: "contains" }),
           z.literal(FilterOperatorKey.startsWith).meta({ title: "startsWith" }),
           z.literal(FilterOperatorKey.gt).meta({ title: "gt" }),
@@ -38,6 +38,9 @@ export const FilterSchema = z.preprocess(
           z.literal(FilterOperatorKey.in).meta({ title: "in" }),
           z.literal(FilterOperatorKey.notIn).meta({ title: "notIn" }),
           z.literal(FilterOperatorKey.between).meta({ title: "between" }),
+          z.literal(FilterOperatorKey.hasAnyOf).meta({ title: "hasAnyOf" }),
+          z.literal(FilterOperatorKey.hasAllOf).meta({ title: "hasAllOf" }),
+          z.literal(FilterOperatorKey.hasNoneOf).meta({ title: "hasNoneOf" }),
         ]),
         value: z.array(zx.nulFreeText()),
       })
@@ -112,16 +115,6 @@ export const PaginationResponseSchema = PaginationRequestSchema.extend({
 });
 export type PaginationResponse = Data<typeof PaginationResponseSchema>;
 
-export const GroupedPaginationRequestSchema = z.object({
-  groupingColumnId: z.string(),
-  perGroup: z.number().int().min(1).max(GROUP_PAGE_SIZE_MAX),
-  overrides: z.record(z.string(), z.number().int().min(1).max(GROUP_PAGE_SIZE_MAX)).optional(),
-});
-export type GroupedPaginationRequest = Data<typeof GroupedPaginationRequestSchema>;
-
-export const GroupValueSumsSchema = z.record(z.string(), z.number());
-export type GroupValueSums = Data<typeof GroupValueSumsSchema>;
-
 export const FilterOptionSchema = z.object({
   value: z.string(),
   label: z.string().nullable(),
@@ -151,7 +144,6 @@ export const GetQueryParamsApiSchema = z.object({
   searchTerm: zx.nulFreeText().max(200).optional(),
   sortDescriptor: SortDescriptorSchema.optional(),
   pagination: PaginationRequestSchema.optional(),
-  groupedPagination: GroupedPaginationRequestSchema.optional(),
 });
 export type GetQueryParamsApi = Data<typeof GetQueryParamsApiSchema>;
 
@@ -170,14 +162,7 @@ export type GetQueryParams = Data<typeof GetQueryParamsSchema> & {
   groupScope?: GroupScope;
 };
 
-export const GetConfigurationSchema = z.object({
-  customColumns: z.array(CustomColumnDtoSchema),
-  filterableFields: z.array(FilterableFieldSchema),
-  sortableFields: z.array(SortableFieldDescriptorSchema),
-});
-
 export const GetResultSchema = z.object({
-  customColumns: z.array(CustomColumnDtoSchema).optional(),
   filters: z.array(FilterSchema).optional(),
   searchTerm: z.string().optional(),
   sortDescriptor: SortDescriptorSchema.optional(),
@@ -204,7 +189,6 @@ export function createApiGetResultSchema<T extends z.ZodSchema>(itemSchema: T) {
   return z.object({
     p13nId: z.string().optional(),
     items: z.array(itemSchema),
-    customColumns: z.array(z.any()).optional(),
     filters: z.array(z.any()).optional(),
     searchTerm: z.string().nullish(),
     sortDescriptor: z.any().optional(),
@@ -222,8 +206,6 @@ export function createApiGetResultSchema<T extends z.ZodSchema>(itemSchema: T) {
     hiddenColumns: z.array(z.string()).optional(),
     viewMode: z.string().optional(),
     groupCounts: z.record(z.string(), z.number()).optional(),
-    groupValueSums: z.record(z.string(), GroupValueSumsSchema).optional(),
-    valueSums: GroupValueSumsSchema.optional(),
   });
 }
 

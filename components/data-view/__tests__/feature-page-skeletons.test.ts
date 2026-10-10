@@ -4,31 +4,21 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 
-import { AuditLogsPageSkeleton } from "@/app/[locale]/(protected)/company/components/audit-log/audit-logs-page-skeleton";
-import { RolesPageSkeleton } from "@/app/[locale]/(protected)/company/components/role/roles-page-skeleton";
-import { MembersPageSkeleton } from "@/app/[locale]/(protected)/company/components/user/members-page-skeleton";
-import { WebhookDeliveriesPageSkeleton } from "@/app/[locale]/(protected)/company/components/webhook/webhook-deliveries-page-skeleton";
-import { WebhooksPageSkeleton } from "@/app/[locale]/(protected)/company/components/webhook/webhooks-page-skeleton";
-import { ContactsPageSkeleton } from "@/app/[locale]/(protected)/contacts/components/contacts-page-skeleton";
-import { DealsPageSkeleton } from "@/app/[locale]/(protected)/deals/components/deals-page-skeleton";
-import { OrganizationsPageSkeleton } from "@/app/[locale]/(protected)/organizations/components/organizations-page-skeleton";
+import { RolesPageSkeleton } from "@/app/[locale]/(protected)/settings/(workspace)/components/role/roles-page-skeleton";
+import { MembersPageSkeleton } from "@/app/[locale]/(protected)/settings/(workspace)/components/user/members-page-skeleton";
+import { WebhookDeliveriesPageSkeleton } from "@/app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-deliveries-page-skeleton";
+import { WebhooksPageSkeleton } from "@/app/[locale]/(protected)/settings/(workspace)/components/webhook/webhooks-page-skeleton";
 import { RoutinesPageSkeleton } from "@/app/[locale]/(protected)/routines/components/routines-page-skeleton";
-import { ServicesPageSkeleton } from "@/app/[locale]/(protected)/services/components/services-page-skeleton";
-import { TasksPageSkeleton } from "@/app/[locale]/(protected)/tasks/components/tasks-page-skeleton";
 
+import { RecordsPageSkeleton } from "@/app/[locale]/(protected)/records/[typeId]/components/records-page-skeleton";
 import type { DataViewView } from "../data-view-state";
 
 type Skeleton = ComponentType<{ animated?: boolean; view?: DataViewView }>;
 
 const CASES: Array<[string, Skeleton, string, string]> = [
-  ["contacts", ContactsPageSkeleton, "contact", "avatar"],
-  ["organizations", OrganizationsPageSkeleton, "entity", "text"],
-  ["deals", DealsPageSkeleton, "entity", "text"],
-  ["services", ServicesPageSkeleton, "entity", "text"],
-  ["tasks", TasksPageSkeleton, "entity", "text"],
+  ["records", RecordsPageSkeleton, "entity", "text"],
   ["members", MembersPageSkeleton, "member", "avatar"],
   ["roles", RolesPageSkeleton, "plain", "text"],
-  ["audit-logs", AuditLogsPageSkeleton, "plain", "text"],
   ["webhooks", WebhooksPageSkeleton, "plain", "text"],
   ["webhook-deliveries", WebhookDeliveriesPageSkeleton, "plain", "text"],
   ["routines", RoutinesPageSkeleton, "plain", "text"],

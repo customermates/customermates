@@ -22,6 +22,7 @@ import { StepProfile } from "./step-profile";
 import { StepAi, StepAiFooter } from "./step-ai";
 import { StepInvite } from "./step-invite";
 import { StepWiki } from "./step-wiki";
+import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   profileCompleted: boolean;
@@ -39,7 +40,7 @@ type Props = {
   sessionAvatarUrl?: string;
 };
 
-export const OnboardingWizard = observer(
+const OnboardingWizardContent = observer(
   ({
     profileCompleted,
     userId,
@@ -183,7 +184,7 @@ export const OnboardingWizard = observer(
               variant="secondary"
               onClick={() => runUserAction(back)}
             >
-              {t("OnboardingWizard.back")}
+              {t("Common.actions.back")}
             </Button>
 
             <Button
@@ -202,3 +203,5 @@ export const OnboardingWizard = observer(
     );
   },
 );
+
+export const OnboardingWizard = serverRenderedClient(OnboardingWizardContent);

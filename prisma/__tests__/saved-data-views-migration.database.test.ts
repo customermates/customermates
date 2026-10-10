@@ -6,6 +6,7 @@ import { Client } from "pg";
 import { describe, expect, it } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
+import { CONFIGURABLE_RECORDS_MIGRATION } from "@/tests/helpers/legacy-migration-database";
 
 const MIGRATION = "20260904120000_saved_data_views";
 const migrationsRoot = join(process.cwd(), "prisma/migrations");
@@ -60,7 +61,7 @@ const ROLLBACK = [
 
 function migrationNames() {
   return readdirSync(migrationsRoot, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
+    .filter((entry) => entry.isDirectory() && entry.name < CONFIGURABLE_RECORDS_MIGRATION)
     .map((entry) => entry.name)
     .sort();
 }

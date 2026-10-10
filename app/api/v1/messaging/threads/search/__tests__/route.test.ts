@@ -12,6 +12,9 @@ const mockUser = createMockUser();
 const wiring = vi.hoisted(() => ({ api: null as unknown, interactive: null as unknown }));
 
 vi.mock("@/env", () => MOCK_ENV_MODULE);
+vi.mock("@/core/decorators/transaction-runner", () => ({
+  runInTransaction: <T>(run: () => Promise<T>) => run(),
+}));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/core/di", () => ({
   ...createMockDiModule(() => mockUser),

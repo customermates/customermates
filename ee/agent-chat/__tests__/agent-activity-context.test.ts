@@ -31,15 +31,13 @@ describe("contextual activity labels", () => {
   });
 
   it.each([
-    ["create_contacts", { contacts: [{ firstName: "Ada", lastName: "Lovelace" }] }, "Ada Lovelace"],
-    ["update_deals", { deals: [{ id: "private-id", name: "CRM rollout" }] }, "CRM rollout"],
     ["manage_wiki_pages", { action: "update", title: "Voice and tone" }, "Voice and tone"],
     ["manage_wiki_pages", { action: "search", query: "sales questions" }, "sales questions"],
     ["manage_routines", { action: "create", name: "Daily follow-up" }, "Daily follow-up"],
     ["manage_widgets", { action: "create", name: "Open pipeline" }, "Open pipeline"],
     ["manage_data_views", { action: "create", name: "My customers" }, "My customers"],
-    ["manage_custom_columns", { action: "upsert", label: "Customer tier" }, "Customer tier"],
-    ["search_records", { searchTerm: "Acme" }, "Acme"],
+    ["search_crm_records", { searchTerm: "Northwind" }, "Northwind"],
+    ["query_crm_records", { typeId: "00000000-0000-4000-8000-000000000001", search: "Atlas" }, "Atlas"],
     ["web_search", { query: "Acme products" }, "Acme products"],
     ["search_docs", { query: "import contacts" }, "import contacts"],
     [
@@ -54,7 +52,7 @@ describe("contextual activity labels", () => {
   });
 
   it("keeps unavailable names generic and never guesses from identifiers or unrelated payloads", () => {
-    for (const tool of ["update_contacts", "manage_wiki_pages", "get_records", "unknown_tool"]) {
+    for (const tool of ["mutate_crm_record", "manage_wiki_pages", "read_crm_record", "unknown_tool"]) {
       expect(
         activity(tool, {
           action: "delete",
@@ -103,19 +101,19 @@ describe("contextual activity labels", () => {
     expect(AgentActivityContextSchema.safeParse({ labels: [" "] }).success).toBe(false);
   });
 
-  it("reads only display names from the actual mixed-record result wrappers", () => {
+  it("reads only display names from result items", () => {
     expect(
-      agentToolOutputContext("get_records", {
+      agentToolOutputContext("manage_data_views", {
         items: [
-          { contact: { firstName: "Ada", lastName: "Lovelace", id: "private-id" }, notes: "Private notes" },
-          { organization: { name: "Acme" }, notesStatus: "notRequested" },
-          { deal: { name: "CRM rollout" } },
-          { service: { name: "Consulting" } },
-          { task: { name: "Follow up" } },
-          { error: "Private failure", contact: { firstName: "Not found" } },
+          { name: "My customers", id: "private-id", notes: "Private notes" },
+          { title: "Open pipeline" },
+          { name: "Renewals" },
+          { name: "Follow-ups" },
+          { name: "Archive" },
+          { id: "private-only" },
         ],
       }),
-    ).toEqual({ labels: ["Ada Lovelace", "Acme", "CRM rollout"], additionalCount: 2 });
+    ).toEqual({ labels: ["My customers", "Open pipeline", "Renewals"], additionalCount: 2 });
   });
 
   it("retains a search query instead of replacing it with results and ignores failed result context", () => {

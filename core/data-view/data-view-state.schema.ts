@@ -21,6 +21,10 @@ function dropUndefinedKeys<T extends Record<string, unknown>>(value: T): T {
   return next as T;
 }
 
+export function isPersistedColumnWidthKey(key: string, columnIds: ReadonlySet<string>) {
+  return columnIds.has(key);
+}
+
 export const DataViewStateWireSchema = z
   .object({
     filters: z.array(FilterSchema),

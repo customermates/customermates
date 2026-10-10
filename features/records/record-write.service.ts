@@ -1,0 +1,659 @@
+import { recordChannelsEnabled } from "./record-channels";
+import { recordInvariant } from "./record-invariant";
+
+import { createHash, randomUUID } from "node:crypto";
+
+import Decimal from "decimal.js";
+import { z } from "zod";
+
+import type { RecordAccessPolicy } from "./record-access";
+import type { RecordRepo, StoredRecord } from "./record.repo";
+import type {
+  CalculatedValue,
+  RecordModel,
+  RecordRef,
+  RecordScalar,
+  RecordField,
+  RecordFieldUpdate,
+} from "./record-model.schema";
+import type { RecordMutation } from "./record-query.schema";
+import type { InteractorFailureKind } from "@/core/validation/validation.utils";
+
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { MAX_NOTES_JSON_SIZE, validateNotes } from "@/core/validation/validate-notes";
+import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
+import { scalarMatchesType, selectedOptionIds } from "./record-model-validation";
+import { valueResult } from "./calculation";
+import { decodeRecordValue } from "./record-storage";
+import { RecordCalculationService, recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
+import type { RecordIdentityInput } from "./record-identity.schema";
+import { identityKeys, normalizedIdentity, normalizedIdentityAssociation } from "./record-identity";
+import { channelClass } from "@/ee/messaging/provider";
+import { canonicalRecordJson, compareRecordKey } from "./record-json";
+import { recordTrashLabel } from "./record-trash-label";
+
+type Policy = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
+export { RecordWriteError } from "./record-write-error";
+import { RecordWriteError } from "./record-write-error";
+function reject(
+  code: CustomErrorCode,
+  kind: InteractorFailureKind = "validation",
+  path: Array<string | number> = [],
+): never {
+  throw new RecordWriteError(code, kind, path);
+}
+
+export function normalizeRecordScalar(value: RecordScalar | null, field: RecordField): RecordScalar | null {
+  if (!value) {
+    if (field.required) reject(CustomErrorCode.recordValueInvalid);
+    return null;
+  }
+  if (!scalarMatchesType(value, field.valueType, field.multiple)) reject(CustomErrorCode.recordValueInvalid);
+  if (!selectedOptionIds(value).every((id) => field.options.some((option) => option.id === id)))
+    reject(CustomErrorCode.recordValueInvalid);
+  if (field.required && value.kind === "text" && !value.value.trim()) reject(CustomErrorCode.recordValueInvalid);
+  if (value.kind === "richText") {
+    const schema = z.string().transform((input, ctx) => {
+      let parsed: unknown;
+      try {
+        parsed = JSON.parse(input);
+      } catch {
+        ctx.addIssue({ code: "custom", message: "Invalid document" });
+        return null;
+      }
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        ctx.addIssue({ code: "custom", message: "Invalid document" });
+        return null;
+      }
+      return validateNotes(parsed, ctx, []);
+    });
+    const parsed = schema.safeParse(value.documentJson);
+    if (!parsed.success) reject(CustomErrorCode.notesInvalidFormat);
+    return { kind: "richText", documentJson: JSON.stringify(parsed.data) };
+  }
+  return value;
+}
+
+const MAX_TEXT_LENGTH = 100_000;
+
+export function appendedRecordValue(field: RecordField, current: CalculatedValue, append: string): RecordScalar {
+  if (field.multiple || (field.valueType !== "text" && field.valueType !== "richText"))
+    reject(CustomErrorCode.recordValueInvalid, "validation", ["fields"]);
+  const existing = current.state === "value" ? current.value : null;
+  if (field.valueType === "text") {
+    const before = existing?.kind === "text" ? existing.value : "";
+    const value = before.trim() ? `${before}\n\n${append.trim()}` : append.trim();
+    if (value.length > MAX_TEXT_LENGTH) reject(CustomErrorCode.recordValueInvalid, "validation", ["fields"]);
+    return { kind: "text", value };
+  }
+  const document =
+    existing?.kind === "richText" ? (JSON.parse(existing.documentJson) as { content?: unknown[] }) : null;
+  const before = document && serializeJSONToMarkdown(document).trim() ? (document.content ?? []) : [];
+  const added = parseMarkdownToJSON(append) as { content?: unknown[] };
+  const documentJson = JSON.stringify({ type: "doc", content: [...before, ...(added.content ?? [])] });
+  if (documentJson.length > MAX_NOTES_JSON_SIZE)
+    reject(CustomErrorCode.notesExceedsMaxLength, "validation", ["fields"]);
+  return { kind: "richText", documentJson };
+}
+
+function isAppend(update: RecordFieldUpdate): update is Extract<RecordFieldUpdate, { append: string }> {
+  return "append" in update;
+}
+
+function isAppendOnlyUpdate(mutation: Extract<RecordMutation, { action: "update" }>) {
+  return (
+    mutation.fields.length > 0 &&
+    mutation.fields.every(isAppend) &&
+    mutation.assignedUserIds === undefined &&
+    mutation.identities === undefined &&
+    !mutation.linkChanges?.length &&
+    !mutation.captureFieldIds?.length &&
+    mutation.placement === undefined
+  );
+}
+
+function isOrderOnlyUpdate(mutation: Extract<RecordMutation, { action: "update" }>) {
+  return (
+    mutation.placement !== undefined &&
+    !mutation.fields.length &&
+    mutation.assignedUserIds === undefined &&
+    mutation.identities === undefined &&
+    !mutation.linkChanges?.length &&
+    !mutation.captureFieldIds?.length
+  );
+}
+
+function comparableResult(result: CalculatedValue): unknown {
+  if (result.state !== "value") return result;
+  const value = result.value;
+  if (value.kind === "decimal") return { ...value, value: new Decimal(value.value).toFixed() };
+  if (value.kind === "richText") return { kind: value.kind, document: JSON.parse(value.documentJson) as unknown };
+  return value;
+}
+
+export function sameRecordResult(left: CalculatedValue, right: CalculatedValue): boolean {
+  return canonicalRecordJson(comparableResult(left)) === canonicalRecordJson(comparableResult(right));
+}
+
+export class RecordWriteService {
+  constructor(
+    private records: RecordRepo,
+    private policy: RecordAccessPolicy,
+    private calculations: RecordCalculationService,
+  ) {}
+
+  withRepository(records: RecordRepo): RecordWriteService {
+    return new RecordWriteService(records, this.policy, new RecordCalculationService(records));
+  }
+
+  async planDeletion(
+    mutation: Extract<RecordMutation, { action: "delete" | "deleteMany" }>,
+    model: RecordModel,
+    policy: Policy,
+    limit = SYNCHRONOUS_RECORD_LIMIT,
+  ) {
+    await this.validateAccess(mutation, policy);
+    const targets = mutation.action === "delete" ? [mutation.ref] : mutation.targets.map((target) => target.ref);
+    const pending = [...targets];
+    const rootOf = new Map(targets.map((ref) => [recordKey(ref), recordKey(ref)]));
+    const deleted = new Map<string, StoredRecord>();
+    const affected = new Map<string, RecordRef>();
+    const links = new Map<string, { relationId: string; source: RecordRef; target: RecordRef }>();
+    const restrictions = new Set<string>();
+    const add = (ref: RecordRef) => {
+      affected.set(recordKey(ref), ref);
+      if (affected.size > limit) reject(CustomErrorCode.recordCalculationBudget, "conflict");
+    };
+    while (pending.length) {
+      const ref = recordInvariant(pending.pop());
+      const key = recordKey(ref);
+      if (deleted.has(key)) continue;
+      if (!model.types.some((type) => type.id === ref.typeId && !type.archived))
+        reject(CustomErrorCode.recordTypeNotFound, "not_found");
+      const row = await this.records.getRecordCompanyWide(ref);
+      if (!row || !(await policy.canRead(row))) reject(CustomErrorCode.recordNotFound, "not_found");
+      if (!policy.allowed(ref.typeId, "delete")) reject(CustomErrorCode.permissionDenied, "authorization");
+      if (row.protectedKind) reject(CustomErrorCode.recordProtected, "authorization");
+      deleted.set(key, row);
+      add(ref);
+      for (const edge of await this.records.getLinksCompanyWide(ref, limit * 4 + 1)) {
+        const edgeKey = `${edge.relationId}:${recordKey(edge.source)}:${recordKey(edge.target)}`;
+        links.set(edgeKey, edge);
+        if (links.size > limit * 4) reject(CustomErrorCode.recordCalculationBudget, "conflict");
+        const relation = recordInvariant(model.relationships.find((relation) => relation.id === edge.relationId));
+        const outgoing = recordKey(edge.source) === key;
+        const opposite = outgoing ? edge.target : edge.source;
+        const behavior = outgoing ? relation.onSourceDelete : relation.onTargetDelete;
+        if (behavior === "cascade") {
+          if (!rootOf.has(recordKey(opposite))) rootOf.set(recordKey(opposite), recordInvariant(rootOf.get(key)));
+          pending.push(opposite);
+        } else if (behavior === "restrict") restrictions.add(recordKey(opposite));
+        add(opposite);
+      }
+    }
+    if ([...restrictions].some((key) => !deleted.has(key))) reject(CustomErrorCode.recordDependencies, "conflict");
+    const impactHash = createHash("sha256")
+      .update(
+        JSON.stringify({
+          revision: model.revision,
+          records: [...deleted].map(([key, row]) => `${key}:${row.version}`).sort(),
+          links: [...links.keys()].sort(),
+        }),
+      )
+      .digest("hex");
+    if (mutation.expectedImpactHash && mutation.expectedImpactHash !== impactHash)
+      reject(CustomErrorCode.recordVersionChanged, "conflict");
+    return { deleted, affected, links, impactHash, rootOf };
+  }
+
+  async validateAccess(mutation: RecordMutation, policy: Policy): Promise<void> {
+    if (!policy.actor) reject(CustomErrorCode.permissionDenied, "authorization");
+    if (mutation.action === "updateMany" || mutation.action === "deleteMany") {
+      for (const target of mutation.targets) {
+        await this.validateAccess(
+          mutation.action === "updateMany"
+            ? {
+                action: "update",
+                ...target,
+                fields: mutation.fields,
+                assignedUserIds: mutation.assignedUserIds,
+                linkChanges: mutation.linkChanges,
+              }
+            : { action: "delete", ...target },
+          policy,
+        );
+      }
+      return;
+    }
+    const ref =
+      mutation.action === "create"
+        ? null
+        : mutation.action === "link" || mutation.action === "unlink"
+          ? mutation.source
+          : mutation.ref;
+    const typeId = mutation.action === "create" ? mutation.typeId : recordInvariant(ref).typeId;
+    if (
+      !policy.allowed(
+        typeId,
+        mutation.action === "create" ? "create" : mutation.action === "delete" ? "delete" : "update",
+      )
+    )
+      reject(CustomErrorCode.permissionDenied, "authorization");
+    if (ref) {
+      const row = await this.records.getRecordCompanyWide(ref);
+      if (!row || !(await policy.canRead(row))) reject(CustomErrorCode.recordNotFound, "not_found");
+      if (row.protectedKind) reject(CustomErrorCode.recordProtected, "authorization");
+      if (
+        (mutation.action === "delete" ||
+          (mutation.action === "update" && !isAppendOnlyUpdate(mutation) && !isOrderOnlyUpdate(mutation))) &&
+        row.version !== mutation.expectedVersion
+      )
+        reject(CustomErrorCode.recordVersionChanged, "conflict");
+    }
+    if (mutation.action === "link" || mutation.action === "unlink") {
+      const row = await this.records.getRecordCompanyWide(mutation.target);
+      if (!row || !(await policy.canRead(row))) reject(CustomErrorCode.recordNotFound, "not_found");
+      if (row.protectedKind) reject(CustomErrorCode.recordProtected, "authorization");
+    }
+    if (mutation.action === "create" || mutation.action === "update") {
+      const assignees = mutation.assignedUserIds;
+      if (assignees && !(await this.policy.validAssignees(policy.actor, assignees, policy.canAssignOthers)))
+        reject(CustomErrorCode.permissionDenied, "authorization");
+      for (const field of mutation.fields) {
+        if (
+          "value" in field &&
+          field.value?.kind === "member" &&
+          !(await this.policy.validAssignees(policy.actor, [field.value.value], policy.canAssignOthers))
+        )
+          reject(CustomErrorCode.permissionDenied, "authorization");
+      }
+    }
+  }
+
+  async apply(
+    mutation: RecordMutation,
+    model: RecordModel,
+    policy: Policy,
+    limit = SYNCHRONOUS_RECORD_LIMIT,
+    options: {
+      skipCalculations?: boolean;
+      skipTouches?: boolean;
+      createRecordId?: string;
+      trashBatchId?: string;
+      beforeDeletion?: (refs: RecordRef[]) => Promise<void>;
+    } = {},
+  ): Promise<{
+    refs: RecordRef[];
+    changedFieldIds: string[];
+    captures: Array<{ ref: RecordRef; fieldIds: string[] }>;
+    trashBatchId?: string;
+  }> {
+    if (!policy.actor) reject(CustomErrorCode.permissionDenied, "authorization");
+    const locked =
+      mutation.action === "update" || mutation.action === "delete"
+        ? [mutation.ref]
+        : mutation.action === "updateMany" || mutation.action === "deleteMany"
+          ? mutation.targets.map((target) => target.ref)
+          : [];
+    for (const ref of locked.toSorted((left, right) => compareRecordKey(recordKey(left), recordKey(right))))
+      await this.records.lockRecord(ref);
+    await this.validateAccess(mutation, policy);
+    if (mutation.action === "updateMany") {
+      const seeds = new Map<string, RecordRef>();
+      const changedFields = new Set<string>();
+      const captures = new Map<string, Set<string>>();
+      for (const target of mutation.targets) {
+        const result = await this.apply(
+          {
+            action: "update",
+            ...target,
+            fields: mutation.fields,
+            assignedUserIds: mutation.assignedUserIds,
+            linkChanges: mutation.linkChanges,
+          },
+          model,
+          policy,
+          limit,
+          { skipCalculations: true, skipTouches: true },
+        );
+        for (const ref of result.refs) seeds.set(recordKey(ref), ref);
+        for (const fieldId of result.changedFieldIds) changedFields.add(fieldId);
+        for (const capture of result.captures) {
+          const key = recordKey(capture.ref);
+          const fields = captures.get(key) ?? new Set<string>();
+          capture.fieldIds.forEach((id) => fields.add(id));
+          captures.set(key, fields);
+        }
+        if (seeds.size > limit) reject(CustomErrorCode.recordCalculationBudget, "conflict");
+      }
+      if (!options.skipCalculations) {
+        const result = await this.calculations.recalculate(model, [...seeds.values()], captures, limit);
+        if (!result.complete) reject(CustomErrorCode.recordCalculationBudget, "conflict");
+        for (const ref of result.changed) seeds.set(recordKey(ref), ref);
+        if (seeds.size > limit) reject(CustomErrorCode.recordCalculationBudget, "conflict");
+      }
+      if (!options.skipTouches) for (const ref of seeds.values()) await this.records.touch(ref);
+      return {
+        refs: [...seeds.values()],
+        changedFieldIds: [...changedFields],
+        captures: [...captures].map(([key, fields]) => ({
+          ref: recordInvariant(seeds.get(key)),
+          fieldIds: [...fields],
+        })),
+      };
+    }
+    const fields = new Map(model.fields.filter((field) => !field.archived).map((field) => [field.id, field]));
+    const seeds = new Map<string, RecordRef>();
+    const changedFields = new Set<string>();
+    const captures = new Map<string, Set<string>>();
+    const deleted = new Set<string>();
+    const fresh = new Set<string>();
+    let trashBatchId: string | undefined;
+    const assignIdentities = async (ref: RecordRef, inputs: RecordIdentityInput[] | undefined) => {
+      if (!inputs) return;
+      if (!recordChannelsEnabled(model, ref.typeId))
+        reject(CustomErrorCode.recordProtected, "authorization", ["identities"]);
+
+      const aliases = inputs.filter((input) => !normalizedIdentity(input));
+      const known = aliases.length
+        ? await this.records.getIdentityChannelsCompanyWide(
+            aliases.flatMap((input) =>
+              identityKeys(input).map((value) => ({ channelClass: channelClass(input.provider), value })),
+            ),
+          )
+        : [];
+      const normalized: RecordIdentityInput[] = [];
+      for (const [index, input] of inputs.entries()) {
+        const row = normalizedIdentityAssociation(input, known);
+        if (!row) reject(CustomErrorCode.invalidChannelValue, "validation", ["identities", index, "value"]);
+        normalized.push(row);
+      }
+      await this.records.setIdentities(ref, normalized);
+    };
+    const addSeed = (ref: RecordRef) => {
+      seeds.set(recordKey(ref), ref);
+      if (seeds.size > limit) reject(CustomErrorCode.recordCalculationBudget, "conflict");
+    };
+    const type = (id: string) => {
+      const found = model.types.find((candidate) => candidate.id === id && !candidate.archived);
+      if (!found) reject(CustomErrorCode.recordTypeNotFound, "not_found");
+      return found;
+    };
+    const editable = async (ref: RecordRef, action: "update" | "delete" = "update"): Promise<StoredRecord> => {
+      type(ref.typeId);
+      const row = await this.records.getRecordCompanyWide(ref);
+      if (!row || !(await policy.canRead(row))) reject(CustomErrorCode.recordNotFound, "not_found");
+      if (!policy.allowed(ref.typeId, action)) reject(CustomErrorCode.permissionDenied, "authorization");
+      if (row.protectedKind) reject(CustomErrorCode.recordProtected, "authorization");
+      return row;
+    };
+    const link = async (relationId: string, source: RecordRef, target: RecordRef, remove = false) => {
+      const relation = model.relationships.find((candidate) => candidate.id === relationId && !candidate.archived);
+      if (!relation || relation.sourceTypeId !== source.typeId || relation.targetTypeId !== target.typeId)
+        reject(CustomErrorCode.recordRelationConflict, "conflict");
+      if (!fresh.has(recordKey(source))) await editable(source);
+      const targetRow = await this.records.getRecordCompanyWide(target);
+      if (!targetRow || (!fresh.has(recordKey(target)) && !(await policy.canRead(targetRow))))
+        reject(CustomErrorCode.recordNotFound, "not_found");
+      if (targetRow.protectedKind) reject(CustomErrorCode.recordProtected, "authorization");
+      if (type(source.typeId).parentRelationshipId === relationId) {
+        if (remove) reject(CustomErrorCode.recordRelationConflict, "conflict");
+        await editable(target);
+      }
+      const existing = await this.records.linkedRecordsCompanyWide(source, relationId, "outgoing", limit + 1);
+      const contains = existing.some((ref) => recordKey(ref) === recordKey(target));
+      if (remove) {
+        if (contains) await this.records.unlink(relationId, source, target);
+      } else if (!contains) {
+        if (relation.sourceCardinality === "one" && existing.length)
+          reject(CustomErrorCode.recordRelationConflict, "conflict");
+        if (
+          relation.targetCardinality === "one" &&
+          (await this.records.linkedRecordsCompanyWide(target, relationId, "incoming", 1)).length
+        )
+          reject(CustomErrorCode.recordRelationConflict, "conflict");
+        await this.records.link(relationId, source, target);
+      }
+      addSeed(source);
+      addSeed(target);
+    };
+    const assignFields = async (
+      ref: RecordRef,
+      assignments: Array<{ fieldId: string; value: RecordScalar | null }>,
+      create: boolean,
+      existing?: StoredRecord,
+    ) => {
+      if (new Set(assignments.map((assignment) => assignment.fieldId)).size !== assignments.length)
+        reject(CustomErrorCode.recordValueInvalid, "validation", ["fields"]);
+      const supplied = new Map(assignments.map((assignment) => [assignment.fieldId, assignment.value]));
+      for (const [fieldId] of supplied) {
+        const field = fields.get(fieldId);
+        if (!field || field.typeId !== ref.typeId || field.valueType === "channels")
+          reject(CustomErrorCode.recordValueInvalid, "validation", ["fields"]);
+        if (
+          field.behavior.kind !== "input" &&
+          !(field.behavior.kind === "snapshot" && field.behavior.allowManualOverride)
+        )
+          reject(CustomErrorCode.recordReadOnlyField, "validation", ["fields"]);
+      }
+      for (const field of fields.values()) {
+        if (field.typeId !== ref.typeId || field.valueType === "channels") continue;
+        if (
+          field.behavior.kind !== "input" &&
+          !(field.behavior.kind === "snapshot" && field.behavior.allowManualOverride && supplied.has(field.id))
+        )
+          continue;
+        if (!create && !supplied.has(field.id)) continue;
+        const value = normalizeRecordScalar(
+          supplied.has(field.id)
+            ? (supplied.get(field.id) ?? null)
+            : field.behavior.kind === "input"
+              ? (field.behavior.defaultValue ?? null)
+              : null,
+          field,
+        );
+        if (
+          value?.kind === "member" &&
+          !(await this.policy.validAssignees(policy.actor, [value.value], policy.canAssignOthers))
+        )
+          reject(CustomErrorCode.permissionDenied, "authorization");
+        const next = valueResult(value);
+        if (
+          existing &&
+          sameRecordResult(
+            decodeRecordValue(
+              existing.values.find((stored) => stored.fieldId === field.id),
+              field,
+            ),
+            next,
+          )
+        )
+          continue;
+        await this.records.setValue(ref, field.id, next, model.revision);
+        await this.records.setValueDependencies(ref, field.id, []);
+        changedFields.add(field.id);
+      }
+      const capture = new Set<string>();
+      for (const field of fields.values()) {
+        if (field.typeId !== ref.typeId || field.behavior.kind !== "snapshot" || supplied.has(field.id)) continue;
+        if (create && field.behavior.capture === "create") capture.add(field.id);
+        if (
+          field.behavior.capture === "whenChanged" &&
+          field.behavior.triggerFieldId &&
+          supplied.has(field.behavior.triggerFieldId)
+        ) {
+          const triggerFieldId = field.behavior.triggerFieldId;
+          const previous = existing
+            ? decodeRecordValue(
+                existing.values.find((value) => value.fieldId === triggerFieldId),
+                recordInvariant(fields.get(triggerFieldId)),
+              )
+            : { state: "missing" };
+          const next = supplied.get(triggerFieldId);
+          if (
+            JSON.stringify(next) === JSON.stringify(field.behavior.triggerValue) &&
+            JSON.stringify(previous) !== JSON.stringify(valueResult(next ?? null))
+          )
+            capture.add(field.id);
+        }
+      }
+      captures.set(recordKey(ref), capture);
+    };
+
+    if (mutation.action === "create") {
+      const definition = type(mutation.typeId);
+      if (
+        definition.parentRelationshipId &&
+        !(mutation.links ?? []).some(
+          (link) => link.relationId === definition.parentRelationshipId && link.direction === "outgoing",
+        )
+      )
+        reject(CustomErrorCode.recordRelationConflict, "conflict");
+      if (definition.parentRelationshipId && mutation.assignedUserIds?.length)
+        reject(CustomErrorCode.recordValueInvalid, "validation", ["assignedUserIds"]);
+
+      if (!policy.allowed(mutation.typeId, "create")) reject(CustomErrorCode.permissionDenied, "authorization");
+      const assignees = definition.parentRelationshipId ? [] : (mutation.assignedUserIds ?? [policy.actor.id]);
+      if (!(await this.policy.validAssignees(policy.actor, assignees, policy.canAssignOthers)))
+        reject(CustomErrorCode.permissionDenied, "authorization");
+      const ref = {
+        typeId: mutation.typeId,
+        recordId: options.createRecordId ?? randomUUID(),
+      };
+      await this.records.create(ref, assignees);
+      fresh.add(recordKey(ref));
+      addSeed(ref);
+      await assignFields(ref, mutation.fields, true);
+      await assignIdentities(ref, mutation.identities);
+      for (const relation of mutation.links ?? []) {
+        await link(
+          relation.relationId,
+          relation.direction === "outgoing" ? ref : relation.record,
+          relation.direction === "outgoing" ? relation.record : ref,
+        );
+      }
+    } else if (mutation.action === "update") {
+      const row = await editable(mutation.ref);
+      if (!isAppendOnlyUpdate(mutation) && !isOrderOnlyUpdate(mutation) && row.version !== mutation.expectedVersion)
+        reject(CustomErrorCode.recordVersionChanged, "conflict");
+      if (mutation.assignedUserIds && type(mutation.ref.typeId).parentRelationshipId) {
+        if (mutation.assignedUserIds.length)
+          reject(CustomErrorCode.recordValueInvalid, "validation", ["assignedUserIds"]);
+      } else if (mutation.assignedUserIds) {
+        if (!(await this.policy.validAssignees(policy.actor, mutation.assignedUserIds, policy.canAssignOthers)))
+          reject(CustomErrorCode.permissionDenied, "authorization");
+        await this.records.setAssignments(mutation.ref, mutation.assignedUserIds);
+      }
+      await assignFields(
+        mutation.ref,
+        mutation.fields.map((update) => {
+          if (!isAppend(update)) return update;
+          const field = fields.get(update.fieldId);
+          if (!field || field.typeId !== mutation.ref.typeId)
+            reject(CustomErrorCode.recordValueInvalid, "validation", ["fields"]);
+          const current = decodeRecordValue(
+            row.values.find((value) => value.fieldId === field.id),
+            field,
+          );
+          return { fieldId: update.fieldId, value: appendedRecordValue(field, current, update.append) };
+        }),
+        false,
+        row,
+      );
+      await assignIdentities(mutation.ref, mutation.identities);
+      for (const change of mutation.linkChanges ?? []) {
+        await link(
+          change.relationId,
+          change.direction === "outgoing" ? mutation.ref : change.record,
+          change.direction === "outgoing" ? change.record : mutation.ref,
+          change.action === "unlink",
+        );
+      }
+      for (const fieldId of mutation.captureFieldIds ?? []) {
+        const field = fields.get(fieldId);
+        if (
+          !field ||
+          field.typeId !== mutation.ref.typeId ||
+          field.behavior.kind !== "snapshot" ||
+          mutation.fields.some((assignment) => assignment.fieldId === fieldId)
+        )
+          reject(CustomErrorCode.recordValueInvalid);
+        recordInvariant(captures.get(recordKey(mutation.ref))).add(fieldId);
+      }
+      if (mutation.placement) {
+        const { groupFieldId, ...placement } = mutation.placement;
+        const group = groupFieldId ? fields.get(groupFieldId) : undefined;
+        if (
+          groupFieldId &&
+          (!group ||
+            group.typeId !== mutation.ref.typeId ||
+            group.valueType !== "select" ||
+            group.multiple ||
+            group.behavior.kind !== "input")
+        )
+          reject(CustomErrorCode.recordValueInvalid, "validation", ["placement", "groupFieldId"]);
+        for (const anchor of [placement.afterRecordId, placement.beforeRecordId]) {
+          if (!anchor) continue;
+          const row = await this.records.getRecordCompanyWide({ typeId: mutation.ref.typeId, recordId: anchor });
+          if (!row || !(await policy.canRead(row))) reject(CustomErrorCode.recordNotFound, "not_found", ["placement"]);
+        }
+        if (!(await this.records.placeRecord(mutation.ref, placement, groupFieldId ?? null)))
+          reject(CustomErrorCode.recordNotFound, "not_found", ["placement"]);
+      }
+      if (isOrderOnlyUpdate(mutation)) captures.delete(recordKey(mutation.ref));
+      else addSeed(mutation.ref);
+    } else if (mutation.action === "delete" || mutation.action === "deleteMany") {
+      const plan = await this.planDeletion(mutation, model, policy, limit);
+      for (const key of plan.deleted.keys()) deleted.add(key);
+      for (const ref of plan.affected.values()) addSeed(ref);
+      await options.beforeDeletion?.(
+        [...plan.deleted.values()].map((row) => ({
+          typeId: row.typeId,
+          recordId: row.id,
+        })),
+      );
+      trashBatchId = options.trashBatchId ?? randomUUID();
+      const actorId = policy.actor.id;
+      const items = new Map(
+        [...new Set(plan.rootOf.values())].filter((key) => deleted.has(key)).map((key) => [key, randomUUID()]),
+      );
+      await this.records.addTrashItems(
+        [...items].map(([key, id]) => {
+          const row = recordInvariant(plan.deleted.get(key));
+          return {
+            id,
+            typeId: row.typeId,
+            targetId: row.id,
+            label: recordTrashLabel(row, model),
+            batchId: recordInvariant(trashBatchId),
+            deletedById: actorId,
+          };
+        }),
+      );
+      for (const key of deleted) {
+        await this.records.moveToTrash(
+          recordInvariant(seeds.get(key)),
+          recordInvariant(items.get(recordInvariant(plan.rootOf.get(key)))),
+        );
+      }
+    } else await link(mutation.relationId, mutation.source, mutation.target, mutation.action === "unlink");
+
+    const recalculated = options.skipCalculations
+      ? { complete: true, changed: [] }
+      : await this.calculations.recalculate(model, [...seeds.values()], captures, limit);
+    if (!recalculated.complete) reject(CustomErrorCode.recordCalculationBudget, "conflict");
+    for (const ref of recalculated.changed) addSeed(ref);
+    if (!options.skipTouches)
+      for (const [key, ref] of seeds) if (!deleted.has(key) && !fresh.has(key)) await this.records.touch(ref);
+
+    return {
+      refs: [...seeds.values()],
+      changedFieldIds: [...changedFields],
+      captures: [...captures].map(([key, fieldIds]) => ({
+        ref: recordInvariant(seeds.get(key)),
+        fieldIds: [...fieldIds],
+      })),
+      ...(trashBatchId ? { trashBatchId } : {}),
+    };
+  }
+}

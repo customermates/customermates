@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { Client } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { PrismaRoutineRepo } from "../prisma-routine.repository";
+import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
 import { ReconcileRoutineRunsInteractor } from "../reconcile-routine-runs.interactor";
 import { ReleaseOwnerRoutinesInteractor } from "../release-owner-routines.interactor";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -59,7 +59,7 @@ describeDatabase("releasing the routines of an unavailable owner", () => {
     await insertRun(finishedRunId, ownedRoutineId, ownerId, "succeeded");
     await insertRun(otherRunId, otherRoutineId, otherOwnerId, "queued");
 
-    const repo = new PrismaRoutineRepo();
+    const repo = createTestRoutineRepo();
     await new ReleaseOwnerRoutinesInteractor(repo, new ReconcileRoutineRunsInteractor(repo)).invoke({
       companyId,
       ownerUserId: ownerId,

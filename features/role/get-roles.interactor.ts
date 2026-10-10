@@ -5,7 +5,7 @@ import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
 import type { Validated } from "@/core/validation/validation.utils";
 
-import { Resource, Action } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
@@ -18,13 +18,7 @@ import { GetQueryParamsSchema, type GetQueryParams, createGetResultSchema } from
 export type { RoleWithAssignmentsDto as RoleDto } from "./role.schema";
 
 @AllowInDemoMode
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.users, action: Action.readAll },
-    { resource: Resource.users, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.users, read: true })
 export class GetRolesInteractor extends BaseGetInteractor<RoleDto> {
   constructor(
     repo: GetRolesRepo,
@@ -32,14 +26,7 @@ export class GetRolesInteractor extends BaseGetInteractor<RoleDto> {
     mode: "interactive" | "api",
     queryParamsPrecheck: QueryParamsPrecheckInteractor,
   ) {
-    super(
-      repo,
-      viewStateRepo,
-      mode,
-      undefined,
-      { sortDescriptor: { field: "type", direction: "asc" } },
-      queryParamsPrecheck,
-    );
+    super(repo, viewStateRepo, mode, { sortDescriptor: { field: "type", direction: "asc" } }, queryParamsPrecheck);
   }
 
   @Validate(GetQueryParamsSchema)

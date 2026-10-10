@@ -1,174 +1,323 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { observable, runInAction } from "mobx";
-
-import { EntityType, TaskType } from "@/generated/prisma";
+import { recordSearchHit } from "@/tests/helpers/record-search";
+import type { RecordSearchResult } from "@/features/records/record-search.schema";
 
 vi.mock("@/app/[locale]/(protected)/search/actions", () => ({
-  checkSearchResultExistsAction: vi.fn(),
+  resolveSearchReferencesAction: vi.fn(),
   globalSearchAction: vi.fn(),
+  commandCatalogAction: vi.fn(),
+  commandSearchAction: vi.fn(),
+  resolveCommandAction: vi.fn(),
 }));
-
-import { checkSearchResultExistsAction } from "@/app/[locale]/(protected)/search/actions";
-
+import {
+  commandCatalogAction,
+  commandSearchAction,
+  globalSearchAction,
+  resolveCommandAction,
+  resolveSearchReferencesAction,
+} from "@/app/[locale]/(protected)/search/actions";
 import { GlobalSearchModalStore } from "../global-search-modal.store";
 
-const FIRST_KEY = "customermates:globalSearch:recent:v2:company-1:user-1";
-const SECOND_KEY = "customermates:globalSearch:recent:v2:company-1:user-2";
-const LEGACY_KEY = "customermates:globalSearch:recent:v1";
-const CONTACT_ID = "10000000-0000-4000-8000-000000000001";
-const DEAL_ID = "20000000-0000-4000-8000-000000000001";
-const TASK_ID = "30000000-0000-4000-8000-000000000001";
+const TYPE = "10000000-0000-4000-8000-000000000001";
+const SECOND_TYPE = "20000000-0000-4000-8000-000000000001";
+const ID = "30000000-0000-4000-8000-000000000001";
+const FIRST_KEY = "customermates:globalSearch:recent:v3:company-1:user-1";
+const SECOND_KEY = "customermates:globalSearch:recent:v3:company-1:user-2";
+const hit = recordSearchHit(TYPE, ID, "Current name");
+const page = (results = [hit], nextCursor: RecordSearchResult["nextCursor"] = null) => ({
+  ok: true as const,
+  data: { results, nextCursor, schemaRevision: 1 },
+});
+const combined = (records = page(), semantic: { key: string; similarity: number }[] = []) => ({
+  ok: true as const,
+  data: { records: records.data, semantic, docs: [], degraded: false },
+});
 
-type UserIdentity = { id: string; companyId: string } | null;
-
-function recent(type: EntityType, id: string, name: string, openedAt: number, taskType?: TaskType) {
-  return {
-    type,
-    id,
-    name,
-    pictureUrl: null,
-    ...(taskType ? { taskType } : {}),
-    openedAt,
-  };
-}
-
-function stubBrowser(initial: Readonly<Record<string, unknown>>) {
+function browser(initial: Record<string, unknown> = {}) {
   const values = new Map(Object.entries(initial).map(([key, value]) => [key, JSON.stringify(value)]));
   vi.stubGlobal("window", {
     localStorage: {
       getItem: (key: string) => values.get(key) ?? null,
       setItem: (key: string, value: string) => values.set(key, value),
+      removeItem: (key: string) => values.delete(key),
     },
   });
   return values;
 }
-
-function root(userStore: { user: UserIdentity }) {
-  return {
+function setup() {
+  const userStore = observable({ user: { id: "user-1", companyId: "company-1" } });
+  const store = new GlobalSearchModalStore({
     userStore,
-    localeStore: { getTranslation: (key: string) => key },
+    localeStore: { getTranslation: (key: string) => key, locale: "en" },
     registerModalStore: vi.fn(),
-  };
+  } as never);
+  return { store, userStore };
 }
-
+function deferred<T>() {
+  let finish: (value: T) => void = () => {
+    throw new Error("Missing resolver");
+  };
+  const promise = new Promise<T>((resolve) => {
+    finish = resolve;
+  });
+  return { promise, finish };
+}
+beforeEach(() => {
+  vi.useFakeTimers();
+  vi.mocked(resolveSearchReferencesAction).mockResolvedValue({ ok: true, data: { results: [] } });
+  vi.mocked(commandCatalogAction).mockResolvedValue({
+    ok: true,
+    data: { schemaRevision: 1, views: [{ typeId: TYPE, id: "view-1", name: "Open" }], fields: [] },
+  });
+});
 afterEach(() => {
+  vi.useRealTimers();
   vi.clearAllMocks();
   vi.unstubAllGlobals();
 });
 
-describe("GlobalSearchModalStore recent searches", () => {
-  it("isolates recent items by company and user and swaps them when the active identity changes", () => {
-    stubBrowser({
-      [FIRST_KEY]: [recent(EntityType.contact, CONTACT_ID, "Ada Lovelace", 1)],
-      [SECOND_KEY]: [recent(EntityType.deal, DEAL_ID, "Renewal", 2)],
-      [LEGACY_KEY]: [recent(EntityType.task, TASK_ID, "Legacy task", 3, TaskType.userPendingAuthorization)],
+describe("generic search state and recent references", () => {
+  it("resolves stored references before showing labels and persists only stable references", async () => {
+    const values = browser({
+      [FIRST_KEY]: [hit.ref, { type: "contact", id: ID }],
+      [SECOND_KEY]: [{ typeId: SECOND_TYPE, recordId: ID }],
     });
-    const userStore = observable<{ user: UserIdentity }>({
-      user: { id: "user-1", companyId: "company-1" },
-    });
-    const store = new GlobalSearchModalStore(root(userStore) as never);
-
-    expect(store.recentItems).toEqual([recent(EntityType.contact, CONTACT_ID, "Ada Lovelace", 1)]);
-
+    const { store } = setup();
+    const pending = deferred<Awaited<ReturnType<typeof resolveSearchReferencesAction>>>();
+    vi.mocked(resolveSearchReferencesAction).mockReturnValueOnce(pending.promise);
+    store.open();
+    expect(store.recentItems).toEqual([]);
+    expect(resolveSearchReferencesAction).toHaveBeenCalledWith({ refs: [hit.ref] });
+    pending.finish({ ok: true, data: { results: [hit] } });
+    await vi.advanceTimersByTimeAsync(0);
+    expect(store.recentItems).toEqual([hit]);
+    expect(JSON.parse(values.get(FIRST_KEY) ?? "null")).toEqual([hit.ref]);
+    expect(values.get(SECOND_KEY)).toContain(SECOND_TYPE);
+    expect(values.get(FIRST_KEY)).not.toContain("Current name");
+  });
+  it("ignores delayed recent names after the active user changes", async () => {
+    browser({ [FIRST_KEY]: [hit.ref] });
+    const { store, userStore } = setup();
+    const pending = deferred<Awaited<ReturnType<typeof resolveSearchReferencesAction>>>();
+    vi.mocked(resolveSearchReferencesAction).mockReturnValueOnce(pending.promise);
+    store.open();
     runInAction(() => {
       userStore.user = { id: "user-2", companyId: "company-1" };
     });
-
-    expect(store.recentItems).toEqual([recent(EntityType.deal, DEAL_ID, "Renewal", 2)]);
+    pending.finish({ ok: true, data: { results: [hit] } });
+    await vi.advanceTimersByTimeAsync(0);
+    expect(store.recentItems).toEqual([]);
   });
-
-  it("writes and clears only the active identity's scoped key", () => {
-    const values = stubBrowser({
-      [SECOND_KEY]: [recent(EntityType.deal, DEAL_ID, "Other user", 2)],
-      [LEGACY_KEY]: [recent(EntityType.task, TASK_ID, "Legacy task", 3, TaskType.userPendingAuthorization)],
-    });
-    const store = new GlobalSearchModalStore(root({ user: { id: "user-1", companyId: "company-1" } }) as never);
-
-    store.pushRecentItem({
-      type: EntityType.contact,
-      id: CONTACT_ID,
-      name: "Ada Lovelace",
-      pictureUrl: null,
-    });
-
-    expect(JSON.parse(values.get(FIRST_KEY) ?? "[]")).toEqual([
-      expect.objectContaining({
-        type: EntityType.contact,
-        id: CONTACT_ID,
-        name: "Ada Lovelace",
-      }),
-    ]);
-    expect(JSON.parse(values.get(SECOND_KEY) ?? "[]")).toEqual([recent(EntityType.deal, DEAL_ID, "Other user", 2)]);
-    expect(values.has(LEGACY_KEY)).toBe(true);
-
+  it("stores a selected reference even when the modal closes while it is being resolved", async () => {
+    const values = browser();
+    const { store } = setup();
+    store.open();
+    await vi.advanceTimersByTimeAsync(0);
+    vi.mocked(resolveSearchReferencesAction).mockResolvedValueOnce({ ok: true, data: { results: [hit] } });
+    store.pushRecentItem(hit);
+    store.close();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(JSON.parse(values.get(FIRST_KEY) ?? "null")).toEqual([hit.ref]);
     store.clearRecentItems();
-    expect(JSON.parse(values.get(FIRST_KEY) ?? "null")).toEqual([]);
-    expect(JSON.parse(values.get(SECOND_KEY) ?? "[]")).toHaveLength(1);
+    expect(values.get(FIRST_KEY)).toBe("[]");
   });
-
-  it("drops malformed and unknown cached entries before exposing them to the modal", () => {
-    stubBrowser({
-      [FIRST_KEY]: [
-        recent(EntityType.task, TASK_ID, "Authorization", 1, TaskType.userPendingAuthorization),
-        {
-          ...recent(EntityType.contact, CONTACT_ID, "Unknown", 2),
-          type: "unknown",
-        },
-        { ...recent(EntityType.contact, "not-a-uuid", "Bad id", 3) },
-        {
-          ...recent(EntityType.deal, DEAL_ID, "Bad avatar", 4),
-          pictureUrl: 42,
-        },
-      ],
-    });
-
-    const store = new GlobalSearchModalStore(root({ user: { id: "user-1", companyId: "company-1" } }) as never);
-
-    expect(store.recentItems).toEqual([
-      recent(EntityType.task, TASK_ID, "Authorization", 1, TaskType.userPendingAuthorization),
-    ]);
+  it("drops only the inaccessible reference when records of two types share an ID", async () => {
+    const other = recordSearchHit(SECOND_TYPE, ID, "Other type");
+    const values = browser({ [FIRST_KEY]: [hit.ref, other.ref] });
+    const { store } = setup();
+    store.setRecentItems([hit, other]);
+    expect(await store.verifyRecentItem(hit)).toBe(false);
+    expect(store.recentItems).toEqual([other]);
+    expect(JSON.parse(values.get(FIRST_KEY) ?? "null")).toEqual([other.ref]);
   });
-
-  it("removes only the stale entity when different record types share an id", () => {
-    stubBrowser({
-      [FIRST_KEY]: [
-        recent(EntityType.contact, CONTACT_ID, "Ada Lovelace", 1),
-        recent(EntityType.deal, CONTACT_ID, "Same UUID deal", 2),
-      ],
-    });
-    const store = new GlobalSearchModalStore(root({ user: { id: "user-1", companyId: "company-1" } }) as never);
-
-    store.removeRecentItem(CONTACT_ID, EntityType.contact);
-
-    expect(store.recentItems).toEqual([recent(EntityType.deal, CONTACT_ID, "Same UUID deal", 2)]);
-  });
-
-  it("ignores a delayed existence result after the active identity changes", async () => {
-    const values = stubBrowser({
-      [FIRST_KEY]: [recent(EntityType.contact, CONTACT_ID, "Ada Lovelace", 1)],
-      [SECOND_KEY]: [recent(EntityType.contact, CONTACT_ID, "Other user's contact", 2)],
-    });
-    const userStore = observable<{ user: UserIdentity }>({
-      user: { id: "user-1", companyId: "company-1" },
-    });
-    let resolveExists!: (exists: boolean) => void;
-    vi.mocked(checkSearchResultExistsAction).mockReturnValueOnce(
-      new Promise((resolve) => {
-        resolveExists = resolve;
-      }),
-    );
-    const store = new GlobalSearchModalStore(root(userStore) as never);
-
-    const verifying = store.verifyRecentItem(store.recentItems[0]);
+  it("rejects stale results while typing a new query and after closing or switching user", async () => {
+    browser();
+    const { store, userStore } = setup();
+    const pending = deferred<Awaited<ReturnType<typeof commandSearchAction>>>();
+    vi.mocked(commandSearchAction).mockReturnValueOnce(pending.promise);
+    store.open();
+    store.onChange("searchTerm", "old");
+    await vi.advanceTimersByTimeAsync(250);
+    store.onChange("searchTerm", "new");
+    pending.finish(combined());
+    await vi.advanceTimersByTimeAsync(0);
+    expect(store.results).toBeNull();
+    const next = deferred<Awaited<ReturnType<typeof commandSearchAction>>>();
+    vi.mocked(commandSearchAction).mockReturnValueOnce(next.promise);
+    await vi.advanceTimersByTimeAsync(250);
     runInAction(() => {
       userStore.user = { id: "user-2", companyId: "company-1" };
     });
-    resolveExists(false);
+    next.finish(combined());
+    await vi.advanceTimersByTimeAsync(0);
+    expect(store.results).toBeNull();
+    const closing = deferred<Awaited<ReturnType<typeof commandSearchAction>>>();
+    vi.mocked(commandSearchAction).mockReturnValueOnce(closing.promise);
+    store.onChange("searchTerm", "closing");
+    await vi.advanceTimersByTimeAsync(250);
+    store.close();
+    closing.finish(combined());
+    await vi.advanceTimersByTimeAsync(0);
+    expect(store.results).toBeNull();
+  });
+  it("appends cursor pages once and keeps both types when their record UUID is equal", async () => {
+    browser();
+    const { store } = setup();
+    const cursor = { revision: 1, createdAt: "2026-09-28T10:00:00.000000Z", ref: hit.ref };
+    vi.mocked(commandSearchAction).mockResolvedValueOnce(combined(page([hit], cursor)));
+    store.open();
+    store.onChange("searchTerm", "title");
+    await vi.advanceTimersByTimeAsync(250);
+    const other = recordSearchHit(SECOND_TYPE, ID, "Other type");
+    vi.mocked(globalSearchAction).mockResolvedValueOnce(page([hit, other]));
+    await store.loadMore();
+    expect(globalSearchAction).toHaveBeenLastCalledWith({ searchTerm: "title", limit: 40, cursor });
+    expect(store.results?.results).toEqual([hit, other]);
+    await store.loadMore();
+    expect(globalSearchAction).toHaveBeenCalledTimes(1);
+  });
+});
 
-    await expect(verifying).resolves.toBe(false);
-    expect(store.recentItems).toEqual([recent(EntityType.contact, CONTACT_ID, "Other user's contact", 2)]);
-    expect(JSON.parse(values.get(SECOND_KEY) ?? "[]")).toEqual([
-      recent(EntityType.contact, CONTACT_ID, "Other user's contact", 2),
+describe("command palette state", () => {
+  it("loads the names catalog when it opens", async () => {
+    browser();
+    const { store } = setup();
+    store.open();
+    await vi.runAllTimersAsync();
+    expect(commandCatalogAction).toHaveBeenCalledOnce();
+    expect(store.catalog?.views).toEqual([{ typeId: TYPE, id: "view-1", name: "Open" }]);
+  });
+
+  it("remembers recent commands by stable id per person", () => {
+    const values = browser();
+    const { store } = setup();
+    store.pushRecentCommand("cmd:page.dashboard");
+    store.pushRecentCommand("list:deals");
+    store.pushRecentCommand("cmd:page.dashboard");
+    expect(store.recentCommandKeys).toEqual(["cmd:page.dashboard", "list:deals"]);
+    expect(JSON.parse(values.get("customermates:commandPalette:recent:v1:company-1:user-1") ?? "[]")).toEqual([
+      "cmd:page.dashboard",
+      "list:deals",
     ]);
+  });
+
+  it("steps into and back out of a second level with an empty input", () => {
+    browser();
+    const { store } = setup();
+    store.open();
+    store.onChange("searchTerm", "chan");
+    store.pushLevel({ kind: "assign", label: "Assign to" });
+    expect(store.level).toEqual({ kind: "assign", label: "Assign to" });
+    expect(store.form.searchTerm).toBe("");
+    store.popLevel();
+    expect(store.level).toBeNull();
+    store.pushLevel({ kind: "assign", label: "Assign to" });
+    store.close();
+    store.open();
+    expect(store.level).toBeNull();
+  });
+
+  it("sends one combined request per settled query with the scope and keeps semantic hits", async () => {
+    browser();
+    vi.mocked(commandSearchAction).mockResolvedValue(
+      combined(page(), [{ key: "cmd:page.dashboard", similarity: 0.8 }]),
+    );
+    const { store } = setup();
+    store.open();
+    store.onChange("searchTerm", "r acme");
+    await vi.advanceTimersByTimeAsync(200);
+    expect(commandSearchAction).toHaveBeenLastCalledWith({
+      searchTerm: "acme",
+      scope: "records",
+      locale: "en",
+      semantic: true,
+    });
+    store.onChange("searchTerm", "s theme");
+    expect(store.semantic).toEqual([]);
+    await vi.advanceTimersByTimeAsync(200);
+    expect(commandSearchAction).toHaveBeenLastCalledWith({
+      searchTerm: "theme",
+      scope: "settings",
+      locale: "en",
+      semantic: true,
+    });
+    expect(store.semantic).toEqual([{ key: "cmd:page.dashboard", similarity: 0.8 }]);
+    expect(commandSearchAction).toHaveBeenCalledTimes(2);
+  });
+
+  it("asks the server not to embed when the instant matcher is already confident", async () => {
+    browser();
+    vi.mocked(commandSearchAction).mockResolvedValue(combined());
+    const { store } = setup();
+    store.setInstantMatcher((query) => query === "dashboard");
+    store.open();
+    store.onChange("searchTerm", "dashboard");
+    await vi.advanceTimersByTimeAsync(200);
+    expect(commandSearchAction).toHaveBeenLastCalledWith(expect.objectContaining({ semantic: false }));
+    store.onChange("searchTerm", "hot leads");
+    await vi.advanceTimersByTimeAsync(200);
+    expect(commandSearchAction).toHaveBeenLastCalledWith(expect.objectContaining({ semantic: true }));
+  });
+
+  it("resolves a request only for the query and palette session it was asked for", async () => {
+    browser();
+    const { store } = setup();
+    store.open();
+    store.onChange("searchTerm", "open my overview");
+    vi.mocked(resolveCommandAction).mockResolvedValueOnce({
+      ok: true,
+      data: { kind: "command", key: "cmd:page.dashboard" },
+    });
+    expect(await store.resolveCommand("open my overview")).toEqual({
+      status: "resolved",
+      resolution: { kind: "command", key: "cmd:page.dashboard" },
+    });
+    expect(resolveCommandAction).toHaveBeenLastCalledWith({ query: "open my overview", locale: "en" });
+
+    const changed = deferred<Awaited<ReturnType<typeof resolveCommandAction>>>();
+    vi.mocked(resolveCommandAction).mockReturnValueOnce(changed.promise);
+    const typedOn = store.resolveCommand("open my overview");
+    store.onChange("searchTerm", "open my overview please");
+    expect(store.resolving).toBe(false);
+    changed.finish({ ok: true, data: { kind: "command", key: "cmd:page.dashboard" } });
+    expect(await typedOn).toEqual({ status: "stale" });
+
+    const reopened = deferred<Awaited<ReturnType<typeof resolveCommandAction>>>();
+    vi.mocked(resolveCommandAction).mockReturnValueOnce(reopened.promise);
+    store.onChange("searchTerm", "open my overview");
+    const acrossSessions = store.resolveCommand("open my overview");
+    store.close();
+    store.open();
+    store.onChange("searchTerm", "open my overview");
+    reopened.finish({ ok: true, data: { kind: "command", key: "cmd:page.dashboard" } });
+    expect(await acrossSessions).toEqual({ status: "stale" });
+  });
+
+  it("reports missing credits as one notice instead of a fallback and can be cancelled", async () => {
+    browser();
+    const { store } = setup();
+    store.open();
+    store.onChange("searchTerm", "deals over 10k");
+    vi.mocked(resolveCommandAction).mockResolvedValueOnce({ ok: false, error: {}, code: "agentLimitReached" } as never);
+    expect(await store.resolveCommand("deals over 10k")).toEqual({ status: "unavailable" });
+    expect(store.resolveNotice).toBe("credits");
+    vi.mocked(resolveCommandAction).mockResolvedValueOnce({
+      ok: false,
+      error: {},
+      code: "agentServiceUnavailable",
+    } as never);
+    expect(await store.resolveCommand("deals over 10k")).toEqual({ status: "unavailable" });
+    expect(store.resolveNotice).toBe("service");
+
+    const pending = deferred<Awaited<ReturnType<typeof resolveCommandAction>>>();
+    vi.mocked(resolveCommandAction).mockReturnValueOnce(pending.promise);
+    const cancelled = store.resolveCommand("deals over 10k");
+    expect(store.resolving).toBe(true);
+    store.cancelResolve();
+    expect(store.resolving).toBe(false);
+    expect(store.resolveNotice).toBeNull();
+    pending.finish({ ok: true, data: { kind: "none" } });
+    expect(await cancelled).toEqual({ status: "stale" });
   });
 });

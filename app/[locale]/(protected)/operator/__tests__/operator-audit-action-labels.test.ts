@@ -26,9 +26,9 @@ describe("operator audit action labels", () => {
 
   it("routes product rows through the shared domain-event catalog", () => {
     const html = renderToStaticMarkup(
-      jsx(AuditActionLabel, { action: "task.created", source: OPERATOR_AUDIT_SOURCE.product }),
+      jsx(AuditActionLabel, { action: "role.created", source: OPERATOR_AUDIT_SOURCE.product }),
     );
 
-    expect(html).toBe("translated:Common.events.task.created");
+    expect(html).toBe("translated:Common.events.role.created");
   });
 });

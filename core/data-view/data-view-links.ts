@@ -5,7 +5,7 @@ import { APP_LOCALES, stripLocalePrefix } from "@/i18n/locale-registry";
 import { AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS } from "./ai-manageable-surfaces";
 import { ViewKeySchema } from "./data-view-identity.schema";
 import { SURFACE } from "./data-view-keys";
-import { DATA_VIEW_PATHS, ENTITY_TIMELINE_PARENT_PATHS } from "./data-view-paths";
+import { DATA_VIEW_PATHS, isRecordTimelinePath } from "./data-view-paths";
 
 const STANDALONE_DATA_VIEW_PATHS = new Set(
   AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS.map((surfaceKey) => DATA_VIEW_PATHS[surfaceKey]).filter(
@@ -54,7 +54,10 @@ export function dataViewNavigationHref(href: unknown, options: DataViewNavigatio
   const path = stripLocalePrefix(pathname);
   const query = candidate.slice(separator + 1);
 
-  if (STANDALONE_DATA_VIEW_PATHS.has(path)) {
+  if (
+    STANDALONE_DATA_VIEW_PATHS.has(path) ||
+    (path.startsWith("/records/") && RECORD_ID_SCHEMA.safeParse(path.slice(9)).success)
+  ) {
     if (!isCanonicalLocalPath(pathname, path) || !query.startsWith("view=")) return null;
     const viewKey = query.slice("view=".length);
     if (!ViewKeySchema.safeParse(viewKey).success) return null;
@@ -68,10 +71,7 @@ export function dataViewNavigationHref(href: unknown, options: DataViewNavigatio
   const viewKey = viewQuery.slice("view=".length);
   if (!ViewKeySchema.safeParse(viewKey).success) return null;
 
-  const parentPath = ENTITY_TIMELINE_PARENT_PATHS.find((candidate) => path.startsWith(`${candidate}/`));
-  if (!parentPath || !isCanonicalLocalPath(pathname, path)) return null;
-  const recordId = path.slice(parentPath.length + 1);
-  if (!RECORD_ID_SCHEMA.safeParse(recordId).success) return null;
+  if (!isRecordTimelinePath(path) || !isCanonicalLocalPath(pathname, path)) return null;
   return `${path}?view=${viewKey}${timelineSuffix}`;
 }
 

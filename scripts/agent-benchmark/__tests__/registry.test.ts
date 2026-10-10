@@ -50,13 +50,13 @@ describe("unified benchmark registry", () => {
   it("covers view context and preserves the explicit fast-model pin contract", () => {
     const byId = new Map(BENCHMARK_CASES.map((definition) => [definition.id, definition]));
     expect(byId.get("V37")?.contexts?.[0]).toEqual({
-      pageRoute: `/en/contacts?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.contacts}&viewAction=update`,
+      pageRoute: `/en/records/{contactType}?view=${ALL_VIEW_KEY}&viewSurface=records:{contactType}&viewAction=update`,
       contexts: [
         {
           label: "Contact view: All",
           reference: {
             kind: "dataView",
-            surfaceKey: SURFACE.contacts,
+            surfaceKey: "records:{contactType}",
             viewKey: ALL_VIEW_KEY,
             requestedAction: "update",
           },
@@ -71,7 +71,7 @@ describe("unified benchmark registry", () => {
           label: "New Contact view: Contacts with deals",
           reference: {
             kind: "dataView",
-            surfaceKey: SURFACE.contacts,
+            surfaceKey: "records:{contactType}",
             proposedName: "Contacts with deals",
             requestedAction: "create",
           },
@@ -80,7 +80,7 @@ describe("unified benchmark registry", () => {
     });
     expect(byId.get("V41")?.contexts?.[0]).toEqual({
       locale: "de",
-      pageRoute: `/de/contacts/{contact}?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.entityTimeline}&viewAction=update`,
+      pageRoute: `/de/records/{contactType}/{contact}?view=${ALL_VIEW_KEY}&viewSurface=${SURFACE.entityTimeline}&viewAction=update`,
       contexts: [
         {
           label: "Aktivitätsansicht: Alle",
@@ -95,7 +95,7 @@ describe("unified benchmark registry", () => {
           label: "Ada Lovelace",
           reference: {
             kind: "record",
-            entityType: "contact",
+            typeId: "{contactType}",
             recordId: "{contact}",
           },
         },

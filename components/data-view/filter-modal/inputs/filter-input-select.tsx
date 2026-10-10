@@ -1,28 +1,29 @@
 "use client";
 
 import type { Filter } from "@/core/base/base-get.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ChevronsUpDownIcon, XIcon } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { ChevronsUpDownIcon, XIcon } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
-import { useFilterSelectItems } from "./use-filter-select-items";
 import { nextFilterSelection } from "./filter-selection";
 import { filterSelectGroups } from "./filter-select-groups";
+import { useFilterSelectItems } from "./use-filter-select-items";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { useAppForm } from "@/components/forms/form-context";
+import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "@/components/forms/selection-loading";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { cn } from "@/core/utils/cn";
-import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "@/components/forms/selection-loading";
+import { useDebouncedValue } from "@/core/utils/use-debounced-value";
+import { TruncatedText } from "@/components/shared/truncated-text";
 
 type Props = {
-  customColumns?: CustomColumnDto[];
+  customColumns?: ColumnPresentation[];
   filter: Filter;
   id: string;
   isValidFilter: boolean;
@@ -245,13 +246,7 @@ export const FilterInputSelect = observer(({ customColumns, filter, id, isValidF
                 <CommandGroup
                   key={group.key}
                   data-filter-option-group={group.key || undefined}
-                  heading={
-                    group.label ? (
-                      <span className="block truncate" title={group.label}>
-                        {group.label}
-                      </span>
-                    ) : undefined
-                  }
+                  heading={group.label ? <TruncatedText>{group.label}</TruncatedText> : undefined}
                 >
                   {group.items.map((item) => {
                     const selected = selectedKeys.includes(item.key);

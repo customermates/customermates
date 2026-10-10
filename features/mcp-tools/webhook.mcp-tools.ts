@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { RecordTriggerDefinitionSchema } from "@/features/records/record-event-subscription.schema";
 
 import {
   customMcpFailure,
@@ -21,7 +22,7 @@ import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema"
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
+import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 import {
@@ -44,10 +45,33 @@ const ListWebhooksSchema = z.object({
   pageSize: mcpPageSize(25),
 });
 
+const recordWebhookFields = {
+  recordTrigger: RecordTriggerDefinitionSchema.nullable()
+    .optional()
+    .describe(
+      "For record.created, record.updated and record.deleted: a stable type ID, query filters and watched field IDs. Null selects every accessible type. On update omit to keep the current trigger. Filters capture event-time matches; deletes match the complete state before removal. Delivery rechecks current access and rechecks live filters for creation and update events.",
+    ),
+  recordOwnerUserId: z
+    .uuid()
+    .optional()
+    .describe(
+      "Member whose current record access governs delivery. Defaults to the creator. Only an administrator may choose another member; ownership never grants record access.",
+    ),
+  expectedSchemaRevision: z
+    .number()
+    .int()
+    .nonnegative()
+    .optional()
+    .describe(
+      "Current revision from get_record_model. Required when creating a record subscription or changing its trigger or owner.",
+    ),
+};
+
 const CreateWebhookSchema = z.object({
+  ...recordWebhookFields,
   url: zx.secureUrl().describe("Endpoint that will receive event POST requests (https recommended)"),
   description: z.string().optional().describe("Human-readable note about what this webhook does"),
-  events: z.array(WebhookEventSchema).min(1).describe("Event types to subscribe to."),
+  events: z.array(WebhookCurrentEventSchema).min(1).describe("Event types to subscribe to."),
   secret: z.string().optional().describe("Shared secret used to sign outgoing requests"),
   headers: z
     .record(z.string(), z.string())
@@ -61,16 +85,17 @@ const CreateWebhookSchema = z.object({
     .nullable()
     .optional()
     .describe(
-      "JSON template for the request body, for receivers that need a fixed shape. Use {{event}}, {{timestamp}}, {{data.entityId}}, {{data.companyId}}, {{data.userId}} or {{data.payload}} placeholders; substituted values are JSON-escaped and a placeholder must sit inside a JSON string. Must render to a JSON object. update: omit to keep, pass null to clear. Omit to send the default envelope.",
+      "JSON template for the request body, for receivers that need a fixed shape. Use {{event}}, {{id}}, {{timestamp}}, {{companyId}}, {{actorId}} or {{data...}} placeholders such as {{data.record.ref.recordId}} or {{data.entityId}}; substituted values are JSON-escaped and a placeholder must sit inside a JSON string. Must render to a JSON object. update: omit to keep, pass null to clear. Omit to send the default envelope.",
     ),
   enabled: z.boolean().default(true),
 });
 
 const UpdateWebhookSchema = z.object({
+  ...recordWebhookFields,
   id: z.uuid(),
   url: zx.secureUrl().optional(),
   description: z.string().optional(),
-  events: z.array(WebhookEventSchema).min(1).optional().describe("REPLACES the subscribed events."),
+  events: z.array(WebhookCurrentEventSchema).min(1).optional().describe("REPLACES the subscribed events."),
   secret: z
     .string()
     .nullable()
@@ -88,7 +113,7 @@ const UpdateWebhookSchema = z.object({
     .nullable()
     .optional()
     .describe(
-      "JSON template for the request body, for receivers that need a fixed shape. Use {{event}}, {{timestamp}}, {{data.entityId}}, {{data.companyId}}, {{data.userId}} or {{data.payload}} placeholders; substituted values are JSON-escaped and a placeholder must sit inside a JSON string. Must render to a JSON object. update: omit to keep, pass null to clear. Omit to send the default envelope.",
+      "JSON template for the request body, for receivers that need a fixed shape. Use {{event}}, {{id}}, {{timestamp}}, {{companyId}}, {{actorId}} or {{data...}} placeholders such as {{data.record.ref.recordId}} or {{data.entityId}}; substituted values are JSON-escaped and a placeholder must sit inside a JSON string. Must render to a JSON object. update: omit to keep, pass null to clear. Omit to send the default envelope.",
     ),
   enabled: z.boolean().optional(),
 });
@@ -117,6 +142,7 @@ const ResendWebhookDeliverySchema = z.object({
 });
 
 const ManageWebhooksSchema = z.object({
+  ...recordWebhookFields,
   action: z
     .enum(["create", "update", "delete", "get", "list", "list_deliveries", "resend_delivery"])
     .describe(
@@ -135,7 +161,7 @@ const ManageWebhooksSchema = z.object({
     .describe("Endpoint that will receive event POST requests (https recommended). Required for create."),
   description: z.string().optional().describe("create and update. Human-readable note about what this webhook does."),
   events: z
-    .array(WebhookEventSchema)
+    .array(WebhookCurrentEventSchema)
     .min(1)
     .optional()
     .describe("Required for create; on update REPLACES the subscribed events."),
@@ -158,7 +184,7 @@ const ManageWebhooksSchema = z.object({
     .nullable()
     .optional()
     .describe(
-      "JSON template for the request body, for receivers that need a fixed shape. Use {{event}}, {{timestamp}}, {{data.entityId}}, {{data.companyId}}, {{data.userId}} or {{data.payload}} placeholders; substituted values are JSON-escaped and a placeholder must sit inside a JSON string. Must render to a JSON object. update: omit to keep, pass null to clear. Omit to send the default envelope.",
+      "JSON template for the request body, for receivers that need a fixed shape. Use {{event}}, {{id}}, {{timestamp}}, {{companyId}}, {{actorId}} or {{data...}} placeholders such as {{data.record.ref.recordId}} or {{data.entityId}}; substituted values are JSON-escaped and a placeholder must sit inside a JSON string. Must render to a JSON object. update: omit to keep, pass null to clear. Omit to send the default envelope.",
     ),
   enabled: z.boolean().optional().describe("create (default true) and update."),
   searchTerm: z
@@ -171,7 +197,7 @@ const ManageWebhooksSchema = z.object({
     .describe(
       "list and list_deliveries only. " +
         filtersDescription(
-          `list: ${filterFieldsHint([FilterFieldKey.createdAt, FilterFieldKey.updatedAt])}; list_deliveries: ${filterFieldsHint([FilterFieldKey.event, FilterFieldKey.url, FilterFieldKey.createdAt])}`,
+          `list: ${filterFieldsHint([FilterFieldKey.createdAt, FilterFieldKey.updatedAt])}; list_deliveries: ${filterFieldsHint([FilterFieldKey.webhookId, FilterFieldKey.event, FilterFieldKey.url, FilterFieldKey.createdAt])}`,
         ),
     ),
   sortDescriptor: SortDescriptorSchema.optional().describe(
@@ -203,7 +229,8 @@ export const manageWebhooksTool = {
   title: "Manage webhooks",
   description:
     "Use this when you need to manage webhook subscriptions or inspect their deliveries. " +
-    "action create requires url and events. " +
+    "action create requires url and events. Record events also require expectedSchemaRevision; recordTrigger selects the source and filters. " +
+    "Delivery uses recordOwnerUserId permissions. Only its owner or an administrator can change a record subscription. " +
     "action update requires id; events REPLACES the full subscription list; secret: omit to keep, null to clear, string to set. " +
     "action delete is IRREVERSIBLE. " +
     "action get returns one webhook (the signing secret and header values are never returned; get reports headerNames instead). " +
@@ -234,6 +261,8 @@ export const manageWebhooksTool = {
               description: webhook.description,
               events: webhook.events,
               enabled: webhook.enabled,
+              recordTrigger: webhook.recordTrigger ?? null,
+              recordOwnerUserId: webhook.recordOwnerUserId ?? null,
               createdAt: webhook.createdAt,
               updatedAt: webhook.updatedAt,
             })),
@@ -252,31 +281,29 @@ export const manageWebhooksTool = {
       const parsed = CreateWebhookSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
       return runInteractor(getUpsertWebhookInteractor().invoke(parsed.data), (data) =>
-        toonResult({ id: data.id, url: data.url, description: data.description, events: data.events }),
+        toonResult({
+          id: data.id,
+          url: data.url,
+          description: data.description,
+          events: data.events,
+          recordTrigger: data.recordTrigger ?? null,
+          recordOwnerUserId: data.recordOwnerUserId ?? null,
+        }),
       );
     }
     if (params.action === "update") {
       const parsed = UpdateWebhookSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);
-      return runInteractor(
-        getUpsertWebhookInteractor().invoke({
-          id: parsed.data.id,
-          url: parsed.data.url,
-          description: parsed.data.description,
-          events: parsed.data.events,
-          secret: parsed.data.secret,
-          headers: parsed.data.headers,
-          bodyTemplate: parsed.data.bodyTemplate,
-          enabled: parsed.data.enabled,
+      return runInteractor(getUpsertWebhookInteractor().invoke(parsed.data), (data) =>
+        toonResult({
+          id: data.id,
+          url: data.url,
+          description: data.description,
+          events: data.events,
+          enabled: data.enabled,
+          recordTrigger: data.recordTrigger ?? null,
+          recordOwnerUserId: data.recordOwnerUserId ?? null,
         }),
-        (data) =>
-          toonResult({
-            id: data.id,
-            url: data.url,
-            description: data.description,
-            events: data.events,
-            enabled: data.enabled,
-          }),
       );
     }
     if (params.action === "get") {
@@ -293,6 +320,8 @@ export const manageWebhooksTool = {
           description: webhook.description,
           events: webhook.events,
           enabled: webhook.enabled,
+          recordTrigger: webhook.recordTrigger ?? null,
+          recordOwnerUserId: webhook.recordOwnerUserId ?? null,
           createdAt: webhook.createdAt,
           updatedAt: webhook.updatedAt,
           hasSecret: webhook.secret != null && webhook.secret !== "",

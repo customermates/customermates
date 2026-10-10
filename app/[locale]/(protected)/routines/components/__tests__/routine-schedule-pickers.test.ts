@@ -18,7 +18,7 @@ vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({ formatTime: () => "09:00" }),
 }));
-vi.mock("@/components/entity-terminology/use-change-field-label", () => ({
+vi.mock("@/components/data-view/use-column-label", () => ({
   useChangeFieldLabel: () => (field: string) => field,
 }));
 vi.mock("@/components/forms/form-select", () => ({
@@ -31,7 +31,6 @@ vi.mock("@/components/forms/form-input", () => ({ FormInput: () => null }));
 vi.mock("@/components/forms/form-textarea", () => ({ FormTextarea: () => null }));
 vi.mock("@/components/forms/form-switch", () => ({ FormSwitch: () => null }));
 vi.mock("@/components/forms/form-autocomplete", () => ({ FormAutocomplete: () => null }));
-vi.mock("@/components/data-view/filter-modal/filter-accordion", () => ({ FilterAccordion: () => null }));
 
 import { RoutineConfigurationPane } from "../routine-configuration-pane";
 

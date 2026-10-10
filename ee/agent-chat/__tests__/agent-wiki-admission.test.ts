@@ -1,3 +1,4 @@
+import { mockRecordDiscovery } from "@/tests/helpers/record-tools";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -30,6 +31,7 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
 vi.mock("@/ee/agent-chat/agent-tools", () => ({
   agentToolDefinitionsForTurn: definitions,
+  agentToolDefinitionsForToolsets: (tools: unknown) => tools,
 }));
 vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve({ raw: (key: string) => key }),
@@ -146,7 +148,7 @@ function fixture() {
     usage as never,
     mockEntitlementService(),
     background as never,
-    { getCustomColumns: () => Promise.resolve([]) },
+    mockRecordDiscovery(),
     catalog,
     userService,
     { findLatestCrawl: () => Promise.resolve(null) },

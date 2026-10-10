@@ -8,7 +8,7 @@ import type { RoutineEventAccess } from "./routine-event-access";
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 
-import { Action, Resource, RoutineRunStatus } from "@/generated/prisma";
+import { Resource, RoutineRunStatus } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -19,6 +19,7 @@ import { changedFieldsOf } from "./routine-event-filter";
 import { isCustomField } from "@/core/utils/custom-field";
 import { isRoutineRunErrorCode, type RoutineRunErrorCode, type RoutineRunReason } from "./routine-run-outcome";
 import { DEFAULT_ROUTINE_MAX_CREDITS_PER_RUN, DEFAULT_ROUTINE_MAX_RUNS_PER_HOUR } from "./routine-run-limits";
+import { RecordQuerySchema } from "@/features/records/record-query.schema";
 import { agentCreditsToMicrocents } from "@/ee/agent-chat/agent-credit-policy";
 
 const Schema = z.object({ routineRunId: z.uuid() });
@@ -60,13 +61,7 @@ export type StartRoutineRunData = Data<typeof Schema>;
 
 export type StartRoutineRunOutcome = { started: boolean; reason?: StartRoutineRunReason };
 
-@TenantInteractor({
-  permissions: [
-    { resource: Resource.routines, action: Action.readAll },
-    { resource: Resource.routines, action: Action.readOwn },
-  ],
-  condition: "OR",
-})
+@TenantInteractor({ resource: Resource.routines, read: true })
 export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRoutineRunData, StartRoutineRunOutcome> {
   constructor(
     private repo: StartRoutineRunRepo,
@@ -141,7 +136,8 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
       return { ok: true as const, data: { started: false, reason: blocked } };
     }
 
-    if (!(await this.matchesTrigger(routine, run.triggerEvent, run.triggerEntityId, run.triggerPayload))) {
+    const trigger = await this.currentTrigger(routine, run.triggerEvent, run.triggerEntityId, run.triggerPayload);
+    if (!trigger) {
       await this.repo.settleRoutineRunUnscoped({
         routineRunId: run.id,
         routineId: routine.id,
@@ -175,8 +171,8 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
           routineName: routine.name,
           triggerEvent: run.triggerEvent,
           triggerEntityId: run.triggerEntityId,
-          triggerPayload: run.triggerPayload,
-          changedFieldLabels: await this.resolveChangedFieldLabels(run.companyId, run.triggerPayload),
+          triggerPayload: trigger.payload,
+          changedFieldLabels: await this.resolveChangedFieldLabels(run.companyId, trigger.payload),
         }),
         retry: false,
       });
@@ -227,20 +223,22 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
     return { ok: true as const, data: { started: true } };
   }
 
-  private async matchesTrigger(
+  private async currentTrigger(
     routine: RoutineDto,
     triggerEvent: string | null,
     triggerEntityId: string | null,
     triggerPayload: unknown,
-  ): Promise<boolean> {
+  ): Promise<{ payload: unknown } | null> {
     const filters = routine.triggerFilters;
-    if (!triggerEvent) return true;
+    if (!triggerEvent) return { payload: triggerPayload };
 
-    return this.eventAccess.matchesCurrentUser({
+    return this.eventAccess.currentUserTrigger({
       event: triggerEvent,
       entityId: triggerEntityId,
       triggerPayload,
       filters,
+      recordQuery: routine.recordTrigger ? RecordQuerySchema.parse(routine.recordTrigger.query) : undefined,
+      subscriptionId: triggerEvent.startsWith("record.") ? routine.id : undefined,
     });
   }
 

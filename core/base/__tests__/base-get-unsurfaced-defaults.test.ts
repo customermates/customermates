@@ -22,7 +22,7 @@ const emptySurface: SurfaceViewState = { activeViewKey: null, views: [], allStat
 function probe(mode: "interactive" | "api") {
   const repo = new StubRepo();
   const viewStateRepo: DataViewStateRepo = { loadSurfaceState: () => Promise.resolve(emptySurface) };
-  const interactor = new ProbeInteractor(repo, viewStateRepo, mode, undefined, SURFACE_DEFAULTS, {
+  const interactor = new ProbeInteractor(repo, viewStateRepo, mode, SURFACE_DEFAULTS, {
     invoke: vi.fn(),
   } as never);
 
@@ -70,14 +70,14 @@ describe("a request that reaches no data-view surface keeps the documented api c
 
 describe("a request that reaches a data-view surface still layers the surface defaults under the url", () => {
   it("applies the default page size and sort to a page param that carries nothing else", async () => {
-    const { data } = await resultOf("interactive", { p13nId: SURFACE.deals, page: 2 });
+    const { data } = await resultOf("interactive", { p13nId: SURFACE.routines, page: 2 });
 
     expect(data.pagination).toMatchObject({ page: 2, pageSize: 25 });
     expect(data.sortDescriptor).toEqual({ field: "createdAt", direction: "desc" });
   });
 
   it("applies them alongside filters the url carries, which is what makes a shared link additive", async () => {
-    const { data } = await resultOf("interactive", { p13nId: SURFACE.deals, filters: [], page: 2 });
+    const { data } = await resultOf("interactive", { p13nId: SURFACE.routines, filters: [], page: 2 });
 
     expect(data.pagination).toMatchObject({ page: 2, pageSize: 25 });
     expect(data.sortDescriptor).toEqual({ field: "createdAt", direction: "desc" });

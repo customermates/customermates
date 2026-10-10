@@ -3,15 +3,14 @@
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
 
-import { useEffect, useRef, useSyncExternalStore } from "react";
-import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 
 import { focusAgentComposer } from "@/app/components/agent-chat/chat-ui";
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 import { isAiManageableDataViewSurface } from "@/core/data-view/ai-manageable-surfaces";
-import { SurfaceKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { SURFACE } from "@/core/data-view/data-view-keys";
+import { SurfaceKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { viewAiTypeLabel } from "./view-ai-type-label";
@@ -38,7 +37,6 @@ export function useViewAi<E extends HasId>(
   const { agentChatStore } = useRootStore();
   const pathname = usePathname();
   const t = useTranslations();
-  const { singular } = useEntityTerminology();
   const hydrated = useSyncExternalStore(subscribeToHydration, clientSnapshot, serverSnapshot);
   const releaseActionContext = useRef<(() => void) | null>(null);
 
@@ -53,12 +51,14 @@ export function useViewAi<E extends HasId>(
       pathname,
       () => (store.isReady && store.p13nId ? { surfaceKey: store.p13nId, viewKey: store.activeViewKey } : null),
       () => store.settleViewState(),
+      store.viewPathname,
+      store.applyViewProposal,
     );
     const releaseCandidates = agentChatStore.contextRegistry.register(pathname, () => {
       if (!store.isReady || store.p13nId !== surfaceKey) return [];
       const activeName = store.views.find((view) => view.id === store.activeViewKey)?.name ?? t("DataView.views.all");
-      const currentViewType = viewAiTypeLabel(surfaceKey, t, singular, "standalone");
-      const newViewType = viewAiTypeLabel(surfaceKey, t, singular, "embedded");
+      const currentViewType = viewAiTypeLabel(surfaceKey, t, "standalone", store.viewTypeLabel);
+      const newViewType = viewAiTypeLabel(surfaceKey, t, "embedded", store.viewTypeLabel);
       const current: AgentContextAttachment = {
         reference: {
           kind: "dataView",
@@ -82,14 +82,14 @@ export function useViewAi<E extends HasId>(
       return [
         {
           context: current,
-          pageRoute: viewRoute(pathname, surfaceKey, store.activeViewKey, "update"),
+          pageRoute: viewRoute(store.viewPathname ?? pathname, surfaceKey, store.activeViewKey, "update"),
           starter: t("AgentChat.context.starter.update", {
             name: activeName,
           }),
         },
         {
           context: create,
-          pageRoute: viewRoute(pathname, surfaceKey, store.activeViewKey, "create"),
+          pageRoute: viewRoute(store.viewPathname ?? pathname, surfaceKey, store.activeViewKey, "create"),
           starter: t("AgentChat.context.starter.create"),
         },
       ];
@@ -99,7 +99,7 @@ export function useViewAi<E extends HasId>(
       releaseCandidates();
       releaseView();
     };
-  }, [agentChatStore, pathname, registerPageContext, singular, store, store.p13nId, t]);
+  }, [agentChatStore, pathname, registerPageContext, store, store.p13nId, store.viewPathname, t]);
 
   useEffect(
     () => () => {
@@ -121,7 +121,7 @@ export function useViewAi<E extends HasId>(
     if (!available || !surface.success || !agentChatStore || !isAiManageableDataViewSurface(surface.data)) return;
     const viewKey = store.activeViewKey;
     const surfaceKey = surface.data;
-    const viewType = viewAiTypeLabel(surfaceKey, t, singular, mode === "update" ? "standalone" : "embedded");
+    const viewType = viewAiTypeLabel(surfaceKey, t, mode === "update" ? "standalone" : "embedded", store.viewTypeLabel);
     const reference: AgentContextAttachment["reference"] =
       mode === "update"
         ? { kind: "dataView", surfaceKey, viewKey, requestedAction: "update" }
@@ -146,13 +146,13 @@ export function useViewAi<E extends HasId>(
           ? t("AgentChat.context.starter.createNamed", { name })
           : t("AgentChat.context.starter.create")
         : surfaceKey === SURFACE.entityTimeline
-          ? t("AgentChat.context.starter.timeline", { name })
+          ? t("AgentChat.context.starter.timeline")
           : entry === "filters"
             ? t("AgentChat.context.starter.filters", { name })
             : entry === "appearance"
               ? t("AgentChat.context.starter.appearance", { name })
               : t("AgentChat.context.starter.update", { name });
-    const pageRoute = viewRoute(pathname, surfaceKey, viewKey, mode);
+    const pageRoute = viewRoute(store.viewPathname ?? pathname, surfaceKey, viewKey, mode);
 
     releaseActionContext.current?.();
     releaseActionContext.current = agentChatStore.viewContext.register(
@@ -162,12 +162,19 @@ export function useViewAi<E extends HasId>(
           ? { surfaceKey, viewKey }
           : null,
       () => store.settleViewState(),
+      store.viewPathname,
     );
     agentChatStore.openWithContextDraft({ context, draft: starter, pageRoute });
     if (surfaceKey === SURFACE.entityTimeline) {
-      const record = agentChatStore.contextRegistry
-        .candidates(pathname)
-        .find((candidate) => candidate.context.reference.kind === "record");
+      const record = agentChatStore.contextRegistry.candidates(pathname).find((candidate) => {
+        const reference = candidate.context.reference;
+        return (
+          reference.kind === "record" &&
+          (!store.viewPathname ||
+            ("typeId" in reference &&
+              store.viewPathname.endsWith(`/records/${reference.typeId}/${reference.recordId}`)))
+        );
+      });
       if (record)
         agentChatStore.addComposerContext(record.context, record.pageRoute, undefined, { replaceOldestAtLimit: true });
     }

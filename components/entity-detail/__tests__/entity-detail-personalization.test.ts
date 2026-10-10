@@ -1,15 +1,15 @@
 import type * as EntityDetailPersonalizationModule from "../entity-detail-personalization";
 import type * as EntityDetailFieldsModule from "../entity-detail-fields";
-import type { Root } from "react-dom/client";
-import type { ComponentType, ReactNode } from "react";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
-import type { EntityDetailPersonalizationConfig } from "../entity-detail-personalization";
+import type { CustomColumnDto } from "@/core/data-view/column-presentation.schema";
 import type { P13nEntry } from "@/features/p13n/prisma-p13n.repository";
+import type { ComponentType, ReactNode } from "react";
+import type { Root } from "react-dom/client";
+import type { EntityDetailPersonalizationConfig } from "../entity-detail-personalization";
 
+import { CustomColumnType } from "@/core/data-view/column-presentation.types";
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { CustomColumnType, EntityType } from "@/generated/prisma";
 
 const upsertP13nAction = vi.hoisted(() => vi.fn());
 const customColumnModalStore = vi.hoisted(() => ({
@@ -32,13 +32,13 @@ vi.mock("next-intl", () => ({
     values?.section ? `${key}:${values.section}` : key,
 }));
 
+import { FormControlRow } from "@/components/forms/form-control-row";
 import {
   reconcileAvailableIds,
   reconcileColumnOrder,
-  resolveOrderedCustomColumns,
   resolveDetailFieldOrder,
+  resolveOrderedCustomColumns,
 } from "../entity-detail-personalization.utils";
-import { FormControlRow } from "@/components/forms/form-control-row";
 
 const firstId = "10000000-0000-4000-8000-000000000001";
 const secondId = "10000000-0000-4000-8000-000000000002";
@@ -51,7 +51,10 @@ type TestProviderProps = {
   initial?: P13nEntry | null;
   persistenceScope: string;
 };
-const TestControlRow = FormControlRow as ComponentType<{ children?: ReactNode; startAddon?: ReactNode }>;
+const TestControlRow = FormControlRow as ComponentType<{
+  children?: ReactNode;
+  startAddon?: ReactNode;
+}>;
 
 describe("entity detail drag handle placement", () => {
   it("anchors the grip beside the control and preserves drafts when customization toggles", () => {
@@ -68,7 +71,11 @@ describe("entity detail drag handle placement", () => {
       createElement(
         TestProvider,
         {
-          config: { p13nId: "deal-detail", defaultStarredFieldIds: [], availableFieldIds: ["name"] },
+          config: {
+            p13nId: "deal-detail",
+            defaultStarredFieldIds: [],
+            availableFieldIds: ["name"],
+          },
           persistenceScope: "user-1",
         },
         createElement(Customize),
@@ -83,9 +90,14 @@ describe("entity detail drag handle placement", () => {
                 createElement(
                   TestControlRow,
                   {
-                    startAddon: createElement(EntityDetailFieldDragHandle, { label: "Name" }),
+                    startAddon: createElement(EntityDetailFieldDragHandle, {
+                      label: "Name",
+                    }),
                   },
-                  createElement("textarea", { id: "name", defaultValue: "Original" }),
+                  createElement("textarea", {
+                    id: "name",
+                    defaultValue: "Original",
+                  }),
                 ),
               ),
             },
@@ -274,7 +286,7 @@ describe("entity detail custom field order", () => {
   it("retains the original form index after visual reordering", () => {
     const columns: CustomColumnDto[] = [firstId, secondId, thirdId].map((id, index) => ({
       id,
-      entityType: EntityType.contact,
+      entityType: "contact",
       label: `Field ${index + 1}`,
       type: CustomColumnType.plain,
     }));

@@ -1,4 +1,5 @@
-import type { Prisma } from "@/generated/prisma";
+import { presetId } from "@/features/records/crm-preset";
+import type { RecordField, RecordScalar } from "@/features/records/record-model.schema";
 
 import type { ContactSeedData } from "./contacts";
 import type { SeedContext } from "./context";
@@ -9,68 +10,39 @@ import type { OrganizationSeedData } from "./organizations";
 import type { ServiceSeedData } from "./services";
 import { SYNTHETIC_TASK_PRIORITY_INDEXES, type TaskSeedData } from "./tasks";
 
-import { fixtureId, upsertFixturesById } from "./helpers";
-import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
+import { fixtureId } from "./helpers";
 
-export const SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS = [
-  { entityType: "contact", label: "Phones", optionLabels: [], type: "phone" },
+export type SyntheticRecordType = "contact" | "organization" | "deal" | "service" | "task";
+
+export const SYNTHETIC_CUSTOM_FIELD_DEFINITIONS = [
+  { recordType: "contact", label: "Phones", optionLabels: [], valueType: "phone" },
+  { recordType: "service", label: "Type", optionLabels: ["Service", "Hardware"], valueType: "select" },
   {
-    entityType: "service",
-    label: "Type",
-    optionLabels: ["Service", "Hardware"],
-    type: "singleSelect",
-  },
-  {
-    entityType: "organization",
+    recordType: "organization",
     label: "Type",
     optionLabels: ["Direct customer", "Affiliated company"],
-    type: "singleSelect",
+    valueType: "select",
   },
+  { recordType: "organization", label: "Website", optionLabels: [], valueType: "url" },
+  { recordType: "task", label: "Priority", optionLabels: ["Low", "Medium", "High"], valueType: "select" },
+  { recordType: "deal", label: "Status", optionLabels: ["Open", "Won", "Lost", "Abandoned"], valueType: "select" },
   {
-    entityType: "organization",
-    label: "Website",
-    optionLabels: [],
-    type: "link",
-  },
-  {
-    entityType: "task",
-    label: "Priority",
-    optionLabels: ["Low", "Medium", "High"],
-    type: "singleSelect",
-  },
-  {
-    entityType: "deal",
-    label: "Status",
-    optionLabels: ["Open", "Won", "Lost", "Abandoned"],
-    type: "singleSelect",
-  },
-  {
-    entityType: "task",
+    recordType: "task",
     label: "Status",
     optionLabels: ["Open", "In Progress", "Blocked", "On Hold", "Done", "Archived"],
-    type: "singleSelect",
+    valueType: "select",
   },
+  { recordType: "deal", label: "Project Period", optionLabels: [], valueType: "dateRange" },
   {
-    entityType: "deal",
-    label: "Project Period",
-    optionLabels: [],
-    type: "dateRange",
-  },
-  {
-    entityType: "contact",
+    recordType: "contact",
     label: "Sales Pipeline",
     optionLabels: ["New", "Contact", "Qualified", "In Progress", "Won", "Lost"],
-    type: "singleSelect",
+    valueType: "select",
   },
-  {
-    entityType: "service",
-    label: "Pricing model",
-    optionLabels: ["Fixed", "Monthly", "Daily"],
-    type: "singleSelect",
-  },
+  { recordType: "service", label: "Pricing model", optionLabels: ["Fixed", "Monthly", "Daily"], valueType: "select" },
 ] as const;
 
-export const SYNTHETIC_CUSTOM_COLUMN_IDS = {
+export const SYNTHETIC_CUSTOM_FIELD_IDS = {
   contactPhone: fixtureId("16000000", 1),
   serviceType: fixtureId("16000000", 2),
   organizationType: fixtureId("16000000", 3),
@@ -132,272 +104,154 @@ export type CustomFieldSeedInput = ContactSeedData &
   ServiceSeedData &
   TaskSeedData;
 
+export type SyntheticCustomField = Omit<RecordField, "position">;
+
+export type SyntheticCustomFieldValue = {
+  recordType: SyntheticRecordType;
+  recordId: string;
+  fieldId: string;
+  value: RecordScalar;
+};
+
 export type CustomFieldSeedData = {
-  customColumnIds: typeof SYNTHETIC_CUSTOM_COLUMN_IDS;
+  customFields: SyntheticCustomField[];
+  customFieldValues: SyntheticCustomFieldValue[];
+  customFieldIds: typeof SYNTHETIC_CUSTOM_FIELD_IDS;
   customOptionIds: typeof SYNTHETIC_CUSTOM_OPTION_IDS;
 };
 
-type CustomFieldValueFixture = Prisma.CustomFieldValueCreateManyInput & {
-  id: string;
-};
+type OptionDefinition = readonly [id: string, label: string, color: string, probability?: number];
 
-function customFieldEntityWhere(value: CustomFieldValueFixture): Prisma.CustomFieldValueWhereInput {
-  if (value.contactId) return { contactId: value.contactId };
-  if (value.organizationId) return { organizationId: value.organizationId };
-  if (value.dealId) return { dealId: value.dealId };
-  if (value.serviceId) return { serviceId: value.serviceId };
-  if (value.taskId) return { taskId: value.taskId };
-
-  throw new Error(`Synthetic custom-field value ${value.id} has no entity`);
-}
-
-export async function seedCustomFields(
-  context: SeedContext,
-  entities: CustomFieldSeedInput,
-): Promise<CustomFieldSeedData> {
-  const { prisma, ids } = context;
+export function seedCustomFields(context: SeedContext, entities: CustomFieldSeedInput): CustomFieldSeedData {
+  const companyId = context.ids.company;
   const { contacts, deals, dealDefinitions, organizations, services, tasks, taskDefinitions } = entities;
+  const ids = SYNTHETIC_CUSTOM_FIELD_IDS;
+  const options = SYNTHETIC_CUSTOM_OPTION_IDS;
 
-  const selectOptions = (entries: ReadonlyArray<readonly [string, string, string, boolean?, number?]>) =>
-    entries.map(([value, label, color, isDefault, weight], index) => ({
-      color,
-      index,
-      isDefault: isDefault ?? index === 0,
-      label,
-      value,
-      ...(weight === undefined ? {} : { weight }),
-    }));
+  const field = (
+    index: number,
+    id: string,
+    shape: Pick<SyntheticCustomField, "multiple" | "format" | "options" | "behavior">,
+  ): SyntheticCustomField => {
+    const definition = SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[index];
+    return {
+      id,
+      typeId: presetId(companyId, definition.recordType),
+      label: definition.label,
+      valueType: definition.valueType,
+      required: false,
+      archived: false,
+      publishedSummary: false,
+      ...shape,
+    };
+  };
+  const format = (color: string | null, dateFormat: string | null = null) => ({ color, dateFormat, currency: null });
+  const select = (index: number, id: string, entries: OptionDefinition[], defaultOption: string | null) =>
+    field(index, id, {
+      multiple: false,
+      format: format(null),
+      behavior: defaultOption
+        ? { kind: "input", defaultValue: { kind: "select", value: defaultOption } }
+        : { kind: "input" },
+      options: entries.map(([optionId, label, color, probability]) => ({
+        id: optionId,
+        label,
+        color,
+        attributes:
+          probability === undefined
+            ? []
+            : [{ key: "probability", value: { kind: "decimal", value: String(probability), currency: null } }],
+      })),
+    });
 
-  const serviceTypeOptions = selectOptions([
+  const serviceTypeOptions: OptionDefinition[] = [
+    [options.serviceType.service, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[1].optionLabels[0], "secondary"],
+    [options.serviceType.hardware, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[1].optionLabels[1], "secondary"],
+  ];
+  const organizationTypeOptions: OptionDefinition[] = [
+    [options.organizationType.directCustomer, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[2].optionLabels[0], "default"],
+    [options.organizationType.affiliatedCompany, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[2].optionLabels[1], "secondary"],
+  ];
+  const priorityOptions: OptionDefinition[] = [
+    [options.taskPriority.low, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[4].optionLabels[0], "secondary"],
+    [options.taskPriority.medium, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[4].optionLabels[1], "info"],
+    [options.taskPriority.high, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[4].optionLabels[2], "destructive"],
+  ];
+  const dealStatusOptions: OptionDefinition[] = [
     [
-      SYNTHETIC_CUSTOM_OPTION_IDS.serviceType.service,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[1].optionLabels[0],
-      "secondary",
-    ],
-    [
-      SYNTHETIC_CUSTOM_OPTION_IDS.serviceType.hardware,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[1].optionLabels[1],
-      "secondary",
-    ],
-  ]);
-  const organizationTypeOptions = selectOptions([
-    [
-      SYNTHETIC_CUSTOM_OPTION_IDS.organizationType.directCustomer,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[2].optionLabels[0],
-      "default",
-      false,
-    ],
-    [
-      SYNTHETIC_CUSTOM_OPTION_IDS.organizationType.affiliatedCompany,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[2].optionLabels[1],
-      "secondary",
-      false,
-    ],
-  ]);
-  const priorityOptions = selectOptions([
-    [SYNTHETIC_CUSTOM_OPTION_IDS.taskPriority.low, SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[4].optionLabels[0], "secondary"],
-    [SYNTHETIC_CUSTOM_OPTION_IDS.taskPriority.medium, SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[4].optionLabels[1], "info"],
-    [
-      SYNTHETIC_CUSTOM_OPTION_IDS.taskPriority.high,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[4].optionLabels[2],
-      "destructive",
-    ],
-  ]);
-  const dealStatusOptions = selectOptions([
-    [
-      SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.open,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[5].optionLabels[0],
+      options.dealStatus.open,
+      SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[5].optionLabels[0],
       "warning",
-      undefined,
       SYNTHETIC_DEAL_STATUS_WEIGHTS[0],
     ],
     [
-      SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.won,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[5].optionLabels[1],
+      options.dealStatus.won,
+      SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[5].optionLabels[1],
       "success",
-      undefined,
       SYNTHETIC_DEAL_STATUS_WEIGHTS[1],
     ],
     [
-      SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.lost,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[5].optionLabels[2],
+      options.dealStatus.lost,
+      SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[5].optionLabels[2],
       "destructive",
-      undefined,
       SYNTHETIC_DEAL_STATUS_WEIGHTS[2],
     ],
     [
-      SYNTHETIC_CUSTOM_OPTION_IDS.dealStatus.abandoned,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[5].optionLabels[3],
+      options.dealStatus.abandoned,
+      SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[5].optionLabels[3],
       "secondary",
-      undefined,
       SYNTHETIC_DEAL_STATUS_WEIGHTS[3],
     ],
-  ]);
-  const taskStatusOptions = selectOptions([
-    [SYNTHETIC_CUSTOM_OPTION_IDS.taskStatus.open, SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[6].optionLabels[0], "info"],
-    [
-      SYNTHETIC_CUSTOM_OPTION_IDS.taskStatus.inProgress,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[6].optionLabels[1],
-      "warning",
-    ],
-    [
-      SYNTHETIC_CUSTOM_OPTION_IDS.taskStatus.blocked,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[6].optionLabels[2],
-      "destructive",
-    ],
-    [
-      SYNTHETIC_CUSTOM_OPTION_IDS.taskStatus.onHold,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[6].optionLabels[3],
-      "secondary",
-    ],
-    [SYNTHETIC_CUSTOM_OPTION_IDS.taskStatus.done, SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[6].optionLabels[4], "success"],
-    [
-      SYNTHETIC_CUSTOM_OPTION_IDS.taskStatus.archived,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[6].optionLabels[5],
-      "secondary",
-    ],
-  ]);
-  const contactSalesPipelineOptions = selectOptions([
-    [
-      SYNTHETIC_CUSTOM_OPTION_IDS.contactSalesPipeline.new,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[8].optionLabels[0],
-      "secondary",
-    ],
-    [
-      SYNTHETIC_CUSTOM_OPTION_IDS.contactSalesPipeline.contact,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[8].optionLabels[1],
-      "default",
-    ],
-    [
-      SYNTHETIC_CUSTOM_OPTION_IDS.contactSalesPipeline.qualified,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[8].optionLabels[2],
-      "info",
-    ],
-    [
-      SYNTHETIC_CUSTOM_OPTION_IDS.contactSalesPipeline.inProgress,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[8].optionLabels[3],
-      "warning",
-    ],
-    [
-      SYNTHETIC_CUSTOM_OPTION_IDS.contactSalesPipeline.won,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[8].optionLabels[4],
-      "success",
-    ],
-    [
-      SYNTHETIC_CUSTOM_OPTION_IDS.contactSalesPipeline.lost,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[8].optionLabels[5],
-      "destructive",
-    ],
-  ]);
-  const servicePricingOptions = selectOptions([
-    [
-      SYNTHETIC_CUSTOM_OPTION_IDS.servicePricing.fixed,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[9].optionLabels[0],
-      "default",
-    ],
-    [
-      SYNTHETIC_CUSTOM_OPTION_IDS.servicePricing.monthly,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[9].optionLabels[1],
-      "secondary",
-    ],
-    [
-      SYNTHETIC_CUSTOM_OPTION_IDS.servicePricing.daily,
-      SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[9].optionLabels[2],
-      "success",
-    ],
-  ]);
+  ];
+  const taskStatusOptions: OptionDefinition[] = [
+    [options.taskStatus.open, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[6].optionLabels[0], "info"],
+    [options.taskStatus.inProgress, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[6].optionLabels[1], "warning"],
+    [options.taskStatus.blocked, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[6].optionLabels[2], "destructive"],
+    [options.taskStatus.onHold, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[6].optionLabels[3], "secondary"],
+    [options.taskStatus.done, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[6].optionLabels[4], "success"],
+    [options.taskStatus.archived, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[6].optionLabels[5], "secondary"],
+  ];
+  const contactSalesPipelineOptions: OptionDefinition[] = [
+    [options.contactSalesPipeline.new, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[8].optionLabels[0], "secondary"],
+    [options.contactSalesPipeline.contact, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[8].optionLabels[1], "default"],
+    [options.contactSalesPipeline.qualified, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[8].optionLabels[2], "info"],
+    [options.contactSalesPipeline.inProgress, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[8].optionLabels[3], "warning"],
+    [options.contactSalesPipeline.won, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[8].optionLabels[4], "success"],
+    [options.contactSalesPipeline.lost, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[8].optionLabels[5], "destructive"],
+  ];
+  const servicePricingOptions: OptionDefinition[] = [
+    [options.servicePricing.fixed, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[9].optionLabels[0], "default"],
+    [options.servicePricing.monthly, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[9].optionLabels[1], "secondary"],
+    [options.servicePricing.daily, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[9].optionLabels[2], "success"],
+  ];
 
-  const customColumns = [
-    {
-      id: SYNTHETIC_CUSTOM_COLUMN_IDS.contactPhone,
-      companyId: ids.company,
-      entityType: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[0].entityType,
-      label: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[0].label,
-      options: { allowMultiple: true, color: "secondary" },
-      type: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[0].type,
-    },
-    {
-      id: SYNTHETIC_CUSTOM_COLUMN_IDS.serviceType,
-      companyId: ids.company,
-      entityType: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[1].entityType,
-      label: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[1].label,
-      options: { options: serviceTypeOptions },
-      type: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[1].type,
-    },
-    {
-      id: SYNTHETIC_CUSTOM_COLUMN_IDS.organizationType,
-      companyId: ids.company,
-      entityType: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[2].entityType,
-      label: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[2].label,
-      options: { options: organizationTypeOptions },
-      type: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[2].type,
-    },
-    {
-      id: SYNTHETIC_CUSTOM_COLUMN_IDS.organizationWebsite,
-      companyId: ids.company,
-      entityType: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[3].entityType,
-      label: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[3].label,
-      options: { allowMultiple: false, color: "secondary" },
-      type: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[3].type,
-    },
-    {
-      id: SYNTHETIC_CUSTOM_COLUMN_IDS.taskPriority,
-      companyId: ids.company,
-      entityType: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[4].entityType,
-      label: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[4].label,
-      options: { options: priorityOptions },
-      type: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[4].type,
-    },
-    {
-      id: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
-      companyId: ids.company,
-      entityType: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[5].entityType,
-      label: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[5].label,
-      options: { options: dealStatusOptions },
-      type: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[5].type,
-    },
-    {
-      id: SYNTHETIC_CUSTOM_COLUMN_IDS.taskStatus,
-      companyId: ids.company,
-      entityType: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[6].entityType,
-      label: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[6].label,
-      options: { options: taskStatusOptions },
-      type: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[6].type,
-    },
-    {
-      id: SYNTHETIC_CUSTOM_COLUMN_IDS.dealProjectPeriod,
-      companyId: ids.company,
-      entityType: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[7].entityType,
-      label: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[7].label,
-      options: { displayFormat: "numericalShort" },
-      type: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[7].type,
-    },
-    {
-      id: SYNTHETIC_CUSTOM_COLUMN_IDS.contactSalesPipeline,
-      companyId: ids.company,
-      entityType: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[8].entityType,
-      label: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[8].label,
-      options: { options: contactSalesPipelineOptions },
-      type: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[8].type,
-    },
-    {
-      id: SYNTHETIC_CUSTOM_COLUMN_IDS.servicePricing,
-      companyId: ids.company,
-      entityType: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[9].entityType,
-      label: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[9].label,
-      options: { options: servicePricingOptions },
-      type: SYNTHETIC_CUSTOM_COLUMN_DEFINITIONS[9].type,
-    },
-  ].map((customColumn, index) => ({
-    ...customColumn,
-    ...SYNTHETIC_SEED_TIMELINE.customColumn(index),
-  })) satisfies Prisma.CustomColumnCreateManyInput[];
-
-  let customFieldValueIndex = 0;
-  const customFieldValue = (input: Omit<Prisma.CustomFieldValueCreateManyInput, "id">): CustomFieldValueFixture => ({
-    id: fixtureId("18000000", ++customFieldValueIndex),
-    ...input,
-  });
+  const customFields: SyntheticCustomField[] = [
+    field(0, ids.contactPhone, {
+      multiple: true,
+      format: format("secondary"),
+      behavior: { kind: "input" },
+      options: [],
+    }),
+    select(1, ids.serviceType, serviceTypeOptions, options.serviceType.service),
+    select(2, ids.organizationType, organizationTypeOptions, null),
+    field(3, ids.organizationWebsite, {
+      multiple: false,
+      format: format("secondary"),
+      behavior: { kind: "input" },
+      options: [],
+    }),
+    select(4, ids.taskPriority, priorityOptions, options.taskPriority.low),
+    select(5, ids.dealStatus, dealStatusOptions, options.dealStatus.open),
+    select(6, ids.taskStatus, taskStatusOptions, options.taskStatus.open),
+    field(7, ids.dealProjectPeriod, {
+      multiple: false,
+      format: format(null, "numericalShort"),
+      behavior: { kind: "input" },
+      options: [],
+    }),
+    select(8, ids.contactSalesPipeline, contactSalesPipelineOptions, options.contactSalesPipeline.new),
+    select(9, ids.servicePricing, servicePricingOptions, options.servicePricing.fixed),
+  ];
 
   const contactSalesPipelineIndexes = [
     5, 1, 4, 2, 1, 0, 5, 3, 2, 1, 0, 0, 0, 0, 0, 4, 2, 5, 0, 5, 4, 0, 2, 0, 3, 1, 0, 3, 3, 4,
@@ -406,145 +260,96 @@ export async function seedCustomFields(
   const hardwareServiceIndexes = new Set([2, 7, 11, 19, 20, 24, 30, 34, 36, 39, 42]);
   const monthlyServiceIndexes = new Set([14, 21, 25, 28, 29]);
   const dailyServiceIndexes = new Set([9, 13, 23, 26, 32, 35]);
+  const selected = (entries: OptionDefinition[], index: number): RecordScalar => ({
+    kind: "select",
+    value: entries[index][0],
+  });
+  const month = (value: number) => String(value).padStart(2, "0");
 
-  const customFieldValues: CustomFieldValueFixture[] = [
+  const customFieldValues: SyntheticCustomFieldValue[] = [
     ...contacts.flatMap((contact, index) => [
-      customFieldValue({
-        columnId: SYNTHETIC_CUSTOM_COLUMN_IDS.contactPhone,
-        companyId: ids.company,
-        contactId: contact.id,
-        entityType: "contact",
-        type: "phone",
-        // Phone custom fields validate against E.164 (`z.e164()`): a leading `+` and digits only,
-        // no spaces or dashes. Keep this value E.164 or every seeded contact fails to save.
-        value: `+1202555${String(100 + index).padStart(4, "0")}`,
-      }),
-      customFieldValue({
-        columnId: SYNTHETIC_CUSTOM_COLUMN_IDS.contactSalesPipeline,
-        companyId: ids.company,
-        contactId: contact.id,
-        entityType: "contact",
-        type: "singleSelect",
-        value: contactSalesPipelineOptions[contactSalesPipelineIndexes[index]].value,
-      }),
+      {
+        recordType: "contact" as const,
+        recordId: contact.id,
+        fieldId: ids.contactPhone,
+        value: { kind: "textList" as const, value: [`+1202555${String(100 + index).padStart(4, "0")}`] },
+      },
+      {
+        recordType: "contact" as const,
+        recordId: contact.id,
+        fieldId: ids.contactSalesPipeline,
+        value: selected(contactSalesPipelineOptions, contactSalesPipelineIndexes[index]),
+      },
     ]),
     ...organizations.flatMap((organization, index) => [
-      customFieldValue({
-        columnId: SYNTHETIC_CUSTOM_COLUMN_IDS.organizationType,
-        companyId: ids.company,
-        entityType: "organization",
-        organizationId: organization.id,
-        type: "singleSelect",
-        value: organizationTypeOptions[organizationTypeIndexes[index]].value,
-      }),
-      customFieldValue({
-        columnId: SYNTHETIC_CUSTOM_COLUMN_IDS.organizationWebsite,
-        companyId: ids.company,
-        entityType: "organization",
-        organizationId: organization.id,
-        type: "link",
-        value: organization.website,
-      }),
+      {
+        recordType: "organization" as const,
+        recordId: organization.id,
+        fieldId: ids.organizationType,
+        value: selected(organizationTypeOptions, organizationTypeIndexes[index]),
+      },
+      {
+        recordType: "organization" as const,
+        recordId: organization.id,
+        fieldId: ids.organizationWebsite,
+        value: { kind: "text" as const, value: organization.website },
+      },
     ]),
     ...deals.flatMap((deal, index) => [
-      customFieldValue({
-        columnId: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus,
-        companyId: ids.company,
-        dealId: deal.id,
-        entityType: "deal",
-        type: "singleSelect",
-        value: dealStatusOptions[dealDefinitions[index][3]].value,
-      }),
-      customFieldValue({
-        columnId: SYNTHETIC_CUSTOM_COLUMN_IDS.dealProjectPeriod,
-        companyId: ids.company,
-        dealId: deal.id,
-        entityType: "deal",
-        type: "dateRange",
-        value: `2026-${String((index % 9) + 1).padStart(2, "0")}-01,2026-${String((index % 9) + 3).padStart(2, "0")}-28`,
-      }),
+      {
+        recordType: "deal" as const,
+        recordId: deal.id,
+        fieldId: ids.dealStatus,
+        value: selected(dealStatusOptions, dealDefinitions[index][3]),
+      },
+      {
+        recordType: "deal" as const,
+        recordId: deal.id,
+        fieldId: ids.dealProjectPeriod,
+        value: {
+          kind: "range" as const,
+          start: `2026-${month((index % 9) + 1)}-01`,
+          end: `2026-${month((index % 9) + 3)}-28`,
+        },
+      },
     ]),
     ...services.flatMap((service, index) => [
-      customFieldValue({
-        columnId: SYNTHETIC_CUSTOM_COLUMN_IDS.serviceType,
-        companyId: ids.company,
-        entityType: "service",
-        serviceId: service.id,
-        type: "singleSelect",
-        value: serviceTypeOptions[hardwareServiceIndexes.has(index) ? 1 : 0].value,
-      }),
-      customFieldValue({
-        columnId: SYNTHETIC_CUSTOM_COLUMN_IDS.servicePricing,
-        companyId: ids.company,
-        entityType: "service",
-        serviceId: service.id,
-        type: "singleSelect",
-        value:
-          servicePricingOptions[dailyServiceIndexes.has(index) ? 2 : monthlyServiceIndexes.has(index) ? 1 : 0].value,
-      }),
+      {
+        recordType: "service" as const,
+        recordId: service.id,
+        fieldId: ids.serviceType,
+        value: selected(serviceTypeOptions, hardwareServiceIndexes.has(index) ? 1 : 0),
+      },
+      {
+        recordType: "service" as const,
+        recordId: service.id,
+        fieldId: ids.servicePricing,
+        value: selected(
+          servicePricingOptions,
+          dailyServiceIndexes.has(index) ? 2 : monthlyServiceIndexes.has(index) ? 1 : 0,
+        ),
+      },
     ]),
     ...tasks.flatMap((task, index) => [
-      customFieldValue({
-        columnId: SYNTHETIC_CUSTOM_COLUMN_IDS.taskPriority,
-        companyId: ids.company,
-        entityType: "task",
-        taskId: task.id,
-        type: "singleSelect",
-        value: priorityOptions[SYNTHETIC_TASK_PRIORITY_INDEXES[index]].value,
-      }),
-      customFieldValue({
-        columnId: SYNTHETIC_CUSTOM_COLUMN_IDS.taskStatus,
-        companyId: ids.company,
-        entityType: "task",
-        taskId: task.id,
-        type: "singleSelect",
-        value: taskStatusOptions[taskDefinitions[index][5]].value,
-      }),
+      {
+        recordType: "task" as const,
+        recordId: task.id,
+        fieldId: ids.taskPriority,
+        value: selected(priorityOptions, SYNTHETIC_TASK_PRIORITY_INDEXES[index]),
+      },
+      {
+        recordType: "task" as const,
+        recordId: task.id,
+        fieldId: ids.taskStatus,
+        value: selected(taskStatusOptions, taskDefinitions[index][5]),
+      },
     ]),
   ];
 
-  await upsertFixturesById(customColumns, (customColumn) =>
-    prisma.customColumn.upsert({
-      where: { id: customColumn.id },
-      update: customColumn,
-      create: customColumn,
-    }),
-  );
-  for (const value of customFieldValues) {
-    await prisma.customFieldValue.deleteMany({
-      where: {
-        companyId: ids.company,
-        columnId: value.columnId,
-        id: { not: value.id },
-        ...customFieldEntityWhere(value),
-      },
-    });
-    await prisma.customFieldValue.upsert({
-      where: { id: value.id },
-      update: value,
-      create: value,
-    });
-  }
-  await prisma.customFieldValue.deleteMany({
-    where: {
-      companyId: ids.company,
-      id: { startsWith: "18000000-", notIn: customFieldValues.map(({ id }) => id) },
-    },
-  });
-  await prisma.customColumn.deleteMany({
-    where: {
-      companyId: ids.company,
-      id: { startsWith: "16000000-", notIn: customColumns.map(({ id }) => id) },
-    },
-  });
-
-  await prisma.company.update({
-    where: { id: ids.company },
-    data: { dealWeightingColumnId: SYNTHETIC_CUSTOM_COLUMN_IDS.dealStatus },
-  });
-
   return {
-    customColumnIds: SYNTHETIC_CUSTOM_COLUMN_IDS,
+    customFields,
+    customFieldValues,
+    customFieldIds: SYNTHETIC_CUSTOM_FIELD_IDS,
     customOptionIds: SYNTHETIC_CUSTOM_OPTION_IDS,
   };
 }

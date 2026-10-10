@@ -4,6 +4,7 @@ import type { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { DocsChunkRepo } from "@/features/mcp-tools/docs-chunk.repo";
 import type { DocsPendingChunk } from "@/features/mcp-tools/prisma-docs-chunk.repository";
+import type * as WikiEmbeddingServiceModule from "../wiki-embedding.service";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -22,12 +23,14 @@ vi.mock("@/features/mcp-tools/docs-corpus", () => ({
 }));
 
 vi.mock("@sentry/node", () => ({ captureException: vi.fn() }));
-vi.mock("../wiki-embedding.service", () => ({
+vi.mock("../wiki-embedding.service", async (importOriginal) => ({
+  ...(await importOriginal<typeof WikiEmbeddingServiceModule>()),
   isWikiSemanticSearchAvailable: () => state.available,
 }));
 vi.mock("../wiki-embedding-model", () => ({
   WIKI_EMBEDDING_MODEL: "google/gemini-embedding-001",
   WIKI_EMBEDDING_BATCH_SIZE: 2,
+  embeddingVectorLiteral: (vector: number[]) => `[${vector.join(",")}]`,
   wikiEmbeddingWorstCaseMicrocents: (texts: string[]) => texts.reduce((total, text) => total + text.length, 0) * 15,
   wikiEmbeddingAttemptCharge: (texts: string[]) => ({
     model: "google/gemini-embedding-001",
@@ -131,16 +134,16 @@ describe("documentation embedding index", () => {
     ]);
   });
 
-  it("embeds the canonical current corpus input and reserves its exact bound while keeping SQL metadata", async () => {
-    const body = "Private conversations remain private.\n\n**Link:** `/inbox`. **Mate:** `navigate` with `nav-inbox`.";
+  it("embeds the canonical current corpus input and reserves its exact bound while keeping the raw SQL body", async () => {
+    const body = "\nPrivate conversations remain private in the [Inbox].\n\n";
     const chunks = repo([{ contentHash: "a", label: "Inbox > Privacy", body }]);
     const budget = usage(true);
     await new DocsSemanticIndexService(chunks, budget as unknown as AgentUsageService).indexPending();
-    expect(state.embedded).toEqual([["Inbox > Privacy\n\nPrivate conversations remain private."]]);
+    expect(state.embedded).toEqual([["Inbox > Privacy\n\nPrivate conversations remain private in the [Inbox]."]]);
     expect(budget.reservePlatformRetrieval).toHaveBeenCalledExactlyOnceWith({
       purpose: "docsIndexing",
       model: "google/gemini-embedding-001",
-      worstCaseMicrocents: "Inbox > Privacy\n\nPrivate conversations remain private.".length * 15,
+      worstCaseMicrocents: "Inbox > Privacy\n\nPrivate conversations remain private in the [Inbox].".length * 15,
     });
     expect(chunks.ensureCorpus).toHaveBeenCalledWith(
       expect.objectContaining({

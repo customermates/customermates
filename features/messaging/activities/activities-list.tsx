@@ -1,25 +1,25 @@
 "use client";
 
-import type { ReactNode } from "react";
 import type { ActivityEntryDto } from "@/ee/messaging/activities/activities.schema";
-import type { CustomColumnDto } from "@/features/custom-column/custom-column.schema";
+import type { ReactNode } from "react";
 
+import { MessagingProvider } from "@/generated/prisma";
+import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, Clock, Plus } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, Clock, Plus } from "lucide-react";
-import { MessagingProvider } from "@/generated/prisma";
 
+import { useCanonicalColumnLabel } from "@/components/data-view/use-column-label";
 import { Icon } from "@/components/shared/icon";
-import { classifyAttachment, PREVIEW_KIND_LABEL } from "@/ee/messaging/attachment-kind";
-import { getProviderIcon } from "@/ee/messaging/provider-icon";
-import { isUnipileUnsupportedBody, messageSenderName } from "@/ee/messaging/thread-display";
-import { auditChangeLabel } from "@/components/entity-detail/audit-event-tone";
-import { useCanonicalColumnLabel } from "@/components/entity-terminology/use-column-label";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { classifyAttachment, PREVIEW_KIND_LABEL } from "@/ee/messaging/attachment-kind";
+import { getProviderIcon } from "@/ee/messaging/provider-icon";
+import { participantAvatar, isUnipileUnsupportedBody, messageSenderName } from "@/ee/messaging/thread-display";
 
+import { messagePreview } from "../message-preview";
 import { auditCategory, IdentityAvatar, ProviderAvatar, TimelineRow, TypeBadge } from "./activities-row";
+import { activityEntryKey } from "./activity-entry-key";
 import { calendarEventTitle } from "./activity-labels";
 import {
   buildCalendarSubtitle,
@@ -30,27 +30,23 @@ import {
   resolveMessageSenderName,
   resolveMessageTitle,
 } from "./activity-row-labels";
-import { activityEntryKey } from "./activity-entry-key";
-import { messagePreview } from "../message-preview";
 
 type Props = {
   items: ActivityEntryDto[];
-  customColumns: CustomColumnDto[];
   hasMore: boolean;
   loading: boolean;
   onLoadOlder: () => void;
 };
 
-export const ActivitiesList = observer(({ customColumns, hasMore, items, loading, onLoadOlder }: Props) => {
+export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }: Props) => {
   const t = useTranslations();
   const columnLabel = useCanonicalColumnLabel();
   const { timelineDetailModalStore } = useRootStore();
   const intlStore = useHydratedIntlStore();
-  const customColumnsById = new Map(customColumns.map((c) => [c.id, c]));
 
   return (
     <>
-      <ol className="flex flex-col">
+      <ol className="-mx-2 flex flex-col">
         {items.map((entry, index) => {
           const isLast = index === items.length - 1 && !hasMore;
           const time = intlStore.formatRelativeTime(entry.at);
@@ -187,7 +183,7 @@ export const ActivitiesList = observer(({ customColumns, hasMore, items, loading
                   <IdentityAvatar
                     badge={messageBadge}
                     name={senderLabel || title}
-                    src={message.sender.contact?.avatarUrl || message.sender.pictureUrl}
+                    src={participantAvatar(message.sender)}
                   />
                 }
                 isFirst={index === 0}
@@ -203,11 +199,65 @@ export const ActivitiesList = observer(({ customColumns, hasMore, items, loading
             );
           }
 
-          const actorName = resolveActorName(entry.actor.firstName, entry.actor.lastName, entry.actor.email);
-          const isRecordSnapshot = !entry.event.endsWith(".created") && entry.changes.some((c) => c.snapshot);
+          if (entry.kind === "record") {
+            const changes = entry.changes;
+            const category = auditCategory(entry.event);
+            const actorName =
+              resolveActorName(entry.actor.firstName, entry.actor.lastName, entry.actor.email) ||
+              t("RecordModel.systemActor");
+            const fields = formatFieldList(
+              (changes?.fields ?? []).map((field) => field.after?.label ?? field.before?.label ?? "").filter(Boolean),
+            );
+            return (
+              <TimelineRow
+                key={activityEntryKey(entry)}
+                avatar={
+                  <IdentityAvatar
+                    badge={
+                      <TypeBadge icon={category.icon} label={t(`Common.events.${entry.event}`)} tone={category.tone} />
+                    }
+                    name={[entry.actor.firstName, entry.actor.lastName]}
+                    src={entry.actor.avatarUrl}
+                  />
+                }
+                isFirst={index === 0}
+                isLast={isLast}
+                subtitle={
+                  <>
+                    {entry.records.primary && (
+                      <>
+                        <span className="font-medium">{entry.records.primary.label}</span>
+
+                        <span aria-hidden> · </span>
+                      </>
+                    )}
+
+                    {fields || t(`Common.events.${entry.event}`)}
+                  </>
+                }
+                time={time}
+                title={actorName}
+                onClick={() => timelineDetailModalStore.openWith({ entry })}
+              />
+            );
+          }
+
+          const actorName =
+            resolveActorName(entry.actor.firstName, entry.actor.lastName, entry.actor.email) ||
+            t("RecordModel.systemActor");
+          const isRecordSnapshot =
+            entry.kind === "audit" && !entry.event.endsWith(".created") && entry.changes.some((c) => c.snapshot);
           const fields = isRecordSnapshot
             ? ""
-            : formatFieldList(entry.changes.map((c) => auditChangeLabel(c, customColumnsById, t, columnLabel)));
+            : formatFieldList(
+                entry.changes.map(
+                  (change) =>
+                    change.label ??
+                    (entry.kind === "configuration" && typeof change.current === "string"
+                      ? change.current
+                      : columnLabel(change.field)),
+                ),
+              );
           const category = auditCategory(entry.event);
 
           return (
@@ -227,7 +277,7 @@ export const ActivitiesList = observer(({ customColumns, hasMore, items, loading
               subtitle={fields || t(`Common.events.${entry.event}`)}
               time={time}
               title={actorName}
-              onClick={() => timelineDetailModalStore.openWith({ entry, customColumns })}
+              onClick={() => timelineDetailModalStore.openWith({ entry })}
             />
           );
         })}

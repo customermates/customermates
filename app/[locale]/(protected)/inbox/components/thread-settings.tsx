@@ -8,8 +8,6 @@ import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 import { UserPlus, Users } from "lucide-react";
 
-import { Action, Resource } from "@/generated/prisma";
-
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
@@ -17,15 +15,14 @@ import { ClickableChip } from "@/components/chip/clickable-chip";
 import { OverlappingStack } from "@/components/shared/overlapping-stack";
 import { AppModal } from "@/components/modal";
 import { Avatar } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
 
 import { ThreadPeopleManager } from "./thread-participants-contacts";
+import { ThreadRecords } from "./thread-records";
 import { CopyableAddress } from "./copyable-address";
-import { displayableIdentifier, participantLabel } from "@/ee/messaging/thread-display";
+import { participantAvatar, displayableIdentifier, participantLabel } from "@/ee/messaging/thread-display";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props = {
@@ -40,11 +37,11 @@ type Props = {
 export const ThreadSettings = observer(
   ({ threadId, provider, participants, sharedToCrm, accountShared, isOwner }: Props) => {
     const t = useTranslations();
-    const { userStore, threadParticipantsStore, messagingThreadDetailStore } = useRootStore();
+    const { threadParticipantsStore, messagingThreadDetailStore } = useRootStore();
 
     useEffect(() => threadParticipantsStore.bind(threadId), [threadId, threadParticipantsStore]);
 
-    const canManageContacts = userStore.can(Resource.contacts, Action.update);
+    const canManageContacts = threadParticipantsStore.canManageRecords;
     const selfParticipant = participants.find((p) => p.isSelf) ?? null;
     const accountOwner =
       messagingThreadDetailStore.accountOwners[messagingThreadDetailStore.thread?.connectedAccountId ?? ""] ?? null;
@@ -55,7 +52,7 @@ export const ThreadSettings = observer(
           ? participantLabel(selfParticipant, provider, t("Inbox.senderUnknown"))
           : t("Inbox.senderUnknown"));
     const linkable = participants.filter((p) => !p.isSelf && p.identifier.trim());
-    const unlinkedCount = linkable.filter((p) => !p.contact).length;
+    const unlinkedCount = linkable.filter((p) => p.records.length === 0).length;
     const showBadge = canManageContacts && unlinkedCount > 0;
     const isShared = accountShared || sharedToCrm;
 
@@ -63,7 +60,18 @@ export const ThreadSettings = observer(
       <>
         <ClickableChip
           aria-label={t("Inbox.settings.title")}
-          className={cn("h-8 bg-secondary shadow-xs", showBadge && "rounded-r-none")}
+          className="h-8 bg-secondary shadow-xs"
+          endContent={
+            showBadge ? (
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
+                <UserPlus aria-hidden className="size-3.5" />
+
+                {unlinkedCount}
+
+                <span className="sr-only">{t("Inbox.unlinkedParticipants")}</span>
+              </span>
+            ) : undefined
+          }
           size="md"
           startContent={
             linkable.length > 0 ? (
@@ -74,7 +82,7 @@ export const ThreadSettings = observer(
                   <Avatar
                     name={participantLabel(p, provider, t("Inbox.senderUnknown"))}
                     size="sm"
-                    src={p.contact?.avatarUrl ?? p.pictureUrl ?? undefined}
+                    src={participantAvatar(p) ?? undefined}
                   />
                 )}
                 renderOverflow={(count) => <Avatar fallback={`+${count}`} size="sm" />}
@@ -92,26 +100,6 @@ export const ThreadSettings = observer(
             {isShared ? t("Inbox.shareToCrmShared") : t("Inbox.shareToCrmPrivate")}
           </span>
         </ClickableChip>
-
-        {showBadge && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                aria-label={t("Inbox.unlinkedParticipants")}
-                className="-ml-1 h-8 gap-1 rounded-l-none px-2"
-                type="button"
-                variant="softPrimary"
-                onClick={() => threadParticipantsStore.setOpen(true)}
-              >
-                <UserPlus className="size-3.5" />
-
-                <span className="text-xs font-medium">{unlinkedCount}</span>
-              </Button>
-            </TooltipTrigger>
-
-            <TooltipContent>{t("Inbox.unlinkedParticipants")}</TooltipContent>
-          </Tooltip>
-        )}
 
         <AppModal
           open={threadParticipantsStore.isOpen}
@@ -181,6 +169,8 @@ export const ThreadSettings = observer(
                   </div>
                 </section>
               )}
+
+              <ThreadRecords threadId={threadId} />
             </AppCardBody>
           </AppCard>
         </AppModal>

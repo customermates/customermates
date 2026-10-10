@@ -1,5 +1,6 @@
 import { AD_PROVIDER_ORDER } from "@/features/acquisition/ad-provider-registry";
 import { FilterFieldKey } from "./filter-field-key";
+import { TRASH_KINDS } from "@/features/trash/trash.schema";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "./filter-field-operators";
 
 import {
@@ -10,18 +11,11 @@ import {
   SubscriptionStatus,
 } from "@/generated/prisma";
 
-export type FilterEntityKind =
-  | "organization"
-  | "contact"
-  | "user"
-  | "deal"
-  | "service"
-  | "task"
-  | "thread"
-  | "connectedAccount";
+export type FilterEntityKind = "user" | "thread" | "connectedAccount" | "webhook";
 
 export type FilterValueKind =
   | { kind: "entityId"; entity: FilterEntityKind }
+  | { kind: "recordRef" }
   | { kind: "enum"; values: readonly string[] }
   | { kind: "date" }
   | { kind: "event" }
@@ -31,12 +25,11 @@ export type FilterValueKind =
 
 const enumValues = (e: Record<string, string>): readonly string[] => Object.values(e);
 
-export const TIMELINE_KIND_VIEW_VALUES = ["changes", "messages", "activities"] as const;
+export const TIMELINE_KIND_VIEW_VALUES = ["record", "audit", "configuration", "messages", "activities"] as const;
 
 export const TIMELINE_KIND_FILTER_VALUES = [
   ...TIMELINE_KIND_VIEW_VALUES,
   "message",
-  "audit",
   "activity",
   "calendar_event",
 ] as const;
@@ -46,19 +39,14 @@ export const BOOLEAN_FILTER_VALUES = ["true", "false"] as const;
 export const AUDIT_SOURCE_FILTER_VALUES = ["product", "operator"] as const;
 
 export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> = {
-  [FilterFieldKey.userIds]: { kind: "entityId", entity: "user" },
-  [FilterFieldKey.serviceIds]: { kind: "entityId", entity: "service" },
-  [FilterFieldKey.dealIds]: { kind: "entityId", entity: "deal" },
-  [FilterFieldKey.organizationIds]: { kind: "entityId", entity: "organization" },
-  [FilterFieldKey.contactIds]: { kind: "entityId", entity: "contact" },
-  [FilterFieldKey.taskIds]: { kind: "entityId", entity: "task" },
-  [FilterFieldKey.participantContactId]: { kind: "entityId", entity: "contact" },
+  [FilterFieldKey.participantContactId]: { kind: "recordRef" },
   [FilterFieldKey.ownerUserId]: { kind: "entityId", entity: "user" },
   [FilterFieldKey.timelineThreadId]: { kind: "entityId", entity: "thread" },
   [FilterFieldKey.updatedAt]: { kind: "date" },
   [FilterFieldKey.createdAt]: { kind: "date" },
   [FilterFieldKey.event]: { kind: "event" },
   [FilterFieldKey.url]: { kind: "string" },
+  [FilterFieldKey.webhookId]: { kind: "entityId", entity: "webhook" },
   [FilterFieldKey.status]: { kind: "enum", values: enumValues(Status) },
   [FilterFieldKey.provider]: { kind: "enum", values: enumValues(MessagingProvider) },
   [FilterFieldKey.state]: { kind: "enum", values: enumValues(MessagingThreadState) },
@@ -83,6 +71,8 @@ export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> 
   [FilterFieldKey.name]: { kind: "string" },
   [FilterFieldKey.firstName]: { kind: "string" },
   [FilterFieldKey.lastName]: { kind: "string" },
+  [FilterFieldKey.trashKind]: { kind: "enum", values: TRASH_KINDS },
+  [FilterFieldKey.trashList]: { kind: "string" },
 };
 
 export const FILTER_FIELD_AGENT_NOTES: Partial<Record<FilterFieldKey, string>> = {
@@ -110,6 +100,8 @@ export function describeFilterFieldValue(field: FilterFieldKey): string {
       return `${field} (one of: ${valueKind.values.join(", ")}; operators: ${ops})`;
     case "entityId":
       return `${field} (a ${valueKind.entity} uuid; operators: ${ops})`;
+    case "recordRef":
+      return `${field} (typeId:recordId reference; operators: ${ops})`;
     case "date":
       return `${field} (ISO date string; operators: ${ops})`;
     case "event":

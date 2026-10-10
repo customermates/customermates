@@ -32,10 +32,6 @@
   "AgentChat": {
     "activity": {
       "approval": {
-        "customFields": {
-          "configure": "Ready to change custom fields",
-          "delete": "Ready to permanently delete a custom field"
-        },
         "generic": "Ready to make a change that needs your approval",
         "messages": {
           "discard": "Ready to discard the draft",
@@ -45,6 +41,9 @@
         },
         "records": {
           "delete": "{count, plural, one {Ready to permanently delete {target}} other {Ready to permanently delete {target}}}"
+        },
+        "roles": {
+          "manage": "Approve this role change"
         },
         "routines": {
           "configure": "Ready to pause or run the routine",
@@ -68,9 +67,7 @@
           "delete": "Ready to permanently delete a dashboard widget"
         },
         "workspace": {
-          "configure": "Ready to permanently delete this Knowledge Base page",
-          "settings": "Ready to change workspace settings, including record type names",
-          "terminology": "Ready to rename record types for the whole workspace"
+          "configure": "Ready to change the workspace data model"
         }
       },
       "cancelled": "Stopped",
@@ -83,8 +80,8 @@
         "emailSend": "Send an email to the selected recipients",
         "externalManage": "Change data in the connected external account",
         "recordsDelete": "This cannot be undone.",
-        "recordsLink": "Link records",
-        "recordsUnlink": "Remove relationships",
+        "roleDelete": "Delete the selected role",
+        "roleSave": "Save the role and its record access",
         "routineDelete": "Permanently delete the selected routine and its run history",
         "routinePause": "Pause the selected routine",
         "routineRun": "Run the selected routine now",
@@ -121,24 +118,12 @@
         "to": "To"
       },
       "resource": {
-        "contacts": "contacts",
-        "deals": "deals",
         "messages": "conversations",
-        "organizations": "organizations",
-        "services": "services",
-        "tasks": "tasks",
-        "terminology": "workspace terminology",
         "widgets": "dashboard widgets",
         "wiki": "Knowledge Base pages"
       },
       "resourceSingular": {
-        "contacts": "contact",
-        "deals": "deal",
         "messages": "conversation",
-        "organizations": "organization",
-        "services": "service",
-        "tasks": "task",
-        "terminology": "workspace term",
         "widgets": "dashboard widget",
         "wiki": "Knowledge Base page"
       },
@@ -151,30 +136,10 @@
           }
         },
         "customFields": {
-          "configure": {
-            "done": "Configured custom fields",
-            "error": "Couldn’t configure custom fields",
-            "running": "Configuring custom fields"
-          },
-          "create": {
-            "done": "Created a custom field",
-            "error": "Couldn’t create the custom field",
-            "running": "Creating a custom field"
-          },
-          "delete": {
-            "done": "Removed a custom field",
-            "error": "Couldn’t remove the custom field",
-            "running": "Removing a custom field"
-          },
           "read": {
             "done": "Reviewed custom fields",
             "error": "Couldn’t review custom fields",
             "running": "Reviewing custom fields"
-          },
-          "update": {
-            "done": "Updated a custom field",
-            "error": "Couldn’t update the custom field",
-            "running": "Updating a custom field"
           }
         },
         "docs": {
@@ -271,11 +236,6 @@
             "error": "Couldn’t connect the records",
             "running": "Connecting related records"
           },
-          "note": {
-            "done": "Updated notes",
-            "error": "Couldn’t update the notes",
-            "running": "Updating notes"
-          },
           "read": {
             "done": "Reviewed {resource}",
             "error": "Couldn’t review {resource}",
@@ -285,6 +245,13 @@
             "done": "{count, plural, one {Updated {target}} other {Updated {target}}}",
             "error": "{count, plural, one {Couldn’t update {target}} other {Couldn’t update {target}}}",
             "running": "{count, plural, one {Updating {target}} other {Updating {target}}}"
+          }
+        },
+        "roles": {
+          "manage": {
+            "done": "Role permissions changed",
+            "error": "Could not change the role",
+            "running": "Changing role permissions"
           }
         },
         "routines": {
@@ -408,16 +375,6 @@
             "done": "Checked your workspace",
             "error": "Couldn’t check your workspace",
             "running": "Checking your workspace"
-          },
-          "settings": {
-            "done": "Updated workspace settings",
-            "error": "Couldn’t update workspace settings",
-            "running": "Updating workspace settings"
-          },
-          "terminology": {
-            "done": "Updated workspace terminology",
-            "error": "Couldn’t update workspace terminology",
-            "running": "Updating workspace terminology"
           }
         }
       },
@@ -536,36 +493,6 @@
             }
           }
         },
-        "contacts": {
-          "data": {
-            "contacts-cleanup": {
-              "label": "Find data gaps",
-              "prompt": "Review my contacts for missing or inconsistent information and suggest what to fix."
-            },
-            "contacts-summary": {
-              "label": "Summarize contacts",
-              "prompt": "Summarize my contacts and point out useful patterns or missing information."
-            },
-            "create-contact": {
-              "label": "Create a contact",
-              "prompt": "Help me create a contact. Ask for only the required details."
-            }
-          },
-          "empty": {
-            "contacts-tour": {
-              "label": "Learn how contacts work",
-              "prompt": "Show me around the contacts page and explain how contacts connect to the rest of the CRM."
-            },
-            "first-contact": {
-              "label": "Create my first contact",
-              "prompt": "Help me create my first real contact from confirmed facts in my Knowledge Base, existing workspace or what I tell you. Ask which person and only for missing required details; do not create a sample or testimonial contact."
-            },
-            "setup-contacts": {
-              "label": "Set up contacts",
-              "prompt": "Configure useful contact fields and views from my Knowledge Base and existing workspace. Do not create sample contacts or turn public testimonials into contacts. Ask only for missing decisions."
-            }
-          }
-        },
         "dashboard": {
           "data": {
             "dashboard-tour": {
@@ -593,36 +520,6 @@
             "tour": {
               "label": "Show me around",
               "prompt": "Give me an in-depth guided tour of Customermates and explain how the core areas work together."
-            }
-          }
-        },
-        "deals": {
-          "data": {
-            "create-deal": {
-              "label": "Create a deal",
-              "prompt": "Help me create a deal and connect all relevant records."
-            },
-            "pipeline-gaps": {
-              "label": "Find pipeline gaps",
-              "prompt": "Review my deals for missing relationships, values, or next steps."
-            },
-            "pipeline-summary": {
-              "label": "Summarize my pipeline",
-              "prompt": "Summarize my deal pipeline, risks, and most useful next actions."
-            }
-          },
-          "empty": {
-            "deals-tour": {
-              "label": "Learn how deals work",
-              "prompt": "Show me around deals and explain how to manage a pipeline in Customermates."
-            },
-            "first-deal": {
-              "label": "Create my first deal",
-              "prompt": "Help me create my first real deal from a confirmed opportunity I identify. Use my Knowledge Base and existing workspace, link only confirmed organizations, contacts and services, and ask for missing required facts such as the amount or current stage before creating it."
-            },
-            "setup-pipeline": {
-              "label": "Set up my pipeline",
-              "prompt": "Configure a simple sales pipeline from my Knowledge Base and existing workspace. Do not create sample deals or treat public case studies as current opportunities. Ask only for missing pipeline decisions; never invent deal amounts, budgets or current stages."
             }
           }
         },
@@ -686,36 +583,6 @@
             }
           }
         },
-        "organizations": {
-          "data": {
-            "create-organization": {
-              "label": "Create an organization",
-              "prompt": "Help me create an organization and link the relevant records."
-            },
-            "organization-gaps": {
-              "label": "Find relationship gaps",
-              "prompt": "Find organizations missing useful contact, deal, or task relationships."
-            },
-            "organizations-summary": {
-              "label": "Summarize organizations",
-              "prompt": "Summarize my organizations and highlight the relationships that deserve attention."
-            }
-          },
-          "empty": {
-            "first-organization": {
-              "label": "Create my first organization",
-              "prompt": "Help me create my first real organization from confirmed facts in my Knowledge Base, existing workspace or what I tell you. Ask which organization and only for missing required details. Link only confirmed people or deals; do not invent a customer relationship."
-            },
-            "organizations-tour": {
-              "label": "Learn how organizations work",
-              "prompt": "Show me around organizations and explain how they connect contacts, deals, and tasks."
-            },
-            "setup-organizations": {
-              "label": "Set up organizations",
-              "prompt": "Configure useful organization fields and views from my Knowledge Base and existing workspace. Do not create sample organizations or treat public case studies as current business relationships. Ask only for missing decisions."
-            }
-          }
-        },
         "routines": {
           "data": {
             "create-routine": {
@@ -746,66 +613,6 @@
             }
           }
         },
-        "services": {
-          "data": {
-            "create-service": {
-              "label": "Create an offering",
-              "prompt": "Help me create a service or product with the right commercial details."
-            },
-            "service-gaps": {
-              "label": "Find catalog gaps",
-              "prompt": "Review my services or products for missing prices, relationships, or duplicated offerings."
-            },
-            "services-summary": {
-              "label": "Summarize offerings",
-              "prompt": "Summarize my services or products and how they are used in deals."
-            }
-          },
-          "empty": {
-            "first-service": {
-              "label": "Create my first offering",
-              "prompt": "Help me create my first real service or product from my Knowledge Base and existing workspace. Ask only for the offering choice and required details that are missing. If its required price is unknown, ask before creating it; never guess a price or use a placeholder."
-            },
-            "services-tour": {
-              "label": "Learn how offerings work",
-              "prompt": "Show me around services and explain how offerings connect to deals and tasks."
-            },
-            "setup-services": {
-              "label": "Set up my offerings",
-              "prompt": "Create only real services or products documented in my Knowledge Base, avoiding duplicates in my workspace. Use confirmed prices. If a required price or other commercial detail is unknown, ask before creating that offering; never invent a price or use a placeholder."
-            }
-          }
-        },
-        "tasks": {
-          "data": {
-            "create-task": {
-              "label": "Create a task",
-              "prompt": "Help me create a task and connect it to the right records."
-            },
-            "task-gaps": {
-              "label": "Find follow-up gaps",
-              "prompt": "Find important records that appear to be missing a clear follow-up task."
-            },
-            "task-priorities": {
-              "label": "Plan my next actions",
-              "prompt": "Review my tasks and related CRM data, then recommend what I should do next."
-            }
-          },
-          "empty": {
-            "first-task": {
-              "label": "Create my first task",
-              "prompt": "Help me create my first real task that I identify, using my Knowledge Base and existing workspace. Link only confirmed records and ask only for missing required decisions. Do not invent a task, owner or due date."
-            },
-            "setup-tasks": {
-              "label": "Set up my workflow",
-              "prompt": "Configure a minimal task workflow with useful fields and views from my Knowledge Base and existing workspace. Do not create sample tasks, owners or due dates. Ask only for missing workflow decisions."
-            },
-            "tasks-tour": {
-              "label": "Learn how tasks work",
-              "prompt": "Show me around tasks and explain how they connect to contacts, organizations, deals, and services."
-            }
-          }
-        },
         "wiki": {
           "data": {
             "create-wiki-page": {
@@ -824,7 +631,7 @@
           "empty": {
             "first-wiki-page": {
               "label": "Build from my website",
-              "prompt": "Build my Knowledge Base from my company website."
+              "prompt": "Build my Knowledge Base from our website."
             },
             "wiki-structure": {
               "label": "Suggest a Knowledge Base structure",
@@ -859,7 +666,6 @@
       "skip": "Skip"
     },
     "tourUi": {
-      "back": "Back",
       "title": "Guided tour"
     },
     "ui": {
@@ -871,7 +677,6 @@
       "archivedChats": "Archived chats",
       "assistantWorking": "Mate is responding",
       "back": "Back to chat",
-      "cancel": "Cancel",
       "chats": "Chats",
       "copyCode": "Copy code",
       "copyLink": "Copy link",
@@ -889,13 +694,13 @@
       "finalizing": "Finishing and saving changes…",
       "history": "Chat history",
       "imageNotAvailable": "Image not available",
-      "jumpToLatest": "Jump to latest",
       "linkCopied": "Link copied",
       "loadChatFailed": "The chat couldn’t be loaded. Select it again to retry.",
       "loadingChat": "Loading chat…",
       "loadingOlderMessages": "Loading older messages",
       "loadMoreChats": "Load more chats",
       "loadOlderMessages": "Load earlier messages",
+      "moreActions": "More actions for {name}",
       "newChat": "New chat",
       "noChats": "No chats yet",
       "noChatsBody": "Start a chat to return to your questions and completed work later.",
@@ -930,7 +735,6 @@
     "addDescription": "Create a key for your own integration, or choose an AI client for guided setup.",
     "addTitle": "Add an API key",
     "backToOptions": "All API key options",
-    "done": "Done",
     "expiresIn": "Expires in",
     "expiresInPlaceholder": "Never expires",
     "keyCreated": "API key created successfully",
@@ -942,18 +746,10 @@
     "title": "Create API Key"
   },
   "ApiKeysCard": {
-    "title": "API & Connectors",
     "unnamed": "Unnamed"
   },
   "AuditLogModal": {
-    "createdAt": "Created At",
-    "deletedField": "Deleted field",
-    "deletedFieldChanged": "Value changed on a field that has since been deleted.",
-    "entity": "Element",
-    "entityId": "Element ID",
-    "event": "Event",
     "eventAt": "{event} at {date}",
-    "eventData": "Event Data",
     "fields": {
       "acceptanceType": "Acceptance type",
       "acceptingEmail": "Accepted by",
@@ -961,11 +757,12 @@
       "changedFields": "Watched fields",
       "city": "City",
       "country": "Country",
+      "createType": "New type",
       "cronExpression": "Schedule",
       "currency": "Currency",
-      "dealStageWeights": "Stage probabilities",
-      "dealWeightingColumnId": "Stage field",
       "debounceSeconds": "Debounce",
+      "delete": "Moved to Trash",
+      "deletePermanently": "Permanently deleted",
       "disabledReason": "Disabled reason",
       "effectiveAt": "Effective from",
       "emails": "Email addresses",
@@ -974,10 +771,16 @@
       "markdown": "Markdown",
       "postalCode": "Postal code",
       "prompt": "Instructions",
+      "publishSummary": "Published summary",
+      "putAccessPreset": "Access preset",
+      "putCapability": "Capability",
+      "putField": "Field",
+      "putRelationship": "Relationship",
+      "putType": "Type",
       "recipientEmail": "Sent to",
       "removalReason": "Removal reason",
+      "restore": "Restored",
       "street": "Street",
-      "terminology": "Record naming",
       "timezone": "Time zone",
       "triggerEvents": "Trigger events",
       "triggerFilters": "Trigger filters",
@@ -985,18 +788,9 @@
       "versions": "Document versions",
       "visibility": "Visibility"
     },
-    "noValue": "No value",
     "relationsAdded": "{field} Added",
     "relationsDeleted": "{field} Removed",
-    "title": "Audit Log Details",
-    "unchangedLines": "{count, plural, one {# unchanged line} other {# unchanged lines}}",
-    "userId": "User"
-  },
-  "AuditLogsCard": {
-    "emptyBody": "Workspace changes are recorded here as they happen.",
-    "emptyTitle": "No activity yet",
-    "searchTooltip": "Search by element id",
-    "title": "Audit Logs"
+    "unchangedLines": "{count, plural, one {# unchanged line} other {# unchanged lines}}"
   },
   "AuthSocialErrors": {
     "accessDenied": "The sign-in was cancelled at the provider.",
@@ -1036,10 +830,97 @@
     "liveDemoTitle": "Customermates live demo",
     "open": "Open in new tab"
   },
+  "CommandPalette": {
+    "fieldOf": "Field in {list}",
+    "groups": {
+      "actions": "Actions",
+      "bestMatch": "Best match",
+      "docs": "Docs",
+      "listsAndViews": "Lists and views",
+      "pagesAndSettings": "Pages and settings",
+      "records": "Records",
+      "suggestions": "Suggestions"
+    },
+    "labels": {
+      "addRole": "Add role",
+      "addWebhook": "Add webhook",
+      "connectChannel": "Connect a channel",
+      "createApiKey": "Create API key",
+      "themeDark": "Switch to dark theme",
+      "themeLight": "Switch to light theme",
+      "themeSystem": "Use the system theme"
+    },
+    "record": {
+      "addTo": "Add to {list}…",
+      "assign": "Assign to…",
+      "change": "Change {field}…",
+      "deleteNamed": "Delete {name}"
+    },
+    "resolve": "Go to “{query}”",
+    "resolveNoCredits": "You have no AI credits left, so this request can't be resolved.",
+    "resolveUnavailable": "Resolving requests isn't available right now. Pick a result or try again later.",
+    "resolving": "Finding the best match…",
+    "synonyms": {
+      "action": {
+        "add": "new, create, new record",
+        "inviteMembers": "add user, invite colleague, team",
+        "sendFeedback": "report a problem, suggestion, contact support",
+        "shortcuts": "hotkeys, keys, keyboard",
+        "signOut": "log out, logout, exit",
+        "switchView": "change view, saved views",
+        "themeDark": "dark mode, night mode",
+        "themeLight": "light mode, bright",
+        "themeSystem": "automatic theme, follow system"
+      },
+      "page": {
+        "configure": "data model, schema, lists, fields, relationships",
+        "dashboard": "home, overview, start, widgets, charts",
+        "documentation": "docs, help, guide, manual",
+        "inbox": "messages, email, mail, conversations, chats",
+        "knowledgeBase": "wiki, notes, pages, articles",
+        "routines": "automations, schedules, recurring tasks",
+        "settings": "preferences, options, account, workspace",
+        "trash": "deleted items, recycle bin, restore, undo delete"
+      },
+      "setting": {
+        "apiKeys": {
+          "create": "new API key, generate token"
+        },
+        "channels": {
+          "connect": "connect email, add account, LinkedIn, WhatsApp"
+        },
+        "profile": {
+          "avatarUrl": "profile picture, photo, image",
+          "country": "location, region",
+          "displayLanguage": "language, interface language, translation",
+          "firstName": "name, given name",
+          "formattingLocale": "date format, number format, region, currency format",
+          "lastName": "surname, family name",
+          "theme": "appearance, dark mode, light mode, colors"
+        },
+        "roles": {
+          "create": "new role, permission set"
+        },
+        "webhooks": {
+          "create": "new webhook"
+        }
+      },
+      "settings": {
+        "activity": "audit log, history, changes, log",
+        "api-keys": "tokens, API, MCP, developer, access keys",
+        "billing": "plan, subscription, invoices, payment, pricing",
+        "channels": "connected accounts, email accounts, LinkedIn, WhatsApp, integrations",
+        "members": "team, users, people, colleagues",
+        "profile": "account, preferences, personal, name",
+        "roles": "permissions, access, rights",
+        "webhook-deliveries": "webhook deliveries, webhook log, sent events",
+        "webhooks": "integrations, callbacks, events, HTTP"
+      }
+    }
+  },
   "Common": {
     "actions": {
       "add": "Add",
-      "addCustomField": "Add Field",
       "back": "Back",
       "cancel": "Cancel",
       "clear": "Clear",
@@ -1050,16 +931,12 @@
       "continueSetup": "Continue setup",
       "copy": "Copy to clipboard",
       "delete": "Delete",
-      "deleteCustomFields": "Delete Field",
       "discard": "Discard",
-      "editCustomFields": "Edit Field",
       "expand": "Expand",
-      "labelHistory": "History",
-      "labelNotes": "Notes",
+      "jumpToLatest": "Jump to latest",
       "loadMore": "Load more",
       "open": "Open",
       "openApp": "Open app",
-      "openList": "Open list",
       "refresh": "Refresh",
       "remove": "Remove",
       "reset": "Reset",
@@ -1068,21 +945,16 @@
     },
     "ariaLabels": {
       "breadcrumb": "Breadcrumb",
-      "collapseSearch": "Collapse search",
       "explainField": "About {field}",
       "hidePassword": "Hide password",
-      "optionName": "Option {number} name",
       "selectOption": "Select an option",
       "showPassword": "Show password",
-      "switchToBoardView": "Switch to board view",
       "switchToBoardViewDisabled": "This list has no field to group by",
-      "switchToTableView": "Switch to table view",
       "themeSwitcher": "Theme switcher",
       "tooltipFields": "Appearance",
       "tooltipFilters": "Filters"
     },
     "avatarUrlDescription": "Optionally provide a link to an image that will be used as your avatar. The image should be publicly accessible.",
-    "clearDefault": "Clear default",
     "colors": {
       "default": "Blue",
       "destructive": "Red",
@@ -1091,25 +963,7 @@
       "success": "Green",
       "warning": "Yellow"
     },
-    "company": "Company",
     "creditsBelowMinimum": "<{amount}",
-    "customColumnTypes": {
-      "currency": "Currency",
-      "date": "Date",
-      "dateRange": "Date Range",
-      "dateTime": "Date & Time",
-      "dateTimeRange": "Date & Time Range",
-      "email": "Email",
-      "link": "Link",
-      "phone": "Phone",
-      "plain": "Text",
-      "singleSelect": "Single Select"
-    },
-    "customFieldHelp": {
-      "deleteWeightingColumnPermission": "This field drives the weighted pipeline in {company}, so deleting it turns weighting off. Ask a workspace administrator for permission to update {company}.",
-      "immutableType": "Field type is fixed after creation. Create a new custom field to use another type.",
-      "probabilityPermission": "Stage probabilities are managed in {company}. Ask a workspace administrator for permission to update them."
-    },
     "dateBuckets": {
       "day": "Day",
       "earlier": "Earlier",
@@ -1129,7 +983,6 @@
       "thisMonth": "This month",
       "today": "Today"
     },
-    "default": "Default",
     "defaultData": {
       "contact": {
         "columnLabel": "Sales Pipeline",
@@ -1167,9 +1020,11 @@
       }
     },
     "deleteConfirmation": {
+      "blocked": "Resolve these first:",
       "message": "Are you sure you want to delete this item? This action cannot be undone.",
       "messageWithName": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
-      "title": "Confirm Deletion"
+      "title": "Confirm Deletion",
+      "typeToConfirm": "Type {name} to confirm"
     },
     "details": "Details",
     "email": "Email",
@@ -1189,9 +1044,6 @@
     },
     "errors": {
       "activityDuplicateFilterField": "Each activity filter field can be configured only once.",
-      "activityPageOutOfRange": "The activity feed cannot page that far back. Narrow the filters instead.",
-      "activityScopeTooManyIds": "An activity scope cannot select more than 50 records of one type.",
-      "activitySourcesUnavailable": "You do not have access to any activity timeline source.",
       "agentApprovalUnavailable": "This approval request is unavailable or has expired.",
       "agentConversationNotFound": "This conversation was not found or is no longer accessible.",
       "agentLimitReached": "Not enough AI credits remain to start another request.",
@@ -1206,31 +1058,14 @@
       "calendarEventNotFound": "Calendar event ID not found or not accessible.",
       "channelAlreadyLinked": "This channel is already linked to another contact.",
       "connectedAccountNotFound": "Channel ID not found or not accessible.",
-      "contactNotFound": "Contact ID not found or not accessible.",
-      "contactRefRequired": "id must be a contact UUID, an email or phone, or 'provider:value' for a handle (e.g. 'linkedin:jdoe').",
-      "customColumnIdNotFound": "Custom column ID not found or not accessible.",
-      "customColumnNotFound": "Custom column ID not found or not accessible. Available columns: {validValues}.",
-      "customColumnTypeMismatch": "This custom column is type {actualType}, not {expectedType}. Set type to {actualType} to update it.",
-      "customColumnUsedByRoutineCannotDelete": "This custom column is used in one or more routine filters. Remove it from those routines before deleting it.",
-      "customFieldInvalidCurrency": "The currency value is invalid. Must be a valid number.",
       "customFieldInvalidDate": "The date value is invalid. Must be in ISO 8601 date format (e.g., 2024-01-15) or ISO 8601 datetime format (e.g., 2024-01-15T00:00:00Z).",
-      "customFieldInvalidDateRange": "The date range is invalid. Must be two ISO 8601 dates separated by a comma, with start on or before end (e.g., 2024-01-15,2024-01-22).",
-      "customFieldInvalidDateTime": "The date-time value is invalid. Must be in ISO 8601 datetime format with time (e.g., 2024-01-15T10:30:00Z).",
-      "customFieldInvalidDateTimeRange": "The date-time range is invalid. Must be two ISO 8601 datetimes separated by a comma, with start on or before end (e.g., 2024-01-15T09:00:00Z,2024-01-15T17:00:00Z).",
-      "customFieldInvalidEmail": "The email value is invalid. Must be a valid email address format (e.g., user@example.com). For multiple emails, separate by comma (e.g., user1@example.com, user2@example.com).",
-      "customFieldInvalidPhone": "The phone value is invalid. Must be in E.164 format (e.g., +491234567890). For multiple phone numbers, separate by comma (e.g., +491234567890, +499876543210).",
-      "customFieldInvalidSingleSelect": "The single select value is invalid. Must be one of the allowed options: {validValues}.",
-      "customFieldInvalidUrl": "The URL value is invalid. Must be a valid URL format (e.g., https://example.com). For multiple URLs, separate by comma (e.g., https://example.com, https://example.org).",
       "dataViewAllNameImmutable": "The All view cannot be renamed. Omit name and update only the requested state settings. Read config for supported settings and list for the current state before retrying.",
-      "dataViewLayoutReadOnly": "Column order, column widths and hidden columns can only be changed in the app. Omit columnOrder, columnWidths and hiddenColumns, or send them exactly as list returned them.",
       "dataViewNotFound": "This saved view was not found.",
       "dataViewUpdateEmpty": "Provide a name or at least one view setting to update.",
-      "dealNotFound": "Deal ID not found or not accessible.",
       "demoMode": "This action is not available in demo mode. Sign in to access all features.",
       "draftMessageNotFound": "That draft could not be found. It may have already been sent or discarded.",
       "draftThreadNotSent": "This draft has no conversation yet. Send it from the inbox.",
       "draftToRecipientsLocked": "A saved new message keeps its To recipients. Discard the draft and start a new message to address someone else.",
-      "duplicateChannel": "This channel is listed more than once. Add each email address, phone number, or handle only once.",
       "duplicateOutboundSuppressed": "An identical message was sent to this thread moments ago. Change the text or wait a minute before retrying.",
       "duplicateWebhookEvents": "Duplicate events are not allowed.",
       "duplicateWebhookHeaders": "Duplicate header names are not allowed.",
@@ -1276,12 +1111,26 @@
       "operatorCreditPrecision": "Use at most one decimal place for the credit adjustment.",
       "operatorTrialEndRequired": "A trial end date cannot be removed, only moved. Clearing it would leave the workspace on a trial that never expires.",
       "operatorUnavailable": "The requested correction is not available for the current account configuration.",
-      "organizationNotFound": "Organization ID not found or not accessible.",
       "passwordInvalid": "Password must be between 8 and 128 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
       "passwordMismatch": "Passwords must match.",
       "permissionDenied": "This action is not available with your current permissions.",
       "privacyAcknowledgementRequired": "Please confirm that you have read the Privacy Policy.",
-      "relationNotAllowed": "Relation '{relation}' is not allowed on {entity}. Allowed relations: {allowed}.",
+      "recordCalculationBudget": "This change requires a background recalculation.",
+      "recordConfigurationInvalid": "Review the fields and relationships in this configuration.",
+      "recordDependencies": "Update the dependent fields, views, widgets, or bindings first.",
+      "recordIdempotencyConflict": "This request key was used for another change. Start a new request.",
+      "recordIdUnavailable": "This record ID belongs to an earlier record. Import the record with a new ID.",
+      "recordMeasureDateIntervalInvalid": "Time intervals need a date, date-and-time, created or updated grouping field, and a time zone needs a time interval.",
+      "recordNotFound": "This record is unavailable.",
+      "recordProtected": "This record is managed by a system workflow.",
+      "recordReadOnlyField": "This field is calculated. Change its definition to enter values manually.",
+      "recordRelationConflict": "This link does not match the relationship rules.",
+      "recordSchemaChanged": "The data model changed. Refresh and try again.",
+      "recordTypeNotFound": "This record type is unavailable.",
+      "recordValueInvalid": "Review the highlighted record values.",
+      "recordVersionChanged": "This record changed. Refresh before saving again.",
+      "recordWritePaused": "The workspace is updating its data model. Your draft is preserved; try again when the update finishes.",
+      "roleAccessPresetInUse": "This role is used by an access preset. Update the preset before deleting the role.",
       "roleAssignedCannotDelete": "A role assigned to users cannot be deleted.",
       "roleNotFound": "Role ID not found or not accessible.",
       "roleSelfEditForbidden": "You cannot change the permissions of the role assigned to you.",
@@ -1291,7 +1140,6 @@
       "routineDeleteHasRunningRun": "Wait for the active run to finish before deleting this routine.",
       "routineEditNotOwner": "Only the routine owner can change its setup or activation.",
       "routineLimitReached": "Your plan includes {limit} routines per user. Upgrade your plan for a higher allowance.",
-      "routineNotFound": "Routine ID not found or not accessible.",
       "routineOwnerIneligible": "The routine owner must be an active member of this company.",
       "routineRunNotOwner": "Only the person who owns this routine can run it, because it spends their AI credits.",
       "routineRunNowRequiresSchedule": "Only scheduled routines can be tested manually.",
@@ -1304,16 +1152,13 @@
       "salesNavigatorNotAvailable": "This LinkedIn account doesn't have Sales Navigator connected.",
       "salesNavigatorRequiresLinkedin": "Sales Navigator requires a connected LinkedIn account, but this account is {provider}.",
       "sendEmailTargetRequired": "Select a thread or an account to send from.",
-      "serviceNotFound": "Service ID not found or not accessible.",
       "socialActionRequiresSocialAccount": "This action requires a LinkedIn or Instagram connected account, but this account is {provider}.",
       "socialPostsRequireSocialAccount": "Social posts require a LinkedIn or Instagram connected account, but this account is {provider}.",
       "subjectRequired": "Add a subject.",
-      "taskNameCannotBeChangedForSystemTasks": "Name cannot be changed for system tasks.",
-      "taskNotFound": "Task ID not found or not accessible.",
-      "taskOnlyCustomTasksCanBeDeleted": "Only custom tasks can be deleted.",
-      "terminologyInvalidPreset": "Choose one of the available name presets.",
       "termsNotAgreed": "You must agree to the terms and conditions.",
       "threadNotFound": "Thread ID not found or not accessible.",
+      "trashChanged": "Trash changed in the meantime. Review what will be deleted and try again.",
+      "trashItemNotFound": "This item is no longer in Trash.",
       "unipileAccountRestricted": "The provider has restricted this channel. Reconnecting won't fix it; resolve the restriction with the provider first.",
       "unipileDisconnectedAccount": "The channel is disconnected. Its owner needs to reconnect it under Channels before it can be used again.",
       "unipileFeatureUnavailable": "This is not available on this channel. Retrying will not help; the team has been notified.",
@@ -1341,18 +1186,13 @@
       "webhookHeadersTooMany": "Too many headers.",
       "webhookHeaderValueInvalid": "Header values may only contain Latin-1 text, without line breaks or control characters.",
       "webhookNotFound": "Webhook ID not found or not accessible.",
-      "widgetDealAggregationNotAllowedForTask": "Deal aggregation types are not allowed for Task element type.",
-      "widgetDealFiltersNotAllowedForDealEntityType": "Deal filters are not allowed when element type is Deal.",
-      "widgetDealQuantityOnlyForService": "Deal quantity aggregation is only allowed for Service element type.",
-      "widgetGroupByCustomColumnIdRequired": "Custom column ID is required when grouping by custom column.",
-      "widgetGroupByEntityTypeNotAllowedForCount": "Grouping by element type itself is not allowed when aggregation type is count.",
-      "widgetGroupByTypeMustMatchEntityType": "Group by type must match the chart's element type.",
+      "webhookTriggerRequired": "Choose which field changes or conditions trigger this webhook before turning it back on.",
+      "widgetDisplayTypeUnsupported": "This chart style does not fit the selected grouping. Choose another style or change the grouping.",
       "widgetKindImmutable": "A widget's type cannot be changed after it is created.",
+      "widgetLayoutOverlap": "This position overlaps another widget. Choose a free spot on the 12-column grid or leave the layout out to place the widget automatically.",
+      "widgetLayoutTooSmall": "This widget needs at least 2 columns and 3 rows.",
       "widgetNotFound": "Widget ID not found or not accessible.",
-      "widgetTaskCanOnlyGroupByCustomColumn": "Tasks can only be grouped by custom columns, not by element types.",
-      "widgetWeightedValueNotAllowedForService": "Weighted value aggregation is not allowed for Service element type.",
       "wikiGuideExists": "This Knowledge Base already has an Operating Guide. Update the existing guide instead.",
-      "wikiHomepageSetupStartFailed": "Mate could not start the Knowledge Base setup. Please try again.",
       "wikiNotEmpty": "This action requires an empty Knowledge Base.",
       "wikiPageConflict": "This Knowledge Base page changed after you opened it. Reload it and try again.",
       "wikiPageNotFound": "Knowledge Base page not found or not accessible.",
@@ -1362,30 +1202,12 @@
       "wikiWhenToUseRequired": "A procedure needs a short description of when to use it."
     },
     "events": {
-      "company": {
-        "updated": "Company Updated"
-      },
       "connected_account": {
         "created": "Account Connected",
         "deleted": "Account Disconnected",
         "reconnected": "Account Reconnected",
         "resynced": "Account Resynced",
         "updated": "Account Visibility Changed"
-      },
-      "contact": {
-        "created": "Contact Created",
-        "deleted": "Contact Deleted",
-        "updated": "Contact Updated"
-      },
-      "custom_column": {
-        "created": "Custom Column Created",
-        "deleted": "Custom Column Deleted",
-        "updated": "Custom Column Updated"
-      },
-      "deal": {
-        "created": "Deal Created",
-        "deleted": "Deal Deleted",
-        "updated": "Deal Updated"
       },
       "legal": {
         "documents_accepted": "Legal Documents Accepted",
@@ -1416,10 +1238,19 @@
           "created": "Relation Created"
         }
       },
-      "organization": {
-        "created": "Organization Created",
-        "deleted": "Organization Deleted",
-        "updated": "Organization Updated"
+      "record": {
+        "created": "Record created",
+        "deleted": "Record moved to Trash",
+        "deletedPermanently": "Record deleted permanently",
+        "restored": "Record restored",
+        "updated": "Record updated"
+      },
+      "record_grants": {
+        "updated": "Record access changed"
+      },
+      "record_model": {
+        "initialized": "Data model set up",
+        "updated": "Data model changed"
       },
       "records": {
         "exported": "Records Exported"
@@ -1431,18 +1262,10 @@
       },
       "routine": {
         "created": "Routine Created",
-        "deleted": "Routine Deleted",
+        "deleted": "Routine Moved to Trash",
+        "deletedPermanently": "Routine Deleted Permanently",
+        "restored": "Routine Restored",
         "updated": "Routine Updated"
-      },
-      "service": {
-        "created": "Service Created",
-        "deleted": "Service Deleted",
-        "updated": "Service Updated"
-      },
-      "task": {
-        "created": "Task Created",
-        "deleted": "Task Deleted",
-        "updated": "Task Updated"
       },
       "user": {
         "registered": "User Registered",
@@ -1455,7 +1278,9 @@
       },
       "wiki_page": {
         "created": "Knowledge Base Page Created",
-        "deleted": "Knowledge Base Page Deleted",
+        "deleted": "Knowledge Base Page Moved to Trash",
+        "deletedPermanently": "Knowledge Base Page Deleted Permanently",
+        "restored": "Knowledge Base Page Restored",
         "updated": "Knowledge Base Page Updated"
       }
     },
@@ -1482,6 +1307,7 @@
         "lastName": "Last name",
         "name": "Name",
         "ownerUserId": "Owner",
+        "participantContactId": "Linked records",
         "participants": "Participants",
         "plan": "Plan",
         "provider": "Provider",
@@ -1491,9 +1317,11 @@
         "subscriptionStatus": "Subscription",
         "timelineKind": "Type",
         "timelineThreadId": "Conversation",
+        "trashKind": "Kind",
+        "trashList": "List",
         "updatedAt": "Updated at",
         "url": "URL",
-        "userIds": "Assigned",
+        "webhookId": "Webhook",
         "workspaceId": "Workspace",
         "workspaceTags": "Tags"
       },
@@ -1504,7 +1332,10 @@
         "equals": "=",
         "gt": ">",
         "gte": "≥",
+        "hasAllOf": "has all of",
+        "hasAnyOf": "has any of",
         "hasNone": "has none",
+        "hasNoneOf": "has none of",
         "hasSome": "has some",
         "hasUnset": "not fully linked",
         "in": "in",
@@ -1513,6 +1344,7 @@
         "isNull": "is empty",
         "lt": "<",
         "lte": "≤",
+        "notEquals": "Does not equal",
         "notIn": "not in",
         "notInLastDays": "older than",
         "startsWith": "Starts with"
@@ -1534,7 +1366,22 @@
         "fieldsGroup": "Filter by",
         "limitReached": "You can apply up to {count} filters.",
         "removeFilter": "Remove filter",
-        "title": "Filters"
+        "searchContains": "{field} contains “{text}”",
+        "searchOrAddFilter": "Search or add filter…",
+        "title": "Filters",
+        "trigger": "Filter"
+      },
+      "searchFields": {
+        "inbox": "Subject, message or participant",
+        "members": "Name",
+        "operatorAudit": "Action",
+        "operatorUsers": "Name or email",
+        "operatorWorkspaces": "Member email",
+        "records": "Any text field",
+        "routines": "Name",
+        "trash": "Name",
+        "webhookDeliveries": "URL or event",
+        "webhooks": "URL"
       },
       "selectionLimit": "You can select up to {count} values.",
       "selectOperator": "Select a condition…",
@@ -1546,8 +1393,6 @@
     },
     "inputs": {
       "addOption": "Add \"{value}\"",
-      "addService": "Add service",
-      "aggregationType": "Metric",
       "amount": "Amount",
       "avatarUrl": "Avatar URL",
       "bodyTemplate": "Body template",
@@ -1559,7 +1404,6 @@
       "currency": "Currency",
       "datePlaceholder": "Pick a date",
       "dateRangePlaceholder": "Pick a range",
-      "defaultOption": "Option {number}",
       "description": "Description",
       "displayLanguage": "Display Language",
       "displayOptions": {
@@ -1572,25 +1416,14 @@
       "emails": "Emails",
       "emptyContent": "No results found",
       "enabled": "Active",
-      "entityType": "Element",
       "events": "Events",
       "feedback": "Feedback",
       "firstName": "First Name",
       "formattingLocale": "Formatting Locale",
-      "groupByValue": "Grouping",
       "headers": "Custom headers",
-      "label": "Label",
       "lastName": "Last Name",
       "message": "Message",
       "name": "Name",
-      "options": {
-        "addOption": "Add option",
-        "allowMultiple": "Allow Multiple",
-        "color": "Color",
-        "currency": "Currency",
-        "displayFormat": "Format",
-        "lastOption": "A single select needs at least one option"
-      },
       "password": "Password",
       "prompt": "Instructions",
       "roleId": "Role",
@@ -1605,7 +1438,6 @@
       "triggerEvents": "Events",
       "triggerFilters": "Record filters",
       "triggerKind": "Trigger",
-      "type": "Type",
       "unavailableSelection": "Selection unavailable",
       "url": "URL",
       "userIds": "Assigned"
@@ -1633,8 +1465,6 @@
       "updated": "Updated"
     },
     "pageNumber": "Page {page}",
-    "probability": "Probability",
-    "probabilityRange": "Enter a probability from 0 to 100%.",
     "providers": {
       "google": "Gmail",
       "instagram": "Instagram",
@@ -1649,7 +1479,6 @@
     "scroll": {
       "backToTop": "Back to top"
     },
-    "setAsDefault": "Set as default",
     "sidebar": {
       "description": "Displays the mobile sidebar.",
       "title": "Sidebar",
@@ -1658,13 +1487,13 @@
     "sort": {
       "ascending": "Ascending",
       "descending": "Descending",
-      "field": "Sort by"
+      "field": "Sort by",
+      "manual": "Manual"
     },
     "stageProbability": "Stage probability",
     "systemTasks": {
       "userPendingAuthorization": {
-        "alert": "This is a system task that cannot be manually deleted. Please approve the user in <link>company settings</link> to resolve this task.",
-        "title": "Approve User"
+        "alert": "This is a system task that cannot be manually deleted. Please approve the user in <link>Members</link> to resolve this task."
       }
     },
     "table": {
@@ -1750,10 +1579,6 @@
       "rowsPerPage": "Rows per page",
       "search": "Search..."
     },
-    "taskTypes": {
-      "custom": "Custom",
-      "userPendingAuthorization": "Pending authorization"
-    },
     "themes": {
       "dark": "Dark",
       "light": "Light",
@@ -1780,24 +1605,9 @@
     "label": "Invitation link",
     "title": "Invite User"
   },
-  "CompanySettings": {
-    "currencyDescription": "Used for all money values across the CRM, for example: {deals}, {services}.",
-    "dataModelTitle": "Data model",
-    "forecasting": {
-      "columnLabel": "{deal} stage field",
-      "columnPlaceholder": "Select a field",
-      "currentTotal": "Weighted pipeline",
-      "currentTotalHelp": "Sum of value × stage probability for every staged record. Changes come from {services}, quantities, or stages in {deals}; probabilities are managed above.",
-      "description": "Weight each {deal} stage by its win probability to see a discounted pipeline value.",
-      "noColumn": "Not configured",
-      "totalPipeline": "Total pipeline",
-      "totalPipelineHelp": "Sum of all values in {deals}. Changes come from {services} or quantities on those records.",
-      "withoutStage": "Not weighted · no {column}",
-      "withoutStageHelp": "Value of records in {deals} without a selection in {column}. Selecting a stage moves them into the weighted pipeline."
-    }
-  },
   "CompanyUserModal": {
     "activeUserWarning": "You can edit your own user account in your <settingsLink>settings</settingsLink>.",
+    "deleteMessage": "{name} is deactivated and loses access to this workspace. Their records and history stay, and you can reactivate them from their details.",
     "title": "User"
   },
   "ComparePage": {
@@ -1863,7 +1673,6 @@
     "emailPreviewLink": "Example link",
     "emailPreviewSample": "This is how your email text will look.",
     "emailPreviewTitle": "Preview",
-    "emailSave": "Save email settings",
     "emailSaved": "Email settings saved",
     "emailSignatureContent": "Signature content",
     "emailSignatureDescription": "Automatically add it to emails sent from this account.",
@@ -1954,11 +1763,7 @@
     "calendarResponseNoreply": "No reply",
     "calendarResponseYes": "Accepted",
     "linkedinConnectionAccepted": "LinkedIn connection accepted",
-    "linkedinOpenProfile": "Open LinkedIn profile",
-    "noActivity": "No activity yet for this contact."
-  },
-  "ContactModal": {
-    "title": "Contact"
+    "linkedinOpenProfile": "Open LinkedIn profile"
   },
   "ContactPage": {
     "description": "Have a question, want a walkthrough, or exploring a partnership? Drop me a note and I'll get back within a day.",
@@ -2003,39 +1808,34 @@
     "activityWidget": {
       "activityCount": "{count, plural, =1 {1 activity} other {# activities}}",
       "error": "Activity could not be loaded.",
-      "loadOlderError": "Older activity could not be loaded. The entries already shown are still available.",
       "noAccount": "Connect a messaging or calendar account to show activity.",
       "noActivity": "No activity yet.",
       "noMatches": "No activity matches the current filters.",
       "noPermission": "You do not have access to any activity in this workspace.",
-      "pageLimitReached": "The oldest available page has been reached. Narrow the current selection to inspect older activity.",
       "scopeTooBroad": "These relationship filters match too many contacts to load safely. Select fewer records.",
       "title": "Recent activity"
     },
     "addCard": "Add widget",
-    "aggregationTypes": {
-      "count": "Count {entities}",
-      "dealQuantity": "Number of {services} in {deals}",
-      "dealValue": "{deal} value",
-      "dealValueRelated": "{deal} value related to {entity}",
-      "dealWeightedValue": "Weighted {deal} value",
-      "dealWeightedValueRelated": "Weighted {deal} value related to {entity}"
+    "deleteView": "Delete \"{name}\"? {count, plural, =0 {It has no widgets.} one {Its widget moves to Trash with it:} other {Its # widgets move to Trash with it:}}",
+    "displayTypeRequirements": {
+      "grouping": "Choose a grouping to rank groups.",
+      "noGrouping": "Set Group by to No grouping to show one number.",
+      "singleChoice": "Group by a single-choice field, such as a stage.",
+      "timeInterval": "Group by a date field and choose a time interval."
     },
     "displayTypes": {
+      "areaChart": "Area over time",
       "doughnutChart": "Doughnut Chart",
+      "funnelChart": "Funnel",
       "horizontalBarChart": "Horizontal Bar Chart",
       "horizontalBarChartWithLabels": "Horizontal Bar Chart with Labels",
+      "number": "Number",
       "radarChart": "Radar Chart",
+      "rankedTable": "Ranked table",
       "verticalBarChart": "Vertical Bar Chart",
       "verticalBarChartWithLabels": "Vertical Bar Chart with Labels"
     },
-    "groupBys": {
-      "none": "No Grouping"
-    },
-    "tabs": {
-      "dealFilters": "Filters for {deals}",
-      "filters": "{entityType} Filters"
-    },
+    "mainView": "Main",
     "widgetEditor": {
       "addTitle": "Add widget",
       "appearance": {
@@ -2045,61 +1845,74 @@
         "showFilters": "Show activity count and filters",
         "showMetricAndFilters": "Show metric and filters"
       },
-      "create": "Create widget",
       "danger": {
         "deleteLabel": "Delete widget {name}"
       },
       "editTitle": "Edit {name}",
-      "filters": {
-        "activityTypeOptions": {
-          "activities": {
-            "description": "Events from connected accounts and calendars.",
-            "label": "Account & calendar"
-          },
-          "changes": {
-            "description": "Updates to CRM records, fields, and relationships.",
-            "label": "Record changes"
-          },
-          "messages": {
-            "description": "Messages sent or received through connected channels.",
-            "label": "Messages"
-          }
-        },
-        "activityTypes": "Activity types",
-        "noneAvailable": "No filters are available for this widget.",
-        "removeUnavailable": "Remove unavailable {field} filter",
-        "title": "Filters",
-        "unavailable": "{count, plural, =1 {One saved filter is no longer available. You can keep or remove it.} other {# saved filters are no longer available. You can keep or remove them.}}"
-      },
       "kind": {
         "activityTimelineDescription": "Follow record changes, messages, and account or calendar activity in time order.",
-        "chartDescription": "Compare CRM data in a visual chart.",
+        "change": "Choose another widget",
+        "description": "Pick a format and choose the data yourself.",
+        "scratchTitle": "Start from scratch",
         "title": "Choose a Widget"
       },
       "preview": {
-        "activitySummary": "{title}. Filters: {filters, plural, =0 {none} =1 {1 active} other {# active}}.",
-        "chartSummary": "{title}. {summary}. Metric: {metric}. Chart style: {chart}.",
-        "filterSummary": "{count, plural, =1 {1 filter} other {# filters}}",
-        "groupLabel": "Group {number}",
-        "title": "Preview",
+        "incomplete": "Complete the data settings to see a preview.",
+        "live": "Live preview",
+        "size": "Dashboard size {w} × {h}",
         "untitled": "Untitled widget"
       },
-      "progress": "Step {current} of {total}",
-      "progressLabel": "Widget creation progress",
-      "save": "Save changes",
+      "sections": {
+        "activeFilters": "{count, plural, =0 {None} one {1 active} other {# active}}",
+        "filters": "Filters",
+        "grouping": "Grouping"
+      },
+      "settings": "Widget settings",
       "sharing": {
         "template": "Share as a template"
       },
+      "starters": {
+        "areaChart": {
+          "description": "Show how a value develops over time.",
+          "title": "Area over time"
+        },
+        "doughnutChart": {
+          "description": "Show how a total splits into parts.",
+          "title": "Doughnut"
+        },
+        "funnelChart": {
+          "description": "Follow records through the steps of a choice field.",
+          "title": "Funnel"
+        },
+        "horizontalBarChart": {
+          "description": "Compare groups with longer names.",
+          "title": "Horizontal bars"
+        },
+        "number": {
+          "description": "One total, such as a count or a sum.",
+          "title": "Number"
+        },
+        "radarChart": {
+          "description": "Compare groups on one shared scale.",
+          "title": "Radar"
+        },
+        "rankedTable": {
+          "description": "List the top groups in order.",
+          "title": "Ranked table"
+        },
+        "verticalBarChart": {
+          "description": "Compare a value across groups.",
+          "title": "Bar chart"
+        }
+      },
       "steps": {
-        "chooseDescription": "Choose a format or start from a setup shared in your workspace.",
+        "chooseDescription": "Start from a recommendation, a blank format, or a setup shared in your workspace.",
         "configureDescription": "Choose what this widget shows and how it looks."
       },
       "tabs": {
         "appearance": "Appearance",
         "data": "Data",
-        "filters": "Filters",
-        "filtersLabel": "{count, plural, =0 {Filters, none active} =1 {Filters, 1 active} other {Filters, # active}}",
-        "label": "Widget settings"
+        "filtersLabel": "{count, plural, =0 {Filters, none active} =1 {Filters, 1 active} other {Filters, # active}}"
       },
       "templates": {
         "by": "Shared by {name}",
@@ -2108,86 +1921,73 @@
       }
     },
     "widgetKinds": {
-      "activityTimeline": "Activity timeline",
-      "chart": "Chart"
+      "activityTimeline": "Activity timeline"
     }
   },
   "DataTransfer": {
     "export": {
       "action": "Export",
-      "failed": "The file could not be created.",
-      "success": "{count, plural, one {# record exported} other {# records exported}}",
-      "truncated": "Only the first {limit} records were exported."
+      "failed": "The records could not be exported. Check your filters and permissions.",
+      "success": "{count, plural, one {# record exported} other {# records exported}}."
     },
     "import": {
       "action": "Add from file",
-      "batchProgress": "Batch {done} of {total}",
-      "channelOption": "{provider} (channel)",
       "chooseFile": "Choose file",
-      "commit": "Add records",
-      "description": "Match the spreadsheet columns to fields, check the result, then add the records.",
-      "duplicateTargets": "{count, plural, one {# field is mapped from more than one column. Fix it before continuing.} other {# fields are mapped from more than one column. Fix them before continuing.}}",
-      "fileHint": "Choose a spreadsheet. Excel workbooks are supported.",
-      "fileRejected": "That file could not be read.",
-      "groupChannels": "Channels",
-      "groupCustomFields": "Custom fields",
-      "groupFields": "Fields",
-      "ignoreColumn": "Do not add",
-      "issueCount": "{count, plural, one {# problem found} other {# problems found}}",
-      "issues": {
-        "channelsNotUpdated": "Channels stay as they are on a record that already exists",
-        "duplicateRecordId": "Row {row} already updates this record",
-        "invalidChannelValue": "\"{value}\" is not a valid {provider} address",
-        "notANumber": "\"{value}\" is not a number",
-        "notAPhoneNumber": "\"{value}\" is not a phone number",
-        "relationAmbiguous": "\"{value}\" matches more than one record",
-        "relationNotFound": "\"{value}\" was not found",
-        "unknownOption": "\"{value}\" is not one of the options for {column}",
-        "unknownProvider": "\"{value}\" is not a channel type we support"
-      },
-      "mappingHint": "{file}, {rows} rows",
-      "moreIssues": "and {count} more",
-      "noIssues": "No problems found.",
-      "previewCounts": "{create} to add, {update} to update",
-      "progress": "Step {current} of {total}",
-      "progressLabel": "Import progress",
-      "recordId": "Record ID",
-      "resultCounts": "{created} added, {updated} updated",
-      "resultSkipped": "{count, plural, one {# row skipped} other {# rows skipped}}",
-      "row": "Row",
-      "rowsAffected": "{count, plural, one {# row} other {# rows}}",
-      "skipInvalid": "{count, plural, one {Import the rest and skip # row} other {Import the rest and skip # rows}}",
-      "stopped": "Stopped at row {row}. {remaining} rows were not processed.",
-      "title": "Add records from a file",
-      "unnamedColumn": "Unnamed column",
-      "validate": "Check the file",
-      "warningCount": "{count, plural, one {# warning} other {# warnings}}"
+      "fileRejected": "That file could not be read."
     },
-    "menu": "Import and export"
+    "recordImport": {
+      "create": "Create with exported IDs",
+      "failed": "The records could not be imported. Check the file and permissions.",
+      "fileHint": "Choose a Customermates JSON export for this list.",
+      "ready": "{count, plural, one {# record} other {# records}} and {links, plural, one {# link} other {# links}} are ready to import.",
+      "schemaMismatch": "The list structure has changed since this file was exported.",
+      "submit": "Import records",
+      "success": "{count, plural, one {# record imported} other {# records imported}}.",
+      "title": "Import records",
+      "tooLarge": "Import up to 100 records and 500 links at a time.",
+      "typeMismatch": "This file belongs to a different list.",
+      "update": "Update matching IDs"
+    }
   },
   "DataView": {
+    "addToGroup": "Add to {group}",
     "board": {
       "chooseField": "Group by field",
       "createField": "Create a single-select field",
       "promptBody": "Pick a field to group by. Each value becomes a column on the board.",
       "promptTitle": "Choose how to group this board"
     },
+    "boardKeyboardInstructions": "Press Enter to open a record. Press Space to pick it up. Use the left and right arrow keys to choose a group, then press Space to move it. Press Escape to cancel.",
+    "boardMoveCancelled": "Move cancelled.",
+    "boardMoveRequested": "Move to {group} requested.",
+    "boardMoveTarget": "Move record to {group}.",
+    "boardPickedUp": "Record picked up.",
+    "collapseColumn": "Collapse column",
     "collapseGroup": "Collapse group {group}",
     "dragToReorder": "Drag to reorder",
-    "editColumn": "Edit column",
+    "editOption": "Edit option",
+    "expandColumn": "Expand {name}",
     "expandGroup": "Expand group {group}",
     "groupOverflow": "Only {count} groups are shown",
+    "hiddenColumns": "Hidden columns",
+    "hideColumn": "Hide column",
+    "hideEmptyColumns": "Hide empty columns",
+    "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
+    "moreActions": "More actions",
     "noValue": "No value",
     "resizeColumn": "Resize {column} column. Drag or use arrow keys to resize; double-tap or press Enter to reset.",
     "resizeHint": "Drag to resize. Double-click to reset.",
+    "rowActions": "Row actions",
     "selectAllRows": "Select all rows",
     "selectGroup": "Select group {group}",
     "selectRow": "Select row {id}",
     "views": {
+      "activityCount": "{count, plural, one {# activity} other {# activities}}",
       "aiLabel": "Ask AI about {name}",
       "all": "All",
       "applied": "Showing {name}",
       "askAi": "Ask AI",
+      "conversationCount": "{count, plural, one {# conversation} other {# conversations}}",
       "copyLink": "Copy link",
       "createTitle": "New view",
       "createWithAi": "Create with AI",
@@ -2198,22 +1998,21 @@
       "editTitle": "Edit view",
       "linkCopied": "Link copied",
       "menu": "View actions",
+      "modified": "Unsaved changes",
       "moveLeft": "Move left",
       "moveRight": "Move right",
       "name": "Name",
       "namePlaceholder": "View name",
+      "nameRequired": "Enter a name for the view.",
+      "pickerEmpty": "No matching view",
+      "pickerPlaceholder": "Find a view…",
+      "pickerTitle": "Switch view",
       "railLabel": "Saved views",
-      "recordCount": "{count, plural, one {# record} other {# records}}"
+      "recordCount": "{count, plural, one {# record} other {# records}}",
+      "resetChanges": "Reset changes"
     }
   },
-  "DealModal": {
-    "noServicesAdded": "No {entity} added yet",
-    "quantityLabel": "Quantity",
-    "title": "Deal",
-    "valueLabel": "Value"
-  },
   "Diagrams": {
-    "groups": "groups",
     "noData": "No data available",
     "noGroup": "Unassigned",
     "total": "Total"
@@ -2255,6 +2054,7 @@
     "appRecords": "Records",
     "appRoutines": "Routines",
     "appSearch": "Global Search",
+    "appTrash": "Trash",
     "architectureSecurity": "Architecture & Security",
     "concepts": "Core Concepts",
     "connectCli": "CLI & editors",
@@ -2305,6 +2105,9 @@
     "underline": "Underline",
     "urlPlaceholder": "Enter URL..."
   },
+  "EditorTabs": {
+    "invalid": "Contains errors"
+  },
   "EmailLayout": {
     "tagline": "The agentic, open-source CRM"
   },
@@ -2321,19 +2124,16 @@
       "noResults": "No matches found.",
       "searching": "Searching…",
       "searchPlaceholder": "Search or paste an email, phone or handle…",
-      "sourceContacts": "Existing contact",
       "sourceConversations": "From your conversations",
       "sourceLookup": "Found by lookup",
       "trigger": "Add channel"
     },
-    "ariaCopy": "Copy",
     "ariaStartThread": "Compose {provider} message",
     "ariaUnlink": "Unlink {provider} channel",
     "compose": {
-      "noAccount": "No usable {provider} account is connected. Connect one under My Profile."
+      "noAccount": "No usable {provider} account is connected. Connect one under Settings › Channels."
     },
-    "emptyHint": "No channels yet. Add an email, LinkedIn, WhatsApp, …",
-    "heading": "Channels",
+    "emptyHint": "No channels yet. Email addresses, WhatsApp phone numbers and social accounts that match messages to this record.",
     "tooltipOpenInbox": "Go to inbox",
     "tooltipStartNewThread": "New message",
     "tooltipUnlinkChannel": "Unlink channel",
@@ -2341,145 +2141,36 @@
     "unverified": "Unverified"
   },
   "EntityDetail": {
-    "computedFieldHelp": {
-      "dealValue": "Sum of unit price × quantity for every linked record in {services}. Change linked records or quantities there to update it.",
-      "serviceLineValue": "{service} price × quantity. Change the record or quantity here; edit the linked record to change its price.",
-      "serviceQuantity": "Sum of quantities across all linked records in {services}. Change the quantities there to update it.",
-      "weightedValue": "{dealValue} × the {percent}% win probability for the current stage ({stage}). Change {services}, quantities, or the stage; manage stage probabilities in {company}.",
-      "weightedValueUnconfigured": "{dealValue} × the selected stage’s win probability. Configure stage probabilities in {company} and select a stage; change {services} or quantities to update it."
-    },
+    "configureField": "Edit field {field}",
     "donePersonalizing": "Done",
-    "fields": {
-      "createdAt": "Created at",
-      "updatedAt": "Updated at"
-    },
+    "fieldCancelled": "Cancelled moving {field}.",
+    "fieldDropped": "Placed {field}.",
+    "fieldMoved": "Moved {field} to {target}.",
+    "fieldPickedUp": "Picked up {field}.",
     "hideField": "Hide {field} from details",
     "overview": "Overview",
     "personalize": "Customize",
     "pinField": "Pin {field} to the overview",
+    "pinMore": "Pin or unpin fields",
+    "reorderInstructions": "Press Space or Enter to pick up a field. Use the arrow keys to move it, Space or Enter to drop, and Escape to cancel.",
     "sections": {
       "notes": "Notes"
     },
     "showField": "Show {field} in details",
     "unpinField": "Unpin {field} from the overview"
   },
-  "EntityTerminology": {
-    "presets": {
-      "contact": {
-        "client": {
-          "plural": "Clients",
-          "singular": "Client"
-        },
-        "contact": {
-          "plural": "Contacts",
-          "singular": "Contact"
-        },
-        "lead": {
-          "plural": "Leads",
-          "singular": "Lead"
-        },
-        "person": {
-          "plural": "People",
-          "singular": "Person"
-        }
-      },
-      "deal": {
-        "deal": {
-          "plural": "Deals",
-          "singular": "Deal"
-        },
-        "job": {
-          "plural": "Jobs",
-          "singular": "Job"
-        },
-        "opportunity": {
-          "plural": "Opportunities",
-          "singular": "Opportunity"
-        },
-        "project": {
-          "plural": "Projects",
-          "singular": "Project"
-        }
-      },
-      "organization": {
-        "account": {
-          "plural": "Accounts",
-          "singular": "Account"
-        },
-        "company": {
-          "plural": "Companies",
-          "singular": "Company"
-        },
-        "organization": {
-          "plural": "Organizations",
-          "singular": "Organization"
-        }
-      },
-      "service": {
-        "offering": {
-          "plural": "Offerings",
-          "singular": "Offering"
-        },
-        "package": {
-          "plural": "Packages",
-          "singular": "Package"
-        },
-        "product": {
-          "plural": "Products",
-          "singular": "Product"
-        },
-        "service": {
-          "plural": "Services",
-          "singular": "Service"
-        }
-      },
-      "task": {
-        "actionItem": {
-          "plural": "Action items",
-          "singular": "Action item"
-        },
-        "followUp": {
-          "plural": "Follow-ups",
-          "singular": "Follow-up"
-        },
-        "task": {
-          "plural": "Tasks",
-          "singular": "Task"
-        },
-        "todo": {
-          "plural": "To-dos",
-          "singular": "To-do"
-        }
-      }
-    },
-    "relationships": {
-      "contactDealSummary": "{contacts} are involved in {deals}.",
-      "contactOrganizationSummary": "{contacts} work at {organizations}.",
-      "dataModelLabel": "Your data model: choose the names your team uses; relationships stay the same.",
-      "dealServiceSummary": "{deals} include {services}.",
-      "howRecordsConnect": "How records connect",
-      "include": "include",
-      "involvedIn": "are involved in",
-      "linkedTo": "are linked to",
-      "organizationDealSummary": "{organizations} are linked to {deals}.",
-      "selectLabel": "Name for {entity}",
-      "taskScope": "{tasks} can be linked to any record in this model.",
-      "workAt": "work at"
-    }
-  },
   "EntityTimeline": {
     "detailDescription": "Activity details and related record context.",
     "error": "Activity could not be loaded.",
     "loadOlder": "Load older",
-    "loadOlderError": "Older activity could not be loaded. The entries already shown are still available.",
     "moreRecords": "+{count} more",
     "noFurtherDetail": "No further detail was recorded for this event.",
-    "pageLimitReached": "The oldest available page has been reached. Narrow the current selection to inspect older activity.",
-    "scopeTooBroad": "These relationship filters match too many contacts to load safely. Select fewer records.",
     "types": {
       "activities": "Activities",
-      "changes": "Changes",
-      "messages": "Messages"
+      "audit": "Admin and system",
+      "configuration": "Configuration",
+      "messages": "Messages",
+      "record": "Record changes"
     }
   },
   "ErrorCard": {
@@ -2558,10 +2249,11 @@
     "title": "Forgot password"
   },
   "GlobalSearch": {
-    "clearRecent": "Clear",
-    "emptyDescription": "Search {contacts}, {organizations}, {deals}, {services}, and {tasks} from one place.",
+    "askMateWith": "Ask Mate: {question}",
+    "emptyDescription": "Find records across the lists you can access.",
     "emptyTitle": "Find anything in your workspace",
     "groupRecent": "Recently opened",
+    "hintAskMate": "Ask Mate",
     "hintNavigate": "Navigate",
     "hintOpen": "Open",
     "loading": "Searching...",
@@ -2628,7 +2320,6 @@
       "ccLabel": "Cc",
       "createContact": "Create \"{query}\"",
       "draftAttachmentsUnsupported": "Remove attachments before saving this draft.",
-      "draftDiscard": "Discard",
       "draftDiscardFailed": "Couldn't discard the draft",
       "draftEdit": "Edit",
       "draftSaved": "Draft saved. Find it in the inbox.",
@@ -2641,7 +2332,7 @@
       "loadRemoteImages": "Load remote images",
       "messageSent": "Message sent.",
       "moreSendOptions": "More send options",
-      "noContacts": "No contacts.",
+      "noContacts": "No records.",
       "retry": "Retry",
       "saveDraft": "Save as draft",
       "send": "Send",
@@ -2682,7 +2373,6 @@
     },
     "groupThread": "Group ({count, plural, one {# member} other {# members}})",
     "hideQuotedText": "Hide quoted text",
-    "jumpToLatest": "Jump to latest",
     "lastMessageDirections": {
       "inbound": "Received",
       "outbound": "Sent"
@@ -2694,10 +2384,15 @@
     "messageDeleted": "This message was deleted",
     "messageDetails": "Message details",
     "participants": {
+      "conversationRecords": "Conversation records",
+      "conversationRecordsHint": "Link this conversation to a record without linking other conversations from this participant.",
       "link": "Link",
-      "linkUpdateFailed": "Couldn't update the contact link",
-      "openContact": "Open contact",
-      "unlink": "Unlink contact"
+      "linkRecord": "Link record",
+      "linkUpdateFailed": "Couldn't update the record link",
+      "noRecords": "No linked records",
+      "openRecordNamed": "Open record: {name}",
+      "unlinkRecord": "Unlink record",
+      "unlinkRecordNamed": "Unlink record: {name}"
     },
     "previewAudio": "🎵 Audio",
     "previewFile": "📄 Attachment",
@@ -2709,7 +2404,6 @@
     "previewVideo": "🎥 Video",
     "previewVoice": "🎙️ Voice message",
     "rateLimited": "This channel hit its rate limit. You can try again {retryAfter, select, later {later} other {{retryAfter}}}.",
-    "refresh": "Refresh",
     "refreshDone": "Inbox refreshed.",
     "refreshNeedsReconnect": "{count, plural, one {# channel needs} other {# channels need}} reconnecting before it can sync. Open Channels to reconnect.",
     "refreshPartial": "{count, plural, one {# channel} other {# channels}} couldn't be refreshed. The inbox shows what was synced before.",
@@ -2745,7 +2439,7 @@
       "spam": "Spam",
       "unread": "Unread"
     },
-    "unlinkedParticipants": "Some participants not linked to a contact",
+    "unlinkedParticipants": "Some participants have no linked record you can read",
     "voice": {
       "pause": "Pause",
       "play": "Play",
@@ -2785,6 +2479,45 @@
     "stepsTitle": "How to join",
     "subtitle": "A workspace administrator needs to invite {email}.",
     "title": "Join an existing workspace"
+  },
+  "KeyboardShortcuts": {
+    "actions": {
+      "add": "Add a record or list",
+      "askMate": "Ask Mate",
+      "close": "Close the topmost dialog or drawer",
+      "goConfigure": "Configure",
+      "goDashboard": "Dashboard",
+      "goInbox": "Inbox",
+      "goKnowledgeBase": "Knowledge Base",
+      "goList": "Lists by their position in your sidebar",
+      "goRoutines": "Routines",
+      "goSettings": "Settings",
+      "openFilters": "Open filters on a list",
+      "save": "Save the open form",
+      "search": "Search",
+      "searchAlias": "Search",
+      "shortcuts": "Show keyboard shortcuts",
+      "switchView": "Switch view on a list",
+      "toggleSidebar": "Show or hide the sidebar"
+    },
+    "groups": {
+      "create": "Create",
+      "forms": "Forms",
+      "general": "General",
+      "listsAndViews": "Lists and views",
+      "navigation": "Navigation"
+    },
+    "noMatches": "No shortcut matches your search.",
+    "or": "or",
+    "pendingGo": "Go to… press a letter or a list number",
+    "searchLabel": "Search shortcuts",
+    "searchPlaceholder": "Search shortcuts…",
+    "singleKey": {
+      "description": "C, /, V, ? and the G sequences. Turn them off if you use speech input or press keys by accident.",
+      "label": "Single-key shortcuts"
+    },
+    "then": "then",
+    "title": "Keyboard shortcuts"
   },
   "LegalDocumentNotice": {
     "contractBody": "We updated the legal documents listed below. Please review them for the business customer and arrange electronic acceptance by an authorised system administrator.",
@@ -2831,17 +2564,16 @@
     "text": "Loading..."
   },
   "MassActions": {
-    "apply": "Apply to selected",
     "clearField": "Clear field",
     "delete": "Delete selected",
+    "edit": "Edit",
     "keepInView": "Keep only rows in view",
     "limitReached": "You can select up to {limit} records at a time.",
     "noMatchingFields": "No fields match your search.",
     "offView": "{count, plural, one {# not in the current view} other {# not in the current view}}",
     "scopeStale": "The filters changed since you made this selection.",
     "searchFieldPlaceholder": "Search fields…",
-    "selectedCount": "{count, plural, one {# item selected} other {# items selected}}",
-    "update": "Update"
+    "selectedCount": "{count, plural, one {# item selected} other {# items selected}}"
   },
   "McpConsentCard": {
     "approve": "Approve",
@@ -2867,15 +2599,12 @@
     "addEntity": "Add {entity}",
     "addPickerDescription": "Pick the type of record you want to create.",
     "addPickerTitle": "Create new…",
-    "admin": "Admin",
     "affiliate": "Affiliate Program",
-    "connectedAccounts": "Channels",
-    "crm": "CRM",
     "dashboard": "Dashboard",
+    "data": "Data",
     "docs": "Documentation",
     "features": "Features",
     "inbox": "Inbox",
-    "members": "Members",
     "operator": "Operator Console",
     "overview": "Overview",
     "pricing": "Pricing",
@@ -2929,9 +2658,8 @@
     "routines": "Routines",
     "search": "Search",
     "settings": "Settings",
-    "subscription": "Subscription",
-    "wiki": "Knowledge Base",
-    "workspace": "Workspace"
+    "trash": "Trash",
+    "wiki": "Knowledge Base"
   },
   "NotFoundPage": {
     "body": "We've been automatically notified that this page went on vacation. We'll track it down and bring it back soon!",
@@ -3059,7 +2787,6 @@
         }
       }
     },
-    "back": "Back",
     "continue": "Continue",
     "finish": "Finish",
     "invite": {
@@ -3111,7 +2838,6 @@
     "emptyBody": "Adjust the search or filters to widen the log.",
     "emptyTitle": "No audit events match these filters",
     "navigation": "Audit Log",
-    "searchPlaceholder": "Search by action",
     "values": {
       "action": {
         "auditRead": "Operator audit read",
@@ -3140,6 +2866,7 @@
   "OperatorConsole": {
     "confirm": {
       "allowance": "Set the Enterprise allowance for {name} to {value} credits per user? This applies to the whole workspace.",
+      "changes": "Save these changes to {name}? They apply to the whole workspace.",
       "plan": "Set the plan for {name} to {value}? This applies to the whole workspace.",
       "subscription": "Set the subscription status for {name} to {value}? This applies to the whole workspace and contacts no billing provider.",
       "tags": "Set the tags for {name} to {value}? This applies to the whole workspace.",
@@ -3237,7 +2964,6 @@
       "title": "Credit reset",
       "zeroBalance": "Set remaining balance to zero"
     },
-    "searchPlaceholder": "Search by name or account email",
     "values": {
       "noSubscription": "No subscription",
       "operator": "Platform operator"
@@ -3265,11 +2991,8 @@
     },
     "delete": {
       "action": "Delete workspace",
-      "confirmLabel": "Type {name} to confirm",
-      "confirmMessage": "{name} and {members, plural, =1 {its one member account} other {all # member accounts}} will be permanently deleted. This cannot be undone.",
       "confirmTitle": "Delete this workspace permanently",
       "reasonLabel": "Reason",
-      "title": "Delete this workspace",
       "warningDescription": "Deleting {name} permanently removes the workspace and {members, plural, =1 {its one member account} other {all # member accounts}}, together with their contacts, deals, messages, sign-in credentials and billing records. This cannot be undone."
     },
     "emptyBody": "Adjust the search or filters to widen the list.",
@@ -3280,7 +3003,6 @@
       "workspaceId": "Workspace ID"
     },
     "navigation": "Workspaces",
-    "searchPlaceholder": "Search by member email",
     "stats": {
       "assistantConversations": "Assistant chats",
       "connectedAccounts": "Connected accounts",
@@ -3315,13 +3037,8 @@
       "members": "{active} of {total}"
     }
   },
-  "OrganizationModal": {
-    "title": "Organization"
-  },
   "PageState": {
-    "loading": "Loading page",
-    "notFoundDescription": "This record may have been removed or you may not have access to it.",
-    "notFoundTitle": "Record not found"
+    "loading": "Loading page"
   },
   "PendingCard": {
     "body": "You can sign in once your account has been approved by your company's administrator.",
@@ -3330,6 +3047,696 @@
   },
   "ProfileSections": {
     "apiKeysDescription": "Long-lived API keys for programmatic access."
+  },
+  "RecordActivityWidgets": {
+    "after": "From",
+    "allRecords": "Leave records empty to include every accessible record of this type.",
+    "before": "Until",
+    "filterKinds": {
+      "provider": "Provider"
+    },
+    "records": "Records",
+    "savedFilters": "Saved scope filters",
+    "scopeHelp": "Leave the scope empty for all accessible activity. Selected types and records are combined; additional filters must all match.",
+    "types": "Record types"
+  },
+  "RecordModel": {
+    "access": "Access",
+    "accessDescription": "Only administrators can access this list unless you select an approved access preset.",
+    "addAttribute": "Add attribute",
+    "addEmbedded": "Add {type}",
+    "addField": "Add field",
+    "addGroupSummary": "Add summary",
+    "addInput": "Add input",
+    "addMenu": {
+      "calculation": "Calculated field",
+      "channels": "Channels",
+      "field": "Field",
+      "list": "List",
+      "relationship": "Relationship",
+      "sublist": "Sub-list"
+    },
+    "addOption": "Add option",
+    "addPathStep": "Add a relationship step",
+    "addProperty": "Add property",
+    "addRelationship": "Add relationship",
+    "aggregation": "Aggregation",
+    "ascending": "Ascending",
+    "assignedTo": "Assigned to",
+    "attribute": "Attribute name",
+    "attributeNameTaken": "Another attribute already has this name",
+    "behavior": "Value source",
+    "behaviors": {
+      "formula": "Calculated from this record",
+      "input": "Entered manually",
+      "lookup": "Taken from a linked record",
+      "rollup": "Counted or totalled from linked records",
+      "snapshot": "Saved at an event"
+    },
+    "board": "Board",
+    "calculatedValue": "Calculated: {formula}",
+    "calculatedValuePlain": "Calculated value",
+    "calculationError": "Calculation unavailable",
+    "calculationFlow": {
+      "addStep": "Add step",
+      "aggregates": {
+        "average": "Average",
+        "count": "Number",
+        "max": "Maximum",
+        "min": "Minimum",
+        "sum": "Sum"
+      },
+      "describe": {
+        "failed": "Couldn't turn that into a calculation. Try describing it differently.",
+        "label": "Describe the calculation",
+        "pending": "Drafting the calculation",
+        "placeholder": "For example: total of the amounts of all linked line items",
+        "stop": "Stop drafting",
+        "unavailable": "Drafting isn't available right now."
+      },
+      "example": {
+        "next": "Show another example",
+        "none": "Add a record to this list to see an example.",
+        "restricted": "You can't see every record this uses, so there's no example.",
+        "title": "Example",
+        "unavailable": "Too many linked records to show an example."
+      },
+      "inputs": "Inputs",
+      "linkedList": "Linked list",
+      "missing": {
+        "average": "Pick which value to average.",
+        "input": "Pick a value to start with.",
+        "max": "Pick which value to find the largest of.",
+        "min": "Pick which value to find the smallest of.",
+        "mismatch": "These values don't fit together.",
+        "relationship": "Pick which linked records to use.",
+        "step": "Pick the values for {operation}.",
+        "sum": "Pick which value to add up.",
+        "take": "Pick which value to take.",
+        "trigger": "Pick the field that triggers saving.",
+        "triggerValue": "Pick the value that triggers saving."
+      },
+      "moreOptions": "More options",
+      "of": "of",
+      "ofLinked": "of linked {list}",
+      "picker": {
+        "fields": "Fields",
+        "fixedValue": "Fixed value",
+        "goFurther": "Go further",
+        "operations": {
+          "compare": "Compare",
+          "dates": "Dates",
+          "logic": "Logic",
+          "math": "Math",
+          "text": "Text"
+        },
+        "relationships": "Linked records",
+        "use": "Use this value"
+      },
+      "pickField": "Pick a field",
+      "pickRelationship": "Pick a relationship",
+      "pickValue": "Pick a value",
+      "private": "Private",
+      "sentence": {
+        "average": "{field} is the average {value} of all linked {list}.",
+        "count": "{field} counts the linked {list}.",
+        "formula": "{field} is calculated as {formula}.",
+        "lookup": "{field} shows the {value} of the linked {list}.",
+        "max": "{field} is the largest {value} among all linked {list}.",
+        "min": "{field} is the smallest {value} among all linked {list}.",
+        "savedOnCreate": "It is saved when the record is created.",
+        "savedOnRequest": "It is saved when someone asks for it.",
+        "savedWhenChanged": "It is saved when {field} changes.",
+        "savedWhenChangedTo": "It is saved when {field} changes to {value}.",
+        "sum": "{field} adds up the {value} of all linked {list}.",
+        "throughList": "{list} of the {via}",
+        "typeOver": "People can type over it."
+      },
+      "shown": "Shown to everyone",
+      "showToEveryone": "Show to everyone who can see the {list}",
+      "showToEveryoneHelp": "They'll see this value even if they can't open the {list}.",
+      "step": "Step {number}",
+      "take": "Take",
+      "text": {
+        "average": "average {value} across linked {list}",
+        "count": "number of linked {list}",
+        "daysBetween": "days from {from} to {to}",
+        "if": "if {condition} then {then}, otherwise {otherwise}",
+        "linkedValue": "{list} {value}",
+        "lower": "{value} in lowercase",
+        "max": "largest {value} among linked {list}",
+        "min": "smallest {value} among linked {list}",
+        "not": "not {value}",
+        "sum": "sum of {value} across linked {list}",
+        "trim": "{value} without surrounding spaces",
+        "upper": "{value} in uppercase"
+      },
+      "thisField": "This field",
+      "thisList": "This list",
+      "typeOver": "Let people type over it",
+      "updateModes": {
+        "create": "Saved when the record is created",
+        "explicit": "Saved on request",
+        "live": "Always up to date",
+        "whenChanged": "Saved when a field changes"
+      },
+      "updates": "Updates"
+    },
+    "cancelOperation": "Cancel change",
+    "captureOnSave": "Capture on save",
+    "captureOnSaveField": "Capture {field} on save",
+    "captureValue": "Capture value",
+    "captureValueField": "Capture {field}",
+    "cardinality": {
+      "manyToMany": "Many to many",
+      "manyToOne": "Many to one",
+      "oneToMany": "One to many",
+      "oneToOne": "One to one"
+    },
+    "changeBlocked": "This change can't be applied yet",
+    "channelsHelp": "Email addresses, WhatsApp phone numbers and social accounts that match messages to this record. Phone numbers are only matched for WhatsApp chats. An identifier can link to several records.",
+    "clickAction": "On click",
+    "clickActions": {
+      "channels": {
+        "copy": "Copy",
+        "open": "Open email, call or profile"
+      },
+      "email": {
+        "copy": "Copy address",
+        "open": "Open in mail app"
+      },
+      "phone": {
+        "copy": "Copy number",
+        "open": "Call number"
+      },
+      "url": {
+        "copy": "Copy link",
+        "open": "Open link"
+      }
+    },
+    "color": "Color",
+    "conditionIf": "Condition",
+    "conditionOtherwise": "Otherwise",
+    "conditionThen": "Then",
+    "configurationDeletion": {
+      "blockedMessage": "{name} can't be deleted while other parts of your setup still use it.",
+      "blockers": {
+        "binding": "{target} controls workspace access for {source} and can't be deleted.",
+        "calculation": "{source} calculates from {target}.",
+        "parentAccess": "{source} gets its access through {target}.",
+        "protected": "{source} controls workspace access and can't be deleted.",
+        "requiresRestore": "Restore {target} first, {source} belongs to it.",
+        "routine": "The routine {source} reacts to {target}.",
+        "snapshotTrigger": "{source} saves its value when {target} changes.",
+        "webhook": "The webhook {source} sends changes of {target}.",
+        "widget": "The widget {source} measures {target}."
+      },
+      "cleaned": {
+        "bindingAvatar": "{target} is no longer used as the profile picture of {consumers}.",
+        "bindingCalendar": "{target} is no longer used for the calendar events of {consumers}.",
+        "listDefaults": "{target} is removed from the default layout of {consumers}.",
+        "nameField": "{consumers} will be shown by {replacement} instead.",
+        "nameFieldNone": "No field in {consumers} can name its records any more, so they show as “Untitled {singular}”.",
+        "personalLayouts": "{target} is removed from {count, plural, one {# personal layout} other {# personal layouts}}.",
+        "view": "{count, plural, one {{target} is removed from the view {consumers}.} other {{target} is removed from # views: {consumers}.}}",
+        "webhookPaused": "{count, plural, one {The webhook {consumers} is paused, because {target} was its only trigger. Choose a new trigger before turning it back on.} other {# webhooks are paused, because {target} was their only trigger: {consumers}. Choose a new trigger before turning them back on.}}",
+        "webhookTrigger": "{count, plural, one {{target} is removed from the trigger of the webhook {consumers}.} other {{target} is removed from the trigger of # webhooks: {consumers}.}}",
+        "widget": "{count, plural, one {{target} is removed from the filters or grouping of the widget {consumers}.} other {{target} is removed from the filters or grouping of # widgets: {consumers}.}}",
+        "widgetCount": "{count, plural, one {The widget {consumers} counts records instead of measuring {target}.} other {# widgets count records instead of measuring {target}: {consumers}.}}"
+      },
+      "configureActions": "Configure actions",
+      "deleteColumn": "Delete column",
+      "deleteColumnMessage": "The related-record column {name} is removed from {list}.",
+      "deleteColumnTitle": "Delete column {name}?",
+      "deleteField": "Delete field",
+      "deleteList": "Delete list",
+      "deleteMessage": "{name} moves to Trash. You can restore it there for 30 days.",
+      "deleteRelationship": "Delete relationship",
+      "deleteTitle": "Delete {name}?",
+      "issues": {
+        "dependency": "{subject} depends on this change. Update it first.",
+        "detailLayout": "Personal record layouts still use {subject}.",
+        "existingValues": "Some existing values of {subject} don't fit the change.",
+        "readAll": "{subject} still contains records you can't see. Only someone who can read all of its records, or an admin, can delete it permanently.",
+        "savedView": "Saved views or personal layouts still use {subject}.",
+        "summaryApproval": "{subject} needs a renewed summary approval."
+      },
+      "moved": "Moved to Trash"
+    },
+    "configure": "Configure",
+    "configureList": "Configure {list}",
+    "connectionType": "Connection",
+    "constant": "Fixed value",
+    "contactFullName": "Name",
+    "createdAt": "Created at",
+    "createList": "Create list",
+    "createSublist": "New sub-list of {list}",
+    "currency": "Currency",
+    "decimalPlaces": "Decimal places",
+    "decimalPlacesHelp": "Leave empty for the default. This changes how values are displayed, not how they are calculated.",
+    "defaultColumns": "Default columns",
+    "defaultGrouping": "Default grouping",
+    "defaultLayout": "Default layout",
+    "defaultOrder": "Creation order",
+    "defaultSort": "Default sort",
+    "defaultValue": "Default value",
+    "deleteRecord": "Delete {name}",
+    "deletion": {
+      "cascade": "Also delete linked records",
+      "restrict": "Prevent deletion while linked",
+      "unlink": "Remove the link"
+    },
+    "deletionAccepted": "Deletion accepted.",
+    "deletionCalculations": "Calculations that may be affected: {fields}.",
+    "deletionLinks": "Links removed: {count}.",
+    "deletionRecords": "This removes {records}.",
+    "deletionRestrictedLinks": "The link count is hidden because some linked records are restricted.",
+    "dependencyHelp": "Resolve the affected dependencies before applying this change.",
+    "descending": "Descending",
+    "description": "Description",
+    "detailLayoutReadFailed": "Your saved layout could not be loaded.",
+    "detailLayoutSaveFailed": "Layout changes could not be saved.",
+    "directRelationship": "Direct relationship",
+    "disabled": "Off",
+    "duplicateFieldName": "Another field in this list already uses this name, including recently deleted fields. Choose a different name.",
+    "duplicateListName": "Another list already uses this name. List names must be unique, ignoring case, accents and extra spaces.",
+    "duplicateOptionLabel": "Two options of this field have the same label. Option labels must be unique.",
+    "duplicateRelationshipLabel": "Another relationship on this list already uses this label. Choose a different label.",
+    "edit": "Edit",
+    "editField": "Edit field",
+    "editValue": "Edit {field}",
+    "empty": "No records yet",
+    "emptyDescription": "Create your first record to get started.",
+    "enabled": "On",
+    "fields": "Fields",
+    "fieldSource": {
+      "formula": "Formula",
+      "lookup": "Value from {list}",
+      "rollup": "Total from {list}"
+    },
+    "fieldTabs": {
+      "calculation": "Calculation"
+    },
+    "general": "General",
+    "graph": {
+      "accountEdge": "Syncs conversations into {list}",
+      "accounts": "Connected accounts",
+      "accountUnit": "{count, plural, one {account} other {accounts}}",
+      "addTo": "Add to {list}",
+      "calculatedFrom": "from {sources}",
+      "calculationEdge": "Calculated from this list: {fields}",
+      "connectDescription": "Connect Gmail, Outlook or another channel to bring conversations into your lists.",
+      "connectTitle": "Connect email and calendar",
+      "controls": "Graph controls",
+      "fitView": "Fit view",
+      "handle": "Connection point",
+      "help": "Select a list or field to edit it, select the chip on a line to edit a relationship, or drag from the dot on one list to another to connect them.",
+      "helpReadOnly": "Select a list to open it. Lines show how lists are related and where calculated values come from.",
+      "label": "Graph of lists, fields and connected accounts",
+      "moreAccounts": "{count, plural, one {# more account} other {# more accounts}}",
+      "moreFields": "{count, plural, one {# more field} other {# more fields}}",
+      "recordsRestricted": "Record count not available",
+      "recordUnit": "{count, plural, one {record} other {records}}",
+      "relationshipLabel": "{label}: {source} to {target}, {cardinality}",
+      "resetLayout": "Reset layout",
+      "showFewer": "Show fewer",
+      "zoomIn": "Zoom in",
+      "zoomOut": "Zoom out"
+    },
+    "groupSummaries": "Group summaries",
+    "groupSummariesDescription": "Show totals and other measures in table groups and board columns. Each record contributes once per group, including records on later pages.",
+    "hiddenList": "Hidden",
+    "icon": "Icon",
+    "iconChoose": "Choose icon",
+    "iconNoMatch": "No icons match",
+    "icons": {
+      "alarm": "Reminder",
+      "alert": "Incident",
+      "award": "Award",
+      "bag": "Purchase",
+      "banknote": "Payment",
+      "barcode": "Barcode",
+      "book": "Book",
+      "box": "Product",
+      "boxes": "Inventory",
+      "briefcase": "Briefcase",
+      "bug": "Bug",
+      "building": "Building",
+      "calendar": "Calendar",
+      "calendarCheck": "Appointment",
+      "camera": "Photo",
+      "car": "Vehicle",
+      "cart": "Order",
+      "chart": "Chart",
+      "check": "Check mark",
+      "clipboard": "Checklist",
+      "clock": "Time",
+      "coins": "Coins",
+      "contact": "People",
+      "contactCard": "Contact card",
+      "contract": "Contract",
+      "creditCard": "Credit card",
+      "database": "Database",
+      "deal": "Handshake",
+      "document": "Document",
+      "factory": "Factory",
+      "files": "Files",
+      "filter": "Funnel",
+      "flag": "Flag",
+      "folder": "Folder",
+      "gavel": "Case",
+      "gift": "Gift",
+      "globe": "Website",
+      "graduationCap": "Education",
+      "hammer": "Tool",
+      "handshake": "Growth",
+      "hardDrive": "Storage",
+      "headset": "Service desk",
+      "heart": "Favorite",
+      "home": "Property",
+      "hotel": "Hotel",
+      "idCard": "ID card",
+      "inbox": "Inbox",
+      "kanban": "Board",
+      "key": "Key",
+      "landmark": "Institution",
+      "laptop": "Laptop",
+      "layers": "Layers",
+      "leaf": "Nature",
+      "lifeBuoy": "Support",
+      "lightbulb": "Idea",
+      "link": "Link",
+      "list": "List",
+      "mail": "Email",
+      "map": "Map",
+      "mapPin": "Location",
+      "megaphone": "Campaign",
+      "message": "Message",
+      "milestone": "Milestone",
+      "music": "Music",
+      "network": "Network",
+      "newspaper": "News",
+      "notebook": "Notebook",
+      "package": "Package",
+      "palette": "Design",
+      "percent": "Discount",
+      "phone": "Call",
+      "piggyBank": "Savings",
+      "pill": "Medication",
+      "plane": "Travel",
+      "receipt": "Invoice",
+      "repeat": "Recurring",
+      "rocket": "Launch",
+      "scale": "Legal",
+      "server": "Server",
+      "shield": "Policy",
+      "signature": "Signature",
+      "smartphone": "Phone device",
+      "stamp": "Approval",
+      "star": "Star",
+      "stethoscope": "Health",
+      "store": "Store",
+      "tag": "Tag",
+      "target": "Target",
+      "ticket": "Ticket",
+      "trophy": "Trophy",
+      "truck": "Shipment",
+      "user": "Person",
+      "userCheck": "Approved person",
+      "userPlus": "New person",
+      "usersRound": "Team",
+      "utensils": "Restaurant",
+      "wallet": "Wallet",
+      "warehouse": "Warehouse",
+      "wrench": "Maintenance"
+    },
+    "iconSearch": "Search icons",
+    "identityChannels": "Channels",
+    "invalidConfiguration": "This change needs attention before it can be applied.",
+    "invalidPhone": "Enter a phone number in international format, for example +4930123456.",
+    "invalidValue": "Enter a valid value.",
+    "lineFields": {
+      "amount": "Amount",
+      "effectivePrice": "Unit price",
+      "pricingMode": "Pricing",
+      "quantity": "Quantity",
+      "savedPrice": "Saved unit price"
+    },
+    "lineItem": "Line item",
+    "lineItems": "Line items",
+    "linkedRecordCount": "{count} linked records",
+    "linkedType": "Link to",
+    "linkRecord": "Link a record",
+    "listActions": "List actions",
+    "listCounts": "{fields, plural, one {# field} other {# fields}} · {relationships, plural, one {# relationship} other {# relationships}}",
+    "listUnavailable": "This list is not available. Choose another list.",
+    "member": "Member",
+    "missing": "No value",
+    "moreActions": "More actions for {name}",
+    "moveDown": "Move {field} down",
+    "moveUp": "Move {field} up",
+    "multipleValues": "Allow several values",
+    "name": "Name",
+    "newRecord": "New record",
+    "no": "No",
+    "noGrouping": "No grouping",
+    "noneYet": "None yet",
+    "noOptions": "No options yet. Add the first option to choose from.",
+    "onePerLine": "Enter one value per line.",
+    "onSourceDelete": "When this record is deleted",
+    "onTargetDelete": "When the linked record is deleted",
+    "openDetails": "Open details",
+    "openPage": "Open page",
+    "openRecord": "Open {name}",
+    "operation": "Calculation",
+    "operationCancelled": "The change was cancelled.",
+    "operationFailed": "The change failed. The previous complete state is still active.",
+    "operationPending": "Changes are being prepared. Existing data remains available.",
+    "operationProgress": "{processed} of {total} prepared",
+    "operators": {
+      "add": "Add",
+      "and": "All conditions",
+      "coalesce": "First available value",
+      "concat": "Join text",
+      "daysBetween": "Days between",
+      "divide": "Divide",
+      "equal": "Equals",
+      "greaterThan": "Greater than",
+      "if": "If, then, otherwise",
+      "lessThan": "Less than",
+      "lower": "Lowercase",
+      "multiply": "Multiply",
+      "not": "Not",
+      "or": "Any condition",
+      "subtract": "Subtract",
+      "trim": "Remove surrounding spaces",
+      "upper": "Uppercase"
+    },
+    "oppositeLabel": "Label on the other side",
+    "option": "Option",
+    "optionCount": "{count, plural, =0 {No options} one {# option} other {# options}}",
+    "options": "Options",
+    "pinnedFields": "Pinned detail fields",
+    "pluralDescription": "Shown in navigation and list titles. Suggested from the name until you change it.",
+    "pluralName": "Plural name",
+    "previewReady": "Ready to apply. {count} records will be checked.",
+    "previewReadyHidden": "Ready to apply. It includes records you can't see.",
+    "priceModes": {
+      "live": "Live price",
+      "saved": "Saved price"
+    },
+    "privateAccess": "Administrators only",
+    "probability": "Probability %",
+    "probabilityNeedsNumber": "Probability is a number attribute. Add it with Add attribute instead.",
+    "progressUnavailable": "Could not load progress. Your draft is retained.",
+    "rangeEnd": "Until",
+    "rangeStart": "From",
+    "record": "Record",
+    "recordConflictFields": "Also changed elsewhere: {fields}. Choose which version to keep before saving.",
+    "recordReload": "Reload record",
+    "recordReloadKeepChanges": "Reload and keep my changes",
+    "records": "Records",
+    "recordStale": "This record changed elsewhere. Reload it to keep editing.",
+    "recordStaleDraft": "This record changed since you started editing. Reload it to continue; your unsaved changes are kept.",
+    "reducers": {
+      "average": "Average",
+      "count": "Count",
+      "max": "Maximum",
+      "min": "Minimum",
+      "one": "Single linked value",
+      "sum": "Sum"
+    },
+    "relationship": "Relationship",
+    "relationshipChange": "{count} relationships changed",
+    "relationshipEditor": {
+      "cardinality": "How many records link",
+      "messagesHelp": "Messages come from linked records with Channels or linked conversations. Record and message permissions still apply.",
+      "onDelete": "When deleted",
+      "otherList": "the linked list",
+      "showMessagesOn": "Show their messages on {list}",
+      "showMessagesOnSide": "Show their messages on {list} ({side})",
+      "shownOn": "Shown on records in {list}",
+      "thisList": "This list"
+    },
+    "relationshipLabel": "Label on this side",
+    "relationshipPath": "Through linked records",
+    "relationshipPathHelp": "Show records reached through existing relationships. Edit the underlying links to change these records.",
+    "relationships": "Relationships",
+    "relationshipsEmpty": "No relationships yet. Link this list to another list to see related records together.",
+    "reloadLists": "Reload lists",
+    "removeGroupSummary": "Remove summary",
+    "removeInput": "Remove input",
+    "removePathStep": "Remove {label} and following steps",
+    "renameAttribute": "Rename",
+    "renewPublishedSummaries": "Renew published summaries",
+    "renewPublishedSummariesHelp": "Approve the changed inputs for these summaries. Their values remain visible to readers who cannot access the linked inputs.",
+    "required": "Required",
+    "resetDefaults": "Reset to shared defaults",
+    "resetDetailLayout": "Reset to default",
+    "restricted": "Restricted",
+    "resume": "Resume",
+    "retry": "Retry",
+    "returnToDraft": "Return to draft",
+    "saveBeforeEmbedded": "Save this record before changing linked items.",
+    "savingDetailLayout": "Saving layout…",
+    "setDefaultValue": "Set a default value",
+    "sharedDefaults": "Shared defaults",
+    "sharedDefaultsDescription": "These defaults apply until someone customizes their own view. Existing personal choices stay unchanged.",
+    "showInNavigation": "Show in navigation",
+    "sortDirection": "Sort direction",
+    "stagedValidation": "Existing data will be validated in the background. The previous complete state stays active until validation and recalculation succeed.",
+    "staleControlConflict": "A setting changed elsewhere. Choose which version to use before previewing again.",
+    "staleKeepDraft": "Keep my draft",
+    "staleLoadLatest": "Load latest",
+    "staleRefresh": "Refresh data model",
+    "staleRefreshFailed": "Could not refresh the data model. Your draft is still here; try again.",
+    "staleRefreshRequired": "The data model changed. Refresh it to keep editing this draft.",
+    "staleTargetMissing": "This definition was removed. Your draft is preserved, but it cannot be applied.",
+    "starterTypes": {
+      "contact": {
+        "plural": "Contacts",
+        "singular": "Contact"
+      },
+      "deal": {
+        "plural": "Deals",
+        "singular": "Deal"
+      },
+      "organization": {
+        "plural": "Organizations",
+        "singular": "Organization"
+      },
+      "service": {
+        "plural": "Services",
+        "singular": "Service"
+      },
+      "task": {
+        "plural": "Tasks",
+        "singular": "Task"
+      }
+    },
+    "sublistSentence": "Sub-list of {list} · each entry lives inside one {parent}, shares its access and is removed with it.",
+    "suggestedAttribute": "Suggested",
+    "summaryAggregation": "Calculation",
+    "summaryApprovalRequired": "This summary is published. An administrator must approve changes to its calculation inputs.",
+    "summaryField": "Summary field",
+    "systemActor": "System",
+    "table": "Table",
+    "triggerField": "When this field changes",
+    "triggerValue": "To this value",
+    "types": {
+      "boolean": "Yes or no",
+      "channels": "Channels",
+      "currency": "Money",
+      "date": "Date",
+      "dateRange": "Date range",
+      "dateTime": "Date and time",
+      "dateTimeRange": "Date and time range",
+      "email": "Email",
+      "member": "Member",
+      "multiSelect": "Multiple choice",
+      "number": "Number",
+      "phone": "Phone",
+      "richText": "Formatted text",
+      "select": "Single choice",
+      "text": "Text",
+      "url": "Web address"
+    },
+    "typeSettings": "Type settings",
+    "unavailableOption": "Unavailable option",
+    "unlinkRecord": "Unlink {name}",
+    "untitledRecord": "Untitled {singular}",
+    "updatedAt": "Updated at",
+    "useChannelAvatar": "Use channel profile picture",
+    "usedBy": {
+      "blocking": "Would block deletion",
+      "blockingCount": "{count, plural, one {# would block deletion} other {# would block deletion}}",
+      "cleaned": "Cleaned up on deletion",
+      "cleanedCount": "{count, plural, one {# cleaned up} other {# cleaned up}}",
+      "layouts": "Also removed from {count, plural, one {# layout} other {# layouts}}.",
+      "title": "Used by"
+    },
+    "valueSource": {
+      "calculated": "Calculated · {formula}",
+      "from": "From {list} · {value}",
+      "savedOnCreate": "Saved when the {list} is created",
+      "savedOnRequest": "Saved on request",
+      "savedWhenChanged": "Saved when {field} changes",
+      "savedWhenChangedTo": "Saved when {field} changes to {value}"
+    },
+    "valueType": "Value type",
+    "yes": "Yes"
+  },
+  "RecordTriggers": {
+    "changedFieldsHelp": "Leave empty to match every change.",
+    "triggerFiltersHelp": "Leave empty to match every record."
+  },
+  "RecordWidgets": {
+    "attribution": "A record can appear in several groups. Group totals may exceed the overall total.",
+    "funnelClosedStage": "{label}: {value}, a lost stage shown outside the funnel.",
+    "funnelTooltip": "{value} ({conversion} of the previous step)",
+    "group": "Group by",
+    "groupFilterHelp": "Choose which records appear as groups. The overall total still uses the source filters above.",
+    "groupFilters": "Group filters",
+    "groupFilterSummary": "Groups are filtered. The overall total includes all matching source records.",
+    "groupPath": "Follow relationships",
+    "groupRecord": "Each record",
+    "interval": "Time interval",
+    "intervals": {
+      "day": "Day",
+      "month": "Month",
+      "none": "Exact value",
+      "quarter": "Quarter",
+      "week": "Week (starts Monday)",
+      "year": "Year"
+    },
+    "loadingSchema": "Loading fields…",
+    "measure": "Measure",
+    "noRecordsInPeriod": "No records",
+    "notes": "About these numbers",
+    "overall": "Overall: {value}",
+    "previewFailed": "The preview could not be loaded. Try again.",
+    "quarterLabel": "Q{quarter} {year}",
+    "ranked": {
+      "group": "Group",
+      "more": "+ {count} more",
+      "rank": "#",
+      "share": "Share",
+      "value": "Value"
+    },
+    "recordCount": "{count, plural, one {# record} other {# records}}",
+    "relatedAny": "At least one accessible linked record matches",
+    "relatedNone": "No accessible linked records match",
+    "search": "Search records",
+    "signedChart": "Negative values are shown as a list. Choose a bar chart to plot them.",
+    "source": "Records from",
+    "unavailable": "This measure is unavailable. Review its configuration or access.",
+    "unavailableMember": "Unavailable user",
+    "unplacedGroups": "Some records are restricted or could not be calculated and are not shown.",
+    "value": "Value field",
+    "weekOf": "Week of {date}",
+    "weekShort": "W{week} {year}",
+    "withoutDate": "{count, plural, one {# record has no date and is not shown.} other {# records have no date and are not shown.}}",
+    "withoutValue": "{count, plural, one {# record has no value and is not shown.} other {# records have no value and are not shown.}}"
   },
   "ResetPassword": {
     "cta": "Reset password",
@@ -3347,25 +3754,25 @@
     "resize": "Resize {before} and {after}. Drag or use arrow keys to resize; double-tap or press Enter to reset."
   },
   "RoleModal": {
+    "create": "Create",
+    "dataModelNote": "Create and change lists, fields and relationships in Configure.",
+    "edit": "Edit",
     "manageAccess": "Manage",
-    "no": "No",
     "ownRoleAlert": "This role is assigned to you and cannot be edited. Ask another administrator to change it.",
     "readAccess": "Read access",
     "readAll": "All",
     "readNone": "None",
     "readOwn": "Assigned",
+    "recordTypes": "Record types",
+    "recordTypesHint": "New types start without access. Embedded items inherit access from their parent record.",
     "resourceHeader": "Resource",
     "resources": {
       "api": "API & Webhooks",
       "auditLog": "Audit Log",
       "company": "Company",
-      "contacts": "Contacts",
-      "deals": "Deals",
+      "dataModel": "Data model",
       "inboxMessages": "Inbox messages",
-      "organizations": "Organizations",
       "routines": "Routines",
-      "services": "Services",
-      "tasks": "Tasks",
       "users": "Users & Roles",
       "wiki": "Knowledge Base"
     },
@@ -3373,12 +3780,11 @@
     "systemDescription": "Full access to all features and settings. Cannot be modified or deleted.",
     "systemName": "Admin",
     "title": "Role",
-    "yes": "Yes"
+    "workspacePermissions": "Workspace"
   },
   "RolesCard": {
     "custom": "Custom",
-    "system": "System",
-    "title": "Roles"
+    "system": "System"
   },
   "RoutineAdministration": {
     "help": "As a company administrator, you can pause or delete this routine, but you cannot edit, test, or run it.",
@@ -3401,7 +3807,8 @@
           "messageReceived": "Receive a new, non-duplicate incoming message through a connected account.",
           "messageUpdated": "Edit a message in the connected messaging provider.",
           "recordCreated": "Create a record in Customermates: {entity}.",
-          "recordDeleted": "Delete a record in Customermates: {entity}.",
+          "recordDeleted": "Move a record to Trash in Customermates: {entity}.",
+          "recordRestored": "Restore a record from Trash in Customermates: {entity}.",
           "recordUpdated": "Make a real change to a record in Customermates: {entity}.",
           "relationCreated": "Have a LinkedIn connection request accepted through a connected account."
         },
@@ -3456,7 +3863,6 @@
   },
   "RoutineModal": {
     "at": "at",
-    "changedFieldsHelp": "Leave empty to run on every change. Narrowing saves credits.",
     "configurationHeading": "Configuration",
     "customSchedule": "This routine uses a custom schedule: {expression}",
     "detailsTab": "Details",
@@ -3471,7 +3877,6 @@
     "scheduleTimeZone": "Times are shown in {timezone}.",
     "tabsLabel": "Routine sections",
     "title": "Routine",
-    "triggerFiltersHelp": "Leave empty to run for every record.",
     "useSchedulePreset": "Switch to a preset"
   },
   "RoutineRunReason": {
@@ -3540,8 +3945,46 @@
     "tuesday": "Tuesday",
     "wednesday": "Wednesday"
   },
-  "ServiceModal": {
-    "title": "Service"
+  "SettingsNav": {
+    "account": "Account",
+    "activity": "Activity",
+    "apiKeys": "API keys",
+    "billing": "Billing",
+    "channels": "Channels",
+    "deliveries": "Deliveries",
+    "members": "Members",
+    "profile": "Profile & preferences",
+    "roles": "Roles",
+    "webhooks": "Webhooks",
+    "workspace": "Workspace"
+  },
+  "SidebarCustomize": {
+    "deleteSection": "Delete section",
+    "deleteSectionEmpty": "The section is empty, so no items move.",
+    "deleteSectionMoves": "Its items move to the top level of your sidebar; hidden items stay hidden:",
+    "deleteSectionTitle": "Delete section “{section}”?",
+    "dragItem": "Move {item}",
+    "dragSection": "Move section {section}",
+    "emptySection": "Drag items here or use Move to section",
+    "hide": "Hide from sidebar",
+    "hint": "Drag the handles to reorder items and sections, or use the … menus. Items can sit at the top level or inside a section. Click a section's name to rename it.",
+    "itemActions": "Options for {item}",
+    "moveDown": "Move down",
+    "moveToSection": "Move to section",
+    "moveUp": "Move up",
+    "newSection": "New section",
+    "newSectionName": "New section",
+    "rename": "Rename",
+    "reset": "Reset to default",
+    "resetDone": "Sidebar reset to default",
+    "resetMessage": "Your personal sections, order and hidden items return to the default. Other people's sidebars are not affected.",
+    "resetTitle": "Reset sidebar to default?",
+    "sectionActions": "Options for {section}",
+    "sectionDeleted": "Section deleted",
+    "sectionName": "Section name",
+    "show": "Show {item}",
+    "title": "Customize sidebar",
+    "topLevel": "Top level"
   },
   "SignInForm": {
     "agreeToTerms": "By continuing, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and acknowledge our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>. See our <dpaLink>DPA</dpaLink>.",
@@ -3585,7 +4028,7 @@
       "planManage": "Synced from billing. Use {billing} to make changes.",
       "planPicker": "Choose a plan below to start or change the subscription.",
       "planReadOnly": "Synced from billing. Ask a workspace administrator to make changes.",
-      "quantity": "Synced to the number of active workspace members. Workspace administrators can activate or deactivate members in {company}.",
+      "quantity": "Synced to the number of active workspace members. Workspace administrators can activate or deactivate members in {members}.",
       "trialEndsManage": "Set by the trial period. Use {billing} to manage the subscription.",
       "trialEndsPicker": "Set by the trial period. Choose a plan before this date to continue without interruption.",
       "trialEndsReadOnly": "Set by the trial period. Ask a workspace administrator to manage the subscription."
@@ -3620,7 +4063,6 @@
     },
     "planStatusLabel": "{plan} · {status}",
     "quantity": "Active seats",
-    "refresh": "Refresh",
     "refreshSuccess": "Subscription refreshed successfully",
     "seatBillingNote": "You pay per active user. Seat changes are prorated on your next invoice.",
     "status": {
@@ -3654,11 +4096,58 @@
     "subject": "Your account is inactive: we can help you restore access",
     "title": "Subscription inactivated"
   },
-  "TaskModal": {
-    "title": "Task"
-  },
-  "TasksCard": {
-    "systemTaskTooltip": "System-managed {task}. It cannot be deleted manually; open it for more information."
+  "Trash": {
+    "bannerDeleted": "Deleted {date}. {count, plural, =0 {Deletes permanently today} one {Deletes permanently in # day} other {Deletes permanently in # days}}.",
+    "columns": {
+      "deletedAt": "Deleted at",
+      "deletedBy": "Deleted by",
+      "expiresAt": "Deletes permanently",
+      "kind": "Kind"
+    },
+    "daysLeft": "{count, plural, =0 {Deletes permanently today} one {Deletes permanently in # day} other {Deletes permanently in # days}}",
+    "deletedPermanently": "Deleted permanently",
+    "deletePermanently": "Delete permanently",
+    "deletePermanentlyManyTitle": "Delete {count, plural, one {# item} other {# items}} permanently?",
+    "deletePermanentlyTitle": "Delete {name} permanently?",
+    "deletionPartlyFailed": "Some items could not be deleted and stay in Trash. Everything else was deleted permanently.",
+    "deletionPending": "Some items are still being deleted in the background. They stay in Trash until that finishes.",
+    "empty": "Empty trash",
+    "emptyBody": "Deleted items stay here for 30 days, then they are deleted permanently.",
+    "emptyConfirmation": "empty trash",
+    "emptyTitle": "Empty trash?",
+    "emptyTitleState": "Trash is empty",
+    "inTrash": "In Trash",
+    "kindInList": "{kind} in {list}",
+    "kinds": {
+      "dashboardView": "Dashboard view",
+      "field": "Field",
+      "list": "List",
+      "record": "Record",
+      "relationship": "Relationship",
+      "routine": "Routine",
+      "view": "View",
+      "widget": "Widget",
+      "wikiPage": "Knowledge Base page"
+    },
+    "movedToTrash": "Moved to Trash",
+    "movesToTrash": "It moves to Trash, where you can restore it for 30 days.",
+    "moving": "{count, plural, one {Moving # item to Trash…} other {Moving # items to Trash…}}",
+    "permanentIrreversible": "This cannot be undone.",
+    "permanentMessage": "{count, plural, one {This item is} other {These # items are}} deleted permanently.",
+    "permanentRecords": "{list}: {count, plural, one {# record} other {# records}}",
+    "restore": "Restore",
+    "restoreBlocked": {
+      "listDeleted": "{count, plural, one {# item stays} other {# items stay}} in Trash because their list is in Trash. Restore the list first.",
+      "nameTaken": "{count, plural, one {# item stays} other {# items stay}} in Trash because another item now uses their name or place.",
+      "notFound": "{count, plural, one {# item} other {# items}} no longer exist and left Trash.",
+      "parentDeleted": "{count, plural, one {# item stays} other {# items stay}} in Trash because what they belong to is in Trash. Restore that first.",
+      "requiresRestore": "{count, plural, one {# item stays} other {# items stay}} in Trash because something they need is in Trash. Restore that first."
+    },
+    "restored": "{count, plural, one {# item restored} other {# items restored}}",
+    "restoredInBackground": "Restored",
+    "restoredWithDroppedLinks": "Restored. {count, plural, one {# link} other {# links}} could not be restored because the linked record was deleted permanently.",
+    "restoring": "Restoring…",
+    "undo": "Undo"
   },
   "TrialExpiredOffer": {
     "body": "Your trial ended recently, but I'd love to help you get real value from Customermates. If you want, I can extend your trial and walk through your setup with you.",
@@ -3699,14 +4188,13 @@
     "title": "Welcome to your trial"
   },
   "UserAvatar": {
-    "company": "My Company",
-    "darkMode": "Dark Mode",
     "documentation": "Documentation",
     "home": "Home",
-    "lightMode": "Light Mode",
-    "profile": "My Profile",
-    "settings": "Settings",
-    "signOut": "Sign Out"
+    "language": "Language",
+    "menu": "Personal menu",
+    "sendFeedback": "Send feedback",
+    "signOut": "Sign Out",
+    "theme": "Theme"
   },
   "UserSettingsForm": {
     "displayLanguageHint": "Controls the UI language: labels, buttons, etc.",
@@ -3733,8 +4221,7 @@
   },
   "WebhookDeliveriesCard": {
     "emptyBody": "Delivery attempts appear here once a webhook fires.",
-    "emptyTitle": "No deliveries yet",
-    "title": "Recent Deliveries"
+    "emptyTitle": "No deliveries yet"
   },
   "WebhookDeliveryModal": {
     "createdAt": "Created At",
@@ -3754,10 +4241,16 @@
     "url": "URL"
   },
   "WebhookModal": {
+    "allAccessibleTypes": "All accessible types",
     "bodyTemplateDescription": "Optional JSON template for the request body, for receivers that expect a fixed shape. Leave it empty to send the standard event envelope.",
+    "currentUser": "Current user",
     "disabled": "Disabled",
     "enabled": "Enabled",
     "headersDescription": "Optional headers sent with every delivery, one per line as Name: value. Use them for receivers that require their own authentication. Content-Type and the signature header cannot be overridden.",
+    "paused": "Paused",
+    "pausedTriggerFieldDeleted": "This webhook was paused because the field that triggered it was deleted. Choose a new trigger, then turn it back on.",
+    "recordOwner": "Record access owner",
+    "recordOwnerHelp": "Record deliveries use this member’s current permissions. Only an administrator can choose another owner. Filters match when a record changes; deleted records do not apply filters.",
     "secretDescription": "Optional secret used to generate an HMAC-SHA256 signature sent in the X-Webhook-Signature header. To verify, hash the request body with this secret using HMAC-SHA256 and compare it with the header value.",
     "title": "Webhook",
     "urlDescription": "The endpoint URL where webhook events will be sent via POST requests."
@@ -3765,7 +4258,7 @@
   "WebhooksCard": {
     "emptyBody": "Add a webhook to send workspace events to your systems.",
     "emptyTitle": "No webhooks yet",
-    "title": "Webhooks"
+    "showDeliveries": "Show deliveries"
   },
   "Wiki": {
     "conflict": "This page has changed. Your edits are still here. Reload to use the latest version.",
@@ -3875,5 +4368,9 @@
     },
     "tryAnother": "Try another website",
     "unavailable": "Mate setup is not available right now. You can create Knowledge Base pages later in the Knowledge Base."
+  },
+  "WorkspaceMenu": {
+    "inviteMembers": "Invite members",
+    "label": "Workspace menu"
   }
 }

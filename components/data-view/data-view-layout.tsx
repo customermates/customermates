@@ -1,16 +1,15 @@
 "use client";
 
-import type { ReactNode } from "react";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
+import type { ReactNode } from "react";
 
-import { useCallback, useRef } from "react";
 import { useTranslations } from "next-intl";
+import { useCallback, useRef } from "react";
 
 import { ScrollReturnButton } from "@/components/scroll/scroll-return-button";
 import { useScrollReturn } from "@/components/scroll/use-scroll-return";
 
 import { DataViewPagination } from "./header/pagination";
-import { MassActionsBar } from "./mass-actions-bar";
 import { DataViewViewsRail } from "./views/data-view-views-rail";
 
 type Props<E extends HasId> = {
@@ -24,7 +23,9 @@ export function DataViewLayout<E extends HasId>({ children, showPagination, stor
   const scrollHostRef = useRef<HTMLDivElement>(null);
   const getScrollElement = useCallback(
     () =>
-      scrollHostRef.current?.querySelector<HTMLElement>("[data-slot=table-container],[data-slot=kanban-root]") ?? null,
+      scrollHostRef.current?.querySelector<HTMLElement>(
+        "[data-slot=table-container],[data-slot=kanban-root],[data-slot=feed-container]",
+      ) ?? null,
     [],
   );
   const { isAway, returnToAnchor } = useScrollReturn({
@@ -37,11 +38,9 @@ export function DataViewLayout<E extends HasId>({ children, showPagination, stor
     <div className="flex h-[calc(100svh-4rem)] min-h-0 flex-col md:h-[calc(100svh-5rem)]">
       <DataViewViewsRail joinsTopBar store={store} />
 
-      <MassActionsBar store={store} />
-
       <div
         ref={scrollHostRef}
-        className="relative flex min-h-0 flex-1 flex-col overflow-hidden *:data-[slot=table-container]:h-full *:data-[slot=table-container]:overflow-auto *:data-[slot=kanban-root]:h-full *:data-[slot=kanban-root]:overflow-auto"
+        className="relative flex min-h-0 flex-1 flex-col overflow-hidden *:data-[slot=table-container]:h-full *:data-[slot=table-container]:overflow-auto *:data-[slot=kanban-root]:h-full *:data-[slot=kanban-root]:overflow-auto *:data-[slot=feed-container]:h-full *:data-[slot=feed-container]:overflow-auto"
         style={{ contain: "layout" }}
       >
         {children}

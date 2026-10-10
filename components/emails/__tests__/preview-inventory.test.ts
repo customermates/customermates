@@ -339,7 +339,7 @@ const EMAIL_PREVIEW_CASES = [
         ...copy,
         greeting: withFirstName(copy.greeting),
         body: copy.body.replace("{accounts}", accounts).replace("{plan}", messages.Subscription.planNames.pro),
-        href: `${PREVIEW_BASE_URL}/profile/connected-accounts`,
+        href: `${PREVIEW_BASE_URL}/settings/channels`,
       });
     },
   },
@@ -442,6 +442,10 @@ function localesFor(definition: PreviewDefinition): readonly AppLocale[] {
   return definition.audience === "operator-english" ? [DEFAULT_LOCALE] : APP_LOCALES;
 }
 
+const LOCALIZED_PREVIEW_CASES = EMAIL_PREVIEW_CASES.flatMap((definition) =>
+  localesFor(definition).map((locale) => ({ definition, locale })),
+);
+
 describe("transactional email preview inventory", () => {
   it("maps all 14 production send sites onto 15 production templates", () => {
     expect(EMAIL_PREVIEW_CASES).toHaveLength(15);
@@ -490,56 +494,52 @@ describe("transactional email preview inventory", () => {
     );
   });
 
-  it("renders every production template from its real PreviewProps", async () => {
-    for (const definition of EMAIL_PREVIEW_CASES) {
-      expect(definition.template.PreviewProps, definition.templatePath).toBeDefined();
+  it.each(EMAIL_PREVIEW_CASES)("renders the $templatePath template from its real PreviewProps", async (definition) => {
+    expect(definition.template.PreviewProps, definition.templatePath).toBeDefined();
 
-      const actual = await render(
-        createElement(definition.template as PreviewTemplate, definition.template.PreviewProps ?? {}),
-      );
+    const actual = await render(
+      createElement(definition.template as PreviewTemplate, definition.template.PreviewProps ?? {}),
+    );
 
-      expect(actual, definition.templatePath).toMatch(/<html[^>]*\blang="en"/i);
-      expect(actual).toContain("/static/customermates-icon.svg");
-      expect(actual).not.toContain("/images/email/customermates-icon@2x.png");
-      expect(actual).not.toMatch(/\{(?:firstName|inviterName|accounts|plan|deadline)\}/);
-    }
-  }, 15_000);
+    expect(actual, definition.templatePath).toMatch(/<html[^>]*\blang="en"/i);
+    expect(actual).toContain("/static/customermates-icon.svg");
+    expect(actual).not.toContain("/images/email/customermates-icon@2x.png");
+    expect(actual).not.toMatch(/\{(?:firstName|inviterName|accounts|plan|deadline)\}/);
+  });
 });
 
 describe("transactional email preview rendering", () => {
-  it("renders every behavior and locale from synthetic fixtures", async () => {
-    let renderCount = 0;
+  it("covers every behavior in each of its locales", () => {
+    expect(LOCALIZED_PREVIEW_CASES).toHaveLength(63);
+  });
 
-    for (const definition of EMAIL_PREVIEW_CASES) {
-      for (const locale of localesFor(definition)) {
-        const fixture = definition.render(locale);
-        const html = await render(fixture);
-        const plainText = await render(fixture, { plainText: true });
-        renderCount += 1;
+  it.each(LOCALIZED_PREVIEW_CASES)(
+    "renders the $definition.key behavior in $locale",
+    async ({ definition, locale }) => {
+      const fixture = definition.render(locale);
+      const html = await render(fixture);
+      const plainText = await render(fixture, { plainText: true });
 
-        expect(html, `${definition.key}/${locale}`).toMatch(new RegExp(`<html[^>]*\\blang="${locale}"`, "i"));
-        expect(html).toContain("/static/customermates-icon.svg");
-        expect(html).not.toContain("/images/email/customermates-icon@2x.png");
-        expect(html).not.toMatch(/\{(?:firstName|inviterName|accounts|plan|deadline)\}/);
-        expect(html).not.toContain("jane@example.com");
-        expect(plainText.toLocaleLowerCase()).toContain(definition.expectedText(locale).toLocaleLowerCase());
+      expect(html, `${definition.key}/${locale}`).toMatch(new RegExp(`<html[^>]*\\blang="${locale}"`, "i"));
+      expect(html).toContain("/static/customermates-icon.svg");
+      expect(html).not.toContain("/images/email/customermates-icon@2x.png");
+      expect(html).not.toMatch(/\{(?:firstName|inviterName|accounts|plan|deadline)\}/);
+      expect(html).not.toContain("jane@example.com");
+      expect(plainText.toLocaleLowerCase()).toContain(definition.expectedText(locale).toLocaleLowerCase());
 
-        if (definition.sendSite === "legal-document-notice") {
-          const currentVersions = Object.values(LEGAL_DOCUMENT_VERSIONS);
-          const localizedVersions = currentVersions.map((version) => localizedDate(locale, version));
+      if (definition.sendSite === "legal-document-notice") {
+        const currentVersions = Object.values(LEGAL_DOCUMENT_VERSIONS);
+        const localizedVersions = currentVersions.map((version) => localizedDate(locale, version));
 
-          expect(
-            localizedVersions.some((date) => plainText.includes(date)),
-            `${definition.key}/${locale} renders no current version as a localized date`,
-          ).toBe(true);
-          for (const version of currentVersions) expect(plainText).not.toContain(version);
-          expect(plainText).not.toContain("2026-08-07");
-        }
+        expect(
+          localizedVersions.some((date) => plainText.includes(date)),
+          `${definition.key}/${locale} renders no current version as a localized date`,
+        ).toBe(true);
+        for (const version of currentVersions) expect(plainText).not.toContain(version);
+        expect(plainText).not.toContain("2026-08-07");
       }
-    }
-
-    expect(renderCount).toBe(63);
-  }, 15_000);
+    },
+  );
 
   it.each(EMAIL_PREVIEW_CASES.filter(({ audience }) => audience === "operator-english"))(
     "forces the internal $key preview to English",

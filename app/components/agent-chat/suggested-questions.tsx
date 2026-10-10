@@ -4,9 +4,9 @@ import type { ReactNode } from "react";
 
 import { observer } from "mobx-react-lite";
 import { useSyncExternalStore } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Compass, Globe2, Link2, Plus, Search, Sparkles } from "lucide-react";
-import { Action, EntityType, Resource } from "@/generated/prisma";
+import { Action, Resource } from "@/generated/prisma";
 
 import { suggestionPageId, type SuggestionPageId } from "@/ee/agent-chat/agent-chat.schema";
 import { agentPageActions, agentPageState, WIKI_WEBSITE_SETUP_ACTION_ID } from "@/ee/agent-chat/agent-page-actions";
@@ -15,7 +15,6 @@ import { usePathname } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { Button } from "@/components/ui/button";
-import { useEntityTerminology } from "@/components/entity-terminology/use-entity-terminology";
 
 import { focusAgentComposer } from "./chat-ui";
 
@@ -62,55 +61,28 @@ const AvailableAgentStarterActions = observer(function AvailableAgentStarterActi
   state: explicitState,
   surface = "chat",
 }: Omit<Props, "fallback">) {
-  const { agentChatStore: store, userStore } = useRootStore();
-  const { map } = useEntityTerminology();
+  const { agentChatStore: store, userStore, recordWorkspaceStore } = useRootStore();
   const t = useTranslations();
-  const locale = useLocale();
   const pathname = usePathname();
 
   const pageId = explicitPageId ?? suggestionPageId(pathname);
-  const pageResource =
-    pageId === "contacts"
-      ? Resource.contacts
-      : pageId === "organizations"
-        ? Resource.organizations
-        : pageId === "deals"
-          ? Resource.deals
-          : pageId === "services"
-            ? Resource.services
-            : pageId === "tasks"
-              ? Resource.tasks
-              : pageId === "routines"
-                ? Resource.routines
-                : pageId === "wiki"
-                  ? Resource.wiki
-                  : null;
+  const navigation = recordWorkspaceStore.navigation;
   const canSetupWorkspace =
-    [Resource.contacts, Resource.organizations, Resource.deals, Resource.services, Resource.tasks].every(
-      (resource) => userStore.can(resource, Action.create) && userStore.can(resource, Action.readAll),
-    ) &&
+    navigation?.canManageSchema === true &&
     userStore.can(Resource.company, Action.readOwn) &&
     userStore.can(Resource.company, Action.update);
   const canCreate =
-    pageId === "dashboard" ? canSetupWorkspace : Boolean(pageResource && userStore.can(pageResource, Action.create));
-  const terminology = map();
+    pageId === "dashboard"
+      ? canSetupWorkspace
+      : (pageId === "routines" && userStore.can(Resource.routines, Action.create)) ||
+        (pageId === "wiki" && userStore.can(Resource.wiki, Action.create));
   let state = explicitState;
   if (!state) {
     const counts = store.counts;
     if (!counts) return null;
     state = agentPageState(pageId, counts);
   }
-  const actions = agentPageActions(pageId, state, t, locale, {
-    canCreate,
-    canSetupWorkspace,
-    terminology: {
-      contacts: terminology[EntityType.contact],
-      organizations: terminology[EntityType.organization],
-      deals: terminology[EntityType.deal],
-      services: terminology[EntityType.service],
-      tasks: terminology[EntityType.task],
-    },
-  });
+  const actions = agentPageActions(pageId, state, t, { canCreate });
 
   const choose = (prompt: string) => {
     store.openWithDraft(prompt);

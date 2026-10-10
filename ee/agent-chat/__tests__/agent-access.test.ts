@@ -1,16 +1,17 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { mockRecordDiscovery } from "@/tests/helpers/record-tools";
 import * as Sentry from "@sentry/nextjs";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
-import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import { runWithTenant } from "@/core/decorators/tenant-context";
-import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
 import {
   createMockDiModule,
   MOCK_ENV_MODULE,
   MOCK_PRISMA_DB_MODULE,
   MOCK_ZOD_MODULE,
 } from "@/tests/helpers/interactor-test-setup";
+import { mockEntitlementService } from "@/tests/helpers/mock-entitlement-service";
+import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 
 import { SHIPPED_AGENT_MODEL } from "../model-catalog";
 
@@ -39,10 +40,10 @@ vi.mock("next/headers", () => ({
   headers: () => new Headers({ origin: request.origin }),
 }));
 
+import { agentUiCommandHookToken } from "../agent-ui-command";
 import { GetAgentConversationInteractor } from "../get-agent-conversation.interactor";
 import { RespondToUiCommandInteractor } from "../respond-to-ui-command.interactor";
 import { SendAgentMessageInteractor } from "../send-agent-message.interactor";
-import { agentUiCommandHookToken } from "../agent-ui-command";
 
 const CONVERSATION_ID = "00000000-0000-4000-8000-000000000001";
 const MESSAGE_ID = "00000000-0000-4000-8000-000000000002";
@@ -98,10 +99,6 @@ const emptyWikiCatalog = () => ({
   }),
 });
 
-const emptyCustomColumns = () => ({
-  getCustomColumns: () => Promise.resolve([]),
-});
-
 const backgroundTasks = () => ({
   dispatch: vi.fn().mockResolvedValue(undefined),
   dispatchTracked: vi.fn().mockResolvedValue("wrun_test"),
@@ -149,7 +146,7 @@ describe("agent access", () => {
       usage as never,
       entitlements as never,
       backgroundTasks() as never,
-      emptyCustomColumns(),
+      mockRecordDiscovery(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -172,7 +169,7 @@ describe("agent access", () => {
       {
         reference: {
           kind: "dataView" as const,
-          surfaceKey: "contacts-card-store" as const,
+          surfaceKey: "records:10000000-0000-4000-8000-000000000101" as const,
           viewKey: "11111111-1111-4111-8111-111111111111",
           requestedAction: "update" as const,
         },
@@ -204,7 +201,7 @@ describe("agent access", () => {
                   context: {
                     reference: {
                       kind: "record",
-                      entityType: "contact",
+                      typeId: "10000000-0000-4000-8000-000000000001",
                       recordId: MESSAGE_ID,
                     },
                     label: "Ada Lovelace",
@@ -236,7 +233,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       background as never,
-      emptyCustomColumns(),
+      mockRecordDiscovery(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -244,7 +241,7 @@ describe("agent access", () => {
       contexts,
       pageContext: {
         route:
-          "/en/contacts?view=11111111-1111-4111-8111-111111111111&viewSurface=contacts-card-store&viewAction=update",
+          "/en/records/10000000-0000-4000-8000-000000000101?view=11111111-1111-4111-8111-111111111111&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
       },
       locale: "de",
       retry: false,
@@ -253,12 +250,12 @@ describe("agent access", () => {
     expect(result.ok).toBe(true);
     if (!result.ok || result.data.disposition !== "run") return;
     expect(result.data.messages[0]?.text).toBe(
-      `<selected_context kind="record" entityType="contact" recordId="${MESSAGE_ID}"/>\nEarlier question`,
+      `<selected_context kind="record" typeId="10000000-0000-4000-8000-000000000001" recordId="${MESSAGE_ID}"/>\nEarlier question`,
     );
     expect(result.data.messages[1]?.text).toHaveLength(2000);
     expect(result.data.messages[2]?.text).toBe(
-      `<page_context route="/en/contacts?view=11111111-1111-4111-8111-111111111111&amp;viewSurface=contacts-card-store&amp;viewAction=update" surfaceKey="contacts-card-store" viewKey="11111111-1111-4111-8111-111111111111" requestedAction="update"/>\n` +
-        `<selected_context kind="dataView" surfaceKey="contacts-card-store" viewKey="11111111-1111-4111-8111-111111111111" requestedAction="update"/>\n` +
+      `<page_context route="/en/records/10000000-0000-4000-8000-000000000101?view=11111111-1111-4111-8111-111111111111&amp;viewSurface=records:10000000-0000-4000-8000-000000000101&amp;viewAction=update" surfaceKey="records:10000000-0000-4000-8000-000000000101" viewKey="11111111-1111-4111-8111-111111111111" requestedAction="update"/>\n` +
+        `<selected_context kind="dataView" surfaceKey="records:10000000-0000-4000-8000-000000000101" viewKey="11111111-1111-4111-8111-111111111111" requestedAction="update"/>\n` +
         currentText,
     );
     expect(result.data.locale).toBe("de");
@@ -272,7 +269,7 @@ describe("agent access", () => {
           text: currentText,
           contexts,
           pageRoute:
-            "/en/contacts?view=11111111-1111-4111-8111-111111111111&viewSurface=contacts-card-store&viewAction=update",
+            "/en/records/10000000-0000-4000-8000-000000000101?view=11111111-1111-4111-8111-111111111111&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
           userMessageId: expect.any(String),
         }),
       }),
@@ -313,7 +310,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       background as never,
-      emptyCustomColumns(),
+      mockRecordDiscovery(),
       emptyWikiCatalog(),
     ).invoke({ clientRequestId: CLIENT_REQUEST_ID, text: "hello", retry: false });
     expect(result).toMatchObject({ ok: false, error: { issues: [{ params: { error: code, kind } }] } });
@@ -342,7 +339,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       background as never,
-      emptyCustomColumns(),
+      mockRecordDiscovery(),
       emptyWikiCatalog(),
     ).invoke({ clientRequestId: CLIENT_REQUEST_ID, text: "hello", retry: false });
     expect(result).toMatchObject({
@@ -396,7 +393,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      emptyCustomColumns(),
+      mockRecordDiscovery(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -444,7 +441,7 @@ describe("agent access", () => {
       usageService() as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      emptyCustomColumns(),
+      mockRecordDiscovery(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -500,7 +497,7 @@ describe("agent access", () => {
           usage as never,
           mockEntitlementService(),
           background as never,
-          emptyCustomColumns(),
+          mockRecordDiscovery(),
           emptyWikiCatalog(),
         ).invokeRoutine({
           clientRequestId: CLIENT_REQUEST_ID,
@@ -578,7 +575,7 @@ describe("agent access", () => {
             usageService() as never,
             mockEntitlementService(),
             background as never,
-            { getCustomColumns: () => Promise.resolve([]) } as never,
+            mockRecordDiscovery(),
             emptyWikiCatalog(),
           ).invokeRoutine({
             clientRequestId: CLIENT_REQUEST_ID,
@@ -617,7 +614,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         backgroundTasks() as never,
-        emptyCustomColumns(),
+        mockRecordDiscovery(),
         emptyWikiCatalog(),
       ).invokeRoutine({
         clientRequestId: CLIENT_REQUEST_ID,
@@ -676,7 +673,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       background as never,
-      emptyCustomColumns(),
+      mockRecordDiscovery(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -748,7 +745,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         background as never,
-        emptyCustomColumns(),
+        mockRecordDiscovery(),
         emptyWikiCatalog(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
@@ -804,13 +801,13 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      emptyCustomColumns(),
+      mockRecordDiscovery(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
       conversationId: CONVERSATION_ID,
       text: "Decide yourself.",
-      pageContext: { route: "/en/organizations" },
+      pageContext: { route: "/en/records/10000000-0000-4000-8000-000000000102" },
       retry: false,
     });
 
@@ -846,7 +843,7 @@ describe("agent access", () => {
           assistantMessageId: "assistant-1",
           terminalCode: "completed",
           stopReason: null,
-          affectedResources: ["contacts"],
+          affectedResources: ["wiki"],
           hasLaterMessages: false,
         },
         assistantMessage: {
@@ -867,7 +864,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      emptyCustomColumns(),
+      mockRecordDiscovery(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -924,7 +921,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      emptyCustomColumns(),
+      mockRecordDiscovery(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -989,7 +986,7 @@ describe("agent access", () => {
       usageService() as never,
       mockEntitlementService(),
       tasks as never,
-      emptyCustomColumns(),
+      mockRecordDiscovery(),
       emptyWikiCatalog(),
       undefined,
       setupCrawls(),
@@ -1051,7 +1048,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      emptyCustomColumns(),
+      mockRecordDiscovery(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -1069,7 +1066,7 @@ describe("agent access", () => {
     const storedContext = {
       reference: {
         kind: "record" as const,
-        entityType: "contact" as const,
+        typeId: "10000000-0000-4000-8000-000000000001",
         recordId: MESSAGE_ID,
       },
       label: "Ada Lovelace",
@@ -1111,7 +1108,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      emptyCustomColumns(),
+      mockRecordDiscovery(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -1152,7 +1149,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      emptyCustomColumns(),
+      mockRecordDiscovery(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -1188,7 +1185,7 @@ describe("agent access", () => {
       usageService() as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      emptyCustomColumns(),
+      mockRecordDiscovery(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,
@@ -1224,7 +1221,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         backgroundTasks() as never,
-        emptyCustomColumns(),
+        mockRecordDiscovery(),
         emptyWikiCatalog(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
@@ -1271,7 +1268,7 @@ describe("agent access", () => {
         usage as never,
         mockEntitlementService(),
         backgroundTasks() as never,
-        emptyCustomColumns(),
+        mockRecordDiscovery(),
         emptyWikiCatalog(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
@@ -1311,7 +1308,7 @@ describe("agent access", () => {
         usageService() as never,
         mockEntitlementService(),
         backgroundTasks() as never,
-        emptyCustomColumns(),
+        mockRecordDiscovery(),
         emptyWikiCatalog(),
       ).invoke({
         clientRequestId: CLIENT_REQUEST_ID,
@@ -1339,8 +1336,8 @@ describe("agent access", () => {
               {
                 type: "tool_use",
                 id: "tool-1",
-                name: "list_records",
-                input: { entity: "contact", accountId: "private-uuid" },
+                name: "query_crm_records",
+                input: { typeId: "private-uuid" },
                 resultPreview: "private-result",
                 status: "done",
               },
@@ -1364,7 +1361,6 @@ describe("agent access", () => {
         id: "tool-1",
         activity: expect.objectContaining({
           kind: "records.read",
-          resource: "contacts",
         }),
         status: "done",
       },
@@ -1373,65 +1369,6 @@ describe("agent access", () => {
     expect(JSON.stringify(result.data)).not.toContain("private-uuid");
     expect(JSON.stringify(result.data)).not.toContain("private-result");
     expect(repo.markConversationRead).not.toHaveBeenCalled();
-  });
-
-  it("strips only the legacy server-injected page context prefix from user messages", async () => {
-    const repo = {
-      findConversation: vi.fn().mockResolvedValue({
-        id: CONVERSATION_ID,
-        title: '\uFEFF <page_context route="/en/dashboard"/>\nLegacy title',
-      }),
-      hasRunningTurn: vi.fn().mockResolvedValue(false),
-      listMessagePage: vi.fn().mockResolvedValue(
-        messagePage([
-          {
-            id: "m1",
-            role: "user",
-            parts: [
-              {
-                type: "context",
-                context: {
-                  reference: {
-                    kind: "record",
-                    entityType: "contact",
-                    recordId: MESSAGE_ID,
-                  },
-                  label: "Ada Lovelace",
-                },
-              },
-              {
-                type: "text",
-                text: '<page_context route="/en/dashboard"/>\nShow 00000000-0000-4000-8000-000000000123 around <page_context route="typed-by-user"/>',
-              },
-            ],
-            createdAt: new Date(0),
-          },
-        ]),
-      ),
-    };
-
-    const result = await new GetAgentConversationInteractor(repo as never, mockEntitlementService()).invoke({
-      conversationId: CONVERSATION_ID,
-    });
-
-    expect(result.ok && result.data.messages[0]?.parts).toEqual([
-      {
-        type: "context",
-        context: {
-          reference: {
-            kind: "record",
-            entityType: "contact",
-            recordId: MESSAGE_ID,
-          },
-          label: "Ada Lovelace",
-        },
-      },
-      {
-        type: "text",
-        text: 'Show 00000000-0000-4000-8000-000000000123 around <page_context route="typed-by-user"/>',
-      },
-    ]);
-    expect(result.ok && result.data.title).toBe("Legacy title");
   });
 
   it("tells the client a turn is still in flight, so a reloaded page can rejoin it", async () => {
@@ -1529,7 +1466,7 @@ describe("agent access", () => {
       commandId: "command-1",
       name: "navigate",
       ok: true,
-      result: "Navigated to /contacts.",
+      result: "Navigated to /records/10000000-0000-4000-8000-000000000101.",
     });
 
     expect(result.ok).toBe(true);

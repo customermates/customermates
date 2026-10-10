@@ -45,11 +45,3 @@ function sidebarUserCan(user: SidebarUser | null, resource: Resource, action: Ac
 export function sidebarUserCanAccess(user: SidebarUser | null, resource: Resource): boolean {
   return sidebarUserCan(user, resource, Action.readOwn) || sidebarUserCan(user, resource, Action.readAll);
 }
-
-export function sidebarUserCanManage(user: SidebarUser | null, resource: Resource): boolean {
-  return (
-    sidebarUserCan(user, resource, Action.create) &&
-    sidebarUserCan(user, resource, Action.update) &&
-    sidebarUserCan(user, resource, Action.delete)
-  );
-}
