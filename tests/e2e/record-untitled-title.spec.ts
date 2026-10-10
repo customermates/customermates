@@ -17,5 +17,6 @@ test("keeps an Untitled title column that opens the record after the only name f
   const title = table.locator('[data-slot="data-row-open"]').first();
   await expect(title).toHaveText("Untitled Organization");
   await title.click();
-  await expect(page.getByRole("dialog")).toContainText("Untitled Organization");
+  await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[0-9a-f-]{36}$`));
+  await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toContainText("Untitled Organization");
 });
