@@ -12795,6 +12795,39 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
   });
 
+  it("sends the labels of lists and fields that visible formulas reach, and never those of hidden lists", async () => {
+    const f = await fixture();
+    const deal = await f.create("deal", "Formula reference deal");
+    await f.run(() =>
+      runInTransaction(async () => {
+        await f.repo.setGrants(deal.typeId, [{ roleId: f.memberRole.id, actions: ["readOwn"] }]);
+        await f.repo.setAssignments(deal, [f.member.id]);
+      }),
+    );
+
+    const admin = await f.run(() => f.editor.invoke(deal));
+    if (!admin.ok) throw admin.error;
+    expect(admin.data.model.fields.some((field) => field.id === f.id("service.amount"))).toBe(false);
+    expect(admin.data.formulaReferences?.fields).toContainEqual({
+      id: f.id("service.amount"),
+      typeId: f.id("service"),
+      label: "Price",
+      options: [],
+    });
+    expect(admin.data.formulaReferences?.types).toContainEqual(
+      expect.objectContaining({ id: f.id("service"), label: "Service", pluralLabel: "Services" }),
+    );
+
+    const member = await f.run(() => f.editor.invoke(deal), f.member);
+    if (!member.ok) throw member.error;
+    const sent = JSON.stringify(member.data.formulaReferences);
+    expect(member.data.formulaReferences).toEqual({ fields: [], types: [], relationships: [] });
+    expect(sent).not.toContain(f.id("service"));
+    expect(sent).not.toContain(f.id("service.amount"));
+    const savedPrice = member.data.model.fields.find((field) => field.id === f.id("lineItem.savedPrice"));
+    expect(savedPrice?.behavior).not.toHaveProperty("expression");
+  });
+
   it("inherits line access from its parent and immediately respects changed assignments", async () => {
     const f = await fixture();
     await f.run(() =>

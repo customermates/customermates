@@ -1,5 +1,6 @@
 import { recordChannelsEnabled } from "./record-channels";
 import { z } from "zod";
+import type { FormulaReferences } from "./formula-references";
 import type { Action } from "@/generated/prisma";
 import type { RecordAccessPolicy } from "./record-access";
 import type { RecordRepo, TrashReadOptions } from "./record.repo";
@@ -17,6 +18,7 @@ import { recordWriteFailure } from "./mutate-record.interactor";
 import { recordDto, withMemberUsers } from "./query-records.interactor";
 import { resolveRecordPath } from "./record-relationship-path";
 import { visibleFormulaFields } from "./record-formula-visibility";
+import { formulaReferences, lookupSelections } from "./formula-references";
 import {
   recordLinkColors,
   recordLinkIcons,
@@ -39,6 +41,7 @@ export type RecordEditorContext = {
   linkLabels: RecordLinkLabels;
   systemActions?: Array<"manageMembership">;
   detailLayout?: RecordDetailLayoutResult;
+  formulaReferences?: FormulaReferences;
 };
 export type RecordEditorResult = RecordEditorContext & { record: RecordDto | null };
 
@@ -123,6 +126,24 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
                 )
               )[0]
             : null;
+          const fields = visibleFormulaFields(
+            model.fields.filter((field) => ids.has(field.typeId) && !field.archived),
+            model,
+            policy,
+          );
+          const lookups = lookupSelections(fields, type.id, relationships);
+          if (record && lookups.length) {
+            record.relationships =
+              (
+                await this.records.relationshipSummaries(
+                  type.id,
+                  [record.ref.recordId],
+                  lookups,
+                  storedModel,
+                  policy.access([...accessible]),
+                )
+              ).get(record.ref.recordId) ?? [];
+          }
           if (record && recordChannelsEnabled(model, type.id))
             record.identities = await this.records.getIdentitiesCompanyWide(record.ref);
           return {
@@ -149,15 +170,14 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
               model: {
                 ...model,
                 types,
-                fields: visibleFormulaFields(
-                  model.fields.filter((field) => ids.has(field.typeId) && !field.archived),
-                  model,
-                  policy,
-                ),
+                fields,
                 relationships,
                 capabilities: model.capabilities.filter((binding) => ids.has(binding.typeId)),
                 accessPresets: [],
               },
+              formulaReferences: formulaReferences(fields, model, { fields, types, relationships }, (id) =>
+                accessible.has(id),
+              ),
             },
           };
         } catch (error) {

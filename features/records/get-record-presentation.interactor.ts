@@ -2,9 +2,11 @@ import { recordChannelsField } from "./record-channels";
 import { z } from "zod";
 import { getTranslations } from "next-intl/server";
 
+import type { FormulaReferences } from "./formula-references";
 import type { RecordAccessPolicy } from "./record-access";
 import type { RecordRepo } from "./record.repo";
 import type { RecordModelView } from "./record-model.schema";
+import { formulaReferences } from "./formula-references";
 import { visibleFormulaFields } from "./record-formula-visibility";
 import type { RecordQuery } from "./record-query.schema";
 import type { QueryRecordsInteractor } from "./query-records.interactor";
@@ -53,6 +55,7 @@ export type RecordPresentationResult = {
   linkLabels: RecordLinkLabels;
   query: RecordQuery;
   result: GetResult<RecordRow>;
+  formulaReferences?: FormulaReferences;
 };
 @AllowInDemoMode
 @TenantInteractor()
@@ -170,6 +173,7 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
           id: record.ref.recordId,
         }));
         const grouping = queried.data.grouping;
+        const visibleFields = visibleFormulaFields(fields, model, policy);
         return {
           ok: true as const,
           data: {
@@ -177,11 +181,17 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
             model: {
               ...model,
               types: [{ ...type, relationshipPaths: paths }],
-              fields: visibleFormulaFields(fields, model, policy),
+              fields: visibleFields,
               relationships,
               capabilities: model.capabilities.filter((binding) => binding.typeId === type.id),
               accessPresets: policy.canManageSchema ? model.accessPresets : [],
             },
+            formulaReferences: formulaReferences(
+              visibleFields,
+              model,
+              { fields: visibleFields, types: [type], relationships },
+              (id) => policy.canReadType(id),
+            ),
             canManageSchema: policy.canManageSchema,
             linkColors: recordLinkColors(model.types, relationships),
             linkIcons: recordLinkIcons(model.types, relationships),

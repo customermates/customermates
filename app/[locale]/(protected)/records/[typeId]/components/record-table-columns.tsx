@@ -10,7 +10,7 @@ import { useTranslations } from "next-intl";
 import { Sigma } from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { withFormulaReferences } from "@/features/records/formula-references";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { RecordCell } from "./record-cell";
 import { RecordCardContent } from "./record-chip-row";
@@ -19,7 +19,7 @@ import {
   RecordCalculatedValue,
   RecordInlineField,
   RecordInlineRelationship,
-  calculatedFieldLabel,
+  CalculatedFieldText,
   canEditInline,
   isCalculatedField,
   hasInlineRelationshipEditor,
@@ -37,8 +37,6 @@ export function useRecordTableColumns(
   { markCalculated = false, openRecord }: { markCalculated?: boolean; openRecord?: (record: RecordRow) => void } = {},
 ) {
   const t = useTranslations();
-  const intl = useHydratedIntlStore();
-  const locale = intl.formattingLocale;
   const avatarFieldId = recordAvatarFieldId(store);
   const columnHeaders = JSON.stringify(store.recordColumns.map((column) => [column.id, column.label]));
   const untitledHeader = store.type && !store.type.primaryFieldId ? store.type.label : null;
@@ -73,7 +71,10 @@ export function useRecordTableColumns(
                   </TooltipTrigger>
 
                   <TooltipContent>
-                    {calculatedFieldLabel(calculated, store.presentation.model, t, locale)}
+                    <CalculatedFieldText
+                      field={calculated}
+                      model={withFormulaReferences(store.presentation.model, store.presentation.formulaReferences)}
+                    />
                   </TooltipContent>
                 </Tooltip>
               )
@@ -121,7 +122,10 @@ export function useRecordTableColumns(
               );
             }
             return isCalculatedField(store, column.field) ? (
-              <RecordCalculatedValue field={column.field} model={store.presentation.model}>
+              <RecordCalculatedValue
+                field={column.field}
+                model={withFormulaReferences(store.presentation.model, store.presentation.formulaReferences)}
+              >
                 {calculated ? <span className="text-muted-foreground">{renderCell(false)}</span> : renderCell(false)}
               </RecordCalculatedValue>
             ) : (
@@ -131,7 +135,7 @@ export function useRecordTableColumns(
         };
       }),
     ],
-    [columnHeaders, openRelated, openRecord, avatarFieldId, store, markCalculated, t, locale, untitledHeader],
+    [columnHeaders, openRelated, openRecord, avatarFieldId, store, markCalculated, t, untitledHeader],
   );
 }
 

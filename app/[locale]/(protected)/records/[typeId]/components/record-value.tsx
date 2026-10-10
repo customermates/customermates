@@ -56,6 +56,10 @@ export function useRecordValueFormat() {
     percent: (ratio: number) =>
       new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1 }).format(ratio),
     date: (value: Date, options: Intl.DateTimeFormatOptions) => new Intl.DateTimeFormat(locale, options).format(value),
+    isoDate: (value: string, dateOnly: boolean) =>
+      dateOnly
+        ? intl.formatDescriptiveShortDate(new Date(value), { timeZone: "UTC" })
+        : intl.formatDescriptiveShortDateTime(new Date(value)),
   };
 }
 
@@ -76,7 +80,6 @@ export const RecordValue = observer(function RecordValue({
   overflowMenu?: boolean;
   compact?: boolean;
 }) {
-  const intl = useHydratedIntlStore();
   const valueFormat = useRecordValueFormat();
   const t = useTranslations();
   if (field.valueType === "channels") {
@@ -145,25 +148,15 @@ export const RecordValue = observer(function RecordValue({
       </span>
     );
   }
-  if (value.kind === "date" || value.kind === "dateTime") {
-    return (
-      <time dateTime={value.value}>
-        {value.kind === "date"
-          ? intl.formatDescriptiveShortDate(new Date(value.value), { timeZone: "UTC" })
-          : intl.formatDescriptiveShortDateTime(new Date(value.value))}
-      </time>
-    );
-  }
+  if (value.kind === "date" || value.kind === "dateTime")
+    return <time dateTime={value.value}>{valueFormat.isoDate(value.value, value.kind === "date")}</time>;
+
   if (value.kind === "range") {
     return (
       <span>
         {[value.start, value.end]
           .filter(Boolean)
-          .map((value) =>
-            field.valueType === "dateRange"
-              ? intl.formatDescriptiveShortDate(new Date(value ?? ""), { timeZone: "UTC" })
-              : intl.formatDescriptiveShortDateTime(new Date(value ?? "")),
-          )
+          .map((value) => valueFormat.isoDate(value ?? "", field.valueType === "dateRange"))
           .filter(Boolean)
           .join(" – ")}
       </span>
