@@ -52,9 +52,13 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
     ["B", "Service B", "3"],
   ]) {
     await dialogs.getByRole("button", { name: "Add Line item", exact: true }).click();
+    await dialogs.getByRole("textbox", { name: "Add Line item", exact: true }).fill(name);
+    await page.keyboard.press("Enter");
+    const line = dialogs.getByRole("region", { name: "Line items" }).getByRole("button", { name, exact: true });
+    await expect(line).toBeVisible();
+    await line.click();
     await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
     const child = dialogs.last();
-    await child.getByRole("textbox", { name: "Name", exact: false }).fill(name);
     await child.getByRole("textbox", { name: "Quantity", exact: false }).fill(quantity);
     await child.getByRole("combobox", { name: "Service", exact: true }).click();
     await page.getByRole("option", { name: service, exact: true }).click();
@@ -64,6 +68,19 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
       dialogs.getByRole("region", { name: "Line items" }).getByRole("button", { name, exact: true }),
     ).toBeVisible();
   }
+  const lines = dialogs.getByRole("region", { name: "Line items" });
+  await expect(lines.locator("[data-embedded-count]")).toHaveText("3");
+  await expect(lines.locator("tbody tr")).toHaveCount(3);
+  await expect(lines.locator("[data-calculated-header]").filter({ hasText: "Amount" })).toBeVisible();
+  await expect(lines.locator("tbody [data-calculated-field]").first()).toBeVisible();
+  await expect(lines.getByRole("button", { name: "Edit Amount", exact: true })).toHaveCount(0);
+  await expect(lines.locator('[data-slot="table-totals"]')).toBeVisible();
+  await lines.getByRole("button", { name: "Add Line item", exact: true }).click();
+  await lines.getByRole("textbox", { name: "Add Line item", exact: true }).fill("Discarded line");
+  await page.keyboard.press("Escape");
+  await expect(lines.getByRole("textbox", { name: "Add Line item", exact: true })).toHaveCount(0);
+  await expect(dialogs).toHaveCount(1);
+  await expect(lines.locator("tbody tr")).toHaveCount(3);
   const totals = async () => {
     const rows = await database.query(
       'SELECT f.definition->>\'label\' AS label,trim_scale(v."decimalValue")::text AS value FROM "RecordValue" v JOIN "RecordFieldDefinition" f ON f."companyId"=v."companyId" AND f.id=v."fieldId" WHERE v."companyId"=$1 AND v."typeId"=$2 AND f.id=ANY($3::text[])',

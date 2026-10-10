@@ -10,7 +10,6 @@ import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 
 import { DataViewContent } from "@/components/data-view/data-view-content";
-import { GroupSummaries } from "@/components/data-view/group-summaries";
 import { DataViewPagination } from "@/components/data-view/header/pagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -211,20 +210,13 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
                 />
               )}
               store={list}
+              totals={list.totals}
               view="table"
               onRowClick={(record) => open(record)}
             />
           )}
 
-          {rows.length > 0 && list.totals.length > 0 && (
-            <div className="flex items-center gap-2 px-2 py-1" data-embedded-totals="">
-              <span className="text-xs text-muted-foreground">{t("RecordModel.reducers.sum")}</span>
-
-              <GroupSummaries summaries={list.totals} />
-            </div>
-          )}
-
-          {list.total > EMBEDDED_PAGE_SIZE && <DataViewPagination store={list} />}
+          {list.total > (list.pagination?.pageSize ?? EMBEDDED_PAGE_SIZE) && <DataViewPagination store={list} />}
 
           {editable && <EmbeddedAddLine list={list} type={type} onOpenEditor={(name) => open(undefined, name)} />}
         </div>

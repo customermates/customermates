@@ -102,7 +102,7 @@ export function useRecordTableColumns(
             }
             return isCalculatedField(store, column.field) ? (
               <RecordCalculatedValue field={column.field} model={store.presentation.model}>
-                {renderCell(false)}
+                {calculated ? <span className="text-muted-foreground">{renderCell(false)}</span> : renderCell(false)}
               </RecordCalculatedValue>
             ) : (
               renderCell(false)
