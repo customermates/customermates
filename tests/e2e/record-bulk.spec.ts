@@ -283,14 +283,18 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
   await expect(row("Other C").getByRole("cell").nth(discountColumn)).toHaveText("3.75");
   await expect(page).toHaveURL((url) => !url.searchParams.has("searchTerm"));
   await expect(page.locator("#global-data-views-all")).not.toHaveAttribute("data-view-modified");
-  const saved = await database.query(
-    'SELECT "searchTerm" FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3',
-    [companyId, workspace.userId, `records:${typeId}`],
-  );
-  expect(saved.rows.every((row) => !row.searchTerm)).toBe(true);
   await page.screenshot({ path: testInfo.outputPath("bulk-clear-off-view.png"), animations: "disabled" });
   await page.reload();
   await expect(page.getByRole("link", { name: "Selected A", exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Other C", exact: true })).toBeVisible();
+  expect(
+    (
+      await database.query(
+        'SELECT "searchTerm" FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3',
+        [companyId, workspace.userId, `records:${typeId}`],
+      )
+    ).rows,
+  ).toEqual([]);
   await expect(selection).not.toBeVisible();
   expect(await read()).toEqual(cleared);
   expect(errors).toEqual([]);

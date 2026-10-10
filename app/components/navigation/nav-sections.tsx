@@ -49,7 +49,9 @@ import {
   entryKey,
   moveSidebarItem,
   removeSidebarSection,
+  renameSidebarSection,
   resolveSidebar,
+  sectionLabel,
   sectionsOf,
   setSidebarItemHidden,
   shiftSidebarEntry,
@@ -107,10 +109,6 @@ export function useContextMenu() {
       setOpen(true);
     },
   };
-}
-
-export function sectionLabel(groups: NavGroup[], section: { id: string; name: string | null }) {
-  return section.name ?? groups.find((group) => group.key === section.id)?.label ?? section.id;
 }
 
 export function createSidebarSection(resolved: ResolvedSidebar, baseName: string, item?: string) {
@@ -292,7 +290,7 @@ function SectionNameInput({ initial, onDone }: { initial: string; onDone: (name:
   const finish = (commit: boolean) => {
     if (done.current) return;
     done.current = true;
-    onDone(commit && value.trim() ? value.trim() : null);
+    onDone(commit ? value : null);
   };
   return (
     <SidebarInput
@@ -362,7 +360,8 @@ function NavSection({
           initial={label}
           onDone={(name) => {
             onEdit(false);
-            if (name && name !== label) onChange(updateSidebarSection(resolved, id, { name }));
+            const renamed = renameSidebarSection(resolved, id, name, label);
+            if (renamed) onChange(renamed);
           }}
         />
       ) : (

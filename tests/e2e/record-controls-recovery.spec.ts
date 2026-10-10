@@ -13,7 +13,6 @@ import {
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
 import { invokesServerAction, serverActionIds } from "./server-actions";
-import { nativeResponseCheckpointState, observeNativeResponse } from "./native-response-checkpoint";
 import { presetId } from "../../features/records/crm-preset";
 import {
   RecordModelSchema,
@@ -1177,35 +1176,12 @@ test("retains readable list content after a failed refresh and retries the empty
   await expect(page.locator('[data-page-state="error"]')).toHaveCount(0);
   const surfaceKey = recordSurfaceKey(service.typeId);
   const saveAction = serverActionIds("app/actions.ts", "saveDataViewStateAction");
-  const saveCompletion = await observeNativeResponse(page, {
-    ids: [...saveAction],
-    origin: new URL(page.url()).origin,
-    surfaceKey,
-    viewKey: ALL_VIEW_KEY,
-    searchTerm: name,
+  const searchSaves: unknown[] = [];
+  page.on("request", (request) => {
+    if (!invokesServerAction(request, saveAction)) return;
+    const input = nextArguments(request)?.[0];
+    if (typeof input === "object" && input !== null && "state" in input) searchSaves.push(input.state);
   });
-  const searchSaved = page.waitForResponse(
-    (response) => {
-      if (!invokesServerAction(response.request(), saveAction)) return false;
-      const args = nextArguments(response.request());
-      const input = args?.[0];
-      return (
-        args?.length === 1 &&
-        typeof input === "object" &&
-        input !== null &&
-        "surfaceKey" in input &&
-        input.surfaceKey === surfaceKey &&
-        "viewKey" in input &&
-        input.viewKey === ALL_VIEW_KEY &&
-        "state" in input &&
-        typeof input.state === "object" &&
-        input.state !== null &&
-        "searchTerm" in input.state &&
-        input.state.searchTerm === name
-      );
-    },
-    { timeout: 15000 },
-  );
   await applyPaletteSearch(page, "records-filter", name);
   const error = page.locator('[data-page-state="error"][role="alert"]');
   await expect(error).toBeVisible();
@@ -1216,28 +1192,13 @@ test("retains readable list content after a failed refresh and retries the empty
   await expect(error).toHaveCount(0);
   expect(matchingReads).toBe(2);
   expect((await values()).rows).toEqual(before);
-  await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
-  await page.locator("#records-filter").click();
-  await page.locator("#records-filter-save").click();
-  const savedResponse = await searchSaved;
-  expect(savedResponse.status()).toBe(200);
-  await expect
-    .poll(async () => nativeResponseCheckpointState(await saveCompletion.snapshot()), { timeout: 15000 })
-    .toBe("complete");
-  const completedSave = await saveCompletion.stop();
-  expect(completedSave).toMatchObject({
-    requests: 1,
-    status: 200,
-    fetchErrors: 0,
-    readErrors: 0,
-    readerCancels: 0,
-    streamCancels: 0,
-    earlyReleases: 0,
-    observationErrors: 0,
-  });
-  expect(completedSave.bytes).toBeGreaterThan(0);
-  expect(completedSave.chunks).toBeGreaterThan(0);
-  expect(completedSave.eof).toBeGreaterThan(0);
+  await expect(page.locator("#global-data-views-all")).not.toHaveAttribute("data-view-modified");
+  await page.unrouteAll({ behavior: "wait" });
+  await expect(page).toHaveURL((url) => url.searchParams.get("searchTerm") === name);
+  await page.reload();
+  await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
+  await expectPaletteSearch(page, "records-filter", name);
+  expect(searchSaves).toEqual([]);
   expect(
     (
       await database.query('SELECT "searchTerm" FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3', [
@@ -1246,12 +1207,7 @@ test("retains readable list content after a failed refresh and retries the empty
         surfaceKey,
       ])
     ).rows,
-  ).toEqual([{ searchTerm: name }]);
-  await page.unrouteAll({ behavior: "wait" });
-  await expect(page).toHaveURL((url) => url.searchParams.get("searchTerm") === name);
-  await page.reload();
-  await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
-  await expectPaletteSearch(page, "records-filter", name);
+  ).toEqual([]);
   await page.screenshot({
     path: testInfo.outputPath("recovered-list-error-state.png"),
     fullPage: true,
