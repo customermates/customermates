@@ -3224,7 +3224,7 @@
     "configurationDeletion": {
       "blockedMessage": "{name} ne peut pas être supprimé tant que d’autres éléments de votre configuration l’utilisent.",
       "blockers": {
-        "binding": "{source} utilise {target} dans ses paramètres.",
+        "binding": "{target} contrôle l’accès à l’espace de travail pour {source} et ne peut pas être supprimé.",
         "calculation": "{source} est calculé à partir de {target}.",
         "parentAccess": "{source} obtient son accès via {target}.",
         "protected": "{source} contrôle l’accès à l’espace de travail et ne peut pas être supprimé.",
@@ -3240,7 +3240,7 @@
         "bindingChannels": "{target} n’est plus utilisé pour les canaux dans {consumers}.",
         "listDefaults": "{target} est retiré de la mise en page par défaut de {consumers}.",
         "nameField": "{consumers} sera affiché avec {replacement} à la place.",
-        "nameFieldNone": "{consumers} n’a plus de champ pour nommer ses éléments, ils s’affichent donc sans nom.",
+        "nameFieldNone": "Plus aucun champ de {consumers} ne peut nommer ses éléments, ils s’affichent donc comme « {singular} sans nom ».",
         "personalLayouts": "{target} est retiré de {count, plural, one {# mise en page personnelle} other {# mises en page personnelles}}.",
         "view": "{count, plural, one {{target} est retiré de la vue {consumers}.} other {{target} est retiré de # vues : {consumers}.}}",
         "webhookPaused": "{count, plural, one {Le webhook {consumers} est mis en pause, car {target} était son seul déclencheur. Choisissez un nouveau déclencheur avant de le réactiver.} other {# webhooks sont mis en pause, car {target} était leur seul déclencheur : {consumers}. Choisissez un nouveau déclencheur avant de les réactiver.}}",

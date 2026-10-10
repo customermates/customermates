@@ -3224,7 +3224,7 @@
     "configurationDeletion": {
       "blockedMessage": "{name} kann nicht gelöscht werden, solange andere Teile deiner Einrichtung es noch verwenden.",
       "blockers": {
-        "binding": "{source} verwendet {target} in seinen Einstellungen.",
+        "binding": "{target} steuert den Workspace-Zugriff für {source} und kann nicht gelöscht werden.",
         "calculation": "{source} berechnet sich aus {target}.",
         "parentAccess": "{source} erhält seinen Zugriff über {target}.",
         "protected": "{source} steuert den Zugriff auf den Arbeitsbereich und kann nicht gelöscht werden.",
@@ -3240,7 +3240,7 @@
         "bindingChannels": "{target} wird nicht mehr für Kanäle in {consumers} verwendet.",
         "listDefaults": "{target} wird aus dem Standardlayout von {consumers} entfernt.",
         "nameField": "{consumers} werden stattdessen mit {replacement} angezeigt.",
-        "nameFieldNone": "{consumers} hat kein Feld mehr, das die Einträge benennen kann, sie erscheinen daher ohne Namen.",
+        "nameFieldNone": "In {consumers} kann kein Feld mehr die Datensätze benennen, sie erscheinen daher als „{singular} ohne Namen“.",
         "personalLayouts": "{target} wird aus {count, plural, one {# persönlichen Layout} other {# persönlichen Layouts}} entfernt.",
         "view": "{count, plural, one {{target} wird aus der Ansicht {consumers} entfernt.} other {{target} wird aus # Ansichten entfernt: {consumers}.}}",
         "webhookPaused": "{count, plural, one {Der Webhook {consumers} wird pausiert, weil {target} sein einziger Auslöser war. Wählen Sie einen neuen Auslöser, bevor Sie ihn wieder einschalten.} other {# Webhooks werden pausiert, weil {target} ihr einziger Auslöser war: {consumers}. Wählen Sie einen neuen Auslöser, bevor Sie sie wieder einschalten.}}",

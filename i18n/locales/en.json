@@ -3224,7 +3224,7 @@
     "configurationDeletion": {
       "blockedMessage": "{name} can't be deleted while other parts of your setup still use it.",
       "blockers": {
-        "binding": "{source} uses {target} in its settings.",
+        "binding": "{target} controls workspace access for {source} and can't be deleted.",
         "calculation": "{source} calculates from {target}.",
         "parentAccess": "{source} gets its access through {target}.",
         "protected": "{source} controls workspace access and can't be deleted.",
@@ -3240,7 +3240,7 @@
         "bindingChannels": "{target} is no longer used for Channels in {consumers}.",
         "listDefaults": "{target} is removed from the default layout of {consumers}.",
         "nameField": "{consumers} will be shown by {replacement} instead.",
-        "nameFieldNone": "{consumers} has no field left that can name its records, so they show as untitled.",
+        "nameFieldNone": "No field in {consumers} can name its records any more, so they show as “Untitled {singular}”.",
         "personalLayouts": "{target} is removed from {count, plural, one {# personal layout} other {# personal layouts}}.",
         "view": "{count, plural, one {{target} is removed from the view {consumers}.} other {{target} is removed from # views: {consumers}.}}",
         "webhookPaused": "{count, plural, one {The webhook {consumers} is paused, because {target} was its only trigger. Choose a new trigger before turning it back on.} other {# webhooks are paused, because {target} was their only trigger: {consumers}. Choose a new trigger before turning them back on.}}",

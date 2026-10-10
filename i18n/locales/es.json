@@ -3224,7 +3224,7 @@
     "configurationDeletion": {
       "blockedMessage": "{name} no se puede eliminar mientras otras partes de tu configuración lo sigan usando.",
       "blockers": {
-        "binding": "{source} usa {target} en su configuración.",
+        "binding": "{target} controla el acceso al espacio de trabajo de {source} y no se puede eliminar.",
         "calculation": "{source} se calcula a partir de {target}.",
         "parentAccess": "{source} obtiene su acceso a través de {target}.",
         "protected": "{source} controla el acceso al espacio de trabajo y no se puede eliminar.",
@@ -3240,7 +3240,7 @@
         "bindingChannels": "{target} deja de usarse para los canales en {consumers}.",
         "listDefaults": "{target} se quita del diseño predeterminado de {consumers}.",
         "nameField": "{consumers} se mostrará con {replacement} en su lugar.",
-        "nameFieldNone": "{consumers} ya no tiene un campo que dé nombre a sus registros, así que aparecen sin nombre.",
+        "nameFieldNone": "Ningún campo de {consumers} puede ya dar nombre a sus registros, así que aparecen como «{singular} sin nombre».",
         "personalLayouts": "{target} se quita de {count, plural, one {# diseño personal} other {# diseños personales}}.",
         "view": "{count, plural, one {{target} se quita de la vista {consumers}.} other {{target} se quita de # vistas: {consumers}.}}",
         "webhookPaused": "{count, plural, one {El webhook {consumers} queda en pausa porque {target} era su único disparador. Elige un nuevo disparador antes de volver a activarlo.} other {# webhooks quedan en pausa porque {target} era su único disparador: {consumers}. Elige un nuevo disparador antes de volver a activarlos.}}",
