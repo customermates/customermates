@@ -19,6 +19,8 @@ import { type EditorAnchorRect } from "./use-editor-anchor";
 import { SlashMenu } from "./slash-menu";
 import { TableMenu } from "./table-menu";
 
+import { cn } from "@/core/utils/cn";
+
 import "./editor.scss";
 
 type Props = {
@@ -26,6 +28,8 @@ type Props = {
   onChange?: (data: object) => void;
   readOnly?: boolean;
   label?: string;
+  inline?: boolean;
+  autoFocus?: boolean;
 };
 
 function findEnclosingTableStart($pos: ResolvedPos): number | null {
@@ -35,7 +39,7 @@ function findEnclosingTableStart($pos: ResolvedPos): number | null {
   return null;
 }
 
-export function Editor({ data, onChange, readOnly = false, label }: Props) {
+export function Editor({ data, onChange, readOnly = false, label, inline = false, autoFocus = false }: Props) {
   const t = useTranslations();
   const [showSlashMenu, setShowSlashMenu] = useState(false);
   const [slashAnchorRect, setSlashAnchorRect] = useState<EditorAnchorRect | null>(null);
@@ -183,8 +187,8 @@ export function Editor({ data, onChange, readOnly = false, label }: Props) {
       setShowBubbleMenu(false);
       setShowSlashMenu(false);
       setShowTableMenu(false);
-    }
-  }, [editor, readOnly]);
+    } else if (autoFocus) editor.commands.focus("end");
+  }, [autoFocus, editor, readOnly]);
 
   useEffect(() => {
     function handleGlobalMouseUp() {
@@ -257,7 +261,7 @@ export function Editor({ data, onChange, readOnly = false, label }: Props) {
   if (!editor) return null;
 
   return (
-    <div className="relative min-h-52">
+    <div className={cn("relative", !inline && "min-h-52")}>
       {showBubbleMenu && !showTableMenu && !readOnly && (
         <BubbleMenu anchorRect={bubbleAnchorRect} editor={editor} onClose={() => setShowBubbleMenu(false)} />
       )}

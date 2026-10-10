@@ -941,6 +941,8 @@
       "remove": "Retirer",
       "reset": "Réinitialiser",
       "save": "Enregistrer",
+      "showLess": "Afficher moins",
+      "showMore": "Afficher plus",
       "signIn": "Connexion"
     },
     "ariaLabels": {
@@ -2153,9 +2155,6 @@
     "pinField": "Épingler {field} dans l’aperçu",
     "pinMore": "Épingler ou détacher des champs",
     "reorderInstructions": "Appuyez sur Espace ou Entrée pour saisir un champ. Utilisez les flèches pour le déplacer, Espace ou Entrée pour le déposer et Échap pour annuler.",
-    "sections": {
-      "notes": "Notes"
-    },
     "showField": "Afficher {field} dans les détails",
     "unpinField": "Désépingler {field} de l’aperçu"
   },
@@ -3080,6 +3079,7 @@
     "addPathStep": "Ajouter une étape de relation",
     "addProperty": "Ajouter une propriété",
     "addRelationship": "Ajouter une relation",
+    "addValue": "Ajouter {field}",
     "aggregation": "Agrégation",
     "ascending": "Croissant",
     "assignedTo": "Attribué à",
@@ -3644,6 +3644,9 @@
     "table": "Tableau",
     "triggerField": "Quand ce champ change",
     "triggerValue": "À cette valeur",
+    "typeHints": {
+      "richText": "Notes, descriptions, résumés"
+    },
     "types": {
       "boolean": "Oui ou non",
       "channels": "Canaux",

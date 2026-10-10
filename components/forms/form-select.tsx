@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import type { ChipColor } from "@/constants/chip-colors";
 
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -72,6 +72,7 @@ export const FormSelect = observer(
     const t = useTranslations();
     const store = useAppForm();
     const [open, setOpen] = useState(false);
+    const descriptionIdPrefix = useId();
     const resolvedLabel = useResolvedFieldLabel(id, label);
     const raw = controlledValue ?? store?.getValue(id);
     const value = raw == null ? "" : String(raw);
@@ -154,7 +155,13 @@ export const FormSelect = observer(
             ) : (
               <>
                 {items?.map((item) => (
-                  <SelectItem key={item.value} disabled={item.disabled} textValue={item.label} value={item.value}>
+                  <SelectItem
+                    key={item.value}
+                    aria-describedby={item.description ? `${descriptionIdPrefix}-${item.value}` : undefined}
+                    disabled={item.disabled}
+                    textValue={item.label}
+                    value={item.value}
+                  >
                     {item.color ? (
                       <span className="flex items-center gap-2">
                         <AppChip aria-hidden={item.chipLabel ? true : undefined} variant={item.color}>
@@ -163,7 +170,15 @@ export const FormSelect = observer(
 
                         {item.chipLabel && <span className="text-xs text-muted-foreground">{item.label}</span>}
 
-                        {item.description && <span className="text-xs text-muted-foreground">{item.description}</span>}
+                        {item.description && (
+                          <span
+                            aria-hidden
+                            className="text-xs text-muted-foreground"
+                            id={`${descriptionIdPrefix}-${item.value}`}
+                          >
+                            {item.description}
+                          </span>
+                        )}
                       </span>
                     ) : (
                       <span className={cn("flex items-center gap-2", item.description && "items-start")}>
@@ -173,7 +188,11 @@ export const FormSelect = observer(
                           <span>{item.label}</span>
 
                           {item.description && (
-                            <span className="max-w-64 whitespace-normal text-xs text-muted-foreground">
+                            <span
+                              aria-hidden
+                              className="max-w-64 whitespace-normal text-xs text-muted-foreground"
+                              id={`${descriptionIdPrefix}-${item.value}`}
+                            >
                               {item.description}
                             </span>
                           )}

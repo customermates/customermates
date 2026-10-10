@@ -1517,10 +1517,7 @@ test("recovers a parent after an embedded save without repeating the child mutat
   await page.goto(`/en/records/${deal.typeId}/${deal.recordId}`);
   const main = page.getByRole("main");
   const embedded = main.getByRole("region", { name: "Line items", exact: true });
-  const notesTab = main.getByRole("tab", { name: english.EntityDetail.sections.notes, exact: true });
-  await notesTab.click();
   await expect(main.getByRole("textbox", { name: notes.label, exact: true })).toHaveText("Previously stored notes");
-  await main.getByRole("tab", { name: english.EntityDetail.overview, exact: true }).click();
   const latestDeal = await post(page, "/api/v1/records/read", deal);
   await mutate(page, current, {
     action: "update",
@@ -1563,8 +1560,7 @@ test("recovers a parent after an embedded save without repeating the child mutat
     .getByRole("row")
     .filter({ has: page.getByRole("button", { name: "Recovery line", exact: true }) });
   await expect(row.getByRole("button", { name: "Edit Quantity", exact: true })).toHaveText("2");
-  await notesTab.click();
-  await expect(main.getByRole("textbox", { name: notes.label, exact: true })).toHaveText("");
+  await expect(main.getByText(`Add ${notes.label}`, { exact: true })).toBeVisible();
   await expect(main.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
   expect(await receipts()).toBe(beforeReceipts + 1);
   expect(await persisted()).toEqual(accepted);

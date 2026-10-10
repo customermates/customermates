@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { readStoredPanelSizes } from "@/components/layout/resizable-panels.utils";
 import { recordPanelsP13nId, recordPanelWidths } from "../record-panels-personalization";
 
-const PANELS = ["details", "notes", "activities"];
+const PANELS = ["details", "activities"];
 const LAYOUT = PANELS.join("-");
 
 describe("record detail panel widths", () => {
@@ -14,9 +14,8 @@ describe("record detail panel widths", () => {
   it("reads widths a member resized on the old detail page from the migrated record-detail row", () => {
     const migratedDetail = {
       columnWidths: {
-        [`panel:${LAYOUT}:details`]: 500,
-        [`panel:${LAYOUT}:notes`]: 300,
-        [`panel:${LAYOUT}:activities`]: 200,
+        [`panel:${LAYOUT}:details`]: 700,
+        [`panel:${LAYOUT}:activities`]: 300,
         name: 240,
       },
     };
@@ -24,16 +23,15 @@ describe("record detail panel widths", () => {
     const widths = recordPanelWidths(null, migratedDetail);
 
     expect(widths).toEqual({
-      [`panel:${LAYOUT}:details`]: 500,
-      [`panel:${LAYOUT}:notes`]: 300,
-      [`panel:${LAYOUT}:activities`]: 200,
+      [`panel:${LAYOUT}:details`]: 700,
+      [`panel:${LAYOUT}:activities`]: 300,
     });
-    expect(readStoredPanelSizes(widths, LAYOUT, PANELS)).toEqual([500, 300, 200]);
+    expect(readStoredPanelSizes(widths, LAYOUT, PANELS)).toEqual([700, 300]);
   });
 
   it("prefers widths saved on the generic record page over the migrated ones", () => {
-    const saved = { columnWidths: { [`panel:${LAYOUT}:details`]: 700, [`panel:${LAYOUT}:notes`]: 300 } };
-    const migratedDetail = { columnWidths: { [`panel:${LAYOUT}:details`]: 100, [`panel:${LAYOUT}:notes`]: 900 } };
+    const saved = { columnWidths: { [`panel:${LAYOUT}:details`]: 700, [`panel:${LAYOUT}:activities`]: 300 } };
+    const migratedDetail = { columnWidths: { [`panel:${LAYOUT}:details`]: 100, [`panel:${LAYOUT}:activities`]: 900 } };
 
     expect(recordPanelWidths(saved, migratedDetail)).toBe(saved.columnWidths);
   });

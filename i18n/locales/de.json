@@ -941,6 +941,8 @@
       "remove": "Entfernen",
       "reset": "Zurücksetzen",
       "save": "Speichern",
+      "showLess": "Weniger anzeigen",
+      "showMore": "Mehr anzeigen",
       "signIn": "Login"
     },
     "ariaLabels": {
@@ -2153,9 +2155,6 @@
     "pinField": "{field} an die Übersicht anheften",
     "pinMore": "Felder anheften oder lösen",
     "reorderInstructions": "Drücke die Leertaste oder Eingabe, um ein Feld aufzunehmen. Verschiebe es mit den Pfeiltasten, lege es mit Leertaste oder Eingabe ab und brich mit Escape ab.",
-    "sections": {
-      "notes": "Notizen"
-    },
     "showField": "{field} in den Details anzeigen",
     "unpinField": "{field} von der Übersicht lösen"
   },
@@ -3080,6 +3079,7 @@
     "addPathStep": "Beziehungsschritt hinzufügen",
     "addProperty": "Eigenschaft hinzufügen",
     "addRelationship": "Beziehung hinzufügen",
+    "addValue": "{field} hinzufügen",
     "aggregation": "Zusammenfassung",
     "ascending": "Aufsteigend",
     "assignedTo": "Zugewiesen an",
@@ -3644,6 +3644,9 @@
     "table": "Tabelle",
     "triggerField": "Wenn sich dieses Feld ändert",
     "triggerValue": "Auf diesen Wert",
+    "typeHints": {
+      "richText": "Notizen, Beschreibungen, Zusammenfassungen"
+    },
     "types": {
       "boolean": "Ja oder nein",
       "channels": "Kanäle",

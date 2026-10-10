@@ -22,7 +22,6 @@ import {
 } from "./record-detail-personalization";
 import { RecordDetailOverview } from "./record-detail-overview";
 import { RecordDetailChipRow } from "./record-detail-chip-row";
-import { RecordEditorFields } from "./record-editor-fields";
 import { RecordEditorActions, RecordHeaderActions, RecordPageActions } from "./record-editor-actions";
 import { EntityDetailPanels, type EntityDetailPanelLayout } from "@/components/entity-detail/entity-detail-panels";
 import { useRecordEditorDeletion } from "./use-record-deletion";
@@ -136,7 +135,6 @@ const RecordEditorBody = observer(function RecordEditorBody({
 
   const title = store.record?.fields.find((field) => field.fieldId === type?.primaryFieldId)?.result;
   const name = store.record ? recordDisplayName(title, type?.label, t) : (type?.label ?? t("RecordModel.record"));
-  const hasNotes = store.fields.some((field) => field.valueType === "richText");
   const notices = (
     <>
       {store.record?.protectedKind === "membershipAuthorization" && (
@@ -196,13 +194,6 @@ const RecordEditorBody = observer(function RecordEditorBody({
             </div>
           }
           initialPanel={params.get("viewSurface") === SURFACE.entityTimeline ? "activities" : "details"}
-          notes={
-            hasNotes ? (
-              <div className="p-4">
-                <RecordEditorFields notes store={store} />
-              </div>
-            ) : undefined
-          }
           panelLayout={panelLayout}
           summary={<RecordDetailChipRow className="px-4 pt-2 pb-3" store={store} />}
         />
@@ -245,33 +236,13 @@ const RecordEditorBody = observer(function RecordEditorBody({
             {
               value: "details",
               label: t("EntityDetail.overview"),
-              fields: [
-                ...store.fields.filter((field) => field.valueType !== "richText").map((field) => `values.${field.id}`),
-                "assignedUserIds",
-                "identities",
-              ],
+              fields: [...store.fields.map((field) => `values.${field.id}`), "assignedUserIds", "identities"],
               content: (
                 <AppCardBody className="space-y-4 overflow-y-auto overscroll-contain">
                   <RecordDetailOverview renderEditor={renderEditor} store={store} />
                 </AppCardBody>
               ),
             },
-            ...(hasNotes
-              ? [
-                  {
-                    value: "notes",
-                    label: t("EntityDetail.sections.notes"),
-                    fields: store.fields
-                      .filter((field) => field.valueType === "richText")
-                      .map((field) => `values.${field.id}`),
-                    content: (
-                      <AppCardBody className="overflow-y-auto overscroll-contain">
-                        <RecordEditorFields notes store={store} />
-                      </AppCardBody>
-                    ),
-                  },
-                ]
-              : []),
             ...(store.record
               ? [
                   {
