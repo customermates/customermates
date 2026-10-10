@@ -84,10 +84,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
     return () => root.layoutStore.clearRuntimeIdentity("entity", key);
   }, [root, presentation.typeId, store.type?.pluralLabel, t]);
   const openEditor = useCallback(
-    (
-      ref: { typeId: string; recordId?: string; values?: Record<string, unknown> },
-      returnFocusTo?: HTMLElement | null,
-    ) => {
+    (ref: { typeId: string; recordId?: string }, returnFocusTo?: HTMLElement | null) => {
       const target = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       root.recordWorkspaceStore.open(ref, returnFocusTo ?? target);
     },
