@@ -120,3 +120,77 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
   await savedSession.close();
   expect(errors).toEqual([]);
 });
+
+test("keeps an Activities rail filter temporary with the modified dot, Reset and Save in the views menu", async ({
+  page,
+  database,
+  companyId,
+  workspace,
+}) => {
+  test.setTimeout(240000);
+  const errors: string[] = [];
+  page.on("pageerror", (error) => {
+    if (!isBenignPageError(error.message)) errors.push(error.message);
+  });
+  page.on("console", (message) => {
+    if (isAppConsoleError(message)) errors.push(message.text());
+  });
+  const typeId = presetId(companyId, "service");
+  const name = "Rail filter service";
+  await page.goto(`/en/records/${typeId}`);
+  await page.locator("#records-add").click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByRole("textbox", { name: "Name", exact: false }).fill(name);
+  await dialog.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(dialog).not.toBeVisible();
+  const record = await database.query(
+    'SELECT "recordId" FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "fieldId"=$3 AND "textValue"=$4',
+    [companyId, typeId, presetId(companyId, "service.name"), name],
+  );
+  await page.goto(`/en/records/${typeId}/${record.rows[0].recordId}`);
+  const history = page.locator('main [data-detail-panel="activities"]');
+  if (!(await history.isVisible())) await page.getByRole("tab", { name: "Activities", exact: true }).click();
+  const all = history.locator("#global-data-views-all");
+  await expect(all).toHaveAttribute("aria-current", "page");
+  await expect(all).not.toHaveAttribute("data-view-modified");
+  const storedFilters = async () =>
+    (
+      await database.query('SELECT filters FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3', [
+        companyId,
+        workspace.userId,
+        "entity-timeline",
+      ])
+    ).rows[0]?.filters ?? null;
+  const filterMessages = async () => {
+    await history.getByRole("button", { name: "Filters", exact: true }).click();
+    await page.locator('[data-palette-field="timelineKind"]').click();
+    await page.locator('[data-palette-value="messages"]').click();
+    await page.locator("#filter-palette-back").click();
+    await page.keyboard.press("Escape");
+    await expect(all).toHaveAttribute("data-view-modified", "");
+  };
+  const viewsMenu = async () => {
+    await history.locator("#global-data-views-menu").click();
+    await expect(page.locator("#global-data-views-save")).toBeVisible();
+    await expect(page.locator("#global-data-views-reset")).toBeVisible();
+  };
+
+  await filterMessages();
+  await viewsMenu();
+  await page.locator("#global-data-views-reset").click();
+  await expect(all).not.toHaveAttribute("data-view-modified");
+  expect(await storedFilters()).toBeNull();
+
+  await filterMessages();
+  await viewsMenu();
+  await page.locator("#global-data-views-save").click();
+  await expect(all).not.toHaveAttribute("data-view-modified");
+  await expect
+    .poll(storedFilters)
+    .toEqual([{ field: "timelineKind", operator: "in", value: ["messages"] }]);
+  await history.locator("#global-data-views-menu").click();
+  await expect(page.locator("#global-data-views-save")).toHaveCount(0);
+  await expect(page.locator("#global-data-views-reset")).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  expect(errors).toEqual([]);
+});

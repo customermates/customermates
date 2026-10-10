@@ -11,6 +11,7 @@ import { AppModalActionRail } from "@/components/modal/app-modal-action";
 import { useAskAiAction } from "@/components/ui/ask-ai-action";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { AppModalCloseContext } from "@/components/modal/app-modal-close-context";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 type Props = { store: BaseDataViewStore<any>; compact?: boolean; id?: string };
 
@@ -50,7 +51,7 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, i
                     anchorId: id ? `${id}-reset` : undefined,
                     icon: RotateCcw,
                     label: t("DataView.views.resetChanges"),
-                    onClick: store.resetQueryToView,
+                    onClick: () => runUserAction(store.resetQueryToView),
                   },
                 ]
               : []),

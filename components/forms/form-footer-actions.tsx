@@ -12,6 +12,7 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { useAppModalClose } from "@/components/modal/app-modal-close-context";
 import { DiscardChangesDialog } from "@/components/modal/confirm-dialog";
 import { Button } from "@/components/ui/button";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Spinner } from "@/components/ui/spinner";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -208,3 +209,13 @@ export const FormFooterActions = observer(
     );
   },
 );
+
+export function FormSaveMenuItem({ id, onSave }: { id?: string; onSave: () => void | Promise<void> }) {
+  const t = useTranslations();
+
+  return (
+    <DropdownMenuItem id={id} onSelect={() => runUserAction(onSave)}>
+      {t("Common.actions.save")}
+    </DropdownMenuItem>
+  );
+}
