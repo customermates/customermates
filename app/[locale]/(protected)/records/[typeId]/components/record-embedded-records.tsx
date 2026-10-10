@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { RecordDto, RecordRef, RecordType } from "@/features/records/record-model.schema";
 import type { RecordRow } from "@/features/records/record-presentation";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
@@ -36,6 +36,7 @@ const EmbeddedAddLine = observer(function EmbeddedAddLine({
 }) {
   const t = useTranslations();
   const [draft, setDraft] = useState<string | null>(null);
+  const settled = useRef(false);
   const label = t("RecordModel.addEmbedded", { type: type.label });
   const primary = list.fields.find((field) => field.id === type.primaryFieldId);
   const inline = primary && primary.valueType === "text" && isRecordFieldWritable(primary);
@@ -47,7 +48,11 @@ const EmbeddedAddLine = observer(function EmbeddedAddLine({
         size="sm"
         type="button"
         variant="ghost"
-        onClick={() => (inline ? setDraft("") : onOpenEditor())}
+        onClick={() => {
+          if (!inline) return onOpenEditor();
+          settled.current = false;
+          setDraft("");
+        }}
       >
         <Plus className="size-4" />
 
@@ -57,6 +62,8 @@ const EmbeddedAddLine = observer(function EmbeddedAddLine({
   }
   const commit = () =>
     runUserAction(async () => {
+      if (settled.current) return;
+      settled.current = true;
       const name = draft.trim();
       setDraft(null);
       if (!name) return;
@@ -69,6 +76,7 @@ const EmbeddedAddLine = observer(function EmbeddedAddLine({
       aria-label={label}
       className="h-8"
       data-embedded-draft=""
+      data-local-escape=""
       placeholder={primary.label}
       value={draft}
       onBlur={commit}
@@ -79,8 +87,8 @@ const EmbeddedAddLine = observer(function EmbeddedAddLine({
           commit();
         }
         if (event.key === "Escape") {
-          event.preventDefault();
           event.stopPropagation();
+          settled.current = true;
           setDraft(null);
         }
       }}
