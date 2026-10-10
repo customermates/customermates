@@ -10,7 +10,7 @@ import type { RecordRef } from "../../features/records/record-model.schema";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
 import { presetId } from "../../features/records/crm-preset";
-import { WIDGET_STARTER_DISPLAY_TYPES } from "../../features/widget/widget-display-rules";
+import { WIDGET_STARTER_DISPLAY_TYPES, widgetDisplayRequirement } from "../../features/widget/widget-display-rules";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 const TIME_ZONE = "Europe/Berlin";
@@ -489,6 +489,11 @@ test("starts a widget from every display type card with that type preset on the 
     await dialog.locator(`#widget-starter-${displayType}`).click();
     await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("");
     await expect(dialog.getByRole("tab", { name: "Data", exact: true })).toHaveAttribute("aria-selected", "true");
+    const requirement = widgetDisplayRequirement(displayType);
+    const hint = dialog.locator("[data-widget-display-requirement]");
+    if (requirement && requirement !== "noGrouping")
+      await expect(hint).toHaveText(englishMessages.Dashboard.displayTypeRequirements[requirement]);
+    else await expect(hint).toHaveCount(0);
     await showTab(page, "Appearance");
     await expect(dialog.locator(`[id="display-type-${displayType}"]`)).toBeChecked();
     await page.keyboard.press("Escape");

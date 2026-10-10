@@ -700,6 +700,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/records/record-activity-filters.tsx :: t :: Common.providers.${id}",
   'app/[locale]/(protected)/dashboard/components/record-widget-chart.tsx :: t :: RecordModel.${result.state === "error" ? "calculationError" : result.state}',
   'app/[locale]/(protected)/dashboard/components/record-widget-chart.tsx :: t :: RecordModel.${value.value ? "yes" : "no"}',
+  "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx :: t :: Dashboard.displayTypeRequirements.${displayIssue}",
   "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx :: t :: RecordModel.reducers.${value}",
   "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx :: t :: RecordWidgets.intervals.${interval}",
   "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypeRequirements.${requirement}",
