@@ -4106,6 +4106,7 @@
     },
     "movedToTrash": "Movido a la papelera",
     "movesToTrash": "Se mueve a la papelera, donde puedes restaurarlo durante 30 días.",
+    "moving": "{count, plural, one {Moviendo # elemento a la papelera…} other {Moviendo # elementos a la papelera…}}",
     "permanentIrreversible": "Esto no se puede deshacer.",
     "permanentMessage": "{count, plural, one {Este elemento se elimina} other {Estos # elementos se eliminan}} definitivamente.",
     "permanentRecords": "{list}: {count, plural, one {# registro} other {# registros}}",
@@ -4120,7 +4121,7 @@
     "restored": "{count, plural, one {# elemento restaurado} other {# elementos restaurados}}",
     "restoredInBackground": "Restaurado",
     "restoredWithDroppedLinks": "Restaurado. {count, plural, one {# vínculo no se pudo} other {# vínculos no se pudieron}} restaurar porque el registro vinculado se eliminó definitivamente.",
-    "restorePending": "Restaurando en segundo plano. La papelera muestra el progreso.",
+    "restoring": "Restaurando…",
     "undo": "Deshacer"
   },
   "TrialExpiredOffer": {

@@ -4106,6 +4106,7 @@
     },
     "movedToTrash": "Spostato nel cestino",
     "movesToTrash": "Viene spostato nel cestino, dove puoi ripristinarlo per 30 giorni.",
+    "moving": "{count, plural, one {Spostamento di # elemento nel cestino…} other {Spostamento di # elementi nel cestino…}}",
     "permanentIrreversible": "Questa operazione non può essere annullata.",
     "permanentMessage": "{count, plural, one {Questo elemento viene eliminato} other {Questi # elementi vengono eliminati}} definitivamente.",
     "permanentRecords": "{list}: {count, plural, one {# record} other {# record}}",
@@ -4120,7 +4121,7 @@
     "restored": "{count, plural, one {# elemento ripristinato} other {# elementi ripristinati}}",
     "restoredInBackground": "Ripristinato",
     "restoredWithDroppedLinks": "Ripristinato. {count, plural, one {# collegamento non è stato ripristinato} other {# collegamenti non sono stati ripristinati}} perché il record collegato è stato eliminato definitivamente.",
-    "restorePending": "Ripristino in background. Il cestino mostra l'avanzamento.",
+    "restoring": "Ripristino…",
     "undo": "Annulla"
   },
   "TrialExpiredOffer": {

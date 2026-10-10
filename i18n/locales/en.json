@@ -4106,6 +4106,7 @@
     },
     "movedToTrash": "Moved to Trash",
     "movesToTrash": "It moves to Trash, where you can restore it for 30 days.",
+    "moving": "{count, plural, one {Moving # item to Trash…} other {Moving # items to Trash…}}",
     "permanentIrreversible": "This cannot be undone.",
     "permanentMessage": "{count, plural, one {This item is} other {These # items are}} deleted permanently.",
     "permanentRecords": "{list}: {count, plural, one {# record} other {# records}}",
@@ -4120,7 +4121,7 @@
     "restored": "{count, plural, one {# item restored} other {# items restored}}",
     "restoredInBackground": "Restored",
     "restoredWithDroppedLinks": "Restored. {count, plural, one {# link} other {# links}} could not be restored because the linked record was deleted permanently.",
-    "restorePending": "Restoring in the background. Trash shows the progress.",
+    "restoring": "Restoring…",
     "undo": "Undo"
   },
   "TrialExpiredOffer": {
