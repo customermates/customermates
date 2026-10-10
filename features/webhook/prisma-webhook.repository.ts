@@ -112,6 +112,7 @@ export class PrismaWebhookRepo
         : input.recordTrigger;
     const filtered = Boolean(
       sources?.length ||
+        trigger?.query.typeId ||
         trigger?.changedFieldIds.length ||
         trigger?.query.filters?.length ||
         trigger?.query.relationships?.length ||

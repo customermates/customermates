@@ -12,6 +12,8 @@ import {
   saveDrawer,
 } from "./configure";
 import { expect, test } from "./fixtures";
+import { runNamedRowAction } from "./record-rows";
+import { moveWithKeyboard } from "./keyboard-drag";
 
 async function savedOptions(database: Client, companyId: string, label: string) {
   const { rows } = await database.query(
@@ -30,12 +32,11 @@ function optionNames(page: Page) {
 }
 
 async function moveByKeyboard(page: Page, option: string, key: "ArrowUp" | "ArrowDown") {
-  await configureDrawer(page)
-    .getByRole("button", { name: `Drag to reorder: ${option}`, exact: true })
-    .focus();
-  await page.keyboard.press("Space");
-  await page.keyboard.press(key);
-  await page.keyboard.press("Space");
+  await moveWithKeyboard(
+    page,
+    configureDrawer(page).getByRole("button", { name: `Drag to reorder: ${option}`, exact: true }),
+    key,
+  );
 }
 
 async function moveByDrag(page: Page, option: string, target: string) {
@@ -144,8 +145,7 @@ test("reorders choice options by drag and keyboard and edits attribute columns",
   await expect.poll(() => optionNames(page)).toEqual(["Silver", "Bronze", "Gold"]);
   await moveByKeyboard(page, "Silver", "ArrowDown");
   await expect.poll(() => optionNames(page)).toEqual(["Bronze", "Silver", "Gold"]);
-  await drawer.getByRole("button", { name: "More actions for Gold", exact: true }).click();
-  await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
+  await runNamedRowAction(page, drawer, "Gold", "Delete");
   await saveDrawer(page);
   await expect
     .poll(async () => (await savedOptions(database, companyId, label)).map((option) => option.label))

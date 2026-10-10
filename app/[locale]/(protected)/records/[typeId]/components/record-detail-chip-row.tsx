@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordChoice } from "@/features/records/get-record-choices.interactor";
-import type { RecordFieldView, RecordRef } from "@/features/records/record-model.schema";
+import type { RecordRef } from "@/features/records/record-model.schema";
 
 import { useCallback, useId, useState } from "react";
 import { observer } from "mobx-react-lite";
@@ -22,7 +22,6 @@ import {
 } from "@/components/entity-detail/entity-detail-personalization";
 import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { RecordValueTypeIcon } from "@/components/records/record-value-type-icon";
-import { ContactValue } from "@/components/records/contact-value";
 import { CommandGroup, CommandItem } from "@/components/ui/command";
 import {
   DropdownMenu,
@@ -32,14 +31,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { IconButton } from "@/components/ui/icon-button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { getChannelIcon } from "@/ee/messaging/provider-icon";
-import { channelContact, channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { recordColumns } from "@/features/records/record-columns";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { type RecordChipColumn, type RecordChipEntry, recordChipRowModel } from "./record-chip-row-model";
-import { RecordPropertyChipView } from "./record-chip-row";
+import { IdentityChips, RecordPropertyChipView } from "./record-chip-row";
 import { RecordChannelPopover } from "./record-identity-editor";
 import { focusFirstControl, RecordLinkPicker } from "./record-inline-field";
 import { RecordInputField } from "./record-input-field";
@@ -287,31 +284,6 @@ const LinkedChip = observer(function LinkedChip({
   );
 });
 
-function IdentityChips({ row, field }: { row: RecordRow; field: RecordFieldView }) {
-  return (
-    <>
-      {(row.identities ?? []).map((identity) => {
-        const Icon = getChannelIcon(identity.provider);
-        const contact = channelContact(identity.provider, identity.value, identity.profileUrl);
-        const label =
-          channelDisplayLabel(identity.provider, identity.value, identity.profileUrl) ||
-          identity.displayName ||
-          identity.value;
-        return (
-          <AppChip key={identity.id} startContent={<Icon className="size-3" />}>
-            <ContactValue
-              action={field.format?.onClick ?? "open"}
-              kind={contact.kind}
-              label={label}
-              value={contact.value}
-            />
-          </AppChip>
-        );
-      })}
-    </>
-  );
-}
-
 function editsInChip(store: RecordEditorStore, column: RecordChipColumn) {
   if (store.isReadOnly) return false;
   if (column.kind === "field") {
@@ -374,7 +346,7 @@ const DetailChip = observer(function DetailChip({
     return <LinkedChip editable={!personalizing && editsInChip(store, column)} entry={entry} row={row} store={store} />;
 
   if (column.kind === "field" && column.field.valueType === "channels") {
-    if (!entry.empty) return <IdentityChips field={column.field} row={row} />;
+    if (!entry.empty) return <IdentityChips field={column.field} record={row} />;
     const placeholder = <PlaceholderChip column={column} store={store} />;
     if (!editable || store.isDisabled) return placeholder;
     return (

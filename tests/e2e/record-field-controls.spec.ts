@@ -3,7 +3,7 @@ import type { Page } from "@playwright/test";
 import { RecordModelSchema, type RecordModel } from "../../features/records/record-model.schema";
 import { openDrawerTab, addFromConfigure, followConfigureLink, openConfigure, openConfigureRow, saveDrawer } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
-import { openRecordDetails } from "./record-rows";
+import { openRecordDetails, runNamedRowAction } from "./record-rows";
 
 async function choose(page: Page, label: string | RegExp, option: string) {
   await page
@@ -141,8 +141,7 @@ test("configures and persists all fourteen field types, multiple values and cale
         await dialog.getByRole("textbox", { name: "Option", exact: true }).fill("Accepted");
         await dialog.getByRole("button", { name: "Add option", exact: true }).click();
         await dialog.getByRole("textbox", { name: "Option", exact: true }).nth(1).fill("Removed draft option");
-        await dialog.getByRole("button", { name: "More actions for Removed draft option", exact: true }).click();
-        await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
+        await runNamedRowAction(page, dialog, "Removed draft option", "Delete");
         await expect(dialog.getByRole("textbox", { name: "Option", exact: true })).toHaveCount(1);
         await dialog.getByRole("button", { name: "Add attribute", exact: true }).click();
         await popover.getByRole("button", { name: "Probability %", exact: true }).click();

@@ -3,7 +3,7 @@ import { presetId } from "../../features/records/crm-preset";
 import type { Page } from "@playwright/test";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { test, expect } from "./fixtures";
-import { openRecordDetails } from "./record-rows";
+import { openRecordDetails, rowActionGroup, rowActionLabels } from "./record-rows";
 
 async function api(page: Page, path: string, data: unknown) {
   const response = await page.request.post(path, { data });
@@ -135,6 +135,12 @@ test("record tables edit cells in place, open linked chips and offer row actions
   await expect(drawer).not.toBeVisible();
 
   const row = page.getByRole("row").filter({ hasText: name });
+  await expect(page.locator('[data-slot="group-header-row"]').first()).toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "Stage", exact: false })).toHaveCount(0);
+  await page.getByRole("button", { name: "Appearance", exact: true }).click();
+  await page.getByRole("combobox", { name: "Group By", exact: true }).click();
+  await page.getByRole("option", { name: "None", exact: true }).click();
+  await page.keyboard.press("Escape");
   await row.getByRole("button", { name: "Edit Stage", exact: true }).click();
   await page.getByRole("menuitem", { name: "Qualified", exact: true }).click();
   await expect(row.getByRole("button", { name: "Edit Stage", exact: true })).toHaveText("Qualified");
@@ -157,20 +163,39 @@ test("record tables edit cells in place, open linked chips and offer row actions
   await organization.getByRole("button", { name: "Close", exact: true }).click();
   await expect(organization).not.toBeVisible();
 
-  const actions = row.locator("[data-record-row-actions]");
-  await expect(actions).toHaveCSS("opacity", testInfo.project.name === "mobile" ? "1" : "0");
-  await row.getByRole("button", { name: `More actions for ${name}`, exact: true }).focus();
-  await expect(actions).toHaveCSS("opacity", "1");
-  await page.keyboard.press("Enter");
-  await expect(page.getByRole("menuitem")).toHaveText(["Open details", "Delete"]);
-  await page.getByRole("menuitem", { name: "Open details", exact: true }).press("Enter");
-  await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(name);
-  await drawer.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(drawer).not.toBeVisible();
-
-  await row.hover();
-  await row.getByRole("button", { name: `More actions for ${name}`, exact: true }).click();
-  await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
+  if (testInfo.project.name === "mobile") {
+    const actions = row.locator("[data-record-row-actions]");
+    await expect(actions).toHaveCSS("opacity", "1");
+    await row.getByRole("button", { name: `More actions for ${name}`, exact: true }).click();
+    await expect(page.getByRole("menuitem")).toHaveText(["Open details", "Delete"]);
+    await page.getByRole("menuitem", { name: "Open details", exact: true }).click();
+    await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(name);
+    await drawer.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(drawer).not.toBeVisible();
+    await row.getByRole("button", { name: `More actions for ${name}`, exact: true }).click();
+    await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
+  } else {
+    const group = rowActionGroup(row);
+    await page.mouse.move(0, 0);
+    await expect(group).toHaveCSS("opacity", "0");
+    await expect(row.getByRole("button", { name: `More actions for ${name}`, exact: true })).toBeHidden();
+    const trailing = await row.locator("td").last().boundingBox();
+    expect(trailing!.width).toBeLessThan(2);
+    await row.hover();
+    await expect(group).toHaveCSS("opacity", "1");
+    expect(await rowActionLabels(page, row, name)).toEqual(["Open details", "Delete"]);
+    await page.mouse.move(0, 0);
+    await group.getByRole("button", { name: "Open details", exact: true }).focus();
+    await expect(group).toHaveCSS("opacity", "1");
+    await page.keyboard.press("Enter");
+    await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(name);
+    await drawer.getByRole("button", { name: "Close", exact: true }).click();
+    await expect(drawer).not.toBeVisible();
+    await row.hover();
+    const remove = group.getByRole("button", { name: "Delete", exact: true });
+    await expect(remove).toHaveAttribute("data-variant", "destructiveOutline");
+    await remove.click();
+  }
   await page.getByRole("alertdialog").locator("#confirm-delete").click();
   await expect(row).toHaveCount(0);
 });

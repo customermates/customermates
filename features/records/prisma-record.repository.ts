@@ -589,17 +589,21 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
             revision: { increment: 1 },
           },
         });
-        const webhook = await this.prisma.webhook.findFirst({ where: { companyId, id }, select: { events: true } });
+        const webhook = await this.prisma.webhook.findFirst({
+          where: { companyId, id },
+          select: { events: true, enabled: true },
+        });
         if (!webhook) continue;
+        const paused = cleanup.paused && webhook.enabled;
         const kept = webhook.events.filter((event) => !(RECORD_EVENT_KINDS as readonly string[]).includes(event));
         await this.prisma.webhook.updateMany({
           where: { companyId, id },
           data: {
             events: [...kept, ...events],
-            ...(cleanup.paused ? { enabled: false, pausedReason: "triggerFieldDeleted" } : {}),
+            ...(paused ? { enabled: false, pausedReason: "triggerFieldDeleted" } : {}),
           },
         });
-        if (cleanup.paused) pausedWebhookIds.push(id);
+        if (paused) pausedWebhookIds.push(id);
       }
     }
     return { pausedWebhookIds };

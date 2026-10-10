@@ -70,7 +70,6 @@ const RolesPageViewContent = observer(function RolesPageView({ initialRoles }: P
       <DataViewToolbar
         addLabel={pageState === "true-empty" ? t("Common.actions.add") : undefined}
         anchorScope="settings-roles"
-        isSearchable={false}
         store={rolesStore}
         onAdd={roleModalStore.add}
       />

@@ -2,6 +2,7 @@ import type { Client } from "pg";
 import type { Page } from "@playwright/test";
 
 import { expect, test } from "./fixtures";
+import { moveWithKeyboard } from "./keyboard-drag";
 import {
   collectErrors,
   itemMenu,
@@ -115,10 +116,7 @@ test("the customize dialog reorders, renames and deletes sections with visible h
     .locator("[data-customize-item]")
     .filter({ has: page.getByRole("button", { name: "Move Tasks", exact: true }) })
     .getAttribute("data-customize-item");
-  await dialog.getByRole("button", { name: "Move Tasks", exact: true }).focus();
-  await page.keyboard.press("Space");
-  await page.keyboard.press("ArrowUp");
-  await page.keyboard.press("Space");
+  await moveWithKeyboard(page, dialog.getByRole("button", { name: "Move Tasks", exact: true }), "ArrowUp");
   await expect.poll(async () => (await dataItems()).indexOf(tasks)).toBe(before.indexOf(tasks) - 1);
 
   await page.getByRole("button", { name: "New section", exact: true }).click();

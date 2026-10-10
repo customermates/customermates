@@ -2785,14 +2785,28 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       }),
     );
-    const webhook = (id: string) =>
+    const webhook = (id: string, enabled = true) =>
       f.run(() =>
         prisma.webhook.create({
-          data: { id, companyId: f.company.id, url: "https://hooks.example.test/budget", events: ["record.updated"] },
+          data: {
+            id,
+            companyId: f.company.id,
+            url: "https://hooks.example.test/budget",
+            events: ["record.updated"],
+            enabled,
+          },
         }),
       );
     const only = await webhook(randomUUID());
     const shared = await webhook(randomUUID());
+    const off = await webhook(randomUUID(), false);
+    await subscribeRecordEvents(f, {
+      id: off.id,
+      kind: "webhook",
+      events: ["record.updated"],
+      changedFieldIds: [budgetId],
+      enabled: false,
+    });
     await subscribeRecordEvents(f, {
       id: only.id,
       kind: "webhook",
@@ -2824,6 +2838,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
               effect: "webhookPaused",
             }),
             expect.objectContaining({ consumer: expect.objectContaining({ id: shared.id }), effect: "triggerChanged" }),
+            expect.objectContaining({ consumer: expect.objectContaining({ id: off.id }), effect: "triggerChanged" }),
           ]),
         },
       },
@@ -2855,26 +2870,32 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       events: ["record.updated"],
     });
     expect(webhooks.find((row) => row.id === shared.id)).toMatchObject({ enabled: true, pausedReason: null });
-    const pausedEvents = await f.run(() =>
-      prisma.eventLog.findMany({ where: { companyId: f.company.id, subjectId: only.id, kind: "webhook.updated" } }),
-    );
-    expect(pausedEvents).toHaveLength(1);
+    expect(
+      await f.run(() => prisma.webhook.findFirstOrThrow({ where: { companyId: f.company.id, id: off.id } })),
+    ).toMatchObject({ enabled: false, pausedReason: null, events: ["record.updated"] });
+    const updatedEvents = (id: string) =>
+      f.run(() =>
+        prisma.eventLog.findMany({ where: { companyId: f.company.id, subjectId: id, kind: "webhook.updated" } }),
+      );
+    expect(await updatedEvents(only.id)).toHaveLength(1);
+    expect(await updatedEvents(off.id)).toHaveLength(0);
     const revision = (await f.run(() => f.repo.getModel())).revision;
-    const reenable = (changedFieldIds: string[]) =>
+    const reenable = (
+      recordTrigger: { query: { typeId: string; filters: []; relationships: [] }; changedFieldIds: [] } | null,
+    ) =>
       f.run(() =>
         getWebhookRepo().upsertWebhookOrThrow({
           id: only.id,
           enabled: true,
           events: ["record.updated"],
-          recordTrigger: {
-            query: { typeId: f.id("service"), filters: [], relationships: [] },
-            changedFieldIds,
-          },
+          recordTrigger,
           expectedSchemaRevision: revision,
         }),
       );
-    await expect(reenable([])).rejects.toMatchObject({ code: CustomErrorCode.webhookTriggerRequired });
-    expect(await reenable([amount.id])).toMatchObject({ enabled: true, pausedReason: null });
+    await expect(reenable(null)).rejects.toMatchObject({ code: CustomErrorCode.webhookTriggerRequired });
+    expect(
+      await reenable({ query: { typeId: f.id("service"), filters: [], relationships: [] }, changedFieldIds: [] }),
+    ).toMatchObject({ enabled: true, pausedReason: null });
 
     const avatar = await f.run(() => f.preview.invoke(remove(f.id("contact.avatarUrl"), before.revision + 2)));
     expect(avatar).toMatchObject({

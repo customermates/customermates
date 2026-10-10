@@ -1367,6 +1367,18 @@
         "title": "Filter",
         "trigger": "Filter"
       },
+      "searchFields": {
+        "inbox": "Betreff, Nachricht oder Teilnehmer",
+        "members": "Name",
+        "operatorAudit": "Aktion",
+        "operatorUsers": "Name oder E-Mail",
+        "operatorWorkspaces": "E-Mail eines Mitglieds",
+        "records": "Ein Textfeld",
+        "routines": "Name",
+        "trash": "Name",
+        "webhookDeliveries": "URL oder Ereignis",
+        "webhooks": "URL"
+      },
       "selectionLimit": "Du kannst bis zu {count} Werte auswählen.",
       "selectOperator": "Bedingung auswählen…",
       "unavailableValue": "Filter nicht verfügbar"
@@ -1934,6 +1946,7 @@
     }
   },
   "DataView": {
+    "addToGroup": "Zu {group} hinzufügen",
     "board": {
       "chooseField": "Nach Feld gruppieren",
       "createField": "Einzelauswahl-Feld erstellen",

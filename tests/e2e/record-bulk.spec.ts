@@ -232,7 +232,7 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
     await expect(selection).toContainText("2 items selected");
   };
   await selectPair();
-  await applyPaletteSearch(page, "records-filter", "Selected A");
+  await applyPaletteSearch(page, "records-filter", "Selected A", "Any text field");
   await expect(page.getByRole("link", { name: "Selected A", exact: true })).toBeVisible();
   await expect(page.getByRole("link", { name: "Selected B", exact: true })).toHaveCount(0);
   await expect(selection).toContainText("1 not in the current view");

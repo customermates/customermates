@@ -43,7 +43,13 @@ const WebhookDeliveriesPageViewContent = observer(function WebhookDeliveriesPage
   });
   const descriptor = { title: t("WebhookDeliveriesCard.emptyTitle"), body: t("WebhookDeliveriesCard.emptyBody") };
   const topBarNode = useMemo(
-    () => <DataViewToolbar anchorScope="settings-webhook-deliveries" store={webhookDeliveriesStore} />,
+    () => (
+      <DataViewToolbar
+        anchorScope="settings-webhook-deliveries"
+        searchLabel={t("Common.filters.searchFields.webhookDeliveries")}
+        store={webhookDeliveriesStore}
+      />
+    ),
     [webhookDeliveriesStore],
   );
   useSetTopBarActions(topBarNode);
