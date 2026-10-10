@@ -37,6 +37,7 @@ const linked = {
   title: { state: "value" as const, value: { kind: "text" as const, value: "Initial project" } },
 };
 const results = (records: RecordChoice[]): RecordChoicesResult => ({
+  typeLabel: "Project",
   records,
   page: 1,
   pageSize: 25,

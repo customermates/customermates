@@ -20,6 +20,8 @@ import { getRecordPresentationAction, mutateRecordAction, resetRecordViewAction 
 import { movedToTrashOr, movingToTrash } from "@/features/trash/moved-to-trash";
 import { focusHref } from "@/components/focus/focus-href";
 
+export const UNTITLED_COLUMN_ID = "record:title";
+
 export class RecordsStore extends BaseDataViewStore<RecordRow> {
   presentation: RecordPresentationResult;
   pendingBoardOperation: string | null = null;
@@ -326,11 +328,14 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     return this.type ? { singular: this.type.label, plural: this.type.pluralLabel } : undefined;
   }
   get columnsDefinition() {
-    return this.recordColumns.map((column) => ({
+    const columns = this.recordColumns.map((column) => ({
       uid: column.id,
       label: column.label,
       sortable: column.sortable,
     }));
+    return this.type && !this.type.primaryFieldId
+      ? [{ uid: UNTITLED_COLUMN_ID, label: this.type.label, sortable: false }, ...columns]
+      : columns;
   }
   get recordColumns() {
     return recordColumns(this.presentation.typeId, this.presentation.model).map((column) => ({
@@ -365,7 +370,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     );
   }
   get primaryColumnId() {
-    return this.type?.primaryFieldId ?? super.primaryColumnId;
+    return this.type ? (this.type.primaryFieldId ?? UNTITLED_COLUMN_ID) : super.primaryColumnId;
   }
   get filterColumns() {
     return [

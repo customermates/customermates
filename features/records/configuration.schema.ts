@@ -60,7 +60,7 @@ export const DeletionCleanupSchema = z
       .optional()
       .describe("For a deleted name field: the field that now names the records, or null when none is left."),
     effect: z
-      .enum(["countsRecords", "triggerChanged", "subscriptionRemoved", "channels", "avatar", "calendar"])
+      .enum(["countsRecords", "triggerChanged", "webhookPaused", "channels", "avatar", "calendar"])
       .optional()
       .describe(
         "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the Channels, avatar or calendar setting.",

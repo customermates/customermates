@@ -82,7 +82,7 @@ export function deletionBlockerSentences(t: Translate, deletion: Deletion, model
 const EFFECT_SENTENCES = {
   countsRecords: "widgetCount",
   triggerChanged: "webhookTrigger",
-  subscriptionRemoved: "webhookRemoved",
+  webhookPaused: "webhookPaused",
   channels: "bindingChannels",
   avatar: "bindingAvatar",
   calendar: "bindingCalendar",
@@ -95,9 +95,14 @@ function nameFieldSentence(t: Translate, entry: Deletion["cleaned"][number], mod
         consumers,
         replacement: referenceChip(entry.replacement, model),
       })
-    : confirmationSentence((values) => t("RecordModel.configurationDeletion.cleaned.nameFieldNone", values), {
-        consumers,
-      });
+    : confirmationSentence(
+        (values) =>
+          t("RecordModel.configurationDeletion.cleaned.nameFieldNone", {
+            ...values,
+            singular: model?.types.find((type) => type.id === entry.consumer.id)?.label ?? "",
+          }),
+        { consumers },
+      );
 }
 
 function cleanedSentences(t: Translate, deletion: Deletion, model: RecordModelView | null): ConfirmationSentence[] {

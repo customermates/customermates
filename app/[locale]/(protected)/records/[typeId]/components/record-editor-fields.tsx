@@ -15,6 +15,7 @@ import { RecordDetailField } from "./record-detail-field";
 import { RecordInputField } from "./record-input-field";
 import { ConfirmationSentenceView, referenceSentence } from "@/components/modal/confirmation-sentence";
 import { recordValueSource } from "@/features/records/record-value-source";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 export const RecordEditorField = observer(function RecordEditorField({
@@ -66,8 +67,9 @@ export const RecordEditorField = observer(function RecordEditorField({
         )?.records
       : undefined;
     const target = linked?.length === 1 ? linked[0] : null;
-    const targetName =
-      target?.title.state === "value" && target.title.value.kind === "text" ? target.title.value.value : field.label;
+    const targetName = target
+      ? recordDisplayName(target.title, store.presentation.linkLabels[target.ref.typeId], t)
+      : field.label;
     return (
       <EntityDetailStaticField
         action={restricted ? null : captureAction}

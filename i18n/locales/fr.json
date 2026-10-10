@@ -1186,6 +1186,7 @@
       "webhookHeadersTooMany": "Trop d'en-têtes.",
       "webhookHeaderValueInvalid": "Les valeurs d'en-tête ne peuvent contenir que du texte Latin-1, sans saut de ligne ni caractère de contrôle.",
       "webhookNotFound": "ID de webhook introuvable ou inaccessible.",
+      "webhookTriggerRequired": "Choisissez quelles modifications de champ ou conditions déclenchent ce webhook avant de le réactiver.",
       "widgetDisplayTypeUnsupported": "Ce style de graphique ne correspond pas au regroupement choisi. Choisissez un autre style ou modifiez le regroupement.",
       "widgetKindImmutable": "Le type d'un widget ne peut pas être modifié après sa création.",
       "widgetLayoutOverlap": "Cette position chevauche un autre widget. Choisissez un emplacement libre dans la grille de 12 colonnes ou omettez la disposition pour le placer automatiquement.",
@@ -3225,7 +3226,7 @@
     "configurationDeletion": {
       "blockedMessage": "{name} ne peut pas être supprimé tant que d’autres éléments de votre configuration l’utilisent.",
       "blockers": {
-        "binding": "{source} utilise {target} dans ses paramètres.",
+        "binding": "{target} contrôle l’accès à l’espace de travail pour {source} et ne peut pas être supprimé.",
         "calculation": "{source} est calculé à partir de {target}.",
         "parentAccess": "{source} obtient son accès via {target}.",
         "protected": "{source} contrôle l’accès à l’espace de travail et ne peut pas être supprimé.",
@@ -3241,10 +3242,10 @@
         "bindingChannels": "{target} n’est plus utilisé pour les canaux dans {consumers}.",
         "listDefaults": "{target} est retiré de la mise en page par défaut de {consumers}.",
         "nameField": "{consumers} sera affiché avec {replacement} à la place.",
-        "nameFieldNone": "{consumers} n’a plus de champ pour nommer ses éléments, ils s’affichent donc sans nom.",
+        "nameFieldNone": "Plus aucun champ de {consumers} ne peut nommer ses éléments, ils s’affichent donc comme « {singular} sans nom ».",
         "personalLayouts": "{target} est retiré de {count, plural, one {# mise en page personnelle} other {# mises en page personnelles}}.",
         "view": "{count, plural, one {{target} est retiré de la vue {consumers}.} other {{target} est retiré de # vues : {consumers}.}}",
-        "webhookRemoved": "{count, plural, one {Le webhook {consumers} n’envoie plus les modifications d’éléments, car {target} était son seul déclencheur.} other {# webhooks n’envoient plus les modifications d’éléments, car {target} était leur seul déclencheur : {consumers}.}}",
+        "webhookPaused": "{count, plural, one {Le webhook {consumers} est mis en pause, car {target} était son seul déclencheur. Choisissez un nouveau déclencheur avant de le réactiver.} other {# webhooks sont mis en pause, car {target} était leur seul déclencheur : {consumers}. Choisissez un nouveau déclencheur avant de les réactiver.}}",
         "webhookTrigger": "{count, plural, one {{target} est retiré du déclencheur du webhook {consumers}.} other {{target} est retiré du déclencheur de # webhooks : {consumers}.}}",
         "widget": "{count, plural, one {{target} est retiré des filtres ou du regroupement du widget {consumers}.} other {{target} est retiré des filtres ou du regroupement de # widgets : {consumers}.}}",
         "widgetCount": "{count, plural, one {Le widget {consumers} compte les éléments au lieu de mesurer {target}.} other {# widgets comptent les éléments au lieu de mesurer {target} : {consumers}.}}"
@@ -4230,6 +4231,8 @@
     "disabled": "Désactivé",
     "enabled": "Activé",
     "headersDescription": "En-têtes facultatifs envoyés à chaque livraison, un par ligne sous la forme Nom : valeur. Utilisez-les pour les destinataires exigeant leur propre authentification. Content-Type et l'en-tête de signature ne peuvent pas être remplacés.",
+    "paused": "En pause",
+    "pausedTriggerFieldDeleted": "Ce webhook a été mis en pause, car le champ qui le déclenchait a été supprimé. Choisissez un nouveau déclencheur, puis réactivez-le.",
     "recordOwner": "Membre dont les droits sont utilisés",
     "recordOwnerHelp": "Les envois utilisent les droits actuels de ce membre. Seul un administrateur peut choisir un autre membre. Les filtres sont évalués à la modification, pas à la suppression.",
     "secretDescription": "Secret facultatif utilisé pour générer une signature HMAC-SHA256 envoyée dans l'en-tête X-Webhook-Signature. Pour la vérifier, hachez le corps de la requête avec ce secret en HMAC-SHA256 et comparez le résultat à la valeur de l'en-tête.",

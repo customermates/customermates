@@ -6,11 +6,14 @@ import type { RecordRef } from "@/features/records/record-model.schema";
 import type { RecordsStore } from "./records.store";
 
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { Sigma } from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { withFormulaReferences } from "@/features/records/formula-references";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { RecordCell } from "./record-cell";
+import { UNTITLED_COLUMN_ID } from "./records.store";
 import {
   RecordCalculatedValue,
   RecordInlineField,
@@ -32,11 +35,22 @@ export function useRecordTableColumns(
   openRelated: (ref: RecordRef) => void,
   { markCalculated = false }: { markCalculated?: boolean } = {},
 ) {
+  const t = useTranslations();
   const avatarFieldId = recordAvatarFieldId(store);
   const columnHeaders = JSON.stringify(store.recordColumns.map((column) => [column.id, column.label]));
+  const untitledHeader = store.type && !store.type.primaryFieldId ? store.type.label : null;
   return useMemo<ColumnDef<RecordRow>[]>(
-    () =>
-      (JSON.parse(columnHeaders) as [string, string][]).map(([id, label]) => {
+    () => [
+      ...(untitledHeader
+        ? [
+            {
+              id: UNTITLED_COLUMN_ID,
+              header: untitledHeader,
+              cell: () => <span>{recordDisplayName(undefined, untitledHeader, t)}</span>,
+            },
+          ]
+        : []),
+      ...(JSON.parse(columnHeaders) as [string, string][]).map(([id, label]): ColumnDef<RecordRow> => {
         const definition = store.recordColumns.find((candidate) => candidate.id === id);
         const calculated =
           markCalculated && definition?.kind === "field" && isCalculatedField(store, definition.field)
@@ -118,6 +132,7 @@ export function useRecordTableColumns(
           },
         };
       }),
-    [columnHeaders, openRelated, avatarFieldId, store, markCalculated],
+    ],
+    [columnHeaders, openRelated, avatarFieldId, store, markCalculated, t, untitledHeader],
   );
 }
