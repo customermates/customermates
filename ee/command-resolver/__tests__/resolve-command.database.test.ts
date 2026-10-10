@@ -172,6 +172,7 @@ describeDatabase("Command resolver", { timeout: 240_000 }, () => {
     expect(prompt).toContain("Request: qualified deals over 10k");
     expect(prompt + system).not.toContain(secretTitle);
     expect(usage.prepareRetrieval).toHaveBeenCalledWith(actors.admin.id, expect.any(Date), "commandResolve");
+    expect(model.generate).toHaveBeenCalledWith(expect.objectContaining({ timeoutMs: 8_000 }));
     expect(usage.settleRetrieval).toHaveBeenCalledWith({ reservation, charge });
   });
 
@@ -216,6 +217,14 @@ describeDatabase("Command resolver", { timeout: 240_000 }, () => {
     });
     expect(await resolve("whatever list")).toEqual({ ok: true, data: { kind: "none" } });
     expect(usage.settleRetrieval).toHaveBeenCalledTimes(2);
+  });
+
+  it("reports a failed or timed-out model call as unavailable instead of no match, and settles", async () => {
+    model.generate.mockResolvedValue({ output: null, charge: null, failure: "Command resolve model call timed out." });
+    const result = await resolve("deals over 10k");
+    expect(result.ok).toBe(false);
+    expect(!result.ok && interactorFailureStatus(result.error)).not.toBe(429);
+    expect(usage.settleRetrieval).toHaveBeenCalledWith({ reservation, charge: null });
   });
 
   it("offers only the lists a person may read", async () => {
