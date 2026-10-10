@@ -11,7 +11,6 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { usePathname as useIntlPathname, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
-import { useTheme } from "next-themes";
 import {
   Settings2,
   Settings,
@@ -38,8 +37,6 @@ import { AppLink } from "@/components/shared/app-link";
 import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { Icon } from "@/components/shared/icon";
-import { signOutAction } from "@/app/[locale]/actions";
-import { FeedbackType } from "@/features/feedback/send-feedback.schema";
 import { recordNavigationKey } from "@/features/records/record-navigation.schema";
 import { assistantEntryVisible } from "./navigation/assistant-entry-visibility";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
@@ -53,10 +50,10 @@ import { AreaNav, type AreaNavGroup } from "./navigation/area-nav";
 import { NavSections, useResolvedSidebar } from "./navigation/nav-sections";
 import { shortcutDestinations } from "./navigation/shortcut-destinations";
 import { SidebarCustomize } from "./navigation/sidebar-customize";
+import { useAccountActions } from "./navigation/use-account-actions";
 import { NavSecondary } from "./navigation/nav-secondary";
-import { NavUser, type ThemeChoice } from "./navigation/nav-user";
+import { NavUser } from "./navigation/nav-user";
 import { LegalUpdateAlert } from "./navigation/legal-update-alert";
-import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { sidebarUserCanAccess } from "./navigation/sidebar-user";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { startBackgroundPoll } from "@/core/utils/background-poll";
@@ -134,15 +131,8 @@ const FullAppSidebar = observer(
     const intlPathname = useIntlPathname();
     const router = useRouter();
     const rootStore = useRootStore();
-    const {
-      addPickerStore,
-      companyInviteModalStore,
-      feedbackModalStore,
-      globalSearchModalStore,
-      keyboardShortcutsStore,
-      recordWorkspaceStore,
-      userStore,
-    } = rootStore;
+    const { addPickerStore, globalSearchModalStore, keyboardShortcutsStore, recordWorkspaceStore, userStore } =
+      rootStore;
     const { messagingThreadsStore } = rootStore;
     const isDocsRoute = pathname.split("/")[2] === "docs";
     const inboxVisible =
@@ -154,7 +144,7 @@ const FullAppSidebar = observer(
     const onInbox = intlPathname === "/inbox";
 
     const { isMobile, setOpenMobile } = useSidebar();
-    const { theme, setTheme } = useTheme();
+    const { theme, changeTheme, signOut, inviteMembers, sendFeedback } = useAccountActions(restricted);
     const subscriptionStatus = subscription?.status ?? null;
     const subscriptionPlan = subscription?.plan ?? null;
     const [selectedKey, setSelectedKey] = useState<string | null>(recordNavigationKey(intlPathname));
@@ -165,16 +155,6 @@ const FullAppSidebar = observer(
     useEffect(() => {
       if (!area) setLastWorkPath(`${intlPathname}${window.location.search}`);
     }, [area, intlPathname, searchParams]);
-
-    function handleThemeChange(next: ThemeChoice) {
-      setTheme(next);
-      if (!restricted) runUserAction(() => userStore.updateTheme(next));
-    }
-
-    async function handleSignOut() {
-      const res = await signOutAction();
-      if (!res.ok) toastZodErrorTree(res.error);
-    }
 
     function recheckAccountState() {
       router.push("/dashboard");
@@ -324,13 +304,7 @@ const FullAppSidebar = observer(
         : [];
 
     function openFeedback(invoker: HTMLElement) {
-      closeMobileSidebar(() => {
-        feedbackModalStore.onInitOrRefresh({
-          type: FeedbackType.general,
-          feedback: "",
-        });
-        feedbackModalStore.openFrom(invoker, document.getElementById("sidebar-trigger"));
-      });
+      closeMobileSidebar(() => sendFeedback(invoker, document.getElementById("sidebar-trigger")));
     }
 
     const addItems: AddPickerItem[] = (recordWorkspaceStore.navigation?.types ?? [])
@@ -379,8 +353,7 @@ const FullAppSidebar = observer(
             id="workspace-menu-invite"
             onSelect={() =>
               closeMobileSidebar(() => {
-                runUserAction(() => companyInviteModalStore.generateInviteLink());
-                companyInviteModalStore.open();
+                inviteMembers();
               })
             }
           >
@@ -587,10 +560,10 @@ const FullAppSidebar = observer(
               onNavigate={() => closeMobileSidebar()}
               onSignOut={() =>
                 closeMobileSidebar(() => {
-                  runUserAction(handleSignOut);
+                  signOut();
                 })
               }
-              onThemeChange={handleThemeChange}
+              onThemeChange={changeTheme}
             />
           </SidebarFooter>
         </Sidebar>
@@ -658,7 +631,7 @@ function AddPickerDrawer({
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="gap-0 sm:max-w-[420px]" {...focusReturn} onCloseAutoFocus={handleCloseAutoFocus}>
-        <SheetHeader className="px-6 pt-6">
+        <SheetHeader className="px-6">
           <SheetTitle>{t("NavigationBar.addPickerTitle")}</SheetTitle>
 
           <SheetDescription>{t("NavigationBar.addPickerDescription")}</SheetDescription>

@@ -98,6 +98,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   get supportsSelection(): boolean {
     return false;
   }
+  get supportsManualOrder(): boolean {
+    return false;
+  }
   get recordLabels(): { singular: string; plural: string } | undefined {
     return undefined;
   }

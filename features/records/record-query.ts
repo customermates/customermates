@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { recordChannelsEnabled } from "./record-channels";
 import { Prisma } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -9,6 +10,8 @@ import { RecordSystemColumnSchema } from "./record-column.schema";
 import { RecordQuerySchema } from "./record-query.schema";
 import { isTemporalRecordType } from "./record-temporal-filter";
 import { recordCollation } from "./record-collation";
+import { MANUAL_ORDER_SORT_KEY } from "./record-column.schema";
+import { recordManualOrderKey } from "./record-rank";
 
 function alias(index: number): Prisma.Sql {
   return Prisma.raw(`"record_${index}"`);
@@ -254,6 +257,10 @@ export function compileRecordQuery(
           AND value.state = 'value'
           AND element ILIKE ${search} AND (${Prisma.join(permitted, " OR ")})`);
     }
+    if (z.uuid().safeParse(query.search).success) {
+      matches.push(Prisma.sql`SELECT id FROM "CrmRecord"
+        WHERE "companyId" = ${companyId} AND "typeId" = ${query.typeId} AND id = ${query.search}`);
+    }
     const richTextFields = [...fields.values()].filter((field) => field.valueType === "richText");
     if (richTextFields.length) {
       const permitted = richTextFields.map(
@@ -454,6 +461,7 @@ export function compileRecordQuery(
     conditions.push(filter.operator === "none" ? Prisma.sql`NOT (${related})` : related);
   }
   const ordering = query.sort.map((sort) => {
+    if (sort.fieldId === MANUAL_ORDER_SORT_KEY) return Prisma.sql`${recordManualOrderKey(record)} ASC`;
     if (sort.fieldId === "system:createdAt" || sort.fieldId === "system:updatedAt") {
       const column =
         sort.fieldId === "system:createdAt" ? Prisma.sql`${record}."createdAt"` : Prisma.sql`${record}."updatedAt"`;

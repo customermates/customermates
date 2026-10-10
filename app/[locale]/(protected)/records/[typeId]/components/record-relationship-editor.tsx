@@ -81,7 +81,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
       pageSize: 25,
       ...(store.record ? { linkedTo: { ref: store.record.ref, relationId: relationship.id, direction } } : {}),
     },
-    store.isOpen && store.record !== null,
+    store.isOpen && store.record !== null && !store.trash,
     attempt + store.relatedRevision,
   );
   const options = useRecordChoices({ typeId, page, pageSize: 25, search: debounced }, open && store.isOpen, attempt);

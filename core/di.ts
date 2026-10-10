@@ -11,6 +11,11 @@ import { CountSystemTasksInteractor } from "@/features/records/count-system-task
 import { CheckRecordIdentityInteractor } from "@/features/records/check-record-identity.interactor";
 import { GetIdentityRecordChoicesInteractor } from "@/features/records/get-identity-record-choices.interactor";
 import { GetRecordNavigationInteractor } from "@/features/records/get-record-navigation.interactor";
+import { GetCommandCatalogInteractor } from "@/features/command-palette/get-command-catalog.interactor";
+import { PrismaSearchCatalogRepo } from "@/features/command-palette/prisma-search-catalog.repository";
+import { SearchCommandCatalogInteractor } from "@/features/command-palette/search-command-catalog.interactor";
+import { SearchCatalogIndexDispatcher } from "@/ee/wiki-retrieval/search-catalog-index-dispatcher";
+import { SearchCatalogIndexService } from "@/ee/wiki-retrieval/search-catalog-index.service";
 import { GetRecordPresentationInteractor } from "@/features/records/get-record-presentation.interactor";
 import { PrismaEventOutboxRepo } from "@/features/event/prisma-event-outbox.repository";
 import { PrismaRecordOperationQueueRepo } from "@/features/records/prisma-record-operation-queue.repository";
@@ -445,6 +450,9 @@ export const getGetRecordActivitiesInteractor = () =>
 export const getGetIdentityRecordChoicesInteractor = () =>
   new GetIdentityRecordChoicesInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getRecordIdentityReader = () => new RecordIdentityReader(getRecordRepo(), getRecordAccessPolicy());
+export const getGetCommandCatalogInteractor = () =>
+  new GetCommandCatalogInteractor(getRecordRepo(), getRecordAccessPolicy(), getDataViewRepo());
+
 export const getGetRecordNavigationInteractor = () =>
   new GetRecordNavigationInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getDiscoverRecordTypesInteractor = () =>
@@ -705,6 +713,25 @@ export const getRetrievalQueryEmbedder = (): QueryEmbedding | null => {
   const embedder = new WikiSemanticQueryEmbedder(getWikiEmbeddingService());
   return (query, wait) => embedder.embedQuery(query, wait);
 };
+export const getSearchCatalogRepo = () => new PrismaSearchCatalogRepo();
+export const getSearchCatalogIndexService = () =>
+  new SearchCatalogIndexService(
+    getSearchCatalogRepo(),
+    getRecordRepo(),
+    getDataViewRepo(),
+    getWikiEmbeddingService(),
+    getAgentUsageService(),
+  );
+export const getSearchCommandCatalogInteractor = () =>
+  new SearchCommandCatalogInteractor(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getDataViewRepo(),
+    getSearchCatalogRepo(),
+    getDocsChunkRepo(),
+    getRetrievalQueryEmbedder(),
+    new SearchCatalogIndexDispatcher(getBackgroundTaskService()),
+  );
 const getWikiSemanticRetrieval = () => ({
   embedder: new WikiSemanticQueryEmbedder(getWikiEmbeddingService()),
   scheduler: getWikiSemanticIndexDispatcher("search"),
