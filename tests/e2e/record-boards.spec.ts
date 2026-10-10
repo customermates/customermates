@@ -51,7 +51,14 @@ test("moves a board card with the keyboard and restores relationship and date gr
   const card = page.locator(`[data-item-id="${recordId}"]`);
   await expect(page.locator(`[data-group-key="value:${id("deal.stage.new")}"]`).locator(card)).toBeVisible();
   await expect(page.locator(`[data-group-key="value:${id("deal.stage.new")}"] [aria-label*="Stage probability: 10%"]`)).toBeVisible();
-  await expect(page.locator(`[data-group-key="value:${id("deal.stage.lost")}"] [aria-label*="Stage probability: 0%"]`)).toBeVisible();
+  const lost = page.locator(`[data-group-key="value:${id("deal.stage.lost")}"]`);
+  await expect(lost).toHaveAttribute("data-kanban-strip", "");
+  await lost.click();
+  await expect(lost).not.toHaveAttribute("data-kanban-strip");
+  await expect(lost.locator('[aria-label*="Stage probability: 0%"]')).toBeVisible();
+  await lost.getByRole("button", { name: "More actions for Lost", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Collapse column", exact: true }).click();
+  await expect(lost).toHaveAttribute("data-kanban-strip", "");
   await card.focus();
   await page.keyboard.press("Space");
   await expect(card).toHaveAttribute("aria-pressed", "true");
