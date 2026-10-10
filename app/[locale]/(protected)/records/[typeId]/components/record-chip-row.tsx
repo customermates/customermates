@@ -28,6 +28,7 @@ import { toChipColor } from "@/constants/chip-colors";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { recordLinkColor } from "@/features/records/record-presentation";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
+import { withFormulaReferences } from "@/features/records/formula-references";
 import { RecordValue, useRecordValueFormat } from "./record-value";
 import {
   RecordInlineField,
@@ -50,7 +51,7 @@ function ChipLabel({ name, children }: { name?: string; children: ReactNode }) {
   );
 }
 
-type ChipPresentation = Pick<RecordsStore["presentation"], "linkColors" | "linkIcons" | "model">;
+type ChipPresentation = Pick<RecordsStore["presentation"], "linkColors" | "linkIcons" | "model" | "formulaReferences">;
 
 export const RecordPropertyChipView = observer(function RecordPropertyChipView({
   presentation,
@@ -108,7 +109,11 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
     return (
       <AppChip
         startContent={icon}
-        tooltip={isRecordFieldWritable(field) ? field.label : calculatedFieldLabel(field, model, t, valueFormat)}
+        tooltip={
+          isRecordFieldWritable(field)
+            ? field.label
+            : calculatedFieldLabel(field, withFormulaReferences(model, presentation.formulaReferences), t, valueFormat)
+        }
       >
         <ChipLabel name={name}>
           <RecordValue compact field={field} members={record.memberUsers} result={result} />

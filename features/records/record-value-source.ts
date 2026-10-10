@@ -1,4 +1,5 @@
-import type { RecordFieldView, RecordModelView } from "./record-model.schema";
+import type { RecordFieldView } from "./record-model.schema";
+import type { SentenceModel } from "./formula-references";
 import type { LinkedHop, SentenceSegment, SentenceValueFormat } from "./calculation-sentence";
 
 import { calculationSentence, fillSentence, linkedFlow } from "./calculation-sentence";
@@ -13,7 +14,7 @@ export function recordValueSource({
   t,
   format,
 }: {
-  model: RecordModelView;
+  model: SentenceModel;
   field: Pick<RecordFieldView, "label" | "typeId" | "behavior">;
   t: Translate;
   format: SentenceValueFormat;

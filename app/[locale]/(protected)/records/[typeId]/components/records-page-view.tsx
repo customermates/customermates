@@ -1,5 +1,6 @@
 "use client";
 
+import { withFormulaReferences } from "@/features/records/formula-references";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -144,7 +145,10 @@ const RecordsPageViewContent = observer(function RecordsPageView({
             );
           }
           return isCalculatedField(store, column.field) ? (
-            <RecordCalculatedValue field={column.field} model={store.presentation.model}>
+            <RecordCalculatedValue
+              field={column.field}
+              model={withFormulaReferences(store.presentation.model, store.presentation.formulaReferences)}
+            >
               {renderCell(false)}
             </RecordCalculatedValue>
           ) : (

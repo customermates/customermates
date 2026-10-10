@@ -1,6 +1,7 @@
 import { sentenceTemplate } from "@/core/utils/sentence-template";
 
 import type { CalculationExpression, RecordFieldView, RecordModelView, RecordScalar } from "./record-model.schema";
+import type { SentenceModel } from "./formula-references";
 
 type Related = Extract<CalculationExpression, { kind: "related" }>;
 type Operator = Extract<CalculationExpression, { kind: "operation" }>["operator"];
@@ -84,7 +85,7 @@ export function optionAttributeLabel(key: string, t: Translate) {
 
 export function literalText(
   value: RecordScalar | null,
-  model: Pick<RecordModelView, "fields">,
+  model: Pick<SentenceModel, "fields">,
   t: Translate,
   format: SentenceValueFormat,
 ): string {
@@ -124,15 +125,26 @@ function join(parts: SentenceSegment[][], separator: string): SentenceSegment[] 
 }
 
 type Context = {
-  model: RecordModelView;
+  model: SentenceModel;
   t: Translate;
   format: SentenceValueFormat;
   operatorLabel: (operator: Operator) => string;
 };
 
-function fieldReference(id: string, { model, t }: Context): SentenceSegment {
+export function expressionResolves(expression: CalculationExpression, model: SentenceModel): boolean {
+  if (expression.kind === "field" || expression.kind === "optionAttribute")
+    return model.fields.some((field) => field.id === expression.fieldId);
+  if (expression.kind === "literal") return true;
+  if (expression.kind === "related") {
+    if (!model.relationships.some((relation) => relation.id === expression.relationId)) return false;
+    return expression.reducer === "count" || expressionResolves(expression.expression, model);
+  }
+  return expression.arguments.every((argument) => expressionResolves(argument, model));
+}
+
+function fieldReference(id: string, { model }: Context): SentenceSegment[] {
   const field = model.fields.find((candidate) => candidate.id === id);
-  return field ? { kind: "field", id: field.id, label: field.label, typeId: field.typeId } : t("RecordModel.field");
+  return field ? [{ kind: "field", id: field.id, label: field.label, typeId: field.typeId }] : [];
 }
 
 function listSegments(flow: LinkedFlow, typeId: string, context: Context, plural: boolean): SentenceSegment[] {
@@ -162,9 +174,9 @@ export function expressionSegments(
   context: Context,
 ): SentenceSegment[] {
   const { model, t, operatorLabel } = context;
-  if (expression.kind === "field") return [fieldReference(expression.fieldId, context)];
+  if (expression.kind === "field") return fieldReference(expression.fieldId, context);
   if (expression.kind === "optionAttribute")
-    return [fieldReference(expression.fieldId, context), ` ${optionAttributeLabel(expression.attribute, t)}`];
+    return [...fieldReference(expression.fieldId, context), ` ${optionAttributeLabel(expression.attribute, t)}`];
   if (expression.kind === "literal") return [literalText(expression.value, model, t, context.format)];
   if (expression.kind === "related") {
     const flow = linkedFlow(expression);
@@ -238,7 +250,7 @@ export function calculationSentence({
   t,
   format,
 }: {
-  model: RecordModelView;
+  model: SentenceModel;
   field: Pick<RecordFieldView, "label" | "typeId" | "behavior">;
   t: Translate;
   format: SentenceValueFormat;
@@ -248,7 +260,8 @@ export function calculationSentence({
   const context: Context = { model, t, format, operatorLabel: (operator) => t(`RecordModel.operators.${operator}`) };
   const saved = behavior.kind === "snapshot" ? savedClause(behavior, context) : null;
   const typeOver = behavior.kind === "snapshot" && Boolean(behavior.allowManualOverride);
-  if (!behavior.expression) return { sentence: null, value: null, list: null, reducer: null, saved, typeOver };
+  if (!behavior.expression || !expressionResolves(behavior.expression, model))
+    return { sentence: null, value: null, list: null, reducer: null, saved, typeOver };
   const expression = behavior.expression;
   const flow = linkedFlow(expression);
   const linked = behavior.kind !== "formula" && flow.hops.length > 0;

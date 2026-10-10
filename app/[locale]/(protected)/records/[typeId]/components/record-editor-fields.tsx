@@ -1,5 +1,6 @@
 "use client";
 
+import { withFormulaReferences } from "@/features/records/formula-references";
 import { useId } from "react";
 import { observer } from "mobx-react-lite";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
@@ -52,7 +53,12 @@ export const RecordEditorField = observer(function RecordEditorField({
     if (!store.record) return null;
     const source = restricted
       ? null
-      : recordValueSource({ model: store.presentation.model, field, t, format: valueFormat });
+      : recordValueSource({
+          model: withFormulaReferences(store.presentation.model, store.presentation.formulaReferences),
+          field,
+          t,
+          format: valueFormat,
+        });
     const lookup = source?.lookup;
     const linked = lookup
       ? store.record.relationships.find(
