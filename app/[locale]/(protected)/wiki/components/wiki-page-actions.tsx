@@ -55,7 +55,15 @@ export const WikiPageActions = observer((props: Props) => {
           {store.allows(Action.delete) && (
             <DropdownMenuItem
               variant="destructive"
-              onSelect={() => showDeleteConfirmation(() => store.delete(), store.form.title)}
+              onSelect={() => {
+                const pageId = store.form.id;
+                showDeleteConfirmation(
+                  () => store.delete(),
+                  store.form.title,
+                  undefined,
+                  () => pageId && store.showRestored(pageId),
+                );
+              }}
             >
               <Trash2 aria-hidden="true" />
 

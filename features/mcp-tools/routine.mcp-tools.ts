@@ -113,7 +113,7 @@ export const manageRoutinesTool = {
     "action update changes only the fields supplied, but a change of triggerKind must arrive with that kind's schedule or events or validation fails. " +
     "action pause disables a routine and settles its queued runs to skipped; re-enabling restores the schedule but never those runs. Only an active system administrator may pause. " +
     "action run_now starts a scheduled routine immediately; it is rejected for an event routine, for a routine the caller does not own, and for one that is not enabled. " +
-    "action delete removes the routine and its history and is IRREVERSIBLE. " +
+    "action delete moves the routine to Trash, where it stops running; restore it with manage_trash and the returned trashBatchId, and only deleting it permanently removes its history. " +
     "A routine whose owner has been deactivated cannot be enabled, and creating one may be refused when the owner has used their plan's per-user routine allowance.",
   annotations: {
     readOnlyHint: false,
@@ -189,8 +189,8 @@ export const manageRoutinesTool = {
       );
     }
 
-    return runInteractor(getDeleteRoutineInteractor().invoke({ id: parsed.data.id }), () =>
-      toonResult({ deleted: true, id: parsed.data.id }),
+    return runInteractor(getDeleteRoutineInteractor().invoke({ id: parsed.data.id }), (deleted) =>
+      toonResult({ deleted: true, id: deleted.id, trashBatchId: deleted.trashBatchId }),
     );
   },
 };

@@ -1262,7 +1262,9 @@
       },
       "routine": {
         "created": "Routine erstellt",
-        "deleted": "Routine gelöscht",
+        "deleted": "Routine in den Papierkorb verschoben",
+        "deletedPermanently": "Routine endgültig gelöscht",
+        "restored": "Routine wiederhergestellt",
         "updated": "Routine aktualisiert"
       },
       "user": {
@@ -1276,7 +1278,9 @@
       },
       "wiki_page": {
         "created": "Wissensdatenbank-Seite erstellt",
-        "deleted": "Wissensdatenbank-Seite gelöscht",
+        "deleted": "Wissensdatenbank-Seite in den Papierkorb verschoben",
+        "deletedPermanently": "Wissensdatenbank-Seite endgültig gelöscht",
+        "restored": "Wissensdatenbank-Seite wiederhergestellt",
         "updated": "Wissensdatenbank-Seite aktualisiert"
       }
     },
@@ -1800,7 +1804,7 @@
       "title": "Letzte Aktivität"
     },
     "addCard": "Widget hinzufügen",
-    "deleteView": "„{name}“ löschen? {count, plural, =0 {Die Ansicht hat keine Widgets.} one {Ihr Widget wird nach {main} verschoben:} other {Ihre # Widgets werden nach {main} verschoben:}}",
+    "deleteView": "„{name}“ löschen? {count, plural, =0 {Die Ansicht hat keine Widgets.} one {Ihr Widget kommt mit in den Papierkorb:} other {Ihre # Widgets kommen mit in den Papierkorb:}}",
     "displayTypeRequirements": {
       "grouping": "Wähle eine Gruppierung, um Gruppen zu ranken.",
       "noGrouping": "Setze Gruppieren nach auf Keine Gruppierung, um eine Zahl anzuzeigen.",

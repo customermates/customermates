@@ -9,9 +9,10 @@ export function useDeleteConfirmation() {
   const { deleteConfirmationModalStore } = useRootStore();
 
   function showDeleteConfirmation(
-    onConfirm: () => Promise<boolean>,
+    onConfirm: DeleteConfirmationData["onConfirm"],
     entityName?: string,
     focusAfterConfirm?: () => boolean,
+    onRestored?: () => unknown,
   ) {
     const data: DeleteConfirmationData = {
       title: t("Common.deleteConfirmation.title"),
@@ -21,6 +22,7 @@ export function useDeleteConfirmation() {
       entityName,
       focusAfterConfirm,
       onConfirm,
+      onRestored,
     };
 
     deleteConfirmationModalStore.onInitOrRefresh(data);

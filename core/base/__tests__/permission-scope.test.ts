@@ -17,7 +17,7 @@ describe("routine access scope", () => {
       () => routineAccessWhere(permissions),
     );
 
-    expect(where).toEqual({ companyId: "test-company-id", ownerUserId: "test-user-id" });
+    expect(where).toEqual({ companyId: "test-company-id", ownerUserId: "test-user-id", deletedAt: null });
   });
 
   it("scopes readAll to the whole company", async () => {
@@ -26,19 +26,19 @@ describe("routine access scope", () => {
       () => routineAccessWhere(permissions),
     );
 
-    expect(where).toEqual({ companyId: "test-company-id" });
+    expect(where).toEqual({ companyId: "test-company-id", deletedAt: null });
   });
 
   it("yields nothing when the user lacks the resource permission", async () => {
     const where = await runWithTenant(createMockUserWithPermissions([]), () => routineAccessWhere(permissions));
 
-    expect(where).toEqual({ id: { in: [] }, companyId: "test-company-id" });
+    expect(where).toEqual({ id: { in: [] }, companyId: "test-company-id", deletedAt: null });
   });
 
   it("grants a system role the whole company regardless of explicit permissions", async () => {
     const where = await runWithTenant(createMockUser(), () => routineAccessWhere(permissions));
 
-    expect(where).toEqual({ companyId: "test-company-id" });
+    expect(where).toEqual({ companyId: "test-company-id", deletedAt: null });
   });
 });
 

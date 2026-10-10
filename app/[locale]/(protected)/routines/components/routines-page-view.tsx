@@ -40,22 +40,28 @@ const RoutinesPageViewContent = observer(function RoutinesPageView({ initialRout
   const columns = useRoutineColumns();
   const t = useTranslations();
   const { showDeleteConfirmation } = useDeleteConfirmation();
+  const canDelete = routineModalStore.isAdmin;
   const rowActions = useCallback(
     (routine: RoutineDto) => (
       <RecordRowActions
         name={routine.name}
         onDelete={
-          routineModalStore.isAdmin
+          canDelete
             ? async () => {
                 await routineModalStore.openForEdit(routine);
-                showDeleteConfirmation(() => routineModalStore.delete(), routine.name);
+                showDeleteConfirmation(
+                  () => routineModalStore.delete(),
+                  routine.name,
+                  undefined,
+                  () => routinesStore.refresh(),
+                );
               }
             : undefined
         }
         onOpen={() => runUserAction(() => routineModalStore.openForEdit(routine))}
       />
     ),
-    [routineModalStore, showDeleteConfirmation],
+    [canDelete, routineModalStore, routinesStore, showDeleteConfirmation],
   );
   const view = resolveDataViewView(routinesStore.viewMode, routinesStore.canBoard);
   const pageState = resolveDataViewPageState({

@@ -1262,7 +1262,9 @@
       },
       "routine": {
         "created": "Routine creata",
-        "deleted": "Routine eliminata",
+        "deleted": "Routine spostata nel cestino",
+        "deletedPermanently": "Routine eliminata definitivamente",
+        "restored": "Routine ripristinata",
         "updated": "Routine aggiornata"
       },
       "user": {
@@ -1276,7 +1278,9 @@
       },
       "wiki_page": {
         "created": "Pagina della base di conoscenza creata",
-        "deleted": "Pagina della base di conoscenza eliminata",
+        "deleted": "Pagina della knowledge base spostata nel cestino",
+        "deletedPermanently": "Pagina della knowledge base eliminata definitivamente",
+        "restored": "Pagina della knowledge base ripristinata",
         "updated": "Pagina della base di conoscenza aggiornata"
       }
     },
@@ -1800,7 +1804,7 @@
       "title": "Attività recenti"
     },
     "addCard": "Aggiungi widget",
-    "deleteView": "Eliminare «{name}»? {count, plural, =0 {Non contiene widget.} one {Il suo widget passa in {main}:} other {I suoi # widget passano in {main}:}}",
+    "deleteView": "Eliminare «{name}»? {count, plural, =0 {Non contiene widget.} one {Il suo widget va con lei nel cestino:} other {I suoi # widget vanno con lei nel cestino:}}",
     "displayTypeRequirements": {
       "grouping": "Scegli un raggruppamento per classificare i gruppi.",
       "noGrouping": "Imposta Raggruppa per su Nessun raggruppamento per mostrare un numero.",

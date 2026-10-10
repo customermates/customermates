@@ -4,6 +4,9 @@ import type { DataViewPolicy } from "./data-view-policy";
 import { validateDataViewAccess } from "./data-view-policy";
 import type { DeleteDataViewData, DeleteDataViewResult } from "./data-view.schema";
 import type { Validated } from "@/core/validation/validation.utils";
+import type { TrashRepo } from "@/features/trash/trash.repo";
+
+import { randomUUID } from "node:crypto";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Enforce } from "@/core/decorators/enforce.decorator";
@@ -13,12 +16,14 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { DeleteDataViewResultSchema, DeleteDataViewSchema } from "./data-view.schema";
+import { recordSurfaceTypeId } from "@/core/data-view/data-view-keys";
 
 @TenantInteractor()
 export class DeleteDataViewInteractor extends AuthenticatedInteractor<DeleteDataViewData, DeleteDataViewResult> {
   constructor(
     private repo: DeleteDataViewRepo,
     private selection: DeleteDataViewSelectionRepo,
+    private trash: TrashRepo,
     private policy?: DataViewPolicy,
   ) {
     super();
@@ -34,15 +39,30 @@ export class DeleteDataViewInteractor extends AuthenticatedInteractor<DeleteData
     const invalid = await validateDataViewAccess(this.policy, view.surfaceKey);
     if (invalid) return fail(invalid);
 
-    const deleted = await this.repo.deleteOwned(id);
+    const trashed = await this.repo.trashOwned(id);
 
-    if (!deleted) return failNotFound(CustomErrorCode.dataViewNotFound, ["id"]);
+    if (!trashed) return failNotFound(CustomErrorCode.dataViewNotFound, ["id"]);
+
+    const trashBatchId = randomUUID();
+    await this.trash.add([
+      {
+        id: randomUUID(),
+        kind: "view",
+        targetId: id,
+        typeId: recordSurfaceTypeId(view.surfaceKey),
+        surfaceKey: view.surfaceKey,
+        ownerUserId: this.userId,
+        label: view.name,
+        deletedById: this.userId,
+        batchId: trashBatchId,
+      },
+    ]);
 
     await this.selection.clearActiveViewKeyIfMatches({
       p13nId: view.surfaceKey,
       expectedActiveViewKey: id,
     });
 
-    return { ok: true as const, data: { id } };
+    return { ok: true as const, data: { id, trashBatchId } };
   }
 }

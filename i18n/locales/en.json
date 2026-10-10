@@ -1262,7 +1262,9 @@
       },
       "routine": {
         "created": "Routine Created",
-        "deleted": "Routine Deleted",
+        "deleted": "Routine Moved to Trash",
+        "deletedPermanently": "Routine Deleted Permanently",
+        "restored": "Routine Restored",
         "updated": "Routine Updated"
       },
       "user": {
@@ -1276,7 +1278,9 @@
       },
       "wiki_page": {
         "created": "Knowledge Base Page Created",
-        "deleted": "Knowledge Base Page Deleted",
+        "deleted": "Knowledge Base Page Moved to Trash",
+        "deletedPermanently": "Knowledge Base Page Deleted Permanently",
+        "restored": "Knowledge Base Page Restored",
         "updated": "Knowledge Base Page Updated"
       }
     },
@@ -1800,7 +1804,7 @@
       "title": "Recent activity"
     },
     "addCard": "Add widget",
-    "deleteView": "Delete \"{name}\"? {count, plural, =0 {It has no widgets.} one {Its widget moves to {main}:} other {Its # widgets move to {main}:}}",
+    "deleteView": "Delete \"{name}\"? {count, plural, =0 {It has no widgets.} one {Its widget moves to Trash with it:} other {Its # widgets move to Trash with it:}}",
     "displayTypeRequirements": {
       "grouping": "Choose a grouping to rank groups.",
       "noGrouping": "Set Group by to No grouping to show one number.",
