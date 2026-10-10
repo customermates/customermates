@@ -1290,11 +1290,13 @@
         "event": "Ereignis",
         "firstName": "Vorname",
         "isPlatformOperator": "Plattform-Operator",
+        "kind": "Art",
         "lastActiveAt": "Zuletzt aktiv",
         "lastMessageAt": "Letzte Aktivität",
         "lastMessageDirection": "Letzte Nachricht",
         "lastMessageSentAt": "Letzte Nachricht am",
         "lastName": "Nachname",
+        "list": "Liste",
         "name": "Name",
         "ownerUserId": "Eigentümer",
         "participantContactId": "Verknüpfte Datensätze",
@@ -1460,7 +1462,8 @@
     "sort": {
       "ascending": "Aufsteigend",
       "descending": "Absteigend",
-      "field": "Sortieren nach"
+      "field": "Sortieren nach",
+      "manual": "Manuell"
     },
     "stageProbability": "Phasenwahrscheinlichkeit",
     "systemTasks": {
@@ -2034,6 +2037,7 @@
     "appRecords": "Datensätze",
     "appRoutines": "Routinen",
     "appSearch": "Globale Suche",
+    "appTrash": "Papierkorb",
     "architectureSecurity": "Architektur & Sicherheit",
     "concepts": "Kernkonzepte",
     "connectCli": "CLI & Editoren",
@@ -2132,6 +2136,7 @@
     "overview": "Übersicht",
     "personalize": "Anpassen",
     "pinField": "{field} an die Übersicht anheften",
+    "pinMore": "Feld anheften",
     "reorderInstructions": "Drücke die Leertaste oder Eingabe, um ein Feld aufzunehmen. Verschiebe es mit den Pfeiltasten, lege es mit Leertaste oder Eingabe ab und brich mit Escape ab.",
     "sections": {
       "notes": "Notizen"
@@ -2637,6 +2642,7 @@
     "routines": "Routinen",
     "search": "Suchen",
     "settings": "Einstellungen",
+    "trash": "Papierkorb",
     "wiki": "Wissensdatenbank"
   },
   "NotFoundPage": {
@@ -4074,6 +4080,58 @@
     "signoff": "Viele Grüße\nBen",
     "subject": "Dein Konto ist inaktiv: Wir helfen bei der Wiederherstellung",
     "title": "Abonnement deaktiviert"
+  },
+  "Trash": {
+    "bannerDeleted": "Gelöscht am {date}. {count, plural, =0 {Wird heute endgültig gelöscht} one {Wird in # Tag endgültig gelöscht} other {Wird in # Tagen endgültig gelöscht}}.",
+    "columns": {
+      "deletedAt": "Gelöscht am",
+      "deletedBy": "Gelöscht von",
+      "expiresAt": "Endgültig gelöscht",
+      "kind": "Art"
+    },
+    "daysLeft": "{count, plural, =0 {Wird heute endgültig gelöscht} one {Wird in # Tag endgültig gelöscht} other {Wird in # Tagen endgültig gelöscht}}",
+    "deletedPermanently": "Endgültig gelöscht",
+    "deletePermanently": "Endgültig löschen",
+    "deletePermanentlyManyTitle": "{count, plural, one {# Element} other {# Elemente}} endgültig löschen?",
+    "deletePermanentlyTitle": "{name} endgültig löschen?",
+    "empty": "Papierkorb leeren",
+    "emptyBody": "Gelöschte Elemente bleiben 30 Tage hier und werden danach endgültig gelöscht.",
+    "emptyConfirmation": "papierkorb leeren",
+    "emptyTitle": "Papierkorb leeren?",
+    "emptyTitleState": "Der Papierkorb ist leer",
+    "inTrash": "Im Papierkorb",
+    "kindInList": "{kind} der Liste {list}",
+    "kinds": {
+      "channels": "Kanäle",
+      "dashboardView": "Dashboard-Ansicht",
+      "field": "Feld",
+      "list": "Liste",
+      "record": "Datensatz",
+      "relationship": "Beziehung",
+      "routine": "Routine",
+      "view": "Ansicht",
+      "widget": "Widget",
+      "wikiPage": "Wissensdatenbank-Seite"
+    },
+    "movedToTrash": "In den Papierkorb verschoben",
+    "movesToTrash": "Es wird in den Papierkorb verschoben und kann dort 30 Tage lang wiederhergestellt werden.",
+    "permanentIrreversible": "Das kann nicht rückgängig gemacht werden.",
+    "permanentMessage": "{count, plural, one {Dieses Element wird} other {Diese # Elemente werden}} endgültig gelöscht.",
+    "permanentRecords": "{list}: {count, plural, one {# Datensatz} other {# Datensätze}}",
+    "restore": "Wiederherstellen",
+    "restoreBlocked": {
+      "listDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ihre Liste im Papierkorb liegt. Stellen Sie zuerst die Liste wieder her.",
+      "nameTaken": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ein anderes Element jetzt ihren Namen oder Platz hat.",
+      "notFound": "{count, plural, one {# Element existiert} other {# Elemente existieren}} nicht mehr und wurden aus dem Papierkorb entfernt.",
+      "parentDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil das, wozu sie gehören, im Papierkorb liegt. Stellen Sie das zuerst wieder her.",
+      "requiresRestore": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil etwas, das sie brauchen, im Papierkorb liegt. Stellen Sie das zuerst wieder her."
+    },
+    "restored": "{count, plural, one {# Element wiederhergestellt} other {# Elemente wiederhergestellt}}",
+    "restoredInBackground": "Wiederhergestellt",
+    "restoredWithDroppedLinks": "Wiederhergestellt. {count, plural, one {# Verknüpfung konnte} other {# Verknüpfungen konnten}} nicht wiederhergestellt werden, weil der verknüpfte Datensatz endgültig gelöscht wurde.",
+    "restorePending": "Wird im Hintergrund wiederhergestellt. Der Papierkorb zeigt den Fortschritt.",
+    "searchPlaceholder": "Papierkorb durchsuchen",
+    "undo": "Rückgängig"
   },
   "TrialExpiredOffer": {
     "body": "Deine Testphase ist vor Kurzem abgelaufen, aber ich helfe dir gerne dabei, echten Nutzen aus Customermates zu ziehen. Wenn du möchtest, verlängere ich deine Testphase und gehe dein Setup gemeinsam mit dir Schritt für Schritt durch.",
