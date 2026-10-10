@@ -16,7 +16,6 @@ import {
   RECORD_MEASURE_MAX_GROUP_LIMIT,
   RecordMeasureSchema,
 } from "@/features/records/record-measure.schema";
-import { DisplayType } from "@/features/widget/widget.schema";
 import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
@@ -146,10 +145,6 @@ export const RecordWidgetEditor = observer(
       model && isRecordWidgetForm(form)
         ? widgetDisplayTypeIssue(form.displayOptions.displayType, form.measure, model)
         : null;
-    useEffect(() => {
-      if (displayIssue && store.isOpen && !store.isHydrating)
-        store.onChange("displayOptions.displayType", DisplayType.verticalBarChart);
-    }, [displayIssue, store, store.isOpen, store.isHydrating]);
     if (!isRecordWidgetForm(form)) return null;
     const measure = form.measure;
     const key = JSON.stringify(measure);
@@ -311,6 +306,12 @@ export const RecordWidgetEditor = observer(
     );
     const groupingContent = (
       <div className="space-y-4">
+        {displayIssue && (
+          <p className="text-xs text-muted-foreground" data-widget-display-requirement={displayIssue}>
+            {t(`Dashboard.displayTypeRequirements.${displayIssue}`)}
+          </p>
+        )}
+
         {(measure.groupBy?.path ?? []).map((step, index) => {
           const relation = model?.relationships.find((relation) => relation.id === step.relationId);
           const label = (step.direction === "outgoing" ? relation?.sourceLabel : relation?.targetLabel) ?? "";

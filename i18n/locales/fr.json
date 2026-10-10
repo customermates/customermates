@@ -1835,7 +1835,6 @@
       "kind": {
         "activityTimelineDescription": "Suivez les modifications d'enregistrements, les messages et l'activité des comptes ou agendas dans l'ordre chronologique.",
         "change": "Choisir un autre widget",
-        "chartDescription": "Comparez vos données CRM dans un graphique.",
         "description": "Choisissez un format et sélectionnez vous-même les données.",
         "scratchTitle": "Partir de zéro",
         "title": "Choisir un widget"
@@ -1855,6 +1854,40 @@
       "sharing": {
         "template": "Partager comme modèle"
       },
+      "starters": {
+        "areaChart": {
+          "description": "Montrer l’évolution d’une valeur dans le temps.",
+          "title": "Aire dans le temps"
+        },
+        "doughnutChart": {
+          "description": "Montrer comment un total se répartit.",
+          "title": "Anneau"
+        },
+        "funnelChart": {
+          "description": "Suivre les éléments à travers les étapes d’un champ de choix.",
+          "title": "Entonnoir"
+        },
+        "horizontalBarChart": {
+          "description": "Comparer des groupes aux noms plus longs.",
+          "title": "Barres horizontales"
+        },
+        "number": {
+          "description": "Un total, comme un décompte ou une somme.",
+          "title": "Nombre"
+        },
+        "radarChart": {
+          "description": "Comparer des groupes sur une échelle commune.",
+          "title": "Radar"
+        },
+        "rankedTable": {
+          "description": "Lister les principaux groupes dans l’ordre.",
+          "title": "Tableau classé"
+        },
+        "verticalBarChart": {
+          "description": "Comparer une valeur entre groupes.",
+          "title": "Diagramme en barres"
+        }
+      },
       "steps": {
         "chooseDescription": "Commencez par une recommandation, un format vierge ou une configuration partagée dans votre espace de travail.",
         "configureDescription": "Choisissez ce que ce widget affiche et son apparence."
@@ -1870,56 +1903,8 @@
         "title": "Partir d'un modèle"
       }
     },
-    "widgetGallery": {
-      "creationDate": "date de création",
-      "description": "Suggestions créées à partir des types d’enregistrement et des champs de votre espace de travail. Vous pouvez tout modifier avant d’enregistrer.",
-      "recipes": {
-        "countBySelect": {
-          "description": "Nombre de {type} pour chaque {group}.",
-          "name": "{type} par {group}"
-        },
-        "countPerMember": {
-          "description": "Nombre de {type} pour chaque {group}.",
-          "name": "{type} par {group}"
-        },
-        "openCountPerAssignee": {
-          "description": "{type} qui ne sont pas dans un {group} clôturé, comptés pour chaque utilisateur assigné.",
-          "name": "{type} ouverts par responsable"
-        },
-        "openValueTotal": {
-          "description": "Total de {field} des {type} qui ne sont pas dans un {group} clôturé.",
-          "name": "{field} en cours"
-        },
-        "stageFunnel": {
-          "description": "{type} à chaque {group}, dans l’ordre, avec la conversion d’une étape à l’autre.",
-          "name": "{type} par {group}"
-        },
-        "topRelatedByValue": {
-          "description": "{related} classés selon le {field} de leurs {type} liés, avec la part de chacun dans le total.",
-          "name": "Meilleurs {related} par {field}"
-        },
-        "topRelatedByWonValue": {
-          "description": "{related} classés selon le {field} de leurs {type} gagnés, avec la part de chacun dans le total.",
-          "name": "Meilleurs {related} par {field} gagné"
-        },
-        "valueOverTime": {
-          "description": "{field} des {type} par mois, selon {date}.",
-          "name": "{field} par mois"
-        },
-        "valueTotal": {
-          "description": "Somme de {field} sur tous les {type}.",
-          "name": "{field} total"
-        },
-        "wonValueOverTime": {
-          "description": "{field} des {type} gagnés par mois, selon {date}.",
-          "name": "{field} gagné par mois"
-        }
-      },
-      "title": "Recommandé pour vos données"
-    },
     "widgetKinds": {
-      "activityTimeline": "Chronologie des activités",
-      "chart": "Graphique"
+      "activityTimeline": "Chronologie des activités"
     }
   },
   "DataTransfer": {
