@@ -662,14 +662,12 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
         )}
       </div>
 
-      {typeof document !== "undefined" &&
+      {dragged &&
         createPortal(
-          <DragOverlay>
-            {dragged ? (
-              <Card className="cursor-grabbing gap-2 py-3 shadow-xl ring-1 ring-border/60 rotate-1 motion-reduce:rotate-0">
-                <CardContent className="px-3">{renderCard(dragged)}</CardContent>
-              </Card>
-            ) : null}
+          <DragOverlay dropAnimation={null}>
+            <Card className="cursor-grabbing gap-2 py-3 shadow-xl ring-1 ring-border/60 rotate-1 motion-reduce:rotate-0">
+              <CardContent className="px-3">{renderCard(dragged)}</CardContent>
+            </Card>
           </DragOverlay>,
           document.body,
         )}
