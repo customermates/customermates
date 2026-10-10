@@ -39,7 +39,7 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
     const outsideDeletedList = archived.length
       ? Prisma.sql`(${alias}."typeId" IS NULL OR ${alias}."typeId" NOT IN (${Prisma.join(archived)}))`
       : Prisma.sql`TRUE`;
-    return Prisma.sql`(${alias}.kind IN ('list', 'field', 'relationship', 'channels') AND (${alias}.kind = 'list' OR ${outsideDeletedList}))`;
+    return Prisma.sql`(${alias}.kind IN ('list', 'field', 'relationship') AND (${alias}.kind = 'list' OR ${outsideDeletedList}))`;
   }
 
   private async change(item: TrashItem, operation: "restore" | "deletePermanently"): Promise<ConfigurationChange> {
