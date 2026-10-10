@@ -27,7 +27,7 @@ import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ContactValue } from "@/components/records/contact-value";
 import { getChannelIcon } from "@/ee/messaging/provider-icon";
-import { channelContact } from "@/ee/messaging/thread-display";
+import { channelContact, channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { toChipColor } from "@/constants/chip-colors";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { recordLinkColor } from "@/features/records/record-presentation";
@@ -65,7 +65,10 @@ export function IdentityChips({ record, field }: { record: RecordRow; field: Rec
       {(record.identities ?? []).map((identity) => {
         const Icon = getChannelIcon(identity.provider);
         const contact = channelContact(identity.provider, identity.value, identity.profileUrl);
-        const label = contact.label || identity.displayName || identity.value;
+        const label =
+          channelDisplayLabel(identity.provider, identity.value, identity.profileUrl) ||
+          identity.displayName ||
+          identity.value;
         return (
           <AppChip key={identity.id} startContent={<Icon className="size-3" />} tooltip={label}>
             <ContactValue
