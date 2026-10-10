@@ -363,6 +363,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           ...location,
           viewKey: data.viewKey,
           deleted: true,
+          trashBatchId: result.data.trashBatchId,
         },
       };
     }

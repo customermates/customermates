@@ -81,6 +81,7 @@ import { env } from "@/env";
 import { pendingAgentApprovalToolName } from "../agent-approval";
 import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "../agent-run-limits";
 import { PrismaAgentChatRepo } from "../prisma-agent-chat.repository";
+import { LIVE_WIDGET } from "@/features/widget/live-widget";
 
 const user = createMockUserWithPermissions([]);
 
@@ -995,7 +996,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       select: { id: true },
     });
     expect(prismaMock.routine.findFirst).toHaveBeenCalledWith({
-      where: { id: { in: [] }, companyId: user.companyId },
+      where: { id: { in: [] }, companyId: user.companyId, deletedAt: null },
       select: { id: true },
     });
     expect(prismaMock.wikiPage.findFirst).toHaveBeenCalledWith({
@@ -1003,7 +1004,7 @@ describe("PrismaAgentChatRepo tenant boundaries", () => {
       select: { id: true },
     });
     expect(prismaMock.widget.findFirst).toHaveBeenCalledWith({
-      where: { companyId: user.companyId, userId: user.id },
+      where: { companyId: user.companyId, userId: user.id, ...LIVE_WIDGET },
       select: { id: true },
     });
     expect(signals.widgets).toBe(true);

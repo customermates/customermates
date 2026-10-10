@@ -612,12 +612,12 @@ describe("RoutineModalStore", () => {
     };
     routineActions.deleteRoutineAction.mockResolvedValue({
       ok: true,
-      data: "30000000-0000-4000-8000-000000000001",
+      data: { id: "30000000-0000-4000-8000-000000000001", trashBatchId: "40000000-0000-4000-8000-0000000000b1" },
     });
     const store = makeStore(undefined, { admin: true, routinesStore });
     await store.openForEdit(makeRoutine());
 
-    await expect(store.delete()).resolves.toBe(true);
+    await expect(store.delete()).resolves.toEqual({ trashBatchId: "40000000-0000-4000-8000-0000000000b1" });
 
     expect(routinesStore.removeItem).toHaveBeenCalledWith("30000000-0000-4000-8000-000000000001");
     expect(routinesStore.refresh).toHaveBeenCalledOnce();

@@ -359,10 +359,10 @@ export function filterOptionSources(
           items: tags.map((tag) => ({ key: tag, value: tag, textValue: tag })),
         })),
     },
-    [FilterFieldKey.kind]: {
+    [FilterFieldKey.trashKind]: {
       items: () => TRASH_KINDS.map((kind) => ({ key: kind, value: kind, textValue: t(`Trash.kinds.${kind}`) })),
     },
-    [FilterFieldKey.list]: {
+    [FilterFieldKey.trashList]: {
       getItems: () =>
         getRecordNavigationAction().then((navigation) => ({
           items: navigation.types.map((type) => {

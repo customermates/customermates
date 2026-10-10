@@ -1262,7 +1262,9 @@
       },
       "routine": {
         "created": "Routine créée",
-        "deleted": "Routine supprimée",
+        "deleted": "Routine déplacée dans la corbeille",
+        "deletedPermanently": "Routine supprimée définitivement",
+        "restored": "Routine restaurée",
         "updated": "Routine mise à jour"
       },
       "user": {
@@ -1276,7 +1278,9 @@
       },
       "wiki_page": {
         "created": "Page de la base de connaissances créée",
-        "deleted": "Page de la base de connaissances supprimée",
+        "deleted": "Page de la base de connaissances déplacée dans la corbeille",
+        "deletedPermanently": "Page de la base de connaissances supprimée définitivement",
+        "restored": "Page de la base de connaissances restaurée",
         "updated": "Page de la base de connaissances mise à jour"
       }
     },
@@ -1296,13 +1300,11 @@
         "event": "Évènement",
         "firstName": "Prénom",
         "isPlatformOperator": "Opérateur de plateforme",
-        "kind": "Type",
         "lastActiveAt": "Dernière activité",
         "lastMessageAt": "Dernière activité",
         "lastMessageDirection": "Dernier message",
         "lastMessageSentAt": "Date du dernier message",
         "lastName": "Nom de famille",
-        "list": "Liste",
         "name": "Nom",
         "ownerUserId": "Propriétaire",
         "participantContactId": "Fiches liées",
@@ -1315,6 +1317,8 @@
         "subscriptionStatus": "Abonnement",
         "timelineKind": "Type",
         "timelineThreadId": "Conversation",
+        "trashKind": "Type",
+        "trashList": "Liste",
         "updatedAt": "Mis à jour le",
         "url": "URL",
         "webhookId": "Webhook",
@@ -1812,7 +1816,7 @@
       "title": "Activité récente"
     },
     "addCard": "Ajouter un widget",
-    "deleteView": "Supprimer « {name} » ? {count, plural, =0 {Elle ne contient aucun widget.} one {Son widget passe dans {main} :} other {Ses # widgets passent dans {main} :}}",
+    "deleteView": "Supprimer « {name} » ? {count, plural, =0 {Elle ne contient aucun widget.} one {Son widget part avec elle dans la corbeille :} other {Ses # widgets partent avec elle dans la corbeille :}}",
     "displayTypeRequirements": {
       "grouping": "Choisissez un regroupement pour classer les groupes.",
       "noGrouping": "Réglez Regrouper par sur Aucun regroupement pour afficher un nombre.",
@@ -2147,7 +2151,7 @@
     "overview": "Vue d’ensemble",
     "personalize": "Personnaliser",
     "pinField": "Épingler {field} dans l’aperçu",
-    "pinMore": "Épingler un champ",
+    "pinMore": "Épingler ou détacher des champs",
     "reorderInstructions": "Appuyez sur Espace ou Entrée pour saisir un champ. Utilisez les flèches pour le déplacer, Espace ou Entrée pour le déposer et Échap pour annuler.",
     "sections": {
       "notes": "Notes"
@@ -4105,6 +4109,8 @@
     "deletePermanently": "Supprimer définitivement",
     "deletePermanentlyManyTitle": "Supprimer {count, plural, one {# élément} other {# éléments}} définitivement ?",
     "deletePermanentlyTitle": "Supprimer {name} définitivement ?",
+    "deletionPartlyFailed": "Certains éléments n’ont pas pu être supprimés et restent dans la Corbeille. Tout le reste a été supprimé définitivement.",
+    "deletionPending": "Certains éléments sont encore en cours de suppression en arrière-plan. Ils restent dans la Corbeille jusqu’à la fin.",
     "empty": "Vider la corbeille",
     "emptyBody": "Les éléments supprimés restent ici 30 jours, puis sont supprimés définitivement.",
     "emptyConfirmation": "vider la corbeille",

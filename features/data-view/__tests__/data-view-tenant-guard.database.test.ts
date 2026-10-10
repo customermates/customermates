@@ -103,6 +103,6 @@ describeDatabase("data view tenant guard on PostgreSQL", () => {
       name: "Renamed",
       state: { pageSize: 10 },
     });
-    expect(await asTenant(() => new PrismaDataViewRepo().deleteOwned(viewId))).toBe(true);
+    expect(await asTenant(() => new PrismaDataViewRepo().trashOwned(viewId))).toBe(true);
   });
 });

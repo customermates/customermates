@@ -1,3 +1,4 @@
+import { PrismaTrashRepo } from "@/features/trash/prisma-trash.repository";
 import { PermissionService } from "@/core/base/permission.service";
 import type { TenantUser } from "@/features/user/user.schema";
 
@@ -75,7 +76,11 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     );
   const remove = (tenant: TenantUser, data: { id: string; expectedUpdatedAt: Date }) =>
     runWithTenant(tenant, () =>
-      new DeleteWikiPageInteractor(new PrismaWikiPageRepo(new PermissionService()), eventService()).invoke(data),
+      new DeleteWikiPageInteractor(
+        new PrismaWikiPageRepo(new PermissionService()),
+        eventService(),
+        new PrismaTrashRepo(),
+      ).invoke(data),
     );
 
   beforeAll(async () => {

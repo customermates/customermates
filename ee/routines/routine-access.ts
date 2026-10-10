@@ -9,5 +9,5 @@ const routines: ScopedResource<Prisma.RoutineWhereInput> = {
 };
 
 export function routineAccessWhere(permissions: PermissionService): Prisma.RoutineWhereInput {
-  return permissions.accessWhere(routines);
+  return { ...permissions.accessWhere(routines), deletedAt: null };
 }

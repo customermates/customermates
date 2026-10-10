@@ -34,6 +34,8 @@ import { UpsertRoutineInteractor } from "../upsert-routine.interactor";
 import { DomainEvent } from "@/features/event/domain-events";
 import { WEBHOOK_CURRENT_EVENTS } from "@/features/webhook/webhook-event-registry";
 
+const trashStub = () => ({ add: vi.fn(), remove: vi.fn() }) as never;
+
 const ROUTINE_ID = "00000000-0000-4000-8000-000000000001";
 const OWNER_ID = "00000000-0000-4000-8000-000000000002";
 
@@ -204,11 +206,11 @@ describe("routine audit events", () => {
     const deleted = routine();
     const repo = {
       isActiveSystemAdministrator: vi.fn().mockResolvedValue(true),
-      deleteRoutineOrThrow: vi.fn().mockResolvedValue(deleted),
+      trashRoutineOrThrow: vi.fn().mockResolvedValue(deleted),
     };
     const { publish, service } = eventService();
 
-    const result = await new DeleteRoutineInteractor(repo as never, service).invoke({ id: ROUTINE_ID });
+    const result = await new DeleteRoutineInteractor(repo as never, service, trashStub()).invoke({ id: ROUTINE_ID });
 
     expect(result.ok).toBe(true);
     expect(publish).toHaveBeenCalledExactlyOnceWith(DomainEvent.ROUTINE_DELETED, {

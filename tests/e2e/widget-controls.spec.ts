@@ -58,7 +58,7 @@ test("persists every chart style, appearance, a copied template, resizing and de
   const read = async (name: string) =>
     (
       await database.query(
-        'SELECT id,version,"displayOptions",layout,"isTemplate",measure FROM "Widget" WHERE "companyId"=$1 AND name=$2',
+        'SELECT id,version,"displayOptions",layout,"isTemplate",measure FROM "Widget" WHERE "companyId"=$1 AND name=$2 AND "deletedAt" IS NULL',
         [companyId, name],
       )
     ).rows;
@@ -216,6 +216,11 @@ test("persists every chart style, appearance, a copied template, resizing and de
   await expect(confirmation).not.toBeVisible();
   await expect(dialog).not.toBeVisible();
   expect(await read("Edited copied chart")).toEqual([]);
+  const trashed = await database.query(
+    'SELECT kind FROM "TrashItem" WHERE "companyId"=$1 AND label=$2',
+    [companyId, "Edited copied chart"],
+  );
+  expect(trashed.rows).toEqual([{ kind: "widget" }]);
   expect(await read("Complete chart controls")).toHaveLength(1);
   await page.reload();
   await expect(page.getByRole("heading", { name: "Complete chart controls", exact: true })).toBeVisible();

@@ -60,10 +60,11 @@ export class UserService {
     return rolePermits(user.role, resource, action);
   }
 
-  async getActiveUserByIdOrThrow(userId: string) {
+  async getActiveUserByIdOrThrow(userId: string, options: { allowInactive?: boolean } = {}) {
     const user = await this.repo.findUserByIdOrThrowUnscoped(userId);
 
-    if (user.status !== Status.active) throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
+    if (user.status !== Status.active && !options.allowInactive)
+      throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
 
     return user;
   }

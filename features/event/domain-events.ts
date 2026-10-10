@@ -19,9 +19,13 @@ export enum DomainEvent {
   WIKI_PAGE_CREATED = "wiki_page.created",
   WIKI_PAGE_UPDATED = "wiki_page.updated",
   WIKI_PAGE_DELETED = "wiki_page.deleted",
+  WIKI_PAGE_RESTORED = "wiki_page.restored",
+  WIKI_PAGE_DELETED_PERMANENTLY = "wiki_page.deletedPermanently",
   ROUTINE_CREATED = "routine.created",
   ROUTINE_UPDATED = "routine.updated",
   ROUTINE_DELETED = "routine.deleted",
+  ROUTINE_RESTORED = "routine.restored",
+  ROUTINE_DELETED_PERMANENTLY = "routine.deletedPermanently",
   CONNECTED_ACCOUNT_CREATED = "connected_account.created",
   CONNECTED_ACCOUNT_DELETED = "connected_account.deleted",
   CONNECTED_ACCOUNT_UPDATED = "connected_account.updated",
@@ -135,6 +139,30 @@ export type DomainEventMap = {
     companyId: string;
     entityId: string;
     payload: WikiPageDto;
+  };
+  [DomainEvent.WIKI_PAGE_RESTORED]: {
+    userId: string | null;
+    companyId: string;
+    entityId: string;
+    payload: { id: string; title: string };
+  };
+  [DomainEvent.WIKI_PAGE_DELETED_PERMANENTLY]: {
+    userId: string | null;
+    companyId: string;
+    entityId: string;
+    payload: { id: string; title: string };
+  };
+  [DomainEvent.ROUTINE_RESTORED]: {
+    userId: string | null;
+    companyId: string;
+    entityId: string;
+    payload: { id: string; name: string };
+  };
+  [DomainEvent.ROUTINE_DELETED_PERMANENTLY]: {
+    userId: string | null;
+    companyId: string;
+    entityId: string;
+    payload: { id: string; name: string };
   };
   [DomainEvent.ROUTINE_CREATED]: {
     userId: string;
