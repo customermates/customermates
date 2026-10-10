@@ -7,7 +7,7 @@ import type { PaletteEntry, PaletteRecordContext, PaletteTranslator } from "./co
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { BookOpen, ChevronLeft, CornerDownLeft, Loader2, Search, Sparkles } from "lucide-react";
+import { BookOpen, ChevronLeft, CornerDownLeft, Loader2, Search, Sparkles, WandSparkles } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
@@ -45,6 +45,7 @@ import {
   SEMANTIC_BEST_MATCH_MARGIN,
   SEMANTIC_BEST_MATCH_MIN_SIMILARITY,
 } from "@/features/command-palette/command-search.schema";
+import { encodeGetParams } from "@/core/utils/get-params";
 import { recordEntries, staticEntries, workspaceEntries } from "./command-palette/palette-entries";
 import { RecordCommandLevel } from "./command-palette/record-command-level";
 import { useAccountActions } from "./navigation/use-account-actions";
@@ -287,6 +288,29 @@ export const GlobalSearchModal = observer(() => {
       icon: BookOpen,
       onSelect: () => closeThen(() => navigationGuard.tryNavigate(() => router.push(hit.href))),
     }));
+  const recordsPending = hasQuery && (isLoading || debouncedSearchTerm !== term);
+  const resolvable =
+    mateAvailable && !level && scope === null && !recordsPending && term.split(/\s+/).length >= 2 && !bestKey;
+  const resolveQuery = () =>
+    runUserAction(async () => {
+      const outcome = await globalSearchModalStore.resolveCommand(term);
+      if (outcome.status === "stale" || outcome.status === "unavailable") return;
+      if (outcome.status === "none") {
+        askMate();
+        return;
+      }
+      const resolution = outcome.resolution;
+      if (resolution.kind === "list") {
+        const params = encodeGetParams({ viewId: resolution.viewId ?? undefined, filters: resolution.filters });
+        const href = `/records/${resolution.typeId}${params.size ? `?${params.toString()}` : ""}`;
+        closeThen(() => navigationGuard.tryNavigate(() => router.push(href)));
+        return;
+      }
+      const entry = entryByKey.get(resolution.key);
+      if (entry) runEntry(entry);
+      else askMate();
+    });
+
   const sections: PaletteSection[] = level
     ? []
     : hasQuery || scope
@@ -326,6 +350,23 @@ export const GlobalSearchModal = observer(() => {
             rows: rankedOf(["action"]).map((entry) => entryRow(entry)),
           },
           { key: "docs", heading: t("CommandPalette.groups.docs"), rows: docsRows },
+          {
+            key: "resolve",
+            rows: resolvable
+              ? [
+                  {
+                    key: "palette-resolve",
+                    label: globalSearchModalStore.resolving
+                      ? t("CommandPalette.resolving")
+                      : t("CommandPalette.resolve", { query: term }),
+                    icon: globalSearchModalStore.resolving ? Loader2 : WandSparkles,
+                    onSelect: () => {
+                      if (!globalSearchModalStore.resolving) resolveQuery();
+                    },
+                  },
+                ]
+              : [],
+          },
         ]
       : [
           {
@@ -355,7 +396,6 @@ export const GlobalSearchModal = observer(() => {
     rows: new Map(orderedSections.map((section) => [section.key, section.rows.map((row) => row.key)])),
   };
 
-  const recordsPending = hasQuery && (isLoading || debouncedSearchTerm !== term);
   const showAskMate = mateAvailable && !level && !(recordsPending && visibleSections.length === 0);
   const showNoResults = hasQuery && !recordsPending && orderedSections.length === 0;
   const firstValue = orderedSections[0]?.rows[0]?.key ?? (showAskMate ? "palette-ask-mate" : "");
@@ -366,6 +406,11 @@ export const GlobalSearchModal = observer(() => {
   }, [firstValue, isOpen, level]);
 
   const onEscapeKeyDown = (event: KeyboardEvent) => {
+    if (globalSearchModalStore.resolving) {
+      event.preventDefault();
+      globalSearchModalStore.cancelResolve();
+      return;
+    }
     if (!globalSearchModalStore.level) return;
     event.preventDefault();
     globalSearchModalStore.popLevel();
@@ -418,6 +463,14 @@ export const GlobalSearchModal = observer(() => {
           <Loader2 className="size-3.5 shrink-0 animate-spin" />
 
           <span>{t("GlobalSearch.loading")}</span>
+        </div>
+      )}
+
+      {globalSearchModalStore.resolveNotice && (
+        <div className="border-b border-border px-4 py-2 text-xs text-muted-foreground" role="status">
+          {globalSearchModalStore.resolveNotice === "credits"
+            ? t("CommandPalette.resolveNoCredits")
+            : t("CommandPalette.resolveUnavailable")}
         </div>
       )}
 

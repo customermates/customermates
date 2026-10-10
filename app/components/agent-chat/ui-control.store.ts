@@ -10,7 +10,6 @@ import {
   SETTINGS_MENU_TARGET,
   findAgentNavigationTarget,
   findAgentUiTarget,
-  isToolbarSearchTarget,
   type AgentUiTarget,
 } from "@/ee/agent-chat/ui-targets";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
@@ -425,8 +424,6 @@ export class AgentUiControlStore extends BaseStore {
     const revealStep = isSidebarTarget(target) ? sidebarRevealStep(target) : null;
     if (revealStep)
       return `Target ${targetId} is a sidebar entry that is not visible right now. Ask the user to ${revealStep}, then highlight it again.`;
-    if (isToolbarSearchTarget(targetId) && document.getElementById(targetId))
-      return `Target ${targetId} is the list's search box, which narrower screens collapse behind the Search button (magnifier icon) in the toolbar. Ask the user to click that button, then highlight it again.`;
     const opener = target.prerequisite ? ` (${target.prerequisite})` : "";
     return `Target ${targetId} belongs to this page but is not rendered right now. It may be inside a dialog, tab or menu the user must open first${opener}, or hidden by role, plan or state.`;
   }

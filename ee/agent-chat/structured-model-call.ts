@@ -52,24 +52,26 @@ function rejectedBeforeGeneration(error: unknown): boolean {
   return typeof status === "number" && status >= 400 && status < 500 && status !== 408;
 }
 
-function synthesisFailure(model: string, error: unknown): string {
+function callFailure(label: string, model: string, error: unknown): string {
   const name = error instanceof Error ? error.name : typeof error;
   const status =
     typeof error === "object" && error !== null && "statusCode" in error && typeof error.statusCode === "number"
       ? ` HTTP ${error.statusCode}`
       : "";
-  return `Website import model call to ${model} failed: ${name}${status}.`;
+  return `${label} model call to ${model} failed: ${name}${status}.`;
 }
 
-export function wikiSynthesisWorstCaseMicrocents(model: AgentModelEntry, system: string, prompt: string): number {
+export function structuredCallWorstCaseMicrocents(model: AgentModelEntry, system: string, prompt: string): number {
   return estimatedCharge(model, promptTokens(system, prompt), model.maxOutputTokens).costMicrocents;
 }
 
-export async function generateWikiSynthesisObject<T>(args: {
+export async function generateStructuredObject<T>(args: {
+  label: string;
   model: AgentModelEntry;
   schema: z.ZodType<T>;
   system: string;
   prompt: string;
+  timeoutMs?: number;
 }): Promise<{ output: T | null; charge: AgentRetrievalCharge | null; failure?: string }> {
   const inputTokens = promptTokens(args.system, args.prompt);
   try {
@@ -80,7 +82,7 @@ export async function generateWikiSynthesisObject<T>(args: {
       output: Output.object({ schema: args.schema }),
       maxOutputTokens: args.model.maxOutputTokens,
       maxRetries: 0,
-      abortSignal: AbortSignal.timeout(TIMEOUT_MS),
+      abortSignal: AbortSignal.timeout(args.timeoutMs ?? TIMEOUT_MS),
       providerOptions: {
         ...getAgentProviderOptions(args.model.servingProvider, args.model.inferenceRegion),
         ...googleThinkingProviderOptions(args.model),
@@ -103,7 +105,7 @@ export async function generateWikiSynthesisObject<T>(args: {
           };
     return { output: result.output, charge };
   } catch (error) {
-    const failure = synthesisFailure(args.model.modelId, error);
+    const failure = callFailure(args.label, args.model.modelId, error);
     if (rejectedBeforeGeneration(error)) return { output: null, charge: null, failure };
     const usage = NoObjectGeneratedError.isInstance(error) ? error.usage : undefined;
     return {

@@ -16,10 +16,13 @@ import {
   commandCatalogAction,
   commandSearchAction,
   globalSearchAction,
+  resolveCommandAction,
   resolveSearchReferencesAction,
 } from "@/app/[locale]/(protected)/search/actions";
 import { recordSearchKey, StoredSearchReferenceSchema } from "@/features/records/record-search.schema";
 import type { CommandDocsHit } from "@/features/command-palette/command-search.schema";
+import type { CommandResolution } from "@/features/command-palette/command-resolve";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { DEFAULT_LOCALE, isAppLocale } from "@/i18n/locale-registry";
 import { parsePaletteQuery } from "./command-palette/command-palette-search";
 
@@ -78,10 +81,20 @@ function persistCommandKeys(scope: string | null, keys: string[]) {
   } catch {}
 }
 
+export type ResolveOutcome =
+  | { status: "resolved"; resolution: Exclude<CommandResolution, { kind: "none" }> }
+  | { status: "none" }
+  | { status: "stale" }
+  | { status: "unavailable" };
+
 export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string }> {
   results: RecordSearchResult | null = null;
   semantic: { key: string; similarity: number }[] = [];
   docs: CommandDocsHit[] = [];
+  resolving = false;
+  resolveNotice: "credits" | "service" | null = null;
+  private resolveRequest = 0;
+  private session = 0;
   debouncedSearchTerm = "";
   recentItems: RecordSearchHit[] = [];
   recentCommandKeys: string[] = [];
@@ -102,6 +115,10 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
       semantic: observable.ref,
       docs: observable.ref,
       setCatalogHits: action,
+      resolving: observable,
+      resolveNotice: observable,
+      setResolving: action,
+      setResolveNotice: action,
       debouncedSearchTerm: observable,
       recentItems: observable.ref,
       recentCommandKeys: observable.ref,
@@ -142,6 +159,7 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
         this.setIsLoadingMore(false);
         this.setResults(null);
         this.setCatalogHits([], []);
+        this.cancelResolve();
         if (this.levels.length) return;
         const query = parsePaletteQuery(term);
         this.debouncer.run(() => {
@@ -155,6 +173,8 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
       (open) => {
         this.resetSearch();
         this.clearLevels();
+        this.session += 1;
+        this.cancelResolve();
         if (open) {
           this.recentRequest += 1;
           this.setRecentItems([]);
@@ -170,6 +190,52 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
   setCatalogHits = (semantic: { key: string; similarity: number }[], docs: CommandDocsHit[]) => {
     this.semantic = semantic;
     this.docs = docs;
+  };
+
+  setResolving = (resolving: boolean) => {
+    this.resolving = resolving;
+  };
+
+  setResolveNotice = (notice: "credits" | "service" | null) => {
+    this.resolveNotice = notice;
+  };
+
+  cancelResolve = () => {
+    this.resolveRequest += 1;
+    this.setResolving(false);
+    this.setResolveNotice(null);
+  };
+
+  resolveCommand = async (query: string): Promise<ResolveOutcome> => {
+    const request = ++this.resolveRequest;
+    const session = this.session;
+    const current = () =>
+      request === this.resolveRequest &&
+      session === this.session &&
+      this.isOpen &&
+      parsePaletteQuery(this.form.searchTerm).term === query;
+    this.setResolveNotice(null);
+    this.setResolving(true);
+    try {
+      const result = await resolveCommandAction({ query, locale: this.searchLocale });
+      if (!current()) return { status: "stale" };
+      if (result.ok)
+        return result.data.kind === "none" ? { status: "none" } : { status: "resolved", resolution: result.data };
+      if (
+        result.code === CustomErrorCode.agentLimitReached ||
+        result.code === CustomErrorCode.agentServiceUnavailable
+      ) {
+        this.setResolveNotice(result.code === CustomErrorCode.agentLimitReached ? "credits" : "service");
+        return { status: "unavailable" };
+      }
+      return { status: "none" };
+    } catch (error) {
+      if (!current()) return { status: "stale" };
+      reportApplicationError(error);
+      return { status: "none" };
+    } finally {
+      if (request === this.resolveRequest) this.setResolving(false);
+    }
   };
 
   private instantlyConfident: (query: string) => boolean = () => false;

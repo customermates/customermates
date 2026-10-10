@@ -856,6 +856,10 @@
       "change": "Modifica {field}…",
       "deleteNamed": "Elimina {name}"
     },
+    "resolve": "Vai a «{query}»",
+    "resolveNoCredits": "Non hai più crediti IA, quindi questa richiesta non può essere risolta.",
+    "resolveUnavailable": "Al momento non è possibile risolvere le richieste. Scegli un risultato o riprova più tardi.",
+    "resolving": "Ricerca del risultato migliore…",
     "synonyms": {
       "action": {
         "add": "nuovo, crea, nuovo record",
@@ -941,7 +945,6 @@
     },
     "ariaLabels": {
       "breadcrumb": "Percorso di navigazione",
-      "collapseSearch": "Comprimi la ricerca",
       "explainField": "Informazioni su {field}",
       "hidePassword": "Nascondi password",
       "selectOption": "Seleziona un'opzione",
@@ -1362,7 +1365,10 @@
         "fieldsGroup": "Filtra per",
         "limitReached": "Puoi applicare fino a {count} filtri.",
         "removeFilter": "Rimuovi filtro",
-        "title": "Filtri"
+        "searchContains": "{field} contiene «{text}»",
+        "searchOrAddFilter": "Cerca o aggiungi un filtro…",
+        "title": "Filtri",
+        "trigger": "Filtro"
       },
       "selectionLimit": "Puoi selezionare fino a {count} valori.",
       "selectOperator": "Seleziona una condizione…",
@@ -1931,7 +1937,6 @@
       "chooseFile": "Scegli file",
       "fileRejected": "Non è stato possibile leggere questo file."
     },
-    "menu": "Importa ed esporta",
     "recordImport": {
       "create": "Crea con gli ID esportati",
       "failed": "Impossibile importare i record. Controlla il file e le autorizzazioni.",
@@ -1961,10 +1966,12 @@
     "collapseColumn": "Comprimi colonna",
     "collapseGroup": "Comprimi il gruppo {group}",
     "dragToReorder": "Trascina per riordinare",
+    "editOption": "Modifica opzione",
     "expandColumn": "Espandi {name}",
     "expandGroup": "Espandi il gruppo {group}",
     "groupOverflow": "Vengono mostrati solo {count} gruppi",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
+    "moreActions": "Altre azioni",
     "noValue": "Nessun valore",
     "resizeColumn": "Ridimensiona la colonna «{column}». Trascina o usa i tasti freccia; tocca due volte o premi Invio per ripristinare.",
     "resizeHint": "Trascina per ridimensionare. Fai doppio clic per ripristinare.",
@@ -2485,6 +2492,7 @@
       "goList": "Elenchi in base alla posizione nella barra laterale",
       "goRoutines": "Routine",
       "goSettings": "Impostazioni",
+      "openFilters": "Apri i filtri di un elenco",
       "save": "Salva il modulo aperto",
       "search": "Cerca",
       "searchAlias": "Cerca",
@@ -2830,7 +2838,6 @@
     "emptyBody": "Modifica la ricerca o i filtri per ampliare il registro.",
     "emptyTitle": "Nessun evento corrisponde a questi filtri",
     "navigation": "Registro di audit",
-    "searchPlaceholder": "Cerca per azione",
     "values": {
       "action": {
         "auditRead": "Audit operatore letto",
@@ -2957,7 +2964,6 @@
       "title": "Ripristino crediti",
       "zeroBalance": "Imposta a zero il saldo rimanente"
     },
-    "searchPlaceholder": "Cerca per nome o e-mail dell’account",
     "values": {
       "noSubscription": "Nessun abbonamento",
       "operator": "Operatore della piattaforma"
@@ -2997,7 +3003,6 @@
       "workspaceId": "ID spazio di lavoro"
     },
     "navigation": "Aree di lavoro",
-    "searchPlaceholder": "Cerca per e-mail di un membro",
     "stats": {
       "assistantConversations": "Chat dell'assistente",
       "connectedAccounts": "Account collegati",
@@ -3100,6 +3105,13 @@
         "max": "Massimo",
         "min": "Minimo",
         "sum": "Somma"
+      },
+      "describe": {
+        "failed": "Non è stato possibile trasformarlo in un calcolo. Prova a descriverlo in altro modo.",
+        "label": "Descrivi il calcolo",
+        "pending": "Preparazione del calcolo",
+        "placeholder": "Ad esempio: totale degli importi di tutte le righe collegate",
+        "unavailable": "La bozza non è disponibile al momento."
       },
       "example": {
         "next": "Mostra un altro esempio",
@@ -3272,6 +3284,7 @@
       "moved": "Spostato nel Cestino"
     },
     "configure": "Configura",
+    "configureList": "Configura {list}",
     "connectionType": "Collegamento",
     "constant": "Valore fisso",
     "contactFullName": "Nome completo",
@@ -4124,7 +4137,6 @@
     "restoredInBackground": "Ripristinato",
     "restoredWithDroppedLinks": "Ripristinato. {count, plural, one {# collegamento non è stato ripristinato} other {# collegamenti non sono stati ripristinati}} perché il record collegato è stato eliminato definitivamente.",
     "restorePending": "Ripristino in background. Il cestino mostra l'avanzamento.",
-    "searchPlaceholder": "Cerca nel cestino",
     "undo": "Annulla"
   },
   "TrialExpiredOffer": {

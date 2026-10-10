@@ -36,9 +36,6 @@ vi.mock("@/components/data-view/header/display-options", () => ({
 vi.mock("@/components/data-view/header/filter-popover", () => ({
   FilterPopover: () => null,
 }));
-vi.mock("@/components/data-view/header/search", () => ({
-  DataViewSearch: () => null,
-}));
 vi.mock("@/components/data-view/data-view-layout", () => ({
   DataViewLayout: ({ children }: { children: ReactElement }) => createElement("div", null, children),
 }));

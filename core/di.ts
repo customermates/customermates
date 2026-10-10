@@ -12,6 +12,7 @@ import { CheckRecordIdentityInteractor } from "@/features/records/check-record-i
 import { GetIdentityRecordChoicesInteractor } from "@/features/records/get-identity-record-choices.interactor";
 import { GetRecordNavigationInteractor } from "@/features/records/get-record-navigation.interactor";
 import { GetCommandCatalogInteractor } from "@/features/command-palette/get-command-catalog.interactor";
+import { ResolveCommandInteractor } from "@/ee/command-resolver/resolve-command.interactor";
 import { PrismaSearchCatalogRepo } from "@/features/command-palette/prisma-search-catalog.repository";
 import { SearchCommandCatalogInteractor } from "@/features/command-palette/search-command-catalog.interactor";
 import { SearchCatalogIndexDispatcher } from "@/ee/wiki-retrieval/search-catalog-index-dispatcher";
@@ -130,6 +131,7 @@ import { RecordAccessPolicy } from "@/features/records/record-access";
 import { PermissionService } from "@/core/base/permission.service";
 import { RecordCalculationService } from "@/features/records/record-calculation.service";
 import { PreviewCalculationInteractor } from "@/features/records/preview-calculation.interactor";
+import { DraftCalculationInteractor } from "@/ee/calculation-draft/draft-calculation.interactor";
 import { SaveRecordDetailLayoutInteractor } from "@/features/records/record-detail-layout.interactor";
 import { RecordDetailLayoutReader } from "@/features/records/record-detail-layout-reader";
 import { ReadRecordDetailLayoutInteractor } from "@/features/records/read-record-detail-layout.interactor";
@@ -451,6 +453,15 @@ export const getGetRecordActivitiesInteractor = () =>
 export const getGetIdentityRecordChoicesInteractor = () =>
   new GetIdentityRecordChoicesInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getRecordIdentityReader = () => new RecordIdentityReader(getRecordRepo(), getRecordAccessPolicy());
+export const getResolveCommandInteractor = () =>
+  new ResolveCommandInteractor(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getDataViewRepo(),
+    getAgentUsageService(),
+    getEntitlementService(),
+  );
+
 export const getGetCommandCatalogInteractor = () =>
   new GetCommandCatalogInteractor(getRecordRepo(), getRecordAccessPolicy(), getDataViewRepo());
 
@@ -1510,6 +1521,13 @@ export const getDeliverWebhookInteractor = () =>
 export const getCreateSupportTicketInteractor = () => new CreateSupportTicketInteractor(getFeedbackCreator());
 
 export const getAgentUsageService = () => new AgentUsageService(getAgentChatRepo());
+export const getDraftCalculationInteractor = () =>
+  new DraftCalculationInteractor(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getAgentUsageService(),
+    getEntitlementService(),
+  );
 export const getReconcileRetrievalReservationsInteractor = () =>
   new ReconcileRetrievalReservationsInteractor(getAgentUsageService());
 

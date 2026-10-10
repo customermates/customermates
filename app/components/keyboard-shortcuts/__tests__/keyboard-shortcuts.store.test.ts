@@ -20,6 +20,18 @@ beforeEach(() => {
 });
 
 describe("keyboard shortcuts store", () => {
+  it("keeps only the latest filter opener and ignores a stale unregister", () => {
+    const store = createStore();
+    const first = vi.fn();
+    const second = vi.fn();
+    store.registerFilterOpener(first);
+    store.registerFilterOpener(second);
+    store.unregisterFilterOpener(first);
+    expect(store.filterOpener).toBe(second);
+    store.unregisterFilterOpener(second);
+    expect(store.filterOpener).toBeNull();
+  });
+
   it("starts with single-key shortcuts on and takes the loaded preference", () => {
     const store = createStore();
     expect(store.singleKeyShortcutsEnabled).toBe(true);

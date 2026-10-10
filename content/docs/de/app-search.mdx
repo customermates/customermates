@@ -29,6 +29,12 @@ Die Suche findet auch nach Bedeutung und sprachübergreifend: „language" finde
 
 Nach Bedeutung sucht die Suche nur, wenn nichts über den Namen passt: wenn keine Seite, Einstellung, Aktion, Liste oder Ansicht ein klarer **Bester Treffer** ist und kein Datensatz Ihre Wörter enthält. Nur dann erhält ein Embedding-Modell, betrieben von Google über den Vercel AI Gateway, Ihren Suchtext, was einen kleinen Teil Ihrer KI-Credits verbraucht. Es erhält außerdem die Namen der Seiten, Einstellungen, Aktionen, Listen, Ansichten und Felder Ihres Workspaces, die nur nach einer Änderung erneut gesendet werden, nie den Inhalt von Datensätzen. Ist der Dienst langsam oder nicht erreichbar, zeigt die Suche sofort die Treffer nach Namen. Ohne KI, zum Beispiel bei einer selbst gehosteten Installation, sucht sie nur nach Namen.
 
+## Wie öffne ich eine gefilterte Liste, indem ich sie beschreibe? [#how-do-i-describe-what-to-open]
+
+Passt kein Ergebnis eindeutig, steht in der ersten Zeile **Zu „…“ springen** mit Ihren Worten. Drücken Sie Enter, und ein kleines KI-Modell macht aus der Anfrage ein Ziel: eine Liste mit Filtern, eine ihrer Ansichten, eine Seite, eine Einstellung oder eine Aktion. Zum Beispiel öffnet „gewonnene Deals mit Abschluss diesen Monat“ die [Deals](app:records/deal) und zeigt nur gewonnene Deals, die in diesem Monat abschließen. Die Filter werden nicht gespeichert: Die Ansicht ist als geändert markiert, und **Speichern** oder **Zurücksetzen** unter [Filter](app:records/deal?focus=filter) übernimmt oder verwirft sie. Passt die Anfrage zu nichts, geht sie stattdessen an [Mate](/docs/app-assistant).
+
+Das Modell erhält Ihre Worte und die Namen Ihrer Listen, Ansichten, Felder und Auswahlwerte, nie den Inhalt von Datensätzen, und verbraucht einen kleinen Teil Ihrer KI-Guthaben. Es meldet Sie nie ab und ändert, weist zu oder löscht keinen Datensatz; diese Aktionen bleiben in den Suchergebnissen.
+
 ## Für Agents [#which-stable-ids-does-it-have]
 
 Mate kann auf **Suchen** in der Sidebar zeigen, die Suche aber weder öffnen noch etwas hineintippen. Für gefilterte, sortierte oder aggregierte Abfragen verwenden Sie die Tools für Datensatzabfragen statt der globalen Suche.
