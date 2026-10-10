@@ -6,12 +6,15 @@ export const OVERLAY_RAISED_PANEL_LAYER_CLASS = "z-[60]";
 
 export const OVERLAY_TOPMOST_LAYER_CLASS = "z-[70]";
 
-export const OVERLAY_CLOSE_POSITION_CLASS = "top-2 right-2";
+export const OVERLAY_CLOSE_POSITION_CLASS = "top-[1.375rem] right-2";
 
 export const OVERLAY_SAFE_CLOSE_POSITION_CLASS =
-  "top-[calc(0.5rem+var(--safe-top))] right-[calc(0.5rem+var(--safe-right))]";
+  "top-[calc(1.375rem+var(--safe-top))] right-[calc(0.5rem+var(--safe-right))]";
 
-export const OVERLAY_ACTION_RAIL_CLASS = "absolute top-2 right-12 z-10 flex min-h-8 items-center gap-2";
+export const OVERLAY_DRAWER_HANDLE_CLOSE_CLASS =
+  "group-data-[vaul-drawer-direction=bottom]/drawer-content:top-[2.875rem] group-data-[overlay-actions]/drawer-content:top-[1.375rem]!";
+
+export const OVERLAY_ACTION_RAIL_CLASS = "absolute top-[1.375rem] right-12 z-10 flex min-h-8 items-center gap-2";
 
 export type OverlayIconControlVariant = "neutral" | "destructive";
 
