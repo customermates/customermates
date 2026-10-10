@@ -58,8 +58,7 @@ test("board columns add a record with the column value, open the option, and col
 
   const open = column("new");
   await open.getByRole("button", { name: "More actions for New", exact: true }).click();
-  await expect(page.getByRole("menuitem", { name: "Add Deal", exact: true })).toBeVisible();
-  await expect(page.getByRole("menuitem", { name: "Edit option", exact: true })).toBeVisible();
+  await expect(page.getByRole("menuitem")).toHaveText(["Edit option", "Collapse column", "Hide column"]);
   await page.screenshot({ path: testInfo.outputPath("board-column-menu.png"), animations: "disabled" });
   await page.getByRole("menuitem", { name: "Collapse column", exact: true }).click();
   await expect(open).toHaveAttribute("data-kanban-strip", "");
@@ -67,8 +66,12 @@ test("board columns add a record with the column value, open the option, and col
   await open.click();
   await expect(open).toContainText("Column seed");
 
-  await open.getByRole("button", { name: "More actions for New", exact: true }).click();
-  await page.getByRole("menuitem", { name: "Add Deal", exact: true }).click();
+  const add = open.getByRole("button", { name: "Add Deal", exact: true });
+  await open.hover();
+  await add.hover();
+  await expect(page.getByRole("tooltip")).toHaveText("Add Deal");
+  await page.screenshot({ path: testInfo.outputPath("board-column-add.png"), animations: "disabled" });
+  await add.click();
   const dialog = page.getByRole("dialog");
   await expect(dialog.getByRole("combobox", { name: "Stage", exact: true })).toContainText("New");
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Added from the column");
@@ -87,6 +90,47 @@ test("board columns add a record with the column value, open the option, and col
     })
     .toBe(id("deal.stage.new"));
   await expect(open).toContainText("Added from the column");
+
+  const appearance = async (action: () => Promise<void>) => {
+    await page.getByRole("button", { name: "Appearance", exact: true }).click();
+    await action();
+    if (testInfo.project.name === "mobile") await page.locator('[data-slot="drawer-close"]').click();
+    else await page.keyboard.press("Escape");
+    await expect(page.getByRole("heading", { name: "Appearance", exact: true })).not.toBeVisible();
+  };
+  const storedGrouping = async () =>
+    (
+      await database.query('SELECT grouping FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2', [
+        companyId,
+        `records:${typeId}`,
+      ])
+    ).rows[0]?.grouping;
+  await open.getByRole("button", { name: "More actions for New", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Hide column", exact: true }).click();
+  await expect(open).toHaveCount(0);
+  await expect.poll(storedGrouping).toMatchObject({ hidden: [`value:${id("deal.stage.new")}`] });
+  await page.reload();
+  await expect(won).toHaveAttribute("data-kanban-strip", "");
+  await expect(open).toHaveCount(0);
+  await appearance(async () => {
+    await expect(page.getByText("Hidden columns", { exact: true })).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath("board-hidden-columns.png"), animations: "disabled" });
+    await page.getByRole("checkbox", { name: "New", exact: true }).click();
+    await expect(page.getByText("Hidden columns", { exact: true })).toHaveCount(0);
+  });
+  await expect(open).toContainText("Added from the column");
+  await expect.poll(async () => (await storedGrouping())?.hidden).toBeUndefined();
+
+  await appearance(() => page.getByRole("switch", { name: "Hide empty columns", exact: true }).click());
+  await expect(won).toHaveCount(0);
+  await expect(open).toContainText("Column seed");
+  await expect.poll(storedGrouping).toMatchObject({ hideEmpty: true });
+  await page.reload();
+  await expect(open).toContainText("Column seed");
+  await expect(won).toHaveCount(0);
+  await appearance(() => page.getByRole("switch", { name: "Hide empty columns", exact: true }).click());
+  await expect(won).toHaveAttribute("data-kanban-strip", "");
+  await expect.poll(async () => (await storedGrouping())?.hideEmpty).toBeUndefined();
 
   await open.getByRole("button", { name: "More actions for New", exact: true }).click();
   await page.getByRole("menuitem", { name: "Edit option", exact: true }).click();
