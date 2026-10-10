@@ -239,7 +239,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
               key={cell.id}
               className={
                 columnId === "__actions"
-                  ? "sticky right-0 w-px py-0 pl-0 whitespace-nowrap any-pointer-coarse:static focus-within:bg-background group-hover/row:bg-background group-hover/row:bg-[image:linear-gradient(var(--accent),var(--accent))] group-data-[state=selected]/row:bg-[image:linear-gradient(var(--selected),var(--selected))]"
+                  ? "sticky right-0 w-px py-0 pl-0 whitespace-nowrap any-pointer-coarse:static md:pointer-fine:w-0 md:pointer-fine:p-0 focus-within:bg-background group-hover/row:bg-background group-hover/row:bg-[image:linear-gradient(var(--accent),var(--accent))] group-data-[state=selected]/row:bg-[image:linear-gradient(var(--selected),var(--selected))]"
                   : isSelectionCell
                     ? "w-10"
                     : cn(
@@ -268,6 +268,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   const rowsById = new Map(table.getRowModel().rows.map((row) => [row.original.id, row]));
   const leafColumnCount = table.getVisibleLeafColumns().length;
   const groups = visibleGroups(store.groupingResult);
+
   const overflow = store.groupingResult?.overflow;
 
   return (
@@ -296,7 +297,8 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                     columnStyle?.(columnId)?.align === "end" && "text-right [&_button]:ml-auto",
                     canResize && "group/resize-header",
                     canSort && "cursor-pointer select-none",
-                    isSelectionCol && "w-10",
+                    columnId === "__select" && "w-10",
+                    columnId === "__actions" && "w-px md:pointer-fine:w-0 md:pointer-fine:p-0",
                   )}
                   style={
                     liveWidth != null

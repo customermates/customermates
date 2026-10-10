@@ -38,6 +38,7 @@ import { cn } from "@/core/utils/cn";
 import { isInteractiveClick } from "./is-interactive-click";
 import type { RecordGroupSummaryResult } from "@/features/records/record-grouping.schema";
 import { BoardGroupingPrompt } from "./board-grouping-prompt";
+import { DataViewItemLayout } from "./data-view-item-layout";
 import {
   DATA_KANBAN_CARDS_CLASS_NAME,
   DATA_KANBAN_COLUMN_CLASS_NAME,
@@ -159,7 +160,7 @@ function KanbanCard({
 
       {actions && (
         <div className="absolute top-2 right-2 z-10" onPointerDown={(event) => event.stopPropagation()}>
-          {actions}
+          <DataViewItemLayout.Provider value="card">{actions}</DataViewItemLayout.Provider>
         </div>
       )}
     </Card>

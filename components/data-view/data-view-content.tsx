@@ -13,6 +13,8 @@ import type { DataViewView } from "./data-view-state";
 import { useColumnLabel } from "@/components/data-view/use-column-label";
 
 import { DataKanbanView } from "./data-kanban-view";
+import { DataPhoneRows } from "./data-phone-rows";
+import { useIsWiderThan } from "@/hooks/use-media-query";
 import { DataTable, type DataTableColumnStyle } from "./data-table";
 
 type Props<E extends HasId> = {
@@ -39,6 +41,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
   view,
 }: Props<E>) {
   const interactive = useClientReady();
+  const wide = useIsWiderThan("sm");
   const columnLabel = useColumnLabel();
   const byId = new Map(columns.map((column) => [column.id ?? "", column]));
   const resolvedColumns = store.orderedColumns
@@ -50,6 +53,19 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
         ? ({ ...withHeader, accessorKey: column.id } as ColumnDef<E>)
         : ({ ...withHeader, enableSorting: false } as ColumnDef<E>);
     });
+
+  if (view === "table" && renderCard && !wide) {
+    return (
+      <DataPhoneRows
+        className="animate-page-result-in motion-reduce:animate-none"
+        renderCard={renderCard}
+        rowActions={rowActions}
+        store={store}
+        onRowClick={interactive ? onRowClick : undefined}
+        onRowHref={rowHref}
+      />
+    );
+  }
 
   if (view === "table" || !renderCard) {
     return (
