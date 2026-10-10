@@ -99,3 +99,14 @@ export const manageDataViewsTool = {
     return toonResult(result.data);
   },
 } satisfies McpTool;
+
+export const proposingManageDataViewsTool = {
+  ...manageDataViewsTool,
+  execute: async (params: unknown) => {
+    const parsed = await ManageDataViewsSchema.safeParseAsync(params, await getZodParseContext());
+    if (!parsed.success) return mcpValidationFailure(parsed.error);
+    const result = await getManageDataViewsInteractor().propose(parsed.data);
+    if (!result.ok) return mcpInteractorFailure(result.error);
+    return toonResult(result.data);
+  },
+} satisfies McpTool;

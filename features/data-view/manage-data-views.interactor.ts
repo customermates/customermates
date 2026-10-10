@@ -100,7 +100,17 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
 
   @Validate(ManageDataViewsSchema)
   @ValidateOutput(ManageDataViewsResultSchema)
-  async invoke(data: ManageDataViewsData): Validated<ManageDataViewsResult> {
+  invoke(data: ManageDataViewsData): Validated<ManageDataViewsResult> {
+    return this.manage(data, false);
+  }
+
+  @Validate(ManageDataViewsSchema)
+  @ValidateOutput(ManageDataViewsResultSchema)
+  propose(data: ManageDataViewsData): Validated<ManageDataViewsResult> {
+    return this.manage(data, true);
+  }
+
+  private async manage(data: ManageDataViewsData, propose: boolean): Validated<ManageDataViewsResult> {
     if (data.action === "surfaces") {
       const surfaces = [];
       for (const surfaceKey of AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS) {
@@ -272,6 +282,20 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     if (data.action === "create") {
       const checked = await this.validateState(data.surfaceKey, data.state);
       if (!checked.ok) return checked;
+      if (propose) {
+        return {
+          ok: true,
+          data: {
+            action: data.action,
+            ...location,
+            viewKey: ALL_VIEW_KEY,
+            name: data.name,
+            state: data.state,
+            proposed: true,
+            link: this.link(descriptor.path, ALL_VIEW_KEY),
+          },
+        };
+      }
       const result = await this.upsert.invoke({
         surfaceKey: data.surfaceKey,
         name: data.name,
@@ -370,6 +394,20 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     if (state !== undefined) {
       const checked = await this.validateState(data.surfaceKey, state);
       if (!checked.ok) return checked;
+    }
+    if (propose) {
+      return {
+        ok: true,
+        data: {
+          action: data.action,
+          ...location,
+          viewKey: data.viewKey,
+          ...(name !== undefined ? { name } : {}),
+          state: { ...currentState, ...state },
+          proposed: true,
+          link: this.link(descriptor.path, data.viewKey),
+        },
+      };
     }
     if (owned) {
       const result = await this.upsert.invoke({

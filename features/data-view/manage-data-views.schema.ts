@@ -135,6 +135,7 @@ export const ManageDataViewsResultSchema = z
     link: z.string().nullable().optional(),
     selected: z.boolean().optional(),
     deleted: z.boolean().optional(),
+    proposed: z.literal(true).optional(),
     trashBatchId: z.uuid().optional(),
   })
   .superRefine((result, ctx) => {
@@ -147,6 +148,12 @@ export const ManageDataViewsResultSchema = z
       });
     };
 
+    if (result.proposed && result.action === "create") {
+      requireField("surfaceKey");
+      if (result.state === undefined)
+        ctx.addIssue({ code: "custom", path: ["state"], message: "state is required for a proposal" });
+      return;
+    }
     if (["create", "update", "select", "reset"].includes(result.action)) {
       requireField("surfaceKey");
       requireField("viewKey");
@@ -185,6 +192,6 @@ export const ManageDataViewsResultSchema = z
     }
   })
   .describe(
-    "surfaces, config and list return total before paged items; mutations return their action, surfaceKey, viewKey and resulting state/link or selected/deleted flag.",
+    "surfaces, config and list return total before paged items; mutations return their action, surfaceKey, viewKey and resulting state/link or selected/deleted flag. In the app, create and update return proposed: true with the proposed state; the person saves or resets it.",
   );
 export type ManageDataViewsResult = Data<typeof ManageDataViewsResultSchema>;

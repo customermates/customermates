@@ -1,6 +1,7 @@
 import { AgentActivityContextSchema } from "@/ee/agent-chat/agent-activity-context";
 import { makeObservable, observable, action, computed, reaction, runInAction } from "mobx";
 
+import type { DataViewProposal } from "@/core/data-view/data-view-proposal.schema";
 import type { RootStore } from "@/core/stores/root.store";
 import type { AgentUsageSummary } from "@/ee/agent-chat/agent-usage.service";
 import type { AgentMessageTurn } from "@/ee/agent-chat/agent-history";
@@ -48,6 +49,8 @@ import {
 } from "@/ee/agent-chat/agent-context";
 import { AgentViewContext, type AgentViewChange } from "./agent-view-context";
 import { AgentContextRegistry } from "./agent-context-registry";
+import { DataViewProposalSchema } from "@/core/data-view/data-view-proposal.schema";
+import { rememberViewProposal } from "@/core/data-view/view-query-drafts";
 
 export type AgentChatItem =
   | {
@@ -2491,7 +2494,9 @@ export class AgentChatStore extends BaseStore {
             }
             const viewHref = activity.status === "done" ? dataViewNavigationHref(event.viewHref) : null;
             if (viewHref) activity.activity = { ...activity.activity, viewHref };
-            if (activity.status === "done" && activity.activity.risk !== "read") {
+            const proposal = DataViewProposalSchema.safeParse(event.viewProposal);
+            if (activity.status === "done" && proposal.success) this.applyViewProposal(proposal.data);
+            else if (activity.status === "done" && activity.activity.risk !== "read") {
               this.activeTurnHasSuccessfulMutation = true;
               this.recordViewChange(activity.activity);
             }
@@ -2669,6 +2674,12 @@ export class AgentChatStore extends BaseStore {
     this.pendingViewChanges = [...checkpoint.viewChanges];
     this.progressPhase = this.items.at(-1)?.kind === "user" ? "working" : null;
     if (!this.activeTurnStopRequested) this.streamStatus = "working";
+  }
+
+  private applyViewProposal(proposal: DataViewProposal) {
+    if (typeof window === "undefined") return;
+    if (this.viewContext.propose(window.location.pathname, proposal)) return;
+    rememberViewProposal(this.rootStore.userStore.user, proposal);
   }
 
   private recordViewChange(activity: AgentActivityDescriptor) {
