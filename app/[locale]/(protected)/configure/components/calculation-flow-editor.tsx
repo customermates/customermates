@@ -771,7 +771,7 @@ function FormulaFlow({
                 name={t("RecordModel.calculationFlow.step", { number: String(number + 1) })}
               />
 
-              <ConfigureNodeRows label={operatorLabel(step.operator)} lead="marker">
+              <ConfigureNodeRows label={operatorLabel(step.operator)}>
                 <li>
                   <ConfigureNodeStaticRow
                     kind=""

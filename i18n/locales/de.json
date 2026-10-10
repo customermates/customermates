@@ -1462,7 +1462,8 @@
     "sort": {
       "ascending": "Aufsteigend",
       "descending": "Absteigend",
-      "field": "Sortieren nach"
+      "field": "Sortieren nach",
+      "manual": "Manuell"
     },
     "stageProbability": "Phasenwahrscheinlichkeit",
     "systemTasks": {
@@ -1951,13 +1952,14 @@
     "boardMoveRequested": "Verschieben nach {group} angefordert.",
     "boardMoveTarget": "Datensatz nach {group} verschieben.",
     "boardPickedUp": "Datensatz aufgenommen.",
+    "collapseColumn": "Spalte einklappen",
     "collapseGroup": "Gruppe {group} einklappen",
     "dragToReorder": "Zum Neuanordnen ziehen",
+    "expandColumn": "{name} ausklappen",
     "expandGroup": "Gruppe {group} ausklappen",
     "groupOverflow": "Es werden nur {count} Gruppen angezeigt",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Kein Wert",
-    "resizeBoardColumns": "Breite der Board-Spalten ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeColumn": "Größe der Spalte „{column}“ ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeHint": "Zum Ändern der Größe ziehen. Zum Zurücksetzen doppelklicken.",
     "rowActions": "Zeilenaktionen",

@@ -1462,7 +1462,8 @@
     "sort": {
       "ascending": "Croissant",
       "descending": "Décroissant",
-      "field": "Trier par"
+      "field": "Trier par",
+      "manual": "Manuel"
     },
     "stageProbability": "Probabilité de l'étape",
     "systemTasks": {
@@ -1951,13 +1952,14 @@
     "boardMoveRequested": "Déplacement vers {group} demandé.",
     "boardMoveTarget": "Déplacer l’enregistrement vers {group}.",
     "boardPickedUp": "Enregistrement saisi.",
+    "collapseColumn": "Réduire la colonne",
     "collapseGroup": "Réduire le groupe {group}",
     "dragToReorder": "Faire glisser pour réorganiser",
+    "expandColumn": "Développer {name}",
     "expandGroup": "Développer le groupe {group}",
     "groupOverflow": "Seuls {count} groupes sont affichés",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Aucune valeur",
-    "resizeBoardColumns": "Redimensionner les colonnes du tableau. Faites glisser ou utilisez les flèches ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
     "resizeColumn": "Redimensionnez la colonne « {column} ». Faites glisser ou utilisez les touches fléchées ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
     "resizeHint": "Faites glisser pour redimensionner. Double-cliquez pour réinitialiser.",
     "rowActions": "Actions de ligne",

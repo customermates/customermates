@@ -1737,6 +1737,7 @@ model CrmRecord {
   version       Int                         @default(1)
   protectedKind String?
   systemData    Json?
+  rank          String?
   deletedAt     DateTime?
   trashItemId   String?
   createdAt     DateTime                    @default(now())

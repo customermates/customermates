@@ -226,6 +226,8 @@ export const SORT_SYNTAX = {
   fieldKinds: {
     builtin: "Built-in field name (e.g. name, totalValue, createdAt). See sortableFields entries without columnType.",
     customColumn: "Custom column UUID. See sortableFields entries with columnType.",
+    manual:
+      "system:manual on record lists: the list's manual order (asc only), set by moving records with an update placement.",
   },
   comparison: {
     currency: "numeric",
