@@ -63,6 +63,7 @@ const MembersPageViewContent = observer(function MembersPageView({ initialRoles,
       <DataViewToolbar
         addLabel={pageState === "true-empty" ? t("Common.actions.add") : undefined}
         anchorScope="settings-members"
+        searchLabel={t("Common.filters.searchFields.members")}
         store={usersStore}
         onAdd={allowedAdd}
       />
