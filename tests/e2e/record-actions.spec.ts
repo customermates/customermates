@@ -120,6 +120,7 @@ test("record tables edit cells in place, open linked chips and offer row actions
   page,
   companyId,
 }, testInfo) => {
+  test.skip(Boolean(testInfo.project.use.isMobile), "Table cells edit in place on the desktop table; phone rows render no cells");
   test.setTimeout(180000);
   await setListColor(page, presetId(companyId, "organization"), "info");
   const name = `Inline deal ${randomUUID().slice(0, 8)}`;
@@ -200,7 +201,8 @@ test("record tables edit cells in place, open linked chips and offer row actions
   await expect(row).toHaveCount(0);
 });
 
-test("record tables edit number fields in place without opening the drawer", async ({ page, companyId }) => {
+test("record tables edit number fields in place without opening the drawer", async ({ page, companyId, isMobile }) => {
+  test.skip(isMobile, "Table cells edit in place on the desktop table; phone rows render no cells");
   const name = `Inline service ${randomUUID().slice(0, 8)}`;
   await page.goto(`/en/records/${presetId(companyId, "service")}`);
   await page.locator("#records-add").click();
