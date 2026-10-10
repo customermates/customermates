@@ -943,7 +943,6 @@
     },
     "ariaLabels": {
       "breadcrumb": "Fil d’Ariane",
-      "collapseSearch": "Réduire la recherche",
       "explainField": "À propos de {field}",
       "hidePassword": "Masquer le mot de passe",
       "selectOption": "Sélectionner une option",
@@ -1360,7 +1359,10 @@
         "fieldsGroup": "Filtrer par",
         "limitReached": "Vous pouvez appliquer jusqu'à {count} filtres.",
         "removeFilter": "Retirer le filtre",
-        "title": "Filtres"
+        "searchContains": "{field} contient « {text} »",
+        "searchOrAddFilter": "Rechercher ou ajouter un filtre…",
+        "title": "Filtres",
+        "trigger": "Filtre"
       },
       "selectionLimit": "Vous pouvez sélectionner jusqu'à {count} valeurs.",
       "selectOperator": "Sélectionner une condition…",
@@ -1929,7 +1931,6 @@
       "chooseFile": "Choisir un fichier",
       "fileRejected": "Ce fichier n'a pas pu être lu."
     },
-    "menu": "Importer et exporter",
     "recordImport": {
       "create": "Créer avec les ID exportés",
       "failed": "Les fiches n'ont pas pu être importées. Vérifiez le fichier et les autorisations.",
@@ -1964,6 +1965,7 @@
     "expandGroup": "Développer le groupe {group}",
     "groupOverflow": "Seuls {count} groupes sont affichés",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
+    "moreActions": "Plus d’actions",
     "noValue": "Aucune valeur",
     "resizeColumn": "Redimensionnez la colonne « {column} ». Faites glisser ou utilisez les touches fléchées ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
     "resizeHint": "Faites glisser pour redimensionner. Double-cliquez pour réinitialiser.",
@@ -2484,6 +2486,7 @@
       "goList": "Listes selon leur position dans votre barre latérale",
       "goRoutines": "Routines",
       "goSettings": "Paramètres",
+      "openFilters": "Ouvrir les filtres d’une liste",
       "save": "Enregistrer le formulaire ouvert",
       "search": "Rechercher",
       "searchAlias": "Rechercher",
@@ -2829,7 +2832,6 @@
     "emptyBody": "Ajustez la recherche ou les filtres pour élargir le journal.",
     "emptyTitle": "Aucun événement ne correspond à ces filtres",
     "navigation": "Journal d’audit",
-    "searchPlaceholder": "Rechercher par action",
     "values": {
       "action": {
         "auditRead": "Audit opérateur consulté",
@@ -2956,7 +2958,6 @@
       "title": "Réinitialisation des crédits",
       "zeroBalance": "Ramener le solde restant à zéro"
     },
-    "searchPlaceholder": "Rechercher par nom ou e-mail du compte",
     "values": {
       "noSubscription": "Aucun abonnement",
       "operator": "Opérateur de la plateforme"
@@ -2996,7 +2997,6 @@
       "workspaceId": "ID de l'espace de travail"
     },
     "navigation": "Espaces de travail",
-    "searchPlaceholder": "Rechercher par e-mail d’un membre",
     "stats": {
       "assistantConversations": "Discussions avec l'assistant",
       "connectedAccounts": "Comptes connectés",
@@ -3099,6 +3099,13 @@
         "max": "Maximum",
         "min": "Minimum",
         "sum": "Somme"
+      },
+      "describe": {
+        "failed": "Impossible d'en faire un calcul. Essayez de le décrire autrement.",
+        "label": "Décrire le calcul",
+        "pending": "Préparation du calcul",
+        "placeholder": "Par exemple : total des montants de toutes les lignes liées",
+        "unavailable": "La rédaction n'est pas disponible pour le moment."
       },
       "example": {
         "next": "Afficher un autre exemple",
@@ -3301,6 +3308,7 @@
       "restoreTitle": "Restaurer {name}"
     },
     "configure": "Configurer",
+    "configureList": "Configurer {list}",
     "connectionType": "Connexion",
     "constant": "Valeur fixe",
     "contactFullName": "Nom complet",
@@ -4150,10 +4158,9 @@
       "requiresRestore": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car un élément dont ils ont besoin est dans la corbeille. Restaurez-le d'abord."
     },
     "restored": "{count, plural, one {# élément restauré} other {# éléments restaurés}}",
-    "restoredInBackground": "Restaur\u00e9",
+    "restoredInBackground": "Restauré",
     "restoredWithDroppedLinks": "Restauré. {count, plural, one {# lien n'a pas pu} other {# liens n'ont pas pu}} être restauré(s) car l'enregistrement lié a été supprimé définitivement.",
     "restorePending": "Restauration en arrière-plan. La corbeille affiche la progression.",
-    "searchPlaceholder": "Rechercher dans la corbeille",
     "undo": "Annuler"
   },
   "TrialExpiredOffer": {

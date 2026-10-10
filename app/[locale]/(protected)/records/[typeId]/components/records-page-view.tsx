@@ -6,13 +6,13 @@ import { useTranslations } from "next-intl";
 import { Settings2 } from "lucide-react";
 
 import type { ReactNode } from "react";
-import type { ColumnDef } from "@tanstack/react-table";
 import type { RecordPresentationResult } from "@/features/records/get-record-presentation.interactor";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordRef } from "@/features/records/record-model.schema";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { IntlLink } from "@/i18n/navigation";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { DataViewContent } from "@/components/data-view/data-view-content";
 import { DataViewLayout } from "@/components/data-view/data-view-layout";
@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { RecordsStore } from "./records.store";
 import { RecordsPageSkeleton } from "./records-page-skeleton";
 import { RecordCell } from "./record-cell";
+import { recordAvatarFieldId, useRecordTableColumns } from "./record-table-columns";
 import { RecordCardContent } from "./record-chip-row";
 import type { DataTableColumnStyle } from "@/components/data-view/data-table";
 import type { DataViewGroup } from "@/core/base/grouping/grouping.schema";
@@ -38,14 +39,7 @@ const END_ALIGNED_TYPES: RecordFieldView["valueType"][] = [
   "dateRange",
   "dateTimeRange",
 ];
-import {
-  RecordCalculatedValue,
-  RecordInlineField,
-  RecordInlineRelationship,
-  canEditInline,
-  isCalculatedField,
-  hasInlineRelationshipEditor,
-} from "./record-inline-field";
+
 import { RecordRowActions, recordRowName } from "./record-row-actions";
 import { useRecordDeletion } from "./use-record-deletion";
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
@@ -106,70 +100,9 @@ const RecordsPageViewContent = observer(function RecordsPageView({
     [openEditor],
   );
   const recordHref = useCallback((record: RecordRow) => `/records/${record.ref.typeId}/${record.ref.recordId}`, []);
-  const recordColumns = store.recordColumns;
-  const avatarFieldId = store.presentation.model.capabilities
-    .find((binding) => binding.kind === "avatar" && binding.typeId === store.presentation.typeId)
-    ?.fields.find((field) => field.role === "image")?.fieldId;
+  const avatarFieldId = recordAvatarFieldId(store);
   const view = resolveDataViewView(store.viewMode, store.canBoard);
-  const columnHeaders = JSON.stringify(recordColumns.map((column) => [column.id, column.label]));
-  const columns = useMemo<ColumnDef<RecordRow>[]>(
-    () =>
-      (JSON.parse(columnHeaders) as [string, string][]).map(([id, header]) => ({
-        id,
-        header,
-        cell: ({ row }) => {
-          const column = store.recordColumns.find((candidate) => candidate.id === id);
-          if (!column) return null;
-          const renderCell = (inTrigger: boolean) => (
-            <RecordCell
-              avatarFieldId={column.id === store.type?.primaryFieldId ? avatarFieldId : undefined}
-              column={column}
-              inTrigger={inTrigger}
-              linkColors={store.presentation.linkColors}
-              linkIcons={store.presentation.linkIcons}
-              linkLabels={store.presentation.linkLabels}
-              record={row.original}
-              onMore={() => openRecord(row.original)}
-              onOpen={openRelated}
-            />
-          );
-          if (column.kind === "relationship" && hasInlineRelationshipEditor(store, row.original, column.relation)) {
-            const summary = row.original.relationships.find(
-              (entry) => entry.relationId === column.relation.id && entry.direction === column.direction,
-            );
-            return (
-              <RecordInlineRelationship
-                direction={column.direction}
-                empty={!summary?.records.length}
-                label={column.label}
-                record={row.original}
-                records={store}
-                relation={column.relation}
-                onOpenRecord={openRelated}
-              >
-                {renderCell(true)}
-              </RecordInlineRelationship>
-            );
-          }
-          if (column.kind !== "field") return renderCell(false);
-          if (canEditInline(store, row.original, column.field)) {
-            return (
-              <RecordInlineField field={column.field} record={row.original} records={store}>
-                {renderCell(true)}
-              </RecordInlineField>
-            );
-          }
-          return isCalculatedField(store, column.field) ? (
-            <RecordCalculatedValue field={column.field} model={store.presentation.model}>
-              {renderCell(false)}
-            </RecordCalculatedValue>
-          ) : (
-            renderCell(false)
-          );
-        },
-      })),
-    [columnHeaders, openRelated, openRecord, avatarFieldId, store],
-  );
+  const columns = useRecordTableColumns(store, openRelated, { openRecord });
   const columnStyle = useCallback(
     (columnId: string): DataTableColumnStyle => {
       const column = store.recordColumns.find((candidate) => candidate.id === columnId);
@@ -247,26 +180,22 @@ const RecordsPageViewContent = observer(function RecordsPageView({
   const handleAdd = useCallback(() => openEditor({ typeId: store.presentation.typeId }), [openEditor, store]);
   const handleExport = useRecordExport(store.presentation);
   const handleImport = useCallback(() => setImportOpen(true), []);
-  const configureLabel = t("RecordModel.configure");
+  const configureLabel = t("RecordModel.configureList", { list: store.type?.pluralLabel ?? t("RecordModel.records") });
   const toolbar = useMemo(
     () => (
       <DataViewToolbar
-        actions={
+        anchorScope="records"
+        menuItems={
           store.presentation.canManageSchema && (
-            <TopBarActionButtons
-              actions={[
-                {
-                  id: "configure",
-                  anchorId: "records-configure",
-                  href: `/configure?typeId=${presentation.typeId}`,
-                  icon: Settings2,
-                  label: configureLabel,
-                },
-              ]}
-            />
+            <DropdownMenuItem asChild>
+              <IntlLink href={`/configure?typeId=${presentation.typeId}`} id="records-configure">
+                <Settings2 className="size-4" />
+
+                {configureLabel}
+              </IntlLink>
+            </DropdownMenuItem>
           )
         }
-        anchorScope="records"
         store={store}
         onAdd={handleAdd}
         onExport={handleExport}

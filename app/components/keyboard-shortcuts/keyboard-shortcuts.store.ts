@@ -17,6 +17,7 @@ export type ShortcutDestinations = {
 export class KeyboardShortcutsStore extends BaseModalStore {
   preferences: KeyboardPreferences = DEFAULT_KEYBOARD_PREFERENCES;
   destinations: ShortcutDestinations = { pages: {}, lists: [] };
+  filterOpener: (() => void) | null = null;
 
   constructor(rootStore: RootStore) {
     super(rootStore, {});
@@ -25,6 +26,9 @@ export class KeyboardShortcutsStore extends BaseModalStore {
       destinations: observable.ref,
       setPreferences: action,
       setDestinations: action,
+      filterOpener: observable.ref,
+      registerFilterOpener: action,
+      unregisterFilterOpener: action,
     });
   }
 
@@ -38,6 +42,14 @@ export class KeyboardShortcutsStore extends BaseModalStore {
 
   setDestinations = (destinations: ShortcutDestinations) => {
     this.destinations = destinations;
+  };
+
+  registerFilterOpener = (opener: () => void) => {
+    this.filterOpener = opener;
+  };
+
+  unregisterFilterOpener = (opener: () => void) => {
+    if (this.filterOpener === opener) this.filterOpener = null;
   };
 
   setSingleKeyShortcuts = async (enabled: boolean) => {

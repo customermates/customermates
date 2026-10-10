@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
+import type { RecordGroupSummaryResult } from "@/features/records/record-grouping.schema";
 
 import { observer } from "mobx-react-lite";
 import { useClientReady } from "@/hooks/use-client-ready";
@@ -24,6 +25,7 @@ type Props<E extends HasId> = {
   columnStyle?: (columnId: string) => DataTableColumnStyle;
   onAddToGroup?: (group: DataViewGroup) => void;
   store: BaseDataViewStore<E>;
+  totals?: RecordGroupSummaryResult[];
   view: DataViewView;
 };
 
@@ -36,6 +38,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
   columnStyle,
   onAddToGroup,
   store,
+  totals,
   view,
 }: Props<E>) {
   const interactive = useClientReady();
@@ -59,6 +62,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
         columns={resolvedColumns}
         rowActions={rowActions}
         store={store}
+        totals={totals}
         onAddToGroup={onAddToGroup}
         onRowClick={interactive ? onRowClick : undefined}
         onRowHref={rowHref}
