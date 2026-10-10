@@ -478,9 +478,7 @@ export const RecordDetailChipRow = observer(function RecordDetailChipRow({
   const all = recordColumns(store.presentation.typeId, store.presentation.model)
     .filter((column) => store.record || column.kind !== "system" || column.id === "system:assignedTo")
     .map((column) =>
-      column.kind === "system"
-        ? { ...column, label: t(`RecordModel.${column.label}`) }
-        : column,
+      column.kind === "system" ? { ...column, label: t(`RecordModel.${column.label}`) } : column,
     ) as RecordChipColumn[];
   const byId = new Map(all.map((column) => [column.id, column]));
   const pinned = starredFieldIds.flatMap((id) => byId.get(id) ?? []);
