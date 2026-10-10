@@ -830,6 +830,89 @@
     "liveDemoTitle": "Demo en directo de Customermates",
     "open": "Abrir en una nueva pestaña"
   },
+  "CommandPalette": {
+    "fieldOf": "Campo de {list}",
+    "groups": {
+      "actions": "Acciones",
+      "bestMatch": "Mejor resultado",
+      "docs": "Documentación",
+      "listsAndViews": "Listas y vistas",
+      "pagesAndSettings": "Páginas y ajustes",
+      "records": "Registros",
+      "suggestions": "Sugerencias"
+    },
+    "labels": {
+      "addRole": "Añadir rol",
+      "addWebhook": "Añadir webhook",
+      "connectChannel": "Conectar un canal",
+      "createApiKey": "Crear clave de API",
+      "themeDark": "Cambiar al tema oscuro",
+      "themeLight": "Cambiar al tema claro",
+      "themeSystem": "Usar el tema del sistema"
+    },
+    "record": {
+      "addTo": "Añadir a {list}…",
+      "assign": "Asignar a…",
+      "change": "Cambiar {field}…",
+      "deleteNamed": "Eliminar {name}"
+    },
+    "synonyms": {
+      "action": {
+        "add": "nuevo, crear, nuevo registro",
+        "inviteMembers": "añadir usuario, invitar compañero, equipo",
+        "sendFeedback": "informar de un problema, sugerencia, soporte",
+        "shortcuts": "teclas rápidas, teclas, teclado",
+        "signOut": "salir, desconectar, logout",
+        "switchView": "cambiar vista, vistas guardadas",
+        "themeDark": "modo oscuro, modo noche",
+        "themeLight": "modo claro",
+        "themeSystem": "tema automático, seguir el sistema"
+      },
+      "page": {
+        "configure": "modelo de datos, esquema, listas, campos, relaciones",
+        "dashboard": "inicio, resumen, widgets, gráficos",
+        "documentation": "docs, ayuda, guía, manual",
+        "inbox": "mensajes, correo, email, conversaciones, chats",
+        "knowledgeBase": "wiki, notas, páginas, artículos",
+        "routines": "automatizaciones, programaciones, tareas recurrentes",
+        "settings": "preferencias, opciones, cuenta, espacio de trabajo"
+      },
+      "setting": {
+        "apiKeys": {
+          "create": "nueva clave de API, generar token"
+        },
+        "channels": {
+          "connect": "conectar correo, añadir cuenta, LinkedIn, WhatsApp"
+        },
+        "profile": {
+          "avatarUrl": "foto de perfil, foto, imagen",
+          "country": "ubicación, región",
+          "displayLanguage": "idioma, lengua, traducción",
+          "firstName": "nombre, nombre de pila",
+          "formattingLocale": "formato de fecha, formato de número, región",
+          "lastName": "apellido, apellidos",
+          "theme": "apariencia, modo oscuro, modo claro, colores"
+        },
+        "roles": {
+          "create": "nuevo rol, permisos"
+        },
+        "webhooks": {
+          "create": "nuevo webhook"
+        }
+      },
+      "settings": {
+        "activity": "registro de auditoría, historial, cambios",
+        "api-keys": "tokens, API, MCP, desarrollador, claves de acceso",
+        "billing": "plan, suscripción, facturas, pago, precios",
+        "channels": "cuentas conectadas, cuentas de correo, LinkedIn, WhatsApp, integraciones",
+        "members": "equipo, usuarios, personas, compañeros",
+        "profile": "mi perfil, cuenta, preferencias, personal",
+        "roles": "permisos, acceso, derechos",
+        "webhook-deliveries": "entregas de webhook, registro de webhooks, eventos enviados",
+        "webhooks": "integraciones, callbacks, eventos, HTTP"
+      }
+    }
+  },
   "Common": {
     "actions": {
       "add": "Añadir",
@@ -1070,6 +1153,8 @@
       "subjectRequired": "Añade un asunto.",
       "termsNotAgreed": "Debes aceptar los términos y condiciones.",
       "threadNotFound": "ID de conversación no encontrado o no accesible.",
+      "trashChanged": "La papelera ha cambiado mientras tanto. Revisa lo que se eliminará e inténtalo de nuevo.",
+      "trashItemNotFound": "Este elemento ya no está en la papelera.",
       "unipileAccountRestricted": "El proveedor ha restringido este canal. Reconectarlo no lo soluciona; resuelve primero la restricción con el proveedor.",
       "unipileDisconnectedAccount": "El canal está desconectado. Su propietario debe volver a conectarlo en Canales antes de poder usarlo de nuevo.",
       "unipileFeatureUnavailable": "Esto no está disponible en este canal. Reintentar no ayudará; se ha notificado al equipo.",
@@ -1150,7 +1235,9 @@
       },
       "record": {
         "created": "Registro creado",
-        "deleted": "Registro eliminado",
+        "deleted": "Registro movido a la papelera",
+        "deletedPermanently": "Registro eliminado definitivamente",
+        "restored": "Registro restaurado",
         "updated": "Registro actualizado"
       },
       "record_grants": {
@@ -1204,11 +1291,13 @@
         "event": "Evento",
         "firstName": "Nombre",
         "isPlatformOperator": "Operador de plataforma",
+        "kind": "Tipo",
         "lastActiveAt": "Última actividad",
         "lastMessageAt": "Última actividad",
         "lastMessageDirection": "Último mensaje",
         "lastMessageSentAt": "Fecha del último mensaje",
         "lastName": "Apellidos",
+        "list": "Lista",
         "name": "Nombre",
         "ownerUserId": "Propietario",
         "participantContactId": "Registros vinculados",
@@ -1223,6 +1312,7 @@
         "timelineThreadId": "Conversación",
         "updatedAt": "Actualizado el",
         "url": "URL",
+        "webhookId": "Webhook",
         "workspaceId": "Espacio de trabajo",
         "workspaceTags": "Etiquetas"
       },
@@ -1373,7 +1463,8 @@
     "sort": {
       "ascending": "Ascendente",
       "descending": "Descendente",
-      "field": "Ordenar por"
+      "field": "Ordenar por",
+      "manual": "Manual"
     },
     "stageProbability": "Probabilidad de la etapa",
     "systemTasks": {
@@ -1862,13 +1953,14 @@
     "boardMoveRequested": "Movimiento a {group} solicitado.",
     "boardMoveTarget": "Mover registro a {group}.",
     "boardPickedUp": "Registro seleccionado.",
+    "collapseColumn": "Contraer columna",
     "collapseGroup": "Contraer el grupo {group}",
     "dragToReorder": "Arrastrar para reordenar",
+    "expandColumn": "Expandir {name}",
     "expandGroup": "Expandir el grupo {group}",
     "groupOverflow": "Solo se muestran {count} grupos",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Sin valor",
-    "resizeBoardColumns": "Cambiar el ancho de las columnas del tablero. Arrastra o usa las flechas; toca dos veces o pulsa Intro para restablecer.",
     "resizeColumn": "Redimensiona la columna {column}. Arrastra o usa las teclas de flecha; toca dos veces o pulsa Intro para restablecer.",
     "resizeHint": "Arrastra para redimensionar. Haz doble clic para restablecer.",
     "rowActions": "Acciones de fila",
@@ -1946,6 +2038,7 @@
     "appRecords": "Registros",
     "appRoutines": "Rutinas",
     "appSearch": "Búsqueda global",
+    "appTrash": "Papelera",
     "architectureSecurity": "Arquitectura y seguridad",
     "concepts": "Conceptos clave",
     "connectCli": "CLI y editores",
@@ -2044,6 +2137,7 @@
     "overview": "Vista general",
     "personalize": "Personalizar",
     "pinField": "Fijar {field} en el resumen",
+    "pinMore": "Fijar un campo",
     "reorderInstructions": "Pulsa Espacio o Intro para seleccionar un campo. Usa las flechas para moverlo, Espacio o Intro para soltarlo y Escape para cancelar.",
     "sections": {
       "notes": "Notas"
@@ -2549,6 +2643,7 @@
     "routines": "Rutinas",
     "search": "Buscar",
     "settings": "Ajustes",
+    "trash": "Papelera",
     "wiki": "Base de conocimientos"
   },
   "NotFoundPage": {
@@ -3017,7 +3112,9 @@
         "relationship": "Elige qué registros vinculados usar.",
         "step": "Elige los valores para {operation}.",
         "sum": "Elige qué valor sumar.",
-        "take": "Elige qué valor tomar."
+        "take": "Elige qué valor tomar.",
+        "trigger": "Elige el campo que activa el guardado.",
+        "triggerValue": "Elige el valor que activa el guardado."
       },
       "moreOptions": "Más opciones",
       "of": "de",
@@ -3267,7 +3364,6 @@
       "relationshipLabel": "{label}: {source} con {target}, {cardinality}",
       "resetLayout": "Restablecer diseño",
       "showFewer": "Mostrar menos",
-      "sublistOf": "Sublista de {list}",
       "zoomIn": "Acercar",
       "zoomOut": "Alejar"
     },
@@ -3542,7 +3638,7 @@
         "singular": "Tarea"
       }
     },
-    "sublistExplanation": "Cada entrada pertenece a un registro de {parent}, se edita dentro de él, comparte su acceso y se elimina con él.",
+    "sublistSentence": "Sublista de {list} · cada entrada vive dentro de un registro de {parent}, comparte su acceso y se elimina con él.",
     "suggestedAttribute": "Sugerencia",
     "summaryAggregation": "Cálculo",
     "summaryApprovalRequired": "Este resumen está publicado. Un administrador debe aprobar los cambios en los datos usados en el cálculo.",
@@ -3573,6 +3669,14 @@
     "unlinkRecord": "Desvincular {name}",
     "updatedAt": "Actualizado el",
     "useChannelAvatar": "Usar la foto de perfil del canal",
+    "valueSource": {
+      "calculated": "Calculado · {formula}",
+      "from": "De {list} · {value}",
+      "savedOnCreate": "Se guarda al crear {list}",
+      "savedOnRequest": "Se guarda bajo petición",
+      "savedWhenChanged": "Se guarda cuando cambia {field}",
+      "savedWhenChangedTo": "Se guarda cuando {field} cambia a {value}"
+    },
     "valueType": "Tipo de valor",
     "yes": "Sí"
   },
@@ -3645,6 +3749,7 @@
   },
   "RoleModal": {
     "create": "Crear",
+    "dataModelNote": "Crear y cambiar listas, campos y relaciones en Configurar.",
     "edit": "Editar",
     "manageAccess": "Gestión",
     "ownRoleAlert": "Este rol está asignado a ti y no se puede editar. Pide a otro administrador que lo cambie.",
@@ -3696,7 +3801,8 @@
           "messageReceived": "Recibe un mensaje entrante nuevo que no sea un duplicado mediante una cuenta conectada.",
           "messageUpdated": "Edita un mensaje en el proveedor de mensajería conectado.",
           "recordCreated": "Crea un registro en Customermates: {entity}.",
-          "recordDeleted": "Elimina un registro en Customermates: {entity}.",
+          "recordDeleted": "Mover un registro a la papelera en Customermates: {entity}.",
+          "recordRestored": "Restaurar un registro de la papelera en Customermates: {entity}.",
           "recordUpdated": "Realiza un cambio efectivo en un registro de Customermates: {entity}.",
           "relationCreated": "Haz que se acepte una solicitud de conexión de LinkedIn mediante una cuenta conectada."
         },
@@ -3983,6 +4089,58 @@
     "signoff": "Un saludo,\nBen",
     "subject": "Tu cuenta está inactiva: podemos ayudarte a recuperar el acceso",
     "title": "Suscripción desactivada"
+  },
+  "Trash": {
+    "bannerDeleted": "Eliminado el {date}. {count, plural, =0 {Se elimina definitivamente hoy} one {Se elimina definitivamente en # día} other {Se elimina definitivamente en # días}}.",
+    "columns": {
+      "deletedAt": "Eliminado el",
+      "deletedBy": "Eliminado por",
+      "expiresAt": "Eliminación definitiva",
+      "kind": "Tipo"
+    },
+    "daysLeft": "{count, plural, =0 {Se elimina definitivamente hoy} one {Se elimina definitivamente en # día} other {Se elimina definitivamente en # días}}",
+    "deletedPermanently": "Eliminado definitivamente",
+    "deletePermanently": "Eliminar definitivamente",
+    "deletePermanentlyManyTitle": "¿Eliminar {count, plural, one {# elemento} other {# elementos}} definitivamente?",
+    "deletePermanentlyTitle": "¿Eliminar {name} definitivamente?",
+    "empty": "Vaciar papelera",
+    "emptyBody": "Los elementos eliminados se quedan aquí 30 días y después se eliminan definitivamente.",
+    "emptyConfirmation": "vaciar papelera",
+    "emptyTitle": "¿Vaciar la papelera?",
+    "emptyTitleState": "La papelera está vacía",
+    "inTrash": "En la papelera",
+    "kindInList": "{kind} en {list}",
+    "kinds": {
+      "channels": "Canales",
+      "dashboardView": "Vista del panel",
+      "field": "Campo",
+      "list": "Lista",
+      "record": "Registro",
+      "relationship": "Relación",
+      "routine": "Rutina",
+      "view": "Vista",
+      "widget": "Widget",
+      "wikiPage": "Página de la base de conocimiento"
+    },
+    "movedToTrash": "Movido a la papelera",
+    "movesToTrash": "Se mueve a la papelera, donde puedes restaurarlo durante 30 días.",
+    "permanentIrreversible": "Esto no se puede deshacer.",
+    "permanentMessage": "{count, plural, one {Este elemento se elimina} other {Estos # elementos se eliminan}} definitivamente.",
+    "permanentRecords": "{list}: {count, plural, one {# registro} other {# registros}}",
+    "restore": "Restaurar",
+    "restoreBlocked": {
+      "listDeleted": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque su lista está en la papelera. Restaura primero la lista.",
+      "nameTaken": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque otro elemento usa ahora su nombre o lugar.",
+      "notFound": "{count, plural, one {# elemento ya no existe y salió} other {# elementos ya no existen y salieron}} de la papelera.",
+      "parentDeleted": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque aquello a lo que pertenecen está en la papelera. Restáuralo primero.",
+      "requiresRestore": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque algo que necesitan está en la papelera. Restáuralo primero."
+    },
+    "restored": "{count, plural, one {# elemento restaurado} other {# elementos restaurados}}",
+    "restoredInBackground": "Restaurado",
+    "restoredWithDroppedLinks": "Restaurado. {count, plural, one {# vínculo no se pudo} other {# vínculos no se pudieron}} restaurar porque el registro vinculado se eliminó definitivamente.",
+    "restorePending": "Restaurando en segundo plano. La papelera muestra el progreso.",
+    "searchPlaceholder": "Buscar en la papelera",
+    "undo": "Deshacer"
   },
   "TrialExpiredOffer": {
     "body": "Tu prueba terminó hace poco, pero me encantaría ayudarte a sacarle valor real a Customermates. Si quieres, puedo ampliar tu prueba y repasar contigo tu configuración.",

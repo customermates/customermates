@@ -3,7 +3,7 @@ import type { RecordModel } from "./record-model.schema";
 import type { RecordQuery } from "./record-query.schema";
 
 import { scalarMatchesType } from "./record-model-validation";
-import { RecordSystemColumnSchema } from "./record-column.schema";
+import { MANUAL_ORDER_SORT_KEY, RecordSystemColumnSchema } from "./record-column.schema";
 import { RecordQuerySchema } from "./record-query.schema";
 import { recordFilterOperators } from "./record-filter";
 import { isTemporalRecordType, temporalFilterIsValid } from "./record-temporal-filter";
@@ -67,7 +67,7 @@ export function invalidRecordQueryPart(
       continue;
     }
     if (["contains", "startsWith"].includes(filter.operator)) {
-      if (filter.value?.kind !== "text" || !["text", "email", "phone", "url"].includes(field.valueType))
+      if (filter.value?.kind !== "text" || !["text", "email", "phone", "url", "richText"].includes(field.valueType))
         return "filters";
       continue;
     }
@@ -89,6 +89,10 @@ export function invalidRecordQueryPart(
   }
   for (const sort of query.sort) {
     if (sort.fieldId === "system:createdAt" || sort.fieldId === "system:updatedAt") continue;
+    if (sort.fieldId === MANUAL_ORDER_SORT_KEY) {
+      if (sort.direction !== "asc") return "sort";
+      continue;
+    }
     const field = fields.get(sort.fieldId);
     if (
       !field ||

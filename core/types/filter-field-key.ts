@@ -7,6 +7,7 @@ export enum FilterFieldKey {
   createdAt = "createdAt",
   event = "event",
   url = "url",
+  webhookId = "webhookId",
   status = "status",
   provider = "provider",
   state = "state",
@@ -30,4 +31,6 @@ export enum FilterFieldKey {
   firstName = "firstName",
   lastName = "lastName",
   ownerUserId = "ownerUserId",
+  kind = "kind",
+  list = "list",
 }

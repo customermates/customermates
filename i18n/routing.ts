@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 
 import { defineRouting } from "next-intl/routing";
 
-import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES } from "./locale-registry";
+import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES, buildLocalePath } from "./locale-registry";
 
 export const NOINDEX_PUBLIC_ROUTES = [
   "/auth/signin",
@@ -104,12 +104,27 @@ export const PROTECTED_ROUTES = [
   "/settings/roles",
   "/settings/webhooks",
   "/settings/webhook-deliveries",
-  "/settings/webhooks/deliveries",
   "/subscription-expired",
   "/test/error",
   "/test/overlays",
+  "/trash",
   "/wiki",
 ] as const;
+
+export const MOVED_PROTECTED_ROUTES = {
+  "/settings/webhooks/deliveries": "/settings/webhook-deliveries",
+} as const satisfies Record<string, (typeof PROTECTED_ROUTES)[number]>;
+
+export function movedProtectedRouteRedirects() {
+  return Object.entries(MOVED_PROTECTED_ROUTES).flatMap(([moved, destination]) => [
+    ...APP_LOCALES.map((locale) => ({
+      source: buildLocalePath(locale, moved),
+      destination: buildLocalePath(locale, destination),
+      permanent: true as const,
+    })),
+    { source: moved, destination: buildLocalePath(DEFAULT_LOCALE, destination), permanent: true as const },
+  ]);
+}
 
 export const CONTENT_ROUTES = [
   ...PUBLIC_ROUTES_SEO.filter((route) => !route.startsWith("/auth/")),

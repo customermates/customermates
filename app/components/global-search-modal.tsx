@@ -1,18 +1,21 @@
 "use client";
 
-import { recordSearchKey, recordSearchLabel, type RecordSearchHit } from "@/features/records/record-search.schema";
-import { recordTypeIcon } from "@/components/records/record-type-icon";
+import type { RecordSearchHit } from "@/features/records/record-search.schema";
+import type { CommandActionId, CommandEnvironment } from "@/components/keyboard/command-registry";
+import type { ListGroup } from "./command-palette/command-palette-search";
+import type { PaletteEntry, PaletteRecordContext, PaletteTranslator } from "./command-palette/palette-entries";
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { ArrowRight, CornerDownLeft, Layers, Loader2, Plus, Search, Sparkles } from "lucide-react";
+import { BookOpen, ChevronLeft, CornerDownLeft, Loader2, Search, Sparkles } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import { recordSearchKey, recordSearchLabel } from "@/features/records/record-search.schema";
+import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { Kbd, ShortcutKeys } from "@/components/keyboard/shortcut-keys";
-import { SHORTCUTS, type ShortcutId } from "@/components/keyboard/shortcut-registry";
-import { useRouter } from "@/i18n/navigation";
+import { usePathname, useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -24,22 +27,66 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { initialsFor } from "@/core/utils/initials";
+import { cn } from "@/core/utils/cn";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { useRecordEditorDeletion } from "@/app/[locale]/(protected)/records/[typeId]/components/use-record-deletion";
+import {
+  bestCandidate,
+  exactTitleMatch,
+  fuseCandidates,
+  listGroups,
+  parsePaletteQuery,
+  rankCandidates,
+  semanticBestCandidate,
+  stableOrder,
+  viewsOf,
+} from "./command-palette/command-palette-search";
+import {
+  SEMANTIC_BEST_MATCH_MARGIN,
+  SEMANTIC_BEST_MATCH_MIN_SIMILARITY,
+} from "@/features/command-palette/command-search.schema";
+import { recordEntries, staticEntries, workspaceEntries } from "./command-palette/palette-entries";
+import { RecordCommandLevel } from "./command-palette/record-command-level";
+import { useAccountActions } from "./navigation/use-account-actions";
 
-type SelectableItem = RecordSearchHit & { onSelect: () => void };
+const SECTION_LIMIT = 8;
 
-type PaletteCommand = {
-  value: string;
+type PaletteRowData = {
+  key: string;
   label: string;
-  icon: LucideIcon;
-  shortcut?: ShortcutId;
+  icon?: LucideIcon;
+  subtitle?: string;
+  entry?: PaletteEntry;
+  hit?: RecordSearchHit;
+  indent?: boolean;
   onSelect: () => void;
 };
 
-const PAGE_SHORTCUTS = SHORTCUTS.filter((entry) => entry.destination !== undefined);
+type PaletteSection = { key: string; heading?: string; rows: PaletteRowData[] };
+
+type OrderSnapshot = { term: string; sections: string[]; rows: Map<string, string[]> };
+
+function applyStableOrder(sections: PaletteSection[], previous: OrderSnapshot): PaletteSection[] {
+  const byKey = new Map(sections.map((section) => [section.key, section]));
+  return stableOrder(
+    previous.sections,
+    sections.map((section) => section.key),
+  ).flatMap((key) => {
+    const section = byKey.get(key);
+    if (!section) return [];
+    const rows = new Map(section.rows.map((row) => [row.key, row]));
+    const order = stableOrder(
+      previous.rows.get(key) ?? [],
+      section.rows.map((row) => row.key),
+    );
+    return [{ ...section, rows: order.flatMap((rowKey) => rows.get(rowKey) ?? []) }];
+  });
+}
 
 export const GlobalSearchModal = observer(() => {
   const t = useTranslations();
+  const translate: PaletteTranslator = (key, values) => t(key, values);
+  const rootStore = useRootStore();
   const {
     addPickerStore,
     agentChatEnabled,
@@ -48,21 +95,57 @@ export const GlobalSearchModal = observer(() => {
     keyboardShortcutsStore,
     navigationGuard,
     recordWorkspaceStore,
+    userStore,
     viewPickerStore,
-  } = useRootStore();
+  } = rootStore;
   const router = useRouter();
-  const { isOpen, debouncedSearchTerm, isLoading, results, recentItems } = globalSearchModalStore;
+  const pathname = usePathname();
+  const { changeTheme, signOut, inviteMembers, sendFeedback } = useAccountActions();
+  const { isOpen, debouncedSearchTerm, isLoading, results, recentItems, level } = globalSearchModalStore;
+  const activeEditor = recordWorkspaceStore.activeEditor;
+  const deletion = useRecordEditorDeletion(activeEditor);
+  const editor = isOpen ? activeEditor : null;
   const [selectedValue, setSelectedValue] = useState("");
+  const navigated = useRef(false);
+  const snapshot = useRef<OrderSnapshot>({ term: "", sections: [], rows: new Map() });
 
   useEffect(() => globalSearchModalStore.setWithUnsavedChangesGuard(false), []);
 
   const searchTerm = globalSearchModalStore.form.searchTerm ?? "";
-  const hasQuery = debouncedSearchTerm.trim().length > 0;
-  const showNoResults = hasQuery && !isLoading && results?.results.length === 0;
-
-  const query = searchTerm.trim();
+  const { scope, term } = parsePaletteQuery(searchTerm);
+  const query = scope ? term : searchTerm.trim();
+  const hasQuery = term.length > 0;
   const mateAvailable = agentChatEnabled && agentChatStore.enabled === true;
-  const matchesQuery = (label: string) => !query || label.toLocaleLowerCase().includes(query.toLocaleLowerCase());
+  const navigation = recordWorkspaceStore.navigation;
+  const currentListId = pathname.startsWith("/records/") ? pathname.split("/")[2] : undefined;
+
+  const environment: CommandEnvironment = {
+    appMode: rootStore.appMode,
+    canManageSchema: navigation?.canManageSchema ?? false,
+    onListPage: viewPickerStore.surface !== null,
+    can: (resource, action) => userStore.can(resource, action),
+  };
+  const recordContext: PaletteRecordContext | null =
+    editor?.record && !editor.isReadOnly && !editor.isBusy && !editor.hasUnsavedChanges
+      ? {
+          typeId: editor.presentation.typeId,
+          title: editor.titleText,
+          fields: editor.fields,
+          relationships: editor.presentation.model.relationships,
+          typeLabels: new Map((navigation?.types ?? []).map((type) => [type.id, type.label])),
+          canDelete: editor.presentation.permittedActions.includes("delete"),
+          canAssign:
+            !editor.record.protectedKind &&
+            !editor.presentation.model.types.find((type) => type.id === editor.presentation.typeId)?.embedded,
+        }
+      : null;
+  const contextEntries = recordEntries(translate, recordContext);
+  const entries = [
+    ...staticEntries(translate, environment),
+    ...workspaceEntries(translate, navigation, globalSearchModalStore.catalog),
+    ...contextEntries,
+  ];
+  const entryByKey = new Map(entries.map((entry) => [entry.key, entry]));
 
   const closeThen = (action: (focusReturnTarget: HTMLElement | null) => void) => {
     const focusReturnTarget = globalSearchModalStore.focusReturnTarget;
@@ -80,48 +163,54 @@ export const GlobalSearchModal = observer(() => {
       agentChatStore.submitDraft();
     });
 
-  const viewCommands: PaletteCommand[] = (viewPickerStore.surface?.options() ?? [])
-    .filter((option) => matchesQuery(option.name))
-    .map((option) => ({
-      value: `palette-view-${option.id}`,
-      label: option.name,
-      icon: Layers,
-      onSelect: () => closeThen(() => viewPickerStore.surface?.select(option.id)),
-    }));
+  const actions: Record<CommandActionId, (target: HTMLElement | null) => void> = {
+    add: (target) => addPickerStore.openFrom(target ?? document.body),
+    switchView: (target) => viewPickerStore.openFrom(target ?? document.body),
+    shortcuts: (target) => keyboardShortcutsStore.openFrom(target ?? document.body),
+    themeLight: () => changeTheme("light"),
+    themeDark: () => changeTheme("dark"),
+    themeSystem: () => changeTheme("system"),
+    inviteMembers,
+    sendFeedback: (target) => sendFeedback(target ?? document.body),
+    signOut,
+  };
 
-  const navigationCommands: PaletteCommand[] = PAGE_SHORTCUTS.flatMap((entry) => {
-    const href = entry.destination ? keyboardShortcutsStore.destinations.pages[entry.destination] : undefined;
-    const label = t(`KeyboardShortcuts.actions.${entry.id}`);
-    if (!href || !matchesQuery(label)) return [];
-    return [
-      {
-        value: `palette-go-${entry.id}`,
-        label,
-        icon: ArrowRight,
-        shortcut: entry.id,
-        onSelect: () => closeThen(() => navigationGuard.tryNavigate(() => router.push(href))),
-      },
-    ];
-  });
-
-  const addLabel = t("KeyboardShortcuts.actions.add");
-  const createCommands: PaletteCommand[] = matchesQuery(addLabel)
-    ? [
-        {
-          value: "palette-add",
-          label: addLabel,
-          icon: Plus,
-          shortcut: "add",
-          onSelect: () => closeThen((target) => addPickerStore.openFrom(target ?? document.body)),
-        },
-      ]
-    : [];
-
-  const commandGroups = [
-    { key: "views", heading: t("DataView.views.pickerTitle"), commands: viewCommands },
-    { key: "navigation", heading: t("KeyboardShortcuts.groups.navigation"), commands: navigationCommands },
-    { key: "create", heading: t("KeyboardShortcuts.groups.create"), commands: createCommands },
-  ].filter((group) => group.commands.length > 0);
+  const runEntry = (entry: PaletteEntry) => {
+    const run = entry.run;
+    if (run.kind === "level") {
+      globalSearchModalStore.pushLevel(run.level);
+      return;
+    }
+    if (!entry.key.startsWith("record:")) globalSearchModalStore.pushRecentCommand(entry.key);
+    if (run.kind === "deleteRecord") {
+      const record = editor?.record;
+      closeThen(() => {
+        if (editor && record) {
+          runUserAction(() =>
+            deletion.requestDeletion(
+              record,
+              editor.presentation.model.revision,
+              editor.titleText ?? t("RecordModel.record"),
+            ),
+          );
+        }
+      });
+      return;
+    }
+    if (run.kind === "href") {
+      const href = run.href;
+      closeThen(() => navigationGuard.tryNavigate(() => router.push(href)));
+      return;
+    }
+    if (run.kind === "create") {
+      const typeId = run.typeId;
+      const fallback = globalSearchModalStore.focusReturnFallback;
+      closeThen((target) => recordWorkspaceStore.open({ typeId }, target, fallback));
+      return;
+    }
+    const action = actions[run.action];
+    closeThen((target) => action(target));
+  };
 
   const openItem = (item: RecordSearchHit) => {
     const focusReturnTarget = globalSearchModalStore.focusReturnTarget;
@@ -139,35 +228,148 @@ export const GlobalSearchModal = observer(() => {
     );
   };
 
-  const groupedResults = useMemo((): { typeId: string; label: string; items: SelectableItem[] }[] => {
-    const source = hasQuery ? (results?.results ?? []) : recentItems;
-    if (!source.length) return [];
-    if (!hasQuery) {
-      return [
-        {
-          typeId: "recent",
-          label: t("GlobalSearch.groupRecent"),
-          items: source.map((item) => ({ ...item, onSelect: () => openRecentItem(item) })),
-        },
-      ];
-    }
-    const groups = new Map<string, { typeId: string; label: string; items: SelectableItem[] }>();
-    for (const item of source) {
-      const group = groups.get(item.ref.typeId) ?? { typeId: item.ref.typeId, label: item.typePluralLabel, items: [] };
-      group.items.push({ ...item, onSelect: () => openItem(item) });
-      groups.set(item.ref.typeId, group);
-    }
-    return [...groups.values()];
-  }, [results, recentItems, hasQuery, globalSearchModalStore, recordWorkspaceStore, t]);
+  const entryRow = (entry: PaletteEntry, indent = false): PaletteRowData => ({
+    key: entry.key,
+    label: entry.label,
+    icon: entry.icon,
+    subtitle: indent ? undefined : entry.subtitle,
+    entry,
+    indent,
+    onSelect: () => runEntry(entry),
+  });
+  const hitRow = (hit: RecordSearchHit, recent: boolean): PaletteRowData => ({
+    key: recordSearchKey(hit),
+    label: recordSearchLabel(hit, t),
+    hit,
+    onSelect: () => (recent ? openRecentItem(hit) : openItem(hit)),
+  });
+  const listRows = (group: ListGroup<PaletteEntry>) => [
+    entryRow(group.list),
+    ...group.views.map((view) => entryRow(view, true)),
+  ];
 
-  const hasItems = groupedResults.some((group) => group.items.length > 0) || commandGroups.length > 0;
-  const firstItem = groupedResults[0]?.items[0];
-  const firstValue = firstItem ? recordSearchKey(firstItem) : (commandGroups[0]?.commands[0]?.value ?? "");
+  const hits = scope === null || scope === "records" ? (results?.results ?? []) : [];
+  const instant = hasQuery || scope ? rankCandidates(term, entries, scope) : [];
+  const ranked = hasQuery ? fuseCandidates(instant, globalSearchModalStore.semantic, entries, scope) : instant;
+  const bestEntry =
+    bestCandidate(term, instant) ??
+    (hasQuery
+      ? semanticBestCandidate(globalSearchModalStore.semantic, entries, scope, {
+          minSimilarity: SEMANTIC_BEST_MATCH_MIN_SIMILARITY,
+          margin: SEMANTIC_BEST_MATCH_MARGIN,
+        })
+      : null);
+  const bestHit = !bestEntry && hits[0] && exactTitleMatch(term, recordSearchLabel(hits[0], t)) ? hits[0] : undefined;
+  const bestKey = bestEntry?.key ?? (bestHit ? recordSearchKey(bestHit) : undefined);
+  useEffect(() => {
+    globalSearchModalStore.setInstantMatcher((raw) => {
+      const parsed = parsePaletteQuery(raw);
+      return bestCandidate(parsed.term, rankCandidates(parsed.term, entries, parsed.scope)) !== null;
+    });
+  });
+  const rankedOf = (kinds: readonly string[]) =>
+    ranked.filter((entry) => kinds.includes(entry.kind) && entry.key !== bestKey).slice(0, SECTION_LIMIT);
 
-  useEffect(
-    () => setSelectedValue((current) => (isOpen && current ? firstValue : "")),
-    [firstValue, results, recentItems, isOpen],
-  );
+  const suggestions = [
+    ...contextEntries,
+    ...(currentListId && !recordContext ? [`create:${currentListId}`, "cmd:action.switchView"] : []).flatMap(
+      (key) => entryByKey.get(key) ?? [],
+    ),
+    ...(recordContext ? [] : [entryByKey.get("cmd:action.add")].filter((entry) => entry !== undefined)),
+  ];
+
+  const docsRows: PaletteRowData[] = globalSearchModalStore.docs
+    .slice(0, scope === "docs" ? undefined : 3)
+    .map((hit) => ({
+      key: hit.key,
+      label: hit.title,
+      subtitle: hit.section ?? undefined,
+      icon: BookOpen,
+      onSelect: () => closeThen(() => navigationGuard.tryNavigate(() => router.push(hit.href))),
+    }));
+  const sections: PaletteSection[] = level
+    ? []
+    : hasQuery || scope
+      ? [
+          {
+            key: "best",
+            heading: t("CommandPalette.groups.bestMatch"),
+            rows: bestEntry
+              ? [
+                  entryRow(bestEntry),
+                  ...(bestEntry.kind === "list"
+                    ? viewsOf(bestEntry.key, entries).map((view) => entryRow(view, true))
+                    : []),
+                ]
+              : bestHit
+                ? [hitRow(bestHit, false)]
+                : [],
+          },
+          {
+            key: "lists",
+            heading: t("CommandPalette.groups.listsAndViews"),
+            rows: listGroups(ranked, entries, bestKey).slice(0, 5).flatMap(listRows),
+          },
+          {
+            key: "records",
+            heading: t("CommandPalette.groups.records"),
+            rows: hits.filter((hit) => recordSearchKey(hit) !== bestKey).map((hit) => hitRow(hit, false)),
+          },
+          {
+            key: "pages",
+            heading: t("CommandPalette.groups.pagesAndSettings"),
+            rows: rankedOf(["page", "setting", "field"]).map((entry) => entryRow(entry)),
+          },
+          {
+            key: "actions",
+            heading: t("CommandPalette.groups.actions"),
+            rows: rankedOf(["action"]).map((entry) => entryRow(entry)),
+          },
+          { key: "docs", heading: t("CommandPalette.groups.docs"), rows: docsRows },
+        ]
+      : [
+          {
+            key: "recent",
+            heading: t("GlobalSearch.groupRecent"),
+            rows: [
+              ...globalSearchModalStore.recentCommandKeys.flatMap((key) => {
+                const entry = entryByKey.get(key);
+                return entry ? [entryRow(entry)] : [];
+              }),
+              ...recentItems.map((item) => hitRow(item, true)),
+            ],
+          },
+          {
+            key: "suggestions",
+            heading: t("CommandPalette.groups.suggestions"),
+            rows: suggestions.map((entry) => entryRow(entry)),
+          },
+        ];
+
+  const visibleSections = sections.filter((section) => section.rows.length > 0);
+  if (!isOpen || snapshot.current.term !== searchTerm) navigated.current = false;
+  const orderedSections = navigated.current ? applyStableOrder(visibleSections, snapshot.current) : visibleSections;
+  snapshot.current = {
+    term: searchTerm,
+    sections: orderedSections.map((section) => section.key),
+    rows: new Map(orderedSections.map((section) => [section.key, section.rows.map((row) => row.key)])),
+  };
+
+  const recordsPending = hasQuery && (isLoading || debouncedSearchTerm !== term);
+  const showAskMate = mateAvailable && !level && !(recordsPending && visibleSections.length === 0);
+  const showNoResults = hasQuery && !recordsPending && orderedSections.length === 0;
+  const firstValue = orderedSections[0]?.rows[0]?.key ?? (showAskMate ? "palette-ask-mate" : "");
+  const hasRecent = recentItems.length > 0 || globalSearchModalStore.recentCommandKeys.length > 0;
+
+  useEffect(() => {
+    if (!navigated.current) setSelectedValue((current) => (isOpen && current ? firstValue : ""));
+  }, [firstValue, isOpen, level]);
+
+  const onEscapeKeyDown = (event: KeyboardEvent) => {
+    if (!globalSearchModalStore.level) return;
+    event.preventDefault();
+    globalSearchModalStore.popLevel();
+  };
 
   return (
     <CommandDialog
@@ -177,16 +379,33 @@ export const GlobalSearchModal = observer(() => {
       focusReturnTarget={globalSearchModalStore.focusReturnTarget}
       open={isOpen}
       title={t("GlobalSearch.placeholder")}
+      onEscapeKeyDown={onEscapeKeyDown}
       onOpenChange={(next) => {
         if (!next) globalSearchModalStore.close();
       }}
     >
+      {level && (
+        <div className="flex shrink-0 items-center gap-1.5 px-3 pt-2 text-xs text-muted-foreground">
+          <ChevronLeft aria-hidden className="size-3.5" />
+
+          <span className="min-w-0 truncate">
+            {editor?.titleText ? `${editor.titleText} · ${level.label}` : level.label}
+          </span>
+        </div>
+      )}
+
       <div className="shrink-0" id="global-search-input">
         <CommandInput
           placeholder={t("GlobalSearch.placeholder")}
           value={searchTerm}
           onKeyDown={(event) => {
-            if (event.key !== "Tab" || event.shiftKey || !query || !mateAvailable) return;
+            if (event.key === "ArrowDown" || event.key === "ArrowUp") navigated.current = true;
+            if (event.key === "Backspace" && !searchTerm && globalSearchModalStore.level) {
+              event.preventDefault();
+              globalSearchModalStore.popLevel();
+              return;
+            }
+            if (event.key !== "Tab" || event.shiftKey || !query || !mateAvailable || level) return;
             event.preventDefault();
             askMate();
           }}
@@ -194,7 +413,7 @@ export const GlobalSearchModal = observer(() => {
         />
       </div>
 
-      {isLoading && (
+      {recordsPending && isLoading && (
         <div className="flex items-center gap-2 border-b border-border px-4 py-2 text-xs text-muted-foreground">
           <Loader2 className="size-3.5 shrink-0 animate-spin" />
 
@@ -203,25 +422,18 @@ export const GlobalSearchModal = observer(() => {
       )}
 
       <CommandList>
-        {mateAvailable && (
-          <CommandGroup>
-            <CommandItem value="palette-ask-mate" onSelect={askMate}>
-              <Sparkles className="size-4 shrink-0 text-muted-foreground" />
-
-              <span className="min-w-0 flex-1 truncate">
-                {query ? t("GlobalSearch.askMateWith", { question: query }) : t("AgentChat.askAi")}
-              </span>
-
-              {query ? <Kbd>Tab</Kbd> : <ShortcutKeys id="askMate" />}
-            </CommandItem>
-          </CommandGroup>
+        {level && editor && (
+          <RecordCommandLevel
+            editor={editor}
+            level={level}
+            query={searchTerm}
+            onApplied={() => globalSearchModalStore.close()}
+          />
         )}
 
-        {showNoResults && commandGroups.length === 0 && (
-          <CommandEmpty persistent>{t("GlobalSearch.noResults")}</CommandEmpty>
-        )}
+        {showNoResults && <CommandEmpty persistent>{t("GlobalSearch.noResults")}</CommandEmpty>}
 
-        {!hasQuery && recentItems.length === 0 && commandGroups.length === 0 && (
+        {!level && !hasQuery && !scope && !hasRecent && orderedSections.length === 0 && (
           <CommandEmpty persistent className="px-8 py-12">
             <div className="mx-auto flex max-w-sm flex-col items-center gap-4 text-center">
               <div className="flex size-12 items-center justify-center rounded-xl border border-border bg-muted text-muted-foreground">
@@ -237,21 +449,13 @@ export const GlobalSearchModal = observer(() => {
           </CommandEmpty>
         )}
 
-        {groupedResults.map((group, groupIdx) => (
-          <CommandGroup key={group.typeId} heading={group.label}>
-            {group.items.map((item) => (
-              <ResultRow
-                key={recordSearchKey(item)}
-                fallbackIcon={recordTypeIcon(item.icon)}
-                label={recordSearchLabel(item, t)}
-                pictureUrl={item.pictureUrl}
-                typeLabel={item.typeLabel}
-                value={recordSearchKey(item)}
-                onSelect={item.onSelect}
-              />
+        {orderedSections.map((section) => (
+          <CommandGroup key={section.key} heading={section.heading}>
+            {section.rows.map((row) => (
+              <PaletteRow key={row.key} row={row} />
             ))}
 
-            {!hasQuery && groupIdx === 0 && (
+            {section.key === "recent" && (
               <CommandItem
                 className="text-muted-foreground"
                 value="global-search-clear-recent"
@@ -260,78 +464,85 @@ export const GlobalSearchModal = observer(() => {
                 {t("Common.actions.clear")}
               </CommandItem>
             )}
-          </CommandGroup>
-        ))}
 
-        {commandGroups.map((group) => (
-          <CommandGroup key={group.key} heading={group.heading}>
-            {group.commands.map((command) => (
-              <CommandItem key={command.value} value={command.value} onSelect={command.onSelect}>
-                <command.icon className="size-4 shrink-0 text-muted-foreground" />
-
-                <span className="min-w-0 flex-1 truncate">{command.label}</span>
-
-                {command.shortcut && <ShortcutKeys id={command.shortcut} />}
+            {section.key === "records" && results?.nextCursor && (
+              <CommandItem
+                className="text-muted-foreground"
+                disabled={globalSearchModalStore.isLoadingMore}
+                value="global-search-more"
+                onSelect={() => runUserAction(globalSearchModalStore.loadMore)}
+              >
+                {globalSearchModalStore.isLoadingMore ? t("GlobalSearch.loading") : t("Common.actions.loadMore")}
               </CommandItem>
-            ))}
+            )}
           </CommandGroup>
         ))}
 
-        {hasQuery && results?.nextCursor && (
+        {showAskMate && (
           <CommandGroup>
-            <CommandItem
-              disabled={globalSearchModalStore.isLoadingMore}
-              value="global-search-more"
-              onSelect={() => runUserAction(globalSearchModalStore.loadMore)}
-            >
-              {globalSearchModalStore.isLoadingMore ? t("GlobalSearch.loading") : t("Common.actions.loadMore")}
+            <CommandItem value="palette-ask-mate" onSelect={askMate}>
+              <Sparkles className="size-4 shrink-0 text-muted-foreground" />
+
+              <span className="min-w-0 flex-1 truncate">
+                {query ? t("GlobalSearch.askMateWith", { question: query }) : t("AgentChat.askAi")}
+              </span>
+
+              {query ? <Kbd>Tab</Kbd> : <ShortcutKeys id="askMate" />}
             </CommandItem>
           </CommandGroup>
         )}
       </CommandList>
 
-      {hasItems && (
-        <div className="flex shrink-0 items-center gap-4 border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
-          <Hint label={t("GlobalSearch.hintNavigate")} symbol="↑↓" />
+      <div className="flex shrink-0 items-center gap-4 border-t border-border px-4 py-2 text-[11px] text-muted-foreground">
+        <Hint label={t("GlobalSearch.hintNavigate")} symbol="↑↓" />
 
-          <Hint label={t("GlobalSearch.hintOpen")} symbol={<CornerDownLeft className="size-3" />} />
+        <Hint label={t("GlobalSearch.hintOpen")} symbol={<CornerDownLeft className="size-3" />} />
 
-          {mateAvailable && query && <Hint label={t("GlobalSearch.hintAskMate")} symbol="Tab" />}
-        </div>
-      )}
+        {level && <Hint label={t("Common.actions.back")} symbol="Esc" />}
+
+        {mateAvailable && query && !level && <Hint label={t("GlobalSearch.hintAskMate")} symbol="Tab" />}
+      </div>
     </CommandDialog>
   );
 });
 
-function ResultRow({
-  fallbackIcon,
-  pictureUrl,
-  label,
-  typeLabel,
-  value,
-  onSelect,
-}: {
-  fallbackIcon: LucideIcon;
-  pictureUrl: string | null;
-  label: string;
-  typeLabel: string;
-  value: string;
-  onSelect: () => void;
-}) {
-  const FallbackIcon = fallbackIcon;
+function PaletteRow({ row }: { row: PaletteRowData }) {
+  const { entry, hit } = row;
+  const FallbackIcon = hit ? recordTypeIcon(hit.icon) : undefined;
+  const Icon = row.icon;
   return (
-    <CommandItem value={value} onSelect={onSelect}>
-      <Avatar>
-        {pictureUrl && <AvatarImage src={pictureUrl} />}
+    <CommandItem
+      className={cn(
+        row.indent && "pl-8",
+        entry?.destructive && "text-destructive data-[selected=true]:text-destructive",
+      )}
+      value={row.key}
+      onSelect={row.onSelect}
+    >
+      {hit && FallbackIcon ? (
+        <Avatar>
+          {hit.pictureUrl && <AvatarImage src={hit.pictureUrl} />}
 
-        <AvatarFallback className="bg-transparent">
-          {pictureUrl ? initialsFor(label) : <FallbackIcon className="size-4 text-muted-foreground" />}
-        </AvatarFallback>
-      </Avatar>
+          <AvatarFallback className="bg-transparent">
+            {hit.pictureUrl ? initialsFor(row.label) : <FallbackIcon className="size-4 text-muted-foreground" />}
+          </AvatarFallback>
+        </Avatar>
+      ) : (
+        Icon && (
+          <Icon
+            aria-hidden
+            className={cn("size-4 shrink-0", entry?.destructive ? "text-destructive" : "text-muted-foreground")}
+          />
+        )
+      )}
 
-      <span className="min-w-0 flex-1 truncate">{label}</span>
+      <span className="min-w-0 flex-1 truncate">{row.label}</span>
 
-      <span className="shrink-0 text-[11px] text-muted-foreground">{typeLabel}</span>
+      {(row.subtitle ?? hit?.typeLabel) && (
+        <span className="shrink-0 text-[11px] text-muted-foreground">{row.subtitle ?? hit?.typeLabel}</span>
+      )}
+
+      {entry?.shortcut && <ShortcutKeys id={entry.shortcut} />}
     </CommandItem>
   );
 }

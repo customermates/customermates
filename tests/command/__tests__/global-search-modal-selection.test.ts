@@ -3,6 +3,8 @@ import { recordSearchHit } from "@/tests/helpers/record-search";
 
 import type { RecordSearchResult, RecordSearchHit } from "@/features/records/record-search.schema";
 import type { Root } from "react-dom/client";
+import type { RecordNavigation } from "@/features/records/record-navigation.schema";
+import type { CommandCatalog } from "@/features/command-palette/command-catalog.schema";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
@@ -13,17 +15,25 @@ const harness = vi.hoisted(() => ({
   globalSearchModalStore: null as unknown,
   openEntity: vi.fn(),
   mateEnabled: false,
-  pages: {} as Record<string, string>,
+  navigation: null as RecordNavigation | null,
   openWithDraft: vi.fn(),
   submitDraft: vi.fn(),
   push: vi.fn(),
 }));
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
+vi.mock("@/app/components/navigation/use-account-actions", () => ({
+  useAccountActions: () => ({ changeTheme: vi.fn(), signOut: vi.fn(), inviteMembers: vi.fn(), sendFeedback: vi.fn() }),
+}));
+vi.mock("@/app/components/command-palette/record-command-level", () => ({ RecordCommandLevel: () => null }));
+vi.mock("@/app/[locale]/(protected)/records/[typeId]/components/use-record-deletion", () => ({
+  useRecordEditorDeletion: () => ({ requestDeletion: vi.fn() }),
+}));
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
+    appMode: "cloud",
     globalSearchModalStore: harness.globalSearchModalStore,
-    recordWorkspaceStore: { open: harness.openEntity },
+    recordWorkspaceStore: { open: harness.openEntity, activeEditor: null, navigation: harness.navigation },
     addPickerStore: { openFrom: vi.fn() },
     agentChatEnabled: harness.mateEnabled,
     agentChatStore: {
@@ -32,12 +42,15 @@ vi.mock("@/core/stores/root-store.provider", () => ({
       openWithDraft: harness.openWithDraft,
       submitDraft: harness.submitDraft,
     },
-    keyboardShortcutsStore: { destinations: { pages: harness.pages, lists: [] } },
+    companyInviteModalStore: { open: vi.fn(), generateInviteLink: vi.fn() },
+    feedbackModalStore: { openFrom: vi.fn(), onInitOrRefresh: vi.fn() },
+    keyboardShortcutsStore: { openFrom: vi.fn() },
     navigationGuard: { tryNavigate: (navigate: () => void) => navigate() },
+    userStore: { can: () => true, updateTheme: vi.fn() },
     viewPickerStore: { surface: null },
   }),
 }));
-vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: harness.push }) }));
+vi.mock("@/i18n/navigation", () => ({ useRouter: () => ({ push: harness.push }), usePathname: () => "/dashboard" }));
 import { GlobalSearchModal } from "@/app/components/global-search-modal";
 
 const ALEXEJ = recordSearchHit("contact", "10000000-0000-4000-8000-000000000001", "Alexej Sofr");
@@ -56,12 +69,21 @@ function searchStore(recentItems: RecordSearchHit[]) {
       debouncedSearchTerm: "",
       results: null as RecordSearchResult | null,
       recentItems,
+      recentCommandKeys: [] as string[],
+      catalog: null as CommandCatalog | null,
+      semantic: [] as { key: string; similarity: number }[],
+      docs: [] as { key: string; title: string; section: string | null; href: string; similarity: number }[],
+      level: null,
       form: { searchTerm: "" },
       focusReturnTarget: null,
       focusReturnFallback: null,
       clearRecentItems: vi.fn(),
       close: vi.fn(),
       pushRecentItem: vi.fn(),
+      pushRecentCommand: vi.fn(),
+      setInstantMatcher: vi.fn(),
+      pushLevel: vi.fn(),
+      popLevel: vi.fn(),
       setWithUnsavedChangesGuard: vi.fn(),
       verifyRecentItem: vi.fn(() => Promise.resolve(true)),
       onChange(_key: string, value: string) {
@@ -73,6 +95,10 @@ function searchStore(recentItems: RecordSearchHit[]) {
       close: false,
       onChange: action,
       pushRecentItem: false,
+      pushRecentCommand: false,
+      setInstantMatcher: false,
+      pushLevel: false,
+      popLevel: false,
       setWithUnsavedChangesGuard: false,
       verifyRecentItem: false,
     },
@@ -123,7 +149,7 @@ beforeEach(() => {
   harness.submitDraft.mockReset();
   harness.push.mockReset();
   harness.mateEnabled = false;
-  harness.pages = {};
+  harness.navigation = null;
   container = document.createElement("div");
   document.body.append(container);
   reactRoot = createRoot(container);
@@ -224,18 +250,15 @@ describe("GlobalSearchModal highlighted hit", () => {
     expectHighlighted("Amin Hassan");
   });
 
-  it("puts Ask Mate on top, hands the typed question over with Tab and lists pages with their keys", async () => {
+  it("keeps Ask Mate as the last fallback row and hands the typed question over with Tab", async () => {
     harness.mateEnabled = true;
-    harness.pages = { dashboard: "/dashboard" };
     const store = await openWith([]);
     const options = () => [...document.querySelectorAll<HTMLElement>("[cmdk-item]")].map((item) => item.textContent);
 
-    expect(options()[0]).toContain("AgentChat.askAi");
-    expect(options().some((text) => text?.includes("KeyboardShortcuts.actions.goDashboard"))).toBe(true);
-    expect(document.querySelector('[data-shortcut="goDashboard"]')).not.toBeNull();
+    expect(options().at(-1)).toContain("AgentChat.askAi");
 
     await showResults(store, "who owns BMW", [TUI]);
-    expect(options()[0]).toContain("GlobalSearch.askMateWith");
+    expect(options().at(-1)).toContain("GlobalSearch.askMateWith");
     expectHighlighted("TUI");
 
     press("Tab");
@@ -243,5 +266,62 @@ describe("GlobalSearchModal highlighted hit", () => {
     expect(harness.openWithDraft).toHaveBeenCalledWith("who owns BMW");
     expect(harness.submitDraft).toHaveBeenCalledOnce();
     expect(store.close).toHaveBeenCalled();
+  });
+
+  it("shows a list with its views indented as the best match and opens a view with arrow down", async () => {
+    const deals = "30000000-0000-4000-8000-000000000001";
+    harness.navigation = {
+      companyId: "30000000-0000-4000-8000-000000000009",
+      schemaRevision: 1,
+      canManageSchema: false,
+      types: [{ id: deals, label: "Deal", pluralLabel: "Deals", icon: "handshake", canCreate: false, hasAuthorizationTasks: false }],
+    };
+    const store = await openWith([]);
+    await mutate(() => {
+      store.catalog = {
+        schemaRevision: 1,
+        views: [
+          { typeId: deals, id: "view-open", name: "Open pipeline" },
+          { typeId: deals, id: "view-won", name: "Won this quarter" },
+        ],
+        fields: [],
+      };
+    });
+    await showResults(store, "deals", []);
+
+    const best = document.querySelector('[cmdk-group-heading]');
+    expect(best?.textContent).toBe("CommandPalette.groups.bestMatch");
+    expectHighlighted("Deals");
+
+    press("ArrowDown");
+    expectHighlighted("Open pipeline");
+    press("Enter");
+
+    expect(harness.push).toHaveBeenCalledWith(`/records/${deals}?view=view-open&focus=view%3Aview-open`);
+    expect(store.pushRecentCommand).toHaveBeenCalledWith("view:view-open");
+  });
+
+  it("does not reorder rows the person is arrowing through when records arrive late", async () => {
+    harness.navigation = {
+      companyId: "30000000-0000-4000-8000-000000000009",
+      schemaRevision: 1,
+      canManageSchema: false,
+      types: [],
+    };
+    const store = await openWith([]);
+    for (const length of [1, 2, 3, 4]) await settle(() => store.onChange("searchTerm", "dash".slice(0, length)));
+    const before = [...document.querySelectorAll<HTMLElement>("[cmdk-item]")].map((item) => item.textContent);
+    press("ArrowDown");
+    const highlighted = selectedOption()?.textContent;
+
+    await mutate(() => {
+      store.debouncedSearchTerm = "dash";
+      store.results = { results: [TUI], schemaRevision: 1, nextCursor: null };
+    });
+
+    const after = [...document.querySelectorAll<HTMLElement>("[cmdk-item]")].map((item) => item.textContent);
+    expect(after.slice(0, before.length)).toEqual(before);
+    expect(after.at(-1)).toContain("TUI");
+    expect(selectedOption()?.textContent).toBe(highlighted);
   });
 });

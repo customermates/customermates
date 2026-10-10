@@ -246,7 +246,7 @@ test("edits every field type inline in rows and on board cards, with validation,
   await expect(row.locator("[data-calculated-field]")).toHaveCount(1);
   await expect(row.getByRole("button", { name: "Edit Double", exact: true })).toHaveCount(0);
   await row.locator("[data-calculated-field]").hover();
-  await expect(page.getByRole("tooltip")).toContainText("Calculated: (Number × 2)");
+  await expect(page.getByRole("tooltip")).toContainText("Calculated: Number × 2");
 
   const tabbed = await openInPlace("Text");
   await tabbed.fill("Tabbed text");
@@ -380,7 +380,7 @@ test("board cards show one chip row with icons, hide empty and grouped values an
   await chip("Money").hover();
   await expect(page.getByRole("tooltip", { name: "Money", exact: true })).toBeVisible();
   await chip("Double").hover();
-  await expect(page.getByRole("tooltip", { name: "Calculated: (Number × 2)", exact: true })).toBeVisible();
+  await expect(page.getByRole("tooltip", { name: "Calculated: Number × 2", exact: true })).toBeVisible();
 
   const editor = page.locator('[data-slot="popover-content"][data-state="open"]').last();
   await chip("Money").getByRole("button", { name: "Edit Money", exact: true }).click();
@@ -405,9 +405,8 @@ test("board cards show one chip row with icons, hide empty and grouped values an
   expect(errors).toEqual([]);
 });
 
-test("board columns keep a one-line header and a persisted, keyboard-resizable width", async ({
+test("board columns keep a one-line header, one fixed width and collapse into strips", async ({
   page,
-  database,
   companyId,
 }, testInfo) => {
   await page.setViewportSize({ width: 720, height: 900 });
@@ -431,32 +430,27 @@ test("board columns keep a one-line header and a persisted, keyboard-resizable w
   await page.locator("#records-layout-board").click();
   if (testInfo.project.name === "mobile") await page.locator('[data-slot="drawer-close"]').click();
   else await page.keyboard.press("Escape");
-  const lane = page.locator("[data-group-key]").first();
+  const lanes = page.locator("[data-group-key]:not([data-kanban-strip])");
+  const lane = lanes.first();
   await expect(lane).toBeVisible();
   const header = lane.locator("div").first();
-  const lineHeight = (await header.boundingBox())!.height;
-  expect(lineHeight).toBeLessThan(44);
-  const before = (await lane.boundingBox())!.width;
-  const handle = page.locator('[data-slot="column-resize-handle"]').first();
-  await handle.focus();
-  await page.keyboard.press("Shift+ArrowRight");
-  await expect.poll(async () => (await lane.boundingBox())!.width).toBe(before + 30);
-  const storedWidth = async () => {
-    const result = await database.query('SELECT "columnWidths" FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2', [
-      companyId,
-      `records:${typeId}`,
-    ]);
-    return result.rows[0]?.columnWidths?.["board:lanes"];
-  };
-  await expect.poll(storedWidth).toBe(before + 30);
-  await page.reload();
-  await expect(page.locator("[data-group-key]").first()).toBeVisible();
-  await expect.poll(async () => (await page.locator("[data-group-key]").first().boundingBox())!.width).toBe(before + 30);
-  const laneWidth = async () => (await page.locator("[data-group-key]").first().boundingBox())!.width;
-  await expect(async () => {
-    await page.locator('[data-slot="column-resize-handle"]').first().focus();
-    await page.keyboard.press("Enter");
-    await expect.poll(laneWidth, { timeout: 2000 }).toBe(before);
-  }).toPass({ timeout: 20000 });
-  await expect.poll(storedWidth).toBeUndefined();
+  expect((await header.boundingBox())!.height).toBeLessThan(44);
+  await expect(page.locator('[data-slot="column-resize-handle"]')).toHaveCount(0);
+  const widths = await lanes.evaluateAll((elements) =>
+    elements.map((element) => element.getBoundingClientRect().width),
+  );
+  expect(new Set(widths).size).toBe(1);
+
+  const groupKey = await lane.getAttribute("data-group-key");
+  const laneCount = await lanes.count();
+  await lane.hover();
+  await lane.getByRole("button", { name: /^More actions for / }).click();
+  await page.getByRole("menuitem", { name: "Collapse column", exact: true }).click();
+  const strip = page.locator(`[data-kanban-strip][data-group-key="${groupKey}"]`);
+  await expect(strip).toBeVisible();
+  await expect(lanes).toHaveCount(laneCount - 1);
+  expect((await strip.boundingBox())!.width).toBeLessThan(48);
+  await strip.click();
+  await expect(strip).toHaveCount(0);
+  await expect(lanes).toHaveCount(laneCount);
 });

@@ -23,8 +23,7 @@ import type { RecordAccessMap, RecordQuery, RecordReadScope } from "./record-que
 import type { RecordGroupingResult } from "./record-grouping.schema";
 import type { RecordMeasure } from "./record-measure.schema";
 import type { MeasureRow } from "./record-measure";
-import type { RecordSearch } from "./record-search.schema";
-import type { RecordSearchRow } from "./record-search-query";
+import type { RecordSearchRequest, RecordSearchRow } from "./record-search-query";
 import type { RecordIdentity, RecordIdentityInput } from "./record-identity.schema";
 import type { RecordDetailLayout } from "./record-detail-layout.schema";
 import type { RecordRevisionChange } from "./record-revision.schema";
@@ -42,6 +41,21 @@ export type ConfigurationConsumerCleanup =
   | { kind: "view" | "personalLayout"; id: string; state: DataViewState }
   | { kind: "detailLayout"; id: string; layout: RecordDetailLayout }
   | { kind: "widget"; id: string; measure: RecordMeasure };
+
+export type RecordTrashItem = {
+  id: string;
+  typeId: string;
+  targetId: string;
+  label: string;
+  batchId: string;
+  deletedById: string | null;
+  deletedAt: Date;
+  expiresAt: Date;
+  payload: Prisma.JsonValue;
+};
+export type RecordTrashItemInput = Omit<RecordTrashItem, "deletedAt" | "expiresAt" | "payload">;
+export type TrashedRecordLink = { id: string; relationId: string; source: RecordRef; target: RecordRef };
+export type TrashReadOptions = { includeTrash?: boolean };
 
 export type StoredRecord = CrmRecord & {
   values: RecordValue[];
@@ -61,6 +75,8 @@ export interface RecordActorRepo {
   getCurrentRecordActorCompanyWide(): Promise<RecordActor | null>;
   findRecordAssigneesCompanyWide(ids: string[]): Promise<string[]>;
 }
+
+export type RecordPlacement = { afterRecordId?: string; beforeRecordId?: string };
 
 export interface RecordRepo {
   getIdentitiesCompanyWide(ref: RecordRef): Promise<RecordIdentity[]>;
@@ -97,11 +113,7 @@ export interface RecordRepo {
   setIdentities(ref: RecordRef, inputs: RecordIdentityInput[]): Promise<void>;
   getLastFieldWritersCompanyWide(targets: Array<{ ref: RecordRef; fieldId: string }>): Promise<Map<string, string>>;
   getModel(): Promise<RecordModel>;
-  searchRecords(
-    request: { search: RecordSearch; includeEmbedded?: boolean } | { refs: RecordRef[] },
-    model: RecordModel,
-    access: RecordAccessMap,
-  ): Promise<RecordSearchRow[]>;
+  searchRecords(request: RecordSearchRequest, model: RecordModel, access: RecordAccessMap): Promise<RecordSearchRow[]>;
   getViewStatesCompanyWide(
     typeIds: string[],
     afterKey?: string,
@@ -132,8 +144,9 @@ export interface RecordRepo {
   validateRelationshipCardinality(model: RecordModel): Promise<string[]>;
   saveModel(model: RecordModel, actorId: string, change?: RecordRevisionChange): Promise<void>;
   setGrants(typeId: string, grants: Array<{ roleId: string; actions: Action[] }>): Promise<void>;
-  getRecordCompanyWide(ref: RecordRef): Promise<StoredRecord | null>;
-  getRecordsCompanyWide(refs: RecordRef[]): Promise<StoredRecord[]>;
+  getRecordCompanyWide(ref: RecordRef, options?: TrashReadOptions): Promise<StoredRecord | null>;
+  lockRecord(ref: RecordRef): Promise<void>;
+  getRecordsCompanyWide(refs: RecordRef[], options?: TrashReadOptions): Promise<StoredRecord[]>;
   getEmbeddedChildrenCompanyWide(
     typeId: string,
     parentRelationId: string,
@@ -141,7 +154,12 @@ export interface RecordRepo {
     afterId: string | undefined,
     take: number,
   ): Promise<StoredRecord[]>;
-  getRecordRefsCompanyWide(typeId: string, afterId?: string, take?: number): Promise<RecordRef[]>;
+  getRecordRefsCompanyWide(
+    typeId: string,
+    afterId?: string,
+    take?: number,
+    options?: TrashReadOptions,
+  ): Promise<RecordRef[]>;
   query(
     query: RecordQuery,
     model: RecordModel,
@@ -176,7 +194,22 @@ export interface RecordRepo {
   measure(measure: RecordMeasure, model: RecordModel, access: RecordAccessMap): Promise<MeasureRow[]>;
   create(ref: RecordRef, assignedUserIds: string[]): Promise<void>;
   touch(ref: RecordRef): Promise<void>;
+  placeRecord(ref: RecordRef, placement: RecordPlacement, groupFieldId: string | null): Promise<boolean>;
   delete(ref: RecordRef): Promise<void>;
+  moveToTrash(ref: RecordRef, trashItemId: string): Promise<void>;
+  addTrashItems(items: RecordTrashItemInput[]): Promise<void>;
+  getRecordTrashItemsCompanyWide(selection: { ids: string[] } | { batchId: string }): Promise<RecordTrashItem[]>;
+  getTrashedRecordRefsCompanyWide(trashItemIds: string[], take: number): Promise<RecordRef[]>;
+  getTrashedLinksCompanyWide(refs: RecordRef[], take: number): Promise<TrashedRecordLink[]>;
+  getTrashedParentCompanyWide(ref: RecordRef, relationId: string): Promise<RecordRef | null>;
+  restoreRecords(refs: RecordRef[]): Promise<void>;
+  restoreLink(id: string): Promise<void>;
+  dropTrashedLink(id: string): Promise<void>;
+  removeTrashItems(ids: string[]): Promise<void>;
+  purgeTrashItems(ids: string[]): Promise<RecordRef[]>;
+  countTrashedRecordsCompanyWide(
+    trashItemIds: string[],
+  ): Promise<{ records: Array<{ typeId: string; count: number }>; links: number }>;
   setAssignments(ref: RecordRef, userIds: string[]): Promise<void>;
   getMembersCompanyWide(userIds: string[]): Promise<RecordMember[]>;
   setValue(ref: RecordRef, fieldId: string, result: CalculatedValue, revision: number): Promise<void>;
@@ -199,8 +232,8 @@ export interface RecordRepo {
       target: RecordRef;
     }>
   >;
-  getPendingDeletionRef(operationId: string): Promise<RecordRef | null>;
-  queueDeletionRef(operationId: string, ref: RecordRef): Promise<void>;
+  getPendingDeletionRef(operationId: string): Promise<{ ref: RecordRef; root: string } | null>;
+  queueDeletionRef(operationId: string, ref: RecordRef, root: string): Promise<void>;
   completeDeletionRef(operationId: string, ref: RecordRef): Promise<void>;
   getStagedDeletionStatus(
     operationId: string,
@@ -231,7 +264,7 @@ export interface RecordRepo {
   saveReceipt(key: string, userId: string, hash: string, result: unknown): Promise<void>;
   appendEvent(
     ref: RecordRef,
-    actorId: string,
+    actorId: string | null,
     causeId: string,
     kind: string,
     payload: unknown,
@@ -277,6 +310,7 @@ export interface RecordRepo {
     typeId: string,
     afterId?: string,
     take?: number,
+    options?: TrashReadOptions,
   ): Promise<RecordRef[]>;
   linkedStageRecordsCompanyWide(
     operationId: string,

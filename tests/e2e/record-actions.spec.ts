@@ -223,8 +223,12 @@ test("linked record chips collapse into a +N stack so rows and cards keep one he
     .filter({ hasText: /^\+\d+$/ });
   await expect(more).toHaveCount(1);
   await expect(more).toBeVisible();
-  const visible = await organizations.locator('[data-chip-id]:not([aria-hidden="true"] *)').count();
-  await expect(more).toHaveText(`+${8 - visible}`);
+  await expect
+    .poll(async () => {
+      const shown = await organizations.locator('[data-chip-id]:not([aria-hidden="true"] *)').count();
+      return shown + Number((await more.innerText()).slice(1));
+    })
+    .toBe(8);
   const [crowdedBox, quietBox] = await Promise.all([crowdedRow.boundingBox(), quietRow.boundingBox()]);
   expect(Math.abs(crowdedBox!.height - quietBox!.height)).toBeLessThan(2);
   await organizations.click();

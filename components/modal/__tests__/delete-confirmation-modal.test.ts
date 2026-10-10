@@ -133,6 +133,27 @@ describe("DeleteConfirmationModal submission boundary", () => {
   });
 });
 
+describe("moving to Trash", () => {
+  it("hands a trash batch to the shared Undo toast instead of the plain success toast", async () => {
+    const announceMovedToTrash = vi.fn();
+    const onRestored = vi.fn();
+    const modal = new DeleteConfirmationModalStore({
+      localeStore: { getTranslation: (key: string) => key },
+      registerModalStore: vi.fn(),
+      trashStore: { announceMovedToTrash },
+    } as unknown as RootStore);
+    modal.openWith({ onConfirm: () => Promise.resolve({ trashBatchId: "batch-1" }), onRestored });
+
+    await modal.onSubmit();
+
+    expect(modal.isOpen).toBe(false);
+    expect(toastSuccess).not.toHaveBeenCalled();
+    expect(announceMovedToTrash).toHaveBeenCalledExactlyOnceWith({ trashBatchId: "batch-1" }, expect.any(Function));
+    announceMovedToTrash.mock.calls[0][1]();
+    expect(onRestored).toHaveBeenCalledOnce();
+  });
+});
+
 describe("delete confirmation ownership", () => {
   function store() {
     return new DeleteConfirmationModalStore({

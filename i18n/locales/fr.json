@@ -830,6 +830,89 @@
     "liveDemoTitle": "Démo en direct de Customermates",
     "open": "Ouvrir dans un nouvel onglet"
   },
+  "CommandPalette": {
+    "fieldOf": "Champ de {list}",
+    "groups": {
+      "actions": "Actions",
+      "bestMatch": "Meilleur résultat",
+      "docs": "Documentation",
+      "listsAndViews": "Listes et vues",
+      "pagesAndSettings": "Pages et paramètres",
+      "records": "Enregistrements",
+      "suggestions": "Suggestions"
+    },
+    "labels": {
+      "addRole": "Ajouter un rôle",
+      "addWebhook": "Ajouter un webhook",
+      "connectChannel": "Connecter un canal",
+      "createApiKey": "Créer une clé API",
+      "themeDark": "Passer au thème sombre",
+      "themeLight": "Passer au thème clair",
+      "themeSystem": "Utiliser le thème du système"
+    },
+    "record": {
+      "addTo": "Ajouter à {list}…",
+      "assign": "Attribuer à…",
+      "change": "Modifier {field}…",
+      "deleteNamed": "Supprimer {name}"
+    },
+    "synonyms": {
+      "action": {
+        "add": "nouveau, créer, nouvel enregistrement",
+        "inviteMembers": "ajouter un utilisateur, inviter un collègue, équipe",
+        "sendFeedback": "signaler un problème, suggestion, support",
+        "shortcuts": "raccourcis, touches, clavier",
+        "signOut": "déconnexion, logout, quitter",
+        "switchView": "changer de vue, vues enregistrées",
+        "themeDark": "mode sombre, mode nuit",
+        "themeLight": "mode clair",
+        "themeSystem": "thème automatique, suivre le système"
+      },
+      "page": {
+        "configure": "modèle de données, schéma, listes, champs, relations",
+        "dashboard": "accueil, aperçu, widgets, graphiques",
+        "documentation": "docs, aide, guide, manuel",
+        "inbox": "messages, e-mail, courriel, conversations, discussions",
+        "knowledgeBase": "wiki, notes, fiches, articles",
+        "routines": "automatisations, planifications, tâches récurrentes",
+        "settings": "préférences, options, compte, espace de travail"
+      },
+      "setting": {
+        "apiKeys": {
+          "create": "nouvelle clé API, générer un jeton"
+        },
+        "channels": {
+          "connect": "connecter un e-mail, ajouter un compte, LinkedIn, WhatsApp"
+        },
+        "profile": {
+          "avatarUrl": "photo de profil, photo, image",
+          "country": "emplacement, région",
+          "displayLanguage": "langue, langue de l'interface, traduction",
+          "firstName": "nom, prénom",
+          "formattingLocale": "format de date, format des nombres, région",
+          "lastName": "nom de famille",
+          "theme": "apparence, mode sombre, mode clair, couleurs"
+        },
+        "roles": {
+          "create": "nouveau rôle, permissions"
+        },
+        "webhooks": {
+          "create": "nouveau webhook"
+        }
+      },
+      "settings": {
+        "activity": "journal d'audit, historique, modifications",
+        "api-keys": "jetons, API, MCP, développeur, clés d'accès",
+        "billing": "forfait, abonnement, factures, paiement, tarifs",
+        "channels": "comptes connectés, comptes e-mail, LinkedIn, WhatsApp, intégrations",
+        "members": "équipe, utilisateurs, personnes, collègues",
+        "profile": "mon profil, compte, préférences, personnel",
+        "roles": "permissions, accès, droits",
+        "webhook-deliveries": "livraisons de webhook, journal des webhooks, événements envoyés",
+        "webhooks": "intégrations, rappels, événements, HTTP"
+      }
+    }
+  },
   "Common": {
     "actions": {
       "add": "Ajouter",
@@ -1070,6 +1153,8 @@
       "subjectRequired": "Ajoutez un objet.",
       "termsNotAgreed": "Vous devez accepter les conditions générales.",
       "threadNotFound": "ID de conversation introuvable ou inaccessible.",
+      "trashChanged": "La corbeille a changé entre-temps. Vérifiez ce qui sera supprimé et réessayez.",
+      "trashItemNotFound": "Cet élément n’est plus dans la corbeille.",
       "unipileAccountRestricted": "Le fournisseur a restreint ce canal. Le reconnecter ne résoudra rien ; réglez d’abord la restriction auprès du fournisseur.",
       "unipileDisconnectedAccount": "Le canal est déconnecté. Son propriétaire doit le reconnecter dans Canaux avant qu’il soit à nouveau utilisable.",
       "unipileFeatureUnavailable": "Ce n'est pas disponible sur ce canal. Réessayer n'aidera pas ; l'équipe a été prévenue.",
@@ -1150,7 +1235,9 @@
       },
       "record": {
         "created": "Fiche créée",
-        "deleted": "Fiche supprimée",
+        "deleted": "Enregistrement placé dans la corbeille",
+        "deletedPermanently": "Enregistrement supprimé définitivement",
+        "restored": "Enregistrement restauré",
         "updated": "Fiche mise à jour"
       },
       "record_grants": {
@@ -1204,11 +1291,13 @@
         "event": "Évènement",
         "firstName": "Prénom",
         "isPlatformOperator": "Opérateur de plateforme",
+        "kind": "Type",
         "lastActiveAt": "Dernière activité",
         "lastMessageAt": "Dernière activité",
         "lastMessageDirection": "Dernier message",
         "lastMessageSentAt": "Date du dernier message",
         "lastName": "Nom de famille",
+        "list": "Liste",
         "name": "Nom",
         "ownerUserId": "Propriétaire",
         "participantContactId": "Fiches liées",
@@ -1223,6 +1312,7 @@
         "timelineThreadId": "Conversation",
         "updatedAt": "Mis à jour le",
         "url": "URL",
+        "webhookId": "Webhook",
         "workspaceId": "Espace de travail",
         "workspaceTags": "Étiquettes"
       },
@@ -1373,7 +1463,8 @@
     "sort": {
       "ascending": "Croissant",
       "descending": "Décroissant",
-      "field": "Trier par"
+      "field": "Trier par",
+      "manual": "Manuel"
     },
     "stageProbability": "Probabilité de l'étape",
     "systemTasks": {
@@ -1862,13 +1953,14 @@
     "boardMoveRequested": "Déplacement vers {group} demandé.",
     "boardMoveTarget": "Déplacer l’enregistrement vers {group}.",
     "boardPickedUp": "Enregistrement saisi.",
+    "collapseColumn": "Réduire la colonne",
     "collapseGroup": "Réduire le groupe {group}",
     "dragToReorder": "Faire glisser pour réorganiser",
+    "expandColumn": "Développer {name}",
     "expandGroup": "Développer le groupe {group}",
     "groupOverflow": "Seuls {count} groupes sont affichés",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Aucune valeur",
-    "resizeBoardColumns": "Redimensionner les colonnes du tableau. Faites glisser ou utilisez les flèches ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
     "resizeColumn": "Redimensionnez la colonne « {column} ». Faites glisser ou utilisez les touches fléchées ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
     "resizeHint": "Faites glisser pour redimensionner. Double-cliquez pour réinitialiser.",
     "rowActions": "Actions de ligne",
@@ -1946,6 +2038,7 @@
     "appRecords": "Enregistrements",
     "appRoutines": "Routines",
     "appSearch": "Recherche globale",
+    "appTrash": "Corbeille",
     "architectureSecurity": "Architecture et sécurité",
     "concepts": "Concepts clés",
     "connectCli": "CLI et éditeurs",
@@ -2044,6 +2137,7 @@
     "overview": "Vue d’ensemble",
     "personalize": "Personnaliser",
     "pinField": "Épingler {field} dans l’aperçu",
+    "pinMore": "Épingler un champ",
     "reorderInstructions": "Appuyez sur Espace ou Entrée pour saisir un champ. Utilisez les flèches pour le déplacer, Espace ou Entrée pour le déposer et Échap pour annuler.",
     "sections": {
       "notes": "Notes"
@@ -2549,6 +2643,7 @@
     "routines": "Routines",
     "search": "Rechercher",
     "settings": "Paramètres",
+    "trash": "Corbeille",
     "wiki": "Base de connaissances"
   },
   "NotFoundPage": {
@@ -3017,7 +3112,9 @@
         "relationship": "Choisissez les enregistrements liés à utiliser.",
         "step": "Choisissez les valeurs pour {operation}.",
         "sum": "Choisissez la valeur à additionner.",
-        "take": "Choisissez la valeur à reprendre."
+        "take": "Choisissez la valeur à reprendre.",
+        "trigger": "Choisissez le champ qui déclenche l'enregistrement.",
+        "triggerValue": "Choisissez la valeur qui déclenche l'enregistrement."
       },
       "moreOptions": "Plus d'options",
       "of": "de",
@@ -3267,7 +3364,6 @@
       "relationshipLabel": "{label} : {source} vers {target}, {cardinality}",
       "resetLayout": "Réinitialiser la disposition",
       "showFewer": "Afficher moins",
-      "sublistOf": "Sous-liste de {list}",
       "zoomIn": "Zoom avant",
       "zoomOut": "Zoom arrière"
     },
@@ -3542,7 +3638,7 @@
         "singular": "Tâche"
       }
     },
-    "sublistExplanation": "Chaque entrée appartient à un élément {parent}, se modifie à l’intérieur, partage ses accès et est supprimée avec lui.",
+    "sublistSentence": "Sous-liste de {list} · chaque entrée vit dans un élément {parent}, partage ses accès et est supprimée avec lui.",
     "suggestedAttribute": "Suggestion",
     "summaryAggregation": "Calcul",
     "summaryApprovalRequired": "Ce résumé est publié. Un administrateur doit approuver les modifications des données utilisées dans le calcul.",
@@ -3573,6 +3669,14 @@
     "unlinkRecord": "Dissocier {name}",
     "updatedAt": "Mis à jour le",
     "useChannelAvatar": "Utiliser la photo de profil du canal",
+    "valueSource": {
+      "calculated": "Calculé · {formula}",
+      "from": "Depuis {list} · {value}",
+      "savedOnCreate": "Enregistré à la création de {list}",
+      "savedOnRequest": "Enregistré sur demande",
+      "savedWhenChanged": "Enregistré quand {field} change",
+      "savedWhenChangedTo": "Enregistré quand {field} passe à {value}"
+    },
     "valueType": "Type de valeur",
     "yes": "Oui"
   },
@@ -3645,6 +3749,7 @@
   },
   "RoleModal": {
     "create": "Créer",
+    "dataModelNote": "Créer et modifier des listes, des champs et des relations dans Configurer.",
     "edit": "Modifier",
     "manageAccess": "Gérer",
     "ownRoleAlert": "Ce rôle vous est attribué et ne peut pas être modifié. Demandez à un autre administrateur de le modifier.",
@@ -3696,7 +3801,8 @@
           "messageReceived": "Recevez un nouveau message entrant non dupliqué via un compte connecté.",
           "messageUpdated": "Modifiez un message chez le fournisseur de messagerie connecté.",
           "recordCreated": "Créez un enregistrement dans Customermates : {entity}.",
-          "recordDeleted": "Supprimez un enregistrement dans Customermates : {entity}.",
+          "recordDeleted": "Placer un enregistrement dans la corbeille dans Customermates : {entity}.",
+          "recordRestored": "Restaurer un enregistrement depuis la corbeille dans Customermates : {entity}.",
           "recordUpdated": "Apportez une véritable modification à un enregistrement dans Customermates : {entity}.",
           "relationCreated": "Faites accepter une demande de connexion LinkedIn via un compte connecté."
         },
@@ -3983,6 +4089,58 @@
     "signoff": "Cordialement,\nBen",
     "subject": "Votre compte est inactif : nous pouvons vous aider à rétablir l'accès",
     "title": "Abonnement désactivé"
+  },
+  "Trash": {
+    "bannerDeleted": "Supprimé le {date}. {count, plural, =0 {Supprimé définitivement aujourd'hui} one {Supprimé définitivement dans # jour} other {Supprimé définitivement dans # jours}}.",
+    "columns": {
+      "deletedAt": "Supprimé le",
+      "deletedBy": "Supprimé par",
+      "expiresAt": "Suppression définitive",
+      "kind": "Type"
+    },
+    "daysLeft": "{count, plural, =0 {Supprimé définitivement aujourd'hui} one {Supprimé définitivement dans # jour} other {Supprimé définitivement dans # jours}}",
+    "deletedPermanently": "Supprimé définitivement",
+    "deletePermanently": "Supprimer définitivement",
+    "deletePermanentlyManyTitle": "Supprimer {count, plural, one {# élément} other {# éléments}} définitivement ?",
+    "deletePermanentlyTitle": "Supprimer {name} définitivement ?",
+    "empty": "Vider la corbeille",
+    "emptyBody": "Les éléments supprimés restent ici 30 jours, puis sont supprimés définitivement.",
+    "emptyConfirmation": "vider la corbeille",
+    "emptyTitle": "Vider la corbeille ?",
+    "emptyTitleState": "La corbeille est vide",
+    "inTrash": "Dans la corbeille",
+    "kindInList": "{kind} dans {list}",
+    "kinds": {
+      "channels": "Canaux",
+      "dashboardView": "Vue du tableau de bord",
+      "field": "Champ",
+      "list": "Liste",
+      "record": "Enregistrement",
+      "relationship": "Relation",
+      "routine": "Routine",
+      "view": "Vue",
+      "widget": "Widget",
+      "wikiPage": "Page de la base de connaissances"
+    },
+    "movedToTrash": "Déplacé dans la corbeille",
+    "movesToTrash": "Il est déplacé dans la corbeille, où vous pouvez le restaurer pendant 30 jours.",
+    "permanentIrreversible": "Cette action est irréversible.",
+    "permanentMessage": "{count, plural, one {Cet élément est supprimé} other {Ces # éléments sont supprimés}} définitivement.",
+    "permanentRecords": "{list} : {count, plural, one {# enregistrement} other {# enregistrements}}",
+    "restore": "Restaurer",
+    "restoreBlocked": {
+      "listDeleted": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car leur liste est dans la corbeille. Restaurez d'abord la liste.",
+      "nameTaken": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car un autre élément utilise désormais leur nom ou leur place.",
+      "notFound": "{count, plural, one {# élément n'existe plus et a quitté} other {# éléments n'existent plus et ont quitté}} la corbeille.",
+      "parentDeleted": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car ce à quoi ils appartiennent est dans la corbeille. Restaurez-le d'abord.",
+      "requiresRestore": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car un élément dont ils ont besoin est dans la corbeille. Restaurez-le d'abord."
+    },
+    "restored": "{count, plural, one {# élément restauré} other {# éléments restaurés}}",
+    "restoredInBackground": "Restaur\u00e9",
+    "restoredWithDroppedLinks": "Restauré. {count, plural, one {# lien n'a pas pu} other {# liens n'ont pas pu}} être restauré(s) car l'enregistrement lié a été supprimé définitivement.",
+    "restorePending": "Restauration en arrière-plan. La corbeille affiche la progression.",
+    "searchPlaceholder": "Rechercher dans la corbeille",
+    "undo": "Annuler"
   },
   "TrialExpiredOffer": {
     "body": "Votre essai s’est terminé récemment, mais j’aimerais vous aider à tirer pleinement parti de Customermates. Si vous le souhaitez, je peux prolonger votre essai et passer en revue votre configuration avec vous.",

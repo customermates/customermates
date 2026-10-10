@@ -2,6 +2,8 @@ import { z } from "zod";
 
 export const RecordSystemColumnSchema = z.enum(["system:createdAt", "system:updatedAt", "system:assignedTo"]);
 export const RecordFieldKeySchema = z.union([z.uuid(), RecordSystemColumnSchema]);
+export const MANUAL_ORDER_SORT_KEY = "system:manual";
+export const RecordSortKeySchema = z.union([RecordFieldKeySchema, z.literal(MANUAL_ORDER_SORT_KEY)]);
 export const RecordColumnKeySchema = z.union([
   RecordFieldKeySchema,
   z.literal("system:channels"),
