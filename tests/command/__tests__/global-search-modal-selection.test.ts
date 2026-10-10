@@ -83,7 +83,9 @@ function searchStore(recentItems: RecordSearchHit[]) {
       pushRecentCommand: vi.fn(),
       setInstantMatcher: vi.fn(),
       resolving: false,
+      resolveNotice: null as "credits" | "service" | null,
       resolveCommand: vi.fn(),
+      cancelResolve: vi.fn(),
       pushLevel: vi.fn(),
       popLevel: vi.fn(),
       setWithUnsavedChangesGuard: vi.fn(),
@@ -100,6 +102,7 @@ function searchStore(recentItems: RecordSearchHit[]) {
       pushRecentCommand: false,
       setInstantMatcher: false,
       resolveCommand: false,
+      cancelResolve: false,
       pushLevel: false,
       popLevel: false,
       setWithUnsavedChangesGuard: false,
@@ -262,7 +265,8 @@ describe("GlobalSearchModal highlighted hit", () => {
 
     await showResults(store, "who owns BMW", [TUI]);
     expect(options().at(-1)).toContain("GlobalSearch.askMateWith");
-    expectHighlighted("CommandPalette.resolve");
+    expect(options().at(-2)).toContain("CommandPalette.resolve");
+    expectHighlighted("TUI");
 
     press("Tab");
 
@@ -332,10 +336,8 @@ describe("GlobalSearchModal highlighted hit", () => {
     const deals = "30000000-0000-4000-8000-000000000001";
     const store = await openWith([]);
     store.resolveCommand.mockResolvedValueOnce({
-      kind: "list",
-      typeId: deals,
-      viewId: null,
-      filters: [{ field: "stage", operator: "in", value: ["won"] }],
+      status: "resolved",
+      resolution: { kind: "list", typeId: deals, viewId: null, filters: [{ field: "stage", operator: "in", value: ["won"] }] },
     });
     await showResults(store, "won deals over 10k", []);
     expectHighlighted("CommandPalette.resolve");
@@ -344,11 +346,51 @@ describe("GlobalSearchModal highlighted hit", () => {
     expect(store.resolveCommand).toHaveBeenCalledWith("won deals over 10k");
     expect(harness.push).toHaveBeenCalledWith(`/records/${deals}?filters=stage%3Ain%3Awon`);
 
-    store.resolveCommand.mockResolvedValueOnce(null);
+    store.resolveCommand.mockResolvedValueOnce({ status: "none" });
     await showResults(store, "something nobody configured", []);
     press("Enter");
     await settle(() => undefined);
     expect(harness.openWithDraft).toHaveBeenCalledWith("something nobody configured");
     expect(harness.submitDraft).toHaveBeenCalled();
+  });
+
+  it("never calls the model on Enter while a result exists or the search is still running", async () => {
+    harness.mateEnabled = true;
+    const store = await openWith([]);
+    for (const length of [1, 2, 3, 4, 5, 6, 7, 8, 9])
+      await settle(() => store.onChange("searchTerm", "Anna Schm".slice(0, length)));
+    expect(document.body.textContent).not.toContain("CommandPalette.resolve");
+    await mutate(() => {
+      store.debouncedSearchTerm = "Anna Schm";
+      store.results = { results: [AMIN], schemaRevision: 1, nextCursor: null };
+    });
+    expectHighlighted("Amin Hassan");
+    press("Enter");
+    expect(harness.openEntity).toHaveBeenCalledWith(AMIN.ref, null, null);
+    expect(store.resolveCommand).not.toHaveBeenCalled();
+  });
+
+  it("ignores a stale or unavailable resolution", async () => {
+    harness.mateEnabled = true;
+    const store = await openWith([]);
+    store.resolveCommand.mockResolvedValueOnce({ status: "stale" });
+    await showResults(store, "won deals over 10k", []);
+    press("Enter");
+    await settle(() => undefined);
+    store.resolveCommand.mockResolvedValueOnce({ status: "unavailable" });
+    press("Enter");
+    await settle(() => undefined);
+    expect(store.resolveCommand).toHaveBeenCalledTimes(2);
+    expect(harness.push).not.toHaveBeenCalled();
+    expect(harness.openWithDraft).not.toHaveBeenCalled();
+  });
+
+  it("shows one plain line when the resolver has no credits", async () => {
+    harness.mateEnabled = true;
+    const store = await openWith([]);
+    await mutate(() => {
+      store.resolveNotice = "credits";
+    });
+    expect(document.querySelector('[role="status"]')?.textContent).toBe("CommandPalette.resolveNoCredits");
   });
 });

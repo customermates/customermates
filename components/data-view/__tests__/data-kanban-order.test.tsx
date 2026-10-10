@@ -112,8 +112,11 @@ export function boardStore(overrides: Partial<BaseDataViewStore<Item>> = {}): Ba
     items: ITEMS,
     groupingResult: groupingResult(),
     loadMoreInGroup: vi.fn(),
-    isGroupCollapsed: () => false,
-    toggleGroupCollapsed: vi.fn(),
+    isBoardStrip: () => false,
+    toggleBoardStrip: vi.fn(),
+    canCreateInGroup: () => false,
+    createInGroup: vi.fn(),
+    groupEditHref: () => undefined,
     moveItemBetweenGroups: vi.fn(),
     ...overrides,
   } as unknown as BaseDataViewStore<Item>;

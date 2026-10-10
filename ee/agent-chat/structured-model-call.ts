@@ -71,6 +71,7 @@ export async function generateStructuredObject<T>(args: {
   schema: z.ZodType<T>;
   system: string;
   prompt: string;
+  timeoutMs?: number;
 }): Promise<{ output: T | null; charge: AgentRetrievalCharge | null; failure?: string }> {
   const inputTokens = promptTokens(args.system, args.prompt);
   try {
@@ -81,7 +82,7 @@ export async function generateStructuredObject<T>(args: {
       output: Output.object({ schema: args.schema }),
       maxOutputTokens: args.model.maxOutputTokens,
       maxRetries: 0,
-      abortSignal: AbortSignal.timeout(TIMEOUT_MS),
+      abortSignal: AbortSignal.timeout(args.timeoutMs ?? TIMEOUT_MS),
       providerOptions: {
         ...getAgentProviderOptions(args.model.servingProvider, args.model.inferenceRegion),
         ...googleThinkingProviderOptions(args.model),
