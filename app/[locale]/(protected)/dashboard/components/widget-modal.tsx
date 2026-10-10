@@ -38,6 +38,7 @@ import type { WidgetDisplayRequirement } from "@/features/widget/widget-display-
 import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
 
 import { runUserAction } from "@/core/errors/report-application-error";
+import { isRecordWidgetForm } from "./record-widget-form";
 import { RecordWidgetEditor } from "./record-widget-editor";
 import { WidgetDisplayTypePicker } from "./widget-display-type-picker";
 import { WIDGET_EDITOR_GRID_CLASS } from "./widget-editor-layout";
@@ -135,9 +136,11 @@ export const WidgetModal = observer(() => {
   ]);
 
   function goBackToKindStep() {
-    const selectedKind = form.kind;
+    const selectedCard = isRecordWidgetForm(form)
+      ? `widget-starter-${form.displayOptions.displayType}`
+      : `widget-kind-${form.kind}`;
     widgetModalStore.setCreationStep("choose");
-    requestAnimationFrame(() => document.getElementById(`widget-kind-${selectedKind}`)?.focus());
+    requestAnimationFrame(() => document.getElementById(selectedCard)?.focus());
   }
   function renderDataSettings() {
     const appearance = (model?: RecordModelView | null) => (
