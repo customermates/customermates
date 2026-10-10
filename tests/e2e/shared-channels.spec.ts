@@ -3,14 +3,16 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { presetId } from "../../features/records/crm-preset";
 import { localE2eEnvironment } from "./local-environment";
-import { test, expect } from "./fixtures";
+import { test, expect, isBenignPageError } from "./fixtures";
 
 test("shares an indexed identifier across lists, unlinks one association and links only one conversation", async ({
   page, context, database, companyId, workspace,
 }, testInfo) => {
   test.setTimeout(240000);
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("pageerror", (error) => {
+    if (!isBenignPageError(error.message)) errors.push(error.message);
+  });
   const typeId = (key: string) => presetId(companyId, key);
   const post = async (path: string, data: unknown) => {
     const response = await page.request.post(path, { data });

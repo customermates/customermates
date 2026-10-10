@@ -1,6 +1,10 @@
-import type { KeyboardCoordinateGetter } from "@dnd-kit/core";
+import type { CollisionDetection, KeyboardCoordinateGetter } from "@dnd-kit/core";
 import { describe, expect, it, vi } from "vitest";
-import { dropTargetGroupKey, kanbanKeyboardCoordinates } from "../kanban-keyboard-coordinates";
+import {
+  dropTargetGroupKey,
+  kanbanCollisionDetection,
+  kanbanKeyboardCoordinates,
+} from "../kanban-keyboard-coordinates";
 
 describe("keyboard board movement", () => {
   it("skips the current column even when the card and column centers differ", () => {
@@ -28,6 +32,36 @@ describe("keyboard board movement", () => {
     >;
     context.currentCoordinates = { x: 360, y: 50 };
     expect(kanbanKeyboardCoordinates({ ...event, code: "ArrowLeft" }, context)).toEqual({ x: 20, y: 50 });
+  });
+});
+
+describe("board collision detection", () => {
+  const rect = (left: number, width: number) => ({
+    left,
+    width,
+    right: left + width,
+    top: 0,
+    bottom: 600,
+    height: 600,
+  });
+  const detect = (center: number) =>
+    kanbanCollisionDetection({
+      active: { id: "card" },
+      collisionRect: { ...rect(center - 165, 330), top: 100, bottom: 260, height: 160 },
+      droppableContainers: [{ id: "new" }, { id: "qualified" }],
+      droppableRects: new Map([
+        ["new", rect(-184, 330)],
+        ["qualified", rect(162, 40)],
+      ]),
+      pointerCoordinates: null,
+    } as unknown as Parameters<CollisionDetection>[0]).map((collision) => collision.id);
+
+  it("picks the narrow column under the card center over a wider overlapping column", () => {
+    expect(detect(182)).toEqual(["qualified"]);
+  });
+
+  it("falls back to the largest overlap when no column is under the card center", () => {
+    expect(detect(155)).toEqual(["new", "qualified"]);
   });
 });
 

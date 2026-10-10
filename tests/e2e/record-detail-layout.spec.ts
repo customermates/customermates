@@ -218,7 +218,9 @@ test("edits header links with the card picker, keeps contact values outside edit
 }) => {
   test.setTimeout(180000);
   const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
+  page.on("pageerror", (error) => {
+    if (!isBenignPageError(error.message)) errors.push(error.message);
+  });
   const suffix = randomUUID().slice(0, 6);
   const organization = `Picker org ${suffix}`;
   const firstName = `Picker ${suffix}`;

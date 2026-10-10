@@ -6,21 +6,47 @@ import { Tooltip as TooltipPrimitive } from "radix-ui";
 import { cn } from "@/core/utils/cn";
 import { OVERLAY_COLLISION_PADDING } from "./overlay-contract";
 
+const pointerMovesClaimedByTooltip = new WeakSet<Event>();
+
 function TooltipProvider({ delayDuration = 0, ...props }: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
-  return <TooltipPrimitive.Provider data-slot="tooltip-provider" delayDuration={delayDuration} {...props} />;
+  return (
+    <TooltipPrimitive.Provider
+      disableHoverableContent
+      data-slot="tooltip-provider"
+      delayDuration={delayDuration}
+      {...props}
+    />
+  );
 }
 
-function Tooltip({ ...props }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
-  return <TooltipPrimitive.Root data-slot="tooltip" {...props} />;
+const TooltipHasContentContext = React.createContext(false);
+
+function Tooltip({ children, ...props }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
+  const hasContent = React.Children.toArray(children).some(
+    (child) => React.isValidElement(child) && child.type === TooltipContent,
+  );
+  return (
+    <TooltipHasContentContext.Provider value={hasContent}>
+      <TooltipPrimitive.Root data-slot="tooltip" {...props}>
+        {children}
+      </TooltipPrimitive.Root>
+    </TooltipHasContentContext.Provider>
+  );
 }
 
-function TooltipTrigger({ onFocus, ...props }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
+function TooltipTrigger({ onFocus, onPointerMove, ...props }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
+  const hasContent = React.useContext(TooltipHasContentContext);
   return (
     <TooltipPrimitive.Trigger
       data-slot="tooltip-trigger"
       onFocus={(event) => {
         if (!event.currentTarget.matches(":focus-visible")) event.preventDefault();
         onFocus?.(event);
+      }}
+      onPointerMove={(event) => {
+        if (pointerMovesClaimedByTooltip.has(event.nativeEvent)) event.preventDefault();
+        if (hasContent) pointerMovesClaimedByTooltip.add(event.nativeEvent);
+        onPointerMove?.(event);
       }}
       {...props}
     />
@@ -38,7 +64,7 @@ function TooltipContent({
     <TooltipPrimitive.Portal>
       <TooltipPrimitive.Content
         className={cn(
-          "pointer-events-none z-50 w-fit max-w-[min(20rem,var(--radix-tooltip-content-available-width))] origin-(--radix-tooltip-content-transform-origin) animate-in rounded-md bg-tooltip px-2.5 py-1.5 text-xs text-balance break-words text-tooltip-foreground shadow-md fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
+          "pointer-events-none z-50 w-fit max-w-[min(20rem,var(--radix-tooltip-content-available-width))] origin-(--radix-tooltip-content-transform-origin) animate-in rounded-md bg-tooltip px-2.5 py-1.5 text-xs text-balance break-words text-tooltip-foreground shadow-md fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 motion-reduce:animate-none",
           className,
         )}
         collisionPadding={collisionPadding}
