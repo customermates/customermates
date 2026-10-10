@@ -413,6 +413,7 @@ model SearchCatalogEntry {
   contentHash String
   model       String?
   embedding   Unsupported("vector(768)")?
+  claimedAt   DateTime?
   createdAt   DateTime                    @default(now())
   company     Company?                    @relation(fields: [companyId], references: [id], onDelete: Cascade)
 

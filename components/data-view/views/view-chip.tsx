@@ -22,7 +22,9 @@ type Props = {
   href: string;
   id?: string;
   isActive: boolean;
+  isModified?: boolean;
   label: string;
+  modifiedLabel?: string;
   preview: ReactNode;
   tabIndex: 0 | -1;
   onKeyDown?: KeyboardEventHandler<HTMLAnchorElement>;
@@ -30,15 +32,28 @@ type Props = {
   focusKey?: string;
 };
 
-export function ViewChip({ href, id, isActive, label, preview, tabIndex, onKeyDown, onSelect, focusKey }: Props) {
+export function ViewChip({
+  href,
+  id,
+  isActive,
+  isModified = false,
+  label,
+  modifiedLabel,
+  preview,
+  tabIndex,
+  onKeyDown,
+  onSelect,
+  focusKey,
+}: Props) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
         <a
           aria-current={isActive ? "page" : undefined}
-          className={cn(VIEW_TAB_CLASS, isActive && VIEW_TAB_ACTIVE_CLASS)}
+          className={cn(VIEW_TAB_CLASS, "relative", isActive && VIEW_TAB_ACTIVE_CLASS)}
           data-focus-target={focusKey}
           data-view-chip=""
+          data-view-modified={isModified ? "" : undefined}
           href={href}
           id={id}
           tabIndex={tabIndex}
@@ -46,6 +61,14 @@ export function ViewChip({ href, id, isActive, label, preview, tabIndex, onKeyDo
           onKeyDown={onKeyDown}
         >
           <span className="truncate">{label}</span>
+
+          {isModified && (
+            <>
+              <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-primary" />
+
+              <span className="sr-only">{modifiedLabel}</span>
+            </>
+          )}
         </a>
       </TooltipTrigger>
 

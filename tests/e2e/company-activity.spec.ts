@@ -60,6 +60,20 @@ test("shows admin and configuration history on the workspace activity page and f
   }).toPass();
   await expect(page.getByRole("button", { name: /Role Created/ })).toHaveCount(0);
   await expect(configuration).toBeVisible();
+  await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
+  await expect
+    .poll(async () => {
+      const stored = await database.query(
+        'SELECT filters FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=\'activity\' AND filters <> \'[]\'::jsonb',
+        [companyId],
+      );
+      return stored.rows.length;
+    })
+    .toBe(0);
+  await page.getByRole("button", { name: "Filters", exact: true }).click();
+  await page.getByRole("dialog", { name: "Filters" }).getByRole("button", { name: "Save", exact: true }).click();
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#global-data-views-all")).not.toHaveAttribute("data-view-modified");
 
   await expect
     .poll(async () => {

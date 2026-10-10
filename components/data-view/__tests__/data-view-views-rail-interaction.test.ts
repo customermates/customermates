@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { Root as ReactRoot } from "react-dom/client";
 import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
-import type { DataViewChipDto } from "@/core/data-view/data-view-state.schema";
+import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
 
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
@@ -117,6 +117,7 @@ vi.mock("@/components/ui/dropdown-menu", () => ({
 
     return createElement("div", { "data-view-menu": "" }, children);
   },
+  DropdownMenuSeparator: () => createElement("hr"),
   DropdownMenuItem: ({
     children,
     disabled,
@@ -154,7 +155,7 @@ const CLOSING = view({ id: "v-c", name: "Closing", position: 2, state: { hiddenC
 const VIEWS = [ADA, OPEN, CLOSING];
 
 function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewStore<Item> {
-  return {
+  const fake: Record<string, any> = {
     activeViewKey: ALL_VIEW_KEY,
     applyView: vi.fn(() => harness.calls.push("applyView")),
     discardPendingViewState: vi.fn(() => harness.calls.push("discardPendingViewState")),
@@ -178,8 +179,27 @@ function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewSt
     sortDescriptor: undefined,
     viewMode: "table",
     views: VIEWS,
+    isQueryModified: false,
+    resetQueryToView: vi.fn(),
+    forgetQueryDraft: vi.fn(),
+    viewStateSnapshot: ({ includeQuery }: { includeQuery: boolean }): DataViewState => {
+      const saved =
+        (fake.views as DataViewChipDto[]).find((candidate) => candidate.id === fake.activeViewKey)?.state ?? {};
+      return {
+        columnOrder: fake.columnOrder,
+        columnWidths: fake.columnWidths,
+        filters: includeQuery ? fake.filters : (saved.filters ?? []),
+        grouping: fake.grouping,
+        hiddenColumns: fake.hiddenColumns,
+        pageSize: fake.pagination.pageSize,
+        searchTerm: (includeQuery ? fake.searchTerm : saved.searchTerm) ?? "",
+        sortDescriptor: fake.sortDescriptor ?? null,
+        viewMode: fake.viewMode,
+      };
+    },
     ...overrides,
-  } as unknown as BaseDataViewStore<Item>;
+  };
+  return fake as unknown as BaseDataViewStore<Item>;
 }
 
 let root: ReactRoot | undefined;
@@ -625,6 +645,28 @@ describe("data view rail interaction", () => {
     expect(host.querySelector("[data-view-menu]")?.textContent).not.toContain("Common.actions.save");
   });
 
+  it("marks only the active chip as modified and offers Reset changes after Ask AI", () => {
+    const value = store({ activeViewKey: "v-b", isQueryModified: true } as Partial<BaseDataViewStore<Item>>);
+    const host = render(value);
+
+    const modified = host.querySelectorAll("[data-view-modified]");
+    expect(modified).toHaveLength(1);
+    expect(modified[0]?.textContent).toContain("Open deals");
+    expect(modified[0]?.textContent).toContain("DataView.views.modified");
+    expect(menuLabels(host).slice(0, 2)).toEqual(["DataView.views.askAi", "DataView.views.resetChanges"]);
+    expect(menuLabels(host)).not.toContain("Common.actions.save");
+
+    act(() => byText(host, "DataView.views.resetChanges").click());
+    expect(value.resetQueryToView).toHaveBeenCalledOnce();
+  });
+
+  it("shows no modified dot and no reset entry while the view is clean", () => {
+    const host = render(store({ activeViewKey: "v-b" }));
+
+    expect(host.querySelector("[data-view-modified]")).toBeNull();
+    expect(menuLabels(host)).not.toContain("DataView.views.resetChanges");
+  });
+
   it("offers Ask AI, duplicate and copy link on the All tab", () => {
     const host = render(store());
 
@@ -740,6 +782,35 @@ describe("data view rail interaction", () => {
     });
     expect(harness.calls).toEqual(["upsertDataViewAction", "refresh"]);
     expect(host.querySelector("#view-editor-name")).toBeNull();
+  });
+
+  it("keeps the saved query when renaming a view whose filters are only modified", async () => {
+    const saved = view({
+      id: "v-d",
+      name: "Won",
+      position: 3,
+      state: {
+        filters: [{ field: "stage", operator: "in", value: ["won"] }],
+        searchTerm: "acme",
+      } as unknown as DataViewState,
+    });
+    const value = store({
+      activeViewKey: "v-d",
+      filters: [{ field: "stage", operator: "in", value: ["lost"] }],
+      isQueryModified: true,
+      searchTerm: "temporary",
+      views: [...VIEWS, saved],
+    } as unknown as Partial<BaseDataViewStore<Item>>);
+    const host = render(value);
+
+    act(() => byText(host, "DataView.views.editTitle").click());
+    typeInto(host.querySelector<HTMLInputElement>("#view-editor-name"), "Won deals");
+    await submitMetaForm(host);
+
+    expect(harness.upsertDataViewAction.mock.calls[0]?.[0]?.state).toMatchObject({
+      filters: [{ field: "stage", operator: "in", value: ["won"] }],
+      searchTerm: "acme",
+    });
   });
 
   it("deletes through the shared confirmation, falls back to All and returns focus to it", async () => {

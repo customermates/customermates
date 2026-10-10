@@ -51,6 +51,12 @@ test("restores relationship, assignment and date filters with labels after reloa
   await expect(page.getByRole("heading", { name: "Filters", exact: true })).not.toBeVisible();
   await expect(page.getByRole("link", { name: "Linked opportunity", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Unlinked opportunity", exact: true })).not.toBeVisible();
+  const all = page.locator("#global-data-views-all");
+  await expect(all).toHaveAttribute("data-view-modified", "");
+  await page.locator("#records-filter").click();
+  await page.locator("#records-filter-save").click();
+  await page.keyboard.press("Escape");
+  await expect(all).not.toHaveAttribute("data-view-modified");
   await expect
     .poll(async () => {
       const stored = await database.query('SELECT filters FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2', [
@@ -67,6 +73,7 @@ test("restores relationship, assignment and date filters with labels after reloa
   await page.reload();
   await expect(page.getByRole("link", { name: "Linked opportunity", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Unlinked opportunity", exact: true })).not.toBeVisible();
+  await expect(all).not.toHaveAttribute("data-view-modified");
   await page.getByRole("button", { name: "Filters", exact: true }).click();
   const active = page.locator("[data-palette-active-filters]");
   await expect(active).toContainText("Example organization");
