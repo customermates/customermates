@@ -278,6 +278,9 @@ test("opens an assistant proposal in the modified state and saves it as an updat
       "Assigned to me",
     ])
   ).rows[0].id;
+  await page.reload();
+  await expect(page.locator(`[data-focus-target="view:${createdId}"]`)).toHaveAttribute("aria-current", "page");
+  await page.waitForLoadState("networkidle");
   await propose(createdId, { isNew: false, name: "Mine" });
   await page.reload();
   const renamed = page.locator(`[data-focus-target="view:${createdId}"]`);
