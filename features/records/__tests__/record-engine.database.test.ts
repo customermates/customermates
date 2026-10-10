@@ -15869,7 +15869,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toMatchObject({ ok: false });
   });
 
-  it("moves fields to Recently deleted, blocks while a calculation uses them and deletes them permanently", async () => {
+  it("moves fields to Trash, blocks while a calculation uses them and deletes them permanently", async () => {
     const f = await fixture();
     const typeId = f.id("organization");
     const sourceId = randomUUID();
