@@ -244,7 +244,7 @@ describeDatabase("configuration trash", () => {
       f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "type", id: f.id("organization") } }])),
     );
     const listed = await f.as(() =>
-      f.trash.query.invoke({ kinds: ["list", "field", "relationship", "channels"] } as never),
+      f.trash.query.invoke({ kinds: ["list", "field", "relationship"] } as never),
     );
     expect(listed.ok && listed.data.items.map((entry) => [entry.kind, entry.targetId])).toEqual([
       ["list", f.id("organization")],

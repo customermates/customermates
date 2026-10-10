@@ -16200,7 +16200,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const live = await f.run(() => getGetRecordModelInteractor().invoke({}));
     expect(live.ok && live.data.types.some((type) => [projectTypeId, milestoneTypeId].includes(type.id))).toBe(false);
     const deletedItems = await f.run(() =>
-      getQueryTrashInteractor().invoke({ kinds: ["list", "field", "relationship", "channels"] } as never),
+      getQueryTrashInteractor().invoke({ kinds: ["list", "field", "relationship"] } as never),
     );
     expect(deletedItems.ok && deletedItems.data.items.map((item) => [item.kind, item.targetId])).toEqual([
       ["list", projectTypeId],

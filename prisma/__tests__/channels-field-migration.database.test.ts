@@ -58,6 +58,11 @@ async function everyStoredState(client: Client) {
       client,
       'SELECT id, "columnOrder", "hiddenColumns", "columnWidths", "detailOptions" FROM "P13n" ORDER BY id',
     ),
+    trash: await rows(client, 'SELECT id, kind::text AS kind, "targetId", label FROM "TrashItem" ORDER BY id'),
+    trashKinds: await rows(
+      client,
+      `SELECT enumlabel FROM pg_enum WHERE enumtypid = '"TrashKind"'::regtype ORDER BY enumsortorder`,
+    ),
   };
 }
 
@@ -164,7 +169,21 @@ async function customizeWorkspace(client: Client, companyId: string, userId: str
       ["system:channels"],
     ],
   );
-  return { organizationChannels, dealChannels, revision, view, listLayout, detailLayout, organizationLayout };
+  const trashItem = randomUUID();
+  await client.query(
+    `INSERT INTO "TrashItem" ("companyId", id, kind, "targetId", "typeId", label, "deletedAt", "expiresAt", "batchId") VALUES ($1, $2, 'channels', $3, $4, 'Channels', now(), now() + interval '30 days', $5)`,
+    [companyId, trashItem, organizationChannels, id("organization"), randomUUID()],
+  );
+  return {
+    organizationChannels,
+    dealChannels,
+    revision,
+    view,
+    listLayout,
+    detailLayout,
+    organizationLayout,
+    trashItem,
+  };
 }
 
 describeDatabase("channels field migration", { timeout: 240000 }, () => {
@@ -323,6 +342,15 @@ describeDatabase("channels field migration", { timeout: 240000 }, () => {
           hiddenColumns: [],
         }),
       ]),
+    );
+    expect(converted.trash).toContainEqual({
+      id: custom.trashItem,
+      kind: "field",
+      targetId: custom.organizationChannels,
+      label: "Channels (2)",
+    });
+    expect((converted.trashKinds as Array<{ enumlabel: string }>).map((row) => row.enumlabel)).not.toContain(
+      "channels",
     );
     const [view] = await rows<{ name: string }>(client, 'SELECT name FROM "DataView" WHERE id = $1', [custom.view]);
     expect(view.name).toBe("system:channels stays in the name");
