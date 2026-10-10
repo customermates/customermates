@@ -18,6 +18,7 @@ import { recordColumns } from "@/features/records/record-columns";
 import { recordColumnPresentation, recordDefaults } from "@/features/records/record-presentation";
 import { getRecordPresentationAction, mutateRecordAction, resetRecordViewAction } from "../../actions";
 import { movedToTrashOr } from "@/features/trash/moved-to-trash";
+import { focusHref } from "@/components/focus/focus-href";
 
 export class RecordsStore extends BaseDataViewStore<RecordRow> {
   presentation: RecordPresentationResult;
@@ -217,6 +218,35 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   };
   override canMoveItemBetweenGroups(item: RecordRow): boolean {
     return !item.protectedKind;
+  }
+  private get groupChoiceField() {
+    const field = this.fields.find((candidate) => candidate.id === this.groupingResult?.columnId);
+    return field?.valueType === "select" && !field.multiple ? field : undefined;
+  }
+  private groupOption(groupKey: string) {
+    const optionId = groupKey.startsWith("value:") ? groupKey.slice(6) : null;
+    return this.groupChoiceField?.options.find((option) => option.id === optionId);
+  }
+  override canCreateInGroup(groupKey: string): boolean {
+    return (
+      this.presentation.permittedActions.includes("create") &&
+      this.groupChoiceField?.behavior.kind === "input" &&
+      this.groupOption(groupKey) !== undefined
+    );
+  }
+  override createInGroup(groupKey: string, returnFocusTo?: HTMLElement | null): void {
+    const field = this.groupChoiceField;
+    const option = this.groupOption(groupKey);
+    if (!field || !option || !this.canCreateInGroup(groupKey)) return;
+    this.rootStore.recordWorkspaceStore.open(
+      { typeId: this.presentation.typeId, values: { [field.id]: { kind: "select", value: option.id } } },
+      returnFocusTo,
+    );
+  }
+  override groupEditHref(groupKey: string): string | undefined {
+    const field = this.groupChoiceField;
+    if (!this.presentation.canManageSchema || !field || !this.groupOption(groupKey)) return undefined;
+    return focusHref({ kind: "field", id: field.id, typeId: this.presentation.typeId });
   }
   override async moveItemBetweenGroups(
     params: Parameters<BaseDataViewStore<RecordRow>["moveItemBetweenGroups"]>[0],
