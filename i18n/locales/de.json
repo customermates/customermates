@@ -857,6 +857,8 @@
       "deleteNamed": "{name} löschen"
     },
     "resolve": "Zu „{query}“ springen",
+    "resolveNoCredits": "Sie haben keine KI-Guthaben mehr, deshalb kann diese Anfrage nicht aufgelöst werden.",
+    "resolveUnavailable": "Anfragen aufzulösen ist gerade nicht möglich. Wählen Sie ein Ergebnis oder versuchen Sie es später erneut.",
     "resolving": "Passendes Ziel wird gesucht…",
     "synonyms": {
       "action": {
@@ -1961,6 +1963,7 @@
     "collapseColumn": "Spalte einklappen",
     "collapseGroup": "Gruppe {group} einklappen",
     "dragToReorder": "Zum Neuanordnen ziehen",
+    "editOption": "Option bearbeiten",
     "expandColumn": "{name} ausklappen",
     "expandGroup": "Gruppe {group} ausklappen",
     "groupOverflow": "Es werden nur {count} Gruppen angezeigt",

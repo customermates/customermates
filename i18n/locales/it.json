@@ -857,6 +857,8 @@
       "deleteNamed": "Elimina {name}"
     },
     "resolve": "Vai a «{query}»",
+    "resolveNoCredits": "Non hai più crediti IA, quindi questa richiesta non può essere risolta.",
+    "resolveUnavailable": "Al momento non è possibile risolvere le richieste. Scegli un risultato o riprova più tardi.",
     "resolving": "Ricerca del risultato migliore…",
     "synonyms": {
       "action": {
@@ -1961,6 +1963,7 @@
     "collapseColumn": "Comprimi colonna",
     "collapseGroup": "Comprimi il gruppo {group}",
     "dragToReorder": "Trascina per riordinare",
+    "editOption": "Modifica opzione",
     "expandColumn": "Espandi {name}",
     "expandGroup": "Espandi il gruppo {group}",
     "groupOverflow": "Vengono mostrati solo {count} gruppi",

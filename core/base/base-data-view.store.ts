@@ -77,6 +77,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   groupingResult?: GroupingResult;
   groupableFields: GroupableFieldDto[] = [];
   collapsedGroupKeys: ObservableSet<string> = observable.set();
+  expandedEmptyGroupKeys: ObservableSet<string> = observable.set();
   selectedIds: ObservableSet<string> = observable.set();
   selectedScope: SelectionScope | undefined = undefined;
 
@@ -165,6 +166,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       groupingResult: observable.ref,
       groupableFields: observable,
       collapsedGroupKeys: observable,
+      expandedEmptyGroupKeys: observable,
       selectedIds: observable,
       selectedScope: observable.ref,
 
@@ -216,6 +218,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       clearSelection: action,
       loadMoreInGroup: action,
       toggleGroupCollapsed: action,
+      toggleBoardStrip: action,
       setGroupSelection: action,
       resetGroupedTakeOverrides: action,
     });
@@ -269,6 +272,16 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   canMoveItemBetweenGroups(item: Entity): boolean {
     return Boolean(item.id);
+  }
+
+  canCreateInGroup(_groupKey: string): boolean {
+    return false;
+  }
+
+  createInGroup(_groupKey: string, _returnFocusTo?: HTMLElement | null): void {}
+
+  groupEditHref(_groupKey: string): string | undefined {
+    return undefined;
   }
 
   get filterColumns(): ColumnPresentation[] {
@@ -528,6 +541,18 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   isGroupCollapsed = (groupKey: string): boolean => this.collapsedGroupKeys.has(groupKey);
 
+  isBoardStrip = (groupKey: string, count: number): boolean =>
+    count === 0 ? !this.expandedEmptyGroupKeys.has(groupKey) : this.collapsedGroupKeys.has(groupKey);
+
+  toggleBoardStrip = (groupKey: string, count: number): void => {
+    if (count > 0) {
+      this.toggleGroupCollapsed(groupKey);
+      return;
+    }
+    if (this.expandedEmptyGroupKeys.has(groupKey)) this.expandedEmptyGroupKeys.delete(groupKey);
+    else this.expandedEmptyGroupKeys.add(groupKey);
+  };
+
   toggleGroupCollapsed = (groupKey: string): void => {
     if (!this.collapsedGroupKeys.has(groupKey)) {
       this.collapsedGroupKeys.add(groupKey);
@@ -636,6 +661,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     if (groupingChanged) {
       this.resetGroupedTakeOverrides();
       this.collapsedGroupKeys.clear();
+      this.expandedEmptyGroupKeys.clear();
       this.resetPaginationPage();
     }
 
@@ -756,6 +782,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
         : this.pagination;
       this.groupedTakeOverrides = {};
       this.collapsedGroupKeys.clear();
+      this.expandedEmptyGroupKeys.clear();
     });
 
     if (this.p13nId && this.viewPersistable) {

@@ -19,7 +19,6 @@ import { IconButton } from "@/components/ui/icon-button";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/core/utils/cn";
 import type { Prisma } from "@/generated/prisma";
-import type { DataViewGroup } from "@/core/base/grouping/grouping.schema";
 
 import { columnResizeLabel, MIN_COLUMN_WIDTH, withoutColumnWidth, type ColumnResizeSession } from "./data-table-resize";
 import { ColumnResizeHandle } from "./column-resize-handle";
@@ -35,7 +34,6 @@ type Props<E extends HasId> = {
   rowActions?: (item: E) => ReactNode;
   onRowHref?: (item: E) => string | undefined;
   columnStyle?: (columnId: string) => DataTableColumnStyle;
-  onAddToGroup?: (group: DataViewGroup) => void;
   totals?: RecordGroupSummaryResult[];
 };
 
@@ -55,7 +53,6 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   rowActions,
   onRowHref,
   columnStyle,
-  onAddToGroup,
   totals,
 }: Props<E>) {
   const t = useTranslations();
@@ -424,12 +421,12 @@ export const DataTable = observer(function DataTable<E extends HasId>({
 
                         <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{group.count}</span>
 
-                        {onAddToGroup && group.writable !== false && store.groupingResult?.supportsDragWriteBack && (
+                        {store.canCreateInGroup(group.key) && (
                           <IconButton
                             fieldAction
                             icon={Plus}
                             label={t("DataView.addToGroup", { group: label })}
-                            onClick={() => onAddToGroup(group)}
+                            onClick={() => store.createInGroup(group.key)}
                           />
                         )}
 

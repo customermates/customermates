@@ -28,7 +28,6 @@ import { RecordCell } from "./record-cell";
 import { recordAvatarFieldId, useRecordTableColumns } from "./record-table-columns";
 import { RecordCardContent } from "./record-chip-row";
 import type { DataTableColumnStyle } from "@/components/data-view/data-table";
-import type { DataViewGroup } from "@/core/base/grouping/grouping.schema";
 import type { RecordFieldView } from "@/features/records/record-model.schema";
 
 const NUMBER_TYPES: RecordFieldView["valueType"][] = ["number", "currency"];
@@ -119,17 +118,6 @@ const RecordsPageViewContent = observer(function RecordsPageView({
       };
     },
     [store],
-  );
-  const addToGroup = useCallback(
-    (group: DataViewGroup) => {
-      const fieldId = store.groupingResult?.columnId;
-      if (!fieldId) return;
-      openEditor({
-        typeId: store.presentation.typeId,
-        values: { [fieldId]: group.key.startsWith("value:") ? group.key.slice("value:".length) : undefined },
-      });
-    },
-    [openEditor, store],
   );
   const renderCard = useCallback(
     (record: RecordRow) => {
@@ -271,7 +259,6 @@ const RecordsPageViewContent = observer(function RecordsPageView({
           rowHref={recordHref}
           store={store}
           view={view}
-          onAddToGroup={store.presentation.permittedActions.includes("create") ? addToGroup : undefined}
         />
       );
       break;

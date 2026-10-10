@@ -14,7 +14,6 @@ import { useColumnLabel } from "@/components/data-view/use-column-label";
 
 import { DataKanbanView } from "./data-kanban-view";
 import { DataTable, type DataTableColumnStyle } from "./data-table";
-import type { DataViewGroup } from "@/core/base/grouping/grouping.schema";
 
 type Props<E extends HasId> = {
   columns: ColumnDef<E>[];
@@ -23,7 +22,6 @@ type Props<E extends HasId> = {
   rowActions?: (item: E) => ReactNode;
   renderCard?: (item: E) => ReactNode;
   columnStyle?: (columnId: string) => DataTableColumnStyle;
-  onAddToGroup?: (group: DataViewGroup) => void;
   store: BaseDataViewStore<E>;
   totals?: RecordGroupSummaryResult[];
   view: DataViewView;
@@ -36,7 +34,6 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
   rowActions,
   renderCard,
   columnStyle,
-  onAddToGroup,
   store,
   totals,
   view,
@@ -63,7 +60,6 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
         rowActions={rowActions}
         store={store}
         totals={totals}
-        onAddToGroup={onAddToGroup}
         onRowClick={interactive ? onRowClick : undefined}
         onRowHref={rowHref}
       />

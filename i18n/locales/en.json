@@ -857,6 +857,8 @@
       "deleteNamed": "Delete {name}"
     },
     "resolve": "Go to “{query}”",
+    "resolveNoCredits": "You have no AI credits left, so this request can't be resolved.",
+    "resolveUnavailable": "Resolving requests isn't available right now. Pick a result or try again later.",
     "resolving": "Finding the best match…",
     "synonyms": {
       "action": {
@@ -1961,6 +1963,7 @@
     "collapseColumn": "Collapse column",
     "collapseGroup": "Collapse group {group}",
     "dragToReorder": "Drag to reorder",
+    "editOption": "Edit option",
     "expandColumn": "Expand {name}",
     "expandGroup": "Expand group {group}",
     "groupOverflow": "Only {count} groups are shown",

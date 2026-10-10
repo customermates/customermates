@@ -1,7 +1,7 @@
 import { action, makeObservable, observable, reaction, runInAction, toJS } from "mobx";
 import type { RootStore } from "./root.store";
 import type { RecordNavigation } from "@/features/records/record-navigation.schema";
-import type { RecordDto, RecordRef } from "@/features/records/record-model.schema";
+import type { RecordDto, RecordRef, RecordScalar } from "@/features/records/record-model.schema";
 import type { RecordEditorContext } from "@/features/records/get-record-editor.interactor";
 import type { RecordDraft } from "@/app/[locale]/(protected)/records/[typeId]/components/record-editor.store";
 import { RecordEditorStore } from "@/app/[locale]/(protected)/records/[typeId]/components/record-editor.store";
@@ -243,7 +243,7 @@ export class RecordWorkspaceStore {
   };
 
   open = (
-    input: { typeId: string; recordId?: string; values?: Record<string, unknown> },
+    input: { typeId: string; recordId?: string; values?: Record<string, RecordScalar> },
     target?: HTMLElement | null,
     fallback?: HTMLElement | null,
   ) => {
@@ -265,9 +265,7 @@ export class RecordWorkspaceStore {
           const editor = new RecordEditorStore(this.root, result.data, this.invalidate);
           handOffSheet();
           this.setEditor(editor);
-          editor.edit(result.data, result.data.record);
-          for (const [fieldId, value] of Object.entries(input.values ?? {}))
-            editor.onChange(`values.${fieldId}`, value);
+          editor.edit(result.data, result.data.record, null, input.values);
           if (target) editor.openFrom(target, fallback);
         } finally {
           if (opening === this.opening) this.setOpening(false);
