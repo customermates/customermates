@@ -5,13 +5,14 @@ import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import type { RecordsStore } from "./records.store";
 
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Sigma } from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { RecordCell } from "./record-cell";
+import { RecordCardContent } from "./record-chip-row";
 import {
   RecordCalculatedValue,
   RecordInlineField,
@@ -117,5 +118,35 @@ export function useRecordTableColumns(
         };
       }),
     [columnHeaders, openRelated, avatarFieldId, store, markCalculated, t, locale],
+  );
+}
+
+export function useRecordCardRenderer(store: RecordsStore, openRelated: (ref: RecordRef) => void) {
+  const avatarFieldId = recordAvatarFieldId(store);
+  return useCallback(
+    (record: RecordRow) => {
+      const primary = store.recordColumns.find((column) => column.id === store.primaryColumnId);
+      return (
+        <RecordCardContent
+          record={record}
+          records={store}
+          title={
+            primary && (
+              <RecordCell
+                avatarFieldId={avatarFieldId}
+                column={primary}
+                linkColors={store.presentation.linkColors}
+                linkIcons={store.presentation.linkIcons}
+                linkLabels={store.presentation.linkLabels}
+                record={record}
+                onOpen={openRelated}
+              />
+            )
+          }
+          onOpenRecord={openRelated}
+        />
+      );
+    },
+    [avatarFieldId, openRelated, store],
   );
 }
