@@ -1,5 +1,4 @@
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
-import { DataViewProposalSchema } from "@/core/data-view/data-view-proposal.schema";
 
 function unwrapToolOutput(output: unknown) {
   return output && typeof output === "object" && !Array.isArray(output) && "value" in output
@@ -24,6 +23,8 @@ export function agentToolViewProposal(toolName: string | undefined, output: unkn
   if (!result || typeof result !== "object" || Array.isArray(result)) return null;
   const record = result as { ok?: unknown; viewProposal?: unknown };
   if (record.ok !== true) return null;
-  const proposal = DataViewProposalSchema.safeParse(record.viewProposal);
-  return proposal.success ? proposal.data : null;
+  const proposal = record.viewProposal;
+  return proposal && typeof proposal === "object" && !Array.isArray(proposal)
+    ? (proposal as Record<string, unknown>)
+    : null;
 }

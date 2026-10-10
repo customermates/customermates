@@ -1,5 +1,4 @@
 import { readAgentToolResultContext, type AgentActivityContext } from "./agent-activity-context";
-import type { DataViewProposal } from "@/core/data-view/data-view-proposal.schema";
 import type { AgentActivityDescriptor, AgentActivityResource } from "./agent-activity";
 import type { AgentMessagePart } from "./agent-chat.schema";
 
@@ -23,7 +22,7 @@ export type AgentTranscriptEvent =
         isError: boolean;
         status?: AgentActivityStatus;
         viewHref?: string;
-        viewProposal?: DataViewProposal;
+        viewProposal?: Record<string, unknown>;
         context?: AgentActivityContext;
       };
     }
