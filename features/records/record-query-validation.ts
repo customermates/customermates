@@ -96,7 +96,7 @@ export function invalidRecordQueryPart(
     const field = fields.get(sort.fieldId);
     if (
       !field ||
-      ["richText", "dateRange", "dateTimeRange"].includes(field.valueType) ||
+      ["richText", "dateRange", "dateTimeRange", "channels"].includes(field.valueType) ||
       (field.valueType === "select" && field.multiple)
     )
       return "sort";

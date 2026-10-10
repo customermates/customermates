@@ -233,7 +233,6 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
     () => tryNavigate(() => window.history.pushState(null, "", configureHref({ typeId: null }))),
     [tryNavigate],
   );
-  const editChannels = (listId: string) => fieldModal.editChannels(model, listId);
   const addTo = useCallback(
     (typeId: string, kind: ConfigureAddKind) => {
       const type = model.types.find((candidate) => candidate.id === typeId);
@@ -242,9 +241,10 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
       if (kind === "calculation") fieldModal.edit(model, typeId, null, { source: "formula" });
       if (kind === "relationship") relationModal.edit(model, typeId);
       if (kind === "sublist") typeModal.editSublist(model, typeId);
-      if (kind === "channels") fieldModal.edit(model, typeId, null, { valueType: "channels" });
+      if (kind === "channels")
+        fieldModal.edit(model, typeId, null, { valueType: "channels", label: t("RecordModel.types.channels") });
     },
-    [fieldModal, model, relationModal, typeModal],
+    [fieldModal, model, relationModal, t, typeModal],
   );
   const add = useCallback(
     (kind: ConfigureAddKind) => {
@@ -311,7 +311,6 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             model={model}
             selected={selected}
             onAddRelationship={() => addTo(selected.id, "relationship")}
-            onEditChannels={() => editChannels(selected.id)}
             onEditField={(field) => fieldModal.edit(model, selected.id, field)}
             onEditRelationship={(relation) => relationModal.edit(model, selected.id, relation)}
             onEditRelationshipPath={(path) => relationModal.editPath(model, selected.id, path)}
@@ -338,7 +337,6 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
             model={model}
             onAdd={addTo}
             onConnect={(sourceTypeId, targetTypeId) => relationModal.edit(model, sourceTypeId, undefined, targetTypeId)}
-            onEditChannels={editChannels}
             onEditField={(listId, field) => fieldModal.edit(model, listId, field)}
             onEditRelationship={(relation) => relationModal.edit(model, relation.sourceTypeId, relation)}
             onLayoutChange={setGraphLayout}

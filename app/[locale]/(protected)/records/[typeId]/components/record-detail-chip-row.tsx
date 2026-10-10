@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordChoice } from "@/features/records/get-record-choices.interactor";
-import type { RecordRef } from "@/features/records/record-model.schema";
+import type { RecordFieldView, RecordRef } from "@/features/records/record-model.schema";
 
 import { useCallback, useId, useState } from "react";
 import { observer } from "mobx-react-lite";
@@ -32,9 +32,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { IconButton } from "@/components/ui/icon-button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { isEmailProvider, isPhoneProvider } from "@/ee/messaging/provider";
 import { getChannelIcon } from "@/ee/messaging/provider-icon";
-import { channelDisplayLabel } from "@/ee/messaging/thread-display";
+import { channelContact, channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { recordColumns } from "@/features/records/record-columns";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
@@ -288,19 +287,24 @@ const LinkedChip = observer(function LinkedChip({
   );
 });
 
-function IdentityChips({ row }: { row: RecordRow }) {
+function IdentityChips({ row, field }: { row: RecordRow; field: RecordFieldView }) {
   return (
     <>
       {(row.identities ?? []).map((identity) => {
         const Icon = getChannelIcon(identity.provider);
+        const contact = channelContact(identity.provider, identity.value, identity.profileUrl);
         const label =
           channelDisplayLabel(identity.provider, identity.value, identity.profileUrl) ||
           identity.displayName ||
           identity.value;
-        const kind = isEmailProvider(identity.provider) ? "email" : isPhoneProvider(identity.provider) ? "phone" : null;
         return (
           <AppChip key={identity.id} startContent={<Icon className="size-3" />}>
-            {kind ? <ContactValue kind={kind} label={label} value={identity.value} /> : label}
+            <ContactValue
+              action={field.format?.onClick ?? "open"}
+              kind={contact.kind}
+              label={label}
+              value={contact.value}
+            />
           </AppChip>
         );
       })}
@@ -369,8 +373,8 @@ const DetailChip = observer(function DetailChip({
   if (column.kind === "relationship" || column.kind === "relationshipPath")
     return <LinkedChip editable={!personalizing && editsInChip(store, column)} entry={entry} row={row} store={store} />;
 
-  if (column.kind === "identity") {
-    if (!entry.empty) return <IdentityChips row={row} />;
+  if (column.kind === "field" && column.field.valueType === "channels") {
+    if (!entry.empty) return <IdentityChips field={column.field} row={row} />;
     const placeholder = <PlaceholderChip column={column} store={store} />;
     if (!editable || store.isDisabled) return placeholder;
     return (
@@ -474,11 +478,7 @@ export const RecordDetailChipRow = observer(function RecordDetailChipRow({
   const all = recordColumns(store.presentation.typeId, store.presentation.model)
     .filter((column) => store.record || column.kind !== "system" || column.id === "system:assignedTo")
     .map((column) =>
-      column.kind === "system"
-        ? { ...column, label: t(`RecordModel.${column.label}`) }
-        : column.kind === "identity"
-          ? { ...column, label: t("EntityChannels.heading") }
-          : column,
+      column.kind === "system" ? { ...column, label: t(`RecordModel.${column.label}`) } : column,
     ) as RecordChipColumn[];
   const byId = new Map(all.map((column) => [column.id, column]));
   const pinned = starredFieldIds.flatMap((id) => byId.get(id) ?? []);

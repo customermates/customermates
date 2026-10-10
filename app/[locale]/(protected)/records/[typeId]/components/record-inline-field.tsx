@@ -76,7 +76,7 @@ export function canEditInline(store: RecordsStore, record: RecordRow, field: Rec
 }
 
 export function isCalculatedField(store: RecordsStore, field: RecordFieldView) {
-  return !isRecordFieldWritable(field) && field.id !== store.type?.primaryFieldId;
+  return !isRecordFieldWritable(field) && field.valueType !== "channels" && field.id !== store.type?.primaryFieldId;
 }
 
 export function hasInlineRelationshipEditor(records: RecordsStore, record: RecordRow, relation: RecordRelationship) {

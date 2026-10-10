@@ -14,6 +14,7 @@ import { RecordValue, useRecordValueFormat } from "./record-value";
 import { RecordDetailField } from "./record-detail-field";
 import { RecordInputField } from "./record-input-field";
 import { ConfirmationSentenceView, referenceSentence } from "@/components/modal/confirmation-sentence";
+import { RecordIdentityEditor } from "./record-identity-editor";
 import { recordValueSource } from "@/features/records/record-value-source";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -50,6 +51,7 @@ export const RecordEditorField = observer(function RecordEditorField({
         {t(captureStaged ? "RecordModel.captureOnSave" : "RecordModel.captureValue")}
       </Button>
     ) : null;
+  if (field.valueType === "channels") return <RecordIdentityEditor field={field} store={store} />;
   if (restricted || !isRecordFieldWritable(field)) {
     if (!store.record) return null;
     const source = restricted

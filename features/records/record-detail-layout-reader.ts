@@ -44,12 +44,7 @@ export class RecordDetailLayoutReader {
         },
         fields: columns.map((column) => ({
           id: column.id,
-          label:
-            column.kind === "identity"
-              ? t("EntityChannels.heading")
-              : column.kind === "system"
-                ? t(`RecordModel.${column.label}`)
-                : column.label,
+          label: column.kind === "system" ? t(`RecordModel.${column.label}`) : column.label,
         })),
       },
     };

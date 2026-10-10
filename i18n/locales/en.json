@@ -2123,14 +2123,12 @@
       "sourceLookup": "Found by lookup",
       "trigger": "Add channel"
     },
-    "ariaCopy": "Copy",
     "ariaStartThread": "Compose {provider} message",
     "ariaUnlink": "Unlink {provider} channel",
     "compose": {
       "noAccount": "No usable {provider} account is connected. Connect one under Settings › Channels."
     },
-    "emptyHint": "No channels yet. Add an email, LinkedIn, WhatsApp, …",
-    "heading": "Channels",
+    "emptyHint": "No channels yet. Email addresses, WhatsApp phone numbers and social accounts that match messages to this record.",
     "tooltipOpenInbox": "Go to inbox",
     "tooltipStartNewThread": "New message",
     "tooltipUnlinkChannel": "Unlink channel",
@@ -3211,13 +3209,13 @@
       "oneToOne": "One to one"
     },
     "changeBlocked": "This change can't be applied yet",
-    "channelsField": {
-      "detail": "Email addresses, phone numbers and social accounts that match messages to records",
-      "short": "Email, phone, social"
-    },
-    "channelsHelp": "Add email addresses, phone numbers, and social accounts to records in this list. An identifier can link to several records.",
+    "channelsHelp": "Email addresses, WhatsApp phone numbers and social accounts that match messages to this record. Phone numbers are only matched for WhatsApp chats. An identifier can link to several records.",
     "clickAction": "On click",
     "clickActions": {
+      "channels": {
+        "copy": "Copy",
+        "open": "Open email, call or profile"
+      },
       "email": {
         "copy": "Copy address",
         "open": "Open in mail app"
@@ -3251,7 +3249,6 @@
       "cleaned": {
         "bindingAvatar": "{target} is no longer used as the profile picture of {consumers}.",
         "bindingCalendar": "{target} is no longer used for the calendar events of {consumers}.",
-        "bindingChannels": "{target} is no longer used for Channels in {consumers}.",
         "listDefaults": "{target} is removed from the default layout of {consumers}.",
         "nameField": "{consumers} will be shown by {replacement} instead.",
         "nameFieldNone": "No field in {consumers} can name its records any more, so they show as “Untitled {singular}”.",
@@ -3643,6 +3640,7 @@
     "triggerValue": "To this value",
     "types": {
       "boolean": "Yes or no",
+      "channels": "Channels",
       "currency": "Money",
       "date": "Date",
       "dateRange": "Date range",
@@ -4114,7 +4112,6 @@
     "inTrash": "In Trash",
     "kindInList": "{kind} in {list}",
     "kinds": {
-      "channels": "Channels",
       "dashboardView": "Dashboard view",
       "field": "Field",
       "list": "List",

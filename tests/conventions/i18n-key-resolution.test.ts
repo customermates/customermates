@@ -60,7 +60,7 @@ const ACTIVITY_EVENTS = [
   ...CONFIGURATION_ACTIVITY_EVENTS,
 ];
 const DOMAIN_EVENT_KEYS = ACTIVITY_EVENTS.map((event) => `Common.events.${event}`);
-const CLICK_ACTION_KEYS = ["email", "phone", "url"].flatMap((kind) =>
+const CLICK_ACTION_KEYS = ["email", "phone", "url", "channels"].flatMap((kind) =>
   ["open", "copy"].map((action) => `RecordModel.clickActions.${kind}.${action}`),
 );
 const RECORD_VALUE_TYPE_KEYS = [...RecordValueTypeSchema.options, "multiSelect"].map(
@@ -533,7 +533,6 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
       "widgetCount",
       "webhookTrigger",
       "webhookPaused",
-      "bindingChannels",
       "bindingAvatar",
       "bindingCalendar",
     ].map(

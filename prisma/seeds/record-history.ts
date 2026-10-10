@@ -1,9 +1,14 @@
 import { calculationDependencyHash } from "@/features/records/configuration.service";
+import { recordChannelsField } from "@/features/records/record-channels";
 import { presetId } from "@/features/records/crm-preset";
 import { recordEventChanges, historyPublications } from "@/features/records/record-journal";
 import { compareRecordKey } from "@/features/records/record-json";
-import { readRecordModelSnapshot } from "@/features/records/record-model-snapshot";
-import type { RecordModel, RecordRef, RecordScalar } from "@/features/records/record-model.schema";
+import {
+  RecordModelSchema,
+  type RecordModel,
+  type RecordRef,
+  type RecordScalar,
+} from "@/features/records/record-model.schema";
 import type { RecordHistorySnapshot } from "@/features/records/record-event.schema";
 import { decodeRecordValue } from "@/features/records/record-storage";
 import type { Prisma, PrismaClient } from "@/generated/prisma";
@@ -171,7 +176,7 @@ async function readSnapshot(
   const dependencies = await prisma.recordValueDependency.findMany({
     where: { companyId, typeId: ref.typeId, recordId: ref.recordId },
   });
-  const identities = model.capabilities.some((binding) => binding.typeId === ref.typeId && binding.kind === "channels")
+  const identities = recordChannelsField(model, ref.typeId)
     ? await prisma.recordIdentity.findMany({
         where: { companyId, records: { some: { companyId, typeId: ref.typeId, recordId: ref.recordId } } },
       })
@@ -265,7 +270,7 @@ export async function seedRecordHistory(context: SeedContext, entities: Relation
   const { prisma, ids } = context;
   const companyId = ids.company;
   const state = await prisma.recordSchemaState.findUniqueOrThrow({ where: { companyId } });
-  const model = readRecordModelSnapshot(
+  const model = RecordModelSchema.parse(
     (
       await prisma.recordSchemaRevision.findUniqueOrThrow({
         where: { companyId_revision: { companyId, revision: state.revision } },

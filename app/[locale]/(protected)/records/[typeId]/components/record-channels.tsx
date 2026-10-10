@@ -6,20 +6,19 @@ import type { RecordIdentityInput } from "@/features/records/record-identity.sch
 import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Copy, ExternalLink, Send, X } from "lucide-react";
+import { ExternalLink, Send, X } from "lucide-react";
 
 import { Action, Resource } from "@/generated/prisma";
 
 import { AppChip } from "@/components/chip/app-chip";
-import { ContactValue } from "@/components/records/contact-value";
+import { ContactValue, type ContactClickAction } from "@/components/records/contact-value";
 import { FormControlRow } from "@/components/forms/form-control-row";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { channelLabelKey, isEmailProvider, isHandleProvider, isPhoneProvider } from "@/ee/messaging/provider";
+import { channelLabelKey, isHandleProvider } from "@/ee/messaging/provider";
 import { getChannelIcon } from "@/ee/messaging/provider-icon";
-import { channelDisplayLabel, channelUrl } from "@/ee/messaging/thread-display";
-import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
+import { channelContact } from "@/ee/messaging/thread-display";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { cn } from "@/core/utils/cn";
@@ -28,6 +27,8 @@ import { reportApplicationError, runUserAction } from "@/core/errors/report-appl
 import { ContactComposePopover } from "./contact-compose-popover";
 
 type Props = {
+  label: string;
+  action: ContactClickAction;
   emptyHint?: string;
   headingEndAddon?: ReactNode;
   controlStartAddon?: ReactNode;
@@ -45,11 +46,10 @@ type Props = {
 };
 
 export const RecordChannels = observer(
-  ({ emptyHint, headingEndAddon, controlStartAddon, hideHeading = false, recordChannels }: Props) => {
+  ({ label, action, emptyHint, headingEndAddon, controlStartAddon, hideHeading = false, recordChannels }: Props) => {
     const t = useTranslations();
     const rootStore = useRootStore();
     const { userStore, threadComposeStore, connectedAccountsStore } = rootStore;
-    const copy = useCopyToClipboard();
     const [composeKey, setComposeKey] = useState<string | null>(null);
     const composeRequest = useRef(0);
     const composeOwner = useRef<(() => boolean) | null>(null);
@@ -147,9 +147,7 @@ export const RecordChannels = observer(
       <div className="flex flex-col gap-2">
         {(!hideHeading || headingEndAddon || canOpenInbox) && (
           <div className={cn("flex items-center gap-1.5", hideHeading && "justify-end")}>
-            {!hideHeading && (
-              <span className="text-muted-foreground text-xs font-normal">{t("EntityChannels.heading")}</span>
-            )}
+            {!hideHeading && <span className="text-muted-foreground text-xs font-normal">{label}</span>}
 
             {headingEndAddon}
 
@@ -168,17 +166,7 @@ export const RecordChannels = observer(
             {identifiers.map((identifier, index) => {
               const ProviderIcon = getChannelIcon(identifier.provider);
               const providerLabel = t(`Common.providers.${channelLabelKey(identifier.provider)}`);
-              const primaryLabel =
-                channelDisplayLabel(identifier.provider, identifier.value, identifier.profileUrl) ||
-                identifier.displayName ||
-                providerLabel;
-              const copyValue =
-                channelUrl(identifier.provider, identifier.value, identifier.profileUrl) ?? primaryLabel;
-              const contactKind = isEmailProvider(identifier.provider)
-                ? "email"
-                : isPhoneProvider(identifier.provider)
-                  ? "phone"
-                  : null;
+              const contact = channelContact(identifier.provider, identifier.value, identifier.profileUrl);
               const isUnverified = isHandleProvider(identifier.provider) && !identifier.messagingId;
               const channelKey = `${identifier.provider}:${identifier.value}`;
               const composing = composeKey === channelKey;
@@ -204,30 +192,13 @@ export const RecordChannels = observer(
                           <span className="text-muted-foreground text-[11px] font-medium">{providerLabel}</span>
                         </div>
 
-                        {contactKind ? (
-                          <ContactValue
-                            className="max-w-[18rem] text-sm font-medium"
-                            kind={contactKind}
-                            label={primaryLabel}
-                            value={identifier.value}
-                          />
-                        ) : (
-                          <div className="flex items-center gap-1.5">
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <span className="block max-w-[18rem] truncate text-sm font-medium">{primaryLabel}</span>
-                              </TooltipTrigger>
-
-                              <TooltipContent className="break-all">{primaryLabel}</TooltipContent>
-                            </Tooltip>
-
-                            <IconButton
-                              icon={Copy}
-                              label={t("EntityChannels.ariaCopy")}
-                              onClick={() => runUserAction(() => copy(copyValue))}
-                            />
-                          </div>
-                        )}
+                        <ContactValue
+                          action={action}
+                          className="max-w-[18rem] text-sm font-medium"
+                          kind={contact.kind}
+                          label={contact.label || identifier.displayName || providerLabel}
+                          value={contact.value}
+                        />
                       </div>
 
                       <div className="flex shrink-0 items-center gap-1">

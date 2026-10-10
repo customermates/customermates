@@ -2,27 +2,32 @@
 
 import type { RecordIdentity } from "@/features/records/record-identity.schema";
 
+import type { ContactClickAction } from "@/components/records/contact-value";
+
 import { Copy } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { OverlappingStack } from "@/components/shared/overlapping-stack";
 import { StackDropdownItem } from "@/components/shared/stack-dropdown-item";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { contactHref } from "@/core/utils/contact-href";
-import { channelLabelKey, isEmailProvider, isPhoneProvider } from "@/ee/messaging/provider";
+import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
+import { channelLabelKey } from "@/ee/messaging/provider";
 import { getChannelIcon } from "@/ee/messaging/provider-icon";
-import { channelDisplayLabel } from "@/ee/messaging/thread-display";
+import { channelContact } from "@/ee/messaging/thread-display";
 
 type ChannelIdentity = Pick<RecordIdentity, "id" | "provider" | "value" | "displayName" | "profileUrl">;
 type Props = {
   identifiers: ChannelIdentity[];
-  onItemClick: (identifier: ChannelIdentity) => void;
+  action?: ContactClickAction;
   maxVisible?: number;
   className?: string;
 };
 
-export function ChannelIconStack({ identifiers, maxVisible = 3, className, onItemClick }: Props) {
+export function ChannelIconStack({ identifiers, action = "open", maxVisible = 3, className }: Props) {
   const t = useTranslations();
+  const copy = useCopyToClipboard();
   const channels = [...new Map(identifiers.map((id) => [channelLabelKey(id.provider), id.provider])).values()];
 
   return (
@@ -54,38 +59,35 @@ export function ChannelIconStack({ identifiers, maxVisible = 3, className, onIte
       renderRow={(id, close) => {
         const Icon = getChannelIcon(id.provider);
         const providerLabel = t(`Common.providers.${channelLabelKey(id.provider)}`);
-        const primaryLabel =
-          channelDisplayLabel(id.provider, id.value, id.profileUrl) || id.displayName || providerLabel;
-        const openTarget = isEmailProvider(id.provider)
-          ? contactHref("email", id.value)
-          : isPhoneProvider(id.provider)
-            ? contactHref("phone", id.value)
-            : null;
-        const row = (
-          <StackDropdownItem
-            className="min-w-0 flex-1"
-            close={close}
-            onActivate={() => (openTarget ? window.location.assign(openTarget) : onItemClick(id))}
-          >
-            <Icon className="size-6" />
-
-            <div className="flex w-full min-w-0 flex-col items-start space-y-0">
-              <span className="text-muted-foreground text-[11px] font-medium">{providerLabel}</span>
-
-              <span className="max-w-[18rem] truncate text-sm font-medium">{primaryLabel}</span>
-            </div>
-          </StackDropdownItem>
-        );
-        if (!openTarget) return row;
+        const contact = channelContact(id.provider, id.value, id.profileUrl);
+        const primaryLabel = contact.label || id.displayName || providerLabel;
+        const openTarget = action === "open" ? contactHref(contact.kind, contact.value) : null;
+        const copyValue = () => runUserAction(() => copy(contact.value));
         return (
           <div className="flex items-center gap-1">
-            {row}
+            <StackDropdownItem
+              className="min-w-0 flex-1"
+              close={close}
+              onActivate={() => {
+                if (!openTarget) copyValue();
+                else if (contact.kind === "url") window.open(openTarget, "_blank", "noopener,noreferrer");
+                else window.location.assign(openTarget);
+              }}
+            >
+              <Icon className="size-6" />
+
+              <div className="flex w-full min-w-0 flex-col items-start space-y-0">
+                <span className="text-muted-foreground text-[11px] font-medium">{providerLabel}</span>
+
+                <span className="max-w-[18rem] truncate text-sm font-medium">{primaryLabel}</span>
+              </div>
+            </StackDropdownItem>
 
             <StackDropdownItem
               ariaLabel={t("Common.actions.copy")}
               className="shrink-0 text-muted-foreground"
               close={close}
-              onActivate={() => onItemClick(id)}
+              onActivate={copyValue}
             >
               <Copy aria-hidden className="size-4" />
             </StackDropdownItem>

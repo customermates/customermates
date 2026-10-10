@@ -932,7 +932,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       const items = await this.prisma.trashItem.findMany({
         where: {
           companyId: this.companyId,
-          kind: { in: ["list", "field", "relationship", "channels"] },
+          kind: { in: ["list", "field", "relationship"] },
           OR: [{ targetId: { in: leaving } }, { typeId: { in: removedTypeIds } }],
         },
         select: { id: true },
@@ -945,7 +945,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     }
     if (!change.deletions?.length) return;
     const batchId = configurationTrashBatchId(this.companyId, change.causeId);
-    const kinds = { type: "list", field: "field", relationship: "relationship", channels: "channels" } as const;
+    const kinds = { type: "list", field: "field", relationship: "relationship" } as const;
     await insertTrashItems(
       this.prisma,
       this.companyId,

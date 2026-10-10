@@ -90,6 +90,15 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
         </AppChip>
       );
     }
+    if (field.valueType === "channels") {
+      return (
+        <span className="inline-flex max-w-full min-w-0 items-center gap-1">
+          {icon}
+
+          <RecordValue field={field} identities={record.identities} overflowMenu={false} result={result} />
+        </span>
+      );
+    }
     if (result?.state === "value" && result.value.kind === "selectList") {
       return (
         <span className="inline-flex max-w-full min-w-0 items-center gap-1">

@@ -8,7 +8,6 @@ export const TRASH_KINDS = [
   "list",
   "field",
   "relationship",
-  "channels",
   "view",
   "widget",
   "routine",

@@ -121,6 +121,7 @@ function inferExpressionType(
     const field = fields.get(expression.fieldId);
     if (!field || field.archived || field.typeId !== typeId) return invalid("invalid_field_reference");
     if (field.valueType === "select" && field.multiple) return invalid("multiple_choice_not_calculable");
+    if (field.valueType === "channels") return invalid("channels_not_calculable");
     if (expression.kind === "field") return normalizeType(field.valueType);
     if (field.valueType !== "select") return invalid("option_attribute_requires_select");
     const attributeTypes = new Set(
@@ -366,23 +367,7 @@ export function validateRecordModel(model: RecordModel): {
       issues.push({ code: "duplicate_grant_role" });
   }
 
-  const channelTypes = new Set<string>();
   for (const binding of model.capabilities) {
-    if (binding.kind === "channels") {
-      if (channelTypes.has(binding.typeId)) {
-        issues.push({
-          code: "duplicate_channels_capability",
-          typeId: binding.typeId,
-        });
-      }
-      channelTypes.add(binding.typeId);
-    }
-    if (binding.kind !== "channels" && (binding.enabled !== undefined || binding.providerAvatar !== undefined)) {
-      issues.push({
-        code: "invalid_capability_options",
-        typeId: binding.typeId,
-      });
-    }
     const type = types.get(binding.typeId);
     if (!type || (type.archived && binding.kind === "membershipAuthorization"))
       issues.push({ code: "capability_requires_type", typeId: binding.typeId });
@@ -397,13 +382,7 @@ export function validateRecordModel(model: RecordModel): {
     for (const reference of binding.fields) {
       const field = fields.get(reference.fieldId);
       const expectedType = binding.kind === "avatar" ? "url" : binding.kind === "calendar" ? "dateTimeRange" : "text";
-      if (
-        !field ||
-        field.archived ||
-        field.typeId !== binding.typeId ||
-        field.valueType !== expectedType ||
-        (binding.kind === "channels" && field.behavior.kind !== "input")
-      ) {
+      if (!field || field.archived || field.typeId !== binding.typeId || field.valueType !== expectedType) {
         issues.push({
           code: "capability_requires_field",
           fieldId: reference.fieldId,
@@ -421,8 +400,26 @@ export function validateRecordModel(model: RecordModel): {
       issues.push({ code: "duplicate_option_id", fieldId: field.id });
     if (field.valueType === "currency" && !field.format?.currency)
       issues.push({ code: "missing_currency", fieldId: field.id });
-    if (field.format?.onClick && !CONTACT_VALUE_TYPES.includes(field.valueType))
+    if (field.format?.onClick && !CONTACT_VALUE_TYPES.includes(field.valueType) && field.valueType !== "channels")
       issues.push({ code: "invalid_click_action", fieldId: field.id });
+    if (field.format?.providerAvatar !== undefined && field.valueType !== "channels")
+      issues.push({ code: "invalid_provider_avatar", fieldId: field.id });
+    if (field.valueType === "channels") {
+      if (
+        field.behavior.kind !== "input" ||
+        field.behavior.defaultValue ||
+        field.required ||
+        field.multiple ||
+        field.options.length
+      )
+        issues.push({ code: "invalid_channels_field", fieldId: field.id });
+      if (
+        model.fields.some(
+          (other) => other.valueType === "channels" && other.typeId === field.typeId && other.id < field.id,
+        )
+      )
+        issues.push({ code: "duplicate_channels_field", typeId: field.typeId, fieldId: field.id });
+    }
     if (field.behavior.kind === "input") {
       if (
         field.behavior.defaultValue &&

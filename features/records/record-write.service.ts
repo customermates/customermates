@@ -428,7 +428,8 @@ export class RecordWriteService {
       const supplied = new Map(assignments.map((assignment) => [assignment.fieldId, assignment.value]));
       for (const [fieldId] of supplied) {
         const field = fields.get(fieldId);
-        if (!field || field.typeId !== ref.typeId) reject(CustomErrorCode.recordValueInvalid, "validation", ["fields"]);
+        if (!field || field.typeId !== ref.typeId || field.valueType === "channels")
+          reject(CustomErrorCode.recordValueInvalid, "validation", ["fields"]);
         if (
           field.behavior.kind !== "input" &&
           !(field.behavior.kind === "snapshot" && field.behavior.allowManualOverride)
@@ -436,7 +437,7 @@ export class RecordWriteService {
           reject(CustomErrorCode.recordReadOnlyField, "validation", ["fields"]);
       }
       for (const field of fields.values()) {
-        if (field.typeId !== ref.typeId) continue;
+        if (field.typeId !== ref.typeId || field.valueType === "channels") continue;
         if (
           field.behavior.kind !== "input" &&
           !(field.behavior.kind === "snapshot" && field.behavior.allowManualOverride && supplied.has(field.id))

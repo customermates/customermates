@@ -368,10 +368,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   get recordColumns() {
     return recordColumns(this.presentation.typeId, this.presentation.model).map((column) => ({
       ...column,
-      label:
-        column.kind === "system" || column.kind === "identity"
-          ? this.presentation.systemColumnLabels[column.id]
-          : column.label,
+      label: column.kind === "system" ? this.presentation.systemColumnLabels[column.id] : column.label,
     }));
   }
   override get viewTypeLabel() {
@@ -404,7 +401,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     return [
       ...this.fields.map(recordColumnPresentation),
       ...this.recordColumns
-        .filter((column) => column.kind !== "field" && column.kind !== "identity")
+        .filter((column) => column.kind !== "field")
         .map((column) =>
           column.kind === "relationshipPath"
             ? {

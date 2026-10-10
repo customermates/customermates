@@ -113,7 +113,6 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
       "system:createdAt": t("RecordModel.createdAt"),
       "system:updatedAt": t("RecordModel.updatedAt"),
       "system:assignedTo": t("RecordModel.assignedTo"),
-      "system:channels": t("EntityChannels.heading"),
     });
   const [list] = useState(() => new EmbeddedRecordsStore(store.rootStore, listPresentation(), parentRelationId));
   const [child] = useState(

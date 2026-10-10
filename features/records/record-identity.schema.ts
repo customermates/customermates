@@ -31,5 +31,5 @@ export const RecordIdentityInputsSchema = z
   .array(RecordIdentityInputSchema)
   .max(100)
   .describe(
-    "Replaces this record's channel associations on a channels-enabled type. Omit to preserve; [] unlinks this record. Existing shared identities remain unchanged. Ordinary email fields are separate.",
+    "Replaces this record's channel associations on a list with a Channels field. Omit to preserve; [] unlinks this record. Existing shared identities remain unchanged. Ordinary email fields are separate.",
   );

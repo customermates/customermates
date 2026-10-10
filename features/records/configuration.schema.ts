@@ -14,7 +14,7 @@ import {
   RecordGroupSummaryDefinitionSchema,
 } from "./record-model.schema";
 
-export const CONFIGURATION_TARGET_KINDS = ["type", "field", "relationship", "channels"] as const;
+export const CONFIGURATION_TARGET_KINDS = ["type", "field", "relationship"] as const;
 export const ConfigurationTargetSchema = z.object({ kind: z.enum(CONFIGURATION_TARGET_KINDS), id: z.uuid() }).strict();
 export type ConfigurationTarget = z.infer<typeof ConfigurationTargetSchema>;
 export const DeletionReferenceSchema = z
@@ -60,10 +60,10 @@ export const DeletionCleanupSchema = z
       .optional()
       .describe("For a deleted name field: the field that now names the records, or null when none is left."),
     effect: z
-      .enum(["countsRecords", "triggerChanged", "webhookPaused", "channels", "avatar", "calendar"])
+      .enum(["countsRecords", "triggerChanged", "webhookPaused", "avatar", "calendar"])
       .optional()
       .describe(
-        "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the Channels, avatar or calendar setting.",
+        "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
       ),
   })
   .strict();
@@ -333,7 +333,7 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
               .object({ operation: z.literal("delete"), target: ConfigurationTargetSchema })
               .strict()
               .describe(
-                "Move a list, field, relationship or Channels field (target id: its channels capability) to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion.",
+                "Move a list, field (including a Channels field) or relationship to Trash, where it can be restored for 30 days. Harmless references in views, layouts and widgets are removed; calculations, parent access, bindings, routines and webhooks that use it block the deletion.",
               ),
             ...(trashOperations
               ? ([

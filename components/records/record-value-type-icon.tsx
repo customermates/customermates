@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import type { RecordValueType } from "@/features/records/record-model.schema";
 
 import {
+  AtSign,
   Banknote,
   Calendar,
   CalendarClock,
@@ -34,6 +35,7 @@ const VALUE_TYPE_ICONS: Record<RecordValueType, LucideIcon> = {
   phone: Phone,
   url: Globe,
   member: UserRound,
+  channels: AtSign,
 };
 
 export function recordValueTypeIcon(valueType: RecordValueType): LucideIcon {

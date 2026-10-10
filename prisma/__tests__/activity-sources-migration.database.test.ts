@@ -208,8 +208,13 @@ describeDatabase("activity sources migration", { timeout: 240000 }, () => {
     const converted = await everyStoredState(client);
     await client.query(await readMigration(ACTIVITY_SOURCES_MIGRATION));
     expect(await everyStoredState(client)).toEqual(converted);
+    for (const migration of await migrationNames((name) => name > ACTIVITY_SOURCES_MIGRATION))
+      await client.query(await readMigration(migration));
 
-    for (const row of converted.revisions as Array<{ snapshot: StoredSnapshot; change: unknown }>) {
+    for (const row of (await everyStoredState(client)).revisions as Array<{
+      snapshot: StoredSnapshot;
+      change: unknown;
+    }>) {
       expect(row.snapshot).not.toHaveProperty("activityPaths");
       RecordModelSchema.parse(row.snapshot);
       if (row.change) RecordRevisionChangeSchema.parse(row.change);

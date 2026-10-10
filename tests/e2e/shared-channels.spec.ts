@@ -20,8 +20,9 @@ test("shares an indexed identifier across lists, unlinks one association and lin
   let model = await post("/api/v1/model/discover", {});
   await post("/api/v1/model/apply", {
     expectedRevision: model.revision, idempotencyKey: randomUUID(),
-    operations: [{ operation: "putCapability", capability: {
-      id: randomUUID(), kind: "channels", enabled: true, typeId: typeId("organization"), fields: [],
+    operations: [{ operation: "putField", field: {
+      id: randomUUID(), typeId: typeId("organization"), label: "Channels", valueType: "channels",
+      behavior: { kind: "input" }, required: false, options: [], position: 99,
     } }],
   });
   model = await post("/api/v1/model/discover", {});

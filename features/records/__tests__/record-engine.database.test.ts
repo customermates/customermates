@@ -21,7 +21,7 @@ import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { interactorFailureStatus } from "@/core/validation/validation.utils";
-import { recordChannelsEnabled } from "../record-channels";
+import { recordChannelsEnabled, recordChannelsField } from "../record-channels";
 
 vi.mock("@/env", () => ({
   env: {
@@ -36,6 +36,22 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
 }));
 
+function channelsFieldOperation(typeId: string, id: string = randomUUID(), providerAvatar = false) {
+  return {
+    operation: "putField" as const,
+    field: {
+      id,
+      typeId,
+      label: "Channels",
+      valueType: "channels" as const,
+      behavior: { kind: "input" as const },
+      required: false,
+      format: { providerAvatar },
+      options: [],
+      position: 99,
+    },
+  };
+}
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
@@ -867,6 +883,54 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       state: "value",
       value: decimal("12.125"),
     });
+  });
+
+  it("round-trips a list with a Channels field through export and import and reports identity changes on the field", async () => {
+    const f = await fixture();
+    const contactTypeId = f.id("contact");
+    const channelsId = f.id("capability.identity");
+    const created = await f.mutation({
+      action: "create",
+      typeId: contactTypeId,
+      fields: [{ fieldId: f.id("contact.firstName"), value: textValue("Roundtrip") }],
+      identities: [{ provider: "mail", value: "roundtrip@example.test" }],
+    });
+    if (!created.ok || created.data.status !== "completed") throw new Error(JSON.stringify(created));
+    const ref = recordInvariant(created.data.refs.find((candidate) => candidate.typeId === contactTypeId));
+    const [event] = await f.run(() =>
+      prisma.eventLog.findMany({ where: { companyId: f.company.id, subjectId: ref.recordId, kind: "record.created" } }),
+    );
+    expect((event?.payload as { changedFieldIds: string[] }).changedFieldIds).toContain(channelsId);
+    expect(
+      await f.mutation({
+        action: "update",
+        ref,
+        expectedVersion: (await f.readRecord(ref)).version,
+        fields: [{ fieldId: channelsId, value: textValue("roundtrip@example.test") }],
+      }),
+    ).toMatchObject({ ok: false });
+    const exporter = new ExportRecordsInteractor(f.repo, f.policy);
+    const importer = new ImportRecordsInteractor(
+      f.repo,
+      f.policy,
+      new RecordWriteService(f.repo, f.policy, new RecordCalculationService(f.repo)),
+    );
+    const exported = await f.run(() =>
+      exporter.invoke({ typeId: contactTypeId, search: "Roundtrip", filters: [], relationships: [], sort: [] }),
+    );
+    if (!exported.ok) throw exported.error;
+    expect(exported.data.records[0].fields.some((field) => field.fieldId === channelsId)).toBe(false);
+    expect(exported.data.records[0].identities).toMatchObject([{ value: "roundtrip@example.test" }]);
+    const copy = { typeId: contactTypeId, recordId: randomUUID() };
+    const imported = await f.run(() =>
+      importer.invoke({
+        document: { ...exported.data, records: exported.data.records.map((row) => ({ ...row, ref: copy })) },
+        mode: "create",
+        idempotencyKey: randomUUID(),
+      }),
+    );
+    expect(imported, JSON.stringify(imported)).toMatchObject({ ok: true, data: { created: 1 } });
+    expect((await f.readRecord(copy)).identities).toMatchObject([{ value: "roundtrip@example.test" }]);
   });
 
   it("imports a generic export atomically with stable IDs and idempotent retries", async () => {
@@ -6167,19 +6231,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
   it("shares one indexed channel across types, hides restricted associations, and deletes the identity after its last association", async () => {
     const f = await fixture();
     const organizationTypeId = f.id("organization");
-    const binding = {
-      id: randomUUID(),
-      kind: "channels" as const,
-      typeId: organizationTypeId,
-      fields: [],
-      enabled: true,
-    };
     expect(
       await f.run(() =>
         f.configure.invoke({
           expectedRevision: 1,
           idempotencyKey: randomUUID(),
-          operations: [{ operation: "putCapability", capability: binding }],
+          operations: [channelsFieldOperation(organizationTypeId)],
         }),
       ),
     ).toMatchObject({ ok: true, data: { schemaRevision: 2 } });
@@ -6321,10 +6378,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             embedded: false,
             accessPresetId: null,
           },
-          {
-            operation: "putCapability",
-            capability: { id: randomUUID(), kind: "channels", typeId: "$archivable", fields: [], enabled: true },
-          },
+          channelsFieldOperation("$archivable"),
         ],
       }),
     );
@@ -6415,21 +6469,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
   it("lets schema managers enable Channels without granting record access and preserves associations across disabling", async () => {
     const f = await fixture();
     const typeId = f.id("organization");
-    const capability = {
-      id: randomUUID(),
-      kind: "channels" as const,
-      typeId,
-      fields: [],
-      enabled: true,
-    };
-    const change = (revision: number, enabled: boolean, lifecycle?: "delete" | "restore"): ConfigurationChange => ({
+    const channels = channelsFieldOperation(typeId);
+    const change = (revision: number, lifecycle?: "delete" | "restore"): ConfigurationChange => ({
       expectedRevision: revision,
       idempotencyKey: randomUUID(),
-      operations: lifecycle
-        ? [{ operation: lifecycle, target: { kind: "channels", id: capability.id } }]
-        : [{ operation: "putCapability", capability: { ...capability, enabled } }],
+      operations: lifecycle ? [{ operation: lifecycle, target: { kind: "field", id: channels.field.id } }] : [channels],
     });
-    expect(await f.run(() => f.configure.run(change(1, true)), f.member)).toMatchObject({ ok: false });
+    expect(await f.run(() => f.configure.run(change(1)), f.member)).toMatchObject({ ok: false });
     await runWithoutTenant(() =>
       prisma.rolePermission.create({
         data: {
@@ -6440,7 +6486,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       }),
     );
-    expect(await f.run(() => f.configure.run(change(1, true)), f.member)).toMatchObject({
+    expect(await f.run(() => f.configure.run(change(1)), f.member)).toMatchObject({
       ok: true,
       data: { schemaRevision: 2 },
     });
@@ -6471,7 +6517,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const resolve = (as = f.admin) =>
       f.run(() => reader.resolve([{ provider: "mail", value: "disabled@example.test" }]), as);
     expect((await resolve(f.member))[0].records).toEqual([]);
-    expect(await f.run(() => f.configure.run(change(2, false, "delete")), f.member)).toMatchObject({
+    expect(await f.run(() => f.configure.run(change(2, "delete")), f.member)).toMatchObject({
       ok: true,
       data: { schemaRevision: 3 },
     });
@@ -6496,7 +6542,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         3,
       ),
     ).toMatchObject({ ok: false });
-    expect(await f.run(() => f.configure.run(change(3, true, "restore")), f.member)).toMatchObject({
+    expect(await f.run(() => f.configure.run(change(3, "restore")), f.member)).toMatchObject({
       ok: true,
       data: { schemaRevision: 4 },
     });
@@ -6551,18 +6597,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         f.configure.invoke({
           expectedRevision: 1,
           idempotencyKey: randomUUID(),
-          operations: [
-            {
-              operation: "putCapability",
-              capability: {
-                id: randomUUID(),
-                kind: "channels",
-                typeId: line.typeId,
-                fields: [],
-                enabled: true,
-              },
-            },
-          ],
+          operations: [channelsFieldOperation(line.typeId)],
         }),
       ),
     ).toMatchObject({ ok: true, data: { schemaRevision: 2 } });
@@ -16412,7 +16447,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const live = await f.run(() => getGetRecordModelInteractor().invoke({}));
     expect(live.ok && live.data.types.some((type) => [projectTypeId, milestoneTypeId].includes(type.id))).toBe(false);
     const deletedItems = await f.run(() =>
-      getQueryTrashInteractor().invoke({ kinds: ["list", "field", "relationship", "channels"] } as never),
+      getQueryTrashInteractor().invoke({ kinds: ["list", "field", "relationship"] } as never),
     );
     expect(deletedItems.ok && deletedItems.data.items.map((item) => [item.kind, item.targetId])).toEqual([
       ["list", projectTypeId],
@@ -16458,25 +16493,15 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       idempotencyKey: randomUUID(),
       operations,
     });
-    const organizationChannels = {
-      id: randomUUID(),
-      kind: "channels" as const,
-      typeId: organizationTypeId,
-      fields: [],
-      enabled: true,
-    };
     expect(
-      await f.run(async () =>
-        f.configure.run(await change([{ operation: "putCapability", capability: organizationChannels }])),
-      ),
+      await f.run(async () => f.configure.run(await change([channelsFieldOperation(organizationTypeId)]))),
     ).toMatchObject({ ok: true, data: { status: "completed" } });
-    expect(
-      await f.run(async () =>
-        f.preview.run(
-          await change([{ operation: "putCapability", capability: { ...organizationChannels, id: randomUUID() } }]),
-        ),
-      ),
-    ).toMatchObject({ ok: true, data: { valid: false, issues: [{ code: "duplicate_channels_capability" }] } });
+    const duplicate = channelsFieldOperation(organizationTypeId);
+    duplicate.field.label = "More channels";
+    expect(await f.run(async () => f.preview.run(await change([duplicate])))).toMatchObject({
+      ok: true,
+      data: { valid: false, issues: [expect.objectContaining({ code: "duplicate_channels_field" })] },
+    });
     expect(
       await f.mutation(
         {
@@ -16508,12 +16533,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         await revision(),
       ),
     ).toMatchObject({ ok: true });
-    const contactChannels = recordInvariant(
-      (await f.run(() => f.repo.getModel())).capabilities.find(
-        (binding) => binding.kind === "channels" && binding.typeId === contactTypeId,
-      ),
-    );
-    const target = { kind: "channels" as const, id: contactChannels.id };
+    const contactChannels = recordInvariant(recordChannelsField(await f.run(() => f.repo.getModel()), contactTypeId));
+    const target = { kind: "field" as const, id: contactChannels.id };
     const deletion = { operation: "deletePermanently" as const, target };
     expect(await f.run(async () => f.preview.run(await change([deletion])))).toMatchObject({ ok: false });
     const view = await f.run(() =>
@@ -16522,7 +16543,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           action: "create",
           surfaceKey: `records:${contactTypeId}`,
           name: "With channels",
-          state: { columnOrder: [f.id("contact.name"), "system:channels"] },
+          state: { columnOrder: [f.id("contact.name"), contactChannels.id] },
         },
       ]),
     );
@@ -16545,7 +16566,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const cleanedView = await f.run(() =>
       prisma.dataView.findFirstOrThrow({ where: { companyId: f.company.id, surfaceKey: `records:${contactTypeId}` } }),
     );
-    expect(cleanedView.columnOrder).not.toContain("system:channels");
+    expect(cleanedView.columnOrder).not.toContain(contactChannels.id);
     expect(await f.run(async () => f.preview.run(await change([deletion])))).toMatchObject({
       ok: true,
       data: {
@@ -16558,9 +16579,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       data: { status: "completed" },
     });
     const after = await f.run(() => f.repo.getModel());
-    expect(after.capabilities.some((binding) => binding.id === contactChannels.id)).toBe(false);
+    expect(after.fields.some((field) => field.id === contactChannels.id)).toBe(false);
     expect(recordInvariant(after.types.find((type) => type.id === contactTypeId)).defaults.columns).not.toContain(
-      "system:channels",
+      contactChannels.id,
     );
     expect(
       await f.run(() =>
@@ -16587,19 +16608,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         f.configure.invoke({
           expectedRevision: 1,
           idempotencyKey: randomUUID(),
-          operations: [
-            {
-              operation: "putCapability",
-              capability: {
-                id: randomUUID(),
-                kind: "channels",
-                typeId: organization.typeId,
-                fields: [],
-                enabled: true,
-                providerAvatar: true,
-              },
-            },
-          ],
+          operations: [channelsFieldOperation(organization.typeId, randomUUID(), true)],
         }),
       ),
     ).toMatchObject({ ok: true, data: { status: "completed" } });
@@ -16770,17 +16779,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
               position: 100,
             },
           },
-          {
-            operation: "putCapability",
-            capability: {
-              id: randomUUID(),
-              kind: "channels",
-              typeId: unrelatedService.typeId,
-              fields: [],
-              enabled: true,
-              providerAvatar: true,
-            },
-          },
+          channelsFieldOperation(unrelatedService.typeId, randomUUID(), true),
           {
             operation: "putCapability",
             capability: {

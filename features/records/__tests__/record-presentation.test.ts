@@ -46,18 +46,21 @@ const window: RecordField = {
 const extended = { ...model, fields: [...model.fields, window] };
 
 describe("generic record presentation filters", () => {
-  it("exposes identity channels only on bound types and keeps them out of scalar query operators", () => {
-    expect(recordColumns(id("contact"), model)).toContainEqual({
-      kind: "identity",
-      id: "system:channels",
-      label: "channels",
-      sortable: false,
-    });
-    expect(recordColumns(id("organization"), model).some((column) => column.id === "system:channels")).toBe(false);
-    expect(RecordColumnKeySchema.safeParse("system:channels").success).toBe(true);
-    expect(RecordFieldKeySchema.safeParse("system:channels").success).toBe(false);
-    expect(recordViewStateIsValid(id("contact"), { columnOrder: ["system:channels"] }, model)).toBe(true);
-    expect(recordViewStateIsValid(id("organization"), { columnOrder: ["system:channels"] }, model)).toBe(false);
+  it("shows Channels as a field column of its own list and keeps it out of filters, sorting and grouping", () => {
+    const channels = id("capability.identity");
+    expect(recordColumns(id("contact"), model)).toContainEqual(
+      expect.objectContaining({ kind: "field", id: channels, sortable: false }),
+    );
+    expect(recordColumns(id("organization"), model).some((column) => column.id === channels)).toBe(false);
+    expect(RecordColumnKeySchema.safeParse("system:channels").success).toBe(false);
+    expect(RecordFieldKeySchema.safeParse(channels).success).toBe(true);
+    expect(recordViewStateIsValid(id("contact"), { columnOrder: [channels] }, model)).toBe(true);
+    expect(recordViewStateIsValid(id("organization"), { columnOrder: [channels] }, model)).toBe(false);
+    expect(
+      recordFilterableFields(model.fields.filter((field) => field.typeId === id("contact"))).some(
+        (field) => field.field === channels,
+      ),
+    ).toBe(false);
   });
   it("preserves typed relationship, assignment and relative-date filters in saved views", () => {
     const related = randomUUID();

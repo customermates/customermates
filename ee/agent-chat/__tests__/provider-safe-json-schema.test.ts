@@ -632,7 +632,7 @@ describe("the shipped tool catalog on the Google wire", () => {
       "anyOf:collapsed": 182,
       "anyOf:merged": 30,
       "const:removed": 6,
-      "const:rewritten": 166,
+      "const:rewritten": 159,
       "enum:removed": 19,
       "exclusiveMinimum:rewritten": 14,
       "nullable:rewritten": 164,
