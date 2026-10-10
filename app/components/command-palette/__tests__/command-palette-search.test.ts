@@ -220,6 +220,8 @@ describe("reviewer queries (F22r2)", async () => {
 
   it("keeps fuzzy matching for longer single words only", () => {
     expect(labels("dashbord")).toContain("Dashboard");
+    expect(labels("billng")).toContain("Billing");
+    expect(labels("Anna")).toEqual([]);
     expect(labels("dshb")).toEqual([]);
   });
 });

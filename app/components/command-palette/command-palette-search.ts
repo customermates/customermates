@@ -106,7 +106,7 @@ const STOP_WORDS: ReadonlySet<string> = new Set([
   "zur",
 ]);
 const FUZZY_MIN_LENGTH = 5;
-const FUZZY_MIN_SCORE = 0.2;
+const FUZZY_MIN_SCORE = 0.15;
 
 function words(text: string): string[] {
   return foldText(text)
