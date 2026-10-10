@@ -151,13 +151,52 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return undefined;
   }
 
+  get manualOrderActive(): boolean {
+    return false;
+  }
+
   async moveItemBetweenGroups(_params: {
     item: Entity;
     optimisticItem: Entity;
     fromGroupKey: string;
     toGroupKey: string;
     value: string | null;
+    afterId?: string | null;
+    beforeId?: string | null;
   }): Promise<void> {}
+
+  moveInGrouping = (
+    itemId: string,
+    fromGroupKey: string,
+    toGroupKey: string,
+    beforeId: string | null,
+  ): GroupingResult | undefined => {
+    const current = this.groupingResult;
+    if (!current) return undefined;
+    const crossing = fromGroupKey !== toGroupKey;
+    this.groupingResult = {
+      ...current,
+      groups: current.groups.map((group) => {
+        const ids = group.itemIds.filter((id) => id !== itemId);
+        if (group.key !== toGroupKey) {
+          return group.key === fromGroupKey && crossing
+            ? { ...group, itemIds: ids, count: Math.max(0, group.count - 1) }
+            : group;
+        }
+        const at = beforeId ? ids.indexOf(beforeId) : -1;
+        return {
+          ...group,
+          itemIds: at < 0 ? [...ids, itemId] : [...ids.slice(0, at), itemId, ...ids.slice(at)],
+          count: group.count + (crossing ? 1 : 0),
+        };
+      }),
+    };
+    return current;
+  };
+
+  restoreGrouping = (snapshot: GroupingResult): void => {
+    this.groupingResult = snapshot;
+  };
 
   abstract get columnsDefinition(): TableColumn[];
 
@@ -252,6 +291,8 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       clearSelection: action,
       loadMoreInGroup: action,
       toggleGroupCollapsed: action,
+      moveInGrouping: action,
+      restoreGrouping: action,
       toggleBoardStrip: action,
       hideGroup: action,
       showGroup: action,
