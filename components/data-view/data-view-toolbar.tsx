@@ -22,7 +22,7 @@ type Props<E extends HasId> = {
   onAdd?: () => void;
   onExport?: () => Promise<void> | void;
   onImport?: () => void;
-  isSearchable?: boolean;
+  searchLabel?: string;
   showDisplayOptions?: boolean;
   anchorScope?: string;
   addLabel?: string;
@@ -34,7 +34,7 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
   onAdd,
   onExport,
   onImport,
-  isSearchable = true,
+  searchLabel,
   showDisplayOptions = true,
   anchorScope,
   addLabel,
@@ -58,7 +58,7 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
         />
       )}
 
-      <FilterPopover id={anchorScope ? `${anchorScope}-filter` : undefined} searchable={isSearchable} store={store} />
+      <FilterPopover id={anchorScope ? `${anchorScope}-filter` : undefined} searchLabel={searchLabel} store={store} />
 
       {showDisplayOptions && (
         <DataViewDisplayOptions
