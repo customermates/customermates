@@ -10,6 +10,7 @@ import { useTranslations } from "next-intl";
 import { Sigma } from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { RecordCell } from "./record-cell";
 import {
   RecordCalculatedValue,
@@ -33,6 +34,8 @@ export function useRecordTableColumns(
   { markCalculated = false }: { markCalculated?: boolean } = {},
 ) {
   const t = useTranslations();
+  const intl = useHydratedIntlStore();
+  const locale = intl.formattingLocale;
   const avatarFieldId = recordAvatarFieldId(store);
   const columnHeaders = JSON.stringify(store.recordColumns.map((column) => [column.id, column.label]));
   return useMemo<ColumnDef<RecordRow>[]>(
@@ -56,7 +59,9 @@ export function useRecordTableColumns(
                     </span>
                   </TooltipTrigger>
 
-                  <TooltipContent>{calculatedFieldLabel(calculated, store.presentation.model, t)}</TooltipContent>
+                  <TooltipContent>
+                    {calculatedFieldLabel(calculated, store.presentation.model, t, locale)}
+                  </TooltipContent>
                 </Tooltip>
               )
             : label,
@@ -111,6 +116,6 @@ export function useRecordTableColumns(
           },
         };
       }),
-    [columnHeaders, openRelated, avatarFieldId, store, markCalculated, t],
+    [columnHeaders, openRelated, avatarFieldId, store, markCalculated, t, locale],
   );
 }
