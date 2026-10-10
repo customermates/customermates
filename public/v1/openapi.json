@@ -8340,19 +8340,28 @@
                         "fieldId": {
                           "anyOf": [
                             {
-                              "type": "string",
-                              "format": "uuid",
-                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "system:createdAt",
+                                    "system:updatedAt",
+                                    "system:assignedTo"
+                                  ]
+                                }
+                              ]
                             },
                             {
                               "type": "string",
-                              "enum": [
-                                "system:createdAt",
-                                "system:updatedAt",
-                                "system:assignedTo"
-                              ]
+                              "const": "system:manual"
                             }
-                          ]
+                          ],
+                          "description": "A sortable field id, system:createdAt, system:updatedAt, or system:manual (the list's manual order, asc only)."
                         },
                         "direction": {
                           "type": "string",
@@ -49188,19 +49197,28 @@
                         "fieldId": {
                           "anyOf": [
                             {
-                              "type": "string",
-                              "format": "uuid",
-                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                {
+                                  "type": "string",
+                                  "enum": [
+                                    "system:createdAt",
+                                    "system:updatedAt",
+                                    "system:assignedTo"
+                                  ]
+                                }
+                              ]
                             },
                             {
                               "type": "string",
-                              "enum": [
-                                "system:createdAt",
-                                "system:updatedAt",
-                                "system:assignedTo"
-                              ]
+                              "const": "system:manual"
                             }
-                          ]
+                          ],
+                          "description": "A sortable field id, system:createdAt, system:updatedAt, or system:manual (the list's manual order, asc only)."
                         },
                         "direction": {
                           "type": "string",
@@ -51755,6 +51773,28 @@
                           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                         }
                       },
+                      "placement": {
+                        "description": "Moves the record in its list's manual order (sort system:manual): right after afterRecordId, right before beforeRecordId, between both, or first when neither is given. With groupFieldId (a single choice input field, not a calculated one), the order is kept within records that share the record's value of that field, as in a board column. Changing only the order creates no new version, history entry or webhook.",
+                        "type": "object",
+                        "properties": {
+                          "afterRecordId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "beforeRecordId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "groupFieldId": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          }
+                        },
+                        "additionalProperties": false
+                      },
                       "expectedImpactHash": {
                         "type": "string",
                         "pattern": "^[a-f0-9]{64}$"
@@ -51812,7 +51852,7 @@
                       "action"
                     ],
                     "additionalProperties": false,
-                    "description": "create requires typeId and fields; update requires ref, expectedVersion and fields, where a field entry is { fieldId, value } or, for Formatted text and Text fields, { fieldId, append } to add text after the current value (an update that only appends never conflicts with a newer version); delete requires ref and expectedVersion and moves the record (with its sub-list rows and cascaded records) to Trash, where it stays restorable for 30 days; permanent: true deletes it permanently right away and erases its values from history. link/unlink require relationId, source and target. updateMany/deleteMany require targets with each ref and expectedVersion; updateMany requires fields and applies the same patch to every target atomically; deleteMany moves every target to Trash (permanent: true deletes them permanently). Use only fields for that action."
+                    "description": "create requires typeId and fields; update requires ref, expectedVersion and fields, where a field entry is { fieldId, value } or, for Formatted text and Text fields, { fieldId, append } to add text after the current value (an update that only appends never conflicts with a newer version); an update may carry placement to move the record in the list's manual order; delete requires ref and expectedVersion and moves the record (with its sub-list rows and cascaded records) to Trash, where it stays restorable for 30 days; permanent: true deletes it permanently right away and erases its values from history. link/unlink require relationId, source and target. updateMany/deleteMany require targets with each ref and expectedVersion; updateMany requires fields and applies the same patch to every target atomically; deleteMany moves every target to Trash (permanent: true deletes them permanently). Use only fields for that action."
                   }
                 },
                 "required": [

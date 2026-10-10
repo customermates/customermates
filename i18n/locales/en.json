@@ -1463,7 +1463,8 @@
     "sort": {
       "ascending": "Ascending",
       "descending": "Descending",
-      "field": "Sort by"
+      "field": "Sort by",
+      "manual": "Manual"
     },
     "stageProbability": "Stage probability",
     "systemTasks": {
