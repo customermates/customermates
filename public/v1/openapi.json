@@ -44857,7 +44857,7 @@
                                 "enum": [
                                   "countsRecords",
                                   "triggerChanged",
-                                  "subscriptionRemoved",
+                                  "webhookPaused",
                                   "channels",
                                   "avatar",
                                   "calendar"
@@ -58722,6 +58722,20 @@
                     "enabled": {
                       "type": "boolean"
                     },
+                    "pausedReason": {
+                      "description": "Why the webhook was paused automatically, for example its only trigger field was deleted.",
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "enum": [
+                            "triggerFieldDeleted"
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
                     "recordTrigger": {
                       "anyOf": [
                         {
@@ -61659,6 +61673,20 @@
                         },
                         "enabled": {
                           "type": "boolean"
+                        },
+                        "pausedReason": {
+                          "description": "Why the webhook was paused automatically, for example its only trigger field was deleted.",
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "enum": [
+                                "triggerFieldDeleted"
+                              ]
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
                         },
                         "recordTrigger": {
                           "anyOf": [
@@ -87335,6 +87363,7 @@
                         "recordNotFound",
                         "recordTypeNotFound",
                         "recordConfigurationInvalid",
+                        "webhookTriggerRequired",
                         "recordValueInvalid",
                         "recordSchemaChanged",
                         "recordVersionChanged",
