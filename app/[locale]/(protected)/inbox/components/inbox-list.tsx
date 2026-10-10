@@ -82,7 +82,11 @@ const InboxListContent = observer(({ canConnect, threads, selectedThreadId, lock
     () =>
       locked ? null : (
         <div className="flex items-center gap-1">
-          <DataViewToolbar showDisplayOptions={false} store={messagingThreadsStore} />
+          <DataViewToolbar
+            searchLabel={t("Common.filters.searchFields.inbox")}
+            showDisplayOptions={false}
+            store={messagingThreadsStore}
+          />
 
           {canUpdate && (
             <TopBarActionButtons

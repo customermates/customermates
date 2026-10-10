@@ -278,13 +278,14 @@ test("admits an assigned-record writer and separately delegates schema configura
     await expect(member.page.locator("#records-add")).toHaveCount(0);
     await expect(member.page.locator("#nav-configure-records")).toHaveCount(0);
     const memberMenu = member.page.locator("#records-more");
-    if (await memberMenu.count()) {
-      await memberMenu.click();
-      await expect(member.page.getByRole("menu")).toBeVisible();
-      await expect(member.page.locator("#records-configure")).toHaveCount(0);
-      await member.page.keyboard.press("Escape");
-    }
-    await expect(member.page.locator("#records-configure")).toHaveCount(0);
+    await expect(memberMenu).toBeVisible();
+    await memberMenu.click();
+    const memberMenuItems = member.page.getByRole("menu");
+    await expect(memberMenuItems).toBeVisible();
+    await expect(memberMenuItems.getByRole("menuitem").first()).toBeVisible();
+    await expect(memberMenuItems.locator("#records-configure")).toHaveCount(0);
+    await member.page.keyboard.press("Escape");
+    await expect(memberMenuItems).toHaveCount(0);
     await openRecordDetails(member.page, "Assigned project");
     const drawer = member.page.getByRole("dialog", {
       name: "Project",

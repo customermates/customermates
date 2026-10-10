@@ -37,12 +37,12 @@ export async function choosePaletteValue(page: Page, anchor: string, field: stri
   await page.keyboard.press("Escape");
   await expect(page.locator("#filter-palette-search")).toHaveCount(0);
 }
-export async function applyPaletteSearch(page: Page, anchor: string, text: string) {
+export async function applyPaletteSearch(page: Page, anchor: string, text: string, label?: string) {
   await openFilterPalette(page, anchor);
   const input = page.locator("#filter-palette-search").getByRole("combobox");
   await expect(input).toBeFocused();
   await input.fill(text);
-  await expect(page.locator("[data-palette-search]")).toContainText(`“${text}”`);
+  await expect(page.locator("[data-palette-search]")).toContainText(label ? `${label} contains “${text}”` : `“${text}”`);
   await input.press("Enter");
   await expect(page.locator("#filter-palette-search")).toHaveCount(0);
 }
