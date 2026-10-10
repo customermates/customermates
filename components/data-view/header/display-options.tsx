@@ -115,10 +115,6 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 
   const orderedColumns = store.orderedColumns;
   const hiddenSet = new Set(store.hiddenColumns);
-  const sortable = [
-    ...store.columnsDefinition.filter((col) => col.sortable),
-    ...(store.supportsManualOrder ? [{ uid: MANUAL_ORDER_SORT_KEY, label: t("Common.sort.manual") }] : []),
-  ];
   const canBoard = store.canBoard;
 
   const currentSortField = store.sortDescriptor?.field ?? "";
@@ -129,6 +125,12 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const hasActiveOption = Boolean(currentSortField) || Boolean(store.grouping) || store.hiddenColumns.length > 0;
 
   const currentLayout: DataViewMode = store.viewMode === ViewMode.card && canBoard ? "board" : "table";
+  const offersManualOrder =
+    (store.supportsManualOrder && currentLayout === "board") || currentSortField === MANUAL_ORDER_SORT_KEY;
+  const sortable = [
+    ...store.columnsDefinition.filter((col) => col.sortable),
+    ...(offersManualOrder ? [{ uid: MANUAL_ORDER_SORT_KEY, label: t("Common.sort.manual") }] : []),
+  ];
 
   function handleLayoutChange(next: string) {
     if (!next) return;
