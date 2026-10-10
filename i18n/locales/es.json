@@ -941,6 +941,8 @@
       "remove": "Quitar",
       "reset": "Restablecer",
       "save": "Guardar",
+      "showLess": "Mostrar menos",
+      "showMore": "Mostrar más",
       "signIn": "Iniciar sesión"
     },
     "ariaLabels": {
@@ -2153,9 +2155,6 @@
     "pinField": "Fijar {field} en el resumen",
     "pinMore": "Fijar o soltar campos",
     "reorderInstructions": "Pulsa Espacio o Intro para seleccionar un campo. Usa las flechas para moverlo, Espacio o Intro para soltarlo y Escape para cancelar.",
-    "sections": {
-      "notes": "Notas"
-    },
     "showField": "Mostrar {field} en los detalles",
     "unpinField": "Desfijar {field} del resumen"
   },
@@ -3080,6 +3079,7 @@
     "addPathStep": "Añadir un paso de relación",
     "addProperty": "Añadir propiedad",
     "addRelationship": "Añadir relación",
+    "addValue": "Añadir {field}",
     "aggregation": "Agregación",
     "ascending": "Ascendente",
     "assignedTo": "Asignado a",
@@ -3643,6 +3643,9 @@
     "table": "Tabla",
     "triggerField": "Cuando cambie este campo",
     "triggerValue": "A este valor",
+    "typeHints": {
+      "richText": "Notas, descripciones, resúmenes"
+    },
     "types": {
       "boolean": "Sí o no",
       "channels": "Canales",

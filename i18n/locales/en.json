@@ -941,6 +941,8 @@
       "remove": "Remove",
       "reset": "Reset",
       "save": "Save",
+      "showLess": "Show less",
+      "showMore": "Show more",
       "signIn": "Login"
     },
     "ariaLabels": {
@@ -2153,9 +2155,6 @@
     "pinField": "Pin {field} to the overview",
     "pinMore": "Pin or unpin fields",
     "reorderInstructions": "Press Space or Enter to pick up a field. Use the arrow keys to move it, Space or Enter to drop, and Escape to cancel.",
-    "sections": {
-      "notes": "Notes"
-    },
     "showField": "Show {field} in details",
     "unpinField": "Unpin {field} from the overview"
   },
@@ -3080,6 +3079,7 @@
     "addPathStep": "Add a relationship step",
     "addProperty": "Add property",
     "addRelationship": "Add relationship",
+    "addValue": "Add {field}",
     "aggregation": "Aggregation",
     "ascending": "Ascending",
     "assignedTo": "Assigned to",
@@ -3643,6 +3643,9 @@
     "table": "Table",
     "triggerField": "When this field changes",
     "triggerValue": "To this value",
+    "typeHints": {
+      "richText": "Notes, descriptions, summaries"
+    },
     "types": {
       "boolean": "Yes or no",
       "channels": "Channels",

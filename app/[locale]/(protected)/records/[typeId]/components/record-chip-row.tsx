@@ -33,7 +33,7 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { recordLinkColor } from "@/features/records/record-presentation";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { withFormulaReferences } from "@/features/records/formula-references";
-import { RecordValue, useRecordValueFormat } from "./record-value";
+import { formattedTextExcerpt, RecordValue, useRecordValueFormat } from "./record-value";
 import {
   RecordInlineField,
   RecordInlineRelationship,
@@ -403,11 +403,30 @@ export const RecordCardContent = observer(function RecordCardContent({
     const recordColumn = byId.get(column.uid);
     return recordColumn && !hidden.has(column.uid) ? [recordColumn] : [];
   });
+  const isFormattedText = (column: RecordChipColumn) =>
+    column.kind === "field" && column.field.valueType === "richText";
+  const excerpts = columns.flatMap((column) => {
+    if (column.kind !== "field" || !isFormattedText(column)) return [];
+    const result = record.fields.find((value) => value.fieldId === column.field.id)?.result;
+    if (result?.state !== "value" || result.value.kind !== "richText") return [];
+    return formattedTextExcerpt(result.value.documentJson) ? [{ field: column.field, result }] : [];
+  });
   return (
     <div className="space-y-2">
       <div className="pr-6 text-sm font-medium [&_.truncate]:line-clamp-3 [&_.truncate]:whitespace-normal">{title}</div>
 
-      <RecordChipRow columns={columns} record={record} records={records} onOpenRecord={onOpenRecord} />
+      {excerpts.map(({ field, result }) => (
+        <div key={field.id} className="text-xs" data-card-excerpt={field.id}>
+          <RecordValue wrap field={field} result={result} />
+        </div>
+      ))}
+
+      <RecordChipRow
+        columns={columns.filter((column) => !isFormattedText(column))}
+        record={record}
+        records={records}
+        onOpenRecord={onOpenRecord}
+      />
     </div>
   );
 });

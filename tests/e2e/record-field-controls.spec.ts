@@ -238,7 +238,7 @@ test("configures and persists all fourteen field types, multiple values and cale
   await expect(row("Calendar range").locator(`[id^="values.${field("Calendar range").id}-"]`)).not.toContainText(
     "Pick a range",
   );
-  await dialog.getByRole("tab", { name: "Notes", exact: true }).click();
+  await dialog.getByRole("button", { name: "Edit Notes", exact: true }).click();
   await dialog.getByRole("textbox", { name: "Notes", exact: true }).fill("Formatted notes survive typed storage");
   await dialog.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialog).not.toBeVisible();
@@ -274,7 +274,6 @@ test("configures and persists all fourteen field types, multiple values and cale
   expect(JSON.stringify(value("Notes").jsonValue)).toContain("Formatted notes survive typed storage");
   await page.reload();
   await openRecordDetails(page, "Complete typed record");
-  await expect(dialog.getByRole("tab", { name: "Notes", exact: true })).toHaveAttribute("data-state", "active");
   await expect(dialog.getByRole("textbox", { name: "Notes", exact: true })).toContainText(
     "Formatted notes survive typed storage",
   );

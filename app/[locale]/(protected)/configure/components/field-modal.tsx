@@ -587,7 +587,13 @@ export const FieldModal = observer(function FieldModal({
                             { value, label: t("RecordModel.types.select") },
                             { value: "multiSelect", label: t("RecordModel.types.multiSelect") },
                           ]
-                        : [{ value, label: t(`RecordModel.types.${value}`) }],
+                        : [
+                            {
+                              value,
+                              label: t(`RecordModel.types.${value}`),
+                              ...(value === "richText" ? { description: t("RecordModel.typeHints.richText") } : {}),
+                            },
+                          ],
                     )}
                   label={t("RecordModel.valueType")}
                   value={

@@ -156,7 +156,7 @@ const SECTION_QUESTIONS: [ContentLocale, string, string, string | null][] = [
   ["en", "trigger an automation when a deal changes", "app-routines#how-do-event-triggers-work", null],
   ["en", "Can Mate click buttons for me?", "app-assistant#how-does-mate-operate-the-interface", null],
   ["en", "Can a contact belong to several companies?", "concepts#how-do-relationships-link-records", null],
-  ["en", "Are notes markdown?", "concepts#what-are-notes", null],
+  ["en", "Are notes markdown?", "concepts#what-is-formatted-text", null],
   ["en", "How is a deal's total value calculated?", "concepts#how-is-a-deals-total-value-calculated", null],
   ["en", "What does Assigned read access mean?", "concepts#who-are-users-roles-and-the-company", null],
   ["en", "Which custom field types are there?", "concepts#what-are-custom-columns", null],

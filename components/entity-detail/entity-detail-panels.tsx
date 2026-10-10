@@ -9,7 +9,7 @@ import { useP13nColumnWidths } from "@/components/shared/use-p13n-column-widths"
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { cn } from "@/core/utils/cn";
 
-type DetailPanel = "details" | "notes" | "activities";
+type DetailPanel = "details" | "activities";
 
 export type EntityDetailPanelLayout = {
   initial?: Readonly<Record<string, number>>;
@@ -17,22 +17,19 @@ export type EntityDetailPanelLayout = {
   persistenceScope: string;
 };
 
-const PANEL_SIZES: Record<DetailPanel, { minimumSize: number; defaultSize: (all: boolean) => number }> = {
-  details: { minimumSize: 320, defaultSize: (all) => (all ? 600 : 640) },
-  notes: { minimumSize: 280, defaultSize: (all) => (all ? 400 : 320) },
-  activities: { minimumSize: 320, defaultSize: () => 360 },
+const PANEL_SIZES: Record<DetailPanel, { minimumSize: number; defaultSize: number }> = {
+  details: { minimumSize: 320, defaultSize: 640 },
+  activities: { minimumSize: 320, defaultSize: 360 },
 };
 
 export function EntityDetailPanels({
   details,
-  notes,
   activities,
   summary,
   initialPanel = "details",
   panelLayout,
 }: {
   details: ReactNode;
-  notes?: ReactNode;
   activities?: ReactNode;
   summary?: ReactNode;
   initialPanel?: DetailPanel;
@@ -43,9 +40,8 @@ export function EntityDetailPanels({
   const [activePanel, setActivePanel] = useState<DetailPanel>(initialPanel);
   const [isSplit, setIsSplit] = useState(false);
   const switcherRef = useRef<HTMLDivElement>(null);
-  const hasTabs = Boolean(notes || activities);
-  const selectedPanel =
-    (activePanel === "notes" && !notes) || (activePanel === "activities" && !activities) ? "details" : activePanel;
+  const hasTabs = Boolean(activities);
+  const selectedPanel = activePanel === "activities" && !activities ? "details" : activePanel;
   useEffect(() => {
     const switcher = switcherRef.current;
     if (!switcher) return;
@@ -61,16 +57,14 @@ export function EntityDetailPanels({
   }, [hasTabs]);
   const panels: { key: DetailPanel; label: string; content: ReactNode }[] = [
     { key: "details", label: t("EntityDetail.overview"), content: details },
-    ...(notes ? [{ key: "notes" as const, label: t("EntityDetail.sections.notes"), content: notes }] : []),
     ...(activities
       ? [{ key: "activities" as const, label: t("EntityTimeline.types.activities"), content: activities }]
       : []),
   ];
-  const hasNotes = Boolean(notes);
   const hasActivities = Boolean(activities);
   const panelIds = useMemo<DetailPanel[]>(
-    () => ["details", ...(hasNotes ? ["notes" as const] : []), ...(hasActivities ? ["activities" as const] : [])],
-    [hasActivities, hasNotes],
+    () => ["details", ...(hasActivities ? ["activities" as const] : [])],
+    [hasActivities],
   );
   const panelLayoutId = panelIds.join("-");
   const { columnWidths, commitColumnWidths } = useP13nColumnWidths({
@@ -84,21 +78,13 @@ export function EntityDetailPanels({
       commitColumnWidths((current) => mergeStoredPanelSizes(current, panelLayoutId, panelIds, sizes)),
     [commitColumnWidths, panelIds, panelLayoutId],
   );
-  const allPanels = hasNotes && hasActivities;
-  const defaultTemplate =
-    notes && activities
-      ? "minmax(0, 3fr) 1px minmax(0, 2fr) 1px 360px"
-      : notes
-        ? "minmax(0, 2fr) 1px minmax(0, 1fr)"
-        : activities
-          ? "minmax(0, 1fr) 1px 360px"
-          : "minmax(0, 1fr)";
+  const defaultTemplate = activities ? "minmax(0, 1fr) 1px 360px" : "minmax(0, 1fr)";
   const definitions: ResizablePanelDefinition[] = panels.map((panel) => ({
     id: panel.key,
     label: panel.label,
     controlId: `${id}-${panel.key}-panel`,
     minimumSize: PANEL_SIZES[panel.key].minimumSize,
-    defaultSize: PANEL_SIZES[panel.key].defaultSize(allPanels),
+    defaultSize: PANEL_SIZES[panel.key].defaultSize,
     element: (
       <div
         aria-label={hasTabs && isSplit ? panel.label : undefined}

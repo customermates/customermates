@@ -248,9 +248,9 @@ Zum erneuten Senden klicken Sie oben in **Ereignis-Details** auf **Erneut senden
 
 Nein. Zwei `record.updated`-Ereignisse im Millisekundenabstand können in falscher Reihenfolge ankommen. Nutzen Sie `timestamp` und Datensatzversion zur Reihenfolge oder behandeln Sie Zustellungen als idempotente Nachrichten mit `typeId`, `recordId` und Ereignis-ID als Schlüssel.
 
-## Warum sind Notizen in Payloads Tiptap-JSON? [#notes-are-json-not-markdown]
+## Warum ist formatierter Text in Payloads Tiptap-JSON? [#formatted-text-is-json-not-markdown]
 
-Das `notes`-Feld in Payloads ist Tiptap-JSON, die Struktur, die der Editor speichert. Ein Tiptap-kompatibler Serializer macht daraus Markdown. In MCP liefert `read_crm_record` den Rich-Text-Wert mit `documentJson`, der sich genauso umwandeln lässt.
+Der Wert eines Felds vom Typ Formatierter Text ist in Payloads ein `richText`-Wert, dessen `documentJson` Tiptap-JSON ist, die Struktur, die der Editor speichert. Ein Tiptap-kompatibler Serializer macht daraus Markdown. In MCP liefert `read_crm_record` den Rich-Text-Wert mit `documentJson`, der sich genauso umwandeln lässt.
 
 ## Was enthalten Delete-Payloads? [#what-do-delete-payloads-contain]
 

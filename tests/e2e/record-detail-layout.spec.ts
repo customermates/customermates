@@ -93,7 +93,6 @@ test("persists personal detail pins, visibility and keyboard order without losin
     await page.setViewportSize({ width: 1720, height: 1000 });
     await expect(main.locator("[data-detail-panel-switcher]")).not.toBeVisible();
     await expect(main.getByRole("region", { name: "Overview", exact: true })).toBeVisible();
-    await expect(main.getByRole("region", { name: "Notes", exact: true })).toBeVisible();
     await expect(main.getByRole("region", { name: "Activities", exact: true })).toBeVisible();
     await page.screenshot({
       path: testInfo.outputPath("record-detail-desktop.png"),
@@ -102,11 +101,9 @@ test("persists personal detail pins, visibility and keyboard order without losin
     });
     await page.setViewportSize({ width: 980, height: 850 });
   }
-  await expect(main.getByRole("tab", { name: "Notes", exact: true })).toBeVisible();
-  await main.getByRole("tab", { name: "Notes", exact: true }).click();
-  await expect(main.getByRole("textbox", { name: "Notes", exact: true })).toBeVisible();
+  await expect(main.getByRole("tab", { name: "Notes", exact: true })).toHaveCount(0);
+  await main.getByRole("button", { name: "Edit Notes", exact: true }).click();
   await main.getByRole("textbox", { name: "Notes", exact: true }).fill("A note from the full-page editor");
-  await main.getByRole("tab", { name: "Overview", exact: true }).click();
   await expect(main.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Draft stays here");
   await page.locator("[data-record-page-actions]").getByRole("button", { name: "Save", exact: true }).click();
   await expect(

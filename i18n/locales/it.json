@@ -941,6 +941,8 @@
       "remove": "Rimuovi",
       "reset": "Reimposta",
       "save": "Salva",
+      "showLess": "Mostra meno",
+      "showMore": "Mostra di più",
       "signIn": "Accedi"
     },
     "ariaLabels": {
@@ -2153,9 +2155,6 @@
     "pinField": "Fissa {field} nella panoramica",
     "pinMore": "Fissa o sblocca campi",
     "reorderInstructions": "Premi Spazio o Invio per selezionare un campo. Usa le frecce per spostarlo, Spazio o Invio per rilasciarlo ed Esc per annullare.",
-    "sections": {
-      "notes": "Note"
-    },
     "showField": "Mostra {field} nei dettagli",
     "unpinField": "Togli {field} dalla panoramica"
   },
@@ -3080,6 +3079,7 @@
     "addPathStep": "Aggiungi un passaggio di relazione",
     "addProperty": "Aggiungi proprietà",
     "addRelationship": "Aggiungi relazione",
+    "addValue": "Aggiungi {field}",
     "aggregation": "Aggregazione",
     "ascending": "Crescente",
     "assignedTo": "Assegnato a",
@@ -3643,6 +3643,9 @@
     "table": "Tabella",
     "triggerField": "Quando questo campo cambia",
     "triggerValue": "A questo valore",
+    "typeHints": {
+      "richText": "Note, descrizioni, riepiloghi"
+    },
     "types": {
       "boolean": "Sì o no",
       "channels": "Canali",
