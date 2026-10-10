@@ -4,11 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import type { RecordEditorResult } from "@/features/records/get-record-editor.interactor";
+import type { TrashedRecordInfo } from "@/features/trash/trash.schema";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useRouter } from "@/i18n/navigation";
 import { RecordEditorStore } from "./record-editor.store";
 import { RecordEditor } from "./record-editor";
 import { RecordEditorContent } from "./record-editor-content";
+import { RecordTrashBanner } from "./record-trash-banner";
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
 import { recordTitle } from "@/components/records/record-title";
 import { recordPanelsP13nId } from "./record-panels-personalization";
@@ -16,9 +18,11 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 const RecordDetailPageContent = observer(function RecordDetailPage({
   initial,
+  trash,
   panelLayoutInitial,
 }: {
   initial: RecordEditorResult;
+  trash?: TrashedRecordInfo;
   panelLayoutInitial?: Readonly<Record<string, number>>;
 }) {
   useRecordRouteReady();
@@ -80,13 +84,21 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
     p13nId: root.appMode === "demo" ? undefined : recordPanelsP13nId(initial.typeId),
     persistenceScope: root.userStore?.user?.id ?? "anonymous",
   };
-  return (
+  const content = (
     <RecordEditorContent
       layout="page"
       panelLayout={panelLayout}
       renderEditor={(child) => <RecordEditor store={child} />}
       store={store}
     />
+  );
+  if (!trash) return content;
+  return (
+    <div className="flex min-h-0 flex-col">
+      <RecordTrashBanner trash={trash} />
+
+      <div className="min-h-0 flex-1">{content}</div>
+    </div>
   );
 });
 
