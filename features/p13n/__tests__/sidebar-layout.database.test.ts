@@ -1,13 +1,13 @@
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
-import { readFileSync } from "node:fs";
 
 import { Client } from "pg";
 import { createTranslator } from "next-intl";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
+import { readMigration } from "@/tests/helpers/legacy-migration-database";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import messages from "@/i18n/locales/en.json";
 
@@ -125,7 +125,7 @@ describeDatabase("personal sidebar layout in P13n settings", () => {
       ],
     );
     await client.query(
-      readFileSync("prisma/migrations/20261010000000_sidebar_entries/migration.sql", "utf8").replace(
+      (await readMigration("20261010000000_sidebar_entries")).replace(
         `WHERE "p13nId" = 'sidebar'`,
         `WHERE "companyId" = '${companyId}' AND "p13nId" = 'sidebar'`,
       ),
