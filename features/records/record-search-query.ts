@@ -59,15 +59,16 @@ export function compileRecordSearch(
         AND value."recordId" = record.id AND value."fieldId" = ${avatar.id} AND value.state = 'value') ELSE NULL END`
       : Prisma.sql`NULL::text`;
     const scope = access.get(type.id) ?? { access: "none" as const, userId: "" };
+    const similar = similarTerm !== null && title ? similarTerm : null;
     const matching =
       "refs" in request
         ? Prisma.sql`SELECT id FROM "CrmRecord" WHERE "companyId" = ${companyId} AND "typeId" = ${type.id} AND "deletedAt" IS NULL
           AND id IN (${Prisma.join(request.refs.filter((ref) => ref.typeId === type.id).map((ref) => ref.recordId))})`
-        : similarTerm !== null
-          ? Prisma.sql`SELECT value."recordId" AS id, word_similarity(${similarTerm}, value."textValue") AS similarity
+        : similar !== null && title
+          ? Prisma.sql`SELECT value."recordId" AS id, word_similarity(${similar}, value."textValue") AS similarity
             FROM "RecordValue" value
-            WHERE value."companyId" = ${companyId} AND value."typeId" = ${type.id} AND value."fieldId" = ${title?.id ?? null}
-              AND value.state = 'value' AND ${similarTerm} <% value."textValue"`
+            WHERE value."companyId" = ${companyId} AND value."typeId" = ${type.id} AND value."fieldId" = ${title.id}
+              AND value.state = 'value' AND ${similar} <% value."textValue"`
           : compileRecordQuery(
               companyId,
               RecordQuerySchema.parse({ typeId: type.id, search: request.search.searchTerm }),
@@ -86,8 +87,8 @@ export function compileRecordSearch(
       ) record ON TRUE
       WHERE record."companyId" = ${companyId} AND record."typeId" = ${type.id}
         AND ${recordReadPredicate(companyId, scope, root)} AND ${after}
-        ${similarTerm !== null ? Prisma.sql`AND ${titleAccess}` : Prisma.empty}
-      ORDER BY ${similarTerm !== null ? Prisma.sql`matched.similarity DESC,` : Prisma.empty} record."createdAt" DESC, record.id ASC
+        ${similar !== null ? Prisma.sql`AND ${titleAccess}` : Prisma.empty}
+      ORDER BY ${similar !== null ? Prisma.sql`matched.similarity DESC,` : Prisma.empty} record."createdAt" DESC, record.id ASC
       LIMIT ${pageLimit}`;
     return Prisma.sql`SELECT record."typeId", record.id AS "recordId", record."createdAt", record.version, record."protectedKind",
       CASE WHEN ${titleAccess} THEN COALESCE(title.state, 'missing') ELSE 'restricted' END AS state,
@@ -104,7 +105,7 @@ export function compileRecordSearch(
     : Prisma.sql`TRUE`;
   const sql = Prisma.sql`SELECT "typeId", "recordId", to_char("createdAt", 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "createdAt", version, state, title, "errorCode", "pictureUrl", "protectedKind"
     FROM (${Prisma.join(branches, " UNION ALL ")}) records WHERE ${after}
-    ORDER BY ${similarTerm !== null ? Prisma.sql`word_similarity(${similarTerm}, title) DESC,` : Prisma.empty} "createdAt" DESC, "typeId" ASC, "recordId" ASC LIMIT ${"search" in request ? request.search.limit + 1 : request.refs.length}`;
+    ORDER BY ${similarTerm !== null ? Prisma.sql`COALESCE(word_similarity(${similarTerm}, title), 0) DESC,` : Prisma.empty} "createdAt" DESC, "typeId" ASC, "recordId" ASC LIMIT ${"search" in request ? request.search.limit + 1 : request.refs.length}`;
   if (sql.values.length > 12000 || sql.sql.length > 1500000)
     throw new RecordWriteError(CustomErrorCode.recordCalculationBudget);
   return sql;

@@ -25,6 +25,7 @@ vi.mock("next-intl/server", () => ({
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
+const { WebhookPauseNotifier } = await import("@/features/webhook/webhook-pause-notifier");
 const { PrismaRecordRepo } = await import("../prisma-record.repository");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("../record-access");
@@ -91,7 +92,15 @@ async function fixture() {
   const trashRepo = new PrismaTrashRepo();
   const handler = new RecordTrashHandler(repo, policy, { dispatch: () => Promise.resolve() });
   const handlers = [handler];
-  const worker = new RecordOperationService(repo, policy, new RecordConfigurationService(repo));
+  const worker = new RecordOperationService(
+    repo,
+    policy,
+    new RecordConfigurationService(repo),
+    new WebhookPauseNotifier(
+      { getWebhookByIdOrThrow: () => Promise.reject(new Error("No webhook expected")) },
+      { publish: () => Promise.resolve() },
+    ),
+  );
   const trash = {
     query: new QueryTrashInteractor(trashRepo, repo, handlers),
     restore: new RestoreTrashInteractor(trashRepo, handlers),

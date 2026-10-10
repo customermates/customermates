@@ -46,6 +46,10 @@ export function useWebhookColumns(): ColumnDef<WebhookDto>[] {
             <AppChip size="sm" variant="success">
               {t("WebhookModal.enabled")}
             </AppChip>
+          ) : row.original.pausedReason ? (
+            <AppChip size="sm" variant="warning">
+              {t("WebhookModal.paused")}
+            </AppChip>
           ) : (
             <AppChip size="sm" variant="destructive">
               {t("WebhookModal.disabled")}

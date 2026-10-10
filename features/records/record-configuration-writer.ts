@@ -1,6 +1,7 @@
 import type { RecordRepo } from "./record.repo";
 import type { PreparedConfiguration } from "./configuration.service";
 import type { RecordModel, RecordRef } from "./record-model.schema";
+import type { WebhookPauseNotifier } from "@/features/webhook/webhook-pause-notifier";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordCalculationService, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import { RecordWriteError } from "./record-write.service";
@@ -23,10 +24,11 @@ export class RecordConfigurationWriter {
   constructor(
     private records: RecordRepo,
     private calculations: RecordCalculationService,
+    private webhooks: WebhookPauseNotifier,
   ) {}
 
   withRepository(records: RecordRepo): RecordConfigurationWriter {
-    return new RecordConfigurationWriter(records, new RecordCalculationService(records));
+    return new RecordConfigurationWriter(records, new RecordCalculationService(records), this.webhooks);
   }
 
   async initializeRecord(
@@ -86,7 +88,8 @@ export class RecordConfigurationWriter {
       await purgeTrashOfDeletedLists(this.records, prepared, userId);
       await this.records.deleteDefinitions(prepared.deletion);
     }
-    await this.records.applyConsumerCleanups(prepared.cleanups);
+    const { pausedWebhookIds } = await this.records.applyConsumerCleanups(prepared.cleanups);
+    await this.webhooks.notify(pausedWebhookIds);
     const live: RecordRef[] = [];
     for (const ref of refs) if (!(await this.initializeRecord(ref, prepared, previous, limit)).trashed) live.push(ref);
     for (const grant of prepared.grants) await this.records.setGrants(grant.typeId, grant.grants);

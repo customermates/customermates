@@ -15,10 +15,12 @@ import { BaseModalStore } from "@/core/base/base-modal.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { parseWebhookHeaderLines } from "@/features/webhook/webhook-headers";
 import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
+import { omit } from "lodash";
 
 export type WebhookFormData = Omit<UpsertWebhookData, "headers" | "events"> & {
   headers?: string;
   events?: WebhookDto["events"];
+  pausedReason?: WebhookDto["pausedReason"];
 };
 
 export class WebhookModalStore extends BaseModalStore<WebhookFormData> {
@@ -183,7 +185,7 @@ export class WebhookModalStore extends BaseModalStore<WebhookFormData> {
       }
       const parsed = parseWebhookHeaderLines(headers ?? "");
       const res = await upsertWebhookAction({
-        ...form,
+        ...omit(form, "pausedReason"),
         events: events.data.events,
         recordTrigger:
           this.usesRecordTrigger && form.recordSources?.length

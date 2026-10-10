@@ -292,6 +292,7 @@ const fixtures: Fixture[] = [
         headers: "",
         bodyTemplate: undefined,
         enabled: true,
+        pausedReason: null,
       });
       const actions = (
         props.rowActions as (value: typeof item) => { props: { contextAction: { onSelect: () => void } } }

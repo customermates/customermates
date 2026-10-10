@@ -9,7 +9,8 @@ import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "@
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { recordSearchKey, recordSearchLabel } from "@/features/records/record-search.schema";
+import { recordSearchKey } from "@/features/records/record-search.schema";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { useFocusAfterRemoval } from "@/components/ui/use-focus-after-removal";
 import { ThreadRecordsStore } from "./thread-records.store";
 
@@ -90,7 +91,9 @@ export const ThreadRecords = observer(({ threadId }: { threadId: string }) => {
                   value={recordSearchKey(record)}
                   onSelect={() => runUserAction(() => store.mutate("link", record.ref))}
                 >
-                  <span className="min-w-0 flex-1 truncate">{recordSearchLabel(record, t)}</span>
+                  <span className="min-w-0 flex-1 truncate">
+                    {recordDisplayName(record.title, record.typeLabel, t)}
+                  </span>
 
                   <span className="text-muted-foreground text-xs">{record.typePluralLabel}</span>
                 </CommandItem>
@@ -108,21 +111,25 @@ export const ThreadRecords = observer(({ threadId }: { threadId: string }) => {
           {store.detail?.records.map((record, index) => (
             <div key={recordSearchKey(record)} className="flex items-center gap-1">
               <Button
-                aria-label={t("Inbox.participants.openRecordNamed", { name: recordSearchLabel(record, t) })}
+                aria-label={t("Inbox.participants.openRecordNamed", {
+                  name: recordDisplayName(record.title, record.typeLabel, t),
+                })}
                 className="min-w-0 flex-1 justify-start"
                 data-thread-record-open=""
                 size="sm"
                 variant="secondary"
                 onClick={(event) => root.recordWorkspaceStore.open(record.ref, event.currentTarget)}
               >
-                <span className="truncate">{recordSearchLabel(record, t)}</span>
+                <span className="truncate">{recordDisplayName(record.title, record.typeLabel, t)}</span>
 
                 <span className="text-muted-foreground shrink-0 text-xs">· {record.typeLabel}</span>
               </Button>
 
               {record.canUnlink && (
                 <Button
-                  aria-label={t("Inbox.participants.unlinkRecordNamed", { name: recordSearchLabel(record, t) })}
+                  aria-label={t("Inbox.participants.unlinkRecordNamed", {
+                    name: recordDisplayName(record.title, record.typeLabel, t),
+                  })}
                   disabled={store.pending}
                   size="icon-sm"
                   variant="ghost"

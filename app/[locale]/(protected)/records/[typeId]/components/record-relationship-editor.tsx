@@ -22,7 +22,7 @@ import { recordLinkColor } from "@/features/records/record-presentation";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/core/utils/cn";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { recordTitle } from "@/components/records/record-title";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { getRecordChoicesAction } from "../../actions";
 import { RecordDetailField } from "./record-detail-field";
@@ -114,7 +114,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
       .map((change) => ({ ref: change.record, title: change.title })),
   ];
   const title = (record: RecordChoice) =>
-    recordTitle(record.title, store.presentation.linkLabels[record.ref.typeId], t);
+    recordDisplayName(record.title, store.presentation.linkLabels[record.ref.typeId], t);
   const editable = !store.isReadOnly && !store.isLoading && !linked.loading && !linked.failed;
   const stage = (record: RecordChoice, action: "link" | "unlink") =>
     store.stageLink({ action, relationId: relationship.id, direction, record: record.ref }, record.title);

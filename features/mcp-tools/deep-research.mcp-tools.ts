@@ -19,11 +19,20 @@ import {
   getSearchExternalizedWikiPagesInteractor,
 } from "@/core/di";
 import { RecordRefSchema, type RecordRef } from "@/features/records/record-model.schema";
-import { recordSearchLabel } from "@/features/records/record-search.schema";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { extractWikiPageLinks, externalizeWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 import { parseWikiPageReference, wikiPageFetchId, wikiPageUrl } from "@/features/wiki/wiki-links";
 import { boundedWikiChunk, WIKI_CHUNK_SIZE_FAILURE, wikiCodePointBoundary } from "@/features/wiki/wiki-page-chunk";
 import { wikiOutline } from "@/features/wiki/wiki-markdown-sections";
+
+const englishTitleText = (key: string, values?: Record<string, string>) =>
+  key === "RecordModel.restricted"
+    ? "Restricted value"
+    : key === "RecordModel.untitledRecord"
+      ? `Untitled ${values?.singular ?? "record"}`
+      : key === "RecordModel.record"
+        ? "Record"
+        : "Calculation error";
 
 const WIKI_FETCH_TEXT_TARGET_LENGTH = 5_500;
 const WIKI_SEARCH_QUERY_MAX_LENGTH = 200;
@@ -106,16 +115,10 @@ async function fetchRecord(ref: RecordRef) {
   const record = result.data;
   const type = configuration.data.types.find((item) => item.id === ref.typeId);
   if (!type) return customMcpFailure(CustomErrorCode.recordNotFound);
-  const title = recordSearchLabel(
-    {
-      ref,
-      title: record.fields.find((field) => field.fieldId === type.primaryFieldId)?.result ?? { state: "missing" },
-      typeLabel: type.label,
-      typePluralLabel: type.pluralLabel,
-      icon: type.icon,
-      pictureUrl: null,
-    },
-    (key) => (key === "RecordModel.restricted" ? "Restricted value" : "Calculation error"),
+  const title = recordDisplayName(
+    record.fields.find((field) => field.fieldId === type.primaryFieldId)?.result,
+    type.label,
+    englishTitleText,
   );
   const documents: string[] = [];
   const fields = record.fields.map((field) => {
@@ -282,9 +285,7 @@ export const searchTool = {
           records.ok
             ? records.data.results.map((item) => ({
                 id: `record:${item.ref.typeId}:${item.ref.recordId}`,
-                title: recordSearchLabel(item, (key) =>
-                  key === "RecordModel.restricted" ? "Restricted value" : "Calculation error",
-                ),
+                title: recordDisplayName(item.title, item.typeLabel, englishTitleText),
                 url: `${env.BASE_URL}/records/${item.ref.typeId}/${item.ref.recordId}`,
               }))
             : [],

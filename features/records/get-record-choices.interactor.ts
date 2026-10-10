@@ -39,6 +39,7 @@ export const RecordChoicesSchema = z
 export type RecordChoicesInput = z.infer<typeof RecordChoicesSchema>;
 export type RecordChoice = { ref: RecordRef; title: CalculatedValue };
 export type RecordChoicesResult = {
+  typeLabel: string;
   records: RecordChoice[];
   total: number;
   page: number;
@@ -121,6 +122,7 @@ export class GetRecordChoicesInteractor extends AuthenticatedInteractor<RecordCh
           ok: true as const,
           data: {
             ...result.data,
+            typeLabel: type.label,
             records: result.data.records.map((record) => ({
               ref: record.ref,
               title: record.fields.find((field) => field.fieldId === type.primaryFieldId)?.result ?? {

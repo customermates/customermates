@@ -13,6 +13,8 @@ export const WebhookCurrentEventSchema = z.enum(WEBHOOK_CURRENT_EVENTS);
 
 export const WEBHOOK_MASKED_VALUE = "********";
 
+export const WEBHOOK_PAUSE_REASONS = ["triggerFieldDeleted"] as const;
+
 export const WebhookDtoSchema = z.object({
   id: z.uuid(),
   url: zx.secureUrl(),
@@ -22,6 +24,11 @@ export const WebhookDtoSchema = z.object({
   headers: z.record(z.string(), z.string()).nullable(),
   bodyTemplate: z.string().nullable(),
   enabled: z.boolean(),
+  pausedReason: z
+    .enum(WEBHOOK_PAUSE_REASONS)
+    .nullable()
+    .optional()
+    .describe("Why the webhook was paused automatically, for example its only trigger field was deleted."),
   recordTrigger: RecordTriggerDefinitionSchema.nullable().optional(),
   recordSources: z.array(RecordTriggerSourceSchema).nullable().optional(),
   recordOwnerUserId: z.uuid().nullable().optional(),

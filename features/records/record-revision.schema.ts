@@ -24,6 +24,9 @@ export const RecordRevisionChangeSchema = z
             target: ConfigurationTargetSchema,
             cascade: z.array(ConfigurationTargetSchema),
             nameField: z.object({ typeId: z.uuid(), replacementId: z.uuid().nullable() }).strict().optional(),
+            bindings: z
+              .array(z.object({ bindingId: z.uuid(), role: z.string(), fieldId: z.uuid() }).strict())
+              .optional(),
           })
           .strict(),
       )

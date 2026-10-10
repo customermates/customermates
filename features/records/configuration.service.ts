@@ -626,13 +626,9 @@ export class RecordConfigurationService extends UserAccessor {
         if (recordEventSubscriptionIsValid(subscription, model)) continue;
         if (cause && recordEventSubscriptionIsValid(subscription, current) && subscription.kind === "webhook") {
           const consumer = { kind: "webhook" as const, id: subscription.id, label: subscription.label };
-          const kept = cleanRecordEventSubscription(subscription, model);
-          cleanups.push(
-            kept
-              ? { kind: "eventSubscription", subscription: kept }
-              : { kind: "eventSubscriptionRemoval", id: subscription.id },
-          );
-          cleaned.push({ consumer, target: cause, effect: kept ? "triggerChanged" : "subscriptionRemoved" });
+          const { subscription: kept, paused } = cleanRecordEventSubscription(subscription, model);
+          cleanups.push({ kind: "webhookSubscription", subscription: kept, paused });
+          cleaned.push({ consumer, target: cause, effect: paused ? "webhookPaused" : "triggerChanged" });
           continue;
         }
         if (cause && recordEventSubscriptionIsValid(subscription, current)) {
