@@ -943,7 +943,6 @@
     },
     "ariaLabels": {
       "breadcrumb": "Breadcrumb",
-      "collapseSearch": "Collapse search",
       "explainField": "About {field}",
       "hidePassword": "Hide password",
       "selectOption": "Select an option",
@@ -1360,7 +1359,10 @@
         "fieldsGroup": "Filter by",
         "limitReached": "You can apply up to {count} filters.",
         "removeFilter": "Remove filter",
-        "title": "Filters"
+        "searchContains": "{field} contains “{text}”",
+        "searchOrAddFilter": "Search or add filter…",
+        "title": "Filters",
+        "trigger": "Filter"
       },
       "selectionLimit": "You can select up to {count} values.",
       "selectOperator": "Select a condition…",
@@ -1929,7 +1931,6 @@
       "chooseFile": "Choose file",
       "fileRejected": "That file could not be read."
     },
-    "menu": "Import and export",
     "recordImport": {
       "create": "Create with exported IDs",
       "failed": "The records could not be imported. Check the file and permissions.",
@@ -1963,6 +1964,7 @@
     "expandGroup": "Expand group {group}",
     "groupOverflow": "Only {count} groups are shown",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
+    "moreActions": "More actions",
     "noValue": "No value",
     "resizeColumn": "Resize {column} column. Drag or use arrow keys to resize; double-tap or press Enter to reset.",
     "resizeHint": "Drag to resize. Double-click to reset.",
@@ -2483,6 +2485,7 @@
       "goList": "Lists by their position in your sidebar",
       "goRoutines": "Routines",
       "goSettings": "Settings",
+      "openFilters": "Open filters on a list",
       "save": "Save the open form",
       "search": "Search",
       "searchAlias": "Search",
@@ -2828,7 +2831,6 @@
     "emptyBody": "Adjust the search or filters to widen the log.",
     "emptyTitle": "No audit events match these filters",
     "navigation": "Audit Log",
-    "searchPlaceholder": "Search by action",
     "values": {
       "action": {
         "auditRead": "Operator audit read",
@@ -2955,7 +2957,6 @@
       "title": "Credit reset",
       "zeroBalance": "Set remaining balance to zero"
     },
-    "searchPlaceholder": "Search by name or account email",
     "values": {
       "noSubscription": "No subscription",
       "operator": "Platform operator"
@@ -2995,7 +2996,6 @@
       "workspaceId": "Workspace ID"
     },
     "navigation": "Workspaces",
-    "searchPlaceholder": "Search by member email",
     "stats": {
       "assistantConversations": "Assistant chats",
       "connectedAccounts": "Connected accounts",
@@ -3300,6 +3300,7 @@
       "restoreTitle": "Restore {name}"
     },
     "configure": "Configure",
+    "configureList": "Configure {list}",
     "connectionType": "Connection",
     "constant": "Fixed value",
     "contactFullName": "Name",
@@ -4160,7 +4161,6 @@
     "restoredInBackground": "Restored",
     "restoredWithDroppedLinks": "Restored. {count, plural, one {# link} other {# links}} could not be restored because the linked record was deleted permanently.",
     "restorePending": "Restoring in the background. Trash shows the progress.",
-    "searchPlaceholder": "Search Trash",
     "undo": "Undo"
   },
   "TrialExpiredOffer": {

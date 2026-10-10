@@ -943,7 +943,6 @@
     },
     "ariaLabels": {
       "breadcrumb": "Brotkrümelnavigation",
-      "collapseSearch": "Suche einklappen",
       "explainField": "Informationen zu {field}",
       "hidePassword": "Passwort ausblenden",
       "selectOption": "Option auswählen",
@@ -1360,7 +1359,10 @@
         "fieldsGroup": "Filtern nach",
         "limitReached": "Du kannst bis zu {count} Filter anwenden.",
         "removeFilter": "Filter entfernen",
-        "title": "Filter"
+        "searchContains": "{field} enthält „{text}“",
+        "searchOrAddFilter": "Suchen oder Filter hinzufügen…",
+        "title": "Filter",
+        "trigger": "Filter"
       },
       "selectionLimit": "Du kannst bis zu {count} Werte auswählen.",
       "selectOperator": "Bedingung auswählen…",
@@ -1929,7 +1931,6 @@
       "chooseFile": "Datei wählen",
       "fileRejected": "Diese Datei konnte nicht gelesen werden."
     },
-    "menu": "Import und Export",
     "recordImport": {
       "create": "Mit exportierten IDs erstellen",
       "failed": "Die Datensätze konnten nicht importiert werden. Prüfe Datei und Berechtigungen.",
@@ -1963,6 +1964,7 @@
     "expandGroup": "Gruppe {group} ausklappen",
     "groupOverflow": "Es werden nur {count} Gruppen angezeigt",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
+    "moreActions": "Weitere Aktionen",
     "noValue": "Kein Wert",
     "resizeColumn": "Größe der Spalte „{column}“ ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeHint": "Zum Ändern der Größe ziehen. Zum Zurücksetzen doppelklicken.",
@@ -2483,6 +2485,7 @@
       "goList": "Listen nach ihrer Position in Ihrer Seitenleiste",
       "goRoutines": "Routinen",
       "goSettings": "Einstellungen",
+      "openFilters": "Filter einer Liste öffnen",
       "save": "Offenes Formular speichern",
       "search": "Suchen",
       "searchAlias": "Suchen",
@@ -2828,7 +2831,6 @@
     "emptyBody": "Passe Suche oder Filter an, um das Protokoll zu erweitern.",
     "emptyTitle": "Keine Audit-Ereignisse passen zu diesen Filtern",
     "navigation": "Audit-Log",
-    "searchPlaceholder": "Nach Aktion suchen",
     "values": {
       "action": {
         "auditRead": "Operator-Audit gelesen",
@@ -2955,7 +2957,6 @@
       "title": "Credits zurücksetzen",
       "zeroBalance": "Verbleibendes Guthaben auf null setzen"
     },
-    "searchPlaceholder": "Nach Name oder Konto-E-Mail suchen",
     "values": {
       "noSubscription": "Kein Abonnement",
       "operator": "Plattform-Operator"
@@ -2995,7 +2996,6 @@
       "workspaceId": "Workspace-ID"
     },
     "navigation": "Arbeitsbereiche",
-    "searchPlaceholder": "Nach Mitglieds-E-Mail suchen",
     "stats": {
       "assistantConversations": "Assistent-Chats",
       "connectedAccounts": "Verbundene Konten",
@@ -3300,6 +3300,7 @@
       "restoreTitle": "{name} wiederherstellen"
     },
     "configure": "Konfigurieren",
+    "configureList": "{list} konfigurieren",
     "connectionType": "Verbindung",
     "constant": "Fester Wert",
     "contactFullName": "Name",
@@ -4160,7 +4161,6 @@
     "restoredInBackground": "Wiederhergestellt",
     "restoredWithDroppedLinks": "Wiederhergestellt. {count, plural, one {# Verknüpfung konnte} other {# Verknüpfungen konnten}} nicht wiederhergestellt werden, weil der verknüpfte Datensatz endgültig gelöscht wurde.",
     "restorePending": "Wird im Hintergrund wiederhergestellt. Der Papierkorb zeigt den Fortschritt.",
-    "searchPlaceholder": "Papierkorb durchsuchen",
     "undo": "Rückgängig"
   },
   "TrialExpiredOffer": {
