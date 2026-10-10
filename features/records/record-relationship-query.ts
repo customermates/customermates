@@ -40,11 +40,10 @@ export function compileRecordRelationshipSummaries(
     const targetTypeId = outgoing ? relation.targetTypeId : relation.sourceTypeId;
     const type = model.types.find((candidate) => candidate.id === targetTypeId && !candidate.archived);
     const title = model.fields.find((field) => field.id === type?.primaryFieldId && !field.archived);
-    if (!title) throw new Error("Relationship endpoint must be active");
     const targetScope = access.get(targetTypeId) ?? { access: "none" as const, userId: "" };
     const sourceLink = outgoing ? Prisma.sql`link."sourceId"` : Prisma.sql`link."targetId"`;
     const targetLink = outgoing ? Prisma.sql`link."targetId"` : Prisma.sql`link."sourceId"`;
-    const canReadTitle = fieldReadPredicate(companyId, title, model, access, target);
+    const canReadTitle = title ? fieldReadPredicate(companyId, title, model, access, target) : Prisma.sql`TRUE`;
     return Prisma.sql`SELECT "ownerId", "relationId", direction, "typeId", "recordId", state, title, "errorCode", "readableCount" FROM (
       SELECT source.id AS "ownerId", ${selection.relationId}::text AS "relationId", ${selection.direction}::text AS direction,
         target."typeId", target.id AS "recordId",
@@ -57,7 +56,7 @@ export function compileRecordRelationshipSummaries(
       JOIN "RecordLink" link ON link."companyId" = ${companyId} AND link."relationId" = ${relation.id} AND link."deletedAt" IS NULL AND ${sourceLink} = source.id
         AND link."sourceTypeId" = ${relation.sourceTypeId} AND link."targetTypeId" = ${relation.targetTypeId}
       JOIN "CrmRecord" target ON target."companyId" = ${companyId} AND target."typeId" = ${targetTypeId} AND target.id = ${targetLink}
-      LEFT JOIN "RecordValue" value ON value."companyId" = ${companyId} AND value."typeId" = target."typeId" AND value."recordId" = target.id AND value."fieldId" = ${title.id}
+      LEFT JOIN "RecordValue" value ON value."companyId" = ${companyId} AND value."typeId" = target."typeId" AND value."recordId" = target.id AND value."fieldId" = ${title?.id ?? null}
       WHERE ${recordReadPredicate(companyId, targetScope, target)}
     ) related WHERE ordinal <= ${selection.limit}`;
   });

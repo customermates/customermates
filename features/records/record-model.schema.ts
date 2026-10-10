@@ -370,7 +370,7 @@ export const RecordTypeSchema = z
     description: z.string().max(4000),
     icon: z.string().max(64),
     color: z.enum(CHIP_COLORS).optional().describe("Chip color for links to records of this list; neutral when unset."),
-    primaryFieldId: z.uuid(),
+    primaryFieldId: z.uuid().nullable(),
     parentRelationshipId: z.uuid().nullable().default(null),
     embedded: z.boolean(),
     navigationVisible: z.boolean().default(true),

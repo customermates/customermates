@@ -1,6 +1,7 @@
 "use client";
 
 import type { RecentlyDeleted } from "@/features/records/get-recently-deleted.interactor";
+import { EmptyValue } from "@/components/shared/empty-value";
 
 import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -129,7 +130,9 @@ export function RecentlyDeletedView({ initial }: { initial: RecentlyDeleted | nu
               <InfoRow label={t("RecordModel.configurationDeletion.list")}>{listLabel(selected)}</InfoRow>
             )}
 
-            <InfoRow label={t("RecordModel.configurationDeletion.deletedBy")}>{deletedBy(selected) || "—"}</InfoRow>
+            <InfoRow label={t("RecordModel.configurationDeletion.deletedBy")}>
+              {deletedBy(selected) || <EmptyValue />}
+            </InfoRow>
           </div>
         )}
       </AppModal>

@@ -39,6 +39,7 @@ function fixture() {
     model,
     linkColors: {},
     linkIcons: {},
+    linkLabels: {},
     typeId: model.types[0].id,
     record: null,
     canManageSchema: true,

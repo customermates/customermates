@@ -2624,6 +2624,163 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect((await f.run(() => f.repo.getModel())).revision).toBe(1);
   });
 
+  it("deletes the name field, names the records by the next text field and gives the name back on restore", async () => {
+    const f = await fixture();
+    const nameOf = async (typeId: string) =>
+      (await f.run(() => f.repo.getModel())).types.find((type) => type.id === typeId)?.primaryFieldId;
+    const operate = (operation: "delete" | "restore", fieldId: string, expectedRevision: number) => ({
+      expectedRevision,
+      idempotencyKey: randomUUID(),
+      operations: [{ operation, target: { kind: "field" as const, id: fieldId } }],
+    });
+    const preview = await f.run(() => f.preview.invoke(operate("delete", f.id("contact.name"), 1)));
+    expect(preview).toMatchObject({
+      ok: true,
+      data: {
+        valid: true,
+        deletion: {
+          blockers: [],
+          cleaned: expect.arrayContaining([
+            expect.objectContaining({
+              consumer: expect.objectContaining({ kind: "type", id: f.id("contact") }),
+              target: expect.objectContaining({ kind: "field", id: f.id("contact.name") }),
+              replacement: expect.objectContaining({ kind: "field", id: f.id("contact.firstName") }),
+            }),
+          ]),
+        },
+      },
+    });
+    expect(await f.run(() => f.configure.invoke(operate("delete", f.id("contact.name"), 1)))).toMatchObject({
+      ok: true,
+    });
+    expect(await nameOf(f.id("contact"))).toBe(f.id("contact.firstName"));
+    expect(await f.run(() => f.configure.invoke(operate("restore", f.id("contact.name"), 2)))).toMatchObject({
+      ok: true,
+    });
+    expect(await nameOf(f.id("contact"))).toBe(f.id("contact.name"));
+
+    const untitled = await f.run(() => f.preview.invoke(operate("delete", f.id("organization.name"), 3)));
+    expect(untitled).toMatchObject({
+      ok: true,
+      data: {
+        valid: true,
+        deletion: {
+          cleaned: expect.arrayContaining([
+            expect.objectContaining({
+              consumer: expect.objectContaining({ kind: "type", id: f.id("organization") }),
+              replacement: null,
+            }),
+          ]),
+        },
+      },
+    });
+    expect(await f.run(() => f.configure.invoke(operate("delete", f.id("organization.name"), 3)))).toMatchObject({
+      ok: true,
+    });
+    expect(await nameOf(f.id("organization"))).toBeNull();
+    expect(await f.run(() => f.configure.invoke(operate("restore", f.id("organization.name"), 4)))).toMatchObject({
+      ok: true,
+    });
+    expect(await nameOf(f.id("organization"))).toBe(f.id("organization.name"));
+  });
+
+  it("cleans up widgets, webhook triggers and bindings that use a deleted field instead of blocking", async () => {
+    const f = await fixture();
+    const before = await f.run(() => f.repo.getModel());
+    const { publishedSummary, ...amount } = recordInvariant(
+      before.fields.find((candidate) => candidate.id === f.id("service.amount")),
+    );
+    expect(publishedSummary).toBe(false);
+    const budgetId = randomUUID();
+    const position = Math.max(...before.fields.map((field) => field.position)) + 1;
+    expect(
+      await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: before.revision,
+          idempotencyKey: randomUUID(),
+          operations: [{ operation: "putField", field: { ...amount, id: budgetId, label: "Budget", position } }],
+        }),
+      ),
+    ).toMatchObject({ ok: true });
+    const widget = await f.run(() =>
+      prisma.widget.create({
+        data: {
+          companyId: f.company.id,
+          userId: f.admin.id,
+          name: "Budget total",
+          kind: "chart",
+          measure: RecordMeasureSchema.parse({
+            source: { typeId: f.id("service") },
+            aggregation: "sum",
+            valueFieldId: budgetId,
+            groupBy: null,
+          }) as Prisma.InputJsonValue,
+          displayOptions: { displayType: DisplayType.verticalBarChart },
+        },
+      }),
+    );
+    const only = await subscribeRecordEvents(f, { kind: "webhook", changedFieldIds: [budgetId] });
+    const shared = await subscribeRecordEvents(f, { kind: "webhook", changedFieldIds: [budgetId, amount.id] });
+    const remove = (fieldId: string, expectedRevision: number) => ({
+      expectedRevision,
+      idempotencyKey: randomUUID(),
+      operations: [{ operation: "delete" as const, target: { kind: "field" as const, id: fieldId } }],
+    });
+    const preview = await f.run(() => f.preview.invoke(remove(budgetId, before.revision + 1)));
+    expect(preview).toMatchObject({
+      ok: true,
+      data: {
+        valid: true,
+        deletion: {
+          blockers: [],
+          cleaned: expect.arrayContaining([
+            expect.objectContaining({ consumer: expect.objectContaining({ id: widget.id }), effect: "countsRecords" }),
+            expect.objectContaining({
+              consumer: expect.objectContaining({ id: only.id }),
+              effect: "subscriptionRemoved",
+            }),
+            expect.objectContaining({ consumer: expect.objectContaining({ id: shared.id }), effect: "triggerChanged" }),
+          ]),
+        },
+      },
+    });
+    expect(await f.run(() => f.configure.invoke(remove(budgetId, before.revision + 1)))).toMatchObject({ ok: true });
+    const counted = await f.run(() =>
+      prisma.widget.findFirstOrThrow({ where: { companyId: f.company.id, id: widget.id } }),
+    );
+    expect(counted.measure).toMatchObject({ aggregation: "count", valueFieldId: null });
+    const subscriptions = await f.run(() =>
+      prisma.recordEventSubscription.findMany({ where: { companyId: f.company.id, id: { in: [only.id, shared.id] } } }),
+    );
+    expect(subscriptions.map((subscription) => [subscription.id, subscription.changedFieldIds])).toEqual([
+      [shared.id, [amount.id]],
+    ]);
+
+    const avatar = await f.run(() => f.preview.invoke(remove(f.id("contact.avatarUrl"), before.revision + 2)));
+    expect(avatar).toMatchObject({
+      ok: true,
+      data: {
+        valid: true,
+        deletion: {
+          blockers: [],
+          cleaned: expect.arrayContaining([
+            expect.objectContaining({
+              consumer: expect.objectContaining({ kind: "type", id: f.id("contact") }),
+              effect: "avatar",
+            }),
+          ]),
+        },
+      },
+    });
+    expect(await f.run(() => f.configure.invoke(remove(f.id("contact.avatarUrl"), before.revision + 2)))).toMatchObject(
+      { ok: true },
+    );
+    const binding = (await f.run(() => f.repo.getModel())).capabilities.find(
+      (candidate) => candidate.kind === "avatar" && candidate.typeId === f.id("contact"),
+    );
+    expect(binding?.fields.some((entry) => entry.fieldId === f.id("contact.avatarUrl")) ?? false).toBe(false);
+  });
+
   it("requires every populated record to have a parent before adopting inherited access", async () => {
     const f = await fixture();
     const services = [await f.create("service", "Parented A"), await f.create("service", "Parented B")];
@@ -3983,7 +4140,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         typeId,
         fields: [
           {
-            fieldId: type.primaryFieldId,
+            fieldId: recordInvariant(type.primaryFieldId),
             value: textValue("Assigned project"),
           },
         ],
@@ -5224,7 +5381,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       {
         action: "create",
         typeId: type.id,
-        fields: [{ fieldId: type.primaryFieldId, value: textValue("Launch") }],
+        fields: [{ fieldId: recordInvariant(type.primaryFieldId), value: textValue("Launch") }],
       },
       f.admin,
       randomUUID(),
@@ -5383,7 +5540,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       {
         action: "create",
         typeId: type.id,
-        fields: [{ fieldId: type.primaryFieldId, value: textValue("One") }],
+        fields: [{ fieldId: recordInvariant(type.primaryFieldId), value: textValue("One") }],
       },
       f.admin,
       randomUUID(),
@@ -5398,7 +5555,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             action: "update",
             ref,
             expectedVersion: (await f.readRecord(ref)).version,
-            fields: [{ fieldId: type.primaryFieldId, value: textValue(name) }],
+            fields: [{ fieldId: recordInvariant(type.primaryFieldId), value: textValue(name) }],
           },
           f.admin,
           randomUUID(),
@@ -6461,7 +6618,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const layout = {
       pinnedFields: [],
       hiddenFields: ["system:createdAt"],
-      fieldOrder: [type.primaryFieldId, "system:updatedAt"],
+      fieldOrder: [recordInvariant(type.primaryFieldId), "system:updatedAt"],
     };
     const request = {
       typeId: type.id,
@@ -7912,7 +8069,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             action: "create",
             typeId: type.id,
             fields: [
-              { fieldId: type.primaryFieldId, value: textValue(name) },
+              { fieldId: recordInvariant(type.primaryFieldId), value: textValue(name) },
               { fieldId: budget.id, value: decimal(value) },
             ],
           },
@@ -12531,7 +12688,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       {
         action: "create",
         typeId: type.id,
-        fields: [{ fieldId: type.primaryFieldId, value: textValue("Test") }],
+        fields: [{ fieldId: recordInvariant(type.primaryFieldId), value: textValue("Test") }],
       },
       f.admin,
       randomUUID(),
@@ -12752,8 +12909,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         if (!result.ok || result.data.status !== "completed") throw new Error("Provenance fixture creation failed");
         return recordInvariant(result.data.refs.find((ref) => ref.typeId === typeId));
       };
-      const source = await create(sourceType.id, sourceType.primaryFieldId, canary);
-      const deletedSource = await create(sourceType.id, sourceType.primaryFieldId, "Deleted private source");
+      const source = await create(sourceType.id, recordInvariant(sourceType.primaryFieldId), canary);
+      const deletedSource = await create(
+        sourceType.id,
+        recordInvariant(sourceType.primaryFieldId),
+        "Deleted private source",
+      );
       expect(
         await f.mutation(
           { action: "delete", ref: deletedSource, expectedVersion: (await f.readRecord(deletedSource)).version },
@@ -12774,7 +12935,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           }),
         ),
       );
-      const summary = await create(summaryType.id, summaryType.primaryFieldId, "Readable summary", [
+      const summary = await create(summaryType.id, recordInvariant(summaryType.primaryFieldId), "Readable summary", [
         { relationId: relation.id, direction: "outgoing", record: source },
       ]);
       expect((await f.readRecord(summary)).fields.find((value) => value.fieldId === total.id)?.result).toEqual({
@@ -13009,7 +13170,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
                 companyId: f.company.id,
                 typeId: summaryType.id,
                 recordId,
-                fieldId: summaryType.primaryFieldId,
+                fieldId: recordInvariant(summaryType.primaryFieldId),
                 state: "value",
                 textValue: `Padding ${index}`,
                 schemaRevision: 2,
@@ -13157,7 +13318,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             action: "update",
             ref: summary,
             expectedVersion: (await f.readRecord(summary)).version,
-            fields: [{ fieldId: summaryType.primaryFieldId, value: textValue("Renamed public summary") }],
+            fields: [
+              { fieldId: recordInvariant(summaryType.primaryFieldId), value: textValue("Renamed public summary") },
+            ],
           },
           f.admin,
           randomUUID(),
@@ -14318,7 +14481,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
   });
 
-  it("blocks incompatible widget dependencies and hides reports after access is revoked", async () => {
+  it("lets a widget count records when its measured field is deleted and hides reports after access is revoked", async () => {
     const f = await fixture();
     await f.create("service", "Catalog", [["service.amount", decimal("17.25")]]);
     await f.run(() =>
@@ -14356,10 +14519,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       data: {
         valid: false,
         deletion: {
-          blockers: expect.arrayContaining([
+          blockers: expect.arrayContaining([expect.objectContaining({ reason: "calculation" })]),
+          cleaned: expect.arrayContaining([
             expect.objectContaining({
-              reason: "widget",
-              source: expect.objectContaining({ kind: "widget", id: saved.data.id, label: "Visible price" }),
+              consumer: expect.objectContaining({ kind: "widget", id: saved.data.id, label: "Visible price" }),
+              effect: "countsRecords",
             }),
           ]),
         },
@@ -14379,6 +14543,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       ),
     ).toMatchObject({ ok: true });
+    if (!preview.ok || !preview.data.deletion) throw new Error("Expected a deletion preview");
+    expect(preview.data.deletion.blockers.some((blocker) => blocker.reason === "widget")).toBe(false);
     const stored = await f.run(() => f.widgets.findOwned(saved.data.id), f.member);
     if (!stored) throw new Error("Widget missing");
     expect(await f.run(() => f.widgetReader.read(stored), f.member)).toMatchObject({
@@ -14444,7 +14610,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           const definition = recordInvariant(model.types.find((type) => type.id === typeId));
           await f.repo.setValue(
             { typeId, recordId: id },
-            definition.primaryFieldId,
+            recordInvariant(definition.primaryFieldId),
             { state: "value", value: textValue("Same search title") },
             2,
           );
@@ -14643,7 +14809,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         ),
       ).toMatchObject({ ok: true, data: { status: "completed" } });
       const ids = Array.from({ length: 3003 }, () => randomUUID());
-      const primaryFieldId = recordInvariant(f.model.types.find((type) => type.id === typeId)).primaryFieldId;
+      const primaryFieldId = recordInvariant(
+        recordInvariant(f.model.types.find((type) => type.id === typeId)).primaryFieldId,
+      );
       const searchTerm = "rare-scale-signal";
       await f.run(() =>
         runInTransaction(

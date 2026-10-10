@@ -41,7 +41,6 @@ export const DeletionBlockerSchema = z
       "snapshotTrigger",
       "parentAccess",
       "binding",
-      "primaryField",
       "protected",
       "routine",
       "webhook",
@@ -54,7 +53,19 @@ export const DeletionBlockerSchema = z
   .strict();
 export type DeletionBlocker = z.infer<typeof DeletionBlockerSchema>;
 export const DeletionCleanupSchema = z
-  .object({ consumer: DeletionReferenceSchema, target: DeletionReferenceSchema })
+  .object({
+    consumer: DeletionReferenceSchema,
+    target: DeletionReferenceSchema,
+    replacement: DeletionReferenceSchema.nullable()
+      .optional()
+      .describe("For a deleted name field: the field that now names the records, or null when none is left."),
+    effect: z
+      .enum(["countsRecords", "triggerChanged", "subscriptionRemoved", "channels", "avatar", "calendar"])
+      .optional()
+      .describe(
+        "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the Channels, avatar or calendar setting.",
+      ),
+  })
   .strict();
 export type DeletionCleanup = z.infer<typeof DeletionCleanupSchema>;
 const LiveDefinitionSchema = z
@@ -230,7 +241,7 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
                 type: RecordTypeSchema.extend({
                   archived: LiveDefinitionSchema,
                   id: ConfigurationReferenceSchema,
-                  primaryFieldId: ConfigurationReferenceSchema,
+                  primaryFieldId: ConfigurationReferenceSchema.nullable(),
                   parentRelationshipId: ConfigurationReferenceSchema.nullable().default(null),
                   relationshipPaths: z
                     .array(

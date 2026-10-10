@@ -11,7 +11,7 @@ export function WidgetNumber({ caption, value }: Props) {
   return (
     <div className="@container flex min-h-0 flex-1 flex-col justify-center gap-2" data-slot="widget-number">
       <p
-        className="max-w-full truncate font-semibold leading-none tracking-tight tabular-nums"
+        className="min-h-[1em] max-w-full truncate font-semibold leading-none tracking-tight tabular-nums"
         style={{ fontSize: `min(3.5rem, ${(140 / Math.max(value.length, 1)).toFixed(2)}cqw)` }}
       >
         {value}

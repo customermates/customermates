@@ -114,7 +114,8 @@ test("renders change values with the shared value renderers on every activity su
 
   const { detail: createdWebhook, ...createdWebhookOpened } = await openEntry(page, feed, /Webhook Created/);
   await expect(chip(createdWebhook, "Record created")).toBeVisible();
-  await expect(createdWebhook.locator("[data-empty-value]").first()).toBeAttached();
+  await expect(createdWebhook.locator("svg.lucide-arrow-right")).toHaveCount(0);
+  await expect(createdWebhook.locator("[data-empty-value]")).toHaveCount(0);
   await expect(createdWebhook.getByText("—", { exact: true })).toHaveCount(0);
   await closeEntry(page, createdWebhookOpened);
 

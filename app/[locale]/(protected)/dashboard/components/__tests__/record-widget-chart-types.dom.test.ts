@@ -122,7 +122,7 @@ describe("record widget display types", () => {
       measure: measure(null, "average"),
       data: result({ count: 2, result: { state: "missing" } }, []),
     });
-    expect(view.querySelector('[data-slot="widget-number"] p')?.textContent).toBe("—");
+    expect(view.querySelector('[data-slot="widget-number"] p')?.textContent).toBe("");
     render({
       displayOptions: number,
       measure: measure(null),

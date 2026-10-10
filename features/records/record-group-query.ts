@@ -130,17 +130,16 @@ export function compileRecordGroups(
     const target = Prisma.sql`group_target`;
     const targetType = model.types.find((type) => type.id === targetTypeId && !type.archived);
     const title = model.fields.find((field) => field.id === targetType?.primaryFieldId && !field.archived);
-    if (!title) throw new RecordWriteError(CustomErrorCode.recordValueInvalid);
     const targetScope = access.get(targetTypeId) ?? { userId: "", access: "none" as const };
     const readable = recordReadPredicate(companyId, targetScope, target);
-    const titleReadable = fieldReadPredicate(companyId, title, model, access, target);
+    const titleReadable = title ? fieldReadPredicate(companyId, title, model, access, target) : Prisma.sql`TRUE`;
     const sourceId = outgoing ? Prisma.sql`link."sourceId"` : Prisma.sql`link."targetId"`;
     const targetId = outgoing ? Prisma.sql`link."targetId"` : Prisma.sql`link."sourceId"`;
     joins = Prisma.sql`LEFT JOIN "RecordLink" link ON link."companyId" = ${companyId} AND link."relationId" = ${relation.id} AND link."deletedAt" IS NULL
       AND link."sourceTypeId" = ${relation.sourceTypeId} AND link."targetTypeId" = ${relation.targetTypeId} AND ${sourceId} = ${root}.id
       LEFT JOIN "CrmRecord" ${target} ON ${target}."companyId" = ${companyId} AND ${target}."typeId" = ${targetTypeId} AND ${target}.id = ${targetId}
       LEFT JOIN "RecordValue" title ON title."companyId" = ${companyId} AND title."typeId" = ${targetTypeId}
-        AND title."recordId" = ${target}.id AND title."fieldId" = ${title.id}`;
+        AND title."recordId" = ${target}.id AND title."fieldId" = ${title?.id ?? null}`;
     key = Prisma.sql`CASE WHEN ${readable} THEN ${target}.id ELSE NULL END`;
     restricted = Prisma.sql`(${target}.id IS NOT NULL AND NOT (${readable}))`;
     metadata = Prisma.sql`jsonb_strip_nulls(jsonb_build_object('isNoValue', FALSE,
@@ -152,8 +151,7 @@ export function compileRecordGroups(
     const target = Prisma.sql`group_target`;
     const targetType = model.types.find((type) => type.id === path.typeId && !type.archived);
     const title = model.fields.find((field) => field.id === targetType?.primaryFieldId && !field.archived);
-    if (!title) throw new RecordWriteError(CustomErrorCode.recordValueInvalid);
-    const titleReadable = fieldReadPredicate(companyId, title, model, access, target);
+    const titleReadable = title ? fieldReadPredicate(companyId, title, model, access, target) : Prisma.sql`TRUE`;
     joins = Prisma.sql`LEFT JOIN LATERAL (
       SELECT * FROM (
         SELECT reached.*, COUNT(id) OVER () AS "endpointCount", BOOL_OR(blocked) OVER () AS restricted
@@ -164,7 +162,7 @@ export function compileRecordGroups(
       ) checked WHERE id IS NOT NULL OR "endpointCount" = 0
     ) ${target} ON TRUE
     LEFT JOIN "RecordValue" title ON title."companyId" = ${companyId} AND title."typeId" = ${path.typeId}
-      AND title."recordId" = ${target}.id AND title."fieldId" = ${title.id}`;
+      AND title."recordId" = ${target}.id AND title."fieldId" = ${title?.id ?? null}`;
     key = Prisma.sql`${target}.id`;
     restricted = Prisma.sql`COALESCE(${target}.restricted, FALSE)`;
     metadata = Prisma.sql`jsonb_strip_nulls(jsonb_build_object('isNoValue', FALSE,

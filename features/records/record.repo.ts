@@ -40,7 +40,9 @@ export type RecordDefinitionDeletion = {
 export type ConfigurationConsumerCleanup =
   | { kind: "view" | "personalLayout"; id: string; state: DataViewState }
   | { kind: "detailLayout"; id: string; layout: RecordDetailLayout }
-  | { kind: "widget"; id: string; measure: RecordMeasure };
+  | { kind: "widget"; id: string; measure: RecordMeasure }
+  | { kind: "eventSubscription"; subscription: RecordEventSubscriptionDefinition }
+  | { kind: "eventSubscriptionRemoval"; id: string };
 
 export type RecordTrashItem = {
   id: string;

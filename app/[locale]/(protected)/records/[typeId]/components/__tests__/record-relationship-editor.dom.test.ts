@@ -63,7 +63,7 @@ function editor(ref = first, summaries: RecordChoice[] = [], isReadOnly = false)
       ],
     },
     stageLink: vi.fn(),
-    presentation: { linkColors: {}, linkIcons: {}, model: { types: [] } },
+    presentation: { linkColors: {}, linkIcons: {}, linkLabels: {}, model: { types: [] } },
     rootStore: { recordWorkspaceStore: { open: vi.fn() } },
   } as unknown as RecordEditorStore;
 }

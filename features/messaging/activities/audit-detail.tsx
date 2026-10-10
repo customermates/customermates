@@ -14,9 +14,15 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { useCanonicalColumnLabel } from "@/components/data-view/use-column-label";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { auditCategory, DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
-import { auditEventTone } from "@/components/entity-detail/audit-event-tone";
 import { auditValueDescriptor } from "./change-value-descriptor";
-import { ChangeRow, ChangeValue, InlineChange, useChangeValueLabels } from "./change-value";
+import {
+  auditChangeKind,
+  ChangeRow,
+  ChangeValue,
+  FieldChangeRow,
+  InlineChange,
+  useChangeValueLabels,
+} from "./change-value";
 
 type Props = {
   entry: Extract<ActivityEntryDto, { kind: "audit" | "configuration" }>;
@@ -41,9 +47,8 @@ export const AuditDetail = observer(({ entry }: Props) => {
 
   const authorName =
     `${entry.actor.firstName} ${entry.actor.lastName}`.trim() || entry.actor.email || t("RecordModel.systemActor");
-  const tone = auditEventTone(entry.event);
-  const removal = tone === "deleted";
-  const plainSnapshot = entry.kind === "configuration" || (tone !== "created" && tone !== "deleted");
+  const kind = auditChangeKind(entry.event);
+  const removal = kind === "removed";
   const changes = entry.changes.map((change) => ({
     key: change.field,
     field: change.label ?? fieldLabel(change.field),
@@ -54,8 +59,7 @@ export const AuditDetail = observer(({ entry }: Props) => {
   }));
 
   function renderChangeRow(change: (typeof changes)[number]): ReactNode {
-    if (change.snapshot && (plainSnapshot || change.key === "notes" || change.key === "markdown"))
-      return <div className="min-w-0 break-words">{renderValue(change.key, change.value)}</div>;
+    if (change.snapshot) return <div className="min-w-0 break-words">{renderValue(change.key, change.value)}</div>;
 
     if (change.key === "notes" || change.key === "markdown")
       return <NotesDiff current={change.current} previous={change.previous} />;
@@ -72,6 +76,18 @@ export const AuditDetail = observer(({ entry }: Props) => {
 
   const renderRow = (change: (typeof changes)[number], index: number) => {
     const key = `${entry.id}-${change.field}-${index}`;
+
+    if (kind !== "changed") {
+      return (
+        <FieldChangeRow
+          key={key}
+          current={renderValue(change.key, change.current)}
+          kind={kind}
+          label={change.field}
+          previous={renderValue(change.key, change.previous)}
+        />
+      );
+    }
 
     if (
       !change.snapshot &&

@@ -48,8 +48,7 @@ export function compileRecordSearch(
   const pageLimit = "search" in request ? request.search.limit + 1 : request.refs.length;
   const branches = types.map((type) => {
     const title = model.fields.find((field) => field.id === type.primaryFieldId && !field.archived);
-    if (!title) throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
-    const titleAccess = fieldReadPredicate(companyId, title, model, access, root);
+    const titleAccess = title ? fieldReadPredicate(companyId, title, model, access, root) : Prisma.sql`TRUE`;
     const avatarBinding = model.capabilities.find((binding) => binding.kind === "avatar" && binding.typeId === type.id);
     const avatar = model.fields.find(
       (field) => field.id === avatarBinding?.fields.find((field) => field.role === "image")?.fieldId && !field.archived,
@@ -67,7 +66,7 @@ export function compileRecordSearch(
         : similarTerm !== null
           ? Prisma.sql`SELECT value."recordId" AS id, word_similarity(${similarTerm}, value."textValue") AS similarity
             FROM "RecordValue" value
-            WHERE value."companyId" = ${companyId} AND value."typeId" = ${type.id} AND value."fieldId" = ${title.id}
+            WHERE value."companyId" = ${companyId} AND value."typeId" = ${type.id} AND value."fieldId" = ${title?.id ?? null}
               AND value.state = 'value' AND ${similarTerm} <% value."textValue"`
           : compileRecordQuery(
               companyId,
@@ -97,7 +96,7 @@ export function compileRecordSearch(
       ${avatarValue} AS "pictureUrl"
       FROM (${candidates}) record
       LEFT JOIN "RecordValue" title ON title."companyId" = ${companyId} AND title."typeId" = ${type.id}
-        AND title."recordId" = record.id AND title."fieldId" = ${title.id}`;
+        AND title."recordId" = record.id AND title."fieldId" = ${title?.id ?? null}`;
   });
   if (!branches.length) return null;
   const after = cursor

@@ -132,13 +132,41 @@ describe("change detail", () => {
     const markup = renderToStaticMarkup(createElement(RecordAuditDetail, { entry }));
 
     expect(markup).toMatch(new RegExp(`Name.*Old name.*${ARROW}.*New name`));
-    expect(markup).toMatch(new RegExp(`RecordModel.assignedTo.*${EMPTY}.*${ARROW}.*Ada`));
+    expect(markup).toMatch(new RegExp(`RecordModel.assignedTo.*${EMPTY}.*${ARROW}.*default:Ada Lovelace`));
     expect(markup).toMatch(new RegExp(`Deals.*${EMPTY}.*${ARROW}.*info:Renewal`));
     expect(markup).not.toContain("RecordModel.previousValue");
     expect(markup).not.toContain("rounded-md border p-3");
   });
 
-  it("shows an admin creation as no value → current and a deletion as previous → no value", () => {
+  it("lists the values of a created record without arrows, members by name and formatted text once", () => {
+    const entry = {
+      ...BASE,
+      kind: "record",
+      event: "record.created",
+      changes: {
+        ref: { typeId: "type-1", recordId: "record-1" },
+        fields: [
+          { fieldId: "field-1", before: null, after: text("field-1", "Nova") },
+          { fieldId: "field-2", before: null, after: richText("field-2", "Pilot approved") },
+        ],
+        assignments: { before: [], after: ["user-1"] },
+        identities: null,
+        links: [],
+        related: [],
+      },
+      members: [{ id: "user-1", firstName: "Ada", lastName: "Lovelace", avatarUrl: null }],
+      lists: {},
+    } as unknown as Extract<ActivityEntryDto, { kind: "record" }>;
+    const markup = renderToStaticMarkup(createElement(RecordAuditDetail, { entry }));
+
+    expect(markup).toMatch(/Name.*Nova/);
+    expect(markup).toMatch(/RecordModel.assignedTo.*default:Ada Lovelace/);
+    expect(markup.split("Pilot approved")).toHaveLength(2);
+    expect(markup).not.toContain(ARROW);
+    expect(markup).not.toContain(EMPTY);
+  });
+
+  it("shows the values of an admin creation and of a deletion as a plain list without arrows", () => {
     const render = (event: DomainEvent) =>
       renderToStaticMarkup(
         createElement(AuditDetail, {
@@ -151,8 +179,12 @@ describe("change detail", () => {
         }),
       );
 
-    expect(render(DomainEvent.WEBHOOK_CREATED)).toMatch(new RegExp(`${EMPTY}.*${ARROW}.*https://receiver.example`));
-    expect(render(DomainEvent.WEBHOOK_DELETED)).toMatch(new RegExp(`https://receiver.example.*${ARROW}.*${EMPTY}`));
+    for (const event of [DomainEvent.WEBHOOK_CREATED, DomainEvent.WEBHOOK_DELETED]) {
+      const markup = render(event);
+      expect(markup).toContain("https://receiver.example");
+      expect(markup).not.toContain(ARROW);
+      expect(markup).not.toContain(EMPTY);
+    }
   });
 
   it("shows a record access change per type and role as previous → current", () => {

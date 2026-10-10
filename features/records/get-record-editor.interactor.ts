@@ -17,7 +17,14 @@ import { recordWriteFailure } from "./mutate-record.interactor";
 import { recordDto, withMemberUsers } from "./query-records.interactor";
 import { resolveRecordPath } from "./record-relationship-path";
 import { visibleFormulaFields } from "./record-formula-visibility";
-import { recordLinkColors, recordLinkIcons, type RecordLinkColors, type RecordLinkIcons } from "./record-presentation";
+import {
+  recordLinkColors,
+  recordLinkIcons,
+  recordLinkLabels,
+  type RecordLinkColors,
+  type RecordLinkIcons,
+  type RecordLinkLabels,
+} from "./record-presentation";
 import type { RecordDetailLayoutReader } from "./record-detail-layout-reader";
 import type { RecordDetailLayoutResult } from "./record-detail-layout.schema";
 
@@ -29,6 +36,7 @@ export type RecordEditorContext = {
   canManageSchema: boolean;
   linkColors: RecordLinkColors;
   linkIcons: RecordLinkIcons;
+  linkLabels: RecordLinkLabels;
   systemActions?: Array<"manageMembership">;
   detailLayout?: RecordDetailLayoutResult;
 };
@@ -126,6 +134,7 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
               canManageSchema: policy.canManageSchema,
               linkColors: recordLinkColors(model.types, relationships),
               linkIcons: recordLinkIcons(model.types, relationships),
+              linkLabels: recordLinkLabels(model.types, relationships),
               systemActions:
                 stored?.protectedKind === "membershipAuthorization" &&
                 policy.allowedSystem("users", "update") &&
