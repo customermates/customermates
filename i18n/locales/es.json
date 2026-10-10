@@ -3669,6 +3669,14 @@
     "unlinkRecord": "Desvincular {name}",
     "updatedAt": "Actualizado el",
     "useChannelAvatar": "Usar la foto de perfil del canal",
+    "valueSource": {
+      "calculated": "Calculado · {formula}",
+      "from": "De {list} · {value}",
+      "savedOnCreate": "Se guarda al crear {list}",
+      "savedOnRequest": "Se guarda bajo petición",
+      "savedWhenChanged": "Se guarda cuando cambia {field}",
+      "savedWhenChangedTo": "Se guarda cuando {field} cambia a {value}"
+    },
     "valueType": "Tipo de valor",
     "yes": "Sí"
   },
