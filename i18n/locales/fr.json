@@ -875,7 +875,8 @@
         "inbox": "messages, e-mail, courriel, conversations, discussions",
         "knowledgeBase": "wiki, notes, fiches, articles",
         "routines": "automatisations, planifications, tâches récurrentes",
-        "settings": "préférences, options, compte, espace de travail"
+        "settings": "préférences, options, compte, espace de travail",
+        "trash": "éléments supprimés, corbeille, restaurer, annuler la suppression"
       },
       "setting": {
         "apiKeys": {
