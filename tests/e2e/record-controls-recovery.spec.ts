@@ -585,7 +585,7 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
   await page.goto("/en/dashboard");
   await page.locator("#dashboard-add-widget").click();
   const dialog = page.getByRole("dialog");
-  await dialog.locator("#widget-kind-chart").click();
+  await dialog.locator("#widget-starter-verticalBarChart").click();
   const name = "Related price aggregates";
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill(name);
   const modelAction = serverActionIds("app/[locale]/(protected)/records/actions.ts", "getRecordModelAction");

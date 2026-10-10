@@ -270,7 +270,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
     await openSidebarLink(page, "nav-dashboard");
     await expect.poll(() => new URL(page.url()).pathname).toBe("/en/dashboard");
     await page.locator("#dashboard-add-widget").click();
-    await dialog.locator("#widget-kind-chart").click();
+    await dialog.locator("#widget-starter-verticalBarChart").click();
     await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Configured weighted pipeline");
     await dialog.getByRole("combobox", { name: "Records from", exact: true }).click();
     await page.locator('[data-slot="popover-content"]').getByRole("combobox").fill("Deals");

@@ -1835,7 +1835,6 @@
       "kind": {
         "activityTimelineDescription": "Verfolge Datensatzänderungen, Nachrichten sowie Konto- und Kalenderaktivitäten chronologisch.",
         "change": "Anderes Widget wählen",
-        "chartDescription": "Vergleiche CRM-Daten in einem Diagramm.",
         "description": "Wählen Sie ein Format und legen Sie die Daten selbst fest.",
         "scratchTitle": "Von Grund auf neu",
         "title": "Widget auswählen"
@@ -1855,6 +1854,40 @@
       "sharing": {
         "template": "Als Vorlage freigeben"
       },
+      "starters": {
+        "areaChart": {
+          "description": "Zeigen, wie sich ein Wert über die Zeit entwickelt.",
+          "title": "Fläche im Zeitverlauf"
+        },
+        "doughnutChart": {
+          "description": "Zeigen, wie sich eine Summe auf Teile verteilt.",
+          "title": "Ring"
+        },
+        "funnelChart": {
+          "description": "Datensätze durch die Stufen eines Auswahlfelds verfolgen.",
+          "title": "Trichter"
+        },
+        "horizontalBarChart": {
+          "description": "Gruppen mit längeren Namen vergleichen.",
+          "title": "Horizontale Balken"
+        },
+        "number": {
+          "description": "Ein Gesamtwert, etwa eine Anzahl oder Summe.",
+          "title": "Kennzahl"
+        },
+        "radarChart": {
+          "description": "Gruppen auf einer gemeinsamen Skala vergleichen.",
+          "title": "Netz"
+        },
+        "rankedTable": {
+          "description": "Die stärksten Gruppen der Reihe nach auflisten.",
+          "title": "Rangliste"
+        },
+        "verticalBarChart": {
+          "description": "Einen Wert über Gruppen vergleichen.",
+          "title": "Balkendiagramm"
+        }
+      },
       "steps": {
         "chooseDescription": "Starten Sie mit einer Empfehlung, einem leeren Format oder einer in Ihrem Workspace geteilten Vorlage.",
         "configureDescription": "Lege fest, welche Daten dieses Widget zeigt und wie es aussieht."
@@ -1870,56 +1903,8 @@
         "title": "Mit einer Vorlage starten"
       }
     },
-    "widgetGallery": {
-      "creationDate": "Erstellungsdatum",
-      "description": "Vorschläge auf Basis der Datensatztypen und Felder in Ihrem Workspace. Vor dem Speichern können Sie alles anpassen.",
-      "recipes": {
-        "countBySelect": {
-          "description": "Anzahl der {type} je {group}.",
-          "name": "{type} nach {group}"
-        },
-        "countPerMember": {
-          "description": "Anzahl der {type} je {group}.",
-          "name": "{type} pro {group}"
-        },
-        "openCountPerAssignee": {
-          "description": "{type}, die nicht in einem abgeschlossenen {group} sind, gezählt je zugewiesener Person.",
-          "name": "Offene {type} pro zugewiesener Person"
-        },
-        "openValueTotal": {
-          "description": "Summe von {field} aller {type}, die nicht in einem abgeschlossenen {group} sind.",
-          "name": "Offener Wert: {field}"
-        },
-        "stageFunnel": {
-          "description": "{type} je {group} in Reihenfolge, mit Umwandlung von Schritt zu Schritt.",
-          "name": "{type} nach {group}"
-        },
-        "topRelatedByValue": {
-          "description": "{related}, gereiht nach {field} ihrer verknüpften {type}, mit Anteil an der Summe.",
-          "name": "Top {related} nach {field}"
-        },
-        "topRelatedByWonValue": {
-          "description": "{related}, gereiht nach {field} ihrer gewonnenen {type}, mit Anteil an der Summe.",
-          "name": "Top {related} nach gewonnenem {field}"
-        },
-        "valueOverTime": {
-          "description": "{field} der {type} pro Monat, nach {date}.",
-          "name": "{field} pro Monat"
-        },
-        "valueTotal": {
-          "description": "Summe von {field} über alle {type}.",
-          "name": "Gesamt: {field}"
-        },
-        "wonValueOverTime": {
-          "description": "{field} gewonnener {type} pro Monat, nach {date}.",
-          "name": "Gewonnen pro Monat: {field}"
-        }
-      },
-      "title": "Empfohlen für Ihre Daten"
-    },
     "widgetKinds": {
-      "activityTimeline": "Aktivitätsverlauf",
-      "chart": "Diagramm"
+      "activityTimeline": "Aktivitätsverlauf"
     }
   },
   "DataTransfer": {
