@@ -14,7 +14,7 @@ import { DataViewPagination } from "@/components/data-view/header/pagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
-import { recordTitle } from "@/components/records/record-title";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { relationshipColumnKey } from "@/features/records/record-column.schema";
@@ -190,7 +190,7 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
       if (name && type.primaryFieldId) child.onChange(`values.${type.primaryFieldId}`, name);
     });
   const recordName = (record: RecordRow) =>
-    recordTitle(record.fields.find((field) => field.fieldId === type.primaryFieldId)?.result, type.label, t);
+    recordDisplayName(record.fields.find((field) => field.fieldId === type.primaryFieldId)?.result, type.label, t);
   const openRelated = useCallback((ref: RecordRef) => store.rootStore.recordWorkspaceStore.open(ref), [store]);
   const columns = useRecordTableColumns(list, openRelated, { markCalculated: true });
   const renderCard = useRecordCardRenderer(list, openRelated);

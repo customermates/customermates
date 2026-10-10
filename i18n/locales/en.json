@@ -1186,6 +1186,7 @@
       "webhookHeadersTooMany": "Too many headers.",
       "webhookHeaderValueInvalid": "Header values may only contain Latin-1 text, without line breaks or control characters.",
       "webhookNotFound": "Webhook ID not found or not accessible.",
+      "webhookTriggerRequired": "Choose which field changes or conditions trigger this webhook before turning it back on.",
       "widgetDisplayTypeUnsupported": "This chart style does not fit the selected grouping. Choose another style or change the grouping.",
       "widgetKindImmutable": "A widget's type cannot be changed after it is created.",
       "widgetLayoutOverlap": "This position overlaps another widget. Choose a free spot on the 12-column grid or leave the layout out to place the widget automatically.",
@@ -3096,6 +3097,7 @@
         "label": "Describe the calculation",
         "pending": "Drafting the calculation",
         "placeholder": "For example: total of the amounts of all linked line items",
+        "stop": "Stop drafting",
         "unavailable": "Drafting isn't available right now."
       },
       "example": {
@@ -3225,7 +3227,7 @@
     "configurationDeletion": {
       "blockedMessage": "{name} can't be deleted while other parts of your setup still use it.",
       "blockers": {
-        "binding": "{source} uses {target} in its settings.",
+        "binding": "{target} controls workspace access for {source} and can't be deleted.",
         "calculation": "{source} calculates from {target}.",
         "parentAccess": "{source} gets its access through {target}.",
         "protected": "{source} controls workspace access and can't be deleted.",
@@ -3241,10 +3243,10 @@
         "bindingChannels": "{target} is no longer used for Channels in {consumers}.",
         "listDefaults": "{target} is removed from the default layout of {consumers}.",
         "nameField": "{consumers} will be shown by {replacement} instead.",
-        "nameFieldNone": "{consumers} has no field left that can name its records, so they show as untitled.",
+        "nameFieldNone": "No field in {consumers} can name its records any more, so they show as “Untitled {singular}”.",
         "personalLayouts": "{target} is removed from {count, plural, one {# personal layout} other {# personal layouts}}.",
         "view": "{count, plural, one {{target} is removed from the view {consumers}.} other {{target} is removed from # views: {consumers}.}}",
-        "webhookRemoved": "{count, plural, one {The webhook {consumers} stops sending record changes, because {target} was its only trigger.} other {# webhooks stop sending record changes, because {target} was their only trigger: {consumers}.}}",
+        "webhookPaused": "{count, plural, one {The webhook {consumers} is paused, because {target} was its only trigger. Choose a new trigger before turning it back on.} other {# webhooks are paused, because {target} was their only trigger: {consumers}. Choose a new trigger before turning them back on.}}",
         "webhookTrigger": "{count, plural, one {{target} is removed from the trigger of the webhook {consumers}.} other {{target} is removed from the trigger of # webhooks: {consumers}.}}",
         "widget": "{count, plural, one {{target} is removed from the filters or grouping of the widget {consumers}.} other {{target} is removed from the filters or grouping of # widgets: {consumers}.}}",
         "widgetCount": "{count, plural, one {The widget {consumers} counts records instead of measuring {target}.} other {# widgets count records instead of measuring {target}: {consumers}.}}"
@@ -3652,6 +3654,14 @@
     "untitledRecord": "Untitled {singular}",
     "updatedAt": "Updated at",
     "useChannelAvatar": "Use channel profile picture",
+    "usedBy": {
+      "blocking": "Would block deletion",
+      "blockingCount": "{count, plural, one {# would block deletion} other {# would block deletion}}",
+      "cleaned": "Cleaned up on deletion",
+      "cleanedCount": "{count, plural, one {# cleaned up} other {# cleaned up}}",
+      "layouts": "Also removed from {count, plural, one {# layout} other {# layouts}}.",
+      "title": "Used by"
+    },
     "valueSource": {
       "calculated": "Calculated · {formula}",
       "from": "From {list} · {value}",
@@ -4107,6 +4117,7 @@
     },
     "movedToTrash": "Moved to Trash",
     "movesToTrash": "It moves to Trash, where you can restore it for 30 days.",
+    "moving": "{count, plural, one {Moving # item to Trash…} other {Moving # items to Trash…}}",
     "permanentIrreversible": "This cannot be undone.",
     "permanentMessage": "{count, plural, one {This item is} other {These # items are}} deleted permanently.",
     "permanentRecords": "{list}: {count, plural, one {# record} other {# records}}",
@@ -4121,7 +4132,7 @@
     "restored": "{count, plural, one {# item restored} other {# items restored}}",
     "restoredInBackground": "Restored",
     "restoredWithDroppedLinks": "Restored. {count, plural, one {# link} other {# links}} could not be restored because the linked record was deleted permanently.",
-    "restorePending": "Restoring in the background. Trash shows the progress.",
+    "restoring": "Restoring…",
     "undo": "Undo"
   },
   "TrialExpiredOffer": {
@@ -4222,6 +4233,8 @@
     "disabled": "Disabled",
     "enabled": "Enabled",
     "headersDescription": "Optional headers sent with every delivery, one per line as Name: value. Use them for receivers that require their own authentication. Content-Type and the signature header cannot be overridden.",
+    "paused": "Paused",
+    "pausedTriggerFieldDeleted": "This webhook was paused because the field that triggered it was deleted. Choose a new trigger, then turn it back on.",
     "recordOwner": "Record access owner",
     "recordOwnerHelp": "Record deliveries use this member’s current permissions. Only an administrator can choose another owner. Filters match when a record changes; deleted records do not apply filters.",
     "secretDescription": "Optional secret used to generate an HMAC-SHA256 signature sent in the X-Webhook-Signature header. To verify, hash the request body with this secret using HMAC-SHA256 and compare it with the header value.",

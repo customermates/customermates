@@ -197,18 +197,28 @@ function inferExpressionType(
   return args.includes("currency") ? "currency" : "number";
 }
 
+export function calculationExpressionIssues(
+  expression: CalculationExpression,
+  typeId: string,
+  model: { fields: CalculationInputField[]; relationships: RecordModel["relationships"] },
+): { resultType: RecordValueType | null; issues: string[] } {
+  const issues: string[] = [];
+  const resultType = inferExpressionType(
+    expression,
+    typeId,
+    new Map(model.fields.map((field) => [field.id, field])),
+    new Map(model.relationships.map((relation) => [relation.id, relation])),
+    (code) => issues.push(code),
+  );
+  return { resultType, issues };
+}
+
 export function calculationResultType(
   expression: CalculationExpression,
   typeId: string,
   model: { fields: CalculationInputField[]; relationships: RecordModel["relationships"] },
 ): RecordValueType | null {
-  return inferExpressionType(
-    expression,
-    typeId,
-    new Map(model.fields.map((field) => [field.id, field])),
-    new Map(model.relationships.map((relation) => [relation.id, relation])),
-    () => undefined,
-  );
+  return calculationExpressionIssues(expression, typeId, model).resultType;
 }
 
 export function validateRecordModel(model: RecordModel): {

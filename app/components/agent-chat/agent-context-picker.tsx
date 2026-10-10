@@ -1,11 +1,8 @@
 "use client";
 
 import type { AgentContextAttachment } from "@/ee/agent-chat/agent-context";
-import {
-  recordSearchLabel,
-  type RecordSearchHit,
-  type RecordSearchResult,
-} from "@/features/records/record-search.schema";
+import { type RecordSearchHit, type RecordSearchResult } from "@/features/records/record-search.schema";
+import { recordDisplayName } from "@/features/records/record-display-name";
 
 import { Check, LayoutPanelTop, Loader2, Plus, List, Settings2, ChartColumn } from "lucide-react";
 import { observer } from "mobx-react-lite";
@@ -179,7 +176,7 @@ export const AgentContextPicker = observer(function AgentContextPicker({
 
   const recordCandidates = dedupeRecordSearchResults(remoteResults, visiblePageCandidates).map(
     (item): AgentContextCandidate & { displayLabel: string; item: RecordSearchHit } => {
-      const displayLabel = recordSearchLabel(item, t);
+      const displayLabel = recordDisplayName(item.title, item.typeLabel, t);
       return {
         context: recordAttachment(item, displayLabel),
         displayLabel,

@@ -18,6 +18,7 @@ import {
 } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { SHIPPED_AGENT_MODEL } from "@/ee/agent-chat/model-catalog";
+import { liveRecordModel } from "@/features/records/record-model-snapshot";
 import { generateStructuredObject, structuredCallWorstCaseMicrocents } from "@/ee/agent-chat/structured-model-call";
 import {
   CALCULATION_DRAFT_DESCRIPTION_LIMIT,
@@ -34,6 +35,8 @@ export const DraftCalculationSchema = z
   })
   .strict();
 export type DraftCalculationInput = z.infer<typeof DraftCalculationSchema>;
+
+export const CALCULATION_DRAFT_TIMEOUT_MS = 8_000;
 
 @TenantInteractor()
 export class DraftCalculationInteractor extends AuthenticatedInteractor<
@@ -53,10 +56,14 @@ export class DraftCalculationInteractor extends AuthenticatedInteractor<
   async invoke(input: DraftCalculationInput): Validated<{ draft: CalculationDraft | null }> {
     const denied = await this.entitlements.require("agentChat");
     if (denied) return denied;
-    const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
+    const [stored, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
+    const model = liveRecordModel(stored);
     if (!policy.actor || !(policy.isAdmin || policy.canManageSchema))
       return failAuthorization(CustomErrorCode.permissionDenied);
-    if (!model.types.some((type) => type.id === input.typeId && !type.archived))
+    if (
+      !model.types.some((type) => type.id === input.typeId) ||
+      (input.fieldId && !model.fields.some((field) => field.id === input.fieldId && field.typeId === input.typeId))
+    )
       return failNotFound(CustomErrorCode.recordTypeNotFound);
     const request = calculationDraftRequest({ model, ...input });
     const now = new Date();
@@ -87,6 +94,7 @@ export class DraftCalculationInteractor extends AuthenticatedInteractor<
       const result = await generateStructuredObject({
         label: "Calculation draft",
         model: engine,
+        timeoutMs: CALCULATION_DRAFT_TIMEOUT_MS,
         schema: CalculationDraftOutputSchema,
         system: request.system,
         prompt: request.prompt,
