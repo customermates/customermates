@@ -44,7 +44,7 @@ const ConfigureGraph = dynamic(() => import("./configure-graph").then((module) =
   ),
 });
 
-const CONFIGURE_FOCUS_KINDS: FocusKind[] = ["list", "field", "relationship"];
+const CONFIGURE_FOCUS_KINDS: FocusKind[] = ["list", "field", "option", "relationship"];
 
 function configureHref(changes: Record<string, string | null>) {
   const url = new URL(window.location.href);
@@ -207,8 +207,9 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
         return true;
       }
       if (!selected) return true;
-      if (target.kind === "field") {
-        const field = model.fields.find((candidate) => candidate.id === target.id && candidate.typeId === selected.id);
+      if (target.kind === "field" || target.kind === "option") {
+        const fieldId = target.kind === "option" ? target.id.split(".")[0] : target.id;
+        const field = model.fields.find((candidate) => candidate.id === fieldId && candidate.typeId === selected.id);
         if (field && isResolvedField(field)) fieldModal.edit(model, selected.id, field);
       }
       if (target.kind === "relationship") {

@@ -1,8 +1,9 @@
 import type { Page } from "@playwright/test";
 import type { Client } from "pg";
+import { restoreFromTrash, deleteFromTrashPermanently } from "./trash";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { addChannelsField, addFromConfigure, configureListCard, configureRow, configureTopBar, deleteFromDrawer, deleteRecentlyDeletedPermanently, deleteSelectedList, followConfigureLink, openConfigure, openConfigureRow, openConfigureTab, openDrawerTab, openListAction, restoreRecentlyDeleted, saveDrawer, saveGeneral, selectConfigureList } from "./configure";
+import { addChannelsField, addFromConfigure, configureListCard, configureRow, configureTopBar, deleteFromDrawer, deleteSelectedList, followConfigureLink, openConfigure, openConfigureRow, openConfigureTab, openDrawerTab, openListAction, saveDrawer, saveGeneral, selectConfigureList } from "./configure";
 import { calculationChip, calculationFlow, chooseValueSource, pickFixedValue, pickOption } from "./calculation-flow";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
@@ -115,7 +116,7 @@ test("adds Channels as a field, keeps its settings, deletes, restores and perman
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();
 
-  await restoreRecentlyDeleted(page, "Channels");
+  await restoreFromTrash(page, "Channels");
   await expect.poll(async () => (await channelsOf(customTypeId))?.enabled).toBe(true);
   await openRecordList(page, customTypeId);
   await page.locator("#records-add").click();
@@ -128,7 +129,7 @@ test("adds Channels as a field, keeps its settings, deletes, restores and perman
   await openConfigureRow(page, "Fields", "Channels");
   await deleteFromDrawer(page, "Delete field");
   await expect.poll(async () => (await channelsOf(customTypeId))?.enabled).toBe(false);
-  await deleteRecentlyDeletedPermanently(page, "Channels");
+  await deleteFromTrashPermanently(page, "Channels");
   await expect.poll(async () => channelsOf(customTypeId)).toBeUndefined();
   await openConfigure(page, customTypeId);
   await openConfigureTab(page, "Fields");
@@ -198,7 +199,7 @@ test("edits a linear calculation and restores deleted fields and a list", async 
   await openConfigureRow(page, "Fields", "Double budget");
   await deleteFromDrawer(page, "Delete field");
   await expect(configureRow(page, "Fields", "Double budget")).toHaveCount(0);
-  await restoreRecentlyDeleted(page, "Double budget");
+  await restoreFromTrash(page, "Double budget");
   expect((await readModel(database, companyId)).fields.find((field) => field.id === doubled?.id)).toMatchObject({
     archived: false,
     behavior: doubled?.behavior,
@@ -207,7 +208,7 @@ test("edits a linear calculation and restores deleted fields and a list", async 
   await selectConfigureList(page, name);
   await deleteSelectedList(page);
   await expect(configureListCard(page, name)).toHaveCount(0);
-  await restoreRecentlyDeleted(page, name);
+  await restoreFromTrash(page, name);
   expect((await readModel(database, companyId)).types.find((type) => type.id === typeId)).toMatchObject({
     archived: false,
     pluralLabel: name,

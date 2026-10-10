@@ -5,7 +5,9 @@ import type { RecordModelView, RecordType } from "@/features/records/record-mode
 import type { TypeModalStore } from "./type-modal";
 
 import { observer } from "mobx-react-lite";
-import { History, LayoutList, List, MoreHorizontal, Plus, Trash2 } from "lucide-react";
+import { LayoutList, List, MoreHorizontal, Plus, Trash2 } from "lucide-react";
+
+import { CONFIGURATION_TRASH_HREF } from "@/features/trash/trash-routes";
 import { useTranslations } from "next-intl";
 
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
@@ -64,10 +66,10 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
           label={t("RecordModel.configurationDeletion.configureActions")}
         >
           <DropdownMenuItem asChild>
-            <IntlLink href="/configure/deleted">
-              <History aria-hidden="true" />
+            <IntlLink href={CONFIGURATION_TRASH_HREF}>
+              <Trash2 aria-hidden="true" />
 
-              {t("RecordModel.configurationDeletion.recentlyDeleted")}
+              {t("NavigationBar.trash")}
             </IntlLink>
           </DropdownMenuItem>
         </TopBarMenuButton>
@@ -84,10 +86,10 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
           <DropdownMenuSeparator />
 
           <DropdownMenuItem asChild>
-            <IntlLink href="/configure/deleted">
-              <History aria-hidden="true" />
+            <IntlLink href={CONFIGURATION_TRASH_HREF}>
+              <Trash2 aria-hidden="true" />
 
-              {t("RecordModel.configurationDeletion.recentlyDeleted")}
+              {t("NavigationBar.trash")}
             </IntlLink>
           </DropdownMenuItem>
 

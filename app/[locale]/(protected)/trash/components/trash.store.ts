@@ -7,6 +7,7 @@ import type {
   RestoreTrashData,
   TrashDeletionPreview,
   TrashItemDto,
+  TrashKind,
   TrashRestoreBlocker,
 } from "@/features/trash/trash.schema";
 
@@ -37,6 +38,8 @@ const countBy = <T>(values: T[]) =>
   values.reduce((counts, value) => counts.set(value, (counts.get(value) ?? 0) + 1), new Map<T, number>());
 
 const UNDO_TOAST_DURATION_MS = 8000;
+
+const CONFIGURATION_TRASH_KINDS: readonly TrashKind[] = ["list", "field", "relationship", "channels"];
 
 export class TrashStore extends BaseDataViewStore<TrashItemDto> {
   isMutating = false;
@@ -101,6 +104,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
     await Promise.all([
       this.isReady ? this.refreshQuery() : undefined,
       this.rootStore.recordWorkspaceStore.invalidate(),
+      this.rootStore.recordWorkspaceStore.refreshNavigation(),
     ]);
   };
 
@@ -194,7 +198,10 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
 
   private afterPermanentDelete = async () => {
     this.clearSelection();
-    if (this.isReady) await this.refreshQuery();
+    await Promise.all([
+      this.isReady ? this.refreshQuery() : undefined,
+      this.rootStore.recordWorkspaceStore.refreshNavigation(),
+    ]);
   };
 
   requestPermanentDelete = async (itemIds: string[], name?: string, onDeleted?: () => unknown) => {
@@ -209,19 +216,26 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
       name !== undefined
         ? this.t("Trash.deletePermanentlyTitle", { name })
         : this.t("Trash.deletePermanentlyManyTitle", { count: itemIds.length });
-    this.confirmPermanent(preview, title, async () => {
-      const deleted = await deleteTrashPermanentlyAction({
-        itemIds: preview.items.map((item) => item.itemId),
-        expectedImpactHash: preview.impactHash,
-      });
-      if (!deleted.ok) {
-        toastZodErrorTree(deleted.error);
-        return false;
-      }
-      await this.afterPermanentDelete();
-      await onDeleted?.();
-      return true;
-    });
+    const configuration =
+      preview.items.length === 1 && CONFIGURATION_TRASH_KINDS.includes(preview.items[0].kind) ? name : undefined;
+    this.confirmPermanent(
+      preview,
+      title,
+      async () => {
+        const deleted = await deleteTrashPermanentlyAction({
+          itemIds: preview.items.map((item) => item.itemId),
+          expectedImpactHash: preview.impactHash,
+        });
+        if (!deleted.ok) {
+          toastZodErrorTree(deleted.error);
+          return false;
+        }
+        await this.afterPermanentDelete();
+        await onDeleted?.();
+        return true;
+      },
+      configuration,
+    );
   };
 
   requestEmpty = async () => {

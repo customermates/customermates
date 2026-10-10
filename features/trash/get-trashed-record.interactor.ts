@@ -49,6 +49,30 @@ export class GetTrashedRecordInteractor extends AuthenticatedInteractor<RecordRe
           this.policy.load(),
           this.records.getRecordTrashItemsCompanyWide({ ids: [item.id] }),
         ]);
+        const selections = model.relationships.flatMap((relation) =>
+          relation.archived
+            ? []
+            : [
+                ...(relation.sourceTypeId === ref.typeId
+                  ? [{ relationId: relation.id, direction: "outgoing" as const, limit: 25 }]
+                  : []),
+                ...(relation.targetTypeId === ref.typeId
+                  ? [{ relationId: relation.id, direction: "incoming" as const, limit: 25 }]
+                  : []),
+              ],
+        );
+        const relationships = editor.data.record
+          ? ((
+              await this.records.relationshipSummaries(
+                ref.typeId,
+                [ref.recordId],
+                selections,
+                model,
+                policy.access(model.types.filter((type) => !type.archived).map((type) => type.id)),
+                { includeTrash: true },
+              )
+            ).get(ref.recordId) ?? [])
+          : [];
         const service = new RecordTrashService(this.records);
         const deletedBy = item.deletedById
           ? ((await this.trash.deletedBy([item.deletedById])).get(item.deletedById) ?? null)
@@ -57,6 +81,7 @@ export class GetTrashedRecordInteractor extends AuthenticatedInteractor<RecordRe
           ok: true as const,
           data: {
             ...editor.data,
+            record: editor.data.record ? { ...editor.data.record, relationships } : null,
             permittedActions: [],
             systemActions: [],
             trash: {

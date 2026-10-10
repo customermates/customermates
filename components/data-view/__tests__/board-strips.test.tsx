@@ -55,4 +55,20 @@ describe("board strips", () => {
     expect(board.isBoardStrip("value:won", 3)).toBe(true);
     expect(board.collapsedGroupKeys.has("value:won")).toBe(true);
   });
+
+  it("hides and shows columns and empty columns in the view's grouping", () => {
+    const board = store();
+    board.grouping = { field: "stage" };
+
+    board.hideGroup("value:won");
+    board.hideGroup("value:won");
+    expect(board.grouping).toEqual({ field: "stage", hidden: ["value:won"] });
+    expect(board.isGroupHidden("value:won")).toBe(true);
+
+    board.setHideEmptyGroups(true);
+    expect(board.grouping).toEqual({ field: "stage", hidden: ["value:won"], hideEmpty: true });
+
+    board.setHideEmptyGroups(false);
+    expect(board.grouping).toEqual({ field: "stage", hidden: ["value:won"] });
+  });
 });

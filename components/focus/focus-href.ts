@@ -4,6 +4,7 @@ import { settingsHref } from "@/app/components/navigation/settings-routes";
 export const FOCUS_KINDS = [
   "list",
   "field",
+  "option",
   "relationship",
   "routine",
   "webhook",
@@ -35,6 +36,7 @@ export function focusHref(target: FocusTarget & { typeId?: string }): string {
   const focus = `${FOCUS_PARAM}=${encodeURIComponent(focusKey(target))}`;
   if (target.kind === "list") return `/configure?${focus}`;
   if (target.kind === "field") return `/configure?typeId=${target.typeId}&tab=fields&${focus}`;
+  if (target.kind === "option") return `/configure?typeId=${target.typeId}&tab=fields&${focus}`;
   if (target.kind === "relationship") return `/configure?typeId=${target.typeId}&tab=relationships&${focus}`;
   if (target.kind === "routine") return `/routines?${focus}`;
   if (target.kind === "webhook") return `${settingsHref("webhooks")}?${focus}`;

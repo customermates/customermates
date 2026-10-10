@@ -78,7 +78,7 @@ export function resolveRecordGrouping<F extends RecordFieldView = RecordField>(
 }
 
 export function recordGroupableFields(typeId: string, model: RecordModelView, canUpdate = false): GroupableFieldDto[] {
-  return recordColumns(typeId, model).flatMap((column) => {
+  return recordColumns(typeId, model).flatMap((column): GroupableFieldDto[] => {
     const resolved = resolveRecordGrouping(typeId, { field: column.id }, model);
     if (!resolved) return [];
     const common = {

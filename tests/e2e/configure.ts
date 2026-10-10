@@ -151,39 +151,6 @@ export async function deleteSelectedList(page: Page) {
   await expect(page.locator("[data-configure-graph] [data-configure-node]").first()).toBeAttached();
 }
 
-export async function openRecentlyDeleted(page: Page) {
-  await page.goto("/en/configure/deleted");
-  await expect(page.locator("[data-recently-deleted]")).toBeVisible();
-}
-
-async function openRecentlyDeletedItem(page: Page, label: string) {
-  await openRecentlyDeleted(page);
-  const detail = page.getByRole("dialog");
-  await expect(async () => {
-    await page.locator("[data-recently-deleted]").getByRole("button", { name: label, exact: true }).click();
-    await expect(detail).toBeVisible({ timeout: 1000 });
-  }).toPass();
-  return detail;
-}
-
-export async function restoreRecentlyDeleted(page: Page, label: string) {
-  const detail = await openRecentlyDeletedItem(page, label);
-  await detail.getByRole("button", { name: "Restore", exact: true }).click();
-  await expect(detail).not.toBeVisible();
-  await expect(
-    page.locator("[data-recently-deleted]").getByRole("button", { name: label, exact: true }),
-  ).toHaveCount(0);
-}
-
-export async function deleteRecentlyDeletedPermanently(page: Page, label: string) {
-  const detail = await openRecentlyDeletedItem(page, label);
-  await detail.getByRole("button", { name: "Delete permanently", exact: true }).click();
-  await confirmDeletion(page, label);
-  await expect(
-    page.locator("[data-recently-deleted]").getByRole("button", { name: label, exact: true }),
-  ).toHaveCount(0);
-}
-
 export async function createConfiguredList(page: Page, name: string, { channels = false } = {}) {
   await openConfigure(page);
   await addFromConfigure(page, "List");

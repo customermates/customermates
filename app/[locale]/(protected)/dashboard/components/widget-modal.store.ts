@@ -5,7 +5,6 @@ import { recordActivityFilterCount } from "@/ee/messaging/activities/record-acti
 import type { DiscoveredRecordTypes } from "@/features/records/discover-record-types.interactor";
 import { RecordActivityWidgetInputSchema } from "@/features/widget/record-activity-widget.schema";
 import { RecordWidgetInputSchema } from "@/features/widget/record-widget.schema";
-import type { WidgetGallery, WidgetGalleryTemplate } from "@/features/widget/widget-gallery";
 import type { CompanyWidget, WidgetDto } from "@/features/widget/widget.schema";
 import { isRecordActivityWidget, isRecordWidget } from "@/features/widget/widget.schema";
 import type { FormEvent } from "react";
@@ -18,8 +17,7 @@ import { Resource, WidgetKind } from "@/generated/prisma";
 import { cloneDeep, omit } from "lodash";
 import { action, computed, makeObservable, observable, reaction, runInAction, toJS } from "mobx";
 
-import { deleteWidgetAction, getCompanyWidgetsAction, getWidgetByIdAction, getWidgetGalleryAction } from "../actions";
-import { browserTimeZone } from "./widget-time-zone";
+import { deleteWidgetAction, getCompanyWidgetsAction, getWidgetByIdAction } from "../actions";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { GRID_COLS } from "./grid.constants";
 import { type WidgetLayoutGeometry, widgetDefaultSize, widgetLayoutGeometry } from "@/features/widget/widget-grid";
@@ -51,9 +49,6 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   public recordTypes: DiscoveredRecordTypes | null = null;
   private recordSubmission: { payload: string; key: string } | null = null;
   public companyWideWidgets: CompanyWidget[] = [];
-  public galleryTemplates: WidgetGalleryTemplate[] = [];
-  private gallerySchemaRevision: number | null = null;
-  private galleryGeneration = 0;
   public expandedSection: WidgetModalSection = "config";
   public expandedFilterField: string | undefined = undefined;
   public creationStep: WidgetCreationStep = "choose";
@@ -86,7 +81,6 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       recordTypes: observable.ref,
       setRecordTypes: action,
       companyWideWidgets: observable,
-      galleryTemplates: observable.ref,
       expandedSection: observable,
       expandedFilterField: observable,
       creationStep: observable,
@@ -99,7 +93,6 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       loadById: action,
       loadTemplate: action,
       fetchCompanyWidgets: action,
-      fetchGallery: action,
       setActivityFilterableFields: action,
       setExpandedSection: action,
       setExpandedFilterField: action,
@@ -164,14 +157,19 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     return kinds;
   }
 
-  startFromKind = (kind: WidgetKind, defaultActivityName?: string) => {
+  startFromKind = (kind: WidgetKind, options: { activityName?: string; displayType?: DisplayType } = {}) => {
     if (this.form.id || !this.availableKinds.includes(kind)) return;
 
     this.invalidateLoads();
     this.withSuppressedReactions(() => {
       this.expandedSection = "config";
       this.expandedFilterField = undefined;
-      this.replaceForm(this.buildNewForm(kind, defaultActivityName));
+      const form = this.buildNewForm(kind, options.activityName);
+      this.replaceForm(
+        isRecordWidgetForm(form) && options.displayType
+          ? { ...form, displayOptions: { ...form.displayOptions, displayType: options.displayType } }
+          : form,
+      );
     });
     this.creationStep = "configure";
   };
@@ -211,48 +209,6 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     this.open();
 
     void this.fetchCompanyWidgets().catch(reportApplicationError);
-    void this.fetchGallery().catch(reportApplicationError);
-  };
-
-  fetchGallery = async () => {
-    const generation = ++this.galleryGeneration;
-    if (!this.availableKinds.includes(WidgetKind.chart)) {
-      this.galleryTemplates = [];
-      return;
-    }
-    const result = await getWidgetGalleryAction();
-    if (!result.ok || generation !== this.galleryGeneration) return;
-    runInAction(() => {
-      if (JSON.stringify(result.data.templates) !== JSON.stringify(this.galleryTemplates))
-        this.galleryTemplates = result.data.templates;
-      this.gallerySchemaRevision = result.data.schemaRevision;
-    });
-  };
-
-  startFromGallery = (template: WidgetGalleryTemplate, name: string) => {
-    if (this.form.id || !this.availableKinds.includes(WidgetKind.chart)) return;
-
-    const measure = cloneDeep(template.measure);
-    if (measure.groupBy?.dateInterval) measure.groupBy.timeZone = browserTimeZone();
-    runInAction(() => this.invalidateLoads());
-    this.withSuppressedReactions(() => {
-      runInAction(() => {
-        this.expandedSection = "config";
-        this.expandedFilterField = undefined;
-        const form = this.buildNewForm(WidgetKind.chart);
-        if (!isRecordWidgetForm(form)) return;
-        this.replaceForm({
-          ...form,
-          name,
-          expectedRevision: this.gallerySchemaRevision ?? form.expectedRevision,
-          measure,
-          displayOptions: cloneDeep(template.displayOptions),
-        });
-      });
-    });
-    runInAction(() => {
-      this.creationStep = "configure";
-    });
   };
 
   fetchCompanyWidgets = async () => {
@@ -358,15 +314,8 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     }
   };
 
-  setRecordTypes = (types: DiscoveredRecordTypes, gallery?: WidgetGallery) => {
+  setRecordTypes = (types: DiscoveredRecordTypes) => {
     this.recordTypes = types;
-    if (!gallery) {
-      void this.fetchGallery().catch(reportApplicationError);
-      return;
-    }
-    this.galleryGeneration += 1;
-    this.galleryTemplates = this.availableKinds.includes(WidgetKind.chart) ? gallery.templates : [];
-    this.gallerySchemaRevision = gallery.schemaRevision;
   };
 
   setActivityFilterableFields = (filterableFields: FilterableField[]) => {

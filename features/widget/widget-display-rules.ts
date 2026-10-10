@@ -3,6 +3,17 @@ import type { RecordModelView } from "@/features/records/record-model.schema";
 
 import { DisplayType } from "./widget-display.schema";
 
+export const WIDGET_STARTER_DISPLAY_TYPES = [
+  DisplayType.number,
+  DisplayType.verticalBarChart,
+  DisplayType.horizontalBarChart,
+  DisplayType.areaChart,
+  DisplayType.rankedTable,
+  DisplayType.doughnutChart,
+  DisplayType.funnelChart,
+  DisplayType.radarChart,
+] as const;
+
 export const WIDGET_DISPLAY_REQUIREMENTS = ["noGrouping", "grouping", "timeInterval", "singleChoice"] as const;
 export type WidgetDisplayRequirement = (typeof WIDGET_DISPLAY_REQUIREMENTS)[number];
 

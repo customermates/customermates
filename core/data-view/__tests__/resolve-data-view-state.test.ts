@@ -154,6 +154,17 @@ describe("resolveDataViewState three layer precedence", () => {
     });
   });
 
+  it("keeps the stored hidden columns when the URL names the same grouping", () => {
+    const stored = { field: A_GROUPING_COLUMN, hidden: ["value:won"], hideEmpty: true };
+    expect(
+      resolveDataViewState({ params: { grouping: { field: A_GROUPING_COLUMN } }, base: { grouping: stored } }).grouping,
+    ).toEqual(stored);
+    expect(
+      resolveDataViewState({ params: { grouping: { field: "system:assignedTo" } }, base: { grouping: stored } })
+        .grouping,
+    ).toEqual({ field: "system:assignedTo" });
+  });
+
   it("treats a cleared grouping as no grouping with no floor", () => {
     expect(
       resolveDataViewState({ params: { grouping: null }, base: { grouping: { field: A_GROUPING_COLUMN } } }).grouping,

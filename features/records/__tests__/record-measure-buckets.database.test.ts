@@ -43,7 +43,6 @@ const { GetWidgetsInteractor } = await import("@/features/widget/get-widgets.int
 const { PrismaRecordWidgetRepo } = await import("@/features/widget/prisma-record-widget.repository");
 const { RecordWidgetReader } = await import("@/features/widget/record-widget-reader");
 const { UpsertRecordWidgetInteractor } = await import("@/features/widget/record-widget.interactor");
-const { GetWidgetGalleryInteractor } = await import("@/features/widget/get-widget-gallery.interactor");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -91,7 +90,6 @@ async function fixture(preset: Preset = "crm") {
     reader,
     new PrismaDataViewRepo(),
   );
-  const gallery = new GetWidgetGalleryInteractor(repo, policy);
   const id = (key: string) => presetId(seed.company.id, key);
   const model =
     preset === "crm" ? createCrmPreset(seed.company.id) : createWorkspaceRecordPreset(seed.company.id, (key) => key);
@@ -188,7 +186,6 @@ async function fixture(preset: Preset = "crm") {
     buckets,
     reader,
     widgets,
-    gallery,
     measure,
   };
 }
@@ -886,90 +883,5 @@ describeDatabase("time-bucketed record measures", () => {
       "Main",
       "Sales total",
     ]);
-  }, 120_000);
-
-  it("resolves gallery templates against the preset model and hides what the model or access cannot support", async () => {
-    const f = await fixture("workspace");
-    const stage = f.model.fields.find((field) => field.id === f.id("deal.stage"));
-    if (!stage) throw new Error("The workspace stage field is missing");
-    const workspace = await f.run(() => f.gallery.invoke());
-    expect(workspace.ok).toBe(true);
-    if (!workspace.ok) return;
-    const byKey = new Map(
-      workspace.data.templates
-        .filter((template) => template.measure.source.typeId === f.deal)
-        .map((template) => [template.recipe, template]),
-    );
-    expect([...byKey.keys()]).toEqual(["openValueTotal", "stageFunnel", "wonValueOverTime", "topRelatedByWonValue"]);
-    const won = [f.id("deal.stage.won")];
-    const lost = [f.id("deal.stage.lost")];
-    expect(byKey.get("openValueTotal")).toMatchObject({
-      displayOptions: { displayType: DisplayType.number },
-      measure: {
-        aggregation: "sum",
-        valueFieldId: f.id("deal.totalValue"),
-        groupBy: null,
-        source: {
-          typeId: f.deal,
-          filters: [
-            {
-              fieldId: stage.id,
-              operator: "notIn",
-              values: [...won, ...lost].map((value) => ({ kind: "select", value })),
-            },
-          ],
-        },
-      },
-    });
-    expect(byKey.get("stageFunnel")).toMatchObject({
-      displayOptions: { displayType: DisplayType.funnelChart },
-      measure: { aggregation: "count", groupBy: { fieldId: stage.id } },
-    });
-    expect(byKey.get("wonValueOverTime")).toMatchObject({
-      displayOptions: { displayType: DisplayType.areaChart },
-      measure: { groupBy: { fieldId: f.closeDate.id, dateInterval: "month" }, groupLimit: 1000 },
-    });
-    expect(byKey.get("topRelatedByWonValue")).toMatchObject({
-      displayOptions: { displayType: DisplayType.rankedTable },
-      measure: {
-        groupBy: { path: [{ relationId: f.id("deal.organizations"), direction: "outgoing" }], fieldId: null },
-      },
-    });
-    expect(
-      workspace.data.templates
-        .filter((template) => template.measure.source.typeId === f.id("task"))
-        .map((template) => template.recipe),
-    ).toEqual(["stageFunnel"]);
-    for (const template of workspace.data.templates) {
-      const result = await f.run(() => f.measure.invoke(template.measure));
-      expect(result.ok, template.key).toBe(true);
-    }
-
-    const crm = await fixture("crm");
-    const plain = await crm.run(() => crm.gallery.invoke());
-    const dealRecipes = (result: typeof plain) =>
-      result.ok
-        ? result.data.templates
-            .filter((template) => template.measure.source.typeId === crm.deal)
-            .map((template) => template.recipe)
-        : [];
-    expect(dealRecipes(plain)).toEqual(["openValueTotal", "stageFunnel", "wonValueOverTime", "topRelatedByWonValue"]);
-    if (plain.ok) {
-      expect(
-        plain.data.templates.find((template) => template.recipe === "openValueTotal")?.measure.source.filters,
-      ).toEqual([
-        {
-          fieldId: crm.id("deal.stage"),
-          operator: "notIn",
-          value: null,
-          values: [crm.id("deal.stage.won"), crm.id("deal.stage.lost")].map((value) => ({ kind: "select", value })),
-        },
-      ]);
-    }
-    await crm.run(() =>
-      runInTransaction(() => crm.repo.setGrants(crm.deal, [{ roleId: crm.memberRole.id, actions: ["readOwn"] }])),
-    );
-    const scoped = await crm.run(() => crm.gallery.invoke(), crm.member);
-    expect(dealRecipes(scoped)).toEqual(["openValueTotal", "stageFunnel", "wonValueOverTime"]);
   }, 120_000);
 });

@@ -119,18 +119,20 @@ export interface RecordRepo {
   getViewStatesCompanyWide(
     typeIds: string[],
     afterKey?: string,
-  ): Promise<Array<{ key: string; typeId: string; name: string | null; state: DataViewState }>>;
+  ): Promise<Array<{ key: string; typeId: string; name: string | null; state: DataViewState; trashed: boolean }>>;
   getDetailLayoutsCompanyWide(
     typeIds: string[],
     afterId?: string,
   ): Promise<Array<{ id: string; typeId: string; layout: RecordDetailLayout }>>;
   getActivityWidgetQueriesCompanyWide(
     afterId?: string,
-  ): Promise<Array<{ id: string; name: string; query: RecordActivityQuery }>>;
+  ): Promise<Array<{ id: string; name: string; query: RecordActivityQuery; trashed: boolean }>>;
   getEventSubscriptionsCompanyWide(
     afterId?: string,
   ): Promise<Array<RecordEventSubscriptionDefinition & { label: string }>>;
-  getWidgetMeasuresCompanyWide(afterId?: string): Promise<Array<{ id: string; name: string; measure: RecordMeasure }>>;
+  getWidgetMeasuresCompanyWide(
+    afterId?: string,
+  ): Promise<Array<{ id: string; name: string; measure: RecordMeasure; trashed: boolean }>>;
   getConfigurationDeletions(targets?: ConfigurationTarget[]): Promise<Map<string, ConfigurationDeletionRecord>>;
   applyConsumerCleanups(cleanups: ConfigurationConsumerCleanup[]): Promise<void>;
   getUserNamesCompanyWide(userIds: string[]): Promise<Map<string, string>>;
@@ -185,6 +187,7 @@ export interface RecordRepo {
     selections: RecordRelationshipSelection[],
     model: RecordModel,
     access: RecordAccessMap,
+    options?: TrashReadOptions,
   ): Promise<Map<string, RecordRelationshipSummary[]>>;
   pathSummaries(
     typeId: string,
@@ -200,7 +203,9 @@ export interface RecordRepo {
   delete(ref: RecordRef): Promise<void>;
   moveToTrash(ref: RecordRef, trashItemId: string): Promise<void>;
   addTrashItems(items: RecordTrashItemInput[]): Promise<void>;
-  getRecordTrashItemsCompanyWide(selection: { ids: string[] } | { batchId: string }): Promise<RecordTrashItem[]>;
+  getRecordTrashItemsCompanyWide(
+    selection: { ids: string[] } | { batchId: string } | { typeIds: string[] },
+  ): Promise<RecordTrashItem[]>;
   getTrashedRecordRefsCompanyWide(trashItemIds: string[], take: number): Promise<RecordRef[]>;
   getTrashedLinksCompanyWide(refs: RecordRef[], take: number): Promise<TrashedRecordLink[]>;
   getTrashedParentCompanyWide(ref: RecordRef, relationId: string): Promise<RecordRef | null>;

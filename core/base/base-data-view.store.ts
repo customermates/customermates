@@ -23,7 +23,12 @@ import { ViewMode } from "./base-query-builder";
 import { BaseStore } from "./base.store";
 
 import { saveDataViewStateAction, selectDataViewAction } from "@/app/actions";
-import { GROUP_PAGE_SIZE_DEFAULT, encodeGroupingToken, sameGrouping } from "@/core/base/grouping/grouping.schema";
+import {
+  GROUP_PAGE_SIZE_DEFAULT,
+  MAX_AXIS_GROUPS,
+  encodeGroupingToken,
+  sameGrouping,
+} from "@/core/base/grouping/grouping.schema";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { reserveViewStateWrite, type ViewStateWriteIntent } from "@/core/data-view/view-state-persistence";
 
@@ -216,6 +221,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       loadMoreInGroup: action,
       toggleGroupCollapsed: action,
       toggleBoardStrip: action,
+      hideGroup: action,
+      showGroup: action,
+      setHideEmptyGroups: action,
       setGroupSelection: action,
       resetGroupedTakeOverrides: action,
     });
@@ -540,6 +548,35 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   isBoardStrip = (groupKey: string, count: number): boolean =>
     count === 0 ? !this.expandedEmptyGroupKeys.has(groupKey) : this.collapsedGroupKeys.has(groupKey);
+
+  isGroupHidden = (groupKey: string): boolean => this.grouping?.hidden?.includes(groupKey) ?? false;
+
+  hideGroup = (groupKey: string): void => {
+    if (this.isGroupHidden(groupKey)) return;
+    this.setGroupPresentation({ hidden: [...(this.grouping?.hidden ?? []), groupKey] });
+  };
+
+  showGroup = (groupKey: string): void => {
+    if (!this.isGroupHidden(groupKey)) return;
+    this.setGroupPresentation({ hidden: this.grouping?.hidden?.filter((key) => key !== groupKey) });
+    this.pendingGroupOnly = groupKey;
+    this.refreshInBackground();
+  };
+
+  setHideEmptyGroups = (hideEmpty: boolean): void => {
+    this.setGroupPresentation({ hideEmpty });
+  };
+
+  private setGroupPresentation(patch: Pick<Grouping, "hidden" | "hideEmpty">): void {
+    if (!this.grouping) return;
+    const { hidden, hideEmpty, ...grouping } = { ...this.grouping, ...patch };
+    this.grouping = {
+      ...grouping,
+      ...(hidden?.length ? { hidden } : {}),
+      ...(hideEmpty ? { hideEmpty: true } : {}),
+    };
+    this.persistViewState();
+  }
 
   toggleBoardStrip = (groupKey: string, count: number): void => {
     if (count > 0) {
@@ -1001,6 +1038,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     });
   };
 
+  private get requestCollapsedGroupKeys(): string[] {
+    return [...new Set([...this.collapsedGroupKeys, ...(this.grouping?.hidden ?? [])])].slice(0, MAX_AXIS_GROUPS);
+  }
+
   private buildGroupPageRequest(): GroupPageRequest | undefined {
     const only = this.pendingGroupOnly;
     this.pendingGroupOnly = undefined;
@@ -1010,7 +1051,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return {
       perGroup: GROUP_PAGE_SIZE_DEFAULT,
       ...(Object.keys(this.groupedTakeOverrides).length > 0 ? { overrides: toJS(this.groupedTakeOverrides) } : {}),
-      ...(this.collapsedGroupKeys.size > 0 ? { collapsed: [...this.collapsedGroupKeys] } : {}),
+      ...(this.requestCollapsedGroupKeys.length > 0 ? { collapsed: this.requestCollapsedGroupKeys } : {}),
       ...(only === undefined ? {} : { only }),
     };
   }

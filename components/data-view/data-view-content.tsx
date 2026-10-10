@@ -20,6 +20,7 @@ type Props<E extends HasId> = {
   onRowClick?: (item: E) => void;
   rowHref?: (item: E) => string | undefined;
   rowActions?: (item: E) => ReactNode;
+  rowFocusKey?: (item: E) => string | undefined;
   renderCard?: (item: E) => ReactNode;
   store: BaseDataViewStore<E>;
   totals?: RecordGroupSummaryResult[];
@@ -31,6 +32,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
   onRowClick,
   rowHref,
   rowActions,
+  rowFocusKey,
   renderCard,
   store,
   totals,
@@ -55,6 +57,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
         className="animate-page-result-in motion-reduce:animate-none"
         columns={resolvedColumns}
         rowActions={rowActions}
+        rowFocusKey={rowFocusKey}
         store={store}
         totals={totals}
         onRowClick={interactive ? onRowClick : undefined}

@@ -134,7 +134,7 @@ test("changes a record field and links a record from a second palette level", as
   await page.keyboard.press("Enter");
   await expect(linker).not.toBeVisible();
   await expect(page.locator("main").getByText(`Palette organization ${suffix}`).first()).toBeVisible();
-  await expect(page.getByRole("button", { name: "Save", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
 
   const remover = await openPalette(page);
   await remover.fill("delete");

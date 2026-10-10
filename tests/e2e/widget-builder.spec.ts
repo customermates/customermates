@@ -33,25 +33,23 @@ test("starts from a recommended starter, previews it live at dashboard size and 
   await page.goto("/en/dashboard");
   await page.locator("#dashboard-add-widget").click();
 
-  await expect(dialog.locator("#widget-gallery-heading")).toHaveText(englishMessages.Dashboard.widgetGallery.title);
-  await expect(dialog.locator("#widget-modal-kind-heading")).toHaveText(
+  await expect(dialog.locator("#widget-gallery-heading")).toHaveCount(0);
+  await expect(dialog.locator("section").first().locator("h3")).toHaveText(
     englishMessages.Dashboard.widgetEditor.kind.scratchTitle,
   );
-  const starter = dialog.locator("#widget-gallery-openValueTotal");
-  await expect(starter).toBeVisible();
-  await expect(starter).toContainText("Deals");
+  const starter = dialog.locator("#widget-starter-number");
+  await expect(starter).toContainText(englishMessages.Dashboard.widgetEditor.starters.number.title);
+  await expect(starter).toContainText(englishMessages.Dashboard.widgetEditor.starters.number.description);
+  await expect(dialog.locator('[id^="widget-starter-"]')).toHaveCount(8);
+  await expect(dialog.locator('[id$="WithLabels"]')).toHaveCount(0);
   const cards = dialog.locator('[data-slot="widget-chooser-card"]');
-  expect(await cards.count()).toBeGreaterThan(2);
   const heights = await cards.evaluateAll((elements) =>
     elements.map((element) => element.querySelector<HTMLElement>("span")?.offsetHeight),
   );
   expect(new Set(heights).size).toBe(1);
 
   await starter.click();
-  const name = await dialog.getByRole("textbox", { name: "Name", exact: false }).inputValue();
-  expect(name.length).toBeGreaterThan(0);
   const preview = dialog.locator('[data-slot="widget-preview"]');
-  await expect(preview.locator('[data-uid="app-card"]').getByRole("heading", { name, exact: true })).toBeVisible();
   await expect(preview.locator('[data-slot="widget-number"]')).toBeVisible();
   await expect(preview.locator('[data-preview-current="true"]')).toBeVisible();
   const size = await preview.boundingBox();

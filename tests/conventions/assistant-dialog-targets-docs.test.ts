@@ -11,7 +11,11 @@ const read = (path: string) => readFileSync(join(root, path), "utf8");
 
 type Messages = {
   Common: { actions: { save: string } };
-  Dashboard: { addCard: string; widgetKinds: { chart: string; activityTimeline: string } };
+  Dashboard: {
+    addCard: string;
+    widgetKinds: { activityTimeline: string };
+    widgetEditor: { kind: { scratchTitle: string } };
+  };
 };
 
 const localeMessages = (locale: string) => JSON.parse(read(`i18n/locales/${locale}.json`)) as Messages;
@@ -27,7 +31,7 @@ describe("dialog targets in the assistant documentation", () => {
       .split("\n\n")
       .find(
         (block) =>
-          block.includes(`**${messages.widgetKinds.chart}**`) &&
+          block.includes(`**${messages.widgetEditor.kind.scratchTitle}**`) &&
           block.includes(`**${messages.widgetKinds.activityTimeline}**`),
       );
 

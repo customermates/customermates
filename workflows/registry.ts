@@ -10,6 +10,7 @@ import { runRoutine } from "./run-routine";
 import { providerAvatarOperation } from "./provider-avatar-operation";
 import { recordOperation } from "./record-operation";
 import { processEvents } from "./process-events";
+import { purgeTrash } from "./purge-trash";
 import { triggerTestError } from "./trigger-test-error";
 
 export const WORKFLOW_REGISTRY = {
@@ -25,6 +26,7 @@ export const WORKFLOW_REGISTRY = {
   "record-operation": recordOperation,
   "provider-avatar-operation": providerAvatarOperation,
   "process-events": processEvents,
+  "purge-trash": purgeTrash,
   "trigger-test-error": triggerTestError,
 } as const;
 
