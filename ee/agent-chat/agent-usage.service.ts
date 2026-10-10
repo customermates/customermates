@@ -38,7 +38,7 @@ export type AgentRetrievalReservation = {
 };
 
 export type AgentRetrievalGrant = {
-  purpose: "wikiRetrieval" | "wikiIndexing" | "wikiSynthesis";
+  purpose: "wikiRetrieval" | "wikiIndexing" | "wikiSynthesis" | "calculationDraft";
   companyId: string;
   userId: string | null;
   planSnapshot: SubscriptionPlan;
@@ -278,7 +278,7 @@ export class AgentUsageService {
   async prepareRetrieval(
     userId: string,
     now = new Date(),
-    purpose: "wikiRetrieval" | "wikiSynthesis" = "wikiRetrieval",
+    purpose: "wikiRetrieval" | "wikiSynthesis" | "calculationDraft" = "wikiRetrieval",
   ): Promise<AgentRetrievalGrant | null> {
     const state = await this.resolveUsageState(userId, now);
     if (state.summary.blockedReason || !state.user.subscription || !state.summary.plan) return null;
