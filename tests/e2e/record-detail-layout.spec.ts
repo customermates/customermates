@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { test, expect, isBenignPageError } from "./fixtures";
-import { openRecordDetails } from "./record-rows";
+import { openRecordDetails, editFormattedText } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
 
 test("persists personal detail pins, visibility and keyboard order without losing the record draft", async ({
@@ -102,7 +102,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
     await page.setViewportSize({ width: 980, height: 850 });
   }
   await expect(main.getByRole("tab", { name: "Notes", exact: true })).toHaveCount(0);
-  await main.getByRole("button", { name: "Edit Notes", exact: true }).click();
+  await editFormattedText(main, "Notes");
   await main.getByRole("textbox", { name: "Notes", exact: true }).fill("A note from the full-page editor");
   await expect(main.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Draft stays here");
   await page.locator("[data-record-page-actions]").getByRole("button", { name: "Save", exact: true }).click();

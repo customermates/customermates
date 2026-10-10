@@ -75,7 +75,8 @@ describe("page skeleton families", () => {
     expect(detail).toContain("flex flex-col gap-4");
     expect(detail).not.toContain("@6xl/detail:mt-0");
     expect(count(detail, "data-entity-detail-skeleton-section")).toBe(0);
-    expect(detail).toContain("@6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]");
+    expect(detail).toContain("@6xl/detail:grid-cols-[minmax(0,1fr)_360px]");
+    expect(detail).not.toContain("minmax(0,2fr)");
   });
 
   it("matches profile and subscription settings geometry without fabricated branches", () => {

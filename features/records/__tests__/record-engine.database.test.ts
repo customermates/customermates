@@ -8509,7 +8509,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ok: true,
       data: {
         result: {
-          hiddenColumns: [f.id("service.amount")],
+          hiddenColumns: [f.id("service.amount"), f.id("service.notes")],
           sortDescriptor: { field: type.primaryFieldId, direction: "desc" },
         },
       },
@@ -8559,7 +8559,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ok: true,
       data: {
         result: {
-          hiddenColumns: [f.id("service.amount")],
+          hiddenColumns: [f.id("service.amount"), f.id("service.notes")],
           searchTerm: "Preserve this",
           sortDescriptor: { field: type.primaryFieldId, direction: "desc" },
         },

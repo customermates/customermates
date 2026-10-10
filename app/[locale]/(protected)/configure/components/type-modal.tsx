@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ModelChangeStore } from "./model-change.store";
 import { ModelChangeRecovery } from "./model-change-recovery";
-import { recordColumns } from "@/features/records/record-columns";
+import { defaultHiddenColumns, recordColumns } from "@/features/records/record-columns";
 import { recordGroupableFields, resolveRecordGrouping } from "@/features/records/record-grouping";
 import { encodeGroupingToken, decodeGroupingToken } from "@/core/base/grouping/grouping.schema";
 import { FormRecordTypeIcon } from "@/components/records/form-record-type-icon";
@@ -95,6 +95,7 @@ export class TypeModalStore extends ModelChangeStore<ReturnType<typeof initialTy
             groupBy: grouping ? encodeGroupingToken(grouping) : "none",
             sortField: type.defaults.sortField ?? "none",
             columns: [...new Set([...type.defaults.columns, ...columns.map((column) => column.id)])],
+            hiddenColumns: defaultHiddenColumns(type, model.fields),
             fieldOrder: configureFieldOrder(model, type.id),
           }
         : initialType(),

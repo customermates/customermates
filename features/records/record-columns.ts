@@ -1,4 +1,10 @@
-import type { RecordField, RecordRelationship, RecordModelView, RecordFieldView } from "./record-model.schema";
+import type {
+  RecordField,
+  RecordRelationship,
+  RecordModelView,
+  RecordFieldView,
+  RecordType,
+} from "./record-model.schema";
 
 import type { RecordSystemColumnSchema } from "./record-column.schema";
 import { relationshipColumnKey, relationshipPathColumnKey } from "./record-column.schema";
@@ -29,6 +35,18 @@ export type RecordColumn<F extends RecordFieldView = RecordField> =
       label: string;
       sortable: boolean;
     };
+
+export function defaultHiddenColumns(
+  type: Pick<RecordType, "id" | "defaults">,
+  fields: Pick<RecordFieldView, "id" | "typeId" | "archived" | "valueType">[],
+): string[] {
+  const placed = new Set(type.defaults.columns);
+  const formattedText = fields
+    .filter((field) => field.typeId === type.id && !field.archived && field.valueType === "richText")
+    .map((field) => field.id)
+    .filter((id) => !placed.has(id));
+  return [...new Set([...type.defaults.hiddenColumns, ...formattedText])];
+}
 
 export function recordColumns<F extends RecordFieldView = RecordField>(
   typeId: string,

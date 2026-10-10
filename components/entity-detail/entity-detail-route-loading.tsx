@@ -8,7 +8,7 @@ export async function EntityDetailRouteLoading() {
   const t = await getTranslations("PageState");
   return (
     <PageState
-      background={<EntityDetailPageSkeleton />}
+      background={<EntityDetailPageSkeleton showActivityPanel />}
       className="h-[calc(100svh-4rem)] md:h-[calc(100svh-5rem)]"
       label={t("loading")}
       state="loading"

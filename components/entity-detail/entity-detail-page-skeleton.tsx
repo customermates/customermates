@@ -44,10 +44,9 @@ export function EntityDetailPageSkeleton({
   animated = true,
   showSummary = false,
   summaryItemCount = 4,
-  showNotesPanel = true,
   showActivityPanel = false,
-}: Props & { showNotesPanel?: boolean; showActivityPanel?: boolean }) {
-  const panelCount = 1 + Number(showNotesPanel) + Number(showActivityPanel);
+}: Props & { showActivityPanel?: boolean }) {
+  const panelCount = 1 + Number(showActivityPanel);
   const renderSummaryItem = (index: number) => (
     <Shape
       key={index}
@@ -104,9 +103,7 @@ export function EntityDetailPageSkeleton({
         <div
           className={cn(
             "grid grid-cols-1 gap-px bg-border contain-[layout] @6xl/detail:min-h-0 @6xl/detail:flex-1",
-            showNotesPanel && showActivityPanel && "@6xl/detail:grid-cols-[minmax(0,3fr)_minmax(0,2fr)_360px]",
-            showNotesPanel && !showActivityPanel && "@6xl/detail:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]",
-            !showNotesPanel && showActivityPanel && "@6xl/detail:grid-cols-[minmax(0,1fr)_360px]",
+            showActivityPanel && "@6xl/detail:grid-cols-[minmax(0,1fr)_360px]",
           )}
         >
           <div
@@ -127,19 +124,6 @@ export function EntityDetailPageSkeleton({
               </div>
             </div>
           </div>
-
-          {showNotesPanel ? (
-            <div
-              className="hidden flex-col bg-background @6xl/detail:flex @6xl/detail:min-h-0 @6xl/detail:overflow-hidden"
-              data-skeleton-group="1"
-            >
-              <SectionHeader animated={animated} labelWidth="w-16" />
-
-              <div className="min-h-0 flex-1 overflow-auto px-4 pb-4">
-                <Shape animated={animated} className="min-h-52 w-full" motionPhase={2} />
-              </div>
-            </div>
-          ) : null}
 
           {showActivityPanel ? (
             <div

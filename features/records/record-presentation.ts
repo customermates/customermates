@@ -24,6 +24,7 @@ import {
   relationshipColumnKey,
   relationshipPathColumnKey,
 } from "./record-column.schema";
+import { defaultHiddenColumns } from "./record-columns";
 import { recordFilterOperators } from "./record-filter";
 import { RecordQuerySchema } from "./record-query.schema";
 import { selectedOptionIds } from "./record-model-validation";
@@ -133,10 +134,10 @@ export function recordFilterableFields(
       ),
   ];
 }
-export function recordDefaults(type: RecordType): DataViewState {
+export function recordDefaults(type: RecordType, fields: RecordFieldView[]): DataViewState {
   return {
     columnOrder: type.defaults.columns,
-    hiddenColumns: type.defaults.hiddenColumns,
+    hiddenColumns: defaultHiddenColumns(type, fields),
     viewMode: type.defaults.layout === "board" ? ViewMode.card : ViewMode.table,
     grouping: type.defaults.groupBy
       ? { field: type.defaults.groupBy, ...(type.defaults.groupBucket ? { bucket: type.defaults.groupBucket } : {}) }

@@ -74,7 +74,12 @@ export function LinkPopover({ editor, open, onOpenChange, normalizeUrl, disabled
         </Button>
       </PopoverTrigger>
 
-      <PopoverContent align="start" className="w-80 p-2" onOpenAutoFocus={() => urlInputRef.current?.focus()}>
+      <PopoverContent
+        data-editor-menu
+        align="start"
+        className="w-80 p-2"
+        onOpenAutoFocus={() => urlInputRef.current?.focus()}
+      >
         <div className="flex w-full items-center gap-1">
           <Input
             ref={urlInputRef}
