@@ -15,6 +15,7 @@ import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { MemberAvatar, memberName } from "@/components/chip/member-chip";
 import { DataViewItemLayout } from "@/components/data-view/data-view-item-layout";
 import { RecordChipIcon } from "@/components/records/record-chip-icon";
+import { recordTitle } from "@/components/records/record-title";
 import { RecordValueTypeIcon } from "@/components/records/record-value-type-icon";
 import {
   DropdownMenu,
@@ -106,7 +107,9 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
     return (
       <AppChip
         startContent={icon}
-        tooltip={isRecordFieldWritable(field) ? field.label : calculatedFieldLabel(field, model, t)}
+        tooltip={
+          isRecordFieldWritable(field) ? field.label : calculatedFieldLabel(field, model, t, intl.formattingLocale)
+        }
       >
         <ChipLabel name={name}>
           <RecordValue compact field={field} members={record.memberUsers} result={result} />
@@ -120,12 +123,7 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
     const first = summary.records[0];
     const typeId = first.ref.typeId;
     const list = model.types.find((type) => type.id === typeId);
-    const title =
-      first.title.state === "value" && first.title.value.kind === "text"
-        ? first.title.value.value
-        : first.title.state === "restricted"
-          ? t("RecordModel.restricted")
-          : t("RecordModel.record");
+    const title = recordTitle(first.title, list?.label, t);
     const count = Math.max(summary.readableCount, summary.records.length);
     return (
       <AppChip

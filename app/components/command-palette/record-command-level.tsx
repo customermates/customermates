@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { AppChip } from "@/components/chip/app-chip";
 import { MemberAvatar, memberName } from "@/components/chip/member-chip";
 import { CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
+import { recordTitle } from "@/components/records/record-title";
 import { toChipColor } from "@/constants/chip-colors";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -193,13 +194,7 @@ export const RecordCommandLevel = observer(function RecordCommandLevel({ level, 
 
   if (level.kind === "link" && relationship) {
     const title = (record: RecordChoice) =>
-      record.title.state === "restricted"
-        ? t("RecordModel.restricted")
-        : record.title.state === "error"
-          ? t("RecordModel.calculationError")
-          : record.title.state === "value" && record.title.value.kind === "text"
-            ? record.title.value.value
-            : t("RecordModel.record");
+      recordTitle(record.title, editor.presentation.linkLabels[record.ref.typeId], t);
     const linkedIds = new Set((linked.data?.records ?? []).map((record) => record.ref.recordId));
     const waitingForLinks = singular && (linked.loading || linked.failed);
     const choose = (record: RecordChoice) =>

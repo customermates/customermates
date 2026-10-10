@@ -17,6 +17,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { OverflowRail } from "@/components/shared/overflow-rail";
@@ -26,9 +27,10 @@ import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import type { FocusKind } from "@/components/focus/focus-href";
 import { useFocusTarget } from "@/components/focus/focus-target";
 import { cn } from "@/core/utils/cn";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
-import { VIEW_SURFACE_CLASS, VIEW_TAB_CLASS, ViewChip } from "./view-chip";
+import { VIEW_TAB_CLASS, ViewChip } from "./view-chip";
 import { ViewMenuItems } from "./view-menu-items";
 import { VIEW_META_NAME_INPUT_ID, ViewMetaOverlay } from "./view-meta-overlay";
 import { allViewMenuItems, orderChips, sortViewsByPosition, viewMenuItems } from "./view-rail-model";
@@ -209,7 +211,9 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                     )}
                     id="global-data-views-all"
                     isActive={chip.isActive}
+                    isModified={chip.isActive && store.isQueryModified}
                     label={allName}
+                    modifiedLabel={t("DataView.views.modified")}
                     preview={previewFor(allName, chip.isActive)}
                     tabIndex={tabIndexAt(index)}
                     onKeyDown={onKeyDownAt(index)}
@@ -228,7 +232,9 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                     store.viewPathname ? surfaceKeyOf(store) : undefined,
                   )}
                   isActive={chip.isActive}
+                  isModified={chip.isActive && store.isQueryModified}
                   label={chip.view.name}
+                  modifiedLabel={t("DataView.views.modified")}
                   preview={previewFor(chip.view.name, chip.isActive)}
                   tabIndex={tabIndexAt(index)}
                   onKeyDown={onKeyDownAt(index)}
@@ -273,7 +279,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
           <DropdownMenuTrigger asChild>
             <Button
               aria-label={t("DataView.views.menu")}
-              className={cn(joinsTopBar && [VIEW_SURFACE_CLASS, "size-7 rounded-full"])}
+              className={cn(joinsTopBar && "size-7")}
               id="global-data-views-menu"
               size="icon-sm"
               variant="ghost"
@@ -312,6 +318,16 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 
                 {t("DataView.views.askAi")}
               </DropdownMenuItem>
+            )}
+
+            {store.isQueryModified && (
+              <>
+                <DropdownMenuItem id="global-data-views-reset" onSelect={() => runUserAction(store.resetQueryToView)}>
+                  {t("DataView.views.resetChanges")}
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator />
+              </>
             )}
 
             <ViewMenuItems commands={commands} items={menuItems} view={menuTarget} />

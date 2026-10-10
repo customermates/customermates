@@ -411,7 +411,7 @@ describeDatabase("configuration trash", () => {
     const before = (await f.items()).map((item) => [item.kind, item.targetId, item.label, item.deletedById]);
     expect(before.map(([kind]) => kind)).toEqual(["field", "list"]);
     await runWithoutTenant(() => prisma.trashItem.deleteMany({ where: { companyId: f.seed.company.id } }));
-    const sql = readFileSync("prisma/migrations/20261009020000_trash_configuration_backfill/migration.sql", "utf8");
+    const sql = readFileSync("prisma/migrations/20261009030000_trash_configuration_backfill/migration.sql", "utf8");
     await runWithoutTenant(() => prisma.$executeRawUnsafe(sql));
     await runWithoutTenant(() => prisma.$executeRawUnsafe(sql));
     const after = await f.items();

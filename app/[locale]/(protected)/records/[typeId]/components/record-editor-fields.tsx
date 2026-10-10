@@ -1,5 +1,6 @@
 "use client";
 
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useId } from "react";
 import { observer } from "mobx-react-lite";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
@@ -24,6 +25,7 @@ export const RecordEditorField = observer(function RecordEditorField({
   field: RecordFieldView;
 }) {
   const t = useTranslations();
+  const intl = useHydratedIntlStore();
   const id = `values.${field.id}`;
   const inputId = `${id}-${useId()}`;
   const result = store.record?.fields.find((value) => value.fieldId === field.id)?.result;
@@ -49,7 +51,9 @@ export const RecordEditorField = observer(function RecordEditorField({
     ) : null;
   if (restricted || !isRecordFieldWritable(field)) {
     if (!store.record) return null;
-    const source = restricted ? null : recordValueSource({ model: store.presentation.model, field, t });
+    const source = restricted
+      ? null
+      : recordValueSource({ model: store.presentation.model, field, t, locale: intl.formattingLocale });
     const lookup = source?.lookup;
     const linked = lookup
       ? store.record.relationships.find(

@@ -40884,9 +40884,16 @@
                             ]
                           },
                           "primaryFieldId": {
-                            "type": "string",
-                            "format": "uuid",
-                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
                           },
                           "parentRelationshipId": {
                             "default": null,
@@ -42752,13 +42759,20 @@
                                 "primaryFieldId": {
                                   "anyOf": [
                                     {
-                                      "type": "string",
-                                      "format": "uuid",
-                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "format": "uuid",
+                                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "pattern": "^\\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$"
+                                        }
+                                      ]
                                     },
                                     {
-                                      "type": "string",
-                                      "pattern": "^\\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$"
+                                      "type": "null"
                                     }
                                   ]
                                 },
@@ -44348,7 +44362,6 @@
                                   "snapshotTrigger",
                                   "parentAccess",
                                   "binding",
-                                  "primaryField",
                                   "protected",
                                   "routine",
                                   "webhook",
@@ -44517,6 +44530,63 @@
                                   "label"
                                 ],
                                 "additionalProperties": false
+                              },
+                              "replacement": {
+                                "description": "For a deleted name field: the field that now names the records, or null when none is left.",
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": {
+                                        "type": "string",
+                                        "enum": [
+                                          "type",
+                                          "field",
+                                          "relationship",
+                                          "channels",
+                                          "routine",
+                                          "webhook",
+                                          "widget",
+                                          "view",
+                                          "personalLayout",
+                                          "detailLayout"
+                                        ]
+                                      },
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "typeId": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      },
+                                      "label": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "kind",
+                                      "id",
+                                      "label"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "effect": {
+                                "description": "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the Channels, avatar or calendar setting.",
+                                "type": "string",
+                                "enum": [
+                                  "countsRecords",
+                                  "triggerChanged",
+                                  "subscriptionRemoved",
+                                  "channels",
+                                  "avatar",
+                                  "calendar"
+                                ]
                               }
                             },
                             "required": [
@@ -44882,13 +44952,20 @@
                                 "primaryFieldId": {
                                   "anyOf": [
                                     {
-                                      "type": "string",
-                                      "format": "uuid",
-                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "format": "uuid",
+                                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                        },
+                                        {
+                                          "type": "string",
+                                          "pattern": "^\\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$"
+                                        }
+                                      ]
                                     },
                                     {
-                                      "type": "string",
-                                      "pattern": "^\\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$"
+                                      "type": "null"
                                     }
                                   ]
                                 },

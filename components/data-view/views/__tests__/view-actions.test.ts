@@ -95,8 +95,10 @@ describe("scoped record activity view links", () => {
       activeViewKey: VIEW.id,
       applyView: vi.fn(),
       discardPendingViewState: vi.fn(),
+      forgetQueryDraft: vi.fn(),
     };
     expect(await deleteView(store as unknown as BaseDataViewStore<Item>, VIEW)).toEqual({ trashBatchId: "40000000-0000-4000-8000-0000000000b1" });
+    expect(store.forgetQueryDraft).toHaveBeenCalledExactlyOnceWith(VIEW.id);
     expect(store.applyView).toHaveBeenCalledExactlyOnceWith(ALL_VIEW_KEY);
     expect(browser.history.replaceState).toHaveBeenCalledExactlyOnceWith(
       null,
@@ -120,6 +122,7 @@ describe("scoped record activity view links", () => {
       applyView: vi.fn(),
       refresh: vi.fn(() => Promise.resolve()),
       discardPendingViewState: vi.fn(),
+      forgetQueryDraft: vi.fn(),
     };
     const deleting = deleteView(store as unknown as BaseDataViewStore<Item>, VIEW);
     store.activeViewKey = "newer-view";
@@ -148,38 +151,33 @@ describe("view actions send plain objects to the server", () => {
     expect(payload).toMatchObject({ id: "v-a", name: "Renamed", position: 3, state: VIEW.state });
   });
 
-  it("sends the store's live state, not the chip snapshot, when renaming the active view", async () => {
-    const store = observable({
-      activeViewKey: "v-a",
+  it("sends the store's saved-query snapshot, not the chip snapshot, when renaming the active view", async () => {
+    const snapshot = {
       columnOrder: [],
       columnWidths: { name: 320 },
-      filters: [{ field: "stage", operator: "in", value: ["won"] }],
+      filters: [],
       grouping: null,
       hiddenColumns: [],
-      p13nId: "deals-card-store",
-      pagination: { page: 3, pageSize: 50 },
-      refresh: () => Promise.resolve(),
-      searchTerm: "acme",
-      sortDescriptor: undefined,
+      pageSize: 50,
+      searchTerm: "",
+      sortDescriptor: null,
       viewMode: "table",
+    };
+    const viewStateSnapshot = vi.fn(() => snapshot);
+    const store = observable({
+      activeViewKey: "v-a",
+      p13nId: "deals-card-store",
+      refresh: () => Promise.resolve(),
       views: [VIEW],
+      viewStateSnapshot,
     }) as unknown as BaseDataViewStore<Item>;
 
     await updateViewMeta(store, store.views[0], { name: "Renamed" });
 
+    expect(viewStateSnapshot).toHaveBeenCalledExactlyOnceWith({ includeQuery: false });
     const payload = sentPayload();
     expect(isObservable(payload.state)).toBe(false);
-    expect(payload.state).toEqual({
-      columnOrder: [],
-      columnWidths: { name: 320 },
-      filters: [{ field: "stage", operator: "in", value: ["won"] }],
-      grouping: null,
-      hiddenColumns: [],
-      pageSize: 50,
-      searchTerm: "acme",
-      sortDescriptor: null,
-      viewMode: "table",
-    });
+    expect(payload.state).toEqual(snapshot);
   });
 
   it("strips the observable wrapper from the state when duplicating a view", async () => {
