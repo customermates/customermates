@@ -24,9 +24,7 @@ import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
 import { RecordsStore } from "./records.store";
 import { RecordsPageSkeleton } from "./records-page-skeleton";
-import { RecordCell } from "./record-cell";
-import { recordAvatarFieldId, useRecordTableColumns } from "./record-table-columns";
-import { RecordCardContent } from "./record-chip-row";
+import { useRecordCardRenderer, useRecordTableColumns } from "./record-table-columns";
 import type { DataTableColumnStyle } from "@/components/data-view/data-table";
 import type { RecordFieldView } from "@/features/records/record-model.schema";
 
@@ -96,7 +94,6 @@ const RecordsPageViewContent = observer(function RecordsPageView({
     [openEditor],
   );
   const recordHref = useCallback((record: RecordRow) => `/records/${record.ref.typeId}/${record.ref.recordId}`, []);
-  const avatarFieldId = recordAvatarFieldId(store);
   const view = resolveDataViewView(store.viewMode, store.canBoard);
   const columns = useRecordTableColumns(store, openRelated, { openRecord });
   const columnStyle = useCallback(
@@ -116,32 +113,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
     },
     [store],
   );
-  const renderCard = useCallback(
-    (record: RecordRow) => {
-      const primary = store.recordColumns.find((column) => column.id === store.primaryColumnId);
-      return (
-        <RecordCardContent
-          record={record}
-          records={store}
-          title={
-            primary && (
-              <RecordCell
-                avatarFieldId={avatarFieldId}
-                column={primary}
-                linkColors={store.presentation.linkColors}
-                linkIcons={store.presentation.linkIcons}
-                linkLabels={store.presentation.linkLabels}
-                record={record}
-                onOpen={openRelated}
-              />
-            )
-          }
-          onOpenRecord={openRelated}
-        />
-      );
-    },
-    [avatarFieldId, openRelated, store],
-  );
+  const renderCard = useRecordCardRenderer(store, openRelated);
   const deletion = useRecordDeletion({
     onDeleted: () => root.recordWorkspaceStore.invalidate(),
     onPending: (operationId) => store.setBulkState(false, operationId),

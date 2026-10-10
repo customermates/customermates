@@ -5,6 +5,7 @@ import type { RecordPresentationResult } from "@/features/records/get-record-pre
 import type { RecordRef } from "@/features/records/record-model.schema";
 import type { RecordGroupSummaryResult } from "@/features/records/record-grouping.schema";
 import type { RecordRow } from "@/features/records/record-presentation";
+import type { RecordFieldSaveOutcome } from "./record-field-value-editor";
 
 import { action, makeObservable, observable } from "mobx";
 
@@ -22,27 +23,66 @@ export function embeddedPresentation(
   typeId: string,
   systemColumnLabels: RecordPresentationResult["systemColumnLabels"],
 ): RecordPresentationResult {
-  return { ...editor, typeId, systemColumnLabels, query: RecordQuerySchema.parse({ typeId }), result: { items: [] } };
+  const writable = editor.permittedActions.includes("update");
+  return {
+    ...editor,
+    typeId,
+    permittedActions: [
+      ...editor.permittedActions.filter((action) => action === "readOwn" || action === "readAll"),
+      ...(writable ? (["create", "update", "delete"] as const) : []),
+    ],
+    systemColumnLabels,
+    query: RecordQuerySchema.parse({ typeId }),
+    result: { items: [] },
+  };
 }
 
 export class EmbeddedRecordsStore extends RecordsStore {
   parent: RecordRef | null = null;
   totals: RecordGroupSummaryResult[] = [];
   total = 0;
+  loadFailed = false;
   constructor(
     rootStore: RootStore,
     presentation: RecordPresentationResult,
     private readonly parentRelationId: string,
+    private readonly parentEditable: () => boolean,
+    private readonly onChanged: () => Promise<void>,
   ) {
     super(rootStore, presentation);
     makeObservable(this, {
       parent: observable.ref,
       totals: observable.ref,
       total: observable,
+      loadFailed: observable,
       setParent: action,
       setTotals: action,
+      setLoadFailed: action,
     });
+    const updateField = this.updateRecordField;
+    const updateLinks = this.updateRecordLinks;
+    this.updateRecordField = async (record, fieldId, value) =>
+      this.afterSave(await updateField(record, fieldId, value));
+    this.updateRecordLinks = async (record, changes) => this.afterSave(await updateLinks(record, changes));
   }
+  override canUpdateRecord(record: RecordRow) {
+    return super.canUpdateRecord(record) && this.parentEditable();
+  }
+  private afterSave = async (outcome: RecordFieldSaveOutcome) => {
+    if (outcome.saved) await this.onChanged();
+    return outcome;
+  };
+  setLoadFailed = (failed: boolean) => {
+    this.loadFailed = failed;
+  };
+  load = async () => {
+    try {
+      await this.refresh();
+      this.setLoadFailed(false);
+    } catch {
+      this.setLoadFailed(true);
+    }
+  };
   override get supportsSelection() {
     return false;
   }
@@ -90,7 +130,7 @@ export class EmbeddedRecordsStore extends RecordsStore {
       },
     });
     if (!result.ok) return { created: false };
-    await this.refresh();
+    await this.onChanged();
     return { created: true };
   };
   protected override async refreshAction(params?: GetQueryParams): Promise<GetResult<RecordRow>> {
