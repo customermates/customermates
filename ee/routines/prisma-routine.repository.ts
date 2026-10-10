@@ -608,7 +608,7 @@ export class PrismaRoutineRepo
 
     if (
       routineLimit !== "unlimited" &&
-      (await this.prisma.routine.count({ where: { companyId, ownerUserId: userId } })) >= routineLimit
+      (await this.prisma.routine.count({ where: { companyId, ownerUserId: userId, deletedAt: null } })) >= routineLimit
     )
       throw new RoutineLimitExceededError(routineLimit);
 
