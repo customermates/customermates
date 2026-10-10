@@ -20,6 +20,7 @@ import { useTranslations } from "next-intl";
 import { Check, Plus, UserRound } from "lucide-react";
 
 import { AppChip } from "@/components/chip/app-chip";
+import { EmptyValue } from "@/components/shared/empty-value";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -43,6 +44,7 @@ import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation"
 import { runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { isRecordFieldWritable, recordDraftValue } from "@/features/records/record-input-value";
 import { expressionSegments, sentenceText } from "@/features/records/calculation-sentence";
 import { RecordFieldValueEditor, RecordFieldValueStore } from "./record-field-value-editor";
@@ -126,6 +128,8 @@ export function EmptyValueTarget({ member = false }: { member?: boolean }) {
       className="inline-flex items-center text-muted-foreground/60 opacity-0 transition-opacity group-hover/row:opacity-100 group-hover/card:opacity-100 group-focus-visible/edit:opacity-100 group-data-[state=open]/edit:opacity-100 any-pointer-coarse:opacity-100"
       data-empty-target=""
     >
+      <EmptyValue />
+
       {member ? (
         <Avatar aria-hidden unlinked fallback={<UserRound className="size-3" />} size="sm" />
       ) : (
@@ -524,6 +528,7 @@ export function calculatedFieldLabel(
   field: RecordFieldView,
   model: RecordModelView,
   t: ReturnType<typeof useTranslations>,
+  locale: string,
 ) {
   const expression = field.behavior.kind === "input" ? undefined : field.behavior.expression;
   return expression && expressionResolves(expression, model)
@@ -532,6 +537,7 @@ export function calculatedFieldLabel(
           expressionSegments(expression, field.typeId, {
             model,
             t: (key: string, values?: Record<string, string>) => t(key, values),
+            locale,
             operatorLabel: (operator) => t(`RecordModel.operators.${operator}`),
           }),
         ),
@@ -549,6 +555,7 @@ export function RecordCalculatedValue({
   children: ReactNode;
 }) {
   const t = useTranslations();
+  const intl = useHydratedIntlStore();
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -557,7 +564,7 @@ export function RecordCalculatedValue({
         </span>
       </TooltipTrigger>
 
-      <TooltipContent>{calculatedFieldLabel(field, model, t)}</TooltipContent>
+      <TooltipContent>{calculatedFieldLabel(field, model, t, intl.formattingLocale)}</TooltipContent>
     </Tooltip>
   );
 }

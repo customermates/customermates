@@ -35,6 +35,7 @@ import { draftCalculationAction } from "@/app/components/agent-chat/actions";
 import { CALCULATION_DRAFT_DESCRIPTION_LIMIT } from "@/features/records/calculation-draft";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { previewCalculationAction } from "@/app/[locale]/(protected)/records/actions";
 import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
@@ -250,13 +251,7 @@ function CalculationComposer({ store }: { store: FieldModalStore }) {
   );
 }
 
-export const CalculationFlow = observer(function CalculationFlow({
-  store,
-  triggerValueLabel,
-}: {
-  store: FieldModalStore;
-  triggerValueLabel?: string;
-}) {
+export const CalculationFlow = observer(function CalculationFlow({ store }: { store: FieldModalStore }) {
   const t = useTranslations();
   const model = store.model;
   const typeId = store.typeId;
@@ -268,7 +263,13 @@ export const CalculationFlow = observer(function CalculationFlow({
   const list = model.types.find((type) => type.id === typeId);
   const fieldLabel = store.form.label.trim() || t("RecordModel.calculationFlow.thisField");
   const operatorLabel = (operator: Operator) => t(`RecordModel.operators.${operator}`);
-  const labels = { model, t: (key: string, values?: Record<string, string>) => t(key, values), operatorLabel };
+  const intl = useHydratedIntlStore();
+  const labels = {
+    model,
+    t: (key: string, values?: Record<string, string>) => t(key, values),
+    locale: intl.formattingLocale,
+    operatorLabel,
+  };
   const typeLabel = (valueType: string) => t(`RecordModel.types.${valueType}`);
   const issueMessage = (issue: FlowIssue) => issueText(issue, labels.t, operatorLabel);
   const listIcon = (id: string | undefined) => (
@@ -483,7 +484,7 @@ export const CalculationFlow = observer(function CalculationFlow({
                           valueType: resultType?.valueType ?? "text",
                           multiple: false,
                           format: {
-                            currency: resultType?.currency ?? null,
+                            currency: resultType?.valueType === "currency" ? store.form.currency.toUpperCase() : null,
                             decimalPlaces:
                               store.form.decimalPlaces.trim() === "" ? null : Number(store.form.decimalPlaces),
                           },
@@ -524,30 +525,31 @@ export const CalculationFlow = observer(function CalculationFlow({
   );
 
   const issue = issues[0];
-  const described = issue
-    ? null
-    : calculationSentence({
-        model,
-        field: { label: fieldLabel, typeId, behavior: { kind: source, expression } },
-        t: labels.t,
-      });
-  const updates = store.form.updates;
+  const behavior = store.draftBehavior;
+  const described =
+    issue || !behavior
+      ? null
+      : calculationSentence({
+          model,
+          field: { label: fieldLabel, typeId, behavior },
+          t: labels.t,
+          locale: labels.locale,
+        });
+  const savedClause = described?.saved;
   const saved = [
-    ...(updates === "create" ? [t("RecordModel.calculationFlow.sentence.savedOnCreate")] : []),
-    ...(updates === "explicit" ? [t("RecordModel.calculationFlow.sentence.savedOnRequest")] : []),
-    ...(updates === "whenChanged" && store.triggerField
+    ...(savedClause?.kind === "create" ? [t("RecordModel.calculationFlow.sentence.savedOnCreate")] : []),
+    ...(savedClause?.kind === "explicit" ? [t("RecordModel.calculationFlow.sentence.savedOnRequest")] : []),
+    ...(savedClause?.kind === "whenChanged" && savedClause.field
       ? [
-          triggerValueLabel
+          savedClause.value
             ? t("RecordModel.calculationFlow.sentence.savedWhenChangedTo", {
-                field: store.triggerField.label,
-                value: triggerValueLabel,
+                field: savedClause.field.label,
+                value: savedClause.value,
               })
-            : t("RecordModel.calculationFlow.sentence.savedWhenChanged", { field: store.triggerField.label }),
+            : t("RecordModel.calculationFlow.sentence.savedWhenChanged", { field: savedClause.field.label }),
         ]
       : []),
-    ...(updates !== "live" && store.form.allowManualOverride
-      ? [t("RecordModel.calculationFlow.sentence.typeOver")]
-      : []),
+    ...(described?.typeOver ? [t("RecordModel.calculationFlow.sentence.typeOver")] : []),
   ];
 
   return (
