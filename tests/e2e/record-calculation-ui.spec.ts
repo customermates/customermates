@@ -191,6 +191,12 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
       await expect(dialog.getByRole("region", { name: "Line items", exact: true }).getByRole("button", { name, exact: true })).toBeVisible();
     }
     await expect.poll(catalogValues).toEqual({ "Calculated A/Catalog price": money("1000"), "Calculated B/Catalog price": money("200") });
+    await dialog.getByRole("region", { name: "Line items", exact: true }).getByRole("button", { name: "Calculated A", exact: true }).click();
+    await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
+    const catalog = dialog.last().locator(`[data-entity-field="${catalogPriceId}"]`);
+    await expect(catalog).toContainText("From Service · ");
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(1);
     await expect.poll(serviceValues).toEqual({
       "Calculation A/Original price": money("1000"),
       "Calculation A/Sold amount": money("2000"),

@@ -20,6 +20,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Ellipsis, Pencil, Plus, Trash2 } from "lucide-react";
 
 import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
+import { useRecordValueFormat } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
 import { AppForm } from "@/components/forms/form-context";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { FormInput } from "@/components/forms/form-input";
@@ -40,7 +41,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useFocusAfterRemoval } from "@/components/ui/use-focus-after-removal";
 import { CHIP_COLORS, toChipColor } from "@/constants/chip-colors";
 import { cn } from "@/core/utils/cn";
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { AttributeColumnStore } from "./attribute-column.store";
 import { attributeKeyTaken, OPTION_ATTRIBUTE_TYPES } from "./field-option-columns";
 
@@ -269,7 +269,7 @@ const OptionCellInput = observer(function OptionCellInput({
   label: string;
 }) {
   const t = useTranslations();
-  const intl = useHydratedIntlStore();
+  const valueFormat = useRecordValueFormat();
   const id = `choices.options.${index}.cells.${column.id}`;
   const cell = store.form.choices.options[index]?.cells[column.id];
   if (column.type === "boolean") {
@@ -300,7 +300,7 @@ const OptionCellInput = observer(function OptionCellInput({
                 cell,
                 store.model,
                 (key: string, values?: Record<string, string>) => t(key, values),
-                intl.formattingLocale,
+                valueFormat,
               )
             : ""
         }

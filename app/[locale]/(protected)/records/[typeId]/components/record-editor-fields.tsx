@@ -1,6 +1,5 @@
 "use client";
 
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useId } from "react";
 import { observer } from "mobx-react-lite";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
@@ -10,10 +9,10 @@ import { Button } from "@/components/ui/button";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { RecordFieldView } from "@/features/records/record-model.schema";
 import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
-import { RecordValue } from "./record-value";
+import { RecordValue, useRecordValueFormat } from "./record-value";
 import { RecordDetailField } from "./record-detail-field";
 import { RecordInputField } from "./record-input-field";
-import { CalculationSentenceText } from "@/components/records/calculation-sentence-text";
+import { ConfirmationSentenceView, referenceSentence } from "@/components/modal/confirmation-sentence";
 import { recordValueSource } from "@/features/records/record-value-source";
 import { runUserAction } from "@/core/errors/report-application-error";
 
@@ -25,7 +24,7 @@ export const RecordEditorField = observer(function RecordEditorField({
   field: RecordFieldView;
 }) {
   const t = useTranslations();
-  const intl = useHydratedIntlStore();
+  const valueFormat = useRecordValueFormat();
   const id = `values.${field.id}`;
   const inputId = `${id}-${useId()}`;
   const result = store.record?.fields.find((value) => value.fieldId === field.id)?.result;
@@ -53,7 +52,7 @@ export const RecordEditorField = observer(function RecordEditorField({
     if (!store.record) return null;
     const source = restricted
       ? null
-      : recordValueSource({ model: store.presentation.model, field, t, locale: intl.formattingLocale });
+      : recordValueSource({ model: store.presentation.model, field, t, format: valueFormat });
     const lookup = source?.lookup;
     const linked = lookup
       ? store.record.relationships.find(
@@ -70,17 +69,16 @@ export const RecordEditorField = observer(function RecordEditorField({
         label={field.label}
         source={
           source ? (
-            <CalculationSentenceText
-              action={(reference) =>
+            <ConfirmationSentenceView
+              sentence={referenceSentence(source.segments, (reference) =>
                 reference.kind === "list" && target
                   ? {
                       label: t("RecordModel.openRecord", { name: targetName }),
                       onOpen: (trigger) =>
                         runUserAction(() => store.rootStore.recordWorkspaceStore.open(target.ref, trigger)),
                     }
-                  : null
-              }
-              segments={source.segments}
+                  : null,
+              )}
             />
           ) : undefined
         }

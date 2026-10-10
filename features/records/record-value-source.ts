@@ -1,5 +1,5 @@
 import type { RecordFieldView, RecordModelView } from "./record-model.schema";
-import type { LinkedHop, SentenceSegment } from "./calculation-sentence";
+import type { LinkedHop, SentenceSegment, SentenceValueFormat } from "./calculation-sentence";
 
 import { calculationSentence, fillSentence, linkedFlow } from "./calculation-sentence";
 
@@ -11,14 +11,14 @@ export function recordValueSource({
   model,
   field,
   t,
-  locale,
+  format,
 }: {
   model: RecordModelView;
   field: Pick<RecordFieldView, "label" | "typeId" | "behavior">;
   t: Translate;
-  locale: string;
+  format: SentenceValueFormat;
 }): RecordValueSource | null {
-  const sentence = calculationSentence({ model, field, t, locale });
+  const sentence = calculationSentence({ model, field, t, format });
   if (!sentence) return null;
   const saved = sentence.saved;
   if (saved) {

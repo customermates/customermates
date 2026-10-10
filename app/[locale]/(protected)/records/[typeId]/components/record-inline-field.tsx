@@ -45,8 +45,10 @@ import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation"
 import { runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
+import { useRecordValueFormat } from "./record-value";
 import { isRecordFieldWritable, recordDraftValue } from "@/features/records/record-input-value";
+import type { SentenceValueFormat } from "@/features/records/calculation-sentence";
+
 import { expressionSegments, sentenceText } from "@/features/records/calculation-sentence";
 import { RecordFieldValueEditor, RecordFieldValueStore } from "./record-field-value-editor";
 import { RecordInputField } from "./record-input-field";
@@ -529,7 +531,7 @@ export function calculatedFieldLabel(
   field: RecordFieldView,
   model: RecordModelView,
   t: ReturnType<typeof useTranslations>,
-  locale: string,
+  format: SentenceValueFormat,
 ) {
   const expression = field.behavior.kind === "input" ? undefined : field.behavior.expression;
   return expression && expressionResolves(expression, model)
@@ -538,7 +540,7 @@ export function calculatedFieldLabel(
           expressionSegments(expression, field.typeId, {
             model,
             t: (key: string, values?: Record<string, string>) => t(key, values),
-            locale,
+            format,
             operatorLabel: (operator) => t(`RecordModel.operators.${operator}`),
           }),
         ),
@@ -556,7 +558,7 @@ export function RecordCalculatedValue({
   children: ReactNode;
 }) {
   const t = useTranslations();
-  const intl = useHydratedIntlStore();
+  const valueFormat = useRecordValueFormat();
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -565,7 +567,7 @@ export function RecordCalculatedValue({
         </span>
       </TooltipTrigger>
 
-      <TooltipContent>{calculatedFieldLabel(field, model, t, intl.formattingLocale)}</TooltipContent>
+      <TooltipContent>{calculatedFieldLabel(field, model, t, valueFormat)}</TooltipContent>
     </Tooltip>
   );
 }

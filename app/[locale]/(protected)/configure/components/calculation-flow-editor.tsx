@@ -30,12 +30,11 @@ import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
-import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { previewCalculationAction } from "@/app/[locale]/(protected)/records/actions";
 import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
-import { CalculationSentenceText } from "@/components/records/calculation-sentence-text";
-import { RecordValue } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
+import { ConfirmationSentenceView, referenceSentence } from "@/components/modal/confirmation-sentence";
+import { RecordValue, useRecordValueFormat } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
 
 import {
   AGGREGATES,
@@ -201,11 +200,11 @@ export const CalculationFlow = observer(function CalculationFlow({ store }: { st
   const list = model.types.find((type) => type.id === typeId);
   const fieldLabel = store.form.label.trim() || t("RecordModel.calculationFlow.thisField");
   const operatorLabel = (operator: Operator) => t(`RecordModel.operators.${operator}`);
-  const intl = useHydratedIntlStore();
+  const valueFormat = useRecordValueFormat();
   const labels = {
     model,
     t: (key: string, values?: Record<string, string>) => t(key, values),
-    locale: intl.formattingLocale,
+    format: valueFormat,
     operatorLabel,
   };
   const typeLabel = (valueType: string) => t(`RecordModel.types.${valueType}`);
@@ -471,7 +470,7 @@ export const CalculationFlow = observer(function CalculationFlow({ store }: { st
           model,
           field: { label: fieldLabel, typeId, behavior },
           t: labels.t,
-          locale: labels.locale,
+          format: labels.format,
         });
   const savedClause = described?.saved;
   const saved = [
@@ -530,7 +529,11 @@ export const CalculationFlow = observer(function CalculationFlow({ store }: { st
 
       {!(showIssues && issues.length) && (
         <p className="pt-3 text-sm text-muted-foreground" data-calculation-sentence="">
-          {issue ? issueMessage(issue) : <CalculationSentenceText segments={described?.sentence ?? []} />}
+          {issue ? (
+            issueMessage(issue)
+          ) : (
+            <ConfirmationSentenceView sentence={referenceSentence(described?.sentence ?? [])} />
+          )}
 
           {saved.map((text) => ` ${text}`).join("")}
         </p>

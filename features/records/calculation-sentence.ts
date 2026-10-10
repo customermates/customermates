@@ -6,6 +6,11 @@ type Related = Extract<CalculationExpression, { kind: "related" }>;
 type Operator = Extract<CalculationExpression, { kind: "operation" }>["operator"];
 type Translate = (key: string, values?: Record<string, string>) => string;
 
+export type SentenceValueFormat = {
+  decimal: (value: string, options: { currency: string | null }) => string;
+  isoDate: (value: string, dateOnly: boolean) => string;
+};
+
 export type SentenceReference =
   | { kind: "field"; id: string; label: string; typeId: string }
   | { kind: "list"; id: string; label: string; icon: string };
@@ -77,43 +82,25 @@ export function optionAttributeLabel(key: string, t: Translate) {
   return key === PROBABILITY_ATTRIBUTE ? t("RecordModel.probability") : key;
 }
 
-function formatDecimal(value: string, currency: string | null, locale: string) {
-  const amount = Number(value);
-  if (!Number.isFinite(amount)) return currency ? `${value} ${currency}` : value;
-  return new Intl.NumberFormat(locale, {
-    maximumFractionDigits: 20,
-    ...(currency ? { style: "currency", currency } : {}),
-  }).format(amount);
-}
-
-function formatDate(value: string, dateOnly: boolean, locale: string) {
-  const date = new Date(dateOnly ? `${value}T00:00:00Z` : value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat(locale, {
-    dateStyle: "medium",
-    ...(dateOnly ? { timeZone: "UTC" } : { timeStyle: "short" }),
-  }).format(date);
-}
-
 export function literalText(
   value: RecordScalar | null,
   model: Pick<RecordModelView, "fields">,
   t: Translate,
-  locale: string,
+  format: SentenceValueFormat,
 ): string {
   if (!value) return t("RecordModel.missing");
   if (value.kind === "text") return `“${value.value}”`;
   if (value.kind === "boolean") return value.value ? t("RecordModel.yes") : t("RecordModel.no");
-  if (value.kind === "decimal") return formatDecimal(value.value, value.currency, locale);
+  if (value.kind === "decimal") return format.decimal(value.value, { currency: value.currency });
   if (value.kind === "select") {
     return (
       model.fields.flatMap((field) => field.options).find((option) => option.id === value.value)?.label ??
       t("RecordModel.option")
     );
   }
-  if (value.kind === "date" || value.kind === "dateTime") return formatDate(value.value, value.kind === "date", locale);
+  if (value.kind === "date" || value.kind === "dateTime") return format.isoDate(value.value, value.kind === "date");
   if (value.kind === "range")
-    return [value.start, value.end].flatMap((entry) => (entry ? [formatDate(entry, false, locale)] : [])).join(" – ");
+    return [value.start, value.end].flatMap((entry) => (entry ? [format.isoDate(entry, false)] : [])).join(" – ");
 
   if (value.kind === "textList") return value.value.join(", ");
   if (value.kind === "member") return t("RecordModel.member");
@@ -136,7 +123,12 @@ function join(parts: SentenceSegment[][], separator: string): SentenceSegment[] 
   return parts.flatMap((part, index) => (index ? [separator, ...part] : part));
 }
 
-type Context = { model: RecordModelView; t: Translate; locale: string; operatorLabel: (operator: Operator) => string };
+type Context = {
+  model: RecordModelView;
+  t: Translate;
+  format: SentenceValueFormat;
+  operatorLabel: (operator: Operator) => string;
+};
 
 function fieldReference(id: string, { model, t }: Context): SentenceSegment {
   const field = model.fields.find((candidate) => candidate.id === id);
@@ -173,7 +165,7 @@ export function expressionSegments(
   if (expression.kind === "field") return [fieldReference(expression.fieldId, context)];
   if (expression.kind === "optionAttribute")
     return [fieldReference(expression.fieldId, context), ` ${optionAttributeLabel(expression.attribute, t)}`];
-  if (expression.kind === "literal") return [literalText(expression.value, model, t, context.locale)];
+  if (expression.kind === "literal") return [literalText(expression.value, model, t, context.format)];
   if (expression.kind === "related") {
     const flow = linkedFlow(expression);
     const reducer = aggregateOf(flow);
@@ -235,7 +227,7 @@ function savedClause(
     kind: "whenChanged",
     field: trigger ? { kind: "field", id: trigger.id, label: trigger.label, typeId: trigger.typeId } : null,
     value: behavior.triggerValue
-      ? literalText(behavior.triggerValue, context.model, context.t, context.locale).replace(/^“|”$/g, "")
+      ? literalText(behavior.triggerValue, context.model, context.t, context.format).replace(/^“|”$/g, "")
       : null,
   };
 }
@@ -244,16 +236,16 @@ export function calculationSentence({
   model,
   field,
   t,
-  locale,
+  format,
 }: {
   model: RecordModelView;
   field: Pick<RecordFieldView, "label" | "typeId" | "behavior">;
   t: Translate;
-  locale: string;
+  format: SentenceValueFormat;
 }): CalculationSentence | null {
   const behavior = field.behavior;
   if (behavior.kind === "input") return null;
-  const context: Context = { model, t, locale, operatorLabel: (operator) => t(`RecordModel.operators.${operator}`) };
+  const context: Context = { model, t, format, operatorLabel: (operator) => t(`RecordModel.operators.${operator}`) };
   const saved = behavior.kind === "snapshot" ? savedClause(behavior, context) : null;
   const typeOver = behavior.kind === "snapshot" && Boolean(behavior.allowManualOverride);
   if (!behavior.expression) return { sentence: null, value: null, list: null, reducer: null, saved, typeOver };

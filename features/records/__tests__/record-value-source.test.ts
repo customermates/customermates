@@ -28,12 +28,16 @@ const t = (key: string, values: Record<string, string> = {}) =>
       "RecordModel.valueSource.savedWhenChangedTo": "Saved when {field} changes to {value}",
     }[key] ?? key,
   );
+const format = {
+  decimal: (value: string) => value,
+  isoDate: (value: string) => value,
+};
 type SourceField = Parameters<typeof recordValueSource>[0]["field"];
-const source = (field: SourceField) => recordValueSource({ model, field, t, locale: "en" });
+const source = (field: SourceField) => recordValueSource({ model, field, t, format });
 const calculated = model.fields.filter((field) => field.behavior.kind !== "input");
 const ofShape = (match: (described: NonNullable<ReturnType<typeof calculationSentence>>) => boolean) =>
   calculated.find((field) => {
-    const described = calculationSentence({ model, field, t, locale: "en" });
+    const described = calculationSentence({ model, field, t, format });
     return described !== null && described.saved === null && match(described);
   });
 

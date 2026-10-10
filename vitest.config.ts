@@ -17,6 +17,7 @@ const domTestFiles = [
   "components/ui/__tests__/segmented-control.dom.test.tsx",
   "components/forms/__tests__/form-footer-actions.dom.test.ts",
   "components/modal/__tests__/confirm-dialog.dom.test.ts",
+  "components/modal/__tests__/confirmation-sentence.dom.test.ts",
   "components/records/__tests__/record-operation-progress.dom.test.ts",
   "app/**/records/**/components/__tests__/use-record-deletion.dom.test.ts",
   "app/**/records/**/components/__tests__/record-import-dialog.dom.test.ts",
