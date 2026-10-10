@@ -761,7 +761,7 @@
       "cronExpression": "Zeitplan",
       "currency": "Währung",
       "debounceSeconds": "Verzögerung",
-      "delete": "Gelöscht",
+      "delete": "In den Papierkorb verschoben",
       "deletePermanently": "Endgültig gelöscht",
       "disabledReason": "Deaktivierungsgrund",
       "effectiveAt": "Gültig ab",
@@ -3245,13 +3245,9 @@
       "deleteColumn": "Spalte löschen",
       "deleteColumnMessage": "Die Spalte {name} mit verknüpften Datensätzen wird aus {list} entfernt.",
       "deleteColumnTitle": "Spalte {name} löschen?",
-      "deletedBy": "Gelöscht",
       "deleteField": "Feld löschen",
       "deleteList": "Liste löschen",
       "deleteMessage": "{name} wird nach „Zuletzt gelöscht“ in Konfigurieren verschoben. Dort kannst du es wiederherstellen.",
-      "deletePermanently": "Endgültig löschen",
-      "deletePermanentlyMessage": "Dadurch werden {name} und alles darin Gespeicherte endgültig gelöscht. Das kann nicht rückgängig gemacht werden.",
-      "deletePermanentlyTitle": "{name} endgültig löschen?",
       "deleteRelationship": "Beziehung löschen",
       "deleteTitle": "{name} löschen?",
       "issues": {
@@ -3262,33 +3258,7 @@
         "savedView": "Gespeicherte Ansichten oder persönliche Layouts verwenden noch {subject}.",
         "summaryApproval": "{subject} braucht eine erneute Freigabe der Zusammenfassung."
       },
-      "kind": "Typ",
-      "kinds": {
-        "channels": "Kanalfeld",
-        "field": "Feld",
-        "relationship": "Beziehung",
-        "type": "Liste"
-      },
-      "list": "Liste",
-      "moved": "Nach „Zuletzt gelöscht“ verschoben",
-      "noAccess": "Nur Personen, die das Datenmodell verwalten, sehen „Zuletzt gelöscht“.",
-      "openConfigure": "Konfigurieren öffnen",
-      "recentlyDeleted": "Zuletzt gelöscht",
-      "recentlyDeletedEmpty": "Es wurde nichts gelöscht",
-      "recentlyDeletedHelp": "Gelöschte Listen, Felder, Beziehungen und Kanalfelder bleiben hier, bis du sie wiederherstellst oder endgültig löschst.",
-      "removed": {
-        "grants": "{count, plural, one {# Rollenrecht} other {# Rollenrechte}}",
-        "hidden": "Enthält Datensätze, die Sie nicht sehen können.",
-        "identifiers": "{count, plural, one {# Kennung} other {# Kennungen}} an {records, plural, one {# Datensatz} other {# Datensätzen}}",
-        "links": "{count, plural, one {# Verknüpfung zwischen Datensätzen} other {# Verknüpfungen zwischen Datensätzen}}",
-        "nothingStored": "Es werden keine gespeicherten Daten entfernt.",
-        "records": "{count, plural, one {# Datensatz} other {# Datensätze}}",
-        "values": "{count, plural, one {# gespeicherter Wert} other {# gespeicherte Werte}}",
-        "views": "{count, plural, one {# gespeicherte Ansicht oder persönliches Layout} other {# gespeicherte Ansichten oder persönliche Layouts}}"
-      },
-      "restore": "Wiederherstellen",
-      "restoreMessage": "{name} kann noch nicht wiederhergestellt werden.",
-      "restoreTitle": "{name} wiederherstellen"
+      "moved": "Nach „Zuletzt gelöscht“ verschoben"
     },
     "configure": "Konfigurieren",
     "connectionType": "Verbindung",

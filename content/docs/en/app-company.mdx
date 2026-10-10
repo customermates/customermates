@@ -56,7 +56,7 @@ Click [Add](app:settings/roles?focus=add), or click a row to edit. The **Role** 
 
 - **General**: **Name** (required, up to 255 characters) and **Description** (required, up to 500 characters).
 - **Workspace**: one row per workspace permission in the **Resource** column.
-- **Record types**: one row per list, under its current name. Lists in **Recently deleted** do not appear. New roles start without record access; grant only the lists they need. Sub-lists such as Line items share their parent record's access and have no row of their own.
+- **Record types**: one row per list, under its current name. Lists in **Trash** do not appear. New roles start without record access; grant only the lists they need. Sub-lists such as Line items share their parent record's access and have no row of their own.
 
 Every row has **Create**, **Edit** and **Delete** checkboxes (under **Manage** on narrow screens) and **Read access**: **All** (everything the row covers), **Assigned** (records assigned to the member, or their own member row or routines) or **None**. A cell that does not apply shows a dash. Editing or deleting a record also needs access to that record.
 
@@ -195,7 +195,7 @@ Open [Configure for Deals](app:configure/deal), open the **Stage** field and set
 
 ### How do I rename a list such as Deals? [#how-do-i-rename-record-types-in-the-data-model]
 
-Open the list in [Configure](app:configure/deal), change **Name** and **Plural name** under **General** and click **Save**. Every list can be renamed; records, links, views, widgets and API references stay connected. List names must be unique, ignoring case and accents. Deleting a list moves it to **Recently deleted** in Configure, where you can **Restore** it or **Delete permanently**.
+Open the list in [Configure](app:configure/deal), change **Name** and **Plural name** under **General** and click **Save**. Every list can be renamed; records, links, views, widgets and API references stay connected. List names must be unique, ignoring case and accents. Deleting a list moves it to **Trash**, where you can **Restore** it for 30 days or **Delete permanently**.
 
 ## For agents [#tips-for-agents]
 

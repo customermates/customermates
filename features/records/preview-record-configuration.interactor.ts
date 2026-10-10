@@ -7,7 +7,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { ConfigurationChangeSchema } from "./configuration.schema";
+import { PublicConfigurationChangeSchema } from "./configuration.schema";
 import { type RecordConfigurationService } from "./configuration.service";
 import { recordWriteFailure } from "./mutate-record.interactor";
 
@@ -24,8 +24,12 @@ export class PreviewRecordConfigurationInteractor extends AuthenticatedInteracto
   ) {
     super();
   }
-  @Validate(ConfigurationChangeSchema)
+  @Validate(PublicConfigurationChangeSchema)
   async invoke(input: ConfigurationChange): Validated<ConfigurationPreview> {
+    return this.run(input);
+  }
+
+  run(input: ConfigurationChange): Validated<ConfigurationPreview> {
     return runInTransaction(
       async () => {
         try {

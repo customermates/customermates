@@ -28,7 +28,7 @@ import { FieldBehaviorSchema, RecordValueTypeSchema } from "@/features/records/r
 import { RECORD_MEASURE_DATE_INTERVALS, RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import { WIDGET_DISPLAY_REQUIREMENTS } from "@/features/widget/widget-display-rules";
 import { WIDGET_STARTER_RECIPES } from "@/features/widget/widget-gallery";
-import { CONFIGURATION_TARGET_KINDS, DeletionBlockerSchema } from "@/features/records/configuration.schema";
+import { DeletionBlockerSchema } from "@/features/records/configuration.schema";
 import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget.schema";
 import {
   ConnectedAccountStatus,
@@ -541,10 +541,6 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
       (key) => `RecordModel.configurationDeletion.issues.${key}`,
     ),
   ],
-  [
-    "RecordModel.configurationDeletion.kinds.${*}",
-    CONFIGURATION_TARGET_KINDS.map((kind) => `RecordModel.configurationDeletion.kinds.${kind}`),
-  ],
   ["RecordModel.operators.${*}", RECORD_OPERATOR_KEYS],
   ["RecordModel.reducers.${*}", RECORD_REDUCER_KEYS],
   ["RecordModel.types.${*}", RECORD_VALUE_TYPE_KEYS],
@@ -705,7 +701,6 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: RecordModel.configurationDeletion.blockers.${blocker.reason}",
   "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: RecordModel.configurationDeletion.cleaned.${key}",
   "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: RecordModel.configurationDeletion.issues.${key}",
-  "app/[locale]/(protected)/configure/deleted/components/recently-deleted-view.tsx :: t :: RecordModel.configurationDeletion.kinds.${item.target.kind}",
   "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: Common.dateBuckets.${field.bucket}",
   "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: RecordModel.${column.label}",
   "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: RecordModel.${field.label}",

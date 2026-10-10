@@ -25,8 +25,11 @@ export function compileRecordRelationshipSummaries(
   selections: RecordRelationshipSelection[],
   model: RecordModel,
   access: RecordAccessMap,
+  includeTrash = false,
 ): Prisma.Sql | null {
   if (!recordIds.length || !selections.length) return null;
+  const liveLink = includeTrash ? Prisma.empty : Prisma.sql`AND link."deletedAt" IS NULL`;
+  const liveOwner = includeTrash ? Prisma.empty : Prisma.sql`AND source."deletedAt" IS NULL`;
   const source = Prisma.sql`source`;
   const target = Prisma.sql`target`;
   const ownerScope = access.get(typeId) ?? { access: "none" as const, userId: "" };
@@ -54,7 +57,7 @@ export function compileRecordRelationshipSummaries(
         COUNT(*) OVER (PARTITION BY source.id)::integer AS "readableCount",
         ROW_NUMBER() OVER (PARTITION BY source.id ORDER BY target.id) AS ordinal
       FROM owners source
-      JOIN "RecordLink" link ON link."companyId" = ${companyId} AND link."relationId" = ${relation.id} AND link."deletedAt" IS NULL AND ${sourceLink} = source.id
+      JOIN "RecordLink" link ON link."companyId" = ${companyId} AND link."relationId" = ${relation.id} ${liveLink} AND ${sourceLink} = source.id
         AND link."sourceTypeId" = ${relation.sourceTypeId} AND link."targetTypeId" = ${relation.targetTypeId}
       JOIN "CrmRecord" target ON target."companyId" = ${companyId} AND target."typeId" = ${targetTypeId} AND target.id = ${targetLink}
       LEFT JOIN "RecordValue" value ON value."companyId" = ${companyId} AND value."typeId" = target."typeId" AND value."recordId" = target.id AND value."fieldId" = ${title.id}
@@ -62,7 +65,7 @@ export function compileRecordRelationshipSummaries(
     ) related WHERE ordinal <= ${selection.limit}`;
   });
   return Prisma.sql`WITH owners AS (
-    SELECT source.* FROM "CrmRecord" source WHERE source."companyId" = ${companyId} AND source."typeId" = ${typeId} AND source."deletedAt" IS NULL
+    SELECT source.* FROM "CrmRecord" source WHERE source."companyId" = ${companyId} AND source."typeId" = ${typeId} ${liveOwner}
       AND source.id IN (${Prisma.join(recordIds)}) AND ${recordReadPredicate(companyId, ownerScope, source)}
   ) ${Prisma.join(branches, " UNION ALL ")} ORDER BY "ownerId", "relationId", direction, "recordId"`;
 }

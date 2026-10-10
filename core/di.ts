@@ -101,7 +101,6 @@ import { ApplyRecordConfigurationInteractor } from "@/features/records/configure
 import { RecordConfigurationWriter } from "@/features/records/record-configuration-writer";
 import { PreviewRecordConfigurationInteractor } from "@/features/records/preview-record-configuration.interactor";
 import { GetRecordModelInteractor } from "@/features/records/get-record-model.interactor";
-import { GetRecentlyDeletedInteractor } from "@/features/records/get-recently-deleted.interactor";
 import { DiscoverRecordTypesInteractor } from "@/features/records/discover-record-types.interactor";
 import { GetRecordChoicesInteractor } from "@/features/records/get-record-choices.interactor";
 import { GetRecordEditorInteractor } from "@/features/records/get-record-editor.interactor";
@@ -114,6 +113,8 @@ import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
 import { EntityTrashHandler } from "@/features/trash/entity-trash.handler";
 import { EntityTrashVisibility } from "@/features/trash/entity-trash-visibility";
 import { RecordTrashHandler } from "@/features/records/record-trash.handler";
+import { ConfigurationTrashHandler } from "@/features/records/configuration-trash.handler";
+import { PurgeExpiredTrashInteractor } from "@/features/trash/purge-expired-trash.interactor";
 import { PrismaTrashRepo } from "@/features/trash/prisma-trash.repository";
 import type { TrashKindHandler } from "@/features/trash/trash-kind-handler";
 import { QueryTrashInteractor } from "@/features/trash/query-trash.interactor";
@@ -474,8 +475,6 @@ export const getRecordWriteService = () =>
   new RecordWriteService(getRecordRepo(), getRecordAccessPolicy(), getRecordCalculationService());
 export const getRecordConfigurationService = () => new RecordConfigurationService(getRecordRepo());
 export const getGetRecordModelInteractor = () => new GetRecordModelInteractor(getRecordRepo(), getRecordAccessPolicy());
-export const getGetRecentlyDeletedInteractor = () =>
-  new GetRecentlyDeletedInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getQueryRecordsInteractor = () => new QueryRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getExportRecordsInteractor = () => new ExportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getImportRecordsInteractor = () =>
@@ -514,6 +513,12 @@ export const getApplyRecordConfigurationInteractor = () =>
   );
 export const getTrashRepo = (companyId?: string) => new PrismaTrashRepo(companyId);
 export const getTrashKindHandlers = (companyId?: string): TrashKindHandler[] => [
+  new ConfigurationTrashHandler(
+    new PrismaRecordRepo(companyId, getBackgroundTaskService()),
+    getRecordAccessPolicy(),
+    getPreviewRecordConfigurationInteractor(),
+    getApplyRecordConfigurationInteractor(),
+  ),
   new RecordTrashHandler(
     new PrismaRecordRepo(companyId, getBackgroundTaskService()),
     getRecordAccessPolicy(),
@@ -603,6 +608,8 @@ const entityTrashHandlers = (companyId?: string) => {
     ),
   ];
 };
+export const getPurgeExpiredTrashInteractor = () =>
+  new PurgeExpiredTrashInteractor(getTrashRepo(), getBackgroundTaskService());
 export const getQueryTrashInteractor = () =>
   new QueryTrashInteractor(getTrashRepo(), getRecordRepo(), getTrashKindHandlers());
 export const getRestoreTrashInteractor = () => new RestoreTrashInteractor(getTrashRepo(), getTrashKindHandlers());
