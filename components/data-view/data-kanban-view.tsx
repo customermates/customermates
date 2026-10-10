@@ -3,13 +3,18 @@
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent, ReactNode } from "react";
 
-import { useId, useRef } from "react";
+import { Fragment, useId, useRef, useState } from "react";
 
 import {
   DndContext,
+  DragOverlay,
+  type Active,
+  type ClientRect,
   type DragEndEvent,
+  type Over,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useDraggable,
   useDroppable,
   useSensor,
@@ -48,7 +53,7 @@ import {
 } from "./data-view-geometry";
 import { useGroupLabel, visibleGroups } from "./group-label";
 import { GroupSummaries } from "./group-summaries";
-import { kanbanKeyboardCoordinates } from "./kanban-keyboard-coordinates";
+import { kanbanKeyboardCoordinates, kanbanManualKeyboardCoordinates } from "./kanban-keyboard-coordinates";
 
 type HasCustomFieldValues = HasId & {
   customFieldValues?: Array<{ columnId: string; value: unknown }>;
@@ -76,6 +81,8 @@ function KanbanCard({
   itemId,
   groupKey,
   draggable,
+  dropTarget,
+  hidden,
   children,
   onClick,
   href,
@@ -85,6 +92,8 @@ function KanbanCard({
   itemId: string;
   groupKey: string;
   draggable: boolean;
+  dropTarget: boolean;
+  hidden: boolean;
   children: ReactNode;
   onClick?: () => void;
   href?: string;
@@ -93,13 +102,12 @@ function KanbanCard({
 }) {
   const t = useTranslations();
   const navigateToHref = useNavigateToHref();
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: itemId,
     data: { groupKey },
     disabled: !draggable,
   });
-
-  const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
+  const drop = useDroppable({ id: `card:${itemId}`, data: { groupKey, itemId }, disabled: !dropTarget });
   const { onKeyDown: dragKeyDown, onPointerDown: dragPointerDown } = (listeners ?? {}) as {
     onKeyDown?: (event: ReactKeyboardEvent<HTMLElement>) => void;
     onPointerDown?: (event: ReactPointerEvent<HTMLElement>) => void;
@@ -107,18 +115,21 @@ function KanbanCard({
 
   return (
     <Card
-      ref={setNodeRef}
+      ref={(node: HTMLDivElement | null) => {
+        setNodeRef(node);
+        drop.setNodeRef(node);
+      }}
       className={cn(
-        "group/card gap-2 py-3 touch-none select-none relative",
+        "group/card gap-2 py-3 select-none relative",
+        draggable && "touch-manipulation",
         (onClick || href) && !isDragging && "interactive-surface",
-        isDragging && "z-50 cursor-grabbing shadow-lg ring-1 ring-border/60",
+        hidden && "hidden",
         className,
       )}
       data-item-id={itemId}
-      style={style}
       onClick={(e) => {
         e.stopPropagation();
-        if (!e.currentTarget.contains(e.target as Node) || isInteractiveClick(e) || isDragging || transform) return;
+        if (!e.currentTarget.contains(e.target as Node) || isInteractiveClick(e) || isDragging) return;
         if (onClick) onClick();
         else if (href && !(e.metaKey || e.ctrlKey || e.shiftKey)) navigateToHref(href);
       }}
@@ -227,6 +238,7 @@ const KanbanColumn = observer(function KanbanColumn({
   droppable,
   recordLabels,
   loadMore,
+  highlighted,
   onCollapse,
   children,
 }: {
@@ -239,6 +251,7 @@ const KanbanColumn = observer(function KanbanColumn({
   droppable: boolean;
   recordLabels?: { singular: string; plural: string };
   loadMore?: LoadMoreAction;
+  highlighted: boolean;
   onCollapse: () => void;
   children: ReactNode;
 }) {
@@ -248,7 +261,12 @@ const KanbanColumn = observer(function KanbanColumn({
   const details = weight === undefined ? [] : [`${t("Common.stageProbability")}: ${weight}%`];
 
   return (
-    <div ref={setNodeRef} className={DATA_KANBAN_COLUMN_CLASS_NAME} data-group-key={id}>
+    <div
+      ref={setNodeRef}
+      className={cn(DATA_KANBAN_COLUMN_CLASS_NAME, "transition-colors", highlighted && "bg-accent/40")}
+      data-drop-target={highlighted ? "" : undefined}
+      data-group-key={id}
+    >
       <div className={cn(DATA_KANBAN_HEADER_CLASS_NAME, "group/header")}>
         <KanbanColumnLabel color={color} label={label} />
 
@@ -350,6 +368,23 @@ const KanbanStrip = observer(function KanbanStrip({
   );
 });
 
+type DropTarget = { groupKey: string; beforeId: string | null };
+
+function isBelow(translated: ClientRect | null, target: ClientRect) {
+  return translated !== null && translated.top + translated.height / 2 > target.top + target.height / 2;
+}
+
+function KanbanPlaceholder({ height }: { height: number }) {
+  return (
+    <div
+      aria-hidden
+      className="shrink-0 rounded-xl border-2 border-dashed border-primary/40 bg-primary/5"
+      data-kanban-placeholder=""
+      style={{ height: Math.max(height, 48) }}
+    />
+  );
+}
+
 export const DataKanbanView = observer(function DataKanbanView<E extends HasCustomFieldValues>({
   store,
   renderCard,
@@ -365,15 +400,23 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   const supportsDragWriteBack = store.groupingResult?.supportsDragWriteBack ?? false;
   const writeBackColumnId = store.groupingResult?.columnId;
 
-  const pointerSensor = useSensor(PointerSensor, {
+  const manualOrder = store.manualOrderActive;
+  const [drag, setDrag] = useState<{ itemId: string; fromGroupKey: string; height: number } | null>(null);
+  const [target, setTarget] = useState<DropTarget | null>(null);
+
+  const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: { distance: 4 },
   });
+  const touchSensor = useSensor(TouchSensor, {
+    activationConstraint: { delay: 250, tolerance: 6 },
+  });
   const keyboardSensor = useSensor(KeyboardSensor, {
-    coordinateGetter: kanbanKeyboardCoordinates,
+    coordinateGetter: manualOrder ? kanbanManualKeyboardCoordinates : kanbanKeyboardCoordinates,
     keyboardCodes: KANBAN_KEYBOARD_CODES,
   });
   const sensors = useSensors(
-    supportsDragWriteBack ? pointerSensor : null,
+    supportsDragWriteBack ? mouseSensor : null,
+    supportsDragWriteBack ? touchSensor : null,
     supportsDragWriteBack ? keyboardSensor : null,
   );
 
@@ -391,33 +434,63 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
 
   const itemsById = new Map(store.items.map((item) => [item.id, item]));
 
+  function nextOf(itemId: string, groupKey: string): string | null {
+    const ids = groups.find((group) => group.key === groupKey)?.itemIds ?? [];
+    const index = ids.indexOf(itemId);
+    return index < 0 ? null : (ids[index + 1] ?? null);
+  }
+
+  function resolveTarget(active: Active, over: Over | null): DropTarget | null {
+    if (!over) return null;
+    const activeId = String(active.id);
+    const fromGroupKey = String(active.data.current?.groupKey ?? "");
+    const data = over.data.current as { groupKey?: string; itemId?: string } | undefined;
+    const groupKey = data?.groupKey ?? String(over.id);
+    const group = groups.find((candidate) => candidate.key === groupKey);
+    if (!group) return null;
+    const ids = group.itemIds.filter((id) => id !== activeId);
+    if (!manualOrder) return { groupKey, beforeId: groupKey === fromGroupKey ? nextOf(activeId, groupKey) : null };
+    if (data?.itemId === activeId) return { groupKey, beforeId: nextOf(activeId, groupKey) };
+    if (!data?.itemId) return { groupKey, beforeId: null };
+    const index = ids.indexOf(data.itemId);
+    return {
+      groupKey,
+      beforeId: isBelow(active.rect.current.translated, over.rect) ? (ids[index + 1] ?? null) : data.itemId,
+    };
+  }
+
+  function updateTarget(active: Active, over: Over | null) {
+    const next = resolveTarget(active, over);
+    if (next?.groupKey !== target?.groupKey || next?.beforeId !== target?.beforeId) setTarget(next);
+  }
+
   async function handleDragEnd(event: DragEndEvent) {
-    if (!supportsDragWriteBack || !writeBackColumnId) return;
-    if (!event.over || !event.active) return;
+    const resolved = event.active ? resolveTarget(event.active, event.over) : null;
+    setDrag(null);
+    setTarget(null);
+    if (!supportsDragWriteBack || !writeBackColumnId || !resolved) return;
 
     const itemId = String(event.active.id);
-    const targetGroup = String(event.over.id);
     const fromGroupKey = String(event.active.data.current?.groupKey ?? "");
-    const destination = groups.find((group) => group.key === targetGroup);
+    const destination = groups.find((group) => group.key === resolved.groupKey);
     if (!destination || destination.writable === false) return;
 
     const item = itemsById.get(itemId);
-    if (
-      !item ||
-      store.canMoveItemBetweenGroups?.(item) === false ||
-      fromGroupKey === "" ||
-      fromGroupKey === targetGroup
-    )
-      return;
+    if (!item || store.canMoveItemBetweenGroups?.(item) === false || fromGroupKey === "") return;
+    const sameGroup = fromGroupKey === resolved.groupKey;
+    const ids = destination.itemIds.filter((id) => id !== itemId);
+    const beforeIndex = resolved.beforeId ? ids.indexOf(resolved.beforeId) : ids.length;
+    if (sameGroup && (!manualOrder || nextOf(itemId, fromGroupKey) === resolved.beforeId)) return;
 
-    const nextValue = targetGroup === NO_VALUE_GROUP_KEY ? null : targetGroup;
+    const nextValue = resolved.groupKey === NO_VALUE_GROUP_KEY ? null : resolved.groupKey;
 
     await store.moveItemBetweenGroups({
       item,
       optimisticItem: patchCustomFieldValue(item, writeBackColumnId, nextValue),
       fromGroupKey,
-      toGroupKey: targetGroup,
+      toGroupKey: resolved.groupKey,
       value: nextValue,
+      ...(manualOrder ? { afterId: ids[beforeIndex - 1] ?? null, beforeId: resolved.beforeId } : {}),
     });
     if (event.activatorEvent instanceof KeyboardEvent) {
       requestAnimationFrame(() => {
@@ -429,6 +502,11 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
     }
   }
 
+  const placement =
+    drag === null
+      ? null
+      : (target ?? { groupKey: drag.fromGroupKey, beforeId: nextOf(drag.itemId, drag.fromGroupKey) });
+  const dragged = drag ? itemsById.get(drag.itemId) : undefined;
   const loadMoreLabel = t("Common.actions.loadMore");
   const overflow = store.groupingResult?.overflow;
   const destinationLabel = (id: string | number) => {
@@ -461,7 +539,21 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
       }}
       id={dndContextId}
       sensors={sensors}
+      onDragCancel={() => {
+        setDrag(null);
+        setTarget(null);
+      }}
       onDragEnd={(event) => runUserAction(() => handleDragEnd(event))}
+      onDragMove={(event) => updateTarget(event.active, event.over)}
+      onDragOver={(event) => updateTarget(event.active, event.over)}
+      onDragStart={(event) => {
+        setDrag({
+          itemId: String(event.active.id),
+          fromGroupKey: String(event.active.data.current?.groupKey ?? ""),
+          height: event.active.rect.current.initial?.height ?? 0,
+        });
+        setTarget(null);
+      }}
     >
       <div ref={boardRef} className={cn(DATA_KANBAN_ROOT_CLASS_NAME, className)} data-slot="kanban-root" tabIndex={-1}>
         <div className={DATA_KANBAN_TRACK_CLASS_NAME}>
@@ -480,6 +572,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                 color={group.color}
                 count={group.count}
                 droppable={supportsDragWriteBack && group.writable !== false}
+                highlighted={drag !== null && placement?.groupKey === group.key}
                 id={group.key}
                 label={groupLabel(group)}
                 loadMore={loadMore}
@@ -493,19 +586,30 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                   if (!item) return null;
 
                   return (
-                    <KanbanCard
-                      key={itemId}
-                      actions={cardActions?.(item)}
-                      draggable={supportsDragWriteBack && store.canMoveItemBetweenGroups?.(item) !== false}
-                      groupKey={group.key}
-                      href={cardHref?.(item)}
-                      itemId={itemId}
-                      onClick={onCardClick ? () => onCardClick(item) : undefined}
-                    >
-                      <CardContent className="px-3">{renderCard(item)}</CardContent>
-                    </KanbanCard>
+                    <Fragment key={itemId}>
+                      {placement?.groupKey === group.key && placement.beforeId === itemId && (
+                        <KanbanPlaceholder height={drag?.height ?? 0} />
+                      )}
+
+                      <KanbanCard
+                        actions={cardActions?.(item)}
+                        draggable={supportsDragWriteBack && store.canMoveItemBetweenGroups?.(item) !== false}
+                        dropTarget={supportsDragWriteBack && manualOrder && group.writable !== false}
+                        groupKey={group.key}
+                        hidden={drag?.itemId === itemId}
+                        href={cardHref?.(item)}
+                        itemId={itemId}
+                        onClick={onCardClick ? () => onCardClick(item) : undefined}
+                      >
+                        <CardContent className="px-3">{renderCard(item)}</CardContent>
+                      </KanbanCard>
+                    </Fragment>
                   );
                 })}
+
+                {placement?.groupKey === group.key && placement.beforeId === null && (
+                  <KanbanPlaceholder height={drag?.height ?? 0} />
+                )}
               </KanbanColumn>
             );
           })}
@@ -530,6 +634,14 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
           </p>
         )}
       </div>
+
+      <DragOverlay>
+        {dragged ? (
+          <Card className="cursor-grabbing gap-2 py-3 shadow-xl ring-1 ring-border/60 rotate-1 motion-reduce:rotate-0">
+            <CardContent className="px-3">{renderCard(dragged)}</CardContent>
+          </Card>
+        ) : null}
+      </DragOverlay>
     </DndContext>
   );
 });

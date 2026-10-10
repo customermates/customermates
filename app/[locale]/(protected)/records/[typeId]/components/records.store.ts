@@ -15,6 +15,7 @@ import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { recordColumns } from "@/features/records/record-columns";
+import { MANUAL_ORDER_SORT_KEY } from "@/features/records/record-column.schema";
 import { recordColumnPresentation, recordDefaults } from "@/features/records/record-presentation";
 import { getRecordPresentationAction, mutateRecordAction, resetRecordViewAction } from "../../actions";
 import { movedToTrashOr } from "@/features/trash/moved-to-trash";
@@ -218,6 +219,9 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   override canMoveItemBetweenGroups(item: RecordRow): boolean {
     return !item.protectedKind;
   }
+  override get manualOrderActive() {
+    return this.sortDescriptor?.field === MANUAL_ORDER_SORT_KEY;
+  }
   override async moveItemBetweenGroups(
     params: Parameters<BaseDataViewStore<RecordRow>["moveItemBetweenGroups"]>[0],
   ): Promise<void> {
@@ -232,7 +236,16 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       return;
     const value = params.value?.startsWith("value:") ? params.value.slice(6) : null;
     if (params.value !== null && (value === null || !field.options.some((option) => option.id === value))) return;
+    const crossing = params.fromGroupKey !== params.toGroupKey;
+    const manual = this.manualOrderActive;
+    if (!crossing && !manual) return;
     this.movingRecords.add(params.item.id);
+    const snapshot = this.moveInGrouping(
+      params.item.id,
+      params.fromGroupKey,
+      params.toGroupKey,
+      params.beforeId ?? null,
+    );
     try {
       let input: MutateRecordInput = {
         expectedRevision: this.presentation.model.revision,
@@ -244,12 +257,23 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
             recordId: params.item.ref.recordId,
           },
           expectedVersion: params.item.version,
-          fields: [
-            {
-              fieldId: field.id,
-              value: value === null ? null : { kind: "select", value },
-            },
-          ],
+          fields: crossing
+            ? [
+                {
+                  fieldId: field.id,
+                  value: value === null ? null : { kind: "select", value },
+                },
+              ]
+            : [],
+          ...(manual
+            ? {
+                placement: {
+                  ...(params.afterId ? { afterRecordId: params.afterId } : {}),
+                  ...(params.beforeId ? { beforeRecordId: params.beforeId } : {}),
+                  ...(field.behavior.kind === "input" ? { groupFieldId: field.id } : {}),
+                },
+              }
+            : {}),
         },
       };
       const signature = JSON.stringify({
@@ -262,6 +286,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       const result = await mutateRecordAction(input);
       this.boardRequests.delete(params.item.id);
       if (!result.ok) {
+        if (snapshot) this.restoreGrouping(snapshot);
         toastZodErrorTree(result.error);
         await this.refresh();
       } else if (result.data.status === "pending") this.setBoardOperation(result.data.operationId);
