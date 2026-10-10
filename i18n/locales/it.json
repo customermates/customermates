@@ -3105,6 +3105,7 @@
         "label": "Descrivi il calcolo",
         "pending": "Preparazione del calcolo",
         "placeholder": "Ad esempio: totale degli importi di tutte le righe collegate",
+        "stop": "Interrompi la bozza",
         "unavailable": "La bozza non è disponibile al momento."
       },
       "example": {

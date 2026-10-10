@@ -3105,6 +3105,7 @@
         "label": "Describe the calculation",
         "pending": "Drafting the calculation",
         "placeholder": "For example: total of the amounts of all linked line items",
+        "stop": "Stop drafting",
         "unavailable": "Drafting isn't available right now."
       },
       "example": {

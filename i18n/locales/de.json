@@ -3105,6 +3105,7 @@
         "label": "Berechnung beschreiben",
         "pending": "Berechnung wird entworfen",
         "placeholder": "Zum Beispiel: Summe der Beträge aller verknüpften Positionen",
+        "stop": "Entwurf abbrechen",
         "unavailable": "Entwerfen ist gerade nicht verfügbar."
       },
       "example": {

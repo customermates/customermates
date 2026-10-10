@@ -3105,6 +3105,7 @@
         "label": "Décrire le calcul",
         "pending": "Préparation du calcul",
         "placeholder": "Par exemple : total des montants de toutes les lignes liées",
+        "stop": "Arrêter la rédaction",
         "unavailable": "La rédaction n'est pas disponible pour le moment."
       },
       "example": {

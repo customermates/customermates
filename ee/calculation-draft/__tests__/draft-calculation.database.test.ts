@@ -152,6 +152,20 @@ describeDatabase("Calculation draft", { timeout: 240_000 }, () => {
     expect(usage.settleRetrieval).toHaveBeenCalledWith({ reservation, charge });
   });
 
+  it("asks the model with the short draft timeout", async () => {
+    model.generate.mockResolvedValue({ output: null, charge: null });
+    await describeTotal();
+    expect(model.generate).toHaveBeenCalledWith(expect.objectContaining({ timeoutMs: 8_000 }));
+  });
+
+  it("refuses a field of another list", async () => {
+    const result = await runWithTenant(actors.admin, () =>
+      draft.invoke({ typeId: id("deal"), fieldId: id("contact.firstName"), description: "Total" }),
+    );
+    expect(!result.ok && interactorFailureStatus(result.error)).toBe(404);
+    expect(model.generate).not.toHaveBeenCalled();
+  });
+
   it("returns no draft for an invalid answer and still settles", async () => {
     model.generate.mockResolvedValue({
       output: { source: "formula", expression: '{"kind":"field","fieldId":"f999"}' },
@@ -171,6 +185,23 @@ describeDatabase("Calculation draft", { timeout: 240_000 }, () => {
     expect(unavailable.ok).toBe(false);
     expect(!unavailable.ok && interactorFailureStatus(unavailable.error)).not.toBe(429);
     expect(model.generate).not.toHaveBeenCalled();
+  });
+
+  it("keeps deleted lists and their relationships out of the prompt", async () => {
+    model.generate.mockResolvedValue({ output: null, charge: null });
+    await describeTotal();
+    expect(model.generate.mock.calls[0][0].prompt).toContain("Organizations");
+    await runWithTenant(actors.admin, async () => {
+      const current = await repo.getModel();
+      const archived = {
+        ...current,
+        types: current.types.map((type) => (type.id === id("organization") ? { ...type, archived: true } : type)),
+      };
+      await runInTransaction(() => repo.saveModel(archived, actors.admin.id), { timeout: 30_000 });
+    });
+    model.generate.mockClear();
+    await describeTotal();
+    expect(model.generate.mock.calls[0][0].prompt).not.toContain("Organizations");
   });
 
   it("refuses members without Data model edit and denied entitlements", async () => {

@@ -3105,6 +3105,7 @@
         "label": "Describe el cálculo",
         "pending": "Preparando el cálculo",
         "placeholder": "Por ejemplo: total de los importes de todas las líneas vinculadas",
+        "stop": "Detener el borrador",
         "unavailable": "La redacción no está disponible ahora."
       },
       "example": {
