@@ -3084,6 +3084,13 @@
         "min": "Minimum",
         "sum": "Somme"
       },
+      "describe": {
+        "failed": "Impossible d'en faire un calcul. Essayez de le décrire autrement.",
+        "label": "Décrire le calcul",
+        "pending": "Préparation du calcul",
+        "placeholder": "Par exemple : total des montants de toutes les lignes liées",
+        "unavailable": "La rédaction n'est pas disponible pour le moment."
+      },
       "example": {
         "next": "Afficher un autre exemple",
         "none": "Ajoutez un enregistrement à cette liste pour voir un exemple.",

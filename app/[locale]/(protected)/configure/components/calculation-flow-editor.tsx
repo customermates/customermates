@@ -28,10 +28,15 @@ import { ClickableChip } from "@/components/chip/clickable-chip";
 import { RecordTypeGlyph } from "@/components/records/record-type-glyph";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import { useRootStore } from "@/core/stores/root-store.provider";
+import { draftCalculationAction } from "@/app/components/agent-chat/actions";
+import { CALCULATION_DRAFT_DESCRIPTION_LIMIT } from "@/features/records/calculation-draft";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { reportApplicationError } from "@/core/errors/report-application-error";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { previewCalculationAction } from "@/app/[locale]/(protected)/records/actions";
 import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
 import { CalculationSentenceText } from "@/components/records/calculation-sentence-text";
@@ -187,6 +192,63 @@ function useCalculationExample(store: FieldModalStore) {
     setRecordId(data.examples[(index + 1) % data.examples.length].recordId);
   };
   return { complete, data, next };
+}
+
+function CalculationComposer({ store }: { store: FieldModalStore }) {
+  const t = useTranslations();
+  const root = useRootStore();
+  const [description, setDescription] = useState("");
+  const [pending, setPending] = useState(false);
+  const [failure, setFailure] = useState<string | null>(null);
+  if (!root.agentChatEnabled || root.agentChatStore?.enabled === false || store.isDisabled) return null;
+  const submit = () =>
+    runUserAction(async () => {
+      const text = description.trim();
+      if (!text || pending) return;
+      setPending(true);
+      setFailure(null);
+      try {
+        const result = await draftCalculationAction({
+          typeId: store.typeId,
+          description: text,
+          ...(store.original ? { fieldId: store.original.id } : {}),
+        });
+        if (!result.ok) setFailure(t("RecordModel.calculationFlow.describe.unavailable"));
+        else if (!result.data.draft) setFailure(t("RecordModel.calculationFlow.describe.failed"));
+        else store.applyCalculationDraft(result.data.draft);
+      } finally {
+        setPending(false);
+      }
+    });
+  return (
+    <div className="space-y-1.5 pb-3" data-calculation-composer="">
+      <div className="relative">
+        <Input
+          aria-label={t("RecordModel.calculationFlow.describe.label")}
+          disabled={pending}
+          maxLength={CALCULATION_DRAFT_DESCRIPTION_LIMIT}
+          placeholder={t("RecordModel.calculationFlow.describe.placeholder")}
+          value={description}
+          onChange={(event) => setDescription(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key !== "Enter" || event.metaKey || event.ctrlKey) return;
+            event.preventDefault();
+            submit();
+          }}
+        />
+
+        {pending && (
+          <Spinner
+            aria-label={t("RecordModel.calculationFlow.describe.pending")}
+            className="absolute end-3 top-1/2 -translate-y-1/2"
+            size="sm"
+          />
+        )}
+      </div>
+
+      {failure && <p className="text-xs text-muted-foreground">{failure}</p>}
+    </div>
+  );
 }
 
 export const CalculationFlow = observer(function CalculationFlow({ store }: { store: FieldModalStore }) {
@@ -492,6 +554,8 @@ export const CalculationFlow = observer(function CalculationFlow({ store }: { st
 
   return (
     <section aria-label={t("RecordModel.fieldTabs.calculation")} className="min-w-0" data-calculation-flow={source}>
+      <CalculationComposer store={store} />
+
       {source === "formula" ? (
         <FormulaFlow
           disabled={disabled}
