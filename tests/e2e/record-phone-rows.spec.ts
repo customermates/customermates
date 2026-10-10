@@ -91,7 +91,12 @@ test("sub-list phone rows open the record on tap", async ({ page, companyId }) =
   expect(errors).toEqual([]);
 });
 
-test("the row action group sits on a solid surface on keyboard focus and on hover", async ({ page, companyId }) => {
+test("the row action group sits on a solid surface on keyboard focus and on hover", async ({
+  page,
+  companyId,
+  isMobile,
+}) => {
+  test.skip(isMobile, "The inline row action group is the desktop pointer layout; touch keeps the More actions menu");
   test.setTimeout(180000);
   const errors = trackErrors(page);
   const id = (key: string) => presetId(companyId, key);

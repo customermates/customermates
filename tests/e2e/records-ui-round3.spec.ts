@@ -129,7 +129,7 @@ test("rows and cards open the record page and keep only Open details and Delete 
   await page.waitForLoadState("networkidle");
   const errors = trackErrors(page);
 
-  const row = page.getByRole("row").filter({ has: page.getByRole("link", { name, exact: true }) });
+  const row = recordItem(page, name);
   expect(await rowActionLabels(page, row, name)).toEqual(["Open details", "Delete"]);
   await runRowAction(page, row, name, "Open details");
   await expect(page.getByRole("dialog")).toBeVisible();
@@ -202,7 +202,9 @@ test("record drawer Cancel closes clean forms and guards unsaved changes", async
 test("edits every field type inline in rows and on board cards, with validation, cancel and calculated tooltips", async ({
   page,
   companyId,
+  isMobile,
 }) => {
+  test.skip(isMobile, "Table cells edit in place on the desktop table; phone rows render no table cells");
   test.setTimeout(240000);
   await page.goto(`/en/records/${presetId(companyId, "contact")}`);
   const typeId = await createLabList(page, presetId(companyId, "contact"));
@@ -407,7 +409,9 @@ test("board cards show one chip row with icons, hide empty and grouped values an
 test("rows keep the row click on calculated values, toggle in selection mode and edit multi-value contacts from blank space", async ({
   page,
   companyId,
+  isMobile,
 }) => {
+  test.skip(isMobile, "Row selection and in-place cell editing belong to the desktop table; phone rows have neither");
   test.setTimeout(180000);
   await page.goto(`/en/records/${presetId(companyId, "contact")}`);
   const typeId = await createLabList(page, presetId(companyId, "contact"));
@@ -465,7 +469,9 @@ test("rows keep the row click on calculated values, toggle in selection mode and
 test("grouped tables show a quiet group band that adds into the group and hide the grouped column", async ({
   page,
   companyId,
+  isMobile,
 }) => {
+  test.skip(isMobile, "The group band with Add and the hidden grouped column belong to the desktop table");
   test.setTimeout(180000);
   await page.goto(`/en/records/${presetId(companyId, "contact")}`);
   const typeId = await createLabList(page, presetId(companyId, "contact"));

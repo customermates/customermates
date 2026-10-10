@@ -30,10 +30,12 @@ test("edits identity channels in the generic drawer and searches persisted chann
   expect(stored.rows[0].value).toBe("person@example.test");
   const recordId = stored.rows[0].recordId;
   await page.reload();
-  await expect(page.getByRole("columnheader", { name: /^Channels / })).toBeVisible();
-  await page.getByRole("button", { name: "Email", exact: true }).click();
-  await expect(page.getByRole("menu").getByText("person@example.test", { exact: true })).toBeVisible();
-  await page.keyboard.press("Escape");
+  if (!test.info().project.use.isMobile) {
+    await expect(page.getByRole("columnheader", { name: /^Channels / })).toBeVisible();
+    await page.getByRole("button", { name: "Email", exact: true }).click();
+    await expect(page.getByRole("menu").getByText("person@example.test", { exact: true })).toBeVisible();
+    await page.keyboard.press("Escape");
+  }
   await page.screenshot({
     path: testInfo.outputPath("record-identity-table.png"),
     animations: "disabled",

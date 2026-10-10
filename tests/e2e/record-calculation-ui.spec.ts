@@ -5,7 +5,7 @@ import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { openDrawerTab, addFromConfigure, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, saveDrawer, selectConfigureList } from "./configure";
 import { calculationChip, calculationFlow, chooseValueSource, pickOption } from "./calculation-flow";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
-import { openRecordDetails } from "./record-rows";
+import { openRecordDetails, openRecordLink } from "./record-rows";
 
 async function applyConfiguration(page: Page) {
   await saveDrawer(page);
@@ -195,7 +195,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
       await expect(dialog.getByRole("region", { name: "Line items", exact: true }).getByRole("button", { name, exact: true })).toBeVisible();
     }
     await expect.poll(catalogValues).toEqual({ "Calculated A/Catalog price": money("1000"), "Calculated B/Catalog price": money("200") });
-    await dialog.getByRole("region", { name: "Line items", exact: true }).getByRole("button", { name: "Calculated A", exact: true }).click();
+    await openRecordLink(dialog.getByRole("region", { name: "Line items", exact: true }).getByRole("button", { name: "Calculated A", exact: true }));
     await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
     const catalog = dialog.last().locator(`[data-entity-field="${catalogPriceId}"]`);
     const source = catalog.locator("p", { hasText: "From " });
