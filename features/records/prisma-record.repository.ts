@@ -1156,6 +1156,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     selections: RecordRelationshipSelection[],
     model: RecordModel,
     access: RecordAccessMap,
+    options: TrashReadOptions = {},
   ) {
     const summaries = new Map<string, RecordRelationshipSummary[]>(
       recordIds.map((id) => [
@@ -1169,7 +1170,15 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         })),
       ]),
     );
-    const sql = compileRecordRelationshipSummaries(this.companyId, typeId, recordIds, selections, model, access);
+    const sql = compileRecordRelationshipSummaries(
+      this.companyId,
+      typeId,
+      recordIds,
+      selections,
+      model,
+      access,
+      options.includeTrash,
+    );
     if (!sql) return summaries;
     const rows = await this.prisma.$queryRaw<RecordRelationshipRow[]>(sql);
     for (const row of rows) {

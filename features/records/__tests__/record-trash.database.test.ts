@@ -579,6 +579,31 @@ describeDatabase("record trash", () => {
     ]);
   }, 180_000);
 
+  it("reads a trashed record read only with its relationships from its trashed links", async () => {
+    const f = await fixture();
+    const { getGetTrashedRecordInteractor } = await import("@/core/di");
+    const deal = await f.created({
+      action: "create",
+      typeId: f.id("deal"),
+      fields: [{ fieldId: f.id("deal.name"), value: text("Read only") }],
+    });
+    const contact = await f.created({
+      action: "create",
+      typeId: f.id("contact"),
+      fields: [{ fieldId: f.id("contact.firstName"), value: text("Linked") }],
+      links: [{ relationId: f.id("deal.contacts"), direction: "incoming", record: deal }],
+    });
+    await f.remove(deal);
+    const trashed = await runWithTenant(f.admin, () => getGetTrashedRecordInteractor().invoke(deal));
+    if (!trashed.ok) throw new Error(JSON.stringify(trashed));
+    expect(trashed.data.permittedActions).toEqual([]);
+    expect(trashed.data.trash).toMatchObject({ canRestore: true, daysLeft: 30 });
+    const contacts = trashed.data.record?.relationships.find(
+      (summary) => summary.relationId === f.id("deal.contacts") && summary.direction === "outgoing",
+    );
+    expect(contacts?.records.map((record) => record.ref.recordId)).toEqual([contact.recordId]);
+  }, 180_000);
+
   it("blocks restoring a line item while its deal is in Trash", async () => {
     const f = await fixture();
     const deal = await f.created({

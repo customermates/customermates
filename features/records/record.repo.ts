@@ -183,6 +183,7 @@ export interface RecordRepo {
     selections: RecordRelationshipSelection[],
     model: RecordModel,
     access: RecordAccessMap,
+    options?: TrashReadOptions,
   ): Promise<Map<string, RecordRelationshipSummary[]>>;
   pathSummaries(
     typeId: string,
