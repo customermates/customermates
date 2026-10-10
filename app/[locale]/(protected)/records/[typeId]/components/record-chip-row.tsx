@@ -35,8 +35,8 @@ import {
   calculatedFieldLabel,
   canEditInline,
   hasInlineRelationshipEditor,
-  isCalculatedField,
 } from "./record-inline-field";
+import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { type RecordChipColumn, type RecordChipEntry, linkSummary, recordChipRowModel } from "./record-chip-row-model";
 
 function ChipLabel({ name, children }: { name?: string; children: ReactNode }) {
@@ -49,77 +49,69 @@ function ChipLabel({ name, children }: { name?: string; children: ReactNode }) {
   );
 }
 
-const PropertyChip = observer(function PropertyChip({
-  records,
+type ChipPresentation = Pick<RecordsStore["presentation"], "linkColors" | "linkIcons" | "model">;
+
+export const RecordPropertyChipView = observer(function RecordPropertyChipView({
+  presentation,
   record,
   entry,
-  onOpenRecord,
 }: {
-  records: RecordsStore;
+  presentation: ChipPresentation;
   record: RecordRow;
   entry: RecordChipEntry;
-  onOpenRecord: (ref: RecordRef) => void;
 }) {
   const t = useTranslations();
   const intl = useHydratedIntlStore();
   const { column, showName } = entry;
   const name = showName ? column.label : undefined;
-  const { linkColors, linkIcons } = records.presentation;
+  const { linkColors, linkIcons, model } = presentation;
   if (column.kind === "field") {
     const field = column.field;
     const result = record.fields.find((value) => value.fieldId === field.id)?.result;
     const icon = <RecordValueTypeIcon valueType={field.valueType} />;
-    let chip: ReactNode;
     if (result?.state === "value" && result.value.kind === "select") {
       const value = result.value.value;
       const option = field.options.find((candidate) => candidate.id === value);
-      chip = (
+      return (
         <AppChip startContent={icon} tooltip={field.label} variant={toChipColor(option?.color)}>
           <ChipLabel name={name}>{option?.label ?? t("RecordModel.unavailableOption")}</ChipLabel>
         </AppChip>
       );
-    } else if (result?.state === "value" && result.value.kind === "member") {
+    }
+    if (result?.state === "value" && result.value.kind === "member") {
       const memberId = result.value.value;
       const member = record.memberUsers.find((user) => user.id === memberId);
-      chip = (
+      return (
         <AppChip startContent={member ? <MemberAvatar member={member} /> : icon} tooltip={field.label}>
           <ChipLabel name={name}>{member ? memberName(member) : t("RecordModel.member")}</ChipLabel>
         </AppChip>
       );
-    } else if (result?.state === "value" && result.value.kind === "selectList") {
-      chip = (
+    }
+    if (result?.state === "value" && result.value.kind === "selectList") {
+      return (
         <span className="inline-flex max-w-full min-w-0 items-center gap-1">
           {icon}
 
           <RecordValue field={field} members={record.memberUsers} overflowMenu={false} result={result} />
         </span>
       );
-    } else if (result?.state === "value" && result.value.kind === "boolean") {
-      chip = (
+    }
+    if (result?.state === "value" && result.value.kind === "boolean") {
+      return (
         <AppChip startContent={icon} tooltip={field.label}>
           {field.label}
         </AppChip>
       );
-    } else {
-      chip = (
-        <AppChip
-          startContent={icon}
-          tooltip={
-            isCalculatedField(records, field) ? calculatedFieldLabel(field, records.presentation.model, t) : field.label
-          }
-        >
-          <ChipLabel name={name}>
-            <RecordValue compact field={field} members={record.memberUsers} result={result} />
-          </ChipLabel>
-        </AppChip>
-      );
     }
-    if (!canEditInline(records, record, field) || field.valueType === "boolean") return chip;
-    if (CONTACT_VALUE_TYPES.includes(field.valueType)) return chip;
     return (
-      <RecordInlineField field={field} record={record} records={records}>
-        {chip}
-      </RecordInlineField>
+      <AppChip
+        startContent={icon}
+        tooltip={isRecordFieldWritable(field) ? field.label : calculatedFieldLabel(field, model, t)}
+      >
+        <ChipLabel name={name}>
+          <RecordValue compact field={field} members={record.memberUsers} result={result} />
+        </ChipLabel>
+      </AppChip>
     );
   }
   if (column.kind === "relationship" || column.kind === "relationshipPath") {
@@ -127,7 +119,7 @@ const PropertyChip = observer(function PropertyChip({
     if (!summary?.records.length) return null;
     const first = summary.records[0];
     const typeId = first.ref.typeId;
-    const list = records.presentation.model.types.find((type) => type.id === typeId);
+    const list = model.types.find((type) => type.id === typeId);
     const title =
       first.title.state === "value" && first.title.value.kind === "text"
         ? first.title.value.value
@@ -135,7 +127,7 @@ const PropertyChip = observer(function PropertyChip({
           ? t("RecordModel.restricted")
           : t("RecordModel.record");
     const count = Math.max(summary.readableCount, summary.records.length);
-    const chip = (
+    return (
       <AppChip
         data-chip-id={count === 1 ? `${first.ref.typeId}:${first.ref.recordId}` : undefined}
         startContent={<RecordChipIcon icons={linkIcons} typeId={typeId} />}
@@ -144,20 +136,6 @@ const PropertyChip = observer(function PropertyChip({
       >
         <ChipLabel name={name}>{count === 1 ? title : `${count} ${list?.pluralLabel ?? column.label}`}</ChipLabel>
       </AppChip>
-    );
-    if (column.kind !== "relationship" || !hasInlineRelationshipEditor(records, record, column.relation)) return chip;
-    return (
-      <RecordInlineRelationship
-        direction={column.direction}
-        empty={false}
-        label={column.label}
-        record={record}
-        records={records}
-        relation={column.relation}
-        onOpenRecord={onOpenRecord}
-      >
-        {chip}
-      </RecordInlineRelationship>
     );
   }
   if (column.kind === "system" && column.id === "system:assignedTo") {
@@ -182,6 +160,47 @@ const PropertyChip = observer(function PropertyChip({
     );
   }
   return null;
+});
+
+const PropertyChip = observer(function PropertyChip({
+  records,
+  record,
+  entry,
+  onOpenRecord,
+}: {
+  records: RecordsStore;
+  record: RecordRow;
+  entry: RecordChipEntry;
+  onOpenRecord: (ref: RecordRef) => void;
+}) {
+  const { column } = entry;
+  const chip = <RecordPropertyChipView entry={entry} presentation={records.presentation} record={record} />;
+  if (column.kind === "field") {
+    const field = column.field;
+    if (!canEditInline(records, record, field) || field.valueType === "boolean") return chip;
+    if (CONTACT_VALUE_TYPES.includes(field.valueType)) return chip;
+    return (
+      <RecordInlineField field={field} record={record} records={records}>
+        {chip}
+      </RecordInlineField>
+    );
+  }
+  if (column.kind === "relationship" && hasInlineRelationshipEditor(records, record, column.relation)) {
+    return (
+      <RecordInlineRelationship
+        direction={column.direction}
+        empty={false}
+        label={column.label}
+        record={record}
+        records={records}
+        relation={column.relation}
+        onOpenRecord={onOpenRecord}
+      >
+        {chip}
+      </RecordInlineRelationship>
+    );
+  }
+  return chip;
 });
 
 function editableAddColumns(

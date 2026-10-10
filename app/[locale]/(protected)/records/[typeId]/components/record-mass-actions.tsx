@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
-import { ChevronDown, ChevronLeft, ChevronRight, Search, Trash2, X } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, Search, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { RecordFieldView } from "@/features/records/record-model.schema";
 import type { RecordsStore } from "./records.store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DataViewSelectionBar } from "@/components/data-view/data-view-selection-bar";
 import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRecordDeletion } from "./use-record-deletion";
@@ -52,7 +53,6 @@ export const RecordMassActions = observer(function RecordMassActions({ store }: 
     onPending: (id) => store.setBulkState(false, id),
     mutateMany: store.bulkMutation,
   });
-  if (!store.hasSelection || !store.supportsSelection) return null;
   const fields = store.fields.filter(isRecordFieldWritable);
   const active = fields.find((field) => field.id === activeId);
   const filtered = fields.filter((field) => field.label.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
@@ -63,32 +63,22 @@ export const RecordMassActions = observer(function RecordMassActions({ store }: 
   };
   const busy = store.isBulkMutating || Boolean(store.pendingBulkOperation);
   return (
-    <div
-      data-record-mass-actions
-      className="flex shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-b border-border bg-card px-4 py-2"
+    <DataViewSelectionBar
+      busy={busy}
+      data-record-mass-actions=""
+      status={
+        store.isSelectionScopeStale && (
+          <>
+            <span className="text-xs text-muted-foreground">{t("MassActions.scopeStale")}</span>
+
+            <Button disabled={busy} size="sm" type="button" variant="ghost" onClick={store.keepSelectionInView}>
+              {t("MassActions.keepInView")}
+            </Button>
+          </>
+        )
+      }
+      store={store}
     >
-      <span className="whitespace-nowrap text-sm font-medium">
-        {t("MassActions.selectedCount", { count: store.selectedCount })}
-      </span>
-
-      {store.selectedOffViewCount > 0 && (
-        <span className="whitespace-nowrap text-xs text-muted-foreground">
-          {t("MassActions.offView", { count: store.selectedOffViewCount })}
-        </span>
-      )}
-
-      {store.isSelectionScopeStale && (
-        <>
-          <span className="text-xs text-muted-foreground">{t("MassActions.scopeStale")}</span>
-
-          <Button disabled={busy} size="sm" type="button" variant="ghost" onClick={store.keepSelectionInView}>
-            {t("MassActions.keepInView")}
-          </Button>
-        </>
-      )}
-
-      <div className="grow" />
-
       {store.canRetryBulkRefresh && (
         <Button size="sm" type="button" variant="secondary" onClick={() => runUserAction(store.retryBulkRefresh)}>
           {t("ErrorCard.retry")}
@@ -185,17 +175,6 @@ export const RecordMassActions = observer(function RecordMassActions({ store }: 
           {t("MassActions.delete")}
         </Button>
       )}
-
-      <Button
-        aria-label={t("Common.actions.clear")}
-        disabled={busy}
-        size="icon-sm"
-        type="button"
-        variant="secondary"
-        onClick={store.clearSelection}
-      >
-        <X className="size-4" />
-      </Button>
-    </div>
+    </DataViewSelectionBar>
   );
 });

@@ -21,7 +21,7 @@ import {
   useRecordDetailLayout,
 } from "./record-detail-personalization";
 import { RecordDetailOverview } from "./record-detail-overview";
-import { RecordDetailSummary } from "./record-detail-summary";
+import { RecordDetailChipRow } from "./record-detail-chip-row";
 import { RecordEditorActions, RecordHeaderActions, RecordPageActions } from "./record-editor-actions";
 import { EntityDetailPanels, type EntityDetailPanelLayout } from "@/components/entity-detail/entity-detail-panels";
 import { useRecordEditorDeletion } from "./use-record-deletion";
@@ -193,7 +193,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
           }
           initialPanel={params.get("viewSurface") === SURFACE.entityTimeline ? "activities" : "details"}
           panelLayout={panelLayout}
-          summary={<RecordDetailSummary store={store} />}
+          summary={<RecordDetailChipRow className="px-4 pb-3" store={store} />}
         />
       </AppForm>
     );
@@ -226,7 +226,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
 
         {notices}
 
-        <RecordDetailSummary store={store} />
+        <RecordDetailChipRow className="shrink-0 px-6 pb-3" store={store} />
 
         <RecordDrawerSegments
           label={t("EntityDetail.overview")}

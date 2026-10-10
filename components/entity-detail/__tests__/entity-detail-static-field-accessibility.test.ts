@@ -81,6 +81,17 @@ describe("EntityDetailStaticField", () => {
     expect(markup).not.toContain("data-empty-value");
   });
 
+  it("uses the shared muted read-only field treatment without an input", () => {
+    const markup = renderField("€12,500");
+    const output = markup.match(/<[^>]*data-field-state="read-only"[^>]*>/)?.[0] ?? "";
+
+    expect(output).toContain("border-border");
+    expect(output).toContain("bg-background");
+    expect(output).not.toContain("bg-input-background");
+    expect(markup).toContain("select-text");
+    expect(markup).not.toContain("<input");
+  });
+
   it("omits the help action when no explanation is supplied", () => {
     const markup = renderField("€12,500");
 

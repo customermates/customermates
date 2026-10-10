@@ -2,8 +2,10 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { FormEvent } from "react";
 
 import type { ConfirmationSentence } from "./confirmation-sentence";
+import type { MovedToTrash } from "@/features/trash/moved-to-trash";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
+import { isMovedToTrash } from "@/features/trash/moved-to-trash";
 
 export interface DeleteConfirmationData {
   title: string;
@@ -16,7 +18,8 @@ export interface DeleteConfirmationData {
   confirmationText?: string;
   successKey?: string;
   focusAfterConfirm?: () => boolean;
-  onConfirm: () => Promise<boolean>;
+  onConfirm: () => Promise<boolean | MovedToTrash>;
+  onRestored?: () => unknown;
 }
 
 export class DeleteConfirmationModalStore extends BaseModalStore<DeleteConfirmationData> {
@@ -58,7 +61,8 @@ export class DeleteConfirmationModalStore extends BaseModalStore<DeleteConfirmat
       const confirmed = await form.onConfirm();
       if (!confirmed || !isCurrent()) return;
 
-      this.toastSuccess(form.successKey ?? "Common.notifications.deleted");
+      if (isMovedToTrash(confirmed)) this.rootStore.trashStore.announceMovedToTrash(confirmed, form.onRestored);
+      else this.toastSuccess(form.successKey ?? "Common.notifications.deleted");
       this.close();
       if (form.focusAfterConfirm)
         this.confirmedFocusReturn = { generation: this.sessionGeneration, form, focus: form.focusAfterConfirm };

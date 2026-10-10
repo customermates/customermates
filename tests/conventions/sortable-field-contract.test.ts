@@ -10,6 +10,7 @@ const read = (path: string) => readFileSync(join(REPO_ROOT, path), "utf8");
 
 const STORE_REPOSITORY: Record<string, string> = {
   "app/[locale]/(protected)/routines/components/routines.store.ts": "ee/routines/prisma-routine.repository.ts",
+  "app/[locale]/(protected)/trash/components/trash.store.ts": "features/trash/prisma-trash.repository.ts",
   "app/[locale]/(protected)/settings/(workspace)/components/user/users.store.ts": "features/user/prisma-user.repository.ts",
   "app/[locale]/(protected)/settings/(workspace)/components/role/roles.store.tsx": "features/role/prisma-role.repository.ts",
   "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhooks.store.ts":
@@ -25,6 +26,8 @@ const STORE_REPOSITORY: Record<string, string> = {
 };
 
 const COLUMN_HOOK_STORE: Record<string, string> = {
+  "app/[locale]/(protected)/trash/components/use-trash-columns.tsx":
+    "app/[locale]/(protected)/trash/components/trash.store.ts",
   "app/[locale]/(protected)/routines/components/use-routine-columns.tsx":
     "app/[locale]/(protected)/routines/components/routines.store.ts",
   "app/[locale]/(protected)/settings/(workspace)/components/user/use-member-columns.tsx":
@@ -45,6 +48,7 @@ const COLUMN_HOOK_STORE: Record<string, string> = {
 
 const REPOSITORY_MODEL: Record<string, string> = {
   "ee/routines/prisma-routine.repository.ts": "Routine",
+  "features/trash/prisma-trash.repository.ts": "TrashItem",
   "features/user/prisma-user.repository.ts": "User",
   "features/role/prisma-role.repository.ts": "UserRole",
   "features/webhook/prisma-webhook.repository.ts": "Webhook",
@@ -55,7 +59,6 @@ const REPOSITORY_MODEL: Record<string, string> = {
   "ee/messaging/persistence/prisma-messaging.repository.ts": "MessagingThread",
   "ee/calendar/prisma-calendar.repository.ts": "Calendar",
   "ee/calendar/prisma-calendar-events.repository.ts": "CalendarEvent",
-  "features/trash/prisma-trash.repository.ts": "TrashItem",
 };
 
 const COMPUTED_SORT_REPOSITORIES: string[] = [];

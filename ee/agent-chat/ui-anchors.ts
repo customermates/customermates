@@ -39,6 +39,7 @@ export const TOOLBAR_PAGES_WITH_ADD: AnchorPage[] = [
 ];
 
 export const TOOLBAR_PAGES_WITHOUT_ADD: AnchorPage[] = [
+  { scope: "trash", route: "/trash", label: "trash" },
   {
     scope: "settings-webhook-deliveries",
     route: WEBHOOK_DELIVERIES_HREF,
@@ -446,6 +447,12 @@ export const PRIMARY_NAV_PAGES: PrimaryNavPage[] = [
     labelKeys: ["NavigationBar.routines"],
     resource: Resource.routines,
     cloudOnly: true,
+  },
+  {
+    key: "trash",
+    route: "/trash",
+    description: "Sidebar link to Trash, where deleted items wait 30 days and can be restored or deleted permanently",
+    labelKeys: ["NavigationBar.trash"],
   },
 ];
 
