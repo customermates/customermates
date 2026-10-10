@@ -60,7 +60,11 @@ import {
 } from "./data-view-geometry";
 import { useGroupLabel, visibleGroups } from "./group-label";
 import { GroupSummaries } from "./group-summaries";
-import { kanbanKeyboardCoordinates, kanbanManualKeyboardCoordinates } from "./kanban-keyboard-coordinates";
+import {
+  dropTargetGroupKey,
+  kanbanKeyboardCoordinates,
+  kanbanManualKeyboardCoordinates,
+} from "./kanban-keyboard-coordinates";
 
 type HasCustomFieldValues = HasId & {
   customFieldValues?: Array<{ columnId: string; value: unknown }>;
@@ -614,8 +618,8 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   const dragged = drag ? itemsById.get(drag.itemId) : undefined;
   const loadMoreLabel = t("Common.actions.loadMore");
   const overflow = store.groupingResult?.overflow;
-  const destinationLabel = (id: string | number) => {
-    const group = groups.find((group) => group.key === String(id));
+  const destinationLabel = (over: Over) => {
+    const group = groups.find((group) => group.key === dropTargetGroupKey(over));
     return group ? groupLabel(group) : t("Common.inputs.unavailableSelection");
   };
 
@@ -630,13 +634,13 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
           onDragOver: ({ over }) =>
             over
               ? t("DataView.boardMoveTarget", {
-                  group: destinationLabel(over.id),
+                  group: destinationLabel(over),
                 })
               : undefined,
           onDragEnd: ({ over }) =>
             over
               ? t("DataView.boardMoveRequested", {
-                  group: destinationLabel(over.id),
+                  group: destinationLabel(over),
                 })
               : t("DataView.boardMoveCancelled"),
           onDragCancel: () => t("DataView.boardMoveCancelled"),
