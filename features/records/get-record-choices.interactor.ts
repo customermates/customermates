@@ -96,7 +96,7 @@ export class GetRecordChoicesInteractor extends AuthenticatedInteractor<RecordCh
         const result = await this.query.invoke(
           RecordQuerySchema.parse({
             typeId: type.id,
-            fields: [type.primaryFieldId],
+            fields: type.primaryFieldId ? [type.primaryFieldId] : [],
             search: input.search,
             page: input.page,
             pageSize: input.pageSize,

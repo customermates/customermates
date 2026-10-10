@@ -28,6 +28,7 @@ const presentation = {
   model,
   linkColors: {},
   linkIcons: {},
+  linkLabels: {},
   typeId: id("deal"),
   canManageSchema: true,
   permittedActions: ["readAll", "update"],
