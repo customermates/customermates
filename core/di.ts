@@ -11,6 +11,7 @@ import { CheckRecordIdentityInteractor } from "@/features/records/check-record-i
 import { GetIdentityRecordChoicesInteractor } from "@/features/records/get-identity-record-choices.interactor";
 import { GetRecordNavigationInteractor } from "@/features/records/get-record-navigation.interactor";
 import { GetCommandCatalogInteractor } from "@/features/command-palette/get-command-catalog.interactor";
+import { ResolveCommandInteractor } from "@/ee/command-resolver/resolve-command.interactor";
 import { PrismaSearchCatalogRepo } from "@/features/command-palette/prisma-search-catalog.repository";
 import { SearchCommandCatalogInteractor } from "@/features/command-palette/search-command-catalog.interactor";
 import { SearchCatalogIndexDispatcher } from "@/ee/wiki-retrieval/search-catalog-index-dispatcher";
@@ -448,6 +449,15 @@ export const getGetRecordActivitiesInteractor = () =>
 export const getGetIdentityRecordChoicesInteractor = () =>
   new GetIdentityRecordChoicesInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getRecordIdentityReader = () => new RecordIdentityReader(getRecordRepo(), getRecordAccessPolicy());
+export const getResolveCommandInteractor = () =>
+  new ResolveCommandInteractor(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getDataViewRepo(),
+    getAgentUsageService(),
+    getEntitlementService(),
+  );
+
 export const getGetCommandCatalogInteractor = () =>
   new GetCommandCatalogInteractor(getRecordRepo(), getRecordAccessPolicy(), getDataViewRepo());
 

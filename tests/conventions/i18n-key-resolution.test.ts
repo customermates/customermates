@@ -892,6 +892,8 @@ export const DYNAMIC_KEY_SITES = [
 ];
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
+  ["ee/command-resolver/resolve-command.interactor.ts :: t :: command.labelKey", 1],
+  ["ee/command-resolver/resolve-command.interactor.ts :: t :: parent.labelKey", 1],
   ["app/components/global-search-modal.tsx :: t :: key", 1],
   ["app/components/command-palette/palette-entries.ts :: t :: entry.labelKey", 1],
   ["app/components/command-palette/palette-entries.ts :: t :: parent.labelKey", 1],

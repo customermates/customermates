@@ -181,7 +181,8 @@ export async function addChannelsField(page: Page, typeId: string) {
 }
 
 export async function followConfigureLink(page: Page) {
-  await page.getByRole("link", { name: "Configure", exact: true }).and(page.locator("#records-configure")).click();
+  await page.locator("#records-more").click();
+  await page.getByRole("menuitem", { name: /^Configure / }).and(page.locator("#records-configure")).click();
   await expect(page).toHaveURL(/\/en\/configure\?typeId=[a-f0-9-]+$/);
   await expect(page.locator("[data-configure-list-pane]")).toBeVisible();
 }
