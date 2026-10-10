@@ -51,7 +51,9 @@ export const RecordEditorField = observer(function RecordEditorField({
     ) : null;
   if (restricted || !isRecordFieldWritable(field)) {
     if (!store.record) return null;
-    const source = restricted ? null : recordValueSource({ model: store.presentation.model, field, t, locale: intl.formattingLocale });
+    const source = restricted
+      ? null
+      : recordValueSource({ model: store.presentation.model, field, t, locale: intl.formattingLocale });
     const lookup = source?.lookup;
     const linked = lookup
       ? store.record.relationships.find(
