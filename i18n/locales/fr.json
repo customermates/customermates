@@ -4105,6 +4105,7 @@
     },
     "movedToTrash": "Déplacé dans la corbeille",
     "movesToTrash": "Il est déplacé dans la corbeille, où vous pouvez le restaurer pendant 30 jours.",
+    "moving": "{count, plural, one {Déplacement de # élément dans la corbeille…} other {Déplacement de # éléments dans la corbeille…}}",
     "permanentIrreversible": "Cette action est irréversible.",
     "permanentMessage": "{count, plural, one {Cet élément est supprimé} other {Ces # éléments sont supprimés}} définitivement.",
     "permanentRecords": "{list} : {count, plural, one {# enregistrement} other {# enregistrements}}",
@@ -4119,7 +4120,7 @@
     "restored": "{count, plural, one {# élément restauré} other {# éléments restaurés}}",
     "restoredInBackground": "Restauré",
     "restoredWithDroppedLinks": "Restauré. {count, plural, one {# lien n'a pas pu} other {# liens n'ont pas pu}} être restauré(s) car l'enregistrement lié a été supprimé définitivement.",
-    "restorePending": "Restauration en arrière-plan. La corbeille affiche la progression.",
+    "restoring": "Restauration…",
     "undo": "Annuler"
   },
   "TrialExpiredOffer": {

@@ -4105,6 +4105,7 @@
     },
     "movedToTrash": "In den Papierkorb verschoben",
     "movesToTrash": "Es wird in den Papierkorb verschoben und kann dort 30 Tage lang wiederhergestellt werden.",
+    "moving": "{count, plural, one {# Element wird in den Papierkorb verschoben…} other {# Elemente werden in den Papierkorb verschoben…}}",
     "permanentIrreversible": "Das kann nicht rückgängig gemacht werden.",
     "permanentMessage": "{count, plural, one {Dieses Element wird} other {Diese # Elemente werden}} endgültig gelöscht.",
     "permanentRecords": "{list}: {count, plural, one {# Datensatz} other {# Datensätze}}",
@@ -4119,7 +4120,7 @@
     "restored": "{count, plural, one {# Element wiederhergestellt} other {# Elemente wiederhergestellt}}",
     "restoredInBackground": "Wiederhergestellt",
     "restoredWithDroppedLinks": "Wiederhergestellt. {count, plural, one {# Verknüpfung konnte} other {# Verknüpfungen konnten}} nicht wiederhergestellt werden, weil der verknüpfte Datensatz endgültig gelöscht wurde.",
-    "restorePending": "Wird im Hintergrund wiederhergestellt. Der Papierkorb zeigt den Fortschritt.",
+    "restoring": "Wird wiederhergestellt…",
     "undo": "Rückgängig"
   },
   "TrialExpiredOffer": {
