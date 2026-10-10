@@ -29,6 +29,12 @@ Search also matches by meaning and across languages: "Sprache" finds **Display L
 
 Search matches by meaning only when nothing matches by name: when no page, setting, action, list or view is a clear **Best match** and no record matches your words. Only then does an embedding model run by Google through the Vercel AI Gateway receive your search text, using a small amount of your AI credits. It also receives the names of the pages, settings, actions, lists, views and fields of your workspace, sent again only when they change, never the content of records. If the service is slow or unavailable, search shows the matches by name right away. Without AI, for example on a self-hosted installation, search matches by name only.
 
+## How do I open a filtered list by describing it? [#how-do-i-describe-what-to-open]
+
+When no result is a clear match, the first row reads **Go to “…”** with your words. Press Enter and a small AI model turns the request into one place: a list with filters, one of its views, a page, a setting or an action. For example, "won deals closing this month" opens [Deals](app:records/deal) showing only won deals that close this month. The filters are not saved: the view shows as changed, and **Save** or **Reset** in [Filters](app:records/deal?focus=filter) keeps or discards them. If the request fits nothing, it goes to [Mate](/docs/app-assistant) instead.
+
+The model receives your words and the names of your lists, views, fields and choices, never the content of records, and it uses a small amount of your AI credits. It never signs you out or changes, assigns or deletes a record; those actions stay in the search results.
+
 ## For agents [#which-stable-ids-does-it-have]
 
 Mate can point at **Search** in the sidebar but cannot open the search box or type into it. For filtered, sorted or aggregated lookups, use the record query tools instead of global search.
