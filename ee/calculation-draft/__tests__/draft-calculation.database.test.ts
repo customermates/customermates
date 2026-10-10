@@ -195,6 +195,7 @@ describeDatabase("Calculation draft", { timeout: 240_000 }, () => {
       const current = await repo.getModel();
       const archived = {
         ...current,
+        revision: current.revision + 1,
         types: current.types.map((type) => (type.id === id("organization") ? { ...type, archived: true } : type)),
       };
       await runInTransaction(() => repo.saveModel(archived, actors.admin.id), { timeout: 30_000 });
