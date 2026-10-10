@@ -1464,7 +1464,8 @@
     "sort": {
       "ascending": "Croissant",
       "descending": "Décroissant",
-      "field": "Trier par"
+      "field": "Trier par",
+      "manual": "Manuel"
     },
     "stageProbability": "Probabilité de l'étape",
     "systemTasks": {
