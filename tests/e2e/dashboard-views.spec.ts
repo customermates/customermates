@@ -40,7 +40,7 @@ test("keeps separate widget sets per dashboard view and targets a view through t
   await expect(rail.getByText("Site Berlin", { exact: true })).toBeVisible();
 
   await page.locator("#dashboard-add-widget").click();
-  await dialog.locator('[id^="widget-gallery-"][data-slot="widget-chooser-card"]').first().click();
+  await dialog.locator("#widget-starter-number").click();
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Berlin starter");
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).toHaveCount(0);

@@ -49340,6 +49340,20 @@
                           "week",
                           "month"
                         ]
+                      },
+                      "hidden": {
+                        "description": "Group keys the board hides (value:<optionId> or __empty__); Display options lists them to show again.",
+                        "maxItems": 50,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 256
+                        }
+                      },
+                      "hideEmpty": {
+                        "description": "The board hides columns without records.",
+                        "type": "boolean"
                       }
                     },
                     "required": [
@@ -50830,6 +50844,20 @@
                                 "week",
                                 "month"
                               ]
+                            },
+                            "hidden": {
+                              "description": "Group keys the board hides (value:<optionId> or __empty__); Display options lists them to show again.",
+                              "maxItems": 50,
+                              "type": "array",
+                              "items": {
+                                "type": "string",
+                                "minLength": 1,
+                                "maxLength": 256
+                              }
+                            },
+                            "hideEmpty": {
+                              "description": "The board hides columns without records.",
+                              "type": "boolean"
                             }
                           },
                           "required": [
