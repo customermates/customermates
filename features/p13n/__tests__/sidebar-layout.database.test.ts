@@ -1,6 +1,7 @@
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
 
 import { Client } from "pg";
 import { createTranslator } from "next-intl";
@@ -44,9 +45,11 @@ describeDatabase("personal sidebar layout in P13n settings", () => {
   const read = (userId: string, p13nId = "sidebar") =>
     runWithTenant(tenant(userId), async () => (await new GetP13nInteractor(repo).invoke({ p13nId })).data);
   const layout = {
-    sections: [
+    entries: [
+      { item: "trash" },
       { id: "custom:sales", name: "Sales", items: ["records:a", "inbox"] },
-      { id: "overview", items: ["dashboard"], collapsed: true },
+      { id: "overview", name: "Home", items: ["dashboard"], collapsed: true },
+      { item: "records:b" },
     ],
     hidden: ["routines"],
   };
@@ -89,21 +92,53 @@ describeDatabase("personal sidebar layout in P13n settings", () => {
 
   it("refuses invalid layouts and settings for other surfaces", async () => {
     const invalid = [
-      { p13nId: "sidebar", settings: { sections: [{ id: "custom:x", items: [] }], hidden: [] } },
+      { p13nId: "sidebar", settings: { entries: [{ id: "custom:x", items: [] }], hidden: [] } },
       {
         p13nId: "sidebar",
-        settings: {
-          sections: [
-            { id: "overview", items: ["inbox"] },
-            { id: "data", items: ["inbox"] },
-          ],
-          hidden: [],
-        },
+        settings: { entries: [{ item: "inbox" }, { id: "data", items: ["inbox"] }], hidden: [] },
       },
+      { p13nId: "sidebar", settings: { sections: [{ id: "overview", items: ["inbox"] }], hidden: [] } },
       { p13nId: "contact-detail", settings: layout },
     ];
     for (const data of invalid) await expect(upsert(secondUserId, data)).rejects.toThrow();
     expect(await read(secondUserId)).toBeUndefined();
+  });
+
+  it("converts a stored layout from the section-only format and drops the retired built-in sections", async () => {
+    await client.query(
+      'INSERT INTO "P13n" ("id", "userId", "companyId", "p13nId", "settings", "updatedAt") VALUES ($1, $2, $3, $4, $5, CURRENT_TIMESTAMP)',
+      [
+        randomUUID(),
+        secondUserId,
+        companyId,
+        "sidebar",
+        JSON.stringify({
+          sections: [
+            { id: "data", items: ["records:a"] },
+            { id: "workspace", items: ["profile"] },
+            { id: "custom:pinned", name: "Pinned", items: ["inbox"], collapsed: true },
+            { id: "admin", items: ["operator"] },
+            { id: "overview", items: ["dashboard"] },
+          ],
+          hidden: ["wiki"],
+        }),
+      ],
+    );
+    await client.query(
+      readFileSync("prisma/migrations/20261010000000_sidebar_entries/migration.sql", "utf8").replace(
+        `WHERE "p13nId" = 'sidebar'`,
+        `WHERE "companyId" = '${companyId}' AND "p13nId" = 'sidebar'`,
+      ),
+    );
+    expect((await read(secondUserId))?.settings).toEqual({
+      entries: [
+        { id: "data", items: ["records:a"] },
+        { id: "custom:pinned", name: "Pinned", items: ["inbox"], collapsed: true },
+        { id: "overview", items: ["dashboard"] },
+      ],
+      hidden: ["wiki"],
+    });
+    await client.query('DELETE FROM "P13n" WHERE "companyId" = $1 AND "userId" = $2', [companyId, secondUserId]);
   });
 
   it("stores the keyboard preference per person and only in its own settings shape", async () => {

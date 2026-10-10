@@ -2,7 +2,7 @@
 
 import type { DragEndEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core";
 import type { NavGroup, NavItem } from "./nav-main";
-import type { ResolvedSidebar } from "./sidebar-layout";
+import type { ResolvedSidebar, SidebarContainer, SidebarEntry } from "./sidebar-layout";
 
 import { closestCenter, DndContext, MouseSensor, useDroppable, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -45,14 +45,16 @@ import { NavLinkPendingIcon } from "./nav-link-pending-icon";
 import {
   CUSTOM_SECTION_PREFIX,
   addSidebarSection,
-  isCustomSection,
+  containerOf,
+  entryKey,
   moveSidebarItem,
   removeSidebarSection,
   resolveSidebar,
-  sectionOfItem,
+  sectionsOf,
   setSidebarItemHidden,
+  shiftSidebarEntry,
   shiftSidebarItem,
-  shiftSidebarSection,
+  sidebarDefaults,
   sidebarLayoutOf,
   updateSidebarSection,
 } from "./sidebar-layout";
@@ -67,14 +69,10 @@ type Props = {
 
 const SECTION_DROP_PREFIX = "section:";
 
-function defaultSections(groups: NavGroup[]) {
-  return groups.map((group) => ({ id: group.key, items: group.items.map((item) => item.key) }));
-}
-
 export function useResolvedSidebar(groups: NavGroup[]) {
   const { sidebarLayoutStore } = useRootStore();
   const layout = sidebarLayoutStore.layout;
-  return useMemo(() => resolveSidebar(defaultSections(groups), layout), [groups, layout]);
+  return useMemo(() => resolveSidebar(sidebarDefaults(groups), layout), [groups, layout]);
 }
 
 export function useDeleteSidebarSection(groups: NavGroup[]) {
@@ -82,19 +80,16 @@ export function useDeleteSidebarSection(groups: NavGroup[]) {
   const { sidebarLayoutStore } = useRootStore();
   const { showConfirmation } = useDeleteConfirmation();
   const titles = new Map(groups.flatMap((group) => group.items.map((item) => [item.key, item.title])));
-  const homes = new Map(groups.flatMap((group) => group.items.map((item) => [item.key, group.label])));
 
   return (sectionId: string, label: string) => {
-    const current = () => resolveSidebar(defaultSections(groups), sidebarLayoutStore.layout);
-    const moving = (current().sections.find((section) => section.id === sectionId)?.items ?? []).filter((item) =>
+    const current = () => resolveSidebar(sidebarDefaults(groups), sidebarLayoutStore.layout);
+    const moving = (sectionsOf(current()).find((section) => section.id === sectionId)?.items ?? []).filter((item) =>
       titles.has(item),
     );
     showConfirmation({
       title: t("SidebarCustomize.deleteSectionTitle", { section: label }),
       message: moving.length > 0 ? t("SidebarCustomize.deleteSectionMoves") : t("SidebarCustomize.deleteSectionEmpty"),
-      details: moving.map((item) =>
-        t("SidebarCustomize.movesBackTo", { item: titles.get(item) ?? item, section: homes.get(item) ?? "" }),
-      ),
+      details: moving.map((item) => titles.get(item) ?? item),
       confirmLabel: t("SidebarCustomize.deleteSection"),
       successKey: "SidebarCustomize.sectionDeleted",
       onConfirm: () => sidebarLayoutStore.save(sidebarLayoutOf(removeSidebarSection(current(), sectionId))),
@@ -119,20 +114,32 @@ export function sectionLabel(groups: NavGroup[], section: { id: string; name: st
 }
 
 export function createSidebarSection(resolved: ResolvedSidebar, baseName: string, item?: string) {
-  const taken = new Set(resolved.sections.map((section) => section.name?.toLocaleLowerCase()));
+  const taken = new Set(sectionsOf(resolved).map((section) => section.name?.toLocaleLowerCase()));
   let name = baseName;
   for (let index = 2; taken.has(name.toLocaleLowerCase()); index += 1) name = `${baseName} ${index}`;
   const id = `${CUSTOM_SECTION_PREFIX}${crypto.randomUUID()}`;
-  const after = item ? (sectionOfItem(resolved, item)?.id ?? "data") : "data";
+  const container = item ? containerOf(resolved, item) : undefined;
+  const after =
+    item && container !== undefined ? (container === null ? item : SECTION_DROP_PREFIX + container) : undefined;
   const next = addSidebarSection(resolved, id, name, after);
   return { id, resolved: item ? moveSidebarItem(next, item, id) : next };
+}
+
+export type MoveTarget = { id: SidebarContainer; label: string };
+
+export function moveTargets(groups: NavGroup[], resolved: ResolvedSidebar, topLevelLabel: string): MoveTarget[] {
+  return [
+    { id: null, label: topLevelLabel },
+    ...sectionsOf(resolved).map((section) => ({ id: section.id, label: sectionLabel(groups, section) })),
+  ];
 }
 
 type ItemProps = {
   item: NavItem;
   customizable: boolean;
   resolved: ResolvedSidebar;
-  sectionNames: Array<{ id: string; label: string }>;
+  targets: MoveTarget[];
+  isShown: (item: string) => boolean;
   isActive: boolean;
   open: boolean;
   pathname: string | null;
@@ -143,11 +150,23 @@ type ItemProps = {
   dropsClick: () => boolean;
 };
 
+export function itemPosition(resolved: ResolvedSidebar, item: string, isShown: (item: string) => boolean) {
+  const container = containerOf(resolved, item);
+  const siblings =
+    container === null
+      ? resolved.entries.map(entryKey)
+      : (sectionsOf(resolved).find((section) => section.id === container)?.items ?? []);
+  const visible = siblings.filter((candidate) => candidate === item || isShown(candidate));
+  const index = visible.indexOf(item);
+  return { container, canMoveUp: index > 0, canMoveDown: index >= 0 && index < visible.length - 1 };
+}
+
 function SortableNavItem({
   item,
   customizable,
   resolved,
-  sectionNames,
+  targets,
+  isShown,
   isActive,
   open,
   pathname,
@@ -159,9 +178,7 @@ function SortableNavItem({
 }: ItemProps) {
   const t = useTranslations();
   const sortable = useSortable({ id: item.key, disabled: !customizable });
-  const section = sectionOfItem(resolved, item.key);
-  const visible = section?.items.filter((candidate) => !resolved.hidden.has(candidate)) ?? [];
-  const index = visible.indexOf(item.key);
+  const position = itemPosition(resolved, item.key, isShown);
   const contextMenu = useContextMenu();
   const itemProps = {
     ref: sortable.setNodeRef,
@@ -184,13 +201,16 @@ function SortableNavItem({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="start" side="right">
-        <DropdownMenuItem disabled={index <= 0} onSelect={() => onChange(shiftSidebarItem(resolved, item.key, -1))}>
+        <DropdownMenuItem
+          disabled={!position.canMoveUp}
+          onSelect={() => onChange(shiftSidebarItem(resolved, item.key, -1, isShown))}
+        >
           {t("SidebarCustomize.moveUp")}
         </DropdownMenuItem>
 
         <DropdownMenuItem
-          disabled={index < 0 || index >= visible.length - 1}
-          onSelect={() => onChange(shiftSidebarItem(resolved, item.key, 1))}
+          disabled={!position.canMoveDown}
+          onSelect={() => onChange(shiftSidebarItem(resolved, item.key, 1, isShown))}
         >
           {t("SidebarCustomize.moveDown")}
         </DropdownMenuItem>
@@ -199,11 +219,11 @@ function SortableNavItem({
           <DropdownMenuSubTrigger>{t("SidebarCustomize.moveToSection")}</DropdownMenuSubTrigger>
 
           <DropdownMenuSubContent>
-            {sectionNames
-              .filter((candidate) => candidate.id !== section?.id)
+            {targets
+              .filter((candidate) => candidate.id !== position.container)
               .map((candidate) => (
                 <DropdownMenuItem
-                  key={candidate.id}
+                  key={candidate.id ?? ""}
                   onSelect={() => onChange(moveSidebarItem(resolved, item.key, candidate.id))}
                 >
                   <span className="truncate">{candidate.label}</span>
@@ -297,14 +317,10 @@ function SectionNameInput({ initial, onDone }: { initial: string; onDone: (name:
 type SectionProps = {
   id: string;
   customizable: boolean;
-  shown: ReadonlySet<string>;
+  isShown: (key: string) => boolean;
   label: string;
-  index: number;
-  count: number;
-  custom: boolean;
   collapsed: boolean;
   editing: boolean;
-  empty: boolean;
   resolved: ResolvedSidebar;
   children: React.ReactNode;
   onChange: (next: ResolvedSidebar) => void;
@@ -312,17 +328,19 @@ type SectionProps = {
   onDelete: () => void;
 };
 
+export function entryPosition(resolved: ResolvedSidebar, key: string, isShown: (key: string) => boolean) {
+  const visible = resolved.entries.map(entryKey).filter((candidate) => candidate === key || isShown(candidate));
+  const index = visible.indexOf(key);
+  return { canMoveUp: index > 0, canMoveDown: index >= 0 && index < visible.length - 1 };
+}
+
 function NavSection({
   id,
   customizable,
-  shown,
+  isShown,
   label,
-  index,
-  count,
-  custom,
   collapsed,
   editing,
-  empty,
   resolved,
   children,
   onChange,
@@ -332,6 +350,8 @@ function NavSection({
   const t = useTranslations();
   const droppable = useDroppable({ id: SECTION_DROP_PREFIX + id });
   const contextMenu = useContextMenu();
+  const key = SECTION_DROP_PREFIX + id;
+  const position = entryPosition(resolved, key, isShown);
 
   return (
     <SidebarGroup data-sidebar-section={id} data-sidebar-section-label={label}>
@@ -382,50 +402,54 @@ function NavSection({
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align="start" side="right">
-            {custom && (
-              <DropdownMenuItem onSelect={() => onEdit(true)}>{t("SidebarCustomize.rename")}</DropdownMenuItem>
-            )}
+            <DropdownMenuItem onSelect={() => onEdit(true)}>{t("SidebarCustomize.rename")}</DropdownMenuItem>
 
             <DropdownMenuItem
-              disabled={index === 0}
-              onSelect={() => onChange(shiftSidebarSection(resolved, id, -1, shown))}
+              disabled={!position.canMoveUp}
+              onSelect={() => onChange(shiftSidebarEntry(resolved, key, -1, isShown))}
             >
               {t("SidebarCustomize.moveUp")}
             </DropdownMenuItem>
 
             <DropdownMenuItem
-              disabled={index === count - 1}
-              onSelect={() => onChange(shiftSidebarSection(resolved, id, 1, shown))}
+              disabled={!position.canMoveDown}
+              onSelect={() => onChange(shiftSidebarEntry(resolved, key, 1, isShown))}
             >
               {t("SidebarCustomize.moveDown")}
             </DropdownMenuItem>
 
-            {custom && (
-              <>
-                <DropdownMenuSeparator />
+            <DropdownMenuSeparator />
 
-                <DropdownMenuItem variant="destructive" onSelect={onDelete}>
-                  {t("SidebarCustomize.deleteSection")}
-                </DropdownMenuItem>
-              </>
-            )}
+            <DropdownMenuItem variant="destructive" onSelect={onDelete}>
+              {t("SidebarCustomize.deleteSection")}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )}
 
       <SidebarGroupContent className={cn(collapsed && "hidden group-data-[collapsible=icon]:block")}>
-        <SidebarMenu>
-          {children}
-
-          {empty && (
-            <li className="px-2 py-1 text-xs text-sidebar-foreground/50 group-data-[collapsible=icon]:hidden">
-              {t("SidebarCustomize.emptySection")}
-            </li>
-          )}
-        </SidebarMenu>
+        <SidebarMenu>{children}</SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
   );
+}
+
+type Run =
+  | { kind: "items"; key: string; items: string[] }
+  | { kind: "section"; entry: SidebarEntry & { kind: "section" } };
+
+function runsOf(entries: SidebarEntry[]): Run[] {
+  const runs: Run[] = [];
+  for (const entry of entries) {
+    if (entry.kind === "section") {
+      runs.push({ kind: "section", entry });
+      continue;
+    }
+    const last = runs.at(-1);
+    if (last?.kind === "items") last.items.push(entry.id);
+    else runs.push({ kind: "items", key: `items:${entry.id}`, items: [entry.id] });
+  }
+  return runs;
 }
 
 export const NavSections = observer(({ groups, customizable, selectedKey, pathname, onNavigate }: Props) => {
@@ -436,7 +460,7 @@ export const NavSections = observer(({ groups, customizable, selectedKey, pathna
   const { editingSection, setEditingSection } = sidebarLayoutStore;
   const deleteSection = useDeleteSidebarSection(groups);
   const dropClickUntil = useRef(0);
-  const resolved = customizable ? (dragging ?? stored) : resolveSidebar(defaultSections(groups), null);
+  const resolved = customizable ? (dragging ?? stored) : resolveSidebar(sidebarDefaults(groups), null);
   const items = useMemo(
     () => new Map(groups.flatMap((group) => group.items.map((item) => [item.key, item]))),
     [groups],
@@ -454,11 +478,17 @@ export const NavSections = observer(({ groups, customizable, selectedKey, pathna
     if (activeParentKey) setOpenKey(activeParentKey);
   }, [activeParentKey]);
 
-  const visibleItems = (sectionId: string) =>
-    (resolved.sections.find((section) => section.id === sectionId)?.items ?? []).filter(
-      (item) => !resolved.hidden.has(item) && items.has(item),
-    );
-  const sectionNames = resolved.sections.map((section) => ({ id: section.id, label: sectionLabel(groups, section) }));
+  const isItemShown = (item: string) => items.has(item) && !resolved.hidden.has(item);
+  const visibleItemsOf = (ids: string[]) => ids.filter(isItemShown);
+  const isEntryShown = (key: string) => {
+    if (!key.startsWith(SECTION_DROP_PREFIX)) return isItemShown(key);
+    const section = sectionsOf(resolved).find((candidate) => SECTION_DROP_PREFIX + candidate.id === key);
+    return Boolean(section && visibleItemsOf(section.items).length > 0);
+  };
+  const targets = moveTargets(groups, resolved, t("SidebarCustomize.topLevel"));
+  const topLevelItems = resolved.entries.flatMap((entry) =>
+    entry.kind === "item" && isItemShown(entry.id) ? [entry.id] : [],
+  );
 
   function save(next: ResolvedSidebar) {
     runUserAction(() => sidebarLayoutStore.save(sidebarLayoutOf(next)));
@@ -470,10 +500,18 @@ export const NavSections = observer(({ groups, customizable, selectedKey, pathna
     setEditingSection(next.id);
   }
 
-  function targetOf(current: ResolvedSidebar, overId: string): { section: string; index?: number } | null {
-    if (overId.startsWith(SECTION_DROP_PREFIX)) return { section: overId.slice(SECTION_DROP_PREFIX.length) };
-    const section = sectionOfItem(current, overId);
-    return section ? { section: section.id, index: section.items.indexOf(overId) } : null;
+  function targetOf(current: ResolvedSidebar, overId: string): { container: SidebarContainer; index?: number } | null {
+    if (overId.startsWith(SECTION_DROP_PREFIX)) return { container: overId.slice(SECTION_DROP_PREFIX.length) };
+    const container = containerOf(current, overId);
+    if (container === undefined) return null;
+    if (container === null)
+      return { container, index: current.entries.findIndex((entry) => entry.kind === "item" && entry.id === overId) };
+    return {
+      container,
+      index: sectionsOf(current)
+        .find((section) => section.id === container)
+        ?.items.indexOf(overId),
+    };
   }
 
   function handleDragStart(_event: DragStartEvent) {
@@ -483,9 +521,9 @@ export const NavSections = observer(({ groups, customizable, selectedKey, pathna
   function handleDragOver({ active, over }: DragOverEvent) {
     if (!over || !dragging) return;
     const target = targetOf(dragging, String(over.id));
-    const source = sectionOfItem(dragging, String(active.id));
-    if (!target || !source || source.id === target.section) return;
-    setDragging(moveSidebarItem(dragging, String(active.id), target.section, target.index));
+    const source = containerOf(dragging, String(active.id));
+    if (!target || source === undefined || source === target.container) return;
+    setDragging(moveSidebarItem(dragging, String(active.id), target.container, target.index));
   }
 
   function handleDragEnd({ active, over }: DragEndEvent) {
@@ -495,16 +533,34 @@ export const NavSections = observer(({ groups, customizable, selectedKey, pathna
     if (!current) return;
     let next = current;
     const target = over ? targetOf(current, String(over.id)) : null;
-    const source = sectionOfItem(current, String(active.id));
-    if (target && source && source.id === target.section && target.index !== undefined)
-      next = moveSidebarItem(current, String(active.id), target.section, target.index);
+    const source = containerOf(current, String(active.id));
+    if (target && source === target.container && target.index !== undefined)
+      next = moveSidebarItem(current, String(active.id), target.container, target.index);
     if (JSON.stringify(sidebarLayoutOf(next)) !== JSON.stringify(sidebarLayoutOf(stored))) save(next);
   }
 
-  const rendered = resolved.sections.filter(
-    (section) => isCustomSection(section.id) || visibleItems(section.id).length > 0,
-  );
-  const shownSections = new Set(rendered.map((section) => section.id));
+  function renderItem(key: string) {
+    const item = items.get(key);
+    if (!item) return null;
+    return (
+      <SortableNavItem
+        key={key}
+        customizable={customizable}
+        dropsClick={() => Date.now() < dropClickUntil.current}
+        isActive={selectedKey === key}
+        isShown={isItemShown}
+        item={item}
+        open={openKey === key}
+        pathname={pathname}
+        resolved={resolved}
+        targets={targets}
+        onChange={save}
+        onNavigate={onNavigate}
+        onNewSection={newSection}
+        onOpenChange={(next) => setOpenKey(next ? key : null)}
+      />
+    );
+  }
 
   return (
     <DndContext
@@ -518,53 +574,44 @@ export const NavSections = observer(({ groups, customizable, selectedKey, pathna
       onDragOver={handleDragOver}
       onDragStart={handleDragStart}
     >
-      {rendered.map((section, index) => {
-        const custom = isCustomSection(section.id);
-        const keys = visibleItems(section.id);
-        return (
-          <NavSection
-            key={section.id}
-            collapsed={customizable && section.collapsed}
-            count={rendered.length}
-            custom={custom}
-            customizable={customizable}
-            editing={editingSection === section.id}
-            empty={keys.length === 0}
-            id={section.id}
-            index={index}
-            label={sectionLabel(groups, section)}
-            resolved={resolved}
-            shown={shownSections}
-            onChange={save}
-            onDelete={() => deleteSection(section.id, sectionLabel(groups, section))}
-            onEdit={(editing) => setEditingSection(editing ? section.id : null)}
-          >
-            <SortableContext items={keys} strategy={verticalListSortingStrategy}>
-              {keys.map((key) => {
-                const item = items.get(key);
-                if (!item) return null;
-                return (
-                  <SortableNavItem
-                    key={key}
-                    customizable={customizable}
-                    dropsClick={() => Date.now() < dropClickUntil.current}
-                    isActive={selectedKey === key}
-                    item={item}
-                    open={openKey === key}
-                    pathname={pathname}
-                    resolved={resolved}
-                    sectionNames={sectionNames}
-                    onChange={save}
-                    onNavigate={onNavigate}
-                    onNewSection={newSection}
-                    onOpenChange={(next) => setOpenKey(next ? key : null)}
-                  />
-                );
-              })}
-            </SortableContext>
-          </NavSection>
-        );
-      })}
+      <SortableContext items={topLevelItems} strategy={verticalListSortingStrategy}>
+        {runsOf(resolved.entries).map((run) => {
+          if (run.kind === "items") {
+            const keys = visibleItemsOf(run.items);
+            if (keys.length === 0) return null;
+            return (
+              <SidebarGroup key={run.key} data-sidebar-top-level="">
+                <SidebarGroupContent>
+                  <SidebarMenu>{keys.map(renderItem)}</SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            );
+          }
+          const section = run.entry;
+          const keys = visibleItemsOf(section.items);
+          if (keys.length === 0 && editingSection !== section.id) return null;
+          const label = sectionLabel(groups, section);
+          return (
+            <NavSection
+              key={section.id}
+              collapsed={customizable && section.collapsed}
+              customizable={customizable}
+              editing={editingSection === section.id}
+              id={section.id}
+              isShown={isEntryShown}
+              label={label}
+              resolved={resolved}
+              onChange={save}
+              onDelete={() => deleteSection(section.id, label)}
+              onEdit={(editing) => setEditingSection(editing ? section.id : null)}
+            >
+              <SortableContext items={keys} strategy={verticalListSortingStrategy}>
+                {keys.map(renderItem)}
+              </SortableContext>
+            </NavSection>
+          );
+        })}
+      </SortableContext>
     </DndContext>
   );
 });

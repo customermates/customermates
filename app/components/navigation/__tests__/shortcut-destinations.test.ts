@@ -3,7 +3,7 @@ import type { NavGroup } from "../nav-main";
 import { LayoutGrid } from "lucide-react";
 import { describe, expect, it } from "vitest";
 
-import { resolveSidebar } from "../sidebar-layout";
+import { resolveSidebar, sidebarDefaults } from "../sidebar-layout";
 import { shortcutDestinations } from "../shortcut-destinations";
 
 function item(key: string, href: string) {
@@ -28,10 +28,7 @@ const groups: NavGroup[] = [
   },
 ];
 
-const defaults = groups.map((group) => ({
-  id: group.key,
-  items: group.items.map((entry) => entry.key),
-}));
+const defaults = sidebarDefaults(groups);
 
 describe("shortcut destinations", () => {
   it("maps fixed pages in the sidebar, the settings entry and lists in default order", () => {
@@ -46,16 +43,17 @@ describe("shortcut destinations", () => {
     });
   });
 
-  it("follows the person's own sidebar order and skips hidden lists", () => {
+  it("follows the person's own sidebar order across top-level items and sections and skips hidden lists", () => {
     const resolved = resolveSidebar(defaults, {
-      sections: [
+      entries: [
+        { item: "records:b" },
         { id: "custom:pinned", name: "Pinned", items: ["records:c"] },
         { id: "overview", items: ["dashboard", "inbox"] },
-        { id: "data", items: ["records:b", "records:a", "configure-records"] },
+        { id: "data", items: ["records:a", "configure-records"] },
       ],
       hidden: ["records:a"],
     });
 
-    expect(shortcutDestinations(groups, resolved).lists).toEqual(["/records/c", "/records/b"]);
+    expect(shortcutDestinations(groups, resolved).lists).toEqual(["/records/b", "/records/c"]);
   });
 });

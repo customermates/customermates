@@ -49,10 +49,12 @@ export async function openCustomize(page: Page) {
 
 export async function sidebarOrder(page: Page) {
   return page
-    .locator("[data-sidebar-section]")
+    .locator("[data-sidebar-section], [data-sidebar-top-level]")
     .evaluateAll((sections) =>
       sections.flatMap((section) => [
-        `#${section.getAttribute("data-sidebar-section-label")}`,
+        ...(section.hasAttribute("data-sidebar-section")
+          ? [`#${section.getAttribute("data-sidebar-section-label")}`]
+          : []),
         ...[...section.querySelectorAll<HTMLElement>("[data-sidebar-item]")]
           .filter((item) => item.offsetParent !== null)
           .map((item) => item.querySelector("span.truncate")?.textContent?.trim() ?? ""),

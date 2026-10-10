@@ -31,6 +31,7 @@ export type NavGroup = {
   key: string;
   label: string;
   items: NavItem[];
+  topLevel?: boolean;
 };
 
 type NavMainParentProps = {

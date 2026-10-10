@@ -2,7 +2,8 @@
 
 import type { DragEndEvent, DragOverEvent, DragStartEvent } from "@dnd-kit/core";
 import type { NavGroup, NavItem } from "./nav-main";
-import type { ResolvedSidebar, SidebarSection } from "./sidebar-layout";
+import type { MoveTarget } from "./nav-sections";
+import type { ResolvedSidebar, SidebarContainer, SidebarEntry, SidebarSection } from "./sidebar-layout";
 
 import {
   closestCenter,
@@ -52,15 +53,24 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
 import { SIDEBAR_SECTION_NAME_MAX } from "@/features/p13n/sidebar-layout.schema";
 
-import { createSidebarSection, sectionLabel, useDeleteSidebarSection, useResolvedSidebar } from "./nav-sections";
 import {
-  isCustomSection,
+  createSidebarSection,
+  entryPosition,
+  itemPosition,
+  moveTargets,
+  sectionLabel,
+  useDeleteSidebarSection,
+  useResolvedSidebar,
+} from "./nav-sections";
+import {
+  containerOf,
+  entryKey,
+  moveSidebarEntry,
   moveSidebarItem,
-  moveSidebarSection,
-  sectionOfItem,
+  sectionsOf,
   setSidebarItemHidden,
+  shiftSidebarEntry,
   shiftSidebarItem,
-  shiftSidebarSection,
   sidebarLayoutOf,
   updateSidebarSection,
 } from "./sidebar-layout";
@@ -82,6 +92,23 @@ function sectionFromDropId(id: string) {
   return id.slice(SECTION_ID_PREFIX.length).replace(DROP_SUFFIX, "");
 }
 
+type Run = { kind: "items"; key: string; items: string[] } | { kind: "section"; section: SidebarSection };
+
+function runsOf(entries: SidebarEntry[], isKnown: (item: string) => boolean): Run[] {
+  const runs: Run[] = [];
+  for (const entry of entries) {
+    if (entry.kind === "section") {
+      runs.push({ kind: "section", section: entry });
+      continue;
+    }
+    if (!isKnown(entry.id)) continue;
+    const last = runs.at(-1);
+    if (last?.kind === "items") last.items.push(entry.id);
+    else runs.push({ kind: "items", key: `items:${entry.id}`, items: [entry.id] });
+  }
+  return runs;
+}
+
 export const SidebarCustomize = observer(({ groups, open, onOpenChange }: Props) => {
   const t = useTranslations();
   const dndId = useId();
@@ -94,11 +121,11 @@ export const SidebarCustomize = observer(({ groups, open, onOpenChange }: Props)
   const [renaming, setRenaming] = useState<string | null>(null);
   const resolved = draft ?? stored;
   const items = new Map(groups.flatMap((group) => group.items.map((item) => [item.key, item])));
-  const sections = resolved.sections.filter(
-    (section) => isCustomSection(section.id) || section.items.some((key) => items.has(key)),
-  );
-  const shown = new Set(sections.map((section) => section.id));
-  const sectionNames = sections.map((section) => ({ id: section.id, label: sectionLabel(groups, section) }));
+  const isKnown = (item: string) => items.has(item);
+  const isItemShown = (item: string) => isKnown(item) && !resolved.hidden.has(item);
+  const isEntryShown = (key: string) => key.startsWith(SECTION_ID_PREFIX) || isKnown(key);
+  const targets = moveTargets(groups, resolved, t("SidebarCustomize.topLevel"));
+  const topLevelKeys = resolved.entries.map(entryKey).filter(isEntryShown);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
@@ -125,9 +152,28 @@ export const SidebarCustomize = observer(({ groups, open, onOpenChange }: Props)
     });
   }
 
-  function targetSection(current: ResolvedSidebar, overId: string) {
-    if (overId.startsWith(SECTION_ID_PREFIX)) return sectionFromDropId(overId);
-    return sectionOfItem(current, overId)?.id ?? null;
+  function itemTarget(
+    current: ResolvedSidebar,
+    overId: string,
+  ): { container: SidebarContainer; index?: number } | null {
+    if (overId.startsWith(SECTION_ID_PREFIX)) return { container: sectionFromDropId(overId) };
+    const container = containerOf(current, overId);
+    if (container === undefined) return null;
+    if (container === null)
+      return { container, index: current.entries.findIndex((entry) => entry.kind === "item" && entry.id === overId) };
+    return {
+      container,
+      index: sectionsOf(current)
+        .find((section) => section.id === container)
+        ?.items.indexOf(overId),
+    };
+  }
+
+  function entryTarget(current: ResolvedSidebar, overId: string): string | null {
+    if (overId.startsWith(SECTION_ID_PREFIX)) return sectionDragId(sectionFromDropId(overId));
+    const container = containerOf(current, overId);
+    if (container === undefined) return null;
+    return container === null ? overId : sectionDragId(container);
   }
 
   function handleDragStart({ active }: DragStartEvent) {
@@ -138,14 +184,10 @@ export const SidebarCustomize = observer(({ groups, open, onOpenChange }: Props)
   function handleDragOver({ active, over }: DragOverEvent) {
     const id = String(active.id);
     if (!draft || !over || id.startsWith(SECTION_ID_PREFIX)) return;
-    const overId = String(over.id);
-    const target = targetSection(draft, overId);
-    const source = sectionOfItem(draft, id);
-    if (!target || !source || source.id === target) return;
-    const index = overId.startsWith(SECTION_ID_PREFIX)
-      ? undefined
-      : draft.sections.find((section) => section.id === target)?.items.indexOf(overId);
-    setDraft(moveSidebarItem(draft, id, target, index));
+    const target = itemTarget(draft, String(over.id));
+    const source = containerOf(draft, id);
+    if (!target || source === undefined || source === target.container) return;
+    setDraft(moveSidebarItem(draft, id, target.container, target.index));
   }
 
   function handleDragEnd({ active, over }: DragEndEvent) {
@@ -157,20 +199,37 @@ export const SidebarCustomize = observer(({ groups, open, onOpenChange }: Props)
     const overId = String(over.id);
     let next = current;
     if (id.startsWith(SECTION_ID_PREFIX)) {
-      const target = targetSection(current, overId);
-      if (target) next = moveSidebarSection(current, sectionFromDropId(id), target);
-    } else if (!overId.startsWith(SECTION_ID_PREFIX)) {
-      const section = sectionOfItem(current, overId);
-      if (section && section.id === sectionOfItem(current, id)?.id)
-        next = moveSidebarItem(current, id, section.id, section.items.indexOf(overId));
+      const target = entryTarget(current, overId);
+      if (target) next = moveSidebarEntry(current, id, target);
+    } else {
+      const target = itemTarget(current, overId);
+      if (target && target.index !== undefined && containerOf(current, id) === target.container)
+        next = moveSidebarItem(current, id, target.container, target.index);
     }
     if (JSON.stringify(sidebarLayoutOf(next)) !== JSON.stringify(sidebarLayoutOf(stored))) save(next);
   }
 
   const activeItem = activeId && !activeId.startsWith(SECTION_ID_PREFIX) ? items.get(activeId) : undefined;
   const activeSection = activeId?.startsWith(SECTION_ID_PREFIX)
-    ? sections.find((section) => sectionDragId(section.id) === activeId)
+    ? sectionsOf(resolved).find((section) => sectionDragId(section.id) === activeId)
     : undefined;
+
+  function editorItem(key: string) {
+    const item = items.get(key);
+    if (!item) return null;
+    return (
+      <EditorItem
+        key={key}
+        droppable={!activeSection}
+        isShown={isItemShown}
+        item={item}
+        resolved={resolved}
+        targets={targets}
+        onChange={save}
+        onNewSection={newSection}
+      />
+    );
+  }
 
   return (
     <AppModal
@@ -210,37 +269,49 @@ export const SidebarCustomize = observer(({ groups, open, onOpenChange }: Props)
             onDragOver={handleDragOver}
             onDragStart={handleDragStart}
           >
-            <SortableContext
-              items={sections.map((section) => sectionDragId(section.id))}
-              strategy={verticalListSortingStrategy}
-            >
+            <SortableContext items={topLevelKeys} strategy={verticalListSortingStrategy}>
               <div className="flex flex-col gap-3">
-                {sections.map((section, index) => (
-                  <EditorSection
-                    key={section.id}
-                    activeId={activeId}
-                    canMoveDown={index < sections.length - 1}
-                    canMoveUp={index > 0}
-                    items={items}
-                    label={sectionLabel(groups, section)}
-                    renaming={renaming === section.id}
-                    resolved={resolved}
-                    section={section}
-                    sectionNames={sectionNames}
-                    onChange={save}
-                    onDelete={() => {
-                      onOpenChange(false);
-                      deleteSection(section.id, sectionLabel(groups, section));
-                    }}
-                    onMove={(by) => save(shiftSidebarSection(resolved, section.id, by, shown))}
-                    onNewSection={newSection}
-                    onRename={(name) => {
-                      setRenaming(null);
-                      if (name) save(updateSidebarSection(resolved, section.id, { name }));
-                    }}
-                    onStartRename={() => setRenaming(section.id)}
-                  />
-                ))}
+                {runsOf(resolved.entries, isKnown).map((run) => {
+                  if (run.kind === "items") {
+                    return (
+                      <ul
+                        key={run.key}
+                        aria-label={t("SidebarCustomize.topLevel")}
+                        className="flex flex-col rounded-lg border bg-card py-1"
+                        data-customize-top-level=""
+                      >
+                        {run.items.map(editorItem)}
+                      </ul>
+                    );
+                  }
+                  const section = run.section;
+                  const key = sectionDragId(section.id);
+                  const position = entryPosition(resolved, key, isEntryShown);
+                  return (
+                    <EditorSection
+                      key={section.id}
+                      activeId={activeId}
+                      canMoveDown={position.canMoveDown}
+                      canMoveUp={position.canMoveUp}
+                      items={items}
+                      label={sectionLabel(groups, section)}
+                      renaming={renaming === section.id}
+                      section={section}
+                      onDelete={() => {
+                        onOpenChange(false);
+                        deleteSection(section.id, sectionLabel(groups, section));
+                      }}
+                      onMove={(by) => save(shiftSidebarEntry(resolved, key, by, isEntryShown))}
+                      onRename={(name) => {
+                        setRenaming(null);
+                        if (name) save(updateSidebarSection(resolved, section.id, { name }));
+                      }}
+                      onStartRename={() => setRenaming(section.id)}
+                    >
+                      {section.items.map(editorItem)}
+                    </EditorSection>
+                  );
+                })}
               </div>
             </SortableContext>
 
@@ -272,39 +343,32 @@ type SectionProps = {
   section: SidebarSection;
   label: string;
   items: ReadonlyMap<string, NavItem>;
-  resolved: ResolvedSidebar;
-  sectionNames: Array<{ id: string; label: string }>;
   renaming: boolean;
   activeId: string | null;
   canMoveUp: boolean;
   canMoveDown: boolean;
-  onChange: (next: ResolvedSidebar) => void;
+  children: React.ReactNode;
   onMove: (by: -1 | 1) => void;
   onDelete: () => void;
   onStartRename: () => void;
   onRename: (name: string | null) => void;
-  onNewSection: (item: string) => void;
 };
 
 function EditorSection({
   section,
   label,
   items,
-  resolved,
-  sectionNames,
   renaming,
   activeId,
   canMoveUp,
   canMoveDown,
-  onChange,
+  children,
   onMove,
   onDelete,
   onStartRename,
   onRename,
-  onNewSection,
 }: SectionProps) {
   const t = useTranslations();
-  const custom = isCustomSection(section.id);
   const keys = section.items.filter((key) => items.has(key));
   const draggingSection = activeId?.startsWith(SECTION_ID_PREFIX) ?? false;
   const dragging = activeId !== null && !draggingSection;
@@ -313,7 +377,6 @@ function EditorSection({
     id: sectionDragId(section.id) + DROP_SUFFIX,
     disabled: draggingSection || (activeId !== null && keys.includes(activeId)),
   });
-  const visible = keys.filter((key) => !resolved.hidden.has(key));
   const highlighted = dragging && (droppable.isOver || keys.some((key) => key === droppable.over?.id));
 
   return (
@@ -338,7 +401,7 @@ function EditorSection({
 
         {renaming ? (
           <SectionNameInput initial={label} onDone={onRename} />
-        ) : custom ? (
+        ) : (
           <button
             className="min-w-0 flex-1 truncate rounded px-1 py-0.5 text-left text-sm font-medium hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
             type="button"
@@ -346,8 +409,6 @@ function EditorSection({
           >
             {label}
           </button>
-        ) : (
-          <h3 className="min-w-0 flex-1 truncate px-1 text-sm font-medium">{label}</h3>
         )}
 
         <DropdownMenu modal={false}>
@@ -363,7 +424,7 @@ function EditorSection({
           </DropdownMenuTrigger>
 
           <DropdownMenuContent align="end">
-            {custom && <DropdownMenuItem onSelect={onStartRename}>{t("SidebarCustomize.rename")}</DropdownMenuItem>}
+            <DropdownMenuItem onSelect={onStartRename}>{t("SidebarCustomize.rename")}</DropdownMenuItem>
 
             <DropdownMenuItem disabled={!canMoveUp} onSelect={() => onMove(-1)}>
               {t("SidebarCustomize.moveUp")}
@@ -373,15 +434,11 @@ function EditorSection({
               {t("SidebarCustomize.moveDown")}
             </DropdownMenuItem>
 
-            {custom && (
-              <>
-                <DropdownMenuSeparator />
+            <DropdownMenuSeparator />
 
-                <DropdownMenuItem variant="destructive" onSelect={onDelete}>
-                  {t("SidebarCustomize.deleteSection")}
-                </DropdownMenuItem>
-              </>
-            )}
+            <DropdownMenuItem variant="destructive" onSelect={onDelete}>
+              {t("SidebarCustomize.deleteSection")}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -392,25 +449,7 @@ function EditorSection({
             <li className="px-3 py-2 text-xs text-muted-foreground">{t("SidebarCustomize.emptySection")}</li>
           )}
 
-          {keys.map((key) => {
-            const item = items.get(key);
-            if (!item) return null;
-            const position = visible.indexOf(key);
-            return (
-              <EditorItem
-                key={key}
-                canMoveDown={position >= 0 && position < visible.length - 1}
-                canMoveUp={position > 0}
-                droppable={!draggingSection}
-                item={item}
-                resolved={resolved}
-                section={section}
-                sectionNames={sectionNames}
-                onChange={onChange}
-                onNewSection={onNewSection}
-              />
-            );
-          })}
+          {children}
         </ul>
       </SortableContext>
     </section>
@@ -420,29 +459,18 @@ function EditorSection({
 type ItemProps = {
   item: NavItem;
   droppable: boolean;
-  section: SidebarSection;
   resolved: ResolvedSidebar;
-  sectionNames: Array<{ id: string; label: string }>;
-  canMoveUp: boolean;
-  canMoveDown: boolean;
+  targets: MoveTarget[];
+  isShown: (item: string) => boolean;
   onChange: (next: ResolvedSidebar) => void;
   onNewSection: (item: string) => void;
 };
 
-function EditorItem({
-  item,
-  droppable,
-  section,
-  resolved,
-  sectionNames,
-  canMoveUp,
-  canMoveDown,
-  onChange,
-  onNewSection,
-}: ItemProps) {
+function EditorItem({ item, droppable, resolved, targets, isShown, onChange, onNewSection }: ItemProps) {
   const t = useTranslations();
   const sortable = useSortable({ id: item.key, disabled: { draggable: false, droppable: !droppable } });
   const hidden = resolved.hidden.has(item.key);
+  const position = itemPosition(resolved, item.key, isShown);
 
   return (
     <li
@@ -481,11 +509,17 @@ function EditorItem({
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end">
-          <DropdownMenuItem disabled={!canMoveUp} onSelect={() => onChange(shiftSidebarItem(resolved, item.key, -1))}>
+          <DropdownMenuItem
+            disabled={!position.canMoveUp}
+            onSelect={() => onChange(shiftSidebarItem(resolved, item.key, -1, isShown))}
+          >
             {t("SidebarCustomize.moveUp")}
           </DropdownMenuItem>
 
-          <DropdownMenuItem disabled={!canMoveDown} onSelect={() => onChange(shiftSidebarItem(resolved, item.key, 1))}>
+          <DropdownMenuItem
+            disabled={!position.canMoveDown}
+            onSelect={() => onChange(shiftSidebarItem(resolved, item.key, 1, isShown))}
+          >
             {t("SidebarCustomize.moveDown")}
           </DropdownMenuItem>
 
@@ -493,11 +527,11 @@ function EditorItem({
             <DropdownMenuSubTrigger>{t("SidebarCustomize.moveToSection")}</DropdownMenuSubTrigger>
 
             <DropdownMenuSubContent>
-              {sectionNames
-                .filter((candidate) => candidate.id !== section.id)
+              {targets
+                .filter((candidate) => candidate.id !== position.container)
                 .map((candidate) => (
                   <DropdownMenuItem
-                    key={candidate.id}
+                    key={candidate.id ?? ""}
                     onSelect={() => onChange(moveSidebarItem(resolved, item.key, candidate.id))}
                   >
                     <span className="truncate">{candidate.label}</span>

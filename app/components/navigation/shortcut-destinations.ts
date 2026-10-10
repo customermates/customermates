@@ -4,6 +4,7 @@ import type { NavGroup } from "./nav-main";
 import type { ResolvedSidebar } from "./sidebar-layout";
 
 import { SETTINGS_ENTRY_HREF } from "./settings-routes";
+import { sidebarItemOrder } from "./sidebar-layout";
 
 const PAGE_ITEMS: ReadonlyArray<[string, ShortcutDestination]> = [
   ["dashboard", "dashboard"],
@@ -26,8 +27,7 @@ export function shortcutDestinations(groups: NavGroup[], resolved: ResolvedSideb
     ),
     settings: SETTINGS_ENTRY_HREF,
   };
-  const lists = resolved.sections
-    .flatMap((section) => section.items)
+  const lists = sidebarItemOrder(resolved)
     .filter((item) => item.startsWith(LIST_ITEM_PREFIX) && !resolved.hidden.has(item))
     .flatMap((item) => hrefs.get(item) ?? []);
   return { pages, lists };
