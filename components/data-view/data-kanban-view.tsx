@@ -26,7 +26,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { ChevronsLeftRight, Ellipsis, Plus, Settings2 } from "lucide-react";
+import { ChevronsLeftRight, Ellipsis, EyeOff, Plus, Settings2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -274,6 +274,7 @@ const KanbanColumn = observer(function KanbanColumn({
   editHref,
   onCreate,
   onCollapse,
+  onHide,
   children,
 }: {
   id: string;
@@ -289,13 +290,14 @@ const KanbanColumn = observer(function KanbanColumn({
   editHref?: string;
   onCreate?: (returnFocusTo: HTMLElement | null) => void;
   onCollapse: () => void;
+  onHide: () => void;
   children: ReactNode;
 }) {
   const t = useTranslations();
   const navigateToHref = useNavigateToHref();
-  const menuTrigger = useRef<HTMLButtonElement>(null);
   const { setNodeRef } = useDroppable({ id, disabled: !droppable });
   const moreLabel = t("RecordModel.moreActions", { name: label });
+  const addLabel = recordLabels ? t("NavigationBar.addEntity", { entity: recordLabels.singular }) : undefined;
   const details = weight === undefined ? [] : [`${t("Common.stageProbability")}: ${weight}%`];
 
   return (
@@ -306,7 +308,24 @@ const KanbanColumn = observer(function KanbanColumn({
       data-group-key={id}
     >
       <div className={cn(DATA_KANBAN_HEADER_CLASS_NAME, "group/header")}>
-        <KanbanColumnLabel color={color} label={label} />
+        {editHref ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                className="flex min-w-0 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                data-kanban-edit-option=""
+                type="button"
+                onClick={() => navigateToHref(editHref)}
+              >
+                <KanbanColumnLabel color={color} label={label} tooltip={false} />
+              </button>
+            </TooltipTrigger>
+
+            <TooltipContent>{t("RecordModel.editField")}</TooltipContent>
+          </Tooltip>
+        ) : (
+          <KanbanColumnLabel color={color} label={label} />
+        )}
 
         <KanbanCount count={count} details={summaries?.length ? [] : details} recordLabels={recordLabels} />
 
@@ -317,17 +336,29 @@ const KanbanColumn = observer(function KanbanColumn({
         )}
 
         <div className="flex shrink-0 items-center opacity-0 transition-opacity group-hover/header:opacity-100 focus-within:opacity-100 has-data-[state=open]:opacity-100 any-pointer-coarse:opacity-100">
+          {onCreate && addLabel && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  aria-label={addLabel}
+                  className="text-muted-foreground"
+                  size="icon-xs"
+                  variant="ghost"
+                  onClick={(event) => onCreate(event.currentTarget)}
+                >
+                  <Plus aria-hidden />
+                </Button>
+              </TooltipTrigger>
+
+              <TooltipContent>{addLabel}</TooltipContent>
+            </Tooltip>
+          )}
+
           <DropdownMenu>
             <Tooltip>
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    ref={menuTrigger}
-                    aria-label={moreLabel}
-                    className="text-muted-foreground"
-                    size="icon-xs"
-                    variant="ghost"
-                  >
+                  <Button aria-label={moreLabel} className="text-muted-foreground" size="icon-xs" variant="ghost">
                     <Ellipsis aria-hidden />
                   </Button>
                 </DropdownMenuTrigger>
@@ -337,14 +368,6 @@ const KanbanColumn = observer(function KanbanColumn({
             </Tooltip>
 
             <DropdownMenuContent align="end">
-              {onCreate && recordLabels && (
-                <DropdownMenuItem onSelect={() => onCreate(menuTrigger.current)}>
-                  <Plus className="size-4" />
-
-                  {t("NavigationBar.addEntity", { entity: recordLabels.singular })}
-                </DropdownMenuItem>
-              )}
-
               {editHref && (
                 <DropdownMenuItem onSelect={() => navigateToHref(editHref)}>
                   <Settings2 className="size-4" />
@@ -357,6 +380,12 @@ const KanbanColumn = observer(function KanbanColumn({
                 <ChevronsLeftRight className="size-4" />
 
                 {t("DataView.collapseColumn")}
+              </DropdownMenuItem>
+
+              <DropdownMenuItem onSelect={onHide}>
+                <EyeOff className="size-4" />
+
+                {t("DataView.hideColumn")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -486,7 +515,9 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
     supportsDragWriteBack ? keyboardSensor : null,
   );
 
-  const groups = visibleGroups(store.groupingResult, { keepEmptyNoValue: true });
+  const groups = visibleGroups(store.groupingResult, { keepEmptyNoValue: true }).filter(
+    (group) => !store.isGroupHidden(group.key) && !(store.grouping?.hideEmpty && group.count === 0),
+  );
   const openGroups = groups.filter((group) => !store.isBoardStrip(group.key, group.count));
   const collapsedGroups = groups.filter((group) => store.isBoardStrip(group.key, group.count));
 
@@ -660,6 +691,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                     ? (returnFocusTo) => store.createInGroup(group.key, returnFocusTo)
                     : undefined
                 }
+                onHide={() => store.hideGroup(group.key)}
               >
                 {group.itemIds.map((itemId) => {
                   const item = itemsById.get(itemId);

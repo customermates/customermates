@@ -152,6 +152,8 @@ function store(grouping: Partial<GroupingResult>, moveItemBetweenGroups = vi.fn(
     },
     loadMoreInGroup: vi.fn(),
     isBoardStrip: () => false,
+    isGroupHidden: () => false,
+    hideGroup: vi.fn(),
     toggleBoardStrip: vi.fn(),
     canCreateInGroup: () => false,
     createInGroup: vi.fn(),

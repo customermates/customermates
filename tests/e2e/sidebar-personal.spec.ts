@@ -99,8 +99,9 @@ test("each person customizes their own sidebar and others keep the default", asy
 
   await (await sectionMenu(page, "Accounts")).getByRole("menuitem", { name: "Delete section", exact: true }).click();
   const confirm = page.getByRole("alertdialog");
-  await expect(confirm).toContainText("Organizations moves back to Data");
-  await expect(confirm).toContainText("Contacts moves back to Data");
+  await expect(confirm).toContainText("Its items move to the top level of your sidebar");
+  await expect(confirm).toContainText("Organizations");
+  await expect(confirm).toContainText("Contacts");
   await confirm.getByRole("button", { name: "Delete section", exact: true }).click();
   await expect(page.locator('[data-sidebar-section-label="Accounts"]')).toHaveCount(0);
   await expect(sidebarItem(page, "Contacts")).toBeVisible();
