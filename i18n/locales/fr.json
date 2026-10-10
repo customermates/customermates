@@ -1984,6 +1984,7 @@
       "editTitle": "Modifier la vue",
       "linkCopied": "Lien copié",
       "menu": "Actions de la vue",
+      "modified": "Modifications non enregistrées",
       "moveLeft": "Déplacer vers la gauche",
       "moveRight": "Déplacer vers la droite",
       "name": "Nom",
@@ -1993,7 +1994,8 @@
       "pickerPlaceholder": "Trouver une vue…",
       "pickerTitle": "Changer de vue",
       "railLabel": "Vues enregistrées",
-      "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}"
+      "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}",
+      "resetChanges": "Réinitialiser les modifications"
     }
   },
   "Diagrams": {
