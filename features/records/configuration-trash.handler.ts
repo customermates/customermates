@@ -117,8 +117,7 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
     return { removedRecords, removedLinks };
   }
 
-  async purge(items: TrashItem[]): Promise<{ pendingItemIds: string[] }> {
-    const pendingItemIds: string[] = [];
+  async purge(items: TrashItem[]): Promise<void> {
     for (const item of [...items].sort((left, right) => ORDER[right.kind] - ORDER[left.kind])) {
       if (!targetExists(await this.records.getModel(), item)) {
         // Its target is already gone, for example a relationship to a list deleted permanently: only the item is left.
@@ -126,10 +125,8 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
         continue;
       }
       const applied = await this.apply.run(await this.change(item, "deletePermanently"));
-      if (!applied.ok) throw new RecordWriteError(CustomErrorCode.trashChanged, "conflict");
       // A large list is deleted in the background; its item stays in Trash until that operation completes.
-      if (applied.data.status === "pending") pendingItemIds.push(item.id);
+      if (!applied.ok) throw new RecordWriteError(CustomErrorCode.trashChanged, "conflict");
     }
-    return { pendingItemIds };
   }
 }

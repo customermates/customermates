@@ -8,6 +8,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { Prisma } from "@/generated/prisma";
 import { runInSavepoint, runInTransaction } from "@/core/decorators/transaction-runner";
 import { failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -20,24 +21,36 @@ import { itemsByHandler, trashDeletionPreview, trashVisibility } from "./trash-h
 
 export type TrashPurgeOutcome = Pick<TrashDeletionResult, "deletedItemIds" | "pendingItemIds" | "failedItemIds">;
 
-/** Purges item by item, each in its own savepoint: a failing item is skipped and reported, never rolling back the rest. */
+/**
+ * Purges item by item, each in its own savepoint: a failing item is skipped and reported, never rolling back the rest.
+ * An item still in Trash after its handler succeeded continues in the background (a large list) and is pending.
+ */
 export async function purgeTrashItems(
+  trash: Pick<TrashRepo, "find">,
   handlers: TrashKindHandler[],
   items: TrashItem[],
   actorId: string | null,
 ): Promise<TrashPurgeOutcome> {
-  const outcome: TrashPurgeOutcome = { deletedItemIds: [], pendingItemIds: [], failedItemIds: [] };
+  const purged: string[] = [];
+  const failedItemIds: string[] = [];
   for (const group of itemsByHandler(handlers, items).reverse()) {
     for (const item of group.items) {
-      const purged = await runInSavepoint(() => group.handler.purge([item], actorId));
-      if (!purged.ok) {
-        outcome.failedItemIds.push(item.id);
-        Sentry.captureException(purged.error, { tags: { kind: "trash-purge" }, extra: { itemKind: item.kind } });
-      } else if (purged.value?.pendingItemIds.includes(item.id)) outcome.pendingItemIds.push(item.id);
-      else outcome.deletedItemIds.push(item.id);
+      const result = await runInSavepoint(() => group.handler.purge([item], actorId));
+      if (result.ok) purged.push(item.id);
+      else {
+        failedItemIds.push(item.id);
+        Sentry.captureException(result.error, { tags: { kind: "trash-purge" }, extra: { itemKind: item.kind } });
+      }
     }
   }
-  return outcome;
+  const remaining = purged.length
+    ? new Set((await trash.find({ ids: purged }, Prisma.sql`TRUE`)).map((item) => item.id))
+    : new Set<string>();
+  return {
+    deletedItemIds: purged.filter((id) => !remaining.has(id)),
+    pendingItemIds: purged.filter((id) => remaining.has(id)),
+    failedItemIds,
+  };
 }
 
 @AllowInDemoMode
@@ -61,7 +74,7 @@ export class DeleteTrashPermanentlyInteractor extends AuthenticatedInteractor<
         if (items.length !== new Set(input.itemIds).size) return failNotFound(CustomErrorCode.trashItemNotFound);
         if ((await trashDeletionPreview(this.handlers, items)).impactHash !== input.expectedImpactHash)
           return failConflict(CustomErrorCode.trashChanged);
-        return { ok: true as const, data: await purgeTrashItems(this.handlers, items, this.userId) };
+        return { ok: true as const, data: await purgeTrashItems(this.trash, this.handlers, items, this.userId) };
       },
       { timeout: 60000 },
     );

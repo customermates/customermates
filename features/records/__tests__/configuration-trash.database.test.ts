@@ -542,7 +542,11 @@ describeDatabase("configuration trash", () => {
       new PrismaTrashRepo(companyId),
     );
     const items = await f.as(() => new PrismaTrashRepo(companyId).find({ all: true }, Prisma.sql`TRUE`));
-    expect(await f.as(() => runInTransaction(() => purgeTrashItems([background], items, f.admin.id)))).toEqual({
+    expect(
+      await f.as(() =>
+        runInTransaction(() => purgeTrashItems(new PrismaTrashRepo(companyId), [background], items, f.admin.id)),
+      ),
+    ).toEqual({
       deletedItemIds: [],
       pendingItemIds: [items[0]?.id],
       failedItemIds: [],

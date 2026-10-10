@@ -24,7 +24,7 @@ export function purgeExpiredCompanyTrash(
   return runInTransaction(
     async () => {
       const items = await trash.findExpired(now, TRASH_PURGE_BATCH_SIZE, after);
-      const outcome = await purgeTrashItems(handlers, items, null);
+      const outcome = await purgeTrashItems(trash, handlers, items, null);
       const last = items.at(-1);
       return {
         next:
