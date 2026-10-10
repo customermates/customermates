@@ -2,7 +2,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 
 export function recordItem(page: Page, name: string) {
   return page
-    .locator("tr, [data-item-id]")
+    .locator("tr, [data-row-id], [data-item-id]")
     .filter({ has: page.getByRole("link", { name, exact: true }) })
     .first();
 }

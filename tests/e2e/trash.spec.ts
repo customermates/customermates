@@ -3,6 +3,7 @@ import type { Page } from "@playwright/test";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import { runRowAction } from "./record-rows";
+import { openSidebar } from "./sidebar";
 
 function collectErrors(page: Page) {
   const errors: string[] = [];
@@ -65,6 +66,7 @@ test("restores a deleted record from Trash and shows a trashed record read only"
   await addServices(page, typeId, ["Restore Service"]);
   await deleteFromRow(page, "Restore Service");
 
+  await openSidebar(page);
   await page.locator("#nav-trash").click();
   await expect(page).toHaveURL(/\/en\/trash/);
   const row = trashRow(page, "Restore Service");
