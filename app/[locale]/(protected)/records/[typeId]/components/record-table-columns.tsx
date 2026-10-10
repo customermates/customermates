@@ -136,6 +136,7 @@ export function useRecordTableColumns(
 }
 
 export function useRecordCardRenderer(store: RecordsStore, openRelated: (ref: RecordRef) => void) {
+  const t = useTranslations();
   const avatarFieldId = recordAvatarFieldId(store);
   return useCallback(
     (record: RecordRow) => {
@@ -145,7 +146,7 @@ export function useRecordCardRenderer(store: RecordsStore, openRelated: (ref: Re
           record={record}
           records={store}
           title={
-            primary && (
+            primary ? (
               <RecordCell
                 avatarFieldId={avatarFieldId}
                 column={primary}
@@ -155,12 +156,14 @@ export function useRecordCardRenderer(store: RecordsStore, openRelated: (ref: Re
                 record={record}
                 onOpen={openRelated}
               />
+            ) : (
+              <span className="truncate">{recordDisplayName(undefined, store.type?.label, t)}</span>
             )
           }
           onOpenRecord={openRelated}
         />
       );
     },
-    [avatarFieldId, openRelated, store],
+    [avatarFieldId, openRelated, store, t],
   );
 }
