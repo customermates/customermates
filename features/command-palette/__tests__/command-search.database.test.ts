@@ -248,7 +248,7 @@ describeDatabase("command search catalog and semantic search on PostgreSQL with 
 
     const { interactor } = searcher(second.policy);
     const result = await runWithTenant(second.admin, () =>
-      interactor.invoke({ searchTerm: "hot leads", scope: null, locale: "en" }),
+      interactor.invoke({ searchTerm: "hot leads", scope: null, locale: "en", semantic: true }),
     );
     if (!result.ok) throw new Error("Expected search result");
     expect(result.data.semantic.map((hit) => hit.key)).not.toContain(`view:${first.view.id}`);
@@ -303,7 +303,9 @@ describeDatabase("command search catalog and semantic search on PostgreSQL with 
     await runWithTenant(f.admin, () => indexer(fakeEmbeddings().service).indexPending());
     const search = async (user: TenantUser, searchTerm: string, scope: "views" | "settings" | null = null) => {
       const { interactor, schedule } = searcher(f.policy);
-      const result = await runWithTenant(user, () => interactor.invoke({ searchTerm, scope, locale: "en" }));
+      const result = await runWithTenant(user, () =>
+        interactor.invoke({ searchTerm, scope, locale: "en", semantic: true }),
+      );
       if (!result.ok) throw new Error("Expected search result");
       expect(schedule).toHaveBeenCalledTimes(1);
       expect(result.data.degraded).toBe(false);
@@ -326,7 +328,7 @@ describeDatabase("command search catalog and semantic search on PostgreSQL with 
     const { interactor } = searcher(f.policy, () => new Promise(() => undefined));
     const started = performance.now();
     const result = await runWithTenant(f.admin, () =>
-      interactor.invoke({ searchTerm: "dark mode", scope: null, locale: "en" }),
+      interactor.invoke({ searchTerm: "dark mode", scope: null, locale: "en", semantic: true }),
     );
     expect(performance.now() - started).toBeLessThan(COMMAND_SEARCH_EMBEDDING_WAIT_MS + 1500);
     expect(result).toEqual({ ok: true, data: { semantic: [], docs: [], degraded: true } });
@@ -336,9 +338,22 @@ describeDatabase("command search catalog and semantic search on PostgreSQL with 
         searchTerm: "acme",
         scope: "records",
         locale: "en",
+        semantic: true,
       }),
     );
     expect(records).toEqual({ ok: true, data: { semantic: [], docs: [], degraded: false } });
+  }, 120000);
+
+  it("does not embed the query when instant or keyword matching already found a confident result", async () => {
+    const f = await workspace("Hot leads");
+    const embed = vi.fn(() => Promise.reject(new Error("must not embed")));
+    const { interactor, schedule } = searcher(f.policy, embed);
+    const result = await runWithTenant(f.admin, () =>
+      interactor.invoke({ searchTerm: "dark mode", scope: null, locale: "en", semantic: false }),
+    );
+    expect(result).toEqual({ ok: true, data: { semantic: [], docs: [], degraded: false } });
+    expect(embed).not.toHaveBeenCalled();
+    expect(schedule).toHaveBeenCalledTimes(1);
   }, 120000);
 
   it("matches records by exact id, quoted phrase and similarly spelled titles", async () => {

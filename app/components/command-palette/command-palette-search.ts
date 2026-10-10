@@ -1,6 +1,6 @@
 import { commandScore } from "@/components/ui/command";
 
-export type PaletteScope = "lists" | "views" | "settings" | "records";
+export type PaletteScope = "lists" | "views" | "settings" | "docs" | "records";
 
 export type PaletteCandidateKind = "list" | "view" | "page" | "setting" | "field" | "action";
 
@@ -26,6 +26,7 @@ const SCOPE_PREFIXES: Record<string, PaletteScope> = {
   l: "lists",
   v: "views",
   s: "settings",
+  d: "docs",
   r: "records",
 };
 
@@ -42,6 +43,7 @@ const SCOPE_KINDS: Record<PaletteScope, readonly PaletteCandidateKind[]> = {
   lists: ["list", "view"],
   views: ["view"],
   settings: ["page", "setting", "field"],
+  docs: [],
   records: [],
 };
 
@@ -65,10 +67,82 @@ export function scopeIncludes(scope: PaletteScope | null, kind: PaletteCandidate
   return scope === null || SCOPE_KINDS[scope].includes(kind);
 }
 
+const STOP_WORDS: ReadonlySet<string> = new Set([
+  "a",
+  "an",
+  "and",
+  "find",
+  "for",
+  "go",
+  "in",
+  "me",
+  "my",
+  "of",
+  "on",
+  "open",
+  "please",
+  "set",
+  "show",
+  "the",
+  "to",
+  "up",
+  "auf",
+  "bitte",
+  "das",
+  "der",
+  "die",
+  "ein",
+  "eine",
+  "einrichten",
+  "gehe",
+  "im",
+  "mein",
+  "meine",
+  "offne",
+  "offnen",
+  "zeige",
+  "zu",
+  "zum",
+  "zur",
+]);
+const FUZZY_MIN_LENGTH = 5;
+const FUZZY_MIN_SCORE = 0.2;
+
+function words(text: string): string[] {
+  return foldText(text)
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter(Boolean);
+}
+
+export function significantWords(term: string): string[] {
+  const all = words(term);
+  const significant = all.filter((word) => !STOP_WORDS.has(word));
+  return significant.length ? significant : all;
+}
+
+function everyWordPrefixes(query: readonly string[], candidates: readonly string[]): boolean {
+  return query.every((word) => candidates.some((candidate) => candidate.startsWith(word)));
+}
+
 export function candidateScore(term: string, candidate: PaletteCandidate): number {
-  const folded = foldText(term);
-  if (!folded) return 0;
-  return commandScore(foldText(candidate.label), folded, candidate.keywords.map(foldText));
+  const query = significantWords(term);
+  if (!query.length) return 0;
+  const phrase = query.join(" ");
+  const label = words(candidate.label).join(" ");
+  if (label === phrase) return 1;
+  if (label.startsWith(phrase)) return 0.99;
+  const labelWords = words(candidate.label);
+  if (everyWordPrefixes(query, labelWords)) return 0.95;
+  const keywords = candidate.keywords.map((keyword) => words(keyword));
+  if (keywords.some((keyword) => keyword.join(" ") === phrase)) return 0.9;
+  if (everyWordPrefixes(query, [...labelWords, ...keywords.flat()])) return 0.85;
+  if (query.length > 1 || phrase.length < FUZZY_MIN_LENGTH) return 0;
+  const fuzzy = commandScore(
+    label,
+    phrase,
+    keywords.map((keyword) => keyword.join(" ")),
+  );
+  return fuzzy >= FUZZY_MIN_SCORE ? fuzzy * 0.6 : 0;
 }
 
 export function rankCandidates<T extends PaletteCandidate>(
@@ -149,4 +223,49 @@ export function stableOrder(previous: readonly string[], next: readonly string[]
   const kept = previous.filter((key) => present.has(key));
   const keptSet = new Set(kept);
   return [...kept, ...next.filter((key) => !keptSet.has(key))];
+}
+
+export type SemanticHit = { key: string; similarity: number };
+
+const RRF_K = 60;
+
+export function fuseCandidates<T extends PaletteCandidate>(
+  ranked: readonly Ranked<T>[],
+  semantic: readonly SemanticHit[],
+  candidates: readonly T[],
+  scope: PaletteScope | null,
+): Ranked<T>[] {
+  const byKey = new Map(candidates.map((candidate) => [candidate.key, candidate]));
+  const scores = new Map<string, number>();
+  const add = (key: string, rank: number) => scores.set(key, (scores.get(key) ?? 0) + 1 / (RRF_K + rank + 1));
+  ranked.forEach((entry, rank) => add(entry.key, rank));
+  semantic
+    .filter((hit) => {
+      const candidate = byKey.get(hit.key);
+      return candidate !== undefined && scopeIncludes(scope, candidate.kind);
+    })
+    .forEach((hit, rank) => add(hit.key, rank));
+  return [...scores]
+    .sort(([, a], [, b]) => b - a)
+    .flatMap(([key, score]) => {
+      const candidate = byKey.get(key);
+      return candidate ? [{ ...candidate, score }] : [];
+    });
+}
+
+export function semanticBestCandidate<T extends PaletteCandidate>(
+  semantic: readonly SemanticHit[],
+  candidates: readonly T[],
+  scope: PaletteScope | null,
+  threshold: { minSimilarity: number; margin: number },
+): T | null {
+  const byKey = new Map(candidates.map((candidate) => [candidate.key, candidate]));
+  const hits = semantic.filter((hit) => {
+    const candidate = byKey.get(hit.key);
+    return candidate !== undefined && scopeIncludes(scope, candidate.kind);
+  });
+  const [top, next] = hits;
+  if (!top || top.similarity < threshold.minSimilarity) return null;
+  if (next && top.similarity - next.similarity < threshold.margin) return null;
+  return byKey.get(top.key) ?? null;
 }
