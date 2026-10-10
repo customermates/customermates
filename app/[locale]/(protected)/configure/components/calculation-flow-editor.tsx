@@ -421,7 +421,7 @@ export const CalculationFlow = observer(function CalculationFlow({
                           valueType: resultType?.valueType ?? "text",
                           multiple: false,
                           format: {
-                            currency: resultType?.currency ?? null,
+                            currency: resultType?.valueType === "currency" ? store.form.currency.toUpperCase() : null,
                             decimalPlaces:
                               store.form.decimalPlaces.trim() === "" ? null : Number(store.form.decimalPlaces),
                           },
