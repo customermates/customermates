@@ -3,6 +3,7 @@ import type { DataViewProposal } from "./data-view-proposal.schema";
 import type { DataViewState } from "./data-view-state.schema";
 
 import { ALL_VIEW_KEY } from "./data-view-keys";
+import { DataViewStateSchema } from "./data-view-state.schema";
 
 export type ViewProposalDraft = { state: DataViewState; name?: string; isNew: boolean };
 
@@ -31,11 +32,50 @@ export function draftStorageKey(owner: string, surfaceKey: string, viewKey: stri
   return `${VIEW_QUERY_DRAFT_PREFIX}${owner}:${surfaceKey}:${viewKey}`;
 }
 
-export function proposalDraft(proposal: DataViewProposal): ViewDraft {
+export function parseViewDraft(raw: string | null): ViewDraft | undefined {
+  if (!raw) return undefined;
+  try {
+    const parsed = JSON.parse(raw) as Partial<ViewDraft>;
+    const state = DataViewStateSchema.safeParse(parsed.proposal?.state);
+    return {
+      ...(Array.isArray(parsed.filters) ? { filters: parsed.filters } : {}),
+      searchTerm: typeof parsed.searchTerm === "string" ? parsed.searchTerm : undefined,
+      ...(state.success
+        ? {
+            proposal: {
+              state: state.data,
+              ...(typeof parsed.proposal?.name === "string" ? { name: parsed.proposal.name } : {}),
+              isNew: parsed.proposal?.isNew === true,
+            },
+          }
+        : {}),
+    };
+  } catch {
+    return undefined;
+  }
+}
+
+export function proposalViewKey(proposal: DataViewProposal): string {
+  return proposal.viewKey ?? ALL_VIEW_KEY;
+}
+
+export function mergeProposalDraft(existing: ViewDraft | undefined, proposal: DataViewProposal): ViewDraft {
+  const proposed: DataViewState = { ...proposal.state };
+  delete proposed.searchTerm;
+  const state: DataViewState = {
+    ...existing?.proposal?.state,
+    ...(existing?.filters ? { filters: existing.filters } : {}),
+    ...proposed,
+  };
+  const name = proposal.name ?? existing?.proposal?.name;
   return {
-    ...(proposal.state.filters ? { filters: proposal.state.filters } : {}),
-    searchTerm: proposal.state.searchTerm || undefined,
-    proposal: { state: proposal.state, ...(proposal.name ? { name: proposal.name } : {}), isNew: !proposal.viewKey },
+    ...(state.filters ? { filters: state.filters } : {}),
+    searchTerm: existing?.searchTerm,
+    proposal: {
+      state,
+      ...(name ? { name } : {}),
+      isNew: !proposal.viewKey || existing?.proposal?.isNew === true,
+    },
   };
 }
 
@@ -46,9 +86,10 @@ export function rememberViewProposal(
   const owner = viewQueryDraftOwner(user);
   if (!owner || typeof window === "undefined") return;
   try {
+    const key = draftStorageKey(owner, proposal.surfaceKey, proposalViewKey(proposal));
     window.sessionStorage.setItem(
-      draftStorageKey(owner, proposal.surfaceKey, proposal.viewKey ?? ALL_VIEW_KEY),
-      JSON.stringify(proposalDraft(proposal)),
+      key,
+      JSON.stringify(mergeProposalDraft(parseViewDraft(window.sessionStorage.getItem(key)), proposal)),
     );
   } catch {
     return;

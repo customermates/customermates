@@ -269,5 +269,29 @@ test("opens an assistant proposal in the modified state and saves it as an updat
       ).rows,
     )
     .toEqual([{ filters: [assignee] }]);
+
+  const createdId = (
+    await database.query('SELECT id FROM "DataView" WHERE "companyId"=$1 AND "userId"=$2 AND "surfaceKey"=$3 AND name=$4', [
+      companyId,
+      workspace.userId,
+      surfaceKey,
+      "Assigned to me",
+    ])
+  ).rows[0].id;
+  await page.reload();
+  await expect(page.locator(`[data-focus-target="view:${createdId}"]`)).toHaveAttribute("aria-current", "page");
+  await page.waitForLoadState("networkidle");
+  await propose(createdId, { isNew: false, name: "Mine" });
+  await page.reload();
+  const renamed = page.locator(`[data-focus-target="view:${createdId}"]`);
+  await expect(renamed).toHaveText(/Assigned to me/);
+  await expect(renamed).toHaveAttribute("data-view-modified", "");
+  await page.locator("#global-data-views-menu").click();
+  await page.locator("#global-data-views-save").click();
+  await expect(renamed).toHaveText(/^Mine$/);
+  await expect(renamed).not.toHaveAttribute("data-view-modified");
+  await expect
+    .poll(async () => (await database.query('SELECT name FROM "DataView" WHERE id=$1', [createdId])).rows[0]?.name)
+    .toBe("Mine");
   expect(errors).toEqual([]);
 });

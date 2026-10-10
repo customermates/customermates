@@ -796,7 +796,7 @@ describe("agent saved-view management", () => {
     ).rejects.toThrow("returned a named-view result while saving the All view");
   });
 
-  it("proposes an update in the app with the merged state and writes nothing", async () => {
+  it("proposes an update in the app with only the changed keys, no search, and writes nothing", async () => {
     const subject = setup();
     const result = await runWithTenant(mockUser, () =>
       subject.interactor.propose({
@@ -804,7 +804,7 @@ describe("agent saved-view management", () => {
         surfaceKey: SURFACE.users,
         viewKey: VIEW_ID,
         name: "Renamed",
-        state: { sortDescriptor: { field: "createdAt", direction: "desc" } },
+        state: { sortDescriptor: { field: "createdAt", direction: "desc" }, searchTerm: "proposed search" },
       }),
     );
     expect(subject.upsert.invoke).not.toHaveBeenCalled();
@@ -814,14 +814,10 @@ describe("agent saved-view management", () => {
       surfaceKey: SURFACE.users,
       viewKey: VIEW_ID,
       name: "Renamed",
-      state: {
-        searchTerm: "old",
-        columnWidths: { name: 210 },
-        sortDescriptor: { field: "createdAt", direction: "desc" },
-      },
       proposed: true,
       link: `/settings/members?view=${VIEW_ID}`,
     });
+    expect(result.ok && result.data.state).toEqual({ sortDescriptor: { field: "createdAt", direction: "desc" } });
     expect(ManageDataViewsResultSchema.safeParse(result.ok && result.data).success).toBe(true);
   });
 

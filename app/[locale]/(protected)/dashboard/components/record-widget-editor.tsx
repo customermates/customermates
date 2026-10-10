@@ -39,6 +39,7 @@ import { CollapsibleSection } from "@/components/ui/collapsible-section";
 import { WidgetPreviewFrame } from "./widget-preview-frame";
 import { cn } from "@/core/utils/cn";
 import { widgetRelationshipChoices } from "./record-widget-filters";
+import { isRecordMeasureGroupField } from "@/features/records/record-measure-validation";
 
 const AUTO_PREVIEW_DELAY_MS = 600;
 
@@ -156,13 +157,7 @@ export const RecordWidgetEditor = observer(
       if (relation) groupTypeId = step.direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId;
     }
     const groupFields =
-      model?.fields.filter(
-        (field) =>
-          field.typeId === groupTypeId &&
-          !field.archived &&
-          (!field.multiple || field.valueType === "select") &&
-          !["richText", "dateRange", "dateTimeRange"].includes(field.valueType),
-      ) ?? [];
+      model?.fields.filter((field) => field.typeId === groupTypeId && isRecordMeasureGroupField(field)) ?? [];
     const temporalGroup =
       measure.groupBy?.fieldId === "system:createdAt" ||
       measure.groupBy?.fieldId === "system:updatedAt" ||

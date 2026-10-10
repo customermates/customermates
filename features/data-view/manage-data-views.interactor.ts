@@ -50,6 +50,7 @@ import type { Resource } from "@/generated/prisma";
 import { Action } from "@/generated/prisma";
 import { DATA_VIEW_SURFACES, type SurfaceDescriptor } from "./data-view-surfaces";
 import { ManageDataViewsResultSchema, ManageDataViewsSchema } from "./manage-data-views.schema";
+import { isRecordSortField } from "@/features/records/record-query-validation";
 
 export type DataViewConfigurationSources = Record<
   Exclude<
@@ -290,7 +291,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
             ...location,
             viewKey: ALL_VIEW_KEY,
             name: data.name,
-            state: data.state,
+            state: withoutSearch(data.state),
             proposed: true,
             link: this.link(descriptor.path, ALL_VIEW_KEY),
           },
@@ -403,7 +404,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           ...location,
           viewKey: data.viewKey,
           ...(name !== undefined ? { name } : {}),
-          state: { ...currentState, ...state },
+          state: withoutSearch(state ?? {}),
           proposed: true,
           link: this.link(descriptor.path, data.viewKey),
         },
@@ -485,7 +486,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           kind: "field" as const,
           id: field.id,
           label: field.label,
-          sortable: !["richText", "dateRange", "dateTimeRange"].includes(field.valueType),
+          sortable: isRecordSortField(field),
           field,
         }));
       return {
@@ -644,4 +645,10 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
   private link(path: string | null, viewKey: string): string | null {
     return path && `${path}?view=${encodeURIComponent(viewKey)}`;
   }
+}
+
+function withoutSearch<S extends { searchTerm?: unknown }>(state: S): Omit<S, "searchTerm"> {
+  const rest: S = { ...state };
+  delete rest.searchTerm;
+  return rest;
 }

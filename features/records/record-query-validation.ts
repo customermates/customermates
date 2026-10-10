@@ -1,5 +1,5 @@
 import { recordChannelsEnabled } from "./record-channels";
-import type { RecordModel } from "./record-model.schema";
+import type { RecordField, RecordModel } from "./record-model.schema";
 import type { RecordQuery } from "./record-query.schema";
 
 import { scalarMatchesType } from "./record-model-validation";
@@ -94,12 +94,7 @@ export function invalidRecordQueryPart(
       continue;
     }
     const field = fields.get(sort.fieldId);
-    if (
-      !field ||
-      ["richText", "dateRange", "dateTimeRange", "channels"].includes(field.valueType) ||
-      (field.valueType === "select" && field.multiple)
-    )
-      return "sort";
+    if (!field || !isRecordSortField(field)) return "sort";
   }
   for (const filter of query.relationships) {
     const relation = model.relationships.find((relation) => relation.id === filter.relationId && !relation.archived);
@@ -175,4 +170,11 @@ export function keepValidQueryParts<T extends Partial<QueryParts> & { typeId: st
     relationships: keeps("relationships") ?? [],
     ...(query.relatedFilters ? { relatedFilters: keeps("relatedFilters") } : {}),
   };
+}
+
+export function isRecordSortField(field: Pick<RecordField, "multiple" | "valueType">): boolean {
+  return (
+    !["richText", "dateRange", "dateTimeRange", "channels"].includes(field.valueType) &&
+    !(field.valueType === "select" && field.multiple)
+  );
 }

@@ -4,7 +4,7 @@ import type { GroupPageRequest, Grouping, GroupingResult } from "@/core/base/gro
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
 import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
-import { DataViewStateSchema, isPersistedColumnWidthKey } from "@/core/data-view/data-view-state.schema";
+import { isPersistedColumnWidthKey } from "@/core/data-view/data-view-state.schema";
 import type { ObservableSet } from "mobx";
 import type { RootStore } from "../stores/root.store";
 import type { GetResult } from "./base-get.interactor";
@@ -34,7 +34,9 @@ import type { DataViewProposal } from "@/core/data-view/data-view-proposal.schem
 import {
   type ViewDraft,
   draftStorageKey,
-  proposalDraft,
+  mergeProposalDraft,
+  parseViewDraft,
+  proposalViewKey,
   viewQueryDraftOwner,
 } from "@/core/data-view/view-query-drafts";
 import { reserveViewStateWrite, type ViewStateWriteIntent } from "@/core/data-view/view-state-persistence";
@@ -917,6 +919,10 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       return;
     }
     const viewKey = this.activeViewKey;
+    if (this.proposal?.name && viewKey !== ALL_VIEW_KEY) {
+      await this.saveProposedRename(viewKey, this.proposal.name);
+      return;
+    }
     await this.writeViewState({ includeQuery: true });
     if (!this.failedViewStateWrites.has(viewKey)) runInAction(() => (this.proposal = null));
     this.syncQueryDraft();
@@ -933,11 +939,29 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   applyViewProposal = (proposal: DataViewProposal): void => {
     if (proposal.surfaceKey !== this.p13nId || !this.canSaveQuery) return;
-    const viewKey = proposal.viewKey ?? this.activeViewKey;
+    const viewKey = proposalViewKey(proposal);
     if (viewKey !== ALL_VIEW_KEY && !this.views.some((view) => view.id === viewKey)) return;
 
-    this.writeQueryDraft(viewKey, proposalDraft(proposal));
+    if (viewKey === this.activeViewKey) this.syncQueryDraft();
+    this.writeQueryDraft(viewKey, mergeProposalDraft(this.readQueryDraft(viewKey), proposal));
     this.applyView(viewKey);
+  };
+
+  private saveProposedRename = async (viewKey: string, name: string): Promise<void> => {
+    if (!this.p13nId) return;
+    const renamed = await upsertDataViewAction({
+      id: viewKey,
+      name,
+      state: this.viewStateSnapshot({ includeQuery: true }),
+      surfaceKey: this.p13nId as DataViewSurfaceKey,
+    });
+    if (!renamed.ok) {
+      toastZodErrorTree(renamed.error);
+      return;
+    }
+    this.forgetQueryDraft(viewKey);
+    runInAction(() => (this.proposal = null));
+    await this.refresh();
   };
 
   private saveProposedView = async (name: string | undefined): Promise<void> => {
@@ -982,7 +1006,13 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   };
 
   private syncQueryDraft = (): void => {
-    const proposal = this.proposal ? this.readQueryDraft(this.activeViewKey)?.proposal : undefined;
+    const pending = this.proposal ? this.readQueryDraft(this.activeViewKey)?.proposal : undefined;
+    const display: DataViewState = this.viewStateSnapshot({ includeQuery: false });
+    delete display.filters;
+    delete display.searchTerm;
+    const proposal = pending
+      ? { ...pending, state: { ...pending.state, ...display, filters: toJS(this.filters) ?? [] } }
+      : undefined;
     this.writeQueryDraft(
       this.activeViewKey,
       proposal || this.hasSessionQuery
@@ -1005,23 +1035,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     if (!key || !this.canSaveQuery || typeof window === "undefined") return undefined;
 
     try {
-      const raw = window.sessionStorage.getItem(key);
-      if (!raw) return undefined;
-      const parsed = JSON.parse(raw) as Partial<ViewDraft>;
-      const state = DataViewStateSchema.safeParse(parsed.proposal?.state);
-      return {
-        ...(Array.isArray(parsed.filters) ? { filters: parsed.filters } : {}),
-        searchTerm: typeof parsed.searchTerm === "string" ? parsed.searchTerm : undefined,
-        ...(state.success
-          ? {
-              proposal: {
-                state: state.data,
-                ...(typeof parsed.proposal?.name === "string" ? { name: parsed.proposal.name } : {}),
-                isNew: parsed.proposal?.isNew === true,
-              },
-            }
-          : {}),
-      };
+      return parseViewDraft(window.sessionStorage.getItem(key));
     } catch {
       return undefined;
     }
@@ -1344,7 +1358,11 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   };
 
   private persistViewState = () => {
-    if (!this.p13nId || !this.viewPersistable || !this.canPersistViewState() || this.proposal) return;
+    if (!this.p13nId || !this.viewPersistable || !this.canPersistViewState()) return;
+    if (this.proposal) {
+      this.syncQueryDraft();
+      return;
+    }
 
     this.discardPendingViewState();
     this.pendingViewStateIntent = this.reserveViewStateIntent();
