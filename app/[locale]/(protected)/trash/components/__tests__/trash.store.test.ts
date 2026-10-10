@@ -34,7 +34,7 @@ function makeStore({ isSystemRole = true } = {}) {
         values ? `${key}:${JSON.stringify(values)}` : key,
     },
     userStore: { user: { role: { isSystemRole } } },
-    recordWorkspaceStore: { invalidate },
+    recordWorkspaceStore: { invalidate, refreshNavigation: vi.fn(() => Promise.resolve()) },
     deleteConfirmationModalStore: deleteConfirmation,
   } as unknown as RootStore);
   return { store, invalidate, deleteConfirmation };

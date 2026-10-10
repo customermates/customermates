@@ -109,6 +109,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
     await Promise.all([
       this.isReady ? this.refreshQuery() : undefined,
       this.rootStore.recordWorkspaceStore.invalidate(),
+      this.rootStore.recordWorkspaceStore.refreshNavigation(),
     ]);
   };
 
