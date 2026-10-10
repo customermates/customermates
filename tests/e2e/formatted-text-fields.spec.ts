@@ -144,7 +144,21 @@ test("keeps a bulk-edited formatted text on Escape and follows links in display 
   await page.goto(`/en/records/${typeId}`);
   const suffix = randomUUID().slice(0, 6);
   const names = [`Bulk A ${suffix}`, `Bulk B ${suffix}`];
-  for (const name of names) {
+  const linked = `Linked ${suffix}`;
+  const brief = {
+    type: "doc",
+    content: [
+      {
+        type: "paragraph",
+        content: [
+          { type: "text", text: "Read the " },
+          { type: "text", text: "brief", marks: [{ type: "link", attrs: { href: "https://example.com/brief" } }] },
+          { type: "text", text: " before the call." },
+        ],
+      },
+    ],
+  };
+  for (const name of [...names, linked]) {
     const current = await post(page, "/api/v1/model/discover", {});
     await post(page, "/api/v1/records/mutate", {
       expectedRevision: current.revision,
@@ -152,7 +166,17 @@ test("keeps a bulk-edited formatted text on Escape and follows links in display 
       mutation: {
         action: "create",
         typeId,
-        fields: [{ fieldId: presetId(companyId, "organization.name"), value: { kind: "text", value: name } }],
+        fields: [
+          { fieldId: presetId(companyId, "organization.name"), value: { kind: "text", value: name } },
+          ...(name === linked
+            ? [
+                {
+                  fieldId: presetId(companyId, "organization.notes"),
+                  value: { kind: "richText", documentJson: JSON.stringify(brief) },
+                },
+              ]
+            : []),
+        ],
       },
     });
   }
@@ -163,7 +187,7 @@ test("keeps a bulk-edited formatted text on Escape and follows links in display 
   await bulk.getByRole("button", { name: "Notes", exact: true }).click();
   await editFormattedText(bulk, "Notes");
   await expect(bulk.getByRole("textbox", { name: "Notes", exact: true })).toBeFocused();
-  await page.keyboard.type("See https://example.com/brief for the brief");
+  await page.keyboard.type("Renewal agreed for the brief");
   await page.keyboard.press("Escape");
   await expect(bulk).toBeVisible();
   await expect(bulk.locator('[data-formatted-text-field][data-state="display"]')).toHaveCount(1);
@@ -173,19 +197,26 @@ test("keeps a bulk-edited formatted text on Escape and follows links in display 
   await expect(page.locator("[data-record-mass-actions]")).not.toBeVisible();
 
   await openRecordDetails(page, names[0]);
+  const bulkDrawer = page.getByRole("dialog", { name: "Organization", exact: true });
+  await expect(bulkDrawer.getByRole("textbox", { name: "Notes", exact: true })).toContainText(
+    "Renewal agreed for the brief",
+  );
+  await bulkDrawer.getByRole("button", { name: "Close", exact: true }).click();
+
+  await openRecordDetails(page, linked);
   const drawer = page.getByRole("dialog", { name: "Organization", exact: true });
   const field = drawer.locator("[data-formatted-text-field]").filter({
     has: page.getByRole("textbox", { name: "Notes", exact: true }),
   });
   await expect(field).toHaveAttribute("data-state", "display");
-  const link = field.getByRole("link", { name: "https://example.com/brief", exact: true });
+  const link = field.getByRole("link", { name: "brief", exact: true });
   await expect(link).toBeVisible();
   await page.context().route("https://example.com/**", (route) => route.fulfill({ status: 200, body: "brief" }));
   const popup = page.context().waitForEvent("page");
   await link.click();
   await (await popup).close();
   await expect(field).toHaveAttribute("data-state", "display");
-  await field.getByText("for the brief", { exact: false }).click();
+  await field.getByText("before the call.", { exact: false }).click({ position: { x: 2, y: 4 } });
   await expect(field).toHaveAttribute("data-state", "editing");
   expect(errors).toEqual([]);
 });
