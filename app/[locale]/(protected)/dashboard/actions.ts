@@ -16,7 +16,6 @@ import {
   getGetRecordWidgetInteractor,
   getGetRecordWidgetsInteractor,
   getGetWidgetByIdInteractor,
-  getGetWidgetGalleryInteractor,
   getGetWidgetsInteractor,
   getPreviewRecordWidgetInteractor,
   getUpdateUserDetailsInteractor,
@@ -79,10 +78,6 @@ export async function discoverWidgetRecordTypesAction(params: { searchTerm?: str
 }
 export async function previewRecordWidgetAction(measure: RecordMeasure) {
   return serializeResult(getPreviewRecordWidgetInteractor().invoke(measure));
-}
-
-export async function getWidgetGalleryAction() {
-  return serializeResult(getGetWidgetGalleryInteractor().invoke());
 }
 
 export async function upsertRecordActivityWidgetAction(input: RecordActivityWidgetInput) {
