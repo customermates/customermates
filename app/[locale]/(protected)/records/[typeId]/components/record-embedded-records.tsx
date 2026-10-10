@@ -243,6 +243,7 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
                   onOpen={canOpen ? () => open(record) : undefined}
                 />
               )}
+              rowLabel={recordName}
               store={list}
               totals={list.totals}
               view="table"

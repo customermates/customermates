@@ -23,6 +23,7 @@ type Props<E extends HasId> = {
   rowHref?: (item: E) => string | undefined;
   rowActions?: (item: E) => ReactNode;
   rowFocusKey?: (item: E) => string | undefined;
+  rowLabel?: (item: E) => string;
   renderCard?: (item: E) => ReactNode;
   columnStyle?: (columnId: string) => DataTableColumnStyle;
   store: BaseDataViewStore<E>;
@@ -36,6 +37,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
   rowHref,
   rowActions,
   rowFocusKey,
+  rowLabel,
   renderCard,
   columnStyle,
   store,
@@ -63,6 +65,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
         renderCard={renderCard}
         rowActions={rowActions}
         rowFocusKey={rowFocusKey}
+        rowLabel={rowLabel}
         store={store}
         onRowClick={interactive ? onRowClick : undefined}
         onRowHref={rowHref}
