@@ -439,6 +439,48 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     }
   });
 
+  it("frees an allowance slot when a routine at the limit moves to Trash", async () => {
+    const quotaCompanyId = randomUUID();
+    const quotaOwnerId = randomUUID();
+    await client.query('INSERT INTO "Company" ("id", "updatedAt") VALUES ($1, CURRENT_TIMESTAMP)', [quotaCompanyId]);
+    await client.query(
+      `INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "status", "updatedAt")
+       VALUES ($1, $2, 'Routine', 'Owner', $3, 'active', CURRENT_TIMESTAMP)`,
+      [quotaOwnerId, `routine-${quotaOwnerId}@example.invalid`, quotaCompanyId],
+    );
+    const asOwner = <T>(run: () => Promise<T>) => runWithTenant(tenant(quotaOwnerId, quotaCompanyId), run);
+    const createRoutine = (name: string) =>
+      asOwner(() =>
+        createTestRoutineRepo().upsertRoutineOrThrow(
+          { name, prompt: "Do something", triggerKind: "event", triggerEvents: ["messaging.message.received"] },
+          2,
+        ),
+      );
+
+    try {
+      await createRoutine("First routine");
+      const second = await createRoutine("Second routine");
+      await expect(createRoutine("Blocked routine")).rejects.toBeInstanceOf(RoutineLimitExceededError);
+
+      expect(await asOwner(() => createTestRoutineRepo().trashRoutineOrThrow(second.id, new Date()))).not.toBeNull();
+      const replacement = await createRoutine("Replacement routine");
+
+      expect(replacement.name).toBe("Replacement routine");
+      const stored = await client.query<{ live: string; trashed: string }>(
+        `SELECT COUNT(*) FILTER (WHERE "deletedAt" IS NULL)::TEXT AS "live",
+                COUNT(*) FILTER (WHERE "deletedAt" IS NOT NULL)::TEXT AS "trashed"
+         FROM "Routine" WHERE "companyId" = $1 AND "ownerUserId" = $2`,
+        [quotaCompanyId, quotaOwnerId],
+      );
+      expect(stored.rows[0]).toEqual({ live: "2", trashed: "1" });
+      await expect(createRoutine("Still blocked routine")).rejects.toBeInstanceOf(RoutineLimitExceededError);
+    } finally {
+      await client.query('DELETE FROM "Routine" WHERE "companyId" = $1', [quotaCompanyId]);
+      await client.query('DELETE FROM "User" WHERE "companyId" = $1', [quotaCompanyId]);
+      await client.query('DELETE FROM "Company" WHERE "id" = $1', [quotaCompanyId]);
+    }
+  });
+
   it("gives users independent allowances and does not cap unlimited plans", async () => {
     const quotaCompanyId = randomUUID();
     const firstOwnerId = randomUUID();
