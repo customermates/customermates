@@ -108,7 +108,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       className={cn(
-        "flex shrink-0 flex-col gap-1.5 p-4 pt-[calc(1rem+var(--safe-top))] pr-[calc(1rem+var(--safe-right))] pl-[calc(1rem+var(--safe-left))]",
+        "flex shrink-0 flex-col gap-1.5 p-4 pt-[calc(1.5rem+var(--safe-top))] pr-[calc(1rem+var(--safe-right))] pl-[calc(1rem+var(--safe-left))]",
         OVERLAY_HEADER_ALIGNMENT_CLASS,
         className,
       )}
@@ -148,7 +148,7 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
 function SheetTitle({ className, ...props }: React.ComponentProps<typeof SheetPrimitive.Title>) {
   return (
     <SheetPrimitive.Title
-      className={cn("font-semibold text-foreground", className)}
+      className={cn("text-lg font-semibold text-foreground", className)}
       data-slot="sheet-title"
       {...props}
     />
