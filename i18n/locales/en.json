@@ -835,6 +835,7 @@
     "groups": {
       "actions": "Actions",
       "bestMatch": "Best match",
+      "docs": "Docs",
       "listsAndViews": "Lists and views",
       "pagesAndSettings": "Pages and settings",
       "records": "Records",
@@ -1462,7 +1463,8 @@
     "sort": {
       "ascending": "Ascending",
       "descending": "Descending",
-      "field": "Sort by"
+      "field": "Sort by",
+      "manual": "Manual"
     },
     "stageProbability": "Stage probability",
     "systemTasks": {
@@ -1951,13 +1953,14 @@
     "boardMoveRequested": "Move to {group} requested.",
     "boardMoveTarget": "Move record to {group}.",
     "boardPickedUp": "Record picked up.",
+    "collapseColumn": "Collapse column",
     "collapseGroup": "Collapse group {group}",
     "dragToReorder": "Drag to reorder",
+    "expandColumn": "Expand {name}",
     "expandGroup": "Expand group {group}",
     "groupOverflow": "Only {count} groups are shown",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "No value",
-    "resizeBoardColumns": "Resize the board columns. Drag or use the arrow keys; double-tap or press Enter to reset.",
     "resizeColumn": "Resize {column} column. Drag or use arrow keys to resize; double-tap or press Enter to reset.",
     "resizeHint": "Drag to resize. Double-click to reset.",
     "rowActions": "Row actions",
@@ -3666,6 +3669,14 @@
     "unlinkRecord": "Unlink {name}",
     "updatedAt": "Updated at",
     "useChannelAvatar": "Use channel profile picture",
+    "valueSource": {
+      "calculated": "Calculated · {formula}",
+      "from": "From {list} · {value}",
+      "savedOnCreate": "Saved when the {list} is created",
+      "savedOnRequest": "Saved on request",
+      "savedWhenChanged": "Saved when {field} changes",
+      "savedWhenChangedTo": "Saved when {field} changes to {value}"
+    },
     "valueType": "Value type",
     "yes": "Yes"
   },

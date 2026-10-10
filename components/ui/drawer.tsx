@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tool
 import {
   OVERLAY_CLOSE_CLASS,
   OVERLAY_CLOSE_POSITION_CLASS,
+  OVERLAY_DRAWER_HANDLE_CLOSE_CLASS,
   OVERLAY_HEADER_ALIGNMENT_CLASS,
   OVERLAY_SCROLL_REGION,
 } from "./overlay-contract";
@@ -83,7 +84,12 @@ function DrawerContent({
             <Tooltip>
               <TooltipTrigger asChild>
                 <DrawerPrimitive.Close
-                  className={cn(OVERLAY_CLOSE_CLASS, OVERLAY_CLOSE_POSITION_CLASS, "z-10")}
+                  className={cn(
+                    OVERLAY_CLOSE_CLASS,
+                    OVERLAY_CLOSE_POSITION_CLASS,
+                    OVERLAY_DRAWER_HANDLE_CLOSE_CLASS,
+                    "z-10",
+                  )}
                   data-slot="drawer-close"
                 >
                   <XIcon />
