@@ -40,11 +40,20 @@ export const FilterTargetPopover = observer(function FilterTargetPopover({
   const t = useTranslations();
   const palette = useFilterPalette(store);
 
-  useEffect(() => registerOpener?.(() => palette.openFor(store)), [registerOpener, palette, store]);
+  const visible =
+    store.filterableFields.length > 0 ||
+    Boolean(store.filters?.length) ||
+    Boolean(store.groups?.length) ||
+    Boolean(search);
+  const openable = visible && !store.isDisabled;
+  useEffect(
+    () => (openable ? registerOpener?.(() => palette.openFor(store)) : undefined),
+    [registerOpener, palette, store, openable],
+  );
   const contentRef = useRef<HTMLDivElement>(null);
   const filterFieldLabel = useFilterFieldLabel();
 
-  if (store.filterableFields.length === 0 && !store.filters?.length && !store.groups?.length && !search) return null;
+  if (!visible) return null;
 
   const activeFilterCount = (store.filters?.length ?? 0) + (store.groups?.length ?? 0) + (search?.term ? 1 : 0);
   const isOpen = palette.isOpen && palette.target === store;
