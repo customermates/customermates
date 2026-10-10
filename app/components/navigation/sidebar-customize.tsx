@@ -58,7 +58,6 @@ import {
   entryPosition,
   itemPosition,
   moveTargets,
-  sectionLabel,
   useDeleteSidebarSection,
   useResolvedSidebar,
 } from "./nav-sections";
@@ -67,12 +66,13 @@ import {
   entryKey,
   moveSidebarEntry,
   moveSidebarItem,
+  renameSidebarSection,
+  sectionLabel,
   sectionsOf,
   setSidebarItemHidden,
   shiftSidebarEntry,
   shiftSidebarItem,
   sidebarLayoutOf,
-  updateSidebarSection,
 } from "./sidebar-layout";
 
 const SECTION_ID_PREFIX = "section:";
@@ -304,7 +304,8 @@ export const SidebarCustomize = observer(({ groups, open, onOpenChange }: Props)
                       onMove={(by) => save(shiftSidebarEntry(resolved, key, by, isEntryShown))}
                       onRename={(name) => {
                         setRenaming(null);
-                        if (name) save(updateSidebarSection(resolved, section.id, { name }));
+                        const renamed = renameSidebarSection(resolved, section.id, name, sectionLabel(groups, section));
+                        if (renamed) save(renamed);
                       }}
                       onStartRename={() => setRenaming(section.id)}
                     >
@@ -558,7 +559,7 @@ function SectionNameInput({ initial, onDone }: { initial: string; onDone: (name:
   const finish = (commit: boolean) => {
     if (done) return;
     setDone(true);
-    onDone(commit && value.trim() ? value.trim() : null);
+    onDone(commit ? value : null);
   };
   return (
     <Input

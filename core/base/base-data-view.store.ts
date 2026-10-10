@@ -59,6 +59,38 @@ type ViewQuery = { filters: Filter[]; searchTerm: string | undefined };
 
 const VIEW_QUERY_DRAFT_PREFIX = "customermates:view-query-draft:";
 
+export function viewQueryDraftOwner(user: { id: string; companyId: string } | null | undefined): string | undefined {
+  return user ? `${user.companyId}:${user.id}` : undefined;
+}
+
+export function forgetOtherViewQueryDrafts(owner: string | undefined): void {
+  if (typeof window === "undefined") return;
+  try {
+    const ownPrefix = owner ? `${VIEW_QUERY_DRAFT_PREFIX}${owner}:` : undefined;
+    const stale = Object.keys(window.sessionStorage).filter(
+      (key) => key.startsWith(VIEW_QUERY_DRAFT_PREFIX) && (!ownPrefix || !key.startsWith(ownPrefix)),
+    );
+    for (const key of stale) window.sessionStorage.removeItem(key);
+  } catch {
+    return;
+  }
+}
+
+function canonicalJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.keys(value)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${canonicalJson((value as Record<string, unknown>)[key])}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value) ?? "null";
+}
+
+function filterSignature(filters: Filter[]): string[] {
+  return filters.map(canonicalJson).sort();
+}
+
 export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore {
   items: Entity[] = [];
 
@@ -253,18 +285,21 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   get isQueryModified(): boolean {
     if (!this.isReady || !this.canSaveQuery) return false;
 
-    const saved = this.savedQuery;
-    return !deepEqual(toJS(this.filters) ?? [], saved.filters) || (this.searchTerm || undefined) !== saved.searchTerm;
+    return !deepEqual(filterSignature(toJS(this.filters) ?? []), filterSignature(this.savedQuery.filters));
+  }
+
+  private get hasSessionQuery(): boolean {
+    if (!this.isReady || !this.canSaveQuery) return false;
+
+    return this.isQueryModified || (this.searchTerm || undefined) !== this.savedQuery.searchTerm;
   }
 
   viewStateSnapshot = ({ includeQuery }: { includeQuery: boolean }): DataViewState => {
-    const query: ViewQuery = includeQuery
-      ? { filters: toJS(this.filters) ?? [], searchTerm: this.searchTerm }
-      : this.savedQuery;
+    const saved = this.savedQuery;
 
     return {
-      filters: query.filters,
-      searchTerm: query.searchTerm ?? "",
+      filters: includeQuery ? (toJS(this.filters) ?? []) : saved.filters,
+      searchTerm: saved.searchTerm ?? "",
       sortDescriptor: toJS(this.sortDescriptor) ?? null,
       pageSize: this.pagination?.pageSize,
       viewMode: toJS(this.viewMode),
@@ -840,8 +875,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   };
 
   resetQueryToView = (): void => {
-    const saved = this.savedQuery;
-    this.setQueryOptions({ filters: saved.filters, searchTerm: saved.searchTerm ?? "" });
+    this.setQueryOptions({ filters: this.savedQuery.filters });
   };
 
   restoreQueryDraft = (): void => {
@@ -849,7 +883,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     this.queryDraftRestored = true;
 
     const draft = this.readQueryDraft(this.activeViewKey);
-    if (!draft || this.isQueryModified) {
+    if (!draft || this.hasSessionQuery) {
       this.syncQueryDraft();
       return;
     }
@@ -864,14 +898,15 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   private syncQueryDraft = (): void => {
     this.writeQueryDraft(
       this.activeViewKey,
-      this.isQueryModified
+      this.hasSessionQuery
         ? { filters: toJS(this.filters) ?? [], searchTerm: this.searchTerm || undefined }
         : undefined,
     );
   };
 
   private queryDraftKey(viewKey: string): string | undefined {
-    return this.p13nId ? `${VIEW_QUERY_DRAFT_PREFIX}${this.p13nId}:${viewKey}` : undefined;
+    const owner = viewQueryDraftOwner(this.rootStore.userStore?.user);
+    return this.p13nId && owner ? `${VIEW_QUERY_DRAFT_PREFIX}${owner}:${this.p13nId}:${viewKey}` : undefined;
   }
 
   private readQueryDraft(viewKey: string): ViewQuery | undefined {
