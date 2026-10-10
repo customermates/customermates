@@ -857,6 +857,8 @@
       "deleteNamed": "Elimina {name}"
     },
     "resolve": "Vai a «{query}»",
+    "resolveNoCredits": "Non hai più crediti IA, quindi questa richiesta non può essere risolta.",
+    "resolveUnavailable": "Al momento non è possibile risolvere le richieste. Scegli un risultato o riprova più tardi.",
     "resolving": "Ricerca del risultato migliore…",
     "synonyms": {
       "action": {
