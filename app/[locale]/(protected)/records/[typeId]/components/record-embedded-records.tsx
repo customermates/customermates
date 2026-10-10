@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { RecordDto, RecordRef, RecordType } from "@/features/records/record-model.schema";
 import type { RecordRow } from "@/features/records/record-presentation";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
@@ -191,7 +191,7 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
     });
   const recordName = (record: RecordRow) =>
     recordTitle(record.fields.find((field) => field.fieldId === type.primaryFieldId)?.result, type.label, t);
-  const openRelated = (ref: RecordRef) => store.rootStore.recordWorkspaceStore.open(ref);
+  const openRelated = useCallback((ref: RecordRef) => store.rootStore.recordWorkspaceStore.open(ref), [store]);
   const columns = useRecordTableColumns(list, openRelated, { markCalculated: true });
   const renderCard = useRecordCardRenderer(list, openRelated);
   const rows = list.items;
