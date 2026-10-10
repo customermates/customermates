@@ -225,13 +225,36 @@ describe("command palette state", () => {
     store.open();
     store.onChange("searchTerm", "r acme");
     await vi.advanceTimersByTimeAsync(200);
-    expect(commandSearchAction).toHaveBeenLastCalledWith({ searchTerm: "acme", scope: "records", locale: "en" });
+    expect(commandSearchAction).toHaveBeenLastCalledWith({
+      searchTerm: "acme",
+      scope: "records",
+      locale: "en",
+      semantic: true,
+    });
     store.onChange("searchTerm", "s theme");
     expect(store.semantic).toEqual([]);
     await vi.advanceTimersByTimeAsync(200);
-    expect(commandSearchAction).toHaveBeenLastCalledWith({ searchTerm: "theme", scope: "settings", locale: "en" });
+    expect(commandSearchAction).toHaveBeenLastCalledWith({
+      searchTerm: "theme",
+      scope: "settings",
+      locale: "en",
+      semantic: true,
+    });
     expect(store.semantic).toEqual([{ key: "cmd:page.dashboard", similarity: 0.8 }]);
     expect(commandSearchAction).toHaveBeenCalledTimes(2);
   });
 
+  it("asks the server not to embed when the instant matcher is already confident", async () => {
+    browser();
+    vi.mocked(commandSearchAction).mockResolvedValue(combined());
+    const { store } = setup();
+    store.setInstantMatcher((query) => query === "dashboard");
+    store.open();
+    store.onChange("searchTerm", "dashboard");
+    await vi.advanceTimersByTimeAsync(200);
+    expect(commandSearchAction).toHaveBeenLastCalledWith(expect.objectContaining({ semantic: false }));
+    store.onChange("searchTerm", "hot leads");
+    await vi.advanceTimersByTimeAsync(200);
+    expect(commandSearchAction).toHaveBeenLastCalledWith(expect.objectContaining({ semantic: true }));
+  });
 });

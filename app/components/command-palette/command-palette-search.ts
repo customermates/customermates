@@ -67,10 +67,82 @@ export function scopeIncludes(scope: PaletteScope | null, kind: PaletteCandidate
   return scope === null || SCOPE_KINDS[scope].includes(kind);
 }
 
+const STOP_WORDS: ReadonlySet<string> = new Set([
+  "a",
+  "an",
+  "and",
+  "find",
+  "for",
+  "go",
+  "in",
+  "me",
+  "my",
+  "of",
+  "on",
+  "open",
+  "please",
+  "set",
+  "show",
+  "the",
+  "to",
+  "up",
+  "auf",
+  "bitte",
+  "das",
+  "der",
+  "die",
+  "ein",
+  "eine",
+  "einrichten",
+  "gehe",
+  "im",
+  "mein",
+  "meine",
+  "offne",
+  "offnen",
+  "zeige",
+  "zu",
+  "zum",
+  "zur",
+]);
+const FUZZY_MIN_LENGTH = 5;
+const FUZZY_MIN_SCORE = 0.2;
+
+function words(text: string): string[] {
+  return foldText(text)
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter(Boolean);
+}
+
+export function significantWords(term: string): string[] {
+  const all = words(term);
+  const significant = all.filter((word) => !STOP_WORDS.has(word));
+  return significant.length ? significant : all;
+}
+
+function everyWordPrefixes(query: readonly string[], candidates: readonly string[]): boolean {
+  return query.every((word) => candidates.some((candidate) => candidate.startsWith(word)));
+}
+
 export function candidateScore(term: string, candidate: PaletteCandidate): number {
-  const folded = foldText(term);
-  if (!folded) return 0;
-  return commandScore(foldText(candidate.label), folded, candidate.keywords.map(foldText));
+  const query = significantWords(term);
+  if (!query.length) return 0;
+  const phrase = query.join(" ");
+  const label = words(candidate.label).join(" ");
+  if (label === phrase) return 1;
+  if (label.startsWith(phrase)) return 0.99;
+  const labelWords = words(candidate.label);
+  if (everyWordPrefixes(query, labelWords)) return 0.95;
+  const keywords = candidate.keywords.map((keyword) => words(keyword));
+  if (keywords.some((keyword) => keyword.join(" ") === phrase)) return 0.9;
+  if (everyWordPrefixes(query, [...labelWords, ...keywords.flat()])) return 0.85;
+  if (query.length > 1 || phrase.length < FUZZY_MIN_LENGTH) return 0;
+  const fuzzy = commandScore(
+    label,
+    phrase,
+    keywords.map((keyword) => keyword.join(" ")),
+  );
+  return fuzzy >= FUZZY_MIN_SCORE ? fuzzy * 0.6 : 0;
 }
 
 export function rankCandidates<T extends PaletteCandidate>(

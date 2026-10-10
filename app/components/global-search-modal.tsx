@@ -261,6 +261,12 @@ export const GlobalSearchModal = observer(() => {
       : null);
   const bestHit = !bestEntry && hits[0] && exactTitleMatch(term, recordSearchLabel(hits[0], t)) ? hits[0] : undefined;
   const bestKey = bestEntry?.key ?? (bestHit ? recordSearchKey(bestHit) : undefined);
+  useEffect(() => {
+    globalSearchModalStore.setInstantMatcher((raw) => {
+      const parsed = parsePaletteQuery(raw);
+      return bestCandidate(parsed.term, rankCandidates(parsed.term, entries, parsed.scope)) !== null;
+    });
+  });
   const rankedOf = (kinds: readonly string[]) =>
     ranked.filter((entry) => kinds.includes(entry.kind) && entry.key !== bestKey).slice(0, SECTION_LIMIT);
 

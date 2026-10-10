@@ -172,6 +172,12 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
     this.docs = docs;
   };
 
+  private instantlyConfident: (query: string) => boolean = () => false;
+
+  setInstantMatcher = (confident: (query: string) => boolean) => {
+    this.instantlyConfident = confident;
+  };
+
   private get searchLocale() {
     const locale = this.rootStore.localeStore.locale;
     return isAppLocale(locale) ? locale : DEFAULT_LOCALE;
@@ -331,6 +337,7 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
             searchTerm: term,
             scope: parsePaletteQuery(this.form.searchTerm).scope,
             locale: this.searchLocale,
+            semantic: !this.instantlyConfident(this.form.searchTerm),
           });
       if (!current()) return;
       const failure = records && !records.ok ? records.error : combined && !combined.ok ? combined.error : null;

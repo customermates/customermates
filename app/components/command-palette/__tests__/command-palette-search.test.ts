@@ -188,3 +188,38 @@ describe("semantic fusion", () => {
     ).toBeNull();
   });
 });
+
+describe("reviewer queries (F22r2)", async () => {
+  const { getTranslator } = await import("@/i18n/get-translator");
+  const { staticEntries } = await import("../palette-entries");
+  const translate = await getTranslator("en");
+  const registry = staticEntries((key, values) => translate(key, values), {
+    appMode: "cloud",
+    canManageSchema: true,
+    onListPage: false,
+    can: () => true,
+  });
+  const labels = (query: string) => rankCandidates(query, registry, null).map((entry) => entry.label);
+
+  it("does not match short names by scattered letters", () => {
+    expect(labels("Anna")).toEqual([]);
+  });
+
+  it("ignores stop words and matches the significant words of a phrase", () => {
+    expect(labels("set up webhooks")[0]).toBe("Webhooks");
+    expect(bestCandidate("set up webhooks", rankCandidates("set up webhooks", registry, null))?.label).toBe("Webhooks");
+    expect(labels("öffne die Webhooks")[0]).toBe("Webhooks");
+    expect(labels("go to billing")[0]).toBe("Billing");
+  });
+
+  it("matches word prefixes and synonyms", () => {
+    expect(labels("dark mode")).toContain("Switch to dark theme");
+    expect(labels("api key")).toContain("API keys");
+    expect(labels("lang")).toContain("Display Language");
+  });
+
+  it("keeps fuzzy matching for longer single words only", () => {
+    expect(labels("dashbord")).toContain("Dashboard");
+    expect(labels("dshb")).toEqual([]);
+  });
+});
