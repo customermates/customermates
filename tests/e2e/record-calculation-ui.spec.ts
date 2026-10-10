@@ -244,7 +244,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
     await expect.poll(dealValues).toEqual({ "Configured opportunity/Value": money("3000"), "Configured opportunity/Weighted value": money("1800") });
     await openRecordList(page, id("deal"));
     await openRecordDetails(page, "Configured opportunity");
-    await dialog.getByRole("region", { name: "Line items", exact: true }).getByRole("button", { name: "Calculated A", exact: true }).click();
+    await openRecordLink(dialog.getByRole("region", { name: "Line items", exact: true }).getByRole("button", { name: "Calculated A", exact: true }));
     const lookup = dialog.last().locator(`[data-entity-field="${catalogPriceId}"]`);
     await lookup.getByText("€1,200.00", { exact: true }).scrollIntoViewIfNeeded();
     await expect(lookup.getByText("€1,200.00", { exact: true })).toBeVisible();

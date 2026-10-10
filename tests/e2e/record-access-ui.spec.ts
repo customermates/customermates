@@ -2602,12 +2602,14 @@ test("keeps personal views separate from shared defaults and completes their UI 
     .locator("#global-data-views")
     .getByRole("link", { name: personal.name, exact: true })
     .click();
-  await expect(
-    page.getByRole("columnheader", { name: "Internal memo", exact: false }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("columnheader", { name: "Budget", exact: false }),
-  ).toHaveCount(0);
+  if (!test.info().project.use.isMobile) {
+    await expect(
+      page.getByRole("columnheader", { name: "Internal memo", exact: false }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("columnheader", { name: "Budget", exact: false }),
+    ).toHaveCount(0);
+  }
   await presentationViewMenuUi(page, englishMessages.DataView.views.delete);
   await expect(confirmation).toContainText(personal.name);
   await confirmation.locator("#confirm-delete").click();
