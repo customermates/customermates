@@ -2151,7 +2151,7 @@
     "overview": "Overview",
     "personalize": "Customize",
     "pinField": "Pin {field} to the overview",
-    "pinMore": "Pin a field",
+    "pinMore": "Pin or unpin fields",
     "reorderInstructions": "Press Space or Enter to pick up a field. Use the arrow keys to move it, Space or Enter to drop, and Escape to cancel.",
     "sections": {
       "notes": "Notes"

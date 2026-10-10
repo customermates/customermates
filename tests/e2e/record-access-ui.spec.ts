@@ -2225,7 +2225,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
   const viewRows = async (userId: string) =>
     (
       await database.query(
-        'SELECT id,name,position,"viewMode",grouping,"sortDescriptor","columnOrder","columnWidths","hiddenColumns" FROM "DataView" WHERE "companyId"=$1 AND "userId"=$2 AND "surfaceKey"=$3 ORDER BY position,id',
+        'SELECT id,name,position,"viewMode",grouping,"sortDescriptor","columnOrder","columnWidths","hiddenColumns" FROM "DataView" WHERE "companyId"=$1 AND "userId"=$2 AND "surfaceKey"=$3 AND "deletedAt" IS NULL ORDER BY position,id',
         [companyId, userId, surfaceKey],
       )
     ).rows;
@@ -2670,7 +2670,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
   expect(
     (
       await database.query(
-        'SELECT id FROM "DataView" WHERE "companyId"=$1 AND "surfaceKey"=$2',
+        'SELECT id FROM "DataView" WHERE "companyId"=$1 AND "surfaceKey"=$2 AND "deletedAt" IS NULL',
         [companyId, surfaceKey],
       )
     ).rows,
@@ -3830,5 +3830,53 @@ test("enforces partial system manage actions for a restricted member in the API 
     expect(member.errors).toEqual([]);
   } finally {
     await member.close();
+  }
+});
+
+test("lets a read-only member pin and unpin header fields with the pin menu", async ({
+  page,
+  browser,
+  database,
+  companyId,
+}, testInfo) => {
+  test.setTimeout(180000);
+  const contactTypeId = presetId(companyId, "contact");
+  const firstName = `Pinning ${randomUUID().slice(0, 6)}`;
+  await mutate(page, {
+    action: "create",
+    typeId: contactTypeId,
+    fields: [
+      { fieldId: presetId(companyId, "contact.firstName"), value: { kind: "text", value: firstName } },
+      { fieldId: presetId(companyId, "contact.lastName"), value: { kind: "text", value: "Reader" } },
+    ],
+  });
+  const role = await saveRole(page, {
+    name: `Contact pin readers ${randomUUID().slice(0, 6)}`,
+    description: "Read contacts without editing",
+    permissions: [{ resource: "company", actions: [] }],
+    recordGrants: [{ typeId: contactTypeId, actions: ["readAll"] }],
+  });
+  const reader = await secondaryUser(browser, database, companyId, role.role.id, testInfo);
+  try {
+    await reader.page.goto(`/en/records/${contactTypeId}`);
+    await openRecordDetails(reader.page, `${firstName} Reader`);
+    const drawer = reader.page.getByRole("dialog", { name: "Contact", exact: true });
+    const menu = drawer.getByRole("button", { name: "Pin or unpin fields", exact: true });
+    const lastName = drawer.locator("[data-record-chip-row]").getByRole("group", { name: "Last name", exact: true });
+    await menu.click();
+    await reader.page.getByRole("menuitemcheckbox", { name: "Last name", exact: true }).click();
+    await reader.page.keyboard.press("Escape");
+    await expect(lastName).toContainText("Reader");
+    await expect(lastName.getByRole("button", { name: "Edit Last name", exact: true })).toHaveCount(0);
+    await menu.click();
+    const item = reader.page.getByRole("menuitemcheckbox", { name: "Last name", exact: true });
+    await expect(item).toHaveAttribute("aria-checked", "true");
+    await item.click();
+    await expect(item).toHaveAttribute("aria-checked", "false");
+    await reader.page.keyboard.press("Escape");
+    await expect(lastName).toHaveCount(0);
+    expect(reader.errors).toEqual([]);
+  } finally {
+    await reader.close();
   }
 });
