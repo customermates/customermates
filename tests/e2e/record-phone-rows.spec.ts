@@ -111,19 +111,20 @@ test("the row action group sits on a solid surface on keyboard focus and on hove
       return { opacity: style.opacity, color: style.backgroundColor, image: style.backgroundImage };
     });
 
-  await page.mouse.move(0, 0);
-  await group.getByRole("button", { name: "Open details", exact: true }).focus();
-  await expect.poll(async () => (await surface()).opacity).toBe("1");
-  const focused = await surface();
-  expect(focused.color).not.toBe("rgba(0, 0, 0, 0)");
-  await page.screenshot({ path: test.info().outputPath("row-actions-focus.png"), animations: "disabled" });
-
-  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+  await expect(page.locator("#records-add")).toBeEnabled();
   await row.hover();
   await expect.poll(async () => (await surface()).opacity).toBe("1");
   const hovered = await surface();
   expect(hovered.color).not.toBe("rgba(0, 0, 0, 0)");
   expect(hovered.image).toContain("linear-gradient");
   await page.screenshot({ path: test.info().outputPath("row-actions-hover.png"), animations: "disabled" });
+
+  await page.mouse.move(0, 0);
+  await expect.poll(async () => (await surface()).opacity).toBe("0");
+  await group.getByRole("button", { name: "Open details", exact: true }).focus();
+  await expect.poll(async () => (await surface()).opacity).toBe("1");
+  const focused = await surface();
+  expect(focused.color).not.toBe("rgba(0, 0, 0, 0)");
+  await page.screenshot({ path: test.info().outputPath("row-actions-focus.png"), animations: "disabled" });
   expect(errors).toEqual([]);
 });
