@@ -189,7 +189,7 @@ test("paginates and retries record and widget history, restores a personal timel
   const storedView = async () =>
     (
       await database.query(
-        'SELECT id,filters FROM "DataView" WHERE "companyId"=$1 AND "userId"=$2 AND "surfaceKey"=$3 AND name=$4',
+        'SELECT id,filters FROM "DataView" WHERE "companyId"=$1 AND "userId"=$2 AND "surfaceKey"=$3 AND name=$4 AND "deletedAt" IS NULL',
         [companyId, workspace.userId, SURFACE.entityTimeline, viewName],
       )
     ).rows;

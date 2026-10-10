@@ -1,15 +1,8 @@
-import type { Locator, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
-
-async function openRowMenu(page: Page, row: Locator, name: string) {
-  await expect(async () => {
-    await row.hover();
-    await row.getByRole("button", { name: `More actions for ${name}`, exact: true }).click();
-    await expect(page.getByRole("menu")).toBeVisible({ timeout: 2000 });
-  }).toPass();
-}
+import { runNamedRowAction } from "./record-rows";
 
 function collectErrors(page: Page) {
   const errors: string[] = [];
@@ -36,17 +29,19 @@ test("moves a routine to Trash, stops listing it and restores it from Trash", as
   );
   await page.goto("/en/routines");
   const row = page.getByRole("row").filter({ hasText: "Weekly digest" });
-  await openRowMenu(page, row, "Weekly digest");
-  await page.getByRole("menuitem", { name: englishMessages.Common.actions.delete, exact: true }).click();
-  await page.getByRole("alertdialog").getByRole("button", { name: englishMessages.Common.actions.delete, exact: true }).click();
+  const confirmation = page.getByRole("alertdialog");
+  await expect(async () => {
+    await runNamedRowAction(page, row, "Weekly digest", englishMessages.Common.actions.delete);
+    await expect(confirmation).toBeVisible({ timeout: 3000 });
+  }).toPass({ timeout: 30000 });
+  await confirmation.getByRole("button", { name: englishMessages.Common.actions.delete, exact: true }).click();
   await expect(row).toHaveCount(0);
   await expect(page.locator("[data-sonner-toast]").filter({ hasText: englishMessages.Trash.movedToTrash })).toBeVisible();
 
   await page.goto("/en/trash");
   const trashed = page.getByRole("row").filter({ hasText: "Weekly digest" });
   await expect(trashed).toContainText(englishMessages.Trash.kinds.routine);
-  await openRowMenu(page, trashed, "Weekly digest");
-  await page.getByRole("menuitem", { name: englishMessages.Trash.restore, exact: true }).click();
+  await runNamedRowAction(page, trashed, "Weekly digest", englishMessages.Trash.restore);
   await expect(page.locator("[data-sonner-toast]").filter({ hasText: "1 item restored" })).toBeVisible();
   await expect(trashed).toHaveCount(0);
 
