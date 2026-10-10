@@ -573,7 +573,20 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
           where: { companyId, id: cleanup.id },
           data: { measure: cleanup.measure as Prisma.InputJsonValue, version: { increment: 1 } },
         });
-      }
+      } else if (cleanup.kind === "eventSubscription") {
+        const { id, events, changedFieldIds, query, sources } = cleanup.subscription;
+        await this.prisma.recordEventSubscription.updateMany({
+          where: { companyId, id },
+          data: {
+            events,
+            changedFieldIds,
+            query: query === null ? Prisma.DbNull : (query as Prisma.InputJsonValue),
+            sources: sources?.length ? (sources as Prisma.InputJsonValue) : Prisma.DbNull,
+            revision: { increment: 1 },
+          },
+        });
+      } else if (cleanup.kind === "eventSubscriptionRemoval")
+        await this.prisma.recordEventSubscription.deleteMany({ where: { companyId, id: cleanup.id } });
     }
   }
   async measure(measure: RecordMeasure, model: RecordModel, access: RecordAccessMap): Promise<MeasureRow[]> {

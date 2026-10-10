@@ -3,7 +3,7 @@ import type { RecordMeasure } from "./record-measure.schema";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordQuerySchema } from "./record-query.schema";
-import { invalidRecordQueryPart } from "./record-query-validation";
+import { invalidRecordQueryPart, keepValidQueryParts } from "./record-query-validation";
 
 export type RecordMeasureIssue = { code: CustomErrorCode; path: string[] };
 
@@ -71,20 +71,7 @@ export function recordMeasureIsValid(measure: RecordMeasure, model: RecordModel)
 }
 
 export function cleanRecordMeasure(measure: RecordMeasure, model: RecordModel): RecordMeasure | null {
-  const query = RecordQuerySchema.parse(measure.source);
-  const keeps = <T>(items: T[] | undefined, key: "filters" | "relationships" | "relatedFilters") =>
-    items?.filter(
-      (item) =>
-        !invalidRecordQueryPart({ ...query, filters: [], relationships: [], relatedFilters: [], [key]: [item] }, model),
-    );
-  const source = {
-    ...measure.source,
-    filters: keeps(measure.source.filters, "filters") ?? [],
-    relationships: keeps(measure.source.relationships, "relationships") ?? [],
-    ...(measure.source.relatedFilters
-      ? { relatedFilters: keeps(measure.source.relatedFilters, "relatedFilters") }
-      : {}),
-  };
+  const source = keepValidQueryParts(measure.source, model);
   const withoutGroupFilter = measure.groupBy
     ? { ...measure, source, groupBy: { ...measure.groupBy, filter: undefined } }
     : null;
@@ -93,5 +80,6 @@ export function cleanRecordMeasure(measure: RecordMeasure, model: RecordModel): 
     ...(withoutGroupFilter ? [withoutGroupFilter] : []),
     { ...measure, source, groupBy: null },
   ];
-  return candidates.find((candidate) => recordMeasureIssue(candidate, model) === null) ?? null;
+  const counting = candidates.map((candidate) => ({ ...candidate, aggregation: "count" as const, valueFieldId: null }));
+  return [...candidates, ...counting].find((candidate) => recordMeasureIssue(candidate, model) === null) ?? null;
 }

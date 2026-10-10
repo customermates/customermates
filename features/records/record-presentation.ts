@@ -16,6 +16,7 @@ import { toChipColor, type ChipColor } from "@/constants/chip-colors";
 
 export type RecordLinkColors = Partial<Record<string, ChipColor>>;
 export type RecordLinkIcons = Partial<Record<string, string>>;
+export type RecordLinkLabels = Partial<Record<string, string>>;
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
 import {
   parseRelationshipColumnKey,
@@ -327,6 +328,11 @@ export function recordLinkColors(types: RecordType[], relationships: RecordRelat
 export function recordLinkIcons(types: RecordType[], relationships: RecordRelationship[]): RecordLinkIcons {
   const ids = new Set(relationships.flatMap((relation) => [relation.sourceTypeId, relation.targetTypeId]));
   return Object.fromEntries(types.flatMap((type) => (ids.has(type.id) ? [[type.id, type.icon]] : [])));
+}
+
+export function recordLinkLabels(types: RecordType[], relationships: RecordRelationship[]): RecordLinkLabels {
+  const ids = new Set(relationships.flatMap((relation) => [relation.sourceTypeId, relation.targetTypeId]));
+  return Object.fromEntries(types.flatMap((type) => (ids.has(type.id) ? [[type.id, type.label]] : [])));
 }
 
 export function recordLinkColor(colors: RecordLinkColors, typeId: string) {

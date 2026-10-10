@@ -9,6 +9,7 @@ import type { TenantUser } from "@/features/user/user.schema";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { interactorFailureStatus } from "@/core/validation/validation.utils";
+import { recordInvariant } from "../record-invariant";
 
 vi.mock("@/env", () => ({
   env: {
@@ -412,7 +413,7 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
             action: "create",
             typeId: leadsId,
             fields: [
-              { fieldId: leads.primaryFieldId, value: { kind: "text", value: "Hidden lead" } },
+              { fieldId: recordInvariant(leads.primaryFieldId), value: { kind: "text", value: "Hidden lead" } },
               { fieldId: scoreId, value: { kind: "text", value: "high" } },
             ],
           },

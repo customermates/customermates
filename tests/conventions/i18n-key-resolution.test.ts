@@ -531,7 +531,18 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ],
   [
     "RecordModel.configurationDeletion.cleaned.${*}",
-    ["listDefaults", "personalLayouts", "view", "widget"].map(
+    [
+      "listDefaults",
+      "personalLayouts",
+      "view",
+      "widget",
+      "widgetCount",
+      "webhookTrigger",
+      "webhookRemoved",
+      "bindingChannels",
+      "bindingAvatar",
+      "bindingCalendar",
+    ].map(
       (key) => `RecordModel.configurationDeletion.cleaned.${key}`,
     ),
   ],
