@@ -9,7 +9,7 @@ import type {
   RecordRelationship,
   RecordScalar,
 } from "@/features/records/record-model.schema";
-import type { RecordRow } from "@/features/records/record-presentation";
+import type { RecordLinkLabels, RecordRow } from "@/features/records/record-presentation";
 import type { RecordColumn } from "@/features/records/record-columns";
 import type { RecordChoice } from "@/features/records/get-record-choices.interactor";
 import type { RecordsStore } from "./records.store";
@@ -38,8 +38,8 @@ import { AppForm } from "@/components/forms/form-context";
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { toChipColor } from "@/constants/chip-colors";
 import { isInteractiveClick } from "@/components/data-view/is-interactive-click";
-import { recordTitle } from "@/components/records/record-title";
 import { useDataViewItemLayout } from "@/components/data-view/data-view-item-layout";
+import { recordTitle } from "@/components/records/record-title";
 import { cn } from "@/core/utils/cn";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -59,7 +59,7 @@ const EDIT_SPACE_BUTTON_CLASS =
   "sr-only focus-visible:not-sr-only focus-visible:ml-1 focus-visible:rounded-md focus-visible:px-1 focus-visible:text-xs focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none";
 const IN_PLACE_VALUE_TYPES: RecordFieldView["valueType"][] = ["text", "number", "currency", ...CONTACT_VALUE_TYPES];
 
-function focusFirstControl(event: Event) {
+export function focusFirstControl(event: Event) {
   if (!(event.currentTarget instanceof HTMLElement)) return;
   event.currentTarget
     .querySelector<HTMLElement>('input:not([type="hidden"]):not([aria-hidden="true"]), textarea, [role="combobox"]')
@@ -566,6 +566,109 @@ export function RecordCalculatedValue({
   );
 }
 
+export const RecordLinkPicker = observer(function RecordLinkPicker({
+  typeId,
+  label,
+  linkLabels,
+  linked,
+  failed,
+  busy = false,
+  onRetry,
+  onToggle,
+  onOpenRecord,
+  children,
+}: {
+  typeId: string;
+  label: string;
+  linkLabels: RecordLinkLabels;
+  linked: RecordChoice[] | null;
+  failed: boolean;
+  busy?: boolean;
+  onRetry: () => void;
+  onToggle: (choice: RecordChoice, isLinked: boolean) => void;
+  onOpenRecord: (ref: RecordRef) => void;
+  children?: ReactNode;
+}) {
+  const t = useTranslations();
+  const [search, setSearch] = useState("");
+  const [attempt, setAttempt] = useState(0);
+  const debounced = useDebouncedValue(search);
+  const options = useRecordChoices({ typeId, page: 1, pageSize: 25, search: debounced }, true, attempt);
+  const linkedIds = new Set((linked ?? []).map((entry) => entry.ref.recordId));
+  return (
+    <Command shouldFilter={false}>
+      <CommandInput aria-label={label} value={search} onValueChange={setSearch} />
+
+      <CommandList>
+        {options.loading || linked === null ? (
+          <SelectionOptionsSkeleton label={t("Loading.text")} />
+        ) : options.failed || failed ? (
+          <div className="flex items-center gap-2 p-3 text-sm" role="alert">
+            <span>{t("Common.notifications.unexpectedError")}</span>
+
+            <Button
+              size="sm"
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                setAttempt((value) => value + 1);
+                onRetry();
+              }}
+            >
+              {t("ErrorCard.retry")}
+            </Button>
+          </div>
+        ) : (
+          <>
+            <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
+
+            <CommandGroup>
+              {(options.data?.records ?? []).map((choice) => {
+                const isLinked = linkedIds.has(choice.ref.recordId);
+                return (
+                  <CommandItem
+                    key={choice.ref.recordId}
+                    aria-selected={isLinked}
+                    disabled={busy}
+                    value={choice.ref.recordId}
+                    onSelect={() => onToggle(choice, isLinked)}
+                  >
+                    <span className="flex-1 truncate">
+                      {recordTitle(choice.title, linkLabels[choice.ref.typeId], t)}
+                    </span>
+
+                    {isLinked && <Check aria-hidden className="size-4" />}
+                  </CommandItem>
+                );
+              })}
+            </CommandGroup>
+
+            {linked.length > 0 && (
+              <CommandGroup className="border-t border-border" data-slot="open-linked-records">
+                {linked.map((choice) => (
+                  <CommandItem
+                    key={`open:${choice.ref.recordId}`}
+                    value={`open:${choice.ref.recordId}`}
+                    onSelect={() => onOpenRecord(choice.ref)}
+                  >
+                    <span className="flex-1 truncate">
+                      {t("RecordModel.openRecord", {
+                        name: recordTitle(choice.title, linkLabels[choice.ref.typeId], t),
+                      })}
+                    </span>
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            )}
+
+            {children}
+          </>
+        )}
+      </CommandList>
+    </Command>
+  );
+});
+
 const InlineRelationshipPicker = observer(function InlineRelationshipPicker({
   records,
   record,
@@ -583,11 +686,8 @@ const InlineRelationshipPicker = observer(function InlineRelationshipPicker({
   onDone: () => void;
   onOpenRecord: (ref: RecordRef) => void;
 }) {
-  const t = useTranslations();
-  const [search, setSearch] = useState("");
   const [attempt, setAttempt] = useState(0);
   const [busy, setBusy] = useState(false);
-  const debounced = useDebouncedValue(search);
   const typeId = direction === "outgoing" ? relation.targetTypeId : relation.sourceTypeId;
   const singular = (direction === "outgoing" ? relation.sourceCardinality : relation.targetCardinality) === "one";
   const linked = useRecordChoices(
@@ -595,13 +695,10 @@ const InlineRelationshipPicker = observer(function InlineRelationshipPicker({
     true,
     attempt,
   );
-  const options = useRecordChoices({ typeId, page: 1, pageSize: 25, search: debounced }, true, attempt);
   const linkedRecords = linked.data?.records ?? [];
-  const linkedIds = new Set(linkedRecords.map((entry) => entry.ref.recordId));
-  const toggle = (choice: RecordChoice) =>
+  const toggle = (choice: RecordChoice, isLinked: boolean) =>
     runUserAction(async () => {
       if (busy) return;
-      const isLinked = linkedIds.has(choice.ref.recordId);
       const changes = isLinked
         ? [{ action: "unlink" as const, relationId: relation.id, direction, record: choice.ref }]
         : [
@@ -625,68 +722,20 @@ const InlineRelationshipPicker = observer(function InlineRelationshipPicker({
       }
     });
   return (
-    <Command shouldFilter={false}>
-      <CommandInput aria-label={label} value={search} onValueChange={setSearch} />
-
-      <CommandList>
-        {options.loading || linked.loading ? (
-          <SelectionOptionsSkeleton label={t("Loading.text")} />
-        ) : options.failed || linked.failed ? (
-          <div className="flex items-center gap-2 p-3 text-sm" role="alert">
-            <span>{t("Common.notifications.unexpectedError")}</span>
-
-            <Button size="sm" type="button" variant="secondary" onClick={() => setAttempt((value) => value + 1)}>
-              {t("ErrorCard.retry")}
-            </Button>
-          </div>
-        ) : (
-          <>
-            <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
-
-            <CommandGroup>
-              {(options.data?.records ?? []).map((choice) => {
-                const isLinked = linkedIds.has(choice.ref.recordId);
-                return (
-                  <CommandItem
-                    key={choice.ref.recordId}
-                    aria-selected={isLinked}
-                    disabled={busy}
-                    value={choice.ref.recordId}
-                    onSelect={() => toggle(choice)}
-                  >
-                    <span className="flex-1 truncate">
-                      {recordTitle(choice.title, records.presentation.linkLabels[choice.ref.typeId], t)}
-                    </span>
-
-                    {isLinked && <Check aria-hidden className="size-4" />}
-                  </CommandItem>
-                );
-              })}
-            </CommandGroup>
-
-            {linkedRecords.length > 0 && (
-              <CommandGroup className="border-t border-border" data-slot="open-linked-records">
-                {linkedRecords.map((choice) => {
-                  const name = recordTitle(choice.title, records.presentation.linkLabels[choice.ref.typeId], t);
-                  return (
-                    <CommandItem
-                      key={`open:${choice.ref.recordId}`}
-                      value={`open:${choice.ref.recordId}`}
-                      onSelect={() => {
-                        onDone();
-                        onOpenRecord(choice.ref);
-                      }}
-                    >
-                      <span className="flex-1 truncate">{t("RecordModel.openRecord", { name })}</span>
-                    </CommandItem>
-                  );
-                })}
-              </CommandGroup>
-            )}
-          </>
-        )}
-      </CommandList>
-    </Command>
+    <RecordLinkPicker
+      busy={busy}
+      failed={linked.failed}
+      label={label}
+      linkLabels={records.presentation.linkLabels}
+      linked={linked.loading ? null : linkedRecords}
+      typeId={typeId}
+      onOpenRecord={(ref) => {
+        onDone();
+        onOpenRecord(ref);
+      }}
+      onRetry={() => setAttempt((value) => value + 1)}
+      onToggle={toggle}
+    />
   );
 });
 

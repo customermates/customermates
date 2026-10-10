@@ -835,6 +835,7 @@
     "groups": {
       "actions": "Azioni",
       "bestMatch": "Miglior risultato",
+      "docs": "Documentazione",
       "listsAndViews": "Elenchi e viste",
       "pagesAndSettings": "Pagine e impostazioni",
       "records": "Record",
@@ -1952,13 +1953,14 @@
     "boardMoveRequested": "Spostamento in {group} richiesto.",
     "boardMoveTarget": "Sposta il record in {group}.",
     "boardPickedUp": "Record selezionato.",
+    "collapseColumn": "Comprimi colonna",
     "collapseGroup": "Comprimi il gruppo {group}",
     "dragToReorder": "Trascina per riordinare",
+    "expandColumn": "Espandi {name}",
     "expandGroup": "Espandi il gruppo {group}",
     "groupOverflow": "Vengono mostrati solo {count} gruppi",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Nessun valore",
-    "resizeBoardColumns": "Ridimensiona le colonne della bacheca. Trascina o usa le frecce; tocca due volte o premi Invio per ripristinare.",
     "resizeColumn": "Ridimensiona la colonna «{column}». Trascina o usa i tasti freccia; tocca due volte o premi Invio per ripristinare.",
     "resizeHint": "Trascina per ridimensionare. Fai doppio clic per ripristinare.",
     "rowActions": "Azioni riga",
@@ -3675,6 +3677,14 @@
     "untitledRecord": "{singular} senza nome",
     "updatedAt": "Aggiornato il",
     "useChannelAvatar": "Usa l’immagine del profilo del canale",
+    "valueSource": {
+      "calculated": "Calcolato · {formula}",
+      "from": "Da {list} · {value}",
+      "savedOnCreate": "Salvato alla creazione di {list}",
+      "savedOnRequest": "Salvato su richiesta",
+      "savedWhenChanged": "Salvato quando {field} cambia",
+      "savedWhenChangedTo": "Salvato quando {field} diventa {value}"
+    },
     "valueType": "Tipo di valore",
     "yes": "Sì"
   },
