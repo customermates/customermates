@@ -291,7 +291,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
             ...location,
             viewKey: ALL_VIEW_KEY,
             name: data.name,
-            state: data.state,
+            state: withoutSearch(data.state),
             proposed: true,
             link: this.link(descriptor.path, ALL_VIEW_KEY),
           },
@@ -404,7 +404,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           ...location,
           viewKey: data.viewKey,
           ...(name !== undefined ? { name } : {}),
-          state: { ...currentState, ...state },
+          state: withoutSearch(state ?? {}),
           proposed: true,
           link: this.link(descriptor.path, data.viewKey),
         },
@@ -645,4 +645,10 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
   private link(path: string | null, viewKey: string): string | null {
     return path && `${path}?view=${encodeURIComponent(viewKey)}`;
   }
+}
+
+function withoutSearch<S extends { searchTerm?: unknown }>(state: S): Omit<S, "searchTerm"> {
+  const rest: S = { ...state };
+  delete rest.searchTerm;
+  return rest;
 }

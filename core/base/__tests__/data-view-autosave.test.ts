@@ -1146,6 +1146,88 @@ describe("assistant view proposals", () => {
     expect(store.activeViewKey).toBe(created.id);
   });
 
+  it("saves a proposed rename of an existing view together with its state", async () => {
+    upsertDataViewAction.mockResolvedValue({ ok: true, data: { ...VIEW, name: "Won deals" } });
+    const store = hydrated();
+    store.applyViewProposal(proposal({ name: "Won deals" }));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(store.proposal).toEqual({ name: "Won deals", isNew: false });
+
+    await store.saveQueryToView();
+
+    expect(upsertDataViewAction).toHaveBeenCalledExactlyOnceWith({
+      id: VIEW_ID,
+      name: "Won deals",
+      state: expect.objectContaining({ filters: [filter("won")], sortDescriptor: sort("stage") }),
+      surfaceKey: SURFACE.routines,
+    });
+    expect(saveDataViewStateAction).not.toHaveBeenCalled();
+    expect(store.proposal).toBeNull();
+  });
+
+  it("keeps the person's own search when a proposal arrives", async () => {
+    const store = hydrated();
+    store.applyView(VIEW_ID);
+    await vi.advanceTimersByTimeAsync(0);
+    store.setQueryOptions({ searchTerm: "acme" });
+
+    store.applyViewProposal(proposal({ state: { sortDescriptor: sort("stage"), searchTerm: "mate" } }));
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(store.searchTerm).toBe("acme");
+    expect(store.sortDescriptor).toEqual(sort("stage"));
+  });
+
+  it("starts a proposed new view from All even when another view is open", async () => {
+    const store = hydrated();
+    store.applyView(VIEW_ID);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(store.filters).toEqual([filter("open")]);
+
+    store.applyViewProposal(proposal({ viewKey: undefined, name: "Sorted", state: { sortDescriptor: sort("stage") } }));
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(store.activeViewKey).toBe(ALL_VIEW_KEY);
+    expect(store.proposal).toEqual({ name: "Sorted", isNew: true });
+    expect(store.filters).toEqual([]);
+    expect(store.sortDescriptor).toEqual(sort("stage"));
+  });
+
+  it("merges a proposal into temporary filters and an earlier proposal instead of replacing them", async () => {
+    const store = hydrated();
+    store.applyView(VIEW_ID);
+    await vi.advanceTimersByTimeAsync(0);
+    store.setQueryOptions({ filters: [filter("lost")] });
+
+    store.applyViewProposal(proposal({ state: { sortDescriptor: sort("stage") } }));
+    await vi.advanceTimersByTimeAsync(0);
+    store.applyViewProposal(proposal({ state: { hiddenColumns: ["stage"] } }));
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(store.filters).toEqual([filter("lost")]);
+    expect(store.sortDescriptor).toEqual(sort("stage"));
+    expect(store.hiddenColumns).toEqual(["stage"]);
+    expect(store.isQueryModified).toBe(true);
+  });
+
+  it("keeps display changes made while a proposal is pending for the browser session", async () => {
+    const store = hydrated();
+    store.applyViewProposal(proposal());
+    await vi.advanceTimersByTimeAsync(0);
+    store.setViewOptions({ columnWidth: { uid: "stage", width: 240 } });
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(saveDataViewStateAction).not.toHaveBeenCalled();
+
+    const next = new TestStore(rootStore());
+    next.setItems(serverEcho({ viewId: VIEW_ID, pagination: { page: 1, pageSize: 25 } }));
+    next.restoreQueryDraft();
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(next.proposal).toEqual({ isNew: false });
+    expect(next.columnWidths).toEqual({ stage: 240 });
+    expect(next.hiddenColumns).toEqual(["stage"]);
+  });
+
   it("ignores a proposal for another surface or an unknown view", () => {
     const store = hydrated();
     store.applyViewProposal(proposal({ surfaceKey: SURFACE.users } as Partial<DataViewProposal>));
