@@ -20,6 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { FormSaveMenuItem } from "@/components/forms/form-footer-actions";
 import { OverflowRail } from "@/components/shared/overflow-rail";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -322,6 +323,8 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
 
             {store.isQueryModified && (
               <>
+                <FormSaveMenuItem id="global-data-views-save" onSave={store.saveQueryToView} />
+
                 <DropdownMenuItem id="global-data-views-reset" onSelect={() => runUserAction(store.resetQueryToView)}>
                   {t("DataView.views.resetChanges")}
                 </DropdownMenuItem>

@@ -181,6 +181,7 @@ function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewSt
     viewMode: "table",
     views: VIEWS,
     isQueryModified: false,
+    saveQueryToView: vi.fn(() => Promise.resolve()),
     resetQueryToView: vi.fn(),
     forgetQueryDraft: vi.fn(),
     viewStateSnapshot: ({ includeQuery }: { includeQuery: boolean }): DataViewState => {
@@ -648,7 +649,7 @@ describe("data view rail interaction", () => {
     expect(host.querySelector("[data-view-menu]")?.textContent).not.toContain("Common.actions.save");
   });
 
-  it("marks only the active chip as modified and offers Reset changes after Ask AI", () => {
+  it("marks only the active chip as modified and offers Save and Reset changes after Ask AI", () => {
     const value = store({ activeViewKey: "v-b", isQueryModified: true } as Partial<BaseDataViewStore<Item>>);
     const host = render(value);
 
@@ -656,8 +657,14 @@ describe("data view rail interaction", () => {
     expect(modified).toHaveLength(1);
     expect(modified[0]?.textContent).toContain("Open deals");
     expect(modified[0]?.textContent).toContain("DataView.views.modified");
-    expect(menuLabels(host).slice(0, 2)).toEqual(["DataView.views.askAi", "DataView.views.resetChanges"]);
-    expect(menuLabels(host)).not.toContain("Common.actions.save");
+    expect(menuLabels(host).slice(0, 3)).toEqual([
+      "DataView.views.askAi",
+      "Common.actions.save",
+      "DataView.views.resetChanges",
+    ]);
+
+    act(() => byText(host, "Common.actions.save").click());
+    expect(value.saveQueryToView).toHaveBeenCalledOnce();
 
     act(() => byText(host, "DataView.views.resetChanges").click());
     expect(value.resetQueryToView).toHaveBeenCalledOnce();
@@ -668,6 +675,7 @@ describe("data view rail interaction", () => {
 
     expect(host.querySelector("[data-view-modified]")).toBeNull();
     expect(menuLabels(host)).not.toContain("DataView.views.resetChanges");
+    expect(menuLabels(host)).not.toContain("Common.actions.save");
   });
 
   it("offers Ask AI, duplicate and copy link on the All tab", () => {
