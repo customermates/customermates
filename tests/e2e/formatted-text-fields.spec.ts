@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { Page } from "@playwright/test";
 import { test, expect, isBenignPageError } from "./fixtures";
 import { openRecordDetails, recordItem } from "./record-rows";
+import { applyPaletteSearch, clearPaletteSearch } from "./filter-palette";
 import { presetId } from "../../features/records/crm-preset";
 
 async function post(page: Page, path: string, data: unknown) {
@@ -80,11 +81,13 @@ test("edits two formatted text fields inline in the overview, collapses long tex
   const row = recordItem(page, name);
   await expect(row).toContainText("Line 1 about the renewal call. Line 2 about the renewal call.");
   await expect(row).toContainText("Expansion likely in");
-  await page.getByPlaceholder("Search...").first().fill("renewal call");
+  await applyPaletteSearch(page, "records-filter", "renewal call");
   await expect(recordItem(page, name)).toBeVisible();
-  await page.getByPlaceholder("Search...").first().fill("Q3");
+  await expect(recordItem(page, "Example organization")).toHaveCount(0);
+  await clearPaletteSearch(page, "records-filter");
+  await applyPaletteSearch(page, "records-filter", "Q3");
   await expect(recordItem(page, name)).toBeVisible();
-  await page.getByPlaceholder("Search...").first().fill("");
+  await clearPaletteSearch(page, "records-filter");
 
   await openRecordDetails(page, name);
   await expect(drawer.getByRole("textbox", { name: "Summary", exact: true })).toContainText("Expansion likely in Q3");
