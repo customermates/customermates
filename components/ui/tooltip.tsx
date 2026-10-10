@@ -19,11 +19,23 @@ function TooltipProvider({ delayDuration = 0, ...props }: React.ComponentProps<t
   );
 }
 
-function Tooltip({ ...props }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
-  return <TooltipPrimitive.Root data-slot="tooltip" {...props} />;
+const TooltipHasContentContext = React.createContext(false);
+
+function Tooltip({ children, ...props }: React.ComponentProps<typeof TooltipPrimitive.Root>) {
+  const hasContent = React.Children.toArray(children).some(
+    (child) => React.isValidElement(child) && child.type === TooltipContent,
+  );
+  return (
+    <TooltipHasContentContext.Provider value={hasContent}>
+      <TooltipPrimitive.Root data-slot="tooltip" {...props}>
+        {children}
+      </TooltipPrimitive.Root>
+    </TooltipHasContentContext.Provider>
+  );
 }
 
 function TooltipTrigger({ onFocus, onPointerMove, ...props }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {
+  const hasContent = React.useContext(TooltipHasContentContext);
   return (
     <TooltipPrimitive.Trigger
       data-slot="tooltip-trigger"
@@ -33,7 +45,7 @@ function TooltipTrigger({ onFocus, onPointerMove, ...props }: React.ComponentPro
       }}
       onPointerMove={(event) => {
         if (pointerMovesClaimedByTooltip.has(event.nativeEvent)) event.preventDefault();
-        pointerMovesClaimedByTooltip.add(event.nativeEvent);
+        if (hasContent) pointerMovesClaimedByTooltip.add(event.nativeEvent);
         onPointerMove?.(event);
       }}
       {...props}

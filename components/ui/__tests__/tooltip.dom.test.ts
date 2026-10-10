@@ -114,4 +114,46 @@ describe("TooltipContent", () => {
     ).toEqual(["Browser Administrator"]);
     act(() => root.unmount());
   });
+
+  it("opens the outer tooltip when the nested trigger has nothing to show", async () => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    const root = createRoot(host);
+    act(() => {
+      root.render(
+        createElement(
+          TooltipProvider,
+          null,
+          createElement(
+            Tooltip,
+            null,
+            createElement(
+              TooltipTrigger,
+              { asChild: true },
+              createElement(
+                "span",
+                null,
+                createElement(
+                  Tooltip,
+                  null,
+                  createElement(TooltipTrigger, { asChild: true }, createElement("span", { id: "chip" }, "Unverified")),
+                ),
+              ),
+            ),
+            createElement(TooltipContent, null, "Not verified yet"),
+          ),
+        ),
+      );
+    });
+
+    await act(async () => {
+      document.getElementById("chip")?.dispatchEvent(new MouseEvent("pointermove", { bubbles: true }));
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    });
+
+    expect(
+      [...document.querySelectorAll('[data-slot="tooltip-content"]')].map((content) => content.firstChild?.textContent),
+    ).toEqual(["Not verified yet"]);
+    act(() => root.unmount());
+  });
 });
