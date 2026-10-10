@@ -173,7 +173,7 @@ test("items move to the top level and the seeded Data section can be renamed, de
   page,
   database,
   workspace,
-}) => {
+}, testInfo) => {
   const errors = collectErrors(page);
   await page.goto("/en/dashboard");
   await page.waitForLoadState("networkidle");
@@ -191,6 +191,10 @@ test("items move to the top level and the seeded Data section can be renamed, de
   await page.getByRole("menuitem", { name: "Top level", exact: true }).click();
   await expect.poll(topLevel).toEqual(["Trash", "Contacts"]);
   await expect(sidebarSection(page, "Data")).not.toContainText("Contacts");
+  await page.screenshot({ path: testInfo.outputPath("sidebar-top-level-light.png"), animations: "disabled" });
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.screenshot({ path: testInfo.outputPath("sidebar-top-level-dark.png"), animations: "disabled" });
+  await page.emulateMedia({ colorScheme: "light" });
 
   await (await sectionMenu(page, "Data")).getByRole("menuitem", { name: "Rename", exact: true }).click();
   await nameNewSection(page, "Lists");
@@ -219,6 +223,8 @@ test("items move to the top level and the seeded Data section can be renamed, de
 
   const dialog = await openCustomize(page);
   await expect(dialog.locator('[data-customize-section="Data"]')).toHaveCount(0);
+  await expect(dialog.locator("[data-customize-top-level]").first()).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("customize-top-level.png"), animations: "disabled" });
   await page.getByRole("button", { name: "Reset to default", exact: true }).click();
   await page.getByRole("alertdialog").getByRole("button", { name: "Reset to default", exact: true }).click();
   await expect.poll(() => storedLayout(database, workspace.userId)).toBeNull();
