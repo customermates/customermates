@@ -856,6 +856,8 @@
       "change": "{field} ändern…",
       "deleteNamed": "{name} löschen"
     },
+    "resolve": "Zu „{query}“ springen",
+    "resolving": "Passendes Ziel wird gesucht…",
     "synonyms": {
       "action": {
         "add": "neu, erstellen, anlegen, neuer Datensatz",
@@ -875,7 +877,8 @@
         "inbox": "Nachrichten, E-Mail, Mails, Unterhaltungen, Chats",
         "knowledgeBase": "Wiki, Notizen, Seiten, Artikel",
         "routines": "Automatisierungen, Zeitpläne, wiederkehrende Aufgaben",
-        "settings": "Einstellungen, Optionen, Konto, Arbeitsbereich"
+        "settings": "Einstellungen, Optionen, Konto, Arbeitsbereich",
+        "trash": "gelöschte Elemente, Papierkorb, wiederherstellen, Löschen rückgängig"
       },
       "setting": {
         "apiKeys": {

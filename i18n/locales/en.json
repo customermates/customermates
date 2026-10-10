@@ -856,6 +856,8 @@
       "change": "Change {field}…",
       "deleteNamed": "Delete {name}"
     },
+    "resolve": "Go to “{query}”",
+    "resolving": "Finding the best match…",
     "synonyms": {
       "action": {
         "add": "new, create, new record",
@@ -875,7 +877,8 @@
         "inbox": "messages, email, mail, conversations, chats",
         "knowledgeBase": "wiki, notes, pages, articles",
         "routines": "automations, schedules, recurring tasks",
-        "settings": "preferences, options, account, workspace"
+        "settings": "preferences, options, account, workspace",
+        "trash": "deleted items, recycle bin, restore, undo delete"
       },
       "setting": {
         "apiKeys": {
