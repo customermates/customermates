@@ -761,7 +761,7 @@
       "cronExpression": "Programación",
       "currency": "Moneda",
       "debounceSeconds": "Retardo",
-      "delete": "Eliminado",
+      "delete": "Movido a la papelera",
       "deletePermanently": "Eliminado definitivamente",
       "disabledReason": "Motivo de desactivación",
       "effectiveAt": "Vigente desde",
@@ -3252,13 +3252,9 @@
       "deleteColumn": "Eliminar columna",
       "deleteColumnMessage": "La columna de registros relacionados {name} se quita de {list}.",
       "deleteColumnTitle": "¿Eliminar la columna {name}?",
-      "deletedBy": "Eliminado",
       "deleteField": "Eliminar campo",
       "deleteList": "Eliminar lista",
-      "deleteMessage": "{name} pasa a Eliminados recientemente en Configurar. Puedes restaurarlo allí.",
-      "deletePermanently": "Eliminar definitivamente",
-      "deletePermanentlyMessage": "Esto elimina definitivamente {name} y todo lo que tiene guardado. No se puede deshacer.",
-      "deletePermanentlyTitle": "¿Eliminar {name} definitivamente?",
+      "deleteMessage": "{name} pasa a la Papelera. Puedes restaurarlo allí durante 30 días.",
       "deleteRelationship": "Eliminar relación",
       "deleteTitle": "¿Eliminar {name}?",
       "issues": {
@@ -3269,33 +3265,7 @@
         "savedView": "Vistas guardadas o diseños personales todavía usan {subject}.",
         "summaryApproval": "{subject} necesita una nueva aprobación del resumen."
       },
-      "kind": "Tipo",
-      "kinds": {
-        "channels": "Campo de canales",
-        "field": "Campo",
-        "relationship": "Relación",
-        "type": "Lista"
-      },
-      "list": "Lista",
-      "moved": "Movido a Eliminados recientemente",
-      "noAccess": "Solo quienes gestionan el modelo de datos pueden ver Eliminados recientemente.",
-      "openConfigure": "Abrir Configurar",
-      "recentlyDeleted": "Eliminados recientemente",
-      "recentlyDeletedEmpty": "No se ha eliminado nada",
-      "recentlyDeletedHelp": "Las listas, campos, relaciones y campos de canales eliminados se quedan aquí hasta que los restaures o los elimines definitivamente.",
-      "removed": {
-        "grants": "{count, plural, one {# permiso de rol} other {# permisos de rol}}",
-        "hidden": "Contiene registros que no puede ver.",
-        "identifiers": "{count, plural, one {# identificador} other {# identificadores}} en {records, plural, one {# registro} other {# registros}}",
-        "links": "{count, plural, one {# vínculo entre registros} other {# vínculos entre registros}}",
-        "nothingStored": "No se elimina ningún dato guardado.",
-        "records": "{count, plural, one {# registro} other {# registros}}",
-        "values": "{count, plural, one {# valor guardado} other {# valores guardados}}",
-        "views": "{count, plural, one {# vista guardada o diseño personal} other {# vistas guardadas o diseños personales}}"
-      },
-      "restore": "Restaurar",
-      "restoreMessage": "{name} todavía no se puede restaurar.",
-      "restoreTitle": "Restaurar {name}"
+      "moved": "Movido a la Papelera"
     },
     "configure": "Configurar",
     "configureList": "Configurar {list}",

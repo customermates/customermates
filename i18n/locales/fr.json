@@ -761,7 +761,7 @@
       "cronExpression": "Planification",
       "currency": "Devise",
       "debounceSeconds": "Délai d’attente",
-      "delete": "Supprimé",
+      "delete": "Placé dans la corbeille",
       "deletePermanently": "Supprimé définitivement",
       "disabledReason": "Motif de désactivation",
       "effectiveAt": "En vigueur à partir du",
@@ -3252,13 +3252,9 @@
       "deleteColumn": "Supprimer la colonne",
       "deleteColumnMessage": "La colonne d’enregistrements liés {name} est retirée de {list}.",
       "deleteColumnTitle": "Supprimer la colonne {name} ?",
-      "deletedBy": "Supprimé",
       "deleteField": "Supprimer le champ",
       "deleteList": "Supprimer la liste",
-      "deleteMessage": "{name} est déplacé dans Supprimés récemment dans Configurer. Vous pouvez l’y restaurer.",
-      "deletePermanently": "Supprimer définitivement",
-      "deletePermanentlyMessage": "Cela supprime définitivement {name} et tout ce qui y est enregistré. Cette action est irréversible.",
-      "deletePermanentlyTitle": "Supprimer {name} définitivement ?",
+      "deleteMessage": "{name} est déplacé dans la Corbeille. Vous pouvez l’y restaurer pendant 30 jours.",
       "deleteRelationship": "Supprimer la relation",
       "deleteTitle": "Supprimer {name} ?",
       "issues": {
@@ -3269,33 +3265,7 @@
         "savedView": "Des vues enregistrées ou mises en page personnelles utilisent encore {subject}.",
         "summaryApproval": "{subject} nécessite une nouvelle approbation du résumé."
       },
-      "kind": "Type",
-      "kinds": {
-        "channels": "Champ des canaux",
-        "field": "Champ",
-        "relationship": "Relation",
-        "type": "Liste"
-      },
-      "list": "Liste",
-      "moved": "Déplacé dans Supprimés récemment",
-      "noAccess": "Seules les personnes qui gèrent le modèle de données voient Supprimés récemment.",
-      "openConfigure": "Ouvrir Configurer",
-      "recentlyDeleted": "Supprimés récemment",
-      "recentlyDeletedEmpty": "Rien n’a été supprimé",
-      "recentlyDeletedHelp": "Les listes, champs, relations et champs des canaux supprimés restent ici jusqu’à ce que vous les restauriez ou les supprimiez définitivement.",
-      "removed": {
-        "grants": "{count, plural, one {# droit de rôle} other {# droits de rôle}}",
-        "hidden": "Contient des fiches que vous ne pouvez pas voir.",
-        "identifiers": "{count, plural, one {# identifiant} other {# identifiants}} sur {records, plural, one {# enregistrement} other {# enregistrements}}",
-        "links": "{count, plural, one {# lien entre enregistrements} other {# liens entre enregistrements}}",
-        "nothingStored": "Aucune donnée enregistrée n’est supprimée.",
-        "records": "{count, plural, one {# enregistrement} other {# enregistrements}}",
-        "values": "{count, plural, one {# valeur enregistrée} other {# valeurs enregistrées}}",
-        "views": "{count, plural, one {# vue enregistrée ou mise en page personnelle} other {# vues enregistrées ou mises en page personnelles}}"
-      },
-      "restore": "Restaurer",
-      "restoreMessage": "{name} ne peut pas encore être restauré.",
-      "restoreTitle": "Restaurer {name}"
+      "moved": "Déplacé dans la Corbeille"
     },
     "configure": "Configurer",
     "configureList": "Configurer {list}",
