@@ -112,7 +112,7 @@ test("board columns add a record with the column value, open the option, and col
   await appearance(async () => {
     await expect(page.getByText("Hidden columns", { exact: true })).toBeVisible();
     await page.screenshot({ path: testInfo.outputPath("board-hidden-columns.png"), animations: "disabled" });
-    await page.getByRole("checkbox", { name: "New", exact: true }).check();
+    await page.getByRole("checkbox", { name: "New", exact: true }).click();
     await expect(page.getByText("Hidden columns", { exact: true })).toHaveCount(0);
   });
   await expect(open).toContainText("Added from the column");

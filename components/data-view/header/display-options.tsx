@@ -3,6 +3,7 @@
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { Prisma } from "@/generated/prisma";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
+import type { DataViewGroup } from "@/core/base/grouping/grouping.schema";
 
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -47,6 +48,38 @@ type FieldRowProps = {
   isPinned: boolean;
   onToggle: (visible: boolean) => void;
 };
+
+function HiddenBoardColumns<E extends HasId>({
+  store,
+  groups,
+}: {
+  store: BaseDataViewStore<E>;
+  groups: DataViewGroup[];
+}) {
+  const t = useTranslations();
+  const groupLabel = useGroupLabel(store.groupingResult);
+  return (
+    <Section label={t("DataView.hiddenColumns")}>
+      <div className="flex flex-col gap-0.5">
+        {groups.map((group) => (
+          <Label
+            key={group.key}
+            className="flex items-center gap-2 rounded-md p-1 text-sm font-normal cursor-pointer hover:bg-accent min-w-0"
+            htmlFor={`hidden-group-${group.key}`}
+          >
+            <Checkbox
+              checked={false}
+              id={`hidden-group-${group.key}`}
+              onCheckedChange={(checked) => checked === true && store.showGroup(group.key)}
+            />
+
+            <span className="truncate">{groupLabel(group)}</span>
+          </Label>
+        ))}
+      </div>
+    </Section>
+  );
+}
 
 function FieldRow({ uid, label, isVisible, isPinned, onToggle }: FieldRowProps) {
   const t = useTranslations();
@@ -110,7 +143,6 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const pendingAi = useRef<(() => void) | null>(null);
   const columnLabel = useColumnLabel();
   const groupableLabel = useGroupableFieldLabel();
-  const groupLabel = useGroupLabel(store.groupingResult);
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
     useSensor(KeyboardSensor),
@@ -129,7 +161,8 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 
   const currentLayout: DataViewMode = store.viewMode === ViewMode.card && canBoard ? "board" : "table";
   const boardGrouped = currentLayout === "board" && Boolean(store.grouping && store.groupingResult);
-  const hiddenGroups = (store.groupingResult?.groups ?? []).filter((group) => store.isGroupHidden(group.key));
+  const hiddenGroupKeys = new Set(boardGrouped ? (store.grouping?.hidden ?? []) : []);
+  const hiddenGroups = (store.groupingResult?.groups ?? []).filter((group) => hiddenGroupKeys.has(group.key));
   const offersManualOrder =
     (store.supportsManualOrder && currentLayout === "board") || currentSortField === MANUAL_ORDER_SORT_KEY;
   const sortable = [
@@ -320,27 +353,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
             </Section>
           )}
 
-          {boardGrouped && hiddenGroups.length > 0 && (
-            <Section label={t("DataView.hiddenColumns")}>
-              <div className="flex flex-col gap-0.5">
-                {hiddenGroups.map((group) => (
-                  <Label
-                    key={group.key}
-                    className="flex items-center gap-2 rounded-md p-1 text-sm font-normal cursor-pointer hover:bg-accent min-w-0"
-                    htmlFor={`hidden-group-${group.key}`}
-                  >
-                    <Checkbox
-                      checked={false}
-                      id={`hidden-group-${group.key}`}
-                      onCheckedChange={(checked) => checked === true && store.showGroup(group.key)}
-                    />
-
-                    <span className="truncate">{groupLabel(group)}</span>
-                  </Label>
-                ))}
-              </div>
-            </Section>
-          )}
+          {boardGrouped && hiddenGroups.length > 0 && <HiddenBoardColumns groups={hiddenGroups} store={store} />}
 
           {sortable.length > 0 && (
             <Section label={t("Common.sort.field")}>
