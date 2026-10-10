@@ -1972,6 +1972,7 @@
     "collapseColumn": "Contraer columna",
     "collapseGroup": "Contraer el grupo {group}",
     "dragToReorder": "Arrastrar para reordenar",
+    "editOption": "Editar opción",
     "expandColumn": "Expandir {name}",
     "expandGroup": "Expandir el grupo {group}",
     "groupOverflow": "Solo se muestran {count} grupos",
@@ -3110,6 +3111,13 @@
         "max": "Máximo",
         "min": "Mínimo",
         "sum": "Suma"
+      },
+      "describe": {
+        "failed": "No se pudo convertir en un cálculo. Prueba a describirlo de otra forma.",
+        "label": "Describe el cálculo",
+        "pending": "Preparando el cálculo",
+        "placeholder": "Por ejemplo: total de los importes de todas las líneas vinculadas",
+        "unavailable": "La redacción no está disponible ahora."
       },
       "example": {
         "next": "Mostrar otro ejemplo",

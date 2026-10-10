@@ -1972,6 +1972,7 @@
     "collapseColumn": "Réduire la colonne",
     "collapseGroup": "Réduire le groupe {group}",
     "dragToReorder": "Faire glisser pour réorganiser",
+    "editOption": "Modifier l’option",
     "expandColumn": "Développer {name}",
     "expandGroup": "Développer le groupe {group}",
     "groupOverflow": "Seuls {count} groupes sont affichés",
@@ -3110,6 +3111,13 @@
         "max": "Maximum",
         "min": "Minimum",
         "sum": "Somme"
+      },
+      "describe": {
+        "failed": "Impossible d'en faire un calcul. Essayez de le décrire autrement.",
+        "label": "Décrire le calcul",
+        "pending": "Préparation du calcul",
+        "placeholder": "Par exemple : total des montants de toutes les lignes liées",
+        "unavailable": "La rédaction n'est pas disponible pour le moment."
       },
       "example": {
         "next": "Afficher un autre exemple",

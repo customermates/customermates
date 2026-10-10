@@ -1972,6 +1972,7 @@
     "collapseColumn": "Spalte einklappen",
     "collapseGroup": "Gruppe {group} einklappen",
     "dragToReorder": "Zum Neuanordnen ziehen",
+    "editOption": "Option bearbeiten",
     "expandColumn": "{name} ausklappen",
     "expandGroup": "Gruppe {group} ausklappen",
     "groupOverflow": "Es werden nur {count} Gruppen angezeigt",
@@ -3110,6 +3111,13 @@
         "max": "Maximum",
         "min": "Minimum",
         "sum": "Summe"
+      },
+      "describe": {
+        "failed": "Daraus ließ sich keine Berechnung machen. Beschreibe sie anders.",
+        "label": "Berechnung beschreiben",
+        "pending": "Berechnung wird entworfen",
+        "placeholder": "Zum Beispiel: Summe der Beträge aller verknüpften Positionen",
+        "unavailable": "Entwerfen ist gerade nicht verfügbar."
       },
       "example": {
         "next": "Anderes Beispiel zeigen",
