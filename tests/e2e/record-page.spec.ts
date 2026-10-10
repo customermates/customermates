@@ -31,8 +31,10 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
       await expect(field.locator('[aria-busy="true"]')).toHaveCount(0);
     }
     const lines = container.getByRole("region", { name: "Line items", exact: true });
-    await expect(lines.getByRole("table")).toBeVisible();
+    await expect(lines.getByRole("button", { name: "Add Line item", exact: true })).toBeVisible();
+    await expect(lines.getByRole("table")).toHaveCount(0);
     await expect(lines.getByRole("status")).toHaveCount(0);
+    await expect(lines.getByRole("alert")).toHaveCount(0);
     const services = container.getByRole("region", { name: "Services", exact: true });
     await expect(services.locator("[data-empty-value]")).toHaveCount(1);
     await expect(services.getByText("—", { exact: true })).toHaveCount(0);
