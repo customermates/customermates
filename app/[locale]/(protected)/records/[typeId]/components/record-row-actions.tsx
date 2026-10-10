@@ -32,11 +32,13 @@ export const RecordRowActions = observer(function RecordRowActions({
   contextAction,
   onOpen,
   onDelete,
+  deleteLabel,
 }: {
   name: string;
   contextAction?: { label: string; icon: LucideIcon; onSelect: () => void };
   onOpen?: (returnFocusTo: HTMLElement | null) => void;
   onDelete?: () => unknown;
+  deleteLabel?: string;
 }) {
   const t = useTranslations();
   const trigger = useRef<HTMLButtonElement>(null);
@@ -93,7 +95,7 @@ export const RecordRowActions = observer(function RecordRowActions({
             <DropdownMenuItem variant="destructive" onSelect={() => runUserAction(onDelete)}>
               <Trash2 className="size-4" />
 
-              {t("Common.actions.delete")}
+              {deleteLabel ?? t("Common.actions.delete")}
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>

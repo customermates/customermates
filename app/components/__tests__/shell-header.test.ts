@@ -19,11 +19,7 @@ vi.mock("@/components/ui/sidebar", () => ({
 
 import { ShellHeader } from "../shell-header";
 
-const JOINED_STRIPS = [
-  "components/data-view/views/data-view-views-rail.tsx",
-  "components/entity-detail/entity-detail-summary.tsx",
-  "components/entity-detail/entity-detail-page-skeleton.tsx",
-];
+const JOINED_STRIPS = ["components/data-view/views/data-view-views-rail.tsx"];
 
 function source(path: string) {
   return readFileSync(resolve(process.cwd(), path), "utf8");
