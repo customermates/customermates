@@ -93,7 +93,7 @@ export function sentenceText(segments: SentenceSegment[]) {
   return segments.map((segment) => (typeof segment === "string" ? segment : segment.label)).join("");
 }
 
-function fill(
+export function fillSentence(
   values: Record<string, SentenceSegment[]>,
   translate: (tokens: Record<string, string>) => string,
 ): SentenceSegment[] {
@@ -126,7 +126,7 @@ function listSegments(flow: LinkedFlow, typeId: string, context: Context, plural
   const last = types.length - 1;
   if (last < 1) return reference(last, plural);
   const { t } = context;
-  return fill(
+  return fillSentence(
     {
       list: reference(last, plural),
       via: reference(last - 1, false),
@@ -152,13 +152,16 @@ export function expressionSegments(
     const value = expressionSegments(flow.value, lastTypeId, context);
     const list = listSegments(flow, typeId, context, reducer !== "one");
     if (reducer === "one")
-      return fill({ list, value }, (tokens) => t("RecordModel.calculationFlow.text.linkedValue", tokens));
-    if (reducer === "count") return fill({ list }, (tokens) => t("RecordModel.calculationFlow.text.count", tokens));
-    if (reducer === "sum") return fill({ list, value }, (tokens) => t("RecordModel.calculationFlow.text.sum", tokens));
+      return fillSentence({ list, value }, (tokens) => t("RecordModel.calculationFlow.text.linkedValue", tokens));
+    if (reducer === "count")
+      return fillSentence({ list }, (tokens) => t("RecordModel.calculationFlow.text.count", tokens));
+    if (reducer === "sum")
+      return fillSentence({ list, value }, (tokens) => t("RecordModel.calculationFlow.text.sum", tokens));
     if (reducer === "average")
-      return fill({ list, value }, (tokens) => t("RecordModel.calculationFlow.text.average", tokens));
-    if (reducer === "min") return fill({ list, value }, (tokens) => t("RecordModel.calculationFlow.text.min", tokens));
-    return fill({ list, value }, (tokens) => t("RecordModel.calculationFlow.text.max", tokens));
+      return fillSentence({ list, value }, (tokens) => t("RecordModel.calculationFlow.text.average", tokens));
+    if (reducer === "min")
+      return fillSentence({ list, value }, (tokens) => t("RecordModel.calculationFlow.text.min", tokens));
+    return fillSentence({ list, value }, (tokens) => t("RecordModel.calculationFlow.text.max", tokens));
   }
   const args = expression.arguments.map((argument) => {
     const segments = expressionSegments(argument, typeId, context);
@@ -169,7 +172,7 @@ export function expressionSegments(
   const [first = [], second = [], third = []] = args;
   switch (expression.operator) {
     case "if":
-      return fill({ condition: first, then: second, otherwise: third }, (tokens) =>
+      return fillSentence({ condition: first, then: second, otherwise: third }, (tokens) =>
         t("RecordModel.calculationFlow.text.if", tokens),
       );
     case "and":
@@ -179,15 +182,17 @@ export function expressionSegments(
     case "concat":
       return join(args, " & ");
     case "not":
-      return fill({ value: first }, (tokens) => t("RecordModel.calculationFlow.text.not", tokens));
+      return fillSentence({ value: first }, (tokens) => t("RecordModel.calculationFlow.text.not", tokens));
     case "lower":
-      return fill({ value: first }, (tokens) => t("RecordModel.calculationFlow.text.lower", tokens));
+      return fillSentence({ value: first }, (tokens) => t("RecordModel.calculationFlow.text.lower", tokens));
     case "upper":
-      return fill({ value: first }, (tokens) => t("RecordModel.calculationFlow.text.upper", tokens));
+      return fillSentence({ value: first }, (tokens) => t("RecordModel.calculationFlow.text.upper", tokens));
     case "trim":
-      return fill({ value: first }, (tokens) => t("RecordModel.calculationFlow.text.trim", tokens));
+      return fillSentence({ value: first }, (tokens) => t("RecordModel.calculationFlow.text.trim", tokens));
     default:
-      return fill({ from: first, to: second }, (tokens) => t("RecordModel.calculationFlow.text.daysBetween", tokens));
+      return fillSentence({ from: first, to: second }, (tokens) =>
+        t("RecordModel.calculationFlow.text.daysBetween", tokens),
+      );
   }
 }
 
@@ -233,20 +238,28 @@ export function calculationSentence({
   const label = [field.label];
   const sentence =
     !linked || !list
-      ? fill({ field: label, formula: value }, (tokens) => t("RecordModel.calculationFlow.sentence.formula", tokens))
+      ? fillSentence({ field: label, formula: value }, (tokens) =>
+          t("RecordModel.calculationFlow.sentence.formula", tokens),
+        )
       : reducer === "one"
-        ? fill({ field: label, value, list }, (tokens) => t("RecordModel.calculationFlow.sentence.lookup", tokens))
+        ? fillSentence({ field: label, value, list }, (tokens) =>
+            t("RecordModel.calculationFlow.sentence.lookup", tokens),
+          )
         : reducer === "count"
-          ? fill({ field: label, list }, (tokens) => t("RecordModel.calculationFlow.sentence.count", tokens))
+          ? fillSentence({ field: label, list }, (tokens) => t("RecordModel.calculationFlow.sentence.count", tokens))
           : reducer === "sum"
-            ? fill({ field: label, value, list }, (tokens) => t("RecordModel.calculationFlow.sentence.sum", tokens))
+            ? fillSentence({ field: label, value, list }, (tokens) =>
+                t("RecordModel.calculationFlow.sentence.sum", tokens),
+              )
             : reducer === "average"
-              ? fill({ field: label, value, list }, (tokens) =>
+              ? fillSentence({ field: label, value, list }, (tokens) =>
                   t("RecordModel.calculationFlow.sentence.average", tokens),
                 )
               : reducer === "min"
-                ? fill({ field: label, value, list }, (tokens) => t("RecordModel.calculationFlow.sentence.min", tokens))
-                : fill({ field: label, value, list }, (tokens) =>
+                ? fillSentence({ field: label, value, list }, (tokens) =>
+                    t("RecordModel.calculationFlow.sentence.min", tokens),
+                  )
+                : fillSentence({ field: label, value, list }, (tokens) =>
                     t("RecordModel.calculationFlow.sentence.max", tokens),
                   );
   return { sentence, value, list, reducer, saved, typeOver };

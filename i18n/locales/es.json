@@ -835,6 +835,7 @@
     "groups": {
       "actions": "Acciones",
       "bestMatch": "Mejor resultado",
+      "docs": "Documentación",
       "listsAndViews": "Listas y vistas",
       "pagesAndSettings": "Páginas y ajustes",
       "records": "Registros",
@@ -1952,13 +1953,14 @@
     "boardMoveRequested": "Movimiento a {group} solicitado.",
     "boardMoveTarget": "Mover registro a {group}.",
     "boardPickedUp": "Registro seleccionado.",
+    "collapseColumn": "Contraer columna",
     "collapseGroup": "Contraer el grupo {group}",
     "dragToReorder": "Arrastrar para reordenar",
+    "expandColumn": "Expandir {name}",
     "expandGroup": "Expandir el grupo {group}",
     "groupOverflow": "Solo se muestran {count} grupos",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Sin valor",
-    "resizeBoardColumns": "Cambiar el ancho de las columnas del tablero. Arrastra o usa las flechas; toca dos veces o pulsa Intro para restablecer.",
     "resizeColumn": "Redimensiona la columna {column}. Arrastra o usa las teclas de flecha; toca dos veces o pulsa Intro para restablecer.",
     "resizeHint": "Arrastra para redimensionar. Haz doble clic para restablecer.",
     "rowActions": "Acciones de fila",
@@ -3674,6 +3676,14 @@
       "cleanedCount": "{count, plural, one {# se limpia} other {# se limpian}}",
       "layouts": "También se quita de {count, plural, one {# diseño} other {# diseños}}.",
       "title": "Usado por"
+    },
+    "valueSource": {
+      "calculated": "Calculado · {formula}",
+      "from": "De {list} · {value}",
+      "savedOnCreate": "Se guarda al crear {list}",
+      "savedOnRequest": "Se guarda bajo petición",
+      "savedWhenChanged": "Se guarda cuando cambia {field}",
+      "savedWhenChangedTo": "Se guarda cuando {field} cambia a {value}"
     },
     "valueType": "Tipo de valor",
     "yes": "Sí"
