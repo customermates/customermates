@@ -89,6 +89,7 @@ function KanbanCard({
   draggable,
   dropTarget,
   dragState,
+  dropsClick,
   children,
   onClick,
   href,
@@ -100,6 +101,7 @@ function KanbanCard({
   draggable: boolean;
   dropTarget: boolean;
   dragState: "idle" | "origin" | "moved";
+  dropsClick: () => boolean;
   children: ReactNode;
   onClick?: () => void;
   href?: string;
@@ -146,6 +148,11 @@ function KanbanCard({
         if (!e.currentTarget.contains(e.target as Node) || isInteractiveClick(e) || isDragging) return;
         if (onClick) onClick();
         else if (href && !(e.metaKey || e.ctrlKey || e.shiftKey)) navigateToHref(href);
+      }}
+      onClickCapture={(event) => {
+        if (!dropsClick()) return;
+        event.preventDefault();
+        event.stopPropagation();
       }}
       onKeyDown={(event) => {
         const opens =
@@ -424,6 +431,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   const manualOrder = store.manualOrderActive;
   const [drag, setDrag] = useState<{ itemId: string; fromGroupKey: string; height: number } | null>(null);
   const [target, setTarget] = useState<DropTarget | null>(null);
+  const dropClickUntil = useRef(0);
 
   const mouseSensor = useSensor(MouseSensor, {
     activationConstraint: { distance: 4 },
@@ -487,6 +495,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
 
   async function handleDragEnd(event: DragEndEvent) {
     const resolved = event.active ? resolveTarget(event.active, event.over) : null;
+    dropClickUntil.current = Date.now() + 400;
     setDrag(null);
     setTarget(null);
     if (!supportsDragWriteBack || !writeBackColumnId || !resolved) return;
@@ -567,6 +576,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
       id={dndContextId}
       sensors={sensors}
       onDragCancel={() => {
+        dropClickUntil.current = Date.now() + 400;
         setDrag(null);
         setTarget(null);
       }}
@@ -623,6 +633,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                         dragState={drag?.itemId !== itemId ? "idle" : movedPlacement ? "moved" : "origin"}
                         draggable={supportsDragWriteBack && store.canMoveItemBetweenGroups?.(item) !== false}
                         dropTarget={supportsDragWriteBack && manualOrder && group.writable !== false}
+                        dropsClick={() => Date.now() < dropClickUntil.current}
                         groupKey={group.key}
                         href={cardHref?.(item)}
                         itemId={itemId}

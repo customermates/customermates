@@ -216,6 +216,9 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   override canMoveItemBetweenGroups(item: RecordRow): boolean {
     return !item.protectedKind;
   }
+  override get supportsManualOrder() {
+    return true;
+  }
   override get manualOrderActive() {
     return this.sortDescriptor?.field === MANUAL_ORDER_SORT_KEY;
   }
