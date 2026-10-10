@@ -24,7 +24,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
   await openRecordDetails(page, "Layout company");
   await drawer.getByRole("textbox", { name: "Name", exact: false }).fill("Draft stays here");
   await drawer.getByRole("button", { name: "Pin Name to the overview", exact: true }).click();
-  await expect(drawer.locator(`[data-summary-field="${nameId}"]`)).toContainText("Draft stays here");
+  await expect(drawer.locator(`[data-chip-column="${nameId}"]`)).toContainText("Draft stays here");
   await drawer.getByRole("button", { name: "Customize", exact: true }).click();
   await expect(drawer.getByRole("link", { name: "Edit field Name", exact: true })).toHaveAttribute(
     "href",
@@ -78,7 +78,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
   await expect(drawer).not.toBeVisible();
   await page.reload();
   await openRecordDetails(page, "Draft stays here");
-  await expect(drawer.locator(`[data-summary-field="${nameId}"]`)).toContainText("Draft stays here");
+  await expect(drawer.locator(`[data-chip-column="${nameId}"]`)).toContainText("Draft stays here");
   await expect(drawer.locator('[data-sortable-field="system:updatedAt"]')).not.toBeVisible();
   await page.screenshot({
     path: testInfo.outputPath("personal-record-details.png"),
@@ -87,7 +87,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
   });
   await drawer.getByRole("link", { name: "Open page", exact: true }).click();
   const main = page.getByRole("main");
-  await expect(main.locator(`[data-summary-field="${nameId}"]`)).toBeVisible();
+  await expect(main.locator(`[data-chip-column="${nameId}"]`)).toBeVisible();
   await expect(page.locator("header")).toContainText("Draft stays here");
   if (testInfo.project.name !== "mobile") {
     await page.setViewportSize({ width: 1720, height: 1000 });
@@ -128,7 +128,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
     .getByRole("button", { name: "Reset to default", exact: true })
     .click();
   await expect.poll(readLayout).toBeNull();
-  await expect(main.locator("[data-summary-field]")).toHaveCount(0);
+  await expect(main.locator("[data-chip-column]")).toHaveCount(0);
   await page.locator("[data-record-page-actions]").getByRole("button", { name: "Done", exact: true }).click();
   await expect(main.locator('[data-sortable-field="system:updatedAt"]')).toBeVisible();
   const api = await page.request.post("/api/v1/records/detail-layout/save", {
@@ -141,7 +141,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
   });
   expect(api.status()).toBe(200);
   await page.reload();
-  await expect(main.locator('[data-summary-field="system:createdAt"]')).toBeVisible();
+  await expect(main.locator('[data-chip-column="system:createdAt"]')).toBeVisible();
   await expect(main.getByRole("textbox", { name: "Name", exact: false })).not.toBeVisible();
   await page.locator("header").getByRole("link", { name: "Organizations", exact: true }).click();
   await page.locator("#records-add").click();
@@ -159,4 +159,44 @@ test("persists personal detail pins, visibility and keyboard order without losin
     { textValue: "Visible required input" },
   ]);
   expect(errors).toEqual([]);
+});
+
+test("shows pinned fields as a chip row under the title that pins, edits the draft and unpins", async ({
+  page,
+  companyId,
+}) => {
+  test.setTimeout(180000);
+  const firstName = `Chip row ${randomUUID().slice(0, 6)}`;
+  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  await page.locator("#records-add").click();
+  const drawer = page.getByRole("dialog", { name: "Contact", exact: true });
+  await drawer.getByRole("textbox", { name: "First name", exact: false }).fill(firstName);
+  await drawer.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(drawer).not.toBeVisible();
+  await openRecordDetails(page, firstName);
+
+  await expect(drawer.locator("[data-entity-detail-summary], [data-summary-cell]")).toHaveCount(0);
+  await drawer.getByRole("button", { name: "Pin a field", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Last name", exact: true }).click();
+  const placeholder = drawer.locator("[data-record-chip-row] [data-chip-column]").filter({ hasText: "Last name" });
+  await expect(placeholder.locator("[data-placeholder-chip]")).toBeVisible();
+  const lastNameId = await placeholder.getAttribute("data-chip-column");
+  const lastName = drawer.locator(`[data-record-chip-row] [data-chip-column="${lastNameId}"]`);
+
+  await lastName.getByRole("button", { name: "Edit Last name", exact: true }).click();
+  const editor = page.locator('[data-slot="popover-content"][data-state="open"]');
+  await expect(editor).toContainText("Last name");
+  await editor.locator("input").first().fill("Pinned");
+  await page.keyboard.press("Escape");
+  await expect(lastName.locator("[data-placeholder-chip]")).toHaveCount(0);
+  await expect(lastName).toContainText("Pinned");
+  await drawer.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(drawer).not.toBeVisible();
+
+  await page.reload();
+  await openRecordDetails(page, `${firstName} Pinned`);
+  await expect(lastName).toContainText("Pinned");
+  await lastName.getByRole("button", { name: "Edit Last name", exact: true }).click();
+  await editor.getByRole("button", { name: "Unpin Last name from the overview", exact: true }).click();
+  await expect(lastName).toHaveCount(0);
 });
