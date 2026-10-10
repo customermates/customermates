@@ -376,6 +376,9 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
     return this.triggerFields.find((field) => field.id === this.form.triggerFieldId);
   }
   protected override afterChange(id?: string): void {
+    const derivedCurrency = this.derivedType?.currency;
+    if ((id === "expression" || id === "source") && !this.original && derivedCurrency)
+      this.form.currency = derivedCurrency.toLowerCase();
     if (id === "valueType" && !["number", "currency"].includes(this.form.valueType)) this.form.decimalPlaces = "";
     if (id === "valueType" && this.form.valueType === "channels") this.form.source = "input";
     if (id === "valueType" || id === "multiple") {
@@ -450,7 +453,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
           });
     const derived = this.derivedType;
     const valueType = derived?.valueType ?? form.valueType;
-    const currency = derived?.currency ?? form.currency.toUpperCase();
+    const currency = form.currency.toUpperCase();
     const field = {
       id: form.id ?? this.definitionId,
       typeId: this.typeId,
@@ -620,7 +623,7 @@ export const FieldModal = observer(function FieldModal({
               </>
             )}
 
-            {store.valueType === "currency" && !store.derivedType?.currency && (
+            {store.valueType === "currency" && (
               <FormAutocompleteCurrency required id="currency" label={t("RecordModel.currency")} />
             )}
 
