@@ -21,6 +21,7 @@ type Props<E extends HasId> = {
   onRowClick?: (item: E) => void;
   rowActions?: (item: E) => ReactNode;
   onRowHref?: (item: E) => string | undefined;
+  rowFocusKey?: (item: E) => string | undefined;
 };
 
 export const DataPhoneRows = observer(function DataPhoneRows<E extends HasId>({
@@ -30,6 +31,7 @@ export const DataPhoneRows = observer(function DataPhoneRows<E extends HasId>({
   onRowClick,
   rowActions,
   onRowHref,
+  rowFocusKey,
 }: Props<E>) {
   const t = useTranslations();
   const navigateToHref = useNavigateToHref();
@@ -46,6 +48,7 @@ export const DataPhoneRows = observer(function DataPhoneRows<E extends HasId>({
       <li
         key={item.id}
         className="group/row relative px-4 py-3 transition-colors hover:bg-accent has-[>a:focus-visible]:bg-accent"
+        data-focus-target={rowFocusKey?.(item)}
         data-row-id={item.id}
       >
         {href && (

@@ -62,6 +62,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
         className="animate-page-result-in motion-reduce:animate-none"
         renderCard={renderCard}
         rowActions={rowActions}
+        rowFocusKey={rowFocusKey}
         store={store}
         onRowClick={interactive ? onRowClick : undefined}
         onRowHref={rowHref}
