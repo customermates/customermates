@@ -45,7 +45,9 @@ describe("scoped record activity view links", () => {
   beforeEach(() => {
     browser.history.pushState.mockClear();
     browser.history.replaceState.mockClear();
-    harness.deleteDataViewAction.mockReset().mockResolvedValue({ ok: true, data: { id: "view", trashBatchId: "40000000-0000-4000-8000-0000000000b1" } });
+    harness.deleteDataViewAction
+      .mockReset()
+      .mockResolvedValue({ ok: true, data: { id: "view", trashBatchId: "40000000-0000-4000-8000-0000000000b1" } });
     vi.stubGlobal("window", browser);
   });
   afterEach(() => vi.unstubAllGlobals());
@@ -97,7 +99,9 @@ describe("scoped record activity view links", () => {
       discardPendingViewState: vi.fn(),
       forgetQueryDraft: vi.fn(),
     };
-    expect(await deleteView(store as unknown as BaseDataViewStore<Item>, VIEW)).toEqual({ trashBatchId: "40000000-0000-4000-8000-0000000000b1" });
+    expect(await deleteView(store as unknown as BaseDataViewStore<Item>, VIEW)).toEqual({
+      trashBatchId: "40000000-0000-4000-8000-0000000000b1",
+    });
     expect(store.forgetQueryDraft).toHaveBeenCalledExactlyOnceWith(VIEW.id);
     expect(store.applyView).toHaveBeenCalledExactlyOnceWith(ALL_VIEW_KEY);
     expect(browser.history.replaceState).toHaveBeenCalledExactlyOnceWith(
