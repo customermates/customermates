@@ -1,0 +1,97 @@
+import { randomUUID } from "node:crypto";
+
+import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { presetId } from "../../features/records/crm-preset";
+
+test("board columns add a record with the column value, open the option, and collapse into strips", async ({
+  page,
+  database,
+  companyId,
+}, testInfo) => {
+  test.setTimeout(180000);
+  const errors: string[] = [];
+  page.on("pageerror", (error) => {
+    if (!isBenignPageError(error.message)) errors.push(error.message);
+  });
+  page.on("console", (message) => {
+    if (isAppConsoleError(message)) errors.push(message.text());
+  });
+  const id = (key: string) => presetId(companyId, key);
+  const typeId = id("deal");
+  const column = (option: string) => page.locator(`[data-group-key="value:${id(`deal.stage.${option}`)}"]`);
+  await page.goto(`/en/records/${typeId}`);
+  const model = await (await page.request.post("/api/v1/model/discover", { data: {} })).json();
+  const created = await page.request.post("/api/v1/records/mutate", {
+    data: {
+      expectedRevision: model.revision,
+      idempotencyKey: randomUUID(),
+      mutation: {
+        action: "create",
+        typeId,
+        fields: [
+          { fieldId: id("deal.name"), value: { kind: "text", value: "Column seed" } },
+          { fieldId: id("deal.stage"), value: { kind: "select", value: id("deal.stage.new") } },
+        ],
+      },
+    },
+  });
+  expect(created.status(), await created.text()).toBe(200);
+
+  await page.reload();
+  await page.getByRole("button", { name: "Appearance", exact: true }).click();
+  await page.locator("#records-layout-board").click();
+  if (testInfo.project.name === "mobile") await page.locator('[data-slot="drawer-close"]').click();
+  else await page.keyboard.press("Escape");
+  await expect(column("new")).not.toHaveAttribute("data-kanban-strip");
+  await expect(column("new")).toContainText("Column seed");
+
+  const won = column("won");
+  await expect(won).toHaveAttribute("data-kanban-strip", "");
+  await expect(won).toHaveAccessibleName("Expand Won, 0 Deals");
+  await expect(won.locator("[aria-label]")).toHaveCount(0);
+  await page.screenshot({ path: testInfo.outputPath("board-strips.png"), animations: "disabled" });
+  await won.click();
+  await expect(won).not.toHaveAttribute("data-kanban-strip");
+  await won.getByRole("button", { name: "More actions for Won", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Collapse column", exact: true }).click();
+  await expect(won).toHaveAttribute("data-kanban-strip", "");
+
+  const open = column("new");
+  await open.getByRole("button", { name: "More actions for New", exact: true }).click();
+  await expect(page.getByRole("menuitem", { name: "Add Deal", exact: true })).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "Edit option", exact: true })).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("board-column-menu.png"), animations: "disabled" });
+  await page.getByRole("menuitem", { name: "Collapse column", exact: true }).click();
+  await expect(open).toHaveAttribute("data-kanban-strip", "");
+  await expect(open).toHaveAccessibleName("Expand New, 1 Deal");
+  await open.click();
+  await expect(open).toContainText("Column seed");
+
+  await open.getByRole("button", { name: "More actions for New", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Add Deal", exact: true }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog.getByRole("combobox", { name: "Stage", exact: true })).toContainText("New");
+  await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Added from the column");
+  await dialog.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(dialog).not.toBeVisible();
+  await expect
+    .poll(async () => {
+      const result = await database.query(
+        `SELECT value."textValue" FROM "CrmRecord" record
+         JOIN "RecordValue" name ON name."companyId" = record."companyId" AND name."recordId" = record.id AND name."fieldId" = $3
+         JOIN "RecordValue" value ON value."companyId" = record."companyId" AND value."recordId" = record.id AND value."fieldId" = $4
+         WHERE record."companyId" = $1 AND record."typeId" = $2 AND name."textValue" = 'Added from the column'`,
+        [companyId, typeId, id("deal.name"), id("deal.stage")],
+      );
+      return result.rows[0]?.textValue;
+    })
+    .toBe(id("deal.stage.new"));
+  await expect(open).toContainText("Added from the column");
+
+  await open.getByRole("button", { name: "More actions for New", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Edit option", exact: true }).click();
+  await expect(page).toHaveURL(
+    new RegExp(`/configure\\?typeId=${typeId}&tab=fields&focus=${encodeURIComponent(`field:${id("deal.stage")}`)}`),
+  );
+  expect(errors).toEqual([]);
+});
