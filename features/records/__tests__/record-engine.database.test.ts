@@ -8127,6 +8127,31 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
   });
 
+  it("lists only calculations that read the deleted records in the deletion preview", async () => {
+    const f = await fixture();
+    const deal = await f.create("deal", "Calculated opportunity");
+    const organization = await f.create(
+      "organization",
+      "Linked",
+      [],
+      [{ relationId: f.id("deal.organizations"), direction: "incoming", record: deal }],
+    );
+    const line = await f.create(
+      "lineItem",
+      "Line",
+      [],
+      [{ relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal }],
+    );
+    const preview = async (ref: typeof deal) => {
+      const expectedVersion = (await f.readRecord(ref)).version;
+      const result = await f.run(() => f.previewDeletion.invoke({ ref, expectedRevision: 1, expectedVersion }));
+      if (!result.ok) throw new Error(JSON.stringify(result.error));
+      return result.data.calculations.map((field) => field.fieldId);
+    };
+    expect(await preview(organization)).toEqual([]);
+    expect(await preview(line)).toContain(f.id("deal.totalValue"));
+  }, 180_000);
+
   it("rechecks deletion authority and hides restricted link counts in previews", async () => {
     const f = await fixture();
     const organization = await f.create("organization", "Organization");

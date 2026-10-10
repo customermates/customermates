@@ -5,7 +5,7 @@ import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { TRASH_KINDS } from "@/features/trash/trash.schema";
 
-export const TRASH_FILTER = Object.freeze({ kind: FilterFieldKey.kind, list: FilterFieldKey.list } as const);
+export const TRASH_FILTER = Object.freeze({ kind: FilterFieldKey.trashKind, list: FilterFieldKey.trashList } as const);
 
 export const TRASH_PAGE_SIZE = 25;
 
