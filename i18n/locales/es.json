@@ -1945,6 +1945,7 @@
     "collapseColumn": "Contraer columna",
     "collapseGroup": "Contraer el grupo {group}",
     "dragToReorder": "Arrastrar para reordenar",
+    "editOption": "Editar opción",
     "expandColumn": "Expandir {name}",
     "expandGroup": "Expandir el grupo {group}",
     "groupOverflow": "Solo se muestran {count} grupos",

@@ -1945,6 +1945,7 @@
     "collapseColumn": "Spalte einklappen",
     "collapseGroup": "Gruppe {group} einklappen",
     "dragToReorder": "Zum Neuanordnen ziehen",
+    "editOption": "Option bearbeiten",
     "expandColumn": "{name} ausklappen",
     "expandGroup": "Gruppe {group} ausklappen",
     "groupOverflow": "Es werden nur {count} Gruppen angezeigt",
