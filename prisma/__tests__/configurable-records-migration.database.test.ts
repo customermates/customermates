@@ -20,8 +20,9 @@ import {
   CONFIGURABLE_RECORDS_MIGRATION,
   createLegacyMigrationDatabase,
   deployMigrations,
+  DYNAMIC_RECORD_MODEL_MIGRATION,
   LEGACY_CRM_TABLES,
-  migrationNames,
+  migrationDirectories,
   prismaCli,
   readMigration,
 } from "@/tests/helpers/legacy-migration-database";
@@ -180,7 +181,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
         events: [],
       },
     });
-    const readme = await readFile(resolve("prisma/migrations", CONFIGURABLE_RECORDS_MIGRATION, "README.md"), "utf8");
+    const readme = await readFile(resolve("prisma/migrations", DYNAMIC_RECORD_MODEL_MIGRATION, "README.md"), "utf8");
     const query = /```sql\n([\s\S]*?)\n```/.exec(readme)?.[1];
     expect(query).toBeDefined();
     if (!query) throw new Error("The pre-deploy inventory must contain a SQL query.");
@@ -1000,12 +1001,12 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       await rows(
         database.client,
         'SELECT finished_at, rolled_back_at FROM "_prisma_migrations" WHERE migration_name = $1',
-        [CONFIGURABLE_RECORDS_MIGRATION],
+        [DYNAMIC_RECORD_MODEL_MIGRATION],
       ),
     ).toEqual([{ finished_at: null, rolled_back_at: null }]);
     expect((await deployMigrations(database.url)).code).not.toBe(0);
     expect(
-      (await prismaCli(["migrate", "resolve", "--rolled-back", CONFIGURABLE_RECORDS_MIGRATION], database.url)).code,
+      (await prismaCli(["migrate", "resolve", "--rolled-back", DYNAMIC_RECORD_MODEL_MIGRATION], database.url)).code,
     ).toBe(0);
     await database.client.query('UPDATE "CustomFieldValue" SET value = $2 WHERE "columnId" = $1', [
       f.columns.budget,
@@ -1045,7 +1046,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       for (let attempt = 0; attempt < 600 && !terminated; attempt++) {
         await delay(100);
         const busy = await observer.query(
-          "SELECT pid FROM pg_stat_activity WHERE datname = current_database() AND pid <> pg_backend_pid() AND state = 'active' AND query LIKE '%Configurable records: the one-step upgrade%' AND now() - query_start > interval '1 second'",
+          "SELECT pid FROM pg_stat_activity WHERE datname = current_database() AND pid <> pg_backend_pid() AND state = 'active' AND query LIKE '%Dynamic record model: the one unreleased migration%' AND now() - query_start > interval '1 second'",
         );
         if (busy.rowCount) {
           terminated = (await observer.query("SELECT pg_terminate_backend($1) AS done", [busy.rows[0].pid])).rows[0]
@@ -1065,7 +1066,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
       ),
     ).toEqual([{ table: null, helpers: null }]);
     expect(
-      (await prismaCli(["migrate", "resolve", "--rolled-back", CONFIGURABLE_RECORDS_MIGRATION], database.url)).code,
+      (await prismaCli(["migrate", "resolve", "--rolled-back", DYNAMIC_RECORD_MODEL_MIGRATION], database.url)).code,
     ).toBe(0);
     expect((await deployMigrations(database.url)).code).toBe(0);
     expect(
@@ -1092,7 +1093,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     const f = await populateLegacyWorkspace(production.client);
     const deployed = await deployMigrations(production.url);
     expect(deployed.code).toBe(0);
-    expect(deployed.output).toContain(CONFIGURABLE_RECORDS_MIGRATION);
+    expect(deployed.output).toContain(DYNAMIC_RECORD_MODEL_MIGRATION);
     expect(
       await rows(
         production.client,
@@ -1100,7 +1101,7 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
         [CONFIGURABLE_RECORDS_MIGRATION],
       ),
     ).toEqual(
-      (await migrationNames((name) => name >= CONFIGURABLE_RECORDS_MIGRATION)).map((name) => ({
+      (await migrationDirectories((name) => name >= CONFIGURABLE_RECORDS_MIGRATION)).map((name) => ({
         migration_name: name,
       })),
     );
