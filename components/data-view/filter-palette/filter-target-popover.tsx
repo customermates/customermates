@@ -20,6 +20,7 @@ import { useFilterFieldLabel } from "@/components/data-view/use-filter-field-lab
 type Props = {
   store: FilterTarget;
   headerAction?: (close: () => void) => ReactNode;
+  footerAction?: ReactNode;
   onCloseAutoFocus?: ComponentProps<typeof ResponsiveOverlay>["onCloseAutoFocus"];
   compact?: boolean;
   id?: string;
@@ -30,6 +31,7 @@ export const FilterTargetPopover = observer(function FilterTargetPopover({
   compact,
   id,
   headerAction,
+  footerAction,
   onCloseAutoFocus,
 }: Props) {
   const t = useTranslations();
@@ -117,6 +119,8 @@ export const FilterTargetPopover = observer(function FilterTargetPopover({
       >
         {t("Common.actions.clear")}
       </Button>
+
+      {footerAction}
     </>
   );
 
