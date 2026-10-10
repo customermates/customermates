@@ -3097,6 +3097,13 @@
         "min": "Minimum",
         "sum": "Summe"
       },
+      "describe": {
+        "failed": "Daraus ließ sich keine Berechnung machen. Beschreibe sie anders.",
+        "label": "Berechnung beschreiben",
+        "pending": "Berechnung wird entworfen",
+        "placeholder": "Zum Beispiel: Summe der Beträge aller verknüpften Positionen",
+        "unavailable": "Entwerfen ist gerade nicht verfügbar."
+      },
       "example": {
         "next": "Anderes Beispiel zeigen",
         "none": "Füge dieser Liste einen Datensatz hinzu, um ein Beispiel zu sehen.",

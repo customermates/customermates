@@ -9,7 +9,7 @@ import { Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { RecordField, RecordModelView } from "@/features/records/record-model.schema";
+import type { CalculationExpression, RecordField, RecordModelView } from "@/features/records/record-model.schema";
 import type { ConfigurationChange, ConfigurationPreview } from "@/features/records/configuration.schema";
 
 import { RecordConfigurationPreview } from "@/components/records/record-configuration-preview";
@@ -109,6 +109,7 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
       renameAttributeColumn: action,
       removeAttributeColumn: action,
       chooseValueType: action,
+      applyCalculationDraft: action,
     });
   }
   get canPublishSummary() {
@@ -289,6 +290,10 @@ export class FieldModalStore extends ModelChangeStore<ReturnType<typeof initial>
       ),
     ].filter((id) => id !== this.typeId);
   }
+  applyCalculationDraft = (draft: { source: CalculationSource; expression: CalculationExpression }) => {
+    this.chooseSource(draft.source);
+    this.onChange("expression", draft.expression);
+  };
   chooseSource = (source: ValueSource) => {
     const linked = linkedFlow(this.form.expression);
     const keeps =
