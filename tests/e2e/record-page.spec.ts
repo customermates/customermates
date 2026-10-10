@@ -1,6 +1,6 @@
 import type { Locator } from "@playwright/test";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
-import { openRecordDetails } from "./record-rows";
+import { openRecordDetails, editFormattedText } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
 
 test("opens a stable record page, preserves its draft alongside the assistant, and saves notes", async ({
@@ -59,7 +59,7 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
   ).toBeVisible();
   await expect(main.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Opportunity with notes");
   await page.getByRole("button", { name: "Close", exact: true }).click();
-  await main.getByRole("button", { name: "Edit Notes", exact: true }).click();
+  await editFormattedText(main, "Notes");
   await main.getByRole("textbox", { name: "Notes", exact: true }).fill("Saved quote reviewed locally.");
   await main.getByRole("button", { name: "Save", exact: true }).click();
   await expect(
@@ -90,7 +90,7 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
   await page.locator(`[data-value="${typeId("deal")}:${recordId}"]`).click();
   await waitForDealReads(dialogs);
   await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill("Same page drawer draft");
-  await dialogs.getByRole("button", { name: "Edit Notes", exact: true }).click();
+  await editFormattedText(dialogs, "Notes");
   await dialogs.getByRole("textbox", { name: "Notes", exact: true }).fill("Draft transferred onto the mounted page.");
   await dialogs.getByRole("link", { name: "Open page", exact: true }).click();
   await expect(page).toHaveURL(recordUrl);

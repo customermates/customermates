@@ -10,6 +10,7 @@ import {
   recordFilterableFields,
   recordLinkColor,
   recordLinkColors,
+  recordDefaults,
 } from "../record-presentation";
 import { RecordModelSchema } from "../record-model.schema";
 import { canonicalRecordJson } from "../record-json";
@@ -17,7 +18,7 @@ import { invalidRecordQueryPart } from "../record-query-validation";
 import { RecordQuerySchema } from "../record-query.schema";
 import { recordViewStateIsValid } from "../record-view-state";
 import { scalarMatchesType } from "../record-model-validation";
-import { recordColumns } from "../record-columns";
+import { defaultHiddenColumns, recordColumns } from "../record-columns";
 import { RecordColumnKeySchema, RecordFieldKeySchema } from "../record-column.schema";
 import { FilterOperatorKey as Operator } from "@/core/base/base-query-builder";
 import {
@@ -168,6 +169,19 @@ describe("generic record presentation filters", () => {
         (field) => field.field === window.id,
       )?.operators,
     ).toContain(Operator.between);
+  });
+});
+
+describe("record view defaults", () => {
+  it("starts Formatted text fields hidden until the shared defaults place them", () => {
+    const deal = model.types.find((type) => type.id === id("deal"));
+    if (!deal) throw new Error("Missing deal list");
+    const notes = id("deal.notes");
+    expect(recordColumns(deal.id, model).some((column) => column.id === notes)).toBe(true);
+    expect(recordDefaults(deal, model.fields).hiddenColumns).toContain(notes);
+    const placed = { ...deal, defaults: { ...deal.defaults, columns: [...deal.defaults.columns, notes] } };
+    expect(defaultHiddenColumns(placed, model.fields)).not.toContain(notes);
+    expect(defaultHiddenColumns(placed, model.fields)).toEqual(placed.defaults.hiddenColumns);
   });
 });
 

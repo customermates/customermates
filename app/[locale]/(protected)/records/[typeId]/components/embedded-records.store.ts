@@ -136,7 +136,7 @@ export class EmbeddedRecordsStore extends RecordsStore {
   protected override async refreshAction(params?: GetQueryParams): Promise<GetResult<RecordRow>> {
     const type = this.type;
     const parent = this.parent;
-    const defaults = type ? recordDefaults(type) : undefined;
+    const defaults = type ? recordDefaults(type, this.presentation.model.fields) : undefined;
     if (!type || !parent) return { items: [], viewMode: ViewMode.table, viewPersistable: false };
     const sort = params?.sortDescriptor ?? this.sortDescriptor ?? defaults?.sortDescriptor ?? undefined;
     const scope = {

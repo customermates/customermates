@@ -66,3 +66,11 @@ export async function runNamedRowAction(page: Page, scope: Locator, name: string
   await menu.click();
   await page.getByRole("menuitem", { name: label, exact: true }).click();
 }
+
+export async function editFormattedText(scope: Locator | Page, label: string) {
+  await scope
+    .locator("[data-formatted-text-field]")
+    .filter({ has: scope.getByRole("button", { name: `Edit ${label}`, exact: true }) })
+    .locator("[data-formatted-text-area]")
+    .click();
+}

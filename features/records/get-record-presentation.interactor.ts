@@ -119,7 +119,7 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
             pageSize: input.params.pageSize ?? input.params.pagination?.pageSize,
           },
           base: selected?.state ?? viewState.allState,
-          defaults: recordDefaults(type),
+          defaults: recordDefaults(type, fields),
         });
         if (!presentationFiltersAreValid(state.filters, fields, relationships, type.id, paths))
           return fail(CustomErrorCode.recordValueInvalid, ["filters"]);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type FocusEvent } from "react";
+import { useEffect, useRef, useState, type FocusEvent, type MouseEvent } from "react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,8 @@ import { cn } from "@/core/utils/cn";
 
 import { Editor } from "./editor";
 
-const EDITOR_POPOVER = '[data-slot="popover-content"]';
+const EDITOR_MENU = "[data-editor-menu]";
+const INTERACTIVE_CONTENT = "a[href], button, input, [role='checkbox']";
 
 type DocumentNode = { type?: string; content?: DocumentNode[] };
 
@@ -55,12 +56,12 @@ export function FormattedTextField({
     if (!isEditing) return;
     const finishOutside = (event: PointerEvent) => {
       if (!(event.target instanceof Node) || rootRef.current?.contains(event.target)) return;
-      if (event.target instanceof Element && event.target.closest(EDITOR_POPOVER)) return;
+      if (event.target instanceof Element && event.target.closest(EDITOR_MENU)) return;
       setEditing(false);
     };
     const finishOnEscape = (event: KeyboardEvent) => {
       if (event.key !== "Escape" || !(event.target instanceof Node) || !rootRef.current?.contains(event.target)) return;
-      if (document.querySelector(EDITOR_POPOVER)) return;
+      if (document.querySelector(EDITOR_MENU)) return;
       event.preventDefault();
       event.stopPropagation();
       setEditing(false);
@@ -76,8 +77,17 @@ export function FormattedTextField({
 
   const finishOnBlur = (event: FocusEvent<HTMLDivElement>) => {
     const next = event.relatedTarget;
-    if (!isEditing || !next || event.currentTarget.contains(next) || next.closest(EDITOR_POPOVER)) return;
+    if (!isEditing || !next || event.currentTarget.contains(next) || next.closest(EDITOR_MENU)) return;
     setEditing(false);
+  };
+
+  const startEditingOnClick = (event: MouseEvent<HTMLDivElement>) => {
+    if (readOnly || isEditing) return;
+    const interactive = event.target instanceof Element ? event.target.closest(INTERACTIVE_CONTENT) : null;
+    if (interactive && event.currentTarget.contains(interactive)) return;
+    const selection = window.getSelection();
+    if (selection && !selection.isCollapsed && event.currentTarget.contains(selection.anchorNode)) return;
+    setEditing(true);
   };
 
   return (
@@ -89,12 +99,17 @@ export function FormattedTextField({
       onBlur={finishOnBlur}
     >
       <div
+        data-formatted-text-area
         className={cn(
           "relative -mx-2 rounded-md px-2 py-1",
           !readOnly && "min-h-8",
-          !readOnly && !isEditing && "hover:bg-muted/60",
+          !readOnly &&
+            !isEditing &&
+            "cursor-text hover:bg-muted/60 has-[[data-edit-trigger]:focus-visible]:ring-2 has-[[data-edit-trigger]:focus-visible]:ring-ring",
           isEditing && "ring-1 ring-ring",
         )}
+        role="presentation"
+        onClick={startEditingOnClick}
       >
         <div
           ref={contentRef}
@@ -114,10 +129,14 @@ export function FormattedTextField({
         {!readOnly && !isEditing && (
           <button
             ref={editButtonRef}
+            data-edit-trigger
             aria-label={t("RecordModel.editValue", { field: label })}
-            className="absolute inset-0 cursor-text rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="sr-only"
             type="button"
-            onClick={() => setEditing(true)}
+            onClick={(event) => {
+              event.stopPropagation();
+              setEditing(true);
+            }}
           />
         )}
       </div>

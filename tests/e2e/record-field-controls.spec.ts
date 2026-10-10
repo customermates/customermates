@@ -3,7 +3,7 @@ import type { Page } from "@playwright/test";
 import { RecordModelSchema, type RecordModel } from "../../features/records/record-model.schema";
 import { openDrawerTab, addFromConfigure, followConfigureLink, openConfigure, openConfigureRow, saveDrawer } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
-import { openRecordDetails, runNamedRowAction } from "./record-rows";
+import { openRecordDetails, runNamedRowAction, editFormattedText } from "./record-rows";
 
 async function choose(page: Page, label: string | RegExp, option: string) {
   await page
@@ -238,7 +238,7 @@ test("configures and persists all fourteen field types, multiple values and cale
   await expect(row("Calendar range").locator(`[id^="values.${field("Calendar range").id}-"]`)).not.toContainText(
     "Pick a range",
   );
-  await dialog.getByRole("button", { name: "Edit Notes", exact: true }).click();
+  await editFormattedText(dialog, "Notes");
   await dialog.getByRole("textbox", { name: "Notes", exact: true }).fill("Formatted notes survive typed storage");
   await dialog.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialog).not.toBeVisible();
