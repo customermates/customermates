@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { RecordDto, RecordRef, RecordType } from "@/features/records/record-model.schema";
 import type { RecordRow } from "@/features/records/record-presentation";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
@@ -13,8 +13,9 @@ import { DataViewContent } from "@/components/data-view/data-view-content";
 import { DataViewPagination } from "@/components/data-view/header/pagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { recordDisplayName } from "@/features/records/record-display-name";
-import { runUserAction } from "@/core/errors/report-application-error";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { relationshipColumnKey } from "@/features/records/record-column.schema";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
@@ -23,7 +24,7 @@ import { EMBEDDED_PAGE_SIZE, EmbeddedRecordsStore, embeddedPresentation } from "
 import { RecordDetailField } from "./record-detail-field";
 import { RecordEditorStore } from "./record-editor.store";
 import { RecordRowActions } from "./record-row-actions";
-import { useRecordTableColumns } from "./record-table-columns";
+import { useRecordCardRenderer, useRecordTableColumns } from "./record-table-columns";
 import { useRecordDeletion } from "./use-record-deletion";
 
 const EmbeddedAddLine = observer(function EmbeddedAddLine({
@@ -115,7 +116,21 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
       "system:assignedTo": t("RecordModel.assignedTo"),
       "system:channels": t("EntityChannels.heading"),
     });
-  const [list] = useState(() => new EmbeddedRecordsStore(store.rootStore, listPresentation(), parentRelationId));
+  const parentEditable = () =>
+    Boolean(store.record) && !store.isReadOnly && !store.hasUnsavedChanges && !store.isLoading;
+  const [list] = useState(() => {
+    const created: EmbeddedRecordsStore = new EmbeddedRecordsStore(
+      store.rootStore,
+      listPresentation(),
+      parentRelationId,
+      parentEditable,
+      async () => {
+        await store.reloadAfterNestedChange();
+        await created.refresh();
+      },
+    );
+    return created;
+  });
   const [child] = useState(
     () =>
       new RecordEditorStore(store.rootStore, { ...store.presentation, typeId: type.id }, async () => {
@@ -145,11 +160,13 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
   useEffect(() => {
     list.setPresentation(listPresentation());
     list.setParent(key ? (JSON.parse(key)[0] as RecordRef) : null);
-    if (key) runUserAction(() => list.refresh());
+    if (key) void list.load().catch(reportApplicationError);
   }, [key, list, store.presentation, type.id]);
   const parentType = store.presentation.model.types.find((candidate) => candidate.id === parent?.ref.typeId);
-  const editable = Boolean(parent) && !store.isReadOnly && !store.hasUnsavedChanges && !store.isLoading;
-  const canDelete = editable && store.presentation.permittedActions.includes("delete");
+  const editable = parentEditable();
+  const canDelete = editable && list.presentation.permittedActions.includes("delete");
+  const canCreate = editable && list.presentation.permittedActions.includes("create");
+  const canOpen = !store.hasUnsavedChanges && !store.isLoading;
   const open = (record?: RecordDto, name?: string) =>
     runUserAction(async () => {
       if (!parent || !type.parentRelationshipId || (!record && !editable)) return;
@@ -174,9 +191,9 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
     });
   const recordName = (record: RecordRow) =>
     recordDisplayName(record.fields.find((field) => field.fieldId === type.primaryFieldId)?.result, type.label, t);
-  const columns = useRecordTableColumns(list, (ref) => store.rootStore.recordWorkspaceStore.open(ref), {
-    markCalculated: true,
-  });
+  const openRelated = useCallback((ref: RecordRef) => store.rootStore.recordWorkspaceStore.open(ref), [store]);
+  const columns = useRecordTableColumns(list, openRelated, { markCalculated: true });
+  const renderCard = useRecordCardRenderer(list, openRelated);
   const rows = list.items;
   return (
     <section aria-label={type.pluralLabel}>
@@ -196,15 +213,26 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
             <p className="text-xs text-muted-foreground">{t("RecordModel.saveBeforeEmbedded")}</p>
           ) : null}
 
-          {list.dataRequest.status === "refresh-error" && (
-            <Button size="sm" type="button" variant="secondary" onClick={() => runUserAction(() => list.refresh())}>
-              {t("ErrorCard.retry")}
-            </Button>
+          {key && !list.isReady && !list.loadFailed && (
+            <span aria-label={t("Loading.text")} role="status">
+              <SelectionOptionsSkeleton label={t("Loading.text")} />
+            </span>
+          )}
+
+          {(list.loadFailed || list.dataRequest.status === "refresh-error") && (
+            <div className="flex items-center gap-2 text-sm" role="alert">
+              <span>{t("Common.notifications.unexpectedError")}</span>
+
+              <Button size="sm" type="button" variant="secondary" onClick={() => runUserAction(() => list.load())}>
+                {t("ErrorCard.retry")}
+              </Button>
+            </div>
           )}
 
           {rows.length > 0 && (
             <DataViewContent
               columns={columns}
+              renderCard={renderCard}
               rowActions={(record) => (
                 <RecordRowActions
                   name={recordName(record)}
@@ -213,19 +241,19 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
                       ? () => deletion.requestDeletion(record, store.presentation.model.revision, recordName(record))
                       : undefined
                   }
-                  onOpen={() => open(record)}
+                  onOpen={canOpen ? () => open(record) : undefined}
                 />
               )}
               store={list}
               totals={list.totals}
               view="table"
-              onRowClick={(record) => open(record)}
+              onRowClick={canOpen ? (record) => open(record) : undefined}
             />
           )}
 
           {list.total > (list.pagination?.pageSize ?? EMBEDDED_PAGE_SIZE) && <DataViewPagination store={list} />}
 
-          {editable && <EmbeddedAddLine list={list} type={type} onOpenEditor={(name) => open(undefined, name)} />}
+          {canCreate && <EmbeddedAddLine list={list} type={type} onOpenEditor={(name) => open(undefined, name)} />}
         </div>
 
         {renderEditor(child)}

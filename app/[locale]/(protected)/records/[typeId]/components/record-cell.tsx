@@ -30,6 +30,7 @@ export function RecordCell({
   linkLabels,
   record,
   onOpen,
+  onMore,
   inTrigger = false,
   relativeTimestamp = false,
   avatarFieldId,
@@ -40,6 +41,7 @@ export function RecordCell({
   linkLabels: RecordLinkLabels;
   record: RecordDto;
   onOpen: (ref: RecordRef) => void;
+  onMore?: () => void;
   inTrigger?: boolean;
   relativeTimestamp?: boolean;
   avatarFieldId?: string;
@@ -127,6 +129,7 @@ export function RecordCell({
       overflowMenu={!inTrigger}
       variant={recordLinkColor(linkColors, summary.records[0].ref.typeId)}
       onChipClick={inTrigger ? undefined : (item) => onOpen(item.ref)}
+      onMoreClick={inTrigger || !onMore ? undefined : onMore}
     />
   );
 }

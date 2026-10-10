@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { runNamedRowAction } from "./record-rows";
 
 test("returns to a valid relationship, path and embedded page after deleting its last row", async ({
   page,
@@ -128,8 +129,7 @@ test("returns to a valid relationship, path and embedded page after deleting its
   const row = embedded.locator("tbody tr");
   await expect(row).toHaveCount(1);
   await row.hover();
-  await row.getByRole("button", { name: /^More actions for Paged line/ }).click();
-  await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
+  await runNamedRowAction(page, row, (await row.locator('[data-slot="data-row-open"]').innerText()).trim(), "Delete");
   await page.getByRole("alertdialog").locator("#confirm-delete").click();
   await expect(embedded.locator("tbody tr")).toHaveCount(10);
   await expect(embedded.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);

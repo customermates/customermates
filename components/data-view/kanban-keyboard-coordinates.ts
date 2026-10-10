@@ -1,4 +1,4 @@
-import type { KeyboardCoordinateGetter } from "@dnd-kit/core";
+import type { KeyboardCoordinateGetter, Over } from "@dnd-kit/core";
 
 export const kanbanKeyboardCoordinates: KeyboardCoordinateGetter = (event, { currentCoordinates, context }) => {
   if (event.code !== "ArrowLeft" && event.code !== "ArrowRight") return;
@@ -52,3 +52,8 @@ export const kanbanManualKeyboardCoordinates: KeyboardCoordinateGetter = (event,
   const step = event.code === "ArrowDown" ? target.height / 2 + 1 : -target.height / 2 - 1;
   return { x: currentCoordinates.x, y: currentCoordinates.y + target.top + target.height / 2 - middle + step };
 };
+
+export function dropTargetGroupKey(over: Pick<Over, "id" | "data">) {
+  const groupKey: unknown = over.data.current?.groupKey;
+  return typeof groupKey === "string" ? groupKey : String(over.id);
+}

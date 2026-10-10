@@ -6,7 +6,7 @@ import type { ReactNode } from "react";
 import type { RecordGroupSummaryResult } from "@/features/records/record-grouping.schema";
 
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, ChevronsUpDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, ChevronsUpDown, Plus } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Fragment, useMemo, useState } from "react";
@@ -15,6 +15,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { IconButton } from "@/components/ui/icon-button";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/core/utils/cn";
 import type { Prisma } from "@/generated/prisma";
@@ -32,9 +33,12 @@ type Props<E extends HasId> = {
   onRowClick?: (item: E) => void;
   rowActions?: (item: E) => ReactNode;
   onRowHref?: (item: E) => string | undefined;
+  columnStyle?: (columnId: string) => DataTableColumnStyle;
   rowFocusKey?: (item: E) => string | undefined;
   totals?: RecordGroupSummaryResult[];
 };
+
+export type DataTableColumnStyle = { align?: "end"; emphasis?: boolean };
 
 const fixedWidthStyle = (width: number) => ({
   width,
@@ -49,6 +53,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   onRowClick,
   rowActions,
   onRowHref,
+  columnStyle,
   rowFocusKey,
   totals,
 }: Props<E>) {
@@ -82,8 +87,10 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   const columnVisibility: VisibilityState = useMemo(() => {
     const visibility: VisibilityState = {};
     for (const uid of store.hiddenColumns) visibility[uid] = false;
+    const groupedBy = store.isGrouped ? store.groupingResult?.grouping.field : undefined;
+    if (groupedBy) visibility[groupedBy] = false;
     return visibility;
-  }, [store.hiddenColumns]);
+  }, [store.hiddenColumns, store.isGrouped, store.groupingResult?.grouping.field]);
 
   const selectionColumn: ColumnDef<E> = useMemo(
     () => ({
@@ -229,16 +236,22 @@ export const DataTable = observer(function DataTable<E extends HasId>({
             ) : (
               content
             );
+          const style = isSelectionCell ? undefined : columnStyle?.(columnId);
           return (
             <TableCell
               key={cell.id}
               className={
                 columnId === "__actions"
-                  ? "sticky right-0 w-px py-0 pl-0 whitespace-nowrap any-pointer-coarse:static focus-within:bg-background group-hover/row:bg-background group-hover/row:bg-[image:linear-gradient(var(--accent),var(--accent))] group-data-[state=selected]/row:bg-[image:linear-gradient(var(--selected),var(--selected))]"
+                  ? "sticky right-0 w-px py-0 pl-0 whitespace-nowrap any-pointer-coarse:static md:pointer-fine:w-0 md:pointer-fine:p-0 focus-within:bg-background group-hover/row:bg-background group-hover/row:bg-[image:linear-gradient(var(--accent),var(--accent))] group-data-[state=selected]/row:bg-[image:linear-gradient(var(--selected),var(--selected))]"
                   : isSelectionCell
                     ? "w-10"
-                    : undefined
+                    : cn(
+                        style && !style.emphasis && !isNameCell && "text-muted-foreground",
+                        style?.align === "end" &&
+                          "text-right [&_[data-edit-target]]:justify-end [&_[data-inline-edit-space]]:justify-end",
+                      )
               }
+              data-align={style?.align}
               style={liveWidth != null && !isSelectionCell ? fixedWidthStyle(liveWidth) : undefined}
             >
               {liveWidth != null && !isSelectionCell ? (
@@ -258,11 +271,12 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   const rowsById = new Map(table.getRowModel().rows.map((row) => [row.original.id, row]));
   const leafColumnCount = table.getVisibleLeafColumns().length;
   const groups = visibleGroups(store.groupingResult);
+
   const overflow = store.groupingResult?.overflow;
 
   return (
     <Table className={className}>
-      <TableHeader>
+      <TableHeader className="sticky top-0 z-10 bg-background">
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
@@ -283,9 +297,11 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                   key={header.id}
                   className={cn(
                     "relative",
+                    columnStyle?.(columnId)?.align === "end" && "text-right [&_button]:ml-auto",
                     canResize && "group/resize-header",
                     canSort && "cursor-pointer select-none",
-                    isSelectionCol && "w-10",
+                    columnId === "__select" && "w-10",
+                    columnId === "__actions" && "w-px md:pointer-fine:w-0 md:pointer-fine:p-0",
                   )}
                   style={
                     liveWidth != null
@@ -409,6 +425,15 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                         )}
 
                         <span className="shrink-0 text-xs text-muted-foreground tabular-nums">{group.count}</span>
+
+                        {store.canCreateInGroup(group.key) && (
+                          <IconButton
+                            fieldAction
+                            icon={Plus}
+                            label={t("DataView.addToGroup", { group: label })}
+                            onClick={() => store.createInGroup(group.key)}
+                          />
+                        )}
 
                         {group.summaries?.length ? <GroupSummaries summaries={group.summaries} /> : null}
                       </div>

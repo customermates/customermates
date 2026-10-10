@@ -1950,6 +1950,7 @@
     }
   },
   "DataView": {
+    "addToGroup": "Ajouter à {group}",
     "board": {
       "chooseField": "Regrouper par champ",
       "createField": "Créer un champ à choix unique",
@@ -2152,7 +2153,7 @@
     "overview": "Vue d’ensemble",
     "personalize": "Personnaliser",
     "pinField": "Épingler {field} dans l’aperçu",
-    "pinMore": "Épingler un champ",
+    "pinMore": "Épingler ou détacher des champs",
     "reorderInstructions": "Appuyez sur Espace ou Entrée pour saisir un champ. Utilisez les flèches pour le déplacer, Espace ou Entrée pour le déposer et Échap pour annuler.",
     "sections": {
       "notes": "Notes"

@@ -1,6 +1,6 @@
 import type { KeyboardCoordinateGetter } from "@dnd-kit/core";
 import { describe, expect, it, vi } from "vitest";
-import { kanbanKeyboardCoordinates } from "../kanban-keyboard-coordinates";
+import { dropTargetGroupKey, kanbanKeyboardCoordinates } from "../kanban-keyboard-coordinates";
 
 describe("keyboard board movement", () => {
   it("skips the current column even when the card and column centers differ", () => {
@@ -28,5 +28,17 @@ describe("keyboard board movement", () => {
     >;
     context.currentCoordinates = { x: 360, y: 50 };
     expect(kanbanKeyboardCoordinates({ ...event, code: "ArrowLeft" }, context)).toEqual({ x: 20, y: 50 });
+  });
+});
+
+describe("board drop announcements", () => {
+  it("names the column of the card a card is dropped on, as with manual ordering", () => {
+    expect(
+      dropTargetGroupKey({ id: "card:deal-7", data: { current: { groupKey: "value:won", itemId: "deal-7" } } }),
+    ).toBe("value:won");
+  });
+
+  it("names the column itself when the card is dropped on a column", () => {
+    expect(dropTargetGroupKey({ id: "value:lost", data: { current: undefined } })).toBe("value:lost");
   });
 });

@@ -237,3 +237,68 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   expect(remaining.rows).toEqual([{ count: 1 }]);
   expect(errors).toEqual([]);
 });
+
+test("refreshes the deal from in-place sub-list edits in the drawer and locks them while the deal is dirty", async ({
+  page,
+  companyId,
+}) => {
+  test.setTimeout(240000);
+  const errors: string[] = [];
+  page.on("pageerror", (error) => {
+    if (!isBenignPageError(error.message)) errors.push(error.message);
+  });
+  const dialogs = page.getByRole("dialog");
+  const typeId = (key: string) => presetId(companyId, key);
+  await page.goto(`/en/records/${typeId("service")}`);
+  await page.locator("#records-add").click();
+  await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill("Drawer service");
+  await dialogs.getByRole("textbox", { name: "Price", exact: false }).fill("100");
+  await dialogs.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(dialogs).not.toBeVisible();
+  await page.goto(`/en/records/${typeId("deal")}`);
+  await page.locator("#records-add").click();
+  await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill("Drawer opportunity");
+  await dialogs.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(dialogs).not.toBeVisible();
+  await openRecordDetails(page, "Drawer opportunity");
+  const drawer = dialogs.first();
+  const lineItems = drawer.getByRole("region", { name: "Line items" });
+  const value = drawer.locator(`[data-entity-field="${typeId("deal.totalValue")}"]`);
+
+  await lineItems.getByRole("button", { name: "Add Line item", exact: true }).click();
+  await lineItems.getByRole("textbox", { name: "Add Line item", exact: true }).fill("Drawer line");
+  await page.keyboard.press("Enter");
+  await expect(lineItems.locator("[data-embedded-count]")).toHaveText("1");
+  await lineItems.getByRole("button", { name: "Drawer line", exact: true }).click();
+  await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
+  const child = dialogs.last();
+  await child.getByRole("combobox", { name: "Service", exact: true }).click();
+  await page.getByRole("option", { name: "Drawer service", exact: true }).click();
+  await child.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(1);
+  await expect(value).toContainText("€100.00");
+
+  await lineItems.getByRole("button", { name: "Edit Quantity", exact: true }).click();
+  const quantity = lineItems.locator("[data-in-place-editor] input").first();
+  await quantity.fill("3");
+  await quantity.press("Enter");
+  await expect(lineItems.getByRole("button", { name: "Edit Quantity", exact: true })).toHaveText("3");
+  await expect(value).toContainText("€300.00");
+  await expect(lineItems.locator('[data-slot="table-totals"]')).toContainText("€300.00");
+
+  await drawer.getByRole("textbox", { name: "Name", exact: false }).fill("Drawer opportunity renamed");
+  await expect(lineItems.getByRole("button", { name: "Edit Quantity", exact: true })).toHaveCount(0);
+  await expect(lineItems.getByRole("button", { name: "Add Line item", exact: true })).toHaveCount(0);
+  await drawer.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(dialogs).not.toBeVisible();
+  await openRecordDetails(page, "Drawer opportunity renamed");
+  await expect(lineItems.getByRole("button", { name: "Edit Quantity", exact: true })).toBeVisible();
+  await expect(lineItems.getByRole("button", { name: "Add Line item", exact: true })).toBeVisible();
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(lineItems.locator("[data-phone-rows]")).toBeVisible();
+  await expect(lineItems.getByRole("columnheader")).toHaveCount(0);
+  await expect(lineItems.locator("[data-phone-rows] [data-row-id]")).toHaveCount(1);
+  await expect(lineItems.locator("[data-phone-rows] [data-chip-row]")).toBeVisible();
+  expect(errors).toEqual([]);
+});

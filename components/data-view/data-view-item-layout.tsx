@@ -2,9 +2,7 @@
 
 import { createContext, useContext } from "react";
 
-export type DataViewItemLayoutKind = "row" | "card";
-
-export const DataViewItemLayout = createContext<DataViewItemLayoutKind>("row");
+export const DataViewItemLayout = createContext<"row" | "card">("row");
 
 export function useDataViewItemLayout() {
   return useContext(DataViewItemLayout);

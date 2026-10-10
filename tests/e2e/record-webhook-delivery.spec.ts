@@ -3,7 +3,7 @@ import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
 import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, isBenignPageError } from "./fixtures";
-import { openRecordDetails } from "./record-rows";
+import { openRecordDetails, runRowAction } from "./record-rows";
 
 test("delivers a custom-record event to a loopback receiver and retries a transient failure", async ({
   page,
@@ -113,14 +113,10 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
     const [first, second] = webhooks.rows as Array<{ id: string; description: string | null }>;
     expect(second.description).toBe("Second receiver");
 
-    const showDeliveries = page.getByRole("menuitem", { name: "Show deliveries", exact: true });
     const openDeliveries = async (row: ReturnType<typeof page.locator>, webhookId: string) => {
       await page.goto("/en/settings/webhooks");
-      await expect(async () => {
-        await row.getByRole("button", { name: `More actions for ${receiverUrl}`, exact: true }).click();
-        await expect(showDeliveries).toBeVisible({ timeout: 1000 });
-      }).toPass();
-      await showDeliveries.click();
+      await page.waitForLoadState("networkidle");
+      await runRowAction(page, row, receiverUrl, "Show deliveries");
       await expect(page).toHaveURL(/\/en\/settings\/webhook-deliveries\?/);
       expect(new URL(page.url()).searchParams.getAll("filters")).toContain(`webhookId:in:${webhookId}`);
     };
