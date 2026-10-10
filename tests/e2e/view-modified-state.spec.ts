@@ -200,7 +200,7 @@ test("opens an assistant proposal in the modified state and saves it as an updat
   database,
   companyId,
   workspace,
-}) => {
+}, testInfo) => {
   test.setTimeout(240000);
   const errors: string[] = [];
   page.on("pageerror", (error) => {
@@ -249,6 +249,10 @@ test("opens an assistant proposal in the modified state and saves it as an updat
   await expect(proposed).toHaveText(/Assigned to me/);
   await expect(proposed).toHaveAttribute("data-view-modified", "");
   await expect(all).not.toHaveAttribute("aria-current", "page");
+  await page.screenshot({ path: testInfo.outputPath("proposal-new-view-light.png"), animations: "disabled" });
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.screenshot({ path: testInfo.outputPath("proposal-new-view-dark.png"), animations: "disabled" });
+  await page.emulateMedia({ colorScheme: "light" });
   await page.locator("#global-data-views-menu").click();
   await page.locator("#global-data-views-save").click();
   await expect(page.locator("#global-data-views-proposed")).toHaveCount(0);
