@@ -527,7 +527,7 @@ test("phone rows show the title and the card chip row instead of table columns",
   const item = rows.locator("[data-row-id]").filter({ hasText: "Lab phone" });
   await expect(item.locator(`[data-chip-column="${money.id}"]`)).toHaveText("€342K");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  await item.getByText("Lab phone", { exact: true }).click();
+  await item.getByRole("link", { name: "Open", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[0-9a-f-]{36}$`), { timeout: 30000 });
 });
 
