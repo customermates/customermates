@@ -835,6 +835,7 @@
     "groups": {
       "actions": "Acciones",
       "bestMatch": "Mejor resultado",
+      "docs": "Documentación",
       "listsAndViews": "Listas y vistas",
       "pagesAndSettings": "Páginas y ajustes",
       "records": "Registros",
@@ -1953,14 +1954,15 @@
     "boardMoveRequested": "Movimiento a {group} solicitado.",
     "boardMoveTarget": "Mover registro a {group}.",
     "boardPickedUp": "Registro seleccionado.",
+    "collapseColumn": "Contraer columna",
     "collapseGroup": "Contraer el grupo {group}",
     "dragToReorder": "Arrastrar para reordenar",
+    "expandColumn": "Expandir {name}",
     "expandGroup": "Expandir el grupo {group}",
     "groupOverflow": "Solo se muestran {count} grupos",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "moreActions": "Más acciones",
     "noValue": "Sin valor",
-    "resizeBoardColumns": "Cambiar el ancho de las columnas del tablero. Arrastra o usa las flechas; toca dos veces o pulsa Intro para restablecer.",
     "resizeColumn": "Redimensiona la columna {column}. Arrastra o usa las teclas de flecha; toca dos veces o pulsa Intro para restablecer.",
     "resizeHint": "Arrastra para redimensionar. Haz doble clic para restablecer.",
     "rowActions": "Acciones de fila",
@@ -1984,6 +1986,7 @@
       "editTitle": "Editar vista",
       "linkCopied": "Enlace copiado",
       "menu": "Acciones de vista",
+      "modified": "Cambios sin guardar",
       "moveLeft": "Mover a la izquierda",
       "moveRight": "Mover a la derecha",
       "name": "Nombre",
@@ -1993,7 +1996,8 @@
       "pickerPlaceholder": "Buscar una vista…",
       "pickerTitle": "Cambiar de vista",
       "railLabel": "Vistas guardadas",
-      "recordCount": "{count, plural, one {# registro} other {# registros}}"
+      "recordCount": "{count, plural, one {# registro} other {# registros}}",
+      "resetChanges": "Restablecer cambios"
     }
   },
   "Diagrams": {
@@ -3668,6 +3672,14 @@
     "unlinkRecord": "Desvincular {name}",
     "updatedAt": "Actualizado el",
     "useChannelAvatar": "Usar la foto de perfil del canal",
+    "valueSource": {
+      "calculated": "Calculado · {formula}",
+      "from": "De {list} · {value}",
+      "savedOnCreate": "Se guarda al crear {list}",
+      "savedOnRequest": "Se guarda bajo petición",
+      "savedWhenChanged": "Se guarda cuando cambia {field}",
+      "savedWhenChangedTo": "Se guarda cuando {field} cambia a {value}"
+    },
     "valueType": "Tipo de valor",
     "yes": "Sí"
   },

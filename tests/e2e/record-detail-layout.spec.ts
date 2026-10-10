@@ -177,7 +177,12 @@ test("shows pinned fields as a chip row under the title that pins, edits the dra
 
   await expect(drawer.locator("[data-entity-detail-summary], [data-summary-cell]")).toHaveCount(0);
   await drawer.getByRole("button", { name: "Pin a field", exact: true }).click();
-  await page.getByRole("menuitem", { name: "Last name", exact: true }).click();
+  await page.getByRole("menuitemcheckbox", { name: "Last name", exact: true }).click();
+  await expect(page.getByRole("menuitemcheckbox", { name: "Last name", exact: true })).toHaveAttribute(
+    "aria-checked",
+    "true",
+  );
+  await page.keyboard.press("Escape");
   const placeholder = drawer.locator("[data-record-chip-row] [data-chip-column]").filter({ hasText: "Last name" });
   await expect(placeholder.locator("[data-placeholder-chip]")).toBeVisible();
   const lastNameId = await placeholder.getAttribute("data-chip-column");
@@ -199,4 +204,77 @@ test("shows pinned fields as a chip row under the title that pins, edits the dra
   await lastName.getByRole("button", { name: "Edit Last name", exact: true }).click();
   await editor.getByRole("button", { name: "Unpin Last name from the overview", exact: true }).click();
   await expect(lastName).toHaveCount(0);
+});
+
+test("edits header links with the card picker, keeps contact values outside edit targets, fills placeholders", async ({
+  page,
+  companyId,
+}) => {
+  test.setTimeout(180000);
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  const suffix = randomUUID().slice(0, 6);
+  const organization = `Picker org ${suffix}`;
+  const firstName = `Picker ${suffix}`;
+  await page.goto(`/en/records/${presetId(companyId, "organization")}`);
+  await page.locator("#records-add").click();
+  const organizationDrawer = page.getByRole("dialog", { name: "Organization", exact: true });
+  await organizationDrawer.getByRole("textbox", { name: "Name", exact: false }).fill(organization);
+  await organizationDrawer.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(organizationDrawer).not.toBeVisible();
+
+  await page.goto(`/en/records/${presetId(companyId, "contact")}`);
+  await page.locator("#records-add").click();
+  const drawer = page.getByRole("dialog", { name: "Contact", exact: true });
+  await drawer.getByRole("textbox", { name: "First name", exact: false }).fill(firstName);
+  await drawer.getByRole("textbox", { name: "Avatar", exact: false }).fill("https://example.test/avatar.png");
+  await drawer.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(drawer).not.toBeVisible();
+  await openRecordDetails(page, firstName);
+
+  for (const field of ["Organizations", "Avatar", "Channels"]) {
+    await drawer.getByRole("button", { name: "Pin a field", exact: true }).click();
+    await page.getByRole("menuitemcheckbox", { name: field, exact: true }).click();
+    await page.keyboard.press("Escape");
+  }
+  const chips = drawer.locator("[data-record-chip-row]");
+  await expect(chips.getByRole("group", { name: "Organizations", exact: true })).toBeVisible();
+  await expect(chips.getByRole("group", { name: "Avatar", exact: true })).toBeVisible();
+
+  const avatar = chips.getByRole("group", { name: "Avatar", exact: true });
+  await expect(avatar.getByRole("link")).toBeVisible();
+  await expect(avatar.locator("button a, a button")).toHaveCount(0);
+  await expect(avatar.getByRole("button", { name: "Edit Avatar", exact: true })).toHaveCount(0);
+
+  const organizations = chips.getByRole("group", { name: "Organizations", exact: true });
+  await expect(organizations.locator("[data-placeholder-chip]")).toBeVisible();
+  await organizations.getByRole("button", { name: "Edit Organizations", exact: true }).click();
+  const picker = page.locator('[data-slot="popover-content"][data-state="open"]');
+  await expect(picker.locator("[data-relationship-field]")).toHaveCount(0);
+  await picker.getByRole("combobox", { name: "Organizations", exact: true }).fill(organization);
+  await picker.getByRole("option", { name: organization, exact: true }).click();
+  await expect(organizations).toContainText(organization);
+  await organizations.getByRole("button", { name: "Edit Organizations", exact: true }).click();
+  await expect(picker.getByRole("option", { name: `Open ${organization}`, exact: true })).toBeVisible();
+  await expect(
+    picker.getByRole("option", { name: "Unpin Organizations from the overview", exact: true }),
+  ).toBeVisible();
+  await page.keyboard.press("Escape");
+
+  const channels = chips.getByRole("group", { name: "Channels", exact: true });
+  await expect(channels.locator("[data-placeholder-chip]")).toBeVisible();
+  await channels.getByRole("button", { name: "Edit Channels", exact: true }).click();
+  await expect(picker.getByRole("button", { name: "Unpin Channels from the overview", exact: true })).toBeVisible();
+  await page.keyboard.press("Escape");
+
+  await drawer.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(drawer).not.toBeVisible();
+  await page.reload();
+  await openRecordDetails(page, firstName);
+  await expect(organizations).toContainText(organization);
+  await drawer.getByRole("button", { name: "Pin a field", exact: true }).click();
+  await page.getByRole("menuitemcheckbox", { name: "Avatar", exact: true }).click();
+  await page.keyboard.press("Escape");
+  await expect(avatar).toHaveCount(0);
+  expect(errors).toEqual([]);
 });

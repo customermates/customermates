@@ -835,6 +835,7 @@
     "groups": {
       "actions": "Aktionen",
       "bestMatch": "Bester Treffer",
+      "docs": "Dokumentation",
       "listsAndViews": "Listen und Ansichten",
       "pagesAndSettings": "Seiten und Einstellungen",
       "records": "Datensätze",
@@ -1953,14 +1954,15 @@
     "boardMoveRequested": "Verschieben nach {group} angefordert.",
     "boardMoveTarget": "Datensatz nach {group} verschieben.",
     "boardPickedUp": "Datensatz aufgenommen.",
+    "collapseColumn": "Spalte einklappen",
     "collapseGroup": "Gruppe {group} einklappen",
     "dragToReorder": "Zum Neuanordnen ziehen",
+    "expandColumn": "{name} ausklappen",
     "expandGroup": "Gruppe {group} ausklappen",
     "groupOverflow": "Es werden nur {count} Gruppen angezeigt",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "moreActions": "Weitere Aktionen",
     "noValue": "Kein Wert",
-    "resizeBoardColumns": "Breite der Board-Spalten ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeColumn": "Größe der Spalte „{column}“ ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeHint": "Zum Ändern der Größe ziehen. Zum Zurücksetzen doppelklicken.",
     "rowActions": "Zeilenaktionen",
@@ -1984,6 +1986,7 @@
       "editTitle": "Ansicht bearbeiten",
       "linkCopied": "Link kopiert",
       "menu": "Ansichtsaktionen",
+      "modified": "Ungespeicherte Änderungen",
       "moveLeft": "Nach links verschieben",
       "moveRight": "Nach rechts verschieben",
       "name": "Name",
@@ -1993,7 +1996,8 @@
       "pickerPlaceholder": "Ansicht suchen …",
       "pickerTitle": "Ansicht wechseln",
       "railLabel": "Gespeicherte Ansichten",
-      "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}"
+      "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}",
+      "resetChanges": "Änderungen zurücksetzen"
     }
   },
   "Diagrams": {
@@ -3668,6 +3672,14 @@
     "unlinkRecord": "Verknüpfung mit {name} entfernen",
     "updatedAt": "Aktualisiert am",
     "useChannelAvatar": "Profilbild des Kanals verwenden",
+    "valueSource": {
+      "calculated": "Berechnet · {formula}",
+      "from": "Aus {list} · {value}",
+      "savedOnCreate": "Gespeichert, wenn {list} angelegt wird",
+      "savedOnRequest": "Auf Anfrage gespeichert",
+      "savedWhenChanged": "Gespeichert, wenn sich {field} ändert",
+      "savedWhenChangedTo": "Gespeichert, wenn sich {field} zu {value} ändert"
+    },
     "valueType": "Werttyp",
     "yes": "Ja"
   },
