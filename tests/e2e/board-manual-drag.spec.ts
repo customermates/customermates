@@ -15,6 +15,9 @@ async function post(page: Page, path: string, data: unknown) {
 }
 
 async function dragCard(page: Page, source: Locator, target: Locator, side: "above" | "below") {
+  const saved = page.waitForResponse(
+    (response) => response.request().method() === "POST" && (response.request().postData() ?? "").includes('"placement"'),
+  );
   const from = await source.boundingBox();
   const to = await target.boundingBox();
   if (!from || !to) throw new Error("Drag source and target must be visible");
@@ -26,6 +29,7 @@ async function dragCard(page: Page, source: Locator, target: Locator, side: "abo
   await expect(page.locator("[data-kanban-placeholder]")).toHaveCount(1);
   await page.mouse.move(to.x + to.width / 2, y + (side === "above" ? -1 : 1), { steps: 2 });
   await page.mouse.up();
+  expect((await saved).ok()).toBe(true);
 }
 
 async function openManualBoard(page: Page, typeId: string, testInfo: TestInfo) {
