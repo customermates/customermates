@@ -77,4 +77,6 @@ export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperat
   [FilterFieldKey.name]: textFieldOperators,
   [FilterFieldKey.firstName]: textFieldOperators,
   [FilterFieldKey.lastName]: textFieldOperators,
+  [FilterFieldKey.kind]: [FilterOperatorKey.in],
+  [FilterFieldKey.list]: [FilterOperatorKey.in],
 };
