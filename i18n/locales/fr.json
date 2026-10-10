@@ -3095,6 +3095,7 @@
         "label": "Décrire le calcul",
         "pending": "Préparation du calcul",
         "placeholder": "Par exemple : total des montants de toutes les lignes liées",
+        "stop": "Arrêter la rédaction",
         "unavailable": "La rédaction n'est pas disponible pour le moment."
       },
       "example": {
@@ -3650,6 +3651,14 @@
     "untitledRecord": "{singular} sans nom",
     "updatedAt": "Mis à jour le",
     "useChannelAvatar": "Utiliser la photo de profil du canal",
+    "usedBy": {
+      "blocking": "Bloquerait la suppression",
+      "blockingCount": "{count, plural, one {# bloquerait la suppression} other {# bloqueraient la suppression}}",
+      "cleaned": "Nettoyé lors de la suppression",
+      "cleanedCount": "{count, plural, one {# nettoyé} other {# nettoyés}}",
+      "layouts": "Également retiré de {count, plural, one {# mise en page} other {# mises en page}}.",
+      "title": "Utilisé par"
+    },
     "valueSource": {
       "calculated": "Calculé · {formula}",
       "from": "Depuis {list} · {value}",

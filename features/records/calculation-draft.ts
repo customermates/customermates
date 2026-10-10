@@ -3,7 +3,7 @@ import { z } from "zod";
 import type { CalculationExpression, RecordModelView } from "./record-model.schema";
 
 import { CalculationExpressionSchema } from "./record-model.schema";
-import { calculationResultType } from "./record-model-validation";
+import { calculationExpressionIssues, expressionFieldDependencies } from "./record-model-validation";
 import { linkedFlow } from "./calculation-sentence";
 
 export const CALCULATION_DRAFT_DESCRIPTION_LIMIT = 500;
@@ -19,6 +19,37 @@ export type CalculationDraftOutput = z.infer<typeof CalculationDraftOutputSchema
 export type CalculationDraft = { source: "formula" | "lookup" | "rollup"; expression: CalculationExpression };
 
 type Aliases = Map<string, string>;
+
+function dependsOnField(
+  expression: CalculationExpression,
+  fieldId: string,
+  model: RecordModelView,
+  seen = new Set<string>(),
+): boolean {
+  for (const id of expressionFieldDependencies(expression)) {
+    if (id === fieldId) return true;
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const field = model.fields.find((candidate) => candidate.id === id);
+    const inner = field && field.behavior.kind !== "input" ? field.behavior.expression : undefined;
+    if (inner && dependsOnField(inner, fieldId, model, seen)) return true;
+  }
+  return false;
+}
+
+function hasUnsetInput(expression: CalculationExpression): boolean {
+  if (expression.kind === "literal") return expression.value === null;
+  if (expression.kind === "related") return expression.reducer !== "count" && hasUnsetInput(expression.expression);
+  if (expression.kind === "operation") return expression.arguments.some(hasUnsetInput);
+  return false;
+}
+
+function offersField(field: RecordModelView["fields"][number], fieldId: string | undefined, model: RecordModelView) {
+  if (!fieldId) return true;
+  if (field.id === fieldId) return false;
+  const inner = field.behavior.kind !== "input" ? field.behavior.expression : undefined;
+  return !inner || !dependsOnField(inner, fieldId, model);
+}
 
 const SYSTEM = [
   "You turn a short description of a calculated CRM field into a calculation expression.",
@@ -61,7 +92,7 @@ export function calculationDraftRequest({
   const list = (id: string) => model.types.find((type) => type.id === id);
   const fields = (id: string) =>
     model.fields
-      .filter((field) => field.typeId === id && !field.archived && field.id !== fieldId)
+      .filter((field) => field.typeId === id && !field.archived && offersField(field, fieldId, model))
       .map((field) => {
         const attributes = [
           ...new Set(field.options.flatMap((option) => option.attributes.map((attribute) => attribute.key))),
@@ -141,8 +172,10 @@ export function parseCalculationDraft({
   const parsed = CalculationExpressionSchema.safeParse(unalias(raw, aliases));
   if (!parsed.success) return null;
   const expression = parsed.data;
-  if (fieldId && JSON.stringify(expression).includes(`"${fieldId}"`)) return null;
-  if (!calculationResultType(expression, typeId, model)) return null;
+  if (hasUnsetInput(expression)) return null;
+  if (fieldId && dependsOnField(expression, fieldId, model)) return null;
+  const checked = calculationExpressionIssues(expression, typeId, model);
+  if (!checked.resultType || checked.issues.length) return null;
   const hops = linkedFlow(expression).hops;
   const source = !hops.length ? "formula" : hops.every((hop) => hop.reducer === "one") ? "lookup" : "rollup";
   return { source, expression };

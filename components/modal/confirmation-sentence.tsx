@@ -63,7 +63,7 @@ export function referenceSentence(
   );
 }
 
-function ChipIcon({ icon }: { icon: ConfirmationChip["icon"] }) {
+export function ChipIcon({ icon }: { icon: ConfirmationChip["icon"] }) {
   const Icon = typeof icon === "string" ? KIND_ICONS[icon] : recordTypeIcon(icon.list);
   return <Icon aria-hidden className="text-muted-foreground" />;
 }

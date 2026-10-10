@@ -17,10 +17,10 @@ import type { FieldModalStore } from "./field-modal";
 import type { CalculationPickerGroup, CalculationPickerItem, CalculationPickerPage } from "./calculation-picker";
 import type { ExpressionPath, FlowIssue, Operator } from "./calculation-flow";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-import { ChevronRight, Plus, Sigma, TextCursorInput } from "lucide-react";
+import { ChevronRight, Plus, Sigma, TextCursorInput, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
@@ -28,6 +28,7 @@ import { ClickableChip } from "@/components/chip/clickable-chip";
 import { RecordTypeGlyph } from "@/components/records/record-type-glyph";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { Button } from "@/components/ui/button";
+import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -193,42 +194,75 @@ function useCalculationExample(store: FieldModalStore) {
   return { complete, data, next };
 }
 
-function CalculationComposer({ store }: { store: FieldModalStore }) {
+const CalculationComposer = observer(function CalculationComposer({ store }: { store: FieldModalStore }) {
   const t = useTranslations();
   const root = useRootStore();
+  const agent = root.agentChatEnabled ? root.agentChatStore : null;
   const [description, setDescription] = useState("");
   const [pending, setPending] = useState(false);
   const [failure, setFailure] = useState<string | null>(null);
-  if (!root.agentChatEnabled || root.agentChatStore?.enabled === false || store.isDisabled) return null;
+  const [refused, setRefused] = useState(false);
+  const request = useRef(0);
+  useEffect(
+    () => () => {
+      request.current += 1;
+    },
+    [],
+  );
+  if (!agent || agent.enabled !== true || agent.usage?.blockedReason || store.isDisabled) return null;
+  if (refused) {
+    return (
+      <p className="pb-3 text-xs text-muted-foreground" data-calculation-composer="">
+        {failure}
+      </p>
+    );
+  }
+  const cancel = () => {
+    request.current += 1;
+    setPending(false);
+  };
   const submit = () =>
     runUserAction(async () => {
       const text = description.trim();
       if (!text || pending) return;
+      const id = ++request.current;
+      const target = store.original?.id ?? null;
       setPending(true);
       setFailure(null);
       try {
         const result = await draftCalculationAction({
           typeId: store.typeId,
           description: text,
-          ...(store.original ? { fieldId: store.original.id } : {}),
+          ...(target ? { fieldId: target } : {}),
         });
-        if (!result.ok) setFailure(t("RecordModel.calculationFlow.describe.unavailable"));
-        else if (!result.data.draft) setFailure(t("RecordModel.calculationFlow.describe.failed"));
+        if (id !== request.current || !store.isOpen || (store.original?.id ?? null) !== target) return;
+        if (!result.ok) {
+          setFailure(
+            result.code === "agentLimitReached"
+              ? t("Common.errors.agentLimitReached")
+              : t("RecordModel.calculationFlow.describe.unavailable"),
+          );
+          setRefused(true);
+        } else if (!result.data.draft) setFailure(t("RecordModel.calculationFlow.describe.failed"));
         else store.applyCalculationDraft(result.data.draft);
       } finally {
-        setPending(false);
+        if (id === request.current) setPending(false);
       }
     });
   return (
     <div className="space-y-1.5 pb-3" data-calculation-composer="">
       <div className="relative">
         <Input
+          aria-busy={pending}
           aria-label={t("RecordModel.calculationFlow.describe.label")}
-          disabled={pending}
+          className={cn(pending && "pe-9")}
           maxLength={CALCULATION_DRAFT_DESCRIPTION_LIMIT}
           placeholder={t("RecordModel.calculationFlow.describe.placeholder")}
           value={description}
-          onChange={(event) => setDescription(event.target.value)}
+          onChange={(event) => {
+            if (pending) cancel();
+            setDescription(event.target.value);
+          }}
           onKeyDown={(event) => {
             if (event.key !== "Enter" || event.metaKey || event.ctrlKey) return;
             event.preventDefault();
@@ -237,18 +271,24 @@ function CalculationComposer({ store }: { store: FieldModalStore }) {
         />
 
         {pending && (
-          <Spinner
-            aria-label={t("RecordModel.calculationFlow.describe.pending")}
-            className="absolute end-3 top-1/2 -translate-y-1/2"
-            size="sm"
-          />
+          <div className="absolute end-1 top-1/2 flex -translate-y-1/2 items-center">
+            <IconButton icon={X} label={t("RecordModel.calculationFlow.describe.stop")} onClick={cancel} />
+          </div>
         )}
       </div>
 
-      {failure && <p className="text-xs text-muted-foreground">{failure}</p>}
+      {pending && (
+        <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <Spinner aria-label={t("RecordModel.calculationFlow.describe.pending")} size="sm" />
+
+          <span aria-hidden>{t("RecordModel.calculationFlow.describe.pending")}</span>
+        </p>
+      )}
+
+      {!pending && failure && <p className="text-xs text-muted-foreground">{failure}</p>}
     </div>
   );
-}
+});
 
 export const CalculationFlow = observer(function CalculationFlow({ store }: { store: FieldModalStore }) {
   const t = useTranslations();

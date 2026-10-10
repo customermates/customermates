@@ -3095,6 +3095,7 @@
         "label": "Describe the calculation",
         "pending": "Drafting the calculation",
         "placeholder": "For example: total of the amounts of all linked line items",
+        "stop": "Stop drafting",
         "unavailable": "Drafting isn't available right now."
       },
       "example": {
@@ -3650,6 +3651,14 @@
     "untitledRecord": "Untitled {singular}",
     "updatedAt": "Updated at",
     "useChannelAvatar": "Use channel profile picture",
+    "usedBy": {
+      "blocking": "Would block deletion",
+      "blockingCount": "{count, plural, one {# would block deletion} other {# would block deletion}}",
+      "cleaned": "Cleaned up on deletion",
+      "cleanedCount": "{count, plural, one {# cleaned up} other {# cleaned up}}",
+      "layouts": "Also removed from {count, plural, one {# layout} other {# layouts}}.",
+      "title": "Used by"
+    },
     "valueSource": {
       "calculated": "Calculated · {formula}",
       "from": "From {list} · {value}",
