@@ -68,6 +68,9 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
     for (const row of this.items ?? [])
       if (this.selectedIds.has(row.id) && !this.selectionRows.has(row.id)) this.selectionRows.set(row.id, row);
   }
+  override get supportsBoard() {
+    return true;
+  }
   override get supportsSelection() {
     return (
       this.presentation.permittedActions.includes("update") || this.presentation.permittedActions.includes("delete")

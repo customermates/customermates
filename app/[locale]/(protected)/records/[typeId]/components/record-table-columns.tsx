@@ -5,7 +5,7 @@ import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import type { RecordsStore } from "./records.store";
 
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { Sigma } from "lucide-react";
 
@@ -13,6 +13,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { withFormulaReferences } from "@/features/records/formula-references";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { RecordCell } from "./record-cell";
+import { RecordCardContent } from "./record-chip-row";
 import { UNTITLED_COLUMN_ID } from "./records.store";
 import {
   RecordCalculatedValue,
@@ -33,7 +34,7 @@ export function recordAvatarFieldId(store: RecordsStore) {
 export function useRecordTableColumns(
   store: RecordsStore,
   openRelated: (ref: RecordRef) => void,
-  { markCalculated = false }: { markCalculated?: boolean } = {},
+  { markCalculated = false, openRecord }: { markCalculated?: boolean; openRecord?: (record: RecordRow) => void } = {},
 ) {
   const t = useTranslations();
   const avatarFieldId = recordAvatarFieldId(store);
@@ -90,6 +91,7 @@ export function useRecordTableColumns(
                 linkIcons={store.presentation.linkIcons}
                 linkLabels={store.presentation.linkLabels}
                 record={row.original}
+                onMore={openRecord ? () => openRecord(row.original) : undefined}
                 onOpen={openRelated}
               />
             );
@@ -133,6 +135,39 @@ export function useRecordTableColumns(
         };
       }),
     ],
-    [columnHeaders, openRelated, avatarFieldId, store, markCalculated, t, untitledHeader],
+    [columnHeaders, openRelated, openRecord, avatarFieldId, store, markCalculated, t, untitledHeader],
+  );
+}
+
+export function useRecordCardRenderer(store: RecordsStore, openRelated: (ref: RecordRef) => void) {
+  const t = useTranslations();
+  const avatarFieldId = recordAvatarFieldId(store);
+  return useCallback(
+    (record: RecordRow) => {
+      const primary = store.recordColumns.find((column) => column.id === store.primaryColumnId);
+      return (
+        <RecordCardContent
+          record={record}
+          records={store}
+          title={
+            primary ? (
+              <RecordCell
+                avatarFieldId={avatarFieldId}
+                column={primary}
+                linkColors={store.presentation.linkColors}
+                linkIcons={store.presentation.linkIcons}
+                linkLabels={store.presentation.linkLabels}
+                record={record}
+                onOpen={openRelated}
+              />
+            ) : (
+              <span className="truncate">{recordDisplayName(undefined, store.type?.label, t)}</span>
+            )
+          }
+          onOpenRecord={openRelated}
+        />
+      );
+    },
+    [avatarFieldId, openRelated, store, t],
   );
 }

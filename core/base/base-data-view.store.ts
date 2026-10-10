@@ -132,6 +132,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   get supportsSelection(): boolean {
     return false;
   }
+  get supportsBoard(): boolean {
+    return false;
+  }
   get supportsManualOrder(): boolean {
     return false;
   }
@@ -364,7 +367,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   }
 
   get canBoard(): boolean {
-    return this.groupableFields.length > 0;
+    return this.supportsBoard && this.groupableFields.length > 0;
   }
 
   get isGrouped(): boolean {

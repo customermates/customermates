@@ -60,6 +60,7 @@ function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewSt
   return {
     activeViewKey: ALL_VIEW_KEY,
     canBoard: true,
+    supportsBoard: true,
     primaryColumnId: "name",
     columnsDefinition: [],
     currentGroupableFieldId: "",
@@ -244,12 +245,17 @@ describe("display options", () => {
     expect(html).toContain('aria-label="Common.sort.field"');
   });
 
-  it("disables the board control when the store cannot board", () => {
-    const html = render(store({ canBoard: false }), "settings-roles");
+  it("disables the board control when a record list cannot board yet", () => {
+    const html = render(store({ canBoard: false }), "deals");
 
-    expect(html).toMatch(
-      /id="settings-roles-layout-board"[^>]*disabled=""|disabled=""[^>]*id="settings-roles-layout-board"/,
-    );
+    expect(html).toMatch(/id="deals-layout-board"[^>]*disabled=""|disabled=""[^>]*id="deals-layout-board"/);
+  });
+
+  it("offers no layout control on surfaces without a card renderer (rule 61)", () => {
+    const html = render(store({ canBoard: false, supportsBoard: false }), "settings-roles");
+
+    expect(html).not.toContain("settings-roles-layout-board");
+    expect(html).not.toContain('aria-label="Common.table.layout"');
   });
 
   it("shows the table as active for a stored card mode the surface cannot board", () => {

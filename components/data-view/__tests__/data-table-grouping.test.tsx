@@ -104,6 +104,7 @@ function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewSt
     hiddenColumns: [],
     isGrouped: true,
     isGroupCollapsed: () => false,
+    canCreateInGroup: () => false,
     isItemSelectable: () => true,
     isRefreshing: false,
     items: ITEMS,

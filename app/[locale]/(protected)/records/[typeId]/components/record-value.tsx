@@ -137,6 +137,7 @@ export const RecordValue = observer(function RecordValue({
         {[value.start, value.end]
           .filter(Boolean)
           .map((value) => valueFormat.isoDate(value ?? "", field.valueType === "dateRange"))
+          .filter(Boolean)
           .join(" – ")}
       </span>
     );

@@ -1,6 +1,6 @@
 "use client";
 
-import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
+import type { KeyboardEvent, MouseEvent, PointerEvent, ReactNode } from "react";
 import type {
   RecordFieldView,
   RecordRef,
@@ -29,7 +29,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppForm } from "@/components/forms/form-context";
@@ -86,8 +86,30 @@ export function hasInlineRelationshipEditor(records: RecordsStore, record: Recor
   );
 }
 
-export function editsInPlace(field: RecordFieldView) {
+function editsInPlace(field: RecordFieldView) {
   return !field.multiple && IN_PLACE_VALUE_TYPES.includes(field.valueType);
+}
+
+function selectionHandlers(
+  records: RecordsStore,
+  record: RecordRow,
+  onClick?: (event: MouseEvent<HTMLElement>) => void,
+) {
+  const selecting = () => records.selectedIds.size > 0 && records.isItemSelectable(record);
+  return {
+    onPointerDown: (event: PointerEvent<HTMLElement>) => {
+      if (selecting()) event.preventDefault();
+    },
+    onClick: (event: MouseEvent<HTMLElement>) => {
+      event.stopPropagation();
+      if (selecting()) {
+        event.preventDefault();
+        records.toggleItemSelection(record.id);
+        return;
+      }
+      onClick?.(event);
+    },
+  };
 }
 
 function latestRow(records: RecordsStore, record: RecordRow) {
@@ -124,7 +146,7 @@ function nextEditTarget(from: HTMLElement | null, backwards: boolean) {
   };
 }
 
-export function EmptyValueTarget({ member = false }: { member?: boolean }) {
+function EmptyValueTarget({ member = false }: { member?: boolean }) {
   return (
     <span
       className="inline-flex items-center text-muted-foreground/60 opacity-0 transition-opacity group-hover/row:opacity-100 group-hover/card:opacity-100 group-focus-visible/edit:opacity-100 group-data-[state=open]/edit:opacity-100 any-pointer-coarse:opacity-100"
@@ -273,6 +295,7 @@ const InlineSelect = observer(function InlineSelect({
           data-edit-target=""
           data-inline-edit={field.id}
           type="button"
+          {...selectionHandlers(records, record)}
         >
           {current === null ? <EmptyValueTarget /> : children}
         </button>
@@ -324,6 +347,7 @@ const InlineBoolean = observer(function InlineBoolean({
       data-inline-edit={field.id}
       disabled={busy}
       size="sm"
+      {...selectionHandlers(records, record)}
       onCheckedChange={(next) => save({ kind: "boolean", value: next })}
     />
   );
@@ -392,10 +416,7 @@ const InPlaceField = observer(function InPlaceField({
           data-edit-target=""
           data-inline-edit={field.id}
           type="button"
-          onClick={(event) => {
-            event.stopPropagation();
-            setEditing(true);
-          }}
+          {...selectionHandlers(records, record, () => setEditing(true))}
         >
           {t("RecordModel.edit")}
         </button>
@@ -411,10 +432,7 @@ const InPlaceField = observer(function InPlaceField({
         data-edit-target=""
         data-inline-edit={field.id}
         type="button"
-        onClick={(event) => {
-          event.stopPropagation();
-          setEditing(true);
-        }}
+        {...selectionHandlers(records, record, () => setEditing(true))}
       >
         {empty ? <EmptyValueTarget /> : <span className="min-w-0 truncate">{children}</span>}
       </button>
@@ -434,6 +452,7 @@ const PopoverField = observer(function PopoverField({
   children: ReactNode;
 }) {
   const t = useTranslations();
+  const layout = useDataViewItemLayout();
   const [open, setOpen] = useState(false);
   const empty = isEmptyResult(fieldResult(record, field));
   const contact = CONTACT_VALUE_TYPES.includes(field.valueType) && !empty;
@@ -441,22 +460,33 @@ const PopoverField = observer(function PopoverField({
   return (
     <Popover modal open={open} onOpenChange={setOpen}>
       {contact ? (
-        <span className="flex min-w-0 items-center">
-          <span className="min-w-0 truncate">{children}</span>
+        <PopoverAnchor asChild>
+          <span
+            className={cn("flex min-w-0 items-center", layout === "row" && "-mx-3 -my-2 cursor-text px-3 py-2")}
+            data-inline-edit-space={layout === "row" ? field.id : undefined}
+            role="presentation"
+            onClick={(event: MouseEvent<HTMLSpanElement>) => {
+              if (layout !== "row" || records.selectedIds.size > 0 || isInteractiveClick(event)) return;
+              event.stopPropagation();
+              setOpen(true);
+            }}
+          >
+            <span className="min-w-0 truncate">{children}</span>
 
-          <PopoverTrigger asChild>
-            <button
-              aria-label={label}
-              className={EDIT_SPACE_BUTTON_CLASS}
-              data-edit-target=""
-              data-inline-edit={field.id}
-              type="button"
-              onClick={(event) => event.stopPropagation()}
-            >
-              {t("RecordModel.edit")}
-            </button>
-          </PopoverTrigger>
-        </span>
+            <PopoverTrigger asChild>
+              <button
+                aria-label={label}
+                className={EDIT_SPACE_BUTTON_CLASS}
+                data-edit-target=""
+                data-inline-edit={field.id}
+                type="button"
+                {...selectionHandlers(records, record)}
+              >
+                {t("RecordModel.edit")}
+              </button>
+            </PopoverTrigger>
+          </span>
+        </PopoverAnchor>
       ) : (
         <PopoverTrigger asChild>
           <button
@@ -465,7 +495,7 @@ const PopoverField = observer(function PopoverField({
             data-edit-target=""
             data-inline-edit={field.id}
             type="button"
-            onClick={(event) => event.stopPropagation()}
+            {...selectionHandlers(records, record)}
           >
             {empty ? <EmptyValueTarget member={field.valueType === "member"} /> : children}
           </button>
@@ -554,7 +584,11 @@ export function RecordCalculatedValue({
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="inline-flex min-w-0 max-w-full truncate" data-calculated-field={field.id}>
+        <span
+          className="inline-flex min-w-0 max-w-full truncate"
+          data-calculated-field={field.id}
+          data-slot="calculated-value"
+        >
           {children}
         </span>
       </TooltipTrigger>
@@ -769,15 +803,14 @@ export const RecordInlineRelationship = observer(function RecordInlineRelationsh
           data-edit-target=""
           data-inline-edit={relation.id}
           type="button"
-          onClick={(event) => {
-            event.stopPropagation();
+          {...selectionHandlers(records, record, (event) => {
             if (!(event.metaKey || event.ctrlKey)) return;
             const chipId = (event.target as HTMLElement).closest("[data-chip-id]")?.getAttribute("data-chip-id");
             const separator = chipId?.indexOf(":") ?? -1;
             if (!chipId || separator < 0) return;
             event.preventDefault();
             onOpenRecord({ typeId: chipId.slice(0, separator), recordId: chipId.slice(separator + 1) });
-          }}
+          })}
         >
           {empty ? <EmptyValueTarget /> : children}
         </button>

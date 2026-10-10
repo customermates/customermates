@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { RecordRef } from "@/features/records/record-model.schema";
+import type { RecordFieldView, RecordRef } from "@/features/records/record-model.schema";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordsStore } from "./records.store";
 
@@ -24,6 +24,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { ContactValue } from "@/components/records/contact-value";
+import { getChannelIcon } from "@/ee/messaging/provider-icon";
+import { channelContact, channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { toChipColor } from "@/constants/chip-colors";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { recordLinkColor } from "@/features/records/record-presentation";
@@ -36,10 +40,50 @@ import {
   RecordPropertyEditor,
   calculatedFieldLabel,
   canEditInline,
+  focusFirstControl,
   hasInlineRelationshipEditor,
 } from "./record-inline-field";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { type RecordChipColumn, type RecordChipEntry, linkSummary, recordChipRowModel } from "./record-chip-row-model";
+
+function FieldTooltip({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="inline-flex max-w-full min-w-0 items-center gap-1" data-slot="chip-field">
+          {children}
+        </span>
+      </TooltipTrigger>
+
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+export function IdentityChips({ record, field }: { record: RecordRow; field: RecordFieldView }) {
+  return (
+    <span className="inline-flex max-w-full min-w-0 flex-wrap items-center gap-1">
+      {(record.identities ?? []).map((identity) => {
+        const Icon = getChannelIcon(identity.provider);
+        const contact = channelContact(identity.provider, identity.value, identity.profileUrl);
+        const label =
+          channelDisplayLabel(identity.provider, identity.value, identity.profileUrl) ||
+          identity.displayName ||
+          identity.value;
+        return (
+          <AppChip key={identity.id} startContent={<Icon className="size-3" />} tooltip={label}>
+            <ContactValue
+              action={field.format?.onClick ?? "open"}
+              kind={contact.kind}
+              label={label}
+              value={contact.value}
+            />
+          </AppChip>
+        );
+      })}
+    </span>
+  );
+}
 
 function ChipLabel({ name, children }: { name?: string; children: ReactNode }) {
   return (
@@ -90,22 +134,14 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
         </AppChip>
       );
     }
-    if (field.valueType === "channels") {
-      return (
-        <span className="inline-flex max-w-full min-w-0 items-center gap-1">
-          {icon}
-
-          <RecordValue field={field} identities={record.identities} overflowMenu={false} result={result} />
-        </span>
-      );
-    }
+    if (field.valueType === "channels") return <IdentityChips field={field} record={record} />;
     if (result?.state === "value" && result.value.kind === "selectList") {
       return (
-        <span className="inline-flex max-w-full min-w-0 items-center gap-1">
+        <FieldTooltip label={field.label}>
           {icon}
 
           <RecordValue field={field} members={record.memberUsers} overflowMenu={false} result={result} />
-        </span>
+        </FieldTooltip>
       );
     }
     if (result?.state === "value" && result.value.kind === "boolean") {
@@ -151,13 +187,15 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
   }
   if (column.kind === "system" && column.id === "system:assignedTo") {
     return (
-      <AppChipStack
-        items={record.assignedUsers.map((member) => ({
-          id: member.id,
-          label: memberName(member),
-          startContent: <MemberAvatar member={member} />,
-        }))}
-      />
+      <FieldTooltip label={column.label}>
+        <AppChipStack
+          items={record.assignedUsers.map((member) => ({
+            id: member.id,
+            label: memberName(member),
+            startContent: <MemberAvatar member={member} />,
+          }))}
+        />
+      </FieldTooltip>
     );
   }
   if (column.kind === "system") {
@@ -291,6 +329,7 @@ const AddPropertyChip = observer(function AddPropertyChip({
         align="start"
         className={editing?.kind === "relationship" ? "w-72 p-0" : "w-80 space-y-2 p-3"}
         onClick={(event) => event.stopPropagation()}
+        onOpenAutoFocus={focusFirstControl}
       >
         {editing && (
           <RecordPropertyEditor
@@ -306,7 +345,7 @@ const AddPropertyChip = observer(function AddPropertyChip({
   );
 });
 
-export const RecordChipRow = observer(function RecordChipRow({
+const RecordChipRow = observer(function RecordChipRow({
   records,
   record,
   columns,
@@ -355,7 +394,11 @@ export const RecordCardContent = observer(function RecordCardContent({
   onOpenRecord: (ref: RecordRef) => void;
 }) {
   const byId = new Map(records.recordColumns.map((column) => [column.id, column]));
-  const hidden = new Set([records.primaryColumnId, records.groupingResult?.columnId]);
+  const hidden = new Set([
+    records.primaryColumnId,
+    records.groupingResult?.grouping.field,
+    records.groupingResult?.columnId,
+  ]);
   const columns = records.visibleColumns.flatMap((column) => {
     const recordColumn = byId.get(column.uid);
     return recordColumn && !hidden.has(column.uid) ? [recordColumn] : [];
