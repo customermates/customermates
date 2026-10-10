@@ -71,8 +71,8 @@ export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> 
   [FilterFieldKey.name]: { kind: "string" },
   [FilterFieldKey.firstName]: { kind: "string" },
   [FilterFieldKey.lastName]: { kind: "string" },
-  [FilterFieldKey.kind]: { kind: "enum", values: TRASH_KINDS },
-  [FilterFieldKey.list]: { kind: "string" },
+  [FilterFieldKey.trashKind]: { kind: "enum", values: TRASH_KINDS },
+  [FilterFieldKey.trashList]: { kind: "string" },
 };
 
 export const FILTER_FIELD_AGENT_NOTES: Partial<Record<FilterFieldKey, string>> = {

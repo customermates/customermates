@@ -1,3 +1,4 @@
+import type { MovedToTrash } from "@/features/trash/moved-to-trash";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
 import type { DataViewChipDto } from "@/core/data-view/data-view-state.schema";
@@ -112,7 +113,7 @@ export async function moveView<E extends HasId>(
 export async function deleteView<E extends HasId>(
   store: BaseDataViewStore<E>,
   view: DataViewChipDto,
-): Promise<boolean> {
+): Promise<boolean | MovedToTrash> {
   const isActive = store.activeViewKey === view.id;
   if (isActive) store.discardPendingViewState();
 
@@ -130,5 +131,5 @@ export async function deleteView<E extends HasId>(
       window.history.replaceState(null, "", viewHref(store.viewPathname, ALL_VIEW_KEY, surfaceKeyOf(store)));
   } else await store.refresh();
 
-  return true;
+  return { trashBatchId: result.data.trashBatchId };
 }

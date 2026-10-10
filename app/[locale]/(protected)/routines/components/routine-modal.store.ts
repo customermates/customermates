@@ -1,3 +1,4 @@
+import type { MovedToTrash } from "@/features/trash/moved-to-trash";
 import type { RootStore } from "@/core/stores/root.store";
 import type { RoutineRunPage } from "@/ee/routines/routine-history";
 import type { RoutineSchedulePreset } from "@/ee/routines/routine-schedule-preset";
@@ -694,7 +695,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     };
   }
 
-  delete = async (): Promise<boolean> => {
+  delete = async (): Promise<boolean | MovedToTrash> => {
     if (!this.form.id || !this.isAdmin) return false;
 
     this.setIsLoading(true);
@@ -705,10 +706,10 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
         return false;
       }
 
-      await this.rootStore.routinesStore.removeItem(res.data);
+      await this.rootStore.routinesStore.removeItem(res.data.id);
       this.close();
       await this.refreshRoutineList();
-      return true;
+      return { trashBatchId: res.data.trashBatchId };
     } finally {
       this.setIsLoading(false);
     }

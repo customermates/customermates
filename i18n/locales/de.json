@@ -1262,7 +1262,9 @@
       },
       "routine": {
         "created": "Routine erstellt",
-        "deleted": "Routine gelöscht",
+        "deleted": "Routine in den Papierkorb verschoben",
+        "deletedPermanently": "Routine endgültig gelöscht",
+        "restored": "Routine wiederhergestellt",
         "updated": "Routine aktualisiert"
       },
       "user": {
@@ -1276,7 +1278,9 @@
       },
       "wiki_page": {
         "created": "Wissensdatenbank-Seite erstellt",
-        "deleted": "Wissensdatenbank-Seite gelöscht",
+        "deleted": "Wissensdatenbank-Seite in den Papierkorb verschoben",
+        "deletedPermanently": "Wissensdatenbank-Seite endgültig gelöscht",
+        "restored": "Wissensdatenbank-Seite wiederhergestellt",
         "updated": "Wissensdatenbank-Seite aktualisiert"
       }
     },
@@ -1296,13 +1300,11 @@
         "event": "Ereignis",
         "firstName": "Vorname",
         "isPlatformOperator": "Plattform-Operator",
-        "kind": "Art",
         "lastActiveAt": "Zuletzt aktiv",
         "lastMessageAt": "Letzte Aktivität",
         "lastMessageDirection": "Letzte Nachricht",
         "lastMessageSentAt": "Letzte Nachricht am",
         "lastName": "Nachname",
-        "list": "Liste",
         "name": "Name",
         "ownerUserId": "Eigentümer",
         "participantContactId": "Verknüpfte Datensätze",
@@ -1315,6 +1317,8 @@
         "subscriptionStatus": "Abonnement",
         "timelineKind": "Typ",
         "timelineThreadId": "Unterhaltung",
+        "trashKind": "Art",
+        "trashList": "Liste",
         "updatedAt": "Aktualisiert am",
         "url": "URL",
         "webhookId": "Webhook",
@@ -1812,7 +1816,7 @@
       "title": "Letzte Aktivität"
     },
     "addCard": "Widget hinzufügen",
-    "deleteView": "„{name}“ löschen? {count, plural, =0 {Die Ansicht hat keine Widgets.} one {Ihr Widget wird nach {main} verschoben:} other {Ihre # Widgets werden nach {main} verschoben:}}",
+    "deleteView": "„{name}“ löschen? {count, plural, =0 {Die Ansicht hat keine Widgets.} one {Ihr Widget kommt mit in den Papierkorb:} other {Ihre # Widgets kommen mit in den Papierkorb:}}",
     "displayTypeRequirements": {
       "grouping": "Wähle eine Gruppierung, um Gruppen zu ranken.",
       "noGrouping": "Setze Gruppieren nach auf Keine Gruppierung, um eine Zahl anzuzeigen.",
@@ -4108,6 +4112,8 @@
     "deletePermanently": "Endgültig löschen",
     "deletePermanentlyManyTitle": "{count, plural, one {# Element} other {# Elemente}} endgültig löschen?",
     "deletePermanentlyTitle": "{name} endgültig löschen?",
+    "deletionPartlyFailed": "Einige Elemente konnten nicht gelöscht werden und bleiben im Papierkorb. Alles andere wurde endgültig gelöscht.",
+    "deletionPending": "Einige Elemente werden noch im Hintergrund gelöscht. Sie bleiben im Papierkorb, bis das abgeschlossen ist.",
     "empty": "Papierkorb leeren",
     "emptyBody": "Gelöschte Elemente bleiben 30 Tage hier und werden danach endgültig gelöscht.",
     "emptyConfirmation": "papierkorb leeren",

@@ -92,7 +92,13 @@ export const WidgetModal = observer(() => {
         icon: Trash2,
         variant: "destructive",
         disabled: isDisabled,
-        onClick: () => showDeleteConfirmation(() => widgetModalStore.delete(), form.name),
+        onClick: () =>
+          showDeleteConfirmation(
+            () => widgetModalStore.delete(),
+            form.name,
+            undefined,
+            () => widgetModalStore.rootStore.widgetsStore.refresh(),
+          ),
       }
     : null;
   const backAction: AppModalActionProps | null =

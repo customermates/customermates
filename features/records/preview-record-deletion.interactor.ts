@@ -108,7 +108,7 @@ export class PreviewRecordDeletionInteractor extends AuthenticatedInteractor<
             for (const row of await this.records.getRecordsCompanyWide(candidates.slice(index, index + 100)))
               if (await policy.canRead(row)) visible.add(recordKey({ typeId: row.typeId, recordId: row.id }));
           }
-          const changedTypes = new Set([...plan.affected.values()].map((ref) => ref.typeId));
+          const deletedTypes = new Set([...plan.deleted.values()].map((record) => record.typeId));
           const calculations = new Map<string, RecordDeletionPreview["calculations"][number]>();
           let expanded = true;
           while (expanded) {
@@ -121,19 +121,17 @@ export class PreviewRecordDeletionInteractor extends AuthenticatedInteractor<
                 calculations.has(field.id)
               )
                 continue;
-              if (
-                !changedTypes.has(field.typeId) &&
-                !calculationSources(field.behavior.expression, field.typeId, model).some((source) =>
-                  changedTypes.has(source.typeId),
-                )
-              )
-                continue;
+              const reads = calculationSources(field.behavior.expression, field.typeId, model).some(
+                (source) =>
+                  (source.path.length > 0 && deletedTypes.has(source.typeId)) ||
+                  (source.fieldId !== null && calculations.has(source.fieldId)),
+              );
+              if (!reads) continue;
               calculations.set(field.id, {
                 typeId: field.typeId,
                 fieldId: field.id,
                 label: field.label,
               });
-              changedTypes.add(field.typeId);
               expanded = true;
             }
           }

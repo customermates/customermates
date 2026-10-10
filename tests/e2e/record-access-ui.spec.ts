@@ -2225,7 +2225,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
   const viewRows = async (userId: string) =>
     (
       await database.query(
-        'SELECT id,name,position,"viewMode",grouping,"sortDescriptor","columnOrder","columnWidths","hiddenColumns" FROM "DataView" WHERE "companyId"=$1 AND "userId"=$2 AND "surfaceKey"=$3 ORDER BY position,id',
+        'SELECT id,name,position,"viewMode",grouping,"sortDescriptor","columnOrder","columnWidths","hiddenColumns" FROM "DataView" WHERE "companyId"=$1 AND "userId"=$2 AND "surfaceKey"=$3 AND "deletedAt" IS NULL ORDER BY position,id',
         [companyId, userId, surfaceKey],
       )
     ).rows;
@@ -2670,7 +2670,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
   expect(
     (
       await database.query(
-        'SELECT id FROM "DataView" WHERE "companyId"=$1 AND "surfaceKey"=$2',
+        'SELECT id FROM "DataView" WHERE "companyId"=$1 AND "surfaceKey"=$2 AND "deletedAt" IS NULL',
         [companyId, surfaceKey],
       )
     ).rows,

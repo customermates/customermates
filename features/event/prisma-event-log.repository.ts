@@ -43,7 +43,13 @@ export class PrismaEventLogRepo extends TenantRepository implements EventLogRepo
         select: { id: true },
       }),
       this.prisma.routine.findFirst({
-        where: { companyId, enabled: true, triggerKind: RoutineTriggerKind.event, triggerEvents: { has: kind } },
+        where: {
+          companyId,
+          enabled: true,
+          deletedAt: null,
+          triggerKind: RoutineTriggerKind.event,
+          triggerEvents: { has: kind },
+        },
         select: { id: true },
       }),
     ]);

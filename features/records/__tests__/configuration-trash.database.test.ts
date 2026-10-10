@@ -43,7 +43,11 @@ const { PrismaTrashRepo } = await import("@/features/trash/prisma-trash.reposito
 const { QueryTrashInteractor } = await import("@/features/trash/query-trash.interactor");
 const { RestoreTrashInteractor } = await import("@/features/trash/restore-trash.interactor");
 const { PreviewTrashDeletionInteractor } = await import("@/features/trash/preview-trash-deletion.interactor");
-const { DeleteTrashPermanentlyInteractor } = await import("@/features/trash/delete-trash-permanently.interactor");
+const { DeleteTrashPermanentlyInteractor, purgeTrashItems } = await import(
+  "@/features/trash/delete-trash-permanently.interactor"
+);
+const { EmptyTrashInteractor } = await import("@/features/trash/empty-trash.interactor");
+const { Prisma } = await import("@/generated/prisma");
 
 const noWebhooks = new WebhookPauseNotifier(
   { getWebhookByIdOrThrow: () => Promise.reject(new Error("No webhook expected")) },
@@ -93,6 +97,7 @@ async function fixture() {
           new RecordConfigurationWriter(scoped, new RecordCalculationService(scoped), noWebhooks),
           { dispatch: () => Promise.resolve() },
         ),
+        new PrismaTrashRepo(companyId),
       ),
       new RecordTrashHandler(scoped, scopedPolicy, { dispatch: () => Promise.resolve() }),
     ];
@@ -119,6 +124,7 @@ async function fixture() {
     restore: new RestoreTrashInteractor(trashRepo, handlers()),
     preview: new PreviewTrashDeletionInteractor(trashRepo, handlers()),
     remove: new DeleteTrashPermanentlyInteractor(trashRepo, handlers()),
+    empty: new EmptyTrashInteractor(trashRepo, policy, handlers()),
   };
   const id = (key: string) => presetId(seed.company.id, key);
   const employer = randomUUID();
@@ -400,8 +406,8 @@ describeDatabase("configuration trash", () => {
     const dispatched: unknown[] = [];
     const job = new PurgeExpiredTrashInteractor(
       {
-        findExpiredTrashCompaniesUnscoped: async (at, limit) =>
-          (await new PrismaTrashRepo().findExpiredTrashCompaniesUnscoped(at, limit * 1000)).filter(
+        findExpiredTrashCompaniesUnscoped: async (at, after, limit) =>
+          (await new PrismaTrashRepo().findExpiredTrashCompaniesUnscoped(at, after, limit * 1000)).filter(
             (due) => due.companyId === f.seed.company.id,
           ),
       },
@@ -414,10 +420,10 @@ describeDatabase("configuration trash", () => {
     );
     expect(await job.invoke({ now: new Date() })).toEqual({ dispatched: [], skipped: [] });
     expect(await job.invoke({ now })).toEqual({ dispatched: [f.seed.company.id], skipped: [] });
-    expect(dispatched).toEqual([{ companyId: f.seed.company.id, administratorId: f.admin.id, now: now.toISOString() }]);
+    expect(dispatched).toEqual([{ companyId: f.seed.company.id, actorUserId: f.admin.id, now: now.toISOString() }]);
     const purge = () =>
       f.as(() => purgeExpiredCompanyTrash(new PrismaTrashRepo(f.seed.company.id), f.handlers(f.seed.company.id), now));
-    expect(await purge()).toEqual({ hasMore: false });
+    expect(await purge()).toEqual({ next: null, deleted: 2, pending: 0, failed: 0 });
     expect(await f.items()).toEqual([]);
     expect(
       await runWithoutTenant(() =>
@@ -437,8 +443,155 @@ describeDatabase("configuration trash", () => {
         }),
       ),
     ).toEqual([{ actorId: null }]);
-    expect(await purge()).toEqual({ hasMore: false });
+    expect(await purge()).toEqual({ next: null, deleted: 0, pending: 0, failed: 0 });
     expect(await job.invoke({ now })).toEqual({ dispatched: [], skipped: [] });
+  }, 180_000);
+
+  it("clears the item of a relationship whose other list is deleted permanently, so no orphan remains", async () => {
+    const f = await fixture();
+    await f.as(async () =>
+      f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "relationship", id: f.employer } }])),
+    );
+    await f.as(async () =>
+      f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "type", id: f.id("organization") } }])),
+    );
+    const list = (await f.items()).find((item) => item.kind === "list");
+    expect((await f.items()).map((item) => item.kind)).toEqual(["relationship", "list"]);
+    const preview = await f.as(() => f.trash.preview.invoke({ itemIds: [list?.id ?? ""] }));
+    if (!preview.ok) throw new Error(JSON.stringify(preview));
+    expect(
+      await f.as(() =>
+        f.trash.remove.invoke({ itemIds: [list?.id ?? ""], expectedImpactHash: preview.data.impactHash }),
+      ),
+    ).toMatchObject({ ok: true, data: { deletedItemIds: [list?.id], pendingItemIds: [], failedItemIds: [] } });
+    expect(await f.items()).toEqual([]);
+  }, 180_000);
+
+  it("skips a failing item so Restore, Delete permanently, Empty trash and the retention job keep working", async () => {
+    const f = await fixture();
+    const companyId = f.seed.company.id;
+    const orphan = async (kind: "relationship" | "widget", expiresAt = new Date(Date.now() + 86_400_000)) =>
+      runWithoutTenant(() =>
+        prisma.trashItem.create({
+          data: {
+            id: randomUUID(),
+            companyId,
+            kind,
+            targetId: randomUUID(),
+            typeId: kind === "relationship" ? f.id("deal") : null,
+            label: `Orphan ${kind}`,
+            deletedById: f.admin.id,
+            deletedAt: new Date(),
+            expiresAt,
+            batchId: randomUUID(),
+          },
+        }),
+      );
+    const deleteNotes = async () => {
+      await f.as(async () =>
+        f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "field", id: f.id("deal.notes") } }])),
+      );
+      return (await f.items()).find((item) => item.targetId === f.id("deal.notes"));
+    };
+    const stale = await orphan("relationship");
+    const notes = await deleteNotes();
+    expect(await f.as(() => f.trash.restore.invoke({ itemIds: [stale.id, notes?.id ?? ""] }))).toMatchObject({
+      ok: true,
+      data: { restoredItemIds: [notes?.id], blocked: [{ itemId: stale.id, reason: "notFound" }] },
+    });
+    expect(await f.items()).toEqual([]);
+    const leftover = await orphan("relationship");
+    const preview = await f.as(() => f.trash.preview.invoke({ itemIds: [leftover.id] }));
+    if (!preview.ok) throw new Error(JSON.stringify(preview));
+    expect(
+      await f.as(() => f.trash.remove.invoke({ itemIds: [leftover.id], expectedImpactHash: preview.data.impactHash })),
+    ).toMatchObject({ ok: true, data: { deletedItemIds: [leftover.id], failedItemIds: [] } });
+    expect(await f.items()).toEqual([]);
+
+    const failing = {
+      kinds: ["widget"] as const,
+      restoreOrder: 9,
+      visibility: (alias: InstanceType<typeof Prisma.Sql>) => Promise.resolve(Prisma.sql`${alias}.kind = 'widget'`),
+      restore: () => Promise.reject(new Error("restore failed")),
+      impact: () => Promise.resolve({ removedRecords: [], removedLinks: 0 }),
+      purge: () => Promise.reject(new Error("purge failed")),
+    };
+    const handlers = [...f.handlers(companyId), failing];
+    const repo = new PrismaTrashRepo(companyId);
+    const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), new PrismaRecordRepo(companyId));
+    const empty = new EmptyTrashInteractor(repo, policy, handlers);
+    const broken = await orphan("widget");
+    const field = await deleteNotes();
+    const all = await f.as(() => new PreviewTrashDeletionInteractor(repo, handlers).invoke({ all: true }));
+    if (!all.ok) throw new Error(JSON.stringify(all));
+    expect(await f.as(() => empty.invoke({ expectedImpactHash: all.data.impactHash }))).toMatchObject({
+      ok: true,
+      data: { deletedItemIds: [field?.id], pendingItemIds: [], failedItemIds: [broken.id] },
+    });
+    expect((await f.items()).map((item) => item.id)).toEqual([broken.id]);
+
+    const record = await f.create("deal", "deal.name", "Expired");
+    await f.as(async () =>
+      f.mutate.invoke({
+        mutation: { action: "delete", ref: record, expectedVersion: 1 },
+        expectedRevision: await f.revision(),
+        idempotencyKey: randomUUID(),
+      }),
+    );
+    await runWithoutTenant(() =>
+      prisma.trashItem.updateMany({ where: { companyId }, data: { expiresAt: new Date(Date.now() - 1000) } }),
+    );
+    await runWithoutTenant(() => prisma.user.update({ where: { id: f.admin.id }, data: { status: "inactive" } }));
+    const dispatched: unknown[] = [];
+    await new PurgeExpiredTrashInteractor(
+      {
+        findExpiredTrashCompaniesUnscoped: async (at, after, limit) =>
+          (await new PrismaTrashRepo().findExpiredTrashCompaniesUnscoped(at, after, limit * 1000)).filter(
+            (due) => due.companyId === companyId,
+          ),
+      },
+      {
+        dispatch: (_id, payload) => {
+          dispatched.push(payload);
+          return Promise.resolve();
+        },
+      },
+    ).invoke();
+    expect(dispatched).toEqual([expect.objectContaining({ companyId, actorUserId: f.admin.id })]);
+    expect(await f.as(() => purgeExpiredCompanyTrash(repo, handlers, new Date()))).toEqual({
+      next: null,
+      deleted: 1,
+      pending: 0,
+      failed: 1,
+    });
+    expect((await f.items()).map((item) => item.id)).toEqual([broken.id]);
+  }, 180_000);
+
+  it("reports a list purge that continues in the background as pending and keeps its item", async () => {
+    const f = await fixture();
+    const companyId = f.seed.company.id;
+    await f.as(async () =>
+      f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "type", id: f.id("organization") } }])),
+    );
+    const [config] = f.handlers(companyId);
+    const background = new ConfigurationTrashHandler(
+      new PrismaRecordRepo(companyId),
+      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), new PrismaRecordRepo(companyId)),
+      (config as unknown as { preview: never }).preview,
+      { run: () => Promise.resolve({ ok: true, data: { status: "pending", operationId: randomUUID() } }) } as never,
+      new PrismaTrashRepo(companyId),
+    );
+    const items = await f.as(() => new PrismaTrashRepo(companyId).find({ all: true }, Prisma.sql`TRUE`));
+    expect(
+      await f.as(() =>
+        runInTransaction(() => purgeTrashItems(new PrismaTrashRepo(companyId), [background], items, f.admin.id)),
+      ),
+    ).toEqual({
+      deletedItemIds: [],
+      pendingItemIds: [items[0]?.id],
+      failedItemIds: [],
+    });
+    expect(await f.items()).toHaveLength(1);
   }, 180_000);
 
   it("backfills Trash items for configuration that was deleted before the migration", async () => {
@@ -447,10 +600,19 @@ describeDatabase("configuration trash", () => {
       f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "field", id: f.id("deal.notes") } }])),
     );
     await f.as(async () =>
+      f.apply.invoke(
+        await f.change([{ operation: "delete", target: { kind: "field", id: f.id("organization.notes") } }]),
+      ),
+    );
+    await f.as(async () =>
       f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "type", id: f.id("organization") } }])),
     );
     const before = (await f.items()).map((item) => [item.kind, item.targetId, item.label, item.deletedById]);
-    expect(before.map(([kind]) => kind)).toEqual(["field", "list"]);
+    expect(before.map(([kind, targetId]) => [kind, targetId])).toEqual([
+      ["field", f.id("deal.notes")],
+      ["field", f.id("organization.notes")],
+      ["list", f.id("organization")],
+    ]);
     await runWithoutTenant(() => prisma.trashItem.deleteMany({ where: { companyId: f.seed.company.id } }));
     const sql = readFileSync("prisma/migrations/20261009030000_trash_configuration_backfill/migration.sql", "utf8");
     await runWithoutTenant(() => prisma.$executeRawUnsafe(sql));

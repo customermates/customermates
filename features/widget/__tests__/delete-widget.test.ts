@@ -26,7 +26,10 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 const WIDGET_ID = "00000000-0000-4000-8000-000000000001";
 
 function makeInteractor(repo: any) {
-  return new DeleteWidgetInteractor(repo, new ValidateWidgetIdsInteractor(getWidgetRepo()));
+  return new DeleteWidgetInteractor(repo, new ValidateWidgetIdsInteractor(getWidgetRepo()), {
+    add: vi.fn(),
+    remove: vi.fn(),
+  } as never);
 }
 
 describe("DeleteWidgetInteractor", () => {
@@ -34,7 +37,7 @@ describe("DeleteWidgetInteractor", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    repo = { deleteWidget: vi.fn().mockResolvedValue(undefined) };
+    repo = { trashWidget: vi.fn().mockResolvedValue({ name: "Pipeline" }) };
   });
 
   it("deletes a widget that exists", async () => {
@@ -43,7 +46,7 @@ describe("DeleteWidgetInteractor", () => {
     const result: any = await makeInteractor(repo).invoke({ id: WIDGET_ID });
 
     expect(result.ok).toBe(true);
-    expect(repo.deleteWidget).toHaveBeenCalledWith(WIDGET_ID);
+    expect(repo.trashWidget).toHaveBeenCalledWith(WIDGET_ID);
   });
 
   it("rejects a missing widget with widgetNotFound instead of silently succeeding", async () => {
@@ -53,6 +56,6 @@ describe("DeleteWidgetInteractor", () => {
 
     expect(result.ok).toBe(false);
     expect(result.error.issues.some((issue: any) => issue.params?.error === CustomErrorCode.widgetNotFound)).toBe(true);
-    expect(repo.deleteWidget).not.toHaveBeenCalled();
+    expect(repo.trashWidget).not.toHaveBeenCalled();
   });
 });

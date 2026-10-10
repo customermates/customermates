@@ -132,8 +132,8 @@ const EXPECTED_STANDARD: Record<FilterFieldKey, Expected> = {
   [FilterFieldKey.lastName]: TEXT,
   [FilterFieldKey.workspaceId]: SELECT,
   [FilterFieldKey.workspaceTags]: SELECT,
-  [FilterFieldKey.kind]: SELECT,
-  [FilterFieldKey.list]: SELECT,
+  [FilterFieldKey.trashKind]: SELECT,
+  [FilterFieldKey.trashList]: SELECT,
 };
 
 const EXPECTED_CUSTOM: Record<CustomColumnType, Expected> = {
