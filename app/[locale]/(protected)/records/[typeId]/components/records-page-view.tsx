@@ -220,6 +220,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
             </DropdownMenuItem>
           )
         }
+        searchLabel={t("Common.filters.searchFields.records")}
         store={store}
         onAdd={handleAdd}
         onExport={handleExport}

@@ -91,6 +91,7 @@ const TrashPageViewContent = observer(function TrashPageView({ initialTrash }: P
             </DropdownMenuItem>
           ) : undefined
         }
+        searchLabel={t("Common.filters.searchFields.trash")}
         showDisplayOptions={false}
         store={store}
       />

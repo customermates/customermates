@@ -7,20 +7,18 @@ import { useTranslations } from "next-intl";
 import { useCallback, useRef } from "react";
 import { FilterTargetPopover } from "@/components/data-view/filter-palette/filter-target-popover";
 import { useViewAi } from "@/components/data-view/views/use-view-ai";
-import { useColumnLabel } from "@/components/data-view/use-column-label";
 import { AppModalActionRail } from "@/components/modal/app-modal-action";
 import { useAskAiAction } from "@/components/ui/ask-ai-action";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { AppModalCloseContext } from "@/components/modal/app-modal-close-context";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
-type Props = { store: BaseDataViewStore<any>; compact?: boolean; searchable?: boolean; id?: string };
+type Props = { store: BaseDataViewStore<any>; compact?: boolean; searchLabel?: string; id?: string };
 
-export const FilterPopover = observer(function FilterPopover({ store, compact, searchable = false, id }: Props) {
+export const FilterPopover = observer(function FilterPopover({ store, compact, searchLabel, id }: Props) {
   const t = useTranslations();
   const ai = useViewAi(store, { registerPageContext: false, entry: "filters" });
   const askAiAction = useAskAiAction();
-  const columnLabel = useColumnLabel();
   const { keyboardShortcutsStore } = useRootStore();
   const pendingAi = useRef<(() => void) | null>(null);
   const registerOpener = useCallback(
@@ -30,11 +28,9 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, s
     },
     [keyboardShortcutsStore],
   );
-  const search = searchable
+  const search = searchLabel
     ? {
-        label:
-          store.columnsDefinition.find((column) => column.uid === store.primaryColumnId)?.label ||
-          columnLabel(store.primaryColumnId),
+        label: searchLabel,
         term: store.searchTerm || undefined,
         apply: (term: string | undefined) => store.setQueryOptions({ searchTerm: term ?? "" }),
       }

@@ -45,7 +45,13 @@ const OperatorWorkspacesPageViewContent = observer(function OperatorWorkspacesPa
   });
   const descriptor = { title: t("OperatorWorkspaces.emptyTitle"), body: t("OperatorWorkspaces.emptyBody") };
   const topBarNode = useMemo(
-    () => <DataViewToolbar anchorScope="operator-workspaces" store={operatorWorkspacesStore} />,
+    () => (
+      <DataViewToolbar
+        anchorScope="operator-workspaces"
+        searchLabel={t("Common.filters.searchFields.operatorWorkspaces")}
+        store={operatorWorkspacesStore}
+      />
+    ),
     [operatorWorkspacesStore, t],
   );
   useSetTopBarActions(topBarNode);

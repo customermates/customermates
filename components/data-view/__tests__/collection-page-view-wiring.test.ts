@@ -486,11 +486,11 @@ describe("migrated collection page wiring", () => {
     const html = fixtures.find(({ name }) => name === "Roles")?.render(value, initial) ?? "";
     renderToStaticMarkup(harness.setTopBarActions.mock.lastCall?.[0] as ReactElement);
     const toolbar = harness.toolbarProps.mock.lastCall?.[0] as {
-      isSearchable: boolean;
+      searchLabel?: string;
     };
 
     expect(html).toContain('data-page-state="error"');
-    expect(toolbar.isSearchable).toBe(false);
+    expect(toolbar.searchLabel).toBeUndefined();
     expect(harness.sync).not.toHaveBeenCalled();
   });
 });
