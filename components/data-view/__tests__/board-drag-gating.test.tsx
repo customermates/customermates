@@ -61,7 +61,9 @@ vi.mock("@dnd-kit/core", () => ({
     dndSpy.contextIds.push(id);
     return createElement("div", null, children);
   },
-  PointerSensor: function PointerSensor() {},
+  MouseSensor: function MouseSensor() {},
+  TouchSensor: function TouchSensor() {},
+  DragOverlay: ({ children }: { children?: ReactNode }) => children ?? null,
   KeyboardSensor: function KeyboardSensor() {},
   useSensor: (sensor: unknown, options?: unknown) => {
     dndSpy.sensorOptions.push(options);
@@ -190,8 +192,8 @@ afterEach(() => {
 
 const dropEvent = (activeId: string, overId: string, groupKey: string) =>
   ({
-    active: { id: activeId, data: { current: { groupKey } } },
-    over: { id: overId },
+    active: { id: activeId, data: { current: { groupKey } }, rect: { current: { initial: null, translated: null } } },
+    over: { id: overId, data: { current: undefined } },
   }) as unknown as DragEndEvent;
 
 async function drop(activeId: string, overId: string, groupKey: string): Promise<void> {
@@ -251,8 +253,12 @@ describe("board drag gating", () => {
   it("registers the pointer sensor and live targets when the server allows the write back", () => {
     render(store({}));
 
-    expect(dndSpy.sensorCounts).toEqual([2]);
-    expect(dndSpy.droppables.some((droppable) => droppable.disabled)).toBe(false);
+    expect(dndSpy.sensorCounts).toEqual([3]);
+    expect(
+      dndSpy.droppables
+        .filter((droppable) => !droppable.id.startsWith("card:"))
+        .some((droppable) => droppable.disabled),
+    ).toBe(false);
     expect(dndSpy.draggables.some((draggable) => draggable.disabled)).toBe(false);
   });
 
