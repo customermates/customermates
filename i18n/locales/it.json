@@ -3953,16 +3953,15 @@
   "SidebarCustomize": {
     "deleteSection": "Elimina sezione",
     "deleteSectionEmpty": "La sezione è vuota, quindi nessun elemento viene spostato.",
-    "deleteSectionMoves": "I suoi elementi tornano al loro posto predefinito nella barra laterale; gli elementi nascosti restano nascosti:",
+    "deleteSectionMoves": "I suoi elementi passano al livello superiore della barra laterale; gli elementi nascosti restano nascosti:",
     "deleteSectionTitle": "Eliminare la sezione «{section}»?",
     "dragItem": "Sposta {item}",
     "dragSection": "Sposta la sezione {section}",
     "emptySection": "Trascina qui gli elementi o usa Sposta nella sezione",
     "hide": "Nascondi dalla barra laterale",
-    "hint": "Trascina le maniglie per riordinare elementi e sezioni, oppure usa i menu …. Fai clic sul nome di una sezione personale per rinominarla.",
+    "hint": "Trascina le maniglie per riordinare elementi e sezioni, oppure usa i menu …. Gli elementi possono stare al livello superiore o in una sezione. Fai clic sul nome di una sezione per rinominarla.",
     "itemActions": "Opzioni per {item}",
     "moveDown": "Sposta giù",
-    "movesBackTo": "{item} torna in {section}",
     "moveToSection": "Sposta nella sezione",
     "moveUp": "Sposta su",
     "newSection": "Nuova sezione",
@@ -3976,7 +3975,8 @@
     "sectionDeleted": "Sezione eliminata",
     "sectionName": "Nome della sezione",
     "show": "Mostra {item}",
-    "title": "Personalizza barra laterale"
+    "title": "Personalizza barra laterale",
+    "topLevel": "Livello superiore"
   },
   "SignInForm": {
     "agreeToTerms": "Continuando, accetti i nostri <termsOfServiceLink>Termini</termsOfServiceLink> e dichiari di aver letto la nostra <dataPrivacyLink>Informativa sulla privacy</dataPrivacyLink>. Consulta il nostro <dpaLink>DPA</dpaLink>.",
