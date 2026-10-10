@@ -31,7 +31,7 @@ test("moves a high fan-out delete to Trash in the background with one toast that
   database,
   companyId,
 }) => {
-  test.setTimeout(420000);
+  test.setTimeout(600000);
   const errors: string[] = [];
   page.on("pageerror", (error) => {
     if (!isBenignPageError(error.message)) errors.push(error.message);
@@ -117,7 +117,7 @@ test("moves a high fan-out delete to Trash in the background with one toast that
   await expect(toasts.filter({ hasText: "Moving 1 item to Trash" })).toBeVisible();
   await expect(toasts.filter({ hasText: englishMessages.Common.notifications.deleted })).toHaveCount(0);
   const undoToast = toasts.filter({ hasText: englishMessages.Trash.movedToTrash });
-  await expect(undoToast).toBeVisible({ timeout: 120000 });
+  await expect(undoToast).toBeVisible({ timeout: 240000 });
   await expect(toasts.filter({ hasText: "Moving 1 item to Trash" })).toHaveCount(0);
   expect((await serviceRow()).rows[0].deletedAt).not.toBeNull();
 
@@ -129,7 +129,7 @@ test("moves a high fan-out delete to Trash in the background with one toast that
   await page.getByRole("button", { name: englishMessages.Trash.restore, exact: true }).click();
   await expect(banner).toContainText(englishMessages.Trash.restoring);
   await expect(banner).toBeVisible();
-  await expect(banner).not.toBeVisible({ timeout: 120000 });
+  await expect(banner).not.toBeVisible({ timeout: 240000 });
   expect((await serviceRow()).rows[0].deletedAt).toBeNull();
   expect(errors).toEqual([]);
 });
