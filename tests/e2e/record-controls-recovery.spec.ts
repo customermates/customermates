@@ -1562,7 +1562,7 @@ test("recovers a parent after an embedded save without repeating the child mutat
   const row = embedded
     .getByRole("row")
     .filter({ has: page.getByRole("button", { name: "Recovery line", exact: true }) });
-  await expect(row.getByRole("cell", { name: "2", exact: true })).toBeVisible();
+  await expect(row.getByRole("button", { name: "Edit Quantity", exact: true })).toHaveText("2");
   await notesTab.click();
   await expect(main.getByRole("textbox", { name: notes.label, exact: true })).toHaveText("");
   await expect(main.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);

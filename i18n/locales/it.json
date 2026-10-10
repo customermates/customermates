@@ -3099,6 +3099,13 @@
         "min": "Minimo",
         "sum": "Somma"
       },
+      "describe": {
+        "failed": "Non è stato possibile trasformarlo in un calcolo. Prova a descriverlo in altro modo.",
+        "label": "Descrivi il calcolo",
+        "pending": "Preparazione del calcolo",
+        "placeholder": "Ad esempio: totale degli importi di tutte le righe collegate",
+        "unavailable": "La bozza non è disponibile al momento."
+      },
       "example": {
         "next": "Mostra un altro esempio",
         "none": "Aggiungi un record a questa lista per vedere un esempio.",
