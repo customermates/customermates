@@ -507,7 +507,10 @@ describe("manage_wiki_pages writes", () => {
 
   it("passes the optimistic-concurrency token to update and delete", async () => {
     calls.update.mockResolvedValue({ ok: true, data: page("Updated") });
-    calls.delete.mockResolvedValue({ ok: true, data: { ...page(), trashBatchId: "40000000-0000-4000-8000-0000000000b1" } });
+    calls.delete.mockResolvedValue({
+      ok: true,
+      data: { ...page(), trashBatchId: "40000000-0000-4000-8000-0000000000b1" },
+    });
 
     await run({
       action: "update",

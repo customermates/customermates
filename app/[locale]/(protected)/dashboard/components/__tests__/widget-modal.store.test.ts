@@ -354,7 +354,10 @@ describe("generic widget modal", () => {
       old = chart();
     mocks.getWidgetByIdAction.mockResolvedValueOnce(old);
     await store.loadById(old.id);
-    mocks.deleteWidgetAction.mockResolvedValueOnce({ ok: true, data: { id: old.id, trashBatchId: "40000000-0000-4000-8000-0000000000b1" } });
+    mocks.deleteWidgetAction.mockResolvedValueOnce({
+      ok: true,
+      data: { id: old.id, trashBatchId: "40000000-0000-4000-8000-0000000000b1" },
+    });
     expect(await store.delete()).toEqual({ trashBatchId: "40000000-0000-4000-8000-0000000000b1" });
     expect(mocks.deleteWidgetAction).toHaveBeenCalledWith({ id: old.id });
     expect(removeItem).toHaveBeenCalledWith(old.id);

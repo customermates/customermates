@@ -94,7 +94,7 @@ export function useViewCommands<E extends HasId>(args: {
       const onConfirm = () => deleteView(store, view);
       const onRestored = () => store.refresh();
       const notice = deleteNotice?.(view);
-      if (notice)
+      if (notice) {
         showConfirmation({
           title: t("Common.deleteConfirmation.title"),
           ...notice,
@@ -102,7 +102,7 @@ export function useViewCommands<E extends HasId>(args: {
           onConfirm,
           onRestored,
         });
-      else showDeleteConfirmation(onConfirm, view.name, focusAfterConfirm, onRestored);
+      } else showDeleteConfirmation(onConfirm, view.name, focusAfterConfirm, onRestored);
     },
 
     select: (viewKey) => runUserAction(() => selectView(store, viewKey, pathname)),

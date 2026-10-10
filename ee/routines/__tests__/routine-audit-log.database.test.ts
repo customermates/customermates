@@ -53,7 +53,8 @@ vi.mock("@/features/user/user.service", () => ({
   },
 }));
 
-const { getUpsertRoutineInteractor, getDeleteRoutineInteractor, getPauseRoutineInteractor, getRoutineRepo } = await import("@/core/di");
+const { getUpsertRoutineInteractor, getDeleteRoutineInteractor, getPauseRoutineInteractor, getRoutineRepo } =
+  await import("@/core/di");
 const { prisma } = await import("@/prisma/db");
 const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");

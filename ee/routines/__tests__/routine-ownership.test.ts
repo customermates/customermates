@@ -295,13 +295,21 @@ describe("routine administration", () => {
     });
 
     currentUser = member();
-    const ownerDenied = await new DeleteRoutineInteractor(repo as never, eventServiceStub().service, trashStub()).invoke({
+    const ownerDenied = await new DeleteRoutineInteractor(
+      repo as never,
+      eventServiceStub().service,
+      trashStub(),
+    ).invoke({
       id: ROUTINE_ID,
     });
     expectAuthorizationFailure(ownerDenied as never, CustomErrorCode.routineAdminRequired);
 
     currentUser = member("other-member");
-    const memberDenied = await new DeleteRoutineInteractor(repo as never, eventServiceStub().service, trashStub()).invoke({
+    const memberDenied = await new DeleteRoutineInteractor(
+      repo as never,
+      eventServiceStub().service,
+      trashStub(),
+    ).invoke({
       id: ROUTINE_ID,
     });
 

@@ -151,7 +151,9 @@ describe("generic widget repository", () => {
     mocks.findMany.mockResolvedValue([{ id }]);
     expect(await scoped((repo) => repo.findIds(new Set([id, randomUUID()])))).toEqual(new Set([id]));
     expect(mocks.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: { in: expect.any(Array) }, companyId: user.companyId, userId: user.id, ...LIVE_WIDGET } }),
+      expect.objectContaining({
+        where: { id: { in: expect.any(Array) }, companyId: user.companyId, userId: user.id, ...LIVE_WIDGET },
+      }),
     );
     mocks.findMany.mockClear();
     expect(await scoped((repo) => repo.findIds(new Set()))).toEqual(new Set());
@@ -164,7 +166,10 @@ describe("generic widget repository", () => {
     const result = await scoped((repo) => repo.getCompanyWidgets());
     expect(result).toHaveLength(1);
     expect(mocks.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { companyId: user.companyId, isTemplate: true, ...LIVE_WIDGET }, orderBy: { name: "asc" } }),
+      expect.objectContaining({
+        where: { companyId: user.companyId, isTemplate: true, ...LIVE_WIDGET },
+        orderBy: { name: "asc" },
+      }),
     );
   });
 });

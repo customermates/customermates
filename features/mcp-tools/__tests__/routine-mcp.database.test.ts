@@ -171,7 +171,9 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
   });
 
   it("rejects an update without an id instead of creating a new routine", async () => {
-    const before = await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company, name: "MCP too frequent" } }));
+    const before = await runWithoutTenant(() =>
+      prisma.routine.count({ where: { companyId: company, name: "MCP too frequent" } }),
+    );
     const result = await run({
       action: "update",
       name: "Must not be created",
@@ -183,7 +185,9 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
     });
 
     expect(result.structured).not.toHaveProperty("id");
-    expect(await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company, name: "MCP too frequent" } }))).toBe(before);
+    expect(
+      await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company, name: "MCP too frequent" } })),
+    ).toBe(before);
   });
 
   it("refuses a schedule tighter than the interval floor", async () => {
@@ -198,7 +202,9 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
     });
 
     expect(result.text.toLowerCase()).toContain("minute");
-    expect(await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company, name: "MCP too frequent" } }))).toBe(0);
+    expect(
+      await runWithoutTenant(() => prisma.routine.count({ where: { companyId: company, name: "MCP too frequent" } })),
+    ).toBe(0);
   });
 
   it("refuses to delete for a caller who is not an active system administrator", async () => {

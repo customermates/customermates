@@ -55,7 +55,13 @@ export class PrismaRecordWidgetRepo extends TenantRepository implements RecordWi
     };
     const row = input.id
       ? await this.prisma.widget.update({
-          where: { id, companyId: this.companyId, userId: this.userId, version: input.expectedVersion, deletedAt: null },
+          where: {
+            id,
+            companyId: this.companyId,
+            userId: this.userId,
+            version: input.expectedVersion,
+            deletedAt: null,
+          },
           data: { ...data, version: { increment: 1 } },
         })
       : await this.prisma.widget.create({ data: { ...data, id, companyId: this.companyId, userId: this.userId } });

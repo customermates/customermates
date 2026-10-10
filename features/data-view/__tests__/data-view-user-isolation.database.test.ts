@@ -155,7 +155,11 @@ describeDatabase("data view user isolation on PostgreSQL", () => {
           viewKey: racingView.id,
         }),
       ),
-      asOwner(() => new DeleteDataViewInteractor(views(), new PrismaP13nRepo(), new PrismaTrashRepo()).invoke({ id: racingView.id })),
+      asOwner(() =>
+        new DeleteDataViewInteractor(views(), new PrismaP13nRepo(), new PrismaTrashRepo()).invoke({
+          id: racingView.id,
+        }),
+      ),
     ]);
 
     expect(deleted.ok).toBe(true);

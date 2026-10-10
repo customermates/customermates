@@ -76,7 +76,11 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
     );
   const remove = (tenant: TenantUser, data: { id: string; expectedUpdatedAt: Date }) =>
     runWithTenant(tenant, () =>
-      new DeleteWikiPageInteractor(new PrismaWikiPageRepo(new PermissionService()), eventService(), new PrismaTrashRepo()).invoke(data),
+      new DeleteWikiPageInteractor(
+        new PrismaWikiPageRepo(new PermissionService()),
+        eventService(),
+        new PrismaTrashRepo(),
+      ).invoke(data),
     );
 
   beforeAll(async () => {
