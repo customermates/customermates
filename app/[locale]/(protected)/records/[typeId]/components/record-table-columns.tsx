@@ -52,7 +52,7 @@ export function useRecordTableColumns(
             },
           ]
         : []),
-      ...(JSON.parse(columnHeaders) as [string, string][]).map(([id, label]) => {
+      ...(JSON.parse(columnHeaders) as [string, string][]).map(([id, label]): ColumnDef<RecordRow> => {
         const definition = store.recordColumns.find((candidate) => candidate.id === id);
         const calculated =
           markCalculated && definition?.kind === "field" && isCalculatedField(store, definition.field)
