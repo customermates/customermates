@@ -150,11 +150,16 @@ test("keeps Ask Mate as the last fallback row and reports no matches plainly", a
   await page.goto("/en/dashboard");
   const dialog = page.getByRole("dialog");
   const input = await openPalette(page);
-  await input.fill("zzqxv nothing matches this");
+  await input.fill("zzqxv");
   await expect(dialog.getByText("No results found")).toBeVisible();
   const options = dialog.getByRole("option");
   const count = await options.count();
   if (count > 0) await expect(options.last()).toContainText("Ask Mate");
+  await input.fill("zzqxv nothing matches this");
+  if (count > 0) {
+    await expect(options.first()).toContainText("Go to “zzqxv nothing matches this”");
+    await expect(options.last()).toContainText("Ask Mate");
+  }
 });
 
 async function answerResolver(route: Route, resolution: unknown) {
