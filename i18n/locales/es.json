@@ -835,6 +835,7 @@
     "groups": {
       "actions": "Acciones",
       "bestMatch": "Mejor resultado",
+      "docs": "Documentación",
       "listsAndViews": "Listas y vistas",
       "pagesAndSettings": "Páginas y ajustes",
       "records": "Registros",
@@ -1984,6 +1985,7 @@
       "editTitle": "Editar vista",
       "linkCopied": "Enlace copiado",
       "menu": "Acciones de vista",
+      "modified": "Cambios sin guardar",
       "moveLeft": "Mover a la izquierda",
       "moveRight": "Mover a la derecha",
       "name": "Nombre",
@@ -1993,7 +1995,8 @@
       "pickerPlaceholder": "Buscar una vista…",
       "pickerTitle": "Cambiar de vista",
       "railLabel": "Vistas guardadas",
-      "recordCount": "{count, plural, one {# registro} other {# registros}}"
+      "recordCount": "{count, plural, one {# registro} other {# registros}}",
+      "resetChanges": "Restablecer cambios"
     }
   },
   "Diagrams": {
@@ -3224,7 +3227,6 @@
         "binding": "{source} usa {target} en su configuración.",
         "calculation": "{source} se calcula a partir de {target}.",
         "parentAccess": "{source} obtiene su acceso a través de {target}.",
-        "primaryField": "{target} da nombre a los registros de {source} y no se puede eliminar.",
         "protected": "{source} controla el acceso al espacio de trabajo y no se puede eliminar.",
         "requiresRestore": "Restaura primero {target}, {source} pertenece a él.",
         "routine": "La rutina {source} reacciona a {target}.",
@@ -3233,10 +3235,18 @@
         "widget": "El widget {source} mide {target}."
       },
       "cleaned": {
+        "bindingAvatar": "{target} deja de usarse como foto de perfil de {consumers}.",
+        "bindingCalendar": "{target} deja de usarse para los eventos de calendario de {consumers}.",
+        "bindingChannels": "{target} deja de usarse para los canales en {consumers}.",
         "listDefaults": "{target} se quita del diseño predeterminado de {consumers}.",
+        "nameField": "{consumers} se mostrará con {replacement} en su lugar.",
+        "nameFieldNone": "{consumers} ya no tiene un campo que dé nombre a sus registros, así que aparecen sin nombre.",
         "personalLayouts": "{target} se quita de {count, plural, one {# diseño personal} other {# diseños personales}}.",
         "view": "{count, plural, one {{target} se quita de la vista {consumers}.} other {{target} se quita de # vistas: {consumers}.}}",
-        "widget": "{count, plural, one {{target} se quita de los filtros o la agrupación del widget {consumers}.} other {{target} se quita de los filtros o la agrupación de # widgets: {consumers}.}}"
+        "webhookRemoved": "{count, plural, one {El webhook {consumers} deja de enviar cambios de registros porque {target} era su único disparador.} other {# webhooks dejan de enviar cambios de registros porque {target} era su único disparador: {consumers}.}}",
+        "webhookTrigger": "{count, plural, one {{target} se quita del disparador del webhook {consumers}.} other {{target} se quita del disparador de # webhooks: {consumers}.}}",
+        "widget": "{count, plural, one {{target} se quita de los filtros o la agrupación del widget {consumers}.} other {{target} se quita de los filtros o la agrupación de # widgets: {consumers}.}}",
+        "widgetCount": "{count, plural, one {El widget {consumers} cuenta registros en lugar de medir {target}.} other {# widgets cuentan registros en lugar de medir {target}: {consumers}.}}"
       },
       "configureActions": "Acciones de Configurar",
       "deleteColumn": "Eliminar columna",
@@ -3667,8 +3677,17 @@
     "typeSettings": "Configuración del tipo",
     "unavailableOption": "Opción no disponible",
     "unlinkRecord": "Desvincular {name}",
+    "untitledRecord": "{singular} sin nombre",
     "updatedAt": "Actualizado el",
     "useChannelAvatar": "Usar la foto de perfil del canal",
+    "valueSource": {
+      "calculated": "Calculado · {formula}",
+      "from": "De {list} · {value}",
+      "savedOnCreate": "Se guarda al crear {list}",
+      "savedOnRequest": "Se guarda bajo petición",
+      "savedWhenChanged": "Se guarda cuando cambia {field}",
+      "savedWhenChangedTo": "Se guarda cuando {field} cambia a {value}"
+    },
     "valueType": "Tipo de valor",
     "yes": "Sí"
   },

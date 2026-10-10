@@ -13,9 +13,9 @@ Before you type, **Recently opened** shows your last picks from search, stored i
 
 ## How do I jump to a list, view, page or setting? [#how-do-i-jump-to-a-page-or-setting]
 
-Type its name. Search also finds every list and its saved views, the pages of the app, each setting on [Profile & preferences](app:settings/profile) and the other settings pages, and actions such as switching the theme or inviting members, also by everyday words like "dark mode" or "team". The most likely target appears as **Best match** at the top, and Enter opens it. A list shows its saved views indented below it: Enter opens the list, arrow down picks a view. A setting opens its page with the setting highlighted. Actions show their keyboard shortcut on the right.
+Type its name or the start of its words; filler words such as "open", "go to" or "set up" are ignored, and a small typo in a single longer word is forgiven. Search also finds every list and its saved views, the pages of the app, each setting on [Profile & preferences](app:settings/profile) and the other settings pages, and actions such as switching the theme or inviting members, also by everyday words like "dark mode" or "team". The most likely target appears as **Best match** at the top, and Enter opens it. A list shows its saved views indented below it: Enter opens the list, arrow down picks a view. A setting opens its page with the setting highlighted. Actions show their keyboard shortcut on the right.
 
-To narrow the search, start with a letter and a space: **l** lists, **v** views, **s** settings and **r** records, for example "v open deals".
+To narrow the search, start with a letter and a space: **l** lists, **v** views, **s** settings, **d** documentation and **r** records, for example "v open deals".
 
 ## How do I change the record I have open? [#how-do-i-change-the-open-record]
 
@@ -25,9 +25,9 @@ Messages are not searched here; the [Inbox](app:inbox) has its own search. For a
 
 ## How does search match by meaning, and what is sent? [#how-does-search-match-by-meaning]
 
-Search also matches by meaning and across languages: "Sprache" finds **Display Language**, "night mode" finds the dark theme, and the words you would use for a list or view find it even when its name is different. Up to three matching sections of this documentation appear under **Docs**; each opens the place in the app it describes, or else the documentation page. Records are matched by their words only: a record id finds that record, a phrase in double quotes, such as "Acme Corp", matches only as written, and when nothing matches, records with a similarly spelled title appear.
+Search also matches by meaning and across languages: "Sprache" finds **Display Language**, "night mode" finds the dark theme, and the words you would use for a list or view find it even when its name is different. Up to three matching sections of this documentation appear under **Docs**, up to eight when you start with **d**; each opens the place in the app it describes, or else the documentation page. Records are matched by their words only: a record id finds that record, a phrase in double quotes, such as "Acme Corp", matches only as written, and when nothing matches, records with a similarly spelled title appear.
 
-For the match by meaning, an embedding model run by Google through the Vercel AI Gateway receives your search text and the names of the pages, settings, actions, lists, views and fields of your workspace, never the content of records. Each search uses a small amount of your AI credits, and your workspace names are sent again only when they change. If the service is slow or unavailable, search shows the matches by name right away. Without AI, for example on a self-hosted installation, search matches by name only.
+Search matches by meaning only when nothing matches by name: when no page, setting, action, list or view is a clear **Best match** and no record matches your words. Only then does an embedding model run by Google through the Vercel AI Gateway receive your search text, using a small amount of your AI credits. It also receives the names of the pages, settings, actions, lists, views and fields of your workspace, sent again only when they change, never the content of records. If the service is slow or unavailable, search shows the matches by name right away. Without AI, for example on a self-hosted installation, search matches by name only.
 
 ## For agents [#which-stable-ids-does-it-have]
 
