@@ -127,6 +127,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
               inTrigger={inTrigger}
               linkColors={store.presentation.linkColors}
               linkIcons={store.presentation.linkIcons}
+              linkLabels={store.presentation.linkLabels}
               record={row.original}
               onMore={() => openRecord(row.original)}
               onOpen={openRelated}
@@ -211,6 +212,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
                 column={primary}
                 linkColors={store.presentation.linkColors}
                 linkIcons={store.presentation.linkIcons}
+                linkLabels={store.presentation.linkLabels}
                 record={record}
                 onOpen={openRelated}
               />
@@ -228,7 +230,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
   });
   const rowActions = useCallback(
     (record: RecordRow) => {
-      const name = recordRowName(store, record);
+      const name = recordRowName(store, record, t);
       const canDelete = store.presentation.permittedActions.includes("delete") && !record.protectedKind;
       return (
         <RecordRowActions
@@ -240,7 +242,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
         />
       );
     },
-    [deletion, store, openRecord],
+    [deletion, store, openRecord, t],
   );
   const handleAdd = useCallback(() => openEditor({ typeId: store.presentation.typeId }), [openEditor, store]);
   const handleExport = useRecordExport(store.presentation);

@@ -7,7 +7,8 @@ import { AppCardBody } from "@/components/card/app-card-body";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { DetailHeader, IdentityAvatar, TypeBadge, auditCategory } from "./activities-row";
 import { resolveActorName } from "./activity-row-labels";
-import { ChangeRow, ChangeValue, InlineChange } from "./change-value";
+import { auditChangeKind, ChangeRow, ChangeValue, FieldChangeRow } from "./change-value";
+import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { membersDescriptor, recordsDescriptor, recordValueDescriptor } from "./change-value-descriptor";
 import { hasNotesDiff, NotesDiff } from "./notes-diff";
 
@@ -28,6 +29,7 @@ export function RecordAuditDetail({ entry }: { entry: Entry }) {
   const t = useTranslations();
   const intl = useHydratedIntlStore();
   const category = auditCategory(entry.event);
+  const kind = auditChangeKind(entry.event);
   const identities = entry.changes.identities;
   const typeId = entry.changes.ref.typeId;
   const formerMember = t("RecordModel.member");
@@ -78,35 +80,49 @@ export function RecordAuditDetail({ entry }: { entry: Entry }) {
             sides.every((side) => !side || side.value.state === "value");
           const previous = parseDocument(change.before);
           const current = parseDocument(change.after);
-          if (richText && !hasNotesDiff(previous, current)) return null;
-          return (
-            <ChangeRow key={change.fieldId} label={label}>
-              {richText ? (
+          if (richText && kind === "changed") {
+            if (!hasNotesDiff(previous, current)) return null;
+            return (
+              <ChangeRow key={change.fieldId} label={label}>
                 <NotesDiff current={current} previous={previous} />
-              ) : (
-                <InlineChange current={field(change.after)} previous={field(change.before)} />
-              )}
-            </ChangeRow>
+              </ChangeRow>
+            );
+          }
+          const document = (value: unknown) =>
+            value ? (
+              <ChangeValue value={{ kind: "richText", markdown: serializeJSONToMarkdown(value as object) }} />
+            ) : null;
+          return (
+            <FieldChangeRow
+              key={change.fieldId}
+              current={richText ? document(current) : field(change.after)}
+              kind={kind}
+              label={label}
+              previous={richText ? document(previous) : field(change.before)}
+            />
           );
         })}
 
         {entry.changes.assignments && (
-          <ChangeRow label={t("RecordModel.assignedTo")}>
-            <InlineChange
-              current={
-                <ChangeValue value={membersDescriptor(entry.changes.assignments.after, entry.members, formerMember)} />
-              }
-              previous={
-                <ChangeValue value={membersDescriptor(entry.changes.assignments.before, entry.members, formerMember)} />
-              }
-            />
-          </ChangeRow>
+          <FieldChangeRow
+            current={
+              <ChangeValue value={membersDescriptor(entry.changes.assignments.after, entry.members, formerMember)} />
+            }
+            kind={kind}
+            label={t("RecordModel.assignedTo")}
+            previous={
+              <ChangeValue value={membersDescriptor(entry.changes.assignments.before, entry.members, formerMember)} />
+            }
+          />
         )}
 
         {identities && (
-          <ChangeRow label={t("RecordModel.identityChannels")}>
-            <InlineChange current={identityChips(identities.after)} previous={identityChips(identities.before)} />
-          </ChangeRow>
+          <FieldChangeRow
+            current={identityChips(identities.after)}
+            kind={kind}
+            label={t("RecordModel.identityChannels")}
+            previous={identityChips(identities.before)}
+          />
         )}
 
         {entry.changes.links.length > 0 && (
@@ -114,12 +130,13 @@ export function RecordAuditDetail({ entry }: { entry: Entry }) {
         )}
 
         {entry.changes.related.map((relation) => (
-          <ChangeRow key={relation.label} label={relation.label}>
-            <InlineChange
-              current={<ChangeValue value={recordsDescriptor(relation.after, entry.lists)} />}
-              previous={<ChangeValue value={recordsDescriptor(relation.before, entry.lists)} />}
-            />
-          </ChangeRow>
+          <FieldChangeRow
+            key={relation.label}
+            current={<ChangeValue value={recordsDescriptor(relation.after, entry.lists)} />}
+            kind={kind}
+            label={relation.label}
+            previous={<ChangeValue value={recordsDescriptor(relation.before, entry.lists)} />}
+          />
         ))}
       </AppCardBody>
     </AppCard>

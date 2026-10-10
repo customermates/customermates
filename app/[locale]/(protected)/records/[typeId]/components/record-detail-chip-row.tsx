@@ -257,6 +257,7 @@ const LinkedChip = observer(function LinkedChip({
       <RecordLinkPicker
         failed={linked.failed}
         label={column.label}
+        linkLabels={store.presentation.linkLabels}
         linked={linked.loading ? null : linked.records}
         typeId={linkTypeId(column)}
         onOpenRecord={openRecord}

@@ -50,6 +50,10 @@ export type DataViewRefreshMode = "background" | "visible";
 
 type SelectionScope = { filters: Filter[]; searchTerm: string | null };
 
+type ViewQuery = { filters: Filter[]; searchTerm: string | undefined };
+
+const VIEW_QUERY_DRAFT_PREFIX = "customermates:view-query-draft:";
+
 export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore {
   items: Entity[] = [];
 
@@ -82,6 +86,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   public readonly resource?: Resource;
 
   private persistViewStateTimer?: number;
+  private queryDraftRestored = false;
   private pendingViewStateIntent?: ViewStateWriteIntent;
   private pendingGroupOnly?: string;
   private requestGeneration = 0;
@@ -166,6 +171,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       groupCounts: observable,
       groupedTakeOverrides: observable,
 
+      savedQuery: computed,
+      canSaveQuery: computed,
+      isQueryModified: computed,
       filterColumns: computed,
       orderedColumns: computed,
       visibleColumns: computed,
@@ -191,6 +199,9 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       replaceFilterAt: action,
       removeFilterAt: action,
       applyView: action,
+      saveQueryToView: action,
+      resetQueryToView: action,
+      restoreQueryDraft: action,
       refresh: action,
       upsertItem: action,
       upsertItemLocal: action,
@@ -221,6 +232,40 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   get isRefreshing(): boolean {
     return this.requestState.status === "refreshing";
   }
+
+  get savedQuery(): ViewQuery {
+    const saved = this.views.find((view) => view.id === this.activeViewKey)?.state ?? this.allViewState;
+    return { filters: this.withKnownFields(saved.filters), searchTerm: saved.searchTerm || undefined };
+  }
+
+  get canSaveQuery(): boolean {
+    return Boolean(this.p13nId) && this.viewPersistable && this.canPersistViewState();
+  }
+
+  get isQueryModified(): boolean {
+    if (!this.isReady || !this.canSaveQuery) return false;
+
+    const saved = this.savedQuery;
+    return !deepEqual(toJS(this.filters) ?? [], saved.filters) || (this.searchTerm || undefined) !== saved.searchTerm;
+  }
+
+  viewStateSnapshot = ({ includeQuery }: { includeQuery: boolean }): DataViewState => {
+    const query: ViewQuery = includeQuery
+      ? { filters: toJS(this.filters) ?? [], searchTerm: this.searchTerm }
+      : this.savedQuery;
+
+    return {
+      filters: query.filters,
+      searchTerm: query.searchTerm ?? "",
+      sortDescriptor: toJS(this.sortDescriptor) ?? null,
+      pageSize: this.pagination?.pageSize,
+      viewMode: toJS(this.viewMode),
+      grouping: toJS(this.grouping) ?? null,
+      columnOrder: toJS(this.columnOrder),
+      columnWidths: toJS(this.columnWidths),
+      hiddenColumns: toJS(this.hiddenColumns),
+    };
+  };
 
   canMoveItemBetweenGroups(item: Entity): boolean {
     return Boolean(item.id);
@@ -615,7 +660,6 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.filters = updates.filters;
       hasChanges = true;
       queryShapeChanged = true;
-      durableChanged = true;
     }
 
     if (updates.pagination) {
@@ -645,12 +689,12 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       this.searchTerm = updates.searchTerm;
       hasChanges = true;
       queryShapeChanged = true;
-      durableChanged = true;
     }
 
     if (queryShapeChanged) {
       this.resetPaginationPage();
       this.resetGroupedTakeOverrides();
+      this.syncQueryDraft();
     }
 
     if (durableChanged) this.persistViewState();
@@ -689,13 +733,14 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const chip = this.views.find((view) => view.id === viewKey);
     const key = chip ? chip.id : ALL_VIEW_KEY;
     const state: DataViewState = chip?.state ?? this.allViewState;
+    const draft = this.readQueryDraft(key);
 
     runInAction(() => {
       this.requestGeneration += 1;
       if (this.isReady) this.requestState = { status: "refreshing" };
       this.activeViewKey = key;
-      this.filters = this.withKnownFields(state.filters);
-      this.searchTerm = state.searchTerm;
+      this.filters = this.withKnownFields(draft?.filters ?? state.filters);
+      this.searchTerm = draft ? draft.searchTerm : state.searchTerm;
       this.sortDescriptor = state.sortDescriptor ?? undefined;
       this.viewMode = state.viewMode ?? ViewMode.table;
       this.grouping = state.grouping ?? null;
@@ -720,9 +765,82 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       }).catch(reportApplicationError);
     }
 
-    if (flushed && key === previousKey) void flushed.then(this.refreshResolvedInBackground);
-    else this.refreshResolvedInBackground();
+    const reload = draft ? this.refreshQueryInBackground : this.refreshResolvedInBackground;
+    if (flushed && key === previousKey) void flushed.then(reload);
+    else reload();
   };
+
+  saveQueryToView = async (): Promise<void> => {
+    if (!this.isQueryModified) return;
+
+    this.cancelPendingPersist();
+    await this.writeViewState({ includeQuery: true });
+    this.syncQueryDraft();
+  };
+
+  resetQueryToView = (): void => {
+    const saved = this.savedQuery;
+    this.setQueryOptions({ filters: saved.filters, searchTerm: saved.searchTerm ?? "" });
+  };
+
+  restoreQueryDraft = (): void => {
+    if (this.queryDraftRestored || !this.isReady) return;
+    this.queryDraftRestored = true;
+
+    const draft = this.readQueryDraft(this.activeViewKey);
+    if (!draft || this.isQueryModified) {
+      this.syncQueryDraft();
+      return;
+    }
+
+    this.setQueryOptions({ filters: this.withKnownFields(draft.filters), searchTerm: draft.searchTerm ?? "" });
+  };
+
+  forgetQueryDraft = (viewKey: string): void => {
+    this.writeQueryDraft(viewKey, undefined);
+  };
+
+  private syncQueryDraft = (): void => {
+    this.writeQueryDraft(
+      this.activeViewKey,
+      this.isQueryModified
+        ? { filters: toJS(this.filters) ?? [], searchTerm: this.searchTerm || undefined }
+        : undefined,
+    );
+  };
+
+  private queryDraftKey(viewKey: string): string | undefined {
+    return this.p13nId ? `${VIEW_QUERY_DRAFT_PREFIX}${this.p13nId}:${viewKey}` : undefined;
+  }
+
+  private readQueryDraft(viewKey: string): ViewQuery | undefined {
+    const key = this.queryDraftKey(viewKey);
+    if (!key || !this.canSaveQuery || typeof window === "undefined") return undefined;
+
+    try {
+      const raw = window.sessionStorage.getItem(key);
+      if (!raw) return undefined;
+      const parsed = JSON.parse(raw) as Partial<ViewQuery>;
+      return {
+        filters: Array.isArray(parsed.filters) ? parsed.filters : [],
+        searchTerm: typeof parsed.searchTerm === "string" ? parsed.searchTerm : undefined,
+      };
+    } catch {
+      return undefined;
+    }
+  }
+
+  private writeQueryDraft(viewKey: string, draft: ViewQuery | undefined): void {
+    const key = this.queryDraftKey(viewKey);
+    if (!key || typeof window === "undefined") return;
+
+    try {
+      if (draft) window.sessionStorage.setItem(key, JSON.stringify(draft));
+      else window.sessionStorage.removeItem(key);
+    } catch {
+      return;
+    }
+  }
 
   private withKnownFields(filters: Filter[] | undefined): Filter[] {
     const list = filters ?? [];
@@ -855,6 +973,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
         );
       }
       this.restoreViewStateWrittenDuringRequest(writeSeqBeforeRequest, localAllState, localViews);
+      if (resolveFromServer) this.syncQueryDraft();
     });
   };
 
@@ -1041,7 +1160,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       : reserveViewStateWrite(this.rootStore, JSON.stringify([owner, this.p13nId, this.activeViewKey]));
   };
 
-  private writeViewState = (): Promise<void> => {
+  private writeViewState = ({ includeQuery = false }: { includeQuery?: boolean } = {}): Promise<void> => {
     if (!this.canPersistViewState()) {
       this.discardPendingViewState();
       return Promise.resolve();
@@ -1049,17 +1168,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     const intent = this.pendingViewStateIntent ?? this.reserveViewStateIntent();
     this.pendingViewStateIntent = undefined;
     const viewKey = this.activeViewKey;
-    const state: DataViewState = {
-      filters: toJS(this.filters) ?? [],
-      searchTerm: this.searchTerm ?? "",
-      sortDescriptor: toJS(this.sortDescriptor) ?? null,
-      pageSize: this.pagination?.pageSize,
-      viewMode: toJS(this.viewMode),
-      grouping: toJS(this.grouping) ?? null,
-      columnOrder: toJS(this.columnOrder),
-      columnWidths: toJS(this.columnWidths),
-      hiddenColumns: toJS(this.hiddenColumns),
-    };
+    const state = this.viewStateSnapshot({ includeQuery });
 
     const surfaceKey = this.p13nId as DataViewSurfaceKey;
     const ownsWrite = () => this.canPersistViewState() && (!intent || intent.isCurrent());

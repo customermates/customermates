@@ -18,7 +18,15 @@ export const RecordRevisionChangeSchema = z
     expectedRevision: z.number().int().nonnegative(),
     configuration: ConfigurationChangeSchema.optional(),
     deletions: z
-      .array(z.object({ target: ConfigurationTargetSchema, cascade: z.array(ConfigurationTargetSchema) }).strict())
+      .array(
+        z
+          .object({
+            target: ConfigurationTargetSchema,
+            cascade: z.array(ConfigurationTargetSchema),
+            nameField: z.object({ typeId: z.uuid(), replacementId: z.uuid().nullable() }).strict().optional(),
+          })
+          .strict(),
+      )
       .optional(),
     references: ConfigurationPreviewSchema.shape.references,
     grants: z.array(

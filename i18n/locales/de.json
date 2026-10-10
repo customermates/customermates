@@ -1985,6 +1985,7 @@
       "editTitle": "Ansicht bearbeiten",
       "linkCopied": "Link kopiert",
       "menu": "Ansichtsaktionen",
+      "modified": "Ungespeicherte Änderungen",
       "moveLeft": "Nach links verschieben",
       "moveRight": "Nach rechts verschieben",
       "name": "Name",
@@ -1994,7 +1995,8 @@
       "pickerPlaceholder": "Ansicht suchen …",
       "pickerTitle": "Ansicht wechseln",
       "railLabel": "Gespeicherte Ansichten",
-      "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}"
+      "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}",
+      "resetChanges": "Änderungen zurücksetzen"
     }
   },
   "Diagrams": {
@@ -3225,7 +3227,6 @@
         "binding": "{source} verwendet {target} in seinen Einstellungen.",
         "calculation": "{source} berechnet sich aus {target}.",
         "parentAccess": "{source} erhält seinen Zugriff über {target}.",
-        "primaryField": "{target} benennt die Datensätze von {source} und kann nicht gelöscht werden.",
         "protected": "{source} steuert den Zugriff auf den Arbeitsbereich und kann nicht gelöscht werden.",
         "requiresRestore": "Stelle zuerst {target} wieder her, {source} gehört dazu.",
         "routine": "Die Routine {source} reagiert auf {target}.",
@@ -3234,10 +3235,18 @@
         "widget": "Das Widget {source} misst {target}."
       },
       "cleaned": {
+        "bindingAvatar": "{target} wird nicht mehr als Profilbild von {consumers} verwendet.",
+        "bindingCalendar": "{target} wird nicht mehr für die Kalendertermine von {consumers} verwendet.",
+        "bindingChannels": "{target} wird nicht mehr für Kanäle in {consumers} verwendet.",
         "listDefaults": "{target} wird aus dem Standardlayout von {consumers} entfernt.",
+        "nameField": "{consumers} werden stattdessen mit {replacement} angezeigt.",
+        "nameFieldNone": "{consumers} hat kein Feld mehr, das die Einträge benennen kann, sie erscheinen daher ohne Namen.",
         "personalLayouts": "{target} wird aus {count, plural, one {# persönlichen Layout} other {# persönlichen Layouts}} entfernt.",
         "view": "{count, plural, one {{target} wird aus der Ansicht {consumers} entfernt.} other {{target} wird aus # Ansichten entfernt: {consumers}.}}",
-        "widget": "{count, plural, one {{target} wird aus den Filtern oder der Gruppierung des Widgets {consumers} entfernt.} other {{target} wird aus den Filtern oder der Gruppierung von # Widgets entfernt: {consumers}.}}"
+        "webhookRemoved": "{count, plural, one {Der Webhook {consumers} sendet keine Datensatzänderungen mehr, weil {target} sein einziger Auslöser war.} other {# Webhooks senden keine Datensatzänderungen mehr, weil {target} ihr einziger Auslöser war: {consumers}.}}",
+        "webhookTrigger": "{count, plural, one {{target} wird aus dem Auslöser des Webhooks {consumers} entfernt.} other {{target} wird aus dem Auslöser von # Webhooks entfernt: {consumers}.}}",
+        "widget": "{count, plural, one {{target} wird aus den Filtern oder der Gruppierung des Widgets {consumers} entfernt.} other {{target} wird aus den Filtern oder der Gruppierung von # Widgets entfernt: {consumers}.}}",
+        "widgetCount": "{count, plural, one {Das Widget {consumers} zählt Datensätze, statt {target} auszuwerten.} other {# Widgets zählen Datensätze, statt {target} auszuwerten: {consumers}.}}"
       },
       "configureActions": "Aktionen für Konfigurieren",
       "deleteColumn": "Spalte löschen",
@@ -3668,6 +3677,7 @@
     "typeSettings": "Typeinstellungen",
     "unavailableOption": "Nicht verfügbare Option",
     "unlinkRecord": "Verknüpfung mit {name} entfernen",
+    "untitledRecord": "{singular} ohne Namen",
     "updatedAt": "Aktualisiert am",
     "useChannelAvatar": "Profilbild des Kanals verwenden",
     "valueSource": {

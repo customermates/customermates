@@ -1985,6 +1985,7 @@
       "editTitle": "Edit view",
       "linkCopied": "Link copied",
       "menu": "View actions",
+      "modified": "Unsaved changes",
       "moveLeft": "Move left",
       "moveRight": "Move right",
       "name": "Name",
@@ -1994,7 +1995,8 @@
       "pickerPlaceholder": "Find a view…",
       "pickerTitle": "Switch view",
       "railLabel": "Saved views",
-      "recordCount": "{count, plural, one {# record} other {# records}}"
+      "recordCount": "{count, plural, one {# record} other {# records}}",
+      "resetChanges": "Reset changes"
     }
   },
   "Diagrams": {
@@ -3225,7 +3227,6 @@
         "binding": "{source} uses {target} in its settings.",
         "calculation": "{source} calculates from {target}.",
         "parentAccess": "{source} gets its access through {target}.",
-        "primaryField": "{target} names the records of {source} and can't be deleted.",
         "protected": "{source} controls workspace access and can't be deleted.",
         "requiresRestore": "Restore {target} first, {source} belongs to it.",
         "routine": "The routine {source} reacts to {target}.",
@@ -3234,10 +3235,18 @@
         "widget": "The widget {source} measures {target}."
       },
       "cleaned": {
+        "bindingAvatar": "{target} is no longer used as the profile picture of {consumers}.",
+        "bindingCalendar": "{target} is no longer used for the calendar events of {consumers}.",
+        "bindingChannels": "{target} is no longer used for Channels in {consumers}.",
         "listDefaults": "{target} is removed from the default layout of {consumers}.",
+        "nameField": "{consumers} will be shown by {replacement} instead.",
+        "nameFieldNone": "{consumers} has no field left that can name its records, so they show as untitled.",
         "personalLayouts": "{target} is removed from {count, plural, one {# personal layout} other {# personal layouts}}.",
         "view": "{count, plural, one {{target} is removed from the view {consumers}.} other {{target} is removed from # views: {consumers}.}}",
-        "widget": "{count, plural, one {{target} is removed from the filters or grouping of the widget {consumers}.} other {{target} is removed from the filters or grouping of # widgets: {consumers}.}}"
+        "webhookRemoved": "{count, plural, one {The webhook {consumers} stops sending record changes, because {target} was its only trigger.} other {# webhooks stop sending record changes, because {target} was their only trigger: {consumers}.}}",
+        "webhookTrigger": "{count, plural, one {{target} is removed from the trigger of the webhook {consumers}.} other {{target} is removed from the trigger of # webhooks: {consumers}.}}",
+        "widget": "{count, plural, one {{target} is removed from the filters or grouping of the widget {consumers}.} other {{target} is removed from the filters or grouping of # widgets: {consumers}.}}",
+        "widgetCount": "{count, plural, one {The widget {consumers} counts records instead of measuring {target}.} other {# widgets count records instead of measuring {target}: {consumers}.}}"
       },
       "configureActions": "Configure actions",
       "deleteColumn": "Delete column",
@@ -3668,6 +3677,7 @@
     "typeSettings": "Type settings",
     "unavailableOption": "Unavailable option",
     "unlinkRecord": "Unlink {name}",
+    "untitledRecord": "Untitled {singular}",
     "updatedAt": "Updated at",
     "useChannelAvatar": "Use channel profile picture",
     "valueSource": {
