@@ -85,11 +85,6 @@ export async function runInTransaction<T>(
 
 let savepointSequence = 0;
 
-/**
- * Runs fn inside a savepoint of the current transaction. A thrown error rolls back only fn's writes (and the
- * after-commit work and event wakeups it queued) and is returned instead of rethrown, so one failing step of a batch
- * never rolls back the rest.
- */
 export async function runInSavepoint<T>(
   fn: () => Promise<T>,
 ): Promise<{ ok: true; value: T } | { ok: false; error: unknown }> {
