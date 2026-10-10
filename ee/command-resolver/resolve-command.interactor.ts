@@ -37,6 +37,7 @@ import { getTranslator } from "@/i18n/get-translator";
 import { DEFAULT_LOCALE, isAppLocale } from "@/i18n/locale-registry";
 
 const UNRESOLVABLE_COMMANDS = new Set(["action.signOut"]);
+export const COMMAND_RESOLVE_TIMEOUT_MS = 8_000;
 
 function resolvableLists(
   model: RecordModel,
@@ -151,6 +152,7 @@ export class ResolveCommandInteractor extends AuthenticatedInteractor<ResolveCom
       costSource: "estimated",
     };
     let output: CommandResolutionOutput | null = null;
+    let failed = false;
     try {
       const result = await generateStructuredObject({
         label: "Command resolve",
@@ -158,12 +160,15 @@ export class ResolveCommandInteractor extends AuthenticatedInteractor<ResolveCom
         schema: CommandResolutionOutputSchema,
         system: request.system,
         prompt: request.prompt,
+        timeoutMs: COMMAND_RESOLVE_TIMEOUT_MS,
       });
       charge = result.charge;
       output = result.output;
+      failed = result.failure !== undefined;
     } finally {
       await this.usage.settleRetrieval({ reservation, charge });
     }
+    if (failed) return failUnavailable(CustomErrorCode.agentServiceUnavailable);
     return { ok: true, data: (output && parseCommandResolution(output, request.aliases)) ?? { kind: "none" } };
   }
 }

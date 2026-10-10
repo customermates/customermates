@@ -444,7 +444,7 @@ test("board columns keep a one-line header, one fixed width and collapse into st
   const groupKey = await lane.getAttribute("data-group-key");
   const laneCount = await lanes.count();
   await lane.hover();
-  await lane.getByRole("button", { name: /^More actions for / }).click();
+  await header.getByRole("button", { name: /^More actions for / }).click();
   await page.getByRole("menuitem", { name: "Collapse column", exact: true }).click();
   const strip = page.locator(`[data-kanban-strip][data-group-key="${groupKey}"]`);
   await expect(strip).toBeVisible();
