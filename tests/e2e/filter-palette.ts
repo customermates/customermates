@@ -37,3 +37,26 @@ export async function choosePaletteValue(page: Page, anchor: string, field: stri
   await page.keyboard.press("Escape");
   await expect(page.locator("#filter-palette-search")).toHaveCount(0);
 }
+export async function applyPaletteSearch(page: Page, anchor: string, text: string) {
+  await openFilterPalette(page, anchor);
+  const input = page.locator("#filter-palette-search").getByRole("combobox");
+  await expect(input).toBeFocused();
+  await input.fill(text);
+  await expect(page.locator("[data-palette-search]")).toContainText(`“${text}”`);
+  await input.press("Enter");
+  await expect(page.locator("#filter-palette-search")).toHaveCount(0);
+}
+export async function expectPaletteSearch(page: Page, anchor: string, text: string) {
+  await openFilterPalette(page, anchor);
+  await expect(page.locator("[data-palette-active-search]")).toContainText(`“${text}”`);
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#filter-palette-search")).toHaveCount(0);
+}
+export async function clearPaletteSearch(page: Page, anchor: string) {
+  await openFilterPalette(page, anchor);
+  const chip = page.locator("[data-palette-active-search]");
+  await chip.getByRole("button", { name: "Remove filter", exact: true }).click();
+  await expect(chip).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#filter-palette-search")).toHaveCount(0);
+}

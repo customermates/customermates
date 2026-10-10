@@ -44,13 +44,7 @@ const OperatorUsersPageViewContent = observer(function OperatorUsersPageView({ i
   });
   const descriptor = { title: t("OperatorUsers.emptyTitle"), body: t("OperatorUsers.emptyBody") };
   const topBarNode = useMemo(
-    () => (
-      <DataViewToolbar
-        anchorScope="operator-users"
-        searchPlaceholder={t("OperatorUsers.searchPlaceholder")}
-        store={operatorUsersStore}
-      />
-    ),
+    () => <DataViewToolbar anchorScope="operator-users" store={operatorUsersStore} />,
     [operatorUsersStore, t],
   );
   useSetTopBarActions(topBarNode);

@@ -4,11 +4,11 @@ import type { AgentUiTarget } from "./ui-targets";
 
 export const RECORD_LIST_CONTROLS = [
   "add",
-  "search",
   "filter",
   "display-options",
   "layout-table",
   "layout-board",
+  "more",
   "configure",
 ] as const;
 const ControlSchema = z.enum(RECORD_LIST_CONTROLS);
@@ -28,6 +28,7 @@ export function recordUiTarget(targetId: string): AgentUiTarget | null {
     route,
     description: `Record list ${control.data.replace(/-/g, " ")}`,
     ...(control.data.startsWith("layout-") ? { prerequisite: `records:${type.data}:display-options` } : {}),
+    ...(control.data === "configure" ? { prerequisite: `records:${type.data}:more` } : {}),
   };
 }
 

@@ -28,6 +28,7 @@ vi.mock("@/components/data-view/filter-palette/use-filter-palette", () => ({
 vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     filterPaletteStore: harness.palette.current,
+    keyboardShortcutsStore: { registerFilterOpener: () => undefined, unregisterFilterOpener: () => undefined },
     intlStore: {
       dateFormatMap: { descriptiveLong: () => "" },
       dateTimeFormatMap: { descriptiveLong: () => "" },

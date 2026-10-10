@@ -131,6 +131,12 @@ export function GlobalKeyboardShortcuts() {
         return;
       }
 
+      if (matchesShortcut(event, "openFilters", platform) && store.filterOpener) {
+        event.preventDefault();
+        store.filterOpener();
+        return;
+      }
+
       if (matchesShortcut(event, "shortcuts", platform)) {
         event.preventDefault();
         store.openFrom(focusOrigin());

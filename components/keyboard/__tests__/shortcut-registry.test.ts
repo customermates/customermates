@@ -101,6 +101,15 @@ describe("single-key shortcuts", () => {
     expect(matchesShortcut(press("v", "KeyV", { metaKey: true }), "switchView", "mac")).toBe(false);
   });
 
+  it("matches F for the filters of the current list, on any layout and never with a modifier", () => {
+    expect(matchesShortcut(press("f", "KeyF"), "openFilters", "other")).toBe(true);
+    expect(matchesShortcut(press("а", "KeyF"), "openFilters", "other")).toBe(true);
+    expect(matchesShortcut(press("f", "KeyF", { metaKey: true }), "openFilters", "mac")).toBe(false);
+    expect(matchesShortcut(press("f", "KeyF", { ctrlKey: true }), "openFilters", "other")).toBe(false);
+    expect(shortcutKeyLabels("openFilters", "mac")).toEqual(["F"]);
+    expect(SHORTCUTS.filter(isSingleKeyShortcut).map((entry) => entry.id)).toContain("openFilters");
+  });
+
   it("never matches during IME composition", () => {
     expect(matchesShortcut(press("c", "KeyC", { isComposing: true }), "add", "other")).toBe(false);
     expect(matchesShortcut(press("Process", "KeyC", { keyCode: 229 }), "add", "other")).toBe(false);

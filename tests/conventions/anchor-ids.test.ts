@@ -9,7 +9,6 @@ import {
   formDiscardSuffix,
   NAV_KEYS,
   SCOPES_WITHOUT_FILTER,
-  SCOPES_WITHOUT_SEARCH,
   TOOLBAR_SCOPES_WITH_ADD,
   TOOLBAR_SCOPES_WITHOUT_ADD,
 } from "@/ee/agent-chat/ui-anchors";
@@ -47,7 +46,6 @@ function codeIds(): Set<string> {
     for (const match of text.matchAll(ANCHOR_SCOPE_PATTERN)) {
       const scope = match[1];
       if (TOOLBAR_SCOPES_WITH_ADD.includes(scope) || TOOLBAR_SCOPES_WITHOUT_ADD.includes(scope)) {
-        if (!SCOPES_WITHOUT_SEARCH.has(scope)) ids.add(`${scope}-search`);
         if (!SCOPES_WITHOUT_FILTER.has(scope)) ids.add(`${scope}-filter`);
         ids.add(`${scope}-display-options`);
         ids.add(`${scope}-layout-table`);
@@ -62,7 +60,7 @@ function codeIds(): Set<string> {
     }
   }
   for (const suffix of toolbarSuffixes("records", true)) ids.add(`records${suffix}`);
-  ids.add("records-transfer");
+  ids.add("records-more");
   for (const key of NAV_KEYS) ids.add(`nav-${key}`);
   return ids;
 }
@@ -70,7 +68,6 @@ function codeIds(): Set<string> {
 function toolbarSuffixes(scope: string, hasAdd: boolean): string[] {
   return [
     ...(hasAdd ? ["-add"] : []),
-    ...(SCOPES_WITHOUT_SEARCH.has(scope) ? [] : ["-search"]),
     ...(SCOPES_WITHOUT_FILTER.has(scope) ? [] : ["-filter"]),
     "-display-options",
     "-layout-table",
@@ -101,7 +98,7 @@ describe("interface anchor id fidelity", () => {
     for (const scope of [...TOOLBAR_SCOPES_WITH_ADD, ...TOOLBAR_SCOPES_WITHOUT_ADD, ...FORM_SCOPES])
       expect(allSource, `anchorScope "${scope}" not found in source`).toContain(`anchorScope="${scope}"`);
 
-    for (const control of ["add", "search", "filter", "display-options", "transfer"])
+    for (const control of ["add", "ask-ai", "filter", "display-options", "more"])
       expect(allSource, `no component renders a "${control}" anchor id`).toContain(`-${control}\``);
   });
 

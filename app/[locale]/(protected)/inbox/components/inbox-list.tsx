@@ -78,17 +78,11 @@ const InboxListContent = observer(({ canConnect, threads, selectedThreadId, lock
         request,
         total: pagination?.total,
       });
-  const searchPlaceholder = t("Common.table.search");
   const topBarNode = useMemo(
     () =>
       locked ? null : (
         <div className="flex items-center gap-1">
-          <DataViewToolbar
-            isSearchable
-            searchPlaceholder={searchPlaceholder}
-            showDisplayOptions={false}
-            store={messagingThreadsStore}
-          />
+          <DataViewToolbar showDisplayOptions={false} store={messagingThreadsStore} />
 
           {canUpdate && (
             <TopBarActionButtons
@@ -114,7 +108,7 @@ const InboxListContent = observer(({ canConnect, threads, selectedThreadId, lock
           )}
         </div>
       ),
-    [isRefreshing, messagingThreadsStore, searchPlaceholder, t, channelsNeedingAction, canConnect, canUpdate, locked],
+    [isRefreshing, messagingThreadsStore, t, channelsNeedingAction, canConnect, canUpdate, locked],
   );
   useSetTopBarActions(topBarNode);
 

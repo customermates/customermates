@@ -42,13 +42,7 @@ const OperatorAuditPageViewContent = observer(function OperatorAuditPageView({ i
   });
   const descriptor = { title: t("OperatorAudit.emptyTitle"), body: t("OperatorAudit.emptyBody") };
   const topBarNode = useMemo(
-    () => (
-      <DataViewToolbar
-        anchorScope="operator-audit"
-        searchPlaceholder={t("OperatorAudit.searchPlaceholder")}
-        store={operatorAuditStore}
-      />
-    ),
+    () => <DataViewToolbar anchorScope="operator-audit" store={operatorAuditStore} />,
     [operatorAuditStore, t],
   );
   useSetTopBarActions(topBarNode);

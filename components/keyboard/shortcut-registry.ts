@@ -19,6 +19,7 @@ export type ShortcutId =
   | "add"
   | "goList"
   | "switchView"
+  | "openFilters"
   | "save"
   | "close";
 
@@ -64,6 +65,7 @@ export const SHORTCUTS: readonly Shortcut[] = [
   { id: "add", group: "create", sequence: [letter("c")] },
   { id: "goList", group: "listsAndViews", sequence: [GO_PREFIX, LIST_POSITION_CHORDS[0]] },
   { id: "switchView", group: "listsAndViews", sequence: [letter("v")] },
+  { id: "openFilters", group: "listsAndViews", sequence: [letter("f")] },
   { id: "save", group: "forms", sequence: [{ key: "Enter", codes: ["Enter", "NumpadEnter"], mod: true }] },
   { id: "close", group: "forms", sequence: [{ key: "Escape", codes: ["Escape"] }] },
 ];

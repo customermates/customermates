@@ -81,6 +81,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({
     agentChatStore: harness.agent,
     filterPaletteStore: harness.palette,
+    keyboardShortcutsStore: { registerFilterOpener: () => undefined, unregisterFilterOpener: () => undefined },
   }),
 }));
 vi.mock("@/components/data-view/use-column-label", () => ({

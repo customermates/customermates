@@ -75,6 +75,7 @@ vi.mock("@/i18n/navigation", () => ({
 
 import { FilterPalette } from "../filter-palette";
 import { FilterPaletteStore } from "../filter-palette.store";
+import type { FilterPaletteSearch } from "../filter-target";
 
 const RANGE_COLUMN = "16000000-0000-4000-8000-000000000008";
 const FIRST_STAGE_COLUMN = "16000000-0000-4000-8000-000000000001";
@@ -187,10 +188,11 @@ function mount(element: ReactElement) {
   return container;
 }
 
-function mountPalette(table: ReturnType<typeof tableStore>) {
+function mountPalette(table: ReturnType<typeof tableStore>, search?: FilterPaletteSearch) {
   return mount(
     createElement(FilterPalette, {
       palette: harness.palette.current as FilterPaletteStore,
+      search,
       store: table as unknown as BaseDataViewStore<HasId>,
     }),
   );
@@ -480,4 +482,56 @@ describe("scalar array value editing", () => {
       expect(table.filters).toEqual([{ ...initial, value: [first, second] }]);
     },
   );
+});
+
+describe("filter palette search", () => {
+  function searchTarget(term?: string) {
+    return { label: "Name", term, apply: vi.fn() };
+  }
+
+  it("offers the typed text as the first item and applies it as the list search", () => {
+    const table = tableStore();
+    const palette = openPalette(table);
+    const search = searchTarget();
+    const container = mountPalette(table, search);
+
+    expect(searchInput(container)).toBe(document.activeElement);
+    expect(container.querySelector("[data-palette-search]")).toBeNull();
+    act(() => palette.setQuery("  acme "));
+
+    const items = [...container.querySelectorAll("[cmdk-item]")];
+    expect(items[0]?.hasAttribute("data-palette-search")).toBe(true);
+    expect(items[0]?.closest("[cmdk-group]")?.hasAttribute("hidden")).toBe(false);
+    expect(container.querySelector("[cmdk-empty]")).toBeNull();
+    expect(items[0]?.getAttribute("aria-selected")).toBe("true");
+    click(items[0]);
+
+    expect(search.apply).toHaveBeenCalledExactlyOnceWith("acme");
+    expect(palette.query).toBe("");
+    expect(palette.isOpen).toBe(false);
+  });
+
+  it("lists the active search with the filters and removes it like a filter", () => {
+    const table = tableStore();
+    openPalette(table);
+    const search = searchTarget("acme");
+    const container = mountPalette(table, search);
+
+    const chip = container.querySelector("[data-palette-active-search]") as HTMLElement;
+    expect(chip).not.toBeNull();
+    click(chip.querySelector("[aria-label='Common.filters.palette.removeFilter']") as Element);
+
+    expect(search.apply).toHaveBeenCalledExactlyOnceWith(undefined);
+  });
+
+  it("offers no search item where the surface has no list search", () => {
+    const table = tableStore();
+    const palette = openPalette(table);
+    const container = mountPalette(table);
+
+    act(() => palette.setQuery("acme"));
+
+    expect(container.querySelector("[data-palette-search]")).toBeNull();
+    expect(container.querySelector("[data-palette-active-search]")).toBeNull();
+  });
 });

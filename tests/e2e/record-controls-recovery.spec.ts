@@ -1,4 +1,4 @@
-import { openFilterPalette, pickPaletteField } from "./filter-palette";
+import { applyPaletteSearch, expectPaletteSearch, openFilterPalette, pickPaletteField } from "./filter-palette";
 import { randomUUID } from "node:crypto";
 import type { Client } from "pg";
 import type { Page, Locator, Request, Route, TestInfo } from "@playwright/test";
@@ -1133,11 +1133,6 @@ test("retains readable list content after a failed refresh and retries the empty
   const before = (await values()).rows;
   await page.goto(`/en/records/${service.typeId}`);
   await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
-  const search = page.locator("#records-search");
-  if ((page.viewportSize()?.width ?? 0) < 1024)
-    await page.getByRole("button", { name: english.Common.table.search, exact: true }).click();
-  await expect(search).toBeVisible();
-  await expect(search).toBeEnabled();
   let retainedFault = true;
   let emptyFault = true;
   let matchingReads = 0;
@@ -1166,13 +1161,13 @@ test("retains readable list content after a failed refresh and retries the empty
     }
     await route.fallback();
   });
-  await search.fill("retained-response-failure");
+  await applyPaletteSearch(page, "records-filter", "retained-response-failure");
   await expect.poll(() => evidence.faults.length).toBe(1);
   await expect(page.locator('[data-page-state="loading"]')).toHaveCount(0);
   await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
   await expect(page.locator('[data-page-state="error"]')).toHaveCount(0);
-  await expect(search).toHaveValue("retained-response-failure");
-  await search.fill("completed-empty-search");
+  await expectPaletteSearch(page, "records-filter", "retained-response-failure");
+  await applyPaletteSearch(page, "records-filter", "completed-empty-search");
   await expect(
     page.getByText(english.Common.emptyState.filteredTitle, {
       exact: true,
@@ -1211,11 +1206,11 @@ test("retains readable list content after a failed refresh and retries the empty
     },
     { timeout: 15000 },
   );
-  await search.fill(name);
+  await applyPaletteSearch(page, "records-filter", name);
   const error = page.locator('[data-page-state="error"][role="alert"]');
   await expect(error).toBeVisible();
   await expect(error.getByRole("heading", { name: english.ErrorCard.title, exact: true })).toBeVisible();
-  await expect(search).toHaveValue(name);
+  await expectPaletteSearch(page, "records-filter", name);
   await error.getByRole("button", { name: english.ErrorCard.retry, exact: true }).click();
   await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
   await expect(error).toHaveCount(0);
@@ -1256,7 +1251,7 @@ test("retains readable list content after a failed refresh and retries the empty
   await expect(page).toHaveURL((url) => url.searchParams.get("searchTerm") === name);
   await page.reload();
   await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
-  await expect(search).toHaveValue(name);
+  await expectPaletteSearch(page, "records-filter", name);
   await page.screenshot({
     path: testInfo.outputPath("recovered-list-error-state.png"),
     fullPage: true,
