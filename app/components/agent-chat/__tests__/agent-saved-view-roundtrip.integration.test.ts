@@ -20,6 +20,7 @@ const harness = vi.hoisted(() => ({
   getAgentConversationAction: vi.fn(),
   listAgentConversationsAction: vi.fn(),
   manageDataViewsInvoke: vi.fn(),
+  manageDataViewsPropose: vi.fn(),
   navigatedTo: [] as string[],
   sendAgentMessageInvoke: vi.fn(),
 }));
@@ -31,6 +32,7 @@ vi.mock("@/core/di", () => ({
   ...createMockDiModule(() => user),
   getManageDataViewsInteractor: () => ({
     invoke: harness.manageDataViewsInvoke,
+    propose: harness.manageDataViewsPropose,
   }),
   getSendAgentMessageInteractor: () => ({
     invoke: harness.sendAgentMessageInvoke,
@@ -113,7 +115,6 @@ import { AgentTurnTranscript } from "@/ee/agent-chat/agent-turn-transcript";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { AgentActivity } from "../agent-chat-items";
 import { AgentChatStore, type AgentChatItem } from "../agent-chat.store";
-import { proposesDataViews } from "@/features/data-view/data-view-proposal-context";
 
 const CONVERSATION_ID = "10000000-0000-4000-8000-000000000001";
 const USER_MESSAGE_ID = "10000000-0000-4000-8000-000000000002";
@@ -458,10 +459,8 @@ describe("saved-view Assistant round trip", () => {
   });
 
   it("streams an app proposal to the open page instead of writing the view", async () => {
-    let proposing = false;
-    harness.manageDataViewsInvoke.mockImplementation(() => {
-      proposing = proposesDataViews();
-      return Promise.resolve({
+    harness.manageDataViewsPropose.mockImplementation(() =>
+      Promise.resolve({
         ok: true,
         data: {
           action: "update",
@@ -472,8 +471,8 @@ describe("saved-view Assistant round trip", () => {
           proposed: true,
           link: VIEW_HREF,
         },
-      });
-    });
+      }),
+    );
     const proposal = { surfaceKey: SURFACE.users, viewKey: "__all__", state: { viewMode: "card" } };
     harness.sendAgentMessageInvoke.mockImplementation(async (input: unknown) => {
       const request = SendAgentMessageSchema.parse(input);
@@ -483,7 +482,8 @@ describe("saved-view Assistant round trip", () => {
         getAgentAiTools(toolDeps(pageRoute), { surface: "chat" }).manage_data_views,
         TOOL_INPUT,
       );
-      expect(proposing).toBe(true);
+      expect(harness.manageDataViewsPropose).toHaveBeenCalledWith(TOOL_INPUT);
+      expect(harness.manageDataViewsInvoke).not.toHaveBeenCalled();
       expect(output).toMatchObject({ ok: true, viewProposal: proposal });
 
       const transcriptEvents: AgentTranscriptEvent[] = [];

@@ -21,7 +21,6 @@ import {
   type AgentDataViewState,
   type ManageDataViewsData,
 } from "../manage-data-views.schema";
-import { runProposingDataViews } from "../data-view-proposal-context";
 
 const mockUser = createMockUser();
 vi.mock("@/env", () => MOCK_ENV_MODULE);
@@ -799,8 +798,8 @@ describe("agent saved-view management", () => {
 
   it("proposes an update in the app with the merged state and writes nothing", async () => {
     const subject = setup();
-    const result = await runProposingDataViews(() =>
-      subject.run({
+    const result = await runWithTenant(mockUser, () =>
+      subject.interactor.propose({
         action: "update",
         surfaceKey: SURFACE.users,
         viewKey: VIEW_ID,
@@ -828,8 +827,8 @@ describe("agent saved-view management", () => {
 
   it("proposes a new view in the app without creating it and links to the list", async () => {
     const subject = setup();
-    const result = await runProposingDataViews(() =>
-      subject.run({
+    const result = await runWithTenant(mockUser, () =>
+      subject.interactor.propose({
         action: "create",
         surfaceKey: SURFACE.users,
         name: "Newest members",

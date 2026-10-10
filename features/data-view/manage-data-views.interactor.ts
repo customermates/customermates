@@ -50,7 +50,6 @@ import type { Resource } from "@/generated/prisma";
 import { Action } from "@/generated/prisma";
 import { DATA_VIEW_SURFACES, type SurfaceDescriptor } from "./data-view-surfaces";
 import { ManageDataViewsResultSchema, ManageDataViewsSchema } from "./manage-data-views.schema";
-import { proposesDataViews } from "./data-view-proposal-context";
 
 export type DataViewConfigurationSources = Record<
   Exclude<
@@ -101,7 +100,17 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
 
   @Validate(ManageDataViewsSchema)
   @ValidateOutput(ManageDataViewsResultSchema)
-  async invoke(data: ManageDataViewsData): Validated<ManageDataViewsResult> {
+  invoke(data: ManageDataViewsData): Validated<ManageDataViewsResult> {
+    return this.manage(data, false);
+  }
+
+  @Validate(ManageDataViewsSchema)
+  @ValidateOutput(ManageDataViewsResultSchema)
+  propose(data: ManageDataViewsData): Validated<ManageDataViewsResult> {
+    return this.manage(data, true);
+  }
+
+  private async manage(data: ManageDataViewsData, propose: boolean): Validated<ManageDataViewsResult> {
     if (data.action === "surfaces") {
       const surfaces = [];
       for (const surfaceKey of AI_MANAGEABLE_DATA_VIEW_SURFACE_KEYS) {
@@ -273,7 +282,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     if (data.action === "create") {
       const checked = await this.validateState(data.surfaceKey, data.state);
       if (!checked.ok) return checked;
-      if (proposesDataViews()) {
+      if (propose) {
         return {
           ok: true,
           data: {
@@ -385,7 +394,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
       const checked = await this.validateState(data.surfaceKey, state);
       if (!checked.ok) return checked;
     }
-    if (proposesDataViews()) {
+    if (propose) {
       return {
         ok: true,
         data: {
