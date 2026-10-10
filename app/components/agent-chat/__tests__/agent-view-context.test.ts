@@ -216,4 +216,24 @@ describe("agent saved-view context", () => {
       `${pathname}?tab=profile#activity`,
     );
   });
+
+  it("hands a proposal to the mounted page showing that surface and reports when no page can take it", () => {
+    const context = new AgentViewContext();
+    const membersPropose = vi.fn();
+    const pathname = "/en/settings/members";
+    context.register(
+      pathname,
+      () => ({ surfaceKey: SURFACE.users, viewKey: ALL_VIEW_KEY }),
+      undefined,
+      undefined,
+      membersPropose,
+    );
+    const proposal = { surfaceKey: SURFACE.users, viewKey: ALL_VIEW_KEY, state: { viewMode: "card" as never } };
+
+    expect(context.propose(pathname, proposal)).toBe(true);
+    expect(membersPropose).toHaveBeenCalledExactlyOnceWith(proposal);
+    expect(context.propose("/en/dashboard", proposal)).toBe(false);
+    expect(context.propose(pathname, { ...proposal, surfaceKey: SURFACE.routines })).toBe(false);
+    expect(membersPropose).toHaveBeenCalledOnce();
+  });
 });

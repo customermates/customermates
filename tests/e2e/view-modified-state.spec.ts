@@ -194,3 +194,80 @@ test("keeps an Activities rail filter temporary with the modified dot, Reset and
   await page.keyboard.press("Escape");
   expect(errors).toEqual([]);
 });
+
+test("opens an assistant proposal in the modified state and saves it as an update and as a new view", async ({
+  page,
+  database,
+  companyId,
+  workspace,
+}, testInfo) => {
+  test.setTimeout(240000);
+  const errors: string[] = [];
+  page.on("pageerror", (error) => {
+    if (!isBenignPageError(error.message)) errors.push(error.message);
+  });
+  page.on("console", (message) => {
+    if (isAppConsoleError(message)) errors.push(message.text());
+  });
+  const typeId = presetId(companyId, "deal");
+  const surfaceKey = `records:${typeId}`;
+  const members = await database.query('SELECT id FROM "User" WHERE "companyId"=$1', [companyId]);
+  const assignee = { field: "system:assignedTo", operator: "in", value: [members.rows[0].id] };
+  const propose = (viewKey: string, proposal: Record<string, unknown>) =>
+    page.evaluate(
+      ([key, value]) => window.sessionStorage.setItem(key, value),
+      [
+        `customermates:view-query-draft:${companyId}:${workspace.userId}:${surfaceKey}:${viewKey}`,
+        JSON.stringify({ filters: [assignee], proposal: { state: { filters: [assignee] }, ...proposal } }),
+      ] as const,
+    );
+  const all = page.locator("#global-data-views-all");
+
+  await page.goto(`/en/records/${typeId}`);
+  await expect(all).toHaveAttribute("aria-current", "page");
+  await propose("__all__", { isNew: false });
+  await page.reload();
+  await expect(all).toHaveAttribute("data-view-modified", "");
+  await page.locator("#global-data-views-menu").click();
+  await page.locator("#global-data-views-save").click();
+  await expect(all).not.toHaveAttribute("data-view-modified");
+  await expect
+    .poll(async () =>
+      (
+        await database.query('SELECT filters FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3', [
+          companyId,
+          workspace.userId,
+          surfaceKey,
+        ])
+      ).rows[0]?.filters,
+    )
+    .toEqual([assignee]);
+
+  await propose("__all__", { isNew: true, name: "Assigned to me" });
+  await page.reload();
+  const proposed = page.locator("#global-data-views-proposed");
+  await expect(proposed).toHaveText(/Assigned to me/);
+  await expect(proposed).toHaveAttribute("data-view-modified", "");
+  await expect(all).not.toHaveAttribute("aria-current", "page");
+  await page.screenshot({ path: testInfo.outputPath("proposal-new-view-light.png"), animations: "disabled" });
+  await page.emulateMedia({ colorScheme: "dark" });
+  await page.screenshot({ path: testInfo.outputPath("proposal-new-view-dark.png"), animations: "disabled" });
+  await page.emulateMedia({ colorScheme: "light" });
+  await page.locator("#global-data-views-menu").click();
+  await page.locator("#global-data-views-save").click();
+  await expect(page.locator("#global-data-views-proposed")).toHaveCount(0);
+  const created = page.locator("#global-data-views").getByRole("link", { name: "Assigned to me", exact: true });
+  await expect(created).toHaveAttribute("aria-current", "page");
+  await expect(created).not.toHaveAttribute("data-view-modified");
+  await expect
+    .poll(async () =>
+      (
+        await database.query(
+          'SELECT filters FROM "DataView" WHERE "companyId"=$1 AND "userId"=$2 AND "surfaceKey"=$3 AND name=$4',
+          [companyId, workspace.userId, surfaceKey, "Assigned to me"],
+        )
+      ).rows,
+    )
+    .toEqual([{ filters: [assignee] }]);
+  expect(errors).toEqual([]);
+});

@@ -796,6 +796,69 @@ describe("agent saved-view management", () => {
     ).rejects.toThrow("returned a named-view result while saving the All view");
   });
 
+  it("proposes an update in the app with the merged state and writes nothing", async () => {
+    const subject = setup();
+    const result = await runWithTenant(mockUser, () =>
+      subject.interactor.propose({
+        action: "update",
+        surfaceKey: SURFACE.users,
+        viewKey: VIEW_ID,
+        name: "Renamed",
+        state: { sortDescriptor: { field: "createdAt", direction: "desc" } },
+      }),
+    );
+    expect(subject.upsert.invoke).not.toHaveBeenCalled();
+    expect(subject.save.invoke).not.toHaveBeenCalled();
+    expect(result.ok && result.data).toMatchObject({
+      action: "update",
+      surfaceKey: SURFACE.users,
+      viewKey: VIEW_ID,
+      name: "Renamed",
+      state: {
+        searchTerm: "old",
+        columnWidths: { name: 210 },
+        sortDescriptor: { field: "createdAt", direction: "desc" },
+      },
+      proposed: true,
+      link: `/settings/members?view=${VIEW_ID}`,
+    });
+    expect(ManageDataViewsResultSchema.safeParse(result.ok && result.data).success).toBe(true);
+  });
+
+  it("proposes a new view in the app without creating it and links to the list", async () => {
+    const subject = setup();
+    const result = await runWithTenant(mockUser, () =>
+      subject.interactor.propose({
+        action: "create",
+        surfaceKey: SURFACE.users,
+        name: "Newest members",
+        state: { sortDescriptor: { field: "createdAt", direction: "desc" } },
+      }),
+    );
+    expect(subject.upsert.invoke).not.toHaveBeenCalled();
+    expect(result.ok && result.data).toMatchObject({
+      action: "create",
+      surfaceKey: SURFACE.users,
+      viewKey: ALL_VIEW_KEY,
+      name: "Newest members",
+      state: { sortDescriptor: { field: "createdAt", direction: "desc" } },
+      proposed: true,
+      link: `/settings/members?view=${ALL_VIEW_KEY}`,
+    });
+    expect(ManageDataViewsResultSchema.safeParse(result.ok && result.data).success).toBe(true);
+  });
+
+  it("still writes directly outside the app proposal scope", async () => {
+    const subject = setup();
+    await subject.run({
+      action: "update",
+      surfaceKey: SURFACE.users,
+      viewKey: VIEW_ID,
+      state: { sortDescriptor: { field: "createdAt", direction: "desc" } },
+    });
+    expect(subject.upsert.invoke).toHaveBeenCalledOnce();
+  });
+
   it("delegates deletion without resetting a newer selection from stale surface state", async () => {
     const subject = setup();
     const result = await subject.run({

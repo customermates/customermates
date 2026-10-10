@@ -52,6 +52,7 @@ export function useViewAi<E extends HasId>(
       () => (store.isReady && store.p13nId ? { surfaceKey: store.p13nId, viewKey: store.activeViewKey } : null),
       () => store.settleViewState(),
       store.viewPathname,
+      store.applyViewProposal,
     );
     const releaseCandidates = agentChatStore.contextRegistry.register(pathname, () => {
       if (!store.isReady || store.p13nId !== surfaceKey) return [];

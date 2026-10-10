@@ -121,6 +121,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
   }, [allName, joinsTopBar, offersViews, store, viewPickerStore]);
 
   const chips = orderChips(store.views, store.activeViewKey);
+  const proposedName = store.proposal?.isNew ? (store.proposal.name ?? null) : null;
   const activeView = store.views.find((view) => view.id === store.activeViewKey);
   const tabbableIndex = chips.findIndex((chip) => chip.isActive);
   const { onKeyDownAt, tabIndexAt } = useRovingFocus(chips.length, Math.max(tabbableIndex, 0));
@@ -211,8 +212,8 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                       store.viewPathname ? surfaceKeyOf(store) : undefined,
                     )}
                     id="global-data-views-all"
-                    isActive={chip.isActive}
-                    isModified={chip.isActive && store.isQueryModified}
+                    isActive={chip.isActive && !proposedName}
+                    isModified={chip.isActive && !proposedName && store.isQueryModified}
                     label={allName}
                     modifiedLabel={t("DataView.views.modified")}
                     preview={previewFor(allName, chip.isActive)}
@@ -232,8 +233,8 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                     chip.view.id,
                     store.viewPathname ? surfaceKeyOf(store) : undefined,
                   )}
-                  isActive={chip.isActive}
-                  isModified={chip.isActive && store.isQueryModified}
+                  isActive={chip.isActive && !proposedName}
+                  isModified={chip.isActive && !proposedName && store.isQueryModified}
                   label={chip.view.name}
                   modifiedLabel={t("DataView.views.modified")}
                   preview={previewFor(chip.view.name, chip.isActive)}
@@ -243,6 +244,19 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                 />
               );
             })}
+
+          {store.isReady && proposedName && (
+            <ViewChip
+              isActive
+              isModified
+              href={store.viewPathname ?? pathname}
+              id="global-data-views-proposed"
+              label={proposedName}
+              modifiedLabel={t("DataView.views.modified")}
+              preview={previewFor(proposedName, true)}
+              tabIndex={-1}
+            />
+          )}
 
           {store.isReady && (
             <ViewMetaOverlay
