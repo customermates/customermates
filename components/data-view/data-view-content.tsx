@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
+import type { RecordGroupSummaryResult } from "@/features/records/record-grouping.schema";
 
 import { observer } from "mobx-react-lite";
 import { useClientReady } from "@/hooks/use-client-ready";
@@ -21,6 +22,7 @@ type Props<E extends HasId> = {
   rowActions?: (item: E) => ReactNode;
   renderCard?: (item: E) => ReactNode;
   store: BaseDataViewStore<E>;
+  totals?: RecordGroupSummaryResult[];
   view: DataViewView;
 };
 
@@ -31,6 +33,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
   rowActions,
   renderCard,
   store,
+  totals,
   view,
 }: Props<E>) {
   const interactive = useClientReady();
@@ -53,6 +56,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
         columns={resolvedColumns}
         rowActions={rowActions}
         store={store}
+        totals={totals}
         onRowClick={interactive ? onRowClick : undefined}
         onRowHref={rowHref}
       />

@@ -1,6 +1,7 @@
 "use server";
 
 import {
+  getDraftCalculationInteractor,
   getArchiveAgentConversationInteractor,
   getCancelAgentTurnInteractor,
   getDeleteAgentConversationInteractor,
@@ -14,6 +15,7 @@ import {
 import { serializeResult } from "@/core/utils/action-result";
 
 import type { CancelAgentTurnData } from "@/ee/agent-chat/cancel-agent-turn.interactor";
+import type { DraftCalculationInput } from "@/ee/calculation-draft/draft-calculation.interactor";
 import type { RespondToApprovalData } from "@/ee/agent-chat/respond-to-approval.interactor";
 import type { RespondToUiCommandData } from "@/ee/agent-chat/respond-to-ui-command.interactor";
 import type { ArchiveAgentConversationData } from "@/ee/agent-chat/archive-agent-conversation.interactor";
@@ -56,4 +58,8 @@ export async function respondToUiCommandAction(data: RespondToUiCommandData) {
 
 export async function cancelAgentTurnAction(data: CancelAgentTurnData) {
   return serializeResult(getCancelAgentTurnInteractor().invoke(data));
+}
+
+export async function draftCalculationAction(data: DraftCalculationInput) {
+  return serializeResult(getDraftCalculationInteractor().invoke(data));
 }

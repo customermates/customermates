@@ -23,6 +23,13 @@ import { OverlayDismissGuardContext, useOwnOverlayDismissGuard } from "./overlay
 import { AppModalActionRail, APP_MODAL_ACTION_RAIL_CLASS, appModalActionSlots } from "./app-modal-action";
 import { keepOpenForAssistantSurface, releaseFocusToAssistantSurface } from "./assistant-surface";
 
+const LOCAL_ESCAPE_ATTRIBUTE = "data-local-escape";
+
+function keepOpenForOverlayEscape(event: KeyboardEvent) {
+  keepOpenForAssistantSurface(event);
+  if (event.target instanceof Element && event.target.closest(`[${LOCAL_ESCAPE_ATTRIBUTE}]`)) event.preventDefault();
+}
+
 export type AppModalActions = readonly AppModalActionProps[];
 
 type AppModalSurface = "dialog" | "drawer" | "sheet";
@@ -162,7 +169,7 @@ export const AppModal = observer((props: Props) => {
             data-overlay-actions={hasActions ? "" : undefined}
             side="right"
             onBlur={releaseFocus}
-            onEscapeKeyDown={keepOpenForAssistantSurface}
+            onEscapeKeyDown={keepOpenForOverlayEscape}
             onInteractOutside={keepOpenForAssistantSurface}
             {...(!description ? { "aria-describedby": undefined } : {})}
             {...focusReturn}
@@ -198,7 +205,7 @@ export const AppModal = observer((props: Props) => {
             data-overlay-actions={hasActions ? "" : undefined}
             overlayClassName={layerClassName}
             onBlur={releaseFocus}
-            onEscapeKeyDown={keepOpenForAssistantSurface}
+            onEscapeKeyDown={keepOpenForOverlayEscape}
             onInteractOutside={keepOpenForAssistantSurface}
             {...(!description ? { "aria-describedby": undefined } : {})}
             {...focusReturn}
@@ -228,7 +235,7 @@ export const AppModal = observer((props: Props) => {
             data-overlay-actions={hasActions ? "" : undefined}
             overlayClassName={layerClassName}
             onBlur={releaseFocus}
-            onEscapeKeyDown={keepOpenForAssistantSurface}
+            onEscapeKeyDown={keepOpenForOverlayEscape}
             onInteractOutside={keepOpenForAssistantSurface}
             {...(!description ? { "aria-describedby": undefined } : {})}
             {...focusReturn}

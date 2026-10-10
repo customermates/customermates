@@ -1,23 +1,101 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import type { RecordDto, RecordRef, RecordType } from "@/features/records/record-model.schema";
+import type { RecordRow } from "@/features/records/record-presentation";
+
+import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Pencil, Plus, Trash2 } from "lucide-react";
-import type { RecordDto, RecordType } from "@/features/records/record-model.schema";
-import type { RecordQueryResult } from "@/features/records/record-query-result.schema";
-import { RecordQuerySchema } from "@/features/records/record-query.schema";
-import { RecordEditorStore } from "./record-editor.store";
-import { RecordValue } from "./record-value";
+import { Plus } from "lucide-react";
+
+import { DataViewContent } from "@/components/data-view/data-view-content";
+import { DataViewPagination } from "@/components/data-view/header/pagination";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
 import { recordTitle } from "@/components/records/record-title";
-import { useRecordDeletion } from "./use-record-deletion";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { getRecordEditorAction, queryRecordsAction } from "../../actions";
-import { RecordDetailField } from "./record-detail-field";
 import { relationshipColumnKey } from "@/features/records/record-column.schema";
+import { isRecordFieldWritable } from "@/features/records/record-input-value";
+import { getRecordEditorAction } from "../../actions";
+import { EMBEDDED_PAGE_SIZE, EmbeddedRecordsStore, embeddedPresentation } from "./embedded-records.store";
+import { RecordDetailField } from "./record-detail-field";
+import { RecordEditorStore } from "./record-editor.store";
+import { RecordRowActions } from "./record-row-actions";
+import { useRecordTableColumns } from "./record-table-columns";
+import { useRecordDeletion } from "./use-record-deletion";
+
+const EmbeddedAddLine = observer(function EmbeddedAddLine({
+  list,
+  type,
+  onOpenEditor,
+}: {
+  list: EmbeddedRecordsStore;
+  type: RecordType;
+  onOpenEditor: (name?: string) => void;
+}) {
+  const t = useTranslations();
+  const [draft, setDraft] = useState<string | null>(null);
+  const settled = useRef(false);
+  const label = t("RecordModel.addEmbedded", { type: type.label });
+  const primary = list.fields.find((field) => field.id === type.primaryFieldId);
+  const inline = primary && primary.valueType === "text" && isRecordFieldWritable(primary);
+  if (draft === null || !primary) {
+    return (
+      <Button
+        className="justify-start px-2 text-muted-foreground"
+        data-embedded-add=""
+        size="sm"
+        type="button"
+        variant="ghost"
+        onClick={() => {
+          if (!inline) return onOpenEditor();
+          settled.current = false;
+          setDraft("");
+        }}
+      >
+        <Plus className="size-4" />
+
+        {label}
+      </Button>
+    );
+  }
+  const commit = () =>
+    runUserAction(async () => {
+      if (settled.current) return;
+      settled.current = true;
+      const name = draft.trim();
+      setDraft(null);
+      if (!name) return;
+      const { created } = await list.createChild(primary.id, name);
+      if (!created) onOpenEditor(name);
+    });
+  return (
+    <Input
+      autoFocus
+      aria-label={label}
+      className="h-8"
+      data-embedded-draft=""
+      data-local-escape=""
+      placeholder={primary.label}
+      value={draft}
+      onBlur={commit}
+      onChange={(event) => setDraft(event.target.value)}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          commit();
+        }
+        if (event.key === "Escape") {
+          event.stopPropagation();
+          settled.current = true;
+          setDraft(null);
+        }
+      }}
+    />
+  );
+});
 
 export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
   store,
@@ -29,20 +107,26 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
   renderEditor: (child: RecordEditorStore) => ReactNode;
 }) {
   const t = useTranslations();
-  const [page, setPage] = useState(1);
-  const [attempt, setAttempt] = useState(0);
-  const [request, setRequest] = useState<{ key: string; data: RecordQueryResult | null } | null>(null);
+  const parentRelationId = type.parentRelationshipId ?? "";
+  const listPresentation = () =>
+    embeddedPresentation(store.presentation, type.id, {
+      "system:createdAt": t("RecordModel.createdAt"),
+      "system:updatedAt": t("RecordModel.updatedAt"),
+      "system:assignedTo": t("RecordModel.assignedTo"),
+      "system:channels": t("EntityChannels.heading"),
+    });
+  const [list] = useState(() => new EmbeddedRecordsStore(store.rootStore, listPresentation(), parentRelationId));
   const [child] = useState(
     () =>
       new RecordEditorStore(store.rootStore, { ...store.presentation, typeId: type.id }, async () => {
         await store.reloadAfterNestedChange();
-        setAttempt((value) => value + 1);
+        await list.refresh();
       }),
   );
   const deletion = useRecordDeletion({
     onDeleted: async () => {
       await store.reloadAfterNestedChange();
-      setAttempt((value) => value + 1);
+      await list.refresh();
     },
     onPending: store.setPendingOperation,
     captureSession: store.captureSession,
@@ -52,57 +136,21 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
   const parent = store.record;
   const key =
     parent && store.isOpen
-      ? JSON.stringify([
-          parent.ref,
-          parent.version,
-          store.presentation.model.revision,
-          page,
-          type.id,
-          type.parentRelationshipId,
-          attempt,
-          store.relatedRevision,
-        ])
+      ? JSON.stringify([parent.ref, parent.version, store.presentation.model.revision, store.relatedRevision])
       : null;
   useEffect(() => {
     store.rootStore.registerModalStore(child);
     return () => store.rootStore.unregisterModalStore(child);
   }, [store, child]);
   useEffect(() => {
-    if (!key) return;
-    let active = true;
-    const [ref, , , page, typeId, relationId] = JSON.parse(key);
-    const query = RecordQuerySchema.parse({
-      typeId,
-      page,
-      pageSize: 10,
-      relationships: [{ relationId, direction: "outgoing", operator: "any", recordIds: [ref.recordId] }],
-    });
-    void queryRecordsAction(query)
-      .then((result) => {
-        if (active) setRequest({ key, data: result.ok ? result.data : null });
-      })
-      .catch(() => {
-        if (active) setRequest({ key, data: null });
-      });
-    return () => {
-      active = false;
-    };
-  }, [key]);
-  const current = request?.key === key ? request : null;
-  useEffect(() => {
-    const data = current?.data;
-    if (data) setPage((currentPage) => Math.min(currentPage, Math.max(1, Math.ceil(data.total / 10))));
-  }, [current?.data]);
-  const fields = store.presentation.model.fields.filter(
-    (field) => field.typeId === type.id && field.valueType !== "richText" && !field.archived,
-  );
-  const visible = fields.filter(
-    (field) => field.id === type.primaryFieldId || type.defaults.columns.includes(field.id),
-  );
-  const titleField = fields.find((field) => field.id === type.primaryFieldId);
-  const parentType = store.presentation.model.types.find((type) => type.id === parent?.ref.typeId);
+    list.setPresentation(listPresentation());
+    list.setParent(key ? (JSON.parse(key)[0] as RecordRef) : null);
+    if (key) runUserAction(() => list.refresh());
+  }, [key, list, store.presentation, type.id]);
+  const parentType = store.presentation.model.types.find((candidate) => candidate.id === parent?.ref.typeId);
   const editable = Boolean(parent) && !store.isReadOnly && !store.hasUnsavedChanges && !store.isLoading;
-  const open = (record?: RecordDto) =>
+  const canDelete = editable && store.presentation.permittedActions.includes("delete");
+  const open = (record?: RecordDto, name?: string) =>
     runUserAction(async () => {
       if (!parent || !type.parentRelationshipId || (!record && !editable)) return;
       const isCurrent = store.captureSession();
@@ -122,148 +170,63 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
           state: "missing",
         },
       });
+      if (name && type.primaryFieldId) child.onChange(`values.${type.primaryFieldId}`, name);
     });
-  const remove = (record: RecordDto, name: string) =>
-    runUserAction(() => deletion.requestDeletion(record, store.presentation.model.revision, name));
+  const recordName = (record: RecordRow) =>
+    recordTitle(record.fields.find((field) => field.fieldId === type.primaryFieldId)?.result, type.label, t);
+  const columns = useRecordTableColumns(list, (ref) => store.rootStore.recordWorkspaceStore.open(ref), {
+    markCalculated: true,
+  });
+  const rows = list.items;
   return (
-    <section aria-label={type.pluralLabel} className="space-y-3">
+    <section aria-label={type.pluralLabel}>
       <RecordDetailField
-        fieldId={relationshipColumnKey(type.parentRelationshipId ?? "", "incoming")}
+        action={
+          list.total > 0 ? (
+            <span className="text-xs text-muted-foreground tabular-nums" data-embedded-count="">
+              {list.total}
+            </span>
+          ) : undefined
+        }
+        fieldId={relationshipColumnKey(parentRelationId, "incoming")}
         label={type.pluralLabel}
       >
-        <div className="flex items-center justify-between gap-2">
-          {!store.isReadOnly && (
-            <Button disabled={!editable} size="sm" type="button" variant="secondary" onClick={() => open()}>
-              <Plus className="size-4" />
+        <div className="min-w-0 space-y-1">
+          {!parent || store.hasUnsavedChanges ? (
+            <p className="text-xs text-muted-foreground">{t("RecordModel.saveBeforeEmbedded")}</p>
+          ) : null}
 
-              {t("RecordModel.addEmbedded", { type: type.label })}
+          {list.dataRequest.status === "refresh-error" && (
+            <Button size="sm" type="button" variant="secondary" onClick={() => runUserAction(() => list.refresh())}>
+              {t("ErrorCard.retry")}
             </Button>
           )}
+
+          {rows.length > 0 && (
+            <DataViewContent
+              columns={columns}
+              rowActions={(record) => (
+                <RecordRowActions
+                  name={recordName(record)}
+                  onDelete={
+                    canDelete && !deletion.isPreviewing
+                      ? () => deletion.requestDeletion(record, store.presentation.model.revision, recordName(record))
+                      : undefined
+                  }
+                  onOpen={() => open(record)}
+                />
+              )}
+              store={list}
+              totals={list.totals}
+              view="table"
+              onRowClick={(record) => open(record)}
+            />
+          )}
+
+          {list.total > (list.pagination?.pageSize ?? EMBEDDED_PAGE_SIZE) && <DataViewPagination store={list} />}
+
+          {editable && <EmbeddedAddLine list={list} type={type} onOpenEditor={(name) => open(undefined, name)} />}
         </div>
-
-        {!parent || store.hasUnsavedChanges ? (
-          <p className="text-xs text-muted-foreground">{t("RecordModel.saveBeforeEmbedded")}</p>
-        ) : null}
-
-        {key && !current ? (
-          <p className="text-sm text-muted-foreground" role="status">
-            {t("Loading.text")}
-          </p>
-        ) : null}
-
-        {current?.data === null ? (
-          <Button type="button" variant="secondary" onClick={() => setAttempt((value) => value + 1)}>
-            {t("ErrorCard.retry")}
-          </Button>
-        ) : null}
-
-        {current?.data && (
-          <>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  {visible.map((field) => (
-                    <TableHead key={field.id}>{field.label}</TableHead>
-                  ))}
-
-                  <TableHead>
-                    <span className="sr-only">{t("RecordModel.edit")}</span>
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-
-              <TableBody>
-                {current.data.records.map((record) => {
-                  const primary = record.fields.find((field) => field.fieldId === type.primaryFieldId)?.result;
-                  const name = recordTitle(primary, type.label, t);
-                  return (
-                    <TableRow key={record.ref.recordId}>
-                      {visible.map((field) => (
-                        <TableCell key={field.id}>
-                          {field.id === titleField?.id ? (
-                            <button
-                              className="text-left font-medium hover:underline disabled:opacity-50"
-                              disabled={store.hasUnsavedChanges || store.isLoading}
-                              type="button"
-                              onClick={() => open(record)}
-                            >
-                              <RecordValue field={field} result={primary} />
-                            </button>
-                          ) : (
-                            <RecordValue
-                              field={field}
-                              result={record.fields.find((value) => value.fieldId === field.id)?.result}
-                            />
-                          )}
-                        </TableCell>
-                      ))}
-
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Button
-                            aria-label={t("RecordModel.openRecord", { name })}
-                            disabled={store.hasUnsavedChanges || store.isLoading}
-                            size="icon"
-                            type="button"
-                            variant="ghost"
-                            onClick={() => open(record)}
-                          >
-                            <Pencil className="size-4" />
-                          </Button>
-
-                          {!store.isReadOnly && (
-                            <Button
-                              aria-label={t("RecordModel.deleteRecord", { name })}
-                              disabled={!editable || deletion.isPreviewing}
-                              size="icon"
-                              type="button"
-                              variant="ghostDestructive"
-                              onClick={() => remove(record, name)}
-                            >
-                              <Trash2 className="size-4" />
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-
-            {current.data.total === 0 ? (
-              <p className="text-sm text-muted-foreground">{t("RecordModel.empty", { type: type.pluralLabel })}</p>
-            ) : null}
-
-            {current.data.total > 10 ? (
-              <div className="flex items-center gap-2">
-                <Button
-                  disabled={page === 1}
-                  size="sm"
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setPage((value) => value - 1)}
-                >
-                  {t("Common.table.previousPage")}
-                </Button>
-
-                <span className="text-xs text-muted-foreground">
-                  {t("RecordModel.linkedRecordCount", { count: current.data.total })}
-                </span>
-
-                <Button
-                  disabled={page * 10 >= current.data.total}
-                  size="sm"
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setPage((value) => value + 1)}
-                >
-                  {t("Common.table.nextPage")}
-                </Button>
-              </div>
-            ) : null}
-          </>
-        )}
 
         {renderEditor(child)}
       </RecordDetailField>

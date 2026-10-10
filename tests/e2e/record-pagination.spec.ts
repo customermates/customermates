@@ -127,7 +127,9 @@ test("returns to a valid relationship, path and embedded page after deleting its
   await embedded.getByRole("button", { name: "Next page", exact: true }).click();
   const row = embedded.locator("tbody tr");
   await expect(row).toHaveCount(1);
-  await row.getByRole("button", { name: /^Delete Paged line/ }).click();
+  await row.hover();
+  await row.getByRole("button", { name: /^More actions for Paged line/ }).click();
+  await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
   await page.getByRole("alertdialog").locator("#confirm-delete").click();
   await expect(embedded.locator("tbody tr")).toHaveCount(10);
   await expect(embedded.getByRole("button", { name: "Next page", exact: true })).toHaveCount(0);

@@ -3099,6 +3099,13 @@
         "min": "Minimum",
         "sum": "Sum"
       },
+      "describe": {
+        "failed": "Couldn't turn that into a calculation. Try describing it differently.",
+        "label": "Describe the calculation",
+        "pending": "Drafting the calculation",
+        "placeholder": "For example: total of the amounts of all linked line items",
+        "unavailable": "Drafting isn't available right now."
+      },
       "example": {
         "next": "Show another example",
         "none": "Add a record to this list to see an example.",
