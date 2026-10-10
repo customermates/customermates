@@ -94,6 +94,7 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
     try {
       if (!older) {
         await this.refreshGuarded(() => !this.disposed);
+        if (!this.disposed) this.restoreQueryDraft();
         return;
       }
       const result = await getRecordActivitiesAction({

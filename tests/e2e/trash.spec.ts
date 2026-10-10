@@ -95,7 +95,10 @@ test("restores a deleted record from Trash and shows a trashed record read only"
     await page.screenshot({ path: testInfo.outputPath(`trash-record-banner-${scheme}.png`), animations: "disabled" });
   }
   await page.emulateMedia({ colorScheme: "light" });
-  await banner.getByRole("button", { name: "Restore", exact: true }).click();
+  await expect(page.getByText("Something went wrong")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Ask AI", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Customize", exact: true })).toHaveCount(0);
+  await page.getByRole("button", { name: "Restore", exact: true }).click();
   await expect(banner).not.toBeVisible();
 
   await page.goto(`/en/records/${typeId}`);

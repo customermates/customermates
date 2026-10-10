@@ -6,6 +6,7 @@ import type { z } from "zod";
 import type { RecordOperationStatusSchema } from "@/features/records/record-operation.interactor";
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { useRootStore } from "@/core/stores/root-store.provider";
 import {
   cancelRecordOperationAction,
   getRecordOperationAction,
@@ -22,6 +23,7 @@ export function RecordOperationProgress({
   onStopped: () => void;
 }) {
   const t = useTranslations();
+  const { trashStore } = useRootStore();
   const [status, setStatus] = useState<z.infer<typeof RecordOperationStatusSchema> | null>(null);
   const [failed, setFailed] = useState(false);
   const [retry, setRetry] = useState(0);
@@ -40,6 +42,9 @@ export function RecordOperationProgress({
         setStatus(result.data);
         setFailed(false);
         if (result.data.state === "completed") {
+          const completed = result.data.result;
+          if (completed?.status === "completed" && completed.trashBatchId)
+            trashStore.announceMovedToTrash({ trashBatchId: completed.trashBatchId });
           await onCompleted();
           return;
         }
@@ -57,7 +62,7 @@ export function RecordOperationProgress({
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [operationId, onCompleted, retry]);
+  }, [operationId, onCompleted, retry, trashStore]);
   const perform = async (action: "cancel" | "resume") => {
     setBusy(true);
     try {

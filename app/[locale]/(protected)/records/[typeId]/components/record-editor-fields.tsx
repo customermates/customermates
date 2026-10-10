@@ -1,5 +1,6 @@
 "use client";
 
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useId } from "react";
 import { observer } from "mobx-react-lite";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
@@ -12,6 +13,9 @@ import { EntityDetailStaticField } from "@/components/entity-detail/entity-detai
 import { RecordValue } from "./record-value";
 import { RecordDetailField } from "./record-detail-field";
 import { RecordInputField } from "./record-input-field";
+import { CalculationSentenceText } from "@/components/records/calculation-sentence-text";
+import { recordValueSource } from "@/features/records/record-value-source";
+import { runUserAction } from "@/core/errors/report-application-error";
 
 export const RecordEditorField = observer(function RecordEditorField({
   store,
@@ -21,6 +25,7 @@ export const RecordEditorField = observer(function RecordEditorField({
   field: RecordFieldView;
 }) {
   const t = useTranslations();
+  const intl = useHydratedIntlStore();
   const id = `values.${field.id}`;
   const inputId = `${id}-${useId()}`;
   const result = store.record?.fields.find((value) => value.fieldId === field.id)?.result;
@@ -45,14 +50,43 @@ export const RecordEditorField = observer(function RecordEditorField({
       </Button>
     ) : null;
   if (restricted || !isRecordFieldWritable(field)) {
-    return store.record ? (
+    if (!store.record) return null;
+    const source = restricted
+      ? null
+      : recordValueSource({ model: store.presentation.model, field, t, locale: intl.formattingLocale });
+    const lookup = source?.lookup;
+    const linked = lookup
+      ? store.record.relationships.find(
+          (summary) => summary.relationId === lookup.relationId && summary.direction === lookup.direction,
+        )?.records
+      : undefined;
+    const target = linked?.length === 1 ? linked[0] : null;
+    const targetName =
+      target?.title.state === "value" && target.title.value.kind === "text" ? target.title.value.value : field.label;
+    return (
       <EntityDetailStaticField
         action={restricted ? null : captureAction}
         fieldId={field.id}
         label={field.label}
-        value={<RecordValue field={field} members={store.record?.memberUsers} result={result} />}
+        source={
+          source ? (
+            <CalculationSentenceText
+              action={(reference) =>
+                reference.kind === "list" && target
+                  ? {
+                      label: t("RecordModel.openRecord", { name: targetName }),
+                      onOpen: (trigger) =>
+                        runUserAction(() => store.rootStore.recordWorkspaceStore.open(target.ref, trigger)),
+                    }
+                  : null
+              }
+              segments={source.segments}
+            />
+          ) : undefined
+        }
+        value={<RecordValue field={field} members={store.record.memberUsers} result={result} />}
       />
-    ) : null;
+    );
   }
   if (field.valueType === "richText") {
     return (

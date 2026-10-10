@@ -531,7 +531,18 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ],
   [
     "RecordModel.configurationDeletion.cleaned.${*}",
-    ["listDefaults", "personalLayouts", "view", "widget"].map(
+    [
+      "listDefaults",
+      "personalLayouts",
+      "view",
+      "widget",
+      "widgetCount",
+      "webhookTrigger",
+      "webhookRemoved",
+      "bindingChannels",
+      "bindingAvatar",
+      "bindingCalendar",
+    ].map(
       (key) => `RecordModel.configurationDeletion.cleaned.${key}`,
     ),
   ],
@@ -752,8 +763,8 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/settings/(account)/components/user-details-avatar.tsx :: t :: Common.userStatuses.${status}",
   "app/[locale]/(protected)/records/[typeId]/components/contact-compose-popover.tsx :: t :: Common.providers.${provider}",
   "app/[locale]/(protected)/records/[typeId]/components/record-channels.tsx :: t :: Common.providers.${channelLabelKey(identifier.provider)}",
+  "app/[locale]/(protected)/records/[typeId]/components/record-detail-chip-row.tsx :: t :: RecordModel.${column.label}",
   "app/[locale]/(protected)/records/[typeId]/components/record-detail-overview.tsx :: t :: RecordModel.${column.label}",
-  "app/[locale]/(protected)/records/[typeId]/components/record-detail-summary.tsx :: t :: RecordModel.${column.label}",
   "app/[locale]/(protected)/records/[typeId]/components/record-identity-editor.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
   "app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx :: t :: RecordModel.operators.${operator}",
   "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: Common.events.${event}",
@@ -886,6 +897,8 @@ export const DYNAMIC_KEY_SITES = [
 ];
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
+  ["ee/command-resolver/resolve-command.interactor.ts :: t :: command.labelKey", 1],
+  ["ee/command-resolver/resolve-command.interactor.ts :: t :: parent.labelKey", 1],
   ["app/components/global-search-modal.tsx :: t :: key", 1],
   ["app/components/command-palette/palette-entries.ts :: t :: entry.labelKey", 1],
   ["app/components/command-palette/palette-entries.ts :: t :: parent.labelKey", 1],
@@ -893,7 +906,7 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["features/command-palette/search-catalog-corpus.ts :: t :: parent.labelKey", 1],
   ["app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: key", 2],
   ["app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx :: t :: key", 1],
-  ["app/[locale]/(protected)/configure/components/field-options-editor.tsx :: t :: key", 1],
+  ["app/[locale]/(protected)/configure/components/field-options-editor.tsx :: t :: key", 2],
   ["core/validation/interactor-failure-server.ts :: t.raw :: code", 1],
   ["features/mcp-tools/mcp-tool.ts :: t.raw :: customCode", 1],
   [

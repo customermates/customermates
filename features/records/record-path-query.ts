@@ -72,9 +72,8 @@ export function compileRecordPathSummaries(
     const path = recordPathJoins(companyId, typeId, definition.path, model, access, owner);
     const type = model.types.find((type) => type.id === path.typeId && !type.archived);
     const title = model.fields.find((field) => field.id === type?.primaryFieldId && !field.archived);
-    if (!title) throw new Error("Relationship endpoint must be active");
     const target = Prisma.sql`target`;
-    const readable = fieldReadPredicate(companyId, title, model, access, target);
+    const readable = title ? fieldReadPredicate(companyId, title, model, access, target) : Prisma.sql`TRUE`;
     return Prisma.sql`SELECT "ownerId", ${definition.id}::text AS "pathId", "typeId", "recordId", state, title, "errorCode", "readableCount" FROM (
       SELECT target."ownerId", target."typeId", target.id AS "recordId",
         CASE WHEN ${readable} THEN COALESCE(value.state, 'missing') ELSE 'restricted' END AS state,
@@ -86,7 +85,7 @@ export function compileRecordPathSummaries(
         SELECT DISTINCT owner.id AS "ownerId", ${path.target}."typeId", ${path.target}.id
         FROM owners owner ${path.joins}
       ) target
-      LEFT JOIN "RecordValue" value ON value."companyId" = ${companyId} AND value."typeId" = target."typeId" AND value."recordId" = target.id AND value."fieldId" = ${title.id}
+      LEFT JOIN "RecordValue" value ON value."companyId" = ${companyId} AND value."typeId" = target."typeId" AND value."recordId" = target.id AND value."fieldId" = ${title?.id ?? null}
     ) related WHERE ordinal <= ${selection.limit}`;
   });
   return Prisma.sql`WITH owners AS (

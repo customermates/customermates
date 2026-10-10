@@ -21,7 +21,7 @@ import {
   useRecordDetailLayout,
 } from "./record-detail-personalization";
 import { RecordDetailOverview } from "./record-detail-overview";
-import { RecordDetailSummary } from "./record-detail-summary";
+import { RecordDetailChipRow } from "./record-detail-chip-row";
 import { RecordEditorFields } from "./record-editor-fields";
 import { RecordEditorActions, RecordHeaderActions, RecordPageActions } from "./record-editor-actions";
 import { EntityDetailPanels, type EntityDetailPanelLayout } from "@/components/entity-detail/entity-detail-panels";
@@ -29,6 +29,7 @@ import { useRecordEditorDeletion } from "./use-record-deletion";
 import { RecordActivitiesPanel } from "@/features/messaging/activities/record-activities-panel";
 import { Alert } from "@/components/shared/alert";
 import { AppLink } from "@/components/shared/app-link";
+import { recordTitle } from "@/components/records/record-title";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 const RecordEditorRecovery = observer(function RecordEditorRecovery({ store }: { store: RecordEditorStore }) {
@@ -133,7 +134,8 @@ const RecordEditorBody = observer(function RecordEditorBody({
   };
   const type = store.presentation.model.types.find((type) => type.id === store.presentation.typeId);
 
-  const name = store.titleText ?? type?.label ?? t("RecordModel.record");
+  const title = store.record?.fields.find((field) => field.fieldId === type?.primaryFieldId)?.result;
+  const name = store.record ? recordTitle(title, type?.label, t) : (type?.label ?? t("RecordModel.record"));
   const hasNotes = store.fields.some((field) => field.valueType === "richText");
   const notices = (
     <>
@@ -202,7 +204,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
             ) : undefined
           }
           panelLayout={panelLayout}
-          summary={<RecordDetailSummary store={store} />}
+          summary={<RecordDetailChipRow className="px-4 pt-2 pb-3" store={store} />}
         />
       </AppForm>
     );
@@ -218,7 +220,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
           </AppCardHeader>
 
           <RecordHeaderActions
-            className="mt-2"
+            className="mt-[1.375rem]"
             deletion={deletion}
             layout={detailLayout}
             name={name}
@@ -235,7 +237,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
 
         {notices}
 
-        <RecordDetailSummary store={store} />
+        <RecordDetailChipRow className="shrink-0 px-6 pb-3" store={store} />
 
         <RecordDrawerSegments
           label={t("EntityDetail.overview")}

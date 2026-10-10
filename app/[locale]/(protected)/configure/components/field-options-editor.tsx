@@ -1,6 +1,6 @@
 "use client";
 
-import { literalText } from "@/features/records/calculation-sentence";
+import { literalText, optionAttributeLabel, PROBABILITY_ATTRIBUTE } from "@/features/records/calculation-sentence";
 import type { CSSProperties, ReactNode } from "react";
 import type { DragEndEvent } from "@dnd-kit/core";
 import type { FieldModalStore } from "./field-modal";
@@ -40,8 +40,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { useFocusAfterRemoval } from "@/components/ui/use-focus-after-removal";
 import { CHIP_COLORS, toChipColor } from "@/constants/chip-colors";
 import { cn } from "@/core/utils/cn";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { AttributeColumnStore } from "./attribute-column.store";
-import { attributeKeyTaken, OPTION_ATTRIBUTE_TYPES, PROBABILITY_ATTRIBUTE } from "./field-option-columns";
+import { attributeKeyTaken, OPTION_ATTRIBUTE_TYPES } from "./field-option-columns";
 
 const ROW_GRID = "grid items-start gap-2 grid-cols-[1.75rem_6.5rem_minmax(0,1fr)_1.75rem]";
 const ROW_AREAS = [
@@ -268,6 +269,7 @@ const OptionCellInput = observer(function OptionCellInput({
   label: string;
 }) {
   const t = useTranslations();
+  const intl = useHydratedIntlStore();
   const id = `choices.options.${index}.cells.${column.id}`;
   const cell = store.form.choices.options[index]?.cells[column.id];
   if (column.type === "boolean") {
@@ -294,7 +296,12 @@ const OptionCellInput = observer(function OptionCellInput({
         aria-label={label}
         value={
           cell && typeof cell !== "string"
-            ? literalText(cell, store.model, (key: string, values?: Record<string, string>) => t(key, values))
+            ? literalText(
+                cell,
+                store.model,
+                (key: string, values?: Record<string, string>) => t(key, values),
+                intl.formattingLocale,
+              )
             : ""
         }
       />
@@ -413,8 +420,7 @@ export const FieldOptionsEditor = observer(function FieldOptionsEditor({ store }
     "--option-grid": `1.75rem 6.5rem minmax(0,1fr) ${columns.map(() => "7rem").join(" ")} 1.75rem`,
     "--option-cells": "repeat(auto-fill, minmax(7rem, 1fr))",
   } as CSSProperties;
-  const columnLabel = (column: OptionAttributeColumn) =>
-    column.key === PROBABILITY_ATTRIBUTE ? t("RecordModel.probability") : column.key;
+  const columnLabel = (column: OptionAttributeColumn) => optionAttributeLabel(column.key, (key: string) => t(key));
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (store.isDisabled || !over || active.id === over.id) return;
     store.moveOption(String(active.id), String(over.id));

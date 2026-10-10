@@ -26,6 +26,7 @@ import { cn } from "@/core/utils/cn";
 import { useViewAi } from "@/components/data-view/views/use-view-ai";
 import { AppModalActionRail } from "@/components/modal/app-modal-action";
 import { useAskAiAction } from "@/components/ui/ask-ai-action";
+import { MANUAL_ORDER_SORT_KEY } from "@/features/records/record-column.schema";
 
 import { PopoverSection as Section } from "./popover-section";
 
@@ -114,7 +115,6 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 
   const orderedColumns = store.orderedColumns;
   const hiddenSet = new Set(store.hiddenColumns);
-  const sortable = store.columnsDefinition.filter((col) => col.sortable);
   const canBoard = store.canBoard;
 
   const currentSortField = store.sortDescriptor?.field ?? "";
@@ -125,6 +125,12 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const hasActiveOption = Boolean(currentSortField) || Boolean(store.grouping) || store.hiddenColumns.length > 0;
 
   const currentLayout: DataViewMode = store.viewMode === ViewMode.card && canBoard ? "board" : "table";
+  const offersManualOrder =
+    (store.supportsManualOrder && currentLayout === "board") || currentSortField === MANUAL_ORDER_SORT_KEY;
+  const sortable = [
+    ...store.columnsDefinition.filter((col) => col.sortable),
+    ...(offersManualOrder ? [{ uid: MANUAL_ORDER_SORT_KEY, label: t("Common.sort.manual") }] : []),
+  ];
 
   function handleLayoutChange(next: string) {
     if (!next) return;
@@ -138,7 +144,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
     store.setQueryOptions({
       sortDescriptor: {
         field: next,
-        direction: currentSortDirection as Prisma.SortOrder,
+        direction: next === MANUAL_ORDER_SORT_KEY ? "asc" : (currentSortDirection as Prisma.SortOrder),
       },
     });
   }
@@ -314,7 +320,7 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                   </SelectContent>
                 </Select>
 
-                {currentSortField && (
+                {currentSortField && currentSortField !== MANUAL_ORDER_SORT_KEY && (
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button

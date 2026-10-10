@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { recordTitle } from "@/components/records/record-title";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Button } from "@/components/ui/button";
 import { useDataViewItemLayout } from "@/components/data-view/data-view-item-layout";
@@ -24,9 +25,9 @@ import { cn } from "@/core/utils/cn";
 const actionClass =
   "inline-flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-[color,background-color] hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring/70 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent [&_svg]:size-4";
 
-export function recordRowName(store: RecordsStore, record: RecordRow) {
+export function recordRowName(store: RecordsStore, record: RecordRow, t: ReturnType<typeof useTranslations>) {
   const title = record.fields.find((field) => field.fieldId === store.type?.primaryFieldId)?.result;
-  return title?.state === "value" && title.value.kind === "text" ? title.value.value : (store.type?.label ?? "");
+  return recordTitle(title, store.type?.label, t);
 }
 
 export const RecordRowActions = observer(function RecordRowActions({

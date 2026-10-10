@@ -40,6 +40,25 @@ function renderField(value: ReactNode, help?: ReactNode) {
 }
 
 describe("EntityDetailStaticField", () => {
+  it("shows the value plainly without input chrome and its source line underneath", () => {
+    const markup = renderToStaticMarkup(
+      createElement(EntityDetailStaticField, {
+        fieldId: "totalValue",
+        label: "Deal value",
+        value: "€12,500",
+        source: "Calculated · Quantity × Price",
+      }),
+    );
+    const output = markup.match(/<div[^>]*data-field-state="read-only"[^>]*>/)?.[0] ?? "";
+
+    expect(output).toContain("border-transparent");
+    expect(output).toContain("bg-transparent");
+    expect(output).not.toContain("border-border");
+    expect(markup).toContain("select-text");
+    expect(markup).not.toContain("<input");
+    expect(markup).toContain("Calculated · Quantity × Price");
+  });
+
   it("associates its read-only output with the visible label and keeps help and pin actions named", () => {
     const markup = renderField("€12,500", "Calculated from linked services.");
 
