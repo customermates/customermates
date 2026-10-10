@@ -33,3 +33,9 @@ export type FilterTarget = {
   setQueryOptions: (update: FilterTargetUpdate) => unknown;
   removeFilterAt: (index: number) => unknown;
 };
+
+export type FilterPaletteSearch = {
+  label: string;
+  term: string | undefined;
+  apply: (term: string | undefined) => void;
+};

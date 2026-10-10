@@ -20,7 +20,7 @@ test("downloads generic records from the shared table with persisted typed value
   await editor.getByRole("button", { name: "Save", exact: true }).click();
   await expect(editor).not.toBeVisible();
 
-  await page.locator("#records-transfer").click();
+  await page.locator("#records-more").click();
   const downloaded = page.waitForEvent("download", { timeout: 60000 });
   await page.getByRole("menuitem", { name: "Export", exact: true }).click();
   const download = await downloaded;
@@ -51,7 +51,7 @@ test("downloads generic records from the shared table with persisted typed value
       }),
     ),
   };
-  await page.locator("#records-transfer").click();
+  await page.locator("#records-more").click();
   await page
     .getByRole("menuitem", { name: "Add from file", exact: true })
     .click();
@@ -75,7 +75,7 @@ test("downloads generic records from the shared table with persisted typed value
   expect(copied.rows).toEqual([{ id: importedId }]);
 
   await expect(importDialog).toHaveCount(0);
-  await page.locator("#records-transfer").click();
+  await page.locator("#records-more").click();
   await page
     .getByRole("menuitem", { name: "Add from file", exact: true })
     .click();
@@ -121,6 +121,7 @@ test("exports a customer-created type through the same transfer menu", async ({
     .first()
     .click();
   await expect(dialog).not.toBeVisible();
+  await expect(page).toHaveURL(/\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   expect(typeId).toBeTruthy();
 
@@ -128,7 +129,7 @@ test("exports a customer-created type through the same transfer menu", async ({
   await dialog.getByRole("textbox").first().fill("Project Alpha");
   await dialog.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialog).not.toBeVisible();
-  await page.locator("#records-transfer").click();
+  await page.locator("#records-more").click();
   const downloaded = page.waitForEvent("download", { timeout: 60000 });
   await page.getByRole("menuitem", { name: "Export", exact: true }).click();
   const download = await downloaded;
@@ -183,7 +184,7 @@ test("round-trips deal line items and their calculated total through the transfe
   await page.keyboard.press("Escape");
   await expect(dialogs).not.toBeVisible();
 
-  await page.locator("#records-transfer").click();
+  await page.locator("#records-more").click();
   const downloaded = page.waitForEvent("download", { timeout: 60000 });
   await page.getByRole("menuitem", { name: "Export", exact: true }).click();
   const path = await (await downloaded).path();
@@ -210,7 +211,7 @@ test("round-trips deal line items and their calculated total through the transfe
     })),
   };
   await expect(page.locator('[data-slot="dropdown-menu-content"]')).toHaveCount(0);
-  await page.locator("#records-transfer").click();
+  await page.locator("#records-more").click();
   await page.getByRole("menuitem", { name: "Add from file", exact: true }).click();
   const importDialog = page.getByRole("dialog");
   await importDialog.locator('input[type="file"]').setInputFiles({
