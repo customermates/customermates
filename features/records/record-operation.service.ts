@@ -24,6 +24,7 @@ import { RecordEventPayloadSchema } from "./record-event.schema";
 import { DeletionCursorSchema, RecordDeletionStaging } from "./record-deletion-staging";
 import { RecordTrashService } from "./record-trash.service";
 import type { RecordModel } from "./record-model.schema";
+import type { WebhookPauseNotifier } from "@/features/webhook/webhook-pause-notifier";
 import { RestoreSummarySchema } from "./record-query.schema";
 
 const CursorSchema = z.union([
@@ -57,6 +58,7 @@ export class RecordOperationService extends UserAccessor {
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
     private configurations: RecordConfigurationService,
+    private webhooks: WebhookPauseNotifier,
   ) {
     super();
   }
@@ -217,7 +219,7 @@ export class RecordOperationService extends UserAccessor {
             const refs = await staged.getRecordRefsCompanyWide(typeId, cursor.afterId, BATCH_SIZE, {
               includeTrash: true,
             });
-            const writer = new RecordConfigurationWriter(staged, calculations);
+            const writer = new RecordConfigurationWriter(staged, calculations, this.webhooks);
             for (const ref of refs) await writer.initializeRecord(ref, prepared, current, BACKGROUND_FANOUT_LIMIT);
             await journal.persist();
             await this.records.updateOperation(operationId, {
@@ -298,7 +300,8 @@ export class RecordOperationService extends UserAccessor {
           if (prepared) {
             await this.records.saveModel(prepared.model, this.userId, prepared.change);
             if (prepared.deletion) await this.records.deleteDefinitions(prepared.deletion);
-            await this.records.applyConsumerCleanups(prepared.cleanups);
+            const { pausedWebhookIds } = await this.records.applyConsumerCleanups(prepared.cleanups);
+            await this.webhooks.notify(pausedWebhookIds);
             for (const grant of prepared.grants) await this.records.setGrants(grant.typeId, grant.grants);
           } else {
             const mutation = MutateRecordSchema.parse(operation.request).mutation;

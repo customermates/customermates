@@ -538,7 +538,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
       "widget",
       "widgetCount",
       "webhookTrigger",
-      "webhookRemoved",
+      "webhookPaused",
       "bindingChannels",
       "bindingAvatar",
       "bindingCalendar",

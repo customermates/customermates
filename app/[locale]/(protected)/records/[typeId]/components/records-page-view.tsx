@@ -22,7 +22,7 @@ import { resolveDataViewPageState, resolveDataViewView } from "@/components/data
 import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
 import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
-import { RecordsStore } from "./records.store";
+import { RecordsStore, UNTITLED_COLUMN_ID } from "./records.store";
 import { RecordsPageSkeleton } from "./records-page-skeleton";
 import { RecordCell } from "./record-cell";
 import { RecordCardContent } from "./record-chip-row";
@@ -39,6 +39,7 @@ import { useRecordDeletion } from "./use-record-deletion";
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
 import { useRecordExport } from "@/features/data-transfer/export/use-record-export";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { RecordImportDialog } from "./record-import-dialog";
 import { RecordMassActions } from "./record-mass-actions";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
@@ -97,6 +98,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
     ?.fields.find((field) => field.role === "image")?.fieldId;
   const view = resolveDataViewView(store.viewMode, store.canBoard);
   const columnHeaders = JSON.stringify(recordColumns.map((column) => [column.id, column.label]));
+  const untitledHeader = store.type && !store.type.primaryFieldId ? store.type.label : null;
   const columns = useMemo<ColumnDef<RecordRow>[]>(
     () =>
       (JSON.parse(columnHeaders) as [string, string][]).map(([id, header]) => ({
@@ -153,6 +155,20 @@ const RecordsPageViewContent = observer(function RecordsPageView({
         },
       })),
     [columnHeaders, openRelated, avatarFieldId, store],
+  );
+  const tableColumns = useMemo<ColumnDef<RecordRow>[]>(
+    () =>
+      untitledHeader
+        ? [
+            {
+              id: UNTITLED_COLUMN_ID,
+              header: untitledHeader,
+              cell: () => <span>{recordDisplayName(undefined, untitledHeader, t)}</span>,
+            },
+            ...columns,
+          ]
+        : columns,
+    [columns, untitledHeader, t],
   );
   const renderCard = useCallback(
     (record: RecordRow) => {
@@ -291,7 +307,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
     case "content":
       body = (
         <DataViewContent
-          columns={columns}
+          columns={tableColumns}
           renderCard={renderCard}
           rowActions={rowActions}
           rowHref={recordHref}

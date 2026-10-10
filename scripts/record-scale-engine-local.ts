@@ -95,6 +95,7 @@ try {
   const run = <T>(work: () => Promise<T>) => context.runWithTenant(user, work);
   const repo = new repository.PrismaRecordRepo();
   const { PermissionService } = await import("../core/base/permission.service");
+  const { WebhookPauseNotifier } = await import("../features/webhook/webhook-pause-notifier");
   const policy = new access.RecordAccessPolicy(new users.PrismaUserRepo(new PermissionService()), repo);
   const calculator = new calculations.RecordCalculationService(repo);
   const writer = new writes.RecordWriteService(repo, policy, calculator);
@@ -253,7 +254,7 @@ try {
       repo,
       policy,
       configurations,
-      new RecordConfigurationWriter(repo, calculator),
+      new RecordConfigurationWriter(repo, calculator, new WebhookPauseNotifier({ getWebhookByIdOrThrow: () => Promise.reject(new Error("No webhook expected")) }, { publish: () => Promise.resolve() })),
       {
         dispatch: () => {
           throw new Error("Creating empty benchmark types unexpectedly required staging");
@@ -435,7 +436,7 @@ try {
     for (; advances < 1000; advances += 1) {
       await assertValues("10");
       const step = await run(() =>
-        new RecordOperationService(repo, policy, configurations).advance(pending.operationId),
+        new RecordOperationService(repo, policy, configurations, new WebhookPauseNotifier({ getWebhookByIdOrThrow: () => Promise.reject(new Error("No webhook expected")) }, { publish: () => Promise.resolve() })).advance(pending.operationId),
       );
       if (step.done) break;
     }

@@ -79,7 +79,7 @@ export function deletionBlockerSentences(t: Translate, deletion: Deletion, model
 const EFFECT_SENTENCES = {
   countsRecords: "widgetCount",
   triggerChanged: "webhookTrigger",
-  subscriptionRemoved: "webhookRemoved",
+  webhookPaused: "webhookPaused",
   channels: "bindingChannels",
   avatar: "bindingAvatar",
   calendar: "bindingCalendar",
