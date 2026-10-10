@@ -11,7 +11,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordRefSchema } from "./record-model.schema";
 import { ConfigurationChangeSchema } from "./configuration.schema";
 import type { RecordConfigurationService } from "./configuration.service";
-import { RecordConfigurationWriter } from "./record-configuration-writer";
+import { purgeTrashOfDeletedLists, RecordConfigurationWriter } from "./record-configuration-writer";
 import { MutateRecordSchema } from "./record-query.schema";
 import { RecordWriteError, RecordWriteService } from "./record-write.service";
 import { RecordCalculationService, calculationSources, recordKey } from "./record-calculation.service";
@@ -23,6 +23,7 @@ import { RecordJournal } from "./record-journal";
 import { RecordEventPayloadSchema } from "./record-event.schema";
 import { DeletionCursorSchema, RecordDeletionStaging } from "./record-deletion-staging";
 import { RecordTrashService } from "./record-trash.service";
+import { configurationTrashBatchId } from "./configuration-trash-batch";
 import type { RecordModel } from "./record-model.schema";
 import type { WebhookPauseNotifier } from "@/features/webhook/webhook-pause-notifier";
 import { RestoreSummarySchema } from "./record-query.schema";
@@ -299,7 +300,10 @@ export class RecordOperationService extends UserAccessor {
 
           if (prepared) {
             await this.records.saveModel(prepared.model, this.userId, prepared.change);
-            if (prepared.deletion) await this.records.deleteDefinitions(prepared.deletion);
+            if (prepared.deletion) {
+              await purgeTrashOfDeletedLists(this.records, prepared, this.userId);
+              await this.records.deleteDefinitions(prepared.deletion);
+            }
             const { pausedWebhookIds } = await this.records.applyConsumerCleanups(prepared.cleanups);
             await this.webhooks.notify(pausedWebhookIds);
             for (const grant of prepared.grants) await this.records.setGrants(grant.typeId, grant.grants);
@@ -338,6 +342,14 @@ export class RecordOperationService extends UserAccessor {
               refs: [],
               schemaRevision: model.revision,
               ...(trashed && !permanent ? { trashBatchId: operationId } : {}),
+              ...(prepared?.change.deletions?.length
+                ? {
+                    trashBatchId: configurationTrashBatchId(
+                      this.companyId,
+                      z.object({ idempotencyKey: z.string() }).parse(operation.request).idempotencyKey,
+                    ),
+                  }
+                : {}),
             },
             leaseUntil: null,
           });

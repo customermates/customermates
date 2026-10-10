@@ -46,6 +46,9 @@ const { EmptyTrashInteractor } = await import("@/features/trash/empty-trash.inte
 const { createCrmPreset, presetId } = await import("../crm-preset");
 const { RecordConfigurationService } = await import("../configuration.service");
 const { RecordOperationService } = await import("../record-operation.service");
+const { RecordTrashService } = await import("../record-trash.service");
+const { RecordJournal } = await import("../record-journal");
+const { applyConfigurationLifecycle } = await import("../configuration-lifecycle");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -179,6 +182,7 @@ async function fixture() {
     );
   return {
     repo,
+    policy,
     handler,
     worker,
     seed,
@@ -527,6 +531,86 @@ describeDatabase("record trash", () => {
         prisma.recordSchemaState.findUniqueOrThrow({ where: { companyId: f.seed.company.id } }),
       ),
     ).toMatchObject({ activeOperationId: null });
+  }, 180_000);
+
+  it("keeps every blocker of a mixed batch across retry passes", async () => {
+    const f = await fixture();
+    const deal = await f.created({
+      action: "create",
+      typeId: f.id("deal"),
+      fields: [{ fieldId: f.id("deal.name"), value: text("Mixed") }],
+    });
+    const item = await f.created({
+      action: "create",
+      typeId: f.id("lineItem"),
+      fields: [],
+      links: [{ relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal }],
+    });
+    const organization = await f.created({
+      action: "create",
+      typeId: f.id("organization"),
+      fields: [{ fieldId: f.id("organization.name"), value: text("Archived list") }],
+    });
+    const batches = [await f.remove(item), await f.remove(deal), await f.remove(organization)];
+    const items = await runWithoutTenant(() =>
+      prisma.trashItem.findMany({
+        where: { companyId: f.seed.company.id, batchId: { in: batches.map((batch) => batch.trashBatchId as string) } },
+      }),
+    );
+    const byTarget = (ref: RecordRef) => items.find((entry) => entry.targetId === ref.recordId)?.id as string;
+    const result = await runWithTenant(f.admin, () =>
+      runInTransaction(async () => {
+        const model = await f.repo.getModel();
+        const archived = { ...structuredClone(model), revision: model.revision + 1 };
+        applyConfigurationLifecycle(
+          archived,
+          [{ operation: "delete", target: { kind: "type", id: f.id("organization") } }],
+          new Map(),
+        );
+        await f.repo.saveModel(archived, f.admin.id);
+        const stored = await f.repo.getRecordTrashItemsCompanyWide({
+          ids: [byTarget(item), byTarget(deal), byTarget(organization)],
+        });
+        const ordered = [item, deal, organization].map(
+          (ref) => stored.find((entry) => entry.targetId === ref.recordId) as (typeof stored)[number],
+        );
+        return new RecordTrashService(f.repo).restore(
+          ordered,
+          archived,
+          await f.policy.load(),
+          new RecordJournal(f.repo, archived),
+        );
+      }),
+    );
+    expect(result.restoredItemIds.sort()).toEqual([byTarget(item), byTarget(deal)].sort());
+    expect(result.blocked).toEqual([
+      { itemId: byTarget(organization), reason: "listDeleted", typeId: f.id("organization") },
+    ]);
+  }, 180_000);
+
+  it("reads a trashed record read only with its relationships from its trashed links", async () => {
+    const f = await fixture();
+    const { getGetTrashedRecordInteractor } = await import("@/core/di");
+    const deal = await f.created({
+      action: "create",
+      typeId: f.id("deal"),
+      fields: [{ fieldId: f.id("deal.name"), value: text("Read only") }],
+    });
+    const contact = await f.created({
+      action: "create",
+      typeId: f.id("contact"),
+      fields: [{ fieldId: f.id("contact.firstName"), value: text("Linked") }],
+      links: [{ relationId: f.id("deal.contacts"), direction: "incoming", record: deal }],
+    });
+    await f.remove(deal);
+    const trashed = await runWithTenant(f.admin, () => getGetTrashedRecordInteractor().invoke(deal));
+    if (!trashed.ok) throw new Error(JSON.stringify(trashed));
+    expect(trashed.data.permittedActions).toEqual([]);
+    expect(trashed.data.trash).toMatchObject({ canRestore: true, daysLeft: 30 });
+    const contacts = trashed.data.record?.relationships.find(
+      (summary) => summary.relationId === f.id("deal.contacts") && summary.direction === "outgoing",
+    );
+    expect(contacts?.records.map((record) => record.ref.recordId)).toEqual([contact.recordId]);
   }, 180_000);
 
   it("blocks restoring a line item while its deal is in Trash", async () => {

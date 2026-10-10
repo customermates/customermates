@@ -43,7 +43,6 @@ import { UpsertRecordActivityWidgetInteractor } from "@/features/widget/record-a
 import { RecordActivityWidgetReader } from "@/features/widget/record-activity-widget-reader";
 import { UpsertRecordWidgetInteractor } from "@/features/widget/record-widget.interactor";
 import { RecordWidgetReader } from "@/features/widget/record-widget-reader";
-import { GetWidgetGalleryInteractor } from "@/features/widget/get-widget-gallery.interactor";
 import { PreviewRecordWidgetInteractor } from "@/features/widget/preview-record-widget.interactor";
 import { wikiWebsiteNetwork } from "@/ee/wiki-crawl/wiki-website-network";
 /**
@@ -102,7 +101,6 @@ import { RecordConfigurationWriter } from "@/features/records/record-configurati
 import { WebhookPauseNotifier } from "@/features/webhook/webhook-pause-notifier";
 import { PreviewRecordConfigurationInteractor } from "@/features/records/preview-record-configuration.interactor";
 import { GetRecordModelInteractor } from "@/features/records/get-record-model.interactor";
-import { GetRecentlyDeletedInteractor } from "@/features/records/get-recently-deleted.interactor";
 import { DiscoverRecordTypesInteractor } from "@/features/records/discover-record-types.interactor";
 import { GetRecordChoicesInteractor } from "@/features/records/get-record-choices.interactor";
 import { GetRecordEditorInteractor } from "@/features/records/get-record-editor.interactor";
@@ -113,6 +111,8 @@ import { PreviewRecordDeletionInteractor } from "@/features/records/preview-reco
 import { PrismaMembershipTaskRepo } from "@/features/records/prisma-membership-task.repository";
 import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
 import { RecordTrashHandler } from "@/features/records/record-trash.handler";
+import { ConfigurationTrashHandler } from "@/features/records/configuration-trash.handler";
+import { PurgeExpiredTrashInteractor } from "@/features/trash/purge-expired-trash.interactor";
 import { PrismaTrashRepo } from "@/features/trash/prisma-trash.repository";
 import type { TrashKindHandler } from "@/features/trash/trash-kind-handler";
 import { QueryTrashInteractor } from "@/features/trash/query-trash.interactor";
@@ -483,8 +483,6 @@ export const getRecordWriteService = () =>
   new RecordWriteService(getRecordRepo(), getRecordAccessPolicy(), getRecordCalculationService());
 export const getRecordConfigurationService = () => new RecordConfigurationService(getRecordRepo());
 export const getGetRecordModelInteractor = () => new GetRecordModelInteractor(getRecordRepo(), getRecordAccessPolicy());
-export const getGetRecentlyDeletedInteractor = () =>
-  new GetRecentlyDeletedInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getQueryRecordsInteractor = () => new QueryRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getExportRecordsInteractor = () => new ExportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getImportRecordsInteractor = () =>
@@ -523,12 +521,20 @@ export const getApplyRecordConfigurationInteractor = () =>
   );
 export const getTrashRepo = (companyId?: string) => new PrismaTrashRepo(companyId);
 export const getTrashKindHandlers = (companyId?: string): TrashKindHandler[] => [
+  new ConfigurationTrashHandler(
+    new PrismaRecordRepo(companyId, getBackgroundTaskService()),
+    getRecordAccessPolicy(),
+    getPreviewRecordConfigurationInteractor(),
+    getApplyRecordConfigurationInteractor(),
+  ),
   new RecordTrashHandler(
     new PrismaRecordRepo(companyId, getBackgroundTaskService()),
     getRecordAccessPolicy(),
     getBackgroundTaskService(),
   ),
 ];
+export const getPurgeExpiredTrashInteractor = () =>
+  new PurgeExpiredTrashInteractor(getTrashRepo(), getBackgroundTaskService());
 export const getQueryTrashInteractor = () =>
   new QueryTrashInteractor(getTrashRepo(), getRecordRepo(), getTrashKindHandlers());
 export const getRestoreTrashInteractor = () => new RestoreTrashInteractor(getTrashRepo(), getTrashKindHandlers());
@@ -1603,8 +1609,6 @@ export const getRecordWidgetRepo = () => new PrismaRecordWidgetRepo();
 export const getRecordWidgetReader = () =>
   new RecordWidgetReader(getRecordRepo(), getQueryRecordMeasureInteractor(), getUserRepo());
 export const getPreviewRecordWidgetInteractor = () => new PreviewRecordWidgetInteractor(getRecordWidgetReader());
-export const getGetWidgetGalleryInteractor = () =>
-  new GetWidgetGalleryInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getUpsertRecordWidgetInteractor = () =>
   new UpsertRecordWidgetInteractor(
     getRecordWidgetRepo(),

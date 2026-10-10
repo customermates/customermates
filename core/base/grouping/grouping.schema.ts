@@ -10,16 +10,23 @@ export const DateBucketSchema = z.enum(DATE_BUCKETS);
 export type DateBucket = Data<typeof DateBucketSchema>;
 export const DEFAULT_DATE_BUCKET: DateBucket = "month";
 
+export const MAX_AXIS_GROUPS = 50;
+
 export const GroupingSchema = z.object({
   field: z.string().min(1).max(200),
   bucket: DateBucketSchema.optional(),
+  hidden: z
+    .array(z.string().min(1).max(256))
+    .max(MAX_AXIS_GROUPS)
+    .optional()
+    .describe("Group keys the board hides (value:<optionId> or __empty__); Display options lists them to show again."),
+  hideEmpty: z.boolean().optional().describe("The board hides columns without records."),
 });
 export type Grouping = Data<typeof GroupingSchema>;
 
 export const NO_VALUE_GROUP_KEY = "__empty__";
 export const GROUP_PAGE_SIZE_DEFAULT = 10;
 export const GROUP_PAGE_SIZE_MAX = 500;
-export const MAX_AXIS_GROUPS = 50;
 export const MAX_MATERIALISED_GROUPS = 25;
 
 export const GroupPageRequestSchema = z.object({

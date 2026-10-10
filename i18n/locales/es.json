@@ -761,7 +761,7 @@
       "cronExpression": "Programación",
       "currency": "Moneda",
       "debounceSeconds": "Retardo",
-      "delete": "Eliminado",
+      "delete": "Movido a la papelera",
       "deletePermanently": "Eliminado definitivamente",
       "disabledReason": "Motivo de desactivación",
       "effectiveAt": "Vigente desde",
@@ -1836,7 +1836,6 @@
       "kind": {
         "activityTimelineDescription": "Sigue en orden cronológico los cambios en registros, los mensajes y la actividad de cuentas y calendario.",
         "change": "Elegir otro widget",
-        "chartDescription": "Compara los datos del CRM en un gráfico.",
         "description": "Elige un formato y selecciona tú mismo los datos.",
         "scratchTitle": "Empezar desde cero",
         "title": "Elegir un widget"
@@ -1856,6 +1855,40 @@
       "sharing": {
         "template": "Compartir como plantilla"
       },
+      "starters": {
+        "areaChart": {
+          "description": "Muestra cómo evoluciona un valor con el tiempo.",
+          "title": "Área en el tiempo"
+        },
+        "doughnutChart": {
+          "description": "Muestra cómo se reparte un total en partes.",
+          "title": "Anillo"
+        },
+        "funnelChart": {
+          "description": "Sigue los registros por las etapas de un campo de opción.",
+          "title": "Embudo"
+        },
+        "horizontalBarChart": {
+          "description": "Compara grupos con nombres más largos.",
+          "title": "Barras horizontales"
+        },
+        "number": {
+          "description": "Un total, como un recuento o una suma.",
+          "title": "Número"
+        },
+        "radarChart": {
+          "description": "Compara grupos en una escala común.",
+          "title": "Radar"
+        },
+        "rankedTable": {
+          "description": "Enumera los grupos principales en orden.",
+          "title": "Tabla de clasificación"
+        },
+        "verticalBarChart": {
+          "description": "Compara un valor entre grupos.",
+          "title": "Gráfico de barras"
+        }
+      },
       "steps": {
         "chooseDescription": "Empieza con una recomendación, un formato en blanco o una configuración compartida en tu espacio de trabajo.",
         "configureDescription": "Elige qué muestra este widget y qué aspecto tiene."
@@ -1871,56 +1904,8 @@
         "title": "Empezar con una plantilla"
       }
     },
-    "widgetGallery": {
-      "creationDate": "fecha de creación",
-      "description": "Sugerencias creadas a partir de los tipos de registro y campos de tu espacio de trabajo. Puedes cambiarlo todo antes de guardar.",
-      "recipes": {
-        "countBySelect": {
-          "description": "Número de {type} por cada {group}.",
-          "name": "{type} por {group}"
-        },
-        "countPerMember": {
-          "description": "Número de {type} por cada {group}.",
-          "name": "{type} por {group}"
-        },
-        "openCountPerAssignee": {
-          "description": "{type} que no están en un {group} cerrado, contados por cada usuario asignado.",
-          "name": "{type} abiertos por responsable"
-        },
-        "openValueTotal": {
-          "description": "Total de {field} de {type} que no están en un {group} cerrado.",
-          "name": "{field} abierto"
-        },
-        "stageFunnel": {
-          "description": "{type} en cada {group}, en orden, con la conversión entre pasos.",
-          "name": "{type} por {group}"
-        },
-        "topRelatedByValue": {
-          "description": "{related} ordenados por el {field} de sus {type} vinculados, con la parte de cada uno en el total.",
-          "name": "Principales {related} por {field}"
-        },
-        "topRelatedByWonValue": {
-          "description": "{related} ordenados por el {field} de sus {type} ganados, con la parte de cada uno en el total.",
-          "name": "Principales {related} por {field} ganado"
-        },
-        "valueOverTime": {
-          "description": "{field} de {type} por mes, según {date}.",
-          "name": "{field} por mes"
-        },
-        "valueTotal": {
-          "description": "Suma de {field} en todos los {type}.",
-          "name": "{field} total"
-        },
-        "wonValueOverTime": {
-          "description": "{field} de {type} ganados por mes, según {date}.",
-          "name": "{field} ganado por mes"
-        }
-      },
-      "title": "Recomendado para tus datos"
-    },
     "widgetKinds": {
-      "activityTimeline": "Cronología de actividad",
-      "chart": "Gráfico"
+      "activityTimeline": "Cronología de actividad"
     }
   },
   "DataTransfer": {
@@ -1967,6 +1952,9 @@
     "expandColumn": "Expandir {name}",
     "expandGroup": "Expandir el grupo {group}",
     "groupOverflow": "Solo se muestran {count} grupos",
+    "hiddenColumns": "Columnas ocultas",
+    "hideColumn": "Ocultar columna",
+    "hideEmptyColumns": "Ocultar columnas vacías",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "moreActions": "Más acciones",
     "noValue": "Sin valor",
@@ -3265,13 +3253,9 @@
       "deleteColumn": "Eliminar columna",
       "deleteColumnMessage": "La columna de registros relacionados {name} se quita de {list}.",
       "deleteColumnTitle": "¿Eliminar la columna {name}?",
-      "deletedBy": "Eliminado",
       "deleteField": "Eliminar campo",
       "deleteList": "Eliminar lista",
-      "deleteMessage": "{name} pasa a Eliminados recientemente en Configurar. Puedes restaurarlo allí.",
-      "deletePermanently": "Eliminar definitivamente",
-      "deletePermanentlyMessage": "Esto elimina definitivamente {name} y todo lo que tiene guardado. No se puede deshacer.",
-      "deletePermanentlyTitle": "¿Eliminar {name} definitivamente?",
+      "deleteMessage": "{name} pasa a la Papelera. Puedes restaurarlo allí durante 30 días.",
       "deleteRelationship": "Eliminar relación",
       "deleteTitle": "¿Eliminar {name}?",
       "issues": {
@@ -3282,33 +3266,7 @@
         "savedView": "Vistas guardadas o diseños personales todavía usan {subject}.",
         "summaryApproval": "{subject} necesita una nueva aprobación del resumen."
       },
-      "kind": "Tipo",
-      "kinds": {
-        "channels": "Campo de canales",
-        "field": "Campo",
-        "relationship": "Relación",
-        "type": "Lista"
-      },
-      "list": "Lista",
-      "moved": "Movido a Eliminados recientemente",
-      "noAccess": "Solo quienes gestionan el modelo de datos pueden ver Eliminados recientemente.",
-      "openConfigure": "Abrir Configurar",
-      "recentlyDeleted": "Eliminados recientemente",
-      "recentlyDeletedEmpty": "No se ha eliminado nada",
-      "recentlyDeletedHelp": "Las listas, campos, relaciones y campos de canales eliminados se quedan aquí hasta que los restaures o los elimines definitivamente.",
-      "removed": {
-        "grants": "{count, plural, one {# permiso de rol} other {# permisos de rol}}",
-        "hidden": "Contiene registros que no puede ver.",
-        "identifiers": "{count, plural, one {# identificador} other {# identificadores}} en {records, plural, one {# registro} other {# registros}}",
-        "links": "{count, plural, one {# vínculo entre registros} other {# vínculos entre registros}}",
-        "nothingStored": "No se elimina ningún dato guardado.",
-        "records": "{count, plural, one {# registro} other {# registros}}",
-        "values": "{count, plural, one {# valor guardado} other {# valores guardados}}",
-        "views": "{count, plural, one {# vista guardada o diseño personal} other {# vistas guardadas o diseños personales}}"
-      },
-      "restore": "Restaurar",
-      "restoreMessage": "{name} todavía no se puede restaurar.",
-      "restoreTitle": "Restaurar {name}"
+      "moved": "Movido a la Papelera"
     },
     "configure": "Configurar",
     "configureList": "Configurar {list}",
@@ -3980,16 +3938,15 @@
   "SidebarCustomize": {
     "deleteSection": "Eliminar sección",
     "deleteSectionEmpty": "La sección está vacía, así que no se mueve ningún elemento.",
-    "deleteSectionMoves": "Sus elementos vuelven a su lugar predeterminado en tu barra lateral; los elementos ocultos siguen ocultos:",
+    "deleteSectionMoves": "Sus elementos pasan al nivel superior de tu barra lateral; los elementos ocultos siguen ocultos:",
     "deleteSectionTitle": "¿Eliminar la sección «{section}»?",
     "dragItem": "Mover {item}",
     "dragSection": "Mover la sección {section}",
     "emptySection": "Arrastra elementos aquí o usa Mover a la sección",
     "hide": "Ocultar de la barra lateral",
-    "hint": "Arrastra los asideros para reordenar elementos y secciones, o usa los menús …. Haz clic en el nombre de una sección personal para cambiarle el nombre.",
+    "hint": "Arrastra los controles para reordenar elementos y secciones, o usa los menús …. Los elementos pueden estar en el nivel superior o dentro de una sección. Haz clic en el nombre de una sección para cambiarle el nombre.",
     "itemActions": "Opciones de {item}",
     "moveDown": "Bajar",
-    "movesBackTo": "{item} vuelve a {section}",
     "moveToSection": "Mover a la sección",
     "moveUp": "Subir",
     "newSection": "Nueva sección",
@@ -4003,7 +3960,8 @@
     "sectionDeleted": "Sección eliminada",
     "sectionName": "Nombre de la sección",
     "show": "Mostrar {item}",
-    "title": "Personalizar barra lateral"
+    "title": "Personalizar barra lateral",
+    "topLevel": "Nivel superior"
   },
   "SignInForm": {
     "agreeToTerms": "Al continuar, aceptas nuestros <termsOfServiceLink>Términos</termsOfServiceLink> y reconoces haber leído nuestra <dataPrivacyLink>Política de privacidad</dataPrivacyLink>. Consulta nuestro <dpaLink>DPA</dpaLink>.",
