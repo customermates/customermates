@@ -280,11 +280,13 @@ test("opens an assistant proposal in the modified state and saves it as an updat
   ).rows[0].id;
   await propose(createdId, { isNew: false, name: "Mine" });
   await page.reload();
-  const renamed = page.locator("#global-data-views").getByRole("link", { name: "Assigned to me", exact: true });
+  const renamed = page.locator(`[data-focus-target="view:${createdId}"]`);
+  await expect(renamed).toHaveText(/Assigned to me/);
   await expect(renamed).toHaveAttribute("data-view-modified", "");
   await page.locator("#global-data-views-menu").click();
   await page.locator("#global-data-views-save").click();
-  await expect(page.locator("#global-data-views").getByRole("link", { name: "Mine", exact: true })).toBeVisible();
+  await expect(renamed).toHaveText(/^Mine$/);
+  await expect(renamed).not.toHaveAttribute("data-view-modified");
   await expect
     .poll(async () => (await database.query('SELECT name FROM "DataView" WHERE id=$1', [createdId])).rows[0]?.name)
     .toBe("Mine");
