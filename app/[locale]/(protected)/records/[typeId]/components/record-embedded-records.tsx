@@ -11,7 +11,7 @@ import { RecordEditorStore } from "./record-editor.store";
 import { RecordValue } from "./record-value";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { recordTitle } from "@/components/records/record-title";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { useRecordDeletion } from "./use-record-deletion";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
@@ -175,7 +175,7 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
               <TableBody>
                 {current.data.records.map((record) => {
                   const primary = record.fields.find((field) => field.fieldId === type.primaryFieldId)?.result;
-                  const name = recordTitle(primary, type.label, t);
+                  const name = recordDisplayName(primary, type.label, t);
                   return (
                     <TableRow key={record.ref.recordId}>
                       {visible.map((field) => (

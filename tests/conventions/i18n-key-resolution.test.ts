@@ -951,10 +951,6 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["app/components/app-sidebar.tsx :: t :: subroute.labelKey", 2],
   ["app/components/app-topbar-crumbs.ts :: t :: labelKey", 1],
   ["app/components/app-topbar-crumbs.ts :: t :: subroute.labelKey", 1],
-  [
-    'components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: record.title.state === "restricted" ? "RecordModel.restricted" : "Common.filters.unavailableValue"',
-    1,
-  ],
   ["components/data-view/group-label.ts :: t :: group.labelKey", 1],
   ["components/data-view/use-groupable-field-label.ts :: t :: field.labelKey", 1],
   [

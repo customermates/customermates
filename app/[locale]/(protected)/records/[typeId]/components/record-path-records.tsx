@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { AppChip } from "@/components/chip/app-chip";
 import { SelectionValueSkeleton } from "@/components/forms/selection-loading";
-import { recordTitle } from "@/components/records/record-title";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { recordLinkColor } from "@/features/records/record-presentation";
 import { cn } from "@/core/utils/cn";
 import {
@@ -73,7 +73,7 @@ export const RecordPathRecords = observer(function RecordPathRecords({
             )}
 
             {result.data?.records.map((record) => {
-              const title = recordTitle(record.title, store.presentation.linkLabels[record.ref.typeId], t);
+              const title = recordDisplayName(record.title, store.presentation.linkLabels[record.ref.typeId], t);
               return (
                 <AppChip
                   key={`${record.ref.typeId}:${record.ref.recordId}`}

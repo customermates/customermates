@@ -15,7 +15,7 @@ import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { MemberAvatar, memberName } from "@/components/chip/member-chip";
 import { DataViewItemLayout } from "@/components/data-view/data-view-item-layout";
 import { RecordChipIcon } from "@/components/records/record-chip-icon";
-import { recordTitle } from "@/components/records/record-title";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { RecordValueTypeIcon } from "@/components/records/record-value-type-icon";
 import {
   DropdownMenu,
@@ -121,7 +121,7 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
     const first = summary.records[0];
     const typeId = first.ref.typeId;
     const list = model.types.find((type) => type.id === typeId);
-    const title = recordTitle(first.title, list?.label, t);
+    const title = recordDisplayName(first.title, list?.label, t);
     const count = Math.max(summary.readableCount, summary.records.length);
     return (
       <AppChip

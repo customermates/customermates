@@ -39,7 +39,7 @@ import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { toChipColor } from "@/constants/chip-colors";
 import { isInteractiveClick } from "@/components/data-view/is-interactive-click";
 import { useDataViewItemLayout } from "@/components/data-view/data-view-item-layout";
-import { recordTitle } from "@/components/records/record-title";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { cn } from "@/core/utils/cn";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -634,7 +634,7 @@ export const RecordLinkPicker = observer(function RecordLinkPicker({
                     onSelect={() => onToggle(choice, isLinked)}
                   >
                     <span className="flex-1 truncate">
-                      {recordTitle(choice.title, linkLabels[choice.ref.typeId], t)}
+                      {recordDisplayName(choice.title, linkLabels[choice.ref.typeId], t)}
                     </span>
 
                     {isLinked && <Check aria-hidden className="size-4" />}
@@ -653,7 +653,7 @@ export const RecordLinkPicker = observer(function RecordLinkPicker({
                   >
                     <span className="flex-1 truncate">
                       {t("RecordModel.openRecord", {
-                        name: recordTitle(choice.title, linkLabels[choice.ref.typeId], t),
+                        name: recordDisplayName(choice.title, linkLabels[choice.ref.typeId], t),
                       })}
                     </span>
                   </CommandItem>

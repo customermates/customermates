@@ -12,7 +12,8 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
-import { recordSearchKey, recordSearchLabel } from "@/features/records/record-search.schema";
+import { recordSearchKey } from "@/features/records/record-search.schema";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { Kbd, ShortcutKeys } from "@/components/keyboard/shortcut-keys";
 import { usePathname, useRouter } from "@/i18n/navigation";
@@ -129,7 +130,7 @@ export const GlobalSearchModal = observer(() => {
     editor?.record && !editor.isReadOnly && !editor.isBusy && !editor.hasUnsavedChanges
       ? {
           typeId: editor.presentation.typeId,
-          title: editor.titleText,
+          title: recordDisplayName(editor.titleResult, editor.type?.label, t),
           fields: editor.fields,
           relationships: editor.presentation.model.relationships,
           typeLabels: new Map((navigation?.types ?? []).map((type) => [type.id, type.label])),
@@ -190,7 +191,7 @@ export const GlobalSearchModal = observer(() => {
             deletion.requestDeletion(
               record,
               editor.presentation.model.revision,
-              editor.titleText ?? t("RecordModel.record"),
+              recordDisplayName(editor.titleResult, editor.type?.label, t),
             ),
           );
         }
@@ -239,7 +240,7 @@ export const GlobalSearchModal = observer(() => {
   });
   const hitRow = (hit: RecordSearchHit, recent: boolean): PaletteRowData => ({
     key: recordSearchKey(hit),
-    label: recordSearchLabel(hit, t),
+    label: recordDisplayName(hit.title, hit.typeLabel, t),
     hit,
     onSelect: () => (recent ? openRecentItem(hit) : openItem(hit)),
   });
@@ -259,7 +260,10 @@ export const GlobalSearchModal = observer(() => {
           margin: SEMANTIC_BEST_MATCH_MARGIN,
         })
       : null);
-  const bestHit = !bestEntry && hits[0] && exactTitleMatch(term, recordSearchLabel(hits[0], t)) ? hits[0] : undefined;
+  const bestHit =
+    !bestEntry && hits[0] && exactTitleMatch(term, recordDisplayName(hits[0].title, hits[0].typeLabel, t))
+      ? hits[0]
+      : undefined;
   const bestKey = bestEntry?.key ?? (bestHit ? recordSearchKey(bestHit) : undefined);
   useEffect(() => {
     globalSearchModalStore.setInstantMatcher((raw) => {
@@ -389,7 +393,9 @@ export const GlobalSearchModal = observer(() => {
           <ChevronLeft aria-hidden className="size-3.5" />
 
           <span className="min-w-0 truncate">
-            {editor?.titleText ? `${editor.titleText} · ${level.label}` : level.label}
+            {editor?.record
+              ? `${recordDisplayName(editor.titleResult, editor.type?.label, t)} · ${level.label}`
+              : level.label}
           </span>
         </div>
       )}
