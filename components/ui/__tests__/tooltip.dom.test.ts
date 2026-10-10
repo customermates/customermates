@@ -45,4 +45,29 @@ describe("TooltipContent", () => {
       expect(element.classList.contains("pointer-events-auto")).toBe(false);
     act(() => root.unmount());
   });
+
+  it("closes without an exit animation and keeps no motion under reduced motion", () => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    const root = createRoot(host);
+    act(() => {
+      root.render(
+        createElement(
+          TooltipProvider,
+          null,
+          createElement(
+            Tooltip,
+            { open: true },
+            createElement(TooltipTrigger, null, "Edit field"),
+            createElement(TooltipContent, null, "Edit field"),
+          ),
+        ),
+      );
+    });
+
+    const classes = document.querySelector('[data-slot="tooltip-content"]')?.className ?? "";
+    expect(classes).not.toMatch(/animate-out|fade-out|zoom-out/);
+    expect(classes).toContain("motion-reduce:animate-none");
+    act(() => root.unmount());
+  });
 });

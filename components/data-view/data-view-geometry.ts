@@ -1,4 +1,5 @@
-export const DATA_KANBAN_ROOT_CLASS_NAME = "flex min-h-0 snap-x snap-mandatory flex-col overflow-auto sm:snap-none";
+export const DATA_KANBAN_ROOT_CLASS_NAME =
+  "flex min-h-0 snap-x snap-mandatory flex-col overflow-auto data-dragging:snap-none sm:snap-none";
 export const DATA_KANBAN_TRACK_CLASS_NAME = "flex min-w-max flex-1 items-stretch gap-4 px-4";
 export const DATA_KANBAN_COLUMN_CLASS_NAME =
   "relative flex w-[85vw] shrink-0 snap-start scroll-ms-4 flex-col rounded-lg p-0 sm:w-72";

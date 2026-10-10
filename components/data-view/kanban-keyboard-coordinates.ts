@@ -1,4 +1,13 @@
-import type { KeyboardCoordinateGetter, Over } from "@dnd-kit/core";
+import { rectIntersection, type CollisionDetection, type KeyboardCoordinateGetter, type Over } from "@dnd-kit/core";
+
+export const kanbanCollisionDetection: CollisionDetection = (args) => {
+  const center = args.collisionRect.left + args.collisionRect.width / 2;
+  const underCenter = args.droppableContainers.filter((container) => {
+    const rect = args.droppableRects.get(container.id);
+    return rect !== undefined && rect.left <= center && center <= rect.right;
+  });
+  return rectIntersection(underCenter.length > 0 ? { ...args, droppableContainers: underCenter } : args);
+};
 
 export const kanbanKeyboardCoordinates: KeyboardCoordinateGetter = (event, { currentCoordinates, context }) => {
   if (event.code !== "ArrowLeft" && event.code !== "ArrowRight") return;
