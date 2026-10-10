@@ -49,7 +49,7 @@ test("rejects malformed and invalid typed imports without partial records and ac
   await dialog.getByRole("textbox", { name: "Price", exact: false }).fill("12.125");
   await dialog.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialog).not.toBeVisible();
-  await page.locator("#records-transfer").click();
+  await page.locator("#records-more").click();
   const pendingDownload = page.waitForEvent("download");
   await page.getByRole("menuitem", { name: englishMessages.DataTransfer.export.action, exact: true }).click();
   const exportPath = await (await pendingDownload).path();
@@ -90,9 +90,9 @@ test("rejects malformed and invalid typed imports without partial records and ac
   expect(RecordExportSchema.safeParse(invalid).success).toBe(true);
   const baseline = await importState(database, companyId, typeId, ids);
   expect(baseline).toMatchObject({ records: 0, values: 0, events: 0 });
-  await expect(page.locator('[data-slot="dropdown-menu-content"][aria-labelledby="records-transfer"]')).toHaveCount(0);
-  await page.locator("#records-transfer").click();
-  await expect(page.locator("#records-transfer")).toHaveAttribute("aria-expanded", "true");
+  await expect(page.locator('[data-slot="dropdown-menu-content"][aria-labelledby="records-more"]')).toHaveCount(0);
+  await page.locator("#records-more").click();
+  await expect(page.locator("#records-more")).toHaveAttribute("aria-expanded", "true");
   await page.getByRole("menuitem", { name: englishMessages.DataTransfer.import.action, exact: true }).click();
   const fileInput = dialog.locator('input[type="file"]');
   const submit = dialog.getByRole("button", { name: englishMessages.DataTransfer.recordImport.submit, exact: true });

@@ -1,6 +1,6 @@
 "use client";
 
-import type { FilterTarget, FilterTargetGroup } from "./filter-target";
+import type { FilterPaletteSearch, FilterTarget, FilterTargetGroup } from "./filter-target";
 import type { Filter } from "@/core/base/base-get.schema";
 import type { FilterOperatorKey } from "@/core/base/base-query-builder";
 
@@ -23,6 +23,8 @@ const PALETTE_GROUP_CLASS =
 
 type Props = {
   store: FilterTarget;
+  search?: FilterPaletteSearch;
+  query: string;
   filters: Filter[];
   isAtLimit: boolean;
   disabled?: boolean;
@@ -30,10 +32,13 @@ type Props = {
   onRemoveFilter: (index: number) => void;
   onPickField: (field: string) => void;
   onPickFilter: (index: number) => void;
+  onApplySearch: (term: string) => void;
 };
 
 export const PaletteRootList = observer(function PaletteRootList({
   store,
+  search,
+  query,
   filters,
   isAtLimit,
   disabled,
@@ -41,6 +46,7 @@ export const PaletteRootList = observer(function PaletteRootList({
   onRemoveFilter,
   onPickField,
   onPickFilter,
+  onApplySearch,
 }: Props) {
   const t = useTranslations();
   const fieldLabel = useFilterFieldLabel();
@@ -49,13 +55,44 @@ export const PaletteRootList = observer(function PaletteRootList({
   const appliedPerField = new Map<string, number>();
   for (const filter of filters) appliedPerField.set(filter.field, (appliedPerField.get(filter.field) ?? 0) + 1);
 
+  const searchText = query.trim();
+  const activeSearch = search?.term ? search.term : undefined;
+
   return (
     <>
-      {filters.length > 0 && (
+      {(filters.length > 0 || activeSearch) && (
         <div className="shrink-0" data-palette-active-filters="">
           <div className={ZONE_LABEL_CLASS}>{t("Common.filters.palette.activeGroup")}</div>
 
           <div className="flex flex-wrap gap-1.5 px-2 pb-2">
+            {search && activeSearch && (
+              <ClickableChip
+                className="max-w-full text-primary-soft-foreground"
+                data-palette-active-search=""
+                endContent={
+                  <button
+                    aria-label={t("Common.filters.palette.removeFilter")}
+                    className="ml-0.5 opacity-50 transition-[opacity,transform] hover:opacity-100 active:scale-[0.97] motion-reduce:transition-none"
+                    disabled={disabled}
+                    tabIndex={-1}
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      search.apply(undefined);
+                    }}
+                  >
+                    <XIcon className="size-3" />
+                  </button>
+                }
+                variant="default"
+                onClick={() => search.apply(undefined)}
+              >
+                <span className="truncate text-[11px]">
+                  {t("Common.filters.palette.searchContains", { field: search.label, text: activeSearch })}
+                </span>
+              </ClickableChip>
+            )}
+
             {filters.map((filter, index) => {
               const label = fieldLabel(filter.field, store.filterColumns);
               const operator = operatorLabel(filter.operator as FilterOperatorKey);
@@ -140,7 +177,24 @@ export const PaletteRootList = observer(function PaletteRootList({
       ))}
 
       <CommandList className="max-h-none! overflow-visible">
-        <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>
+        {!(search && searchText) && <CommandEmpty>{t("Common.inputs.emptyContent")}</CommandEmpty>}
+
+        {search && searchText && (
+          <CommandGroup forceMount>
+            <CommandItem
+              forceMount
+              className="data-[selected=true]:bg-selected"
+              data-palette-search=""
+              disabled={disabled}
+              value="palette-search"
+              onSelect={() => onApplySearch(searchText)}
+            >
+              <span className="truncate">
+                {t("Common.filters.palette.searchContains", { field: search.label, text: searchText })}
+              </span>
+            </CommandItem>
+          </CommandGroup>
+        )}
 
         <CommandGroup className={PALETTE_GROUP_CLASS} heading={t("Common.filters.palette.fieldsGroup")}>
           {store.filterableFields.map((field, index) => {
