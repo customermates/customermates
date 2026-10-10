@@ -835,6 +835,7 @@
     "groups": {
       "actions": "Aktionen",
       "bestMatch": "Bester Treffer",
+      "docs": "Dokumentation",
       "listsAndViews": "Listen und Ansichten",
       "pagesAndSettings": "Seiten und Einstellungen",
       "records": "Datensätze",
