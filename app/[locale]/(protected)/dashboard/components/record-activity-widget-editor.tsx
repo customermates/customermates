@@ -9,7 +9,7 @@ import type { WidgetModalStore } from "./widget-modal.store";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
-import { recordSearchLabel } from "@/features/records/record-search.schema";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { getRecordChoicesAction, getRecordModelAction } from "../../records/actions";
 import { resolveSearchReferencesAction } from "../../search/actions";
 import { discoverWidgetRecordTypesAction } from "../actions";
@@ -56,7 +56,10 @@ function RecordSelection({
         .then((result) => {
           if (active && result.ok) {
             setChoices(
-              result.data.results.map((record) => ({ id: record.ref.recordId, label: recordSearchLabel(record, t) })),
+              result.data.results.map((record) => ({
+                id: record.ref.recordId,
+                label: recordDisplayName(record.title, record.typeLabel, t),
+              })),
             );
           }
         })
@@ -73,10 +76,7 @@ function RecordSelection({
       return {
         items: result.data.records.map((record) => ({
           id: record.ref.recordId,
-          label:
-            record.title.state === "value" && record.title.value.kind === "text"
-              ? record.title.value.value
-              : t("Common.inputs.unavailableSelection"),
+          label: recordDisplayName(record.title, result.data.typeLabel, t),
         })),
         total: result.data.total,
       };

@@ -87,6 +87,7 @@ const WebhooksPageViewContent = observer(function WebhooksPageView({ initialWebh
         headers: formatWebhookHeaderLines(item.headers),
         bodyTemplate: item.bodyTemplate ?? undefined,
         enabled: item.enabled,
+        pausedReason: item.pausedReason ?? null,
       }),
     [webhookModalStore],
   );

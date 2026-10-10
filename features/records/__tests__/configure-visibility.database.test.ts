@@ -27,6 +27,7 @@ vi.mock("next-intl/server", () => ({
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
+const { WebhookPauseNotifier } = await import("@/features/webhook/webhook-pause-notifier");
 const { PermissionService } = await import("@/core/base/permission.service");
 const { PrismaRecordRepo } = await import("../prisma-record.repository");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
@@ -62,7 +63,14 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
     repo,
     policy,
     configurations,
-    new RecordConfigurationWriter(repo, calculations),
+    new RecordConfigurationWriter(
+      repo,
+      calculations,
+      new WebhookPauseNotifier(
+        { getWebhookByIdOrThrow: () => Promise.reject(new Error("No webhook expected")) },
+        { publish: () => Promise.resolve() },
+      ),
+    ),
     background,
   );
   const mutate = new MutateRecordInteractor(
