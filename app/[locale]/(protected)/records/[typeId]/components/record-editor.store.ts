@@ -1,3 +1,4 @@
+import type { TrashedRecordInfo } from "@/features/trash/trash.schema";
 import { action, makeObservable, observable, runInAction, toJS } from "mobx";
 import { cloneDeep, omit } from "lodash";
 
@@ -45,6 +46,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
     title: CalculatedValue;
   } | null = null;
   pendingOperationId: string | null = null;
+  trash: TrashedRecordInfo | null = null;
   refreshRequired = false;
   staleChange = false;
   conflicts: string[] = [];
@@ -82,6 +84,8 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
       record: observable.ref,
       presentation: observable.ref,
       pendingOperationId: observable,
+      trash: observable.ref,
+      setTrash: action,
       refreshRequired: observable,
       staleChange: observable,
       conflicts: observable.ref,
@@ -97,6 +101,9 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
       resolveConflicts: action,
     });
   }
+  setTrash = (trash: TrashedRecordInfo | null) => {
+    this.trash = trash;
+  };
   get sessionKey() {
     return this.sessionGeneration;
   }

@@ -5,7 +5,8 @@ import { action, makeObservable } from "mobx";
 import { z } from "zod";
 
 import { BaseFormStore } from "@/core/base/base-form.store";
-import { attributeKeyTaken, PROBABILITY_ATTRIBUTE } from "./field-option-columns";
+import { PROBABILITY_ATTRIBUTE } from "@/features/records/calculation-sentence";
+import { attributeKeyTaken } from "./field-option-columns";
 
 function isProbability(key: string) {
   return key.trim().toLowerCase() === PROBABILITY_ATTRIBUTE;

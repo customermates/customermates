@@ -1,6 +1,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
+import { EmptyValue } from "@/components/shared/empty-value";
 import type { RoutineDto } from "@/ee/routines/routine.schema";
 
 import { useMemo } from "react";
@@ -91,7 +92,7 @@ export function useRoutineColumns(): ColumnDef<RoutineDto>[] {
         header: t("Common.table.columns.nextRunAt"),
         cell: ({ row }) => (
           <span className="text-sm">
-            {row.original.nextRunAt ? intlStore.formatNumericalShortDateTime(row.original.nextRunAt) : "—"}
+            {row.original.nextRunAt ? intlStore.formatNumericalShortDateTime(row.original.nextRunAt) : <EmptyValue />}
           </span>
         ),
       },
