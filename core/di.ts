@@ -525,6 +525,7 @@ export const getTrashKindHandlers = (companyId?: string): TrashKindHandler[] => 
     getRecordAccessPolicy(),
     getPreviewRecordConfigurationInteractor(),
     getApplyRecordConfigurationInteractor(),
+    getTrashRepo(companyId),
   ),
   new RecordTrashHandler(
     new PrismaRecordRepo(companyId, getBackgroundTaskService()),

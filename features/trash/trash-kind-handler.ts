@@ -20,5 +20,6 @@ export interface TrashKindHandler {
   restore(items: TrashItem[]): Promise<TrashKindRestore>;
   restoreInBackground?(items: TrashItem[]): Promise<string>;
   impact(items: TrashItem[]): Promise<TrashKindImpact>;
-  purge(items: TrashItem[], actorId: string | null): Promise<void>;
+  /** Returns the items that went to a background operation; every other item is gone when it resolves. */
+  purge(items: TrashItem[], actorId: string | null): Promise<void | { pendingItemIds: string[] }>;
 }

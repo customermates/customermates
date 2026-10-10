@@ -1,3 +1,5 @@
+import * as Sentry from "@sentry/nextjs";
+
 import type { Validated } from "@/core/validation/validation.utils";
 import type { TrashItem, TrashRepo } from "./trash.repo";
 import type { TrashKindHandler } from "./trash-kind-handler";
@@ -6,7 +8,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
-import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { runInSavepoint, runInTransaction } from "@/core/decorators/transaction-runner";
 import { failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import {
@@ -16,8 +18,26 @@ import {
 } from "./trash.schema";
 import { itemsByHandler, trashDeletionPreview, trashVisibility } from "./trash-handlers";
 
-export async function purgeTrashItems(handlers: TrashKindHandler[], items: TrashItem[], actorId: string | null) {
-  for (const group of itemsByHandler(handlers, items).reverse()) await group.handler.purge(group.items, actorId);
+export type TrashPurgeOutcome = Pick<TrashDeletionResult, "deletedItemIds" | "pendingItemIds" | "failedItemIds">;
+
+/** Purges item by item, each in its own savepoint: a failing item is skipped and reported, never rolling back the rest. */
+export async function purgeTrashItems(
+  handlers: TrashKindHandler[],
+  items: TrashItem[],
+  actorId: string | null,
+): Promise<TrashPurgeOutcome> {
+  const outcome: TrashPurgeOutcome = { deletedItemIds: [], pendingItemIds: [], failedItemIds: [] };
+  for (const group of itemsByHandler(handlers, items).reverse()) {
+    for (const item of group.items) {
+      const purged = await runInSavepoint(() => group.handler.purge([item], actorId));
+      if (!purged.ok) {
+        outcome.failedItemIds.push(item.id);
+        Sentry.captureException(purged.error, { tags: { kind: "trash-purge" }, extra: { itemKind: item.kind } });
+      } else if (purged.value?.pendingItemIds.includes(item.id)) outcome.pendingItemIds.push(item.id);
+      else outcome.deletedItemIds.push(item.id);
+    }
+  }
+  return outcome;
 }
 
 @AllowInDemoMode
@@ -41,8 +61,7 @@ export class DeleteTrashPermanentlyInteractor extends AuthenticatedInteractor<
         if (items.length !== new Set(input.itemIds).size) return failNotFound(CustomErrorCode.trashItemNotFound);
         if ((await trashDeletionPreview(this.handlers, items)).impactHash !== input.expectedImpactHash)
           return failConflict(CustomErrorCode.trashChanged);
-        await purgeTrashItems(this.handlers, items, this.userId);
-        return { ok: true as const, data: { deletedItemIds: items.map((item) => item.id) } };
+        return { ok: true as const, data: await purgeTrashItems(this.handlers, items, this.userId) };
       },
       { timeout: 60000 },
     );

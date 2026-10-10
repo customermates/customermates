@@ -4,6 +4,7 @@ import { getTransactionClient, transactionStorage } from "./transaction-context"
 import { tenantStorage } from "./tenant-context";
 
 import { prisma, type AppPrismaClient } from "@/prisma/db";
+import { Prisma } from "@/generated/prisma";
 import { isInteractorFailure, type InteractorOutcome } from "@/core/validation/validation.utils";
 
 class InteractorFailureRollback extends Error {
@@ -80,4 +81,33 @@ export async function runInTransaction<T>(
   }
 
   return result;
+}
+
+let savepointSequence = 0;
+
+/**
+ * Runs fn inside a savepoint of the current transaction. A thrown error rolls back only fn's writes (and the
+ * after-commit work and event wakeups it queued) and is returned instead of rethrown, so one failing step of a batch
+ * never rolls back the rest.
+ */
+export async function runInSavepoint<T>(
+  fn: () => Promise<T>,
+): Promise<{ ok: true; value: T } | { ok: false; error: unknown }> {
+  const store = transactionStorage.getStore();
+  if (!store) throw new Error("runInSavepoint needs an open transaction");
+  const name = Prisma.raw(`savepoint_${++savepointSequence}`);
+  const afterCommit = store.afterCommit.length;
+  const eventWakeups = new Set(store.eventWakeups);
+  await store.client.$executeRaw`SAVEPOINT ${name}`;
+  try {
+    const value = await fn();
+    await store.client.$executeRaw`RELEASE SAVEPOINT ${name}`;
+    return { ok: true, value };
+  } catch (error) {
+    await store.client.$executeRaw`ROLLBACK TO SAVEPOINT ${name}`;
+    store.afterCommit.length = afterCommit;
+    store.eventWakeups.clear();
+    for (const wakeup of eventWakeups) store.eventWakeups.add(wakeup);
+    return { ok: false, error };
+  }
 }

@@ -4085,6 +4085,8 @@
     "deletePermanently": "Elimina definitivamente",
     "deletePermanentlyManyTitle": "Eliminare {count, plural, one {# elemento} other {# elementi}} definitivamente?",
     "deletePermanentlyTitle": "Eliminare {name} definitivamente?",
+    "deletionPartlyFailed": "Non è stato possibile eliminare alcuni elementi, che restano nel Cestino. Tutto il resto è stato eliminato definitivamente.",
+    "deletionPending": "Alcuni elementi sono ancora in fase di eliminazione in background. Restano nel Cestino finché non termina.",
     "empty": "Svuota cestino",
     "emptyBody": "Gli elementi eliminati restano qui per 30 giorni, poi vengono eliminati definitivamente.",
     "emptyConfirmation": "svuota cestino",

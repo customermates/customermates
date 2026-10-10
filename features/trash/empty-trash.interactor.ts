@@ -34,8 +34,7 @@ export class EmptyTrashInteractor extends AuthenticatedInteractor<EmptyTrashData
         const items = await this.trash.find({ all: true }, await trashVisibility(this.handlers));
         if ((await trashDeletionPreview(this.handlers, items)).impactHash !== input.expectedImpactHash)
           return failConflict(CustomErrorCode.trashChanged);
-        await purgeTrashItems(this.handlers, items, this.userId);
-        return { ok: true as const, data: { deletedItemIds: items.map((item) => item.id) } };
+        return { ok: true as const, data: await purgeTrashItems(this.handlers, items, this.userId) };
       },
       { timeout: 60000 },
     );

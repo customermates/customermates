@@ -37,6 +37,9 @@ export interface TrashRepo {
   remove(ids: string[]): Promise<void>;
   list(query: TrashListQuery): Promise<{ items: TrashItem[]; total: number }>;
   find(selection: TrashSelection, visibility: Prisma.Sql): Promise<TrashItem[]>;
-  findExpired(now: Date, take: number): Promise<TrashItem[]>;
+  findExpired(now: Date, take: number, after?: TrashExpiryCursor): Promise<TrashItem[]>;
   deletedBy(userIds: string[]): Promise<Map<string, TrashDeletedBy>>;
 }
+
+/** Position after the last expired item a retention batch handled; items that failed stay behind it. */
+export type TrashExpiryCursor = { expiresAt: string; id: string };

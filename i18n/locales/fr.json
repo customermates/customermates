@@ -4085,6 +4085,8 @@
     "deletePermanently": "Supprimer définitivement",
     "deletePermanentlyManyTitle": "Supprimer {count, plural, one {# élément} other {# éléments}} définitivement ?",
     "deletePermanentlyTitle": "Supprimer {name} définitivement ?",
+    "deletionPartlyFailed": "Certains éléments n’ont pas pu être supprimés et restent dans la Corbeille. Tout le reste a été supprimé définitivement.",
+    "deletionPending": "Certains éléments sont encore en cours de suppression en arrière-plan. Ils restent dans la Corbeille jusqu’à la fin.",
     "empty": "Vider la corbeille",
     "emptyBody": "Les éléments supprimés restent ici 30 jours, puis sont supprimés définitivement.",
     "emptyConfirmation": "vider la corbeille",

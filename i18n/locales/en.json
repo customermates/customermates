@@ -4085,6 +4085,8 @@
     "deletePermanently": "Delete permanently",
     "deletePermanentlyManyTitle": "Delete {count, plural, one {# item} other {# items}} permanently?",
     "deletePermanentlyTitle": "Delete {name} permanently?",
+    "deletionPartlyFailed": "Some items could not be deleted and stay in Trash. Everything else was deleted permanently.",
+    "deletionPending": "Some items are still being deleted in the background. They stay in Trash until that finishes.",
     "empty": "Empty trash",
     "emptyBody": "Deleted items stay here for 30 days, then they are deleted permanently.",
     "emptyConfirmation": "empty trash",

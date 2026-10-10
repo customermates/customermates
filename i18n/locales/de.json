@@ -4085,6 +4085,8 @@
     "deletePermanently": "Endgültig löschen",
     "deletePermanentlyManyTitle": "{count, plural, one {# Element} other {# Elemente}} endgültig löschen?",
     "deletePermanentlyTitle": "{name} endgültig löschen?",
+    "deletionPartlyFailed": "Einige Elemente konnten nicht gelöscht werden und bleiben im Papierkorb. Alles andere wurde endgültig gelöscht.",
+    "deletionPending": "Einige Elemente werden noch im Hintergrund gelöscht. Sie bleiben im Papierkorb, bis das abgeschlossen ist.",
     "empty": "Papierkorb leeren",
     "emptyBody": "Gelöschte Elemente bleiben 30 Tage hier und werden danach endgültig gelöscht.",
     "emptyConfirmation": "papierkorb leeren",

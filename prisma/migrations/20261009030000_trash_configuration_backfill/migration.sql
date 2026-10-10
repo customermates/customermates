@@ -11,8 +11,6 @@ WITH latest AS (
 ), capabilities AS (
   SELECT latest."companyId", item FROM latest
   CROSS JOIN LATERAL jsonb_array_elements(COALESCE(latest.snapshot->'capabilities', '[]'::jsonb)) item
-), archived_types AS (
-  SELECT "companyId", item->>'id' AS id FROM types WHERE (item->>'archived')::boolean
 ), deleted_now AS (
   SELECT "companyId", 'type' AS kind, item->>'id' AS id FROM types WHERE (item->>'archived')::boolean
   UNION ALL SELECT "companyId", 'field', item->>'id' FROM fields WHERE (item->>'archived')::boolean
@@ -47,8 +45,7 @@ WITH latest AS (
   FROM types WHERE (item->>'archived')::boolean
   UNION ALL
   SELECT fields."companyId", 'field', fields.item->>'id', fields.item->>'typeId', fields.item->>'label' FROM fields
-  WHERE (fields.item->>'archived')::boolean AND NOT EXISTS (
-    SELECT 1 FROM archived_types WHERE archived_types."companyId" = fields."companyId" AND archived_types.id = fields.item->>'typeId')
+  WHERE (fields.item->>'archived')::boolean
   UNION ALL
   SELECT relationships."companyId", 'relationship', relationships.item->>'id', relationships.item->>'sourceTypeId',
     COALESCE(source.item->>'pluralLabel', '') || ' → ' || COALESCE(target.item->>'pluralLabel', '')
@@ -58,8 +55,7 @@ WITH latest AS (
   WHERE (relationships.item->>'archived')::boolean
   UNION ALL
   SELECT capabilities."companyId", 'channels', capabilities.item->>'id', capabilities.item->>'typeId', 'Channels' FROM capabilities
-  WHERE capabilities.item->>'kind' = 'channels' AND (capabilities.item->>'enabled')::boolean IS FALSE AND NOT EXISTS (
-    SELECT 1 FROM archived_types WHERE archived_types."companyId" = capabilities."companyId" AND archived_types.id = capabilities.item->>'typeId')
+  WHERE capabilities.item->>'kind' = 'channels' AND (capabilities.item->>'enabled')::boolean IS FALSE
 )
 INSERT INTO "TrashItem" ("companyId", id, kind, "targetId", "typeId", label, "deletedById", "deletedAt", "expiresAt", "batchId")
 SELECT candidates."companyId", gen_random_uuid()::text,

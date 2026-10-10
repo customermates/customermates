@@ -1,4 +1,4 @@
-import type { TrashRepo } from "./trash.repo";
+import type { TrashExpiryCursor, TrashRepo } from "./trash.repo";
 import type { TrashKindHandler } from "./trash-kind-handler";
 
 import { runInTransaction } from "@/core/decorators/transaction-runner";
@@ -6,16 +6,35 @@ import { purgeTrashItems } from "./delete-trash-permanently.interactor";
 
 export const TRASH_PURGE_BATCH_SIZE = 100;
 
+export type CompanyTrashPurgeBatch = {
+  /** Where the next batch starts; null when this company has no more expired items. */
+  next: TrashExpiryCursor | null;
+  deleted: number;
+  pending: number;
+  failed: number;
+};
+
+/** One batch of the retention job. Every item runs in its own savepoint, so a failing item is skipped, never retried. */
 export function purgeExpiredCompanyTrash(
   trash: TrashRepo,
   handlers: TrashKindHandler[],
   now: Date,
-): Promise<{ hasMore: boolean }> {
+  after?: TrashExpiryCursor,
+): Promise<CompanyTrashPurgeBatch> {
   return runInTransaction(
     async () => {
-      const items = await trash.findExpired(now, TRASH_PURGE_BATCH_SIZE);
-      await purgeTrashItems(handlers, items, null);
-      return { hasMore: items.length === TRASH_PURGE_BATCH_SIZE };
+      const items = await trash.findExpired(now, TRASH_PURGE_BATCH_SIZE, after);
+      const outcome = await purgeTrashItems(handlers, items, null);
+      const last = items.at(-1);
+      return {
+        next:
+          items.length === TRASH_PURGE_BATCH_SIZE && last
+            ? { expiresAt: last.expiresAt.toISOString(), id: last.id }
+            : null,
+        deleted: outcome.deletedItemIds.length,
+        pending: outcome.pendingItemIds.length,
+        failed: outcome.failedItemIds.length,
+      };
     },
     { timeout: 60000 },
   );

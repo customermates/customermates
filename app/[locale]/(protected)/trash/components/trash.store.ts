@@ -6,12 +6,13 @@ import type { MovedToTrash } from "@/features/trash/moved-to-trash";
 import type {
   RestoreTrashData,
   TrashDeletionPreview,
+  TrashDeletionResult,
   TrashItemDto,
   TrashKind,
   TrashRestoreBlocker,
 } from "@/features/trash/trash.schema";
 
-import { action, makeObservable, observable } from "mobx";
+import { action, makeObservable, observable, runInAction } from "mobx";
 import { toast } from "sonner";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
@@ -196,6 +197,18 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
     store.open();
   }
 
+  /** Items that went to the background or failed stay in Trash, so the toast must not claim they are gone. */
+  private reportDeletion(result: TrashDeletionResult) {
+    const successKey = result.failedItemIds.length
+      ? "Trash.deletionPartlyFailed"
+      : result.pendingItemIds.length
+        ? "Trash.deletionPending"
+        : "Trash.deletedPermanently";
+    runInAction(() => {
+      this.rootStore.deleteConfirmationModalStore.form.successKey = successKey;
+    });
+  }
+
   private afterPermanentDelete = async () => {
     this.clearSelection();
     await Promise.all([
@@ -230,6 +243,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
           toastZodErrorTree(deleted.error);
           return false;
         }
+        this.reportDeletion(deleted.data);
         await this.afterPermanentDelete();
         await onDeleted?.();
         return true;
@@ -255,6 +269,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
           toastZodErrorTree(emptied.error);
           return false;
         }
+        this.reportDeletion(emptied.data);
         await this.afterPermanentDelete();
         return true;
       },

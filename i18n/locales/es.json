@@ -4085,6 +4085,8 @@
     "deletePermanently": "Eliminar definitivamente",
     "deletePermanentlyManyTitle": "¿Eliminar {count, plural, one {# elemento} other {# elementos}} definitivamente?",
     "deletePermanentlyTitle": "¿Eliminar {name} definitivamente?",
+    "deletionPartlyFailed": "Algunos elementos no se pudieron eliminar y permanecen en la Papelera. Todo lo demás se eliminó de forma permanente.",
+    "deletionPending": "Algunos elementos se siguen eliminando en segundo plano. Permanecen en la Papelera hasta que termine.",
     "empty": "Vaciar papelera",
     "emptyBody": "Los elementos eliminados se quedan aquí 30 días y después se eliminan definitivamente.",
     "emptyConfirmation": "vaciar papelera",
