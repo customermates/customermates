@@ -3988,16 +3988,15 @@
   "SidebarCustomize": {
     "deleteSection": "Abschnitt löschen",
     "deleteSectionEmpty": "Der Abschnitt ist leer, es werden keine Einträge verschoben.",
-    "deleteSectionMoves": "Die Einträge kehren an ihren Standardplatz in deiner Seitenleiste zurück; ausgeblendete Einträge bleiben ausgeblendet:",
+    "deleteSectionMoves": "Die Einträge wandern auf die oberste Ebene deiner Seitenleiste; ausgeblendete Einträge bleiben ausgeblendet:",
     "deleteSectionTitle": "Abschnitt „{section}“ löschen?",
     "dragItem": "{item} verschieben",
     "dragSection": "Abschnitt {section} verschieben",
     "emptySection": "Einträge hierher ziehen oder „In Abschnitt verschieben“ nutzen",
     "hide": "In der Seitenleiste ausblenden",
-    "hint": "Ziehe die Griffe, um Einträge und Abschnitte neu anzuordnen, oder nutze die Menüs …. Klicke auf den Namen eines eigenen Abschnitts, um ihn umzubenennen.",
+    "hint": "Ziehe die Griffe, um Einträge und Abschnitte neu anzuordnen, oder nutze die Menüs …. Einträge können auf der obersten Ebene oder in einem Abschnitt stehen. Klicke auf den Namen eines Abschnitts, um ihn umzubenennen.",
     "itemActions": "Optionen für {item}",
     "moveDown": "Nach unten",
-    "movesBackTo": "{item} kehrt zu {section} zurück",
     "moveToSection": "In Abschnitt verschieben",
     "moveUp": "Nach oben",
     "newSection": "Neuer Abschnitt",
@@ -4011,7 +4010,8 @@
     "sectionDeleted": "Abschnitt gelöscht",
     "sectionName": "Abschnittsname",
     "show": "{item} anzeigen",
-    "title": "Seitenleiste anpassen"
+    "title": "Seitenleiste anpassen",
+    "topLevel": "Oberste Ebene"
   },
   "SignInForm": {
     "agreeToTerms": "Mit dem Fortfahren stimmst du unseren <termsOfServiceLink>AGB</termsOfServiceLink> zu und nimmst unsere <dataPrivacyLink>Datenschutzerklärung</dataPrivacyLink> zur Kenntnis. Siehe unseren <dpaLink>AVV</dpaLink>.",
