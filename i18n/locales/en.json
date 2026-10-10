@@ -1946,6 +1946,7 @@
     }
   },
   "DataView": {
+    "addToGroup": "Add to {group}",
     "board": {
       "chooseField": "Group by field",
       "createField": "Create a single-select field",

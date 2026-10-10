@@ -12,6 +12,7 @@ import {
   saveDrawer,
 } from "./configure";
 import { expect, test } from "./fixtures";
+import { runNamedRowAction } from "./record-rows";
 import { moveWithKeyboard } from "./keyboard-drag";
 
 async function savedOptions(database: Client, companyId: string, label: string) {
@@ -144,8 +145,7 @@ test("reorders choice options by drag and keyboard and edits attribute columns",
   await expect.poll(() => optionNames(page)).toEqual(["Silver", "Bronze", "Gold"]);
   await moveByKeyboard(page, "Silver", "ArrowDown");
   await expect.poll(() => optionNames(page)).toEqual(["Bronze", "Silver", "Gold"]);
-  await drawer.getByRole("button", { name: "More actions for Gold", exact: true }).click();
-  await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
+  await runNamedRowAction(page, drawer, "Gold", "Delete");
   await saveDrawer(page);
   await expect
     .poll(async () => (await savedOptions(database, companyId, label)).map((option) => option.label))

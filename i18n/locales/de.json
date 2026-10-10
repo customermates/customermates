@@ -1946,6 +1946,7 @@
     }
   },
   "DataView": {
+    "addToGroup": "Zu {group} hinzufügen",
     "board": {
       "chooseField": "Nach Feld gruppieren",
       "createField": "Einzelauswahl-Feld erstellen",
