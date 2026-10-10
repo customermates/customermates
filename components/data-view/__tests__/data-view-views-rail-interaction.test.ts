@@ -880,7 +880,7 @@ describe("data view rail interaction", () => {
   it("does not move deletion focus into a replacement store on the same mounted rail", async () => {
     const earlier = store({ activeViewKey: "v-a" });
     const host = render(earlier);
-    let finish!: (result: { ok: boolean; data: { id: string } }) => void;
+    let finish!: (result: { ok: boolean; data: { id: string; trashBatchId: string } }) => void;
     harness.deleteDataViewAction.mockImplementationOnce(
       () =>
         new Promise((resolve) => {
