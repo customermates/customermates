@@ -18,7 +18,6 @@ import { resolveDataViewPageState } from "@/components/data-view/data-view-state
 import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";
 import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
 import { PageState } from "@/components/page-state/page-state";
-import { RecordOperationProgress } from "@/components/records/record-operation-progress";
 import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -174,14 +173,6 @@ const TrashPageViewContent = observer(function TrashPageView({ initialTrash }: P
           {t("Trash.deletePermanently")}
         </Button>
       </DataViewSelectionBar>
-
-      {store.pendingRestoreOperation && (
-        <RecordOperationProgress
-          operationId={store.pendingRestoreOperation}
-          onCompleted={store.restoreOperationCompleted}
-          onStopped={store.restoreOperationStopped}
-        />
-      )}
 
       {body}
     </DataViewLayout>

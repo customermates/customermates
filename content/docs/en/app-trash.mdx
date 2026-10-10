@@ -3,7 +3,7 @@ title: "Trash: Undo Deletes and Restore Deleted Items"
 description: "Deleted records, lists, fields, views, widgets, routines and pages wait 30 days in Trash, where you restore them or delete them permanently."
 ---
 
-Deleting in Customermates moves the item to [Trash](app:trash) instead of removing it at once. Right after a delete, a message with **Undo** appears for a few seconds; **Undo** brings the item back immediately. After that, the item waits in Trash for 30 days and is then deleted permanently by itself.
+Deleting in Customermates moves the item to [Trash](app:trash) instead of removing it at once. Right after a delete, a message with **Undo** appears for a few seconds; **Undo** brings the item back immediately. A large delete runs in the background: the message shows **Moving to Trash…** and offers **Undo** once it is done. After that, the item waits in Trash for 30 days and is then deleted permanently by itself.
 
 ## What goes to Trash? [#what-goes-to-trash]
 
@@ -22,7 +22,7 @@ Everyone finds **Trash** in the sidebar. You see the items you could see and del
 
 ## How do I restore a deleted item? [#how-do-i-restore]
 
-Open [Trash](app:trash), hover the row and click **Restore**, or select several rows and click **Restore** in the selection bar. Restoring needs the same access as deleting did. A restored record comes back with its values, links and sub-list rows. A link to a record that was deleted permanently in the meantime cannot come back; the confirmation says how many links were dropped. A record whose list is itself in Trash can be restored only after its list.
+Open [Trash](app:trash), hover the row and click **Restore**, or select several rows and click **Restore** in the selection bar. Restoring needs the same access as deleting did. A restored record comes back with its values, links and sub-list rows. A link to a record that was deleted permanently in the meantime cannot come back; the message after restoring says how many links were dropped. A large restore runs in the background: the record shows **Restoring…** until it is done. A record whose list is itself in Trash can be restored only after its list.
 
 Opening a deleted record from Trash shows it read only with the banner **In Trash** and a **Restore** button.
 

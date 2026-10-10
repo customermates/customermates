@@ -17,7 +17,7 @@ import { reportApplicationError } from "@/core/errors/report-application-error";
 import { recordColumns } from "@/features/records/record-columns";
 import { recordColumnPresentation, recordDefaults } from "@/features/records/record-presentation";
 import { getRecordPresentationAction, mutateRecordAction, resetRecordViewAction } from "../../actions";
-import { movedToTrashOr } from "@/features/trash/moved-to-trash";
+import { movedToTrashOr, movingToTrash } from "@/features/trash/moved-to-trash";
 
 export class RecordsStore extends BaseDataViewStore<RecordRow> {
   presentation: RecordPresentationResult;
@@ -139,7 +139,9 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       }
       if (result.data.status === "pending") {
         this.setBulkState(false, result.data.operationId);
-        return true;
+        return mutation.action === "deleteMany"
+          ? movingToTrash(result.data.operationId, mutation.targets.length)
+          : true;
       }
       try {
         await this.bulkCompleted();
