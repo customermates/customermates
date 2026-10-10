@@ -13,7 +13,7 @@ import { resendVerificationEmailFromAppAction } from "../actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { normalizeStoredDisplayLanguage, normalizeStoredFormattingLocale } from "@/i18n/user-locale";
 import { appLocaleCookie, displayLanguageNavigationTarget, expiredAppLocaleCookie } from "@/i18n/locale-preference";
-import { forgetOtherViewQueryDrafts, viewQueryDraftOwner } from "@/core/base/base-data-view.store";
+import { forgetOtherViewQueryDrafts, viewQueryDraftOwner } from "@/core/data-view/view-query-drafts";
 
 export class UserStore extends BaseStore {
   public user: TenantUser | null = null;
