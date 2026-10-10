@@ -857,6 +857,8 @@
       "deleteNamed": "Eliminar {name}"
     },
     "resolve": "Ir a «{query}»",
+    "resolveNoCredits": "No te quedan créditos de IA, así que esta solicitud no se puede resolver.",
+    "resolveUnavailable": "Ahora no se pueden resolver solicitudes. Elige un resultado o inténtalo más tarde.",
     "resolving": "Buscando el mejor resultado…",
     "synonyms": {
       "action": {
@@ -3692,6 +3694,14 @@
     "untitledRecord": "{singular} sin nombre",
     "updatedAt": "Actualizado el",
     "useChannelAvatar": "Usar la foto de perfil del canal",
+    "usedBy": {
+      "blocking": "Impediría la eliminación",
+      "blockingCount": "{count, plural, one {# impediría la eliminación} other {# impedirían la eliminación}}",
+      "cleaned": "Se limpia al eliminar",
+      "cleanedCount": "{count, plural, one {# se limpia} other {# se limpian}}",
+      "layouts": "También se quita de {count, plural, one {# diseño} other {# diseños}}.",
+      "title": "Usado por"
+    },
     "valueSource": {
       "calculated": "Calculado · {formula}",
       "from": "De {list} · {value}",

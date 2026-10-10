@@ -857,6 +857,8 @@
       "deleteNamed": "{name} löschen"
     },
     "resolve": "Zu „{query}“ springen",
+    "resolveNoCredits": "Sie haben keine KI-Guthaben mehr, deshalb kann diese Anfrage nicht aufgelöst werden.",
+    "resolveUnavailable": "Anfragen aufzulösen ist gerade nicht möglich. Wählen Sie ein Ergebnis oder versuchen Sie es später erneut.",
     "resolving": "Passendes Ziel wird gesucht…",
     "synonyms": {
       "action": {
@@ -3692,6 +3694,14 @@
     "untitledRecord": "{singular} ohne Namen",
     "updatedAt": "Aktualisiert am",
     "useChannelAvatar": "Profilbild des Kanals verwenden",
+    "usedBy": {
+      "blocking": "Würde das Löschen verhindern",
+      "blockingCount": "{count, plural, one {# verhindert das Löschen} other {# verhindern das Löschen}}",
+      "cleaned": "Wird beim Löschen bereinigt",
+      "cleanedCount": "{count, plural, one {# wird bereinigt} other {# werden bereinigt}}",
+      "layouts": "Wird außerdem aus {count, plural, one {# Layout} other {# Layouts}} entfernt.",
+      "title": "Verwendet von"
+    },
     "valueSource": {
       "calculated": "Berechnet · {formula}",
       "from": "Aus {list} · {value}",

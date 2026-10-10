@@ -78,6 +78,21 @@ test("deletes fields to Recently deleted, explains blockers with deep links and 
   );
 
   await openConfigureRow(page, "Fields", "Code");
+  await dialog.getByRole("button", { name: "Used by", exact: false }).click();
+  const blocking = dialog.locator('[data-used-by-group="blocking"]');
+  const cleanedUp = dialog.locator('[data-used-by-group="cleaned"]');
+  await expect(blocking).toContainText("Would block deletion");
+  await expect(blocking.locator("[data-used-by-chip]")).toHaveText(["Uppercase code"]);
+  await expect(cleanedUp).toContainText("Cleaned up on deletion");
+  await expect(cleanedUp.locator("[data-used-by-chip]").filter({ hasText: "Coded logs" })).toHaveCount(1);
+  await blocking.locator("[data-used-by-chip]").filter({ hasText: "Uppercase code" }).click();
+  await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Uppercase code");
+  await expect(page.locator(`[data-focus-target="field:${upper.id}"]`)).toHaveAttribute("data-focus-highlight", "");
+  await expect(dialog.locator("#used-by")).toHaveCount(0);
+  await dialog.getByRole("button", { name: "Close", exact: true }).click();
+  await expect(dialog).not.toBeVisible();
+
+  await openConfigureRow(page, "Fields", "Code");
   await dialog.getByRole("button", { name: "Delete field", exact: true }).click();
   const confirmation = page.getByRole("alertdialog");
   await expect(confirmation).toContainText("Uppercase code calculates from Code.");

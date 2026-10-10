@@ -857,6 +857,8 @@
       "deleteNamed": "Delete {name}"
     },
     "resolve": "Go to “{query}”",
+    "resolveNoCredits": "You have no AI credits left, so this request can't be resolved.",
+    "resolveUnavailable": "Resolving requests isn't available right now. Pick a result or try again later.",
     "resolving": "Finding the best match…",
     "synonyms": {
       "action": {
@@ -3692,6 +3694,14 @@
     "untitledRecord": "Untitled {singular}",
     "updatedAt": "Updated at",
     "useChannelAvatar": "Use channel profile picture",
+    "usedBy": {
+      "blocking": "Would block deletion",
+      "blockingCount": "{count, plural, one {# would block deletion} other {# would block deletion}}",
+      "cleaned": "Cleaned up on deletion",
+      "cleanedCount": "{count, plural, one {# cleaned up} other {# cleaned up}}",
+      "layouts": "Also removed from {count, plural, one {# layout} other {# layouts}}.",
+      "title": "Used by"
+    },
     "valueSource": {
       "calculated": "Calculated · {formula}",
       "from": "From {list} · {value}",
