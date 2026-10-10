@@ -47,7 +47,7 @@ export function cleanRecordEventSubscription(
 ): { subscription: RecordEventSubscriptionDefinition; paused: boolean } {
   const pause = (kept: RecordEventSubscriptionDefinition) => ({
     subscription: { ...kept, enabled: false },
-    paused: true,
+    paused: subscription.enabled,
   });
   if (subscription.sources?.length) {
     const sources = subscription.sources.flatMap((source) => {
