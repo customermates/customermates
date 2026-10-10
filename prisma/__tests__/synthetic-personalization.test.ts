@@ -98,7 +98,7 @@ describe("synthetic personalization fixtures", () => {
         relationship("deal.contacts", "incoming"),
         C.contactSalesPipeline,
         C.contactPhone,
-        "system:channels",
+        id("capability.identity"),
         "system:updatedAt",
         "system:createdAt",
         "system:assignedTo",

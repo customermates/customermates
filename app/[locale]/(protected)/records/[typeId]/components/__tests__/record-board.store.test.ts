@@ -45,7 +45,6 @@ const presentation = {
     "system:createdAt": "Created at",
     "system:updatedAt": "Updated at",
     "system:assignedTo": "Assigned to",
-    "system:channels": "Channels",
   },
 } as RecordPresentationResult;
 const item: RecordRow = {

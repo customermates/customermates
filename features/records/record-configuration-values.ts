@@ -26,6 +26,7 @@ export function configurationInputFields(previous: RecordModel, next: RecordMode
   return next.fields.filter(
     (field) =>
       !field.archived &&
+      field.valueType !== "channels" &&
       (field.behavior.kind === "input" ||
         (field.behavior.kind === "snapshot" && previous.fields.some((before) => before.id === field.id))) &&
       fieldValueDefinition(previous.fields.find((before) => before.id === field.id)) !== fieldValueDefinition(field),

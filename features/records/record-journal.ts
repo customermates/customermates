@@ -1,4 +1,5 @@
 import type { RecordRepo } from "./record.repo";
+import { recordChannelsField } from "./record-channels";
 import type { RecordField, RecordModel, RecordRef } from "./record-model.schema";
 import type { RecordEventPayload, RecordHistorySnapshot, RecordJournalEntry } from "./record-event.schema";
 
@@ -44,9 +45,7 @@ async function snapshot(
   const dependencies = new Map(
     (await records.getRecordDependenciesCompanyWide(ref)).map((entry) => [entry.fieldId, entry.sources]),
   );
-  const identities = model.capabilities.some((binding) => binding.typeId === ref.typeId && binding.kind === "channels")
-    ? await records.getIdentitiesCompanyWide(ref)
-    : [];
+  const identities = recordChannelsField(model, ref.typeId) ? await records.getIdentitiesCompanyWide(ref) : [];
   return {
     version: row.version,
     assignedUserIds: row.assignments.map((assignment) => assignment.userId).sort(),
@@ -114,6 +113,7 @@ export function recordEventChanges(
   const links = entry.links.filter((link) => link.before !== link.after);
   const assignmentsChanged = JSON.stringify(assignments.before) !== JSON.stringify(assignments.after);
   const identitiesChanged = JSON.stringify(identities.before) !== JSON.stringify(identities.after);
+  const channelsFieldId = identitiesChanged ? recordChannelsField(model, entry.ref.typeId)?.id : undefined;
   if (before && after && !fields.length && !links.length && !assignmentsChanged && !identitiesChanged) return null;
   return {
     kind: !before ? "record.created" : !after ? "record.deleted" : "record.updated",
@@ -123,7 +123,7 @@ export function recordEventChanges(
       cause,
       beforeVersion: before?.version ?? null,
       afterVersion: after?.version ?? null,
-      changedFieldIds: fields.map((change) => change.fieldId),
+      changedFieldIds: [...fields.map((change) => change.fieldId), ...(channelsFieldId ? [channelsFieldId] : [])],
       fields,
       assignments: assignmentsChanged ? assignments : null,
       identities: identitiesChanged ? identities : null,

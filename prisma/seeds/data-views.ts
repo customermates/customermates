@@ -160,7 +160,7 @@ export function buildSyntheticDataViewFixtures(
         hiddenColumns: [
           customFieldIds.contactSalesPipeline,
           customFieldIds.contactPhone,
-          "system:channels",
+          id("capability.identity"),
           contactTasks,
           "system:assignedTo",
           "system:createdAt",
@@ -189,7 +189,7 @@ export function buildSyntheticDataViewFixtures(
           relationship("deal.contacts", "incoming"),
           "system:assignedTo",
         ],
-        hiddenColumns: ["system:channels", contactTasks, "system:createdAt", ...contactNameParts],
+        hiddenColumns: [id("capability.identity"), contactTasks, "system:createdAt", ...contactNameParts],
       },
     },
     {
@@ -203,7 +203,7 @@ export function buildSyntheticDataViewFixtures(
         grouping: { field: "system:createdAt", bucket: "month" },
         sortDescriptor: sorted("system:createdAt", "desc"),
         pageSize: 25,
-        hiddenColumns: ["system:channels", contactTasks, "system:updatedAt", ...contactNameParts],
+        hiddenColumns: [id("capability.identity"), contactTasks, "system:updatedAt", ...contactNameParts],
       },
     },
     {

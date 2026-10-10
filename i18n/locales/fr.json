@@ -2128,14 +2128,12 @@
       "sourceLookup": "Trouvé par recherche",
       "trigger": "Ajouter un canal"
     },
-    "ariaCopy": "Copier",
     "ariaStartThread": "Rédiger un message {provider}",
     "ariaUnlink": "Dissocier le canal {provider}",
     "compose": {
       "noAccount": "Aucun compte {provider} utilisable n'est connecté. Connectez-en un dans Mon profil."
     },
-    "emptyHint": "Aucun canal pour l'instant. Ajoutez un e-mail, LinkedIn, WhatsApp, …",
-    "heading": "Canaux",
+    "emptyHint": "Aucun canal pour le moment. Adresses e-mail, numéros de téléphone WhatsApp et comptes sociaux qui associent les messages à cette fiche.",
     "tooltipOpenInbox": "Aller à la boîte de réception",
     "tooltipStartNewThread": "Nouveau message",
     "tooltipUnlinkChannel": "Dissocier le canal",
@@ -3216,13 +3214,13 @@
       "oneToOne": "Un à un"
     },
     "changeBlocked": "Cette modification ne peut pas encore être appliquée",
-    "channelsField": {
-      "detail": "Adresses e-mail, numéros de téléphone et comptes sociaux qui associent les messages aux fiches",
-      "short": "E-mail, téléphone, réseaux"
-    },
-    "channelsHelp": "Ajoutez des adresses e-mail, numéros de téléphone et comptes sociaux aux fiches de cette liste. Un identifiant peut être lié à plusieurs fiches.",
+    "channelsHelp": "Adresses e-mail, numéros de téléphone WhatsApp et comptes sociaux qui associent les messages à cette fiche. Les numéros de téléphone ne sont associés que pour les discussions WhatsApp. Un identifiant peut être lié à plusieurs fiches.",
     "clickAction": "Au clic",
     "clickActions": {
+      "channels": {
+        "copy": "Copier",
+        "open": "Ouvrir l’e-mail, l’appel ou le profil"
+      },
       "email": {
         "copy": "Copier l’adresse",
         "open": "Ouvrir dans l’app de messagerie"
@@ -3256,7 +3254,6 @@
       "cleaned": {
         "bindingAvatar": "{target} n’est plus utilisé comme photo de profil de {consumers}.",
         "bindingCalendar": "{target} n’est plus utilisé pour les événements d’agenda de {consumers}.",
-        "bindingChannels": "{target} n’est plus utilisé pour les canaux dans {consumers}.",
         "listDefaults": "{target} est retiré de la mise en page par défaut de {consumers}.",
         "nameField": "{consumers} sera affiché avec {replacement} à la place.",
         "nameFieldNone": "Plus aucun champ de {consumers} ne peut nommer ses éléments, ils s’affichent donc comme « {singular} sans nom ».",
@@ -3649,6 +3646,7 @@
     "triggerValue": "À cette valeur",
     "types": {
       "boolean": "Oui ou non",
+      "channels": "Canaux",
       "currency": "Montant",
       "date": "Date",
       "dateRange": "Période",
@@ -4122,7 +4120,6 @@
     "inTrash": "Dans la corbeille",
     "kindInList": "{kind} dans {list}",
     "kinds": {
-      "channels": "Canaux",
       "dashboardView": "Vue du tableau de bord",
       "field": "Champ",
       "list": "Liste",

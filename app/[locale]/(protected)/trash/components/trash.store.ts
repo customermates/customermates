@@ -43,7 +43,7 @@ const UNDO_TOAST_DURATION_MS = 8000;
 const OPERATION_POLL_MS = 2000;
 const FINISHED_OPERATION_STATES = new Set(["completed", "failed", "cancelled"]);
 
-const CONFIGURATION_TRASH_KINDS: readonly TrashKind[] = ["list", "field", "relationship", "channels"];
+const CONFIGURATION_TRASH_KINDS: readonly TrashKind[] = ["list", "field", "relationship"];
 
 export class TrashStore extends BaseDataViewStore<TrashItemDto> {
   isMutating = false;

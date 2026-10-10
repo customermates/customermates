@@ -124,4 +124,15 @@ describe("record chip row model", () => {
     expect(isEmptyColumn(filled, owner)).toBe(false);
     expect(isEmptyColumn(row({ relationships: [] }), services)).toBe(true);
   });
+
+  it("shows a Channels field only while the record has identities", () => {
+    const channels = field("channels", "Channels", "channels");
+    const identity = { id: "i", provider: "mail", value: "a@example.test", displayName: null, profileUrl: null };
+
+    expect(isEmptyColumn(row({ identities: [] } as unknown as Partial<RecordRow>), channels)).toBe(true);
+    expect(isEmptyColumn(row({ identities: [identity] } as unknown as Partial<RecordRow>), channels)).toBe(false);
+    expect(
+      recordChipRowModel([channels], row({ identities: [identity] } as unknown as Partial<RecordRow>)).entries,
+    ).toHaveLength(1);
+  });
 });

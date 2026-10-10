@@ -13,8 +13,8 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { runInSavepoint } from "@/core/decorators/transaction-runner";
 import { RecordWriteError } from "./record-write-error";
 
-const CONFIGURATION_KINDS = ["list", "field", "relationship", "channels"] as const;
-const ORDER: Record<string, number> = { list: 0, relationship: 1, field: 2, channels: 3 };
+const CONFIGURATION_KINDS = ["list", "field", "relationship"] as const;
+const ORDER: Record<string, number> = { list: 0, relationship: 1, field: 2 };
 
 function targetExists(model: RecordModel, item: TrashItem) {
   if (item.kind === "list") return model.types.some((type) => type.id === item.targetId);
@@ -49,7 +49,7 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
     const outsideDeletedList = archived.length
       ? Prisma.sql`(${alias}."typeId" IS NULL OR ${alias}."typeId" NOT IN (${Prisma.join(archived)}))`
       : Prisma.sql`TRUE`;
-    return Prisma.sql`(${alias}.kind IN ('list', 'field', 'relationship', 'channels') AND (${alias}.kind = 'list' OR ${outsideDeletedList}))`;
+    return Prisma.sql`(${alias}.kind IN ('list', 'field', 'relationship') AND (${alias}.kind = 'list' OR ${outsideDeletedList}))`;
   }
 
   private async change(item: TrashItem, operation: "restore" | "deletePermanently"): Promise<ConfigurationChange> {

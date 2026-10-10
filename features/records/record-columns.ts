@@ -2,13 +2,11 @@ import type { RecordField, RecordRelationship, RecordModelView, RecordFieldView 
 
 import type { RecordSystemColumnSchema } from "./record-column.schema";
 import { relationshipColumnKey, relationshipPathColumnKey } from "./record-column.schema";
-import { recordChannelsEnabled } from "./record-channels";
 import { resolveRecordPath } from "./record-relationship-path";
 import type { RecordRelationshipPath } from "./record-relationship-path.schema";
 
 export type RecordColumn<F extends RecordFieldView = RecordField> =
   | { kind: "field"; id: string; label: string; sortable: boolean; field: F }
-  | { kind: "identity"; id: "system:channels"; label: string; sortable: false }
   | {
       kind: "relationship";
       id: string;
@@ -43,7 +41,8 @@ export function recordColumns<F extends RecordFieldView = RecordField>(
       id: field.id,
       label: field.label,
       sortable:
-        !["dateRange", "dateTimeRange"].includes(field.valueType) && !(field.valueType === "select" && field.multiple),
+        !["dateRange", "dateTimeRange", "channels"].includes(field.valueType) &&
+        !(field.valueType === "select" && field.multiple),
       field,
     }));
   for (const relation of model.relationships) {
@@ -75,8 +74,6 @@ export function recordColumns<F extends RecordFieldView = RecordField>(
       });
     }
   }
-  if (recordChannelsEnabled(model, typeId))
-    columns.push({ kind: "identity", id: "system:channels", label: "channels", sortable: false });
   columns.push(
     { kind: "system", id: "system:assignedTo", label: "assignedTo", sortable: false },
     { kind: "system", id: "system:createdAt", label: "createdAt", sortable: true },

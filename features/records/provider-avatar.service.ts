@@ -16,6 +16,7 @@ import { CalculationBudgetExceeded } from "./calculation-budget-exceeded";
 import { createRecordStagingRepo } from "./record-staging.repository";
 import { decodeRecordValue } from "./record-storage";
 import { validateRecordModel } from "./record-model-validation";
+import { recordChannelsTypeIds, recordProviderAvatarEnabled } from "./record-channels";
 
 const ACTOR = "system:messaging";
 const KIND = "provider-avatar";
@@ -72,27 +73,22 @@ function affectedTypes(model: RecordModel, ref: RecordRef) {
 function avatarSourceTypeIds(model: RecordModel): string[] {
   return [
     ...new Set(
-      model.capabilities
-        .filter(
-          (binding) =>
-            binding.kind === "channels" &&
-            binding.enabled !== false &&
-            binding.providerAvatar &&
-            model.types.some((type) => type.id === binding.typeId && !type.archived) &&
-            model.capabilities.some((avatar) => {
-              if (avatar.kind !== "avatar" || avatar.typeId !== binding.typeId) return false;
-              const fieldId = avatar.fields.find((item) => item.role === "image")?.fieldId;
-              return model.fields.some(
-                (field) =>
-                  field.id === fieldId &&
-                  field.typeId === binding.typeId &&
-                  !field.archived &&
-                  field.valueType === "url" &&
-                  field.behavior.kind === "input",
-              );
-            }),
-        )
-        .map((binding) => binding.typeId),
+      recordChannelsTypeIds(model).filter(
+        (typeId) =>
+          recordProviderAvatarEnabled(model, typeId) &&
+          model.capabilities.some((avatar) => {
+            if (avatar.kind !== "avatar" || avatar.typeId !== typeId) return false;
+            const fieldId = avatar.fields.find((item) => item.role === "image")?.fieldId;
+            return model.fields.some(
+              (field) =>
+                field.id === fieldId &&
+                field.typeId === typeId &&
+                !field.archived &&
+                field.valueType === "url" &&
+                field.behavior.kind === "input",
+            );
+          }),
+      ),
     ),
   ];
 }
@@ -164,13 +160,7 @@ export class ProviderAvatarService {
         for (const ref of refs) {
           if (
             !model.types.some((type) => type.id === ref.typeId && !type.archived) ||
-            !model.capabilities.some(
-              (binding) =>
-                binding.kind === "channels" &&
-                binding.enabled !== false &&
-                binding.providerAvatar &&
-                binding.typeId === ref.typeId,
-            )
+            !recordProviderAvatarEnabled(model, ref.typeId)
           )
             continue;
           const binding = model.capabilities.find(
@@ -272,13 +262,7 @@ export class ProviderAvatarService {
               !field ||
               field.behavior.kind !== "input" ||
               !binding?.fields.some((binding) => binding.role === "image" && binding.fieldId === field.id) ||
-              !model.capabilities.some(
-                (binding) =>
-                  binding.kind === "channels" &&
-                  binding.enabled !== false &&
-                  binding.providerAvatar &&
-                  binding.typeId === target.ref.typeId,
-              )
+              !recordProviderAvatarEnabled(model, target.ref.typeId)
             )
               throw new Error("Avatar operation binding changed");
           }
@@ -308,13 +292,7 @@ export class ProviderAvatarService {
             for (const ref of refs) {
               if (
                 !model.types.some((type) => type.id === ref.typeId && !type.archived) ||
-                !model.capabilities.some(
-                  (binding) =>
-                    binding.kind === "channels" &&
-                    binding.enabled !== false &&
-                    binding.providerAvatar &&
-                    binding.typeId === ref.typeId,
-                )
+                !recordProviderAvatarEnabled(model, ref.typeId)
               )
                 continue;
               const binding = model.capabilities.find(

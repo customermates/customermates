@@ -9,7 +9,6 @@ import { EntityDetailFields } from "@/components/entity-detail/entity-detail-fie
 import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
 import { RecordEditorField } from "./record-editor-fields";
-import { RecordIdentityEditor } from "./record-identity-editor";
 import { RecordRelationshipEditor } from "./record-relationship-editor";
 import { RecordPathRecords } from "./record-path-records";
 import { RecordEmbeddedRecords } from "./record-embedded-records";
@@ -40,8 +39,7 @@ export const RecordDetailOverview = observer(function RecordDetailOverview({
       if (!store.record && column.field.behavior.kind !== "input" && column.field.behavior.kind !== "snapshot")
         return [];
       content = <RecordEditorField field={column.field} store={store} />;
-    } else if (column.kind === "identity") content = <RecordIdentityEditor store={store} />;
-    else if (column.kind === "system") {
+    } else if (column.kind === "system") {
       const label = t(`RecordModel.${column.label}`);
       if (column.id === "system:assignedTo") {
         if (type?.embedded) return [];
@@ -99,12 +97,7 @@ export const RecordDetailOverview = observer(function RecordDetailOverview({
     return [
       {
         id: column.id,
-        label:
-          column.kind === "system"
-            ? t(`RecordModel.${column.label}`)
-            : column.kind === "identity"
-              ? t("EntityChannels.heading")
-              : column.label,
+        label: column.kind === "system" ? t(`RecordModel.${column.label}`) : column.label,
         content,
       },
     ];

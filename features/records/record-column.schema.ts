@@ -6,7 +6,6 @@ export const MANUAL_ORDER_SORT_KEY = "system:manual";
 export const RecordSortKeySchema = z.union([RecordFieldKeySchema, z.literal(MANUAL_ORDER_SORT_KEY)]);
 export const RecordColumnKeySchema = z.union([
   RecordFieldKeySchema,
-  z.literal("system:channels"),
   z.string().regex(/^path:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/),
   z
     .string()

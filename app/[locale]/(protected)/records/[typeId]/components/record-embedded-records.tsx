@@ -114,7 +114,6 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
       "system:createdAt": t("RecordModel.createdAt"),
       "system:updatedAt": t("RecordModel.updatedAt"),
       "system:assignedTo": t("RecordModel.assignedTo"),
-      "system:channels": t("EntityChannels.heading"),
     });
   const parentEditable = () =>
     Boolean(store.record) && !store.isReadOnly && !store.hasUnsavedChanges && !store.isLoading;

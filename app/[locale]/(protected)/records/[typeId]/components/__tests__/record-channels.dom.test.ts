@@ -88,6 +88,8 @@ async function harness() {
         TooltipProvider,
         null,
         createElement(RecordChannels, {
+          label: "Channels",
+          action: "open",
           recordChannels: {
             contextKey: "record:1",
             captureContext: () => () => current,
@@ -226,17 +228,22 @@ describe("record channel compose request ownership", () => {
     expect(discard).toHaveBeenCalledOnce();
   });
   it("retains the active Channels field through shared layout refreshes, then applies visibility after completion", () => {
+    const channelsFieldId = "10000000-0000-4000-8000-000000000002";
     const initial: RecordDetailLayoutResult = {
       typeId: "10000000-0000-4000-8000-000000000001",
       schemaRevision: 1,
       hasPersonalization: false,
-      layout: { pinnedFields: [], hiddenFields: [], fieldOrder: ["system:channels"] },
-      fields: [{ id: "system:channels", label: "Channels" }],
+      layout: { pinnedFields: [], hiddenFields: [], fieldOrder: [channelsFieldId] },
+      fields: [{ id: channelsFieldId, label: "Channels" }],
     };
     const layout = new RecordDetailLayoutStore(initial);
     const owned = observable({ active: true });
     const editor = {
-      presentation: { detailLayout: initial },
+      presentation: {
+        detailLayout: initial,
+        typeId: initial.typeId,
+        model: { fields: [{ id: channelsFieldId, typeId: initial.typeId, valueType: "channels", archived: false }] },
+      },
       record: {},
       rootStore: { recordWorkspaceStore: { getDetailLayout: () => layout } },
       get hasRelatedDraft() {
@@ -255,7 +262,7 @@ describe("record channel compose request ownership", () => {
           createElement(EntityDetailFields, {
             fields: [
               {
-                id: "system:channels",
+                id: channelsFieldId,
                 label: "Channels",
                 content: createElement("input", { "aria-label": "Owned compose draft", defaultValue: "" }),
               },
@@ -267,7 +274,7 @@ describe("record channel compose request ownership", () => {
     const input = container.querySelector("input") as HTMLInputElement;
     input.value = "Keep my channel draft";
     act(() => {
-      layout.hydrate({ ...initial, layout: { ...initial.layout, hiddenFields: ["system:channels"] }, fields: [] });
+      layout.hydrate({ ...initial, layout: { ...initial.layout, hiddenFields: [channelsFieldId] }, fields: [] });
     });
     expect(container.querySelector("input")).toBe(input);
     expect(input.value).toBe("Keep my channel draft");

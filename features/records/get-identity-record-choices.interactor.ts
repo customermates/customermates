@@ -14,6 +14,8 @@ import { failAuthorization } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { identityReference } from "./record-identity-reader";
 import { recordWriteFailure } from "./mutate-record.interactor";
+import { recordChannelsTypeIds } from "./record-channels";
+import { expressionFieldDependencies } from "./record-model-validation";
 
 export const IdentityRecordChoicesSchema = z
   .object({
@@ -55,13 +57,7 @@ export class GetIdentityRecordChoicesInteractor extends AuthenticatedInteractor<
       async () => {
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
-        const bindings = model.capabilities.filter(
-          (binding) =>
-            binding.kind === "channels" &&
-            binding.enabled !== false &&
-            model.types.some((type) => type.id === binding.typeId && !type.archived),
-        );
-        const typeIds = bindings.map((binding) => binding.typeId);
+        const typeIds = recordChannelsTypeIds(model);
         try {
           const rows = typeIds.length
             ? await this.records.searchRecords(
@@ -91,19 +87,18 @@ export class GetIdentityRecordChoicesInteractor extends AuthenticatedInteractor<
                 policy.access(model.types.filter((type) => !type.archived).map((type) => type.id)),
               )
             : [];
-          const createTypes = bindings.flatMap((binding) => {
-            const type = model.types.find((type) => type.id === binding.typeId);
+          const createTypes = typeIds.flatMap((typeId) => {
+            const type = model.types.find((type) => type.id === typeId);
             if (!type || type.embedded || !policy.allowed(type.id, "create") || !policy.canReadType(type.id)) return [];
             const fields = model.fields.filter((field) => field.typeId === type.id && !field.archived);
             const primary = fields.find((field) => field.id === type.primaryFieldId);
-            const named =
-              primary?.behavior.kind === "input"
+            const named = !primary
+              ? []
+              : primary.behavior.kind === "input"
                 ? [primary]
-                : ["firstName", "lastName"].flatMap((role) => {
-                    const id = binding.fields.find((field) => field.role === role)?.fieldId;
-                    const field = fields.find((field) => field.id === id && field.behavior.kind === "input");
-                    return field ? [field] : [];
-                  });
+                : [...expressionFieldDependencies(primary.behavior.expression)]
+                    .slice(0, 2)
+                    .flatMap((id) => fields.filter((field) => field.id === id && field.behavior.kind === "input"));
             if (
               !named.length ||
               named.some((field) => field.valueType !== "text") ||

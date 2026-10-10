@@ -8,6 +8,7 @@ import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operat
 import type { RecordModel, RecordRef } from "@/features/records/record-model.schema";
 import type { RecordAccessMap } from "@/features/records/record-query.schema";
 import { recordReadPredicate } from "@/features/records/record-query";
+import { recordChannelsTypeIds } from "@/features/records/record-channels";
 import { RecordWriteError } from "@/features/records/record-write.service";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { parseRecordReferenceKey } from "@/features/records/record-reference-key";
@@ -34,13 +35,9 @@ export function compileMessagingRecordQuery(
   model: RecordModel,
   access: RecordAccessMap,
 ): Prisma.Sql {
-  const bound = new Set(
-    model.capabilities
-      .filter((binding) => binding.kind === "channels" && binding.enabled !== false)
-      .map((binding) => binding.typeId),
-  );
+  const bound = new Set(recordChannelsTypeIds(model));
   const readable = model.types
-    .filter((type) => !type.archived && bound.has(type.id))
+    .filter((type) => bound.has(type.id))
     .map(
       (type) =>
         Prisma.sql`(record."typeId" = ${type.id} AND ${recordReadPredicate(companyId, access.get(type.id) ?? { access: "none", userId }, Prisma.sql`record`)})`,

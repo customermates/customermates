@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { RecordRef } from "@/features/records/record-model.schema";
+import type { RecordFieldView, RecordRef } from "@/features/records/record-model.schema";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordsStore } from "./records.store";
 
@@ -26,9 +26,8 @@ import {
 import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ContactValue } from "@/components/records/contact-value";
-import { isEmailProvider, isPhoneProvider } from "@/ee/messaging/provider";
 import { getChannelIcon } from "@/ee/messaging/provider-icon";
-import { channelDisplayLabel } from "@/ee/messaging/thread-display";
+import { channelContact, channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { toChipColor } from "@/constants/chip-colors";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { recordLinkColor } from "@/features/records/record-presentation";
@@ -60,19 +59,24 @@ function FieldTooltip({ label, children }: { label: string; children: ReactNode 
   );
 }
 
-export function IdentityChips({ record }: { record: RecordRow }) {
+export function IdentityChips({ record, field }: { record: RecordRow; field: RecordFieldView }) {
   return (
     <span className="inline-flex max-w-full min-w-0 flex-wrap items-center gap-1">
       {(record.identities ?? []).map((identity) => {
         const Icon = getChannelIcon(identity.provider);
+        const contact = channelContact(identity.provider, identity.value, identity.profileUrl);
         const label =
           channelDisplayLabel(identity.provider, identity.value, identity.profileUrl) ||
           identity.displayName ||
           identity.value;
-        const kind = isEmailProvider(identity.provider) ? "email" : isPhoneProvider(identity.provider) ? "phone" : null;
         return (
           <AppChip key={identity.id} startContent={<Icon className="size-3" />} tooltip={label}>
-            {kind ? <ContactValue kind={kind} label={label} value={identity.value} /> : label}
+            <ContactValue
+              action={field.format?.onClick ?? "open"}
+              kind={contact.kind}
+              label={label}
+              value={contact.value}
+            />
           </AppChip>
         );
       })}
@@ -128,6 +132,7 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
         </AppChip>
       );
     }
+    if (field.valueType === "channels") return <IdentityChips field={field} record={record} />;
     if (result?.state === "value" && result.value.kind === "selectList") {
       return (
         <FieldTooltip label={field.label}>
@@ -176,7 +181,6 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
       </AppChip>
     );
   }
-  if (column.kind === "identity") return <IdentityChips record={record} />;
   if (column.kind === "system" && column.id === "system:assignedTo") {
     return (
       <FieldTooltip label={column.label}>

@@ -643,7 +643,14 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
         .sort(),
     ).toEqual([id("deal.totalValue"), id("deal.totalQuantity"), id("deal.weightedValue")].sort());
     expect(model.types.find((type) => type.id === id("deal"))?.defaults.groupBy).toBe(f.columns.stage);
-    expect(model.capabilities).toContainEqual(expect.objectContaining({ kind: "channels", providerAvatar: true }));
+    expect(model.fields).toContainEqual(
+      expect.objectContaining({
+        id: id("capability.identity"),
+        typeId: id("contact"),
+        valueType: "channels",
+        format: { providerAvatar: true },
+      }),
+    );
     expect(
       (
         await rows<{ definition: { label: string } }>(
