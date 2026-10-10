@@ -218,7 +218,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
           </AppCardHeader>
 
           <RecordHeaderActions
-            className="mt-2"
+            className="mt-[1.375rem]"
             deletion={deletion}
             layout={detailLayout}
             name={name}
