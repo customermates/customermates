@@ -1960,6 +1960,7 @@
     "collapseColumn": "Comprimi colonna",
     "collapseGroup": "Comprimi il gruppo {group}",
     "dragToReorder": "Trascina per riordinare",
+    "editOption": "Modifica opzione",
     "expandColumn": "Espandi {name}",
     "expandGroup": "Espandi il gruppo {group}",
     "groupOverflow": "Vengono mostrati solo {count} gruppi",
