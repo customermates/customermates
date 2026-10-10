@@ -113,6 +113,8 @@ export function boardStore(overrides: Partial<BaseDataViewStore<Item>> = {}): Ba
     groupingResult: groupingResult(),
     loadMoreInGroup: vi.fn(),
     isBoardStrip: () => false,
+    isGroupHidden: () => false,
+    hideGroup: vi.fn(),
     toggleBoardStrip: vi.fn(),
     canCreateInGroup: () => false,
     createInGroup: vi.fn(),
