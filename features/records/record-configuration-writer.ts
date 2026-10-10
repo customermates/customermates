@@ -5,6 +5,19 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordCalculationService, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import { RecordWriteError } from "./record-write.service";
 import { configurationInputFields, configurationInputValue } from "./record-configuration-values";
+import { RecordTrashService } from "./record-trash.service";
+
+export async function purgeTrashOfDeletedLists(records: RecordRepo, prepared: PreparedConfiguration, userId: string) {
+  if (!prepared.deletion?.typeIds.length) return;
+  const items = await records.getRecordTrashItemsCompanyWide({ typeIds: prepared.deletion.typeIds });
+  await new RecordTrashService(records).purge(
+    items.map((item) => item.id),
+    prepared.model,
+    userId,
+    prepared.change.causeId,
+    { kind: "configuration" },
+  );
+}
 
 export class RecordConfigurationWriter {
   constructor(
@@ -69,7 +82,10 @@ export class RecordConfigurationWriter {
     }
 
     await this.records.saveModel(prepared.model, userId, prepared.change);
-    if (prepared.deletion) await this.records.deleteDefinitions(prepared.deletion);
+    if (prepared.deletion) {
+      await purgeTrashOfDeletedLists(this.records, prepared, userId);
+      await this.records.deleteDefinitions(prepared.deletion);
+    }
     await this.records.applyConsumerCleanups(prepared.cleanups);
     const live: RecordRef[] = [];
     for (const ref of refs) if (!(await this.initializeRecord(ref, prepared, previous, limit)).trashed) live.push(ref);

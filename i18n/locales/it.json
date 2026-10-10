@@ -761,7 +761,7 @@
       "cronExpression": "Pianificazione",
       "currency": "Valuta",
       "debounceSeconds": "Ritardo",
-      "delete": "Eliminato",
+      "delete": "Spostato nel cestino",
       "deletePermanently": "Eliminato definitivamente",
       "disabledReason": "Motivo disattivazione",
       "effectiveAt": "In vigore dal",
@@ -3253,13 +3253,9 @@
       "deleteColumn": "Elimina colonna",
       "deleteColumnMessage": "La colonna di record collegati {name} viene rimossa da {list}.",
       "deleteColumnTitle": "Eliminare la colonna {name}?",
-      "deletedBy": "Eliminato",
       "deleteField": "Elimina campo",
       "deleteList": "Elimina lista",
-      "deleteMessage": "{name} viene spostato in Eliminati di recente in Configura. Puoi ripristinarlo da lì.",
-      "deletePermanently": "Elimina definitivamente",
-      "deletePermanentlyMessage": "Questo elimina definitivamente {name} e tutto ciò che contiene. L’operazione non può essere annullata.",
-      "deletePermanentlyTitle": "Eliminare {name} definitivamente?",
+      "deleteMessage": "{name} viene spostato nel Cestino. Puoi ripristinarlo da lì per 30 giorni.",
       "deleteRelationship": "Elimina relazione",
       "deleteTitle": "Eliminare {name}?",
       "issues": {
@@ -3270,33 +3266,7 @@
         "savedView": "Viste salvate o layout personali usano ancora {subject}.",
         "summaryApproval": "{subject} richiede una nuova approvazione del riepilogo."
       },
-      "kind": "Tipo",
-      "kinds": {
-        "channels": "Campo dei canali",
-        "field": "Campo",
-        "relationship": "Relazione",
-        "type": "Lista"
-      },
-      "list": "Lista",
-      "moved": "Spostato in Eliminati di recente",
-      "noAccess": "Solo chi gestisce il modello di dati vede Eliminati di recente.",
-      "openConfigure": "Apri Configura",
-      "recentlyDeleted": "Eliminati di recente",
-      "recentlyDeletedEmpty": "Non è stato eliminato nulla",
-      "recentlyDeletedHelp": "Liste, campi, relazioni e campi dei canali eliminati restano qui finché non li ripristini o li elimini definitivamente.",
-      "removed": {
-        "grants": "{count, plural, one {# permesso di ruolo} other {# permessi di ruolo}}",
-        "hidden": "Contiene record che non puoi vedere.",
-        "identifiers": "{count, plural, one {# identificativo} other {# identificativi}} su {records, plural, one {# record} other {# record}}",
-        "links": "{count, plural, one {# collegamento tra record} other {# collegamenti tra record}}",
-        "nothingStored": "Non viene rimosso alcun dato salvato.",
-        "records": "{count, plural, one {# record} other {# record}}",
-        "values": "{count, plural, one {# valore salvato} other {# valori salvati}}",
-        "views": "{count, plural, one {# vista salvata o layout personale} other {# viste salvate o layout personali}}"
-      },
-      "restore": "Ripristina",
-      "restoreMessage": "{name} non può ancora essere ripristinato.",
-      "restoreTitle": "Ripristina {name}"
+      "moved": "Spostato nel Cestino"
     },
     "configure": "Configura",
     "configureList": "Configura {list}",

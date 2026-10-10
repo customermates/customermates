@@ -34,6 +34,7 @@ type Props<E extends HasId> = {
   rowActions?: (item: E) => ReactNode;
   onRowHref?: (item: E) => string | undefined;
   columnStyle?: (columnId: string) => DataTableColumnStyle;
+  rowFocusKey?: (item: E) => string | undefined;
   totals?: RecordGroupSummaryResult[];
 };
 
@@ -53,6 +54,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   rowActions,
   onRowHref,
   columnStyle,
+  rowFocusKey,
   totals,
 }: Props<E>) {
   const t = useTranslations();
@@ -168,6 +170,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
       <TableRow
         key={row.id}
         className={cn("group/row", (onRowClick || onRowHref) && "cursor-pointer")}
+        data-focus-target={rowFocusKey?.(row.original)}
         data-row-id={row.original.id}
         data-state={store.selectedIds.has(row.original.id) ? "selected" : undefined}
         onClick={(e) => {

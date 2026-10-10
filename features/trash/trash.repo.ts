@@ -29,15 +29,14 @@ export type TrashListQuery = {
   page: number;
   pageSize: number;
 };
+export type TrashSelection = { ids: string[] } | { batchId: string } | { all: true };
 export type TrashDeletedBy = { id: string; firstName: string; lastName: string; avatarUrl: string | null };
 
 export interface TrashRepo {
   add(items: TrashItemInput[]): Promise<void>;
   remove(ids: string[]): Promise<void>;
   list(query: TrashListQuery): Promise<{ items: TrashItem[]; total: number }>;
-  find(
-    selection: { ids: string[] } | { batchId: string } | { all: true },
-    visibility: Prisma.Sql,
-  ): Promise<TrashItem[]>;
+  find(selection: TrashSelection, visibility: Prisma.Sql): Promise<TrashItem[]>;
+  findExpired(now: Date, take: number): Promise<TrashItem[]>;
   deletedBy(userIds: string[]): Promise<Map<string, TrashDeletedBy>>;
 }
