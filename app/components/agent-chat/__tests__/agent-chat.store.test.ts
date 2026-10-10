@@ -6423,7 +6423,7 @@ describe("AgentUiControlStore", () => {
 
     const elements = new Map([
       ["nav-routines", new FakeHTMLElement()],
-      ["routines-search", new FakeHTMLElement()],
+      ["routines-filter", new FakeHTMLElement()],
     ]);
     vi.stubGlobal("HTMLElement", FakeHTMLElement);
     vi.stubGlobal("document", {
@@ -6447,7 +6447,7 @@ describe("AgentUiControlStore", () => {
           },
           { targetId: "routines-add", note: "Add a routine from here." },
           {
-            targetId: "routines-search",
+            targetId: "routines-filter",
             note: "Search narrows the current list.",
           },
         ]),
