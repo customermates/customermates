@@ -65,7 +65,7 @@ function useRecordHeaderActions({ store, name, deletion, layout, onOpenPage }: H
   const record = store.record;
   const askAi = useRecordAiAction({
     registerContext: true,
-    active: store.isOpen,
+    active: store.isOpen && !store.trash,
     context: {
       reference: record
         ? { kind: "record", typeId: record.ref.typeId, recordId: record.ref.recordId }

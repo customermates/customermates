@@ -136,6 +136,7 @@ export const ManageDataViewsResultSchema = z
     selected: z.boolean().optional(),
     deleted: z.boolean().optional(),
     proposed: z.literal(true).optional(),
+    trashBatchId: z.uuid().optional(),
   })
   .superRefine((result, ctx) => {
     const requireField = (field: "surfaceKey" | "viewKey" | "link") => {

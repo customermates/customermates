@@ -150,7 +150,7 @@ describeDatabase("operator data view keying on PostgreSQL", () => {
         views().updateOwnedState({ id: ownA.id, surfaceKey: OPERATOR_SURFACE, state: { pageSize: 100 } }),
       ),
     ).toBe(false);
-    expect(await runWithOperator(actorB, () => views().deleteOwned(ownA.id))).toBe(false);
+    expect(await runWithOperator(actorB, () => views().trashOwned(ownA.id))).toBe(false);
   });
 
   it("keys the personal All tab state by the acting operator's own workspace", async () => {

@@ -53,9 +53,11 @@ vi.mock("@/features/user/user.service", () => ({
   },
 }));
 
-const { getUpsertRoutineInteractor, getDeleteRoutineInteractor, getPauseRoutineInteractor } = await import("@/core/di");
+const { getUpsertRoutineInteractor, getDeleteRoutineInteractor, getPauseRoutineInteractor, getRoutineRepo } =
+  await import("@/core/di");
 const { prisma } = await import("@/prisma/db");
 const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
+const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 
 const company = randomUUID();
 const actor = randomUUID();
@@ -203,12 +205,15 @@ describeDatabase("a routine change leaves an audit trail in a real database", { 
     expect(update?.payload).toMatchObject({ changes: { enabled: { previous: true, current: false } } });
   });
 
-  it("keeps the routine.deleted row after the routine and its runs are gone", async () => {
+  it("keeps the routine.deleted row after the routine and its runs are deleted permanently", async () => {
     const routine = await createRoutine();
 
     const deleted = await getDeleteRoutineInteractor().invoke({ id: routine.id });
 
     expect(deleted.ok).toBe(true);
+    await runWithoutTenant(() =>
+      runInTransaction(() => getRoutineRepo(company).purgeTrashed([routine.id]), { companyId: company }),
+    );
 
     const rows = await auditRows();
     const remaining = await runWithoutTenant(() => prisma.routine.count({ where: { id: routine.id } }));

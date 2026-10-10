@@ -4,6 +4,7 @@ import type {
   TrashItemInput,
   TrashListQuery,
   TrashRepo,
+  TrashExpiryCursor,
   TrashSelection,
 } from "./trash.repo";
 import type { ExpiredTrashRepo } from "./purge-expired-trash.interactor";
@@ -82,25 +83,29 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo, Expi
       ORDER BY ${item}."deletedAt" ASC, ${item}.id ASC`);
   }
 
-  async findExpired(now: Date, take: number) {
+  async findExpired(now: Date, take: number, after?: TrashExpiryCursor) {
     const item = TRASH_ITEM_ALIAS;
+    const cursor = after
+      ? Prisma.sql`AND (${item}."expiresAt", ${item}.id) > (${new Date(after.expiresAt)}, ${after.id})`
+      : Prisma.empty;
     return this.prisma.$queryRaw<TrashItemRow[]>(Prisma.sql`
       SELECT ${item}.id, ${item}.kind::text AS kind, ${item}."targetId", ${item}."typeId", ${item}."surfaceKey",
         ${item}."ownerUserId", ${item}.label, ${item}."deletedById", ${item}."deletedAt", ${item}."expiresAt",
         ${item}."batchId", ${item}.payload
-      FROM "TrashItem" ${item} WHERE ${item}."companyId" = ${this.companyId} AND ${item}."expiresAt" <= ${now}
+      FROM "TrashItem" ${item} WHERE ${item}."companyId" = ${this.companyId} AND ${item}."expiresAt" <= ${now} ${cursor}
       ORDER BY ${item}."expiresAt" ASC, ${item}.id ASC LIMIT ${take}`);
   }
 
   @BypassTenantGuard
-  async findExpiredTrashCompaniesUnscoped(now: Date, limit: number) {
-    return this.prisma.$queryRaw<Array<{ companyId: string; administratorId: string | null }>>(Prisma.sql`
+  async findExpiredTrashCompaniesUnscoped(now: Date, after: string | null, limit: number) {
+    return this.prisma.$queryRaw<Array<{ companyId: string; actorUserId: string | null }>>(Prisma.sql`
       SELECT due."companyId", (
         SELECT member.id FROM "User" member JOIN "UserRole" role ON role.id = member."roleId"
-        WHERE member."companyId" = due."companyId" AND member.status = 'active' AND role."isSystemRole"
-        ORDER BY member."createdAt", member.id LIMIT 1
-      ) AS "administratorId"
+        WHERE member."companyId" = due."companyId" AND role."isSystemRole"
+        ORDER BY (member.status = 'active') DESC, member."createdAt", member.id LIMIT 1
+      ) AS "actorUserId"
       FROM (SELECT DISTINCT "companyId" FROM "TrashItem" WHERE "expiresAt" <= ${now}) due
+      ${after ? Prisma.sql`WHERE due."companyId" > ${after}` : Prisma.empty}
       ORDER BY due."companyId" LIMIT ${limit}`);
   }
 

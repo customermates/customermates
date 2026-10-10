@@ -930,17 +930,26 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     );
     if (leaving.length || removedTypeIds.length) {
       const items = await this.prisma.trashItem.findMany({
-        where: {
-          companyId: this.companyId,
-          kind: { in: ["list", "field", "relationship", "channels"] },
-          OR: [{ targetId: { in: leaving } }, { typeId: { in: removedTypeIds } }],
-        },
-        select: { id: true },
+        where: { companyId: this.companyId, kind: { in: ["list", "field", "relationship", "channels"] } },
+        select: { id: true, kind: true, targetId: true, typeId: true },
       });
+      const present = new Set([
+        ...model.types.map((type) => type.id),
+        ...model.fields.map((field) => field.id),
+        ...model.relationships.map((relation) => relation.id),
+        ...model.capabilities.map((capability) => capability.id),
+      ]);
       await deleteTrashItems(
         this.prisma,
         this.companyId,
-        items.map((item) => item.id),
+        items
+          .filter(
+            (item) =>
+              leaving.includes(item.targetId) ||
+              (item.typeId !== null && removedTypeIds.includes(item.typeId)) ||
+              !present.has(item.targetId),
+          )
+          .map((item) => item.id),
       );
     }
     if (!change.deletions?.length) return;

@@ -27,9 +27,17 @@ function deliveryDefinition(subscription: RecordEventSubscriptionDefinition) {
 }
 
 export class PrismaRecordEventSubscriptionRepo extends TenantRepository implements RecordEventSubscriptionRepo {
-  constructor(private readonly records: RecordRepo) {
+  constructor(
+    private readonly records: RecordRepo,
+    private readonly scopedCompanyId?: string,
+  ) {
     super();
   }
+
+  override get companyId(): string {
+    return this.scopedCompanyId ?? super.companyId;
+  }
+
   @BypassTenantGuard
   async findCompanyWide(companyId: string, ids: string[]) {
     if (!ids.length) return [];
@@ -102,6 +110,13 @@ export class PrismaRecordEventSubscriptionRepo extends TenantRepository implemen
     await this.prisma.recordEventSubscription.updateMany({
       where: { companyId: this.companyId, id },
       data: { enabled: false, revision: { increment: 1 } },
+    });
+  }
+
+  async resume(id: string) {
+    await this.prisma.recordEventSubscription.updateMany({
+      where: { companyId: this.companyId, id },
+      data: { enabled: true, revision: { increment: 1 } },
     });
   }
 }

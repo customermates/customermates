@@ -9,12 +9,14 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { randomUUID } from "node:crypto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PrismaWidgetRepo } from "../prisma-widget.repository";
+import { LIVE_WIDGET } from "../live-widget";
 
 const user = createMockUser();
 const mocks = vi.hoisted(() => ({
   findMany: vi.fn(),
   findFirst: vi.fn(),
   deleteMany: vi.fn(),
+  updateMany: vi.fn(),
   chart: vi.fn(),
   activity: vi.fn(),
 }));
@@ -28,7 +30,12 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => {
   const tx = {
     $executeRaw: vi.fn(),
-    widget: { findMany: mocks.findMany, findFirst: mocks.findFirst, deleteMany: mocks.deleteMany },
+    widget: {
+      findMany: mocks.findMany,
+      findFirst: mocks.findFirst,
+      deleteMany: mocks.deleteMany,
+      updateMany: mocks.updateMany,
+    },
     webhookDelivery: { createMany: vi.fn() },
   };
   return {
@@ -89,7 +96,7 @@ describe("generic widget repository", () => {
     );
     expect(widgets).toEqual([expect.objectContaining({ id: stored.id, status: "unavailable" })]);
     expect(mocks.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { userId: user.id, companyId: user.companyId } }),
+      expect.objectContaining({ where: { userId: user.id, companyId: user.companyId, ...LIVE_WIDGET } }),
     );
   });
   it("reads generic activity definitions without crossing into chart calculations", async () => {
@@ -111,7 +118,7 @@ describe("generic widget repository", () => {
     expect(await scoped((repo) => repo.getWidgetById(id))).toBeNull();
     expect(mocks.findFirst).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: { id, companyId: user.companyId, OR: [{ userId: user.id }, { isTemplate: true }] },
+        where: { id, companyId: user.companyId, OR: [{ userId: user.id }, { isTemplate: true }], ...LIVE_WIDGET },
       }),
     );
   });
@@ -125,18 +132,28 @@ describe("generic widget repository", () => {
     await expect(scoped((repo) => repo.getWidgets())).rejects.toThrow();
     expect(mocks.chart).not.toHaveBeenCalled();
   });
-  it("scopes deletion to the owner and tenant", async () => {
+  it("moves only a live widget of the owner and tenant to Trash", async () => {
     const id = randomUUID();
-    mocks.deleteMany.mockResolvedValue({ count: 1 });
-    await scoped((repo) => repo.deleteWidget(id));
-    expect(mocks.deleteMany).toHaveBeenCalledWith({ where: { id, companyId: user.companyId, userId: user.id } });
+    mocks.findFirst.mockResolvedValue({ name: "Pipeline" });
+    mocks.updateMany.mockResolvedValue({ count: 1 });
+    expect(await scoped((repo) => repo.trashWidget(id))).toEqual({ name: "Pipeline" });
+    expect(mocks.findFirst).toHaveBeenCalledWith({
+      where: { id, companyId: user.companyId, userId: user.id, ...LIVE_WIDGET },
+      select: { name: true },
+    });
+    expect(mocks.updateMany).toHaveBeenCalledWith({
+      where: { id, companyId: user.companyId, userId: user.id },
+      data: { deletedAt: expect.any(Date) },
+    });
   });
   it("filters ID selection by both owner and tenant", async () => {
     const id = randomUUID();
     mocks.findMany.mockResolvedValue([{ id }]);
     expect(await scoped((repo) => repo.findIds(new Set([id, randomUUID()])))).toEqual(new Set([id]));
     expect(mocks.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: { in: expect.any(Array) }, companyId: user.companyId, userId: user.id } }),
+      expect.objectContaining({
+        where: { id: { in: expect.any(Array) }, companyId: user.companyId, userId: user.id, ...LIVE_WIDGET },
+      }),
     );
     mocks.findMany.mockClear();
     expect(await scoped((repo) => repo.findIds(new Set()))).toEqual(new Set());
@@ -149,7 +166,10 @@ describe("generic widget repository", () => {
     const result = await scoped((repo) => repo.getCompanyWidgets());
     expect(result).toHaveLength(1);
     expect(mocks.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { companyId: user.companyId, isTemplate: true }, orderBy: { name: "asc" } }),
+      expect.objectContaining({
+        where: { companyId: user.companyId, isTemplate: true, ...LIVE_WIDGET },
+        orderBy: { name: "asc" },
+      }),
     );
   });
 });

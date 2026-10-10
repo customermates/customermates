@@ -34,6 +34,8 @@ export type BuiltinDataViewSurfaceKey = (typeof DATA_VIEW_SURFACE_KEYS)[number];
 export type RecordSurfaceKey = `records:${string}`;
 export type DataViewSurfaceKey = BuiltinDataViewSurfaceKey | RecordSurfaceKey;
 export const recordSurfaceKey = (typeId: string): RecordSurfaceKey => `records:${typeId}`;
+export const recordSurfaceTypeId = (surfaceKey: string): string | null =>
+  surfaceKey.startsWith("records:") ? surfaceKey.slice("records:".length) : null;
 export const isActivitySurface = (
   surfaceKey: string,
 ): surfaceKey is typeof SURFACE.entityTimeline | typeof SURFACE.activity =>
