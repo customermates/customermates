@@ -67,9 +67,6 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   override get supportsBoard() {
     return true;
   }
-  override get supportsManualOrder() {
-    return true;
-  }
   override get supportsSelection() {
     return (
       this.presentation.permittedActions.includes("update") || this.presentation.permittedActions.includes("delete")

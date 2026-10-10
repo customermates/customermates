@@ -15,15 +15,18 @@ type Props = {
   value: ReactNode;
   help?: ReactNode;
   action?: ReactNode;
+  source?: ReactNode;
 };
 
-export function EntityDetailStaticField({ fieldId, label, value, help, action }: Props) {
+export function EntityDetailStaticField({ fieldId, label, value, help, action, source }: Props) {
   const displayValue = value === null || value === undefined || value === "" ? <EmptyValue /> : value;
 
   return (
     <EntityDetailField fieldId={fieldId}>
       <FormOutputField
+        plain
         controlStartAddon={<EntityDetailFieldDragHandle label={label} />}
+        description={source}
         help={help}
         label={label}
         labelEndAddon={
