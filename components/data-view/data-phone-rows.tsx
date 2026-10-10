@@ -8,6 +8,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
+import { Button } from "@/components/ui/button";
 import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 import { cn } from "@/core/utils/cn";
 
@@ -47,10 +48,19 @@ export const DataPhoneRows = observer(function DataPhoneRows<E extends HasId>({
     return (
       <li
         key={item.id}
-        className="group/row relative px-4 py-3 transition-colors hover:bg-accent has-[>a:focus-visible]:bg-accent"
+        className="group/row relative px-4 py-3 transition-colors hover:bg-accent has-[>a:focus-visible]:bg-accent has-[>button:focus-visible]:bg-accent"
         data-focus-target={rowFocusKey?.(item)}
         data-row-id={item.id}
       >
+        {!href && onRowClick && (
+          <button
+            aria-label={t("Common.actions.open")}
+            className="absolute inset-0 outline-none"
+            type="button"
+            onClick={open}
+          />
+        )}
+
         {href && (
           <a
             aria-label={t("Common.actions.open")}
@@ -99,8 +109,28 @@ export const DataPhoneRows = observer(function DataPhoneRows<E extends HasId>({
                 const item = itemsById.get(id);
                 return item ? [renderPhoneRow(item)] : [];
               })}
+
+              {group.hasMore && (
+                <li className="px-2 py-1" data-slot="group-load-more">
+                  <Button
+                    disabled={store.isRefreshing}
+                    size="sm"
+                    type="button"
+                    variant="ghost"
+                    onClick={() => store.loadMoreInGroup(group.key)}
+                  >
+                    {t("Common.actions.loadMore")}
+                  </Button>
+                </li>
+              )}
             </Fragment>
           ))}
+
+      {store.isGrouped && store.groupingResult?.overflow && (
+        <li className="px-4 py-2 text-xs text-muted-foreground" data-slot="group-overflow">
+          {t("DataView.groupOverflow", { count: store.groupingResult.overflow.shown })}
+        </li>
+      )}
     </ul>
   );
 });
