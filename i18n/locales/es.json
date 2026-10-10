@@ -856,6 +856,8 @@
       "change": "Cambiar {field}…",
       "deleteNamed": "Eliminar {name}"
     },
+    "resolve": "Ir a «{query}»",
+    "resolving": "Buscando el mejor resultado…",
     "synonyms": {
       "action": {
         "add": "nuevo, crear, nuevo registro",

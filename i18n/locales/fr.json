@@ -856,6 +856,8 @@
       "change": "Modifier {field}…",
       "deleteNamed": "Supprimer {name}"
     },
+    "resolve": "Aller à « {query} »",
+    "resolving": "Recherche du meilleur résultat…",
     "synonyms": {
       "action": {
         "add": "nouveau, créer, nouvel enregistrement",

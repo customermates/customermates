@@ -1,8 +1,9 @@
 import { randomUUID } from "node:crypto";
-import type { Page } from "@playwright/test";
+import type { Page, Route } from "@playwright/test";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { test, expect } from "./fixtures";
+import { invokesServerAction, serverActionIds } from "./server-actions";
 
 async function api(page: Page, path: string, data: unknown) {
   const response = await page.request.post(path, { data, timeout: 60000 });
@@ -154,4 +155,63 @@ test("keeps Ask Mate as the last fallback row and reports no matches plainly", a
   const options = dialog.getByRole("option");
   const count = await options.count();
   if (count > 0) await expect(options.last()).toContainText("Ask Mate");
+});
+
+async function answerResolver(route: Route, resolution: unknown) {
+  const response = await route.fetch();
+  const lines = (await response.text()).split("\n");
+  const index = lines.findIndex((line) => /^[0-9a-f]+:\{"ok":/.test(line));
+  expect(index, "resolver action result line").toBeGreaterThanOrEqual(0);
+  lines[index] = `${lines[index].slice(0, lines[index].indexOf(":") + 1)}${JSON.stringify({ ok: true, data: resolution })}`;
+  await route.fulfill({ response, body: lines.join("\n") });
+}
+
+test("resolves a request with conditions to a filtered list and falls back to Ask Mate", async ({ page, companyId }) => {
+  test.setTimeout(180000);
+  const id = (key: string) => presetId(companyId, key);
+  const model = RecordModelSchema.parse(await api(page, "/api/v1/model/discover", {}));
+  const suffix = randomUUID().slice(0, 6);
+  for (const [name, stage] of [
+    [`Won resolver deal ${suffix}`, "won"],
+    [`Open resolver deal ${suffix}`, "qualified"],
+  ])
+    await api(page, "/api/v1/records/mutate", {
+      expectedRevision: model.revision,
+      idempotencyKey: randomUUID(),
+      mutation: {
+        action: "create",
+        typeId: id("deal"),
+        fields: [
+          { fieldId: id("deal.name"), value: { kind: "text", value: name } },
+          { fieldId: id("deal.stage"), value: { kind: "select", value: id(`deal.stage.${stage}`) } },
+        ],
+      },
+    });
+  const resolverIds = serverActionIds("app/[locale]/(protected)/search/actions.ts", "resolveCommandAction");
+  const answers: unknown[] = [
+    { kind: "list", typeId: id("deal"), viewId: null, filters: [{ field: id("deal.stage"), operator: "in", value: [id("deal.stage.won")] }] },
+    { kind: "none" },
+  ];
+  await page.route("**/*", async (route) => {
+    if (!invokesServerAction(route.request(), resolverIds)) return route.fallback();
+    await answerResolver(route, answers.shift());
+  });
+
+  await page.goto("/en/dashboard");
+  const dialog = page.getByRole("dialog");
+  const input = await openPalette(page);
+  await input.fill(`won deals ${suffix}`);
+  const resolve = dialog.getByRole("option").filter({ hasText: `Go to “won deals ${suffix}”` });
+  await expect(resolve).toHaveAttribute("aria-selected", "true");
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(new RegExp(`/en/records/${id("deal")}\\?.*filters=`));
+  await expect(page.getByText(`Won resolver deal ${suffix}`).first()).toBeVisible({ timeout: 30000 });
+  await expect(page.getByText(`Open resolver deal ${suffix}`)).toHaveCount(0);
+
+  const again = await openPalette(page);
+  await again.fill("something nobody configured here");
+  await expect(dialog.getByRole("option").first()).toContainText("Go to");
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#global-search-input")).toHaveCount(0);
+  await expect(page.getByText("something nobody configured here").first()).toBeVisible();
 });

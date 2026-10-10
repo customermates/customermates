@@ -856,6 +856,8 @@
       "change": "Change {field}…",
       "deleteNamed": "Delete {name}"
     },
+    "resolve": "Go to “{query}”",
+    "resolving": "Finding the best match…",
     "synonyms": {
       "action": {
         "add": "new, create, new record",

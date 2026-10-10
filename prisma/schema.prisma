@@ -1317,6 +1317,7 @@ enum AgentUsagePurpose {
   wikiIndexing
   wikiSynthesis
   calculationDraft
+  commandResolve
 }
 
 enum AgentUsageCostSource {
