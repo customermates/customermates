@@ -6,9 +6,10 @@ import type { GetQueryParams, Filter, FilterableField, SortDescriptor } from "..
 import type { DataViewChipDto } from "@/core/data-view/data-view-state.schema";
 import type { RootStore } from "@/core/stores/root.store";
 
-const { saveDataViewStateAction, selectDataViewAction, toastZodErrorTree } = vi.hoisted(() => ({
+const { saveDataViewStateAction, selectDataViewAction, upsertDataViewAction, toastZodErrorTree } = vi.hoisted(() => ({
   saveDataViewStateAction: vi.fn(),
   selectDataViewAction: vi.fn(),
+  upsertDataViewAction: vi.fn(),
   toastZodErrorTree: vi.fn(() => true),
 }));
 
@@ -16,6 +17,7 @@ vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock("@/app/actions", () => ({
   saveDataViewStateAction,
   selectDataViewAction,
+  upsertDataViewAction,
   bulkDeleteEntitiesAction: vi.fn(),
   bulkUpdateCustomFieldValuesAction: vi.fn(),
   getCustomColumnsByEntityTypeAction: vi.fn(),
@@ -27,7 +29,12 @@ vi.mock("@/app/[locale]/(protected)/records/actions", () => ({}));
 import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { FilterOperatorKey, ViewMode } from "../base-query-builder";
 import { RecordActivityViewsStore } from "@/features/messaging/activities/record-activity-views.store";
-import { forgetOtherViewQueryDrafts, viewQueryDraftOwner } from "../base-data-view.store";
+import {
+  forgetOtherViewQueryDrafts,
+  rememberViewProposal,
+  viewQueryDraftOwner,
+} from "@/core/data-view/view-query-drafts";
+import type { DataViewProposal } from "@/core/data-view/data-view-proposal.schema";
 import type { RecordActivityPresentation } from "@/ee/messaging/activities/get-record-activity-presentation.interactor";
 
 const VIEW_ID = "9d3a4a0e-0e34-4d7f-9f4a-2f7a2c9c1a11";
@@ -1011,5 +1018,139 @@ describe("modified view query", () => {
     expect(store.isQueryModified).toBe(false);
     await store.saveQueryToView();
     expect(saveDataViewStateAction).not.toHaveBeenCalled();
+  });
+});
+
+describe("assistant view proposals", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    echoPersistable = true;
+    saveDataViewStateAction.mockReset();
+    saveDataViewStateAction.mockResolvedValue({ ok: true, data: { viewKey: VIEW_ID } });
+    selectDataViewAction.mockReset();
+    selectDataViewAction.mockResolvedValue({ ok: true, data: { activeViewKey: VIEW_ID } });
+    upsertDataViewAction.mockReset();
+    window.sessionStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  const proposal = (overrides: Partial<DataViewProposal> = {}) =>
+    ({
+      surfaceKey: SURFACE.routines,
+      viewKey: VIEW_ID,
+      state: { filters: [filter("won")], sortDescriptor: sort("stage"), hiddenColumns: ["stage"] },
+      ...overrides,
+    }) as DataViewProposal;
+
+  it("applies a proposal as a modified state, including display options, without saving anything", async () => {
+    const store = hydrated();
+    store.applyViewProposal(proposal());
+    await vi.advanceTimersByTimeAsync(1500);
+
+    expect(store.activeViewKey).toBe(VIEW_ID);
+    expect(store.proposal).toEqual({ isNew: false });
+    expect(store.isQueryModified).toBe(true);
+    expect(store.filters).toEqual([filter("won")]);
+    expect(store.sortDescriptor).toEqual(sort("stage"));
+    expect(store.hiddenColumns).toEqual(["stage"]);
+
+    store.setViewOptions({ columnWidth: { uid: "stage", width: 240 } });
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(saveDataViewStateAction).not.toHaveBeenCalled();
+  });
+
+  it("saves the whole proposal into the view and becomes clean", async () => {
+    const store = hydrated();
+    store.applyViewProposal(proposal());
+    await vi.advanceTimersByTimeAsync(0);
+
+    await store.saveQueryToView();
+
+    expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        viewKey: VIEW_ID,
+        state: expect.objectContaining({
+          filters: [filter("won")],
+          sortDescriptor: sort("stage"),
+          hiddenColumns: ["stage"],
+        }),
+      }),
+    );
+    expect(store.proposal).toBeNull();
+    expect(store.isQueryModified).toBe(false);
+  });
+
+  it("resets a proposal back to the saved view and forgets it", async () => {
+    const store = hydrated();
+    store.applyViewProposal(proposal());
+    await vi.advanceTimersByTimeAsync(0);
+
+    store.resetQueryToView();
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(store.proposal).toBeNull();
+    expect(store.filters).toEqual([filter("open")]);
+    expect(store.sortDescriptor).toBeUndefined();
+    expect(saveDataViewStateAction).not.toHaveBeenCalled();
+
+    const next = new TestStore(rootStore());
+    next.setItems(serverEcho({ viewId: VIEW_ID, pagination: { page: 1, pageSize: 25 } }));
+    next.restoreQueryDraft();
+    expect(next.proposal).toBeNull();
+  });
+
+  it("restores a proposal made while the page was closed when the page opens", async () => {
+    rememberViewProposal({ id: "draft-user", companyId: "draft-company" }, proposal());
+    const store = new TestStore(rootStore());
+    store.setItems(serverEcho({ viewId: VIEW_ID, pagination: { page: 1, pageSize: 25 } }));
+
+    store.restoreQueryDraft();
+    await vi.advanceTimersByTimeAsync(0);
+
+    expect(store.proposal).toEqual({ isNew: false });
+    expect(store.filters).toEqual([filter("won")]);
+    expect(store.hiddenColumns).toEqual(["stage"]);
+  });
+
+  it("saves a proposed new view as a new view and opens it", async () => {
+    const created = { id: "c4b1f0de-1111-4a2b-8c3d-000000000001", name: "Won", position: 1, state: {} };
+    upsertDataViewAction.mockResolvedValue({ ok: true, data: created });
+    const store = hydrated();
+    store.applyViewProposal(proposal({ viewKey: undefined, name: "Won" }));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(store.activeViewKey).toBe(ALL_VIEW_KEY);
+    expect(store.proposal).toEqual({ name: "Won", isNew: true });
+
+    store.nextRefresh = () => {
+      store.nextRefresh = () => {
+        const params = store.requestedParams.at(-1);
+        return Promise.resolve({
+          ...serverEcho(params),
+          views: [VIEW, created],
+          activeViewKey: params?.viewId ?? ALL_VIEW_KEY,
+        });
+      };
+      return Promise.resolve({ ...serverEcho(), views: [VIEW, created] });
+    };
+    await store.saveQueryToView();
+
+    expect(upsertDataViewAction).toHaveBeenCalledExactlyOnceWith({
+      name: "Won",
+      state: expect.objectContaining({ filters: [filter("won")], sortDescriptor: sort("stage") }),
+      surfaceKey: SURFACE.routines,
+    });
+    expect(store.proposal).toBeNull();
+    expect(store.activeViewKey).toBe(created.id);
+  });
+
+  it("ignores a proposal for another surface or an unknown view", () => {
+    const store = hydrated();
+    store.applyViewProposal(proposal({ surfaceKey: SURFACE.users } as Partial<DataViewProposal>));
+    store.applyViewProposal(proposal({ viewKey: "c4b1f0de-1111-4a2b-8c3d-000000000009" }));
+    expect(store.proposal).toBeNull();
+    expect(store.activeViewKey).toBe(ALL_VIEW_KEY);
   });
 });

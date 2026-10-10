@@ -113,6 +113,7 @@ import { AgentTurnTranscript } from "@/ee/agent-chat/agent-turn-transcript";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
 import { AgentActivity } from "../agent-chat-items";
 import { AgentChatStore, type AgentChatItem } from "../agent-chat.store";
+import { proposesDataViews } from "@/features/data-view/data-view-proposal-context";
 
 const CONVERSATION_ID = "10000000-0000-4000-8000-000000000001";
 const USER_MESSAGE_ID = "10000000-0000-4000-8000-000000000002";
@@ -454,5 +455,89 @@ describe("saved-view Assistant round trip", () => {
     expect(container.textContent).not.toContain(VIEW_HREF);
     act(() => link?.click());
     expect(harness.navigatedTo).toEqual([VIEW_HREF]);
+  });
+
+  it("streams an app proposal to the open page instead of writing the view", async () => {
+    let proposing = false;
+    harness.manageDataViewsInvoke.mockImplementation(() => {
+      proposing = proposesDataViews();
+      return Promise.resolve({
+        ok: true,
+        data: {
+          action: "update",
+          surfaceKey: SURFACE.users,
+          path: "/settings/members",
+          viewKey: "__all__",
+          state: { viewMode: "card" },
+          proposed: true,
+          link: VIEW_HREF,
+        },
+      });
+    });
+    const proposal = { surfaceKey: SURFACE.users, viewKey: "__all__", state: { viewMode: "card" } };
+    harness.sendAgentMessageInvoke.mockImplementation(async (input: unknown) => {
+      const request = SendAgentMessageSchema.parse(input);
+      const pageRoute = request.pageContext?.route;
+      if (!pageRoute) throw new Error("The contextual view request must retain its page route.");
+      const output = await executeTool(
+        getAgentAiTools(toolDeps(pageRoute), { surface: "chat" }).manage_data_views,
+        TOOL_INPUT,
+      );
+      expect(proposing).toBe(true);
+      expect(output).toMatchObject({ ok: true, viewProposal: proposal });
+
+      const transcriptEvents: AgentTranscriptEvent[] = [];
+      const transcript = new AgentTurnTranscript((event) => transcriptEvents.push(event));
+      transcript.beginToolCall({
+        toolCallId: TOOL_CALL_ID,
+        toolName: "manage_data_views",
+        activity: describeAgentTool(internalToolIdentity("manage_data_views"), TOOL_INPUT),
+      });
+      transcript.completeToolCall({
+        toolCallId: TOOL_CALL_ID,
+        toolName: "manage_data_views",
+        status: "done",
+        failed: false,
+        output: { type: "json", value: output },
+      });
+      expect(transcriptEvents).toContainEqual(
+        expect.objectContaining({
+          type: "activity_result",
+          payload: expect.objectContaining({ viewProposal: proposal }),
+        }),
+      );
+      harness.agentTurnSseStream.mockReturnValueOnce(stream(transcriptEvents));
+      return {
+        ok: true,
+        data: {
+          disposition: "run",
+          externalRunId: "wrun_view_proposal",
+          conversationId: CONVERSATION_ID,
+          userMessageId: USER_MESSAGE_ID,
+          clientRequestId: request.clientRequestId,
+        },
+      };
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((input: RequestInfo | URL, init?: RequestInit) =>
+        POST(new Request(`http://localhost:4000${String(input)}`, init) as Parameters<typeof POST>[0]),
+      ),
+    );
+    window.history.replaceState(null, "", "/en/settings/members");
+
+    const liveStore = new AgentChatStore(rootStore() as never);
+    const propose = vi.fn();
+    liveStore.viewContext.register(
+      "/en/settings/members",
+      () => ({ surfaceKey: SURFACE.users, viewKey: "__all__" }),
+      undefined,
+      undefined,
+      propose,
+    );
+    liveStore.openWithContextDraft({ context: VIEW_CONTEXT, draft: "Show this view as cards", pageRoute: VIEW_ROUTE });
+    liveStore.submitDraft();
+
+    await vi.waitFor(() => expect(propose).toHaveBeenCalledExactlyOnceWith(proposal));
   });
 });

@@ -50,6 +50,7 @@ import type { Resource } from "@/generated/prisma";
 import { Action } from "@/generated/prisma";
 import { DATA_VIEW_SURFACES, type SurfaceDescriptor } from "./data-view-surfaces";
 import { ManageDataViewsResultSchema, ManageDataViewsSchema } from "./manage-data-views.schema";
+import { proposesDataViews } from "./data-view-proposal-context";
 
 export type DataViewConfigurationSources = Record<
   Exclude<
@@ -272,6 +273,20 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     if (data.action === "create") {
       const checked = await this.validateState(data.surfaceKey, data.state);
       if (!checked.ok) return checked;
+      if (proposesDataViews()) {
+        return {
+          ok: true,
+          data: {
+            action: data.action,
+            ...location,
+            viewKey: ALL_VIEW_KEY,
+            name: data.name,
+            state: data.state,
+            proposed: true,
+            link: this.link(descriptor.path, ALL_VIEW_KEY),
+          },
+        };
+      }
       const result = await this.upsert.invoke({
         surfaceKey: data.surfaceKey,
         name: data.name,
@@ -369,6 +384,20 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     if (state !== undefined) {
       const checked = await this.validateState(data.surfaceKey, state);
       if (!checked.ok) return checked;
+    }
+    if (proposesDataViews()) {
+      return {
+        ok: true,
+        data: {
+          action: data.action,
+          ...location,
+          viewKey: data.viewKey,
+          ...(name !== undefined ? { name } : {}),
+          state: { ...currentState, ...state },
+          proposed: true,
+          link: this.link(descriptor.path, data.viewKey),
+        },
+      };
     }
     if (owned) {
       const result = await this.upsert.invoke({

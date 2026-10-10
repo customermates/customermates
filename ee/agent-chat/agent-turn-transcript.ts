@@ -1,9 +1,10 @@
 import { readAgentToolResultContext, type AgentActivityContext } from "./agent-activity-context";
+import type { DataViewProposal } from "@/core/data-view/data-view-proposal.schema";
 import type { AgentActivityDescriptor, AgentActivityResource } from "./agent-activity";
 import type { AgentMessagePart } from "./agent-chat.schema";
 
 import { AgentVisibleTextStreamSanitizer } from "./agent-output-safety";
-import { agentToolSavedViewHref } from "./agent-tool-navigation";
+import { agentToolSavedViewHref, agentToolViewProposal } from "./agent-tool-navigation";
 
 export type AgentActivityStatus = "done" | "error" | "cancelled";
 export type AgentApprovalStatus = "approved" | "rejected" | "timeout" | "cancelled";
@@ -22,6 +23,7 @@ export type AgentTranscriptEvent =
         isError: boolean;
         status?: AgentActivityStatus;
         viewHref?: string;
+        viewProposal?: DataViewProposal;
         context?: AgentActivityContext;
       };
     }
@@ -124,6 +126,7 @@ export class AgentTurnTranscript {
   }) {
     if (result.failed && result.toolName) this.retryableFailureByTool.set(result.toolName, result.toolCallId);
     const viewHref = result.status === "done" ? agentToolSavedViewHref(result.toolName, result.output) : null;
+    const viewProposal = result.status === "done" ? agentToolViewProposal(result.toolName, result.output) : null;
     const toolPart = this.toolParts.get(result.toolCallId);
     const context = result.status === "done" ? readAgentToolResultContext(result.toolName, result.output) : undefined;
     if (context && toolPart && !toolPart.activity.context) toolPart.activity = { ...toolPart.activity, context };
@@ -136,6 +139,7 @@ export class AgentTurnTranscript {
         isError: result.failed,
         status: result.status,
         ...(viewHref ? { viewHref } : {}),
+        ...(viewProposal ? { viewProposal } : {}),
         ...(context ? { context } : {}),
       },
     });

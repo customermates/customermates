@@ -68,6 +68,8 @@ import { localizeAppLinks } from "@/features/docs/app-links";
 import { presetId } from "@/features/records/crm-preset";
 import { UserAccessor } from "@/core/base/user-accessor";
 import { hostedSectionRankers } from "./docs-rerank";
+import { DataViewProposalSchema } from "@/core/data-view/data-view-proposal.schema";
+import { runProposingDataViews } from "@/features/data-view/data-view-proposal-context";
 
 export type AgentToolOptions = {
   locale?: string;
@@ -176,6 +178,18 @@ function contextualAgentToolNavigation(
   return href ? { kind: "saved-view" as const, href } : null;
 }
 
+function agentToolViewProposal(toolName: string | undefined, outcome: McpToolExecutionResult) {
+  if (toolName !== "manage_data_views" || !outcome.ok || outcome.structuredContent?.proposed !== true) return null;
+  const content = outcome.structuredContent;
+  const proposal = DataViewProposalSchema.safeParse({
+    surfaceKey: content.surfaceKey,
+    ...(content.action === "update" ? { viewKey: content.viewKey } : {}),
+    ...(typeof content.name === "string" ? { name: content.name } : {}),
+    state: content.state,
+  });
+  return proposal.success ? proposal.data : null;
+}
+
 function localizeAgentAppLinks(text: string) {
   return localizeAppLinks(text, env.BASE_URL, {
     listId: (preset) => presetId(new UserAccessor().companyId, preset),
@@ -193,10 +207,12 @@ function agentToolResult(
   if (!outcome.ok) return boundedAgentToolFailure({ result: text, failure: outcome.failure }, maxChars);
   const navigation = contextualAgentToolNavigation(context.toolName, outcome, context.pageRoute);
   const activityContext = agentToolOutputContext(context.toolName, outcome.structuredContent);
+  const viewProposal = agentToolViewProposal(context.toolName, outcome);
   return {
     ok: true as const,
     result: agentToolResultText(text, maxChars),
     ...(navigation ? { navigation } : {}),
+    ...(viewProposal ? { viewProposal } : {}),
     ...(activityContext ? { activityContext } : {}),
   };
 }
@@ -409,7 +425,9 @@ function crmTool(
     inputSchema: providerSafeSchema(mcp.inputSchema),
     execute: async (input: unknown, { toolCallId }) => {
       const execute = async () => {
-        const outcome = await executeMcpTool(hostedMcpTool(mcp, rankers), [input]);
+        const call = () => executeMcpTool(hostedMcpTool(mcp, rankers), [input]);
+        const proposes = mcp.name === "manage_data_views" && surface !== undefined && !isUnattendedSurface(surface);
+        const outcome = await (proposes ? runProposingDataViews(call) : call());
         return agentToolResult(outcome, resultMaxChars, {
           toolName: mcp.name,
           pageRoute: deps.pageRoute,

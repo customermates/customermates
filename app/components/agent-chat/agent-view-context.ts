@@ -1,3 +1,4 @@
+import type { DataViewProposal } from "@/core/data-view/data-view-proposal.schema";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
 import { dataViewPath, isRecordTimelinePath } from "@/core/data-view/data-view-paths";
 import { SURFACE, type DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
@@ -10,6 +11,7 @@ type Registration = {
   viewPathname?: string;
   read: () => ViewContext | null;
   prepare?: () => Promise<void>;
+  propose?: (proposal: DataViewProposal) => void;
 };
 export type AgentViewChange = {
   surfaceKey: DataViewSurfaceKey;
@@ -34,8 +36,9 @@ export class AgentViewContext {
     read: Registration["read"],
     prepare?: Registration["prepare"],
     viewPathname?: string,
+    propose?: Registration["propose"],
   ): () => void {
-    const registration = { pathname, read, prepare, viewPathname };
+    const registration = { pathname, read, prepare, viewPathname, propose };
     this.registrations.push(registration);
     return () => {
       this.registrations = this.registrations.filter((entry) => entry !== registration);
@@ -79,6 +82,17 @@ export class AgentViewContext {
     )
       return;
     return current.registration.prepare?.();
+  }
+
+  propose(pathname: string, proposal: DataViewProposal): boolean {
+    for (let index = this.registrations.length - 1; index >= 0; index -= 1) {
+      const registration = this.registrations[index];
+      if (registration.pathname !== pathname && registration.viewPathname !== pathname) continue;
+      if (!registration.propose || registration.read()?.surfaceKey !== proposal.surfaceKey) continue;
+      registration.propose(proposal);
+      return true;
+    }
+    return false;
   }
 
   reloadHref(href: string, changes: readonly AgentViewChange[]): string | null {
