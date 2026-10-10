@@ -22,7 +22,7 @@ vi.mock("../group-label", () => ({
   visibleGroups: () => [],
 }));
 vi.mock("../header/filter-popover", () => ({ FilterPopover: () => null }));
-vi.mock("../header/search", () => ({ DataViewSearch: () => null }));
+vi.mock("../views/use-view-ai", () => ({ useViewAi: () => ({ available: false, openCurrent: vi.fn() }) }));
 
 import { DataTable } from "../data-table";
 import { DataViewToolbar } from "../data-view-toolbar";

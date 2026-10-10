@@ -18,7 +18,7 @@ import { resolveDataViewPageState } from "@/components/data-view/data-view-state
 import { DataViewToolbar } from "@/components/data-view/data-view-toolbar";
 import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
 import { PageState } from "@/components/page-state/page-state";
-import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -76,25 +76,20 @@ const TrashPageViewContent = observer(function TrashPageView({ initialTrash }: P
   const topBarNode = useMemo(
     () => (
       <DataViewToolbar
-        actions={
+        anchorScope="trash"
+        menuItems={
           canEmpty ? (
-            <TopBarActionButtons
-              actions={[
-                {
-                  id: "empty-trash",
-                  anchorId: "trash-empty",
-                  icon: Trash2,
-                  kind: "destructive",
-                  label: t("Trash.empty"),
-                  variant: "destructive",
-                  onClick: () => store.requestEmpty(),
-                },
-              ]}
-            />
+            <DropdownMenuItem
+              id="trash-empty"
+              variant="destructive"
+              onSelect={() => runUserAction(() => store.requestEmpty())}
+            >
+              <Trash2 />
+
+              {t("Trash.empty")}
+            </DropdownMenuItem>
           ) : undefined
         }
-        anchorScope="trash"
-        searchPlaceholder={t("Trash.searchPlaceholder")}
         showDisplayOptions={false}
         store={store}
       />
