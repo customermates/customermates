@@ -13,7 +13,6 @@ const SOURCE_CHROME_HEIGHT = 100;
 const SOURCE_ROW_HEIGHT = 48;
 const PROMPT_HEIGHT = 128;
 const RELATIONSHIP_CHIP = { width: 120, height: 28 };
-const LABEL_CLEARANCE = { width: 96, height: 32 };
 const ICON_CHIP = { width: 24, height: 24 };
 const GROUP_PREFIX = "group:";
 
@@ -138,10 +137,10 @@ function curveSamples(curves: readonly ConfigureGraphCurve[]) {
 function covered(point: ConfigureGraphPoint, obstacles: readonly ConfigureGraphPosition[]) {
   return obstacles.some(
     (box) =>
-      point.x > box.x - LABEL_CLEARANCE.width / 2 &&
-      point.x < box.x + box.width + LABEL_CLEARANCE.width / 2 &&
-      point.y > box.y - LABEL_CLEARANCE.height / 2 &&
-      point.y < box.y + box.height + LABEL_CLEARANCE.height / 2,
+      point.x > box.x - RELATIONSHIP_CHIP.width / 2 &&
+      point.x < box.x + box.width + RELATIONSHIP_CHIP.width / 2 &&
+      point.y > box.y - RELATIONSHIP_CHIP.height / 2 &&
+      point.y < box.y + box.height + RELATIONSHIP_CHIP.height / 2,
   );
 }
 

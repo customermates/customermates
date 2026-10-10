@@ -4,20 +4,25 @@ import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import type { RecordEditorResult } from "@/features/records/get-record-editor.interactor";
+import type { TrashedRecordInfo } from "@/features/trash/trash.schema";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useRouter } from "@/i18n/navigation";
 import { RecordEditorStore } from "./record-editor.store";
 import { RecordEditor } from "./record-editor";
 import { RecordEditorContent } from "./record-editor-content";
+import { RecordTrashBanner } from "./record-trash-banner";
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
+import { recordTitle } from "@/components/records/record-title";
 import { recordPanelsP13nId } from "./record-panels-personalization";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 const RecordDetailPageContent = observer(function RecordDetailPage({
   initial,
+  trash,
   panelLayoutInitial,
 }: {
   initial: RecordEditorResult;
+  trash?: TrashedRecordInfo;
   panelLayoutInitial?: Readonly<Record<string, number>>;
 }) {
   useRecordRouteReady();
@@ -36,6 +41,7 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
       },
     );
     editor.edit(initial, initial.record);
+    editor.setTrash(trash ?? null);
     const handoff = root.recordWorkspaceStore.takeDraftHandoff(initial.record?.ref);
     if (handoff && initial.record) editor.restoreDraft(handoff, initial, initial.record);
     return editor;
@@ -46,6 +52,7 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
     [root, store, root.userStore.user?.companyId, root.userStore.user?.id],
   );
   useEffect(() => root.recordWorkspaceStore.subscribe(store.refreshRecord), [root, store]);
+  useEffect(() => store.setTrash(trash ?? null), [store, trash]);
   useEffect(() => {
     if (applied.current === initial) return;
     applied.current = initial;
@@ -53,10 +60,7 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
   }, [initial, store]);
   const type = store.presentation.model.types.find((type) => type.id === store.presentation.typeId);
   const title = store.record?.fields.find((field) => field.fieldId === type?.primaryFieldId)?.result;
-  const name =
-    title?.state === "value" && title.value.kind === "text"
-      ? title.value.value
-      : (type?.label ?? t("RecordModel.record"));
+  const name = store.record ? recordTitle(title, type?.label, t) : (type?.label ?? t("RecordModel.record"));
   const avatar = store.presentation.model.capabilities.find(
     (binding) => binding.kind === "avatar" && binding.typeId === type?.id,
   );
@@ -82,13 +86,21 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
     p13nId: root.appMode === "demo" ? undefined : recordPanelsP13nId(initial.typeId),
     persistenceScope: root.userStore?.user?.id ?? "anonymous",
   };
-  return (
+  const content = (
     <RecordEditorContent
       layout="page"
       panelLayout={panelLayout}
       renderEditor={(child) => <RecordEditor store={child} />}
       store={store}
     />
+  );
+  if (!store.trash) return content;
+  return (
+    <div className="flex min-h-0 flex-col">
+      <RecordTrashBanner trash={store.trash} />
+
+      <div className="min-h-0 flex-1">{content}</div>
+    </div>
   );
 });
 

@@ -16,14 +16,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { recordTitle } from "@/components/records/record-title";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 const actionClass =
   "inline-flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none transition-[color,background-color] hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring/70 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent [&_svg]:size-4";
 
-export function recordRowName(store: RecordsStore, record: RecordRow) {
+export function recordRowName(store: RecordsStore, record: RecordRow, t: ReturnType<typeof useTranslations>) {
   const title = record.fields.find((field) => field.fieldId === store.type?.primaryFieldId)?.result;
-  return title?.state === "value" && title.value.kind === "text" ? title.value.value : (store.type?.label ?? "");
+  return recordTitle(title, store.type?.label, t);
 }
 
 export const RecordRowActions = observer(function RecordRowActions({
@@ -31,11 +32,13 @@ export const RecordRowActions = observer(function RecordRowActions({
   contextAction,
   onOpen,
   onDelete,
+  deleteLabel,
 }: {
   name: string;
   contextAction?: { label: string; icon: LucideIcon; onSelect: () => void };
   onOpen?: (returnFocusTo: HTMLElement | null) => void;
   onDelete?: () => unknown;
+  deleteLabel?: string;
 }) {
   const t = useTranslations();
   const trigger = useRef<HTMLButtonElement>(null);
@@ -92,7 +95,7 @@ export const RecordRowActions = observer(function RecordRowActions({
             <DropdownMenuItem variant="destructive" onSelect={() => runUserAction(onDelete)}>
               <Trash2 className="size-4" />
 
-              {t("Common.actions.delete")}
+              {deleteLabel ?? t("Common.actions.delete")}
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>

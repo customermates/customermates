@@ -3,8 +3,12 @@ import { RecordRevisionChangeSchema, type RecordRevisionChange } from "./record-
 import { captureRecordEventMatches } from "./record-event-capture";
 import { RecordEventSubscriptionSchema } from "./record-event-subscription.schema";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
-import { compileRecordSearch, type RecordSearchRow } from "./record-search-query";
-import type { RecordSearch } from "./record-search.schema";
+import {
+  compileRecordSearch,
+  SIMILAR_TITLE_MIN_WORD_SIMILARITY,
+  type RecordSearchRequest,
+  type RecordSearchRow,
+} from "./record-search-query";
 import { recordInvariant } from "./record-invariant";
 import type { StoredStateRow, StoredPersonalizationRow } from "@/features/data-view/data-view-row-mapping";
 import {
@@ -25,10 +29,12 @@ import type { Action } from "@/generated/prisma";
 import type {
   ConfigurationConsumerCleanup,
   RecordDefinitionDeletion,
+  RecordPlacement,
   RecordRepo,
   RecordTrashItemInput,
   TrashReadOptions,
 } from "./record.repo";
+import { rankBetween, recordManualOrderKey } from "./record-rank";
 import type { CalculatedValue, RecordModel, RecordRef, RecordRelationshipSummary } from "./record-model.schema";
 import type { RecordRelationshipSelection } from "./record-column.schema";
 import type { RecordPathSelection } from "./record-relationship-path.schema";
@@ -564,7 +570,20 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
           where: { companyId, id: cleanup.id },
           data: { measure: cleanup.measure as Prisma.InputJsonValue, version: { increment: 1 } },
         });
-      }
+      } else if (cleanup.kind === "eventSubscription") {
+        const { id, events, changedFieldIds, query, sources } = cleanup.subscription;
+        await this.prisma.recordEventSubscription.updateMany({
+          where: { companyId, id },
+          data: {
+            events,
+            changedFieldIds,
+            query: query === null ? Prisma.DbNull : (query as Prisma.InputJsonValue),
+            sources: sources?.length ? (sources as Prisma.InputJsonValue) : Prisma.DbNull,
+            revision: { increment: 1 },
+          },
+        });
+      } else if (cleanup.kind === "eventSubscriptionRemoval")
+        await this.prisma.recordEventSubscription.deleteMany({ where: { companyId, id: cleanup.id } });
     }
   }
   async measure(measure: RecordMeasure, model: RecordModel, access: RecordAccessMap): Promise<MeasureRow[]> {
@@ -964,12 +983,17 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   }
 
   async searchRecords(
-    request: { search: RecordSearch; includeEmbedded?: boolean } | { refs: RecordRef[] },
+    request: RecordSearchRequest,
     model: RecordModel,
     access: RecordAccessMap,
   ): Promise<RecordSearchRow[]> {
     const sql = compileRecordSearch(this.companyId, model, access, request);
-    return sql ? this.prisma.$queryRaw<RecordSearchRow[]>(sql) : [];
+    if (!sql) return [];
+    if ("search" in request && request.similarTitles) {
+      await this.prisma
+        .$executeRaw`SELECT set_config('pg_trgm.word_similarity_threshold', ${String(SIMILAR_TITLE_MIN_WORD_SIMILARITY)}, true)`;
+    }
+    return this.prisma.$queryRaw<RecordSearchRow[]>(sql);
   }
 
   async query(
@@ -1194,6 +1218,41 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       },
       data: { version: { increment: 1 }, updatedAt: new Date() },
     });
+  }
+
+  async placeRecord(ref: RecordRef, placement: RecordPlacement, groupFieldId: string | null): Promise<boolean> {
+    const candidate = Prisma.sql`candidate`;
+    const key = recordManualOrderKey(candidate);
+    const groupValue = (recordId: Prisma.Sql) =>
+      Prisma.sql`(SELECT value."textValue" FROM "RecordValue" value WHERE value."companyId" = ${this.companyId} AND value."typeId" = ${ref.typeId} AND value."recordId" = ${recordId} AND value."fieldId" = ${groupFieldId} AND value."state" = 'value')`;
+    const sameGroup = groupFieldId
+      ? Prisma.sql`AND ${groupValue(Prisma.sql`${candidate}."id"`)} IS NOT DISTINCT FROM ${groupValue(Prisma.sql`${ref.recordId}`)}`
+      : Prisma.empty;
+    const scope = Prisma.sql`FROM "CrmRecord" ${candidate} WHERE ${candidate}."companyId" = ${this.companyId} AND ${candidate}."typeId" = ${ref.typeId} AND ${candidate}."deletedAt" IS NULL AND ${candidate}."id" <> ${ref.recordId} ${sameGroup}`;
+    const keyOf = async (recordId: string) => {
+      const rows = await this.prisma.$queryRaw<Array<{ key: string }>>(
+        Prisma.sql`SELECT ${key} AS key ${scope} AND ${candidate}."id" = ${recordId}`,
+      );
+      return rows[0]?.key ?? null;
+    };
+    const neighbour = async (bound: string | null, side: "after" | "before") => {
+      const rows = await this.prisma.$queryRaw<Array<{ key: string }>>(
+        Prisma.sql`SELECT ${key} AS key ${scope} ${bound === null ? Prisma.empty : side === "after" ? Prisma.sql`AND ${key} > ${bound}` : Prisma.sql`AND ${key} < ${bound}`} ORDER BY key ${Prisma.raw(side === "after" ? "ASC" : "DESC")} LIMIT 1`,
+      );
+      return rows[0]?.key ?? null;
+    };
+    const lower = placement.afterRecordId ? await keyOf(placement.afterRecordId) : null;
+    const upper = placement.beforeRecordId ? await keyOf(placement.beforeRecordId) : null;
+    if ((placement.afterRecordId && lower === null) || (placement.beforeRecordId && upper === null)) return false;
+    if (lower !== null && upper !== null && lower >= upper) return false;
+    const bounds =
+      placement.beforeRecordId && !placement.afterRecordId
+        ? [await neighbour(upper, "before"), upper]
+        : [lower, await neighbour(lower, "after")];
+    await this.prisma.$executeRaw(Prisma.sql`
+      UPDATE "CrmRecord" SET "rank" = ${rankBetween(bounds[0], bounds[1])}
+      WHERE "companyId" = ${this.companyId} AND "typeId" = ${ref.typeId} AND "id" = ${ref.recordId}`);
+    return true;
   }
 
   async hasRecordHistoryCompanyWide(ref: RecordRef): Promise<boolean> {

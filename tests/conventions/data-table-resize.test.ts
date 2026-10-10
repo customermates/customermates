@@ -39,9 +39,8 @@ describe("shared data-table resize contract", () => {
     expect(handleSource).toContain('if (session.pointerType !== "touch" || session.hasMoved) return;');
   });
 
-  it("resizes board lanes through the same handle and persists them with the view", () => {
-    expect(boardSource).toContain("<ColumnResizeHandle");
-    expect(boardSource).toContain("columnWidth: { uid: BOARD_LANE_WIDTH_KEY, width }");
-    expect(boardSource).toContain("withoutColumnWidth(store.columnWidths, BOARD_LANE_WIDTH_KEY)");
+  it("keeps board columns at one fixed width without lane resizing", () => {
+    expect(boardSource).not.toContain("ColumnResizeHandle");
+    expect(boardSource).not.toContain("columnWidths");
   });
 });

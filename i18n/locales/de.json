@@ -830,6 +830,90 @@
     "liveDemoTitle": "Customermates-Live-Demo",
     "open": "In neuem Tab öffnen"
   },
+  "CommandPalette": {
+    "fieldOf": "Feld in {list}",
+    "groups": {
+      "actions": "Aktionen",
+      "bestMatch": "Bester Treffer",
+      "docs": "Dokumentation",
+      "listsAndViews": "Listen und Ansichten",
+      "pagesAndSettings": "Seiten und Einstellungen",
+      "records": "Datensätze",
+      "suggestions": "Vorschläge"
+    },
+    "labels": {
+      "addRole": "Rolle hinzufügen",
+      "addWebhook": "Webhook hinzufügen",
+      "connectChannel": "Kanal verbinden",
+      "createApiKey": "API-Key erstellen",
+      "themeDark": "Dunkle Darstellung verwenden",
+      "themeLight": "Helle Darstellung verwenden",
+      "themeSystem": "Darstellung des Systems verwenden"
+    },
+    "record": {
+      "addTo": "Zu {list} hinzufügen…",
+      "assign": "Zuweisen an…",
+      "change": "{field} ändern…",
+      "deleteNamed": "{name} löschen"
+    },
+    "synonyms": {
+      "action": {
+        "add": "neu, erstellen, anlegen, neuer Datensatz",
+        "inviteMembers": "Benutzer hinzufügen, Kollegen einladen, Team",
+        "sendFeedback": "Problem melden, Vorschlag, Support kontaktieren",
+        "shortcuts": "Hotkeys, Tasten, Tastatur",
+        "signOut": "ausloggen, Logout, abmelden",
+        "switchView": "Ansicht ändern, gespeicherte Ansichten",
+        "themeDark": "dunkel, dunkler Modus, Nachtmodus",
+        "themeLight": "heller Modus, hell",
+        "themeSystem": "automatische Darstellung, wie System"
+      },
+      "page": {
+        "configure": "Datenmodell, Schema, Listen, Felder, Beziehungen",
+        "dashboard": "Startseite, Übersicht, Start, Widgets, Diagramme",
+        "documentation": "Doku, Hilfe, Anleitung, Handbuch",
+        "inbox": "Nachrichten, E-Mail, Mails, Unterhaltungen, Chats",
+        "knowledgeBase": "Wiki, Notizen, Seiten, Artikel",
+        "routines": "Automatisierungen, Zeitpläne, wiederkehrende Aufgaben",
+        "settings": "Einstellungen, Optionen, Konto, Arbeitsbereich",
+        "trash": "gelöschte Elemente, Papierkorb, wiederherstellen, Löschen rückgängig"
+      },
+      "setting": {
+        "apiKeys": {
+          "create": "neuer API-Schlüssel, Token erzeugen"
+        },
+        "channels": {
+          "connect": "E-Mail verbinden, Konto hinzufügen, LinkedIn, WhatsApp"
+        },
+        "profile": {
+          "avatarUrl": "Profilbild, Foto, Bild",
+          "country": "Standort, Region",
+          "displayLanguage": "Sprache, Oberflächensprache, Übersetzung",
+          "firstName": "Name, Vorname",
+          "formattingLocale": "Datumsformat, Zahlenformat, Region, Währungsformat",
+          "lastName": "Familienname, Zuname",
+          "theme": "Aussehen, dunkel, hell, dunkler Modus, heller Modus, Farben, Theme"
+        },
+        "roles": {
+          "create": "neue Rolle, Berechtigungen"
+        },
+        "webhooks": {
+          "create": "neuer Webhook"
+        }
+      },
+      "settings": {
+        "activity": "Audit-Log, Verlauf, Änderungen, Protokoll",
+        "api-keys": "Token, API, MCP, Entwickler, Zugangsschlüssel",
+        "billing": "Tarif, Abonnement, Rechnungen, Zahlung, Preise",
+        "channels": "verbundene Konten, E-Mail-Konten, LinkedIn, WhatsApp, Integrationen",
+        "members": "Team, Benutzer, Personen, Kollegen",
+        "profile": "Konto, Einstellungen, persönlich, Name",
+        "roles": "Berechtigungen, Zugriff, Rechte",
+        "webhook-deliveries": "Webhook-Zustellungen, Webhook-Protokoll, gesendete Ereignisse",
+        "webhooks": "Integrationen, Callbacks, Ereignisse, HTTP"
+      }
+    }
+  },
   "Common": {
     "actions": {
       "add": "Hinzufügen",
@@ -1208,11 +1292,13 @@
         "event": "Ereignis",
         "firstName": "Vorname",
         "isPlatformOperator": "Plattform-Operator",
+        "kind": "Art",
         "lastActiveAt": "Zuletzt aktiv",
         "lastMessageAt": "Letzte Aktivität",
         "lastMessageDirection": "Letzte Nachricht",
         "lastMessageSentAt": "Letzte Nachricht am",
         "lastName": "Nachname",
+        "list": "Liste",
         "name": "Name",
         "ownerUserId": "Eigentümer",
         "participantContactId": "Verknüpfte Datensätze",
@@ -1378,7 +1464,8 @@
     "sort": {
       "ascending": "Aufsteigend",
       "descending": "Absteigend",
-      "field": "Sortieren nach"
+      "field": "Sortieren nach",
+      "manual": "Manuell"
     },
     "stageProbability": "Phasenwahrscheinlichkeit",
     "systemTasks": {
@@ -1852,13 +1939,14 @@
     "boardMoveRequested": "Verschieben nach {group} angefordert.",
     "boardMoveTarget": "Datensatz nach {group} verschieben.",
     "boardPickedUp": "Datensatz aufgenommen.",
+    "collapseColumn": "Spalte einklappen",
     "collapseGroup": "Gruppe {group} einklappen",
     "dragToReorder": "Zum Neuanordnen ziehen",
+    "expandColumn": "{name} ausklappen",
     "expandGroup": "Gruppe {group} ausklappen",
     "groupOverflow": "Es werden nur {count} Gruppen angezeigt",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Kein Wert",
-    "resizeBoardColumns": "Breite der Board-Spalten ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeColumn": "Größe der Spalte „{column}“ ändern. Ziehe oder verwende die Pfeiltasten; doppeltippe oder drücke zum Zurücksetzen die Eingabetaste.",
     "resizeHint": "Zum Ändern der Größe ziehen. Zum Zurücksetzen doppelklicken.",
     "rowActions": "Zeilenaktionen",
@@ -1882,6 +1970,7 @@
       "editTitle": "Ansicht bearbeiten",
       "linkCopied": "Link kopiert",
       "menu": "Ansichtsaktionen",
+      "modified": "Ungespeicherte Änderungen",
       "moveLeft": "Nach links verschieben",
       "moveRight": "Nach rechts verschieben",
       "name": "Name",
@@ -1891,7 +1980,8 @@
       "pickerPlaceholder": "Ansicht suchen …",
       "pickerTitle": "Ansicht wechseln",
       "railLabel": "Gespeicherte Ansichten",
-      "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}"
+      "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}",
+      "resetChanges": "Änderungen zurücksetzen"
     }
   },
   "Diagrams": {
@@ -1936,6 +2026,7 @@
     "appRecords": "Datensätze",
     "appRoutines": "Routinen",
     "appSearch": "Globale Suche",
+    "appTrash": "Papierkorb",
     "architectureSecurity": "Architektur & Sicherheit",
     "concepts": "Kernkonzepte",
     "connectCli": "CLI & Editoren",
@@ -2034,6 +2125,7 @@
     "overview": "Übersicht",
     "personalize": "Anpassen",
     "pinField": "{field} an die Übersicht anheften",
+    "pinMore": "Feld anheften",
     "reorderInstructions": "Drücke die Leertaste oder Eingabe, um ein Feld aufzunehmen. Verschiebe es mit den Pfeiltasten, lege es mit Leertaste oder Eingabe ab und brich mit Escape ab.",
     "sections": {
       "notes": "Notizen"
@@ -2539,6 +2631,7 @@
     "routines": "Routinen",
     "search": "Suchen",
     "settings": "Einstellungen",
+    "trash": "Papierkorb",
     "wiki": "Wissensdatenbank"
   },
   "NotFoundPage": {
@@ -3119,7 +3212,6 @@
         "binding": "{source} verwendet {target} in seinen Einstellungen.",
         "calculation": "{source} berechnet sich aus {target}.",
         "parentAccess": "{source} erhält seinen Zugriff über {target}.",
-        "primaryField": "{target} benennt die Datensätze von {source} und kann nicht gelöscht werden.",
         "protected": "{source} steuert den Zugriff auf den Arbeitsbereich und kann nicht gelöscht werden.",
         "requiresRestore": "Stelle zuerst {target} wieder her, {source} gehört dazu.",
         "routine": "Die Routine {source} reagiert auf {target}.",
@@ -3128,10 +3220,18 @@
         "widget": "Das Widget {source} misst {target}."
       },
       "cleaned": {
+        "bindingAvatar": "{target} wird nicht mehr als Profilbild von {consumers} verwendet.",
+        "bindingCalendar": "{target} wird nicht mehr für die Kalendertermine von {consumers} verwendet.",
+        "bindingChannels": "{target} wird nicht mehr für Kanäle in {consumers} verwendet.",
         "listDefaults": "{target} wird aus dem Standardlayout von {consumers} entfernt.",
+        "nameField": "{consumers} werden stattdessen mit {replacement} angezeigt.",
+        "nameFieldNone": "{consumers} hat kein Feld mehr, das die Einträge benennen kann, sie erscheinen daher ohne Namen.",
         "personalLayouts": "{target} wird aus {count, plural, one {# persönlichen Layout} other {# persönlichen Layouts}} entfernt.",
         "view": "{count, plural, one {{target} wird aus der Ansicht {consumers} entfernt.} other {{target} wird aus # Ansichten entfernt: {consumers}.}}",
-        "widget": "{count, plural, one {{target} wird aus den Filtern oder der Gruppierung des Widgets {consumers} entfernt.} other {{target} wird aus den Filtern oder der Gruppierung von # Widgets entfernt: {consumers}.}}"
+        "webhookRemoved": "{count, plural, one {Der Webhook {consumers} sendet keine Datensatzänderungen mehr, weil {target} sein einziger Auslöser war.} other {# Webhooks senden keine Datensatzänderungen mehr, weil {target} ihr einziger Auslöser war: {consumers}.}}",
+        "webhookTrigger": "{count, plural, one {{target} wird aus dem Auslöser des Webhooks {consumers} entfernt.} other {{target} wird aus dem Auslöser von # Webhooks entfernt: {consumers}.}}",
+        "widget": "{count, plural, one {{target} wird aus den Filtern oder der Gruppierung des Widgets {consumers} entfernt.} other {{target} wird aus den Filtern oder der Gruppierung von # Widgets entfernt: {consumers}.}}",
+        "widgetCount": "{count, plural, one {Das Widget {consumers} zählt Datensätze, statt {target} auszuwerten.} other {# Widgets zählen Datensätze, statt {target} auszuwerten: {consumers}.}}"
       },
       "configureActions": "Aktionen für Konfigurieren",
       "deleteColumn": "Spalte löschen",
@@ -3562,8 +3662,17 @@
     "typeSettings": "Typeinstellungen",
     "unavailableOption": "Nicht verfügbare Option",
     "unlinkRecord": "Verknüpfung mit {name} entfernen",
+    "untitledRecord": "{singular} ohne Namen",
     "updatedAt": "Aktualisiert am",
     "useChannelAvatar": "Profilbild des Kanals verwenden",
+    "valueSource": {
+      "calculated": "Berechnet · {formula}",
+      "from": "Aus {list} · {value}",
+      "savedOnCreate": "Gespeichert, wenn {list} angelegt wird",
+      "savedOnRequest": "Auf Anfrage gespeichert",
+      "savedWhenChanged": "Gespeichert, wenn sich {field} ändert",
+      "savedWhenChangedTo": "Gespeichert, wenn sich {field} zu {value} ändert"
+    },
     "valueType": "Werttyp",
     "yes": "Ja"
   },
@@ -3976,6 +4085,58 @@
     "signoff": "Viele Grüße\nBen",
     "subject": "Dein Konto ist inaktiv: Wir helfen bei der Wiederherstellung",
     "title": "Abonnement deaktiviert"
+  },
+  "Trash": {
+    "bannerDeleted": "Gelöscht am {date}. {count, plural, =0 {Wird heute endgültig gelöscht} one {Wird in # Tag endgültig gelöscht} other {Wird in # Tagen endgültig gelöscht}}.",
+    "columns": {
+      "deletedAt": "Gelöscht am",
+      "deletedBy": "Gelöscht von",
+      "expiresAt": "Endgültig gelöscht",
+      "kind": "Art"
+    },
+    "daysLeft": "{count, plural, =0 {Wird heute endgültig gelöscht} one {Wird in # Tag endgültig gelöscht} other {Wird in # Tagen endgültig gelöscht}}",
+    "deletedPermanently": "Endgültig gelöscht",
+    "deletePermanently": "Endgültig löschen",
+    "deletePermanentlyManyTitle": "{count, plural, one {# Element} other {# Elemente}} endgültig löschen?",
+    "deletePermanentlyTitle": "{name} endgültig löschen?",
+    "empty": "Papierkorb leeren",
+    "emptyBody": "Gelöschte Elemente bleiben 30 Tage hier und werden danach endgültig gelöscht.",
+    "emptyConfirmation": "papierkorb leeren",
+    "emptyTitle": "Papierkorb leeren?",
+    "emptyTitleState": "Der Papierkorb ist leer",
+    "inTrash": "Im Papierkorb",
+    "kindInList": "{kind} der Liste {list}",
+    "kinds": {
+      "channels": "Kanäle",
+      "dashboardView": "Dashboard-Ansicht",
+      "field": "Feld",
+      "list": "Liste",
+      "record": "Datensatz",
+      "relationship": "Beziehung",
+      "routine": "Routine",
+      "view": "Ansicht",
+      "widget": "Widget",
+      "wikiPage": "Wissensdatenbank-Seite"
+    },
+    "movedToTrash": "In den Papierkorb verschoben",
+    "movesToTrash": "Es wird in den Papierkorb verschoben und kann dort 30 Tage lang wiederhergestellt werden.",
+    "permanentIrreversible": "Das kann nicht rückgängig gemacht werden.",
+    "permanentMessage": "{count, plural, one {Dieses Element wird} other {Diese # Elemente werden}} endgültig gelöscht.",
+    "permanentRecords": "{list}: {count, plural, one {# Datensatz} other {# Datensätze}}",
+    "restore": "Wiederherstellen",
+    "restoreBlocked": {
+      "listDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ihre Liste im Papierkorb liegt. Stellen Sie zuerst die Liste wieder her.",
+      "nameTaken": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ein anderes Element jetzt ihren Namen oder Platz hat.",
+      "notFound": "{count, plural, one {# Element existiert} other {# Elemente existieren}} nicht mehr und wurden aus dem Papierkorb entfernt.",
+      "parentDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil das, wozu sie gehören, im Papierkorb liegt. Stellen Sie das zuerst wieder her.",
+      "requiresRestore": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil etwas, das sie brauchen, im Papierkorb liegt. Stellen Sie das zuerst wieder her."
+    },
+    "restored": "{count, plural, one {# Element wiederhergestellt} other {# Elemente wiederhergestellt}}",
+    "restoredInBackground": "Wiederhergestellt",
+    "restoredWithDroppedLinks": "Wiederhergestellt. {count, plural, one {# Verknüpfung konnte} other {# Verknüpfungen konnten}} nicht wiederhergestellt werden, weil der verknüpfte Datensatz endgültig gelöscht wurde.",
+    "restorePending": "Wird im Hintergrund wiederhergestellt. Der Papierkorb zeigt den Fortschritt.",
+    "searchPlaceholder": "Papierkorb durchsuchen",
+    "undo": "Rückgängig"
   },
   "TrialExpiredOffer": {
     "body": "Deine Testphase ist vor Kurzem abgelaufen, aber ich helfe dir gerne dabei, echten Nutzen aus Customermates zu ziehen. Wenn du möchtest, verlängere ich deine Testphase und gehe dein Setup gemeinsam mit dir Schritt für Schritt durch.",

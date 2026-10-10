@@ -830,6 +830,90 @@
     "liveDemoTitle": "Demo en directo de Customermates",
     "open": "Abrir en una nueva pestaña"
   },
+  "CommandPalette": {
+    "fieldOf": "Campo de {list}",
+    "groups": {
+      "actions": "Acciones",
+      "bestMatch": "Mejor resultado",
+      "docs": "Documentación",
+      "listsAndViews": "Listas y vistas",
+      "pagesAndSettings": "Páginas y ajustes",
+      "records": "Registros",
+      "suggestions": "Sugerencias"
+    },
+    "labels": {
+      "addRole": "Añadir rol",
+      "addWebhook": "Añadir webhook",
+      "connectChannel": "Conectar un canal",
+      "createApiKey": "Crear clave de API",
+      "themeDark": "Cambiar al tema oscuro",
+      "themeLight": "Cambiar al tema claro",
+      "themeSystem": "Usar el tema del sistema"
+    },
+    "record": {
+      "addTo": "Añadir a {list}…",
+      "assign": "Asignar a…",
+      "change": "Cambiar {field}…",
+      "deleteNamed": "Eliminar {name}"
+    },
+    "synonyms": {
+      "action": {
+        "add": "nuevo, crear, nuevo registro",
+        "inviteMembers": "añadir usuario, invitar compañero, equipo",
+        "sendFeedback": "informar de un problema, sugerencia, soporte",
+        "shortcuts": "teclas rápidas, teclas, teclado",
+        "signOut": "salir, desconectar, logout",
+        "switchView": "cambiar vista, vistas guardadas",
+        "themeDark": "modo oscuro, modo noche",
+        "themeLight": "modo claro",
+        "themeSystem": "tema automático, seguir el sistema"
+      },
+      "page": {
+        "configure": "modelo de datos, esquema, listas, campos, relaciones",
+        "dashboard": "inicio, resumen, widgets, gráficos",
+        "documentation": "docs, ayuda, guía, manual",
+        "inbox": "mensajes, correo, email, conversaciones, chats",
+        "knowledgeBase": "wiki, notas, páginas, artículos",
+        "routines": "automatizaciones, programaciones, tareas recurrentes",
+        "settings": "preferencias, opciones, cuenta, espacio de trabajo",
+        "trash": "elementos eliminados, papelera, restaurar, deshacer eliminación"
+      },
+      "setting": {
+        "apiKeys": {
+          "create": "nueva clave de API, generar token"
+        },
+        "channels": {
+          "connect": "conectar correo, añadir cuenta, LinkedIn, WhatsApp"
+        },
+        "profile": {
+          "avatarUrl": "foto de perfil, foto, imagen",
+          "country": "ubicación, región",
+          "displayLanguage": "idioma, lengua, traducción",
+          "firstName": "nombre, nombre de pila",
+          "formattingLocale": "formato de fecha, formato de número, región",
+          "lastName": "apellido, apellidos",
+          "theme": "apariencia, modo oscuro, modo claro, colores"
+        },
+        "roles": {
+          "create": "nuevo rol, permisos"
+        },
+        "webhooks": {
+          "create": "nuevo webhook"
+        }
+      },
+      "settings": {
+        "activity": "registro de auditoría, historial, cambios",
+        "api-keys": "tokens, API, MCP, desarrollador, claves de acceso",
+        "billing": "plan, suscripción, facturas, pago, precios",
+        "channels": "cuentas conectadas, cuentas de correo, LinkedIn, WhatsApp, integraciones",
+        "members": "equipo, usuarios, personas, compañeros",
+        "profile": "mi perfil, cuenta, preferencias, personal",
+        "roles": "permisos, acceso, derechos",
+        "webhook-deliveries": "entregas de webhook, registro de webhooks, eventos enviados",
+        "webhooks": "integraciones, callbacks, eventos, HTTP"
+      }
+    }
+  },
   "Common": {
     "actions": {
       "add": "Añadir",
@@ -1208,11 +1292,13 @@
         "event": "Evento",
         "firstName": "Nombre",
         "isPlatformOperator": "Operador de plataforma",
+        "kind": "Tipo",
         "lastActiveAt": "Última actividad",
         "lastMessageAt": "Última actividad",
         "lastMessageDirection": "Último mensaje",
         "lastMessageSentAt": "Fecha del último mensaje",
         "lastName": "Apellidos",
+        "list": "Lista",
         "name": "Nombre",
         "ownerUserId": "Propietario",
         "participantContactId": "Registros vinculados",
@@ -1378,7 +1464,8 @@
     "sort": {
       "ascending": "Ascendente",
       "descending": "Descendente",
-      "field": "Ordenar por"
+      "field": "Ordenar por",
+      "manual": "Manual"
     },
     "stageProbability": "Probabilidad de la etapa",
     "systemTasks": {
@@ -1852,13 +1939,14 @@
     "boardMoveRequested": "Movimiento a {group} solicitado.",
     "boardMoveTarget": "Mover registro a {group}.",
     "boardPickedUp": "Registro seleccionado.",
+    "collapseColumn": "Contraer columna",
     "collapseGroup": "Contraer el grupo {group}",
     "dragToReorder": "Arrastrar para reordenar",
+    "expandColumn": "Expandir {name}",
     "expandGroup": "Expandir el grupo {group}",
     "groupOverflow": "Solo se muestran {count} grupos",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Sin valor",
-    "resizeBoardColumns": "Cambiar el ancho de las columnas del tablero. Arrastra o usa las flechas; toca dos veces o pulsa Intro para restablecer.",
     "resizeColumn": "Redimensiona la columna {column}. Arrastra o usa las teclas de flecha; toca dos veces o pulsa Intro para restablecer.",
     "resizeHint": "Arrastra para redimensionar. Haz doble clic para restablecer.",
     "rowActions": "Acciones de fila",
@@ -1882,6 +1970,7 @@
       "editTitle": "Editar vista",
       "linkCopied": "Enlace copiado",
       "menu": "Acciones de vista",
+      "modified": "Cambios sin guardar",
       "moveLeft": "Mover a la izquierda",
       "moveRight": "Mover a la derecha",
       "name": "Nombre",
@@ -1891,7 +1980,8 @@
       "pickerPlaceholder": "Buscar una vista…",
       "pickerTitle": "Cambiar de vista",
       "railLabel": "Vistas guardadas",
-      "recordCount": "{count, plural, one {# registro} other {# registros}}"
+      "recordCount": "{count, plural, one {# registro} other {# registros}}",
+      "resetChanges": "Restablecer cambios"
     }
   },
   "Diagrams": {
@@ -1936,6 +2026,7 @@
     "appRecords": "Registros",
     "appRoutines": "Rutinas",
     "appSearch": "Búsqueda global",
+    "appTrash": "Papelera",
     "architectureSecurity": "Arquitectura y seguridad",
     "concepts": "Conceptos clave",
     "connectCli": "CLI y editores",
@@ -2034,6 +2125,7 @@
     "overview": "Vista general",
     "personalize": "Personalizar",
     "pinField": "Fijar {field} en el resumen",
+    "pinMore": "Fijar un campo",
     "reorderInstructions": "Pulsa Espacio o Intro para seleccionar un campo. Usa las flechas para moverlo, Espacio o Intro para soltarlo y Escape para cancelar.",
     "sections": {
       "notes": "Notas"
@@ -2539,6 +2631,7 @@
     "routines": "Rutinas",
     "search": "Buscar",
     "settings": "Ajustes",
+    "trash": "Papelera",
     "wiki": "Base de conocimientos"
   },
   "NotFoundPage": {
@@ -3119,7 +3212,6 @@
         "binding": "{source} usa {target} en su configuración.",
         "calculation": "{source} se calcula a partir de {target}.",
         "parentAccess": "{source} obtiene su acceso a través de {target}.",
-        "primaryField": "{target} da nombre a los registros de {source} y no se puede eliminar.",
         "protected": "{source} controla el acceso al espacio de trabajo y no se puede eliminar.",
         "requiresRestore": "Restaura primero {target}, {source} pertenece a él.",
         "routine": "La rutina {source} reacciona a {target}.",
@@ -3128,10 +3220,18 @@
         "widget": "El widget {source} mide {target}."
       },
       "cleaned": {
+        "bindingAvatar": "{target} deja de usarse como foto de perfil de {consumers}.",
+        "bindingCalendar": "{target} deja de usarse para los eventos de calendario de {consumers}.",
+        "bindingChannels": "{target} deja de usarse para los canales en {consumers}.",
         "listDefaults": "{target} se quita del diseño predeterminado de {consumers}.",
+        "nameField": "{consumers} se mostrará con {replacement} en su lugar.",
+        "nameFieldNone": "{consumers} ya no tiene un campo que dé nombre a sus registros, así que aparecen sin nombre.",
         "personalLayouts": "{target} se quita de {count, plural, one {# diseño personal} other {# diseños personales}}.",
         "view": "{count, plural, one {{target} se quita de la vista {consumers}.} other {{target} se quita de # vistas: {consumers}.}}",
-        "widget": "{count, plural, one {{target} se quita de los filtros o la agrupación del widget {consumers}.} other {{target} se quita de los filtros o la agrupación de # widgets: {consumers}.}}"
+        "webhookRemoved": "{count, plural, one {El webhook {consumers} deja de enviar cambios de registros porque {target} era su único disparador.} other {# webhooks dejan de enviar cambios de registros porque {target} era su único disparador: {consumers}.}}",
+        "webhookTrigger": "{count, plural, one {{target} se quita del disparador del webhook {consumers}.} other {{target} se quita del disparador de # webhooks: {consumers}.}}",
+        "widget": "{count, plural, one {{target} se quita de los filtros o la agrupación del widget {consumers}.} other {{target} se quita de los filtros o la agrupación de # widgets: {consumers}.}}",
+        "widgetCount": "{count, plural, one {El widget {consumers} cuenta registros en lugar de medir {target}.} other {# widgets cuentan registros en lugar de medir {target}: {consumers}.}}"
       },
       "configureActions": "Acciones de Configurar",
       "deleteColumn": "Eliminar columna",
@@ -3562,8 +3662,17 @@
     "typeSettings": "Configuración del tipo",
     "unavailableOption": "Opción no disponible",
     "unlinkRecord": "Desvincular {name}",
+    "untitledRecord": "{singular} sin nombre",
     "updatedAt": "Actualizado el",
     "useChannelAvatar": "Usar la foto de perfil del canal",
+    "valueSource": {
+      "calculated": "Calculado · {formula}",
+      "from": "De {list} · {value}",
+      "savedOnCreate": "Se guarda al crear {list}",
+      "savedOnRequest": "Se guarda bajo petición",
+      "savedWhenChanged": "Se guarda cuando cambia {field}",
+      "savedWhenChangedTo": "Se guarda cuando {field} cambia a {value}"
+    },
     "valueType": "Tipo de valor",
     "yes": "Sí"
   },
@@ -3976,6 +4085,58 @@
     "signoff": "Un saludo,\nBen",
     "subject": "Tu cuenta está inactiva: podemos ayudarte a recuperar el acceso",
     "title": "Suscripción desactivada"
+  },
+  "Trash": {
+    "bannerDeleted": "Eliminado el {date}. {count, plural, =0 {Se elimina definitivamente hoy} one {Se elimina definitivamente en # día} other {Se elimina definitivamente en # días}}.",
+    "columns": {
+      "deletedAt": "Eliminado el",
+      "deletedBy": "Eliminado por",
+      "expiresAt": "Eliminación definitiva",
+      "kind": "Tipo"
+    },
+    "daysLeft": "{count, plural, =0 {Se elimina definitivamente hoy} one {Se elimina definitivamente en # día} other {Se elimina definitivamente en # días}}",
+    "deletedPermanently": "Eliminado definitivamente",
+    "deletePermanently": "Eliminar definitivamente",
+    "deletePermanentlyManyTitle": "¿Eliminar {count, plural, one {# elemento} other {# elementos}} definitivamente?",
+    "deletePermanentlyTitle": "¿Eliminar {name} definitivamente?",
+    "empty": "Vaciar papelera",
+    "emptyBody": "Los elementos eliminados se quedan aquí 30 días y después se eliminan definitivamente.",
+    "emptyConfirmation": "vaciar papelera",
+    "emptyTitle": "¿Vaciar la papelera?",
+    "emptyTitleState": "La papelera está vacía",
+    "inTrash": "En la papelera",
+    "kindInList": "{kind} en {list}",
+    "kinds": {
+      "channels": "Canales",
+      "dashboardView": "Vista del panel",
+      "field": "Campo",
+      "list": "Lista",
+      "record": "Registro",
+      "relationship": "Relación",
+      "routine": "Rutina",
+      "view": "Vista",
+      "widget": "Widget",
+      "wikiPage": "Página de la base de conocimiento"
+    },
+    "movedToTrash": "Movido a la papelera",
+    "movesToTrash": "Se mueve a la papelera, donde puedes restaurarlo durante 30 días.",
+    "permanentIrreversible": "Esto no se puede deshacer.",
+    "permanentMessage": "{count, plural, one {Este elemento se elimina} other {Estos # elementos se eliminan}} definitivamente.",
+    "permanentRecords": "{list}: {count, plural, one {# registro} other {# registros}}",
+    "restore": "Restaurar",
+    "restoreBlocked": {
+      "listDeleted": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque su lista está en la papelera. Restaura primero la lista.",
+      "nameTaken": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque otro elemento usa ahora su nombre o lugar.",
+      "notFound": "{count, plural, one {# elemento ya no existe y salió} other {# elementos ya no existen y salieron}} de la papelera.",
+      "parentDeleted": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque aquello a lo que pertenecen está en la papelera. Restáuralo primero.",
+      "requiresRestore": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque algo que necesitan está en la papelera. Restáuralo primero."
+    },
+    "restored": "{count, plural, one {# elemento restaurado} other {# elementos restaurados}}",
+    "restoredInBackground": "Restaurado",
+    "restoredWithDroppedLinks": "Restaurado. {count, plural, one {# vínculo no se pudo} other {# vínculos no se pudieron}} restaurar porque el registro vinculado se eliminó definitivamente.",
+    "restorePending": "Restaurando en segundo plano. La papelera muestra el progreso.",
+    "searchPlaceholder": "Buscar en la papelera",
+    "undo": "Deshacer"
   },
   "TrialExpiredOffer": {
     "body": "Tu prueba terminó hace poco, pero me encantaría ayudarte a sacarle valor real a Customermates. Si quieres, puedo ampliar tu prueba y repasar contigo tu configuración.",

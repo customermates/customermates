@@ -9,9 +9,25 @@ Global search opens over the page you are on, from anywhere in the app: press Cm
 
 Search looks through records in every list you can read, including lists your workspace created, and groups the hits by list. It matches record titles and searchable field values, including email fields, and finds contacts by any email address or phone number in their **Channels**. Values you are not allowed to see are not searched. If your role reads a list only with **Assigned**, you only get records you are assigned to. **Load more** fetches further hits.
 
-Before you type, **Recently opened** shows your last 8 picks from search, stored in this browser only; **Clear** empties it. The same box also offers pages to go to, **Add** to create a record and, on a list, its saved views. Arrow keys move through the hits and Enter opens one. Selecting a record opens it in the details drawer.
+Before you type, **Recently opened** shows your last picks from search, stored in this browser only; **Clear** empties it. **Suggestions** below it offer what fits the page you are on, for example adding a record to the list you have open. Arrow keys move through the hits and Enter opens one. Selecting a record opens it in the details drawer.
+
+## How do I jump to a list, view, page or setting? [#how-do-i-jump-to-a-page-or-setting]
+
+Type its name or the start of its words; filler words such as "open", "go to" or "set up" are ignored, and a small typo in a single longer word is forgiven. Search also finds every list and its saved views, the pages of the app, each setting on [Profile & preferences](app:settings/profile) and the other settings pages, and actions such as switching the theme or inviting members, also by everyday words like "dark mode" or "team". The most likely target appears as **Best match** at the top, and Enter opens it. A list shows its saved views indented below it: Enter opens the list, arrow down picks a view. A setting opens its page with the setting highlighted. Actions show their keyboard shortcut on the right.
+
+To narrow the search, start with a letter and a space: **l** lists, **v** views, **s** settings, **d** documentation and **r** records, for example "v open deals".
+
+## How do I change the record I have open? [#how-do-i-change-the-open-record]
+
+With a record open in the drawer or on its page, search offers actions for it: **Change** a choice, yes/no or member field, **Assign to**, **Add to** a related list, and **Delete**. Choosing one opens its options inside the search box; Esc goes back one step. A change is saved right away, and Delete asks for confirmation as usual. These actions appear only when you may edit the record and it has no unsaved changes.
 
 Messages are not searched here; the [Inbox](app:inbox) has its own search. For a filtered or sorted list of records, use a list instead, for example [Contacts](app:records/contact) with [Filters](app:records/contact?focus=filter). To add a record, see [CRM records](/docs/app-records#how-do-i-add-a-record).
+
+## How does search match by meaning, and what is sent? [#how-does-search-match-by-meaning]
+
+Search also matches by meaning and across languages: "Sprache" finds **Display Language**, "night mode" finds the dark theme, and the words you would use for a list or view find it even when its name is different. Up to three matching sections of this documentation appear under **Docs**, up to eight when you start with **d**; each opens the place in the app it describes, or else the documentation page. Records are matched by their words only: a record id finds that record, a phrase in double quotes, such as "Acme Corp", matches only as written, and when nothing matches, records with a similarly spelled title appear.
+
+Search matches by meaning only when nothing matches by name: when no page, setting, action, list or view is a clear **Best match** and no record matches your words. Only then does an embedding model run by Google through the Vercel AI Gateway receive your search text, using a small amount of your AI credits. It also receives the names of the pages, settings, actions, lists, views and fields of your workspace, sent again only when they change, never the content of records. If the service is slow or unavailable, search shows the matches by name right away. Without AI, for example on a self-hosted installation, search matches by name only.
 
 ## For agents [#which-stable-ids-does-it-have]
 
@@ -21,7 +37,7 @@ Mate can point at **Search** in the sidebar but cannot open the search box or ty
 
 <Faq>
 <FaqItem question="What is the keyboard shortcut?">
-Cmd+K on a Mac, Ctrl+K on Windows and Linux, from anywhere in the app, or / when no text field has focus. Type a question and press Tab to hand it to [Mate](/docs/app-assistant) instead. **Search** in the sidebar shows the key for your computer and opens the same search. All shortcuts are listed in [Which keyboard shortcuts are there?](/docs/app-dashboard#keyboard-shortcuts).
+Cmd+K on a Mac, Ctrl+K on Windows and Linux, from anywhere in the app, or / when no text field has focus. Type a question and press Tab to hand it to [Mate](/docs/app-assistant) instead; **Ask Mate** is also the last row of the results. **Search** in the sidebar shows the key for your computer and opens the same search. All shortcuts are listed in [Which keyboard shortcuts are there?](/docs/app-dashboard#keyboard-shortcuts).
 </FaqItem>
 <FaqItem question="Where do results open?">
 In the record's details drawer, over the page you were on. From there you can open the full record page, described in [CRM records](/docs/app-records#what-is-the-shared-layout-of-a-record-type).

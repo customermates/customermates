@@ -343,7 +343,7 @@ describe("overlay contract", () => {
     expect(overlayContract).toContain("`absolute ${overlayIconControlClass()}`");
     expect(overlayContract).not.toContain("rounded-xs");
     for (const surface of [dialog, drawer, sheet]) {
-      expect(surface).toContain("className={cn(OVERLAY_CLOSE_CLASS");
+      expect(surface).toMatch(/className=\{cn\(\s*OVERLAY_CLOSE_CLASS,/);
       expect(surface).toContain('<span className="sr-only">{t("Common.actions.close")}</span>');
       expect(surface).toContain('<TooltipContent>{t("Common.actions.close")}</TooltipContent>');
     }
@@ -483,7 +483,10 @@ describe("overlay contract", () => {
 
     const appSidebar = readFileSync(join(REPO_ROOT, "app/components/app-sidebar.tsx"), "utf8");
     expect(appSidebar).toContain("globalSearchModalStore.openFrom(invoker");
-    expect(appSidebar).toContain("feedbackModalStore.openFrom(invoker");
+    expect(appSidebar).toContain("sendFeedback(invoker");
+    expect(readFileSync(join(REPO_ROOT, "app/components/navigation/use-account-actions.ts"), "utf8")).toContain(
+      "feedbackModalStore.openFrom(invoker",
+    );
     expect(appSidebar).toContain('document.getElementById("sidebar-trigger")');
 
     const missing = CONTROLLED_FOCUS_RETURN_SURFACES.filter(

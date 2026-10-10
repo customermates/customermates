@@ -6,8 +6,15 @@ import type { RecordSearchResult } from "@/features/records/record-search.schema
 vi.mock("@/app/[locale]/(protected)/search/actions", () => ({
   resolveSearchReferencesAction: vi.fn(),
   globalSearchAction: vi.fn(),
+  commandCatalogAction: vi.fn(),
+  commandSearchAction: vi.fn(),
 }));
-import { resolveSearchReferencesAction, globalSearchAction } from "@/app/[locale]/(protected)/search/actions";
+import {
+  commandCatalogAction,
+  commandSearchAction,
+  globalSearchAction,
+  resolveSearchReferencesAction,
+} from "@/app/[locale]/(protected)/search/actions";
 import { GlobalSearchModalStore } from "../global-search-modal.store";
 
 const TYPE = "10000000-0000-4000-8000-000000000001";
@@ -19,6 +26,10 @@ const hit = recordSearchHit(TYPE, ID, "Current name");
 const page = (results = [hit], nextCursor: RecordSearchResult["nextCursor"] = null) => ({
   ok: true as const,
   data: { results, nextCursor, schemaRevision: 1 },
+});
+const combined = (records = page(), semantic: { key: string; similarity: number }[] = []) => ({
+  ok: true as const,
+  data: { records: records.data, semantic, docs: [], degraded: false },
 });
 
 function browser(initial: Record<string, unknown> = {}) {
@@ -36,7 +47,7 @@ function setup() {
   const userStore = observable({ user: { id: "user-1", companyId: "company-1" } });
   const store = new GlobalSearchModalStore({
     userStore,
-    localeStore: { getTranslation: (key: string) => key },
+    localeStore: { getTranslation: (key: string) => key, locale: "en" },
     registerModalStore: vi.fn(),
   } as never);
   return { store, userStore };
@@ -53,6 +64,10 @@ function deferred<T>() {
 beforeEach(() => {
   vi.useFakeTimers();
   vi.mocked(resolveSearchReferencesAction).mockResolvedValue({ ok: true, data: { results: [] } });
+  vi.mocked(commandCatalogAction).mockResolvedValue({
+    ok: true,
+    data: { schemaRevision: 1, views: [{ typeId: TYPE, id: "view-1", name: "Open" }], fields: [] },
+  });
 });
 afterEach(() => {
   vi.useRealTimers();
@@ -117,30 +132,30 @@ describe("generic search state and recent references", () => {
   it("rejects stale results while typing a new query and after closing or switching user", async () => {
     browser();
     const { store, userStore } = setup();
-    const pending = deferred<Awaited<ReturnType<typeof globalSearchAction>>>();
-    vi.mocked(globalSearchAction).mockReturnValueOnce(pending.promise);
+    const pending = deferred<Awaited<ReturnType<typeof commandSearchAction>>>();
+    vi.mocked(commandSearchAction).mockReturnValueOnce(pending.promise);
     store.open();
     store.onChange("searchTerm", "old");
     await vi.advanceTimersByTimeAsync(250);
     store.onChange("searchTerm", "new");
-    pending.finish(page());
+    pending.finish(combined());
     await vi.advanceTimersByTimeAsync(0);
     expect(store.results).toBeNull();
-    const next = deferred<Awaited<ReturnType<typeof globalSearchAction>>>();
-    vi.mocked(globalSearchAction).mockReturnValueOnce(next.promise);
+    const next = deferred<Awaited<ReturnType<typeof commandSearchAction>>>();
+    vi.mocked(commandSearchAction).mockReturnValueOnce(next.promise);
     await vi.advanceTimersByTimeAsync(250);
     runInAction(() => {
       userStore.user = { id: "user-2", companyId: "company-1" };
     });
-    next.finish(page());
+    next.finish(combined());
     await vi.advanceTimersByTimeAsync(0);
     expect(store.results).toBeNull();
-    const closing = deferred<Awaited<ReturnType<typeof globalSearchAction>>>();
-    vi.mocked(globalSearchAction).mockReturnValueOnce(closing.promise);
+    const closing = deferred<Awaited<ReturnType<typeof commandSearchAction>>>();
+    vi.mocked(commandSearchAction).mockReturnValueOnce(closing.promise);
     store.onChange("searchTerm", "closing");
     await vi.advanceTimersByTimeAsync(250);
     store.close();
-    closing.finish(page());
+    closing.finish(combined());
     await vi.advanceTimersByTimeAsync(0);
     expect(store.results).toBeNull();
   });
@@ -148,7 +163,7 @@ describe("generic search state and recent references", () => {
     browser();
     const { store } = setup();
     const cursor = { revision: 1, createdAt: "2026-09-28T10:00:00.000000Z", ref: hit.ref };
-    vi.mocked(globalSearchAction).mockResolvedValueOnce(page([hit], cursor));
+    vi.mocked(commandSearchAction).mockResolvedValueOnce(combined(page([hit], cursor)));
     store.open();
     store.onChange("searchTerm", "title");
     await vi.advanceTimersByTimeAsync(250);
@@ -158,6 +173,88 @@ describe("generic search state and recent references", () => {
     expect(globalSearchAction).toHaveBeenLastCalledWith({ searchTerm: "title", limit: 40, cursor });
     expect(store.results?.results).toEqual([hit, other]);
     await store.loadMore();
-    expect(globalSearchAction).toHaveBeenCalledTimes(2);
+    expect(globalSearchAction).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("command palette state", () => {
+  it("loads the names catalog when it opens", async () => {
+    browser();
+    const { store } = setup();
+    store.open();
+    await vi.runAllTimersAsync();
+    expect(commandCatalogAction).toHaveBeenCalledOnce();
+    expect(store.catalog?.views).toEqual([{ typeId: TYPE, id: "view-1", name: "Open" }]);
+  });
+
+  it("remembers recent commands by stable id per person", () => {
+    const values = browser();
+    const { store } = setup();
+    store.pushRecentCommand("cmd:page.dashboard");
+    store.pushRecentCommand("list:deals");
+    store.pushRecentCommand("cmd:page.dashboard");
+    expect(store.recentCommandKeys).toEqual(["cmd:page.dashboard", "list:deals"]);
+    expect(JSON.parse(values.get("customermates:commandPalette:recent:v1:company-1:user-1") ?? "[]")).toEqual([
+      "cmd:page.dashboard",
+      "list:deals",
+    ]);
+  });
+
+  it("steps into and back out of a second level with an empty input", () => {
+    browser();
+    const { store } = setup();
+    store.open();
+    store.onChange("searchTerm", "chan");
+    store.pushLevel({ kind: "assign", label: "Assign to" });
+    expect(store.level).toEqual({ kind: "assign", label: "Assign to" });
+    expect(store.form.searchTerm).toBe("");
+    store.popLevel();
+    expect(store.level).toBeNull();
+    store.pushLevel({ kind: "assign", label: "Assign to" });
+    store.close();
+    store.open();
+    expect(store.level).toBeNull();
+  });
+
+  it("sends one combined request per settled query with the scope and keeps semantic hits", async () => {
+    browser();
+    vi.mocked(commandSearchAction).mockResolvedValue(
+      combined(page(), [{ key: "cmd:page.dashboard", similarity: 0.8 }]),
+    );
+    const { store } = setup();
+    store.open();
+    store.onChange("searchTerm", "r acme");
+    await vi.advanceTimersByTimeAsync(200);
+    expect(commandSearchAction).toHaveBeenLastCalledWith({
+      searchTerm: "acme",
+      scope: "records",
+      locale: "en",
+      semantic: true,
+    });
+    store.onChange("searchTerm", "s theme");
+    expect(store.semantic).toEqual([]);
+    await vi.advanceTimersByTimeAsync(200);
+    expect(commandSearchAction).toHaveBeenLastCalledWith({
+      searchTerm: "theme",
+      scope: "settings",
+      locale: "en",
+      semantic: true,
+    });
+    expect(store.semantic).toEqual([{ key: "cmd:page.dashboard", similarity: 0.8 }]);
+    expect(commandSearchAction).toHaveBeenCalledTimes(2);
+  });
+
+  it("asks the server not to embed when the instant matcher is already confident", async () => {
+    browser();
+    vi.mocked(commandSearchAction).mockResolvedValue(combined());
+    const { store } = setup();
+    store.setInstantMatcher((query) => query === "dashboard");
+    store.open();
+    store.onChange("searchTerm", "dashboard");
+    await vi.advanceTimersByTimeAsync(200);
+    expect(commandSearchAction).toHaveBeenLastCalledWith(expect.objectContaining({ semantic: false }));
+    store.onChange("searchTerm", "hot leads");
+    await vi.advanceTimersByTimeAsync(200);
+    expect(commandSearchAction).toHaveBeenLastCalledWith(expect.objectContaining({ semantic: true }));
   });
 });
