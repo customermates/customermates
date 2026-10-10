@@ -68,19 +68,19 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
       dialogs.getByRole("region", { name: "Line items" }).getByRole("button", { name, exact: true }),
     ).toBeVisible();
   }
-  const lines = dialogs.getByRole("region", { name: "Line items" });
-  await expect(lines.locator("[data-embedded-count]")).toHaveText("3");
-  await expect(lines.locator("tbody tr")).toHaveCount(3);
-  await expect(lines.locator("[data-calculated-header]").filter({ hasText: "Amount" })).toBeVisible();
-  await expect(lines.locator("tbody [data-calculated-field]").first()).toBeVisible();
-  await expect(lines.getByRole("button", { name: "Edit Amount", exact: true })).toHaveCount(0);
-  await expect(lines.locator('[data-slot="table-totals"]')).toBeVisible();
-  await lines.getByRole("button", { name: "Add Line item", exact: true }).click();
-  await lines.getByRole("textbox", { name: "Add Line item", exact: true }).fill("Discarded line");
+  const lineItems = dialogs.getByRole("region", { name: "Line items" });
+  await expect(lineItems.locator("[data-embedded-count]")).toHaveText("3");
+  await expect(lineItems.locator("tbody tr")).toHaveCount(3);
+  await expect(lineItems.locator("[data-calculated-header]").filter({ hasText: "Amount" })).toBeVisible();
+  await expect(lineItems.locator("tbody [data-calculated-field]").first()).toBeVisible();
+  await expect(lineItems.getByRole("button", { name: "Edit Amount", exact: true })).toHaveCount(0);
+  await expect(lineItems.locator('[data-slot="table-totals"]')).toBeVisible();
+  await lineItems.getByRole("button", { name: "Add Line item", exact: true }).click();
+  await lineItems.getByRole("textbox", { name: "Add Line item", exact: true }).fill("Discarded line");
   await page.keyboard.press("Escape");
-  await expect(lines.getByRole("textbox", { name: "Add Line item", exact: true })).toHaveCount(0);
+  await expect(lineItems.getByRole("textbox", { name: "Add Line item", exact: true })).toHaveCount(0);
   await expect(dialogs).toHaveCount(1);
-  await expect(lines.locator("tbody tr")).toHaveCount(3);
+  await expect(lineItems.locator("tbody tr")).toHaveCount(3);
   const totals = async () => {
     const rows = await database.query(
       'SELECT f.definition->>\'label\' AS label,trim_scale(v."decimalValue")::text AS value FROM "RecordValue" v JOIN "RecordFieldDefinition" f ON f."companyId"=v."companyId" AND f.id=v."fieldId" WHERE v."companyId"=$1 AND v."typeId"=$2 AND f.id=ANY($3::text[])',
