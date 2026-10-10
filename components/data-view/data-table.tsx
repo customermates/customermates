@@ -3,6 +3,7 @@
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { ColumnDef, Row, SortingState, VisibilityState } from "@tanstack/react-table";
 import type { ReactNode } from "react";
+import type { RecordGroupSummaryResult } from "@/features/records/record-grouping.schema";
 
 import { flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, ChevronsUpDown } from "lucide-react";
@@ -14,7 +15,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/core/utils/cn";
 import type { Prisma } from "@/generated/prisma";
 
@@ -31,6 +32,7 @@ type Props<E extends HasId> = {
   onRowClick?: (item: E) => void;
   rowActions?: (item: E) => ReactNode;
   onRowHref?: (item: E) => string | undefined;
+  totals?: RecordGroupSummaryResult[];
 };
 
 const fixedWidthStyle = (width: number) => ({
@@ -46,6 +48,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   onRowClick,
   rowActions,
   onRowHref,
+  totals,
 }: Props<E>) {
   const t = useTranslations();
   const navigateToHref = useNavigateToHref();
@@ -438,6 +441,21 @@ export const DataTable = observer(function DataTable<E extends HasId>({
           </TableRow>
         )}
       </TableBody>
+
+      {totals?.length ? (
+        <TableFooter data-slot="table-totals">
+          <TableRow className="hover:bg-transparent">
+            {table.getVisibleLeafColumns().map((column) => {
+              const summaries = totals.filter((summary) => summary.fieldId === column.id);
+              return (
+                <TableCell key={column.id}>
+                  {summaries.length ? <GroupSummaries summaries={summaries} /> : null}
+                </TableCell>
+              );
+            })}
+          </TableRow>
+        </TableFooter>
+      ) : null}
     </Table>
   );
 });

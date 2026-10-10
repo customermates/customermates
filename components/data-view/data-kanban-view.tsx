@@ -26,7 +26,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { ChevronsLeftRight, Ellipsis } from "lucide-react";
+import { ChevronsLeftRight, Ellipsis, Plus, Settings2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -211,12 +211,16 @@ type LoadMoreAction = {
   onClick: () => void;
 };
 
-function KanbanColumnLabel({ label, color }: { label: string; color?: ChipColor }) {
-  return color ? (
-    <AppChip size="sm" variant={color}>
-      {label}
-    </AppChip>
-  ) : (
+function KanbanColumnLabel({ label, color, tooltip = true }: { label: string; color?: ChipColor; tooltip?: boolean }) {
+  if (color) {
+    return (
+      <AppChip size="sm" variant={color}>
+        {label}
+      </AppChip>
+    );
+  }
+  if (!tooltip) return <span className="min-w-0 truncate text-sm font-medium">{label}</span>;
+  return (
     <Tooltip>
       <TooltipTrigger asChild>
         <span className="min-w-0 truncate text-sm font-medium">{label}</span>
@@ -267,6 +271,8 @@ const KanbanColumn = observer(function KanbanColumn({
   recordLabels,
   loadMore,
   highlighted,
+  editHref,
+  onCreate,
   onCollapse,
   children,
 }: {
@@ -280,10 +286,14 @@ const KanbanColumn = observer(function KanbanColumn({
   recordLabels?: { singular: string; plural: string };
   loadMore?: LoadMoreAction;
   highlighted: boolean;
+  editHref?: string;
+  onCreate?: (returnFocusTo: HTMLElement | null) => void;
   onCollapse: () => void;
   children: ReactNode;
 }) {
   const t = useTranslations();
+  const navigateToHref = useNavigateToHref();
+  const menuTrigger = useRef<HTMLButtonElement>(null);
   const { setNodeRef } = useDroppable({ id, disabled: !droppable });
   const moreLabel = t("RecordModel.moreActions", { name: label });
   const details = weight === undefined ? [] : [`${t("Common.stageProbability")}: ${weight}%`];
@@ -311,7 +321,13 @@ const KanbanColumn = observer(function KanbanColumn({
             <Tooltip>
               <TooltipTrigger asChild>
                 <DropdownMenuTrigger asChild>
-                  <Button aria-label={moreLabel} className="text-muted-foreground" size="icon-xs" variant="ghost">
+                  <Button
+                    ref={menuTrigger}
+                    aria-label={moreLabel}
+                    className="text-muted-foreground"
+                    size="icon-xs"
+                    variant="ghost"
+                  >
                     <Ellipsis aria-hidden />
                   </Button>
                 </DropdownMenuTrigger>
@@ -321,6 +337,22 @@ const KanbanColumn = observer(function KanbanColumn({
             </Tooltip>
 
             <DropdownMenuContent align="end">
+              {onCreate && recordLabels && (
+                <DropdownMenuItem onSelect={() => onCreate(menuTrigger.current)}>
+                  <Plus className="size-4" />
+
+                  {t("NavigationBar.addEntity", { entity: recordLabels.singular })}
+                </DropdownMenuItem>
+              )}
+
+              {editHref && (
+                <DropdownMenuItem onSelect={() => navigateToHref(editHref)}>
+                  <Settings2 className="size-4" />
+
+                  {t("DataView.editOption")}
+                </DropdownMenuItem>
+              )}
+
               <DropdownMenuItem onSelect={onCollapse}>
                 <ChevronsLeftRight className="size-4" />
 
@@ -370,7 +402,10 @@ const KanbanStrip = observer(function KanbanStrip({
 }) {
   const t = useTranslations();
   const { setNodeRef, isOver } = useDroppable({ id, disabled: !droppable });
-  const expandLabel = t("DataView.expandColumn", { name: label });
+  const countLabel = recordLabels
+    ? t("DataView.kanbanCount", { count, singular: recordLabels.singular, plural: recordLabels.plural })
+    : String(count);
+  const expandLabel = `${t("DataView.expandColumn", { name: label })}, ${countLabel}`;
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -384,9 +419,11 @@ const KanbanStrip = observer(function KanbanStrip({
           onClick={onExpand}
         >
           <span className="flex min-h-0 items-center gap-2 [writing-mode:vertical-rl]">
-            <KanbanColumnLabel color={color} label={label} />
+            <KanbanColumnLabel color={color} label={label} tooltip={false} />
 
-            <KanbanCount count={count} recordLabels={recordLabels} />
+            <span aria-hidden className="shrink-0 text-xs text-muted-foreground tabular-nums">
+              {count}
+            </span>
           </span>
         </button>
       </TooltipTrigger>
@@ -450,8 +487,8 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   );
 
   const groups = visibleGroups(store.groupingResult, { keepEmptyNoValue: true });
-  const openGroups = groups.filter((group) => !store.isGroupCollapsed(group.key));
-  const collapsedGroups = groups.filter((group) => store.isGroupCollapsed(group.key));
+  const openGroups = groups.filter((group) => !store.isBoardStrip(group.key, group.count));
+  const collapsedGroups = groups.filter((group) => store.isBoardStrip(group.key, group.count));
 
   if (!store.isGrouped) {
     return (
@@ -609,6 +646,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                 color={group.color}
                 count={group.count}
                 droppable={supportsDragWriteBack && group.writable !== false}
+                editHref={store.groupEditHref(group.key)}
                 highlighted={drag !== null && placement?.groupKey === group.key}
                 id={group.key}
                 label={groupLabel(group)}
@@ -616,7 +654,12 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
                 recordLabels={store.recordLabels}
                 summaries={group.summaries}
                 weight={group.weight}
-                onCollapse={() => store.toggleGroupCollapsed(group.key)}
+                onCollapse={() => store.toggleBoardStrip(group.key, group.count)}
+                onCreate={
+                  store.canCreateInGroup(group.key)
+                    ? (returnFocusTo) => store.createInGroup(group.key, returnFocusTo)
+                    : undefined
+                }
               >
                 {group.itemIds.map((itemId) => {
                   const item = itemsById.get(itemId);
@@ -661,7 +704,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
               id={group.key}
               label={groupLabel(group)}
               recordLabels={store.recordLabels}
-              onExpand={() => store.toggleGroupCollapsed(group.key)}
+              onExpand={() => store.toggleBoardStrip(group.key, group.count)}
             />
           ))}
         </div>

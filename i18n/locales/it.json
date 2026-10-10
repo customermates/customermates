@@ -1960,6 +1960,7 @@
     "collapseColumn": "Comprimi colonna",
     "collapseGroup": "Comprimi il gruppo {group}",
     "dragToReorder": "Trascina per riordinare",
+    "editOption": "Modifica opzione",
     "expandColumn": "Espandi {name}",
     "expandGroup": "Espandi il gruppo {group}",
     "groupOverflow": "Vengono mostrati solo {count} gruppi",
@@ -3098,6 +3099,13 @@
         "max": "Massimo",
         "min": "Minimo",
         "sum": "Somma"
+      },
+      "describe": {
+        "failed": "Non è stato possibile trasformarlo in un calcolo. Prova a descriverlo in altro modo.",
+        "label": "Descrivi il calcolo",
+        "pending": "Preparazione del calcolo",
+        "placeholder": "Ad esempio: totale degli importi di tutte le righe collegate",
+        "unavailable": "La bozza non è disponibile al momento."
       },
       "example": {
         "next": "Mostra un altro esempio",

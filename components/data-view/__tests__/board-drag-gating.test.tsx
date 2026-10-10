@@ -151,8 +151,11 @@ function store(grouping: Partial<GroupingResult>, moveItemBetweenGroups = vi.fn(
       ...grouping,
     },
     loadMoreInGroup: vi.fn(),
-    isGroupCollapsed: () => false,
-    toggleGroupCollapsed: vi.fn(),
+    isBoardStrip: () => false,
+    toggleBoardStrip: vi.fn(),
+    canCreateInGroup: () => false,
+    createInGroup: vi.fn(),
+    groupEditHref: () => undefined,
     moveItemBetweenGroups,
   } as unknown as BaseDataViewStore<Item>;
 }
