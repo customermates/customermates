@@ -59,6 +59,7 @@ export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperat
   [FilterFieldKey.state]: scalarSelectOperators,
   [FilterFieldKey.draft]: draftOperators,
   [FilterFieldKey.connectedAccountId]: scalarSelectOperators,
+  [FilterFieldKey.webhookId]: scalarSelectOperators,
   [FilterFieldKey.emailFolder]: scalarSelectOperators,
   [FilterFieldKey.lastMessageDirection]: scalarSelectOperators,
   [FilterFieldKey.lastMessageSentAt]: dateOperators,
@@ -76,4 +77,6 @@ export const FILTER_FIELD_DEFAULT_OPERATORS: Record<FilterFieldKey, FilterOperat
   [FilterFieldKey.name]: textFieldOperators,
   [FilterFieldKey.firstName]: textFieldOperators,
   [FilterFieldKey.lastName]: textFieldOperators,
+  [FilterFieldKey.kind]: [FilterOperatorKey.in],
+  [FilterFieldKey.list]: [FilterOperatorKey.in],
 };

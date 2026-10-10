@@ -126,11 +126,14 @@ const EXPECTED_STANDARD: Record<FilterFieldKey, Expected> = {
   [FilterFieldKey.timelineThreadId]: SELECT,
   [FilterFieldKey.updatedAt]: RELATIVE_DATE,
   [FilterFieldKey.url]: TEXT,
+  [FilterFieldKey.webhookId]: SELECT,
   [FilterFieldKey.name]: TEXT,
   [FilterFieldKey.firstName]: TEXT,
   [FilterFieldKey.lastName]: TEXT,
   [FilterFieldKey.workspaceId]: SELECT,
   [FilterFieldKey.workspaceTags]: SELECT,
+  [FilterFieldKey.kind]: SELECT,
+  [FilterFieldKey.list]: SELECT,
 };
 
 const EXPECTED_CUSTOM: Record<CustomColumnType, Expected> = {

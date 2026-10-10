@@ -55,7 +55,7 @@ test("selects records, bulk-edits exact decimals, previews cascades, and deletes
   await expect(page.locator("[data-record-mass-actions]")).not.toBeVisible();
   const prices = () =>
     database.query(
-      'SELECT name."textValue" AS name,trim_scale(price."decimalValue")::text AS price FROM "RecordValue" price JOIN "RecordValue" name ON name."companyId"=price."companyId" AND name."typeId"=price."typeId" AND name."recordId"=price."recordId" AND name."fieldId"=$4 WHERE price."companyId"=$1 AND price."typeId"=$2 AND price."fieldId"=$3 ORDER BY name."textValue"',
+      'SELECT name."textValue" AS name,trim_scale(price."decimalValue")::text AS price FROM "RecordValue" price JOIN "RecordValue" name ON name."companyId"=price."companyId" AND name."typeId"=price."typeId" AND name."recordId"=price."recordId" AND name."fieldId"=$4 JOIN "CrmRecord" record ON record."companyId"=price."companyId" AND record."typeId"=price."typeId" AND record.id=price."recordId" AND record."deletedAt" IS NULL WHERE price."companyId"=$1 AND price."typeId"=$2 AND price."fieldId"=$3 ORDER BY name."textValue"',
       [companyId, typeId, priceId, presetId(companyId, "service.name")],
     );
   expect((await prices()).rows).toEqual([
@@ -286,15 +286,12 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
   }
   await expect(row("Other C").getByRole("cell").nth(discountColumn)).toHaveText("3.75");
   await expect(page).toHaveURL((url) => !url.searchParams.has("searchTerm"));
-  await expect
-    .poll(async () => {
-      const saved = await database.query(
-        'SELECT "searchTerm" FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3',
-        [companyId, workspace.userId, `records:${typeId}`],
-      );
-      return saved.rows.length === 1 && !saved.rows[0].searchTerm;
-    })
-    .toBe(true);
+  await expect(page.locator("#global-data-views-all")).not.toHaveAttribute("data-view-modified");
+  const saved = await database.query(
+    'SELECT "searchTerm" FROM "P13n" WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId"=$3',
+    [companyId, workspace.userId, `records:${typeId}`],
+  );
+  expect(saved.rows.every((row) => !row.searchTerm)).toBe(true);
   await page.screenshot({ path: testInfo.outputPath("bulk-clear-off-view.png"), animations: "disabled" });
   await page.reload();
   await expect(page.getByRole("link", { name: "Selected A", exact: true })).toBeVisible();

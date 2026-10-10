@@ -10,6 +10,11 @@ import { CountSystemTasksInteractor } from "@/features/records/count-system-task
 import { CheckRecordIdentityInteractor } from "@/features/records/check-record-identity.interactor";
 import { GetIdentityRecordChoicesInteractor } from "@/features/records/get-identity-record-choices.interactor";
 import { GetRecordNavigationInteractor } from "@/features/records/get-record-navigation.interactor";
+import { GetCommandCatalogInteractor } from "@/features/command-palette/get-command-catalog.interactor";
+import { PrismaSearchCatalogRepo } from "@/features/command-palette/prisma-search-catalog.repository";
+import { SearchCommandCatalogInteractor } from "@/features/command-palette/search-command-catalog.interactor";
+import { SearchCatalogIndexDispatcher } from "@/ee/wiki-retrieval/search-catalog-index-dispatcher";
+import { SearchCatalogIndexService } from "@/ee/wiki-retrieval/search-catalog-index.service";
 import { GetRecordPresentationInteractor } from "@/features/records/get-record-presentation.interactor";
 import { PrismaEventOutboxRepo } from "@/features/event/prisma-event-outbox.repository";
 import { PrismaRecordOperationQueueRepo } from "@/features/records/prisma-record-operation-queue.repository";
@@ -105,6 +110,15 @@ import { MutateRecordInteractor } from "@/features/records/mutate-record.interac
 import { PreviewRecordDeletionInteractor } from "@/features/records/preview-record-deletion.interactor";
 import { PrismaMembershipTaskRepo } from "@/features/records/prisma-membership-task.repository";
 import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
+import { RecordTrashHandler } from "@/features/records/record-trash.handler";
+import { PrismaTrashRepo } from "@/features/trash/prisma-trash.repository";
+import type { TrashKindHandler } from "@/features/trash/trash-kind-handler";
+import { QueryTrashInteractor } from "@/features/trash/query-trash.interactor";
+import { RestoreTrashInteractor } from "@/features/trash/restore-trash.interactor";
+import { PreviewTrashDeletionInteractor } from "@/features/trash/preview-trash-deletion.interactor";
+import { DeleteTrashPermanentlyInteractor } from "@/features/trash/delete-trash-permanently.interactor";
+import { EmptyTrashInteractor } from "@/features/trash/empty-trash.interactor";
+import { GetTrashedRecordInteractor } from "@/features/trash/get-trashed-record.interactor";
 import { QueryRecordMeasureInteractor } from "@/features/records/query-record-measure.interactor";
 import { QueryRecordsInteractor } from "@/features/records/query-records.interactor";
 import { GetRecordInteractor } from "@/features/records/get-record.interactor";
@@ -433,6 +447,9 @@ export const getGetRecordActivitiesInteractor = () =>
 export const getGetIdentityRecordChoicesInteractor = () =>
   new GetIdentityRecordChoicesInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getRecordIdentityReader = () => new RecordIdentityReader(getRecordRepo(), getRecordAccessPolicy());
+export const getGetCommandCatalogInteractor = () =>
+  new GetCommandCatalogInteractor(getRecordRepo(), getRecordAccessPolicy(), getDataViewRepo());
+
 export const getGetRecordNavigationInteractor = () =>
   new GetRecordNavigationInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getDiscoverRecordTypesInteractor = () =>
@@ -491,6 +508,31 @@ export const getApplyRecordConfigurationInteractor = () =>
     getRecordConfigurationService(),
     new RecordConfigurationWriter(getRecordRepo(), getRecordCalculationService()),
     getBackgroundTaskService(),
+  );
+export const getTrashRepo = (companyId?: string) => new PrismaTrashRepo(companyId);
+export const getTrashKindHandlers = (companyId?: string): TrashKindHandler[] => [
+  new RecordTrashHandler(
+    new PrismaRecordRepo(companyId, getBackgroundTaskService()),
+    getRecordAccessPolicy(),
+    getBackgroundTaskService(),
+  ),
+];
+export const getQueryTrashInteractor = () =>
+  new QueryTrashInteractor(getTrashRepo(), getRecordRepo(), getTrashKindHandlers());
+export const getRestoreTrashInteractor = () => new RestoreTrashInteractor(getTrashRepo(), getTrashKindHandlers());
+export const getPreviewTrashDeletionInteractor = () =>
+  new PreviewTrashDeletionInteractor(getTrashRepo(), getTrashKindHandlers());
+export const getDeleteTrashPermanentlyInteractor = () =>
+  new DeleteTrashPermanentlyInteractor(getTrashRepo(), getTrashKindHandlers());
+export const getEmptyTrashInteractor = () =>
+  new EmptyTrashInteractor(getTrashRepo(), getRecordAccessPolicy(), getTrashKindHandlers());
+export const getGetTrashedRecordInteractor = () =>
+  new GetTrashedRecordInteractor(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getGetRecordEditorInteractor(),
+    getTrashRepo(),
+    getTrashKindHandlers(),
   );
 export const getRecordOperationService = () =>
   new RecordOperationService(getRecordRepo(), getRecordAccessPolicy(), getRecordConfigurationService());
@@ -579,6 +621,25 @@ export const getRetrievalQueryEmbedder = (): QueryEmbedding | null => {
   const embedder = new WikiSemanticQueryEmbedder(getWikiEmbeddingService());
   return (query, wait) => embedder.embedQuery(query, wait);
 };
+export const getSearchCatalogRepo = () => new PrismaSearchCatalogRepo();
+export const getSearchCatalogIndexService = () =>
+  new SearchCatalogIndexService(
+    getSearchCatalogRepo(),
+    getRecordRepo(),
+    getDataViewRepo(),
+    getWikiEmbeddingService(),
+    getAgentUsageService(),
+  );
+export const getSearchCommandCatalogInteractor = () =>
+  new SearchCommandCatalogInteractor(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getDataViewRepo(),
+    getSearchCatalogRepo(),
+    getDocsChunkRepo(),
+    getRetrievalQueryEmbedder(),
+    new SearchCatalogIndexDispatcher(getBackgroundTaskService()),
+  );
 const getWikiSemanticRetrieval = () => ({
   embedder: new WikiSemanticQueryEmbedder(getWikiEmbeddingService()),
   scheduler: getWikiSemanticIndexDispatcher("search"),
@@ -622,7 +683,12 @@ export const getIngestUnipileWebhookInteractor = () =>
 export const getUserIdsValidator = () => new ValidateUserIdsInteractor(getUserRepo());
 export const getAssigneeGuardValidator = () => new ValidateAssigneeGuardInteractor(getUserService());
 export const getQueryParamsPrecheck = () =>
-  new QueryParamsPrecheckInteractor(getUserIdsValidator(), getThreadIdsValidator(), getConnectedAccountIdsValidator());
+  new QueryParamsPrecheckInteractor(
+    getUserIdsValidator(),
+    getThreadIdsValidator(),
+    getConnectedAccountIdsValidator(),
+    getWebhookIdsValidator(),
+  );
 export const getWidgetIdsValidator = () => new ValidateWidgetIdsInteractor(getWidgetRepo());
 export const getWebhookIdsValidator = () => new ValidateWebhookIdsInteractor(getWebhookRepo());
 export const getWebhookDeliveryIdsValidator = () => new ValidateWebhookDeliveryIdsInteractor(getWebhookDeliveryRepo());

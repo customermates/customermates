@@ -1,7 +1,17 @@
 "use server";
 
-import type { RecordSearch, ResolveRecordSearchInput } from "@/features/records/record-search.schema";
-import { getSearchRecordsInteractor, getResolveRecordSearchInteractor } from "@/core/di";
+import type { CommandSearchInput, CommandSearchResult } from "@/features/command-palette/command-search.schema";
+import type {
+  RecordSearch,
+  RecordSearchResult,
+  ResolveRecordSearchInput,
+} from "@/features/records/record-search.schema";
+import {
+  getGetCommandCatalogInteractor,
+  getResolveRecordSearchInteractor,
+  getSearchCommandCatalogInteractor,
+  getSearchRecordsInteractor,
+} from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 
 export async function globalSearchAction(data: RecordSearch) {
@@ -10,4 +20,26 @@ export async function globalSearchAction(data: RecordSearch) {
 
 export async function resolveSearchReferencesAction(data: ResolveRecordSearchInput) {
   return serializeResult(getResolveRecordSearchInteractor().invoke(data));
+}
+
+export async function commandCatalogAction() {
+  return serializeResult(getGetCommandCatalogInteractor().invoke());
+}
+
+const NO_RECORDS: RecordSearchResult = { results: [], schemaRevision: 0, nextCursor: null };
+
+export async function commandSearchAction(input: CommandSearchInput) {
+  const searchesRecords = input.scope === null || input.scope === "records";
+  const records = searchesRecords
+    ? await getSearchRecordsInteractor().invoke({ searchTerm: input.searchTerm, limit: 40, cursor: null })
+    : null;
+  if (records && !records.ok) return serializeResult<CommandSearchResult>(records);
+  const recordMatched = (records?.data.results.length ?? 0) > 0;
+  const catalog = await getSearchCommandCatalogInteractor().invoke({
+    ...input,
+    semantic: input.semantic && !recordMatched,
+  });
+  if (!catalog.ok) return serializeResult<CommandSearchResult>(catalog);
+  const result: CommandSearchResult = { ...catalog.data, records: records?.data ?? NO_RECORDS };
+  return serializeResult<CommandSearchResult>({ ok: true as const, data: result });
 }

@@ -11,11 +11,27 @@ import { BaseModalStore } from "@/core/base/base-modal.store";
 import { Debouncer } from "@/core/utils/debounce";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
-import { globalSearchAction, resolveSearchReferencesAction } from "@/app/[locale]/(protected)/search/actions";
+import type { CommandCatalog } from "@/features/command-palette/command-catalog.schema";
+import {
+  commandCatalogAction,
+  commandSearchAction,
+  globalSearchAction,
+  resolveSearchReferencesAction,
+} from "@/app/[locale]/(protected)/search/actions";
 import { recordSearchKey, StoredSearchReferenceSchema } from "@/features/records/record-search.schema";
+import type { CommandDocsHit } from "@/features/command-palette/command-search.schema";
+import { DEFAULT_LOCALE, isAppLocale } from "@/i18n/locale-registry";
+import { parsePaletteQuery } from "./command-palette/command-palette-search";
 
 const PREFIX = "customermates:globalSearch:recent:v3";
+const COMMAND_PREFIX = "customermates:commandPalette:recent:v1";
 const RECENT_MAX = 8;
+const RECENT_COMMANDS_MAX = 5;
+
+export type PaletteLevel =
+  | { kind: "field"; fieldId: string; label: string }
+  | { kind: "assign"; label: string }
+  | { kind: "link"; relationId: string; direction: "outgoing" | "incoming"; label: string };
 
 function actorScope(root: RootStore) {
   const user = root.userStore.user;
@@ -43,24 +59,60 @@ function persist(scope: string | null, refs: RecordRef[]) {
   } catch {}
 }
 
+function storedCommandKeys(scope: string | null): string[] {
+  if (!scope || typeof window === "undefined") return [];
+  try {
+    const parsed: unknown = JSON.parse(window.localStorage.getItem(`${COMMAND_PREFIX}:${scope}`) ?? "[]");
+    return Array.isArray(parsed)
+      ? parsed.filter((key): key is string => typeof key === "string").slice(0, RECENT_COMMANDS_MAX)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistCommandKeys(scope: string | null, keys: string[]) {
+  if (!scope || typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(`${COMMAND_PREFIX}:${scope}`, JSON.stringify(keys));
+  } catch {}
+}
+
 export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string }> {
   results: RecordSearchResult | null = null;
+  semantic: { key: string; similarity: number }[] = [];
+  docs: CommandDocsHit[] = [];
   debouncedSearchTerm = "";
   recentItems: RecordSearchHit[] = [];
+  recentCommandKeys: string[] = [];
+  catalog: CommandCatalog | null = null;
+  levels: PaletteLevel[] = [];
   isLoadingMore = false;
   private scope: string | null;
   private request = 0;
   private recentRequest = 0;
-  private debouncer = new Debouncer(250);
+  private catalogRequest = 0;
+  private debouncer = new Debouncer(150);
 
   constructor(rootStore: RootStore) {
     super(rootStore, { searchTerm: "" });
     this.scope = actorScope(rootStore);
     makeObservable(this, {
       results: observable.ref,
+      semantic: observable.ref,
+      docs: observable.ref,
+      setCatalogHits: action,
       debouncedSearchTerm: observable,
       recentItems: observable.ref,
+      recentCommandKeys: observable.ref,
+      catalog: observable.ref,
+      levels: observable.ref,
       isLoadingMore: observable,
+      setCatalog: action,
+      setRecentCommandKeys: action,
+      pushLevel: action,
+      popLevel: action,
+      clearLevels: action,
       setResults: action,
       setDebouncedSearchTerm: action,
       setRecentItems: action,
@@ -72,8 +124,14 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
         this.scope = scope;
         this.resetSearch();
         this.recentRequest += 1;
+        this.catalogRequest += 1;
         this.setRecentItems([]);
-        if (this.isOpen) void this.refreshRecentItems();
+        this.setCatalog(null);
+        this.setRecentCommandKeys(storedCommandKeys(scope));
+        if (this.isOpen) {
+          void this.refreshRecentItems();
+          void this.refreshCatalog();
+        }
       },
     );
     reaction(
@@ -83,9 +141,12 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
         this.setIsLoading(false);
         this.setIsLoadingMore(false);
         this.setResults(null);
+        this.setCatalogHits([], []);
+        if (this.levels.length) return;
+        const query = parsePaletteQuery(term);
         this.debouncer.run(() => {
-          this.setDebouncedSearchTerm(term.trim());
-          if (this.isOpen && term.trim()) void this.search(false);
+          this.setDebouncedSearchTerm(query.term);
+          if (this.isOpen && query.term) void this.search(false);
         });
       },
     );
@@ -93,14 +154,33 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
       () => this.isOpen,
       (open) => {
         this.resetSearch();
+        this.clearLevels();
         if (open) {
           this.recentRequest += 1;
           this.setRecentItems([]);
+          this.setRecentCommandKeys(storedCommandKeys(this.scope));
           this.resetForm();
           void this.refreshRecentItems();
+          void this.refreshCatalog();
         }
       },
     );
+  }
+
+  setCatalogHits = (semantic: { key: string; similarity: number }[], docs: CommandDocsHit[]) => {
+    this.semantic = semantic;
+    this.docs = docs;
+  };
+
+  private instantlyConfident: (query: string) => boolean = () => false;
+
+  setInstantMatcher = (confident: (query: string) => boolean) => {
+    this.instantlyConfident = confident;
+  };
+
+  private get searchLocale() {
+    const locale = this.rootStore.localeStore.locale;
+    return isAppLocale(locale) ? locale : DEFAULT_LOCALE;
   }
 
   setResults = (results: RecordSearchResult | null) => {
@@ -115,11 +195,58 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
   setIsLoadingMore = (value: boolean) => {
     this.isLoadingMore = value;
   };
+  setCatalog = (catalog: CommandCatalog | null) => {
+    this.catalog = catalog;
+  };
+  setRecentCommandKeys = (keys: string[]) => {
+    this.recentCommandKeys = keys;
+  };
+
+  get level(): PaletteLevel | null {
+    return this.levels.at(-1) ?? null;
+  }
+
+  pushLevel = (level: PaletteLevel) => {
+    this.levels = [...this.levels, level];
+    this.resetSearch();
+    this.onChange("searchTerm", "");
+  };
+
+  clearLevels = () => {
+    this.levels = [];
+  };
+
+  popLevel = () => {
+    this.levels = this.levels.slice(0, -1);
+    this.onChange("searchTerm", "");
+  };
+
+  pushRecentCommand = (key: string) => {
+    const keys = [key, ...storedCommandKeys(this.scope).filter((existing) => existing !== key)].slice(
+      0,
+      RECENT_COMMANDS_MAX,
+    );
+    this.setRecentCommandKeys(keys);
+    persistCommandKeys(this.scope, keys);
+  };
+
+  refreshCatalog = async () => {
+    const scope = this.scope;
+    const request = ++this.catalogRequest;
+    try {
+      const result = await commandCatalogAction();
+      if (scope !== this.scope || request !== this.catalogRequest) return;
+      if (result.ok) this.setCatalog(result.data);
+    } catch (error) {
+      reportApplicationError(error);
+    }
+  };
 
   private resetSearch = () => {
     this.request += 1;
     this.debouncer.cancel();
     this.setResults(null);
+    this.setCatalogHits([], []);
     this.setDebouncedSearchTerm("");
     this.setIsLoading(false);
     this.setIsLoadingMore(false);
@@ -162,7 +289,9 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
   clearRecentItems = () => {
     this.recentRequest += 1;
     this.setRecentItems([]);
+    this.setRecentCommandKeys([]);
     persist(this.scope, []);
+    persistCommandKeys(this.scope, []);
   };
 
   verifyRecentItem = async (item: RecordSearchHit) => {
@@ -194,22 +323,36 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
     if (append) this.setIsLoadingMore(true);
     else this.setIsLoading(true);
     const current = () =>
-      request === this.request && scope === this.scope && this.isOpen && this.form.searchTerm.trim() === term;
+      request === this.request &&
+      scope === this.scope &&
+      this.isOpen &&
+      parsePaletteQuery(this.form.searchTerm).term === term;
     try {
-      const result = await globalSearchAction({ searchTerm: term, limit: 40, cursor: previous?.nextCursor ?? null });
+      const records = append
+        ? await globalSearchAction({ searchTerm: term, limit: 40, cursor: previous?.nextCursor ?? null })
+        : null;
+      const combined = append
+        ? null
+        : await commandSearchAction({
+            searchTerm: term,
+            scope: parsePaletteQuery(this.form.searchTerm).scope,
+            locale: this.searchLocale,
+            semantic: !this.instantlyConfident(this.form.searchTerm),
+          });
       if (!current()) return;
-      if (!result.ok) {
+      const failure = records && !records.ok ? records.error : combined && !combined.ok ? combined.error : null;
+      if (failure) {
         if (!append) this.setResults(null);
-        if (!toastZodErrorTree(result.error)) this.toastError("Common.notifications.unexpectedError");
+        if (!toastZodErrorTree(failure)) this.toastError("Common.notifications.unexpectedError");
         return;
       }
+      const page = records?.ok ? records.data : combined?.ok ? combined.data.records : null;
+      if (combined?.ok) this.setCatalogHits(combined.data.semantic, combined.data.docs);
+      if (!page) return;
       const seen = new Set((previous?.results ?? []).map(recordSearchKey));
       this.setResults({
-        ...result.data,
-        results: [
-          ...(previous?.results ?? []),
-          ...result.data.results.filter((item) => !seen.has(recordSearchKey(item))),
-        ],
+        ...page,
+        results: [...(previous?.results ?? []), ...page.results.filter((item) => !seen.has(recordSearchKey(item)))],
       });
     } catch (error) {
       if (current() && !append) this.setResults(null);

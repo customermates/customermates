@@ -1549,7 +1549,7 @@ test("configures self-type singular and many relationships, edits from both ends
   const links = async (relationId: string) =>
     (
       await database.query(
-        'SELECT "sourceId","targetId" FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "sourceTypeId"=$3 AND "targetTypeId"=$3',
+        'SELECT "sourceId","targetId" FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "sourceTypeId"=$3 AND "targetTypeId"=$3 AND "deletedAt" IS NULL',
         [companyId, relationId, type.id],
       )
     ).rows
@@ -1867,7 +1867,7 @@ test("configures self-type singular and many relationships, edits from both ends
   expect(
     (
       await database.query(
-        'SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2',
+        'SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND "deletedAt" IS NULL',
         [companyId, type.id],
       )
     ).rows,
@@ -2031,7 +2031,7 @@ test("configures a two-hop relationship path and lets a genuine read-only user n
     expect(
       (
         await database.query(
-          'SELECT "sourceId","targetId" FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "sourceTypeId"=$3 AND "targetTypeId"=$3',
+          'SELECT "sourceId","targetId" FROM "RecordLink" WHERE "companyId"=$1 AND "relationId"=$2 AND "sourceTypeId"=$3 AND "targetTypeId"=$3 AND "deletedAt" IS NULL',
           [companyId, parent.id, type.id],
         )
       ).rows,
@@ -2352,7 +2352,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
   await openRecordDetails(page, "Alpha portfolio");
   const detail = page.getByRole("dialog", { name: type.label, exact: true });
   await expect(
-    detail.locator(`[data-summary-field="${budgetId}"]`),
+    detail.locator(`[data-chip-column="${budgetId}"]`),
   ).toContainText("50");
   await page.keyboard.press("Escape");
   await expect(detail).not.toBeVisible();
@@ -2393,7 +2393,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
     await expect(
       open
         .locator(`[data-item-id="${beta.recordId}"]`)
-        .getByText("Budget", { exact: true }),
+        .getByRole("group", { name: "Budget", exact: true }),
     ).toBeVisible();
     await expect(
       target
@@ -2458,7 +2458,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
       exact: true,
     });
     await expect(
-      readerDetail.locator(`[data-summary-field="${budgetId}"]`),
+      readerDetail.locator(`[data-chip-column="${budgetId}"]`),
     ).toContainText("50");
     await reader.page.keyboard.press("Escape");
     await expect(readerDetail).not.toBeVisible();
@@ -3027,7 +3027,7 @@ test("keeps retained values restricted after a delegated manager converts fields
           value.getByText("Restricted", { exact: true }),
         ).toBeVisible();
         await expect(value.locator("input,textarea")).toHaveCount(0);
-        const pinned = editor.locator(`[data-summary-field="${field.id}"]`);
+        const pinned = editor.locator(`[data-chip-column="${field.id}"]`);
         if ((await pinned.count()) === 0)
           await editor
             .getByRole("button", {
