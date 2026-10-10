@@ -98,6 +98,7 @@ import { RecordConfigurationService } from "@/features/records/configuration.ser
 import { ConfigureRecordsProviderInteractor } from "@/features/records/configure-records-provider.interactor";
 import { ApplyRecordConfigurationInteractor } from "@/features/records/configure-records.interactor";
 import { RecordConfigurationWriter } from "@/features/records/record-configuration-writer";
+import { WebhookPauseNotifier } from "@/features/webhook/webhook-pause-notifier";
 import { PreviewRecordConfigurationInteractor } from "@/features/records/preview-record-configuration.interactor";
 import { GetRecordModelInteractor } from "@/features/records/get-record-model.interactor";
 import { DiscoverRecordTypesInteractor } from "@/features/records/discover-record-types.interactor";
@@ -515,7 +516,7 @@ export const getApplyRecordConfigurationInteractor = () =>
     getRecordRepo(),
     getRecordAccessPolicy(),
     getRecordConfigurationService(),
-    new RecordConfigurationWriter(getRecordRepo(), getRecordCalculationService()),
+    new RecordConfigurationWriter(getRecordRepo(), getRecordCalculationService(), getWebhookPauseNotifier()),
     getBackgroundTaskService(),
   );
 export const getTrashRepo = (companyId?: string) => new PrismaTrashRepo(companyId);
@@ -553,7 +554,12 @@ export const getGetTrashedRecordInteractor = () =>
     getTrashKindHandlers(),
   );
 export const getRecordOperationService = () =>
-  new RecordOperationService(getRecordRepo(), getRecordAccessPolicy(), getRecordConfigurationService());
+  new RecordOperationService(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordConfigurationService(),
+    getWebhookPauseNotifier(),
+  );
 export const getGetRecordOperationInteractor = () =>
   new GetRecordOperationInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getCancelRecordOperationInteractor = () =>
@@ -569,6 +575,7 @@ export const getDataViewRepo = () => new PrismaDataViewRepo();
 export const getDataViewStateRepo = () => new PrismaDataViewRepo();
 export const getWidgetRepo = () => new PrismaWidgetRepo();
 export const getWebhookRepo = () => new PrismaWebhookRepo(getRecordEventSubscriptionRepo(), getPermissionService());
+export const getWebhookPauseNotifier = () => new WebhookPauseNotifier(getWebhookRepo(), getEventService());
 
 export const getRecordRecipientReader = () => new RecordRecipientReader((companyId) => new PrismaRecordRepo(companyId));
 export const getRecordEventSubscriptionRepo = () => new PrismaRecordEventSubscriptionRepo(getRecordRepo());
@@ -839,7 +846,7 @@ export const getRoleManagementService = () => {
     records,
     getRecordAccessPolicy(),
     new RecordConfigurationService(records),
-    new RecordConfigurationWriter(records, new RecordCalculationService(records)),
+    new RecordConfigurationWriter(records, new RecordCalculationService(records), getWebhookPauseNotifier()),
     getEventService(),
   );
 };

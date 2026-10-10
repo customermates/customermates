@@ -27,6 +27,7 @@ import { RecordTypeGlyph } from "@/components/records/record-type-glyph";
 import { configureCardinality } from "./configure-graph-model";
 import { relationshipDefinition, typeDefinition } from "./configure-model";
 import { useConfigurationDeletion } from "./use-configuration-deletion";
+import { UsedBySection } from "./used-by-section";
 
 const empty = () => ({
   mode: "direct" as "direct" | "path",
@@ -337,6 +338,8 @@ export const RelationshipModal = observer(function RelationshipModal({
                   label={t("RecordModel.onTargetDelete")}
                 />
               </CollapsibleSection>
+
+              <UsedBySection model={store.model} target={id ? { kind: "relationship", id } : null} />
             </>
           )}
 

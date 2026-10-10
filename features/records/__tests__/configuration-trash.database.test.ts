@@ -33,6 +33,7 @@ const { RecordCalculationService } = await import("../record-calculation.service
 const { RecordWriteService } = await import("../record-write.service");
 const { RecordConfigurationService } = await import("../configuration.service");
 const { RecordConfigurationWriter } = await import("../record-configuration-writer");
+const { WebhookPauseNotifier } = await import("@/features/webhook/webhook-pause-notifier");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
 const { ApplyRecordConfigurationInteractor } = await import("../configure-records.interactor");
 const { PreviewRecordConfigurationInteractor } = await import("../preview-record-configuration.interactor");
@@ -47,6 +48,11 @@ const { DeleteTrashPermanentlyInteractor, purgeTrashItems } = await import(
 );
 const { EmptyTrashInteractor } = await import("@/features/trash/empty-trash.interactor");
 const { Prisma } = await import("@/generated/prisma");
+
+const noWebhooks = new WebhookPauseNotifier(
+  { getWebhookByIdOrThrow: () => Promise.reject(new Error("No webhook expected")) },
+  { publish: () => Promise.resolve() },
+);
 const { PurgeExpiredTrashInteractor } = await import("@/features/trash/purge-expired-trash.interactor");
 const { purgeExpiredCompanyTrash } = await import("@/features/trash/purge-company-trash");
 const { createCrmPreset, presetId } = await import("../crm-preset");
@@ -88,7 +94,7 @@ async function fixture() {
           scoped,
           scopedPolicy,
           configurations,
-          new RecordConfigurationWriter(scoped, new RecordCalculationService(scoped)),
+          new RecordConfigurationWriter(scoped, new RecordCalculationService(scoped), noWebhooks),
           { dispatch: () => Promise.resolve() },
         ),
         new PrismaTrashRepo(companyId),
@@ -103,7 +109,7 @@ async function fixture() {
     repo,
     policy,
     configurations,
-    new RecordConfigurationWriter(repo, new RecordCalculationService(repo)),
+    new RecordConfigurationWriter(repo, new RecordCalculationService(repo), noWebhooks),
     { dispatch: () => Promise.resolve() },
   );
   const mutate = new MutateRecordInteractor(
@@ -230,6 +236,41 @@ describeDatabase("configuration trash", () => {
     const model = await f.as(() => new PrismaRecordRepo().getModel());
     expect(model.types.find((type) => type.id === f.id("organization"))?.archived).toBe(false);
     expect(await f.items()).toEqual([]);
+  }, 180_000);
+
+  it("keeps a deleted list's bindings and gives a deleted field its binding back through Trash", async () => {
+    const f = await fixture();
+    const avatar = () =>
+      f.as(async () =>
+        (await new PrismaRecordRepo().getModel()).capabilities.find(
+          (binding) => binding.kind === "avatar" && binding.typeId === f.id("contact"),
+        ),
+      );
+    const remove = async (kind: "field" | "type", id: string) => {
+      const result = await f.as(async () =>
+        f.apply.invoke(await f.change([{ operation: "delete", target: { kind, id } }])),
+      );
+      if (!result.ok || result.data.status !== "completed" || !result.data.trashBatchId)
+        throw new Error(JSON.stringify(result));
+
+      return result.data.trashBatchId;
+    };
+    const restore = async (batchId: string) =>
+      expect(await f.as(() => f.trash.restore.invoke({ batchId } as never))).toMatchObject({
+        ok: true,
+        data: { status: "completed", blocked: [] },
+      });
+    const image = [{ role: "image", fieldId: f.id("contact.avatarUrl") }];
+
+    await restore(await remove("type", f.id("contact")));
+    expect((await avatar())?.fields).toEqual(image);
+
+    await remove("field", f.id("contact.avatarUrl"));
+    expect((await avatar())?.fields ?? []).toEqual([]);
+    const [item] = await f.items();
+    expect(item).toMatchObject({ kind: "field", targetId: f.id("contact.avatarUrl") });
+    await restore(item.batchId);
+    expect((await avatar())?.fields).toEqual(image);
   }, 180_000);
 
   it("lists only the deleted list, not what was deleted with it, and deletes it permanently with exact counts", async () => {

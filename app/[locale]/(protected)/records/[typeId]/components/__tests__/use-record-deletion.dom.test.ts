@@ -173,7 +173,7 @@ describe("record deletion ownership", () => {
     const deletion = confirm();
     changeSession();
     wait.resolve({ ok: true, data: { status: "pending", operationId: "old-operation", schemaRevision: 1 } });
-    expect(await deletion).toBe(true);
+    expect(await deletion).toEqual({ trashOperationId: "old-operation", count: 1 });
     expect(onPending).not.toHaveBeenCalled();
     expect(onDeleted).not.toHaveBeenCalled();
   });

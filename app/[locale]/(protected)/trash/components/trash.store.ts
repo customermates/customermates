@@ -16,7 +16,8 @@ import { action, makeObservable, observable, runInAction } from "mobx";
 import { toast } from "sonner";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
-import { runUserAction } from "@/core/errors/report-application-error";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { getRecordOperationAction } from "@/app/[locale]/(protected)/records/actions";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
 import {
@@ -39,20 +40,22 @@ const countBy = <T>(values: T[]) =>
   values.reduce((counts, value) => counts.set(value, (counts.get(value) ?? 0) + 1), new Map<T, number>());
 
 const UNDO_TOAST_DURATION_MS = 8000;
+const OPERATION_POLL_MS = 2000;
+const FINISHED_OPERATION_STATES = new Set(["completed", "failed", "cancelled"]);
 
 const CONFIGURATION_TRASH_KINDS: readonly TrashKind[] = ["list", "field", "relationship", "channels"];
 
 export class TrashStore extends BaseDataViewStore<TrashItemDto> {
   isMutating = false;
-  pendingRestoreOperation: string | null = null;
+  restoringItemIds = observable.set<string>();
+  private restoreQueue: Promise<unknown> = Promise.resolve();
 
   constructor(rootStore: RootStore) {
     super(rootStore);
-    makeObservable<TrashStore, "setMutating" | "setPendingRestoreOperation">(this, {
+    makeObservable<TrashStore, "setMutating" | "setRestoring">(this, {
       isMutating: observable,
-      pendingRestoreOperation: observable,
       setMutating: action,
-      setPendingRestoreOperation: action,
+      setRestoring: action,
     });
     this.viewSyncToUrl = false;
   }
@@ -96,9 +99,14 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
     }
   }
 
-  private setPendingRestoreOperation(operationId: string | null) {
-    this.pendingRestoreOperation = operationId;
+  private setRestoring(itemIds: string[], restoring: boolean) {
+    for (const itemId of itemIds) {
+      if (restoring) this.restoringItemIds.add(itemId);
+      else this.restoringItemIds.delete(itemId);
+    }
   }
+
+  isRestoring = (itemId: string) => this.restoringItemIds.has(itemId);
 
   private afterRestore = async () => {
     this.clearSelection();
@@ -109,31 +117,52 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
     ]);
   };
 
-  restoreOperationCompleted = async () => {
-    this.setPendingRestoreOperation(null);
-    this.toastSuccess("Trash.restoredInBackground");
-    await this.afterRestore();
-  };
+  private async finishedOperation(operationId: string) {
+    for (;;) {
+      const result = await getRecordOperationAction(operationId);
+      if (!result.ok) return null;
+      if (FINISHED_OPERATION_STATES.has(result.data.state)) return result.data;
+      await new Promise((resolve) => setTimeout(resolve, OPERATION_POLL_MS));
+    }
+  }
 
-  restoreOperationStopped = () => {
-    this.setPendingRestoreOperation(null);
-  };
-
-  announceMovedToTrash = ({ trashBatchId }: MovedToTrash, onRestored?: () => unknown) => {
+  private offerUndo(trashBatchId: string, onRestored?: () => unknown, toastId?: string | number) {
     toast.success(this.t("Trash.movedToTrash"), {
+      id: toastId,
       duration: UNDO_TOAST_DURATION_MS,
       action: {
         label: this.t("Trash.undo"),
-        onClick: () =>
-          runUserAction(async () => {
-            if ((await this.restore({ batchId: trashBatchId })) === "restored") await onRestored?.();
-          }),
+        onClick: () => runUserAction(() => this.restore({ batchId: trashBatchId }, onRestored)),
       },
     });
+  }
+
+  announceMovedToTrash = (receipt: MovedToTrash, onRestored?: () => unknown) => {
+    if ("trashBatchId" in receipt) {
+      this.offerUndo(receipt.trashBatchId, onRestored);
+      return;
+    }
+    const toastId = toast.loading(this.t("Trash.moving", { count: receipt.count }));
+    this.finishedOperation(receipt.trashOperationId)
+      .then((status) => {
+        const completed = status?.state === "completed" ? status.result : null;
+        if (completed?.status === "completed" && completed.trashBatchId)
+          this.offerUndo(completed.trashBatchId, onRestored, toastId);
+        else toast.error(this.t("RecordModel.operationFailed"), { id: toastId });
+      })
+      .catch(reportApplicationError);
   };
 
-  restore = async (data: RestoreTrashData): Promise<"restored" | "pending" | false> => {
-    if (this.isMutating) return false;
+  restore = (data: RestoreTrashData, onRestored?: () => unknown): Promise<"restored" | "pending" | false> => {
+    const run = this.restoreQueue.then(() => this.runRestore(data, onRestored));
+    this.restoreQueue = run.catch(() => undefined);
+    return run;
+  };
+
+  private runRestore = async (
+    data: RestoreTrashData,
+    onRestored?: () => unknown,
+  ): Promise<"restored" | "pending" | false> => {
     this.setMutating(true);
     try {
       const result = await restoreTrashAction(data);
@@ -143,8 +172,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
       }
       const outcome = result.data;
       if (outcome.status === "pending") {
-        this.setPendingRestoreOperation(outcome.operationId);
-        this.toastSuccess("Trash.restorePending");
+        this.awaitBackgroundRestore(outcome.operationId, "itemIds" in data ? data.itemIds : [], onRestored);
         return "pending";
       }
       const restoredCount = outcome.restoredItemIds.length;
@@ -155,13 +183,32 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
         this.toastError(RESTORE_BLOCKED_KEYS[reason], { values: { count } });
       if (restoredCount === 0) return false;
       await this.afterRestore();
+      await onRestored?.();
       return "restored";
     } finally {
       this.setMutating(false);
     }
   };
 
-  restoreItems = async (itemIds: string[]) => (await this.restore({ itemIds })) !== false;
+  private awaitBackgroundRestore(operationId: string, itemIds: string[], onRestored?: () => unknown) {
+    this.setRestoring(itemIds, true);
+    const toastId = toast.loading(this.t("Trash.restoring"));
+    this.finishedOperation(operationId)
+      .then(async (status) => {
+        this.setRestoring(itemIds, false);
+        if (status?.state !== "completed") {
+          toast.error(this.t("RecordModel.operationFailed"), { id: toastId });
+          return;
+        }
+        toast.success(this.t("Trash.restoredInBackground"), { id: toastId });
+        await this.afterRestore();
+        await onRestored?.();
+      })
+      .catch(reportApplicationError);
+  }
+
+  restoreItems = async (itemIds: string[], onRestored?: () => unknown) =>
+    (await this.restore({ itemIds }, onRestored)) !== false;
 
   private previewSentences(preview: TrashDeletionPreview): Array<string | ConfirmationSentence> {
     return [

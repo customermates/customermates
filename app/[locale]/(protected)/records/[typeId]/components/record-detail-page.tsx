@@ -12,7 +12,7 @@ import { RecordEditor } from "./record-editor";
 import { RecordEditorContent } from "./record-editor-content";
 import { RecordTrashBanner } from "./record-trash-banner";
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
-import { recordTitle } from "@/components/records/record-title";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { recordPanelsP13nId } from "./record-panels-personalization";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
@@ -60,7 +60,7 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
   }, [initial, store]);
   const type = store.presentation.model.types.find((type) => type.id === store.presentation.typeId);
   const title = store.record?.fields.find((field) => field.fieldId === type?.primaryFieldId)?.result;
-  const name = store.record ? recordTitle(title, type?.label, t) : (type?.label ?? t("RecordModel.record"));
+  const name = store.record ? recordDisplayName(title, type?.label, t) : (type?.label ?? t("RecordModel.record"));
   const avatar = store.presentation.model.capabilities.find(
     (binding) => binding.kind === "avatar" && binding.typeId === type?.id,
   );

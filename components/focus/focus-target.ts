@@ -8,11 +8,12 @@ import { FOCUS_PARAM, focusKey, parseFocus, type FocusKind, type FocusTarget } f
 
 const HIGHLIGHT_MS = 2400;
 const WAIT_MS = 6000;
+const highlightTimers = new WeakMap<HTMLElement, number>();
 
 function clearFocusParam() {
   const url = new URL(window.location.href);
   url.searchParams.delete(FOCUS_PARAM);
-  window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+  window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
 }
 
 export function highlightFocusTarget(target: FocusTarget) {
@@ -30,7 +31,11 @@ export function highlightFocusTarget(target: FocusTarget) {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     element.scrollIntoView({ block: "center", inline: "center", behavior: reduced ? "auto" : "smooth" });
     element.setAttribute("data-focus-highlight", "");
-    window.setTimeout(() => element.removeAttribute("data-focus-highlight"), HIGHLIGHT_MS);
+    window.clearTimeout(highlightTimers.get(element));
+    highlightTimers.set(
+      element,
+      window.setTimeout(() => element.removeAttribute("data-focus-highlight"), HIGHLIGHT_MS),
+    );
   };
   attempt();
 }
