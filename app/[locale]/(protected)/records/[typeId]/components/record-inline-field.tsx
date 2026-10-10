@@ -9,7 +9,7 @@ import type {
   RecordRelationship,
   RecordScalar,
 } from "@/features/records/record-model.schema";
-import type { RecordRow } from "@/features/records/record-presentation";
+import type { RecordLinkLabels, RecordRow } from "@/features/records/record-presentation";
 import type { RecordColumn } from "@/features/records/record-columns";
 import type { RecordChoice } from "@/features/records/get-record-choices.interactor";
 import type { RecordsStore } from "./records.store";
@@ -39,11 +39,13 @@ import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { toChipColor } from "@/constants/chip-colors";
 import { isInteractiveClick } from "@/components/data-view/is-interactive-click";
 import { useDataViewItemLayout } from "@/components/data-view/data-view-item-layout";
+import { recordTitle } from "@/components/records/record-title";
 import { cn } from "@/core/utils/cn";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { isRecordFieldWritable, recordDraftValue } from "@/features/records/record-input-value";
 import { expressionSegments, sentenceText } from "@/features/records/calculation-sentence";
 import { RecordFieldValueEditor, RecordFieldValueStore } from "./record-field-value-editor";
@@ -527,6 +529,7 @@ export function calculatedFieldLabel(
   field: RecordFieldView,
   model: RecordModelView,
   t: ReturnType<typeof useTranslations>,
+  locale: string,
 ) {
   const expression = field.behavior.kind === "input" ? undefined : field.behavior.expression;
   return expression && expressionResolves(expression, model)
@@ -535,6 +538,7 @@ export function calculatedFieldLabel(
           expressionSegments(expression, field.typeId, {
             model,
             t: (key: string, values?: Record<string, string>) => t(key, values),
+            locale,
             operatorLabel: (operator) => t(`RecordModel.operators.${operator}`),
           }),
         ),
@@ -552,6 +556,7 @@ export function RecordCalculatedValue({
   children: ReactNode;
 }) {
   const t = useTranslations();
+  const intl = useHydratedIntlStore();
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -560,24 +565,15 @@ export function RecordCalculatedValue({
         </span>
       </TooltipTrigger>
 
-      <TooltipContent>{calculatedFieldLabel(field, model, t)}</TooltipContent>
+      <TooltipContent>{calculatedFieldLabel(field, model, t, intl.formattingLocale)}</TooltipContent>
     </Tooltip>
   );
-}
-
-function choiceTitle(record: RecordChoice, t: ReturnType<typeof useTranslations>) {
-  return record.title.state === "restricted"
-    ? t("RecordModel.restricted")
-    : record.title.state === "error"
-      ? t("RecordModel.calculationError")
-      : record.title.state === "value" && record.title.value.kind === "text"
-        ? record.title.value.value
-        : t("RecordModel.record");
 }
 
 export const RecordLinkPicker = observer(function RecordLinkPicker({
   typeId,
   label,
+  linkLabels,
   linked,
   failed,
   busy = false,
@@ -588,6 +584,7 @@ export const RecordLinkPicker = observer(function RecordLinkPicker({
 }: {
   typeId: string;
   label: string;
+  linkLabels: RecordLinkLabels;
   linked: RecordChoice[] | null;
   failed: boolean;
   busy?: boolean;
@@ -640,7 +637,9 @@ export const RecordLinkPicker = observer(function RecordLinkPicker({
                     value={choice.ref.recordId}
                     onSelect={() => onToggle(choice, isLinked)}
                   >
-                    <span className="flex-1 truncate">{choiceTitle(choice, t)}</span>
+                    <span className="flex-1 truncate">
+                      {recordTitle(choice.title, linkLabels[choice.ref.typeId], t)}
+                    </span>
 
                     {isLinked && <Check aria-hidden className="size-4" />}
                   </CommandItem>
@@ -657,7 +656,9 @@ export const RecordLinkPicker = observer(function RecordLinkPicker({
                     onSelect={() => onOpenRecord(choice.ref)}
                   >
                     <span className="flex-1 truncate">
-                      {t("RecordModel.openRecord", { name: choiceTitle(choice, t) })}
+                      {t("RecordModel.openRecord", {
+                        name: recordTitle(choice.title, linkLabels[choice.ref.typeId], t),
+                      })}
                     </span>
                   </CommandItem>
                 ))}
@@ -729,6 +730,7 @@ const InlineRelationshipPicker = observer(function InlineRelationshipPicker({
       busy={busy}
       failed={linked.failed}
       label={label}
+      linkLabels={records.presentation.linkLabels}
       linked={linked.loading ? null : linkedRecords}
       typeId={typeId}
       onOpenRecord={(ref) => {

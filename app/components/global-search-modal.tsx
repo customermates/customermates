@@ -7,7 +7,7 @@ import type { PaletteEntry, PaletteRecordContext, PaletteTranslator } from "./co
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { BookOpen, ChevronLeft, CornerDownLeft, Loader2, Search, Sparkles } from "lucide-react";
+import { BookOpen, ChevronLeft, CornerDownLeft, Loader2, Search, Sparkles, WandSparkles } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
@@ -45,6 +45,7 @@ import {
   SEMANTIC_BEST_MATCH_MARGIN,
   SEMANTIC_BEST_MATCH_MIN_SIMILARITY,
 } from "@/features/command-palette/command-search.schema";
+import { encodeGetParams } from "@/core/utils/get-params";
 import { recordEntries, staticEntries, workspaceEntries } from "./command-palette/palette-entries";
 import { RecordCommandLevel } from "./command-palette/record-command-level";
 import { useAccountActions } from "./navigation/use-account-actions";
@@ -287,10 +288,43 @@ export const GlobalSearchModal = observer(() => {
       icon: BookOpen,
       onSelect: () => closeThen(() => navigationGuard.tryNavigate(() => router.push(hit.href))),
     }));
+  const resolvable = mateAvailable && !level && scope === null && term.split(/\s+/).length >= 2 && !bestKey;
+  const resolveQuery = () =>
+    runUserAction(async () => {
+      const resolution = await globalSearchModalStore.resolveCommand(term);
+      if (!globalSearchModalStore.isOpen) return;
+      if (resolution?.kind === "list") {
+        const params = encodeGetParams({ viewId: resolution.viewId ?? undefined, filters: resolution.filters });
+        const href = `/records/${resolution.typeId}${params.size ? `?${params.toString()}` : ""}`;
+        closeThen(() => navigationGuard.tryNavigate(() => router.push(href)));
+        return;
+      }
+      const entry = resolution?.kind === "command" ? entryByKey.get(resolution.key) : undefined;
+      if (entry) runEntry(entry);
+      else askMate();
+    });
+
   const sections: PaletteSection[] = level
     ? []
     : hasQuery || scope
       ? [
+          {
+            key: "resolve",
+            rows: resolvable
+              ? [
+                  {
+                    key: "palette-resolve",
+                    label: globalSearchModalStore.resolving
+                      ? t("CommandPalette.resolving")
+                      : t("CommandPalette.resolve", { query: term }),
+                    icon: globalSearchModalStore.resolving ? Loader2 : WandSparkles,
+                    onSelect: () => {
+                      if (!globalSearchModalStore.resolving) resolveQuery();
+                    },
+                  },
+                ]
+              : [],
+          },
           {
             key: "best",
             heading: t("CommandPalette.groups.bestMatch"),

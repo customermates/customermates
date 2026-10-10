@@ -2,7 +2,7 @@ import type { RecordField, RecordScalar } from "@/features/records/record-model.
 
 import { arrayMove } from "@dnd-kit/sortable";
 
-export const PROBABILITY_ATTRIBUTE = "probability";
+import { PROBABILITY_ATTRIBUTE } from "@/features/records/calculation-sentence";
 export const OPTION_ATTRIBUTE_TYPES = ["number", "text", "boolean"] as const;
 
 export type OptionAttributeType = (typeof OPTION_ATTRIBUTE_TYPES)[number] | "preserved";

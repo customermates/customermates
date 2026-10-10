@@ -11,7 +11,12 @@ import type { RecordAccessPolicy } from "./record-access";
 import { cleanRecordMeasure, recordMeasureIsValid } from "./record-measure-validation";
 import { cleanRecordViewState, recordViewStateIsValid } from "./record-view-state";
 import { cleanRecordDetailLayout, recordDetailLayoutIsValid } from "./record-detail-layout";
-import { applyConfigurationLifecycle, deletionReference, isLifecycleOperation } from "./configuration-lifecycle";
+import {
+  applyConfigurationLifecycle,
+  assignMissingNameFields,
+  deletionReference,
+  isLifecycleOperation,
+} from "./configuration-lifecycle";
 import { UserAccessor } from "@/core/base/user-accessor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordWriteError, normalizeRecordScalar } from "./record-write.service";
@@ -26,7 +31,7 @@ import { SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import { configurationInputFields, configurationInputValue, fieldValueDefinition } from "./record-configuration-values";
 import { canonicalRecordJson } from "./record-json";
 import { duplicateNameIssues } from "./record-names";
-import { recordEventSubscriptionIsValid } from "./record-event-subscription-validation";
+import { cleanRecordEventSubscription, recordEventSubscriptionIsValid } from "./record-event-subscription-validation";
 
 export function calculationDependencyHash(field: RecordField, model: RecordModel): string {
   const visited = new Set<string>();
@@ -371,6 +376,7 @@ export class RecordConfigurationService extends UserAccessor {
         model.fields[slot] = ordered[offset];
       });
     }
+    assignMissingNameFields(model);
     if (!RecordModelSchema.safeParse(model).success)
       throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
     const validation = validateRecordModel(model);
@@ -572,7 +578,8 @@ export class RecordConfigurationService extends UserAccessor {
           const consumer = { kind: "widget" as const, id: widget.id, label: widget.name };
           if (measure) {
             cleanups.push({ kind: "widget", id: widget.id, measure });
-            cleaned.push({ consumer, target: cause });
+            const counts = measure.aggregation === "count" && widget.measure.aggregation !== "count";
+            cleaned.push({ consumer, target: cause, ...(counts ? { effect: "countsRecords" as const } : {}) });
           } else blockers.push({ reason: "widget", source: consumer, target: cause });
           continue;
         }
@@ -612,6 +619,17 @@ export class RecordConfigurationService extends UserAccessor {
       const subscriptions = await this.records.getEventSubscriptionsCompanyWide(subscriptionCursor);
       for (const subscription of subscriptions) {
         if (recordEventSubscriptionIsValid(subscription, model)) continue;
+        if (cause && recordEventSubscriptionIsValid(subscription, current) && subscription.kind === "webhook") {
+          const consumer = { kind: "webhook" as const, id: subscription.id, label: subscription.label };
+          const kept = cleanRecordEventSubscription(subscription, model);
+          cleanups.push(
+            kept
+              ? { kind: "eventSubscription", subscription: kept }
+              : { kind: "eventSubscriptionRemoval", id: subscription.id },
+          );
+          cleaned.push({ consumer, target: cause, effect: kept ? "triggerChanged" : "subscriptionRemoved" });
+          continue;
+        }
         if (cause && recordEventSubscriptionIsValid(subscription, current)) {
           blockers.push({
             reason: subscription.kind,

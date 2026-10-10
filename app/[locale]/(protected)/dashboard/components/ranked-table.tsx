@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { EmptyValue } from "@/components/shared/empty-value";
 
 import { TruncatedText } from "@/components/shared/truncated-text";
 import { useRecordValueFormat } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
@@ -67,7 +68,7 @@ export function RankedTable({ color, hiddenCount, rows }: Props) {
               </td>
 
               <td className="whitespace-nowrap py-1.5 pl-3 text-right tabular-nums text-muted-foreground">
-                {row.share === null ? "—" : valueFormat.percent(row.share)}
+                {row.share === null ? <EmptyValue /> : valueFormat.percent(row.share)}
               </td>
             </tr>
           ))}

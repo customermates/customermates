@@ -98,6 +98,7 @@ function harness(readOnly = false) {
     model: createCrmPreset(companyId),
     linkColors: {},
     linkIcons: {},
+    linkLabels: {},
     typeId,
     permittedActions: readOnly ? ["readAll"] : ["readAll", "update", "delete"],
     canManageSchema: false,

@@ -70,6 +70,7 @@ export function useRecordTableColumns(
                 inTrigger={inTrigger}
                 linkColors={store.presentation.linkColors}
                 linkIcons={store.presentation.linkIcons}
+                linkLabels={store.presentation.linkLabels}
                 record={row.original}
                 onOpen={openRelated}
               />
