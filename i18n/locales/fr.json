@@ -3980,16 +3980,15 @@
   "SidebarCustomize": {
     "deleteSection": "Supprimer la section",
     "deleteSectionEmpty": "La section est vide, aucun élément n'est déplacé.",
-    "deleteSectionMoves": "Ses éléments retournent à leur place par défaut dans votre barre latérale ; les éléments masqués restent masqués :",
+    "deleteSectionMoves": "Ses éléments passent au niveau supérieur de votre barre latérale ; les éléments masqués restent masqués :",
     "deleteSectionTitle": "Supprimer la section « {section} » ?",
     "dragItem": "Déplacer {item}",
     "dragSection": "Déplacer la section {section}",
     "emptySection": "Glissez des éléments ici ou utilisez Déplacer vers la section",
     "hide": "Masquer de la barre latérale",
-    "hint": "Faites glisser les poignées pour réorganiser les éléments et les sections, ou utilisez les menus …. Cliquez sur le nom d'une section personnelle pour la renommer.",
+    "hint": "Faites glisser les poignées pour réorganiser les éléments et les sections, ou utilisez les menus …. Les éléments peuvent se trouver au niveau supérieur ou dans une section. Cliquez sur le nom d’une section pour la renommer.",
     "itemActions": "Options pour {item}",
     "moveDown": "Descendre",
-    "movesBackTo": "{item} retourne dans {section}",
     "moveToSection": "Déplacer vers la section",
     "moveUp": "Monter",
     "newSection": "Nouvelle section",
@@ -4003,7 +4002,8 @@
     "sectionDeleted": "Section supprimée",
     "sectionName": "Nom de la section",
     "show": "Afficher {item}",
-    "title": "Personnaliser la barre latérale"
+    "title": "Personnaliser la barre latérale",
+    "topLevel": "Niveau supérieur"
   },
   "SignInForm": {
     "agreeToTerms": "En continuant, vous acceptez nos <termsOfServiceLink>conditions générales</termsOfServiceLink> et reconnaissez avoir lu notre <dataPrivacyLink>politique de confidentialité</dataPrivacyLink>. Consultez notre <dpaLink>DPA</dpaLink>.",
