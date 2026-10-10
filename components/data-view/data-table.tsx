@@ -272,7 +272,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
 
   return (
     <Table className={className}>
-      <TableHeader>
+      <TableHeader className="sticky top-0 z-10 bg-background">
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
@@ -292,7 +292,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                 <TableHead
                   key={header.id}
                   className={cn(
-                    "sticky top-0 z-10 bg-background",
+                    "relative",
                     columnStyle?.(columnId)?.align === "end" && "text-right [&_button]:ml-auto",
                     canResize && "group/resize-header",
                     canSort && "cursor-pointer select-none",
