@@ -260,17 +260,64 @@ describe("command palette state", () => {
     expect(commandSearchAction).toHaveBeenLastCalledWith(expect.objectContaining({ semantic: true }));
   });
 
-  it("resolves a natural-language request and reports failures as no resolution", async () => {
+  it("resolves a request only for the query and palette session it was asked for", async () => {
     browser();
     const { store } = setup();
+    store.open();
+    store.onChange("searchTerm", "open my overview");
     vi.mocked(resolveCommandAction).mockResolvedValueOnce({
       ok: true,
       data: { kind: "command", key: "cmd:page.dashboard" },
     });
-    expect(await store.resolveCommand("open my overview")).toEqual({ kind: "command", key: "cmd:page.dashboard" });
+    expect(await store.resolveCommand("open my overview")).toEqual({
+      status: "resolved",
+      resolution: { kind: "command", key: "cmd:page.dashboard" },
+    });
     expect(resolveCommandAction).toHaveBeenLastCalledWith({ query: "open my overview", locale: "en" });
-    vi.mocked(resolveCommandAction).mockResolvedValueOnce({ ok: false, error: new Error("limit") } as never);
-    expect(await store.resolveCommand("deals over 10k")).toBeNull();
+
+    const changed = deferred<Awaited<ReturnType<typeof resolveCommandAction>>>();
+    vi.mocked(resolveCommandAction).mockReturnValueOnce(changed.promise);
+    const typedOn = store.resolveCommand("open my overview");
+    store.onChange("searchTerm", "open my overview please");
     expect(store.resolving).toBe(false);
+    changed.finish({ ok: true, data: { kind: "command", key: "cmd:page.dashboard" } });
+    expect(await typedOn).toEqual({ status: "stale" });
+
+    const reopened = deferred<Awaited<ReturnType<typeof resolveCommandAction>>>();
+    vi.mocked(resolveCommandAction).mockReturnValueOnce(reopened.promise);
+    store.onChange("searchTerm", "open my overview");
+    const acrossSessions = store.resolveCommand("open my overview");
+    store.close();
+    store.open();
+    store.onChange("searchTerm", "open my overview");
+    reopened.finish({ ok: true, data: { kind: "command", key: "cmd:page.dashboard" } });
+    expect(await acrossSessions).toEqual({ status: "stale" });
+  });
+
+  it("reports missing credits as one notice instead of a fallback and can be cancelled", async () => {
+    browser();
+    const { store } = setup();
+    store.open();
+    store.onChange("searchTerm", "deals over 10k");
+    vi.mocked(resolveCommandAction).mockResolvedValueOnce({ ok: false, error: {}, code: "agentLimitReached" } as never);
+    expect(await store.resolveCommand("deals over 10k")).toEqual({ status: "unavailable" });
+    expect(store.resolveNotice).toBe("credits");
+    vi.mocked(resolveCommandAction).mockResolvedValueOnce({
+      ok: false,
+      error: {},
+      code: "agentServiceUnavailable",
+    } as never);
+    expect(await store.resolveCommand("deals over 10k")).toEqual({ status: "unavailable" });
+    expect(store.resolveNotice).toBe("service");
+
+    const pending = deferred<Awaited<ReturnType<typeof resolveCommandAction>>>();
+    vi.mocked(resolveCommandAction).mockReturnValueOnce(pending.promise);
+    const cancelled = store.resolveCommand("deals over 10k");
+    expect(store.resolving).toBe(true);
+    store.cancelResolve();
+    expect(store.resolving).toBe(false);
+    expect(store.resolveNotice).toBeNull();
+    pending.finish({ ok: true, data: { kind: "none" } });
+    expect(await cancelled).toEqual({ status: "stale" });
   });
 });
