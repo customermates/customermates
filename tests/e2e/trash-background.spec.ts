@@ -1,25 +1,22 @@
-import type { Locator, Page } from "@playwright/test";
+import type { Page } from "@playwright/test";
 
 import { randomUUID } from "node:crypto";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { presetId } from "../../features/records/crm-preset";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { runNamedRowAction } from "./record-rows";
 
 const SERVICE = "Shared live catalogue price";
 
-async function openRowMenu(page: Page, row: Locator, name: string) {
-  await expect(async () => {
-    await row.hover();
-    await row.getByRole("button", { name: `More actions for ${name}`, exact: true }).click();
-    await expect(page.getByRole("menu")).toBeVisible({ timeout: 2000 });
-  }).toPass();
-}
-
 async function deleteService(page: Page, typeId: string) {
   await page.goto(`/en/records/${typeId}`);
-  await openRowMenu(page, page.getByRole("row").filter({ hasText: SERVICE }), SERVICE);
-  await page.getByRole("menuitem", { name: englishMessages.Common.actions.delete, exact: true }).click();
+  await runNamedRowAction(
+    page,
+    page.getByRole("row").filter({ hasText: SERVICE }),
+    SERVICE,
+    englishMessages.Common.actions.delete,
+  );
   await page
     .getByRole("alertdialog")
     .getByRole("button", { name: englishMessages.Common.actions.delete, exact: true })
