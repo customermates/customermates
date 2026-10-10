@@ -121,6 +121,8 @@ const {
   getUserPendingAuthorizationTaskListener,
   getAdminUpdateUserDetailsInteractor,
   getEventService,
+  getWebhookPauseNotifier,
+  getWebhookRepo,
   getGetRoleEditorInteractor,
   getGetRolesApiInteractor,
   getUpsertRoleInteractor,
@@ -252,7 +254,7 @@ async function fixture() {
     repo,
     policy,
     configurations,
-    new RecordConfigurationWriter(repo, calculations),
+    new RecordConfigurationWriter(repo, calculations, getWebhookPauseNotifier()),
     background,
   );
   const model = createCrmPreset(seed.company.id);
@@ -298,7 +300,7 @@ async function fixture() {
       expectedVersion: (await readRecord(ref)).version,
       fields: values.map(([key, value]) => ({ fieldId: id(key), value })),
     });
-  const worker = () => new RecordOperationService(repo, policy, configurations);
+  const worker = () => new RecordOperationService(repo, policy, configurations, getWebhookPauseNotifier());
   const activities = new GetRecordActivitiesInteractor(
     new PrismaRecordActivitiesRepo(new PermissionService()),
     repo,
@@ -2783,8 +2785,26 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       }),
     );
-    const only = await subscribeRecordEvents(f, { kind: "webhook", changedFieldIds: [budgetId] });
-    const shared = await subscribeRecordEvents(f, { kind: "webhook", changedFieldIds: [budgetId, amount.id] });
+    const webhook = (id: string) =>
+      f.run(() =>
+        prisma.webhook.create({
+          data: { id, companyId: f.company.id, url: "https://hooks.example.test/budget", events: ["record.updated"] },
+        }),
+      );
+    const only = await webhook(randomUUID());
+    const shared = await webhook(randomUUID());
+    await subscribeRecordEvents(f, {
+      id: only.id,
+      kind: "webhook",
+      events: ["record.updated"],
+      changedFieldIds: [budgetId],
+    });
+    await subscribeRecordEvents(f, {
+      id: shared.id,
+      kind: "webhook",
+      events: ["record.updated"],
+      changedFieldIds: [budgetId, amount.id],
+    });
     const remove = (fieldId: string, expectedRevision: number) => ({
       expectedRevision,
       idempotencyKey: randomUUID(),
@@ -2801,7 +2821,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             expect.objectContaining({ consumer: expect.objectContaining({ id: widget.id }), effect: "countsRecords" }),
             expect.objectContaining({
               consumer: expect.objectContaining({ id: only.id }),
-              effect: "subscriptionRemoved",
+              effect: "webhookPaused",
             }),
             expect.objectContaining({ consumer: expect.objectContaining({ id: shared.id }), effect: "triggerChanged" }),
           ]),
@@ -2816,9 +2836,45 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const subscriptions = await f.run(() =>
       prisma.recordEventSubscription.findMany({ where: { companyId: f.company.id, id: { in: [only.id, shared.id] } } }),
     );
-    expect(subscriptions.map((subscription) => [subscription.id, subscription.changedFieldIds])).toEqual([
-      [shared.id, [amount.id]],
-    ]);
+    expect(
+      subscriptions
+        .map((subscription) => [subscription.id, subscription.changedFieldIds, subscription.enabled])
+        .sort(([left], [right]) => String(left).localeCompare(String(right))),
+    ).toEqual(
+      [
+        [only.id, [], false],
+        [shared.id, [amount.id], true],
+      ].sort(([left], [right]) => String(left).localeCompare(String(right))),
+    );
+    const webhooks = await f.run(() =>
+      prisma.webhook.findMany({ where: { companyId: f.company.id, id: { in: [only.id, shared.id] } } }),
+    );
+    expect(webhooks.find((row) => row.id === only.id)).toMatchObject({
+      enabled: false,
+      pausedReason: "triggerFieldDeleted",
+      events: ["record.updated"],
+    });
+    expect(webhooks.find((row) => row.id === shared.id)).toMatchObject({ enabled: true, pausedReason: null });
+    const pausedEvents = await f.run(() =>
+      prisma.eventLog.findMany({ where: { companyId: f.company.id, subjectId: only.id, kind: "webhook.updated" } }),
+    );
+    expect(pausedEvents).toHaveLength(1);
+    const revision = (await f.run(() => f.repo.getModel())).revision;
+    const reenable = (changedFieldIds: string[]) =>
+      f.run(() =>
+        getWebhookRepo().upsertWebhookOrThrow({
+          id: only.id,
+          enabled: true,
+          events: ["record.updated"],
+          recordTrigger: {
+            query: { typeId: f.id("service"), filters: [], relationships: [] },
+            changedFieldIds,
+          },
+          expectedSchemaRevision: revision,
+        }),
+      );
+    await expect(reenable([])).rejects.toMatchObject({ code: CustomErrorCode.webhookTriggerRequired });
+    expect(await reenable([amount.id])).toMatchObject({ enabled: true, pausedReason: null });
 
     const avatar = await f.run(() => f.preview.invoke(remove(f.id("contact.avatarUrl"), before.revision + 2)));
     expect(avatar).toMatchObject({
@@ -2843,6 +2899,143 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       (candidate) => candidate.kind === "avatar" && candidate.typeId === f.id("contact"),
     );
     expect(binding?.fields.some((entry) => entry.fieldId === f.id("contact.avatarUrl")) ?? false).toBe(false);
+  });
+
+  it("keeps only real blockers and gives back bindings and the name only when nothing changed since", async () => {
+    const f = await fixture();
+    const projectId = randomUUID();
+    const nameId = randomUUID();
+    const codeId = randomUUID();
+    const freeId = randomUUID();
+    const pictureId = randomUUID();
+    const capturedId = randomUUID();
+    const template = recordInvariant(f.model.types.find((type) => type.id === f.id("organization")));
+    const field = (id: string, label: string, valueType: "text" | "url", position: number) => ({
+      id,
+      typeId: projectId,
+      label,
+      valueType,
+      behavior: { kind: "input" as const },
+      required: false,
+      archived: false,
+      publishedSummary: false,
+      options: [],
+      position,
+    });
+    await f.run(() =>
+      runInTransaction(() =>
+        f.repo.saveModel(
+          {
+            ...f.model,
+            revision: 2,
+            types: [
+              ...f.model.types,
+              {
+                ...template,
+                id: projectId,
+                label: "Project",
+                pluralLabel: "Projects",
+                primaryFieldId: nameId,
+                relationshipPaths: [],
+                position: 90,
+                defaults: {
+                  ...template.defaults,
+                  columns: [],
+                  hiddenColumns: [],
+                  pinnedFields: [],
+                  sortField: null,
+                  groupBy: null,
+                  groupSummaries: [],
+                },
+              },
+            ],
+            fields: [
+              ...f.model.fields,
+              field(nameId, "Name", "text", 101),
+              field(codeId, "Code", "text", 102),
+              field(freeId, "Free note", "text", 103),
+              field(pictureId, "Picture", "url", 104),
+              {
+                ...field(capturedId, "Code at change", "text", 105),
+                behavior: {
+                  kind: "snapshot" as const,
+                  capture: "whenChanged" as const,
+                  triggerFieldId: codeId,
+                  triggerValue: { kind: "text" as const, value: "done" },
+                  expression: { kind: "literal" as const, value: { kind: "text" as const, value: "changed" } },
+                },
+              },
+            ],
+            capabilities: [
+              ...f.model.capabilities.map((binding) =>
+                binding.kind === "membershipAuthorization"
+                  ? { ...binding, fields: [{ role: "title", fieldId: f.id("task.name") }] }
+                  : binding,
+              ),
+              {
+                id: randomUUID(),
+                kind: "avatar" as const,
+                typeId: projectId,
+                fields: [{ role: "image", fieldId: pictureId }],
+              },
+            ],
+          },
+          f.admin.id,
+        ),
+      ),
+    );
+    const remove = (kind: "field" | "type" | "relationship", id: string, expectedRevision: number) => ({
+      expectedRevision,
+      idempotencyKey: randomUUID(),
+      operations: [{ operation: "delete" as const, target: { kind, id } }],
+    });
+    const restore = (id: string, expectedRevision: number) => ({
+      expectedRevision,
+      idempotencyKey: randomUUID(),
+      operations: [{ operation: "restore" as const, target: { kind: "field" as const, id } }],
+    });
+    const blockers = async (change: ConfigurationChange) => {
+      const preview = await f.run(() => f.preview.run(change));
+      if (!preview.ok) throw new Error("Expected a preview");
+      return (preview.data.deletion?.blockers ?? []).map((blocker) => blocker.reason);
+    };
+    expect(await blockers(remove("field", codeId, 2))).toContain("snapshotTrigger");
+    expect(await blockers(remove("field", f.id("task.name"), 2))).toContain("binding");
+    expect(await blockers(remove("relationship", f.id("lineItem.deal"), 2))).toContain("parentAccess");
+
+    const avatar = () =>
+      f.run(async () =>
+        (await f.repo.getModel()).capabilities.find(
+          (binding) => binding.kind === "avatar" && binding.typeId === projectId,
+        ),
+      );
+    expect(await f.run(() => f.configure.invoke(remove("field", pictureId, 2)))).toMatchObject({ ok: true });
+    expect((await avatar())?.fields).toEqual([]);
+    expect(await f.run(() => f.configure.run(restore(pictureId, 3)))).toMatchObject({ ok: true });
+    expect((await avatar())?.fields).toEqual([{ role: "image", fieldId: pictureId }]);
+
+    expect(await f.run(() => f.configure.invoke(remove("field", nameId, 4)))).toMatchObject({ ok: true });
+    const promoted = await f.run(() => f.repo.getModel());
+    expect(promoted.types.find((type) => type.id === projectId)?.primaryFieldId).toBe(codeId);
+    const project = recordInvariant(promoted.types.find((type) => type.id === projectId));
+    expect(
+      await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: 5,
+          idempotencyKey: randomUUID(),
+          operations: [{ operation: "putType", type: { ...project, archived: false, primaryFieldId: freeId } }],
+        }),
+      ),
+    ).toMatchObject({ ok: true });
+    expect(await f.run(() => f.configure.run(restore(nameId, 6)))).toMatchObject({ ok: true });
+    expect((await f.run(() => f.repo.getModel())).types.find((type) => type.id === projectId)?.primaryFieldId).toBe(
+      freeId,
+    );
+
+    expect(await f.run(() => f.configure.invoke(remove("field", freeId, 7)))).toMatchObject({ ok: true });
+    expect(await f.run(() => f.configure.invoke(remove("type", projectId, 8)))).toMatchObject({ ok: true });
+    expect((await avatar())?.fields).toEqual([{ role: "image", fieldId: pictureId }]);
+    expect(await blockers(restore(freeId, 9))).toContain("requiresRestore");
   });
 
   it("requires every populated record to have a parent before adopting inherited access", async () => {
@@ -4734,7 +4927,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       f.repo,
       f.policy,
       new RecordConfigurationService(f.repo),
-      new RecordConfigurationWriter(f.repo, new RecordCalculationService(f.repo)),
+      new RecordConfigurationWriter(f.repo, new RecordCalculationService(f.repo), getWebhookPauseNotifier()),
       events,
     );
     await expect(f.run(() => service.upsert(input))).rejects.toThrow("Simulated audit failure");

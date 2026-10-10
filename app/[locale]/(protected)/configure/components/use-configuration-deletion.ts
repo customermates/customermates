@@ -33,7 +33,7 @@ const DUPLICATE_ISSUES = {
   duplicate_relationship_label: "RecordModel.duplicateRelationshipLabel",
 } as const;
 
-function referenceChip(reference: DeletionReference, model: RecordModelView | null): ConfirmationChip {
+export function referenceChip(reference: DeletionReference, model: RecordModelView | null): ConfirmationChip {
   const typeIcon = (typeId: string | undefined) => model?.types.find((type) => type.id === typeId)?.icon ?? "list";
   if (reference.kind === "type") {
     return {
@@ -72,7 +72,7 @@ export function deletionBlockerSentences(t: Translate, deletion: Deletion, model
 const EFFECT_SENTENCES = {
   countsRecords: "widgetCount",
   triggerChanged: "webhookTrigger",
-  subscriptionRemoved: "webhookRemoved",
+  webhookPaused: "webhookPaused",
   avatar: "bindingAvatar",
   calendar: "bindingCalendar",
 } as const;
@@ -84,9 +84,14 @@ function nameFieldSentence(t: Translate, entry: Deletion["cleaned"][number], mod
         consumers,
         replacement: referenceChip(entry.replacement, model),
       })
-    : confirmationSentence((values) => t("RecordModel.configurationDeletion.cleaned.nameFieldNone", values), {
-        consumers,
-      });
+    : confirmationSentence(
+        (values) =>
+          t("RecordModel.configurationDeletion.cleaned.nameFieldNone", {
+            ...values,
+            singular: model?.types.find((type) => type.id === entry.consumer.id)?.label ?? "",
+          }),
+        { consumers },
+      );
 }
 
 function cleanedSentences(t: Translate, deletion: Deletion, model: RecordModelView | null): ConfirmationSentence[] {

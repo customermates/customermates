@@ -158,10 +158,11 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   get fields() {
     return editableFields(this.presentation);
   }
-  get titleText(): string | null {
-    const type = this.presentation.model.types.find((candidate) => candidate.id === this.presentation.typeId);
-    const title = this.record?.fields.find((field) => field.fieldId === type?.primaryFieldId)?.result;
-    return title?.state === "value" && title.value.kind === "text" ? title.value.value : null;
+  get type() {
+    return this.presentation.model.types.find((candidate) => candidate.id === this.presentation.typeId);
+  }
+  get titleResult() {
+    return this.record?.fields.find((field) => field.fieldId === this.type?.primaryFieldId)?.result;
   }
   edit = (
     presentation: RecordEditorContext,

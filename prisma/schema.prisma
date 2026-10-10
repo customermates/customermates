@@ -581,6 +581,7 @@ model Webhook {
   headers      Json?
   bodyTemplate String?
   enabled      Boolean           @default(true)
+  pausedReason String?
   companyId    String
   company      Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
   createdAt    DateTime          @default(now())

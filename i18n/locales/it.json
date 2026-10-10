@@ -1186,6 +1186,7 @@
       "webhookHeadersTooMany": "Troppe intestazioni.",
       "webhookHeaderValueInvalid": "I valori delle intestazioni possono contenere solo testo Latin-1, senza interruzioni di riga o caratteri di controllo.",
       "webhookNotFound": "ID webhook non trovato o non accessibile.",
+      "webhookTriggerRequired": "Scegli quali modifiche ai campi o condizioni attivano questo webhook prima di riattivarlo.",
       "widgetDisplayTypeUnsupported": "Questo stile di grafico non è adatto al raggruppamento scelto. Scegli un altro stile o modifica il raggruppamento.",
       "widgetKindImmutable": "Il tipo di un widget non può essere modificato dopo la creazione.",
       "widgetLayoutOverlap": "Questa posizione si sovrappone a un altro widget. Scegli uno spazio libero nella griglia a 12 colonne oppure ometti il layout per posizionarlo automaticamente.",
@@ -3093,6 +3094,7 @@
         "label": "Descrivi il calcolo",
         "pending": "Preparazione del calcolo",
         "placeholder": "Ad esempio: totale degli importi di tutte le righe collegate",
+        "stop": "Interrompi la bozza",
         "unavailable": "La bozza non è disponibile al momento."
       },
       "example": {
@@ -3222,7 +3224,7 @@
     "configurationDeletion": {
       "blockedMessage": "{name} non può essere eliminato finché altre parti della tua configurazione lo usano.",
       "blockers": {
-        "binding": "{source} usa {target} nelle sue impostazioni.",
+        "binding": "{target} controlla l’accesso all’area di lavoro per {source} e non può essere eliminato.",
         "calculation": "{source} viene calcolato da {target}.",
         "parentAccess": "{source} ottiene l’accesso tramite {target}.",
         "protected": "{source} controlla l’accesso all’area di lavoro e non può essere eliminato.",
@@ -3237,10 +3239,10 @@
         "bindingCalendar": "{target} non viene più usato per gli eventi di calendario di {consumers}.",
         "listDefaults": "{target} viene rimosso dal layout predefinito di {consumers}.",
         "nameField": "{consumers} verrà mostrato con {replacement}.",
-        "nameFieldNone": "{consumers} non ha più un campo che dia il nome ai record, quindi appaiono senza nome.",
+        "nameFieldNone": "Nessun campo di {consumers} può più dare il nome ai record, quindi appaiono come «{singular} senza nome».",
         "personalLayouts": "{target} viene rimosso da {count, plural, one {# layout personale} other {# layout personali}}.",
         "view": "{count, plural, one {{target} viene rimosso dalla vista {consumers}.} other {{target} viene rimosso da # viste: {consumers}.}}",
-        "webhookRemoved": "{count, plural, one {Il webhook {consumers} non invia più le modifiche ai record, perché {target} era il suo unico trigger.} other {# webhook non inviano più le modifiche ai record, perché {target} era il loro unico trigger: {consumers}.}}",
+        "webhookPaused": "{count, plural, one {Il webhook {consumers} è in pausa, perché {target} era il suo unico trigger. Scegli un nuovo trigger prima di riattivarlo.} other {# webhook sono in pausa, perché {target} era il loro unico trigger: {consumers}. Scegli un nuovo trigger prima di riattivarli.}}",
         "webhookTrigger": "{count, plural, one {{target} viene rimosso dal trigger del webhook {consumers}.} other {{target} viene rimosso dal trigger di # webhook: {consumers}.}}",
         "widget": "{count, plural, one {{target} viene rimosso dai filtri o dal raggruppamento del widget {consumers}.} other {{target} viene rimosso dai filtri o dal raggruppamento di # widget: {consumers}.}}",
         "widgetCount": "{count, plural, one {Il widget {consumers} conta i record invece di misurare {target}.} other {# widget contano i record invece di misurare {target}: {consumers}.}}"
@@ -3649,6 +3651,14 @@
     "untitledRecord": "{singular} senza nome",
     "updatedAt": "Aggiornato il",
     "useChannelAvatar": "Usa l’immagine del profilo del canale",
+    "usedBy": {
+      "blocking": "Bloccherebbe l'eliminazione",
+      "blockingCount": "{count, plural, one {# bloccherebbe l'eliminazione} other {# bloccherebbero l'eliminazione}}",
+      "cleaned": "Ripulito all'eliminazione",
+      "cleanedCount": "{count, plural, one {# ripulito} other {# ripuliti}}",
+      "layouts": "Rimosso anche da {count, plural, one {# layout} other {# layout}}.",
+      "title": "Usato da"
+    },
     "valueSource": {
       "calculated": "Calcolato · {formula}",
       "from": "Da {list} · {value}",
@@ -4103,6 +4113,7 @@
     },
     "movedToTrash": "Spostato nel cestino",
     "movesToTrash": "Viene spostato nel cestino, dove puoi ripristinarlo per 30 giorni.",
+    "moving": "{count, plural, one {Spostamento di # elemento nel cestino…} other {Spostamento di # elementi nel cestino…}}",
     "permanentIrreversible": "Questa operazione non può essere annullata.",
     "permanentMessage": "{count, plural, one {Questo elemento viene eliminato} other {Questi # elementi vengono eliminati}} definitivamente.",
     "permanentRecords": "{list}: {count, plural, one {# record} other {# record}}",
@@ -4117,7 +4128,7 @@
     "restored": "{count, plural, one {# elemento ripristinato} other {# elementi ripristinati}}",
     "restoredInBackground": "Ripristinato",
     "restoredWithDroppedLinks": "Ripristinato. {count, plural, one {# collegamento non è stato ripristinato} other {# collegamenti non sono stati ripristinati}} perché il record collegato è stato eliminato definitivamente.",
-    "restorePending": "Ripristino in background. Il cestino mostra l'avanzamento.",
+    "restoring": "Ripristino…",
     "undo": "Annulla"
   },
   "TrialExpiredOffer": {
@@ -4218,6 +4229,8 @@
     "disabled": "Disattivato",
     "enabled": "Attivato",
     "headersDescription": "Intestazioni facoltative inviate a ogni consegna, una per riga come Nome: valore. Usale per destinatari che richiedono la propria autenticazione. Content-Type e l'intestazione della firma non possono essere sovrascritti.",
+    "paused": "In pausa",
+    "pausedTriggerFieldDeleted": "Questo webhook è stato messo in pausa perché il campo che lo attivava è stato eliminato. Scegli un nuovo trigger e riattivalo.",
     "recordOwner": "Membro di cui usare i permessi",
     "recordOwnerHelp": "Gli invii usano i permessi attuali di questo membro. Solo un amministratore può scegliere un altro membro. I filtri si applicano alla modifica, non all’eliminazione.",
     "secretDescription": "Chiave segreta facoltativa usata per generare una firma HMAC-SHA256 inviata nell'intestazione X-Webhook-Signature. Per verificarla, calcola l'hash del corpo della richiesta con questa chiave usando HMAC-SHA256 e confrontalo con il valore dell'intestazione.",

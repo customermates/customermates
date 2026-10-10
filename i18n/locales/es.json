@@ -1186,6 +1186,7 @@
       "webhookHeadersTooMany": "Demasiadas cabeceras.",
       "webhookHeaderValueInvalid": "Los valores de cabecera solo pueden contener texto Latin-1, sin saltos de línea ni caracteres de control.",
       "webhookNotFound": "ID de webhook no encontrado o no accesible.",
+      "webhookTriggerRequired": "Elige qué cambios de campo o condiciones disparan este webhook antes de volver a activarlo.",
       "widgetDisplayTypeUnsupported": "Este estilo de gráfico no encaja con la agrupación seleccionada. Elige otro estilo o cambia la agrupación.",
       "widgetKindImmutable": "El tipo de un widget no se puede cambiar después de crearlo.",
       "widgetLayoutOverlap": "Esta posición se superpone con otro widget. Elige un hueco libre en la cuadrícula de 12 columnas u omite el diseño para colocarlo automáticamente.",
@@ -3093,6 +3094,7 @@
         "label": "Describe el cálculo",
         "pending": "Preparando el cálculo",
         "placeholder": "Por ejemplo: total de los importes de todas las líneas vinculadas",
+        "stop": "Detener el borrador",
         "unavailable": "La redacción no está disponible ahora."
       },
       "example": {
@@ -3222,7 +3224,7 @@
     "configurationDeletion": {
       "blockedMessage": "{name} no se puede eliminar mientras otras partes de tu configuración lo sigan usando.",
       "blockers": {
-        "binding": "{source} usa {target} en su configuración.",
+        "binding": "{target} controla el acceso al espacio de trabajo de {source} y no se puede eliminar.",
         "calculation": "{source} se calcula a partir de {target}.",
         "parentAccess": "{source} obtiene su acceso a través de {target}.",
         "protected": "{source} controla el acceso al espacio de trabajo y no se puede eliminar.",
@@ -3237,10 +3239,10 @@
         "bindingCalendar": "{target} deja de usarse para los eventos de calendario de {consumers}.",
         "listDefaults": "{target} se quita del diseño predeterminado de {consumers}.",
         "nameField": "{consumers} se mostrará con {replacement} en su lugar.",
-        "nameFieldNone": "{consumers} ya no tiene un campo que dé nombre a sus registros, así que aparecen sin nombre.",
+        "nameFieldNone": "Ningún campo de {consumers} puede ya dar nombre a sus registros, así que aparecen como «{singular} sin nombre».",
         "personalLayouts": "{target} se quita de {count, plural, one {# diseño personal} other {# diseños personales}}.",
         "view": "{count, plural, one {{target} se quita de la vista {consumers}.} other {{target} se quita de # vistas: {consumers}.}}",
-        "webhookRemoved": "{count, plural, one {El webhook {consumers} deja de enviar cambios de registros porque {target} era su único disparador.} other {# webhooks dejan de enviar cambios de registros porque {target} era su único disparador: {consumers}.}}",
+        "webhookPaused": "{count, plural, one {El webhook {consumers} queda en pausa porque {target} era su único disparador. Elige un nuevo disparador antes de volver a activarlo.} other {# webhooks quedan en pausa porque {target} era su único disparador: {consumers}. Elige un nuevo disparador antes de volver a activarlos.}}",
         "webhookTrigger": "{count, plural, one {{target} se quita del disparador del webhook {consumers}.} other {{target} se quita del disparador de # webhooks: {consumers}.}}",
         "widget": "{count, plural, one {{target} se quita de los filtros o la agrupación del widget {consumers}.} other {{target} se quita de los filtros o la agrupación de # widgets: {consumers}.}}",
         "widgetCount": "{count, plural, one {El widget {consumers} cuenta registros en lugar de medir {target}.} other {# widgets cuentan registros en lugar de medir {target}: {consumers}.}}"
@@ -3649,6 +3651,14 @@
     "untitledRecord": "{singular} sin nombre",
     "updatedAt": "Actualizado el",
     "useChannelAvatar": "Usar la foto de perfil del canal",
+    "usedBy": {
+      "blocking": "Impediría la eliminación",
+      "blockingCount": "{count, plural, one {# impediría la eliminación} other {# impedirían la eliminación}}",
+      "cleaned": "Se limpia al eliminar",
+      "cleanedCount": "{count, plural, one {# se limpia} other {# se limpian}}",
+      "layouts": "También se quita de {count, plural, one {# diseño} other {# diseños}}.",
+      "title": "Usado por"
+    },
     "valueSource": {
       "calculated": "Calculado · {formula}",
       "from": "De {list} · {value}",
@@ -4103,6 +4113,7 @@
     },
     "movedToTrash": "Movido a la papelera",
     "movesToTrash": "Se mueve a la papelera, donde puedes restaurarlo durante 30 días.",
+    "moving": "{count, plural, one {Moviendo # elemento a la papelera…} other {Moviendo # elementos a la papelera…}}",
     "permanentIrreversible": "Esto no se puede deshacer.",
     "permanentMessage": "{count, plural, one {Este elemento se elimina} other {Estos # elementos se eliminan}} definitivamente.",
     "permanentRecords": "{list}: {count, plural, one {# registro} other {# registros}}",
@@ -4117,7 +4128,7 @@
     "restored": "{count, plural, one {# elemento restaurado} other {# elementos restaurados}}",
     "restoredInBackground": "Restaurado",
     "restoredWithDroppedLinks": "Restaurado. {count, plural, one {# vínculo no se pudo} other {# vínculos no se pudieron}} restaurar porque el registro vinculado se eliminó definitivamente.",
-    "restorePending": "Restaurando en segundo plano. La papelera muestra el progreso.",
+    "restoring": "Restaurando…",
     "undo": "Deshacer"
   },
   "TrialExpiredOffer": {
@@ -4218,6 +4229,8 @@
     "disabled": "Desactivado",
     "enabled": "Activado",
     "headersDescription": "Cabeceras opcionales enviadas en cada entrega, una por línea como Nombre: valor. Úsalas para receptores que exigen su propia autenticación. Content-Type y la cabecera de firma no se pueden sobrescribir.",
+    "paused": "En pausa",
+    "pausedTriggerFieldDeleted": "Este webhook se pausó porque se eliminó el campo que lo disparaba. Elige un nuevo disparador y vuelve a activarlo.",
     "recordOwner": "Miembro cuyos permisos se usan",
     "recordOwnerHelp": "Los envíos usan los permisos actuales de este miembro. Solo un administrador puede elegir otro miembro. Los filtros se evalúan al cambiar el registro, no al eliminarlo.",
     "secretDescription": "Secreto opcional que se usa para generar una firma HMAC-SHA256 enviada en la cabecera X-Webhook-Signature. Para verificarla, calcula el hash del cuerpo de la solicitud con este secreto usando HMAC-SHA256 y compáralo con el valor de la cabecera.",

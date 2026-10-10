@@ -173,7 +173,7 @@ test("fits the flow and its picker to a phone screen", async ({ page, companyId 
   expect(errors).toEqual([]);
 });
 
-test("keeps the flow unchanged when drafting from a description isn't available", async ({ page, companyId }) => {
+test("hides the composer and keeps the flow unchanged when drafting isn't available", async ({ page, companyId }) => {
   const errors = captureErrors(page);
   const dialog = page.getByRole("dialog");
   await openConfigure(page, presetId(companyId, "deal"));
@@ -186,6 +186,7 @@ test("keeps the flow unchanged when drafting from a description isn't available"
   await composer.fill("Weighted value is the value times the stage probability");
   await composer.press("Enter");
   await expect(dialog.getByText("Drafting isn't available right now.", { exact: true })).toBeVisible();
+  await expect(composer).toHaveCount(0);
   await expect(flow.locator("[data-calculation-sentence]")).toHaveText(sentence ?? "");
   await expect(dialog.getByRole("button", { name: "Save", exact: true }).first()).toBeDisabled();
   expect(errors).toEqual([]);

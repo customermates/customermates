@@ -15,7 +15,7 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { RecordValue } from "./record-value";
 import { EmptyValue } from "@/components/shared/empty-value";
 import { Avatar } from "@/components/ui/avatar";
-import { recordTitle } from "@/components/records/record-title";
+import { recordDisplayName } from "@/features/records/record-display-name";
 
 const LINKED_CHIPS_MAX_WIDTH = 240;
 
@@ -110,7 +110,7 @@ export function RecordCell({
     id: `${related.ref.typeId}:${related.ref.recordId}`,
     ref: related.ref,
     startContent: <RecordChipIcon icons={linkIcons} typeId={related.ref.typeId} />,
-    label: recordTitle(related.title, linkLabels[related.ref.typeId], t),
+    label: recordDisplayName(related.title, linkLabels[related.ref.typeId], t),
   }));
   return (
     <AppChipStack

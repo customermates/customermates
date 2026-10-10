@@ -13,7 +13,7 @@ import { DataViewContent } from "@/components/data-view/data-view-content";
 import { DataViewPagination } from "@/components/data-view/header/pagination";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { recordTitle } from "@/components/records/record-title";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { relationshipColumnKey } from "@/features/records/record-column.schema";
@@ -172,7 +172,7 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
       if (name && type.primaryFieldId) child.onChange(`values.${type.primaryFieldId}`, name);
     });
   const recordName = (record: RecordRow) =>
-    recordTitle(record.fields.find((field) => field.fieldId === type.primaryFieldId)?.result, type.label, t);
+    recordDisplayName(record.fields.find((field) => field.fieldId === type.primaryFieldId)?.result, type.label, t);
   const columns = useRecordTableColumns(list, (ref) => store.rootStore.recordWorkspaceStore.open(ref), {
     markCalculated: true,
   });

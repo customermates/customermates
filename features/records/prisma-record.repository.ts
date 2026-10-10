@@ -74,6 +74,7 @@ import { RecordDetailLayoutSchema, recordDetailKey } from "./record-detail-layou
 import { EntityDetailOptionsSchema } from "@/features/p13n/p13n.schema";
 import { TRASH_RETENTION_DAYS } from "@/features/trash/trash-retention";
 import { deleteTrashItems, insertTrashItems } from "@/features/trash/trash-item-store";
+import { RECORD_EVENT_KINDS } from "./record-event.schema";
 import { configurationTrashBatchId } from "./configuration-trash-batch";
 
 export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
@@ -525,8 +526,9 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     return new Map(users.map((user) => [user.id, `${user.firstName} ${user.lastName}`.trim()]));
   }
 
-  async applyConsumerCleanups(cleanups: ConfigurationConsumerCleanup[]): Promise<void> {
+  async applyConsumerCleanups(cleanups: ConfigurationConsumerCleanup[]): Promise<{ pausedWebhookIds: string[] }> {
     const companyId = this.companyId;
+    const pausedWebhookIds: string[] = [];
     for (const cleanup of cleanups) {
       if (cleanup.kind === "view") {
         await this.prisma.dataView.updateMany({
@@ -573,21 +575,34 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
           where: { companyId, id: cleanup.id },
           data: { measure: cleanup.measure as Prisma.InputJsonValue, version: { increment: 1 } },
         });
-      } else if (cleanup.kind === "eventSubscription") {
-        const { id, events, changedFieldIds, query, sources } = cleanup.subscription;
+      } else if (cleanup.kind === "webhookSubscription") {
+        const { id, typeId, events, changedFieldIds, query, sources, enabled } = cleanup.subscription;
         await this.prisma.recordEventSubscription.updateMany({
           where: { companyId, id },
           data: {
+            typeId,
             events,
             changedFieldIds,
             query: query === null ? Prisma.DbNull : (query as Prisma.InputJsonValue),
             sources: sources?.length ? (sources as Prisma.InputJsonValue) : Prisma.DbNull,
+            enabled,
             revision: { increment: 1 },
           },
         });
-      } else if (cleanup.kind === "eventSubscriptionRemoval")
-        await this.prisma.recordEventSubscription.deleteMany({ where: { companyId, id: cleanup.id } });
+        const webhook = await this.prisma.webhook.findFirst({ where: { companyId, id }, select: { events: true } });
+        if (!webhook) continue;
+        const kept = webhook.events.filter((event) => !(RECORD_EVENT_KINDS as readonly string[]).includes(event));
+        await this.prisma.webhook.updateMany({
+          where: { companyId, id },
+          data: {
+            events: [...kept, ...events],
+            ...(cleanup.paused ? { enabled: false, pausedReason: "triggerFieldDeleted" } : {}),
+          },
+        });
+        if (cleanup.paused) pausedWebhookIds.push(id);
+      }
     }
+    return { pausedWebhookIds };
   }
   async measure(measure: RecordMeasure, model: RecordModel, access: RecordAccessMap): Promise<MeasureRow[]> {
     return this.prisma.$queryRaw<MeasureRow[]>(compileRecordMeasure(this.companyId, measure, model, access));

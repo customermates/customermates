@@ -16,6 +16,7 @@ export type ConfigurationDeletion = {
   target: ConfigurationTarget;
   cascade: ConfigurationTarget[];
   nameField?: { typeId: string; replacementId: string | null };
+  bindings?: DroppedBinding[];
 };
 export type ConfigurationDeletionRecord = ConfigurationDeletion & { actorId: string; deletedAt: Date };
 
@@ -235,27 +236,42 @@ function dependencyBlockers(
   return blockers;
 }
 
+type DroppedBinding = { bindingId: string; role: string; fieldId: string };
+
 function dropBindingFields(
   model: RecordModel,
-  fieldIds: Set<string>,
+  removed: { fieldIds: Set<string>; typeIds: Set<string> },
   reference: (target: ConfigurationTarget) => DeletionReference,
-): DeletionCleanup[] {
+): { cleaned: DeletionCleanup[]; dropped: DroppedBinding[] } {
   const cleaned: DeletionCleanup[] = [];
+  const dropped: DroppedBinding[] = [];
   model.capabilities = model.capabilities.map((binding) => {
-    if (binding.kind === "membershipAuthorization") return binding;
-    const dropped = binding.fields.filter((entry) => fieldIds.has(entry.fieldId));
-    for (const entry of dropped) {
+    if (binding.kind === "membershipAuthorization" || removed.typeIds.has(binding.typeId)) return binding;
+    const entries = binding.fields.filter((entry) => removed.fieldIds.has(entry.fieldId));
+    for (const entry of entries) {
+      dropped.push({ bindingId: binding.id, role: entry.role, fieldId: entry.fieldId });
       cleaned.push({
         consumer: reference({ kind: "type", id: binding.typeId }),
         target: reference({ kind: "field", id: entry.fieldId }),
         effect: binding.kind,
       });
     }
-    return dropped.length
-      ? { ...binding, fields: binding.fields.filter((entry) => !fieldIds.has(entry.fieldId)) }
+    return entries.length
+      ? { ...binding, fields: binding.fields.filter((entry) => !removed.fieldIds.has(entry.fieldId)) }
       : binding;
   });
-  return cleaned;
+  return { cleaned, dropped };
+}
+
+function restoreBindingFields(model: RecordModel, dropped: DroppedBinding[]) {
+  model.capabilities = model.capabilities.map((binding) => {
+    const entries = dropped.filter(
+      (entry) => entry.bindingId === binding.id && !binding.fields.some((field) => field.role === entry.role),
+    );
+    return entries.length
+      ? { ...binding, fields: [...binding.fields, ...entries.map(({ role, fieldId }) => ({ role, fieldId }))] }
+      : binding;
+  });
 }
 
 function cleanListDefaults(
@@ -385,6 +401,7 @@ export function applyConfigurationLifecycle(
       const record = records.get(targetKey(target));
       const named = record?.nameField && model.types.find((type) => type.id === record.nameField?.typeId);
       if (named && named.primaryFieldId === record?.nameField?.replacementId) setNameField(model, named.id, target.id);
+      if (record?.bindings?.length) restoreBindingFields(model, record.bindings);
       const cascade = record?.cascade ?? [];
       for (const kind of ["type", "relationship", "field"] as const) {
         for (const item of cascade.filter((entry) => entry.kind === kind))
@@ -420,7 +437,12 @@ export function applyConfigurationLifecycle(
     };
     for (const field of before.fields) if (sets.typeIds.has(field.typeId)) sets.fieldIds.add(field.id);
     blockers.push(...dependencyBlockers(before, sets, reference, false));
-    cleaned.push(...dropBindingFields(model, sets.fieldIds, reference));
+    const bindings = dropBindingFields(model, sets, reference);
+    cleaned.push(...bindings.cleaned);
+    for (const deletion of deletions) {
+      const own = bindings.dropped.filter((entry) => entry.fieldId === deletion.target.id);
+      if (own.length) deletion.bindings = own;
+    }
     cleaned.push(...cleanListDefaults(model, sets, reference, reference(deletions[0].target)));
   }
   let removed: RecordDefinitionDeletion | null = null;
@@ -428,7 +450,7 @@ export function applyConfigurationLifecycle(
     const result = removePermanently(model, permanent);
     removed = result.removed;
     blockers.push(...dependencyBlockers(model, result.sets, reference, true));
-    cleaned.push(...dropBindingFields(model, result.sets.fieldIds, reference));
+    cleaned.push(...dropBindingFields(model, result.sets, reference).cleaned);
   }
   return {
     deletions,
