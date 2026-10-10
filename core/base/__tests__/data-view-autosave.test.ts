@@ -973,6 +973,18 @@ describe("modified view query", () => {
       views: [{ ...VIEW, state: { filters: [filter("won"), filter("open")] } }],
     });
     expect(saved.isQueryModified).toBe(false);
+
+    const reordered = new TestStore(rootStore());
+    reordered.setItems({
+      ...serverEcho({ viewId: VIEW_ID, filters: [filter("open")] }),
+      views: [
+        {
+          ...VIEW,
+          state: { filters: [{ value: "open", operator: FilterOperatorKey.contains, field: "stage" } as Filter] },
+        },
+      ],
+    });
+    expect(reordered.isQueryModified).toBe(false);
   });
 
   it("keeps drafts per person and company and forgets other people's drafts when a person signs in", async () => {
