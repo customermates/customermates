@@ -835,6 +835,7 @@
     "groups": {
       "actions": "Actions",
       "bestMatch": "Meilleur résultat",
+      "docs": "Documentation",
       "listsAndViews": "Listes et vues",
       "pagesAndSettings": "Pages et paramètres",
       "records": "Enregistrements",
@@ -1957,13 +1958,14 @@
     "boardMoveRequested": "Déplacement vers {group} demandé.",
     "boardMoveTarget": "Déplacer l’enregistrement vers {group}.",
     "boardPickedUp": "Enregistrement saisi.",
+    "collapseColumn": "Réduire la colonne",
     "collapseGroup": "Réduire le groupe {group}",
     "dragToReorder": "Faire glisser pour réorganiser",
+    "expandColumn": "Développer {name}",
     "expandGroup": "Développer le groupe {group}",
     "groupOverflow": "Seuls {count} groupes sont affichés",
     "kanbanCount": "{count, plural, one {# {singular}} other {# {plural}}}",
     "noValue": "Aucune valeur",
-    "resizeBoardColumns": "Redimensionner les colonnes du tableau. Faites glisser ou utilisez les flèches ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
     "resizeColumn": "Redimensionnez la colonne « {column} ». Faites glisser ou utilisez les touches fléchées ; touchez deux fois ou appuyez sur Entrée pour réinitialiser.",
     "resizeHint": "Faites glisser pour redimensionner. Double-cliquez pour réinitialiser.",
     "rowActions": "Actions de ligne",
@@ -3642,6 +3644,14 @@
     "unlinkRecord": "Dissocier {name}",
     "updatedAt": "Mis à jour le",
     "useChannelAvatar": "Utiliser la photo de profil du canal",
+    "valueSource": {
+      "calculated": "Calculé · {formula}",
+      "from": "Depuis {list} · {value}",
+      "savedOnCreate": "Enregistré à la création de {list}",
+      "savedOnRequest": "Enregistré sur demande",
+      "savedWhenChanged": "Enregistré quand {field} change",
+      "savedWhenChangedTo": "Enregistré quand {field} passe à {value}"
+    },
     "valueType": "Type de valeur",
     "yes": "Oui"
   },

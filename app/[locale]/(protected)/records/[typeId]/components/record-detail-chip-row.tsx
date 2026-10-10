@@ -4,8 +4,9 @@ import type { ReactNode } from "react";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordChoice } from "@/features/records/get-record-choices.interactor";
+import type { RecordRef } from "@/features/records/record-model.schema";
 
-import { useState } from "react";
+import { useCallback, useId, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { PinOff, Plus } from "lucide-react";
@@ -13,15 +14,20 @@ import { PinOff, Plus } from "lucide-react";
 import { AppChip } from "@/components/chip/app-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { MemberAvatar, memberName } from "@/components/chip/member-chip";
+import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
 import { runUserAction } from "@/core/errors/report-application-error";
-import { useEntityDetailPersonalization } from "@/components/entity-detail/entity-detail-personalization";
+import {
+  type EntityDetailPreviewItem,
+  useEntityDetailPersonalization,
+} from "@/components/entity-detail/entity-detail-personalization";
 import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { RecordValueTypeIcon } from "@/components/records/record-value-type-icon";
 import { ContactValue } from "@/components/records/contact-value";
+import { CommandGroup, CommandItem } from "@/components/ui/command";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { IconButton } from "@/components/ui/icon-button";
@@ -31,31 +37,44 @@ import { getChannelIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { recordColumns } from "@/features/records/record-columns";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
+import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
+import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { type RecordChipColumn, type RecordChipEntry, recordChipRowModel } from "./record-chip-row-model";
 import { RecordPropertyChipView } from "./record-chip-row";
+import { RecordChannelPopover } from "./record-identity-editor";
+import { focusFirstControl, RecordLinkPicker } from "./record-inline-field";
 import { RecordInputField } from "./record-input-field";
-import { RecordRelationshipEditor, useRecordChoices } from "./record-relationship-editor";
+import { useRecordChoices } from "./record-relationship-editor";
 
 const CHIP_TRIGGER_CLASS =
   "inline-flex max-w-full min-w-0 cursor-pointer rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring/70";
 
+type LinkColumn = Extract<RecordChipColumn, { kind: "relationship" | "relationshipPath" }>;
+
+function linkTypeId(column: LinkColumn) {
+  if (column.kind === "relationshipPath") return column.targetTypeId;
+  return column.direction === "outgoing" ? column.relation.targetTypeId : column.relation.sourceTypeId;
+}
+
 function columnIcon(store: RecordEditorStore, column: RecordChipColumn) {
   if (column.kind === "field") return <RecordValueTypeIcon valueType={column.field.valueType} />;
-  if (column.kind === "relationship" || column.kind === "relationshipPath") {
-    const typeId =
-      column.kind === "relationshipPath"
-        ? column.targetTypeId
-        : column.direction === "outgoing"
-          ? column.relation.targetTypeId
-          : column.relation.sourceTypeId;
-    return <RecordChipIcon icons={store.presentation.linkIcons} typeId={typeId} />;
-  }
+  if (column.kind === "relationship" || column.kind === "relationshipPath")
+    return <RecordChipIcon icons={store.presentation.linkIcons} typeId={linkTypeId(column)} />;
   return <RecordValueTypeIcon valueType={column.kind === "system" ? "dateTime" : "text"} />;
 }
 
-function draftRow(store: RecordEditorStore): RecordRow {
+function previewUsers(items: EntityDetailPreviewItem[] | undefined) {
+  return (items ?? []).flatMap((item) =>
+    item.data && typeof item.data === "object" && "id" in item.data
+      ? [item.data as RecordRow["assignedUsers"][number]]
+      : [],
+  );
+}
+
+function draftRow(store: RecordEditorStore, assigneePreview: EntityDetailPreviewItem[] | undefined): RecordRow {
   const record = store.record;
   const known = [
+    ...previewUsers(assigneePreview),
     ...(record?.assignedUsers ?? []),
     ...(store.rootStore.userStore.user ? [store.rootStore.userStore.user] : []),
   ];
@@ -75,42 +94,11 @@ function draftRow(store: RecordEditorStore): RecordRow {
   } as RecordRow;
 }
 
-const LinkedChip = observer(function LinkedChip({
-  store,
-  entry,
-  row,
-}: {
-  store: RecordEditorStore;
-  entry: RecordChipEntry;
-  row: RecordRow;
-}) {
-  const column = entry.column;
-  if (column.kind !== "relationship" && column.kind !== "relationshipPath") return null;
-  const typeId =
-    column.kind === "relationshipPath"
-      ? column.targetTypeId
-      : column.direction === "outgoing"
-        ? column.relation.targetTypeId
-        : column.relation.sourceTypeId;
-  return <LinkedChipQuery column={column} entry={entry} row={row} store={store} typeId={typeId} />;
-});
-
-const LinkedChipQuery = observer(function LinkedChipQuery({
-  store,
-  entry,
-  row,
-  column,
-  typeId,
-}: {
-  store: RecordEditorStore;
-  entry: RecordChipEntry;
-  row: RecordRow;
-  column: Extract<RecordChipColumn, { kind: "relationship" | "relationshipPath" }>;
-  typeId: string;
-}) {
+function useLinkedChoices(store: RecordEditorStore, column: LinkColumn) {
+  const [attempt, setAttempt] = useState(0);
   const query = useRecordChoices(
     {
-      typeId,
+      typeId: linkTypeId(column),
       page: 1,
       pageSize: 10,
       ...(store.record
@@ -120,7 +108,7 @@ const LinkedChipQuery = observer(function LinkedChipQuery({
         : {}),
     },
     store.record !== null && store.isOpen && !store.trash,
-    store.record?.version ?? 0,
+    (store.record?.version ?? 0) + attempt,
   );
   const changes =
     column.kind === "relationship"
@@ -130,10 +118,10 @@ const LinkedChipQuery = observer(function LinkedChipQuery({
       : [];
   const own =
     column.kind === "relationship"
-      ? row.relationships.find(
+      ? store.record?.relationships.find(
           (summary) => summary.relationId === column.relation.id && summary.direction === column.direction,
         )
-      : row.relationshipPaths?.find((summary) => summary.pathId === column.definition.id);
+      : store.record?.relationshipPaths?.find((summary) => summary.pathId === column.definition.id);
   const original = (store.trash ? own?.records : query.data?.records) ?? [];
   const records: RecordChoice[] = [
     ...original.filter(
@@ -150,19 +138,14 @@ const LinkedChipQuery = observer(function LinkedChipQuery({
   const hidden = store.trash
     ? Math.max(0, (own?.readableCount ?? 0) - original.length)
     : Math.max(0, (query.data?.total ?? 0) - original.length);
-  const summary = { records, readableCount: records.length + hidden, hasMore: hidden > 0 };
-  if (!records.length) return <PlaceholderChip column={column} store={store} />;
-  const linkedRow = {
-    ...row,
-    relationships:
-      column.kind === "relationship"
-        ? [{ relationId: column.relation.id, direction: column.direction, ...summary }]
-        : row.relationships,
-    relationshipPaths:
-      column.kind === "relationshipPath" ? [{ pathId: column.definition.id, ...summary }] : row.relationshipPaths,
-  } as RecordRow;
-  return <RecordPropertyChipView entry={entry} presentation={store.presentation} record={linkedRow} />;
-});
+  return {
+    records,
+    loading: store.record !== null && query.loading,
+    failed: query.failed,
+    retry: () => setAttempt((value) => value + 1),
+    summary: { records, readableCount: records.length + hidden, hasMore: hidden > 0 },
+  };
+}
 
 function PlaceholderChip({ store, column }: { store: RecordEditorStore; column: RecordChipColumn }) {
   return (
@@ -171,6 +154,138 @@ function PlaceholderChip({ store, column }: { store: RecordEditorStore; column: 
     </AppChip>
   );
 }
+
+function UnpinItem({ label, onUnpin }: { label: string; onUnpin: () => void }) {
+  const t = useTranslations();
+  return (
+    <CommandGroup className="border-t border-border">
+      <CommandItem value="unpin" onSelect={onUnpin}>
+        <PinOff aria-hidden className="size-4" />
+
+        <span className="flex-1 truncate">{t("EntityDetail.unpinField", { field: label })}</span>
+      </CommandItem>
+    </CommandGroup>
+  );
+}
+
+function ChipPopover({
+  label,
+  chip,
+  wide = false,
+  open,
+  onOpenChange,
+  children,
+}: {
+  label: string;
+  chip: ReactNode;
+  wide?: boolean;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  children: ReactNode;
+}) {
+  const t = useTranslations();
+  return (
+    <Popover modal open={open} onOpenChange={onOpenChange}>
+      <PopoverTrigger asChild>
+        <button aria-label={t("RecordModel.editValue", { field: label })} className={CHIP_TRIGGER_CLASS} type="button">
+          {chip}
+        </button>
+      </PopoverTrigger>
+
+      <PopoverContent
+        align="start"
+        className={wide ? "w-72 p-0" : "w-80 space-y-2 p-3"}
+        onOpenAutoFocus={focusFirstControl}
+      >
+        {open && children}
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function EditorHeading({ label, onUnpin }: { label: string; onUnpin: () => void }) {
+  const t = useTranslations();
+  return (
+    <div className="flex items-center justify-between gap-2">
+      <p className="truncate text-xs font-medium text-muted-foreground">{label}</p>
+
+      <IconButton fieldAction icon={PinOff} label={t("EntityDetail.unpinField", { field: label })} onClick={onUnpin} />
+    </div>
+  );
+}
+
+const LinkedChip = observer(function LinkedChip({
+  store,
+  entry,
+  row,
+  editable,
+}: {
+  store: RecordEditorStore;
+  entry: RecordChipEntry;
+  row: RecordRow;
+  editable: boolean;
+}) {
+  const column = entry.column as LinkColumn;
+  const { toggleStarredField } = useEntityDetailPersonalization();
+  const [open, setOpen] = useState(false);
+  const linked = useLinkedChoices(store, column);
+  if (linked.loading && !open) return null;
+  const linkedRow = {
+    ...row,
+    relationships:
+      column.kind === "relationship"
+        ? [{ relationId: column.relation.id, direction: column.direction, ...linked.summary }]
+        : row.relationships,
+    relationshipPaths:
+      column.kind === "relationshipPath"
+        ? [{ pathId: column.definition.id, ...linked.summary }]
+        : row.relationshipPaths,
+  } as RecordRow;
+  const chip = linked.records.length ? (
+    <RecordPropertyChipView entry={entry} presentation={store.presentation} record={linkedRow} />
+  ) : (
+    <PlaceholderChip column={column} store={store} />
+  );
+  if (!editable || column.kind !== "relationship") return chip;
+  const relation = column.relation;
+  const direction = column.direction;
+  const singular = (direction === "outgoing" ? relation.sourceCardinality : relation.targetCardinality) === "one";
+  const stage = (choice: RecordChoice, action: "link" | "unlink") =>
+    store.stageLink({ action, relationId: relation.id, direction, record: choice.ref }, choice.title);
+  const toggle = (choice: RecordChoice, isLinked: boolean) => {
+    if (isLinked) stage(choice, "unlink");
+    else {
+      if (singular) for (const previous of linked.records) stage(previous, "unlink");
+      stage(choice, "link");
+    }
+    setOpen(false);
+  };
+  const openRecord = (ref: RecordRef) => {
+    setOpen(false);
+    store.rootStore.recordWorkspaceStore.open(ref);
+  };
+  return (
+    <ChipPopover wide chip={chip} label={column.label} open={open} onOpenChange={setOpen}>
+      <RecordLinkPicker
+        failed={linked.failed}
+        label={column.label}
+        linked={linked.loading ? null : linked.records}
+        typeId={linkTypeId(column)}
+        onOpenRecord={openRecord}
+        onRetry={linked.retry}
+        onToggle={toggle}
+      >
+        <UnpinItem
+          label={column.label}
+          onUnpin={() => {
+            setOpen(false);
+            toggleStarredField(column.id);
+          }}
+        />
+      </RecordLinkPicker>
+    </ChipPopover>
+  );
+});
 
 function IdentityChips({ row }: { row: RecordRow }) {
   return (
@@ -183,7 +298,7 @@ function IdentityChips({ row }: { row: RecordRow }) {
           identity.value;
         const kind = isEmailProvider(identity.provider) ? "email" : isPhoneProvider(identity.provider) ? "phone" : null;
         return (
-          <AppChip key={identity.id} startContent={<Icon className="size-3" />} tooltip={label}>
+          <AppChip key={identity.id} startContent={<Icon className="size-3" />}>
             {kind ? <ContactValue kind={kind} label={label} value={identity.value} /> : label}
           </AppChip>
         );
@@ -194,7 +309,13 @@ function IdentityChips({ row }: { row: RecordRow }) {
 
 function editsInChip(store: RecordEditorStore, column: RecordChipColumn) {
   if (store.isReadOnly) return false;
-  if (column.kind === "field") return isRecordFieldWritable(column.field) && column.field.valueType !== "richText";
+  if (column.kind === "field") {
+    return (
+      isRecordFieldWritable(column.field) &&
+      column.field.valueType !== "richText" &&
+      !CONTACT_VALUE_TYPES.includes(column.field.valueType)
+    );
+  }
   if (column.kind === "relationship") {
     return !store.presentation.model.types.some(
       (type) => type.embedded && type.parentRelationshipId === column.relation.id,
@@ -203,96 +324,120 @@ function editsInChip(store: RecordEditorStore, column: RecordChipColumn) {
   return false;
 }
 
+const AssigneeEditor = observer(function AssigneeEditor({ store, label }: { store: RecordEditorStore; label: string }) {
+  const inputId = `assignedUserIds-chip-${useId()}`;
+  const { setPreviewFieldValue } = useEntityDetailPersonalization();
+  const preview = useCallback(
+    (items: EntityDetailPreviewItem[]) => setPreviewFieldValue("system:assignedTo", items),
+    [setPreviewFieldValue],
+  );
+  return (
+    <FormAutocompleteAvatar
+      ariaLabel={label}
+      getItems={getUsersAction}
+      id="assignedUserIds"
+      inputId={inputId}
+      items={store.record?.assignedUsers ?? (store.rootStore.userStore.user ? [store.rootStore.userStore.user] : [])}
+      label={null}
+      selectionMode="multiple"
+      onSelectionDataChange={preview}
+    />
+  );
+});
+
 const DetailChip = observer(function DetailChip({
   store,
   entry,
   row,
-  readOnly,
+  personalizing,
 }: {
   store: RecordEditorStore;
   entry: RecordChipEntry;
   row: RecordRow;
-  readOnly: boolean;
+  personalizing: boolean;
 }) {
-  const t = useTranslations();
   const { toggleStarredField } = useEntityDetailPersonalization();
+  const inputId = `chip-${useId()}`;
   const [open, setOpen] = useState(false);
   const column = entry.column;
-  if (column.kind === "identity") return <IdentityChips row={row} />;
-  if (column.id === "system:assignedTo") {
+  const editable = !personalizing && !store.isReadOnly;
+  const unpin = () => {
+    setOpen(false);
+    toggleStarredField(column.id);
+  };
+  if (column.kind === "relationship" || column.kind === "relationshipPath")
+    return <LinkedChip editable={!personalizing && editsInChip(store, column)} entry={entry} row={row} store={store} />;
+
+  if (column.kind === "identity") {
+    if (!entry.empty) return <IdentityChips row={row} />;
+    const placeholder = <PlaceholderChip column={column} store={store} />;
+    if (!editable || store.isDisabled) return placeholder;
     return (
-      <AppChipStack
-        items={row.assignedUsers.map((member) => ({
-          id: member.id,
-          label: memberName(member),
-          startContent: <MemberAvatar member={member} />,
-        }))}
-        onChipClick={(item) => runUserAction(() => store.rootStore.userModalStore.loadById(item.id))}
-      />
+      <ChipPopover chip={placeholder} label={column.label} open={open} onOpenChange={setOpen}>
+        <EditorHeading label={column.label} onUnpin={unpin} />
+
+        <RecordChannelPopover editor={store} />
+      </ChipPopover>
     );
   }
-  const chip: ReactNode =
-    column.kind === "relationship" || column.kind === "relationshipPath" ? (
-      <LinkedChip entry={entry} row={row} store={store} />
-    ) : entry.empty ? (
-      <PlaceholderChip column={column} store={store} />
-    ) : (
-      <RecordPropertyChipView entry={entry} presentation={store.presentation} record={row} />
+  if (column.id === "system:assignedTo") {
+    if (!entry.empty) {
+      return (
+        <AppChipStack
+          items={row.assignedUsers.map((member) => ({
+            id: member.id,
+            label: memberName(member),
+            startContent: <MemberAvatar member={member} />,
+          }))}
+          onChipClick={(item) => runUserAction(() => store.rootStore.userModalStore.loadById(item.id))}
+        />
+      );
+    }
+    const placeholder = <PlaceholderChip column={column} store={store} />;
+    if (!editable) return placeholder;
+    return (
+      <ChipPopover chip={placeholder} label={column.label} open={open} onOpenChange={setOpen}>
+        <EditorHeading label={column.label} onUnpin={unpin} />
+
+        <AssigneeEditor label={column.label} store={store} />
+      </ChipPopover>
     );
-  if (readOnly || !editsInChip(store, column)) return chip;
+  }
+  const chip = entry.empty ? (
+    <PlaceholderChip column={column} store={store} />
+  ) : (
+    <RecordPropertyChipView entry={entry} presentation={store.presentation} record={row} />
+  );
+  if (personalizing || column.kind !== "field" || !editsInChip(store, column)) return chip;
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <button
-          aria-label={t("RecordModel.editValue", { field: column.label })}
-          className={CHIP_TRIGGER_CLASS}
-          data-detail-chip={column.id}
-          type="button"
-        >
-          {chip}
-        </button>
-      </PopoverTrigger>
+    <ChipPopover chip={chip} label={column.label} open={open} onOpenChange={setOpen}>
+      <EditorHeading label={column.label} onUnpin={unpin} />
 
-      <PopoverContent align="start" className="w-80 space-y-2 p-3">
-        <div className="flex items-center justify-between gap-2">
-          <p className="truncate text-xs font-medium text-muted-foreground">{column.label}</p>
-
-          <IconButton
-            fieldAction
-            icon={PinOff}
-            label={t("EntityDetail.unpinField", { field: column.label })}
-            onClick={() => {
-              setOpen(false);
-              toggleStarredField(column.id);
-            }}
-          />
-        </div>
-
-        {column.kind === "field" ? (
-          <RecordInputField field={column.field} id={`values.${column.field.id}`} label={null} />
-        ) : column.kind === "relationship" ? (
-          <RecordRelationshipEditor direction={column.direction} relationship={column.relation} store={store} />
-        ) : null}
-      </PopoverContent>
-    </Popover>
+      <RecordInputField field={column.field} id={`values.${column.field.id}`} inputId={inputId} label={null} />
+    </ChipPopover>
   );
 });
 
 const PinChip = observer(function PinChip({
   store,
   columns,
+  pinnedIds,
 }: {
   store: RecordEditorStore;
   columns: RecordChipColumn[];
+  pinnedIds: string[];
 }) {
   const t = useTranslations();
   const { toggleStarredField } = useEntityDetailPersonalization();
-  if (!columns.length) return null;
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button aria-label={t("EntityDetail.pinMore")} className={CHIP_TRIGGER_CLASS} data-pin-chip="" type="button">
-          <AppChip interactive className="border-dashed border-border bg-transparent text-muted-foreground">
+          <AppChip
+            interactive
+            className="border-dashed border-border bg-transparent text-muted-foreground"
+            tooltip={t("EntityDetail.pinMore")}
+          >
             <Plus aria-hidden className="size-3" />
           </AppChip>
         </button>
@@ -300,11 +445,16 @@ const PinChip = observer(function PinChip({
 
       <DropdownMenuContent align="start" className="max-h-72 overflow-y-auto">
         {columns.map((column) => (
-          <DropdownMenuItem key={column.id} onSelect={() => toggleStarredField(column.id)}>
+          <DropdownMenuCheckboxItem
+            key={column.id}
+            checked={pinnedIds.includes(column.id)}
+            onCheckedChange={() => toggleStarredField(column.id)}
+            onSelect={(event) => event.preventDefault()}
+          >
             {columnIcon(store, column)}
 
             {column.label}
-          </DropdownMenuItem>
+          </DropdownMenuCheckboxItem>
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
@@ -319,7 +469,7 @@ export const RecordDetailChipRow = observer(function RecordDetailChipRow({
   className?: string;
 }) {
   const t = useTranslations();
-  const { starredFieldIds, isPersonalizing } = useEntityDetailPersonalization();
+  const { starredFieldIds, isPersonalizing, previewFieldValues } = useEntityDetailPersonalization();
   const all = recordColumns(store.presentation.typeId, store.presentation.model)
     .filter((column) => store.record || column.kind !== "system" || column.id === "system:assignedTo")
     .map((column) =>
@@ -331,20 +481,26 @@ export const RecordDetailChipRow = observer(function RecordDetailChipRow({
     ) as RecordChipColumn[];
   const byId = new Map(all.map((column) => [column.id, column]));
   const pinned = starredFieldIds.flatMap((id) => byId.get(id) ?? []);
-  const row = draftRow(store);
+  const row = draftRow(store, previewFieldValues["system:assignedTo"]);
   const { entries } = recordChipRowModel(pinned, row, { keepEmpty: true });
-  const unpinned = all.filter((column) => !starredFieldIds.includes(column.id));
-  if (!entries.length && (isPersonalizing || !unpinned.length)) return null;
+  const canPin = !isPersonalizing && !store.isReadOnly && all.length > 0;
+  if (!entries.length && !canPin) return null;
   return (
     <div className={className} data-record-chip-row="">
       <div className="flex min-w-0 flex-wrap items-center gap-1">
         {entries.map((entry) => (
-          <span key={entry.column.id} className="inline-flex max-w-full min-w-0" data-chip-column={entry.column.id}>
-            <DetailChip entry={entry} readOnly={isPersonalizing} row={row} store={store} />
+          <span
+            key={entry.column.id}
+            aria-label={entry.column.label}
+            className="inline-flex max-w-full min-w-0"
+            data-chip-column={entry.column.id}
+            role="group"
+          >
+            <DetailChip entry={entry} personalizing={isPersonalizing} row={row} store={store} />
           </span>
         ))}
 
-        {!isPersonalizing && <PinChip columns={unpinned} store={store} />}
+        {canPin && <PinChip columns={all} pinnedIds={starredFieldIds} store={store} />}
       </div>
     </div>
   );
