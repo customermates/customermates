@@ -196,7 +196,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await dashboard.click();
   await expect(page).toHaveURL("/en/dashboard");
   await page.locator("#dashboard-add-widget").click();
-  await dialog.locator("#widget-kind-chart").click();
+  await dialog.locator("#widget-starter-verticalBarChart").click();
   const widgetName = `Budget ${name.slice(-8)}`;
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill(widgetName);
   await dialog.getByRole("combobox", { name: "Records from", exact: true }).click();
