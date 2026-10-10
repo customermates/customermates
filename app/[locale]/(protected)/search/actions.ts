@@ -1,6 +1,7 @@
 "use server";
 
 import type { CommandSearchInput, CommandSearchResult } from "@/features/command-palette/command-search.schema";
+import type { ResolveCommandInput } from "@/features/command-palette/command-resolve";
 import type {
   RecordSearch,
   RecordSearchResult,
@@ -8,6 +9,7 @@ import type {
 } from "@/features/records/record-search.schema";
 import {
   getGetCommandCatalogInteractor,
+  getResolveCommandInteractor,
   getResolveRecordSearchInteractor,
   getSearchCommandCatalogInteractor,
   getSearchRecordsInteractor,
@@ -24,6 +26,10 @@ export async function resolveSearchReferencesAction(data: ResolveRecordSearchInp
 
 export async function commandCatalogAction() {
   return serializeResult(getGetCommandCatalogInteractor().invoke());
+}
+
+export async function resolveCommandAction(input: ResolveCommandInput) {
+  return serializeResult(getResolveCommandInteractor().invoke(input));
 }
 
 const NO_RECORDS: RecordSearchResult = { results: [], schemaRevision: 0, nextCursor: null };
