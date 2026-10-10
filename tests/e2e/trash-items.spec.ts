@@ -47,6 +47,7 @@ test("moves a routine to Trash, stops listing it and restores it from Trash", as
   await expect(trashed).toContainText(englishMessages.Trash.kinds.routine);
   await openRowMenu(page, trashed, "Weekly digest");
   await page.getByRole("menuitem", { name: englishMessages.Trash.restore, exact: true }).click();
+  await expect(page.locator("[data-sonner-toast]").filter({ hasText: "1 item restored" })).toBeVisible();
   await expect(trashed).toHaveCount(0);
 
   await page.goto("/en/routines");
