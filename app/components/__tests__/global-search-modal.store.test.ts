@@ -302,7 +302,11 @@ describe("command palette state", () => {
     vi.mocked(resolveCommandAction).mockResolvedValueOnce({ ok: false, error: {}, code: "agentLimitReached" } as never);
     expect(await store.resolveCommand("deals over 10k")).toEqual({ status: "unavailable" });
     expect(store.resolveNotice).toBe("credits");
-    vi.mocked(resolveCommandAction).mockResolvedValueOnce({ ok: false, error: {}, code: "agentServiceUnavailable" } as never);
+    vi.mocked(resolveCommandAction).mockResolvedValueOnce({
+      ok: false,
+      error: {},
+      code: "agentServiceUnavailable",
+    } as never);
     expect(await store.resolveCommand("deals over 10k")).toEqual({ status: "unavailable" });
     expect(store.resolveNotice).toBe("service");
 
