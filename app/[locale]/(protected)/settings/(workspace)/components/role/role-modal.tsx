@@ -1,6 +1,7 @@
 "use client";
 
 import type { RoleModalStore } from "./role-modal.store";
+import { EmptyValue } from "@/components/shared/empty-value";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
@@ -63,7 +64,7 @@ export const RoleModal = observer(({ store }: Props) => {
     delete: t("Common.actions.delete"),
   };
   const readLabels = { all: t("RoleModal.readAll"), own: t("RoleModal.readOwn"), none: t("RoleModal.readNone") };
-  const dash = <span className="text-sm text-muted-foreground">—</span>;
+  const dash = <EmptyValue />;
 
   function renderAccessRow(row: {
     key: string;
