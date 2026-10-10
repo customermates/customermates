@@ -1986,6 +1986,7 @@
       "editTitle": "Modifica vista",
       "linkCopied": "Link copiato",
       "menu": "Azioni vista",
+      "modified": "Modifiche non salvate",
       "moveLeft": "Sposta a sinistra",
       "moveRight": "Sposta a destra",
       "name": "Nome",
@@ -1995,7 +1996,8 @@
       "pickerPlaceholder": "Trova una vista…",
       "pickerTitle": "Cambia vista",
       "railLabel": "Viste salvate",
-      "recordCount": "{count, plural, one {# record} other {# record}}"
+      "recordCount": "{count, plural, one {# record} other {# record}}",
+      "resetChanges": "Ripristina modifiche"
     }
   },
   "Diagrams": {

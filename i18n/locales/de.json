@@ -1986,6 +1986,7 @@
       "editTitle": "Ansicht bearbeiten",
       "linkCopied": "Link kopiert",
       "menu": "Ansichtsaktionen",
+      "modified": "Ungespeicherte Änderungen",
       "moveLeft": "Nach links verschieben",
       "moveRight": "Nach rechts verschieben",
       "name": "Name",
@@ -1995,7 +1996,8 @@
       "pickerPlaceholder": "Ansicht suchen …",
       "pickerTitle": "Ansicht wechseln",
       "railLabel": "Gespeicherte Ansichten",
-      "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}"
+      "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}",
+      "resetChanges": "Änderungen zurücksetzen"
     }
   },
   "Diagrams": {

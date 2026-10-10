@@ -9,15 +9,15 @@ const STATIC_SYNC_LOCK = "SearchCatalogEntry:static";
 const WORKSPACE_SYNC_LOCK = "SearchCatalogEntry:workspace:";
 const SYNC_TIMEOUT_MS = 60_000;
 const STATIC_BUILD_RETENTION_DAYS = 7;
-const INDEXING_LOCK_TIMEOUT_MS = 300_000;
+const CLAIM_EXPIRY_SECONDS = 300;
 
 const syncedBuilds = new Map<string, Promise<void>>();
 let embeddingColumn: Promise<boolean> | undefined;
 
-function scopeFilter(scope: SearchCatalogScope) {
+function scopeFilter(scope: SearchCatalogScope, alias: Prisma.Sql = Prisma.sql`e`) {
   return "companyId" in scope
-    ? Prisma.sql`e."companyId" = ${scope.companyId}`
-    : Prisma.sql`e."companyId" IS NULL AND e."buildHash" = ${scope.buildHash}`;
+    ? Prisma.sql`${alias}."companyId" = ${scope.companyId}`
+    : Prisma.sql`${alias}."companyId" IS NULL AND ${alias}."buildHash" = ${scope.buildHash}`;
 }
 
 function textColumns(entries: readonly SearchCatalogText[]) {
@@ -136,7 +136,8 @@ export class PrismaSearchCatalogRepo extends SearchCatalogRepo {
           }
           ON CONFLICT ("companyId", "targetId") DO UPDATE SET
             "text" = EXCLUDED."text",
-            "contentHash" = EXCLUDED."contentHash"
+            "contentHash" = EXCLUDED."contentHash",
+            "claimedAt" = NULL
             ${withEmbedding ? Prisma.sql`, "model" = EXCLUDED."model", "embedding" = EXCLUDED."embedding"` : Prisma.empty}
           WHERE "SearchCatalogEntry"."contentHash" IS DISTINCT FROM EXCLUDED."contentHash"
         `);
@@ -145,27 +146,31 @@ export class PrismaSearchCatalogRepo extends SearchCatalogRepo {
     );
   }
 
-  async withIndexingLock(scope: SearchCatalogScope, run: () => Promise<boolean>): Promise<boolean> {
-    const key = "companyId" in scope ? `${WORKSPACE_SYNC_LOCK}${scope.companyId}:embed` : `${STATIC_SYNC_LOCK}:embed`;
-    return prisma.$transaction(
-      async (tx) => {
-        const rows = await tx.$queryRaw<Array<{ locked: boolean }>>(
-          Prisma.sql`SELECT pg_try_advisory_xact_lock(hashtext(${key})) AS "locked"`,
-        );
-        return rows[0]?.locked ? run() : false;
-      },
-      { timeout: INDEXING_LOCK_TIMEOUT_MS, maxWait: SYNC_TIMEOUT_MS },
-    );
+  async claimPendingEmbeddings(scope: SearchCatalogScope, model: string, limit: number): Promise<SearchCatalogText[]> {
+    if (!(await this.semanticIndexAvailable())) return [];
+    const claimable = (alias: Prisma.Sql) => Prisma.sql`${scopeFilter(scope, alias)}
+      AND (${alias}."embedding" IS NULL OR ${alias}."model" IS DISTINCT FROM ${model})
+      AND (${alias}."claimedAt" IS NULL
+        OR ${alias}."claimedAt" < CURRENT_TIMESTAMP - make_interval(secs => ${CLAIM_EXPIRY_SECONDS}))`;
+    const rows = await prisma.$queryRaw<SearchCatalogText[]>(Prisma.sql`
+      WITH picked AS MATERIALIZED (
+        SELECT c."contentHash" FROM "SearchCatalogEntry" c
+        WHERE ${claimable(Prisma.sql`c`)}
+        ORDER BY c."contentHash" LIMIT ${limit}
+        FOR UPDATE SKIP LOCKED
+      )
+      UPDATE "SearchCatalogEntry" e SET "claimedAt" = CURRENT_TIMESTAMP
+      WHERE ${claimable(Prisma.sql`e`)} AND e."contentHash" IN (SELECT p."contentHash" FROM picked p)
+      RETURNING e."targetId", e."text", e."contentHash"
+    `);
+    return [...new Map(rows.map((row) => [row.contentHash, row])).values()];
   }
 
-  async pendingEmbeddings(scope: SearchCatalogScope, model: string, limit: number): Promise<SearchCatalogText[]> {
-    if (!(await this.semanticIndexAvailable())) return [];
-    return prisma.$queryRaw<SearchCatalogText[]>(Prisma.sql`
-      SELECT DISTINCT ON (e."contentHash") e."targetId", e."text", e."contentHash"
-      FROM "SearchCatalogEntry" e
-      WHERE ${scopeFilter(scope)} AND (e."embedding" IS NULL OR e."model" IS DISTINCT FROM ${model})
-      ORDER BY e."contentHash"
-      LIMIT ${limit}
+  async releaseClaims(scope: SearchCatalogScope, contentHashes: readonly string[]): Promise<void> {
+    if (contentHashes.length === 0) return;
+    await prisma.$executeRaw(Prisma.sql`
+      UPDATE "SearchCatalogEntry" e SET "claimedAt" = NULL
+      WHERE ${scopeFilter(scope)} AND e."contentHash" = ANY(${[...contentHashes]}::text[])
     `);
   }
 
@@ -176,7 +181,7 @@ export class PrismaSearchCatalogRepo extends SearchCatalogRepo {
   ): Promise<void> {
     if (rows.length === 0) return;
     await prisma.$executeRaw(Prisma.sql`
-      UPDATE "SearchCatalogEntry" AS e SET "embedding" = v."embedding"::vector, "model" = ${model}
+      UPDATE "SearchCatalogEntry" AS e SET "embedding" = v."embedding"::vector, "model" = ${model}, "claimedAt" = NULL
       FROM unnest(
         ${rows.map((row) => row.contentHash)}::text[],
         ${rows.map((row) => row.embedding)}::text[]
