@@ -212,27 +212,16 @@ describe("data view rail", () => {
     expect(declared[0]).not.toBe(declared[1]);
   });
 
-  it("gives the view menu control the icon geometry, its chevron and an inactive tab's resting surface", () => {
+  it("gives the view menu control the shared ghost icon button with its chevron under the top bar", () => {
     const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
     const control = controlOf(html, "global-data-views-menu");
     const classes = classesOf(control);
 
-    expect(restingTabs(html)).toHaveLength(3);
     expect(control).toContain("lucide-chevron-down");
     expect(classes).toContain("size-7");
-    expect(classes).toContain("rounded-full");
-    expect(classes).not.toContain("size-8");
-    expect(classes).not.toContain("rounded-md");
-    expect(classes).not.toContain("max-w-36");
-    expect(control).toContain("hover:bg-accent hover:text-foreground");
-
-    for (const token of ["border", "border-border", "bg-secondary", "text-muted-foreground", "shadow-xs"]) {
-      expect(classes, token).toContain(token);
-      expect(
-        restingTabs(html).every((tab) => classesOf(tab).includes(token)),
-        token,
-      ).toBe(true);
-    }
+    expect(control).toContain("hover:bg-accent");
+    for (const token of ["rounded-full", "bg-secondary", "shadow-xs", "border-border", "max-w-36"])
+      expect(classes, token).not.toContain(token);
   });
 
   it("sits flush inside a panel without border, background or padding and with a ghost view menu", () => {

@@ -14,10 +14,15 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import type { CommandCatalog } from "@/features/command-palette/command-catalog.schema";
 import {
   commandCatalogAction,
+  commandSearchAction,
   globalSearchAction,
+  resolveCommandAction,
   resolveSearchReferencesAction,
 } from "@/app/[locale]/(protected)/search/actions";
 import { recordSearchKey, StoredSearchReferenceSchema } from "@/features/records/record-search.schema";
+import type { CommandDocsHit } from "@/features/command-palette/command-search.schema";
+import type { CommandResolution } from "@/features/command-palette/command-resolve";
+import { DEFAULT_LOCALE, isAppLocale } from "@/i18n/locale-registry";
 import { parsePaletteQuery } from "./command-palette/command-palette-search";
 
 const PREFIX = "customermates:globalSearch:recent:v3";
@@ -77,6 +82,9 @@ function persistCommandKeys(scope: string | null, keys: string[]) {
 
 export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string }> {
   results: RecordSearchResult | null = null;
+  semantic: { key: string; similarity: number }[] = [];
+  docs: CommandDocsHit[] = [];
+  resolving = false;
   debouncedSearchTerm = "";
   recentItems: RecordSearchHit[] = [];
   recentCommandKeys: string[] = [];
@@ -94,6 +102,11 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
     this.scope = actorScope(rootStore);
     makeObservable(this, {
       results: observable.ref,
+      semantic: observable.ref,
+      docs: observable.ref,
+      setCatalogHits: action,
+      resolving: observable,
+      setResolving: action,
       debouncedSearchTerm: observable,
       recentItems: observable.ref,
       recentCommandKeys: observable.ref,
@@ -133,11 +146,12 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
         this.setIsLoading(false);
         this.setIsLoadingMore(false);
         this.setResults(null);
+        this.setCatalogHits([], []);
         if (this.levels.length) return;
         const query = parsePaletteQuery(term);
         this.debouncer.run(() => {
           this.setDebouncedSearchTerm(query.term);
-          if (this.isOpen && query.term && (query.scope === null || query.scope === "records")) void this.search(false);
+          if (this.isOpen && query.term) void this.search(false);
         });
       },
     );
@@ -156,6 +170,39 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
         }
       },
     );
+  }
+
+  setCatalogHits = (semantic: { key: string; similarity: number }[], docs: CommandDocsHit[]) => {
+    this.semantic = semantic;
+    this.docs = docs;
+  };
+
+  setResolving = (resolving: boolean) => {
+    this.resolving = resolving;
+  };
+
+  resolveCommand = async (query: string): Promise<CommandResolution | null> => {
+    this.setResolving(true);
+    try {
+      const result = await resolveCommandAction({ query, locale: this.searchLocale });
+      return result.ok ? result.data : null;
+    } catch (error) {
+      reportApplicationError(error);
+      return null;
+    } finally {
+      this.setResolving(false);
+    }
+  };
+
+  private instantlyConfident: (query: string) => boolean = () => false;
+
+  setInstantMatcher = (confident: (query: string) => boolean) => {
+    this.instantlyConfident = confident;
+  };
+
+  private get searchLocale() {
+    const locale = this.rootStore.localeStore.locale;
+    return isAppLocale(locale) ? locale : DEFAULT_LOCALE;
   }
 
   setResults = (results: RecordSearchResult | null) => {
@@ -221,6 +268,7 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
     this.request += 1;
     this.debouncer.cancel();
     this.setResults(null);
+    this.setCatalogHits([], []);
     this.setDebouncedSearchTerm("");
     this.setIsLoading(false);
     this.setIsLoadingMore(false);
@@ -302,20 +350,31 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
       this.isOpen &&
       parsePaletteQuery(this.form.searchTerm).term === term;
     try {
-      const result = await globalSearchAction({ searchTerm: term, limit: 40, cursor: previous?.nextCursor ?? null });
+      const records = append
+        ? await globalSearchAction({ searchTerm: term, limit: 40, cursor: previous?.nextCursor ?? null })
+        : null;
+      const combined = append
+        ? null
+        : await commandSearchAction({
+            searchTerm: term,
+            scope: parsePaletteQuery(this.form.searchTerm).scope,
+            locale: this.searchLocale,
+            semantic: !this.instantlyConfident(this.form.searchTerm),
+          });
       if (!current()) return;
-      if (!result.ok) {
+      const failure = records && !records.ok ? records.error : combined && !combined.ok ? combined.error : null;
+      if (failure) {
         if (!append) this.setResults(null);
-        if (!toastZodErrorTree(result.error)) this.toastError("Common.notifications.unexpectedError");
+        if (!toastZodErrorTree(failure)) this.toastError("Common.notifications.unexpectedError");
         return;
       }
+      const page = records?.ok ? records.data : combined?.ok ? combined.data.records : null;
+      if (combined?.ok) this.setCatalogHits(combined.data.semantic, combined.data.docs);
+      if (!page) return;
       const seen = new Set((previous?.results ?? []).map(recordSearchKey));
       this.setResults({
-        ...result.data,
-        results: [
-          ...(previous?.results ?? []),
-          ...result.data.results.filter((item) => !seen.has(recordSearchKey(item))),
-        ],
+        ...page,
+        results: [...(previous?.results ?? []), ...page.results.filter((item) => !seen.has(recordSearchKey(item)))],
       });
     } catch (error) {
       if (current() && !append) this.setResults(null);

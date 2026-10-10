@@ -207,9 +207,7 @@ test("paginates and retries record and widget history, restores a personal timel
   await expect(history.getByText(english.Common.emptyState.genericFilteredBody, { exact: true })).toBeVisible();
   await history.locator("#global-data-views-all").click();
   await expect(history.locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
-  await history.getByRole("button", { name: english.Common.ariaLabels.tooltipFilters, exact: true }).click();
-  await page.getByRole("button", { name: english.Common.actions.clear, exact: true }).click();
-  await page.keyboard.press("Escape");
+  await expect(history.locator("#global-data-views-all")).not.toHaveAttribute("data-view-modified");
   await expect(rows).toHaveCount(25);
   await expect(older).toBeVisible();
   expect(await storedView()).toEqual([savedView]);
@@ -231,7 +229,7 @@ test("paginates and retries record and widget history, restores a personal timel
           )
         ).rows[0],
     )
-    .toEqual({ activeViewKey: ALL_VIEW_KEY, filters: [] });
+    .toEqual({ activeViewKey: ALL_VIEW_KEY, filters: null });
   const linkedPage = await page.context().newPage();
   const linkedEvidence = transportEvidence(linkedPage);
   await linkedPage.goto(copiedHref);
@@ -1223,6 +1221,9 @@ test("retains readable list content after a failed refresh and retries the empty
   await expect(error).toHaveCount(0);
   expect(matchingReads).toBe(2);
   expect((await values()).rows).toEqual(before);
+  await expect(page.locator("#global-data-views-all")).toHaveAttribute("data-view-modified", "");
+  await page.locator("#records-filter").click();
+  await page.locator("#records-filter-save").click();
   const savedResponse = await searchSaved;
   expect(savedResponse.status()).toBe(200);
   await expect

@@ -35,6 +35,7 @@ import { Sidebar, SidebarContent, SidebarFooter, useSidebar } from "@/components
 import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { AppLink } from "@/components/shared/app-link";
 import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { OVERLAY_SIDE_SHEET_CLASS, handOffSheet } from "@/components/ui/overlay-contract";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { Icon } from "@/components/shared/icon";
 import { recordNavigationKey } from "@/features/records/record-navigation.schema";
@@ -637,7 +638,7 @@ function AddPickerDrawer({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="gap-0 sm:max-w-[420px]" {...focusReturn} onCloseAutoFocus={handleCloseAutoFocus}>
+      <SheetContent className={OVERLAY_SIDE_SHEET_CLASS} {...focusReturn} onCloseAutoFocus={handleCloseAutoFocus}>
         <SheetHeader className="px-6">
           <SheetTitle>{t("NavigationBar.addPickerTitle")}</SheetTitle>
 
@@ -652,6 +653,7 @@ function AddPickerDrawer({
               type="button"
               onClick={() => {
                 isHandingOffRef.current = true;
+                if (item.typeId) handOffSheet();
                 onPick(item);
               }}
             >
