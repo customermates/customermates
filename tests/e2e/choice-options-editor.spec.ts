@@ -12,6 +12,7 @@ import {
   saveDrawer,
 } from "./configure";
 import { expect, test } from "./fixtures";
+import { moveWithKeyboard } from "./keyboard-drag";
 
 async function savedOptions(database: Client, companyId: string, label: string) {
   const { rows } = await database.query(
@@ -30,12 +31,11 @@ function optionNames(page: Page) {
 }
 
 async function moveByKeyboard(page: Page, option: string, key: "ArrowUp" | "ArrowDown") {
-  await configureDrawer(page)
-    .getByRole("button", { name: `Drag to reorder: ${option}`, exact: true })
-    .focus();
-  await page.keyboard.press("Space");
-  await page.keyboard.press(key);
-  await page.keyboard.press("Space");
+  await moveWithKeyboard(
+    page,
+    configureDrawer(page).getByRole("button", { name: `Drag to reorder: ${option}`, exact: true }),
+    key,
+  );
 }
 
 async function moveByDrag(page: Page, option: string, target: string) {
