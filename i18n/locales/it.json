@@ -856,6 +856,8 @@
       "change": "Modifica {field}…",
       "deleteNamed": "Elimina {name}"
     },
+    "resolve": "Vai a «{query}»",
+    "resolving": "Ricerca del risultato migliore…",
     "synonyms": {
       "action": {
         "add": "nuovo, crea, nuovo record",
@@ -875,7 +877,8 @@
         "inbox": "messaggi, email, posta, conversazioni, chat",
         "knowledgeBase": "wiki, note, pagine, articoli",
         "routines": "automazioni, pianificazioni, attività ricorrenti",
-        "settings": "preferenze, opzioni, account, spazio di lavoro"
+        "settings": "preferenze, opzioni, account, spazio di lavoro",
+        "trash": "elementi eliminati, cestino, ripristina, annulla eliminazione"
       },
       "setting": {
         "apiKeys": {

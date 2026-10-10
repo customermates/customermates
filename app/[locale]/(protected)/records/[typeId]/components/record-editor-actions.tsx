@@ -4,7 +4,7 @@ import { useMemo, type MouseEvent } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
-import { Check, Maximize2, Settings2, Trash2 } from "lucide-react";
+import { Check, Maximize2, RotateCcw, Settings2, Trash2 } from "lucide-react";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { useRecordDeletion } from "./use-record-deletion";
 import { AppModalActionRail, type AppModalActionProps } from "@/components/modal/app-modal-action";
@@ -29,8 +29,38 @@ type HeaderActionProps = Omit<Props, "formId"> & {
   onOpenPage?: (event: MouseEvent<HTMLAnchorElement>) => void;
 };
 
+function useTrashedRecordActions(store: RecordEditorStore, name: string): AppModalActionProps[] {
+  const t = useTranslations();
+  const trashStore = store.rootStore.trashStore;
+  const trash = store.trash;
+  if (!trash?.canRestore) return [];
+  return [
+    {
+      id: "restore",
+      icon: RotateCcw,
+      label: t("Trash.restore"),
+      busy: trashStore.isMutating,
+      onClick: async () => {
+        if (!(await trashStore.restoreItems([trash.itemId]))) return;
+        store.setTrash(null);
+        await store.refreshRecord();
+      },
+    },
+    {
+      id: "delete-permanently",
+      kind: "destructive",
+      icon: Trash2,
+      label: t("Trash.deletePermanently"),
+      variant: "destructive",
+      busy: trashStore.isMutating,
+      onClick: () => trashStore.requestPermanentDelete([trash.itemId], name, store.deletionCompleted),
+    },
+  ];
+}
+
 function useRecordHeaderActions({ store, name, deletion, layout, onOpenPage }: HeaderActionProps) {
   const t = useTranslations();
+  const trashedActions = useTrashedRecordActions(store, name);
   const record = store.record;
   const askAi = useRecordAiAction({
     registerContext: true,
@@ -82,7 +112,7 @@ function useRecordHeaderActions({ store, name, deletion, layout, onOpenPage }: H
         ]
       : []),
   ];
-  return actions;
+  return store.trash ? trashedActions : actions;
 }
 
 export const RecordHeaderActions = observer(function RecordHeaderActions({

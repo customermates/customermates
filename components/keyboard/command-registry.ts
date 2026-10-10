@@ -27,6 +27,7 @@ import {
   User,
   UserPlus,
   Webhook,
+  Trash2,
 } from "lucide-react";
 
 import { Action, Resource } from "@/generated/prisma";
@@ -131,6 +132,13 @@ export const STATIC_COMMANDS: readonly StaticCommand[] = [
     target: { href: "/routines" },
     shortcut: "goRoutines",
     requires: { resource: Resource.routines, cloudOnly: true },
+  },
+  {
+    id: "page.trash",
+    labelKey: "NavigationBar.trash",
+    kind: "page",
+    icon: Trash2,
+    target: { href: "/trash" },
   },
   {
     id: "page.configure",

@@ -11,12 +11,14 @@ export function recordValueSource({
   model,
   field,
   t,
+  locale,
 }: {
   model: RecordModelView;
   field: Pick<RecordFieldView, "label" | "typeId" | "behavior">;
   t: Translate;
+  locale: string;
 }): RecordValueSource | null {
-  const sentence = calculationSentence({ model, field, t });
+  const sentence = calculationSentence({ model, field, t, locale });
   if (!sentence) return null;
   const saved = sentence.saved;
   if (saved) {

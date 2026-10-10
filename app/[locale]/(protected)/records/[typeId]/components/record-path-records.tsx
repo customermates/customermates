@@ -42,7 +42,7 @@ export const RecordPathRecords = observer(function RecordPathRecords({
       pageSize: 25,
       ...(store.record ? { throughPath: { ref: store.record.ref, pathId: path.id } } : {}),
     },
-    store.isOpen && store.record !== null,
+    store.isOpen && store.record !== null && !store.trash,
     attempt + store.relatedRevision,
   );
   useEffect(() => {

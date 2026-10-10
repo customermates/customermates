@@ -8,11 +8,13 @@ vi.mock("@/app/[locale]/(protected)/search/actions", () => ({
   globalSearchAction: vi.fn(),
   commandCatalogAction: vi.fn(),
   commandSearchAction: vi.fn(),
+  resolveCommandAction: vi.fn(),
 }));
 import {
   commandCatalogAction,
   commandSearchAction,
   globalSearchAction,
+  resolveCommandAction,
   resolveSearchReferencesAction,
 } from "@/app/[locale]/(protected)/search/actions";
 import { GlobalSearchModalStore } from "../global-search-modal.store";
@@ -256,5 +258,19 @@ describe("command palette state", () => {
     store.onChange("searchTerm", "hot leads");
     await vi.advanceTimersByTimeAsync(200);
     expect(commandSearchAction).toHaveBeenLastCalledWith(expect.objectContaining({ semantic: true }));
+  });
+
+  it("resolves a natural-language request and reports failures as no resolution", async () => {
+    browser();
+    const { store } = setup();
+    vi.mocked(resolveCommandAction).mockResolvedValueOnce({
+      ok: true,
+      data: { kind: "command", key: "cmd:page.dashboard" },
+    });
+    expect(await store.resolveCommand("open my overview")).toEqual({ kind: "command", key: "cmd:page.dashboard" });
+    expect(resolveCommandAction).toHaveBeenLastCalledWith({ query: "open my overview", locale: "en" });
+    vi.mocked(resolveCommandAction).mockResolvedValueOnce({ ok: false, error: new Error("limit") } as never);
+    expect(await store.resolveCommand("deals over 10k")).toBeNull();
+    expect(store.resolving).toBe(false);
   });
 });

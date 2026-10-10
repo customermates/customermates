@@ -107,7 +107,9 @@ export const RecordPropertyChipView = observer(function RecordPropertyChipView({
     return (
       <AppChip
         startContent={icon}
-        tooltip={isRecordFieldWritable(field) ? field.label : calculatedFieldLabel(field, model, t)}
+        tooltip={
+          isRecordFieldWritable(field) ? field.label : calculatedFieldLabel(field, model, t, intl.formattingLocale)
+        }
       >
         <ChipLabel name={name}>
           <RecordValue compact field={field} members={record.memberUsers} result={result} />

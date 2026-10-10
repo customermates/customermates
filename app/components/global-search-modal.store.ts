@@ -16,10 +16,12 @@ import {
   commandCatalogAction,
   commandSearchAction,
   globalSearchAction,
+  resolveCommandAction,
   resolveSearchReferencesAction,
 } from "@/app/[locale]/(protected)/search/actions";
 import { recordSearchKey, StoredSearchReferenceSchema } from "@/features/records/record-search.schema";
 import type { CommandDocsHit } from "@/features/command-palette/command-search.schema";
+import type { CommandResolution } from "@/features/command-palette/command-resolve";
 import { DEFAULT_LOCALE, isAppLocale } from "@/i18n/locale-registry";
 import { parsePaletteQuery } from "./command-palette/command-palette-search";
 
@@ -82,6 +84,7 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
   results: RecordSearchResult | null = null;
   semantic: { key: string; similarity: number }[] = [];
   docs: CommandDocsHit[] = [];
+  resolving = false;
   debouncedSearchTerm = "";
   recentItems: RecordSearchHit[] = [];
   recentCommandKeys: string[] = [];
@@ -102,6 +105,8 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
       semantic: observable.ref,
       docs: observable.ref,
       setCatalogHits: action,
+      resolving: observable,
+      setResolving: action,
       debouncedSearchTerm: observable,
       recentItems: observable.ref,
       recentCommandKeys: observable.ref,
@@ -170,6 +175,23 @@ export class GlobalSearchModalStore extends BaseModalStore<{ searchTerm: string 
   setCatalogHits = (semantic: { key: string; similarity: number }[], docs: CommandDocsHit[]) => {
     this.semantic = semantic;
     this.docs = docs;
+  };
+
+  setResolving = (resolving: boolean) => {
+    this.resolving = resolving;
+  };
+
+  resolveCommand = async (query: string): Promise<CommandResolution | null> => {
+    this.setResolving(true);
+    try {
+      const result = await resolveCommandAction({ query, locale: this.searchLocale });
+      return result.ok ? result.data : null;
+    } catch (error) {
+      reportApplicationError(error);
+      return null;
+    } finally {
+      this.setResolving(false);
+    }
   };
 
   private instantlyConfident: (query: string) => boolean = () => false;

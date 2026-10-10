@@ -7,7 +7,7 @@ vi.mock("ai", async (importOriginal) => ({ ...(await importOriginal<typeof ai>()
 
 import { INITIAL_WIKI_SYNTHESIS_MODEL } from "@/ee/agent-chat/model-catalog";
 
-import { generateWikiSynthesisObject, wikiSynthesisWorstCaseMicrocents } from "../wiki-synthesis-model";
+import { generateStructuredObject, structuredCallWorstCaseMicrocents } from "../structured-model-call";
 
 function failure(statusCode: number) {
   return new ai.APICallError({ message: "failed", url: "https://gateway.invalid", requestBodyValues: {}, statusCode });
@@ -18,7 +18,8 @@ function rejectWith(error: Error) {
 }
 
 function call() {
-  return generateWikiSynthesisObject({
+  return generateStructuredObject({
+    label: "Website import",
     model: INITIAL_WIKI_SYNTHESIS_MODEL,
     schema: z.object({ title: z.string() }),
     system: "system",
@@ -30,7 +31,7 @@ beforeEach(() => {
   provider.generate.mockReset();
 });
 
-describe("generateWikiSynthesisObject", () => {
+describe("generateStructuredObject", () => {
   it.each([400, 401, 403, 429])("charges nothing when the gateway rejects the request with %i", async (status) => {
     rejectWith(failure(status));
     expect(await call()).toMatchObject({ output: null, charge: null, failure: expect.stringContaining("failed") });
@@ -50,14 +51,14 @@ describe("generateWikiSynthesisObject", () => {
     expect(output).toBeNull();
     expect(charge).toMatchObject({
       costSource: "estimated",
-      costMicrocents: wikiSynthesisWorstCaseMicrocents(INITIAL_WIKI_SYNTHESIS_MODEL, "system", "prompt"),
+      costMicrocents: structuredCallWorstCaseMicrocents(INITIAL_WIKI_SYNTHESIS_MODEL, "system", "prompt"),
     });
   });
 
   it("charges the worst case when the request fails without a status", async () => {
     rejectWith(new Error("socket hang up"));
     expect((await call()).charge?.costMicrocents).toBe(
-      wikiSynthesisWorstCaseMicrocents(INITIAL_WIKI_SYNTHESIS_MODEL, "system", "prompt"),
+      structuredCallWorstCaseMicrocents(INITIAL_WIKI_SYNTHESIS_MODEL, "system", "prompt"),
     );
   });
 });

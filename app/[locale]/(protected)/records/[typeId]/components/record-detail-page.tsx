@@ -41,6 +41,7 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
       },
     );
     editor.edit(initial, initial.record);
+    editor.setTrash(trash ?? null);
     const handoff = root.recordWorkspaceStore.takeDraftHandoff(initial.record?.ref);
     if (handoff && initial.record) editor.restoreDraft(handoff, initial, initial.record);
     return editor;
@@ -51,6 +52,7 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
     [root, store, root.userStore.user?.companyId, root.userStore.user?.id],
   );
   useEffect(() => root.recordWorkspaceStore.subscribe(store.refreshRecord), [root, store]);
+  useEffect(() => store.setTrash(trash ?? null), [store, trash]);
   useEffect(() => {
     if (applied.current === initial) return;
     applied.current = initial;
@@ -92,10 +94,10 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
       store={store}
     />
   );
-  if (!trash) return content;
+  if (!store.trash) return content;
   return (
     <div className="flex min-h-0 flex-col">
-      <RecordTrashBanner trash={trash} />
+      <RecordTrashBanner trash={store.trash} />
 
       <div className="min-h-0 flex-1">{content}</div>
     </div>
