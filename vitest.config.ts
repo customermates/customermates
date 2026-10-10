@@ -56,6 +56,7 @@ const domTestFiles = [
   "core/utils/__tests__/server-rendered-client.dom.test.ts",
   "core/utils/__tests__/clipboard.test.ts",
   "core/utils/__tests__/background-poll.dom.test.ts",
+  "components/focus/__tests__/focus-target.dom.test.ts",
   "core/utils/__tests__/use-is-truncated.test.ts",
   "components/data-view/__tests__/is-interactive-click.test.ts",
   "components/data-view/__tests__/data-table-grouping.test.tsx",

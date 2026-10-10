@@ -3095,6 +3095,7 @@
         "label": "Describe el cálculo",
         "pending": "Preparando el cálculo",
         "placeholder": "Por ejemplo: total de los importes de todas las líneas vinculadas",
+        "stop": "Detener el borrador",
         "unavailable": "La redacción no está disponible ahora."
       },
       "example": {
@@ -3651,6 +3652,14 @@
     "untitledRecord": "{singular} sin nombre",
     "updatedAt": "Actualizado el",
     "useChannelAvatar": "Usar la foto de perfil del canal",
+    "usedBy": {
+      "blocking": "Impediría la eliminación",
+      "blockingCount": "{count, plural, one {# impediría la eliminación} other {# impedirían la eliminación}}",
+      "cleaned": "Se limpia al eliminar",
+      "cleanedCount": "{count, plural, one {# se limpia} other {# se limpian}}",
+      "layouts": "También se quita de {count, plural, one {# diseño} other {# diseños}}.",
+      "title": "Usado por"
+    },
     "valueSource": {
       "calculated": "Calculado · {formula}",
       "from": "De {list} · {value}",
