@@ -180,9 +180,13 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
     await openRecordDetails(page, "Configured opportunity");
     for (const [name, service, quantity] of [["Calculated A", "Calculation A", "2"], ["Calculated B", "Calculation B", "3"]]) {
       await dialog.getByRole("button", { name: "Add Line item", exact: true }).click();
+      await dialog.getByRole("textbox", { name: "Add Line item", exact: true }).fill(name);
+      await page.keyboard.press("Enter");
+      const line = dialog.getByRole("region", { name: "Line items", exact: true }).getByRole("button", { name, exact: true });
+      await expect(line).toBeVisible();
+      await line.click();
       await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
       const child = dialog.last();
-      await child.getByRole("textbox", { name: "Name", exact: false }).fill(name);
       await child.getByRole("textbox", { name: "Quantity", exact: false }).fill(quantity);
       await child.getByRole("combobox", { name: "Service", exact: true }).click();
       await page.getByRole("option", { name: service, exact: true }).click();
@@ -198,7 +202,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
       "Calculation B/Sold amount": money("600"),
     });
     await expect.poll(dealValues).toEqual({ "Configured opportunity/Value": money("2600"), "Configured opportunity/Weighted value": money("1560") });
-    await expect(dialog.getByText("€2,600.00", { exact: true })).toBeVisible();
+    await expect(dialog.locator(`[data-entity-field="${id("deal.totalValue")}"]`).getByText("€2,600.00", { exact: true })).toBeVisible();
     await expect(dialog.getByText("€1,560.00", { exact: true })).toBeVisible();
     await page.keyboard.press("Escape");
     await expect(dialog).not.toBeVisible();
