@@ -26,10 +26,19 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 import { useRouter } from "@/i18n/navigation";
 import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
 
+import { useFocusTarget } from "@/components/focus/focus-target";
+import { focusKey, type FocusKind } from "@/components/focus/focus-href";
+
 import { TrashPageSkeleton } from "./trash-page-skeleton";
 import { useTrashColumns } from "./use-trash-columns";
 
 type Props = { initialTrash: GetResult<TrashItemDto> };
+
+const TRASH_FOCUS_KINDS = ["list", "field", "relationship", "view", "widget", "routine", "record"] as const;
+const trashFocusKey = (item: TrashItemDto) =>
+  (TRASH_FOCUS_KINDS as readonly string[]).includes(item.kind)
+    ? focusKey({ kind: item.kind as FocusKind, id: item.targetId })
+    : undefined;
 
 const recordHref = (item: TrashItemDto) =>
   item.kind === "record" && item.typeId ? `/records/${item.typeId}/${item.targetId}` : undefined;
@@ -71,6 +80,11 @@ const TrashPageViewContent = observer(function TrashPageView({ initialTrash }: P
     request: store.dataRequest,
     total: store.pagination?.total,
   });
+  useFocusTarget(
+    TRASH_FOCUS_KINDS,
+    (target) => store.items.some((item) => item.targetId === target.id),
+    pageState !== "loading",
+  );
   const descriptor = { title: t("Trash.emptyTitleState"), body: t("Trash.emptyBody") };
   const canEmpty = store.canEmpty && pageState === "content";
   const topBarNode = useMemo(
@@ -132,7 +146,14 @@ const TrashPageViewContent = observer(function TrashPageView({ initialTrash }: P
       break;
     case "content":
       body = (
-        <DataViewContent columns={columns} rowActions={rowActions} rowHref={recordHref} store={store} view="table" />
+        <DataViewContent
+          columns={columns}
+          rowActions={rowActions}
+          rowFocusKey={trashFocusKey}
+          rowHref={recordHref}
+          store={store}
+          view="table"
+        />
       );
       break;
     default: {

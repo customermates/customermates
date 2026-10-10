@@ -16,11 +16,12 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { fail, failAuthorization, failConflict } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { ConfigurationChangeSchema } from "./configuration.schema";
+import { PublicConfigurationChangeSchema } from "./configuration.schema";
 import { canConfigureRecords, type RecordConfigurationService } from "./configuration.service";
 import { RecordOperationResultSchema } from "./record-query.schema";
 import { recordRequestHash, recordWriteFailure } from "./mutate-record.interactor";
 import { RecordJournal } from "./record-journal";
+import { configurationTrashBatchId } from "./configuration-trash-batch";
 import { currentRoutineContext } from "@/core/decorators/routine-context";
 
 @TenantInteractor()
@@ -37,8 +38,12 @@ export class ApplyRecordConfigurationInteractor extends AuthenticatedInteractor<
   ) {
     super();
   }
-  @Validate(ConfigurationChangeSchema)
+  @Validate(PublicConfigurationChangeSchema)
   async invoke(input: ConfigurationChange): Validated<RecordOperationResult> {
+    return this.run(input);
+  }
+
+  run(input: ConfigurationChange): Validated<RecordOperationResult> {
     return runInTransaction(
       async (): Validated<RecordOperationResult> => {
         const policy = await this.policy.load();
@@ -94,6 +99,9 @@ export class ApplyRecordConfigurationInteractor extends AuthenticatedInteractor<
               status: "completed",
               refs: [],
               schemaRevision: prepared.model.revision,
+              ...(prepared.change.deletions?.length
+                ? { trashBatchId: configurationTrashBatchId(this.companyId, input.idempotencyKey) }
+                : {}),
             };
           }
           await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);

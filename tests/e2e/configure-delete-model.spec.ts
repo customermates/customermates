@@ -1,6 +1,7 @@
 import { calculationChip, calculationFlow, pickOption } from "./calculation-flow";
 import type { Page } from "@playwright/test";
 import type { Client } from "pg";
+import { restoreFromTrash, deleteFromTrashPermanently, openTrash, trashRow } from "./trash";
 import { randomUUID } from "node:crypto";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import {
@@ -9,14 +10,11 @@ import {
   configureRow,
   createConfiguredList,
   deleteFromDrawer,
-  deleteRecentlyDeletedPermanently,
   deleteSelectedList,
   followConfigureLink,
   openConfigure,
   openConfigureRow,
   openDrawerTab,
-  openRecentlyDeleted,
-  restoreRecentlyDeleted,
   saveDrawer,
   selectConfigureList,
 } from "./configure";
@@ -38,7 +36,7 @@ async function addRecord(page: Page, name: string, value: string) {
   await expect(dialog).not.toBeVisible();
 }
 
-test("deletes fields to Recently deleted, explains blockers with deep links and cleans saved views", async ({
+test("deletes fields to Trash, explains blockers with deep links and cleans saved views", async ({
   page,
   database,
   companyId,
@@ -100,12 +98,11 @@ test("deletes fields to Recently deleted, explains blockers with deep links and 
   expect(cleaned.rows[0].filters).toEqual([]);
   expect(cleaned.rows[0].columnOrder).not.toContain(code.id);
 
-  await openRecentlyDeleted(page);
-  const list = page.locator("[data-recently-deleted]");
-  await expect(list.getByRole("button", { name: "Code", exact: true })).toBeVisible();
-  await expect(list.getByRole("button", { name: "Uppercase code", exact: true })).toBeVisible();
-  await restoreRecentlyDeleted(page, "Code");
-  await restoreRecentlyDeleted(page, "Uppercase code");
+  await openTrash(page, { configuration: true });
+  await expect(trashRow(page, "Uppercase code")).toBeVisible();
+  await expect(trashRow(page, "Code")).toBeVisible();
+  await restoreFromTrash(page, "Code");
+  await restoreFromTrash(page, "Uppercase code");
   const restored = await readModel(database, companyId);
   expect(restored.fields.find((field) => field.id === code.id)?.archived).toBe(false);
   expect(restored.fields.find((field) => field.id === upper.id)?.archived).toBe(false);
@@ -115,8 +112,8 @@ test("deletes fields to Recently deleted, explains blockers with deep links and 
   await deleteFromDrawer(page, "Delete field");
   await openConfigureRow(page, "Fields", "Code");
   await deleteFromDrawer(page, "Delete field");
-  await deleteRecentlyDeletedPermanently(page, "Uppercase code");
-  await deleteRecentlyDeletedPermanently(page, "Code");
+  await deleteFromTrashPermanently(page, "Uppercase code");
+  await deleteFromTrashPermanently(page, "Code");
   const definitions = await database.query(
     'SELECT count(*)::int AS count FROM "RecordFieldDefinition" WHERE "companyId"=$1 AND id = ANY($2::text[])',
     [companyId, [code.id, upper.id]],
@@ -148,7 +145,7 @@ test("deletes, restores and permanently deletes a relationship and a list", asyn
   expect((await readModel(database, companyId)).relationships.find((item) => item.id === relation.id)?.archived).toBe(
     true,
   );
-  await restoreRecentlyDeleted(page, `${name} → Organizations`);
+  await restoreFromTrash(page, `${name} → Organizations`);
   expect((await readModel(database, companyId)).relationships.find((item) => item.id === relation.id)?.archived).toBe(
     false,
   );
@@ -159,12 +156,10 @@ test("deletes, restores and permanently deletes a relationship and a list", asyn
   const deleted = await readModel(database, companyId);
   expect(deleted.types.find((type) => type.id === typeId)?.archived).toBe(true);
   expect(deleted.relationships.find((item) => item.id === relation.id)?.archived).toBe(true);
-  await openRecentlyDeleted(page);
-  await expect(page.locator("[data-recently-deleted]").getByRole("button", { name, exact: true })).toBeVisible();
-  await expect(
-    page.locator("[data-recently-deleted]").getByRole("button", { name: `${name} → Organizations`, exact: true }),
-  ).toHaveCount(0);
-  await restoreRecentlyDeleted(page, name);
+  await openTrash(page, { configuration: true });
+  await expect(trashRow(page, name)).toBeVisible();
+  await expect(trashRow(page, `${name} → Organizations`)).toHaveCount(0);
+  await restoreFromTrash(page, name);
   const restored = await readModel(database, companyId);
   expect(restored.types.find((type) => type.id === typeId)?.archived).toBe(false);
   expect(restored.relationships.find((item) => item.id === relation.id)?.archived).toBe(false);
@@ -172,7 +167,7 @@ test("deletes, restores and permanently deletes a relationship and a list", asyn
   await openConfigure(page);
   await selectConfigureList(page, name);
   await deleteSelectedList(page);
-  await deleteRecentlyDeletedPermanently(page, name);
+  await deleteFromTrashPermanently(page, name);
   const remaining = await database.query(
     'SELECT (SELECT count(*)::int FROM "RecordTypeDefinition" WHERE "companyId"=$1 AND id=$2) AS types, (SELECT count(*)::int FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2) AS records',
     [companyId, typeId],

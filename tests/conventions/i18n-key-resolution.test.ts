@@ -27,8 +27,8 @@ import { CONFIGURATION_ACTIVITY_EVENTS } from "@/ee/messaging/activities/activit
 import { FieldBehaviorSchema, RecordValueTypeSchema } from "@/features/records/record-model.schema";
 import { RECORD_MEASURE_DATE_INTERVALS, RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import { WIDGET_DISPLAY_REQUIREMENTS } from "@/features/widget/widget-display-rules";
-import { WIDGET_STARTER_RECIPES } from "@/features/widget/widget-gallery";
-import { CONFIGURATION_TARGET_KINDS, DeletionBlockerSchema } from "@/features/records/configuration.schema";
+import { WIDGET_STARTER_DISPLAY_TYPES } from "@/features/widget/widget-display-rules";
+import { DeletionBlockerSchema } from "@/features/records/configuration.schema";
 import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget.schema";
 import {
   ConnectedAccountStatus,
@@ -43,7 +43,6 @@ import {
   SubscriptionStatus,
   Theme,
   WebhookDeliveryStatus,
-  WidgetKind,
 } from "@/generated/prisma";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
 import { SHORTCUTS, SHORTCUT_GROUPS } from "@/components/keyboard/shortcut-registry";
@@ -130,21 +129,17 @@ const CUSTOM_ERROR_CODE_KEYS = Object.values(CustomErrorCode).map((code) => `Com
 const FILTER_FIELD_KEYS = Object.values(FilterFieldKey).map((field) => `Common.filters.fields.${field}`);
 const ROLE_RESOURCE_KEYS = Object.values(Resource).map((resource) => `RoleModal.resources.${resource}`);
 const DISPLAY_TYPE_KEYS = Object.values(DisplayType).map((displayType) => `Dashboard.displayTypes.${displayType}`);
-const WIDGET_KIND_KEYS = Object.values(WidgetKind).map((kind) => `Dashboard.widgetKinds.${kind}`);
 const WIDGET_DISPLAY_REQUIREMENT_KEYS = WIDGET_DISPLAY_REQUIREMENTS.map(
   (requirement) => `Dashboard.displayTypeRequirements.${requirement}`,
 );
-const WIDGET_GALLERY_NAME_KEYS = WIDGET_STARTER_RECIPES.map(
-  (recipe) => `Dashboard.widgetGallery.recipes.${recipe}.name`,
+const WIDGET_STARTER_TITLE_KEYS = WIDGET_STARTER_DISPLAY_TYPES.map(
+  (displayType) => `Dashboard.widgetEditor.starters.${displayType}.title`,
 );
-const WIDGET_GALLERY_DESCRIPTION_KEYS = WIDGET_STARTER_RECIPES.map(
-  (recipe) => `Dashboard.widgetGallery.recipes.${recipe}.description`,
+const WIDGET_STARTER_DESCRIPTION_KEYS = WIDGET_STARTER_DISPLAY_TYPES.map(
+  (displayType) => `Dashboard.widgetEditor.starters.${displayType}.description`,
 );
 const RECORD_MEASURE_INTERVAL_KEYS = RECORD_MEASURE_DATE_INTERVALS.map(
   (interval) => `RecordWidgets.intervals.${interval}`,
-);
-const WIDGET_KIND_DESCRIPTION_KEYS = Object.values(WidgetKind).map(
-  (kind) => `Dashboard.widgetEditor.kind.${kind}Description`,
 );
 const DIAGRAM_SYSTEM_KEYS = DIAGRAM_SYSTEM_LABEL_KEYS.map((key) => `Diagrams.${key}`);
 const AGGREGATION_TYPE_KEYS = RecordMeasureSchema.shape.aggregation.options.map(
@@ -552,10 +547,6 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
       (key) => `RecordModel.configurationDeletion.issues.${key}`,
     ),
   ],
-  [
-    "RecordModel.configurationDeletion.kinds.${*}",
-    CONFIGURATION_TARGET_KINDS.map((kind) => `RecordModel.configurationDeletion.kinds.${kind}`),
-  ],
   ["RecordModel.operators.${*}", RECORD_OPERATOR_KEYS],
   ["RecordModel.reducers.${*}", RECORD_REDUCER_KEYS],
   ["RecordModel.types.${*}", RECORD_VALUE_TYPE_KEYS],
@@ -593,11 +584,9 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["ConnectedAccountsCard.signatureTemplates.${*}", SIGNATURE_TEMPLATE_KEYS],
   ["Dashboard.displayTypes.${*}", DISPLAY_TYPE_KEYS],
   ["Dashboard.displayTypeRequirements.${*}", WIDGET_DISPLAY_REQUIREMENT_KEYS],
-  ["Dashboard.widgetGallery.recipes.${*}.name", WIDGET_GALLERY_NAME_KEYS],
-  ["Dashboard.widgetGallery.recipes.${*}.description", WIDGET_GALLERY_DESCRIPTION_KEYS],
+  ["Dashboard.widgetEditor.starters.${*}.title", WIDGET_STARTER_TITLE_KEYS],
+  ["Dashboard.widgetEditor.starters.${*}.description", WIDGET_STARTER_DESCRIPTION_KEYS],
   ["RecordWidgets.intervals.${*}", RECORD_MEASURE_INTERVAL_KEYS],
-  ["Dashboard.widgetEditor.kind.${*}Description", WIDGET_KIND_DESCRIPTION_KEYS],
-  ["Dashboard.widgetKinds.${*}", WIDGET_KIND_KEYS],
   ["EntityTimeline.types.${*}", ENTITY_TIMELINE_TYPE_KEYS],
   ["KeyboardShortcuts.actions.${*}", SHORTCUTS.map((entry) => `KeyboardShortcuts.actions.${entry.id}`)],
   ["CommandPalette.synonyms.${*}", STATIC_COMMANDS.map((entry) => `CommandPalette.synonyms.${entry.id}`)],
@@ -716,7 +705,6 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: RecordModel.configurationDeletion.blockers.${blocker.reason}",
   "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: RecordModel.configurationDeletion.cleaned.${key}",
   "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: RecordModel.configurationDeletion.issues.${key}",
-  "app/[locale]/(protected)/configure/deleted/components/recently-deleted-view.tsx :: t :: RecordModel.configurationDeletion.kinds.${item.target.kind}",
   "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: Common.dateBuckets.${field.bucket}",
   "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: RecordModel.${column.label}",
   "app/[locale]/(protected)/configure/components/type-modal.tsx :: t :: RecordModel.${field.label}",
@@ -725,14 +713,13 @@ export const DYNAMIC_KEY_SITES = [
   "components/records/record-activity-filters.tsx :: t :: Common.providers.${id}",
   'app/[locale]/(protected)/dashboard/components/record-widget-chart.tsx :: t :: RecordModel.${result.state === "error" ? "calculationError" : result.state}',
   'app/[locale]/(protected)/dashboard/components/record-widget-chart.tsx :: t :: RecordModel.${value.value ? "yes" : "no"}',
+  "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx :: t :: Dashboard.displayTypeRequirements.${displayIssue}",
   "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx :: t :: RecordModel.reducers.${value}",
   "app/[locale]/(protected)/dashboard/components/record-widget-editor.tsx :: t :: RecordWidgets.intervals.${interval}",
   "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypeRequirements.${requirement}",
   "app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx :: t :: Dashboard.displayTypes.${type}",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.kind.${kind}Description",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetGallery.recipes.${template.recipe}.description",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetGallery.recipes.${template.recipe}.name",
-  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetKinds.${kind}",
+  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.starters.${displayType}.description",
+  "app/[locale]/(protected)/dashboard/components/widget-starter-picker.tsx :: t :: Dashboard.widgetEditor.starters.${displayType}.title",
   "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: Common.providers.${thread.provider}",
   "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: Inbox.threadStates.${thread.state}",
   "app/[locale]/(protected)/inbox/components/thread-state-picker.tsx :: t :: Inbox.threadStates.${state}",

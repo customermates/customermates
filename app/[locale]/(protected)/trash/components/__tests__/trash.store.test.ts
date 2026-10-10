@@ -27,6 +27,7 @@ const ITEM_ID = "40000000-0000-4000-8000-000000000002";
 
 function makeStore({ isSystemRole = true } = {}) {
   const invalidate = vi.fn(() => Promise.resolve());
+  const refreshNavigation = vi.fn(() => Promise.resolve());
   const deleteConfirmation = { onInitOrRefresh: vi.fn(), open: vi.fn() };
   const store = new TrashStore({
     localeStore: {
@@ -34,7 +35,7 @@ function makeStore({ isSystemRole = true } = {}) {
         values ? `${key}:${JSON.stringify(values)}` : key,
     },
     userStore: { user: { role: { isSystemRole } } },
-    recordWorkspaceStore: { invalidate, refreshNavigation: vi.fn(() => Promise.resolve()) },
+    recordWorkspaceStore: { invalidate, refreshNavigation },
     deleteConfirmationModalStore: deleteConfirmation,
   } as unknown as RootStore);
   return { store, invalidate, deleteConfirmation };
