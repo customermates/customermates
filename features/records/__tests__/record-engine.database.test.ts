@@ -15812,9 +15812,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         ],
       },
     });
-    expect(await f.run(() => getQueryTrashInteractor().invoke({ kinds: ["field"] } as never), f.member)).toMatchObject(
-      { ok: true, data: { total: 0 } },
-    );
+    expect(await f.run(() => getQueryTrashInteractor().invoke({ kinds: ["field"] } as never), f.member)).toMatchObject({
+      ok: true,
+      data: { total: 0 },
+    });
 
     expect(await apply(lifecycle("restore", formulaId))).toMatchObject({ ok: true });
     expect((await f.run(() => f.repo.getModel())).fields.find((field) => field.id === formulaId)?.archived).toBe(false);

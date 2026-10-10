@@ -69,11 +69,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
     readTrashTool,
     manageTrashTool,
   ],
-  "record-model": [
-    configureRecordModelV2Tool,
-    cancelRecordOperationV2Tool,
-    resumeRecordOperationV2Tool,
-  ],
+  "record-model": [configureRecordModelV2Tool, cancelRecordOperationV2Tool, resumeRecordOperationV2Tool],
   workspace: [getWorkspaceContextTool, listUsersTool],
   views: [manageDataViewsTool, manageRecordDetailLayoutV2Tool],
   wiki: [manageWikiPagesTool],
