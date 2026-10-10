@@ -3978,16 +3978,15 @@
   "SidebarCustomize": {
     "deleteSection": "Eliminar sección",
     "deleteSectionEmpty": "La sección está vacía, así que no se mueve ningún elemento.",
-    "deleteSectionMoves": "Sus elementos vuelven a su lugar predeterminado en tu barra lateral; los elementos ocultos siguen ocultos:",
+    "deleteSectionMoves": "Sus elementos pasan al nivel superior de tu barra lateral; los elementos ocultos siguen ocultos:",
     "deleteSectionTitle": "¿Eliminar la sección «{section}»?",
     "dragItem": "Mover {item}",
     "dragSection": "Mover la sección {section}",
     "emptySection": "Arrastra elementos aquí o usa Mover a la sección",
     "hide": "Ocultar de la barra lateral",
-    "hint": "Arrastra los asideros para reordenar elementos y secciones, o usa los menús …. Haz clic en el nombre de una sección personal para cambiarle el nombre.",
+    "hint": "Arrastra los controles para reordenar elementos y secciones, o usa los menús …. Los elementos pueden estar en el nivel superior o dentro de una sección. Haz clic en el nombre de una sección para cambiarle el nombre.",
     "itemActions": "Opciones de {item}",
     "moveDown": "Bajar",
-    "movesBackTo": "{item} vuelve a {section}",
     "moveToSection": "Mover a la sección",
     "moveUp": "Subir",
     "newSection": "Nueva sección",
@@ -4001,7 +4000,8 @@
     "sectionDeleted": "Sección eliminada",
     "sectionName": "Nombre de la sección",
     "show": "Mostrar {item}",
-    "title": "Personalizar barra lateral"
+    "title": "Personalizar barra lateral",
+    "topLevel": "Nivel superior"
   },
   "SignInForm": {
     "agreeToTerms": "Al continuar, aceptas nuestros <termsOfServiceLink>Términos</termsOfServiceLink> y reconoces haber leído nuestra <dataPrivacyLink>Política de privacidad</dataPrivacyLink>. Consulta nuestro <dpaLink>DPA</dpaLink>.",

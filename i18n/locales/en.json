@@ -3978,16 +3978,15 @@
   "SidebarCustomize": {
     "deleteSection": "Delete section",
     "deleteSectionEmpty": "The section is empty, so no items move.",
-    "deleteSectionMoves": "Its items move back to their default place in your sidebar; hidden items stay hidden:",
+    "deleteSectionMoves": "Its items move to the top level of your sidebar; hidden items stay hidden:",
     "deleteSectionTitle": "Delete section “{section}”?",
     "dragItem": "Move {item}",
     "dragSection": "Move section {section}",
     "emptySection": "Drag items here or use Move to section",
     "hide": "Hide from sidebar",
-    "hint": "Drag the handles to reorder items and sections, or use the … menus. Click a personal section's name to rename it.",
+    "hint": "Drag the handles to reorder items and sections, or use the … menus. Items can sit at the top level or inside a section. Click a section's name to rename it.",
     "itemActions": "Options for {item}",
     "moveDown": "Move down",
-    "movesBackTo": "{item} moves back to {section}",
     "moveToSection": "Move to section",
     "moveUp": "Move up",
     "newSection": "New section",
@@ -4001,7 +4000,8 @@
     "sectionDeleted": "Section deleted",
     "sectionName": "Section name",
     "show": "Show {item}",
-    "title": "Customize sidebar"
+    "title": "Customize sidebar",
+    "topLevel": "Top level"
   },
   "SignInForm": {
     "agreeToTerms": "By continuing, you agree to our <termsOfServiceLink>Terms</termsOfServiceLink> and acknowledge our <dataPrivacyLink>Privacy Policy</dataPrivacyLink>. See our <dpaLink>DPA</dpaLink>.",
