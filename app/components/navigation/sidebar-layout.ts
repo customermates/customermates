@@ -58,15 +58,16 @@ function seed(defaults: SidebarDefaultEntry[]): SidebarEntry[] {
   );
 }
 
-function insertAfterLastList(entries: SidebarEntry[], item: string) {
+function insertAfterLastList(entries: SidebarEntry[], item: string, isAnchor: (id: string) => boolean) {
+  const isListAnchor = (id: string) => id.startsWith(LIST_ITEM_PREFIX) && isAnchor(id);
   for (let index = entries.length - 1; index >= 0; index -= 1) {
     const entry = entries[index];
-    if (entry.kind === "item" && entry.id.startsWith(LIST_ITEM_PREFIX)) {
+    if (entry.kind === "item" && isListAnchor(entry.id)) {
       entries.splice(index + 1, 0, { kind: "item", id: item });
       return;
     }
     if (entry.kind === "section") {
-      const last = entry.items.findLastIndex((candidate) => candidate.startsWith(LIST_ITEM_PREFIX));
+      const last = entry.items.findLastIndex(isListAnchor);
       if (last >= 0) {
         entry.items.splice(last + 1, 0, item);
         return;
@@ -98,13 +99,16 @@ export function resolveSidebar(defaults: SidebarDefaultEntry[], layout: SidebarL
     ];
   });
 
-  for (const item of defaults.flatMap((entry) => (entry.kind === "section" ? entry.items : [entry.id]))) {
+  const known = new Set(defaults.flatMap((entry) => (entry.kind === "section" ? entry.items : [entry.id])));
+  const hidden = new Set(layout.hidden);
+  const isAnchor = (id: string) => known.has(id) && !hidden.has(id);
+  for (const item of known) {
     if (!place(item)) continue;
-    if (item.startsWith(LIST_ITEM_PREFIX)) insertAfterLastList(entries, item);
+    if (item.startsWith(LIST_ITEM_PREFIX)) insertAfterLastList(entries, item, isAnchor);
     else entries.push({ kind: "item", id: item });
   }
 
-  return { entries, hidden: new Set(layout.hidden) };
+  return { entries, hidden };
 }
 
 export function sidebarLayoutOf(resolved: ResolvedSidebar): SidebarLayout {
@@ -254,4 +258,26 @@ export function setSidebarItemHidden(resolved: ResolvedSidebar, item: string, hi
   if (hidden) next.add(item);
   else next.delete(item);
   return { ...resolved, hidden: next };
+}
+
+export function sectionLabel(groups: { key: string; label: string }[], section: { id: string; name: string | null }) {
+  return section.name ?? groups.find((group) => group.key === section.id)?.label ?? section.id;
+}
+
+export function renameSidebarSection(
+  resolved: ResolvedSidebar,
+  sectionId: string,
+  name: string | null,
+  label: string,
+): ResolvedSidebar | null {
+  const section = sectionsOf(resolved).find((candidate) => candidate.id === sectionId);
+  if (!section || name === null) return null;
+  const trimmed = name.trim();
+  if (!trimmed) {
+    return isSeededSection(sectionId) && section.name
+      ? updateSidebarSection(resolved, sectionId, { name: null })
+      : null;
+  }
+  if (trimmed === label) return null;
+  return updateSidebarSection(resolved, sectionId, { name: trimmed });
 }

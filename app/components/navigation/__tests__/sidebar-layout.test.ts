@@ -7,7 +7,9 @@ import {
   moveSidebarEntry,
   moveSidebarItem,
   removeSidebarSection,
+  renameSidebarSection,
   resolveSidebar,
+  sectionLabel,
   sectionsOf,
   setSidebarItemHidden,
   shiftSidebarEntry,
@@ -165,5 +167,45 @@ describe("personal sidebar layout", () => {
         .success,
     ).toBe(false);
     expect(SidebarLayoutSchema.safeParse({ sections: [], hidden: [] }).success).toBe(false);
+  });
+
+  it("shows a seeded section's translated name until the person renames it", () => {
+    const labels = [
+      { key: "overview", label: "Übersicht" },
+      { key: "data", label: "Daten" },
+    ];
+    const resolved = resolveSidebar(defaults, null);
+    expect(sectionsOf(resolved).map((section) => sectionLabel(labels, section))).toEqual(["Übersicht", "Daten"]);
+    const renamed = updateSidebarSection(resolved, "data", { name: "Listen" });
+    expect(sectionsOf(renamed).map((section) => sectionLabel(labels, section))).toEqual(["Übersicht", "Listen"]);
+  });
+
+  it("renames through one helper that never stores an unchanged label and clears a seeded name when emptied", () => {
+    const resolved = resolveSidebar(defaults, null);
+    expect(renameSidebarSection(resolved, "data", "Daten", "Daten")).toBeNull();
+    expect(renameSidebarSection(resolved, "data", "  Daten  ", "Daten")).toBeNull();
+    expect(renameSidebarSection(resolved, "data", null, "Daten")).toBeNull();
+    expect(renameSidebarSection(resolved, "data", "", "Daten")).toBeNull();
+    const renamed = renameSidebarSection(resolved, "data", " Lists ", "Daten");
+    expect(renamed && sectionsOf(renamed).find((section) => section.id === "data")?.name).toBe("Lists");
+    const cleared = renamed && renameSidebarSection(renamed, "data", "", "Lists");
+    expect(cleared && sectionsOf(cleared).find((section) => section.id === "data")?.name).toBeNull();
+    const custom = addSidebarSection(resolved, "custom:3", "Pinned");
+    expect(renameSidebarSection(custom, "custom:3", "", "Pinned")).toBeNull();
+  });
+
+  it("anchors a new list only after a list the person can see", () => {
+    const resolved = resolveSidebar(
+      sidebarDefaults([groups[0], { ...groups[1], items: [...groups[1].items, { key: "records:new" }] }]),
+      {
+        entries: [
+          { id: "data", items: ["records:a", "configure-records"] },
+          { item: "records:b" },
+          { item: "records:gone" },
+        ],
+        hidden: ["records:b"],
+      },
+    );
+    expect(shape(resolved).slice(0, 1)).toEqual([["data", null, ["records:a", "records:new", "configure-records"]]]);
   });
 });
