@@ -29,7 +29,7 @@ async function nameNewSection(page: Page, name: string) {
   await expect(sidebarSection(page, name)).toBeVisible();
 }
 
-test("deleting a personal section asks first and returns its items to their default place", async ({
+test("deleting a personal section asks first and moves its items to the top level in its place", async ({
   page,
   database,
   workspace,
@@ -59,8 +59,9 @@ test("deleting a personal section asks first and returns its items to their defa
   const confirm = page.getByRole("alertdialog");
   await expect(confirm).toContainText("Delete section “Pipeline”?");
   await expect(confirm).toContainText("hidden items stay hidden");
-  await expect(confirm).toContainText("Contacts moves back to Data");
-  await expect(confirm).toContainText("Deals moves back to Data");
+  await expect(confirm).toContainText("Its items move to the top level of your sidebar");
+  await expect(confirm).toContainText("Contacts");
+  await expect(confirm).toContainText("Deals");
   await confirm.getByRole("button", { name: "Cancel", exact: true }).click();
   await expect(sidebarSection(page, "Pipeline")).toBeVisible();
 
@@ -69,11 +70,8 @@ test("deleting a personal section asks first and returns its items to their defa
   await expect(sidebarSection(page, "Pipeline")).toHaveCount(0);
   await openSidebar(page);
   const order = await sidebarOrder(page);
-  expect(order.slice(order.indexOf("#Data"), order.indexOf("#Data") + 3)).toEqual([
-    "#Data",
-    "Contacts",
-    "Organizations",
-  ]);
+  expect(order.slice(order.indexOf("#Data"), order.indexOf("#Data") + 2)).toEqual(["#Data", "Organizations"]);
+  expect(order.slice(-2)).toEqual(["Contacts", "Trash"]);
   await expect(sidebarItem(page, "Deals")).toHaveCount(0);
   await expect
     .poll(() => storedLayout(database, workspace.userId))
@@ -160,7 +158,7 @@ test("the customize dialog reorders, renames and deletes sections with visible h
   await someday.getByRole("button", { name: "Options for Someday", exact: true }).click();
   await page.getByRole("menuitem", { name: "Delete section", exact: true }).click();
   const confirm = page.getByRole("alertdialog");
-  await expect(confirm).toContainText("Contacts moves back to Data");
+  await expect(confirm).toContainText("Contacts");
   await confirm.getByRole("button", { name: "Delete section", exact: true }).click();
   await openSidebar(page);
   await expect(sidebarSection(page, "Someday")).toHaveCount(0);
@@ -168,5 +166,63 @@ test("the customize dialog reorders, renames and deletes sections with visible h
   await expect
     .poll(async () => JSON.stringify(await storedLayout(database, workspace.userId)))
     .not.toContain("Someday");
+  expect(errors).toEqual([]);
+});
+
+test("items move to the top level and the seeded Data section can be renamed, deleted and reset", async ({
+  page,
+  database,
+  workspace,
+}) => {
+  const errors = collectErrors(page);
+  await page.goto("/en/dashboard");
+  await page.waitForLoadState("networkidle");
+  await openSidebar(page);
+  const initial = await sidebarOrder(page);
+  expect(initial.at(-1)).toBe("Trash");
+  const topLevel = () =>
+    page
+      .locator("[data-sidebar-top-level] [data-sidebar-item]")
+      .evaluateAll((items) =>
+        items.map((item) => item.querySelector("span.truncate")?.textContent?.trim() ?? ""),
+      );
+
+  await (await itemMenu(page, "Contacts")).getByRole("menuitem", { name: "Move to section", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Top level", exact: true }).click();
+  await expect.poll(topLevel).toEqual(["Trash", "Contacts"]);
+  await expect(sidebarSection(page, "Data")).not.toContainText("Contacts");
+
+  await (await sectionMenu(page, "Data")).getByRole("menuitem", { name: "Rename", exact: true }).click();
+  await nameNewSection(page, "Lists");
+  await expect(sidebarSection(page, "Data")).toHaveCount(0);
+  await expect
+    .poll(async () => JSON.stringify(await storedLayout(database, workspace.userId)))
+    .toContain('"id":"data","name":"Lists"');
+
+  await (await sectionMenu(page, "Lists")).getByRole("menuitem", { name: "Delete section", exact: true }).click();
+  const confirm = page.getByRole("alertdialog");
+  await expect(confirm).toContainText("Its items move to the top level of your sidebar");
+  await confirm.getByRole("button", { name: "Delete section", exact: true }).click();
+  await expect(sidebarSection(page, "Lists")).toHaveCount(0);
+  await openSidebar(page);
+  const flattened = await sidebarOrder(page);
+  expect(flattened).not.toContain("#Data");
+  expect(flattened.slice(flattened.indexOf("Organizations"), flattened.indexOf("Organizations") + 2)).toEqual([
+    "Organizations",
+    "Deals",
+  ]);
+
+  await page.reload();
+  await page.waitForLoadState("networkidle");
+  await openSidebar(page);
+  expect(await sidebarOrder(page)).toEqual(flattened);
+
+  const dialog = await openCustomize(page);
+  await expect(dialog.locator('[data-customize-section="Data"]')).toHaveCount(0);
+  await page.getByRole("button", { name: "Reset to default", exact: true }).click();
+  await page.getByRole("alertdialog").getByRole("button", { name: "Reset to default", exact: true }).click();
+  await expect.poll(() => storedLayout(database, workspace.userId)).toBeNull();
+  await openSidebar(page);
+  await expect.poll(() => sidebarOrder(page)).toEqual(initial);
   expect(errors).toEqual([]);
 });
