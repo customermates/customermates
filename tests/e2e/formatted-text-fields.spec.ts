@@ -357,7 +357,7 @@ test("formats a formatted text field from its toolbar without leaving edit mode"
   const notes = main.getByRole("textbox", { name: "Notes", exact: true });
   const field = main
     .locator("[data-formatted-text-field]")
-    .filter({ has: notes });
+    .filter({ has: page.getByRole("textbox", { name: "Notes", exact: true }) });
   const toolbar = field.getByRole("toolbar", {
     name: "Formatting",
     exact: true,
