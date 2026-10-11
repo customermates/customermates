@@ -57,6 +57,10 @@ test.describe("item menus on a fine pointer", () => {
       "target",
       "_blank",
     );
+    await expect(opened.getByRole("menuitem", { name: "Open in new tab", exact: true })).toHaveAttribute(
+      "href",
+      /^\/en\/records\/[^/]+\/[^/]+$/,
+    );
     await opened.getByRole("menuitem", { name: "Open details", exact: true }).click();
     await expect(page.getByRole("dialog").getByRole("textbox", { name: "Name", exact: false })).toHaveValue(name);
     expect(errors).toEqual([]);

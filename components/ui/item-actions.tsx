@@ -16,6 +16,7 @@ import {
 } from "react";
 
 import { cn } from "@/core/utils/cn";
+import { stripLocalePrefix } from "@/i18n/locale-registry";
 import { IntlLink } from "@/i18n/navigation";
 
 import { ContextMenu, ContextMenuContent, ContextMenuTrigger } from "./context-menu";
@@ -86,13 +87,18 @@ function hasContent(menu: ReactNode) {
   return menu !== undefined && menu !== null && menu !== false;
 }
 
+function localeFreeHref(href: string) {
+  const split = href.search(/[?#]/);
+  return split === -1 ? stripLocalePrefix(href) : stripLocalePrefix(href.slice(0, split)) + href.slice(split);
+}
+
 function ItemMenuItems({ href, menu }: { href?: string; menu?: ReactNode }) {
   const t = useTranslations();
   return (
     <>
       {href && (
         <DropdownMenuItem asChild>
-          <IntlLink href={href} rel="noopener noreferrer" target="_blank">
+          <IntlLink href={localeFreeHref(href)} prefetch={false} rel="noopener noreferrer" target="_blank">
             <ExternalLink aria-hidden />
 
             {t("Common.actions.openInNewTab")}
