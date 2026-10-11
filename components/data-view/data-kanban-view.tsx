@@ -62,6 +62,7 @@ import { useGroupLabel, visibleGroups } from "./group-label";
 import { GroupSummaries } from "./group-summaries";
 import {
   dropTargetGroupKey,
+  kanbanCollisionDetection,
   kanbanKeyboardCoordinates,
   kanbanManualKeyboardCoordinates,
 } from "./kanban-keyboard-coordinates";
@@ -646,6 +647,7 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
           onDragCancel: () => t("DataView.boardMoveCancelled"),
         },
       }}
+      collisionDetection={kanbanCollisionDetection}
       id={dndContextId}
       sensors={sensors}
       onDragCancel={() => {
@@ -665,7 +667,13 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
         setTarget(null);
       }}
     >
-      <div ref={boardRef} className={cn(DATA_KANBAN_ROOT_CLASS_NAME, className)} data-slot="kanban-root" tabIndex={-1}>
+      <div
+        ref={boardRef}
+        className={cn(DATA_KANBAN_ROOT_CLASS_NAME, className)}
+        data-dragging={drag ? "" : undefined}
+        data-slot="kanban-root"
+        tabIndex={-1}
+      >
         <div className={DATA_KANBAN_TRACK_CLASS_NAME}>
           {openGroups.map((group) => {
             const loadMore = group.hasMore

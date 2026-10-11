@@ -4,11 +4,11 @@ import type { RecordScalar } from "../record-model.schema";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
-import { readFileSync } from "node:fs";
 import { afterAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { readMigration } from "@/tests/helpers/legacy-migration-database";
 
 vi.mock("@/env", () => ({
   env: {
@@ -612,7 +612,7 @@ describeDatabase("configuration trash", () => {
       ["list", f.id("organization")],
     ]);
     await runWithoutTenant(() => prisma.trashItem.deleteMany({ where: { companyId: f.seed.company.id } }));
-    const sql = readFileSync("prisma/migrations/20261009030000_trash_configuration_backfill/migration.sql", "utf8");
+    const sql = await readMigration("20261009030000_trash_configuration_backfill");
     await runWithoutTenant(() => prisma.$executeRawUnsafe(sql));
     await runWithoutTenant(() => prisma.$executeRawUnsafe(sql));
     const after = await f.items();
