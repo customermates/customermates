@@ -165,7 +165,6 @@ describe("synthetic data view fixtures", () => {
       FilterOperatorKey.hasSome,
       FilterOperatorKey.inLastDays,
       FilterOperatorKey.notInLastDays,
-      FilterOperatorKey.isNotNull,
     ])
       expect(operators, operator).toContain(operator);
     expect(filters.some(({ field }) => field === "system:assignedTo")).toBe(true);

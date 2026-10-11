@@ -136,7 +136,7 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.dealForecast,
       surfaceKey: surface("deal"),
-      name: "Forecast by close month",
+      name: "Forecast",
       state: {
         ...table(
           "deal",
@@ -149,8 +149,7 @@ export function buildSyntheticDataViewFixtures(
             "system:assignedTo",
           ],
           {
-            field: f.deal.closeDate,
-            bucket: "month",
+            field: f.deal.stage,
             summaries: [
               sum(model.starter.dealTotalValue),
               sum(model.starter.dealWeightedValue),
@@ -158,7 +157,7 @@ export function buildSyntheticDataViewFixtures(
             ],
           },
         ),
-        filters: [anyOf(f.deal.stage, openStages)],
+        filters: [anyOf(f.deal.stage, openStages), since(f.deal.closeDate, 1)],
         sortDescriptor: sorted(f.deal.closeDate, "asc"),
         pageSize: 25,
         columnWidths: { [model.starter.dealTotalValue]: 160, [model.starter.dealWeightedValue]: 180 },
@@ -167,17 +166,24 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.myOpenDeals,
       surfaceKey: surface("deal"),
-      name: "My open deals",
+      name: "Open deals by rep",
       state: {
-        ...table("deal", [
-          f.deal.stage,
-          model.starter.dealTotalValue,
-          model.starter.dealWeightedValue,
-          f.deal.closeDate,
-          dealOrganization,
-          rel("deal.contacts", "outgoing"),
-        ]),
-        filters: [assignedTo(me), anyOf(f.deal.stage, openStages)],
+        ...table(
+          "deal",
+          [
+            f.deal.stage,
+            model.starter.dealTotalValue,
+            model.starter.dealWeightedValue,
+            f.deal.closeDate,
+            dealOrganization,
+            rel("deal.contacts", "outgoing"),
+          ],
+          {
+            field: "system:assignedTo",
+            summaries: [sum(model.starter.dealTotalValue), sum(model.starter.dealWeightedValue)],
+          },
+        ),
+        filters: [anyOf(f.deal.stage, openStages)],
         sortDescriptor: sorted(model.starter.dealWeightedValue, "desc"),
       },
     },
@@ -196,11 +202,9 @@ export function buildSyntheticDataViewFixtures(
             f.deal.closeDate,
             dealOrganization,
             rel("deal.campaign", "outgoing"),
-            "system:assignedTo",
           ],
           {
-            field: f.deal.closeDate,
-            bucket: "month",
+            field: "system:assignedTo",
             summaries: [sum(f.deal.contractValue), average(f.deal.discountPercent), average(f.deal.daysToClose)],
           },
         ),
@@ -248,12 +252,24 @@ export function buildSyntheticDataViewFixtures(
       state: {
         ...table(
           "contact",
-          [f.contact.jobTitle, rel("contact.organizations", "outgoing"), rel("deal.contacts", "incoming")],
+          [
+            f.contact.jobTitle,
+            f.contact.dealRole,
+            rel("contact.organizations", "outgoing"),
+            rel("deal.contacts", "incoming"),
+          ],
           {
-            field: f.contact.dealRole,
+            field: customFieldIds.contactSalesPipeline,
           },
         ),
-        filters: [{ field: f.contact.dealRole, operator: FilterOperatorKey.isNotNull }],
+        filters: [
+          hasAny(f.contact.dealRole, [
+            o["contact.dealRole"].decisionMaker,
+            o["contact.dealRole"].champion,
+            o["contact.dealRole"].influencer,
+            o["contact.dealRole"].procurement,
+          ]),
+        ],
         sortDescriptor: sorted(columns.id("contact.name"), "asc"),
       },
     },
@@ -368,12 +384,11 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.tasksDueThisWeek,
       surfaceKey: surface("task"),
-      name: "Due by week",
+      name: "Due soon by team",
       state: {
         ...table(
           "task",
           [
-            f.task.team,
             f.task.dueDate,
             customFieldIds.taskPriority,
             customFieldIds.taskStatus,
@@ -381,8 +396,7 @@ export function buildSyntheticDataViewFixtures(
             "system:assignedTo",
           ],
           {
-            field: f.task.dueDate,
-            bucket: "week",
+            field: f.task.team,
           },
         ),
         filters: [noneOf(customFieldIds.taskStatus, closedTasks), since(f.task.dueDate, 7)],
@@ -431,12 +445,10 @@ export function buildSyntheticDataViewFixtures(
             f.subscription.seats,
             f.subscription.arr,
             f.subscription.renewalDate,
-            f.subscription.health,
             "system:assignedTo",
           ],
           {
-            field: f.subscription.renewalDate,
-            bucket: "month",
+            field: f.subscription.health,
             summaries: [sum(f.subscription.arr), sum(f.subscription.seats)],
           },
         ),
@@ -570,7 +582,7 @@ export function buildSyntheticDataViewFixtures(
     {
       id: SYNTHETIC_DATA_VIEW_IDS.ticketsOverdue,
       surfaceKey: surface("ticket"),
-      name: "Overdue",
+      name: "SLA breached",
       state: {
         ...table("ticket", [
           f.ticket.priority,
@@ -795,7 +807,7 @@ export function buildSyntheticDataViewFixtures(
           ]),
         ],
         sortDescriptor: sorted(f.candidate.appliedOn, "asc"),
-        columnWidths: { [f.candidate.interviewNotes]: 420 },
+        columnWidths: { [f.candidate.interviewNotes]: 320 },
       },
     },
     {
