@@ -18,6 +18,18 @@ import { RecordsStore } from "./records.store";
 
 export const EMBEDDED_PAGE_SIZE = 10;
 
+export function embeddedColumnLayout(
+  typeId: string,
+  fields: RecordPresentationResult["model"]["fields"],
+  parentColumnId: string,
+): { columnOrder: string[]; hiddenColumns: string[] } {
+  const defaults = recordDefaults(typeId, fields);
+  return {
+    columnOrder: defaults.columnOrder ?? [],
+    hiddenColumns: [...(defaults.hiddenColumns ?? []), parentColumnId],
+  };
+}
+
 export function embeddedPresentation(
   editor: Omit<RecordPresentationResult, "systemColumnLabels" | "query" | "result" | "typeId">,
   typeId: string,
@@ -100,11 +112,11 @@ export class EmbeddedRecordsStore extends RecordsStore {
     this.total = total;
   };
   private get layout() {
-    return recordDefaults(this.presentation.typeId, this.presentation.model.fields);
+    return embeddedColumnLayout(this.presentation.typeId, this.presentation.model.fields, this.parentColumnId);
   }
   private get shownColumns() {
     const hidden = new Set(this.layout.hiddenColumns);
-    return this.recordColumns.filter((column) => column.id !== this.parentColumnId && !hidden.has(column.id));
+    return this.recordColumns.filter((column) => !hidden.has(column.id));
   }
   private get totalFields() {
     return this.shownColumns
@@ -142,6 +154,7 @@ export class EmbeddedRecordsStore extends RecordsStore {
         { relationId: this.parentRelationId, direction: "outgoing", operator: "any", recordIds: [parent.recordId] },
       ],
     };
+    const layout = this.layout;
     const shown = this.shownColumns;
     const page = params?.pagination?.page ?? params?.page ?? 1;
     const pageSize = params?.pagination?.pageSize ?? this.pagination?.pageSize ?? EMBEDDED_PAGE_SIZE;
@@ -188,8 +201,8 @@ export class EmbeddedRecordsStore extends RecordsStore {
         total: rows.data.total,
         totalPages: Math.max(1, Math.ceil(rows.data.total / pageSize)),
       },
-      columnOrder: this.layout.columnOrder,
-      hiddenColumns: this.recordColumns.filter((column) => !shown.includes(column)).map((column) => column.id),
+      columnOrder: layout.columnOrder,
+      hiddenColumns: layout.hiddenColumns,
       sortDescriptor: sort ?? undefined,
       viewMode: ViewMode.table,
       viewPersistable: false,

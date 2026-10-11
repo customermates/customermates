@@ -296,3 +296,96 @@ test("opens an assistant proposal in the modified state and saves it as an updat
     .toBe("Mine");
   expect(errors).toEqual([]);
 });
+
+test("keeps appearance changes temporary until saved to the view, with Save and Reset in Filters and Appearance", async ({
+  page,
+  database,
+  companyId,
+}, testInfo) => {
+  test.setTimeout(240000);
+  const errors: string[] = [];
+  page.on("pageerror", (error) => {
+    if (!isBenignPageError(error.message)) errors.push(error.message);
+  });
+  page.on("console", (message) => {
+    if (isAppConsoleError(message)) errors.push(message.text());
+  });
+  const typeId = presetId(companyId, "deal");
+  const stage = presetId(companyId, "deal.stage");
+  const storedGrouping = async () =>
+    (
+      await database.query('SELECT grouping FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2', [
+        companyId,
+        `records:${typeId}`,
+      ])
+    ).rows[0]?.grouping ?? null;
+  const all = page.locator("#global-data-views-all");
+  const groupBy = page.getByRole("combobox", { name: "Group By", exact: true });
+  const appearanceSave = page.locator("#records-display-options-view-save");
+  const appearanceReset = page.locator("#records-display-options-view-reset");
+  const filterSave = page.locator("#records-filter-save");
+  const filterReset = page.locator("#records-filter-reset");
+  const openAppearance = async () => {
+    await page.locator("#records-display-options").click();
+    await expect(groupBy).toBeVisible();
+  };
+  const closeAppearance = async () => {
+    if (testInfo.project.name === "mobile") await page.locator('[data-slot="drawer-close"]').click();
+    else await page.keyboard.press("Escape");
+    await expect(groupBy).not.toBeVisible();
+  };
+  const groupByStage = async () => {
+    await openAppearance();
+    await groupBy.click();
+    await page.getByRole("option", { name: "Stage", exact: true }).click();
+    await expect(groupBy).toContainText("Stage");
+  };
+
+  await page.goto(`/en/records/${typeId}`);
+  await expect(all).toHaveAttribute("aria-current", "page");
+  await expect(all).not.toHaveAttribute("data-view-modified");
+  await openAppearance();
+  await expect(appearanceSave).toHaveCount(0);
+  await closeAppearance();
+
+  await groupByStage();
+  await expect(all).toHaveAttribute("data-view-modified", "");
+  await expect(appearanceSave).toBeVisible();
+  await expect(appearanceReset).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("appearance-modified.png"), animations: "disabled" });
+  await closeAppearance();
+  await page.locator("#records-filter").click();
+  await expect(filterSave).toBeVisible();
+  await expect(filterReset).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("filters-appearance-modified.png"), animations: "disabled" });
+  await page.keyboard.press("Escape");
+  await expect(filterSave).toHaveCount(0);
+  expect(await storedGrouping()).toBeNull();
+
+  await page.reload();
+  await expect(all).toHaveAttribute("data-view-modified", "");
+  await openAppearance();
+  await expect(groupBy).toContainText("Stage");
+  await appearanceSave.click();
+  await expect(all).not.toHaveAttribute("data-view-modified");
+  await expect(appearanceSave).toHaveCount(0);
+  await expect.poll(storedGrouping).toMatchObject({ field: stage });
+
+  await groupBy.click();
+  await page.getByRole("option", { name: "None", exact: true }).click();
+  await expect(all).toHaveAttribute("data-view-modified", "");
+  await appearanceReset.click();
+  await expect(groupBy).toContainText("Stage");
+  await expect(all).not.toHaveAttribute("data-view-modified");
+  await closeAppearance();
+  await expect.poll(storedGrouping).toMatchObject({ field: stage });
+
+  const otherSession = await page.context().newPage();
+  await otherSession.goto(`/en/records/${typeId}`);
+  await expect(otherSession.locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");
+  await expect(otherSession.locator("#global-data-views-all")).not.toHaveAttribute("data-view-modified");
+  await otherSession.locator("#records-display-options").click();
+  await expect(otherSession.getByRole("combobox", { name: "Group By", exact: true })).toContainText("Stage");
+  await otherSession.close();
+  expect(errors).toEqual([]);
+});

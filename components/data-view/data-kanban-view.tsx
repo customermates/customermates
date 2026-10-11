@@ -26,8 +26,10 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { ChevronsLeftRight, EyeOff, Layers, Plus, Settings2 } from "lucide-react";
+import { ChevronsLeftRight, EyeOff, Plus, Settings2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
+
+import { ItemCount } from "./item-count";
 import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
@@ -264,14 +266,7 @@ function KanbanCount({
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span
-          aria-label={countLabel}
-          className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground tabular-nums"
-        >
-          <Layers aria-hidden="true" className="size-3.5 shrink-0 opacity-70" />
-
-          {count}
-        </span>
+        <ItemCount aria-label={countLabel} count={count} />
       </TooltipTrigger>
 
       <TooltipContent>{countLabel}</TooltipContent>

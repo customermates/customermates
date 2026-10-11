@@ -27,6 +27,7 @@ import { useGroupableFieldLabel } from "@/components/data-view/use-groupable-fie
 import { useGroupLabel } from "@/components/data-view/group-label";
 import { cn } from "@/core/utils/cn";
 import { useViewAi } from "@/components/data-view/views/use-view-ai";
+import { ViewChangesNotice } from "@/components/data-view/views/view-changes-notice";
 import { AppModalActionRail } from "@/components/modal/app-modal-action";
 import { useAskAiAction } from "@/components/ui/ask-ai-action";
 import { MANUAL_ORDER_SORT_KEY } from "@/features/records/record-column.schema";
@@ -293,6 +294,8 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
     >
       <TooltipProvider>
         <div className="flex flex-col">
+          <ViewChangesNotice anchorScope={id ? `${id}-view` : undefined} store={store} />
+
           {store.supportsBoard && (
             <Section label={t("Common.table.layout")}>
               <SegmentedControl

@@ -9,7 +9,7 @@ import { ITEM_ACTIONS_TRIGGER_CLASS } from "@/components/ui/item-actions";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RecordRowActions } from "../record-row-actions";
 
-function render(props: Partial<Parameters<typeof RecordRowActions>[0]> = {}, layout: "row" | "card" = "row") {
+function render(props: Partial<Parameters<typeof RecordRowActions>[0]> = {}, layout: "row" | "card" | "table" = "row") {
   return renderToStaticMarkup(
     createElement(
       DataViewItemLayout.Provider,
@@ -46,5 +46,18 @@ describe("record row actions (H9 item menu pattern)", () => {
   it("overlays the row's trailing edge in tables and sits in the card corner slot on cards", () => {
     expect(render()).toMatch(/class="[^"]*absolute[^"]*right-2[^"]*"[^>]*data-record-row-actions/);
     expect(render({}, "card")).not.toMatch(/class="[^"]*absolute[^"]*"[^>]*data-record-row-actions/);
+  });
+
+  it("puts a bordered, row-tall trigger on a solid surface flush with a table row's right edge (H17)", () => {
+    const markup = render({}, "table");
+    const surface = /<div class="([^"]*)"[^>]*data-record-row-actions/.exec(markup)?.[1].split(" ") ?? [];
+    const trigger = /<button[^>]*class="([^"]*)"[^>]*data-item-actions-trigger/.exec(markup)?.[1].split(" ") ?? [];
+
+    expect(surface).toEqual(expect.arrayContaining(["absolute", "inset-y-0", "right-0", "bg-background"]));
+    expect(surface).not.toContain("right-2");
+    expect(surface.some((token) => token.startsWith("bg-[image:") && token.includes("--row-tint"))).toBe(true);
+    expect(trigger).toEqual(expect.arrayContaining(["border", "bg-secondary", "h-full", "aspect-square"]));
+    expect(trigger.some((token) => token.startsWith("focus-visible:ring"))).toBe(true);
+    expect(trigger).not.toContain("size-7");
   });
 });

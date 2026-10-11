@@ -7,7 +7,13 @@ import { DataViewStateSchema } from "./data-view-state.schema";
 
 export type ViewProposalDraft = { state: DataViewState; name?: string; isNew: boolean };
 
-export type ViewDraft = { filters?: Filter[]; searchTerm: string | undefined; proposal?: ViewProposalDraft };
+export type ViewDraft = {
+  filters?: Filter[];
+  searchTerm: string | undefined;
+  proposal?: ViewProposalDraft;
+  appearance?: DataViewState;
+  savedAppearance?: DataViewState;
+};
 
 const VIEW_QUERY_DRAFT_PREFIX = "customermates:view-query-draft:";
 
@@ -37,9 +43,14 @@ export function parseViewDraft(raw: string | null): ViewDraft | undefined {
   try {
     const parsed = JSON.parse(raw) as Partial<ViewDraft>;
     const state = DataViewStateSchema.safeParse(parsed.proposal?.state);
+    const appearance = DataViewStateSchema.safeParse(parsed.appearance);
+    const savedAppearance = DataViewStateSchema.safeParse(parsed.savedAppearance);
     return {
       ...(Array.isArray(parsed.filters) ? { filters: parsed.filters } : {}),
       searchTerm: typeof parsed.searchTerm === "string" ? parsed.searchTerm : undefined,
+      ...(appearance.success && savedAppearance.success && parsed.appearance && parsed.savedAppearance
+        ? { appearance: appearance.data, savedAppearance: savedAppearance.data }
+        : {}),
       ...(state.success
         ? {
             proposal: {

@@ -219,7 +219,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                     )}
                     id="global-data-views-all"
                     isActive={chip.isActive && !proposedName}
-                    isModified={chip.isActive && !proposedName && store.isQueryModified}
+                    isModified={chip.isActive && !proposedName && store.isViewModified}
                     label={allName}
                     menu={chipMenu(null)}
                     modifiedLabel={t("DataView.views.modified")}
@@ -242,7 +242,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                     store.viewPathname ? surfaceKeyOf(store) : undefined,
                   )}
                   isActive={chip.isActive && !proposedName}
-                  isModified={chip.isActive && !proposedName && store.isQueryModified}
+                  isModified={chip.isActive && !proposedName && store.isViewModified}
                   label={chip.view.name}
                   menu={chipMenu(chip.view)}
                   modifiedLabel={t("DataView.views.modified")}
@@ -341,11 +341,11 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
               </DropdownMenuItem>
             )}
 
-            {store.isQueryModified && (
+            {store.isViewModified && (
               <>
-                <FormSaveMenuItem id="global-data-views-save" onSave={store.saveQueryToView} />
+                <FormSaveMenuItem id="global-data-views-save" onSave={store.saveViewChanges} />
 
-                <DropdownMenuItem id="global-data-views-reset" onSelect={() => runUserAction(store.resetQueryToView)}>
+                <DropdownMenuItem id="global-data-views-reset" onSelect={() => runUserAction(store.resetViewChanges)}>
                   {t("DataView.views.resetChanges")}
                 </DropdownMenuItem>
 

@@ -132,7 +132,12 @@ export function configureFieldSource(model: RecordModelView, field: RecordFieldV
 }
 
 export function configurePathLists(
-  model: RecordModelView,
+  model: {
+    types: ReadonlyArray<Pick<RecordModelView["types"][number], "id" | "pluralLabel">>;
+    relationships: ReadonlyArray<
+      Pick<RecordModelView["relationships"][number], "id" | "sourceTypeId" | "targetTypeId">
+    >;
+  },
   typeId: string,
   path: ReadonlyArray<{ relationId: string; direction: "incoming" | "outgoing" }>,
 ): string[] {
