@@ -45,6 +45,7 @@ export function useHomepageMotion<T extends Element>(amount = HOMEPAGE_MOTION_VI
   );
 
   return {
+    isInView,
     ref,
     shouldAnimate: isInView && isDocumentVisible && !shouldReduceMotion,
     shouldReduceMotion: Boolean(shouldReduceMotion),

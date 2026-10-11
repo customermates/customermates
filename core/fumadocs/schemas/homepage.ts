@@ -66,6 +66,7 @@ export const heroSchema = z.object({
   subtitle: z.string(),
   title: z.string(),
   titleAccent: z.string(),
+  titleRotations: z.array(z.string()).min(2).max(8),
   useCase: z.string(),
 });
 export type Hero = z.infer<typeof heroSchema>;

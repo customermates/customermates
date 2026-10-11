@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 
 import { homepageDemoBaseUrl } from "./homepage-demo-url";
 import { HomepageProductStage } from "./homepage-product-stage";
+import { RotatingAccent } from "./rotating-accent";
 
 type Props = {
   heroSection: Hero;
@@ -31,12 +32,22 @@ export function HomepageHero({ heroSection, locale }: Props) {
               className="mt-5 text-[clamp(2.4rem,6.2vw,4.5rem)] leading-[1.04] font-medium tracking-[-0.045em] text-balance"
               data-homepage-hero-line="lead"
             >
-              {/* eslint-disable react/jsx-newline */}
-              {heroSection.title}{" "}
-              <span className="text-muted-foreground" data-homepage-hero-line="accent">
+              <span className="sr-only">
+                {`${heroSection.title} ${heroSection.titleRotations[0]} ${heroSection.titleAccent}`}
+              </span>
+
+              <span aria-hidden className="block">
+                {heroSection.title}
+              </span>
+
+              <RotatingAccent
+                className="block text-primary [&>span]:justify-start"
+                words={heroSection.titleRotations}
+              />
+
+              <span aria-hidden className="block text-muted-foreground" data-homepage-hero-line="accent">
                 {heroSection.titleAccent}
               </span>
-              {/* eslint-enable react/jsx-newline */}
             </h1>
           </div>
 

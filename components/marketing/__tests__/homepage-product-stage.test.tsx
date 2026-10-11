@@ -4,7 +4,7 @@ import { act, type ComponentProps, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, expect, it, vi } from "vitest";
 
-const motionState = vi.hoisted(() => ({ shouldAnimate: true, shouldReduceMotion: false }));
+const motionState = vi.hoisted(() => ({ isInView: true, shouldAnimate: true, shouldReduceMotion: false }));
 vi.mock("@/app/[locale]/(static)/components/homepage-motion", () => ({
   useHomepageMotion: () => ({ ref: { current: null }, ...motionState }),
 }));
@@ -46,6 +46,7 @@ afterEach(() => {
   document.body.replaceChildren();
   vi.useRealTimers();
   vi.unstubAllGlobals();
+  motionState.isInView = true;
   motionState.shouldAnimate = true;
   motionState.shouldReduceMotion = false;
 });
@@ -261,19 +262,27 @@ function frame(host: HTMLElement) {
   return element;
 }
 
-it("goes live on a wide viewport, opens the chosen area in the demo and stops rotating", () => {
+it("stays on the captures until the stage scrolls into view on a wide viewport", () => {
   vi.useFakeTimers();
   stubWideViewport(true);
+  motionState.isInView = false;
+  motionState.shouldAnimate = false;
   const host = render();
 
   expect(host.querySelector("iframe")).toBeNull();
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("idle");
+});
 
-  act(() => tabButtons(host)[2].click());
+it("goes live as soon as it is in view on a wide viewport and opens the chosen area", () => {
+  vi.useFakeTimers();
+  stubWideViewport(true);
+  const host = render();
 
   const iframe = host.querySelector("iframe");
-  expect(iframe?.getAttribute("src")).toBe("https://demo.example/en/deals?agentChat=closed");
+  expect(iframe?.getAttribute("src")).toBe("https://demo.example/en/inbox?agentChat=closed");
+  expect(iframe?.getAttribute("title")).toBe("Try it live: Inbox");
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("loading");
+  expect(host.textContent).not.toContain("Try it live");
 
   act(() => {
     iframe?.dispatchEvent(new Event("load"));
@@ -281,11 +290,41 @@ it("goes live on a wide viewport, opens the chosen area in the demo and stops ro
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("ready");
   expect(host.textContent).toContain("Live demo.");
 
-  act(() => tabButtons(host)[0].click());
-  expect(host.querySelector("iframe")?.getAttribute("src")).toBe("https://demo.example/en/inbox?agentChat=closed");
+  act(() => tabButtons(host)[2].click());
+  expect(host.querySelector("iframe")?.getAttribute("src")).toBe("https://demo.example/en/deals?agentChat=closed");
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("loading");
   advance(PRODUCT_STAGE_INTERVAL_MS * 3);
-  expect(selectedLabel(host)).toContain("Inbox");
+  expect(selectedLabel(host)).toContain("Pipeline");
+});
+
+it("tilts the frame below the fold and straightens it once scrolled into view", () => {
+  const prototypeRect = vi
+    .spyOn(HTMLElement.prototype, "getBoundingClientRect")
+    .mockReturnValue({ top: window.innerHeight * 0.9 } as DOMRect);
+  const below = render();
+  expect(frame(below).style.getPropertyValue("--stage-tilt")).toBe("18.00deg");
+  expect(frame(below).style.getPropertyValue("--stage-scale")).toBe("0.9200");
+  act(() => root?.unmount());
+  root = undefined;
+  document.body.replaceChildren();
+
+  prototypeRect.mockReturnValue({ top: 0 } as DOMRect);
+  const inView = render();
+  expect(frame(inView).style.getPropertyValue("--stage-tilt")).toBe("0.00deg");
+  expect(frame(inView).style.getPropertyValue("--stage-scale")).toBe("1.0000");
+  prototypeRect.mockRestore();
+});
+
+it("keeps the frame flat with reduced motion", () => {
+  motionState.shouldAnimate = false;
+  motionState.shouldReduceMotion = true;
+  const prototypeRect = vi
+    .spyOn(HTMLElement.prototype, "getBoundingClientRect")
+    .mockReturnValue({ top: window.innerHeight * 0.9 } as DOMRect);
+  const host = render();
+
+  expect(frame(host).style.getPropertyValue("--stage-tilt")).toBe("");
+  prototypeRect.mockRestore();
 });
 
 it("keeps the static captures on a phone-width viewport", () => {
@@ -341,6 +380,7 @@ it("opens from a product-demo hash on load and ignores unrelated hashes", () => 
   act(() => root?.unmount());
   document.body.replaceChildren();
   window.history.replaceState(null, "", "#pricing");
+  motionState.isInView = false;
   const unrelated = render();
 
   expect(selectedLabel(unrelated)).toContain("Inbox");

@@ -100,7 +100,7 @@ describe("homepage visual-system adoption", () => {
     }
 
     expect(page).not.toMatch(/HomepageClipTerminal|FeatureSection|visualLabels/u);
-    expect(componentSource).not.toMatch(/homepage-story-visuals|homepage-hero-visual|RotatingAccent/u);
+    expect(componentSource).not.toMatch(/homepage-story-visuals|homepage-hero-visual/u);
     expect(componentSource).not.toMatch(/GoldenStoryVisual|GOLDEN_LAYOUT|MarketingVisualArtboard/u);
     expect(existsSync(join(COMPONENT_ROOT, "homepage-story-visuals.tsx"))).toBe(false);
     expect(existsSync(join(COMPONENT_ROOT, "homepage-hero-visual.tsx"))).toBe(false);
@@ -184,6 +184,12 @@ describe("homepage visual-system adoption", () => {
     expect(stage).toContain("autoAdvance && !shouldReduceMotion");
     expect(stage).not.toContain("aria-live");
     expect(stage).toContain("eager={index === 0}");
+    expect(stage).toContain("if (!isInView || !window.matchMedia?.(LIVE_STAGE_MEDIA).matches) return;");
+    expect(stage).toContain("STAGE_MAX_TILT_DEG = 18");
+    expect(stage).toContain("STAGE_MIN_SCALE = 0.92");
+    expect(stage).toContain("lg:[transform:rotateX(var(--stage-tilt,0deg))_scale(var(--stage-scale,1))]");
+    expect(stage).toContain('frame.closest("[data-public-scrollport]") ?? window');
+    expect(stage).not.toMatch(/MousePointerClick|onPointerEnter=\{goLive\}/u);
     expect(motionSource).toContain("HOMEPAGE_MOTION_VISIBILITY_AMOUNT = 0.35");
     expect(motionSource).toContain("useInView");
     expect(motionSource).toContain("useReducedMotion");
@@ -200,6 +206,40 @@ describe("homepage visual-system adoption", () => {
     expect(hero).toContain("GridPattern");
     expect(hero).toContain("heroSection.useCase");
     expect(hero).toContain("lg:grid-cols-[1.2fr_1fr]");
+  });
+
+  it("rotates the hero claim through the data a workspace holds and ends on business data", () => {
+    const hero = readComponent("homepage-hero.tsx");
+    const rotations = (mdx: string) =>
+      [...mdx.slice(mdx.indexOf("  titleRotations:\n"), mdx.indexOf("  useCase:")).matchAll(/^ {4}- (.+)$/gmu)].map(
+        ([, word]) => word,
+      );
+
+    expect(hero).toContain("<RotatingAccent");
+    expect(hero).toContain("heroSection.titleRotations[0]");
+    expect(hero).toContain('className="sr-only"');
+    expect(rotations(englishHomepage)).toEqual([
+      "customer data",
+      "projects",
+      "suppliers",
+      "budgets",
+      "team tasks",
+      "business data",
+    ]);
+    expect(rotations(germanHomepage)).toEqual([
+      "Kundendaten",
+      "Projekte",
+      "Lieferanten",
+      "Budgets",
+      "Teamaufgaben",
+      "Geschäftsdaten",
+    ]);
+    expect(englishHomepage).toContain("  titleAccent: in one workspace your AI can work in.");
+    expect(germanHomepage).toContain("  titleAccent: in einem Arbeitsbereich für Sie und Ihre KI.");
+    for (const mdx of [englishHomepage, germanHomepage]) {
+      const hero = mdx.slice(mdx.indexOf("\nhero:\n"), mdx.indexOf("  subtitle:"));
+      expect(hero).not.toMatch(/\bERP\b|financ|Finanz|Buchhaltung|accounting|invoic|Rechnung/iu);
+    }
   });
 
   it("localizes the stage, alt texts and disclosure in both locales", () => {

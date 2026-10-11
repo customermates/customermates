@@ -38,7 +38,7 @@ function headingText(html: string): string {
 }
 
 describe("hero headings", () => {
-  it("keeps the whole homepage claim, including its muted accent, inside one h1", () => {
+  it("keeps the whole homepage claim inside one h1 and reads the first rotation to assistive technology", () => {
     const html = renderToStaticMarkup(
       createElement(HomepageHero, {
         heroSection: {
@@ -60,15 +60,21 @@ describe("hero headings", () => {
           },
           startFree: "No card",
           subtitle: "Subtitle",
-          title: "The CRM that updates itself",
-          titleAccent: "from your inbox.",
+          title: "Your",
+          titleAccent: "in one workspace your AI can work in.",
+          titleRotations: ["customer data", "projects", "business data"],
           useCase: "Use case",
         },
         locale: "en",
       }),
     );
 
-    expect(headingText(html)).toBe("The CRM that updates itself from your inbox.");
+    const heading = html.match(/<h1\b[\s\S]*?<\/h1>/u)?.[0] ?? "";
+
+    expect(headingText(html).startsWith("Your customer data in one workspace your AI can work in.")).toBe(true);
+    expect(heading).toContain('<span class="sr-only">Your customer data in one workspace your AI can work in.</span>');
+    expect(heading.match(/aria-hidden="true"/gu)?.length).toBeGreaterThanOrEqual(3);
+    for (const word of ["projects", "business data"]) expect(heading).toContain(word);
     expect(html).toContain('role="tablist"');
     expect(html.match(/role="tab"/gu)).toHaveLength(5);
   });
