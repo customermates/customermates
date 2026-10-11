@@ -8,6 +8,7 @@ import type { RecordGroupSummaryResult } from "@/features/records/record-groupin
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
 import { useRecordValueFormat } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
+import { derivedFractionDigits } from "@/features/records/derived-value-format";
 
 function useSummaryText() {
   const t = useTranslations();
@@ -21,7 +22,7 @@ function useSummaryText() {
         ? valueFormat.decimal(decimal.value, {
             currency: decimal.currency,
             compact: notation === "compact",
-            maximumFractionDigits: notation === "compact" ? 1 : (summary.decimalPlaces ?? (decimal.currency ? 2 : 10)),
+            maximumFractionDigits: notation === "compact" ? 1 : derivedFractionDigits(summary.decimalPlaces),
           })
         : undefined;
     const full = format("standard");

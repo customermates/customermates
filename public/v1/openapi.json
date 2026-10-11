@@ -17520,6 +17520,19 @@
                             "unavailable"
                           ]
                         },
+                        "decimalPlaces": {
+                          "description": "Decimal places of the measured field, used to round displayed values; null when the field sets none.",
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 30
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
                         "groupOptions": {
                           "type": "array",
                           "items": {
@@ -26699,6 +26712,19 @@
                             "unavailable"
                           ]
                         },
+                        "decimalPlaces": {
+                          "description": "Decimal places of the measured field, used to round displayed values; null when the field sets none.",
+                          "anyOf": [
+                            {
+                              "type": "integer",
+                              "minimum": 0,
+                              "maximum": 30
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        },
                         "groupOptions": {
                           "type": "array",
                           "items": {
@@ -35872,6 +35898,19 @@
                                 "enum": [
                                   "ready",
                                   "unavailable"
+                                ]
+                              },
+                              "decimalPlaces": {
+                                "description": "Decimal places of the measured field, used to round displayed values; null when the field sets none.",
+                                "anyOf": [
+                                  {
+                                    "type": "integer",
+                                    "minimum": 0,
+                                    "maximum": 30
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
                                 ]
                               },
                               "groupOptions": {
@@ -86276,6 +86315,7 @@
                         "routineLimitReached",
                         "routineTriggerEventsRequired",
                         "invalidFilterField",
+                        "invalidGroupingField",
                         "invalidFilterOperator",
                         "invalidFilterValue",
                         "invalidSortField",
