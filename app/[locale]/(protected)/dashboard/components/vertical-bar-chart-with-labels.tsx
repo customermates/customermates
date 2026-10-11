@@ -17,7 +17,6 @@ import {
   chartBarCursor,
   displayOrder,
   estimateTextWidth,
-  truncateLabel,
   useCategoryXAxisLayout,
 } from "./chart-theme";
 import { DashboardChartContainer } from "./dashboard-chart-container";
@@ -58,7 +57,7 @@ export const VerticalBarChartWithLabels = observer(
             {...chartAxisProps}
             dataKey="label"
             height={axis.height}
-            interval={0}
+            interval={axis.interval}
             orientation={reverseYAxis ? "top" : "bottom"}
             reversed={Boolean(reverseXAxis)}
             tick={<TruncatedTick angled={axis.angled} flipped={Boolean(reverseYAxis)} />}
@@ -91,11 +90,10 @@ export const VerticalBarChartWithLabels = observer(
                 const entry = chartData[index as number];
                 if (!entry) return null;
                 const full = entry.formattedValue ?? formatValue(entry.value);
-                const room = Math.max(Number(width) + 16, 40);
-                const text = truncateLabel(
-                  estimateTextWidth(full) > room ? formatValue(entry.value, true) : full,
-                  room,
-                );
+                const room = Math.max(Number(width) / 0.76 - 4, 24);
+                const compact = formatValue(entry.value, true);
+                const text = estimateTextWidth(full) <= room ? full : compact;
+                if (estimateTextWidth(text) > room) return null;
                 const top = reverseYAxis ? Number(y) + Number(height) + 6 : Number(y) - 6;
                 const half = estimateTextWidth(text) * 0.55 + 2;
                 const center = Number(x) + Number(width) / 2;

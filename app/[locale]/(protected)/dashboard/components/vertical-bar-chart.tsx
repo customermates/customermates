@@ -57,7 +57,7 @@ export const VerticalBarChart = observer(
             {...chartAxisProps}
             dataKey="label"
             height={axis.height}
-            interval={0}
+            interval={axis.interval}
             reversed={Boolean(reverseXAxis)}
             tick={<TruncatedTick angled={axis.angled} />}
             type="category"

@@ -34,6 +34,7 @@ export function truncateLabel(text: string, maxWidth: number) {
 const CATEGORY_TICK_ANGLE = 35;
 const CATEGORY_AXIS_HEIGHT = 30;
 export const ANGLED_TICK_MAX_WIDTH = 96;
+const ANGLED_TICK_SPACING = Math.ceil(CHART_FONT_SIZE * 1.5);
 
 export function estimateTextWidth(text: string) {
   return text.length * CHAR_WIDTH;
@@ -42,8 +43,8 @@ export function estimateTextWidth(text: string) {
 export function categoryXAxisLayout(
   labels: string[],
   plotWidth: number,
-): { angled: boolean; height: number; overhang: number } {
-  const flat = { angled: false, height: CATEGORY_AXIS_HEIGHT, overhang: 0 };
+): { angled: boolean; height: number; overhang: number; interval: number } {
+  const flat = { angled: false, height: CATEGORY_AXIS_HEIGHT, overhang: 0, interval: 0 };
   if (!(plotWidth > 0) || labels.length === 0) return flat;
   const band = plotWidth / labels.length - 6;
   const longest = Math.max(...labels.map(estimateTextWidth));
@@ -55,6 +56,7 @@ export function categoryXAxisLayout(
     angled: true,
     height: Math.ceil(run * Math.sin(radians) + CHART_FONT_SIZE * Math.cos(radians)) + 12,
     overhang: Math.max(0, Math.ceil(first * Math.cos(radians) - (band + 6) / 2)),
+    interval: Math.max(0, Math.ceil(ANGLED_TICK_SPACING / (band + 6)) - 1),
   };
 }
 

@@ -154,12 +154,19 @@ describe("time series and funnel charts", () => {
   });
 
   it("angles category labels that do not fit their band and titles truncated ticks", () => {
-    expect(categoryXAxisLayout(["Q1", "Q2"], 400)).toEqual({ angled: false, height: 30, overhang: 0 });
+    expect(categoryXAxisLayout(["Q1", "Q2"], 400)).toEqual({ angled: false, height: 30, overhang: 0, interval: 0 });
     expect(categoryXAxisLayout(["Paid search", "LinkedIn Ads", "Partner event"], 0).angled).toBe(false);
     const angled = categoryXAxisLayout(["Paid search", "LinkedIn Ads", "Partner event", "Trade fair", "Email"], 220);
     expect(angled.angled).toBe(true);
     expect(angled.height).toBeGreaterThan(30);
     expect(angled.overhang).toBeGreaterThan(0);
+    expect(angled.interval).toBe(0);
+    expect(
+      categoryXAxisLayout(
+        Array.from({ length: 20 }, (_, index) => `Open qualified ${index}`),
+        200,
+      ).interval,
+    ).toBe(1);
     const tick = (props: Record<string, unknown>) => {
       act(() => root.render(createElement("svg", null, createElement(TruncatedTick, props))));
       return {
