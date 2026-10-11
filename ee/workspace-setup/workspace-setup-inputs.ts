@@ -5,6 +5,9 @@ import type {
   SpreadsheetTable,
 } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 import type { SetupAnswers } from "@/features/workspace-setup/setup-answers.schema";
+import type { UpdateUserDetailsData } from "@/features/user/upsert/update-user-details.interactor";
+
+import { CountryCode } from "@/generated/prisma";
 
 import { readSpreadsheet } from "@/features/data-transfer/spreadsheet/read-spreadsheet";
 import { profileSpreadsheet, spreadsheetPreview } from "@/features/data-transfer/spreadsheet/spreadsheet-profile";
@@ -20,6 +23,20 @@ export function setupLanguage(answers: SetupAnswers, fallback: string | null = n
 export function setupCurrency(answers: SetupAnswers): string | null {
   const value = answers.currency?.value;
   return value?.format === "singleChoice" && /^[A-Z]{3}$/.test(value.value) ? value.value : null;
+}
+
+export function setupCompanySettings(
+  answers: SetupAnswers,
+): Pick<UpdateUserDetailsData, "country" | "formattingLocale"> {
+  const country = answers.country?.value;
+  const language = answers.language?.value;
+  const code = country?.format === "singleChoice" ? country.value.toLowerCase() : null;
+  return {
+    ...(code && (Object.values(CountryCode) as string[]).includes(code) ? { country: code as CountryCode } : {}),
+    ...(language?.format === "singleChoice" && isFormattingLocale(language.value)
+      ? { formattingLocale: language.value }
+      : {}),
+  };
 }
 
 export function setupDataChoice(answers: SetupAnswers): SetupDataChoice {

@@ -7,6 +7,7 @@ import type { ImportSpreadsheetInteractor } from "@/features/data-transfer/sprea
 import type { SpreadsheetMapping } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
 import type { UpsertDataViewInteractor } from "@/features/data-view/upsert-data-view.interactor";
 import type { UpsertRecordWidgetInteractor } from "@/features/widget/record-widget.interactor";
+import type { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-user-details.interactor";
 import type { SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
 import type { BrandFetch } from "./workspace-setup-brand";
 import type { WorkspaceSetupRepo } from "./workspace-setup.repo";
@@ -44,7 +45,13 @@ import {
   WORKSPACE_SETUP_PHASE_DEPENDENCIES,
 } from "./workspace-setup.schema";
 import { readWebsiteBrand } from "./workspace-setup-brand";
-import { loadSetupSpreadsheet, setupCurrency, setupDataChoice, setupLanguage } from "./workspace-setup-inputs";
+import {
+  loadSetupSpreadsheet,
+  setupCompanySettings,
+  setupCurrency,
+  setupDataChoice,
+  setupLanguage,
+} from "./workspace-setup-inputs";
 import { MappingWireSchema, sampleRecordsWireSchema } from "./workspace-setup-wire";
 import {
   SETUP_MAPPING_INSTRUCTION,
@@ -108,6 +115,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     private upsertWidget: Pick<UpsertRecordWidgetInteractor, "invoke">,
     private importSpreadsheet: Pick<ImportSpreadsheetInteractor, "invoke">,
     private brandFetch: (scope: { registrableDomain: string }) => BrandFetch,
+    private settings: Pick<UpdateUserDetailsInteractor, "invoke">,
   ) {
     super();
   }
@@ -275,7 +283,15 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     return this.storeArtifact(setup.id, "brand", mapping, BrandMappingSchema.nullable());
   }
 
+  private async companySettings(setup: WorkspaceSetupRecord) {
+    const settings = setupCompanySettings(setup.answers);
+    if (settings.country === undefined && settings.formattingLocale === undefined) return;
+    const updated = await this.settings.invoke(settings);
+    if (!updated.ok) throw new PhaseFailure(failureOf(updated.error));
+  }
+
   private async dataModel(setup: WorkspaceSetupRecord, plan: SetupPlan): Promise<PhaseOutcome> {
+    await this.companySettings(setup);
     const brand = await this.brand(setup);
     let bundle = artifact(setup, "bundle", PublicConfigurationChangeSchema);
     let references = artifact(setup, "references", SetupReferencesSchema);

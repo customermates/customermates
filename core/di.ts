@@ -1856,6 +1856,7 @@ export const getWorkspaceSetupBuildService = () =>
     getUpsertRecordWidgetInteractor(),
     getImportSpreadsheetInteractor(),
     websiteBrandFetch,
+    getUpdateUserDetailsInteractor(),
   );
 export const getWorkspaceSetupCleanupService = () =>
   new WorkspaceSetupCleanupService(

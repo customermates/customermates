@@ -500,6 +500,34 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     ]);
   });
 
+  it("applies the confirmed country and language to the settings before the data model", async () => {
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    await ws.run(() =>
+      di.getWorkspaceSetupRepo().mutate(setupId, (current) => ({
+        answers: {
+          ...current.answers,
+          country: { source: "website", confidence: 0.9, value: { format: "singleChoice", value: "AT" } },
+          language: { source: "user", confidence: 1, value: { format: "singleChoice", value: "de" } },
+        },
+      })),
+    );
+    await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
+    const service = di.getWorkspaceSetupBuildService();
+    expect(await ws.run(() => service.runPhase(setupId, "dataModel"))).toBe("settled");
+    const owner = () =>
+      runWithoutTenant(() =>
+        prisma.user.findUniqueOrThrow({
+          where: { id: ws.owner.id },
+          select: { country: true, formattingLocale: true },
+        }),
+      );
+    expect(await owner()).toEqual({ country: "at", formattingLocale: "de" });
+    expect((await status(ws)).phases.find((phase) => phase.key === "dataModel")?.status).toBe("completed");
+    expect(await ws.run(() => service.runPhase(setupId, "dataModel"))).toBe("settled");
+    expect(await owner()).toEqual({ country: "at", formattingLocale: "de" });
+  });
+
   it("keeps each workspace's setup to its own tenant", async () => {
     const first = await workspace();
     const second = await workspace();
