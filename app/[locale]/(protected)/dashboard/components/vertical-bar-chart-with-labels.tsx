@@ -15,6 +15,7 @@ import {
   TruncatedTick,
   chartAxisProps,
   chartBarCursor,
+  displayOrder,
   estimateTextWidth,
   truncateLabel,
   useCategoryXAxisLayout,
@@ -34,7 +35,10 @@ export const VerticalBarChartWithLabels = observer(
     const formatValue = useChartFormatter(currency);
     const reducedMotion = useReducedMotion();
     const axis = useCategoryXAxisLayout(
-      chartData.map((entry) => entry.label),
+      displayOrder(
+        chartData.map((entry) => entry.label),
+        reverseXAxis,
+      ),
       8,
     );
 
@@ -43,7 +47,12 @@ export const VerticalBarChartWithLabels = observer(
         <BarChart
           barCategoryGap="24%"
           data={chartData}
-          margin={{ top: reverseYAxis ? 0 : 20, right: 4, bottom: reverseYAxis ? 20 : 0, left: 4 }}
+          margin={{
+            top: reverseYAxis ? 0 : 20,
+            right: 4,
+            bottom: reverseYAxis ? 20 : 0,
+            left: Math.max(4, axis.overhang),
+          }}
         >
           <XAxis
             {...chartAxisProps}

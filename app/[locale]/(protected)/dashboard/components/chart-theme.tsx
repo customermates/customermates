@@ -39,17 +39,27 @@ export function estimateTextWidth(text: string) {
   return text.length * CHAR_WIDTH;
 }
 
-export function categoryXAxisLayout(labels: string[], plotWidth: number): { angled: boolean; height: number } {
-  if (!(plotWidth > 0) || labels.length === 0) return { angled: false, height: CATEGORY_AXIS_HEIGHT };
+export function categoryXAxisLayout(
+  labels: string[],
+  plotWidth: number,
+): { angled: boolean; height: number; overhang: number } {
+  const flat = { angled: false, height: CATEGORY_AXIS_HEIGHT, overhang: 0 };
+  if (!(plotWidth > 0) || labels.length === 0) return flat;
   const band = plotWidth / labels.length - 6;
   const longest = Math.max(...labels.map(estimateTextWidth));
-  if (longest <= band) return { angled: false, height: CATEGORY_AXIS_HEIGHT };
+  if (longest <= band) return flat;
   const radians = (CATEGORY_TICK_ANGLE * Math.PI) / 180;
+  const first = Math.min(ANGLED_TICK_MAX_WIDTH, estimateTextWidth(labels[0]));
   const run = Math.min(ANGLED_TICK_MAX_WIDTH, longest);
   return {
     angled: true,
     height: Math.ceil(run * Math.sin(radians) + CHART_FONT_SIZE * Math.cos(radians)) + 12,
+    overhang: Math.max(0, Math.ceil(first * Math.cos(radians) - (band + 6) / 2)),
   };
+}
+
+export function displayOrder(labels: string[], reversed?: boolean) {
+  return reversed ? [...labels].reverse() : labels;
 }
 
 export function useCategoryXAxisLayout(labels: string[], reservedWidth: number) {

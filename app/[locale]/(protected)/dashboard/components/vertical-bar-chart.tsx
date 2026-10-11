@@ -15,6 +15,7 @@ import {
   chartAxisProps,
   chartBarCursor,
   chartGridProps,
+  displayOrder,
   estimateTextWidth,
   useCategoryXAxisLayout,
 } from "./chart-theme";
@@ -34,14 +35,22 @@ export const VerticalBarChart = observer(
     const formatValue = useChartFormatter(currency);
     const reducedMotion = useReducedMotion();
     const widestValue = Math.max(0, ...chartData.map((entry) => Math.abs(entry.value)));
+    const valueAxisWidth = estimateTextWidth(formatValue(widestValue, true)) + 20;
     const axis = useCategoryXAxisLayout(
-      chartData.map((entry) => entry.label),
-      estimateTextWidth(formatValue(widestValue, true)) + 20,
+      displayOrder(
+        chartData.map((entry) => entry.label),
+        reverseXAxis,
+      ),
+      valueAxisWidth,
     );
 
     return (
       <DashboardChartContainer onResize={axis.onResize}>
-        <BarChart barCategoryGap="24%" data={chartData} margin={{ top: 8, right: 4, bottom: 0, left: 0 }}>
+        <BarChart
+          barCategoryGap="24%"
+          data={chartData}
+          margin={{ top: 8, right: 4, bottom: 0, left: Math.max(0, axis.overhang - valueAxisWidth) }}
+        >
           <CartesianGrid {...chartGridProps} vertical={false} />
 
           <XAxis
