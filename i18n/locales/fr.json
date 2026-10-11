@@ -4156,6 +4156,7 @@
     "restored": "{count, plural, one {# élément restauré} other {# éléments restaurés}}",
     "restoredInBackground": "Restauré",
     "restoredWithDroppedLinks": "Restauré. {count, plural, one {# lien n'a pas pu} other {# liens n'ont pas pu}} être restauré(s) car l'enregistrement lié a été supprimé définitivement.",
+    "restoreFailed": "La restauration a échoué. L'élément est toujours dans la corbeille.",
     "restoring": "Restauration…",
     "undo": "Annuler"
   },

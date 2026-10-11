@@ -4156,6 +4156,7 @@
     "restored": "{count, plural, one {# item restored} other {# items restored}}",
     "restoredInBackground": "Restored",
     "restoredWithDroppedLinks": "Restored. {count, plural, one {# link} other {# links}} could not be restored because the linked record was deleted permanently.",
+    "restoreFailed": "Restore failed. The item is still in Trash.",
     "restoring": "Restoring…",
     "undo": "Undo"
   },

@@ -13,6 +13,12 @@ import { recordWriteFailure } from "@/features/records/mutate-record.interactor"
 import { RestoreTrashSchema, type RestoreTrashData, type TrashRestoreResult } from "./trash.schema";
 import { itemsByHandler, trashVisibility } from "./trash-handlers";
 
+// Restoring a list, field or relationship previews and applies a configuration change inside this transaction. Up
+// to the synchronous record limit that apply rewrites and recalculates records itself and budgets 30 s on its own,
+// so the restore transaction matches the other Trash writes (60 s) instead of cutting that apply short; larger
+// changes continue as a background operation and the restore reports it as pending.
+const RESTORE_TIMEOUT_MS = 60000;
+
 @AllowInDemoMode
 @TenantInteractor()
 export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrashData, TrashRestoreResult> {
@@ -43,7 +49,7 @@ export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrash
           let operationId: string | null = null;
           for (const group of itemsByHandler(this.handlers, items)) {
             if (group.handler.restoreInBackground) operationId = await group.handler.restoreInBackground(group.items);
-            else await group.handler.restore(group.items);
+            else operationId = (await group.handler.restore(group.items)).operationId ?? operationId;
           }
           if (!operationId) return result;
           return { ok: true as const, data: { status: "pending" as const, operationId } };
@@ -51,7 +57,7 @@ export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrash
           return recordWriteFailure(error);
         }
       },
-      { timeout: 20000 },
+      { timeout: RESTORE_TIMEOUT_MS },
     );
   }
 
@@ -74,6 +80,8 @@ export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrash
           };
           for (const group of itemsByHandler(this.handlers, items)) {
             const restored = await group.handler.restore(group.items);
+            if (restored.operationId)
+              return { ok: true as const, data: { status: "pending" as const, operationId: restored.operationId } };
             result.restoredItemIds.push(...restored.restoredItemIds);
             result.blocked.push(...restored.blocked);
             result.restoredRecords += restored.restoredRecords;
@@ -84,7 +92,7 @@ export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrash
           return recordWriteFailure(error);
         }
       },
-      { timeout: 20000 },
+      { timeout: RESTORE_TIMEOUT_MS },
     );
   }
 }

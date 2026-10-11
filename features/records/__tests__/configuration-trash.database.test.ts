@@ -38,6 +38,7 @@ const { MutateRecordInteractor } = await import("../mutate-record.interactor");
 const { ApplyRecordConfigurationInteractor } = await import("../configure-records.interactor");
 const { PreviewRecordConfigurationInteractor } = await import("../preview-record-configuration.interactor");
 const { ConfigurationTrashHandler } = await import("../configuration-trash.handler");
+const { RecordOperationService } = await import("../record-operation.service");
 const { RecordTrashHandler } = await import("../record-trash.handler");
 const { PrismaTrashRepo } = await import("@/features/trash/prisma-trash.repository");
 const { QueryTrashInteractor } = await import("@/features/trash/query-trash.interactor");
@@ -223,6 +224,46 @@ describeDatabase("configuration trash", () => {
     const model = await f.as(() => new PrismaRecordRepo().getModel());
     expect(model.fields.find((field) => field.id === fieldId)?.archived).toBe(false);
   }, 180_000);
+
+  it("restores a trashed field through a background operation on a workspace with two thousand records", async () => {
+    const f = await fixture();
+    const typeId = f.id("organization");
+    const fieldId = f.id("organization.notes");
+    const deleted = await f.as(async () =>
+      f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "field", id: fieldId } }])),
+    );
+    if (!deleted.ok || !deleted.data.trashBatchId) throw new Error(JSON.stringify(deleted));
+    const ids = Array.from({ length: 2000 }, () => randomUUID());
+    await runWithoutTenant(() =>
+      runInTransaction(async () => {
+        await prisma.crmRecord.createMany({ data: ids.map((id) => ({ companyId: f.seed.company.id, typeId, id })) });
+        await prisma.recordValue.createMany({
+          data: ids.map((recordId, index) => ({
+            companyId: f.seed.company.id,
+            typeId,
+            recordId,
+            fieldId: f.id("organization.name"),
+            state: "value",
+            textValue: `Org ${index}`,
+            schemaRevision: 1,
+          })),
+        });
+      }),
+    );
+    const restored = await f.as(() => f.trash.restore.invoke({ batchId: deleted.data.trashBatchId } as never));
+    if (!restored.ok || restored.data.status !== "pending") throw new Error(JSON.stringify(restored));
+    expect(await f.items()).toHaveLength(1);
+    const worker = new RecordOperationService(
+      new PrismaRecordRepo(),
+      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), new PrismaRecordRepo()),
+      new RecordConfigurationService(new PrismaRecordRepo()),
+      noWebhooks,
+    );
+    for (let done = false; !done; ) done = (await f.as(() => worker.advance(restored.data.operationId))).done;
+    expect(await f.items()).toEqual([]);
+    const model = await f.as(() => new PrismaRecordRepo().getModel());
+    expect(model.fields.find((field) => field.id === fieldId)?.archived).toBe(false);
+  }, 300_000);
 
   it("restores a deleted list through Trash", async () => {
     const f = await fixture();

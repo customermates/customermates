@@ -4156,6 +4156,7 @@
     "restored": "{count, plural, one {# elemento ripristinato} other {# elementi ripristinati}}",
     "restoredInBackground": "Ripristinato",
     "restoredWithDroppedLinks": "Ripristinato. {count, plural, one {# collegamento non è stato ripristinato} other {# collegamenti non sono stati ripristinati}} perché il record collegato è stato eliminato definitivamente.",
+    "restoreFailed": "Ripristino non riuscito. L'elemento è ancora nel cestino.",
     "restoring": "Ripristino…",
     "undo": "Annulla"
   },
