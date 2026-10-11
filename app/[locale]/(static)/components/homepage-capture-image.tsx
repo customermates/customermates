@@ -55,6 +55,7 @@ export function HomepageCaptureImage({
             className={cn("block h-auto w-full", className)}
             data-homepage-capture={name}
             decoding="async"
+            fetchPriority={eager ? "high" : undefined}
             loading={loading}
           />
         </picture>
@@ -86,6 +87,7 @@ export function HomepageCaptureImage({
           className={cn("block h-auto w-full", className)}
           data-homepage-capture={name}
           decoding="async"
+          fetchPriority={eager ? "high" : undefined}
           loading={loading}
         />
       </picture>

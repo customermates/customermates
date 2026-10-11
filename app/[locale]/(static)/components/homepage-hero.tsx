@@ -40,10 +40,7 @@ export function HomepageHero({ heroSection, locale }: Props) {
                 {heroSection.title}
               </span>
 
-              <RotatingAccent
-                className="block text-primary [&>span]:justify-start"
-                words={heroSection.titleRotations}
-              />
+              <RotatingAccent className="grid text-primary [&>span]:justify-start" words={heroSection.titleRotations} />
 
               <span aria-hidden className="block text-muted-foreground" data-homepage-hero-line="accent">
                 {heroSection.titleAccent}
