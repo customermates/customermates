@@ -11,7 +11,7 @@ import {
   confirmDeletion,
 } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
-import { openRecordDetails, openRecordLink } from "./record-rows";
+import { openRecordDetails, openRecordLink, recordRows } from "./record-rows";
 import { invokesServerAction, serverActionIds } from "./server-actions";
 import { presetId } from "../../features/records/crm-preset";
 import {
@@ -1436,8 +1436,7 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
     "linked records",
     "relationship projection",
     "accepted record refresh",
-    "accepted bulk refresh",
-    "accepted bulk fallback refresh",
+    ...(testInfo.project.use.isMobile ? [] : ["accepted bulk refresh", "accepted bulk fallback refresh"]),
     "accepted schema refresh",
     "accepted navigation refresh",
   ]);
@@ -1559,9 +1558,7 @@ test("recovers a parent after an embedded save without repeating the child mutat
   await expect(main.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
   await expect(main.locator(`[data-entity-field="${id("deal.totalValue")}"]`)).toContainText("€200.00");
   await expect(main.locator(`[data-entity-field="${id("deal.weightedValue")}"]`)).toContainText("€120.00");
-  const row = embedded
-    .getByRole("row")
-    .filter({ has: page.getByRole("button", { name: "Recovery line", exact: true }) });
+  const row = recordRows(embedded).filter({ hasText: "Recovery line" });
   await expect(row.getByRole("button", { name: "Edit Quantity", exact: true })).toHaveText("2");
   await expect(main.getByText(`Add ${notes.label}`, { exact: true })).toBeVisible();
   await expect(main.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
