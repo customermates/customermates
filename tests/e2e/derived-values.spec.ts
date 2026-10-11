@@ -118,7 +118,7 @@ test("shows a list ungrouped when a link groups it by a multiple choice field, w
       action: "create",
       typeId,
       fields: [
-        { fieldId: id("contact.name"), value: { kind: "text", value: contact } },
+        { fieldId: id("contact.firstName"), value: { kind: "text", value: contact } },
         { fieldId: roleId, value: { kind: "selectList", value: options.map((option) => option.id) } },
       ],
     },

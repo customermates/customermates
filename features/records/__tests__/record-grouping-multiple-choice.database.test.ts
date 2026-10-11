@@ -100,7 +100,7 @@ async function fixture() {
         action: "create",
         typeId,
         fields: [
-          { fieldId: id("contact.name"), value: { kind: "text", value: "Ada" } },
+          { fieldId: id("contact.firstName"), value: { kind: "text", value: "Ada" } },
           { fieldId: role.id, value: { kind: "selectList", value: [role.options[0].id, role.options[1].id] } },
         ],
       },
