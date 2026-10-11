@@ -10,7 +10,7 @@ import {
   saveGeneral,
 } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
-import { openRecordDetails } from "./record-rows";
+import { openRecordDetails, recordItem } from "./record-rows";
 import { openFilterPalette } from "./filter-palette";
 
 test("creates a custom list and field through the UI, then persists a decimal record across reloads", async ({
@@ -105,13 +105,11 @@ test("creates a custom list and field through the UI, then persists a decimal re
     [companyId, typeId, client.id],
   );
   expect(linked.rows).toHaveLength(1);
-  await expect(page.getByRole("columnheader", { name: "Created at", exact: false })).toBeVisible();
-  await expect(page.getByRole("columnheader", { name: "Assigned to", exact: false })).toBeVisible();
-  await page
-    .getByRole("row")
-    .filter({ hasText: recordName })
-    .getByRole("button", { name: "Edit Client organization", exact: true })
-    .click();
+  if (!testInfo.project.use.isMobile) {
+    await expect(page.getByRole("columnheader", { name: "Created at", exact: false })).toBeVisible();
+    await expect(page.getByRole("columnheader", { name: "Assigned to", exact: false })).toBeVisible();
+  }
+  await recordItem(page, recordName).getByRole("button", { name: "Edit Client organization", exact: true }).click();
   await page.getByRole("option", { name: `Open ${client.name}`, exact: true }).click();
   await expect(dialog.getByText(recordName, { exact: true })).toBeVisible();
   await dialog.getByRole("button", { name: `Unlink ${recordName}`, exact: true }).click();
@@ -146,18 +144,21 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await saveDrawer(page);
   await openConfiguredRecords();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}`));
-  await expect(
-    page.locator('[data-slot="group-header-row"] [aria-label="Budget · Sum: €123,456,789,012,345.13"]'),
-  ).toBeVisible();
+  // Phone rows have no group header summaries yet (follow-up list); the shared default is checked on desktop.
+  if (!testInfo.project.use.isMobile)
+    await expect(
+      page.locator('[data-slot="group-header-row"] [aria-label="Budget · Sum: €123,456,789,012,345.13"]'),
+    ).toBeVisible();
   await expect(
     page.getByRole("columnheader").filter({ has: page.getByRole("button", { name: "Budget", exact: true }) }),
   ).not.toBeVisible();
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await page.getByRole("checkbox", { name: "Budget", exact: true }).check();
   await page.keyboard.press("Escape");
-  await expect(
-    page.getByRole("columnheader").filter({ has: page.getByRole("button", { name: "Budget", exact: true }) }),
-  ).toBeVisible();
+  if (!testInfo.project.use.isMobile)
+    await expect(
+      page.getByRole("columnheader").filter({ has: page.getByRole("button", { name: "Budget", exact: true }) }),
+    ).toBeVisible();
   await expect
     .poll(async () => {
       const saved = await database.query('SELECT "hiddenColumns" FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2', [
@@ -168,9 +169,10 @@ test("creates a custom list and field through the UI, then persists a decimal re
     })
     .toEqual([]);
   await page.reload();
-  await expect(
-    page.getByRole("columnheader").filter({ has: page.getByRole("button", { name: "Budget", exact: true }) }),
-  ).toBeVisible();
+  if (!testInfo.project.use.isMobile)
+    await expect(
+      page.getByRole("columnheader").filter({ has: page.getByRole("button", { name: "Budget", exact: true }) }),
+    ).toBeVisible();
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await page.getByRole("button", { name: "Reset to shared defaults", exact: true }).click();
   await expect(
@@ -279,6 +281,7 @@ test("resizes table columns with keyboard controls, restores saved widths and re
   workspace,
   isMobile,
 }, testInfo) => {
+  test.skip(isMobile, "Column resizing is a desktop table control; phone rows have no columns");
   const errors: string[] = [];
   page.on("pageerror", (error) => {
     if (!isBenignPageError(error.message)) errors.push(error.message);

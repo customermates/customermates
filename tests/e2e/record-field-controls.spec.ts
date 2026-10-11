@@ -3,7 +3,7 @@ import type { Page } from "@playwright/test";
 import { RecordModelSchema, type RecordModel } from "../../features/records/record-model.schema";
 import { openDrawerTab, addFromConfigure, followConfigureLink, openConfigure, openConfigureRow, saveDrawer } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
-import { openRecordDetails, runNamedRowAction, editFormattedText } from "./record-rows";
+import { openRecordDetails, recordItem, runNamedRowAction, editFormattedText } from "./record-rows";
 
 async function choose(page: Page, label: string | RegExp, option: string) {
   await page
@@ -441,7 +441,10 @@ test("builds every calculation operator with the linear editor and persists resu
       await calculation.locator('[data-calculation-node="step"] [data-calculation-chip="operation"]').click();
       await page.locator(`[data-calculation-option="${example.id}"]`).click();
       await expect(calculation.locator('[data-calculation-node="step"]')).toHaveCount(1);
-      await expect(calculation.locator('[data-calculation-chip="operation"]')).toHaveText(example.operator);
+      await expect(calculation.locator('[data-calculation-chip="operation"]')).toHaveAttribute(
+        "aria-label",
+        `Calculation: ${example.operator}`,
+      );
       if (example.operator === "Join text")
         await calculation.getByRole("button", { name: "Add input", exact: true }).click();
       await expect(
@@ -867,11 +870,8 @@ test("changes numeric display precision through the field editor without roundin
   await expect(dialog.getByRole("textbox", { name: "Display price", exact: true })).toHaveValue("19.8765");
   await dialog.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialog).not.toBeVisible();
-  const recordRow = page
-    .getByRole("row")
-    .filter({ has: page.getByRole("link", { name: "Precision record", exact: true }) });
-  const cellShowing = (text: string) =>
-    recordRow.getByRole("cell").filter({ hasText: new RegExp(`^${text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`) });
+  const recordRow = recordItem(page, "Precision record");
+  const cellShowing = (text: string) => recordRow.getByText(text, { exact: true });
   await expect(cellShowing("12")).toBeVisible();
   await expect(cellShowing("€20")).toBeVisible();
   const values = async () =>
@@ -889,9 +889,11 @@ test("changes numeric display precision through the field editor without roundin
     ]),
   );
   expect(stored).toHaveLength(2);
+  // Phone rows show money in the short card format, which keeps at most one decimal.
+  const shortMoney = testInfo.project.use.isMobile;
   for (const [precision, numberDisplay, moneyDisplay] of [
-    ["3", "12.346", "€19.877"],
-    ["", "12.3456", "€19.88"],
+    ["3", "12.346", shortMoney ? "€19.9" : "€19.877"],
+    ["", "12.3456", shortMoney ? "€19.9" : "€19.88"],
   ]) {
     for (const field of [number, money]) {
       await editFieldDefinitionUi(page, typeId, field.label);
@@ -914,7 +916,7 @@ test("changes numeric display precision through the field editor without roundin
   }
   await page.reload();
   await expect(cellShowing("12.3456")).toBeVisible();
-  await expect(cellShowing("€19.88")).toBeVisible();
+  await expect(cellShowing(shortMoney ? "€19.9" : "€19.88")).toBeVisible();
   await openRecordDetails(page, "Precision record");
   await expect(dialog.getByRole("textbox", { name: "Display amount", exact: true })).toHaveValue("12.3456");
   await expect(dialog.getByRole("textbox", { name: "Display price", exact: true })).toHaveValue("19.8765");

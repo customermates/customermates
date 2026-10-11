@@ -1,5 +1,6 @@
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
+import { openSidebar } from "./sidebar";
 
 test("keeps filter changes temporary until saved to the view, resets them and keeps them for the browser session", async ({
   page,
@@ -64,14 +65,12 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
     page
       .locator('[data-sidebar="menu-button"]')
       .filter({ hasText: new RegExp(`^${name}$`) });
-  if (!(await sidebarLink("Contacts").isVisible()))
-    await page.locator("#sidebar-trigger").click();
+  await openSidebar(page);
   await sidebarLink("Contacts").click();
   await expect(page).toHaveURL(
     new RegExp(`/en/records/${presetId(companyId, "contact")}(?:\\?.*)?$`),
   );
-  if (!(await sidebarLink("Deals").isVisible()))
-    await page.locator("#sidebar-trigger").click();
+  await openSidebar(page);
   await sidebarLink("Deals").click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}(?:\\?.*)?$`));
   await expect(all).toHaveAttribute("data-view-modified", "");
@@ -225,6 +224,7 @@ test("opens an assistant proposal in the modified state and saves it as an updat
 
   await page.goto(`/en/records/${typeId}`);
   await expect(all).toHaveAttribute("aria-current", "page");
+  await page.waitForLoadState("networkidle");
   await propose("__all__", { isNew: false });
   await page.reload();
   await expect(all).toHaveAttribute("data-view-modified", "");
@@ -243,6 +243,7 @@ test("opens an assistant proposal in the modified state and saves it as an updat
     )
     .toEqual([assignee]);
 
+  await page.waitForLoadState("networkidle");
   await propose("__all__", { isNew: true, name: "Assigned to me" });
   await page.reload();
   const proposed = page.locator("#global-data-views-proposed");

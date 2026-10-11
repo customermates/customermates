@@ -1370,8 +1370,7 @@
         "removeFilter": "Rimuovi filtro",
         "searchContains": "{field} contiene «{text}»",
         "searchOrAddFilter": "Cerca o aggiungi un filtro…",
-        "title": "Filtri",
-        "trigger": "Filtro"
+        "title": "Filtri"
       },
       "searchFields": {
         "inbox": "Oggetto, messaggio o partecipante",
@@ -3123,6 +3122,7 @@
         "title": "Esempio",
         "unavailable": "Troppi record collegati per mostrare un esempio."
       },
+      "extendStep": "Aggiungi a {step}",
       "inputs": "Input",
       "linkedList": "Lista collegata",
       "missing": {
@@ -3178,6 +3178,19 @@
       "showToEveryone": "Mostra a chiunque possa vedere il record ({list})",
       "showToEveryoneHelp": "Vedranno questo valore anche se non possono aprire il record collegato ({list}).",
       "step": "Passo {number}",
+      "stepChip": "Passo",
+      "symbols": {
+        "and": "E",
+        "coalesce": "ALTRIMENTI",
+        "if": "SE",
+        "lower": "minusc.",
+        "not": "NON",
+        "or": "O",
+        "otherwise": "ALTRIMENTI",
+        "then": "ALLORA",
+        "trim": "rifila",
+        "upper": "maiusc."
+      },
       "take": "Prendi",
       "text": {
         "average": "media di {value} dei {list} collegati",
@@ -3237,9 +3250,6 @@
       }
     },
     "color": "Colore",
-    "conditionIf": "Condizione",
-    "conditionOtherwise": "Altrimenti",
-    "conditionThen": "Allora",
     "configurationDeletion": {
       "blockedMessage": "{name} non può essere eliminato finché altre parti della tua configurazione lo usano.",
       "blockers": {

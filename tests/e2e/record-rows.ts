@@ -2,7 +2,7 @@ import { expect, type Locator, type Page } from "@playwright/test";
 
 export function recordItem(page: Page, name: string) {
   return page
-    .locator("tr, [data-item-id]")
+    .locator("tr, [data-row-id], [data-item-id]")
     .filter({ has: page.getByRole("link", { name, exact: true }) })
     .first();
 }
@@ -13,7 +13,7 @@ export async function openRecordDetails(page: Page, name: string) {
   const openDetails = page.getByRole("menuitem", { name: "Open details", exact: true });
   await page.waitForLoadState("networkidle");
   await expect(async () => {
-    await item.hover();
+    await item.hover({ position: { x: 4, y: 4 } });
     if (await inline.isVisible()) return;
     if (!(await openDetails.isVisible()))
       await item.getByRole("button", { name: `More actions for ${name}`, exact: true }).click();
@@ -28,7 +28,7 @@ export function rowActionGroup(item: Locator) {
 }
 
 export async function rowActionLabels(page: Page, item: Locator, name: string) {
-  await item.hover();
+  await item.hover({ position: { x: 4, y: 4 } });
   const group = rowActionGroup(item);
   if (await group.isVisible())
     return group.getByRole("button").evaluateAll((buttons) => buttons.map((button) => button.getAttribute("aria-label")));
@@ -39,7 +39,7 @@ export async function rowActionLabels(page: Page, item: Locator, name: string) {
 }
 
 export async function runRowAction(page: Page, item: Locator, name: string, label: string) {
-  await item.hover();
+  await item.hover({ position: { x: 4, y: 4 } });
   const group = rowActionGroup(item);
   if (await group.isVisible()) {
     await group.getByRole("button", { name: label, exact: true }).click();
@@ -74,4 +74,22 @@ export async function editFormattedText(scope: Locator | Page, label: string) {
     .filter({ has: page.getByRole("button", { name: `Edit ${label}`, exact: true }) })
     .locator("[data-formatted-text-area]")
     .click();
+}
+
+export function recordRows(scope: Locator | Page) {
+  return scope.locator("tbody tr, [data-phone-rows] [data-row-id]");
+}
+
+export function recordItemWithText(page: Page, text: string) {
+  return page.locator("tr, [data-row-id], [data-item-id]").filter({ hasText: text }).first();
+}
+
+export async function recordRowName(row: Locator) {
+  const open = row.locator('[data-slot="data-row-open"]');
+  if (await open.count()) return (await open.first().innerText()).trim();
+  return (await row.locator(":scope > a[aria-label], :scope > button[aria-label]").first().getAttribute("aria-label")) ?? "";
+}
+
+export async function openRecordLink(target: Locator) {
+  await target.click({ position: { x: 8, y: 8 } });
 }

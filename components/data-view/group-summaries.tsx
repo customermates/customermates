@@ -64,7 +64,7 @@ export const GroupSummaries = observer(function GroupSummaries({
           <span
             aria-label={lines.join(", ")}
             className={cn(
-              "ml-auto min-w-0 truncate text-xs text-muted-foreground tabular-nums",
+              "min-w-0 truncate text-xs text-muted-foreground tabular-nums",
               summaries[0].result.state === "error" && "text-destructive",
             )}
             data-group-total=""
