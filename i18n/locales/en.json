@@ -3119,6 +3119,7 @@
         "title": "Example",
         "unavailable": "Too many linked records to show an example."
       },
+      "extendStep": "Add to {step}",
       "inputs": "Inputs",
       "linkedList": "Linked list",
       "missing": {
@@ -3174,6 +3175,19 @@
       "showToEveryone": "Show to everyone who can see the {list}",
       "showToEveryoneHelp": "They'll see this value even if they can't open the {list}.",
       "step": "Step {number}",
+      "stepChip": "Step",
+      "symbols": {
+        "and": "AND",
+        "coalesce": "ELSE",
+        "if": "IF",
+        "lower": "lower",
+        "not": "NOT",
+        "or": "OR",
+        "otherwise": "ELSE",
+        "then": "THEN",
+        "trim": "trim",
+        "upper": "upper"
+      },
       "take": "Take",
       "text": {
         "average": "average {value} across linked {list}",
@@ -3233,9 +3247,6 @@
       }
     },
     "color": "Color",
-    "conditionIf": "Condition",
-    "conditionOtherwise": "Otherwise",
-    "conditionThen": "Then",
     "configurationDeletion": {
       "blockedMessage": "{name} can't be deleted while other parts of your setup still use it.",
       "blockers": {

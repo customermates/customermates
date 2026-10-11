@@ -11,7 +11,12 @@ import {
   sentenceText,
 } from "@/features/records/calculation-sentence";
 import type { ReactNode } from "react";
-import type { CalculationExpression, RecordModelView, RecordScalar } from "@/features/records/record-model.schema";
+import type {
+  CalculationExpression,
+  RecordField,
+  RecordModelView,
+  RecordScalar,
+} from "@/features/records/record-model.schema";
 import type { CalculationPreview } from "@/features/records/preview-calculation.interactor";
 import type { FieldModalStore } from "./field-modal";
 import type { CalculationPickerGroup, CalculationPickerItem, CalculationPickerPage } from "./calculation-picker";
@@ -36,6 +41,7 @@ import { draftCalculationAction } from "@/app/components/agent-chat/actions";
 import { CALCULATION_DRAFT_DESCRIPTION_LIMIT } from "@/features/records/calculation-draft";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
+import { calculationResultType } from "@/features/records/record-model-validation";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { previewCalculationAction } from "@/app/[locale]/(protected)/records/actions";
 import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
@@ -47,12 +53,14 @@ import {
   OPERATOR_GROUPS,
   UNSET,
   addInput,
-  addStep,
   aggregateTypes,
   calculableFields,
+  calculationDraft,
   expressionAt,
+  extendStep,
   formulaInputs,
   formulaSteps,
+  insertStep,
   isUnset,
   isVariadic,
   issueText,
@@ -61,13 +69,20 @@ import {
   relationshipChoices,
   removeStep,
   replaceExpression,
+  stepInsertPath,
   withAggregate,
   withOperator,
 } from "./calculation-flow";
 import { CalculationLiteralInput } from "./calculation-literal-input";
 import { CalculationPicker } from "./calculation-picker";
 import { configureCardinality } from "./configure-graph-model";
-import { ConfigureNode, ConfigureNodeHeader, ConfigureNodeRows, ConfigureNodeStaticRow } from "./configure-node";
+import {
+  ConfigureNode,
+  ConfigureNodeHeader,
+  ConfigureNodeRow,
+  ConfigureNodeRows,
+  ConfigureNodeStaticRow,
+} from "./configure-node";
 
 const FIELD_ICON = <TextCursorInput aria-hidden className="text-muted-foreground" />;
 
@@ -85,18 +100,20 @@ function FlowNode({
   invalid,
   error,
   result,
+  className,
   children,
   ...props
 }: {
   invalid?: boolean;
   error?: string;
   result?: boolean;
+  className?: string;
   children: ReactNode;
   "data-calculation-node": string;
 }) {
   return (
     <ConfigureNode
-      className={cn("group/row w-full", result && "border-primary", invalid && "border-destructive")}
+      className={cn("group/row w-full", result && "border-primary", invalid && "border-destructive", className)}
       data-calculation-invalid={invalid || undefined}
       data-invalid={(invalid && result) || undefined}
       {...props}
@@ -117,6 +134,8 @@ function FlowChip({
   open,
   onOpenChange,
   invalid,
+  ariaLabel,
+  tooltip,
   ...props
 }: {
   label: string;
@@ -127,21 +146,30 @@ function FlowChip({
   page: CalculationPickerPage;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  ariaLabel?: string;
+  tooltip?: string;
   "data-calculation-chip": string;
 }) {
   const chip = {
-    className: cn(placeholder && "text-muted-foreground"),
+    className: cn("text-xs", placeholder && "text-muted-foreground"),
     "data-invalid": invalid || undefined,
     startContent: icon,
+    tooltip,
     ...props,
   };
-  if (disabled) return <AppChip {...chip}>{label}</AppChip>;
+  if (disabled) {
+    return (
+      <AppChip aria-label={ariaLabel} {...chip}>
+        {label}
+      </AppChip>
+    );
+  }
   return (
     <CalculationPicker
       open={open}
       page={page}
       trigger={
-        <ClickableChip aria-label={`${page.title}: ${label}`} {...chip}>
+        <ClickableChip aria-label={ariaLabel ?? `${page.title}: ${label}`} {...chip}>
           {label}
         </ClickableChip>
       }
@@ -150,18 +178,34 @@ function FlowChip({
   );
 }
 
-function AddButton({ label, disabled, onClick }: { label: string; disabled: boolean; onClick: () => void }) {
+function InsertStepChip({ position, onClick }: { position: number; onClick: () => void }) {
+  const t = useTranslations();
+  const label = t("RecordModel.calculationFlow.addStep");
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button aria-label={label} disabled={disabled} size="icon-sm" type="button" variant="ghost" onClick={onClick}>
-          <Plus aria-hidden />
-        </Button>
-      </TooltipTrigger>
-
-      <TooltipContent>{label}</TooltipContent>
-    </Tooltip>
+    <ClickableChip
+      aria-label={label}
+      className="text-xs text-muted-foreground hover:text-foreground"
+      data-calculation-insert-step={position}
+      startContent={<Plus aria-hidden />}
+      tooltip={label}
+      variant="secondary"
+      onClick={onClick}
+    >
+      {t("RecordModel.calculationFlow.stepChip")}
+    </ClickableChip>
   );
+}
+
+function useFlowLabels(model: RecordModelView) {
+  const t = useTranslations();
+  const format = useRecordValueFormat();
+  return {
+    model,
+    t: (key: string, values?: Record<string, string>) => t(key, values),
+    format,
+    operatorLabel: (operator: Operator) => t(`RecordModel.operators.${operator}`),
+    typeLabel: (valueType: string) => t(`RecordModel.types.${valueType}`),
+  };
 }
 
 function useCalculationExample(store: FieldModalStore) {
@@ -301,15 +345,8 @@ export const CalculationFlow = observer(function CalculationFlow({ store }: { st
   const issues = store.calculationIssues;
   const list = model.types.find((type) => type.id === typeId);
   const fieldLabel = store.form.label.trim() || t("RecordModel.calculationFlow.thisField");
-  const operatorLabel = (operator: Operator) => t(`RecordModel.operators.${operator}`);
-  const valueFormat = useRecordValueFormat();
-  const labels = {
-    model,
-    t: (key: string, values?: Record<string, string>) => t(key, values),
-    format: valueFormat,
-    operatorLabel,
-  };
-  const typeLabel = (valueType: string) => t(`RecordModel.types.${valueType}`);
+  const { typeLabel, ...labels } = useFlowLabels(model);
+  const operatorLabel = labels.operatorLabel;
   const issueMessage = (issue: FlowIssue) => issueText(issue, labels.t, operatorLabel);
   const listIcon = (id: string | undefined) => (
     <RecordTypeGlyph icon={model.types.find((type) => type.id === id)?.icon} />
@@ -320,12 +357,6 @@ export const CalculationFlow = observer(function CalculationFlow({ store }: { st
   useEffect(() => {
     store.issueMessage = (issue) => issueText(issue, (key, values) => t(key, values), operatorLabel);
   }, [store, t]);
-
-  const leafIcon = (leaf: CalculationExpression, leafTypeId: string) => {
-    if (leaf.kind === "field" || leaf.kind === "optionAttribute") return FIELD_ICON;
-    if (leaf.kind === "related") return listIcon(linkedTypeIds(linkedFlow(leaf), leafTypeId, model).at(-1));
-    return undefined;
-  };
 
   const fieldItems = (
     fieldTypeId: string,
@@ -444,7 +475,6 @@ export const CalculationFlow = observer(function CalculationFlow({ store }: { st
       <FlowChip
         data-calculation-chip={unset ? "pick-value" : "value"}
         disabled={disabled}
-        icon={leafIcon(leaf, typeId)}
         invalid={showIssues && unset}
         label={
           unset ? t("RecordModel.calculationFlow.pickValue") : sentenceText(expressionSegments(leaf, typeId, labels))
@@ -491,6 +521,7 @@ export const CalculationFlow = observer(function CalculationFlow({ store }: { st
       invalid={showIssues && Boolean(resultIssue)}
     >
       <ConfigureNodeHeader
+        compact
         icon={Sigma}
         kind={resultType ? typeLabel(resultType.valueType) : undefined}
         name={fieldLabel}
@@ -627,7 +658,7 @@ export const CalculationFlow = observer(function CalculationFlow({ store }: { st
         />
       )}
 
-      <FlowConnector />
+      {source !== "formula" && <FlowConnector />}
 
       {resultNode}
 
@@ -645,6 +676,71 @@ export const CalculationFlow = observer(function CalculationFlow({ store }: { st
     </section>
   );
 });
+
+const NO_CHANGE = () => undefined;
+
+export function CalculationFlowView({ field, model }: { field: RecordField; model: RecordModelView }) {
+  const t = useTranslations();
+  const { typeLabel, ...labels } = useFlowLabels(model);
+  if (field.behavior.kind === "input") return null;
+  const { source, expression } = calculationDraft(field.behavior);
+  const typeId = field.typeId;
+  const describe = (value: CalculationExpression, valueTypeId: string) =>
+    sentenceText(expressionSegments(value, valueTypeId, labels));
+  return (
+    <section
+      aria-label={t("RecordModel.fieldTabs.calculation")}
+      className="min-w-0"
+      data-calculation-flow={source}
+      data-calculation-readonly=""
+    >
+      {source === "formula" ? (
+        <FormulaFlow
+          disabled
+          expression={expression}
+          issueMessage={() => ""}
+          leafChip={(_, leaf) => (
+            <AppChip className="text-xs" data-calculation-chip={isUnset(leaf) ? "pick-value" : "value"}>
+              {isUnset(leaf) ? t("RecordModel.calculationFlow.pickValue") : describe(leaf, typeId)}
+            </AppChip>
+          )}
+          list={model.types.find((type) => type.id === typeId)}
+          operatorLabel={labels.operatorLabel}
+          operatorPicker={null}
+          setOperatorPicker={NO_CHANGE}
+          showIssues={false}
+          typeLabel={typeLabel}
+          typeOf={(path) => {
+            const step = expressionAt(expression, path);
+            return step ? calculationResultType(step, typeId, model) : null;
+          }}
+          onChange={NO_CHANGE}
+        />
+      ) : (
+        <LinkedFlowView
+          disabled
+          describe={describe}
+          fieldsGroup={() => ({ heading: "", items: [] })}
+          flow={linkedFlow(expression)}
+          issueMessage={() => ""}
+          issues={[]}
+          lookup={source === "lookup"}
+          model={model}
+          showIssues={false}
+          typeId={typeId}
+          typeLabel={typeLabel}
+          onChange={NO_CHANGE}
+        />
+      )}
+
+      {source !== "formula" && <FlowConnector />}
+
+      <FlowNode result data-calculation-node="result">
+        <ConfigureNodeHeader compact icon={Sigma} kind={typeLabel(field.valueType)} name={field.label} />
+      </FlowNode>
+    </section>
+  );
+}
 
 function defaultLiteral(types: ReturnType<typeof operandTypes>): RecordScalar {
   if (types?.includes("boolean")) return { kind: "boolean", value: false };
@@ -732,7 +828,7 @@ function FormulaFlow({
     return type === "text" ? "concat" : type === "boolean" ? "and" : "add";
   };
   const rootInvalid = showIssues && isUnset(expression);
-  const symbols: Partial<Record<Operator, string>> = {
+  const symbols: Record<Operator, string> = {
     add: "+",
     subtract: "−",
     multiply: "×",
@@ -740,24 +836,95 @@ function FormulaFlow({
     equal: "=",
     lessThan: "<",
     greaterThan: ">",
+    concat: "&",
+    daysBetween: "→",
+    and: t("RecordModel.calculationFlow.symbols.and"),
+    or: t("RecordModel.calculationFlow.symbols.or"),
+    not: t("RecordModel.calculationFlow.symbols.not"),
+    if: t("RecordModel.calculationFlow.symbols.if"),
+    coalesce: t("RecordModel.calculationFlow.symbols.coalesce"),
+    lower: t("RecordModel.calculationFlow.symbols.lower"),
+    upper: t("RecordModel.calculationFlow.symbols.upper"),
+    trim: t("RecordModel.calculationFlow.symbols.trim"),
   };
-  const role = (operator: Operator, index: number) =>
-    operator === "if"
-      ? [t("RecordModel.conditionIf"), t("RecordModel.conditionThen"), t("RecordModel.conditionOtherwise")][index]
-      : null;
+  const operationHeadings = {
+    math: t("RecordModel.calculationFlow.picker.operations.math"),
+    compare: t("RecordModel.calculationFlow.picker.operations.compare"),
+    logic: t("RecordModel.calculationFlow.picker.operations.logic"),
+    text: t("RecordModel.calculationFlow.picker.operations.text"),
+    dates: t("RecordModel.calculationFlow.picker.operations.dates"),
+  };
+  const stepName = (index: number) => t("RecordModel.calculationFlow.step", { number: String(index + 1) });
+  const insertAt = (position: number) => {
+    const path = stepInsertPath(steps, position);
+    onChange(insertStep(expression, path, defaultOperator(path)));
+  };
+  const connector = (position: number) => (
+    <FlowConnector>
+      {!disabled && <InsertStepChip position={position} onClick={() => insertAt(position)} />}
+    </FlowConnector>
+  );
+  const operatorChip = (step: (typeof steps)[number], key: string, position: number) => {
+    const chipKey = position === 0 ? key : `${key}:${position}`;
+    return (
+      <FlowChip
+        ariaLabel={`${t("RecordModel.operation")}: ${operatorLabel(step.operator)}`}
+        data-calculation-chip="operation"
+        disabled={disabled}
+        label={symbols[step.operator]}
+        open={operatorPicker === chipKey}
+        page={{
+          title: t("RecordModel.operation"),
+          groups: OPERATOR_GROUPS.map(({ group, operators }) => ({
+            heading: operationHeadings[group],
+            items: operators.map((operator) => ({
+              id: operator,
+              label: operatorLabel(operator),
+              checked: operator === step.operator,
+              onSelect: () => {
+                const current = expressionAt(expression, step.path);
+                if (current?.kind === "operation")
+                  onChange(replaceExpression(expression, step.path, withOperator(current, operator)));
+              },
+            })),
+          })),
+        }}
+        tooltip={operatorLabel(step.operator)}
+        onOpenChange={(open) => setOperatorPicker(open ? chipKey : null)}
+      />
+    );
+  };
+  const operand = (argument: (typeof steps)[number]["arguments"][number]) =>
+    argument.step === null ? (
+      leafChip(argument.path, argument.expression)
+    ) : (
+      <AppChip className="text-xs" data-calculation-chip="step">
+        {stepName(argument.step)}
+      </AppChip>
+    );
+  const word = (text: string) => <span className="text-xs text-muted-foreground">{text}</span>;
+  const stepLine = (step: (typeof steps)[number], key: string): ReactNode[] => {
+    const [first, ...rest] = step.arguments;
+    if (step.operator === "if") {
+      return [
+        operatorChip(step, key, 0),
+        first && operand(first),
+        word(t("RecordModel.calculationFlow.symbols.then")),
+        rest[0] && operand(rest[0]),
+        word(t("RecordModel.calculationFlow.symbols.otherwise")),
+        rest[1] && operand(rest[1]),
+      ];
+    }
+    if (operatorArity(step.operator) === 1) return [operatorChip(step, key, 0), first && operand(first)];
+    return step.arguments.flatMap((argument, index) =>
+      index === 0 ? [operand(argument)] : [operatorChip(step, key, index - 1), operand(argument)],
+    );
+  };
   return (
     <>
       <FlowNode data-calculation-node="inputs" error={issueMessage({ node: "input" })} invalid={rootInvalid}>
         <ConfigureNodeHeader
-          action={
-            disabled ? undefined : (
-              <AddButton
-                disabled={disabled}
-                label={t("RecordModel.addInput")}
-                onClick={() => onChange(addInput(expression, defaultOperator([])))}
-              />
-            )
-          }
+          compact
           icon={recordTypeIcon(list?.icon ?? "")}
           kind={list?.pluralLabel}
           name={t("RecordModel.calculationFlow.inputs")}
@@ -767,118 +934,107 @@ function FormulaFlow({
           {inputs.map((input) => (
             <li key={input.path.join(".")}>
               <ConfigureNodeStaticRow
+                className="text-xs"
                 kind={typeOf(input.path) ? typeLabel(String(typeOf(input.path))) : ""}
                 name={leafChip(input.path, input.expression)}
               />
             </li>
           ))}
+
+          {!disabled && (
+            <li>
+              <ConfigureNodeRow
+                className="text-xs text-muted-foreground hover:text-foreground"
+                data-calculation-add-input=""
+                kind=""
+                marker={<Plus aria-hidden className="size-3.5" />}
+                name={t("RecordModel.addInput")}
+                onClick={() => onChange(addInput(expression, defaultOperator([])))}
+              />
+            </li>
+          )}
         </ConfigureNodeRows>
       </FlowNode>
+
+      {connector(0)}
 
       {steps.map((step, number) => {
         const key = step.path.join(".");
         const invalid = showIssues && step.arguments.some((argument) => isUnset(argument.expression));
-        const last = number === steps.length - 1;
         const stepType = typeOf(step.path);
+        const extendLabel = t("RecordModel.calculationFlow.extendStep", { step: stepName(number) });
         return (
           <div key={`${key}:${step.operator}`}>
-            <FlowConnector />
-
             <FlowNode
+              className="group/step"
               data-calculation-node="step"
               error={issueMessage({ node: "step", path: step.path, operator: step.operator })}
               invalid={invalid}
             >
               <ConfigureNodeHeader
+                compact
                 action={
                   disabled ? undefined : (
-                    <span className="flex items-center gap-1">
-                      {last && (
-                        <AddButton
-                          disabled={disabled}
-                          label={t("RecordModel.calculationFlow.addStep")}
-                          onClick={() => onChange(addStep(expression, defaultOperator([])))}
-                        />
-                      )}
-
-                      <RecordRowActions
-                        name={t("RecordModel.calculationFlow.step", { number: String(number + 1) })}
-                        onDelete={() => onChange(removeStep(expression, step.path))}
-                        onOpen={() => setOperatorPicker(key)}
-                      />
-                    </span>
+                    <RecordRowActions
+                      name={stepName(number)}
+                      onDelete={() => onChange(removeStep(expression, step.path))}
+                      onOpen={() => setOperatorPicker(key)}
+                    />
                   )
                 }
                 icon={Sigma}
                 kind={stepType ? typeLabel(stepType) : undefined}
-                name={t("RecordModel.calculationFlow.step", { number: String(number + 1) })}
+                name={stepName(number)}
               />
 
-              <ConfigureNodeRows label={operatorLabel(step.operator)}>
-                <li>
-                  <ConfigureNodeStaticRow
-                    kind=""
-                    name={
-                      <FlowChip
-                        data-calculation-chip="operation"
-                        disabled={disabled}
-                        icon={<Sigma aria-hidden className="text-muted-foreground" />}
-                        label={operatorLabel(step.operator)}
-                        open={operatorPicker === key}
-                        page={{
-                          title: t("RecordModel.operation"),
-                          groups: OPERATOR_GROUPS.map(({ group, operators }) => ({
-                            heading: {
-                              math: t("RecordModel.calculationFlow.picker.operations.math"),
-                              compare: t("RecordModel.calculationFlow.picker.operations.compare"),
-                              logic: t("RecordModel.calculationFlow.picker.operations.logic"),
-                              text: t("RecordModel.calculationFlow.picker.operations.text"),
-                              dates: t("RecordModel.calculationFlow.picker.operations.dates"),
-                            }[group],
-                            items: operators.map((operator) => ({
-                              id: operator,
-                              label: operatorLabel(operator),
-                              checked: operator === step.operator,
-                              onSelect: () => {
-                                const current = expressionAt(expression, step.path);
-                                if (current?.kind === "operation")
-                                  onChange(replaceExpression(expression, step.path, withOperator(current, operator)));
-                              },
-                            })),
-                          })),
-                        }}
-                        onOpenChange={(open) => setOperatorPicker(open ? key : null)}
-                      />
-                    }
-                  />
-                </li>
+              <div
+                aria-label={operatorLabel(step.operator)}
+                className="flex flex-wrap items-center gap-1.5 border-t border-border px-3.5 py-2"
+                data-calculation-line=""
+                role="group"
+              >
+                {stepLine(step, key).map(
+                  (part, index) =>
+                    part && (
+                      <span key={index} className="flex max-w-full min-w-0">
+                        {part}
+                      </span>
+                    ),
+                )}
 
-                {step.arguments.map((argument, index) => (
-                  <li key={index}>
-                    <ConfigureNodeStaticRow
-                      kind={
-                        role(step.operator, index) ??
-                        (typeOf(argument.path) ? typeLabel(String(typeOf(argument.path))) : "")
-                      }
-                      marker={
-                        <span aria-hidden className="w-3.5 shrink-0 text-center text-muted-foreground">
-                          {index > 0 ? (symbols[step.operator] ?? "") : ""}
-                        </span>
-                      }
-                      name={
-                        argument.step === null ? (
-                          leafChip(argument.path, argument.expression)
-                        ) : (
-                          <AppChip startContent={<Sigma aria-hidden className="text-muted-foreground" />}>
-                            {t("RecordModel.calculationFlow.step", { number: String(argument.step + 1) })}
-                          </AppChip>
-                        )
-                      }
-                    />
-                  </li>
-                ))}
-              </ConfigureNodeRows>
+                {!disabled && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        aria-label={extendLabel}
+                        className="size-[22px] opacity-0 transition-opacity group-focus-within/step:opacity-100 group-hover/step:opacity-100 focus-visible:opacity-100 any-pointer-coarse:size-5 any-pointer-coarse:opacity-100"
+                        data-calculation-extend-step=""
+                        size="icon-xs"
+                        type="button"
+                        variant="ghost"
+                        onClick={() =>
+                          onChange(
+                            extendStep(
+                              expression,
+                              step.path,
+                              step.operator === "add" || step.operator === "multiply"
+                                ? step.operator
+                                : defaultOperator(step.path),
+                            ),
+                          )
+                        }
+                      >
+                        <Plus aria-hidden />
+                      </Button>
+                    </TooltipTrigger>
+
+                    <TooltipContent>{extendLabel}</TooltipContent>
+                  </Tooltip>
+                )}
+              </div>
             </FlowNode>
+
+            {connector(number + 1)}
           </div>
         );
       })}
@@ -1071,6 +1227,7 @@ function LinkedFlowView({
     <>
       <FlowNode data-calculation-node="list">
         <ConfigureNodeHeader
+          compact
           icon={recordTypeIcon(thisList?.icon ?? "")}
           kind={t("RecordModel.calculationFlow.thisList")}
           name={thisList?.pluralLabel ?? ""}
@@ -1108,6 +1265,7 @@ function LinkedFlowView({
               invalid={last && showIssues && Boolean(valueIssue)}
             >
               <ConfigureNodeHeader
+                compact
                 action={
                   index > 0 && !disabled ? (
                     <RecordRowActions
