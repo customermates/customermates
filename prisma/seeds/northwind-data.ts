@@ -866,6 +866,15 @@ export function buildNorthwindDataset(): NorthwindDataset {
     );
     return rng.pick(available);
   };
+  // Renewals stay with the account executive who sold the account; customer success runs every third account.
+  const renewalOwner = (organizationIndex: number, createdAtMs: number): MemberKey => {
+    if (organizationIndex % 3 === 0) return "elenaHoffmann";
+    const owner =
+      deals.filter((deal) => deal.type === "new" && deal.organizationIndex === organizationIndex).at(-1)?.ownerKey ??
+      (["claraNeumann", "marcoSilva", "sofiaRossi"] as const)[organizationIndex % 3] ??
+      "sofiaRossi";
+    return MEMBER_JOINED[owner] < createdAtMs ? owner : "sofiaRossi";
+  };
   const addDeal = (input: {
     type: DealType;
     organizationIndex: number;
@@ -920,7 +929,7 @@ export function buildNorthwindDataset(): NorthwindDataset {
       type: input.type,
       organizationIndex: input.organizationIndex,
       contactIndexes: [],
-      ownerKey: input.ownerKey,
+      ownerKey: input.type === "renewal" ? renewalOwner(input.organizationIndex, input.createdAtMs) : input.ownerKey,
       createdAtMs: input.createdAtMs,
       closeAtMs: input.closeAtMs,
       status: input.status,
@@ -1715,6 +1724,13 @@ export function buildNorthwindDataset(): NorthwindDataset {
     dueMs: END + 6 * DAY,
     createdAtMs: workTime(rng, END - 2 * DAY),
   });
+
+  // About one open task in eight is overdue; the rest are due in the coming weeks.
+  for (const task of tasks) {
+    if (task.status === "done" || task.status === "archived") continue;
+    if (task.index % 8 === 0) task.dueMs = Math.min(task.dueMs, END - (1 + (task.index % 5)) * DAY);
+    else task.dueMs = Math.max(task.dueMs, END + (7 + (task.index % 14)) * DAY);
+  }
 
   // Notes on key records -------------------------------------------------------------------------------------------------
   for (const organization of ranked.slice(0, 12)) {
