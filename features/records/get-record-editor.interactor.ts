@@ -175,8 +175,17 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
                 capabilities: model.capabilities.filter((binding) => ids.has(binding.typeId)),
                 accessPresets: [],
               },
-              formulaReferences: formulaReferences(fields, model, { fields, types, relationships }, (id) =>
-                accessible.has(id),
+              formulaReferences: formulaReferences(
+                fields,
+                model,
+                { fields, types, relationships },
+                (id) => accessible.has(id),
+                types.flatMap(
+                  (candidate) =>
+                    candidate.relationshipPaths?.flatMap(
+                      (path) => resolveRecordPath(candidate.id, path.path, model)?.map((step) => step.typeId) ?? [],
+                    ) ?? [],
+                ),
               ),
             },
           };

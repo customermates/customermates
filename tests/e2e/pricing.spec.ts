@@ -72,6 +72,10 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   const lineItems = dialogs.getByRole("region", { name: "Line items" });
   await expect(lineItems.locator("[data-embedded-count]")).toHaveText("3");
   await expect(lineItems.locator("tbody tr")).toHaveCount(3);
+  await expect(lineItems.getByRole("columnheader", { name: "Quantity", exact: false })).toBeVisible();
+  await expect(lineItems.getByRole("columnheader", { name: "Amount", exact: false })).toBeVisible();
+  await expect(lineItems.getByRole("columnheader", { name: "Deal", exact: true })).toHaveCount(0);
+  await expect(lineItems.locator("[data-embedded-count] svg")).toBeVisible();
   await expect(lineItems.locator("[data-calculated-header]").filter({ hasText: "Amount" })).toBeVisible();
   await expect(lineItems.locator("tbody [data-calculated-field]").first()).toBeVisible();
   await expect(lineItems.getByRole("button", { name: "Edit Amount", exact: true })).toHaveCount(0);
@@ -111,6 +115,23 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   ).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(dialogs).not.toBeVisible();
+  await openRecords("service");
+  await openRecordDetails(page, "Service A");
+  await dialogs
+    .getByRole("region", { name: "Deals", exact: true })
+    .getByRole("button", { name: "Where Deals comes from", exact: true })
+    .click();
+  const dealsPath = page.getByRole("dialog", { name: "Where Deals comes from", exact: true });
+  await expect(dealsPath.locator("[data-field-derivation]")).toHaveText("Through linked records · Line items → Deals");
+  await expect(
+    dealsPath.locator('[data-slot="app-modal-actions"]').getByRole("link", { name: "Edit in Configure", exact: true }),
+  ).toBeVisible();
+  await expect(dealsPath.locator("[data-field-derivation]").getByRole("link")).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await expect(dealsPath).toHaveCount(0);
+  await page.keyboard.press("Escape");
+  await expect(dialogs).not.toBeVisible();
+  await openRecords("deal");
   await followConfigureLink(page);
   await addFromConfigure(page, "Relationship");
   await dialogs.getByRole("combobox", { name: "Connection", exact: true }).click();
