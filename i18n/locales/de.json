@@ -3723,6 +3723,8 @@
     "measure": "Kennzahl",
     "noRecordsInPeriod": "Keine Datensätze",
     "notes": "Zu diesen Zahlen",
+    "numberContextAverage": "{count, number} {label} · Ø {average}",
+    "numberRecords": "{count, plural, one {Datensatz} other {Datensätze}}",
     "overall": "Insgesamt: {value}",
     "previewFailed": "Die Vorschau konnte nicht geladen werden. Versuche es erneut.",
     "quarterLabel": "Q{quarter} {year}",
@@ -3733,7 +3735,6 @@
       "share": "Anteil",
       "value": "Wert"
     },
-    "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}",
     "relatedAny": "Mindestens ein zugänglicher verknüpfter Datensatz trifft zu",
     "relatedNone": "Kein zugänglicher verknüpfter Datensatz trifft zu",
     "search": "Datensätze suchen",

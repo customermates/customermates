@@ -65,7 +65,7 @@ vi.mock("@/core/stores/root-store.provider", () => {
     refreshQuery: vi.fn(),
     setItems: vi.fn(),
   };
-  return { useRootStore: () => ({ widgetModalStore, widgetsStore }) };
+  return { useRootStore: () => ({ widgetModalStore, widgetsStore, recordWorkspaceStore: { navigation: null } }) };
 });
 
 import { DashboardPageView } from "@/app/[locale]/(protected)/dashboard/components/dashboard-page-view";

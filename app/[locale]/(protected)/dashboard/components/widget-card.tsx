@@ -19,11 +19,14 @@ type Props = {
 
 export const WidgetCard = observer(({ widget }: Props) => {
   const t = useTranslations();
-  const { widgetModalStore } = useRootStore();
+  const { widgetModalStore, recordWorkspaceStore } = useRootStore();
   const card = isRecordActivityWidget(widget) ? (
     <RecordActivityWidgetCard widget={widget} />
   ) : isRecordWidget(widget) ? (
-    <RecordWidgetCard {...widget} />
+    <RecordWidgetCard
+      {...widget}
+      listLabels={recordWorkspaceStore.navigation?.types.find((type) => type.id === widget.measure.source.typeId)}
+    />
   ) : null;
 
   return (

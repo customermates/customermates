@@ -38,12 +38,11 @@ for (const dashboard of DEMO_DASHBOARDS) {
       }
       if (widget.displayType === "number") {
         const number = card.locator('[data-slot="widget-number"]');
-        await expect(number.locator("p"), widget.name).toHaveText(/\d/);
-        expect(displayedNumber(await number.locator("p").innerText()), `${widget.name} value`).not.toBe(0);
-        expect(
-          displayedNumber(await number.locator('[data-slot="badge"]').innerText()),
-          `${widget.name} records`,
-        ).toBeGreaterThan(0);
+        const value = number.locator('[data-slot="widget-number-value"]');
+        await expect(value, widget.name).toHaveText(/\d/);
+        expect(displayedNumber(await value.innerText()), `${widget.name} value`).not.toBe(0);
+        const context = await number.locator('[data-slot="widget-number-context"]').innerText();
+        expect(displayedNumber(context.split(" ")[0] ?? ""), `${widget.name} records`).toBeGreaterThan(0);
         continue;
       }
       const marks = {
