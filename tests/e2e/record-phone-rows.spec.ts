@@ -130,6 +130,8 @@ test("the row's More actions trigger sits on a solid surface on keyboard focus a
       const style = getComputedStyle(trigger);
       const rect = trigger.getBoundingClientRect();
       const rowRect = rowElement.getBoundingClientRect();
+      const container = rowElement.closest("[data-slot=\"table-container\"]");
+      const edge = container ? container.getBoundingClientRect().right : rowRect.right;
       const alpha = (color: string) => {
         const match = /rgba?\(([^)]+)\)/.exec(color);
         const parts = match ? match[1].split(/[\s,/]+/).filter(Boolean) : [];
@@ -142,7 +144,7 @@ test("the row's More actions trigger sits on a solid surface on keyboard focus a
         height: rect.height,
         width: rect.width,
         rowHeight: rowRect.height,
-        rightGap: rowRect.right - rect.right,
+        rightGap: Math.min(rowRect.right, edge) - rect.right,
         backgroundAlpha: alpha(style.backgroundColor),
         hitsTrigger: hit !== null && (trigger.contains(hit) || surface === hit),
       };
