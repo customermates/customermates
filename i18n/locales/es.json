@@ -3101,7 +3101,6 @@
     "calculationError": "Cálculo no disponible",
     "calculationFlow": {
       "addStep": "Añadir paso",
-      "changeOperation": "Cambiar cálculo",
       "aggregates": {
         "average": "Promedio",
         "count": "Número",
@@ -3109,6 +3108,7 @@
         "min": "Mínimo",
         "sum": "Suma"
       },
+      "changeOperation": "Cambiar cálculo",
       "describe": {
         "failed": "No se pudo convertir en un cálculo. Prueba a describirlo de otra forma.",
         "label": "Describe el cálculo",
@@ -3161,6 +3161,8 @@
       "pickRelationship": "Elegir una relación",
       "pickValue": "Elegir un valor",
       "private": "Privado",
+      "removeInputNamed": "Quitar {input}",
+      "removeStep": "Quitar paso",
       "sentence": {
         "average": "{field} es el promedio de {value} de todos los {list} vinculados.",
         "count": "{field} cuenta los {list} vinculados.",
@@ -3179,8 +3181,6 @@
       "shown": "Visible para todos",
       "showToEveryone": "Mostrar a todos los que pueden ver el registro ({list})",
       "showToEveryoneHelp": "Verán este valor aunque no puedan abrir el registro vinculado ({list}).",
-      "removeInputNamed": "Quitar {input}",
-      "removeStep": "Quitar paso",
       "step": "Paso {number}",
       "stepChip": "Paso",
       "symbols": {

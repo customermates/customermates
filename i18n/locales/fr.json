@@ -3101,7 +3101,6 @@
     "calculationError": "Calcul indisponible",
     "calculationFlow": {
       "addStep": "Ajouter une étape",
-      "changeOperation": "Modifier le calcul",
       "aggregates": {
         "average": "Moyenne",
         "count": "Nombre",
@@ -3109,6 +3108,7 @@
         "min": "Minimum",
         "sum": "Somme"
       },
+      "changeOperation": "Modifier le calcul",
       "describe": {
         "failed": "Impossible d'en faire un calcul. Essayez de le décrire autrement.",
         "label": "Décrire le calcul",
@@ -3161,6 +3161,8 @@
       "pickRelationship": "Choisir une relation",
       "pickValue": "Choisir une valeur",
       "private": "Privé",
+      "removeInputNamed": "Retirer {input}",
+      "removeStep": "Retirer l’étape",
       "sentence": {
         "average": "{field} est la moyenne de {value} de tous les {list} liés.",
         "count": "{field} compte les {list} liés.",
@@ -3179,8 +3181,6 @@
       "shown": "Visible par tous",
       "showToEveryone": "Afficher à tous ceux qui peuvent voir l'enregistrement ({list})",
       "showToEveryoneHelp": "Ils verront cette valeur même s'ils ne peuvent pas ouvrir l'enregistrement lié ({list}).",
-      "removeInputNamed": "Retirer {input}",
-      "removeStep": "Retirer l’étape",
       "step": "Étape {number}",
       "stepChip": "Étape",
       "symbols": {
