@@ -112,11 +112,13 @@ export async function saveGeneral(page: Page) {
   const save = topBar.getByRole("button", { name: "Save", exact: true });
   const reset = topBar.getByRole("button", { name: "Reset", exact: true });
   const ready = page.locator("[data-configure-list-pane]").getByRole("status").filter({ hasText: "Ready to apply" });
+  const saveEnabled = () =>
+    save.evaluateAll((buttons) => buttons.some((button) => !(button as HTMLButtonElement).disabled));
   await save.click();
   await expect
-    .poll(async () => ((await ready.isVisible()) && (await save.isEnabled())) || !(await reset.isVisible()))
+    .poll(async () => ((await ready.isVisible()) && (await saveEnabled())) || !(await reset.isVisible()))
     .toBe(true);
-  if (await reset.isVisible()) await save.click();
+  if ((await reset.isVisible()) && (await saveEnabled())) await save.click();
   await expect(reset).toHaveCount(0);
   await expectConfigureRevisionAfter(page, revision);
 }
