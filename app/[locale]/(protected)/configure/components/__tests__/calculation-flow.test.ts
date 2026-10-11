@@ -16,9 +16,12 @@ import {
   issueText,
   derivedValueType,
   expressionAt,
+  extendStep,
   formulaInputs,
   formulaSteps,
+  insertStep,
   removeStep,
+  stepInsertPath,
   replaceExpression,
   withAggregate,
   withOperator,
@@ -213,6 +216,32 @@ describe("formula steps", () => {
     const joined = addInput({ kind: "operation", operator: "concat", arguments: [UNSET, UNSET] }, "add");
     expect(joined.kind === "operation" && joined.arguments).toHaveLength(3);
     expect(addInput({ kind: "field", fieldId: id("deal.totalValue") }, "add")).toMatchObject({ operator: "add" });
+  });
+
+  it("inserts a step at a connector between two steps, before the first and after the last", () => {
+    const weighted = expressionOf("deal.weightedValue");
+    const steps = formulaSteps(weighted);
+    expect(steps).toHaveLength(2);
+    const between = insertStep(weighted, stepInsertPath(steps, 1), "add");
+    const nextSteps = formulaSteps(between);
+    expect(nextSteps.map((step) => step.operator)).toEqual([steps[0].operator, "add", steps[1].operator]);
+    expect(nextSteps[1].arguments.map((argument) => argument.step)).toEqual([0, null]);
+    expect(nextSteps[2].arguments[0].step).toBe(1);
+    expect(expressionAt(between, [0, 0])).toEqual(expressionAt(weighted, [0]));
+    const first = formulaSteps(insertStep(weighted, stepInsertPath(steps, 0), "subtract"));
+    expect(first.map((step) => step.operator)).toEqual(["subtract", steps[0].operator, steps[1].operator]);
+    expect(first[0].arguments[0].expression).toEqual(steps[0].arguments[0].expression);
+    expect(insertStep(weighted, stepInsertPath(steps, 2), "add")).toEqual(addStep(weighted, "add"));
+    expect(insertStep(UNSET, stepInsertPath([], 0), "add")).toEqual(addStep(UNSET, "add"));
+  });
+
+  it("extends a list step in place and follows any other step with a new one", () => {
+    const joined: CalculationExpression = { kind: "operation", operator: "concat", arguments: [UNSET, UNSET] };
+    const extended = extendStep(joined, [], "add");
+    expect(extended.kind === "operation" && extended.arguments).toHaveLength(3);
+    const pair: CalculationExpression = { kind: "operation", operator: "multiply", arguments: [UNSET, UNSET] };
+    expect(extendStep(pair, [], "multiply")).toEqual(addStep(pair, "multiply"));
+    expect(extendStep(UNSET, [], "add")).toBe(UNSET);
   });
 });
 

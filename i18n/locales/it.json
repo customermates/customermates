@@ -3099,6 +3099,7 @@
     "calculationError": "Calcolo non disponibile",
     "calculationFlow": {
       "addStep": "Aggiungi passo",
+      "extendStep": "Aggiungi a {step}",
       "aggregates": {
         "average": "Media",
         "count": "Numero",
@@ -3176,6 +3177,19 @@
       "showToEveryone": "Mostra a chiunque possa vedere il record ({list})",
       "showToEveryoneHelp": "Vedranno questo valore anche se non possono aprire il record collegato ({list}).",
       "step": "Passo {number}",
+      "stepChip": "Passo",
+      "symbols": {
+        "and": "E",
+        "coalesce": "ALTRIMENTI",
+        "if": "SE",
+        "lower": "minusc.",
+        "not": "NON",
+        "or": "O",
+        "otherwise": "ALTRIMENTI",
+        "then": "ALLORA",
+        "trim": "rifila",
+        "upper": "maiusc."
+      },
       "take": "Prendi",
       "text": {
         "average": "media di {value} dei {list} collegati",
@@ -3235,9 +3249,6 @@
       }
     },
     "color": "Colore",
-    "conditionIf": "Condizione",
-    "conditionOtherwise": "Altrimenti",
-    "conditionThen": "Allora",
     "configurationDeletion": {
       "blockedMessage": "{name} non può essere eliminato finché altre parti della tua configurazione lo usano.",
       "blockers": {
