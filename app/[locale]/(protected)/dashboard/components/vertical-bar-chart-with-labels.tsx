@@ -90,7 +90,7 @@ export const VerticalBarChartWithLabels = observer(
                 const entry = chartData[index as number];
                 if (!entry) return null;
                 const full = entry.formattedValue ?? formatValue(entry.value);
-                const room = Math.max(Number(width) / 0.76 - 4, 24);
+                const room = Number(width) / 0.76 - 2;
                 const compact = formatValue(entry.value, true);
                 const text = estimateTextWidth(full) <= room ? full : compact;
                 if (estimateTextWidth(text) > room) return null;
