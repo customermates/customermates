@@ -257,45 +257,106 @@ function stubWideViewport(matches: boolean) {
   vi.stubGlobal("matchMedia", (query: string) => ({ matches, media: query }));
 }
 
+function activeIframe(host: HTMLElement) {
+  return host.querySelector<HTMLIFrameElement>('iframe[data-homepage-stage-iframe="active"]');
+}
+
+function loadAndReveal(iframe: HTMLIFrameElement | null) {
+  act(() => {
+    iframe?.dispatchEvent(new Event("load"));
+  });
+  advance(LIVE_REVEAL_DELAY_MS);
+}
+
 function frame(host: HTMLElement) {
   const element = host.querySelector<HTMLElement>("[data-homepage-stage-frame]");
   if (!element) throw new Error("stage frame missing");
   return element;
 }
 
-it("stays on the captures until the stage scrolls into view on a wide viewport", () => {
+it("goes live on a wide viewport right after the page loads, before the stage is scrolled into view", () => {
   vi.useFakeTimers();
   stubWideViewport(true);
   motionState.isInView = false;
   motionState.shouldAnimate = false;
   const host = render();
 
-  expect(host.querySelector("iframe")).toBeNull();
-  expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("idle");
+  expect(activeIframe(host)?.getAttribute("src")).toBe(
+    "https://demo.example/en/inbox?threadId=latest&agentChat=closed",
+  );
+  expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("loading");
 });
 
-it("goes live as soon as it is in view on a wide viewport and opens the chosen area", () => {
+it("shows every tab as its own live iframe, keeps rotating and preloads the next area", () => {
   vi.useFakeTimers();
   stubWideViewport(true);
   const host = render();
 
-  const iframe = host.querySelector("iframe");
-  expect(iframe?.getAttribute("src")).toBe("https://demo.example/en/inbox?threadId=latest&agentChat=closed");
-  expect(iframe?.getAttribute("title")).toBe("Try it live: Inbox");
-  expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("loading");
+  const inbox = activeIframe(host);
+  expect(inbox?.getAttribute("title")).toBe("Try it live: Inbox");
+  expect(host.querySelectorAll("iframe")).toHaveLength(1);
   expect(host.textContent).not.toContain("Try it live");
 
   act(() => {
-    iframe?.dispatchEvent(new Event("load"));
+    inbox?.dispatchEvent(new Event("load"));
   });
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("loading");
   advance(LIVE_REVEAL_DELAY_MS);
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("ready");
   expect(host.textContent).toContain("Live demo.");
+  expect(progress(host)).toBe("running");
+  expect(host.querySelectorAll("iframe")).toHaveLength(2);
+  expect(host.querySelector('iframe[data-homepage-stage-iframe="standby"]')?.getAttribute("src")).toBe(
+    "https://demo.example/en/contacts?agentChat=closed",
+  );
 
+  advance(PRODUCT_STAGE_INTERVAL_MS - LIVE_REVEAL_DELAY_MS);
+  expect(selectedLabel(host)).toContain("Customers");
+  expect(activeIframe(host)?.getAttribute("src")).toBe("https://demo.example/en/contacts?agentChat=closed");
+  expect(activeIframe(host)?.hasAttribute("inert")).toBe(false);
+  expect(host.querySelector('iframe[data-homepage-stage-iframe="standby"]')?.hasAttribute("inert")).toBe(true);
+});
+
+it("keeps rotating when a live iframe takes focus by itself, and stops when a visitor clicks into it", () => {
+  vi.useFakeTimers();
+  stubWideViewport(true);
+  const host = render();
+  const stage = host.querySelector<HTMLElement>('[data-homepage-section="product-stage"]');
+
+  if (!stage) throw new Error("stage missing");
+
+  loadAndReveal(activeIframe(host));
+  act(() => {
+    activeIframe(host)?.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+  });
+  advance(PRODUCT_STAGE_INTERVAL_MS);
+  expect(selectedLabel(host)).toContain("Customers");
+
+  act(() => {
+    stage.dispatchEvent(new MouseEvent("mouseover", { bubbles: true, relatedTarget: document.body }));
+  });
+  act(() => {
+    activeIframe(host)?.dispatchEvent(new FocusEvent("focusin", { bubbles: true }));
+  });
+  act(() => {
+    stage.dispatchEvent(new MouseEvent("mouseout", { bubbles: true, relatedTarget: document.body }));
+  });
+  advance(PRODUCT_STAGE_INTERVAL_MS * 2);
+  expect(selectedLabel(host)).toContain("Customers");
+});
+
+it("stops rotating on the live area a visitor picks", () => {
+  vi.useFakeTimers();
+  stubWideViewport(true);
+  const host = render();
+
+  loadAndReveal(activeIframe(host));
   act(() => tabButtons(host)[2].click());
-  expect(host.querySelector("iframe")?.getAttribute("src")).toBe("https://demo.example/en/deals?agentChat=closed");
+  expect(activeIframe(host)?.getAttribute("src")).toBe("https://demo.example/en/deals?agentChat=closed");
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("loading");
+  expect(progress(host)).toBe("static");
+  loadAndReveal(activeIframe(host));
+  expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("ready");
   advance(PRODUCT_STAGE_INTERVAL_MS * 3);
   expect(selectedLabel(host)).toContain("Pipeline");
 });
@@ -365,7 +426,7 @@ it("opens the area a capture link names, live on a wide viewport", () => {
   act(() => link?.click());
 
   expect(selectedLabel(host)).toContain("Routines");
-  expect(host.querySelector("iframe")?.getAttribute("src")).toBe("https://demo.example/en/routines?agentChat=closed");
+  expect(activeIframe(host)?.getAttribute("src")).toBe("https://demo.example/en/routines?agentChat=closed");
   advance(PRODUCT_STAGE_INTERVAL_MS * 2);
   expect(selectedLabel(host)).toContain("Routines");
   act(() => linkRoot.unmount());
@@ -378,15 +439,16 @@ it("opens from a product-demo hash on load and ignores unrelated hashes", () => 
   const host = render();
 
   expect(selectedLabel(host)).toContain("Customers");
-  expect(host.querySelector("iframe")?.getAttribute("src")).toBe("https://demo.example/en/contacts?agentChat=closed");
+  expect(activeIframe(host)?.getAttribute("src")).toBe("https://demo.example/en/contacts?agentChat=closed");
 
   act(() => root?.unmount());
   document.body.replaceChildren();
   window.history.replaceState(null, "", "#pricing");
-  motionState.isInView = false;
   const unrelated = render();
 
   expect(selectedLabel(unrelated)).toContain("Inbox");
-  expect(unrelated.querySelector("iframe")).toBeNull();
+  expect(activeIframe(unrelated)?.getAttribute("src")).toBe(
+    "https://demo.example/en/inbox?threadId=latest&agentChat=closed",
+  );
   window.history.replaceState(null, "", "#");
 });

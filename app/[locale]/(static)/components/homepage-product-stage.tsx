@@ -3,7 +3,7 @@
 import type { HomepageStageTab } from "@/core/fumadocs/schemas/homepage";
 import type { ContentLocale } from "@/i18n/locale-registry";
 
-import { type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
+import { type FocusEvent, type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { preconnect } from "react-dom";
 import { Inbox, KanbanSquare, LayoutDashboard, Repeat, UserRound } from "lucide-react";
@@ -67,7 +67,7 @@ type Props = {
 };
 
 export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liveCopy, locale, tabs }: Props) {
-  const { isInView, ref, shouldAnimate, shouldReduceMotion } = useHomepageMotion<HTMLDivElement>();
+  const { ref, shouldAnimate, shouldReduceMotion } = useHomepageMotion<HTMLDivElement>();
   const frameRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [stopped, setStopped] = useState(false);
@@ -77,24 +77,42 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const baseId = useId();
   const [live, setLive] = useState(false);
-  const [liveLoadedSrc, setLiveLoadedSrc] = useState<string | null>(null);
-  const revealTimer = useRef(0);
+  const [liveMounted, setLiveMounted] = useState<ReadonlySet<number>>(() => new Set());
+  const [liveShown, setLiveShown] = useState<ReadonlySet<number>>(() => new Set());
+  const revealTimers = useRef(new Map<number, number>());
   const liveBoxRef = useRef<HTMLDivElement>(null);
   const [liveScale, setLiveScale] = useState(1);
   const activeTab = tabs[activeIndex];
-  const livePath = STAGE_DEMO_PATHS[STAGE_AREAS[activeTab.capture]];
-  const liveSrc = `${demoBaseUrl}/${locale}${livePath}${livePath.includes("?") ? "&" : "?"}agentChat=closed`;
-  const liveReady = live && liveLoadedSrc === liveSrc;
-  const autoAdvance = shouldAnimate && !stopped && !hovered && !live;
+  const liveReady = live && liveShown.has(activeIndex);
+  const autoAdvance = shouldAnimate && !stopped && !hovered;
 
   preconnect(demoBaseUrl);
 
   useEffect(() => {
-    if (!isInView || !window.matchMedia?.(LIVE_STAGE_MEDIA).matches) return;
+    if (!window.matchMedia?.(LIVE_STAGE_MEDIA).matches) return;
+    if (document.readyState === "complete") {
+      setLive(true);
+      return;
+    }
 
-    setStopped(true);
-    setLive(true);
-  }, [isInView]);
+    const start = () => setLive(true);
+    window.addEventListener("load", start, { once: true });
+
+    return () => window.removeEventListener("load", start);
+  }, []);
+
+  useEffect(() => {
+    if (!live) return;
+
+    setLiveMounted((current) => (current.has(activeIndex) ? current : new Set([...current, activeIndex])));
+  }, [activeIndex, live]);
+
+  useEffect(() => {
+    if (!live || !liveShown.has(activeIndex)) return;
+
+    const upcoming = (activeIndex + 1) % tabs.length;
+    setLiveMounted((current) => (current.has(upcoming) ? current : new Set([...current, upcoming])));
+  }, [activeIndex, live, liveShown, tabs.length]);
 
   useEffect(() => {
     const frame = frameRef.current;
@@ -189,7 +207,11 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
     };
   }, [tabs]);
 
-  useEffect(() => () => window.clearTimeout(revealTimer.current), []);
+  useEffect(() => {
+    const timers = revealTimers.current;
+
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
+  }, []);
 
   useEffect(() => {
     const box = liveBoxRef.current;
@@ -201,9 +223,27 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
     return () => observer.disconnect();
   }, [live]);
 
-  function revealLive(src: string) {
-    window.clearTimeout(revealTimer.current);
-    revealTimer.current = window.setTimeout(() => setLiveLoadedSrc(src), LIVE_REVEAL_DELAY_MS);
+  function liveSrcFor(tab: HomepageStageTab) {
+    const path = STAGE_DEMO_PATHS[STAGE_AREAS[tab.capture]];
+
+    return `${demoBaseUrl}/${locale}${path}${path.includes("?") ? "&" : "?"}agentChat=closed`;
+  }
+
+  function revealLive(index: number) {
+    window.clearTimeout(revealTimers.current.get(index));
+    revealTimers.current.set(
+      index,
+      window.setTimeout(
+        () => setLiveShown((current) => (current.has(index) ? current : new Set([...current, index]))),
+        LIVE_REVEAL_DELAY_MS,
+      ),
+    );
+  }
+
+  function stopOnVisitorFocus(event: FocusEvent<HTMLDivElement>) {
+    if (event.target instanceof HTMLIFrameElement && !hovered) return;
+
+    setStopped(true);
   }
 
   function select(index: number) {
@@ -229,7 +269,7 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
       className="mt-14 scroll-mt-20 sm:mt-16 lg:mt-20"
       data-homepage-section="product-stage"
       id={PRODUCT_DEMO_ANCHOR}
-      onFocus={() => setStopped(true)}
+      onFocus={stopOnVisitorFocus}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -279,24 +319,30 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
                 </div>
               ))}
 
-              {live ? (
-                <iframe
-                  className={cn(
-                    "absolute top-0 left-0 z-10 origin-top-left border-0 bg-sidebar transition-opacity duration-300 motion-reduce:transition-none",
-                    liveReady ? "opacity-100" : "pointer-events-none opacity-0",
-                  )}
-                  referrerPolicy="strict-origin-when-cross-origin"
-                  sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-                  src={liveSrc}
-                  style={{
-                    height: LIVE_VIEWPORT.height,
-                    transform: `scale(${liveScale})`,
-                    width: LIVE_VIEWPORT.width,
-                  }}
-                  title={`${liveCopy.prompt}: ${activeTab.label}`}
-                  onLoad={() => revealLive(liveSrc)}
-                />
-              ) : null}
+              {tabs.map((tab, index) =>
+                live && liveMounted.has(index) ? (
+                  <iframe
+                    key={tab.capture}
+                    className={cn(
+                      "absolute top-0 left-0 z-10 origin-top-left border-0 bg-sidebar transition-opacity duration-500 ease-out motion-reduce:transition-none",
+                      index === activeIndex && liveShown.has(index) ? "opacity-100" : "pointer-events-none opacity-0",
+                    )}
+                    data-homepage-stage-iframe={index === activeIndex ? "active" : "standby"}
+                    inert={index !== activeIndex}
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                    src={liveSrcFor(tab)}
+                    style={{
+                      height: LIVE_VIEWPORT.height,
+                      transform: `scale(${liveScale})`,
+                      width: LIVE_VIEWPORT.width,
+                    }}
+                    tabIndex={index === activeIndex ? 0 : -1}
+                    title={`${liveCopy.prompt}: ${tab.label}`}
+                    onLoad={() => revealLive(index)}
+                  />
+                ) : null,
+              )}
             </div>
           </ProductWindow>
         </div>
@@ -322,7 +368,7 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
               aria-controls={`${baseId}-panel-${index}`}
               aria-selected={isActive}
               className={cn(
-                "relative inline-flex shrink-0 snap-start items-center gap-2 overflow-hidden rounded-full px-3.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
+                "relative isolate inline-flex shrink-0 snap-start items-center gap-2 overflow-hidden rounded-full px-3.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
                 isActive && "bg-background text-foreground shadow-sm ring-1 ring-foreground/10",
               )}
               data-homepage-stage-tab={tab.capture}
@@ -333,13 +379,13 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
               onClick={() => select(index)}
               onKeyDown={(event) => onTabKeyDown(event, index)}
             >
-              <span aria-hidden className="absolute inset-x-3 bottom-0 h-px overflow-hidden">
+              <span aria-hidden className="absolute inset-0 -z-10 overflow-hidden rounded-full">
                 {isActive ? (
                   autoAdvance && !shouldReduceMotion ? (
                     <motion.span
                       key={`progress-${activeIndex}`}
                       animate={{ scaleX: 1 }}
-                      className="block h-full origin-left bg-primary"
+                      className="block h-full origin-left bg-primary/20"
                       data-homepage-stage-progress="running"
                       initial={{ scaleX: 0 }}
                       transition={{ duration: PRODUCT_STAGE_INTERVAL_MS / 1000, ease: "linear" }}

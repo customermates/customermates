@@ -167,7 +167,7 @@ describe("homepage visual-system adoption", () => {
     expect(hero.match(/<h1\b/gu)).toHaveLength(1);
     expect(stage).toContain("PRODUCT_STAGE_INTERVAL_MS = 6_000");
     expect(stage).toContain("useHomepageMotion<HTMLDivElement>()");
-    expect(stage).toContain("const autoAdvance = shouldAnimate && !stopped && !hovered && !live;");
+    expect(stage).toContain("const autoAdvance = shouldAnimate && !stopped && !hovered;");
     expect(stage).toContain("window.matchMedia?.(LIVE_STAGE_MEDIA)");
     expect(hero).toContain("demoBaseUrl={homepageDemoBaseUrl()}");
     expect(stage).toContain('role="tablist"');
@@ -177,7 +177,8 @@ describe("homepage visual-system adoption", () => {
     expect(stage).toContain("inert={index !== activeIndex}");
     expect(stage).toContain("tabIndex={index === activeIndex ? 0 : -1}");
     expect(stage).toContain("index === activeIndex || loadedTabs.has(index)");
-    expect(stage).toContain("onFocus={() => setStopped(true)}");
+    expect(stage).toContain("onFocus={stopOnVisitorFocus}");
+    expect(stage).toContain("if (event.target instanceof HTMLIFrameElement && !hovered) return;");
     expect(stage).toContain("onMouseEnter={() => setHovered(true)}");
     expect(stage).toContain("list.scrollTo(");
     expect(stage).not.toContain("scrollIntoView");
@@ -185,7 +186,8 @@ describe("homepage visual-system adoption", () => {
     expect(stage).toContain("autoAdvance && !shouldReduceMotion");
     expect(stage).not.toContain("aria-live");
     expect(stage).toContain("eager={index === 0}");
-    expect(stage).toContain("if (!isInView || !window.matchMedia?.(LIVE_STAGE_MEDIA).matches) return;");
+    expect(stage).toContain("if (!window.matchMedia?.(LIVE_STAGE_MEDIA).matches) return;");
+    expect(stage).toContain('window.addEventListener("load", start, { once: true });');
     expect(stage).toContain("STAGE_MAX_TILT_DEG = 12");
     expect(stage).toContain("STAGE_MIN_SCALE = 0.94");
     expect(stage).toContain("lg:[transform:rotateX(var(--stage-tilt,0deg))_scale(var(--stage-scale,1))]");
@@ -328,7 +330,8 @@ describe("homepage visual-system adoption", () => {
 
     expect(stage).toContain("<ProductWindow");
     expect(stage).toContain("LIVE_REVEAL_DELAY_MS = 900");
-    expect(stage).toContain("onLoad={() => revealLive(liveSrc)}");
+    expect(stage).toContain("onLoad={() => revealLive(index)}");
+    expect(stage).toContain("live && liveMounted.has(index)");
     expect(productWindow).not.toContain("data-homepage-window-chrome");
     expect(stage).toContain("LIVE_VIEWPORT = { height: 900, width: 1440 }");
     expect(stage).toContain('inbox: "/inbox?threadId=latest"');
