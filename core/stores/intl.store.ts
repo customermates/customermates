@@ -203,7 +203,7 @@ export class IntlStore {
     }).format(date);
   }
 
-  formatNumericalShortDateTime(date: Date | undefined): string {
+  formatNumericalShortDateTime(date: Date | undefined, options?: { timeZone?: string }): string {
     if (date === undefined) return "";
     if (!this.clientHydrated) return "";
 
@@ -213,6 +213,7 @@ export class IntlStore {
       day: "2-digit" as const,
       hour: "2-digit" as const,
       minute: "2-digit" as const,
+      ...(options?.timeZone ? { timeZone: options.timeZone } : {}),
     }).format(date);
   }
 

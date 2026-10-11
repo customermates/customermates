@@ -471,8 +471,71 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     );
   });
 
+  await test.step("order bar categories by the stage options and keep long labels readable", async () => {
+    await startChart(page, "Stage bars", "Deals");
+    await selectOption(page, "Group by", "Stage");
+    await save(page);
+    const widget = card(page, "Stage bars");
+    const expected = STAGES.map((stage) => [
+      STAGE_LABELS[stage],
+      String(DEALS.filter((deal) => deal.stage === stage).length),
+    ]);
+    await expect.poll(() => definitionList(widget)).toEqual(expected);
+    await expect(widget.locator(".recharts-xAxis-tick-labels text")).toHaveText(expected.map(([label]) => label));
+
+    await startChart(page, "Deal values", "Deals");
+    await selectOption(page, "Measure", "Sum");
+    await dialog.getByRole("combobox", { name: "Value field", exact: false }).click();
+    await page.getByRole("option", { name: "Value", exact: true }).click();
+    await selectOption(page, "Group by", "Each record");
+    await showTab(page, "Appearance");
+    await dialog.locator('[id="display-type-verticalBarChartWithLabels"]').check();
+    await save(page);
+    const values = card(page, "Deal values");
+    await expect(values.locator(".recharts-xAxis-tick-labels text").first()).toBeVisible();
+    await expect
+      .poll(() =>
+        values.evaluate((card) => {
+          const box = card.getBoundingClientRect();
+          return [...card.querySelectorAll(".recharts-label-list text, .recharts-xAxis-tick-labels text")].flatMap(
+            (text) => {
+              const bounds = text.getBoundingClientRect();
+              return bounds.left < box.left - 1 || bounds.right > box.right + 1
+                ? [
+                    `${text.textContent} ${Math.round(bounds.left)}-${Math.round(bounds.right)} outside ${Math.round(box.left)}-${Math.round(box.right)}`,
+                  ]
+                : [];
+            },
+          );
+        }),
+      )
+      .toEqual([]);
+    const valueLabels = await values
+      .locator(".recharts-label-list text")
+      .evaluateAll((texts) =>
+        texts.map((text) => text.getBoundingClientRect()).map(({ left, right }) => [left, right]),
+      );
+    for (let index = 1; index < valueLabels.length; index += 1)
+      expect(valueLabels[index][0]).toBeGreaterThanOrEqual(valueLabels[index - 1][1] - 0.5);
+    for (const scheme of ["light", "dark"] as const) {
+      await page.emulateMedia({ colorScheme: scheme });
+      await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      for (const [name, slug] of [
+        ["Deal values", "long-labels"],
+        ["Deals closed", "area"],
+        ["Stage bars", "stage-bars"],
+      ]) {
+        const path = testInfo.outputPath(`${slug}-${scheme}.png`);
+        await card(page, name).screenshot({ path, animations: "disabled" });
+        await mkdir(".runs/widget-shots", { recursive: true });
+        await copyFile(path, `.runs/widget-shots/${testInfo.project.name}-${slug}-${scheme}.png`);
+      }
+    }
+    await page.emulateMedia({ colorScheme: "light" });
+  });
+
   await page.reload();
-  for (const name of ["Pipeline total", "Deals closed", "Deal ranking", "Stage funnel"])
+  for (const name of ["Pipeline total", "Deals closed", "Deal ranking", "Stage funnel", "Stage bars", "Deal values"])
     await expect(card(page, name)).toBeVisible();
   if (isMobile) await expectNoHorizontalOverflow(page);
   await keepShot(page, testInfo, "custom-widgets");

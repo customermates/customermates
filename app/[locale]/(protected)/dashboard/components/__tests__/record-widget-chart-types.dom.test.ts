@@ -244,6 +244,46 @@ describe("record widget display types", () => {
     );
   });
 
+  it.each([DisplayType.verticalBarChart, DisplayType.horizontalBarChartWithLabels, DisplayType.doughnutChart])(
+    "orders %s categories by the choice field's option order with no value last",
+    (displayType) => {
+      const groupOptions = ["New", "Qualified", "Proposal"].map((label) => ({ id: label, label, color: null }));
+      const view = render({
+        displayOptions: { displayType },
+        groupOptions,
+        measure: measure({ path: [], fieldId: STAGE }, "count"),
+        data: result({ count: 9, result: plain("9") }, [
+          group({ state: "missing" }, plain("1"), 1),
+          group(option("New"), plain("4"), 4),
+          group(option("Proposal"), plain("1"), 1),
+          group(option("Qualified"), plain("3"), 3),
+        ]),
+      });
+      const points = chartMocks.calls[0].data as Array<Record<string, unknown>>;
+      expect(points.map(({ label }) => label)).toEqual(["New", "Qualified", "Proposal", "Diagrams.noGroup"]);
+      expect([...view.querySelectorAll("dt")].map((cell) => cell.textContent)).toEqual([
+        "New",
+        "Qualified",
+        "Proposal",
+        "Diagrams.noGroup",
+      ]);
+    },
+  );
+
+  it("keeps ranked tables sorted by value rather than option order", () => {
+    const groupOptions = ["New", "Qualified"].map((label) => ({ id: label, label, color: null }));
+    const view = render({
+      displayOptions: { displayType: DisplayType.rankedTable },
+      groupOptions,
+      measure: measure({ path: [], fieldId: STAGE }, "count"),
+      data: result({ count: 7, result: plain("7") }, [
+        group(option("New"), plain("2"), 2),
+        group(option("Qualified"), plain("5"), 5),
+      ]),
+    });
+    expect(view.textContent?.indexOf("Qualified")).toBeLessThan(view.textContent?.indexOf("New") ?? -1);
+  });
+
   it("labels periods unambiguously in English and German", () => {
     const periods = (dateInterval: "day" | "week" | "month" | "quarter", starts: string[]) => {
       render({

@@ -1,3 +1,7 @@
+import { randomUUID } from "node:crypto";
+
+import { formattingTagFor } from "../../i18n/locale-registry";
+import { nextCronOccurrence, parseCronExpression } from "../../ee/routines/routine-schedule";
 import { setPaletteText, expectPaletteText } from "./filter-palette";
 import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, isBenignPageError } from "./fixtures";
@@ -91,4 +95,44 @@ test("persists a routine for a customer-created type and matches only its config
     )
     .toMatch(/^(succeeded|partial|failed|skipped|blocked)$/);
   expect(errors).toEqual([]);
+});
+
+test("lists a scheduled routine in words with its next run on the schedule's own clock", async ({
+  page,
+  database,
+  companyId,
+  workspace,
+}) => {
+  const timeZone = "America/New_York";
+  const expression = "0 8 * * 1-5";
+  const parsed = parseCronExpression(expression);
+  if (!parsed.ok) throw new Error(parsed.reason);
+  const nextRunAt = nextCronOccurrence(parsed.cron, new Date(), timeZone);
+  if (!nextRunAt) throw new Error("The weekday schedule must have a next run");
+  await database.query(
+    'INSERT INTO "Routine" (id,"companyId","ownerUserId",name,prompt,enabled,"triggerKind","cronExpression",timezone,"triggerEvents","nextRunAt","updatedAt") VALUES ($1,$2,$3,$4,$5,true,\'schedule\',$6,$7,\'{}\',$8,NOW())',
+    [
+      randomUUID(),
+      companyId,
+      workspace.userId,
+      "Task for overdue tickets",
+      "Create a follow-up task for each overdue ticket.",
+      expression,
+      timeZone,
+      nextRunAt,
+    ],
+  );
+  await page.goto("/en/routines");
+  const nextRun = new Intl.DateTimeFormat(formattingTagFor("en"), {
+    year: "2-digit",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone,
+  }).format(nextRunAt);
+  expect(nextRun).toContain("08:00");
+  await expect(page.getByText(/^Weekdays at 08:00/)).toBeVisible();
+  await expect(page.getByText(nextRun, { exact: true })).toBeVisible();
+  await expect(page.getByText(expression, { exact: true })).toHaveCount(0);
 });

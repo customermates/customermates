@@ -9,7 +9,16 @@ import { useReducedMotion } from "framer-motion";
 import { useChartFormatter } from "./use-chart-formatter";
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
 
-import { CHART_MAX_BAR_SIZE, TruncatedTick, chartAxisProps, chartBarCursor, chartGridProps } from "./chart-theme";
+import {
+  CHART_MAX_BAR_SIZE,
+  TruncatedTick,
+  chartAxisProps,
+  chartBarCursor,
+  chartGridProps,
+  displayOrder,
+  estimateTextWidth,
+  useCategoryXAxisLayout,
+} from "./chart-theme";
 import { DashboardChartContainer } from "./dashboard-chart-container";
 
 type Props = {
@@ -25,18 +34,32 @@ export const VerticalBarChart = observer(
   ({ currency, chartData, colors, reverseXAxis, reverseYAxis, allowDecimals = true }: Props) => {
     const formatValue = useChartFormatter(currency);
     const reducedMotion = useReducedMotion();
+    const widestValue = Math.max(0, ...chartData.map((entry) => Math.abs(entry.value)));
+    const valueAxisWidth = estimateTextWidth(formatValue(widestValue, true)) + 20;
+    const axis = useCategoryXAxisLayout(
+      displayOrder(
+        chartData.map((entry) => entry.label),
+        reverseXAxis,
+      ),
+      valueAxisWidth,
+    );
 
     return (
-      <DashboardChartContainer>
-        <BarChart barCategoryGap="24%" data={chartData} margin={{ top: 8, right: 4, bottom: 0, left: 0 }}>
+      <DashboardChartContainer onResize={axis.onResize}>
+        <BarChart
+          barCategoryGap="24%"
+          data={chartData}
+          margin={{ top: 8, right: axis.angled ? 8 : 4, bottom: 0, left: Math.max(0, axis.overhang - valueAxisWidth) }}
+        >
           <CartesianGrid {...chartGridProps} vertical={false} />
 
           <XAxis
             {...chartAxisProps}
             dataKey="label"
-            interval={0}
+            height={axis.height}
+            interval={axis.interval}
             reversed={Boolean(reverseXAxis)}
-            tick={<TruncatedTick />}
+            tick={<TruncatedTick angled={axis.angled} />}
             type="category"
           />
 
