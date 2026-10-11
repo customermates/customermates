@@ -393,6 +393,8 @@ test("formats a formatted text field from its toolbar without leaving edit mode"
     "Make this bold",
   );
 
+  await page.keyboard.press("End");
+  await expect(page.locator("[data-editor-menu]")).toHaveCount(0);
   await field.scrollIntoViewIfNeeded();
   for (const scheme of ["light", "dark"] as const) {
     await page.emulateMedia({ colorScheme: scheme });
