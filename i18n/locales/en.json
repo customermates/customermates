@@ -1475,6 +1475,7 @@
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
+    "readOnlyField": "You can't edit this field",
     "relatedPages": "Related pages",
     "retryLater": "later",
     "scroll": {
@@ -2145,6 +2146,7 @@
   "EntityDetail": {
     "configureField": "Edit field {field}",
     "donePersonalizing": "Done",
+    "editInConfigure": "Edit in Configure",
     "fieldCancelled": "Cancelled moving {field}.",
     "fieldDropped": "Placed {field}.",
     "fieldMoved": "Moved {field} to {target}.",
@@ -3316,6 +3318,11 @@
     "deletionRecords": "This removes {records}.",
     "deletionRestrictedLinks": "The link count is hidden because some linked records are restricted.",
     "dependencyHelp": "Resolve the affected dependencies before applying this change.",
+    "derivation": {
+      "calculation": "How {field} is calculated",
+      "lookup": "Where {field} comes from",
+      "saved": "When {field} is saved"
+    },
     "description": "Description",
     "detailLayoutReadFailed": "Your saved layout could not be loaded.",
     "detailLayoutSaveFailed": "Layout changes could not be saved.",
@@ -3673,7 +3680,6 @@
       "title": "Used by"
     },
     "valueSource": {
-      "calculated": "Calculated · {formula}",
       "from": "From {list} · {value}",
       "savedOnCreate": "Saved when the {list} is created",
       "savedOnRequest": "Saved on request",

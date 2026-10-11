@@ -1475,6 +1475,7 @@
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
+    "readOnlyField": "No puedes editar este campo",
     "relatedPages": "Páginas relacionadas",
     "retryLater": "más tarde",
     "scroll": {
@@ -2145,6 +2146,7 @@
   "EntityDetail": {
     "configureField": "Editar campo {field}",
     "donePersonalizing": "Listo",
+    "editInConfigure": "Editar en Configurar",
     "fieldCancelled": "Se ha cancelado el movimiento de {field}.",
     "fieldDropped": "Se ha colocado {field}.",
     "fieldMoved": "Se ha movido {field} a {target}.",
@@ -3316,6 +3318,11 @@
     "deletionRecords": "Se eliminarán: {records}.",
     "deletionRestrictedLinks": "La cantidad de enlaces está oculta porque algunos registros vinculados tienen acceso restringido.",
     "dependencyHelp": "Resuelve las dependencias afectadas antes de aplicar este cambio.",
+    "derivation": {
+      "calculation": "Cómo se calcula {field}",
+      "lookup": "De dónde viene {field}",
+      "saved": "Cuándo se guarda {field}"
+    },
     "description": "Descripción",
     "detailLayoutReadFailed": "No se pudo cargar tu diseño guardado.",
     "detailLayoutSaveFailed": "No se pudieron guardar los cambios de diseño.",
@@ -3673,7 +3680,6 @@
       "title": "Usado por"
     },
     "valueSource": {
-      "calculated": "Calculado · {formula}",
       "from": "De {list} · {value}",
       "savedOnCreate": "Se guarda al crear {list}",
       "savedOnRequest": "Se guarda bajo petición",

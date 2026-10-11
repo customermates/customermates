@@ -6,7 +6,8 @@ import { calculationSentence, fillSentence, linkedFlow } from "./calculation-sen
 
 type Translate = (key: string, values?: Record<string, string>) => string;
 
-export type RecordValueSource = { segments: SentenceSegment[]; lookup: LinkedHop | null };
+export type RecordValueSourceKind = "calculation" | "lookup" | "saved";
+export type RecordValueSource = { kind: RecordValueSourceKind; segments: SentenceSegment[]; lookup: LinkedHop | null };
 
 export function recordValueSource({
   model,
@@ -25,11 +26,13 @@ export function recordValueSource({
   if (saved) {
     if (saved.kind === "create") {
       const list = model.types.find((type) => type.id === field.typeId)?.label ?? "";
-      return { segments: [t("RecordModel.valueSource.savedOnCreate", { list })], lookup: null };
+      return { kind: "saved", segments: [t("RecordModel.valueSource.savedOnCreate", { list })], lookup: null };
     }
-    if (saved.kind === "explicit") return { segments: [t("RecordModel.valueSource.savedOnRequest")], lookup: null };
+    if (saved.kind === "explicit")
+      return { kind: "saved", segments: [t("RecordModel.valueSource.savedOnRequest")], lookup: null };
     const trigger = saved.field ? [saved.field] : [];
     return {
+      kind: "saved",
       segments: saved.value
         ? fillSentence({ field: trigger, value: [saved.value] }, (tokens) =>
             t("RecordModel.valueSource.savedWhenChangedTo", tokens),
@@ -42,6 +45,7 @@ export function recordValueSource({
     const hops =
       field.behavior.kind === "input" || !field.behavior.expression ? [] : linkedFlow(field.behavior.expression).hops;
     return {
+      kind: "lookup",
       segments: fillSentence({ list: sentence.list, value: sentence.value }, (tokens) =>
         t("RecordModel.valueSource.from", tokens),
       ),
@@ -50,8 +54,5 @@ export function recordValueSource({
   }
   const formula = sentence.reducer ? sentence.sentence : sentence.value;
   if (!formula) return null;
-  return {
-    segments: fillSentence({ formula }, (tokens) => t("RecordModel.valueSource.calculated", tokens)),
-    lookup: null,
-  };
+  return { kind: "calculation", segments: formula, lookup: null };
 }

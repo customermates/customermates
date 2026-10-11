@@ -15,18 +15,18 @@ type Props = {
   value: ReactNode;
   help?: ReactNode;
   action?: ReactNode;
-  source?: ReactNode;
+  derivation?: ReactNode;
+  readOnlyHint?: boolean;
 };
 
-export function EntityDetailStaticField({ fieldId, label, value, help, action, source }: Props) {
+export function EntityDetailStaticField({ fieldId, label, value, help, action, derivation, readOnlyHint }: Props) {
   const displayValue = value === null || value === undefined || value === "" ? <EmptyValue /> : value;
 
   return (
     <EntityDetailField fieldId={fieldId}>
       <FormOutputField
-        plain
+        controlEndAddon={derivation}
         controlStartAddon={<EntityDetailFieldDragHandle label={label} />}
-        description={source}
         help={help}
         label={label}
         labelEndAddon={
@@ -36,6 +36,7 @@ export function EntityDetailStaticField({ fieldId, label, value, help, action, s
             <EntityDetailFieldActions fieldId={fieldId} label={label} />
           </>
         }
+        readOnlyHint={readOnlyHint}
       >
         <span suppressHydrationWarning className="select-text truncate">
           {displayValue}

@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { FormLabel } from "@/components/forms/form-label";
 import { FormControlRow } from "@/components/forms/form-control-row";
+import { ReadOnlyHint } from "@/components/forms/read-only-hint";
 import { EntityDetailField } from "@/components/entity-detail/entity-detail-field";
 import { EntityDetailFieldActions } from "@/components/entity-detail/entity-detail-field-actions";
 import { EntityDetailFieldDragHandle } from "@/components/entity-detail/entity-detail-fields";
@@ -13,6 +14,7 @@ export function RecordDetailField({
   label,
   required,
   action,
+  readOnlyHint,
   children,
 }: {
   fieldId: string;
@@ -20,6 +22,7 @@ export function RecordDetailField({
   label: string;
   required?: boolean;
   action?: ReactNode;
+  readOnlyHint?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -37,7 +40,9 @@ export function RecordDetailField({
           <EntityDetailFieldActions fieldId={fieldId} label={label} />
         </div>
 
-        <FormControlRow startAddon={<EntityDetailFieldDragHandle label={label} />}>{children}</FormControlRow>
+        <FormControlRow startAddon={<EntityDetailFieldDragHandle label={label} />}>
+          {readOnlyHint ? <ReadOnlyHint>{children}</ReadOnlyHint> : children}
+        </FormControlRow>
       </div>
     </EntityDetailField>
   );

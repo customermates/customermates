@@ -139,7 +139,12 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
     </div>
   );
   return (
-    <RecordDetailField fieldId={relationshipColumnKey(relationship.id, direction)} inputId={id} label={label}>
+    <RecordDetailField
+      fieldId={relationshipColumnKey(relationship.id, direction)}
+      inputId={id}
+      label={label}
+      readOnlyHint={store.isPermissionReadOnly}
+    >
       {linked.failed ? (
         error(() => setAttempt((value) => value + 1))
       ) : (

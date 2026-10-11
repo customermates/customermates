@@ -6,18 +6,25 @@ import type { Client } from "pg";
 import { localE2eEnvironment } from "./local-environment";
 import { collectErrors } from "./sidebar";
 
-export async function secondUser(browser: Browser, database: Client, companyId: string, testInfo: TestInfo) {
+export async function secondUser(
+  browser: Browser,
+  database: Client,
+  companyId: string,
+  testInfo: TestInfo,
+  existingRoleId?: string,
+) {
   const { baseUrl } = localE2eEnvironment();
   const secret = process.env.BETTER_AUTH_SECRET;
   if (!secret) throw new Error("A local authentication secret is required");
-  const roleId = randomUUID();
+  const roleId = existingRoleId ?? randomUUID();
   const userId = randomUUID();
   const authUserId = randomUUID();
   const email = `member-${userId}@example.test`;
-  await database.query(
-    'INSERT INTO "UserRole" (id,"companyId",name,"isSystemRole","updatedAt") VALUES ($1,$2,\'Second admin\',true,NOW())',
-    [roleId, companyId],
-  );
+  if (!existingRoleId)
+    await database.query(
+      'INSERT INTO "UserRole" (id,"companyId",name,"isSystemRole","updatedAt") VALUES ($1,$2,\'Second admin\',true,NOW())',
+      [roleId, companyId],
+    );
   await database.query(
     'INSERT INTO "User" (id,"companyId","roleId",email,"firstName","lastName",status,"agreeToTerms","onboardingWizardCompletedAt","displayLanguage","formattingLocale","updatedAt") VALUES ($1,$2,$3,$4,\'Second\',\'Person\',\'active\',true,NOW(),\'en\',\'en\',NOW())',
     [userId, companyId, roleId, email],

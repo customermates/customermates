@@ -44,7 +44,12 @@ export const RecordDetailOverview = observer(function RecordDetailOverview({
       if (column.id === "system:assignedTo") {
         if (type?.embedded) return [];
         content = (
-          <RecordDetailField fieldId={column.id} inputId={assignedInputId} label={label}>
+          <RecordDetailField
+            fieldId={column.id}
+            inputId={assignedInputId}
+            label={label}
+            readOnlyHint={store.isPermissionReadOnly}
+          >
             <FormAutocompleteAvatar
               ariaLabel={label}
               getItems={getUsersAction}

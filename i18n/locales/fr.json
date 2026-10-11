@@ -1475,6 +1475,7 @@
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
+    "readOnlyField": "Vous ne pouvez pas modifier ce champ",
     "relatedPages": "Pages associées",
     "retryLater": "plus tard",
     "scroll": {
@@ -2145,6 +2146,7 @@
   "EntityDetail": {
     "configureField": "Modifier le champ {field}",
     "donePersonalizing": "Terminé",
+    "editInConfigure": "Modifier dans Configurer",
     "fieldCancelled": "Déplacement de {field} annulé.",
     "fieldDropped": "Champ {field} déposé.",
     "fieldMoved": "Champ {field} déplacé vers {target}.",
@@ -3316,6 +3318,11 @@
     "deletionRecords": "Seront supprimés : {records}.",
     "deletionRestrictedLinks": "Le nombre de liens est masqué car certains enregistrements liés ont un accès restreint.",
     "dependencyHelp": "Résolvez les dépendances concernées avant d’appliquer cette modification.",
+    "derivation": {
+      "calculation": "Comment {field} est calculé",
+      "lookup": "D’où vient {field}",
+      "saved": "Quand {field} est enregistré"
+    },
     "description": "Description",
     "detailLayoutReadFailed": "Impossible de charger votre mise en page enregistrée.",
     "detailLayoutSaveFailed": "Impossible d’enregistrer les modifications de la disposition.",
@@ -3673,7 +3680,6 @@
       "title": "Utilisé par"
     },
     "valueSource": {
-      "calculated": "Calculé · {formula}",
       "from": "Depuis {list} · {value}",
       "savedOnCreate": "Enregistré à la création de {list}",
       "savedOnRequest": "Enregistré sur demande",
