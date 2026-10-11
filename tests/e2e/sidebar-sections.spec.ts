@@ -2,6 +2,7 @@ import type { Client } from "pg";
 import type { Page } from "@playwright/test";
 
 import { expect, test } from "./fixtures";
+import { openItemMenu } from "./item-actions";
 import { moveWithKeyboard } from "./keyboard-drag";
 import {
   collectErrors,
@@ -140,7 +141,7 @@ test("the customize dialog reorders, renames and deletes sections with visible h
     await page.mouse.up();
     await expect(later.locator("[data-customize-item]")).toHaveCount(1);
   } else {
-    await dialog.getByRole("button", { name: "Options for Contacts", exact: true }).click();
+    await openItemMenu(page, dialog.getByRole("button", { name: "Options for Contacts", exact: true }));
     await page.getByRole("menuitem", { name: "Move to section", exact: true }).click();
     await page.getByRole("menuitem", { name: "Later", exact: true }).click();
     await expect(later.locator("[data-customize-item]")).toHaveCount(1);
@@ -153,7 +154,7 @@ test("the customize dialog reorders, renames and deletes sections with visible h
   const someday = dialog.locator('[data-customize-section="Someday"]');
   await expect(someday).toBeVisible();
 
-  await someday.getByRole("button", { name: "Options for Someday", exact: true }).click();
+  await openItemMenu(page, someday.getByRole("button", { name: "Options for Someday", exact: true }));
   await page.getByRole("menuitem", { name: "Delete section", exact: true }).click();
   const confirm = page.getByRole("alertdialog");
   await expect(confirm).toContainText("Contacts");

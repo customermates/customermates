@@ -4,6 +4,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
 import { expect, isAppConsoleError, isBenignPageError, test } from "./fixtures";
+import { openItemMenu } from "./item-actions";
 import {
   openRecordDetails,
   openRecordLink,
@@ -137,7 +138,7 @@ test("rows and cards open the record page and keep only Open details and Delete 
   const errors = trackErrors(page);
 
   const row = recordItem(page, name);
-  expect(await rowActionLabels(page, row, name)).toEqual(["Open details", "Delete"]);
+  expect(await rowActionLabels(page, row, name)).toEqual(["Open in new tab", "Open details", "Delete"]);
   await runRowAction(page, row, name, "Open details");
   await expect(page.getByRole("dialog")).toBeVisible();
   await expect(page).toHaveURL(new RegExp(`/records/${typeId}(\\?|$)`));
@@ -583,7 +584,7 @@ test("board columns keep a one-line header, one fixed width and collapse into st
   const groupKey = await lane.getAttribute("data-group-key");
   const laneCount = await lanes.count();
   await lane.hover();
-  await header.getByRole("button", { name: /^More actions for / }).click();
+  await openItemMenu(page, header.getByRole("button", { name: /^More actions for / }));
   await page.getByRole("menuitem", { name: "Collapse column", exact: true }).click();
   const strip = page.locator(`[data-kanban-strip][data-group-key="${groupKey}"]`);
   await expect(strip).toBeVisible();

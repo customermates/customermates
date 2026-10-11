@@ -3,6 +3,7 @@ import type { Page } from "@playwright/test";
 import { RecordModelSchema, type RecordModel } from "../../features/records/record-model.schema";
 import { openDrawerTab, addFromConfigure, followConfigureLink, openConfigure, openConfigureRow, saveDrawer } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { openItemMenu } from "./item-actions";
 import { openRecordDetails, recordItem, runNamedRowAction, editFormattedText } from "./record-rows";
 
 async function choose(page: Page, label: string | RegExp, option: string) {
@@ -154,7 +155,7 @@ test("configures and persists all fourteen field types, multiple values and cale
         await dialog.getByRole("combobox", { name: "active", exact: true }).click();
         await page.getByRole("option", { name: "No", exact: true }).click();
         await addAttribute("removed");
-        await dialog.getByRole("button", { name: "More actions for removed", exact: true }).click();
+        await openItemMenu(page, dialog.getByRole("button", { name: "More actions for removed", exact: true }));
         await page.getByRole("menuitem", { name: "Delete", exact: true }).click();
         await expect(dialog.locator('[data-option-column="removed"]')).toHaveCount(0);
       }

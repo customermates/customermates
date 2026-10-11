@@ -1,6 +1,7 @@
 import type { Page } from "@playwright/test";
 
 import { expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { openItemMenu } from "./item-actions";
 
 export function collectErrors(page: Page, ignoredResourceOrigins: readonly string[] = []) {
   const errors: string[] = [];
@@ -71,15 +72,15 @@ export function sidebarSection(page: Page, label: string) {
 }
 
 export async function itemMenu(page: Page, label: string) {
-  const item = sidebarItem(page, label);
-  await item.hover();
-  await item.getByRole("button", { name: `Options for ${label}`, exact: true }).click();
-  return page.getByRole("menu");
+  return openItemMenu(
+    page,
+    sidebarItem(page, label).getByRole("button", { name: `Options for ${label}`, exact: true }),
+  );
 }
 
 export async function sectionMenu(page: Page, label: string) {
-  const section = sidebarSection(page, label);
-  await section.hover();
-  await section.getByRole("button", { name: `Options for ${label}`, exact: true }).click();
-  return page.getByRole("menu");
+  return openItemMenu(
+    page,
+    sidebarSection(page, label).getByRole("button", { name: `Options for ${label}`, exact: true }),
+  );
 }

@@ -91,12 +91,12 @@ test("sub-list phone rows open the record on tap", async ({ page, companyId }) =
   expect(errors).toEqual([]);
 });
 
-test("the row action group sits on a solid surface on keyboard focus and on hover", async ({
+test("the row's More actions trigger sits on a solid surface on keyboard focus and on hover", async ({
   page,
   companyId,
   isMobile,
 }) => {
-  test.skip(isMobile, "The inline row action group is the desktop pointer layout; touch keeps the More actions menu");
+  test.skip(isMobile, "Touch shows no More actions trigger; a long press on the row opens the same menu");
   test.setTimeout(180000);
   const errors = trackErrors(page);
   const id = (key: string) => presetId(companyId, key);
@@ -109,11 +109,16 @@ test("the row action group sits on a solid surface on keyboard focus and on hove
   });
   await page.reload();
   const row = page.locator("tr").filter({ has: page.getByRole("link", { name: "Surface deal", exact: true }) });
-  const group = row.locator("[data-row-action-group]");
+  const more = row.getByRole("button", { name: "More actions for Surface deal", exact: true });
   const surface = () =>
-    group.evaluate((element) => {
+    row.locator("[data-record-row-actions]").evaluate((element) => {
       const style = getComputedStyle(element);
-      return { opacity: style.opacity, color: style.backgroundColor, image: style.backgroundImage };
+      const trigger = element.querySelector("[data-item-actions-trigger]");
+      return {
+        opacity: trigger ? getComputedStyle(trigger).opacity : "",
+        color: style.backgroundColor,
+        image: style.backgroundImage,
+      };
     });
 
   await expect(page.locator("#records-add")).toBeEnabled();
@@ -126,7 +131,7 @@ test("the row action group sits on a solid surface on keyboard focus and on hove
 
   await page.mouse.move(0, 0);
   await expect.poll(async () => (await surface()).opacity).toBe("0");
-  await group.getByRole("button", { name: "Open details", exact: true }).focus();
+  await more.focus();
   await expect.poll(async () => (await surface()).opacity).toBe("1");
   const focused = await surface();
   expect(focused.color).not.toBe("rgba(0, 0, 0, 0)");
