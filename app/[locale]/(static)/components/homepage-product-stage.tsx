@@ -42,7 +42,7 @@ const MOBILE_CAPTURES = {
 const STAGE_DEMO_PATHS = {
   customers: "/contacts",
   dashboard: "/dashboard",
-  inbox: "/inbox",
+  inbox: "/inbox?threadId=latest",
   pipeline: "/deals",
   routines: "/routines",
 } as const satisfies Record<HomepageStageArea, string>;
@@ -50,6 +50,8 @@ const STAGE_DEMO_PATHS = {
 const LIVE_STAGE_MEDIA = "(min-width: 40rem)";
 
 export const LIVE_REVEAL_DELAY_MS = 900;
+
+const LIVE_VIEWPORT = { height: 900, width: 1440 } as const;
 
 const STAGE_MAX_TILT_DEG = 12;
 
@@ -59,7 +61,7 @@ type Props = {
   demoBaseUrl: string;
   disclosure: string;
   label: string;
-  live: { badge: string; prompt: string; status: string };
+  live: { prompt: string; status: string };
   locale: ContentLocale;
   tabs: HomepageStageTab[];
 };
@@ -77,8 +79,11 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
   const [live, setLive] = useState(false);
   const [liveLoadedSrc, setLiveLoadedSrc] = useState<string | null>(null);
   const revealTimer = useRef(0);
+  const liveBoxRef = useRef<HTMLDivElement>(null);
+  const [liveScale, setLiveScale] = useState(1);
   const activeTab = tabs[activeIndex];
-  const liveSrc = `${demoBaseUrl}/${locale}${STAGE_DEMO_PATHS[STAGE_AREAS[activeTab.capture]]}?agentChat=closed`;
+  const livePath = STAGE_DEMO_PATHS[STAGE_AREAS[activeTab.capture]];
+  const liveSrc = `${demoBaseUrl}/${locale}${livePath}${livePath.includes("?") ? "&" : "?"}agentChat=closed`;
   const liveReady = live && liveLoadedSrc === liveSrc;
   const autoAdvance = shouldAnimate && !stopped && !hovered && !live;
 
@@ -186,6 +191,16 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
 
   useEffect(() => () => window.clearTimeout(revealTimer.current), []);
 
+  useEffect(() => {
+    const box = liveBoxRef.current;
+    if (!box || !live || typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver(([entry]) => setLiveScale(entry.contentRect.width / LIVE_VIEWPORT.width));
+    observer.observe(box);
+
+    return () => observer.disconnect();
+  }, [live]);
+
   function revealLive(src: string) {
     window.clearTimeout(revealTimer.current);
     revealTimer.current = window.setTimeout(() => setLiveLoadedSrc(src), LIVE_REVEAL_DELAY_MS);
@@ -235,21 +250,8 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
             className="pointer-events-none absolute inset-x-[12%] top-0 z-20 h-px bg-linear-to-r from-transparent via-white/40 to-transparent max-sm:hidden"
           />
 
-          <ProductWindow
-            chromeClassName="max-sm:hidden"
-            className="rounded-[1.75rem] sm:rounded-xl"
-            label={activeTab.label}
-            status={
-              liveReady ? (
-                <>
-                  <span aria-hidden className="size-1.5 rounded-full bg-success" />
-
-                  {liveCopy.badge}
-                </>
-              ) : null
-            }
-          >
-            <div className="relative">
+          <ProductWindow className="max-sm:rounded-[2rem]">
+            <div ref={liveBoxRef} className="relative">
               {tabs.map((tab, index) => (
                 <div
                   key={tab.capture}
@@ -280,12 +282,17 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
               {live ? (
                 <iframe
                   className={cn(
-                    "absolute inset-0 z-10 size-full border-0 bg-background transition-opacity duration-300 motion-reduce:transition-none",
+                    "absolute top-0 left-0 z-10 origin-top-left border-0 bg-sidebar transition-opacity duration-300 motion-reduce:transition-none",
                     liveReady ? "opacity-100" : "pointer-events-none opacity-0",
                   )}
                   referrerPolicy="strict-origin-when-cross-origin"
                   sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
                   src={liveSrc}
+                  style={{
+                    height: LIVE_VIEWPORT.height,
+                    transform: `scale(${liveScale})`,
+                    width: LIVE_VIEWPORT.width,
+                  }}
                   title={`${liveCopy.prompt}: ${activeTab.label}`}
                   onLoad={() => revealLive(liveSrc)}
                 />

@@ -108,4 +108,24 @@ describe("InboxPage subscription lock", () => {
     expect(mocks.getThreads).toHaveBeenCalledOnce();
     expect(mocks.getThread).toHaveBeenCalledWith({ threadId });
   });
+
+  it("redirects a request for the latest thread to the newest thread and keeps other parameters", async () => {
+    mocks.getSubscription.mockResolvedValue(subscription(SubscriptionPlan.pro, SubscriptionStatus.active));
+    mocks.getThreads.mockResolvedValue({ ok: true, data: { items: [{ id: threadId }] } });
+
+    await expect(
+      InboxPage({ searchParams: Promise.resolve({ agentChat: "closed", threadId: "latest" }) }),
+    ).rejects.toThrow(`REDIRECT:/inbox?agentChat=closed&threadId=${threadId}`);
+    expect(mocks.getThread).not.toHaveBeenCalled();
+  });
+
+  it("redirects to the plain list when the latest thread is requested but none exist", async () => {
+    mocks.getSubscription.mockResolvedValue(subscription(SubscriptionPlan.pro, SubscriptionStatus.active));
+    mocks.getThreads.mockResolvedValue({ ok: true, data: { items: [] } });
+
+    await expect(InboxPage({ searchParams: Promise.resolve({ threadId: "latest" }) })).rejects.toThrow(
+      "REDIRECT:/inbox",
+    );
+    expect(mocks.getThread).not.toHaveBeenCalled();
+  });
 });

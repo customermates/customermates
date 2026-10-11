@@ -30,7 +30,7 @@ export function HomepageHowItWorks({ eyebrow, handoff, liveLabel, locale, steps,
         <div className="marketing-grid items-center gap-y-10">
           <div className="col-span-12 lg:col-span-7 lg:row-start-1">
             <ProductPanel className="h-[19rem] sm:h-[26rem] lg:h-[28rem]">
-              <ProductWindow className="absolute top-8 left-8 w-full sm:top-12 sm:left-12" label={handoff.eyebrow}>
+              <ProductWindow className="absolute top-8 left-8 w-full sm:top-12 sm:left-12">
                 <HomepageStageLink area="inbox" label={liveLabel}>
                   <div className="overflow-hidden">
                     <HomepageCaptureImage

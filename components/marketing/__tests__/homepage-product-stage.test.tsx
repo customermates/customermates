@@ -63,7 +63,7 @@ function render() {
         demoBaseUrl: "https://demo.example",
         disclosure: "Sample data.",
         label: "Product areas",
-        live: { badge: "Live badge", prompt: "Try it live", status: "Live demo." },
+        live: { prompt: "Try it live", status: "Live demo." },
         locale: "en",
         tabs,
       }),
@@ -280,7 +280,7 @@ it("goes live as soon as it is in view on a wide viewport and opens the chosen a
   const host = render();
 
   const iframe = host.querySelector("iframe");
-  expect(iframe?.getAttribute("src")).toBe("https://demo.example/en/inbox?agentChat=closed");
+  expect(iframe?.getAttribute("src")).toBe("https://demo.example/en/inbox?threadId=latest&agentChat=closed");
   expect(iframe?.getAttribute("title")).toBe("Try it live: Inbox");
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("loading");
   expect(host.textContent).not.toContain("Try it live");
@@ -292,7 +292,6 @@ it("goes live as soon as it is in view on a wide viewport and opens the chosen a
   advance(LIVE_REVEAL_DELAY_MS);
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("ready");
   expect(host.textContent).toContain("Live demo.");
-  expect(host.querySelector("[data-homepage-window-chrome]")?.textContent).toContain("Live badge");
 
   act(() => tabButtons(host)[2].click());
   expect(host.querySelector("iframe")?.getAttribute("src")).toBe("https://demo.example/en/deals?agentChat=closed");

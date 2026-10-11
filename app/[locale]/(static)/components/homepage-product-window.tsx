@@ -2,53 +2,23 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/core/utils/cn";
 
-type WindowProps = {
-  children: ReactNode;
-  chromeClassName?: string;
-  className?: string;
-  label?: string;
-  status?: ReactNode;
-};
-
 type FrameProps = {
   children: ReactNode;
   className?: string;
 };
 
-export function ProductWindow({ children, chromeClassName, className, label, status }: WindowProps) {
+export function ProductWindow({ children, className }: FrameProps) {
   return (
     <div
       data-homepage-window
       className={cn(
-        "relative overflow-hidden rounded-xl border border-foreground/10 bg-card shadow-[inset_0_1px_0_0_rgb(255_255_255/0.5),0_2px_6px_-2px_rgb(0_0_0/0.08),0_28px_72px_-28px_rgb(0_0_0/0.3)] dark:shadow-[inset_0_1px_0_0_rgb(255_255_255/0.07),0_2px_6px_-2px_rgb(0_0_0/0.4),0_36px_96px_-32px_rgb(0_0_0/0.85)]",
+        "relative rounded-[1.15rem] bg-foreground/[0.035] p-1.5 shadow-[0_2px_8px_-2px_rgb(0_0_0/0.08),0_32px_80px_-32px_rgb(0_0_0/0.35)] ring-1 ring-foreground/10 backdrop-blur-sm dark:shadow-[0_2px_8px_-2px_rgb(0_0_0/0.5),0_40px_110px_-36px_rgb(0_0_0/0.9)]",
         className,
       )}
     >
-      {label === undefined ? null : (
-        <div
-          data-homepage-window-chrome
-          className={cn(
-            "relative flex h-9 items-center border-b border-foreground/[0.07] bg-foreground/[0.025] px-4",
-            chromeClassName,
-          )}
-        >
-          <span aria-hidden className="flex gap-1.5">
-            <span className="size-2.5 rounded-full bg-foreground/15" />
-
-            <span className="size-2.5 rounded-full bg-foreground/15" />
-
-            <span className="size-2.5 rounded-full bg-foreground/15" />
-          </span>
-
-          <span className="absolute inset-x-28 truncate text-center text-xs font-medium text-muted-foreground">
-            {label}
-          </span>
-
-          <span className="ml-auto flex items-center gap-1.5 text-xs font-medium text-muted-foreground">{status}</span>
-        </div>
-      )}
-
-      {children}
+      <div className="relative overflow-hidden rounded-[0.8rem] bg-sidebar ring-1 ring-foreground/[0.08]">
+        {children}
+      </div>
     </div>
   );
 }
@@ -64,7 +34,7 @@ export function ProductPanel({ children, className }: FrameProps) {
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(85%_65%_at_15%_0%,color-mix(in_oklab,var(--color-primary)_16%,transparent),transparent_70%)]"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(85%_65%_at_15%_0%,color-mix(in_oklab,var(--color-primary)_14%,transparent),transparent_70%)]"
       />
 
       {children}

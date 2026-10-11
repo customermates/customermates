@@ -22,6 +22,8 @@ import { env } from "@/env";
 import { cn } from "@/core/utils/cn";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
+const LATEST_THREAD_ID = "latest";
+
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
@@ -39,16 +41,27 @@ export default async function InboxPage({ searchParams }: Props) {
   const locked = planLocked || !isSubscriptionUsable(subscriptionResult.data);
 
   const { threadId: threadIdRaw, ...listParams } = await searchParams;
-  const threadId = !locked && typeof threadIdRaw === "string" ? threadIdRaw : null;
+  const requestedThreadId = !locked && typeof threadIdRaw === "string" ? threadIdRaw : null;
   const threadParams = await readSurfaceParams(SURFACE.messagingThreads, listParams);
-
-  const threadResult = threadId ? await getGetMessagingThreadInteractor().invoke({ threadId }) : null;
-
-  if (threadResult && !threadResult.ok) redirect("/inbox");
 
   const threads = locked
     ? { items: [] }
     : await unwrapValidated(getGetMessagingThreadsInteractor().invoke(threadParams));
+
+  if (requestedThreadId === LATEST_THREAD_ID) {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(listParams)) if (typeof value === "string") query.set(key, value);
+    const latestThreadId = threads.items[0]?.id;
+    if (latestThreadId) query.set("threadId", latestThreadId);
+    const search = query.toString();
+    redirect(search ? `/inbox?${search}` : "/inbox");
+  }
+
+  const threadId = requestedThreadId;
+
+  const threadResult = threadId ? await getGetMessagingThreadInteractor().invoke({ threadId }) : null;
+
+  if (threadResult && !threadResult.ok) redirect("/inbox");
 
   const threadDetail = threadResult?.ok ? threadResult.data : null;
 

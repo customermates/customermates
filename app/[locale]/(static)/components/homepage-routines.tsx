@@ -44,11 +44,7 @@ export function HomepageRoutines({ liveLabel, locale, routines }: Props) {
 
         <div className="col-span-12 lg:col-start-6 lg:col-end-13">
           <ProductPanel className="h-[30rem] sm:h-[32rem] lg:h-[36rem]">
-            <ProductWindow
-              chromeClassName="max-sm:hidden"
-              className="absolute top-8 left-8 w-[calc(100%-4rem)] sm:top-10 sm:left-10 sm:w-[140%] lg:top-14 lg:left-14"
-              label={routines.eyebrow}
-            >
+            <ProductWindow className="absolute top-8 left-8 w-[calc(100%-4rem)] sm:top-10 sm:left-10 sm:w-[140%] lg:top-14 lg:left-14">
               <HomepageStageLink area="routines" label={liveLabel}>
                 <HomepageCaptureImage
                   alt={routines.alt}

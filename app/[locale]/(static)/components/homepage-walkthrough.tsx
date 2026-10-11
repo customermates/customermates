@@ -49,7 +49,7 @@ export function HomepageWalkthrough({ liveLabel, locale, walkthrough }: Props) {
 
         <div className="col-span-12 lg:col-start-6 lg:col-end-13">
           <ProductPanel className="h-[30rem] sm:h-[34rem] lg:h-[38rem]">
-            <ProductWindow className="absolute top-10 left-10 w-[72%] max-sm:hidden lg:top-14 lg:left-14" label={badge}>
+            <ProductWindow className="absolute top-10 left-10 w-[72%] max-sm:hidden lg:top-14 lg:left-14">
               <HomepageStageLink area="inbox" label={liveLabel}>
                 <div className="overflow-hidden">
                   <HomepageCaptureImage

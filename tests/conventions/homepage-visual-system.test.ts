@@ -206,7 +206,7 @@ describe("homepage visual-system adoption", () => {
     expect(walkthrough).not.toMatch(/<h2[\s\S]{0,240}text-primary/u);
     expect(hero).toContain("GridPattern");
     expect(hero).toContain("heroSection.useCase");
-    expect(hero).toContain("lg:grid-cols-[1.2fr_1fr]");
+    expect(hero).toContain('data-homepage-hero-layout="centered"');
   });
 
   it("rotates the hero claim through the data a workspace holds and ends on business data", () => {
@@ -299,7 +299,7 @@ describe("homepage visual-system adoption", () => {
     expect(componentSource.match(/<iframe\b/gu)).toHaveLength(1);
     expect(stage).toContain("id={PRODUCT_DEMO_ANCHOR}");
     expect(stage).toContain('sandbox="allow-scripts allow-same-origin allow-popups allow-forms"');
-    expect(stage).toContain("?agentChat=closed");
+    expect(stage).toContain("agentChat=closed");
     expect(stage).toContain('window.addEventListener("hashchange", openFromHash)');
     expect(stage).toContain("window.addEventListener(STAGE_OPEN_EVENT, openFromEvent)");
     expect(link).toContain("href={`#${PRODUCT_DEMO_ANCHOR}`}");
@@ -329,7 +329,9 @@ describe("homepage visual-system adoption", () => {
     expect(stage).toContain("<ProductWindow");
     expect(stage).toContain("LIVE_REVEAL_DELAY_MS = 900");
     expect(stage).toContain("onLoad={() => revealLive(liveSrc)}");
-    expect(productWindow).toContain("data-homepage-window-chrome");
+    expect(productWindow).not.toContain("data-homepage-window-chrome");
+    expect(stage).toContain("LIVE_VIEWPORT = { height: 900, width: 1440 }");
+    expect(stage).toContain('inbox: "/inbox?threadId=latest"');
     expect(productWindow).toContain("data-homepage-panel");
     expect(productWindow).toContain("data-homepage-phone");
     for (const file of [

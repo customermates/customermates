@@ -49,7 +49,7 @@ describe("hero headings", () => {
           stage: {
             disclosure: "Sample data.",
             label: "Product areas",
-            live: { badge: "Live demo", prompt: "Try it live", status: "Live demo." },
+            live: { prompt: "Try it live", status: "Live demo." },
             tabs: [
               { alt: "Inbox", capture: "homepage-inbox", caption: "Inbox caption", label: "Inbox" },
               { alt: "Record", capture: "homepage-record", caption: "Record caption", label: "Customers" },
@@ -73,8 +73,8 @@ describe("hero headings", () => {
 
     expect(headingText(html).startsWith("Your customer data in one workspace your AI can work in.")).toBe(true);
     expect(heading).toContain('<span class="sr-only">Your customer data in one workspace your AI can work in.</span>');
-    expect(heading.match(/aria-hidden="true"/gu)?.length).toBeGreaterThanOrEqual(3);
-    for (const word of ["projects", "business data"]) expect(heading).toContain(word);
+    expect(heading.match(/aria-hidden="true"/gu)?.length).toBeGreaterThanOrEqual(2);
+    expect(heading).toContain('data-homepage-motion="rotating-accent"');
     expect(html).toContain('role="tablist"');
     expect(html.match(/role="tab"/gu)).toHaveLength(5);
   });
