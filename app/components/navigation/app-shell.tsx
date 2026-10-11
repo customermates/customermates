@@ -81,6 +81,7 @@ export async function AppShell({ children, displayLanguage }: Props) {
           user: appUser,
           subscription: accountAllowed ? navigation.subscription : null,
           recordNavigation: accountAllowed ? navigation.records : null,
+          sidebarLayout: accountAllowed ? navigation.sidebarLayout : null,
         }}
       >
         <NavigationSwitch

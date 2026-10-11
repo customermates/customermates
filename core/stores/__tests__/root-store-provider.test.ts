@@ -31,6 +31,12 @@ vi.mock("../root.store", () => ({
         this.recordWorkspaceStore.navigation = navigation;
       },
     };
+    readonly sidebarLayoutStore = {
+      layout: null as RootStoreInitialState["sidebarLayout"],
+      setLayout: (layout: RootStoreInitialState["sidebarLayout"]) => {
+        this.sidebarLayoutStore.layout = layout;
+      },
+    };
     readonly subscriptionStore = {
       subscription: null as RootStoreInitialState["subscription"],
       setSubscription: (subscription: RootStoreInitialState["subscription"]) => {
@@ -90,6 +96,7 @@ const initialState: RootStoreInitialState = {
     hasBillingPortal: false,
     hasActiveSubscription: true,
   },
+  sidebarLayout: { sections: [] } as unknown as NonNullable<RootStoreInitialState["sidebarLayout"]>,
 };
 
 function DelayedBoundary({ children }: { children: ReactNode }) {
@@ -103,6 +110,7 @@ function InitialStateProbe() {
     rootStore.userStore.can(Resource.routines, Action.readAll) ? "allowed" : "blocked",
     rootStore.subscriptionStore.subscription?.plan,
     rootStore.intlStore.formatNumber(1234.5),
+    rootStore.sidebarLayoutStore.layout ? "sidebar" : "default-sidebar",
   ];
   return createElement("span", { "data-initial-state": true }, values.join("|"));
 }
@@ -132,9 +140,9 @@ afterEach(() => {
 });
 
 describe("RootStoreProvider initial state", () => {
-  it("seeds permission, subscription, and locale before a delayed child hydrates", async () => {
+  it("seeds permission, subscription, locale and the sidebar layout before a delayed child hydrates", async () => {
     const html = renderToString(createElement(TestApp));
-    expect(html).toContain("allowed|pro|1.234,5");
+    expect(html).toContain("allowed|pro|1.234,5|sidebar");
 
     hydrationDelay = new Promise<void>((resolve) => {
       releaseHydration = resolve;
@@ -161,7 +169,7 @@ describe("RootStoreProvider initial state", () => {
       __customermatesHistory: { session: expect.any(String), index: expect.any(Number) },
     });
 
-    expect(container.querySelector("[data-initial-state]")?.textContent).toBe("allowed|pro|1.234,5");
+    expect(container.querySelector("[data-initial-state]")?.textContent).toBe("allowed|pro|1.234,5|sidebar");
 
     await act(async () => {
       delayHydration = false;
@@ -170,7 +178,7 @@ describe("RootStoreProvider initial state", () => {
     });
 
     await vi.waitFor(() => {
-      expect(container.querySelector("[data-initial-state]")?.textContent).toBe("allowed|pro|1.234,5");
+      expect(container.querySelector("[data-initial-state]")?.textContent).toBe("allowed|pro|1.234,5|sidebar");
     });
     expect(recoverableErrors).toEqual([]);
   });
