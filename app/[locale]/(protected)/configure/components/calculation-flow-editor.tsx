@@ -950,7 +950,7 @@ function FormulaFlow({
             return (
               <span
                 key={input.path.join(".")}
-                className="group/input flex max-w-full min-w-0 items-center"
+                className="group/input relative flex max-w-full min-w-0 items-center"
                 data-calculation-input=""
               >
                 {leafChip(input.path, input.expression, inputType ? typeLabel(inputType) : undefined)}
@@ -960,7 +960,7 @@ function FormulaFlow({
                     aria-label={t("RecordModel.calculationFlow.removeInputNamed", {
                       input: leafLabel(input.expression),
                     })}
-                    className="size-5 opacity-0 transition-opacity group-focus-within/input:opacity-100 group-hover/input:opacity-100 focus-visible:opacity-100 any-pointer-coarse:opacity-100"
+                    className="absolute -end-1.5 -top-1.5 size-4 rounded-full border border-border bg-background opacity-0 transition-opacity group-focus-within/input:opacity-100 group-hover/input:opacity-100 hover:bg-accent focus-visible:opacity-100 any-pointer-coarse:opacity-100 [&_svg]:size-2.5"
                     data-calculation-remove-input=""
                     size="icon-xs"
                     type="button"

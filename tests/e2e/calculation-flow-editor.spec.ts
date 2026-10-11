@@ -254,9 +254,12 @@ test("reads each step as one line and inserts steps from the connectors", async 
 });
 
 async function expectAligned(node: Locator) {
-  const icon = await node.locator("svg").first().boundingBox();
-  const chip = await node.locator("[data-calculation-row] > div > *").first().boundingBox();
-  expect(Math.abs((icon?.x ?? 0) - (chip?.x ?? -10))).toBeLessThanOrEqual(1);
+  const offset = await node.evaluate((element) => {
+    const icon = element.querySelector("svg")?.getBoundingClientRect();
+    const first = element.querySelector("[data-calculation-row] > div > *")?.getBoundingClientRect();
+    return icon && first ? Math.abs(icon.left - first.left) : Number.POSITIVE_INFINITY;
+  });
+  expect(offset).toBeLessThanOrEqual(1);
 }
 
 test("lines up formula, lookup and rollup flows the same way", async ({ page, companyId }, testInfo) => {
