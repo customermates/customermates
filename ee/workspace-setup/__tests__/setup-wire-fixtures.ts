@@ -1,5 +1,5 @@
 import type { SetupPlan, SetupPlanInput } from "@/features/workspace-setup/setup-plan.schema";
-import type { PlanWire } from "../workspace-setup-wire";
+import type { PlanKnowledgeWire, PlanModelWire, PlanViewsWire, PlanWire } from "../workspace-setup-wire";
 
 import { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
 
@@ -65,4 +65,36 @@ export function planToWire(input: SetupPlanInput): PlanWire {
     knowledgeBase: plan.knowledgeBase,
     importMapping: plan.importMapping,
   };
+}
+
+export function planToWireParts(input: SetupPlanInput): {
+  model: PlanModelWire;
+  views: PlanViewsWire;
+  knowledge: PlanKnowledgeWire;
+} {
+  const wire = planToWire(input);
+  return {
+    model: { ...wire.workspace, ...wire.recordModel },
+    views: {
+      listDefaults: wire.listDefaults,
+      sampleLists: wire.sampleData.lists,
+      widgets: wire.dashboard.widgets,
+      importMapping: wire.importMapping,
+    },
+    knowledge: wire.knowledgeBase,
+  };
+}
+
+export const PLAN_PART_LABELS = {
+  model: "Workspace setup plan: record model",
+  views: "Workspace setup plan: views and dashboard",
+  knowledge: "Workspace setup plan: Knowledge Base",
+} as const;
+
+export function planPartFor(label: string, input: SetupPlanInput): unknown {
+  const parts = planToWireParts(input);
+  if (label === PLAN_PART_LABELS.model) return parts.model;
+  if (label === PLAN_PART_LABELS.views) return parts.views;
+  if (label === PLAN_PART_LABELS.knowledge) return parts.knowledge;
+  return undefined;
 }

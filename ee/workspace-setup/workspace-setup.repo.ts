@@ -10,7 +10,7 @@ export type SetupCrawlState = {
   topics: Array<{ status: string; pageId?: string }>;
 };
 
-export type SetupCrawlSource = { url: string; title: string; text: string };
+export type SetupCrawlSource = { url: string; title: string; text: string; category: string };
 
 export abstract class WorkspaceSetupRepo {
   abstract findCurrent(): Promise<WorkspaceSetupRecord | null>;

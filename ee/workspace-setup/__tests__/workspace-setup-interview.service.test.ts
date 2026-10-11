@@ -9,7 +9,8 @@ import type { WorkspaceSetupPatch, WorkspaceSetupRecord } from "../workspace-set
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { agencyPlan } from "@/features/workspace-setup/__tests__/setup-plan-fixtures";
-import { SETUP_COMPANY_ID, workspacePreset } from "@/features/workspace-setup/__tests__/setup-harness";
+import { SETUP_COMPANY_ID } from "@/features/workspace-setup/__tests__/setup-harness";
+import { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
 import {
@@ -18,7 +19,6 @@ import {
   StoredSetupResultsSchema,
 } from "../workspace-setup.schema";
 import { WorkspaceSetupInterviewService } from "../workspace-setup-interview.service";
-import { planToWire } from "./setup-wire-fixtures";
 
 const owner = createMockUser({ companyId: SETUP_COMPANY_ID });
 const blank = { choice: null, choices: [], custom: [], items: [], min: null, max: null, text: null };
@@ -64,21 +64,18 @@ function harness(overrides: Partial<WorkspaceSetupRecord> = {}, crawl: Partial<S
       }),
     ),
     crawlSources: vi.fn(() =>
-      Promise.resolve([{ url: "https://studio.example/", title: "Studio", text: "We design websites in Berlin." }]),
+      Promise.resolve([
+        { url: "https://studio.example/privacy", title: "Privacy", text: "We store cookies.", category: "policy" },
+        { url: "https://studio.example/", title: "Studio", text: "We design websites in Berlin.", category: "about" },
+      ]),
     ),
     readSpreadsheet: vi.fn(() => Promise.resolve(null)),
   };
   const models = { generate: vi.fn(), drainWarnings: () => [] };
-  const records = { getModel: vi.fn(() => workspacePreset()) };
-  const preview = { invoke: vi.fn(() => Promise.resolve({ ok: true, data: { valid: true, issues: [] } })) };
-  const service = new WorkspaceSetupInterviewService(
-    repo as never,
-    models as never,
-    records as never,
-    preview as never,
-  );
+  const planner = { plan: vi.fn() };
+  const service = new WorkspaceSetupInterviewService(repo as never, models as never, planner as never);
   const run = <T>(fn: () => Promise<T>) => runWithTenant(owner, fn);
-  return { service, repo, models, preview, run, setup: () => setup };
+  return { service, repo, models, planner, run, setup: () => setup };
 }
 
 describe("workspace setup interview", () => {
@@ -146,48 +143,70 @@ describe("workspace setup interview", () => {
     expect(await run(() => service.followUps("setup-1"))).toBe("skip");
   });
 
-  it("repairs a rejected plan once with the issues, then stores the valid plan", async () => {
-    const { service, models, run, setup } = harness({
+  it("reads the pricing and product pages before help and policy pages, and retries a malformed draft once", async () => {
+    const { service, models, run, setup } = harness();
+    models.generate
+      .mockResolvedValueOnce({
+        ok: false,
+        failure: "generation",
+        rejection: "answers: expected array, received string.",
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        value: {
+          answers: [
+            { ...blank, part: "industries", confidence: 0.8, choices: ["Fashion brands"] },
+            { ...blank, part: "companyName", confidence: 0.95, text: "Studio Example" },
+          ],
+        },
+      });
+    expect(await run(() => service.prefill("setup-1", false))).toBe("done");
+    const [first, second] = models.generate.mock.calls.map(([call]) => (call as { prompt: string }).prompt);
+    expect(first.indexOf("# Studio")).toBeLessThan(first.indexOf("# Privacy"));
+    expect(first).toContain('"prefill":"suggested"');
+    expect(second).toContain("answers: expected array, received string.");
+    expect(setup().interview.prefill).toBe("completed");
+    expect(setup().answers.industries?.value).toEqual({
+      format: "multipleChoice",
+      values: [],
+      custom: ["Fashion brands"],
+    });
+  });
+
+  it("stores the planner's plan with the setup's answers, language, currency and website", async () => {
+    const { service, planner, run, setup } = harness({
       status: "planning",
       planRevision: 1,
+      answers: {
+        language: { source: "user", confidence: 1, value: { format: "singleChoice", value: "en" } },
+        currency: { source: "user", confidence: 1, value: { format: "singleChoice", value: "CHF" } },
+      },
       interview: StoredSetupInterviewSchema.parse({ plan: "queued", followUps: "completed" }),
     });
-    const invalid = planToWire(agencyPlan);
-    invalid.listDefaults[0].list = "nowhere";
-    models.generate
-      .mockResolvedValueOnce({ ok: true, value: invalid })
-      .mockResolvedValueOnce({ ok: true, value: planToWire(agencyPlan) });
+    const plan = SetupPlanSchema.parse(agencyPlan);
+    planner.plan.mockResolvedValue({ ok: true, plan });
     await run(() => service.plan("setup-1"));
-    expect(models.generate).toHaveBeenCalledTimes(2);
-    expect(models.generate.mock.calls[1][0].prompt).toContain("listDefaults.0.list");
-    expect(setup().status).toBe("planned");
-    expect(setup().plan?.recordModel.lists[0].key).toBe("project");
+    expect(planner.plan).toHaveBeenCalledWith(
+      expect.objectContaining({
+        setupId: "setup-1",
+        language: "en",
+        currency: "CHF",
+        sources: expect.arrayContaining([expect.objectContaining({ category: "about" })]),
+      }),
+    );
+    expect(setup()).toMatchObject({ status: "planned", plan });
     expect(setup().interview).toMatchObject({ plan: "completed", planError: null });
   });
 
-  it("gives up as an invalid plan after the repair and leaves the owner in the interview", async () => {
-    const { service, models, run, setup, preview } = harness({
+  it("returns the owner to the interview with the planner's failure", async () => {
+    const { service, planner, run, setup } = harness({
       status: "planning",
       planRevision: 1,
       interview: StoredSetupInterviewSchema.parse({ plan: "queued", followUps: "completed" }),
     });
-    preview.invoke.mockResolvedValue({ ok: true, data: { valid: false, issues: [{ code: "cycle" }] } } as never);
-    models.generate.mockResolvedValue({ ok: true, value: planToWire(agencyPlan) });
+    planner.plan.mockResolvedValue({ ok: false, failure: "invalidPlan" });
     await run(() => service.plan("setup-1"));
-    expect(models.generate).toHaveBeenCalledTimes(2);
     expect(setup()).toMatchObject({ status: "interview", plan: null });
     expect(setup().interview).toMatchObject({ plan: "failed", planError: "invalidPlan" });
-  });
-
-  it("stops planning at the spend cap without a repair call", async () => {
-    const { service, models, run, setup } = harness({
-      status: "planning",
-      planRevision: 1,
-      interview: StoredSetupInterviewSchema.parse({ plan: "queued", followUps: "completed" }),
-    });
-    models.generate.mockResolvedValue({ ok: false, failure: "spendCap" });
-    await run(() => service.plan("setup-1"));
-    expect(models.generate).toHaveBeenCalledTimes(1);
-    expect(setup().interview).toMatchObject({ plan: "failed", planError: "spendCap" });
   });
 });

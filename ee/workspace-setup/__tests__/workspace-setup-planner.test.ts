@@ -1,0 +1,163 @@
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
+
+vi.mock("@/env", () => MOCK_ENV_MODULE);
+
+import type { ConfigurationChange } from "@/features/records/configuration.schema";
+import type { RecordModel } from "@/features/records/record-model.schema";
+import type { SetupPlanInput } from "../workspace-setup-planner";
+
+import { runWithTenant } from "@/core/decorators/tenant-context";
+import { agencyPlan } from "@/features/workspace-setup/__tests__/setup-plan-fixtures";
+import {
+  SETUP_COMPANY_ID,
+  prepareConfiguration,
+  workspacePreset,
+} from "@/features/workspace-setup/__tests__/setup-harness";
+import { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
+import { createMockUser } from "@/tests/helpers/mock-user";
+
+import { SETUP_REPAIR_INSTRUCTION } from "../workspace-setup-prompts";
+import { WorkspaceSetupPlanner } from "../workspace-setup-planner";
+import { PLAN_PART_LABELS, planPartFor, planToWireParts } from "./setup-wire-fixtures";
+
+const owner = createMockUser({ companyId: SETUP_COMPANY_ID });
+
+const input: SetupPlanInput = {
+  setupId: "0f8f6c1e-7b52-4f0a-a7a4-1d3c2b9e8f70",
+  language: "en",
+  currency: "EUR",
+  answers: { companyName: { source: "user", confidence: 1, value: { format: "shortText", value: "Studio" } } },
+  followUps: [],
+  sources: [{ url: "https://studio.example/", title: "Studio", text: "We design websites.", category: "about" }],
+  sheet: null,
+};
+
+type Call = { label: string; purpose: string; prompt: string };
+
+function harness() {
+  const models = { generate: vi.fn() };
+  const preview = { invoke: vi.fn(() => Promise.resolve({ ok: true, data: { valid: true, issues: [] } })) };
+  const planner = new WorkspaceSetupPlanner(
+    models as never,
+    { getModel: () => workspacePreset() } as never,
+    preview as never,
+    {
+      prepare: (change: ConfigurationChange, model: RecordModel) => prepareConfiguration(change, model),
+    } as never,
+    { load: () => Promise.resolve({}) } as never,
+  );
+  const answer = (overrides: Partial<Record<string, unknown>> = {}) =>
+    models.generate.mockImplementation((call: Call) =>
+      Promise.resolve({ ok: true, value: overrides[call.label] ?? planPartFor(call.label, agencyPlan) }),
+    );
+  const calls = () => models.generate.mock.calls.map(([call]) => call as Call);
+  const plan = () => runWithTenant(owner, () => planner.plan(input));
+  return { models, preview, answer, calls, plan };
+}
+
+describe("workspace setup planner", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("plans the record model and the Knowledge Base outlines first, then views against the planned model", async () => {
+    const { answer, calls, plan } = harness();
+    answer();
+    expect(await plan()).toEqual({ ok: true, plan: SetupPlanSchema.parse(agencyPlan) });
+    expect(calls().map(({ label, purpose }) => [label, purpose])).toEqual([
+      [PLAN_PART_LABELS.model, "setupPlanning"],
+      [PLAN_PART_LABELS.knowledge, "setupDrafting"],
+      [PLAN_PART_LABELS.views, "setupPlanning"],
+    ]);
+    const views = calls()[2].prompt;
+    expect(views).toContain('Planned record model: {"currency":"EUR"');
+    expect(views).toContain('"key":"project"');
+    expect(calls()[0].prompt).toContain("Interview language: English (en).");
+  });
+
+  it("repairs a part that came back as JSON text inside a string, passing the rejection back", async () => {
+    const { models, calls, plan } = harness();
+    let rejected = false;
+    models.generate.mockImplementation((call: Call) => {
+      if (call.label === PLAN_PART_LABELS.model && !rejected) {
+        rejected = true;
+        return Promise.resolve({
+          ok: false,
+          failure: "generation",
+          rejection: "The answer did not match the required structure: lists: expected array, received string.",
+        });
+      }
+      return Promise.resolve({ ok: true, value: planPartFor(call.label, agencyPlan) });
+    });
+    expect(await plan()).toMatchObject({ ok: true });
+    const repair = calls().filter(({ label }) => label === PLAN_PART_LABELS.model)[1].prompt;
+    expect(repair).toContain(SETUP_REPAIR_INSTRUCTION);
+    expect(repair).toContain("lists: expected array, received string");
+  });
+
+  it("repairs a part once with its own issues and its previous answer", async () => {
+    const { models, calls, plan } = harness();
+    const broken = planToWireParts(agencyPlan).views;
+    broken.listDefaults[0].list = "nowhere";
+    let first = true;
+    models.generate.mockImplementation((call: Call) => {
+      if (call.label === PLAN_PART_LABELS.views && first) {
+        first = false;
+        return Promise.resolve({ ok: true, value: broken });
+      }
+      return Promise.resolve({ ok: true, value: planPartFor(call.label, agencyPlan) });
+    });
+    expect(await plan()).toMatchObject({ ok: true });
+    const repair = calls().filter(({ label }) => label === PLAN_PART_LABELS.views)[1].prompt;
+    expect(repair).toContain('Your previous answer: {"listDefaults":[{"list":"nowhere"');
+    expect(repair).toContain('"path":"listDefaults.0.list"');
+  });
+
+  it("drops a calculation that does not compile instead of spending a repair on it", async () => {
+    const { answer, calls, plan } = harness();
+    const model = planToWireParts(agencyPlan).model;
+    model.calculations[0].expression = JSON.stringify({ op: "daysBetween", from: "project.kickoff", to: "deal.x" });
+    answer({ [PLAN_PART_LABELS.model]: model });
+    const result = await plan();
+    expect(result.ok && result.plan.recordModel.calculations.map((calculation) => calculation.key)).toEqual([
+      "organization.projectBudget",
+    ]);
+    expect(calls()).toHaveLength(3);
+  });
+
+  it("drops view columns that name no field of the planned model", async () => {
+    const { answer, calls, plan } = harness();
+    const views = planToWireParts(agencyPlan).views;
+    views.listDefaults[1].columns.push("project.clientContacts");
+    answer({ [PLAN_PART_LABELS.views]: views });
+    const result = await plan();
+    expect(result.ok && result.plan.listDefaults[1].columns).toEqual([
+      "project.phase",
+      "project.dueDate",
+      "project.budget",
+    ]);
+    expect(calls()).toHaveLength(3);
+  });
+
+  it("gives up as an invalid plan when the repaired part is still rejected", async () => {
+    const { answer, calls, plan, preview } = harness();
+    preview.invoke.mockResolvedValue({ ok: true, data: { valid: false, issues: [{ code: "cycle" }] } } as never);
+    answer();
+    expect(await plan()).toEqual({ ok: false, failure: "invalidPlan" });
+    expect(calls().filter(({ label }) => label === PLAN_PART_LABELS.model)).toHaveLength(2);
+    expect(calls().some(({ label }) => label === PLAN_PART_LABELS.views)).toBe(false);
+  });
+
+  it("stops at the spend cap without a repair call", async () => {
+    const { models, calls, plan } = harness();
+    models.generate.mockImplementation((call: Call) =>
+      Promise.resolve(
+        call.label === PLAN_PART_LABELS.model
+          ? { ok: false, failure: "spendCap" }
+          : { ok: true, value: planPartFor(call.label, agencyPlan) },
+      ),
+    );
+    expect(await plan()).toEqual({ ok: false, failure: "spendCap" });
+    expect(calls().filter(({ label }) => label === PLAN_PART_LABELS.model)).toHaveLength(1);
+  });
+});

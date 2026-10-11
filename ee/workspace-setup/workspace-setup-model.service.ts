@@ -9,7 +9,9 @@ import { generateStructuredObject, structuredCallWorstCaseMicrocents } from "@/e
 
 import { WORKSPACE_SETUP_PLATFORM_PURPOSE, WORKSPACE_SETUP_SPEND_CAP_MICROCENTS } from "./workspace-setup-spend";
 
-export type SetupModelOutcome<T> = { ok: true; value: T } | { ok: false; failure: WorkspaceSetupFailure };
+export type SetupModelOutcome<T> =
+  | { ok: true; value: T }
+  | { ok: false; failure: WorkspaceSetupFailure; rejection?: string };
 
 export type SetupModelCall<T> = {
   label: string;
@@ -42,6 +44,7 @@ export class WorkspaceSetupModelService extends UserAccessor {
     });
     if (reserved.status !== "reserved")
       return { ok: false, failure: reserved.status === "cap" ? "spendCap" : "aiUnavailable" };
+
     let charge: AgentRetrievalCharge | null = {
       model: model.modelId,
       inputTokens: 0,
@@ -58,8 +61,13 @@ export class WorkspaceSetupModelService extends UserAccessor {
       });
       charge = result.charge;
       if (result.failure) this.warnings.push(result.failure);
-      if (result.output === null)
-        return { ok: false, failure: result.failureScope === "provider" ? "aiUnavailable" : "generation" };
+      if (result.output === null) {
+        return {
+          ok: false,
+          failure: result.failureScope === "provider" ? "aiUnavailable" : "generation",
+          ...(result.rejection ? { rejection: result.rejection } : {}),
+        };
+      }
       return { ok: true, value: result.output };
     } finally {
       await this.usage.settlePlatformRetrieval({ reservationId: reserved.id, charge });

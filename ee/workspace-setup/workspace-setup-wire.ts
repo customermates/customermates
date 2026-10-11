@@ -81,7 +81,11 @@ export function prefillAnswers(wire: PrefillWire): SetupAnswers {
   for (const entry of wire.answers) {
     const part = setupPart(entry.part);
     if (!part || part.prefill === "no" || answers[entry.part]) continue;
-    const value = wireAnswerValue(part.format, entry);
+    const ownEntriesOnly = part.format === "multipleChoice" && part.options.length === 0;
+    const value = wireAnswerValue(
+      part.format,
+      ownEntriesOnly ? { ...entry, choices: [], custom: [...entry.custom, ...entry.choices] } : entry,
+    );
     if (!optionSourceValid(entry.part, value)) continue;
     const candidate = {
       [entry.part]: { source: "website" as const, confidence: Math.min(1, Math.max(0, entry.confidence)), value },
@@ -177,73 +181,71 @@ export function followUpAnswerIssue(question: SetupFollowUpQuestion, value: Setu
 }
 
 const WireOptionSchema = z.object({
-  key: z.string(),
+  key: z.string().describe("lowerCamelCase letters and digits only."),
   label: z.string(),
   color: z.enum(CHIP_COLORS).nullable(),
   weight: z.number().nullable(),
   outcome: z.enum(["open", "won", "lost"]).nullable(),
 });
+const KeyDescription = "lowerCamelCase letters and digits only, at most 24 characters, no dots, dashes or spaces.";
+const FieldKeyDescription = "<listKey>.<fieldName>, both lowerCamelCase, such as deal.renewalDate.";
 const FieldRefDescription =
   "A field reference such as deal.stage, or system:createdAt, system:updatedAt, system:assignedTo.";
 
-export const PlanWireSchema = z.object({
-  workspace: z.object({
-    currency: z.string().describe("ISO 4217 code."),
-    dashboardAudience: z.enum(["me", "team", "management"]),
-  }),
-  recordModel: z.object({
-    lists: z.array(
-      z.object({
-        key: z.string(),
-        label: z.string(),
-        pluralLabel: z.string(),
-        description: z.string(),
-        icon: z.string().describe("A lucide icon name in lowerCamelCase, such as kanban or fileText."),
-        color: z.enum(CHIP_COLORS).nullable(),
-      }),
-    ),
-    listChanges: z.array(
-      z.object({
-        list: z.string(),
-        label: z.string().nullable(),
-        pluralLabel: z.string().nullable(),
-        icon: z.string().nullable(),
-        color: z.enum(CHIP_COLORS).nullable(),
-      }),
-    ),
-    fields: z.array(
-      z.object({
-        key: z.string(),
-        label: z.string(),
-        valueType: z.enum(SETUP_FIELD_VALUE_TYPES),
-        required: z.boolean(),
-        multiple: z.boolean(),
-        options: z.array(WireOptionSchema),
-      }),
-    ),
-    fieldChanges: z.array(
-      z.object({ field: z.string(), label: z.string().nullable(), options: z.array(WireOptionSchema).nullable() }),
-    ),
-    relationships: z.array(
-      z.object({
-        key: z.string(),
-        source: z.string(),
-        target: z.string(),
-        sourceLabel: z.string().describe("How a source record names its linked target."),
-        targetLabel: z.string().describe("How a target record names its linked sources."),
-        sourceCardinality: z.enum(["one", "many"]),
-        targetCardinality: z.enum(["one", "many"]),
-      }),
-    ),
-    calculations: z.array(
-      z.object({
-        key: z.string(),
-        label: z.string(),
-        valueType: z.enum(["number", "currency", "date", "boolean", "text"]),
-        expression: z.string().describe("The expression tree as a JSON string."),
-      }),
-    ),
-  }),
+const RecordModelWireShape = {
+  lists: z.array(
+    z.object({
+      key: z.string().describe(KeyDescription),
+      label: z.string(),
+      pluralLabel: z.string(),
+      description: z.string(),
+      icon: z.string().describe("A lucide icon name in lowerCamelCase, such as kanban or fileText."),
+      color: z.enum(CHIP_COLORS).nullable(),
+    }),
+  ),
+  listChanges: z.array(
+    z.object({
+      list: z.string(),
+      label: z.string().nullable(),
+      pluralLabel: z.string().nullable(),
+      icon: z.string().nullable(),
+      color: z.enum(CHIP_COLORS).nullable(),
+    }),
+  ),
+  fields: z.array(
+    z.object({
+      key: z.string().describe(FieldKeyDescription),
+      label: z.string(),
+      valueType: z.enum(SETUP_FIELD_VALUE_TYPES),
+      required: z.boolean(),
+      multiple: z.boolean(),
+      options: z.array(WireOptionSchema),
+    }),
+  ),
+  fieldChanges: z.array(
+    z.object({ field: z.string(), label: z.string().nullable(), options: z.array(WireOptionSchema).nullable() }),
+  ),
+  relationships: z.array(
+    z.object({
+      key: z.string().describe(KeyDescription),
+      source: z.string(),
+      target: z.string(),
+      sourceLabel: z.string().describe("How a source record names its linked target."),
+      targetLabel: z.string().describe("How a target record names its linked sources."),
+      sourceCardinality: z.enum(["one", "many"]),
+      targetCardinality: z.enum(["one", "many"]),
+    }),
+  ),
+  calculations: z.array(
+    z.object({
+      key: z.string().describe(FieldKeyDescription),
+      label: z.string(),
+      valueType: z.enum(["number", "currency", "date", "boolean", "text"]),
+      expression: z.string().describe("The expression tree as a JSON string."),
+    }),
+  ),
+};
+const ListDefaultsWireShape = {
   listDefaults: z.array(
     z.object({
       list: z.string(),
@@ -255,47 +257,126 @@ export const PlanWireSchema = z.object({
       summaries: z.array(z.object({ field: z.string(), aggregation: z.enum(["sum", "average", "min", "max"]) })),
     }),
   ),
-  sampleData: z.object({
-    lists: z.array(z.object({ list: z.string(), count: z.number(), kinds: z.array(z.string()) })),
-  }),
-  dashboard: z.object({
-    widgets: z.array(
-      z.object({
-        key: z.string(),
-        title: z.string(),
-        list: z.string(),
-        aggregation: z.enum(["count", "sum", "average", "min", "max"]),
-        valueField: z.string().nullable(),
-        groupBy: z
-          .object({
-            path: z.array(z.object({ relationship: z.string(), direction: z.enum(["outgoing", "incoming"]) })),
-            field: z.string().nullable(),
-            dateInterval: z.enum(RECORD_MEASURE_DATE_INTERVALS).nullable(),
-          })
-          .nullable(),
-        filters: z.array(
-          z.object({
-            operator: z.enum(["in", "notIn", "inLastDays", "notInLastDays", "empty", "notEmpty"]),
-            field: z.string(),
-            options: z.array(z.string()),
-            days: z.number().nullable(),
-          }),
-        ),
-        display: z.enum(WIDGET_STARTER_DISPLAY_TYPES),
-        size: z.enum(["small", "medium", "large", "wide"]).nullable(),
-      }),
-    ),
-  }),
-  knowledgeBase: z.object({
-    pages: z.array(
-      z.object({ key: z.string(), kind: z.enum(SETUP_PAGE_KINDS), title: z.string(), sections: z.array(z.string()) }),
-    ),
-  }),
+};
+const WidgetsWireShape = {
+  widgets: z.array(
+    z.object({
+      key: z.string().describe("lowerCamelCase letters and digits only."),
+      title: z.string(),
+      list: z.string(),
+      aggregation: z.enum(["count", "sum", "average", "min", "max"]),
+      valueField: z.string().nullable(),
+      groupBy: z
+        .object({
+          path: z.array(z.object({ relationship: z.string(), direction: z.enum(["outgoing", "incoming"]) })),
+          field: z.string().nullable(),
+          dateInterval: z.enum(RECORD_MEASURE_DATE_INTERVALS).nullable(),
+        })
+        .nullable(),
+      filters: z.array(
+        z.object({
+          operator: z.enum(["in", "notIn", "inLastDays", "notInLastDays", "empty", "notEmpty"]),
+          field: z.string(),
+          options: z.array(z.string()),
+          days: z.number().nullable(),
+        }),
+      ),
+      display: z.enum(WIDGET_STARTER_DISPLAY_TYPES),
+      size: z.enum(["small", "medium", "large", "wide"]).nullable(),
+    }),
+  ),
+};
+
+const WorkspaceWireShape = {
+  currency: z.string().describe("ISO 4217 code."),
+  dashboardAudience: z.enum(["me", "team", "management"]),
+};
+
+export const PlanModelWireSchema = z.object({ ...WorkspaceWireShape, ...RecordModelWireShape });
+export type PlanModelWire = z.infer<typeof PlanModelWireSchema>;
+
+export const PlanViewsWireSchema = z.object({
+  ...ListDefaultsWireShape,
+  sampleLists: z.array(
+    z.object({
+      list: z.string(),
+      count: z.number(),
+      kinds: z.array(z.string()).describe("Up to five short kinds of records, each a few words."),
+    }),
+  ),
+  ...WidgetsWireShape,
   importMapping: z
     .object({ list: z.string(), columns: z.array(z.object({ column: z.string(), field: z.string().nullable() })) })
     .nullable(),
 });
+export type PlanViewsWire = z.infer<typeof PlanViewsWireSchema>;
+
+export const PlanKnowledgeWireSchema = z.object({
+  pages: z.array(
+    z.object({
+      key: z.string().describe(KeyDescription),
+      kind: z.enum(SETUP_PAGE_KINDS),
+      title: z.string(),
+      sections: z.array(z.string()).describe("One to twelve section headings."),
+    }),
+  ),
+});
+export type PlanKnowledgeWire = z.infer<typeof PlanKnowledgeWireSchema>;
+
+export const PlanWireSchema = z.object({
+  workspace: z.object(WorkspaceWireShape),
+  recordModel: z.object(RecordModelWireShape),
+  ...ListDefaultsWireShape,
+  sampleData: z.object({ lists: PlanViewsWireSchema.shape.sampleLists }),
+  dashboard: z.object(WidgetsWireShape),
+  importMapping: PlanViewsWireSchema.shape.importMapping,
+  knowledgeBase: PlanKnowledgeWireSchema,
+});
 export type PlanWire = z.infer<typeof PlanWireSchema>;
+
+export const EMPTY_PLAN_MODEL_WIRE: PlanModelWire = {
+  currency: "EUR",
+  dashboardAudience: "me",
+  lists: [],
+  listChanges: [],
+  fields: [],
+  fieldChanges: [],
+  relationships: [],
+  calculations: [],
+};
+export const EMPTY_PLAN_VIEWS_WIRE: PlanViewsWire = {
+  listDefaults: [],
+  sampleLists: [],
+  widgets: [],
+  importMapping: null,
+};
+export const EMPTY_PLAN_KNOWLEDGE_WIRE: PlanKnowledgeWire = { pages: [] };
+
+const PART_PATHS: Array<[string, string]> = [
+  ["workspace.", ""],
+  ["recordModel.", ""],
+  ["sampleData.lists", "sampleLists"],
+  ["dashboard.widgets", "widgets"],
+  ["knowledgeBase.", ""],
+];
+
+export function planPartPath(path: string): string {
+  const match = PART_PATHS.find(([prefix]) => path.startsWith(prefix));
+  return match ? match[1] + path.slice(match[0].length) : path;
+}
+
+export function planWireFromParts(model: PlanModelWire, views: PlanViewsWire, knowledge: PlanKnowledgeWire): PlanWire {
+  const { currency, dashboardAudience, ...recordModel } = model;
+  return {
+    workspace: { currency, dashboardAudience },
+    recordModel,
+    listDefaults: views.listDefaults,
+    sampleData: { lists: views.sampleLists },
+    dashboard: { widgets: views.widgets },
+    importMapping: views.importMapping,
+    knowledgeBase: knowledge,
+  };
+}
 
 function present<T>(value: T | null): T | undefined {
   return value === null ? undefined : value;
@@ -311,9 +392,34 @@ function option(entry: z.infer<typeof WireOptionSchema>) {
   };
 }
 
+const KEY_CHARACTERS = 24;
+
+export function lowerCamelKey(value: string): string {
+  const words = value.normalize("NFKD").match(/[A-Za-z0-9]+/gu) ?? [];
+  const first = words.findIndex((word) => /^[A-Za-z]/u.test(word));
+  const key = words
+    .slice(Math.max(0, first))
+    .map((word, index) => (index === 0 ? word.charAt(0).toLowerCase() : word.charAt(0).toUpperCase()) + word.slice(1))
+    .join("")
+    .slice(0, KEY_CHARACTERS);
+  return first < 0 || !key ? value : key;
+}
+
+const SAMPLE_KINDS = 5;
+const SAMPLE_KIND_CHARACTERS = 80;
+
+function numberLiterals(node: unknown): unknown {
+  if (!node || typeof node !== "object" || Array.isArray(node)) return node;
+  const entries = Object.entries(node).map(([key, value]) => [
+    key,
+    key === "value" && typeof value === "number" ? String(value) : numberLiterals(value),
+  ]);
+  return Object.fromEntries(entries);
+}
+
 function expression(value: string): unknown {
   try {
-    return JSON.parse(value) as unknown;
+    return numberLiterals(JSON.parse(value));
   } catch {
     return value;
   }
@@ -323,6 +429,7 @@ export function planFromWire(
   wire: PlanWire,
 ): { ok: true; plan: SetupPlan } | { ok: false; issues: Array<{ path: string; message: string }> } {
   const model = wire.recordModel;
+  const newLists = new Set(model.lists.map((list) => list.key));
   const input = {
     version: 1,
     workspace: wire.workspace,
@@ -335,7 +442,12 @@ export function planFromWire(
         icon: present(change.icon),
         color: present(change.color),
       })),
-      fields: model.fields.map((field) => ({ ...field, options: field.options.map(option) })),
+      fields: model.fields
+        .filter((field) => {
+          const [list, name] = field.key.split(".");
+          return name !== "name" || !newLists.has(list);
+        })
+        .map((field) => ({ ...field, options: field.options.map(option) })),
       fieldChanges: model.fieldChanges.map((change) => ({
         field: change.field,
         label: present(change.label),
@@ -347,16 +459,24 @@ export function planFromWire(
         expression: expression(calculation.expression),
       })),
     },
-    listDefaults: wire.listDefaults.map((value) => ({
-      ...value,
-      columns: value.columns.filter((column) => SetupFieldKeySchema.safeParse(column).success),
-    })),
+    listDefaults: wire.listDefaults
+      .filter((value, index) => wire.listDefaults.findIndex((other) => other.list === value.list) === index)
+      .map((value) => ({
+        ...value,
+        columns: value.columns.filter((column) => SetupFieldKeySchema.safeParse(column).success),
+        summaries: value.groupBy ? value.summaries : [],
+      })),
     sampleData: {
-      lists: wire.sampleData.lists.map((list) => ({ ...list, count: Math.round(list.count) })),
+      lists: wire.sampleData.lists.map((list) => ({
+        ...list,
+        count: Math.round(list.count),
+        kinds: list.kinds.slice(0, SAMPLE_KINDS).map((kind) => kind.slice(0, SAMPLE_KIND_CHARACTERS).trim()),
+      })),
     },
     dashboard: {
       widgets: wire.dashboard.widgets.map((widget) => ({
         ...widget,
+        key: lowerCamelKey(widget.key),
         size: present(widget.size),
         groupBy: widget.groupBy
           ? {
@@ -374,7 +494,7 @@ export function planFromWire(
         ),
       })),
     },
-    knowledgeBase: wire.knowledgeBase,
+    knowledgeBase: { pages: wire.knowledgeBase.pages.map((page) => ({ ...page, key: lowerCamelKey(page.key) })) },
     importMapping: wire.importMapping,
   };
   const parsed = SetupPlanSchema.safeParse(input);
@@ -401,6 +521,10 @@ export type MappingWire = z.infer<typeof MappingWireSchema>;
 
 export function sampleRecordsWireSchema(columns: readonly string[]) {
   return z.object({
-    records: z.array(z.object(Object.fromEntries(columns.map((column) => [column, z.string().nullable()])))),
+    records: z.array(
+      z.object(
+        Object.fromEntries(columns.map((column) => [column, z.string().describe("An empty string leaves it empty.")])),
+      ),
+    ),
   });
 }

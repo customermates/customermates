@@ -5,6 +5,7 @@ import type { WorkspaceSetupPatch, WorkspaceSetupRecord } from "./workspace-setu
 
 import { Prisma } from "@/generated/prisma";
 
+import { WIKI_CRAWL_MAX_PAGES } from "@/ee/wiki-crawl/website-discovery";
 import { WIKI_CRAWL_ACTIVE_STATUSES } from "@/ee/wiki-crawl/wiki-website-crawl.service";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
@@ -42,7 +43,7 @@ const SETUP_SELECT = {
 type SetupRow = Prisma.WorkspaceSetupGetPayload<{ select: typeof SETUP_SELECT }>;
 
 const SOURCE_CHARACTERS = 6_000;
-const SOURCE_LIMIT = 24;
+const SOURCE_LIMIT = WIKI_CRAWL_MAX_PAGES;
 
 function json(value: unknown): Prisma.InputJsonValue {
   return value as Prisma.InputJsonValue;
@@ -239,9 +240,14 @@ export class PrismaWorkspaceSetupRepo extends TenantRepository implements Worksp
       where: { crawlId, companyId: this.companyId },
       orderBy: [{ fetchedAt: "asc" }, { id: "asc" }],
       take: SOURCE_LIMIT,
-      select: { url: true, title: true, text: true },
+      select: { url: true, title: true, text: true, category: true },
     });
-    return rows.map((row) => ({ url: row.url, title: row.title, text: row.text.slice(0, SOURCE_CHARACTERS) }));
+    return rows.map((row) => ({
+      url: row.url,
+      title: row.title,
+      category: row.category,
+      text: row.text.slice(0, SOURCE_CHARACTERS),
+    }));
   }
 
   async knowledgeBasePages(crawlId: string) {

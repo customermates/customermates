@@ -45,11 +45,11 @@ describe("shipped agent models", () => {
     }
   });
 
-  it("drafts workspace setup with Haiku and plans it with Sonnet, both at low effort", () => {
+  it("drafts workspace setup with Haiku and plans it with Sonnet without thinking, since thinking turns off constrained decoding", () => {
     expect(AGENT_MODELS.setupDrafting).toMatchObject({ modelId: "anthropic/claude-haiku-5.5", reasoningEffort: "low" });
     expect(AGENT_MODELS.setupPlanning).toMatchObject({
       modelId: "anthropic/claude-sonnet-5.5",
-      reasoningEffort: "low",
+      reasoningEffort: "none",
       maxOutputTokens: 16_384,
     });
   });

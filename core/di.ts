@@ -1817,6 +1817,7 @@ import { PrismaThreadRecordsRepo } from "@/ee/messaging/thread-records/prisma-th
 import { PrismaWorkspaceSetupRepo } from "@/ee/workspace-setup/prisma-workspace-setup.repository";
 import { WorkspaceSetupModelService } from "@/ee/workspace-setup/workspace-setup-model.service";
 import { WorkspaceSetupInterviewService } from "@/ee/workspace-setup/workspace-setup-interview.service";
+import { WorkspaceSetupPlanner } from "@/ee/workspace-setup/workspace-setup-planner";
 import { WorkspaceSetupBuildService } from "@/ee/workspace-setup/workspace-setup-build.service";
 import { WorkspaceSetupCleanupService } from "@/ee/workspace-setup/workspace-setup-cleanup.service";
 import { WorkspaceSetupCrawlStarter } from "@/ee/workspace-setup/workspace-setup-crawl-starter";
@@ -1839,13 +1840,20 @@ export const getWorkspaceSetupKnowledgeBrief = () => new WorkspaceSetupKnowledge
 export const getWorkspaceSetupModelService = () => new WorkspaceSetupModelService(getAgentUsageService());
 export const getWorkspaceSetupCrawlStarter = () =>
   new WorkspaceSetupCrawlStarter(getWikiPageRepo(), getWikiWebsiteCrawlRepo(), getBackgroundTaskService());
-export const getWorkspaceSetupInterviewService = () =>
-  new WorkspaceSetupInterviewService(
+export const getWorkspaceSetupInterviewService = () => {
+  const models = getWorkspaceSetupModelService();
+  return new WorkspaceSetupInterviewService(
     getWorkspaceSetupRepo(),
-    getWorkspaceSetupModelService(),
-    getRecordRepo(),
-    getPreviewRecordConfigurationInteractor(),
+    models,
+    new WorkspaceSetupPlanner(
+      models,
+      getRecordRepo(),
+      getPreviewRecordConfigurationInteractor(),
+      getRecordConfigurationService(),
+      getRecordAccessPolicy(),
+    ),
   );
+};
 export const getWorkspaceSetupBuildService = () =>
   new WorkspaceSetupBuildService(
     getWorkspaceSetupRepo(),

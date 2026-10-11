@@ -47,7 +47,7 @@ const { InitializeRecordModelService } = await import("@/features/records/initia
 const { PrismaRecordRepo } = await import("@/features/records/prisma-record.repository");
 const { presetId } = await import("@/features/records/crm-preset");
 const { agencyPlan } = await import("@/features/workspace-setup/__tests__/setup-plan-fixtures");
-const { planToWire } = await import("./setup-wire-fixtures");
+const { planPartFor } = await import("./setup-wire-fixtures");
 const { WORKSPACE_SETUP_SPEND_CAP_MICROCENTS } = await import("../workspace-setup-spend");
 const { emptySetupPhase } = await import("../workspace-setup-build.service");
 
@@ -132,8 +132,8 @@ function modelReplies() {
     }) => {
       const charge = { ...CHARGE, model: args.model.modelId };
       if (args.label === "Workspace setup follow-ups") return Promise.resolve({ output: { questions: [] }, charge });
-      if (args.label === "Workspace setup plan")
-        return Promise.resolve({ output: planToWire((state.plan ?? agencyPlan) as typeof agencyPlan), charge });
+      const part = planPartFor(args.label, (state.plan ?? agencyPlan) as typeof agencyPlan);
+      if (part) return Promise.resolve({ output: part, charge });
       if (args.label === "Workspace setup sample records") {
         const records = (
           args.schema as unknown as { shape: { records: { element: { shape: Record<string, unknown> } } } }

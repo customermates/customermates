@@ -3,8 +3,26 @@ import { describe, expect, it } from "vitest";
 import { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
 import { agencyPlan, fieldServicePlan, saasPlan } from "@/features/workspace-setup/__tests__/setup-plan-fixtures";
 
-import { followUpAnswerIssue, followUpQuestions, planFromWire, prefillAnswers } from "../workspace-setup-wire";
-import { planToWire } from "./setup-wire-fixtures";
+import { STRUCTURED_OUTPUT_MAX_UNION_TYPES, structuredOutputUnionTypes } from "@/ee/agent-chat/structured-model-call";
+
+import {
+  FollowUpWireSchema,
+  MappingWireSchema,
+  PlanKnowledgeWireSchema,
+  PlanModelWireSchema,
+  PlanViewsWireSchema,
+  PlanWireSchema,
+  PrefillWireSchema,
+  followUpAnswerIssue,
+  followUpQuestions,
+  lowerCamelKey,
+  planFromWire,
+  planPartPath,
+  planWireFromParts,
+  prefillAnswers,
+  sampleRecordsWireSchema,
+} from "../workspace-setup-wire";
+import { planToWire, planToWireParts } from "./setup-wire-fixtures";
 
 const blank = { choice: null, choices: [], custom: [], items: [], min: null, max: null, text: null };
 
@@ -129,6 +147,96 @@ describe("plan wire format", () => {
     expect(planFromWire(unknownList)).toMatchObject({
       ok: false,
       issues: [expect.objectContaining({ path: "listDefaults.0.list" })],
+    });
+  });
+});
+
+describe("model-facing setup schemas", () => {
+  it("keeps every schema a setup model call sends under the union budget of constrained decoding", () => {
+    const schemas = {
+      PrefillWireSchema,
+      FollowUpWireSchema,
+      PlanModelWireSchema,
+      PlanViewsWireSchema,
+      PlanKnowledgeWireSchema,
+      MappingWireSchema,
+      samples: sampleRecordsWireSchema(Array.from({ length: 30 }, (_value, index) => `column${index}`)),
+    };
+    const over = Object.entries(schemas).filter(
+      ([, schema]) => structuredOutputUnionTypes(schema) > STRUCTURED_OUTPUT_MAX_UNION_TYPES,
+    );
+    expect(over.map(([name]) => name)).toEqual([]);
+    expect(structuredOutputUnionTypes(PlanWireSchema)).toBeGreaterThan(22);
+  });
+
+  it("keeps the model part flat, so no nested object can come back as JSON text", () => {
+    for (const schema of [PlanModelWireSchema, PlanViewsWireSchema, PlanKnowledgeWireSchema])
+      for (const field of Object.values(schema.shape)) expect(field.def.type).not.toBe("object");
+  });
+
+  it("assembles the three parts into the plan they were split from", () => {
+    const parts = planToWireParts(agencyPlan);
+    expect(planWireFromParts(parts.model, parts.views, parts.knowledge)).toEqual(planToWire(agencyPlan));
+    expect(planPartPath("recordModel.fields.2.key")).toBe("fields.2.key");
+    expect(planPartPath("dashboard.widgets.1.title")).toBe("widgets.1.title");
+    expect(planPartPath("sampleData.lists.0.kinds.0")).toBe("sampleLists.0.kinds.0");
+    expect(planPartPath("listDefaults.0.list")).toBe("listDefaults.0.list");
+  });
+});
+
+describe("plan normalisation the model does not need to get right", () => {
+  it("keeps one view per list, drops totals without a grouping and the implicit name field of a new list", () => {
+    const wire = planToWire(agencyPlan);
+    wire.listDefaults.push({ ...wire.listDefaults[0], name: "All deals", layout: "table", groupBy: null });
+    wire.listDefaults[1] = { ...wire.listDefaults[1], groupBy: null, layout: "table" };
+    wire.recordModel.fields.push({
+      key: "project.name",
+      label: "Name",
+      valueType: "text",
+      required: true,
+      multiple: false,
+      options: [],
+    });
+    const converted = planFromWire(wire);
+    expect(converted.ok && converted.plan.listDefaults.map((value) => [value.name, value.summaries.length])).toEqual([
+      ["Pipeline", 2],
+      ["Delivery", 0],
+    ]);
+    expect(converted.ok && converted.plan.recordModel.fields.some((field) => field.key === "project.name")).toBe(false);
+  });
+
+  it("turns number literals into the decimal strings expressions take, and clamps sample kinds", () => {
+    const wire = planToWire(agencyPlan);
+    wire.recordModel.calculations[0].expression = JSON.stringify({
+      op: "multiply",
+      left: { op: "field", field: "project.budget" },
+      right: { op: "number", value: 0.2 },
+    });
+    wire.sampleData.lists[0].kinds = [
+      "Decision-makers at small agencies, consultancies and software companies across Europe",
+    ];
+    const converted = planFromWire(wire);
+    expect(converted.ok && converted.plan.recordModel.calculations[0].expression).toMatchObject({
+      right: { op: "number", value: "0.2" },
+    });
+    expect(converted.ok && converted.plan.sampleData.lists[0].kinds[0].length).toBeLessThanOrEqual(80);
+  });
+
+  it("derives a valid key from a page or widget key written as words", () => {
+    expect(lowerCamelKey("competitor-hubspot")).toBe("competitorHubspot");
+    expect(lowerCamelKey("ruby Hotels")).toBe("rubyHotels");
+    expect(lowerCamelKey("2024 pipeline")).toBe("pipeline");
+  });
+
+  it("files a pre-filled choice for a question that only takes own entries as an own entry", () => {
+    expect(
+      prefillAnswers({ answers: [{ ...blank, part: "industries", confidence: 0.8, choices: ["Retail"] }] }),
+    ).toEqual({
+      industries: {
+        source: "website",
+        confidence: 0.8,
+        value: { format: "multipleChoice", values: [], custom: ["Retail"] },
+      },
     });
   });
 });
