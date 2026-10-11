@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 
-import { DEMO_COMPANY_ID, DEMO_MEMBERS, type DemoMember, expect, memberPage, test } from "./demo-seed";
+import { DEMO_COMPANY_ID, DEMO_MEMBERS, type DemoMember, expect, memberPage, settle, test } from "./demo-seed";
 
 type SeededView = {
   id: string;
@@ -20,6 +20,8 @@ const AGGREGATION_LABELS: Record<string, string> = {
 
 /** Opens a seeded saved view and checks it shows records, its groups and the configured group totals. */
 async function expectViewShowsData(page: Page, view: SeededView, isMobile: boolean) {
+  // Let the previous view finish loading its lazy chunks, so leaving it does not abort them mid-load.
+  await settle(page);
   await page.goto(`/en/records/${view.typeId}?view=${view.id}`);
   await expect(page.locator("[data-joins-top-bar]").getByText(view.name, { exact: true }).first()).toBeVisible();
   await expect(page.getByText(/^No records yet$|^No records match/)).toHaveCount(0);

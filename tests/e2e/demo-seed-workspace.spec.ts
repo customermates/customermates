@@ -1,4 +1,4 @@
-import { DEMO_COMPANY_ID, expect, test } from "./demo-seed";
+import { DEMO_COMPANY_ID, expect, settle, test } from "./demo-seed";
 
 /** The seeded workspace beyond records: webhooks and deliveries, the inbox, the Knowledge Base and routines. */
 const HEALTHY_URL = "https://erp-bridge.northwind-labs.example/hooks/crm";
@@ -36,6 +36,8 @@ test("webhooks show the healthy ERP bridge with successful deliveries and the pa
   await expect(paused).toContainText("Ticket alerts for the on-call tool (paused while the receiver is down)");
   await expect(paused).toContainText(/Disabled|Paused/);
 
+  // Let the page finish loading its lazy chunks before leaving it.
+  await settle(page);
   await page.goto("/en/settings/webhook-deliveries");
   const rows = page.getByRole("row");
   await expect(rows.filter({ hasText: HEALTHY_URL }).first()).toBeVisible();
@@ -74,6 +76,7 @@ test("inbox threads are listed and linked to their deals, tickets and candidates
   );
   expect([...new Set(links.map(({ list }) => list))].sort()).toEqual(["Candidate", "Deal", "Ticket"]);
   for (const threadId of [...new Set(links.map((link) => link.threadId))]) {
+    await settle(page);
     await page.goto(`/en/inbox?threadId=${threadId}`);
     const settings = page
       .getByRole("button", { name: "Thread settings", exact: true })
@@ -129,9 +132,14 @@ test("the Knowledge Base lists the Operating Guide and the procedures, and a pro
 });
 
 test("routines are listed with their owners and triggers", async ({ page, database, errors }) => {
-  const { rows: routines } = await database.query<{ name: string; trigger: string; enabled: boolean }>(
-    `SELECT name, "triggerKind"::text AS trigger, enabled FROM "Routine" WHERE "companyId"=$1 AND "deletedAt" IS NULL
-     ORDER BY name`,
+  const { rows: routines } = await database.query<{
+    name: string;
+    trigger: string;
+    cron: string | null;
+    enabled: boolean;
+  }>(
+    `SELECT name, "triggerKind"::text AS trigger, "cronExpression" AS cron, enabled FROM "Routine"
+     WHERE "companyId"=$1 AND "deletedAt" IS NULL ORDER BY name`,
     [DEMO_COMPANY_ID],
   );
   expect(routines.length).toBeGreaterThanOrEqual(10);
@@ -141,7 +149,11 @@ test("routines are listed with their owners and triggers", async ({ page, databa
     const row = page.getByRole("row").filter({ has: page.getByText(routine.name, { exact: true }) });
     await expect(row, routine.name).toBeVisible();
     if (routine.trigger === "event") await expect(row).toContainText("When something changes");
-    else await expect(row).toContainText(/Every .+ at \d{2}:\d{2}|\d+ \d+ [*\d]/);
+    else {
+      // Schedules read in words, for example "Weekdays at 08:00 AM" or "Every Monday at 07:00 AM", never as cron.
+      await expect(row).toContainText(/(Every|Weekdays|Weekends|Daily)\b.* at \d{1,2}:\d{2}/);
+      if (routine.cron) await expect(row).not.toContainText(routine.cron);
+    }
     await expect(row).toContainText(routine.enabled ? "Active" : "Paused");
   }
   expect(errors).toEqual([]);
