@@ -34,7 +34,7 @@ vi.mock("next-intl/server", () => ({
 const VIEW_ID = "b982b3d9-4a74-4410-b54e-958743a580ff";
 const MISSING_ID = "40000000-0000-4000-8000-000000000001";
 
-function setup() {
+function setup(recordViews?: unknown) {
   const source = () => ({
     getSearchableFields: vi.fn(() => [{ field: "name" }]),
     getSortableFields: vi.fn(() => [{ field: "createdAt", resolvedFields: ["createdAt"] }]),
@@ -102,6 +102,7 @@ function setup() {
     remove as never,
     queryPrecheck,
     entitlements as never,
+    recordViews as never,
   );
   return {
     sources,
@@ -868,5 +869,32 @@ describe("agent saved-view management", () => {
     });
     expect(subject.remove.invoke).toHaveBeenCalledWith({ id: VIEW_ID });
     expect(subject.select.invoke).not.toHaveBeenCalled();
+  });
+
+  it("refuses a record list grouping by a multiple choice field and names the fields that can group it", async () => {
+    const surfaceKey = "records:10000000-0000-4000-8000-000000000001";
+    const roleId = "20000000-0000-4000-8000-000000000001";
+    const recordViews = {
+      list: vi.fn().mockResolvedValue([]),
+      describe: vi.fn().mockResolvedValue({ type: { pluralLabel: "Contacts" }, fields: [], columns: [] }),
+      validate: vi.fn().mockResolvedValue(null),
+      unsupportedGrouping: vi.fn().mockResolvedValue(["system:assignedTo", "system:createdAt"]),
+    };
+    const subject = setup(recordViews);
+    const result = await subject.run({
+      action: "create",
+      surfaceKey,
+      name: "By role",
+      state: { grouping: { field: roleId } },
+    } as ManageDataViewsData);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.error.issues[0]).toMatchObject({
+      path: ["state", "grouping"],
+      message: "invalidGroupingField",
+      params: { error: CustomErrorCode.invalidGroupingField, validValues: "system:assignedTo, system:createdAt" },
+    });
+    expect(recordViews.unsupportedGrouping).toHaveBeenCalledWith(surfaceKey, { field: roleId });
+    expect(subject.upsert.invoke).not.toHaveBeenCalled();
   });
 });

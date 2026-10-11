@@ -203,6 +203,7 @@ export const RecordWidgetEditor = observer(
             >
               <RecordWidgetCard
                 data={shownPreview.result}
+                decimalPlaces={shownPreview.decimalPlaces}
                 displayOptions={toJS(form.displayOptions)}
                 groupOptions={shownPreview.groupOptions}
                 measure={measure}

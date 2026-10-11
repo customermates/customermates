@@ -7,7 +7,11 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 
 type WidgetGroupOption = RecordWidgetDto["groupOptions"][number];
 
-export type RecordWidgetPreview = { result: RecordMeasureResult; groupOptions: WidgetGroupOption[] };
+export type RecordWidgetPreview = {
+  result: RecordMeasureResult;
+  groupOptions: WidgetGroupOption[];
+  decimalPlaces: number | null;
+};
 
 export type WidgetMemberDirectory = {
   resolveUserOptions(ids: string[]): Promise<Array<{ id: string; firstName: string; lastName: string }>>;
@@ -30,6 +34,7 @@ export class RecordWidgetReader {
           status: "ready" as const,
           data: result.data,
           groupOptions: await this.groupOptions(result.data),
+          decimalPlaces: await this.decimalPlaces(row.measure),
         };
       },
       { readOnly: true, timeout: 30000 },
@@ -41,10 +46,23 @@ export class RecordWidgetReader {
       async () => {
         const result = await this.measures.invoke(measure);
         if (!result.ok) return result;
-        return { ok: true as const, data: { result: result.data, groupOptions: await this.groupOptions(result.data) } };
+        return {
+          ok: true as const,
+          data: {
+            result: result.data,
+            groupOptions: await this.groupOptions(result.data),
+            decimalPlaces: await this.decimalPlaces(measure),
+          },
+        };
       },
       { readOnly: true, timeout: 30000 },
     );
+  }
+
+  private async decimalPlaces(measure: RecordMeasure): Promise<number | null> {
+    if (!measure.valueFieldId || measure.aggregation === "count") return null;
+    const model = await this.records.getModel();
+    return model.fields.find((field) => field.id === measure.valueFieldId)?.format?.decimalPlaces ?? null;
   }
 
   private async groupOptions(data: RecordMeasureResult): Promise<WidgetGroupOption[]> {

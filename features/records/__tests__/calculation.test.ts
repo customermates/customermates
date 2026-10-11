@@ -10,6 +10,7 @@ import type { CalculationContext } from "../calculation";
 import {
   decimalResult,
   evaluateCalculation,
+  fieldPrecisionResult,
   isRepresentableDecimal,
   MISSING_VALUE,
   reduceCalculatedValues,
@@ -130,11 +131,40 @@ describe("deterministic record calculations", () => {
     expect(reduceCalculatedValues("average", [])).toEqual(MISSING_VALUE);
   });
 
-  it("rejects inexact arithmetic instead of rounding silently", async () => {
-    expect(await evaluateCalculation(operation("divide", literal("1"), literal("3")), ref, empty)).toEqual({
-      state: "error",
-      code: "out_of_range",
-    });
+  it("rounds a non-terminating division to the stored scale and then to the target field's precision", async () => {
+    const third = await evaluateCalculation(operation("divide", literal("1"), literal("3")), ref, empty);
+    expect(third).toEqual(decimalResult(`0.${"3".repeat(30)}`));
+    expect(fieldPrecisionResult(third, { valueType: "number", format: { decimalPlaces: 2 } })).toEqual(
+      decimalResult("0.33"),
+    );
+    expect(fieldPrecisionResult(third, { valueType: "number" })).toEqual(third);
+    const twoThirds = await evaluateCalculation(operation("divide", literal("2"), literal("3")), ref, empty);
+    expect(fieldPrecisionResult(twoThirds, { valueType: "number", format: { decimalPlaces: 0 } })).toEqual(
+      decimalResult("1"),
+    );
+    const discount = operation(
+      "multiply",
+      operation("divide", literal("15", "EUR"), literal("45", "EUR")),
+      literal("100"),
+    );
+    const percentage = await evaluateCalculation(discount, ref, empty);
+    expect(fieldPrecisionResult(percentage, { valueType: "number", format: { decimalPlaces: 1 } })).toEqual(
+      decimalResult("33.3"),
+    );
+    const share = await evaluateCalculation(operation("divide", literal("100", "EUR"), literal("3")), ref, empty);
+    expect(fieldPrecisionResult(share, { valueType: "currency", format: { currency: "EUR" } })).toEqual(share);
+    expect(
+      fieldPrecisionResult(share, { valueType: "currency", format: { currency: "EUR", decimalPlaces: 2 } }),
+    ).toEqual(decimalResult("33.33", "EUR"));
+    expect(
+      fieldPrecisionResult(share, { valueType: "currency", format: { currency: "EUR", decimalPlaces: 4 } }),
+    ).toEqual(decimalResult("33.3333", "EUR"));
+    const product = operation(
+      "multiply",
+      operation("divide", literal("1"), literal("3")),
+      operation("divide", literal("1"), literal("7")),
+    );
+    expect(await evaluateCalculation(product, ref, empty)).toMatchObject({ state: "value" });
     expect(reduceCalculatedValues("sum", [MISSING_VALUE])).toEqual(MISSING_VALUE);
   });
 

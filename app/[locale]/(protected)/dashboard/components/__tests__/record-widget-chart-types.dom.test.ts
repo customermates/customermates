@@ -337,4 +337,46 @@ describe("record widget display types", () => {
       'RecordWidgets.funnelClosedStage{"label":"Lost","value":"1"}',
     );
   });
+
+  it("rounds averages and other derived values to the measured field's decimal places, otherwise to two", () => {
+    const number = { displayType: DisplayType.number };
+    const average = euro("71346.0504347826086956521739");
+    const view = render({
+      displayOptions: number,
+      measure: measure(null, "average"),
+      data: result({ count: 23, result: average }, []),
+    });
+    expect(view.querySelector('[data-slot="widget-number"] p')?.textContent).toBe("€71,346.05");
+    render({
+      displayOptions: number,
+      measure: measure(null, "average"),
+      decimalPlaces: 0,
+      data: result({ count: 23, result: average }, []),
+    });
+    expect(view.querySelector('[data-slot="widget-number"] p')?.textContent).toBe("€71,346");
+    render({
+      displayOptions: number,
+      measure: measure(null, "average"),
+      data: result({ count: 3, result: plain("3.14159265358979") }, []),
+    });
+    expect(view.querySelector('[data-slot="widget-number"] p')?.textContent).toBe("3.14");
+    render({
+      displayOptions: number,
+      measure: measure(null, "average"),
+      decimalPlaces: 4,
+      data: result({ count: 3, result: plain("3.14159265358979") }, []),
+    });
+    expect(view.querySelector('[data-slot="widget-number"] p')?.textContent).toBe("3.1416");
+
+    render({
+      displayOptions: { displayType: DisplayType.rankedTable },
+      measure: measure({ path: [], fieldId: STAGE }, "average"),
+      groupOptions: [{ id: "New", label: "New", color: null }],
+      data: result({ count: 3, result: euro("1000.3333333333333333") }, [
+        group(option("New"), euro("1000.3333333333333333"), 3),
+      ]),
+    });
+    expect(view.textContent).toContain("€1,000.33");
+    expect(view.textContent).not.toContain("1,000.3333");
+  });
 });

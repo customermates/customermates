@@ -13,6 +13,7 @@ import { getChartColors } from "@/constants/chart-colors";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useRecordValueFormat } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
 import { hasRecordMeasureGroupFilter } from "@/features/records/record-measure.schema";
+import { derivedFractionDigits } from "@/features/records/derived-value-format";
 import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
 import { RankedTable } from "./ranked-table";
 import { WidgetChart } from "./widget-chart";
@@ -36,7 +37,7 @@ import {
 
 export type RecordWidgetChartProps = Pick<
   RecordWidgetDto,
-  "data" | "groupOptions" | "displayOptions" | "measure" | "status"
+  "data" | "groupOptions" | "displayOptions" | "measure" | "status" | "decimalPlaces"
 > & { name: string };
 
 type ChartRow = {
@@ -58,13 +59,15 @@ export function RecordWidgetChart({
   measure,
   status,
   name,
+  decimalPlaces,
 }: RecordWidgetChartProps) {
   const t = useTranslations();
   const locale = useHydratedIntlStore().formattingLocale;
   const valueFormat = useRecordValueFormat();
   const { resolvedTheme } = useTheme();
   const interval = measure.groupBy?.dateInterval;
-  const formatDecimal = (value: string, currency: string | null) => valueFormat.decimal(value, { currency });
+  const formatDecimal = (value: string, currency: string | null) =>
+    valueFormat.decimal(value, { currency, maximumFractionDigits: derivedFractionDigits(decimalPlaces) });
   const bucketYears = new Set(
     (data?.groups ?? []).flatMap((group) =>
       group.label.state === "value" && group.label.value.kind === "date"

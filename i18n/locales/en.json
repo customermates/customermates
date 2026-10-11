@@ -1092,6 +1092,7 @@
       "invalidFilterField": "Filter field not found or not accessible. Available fields: {validValues}.",
       "invalidFilterOperator": "The operator '{operator}' is not allowed on the field '{field}'. Allowed operators: {validValues}.",
       "invalidFilterValue": "Invalid filter value. The value must match the field's type and operator (e.g. a number for gt/lt, an ISO date for date fields, or an id for in/notIn).",
+      "invalidGroupingField": "This field cannot group the view. Multiple choice fields and fields without fixed values cannot group a list. Groupable fields: {validValues}.",
       "invalidJsonBody": "The request body is not valid JSON.",
       "invalidSortField": "Sort field not found or not accessible. Available fields: {validValues}.",
       "invalidUrl": "Enter a valid URL.",
