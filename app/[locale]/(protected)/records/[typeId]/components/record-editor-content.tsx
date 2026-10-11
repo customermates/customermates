@@ -210,6 +210,10 @@ const RecordEditorBody = observer(function RecordEditorBody({
             </h2>
           </AppCardHeader>
 
+          {detailLayout && (
+            <RecordDetailLayoutStatus {...detailLayout} className="mt-[1.375rem] mr-2 min-h-8 min-w-0 justify-end" />
+          )}
+
           <RecordHeaderActions
             className="mt-[1.375rem]"
             deletion={deletion}
@@ -223,8 +227,6 @@ const RecordEditorBody = observer(function RecordEditorBody({
             }}
           />
         </div>
-
-        {detailLayout && <RecordDetailLayoutStatus {...detailLayout} className="shrink-0 px-6 pb-3" />}
 
         {notices}
 
