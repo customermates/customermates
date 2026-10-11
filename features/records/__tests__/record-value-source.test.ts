@@ -23,7 +23,6 @@ const t = (key: string, values: Record<string, string> = {}) =>
       "RecordModel.calculationFlow.sentence.count": "{field} counts the linked {list}.",
       "RecordModel.calculationFlow.sentence.throughList": "{list} of the {via}",
       "RecordModel.calculationFlow.text.linkedValue": "{list} {value}",
-      "RecordModel.valueSource.calculated": "Calculated · {formula}",
       "RecordModel.valueSource.from": "From {list} · {value}",
       "RecordModel.valueSource.savedOnCreate": "Saved when the {list} is created",
       "RecordModel.valueSource.savedOnRequest": "Saved on request",
@@ -49,18 +48,20 @@ describe("record value source line", () => {
     expect(source(fieldOf("deal.name"))).toBeNull();
     for (const field of calculated) {
       const text = sentenceText(source(field)?.segments ?? []);
-      expect(text, field.label).toMatch(/^(Calculated · |From |Saved )/);
+      expect(text, field.label).not.toMatch(/^Calculated · /);
+      expect(source(field)?.kind, field.label).toMatch(/^(calculation|lookup|saved)$/);
       expect(text, field.label).not.toMatch(/\{|\}|\u0000|undefined/);
     }
   });
 
-  it("shows a formula as Calculated with the formula only and a rollup with its sentence", () => {
+  it("shows a formula as the formula only and a rollup as its sentence, without a Calculated prefix", () => {
     const formula = ofShape((described) => described.reducer === null);
     const formulaText = sentenceText(source(formula as RecordField)?.segments ?? []);
-    expect(formulaText.startsWith("Calculated · ")).toBe(true);
+    expect(source(formula as RecordField)?.kind).toBe("calculation");
+    expect(formulaText.startsWith("Calculated")).toBe(false);
     expect(formulaText).not.toContain("is calculated as");
     expect(sentenceText(source(fieldOf("deal.totalValue"))?.segments ?? [])).toBe(
-      "Calculated · Value adds up the Amount of all linked Line items.",
+      "Value adds up the Amount of all linked Line items.",
     );
   });
 
@@ -74,11 +75,13 @@ describe("record value source line", () => {
     const result = source(lookup);
     expect(sentenceText(result?.segments ?? [])).toMatch(/^From .+ · .+$/);
     expect(result?.segments.some((segment) => typeof segment !== "string" && segment.kind === "list")).toBe(true);
+    expect(result?.kind).toBe("lookup");
     expect(result?.lookup).toMatchObject({ relationId: expect.any(String), direction: expect.any(String) });
   });
 
   it("shows when a snapshot is saved, with its trigger field as a reference", () => {
     const result = source(fieldOf("lineItem.savedPrice"));
+    expect(result?.kind).toBe("saved");
     expect(sentenceText(result?.segments ?? [])).toBe("Saved when Pricing changes to Saved price");
     expect(result?.segments).toContainEqual({
       kind: "field",

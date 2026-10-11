@@ -151,9 +151,10 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
   }
   get isReadOnly() {
     if (this.pendingOperationId || this.refreshRequired || this.conflicts.length || this.hasRelatedDraft) return true;
-    return this.record !== null
-      ? !this.presentation.permittedActions.includes("update")
-      : !this.presentation.permittedActions.includes("create");
+    return this.isPermissionReadOnly;
+  }
+  get isPermissionReadOnly() {
+    return !this.presentation.permittedActions.includes(this.record !== null ? "update" : "create");
   }
   get fields() {
     return editableFields(this.presentation);

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
+import { Link2 } from "lucide-react";
 
 import type { RecordEditorStore } from "./record-editor.store";
 import type { RecordRelationshipPath } from "@/features/records/record-relationship-path.schema";
@@ -22,6 +23,8 @@ import {
 import { RecordDetailField } from "./record-detail-field";
 import { EmptyValue } from "@/components/shared/empty-value";
 import { relationshipPathColumnKey } from "@/features/records/record-column.schema";
+import { EntityDetailDerivation } from "@/components/entity-detail/entity-detail-derivation";
+import { configurePathLists } from "@/app/[locale]/(protected)/configure/components/configure-model";
 
 export const RecordPathRecords = observer(function RecordPathRecords({
   store,
@@ -49,6 +52,17 @@ export const RecordPathRecords = observer(function RecordPathRecords({
     const data = result.data;
     if (data) setPage((current) => Math.min(current, Math.max(1, Math.ceil(data.total / data.pageSize))));
   }, [result.data]);
+  const { model, typeId, canManageSchema } = store.presentation;
+  const lists = configurePathLists(model, typeId, path.path);
+  const derivation = (
+    <EntityDetailDerivation
+      configureHref={canManageSchema ? `/configure?typeId=${typeId}&tab=relationships` : null}
+      icon={Link2}
+      label={t("RecordModel.derivation.lookup", { field: path.label })}
+    >
+      {[t("RecordModel.relationshipPath"), lists.join(" → ")].filter(Boolean).join(" · ")}
+    </EntityDetailDerivation>
+  );
   return (
     <section aria-label={path.label} className="space-y-1.5">
       <RecordDetailField fieldId={relationshipPathColumnKey(path.id)} label={path.label}>
@@ -63,7 +77,7 @@ export const RecordPathRecords = observer(function RecordPathRecords({
         ) : (
           <div
             aria-busy={result.loading || undefined}
-            className={cn(RECORD_LINK_FRAME_CLASS, RECORD_LINK_FRAME_READ_ONLY_CLASS)}
+            className={cn(RECORD_LINK_FRAME_CLASS, RECORD_LINK_FRAME_READ_ONLY_CLASS, "relative pr-9")}
             data-relationship-path-field=""
           >
             {result.loading && !result.data && (
@@ -93,6 +107,10 @@ export const RecordPathRecords = observer(function RecordPathRecords({
             })}
 
             {result.data?.total === 0 && <EmptyValue />}
+
+            <div className="absolute top-1/2 right-3 flex -translate-y-1/2 items-center" data-form-control-end="">
+              {derivation}
+            </div>
           </div>
         )}
 

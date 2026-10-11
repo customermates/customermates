@@ -70,7 +70,7 @@ function Segments<Value extends string>({
           className={cn(
             sidebar
               ? "flex w-full shrink-0 flex-col gap-0.5 text-muted-foreground"
-              : "grid h-8 w-full shrink-0 auto-cols-fr grid-flow-col gap-0.5 rounded-lg bg-muted p-0.5 text-muted-foreground",
+              : "grid h-8 w-full shrink-0 auto-cols-fr grid-flow-col gap-0.5 rounded-lg border border-border bg-muted p-0.5 text-muted-foreground",
             listClassName,
           )}
           data-slot="segmented-control-list"

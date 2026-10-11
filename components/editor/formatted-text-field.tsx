@@ -101,12 +101,11 @@ export function FormattedTextField({
       <div
         data-formatted-text-area
         className={cn(
-          "relative -mx-2 rounded-md px-2 py-1",
-          !readOnly && "min-h-8",
+          "relative min-h-9 rounded-md border border-border bg-background px-3 py-1.5 text-sm",
           !readOnly &&
             !isEditing &&
-            "cursor-text hover:bg-muted/60 has-[[data-edit-trigger]:focus-visible]:ring-2 has-[[data-edit-trigger]:focus-visible]:ring-ring",
-          isEditing && "ring-1 ring-ring",
+            "cursor-text has-[[data-edit-trigger]:focus-visible]:border-ring has-[[data-edit-trigger]:focus-visible]:ring-[2px] has-[[data-edit-trigger]:focus-visible]:ring-ring/30",
+          isEditing && "border-ring ring-[2px] ring-ring/30",
         )}
         role="presentation"
         onClick={startEditingOnClick}

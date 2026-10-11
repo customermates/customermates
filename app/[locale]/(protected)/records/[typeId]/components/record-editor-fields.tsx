@@ -5,7 +5,7 @@ import { useId } from "react";
 import { observer } from "mobx-react-lite";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { useTranslations } from "next-intl";
-import { Camera } from "lucide-react";
+import { Camera, Link2, Sigma } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { RecordFieldView } from "@/features/records/record-model.schema";
@@ -17,8 +17,14 @@ import { FormattedTextField } from "@/components/editor/formatted-text-field";
 import { ConfirmationSentenceView, referenceSentence } from "@/components/modal/confirmation-sentence";
 import { RecordIdentityEditor } from "./record-identity-editor";
 import { recordValueSource } from "@/features/records/record-value-source";
+import type { RecordValueSourceKind } from "@/features/records/record-value-source";
+import { EntityDetailDerivation } from "@/components/entity-detail/entity-detail-derivation";
+import { focusHref } from "@/components/focus/focus-href";
+import { FieldDerivationView } from "./field-derivation-view";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { runUserAction } from "@/core/errors/report-application-error";
+
+const DERIVATION_ICONS = { calculation: Sigma, lookup: Link2, saved: Camera } as const;
 
 export const RecordEditorField = observer(function RecordEditorField({
   store,
@@ -53,6 +59,13 @@ export const RecordEditorField = observer(function RecordEditorField({
       </Button>
     ) : null;
   if (field.valueType === "channels") return <RecordIdentityEditor field={field} store={store} />;
+  const permissionReadOnly = store.isPermissionReadOnly;
+  const derivationLabel = (kind: RecordValueSourceKind) =>
+    kind === "calculation"
+      ? t("RecordModel.derivation.calculation", { field: field.label })
+      : kind === "lookup"
+        ? t("RecordModel.derivation.lookup", { field: field.label })
+        : t("RecordModel.derivation.saved", { field: field.label });
   if (restricted || !isRecordFieldWritable(field)) {
     if (!store.record) return null;
     if (result?.state === "value" && result.value.kind === "richText") {
@@ -62,14 +75,8 @@ export const RecordEditorField = observer(function RecordEditorField({
         </RecordDetailField>
       );
     }
-    const source = restricted
-      ? null
-      : recordValueSource({
-          model: withFormulaReferences(store.presentation.model, store.presentation.formulaReferences),
-          field,
-          t,
-          format: valueFormat,
-        });
+    const model = withFormulaReferences(store.presentation.model, store.presentation.formulaReferences);
+    const source = restricted ? null : recordValueSource({ model, field, t, format: valueFormat });
     const lookup = source?.lookup;
     const linked = lookup
       ? store.record.relationships.find(
@@ -80,26 +87,42 @@ export const RecordEditorField = observer(function RecordEditorField({
     const targetName = target
       ? recordDisplayName(target.title, store.presentation.linkLabels[target.ref.typeId], t)
       : field.label;
+    const sentence = source
+      ? referenceSentence(source.segments, (reference) =>
+          reference.kind === "list" && target
+            ? {
+                label: t("RecordModel.openRecord", { name: targetName }),
+                onOpen: (trigger) =>
+                  runUserAction(() => store.rootStore.recordWorkspaceStore.open(target.ref, trigger)),
+              }
+            : null,
+        )
+      : null;
     return (
       <EntityDetailStaticField
         action={restricted ? null : captureAction}
-        fieldId={field.id}
-        label={field.label}
-        source={
-          source ? (
-            <ConfirmationSentenceView
-              sentence={referenceSentence(source.segments, (reference) =>
-                reference.kind === "list" && target
-                  ? {
-                      label: t("RecordModel.openRecord", { name: targetName }),
-                      onOpen: (trigger) =>
-                        runUserAction(() => store.rootStore.recordWorkspaceStore.open(target.ref, trigger)),
-                    }
-                  : null,
+        derivation={
+          source && sentence ? (
+            <EntityDetailDerivation
+              configureHref={
+                store.presentation.canManageSchema
+                  ? focusHref({ kind: "field", id: field.id, typeId: field.typeId })
+                  : null
+              }
+              icon={DERIVATION_ICONS[source.kind]}
+              label={derivationLabel(source.kind)}
+            >
+              {source.kind === "calculation" ? (
+                <FieldDerivationView field={field} model={model} sentence={sentence} />
+              ) : (
+                <ConfirmationSentenceView sentence={sentence} />
               )}
-            />
+            </EntityDetailDerivation>
           ) : undefined
         }
+        fieldId={field.id}
+        label={field.label}
+        readOnlyHint={restricted}
         value={<RecordValue field={field} members={store.record.memberUsers} result={result} />}
       />
     );
@@ -110,6 +133,7 @@ export const RecordEditorField = observer(function RecordEditorField({
       fieldId={field.id}
       inputId={field.valueType === "richText" ? undefined : inputId}
       label={field.label}
+      readOnlyHint={permissionReadOnly}
       required={field.required}
     >
       <RecordInputField field={field} id={id} inputId={inputId} label={null} />
