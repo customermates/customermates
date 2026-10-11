@@ -8,6 +8,8 @@ import type { SpreadsheetMapping } from "@/features/data-transfer/spreadsheet/sp
 import type { UpsertDataViewInteractor } from "@/features/data-view/upsert-data-view.interactor";
 import type { UpsertRecordWidgetInteractor } from "@/features/widget/record-widget.interactor";
 import type { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-user-details.interactor";
+import type { MutateRecordInteractor } from "@/features/records/mutate-record.interactor";
+import type { RecordScalar } from "@/features/records/record-model.schema";
 import type { SetupPlan } from "@/features/workspace-setup/setup-plan.schema";
 import type { BrandFetch } from "./workspace-setup-brand";
 import type { WorkspaceSetupRepo } from "./workspace-setup.repo";
@@ -32,7 +34,10 @@ import {
   ImportSpreadsheetSchema,
   SpreadsheetMappingSchema,
 } from "@/features/data-transfer/spreadsheet/spreadsheet.schema";
-import { spreadsheetMappingIssues } from "@/features/data-transfer/spreadsheet/spreadsheet-conversion";
+import {
+  spreadsheetMappingIssues,
+  spreadsheetRecordId,
+} from "@/features/data-transfer/spreadsheet/spreadsheet-conversion";
 import { compileSetupDashboard } from "@/features/workspace-setup/setup-dashboard-compiler";
 import { compileSetupImportMapping } from "@/features/workspace-setup/setup-import-compiler";
 import { compileSetupRecordModel } from "@/features/workspace-setup/setup-model-compiler";
@@ -60,6 +65,7 @@ import {
   untrustedText,
 } from "./workspace-setup-prompts";
 import { generatedSampleList, sampleListSpecs } from "./workspace-setup-samples";
+import { sampleLineItemPlans } from "./workspace-setup-line-items";
 import { PhaseFailure } from "./workspace-setup-phase-failure";
 import {
   SetupReferencesSchema,
@@ -116,6 +122,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     private importSpreadsheet: Pick<ImportSpreadsheetInteractor, "invoke">,
     private brandFetch: (scope: { registrableDomain: string }) => BrandFetch,
     private settings: Pick<UpdateUserDetailsInteractor, "invoke">,
+    private mutateRecord: Pick<MutateRecordInteractor, "invoke">,
   ) {
     super();
   }
@@ -476,12 +483,9 @@ export class WorkspaceSetupBuildService extends UserAccessor {
     const refs: RecordRef[] = [];
     const results: StoredSetupResults["records"] = [];
     for (const sample of samples) {
+      const idempotencyKey = setupIdempotencyKey(setup.id, `sample:${sample.list}`);
       const imported = await this.importSpreadsheet.invoke(
-        ImportSpreadsheetSchema.parse({
-          table: sample.table,
-          mapping: sample.mapping,
-          idempotencyKey: setupIdempotencyKey(setup.id, `sample:${sample.list}`),
-        }),
+        ImportSpreadsheetSchema.parse({ table: sample.table, mapping: sample.mapping, idempotencyKey }),
       );
       if (!imported.ok) throw new PhaseFailure(failureOf(imported.error));
       refs.push(...imported.data.records);
@@ -491,18 +495,78 @@ export class WorkspaceSetupBuildService extends UserAccessor {
         kind: "sample",
         count: imported.data.created,
         titles: sample.table.rows
-          .filter((_row, index) => kept.has(imported.data.records[index]?.recordId ?? ""))
+          .filter((row) => kept.has(spreadsheetRecordId(idempotencyKey, `record:${row.rowNumber}`)))
           .map((row) => sample.titles[row.rowNumber - 2] ?? "")
           .filter(Boolean)
           .slice(0, 10),
         skippedRows: imported.data.errorCount,
       });
     }
+    await this.sampleLineItems(setup, plan, samples, refs);
     const patch = (current: WorkspaceSetupRecord): WorkspaceSetupPatch => ({
       created: { ...current.created, sampleRecords: refs },
       results: { ...current.results, records: results },
     });
     return capped ? { status: "stopped", error: "spendCap", patch } : { status: "completed", patch };
+  }
+
+  private async sampleLineItems(
+    setup: WorkspaceSetupRecord,
+    plan: SetupPlan,
+    samples: GeneratedSampleList[],
+    refs: RecordRef[],
+  ) {
+    const model = await this.records.getModel();
+    const id = (key: string) => presetId(this.companyId, key);
+    const lineItem = model.types.find((type) => type.id === id("lineItem") && !type.archived);
+    const live = (key: string) => model.fields.some((field) => field.id === id(key) && !field.archived);
+    const linked = (key: string) =>
+      model.relationships.some((relation) => relation.id === id(key) && !relation.archived);
+    if (!lineItem || !linked("lineItem.deal") || !live("lineItem.quantity")) return;
+    const items = sampleLineItemPlans({
+      companyId: this.companyId,
+      setupId: setup.id,
+      samples,
+      imported: new Set(refs.map((ref) => ref.recordId)),
+      answers: setup.answers,
+    });
+    for (const item of items) {
+      if (item.service && !linked("lineItem.service")) continue;
+      if (item.unitPrice && !(live("lineItem.pricingMode") && live("lineItem.savedPrice"))) continue;
+      const fields: Array<{ fieldId: string; value: RecordScalar }> = [
+        { fieldId: id("lineItem.quantity"), value: { kind: "decimal", value: String(item.quantity), currency: null } },
+        ...(item.name && live("lineItem.name")
+          ? [{ fieldId: id("lineItem.name"), value: { kind: "text" as const, value: item.name } }]
+          : []),
+        ...(item.unitPrice
+          ? [
+              { fieldId: id("lineItem.pricingMode"), value: { kind: "select" as const, value: "saved" } },
+              {
+                fieldId: id("lineItem.savedPrice"),
+                value: { kind: "decimal" as const, value: item.unitPrice, currency: plan.workspace.currency },
+              },
+            ]
+          : []),
+      ];
+      const created = await this.mutateRecord.invoke({
+        expectedRevision: model.revision,
+        idempotencyKey: setupIdempotencyKey(setup.id, `lineItem:${item.deal.recordId}`),
+        mutation: {
+          action: "create",
+          typeId: lineItem.id,
+          fields,
+          links: [
+            { relationId: id("lineItem.deal"), direction: "outgoing", record: item.deal },
+            ...(item.service
+              ? [{ relationId: id("lineItem.service"), direction: "outgoing" as const, record: item.service }]
+              : []),
+          ],
+        },
+      });
+      if (created.ok || interactorFailureCodes(created.error).includes(CustomErrorCode.recordIdempotencyConflict))
+        continue;
+      throw new PhaseFailure(failureOf(created.error));
+    }
   }
 
   private async generateSamples(

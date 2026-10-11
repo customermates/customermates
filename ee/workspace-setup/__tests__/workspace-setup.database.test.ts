@@ -11,6 +11,7 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 const state = vi.hoisted(() => ({
   dispatch: vi.fn((..._args: unknown[]) => Promise.resolve()),
   generate: vi.fn(),
+  plan: null as unknown,
 }));
 
 vi.mock("@/env", () => ({
@@ -48,6 +49,7 @@ const { presetId } = await import("@/features/records/crm-preset");
 const { agencyPlan } = await import("@/features/workspace-setup/__tests__/setup-plan-fixtures");
 const { planToWire } = await import("./setup-wire-fixtures");
 const { WORKSPACE_SETUP_SPEND_CAP_MICROCENTS } = await import("../workspace-setup-spend");
+const { emptySetupPhase } = await import("../workspace-setup-build.service");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -130,7 +132,8 @@ function modelReplies() {
     }) => {
       const charge = { ...CHARGE, model: args.model.modelId };
       if (args.label === "Workspace setup follow-ups") return Promise.resolve({ output: { questions: [] }, charge });
-      if (args.label === "Workspace setup plan") return Promise.resolve({ output: planToWire(agencyPlan), charge });
+      if (args.label === "Workspace setup plan")
+        return Promise.resolve({ output: planToWire((state.plan ?? agencyPlan) as typeof agencyPlan), charge });
       if (args.label === "Workspace setup sample records") {
         const records = (
           args.schema as unknown as { shape: { records: { element: { shape: Record<string, unknown> } } } }
@@ -189,6 +192,7 @@ async function liveRecords(companyId: string, ids: string[]) {
 
 describeDatabase("AI workspace setup against the record engine", { timeout: 120_000 }, () => {
   beforeEach(() => {
+    state.plan = null;
     state.dispatch.mockClear();
     state.generate.mockReset();
     modelReplies();
@@ -647,6 +651,77 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
         }),
       ),
     ).toEqual({ status: "failed", failureReason: "cancelled" });
+  });
+
+  it.each([
+    ["sample services", ["service", "deal"], [5_000, 14_000, 9_000]],
+    ["saved prices of the offerings", ["deal"], [5_000, 14_000, 8_500]],
+  ])("gives sample deals a value from their line items and %s", async (_case, lists, values) => {
+    state.plan = {
+      ...agencyPlan,
+      sampleData: { lists: lists.map((list) => ({ list, count: 3, kinds: [] })) },
+    };
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    await ws.run(() =>
+      di.getWorkspaceSetupRepo().mutate(setupId, (current) => ({
+        answers: {
+          ...current.answers,
+          dealSize: { source: "user", confidence: 1, value: { format: "range", min: 5_000, max: 20_000 } },
+          offerings: {
+            source: "user",
+            confidence: 1,
+            value: { format: "orderedList", items: [{ label: "Relaunch" }] },
+          },
+        },
+      })),
+    );
+    await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
+    const service = di.getWorkspaceSetupBuildService();
+    expect(await ws.run(() => service.runPhase(setupId, "dataModel"))).toBe("settled");
+    expect(await ws.run(() => service.runPhase(setupId, "records"))).toBe("settled");
+    expect((await status(ws)).phases.find((phase) => phase.key === "records")?.status).toBe("completed");
+    const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
+    const deals = (setup?.created.sampleRecords ?? []).filter((ref) => ref.typeId === presetId(ws.companyId, "deal"));
+    const dealValues = () =>
+      runWithoutTenant(() =>
+        prisma.recordValue.findMany({
+          where: {
+            companyId: ws.companyId,
+            fieldId: presetId(ws.companyId, "deal.totalValue"),
+            recordId: { in: deals.map((ref) => ref.recordId) },
+          },
+          select: { recordId: true, decimalValue: true, currency: true },
+        }),
+      );
+    const valueOf = async () => {
+      const rows = await dealValues();
+      return deals.map((ref) => {
+        const row = rows.find((entry) => entry.recordId === ref.recordId);
+        return [Number(row?.decimalValue ?? 0), row?.currency ?? null];
+      });
+    };
+    expect(await valueOf()).toEqual(values.map((value) => [value, "EUR"]));
+    const lineItems = () =>
+      runWithoutTenant(() =>
+        prisma.crmRecord.count({
+          where: { companyId: ws.companyId, typeId: presetId(ws.companyId, "lineItem"), deletedAt: null },
+        }),
+      );
+    expect(await lineItems()).toBe(3);
+
+    await ws.run(() =>
+      di.getWorkspaceSetupRepo().mutate(setupId, (current) => ({
+        status: "building",
+        phases: { ...current.phases, records: { ...emptySetupPhase(), attempts: 1 } },
+      })),
+    );
+    expect(await ws.run(() => service.runPhase(setupId, "records"))).toBe("settled");
+    expect(await lineItems()).toBe(3);
+
+    const removed = await ws.run(() => di.getRemoveWorkspaceSetupSampleDataInteractor().invoke({ setupId }));
+    expect(removed.ok, JSON.stringify(removed)).toBe(true);
+    expect(await lineItems()).toBe(0);
   });
 
   it("keeps each workspace's setup to its own tenant", async () => {
