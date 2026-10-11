@@ -1213,7 +1213,7 @@ export function buildNorthwindDataset(): NorthwindDataset {
       type: "renewal",
       organizationIndex: subscription.organizationIndex,
       createdAtMs,
-      closeAtMs: workTime(rng, subscription.renewalMs - 10 * DAY),
+      closeAtMs: workTime(rng, Math.max(subscription.renewalMs - 10 * DAY, END + 3 * DAY)),
       status: "open",
       stage: subscription.renewalMs - END < 45 * DAY ? "proposal" : "qualified",
       previousStage: null,

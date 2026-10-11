@@ -24,7 +24,7 @@ const LEAD_SOURCES: ReadonlyArray<OptionSpec> = [
   ["customerReferral", "Customer referral", "success"],
 ];
 
-const OPTION_LABELS: { [F in NorthwindChoiceFieldKey]: ReadonlyArray<OptionSpec> } = {
+export const NORTHWIND_OPTION_LABELS: { [F in NorthwindChoiceFieldKey]: ReadonlyArray<OptionSpec> } = {
   "organization.industry": [
     ["facilityManagement", "Facility management", "info"],
     ["hvac", "HVAC", "warning"],
@@ -173,7 +173,7 @@ const OPTION_LABELS: { [F in NorthwindChoiceFieldKey]: ReadonlyArray<OptionSpec>
 };
 
 for (const [field, keys] of Object.entries(NORTHWIND_OPTION_KEYS)) {
-  const labels = OPTION_LABELS[field as NorthwindChoiceFieldKey].map(([key]) => key);
+  const labels = NORTHWIND_OPTION_LABELS[field as NorthwindChoiceFieldKey].map(([key]) => key);
   if (labels.join() !== keys.join()) throw new Error(`Northwind option labels drifted for ${field}`);
 }
 
@@ -222,7 +222,7 @@ export function applyNorthwindModel(model: RecordModel, companyId: string): Reco
     reducer: Extract<CalculationExpression, { kind: "related" }>["reducer"],
   ): CalculationExpression => ({ kind: "related", relationId: id(relation), direction, expression, reducer });
   const options = (key: NorthwindChoiceFieldKey): RecordField["options"] =>
-    OPTION_LABELS[key].map(([option, label, color, probability]) => ({
+    NORTHWIND_OPTION_LABELS[key].map(([option, label, color, probability]) => ({
       id: id(`${key}.${option}`),
       label,
       color,

@@ -586,7 +586,10 @@ const SYNTHETIC_ROUTINE_LIBRARY: SeedRoutine[] = [
   },
 ];
 
-export const SYNTHETIC_ROUTINES = SYNTHETIC_ROUTINE_LIBRARY.filter(({ index }) => index !== 10 && index !== 17);
+// Each Pro owner keeps five Routines; the Northwind customer success routines (18 to 20) replace three of Elena's.
+const UNSHIPPED_ROUTINES = new Set([6, 9, 10, 15, 17]);
+
+export const SYNTHETIC_ROUTINES = SYNTHETIC_ROUTINE_LIBRARY.filter(({ index }) => !UNSHIPPED_ROUTINES.has(index));
 
 export const SYNTHETIC_ROUTINE_ID_PREFIX = "31000000";
 export const SYNTHETIC_ROUTINE_RUN_ID_PREFIX = "32000000";

@@ -1143,6 +1143,10 @@ const threadFixtures: ThreadFixture[] = [
         sender: "candidate",
         text: "Thursday at 10:00 works well. I will send my questions by Monday if anything is unclear.",
       },
+      {
+        sender: "self",
+        text: "Thursday at 10:00 is confirmed. The panel is the hiring manager and one team member; plan for 30 minutes and 15 minutes of questions.",
+      },
     ],
     name: null,
     participants: ["candidate"],
