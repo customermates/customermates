@@ -44,7 +44,6 @@ export async function saveOnboardingWizardProgressAction(data: SaveOnboardingWiz
   return serializeResult(getSaveOnboardingWizardProgressInteractor().invoke(data));
 }
 
-export async function completeOnboardingWikiStepAction() {
-  const result = await serializeResult(getCompleteOnboardingWikiStepInteractor().invoke());
-  return result;
+export async function completeOnboardingSetupStepAction() {
+  return serializeResult(getCompleteOnboardingWikiStepInteractor().invoke());
 }

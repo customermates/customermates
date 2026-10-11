@@ -40,4 +40,15 @@ describe("StepProfileStore", () => {
       onboardingIntent: "signed.create.intent",
     });
   });
+
+  it("keeps the company website for the setup step without sending it to registration", async () => {
+    const store = new StepProfileStore(rootStore);
+    store.onInitOrRefresh({ email: "owner@example.com", firstName: "Owner", lastName: "Example" });
+    store.onChange("websiteUrl", "example.com");
+
+    await store.onSubmit();
+
+    expect(actions.registerProfileAction.mock.calls[0][0]).not.toHaveProperty("websiteUrl");
+    expect(store.form.websiteUrl).toBe("example.com");
+  });
 });

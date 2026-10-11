@@ -1466,7 +1466,8 @@
       "triggerKind": "Disparador",
       "unavailableSelection": "Selección no disponible",
       "url": "URL",
-      "userIds": "Asignado a"
+      "userIds": "Asignado a",
+      "websiteUrl": "Sitio web de la empresa"
     },
     "language": "Idioma",
     "locales": {
@@ -2830,9 +2831,13 @@
       "ai": "Herramientas IA",
       "invite": "Equipo",
       "profile": "Tú",
-      "wiki": "Conocimiento"
+      "setup": "Espacio"
     },
     "next": "Siguiente",
+    "profile": {
+      "websiteDescription": "Opcional. Leemos tu sitio web público para sugerir respuestas al configurar tu espacio de trabajo.",
+      "websitePlaceholder": "ejemplo.es"
+    },
     "progress": "Paso {current} de {total}",
     "progressLabel": "Progreso de la configuración inicial",
     "steps": {
@@ -2849,13 +2854,10 @@
         "subtitle": "Añade tu nombre y país para que tu equipo te reconozca. Estos datos formarán parte de tu perfil y podrás modificarlos más adelante.",
         "title": "Haz tuyo este espacio de trabajo"
       },
-      "wiki": {
-        "subtitle": "Empieza por el sitio web de tu empresa. Mate convierte la información verificable en páginas compartidas y editables de la base de conocimientos, con fuentes y aspectos por aclarar.",
-        "title": "Comparte con Mate el conocimiento de tu empresa"
+      "setup": {
+        "subtitle": "Unas preguntas breves sobre cómo vendes. Lo que pudimos leer en tu sitio web ya está rellenado, así que casi solo tienes que confirmar.",
+        "title": "Configura tu espacio de trabajo"
       }
-    },
-    "wiki": {
-      "skip": "Ahora no"
     }
   },
   "OperatorAudit": {
@@ -4366,8 +4368,6 @@
     }
   },
   "WikiSetup": {
-    "continue": "Continuar",
-    "continueBackground": "Continuar mientras Mate trabaja",
     "crawlProgress": {
       "created": "Creada",
       "discovering": "Buscando páginas del sitio",
@@ -4425,29 +4425,16 @@
       },
       "sourcesHeading": "Fuentes"
     },
-    "homepageLabel": "Sitio web de la empresa",
-    "homepagePlaceholder": "https://ejemplo.com",
-    "languageDescription": "Se usa el idioma del navegador de forma predeterminada. Si la base de conocimientos ya contiene páginas, su idioma determina la selección.",
-    "languageLabel": "Idioma de la base de conocimientos",
-    "start": "Crear mi base de conocimientos",
     "status": {
       "backgroundBanner": "Mate sigue creando páginas de la base de conocimientos en segundo plano. Las nuevas páginas aparecen aquí en cuanto están listas.",
-      "completedBodyOnboarding": "Mate ha creado tus páginas iniciales con datos respaldados por el sitio web. Podrás revisarlas más tarde en la base de conocimientos y confirmar lo que esté marcado como pendiente de confirmar.",
-      "completedExistingBody": "Tu base de conocimientos ya contiene páginas. Continúa la incorporación o revisa el contenido existente.",
-      "completedTitle": "Tu base de conocimientos inicial está lista",
       "failedBody": "La configuración se detuvo antes de que todas las páginas estuvieran listas. Las páginas ya creadas siguen disponibles. Puedes continuar y revisarlas en la base de conocimientos.",
       "failedBodyBlocked": "{domain} no permite la lectura automática en su robots.txt, así que no se importó nada. Puedes crear las páginas tú mismo.",
       "failedBodySynthesis": "Se leyó el sitio web, pero Mate no pudo escribir las páginas. Inténtalo de nuevo. Las páginas ya creadas siguen disponibles.",
       "failedBodyUnavailable": "Mate no pudo leer {domain}. Revisa la dirección o continúa y añade páginas más tarde.",
       "failedTitle": "La configuración no terminó",
-      "noContentBody": "Mate no encontró información útil para páginas de la base de conocimiento. Puedes probar con otro sitio web o continuar y añadir páginas más tarde.",
-      "noContentTitle": "No se crearon páginas de la base de conocimientos",
-      "workingBody": "Mate está leyendo {domain} e incorporando información con fuentes a tu base de conocimientos. Puedes continuar con el siguiente paso mientras trabaja.",
       "workingBodyWiki": "Mate está leyendo {domain} y creando la base de conocimientos. Puedes volver más tarde para ver las páginas terminadas.",
       "workingTitle": "Mate está conociendo tu empresa"
-    },
-    "tryAnother": "Probar otro sitio",
-    "unavailable": "La configuración con Mate no está disponible ahora. Puedes crear páginas más adelante desde la base de conocimientos."
+    }
   },
   "WorkspaceMenu": {
     "inviteMembers": "Invitar miembros",
@@ -4460,6 +4447,93 @@
       "looksRight": "Es correcto",
       "upload": "Subir una hoja de cálculo",
       "winChance": "Probabilidad de cierre"
+    },
+    "build": {
+      "actions": {
+        "dashboard": "Creando tu panel",
+        "dataModel": "Creando tus listas y campos",
+        "importing": "Importando {fileName}",
+        "knowledgeBase": "Escribiendo tus páginas de la base de conocimiento ({written} de {planned})",
+        "pipeline": "Creando tu pipeline de {list}: {stages}",
+        "preparing": "Preparando la siguiente parte",
+        "readingWebsite": "Leyendo {website}",
+        "records": "Añadiendo registros de ejemplo",
+        "views": "Organizando tus listas"
+      },
+      "completedBody": "Todo está listo. Ahora, invita a tu equipo.",
+      "completedTitle": "Tu espacio de trabajo está listo",
+      "continue": "Continuar con las invitaciones",
+      "continueAnyway": "Continuar con lo que tienes",
+      "failedBody": "Todo lo terminado se conserva. Reintenta una parte o continúa con lo que tienes.",
+      "failedTitle": "Una parte de la configuración no terminó",
+      "frameTitle": "Tu espacio de trabajo",
+      "keepsRunning": "Sigue en marcha aunque cierres la pestaña. Puedes volver cuando quieras.",
+      "nameColumn": "Nombre",
+      "phases": {
+        "dashboard": "Panel",
+        "dataModel": "Listas y campos",
+        "knowledgeBase": "Base de conocimiento",
+        "records": "Registros",
+        "views": "Vistas de listas"
+      },
+      "phasesLabel": "Progreso de la configuración",
+      "previewLabel": "Vista previa de tu espacio de trabajo",
+      "records": "Registros",
+      "retry": "Reintentar",
+      "sidebarLabel": "Vista previa de la navegación",
+      "states": {
+        "active": "En curso",
+        "done": "Hecho",
+        "failed": "Sin terminar",
+        "skipped": "Omitido",
+        "waiting": "En espera"
+      },
+      "summaries": {
+        "dashboard": "{count, plural, =0 {Ningún widget añadido} one {# widget añadido} other {# widgets añadidos}}",
+        "dataModel": "{count, plural, =0 {Listas estándar conservadas} one {# lista lista} other {# listas listas}}",
+        "knowledgeBase": "{count, plural, =0 {Ninguna página escrita} one {# página escrita} other {# páginas escritas}}",
+        "records": "{count, plural, =0 {Ningún registro añadido} one {# registro añadido} other {# registros añadidos}}",
+        "views": "{count, plural, =0 {Vistas estándar conservadas} one {# vista organizada} other {# vistas organizadas}}"
+      },
+      "title": "Configurando tu espacio de trabajo"
+    },
+    "failures": {
+      "aiUnavailable": "El servicio de IA no está disponible ahora mismo. Vuelve a intentarlo en unos minutos.",
+      "crawlFailed": "No se pudo leer tu sitio web.",
+      "dependency": "Esta parte espera a una parte anterior que no terminó.",
+      "error": "Algo salió mal en esta parte.",
+      "generation": "Esta vez la IA no pudo generar un resultado útil.",
+      "invalidPlan": "El plan no encajaba con tu espacio de trabajo.",
+      "permission": "Tu rol no permite este cambio.",
+      "schemaChanged": "Tu espacio de trabajo cambió mientras se ejecutaba esta parte.",
+      "spendCap": "Se agotó el presupuesto de configuración de este espacio, así que esta parte se detuvo. Todo lo terminado se conserva.",
+      "spreadsheet": "No se pudo importar la hoja de cálculo."
+    },
+    "interview": {
+      "addEntry": "Añadir una entrada",
+      "adjusting": "Cambia las respuestas que quieras y confirma la última pantalla para preparar un plan nuevo.",
+      "customPlaceholder": "Tu propia respuesta",
+      "days": "días",
+      "entryLabel": "Entrada {index}",
+      "followUpsSubtitle": "Algunas respuestas pueden entenderse de varias formas. Estas preguntas lo aclaran.",
+      "followUpsTitle": "Unos detalles más",
+      "moveDown": "Bajar",
+      "moveUp": "Subir",
+      "optional": "Opcional",
+      "optionalPlaceholder": "Déjalo vacío si no se te ocurre nada",
+      "prefillFailed": "No pudimos leer tu sitio web, así que no hay nada rellenado. Las preguntas solo llevan unos minutos.",
+      "prefillRunning": "Leyendo {website} para sugerir respuestas…",
+      "rangeFrom": "Desde",
+      "rangeTo": "Hasta",
+      "rankedHint": "{count} de {max} elegidos, por orden de importancia",
+      "rankedOption": "Puesto {rank}: {label}",
+      "stepProgress": "{current} de {total} · {title}",
+      "stepsLabel": "Preguntas de configuración",
+      "uploadChoose": "Elegir archivo",
+      "uploadHint": "CSV o Excel, hasta {maxMegabytes} MB y {maxRows, number} filas.",
+      "uploadReady": "Listo para importar en tus nuevas listas.",
+      "uploadReplace": "Elegir otro archivo",
+      "winChanceFor": "Probabilidad de cierre de la entrada {index}"
     },
     "options": {
       "addressForm": {
@@ -4569,6 +4643,36 @@
         "wonThisMonth": "Ganado este mes"
       }
     },
+    "plan": {
+      "adjust": "Ajustar respuestas",
+      "build": "Construir mi espacio",
+      "dashboard": "Panel",
+      "failedTitle": "No se pudo preparar el plan",
+      "importSummary": "Importa {fileName} en {list}.",
+      "keyFields": "Campos clave de {list}",
+      "knowledgeBase": "Base de conocimiento",
+      "lists": "Listas",
+      "noDashboard": "No hay widgets de panel previstos.",
+      "noPages": "No hay páginas de la base de conocimiento previstas.",
+      "pipeline": "Pipeline",
+      "planningBody": "Convertimos tus respuestas en listas, un pipeline, un panel y páginas de la base de conocimiento.",
+      "planningTitle": "Preparando tu plan",
+      "sampleSummary": "{count, plural, one {Añade # registro de ejemplo para que puedas probar enseguida.} other {Añade # registros de ejemplo para que puedas probar enseguida.}}",
+      "standard": "Empezar con la configuración estándar",
+      "standardLists": {
+        "contact": "Contactos",
+        "deal": "Oportunidades",
+        "lineItem": "Partidas",
+        "organization": "Organizaciones",
+        "service": "Servicios",
+        "task": "Tareas"
+      },
+      "standardPipeline": "Tus oportunidades conservan las etapas estándar.",
+      "subtitle": "Esto es lo que vamos a construir. Nada cambia hasta que confirmes.",
+      "title": "El plan de tu espacio de trabajo",
+      "tryAgain": "Reintentar",
+      "winChanceValue": "{value} %"
+    },
     "questions": {
       "addressForm": {
         "label": "¿Cómo te diriges a tus clientes?"
@@ -4671,6 +4775,10 @@
       "data": "Tus datos",
       "knowledge": "Conocimiento",
       "winning": "Ganar clientes"
+    },
+    "start": {
+      "start": "Iniciar la configuración",
+      "withoutWebsite": "Continuar sin sitio web"
     }
   }
 }

@@ -1,5 +1,6 @@
 import type { RootStore } from "@/core/stores/root.store";
-import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
+import type { WorkspaceSetupStatusView } from "@/ee/workspace-setup/workspace-setup-status";
+import type { SetupStage } from "../setup/setup-interview-state";
 
 import type { ReactNode } from "react";
 
@@ -9,13 +10,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const testContext = vi.hoisted(() => ({
   rootStore: null as RootStore | null,
-  wikiProps: null as null | {
-    onContinue?: () => void | Promise<void>;
-    onSkip?: () => void | Promise<void>;
-    canStart?: boolean;
-    disabled?: boolean;
-  },
-  completeWikiStep: vi.fn(),
+  stage: "interview" as SetupStage,
+  hydrated: [] as unknown[],
+  completeSetupStep: vi.fn(),
 }));
 
 vi.mock("@/core/stores/root-store.provider", () => ({
@@ -36,8 +33,9 @@ vi.mock("@/components/ui/tooltip", () => ({
 }));
 
 vi.mock("../../actions", () => ({
-  completeOnboardingWikiStepAction: testContext.completeWikiStep,
+  completeOnboardingSetupStepAction: testContext.completeSetupStep,
   completeOnboardingWizardAction: vi.fn(),
+  saveOnboardingWizardProgressAction: vi.fn(),
 }));
 vi.mock("../step-profile", () => ({
   StepProfile: () => createElement("div", { "data-step": "profile" }),
@@ -49,149 +47,213 @@ vi.mock("../step-ai", () => ({
   StepAi: () => createElement("div", { "data-step": "ai" }),
   StepAiFooter: () => createElement("div", { "data-step-footer": "ai" }),
 }));
-vi.mock("@/components/wiki/wiki-homepage-setup", () => ({
-  EMPTY_WIKI_HOMEPAGE_SETUP_STATE: {
-    status: "idle",
-    homepage: null,
-    domain: null,
-    pages: [],
-  },
-  WikiHomepageSetup: (props: {
-    onContinue?: () => void | Promise<void>;
-    onSkip?: () => void | Promise<void>;
-    canStart?: boolean;
-    disabled?: boolean;
-  }) => {
-    testContext.wikiProps = props;
-    return createElement("div", { "data-step": "wiki" });
+vi.mock("../setup/step-setup", () => ({
+  StepSetup: () => createElement("div", { "data-step": "setup", "data-stage": testContext.stage }),
+  useHydratedSetupStore: (status: unknown) => {
+    testContext.hydrated.push(status);
+    return { stage: testContext.stage };
   },
 }));
 
 import { OnboardingWizardStore } from "../onboarding-wizard.store";
-import { OnboardingWizard } from "../onboarding-wizard";
+import { OnboardingWizard, resolveWizardResume } from "../onboarding-wizard";
 
-function renderWizard(
-  profileCompleted: boolean,
+const AVAILABLE: WorkspaceSetupStatusView = { available: true, setup: null };
+const SELF_HOSTED: WorkspaceSetupStatusView = { available: false, reason: "selfHosted", setup: null };
+
+type RenderOptions = {
+  profileCompleted?: boolean;
+  isInvited?: boolean;
+  setupStatus?: WorkspaceSetupStatusView;
+  setupStepCompleted?: boolean;
+  appMode?: "cloud" | "self-hosted" | "demo";
+};
+
+function renderWizard({
+  profileCompleted = false,
   isInvited = false,
-  canSetupWithMate = true,
-  wikiStepCompleted = false,
-  wikiSetupState?: WikiHomepageSetupState,
-): string {
+  setupStatus,
+  setupStepCompleted = false,
+  appMode = "cloud",
+}: RenderOptions = {}): string {
   const store = new OnboardingWizardStore({} as RootStore);
-  testContext.rootStore = {
-    onboardingWizardStore: store,
-  } as unknown as RootStore;
+  testContext.rootStore = { onboardingWizardStore: store, appMode } as unknown as RootStore;
 
   return renderToStaticMarkup(
-    createElement(OnboardingWizard, {
-      profileCompleted,
-      isInvited,
-      canSetupWithMate,
-      wikiStepCompleted,
-      wikiSetupState,
-    }),
+    createElement(OnboardingWizard, { profileCompleted, isInvited, setupStatus, setupStepCompleted }),
   );
 }
 
 beforeEach(() => {
-  (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
   vi.clearAllMocks();
-  testContext.completeWikiStep.mockResolvedValue({ ok: true, data: { completed: true } });
+  testContext.completeSetupStep.mockResolvedValue({ ok: true, data: { completed: true } });
   testContext.rootStore = null;
-  testContext.wikiProps = null;
+  testContext.stage = "interview";
+  testContext.hydrated = [];
+});
+
+describe("resolveWizardResume", () => {
+  it("orders profile, setup, invitations and AI when the setup is available", () => {
+    expect(
+      resolveWizardResume({
+        profileCompleted: true,
+        isInvited: false,
+        setupAvailable: true,
+        setupStepCompleted: false,
+      }),
+    ).toEqual({ steps: ["profile", "setup", "invite", "ai"], resumeStepIndex: 1 });
+  });
+
+  it("drops the setup step for self-hosted and demo workspaces without a dead end", () => {
+    expect(
+      resolveWizardResume({
+        profileCompleted: true,
+        isInvited: false,
+        setupAvailable: false,
+        setupStepCompleted: false,
+      }),
+    ).toEqual({ steps: ["profile", "invite", "ai"], resumeStepIndex: 1 });
+  });
+
+  it("resumes after the setup once it was completed or for an invited member", () => {
+    expect(
+      resolveWizardResume({ profileCompleted: true, isInvited: false, setupAvailable: true, setupStepCompleted: true })
+        .resumeStepIndex,
+    ).toBe(2);
+    expect(
+      resolveWizardResume({ profileCompleted: true, isInvited: true, setupAvailable: false, setupStepCompleted: false })
+        .resumeStepIndex,
+    ).toBe(1);
+  });
+
+  it("starts everyone without a profile on the profile step", () => {
+    expect(
+      resolveWizardResume({ profileCompleted: false, isInvited: false, setupAvailable: true, setupStepCompleted: true })
+        .resumeStepIndex,
+    ).toBe(0);
+  });
 });
 
 describe("OnboardingWizard", () => {
-  it.each([
-    [false, "profile", 1],
-    [true, "wiki", 2],
-  ] as const)("initializes profileCompleted=%s at the %s step", (profileCompleted, step, current) => {
-    const html = renderWizard(profileCompleted);
+  it("counts the setup among four steps for a new cloud owner", () => {
+    const html = renderWizard();
 
-    expect(html).toContain(`data-step="${step}"`);
-    expect(html).toContain(`OnboardingWizard.progress current=${current} total=4`);
-    expect(html).toContain(`OnboardingWizard.steps.${step}.title`);
-    expect(html).toContain('<h1 class="text-2xl font-semibold" tabindex="-1">');
+    expect(html).toContain('data-step="profile"');
+    expect(html).toContain("OnboardingWizard.progress current=1 total=4");
+    expect(html).toContain("OnboardingWizard.milestones.setup");
   });
 
-  it("keeps shared Back and Next navigation off Profile and Wiki", () => {
-    expect(renderWizard(false)).not.toContain('id="onboarding-next"');
-    expect(renderWizard(true)).not.toContain('id="onboarding-back"');
-    expect(renderWizard(true)).not.toContain('id="onboarding-next"');
+  it("opens the setup step for a registered owner and widens the card", () => {
+    const html = renderWizard({ profileCompleted: true, setupStatus: AVAILABLE });
+
+    expect(html).toContain('data-step="setup"');
+    expect(html).toContain("OnboardingWizard.progress current=2 total=4");
+    expect(html).toContain("OnboardingWizard.steps.setup.title");
+    expect(html).toContain("max-w-3xl");
+    expect(testContext.hydrated).toEqual([AVAILABLE]);
   });
 
-  it("keeps an invited member on Profile and never exposes the owner Wiki step", () => {
-    const html = renderWizard(false, true);
+  it("goes from profile straight to invitations on a self-hosted instance", () => {
+    const fresh = renderWizard({ appMode: "self-hosted" });
+    expect(fresh).toContain("OnboardingWizard.progress current=1 total=3");
+    expect(fresh).not.toContain("OnboardingWizard.milestones.setup");
+
+    const registered = renderWizard({ profileCompleted: true, setupStatus: SELF_HOSTED, appMode: "self-hosted" });
+    expect(registered).toContain('data-step="invite"');
+    expect(registered).toContain("OnboardingWizard.progress current=2 total=3");
+    expect(registered).not.toContain('data-step="setup"');
+  });
+
+  it("keeps an invited member away from the setup", () => {
+    const html = renderWizard({ isInvited: true });
 
     expect(html).toContain('data-step="profile"');
     expect(html).toContain("OnboardingWizard.steps.profile.invitedSubtitle");
-    expect(html).not.toContain('data-step="wiki"');
     expect(html).not.toContain("OnboardingWizard.progress current=");
+    expect(renderWizard({ profileCompleted: true, isInvited: true, setupStatus: AVAILABLE })).toContain(
+      'data-step="invite"',
+    );
   });
 
-  it("starts a registered invitee after Wiki and starts an owner with pages after Wiki", () => {
-    expect(renderWizard(true, true)).toContain('data-step="invite"');
-    expect(renderWizard(true, false, true, true)).toContain('data-step="invite"');
+  it("resumes on invitations once the setup step is completed", () => {
+    expect(renderWizard({ profileCompleted: true, setupStatus: AVAILABLE, setupStepCompleted: true })).toContain(
+      'data-step="invite"',
+    );
   });
 
-  it.each(["onContinue", "onSkip"] as const)("advances an owner from Wiki when %s fires", async (callback) => {
-    renderWizard(true);
-    const props = testContext.wikiProps;
-    if (!props) throw new Error("Wiki setup did not render.");
-    testContext.rootStore?.onboardingWizardStore.setInitialStep(1);
+  it("shows the plan with its own title in a wide card", () => {
+    testContext.stage = "plan";
+    const html = renderWizard({ profileCompleted: true, setupStatus: AVAILABLE });
 
-    await props[callback]?.();
-
-    expect(testContext.rootStore?.onboardingWizardStore.currentStep).toBe("invite");
+    expect(html).toContain("WorkspaceSetup.plan.title");
+    expect(html).toContain("max-w-5xl");
   });
 
-  it("coalesces concurrent Continue clicks so Invite cannot be skipped", async () => {
-    let resolve!: (value: { ok: true; data: { completed: true } }) => void;
-    testContext.completeWikiStep.mockReturnValue(new Promise((done) => (resolve = done)));
-    renderWizard(true);
-    const props = testContext.wikiProps;
-    if (!props) throw new Error("Wiki setup did not render.");
-    testContext.rootStore?.onboardingWizardStore.setInitialStep(1);
+  it("renders the build full screen without the wizard card", () => {
+    testContext.stage = "build";
+    const html = renderWizard({ profileCompleted: true, setupStatus: AVAILABLE });
 
-    const first = props.onContinue?.();
-    const second = props.onContinue?.();
-    expect(testContext.completeWikiStep).toHaveBeenCalledOnce();
-    expect(testContext.rootStore?.onboardingWizardStore.isSubmitting).toBe(true);
-
-    resolve({ ok: true, data: { completed: true } });
-    await Promise.all([first, second]);
-
-    expect(testContext.rootStore?.onboardingWizardStore.currentStep).toBe("invite");
-    expect(testContext.rootStore?.onboardingWizardStore.isSubmitting).toBe(false);
+    expect(html).toContain('data-stage="build"');
+    expect(html).not.toContain("OnboardingWizard.steps.setup.title");
+    expect(html).not.toContain("OnboardingWizard.progress");
   });
 
-  it("offers only Skip on the Wiki step when Mate is unavailable", () => {
-    const html = renderWizard(true, false, false);
-
-    expect(html).toContain("WikiSetup.unavailable");
-    expect(html).toContain("OnboardingWizard.wiki.skip");
-    expect(testContext.wikiProps).toBeNull();
-  });
-
-  it("keeps an existing setup visible when Mate becomes unavailable", () => {
-    renderWizard(true, false, false, false, {
-      status: "working",
-      homepage: "https://example.com/",
-      domain: "example.com",
-      pages: [],
-    });
-
-    expect(testContext.wikiProps).toMatchObject({ canStart: false });
+  it("keeps shared Back and Next navigation off Profile and the setup", () => {
+    expect(renderWizard()).not.toContain('id="onboarding-next"');
+    expect(renderWizard({ profileCompleted: true, setupStatus: AVAILABLE })).not.toContain('id="onboarding-next"');
   });
 
   it("does not mutate the shared wizard store during render", () => {
     const store = new OnboardingWizardStore({} as RootStore);
-    testContext.rootStore = {
-      onboardingWizardStore: store,
-    } as unknown as RootStore;
+    testContext.rootStore = { onboardingWizardStore: store, appMode: "cloud" } as unknown as RootStore;
 
-    renderToStaticMarkup(createElement(OnboardingWizard, { profileCompleted: true }));
+    renderToStaticMarkup(createElement(OnboardingWizard, { profileCompleted: true, setupStatus: AVAILABLE }));
 
     expect(store.currentStep).toBe("profile");
+  });
+});
+
+describe("completing the setup step", () => {
+  function setupStore() {
+    const store = new OnboardingWizardStore({ stepAiStore: { restoreSelection: vi.fn(), reset: vi.fn() } } as never);
+    store.initialize(1, undefined, undefined, true);
+    return store;
+  }
+
+  it("marks the step complete, moves to invitations and keeps Back from reopening the setup", async () => {
+    const store = setupStore();
+    expect(store.currentStep).toBe("setup");
+
+    await store.completeSetupStep();
+
+    expect(testContext.completeSetupStep).toHaveBeenCalledOnce();
+    expect(store.currentStep).toBe("invite");
+    expect(store.isFirstStep).toBe(true);
+  });
+
+  it("coalesces concurrent completions so invitations cannot be skipped", async () => {
+    let resolve!: (value: { ok: true; data: { completed: true } }) => void;
+    testContext.completeSetupStep.mockReturnValue(new Promise((done) => (resolve = done)));
+    const store = setupStore();
+
+    const first = store.completeSetupStep();
+    const second = store.completeSetupStep();
+    expect(testContext.completeSetupStep).toHaveBeenCalledOnce();
+    expect(store.isSubmitting).toBe(true);
+
+    resolve({ ok: true, data: { completed: true } });
+    await Promise.all([first, second]);
+
+    expect(store.currentStep).toBe("invite");
+    expect(store.isSubmitting).toBe(false);
+  });
+
+  it("stays on the setup when the server refuses the completion", async () => {
+    testContext.completeSetupStep.mockResolvedValue({ ok: false, error: { formErrors: ["x"], fieldErrors: {} } });
+    const store = setupStore();
+
+    await store.completeSetupStep();
+
+    expect(store.currentStep).toBe("setup");
   });
 });

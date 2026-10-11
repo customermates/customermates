@@ -1,5 +1,9 @@
 "use client";
 
+import type { OnboardingWizardProgress } from "@/features/onboarding-wizard/onboarding-wizard-progress.schema";
+import type { WorkspaceSetupStatusView } from "@/ee/workspace-setup/workspace-setup-status";
+import type { WizardStep } from "./onboarding-wizard.store";
+
 import { useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { comparer, reaction } from "mobx";
@@ -11,26 +15,24 @@ import { AppCardFooter } from "@/components/card/app-card-footer";
 import { Button } from "@/components/ui/button";
 import { WizardProgress } from "@/components/shared/wizard-progress";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import type { OnboardingWizardProgress } from "@/features/onboarding-wizard/onboarding-wizard-progress.schema";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
-import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
-import { EMPTY_WIKI_HOMEPAGE_SETUP_STATE } from "@/components/wiki/wiki-homepage-setup";
+import { cn } from "@/core/utils/cn";
 
 import { OnboardingArtwork, OnboardingMilestones } from "./onboarding-artwork";
+import { wizardSteps } from "./onboarding-wizard.store";
 
 import { StepProfile } from "./step-profile";
 import { StepAi, StepAiFooter } from "./step-ai";
 import { StepInvite } from "./step-invite";
-import { StepWiki } from "./step-wiki";
+import { StepSetup, useHydratedSetupStore } from "./setup/step-setup";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
   profileCompleted: boolean;
   userId?: string;
   savedProgress?: OnboardingWizardProgress;
-  canSetupWithMate?: boolean;
-  wikiStepCompleted?: boolean;
-  wikiSetupState?: WikiHomepageSetupState;
+  setupStatus?: WorkspaceSetupStatusView;
+  setupStepCompleted?: boolean;
   onboardingIntent?: string;
   inviterName?: string;
   isInvited?: boolean;
@@ -40,14 +42,32 @@ type Props = {
   sessionAvatarUrl?: string;
 };
 
+const UNAVAILABLE_SETUP: WorkspaceSetupStatusView = { available: false, reason: "selfHosted", setup: null };
+
+export function resolveWizardResume({
+  profileCompleted,
+  isInvited,
+  setupAvailable,
+  setupStepCompleted,
+}: {
+  profileCompleted: boolean;
+  isInvited: boolean;
+  setupAvailable: boolean;
+  setupStepCompleted: boolean;
+}) {
+  const steps = wizardSteps(setupAvailable);
+  if (!profileCompleted) return { steps, resumeStepIndex: 0 };
+  const resumeStep: WizardStep = isInvited || setupStepCompleted || !setupAvailable ? "invite" : "setup";
+  return { steps, resumeStepIndex: steps.indexOf(resumeStep) };
+}
+
 const OnboardingWizardContent = observer(
   ({
     profileCompleted,
     userId,
     savedProgress,
-    canSetupWithMate = false,
-    wikiStepCompleted = false,
-    wikiSetupState = EMPTY_WIKI_HOMEPAGE_SETUP_STATE,
+    setupStatus,
+    setupStepCompleted = false,
     onboardingIntent,
     inviterName,
     isInvited = false,
@@ -57,28 +77,33 @@ const OnboardingWizardContent = observer(
     sessionAvatarUrl,
   }: Props) => {
     const t = useTranslations();
-    const { onboardingWizardStore } = useRootStore();
-    const resumeStepIndex = profileCompleted ? (isInvited || wikiStepCompleted ? 2 : 1) : 0;
-    const resumesSavedStep = resumeStepIndex === 2;
-    const initialStepIndex = resumesSavedStep && savedProgress?.step === "ai" ? 3 : resumeStepIndex;
-    const initializationKey = JSON.stringify([resumeStepIndex, userId, savedProgress]);
+    const { onboardingWizardStore, appMode } = useRootStore();
+    const setupAvailable = profileCompleted
+      ? Boolean(setupStatus?.available) && !isInvited
+      : appMode === "cloud" && !isInvited;
+    const setupStore = useHydratedSetupStore(setupStatus ?? UNAVAILABLE_SETUP);
+    const { steps, resumeStepIndex } = resolveWizardResume({
+      profileCompleted,
+      isInvited,
+      setupAvailable,
+      setupStepCompleted,
+    });
+    const resumesSavedStep = steps[resumeStepIndex] === "invite" && profileCompleted;
+    const initialStepIndex = resumesSavedStep && savedProgress?.step === "ai" ? steps.indexOf("ai") : resumeStepIndex;
+    const initializationKey = JSON.stringify([resumeStepIndex, userId, savedProgress, setupAvailable]);
     const [initializedKey, setInitializedKey] = useState<string | null>(null);
     const isStepSynchronized = initializedKey === initializationKey;
-    const currentStep = isStepSynchronized
-      ? onboardingWizardStore.currentStep
-      : profileCompleted
-        ? resumesSavedStep
-          ? (savedProgress?.step ?? "invite")
-          : "wiki"
-        : "profile";
+    const currentStep: WizardStep = isStepSynchronized ? onboardingWizardStore.currentStep : steps[initialStepIndex];
     const currentStepIndex = isStepSynchronized ? onboardingWizardStore.currentStepIndex : initialStepIndex;
     const isFirstStep = isStepSynchronized ? onboardingWizardStore.isFirstStep : initialStepIndex <= resumeStepIndex;
-    const { totalSteps, isSubmitting, next, back } = onboardingWizardStore;
+    const totalSteps = steps.length;
+    const { isSubmitting, next, back } = onboardingWizardStore;
     const headingRef = useRef<HTMLHeadingElement>(null);
     const previousStep = useRef(currentStep);
+    const setupStage = setupStore.stage;
 
     useEffect(() => {
-      onboardingWizardStore.initialize(resumeStepIndex, userId, savedProgress);
+      onboardingWizardStore.initialize(resumeStepIndex, userId, savedProgress, setupAvailable);
       setInitializedKey(initializationKey);
       return reaction(
         () => onboardingWizardStore.progress,
@@ -87,12 +112,14 @@ const OnboardingWizardContent = observer(
         },
         { equals: comparer.structural },
       );
-    }, [initializationKey, onboardingWizardStore, resumeStepIndex, savedProgress, userId]);
+    }, [initializationKey, onboardingWizardStore, resumeStepIndex, savedProgress, setupAvailable, userId]);
 
     useEffect(() => {
       if (previousStep.current !== currentStep) headingRef.current?.focus();
       previousStep.current = currentStep;
     }, [currentStep]);
+
+    if (currentStep === "setup" && setupStage === "build") return <StepSetup />;
 
     const renderStep = () => {
       switch (currentStep) {
@@ -110,22 +137,30 @@ const OnboardingWizardContent = observer(
           );
         case "ai":
           return isStepSynchronized ? <StepAi /> : <div aria-busy="true" className="min-h-36" />;
-        case "wiki":
-          return <StepWiki canSetupWithMate={canSetupWithMate} initialState={wikiSetupState} />;
+        case "setup":
+          return <StepSetup />;
         case "invite":
           return <StepInvite />;
       }
     };
 
     const showFooterNav = currentStep === "invite";
+    const planStage = currentStep === "setup" && setupStage === "plan";
+    const title = planStage ? t("WorkspaceSetup.plan.title") : t(`OnboardingWizard.steps.${currentStep}.title`);
+    const subtitle = planStage
+      ? t("WorkspaceSetup.plan.subtitle")
+      : currentStep === "profile" && isInvited
+        ? t("OnboardingWizard.steps.profile.invitedSubtitle")
+        : t(`OnboardingWizard.steps.${currentStep}.subtitle`);
 
     return (
-      <AppCard className="relative max-w-2xl shadow-xl shadow-primary/5">
-        <OnboardingArtwork
-          complete={currentStep === "wiki" && wikiSetupState.status === "completed"}
-          pageTitles={wikiSetupState.pages.map((page) => page.title)}
-          step={currentStep}
-        />
+      <AppCard
+        className={cn(
+          "relative shadow-xl shadow-primary/5",
+          currentStep !== "setup" ? "max-w-2xl" : planStage ? "max-w-5xl" : "max-w-3xl",
+        )}
+      >
+        {currentStep !== "setup" ? <OnboardingArtwork step={currentStep} /> : null}
 
         <AppCardBody>
           <div className="flex flex-col gap-1">
@@ -139,14 +174,10 @@ const OnboardingWizardContent = observer(
             )}
 
             <h1 ref={headingRef} className="text-2xl font-semibold" tabIndex={-1}>
-              {t(`OnboardingWizard.steps.${currentStep}.title`)}
+              {title}
             </h1>
 
-            <p className="text-sm text-muted-foreground">
-              {currentStep === "profile" && isInvited
-                ? t("OnboardingWizard.steps.profile.invitedSubtitle")
-                : t(`OnboardingWizard.steps.${currentStep}.subtitle`)}
-            </p>
+            <p className="text-sm text-muted-foreground">{subtitle}</p>
           </div>
 
           {!isInvited && (
@@ -155,10 +186,11 @@ const OnboardingWizardContent = observer(
                 current={currentStepIndex}
                 labels={{
                   profile: t("OnboardingWizard.milestones.profile"),
-                  wiki: t("OnboardingWizard.milestones.wiki"),
+                  setup: t("OnboardingWizard.milestones.setup"),
                   invite: t("OnboardingWizard.milestones.invite"),
                   ai: t("OnboardingWizard.milestones.ai"),
                 }}
+                steps={steps}
               />
 
               <div className="sr-only">

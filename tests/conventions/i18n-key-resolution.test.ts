@@ -406,10 +406,10 @@ const DEFAULT_DATA_OPTION_KEYS = [
   "Common.defaultData.task.options.onHold",
   "Common.defaultData.task.options.open",
 ] as const;
-const ONBOARDING_STEP_TITLE_KEYS = ["profile", "wiki", "invite", "ai"].map(
+const ONBOARDING_STEP_TITLE_KEYS = ["profile", "setup", "invite", "ai"].map(
   (step) => `OnboardingWizard.steps.${step}.title`,
 );
-const ONBOARDING_STEP_SUBTITLE_KEYS = ["profile", "wiki", "invite", "ai"].map(
+const ONBOARDING_STEP_SUBTITLE_KEYS = ["profile", "setup", "invite", "ai"].map(
   (step) => `OnboardingWizard.steps.${step}.subtitle`,
 );
 const ONBOARDING_CHOICE_KEYS = [
@@ -830,7 +830,7 @@ export const DYNAMIC_KEY_SITES = [
   "components/shared/channel-icon-stack.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${currentLocale}",
   "components/shared/locale-menu.tsx :: t :: Common.locales.${locale}",
-  "components/wiki/wiki-homepage-setup.tsx :: t :: Common.locales.${locale}",
+  "app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-field.tsx :: t :: Common.locales.${locale}",
   "core/validation/zod-error-map-server.ts :: t.raw :: Common.errors.${code}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.approval.${activity.kind}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.label.${name}",
@@ -879,6 +879,9 @@ export const DYNAMIC_KEY_SITES = [
 ];
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
+  ["app/[locale]/(protected)/onboarding/wizard/components/setup/setup-interview.tsx :: t :: screen.titleKey", 1],
+  ["app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-descriptor.ts :: t :: option.labelKey", 1],
+  ["app/[locale]/(protected)/onboarding/wizard/components/setup/setup-question-descriptor.ts :: t :: part.labelKey", 1],
   ["ee/command-resolver/resolve-command.interactor.ts :: t :: command.labelKey", 1],
   ["ee/command-resolver/resolve-command.interactor.ts :: t :: parent.labelKey", 1],
   ["app/components/global-search-modal.tsx :: t :: key", 1],

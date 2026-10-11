@@ -119,10 +119,6 @@ const EXEMPT: Record<string, { rules: Rule[]; reason: string }> = {
     rules: ["submit-button"],
     reason: "onboarding wizard step that continues to the next step",
   },
-  "components/wiki/wiki-homepage-setup.tsx": {
-    rules: ["submit-button"],
-    reason: "onboarding knowledge base setup that starts a generation run",
-  },
   "components/shared/error-page-view.tsx": {
     rules: ["footer-primitive"],
     reason: "error page card with recovery links",

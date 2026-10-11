@@ -1466,7 +1466,8 @@
       "triggerKind": "Auslöser",
       "unavailableSelection": "Auswahl nicht verfügbar",
       "url": "URL",
-      "userIds": "Zugewiesen"
+      "userIds": "Zugewiesen",
+      "websiteUrl": "Unternehmenswebsite"
     },
     "language": "Sprache",
     "locales": {
@@ -2830,9 +2831,13 @@
       "ai": "KI-Tools",
       "invite": "Team",
       "profile": "Du",
-      "wiki": "Wissen"
+      "setup": "Workspace"
     },
     "next": "Weiter",
+    "profile": {
+      "websiteDescription": "Optional. Wir lesen deine öffentliche Website und schlagen damit Antworten für die Einrichtung deines Workspace vor.",
+      "websitePlaceholder": "beispiel.de"
+    },
     "progress": "Schritt {current} von {total}",
     "progressLabel": "Fortschritt der Einrichtung",
     "steps": {
@@ -2849,13 +2854,10 @@
         "subtitle": "Ergänze deinen Namen und dein Land, damit dein Team dich erkennt. Diese Angaben gehören zu deinem Profil und lassen sich später ändern.",
         "title": "Mach diesen Arbeitsbereich zu deinem"
       },
-      "wiki": {
-        "subtitle": "Starte mit eurer Unternehmenswebsite. Mate erstellt aus überprüfbaren Informationen gemeinsame, bearbeitbare Seiten in der Wissensdatenbank – mit Quellen und offenen Fragen zur Prüfung.",
-        "title": "Gib Mate dein Unternehmenswissen"
+      "setup": {
+        "subtitle": "Ein paar kurze Fragen dazu, wie du verkaufst. Was wir auf deiner Website lesen konnten, ist schon ausgefüllt – meist musst du nur bestätigen.",
+        "title": "Richte deinen Workspace ein"
       }
-    },
-    "wiki": {
-      "skip": "Nicht jetzt"
     }
   },
   "OperatorAudit": {
@@ -4366,8 +4368,6 @@
     }
   },
   "WikiSetup": {
-    "continue": "Weiter",
-    "continueBackground": "Weiter, während Mate arbeitet",
     "crawlProgress": {
       "created": "Erstellt",
       "discovering": "Website-Seiten werden gesucht",
@@ -4425,29 +4425,16 @@
       },
       "sourcesHeading": "Quellen"
     },
-    "homepageLabel": "Unternehmenswebsite",
-    "homepagePlaceholder": "https://beispiel.de",
-    "languageDescription": "Standardmäßig wird die Browsersprache verwendet. Wenn Wissensdatenbank-Seiten vorhanden sind, bestimmt deren Sprache die Auswahl.",
-    "languageLabel": "Wissensdatenbank-Sprache",
-    "start": "Wissensdatenbank erstellen",
     "status": {
       "backgroundBanner": "Mate erstellt im Hintergrund weitere Wissensdatenbank-Seiten. Neue Seiten erscheinen hier, sobald sie fertig sind.",
-      "completedBodyOnboarding": "Mate hat deine Startseiten mit belegten Website-Fakten erstellt. Du kannst sie später in der Wissensdatenbank prüfen und alles bestätigen, was als noch zu klären markiert ist.",
-      "completedExistingBody": "Deine Wissensdatenbank enthält bereits Seiten. Fahre mit dem Onboarding fort oder prüfe die vorhandenen Inhalte.",
-      "completedTitle": "Deine erste Wissensdatenbank ist bereit",
       "failedBody": "Die Einrichtung wurde beendet, bevor alle Seiten fertig waren. Bereits erstellte Seiten bleiben erhalten. Du kannst fortfahren und sie in der Wissensdatenbank prüfen.",
       "failedBodyBlocked": "{domain} erlaubt in der robots.txt kein automatisches Lesen, daher wurde nichts importiert. Du kannst Seiten stattdessen selbst anlegen.",
       "failedBodySynthesis": "Die Website wurde gelesen, aber Mate konnte die Seiten nicht schreiben. Versuche es erneut. Bereits erstellte Seiten bleiben verfügbar.",
       "failedBodyUnavailable": "Mate konnte {domain} nicht lesen. Prüfe die Adresse oder fahre fort und lege Seiten später an.",
       "failedTitle": "Einrichtung nicht abgeschlossen",
-      "noContentBody": "Mate hat keine verwertbaren Informationen für Wissensdatenbank-Seiten gefunden. Du kannst eine andere Website versuchen oder fortfahren und später Seiten hinzufügen.",
-      "noContentTitle": "Es wurden keine Wissensdatenbank-Seiten erstellt",
-      "workingBody": "Mate liest {domain} und überträgt Informationen aus diesen Quellen in deine Wissensdatenbank. Du kannst mit dem nächsten Schritt fortfahren, während Mate arbeitet.",
       "workingBodyWiki": "Mate liest {domain} und erstellt die Wissensdatenbank. Du kannst später zurückkehren, um die fertigen Seiten zu sehen.",
       "workingTitle": "Mate lernt dein Unternehmen kennen"
-    },
-    "tryAnother": "Andere Website versuchen",
-    "unavailable": "Die Einrichtung mit Mate ist derzeit nicht verfügbar. Du kannst später in der Wissensdatenbank Seiten erstellen."
+    }
   },
   "WorkspaceMenu": {
     "inviteMembers": "Mitglieder einladen",
@@ -4460,6 +4447,93 @@
       "looksRight": "Passt so",
       "upload": "Tabelle hochladen",
       "winChance": "Abschlusschance"
+    },
+    "build": {
+      "actions": {
+        "dashboard": "Wir bauen dein Dashboard",
+        "dataModel": "Wir legen deine Listen und Felder an",
+        "importing": "Wir importieren {fileName}",
+        "knowledgeBase": "Wir schreiben deine Seiten für die Wissensdatenbank ({written} von {planned})",
+        "pipeline": "Wir legen deine Pipeline für {list} an: {stages}",
+        "preparing": "Wir bereiten den nächsten Teil vor",
+        "readingWebsite": "Wir lesen {website}",
+        "records": "Wir legen Beispieldatensätze an",
+        "views": "Wir ordnen deine Listen an"
+      },
+      "completedBody": "Alles ist eingerichtet. Als Nächstes holst du dein Team dazu.",
+      "completedTitle": "Dein Workspace ist bereit",
+      "continue": "Weiter zu den Einladungen",
+      "continueAnyway": "Mit dem Vorhandenen weitermachen",
+      "failedBody": "Alles Fertige bleibt erhalten. Versuch einen Teil erneut oder mach mit dem weiter, was schon da ist.",
+      "failedTitle": "Ein Teil der Einrichtung wurde nicht fertig",
+      "frameTitle": "Dein Workspace",
+      "keepsRunning": "Das läuft weiter, auch wenn du den Tab schließt. Du kannst jederzeit zurückkommen.",
+      "nameColumn": "Name",
+      "phases": {
+        "dashboard": "Dashboard",
+        "dataModel": "Listen und Felder",
+        "knowledgeBase": "Wissensdatenbank",
+        "records": "Datensätze",
+        "views": "Listenansichten"
+      },
+      "phasesLabel": "Fortschritt der Einrichtung",
+      "previewLabel": "Vorschau deines Workspace",
+      "records": "Datensätze",
+      "retry": "Erneut versuchen",
+      "sidebarLabel": "Vorschau der Navigation",
+      "states": {
+        "active": "Läuft",
+        "done": "Fertig",
+        "failed": "Nicht fertig",
+        "skipped": "Übersprungen",
+        "waiting": "Wartet"
+      },
+      "summaries": {
+        "dashboard": "{count, plural, =0 {Keine Widgets angelegt} one {# Widget angelegt} other {# Widgets angelegt}}",
+        "dataModel": "{count, plural, =0 {Standardlisten beibehalten} one {# Liste bereit} other {# Listen bereit}}",
+        "knowledgeBase": "{count, plural, =0 {Keine Seiten geschrieben} one {# Seite geschrieben} other {# Seiten geschrieben}}",
+        "records": "{count, plural, =0 {Keine Datensätze angelegt} one {# Datensatz angelegt} other {# Datensätze angelegt}}",
+        "views": "{count, plural, =0 {Standardansichten beibehalten} one {# Ansicht angeordnet} other {# Ansichten angeordnet}}"
+      },
+      "title": "Wir richten deinen Workspace ein"
+    },
+    "failures": {
+      "aiUnavailable": "Der KI-Dienst ist gerade nicht erreichbar. Versuch es in ein paar Minuten noch einmal.",
+      "crawlFailed": "Deine Website konnte nicht gelesen werden.",
+      "dependency": "Dieser Teil wartet auf einen früheren Teil, der nicht fertig wurde.",
+      "error": "In diesem Teil ist etwas schiefgegangen.",
+      "generation": "Die KI konnte diesmal kein brauchbares Ergebnis liefern.",
+      "invalidPlan": "Der Plan passt nicht zu deinem Workspace.",
+      "permission": "Deine Rolle erlaubt diese Änderung nicht.",
+      "schemaChanged": "Dein Workspace hat sich geändert, während dieser Teil lief.",
+      "spendCap": "Das Budget für die Einrichtung dieses Workspace ist aufgebraucht, deshalb wurde dieser Teil angehalten. Alles bisher Fertige bleibt erhalten.",
+      "spreadsheet": "Die Tabelle konnte nicht importiert werden."
+    },
+    "interview": {
+      "addEntry": "Eintrag hinzufügen",
+      "adjusting": "Ändere beliebige Antworten und bestätige dann den letzten Schritt, um einen neuen Plan zu erstellen.",
+      "customPlaceholder": "Deine eigene Antwort",
+      "days": "Tage",
+      "entryLabel": "Eintrag {index}",
+      "followUpsSubtitle": "Manche Antworten lassen sich unterschiedlich verstehen. Diese Fragen klären das.",
+      "followUpsTitle": "Noch ein paar Details",
+      "moveDown": "Nach unten",
+      "moveUp": "Nach oben",
+      "optional": "Optional",
+      "optionalPlaceholder": "Leer lassen, wenn dir nichts einfällt",
+      "prefillFailed": "Wir konnten deine Website nicht lesen, deshalb ist nichts ausgefüllt. Die Fragen dauern trotzdem nur wenige Minuten.",
+      "prefillRunning": "Wir lesen {website} und schlagen Antworten vor …",
+      "rangeFrom": "Von",
+      "rangeTo": "Bis",
+      "rankedHint": "{count} von {max} gewählt, nach Wichtigkeit geordnet",
+      "rankedOption": "Platz {rank}: {label}",
+      "stepProgress": "{current} von {total} · {title}",
+      "stepsLabel": "Fragen zur Einrichtung",
+      "uploadChoose": "Datei wählen",
+      "uploadHint": "CSV oder Excel, bis {maxMegabytes} MB und {maxRows, number} Zeilen.",
+      "uploadReady": "Bereit für den Import in deine neuen Listen.",
+      "uploadReplace": "Andere Datei wählen",
+      "winChanceFor": "Abschlusschance von Eintrag {index}"
     },
     "options": {
       "addressForm": {
@@ -4569,6 +4643,36 @@
         "wonThisMonth": "Diesen Monat gewonnen"
       }
     },
+    "plan": {
+      "adjust": "Antworten anpassen",
+      "build": "Workspace aufbauen",
+      "dashboard": "Dashboard",
+      "failedTitle": "Der Plan konnte nicht erstellt werden",
+      "importSummary": "Importiert {fileName} in {list}.",
+      "keyFields": "Wichtige Felder in {list}",
+      "knowledgeBase": "Wissensdatenbank",
+      "lists": "Listen",
+      "noDashboard": "Es sind keine Dashboard-Widgets geplant.",
+      "noPages": "Es sind keine Seiten für die Wissensdatenbank geplant.",
+      "pipeline": "Pipeline",
+      "planningBody": "Aus deinen Antworten entstehen Listen, eine Pipeline, ein Dashboard und Seiten für die Wissensdatenbank.",
+      "planningTitle": "Wir erstellen deinen Plan",
+      "sampleSummary": "{count, plural, one {Legt # Beispieldatensatz an, damit du gleich loslegen kannst.} other {Legt # Beispieldatensätze an, damit du gleich loslegen kannst.}}",
+      "standard": "Mit der Standardeinrichtung starten",
+      "standardLists": {
+        "contact": "Kontakte",
+        "deal": "Deals",
+        "lineItem": "Positionen",
+        "organization": "Organisationen",
+        "service": "Services",
+        "task": "Aufgaben"
+      },
+      "standardPipeline": "Deine Deals behalten die Standardphasen.",
+      "subtitle": "Das bauen wir für dich. Bis du bestätigst, ändert sich nichts.",
+      "title": "Dein Plan für den Workspace",
+      "tryAgain": "Erneut versuchen",
+      "winChanceValue": "{value} %"
+    },
     "questions": {
       "addressForm": {
         "label": "Wie sprichst du Kunden an?"
@@ -4671,6 +4775,10 @@
       "data": "Deine Daten",
       "knowledge": "Wissen",
       "winning": "Kunden gewinnen"
+    },
+    "start": {
+      "start": "Einrichtung starten",
+      "withoutWebsite": "Ohne Website weiter"
     }
   }
 }
