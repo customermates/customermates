@@ -26,7 +26,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { ChevronsLeftRight, Ellipsis, EyeOff, Plus, Settings2 } from "lucide-react";
+import { ChevronsLeftRight, Ellipsis, EyeOff, Layers, Plus, Settings2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -266,7 +266,12 @@ function KanbanCount({
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span aria-label={countLabel} className="shrink-0 text-xs text-muted-foreground tabular-nums">
+        <span
+          aria-label={countLabel}
+          className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground tabular-nums"
+        >
+          <Layers aria-hidden="true" className="size-3.5 shrink-0 opacity-70" />
+
           {count}
         </span>
       </TooltipTrigger>
@@ -345,11 +350,9 @@ const KanbanColumn = observer(function KanbanColumn({
 
         <KanbanCount count={count} details={summaries?.length ? [] : details} recordLabels={recordLabels} />
 
-        {summaries?.length ? (
-          <GroupSummaries lead details={details} summaries={summaries} />
-        ) : (
-          <span className="ml-auto" />
-        )}
+        {summaries?.length ? <GroupSummaries lead details={details} summaries={summaries} /> : null}
+
+        <span className="ml-auto" />
 
         <div className="flex shrink-0 items-center opacity-0 transition-opacity group-hover/header:opacity-100 focus-within:opacity-100 has-data-[state=open]:opacity-100 any-pointer-coarse:opacity-100">
           {onCreate && addLabel && (

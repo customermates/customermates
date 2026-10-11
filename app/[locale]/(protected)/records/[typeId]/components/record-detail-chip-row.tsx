@@ -16,6 +16,7 @@ import { AppChipStack } from "@/components/chip/app-chip-stack";
 import { MemberAvatar, memberName } from "@/components/chip/member-chip";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
 import { runUserAction } from "@/core/errors/report-application-error";
+import { cn } from "@/core/utils/cn";
 import {
   type EntityDetailPreviewItem,
   useEntityDetailPersonalization,
@@ -405,9 +406,11 @@ const PinChip = observer(function PinChip({
 export const RecordDetailChipRow = observer(function RecordDetailChipRow({
   store,
   className,
+  joinsTopBar = false,
 }: {
   store: RecordEditorStore;
   className?: string;
+  joinsTopBar?: boolean;
 }) {
   const t = useTranslations();
   const { starredFieldIds, isPersonalizing, previewFieldValues } = useEntityDetailPersonalization();
@@ -423,7 +426,15 @@ export const RecordDetailChipRow = observer(function RecordDetailChipRow({
   const canPin = !isPersonalizing && !store.trash && all.length > 0;
   if (!entries.length && !canPin) return null;
   return (
-    <div className={className} data-record-chip-row="">
+    <div
+      className={cn(
+        joinsTopBar &&
+          "shrink-0 border-b border-border bg-background px-4 ps-[calc(1rem+var(--safe-left,0px))] pe-[calc(1rem+var(--safe-right,0px))] pb-3",
+        className,
+      )}
+      data-joins-top-bar={joinsTopBar ? "" : undefined}
+      data-record-chip-row=""
+    >
       <div className="flex min-w-0 flex-wrap items-center gap-1">
         {entries.map((entry) => (
           <span
