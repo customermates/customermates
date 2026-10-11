@@ -43,7 +43,7 @@ const SYNTHETIC_FIXTURE_COUNTS = {
   customFieldValues: 234,
   deals: 10,
   organizations: 19,
-  p13n: 15,
+  p13n: 16,
   services: 43,
   tasks: 15,
   rolePermissions: 48,
@@ -51,7 +51,7 @@ const SYNTHETIC_FIXTURE_COUNTS = {
   users: 3,
   webhookDeliveries: 14,
   webhooks: 1,
-  widgets: 7,
+  widgets: 69,
 } as const;
 
 const SYNTHETIC_RELATIONSHIP_COUNTS = {
@@ -392,15 +392,13 @@ Loop in legal team
       "contact:Sales Pipeline:select:New,Contact,Qualified,In Progress,Won,Lost",
       "service:Pricing model:select:Fixed,Monthly,Daily",
     ]);
-    expect(SYNTHETIC_WIDGET_NAMES).toEqual([
-      "Deal Value By Organizations",
-      "Sales Pipeline",
-      "Total Deal Value",
-      "Deal Overview",
-      "Recent Changes",
-      "Messages",
-      "Events",
+    expect(SYNTHETIC_WIDGET_NAMES.slice(0, 4)).toEqual([
+      "Open pipeline",
+      "Weighted forecast",
+      "Won in the last 90 days",
+      "Average won deal",
     ]);
+    expect(new Set(SYNTHETIC_WIDGET_NAMES).size).toBe(SYNTHETIC_WIDGET_NAMES.length);
   });
 
   it("pins the canonical entity and relationship counts", () => {
@@ -413,7 +411,7 @@ Loop in legal team
       customFieldValues: 234,
       deals: 10,
       organizations: 19,
-      p13n: 15,
+      p13n: 16,
       rolePermissions: 48,
       roles: 3,
       services: 43,
@@ -421,7 +419,7 @@ Loop in legal team
       users: 3,
       webhookDeliveries: 14,
       webhooks: 1,
-      widgets: 7,
+      widgets: 69,
     });
     expect(SYNTHETIC_RELATIONSHIP_COUNTS).toEqual({
       contactOrganizations: 30,

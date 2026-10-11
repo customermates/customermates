@@ -6,7 +6,10 @@ import { Prisma } from "@/generated/prisma";
 import type { SeedContext } from "./context";
 import type { CustomFieldSeedData } from "./custom-fields";
 
+import { SYNTHETIC_DASHBOARD_VIEW_IDS } from "./data-view-ids";
+import { SYNTHETIC_DEFAULT_DASHBOARD } from "./dashboards";
 import { fixtureId } from "./helpers";
+import { northwindModelIds } from "./northwind-model";
 import { syntheticRecordKeys } from "./record-keys";
 
 export const SYNTHETIC_P13N_ID_PREFIX = "1f000000";
@@ -26,6 +29,7 @@ export const SYNTHETIC_P13N_IDS = {
   serviceDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 14),
   taskDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 15),
   routines: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 16),
+  dashboard: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 19),
 } as const;
 
 export const SYNTHETIC_TEAM_ROUTINE_P13N_IDS = {
@@ -46,6 +50,7 @@ export function buildSyntheticP13nFixtures(
   const { customFieldIds } = customFields;
   const { company, user } = context.ids;
   const { id, surface, relationship, path } = syntheticRecordKeys(company);
+  const dealStage = northwindModelIds(company).fields.deal.stage;
   const assignedToMe = { field: "system:assignedTo", operator: "in", value: [user] } as const;
   const listStateKeys = (grouping: boolean) => [
     "filters",
@@ -186,7 +191,7 @@ export function buildSyntheticP13nFixtures(
     }),
     fixture(SYNTHETIC_P13N_IDS.deals, surface("deal"), {
       columnOrder: [
-        customFieldIds.dealStatus,
+        dealStage,
         id("deal.totalValue"),
         id("deal.weightedValue"),
         relationship("task.deals", "incoming"),
@@ -212,9 +217,9 @@ export function buildSyntheticP13nFixtures(
         relationship("lineItem.deal", "incoming"),
       ],
       viewMode: "card",
-      groupingColumnId: customFieldIds.dealStatus,
+      groupingColumnId: dealStage,
       grouping: inputJson({
-        field: customFieldIds.dealStatus,
+        field: dealStage,
         summaries: [
           { fieldId: id("deal.totalValue"), aggregation: "sum" },
           { fieldId: id("deal.weightedValue"), aggregation: "sum" },
@@ -284,6 +289,12 @@ export function buildSyntheticP13nFixtures(
       groupingColumnId: null,
       grouping: Prisma.DbNull,
       viewStateKeys: inputJson(listStateKeys(false)),
+    }),
+    fixture(SYNTHETIC_P13N_IDS.dashboard, SURFACE.dashboard, {
+      columnOrder: [],
+      hiddenColumns: [],
+      viewMode: null,
+      activeViewKey: SYNTHETIC_DASHBOARD_VIEW_IDS[SYNTHETIC_DEFAULT_DASHBOARD],
     }),
     fixture(SYNTHETIC_P13N_IDS.routines, SURFACE.routines, {
       columnOrder: [],
