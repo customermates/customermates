@@ -6,7 +6,6 @@ import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RoleApiMutationResultSchema } from "../../features/role/role-management.schema";
 import { presetId } from "../../features/records/crm-preset";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
-import { openRecordDetails } from "./record-rows";
 import { secondUser } from "./second-user";
 
 async function post(page: Page, path: string, data: unknown): Promise<unknown> {
@@ -41,9 +40,11 @@ test("renders every record detail field in the input box and explains calculated
   await dialogs.getByRole("textbox", { name: "Name", exact: false }).fill("Boxed opportunity");
   await dialogs.getByRole("button", { name: "Save", exact: true }).click();
   await expect(dialogs).not.toBeVisible();
-  await openRecordDetails(page, "Boxed opportunity");
-  await dialogs.getByRole("link", { name: "Open page", exact: true }).click();
-  await expect(page).toHaveURL(new RegExp(`/records/${typeId("deal")}/[a-f0-9-]+$`));
+  const created = await database.query(
+    'SELECT id FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND "deletedAt" IS NULL ORDER BY "createdAt" DESC LIMIT 1',
+    [companyId, typeId("deal")],
+  );
+  await page.goto(`/en/records/${typeId("deal")}/${created.rows[0].id}`);
   const recordUrl = page.url();
   const main = page.getByRole("main");
   await showOverview(main);

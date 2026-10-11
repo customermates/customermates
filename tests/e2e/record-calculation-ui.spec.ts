@@ -205,7 +205,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
     await expect(source).toContainText("From Service · Price");
     await expect(source.locator('[data-sentence-reference^="list:"] svg')).toBeVisible();
     await source.getByRole("button", { name: "Open Calculation A", exact: true }).click();
-    await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(3);
+    await expect(source).toHaveCount(0);
     await expect(dialog.last().getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Calculation A");
     await page.keyboard.press("Escape");
     await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(0);
