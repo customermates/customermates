@@ -195,7 +195,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
           }
           initialPanel={params.get("viewSurface") === SURFACE.entityTimeline ? "activities" : "details"}
           panelLayout={panelLayout}
-          summary={<RecordDetailChipRow className="px-4 pt-2 pb-3" store={store} />}
+          summary={<RecordDetailChipRow joinsTopBar store={store} />}
         />
       </AppForm>
     );
