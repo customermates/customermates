@@ -62,7 +62,10 @@ export function RotatingAccent({ className, highlightClassName, words }: Props) 
       <motion.span
         ref={boxRef}
         animate={width === null ? undefined : { width }}
-        className={cn("relative inline-flex justify-center overflow-x-visible overflow-y-clip whitespace-nowrap", highlightClassName)}
+        className={cn(
+          "relative inline-flex justify-center overflow-x-visible overflow-y-clip whitespace-nowrap",
+          highlightClassName,
+        )}
         initial={false}
         transition={transition}
       >
