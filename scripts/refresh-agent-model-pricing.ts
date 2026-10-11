@@ -14,6 +14,7 @@ const pin = (
 
 const PINNED = [
   pin("anthropic/claude-haiku-5.5", "vertexAnthropic", "eu"),
+  pin("anthropic/claude-sonnet-5.5", "vertexAnthropic", "eu"),
   pin("typesafe-ai/jev", "digitalocean", null),
 ];
 

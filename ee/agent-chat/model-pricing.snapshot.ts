@@ -1,6 +1,6 @@
 export const MODEL_PRICING_SNAPSHOT = {
   source: "https://ai-gateway.vercel.sh/v1/models and https://ai-gateway.vercel.sh/v1/models/{model}/endpoints",
-  fetchedAt: "2026-10-08T15:58:25Z",
+  fetchedAt: "2026-10-11T14:16:52Z",
   endpoints: [
     {
       modelId: "anthropic/claude-haiku-5.5",
@@ -53,6 +53,36 @@ export const MODEL_PRICING_SNAPSHOT = {
         {
           costUsdPerToken: "0.0000006875",
           minPromptTokens: 100001,
+        },
+      ],
+    },
+    {
+      modelId: "anthropic/claude-sonnet-5.5",
+      providerNativeModelId: "claude-sonnet-5.5",
+      provider: "vertexAnthropic",
+      inferenceRegion: "eu",
+      contextLength: 1000000,
+      maxCompletionTokens: 128000,
+      requestUsd: "0",
+      webSearchUsdPerThousandCalls: "10",
+      prompt: [
+        {
+          costUsdPerToken: "0.0000022",
+        },
+      ],
+      completion: [
+        {
+          costUsdPerToken: "0.000011",
+        },
+      ],
+      inputCacheRead: [
+        {
+          costUsdPerToken: "0.00000011",
+        },
+      ],
+      inputCacheWrite: [
+        {
+          costUsdPerToken: "0.00000275",
         },
       ],
     },

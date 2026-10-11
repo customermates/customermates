@@ -23,6 +23,11 @@ const HAIKU = {
   maxToolResultChars: 6000,
 } as const satisfies Omit<AgentModelEntry, "reasoningEffort">;
 
+const SONNET = {
+  ...HAIKU,
+  modelId: "anthropic/claude-sonnet-5.5",
+} as const satisfies Omit<AgentModelEntry, "reasoningEffort">;
+
 export const AGENT_MODELS = {
   chat: { ...HAIKU, reasoningEffort: "low" },
   routine: { ...HAIKU, reasoningEffort: "medium" },
@@ -32,6 +37,8 @@ export const AGENT_MODELS = {
     reasoningEffort: "medium",
   },
   wikiSummary: { ...HAIKU, maxOutputTokens: 512, reasoningEffort: "low" },
+  setupDrafting: { ...HAIKU, reasoningEffort: "low" },
+  setupPlanning: { ...SONNET, maxOutputTokens: 16_384, reasoningEffort: "low" },
 } as const satisfies Record<string, AgentModelEntry>;
 
 export type AgentModelPurpose = keyof typeof AGENT_MODELS;
