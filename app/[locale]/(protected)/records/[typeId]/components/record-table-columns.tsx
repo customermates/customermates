@@ -25,6 +25,9 @@ import {
   hasInlineRelationshipEditor,
 } from "./record-inline-field";
 
+// Table cells stretch their inline edit trigger so chip stacks fill the column width.
+const FILL_EDIT_TARGET_CLASS = "flex min-w-0 [&_[data-edit-target]]:w-full";
+
 export function recordAvatarFieldId(store: RecordsStore) {
   return store.presentation.model.capabilities
     .find((binding) => binding.kind === "avatar" && binding.typeId === store.presentation.typeId)
@@ -100,25 +103,29 @@ export function useRecordTableColumns(
                 (entry) => entry.relationId === column.relation.id && entry.direction === column.direction,
               );
               return (
-                <RecordInlineRelationship
-                  direction={column.direction}
-                  empty={!summary?.records.length}
-                  label={column.label}
-                  record={row.original}
-                  records={store}
-                  relation={column.relation}
-                  onOpenRecord={openRelated}
-                >
-                  {renderCell(true)}
-                </RecordInlineRelationship>
+                <div className={FILL_EDIT_TARGET_CLASS}>
+                  <RecordInlineRelationship
+                    direction={column.direction}
+                    empty={!summary?.records.length}
+                    label={column.label}
+                    record={row.original}
+                    records={store}
+                    relation={column.relation}
+                    onOpenRecord={openRelated}
+                  >
+                    {renderCell(true)}
+                  </RecordInlineRelationship>
+                </div>
               );
             }
             if (column.kind !== "field") return renderCell(false);
             if (canEditInline(store, row.original, column.field)) {
               return (
-                <RecordInlineField field={column.field} record={row.original} records={store}>
-                  {renderCell(true)}
-                </RecordInlineField>
+                <div className={FILL_EDIT_TARGET_CLASS}>
+                  <RecordInlineField field={column.field} record={row.original} records={store}>
+                    {renderCell(true)}
+                  </RecordInlineField>
+                </div>
               );
             }
             return isCalculatedField(store, column.field) ? (

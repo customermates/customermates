@@ -103,6 +103,7 @@ export const RecordValue = observer(function RecordValue({
   if (value.kind === "selectList") {
     return (
       <AppChipStack
+        fill={!compact}
         items={value.value.map((id) => {
           const option = field.options.find((option) => option.id === id);
           return {
