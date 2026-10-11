@@ -49,6 +49,11 @@ type DemoAttendee = {
 };
 
 const MINUTE = 60_000;
+
+/** Minutes between the messages of a conversation: recent ones span a day or two, older ones about a week. */
+export function messageGapMinutes(fixture: Pick<ThreadFixture, "latestMinutesAgo">): number {
+  return fixture.latestMinutesAgo < 2 * 24 * 60 ? 7 * 60 : 26 * 60;
+}
 const EMAIL_FOLDER_IDS = {
   google: { inbox: "demo-google-inbox", sent: "demo-google-sent" },
   outlook: { inbox: "demo-outlook-inbox", sent: "demo-outlook-sent" },
@@ -670,7 +675,7 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       lastMessagePreview: lastMessage.text,
       lastMessageIsSender: lastMessage.sender === "self",
       sharedToCrm: true,
-      createdAt: new Date(latestAt.getTime() - (fixture.messages.length - 1) * 45 * MINUTE),
+      createdAt: new Date(latestAt.getTime() - (fixture.messages.length - 1) * messageGapMinutes(fixture) * MINUTE),
     };
     const occupiedThreadId = await prisma.messagingThread.findUnique({
       where: { id: threadId },
@@ -753,7 +758,9 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       const recipientAttendees = attendees.filter((attendee) => attendee.attendeeId !== sender.attendeeId);
       const sentPosition = message.draft === true ? sentMessageCount - 1 : sentSoFar;
       if (message.draft !== true) sentSoFar += 1;
-      const sentAt = new Date(latestAt.getTime() - (sentMessageCount - 1 - sentPosition) * 45 * MINUTE);
+      const sentAt = new Date(
+        latestAt.getTime() - (sentMessageCount - 1 - sentPosition) * messageGapMinutes(fixture) * MINUTE,
+      );
       const reactionSender = message.reaction
         ? message.reaction.sender === "self"
           ? self

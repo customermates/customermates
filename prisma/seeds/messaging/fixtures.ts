@@ -267,7 +267,7 @@ const threadFixtures: ThreadFixture[] = [
   },
   {
     account: "google",
-    latestMinutesAgo: 90,
+    latestMinutesAgo: 3 * 24 * 60 + 90,
     messages: [
       {
         sender: "self",
@@ -302,7 +302,7 @@ const threadFixtures: ThreadFixture[] = [
   },
   {
     account: "google",
-    latestMinutesAgo: 70,
+    latestMinutesAgo: 2 * 24 * 60,
     messages: [
       {
         sender: "yasmin",
@@ -1125,7 +1125,7 @@ const threadFixtures: ThreadFixture[] = [
   },
   {
     account: "google",
-    latestMinutesAgo: 4_300,
+    latestMinutesAgo: 9 * 24 * 60,
     messages: [
       {
         sender: "self",
