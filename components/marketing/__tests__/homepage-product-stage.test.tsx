@@ -69,7 +69,7 @@ function render() {
         demoBaseUrl: "https://demo.example",
         disclosure: "Sample data.",
         label: "Product areas",
-        live: { prompt: "Try it live", status: "Live demo." },
+        live: { prompt: "Try it live" },
         locale: "en",
         tabs,
       }),
@@ -309,7 +309,7 @@ it("shows every tab as its own live iframe, keeps rotating and preloads the next
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("loading");
   advance(LIVE_REVEAL_DELAY_MS);
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("ready");
-  expect(host.textContent).toContain("Live demo.");
+  expect(host.textContent).toContain("Sample data.");
   expect(progress(host)).toBe("running");
   expect(host.querySelectorAll("iframe")).toHaveLength(2);
   expect(host.querySelector('iframe[data-homepage-stage-iframe="standby"]')?.getAttribute("src")).toBe(

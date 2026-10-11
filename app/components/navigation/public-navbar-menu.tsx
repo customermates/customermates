@@ -255,8 +255,10 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
                     aria-controls="public-nav-popover"
                     aria-expanded={expanded}
                     className={cn(
-                      "group flex h-8 items-center gap-1 rounded-md px-2.5 text-[13px] font-medium outline-none transition-colors hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:transition-none",
-                      active || expanded ? "bg-accent text-foreground" : "text-subdued",
+                      "group flex h-8 items-center gap-1 rounded-full px-3 text-[13px] font-medium outline-none transition-[background-color,color,box-shadow] duration-200 hover:bg-foreground/[0.06] hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:transition-none",
+                      active || expanded
+                        ? "bg-foreground/[0.07] text-foreground shadow-[inset_0_1px_0_0_rgb(255_255_255/0.08)] ring-1 ring-foreground/10"
+                        : "text-subdued",
                     )}
                     data-public-nav-active={active ? "true" : undefined}
                     data-public-nav-trigger={group.id}
@@ -318,8 +320,10 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
                 appearance="unstyled"
                 aria-current={isCurrentPage(pathname, "/pricing") ? "page" : undefined}
                 className={cn(
-                  "flex h-8 items-center rounded-md px-2.5 text-[13px] font-medium transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent motion-reduce:transition-none",
-                  isCurrentPage(pathname, "/pricing") ? "bg-accent text-foreground" : "text-subdued",
+                  "flex h-8 items-center rounded-full px-3 text-[13px] font-medium transition-[background-color,color,box-shadow] duration-200 hover:bg-foreground/[0.06] hover:text-foreground focus-visible:bg-foreground/[0.06] motion-reduce:transition-none",
+                  isCurrentPage(pathname, "/pricing")
+                    ? "bg-foreground/[0.07] text-foreground shadow-[inset_0_1px_0_0_rgb(255_255_255/0.08)] ring-1 ring-foreground/10"
+                    : "text-subdued",
                 )}
                 href="/pricing"
                 onNavigate={navigate}
@@ -334,8 +338,10 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
                   appearance="unstyled"
                   aria-current={isCurrentPage(pathname, "/docs") ? "page" : undefined}
                   className={cn(
-                    "flex h-8 items-center rounded-md px-2.5 text-[13px] font-medium transition-colors hover:bg-accent hover:text-foreground focus-visible:bg-accent motion-reduce:transition-none",
-                    isCurrentPage(pathname, "/docs") ? "bg-accent text-foreground" : "text-subdued",
+                    "flex h-8 items-center rounded-full px-3 text-[13px] font-medium transition-[background-color,color,box-shadow] duration-200 hover:bg-foreground/[0.06] hover:text-foreground focus-visible:bg-foreground/[0.06] motion-reduce:transition-none",
+                    isCurrentPage(pathname, "/docs")
+                      ? "bg-foreground/[0.07] text-foreground shadow-[inset_0_1px_0_0_rgb(255_255_255/0.08)] ring-1 ring-foreground/10"
+                      : "text-subdued",
                   )}
                   href="/docs"
                   onNavigate={navigate}
@@ -387,14 +393,11 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
                     else panelRefs.current.delete(group.id);
                   }}
                   aria-hidden={!expanded}
-                  className={cn(
-                    "overflow-hidden rounded-lg border border-border bg-popover shadow-md",
-                    !expanded && "hidden",
-                  )}
+                  className={cn("glass-panel overflow-hidden rounded-2xl p-1.5", !expanded && "hidden")}
                   data-public-nav-surface={group.id}
                   data-state={expanded ? "open" : "closed"}
                 >
-                  <ul className={cn("grid gap-px bg-border", group.columns === 3 ? "grid-cols-3" : "grid-cols-2")}>
+                  <ul className={cn("grid gap-0.5", group.columns === 3 ? "grid-cols-3" : "grid-cols-2")}>
                     {group.links.map((link, index) => {
                       const linkActive = isCurrentPage(pathname, link.href) && isPrimaryPublicNavLink(groups, link);
 
@@ -416,8 +419,8 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
                             appearance="unstyled"
                             aria-current={linkActive ? "page" : undefined}
                             className={cn(
-                              "flex h-full min-h-11 items-center gap-2.5 bg-popover px-3 py-2.5 text-[13px] font-medium text-foreground transition-colors hover:bg-accent focus-visible:bg-accent motion-reduce:transition-none",
-                              linkActive && "bg-accent",
+                              "flex h-full min-h-11 items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-foreground transition-colors duration-200 hover:bg-foreground/[0.07] focus-visible:bg-foreground/[0.07] motion-reduce:transition-none",
+                              linkActive && "bg-foreground/[0.07]",
                             )}
                             href={link.href}
                             tabIndex={expanded ? undefined : -1}

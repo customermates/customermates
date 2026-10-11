@@ -856,3 +856,12 @@ path:focus {
     0 12px 32px -14px rgb(0 0 0 / 0.4);
   backdrop-filter: blur(24px) saturate(180%);
 }
+
+@utility glass-panel {
+  border: 1px solid color-mix(in oklab, var(--color-foreground) 12%, transparent);
+  background-color: color-mix(in oklab, var(--color-popover) 88%, transparent);
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.08),
+    0 24px 48px -16px rgb(0 0 0 / 0.45);
+  backdrop-filter: blur(32px) saturate(180%);
+}

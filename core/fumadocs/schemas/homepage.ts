@@ -58,7 +58,6 @@ export const heroSchema = z.object({
     label: z.string(),
     live: z.object({
       prompt: z.string(),
-      status: z.string(),
     }),
     tabs: z.array(homepageStageTabSchema).length(HOMEPAGE_STAGE_CAPTURES.length),
   }),

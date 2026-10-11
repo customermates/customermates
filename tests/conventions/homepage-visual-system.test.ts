@@ -186,8 +186,8 @@ describe("homepage visual-system adoption", () => {
     expect(stage).toContain("autoAdvance && !shouldReduceMotion");
     expect(stage).not.toContain("aria-live");
     expect(stage).toContain("eager={index === 0}");
-    expect(stage).toContain("if (!window.matchMedia?.(LIVE_STAGE_MEDIA).matches) return;");
-    expect(stage).toContain('window.addEventListener("load", start, { once: true });');
+    expect(stage).toContain("if (window.matchMedia?.(LIVE_STAGE_MEDIA).matches) setLive(true);");
+    expect(stage).not.toContain("glass-surface pointer-events-none absolute");
     expect(stage).toContain("STAGE_MAX_TILT_DEG = 12");
     expect(stage).toContain("STAGE_MIN_SCALE = 0.94");
     expect(stage).toContain("lg:[transform:rotateX(var(--stage-tilt,0deg))_scale(var(--stage-scale,1))]");
@@ -332,7 +332,7 @@ describe("homepage visual-system adoption", () => {
     const productWindow = readComponent("homepage-product-window.tsx");
 
     expect(stage).toContain("<ProductWindow");
-    expect(stage).toContain("LIVE_REVEAL_DELAY_MS = 900");
+    expect(stage).toContain("LIVE_REVEAL_DELAY_MS = 500");
     expect(stage).toContain("onLoad={() => revealLive(index)}");
     expect(stage).toContain("live && liveMounted.has(index)");
     expect(productWindow).not.toContain("data-homepage-window-chrome");

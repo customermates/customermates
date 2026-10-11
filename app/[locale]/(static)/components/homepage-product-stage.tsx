@@ -49,7 +49,7 @@ const STAGE_DEMO_PATHS = {
 
 const LIVE_STAGE_MEDIA = "(min-width: 40rem)";
 
-export const LIVE_REVEAL_DELAY_MS = 900;
+export const LIVE_REVEAL_DELAY_MS = 500;
 
 const LIVE_VIEWPORT = { height: 900, width: 1440 } as const;
 
@@ -61,7 +61,7 @@ type Props = {
   demoBaseUrl: string;
   disclosure: string;
   label: string;
-  live: { prompt: string; status: string };
+  live: { prompt: string };
   locale: ContentLocale;
   tabs: HomepageStageTab[];
 };
@@ -110,16 +110,7 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
   preconnect(demoBaseUrl);
 
   useEffect(() => {
-    if (!window.matchMedia?.(LIVE_STAGE_MEDIA).matches) return;
-    if (document.readyState === "complete") {
-      setLive(true);
-      return;
-    }
-
-    const start = () => setLive(true);
-    window.addEventListener("load", start, { once: true });
-
-    return () => window.removeEventListener("load", start);
+    if (window.matchMedia?.(LIVE_STAGE_MEDIA).matches) setLive(true);
   }, []);
 
   useEffect(() => {
@@ -366,25 +357,13 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
               )}
             </div>
           </ProductWindow>
-
-          <p className="glass-surface pointer-events-none absolute -bottom-3.5 left-1/2 z-30 flex w-max max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-2 rounded-2xl px-3 py-1 text-center text-xs font-medium text-muted-foreground sm:rounded-full sm:whitespace-nowrap">
-            <span
-              aria-hidden
-              className={cn(
-                "size-1.5 shrink-0 rounded-full",
-                liveReady ? "animate-pulse bg-success motion-reduce:animate-none" : "bg-muted-foreground/60",
-              )}
-            />
-
-            {liveReady ? liveCopy.status : disclosure}
-          </p>
         </div>
       </div>
 
       <div
         ref={listRef}
         aria-label={label}
-        className="glass-surface relative z-10 mx-auto mt-10 flex w-fit max-w-full snap-x gap-0.5 overflow-x-auto rounded-full p-1 [scrollbar-width:none]"
+        className="glass-surface relative z-10 mx-auto mt-8 flex w-fit max-w-full snap-x gap-0.5 overflow-x-auto rounded-full p-1 [scrollbar-width:none]"
         role="tablist"
         onPointerDown={() => setStopped(true)}
       >
@@ -437,11 +416,17 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
       <motion.p
         key={activeTab.capture}
         animate={{ opacity: 1, y: 0 }}
-        className="mt-4 text-center text-sm text-muted-foreground"
+        className="mt-4 flex flex-wrap justify-center text-center text-sm text-muted-foreground"
         initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
       >
-        {activeTab.caption}
+        <span>{activeTab.caption}</span>
+
+        <span aria-hidden className="mx-1.5 text-muted-foreground/40">
+          ·
+        </span>
+
+        <span className="text-muted-foreground/60">{disclosure}</span>
       </motion.p>
     </div>
   );
