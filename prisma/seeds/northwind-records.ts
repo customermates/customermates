@@ -8,6 +8,15 @@ import { NORTHWIND_MEMBER_IDS, NORTHWIND_RECORD_ID_PREFIXES } from "./northwind-
 
 const DAY = 86_400_000;
 
+/** A readable line item name: the tier and seat count, the onboarding package, or the service days. */
+function lineItemName(serviceIndex: number, quantity: number): string {
+  const [name, , kind] = northwindDataset().services[serviceIndex] ?? ["Line item", 0, "training"];
+  if (kind === "license") return `${name.replace(/^Northwind Field (\w+) seat.*$/, "$1")} - ${quantity} seats`;
+  if (kind === "onboarding") return `${name.replace(/^Onboarding /, "")} onboarding`;
+  const days = `${quantity} ${quantity === 1 ? "day" : "days"}`;
+  return `${name.replace(/ \(day\)$/, "")} - ${days}`;
+}
+
 export type NorthwindRecordRow = { typeKey: string; id: string; createdAt: Date; updatedAt: Date };
 export type NorthwindValueRow = { typeKey: string; recordId: string; fieldKey: string; value: RecordScalar };
 export type NorthwindLinkRow = {
@@ -171,7 +180,7 @@ export function buildNorthwindRecords(companyId: string) {
     const deal = data.deals[line.dealIndex];
     record("lineItem", line.id, deal.createdAtMs, northwindAt(deal.createdAtMs));
     set("lineItem", line.id, [
-      ["name", text("Line item")],
+      ["name", text(lineItemName(line.serviceIndex, line.quantity))],
       ["quantity", number(line.quantity)],
       ["pricingMode", { kind: "select", value: line.savedPrice === null ? "live" : "saved" }],
       ["savedPrice", line.savedPrice === null ? null : money(line.savedPrice)],
