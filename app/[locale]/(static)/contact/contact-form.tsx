@@ -127,7 +127,7 @@ export function ContactForm() {
       <UnexpectedErrorToaster />
 
       {isSent ? (
-        <AppCard className="bg-card shadow-none">
+        <AppCard className="product-card">
           <AppCardBody className="items-center gap-4 text-center py-10">
             <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
               <CheckCircle2 className="size-6" />
@@ -151,7 +151,7 @@ export function ContactForm() {
             runUserAction(submit);
           }}
         >
-          <AppCard className="bg-card shadow-none">
+          <AppCard className="product-card">
             <AppCardBody>
               <div className="flex items-center gap-4 pb-1">
                 <AppImage

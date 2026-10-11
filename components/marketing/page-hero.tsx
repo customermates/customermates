@@ -82,7 +82,7 @@ export function PageHero(props: Props) {
   const actions = hasHeroActions(props) ? props : null;
 
   return (
-    <section className="relative isolate w-full overflow-hidden border-b border-border bg-background">
+    <section className="relative isolate w-full overflow-hidden bg-background">
       <GridPattern className="z-0" fade="bottom" />
 
       <MarketingContainer className="relative z-10">

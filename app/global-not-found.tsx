@@ -18,7 +18,7 @@ export default async function GlobalNotFoundPage() {
   return (
     <RootDocument displayLanguage={displayLanguage} messages={messages}>
       <MarketingShell accountState={account.state}>
-        <NotFoundPageView />
+        <NotFoundPageView variant="marketing" />
       </MarketingShell>
     </RootDocument>
   );

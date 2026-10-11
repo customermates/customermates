@@ -178,6 +178,10 @@ const FRAMING_RULES = [
     "A tinted, primary-lit well the window bleeds out of, so a section shows a readable crop of one area.",
   ],
   ["PhoneFrame", "A dark device bezel for phone captures, layered over a desktop window when both appear."],
+  [
+    "product-card",
+    "The raised card surface for illustration cards, diagram cards and floating forms: hairline rim, inner highlight, theme-aware deep shadow.",
+  ],
   ["Crops", "Cropping happens in CSS on unedited stills; no section adds its own card shadow or radius."],
 ] as const;
 
