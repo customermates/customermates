@@ -184,7 +184,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
       await page.keyboard.press("Enter");
       const line = dialog.getByRole("region", { name: "Line items", exact: true }).getByRole("button", { name, exact: true });
       await expect(line).toBeVisible();
-      await line.click();
+      await openRecordLink(line);
       await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
       const child = dialog.last();
       await child.getByRole("textbox", { name: "Quantity", exact: false }).fill(quantity);
