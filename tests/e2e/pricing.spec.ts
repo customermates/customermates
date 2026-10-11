@@ -8,6 +8,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   database,
   companyId,
 }, testInfo) => {
+  test.skip(Boolean(test.info().project.use.isMobile), "The sub-list table with headers, totals and in-place cells is the desktop layout");
   test.setTimeout(240000);
   const errors: string[] = [];
   page.on("pageerror", (error) => {
@@ -242,6 +243,7 @@ test("refreshes the deal from in-place sub-list edits in the drawer and locks th
   page,
   companyId,
 }) => {
+  test.skip(Boolean(test.info().project.use.isMobile), "In-place sub-list cell edits belong to the desktop table");
   test.setTimeout(240000);
   const errors: string[] = [];
   page.on("pageerror", (error) => {

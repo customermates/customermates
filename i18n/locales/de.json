@@ -1370,8 +1370,7 @@
         "removeFilter": "Filter entfernen",
         "searchContains": "{field} enthält „{text}“",
         "searchOrAddFilter": "Suchen oder Filter hinzufügen…",
-        "title": "Filter",
-        "trigger": "Filter"
+        "title": "Filter"
       },
       "searchFields": {
         "inbox": "Betreff, Nachricht oder Teilnehmer",

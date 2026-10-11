@@ -23,6 +23,7 @@ type Props<E extends HasId> = {
   rowActions?: (item: E) => ReactNode;
   onRowHref?: (item: E) => string | undefined;
   rowFocusKey?: (item: E) => string | undefined;
+  rowLabel?: (item: E) => string;
 };
 
 export const DataPhoneRows = observer(function DataPhoneRows<E extends HasId>({
@@ -33,6 +34,7 @@ export const DataPhoneRows = observer(function DataPhoneRows<E extends HasId>({
   rowActions,
   onRowHref,
   rowFocusKey,
+  rowLabel,
 }: Props<E>) {
   const t = useTranslations();
   const navigateToHref = useNavigateToHref();
@@ -41,6 +43,7 @@ export const DataPhoneRows = observer(function DataPhoneRows<E extends HasId>({
   const itemsById = new Map(store.items.map((item) => [item.id, item]));
   const renderPhoneRow = (item: E) => {
     const href = onRowHref?.(item);
+    const label = rowLabel?.(item) ?? t("Common.actions.open");
     const open = () => {
       if (onRowClick) onRowClick(item);
       else if (href) navigateToHref(href);
@@ -53,17 +56,12 @@ export const DataPhoneRows = observer(function DataPhoneRows<E extends HasId>({
         data-row-id={item.id}
       >
         {!href && onRowClick && (
-          <button
-            aria-label={t("Common.actions.open")}
-            className="absolute inset-0 outline-none"
-            type="button"
-            onClick={open}
-          />
+          <button aria-label={label} className="absolute inset-0 outline-none" type="button" onClick={open} />
         )}
 
         {href && (
           <a
-            aria-label={t("Common.actions.open")}
+            aria-label={label}
             className="absolute inset-0 outline-none"
             href={href}
             onClick={(event) => {

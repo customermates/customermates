@@ -186,10 +186,10 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
         <OverflowRail
           ariaLabel={t("DataView.views.railLabel")}
           bleed={false}
-          className="min-w-0 flex-1"
+          className="-mt-1 min-w-0 flex-1"
           focusable={false}
           observedKey={chips.length}
-          railClassName={cn("items-center gap-1 pt-0", joinsTopBar && "pb-4")}
+          railClassName={cn("items-center gap-1 pe-1 pt-1", joinsTopBar && "pb-4")}
           railProps={{
             "aria-label": t("DataView.views.railLabel"),
             "aria-orientation": "horizontal",

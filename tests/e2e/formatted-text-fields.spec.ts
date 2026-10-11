@@ -134,7 +134,12 @@ test("edits two formatted text fields inline in the overview, collapses long tex
   expect(errors).toEqual([]);
 });
 
-test("keeps a bulk-edited formatted text on Escape and follows links in display mode", async ({ page, companyId }) => {
+test("keeps a bulk-edited formatted text on Escape and follows links in display mode", async ({
+  page,
+  companyId,
+  isMobile,
+}) => {
+  test.skip(isMobile, "Bulk selection uses the desktop table's row checkboxes; phone rows have no selection");
   test.setTimeout(240000);
   const errors: string[] = [];
   page.on("pageerror", (error) => {

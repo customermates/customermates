@@ -145,7 +145,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
         [companyId, `records:${typeId}`],
       )
     ).rows[0];
-  await expect(budgetColumn()).toBeVisible();
+  if (!testInfo.project.use.isMobile) await expect(budgetColumn()).toBeVisible();
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await expect(page.getByText(englishMessages.DataView.summaries, { exact: true })).toHaveCount(0);
   await page.getByRole("combobox", { name: "Group By", exact: true }).click();
@@ -161,7 +161,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await page.getByRole("combobox", { name: "Sort by", exact: true }).click();
   await page.getByRole("option", { name: "Budget", exact: true }).click();
   await page.keyboard.press("Escape");
-  await expect(budgetSummary).toBeVisible();
+  if (!testInfo.project.use.isMobile) await expect(budgetSummary).toBeVisible();
   await expect(budgetColumn()).not.toBeVisible();
   await expect
     .poll(async () => (await savedState())?.grouping)
@@ -171,15 +171,15 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await page.getByRole("checkbox", { name: "Budget", exact: true }).check();
   await page.keyboard.press("Escape");
-  await expect(budgetColumn()).toBeVisible();
+  if (!testInfo.project.use.isMobile) await expect(budgetColumn()).toBeVisible();
   await expect.poll(async () => (await savedState())?.hiddenColumns).toEqual([]);
   await page.reload();
-  await expect(budgetColumn()).toBeVisible();
-  await expect(budgetSummary).toBeVisible();
+  if (!testInfo.project.use.isMobile) await expect(budgetColumn()).toBeVisible();
+  if (!testInfo.project.use.isMobile) await expect(budgetSummary).toBeVisible();
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await page.getByRole("button", { name: englishMessages.RecordModel.resetLayout, exact: true }).click();
   await expect(budgetSummary).toHaveCount(0);
-  await expect(budgetColumn()).toBeVisible();
+  if (!testInfo.project.use.isMobile) await expect(budgetColumn()).toBeVisible();
   await expect(page.getByRole("checkbox", { name: "Budget", exact: true })).toHaveCount(0);
   await expect.poll(async () => (await savedState())?.grouping ?? null).toBeNull();
   await page.getByRole("button", { name: "Appearance", exact: true }).click();

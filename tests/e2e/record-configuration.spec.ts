@@ -7,6 +7,7 @@ import { recordChannelsField } from "../../features/records/record-channels";
 import { addChannelsField, addFromConfigure, configureListCard, configureRow, configureTopBar, deleteFromDrawer, deleteSelectedList, followConfigureLink, openConfigure, openConfigureRow, openConfigureTab, openDrawerTab, saveDrawer, saveGeneral, selectConfigureList } from "./configure";
 import { calculationChip, calculationFlow, chooseValueSource, pickFixedValue, pickOption } from "./calculation-flow";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { recordItem } from "./record-rows";
 
 async function applyConfiguration(page: Page) {
   await saveDrawer(page);
@@ -214,7 +215,7 @@ test("edits a linear calculation and restores deleted fields and a list", async 
   });
   await openRecordList(page, typeId);
   await expect(page.getByRole("link", { name: "Pilot research", exact: true })).toBeVisible();
-  await expect(page.getByRole("cell", { name: "25", exact: true })).toBeVisible();
+  await expect(recordItem(page, "Pilot research")).toContainText("25");
   await page.screenshot({ path: testInfo.outputPath("restored-custom-record.png"), animations: "disabled" });
   expect(errors).toEqual([]);
 });

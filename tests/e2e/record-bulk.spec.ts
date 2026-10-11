@@ -10,6 +10,7 @@ test("selects records, bulk-edits exact decimals, previews cascades, and deletes
   database,
   companyId,
 }, testInfo) => {
+  test.skip(Boolean(test.info().project.use.isMobile), "Bulk selection uses the desktop table's row checkboxes; phone rows have no selection");
   const typeId = presetId(companyId, "service");
   const priceId = presetId(companyId, "service.amount");
   const errors: string[] = [];
@@ -86,6 +87,7 @@ test("shows a conflict and leaves every selected record unchanged when another t
   database,
   companyId,
 }) => {
+  test.skip(Boolean(test.info().project.use.isMobile), "Bulk selection uses the desktop table's row checkboxes; phone rows have no selection");
   const typeId = presetId(companyId, "service");
   await page.goto(`/en/records/${typeId}`);
   const dialog = page.getByRole("dialog");
@@ -151,6 +153,7 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
   companyId,
   workspace,
 }, testInfo) => {
+  test.skip(Boolean(test.info().project.use.isMobile), "Bulk selection uses the desktop table's row checkboxes; phone rows have no selection");
   test.setTimeout(180000);
   const typeId = presetId(companyId, "service");
   const nameId = presetId(companyId, "service.name");

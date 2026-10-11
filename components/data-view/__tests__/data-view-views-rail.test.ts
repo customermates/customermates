@@ -270,7 +270,8 @@ describe("data view rail", () => {
     const html = render(store({ activeViewKey: "v-a", views: THREE_VIEWS }));
     const items = html.match(/<[^>]*data-data-view-rail-items[^>]*>/)?.[0] ?? "";
 
-    expect(items).toContain("pt-0");
+    expect(items).toContain("pt-1");
+    expect(html).toContain("-mt-1 min-w-0 flex-1");
     expect(items).toContain("pb-4");
     expect(items).not.toContain("py-2.5");
     expect(tabs(html).every((tab) => tab.includes("h-7"))).toBe(true);

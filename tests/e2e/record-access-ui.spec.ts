@@ -32,7 +32,7 @@ import {
   deleteSelectedList,
 } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
-import { openRecordDetails, runRowAction } from "./record-rows";
+import { openRecordDetails, recordItem, runRowAction } from "./record-rows";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { RecordIdentityReferenceSchema } from "../../features/records/record-identity-reference.schema";
@@ -2272,12 +2272,14 @@ test("keeps personal views separate from the list layout, groups and summarises 
       .getByRole("link", { name: personal.name, exact: true }),
   ).toHaveAttribute("aria-current", "page");
   await expect(page.locator('[data-slot="kanban-root"]')).toHaveCount(0);
-  await expect(
-    page.getByRole("columnheader", { name: "Budget", exact: false }),
-  ).toHaveCount(0);
-  await expect(
-    page.getByRole("columnheader", { name: "Internal memo", exact: false }),
-  ).toBeVisible();
+  if (!test.info().project.use.isMobile) {
+    await expect(
+      page.getByRole("columnheader", { name: "Budget", exact: false }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("columnheader", { name: "Internal memo", exact: false }),
+    ).toBeVisible();
+  }
   const role = await saveRole(page, {
     name: "Portfolio viewers",
     description: "Read the list layout without schema or record editing",
@@ -2606,12 +2608,14 @@ test("keeps personal views separate from the list layout, groups and summarises 
     .locator("#global-data-views")
     .getByRole("link", { name: personal.name, exact: true })
     .click();
-  await expect(
-    page.getByRole("columnheader", { name: "Internal memo", exact: false }),
-  ).toBeVisible();
-  await expect(
-    page.getByRole("columnheader", { name: "Budget", exact: false }),
-  ).toHaveCount(0);
+  if (!test.info().project.use.isMobile) {
+    await expect(
+      page.getByRole("columnheader", { name: "Internal memo", exact: false }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("columnheader", { name: "Budget", exact: false }),
+    ).toHaveCount(0);
+  }
   await presentationViewMenuUi(page, englishMessages.DataView.views.delete);
   await expect(confirmation).toContainText(personal.name);
   await confirmation.locator("#confirm-delete").click();
@@ -2989,17 +2993,11 @@ test("keeps retained values restricted after a delegated manager converts fields
           dto.fields.find((entry) => entry.fieldId === field.id)?.result,
         ).toEqual({ state: "restricted" });
       await reader.page.goto(`/en/records/${summaryType.id}`);
-      const row = reader.page
-        .getByRole("row")
-        .filter({
-          has: reader.page.getByRole("link", {
-            name: "Readable archive summary",
-            exact: true,
-          }),
-        });
-      await expect(
-        row.getByRole("cell", { name: "Restricted", exact: true }),
-      ).toHaveCount(2);
+      const row = recordItem(reader.page, "Readable archive summary");
+      if (!test.info().project.use.isMobile)
+        await expect(
+          row.getByRole("cell", { name: "Restricted", exact: true }),
+        ).toHaveCount(2);
       await expect(row).not.toContainText(canary);
       await expect(row).not.toContainText("€41.25");
       await openRecordDetails(reader.page, "Readable archive summary");

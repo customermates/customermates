@@ -59,12 +59,16 @@ test("board columns add a record with the column value, open the option, and col
   await expect(won).toHaveAttribute("data-kanban-strip", "");
 
   const open = column("new");
+  const columnOrder = () =>
+    page.locator("[data-group-key]").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("data-group-key")));
+  const orderBefore = await columnOrder();
   await open.getByRole("button", { name: "More actions for New", exact: true }).click();
   await expect(page.getByRole("menuitem")).toHaveText(["Edit option", "Collapse column", "Hide column"]);
   await page.screenshot({ path: testInfo.outputPath("board-column-menu.png"), animations: "disabled" });
   await page.getByRole("menuitem", { name: "Collapse column", exact: true }).click();
   await expect(open).toHaveAttribute("data-kanban-strip", "");
   await expect(open).toHaveAccessibleName("Expand New, 1 Deal");
+  expect(await columnOrder()).toEqual(orderBefore);
   await open.click();
   await expect(open).toContainText("Column seed");
 
