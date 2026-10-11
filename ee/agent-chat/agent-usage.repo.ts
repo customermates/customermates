@@ -6,6 +6,7 @@ import type {
   AgentRetrievalGrant,
   AgentRetrievalCharge,
   AgentTurnCreditState,
+  WorkspacePlatformReservation,
 } from "./agent-usage.service";
 
 export abstract class AgentUsageRepo {
@@ -76,6 +77,18 @@ export abstract class AgentUsageRepo {
     now: Date;
   }): Promise<void>;
   abstract settleStalePlatformReservationsUnscoped(args: { reservedBefore: Date; now: Date }): Promise<number>;
+  abstract reserveWorkspacePlatformUsageUnscoped(args: {
+    companyId: string;
+    purpose: string;
+    model: string;
+    reservedMicrocents: number;
+    capMicrocents: number;
+    now: Date;
+  }): Promise<WorkspacePlatformReservation>;
+  abstract getWorkspacePlatformSpendUnscoped(args: {
+    companyId: string;
+    purpose: string;
+  }): Promise<{ usedMicrocents: number; heldMicrocents: number }>;
   abstract reserveRetrievalUsageUnscoped(args: {
     grant: AgentRetrievalGrant;
     reservedMicrocents: number;

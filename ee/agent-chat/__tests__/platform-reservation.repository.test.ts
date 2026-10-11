@@ -5,6 +5,8 @@ const db = vi.hoisted(() => ({
   $executeRaw: vi.fn(),
   hostedAiPlatformReservation: { create: vi.fn(), findUnique: vi.fn(), findMany: vi.fn(), deleteMany: vi.fn() },
   hostedAiPlatformUsage: { upsert: vi.fn() },
+  hostedAiPlatformWorkspaceHold: { findUnique: vi.fn(), deleteMany: vi.fn() },
+  hostedAiPlatformWorkspaceUsage: { upsert: vi.fn() },
 }));
 
 vi.mock("@/prisma/db", () => ({ prisma: db }));
@@ -26,6 +28,9 @@ beforeEach(() => {
   db.hostedAiPlatformReservation.findMany.mockResolvedValue([]);
   db.hostedAiPlatformReservation.deleteMany.mockResolvedValue({ count: 1 });
   db.hostedAiPlatformUsage.upsert.mockResolvedValue({ id: "accrual" });
+  db.hostedAiPlatformWorkspaceHold.findUnique.mockResolvedValue(null);
+  db.hostedAiPlatformWorkspaceHold.deleteMany.mockResolvedValue({ count: 1 });
+  db.hostedAiPlatformWorkspaceUsage.upsert.mockResolvedValue({ companyId: "company-1" });
 });
 
 describe("Platform reservation Prisma boundaries", () => {
@@ -124,5 +129,31 @@ describe("Platform reservation Prisma boundaries", () => {
       "Platform AI reservations changed before stale settlement.",
     );
     expect(db.hostedAiPlatformUsage.upsert).not.toHaveBeenCalled();
+  });
+
+  it("moves a workspace hold into the workspace's lifetime spend when its reservation settles", async () => {
+    db.hostedAiPlatformWorkspaceHold.findUnique.mockResolvedValueOnce({
+      companyId: "company-1",
+      purpose: "workspaceSetup",
+    });
+    await repo().settlePlatformUsageUnscoped({ reservationId: "hold", charge, now });
+    expect(db.hostedAiPlatformWorkspaceHold.deleteMany).toHaveBeenCalledWith({ where: { reservationId: "hold" } });
+    expect(db.hostedAiPlatformWorkspaceUsage.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { companyId_purpose: { companyId: "company-1", purpose: "workspaceSetup" } },
+        update: { inputTokens: { increment: 2 }, costMicrocents: { increment: 3n }, updatedAt: now },
+      }),
+    );
+    expect(db.hostedAiPlatformUsage.upsert).toHaveBeenCalledTimes(1);
+  });
+
+  it("releases a workspace hold without spend when its call was refunded", async () => {
+    db.hostedAiPlatformWorkspaceHold.findUnique.mockResolvedValueOnce({
+      companyId: "company-1",
+      purpose: "workspaceSetup",
+    });
+    await repo().settlePlatformUsageUnscoped({ reservationId: "hold", charge: null, now });
+    expect(db.hostedAiPlatformWorkspaceHold.deleteMany).toHaveBeenCalledWith({ where: { reservationId: "hold" } });
+    expect(db.hostedAiPlatformWorkspaceUsage.upsert).not.toHaveBeenCalled();
   });
 });

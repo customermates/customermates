@@ -11,7 +11,7 @@ import { Prisma } from "@/generated/prisma";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
-import { WIKI_CRAWL_ACTIVE_STATUSES } from "./wiki-website-crawl.service";
+import { WIKI_CRAWL_ACTIVE_STATUSES, WIKI_CRAWL_PAYERS } from "./wiki-website-crawl.service";
 import { parseStoredWikiCrawlTargets } from "./wiki-crawl-target.schema";
 import { parseWikiCrawlMode } from "@/features/wiki/wiki-crawl-mode.schema";
 import { parseStoredWikiSourceMetadata } from "./wiki-source-metadata.schema";
@@ -25,6 +25,7 @@ const CRAWL_SELECT = {
   registrableDomain: true,
   locale: true,
   mode: true,
+  payer: true,
   status: true,
   extraHosts: true,
   pendingHosts: true,
@@ -62,9 +63,12 @@ function crawlRecord(row: CrawlRow): WikiCrawlRecord {
   const targets = parseStoredWikiCrawlTargets(row.targets);
   if (["fetching", "importing", "synthesizing"].includes(row.status) && (!targets || targets.length === 0))
     throw new Error("Knowledge Base crawl progress is invalid.");
+  const payer = WIKI_CRAWL_PAYERS.find((candidate) => candidate === row.payer);
+  if (!payer) throw new Error("Knowledge Base crawl payer is invalid.");
 
   return {
     ...row,
+    payer,
     mode: parseWikiCrawlMode(row.mode),
     targets,
     topics: parseStoredWikiSynthesisTopics(row.topics),
@@ -78,7 +82,13 @@ function sourceRecord(row: SourceRow): WikiSourceRecord {
   };
 }
 
-function crawlPatch({ targets, topics, mode, ...rest }: Partial<Omit<WikiCrawlRecord, "id" | "userId">>) {
+function crawlPatch({
+  targets,
+  topics,
+  mode,
+  payer: _payer,
+  ...rest
+}: Partial<Omit<WikiCrawlRecord, "id" | "userId">>) {
   const storedTargets = targets === undefined ? undefined : parseStoredWikiCrawlTargets(targets);
   return {
     ...rest,
@@ -126,7 +136,7 @@ export class PrismaWikiWebsiteCrawlRepo
   async createCrawl(
     data: Pick<
       WikiCrawlRecord,
-      "clientRequestId" | "homepageUrl" | "registrableDomain" | "locale" | "mode" | "extraHosts"
+      "clientRequestId" | "homepageUrl" | "registrableDomain" | "locale" | "mode" | "extraHosts" | "payer"
     >,
   ) {
     const mode = parseWikiCrawlMode(data.mode);

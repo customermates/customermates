@@ -21,6 +21,13 @@ import type { WikiCrawlRecord, WikiSourceRecord } from "../wiki-website-crawl.se
 
 import { AGENT_MODELS } from "@/ee/agent-chat/model-catalog";
 
+import { runWithTenant } from "@/core/decorators/tenant-context";
+import { createMockUser } from "@/tests/helpers/mock-user";
+import {
+  WORKSPACE_SETUP_PLATFORM_PURPOSE,
+  WORKSPACE_SETUP_SPEND_CAP_MICROCENTS,
+} from "@/ee/workspace-setup/workspace-setup-spend";
+
 import { WikiWebsiteSynthesisService } from "../wiki-website-synthesis.service";
 
 const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
@@ -48,13 +55,14 @@ const SOURCES: WikiSourceRecord[] = [
 ];
 const CHARGE = { model: "google/gemini-3.8-flash", inputTokens: 10, costMicrocents: 500, costSource: "measured" };
 
-function harness(mode: WikiCrawlRecord["mode"] = "initial") {
+function harness(mode: WikiCrawlRecord["mode"] = "initial", payer: WikiCrawlRecord["payer"] = "requester") {
   let crawl = {
     id: "crawl-1",
     userId: "user-1",
     homepageUrl: "https://example.com/",
     locale: "en",
     mode,
+    payer,
     status: "synthesizing",
     importedPages: 0,
     topics: null as StoredWikiSynthesisTopic[] | null,
@@ -104,6 +112,14 @@ function harness(mode: WikiCrawlRecord["mode"] = "initial") {
     reserveRetrieval: vi.fn(() => Promise.resolve({ id: "reservation", reservedMicrocents: 1_000 })),
     retrievalRefusal: vi.fn(() => Promise.resolve("credits" as "credits" | "unavailable")),
     settleRetrieval: vi.fn(({ charge }: { charge: unknown }) => {
+      settled.push(charge);
+      return Promise.resolve();
+    }),
+    reserveWorkspacePlatform: vi.fn(
+      (): Promise<{ status: "reserved"; id: string } | { status: "cap" | "unavailable" }> =>
+        Promise.resolve({ status: "reserved", id: "setup-hold" }),
+    ),
+    settlePlatformRetrieval: vi.fn(({ charge }: { charge: unknown }) => {
       settled.push(charge);
       return Promise.resolve();
     }),
@@ -481,6 +497,38 @@ describe("website Knowledge Base synthesis", () => {
     await run();
     expect(model.generate).not.toHaveBeenCalled();
     expect(crawl()).toMatchObject({ status: "failed", failureReason: "aiUnavailable", topics: [] });
+  });
+
+  it("bills a workspace-setup import to the platform under the per-workspace cap, never to the requester", async () => {
+    const { run, usage, settled } = harness("extend", "workspaceSetup");
+    model.generate
+      .mockResolvedValueOnce(plan([{ title: "Scheduling", role: "offering", sources: ["s2"] }]))
+      .mockResolvedValue(draft());
+    const owner = createMockUser({ companyId: "company-setup" });
+    await runWithTenant(owner, run);
+    expect(usage.prepareRetrieval).not.toHaveBeenCalled();
+    expect(usage.reserveRetrieval).not.toHaveBeenCalled();
+    expect(usage.reserveWorkspacePlatform).toHaveBeenCalledWith(
+      expect.objectContaining({
+        companyId: "company-setup",
+        purpose: WORKSPACE_SETUP_PLATFORM_PURPOSE,
+        capMicrocents: WORKSPACE_SETUP_SPEND_CAP_MICROCENTS,
+      }),
+    );
+    expect(usage.settlePlatformRetrieval).toHaveBeenCalledTimes(usage.reserveWorkspacePlatform.mock.calls.length);
+    expect(settled.every((charge) => charge !== null)).toBe(true);
+  });
+
+  it("skips a workspace-setup page as credits once the workspace cap is reached", async () => {
+    const { run, usage, crawl } = harness("extend", "workspaceSetup");
+    model.generate.mockResolvedValueOnce(plan([{ title: "Scheduling", role: "offering", sources: ["s2"] }]));
+    usage.reserveWorkspacePlatform
+      .mockResolvedValueOnce({ status: "reserved", id: "plan" })
+      .mockResolvedValue({ status: "cap" });
+    await runWithTenant(createMockUser({ companyId: "company-setup" }), run);
+    expect(model.generate).toHaveBeenCalledTimes(1);
+    expect(crawl().topics?.[0]).toMatchObject({ status: "skipped", skipReason: "credits" });
+    expect(crawl()).toMatchObject({ status: "failed", failureReason: "credits" });
   });
 
   it("settles every reserved model and review call with a charge, never as free usage", async () => {

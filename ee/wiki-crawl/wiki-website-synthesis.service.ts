@@ -8,6 +8,7 @@ import type { WikiSynthesisCandidate, WikiSynthesisReviewDecision } from "./wiki
 import type { StoredWikiSynthesisTopic, WikiSynthesisDraft, WikiSynthesisRole } from "./wiki-synthesis.schema";
 import type { WikiSynthesisSkipReason } from "@/features/wiki/wiki-crawl-progress.schema";
 
+import { UserAccessor } from "@/core/base/user-accessor";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { classifyMetered } from "@/ee/agent-chat/classifier/metered";
 import { classifierReservationMicrocents } from "@/ee/agent-chat/classifier/classifier-reservation";
@@ -20,6 +21,10 @@ import { WIKI_TITLE_MAX_LENGTH, WIKI_WHEN_TO_USE_MAX_LENGTH, wikiPageKindIssue }
 import { getTranslator } from "@/i18n/get-translator";
 import { appLocaleOrDefault } from "@/i18n/locale-registry";
 import { env } from "@/env";
+import {
+  WORKSPACE_SETUP_PLATFORM_PURPOSE,
+  WORKSPACE_SETUP_SPEND_CAP_MICROCENTS,
+} from "@/ee/workspace-setup/workspace-setup-spend";
 
 import { crawlDedupeKey } from "./website-discovery";
 import { wikiSourceHeadings } from "./wiki-source-inventory";
@@ -92,17 +97,24 @@ function pageKind(role: WikiSynthesisRole, whenToUse: string): WikiSynthesisCand
   return role === "procedure" && whenToUse ? "procedure" : "knowledge";
 }
 
-export class WikiWebsiteSynthesisService {
+export class WikiWebsiteSynthesisService extends UserAccessor {
   private readonly warnings: string[] = [];
 
   constructor(
     private repo: WikiWebsiteCrawlRepo,
     private usage: Pick<
       AgentUsageService,
-      "prepareRetrieval" | "reserveRetrieval" | "settleRetrieval" | "retrievalRefusal"
+      | "prepareRetrieval"
+      | "reserveRetrieval"
+      | "settleRetrieval"
+      | "retrievalRefusal"
+      | "reserveWorkspacePlatform"
+      | "settlePlatformRetrieval"
     >,
     private createPages: Pick<CreateWikiPagesInteractor, "invoke">,
-  ) {}
+  ) {
+    super();
+  }
 
   drainWarnings(): string[] {
     return this.warnings.splice(0);
@@ -123,18 +135,51 @@ export class WikiWebsiteSynthesisService {
     };
   }
 
-  private async metered<T>(
+  private async reserve(
     crawl: WikiCrawlRecord,
     worstCaseMicrocents: number,
     model: string,
-    run: () => Promise<Metered<T>>,
-  ): Promise<{ ok: true; value: T } | { ok: false; reason: Refusal }> {
+  ): Promise<
+    | { ok: true; reservedMicrocents: number; settle: (charge: AgentRetrievalCharge | null) => Promise<void> }
+    | { ok: false; reason: Refusal }
+  > {
+    if (crawl.payer === "workspaceSetup") {
+      const reserved = await this.usage.reserveWorkspacePlatform({
+        companyId: this.companyId,
+        purpose: WORKSPACE_SETUP_PLATFORM_PURPOSE,
+        model,
+        worstCaseMicrocents,
+        capMicrocents: WORKSPACE_SETUP_SPEND_CAP_MICROCENTS,
+      });
+      if (reserved.status !== "reserved")
+        return { ok: false, reason: reserved.status === "cap" ? "credits" : "aiUnavailable" };
+      return {
+        ok: true,
+        reservedMicrocents: Math.max(1, worstCaseMicrocents),
+        settle: (charge) => this.usage.settlePlatformRetrieval({ reservationId: reserved.id, charge }),
+      };
+    }
     const grant = await this.usage.prepareRetrieval(crawl.userId, new Date(), "wikiSynthesis");
     const reservation = grant ? await this.usage.reserveRetrieval({ grant, worstCaseMicrocents, model }) : null;
     if (!reservation) {
       const refusal = await this.usage.retrievalRefusal(crawl.userId, worstCaseMicrocents);
       return { ok: false, reason: refusal === "credits" ? "credits" : "aiUnavailable" };
     }
+    return {
+      ok: true,
+      reservedMicrocents: reservation.reservedMicrocents,
+      settle: (charge) => this.usage.settleRetrieval({ reservation, charge }),
+    };
+  }
+
+  private async metered<T>(
+    crawl: WikiCrawlRecord,
+    worstCaseMicrocents: number,
+    model: string,
+    run: () => Promise<Metered<T>>,
+  ): Promise<{ ok: true; value: T } | { ok: false; reason: Refusal }> {
+    const reservation = await this.reserve(crawl, worstCaseMicrocents, model);
+    if (!reservation.ok) return reservation;
     let charge: AgentRetrievalCharge | null = {
       model,
       inputTokens: 0,
@@ -146,7 +191,7 @@ export class WikiWebsiteSynthesisService {
       charge = result.charge;
       return { ok: true, value: result.value };
     } finally {
-      await this.usage.settleRetrieval({ reservation, charge });
+      await reservation.settle(charge);
     }
   }
 
