@@ -11548,7 +11548,14 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const presented = await f.run(() =>
       getGetRecordPresentationInteractor().invoke({
         typeId: f.id("deal"),
-        params: { grouping: { field: f.id("deal.stage") } },
+        params: {
+          grouping: {
+            field: f.id("deal.stage"),
+            summaries: (selected.summaries ?? [])
+              .slice(0, 2)
+              .map(({ fieldId, aggregation }) => ({ fieldId, aggregation })),
+          },
+        },
       }),
     );
     expect(presented).toMatchObject({
