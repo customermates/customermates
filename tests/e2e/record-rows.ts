@@ -84,6 +84,12 @@ export function recordItemWithText(page: Page, text: string) {
   return page.locator("tr, [data-row-id], [data-item-id]").filter({ hasText: text }).first();
 }
 
+export async function recordRowName(row: Locator) {
+  const open = row.locator('[data-slot="data-row-open"]');
+  if (await open.count()) return (await open.first().innerText()).trim();
+  return (await row.locator(":scope > a[aria-label], :scope > button[aria-label]").first().getAttribute("aria-label")) ?? "";
+}
+
 export async function openRecordLink(target: Locator) {
   await target.click({ position: { x: 8, y: 8 } });
 }

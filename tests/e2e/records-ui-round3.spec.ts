@@ -4,7 +4,14 @@ import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
 import { expect, isAppConsoleError, isBenignPageError, test } from "./fixtures";
-import { openRecordDetails, recordItem, rowActionFocusTarget, rowActionLabels, runRowAction } from "./record-rows";
+import {
+  openRecordDetails,
+  openRecordLink,
+  recordItem,
+  rowActionFocusTarget,
+  rowActionLabels,
+  runRowAction,
+} from "./record-rows";
 
 async function api(page: Page, path: string, data: unknown) {
   const response = await page.request.post(path, { data });
@@ -137,7 +144,7 @@ test("rows and cards open the record page and keep only Open details and Delete 
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).not.toBeVisible();
 
-  await row.getByRole("link", { name, exact: true }).click();
+  await openRecordLink(row.getByRole("link", { name, exact: true }));
   await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[0-9a-f-]{36}$`));
   await expect(page.getByRole("heading", { name }).or(page.getByText(name).first())).toBeVisible();
   expect(errors).toEqual([]);
