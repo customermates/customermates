@@ -189,10 +189,15 @@ test("reads each step as one line and inserts steps from the connectors", async 
   await expect(line(0)).toHaveText(["Value", "×", /probability/i]);
   await expect(line(1)).toHaveText(["Step 1", "÷", "100"]);
   await expect(line(0).nth(1)).toHaveAttribute("aria-label", "Calculation: Multiply");
-  const boxes = await Promise.all((await line(1).all()).map((chip) => chip.boundingBox()));
+  const boxes = await steps
+    .nth(1)
+    .locator("[data-calculation-line]")
+    .evaluate((element) =>
+      [...element.querySelectorAll("[data-calculation-chip]")].map((chip) => chip.getBoundingClientRect().toJSON()),
+    );
   for (const [index, box] of boxes.entries()) {
-    expect(Math.abs((box?.y ?? 0) - (boxes[0]?.y ?? 0))).toBeLessThanOrEqual(2);
-    if (index > 0) expect(box?.x ?? 0).toBeGreaterThan(boxes[index - 1]?.x ?? 0);
+    expect(Math.abs(box.y - boxes[0].y)).toBeLessThanOrEqual(2);
+    if (index > 0) expect(box.x).toBeGreaterThan(boxes[index - 1].x);
   }
 
   const extend = steps.nth(0).locator("[data-calculation-extend-step]");
