@@ -300,7 +300,11 @@ const AddPropertyChip = observer(function AddPropertyChip({
               type="button"
               onClick={(event) => event.stopPropagation()}
             >
-              <AppChip interactive className="border-dashed border-border bg-transparent text-muted-foreground">
+              <AppChip
+                interactive
+                className="border-dashed border-border bg-transparent text-muted-foreground"
+                tooltip={t("RecordModel.addProperty")}
+              >
                 <Plus aria-hidden className="size-3" />
               </AppChip>
             </button>
