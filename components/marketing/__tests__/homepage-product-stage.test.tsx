@@ -21,6 +21,7 @@ vi.mock("framer-motion", () => ({
 }));
 import {
   HomepageProductStage,
+  LIVE_REVEAL_DELAY_MS,
   PRODUCT_STAGE_INTERVAL_MS,
 } from "@/app/[locale]/(static)/components/homepage-product-stage";
 import { HomepageStageLink } from "@/app/[locale]/(static)/components/homepage-stage-link";
@@ -62,7 +63,7 @@ function render() {
         demoBaseUrl: "https://demo.example",
         disclosure: "Sample data.",
         label: "Product areas",
-        live: { prompt: "Try it live", status: "Live demo." },
+        live: { badge: "Live badge", prompt: "Try it live", status: "Live demo." },
         locale: "en",
         tabs,
       }),
@@ -287,8 +288,11 @@ it("goes live as soon as it is in view on a wide viewport and opens the chosen a
   act(() => {
     iframe?.dispatchEvent(new Event("load"));
   });
+  expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("loading");
+  advance(LIVE_REVEAL_DELAY_MS);
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("ready");
   expect(host.textContent).toContain("Live demo.");
+  expect(host.querySelector("[data-homepage-window-chrome]")?.textContent).toContain("Live badge");
 
   act(() => tabButtons(host)[2].click());
   expect(host.querySelector("iframe")?.getAttribute("src")).toBe("https://demo.example/en/deals?agentChat=closed");
@@ -302,8 +306,8 @@ it("tilts the frame below the fold and straightens it once scrolled into view", 
     .spyOn(HTMLElement.prototype, "getBoundingClientRect")
     .mockReturnValue({ top: window.innerHeight * 0.9 } as DOMRect);
   const below = render();
-  expect(frame(below).style.getPropertyValue("--stage-tilt")).toBe("18.00deg");
-  expect(frame(below).style.getPropertyValue("--stage-scale")).toBe("0.9200");
+  expect(frame(below).style.getPropertyValue("--stage-tilt")).toBe("12.00deg");
+  expect(frame(below).style.getPropertyValue("--stage-scale")).toBe("0.9400");
   act(() => root?.unmount());
   root = undefined;
   document.body.replaceChildren();

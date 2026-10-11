@@ -66,6 +66,7 @@ const components = [
   "homepage-pricing.tsx",
   "homepage-product-proof.tsx",
   "homepage-product-stage.tsx",
+  "homepage-product-window.tsx",
   "homepage-routines.tsx",
   "homepage-stage-link.tsx",
   "homepage-stats-row.tsx",
@@ -185,8 +186,8 @@ describe("homepage visual-system adoption", () => {
     expect(stage).not.toContain("aria-live");
     expect(stage).toContain("eager={index === 0}");
     expect(stage).toContain("if (!isInView || !window.matchMedia?.(LIVE_STAGE_MEDIA).matches) return;");
-    expect(stage).toContain("STAGE_MAX_TILT_DEG = 18");
-    expect(stage).toContain("STAGE_MIN_SCALE = 0.92");
+    expect(stage).toContain("STAGE_MAX_TILT_DEG = 12");
+    expect(stage).toContain("STAGE_MIN_SCALE = 0.94");
     expect(stage).toContain("lg:[transform:rotateX(var(--stage-tilt,0deg))_scale(var(--stage-scale,1))]");
     expect(stage).toContain('frame.closest("[data-public-scrollport]") ?? window');
     expect(stage).not.toMatch(/MousePointerClick|onPointerEnter=\{goLive\}/u);
@@ -319,6 +320,30 @@ describe("homepage visual-system adoption", () => {
     expect(proof).not.toMatch(/<iframe\b/u);
     expect(viewportVideo.match(/<video\b/gu)).toHaveLength(1);
     expect(hero).not.toMatch(/<iframe\b/u);
+  });
+
+  it("frames every product capture in one window language on a lit panel", () => {
+    const stage = readComponent("homepage-product-stage.tsx");
+    const productWindow = readComponent("homepage-product-window.tsx");
+
+    expect(stage).toContain("<ProductWindow");
+    expect(stage).toContain("LIVE_REVEAL_DELAY_MS = 900");
+    expect(stage).toContain("onLoad={() => revealLive(liveSrc)}");
+    expect(productWindow).toContain("data-homepage-window-chrome");
+    expect(productWindow).toContain("data-homepage-panel");
+    expect(productWindow).toContain("data-homepage-phone");
+    for (const file of [
+      "homepage-walkthrough.tsx",
+      "homepage-how-it-works.tsx",
+      "homepage-pipeline.tsx",
+      "homepage-routines.tsx",
+    ]) {
+      const source = readComponent(file);
+      expect(source, file).toContain("<ProductPanel");
+      expect(source, file).toContain("<ProductWindow");
+      expect(source, file).not.toMatch(/shadow-xl shadow-black/u);
+    }
+    expect(componentSource).not.toMatch(/bg-primary\/20 blur-3xl/u);
   });
 
   it("runs horizontal rules to the edges of their owning surfaces", () => {

@@ -6,6 +6,7 @@ import { CalendarClock, ShieldCheck, Zap } from "lucide-react";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 
 import { HomepageCaptureImage } from "./homepage-capture-image";
+import { ProductPanel, ProductWindow } from "./homepage-product-window";
 import { HomepageStageLink } from "./homepage-stage-link";
 
 const POINT_ICONS = [CalendarClock, Zap, ShieldCheck] as const;
@@ -42,17 +43,23 @@ export function HomepageRoutines({ liveLabel, locale, routines }: Props) {
         </div>
 
         <div className="col-span-12 lg:col-start-6 lg:col-end-13">
-          <div className="overflow-hidden rounded-card border border-border bg-card shadow-xl shadow-black/5">
-            <HomepageStageLink area="routines" label={liveLabel}>
-              <HomepageCaptureImage
-                alt={routines.alt}
-                locale={locale}
-                mobileName="homepage-routines-mobile"
-                name="homepage-routines"
-                sizes="(min-width: 1024px) 56vw, 92vw"
-              />
-            </HomepageStageLink>
-          </div>
+          <ProductPanel className="h-[30rem] sm:h-[32rem] lg:h-[36rem]">
+            <ProductWindow
+              chromeClassName="max-sm:hidden"
+              className="absolute top-8 left-8 w-[calc(100%-4rem)] sm:top-10 sm:left-10 sm:w-[140%] lg:top-14 lg:left-14"
+              label={routines.eyebrow}
+            >
+              <HomepageStageLink area="routines" label={liveLabel}>
+                <HomepageCaptureImage
+                  alt={routines.alt}
+                  locale={locale}
+                  mobileName="homepage-routines-mobile"
+                  name="homepage-routines"
+                  sizes="(min-width: 1024px) 70vw, 92vw"
+                />
+              </HomepageStageLink>
+            </ProductWindow>
+          </ProductPanel>
         </div>
       </div>
     </MarketingSection>

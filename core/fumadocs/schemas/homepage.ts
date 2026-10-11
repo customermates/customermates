@@ -57,6 +57,7 @@ export const heroSchema = z.object({
     disclosure: z.string(),
     label: z.string(),
     live: z.object({
+      badge: z.string(),
       prompt: z.string(),
       status: z.string(),
     }),

@@ -4,6 +4,7 @@ import { MarketingSection } from "@/components/marketing/marketing-section";
 import { Step, Steps } from "@/components/marketing/process-steps";
 
 import { HomepageCaptureImage } from "./homepage-capture-image";
+import { ProductPanel, ProductWindow } from "./homepage-product-window";
 import { HomepageStageLink } from "./homepage-stage-link";
 
 type StepItem = { description: string; n: string; title: string };
@@ -28,16 +29,21 @@ export function HomepageHowItWorks({ eyebrow, handoff, liveLabel, locale, steps,
       <MarketingSection id="human-handoff">
         <div className="marketing-grid items-center gap-y-10">
           <div className="col-span-12 lg:col-span-7 lg:row-start-1">
-            <div className="overflow-hidden rounded-card border border-border bg-card shadow-xl shadow-black/5">
-              <HomepageStageLink area="inbox" label={liveLabel}>
-                <HomepageCaptureImage
-                  alt={handoff.alt}
-                  locale={locale}
-                  name="homepage-draft"
-                  sizes="(min-width: 1024px) 50vw, 92vw"
-                />
-              </HomepageStageLink>
-            </div>
+            <ProductPanel className="h-[19rem] sm:h-[26rem] lg:h-[28rem]">
+              <ProductWindow className="absolute top-8 left-8 w-full sm:top-12 sm:left-12" label={handoff.eyebrow}>
+                <HomepageStageLink area="inbox" label={liveLabel}>
+                  <div className="overflow-hidden">
+                    <HomepageCaptureImage
+                      alt={handoff.alt}
+                      className="-mt-[0.7%]"
+                      locale={locale}
+                      name="homepage-draft"
+                      sizes="(min-width: 1024px) 50vw, 92vw"
+                    />
+                  </div>
+                </HomepageStageLink>
+              </ProductWindow>
+            </ProductPanel>
           </div>
 
           <div className="col-span-12 lg:col-start-9 lg:col-end-13 lg:row-start-1">

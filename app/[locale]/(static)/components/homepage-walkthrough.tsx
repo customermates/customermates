@@ -6,6 +6,7 @@ import { Check } from "lucide-react";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 
 import { HomepageCaptureImage } from "./homepage-capture-image";
+import { PhoneFrame, ProductPanel, ProductWindow } from "./homepage-product-window";
 import { HomepageStageLink } from "./homepage-stage-link";
 
 type Props = {
@@ -47,29 +48,32 @@ export function HomepageWalkthrough({ liveLabel, locale, walkthrough }: Props) {
         </div>
 
         <div className="col-span-12 lg:col-start-6 lg:col-end-13">
-          <div className="grid items-end gap-4 sm:grid-cols-[minmax(0,1fr)_11rem] lg:grid-cols-[minmax(0,1fr)_13rem]">
-            <div className="overflow-hidden rounded-card border border-border bg-card shadow-xl shadow-black/5 max-sm:hidden">
+          <ProductPanel className="h-[30rem] sm:h-[34rem] lg:h-[38rem]">
+            <ProductWindow className="absolute top-10 left-10 w-[72%] max-sm:hidden lg:top-14 lg:left-14" label={badge}>
               <HomepageStageLink area="inbox" label={liveLabel}>
-                <HomepageCaptureImage
-                  alt={desktopAlt}
-                  locale={locale}
-                  name="homepage-thread-linkedin"
-                  sizes="(min-width: 1024px) 40vw, 60vw"
-                />
+                <div className="overflow-hidden">
+                  <HomepageCaptureImage
+                    alt={desktopAlt}
+                    className="-mt-[1%] w-[101%] max-w-none"
+                    locale={locale}
+                    name="homepage-thread-linkedin"
+                    sizes="(min-width: 1024px) 44vw, 70vw"
+                  />
+                </div>
               </HomepageStageLink>
-            </div>
+            </ProductWindow>
 
-            <div className="mx-auto w-full max-w-[17rem] overflow-hidden rounded-[2rem] border border-border bg-card shadow-xl shadow-black/10 sm:max-w-none">
+            <PhoneFrame className="absolute top-8 left-1/2 w-[15rem] -translate-x-1/2 sm:top-auto sm:right-8 sm:-bottom-28 sm:left-auto sm:w-[13rem] sm:translate-x-0 lg:right-10 lg:w-[13.5rem]">
               <HomepageStageLink area="inbox" label={liveLabel}>
                 <HomepageCaptureImage
                   alt={phoneAlt}
                   locale={locale}
                   name="homepage-inbox-mobile"
-                  sizes="(min-width: 640px) 13rem, 70vw"
+                  sizes="(min-width: 640px) 15rem, 16rem"
                 />
               </HomepageStageLink>
-            </div>
-          </div>
+            </PhoneFrame>
+          </ProductPanel>
         </div>
       </div>
     </MarketingSection>
