@@ -62,8 +62,8 @@ export async function expectTriggerVisuallyHidden(trigger: Locator) {
     .poll(() =>
       trigger.evaluate((element: HTMLElement) => {
         const style = getComputedStyle(element);
-        return `${element.offsetWidth}x${element.offsetHeight} ${style.position} ${style.clipPath} ${style.opacity}`;
+        return `${style.position} ${style.clipPath} ${style.opacity} ${element.offsetHeight}`;
       }),
     )
-    .toMatch(/^1x1 absolute inset\(50%\)/);
+    .toBe("absolute inset(50%) 0 1");
 }
