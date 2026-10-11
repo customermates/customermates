@@ -192,9 +192,9 @@ export const NORTHWIND_TYPE_DEFINITIONS = [
     "rocket",
     "Customer onboarding from kickoff to hypercare.",
   ],
-  ["ticket", "Ticket", "Tickets", "lifebuoy", "Support requests from customers, with SLA tracking."],
+  ["ticket", "Ticket", "Tickets", "ticket", "Support requests from customers, with SLA tracking."],
   ["campaign", "Campaign", "Campaigns", "megaphone", "Marketing campaigns and the pipeline they source."],
-  ["partner", "Partner", "Partners", "users", "Resellers and implementation partners that refer deals."],
+  ["partner", "Partner", "Partners", "network", "Resellers and implementation partners that refer deals."],
   ["openRole", "Open role", "Open roles", "briefcase", "Positions Northwind Labs is hiring for."],
   ["candidate", "Candidate", "Candidates", "user", "Applicants for open roles, with interview notes."],
 ] as const;
