@@ -205,15 +205,19 @@ function scalarText(value: RecordScalar | null): string | null {
   return String(value.value);
 }
 
-export async function e2eRecordSnapshot(prisma: PrismaClient, companyId: string): Promise<E2eRecordSnapshot> {
+export async function e2eRecordModelSnapshot(prisma: PrismaClient, companyId: string): Promise<RecordModel> {
   const state = await prisma.recordSchemaState.findUniqueOrThrow({ where: { companyId } });
-  const model = RecordModelSchema.parse(
+  return RecordModelSchema.parse(
     (
       await prisma.recordSchemaRevision.findUniqueOrThrow({
         where: { companyId_revision: { companyId, revision: state.revision } },
       })
     ).snapshot,
   );
+}
+
+export async function e2eRecordSnapshot(prisma: PrismaClient, companyId: string): Promise<E2eRecordSnapshot> {
+  const model = await e2eRecordModelSnapshot(prisma, companyId);
   const records = await prisma.crmRecord.findMany({
     where: { companyId, deletedAt: null },
     include: { values: true },

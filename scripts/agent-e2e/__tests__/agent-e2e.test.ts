@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { AGENT_E2E_CASES, containsPhoneNumber, linksDocsPage, linksWikiPage, looksGerman, mentionsNumber } from "../cases";
+import {
+  AGENT_E2E_CASES,
+  containsPhoneNumber,
+  linksDocsPage,
+  linksWikiPage,
+  looksGerman,
+  mentionsNumber,
+  toolUseVerdict,
+} from "../cases";
 import { DEFAULT_CAP_USD, parseAgentE2eFlags, requireAgentE2eEnvironment, serverEnvironment } from "../env";
 import { admitsNextCase, nextCaseReserveMicrocents, renderTable, usdToMicrocents, type CaseRow } from "../report";
 import { parseSseChunk, recordFrameTiming, type SseTiming } from "../sse";
@@ -140,6 +148,28 @@ describe("agent e2e deterministic checks", () => {
   it("flags invented phone numbers but not counts or dates", () => {
     expect(containsPhoneNumber("Her number is +49 30 1234567.")).toBe(true);
     expect(containsPhoneNumber("No phone number is recorded for Maria Okafor.")).toBe(false);
+  });
+
+  it("requires a dynamic record tool and rejects forbidden writes", () => {
+    const counting = { anyOf: ["query_crm_records", "query_crm_measure"] };
+    expect(toolUseVerdict(["load_toolset", "query_crm_records"], counting)).toBeNull();
+    expect(toolUseVerdict(["search_crm_records"], { anyOf: ["query_crm_records"] })).toEqual({
+      pass: false,
+      reason: "expected one of query_crm_records; called search_crm_records",
+    });
+    expect(toolUseVerdict([], { anyOf: ["mutate_crm_record"] })?.reason).toContain("called no tools");
+    expect(toolUseVerdict(["read_crm_record", "mutate_crm_record"], { noneOf: ["mutate_crm_record"] })).toEqual({
+      pass: false,
+      reason: "must not call mutate_crm_record",
+    });
+  });
+
+  it("asserts on the dynamic record tools rather than removed per-entity tools", () => {
+    const source = AGENT_E2E_CASES.map((entry) => entry.check.toString()).join("\n");
+    expect(source).not.toMatch(/\b(create|update|delete)_(contacts|deals|organizations|services|tasks)\b/);
+    expect(AGENT_E2E_CASES.map((entry) => entry.id)).toEqual(
+      expect.arrayContaining(["link-records", "configure-field"]),
+    );
   });
 
   it("finds Knowledge Base and documentation links", () => {
