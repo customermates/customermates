@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
-import { rowActionGroup, rowActionLabels, runRowAction } from "./record-rows";
+import { openItemMenu } from "./item-actions";
+import { rowActionLabels, runRowAction } from "./record-rows";
 
 test("the members row menu deletes another member through the guarded deactivation", async ({
   page,
@@ -37,14 +38,12 @@ test("the members row menu deletes another member through the guarded deactivati
     "Open details",
   ]);
   expect(await rowActionLabels(page, memberRow("Nora Second"), "Nora Second")).toEqual(["Open details", "Delete"]);
-  await memberRow("Nora Second").hover();
-  const inlineRemove = rowActionGroup(memberRow("Nora Second")).getByRole("button", { name: "Delete", exact: true });
-  if (await inlineRemove.isVisible()) await expect(inlineRemove).toHaveAttribute("data-variant", /destructive/i);
-  else {
-    await memberRow("Nora Second").getByRole("button", { name: "More actions for Nora Second", exact: true }).click();
-    await expect(page.getByRole("menuitem", { name: "Delete", exact: true })).toHaveAttribute("data-variant", "destructive");
-    await page.keyboard.press("Escape");
-  }
+  await openItemMenu(
+    page,
+    memberRow("Nora Second").getByRole("button", { name: "More actions for Nora Second", exact: true }),
+  );
+  await expect(page.getByRole("menuitem", { name: "Delete", exact: true })).toHaveAttribute("data-variant", "destructive");
+  await page.keyboard.press("Escape");
   await runRowAction(page, memberRow("Nora Second"), "Nora Second", "Delete");
 
   const confirm = page.getByRole("alertdialog", { name: "Confirm Deletion" });

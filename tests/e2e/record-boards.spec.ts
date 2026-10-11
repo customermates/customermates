@@ -1,4 +1,5 @@
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { openItemMenu } from "./item-actions";
 import type { Request } from "@playwright/test";
 import { presetId } from "../../features/records/crm-preset";
 
@@ -58,7 +59,7 @@ test("moves a board card with the keyboard and restores relationship and date gr
   await lost.click();
   await expect(lost).not.toHaveAttribute("data-kanban-strip");
   await expect(lost.locator('[aria-label*="Stage probability: 0%"]')).toBeVisible();
-  await lost.getByRole("button", { name: "More actions for Lost", exact: true }).click();
+  await openItemMenu(page, lost.getByRole("button", { name: "More actions for Lost", exact: true }));
   await page.getByRole("menuitem", { name: "Collapse column", exact: true }).click();
   await expect(lost).toHaveAttribute("data-kanban-strip", "");
   await card.focus();

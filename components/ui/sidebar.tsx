@@ -479,11 +479,9 @@ function SidebarMenuButton({
 function SidebarMenuAction({
   className,
   asChild = false,
-  showOnHover = false,
   ...props
 }: React.ComponentProps<"button"> & {
   asChild?: boolean;
-  showOnHover?: boolean;
 }) {
   const Comp = asChild ? Slot.Root : "button";
 
@@ -495,9 +493,7 @@ function SidebarMenuAction({
         "peer-data-[size=sm]/menu-button:top-1",
         "peer-data-[size=default]/menu-button:top-1.5",
         "peer-data-[size=lg]/menu-button:top-2.5",
-        "group-data-[collapsible=icon]:hidden",
-        showOnHover &&
-          "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground data-[state=open]:opacity-100 md:opacity-0",
+        "group-data-[collapsible=icon]:hidden peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
         className,
       )}
       data-sidebar="menu-action"

@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { openItemMenu } from "./item-actions";
 import { presetId } from "../../features/records/crm-preset";
 
 test("board columns add a record with the column value, open the option, and collapse into strips", async ({
@@ -54,7 +55,7 @@ test("board columns add a record with the column value, open the option, and col
   await page.screenshot({ path: testInfo.outputPath("board-strips.png"), animations: "disabled" });
   await won.click();
   await expect(won).not.toHaveAttribute("data-kanban-strip");
-  await won.getByRole("button", { name: "More actions for Won", exact: true }).click();
+  await openItemMenu(page, won.getByRole("button", { name: "More actions for Won", exact: true }));
   await page.getByRole("menuitem", { name: "Collapse column", exact: true }).click();
   await expect(won).toHaveAttribute("data-kanban-strip", "");
 
@@ -62,7 +63,7 @@ test("board columns add a record with the column value, open the option, and col
   const columnOrder = () =>
     page.locator("[data-group-key]").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("data-group-key")));
   const orderBefore = await columnOrder();
-  await open.getByRole("button", { name: "More actions for New", exact: true }).click();
+  await openItemMenu(page, open.getByRole("button", { name: "More actions for New", exact: true }));
   await expect(page.getByRole("menuitem")).toHaveText(["Edit option", "Collapse column", "Hide column"]);
   await page.screenshot({ path: testInfo.outputPath("board-column-menu.png"), animations: "disabled" });
   await page.getByRole("menuitem", { name: "Collapse column", exact: true }).click();
@@ -111,7 +112,7 @@ test("board columns add a record with the column value, open the option, and col
         `records:${typeId}`,
       ])
     ).rows[0]?.grouping;
-  await open.getByRole("button", { name: "More actions for New", exact: true }).click();
+  await openItemMenu(page, open.getByRole("button", { name: "More actions for New", exact: true }));
   await page.getByRole("menuitem", { name: "Hide column", exact: true }).click();
   await expect(open).toHaveCount(0);
   await expect.poll(storedGrouping).toMatchObject({ hidden: [`value:${id("deal.stage.new")}`] });
@@ -139,7 +140,7 @@ test("board columns add a record with the column value, open the option, and col
   await expect.poll(async () => (await storedGrouping())?.hideEmpty).toBeUndefined();
 
   const optionRow = page.locator(`[data-focus-target="option:${id("deal.stage")}.${id("deal.stage.new")}"]`);
-  await open.getByRole("button", { name: "More actions for New", exact: true }).click();
+  await openItemMenu(page, open.getByRole("button", { name: "More actions for New", exact: true }));
   await page.getByRole("menuitem", { name: "Edit option", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/configure\\?typeId=${typeId}&tab=fields`));
   await expect(optionRow).toBeVisible();

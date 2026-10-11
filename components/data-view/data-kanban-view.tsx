@@ -26,18 +26,14 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { ChevronsLeftRight, Ellipsis, EyeOff, Layers, Plus, Settings2 } from "lucide-react";
+import { ChevronsLeftRight, EyeOff, Layers, Plus, Settings2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { ItemActions, ItemActionsTrigger } from "@/components/ui/item-actions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ChipColor } from "@/constants/chip-colors";
@@ -135,79 +131,81 @@ function KanbanCard({
   };
 
   return (
-    <Card
-      ref={(node: HTMLDivElement | null) => {
-        setNodeRef(node);
-        drop.setNodeRef(node);
-      }}
-      className={cn(
-        "group/card gap-2 py-3 select-none relative",
-        draggable && "touch-manipulation",
-        (onClick || href) && !isDragging && "interactive-surface",
-        dragState === "origin" && "border-2 border-dashed border-primary/40 bg-primary/5 shadow-none *:invisible",
-        dragState === "moved" && "hidden",
-        className,
-      )}
-      data-item-id={itemId}
-      onClick={(e) => {
-        e.stopPropagation();
-        if (!e.currentTarget.contains(e.target as Node) || isInteractiveClick(e) || isDragging) return;
-        if (onClick) onClick();
-        else if (href && !(e.metaKey || e.ctrlKey || e.shiftKey)) navigateToHref(href);
-      }}
-      onClickCapture={(event) => {
-        if (!dropsClick()) return;
-        event.preventDefault();
-        event.stopPropagation();
-      }}
-      onKeyDown={(event) => {
-        const opens =
-          (onClick || href) &&
-          event.target === event.currentTarget &&
-          !isDragging &&
-          (event.key === "Enter" || (!draggable && event.key === " "));
-        if (!opens) {
-          if (draggable && event.target === event.currentTarget) dragKeyDown?.(event);
-          return;
-        }
-        event.preventDefault();
-        if (onClick) onClick();
-        else if (href) navigateToHref(href);
-      }}
-      onMouseDown={(event) => {
-        if (startsDrag(event.currentTarget, event.target)) dragMouseDown?.(event);
-      }}
-      onTouchStart={(event) => {
-        if (startsDrag(event.currentTarget, event.target)) dragTouchStart?.(event);
-      }}
-      {...(draggable ? attributes : onClick || href ? { role: "button", tabIndex: 0 } : {})}
-    >
-      {href && !isDragging && (
-        <a
-          aria-label={t("Common.actions.open")}
-          className="absolute inset-0"
-          href={href}
-          tabIndex={-1}
-          onClick={(e) => {
-            if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
-            e.preventDefault();
-            if (!onClick) navigateToHref(href);
-          }}
-        />
-      )}
+    <ItemActions href={href} longPress={false}>
+      <Card
+        ref={(node: HTMLDivElement | null) => {
+          setNodeRef(node);
+          drop.setNodeRef(node);
+        }}
+        className={cn(
+          "group/card gap-2 py-3 select-none relative",
+          draggable && "touch-manipulation",
+          (onClick || href) && !isDragging && "interactive-surface",
+          dragState === "origin" && "border-2 border-dashed border-primary/40 bg-primary/5 shadow-none *:invisible",
+          dragState === "moved" && "hidden",
+          className,
+        )}
+        data-item-id={itemId}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (!e.currentTarget.contains(e.target as Node) || isInteractiveClick(e) || isDragging) return;
+          if (onClick) onClick();
+          else if (href && !(e.metaKey || e.ctrlKey || e.shiftKey)) navigateToHref(href);
+        }}
+        onClickCapture={(event) => {
+          if (!dropsClick()) return;
+          event.preventDefault();
+          event.stopPropagation();
+        }}
+        onKeyDown={(event) => {
+          const opens =
+            (onClick || href) &&
+            event.target === event.currentTarget &&
+            !isDragging &&
+            (event.key === "Enter" || (!draggable && event.key === " "));
+          if (!opens) {
+            if (draggable && event.target === event.currentTarget) dragKeyDown?.(event);
+            return;
+          }
+          event.preventDefault();
+          if (onClick) onClick();
+          else if (href) navigateToHref(href);
+        }}
+        onMouseDown={(event) => {
+          if (startsDrag(event.currentTarget, event.target)) dragMouseDown?.(event);
+        }}
+        onTouchStart={(event) => {
+          if (startsDrag(event.currentTarget, event.target)) dragTouchStart?.(event);
+        }}
+        {...(draggable ? attributes : onClick || href ? { role: "button", tabIndex: 0 } : {})}
+      >
+        {href && !isDragging && (
+          <a
+            aria-label={t("Common.actions.open")}
+            className="absolute inset-0"
+            href={href}
+            tabIndex={-1}
+            onClick={(e) => {
+              if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+              e.preventDefault();
+              if (!onClick) navigateToHref(href);
+            }}
+          />
+        )}
 
-      <div className="relative">{children}</div>
+        <div className="relative">{children}</div>
 
-      {actions && (
-        <div
-          className="absolute top-2 right-2 z-10"
-          data-card-actions=""
-          onPointerDown={(event) => event.stopPropagation()}
-        >
-          <DataViewItemLayout.Provider value="card">{actions}</DataViewItemLayout.Provider>
-        </div>
-      )}
-    </Card>
+        {actions && (
+          <div
+            className="absolute top-2 right-2 z-10"
+            data-card-actions=""
+            onPointerDown={(event) => event.stopPropagation()}
+          >
+            <DataViewItemLayout.Provider value="card">{actions}</DataViewItemLayout.Provider>
+          </div>
+        )}
+      </Card>
+    </ItemActions>
   );
 }
 
@@ -328,88 +326,81 @@ const KanbanColumn = observer(function KanbanColumn({
       data-drop-target={highlighted ? "" : undefined}
       data-group-key={id}
     >
-      <div className={cn(DATA_KANBAN_HEADER_CLASS_NAME, "group/header")}>
-        {editHref ? (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                className="flex min-w-0 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-                data-kanban-edit-option=""
-                type="button"
-                onClick={() => navigateToHref(editHref)}
-              >
-                <KanbanColumnLabel color={color} label={label} tooltip={false} />
-              </button>
-            </TooltipTrigger>
+      <ItemActions
+        label={moreLabel}
+        menu={
+          <>
+            {editHref && (
+              <DropdownMenuItem onSelect={() => navigateToHref(editHref)}>
+                <Settings2 className="size-4" />
 
-            <TooltipContent>{t("RecordModel.editField")}</TooltipContent>
-          </Tooltip>
-        ) : (
-          <KanbanColumnLabel color={color} label={label} />
-        )}
+                {t("DataView.editOption")}
+              </DropdownMenuItem>
+            )}
 
-        <KanbanCount count={count} details={summaries?.length ? [] : details} recordLabels={recordLabels} />
+            <DropdownMenuItem onSelect={onCollapse}>
+              <ChevronsLeftRight className="size-4" />
 
-        {summaries?.length ? <GroupSummaries lead details={details} summaries={summaries} /> : null}
+              {t("DataView.collapseColumn")}
+            </DropdownMenuItem>
 
-        <span className="ml-auto" />
+            <DropdownMenuItem onSelect={onHide}>
+              <EyeOff className="size-4" />
 
-        <div className="flex shrink-0 items-center opacity-0 transition-opacity group-hover/header:opacity-100 focus-within:opacity-100 has-data-[state=open]:opacity-100 any-pointer-coarse:opacity-100">
-          {onCreate && addLabel && (
+              {t("DataView.hideColumn")}
+            </DropdownMenuItem>
+          </>
+        }
+      >
+        <div className={cn(DATA_KANBAN_HEADER_CLASS_NAME, "group/header")}>
+          {editHref ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  aria-label={addLabel}
-                  className="text-muted-foreground"
-                  size="icon-xs"
-                  variant="ghost"
-                  onClick={(event) => onCreate(event.currentTarget)}
+                <button
+                  className="flex min-w-0 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+                  data-kanban-edit-option=""
+                  type="button"
+                  onClick={() => navigateToHref(editHref)}
                 >
-                  <Plus aria-hidden />
-                </Button>
+                  <KanbanColumnLabel color={color} label={label} tooltip={false} />
+                </button>
               </TooltipTrigger>
 
-              <TooltipContent>{addLabel}</TooltipContent>
+              <TooltipContent>{t("RecordModel.editField")}</TooltipContent>
             </Tooltip>
+          ) : (
+            <KanbanColumnLabel color={color} label={label} />
           )}
 
-          <DropdownMenu>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <DropdownMenuTrigger asChild>
-                  <Button aria-label={moreLabel} className="text-muted-foreground" size="icon-xs" variant="ghost">
-                    <Ellipsis aria-hidden />
+          <KanbanCount count={count} details={summaries?.length ? [] : details} recordLabels={recordLabels} />
+
+          {summaries?.length ? <GroupSummaries lead details={details} summaries={summaries} /> : null}
+
+          <span className="ml-auto" />
+
+          <div className="flex shrink-0 items-center">
+            {onCreate && addLabel && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    aria-label={addLabel}
+                    className="text-muted-foreground fine-hover:opacity-0 fine-hover:transition-opacity fine-hover:group-hover/header:opacity-100 fine-hover:focus-visible:opacity-100"
+                    size="icon-xs"
+                    variant="ghost"
+                    onClick={(event) => onCreate(event.currentTarget)}
+                  >
+                    <Plus aria-hidden />
                   </Button>
-                </DropdownMenuTrigger>
-              </TooltipTrigger>
+                </TooltipTrigger>
 
-              <TooltipContent>{moreLabel}</TooltipContent>
-            </Tooltip>
+                <TooltipContent>{addLabel}</TooltipContent>
+              </Tooltip>
+            )}
 
-            <DropdownMenuContent align="end">
-              {editHref && (
-                <DropdownMenuItem onSelect={() => navigateToHref(editHref)}>
-                  <Settings2 className="size-4" />
-
-                  {t("DataView.editOption")}
-                </DropdownMenuItem>
-              )}
-
-              <DropdownMenuItem onSelect={onCollapse}>
-                <ChevronsLeftRight className="size-4" />
-
-                {t("DataView.collapseColumn")}
-              </DropdownMenuItem>
-
-              <DropdownMenuItem onSelect={onHide}>
-                <EyeOff className="size-4" />
-
-                {t("DataView.hideColumn")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            <ItemActionsTrigger trigger={<Button className="text-muted-foreground" size="icon-xs" variant="ghost" />} />
+          </div>
         </div>
-      </div>
+      </ItemActions>
 
       <div className={DATA_KANBAN_CARDS_CLASS_NAME}>{children}</div>
 

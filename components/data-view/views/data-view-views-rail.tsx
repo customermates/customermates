@@ -131,21 +131,6 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
   const activeName = activeView?.name ?? allName;
   const ordered = sortViewsByPosition(store.views);
   const isDrafting = meta !== null && meta.mode !== "edit";
-  const menuTarget: DataViewChipDto = activeView ?? {
-    id: ALL_VIEW_KEY,
-    name: allName,
-    position: -1,
-    state: store.allViewState,
-  };
-  const menuItems = (
-    activeView
-      ? viewMenuItems({
-          index: ordered.findIndex((candidate) => candidate.id === activeView.id),
-          total: ordered.length,
-        })
-      : allViewMenuItems()
-  ).filter((item) => allowDuplicate || item.id !== "duplicate");
-
   const previewFor = (name: string, isActive: boolean): ReactNode => (
     <>
       <span className="block font-medium">{name}</span>
@@ -157,6 +142,27 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
       )}
     </>
   );
+
+  const focusNameInput = (event: Event) => {
+    const nameInput = document.getElementById(VIEW_META_NAME_INPUT_ID);
+    if (!nameInput) return;
+    event.preventDefault();
+    nameInput.focus();
+  };
+  const chipMenu = (view: DataViewChipDto | null) => {
+    const items = (
+      view
+        ? viewMenuItems({ index: ordered.findIndex((candidate) => candidate.id === view.id), total: ordered.length })
+        : allViewMenuItems()
+    ).filter((item) => allowDuplicate || item.id !== "duplicate");
+    const target: DataViewChipDto = view ?? {
+      id: ALL_VIEW_KEY,
+      name: allName,
+      position: -1,
+      state: store.allViewState,
+    };
+    return <ViewMenuItems commands={commands} items={items} view={target} />;
+  };
 
   const onChipClick = (viewKey: string) => (event: MouseEvent<HTMLAnchorElement>) => {
     if (!isPlainClick(event)) return;
@@ -215,10 +221,12 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                     isActive={chip.isActive && !proposedName}
                     isModified={chip.isActive && !proposedName && store.isQueryModified}
                     label={allName}
+                    menu={chipMenu(null)}
                     modifiedLabel={t("DataView.views.modified")}
                     preview={previewFor(allName, chip.isActive)}
                     tabIndex={tabIndexAt(index)}
                     onKeyDown={onKeyDownAt(index)}
+                    onMenuCloseAutoFocus={focusNameInput}
                     onSelect={onChipClick(ALL_VIEW_KEY)}
                   />
                 );
@@ -236,10 +244,12 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                   isActive={chip.isActive && !proposedName}
                   isModified={chip.isActive && !proposedName && store.isQueryModified}
                   label={chip.view.name}
+                  menu={chipMenu(chip.view)}
                   modifiedLabel={t("DataView.views.modified")}
                   preview={previewFor(chip.view.name, chip.isActive)}
                   tabIndex={tabIndexAt(index)}
                   onKeyDown={onKeyDownAt(index)}
+                  onMenuCloseAutoFocus={focusNameInput}
                   onSelect={onChipClick(chip.view.id)}
                 />
               );
@@ -314,11 +324,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
                 handoff();
                 return;
               }
-              const nameInput = document.getElementById(VIEW_META_NAME_INPUT_ID);
-              if (nameInput) {
-                event.preventDefault();
-                nameInput.focus();
-              }
+              focusNameInput(event);
             }}
           >
             {ai.available && (
@@ -347,7 +353,7 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
               </>
             )}
 
-            <ViewMenuItems commands={commands} items={menuItems} view={menuTarget} />
+            {chipMenu(activeView ?? null)}
           </DropdownMenuContent>
         </DropdownMenu>
       )}

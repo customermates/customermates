@@ -3,6 +3,7 @@
 import type { KeyboardEventHandler, MouseEventHandler, ReactNode } from "react";
 
 import { buttonVariants } from "@/components/ui/button";
+import { ItemActions } from "@/components/ui/item-actions";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
 
@@ -30,6 +31,8 @@ type Props = {
   onKeyDown?: KeyboardEventHandler<HTMLAnchorElement>;
   onSelect?: MouseEventHandler<HTMLAnchorElement>;
   focusKey?: string;
+  menu?: ReactNode;
+  onMenuCloseAutoFocus?: (event: Event) => void;
 };
 
 export function ViewChip({
@@ -44,32 +47,36 @@ export function ViewChip({
   onKeyDown,
   onSelect,
   focusKey,
+  menu,
+  onMenuCloseAutoFocus,
 }: Props) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <a
-          aria-current={isActive ? "page" : undefined}
-          className={cn(VIEW_TAB_CLASS, "relative", isActive && VIEW_TAB_ACTIVE_CLASS)}
-          data-focus-target={focusKey}
-          data-view-chip=""
-          data-view-modified={isModified ? "" : undefined}
-          href={href}
-          id={id}
-          tabIndex={tabIndex}
-          onClick={onSelect}
-          onKeyDown={onKeyDown}
-        >
-          <span className="truncate">{label}</span>
+        <ItemActions href={menu ? href : undefined} menu={menu} onCloseAutoFocus={onMenuCloseAutoFocus}>
+          <a
+            aria-current={isActive ? "page" : undefined}
+            className={cn(VIEW_TAB_CLASS, "relative", isActive && VIEW_TAB_ACTIVE_CLASS)}
+            data-focus-target={focusKey}
+            data-view-chip=""
+            data-view-modified={isModified ? "" : undefined}
+            href={href}
+            id={id}
+            tabIndex={tabIndex}
+            onClick={onSelect}
+            onKeyDown={onKeyDown}
+          >
+            <span className="truncate">{label}</span>
 
-          {isModified && (
-            <>
-              <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-primary" />
+            {isModified && (
+              <>
+                <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-primary" />
 
-              <span className="sr-only">{modifiedLabel}</span>
-            </>
-          )}
-        </a>
+                <span className="sr-only">{modifiedLabel}</span>
+              </>
+            )}
+          </a>
+        </ItemActions>
       </TooltipTrigger>
 
       <TooltipContent className="max-w-xs">{preview}</TooltipContent>

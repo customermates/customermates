@@ -4,6 +4,7 @@ import type { ComponentProps, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 
 import { AppLink } from "@/components/shared/app-link";
+import { ItemActions } from "@/components/ui/item-actions";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { cn } from "@/core/utils/cn";
 
@@ -40,6 +41,7 @@ export function ConfigureNodeHeader({
   kind,
   badge,
   action,
+  menu,
   label,
   compact = false,
   ...target
@@ -49,6 +51,7 @@ export function ConfigureNodeHeader({
   kind?: string;
   badge?: ReactNode;
   action?: ReactNode;
+  menu?: ReactNode;
   label?: string;
   compact?: boolean;
 }) {
@@ -85,11 +88,13 @@ export function ConfigureNodeHeader({
   );
   if (!action) return trigger;
   return (
-    <div className="flex items-center gap-1 rounded-t-xl pe-2">
-      {trigger}
+    <ItemActions href={target.href} menu={menu}>
+      <div className="flex items-center gap-1 rounded-t-xl pe-2">
+        {trigger}
 
-      {action}
-    </div>
+        {action}
+      </div>
+    </ItemActions>
   );
 }
 

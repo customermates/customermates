@@ -1,52 +1,50 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { RotateCcw } from "lucide-react";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 
+import { DataViewItemLayout } from "@/components/data-view/data-view-item-layout";
+import { ITEM_ACTIONS_TRIGGER_CLASS } from "@/components/ui/item-actions";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RecordRowActions } from "../record-row-actions";
 
-function render(props: Partial<Parameters<typeof RecordRowActions>[0]> = {}) {
+function render(props: Partial<Parameters<typeof RecordRowActions>[0]> = {}, layout: "row" | "card" = "row") {
   return renderToStaticMarkup(
     createElement(
-      TooltipProvider,
-      null,
-      createElement(RecordRowActions, { name: "Acme", onOpen: vi.fn(), onDelete: vi.fn(), ...props }),
+      DataViewItemLayout.Provider,
+      { value: layout },
+      createElement(
+        TooltipProvider,
+        null,
+        createElement(RecordRowActions, { name: "Acme", onOpen: vi.fn(), onDelete: vi.fn(), ...props }),
+      ),
     ),
   );
 }
 
-function groupLabels(markup: string) {
-  const group = markup.slice(markup.indexOf("data-row-action-group"), markup.indexOf("RecordModel.moreActions"));
-  return [...group.matchAll(/<button[^>]*aria-label="([^"]+)"/g)].map((match) => match[1]);
+function buttonLabels(markup: string) {
+  return [...markup.matchAll(/<button[^>]*aria-label="([^"]+)"/g)].map((match) => match[1]);
 }
 
-describe("row action hover group (rule 63)", () => {
-  it("offers Open details, then a red Delete, as inline buttons beside the touch menu", () => {
+describe("record row actions (H9 item menu pattern)", () => {
+  it("renders one shared More actions trigger instead of an inline button group", () => {
     const markup = render();
 
-    expect(groupLabels(markup)).toEqual(["RecordModel.openDetails", "Common.actions.delete"]);
-    expect(markup).toMatch(
-      /aria-label="Common.actions.delete"[^>]*data-variant="destructiveOutline"|data-variant="destructiveOutline"[^>]*aria-label="Common.actions.delete"/,
-    );
-    expect(markup).toContain('aria-label="RecordModel.moreActions"');
+    expect(buttonLabels(markup)).toEqual(["RecordModel.moreActions"]);
+    expect(markup).not.toContain("data-row-action-group");
+    expect(markup).toContain("data-item-actions-trigger");
   });
 
-  it("puts the contextual action first and leaves out what the row cannot do", () => {
-    const markup = render({
-      contextAction: { label: "Restore", icon: RotateCcw, onSelect: vi.fn() },
-      onOpen: undefined,
-    });
-
-    expect(groupLabels(markup)).toEqual(["Restore", "Common.actions.delete"]);
-  });
-
-  it("shows the group only on fine pointers from the md breakpoint and keeps the menu for touch", () => {
+  it("hides the trigger with the shared input-capability rule, not a width or pointer variant of its own", () => {
     const markup = render();
 
-    expect(markup).toMatch(/class="[^"]*hidden[^"]*md:pointer-fine:flex[^"]*"[^>]*data-row-action-group/);
-    expect(markup).toMatch(/class="[^"]*md:pointer-fine:hidden[^"]*"/);
+    for (const token of ITEM_ACTIONS_TRIGGER_CLASS.split(" ")) expect(markup).toContain(token);
+    expect(markup).not.toMatch(/md:pointer-fine|any-pointer-coarse:opacity-100/);
+  });
+
+  it("overlays the row's trailing edge in tables and sits in the card corner slot on cards", () => {
+    expect(render()).toMatch(/class="[^"]*absolute[^"]*right-2[^"]*"[^>]*data-record-row-actions/);
+    expect(render({}, "card")).not.toMatch(/class="[^"]*absolute[^"]*"[^>]*data-record-row-actions/);
   });
 });
