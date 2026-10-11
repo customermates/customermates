@@ -25,6 +25,7 @@ import { seedRecordHistory } from "./record-history";
 import { seedRelationships } from "./relationships";
 import { seedRoutines } from "./routines";
 import { seedServices } from "./services";
+import { seedSidebars } from "./sidebar";
 import { seedTasks } from "./tasks";
 import { seedTrash } from "./trash";
 import { seedWebhooks } from "./webhooks";
@@ -62,6 +63,7 @@ export async function runSyntheticSeed(
   await seedWidgets(context, customFieldData);
   await seedDataViews(context, customFieldData);
   await seedPersonalization(context, customFieldData);
+  await seedSidebars(context);
   await seedDemoMessagingFixtures(context.prisma, {
     companyId: context.ids.company,
     contactIds: contactData.contacts.map(({ id }) => id),
