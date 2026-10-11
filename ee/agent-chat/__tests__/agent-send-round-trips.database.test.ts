@@ -8,6 +8,7 @@ import { afterAll, describe, expect, it, vi } from "vitest";
 import { PrismaClient } from "@/generated/prisma";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
+import { mockRecordDiscovery } from "@/tests/helpers/record-tools";
 import type { TenantUser } from "@/features/user/user.schema";
 
 const authState = vi.hoisted(() => ({ user: null as TenantUser | null }));
@@ -154,7 +155,7 @@ function interactor() {
       dispatchTracked: vi.fn().mockResolvedValue("wrun_round_trips"),
       resume: vi.fn().mockResolvedValue(true),
     } as never,
-    { getCustomColumns: () => Promise.resolve([]) },
+    mockRecordDiscovery(),
     {
       invoke: vi.fn().mockResolvedValue({
         ok: true,

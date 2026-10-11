@@ -11,6 +11,9 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { ForbiddenError } from "@/core/errors/app-errors";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { EventService } from "@/features/event/event.service";
+import { PrismaEventLogRepo } from "@/features/event/prisma-event-log.repository";
+import { PrismaTrashRepo } from "@/features/trash/prisma-trash.repository";
+import { PermissionService } from "@/core/base/permission.service";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser, createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 import messages from "@/i18n/locales/en.json";
@@ -69,24 +72,8 @@ describeDatabase("Knowledge Base proposals on PostgreSQL", () => {
   };
   const foreignAdmin: TenantUser = createMockUser({ id: randomUUID(), companyId: foreignCompanyId });
 
-  const eventService = () =>
-    new EventService(
-      [],
-      { getWebhooksForEvent: () => Promise.resolve([]), getWebhooksForEventUnscoped: () => Promise.resolve([]) },
-      { create: () => Promise.resolve([]), createUnscoped: () => Promise.resolve([]) },
-      { log: () => Promise.resolve(), logUnscoped: () => Promise.resolve() },
-      { dispatch: () => Promise.resolve() } as never,
-      {
-        findEventRoutinesUnscoped: () => Promise.resolve([]),
-        admitEventRoutineRunsUnscoped: () => Promise.resolve([]),
-      },
-      {
-        matchesCurrentUser: () => Promise.resolve(true),
-        matchesUserUnscoped: () => Promise.resolve(true),
-        canUserAccessUnscoped: () => Promise.resolve(true),
-      },
-    );
-  const pages = () => new PrismaWikiPageRepo();
+  const eventService = () => new EventService([], new PrismaEventLogRepo({ dispatch: () => Promise.resolve() }));
+  const pages = () => new PrismaWikiPageRepo(new PermissionService());
   const proposals = () => new PrismaWikiPageProposalRepo();
   const createPage = async (title: string, markdown: string, tenant = admin) => {
     const created = await runWithTenant(tenant, () =>
@@ -109,13 +96,14 @@ describeDatabase("Knowledge Base proposals on PostgreSQL", () => {
         proposals(),
         new CreateWikiPagesInteractor(pages(), eventService()),
         new UpdateWikiPageInteractor(pages(), eventService()),
-        new DeleteWikiPageInteractor(pages(), eventService()),
+        new DeleteWikiPageInteractor(pages(), eventService(), new PrismaTrashRepo()),
       ).invoke({ id }),
     );
   const reject = (id: string, tenant: TenantUser) =>
     runWithTenant(tenant, () => new RejectWikiPageProposalInteractor(proposals()).invoke({ id }));
   const storedPage = async (id: string) =>
-    (await client.query('SELECT "title", "markdown" FROM "WikiPage" WHERE "id" = $1', [id])).rows[0] ?? null;
+    (await client.query('SELECT "title", "markdown" FROM "WikiPage" WHERE "id" = $1 AND "deletedAt" IS NULL', [id]))
+      .rows[0] ?? null;
   const storedProposal = async (id: string) =>
     (await client.query('SELECT "status", "reviewedByUserId", "pageId" FROM "WikiPageProposal" WHERE "id" = $1', [id]))
       .rows[0];

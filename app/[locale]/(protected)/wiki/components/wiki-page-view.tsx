@@ -51,7 +51,6 @@ import { WIKI_LAYOUT_P13N_ID, WIKI_PANEL_LAYOUT_ID } from "./wiki-personalizatio
 import { useWikiPages } from "./use-wiki-pages";
 import { WikiPageKindSchema, WIKI_PAGE_KINDS, WIKI_WHEN_TO_USE_MAX_LENGTH } from "@/features/wiki/wiki.schema";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
-import { Action } from "@/generated/prisma";
 
 const WIKI_PANEL_IDS = ["pages", "document"] as const;
 

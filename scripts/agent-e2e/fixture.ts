@@ -1,6 +1,8 @@
 import { createHmac, randomBytes, randomUUID } from "node:crypto";
 
-import type { Prisma, PrismaClient } from "@/generated/prisma";
+import type { PrismaClient } from "@/generated/prisma";
+
+import { e2eRecordFixtures } from "./record-fixtures";
 
 const COOKIE_NAME = "app.session_token";
 const SESSION_LIFETIME_MS = 6 * 60 * 60 * 1000;
@@ -90,7 +92,7 @@ export async function seedAgentE2eFixture(
   const token = randomBytes(32).toString("hex");
 
   await prisma.$transaction(async (tx) => {
-    await tx.company.create({ data: { id: companyId, currency: "eur", tags: [FIXTURE_TAG] } });
+    await tx.company.create({ data: { id: companyId, tags: [FIXTURE_TAG] } });
     await tx.subscription.create({
       data: {
         companyId,
@@ -129,7 +131,8 @@ export async function seedAgentE2eFixture(
       data: { id: randomUUID(), token, userId, expiresAt: new Date(now.getTime() + SESSION_LIFETIME_MS) },
     });
 
-    await tx.customColumn.createMany({
+    const { writer, flush } = e2eRecordFixtures(tx, companyId);
+    await writer.customColumn.createMany({
       data: [
         {
           id: stageColumnId,
@@ -157,17 +160,17 @@ export async function seedAgentE2eFixture(
         },
       ],
     });
-    await tx.organization.createMany({
+    await writer.organization.createMany({
       data: SEEDED_ORGANIZATIONS.map((name, index) => ({ id: organizationIds[index], companyId, name })),
     });
     for (const [index, contact] of SEEDED_CONTACTS.entries()) {
-      await tx.contact.create({
+      await writer.contact.create({
         data: { id: contactIds[contact.key], companyId, firstName: contact.firstName, lastName: contact.lastName },
       });
-      await tx.contactOrganization.create({
+      await writer.contactOrganization.create({
         data: { id: randomUUID(), companyId, contactId: contactIds[contact.key], organizationId: organizationIds[index] },
       });
-      await tx.contactIdentifier.create({
+      await writer.contactIdentifier.create({
         data: {
           companyId,
           contactId: contactIds[contact.key],
@@ -178,11 +181,11 @@ export async function seedAgentE2eFixture(
       });
     }
     for (const deal of SEEDED_DEALS) {
-      await tx.deal.create({
+      await writer.deal.create({
         data: { id: dealIds[deal.key], companyId, name: deal.name, totalValue: deal.value, totalQuantity: 1 },
       });
-      await tx.dealUser.create({ data: { id: randomUUID(), companyId, dealId: dealIds[deal.key], userId } });
-      await tx.customFieldValue.create({
+      await writer.dealUser.create({ data: { id: randomUUID(), companyId, dealId: dealIds[deal.key], userId } });
+      await writer.customFieldValue.create({
         data: {
           id: randomUUID(),
           companyId,
@@ -191,9 +194,10 @@ export async function seedAgentE2eFixture(
           type: "singleSelect",
           value: stageOptionIds[deal.stage],
           dealId: dealIds[deal.key],
-        } as Prisma.CustomFieldValueUncheckedCreateInput,
+        },
       });
     }
+    await flush();
     await tx.wikiPage.create({
       data: { id: wikiPageId, companyId, title: WIKI_FACT.title, markdown: WIKI_FACT.markdown, kind: "knowledge" },
     });

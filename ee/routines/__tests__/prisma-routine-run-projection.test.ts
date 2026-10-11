@@ -139,7 +139,7 @@ describe("PrismaRoutineRepo run projection", () => {
       { turnRequestId: "turn-2", allowanceMicrocentsSnapshot: 4_000_000_000n },
     ]);
 
-    const result = await runWithTenant(user, () => new PrismaRoutineRepo().getRoutineRuns("routine-1", 10));
+    const result = await runWithTenant(user, () => createTestRoutineRepo().getRoutineRuns("routine-1", 10));
 
     expect(prismaMock.agentUsageEvent.findMany).toHaveBeenCalledWith({
       where: { turnRequestId: { in: ["turn-1", "turn-2"] }, companyId: user.companyId, purpose: "turn" },

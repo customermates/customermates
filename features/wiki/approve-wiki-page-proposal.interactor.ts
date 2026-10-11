@@ -6,7 +6,7 @@ import type { Validated } from "@/core/validation/validation.utils";
 import type { WikiPageDto } from "./wiki.schema";
 import type { WikiPageProposalDto, WikiPageProposalIdData } from "./wiki-page-proposal.schema";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -20,7 +20,7 @@ import { WikiPageProposalDtoSchema, WikiPageProposalIdSchema } from "./wiki-page
 
 const STALE_PAGE_CODES = new Set<string>([CustomErrorCode.wikiPageConflict, CustomErrorCode.wikiPageNotFound]);
 
-@TenantInteractor({ resource: Resource.wiki, action: Action.update })
+@TenantInteractor({ resource: Resource.wiki, manage: "update" })
 export class ApproveWikiPageProposalInteractor extends AuthenticatedInteractor<
   WikiPageProposalIdData,
   WikiPageProposalDto

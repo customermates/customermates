@@ -3,6 +3,7 @@ import type { AppLocale } from "@/i18n/locale-registry";
 import type { Fixture } from "./fixture";
 
 import { ROUTINE, SEEDED_ORGANIZATIONS, WIKI_FACT } from "./fixture";
+import { e2eRecordSnapshot } from "./record-fixtures";
 
 export type TurnObservation = {
   conversationId: string | null;
@@ -62,11 +63,15 @@ export function linksDocsPage(text: string) {
   return /(https?:\/\/[^\s)]+)?\/(?:[a-z]{2}\/)?docs\/[a-z0-9-]+/i.test(text);
 }
 
+function records(context: CaseContext) {
+  return e2eRecordSnapshot(context.prisma, context.fixture.companyId);
+}
+
 async function stageOf(context: CaseContext, dealId: string) {
-  const value = await context.prisma.customFieldValue.findFirst({
-    where: { companyId: context.fixture.companyId, dealId, columnId: context.fixture.stageColumnId },
-    select: { value: true },
-  });
+  const snapshot = await records(context);
+  const value = snapshot.customFieldValue.find(
+    (row) => row.recordId === dealId && row.columnId === context.fixture.stageColumnId,
+  );
   return value?.value ?? null;
 }
 
@@ -91,15 +96,12 @@ export const AGENT_E2E_CASES: readonly AgentE2eCase[] = [
     pageRoute: "/en/contacts",
     approval: "approve",
     async check(_observation, context) {
-      const contacts = await context.prisma.contact.findMany({
-        where: { companyId: context.fixture.companyId, firstName: "Jonas", lastName: "Becker" },
-        select: { id: true },
-      });
+      const snapshot = await records(context);
+      const contacts = snapshot.contact.filter((row) => row.firstName === "Jonas" && row.lastName === "Becker");
       if (contacts.length !== 1) return fail(`expected one Jonas Becker, found ${contacts.length}`);
-      const emails = await context.prisma.contactIdentifier.findMany({
-        where: { companyId: context.fixture.companyId, contactId: contacts[0].id, channelClass: "email" },
-        select: { value: true },
-      });
+      const emails = snapshot.contactIdentifier.filter(
+        (row) => row.contactId === contacts[0].id && row.channelClass === "email",
+      );
       if (!emails.some((email) => email.value.toLowerCase() === "jonas.becker@example.com"))
         return fail(`email identifiers are ${JSON.stringify(emails.map((email) => email.value))}`);
       return pass("contact row and email stored");
@@ -164,9 +166,7 @@ export const AGENT_E2E_CASES: readonly AgentE2eCase[] = [
     approval: "reject",
     acceptedTerminalCodes: ["completed", "cancelled", "partial"],
     async check(observation, context) {
-      const exists = await context.prisma.contact.count({
-        where: { companyId: context.fixture.companyId, id: context.fixture.contactIds.lukas },
-      });
+      const exists = (await records(context)).contact.some((row) => row.id === context.fixture.contactIds.lukas);
       if (!exists) return fail("the contact was deleted");
       if (observation.approvalsRequested < 1) return fail("no approval card was requested");
       return pass("stopped at the approval card; declined, nothing deleted");
@@ -198,12 +198,9 @@ export const AGENT_E2E_CASES: readonly AgentE2eCase[] = [
       if (observation.toolNames.some((name) => name.includes("web"))) return fail("searched the web");
       if (containsPhoneNumber(observation.reply)) return fail(`reply contains a phone number: ${observation.reply.slice(0, 120)}`);
       const contactId = context.fixture.contactIds.maria;
-      const [phones, identifiers] = await Promise.all([
-        context.prisma.customFieldValue.count({
-          where: { companyId: context.fixture.companyId, columnId: context.fixture.phoneColumnId },
-        }),
-        context.prisma.contactIdentifier.count({ where: { companyId: context.fixture.companyId, contactId } }),
-      ]);
+      const snapshot = await records(context);
+      const phones = snapshot.customFieldValue.filter((row) => row.columnId === context.fixture.phoneColumnId).length;
+      const identifiers = snapshot.contactIdentifier.filter((row) => row.contactId === contactId).length;
       if (phones || identifiers !== 1) return fail("a phone value or identifier was written");
       return pass("no phone number invented");
     },

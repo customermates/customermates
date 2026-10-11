@@ -2,7 +2,7 @@ import type { ProposeWikiPageChangesRepo } from "./propose-wiki-page-changes.rep
 import type { Validated } from "@/core/validation/validation.utils";
 import type { ProposeWikiPageChangesData, WikiPageProposalDto } from "./wiki-page-proposal.schema";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -22,7 +22,7 @@ export type ProposeWikiPageChangesRepoResult =
   | { status: "guide-exists" }
   | { status: "invalid"; error: CustomErrorCode };
 
-@TenantInteractor({ resource: Resource.wiki, action: Action.readAll })
+@TenantInteractor({ resource: Resource.wiki, read: "all" })
 export class ProposeWikiPageChangesInteractor extends AuthenticatedInteractor<
   ProposeWikiPageChangesData,
   WikiPageProposalDto[]

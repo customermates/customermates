@@ -2,7 +2,7 @@ import type { ReviewWikiPageProposalRepo } from "./review-wiki-page-proposal.rep
 import type { Validated } from "@/core/validation/validation.utils";
 import type { WikiPageProposalDto, WikiPageProposalIdData } from "./wiki-page-proposal.schema";
 
-import { Action, Resource } from "@/generated/prisma";
+import { Resource } from "@/generated/prisma";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -12,7 +12,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { WikiPageProposalDtoSchema, WikiPageProposalIdSchema } from "./wiki-page-proposal.schema";
 
-@TenantInteractor({ resource: Resource.wiki, action: Action.update })
+@TenantInteractor({ resource: Resource.wiki, manage: "update" })
 export class RejectWikiPageProposalInteractor extends AuthenticatedInteractor<
   WikiPageProposalIdData,
   WikiPageProposalDto

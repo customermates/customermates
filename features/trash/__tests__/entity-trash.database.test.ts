@@ -40,6 +40,7 @@ const { LIVE_WIDGET } = await import("@/features/widget/live-widget");
 const { DeleteWidgetInteractor } = await import("@/features/widget/delete-widget.interactor");
 const { ValidateWidgetIdsInteractor } = await import("@/core/validation/validators/validate-widget-ids.interactor");
 const { PrismaWikiPageRepo } = await import("@/features/wiki/prisma-wiki-page.repository");
+const { PrismaWikiSectionRepo } = await import("@/features/wiki/prisma-wiki-section.repository");
 const { DeleteWikiPageInteractor } = await import("@/features/wiki/delete-wiki-page.interactor");
 const { getRoutineRepo, getTrashKindHandlers } = await import("@/core/di");
 const { DeleteRoutineInteractor } = await import("@/ee/routines/delete-routine.interactor");
@@ -269,8 +270,8 @@ describeDatabase("views, widgets, routines and knowledge base pages in Trash", (
 
     const listed = await runWithTenant(f.admin, () => f.wiki.listPages({ page: 1, pageSize: 25 }));
     expect(listed.total).toBe(0);
-    const found = await runWithTenant(f.admin, () => f.wiki.fullTextPageCandidates("refunds", 10));
-    expect(found.keys).toEqual([]);
+    const found = await runWithTenant(f.admin, () => new PrismaWikiSectionRepo().fullTextSections("refunds", 10));
+    expect(found.hits).toEqual([]);
     expect(await runWithTenant(f.admin, () => f.wiki.getPage(page.id))).toBeNull();
 
     await runWithoutTenant(() =>

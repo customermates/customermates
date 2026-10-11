@@ -720,7 +720,7 @@ describe("agent access", () => {
       usage as never,
       mockEntitlementService(),
       backgroundTasks() as never,
-      emptyCustomColumns(),
+      mockRecordDiscovery(),
       emptyWikiCatalog(),
     ).invoke({
       clientRequestId: CLIENT_REQUEST_ID,

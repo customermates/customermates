@@ -1719,7 +1719,7 @@ describeDatabase("agent credit ledger against a real database", { timeout: 120_0
         new AgentUsageService(repo),
         entitlements as never,
         backgroundTasks() as never,
-        emptyCustomColumns(),
+        mockRecordDiscovery(),
         emptyWikiCatalog(),
       ).invoke({ clientRequestId: randomUUID(), text: "Contend for credits", retry: false });
     };

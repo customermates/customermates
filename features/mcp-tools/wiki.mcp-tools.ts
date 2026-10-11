@@ -22,11 +22,11 @@ import { WikiPageKindSchema, WIKI_TITLE_MAX_LENGTH, type WikiPageKind } from "@/
 import { env } from "@/env";
 
 import {
-  stripUntrustedNotesMarkers,
-  UNTRUSTED_NOTES_CLOSE,
-  UNTRUSTED_NOTES_HANDLING,
-  UNTRUSTED_NOTES_OPEN,
-} from "./entity-generic.mcp-tools";
+  stripUntrustedRecordTextMarkers,
+  UNTRUSTED_RECORD_TEXT_CLOSE,
+  UNTRUSTED_RECORD_TEXT_HANDLING,
+  UNTRUSTED_RECORD_TEXT_OPEN,
+} from "./untrusted-record-content";
 
 import {
   customMcpFailure,
@@ -332,7 +332,7 @@ function wikiSearchResult(result: WikiPageSearchResult) {
 }
 
 function untrustedGapQuery(query: string) {
-  return `${UNTRUSTED_NOTES_OPEN}\n${stripUntrustedNotesMarkers(query)}\n${UNTRUSTED_NOTES_CLOSE}`;
+  return `${UNTRUSTED_RECORD_TEXT_OPEN}\n${stripUntrustedRecordTextMarkers(query)}\n${UNTRUSTED_RECORD_TEXT_CLOSE}`;
 }
 
 function wikiAnchorSection(markdown: string, anchor: string) {
@@ -418,7 +418,7 @@ export const manageWikiPagesTool = {
       return runInteractor(getGetWikiKnowledgeGapsInteractor().invoke(), ({ items }) =>
         toonResult({
           gapsTrust: "untrusted",
-          gapsHandling: UNTRUSTED_NOTES_HANDLING,
+          gapsHandling: UNTRUSTED_RECORD_TEXT_HANDLING,
           gaps: formatDatesInResponse(items.map((item) => ({ ...item, query: untrustedGapQuery(item.query) }))),
         }),
       );

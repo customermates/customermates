@@ -80,9 +80,7 @@ describeDatabase("synthetic Knowledge Base persistence", { timeout: 120_000 }, (
           markdown: "Keep our own notes.",
         },
       });
-      const otherCompany = await prisma.company.create({
-        data: { currency: "eur" },
-      });
+      const otherCompany = await prisma.company.create({ data: {} });
       const otherPage = await prisma.wikiPage.create({
         data: {
           companyId: otherCompany.id,

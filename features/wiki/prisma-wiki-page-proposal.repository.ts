@@ -7,7 +7,7 @@ import type { WikiPageProposalDto } from "./wiki-page-proposal.schema";
 
 import { WikiPageProposalStatus, type Prisma } from "@/generated/prisma";
 
-import { BaseRepository } from "@/core/base/base-repository";
+import { TenantRepository } from "@/core/base/tenant-repository";
 
 import { wikiPageKindFields, wikiPageKindIssue } from "./wiki.schema";
 
@@ -57,7 +57,7 @@ function isStale(proposal: WikiPageProposalDto, page: WikiPageDto | null) {
 }
 
 export class PrismaWikiPageProposalRepo
-  extends BaseRepository<Prisma.WikiPageProposalWhereInput>
+  extends TenantRepository
   implements ProposeWikiPageChangesRepo, GetWikiPageProposalsRepo, ReviewWikiPageProposalRepo
 {
   async proposeChanges(data: RepoArgs<ProposeWikiPageChangesRepo, "proposeChanges">) {
@@ -188,7 +188,12 @@ export class PrismaWikiPageProposalRepo
 
   private async guideExists(exceptId: string | null) {
     const guide = await this.prisma.wikiPage.findFirst({
-      where: { companyId: this.companyId, kind: "guide", deletedAt: null, ...(exceptId ? { id: { not: exceptId } } : {}) },
+      where: {
+        companyId: this.companyId,
+        kind: "guide",
+        deletedAt: null,
+        ...(exceptId ? { id: { not: exceptId } } : {}),
+      },
       select: { id: true },
     });
     return guide !== null;
