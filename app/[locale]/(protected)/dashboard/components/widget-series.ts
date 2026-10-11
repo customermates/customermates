@@ -82,6 +82,25 @@ export function orderFunnelSteps<T>(
   return [...ordered, ...unknown];
 }
 
+export function orderByOptionPosition<T>(
+  rows: T[],
+  optionOrder: string[],
+  optionIdOf: (row: T) => string | null,
+  isMissing: (row: T) => boolean,
+): T[] {
+  const positions = new Map(optionOrder.map((optionId, index) => [optionId, index]));
+  const rank = (row: T, index: number): [number, number] => {
+    if (isMissing(row)) return [2, index];
+    const optionId = optionIdOf(row);
+    const position = optionId === null ? undefined : positions.get(optionId);
+    return position === undefined ? [1, index] : [0, position];
+  };
+  return rows
+    .map((row, index) => ({ row, rank: rank(row, index), index }))
+    .sort((left, right) => left.rank[0] - right.rank[0] || left.rank[1] - right.rank[1] || left.index - right.index)
+    .map(({ row }) => row);
+}
+
 export function funnelConversions(values: number[]): Array<number | null> {
   return values.map((value, index) => {
     if (index === 0) return null;

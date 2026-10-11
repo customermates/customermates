@@ -30,6 +30,7 @@ import {
   isoWeek,
   fillTimeSeries,
   funnelConversions,
+  orderByOptionPosition,
   orderFunnelSteps,
   rankByValue,
   shareOfTotal,
@@ -50,6 +51,7 @@ type ChartRow = {
   optionId: string | null;
   bucketStart: string | null;
   optionColor?: ChipColor;
+  missingLabel: boolean;
 };
 
 export function RecordWidgetChart({
@@ -162,7 +164,7 @@ export function RecordWidgetChart({
       </div>,
     );
   }
-  const rows: ChartRow[] = data.groups.map((group) => {
+  const groupedRows: ChartRow[] = data.groups.map((group) => {
     const optionId =
       group.label.state === "value" && group.label.value.kind === "select" ? String(group.label.value.value) : null;
     const option = groupOptions.find((option) => option.id === optionId);
@@ -188,8 +190,15 @@ export function RecordWidgetChart({
       optionId,
       bucketStart,
       optionColor: option?.color ? toChipColor(option.color) : undefined,
+      missingLabel: Boolean(measure.groupBy) && group.label.state === "missing",
     };
   });
+  const rows = orderByOptionPosition(
+    groupedRows,
+    groupOptions.map((option) => option.id),
+    (row) => row.optionId,
+    (row) => row.missingLabel,
+  );
   const point = (row: ChartRow, extra: { detail?: string; formattedValue?: string; missing?: boolean } = {}) => ({
     labelKind: "literal" as const,
     label: row.label,
@@ -245,6 +254,7 @@ export function RecordWidgetChart({
         count: 0,
         optionId: null,
         bucketStart: start,
+        missingLabel: false,
       };
       return point(empty, { missing: !fillsWithZero });
     });
@@ -278,6 +288,7 @@ export function RecordWidgetChart({
         optionId,
         bucketStart: null,
         optionColor: option?.color ? toChipColor(option.color) : undefined,
+        missingLabel: false,
       };
     });
     fallback = steps.length === 0 || ordered.some((row) => row.value === null || row.value < 0) || fallback;

@@ -7,6 +7,7 @@ import {
   isoWeek,
   fillTimeSeries,
   funnelConversions,
+  orderByOptionPosition,
   orderFunnelSteps,
   rankByValue,
   shareOfTotal,
@@ -105,5 +106,38 @@ describe("widget series helpers", () => {
     expect(closedLostOptionIds([{ id: "a" }, { id: "b", probability: null }]).size).toBe(0);
     expect(isIntegerSeries([0, 2, 3])).toBe(true);
     expect(isIntegerSeries([0, 2.5])).toBe(false);
+  });
+
+  it("orders choice groups by option order, keeps unknown groups next and the missing group last", () => {
+    const rows = [
+      { optionId: "proposal", missing: false },
+      { optionId: null, missing: true },
+      { optionId: "new", missing: false },
+      { optionId: "archived", missing: false },
+      { optionId: "qualified", missing: false },
+    ];
+    const ordered = orderByOptionPosition(
+      rows,
+      ["new", "qualified", "proposal"],
+      (row) => row.optionId,
+      (row) => row.missing,
+    );
+    expect(ordered.map((row) => row.optionId)).toEqual(["new", "qualified", "proposal", "archived", null]);
+    expect(
+      orderByOptionPosition(
+        ["P3", "P2", "P4", "P1"],
+        ["P1", "P2", "P3", "P4"],
+        (row) => row,
+        () => false,
+      ),
+    ).toEqual(["P1", "P2", "P3", "P4"]);
+    expect(
+      orderByOptionPosition(
+        ["b", "a"],
+        [],
+        () => null,
+        () => false,
+      ),
+    ).toEqual(["b", "a"]);
   });
 });
