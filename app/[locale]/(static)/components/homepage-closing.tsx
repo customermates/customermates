@@ -95,7 +95,7 @@ export function HomepageClosing({
               </AppLink>
             </Button>
 
-            <Button asChild size="lg" variant="secondary">
+            <Button asChild className="glass-surface" size="lg" variant="ghost">
               <AppLink external={buttonRightHref.startsWith("http")} href={buttonRightHref}>
                 {buttonRightText}
               </AppLink>

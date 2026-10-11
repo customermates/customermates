@@ -149,14 +149,18 @@ const GEOMETRY = [
 ];
 
 const GRADIENT_RULES = [
-  "text-display, text-display-sm and text-hero carry it; text-display-gradient opts in a custom-sized heading.",
+  "text-display, text-display-sm and text-hero carry it; text-display-gradient opts in custom-sized titles such as Markdown and docs page titles and the featured post.",
   "Muted accent spans inside a display heading join the gradient instead of keeping their grey.",
   "Moving or separately coloured text stays outside it, because background-clip paints through every glyph.",
   "Forced colours fall back to plain text.",
 ] as const;
 
 const SURFACE_RULES = [
-  ["glass-surface", "Floating controls over a constant backdrop: the stage switcher and the hero secondary action."],
+  [
+    "glass-surface",
+    "Floating controls over a constant backdrop: the stage switcher and every section-level secondary action in heroes and closing panels.",
+  ],
+  ["Card actions", "Actions inside an opaque card, such as a pricing plan, stay on the solid secondary button."],
   [
     "floating-panel",
     "Menus and popovers that can cross light and dark sections: solid popover fill with the same rim.",

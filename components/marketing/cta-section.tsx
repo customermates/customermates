@@ -57,7 +57,7 @@ export function CTASection({
                 </IntlLink>
               </Button>
 
-              <Button asChild className="w-full sm:w-auto" size="lg" variant="secondary">
+              <Button asChild className="glass-surface w-full sm:w-auto" size="lg" variant="ghost">
                 <IntlLink
                   href={buttonRightHref}
                   prefetch={contentLinkPrefetch(buttonRightHref)}
