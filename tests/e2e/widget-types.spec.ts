@@ -493,14 +493,23 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     await save(page);
     const values = card(page, "Deal values");
     await expect(values.locator(".recharts-xAxis-tick-labels text").first()).toBeVisible();
-    const box = await values.boundingBox();
-    expect(box).not.toBeNull();
-    for (const label of await values.locator(".recharts-label-list text, .recharts-xAxis-tick-labels text").all()) {
-      const bounds = await label.boundingBox();
-      if (!bounds || !box) continue;
-      expect(bounds.x).toBeGreaterThanOrEqual(box.x - 1);
-      expect(bounds.x + bounds.width).toBeLessThanOrEqual(box.x + box.width + 1);
-    }
+    await expect
+      .poll(() =>
+        values.evaluate((card) => {
+          const box = card.getBoundingClientRect();
+          return [...card.querySelectorAll(".recharts-label-list text, .recharts-xAxis-tick-labels text")].flatMap(
+            (text) => {
+              const bounds = text.getBoundingClientRect();
+              return bounds.left < box.left - 1 || bounds.right > box.right + 1
+                ? [
+                    `${text.textContent} ${Math.round(bounds.left)}-${Math.round(bounds.right)} outside ${Math.round(box.left)}-${Math.round(box.right)}`,
+                  ]
+                : [];
+            },
+          );
+        }),
+      )
+      .toEqual([]);
     const valueLabels = await values
       .locator(".recharts-label-list text")
       .evaluateAll((texts) =>
