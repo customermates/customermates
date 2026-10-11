@@ -222,7 +222,7 @@ describe("homepage visual-system adoption", () => {
       "customer data",
       "projects",
       "suppliers",
-      "budgets",
+      "campaigns",
       "team tasks",
       "business data",
     ]);
@@ -230,7 +230,7 @@ describe("homepage visual-system adoption", () => {
       "Kundendaten",
       "Projekte",
       "Lieferanten",
-      "Budgets",
+      "Kampagnen",
       "Teamaufgaben",
       "Geschäftsdaten",
     ]);
@@ -238,7 +238,7 @@ describe("homepage visual-system adoption", () => {
     expect(germanHomepage).toContain("  titleAccent: in einem Arbeitsbereich für Sie und Ihre KI.");
     for (const mdx of [englishHomepage, germanHomepage]) {
       const hero = mdx.slice(mdx.indexOf("\nhero:\n"), mdx.indexOf("  subtitle:"));
-      expect(hero).not.toMatch(/\bERP\b|financ|Finanz|Buchhaltung|accounting|invoic|Rechnung/iu);
+      expect(hero).not.toMatch(/\bERP\b|financ|Finanz|Budget|Buchhaltung|accounting|invoic|Rechnung/iu);
     }
   });
 
