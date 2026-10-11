@@ -118,7 +118,16 @@ export function FormattedTextField({
             showPrompt && "hidden",
           )}
         >
-          <Editor inline autoFocus={isEditing} data={data} label={label} readOnly={!isEditing} onChange={onChange} />
+          <Editor
+            inline
+            toolbar
+            autoFocus={isEditing}
+            data={data}
+            label={label}
+            readOnly={!isEditing}
+            toolbarClassName="-mx-3 -mt-1.5 mb-1.5"
+            onChange={onChange}
+          />
         </div>
 
         {showPrompt && (

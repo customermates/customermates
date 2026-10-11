@@ -1,24 +1,21 @@
 "use client";
 
-import type { ComponentType, CSSProperties } from "react";
+import type { CSSProperties } from "react";
 
 import { useEditor, EditorContent } from "@tiptap/react";
 import Placeholder from "@tiptap/extension-placeholder";
 import StarterKit from "@tiptap/starter-kit";
 import { Markdown } from "tiptap-markdown";
 import type { MarkdownStorage } from "tiptap-markdown";
-import { Bold, Italic, List, ListOrdered, Minus, Quote, Strikethrough } from "lucide-react";
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { useTranslations } from "next-intl";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 
 import type { EmailSettings } from "@/ee/messaging/email-settings";
 
-import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
 import { EMAIL_FONT_STACK, EmailLinkStyle, normalizeEmailLinkUrl } from "@/ee/messaging/email-settings";
 import { EMAIL_STYLES } from "@/ee/messaging/email-styles";
 
-import { LinkPopover } from "./link-popover";
+import { FormattingToolbar } from "./formatting-toolbar";
 
 import { isShortcutPress } from "@/components/keyboard/shortcut-registry";
 import "./editor.scss";
@@ -41,13 +38,6 @@ type Props = {
   onSubmitShortcut?: () => void;
 };
 
-type ToggleAction = {
-  label: string;
-  icon: ComponentType<{ className?: string }>;
-  active: () => boolean;
-  run: () => void;
-};
-
 function getMarkdown(storage: unknown): string {
   return (storage as { markdown: MarkdownStorage }).markdown.getMarkdown();
 }
@@ -67,8 +57,6 @@ export const EmailMarkdownEditor = forwardRef<EmailMarkdownEditorHandle, Props>(
   },
   ref,
 ) {
-  const t = useTranslations();
-  const [linkOpen, setLinkOpen] = useState(false);
   const isSettingContentRef = useRef(false);
   const editor = useEditor({
     immediatelyRender: false,
@@ -142,44 +130,6 @@ export const EmailMarkdownEditor = forwardRef<EmailMarkdownEditorHandle, Props>(
 
   if (!editor) return <div className={cn("min-h-24", className)} />;
 
-  const toggles: ToggleAction[] = [
-    {
-      label: t("Editor.bold"),
-      icon: Bold,
-      active: () => editor.isActive("bold"),
-      run: () => editor.chain().focus().toggleBold().run(),
-    },
-    {
-      label: t("Editor.italic"),
-      icon: Italic,
-      active: () => editor.isActive("italic"),
-      run: () => editor.chain().focus().toggleItalic().run(),
-    },
-    {
-      label: t("Editor.strikethrough"),
-      icon: Strikethrough,
-      active: () => editor.isActive("strike"),
-      run: () => editor.chain().focus().toggleStrike().run(),
-    },
-    {
-      label: t("Editor.bulletList"),
-      icon: List,
-      active: () => editor.isActive("bulletList"),
-      run: () => editor.chain().focus().toggleBulletList().run(),
-    },
-    {
-      label: t("Editor.numberedList"),
-      icon: ListOrdered,
-      active: () => editor.isActive("orderedList"),
-      run: () => editor.chain().focus().toggleOrderedList().run(),
-    },
-    {
-      label: t("Editor.blockQuote"),
-      icon: Quote,
-      active: () => editor.isActive("blockquote"),
-      run: () => editor.chain().focus().toggleBlockquote().run(),
-    },
-  ];
   const editorStyle = {
     "--email-link-color": appearance.linkHex,
     "--email-link-decoration": appearance.linkStyle === EmailLinkStyle.underlined ? "underline" : "none",
@@ -204,53 +154,7 @@ export const EmailMarkdownEditor = forwardRef<EmailMarkdownEditorHandle, Props>(
       )}
       style={editorStyle}
     >
-      <div
-        aria-label={t("Editor.formatting")}
-        className="border-border flex flex-wrap items-center gap-0.5 border-b p-1"
-        role="toolbar"
-      >
-        {toggles.map((action) => (
-          <Button
-            key={action.label}
-            aria-label={action.label}
-            aria-pressed={action.active()}
-            className={cn(action.active() && "bg-accent text-accent-foreground")}
-            disabled={disabled}
-            size="icon-sm"
-            type="button"
-            variant="ghost"
-            onClick={(event) => {
-              if (event.detail === 0) action.run();
-            }}
-            onMouseDown={(event) => {
-              if (event.button !== 0) return;
-              event.preventDefault();
-              action.run();
-            }}
-          >
-            <action.icon />
-          </Button>
-        ))}
-
-        <LinkPopover
-          disabled={disabled}
-          editor={editor}
-          normalizeUrl={normalizeEmailLinkUrl}
-          open={linkOpen}
-          onOpenChange={setLinkOpen}
-        />
-
-        <Button
-          aria-label={t("Editor.divider")}
-          disabled={disabled}
-          size="icon-sm"
-          type="button"
-          variant="ghost"
-          onClick={() => editor.chain().focus().setHorizontalRule().run()}
-        >
-          <Minus />
-        </Button>
-      </div>
+      <FormattingToolbar disabled={disabled} editor={editor} normalizeLinkUrl={normalizeEmailLinkUrl} />
 
       <EditorContent editor={editor} />
     </div>

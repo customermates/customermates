@@ -15,6 +15,7 @@ import { findPastedImageUrl } from "./image-extension";
 import { hasMarkdownBlockStructure, parseMarkdownToJSON } from "./editor.utils";
 
 import { BubbleMenu } from "./bubble-menu";
+import { FormattingToolbar } from "./formatting-toolbar";
 import { type EditorAnchorRect } from "./use-editor-anchor";
 import { SlashMenu } from "./slash-menu";
 import { TableMenu } from "./table-menu";
@@ -30,6 +31,8 @@ type Props = {
   label?: string;
   inline?: boolean;
   autoFocus?: boolean;
+  toolbar?: boolean;
+  toolbarClassName?: string;
 };
 
 function findEnclosingTableStart($pos: ResolvedPos): number | null {
@@ -39,7 +42,16 @@ function findEnclosingTableStart($pos: ResolvedPos): number | null {
   return null;
 }
 
-export function Editor({ data, onChange, readOnly = false, label, inline = false, autoFocus = false }: Props) {
+export function Editor({
+  data,
+  onChange,
+  readOnly = false,
+  label,
+  inline = false,
+  autoFocus = false,
+  toolbar = false,
+  toolbarClassName,
+}: Props) {
   const t = useTranslations();
   const [showSlashMenu, setShowSlashMenu] = useState(false);
   const [slashAnchorRect, setSlashAnchorRect] = useState<EditorAnchorRect | null>(null);
@@ -275,6 +287,8 @@ export function Editor({ data, onChange, readOnly = false, label, inline = false
       {showSlashMenu && !readOnly && (
         <SlashMenu anchorRect={slashAnchorRect} editor={editor} onClose={() => setShowSlashMenu(false)} />
       )}
+
+      {toolbar && !readOnly && <FormattingToolbar className={toolbarClassName} editor={editor} />}
 
       <EditorContent editor={editor} />
     </div>
