@@ -3098,7 +3098,6 @@
     "calculationError": "Calculation unavailable",
     "calculationFlow": {
       "addStep": "Add step",
-      "extendStep": "Add to {step}",
       "aggregates": {
         "average": "Average",
         "count": "Number",
@@ -3121,6 +3120,7 @@
         "title": "Example",
         "unavailable": "Too many linked records to show an example."
       },
+      "extendStep": "Add to {step}",
       "inputs": "Inputs",
       "linkedList": "Linked list",
       "missing": {

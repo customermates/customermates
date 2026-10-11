@@ -3098,7 +3098,6 @@
     "calculationError": "Berechnung nicht verfügbar",
     "calculationFlow": {
       "addStep": "Schritt hinzufügen",
-      "extendStep": "Zu {step} hinzufügen",
       "aggregates": {
         "average": "Durchschnitt",
         "count": "Anzahl",
@@ -3121,6 +3120,7 @@
         "title": "Beispiel",
         "unavailable": "Zu viele verknüpfte Datensätze für ein Beispiel."
       },
+      "extendStep": "Zu {step} hinzufügen",
       "inputs": "Eingaben",
       "linkedList": "Verknüpfte Liste",
       "missing": {

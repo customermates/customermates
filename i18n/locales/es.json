@@ -3098,7 +3098,6 @@
     "calculationError": "Cálculo no disponible",
     "calculationFlow": {
       "addStep": "Añadir paso",
-      "extendStep": "Añadir a {step}",
       "aggregates": {
         "average": "Promedio",
         "count": "Número",
@@ -3121,6 +3120,7 @@
         "title": "Ejemplo",
         "unavailable": "Demasiados registros vinculados para mostrar un ejemplo."
       },
+      "extendStep": "Añadir a {step}",
       "inputs": "Entradas",
       "linkedList": "Lista vinculada",
       "missing": {

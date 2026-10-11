@@ -3098,7 +3098,6 @@
     "calculationError": "Calcul indisponible",
     "calculationFlow": {
       "addStep": "Ajouter une étape",
-      "extendStep": "Ajouter à {step}",
       "aggregates": {
         "average": "Moyenne",
         "count": "Nombre",
@@ -3121,6 +3120,7 @@
         "title": "Exemple",
         "unavailable": "Trop d'enregistrements liés pour afficher un exemple."
       },
+      "extendStep": "Ajouter à {step}",
       "inputs": "Entrées",
       "linkedList": "Liste liée",
       "missing": {
