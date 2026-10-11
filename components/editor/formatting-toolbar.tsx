@@ -27,10 +27,7 @@ import { LinkPopover } from "./link-popover";
 
 const HEADING_LEVELS = [1, 2, 3] as const;
 type HeadingLevel = (typeof HEADING_LEVELS)[number];
-const HEADING_ICONS: Record<
-  HeadingLevel,
-  ComponentType<{ className?: string }>
-> = {
+const HEADING_ICONS: Record<HeadingLevel, ComponentType<{ className?: string }>> = {
   1: Heading1,
   2: Heading2,
   3: Heading3,
@@ -52,28 +49,17 @@ type Action = {
 };
 
 function currentHeadingLevel(editor: Editor): HeadingLevel | null {
-  return (
-    HEADING_LEVELS.find((level) => editor.isActive("heading", { level })) ??
-    null
-  );
+  return HEADING_LEVELS.find((level) => editor.isActive("heading", { level })) ?? null;
 }
 
 export function cycleHeading(editor: Editor) {
   const level = currentHeadingLevel(editor);
   const chain = editor.chain().focus();
   if (level === 3) chain.setParagraph().run();
-  else
-    chain
-      .setHeading({ level: level ? ((level + 1) as HeadingLevel) : 1 })
-      .run();
+  else chain.setHeading({ level: level ? ((level + 1) as HeadingLevel) : 1 }).run();
 }
 
-export function FormattingToolbar({
-  editor,
-  disabled = false,
-  className,
-  normalizeLinkUrl,
-}: Props) {
+export function FormattingToolbar({ editor, disabled = false, className, normalizeLinkUrl }: Props) {
   const t = useTranslations();
   const [linkOpen, setLinkOpen] = useState(false);
   const supportsHeading = Boolean(editor.schema.nodes.heading);
@@ -156,9 +142,7 @@ export function FormattingToolbar({
       aria-label={action.label}
       aria-pressed={action.active}
       className={cn(action.active && "bg-accent text-accent-foreground")}
-      data-heading-level={
-        action.key === "heading" ? (state.heading ?? 0) : undefined
-      }
+      data-heading-level={action.key === "heading" ? (state.heading ?? 0) : undefined}
       disabled={disabled}
       size="icon-sm"
       type="button"
@@ -180,10 +164,7 @@ export function FormattingToolbar({
     <div
       data-formatting-toolbar
       aria-label={t("Editor.formatting")}
-      className={cn(
-        "border-border flex flex-wrap items-center gap-0.5 border-b p-1",
-        className,
-      )}
+      className={cn("border-border flex flex-wrap items-center gap-0.5 border-b p-1", className)}
       role="toolbar"
     >
       {heading && renderButton(heading)}
