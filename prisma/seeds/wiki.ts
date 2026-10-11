@@ -52,8 +52,8 @@ function pageLink(page: WikiPageKey): string {
 
 type WikiPageDefinition = Pick<
   Prisma.WikiPageCreateManyInput,
-  "id" | "title" | "kind" | "whenToUse" | "sortOrder" | "markdown"
->;
+  "title" | "kind" | "whenToUse" | "sortOrder" | "markdown"
+> & { id: string };
 
 function knowledge(page: WikiPageKey, sortOrder: number, lines: readonly string[]): WikiPageDefinition {
   return {
