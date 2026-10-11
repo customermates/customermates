@@ -702,14 +702,14 @@ describe("GoldenStoryVisual benchmark renderer", () => {
     }
   });
 
-  it("uses one frameless rounded artboard with optional token-grid atmosphere", () => {
+  it("uses one frameless, primary-lit rounded artboard with optional token-grid atmosphere", () => {
     const markup = render(getGoldenVisualBrief("converge", "en"), "wide");
     const root = markup.match(
       /<div\b[^>]*data-story-visual="[^"]+"[^>]*>/u,
     )?.[0];
 
     expect(root).toBeDefined();
-    expect(root ?? "").toContain("rounded-xl");
+    expect(root ?? "").toContain("rounded-3xl");
     expect(root ?? "").not.toMatch(/\bborder(?:-|\s)/u);
     expect(markup).toContain("background-size:56px_56px");
     expect(markup).toContain("mask-image:radial-gradient");

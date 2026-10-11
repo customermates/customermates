@@ -222,7 +222,7 @@ function DeploymentScene({ brief, placement }: Pick<Props, "brief"> & { placemen
       <ConnectorLayer connectors={connectors[placement]} placement={placement} />
 
       <div
-        className="absolute z-10 rounded-xl border border-border bg-background p-3 shadow-sm"
+        className="absolute z-10 product-card rounded-xl p-3"
         data-detail-id={database.id}
         data-detail-priority={2}
         data-visual-subject={database.id}
@@ -240,7 +240,7 @@ function DeploymentScene({ brief, placement }: Pick<Props, "brief"> & { placemen
       </div>
 
       <div
-        className="absolute z-20 rounded-card border border-border-strong bg-card p-4 shadow-xl shadow-black/10 dark:shadow-black/30 sm:p-5"
+        className="absolute z-20 product-card rounded-card p-4 sm:p-5"
         data-detail-id={brief.focalSubject.id}
         data-detail-priority={1}
         data-focal-object="true"
@@ -268,7 +268,7 @@ function DeploymentScene({ brief, placement }: Pick<Props, "brief"> & { placemen
 
       {placement !== "narrow" ? (
         <div
-          className="absolute z-10 rounded-xl border border-border bg-background p-3 shadow-sm"
+          className="absolute z-10 product-card rounded-xl p-3"
           data-detail-id={client.id}
           data-detail-priority={3}
           data-visual-subject={client.id}
@@ -354,7 +354,7 @@ function OpenSourceScene({ brief, placement }: Pick<Props, "brief"> & { placemen
       <ConnectorLayer connectors={connectors[placement]} placement={placement} />
 
       <div
-        className="absolute z-10 rounded-xl border border-border bg-background p-3 shadow-sm"
+        className="absolute z-10 product-card rounded-xl p-3"
         data-detail-id={source.id}
         data-detail-priority={2}
         data-visual-subject={source.id}
@@ -373,7 +373,7 @@ function OpenSourceScene({ brief, placement }: Pick<Props, "brief"> & { placemen
 
       {placement !== "narrow" ? (
         <div
-          className="absolute z-10 rounded-xl border border-border bg-background p-3 shadow-sm"
+          className="absolute z-10 product-card rounded-xl p-3"
           data-detail-id={database.id}
           data-detail-priority={3}
           data-visual-subject={database.id}
@@ -392,7 +392,7 @@ function OpenSourceScene({ brief, placement }: Pick<Props, "brief"> & { placemen
       ) : null}
 
       <div
-        className="absolute z-20 rounded-card border border-border-strong bg-card p-5 shadow-xl shadow-black/10 dark:shadow-black/30"
+        className="absolute z-20 product-card rounded-card p-5"
         data-detail-id={brief.focalSubject.id}
         data-detail-priority={1}
         data-focal-object="true"
@@ -488,7 +488,7 @@ function InboxScene({ brief, placement }: Pick<Props, "brief"> & { placement: Pl
       <ConnectorLayer connectors={connectors[placement]} placement={placement} />
 
       <div
-        className="absolute z-20 rounded-card border border-border-strong bg-card p-4 shadow-xl shadow-black/10 dark:shadow-black/30 sm:p-5"
+        className="absolute z-20 product-card rounded-card p-4 sm:p-5"
         data-detail-id={brief.focalSubject.id}
         data-detail-priority={1}
         data-focal-object="true"
@@ -515,7 +515,7 @@ function InboxScene({ brief, placement }: Pick<Props, "brief"> & { placement: Pl
       </div>
 
       <div
-        className="absolute z-10 rounded-xl border border-border bg-background p-4 shadow-sm"
+        className="absolute z-10 product-card rounded-xl p-4"
         data-detail-id={conversationList.id}
         data-detail-priority={2}
         data-visual-subject={conversationList.id}
@@ -542,7 +542,7 @@ function InboxScene({ brief, placement }: Pick<Props, "brief"> & { placement: Pl
 
       {placement !== "narrow" ? (
         <div
-          className="absolute z-10 rounded-xl border border-border bg-background p-4 shadow-sm"
+          className="absolute z-10 product-card rounded-xl p-4"
           data-detail-id={contactContext.id}
           data-detail-priority={3}
           data-visual-subject={contactContext.id}
@@ -612,7 +612,7 @@ function PipelineScene({ brief, locale, placement }: Props & { placement: Placem
   return (
     <Scene placement={placement}>
       <div
-        className="absolute z-20 grid grid-cols-3 grid-rows-[auto_minmax(0,1fr)] content-start gap-2 rounded-card border border-border-strong bg-card p-3 shadow-xl shadow-black/10 dark:shadow-black/30 sm:gap-3 sm:p-4"
+        className="absolute z-20 grid grid-cols-3 grid-rows-[auto_minmax(0,1fr)] content-start gap-2 product-card rounded-card p-3 sm:gap-3 sm:p-4"
         data-detail-id={brief.focalSubject.id}
         data-detail-priority={1}
         data-focal-object="true"
@@ -655,7 +655,7 @@ function PipelineScene({ brief, locale, placement }: Props & { placement: Placem
       </div>
 
       <div
-        className="absolute bottom-[6%] left-[8%] z-10 rounded-xl border border-border bg-background px-3 py-2.5 shadow-sm"
+        className="absolute bottom-[6%] left-[8%] z-10 product-card rounded-xl px-3 py-2.5"
         data-detail-id={context.id}
         data-detail-priority={2}
         data-visual-subject={context.id}
@@ -671,7 +671,7 @@ function PipelineScene({ brief, locale, placement }: Props & { placement: Placem
 
       {placement !== "narrow" ? (
         <div
-          className="absolute bottom-[6%] right-[8%] z-10 rounded-xl border border-border bg-background px-3 py-2.5 shadow-sm"
+          className="absolute bottom-[6%] right-[8%] z-10 product-card rounded-xl px-3 py-2.5"
           data-detail-id={value.id}
           data-detail-priority={3}
           data-visual-subject={value.id}
@@ -734,7 +734,7 @@ function AgencyScene({ brief, locale, placement }: Props & { placement: Placemen
   return (
     <Scene placement={placement}>
       <div
-        className="absolute z-10 rounded-xl border border-border bg-background p-3 shadow-sm"
+        className="absolute z-10 product-card rounded-xl p-3"
         data-detail-id={context.id}
         data-detail-priority={2}
         data-visual-subject={context.id}
@@ -750,7 +750,7 @@ function AgencyScene({ brief, locale, placement }: Props & { placement: Placemen
       </div>
 
       <div
-        className="absolute z-20 rounded-card border border-border-strong bg-card p-4 shadow-xl shadow-black/10 dark:shadow-black/30 sm:p-5"
+        className="absolute z-20 product-card rounded-card p-4 sm:p-5"
         data-detail-id={brief.focalSubject.id}
         data-detail-priority={1}
         data-focal-object="true"
@@ -772,7 +772,7 @@ function AgencyScene({ brief, locale, placement }: Props & { placement: Placemen
 
       {placement !== "narrow" ? (
         <div
-          className="absolute z-10 rounded-xl border border-border bg-background p-3 shadow-sm"
+          className="absolute z-10 product-card rounded-xl p-3"
           data-detail-id={value.id}
           data-detail-priority={3}
           data-visual-subject={value.id}
@@ -869,7 +869,7 @@ function HandoffScene({ brief, placement }: Pick<Props, "brief"> & { placement: 
       </div>
 
       <div
-        className="absolute z-20 rounded-card border border-border-strong bg-card p-5 shadow-xl shadow-black/10 dark:shadow-black/30 sm:p-6"
+        className="absolute z-20 product-card rounded-card p-5 sm:p-6"
         data-detail-composite={human.id}
         data-detail-id={brief.focalSubject.id}
         data-detail-priority={1}

@@ -204,7 +204,6 @@ export function ProductDemo({ hostedBoundary = false, path, presentation = "arti
 
       <BrowserFrame
         fallbackMessage={copy.fallback}
-        size={presentation === "standalone" ? "full" : "article"}
         src={localProductDemoSrc(buildProductDemoUrl(locale, path))}
         title={copy.titles[path]}
       />

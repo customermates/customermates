@@ -203,12 +203,12 @@ describe("seeded public product demo", () => {
     );
     expect(demo).toContain("fallbackMessage={copy.fallback}");
     expect(demo).toContain("title={copy.titles[path]}");
-    expect(demo).toContain(
-      'size={presentation === "standalone" ? "full" : "article"}',
-    );
+    expect(demo).not.toContain("size={");
 
-    expect(frame).toContain('size?: "article" | "full"');
-    expect(frame).toContain('article: "h-[480px] sm:h-[600px] lg:h-[680px]"');
+    expect(frame).toContain("<ProductWindow");
+    expect(frame).toContain("DESKTOP_VIEWPORT = { height: 900, width: 1440 }");
+    expect(frame).toContain("BROWSER_FRAME_REVEAL_DELAY_MS = 500");
+    expect(frame).not.toContain("BrowserFrame.live");
     expect(frame).toContain("IntersectionObserver");
     expect(frame).toContain('loadAhead?: boolean');
     expect(frame).toContain('const LOAD_AHEAD_MARGIN = "400px 0px"');

@@ -136,8 +136,8 @@ function SourceMark({
         placement === "wide" && active ? "gap-2 rounded-xl py-2 pr-2.5 pl-2" : "justify-center rounded-full",
         active
           ? placement === "wide"
-            ? "min-h-12 min-w-12 border-border-strong shadow-lg shadow-black/5"
-            : "size-12 border-border-strong shadow-lg shadow-black/5"
+            ? "min-h-12 min-w-12 border-border shadow-lg shadow-black/10"
+            : "size-12 border-border shadow-lg shadow-black/10"
           : "size-10 border-border opacity-75",
       )}
       data-active-source={active ? "true" : undefined}
@@ -247,7 +247,7 @@ function RecordAnchor({
 
   return (
     <div
-      className="relative rounded-card border border-border-strong bg-card p-[8%] shadow-xl shadow-primary/10"
+      className="relative product-card rounded-card p-[8%]"
       data-accent-target="customer-record"
       data-detail-density={DETAIL_DENSITY[placement]}
     >
@@ -316,7 +316,7 @@ function AgentCue({
   return (
     <NativeAgentProviderIdentity
       className={cn(
-        "absolute z-10 rounded-full border border-border-strong bg-card px-2 py-1.5 text-[9px] text-foreground shadow-sm",
+        "absolute z-10 rounded-full border border-border bg-card px-2 py-1.5 text-[9px] text-foreground shadow-sm",
       )}
       iconSize={placement === "wide" ? 18 : 16}
       provider={provider}
@@ -341,10 +341,7 @@ function DraftArtifact({
 
   return (
     <div
-      className={cn(
-        "rounded-card border border-border-strong bg-card p-[7%] shadow-xl shadow-primary/10",
-        placement === "narrow" && "pb-[25%]",
-      )}
+      className={cn("product-card rounded-card p-[7%]", placement === "narrow" && "pb-[25%]")}
       data-detail-density={DETAIL_DENSITY[placement]}
     >
       <div className="border-b border-border pb-[5%]">
@@ -386,7 +383,7 @@ function HumanAction({
   return (
     <div
       className={cn(
-        "absolute z-10 flex items-center gap-2 rounded-xl border border-border-strong bg-card p-1.5 shadow-lg",
+        "product-card absolute z-10 flex items-center gap-2 rounded-xl p-1.5",
         "bottom-[4%]",
         "right-[18%]",
       )}
@@ -532,7 +529,7 @@ function SignalArtifact({
 
   return (
     <div
-      className="relative rounded-card border border-border-strong bg-card p-[8%] shadow-xl shadow-primary/10"
+      className="relative product-card rounded-card p-[8%]"
       data-detail-density={DETAIL_DENSITY[placement]}
       data-native-record={record}
     >

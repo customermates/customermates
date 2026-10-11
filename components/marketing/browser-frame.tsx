@@ -6,22 +6,26 @@ import { ArrowUpRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { preconnect, prefetchDNS } from "react-dom";
 
-import { ProductWindow } from "@/components/marketing/product-window";
+import { cn } from "@/core/utils/cn";
+
+import { ProductWindow } from "./product-window";
 
 type Props = {
   fallbackMessage?: string;
   loadAhead?: boolean;
   src: string;
   title: string;
-  size?: "article" | "full";
 };
 
 const LOAD_AHEAD_MARGIN = "400px 0px";
 
-const FRAME_HEIGHT_CLASS = {
-  article: "h-[480px] sm:h-[600px] lg:h-[680px]",
-  full: "h-[680px] md:h-[800px] lg:h-[860px]",
-} as const;
+const DESKTOP_VIEWPORT = { height: 900, width: 1440 } as const;
+
+const PHONE_VIEWPORT = { height: 780, width: 390 } as const;
+
+const PHONE_FRAME_MAX_WIDTH = 640;
+
+export const BROWSER_FRAME_REVEAL_DELAY_MS = 500;
 
 function getOrigin(src: string): string | null {
   try {
@@ -31,15 +35,18 @@ function getOrigin(src: string): string | null {
   }
 }
 
-export function BrowserFrame({ fallbackMessage, loadAhead = false, size = "full", src, title }: Props) {
+export function BrowserFrame({ fallbackMessage, loadAhead = false, src, title }: Props) {
   const t = useTranslations();
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
-  const [currentUrl, setCurrentUrl] = useState(src);
+  const frameRef = useRef<HTMLDivElement | null>(null);
+  const revealTimer = useRef(0);
   const [loaded, setLoaded] = useState(false);
   const [shouldMount, setShouldMount] = useState(false);
   const [timedOut, setTimedOut] = useState(false);
-  const frameRef = useRef<HTMLDivElement | null>(null);
+  const [frameWidth, setFrameWidth] = useState<number | null>(null);
   const origin = getOrigin(src);
+  const phone = frameWidth !== null && frameWidth < PHONE_FRAME_MAX_WIDTH;
+  const viewport = phone ? PHONE_VIEWPORT : DESKTOP_VIEWPORT;
+  const scale = frameWidth === null ? 1 : frameWidth / viewport.width;
 
   if (loadAhead && origin) {
     prefetchDNS(origin);
@@ -66,6 +73,16 @@ export function BrowserFrame({ fallbackMessage, loadAhead = false, size = "full"
   }, [loadAhead]);
 
   useEffect(() => {
+    const el = frameRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+
+    const observer = new ResizeObserver(([entry]) => setFrameWidth(entry.contentRect.width));
+    observer.observe(el);
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     if (!fallbackMessage || !shouldMount || loaded) return;
 
     const timeout = window.setTimeout(() => setTimedOut(true), 12_000);
@@ -73,101 +90,59 @@ export function BrowserFrame({ fallbackMessage, loadAhead = false, size = "full"
     return () => window.clearTimeout(timeout);
   }, [fallbackMessage, loaded, shouldMount]);
 
-  useEffect(() => {
-    setCurrentUrl(src);
-    if (!loaded) return;
-    const updateLocation = () => {
-      try {
-        const href = iframeRef.current?.contentWindow?.location.href;
-        if (href && href !== "about:blank") setCurrentUrl(href);
-      } catch {
-        return;
-      }
-    };
-    updateLocation();
-    const interval = window.setInterval(updateLocation, 1000);
-    return () => window.clearInterval(interval);
-  }, [loaded, src]);
+  useEffect(() => () => window.clearTimeout(revealTimer.current), []);
+
+  function reveal() {
+    window.clearTimeout(revealTimer.current);
+    revealTimer.current = window.setTimeout(() => {
+      setLoaded(true);
+      setTimedOut(false);
+    }, BROWSER_FRAME_REVEAL_DELAY_MS);
+  }
 
   return (
-    <div data-live-preview className="not-prose relative mx-auto w-full max-w-live-preview">
-      <ProductWindow>
-        <div ref={frameRef} className="bg-card">
-          <div className="grid min-h-10 grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 border-b border-border px-4 py-2 sm:grid-cols-[1fr_minmax(0,2fr)_1fr]">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span className="inline-flex items-center gap-2 font-mono text-[10px] font-medium tracking-[0.14em] uppercase">
-                <span
-                  aria-hidden
-                  className="size-1.5 animate-pulse rounded-full bg-success motion-reduce:animate-none"
-                />
+    <div data-live-preview data-reveal className="not-prose relative mx-auto w-full max-w-live-preview">
+      <ProductWindow className={cn(phone && "mx-auto max-w-sm")}>
+        <div ref={frameRef} className={cn("relative w-full", phone ? "aspect-[1/2]" : "aspect-[16/10]")}>
+          {!loaded ? (
+            <div className="absolute inset-0 animate-pulse bg-placeholder motion-reduce:animate-none" />
+          ) : null}
 
-                {t("BrowserFrame.live")}
-              </span>
-            </div>
-
-            <a
-              className="col-span-2 row-start-2 min-w-0 truncate text-center font-mono text-[11px] text-muted-foreground hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-ring sm:col-span-1 sm:col-start-2 sm:row-start-1"
-              href={currentUrl}
-              rel="noreferrer noopener"
-              target="_blank"
-              title={currentUrl}
+          {timedOut && fallbackMessage ? (
+            <div
+              className="absolute inset-x-4 bottom-4 z-10 flex flex-col gap-3 rounded-xl border border-border-strong bg-background/95 p-4 shadow-lg backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between"
+              role="status"
             >
-              {(getOrigin(currentUrl) ?? currentUrl).replace(/^https?:\/\//u, "")}
-            </a>
+              <p className="max-w-xl text-xs leading-5 text-muted-foreground">{fallbackMessage}</p>
 
-            <a
-              className="inline-flex justify-self-end shrink-0 items-center gap-1.5 rounded-sm text-xs font-medium text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
-              href={currentUrl}
-              rel="noreferrer noopener"
-              target="_blank"
-            >
-              {t("BrowserFrame.open")}
-
-              <ArrowUpRight aria-hidden className="size-3.5" />
-            </a>
-          </div>
-
-          <div className={`relative ${FRAME_HEIGHT_CLASS[size]}`}>
-            {!loaded ? (
-              <div className="absolute inset-0 animate-pulse bg-placeholder motion-reduce:animate-none" />
-            ) : null}
-
-            {timedOut && fallbackMessage ? (
-              <div
-                className="absolute inset-x-4 bottom-4 z-10 flex flex-col gap-3 rounded-xl border border-border-strong bg-background/95 p-4 shadow-lg backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between"
-                role="status"
+              <a
+                className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-foreground hover:underline"
+                href={src}
+                rel="noreferrer noopener"
+                target="_blank"
               >
-                <p className="max-w-xl text-xs leading-5 text-muted-foreground">{fallbackMessage}</p>
+                {t("BrowserFrame.open")}
 
-                <a
-                  className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-foreground hover:underline"
-                  href={src}
-                  rel="noreferrer noopener"
-                  target="_blank"
-                >
-                  {t("BrowserFrame.open")}
+                <ArrowUpRight aria-hidden className="size-3" />
+              </a>
+            </div>
+          ) : null}
 
-                  <ArrowUpRight aria-hidden className="size-3" />
-                </a>
-              </div>
-            ) : null}
-
-            {shouldMount ? (
-              <iframe
-                ref={iframeRef}
-                className={`block size-full border-0 bg-background transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
-                loading={loadAhead ? "eager" : "lazy"}
-                referrerPolicy="strict-origin-when-cross-origin"
-                sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-                src={src}
-                title={title}
-                onLoad={() => {
-                  setLoaded(true);
-                  setTimedOut(false);
-                }}
-              />
-            ) : null}
-          </div>
+          {shouldMount ? (
+            <iframe
+              className={cn(
+                "absolute top-0 left-0 origin-top-left border-0 bg-sidebar transition-opacity duration-500 ease-out motion-reduce:transition-none",
+                loaded ? "opacity-100" : "opacity-0",
+              )}
+              loading={loadAhead ? "eager" : "lazy"}
+              referrerPolicy="strict-origin-when-cross-origin"
+              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+              src={src}
+              style={{ height: viewport.height, transform: `scale(${scale})`, width: viewport.width }}
+              title={title}
+              onLoad={reveal}
+            />
+          ) : null}
         </div>
       </ProductWindow>
     </div>
