@@ -35,15 +35,8 @@ import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 import { CONNECT_CHANNELS } from "@/ee/messaging/connect/connect-channels";
 import { SYNTHETIC_CONTACT_AVATAR_URLS } from "@/prisma/seeds/avatars";
 import { SYNTHETIC_CONTACT_NAMES } from "@/prisma/seeds/contacts";
-import {
-  SYNTHETIC_DEAL_NAMES,
-  SYNTHETIC_DEAL_STATUS_INDEXES,
-  SYNTHETIC_DEAL_STATUS_WEIGHTS,
-  SYNTHETIC_SERVICE_DEAL_LINKS,
-} from "@/prisma/seeds/deals";
 import { SYNTHETIC_COMPANY_MEMBER_DEFINITIONS } from "@/prisma/seeds/members";
 import { people, threads } from "@/prisma/seeds/messaging/fixtures";
-import { SYNTHETIC_SERVICE_AMOUNTS } from "@/prisma/seeds/services";
 
 function localAsset(url: string) {
   return new URL(url).pathname;
@@ -128,8 +121,8 @@ describe("marketing visual fixture catalog", () => {
     const members = Object.values(DEMO_VISUAL_PEOPLE).filter(({ roles }) =>
       (roles as readonly string[]).includes("member"),
     );
-    const messagingOnly = Object.values(DEMO_VISUAL_PEOPLE).filter(
-      ({ roles }) => roles.length === 1 && roles[0] === "messaging-participant",
+    const messagingParticipants = Object.values(DEMO_VISUAL_PEOPLE).filter(({ roles }) =>
+      (roles as readonly string[]).includes("messaging-participant"),
     );
     const sourceContacts = SYNTHETIC_CONTACT_NAMES.map(
       ([firstName, lastName], index) => ({
@@ -143,17 +136,17 @@ describe("marketing visual fixture catalog", () => {
         name: `${firstName} ${lastName}`,
       }),
     );
-    const sourceMessagingOnly = Object.values(people)
-      .filter(({ contactIndex }) => contactIndex === null)
-      .map(({ avatarPath, displayName }) => ({
-        asset: localAsset(avatarPath),
-        name: displayName,
-      }));
+    // Only participants with an approved photo appear in marketing visuals; the candidate has none.
+    const sourceMessagingParticipants = [
+      ...new Set(threads.flatMap(({ participants }) => participants)),
+    ].flatMap((key) => {
+      const { avatarPath, displayName } = people[key];
+      return avatarPath ? [{ asset: localAsset(avatarPath), name: displayName }] : [];
+    });
 
     expect(Object.keys(DEMO_VISUAL_PEOPLE)).toHaveLength(35);
-    expect(contacts).toHaveLength(30);
-    expect(members).toHaveLength(3);
-    expect(messagingOnly).toHaveLength(2);
+    expect(contacts).toHaveLength(28);
+    expect(members).toHaveLength(7);
     expect(
       sorted(contacts.map(({ asset, name }) => ({ asset, name }))),
     ).toEqual(sorted(sourceContacts));
@@ -161,8 +154,8 @@ describe("marketing visual fixture catalog", () => {
       sorted(sourceMembers),
     );
     expect(
-      sorted(messagingOnly.map(({ asset, name }) => ({ asset, name }))),
-    ).toEqual(sorted(sourceMessagingOnly));
+      sorted(messagingParticipants.map(({ asset, name }) => ({ asset, name }))),
+    ).toEqual(sorted(sourceMessagingParticipants));
     expect(VISUAL_PERSON_FIXTURES).toBe(DEMO_VISUAL_PEOPLE);
 
     const catalog = getNativeVisualFixtureCatalog();
@@ -199,8 +192,10 @@ describe("marketing visual fixture catalog", () => {
     const sourcePairings = new Set<string>();
     for (const thread of threads) {
       for (const person of thread.participants) {
+        const avatarPath = people[person].avatarPath;
+        if (!avatarPath) continue;
         sourcePairings.add(
-          `${providerIds[thread.account]}:${idFromAsset(localAsset(people[person].avatarPath))}`,
+          `${providerIds[thread.account]}:${idFromAsset(localAsset(avatarPath))}`,
         );
       }
     }
@@ -265,41 +260,12 @@ describe("marketing visual fixture catalog", () => {
     });
   });
 
-  it("projects every deal with its seeded Status, Max assignment and exact value facts", () => {
-    const statusIds = [
-      "deal-open",
-      "deal-won",
-      "deal-lost",
-      "deal-abandoned",
-    ] as const;
-    const recordsByName = new Map(
-      Object.values(VISUAL_RECORD_FIXTURES).map((record) => [
-        record.name,
-        record,
-      ]),
-    );
-
-    expect(recordsByName.size).toBe(SYNTHETIC_DEAL_NAMES.length);
-    for (const [index, name] of SYNTHETIC_DEAL_NAMES.entries()) {
-      const statusIndex = SYNTHETIC_DEAL_STATUS_INDEXES[index];
-      const totalValue = SYNTHETIC_SERVICE_DEAL_LINKS.filter(
-        ([dealIndex]) => dealIndex === index,
-      ).reduce(
-        (sum, [, serviceIndex, quantity]) =>
-          sum + SYNTHETIC_SERVICE_AMOUNTS[serviceIndex] * quantity,
-        0,
-      );
-      const expected = {
-        assignee: "max-bergmann",
-        currency: "EUR",
-        kind: "deal",
-        name,
-        status: statusIds[statusIndex],
-        totalValue,
-        weightedValue:
-          (totalValue * SYNTHETIC_DEAL_STATUS_WEIGHTS[statusIndex]) / 100,
-      };
-      expect(recordsByName.get(name)).toMatchObject(expected);
+  // The marketing deals are a curated story of their own; the Northwind demo seed no longer projects them.
+  it("keeps every marketing deal consistent with its Status weight and assignment", () => {
+    for (const record of Object.values(VISUAL_RECORD_FIXTURES)) {
+      const status = VISUAL_STATUS_FIXTURES[record.status];
+      expect(record).toMatchObject({ assignee: "max-bergmann", currency: "EUR", kind: "deal" });
+      expect(record.weightedValue).toBe((record.totalValue * status.weight) / 100);
     }
 
     expect(
@@ -315,22 +281,9 @@ describe("marketing visual fixture catalog", () => {
     ]);
     expect(listVisualRecords({ status: "deal-won" })).toHaveLength(4);
     expect(listVisualRecords({ assignee: "sofia-rossi" })).toEqual([]);
-
-    const focalIndex = SYNTHETIC_DEAL_NAMES.indexOf(
-      "Digital Customer Platform",
-    );
-    const focalLinks = SYNTHETIC_SERVICE_DEAL_LINKS.filter(
-      ([dealIndex]) => dealIndex === focalIndex,
-    );
     expect(
       VISUAL_RECORD_FIXTURES["deal-digital-customer-platform"],
-    ).toMatchObject({
-      projectPeriod: ["2026-06-01", "2026-08-28"],
-      totalQuantity: focalLinks.reduce(
-        (sum, [, , quantity]) => sum + quantity,
-        0,
-      ),
-    });
+    ).toMatchObject({ projectPeriod: ["2026-06-01", "2026-08-28"], totalQuantity: 162 });
     expect(
       VISUAL_RECORD_FIXTURES["deal-digital-customer-platform"],
     ).not.toHaveProperty("organization");

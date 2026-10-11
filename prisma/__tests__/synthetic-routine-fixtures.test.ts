@@ -44,16 +44,16 @@ describe("synthetic routine fixtures", () => {
       "Check deal line items",
       "Find duplicate CRM records",
       "Enrich new contacts",
-      "Complete organization profiles",
       "Draft replies to new emails",
       "Flag messages from unknown contacts",
-      "Daily inbox summary and reply drafts",
       "Weekly sales report",
       "Log deal stage changes",
       "Research new LinkedIn connections",
       "Weekly workspace health check",
-      "Find similar prospects on LinkedIn",
       "Check service pricing and deal totals",
+      "Start onboarding when a deal is won",
+      "Task for overdue tickets",
+      "Renewal tasks 60 days ahead",
     ]);
     expect(names.every((name) => name.length <= 45)).toBe(true);
   });

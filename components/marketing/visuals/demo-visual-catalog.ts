@@ -76,7 +76,7 @@ export const DEMO_VISUAL_PEOPLE = {
   "kian-rahimi": {
     asset: "/demo/avatars/photos/kian-rahimi.png",
     name: "Kian Rahimi",
-    roles: ["contact"],
+    roles: ["member"],
   },
   "leila-chen": {
     asset: "/demo/avatars/photos/leila-chen.png",
@@ -91,7 +91,7 @@ export const DEMO_VISUAL_PEOPLE = {
   "laura-fischer": {
     asset: "/demo/avatars/photos/laura-fischer.png",
     name: "Laura Fischer",
-    roles: ["contact"],
+    roles: ["member"],
   },
   "amir-haddad": {
     asset: "/demo/avatars/photos/amir-haddad.png",
@@ -171,12 +171,12 @@ export const DEMO_VISUAL_PEOPLE = {
   "clara-neumann": {
     asset: "/demo/avatars/photos/clara-neumann.png",
     name: "Clara Neumann",
-    roles: ["messaging-participant"],
+    roles: ["member", "messaging-participant"],
   },
   "marco-silva": {
     asset: "/demo/avatars/photos/marco-silva.png",
     name: "Marco Silva",
-    roles: ["messaging-participant"],
+    roles: ["member", "messaging-participant"],
   },
 } as const satisfies Record<
   string,

@@ -1,112 +1,70 @@
 import { describe, expect, it } from "vitest";
 
-import { SEED_IDS, type SeedContext } from "../seeds/context";
-import { seedContacts } from "../seeds/contacts";
-import { seedDeals } from "../seeds/deals";
-import { seedOrganizations } from "../seeds/organizations";
-import {
-  buildSyntheticRecordHistory,
-  SYNTHETIC_RECENT_TASK_HISTORY_OFFSETS_MINUTES,
-  SYNTHETIC_RECORD_EVENT_ID_PREFIX,
-  type SyntheticHistoryEntry,
-} from "../seeds/record-history";
-import { seedServices } from "../seeds/services";
-import { seedTasks } from "../seeds/tasks";
-import {
-  SYNTHETIC_CONTACT_UPDATE_INDEXES,
-  SYNTHETIC_DEAL_UPDATE_INDEXES,
-  SYNTHETIC_ORGANIZATION_UPDATE_INDEXES,
-  SYNTHETIC_TASK_UPDATE_INDEXES,
-  SYNTHETIC_TIMELINE_SHIFT_MS,
-} from "../seeds/timeline";
+import { SEED_IDS } from "../seeds/context";
+import { NORTHWIND_HISTORY_DAYS, NORTHWIND_STORY_END_MS, northwindDataset } from "../seeds/northwind-data";
+import { buildNorthwindHistory, type NorthwindHistoryEntry } from "../seeds/northwind-history";
+import { NORTHWIND_MEMBER_IDS } from "../seeds/northwind-model";
+import { SYNTHETIC_RECORD_EVENT_ID_PREFIX } from "../seeds/record-history";
 
-const messagingSyncAt = new Date(Date.parse("2026-08-06T00:00:00.000Z") + SYNTHETIC_TIMELINE_SHIFT_MS);
-const taskActorIds = [SEED_IDS.user, SEED_IDS.sofiaRossiUser, SEED_IDS.elenaHoffmannUser];
+const DAY = 86_400_000;
+const entries = buildNorthwindHistory(SEED_IDS.company);
+const data = northwindDataset();
 
-async function history() {
-  const context = { ids: SEED_IDS } as SeedContext;
-  const organizations = await seedOrganizations(context);
-  const contacts = await seedContacts(context, organizations.organizations);
-  const services = await seedServices(context);
-  const deals = await seedDeals(context, services);
-  const tasks = await seedTasks(context);
-  const entities = { ...organizations, ...contacts, ...services, ...deals, ...tasks };
-  const entries = buildSyntheticRecordHistory({
-    entities,
-    primaryUserId: SEED_IDS.user,
-    taskActorIds,
-    messagingSyncAt,
-  });
-  return { entities, entries };
-}
-
-function entryFor(entries: SyntheticHistoryEntry[], kind: SyntheticHistoryEntry["kind"], recordId: string) {
+function entryFor(kind: NorthwindHistoryEntry["kind"], recordId: string) {
   const entry = entries.find((candidate) => candidate.kind === kind && candidate.recordId === recordId);
   if (!entry) throw new Error(`Missing ${kind} history for ${recordId}`);
   return entry;
 }
 
 describe("synthetic record history", () => {
-  it("creates every record once and updates the renamed ones afterwards", async () => {
-    const { entities, entries } = await history();
-    const records = [
-      ...entities.organizations,
-      ...entities.contacts,
-      ...entities.services,
-      ...entities.deals,
-      ...entities.tasks,
-    ];
-    const updates =
-      SYNTHETIC_ORGANIZATION_UPDATE_INDEXES.length +
-      SYNTHETIC_CONTACT_UPDATE_INDEXES.length +
-      SYNTHETIC_DEAL_UPDATE_INDEXES.length +
-      SYNTHETIC_TASK_UPDATE_INDEXES.length;
+  it("creates every record once and records its changes afterwards", () => {
+    const records =
+      data.organizations.length +
+      data.contacts.length +
+      data.services.length +
+      data.deals.length +
+      data.tasks.length +
+      data.subscriptions.length +
+      data.onboardings.length +
+      data.tickets.length +
+      data.campaigns.length +
+      data.partners.length +
+      data.openRoles.length +
+      data.candidates.length;
 
-    expect(entries.filter(({ kind }) => kind === "record.created")).toHaveLength(records.length);
-    expect(entries.filter(({ kind }) => kind === "record.updated")).toHaveLength(updates);
+    expect(entries.filter(({ kind }) => kind === "record.created")).toHaveLength(records);
     expect(new Set(entries.map(({ id }) => id))).toHaveLength(entries.length);
     expect(entries.every(({ id }) => id.startsWith(`${SYNTHETIC_RECORD_EVENT_ID_PREFIX}-`))).toBe(true);
-    expect((await history()).entries).toEqual(entries);
-
-    for (const update of entries.filter(({ kind }) => kind === "record.updated")) {
-      const creation = entryFor(entries, "record.created", update.recordId);
-      expect(update.at.getTime()).toBeGreaterThan(creation.at.getTime());
-      expect(update.previous).toHaveLength(1);
-      expect(creation.previous).toEqual(update.previous);
+    expect(buildNorthwindHistory(SEED_IDS.company)).toEqual(entries);
+    const updates = entries.filter(({ kind }) => kind === "record.updated");
+    expect(updates.length).toBeGreaterThan(300);
+    for (const update of updates) {
+      expect(update.atMs).toBeGreaterThanOrEqual(entryFor("record.created", update.recordId).atMs);
+      expect(update.previous.length).toBeGreaterThan(0);
     }
+    for (const deal of data.deals.filter(({ status }) => status !== "open"))
+      expect(entries.some((entry) => entry.kind === "record.updated" && entry.recordId === deal.id)).toBe(true);
   });
 
-  it("spreads the history across nearly a full year before the messaging window", async () => {
-    const { entries } = await history();
-    const timestamps = entries.map(({ at }) => at.getTime());
-    const reference = messagingSyncAt.getTime();
-    const coveredMonths = new Set(entries.map(({ at }) => `${at.getUTCFullYear()}-${at.getUTCMonth()}`));
+  it("spreads the history over eighteen months up to the story end", () => {
+    const timestamps = entries.map(({ atMs }) => atMs);
+    const months = new Set(entries.map(({ atMs }) => new Date(atMs).toISOString().slice(0, 7)));
 
-    expect(Math.min(...timestamps)).toBeGreaterThanOrEqual(reference - 365 * 24 * 60 * 60_000);
-    expect(Math.max(...timestamps)).toBeLessThan(reference);
-    expect(coveredMonths.size).toBeGreaterThanOrEqual(10);
+    expect(Math.min(...timestamps)).toBeGreaterThanOrEqual(
+      NORTHWIND_STORY_END_MS - (NORTHWIND_HISTORY_DAYS + 120) * DAY,
+    );
+    expect(Math.max(...timestamps)).toBeLessThan(NORTHWIND_STORY_END_MS);
+    expect(months.size).toBeGreaterThanOrEqual(18);
+    expect(entries.map(({ atMs }) => atMs)).toEqual(timestamps.toSorted((a, b) => a - b));
   });
 
-  it("rotates task actors across the team and keeps recent task changes beside the messaging window", async () => {
-    const { entities, entries } = await history();
-
-    for (const [index, task] of entities.tasks.entries())
-      expect(entryFor(entries, "record.created", task.id).actorId).toBe(taskActorIds[index % taskActorIds.length]);
-    for (const index of SYNTHETIC_TASK_UPDATE_INDEXES) {
-      expect(entryFor(entries, "record.updated", entities.tasks[index].id).actorId).toBe(
-        taskActorIds[index % taskActorIds.length],
-      );
-    }
-    for (const [index, offset] of SYNTHETIC_RECENT_TASK_HISTORY_OFFSETS_MINUTES.created) {
-      expect(entryFor(entries, "record.created", entities.tasks[index].id).at).toEqual(
-        new Date(messagingSyncAt.getTime() - offset * 60_000),
-      );
-    }
-    for (const [index, offset] of SYNTHETIC_RECENT_TASK_HISTORY_OFFSETS_MINUTES.updated) {
-      expect(entryFor(entries, "record.updated", entities.tasks[index].id).at).toEqual(
-        new Date(messagingSyncAt.getTime() - offset * 60_000),
-      );
-    }
-    expect(entries.filter(({ type }) => type !== "task").every(({ actorId }) => actorId === SEED_IDS.user)).toBe(true);
+  it("attributes every change to the member who owns the work", () => {
+    const members = new Set<string>(Object.values(NORTHWIND_MEMBER_IDS));
+    expect(entries.every(({ actorId }) => members.has(actorId))).toBe(true);
+    expect(new Set(entries.map(({ actorId }) => actorId))).toEqual(members);
+    for (const deal of data.deals)
+      expect(entryFor("record.created", deal.id).actorId).toBe(NORTHWIND_MEMBER_IDS[deal.ownerKey]);
+    for (const ticket of data.tickets)
+      expect(entryFor("record.created", ticket.id).actorId).toBe(NORTHWIND_MEMBER_IDS[ticket.assigneeKey]);
   });
 });

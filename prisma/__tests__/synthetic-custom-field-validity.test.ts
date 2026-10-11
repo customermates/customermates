@@ -1,54 +1,42 @@
-import type { PrismaClient } from "@/generated/prisma";
-
 import { describe, expect, it } from "vitest";
 
+import { presetId } from "@/features/records/crm-preset";
 import { normalizeRecordScalar } from "@/features/records/record-write.service";
-import { SEED_IDS } from "../seeds/context";
+import { seedContacts } from "../seeds/contacts";
+import { SEED_IDS, type SeedContext } from "../seeds/context";
 import { seedCustomFields } from "../seeds/custom-fields";
+import { seedDeals } from "../seeds/deals";
+import { buildNorthwindRecords } from "../seeds/northwind-records";
+import { seedOrganizations } from "../seeds/organizations";
 import { syntheticRecordModel } from "../seeds/records";
+import { seedServices } from "../seeds/services";
+import { seedTasks } from "../seeds/tasks";
 
-function context(prisma: PrismaClient) {
-  return {
-    prisma,
-    ids: SEED_IDS,
-    seedUserEmail: "max.bergmann@customermates.com",
-    sharedUserPassword: "local-demo-password",
-  };
-}
-
-function entities() {
-  const organizations = Array.from({ length: 19 }, (_, index) => ({
-    id: `organization-${index}`,
-    website: `https://company-${index}.example`,
-  }));
-  const contacts = Array.from({ length: 30 }, (_, index) => ({ id: `contact-${index}` }));
-  const deals = Array.from({ length: 10 }, (_, index) => ({ id: `deal-${index}` }));
-  const services = Array.from({ length: 43 }, (_, index) => ({ id: `service-${index}`, amount: index + 1 }));
-  const tasks = Array.from({ length: 15 }, (_, index) => ({ id: `task-${index}` }));
-
-  return {
-    organizations,
-    contacts,
-    deals,
-    services,
-    tasks,
-    // Only the singleSelect option index (deal[3] / task[5]) is read for custom-field seeding.
-    dealDefinitions: deals.map(() => ["Deal", 0, [], 0]),
-    taskDefinitions: tasks.map(() => ["Task", [], [], [], [], 0]),
-  };
-}
+const context = { ids: SEED_IDS } as SeedContext;
 
 describe("synthetic seed custom-field values", () => {
-  it("every seeded value passes its field-type validator", () => {
-    const ctx = context({} as PrismaClient);
-    const fields = seedCustomFields(ctx, entities() as never);
-    const model = syntheticRecordModel(ctx, fields);
-    expect(fields.customFields.length).toBeGreaterThan(0);
+  it("every seeded value passes its field-type validator", async () => {
+    const organizations = await seedOrganizations(context);
+    const contacts = await seedContacts(context, organizations.organizations);
+    const services = await seedServices(context);
+    const deals = await seedDeals(context, services);
+    const tasks = await seedTasks(context);
+    const fields = seedCustomFields(context, { ...organizations, ...contacts, ...services, ...deals, ...tasks });
+    const model = syntheticRecordModel(context, fields);
+    const values = [
+      ...fields.customFieldValues.map((row) => ({ fieldId: row.fieldId, value: row.value })),
+      ...buildNorthwindRecords(SEED_IDS.company).values.map((row) => ({
+        fieldId: presetId(SEED_IDS.company, row.fieldKey),
+        value: row.value,
+      })),
+    ];
     expect(fields.customFieldValues.length).toBeGreaterThan(0);
-    for (const row of fields.customFieldValues) {
-      const field = model.fields.find((field) => field.id === row.fieldId);
-      expect(field).toBeDefined();
+    expect(values.length).toBeGreaterThan(fields.customFieldValues.length);
+    for (const row of values) {
+      const field = model.fields.find((candidate) => candidate.id === row.fieldId);
+      expect(field, row.fieldId).toBeDefined();
       if (!field) throw new Error("Seed field is missing");
+      expect(["input", "snapshot"], field.label).toContain(field.behavior.kind);
       expect(() => normalizeRecordScalar(row.value, field), field.label).not.toThrow();
     }
   });
