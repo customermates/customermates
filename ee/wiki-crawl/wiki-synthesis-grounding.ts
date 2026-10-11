@@ -28,6 +28,13 @@ export const WIKI_SYNTHESIS_PAGE_INSTRUCTION = [
   "Unknown internal rules, approvals, qualification criteria, prices or handover steps become neutral questions in gaps. Never invent a policy, and label any writing or sales recommendation as a recommendation.",
 ].join(" ");
 
+export const WIKI_SYNTHESIS_BRIEF_PLAN_INSTRUCTION = [
+  "The company chose the required pages listed below during its workspace setup.",
+  "Plan every required page exactly once: copy its key and title, keep its role, and cite the one to six sources most relevant to its outline. A required page whose topic no source covers still cites the homepage and the about sources.",
+  "Plan additional pages only for the listed additional roles, each with an empty key. End with exactly one operating_guide with an empty key, citing the homepage and contact or about sources.",
+  "A competitor page describes how this company presents its own offering to buyers who compare it with that competitor: cite the sources about the company's offerings, strengths and pricing, and any source that names the competitor.",
+].join(" ");
+
 const ROLE_GUIDANCE: Record<WikiSynthesisRole, string> = {
   company_overview:
     "Explain the business, evidenced audiences, problems it solves and stated outcomes; retain qualifications on expertise and numerical claims. Do not substitute registry, imprint or contact details for a business overview.",
@@ -39,6 +46,9 @@ const ROLE_GUIDANCE: Record<WikiSynthesisRole, string> = {
     "Describe observable formality, form of address, terminology, sentence style and treatment of benefits or technical details, each backed by a brief example from customer-facing text. Label these as observations of the public website, not an approved brand policy, and keep writing recommendations separate from observations.",
   offering:
     "Describe this offering: what it is, who it is for, how it works, its scope, integrations, conditions and limitations, and any documented customer cases.",
+  faq: "Collect the questions customers ask that the sources answer, each as its own section headed by the question with a faithful answer. Questions the sources do not answer belong in gaps.",
+  competitor:
+    "This page prepares the sales assistant for buyers who compare this company with the named competitor. Describe only this company's own offerings, strengths, differentiators, conditions and limitations as its sources state them. Never state anything about the competitor from general knowledge or by inference; mention the competitor only where a cited source names it, attributed to that source. Comparison points the sources do not settle belong in gaps as neutral questions.",
   procedure:
     "Describe only the customer-facing steps the sources document, as numbered steps, one per line, and set whenToUse to a third-person trigger in the customer's words. Contact details alone are not a procedure.",
   operating_guide:

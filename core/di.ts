@@ -1035,7 +1035,12 @@ export const getWikiWebsiteCrawlService = () =>
     wikiWebsiteNetwork(),
   );
 export const getWikiWebsiteSynthesisService = () =>
-  new WikiWebsiteSynthesisService(getWikiWebsiteCrawlRepo(), getAgentUsageService(), getCreateWikiPagesInteractor());
+  new WikiWebsiteSynthesisService(
+    getWikiWebsiteCrawlRepo(),
+    getAgentUsageService(),
+    getCreateWikiPagesInteractor(),
+    getWorkspaceSetupKnowledgeBrief(),
+  );
 
 // --- Webhook ---
 
@@ -1815,6 +1820,7 @@ import { WorkspaceSetupInterviewService } from "@/ee/workspace-setup/workspace-s
 import { WorkspaceSetupBuildService } from "@/ee/workspace-setup/workspace-setup-build.service";
 import { WorkspaceSetupCleanupService } from "@/ee/workspace-setup/workspace-setup-cleanup.service";
 import { WorkspaceSetupCrawlStarter } from "@/ee/workspace-setup/workspace-setup-crawl-starter";
+import { WorkspaceSetupKnowledgeBrief } from "@/ee/workspace-setup/workspace-setup-knowledge-brief";
 import { websiteBrandFetch } from "@/ee/workspace-setup/workspace-setup-brand";
 import { StartWorkspaceSetupInteractor } from "@/ee/workspace-setup/start-workspace-setup.interactor";
 import { GetWorkspaceSetupStatusInteractor } from "@/ee/workspace-setup/get-workspace-setup-status.interactor";
@@ -1828,6 +1834,7 @@ import { RemoveWorkspaceSetupSampleDataInteractor } from "@/ee/workspace-setup/r
 import { RollBackWorkspaceSetupInteractor } from "@/ee/workspace-setup/roll-back-workspace-setup.interactor";
 
 export const getWorkspaceSetupRepo = () => new PrismaWorkspaceSetupRepo();
+export const getWorkspaceSetupKnowledgeBrief = () => new WorkspaceSetupKnowledgeBrief(getWorkspaceSetupRepo());
 export const getWorkspaceSetupModelService = () => new WorkspaceSetupModelService(getAgentUsageService());
 export const getWorkspaceSetupCrawlStarter = () =>
   new WorkspaceSetupCrawlStarter(getWikiPageRepo(), getWikiWebsiteCrawlRepo(), getBackgroundTaskService());

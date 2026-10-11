@@ -44,6 +44,7 @@ export const SETUP_PLAN_INSTRUCTION = [
   "Columns name only fields of the same list. A board layout needs groupBy on a choice field. Totals need a grouping.",
   "Dashboard widgets follow the ranked numbers the company checks every week; a count has valueField null, every other aggregation needs a number or currency field.",
   "Sample data asks for five to ten realistic records per list the company will use daily.",
+  "Knowledge Base pages: one page per kind chosen in knowledgePages, one toneOfVoice page, and one competitor page per named competitor whose title names that competitor; each lists the section headings it should cover.",
   "Write every label in the interview language and use the workspace currency.",
   "A calculation expression is a JSON string of one node: {op:field,field}, {op:number,value}, {op:add|subtract|multiply|divide,left,right}, {op:optionWeight,field}, {op:daysBetween,from,to} or {op:related,relationship,direction,field,reducer}.",
   SETUP_UNTRUSTED_HANDLING,

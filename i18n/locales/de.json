@@ -4395,6 +4395,19 @@
       "writingStep": "Wissensdatenbank-Seiten schreiben"
     },
     "generated": {
+      "address": {
+        "formal": "Kundinnen und Kunden werden gesiezt: Anrede mit „Sie“ und Nachnamen, höflich und professionell.",
+        "heading": "Anrede",
+        "informal": "Kundinnen und Kunden werden geduzt: Anrede mit „du“ und Vornamen, freundlich und direkt.",
+        "source": "Festgelegt von der Inhaberin oder dem Inhaber bei der Einrichtung des Arbeitsbereichs."
+      },
+      "competitor": {
+        "heading": "Vom Team zu ergänzen",
+        "losses": "Wo {competitor} besser passt",
+        "offer": "Was {competitor} anbietet und zu welchem Preis",
+        "response": "Wie wir reagieren, wenn Interessenten {competitor} erwähnen",
+        "wins": "Warum sich Kunden für uns statt für {competitor} entscheiden"
+      },
       "gapsHeading": "Noch zu klären",
       "pagesHeading": "Wissensdatenbank-Seiten",
       "roles": {
@@ -4403,6 +4416,12 @@
         "operating_guide": "Betriebsleitfaden",
         "sales_messaging": "Verkaufsargumente und FAQ",
         "voice_and_tone": "Sprache und Tonalität"
+      },
+      "setupPages": {
+        "competitor": "Im Vergleich: {competitor}",
+        "faq": "Häufig gestellte Fragen",
+        "processes": "Abläufe",
+        "productsPricing": "Produkte und Preise"
       },
       "sourcesHeading": "Quellen"
     },

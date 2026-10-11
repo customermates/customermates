@@ -427,6 +427,79 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(view.knowledgeBase).toMatchObject({ crawlStatus: "completed", pagesPlanned: 1, pagesWritten: 1 });
   });
 
+  it("plans the website import's pages from the confirmed plan, the chosen pages, tone and competitors", async () => {
+    const ws = await workspace();
+    const { setupId } = await planned(ws);
+    const crawl = await runWithoutTenant(() =>
+      prisma.wikiWebsiteCrawl.create({
+        data: {
+          companyId: ws.companyId,
+          userId: ws.owner.id,
+          clientRequestId: randomUUID(),
+          homepageUrl: "https://studio-example.com/",
+          registrableDomain: "studio-example.com",
+          locale: "en",
+          payer: "workspaceSetup",
+          status: "synthesizing",
+          targets: [{ url: "https://studio-example.com/", category: "about", status: "read" }],
+          sources: {
+            create: {
+              companyId: ws.companyId,
+              url: "https://studio-example.com/",
+              canonicalUrl: "https://studio-example.com/",
+              category: "about",
+              title: "Studio Example",
+              text: "Studio Example designs websites for marketing teams.",
+              contentHash: "home",
+            },
+          },
+        },
+      }),
+    );
+    const adjusted = await ws.run(() =>
+      di.getAdjustWorkspaceSetupInteractor().invoke({
+        setupId,
+        answers: {
+          knowledgePages: { format: "multipleChoice", values: ["overview"], custom: [] },
+          addressForm: { format: "singleChoice", value: "informal" },
+          competitors: { format: "orderedList", items: [{ label: "Studio North" }] },
+        },
+        followUpAnswers: [],
+      }),
+    );
+    if (!adjusted.ok) throw new Error(JSON.stringify(adjusted.error));
+    await ws.run(() => di.getWorkspaceSetupInterviewService().plan(setupId));
+    await ws.run(() => di.getWorkspaceSetupRepo().mutate(setupId, () => ({ crawlId: crawl.id })));
+    const synthesis = di.getWikiWebsiteSynthesisService();
+    expect(await ws.run(() => synthesis.plan(crawl.id))).toBe("wait");
+
+    const confirmed = await ws.run(() =>
+      di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision: adjusted.data.planRevision }),
+    );
+    expect(confirmed.ok).toBe(true);
+    state.generate.mockImplementationOnce((args: { model: { modelId: string }; prompt: string }) => {
+      expect(args.prompt).toContain('"key":"competitorA"');
+      return Promise.resolve({
+        output: { topics: [{ key: "overview", title: "x", role: "company_overview", sources: ["s1"] }] },
+        charge: { ...CHARGE, model: args.model.modelId },
+      });
+    });
+    expect(await ws.run(() => synthesis.plan(crawl.id))).toBe(4);
+    const stored = await runWithoutTenant(() =>
+      prisma.wikiWebsiteCrawl.findUniqueOrThrow({ where: { id: crawl.id }, select: { topics: true } }),
+    );
+    expect(stored.topics).toEqual([
+      expect.objectContaining({
+        title: "About the agency",
+        setupKey: "overview",
+        outline: ["What we do", "How we work"],
+      }),
+      expect.objectContaining({ title: "Voice and tone", role: "voice_and_tone", addressForm: "informal" }),
+      expect.objectContaining({ title: "Compared with Studio North", role: "competitor", competitor: "Studio North" }),
+      expect.objectContaining({ title: "Operating Guide", role: "operating_guide", addressForm: "informal" }),
+    ]);
+  });
+
   it("keeps each workspace's setup to its own tenant", async () => {
     const first = await workspace();
     const second = await workspace();

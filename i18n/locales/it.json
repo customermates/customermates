@@ -4395,6 +4395,19 @@
       "writingStep": "Scrittura delle pagine della knowledge base"
     },
     "generated": {
+      "address": {
+        "formal": "Ai clienti si dà del Lei: cognome e tono cortese e professionale.",
+        "heading": "Forma di cortesia",
+        "informal": "Ai clienti si dà del tu: nome di battesimo e tono cordiale e diretto.",
+        "source": "Impostato dal titolare durante la configurazione dello spazio di lavoro."
+      },
+      "competitor": {
+        "heading": "Da completare dal tuo team",
+        "losses": "Quando {competitor} è la scelta migliore",
+        "offer": "Cosa offre {competitor} e a quale prezzo",
+        "response": "Come rispondere quando un potenziale cliente cita {competitor}",
+        "wins": "Perché i clienti scelgono noi invece di {competitor}"
+      },
       "gapsHeading": "Aspetti da confermare",
       "pagesHeading": "Pagine della knowledge base",
       "roles": {
@@ -4403,6 +4416,12 @@
         "operating_guide": "Guida operativa",
         "sales_messaging": "Messaggi di vendita e FAQ",
         "voice_and_tone": "Voce e tono"
+      },
+      "setupPages": {
+        "competitor": "Confronto con {competitor}",
+        "faq": "Domande frequenti",
+        "processes": "Processi",
+        "productsPricing": "Prodotti e prezzi"
       },
       "sourcesHeading": "Fonti"
     },

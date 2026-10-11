@@ -4395,6 +4395,19 @@
       "writingStep": "Rédaction des pages de la base de connaissances"
     },
     "generated": {
+      "address": {
+        "formal": "Les clients sont vouvoyés : « vous » et nom de famille, sur un ton poli et professionnel.",
+        "heading": "Forme d’adresse",
+        "informal": "Les clients sont tutoyés : « tu » et prénom, sur un ton amical et direct.",
+        "source": "Défini par le propriétaire lors de la configuration de l’espace de travail."
+      },
+      "competitor": {
+        "heading": "À compléter par votre équipe",
+        "losses": "Quand {competitor} convient mieux",
+        "offer": "Ce que propose {competitor}, et à quel prix",
+        "response": "Comment répondre quand un prospect mentionne {competitor}",
+        "wins": "Pourquoi les clients nous choisissent plutôt que {competitor}"
+      },
       "gapsHeading": "Points à confirmer",
       "pagesHeading": "Pages de la base de connaissances",
       "roles": {
@@ -4403,6 +4416,12 @@
         "operating_guide": "Guide opérationnel",
         "sales_messaging": "Argumentaire commercial et FAQ",
         "voice_and_tone": "Ton et style"
+      },
+      "setupPages": {
+        "competitor": "Comparaison avec {competitor}",
+        "faq": "Questions fréquentes",
+        "processes": "Processus",
+        "productsPricing": "Produits et tarifs"
       },
       "sourcesHeading": "Sources"
     },

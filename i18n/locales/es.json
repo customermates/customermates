@@ -4395,6 +4395,19 @@
       "writingStep": "Redactando páginas de la base de conocimiento"
     },
     "generated": {
+      "address": {
+        "formal": "A los clientes se les trata de usted: apellido y tono cortés y profesional.",
+        "heading": "Tratamiento",
+        "informal": "A los clientes se les tutea: nombre de pila y tono cercano y directo.",
+        "source": "Lo definió el propietario durante la configuración del espacio de trabajo."
+      },
+      "competitor": {
+        "heading": "Para completar por tu equipo",
+        "losses": "Cuándo {competitor} encaja mejor",
+        "offer": "Qué ofrece {competitor} y a qué precio",
+        "response": "Cómo responder cuando un cliente potencial menciona {competitor}",
+        "wins": "Por qué los clientes nos eligen a nosotros en lugar de {competitor}"
+      },
       "gapsHeading": "Aspectos por confirmar",
       "pagesHeading": "Páginas de la base de conocimiento",
       "roles": {
@@ -4403,6 +4416,12 @@
         "operating_guide": "Guía operativa",
         "sales_messaging": "Mensajes de venta y preguntas frecuentes",
         "voice_and_tone": "Voz y tono"
+      },
+      "setupPages": {
+        "competitor": "Comparación con {competitor}",
+        "faq": "Preguntas frecuentes",
+        "processes": "Procesos",
+        "productsPricing": "Productos y precios"
       },
       "sourcesHeading": "Fuentes"
     },

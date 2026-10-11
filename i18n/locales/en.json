@@ -4395,6 +4395,19 @@
       "writingStep": "Writing Knowledge Base pages"
     },
     "generated": {
+      "address": {
+        "formal": "Address customers formally: use their surname and a polite, professional tone.",
+        "heading": "Form of address",
+        "informal": "Address customers informally: use their first name and a friendly, direct tone.",
+        "source": "The owner set this during the workspace setup."
+      },
+      "competitor": {
+        "heading": "To complete by your team",
+        "losses": "Where {competitor} is the better fit",
+        "offer": "What {competitor} offers, and at what price",
+        "response": "How we respond when a prospect mentions {competitor}",
+        "wins": "Where customers choose us over {competitor}"
+      },
       "gapsHeading": "Gaps to confirm",
       "pagesHeading": "Knowledge Base pages",
       "roles": {
@@ -4403,6 +4416,12 @@
         "operating_guide": "Operating Guide",
         "sales_messaging": "Sales messaging and FAQs",
         "voice_and_tone": "Voice and tone"
+      },
+      "setupPages": {
+        "competitor": "Compared with {competitor}",
+        "faq": "Frequently asked questions",
+        "processes": "Processes",
+        "productsPricing": "Products and pricing"
       },
       "sourcesHeading": "Sources"
     },
