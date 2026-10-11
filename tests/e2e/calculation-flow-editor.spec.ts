@@ -258,6 +258,17 @@ test("reads each step as one line and inserts steps from the connectors", async 
   expect(errors).toEqual([]);
 });
 
+/**
+ * With a busy server the previous Configure page can still be mounted while the next one renders. Wait until exactly
+ * one Configure page and list pane remain, so the checks below read the current page.
+ */
+async function expectSingleConfigurePage(page: Page, typeId: string) {
+  await expect(page).toHaveURL(new RegExp(`[?&]typeId=${typeId}`));
+  await expect(page.locator("[data-configure-page]")).toHaveCount(1);
+  await expect(page.locator("[data-configure-list-pane]")).toHaveCount(1);
+  await expect(page.locator("[data-configure-list-pane]")).toBeVisible();
+}
+
 async function expectAligned(node: Locator) {
   const offset = await node.evaluate((element) => {
     const icon = element.querySelector("svg")?.getBoundingClientRect();
@@ -280,12 +291,16 @@ test("lines up formula, lookup and rollup flows the same way", async ({ page, co
     for (const example of flows) {
       await page.setViewportSize({ width, height: width > 400 ? 900 : 844 });
       await page.goto("about:blank");
-      await openConfigure(page, presetId(companyId, example.list));
+      const typeId = presetId(companyId, example.list);
+      await page.goto(`/en/configure?typeId=${typeId}`);
+      await expectSingleConfigurePage(page, typeId);
       if (example.field) {
         await openConfigureRow(page, "Fields", example.field);
+        await expectSingleConfigurePage(page, typeId);
         await openDrawerTab(page, "Calculation");
       } else {
         await addFromConfigure(page, "Calculated field");
+        await expectSingleConfigurePage(page, typeId);
         await chooseValueSource(page, "Counted or totalled from linked records");
       }
       const flow = calculationFlow(page);
