@@ -38,32 +38,32 @@ const ItemActionsContext = createContext<ItemActionsValue | null>(null);
 
 const RegisterContext = createContext<((menu: ItemMenu | null) => void) | null>(null);
 
-const COARSE_POINTER = "(pointer: coarse)";
+const TOUCH_INPUT = "not all and (hover: hover) and (pointer: fine)";
 
 const KEYBOARD_ECHO_MS = 500;
 
 const LONG_PRESS_CLICK_MS = 1000;
 
 export const ITEM_ACTIONS_TRIGGER_CLASS =
-  "opacity-0 transition-opacity focus-visible:opacity-100 data-[state=open]:opacity-100 pointer-fine:group-hover/item-actions:opacity-100 pointer-fine:group-focus-within/item-actions:opacity-100 pointer-coarse:not-focus-visible:not-data-[state=open]:sr-only";
+  "opacity-0 transition-opacity focus-visible:opacity-100 data-[state=open]:opacity-100 fine-hover:group-hover/item-actions:opacity-100 fine-hover:group-focus-within/item-actions:opacity-100 touch-input:not-focus-visible:not-data-[state=open]:sr-only";
 
 const DEFAULT_TRIGGER_CLASS =
   "inline-flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring/70 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent [&_svg]:size-4";
 
-function coarseQuery() {
-  return typeof window.matchMedia === "function" ? window.matchMedia(COARSE_POINTER) : null;
+function touchQuery() {
+  return typeof window.matchMedia === "function" ? window.matchMedia(TOUCH_INPUT) : null;
 }
 
-function subscribeCoarsePointer(onChange: () => void) {
-  const query = coarseQuery();
+function subscribeTouchInput(onChange: () => void) {
+  const query = touchQuery();
   query?.addEventListener("change", onChange);
   return () => query?.removeEventListener("change", onChange);
 }
 
-function useCoarsePointer() {
+function useTouchInput() {
   return useSyncExternalStore(
-    subscribeCoarsePointer,
-    () => coarseQuery()?.matches ?? false,
+    subscribeTouchInput,
+    () => touchQuery()?.matches ?? false,
     () => false,
   );
 }
@@ -142,7 +142,7 @@ export function ItemActions({
   const keyboardOpenedAt = useRef(0);
   const pressOpenedAt = useRef(0);
   const pressing = useRef(false);
-  const coarse = useCoarsePointer();
+  const touch = useTouchInput();
   const register = useCallback((next: ItemMenu | null) => {
     registered.current = next;
     const present = next !== null;
@@ -151,7 +151,7 @@ export function ItemActions({
     setHasRegistered(present);
   }, []);
   const own = hasContent(menu) ? { label, menu, onCloseAutoFocus } : null;
-  const enabled = (own !== null || hasRegistered) && (longPress || !coarse);
+  const enabled = (own !== null || hasRegistered) && (longPress || !touch);
   const current = own ?? shown;
 
   const stopForEditable = (event: SyntheticEvent) => {
@@ -171,7 +171,7 @@ export function ItemActions({
           <ContextMenuTrigger
             asChild
             className={cn(
-              "group/item-actions pointer-coarse:select-none pointer-coarse:[&_:is(input,textarea,[contenteditable=true])]:select-text",
+              "group/item-actions touch-input:select-none touch-input:[&_:is(input,textarea,[contenteditable=true])]:select-text",
               className,
             )}
             data-disabled={undefined}
@@ -187,7 +187,11 @@ export function ItemActions({
             }}
             onContextMenu={(event) => {
               onContextMenu?.(event);
-              if (event.nativeEvent.isTrusted && Date.now() - keyboardOpenedAt.current < KEYBOARD_ECHO_MS)
+              if (
+                event.nativeEvent.isTrusted &&
+                event.button !== 2 &&
+                Date.now() - keyboardOpenedAt.current < KEYBOARD_ECHO_MS
+              )
                 event.preventDefault();
             }}
             onContextMenuCapture={(event) => {
@@ -230,7 +234,15 @@ export function ItemActions({
             {children}
           </ContextMenuTrigger>
 
-          <ContextMenuContent className={contentClassName} onCloseAutoFocus={current?.onCloseAutoFocus}>
+          <ContextMenuContent
+            className={contentClassName}
+            onCloseAutoFocus={(event) => {
+              current?.onCloseAutoFocus?.(event);
+              const active = document.activeElement;
+              if (!event.defaultPrevented && active && active !== document.body && active.isConnected)
+                event.preventDefault();
+            }}
+          >
             <ItemMenuItems href={href} menu={current?.menu} />
           </ContextMenuContent>
         </ContextMenu>

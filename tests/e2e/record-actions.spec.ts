@@ -166,6 +166,7 @@ test("record tables edit cells in place, open linked chips and offer row actions
   await expect(organization).not.toBeVisible();
 
   const more = row.getByRole("button", { name: `More actions for ${name}`, exact: true });
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
   await page.mouse.move(0, 0);
   await expect(more).toHaveCSS("opacity", "0");
   const trailing = await row.locator("td").last().boundingBox();

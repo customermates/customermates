@@ -27,6 +27,11 @@
   size-adjust: 108.13%;
 }
 
+/* Item menus (components/ui/item-actions.tsx) split input by capability, not width: a fine pointer that can hover
+   reveals the trigger on hover; every other input (touch, pens, unknown) uses long press. */
+@custom-variant fine-hover (@media (hover: hover) and (pointer: fine));
+@custom-variant touch-input (@media not all and (hover: hover) and (pointer: fine));
+
 /* The noindex guide can invert one local specimen without changing the public page theme. */
 @custom-variant dark (
   &:is(.dark *):not(:is([data-marketing-tone="inverse"], [data-marketing-tone="inverse"] *)),

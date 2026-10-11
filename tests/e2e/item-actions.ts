@@ -7,6 +7,8 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
  * holds a touch), so on touch projects the helpers dispatch the `contextmenu` event the long press would end in.
  * The shared component handles that event exactly like a right-click, so both paths open the identical menu.
  */
+export const FINE_HOVER = "(hover: hover) and (pointer: fine)";
+
 export function usesTouch() {
   const use = test.info().project.use;
   return Boolean(use.hasTouch || use.isMobile);
@@ -19,6 +21,7 @@ export function itemArea(trigger: Locator) {
 export async function openItemMenu(page: Page, trigger: Locator) {
   const area = itemArea(trigger);
   const menu = page.getByRole("menu");
+  await expect(menu).toHaveCount(0);
   await expect(async () => {
     if (!(await menu.isVisible())) {
       if (usesTouch()) await area.dispatchEvent("contextmenu");
@@ -33,6 +36,7 @@ export async function openItemMenu(page: Page, trigger: Locator) {
 }
 
 export async function openItemContextMenu(page: Page, area: Locator) {
+  await expect(page.getByRole("menu")).toHaveCount(0);
   if (usesTouch()) await area.dispatchEvent("contextmenu");
   else await area.click({ button: "right", position: { x: 8, y: 8 } });
   const menu = page.getByRole("menu");

@@ -11,7 +11,7 @@ const ELLIPSIS_ICON_IMPORT =
 
 const WIDTH_BASED_HIDING = /\b(?:sm|md|lg|xl|2xl):opacity-0\b/;
 
-const POINTER_VISIBILITY = /\b(?:any-)?pointer-(?:fine|coarse):/;
+const POINTER_VISIBILITY = /\b(?:any-)?pointer-(?:fine|coarse):|\b(?:fine-hover|touch-input):/;
 
 const sources = ["app", "components"]
   .flatMap((folder) => walkFiles(join(REPO_ROOT, folder), (path) => path.endsWith(".tsx")))
@@ -49,10 +49,10 @@ describe("item action menus (H9: one pattern decided by input capability)", () =
   it("decides trigger visibility once, by hover, focus and pointer capability", () => {
     const shared = readSourceText(join(REPO_ROOT, SHARED_COMPONENT));
 
-    expect(shared).toContain("pointer-fine:group-hover/item-actions:opacity-100");
-    expect(shared).toContain("pointer-fine:group-focus-within/item-actions:opacity-100");
+    expect(shared).toContain("fine-hover:group-hover/item-actions:opacity-100");
+    expect(shared).toContain("fine-hover:group-focus-within/item-actions:opacity-100");
     expect(shared).toContain("focus-visible:opacity-100");
-    expect(shared).toContain("pointer-coarse:not-focus-visible:not-data-[state=open]:sr-only");
+    expect(shared).toContain("touch-input:not-focus-visible:not-data-[state=open]:sr-only");
     expect(shared).toContain("ContextMenuTrigger");
     expect(shared).toMatch(/event\.key === "ContextMenu"/);
     expect(shared).toMatch(/event\.shiftKey && event\.key === "F10"/);

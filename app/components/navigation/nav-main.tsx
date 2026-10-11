@@ -48,7 +48,7 @@ type NavMainParentProps = {
 };
 
 export const NAV_ITEM_ACTION_PADDING =
-  "pointer-fine:group-focus-within/item-actions:pr-8 pointer-fine:group-hover/item-actions:pr-8";
+  "fine-hover:group-focus-within/item-actions:pr-8 fine-hover:group-hover/item-actions:pr-8";
 
 export function NavBadge({ count }: { count: number }) {
   if (count <= 0) return null;

@@ -381,7 +381,7 @@ const KanbanColumn = observer(function KanbanColumn({
                 <TooltipTrigger asChild>
                   <Button
                     aria-label={addLabel}
-                    className="text-muted-foreground pointer-fine:opacity-0 pointer-fine:transition-opacity pointer-fine:group-hover/header:opacity-100 pointer-fine:focus-visible:opacity-100"
+                    className="text-muted-foreground fine-hover:opacity-0 fine-hover:transition-opacity fine-hover:group-hover/header:opacity-100 fine-hover:focus-visible:opacity-100"
                     size="icon-xs"
                     variant="ghost"
                     onClick={(event) => onCreate(event.currentTarget)}

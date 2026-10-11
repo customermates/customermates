@@ -6,6 +6,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { expect, test } from "./fixtures";
 import {
   expectTriggerVisuallyHidden,
+  FINE_HOVER,
   itemMenuLabels,
   openItemContextMenu,
   openItemMenu,
@@ -90,7 +91,13 @@ test.describe("item menus on touch", () => {
     companyId,
   }) => {
     const errors = collectErrors(page);
-    expect(await page.evaluate(() => window.matchMedia("(pointer: coarse)").matches)).toBe(true);
+    await page.goto("/en/dashboard");
+    const media = await page.evaluate(
+      (queries) => Object.fromEntries(queries.map((query) => [query, window.matchMedia(query).matches])),
+      [FINE_HOVER, "(pointer: coarse)", "(hover: none)", "(any-pointer: coarse)"],
+    );
+    test.info().annotations.push({ type: "media", description: JSON.stringify(media) });
+    expect(media[FINE_HOVER]).toBe(false);
 
     const name = await createRecord(page, companyId);
     const row = recordItem(page, name);
