@@ -3723,6 +3723,8 @@
     "measure": "Medida",
     "noRecordsInPeriod": "Sin registros",
     "notes": "Sobre estas cifras",
+    "numberContextAverage": "{count, number} {label} · media {average}",
+    "numberRecords": "{count, plural, one {registro} other {registros}}",
     "overall": "Total: {value}",
     "previewFailed": "No se pudo cargar la vista previa. Inténtalo de nuevo.",
     "quarterLabel": "T{quarter} {year}",
@@ -3733,7 +3735,6 @@
       "share": "Parte",
       "value": "Valor"
     },
-    "recordCount": "{count, plural, one {# registro} other {# registros}}",
     "relatedAny": "Coincide al menos un registro vinculado accesible",
     "relatedNone": "No coincide ningún registro vinculado accesible",
     "search": "Buscar registros",

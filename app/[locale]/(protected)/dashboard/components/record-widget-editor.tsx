@@ -206,6 +206,7 @@ export const RecordWidgetEditor = observer(
                 decimalPlaces={shownPreview.decimalPlaces}
                 displayOptions={toJS(form.displayOptions)}
                 groupOptions={shownPreview.groupOptions}
+                listLabels={model?.types.find((type) => type.id === measure.source.typeId)}
                 measure={measure}
                 name={form.name.trim() || t("Dashboard.widgetEditor.preview.untitled")}
                 status="ready"

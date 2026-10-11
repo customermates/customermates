@@ -11,6 +11,7 @@ import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 const chartMocks = vi.hoisted(() => ({ calls: [] as Array<Record<string, unknown>>, locale: "en-US" }));
 
 vi.mock("next-intl", () => ({
+  useLocale: () => "en",
   useTranslations: () => (key: string, values?: Record<string, unknown>) =>
     values ? `${key}${JSON.stringify(values)}` : key,
 }));
@@ -97,7 +98,7 @@ afterEach(() => {
 });
 
 describe("record widget display types", () => {
-  it("shows one exact number with currency, zero and an em dash for missing values", () => {
+  it("shows one number with currency, zero and an em dash for missing values", () => {
     const number = { displayType: DisplayType.number };
     const view = render({
       displayOptions: number,
@@ -106,11 +107,12 @@ describe("record widget display types", () => {
       name: "Open pipeline",
     });
     expect(view.querySelector("h2")?.textContent).toBe("Open pipeline");
-    expect(view.querySelector('[data-slot="widget-number"]')?.textContent).toBe(
-      '€12,345,678,901,234,567,890.12RecordWidgets.recordCount{"count":3}',
-    );
+    const headline = view.querySelector('[data-slot="widget-number-value"]');
+    expect(headline?.textContent).toBe("€12,345,678.9T");
+    expect(headline?.getAttribute("aria-label")).toBe("€12,345,678,901,234,567,890.12");
     render({ displayOptions: number, measure: measure(null), data: result({ count: 0, result: euro("0") }, []) });
     expect(view.querySelector('[data-slot="widget-number"] p')?.textContent).toBe("€0.00");
+    expect(view.querySelector('[data-slot="widget-number-value"]')?.hasAttribute("aria-label")).toBe(false);
     render({
       displayOptions: number,
       measure: measure(null, "count"),
@@ -130,6 +132,43 @@ describe("record widget display types", () => {
     });
     expect(view.querySelector('[data-slot="widget-number"] p')?.textContent).toBe("RecordModel.restricted");
     expect(chartMocks.calls).toHaveLength(0);
+  });
+
+  it("puts the list, its count and the average of summed values below the number", () => {
+    const number = { displayType: DisplayType.number };
+    const deals = { label: "Deal", pluralLabel: "Open Deals" };
+    const context = (view: HTMLElement) => view.querySelector('[data-slot="widget-number-context"]')?.textContent;
+    const view = render({
+      displayOptions: number,
+      measure: measure(null),
+      listLabels: deals,
+      data: result({ count: 43, result: euro("2494000") }, []),
+    });
+    expect(view.querySelector('[data-slot="widget-number-value"]')?.textContent).toBe("€2.5M");
+    expect(context(view)).toBe('RecordWidgets.numberContextAverage{"count":43,"label":"open deals","average":"€58K"}');
+    render({
+      displayOptions: number,
+      measure: measure(null),
+      listLabels: deals,
+      data: result({ count: 1, result: euro("950.5") }, []),
+    });
+    expect(view.querySelector('[data-slot="widget-number-value"]')?.textContent).toBe("€950.50");
+    expect(context(view)).toBe('RecordWidgets.numberContextAverage{"count":1,"label":"deal","average":"€950.50"}');
+    render({
+      displayOptions: number,
+      measure: measure(null, "count"),
+      listLabels: deals,
+      data: result({ count: 12345, result: plain("12345") }, []),
+    });
+    expect(view.querySelector('[data-slot="widget-number-value"]')?.textContent).toBe("12,345");
+    expect(context(view)).toBe("12,345 open deals");
+    render({
+      displayOptions: number,
+      measure: measure(null, "average"),
+      data: result({ count: 2, result: euro("80000") }, []),
+    });
+    expect(view.querySelector('[data-slot="widget-number-value"]')?.textContent).toBe("€80K");
+    expect(context(view)).toBe('2 RecordWidgets.numberRecords{"count":2}');
   });
 
   it("ranks groups by value with shares of the total and summarizes truncated groups", () => {
@@ -386,14 +425,15 @@ describe("record widget display types", () => {
       measure: measure(null, "average"),
       data: result({ count: 23, result: average }, []),
     });
-    expect(view.querySelector('[data-slot="widget-number"] p')?.textContent).toBe("€71,346.05");
+    expect(view.querySelector('[data-slot="widget-number"] p')?.textContent).toBe("€71.3K");
+    expect(view.querySelector('[data-slot="widget-number-value"]')?.getAttribute("aria-label")).toBe("€71,346.05");
     render({
       displayOptions: number,
       measure: measure(null, "average"),
       decimalPlaces: 0,
       data: result({ count: 23, result: average }, []),
     });
-    expect(view.querySelector('[data-slot="widget-number"] p')?.textContent).toBe("€71,346");
+    expect(view.querySelector('[data-slot="widget-number-value"]')?.getAttribute("aria-label")).toBe("€71,346");
     render({
       displayOptions: number,
       measure: measure(null, "average"),
