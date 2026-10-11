@@ -72,18 +72,15 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
         if (!applied.ok) throw new RecordWriteError(CustomErrorCode.trashItemNotFound, "not_found");
         return applied.data.status === "pending" ? { operationId: applied.data.operationId } : null;
       });
-      if (restored.ok && restored.value && "operationId" in restored.value) {
+      const value = restored.ok ? restored.value : null;
+      if (value && "operationId" in value) {
         // A workspace with more records than a synchronous change may touch restores the definition through the
         // configuration's background operation, which also clears the Trash item once it publishes.
-        result.operationId = restored.value.operationId;
+        result.operationId = value.operationId;
         break;
       }
-      if (restored.ok && !restored.value) result.restoredItemIds.push(item.id);
-      else {
-        result.blocked.push(
-          restored.ok && restored.value ? restored.value : { itemId: item.id, reason: "notFound", typeId: item.typeId },
-        );
-      }
+      if (restored.ok && !value) result.restoredItemIds.push(item.id);
+      else result.blocked.push(value ?? { itemId: item.id, reason: "notFound", typeId: item.typeId });
     }
     return result;
   }

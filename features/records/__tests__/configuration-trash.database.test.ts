@@ -232,7 +232,9 @@ describeDatabase("configuration trash", () => {
     const deleted = await f.as(async () =>
       f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "field", id: fieldId } }])),
     );
-    if (!deleted.ok || !deleted.data.trashBatchId) throw new Error(JSON.stringify(deleted));
+    if (!deleted.ok || deleted.data.status !== "completed" || !deleted.data.trashBatchId)
+      throw new Error(JSON.stringify(deleted));
+    const { trashBatchId } = deleted.data;
     const ids = Array.from({ length: 2000 }, () => randomUUID());
     await runWithoutTenant(() =>
       runInTransaction(async () => {
@@ -250,8 +252,9 @@ describeDatabase("configuration trash", () => {
         });
       }),
     );
-    const restored = await f.as(() => f.trash.restore.invoke({ batchId: deleted.data.trashBatchId } as never));
+    const restored = await f.as(() => f.trash.restore.invoke({ batchId: trashBatchId } as never));
     if (!restored.ok || restored.data.status !== "pending") throw new Error(JSON.stringify(restored));
+    const { operationId } = restored.data;
     expect(await f.items()).toHaveLength(1);
     const worker = new RecordOperationService(
       new PrismaRecordRepo(),
@@ -259,7 +262,7 @@ describeDatabase("configuration trash", () => {
       new RecordConfigurationService(new PrismaRecordRepo()),
       noWebhooks,
     );
-    for (let done = false; !done; ) done = (await f.as(() => worker.advance(restored.data.operationId))).done;
+    for (let done = false; !done; ) done = (await f.as(() => worker.advance(operationId))).done;
     expect(await f.items()).toEqual([]);
     const model = await f.as(() => new PrismaRecordRepo().getModel());
     expect(model.fields.find((field) => field.id === fieldId)?.archived).toBe(false);
