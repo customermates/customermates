@@ -51,7 +51,7 @@ vi.mock("../setup/step-setup", () => ({
   StepSetup: () => createElement("div", { "data-step": "setup", "data-stage": testContext.stage }),
   useHydratedSetupStore: (status: unknown) => {
     testContext.hydrated.push(status);
-    return { stage: testContext.stage };
+    return { store: { stage: testContext.stage }, ready: true };
   },
 }));
 

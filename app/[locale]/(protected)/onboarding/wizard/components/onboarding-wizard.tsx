@@ -25,6 +25,7 @@ import { StepProfile } from "./step-profile";
 import { StepAi, StepAiFooter } from "./step-ai";
 import { StepInvite } from "./step-invite";
 import { StepSetup, useHydratedSetupStore } from "./setup/step-setup";
+import { resolveSetupStage } from "./setup/setup-interview-state";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 
 type Props = {
@@ -81,7 +82,7 @@ const OnboardingWizardContent = observer(
     const setupAvailable = profileCompleted
       ? Boolean(setupStatus?.available) && !isInvited
       : appMode === "cloud" && !isInvited;
-    const setupStore = useHydratedSetupStore(setupStatus ?? UNAVAILABLE_SETUP);
+    const { store: setupStore, ready: setupReady } = useHydratedSetupStore(setupStatus ?? UNAVAILABLE_SETUP);
     const { steps, resumeStepIndex } = resolveWizardResume({
       profileCompleted,
       isInvited,
@@ -100,7 +101,7 @@ const OnboardingWizardContent = observer(
     const { isSubmitting, next, back } = onboardingWizardStore;
     const headingRef = useRef<HTMLHeadingElement>(null);
     const previousStep = useRef(currentStep);
-    const setupStage = setupStore.stage;
+    const setupStage = setupReady ? setupStore.stage : resolveSetupStage(setupStatus ?? UNAVAILABLE_SETUP);
 
     useEffect(() => {
       onboardingWizardStore.initialize(resumeStepIndex, userId, savedProgress, setupAvailable);
@@ -119,7 +120,8 @@ const OnboardingWizardContent = observer(
       previousStep.current = currentStep;
     }, [currentStep]);
 
-    if (currentStep === "setup" && setupStage === "build") return <StepSetup />;
+    if (currentStep === "setup" && setupStage === "build")
+      return setupReady ? <StepSetup /> : <div aria-busy="true" className="min-h-36 w-full" />;
 
     const renderStep = () => {
       switch (currentStep) {
@@ -138,7 +140,7 @@ const OnboardingWizardContent = observer(
         case "ai":
           return isStepSynchronized ? <StepAi /> : <div aria-busy="true" className="min-h-36" />;
         case "setup":
-          return <StepSetup />;
+          return setupReady ? <StepSetup /> : <div aria-busy="true" className="min-h-36" />;
         case "invite":
           return <StepInvite />;
       }

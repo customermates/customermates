@@ -5,7 +5,7 @@ import type { WorkspaceSetupStore } from "./workspace-setup.store";
 
 import { Loader2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useEffect, useMemo } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { useLocale } from "next-intl";
 
 import { isClientTransportError } from "@/core/errors/client-transport-error";
@@ -42,12 +42,14 @@ export function useHydratedSetupStore(initialStatus: WorkspaceSetupStatusView) {
   const { workspaceSetupStore: store } = useRootStore();
   const locale = useLocale();
   const signature = JSON.stringify(initialStatus);
-  useMemo(() => {
+  const [hydratedSignature, setHydratedSignature] = useState<string | null>(null);
+  useLayoutEffect(() => {
     store.setLocale(locale);
     store.hydrate(JSON.parse(signature) as WorkspaceSetupStatusView);
+    setHydratedSignature(signature);
   }, [locale, signature, store]);
   useSetupPolling(store);
-  return store;
+  return { store, ready: hydratedSignature === signature };
 }
 
 export const StepSetup = observer(function StepSetup() {
@@ -58,7 +60,7 @@ export const StepSetup = observer(function StepSetup() {
   };
 
   useEffect(() => {
-    if (stage === "unavailable" || stage === "done") runUserAction(wizard.completeSetupStep);
+    if (stage === "done") runUserAction(wizard.completeSetupStep);
   }, [stage, wizard]);
 
   switch (stage) {

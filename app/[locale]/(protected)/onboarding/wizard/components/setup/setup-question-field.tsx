@@ -52,9 +52,9 @@ function SingleChoiceField({ descriptor, value, onChange, disabled }: FieldProps
         disabled={disabled}
         id={`setup-${descriptor.id}`}
         label={null}
-        value={value?.value}
+        value={value?.value.toLowerCase()}
         onValueChange={(next) => {
-          if (typeof next === "string" && next) select(next);
+          if (typeof next === "string" && next) select(next.toUpperCase());
         }}
       />
     );
@@ -140,11 +140,7 @@ function OrderedListField({ descriptor, value, onChange, disabled }: FieldProps<
   return (
     <div className="flex flex-col gap-2">
       {descriptor.winChance && items.length > 0 ? (
-        <div className="flex items-center gap-2 pr-[6.5rem] text-xs text-muted-foreground">
-          <span className="w-5" />
-
-          <span className="flex-1">{descriptor.label}</span>
-
+        <div aria-hidden className="flex justify-end pr-[5.75rem] text-xs text-muted-foreground">
           <span className="w-20 text-right">{t("WorkspaceSetup.actions.winChance")}</span>
         </div>
       ) : null}
@@ -198,6 +194,8 @@ function OrderedListField({ descriptor, value, onChange, disabled }: FieldProps<
 
             <div className="flex shrink-0 items-center">
               <IconButton
+                fieldAction
+                className="size-7"
                 disabled={disabled || index === 0}
                 icon={ArrowUp}
                 label={t("WorkspaceSetup.interview.moveUp")}
@@ -205,6 +203,8 @@ function OrderedListField({ descriptor, value, onChange, disabled }: FieldProps<
               />
 
               <IconButton
+                fieldAction
+                className="size-7"
                 disabled={disabled || index === items.length - 1}
                 icon={ArrowDown}
                 label={t("WorkspaceSetup.interview.moveDown")}
@@ -212,6 +212,8 @@ function OrderedListField({ descriptor, value, onChange, disabled }: FieldProps<
               />
 
               <IconButton
+                fieldAction
+                className="size-7"
                 disabled={disabled}
                 icon={X}
                 label={t("Common.actions.remove")}
@@ -315,7 +317,7 @@ function RangeField({
       descriptor.single || nextMax.trim() === "" || Number.isNaN(Number(nextMax)) ? null : clamp(Number(nextMax));
     onChange({ format: "range", min, max: max !== null && max < min ? min : max });
   };
-  const unit = descriptor.unit === "currency" ? (currency ?? "") : t("WorkspaceSetup.interview.days");
+  const unit = descriptor.unit === "currency" ? (currency?.toUpperCase() ?? "") : t("WorkspaceSetup.interview.days");
 
   return (
     <div className="flex flex-wrap items-center gap-2">

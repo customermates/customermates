@@ -124,7 +124,7 @@ export function PipelineBoard({
         return (
           <div
             key={`${stage.label}-${index}`}
-            className="flex w-36 shrink-0 animate-page-result-in flex-col gap-2 rounded-lg bg-muted/60 p-2 motion-reduce:animate-none"
+            className="flex min-w-[6.5rem] flex-1 animate-page-result-in flex-col gap-2 rounded-lg bg-muted/60 p-2 motion-reduce:animate-none"
           >
             <div className="flex items-center justify-between gap-1">
               <AppChip variant={stage.color ?? "secondary"}>{stage.label}</AppChip>
@@ -173,10 +173,10 @@ export function DashboardSketch({ tiles, pulse = false }: { tiles: DashboardTile
               TILE_SPANS[tile.size ?? (numeric ? "small" : "medium")] ?? "col-span-1",
             )}
           >
-            <div className="flex items-center gap-1.5 text-xs font-medium">
-              <Icon aria-hidden className="size-3.5 shrink-0 text-muted-foreground" />
+            <div className="flex items-start gap-1.5 text-xs font-medium">
+              <Icon aria-hidden className="mt-px size-3.5 shrink-0 text-muted-foreground" />
 
-              <span className="truncate">{tile.title}</span>
+              <span className="line-clamp-2 min-w-0 break-words">{tile.title}</span>
             </div>
 
             {numeric ? (
@@ -202,10 +202,14 @@ export function DashboardSketch({ tiles, pulse = false }: { tiles: DashboardTile
   );
 }
 
+const VISIBLE_PAGE_TITLES = 8;
+
 export function KnowledgePageList({ titles }: { titles: string[] }) {
+  const t = useTranslations();
+  const hidden = titles.length - VISIBLE_PAGE_TITLES;
   return (
     <ul className="grid gap-1.5 sm:grid-cols-2">
-      {titles.map((title) => (
+      {titles.slice(0, VISIBLE_PAGE_TITLES).map((title) => (
         <li
           key={title}
           className="flex min-w-0 animate-page-result-in items-center gap-2 rounded-md bg-muted/60 px-2.5 py-1.5 text-xs motion-reduce:animate-none"
@@ -215,6 +219,12 @@ export function KnowledgePageList({ titles }: { titles: string[] }) {
           <span className="truncate">{title}</span>
         </li>
       ))}
+
+      {hidden > 0 ? (
+        <li className="flex items-center px-2.5 py-1.5 text-xs text-muted-foreground">
+          {t("WorkspaceSetup.plan.morePages", { count: hidden })}
+        </li>
+      ) : null}
     </ul>
   );
 }

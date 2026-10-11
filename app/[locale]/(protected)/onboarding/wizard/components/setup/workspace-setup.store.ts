@@ -5,7 +5,7 @@ import type { WorkspaceSetupStatusView, WorkspaceSetupView } from "@/ee/workspac
 import type { WorkspaceSetupPhase } from "@/ee/workspace-setup/workspace-setup.schema";
 import type { SetupStage } from "./setup-interview-state";
 
-import { makeAutoObservable, observable, runInAction } from "mobx";
+import { action, makeAutoObservable, observable, runInAction, toJS } from "mobx";
 
 import { SETUP_SCREENS } from "@/features/workspace-setup/setup-interview";
 import { touchAnswer } from "@/features/workspace-setup/setup-prefill";
@@ -62,7 +62,12 @@ export class WorkspaceSetupStore {
   private hydratedSetupId: string | null | undefined = undefined;
 
   constructor(public readonly rootStore: RootStore) {
-    makeAutoObservable<this, "hydratedSetupId">(this, { rootStore: false, hydratedSetupId: false });
+    makeAutoObservable<this, "hydratedSetupId">(this, {
+      rootStore: false,
+      hydratedSetupId: false,
+      hydrate: action,
+      setLocale: action,
+    });
   }
 
   get setup(): WorkspaceSetupView | null {
@@ -182,7 +187,7 @@ export class WorkspaceSetupStore {
     this.run("save", async () => {
       const setup = this.setup;
       if (!setup || !this.canConfirmScreen) return null;
-      const answers = screenAnswersPayload(this.screen, this.answers, this.locale);
+      const answers = toJS(screenAnswersPayload(this.screen, toJS(this.answers), this.locale));
       if (this.isLastScreen && this.adjusting) {
         const adjusted = await adjustWorkspaceSetupAction({ setupId: setup.id, answers, followUpAnswers: [] });
         if (adjusted.ok) {
@@ -212,7 +217,7 @@ export class WorkspaceSetupStore {
       if (!setup || !this.canConfirmFollowUps) return null;
       const followUpAnswers = this.pendingFollowUps.flatMap((question) => {
         const value = displayedFollowUpValue(question, setup, this.followUpDrafts);
-        return value ? [{ id: question.id, value: sanitizeAnswerValue(value) }] : [];
+        return value ? [{ id: question.id, value: toJS(sanitizeAnswerValue(value)) }] : [];
       });
       const saved = await saveWorkspaceSetupAnswersAction({ setupId: setup.id, answers: {}, followUpAnswers });
       if (!saved.ok) return saved;

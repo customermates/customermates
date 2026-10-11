@@ -38,11 +38,7 @@ export function SetupScreenSteps({ current, titles }: { current: number; titles:
       </ol>
 
       <p className="text-xs text-muted-foreground">
-        {t("WorkspaceSetup.interview.stepProgress", {
-          current: current + 1,
-          total: titles.length,
-          title: titles[current] ?? "",
-        })}
+        {t("WorkspaceSetup.interview.stepProgress", { current: current + 1, total: titles.length })}
       </p>
     </div>
   );
