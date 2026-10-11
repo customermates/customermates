@@ -411,7 +411,7 @@ export const SYNTHETIC_WIKI_PAGE_DEFINITIONS = [
       "## Priorities and response times",
       "| Priority | Definition | First response | Updates |",
       "| --- | --- | --- | --- |",
-      "| P1 Critical | Platform down, or mobile sync failing for all technicians | 1 hour, 30 minutes on Enterprise, 24/7 on Enterprise | Every hour |",
+      "| P1 Critical | Platform down, or mobile sync failing for all technicians | 1 hour; on Enterprise 30 minutes, 24/7 | Every hour |",
       "| P2 High | A core function fails for many users, no workaround | 4 business hours | Every business day |",
       "| P3 Normal | A function fails with a workaround, or a single user is affected | 1 business day | When something changes |",
       "| P4 Low | Question, how-to or feature request | 2 business days | When answered |",
