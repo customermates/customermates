@@ -198,8 +198,11 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
     await dialog.getByRole("region", { name: "Line items", exact: true }).getByRole("button", { name: "Calculated A", exact: true }).click();
     await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
     const catalog = dialog.last().locator(`[data-entity-field="${catalogPriceId}"]`);
-    const source = catalog.locator("p", { hasText: "From " });
-    await expect(source).toHaveText("From Service · Price");
+    await expect(catalog.locator("[data-field-state=\"read-only\"]")).toHaveCSS("border-top-width", "1px");
+    await expect(catalog.getByText(/^From /)).toHaveCount(0);
+    await catalog.getByRole("button", { name: "Where Catalog price comes from", exact: true }).click();
+    const source = page.getByRole("dialog", { name: "Where Catalog price comes from", exact: true });
+    await expect(source).toContainText("From Service · Price");
     await expect(source.locator('[data-sentence-reference^="list:"] svg')).toBeVisible();
     await source.getByRole("button", { name: "Open Calculation A", exact: true }).click();
     await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(3);
