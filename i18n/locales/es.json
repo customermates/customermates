@@ -1371,8 +1371,7 @@
         "removeFilter": "Quitar filtro",
         "searchContains": "{field} contiene «{text}»",
         "searchOrAddFilter": "Buscar o añadir filtro…",
-        "title": "Filtros",
-        "trigger": "Filtro"
+        "title": "Filtros"
       },
       "searchFields": {
         "inbox": "Asunto, mensaje o participante",
