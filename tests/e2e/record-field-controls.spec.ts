@@ -886,9 +886,11 @@ test("changes numeric display precision through the field editor without roundin
     ]),
   );
   expect(stored).toHaveLength(2);
+  // Phone rows show money in the short card format, which keeps at most one decimal.
+  const shortMoney = testInfo.project.use.isMobile;
   for (const [precision, numberDisplay, moneyDisplay] of [
-    ["3", "12.346", "€19.877"],
-    ["", "12.3456", "€19.88"],
+    ["3", "12.346", shortMoney ? "€19.9" : "€19.877"],
+    ["", "12.3456", shortMoney ? "€19.9" : "€19.88"],
   ]) {
     for (const field of [number, money]) {
       await editFieldDefinitionUi(page, typeId, field.label);
@@ -911,7 +913,7 @@ test("changes numeric display precision through the field editor without roundin
   }
   await page.reload();
   await expect(cellShowing("12.3456")).toBeVisible();
-  await expect(cellShowing("€19.88")).toBeVisible();
+  await expect(cellShowing(shortMoney ? "€19.9" : "€19.88")).toBeVisible();
   await openRecordDetails(page, "Precision record");
   await expect(dialog.getByRole("textbox", { name: "Display amount", exact: true })).toHaveValue("12.3456");
   await expect(dialog.getByRole("textbox", { name: "Display price", exact: true })).toHaveValue("19.8765");
