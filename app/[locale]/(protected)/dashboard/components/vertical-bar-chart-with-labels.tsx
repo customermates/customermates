@@ -97,6 +97,9 @@ export const VerticalBarChartWithLabels = observer(
                   room,
                 );
                 const top = reverseYAxis ? Number(y) + Number(height) + 6 : Number(y) - 6;
+                const half = estimateTextWidth(text) * 0.55 + 2;
+                const center = Number(x) + Number(width) / 2;
+                const anchor = axis.width > 2 * half ? Math.min(Math.max(center, half), axis.width - half) : center;
                 return (
                   <g>
                     {text !== full && <title>{full}</title>}
@@ -107,7 +110,7 @@ export const VerticalBarChartWithLabels = observer(
                       fontSize={CHART_FONT_SIZE}
                       fontWeight={500}
                       textAnchor="middle"
-                      x={Number(x) + Number(width) / 2}
+                      x={anchor}
                       y={top}
                     >
                       {text}

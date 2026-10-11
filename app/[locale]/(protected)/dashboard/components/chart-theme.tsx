@@ -66,6 +66,7 @@ export function useCategoryXAxisLayout(labels: string[], reservedWidth: number) 
   const [width, setWidth] = useState(0);
   return {
     ...categoryXAxisLayout(labels, width - reservedWidth),
+    width,
     onResize: (nextWidth: number) => setWidth((current) => (current === nextWidth ? current : nextWidth)),
   };
 }
