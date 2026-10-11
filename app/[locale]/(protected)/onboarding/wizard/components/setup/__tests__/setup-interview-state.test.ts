@@ -63,6 +63,11 @@ describe("resolveSetupStage", () => {
     expect(resolveSetupStage({ available: true, setup: setupView({ status }) })).toBe(stage);
   });
 
+  it("continues past a completed standard setup without a built summary", () => {
+    const standard = setupView({ status: "completed", results: { ...setupView().results, standard: true } });
+    expect(resolveSetupStage({ available: true, setup: standard })).toBe("done");
+  });
+
   it("reopens open follow-up questions and the failed plan from the persisted status", () => {
     const followUp = { id: "followUp1" as const, label: "Which?", format: "shortText" as const, maxLength: 80 };
     const asked = setupView({

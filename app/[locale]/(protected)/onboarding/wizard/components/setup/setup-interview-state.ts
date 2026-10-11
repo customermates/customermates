@@ -36,8 +36,9 @@ export function resolveSetupStage(view: WorkspaceSetupStatusView | null): SetupS
       return "planning";
     case "planned":
       return "plan";
-    case "building":
     case "completed":
+      return setup.results.standard ? "done" : "build";
+    case "building":
     case "failed":
       return "build";
     case "rolledBack":

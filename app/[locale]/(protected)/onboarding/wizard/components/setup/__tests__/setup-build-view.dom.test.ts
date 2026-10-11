@@ -148,6 +148,7 @@ describe("SetupBuildView", () => {
             { id: "8c1b9a9e-2f43-4a77-9d38-7b9e6c2b4f10", title: "Pipeline value", display: DisplayType.number },
           ],
           pages: [{ id: "1b2f6d0e-7f5a-4c2d-8e3b-9a1c4d5e6f70", title: "Company overview" }],
+          standard: false,
         },
       }),
     );

@@ -109,7 +109,7 @@ export function setupView(overrides: Partial<WorkspaceSetupView> = {}): Workspac
     spreadsheet: null,
     phases: PHASES.map((key) => phaseView(key)),
     currentPhase: null,
-    results: { colors: null, lists: [], views: [], records: [], widgets: [], pages: [] },
+    results: { colors: null, lists: [], views: [], records: [], widgets: [], pages: [], standard: false },
     spend: { usedMicrocents: 0, heldMicrocents: 0, capMicrocents: 1, capReached: false },
     canUseStandardSetup: true,
     canRemoveSampleData: false,
