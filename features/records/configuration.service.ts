@@ -166,11 +166,6 @@ export class RecordConfigurationService extends UserAccessor {
           "relationId",
           "sourceTypeId",
           "targetTypeId",
-          "columns",
-          "hiddenColumns",
-          "groupBy",
-          "sortField",
-          "pinnedFields",
         ].includes(key)
       )
         return resolve(value);
@@ -233,15 +228,6 @@ export class RecordConfigurationService extends UserAccessor {
           position: Math.max(-1, ...model.types.map((type) => type.position)) + 1,
           primaryFieldId: nameId,
           parentRelationshipId: null,
-          defaults: {
-            columns: [nameId],
-            hiddenColumns: [],
-            layout: "table",
-            groupBy: null,
-            sortField: null,
-            sortDirection: "asc",
-            pinnedFields: [nameId],
-          },
         });
         model.fields.push({
           id: nameId,

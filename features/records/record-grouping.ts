@@ -1,5 +1,5 @@
 import type { GroupableFieldDto } from "@/core/base/grouping/groupable-field";
-import type { Grouping } from "@/core/base/grouping/grouping.schema";
+import type { GroupSummaryDefinition, Grouping } from "@/core/base/grouping/grouping.schema";
 import type { RecordField, RecordRelationship, RecordModelView, RecordFieldView } from "./record-model.schema";
 
 import { DATE_BUCKETS, DEFAULT_DATE_BUCKET } from "@/core/base/grouping/grouping.schema";
@@ -98,5 +98,29 @@ export function recordGroupableFields(typeId: string, model: RecordModelView, ca
           bucket,
         }))
       : [{ ...common, id: column.id, grouping: resolved.grouping }];
+  });
+}
+
+export function recordSummaryFields<F extends Pick<RecordFieldView, "typeId" | "archived" | "valueType">>(
+  typeId: string,
+  fields: F[],
+): F[] {
+  return fields.filter(
+    (field) => field.typeId === typeId && !field.archived && ["number", "currency"].includes(field.valueType),
+  );
+}
+
+export function liveGroupSummaries(
+  typeId: string,
+  summaries: GroupSummaryDefinition[] | undefined,
+  fields: Pick<RecordFieldView, "id" | "typeId" | "archived" | "valueType">[],
+): GroupSummaryDefinition[] {
+  const allowed = new Set(recordSummaryFields(typeId, fields).map((field) => field.id));
+  const seen = new Set<string>();
+  return (summaries ?? []).filter((summary) => {
+    const key = `${summary.fieldId}:${summary.aggregation}`;
+    if (!allowed.has(summary.fieldId) || seen.has(key)) return false;
+    seen.add(key);
+    return true;
   });
 }

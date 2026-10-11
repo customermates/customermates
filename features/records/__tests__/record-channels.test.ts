@@ -9,6 +9,7 @@ import {
   recordProviderAvatarEnabled,
 } from "../record-channels";
 import { recordColumns } from "../record-columns";
+import { recordDefaults } from "../record-presentation";
 import { recordFilterOperators } from "../record-filter";
 import { isRecordFieldWritable } from "../record-input-value";
 import { recordInvariant } from "../record-invariant";
@@ -48,7 +49,7 @@ describe("Channels field type", () => {
       format: { onClick: "open", providerAvatar: true },
     });
     expect(model.capabilities.map((binding) => binding.kind)).not.toContain("channels");
-    expect(model.types.find((type) => type.id === contactId)?.defaults.columns).toContain(field?.id);
+    expect(recordDefaults(contactId, model.fields).columnOrder).toContain(field?.id);
     expect(recordColumns(contactId, model).find((column) => column.id === field?.id)).toMatchObject({
       kind: "field",
       sortable: false,

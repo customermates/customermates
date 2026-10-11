@@ -107,9 +107,11 @@ export const RecordQuerySchema = z
       .default([]),
     page: z.number().int().min(1).max(100000).default(1),
     pageSize: z.number().int().min(1).max(500).default(25),
-    grouping: GroupingSchema.optional().describe(
-      "Group by a field, system column or relationship column. Date buckets use UTC boundaries; weeks start on Sunday. At most 50 value groups and one empty group are supported per query; narrow filters for larger axes.",
-    ),
+    grouping: GroupingSchema.omit({ summaries: true })
+      .optional()
+      .describe(
+        "Group by a field, system column or relationship column. Date buckets use UTC boundaries; weeks start on Sunday. At most 50 value groups and one empty group are supported per query; narrow filters for larger axes.",
+      ),
     groupPage: GroupPageRequestSchema.optional().describe(
       "Requires grouping. Defaults to 10 records per group, at most 25 materialized groups and 1000 unique records. Use a returned group key in only and overrides to load another page; collapsed groups retain counts without loading records.",
     ),

@@ -276,12 +276,9 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
         selected={selected}
         onAdd={add}
         onDeleted={listDeleted}
-        onSharedDefaults={() => {
-          if (selected) typeModal.edit(model, selected, "appearance");
-        }}
       />
     ),
-    [add, canAddSublist, canManage, general, generalFormId, interactive, model, selected, listDeleted, t, typeModal],
+    [add, canAddSublist, canManage, general, generalFormId, interactive, model, selected, listDeleted, t],
   );
   useSetTopBarActions(topBar);
 

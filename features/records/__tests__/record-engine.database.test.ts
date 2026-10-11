@@ -2959,15 +2959,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
                 primaryFieldId: nameId,
                 relationshipPaths: [],
                 position: 90,
-                defaults: {
-                  ...template.defaults,
-                  columns: [],
-                  hiddenColumns: [],
-                  pinnedFields: [],
-                  sortField: null,
-                  groupBy: null,
-                  groupSummaries: [],
-                },
               },
             ],
             fields: [
@@ -6829,7 +6820,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect([(await f.readRecord(first)).version, (await f.readRecord(second)).version]).toEqual(versions);
   });
 
-  it("preserves personal detail choices across shared defaults and resets to future defaults", async () => {
+  it("preserves personal detail choices across configuration changes and pins nothing without them", async () => {
     const f = await fixture();
     const type = recordInvariant(f.model.types.find((type) => type.id === f.id("organization")));
     await f.run(() =>
@@ -6848,13 +6839,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           operations: [
             {
               operation: "putType",
-              type: {
-                ...type,
-                defaults: {
-                  ...type.defaults,
-                  pinnedFields: ["system:updatedAt"],
-                },
-              },
+              type: { ...type, description: "Companies we work with" },
             },
           ],
         }),
@@ -6862,7 +6847,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toMatchObject({ ok: true });
     expect(await read(f.member)).toMatchObject({
       ok: true,
-      data: { layout: { pinnedFields: ["system:updatedAt"] } },
+      data: { hasPersonalization: false, layout: { pinnedFields: [], hiddenFields: [], fieldOrder: [] } },
     });
     const layout = {
       pinnedFields: [],
@@ -6894,13 +6879,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           operations: [
             {
               operation: "putType",
-              type: {
-                ...type,
-                defaults: {
-                  ...type.defaults,
-                  pinnedFields: ["system:createdAt"],
-                },
-              },
+              type: { ...type, description: "Organisations we work with" },
             },
           ],
         }),
@@ -6929,7 +6908,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       data: {
         hasPersonalization: false,
         layout: {
-          pinnedFields: ["system:createdAt"],
+          pinnedFields: [],
           hiddenFields: [],
           fieldOrder: [],
         },
@@ -6948,7 +6927,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       data: {
         detailLayout: {
           hasPersonalization: false,
-          layout: { pinnedFields: ["system:createdAt"] },
+          layout: { pinnedFields: [] },
         },
       },
     });
@@ -8462,33 +8441,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect((await f.run(() => f.repo.getModel())).fields.find((item) => item.id === field.id)?.archived).toBe(true);
   });
 
-  it("inherits shared defaults only for untouched settings and resets selected overrides through the AI tool", async () => {
+  it("falls back to the list layout for untouched settings, keeps summaries in the grouping and resets overrides through the AI tool", async () => {
     const f = await fixture();
     const type = recordInvariant(f.model.types.find((type) => type.id === f.id("service")));
     const surfaceKey = `records:${type.id}`;
+    const amount = f.id("service.amount");
     const call = (input: unknown, as = f.admin) => f.run(() => executeMcpTool(manageDataViewsTool, [input]), as);
-    expect(
-      await f.run(() =>
-        f.configure.invoke({
-          expectedRevision: 1,
-          idempotencyKey: randomUUID(),
-          operations: [
-            {
-              operation: "putType",
-              type: {
-                ...type,
-                defaults: {
-                  ...type.defaults,
-                  hiddenColumns: [f.id("service.amount")],
-                  sortField: type.primaryFieldId,
-                  sortDirection: "desc",
-                },
-              },
-            },
-          ],
-        }),
-      ),
-    ).toMatchObject({ ok: true });
     expect(
       await call({
         action: "create",
@@ -8509,11 +8467,15 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ok: true,
       data: {
         result: {
-          hiddenColumns: [f.id("service.amount"), f.id("service.notes")],
-          sortDescriptor: { field: type.primaryFieldId, direction: "desc" },
+          columnOrder: f.model.fields.filter((field) => field.typeId === type.id).map((field) => field.id),
+          hiddenColumns: [f.id("service.notes")],
+          viewMode: "table",
         },
       },
     });
+    expect(inherited.ok && inherited.data.result.sortDescriptor).toBeUndefined();
+    expect(inherited.ok && inherited.data.result.grouping).toBeUndefined();
+    expect(inherited.ok && inherited.data.query.groupSummaries).toBeUndefined();
     expect(
       await call({
         action: "update",
@@ -8522,27 +8484,47 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         state: {
           hiddenColumns: [],
           searchTerm: "Preserve this",
-          sortDescriptor: { field: f.id("service.amount"), direction: "asc" },
+          sortDescriptor: { field: amount, direction: "asc" },
+          grouping: { field: "system:assignedTo", summaries: [{ fieldId: amount, aggregation: "sum" }] },
         },
       }),
     ).toMatchObject({ ok: true });
-    expect(await readAll()).toMatchObject({
+    const customized = await readAll();
+    expect(customized).toMatchObject({
       ok: true,
       data: {
+        query: { groupSummaries: [{ fieldId: amount, aggregation: "sum" }] },
         result: {
           hiddenColumns: [],
           searchTerm: "Preserve this",
-          sortDescriptor: { field: f.id("service.amount"), direction: "asc" },
+          sortDescriptor: { field: amount, direction: "asc" },
+          grouping: {
+            grouping: { field: "system:assignedTo", summaries: [{ fieldId: amount, aggregation: "sum" }] },
+          },
         },
       },
     });
+    expect(customized.ok && customized.data.query.grouping).toEqual({ field: "system:assignedTo" });
+    expect(
+      await call({
+        action: "update",
+        surfaceKey,
+        viewKey: "__all__",
+        state: {
+          grouping: {
+            field: "system:assignedTo",
+            summaries: [{ fieldId: recordInvariant(type.primaryFieldId), aggregation: "sum" }],
+          },
+        },
+      }),
+    ).toMatchObject({ ok: false });
     expect(
       await call(
         {
           action: "reset",
           surfaceKey,
           viewKey: "__all__",
-          fields: ["hiddenColumns", "sortDescriptor"],
+          fields: ["hiddenColumns", "sortDescriptor", "grouping"],
         },
         f.member,
       ),
@@ -8552,19 +8534,21 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         action: "reset",
         surfaceKey,
         viewKey: "__all__",
-        fields: ["hiddenColumns", "sortDescriptor"],
+        fields: ["hiddenColumns", "sortDescriptor", "grouping"],
       }),
     ).toMatchObject({ ok: true });
-    expect(await readAll()).toMatchObject({
+    const reset = await readAll();
+    expect(reset).toMatchObject({
       ok: true,
       data: {
         result: {
-          hiddenColumns: [f.id("service.amount"), f.id("service.notes")],
+          hiddenColumns: [f.id("service.notes")],
           searchTerm: "Preserve this",
-          sortDescriptor: { field: type.primaryFieldId, direction: "desc" },
         },
       },
     });
+    expect(reset.ok && reset.data.result.sortDescriptor).toBeUndefined();
+    expect(reset.ok && reset.data.result.grouping).toBeUndefined();
     const stored = await runWithoutTenant(() =>
       prisma.p13n.findFirstOrThrow({
         where: {
@@ -11702,10 +11686,34 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(await f.run(() => f.query.invoke({ ...query, grouping: undefined }))).toMatchObject({ ok: false });
   });
 
-  it("blocks removing a summary field unless its shared presentation dependency changes in the same bundle", async () => {
+  it("blocks retyping a field a saved view summarises and drops the summary when the field is deleted", async () => {
     const f = await fixture();
     const type = recordInvariant(f.model.types.find((type) => type.id === f.id("deal")));
     const field = recordInvariant(f.model.fields.find((field) => field.id === f.id("deal.weightedValue")));
+    const value = f.id("deal.totalValue");
+    const surfaceKey = `records:${type.id}`;
+    const created = await f.run(() =>
+      executeMcpTool(manageDataViewsTool, [
+        {
+          action: "create",
+          surfaceKey,
+          name: "Pipeline totals",
+          state: {
+            viewMode: "card",
+            grouping: {
+              field: f.id("deal.stage"),
+              summaries: [
+                { fieldId: value, aggregation: "sum" },
+                { fieldId: field.id, aggregation: "sum" },
+              ],
+            },
+          },
+        },
+      ]),
+    );
+    expect(created).toMatchObject({ ok: true });
+    if (!created.ok) throw new Error(created.result);
+    const viewId = String(created.structuredContent?.viewKey);
     const replacement = {
       id: field.id,
       typeId: field.typeId,
@@ -11717,45 +11725,44 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       valueType: "text" as const,
       behavior: { kind: "input" as const },
     };
-    const operations: ConfigurationChange["operations"] = [{ operation: "putField", field: replacement }];
-    const request = {
-      expectedRevision: 1,
-      idempotencyKey: randomUUID(),
-      operations,
-    };
-    const invalid = await f.run(() => f.preview.invoke(request));
-    expect(invalid).toMatchObject({
+    expect(
+      await f.run(() =>
+        f.preview.invoke({
+          expectedRevision: 1,
+          idempotencyKey: randomUUID(),
+          operations: [{ operation: "putField", field: replacement }],
+        }),
+      ),
+    ).toMatchObject({
       ok: true,
       data: {
         valid: false,
-        issues: expect.arrayContaining([
-          expect.objectContaining({
-            code: "invalid_layout_field",
-            fieldId: field.id,
-          }),
-        ]),
+        issues: expect.arrayContaining([expect.objectContaining({ code: "saved_view_incompatible", typeId: type.id })]),
       },
     });
-    const corrected = await f.run(() =>
-      f.preview.invoke({
-        ...request,
-        idempotencyKey: randomUUID(),
-        operations: [
-          ...operations,
-          {
-            operation: "putType",
-            type: {
-              ...type,
-              defaults: {
-                ...type.defaults,
-                groupSummaries: type.defaults.groupSummaries?.filter((summary) => summary.fieldId !== field.id),
-              },
-            },
-          },
-        ],
-      }),
+    const deletion: ConfigurationChange = {
+      expectedRevision: 1,
+      idempotencyKey: randomUUID(),
+      operations: [{ operation: "delete", target: { kind: "field", id: field.id } }],
+    };
+    expect(await f.run(() => f.preview.invoke(deletion))).toMatchObject({
+      ok: true,
+      data: {
+        deletion: {
+          cleaned: expect.arrayContaining([
+            expect.objectContaining({ consumer: expect.objectContaining({ kind: "view", id: viewId }) }),
+          ]),
+        },
+      },
+    });
+    expect(await f.run(() => f.configure.invoke(deletion))).toMatchObject({ ok: true });
+    const cleaned = await f.run(() =>
+      prisma.dataView.findFirstOrThrow({ where: { companyId: f.company.id, id: viewId } }),
     );
-    expect(corrected).toMatchObject({ ok: true, data: { valid: true } });
+    expect(cleaned.grouping).toEqual({
+      field: f.id("deal.stage"),
+      summaries: [{ fieldId: value, aggregation: "sum" }],
+    });
   });
 
   it("filters indexed date ranges without rounding microseconds or treating absent bounds as zero", async () => {
@@ -12435,13 +12442,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
                 ],
               },
             ],
-            defaults: {
-              ...template.defaults,
-              columns: ["$projects.name", "$budget", "path:$relatedProjects"],
-              sortField: "$projects.name",
-              groupBy: "system:assignedTo",
-              groupSummaries: [{ fieldId: "$budget", aggregation: "sum" }],
-            },
           },
         },
         {
@@ -12492,9 +12492,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           ],
         },
       ],
-      defaults: {
-        columns: expect.arrayContaining([`path:${references.get("$relatedProjects")}`]),
-      },
     });
     const created = await f.mutation(
       {
@@ -12519,7 +12516,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const presentation = await f.run(() =>
       getGetRecordPresentationInteractor().invoke({
         typeId: projectTypeId,
-        params: {},
+        params: {
+          grouping: {
+            field: "system:assignedTo",
+            summaries: [{ fieldId: recordInvariant(references.get("$budget")), aggregation: "sum" }],
+          },
+        },
       }),
     );
     expect(presentation).toMatchObject({
@@ -16605,9 +16607,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     const after = await f.run(() => f.repo.getModel());
     expect(after.fields.some((field) => field.id === contactChannels.id)).toBe(false);
-    expect(recordInvariant(after.types.find((type) => type.id === contactTypeId)).defaults.columns).not.toContain(
-      contactChannels.id,
-    );
     expect(
       await f.run(() =>
         Promise.all([

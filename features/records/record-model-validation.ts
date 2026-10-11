@@ -1,4 +1,3 @@
-import { resolveRecordGrouping } from "./record-grouping";
 import { z } from "zod";
 
 import type {
@@ -12,7 +11,6 @@ import type {
 import { RecordDateTimeSchema } from "./record-model.schema";
 
 import { isRepresentableDecimal } from "./calculation";
-import { recordColumns } from "./record-columns";
 import { recordInstantMicros } from "./record-instant";
 import { resolveRecordPath } from "./record-relationship-path";
 
@@ -257,62 +255,6 @@ export function validateRecordModel(model: RecordModel): {
       (!primary || primary.typeId !== type.id || primary.archived || primary.valueType !== "text")
     )
       issues.push({ code: "invalid_primary_field", typeId: type.id });
-    const columns = new Set(recordColumns(type.id, model).map((column) => column.id));
-    for (const id of [...type.defaults.columns, ...type.defaults.hiddenColumns, ...type.defaults.pinnedFields]) {
-      if (!columns.has(id)) {
-        issues.push({
-          code: "invalid_layout_field",
-          typeId: type.id,
-          fieldId: id,
-        });
-      }
-    }
-  }
-  for (const type of model.types) {
-    if (type.archived) continue;
-    const summaries = new Set<string>();
-    for (const summary of type.defaults.groupSummaries ?? []) {
-      const field = fields.get(summary.fieldId);
-      const key = `${summary.fieldId}:${summary.aggregation}`;
-      if (
-        !field ||
-        field.typeId !== type.id ||
-        field.archived ||
-        !["number", "currency"].includes(field.valueType) ||
-        summaries.has(key)
-      ) {
-        issues.push({
-          code: "invalid_layout_field",
-          typeId: type.id,
-          fieldId: summary.fieldId,
-        });
-      }
-      summaries.add(key);
-    }
-    if (type.primaryFieldId && type.defaults.hiddenColumns.includes(type.primaryFieldId))
-      issues.push({ code: "primary_field_hidden", typeId: type.id });
-    if (
-      type.defaults.groupBy &&
-      !resolveRecordGrouping(type.id, { field: type.defaults.groupBy, bucket: type.defaults.groupBucket }, model)
-    ) {
-      issues.push({
-        code: "invalid_grouping_field",
-        typeId: type.id,
-        fieldId: type.defaults.groupBy,
-      });
-    }
-    if (!type.defaults.groupBy && type.defaults.groupBucket)
-      issues.push({ code: "invalid_grouping_field", typeId: type.id });
-    if (
-      type.defaults.sortField &&
-      !recordColumns(type.id, model).some((column) => column.id === type.defaults.sortField && column.sortable)
-    ) {
-      issues.push({
-        code: "invalid_sort_field",
-        typeId: type.id,
-        fieldId: type.defaults.sortField,
-      });
-    }
   }
   for (const type of model.types) {
     if (type.archived) continue;

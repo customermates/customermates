@@ -174,7 +174,7 @@ Zugängliche Datensatztypen anhand von Namen oder stabilen Typ-IDs finden. Das E
 
 #### `get_record_model`
 
-Felder, stabile Options-IDs, Beziehungen, Systembindungen, Layout-Standards und Konfigurationsrevision für die benötigten typeIds lesen. Namen und Beschreibungen sind Kundendaten. Schema-Zugriff gewährt keinen Zugriff auf Datensätze.
+Felder, stabile Options-IDs, Beziehungen, Systembindungen und Konfigurationsrevision für die benötigten typeIds lesen. Namen und Beschreibungen sind Kundendaten. Schema-Zugriff gewährt keinen Zugriff auf Datensätze.
 
 **Nur lesend.** Optional: `typeIds`.
 
@@ -321,13 +321,13 @@ Teammitglieder mit ID, Name, E-Mail, roleId und Status. Hat die Rolle des Aufruf
 {/* mcp-catalog:views */}
 #### `manage_data_views`
 
-Persönliche gespeicherte Ansichten entdecken, prüfen, erstellen, ändern, auswählen, zurücksetzen und löschen. Zuerst surfaceKey ermitteln; generische Datensatzansichten verwenden stabile Typ-IDs. Änderungen ersetzen nur übergebene Einstellungen. Reset stellt gemeinsame Typ-Standards wieder her. Löschen verschiebt die Ansicht in den Papierkorb (eine Dashboard-Ansicht samt ihren Widgets), nie ihre Datensätze. Konfiguration und Ansichtslisten sind durchsuchbar und paginiert.
+Persönliche gespeicherte Ansichten entdecken, prüfen, erstellen, ändern, auswählen, zurücksetzen und löschen. Zuerst surfaceKey ermitteln; generische Datensatzansichten verwenden stabile Typ-IDs. Änderungen ersetzen nur übergebene Einstellungen; eine Gruppierung kann bis zu 8 Übersichten tragen (Summe, Durchschnitt, Minimum oder Maximum eines Zahlen- oder Währungsfelds). Reset entfernt Ihre Anpassungen, sodass die Liste alle Felder in ihrer konfigurierten Reihenfolge als ungruppierte Tabelle zeigt. Löschen verschiebt die Ansicht in den Papierkorb (eine Dashboard-Ansicht samt ihren Widgets), nie ihre Datensätze. Konfiguration und Ansichtslisten sind durchsuchbar und paginiert.
 
 **Kann Daten löschen.** Pflicht: `action`. Optional: `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `fields`, `state`.
 
 #### `manage_record_detail_layout`
 
-Persönliches Datensatz-Layout anhand stabiler Typ- und Feld-IDs lesen, speichern oder zurücksetzen. Read liefert zugängliche Felder, angeheftete und ausgeblendete Felder, Reihenfolge und Konfigurationsrevision. Save benötigt das vollständige Layout, expectedRevision und einen idempotencyKey. Reset entfernt die persönliche Anpassung, sodass wieder die gemeinsamen Typ-Standards gelten. Datensätze und Einstellungen anderer Benutzer bleiben unverändert. Gemeinsame Standards werden mit configure_record_model geändert.
+Persönliches Datensatz-Layout anhand stabiler Typ- und Feld-IDs lesen, speichern oder zurücksetzen. Read liefert zugängliche Felder, angeheftete und ausgeblendete Felder, Reihenfolge und Konfigurationsrevision. Save benötigt das vollständige Layout, expectedRevision und einen idempotencyKey. Reset entfernt Ihr Layout: Alle Felder erscheinen in ihrer konfigurierten Reihenfolge, keines ist angeheftet. Datensätze und Einstellungen anderer Benutzer bleiben unverändert.
 
 Pflicht: `typeId`, `action`. Optional: `expectedRevision`, `idempotencyKey`, `layout`.
 {/* /mcp-catalog */}
@@ -535,7 +535,7 @@ Lädt einen Treffer aus `search` über seine unveränderte ID: `wiki:<uuid>` ode
 
 ### Datenmodell [#record-model]
 
-Listen, Felder, Beziehungen, Berechnungen und gemeinsame Standards über ein Konfigurationspaket anlegen oder ändern. **Datenmodell** **Bearbeiten** ist von **Bearbeiten** bei einer Liste getrennt. Neue Listen sind zunächst nur für Administratoren zugänglich; delegierte Schema-Verwalter können eine Zugriffsvorlage, die auch ihre eigene Rolle enthalten darf, nur beim Anlegen einer Liste anwenden, ohne Rollen verwalten zu dürfen.
+Listen, Felder, Beziehungen und Berechnungen über ein Konfigurationspaket anlegen oder ändern. **Datenmodell** **Bearbeiten** ist von **Bearbeiten** bei einer Liste getrennt. Neue Listen sind zunächst nur für Administratoren zugänglich; delegierte Schema-Verwalter können eine Zugriffsvorlage, die auch ihre eigene Rolle enthalten darf, nur beim Anlegen einer Liste anwenden, ohne Rollen verwalten zu dürfen.
 
 Das relevante Modell lesen, das Paket prüfen, Abhängigkeiten und Rechtefolgen ansehen und dann dasselbe Paket mit erwarteter Revision und Idempotenzschlüssel anwenden. Temporäre `$client`-Referenzen verbinden neue Definitionen innerhalb des Pakets. Formeln bestehen aus typisierten Knoten in Abhängigkeitsreihenfolge und einem Wurzelknoten; sie führen weder JavaScript noch SQL aus. Das Backend lehnt Zyklen, ungültige Typen, unzulässige Währungskombinationen und inkompatible Abhängigkeiten ab. `format.onClick` eines Felds (`open`, Standard, oder `copy`) legt fest, was ein Klick auf den Wert tut, und ist nur bei E-Mail-, Telefon- und URL-Feldern erlaubt; bei jedem anderen Typ wird das Paket abgelehnt.
 
@@ -544,7 +544,7 @@ Ein ausstehendes Ergebnis liefert eine Vorgangs-ID. Den Fortschritt bis zum Absc
 {/* mcp-catalog:record-model */}
 #### `configure_record_model`
 
-Ein typisiertes Konfigurationspaket mit Typen, Feldern, Beziehungen, Berechnungen, Zugriffsvorlagen und gemeinsamen Standards prüfen oder anwenden. expectedRevision, idempotencyKey und Operationen zwischen Vorschau und Anwendung beibehalten. Temporäre $client-Referenzen verbinden neue Definitionen atomar. Berechnungen verwenden ein begrenztes Knotenprogramm, keinen ausführbaren Code. Schema-Verwaltung, Datensatzzugriff, Rollenfreigaben und veröffentlichte Zusammenfassungen haben getrennte Berechtigungen. Mit delete verschieben Sie eine Liste, ein Feld oder eine Beziehung in den Papierkorb; wiederherstellen oder endgültig löschen Sie sie mit manage_trash.
+Ein typisiertes Konfigurationspaket mit Typen, Feldern, Beziehungen, Berechnungen und Zugriffsvorlagen prüfen oder anwenden. expectedRevision, idempotencyKey und Operationen zwischen Vorschau und Anwendung beibehalten. Temporäre $client-Referenzen verbinden neue Definitionen atomar. Berechnungen verwenden ein begrenztes Knotenprogramm, keinen ausführbaren Code. Schema-Verwaltung, Datensatzzugriff, Rollenfreigaben und veröffentlichte Zusammenfassungen haben getrennte Berechtigungen. Mit delete verschieben Sie eine Liste, ein Feld oder eine Beziehung in den Papierkorb; wiederherstellen oder endgültig löschen Sie sie mit manage_trash.
 
 **Kann Daten löschen.** Pflicht: `action`, `change`.
 

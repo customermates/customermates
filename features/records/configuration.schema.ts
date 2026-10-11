@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { RecordColumnKeySchema, RecordFieldKeySchema } from "./record-column.schema";
 import { RecordRelationshipPathSchema, RecordPathStepSchema } from "./record-relationship-path.schema";
 
 import {
@@ -11,7 +10,6 @@ import {
   RecordCapabilitySchema,
   RecordGrantSchema,
   ExpressionBudgetSchema,
-  RecordGroupSummaryDefinitionSchema,
 } from "./record-model.schema";
 
 export const CONFIGURATION_TARGET_KINDS = ["type", "field", "relationship"] as const;
@@ -74,12 +72,6 @@ const LiveDefinitionSchema = z
   .refine((archived): boolean => archived !== true, "Use the delete operation to move an item to Trash.")
   .describe("Always false. Use the delete operation to move an item to Trash.");
 export const ConfigurationReferenceSchema = z.union([z.uuid(), z.string().regex(/^\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$/)]);
-const ConfigurationColumnKeySchema = z.union([
-  RecordColumnKeySchema,
-  ConfigurationReferenceSchema,
-  z.string().regex(/^relationship:\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}:(outgoing|incoming)$/),
-  z.string().regex(/^path:\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$/),
-]);
 type ConfigurationExpression =
   | { kind: "literal"; value: z.infer<typeof RecordScalarSchema> | null }
   | { kind: "field"; fieldId: string }
@@ -256,17 +248,6 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
                     )
                     .max(32)
                     .optional(),
-                  defaults: RecordTypeSchema.shape.defaults.extend({
-                    columns: z.array(ConfigurationColumnKeySchema),
-                    hiddenColumns: z.array(ConfigurationColumnKeySchema),
-                    groupBy: ConfigurationColumnKeySchema.nullable(),
-                    groupSummaries: z
-                      .array(RecordGroupSummaryDefinitionSchema.extend({ fieldId: ConfigurationReferenceSchema }))
-                      .max(8)
-                      .optional(),
-                    sortField: z.union([ConfigurationReferenceSchema, RecordFieldKeySchema]).nullable(),
-                    pinnedFields: z.array(ConfigurationColumnKeySchema),
-                  }),
                 }),
               })
               .strict(),

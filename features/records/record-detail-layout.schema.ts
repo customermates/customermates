@@ -9,7 +9,9 @@ export const ReadRecordDetailLayoutSchema = z.object({ typeId: z.uuid() }).stric
 export const SaveRecordDetailLayoutSchema = ReadRecordDetailLayoutSchema.extend({
   expectedRevision: z.number().int().nonnegative(),
   idempotencyKey: z.string().min(8).max(200),
-  layout: RecordDetailLayoutSchema.nullable().describe("null resets the personal override to shared type defaults."),
+  layout: RecordDetailLayoutSchema.nullable().describe(
+    "null removes the personal layout: all fields in their configured order, none pinned.",
+  ),
 });
 export type SaveRecordDetailLayoutInput = z.infer<typeof SaveRecordDetailLayoutSchema>;
 

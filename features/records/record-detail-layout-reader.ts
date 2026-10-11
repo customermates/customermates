@@ -29,7 +29,7 @@ export class RecordDetailLayoutReader {
     const columns = recordColumns(typeId, { ...model, types: [visibleType], relationships });
     const [stored, t] = await Promise.all([this.personalization.getP13n(recordDetailKey(typeId)), getTranslations()]);
     const personal = storedRecordDetailLayout(stored);
-    const layout = personal ?? { pinnedFields: type.defaults.pinnedFields, hiddenFields: [], fieldOrder: [] };
+    const layout = personal ?? { pinnedFields: [], hiddenFields: [], fieldOrder: [] };
     const available = new Set(columns.map((column) => column.id));
     return {
       ok: true,
