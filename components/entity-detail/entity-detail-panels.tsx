@@ -105,9 +105,9 @@ export function EntityDetailPanels({
   }));
   return (
     <div className="@container/detail flex min-h-0 w-full flex-1 flex-col">
-      <div className="animate-page-result-in flex min-h-0 w-full flex-1 flex-col overflow-y-auto motion-reduce:animate-none @6xl/detail:overflow-y-visible">
-        {summary}
+      {summary}
 
+      <div className="animate-page-result-in flex min-h-0 w-full flex-1 flex-col overflow-y-auto motion-reduce:animate-none @6xl/detail:overflow-y-visible">
         {hasTabs && (
           <div
             ref={switcherRef}
