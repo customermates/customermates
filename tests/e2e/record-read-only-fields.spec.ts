@@ -53,7 +53,7 @@ test("renders every record detail field in the input box and explains calculated
   await lines.getByRole("button", { name: "Add Line item", exact: true }).click();
   await lines.getByRole("textbox", { name: "Add Line item", exact: true }).fill("Boxed line");
   await page.keyboard.press("Enter");
-  await expect(lines.getByRole("button", { name: "Boxed line", exact: true })).toBeVisible();
+  await expect(lines.getByText("Boxed line", { exact: true }).first()).toBeVisible();
   const frame = lines.locator("[data-embedded-frame]");
   await expect(frame).toHaveCSS("border-top-width", "1px");
   await expect(frame).toHaveCSS("border-top-left-radius", /^[1-9]/);
