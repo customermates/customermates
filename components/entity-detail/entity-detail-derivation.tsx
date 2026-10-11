@@ -3,7 +3,7 @@
 import type { LucideIcon } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 
 import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
@@ -16,12 +16,15 @@ type Props = {
   icon: LucideIcon;
   label: string;
   configureHref?: string | null;
-  children: ReactNode;
+  children: ReactNode | ((context: DerivationContext) => ReactNode);
 };
+
+export type DerivationContext = { anchor: HTMLElement | null; close: () => void };
 
 export function EntityDetailDerivation({ icon: Icon, label, configureHref, children }: Props) {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
 
   return (
     <ResponsiveOverlay
@@ -31,6 +34,7 @@ export function EntityDetailDerivation({ icon: Icon, label, configureHref, child
       title={label}
       trigger={
         <button
+          ref={triggerRef}
           aria-label={label}
           className={cn(iconButtonClass, "size-4 hover:bg-accent hover:text-accent-foreground")}
           data-field-derivation-trigger=""
@@ -42,7 +46,9 @@ export function EntityDetailDerivation({ icon: Icon, label, configureHref, child
       onOpenChange={setOpen}
     >
       <div className="space-y-3 px-3 pb-3 text-sm leading-relaxed max-md:px-4" data-field-derivation="">
-        {children}
+        {typeof children === "function"
+          ? children({ anchor: triggerRef.current, close: () => setOpen(false) })
+          : children}
 
         {configureHref ? (
           <Button asChild className="h-auto px-0" size="sm" variant="link">

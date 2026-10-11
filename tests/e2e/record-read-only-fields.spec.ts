@@ -89,6 +89,10 @@ test("renders every record detail field in the input box and explains calculated
     "href",
     new RegExp(`/configure\\?typeId=${typeId("deal")}&tab=fields&focus=field%3A${typeId("deal.totalQuantity")}$`),
   );
+  await page.screenshot({
+    path: testInfo.outputPath(`deal-record-derivation-${testInfo.project.name}.png`),
+    animations: "disabled",
+  });
   await page.keyboard.press("Escape");
   await expect(derivation).toHaveCount(0);
   await expect(info).toBeFocused();
@@ -99,6 +103,11 @@ test("renders every record detail field in the input box and explains calculated
     await page.screenshot({
       path: testInfo.outputPath(`deal-record-${scheme}-${testInfo.project.name}.png`),
       fullPage: true,
+      animations: "disabled",
+    });
+    await lines.scrollIntoViewIfNeeded();
+    await page.screenshot({
+      path: testInfo.outputPath(`deal-record-${scheme}-${testInfo.project.name}-lines.png`),
       animations: "disabled",
     });
   }
@@ -113,6 +122,11 @@ test("renders every record detail field in the input box and explains calculated
         fullPage: true,
         animations: "disabled",
       });
+      await lines.scrollIntoViewIfNeeded();
+      await page.screenshot({
+        path: testInfo.outputPath(`deal-record-${scheme}-phone-width-lines.png`),
+        animations: "disabled",
+      });
     }
     await page.setViewportSize(viewport);
   }
@@ -124,7 +138,7 @@ test("renders every record detail field in the input box and explains calculated
       name: "Deal readers",
       description: "Read deals without changing them or their configuration",
       permissions: [{ resource: "company", actions: [] }],
-      recordGrants: ["deal", "lineItem", "service", "contact", "organization", "task"].map((key) => ({
+      recordGrants: ["deal", "service", "contact", "organization", "task"].map((key) => ({
         typeId: typeId(key),
         actions: ["readAll"],
       })),

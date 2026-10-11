@@ -19,6 +19,7 @@ import { RecordIdentityEditor } from "./record-identity-editor";
 import { recordValueSource } from "@/features/records/record-value-source";
 import type { RecordValueSourceKind } from "@/features/records/record-value-source";
 import { EntityDetailDerivation } from "@/components/entity-detail/entity-detail-derivation";
+import type { DerivationContext } from "@/components/entity-detail/entity-detail-derivation";
 import { focusHref } from "@/components/focus/focus-href";
 import { FieldDerivationView } from "./field-derivation-view";
 import { recordDisplayName } from "@/features/records/record-display-name";
@@ -87,22 +88,25 @@ export const RecordEditorField = observer(function RecordEditorField({
     const targetName = target
       ? recordDisplayName(target.title, store.presentation.linkLabels[target.ref.typeId], t)
       : field.label;
-    const sentence = source
-      ? referenceSentence(source.segments, (reference) =>
-          reference.kind === "list" && target
-            ? {
-                label: t("RecordModel.openRecord", { name: targetName }),
-                onOpen: (trigger) =>
-                  runUserAction(() => store.rootStore.recordWorkspaceStore.open(target.ref, trigger)),
-              }
-            : null,
-        )
-      : null;
+    const sentence = (derivation?: DerivationContext) =>
+      referenceSentence(source?.segments ?? [], (reference) =>
+        reference.kind === "list" && target
+          ? {
+              label: t("RecordModel.openRecord", { name: targetName }),
+              onOpen: (trigger) => {
+                derivation?.close();
+                runUserAction(() =>
+                  store.rootStore.recordWorkspaceStore.open(target.ref, derivation?.anchor ?? trigger),
+                );
+              },
+            }
+          : null,
+      );
     return (
       <EntityDetailStaticField
         action={restricted ? null : captureAction}
         derivation={
-          source && sentence ? (
+          source ? (
             <EntityDetailDerivation
               configureHref={
                 store.presentation.canManageSchema
@@ -112,11 +116,13 @@ export const RecordEditorField = observer(function RecordEditorField({
               icon={DERIVATION_ICONS[source.kind]}
               label={derivationLabel(source.kind)}
             >
-              {source.kind === "calculation" ? (
-                <FieldDerivationView field={field} model={model} sentence={sentence} />
-              ) : (
-                <ConfirmationSentenceView sentence={sentence} />
-              )}
+              {(context) =>
+                source.kind === "calculation" ? (
+                  <FieldDerivationView field={field} model={model} sentence={sentence(context)} />
+                ) : (
+                  <ConfirmationSentenceView sentence={sentence(context)} />
+                )
+              }
             </EntityDetailDerivation>
           ) : undefined
         }
