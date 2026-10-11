@@ -215,9 +215,9 @@ test("deletes and restores a list from the list actions and labels hidden lists"
   const general = page.getByRole("region", { name: "General", exact: true });
   await general.getByRole("switch", { name: "Show in navigation", exact: true }).click();
   await saveGeneral(page);
-  expect((await readModel(database, companyId)).types.find((type) => type.id === id("task"))?.navigationVisible).toBe(
-    false,
-  );
+  await expect
+    .poll(async () => (await readModel(database, companyId)).types.find((type) => type.id === id("task"))?.navigationVisible)
+    .toBe(false);
   await openConfigure(page);
   await expect(configureListCard(page, "Tasks")).toContainText("Hidden");
   await expect(configureListCard(page, "Line items")).not.toContainText("Hidden");

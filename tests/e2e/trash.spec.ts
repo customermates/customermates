@@ -2,7 +2,8 @@ import type { Page } from "@playwright/test";
 
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
-import { runRowAction } from "./record-rows";
+import { recordItem, runRowAction } from "./record-rows";
+import { openSidebar } from "./sidebar";
 
 function collectErrors(page: Page) {
   const errors: string[] = [];
@@ -29,8 +30,7 @@ async function addServices(page: Page, typeId: string, names: string[]) {
 }
 
 async function deleteFromRow(page: Page, name: string) {
-  const row = page.getByRole("row").filter({ has: page.getByRole("link", { name, exact: true }) });
-  await runRowAction(page, row, name, "Delete");
+  await runRowAction(page, recordItem(page, name), name, "Delete");
   const confirmation = page.getByRole("alertdialog");
   await expect(confirmation).toContainText("It moves to Trash");
   await confirmation.getByRole("button", { name: "Delete", exact: true }).click();
@@ -65,6 +65,7 @@ test("restores a deleted record from Trash and shows a trashed record read only"
   await addServices(page, typeId, ["Restore Service"]);
   await deleteFromRow(page, "Restore Service");
 
+  await openSidebar(page);
   await page.locator("#nav-trash").click();
   await expect(page).toHaveURL(/\/en\/trash/);
   const row = trashRow(page, "Restore Service");

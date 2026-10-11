@@ -4,7 +4,14 @@ import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
 import { expect, isAppConsoleError, isBenignPageError, test } from "./fixtures";
-import { openRecordDetails, recordItem, rowActionFocusTarget, rowActionLabels, runRowAction } from "./record-rows";
+import {
+  openRecordDetails,
+  openRecordLink,
+  recordItem,
+  rowActionFocusTarget,
+  rowActionLabels,
+  runRowAction,
+} from "./record-rows";
 
 async function api(page: Page, path: string, data: unknown) {
   const response = await page.request.post(path, { data });
@@ -129,7 +136,7 @@ test("rows and cards open the record page and keep only Open details and Delete 
   await page.waitForLoadState("networkidle");
   const errors = trackErrors(page);
 
-  const row = page.getByRole("row").filter({ has: page.getByRole("link", { name, exact: true }) });
+  const row = recordItem(page, name);
   expect(await rowActionLabels(page, row, name)).toEqual(["Open details", "Delete"]);
   await runRowAction(page, row, name, "Open details");
   await expect(page.getByRole("dialog")).toBeVisible();
@@ -137,7 +144,7 @@ test("rows and cards open the record page and keep only Open details and Delete 
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).not.toBeVisible();
 
-  await row.getByRole("link", { name, exact: true }).click();
+  await openRecordLink(row.getByRole("link", { name, exact: true }));
   await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[0-9a-f-]{36}$`));
   await expect(page.getByRole("heading", { name }).or(page.getByText(name).first())).toBeVisible();
   expect(errors).toEqual([]);
@@ -202,7 +209,9 @@ test("record drawer Cancel closes clean forms and guards unsaved changes", async
 test("edits every field type inline in rows and on board cards, with validation, cancel and calculated tooltips", async ({
   page,
   companyId,
+  isMobile,
 }) => {
+  test.skip(isMobile, "Table cells edit in place on the desktop table; phone rows render no table cells");
   test.setTimeout(240000);
   await page.goto(`/en/records/${presetId(companyId, "contact")}`);
   const typeId = await createLabList(page, presetId(companyId, "contact"));
@@ -407,7 +416,9 @@ test("board cards show one chip row with icons, hide empty and grouped values an
 test("rows keep the row click on calculated values, toggle in selection mode and edit multi-value contacts from blank space", async ({
   page,
   companyId,
+  isMobile,
 }) => {
+  test.skip(isMobile, "Row selection and in-place cell editing belong to the desktop table; phone rows have neither");
   test.setTimeout(180000);
   await page.goto(`/en/records/${presetId(companyId, "contact")}`);
   const typeId = await createLabList(page, presetId(companyId, "contact"));
@@ -465,7 +476,9 @@ test("rows keep the row click on calculated values, toggle in selection mode and
 test("grouped tables show a quiet group band that adds into the group and hide the grouped column", async ({
   page,
   companyId,
+  isMobile,
 }) => {
+  test.skip(isMobile, "The group band with Add and the hidden grouped column belong to the desktop table");
   test.setTimeout(180000);
   await page.goto(`/en/records/${presetId(companyId, "contact")}`);
   const typeId = await createLabList(page, presetId(companyId, "contact"));
@@ -527,7 +540,7 @@ test("phone rows show the title and the card chip row instead of table columns",
   const item = rows.locator("[data-row-id]").filter({ hasText: "Lab phone" });
   await expect(item.locator(`[data-chip-column="${money.id}"]`)).toHaveText("€342K");
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  await item.getByRole("link", { name: "Open", exact: true }).click({ position: { x: 12, y: 12 } });
+  await item.getByRole("link", { name: "Lab phone", exact: true }).click({ position: { x: 12, y: 12 } });
   await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[0-9a-f-]{36}$`), { timeout: 30000 });
 });
 

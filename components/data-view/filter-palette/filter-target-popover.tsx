@@ -109,7 +109,7 @@ export const FilterTargetPopover = observer(function FilterTargetPopover({
   ) : (
     <Button
       aria-label={t("Common.ariaLabels.tooltipFilters")}
-      className="h-8"
+      className="relative h-8"
       disabled={store.isDisabled}
       id={id}
       size="sm"
@@ -118,12 +118,8 @@ export const FilterTargetPopover = observer(function FilterTargetPopover({
     >
       <Filter className="size-3.5" />
 
-      <span className="hidden sm:inline">{t("Common.filters.palette.trigger")}</span>
-
       {activeFilterCount > 0 && (
-        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-md bg-primary/15 px-1.5 text-[11px] font-medium text-primary-soft-foreground tabular-nums">
-          {activeFilterCount}
-        </span>
+        <span aria-hidden="true" className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-primary" />
       )}
     </Button>
   );

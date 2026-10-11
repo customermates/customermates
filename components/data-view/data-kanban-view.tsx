@@ -26,7 +26,7 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { ChevronsLeftRight, Ellipsis, EyeOff, Plus, Settings2 } from "lucide-react";
+import { ChevronsLeftRight, Ellipsis, EyeOff, Layers, Plus, Settings2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
@@ -217,10 +217,20 @@ type LoadMoreAction = {
   onClick: () => void;
 };
 
-function KanbanColumnLabel({ label, color, tooltip = true }: { label: string; color?: ChipColor; tooltip?: boolean }) {
+function KanbanColumnLabel({
+  label,
+  color,
+  tooltip = true,
+  vertical = false,
+}: {
+  label: string;
+  color?: ChipColor;
+  tooltip?: boolean;
+  vertical?: boolean;
+}) {
   if (color) {
     return (
-      <AppChip size="sm" variant={color}>
+      <AppChip className={vertical ? "h-auto w-[22px] px-0.5 py-1.5" : undefined} size="sm" variant={color}>
         {label}
       </AppChip>
     );
@@ -256,7 +266,12 @@ function KanbanCount({
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span aria-label={countLabel} className="shrink-0 text-xs text-muted-foreground tabular-nums">
+        <span
+          aria-label={countLabel}
+          className="flex shrink-0 items-center gap-1 text-xs text-muted-foreground tabular-nums"
+        >
+          <Layers aria-hidden="true" className="size-3.5 shrink-0 opacity-70" />
+
           {count}
         </span>
       </TooltipTrigger>
@@ -335,11 +350,9 @@ const KanbanColumn = observer(function KanbanColumn({
 
         <KanbanCount count={count} details={summaries?.length ? [] : details} recordLabels={recordLabels} />
 
-        {summaries?.length ? (
-          <GroupSummaries lead details={details} summaries={summaries} />
-        ) : (
-          <span className="ml-auto" />
-        )}
+        {summaries?.length ? <GroupSummaries lead details={details} summaries={summaries} /> : null}
+
+        <span className="ml-auto" />
 
         <div className="flex shrink-0 items-center opacity-0 transition-opacity group-hover/header:opacity-100 focus-within:opacity-100 has-data-[state=open]:opacity-100 any-pointer-coarse:opacity-100">
           {onCreate && addLabel && (
@@ -454,7 +467,7 @@ const KanbanStrip = observer(function KanbanStrip({
           onClick={onExpand}
         >
           <span className="flex min-h-0 items-center gap-2 [writing-mode:vertical-rl]">
-            <KanbanColumnLabel color={color} label={label} tooltip={false} />
+            <KanbanColumnLabel vertical color={color} label={label} tooltip={false} />
 
             <span aria-hidden className="shrink-0 text-xs text-muted-foreground tabular-nums">
               {count}
@@ -524,8 +537,6 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
   const groups = visibleGroups(store.groupingResult, { keepEmptyNoValue: true }).filter(
     (group) => !store.isGroupHidden(group.key) && !(store.grouping?.hideEmpty && group.count === 0),
   );
-  const openGroups = groups.filter((group) => !store.isBoardStrip(group.key, group.count));
-  const collapsedGroups = groups.filter((group) => store.isBoardStrip(group.key, group.count));
 
   if (!store.isGrouped) {
     return (
@@ -675,7 +686,22 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
         tabIndex={-1}
       >
         <div className={DATA_KANBAN_TRACK_CLASS_NAME}>
-          {openGroups.map((group) => {
+          {groups.map((group) => {
+            if (store.isBoardStrip(group.key, group.count)) {
+              return (
+                <KanbanStrip
+                  key={group.key}
+                  color={group.color}
+                  count={group.count}
+                  droppable={supportsDragWriteBack && group.writable !== false}
+                  id={group.key}
+                  label={groupLabel(group)}
+                  recordLabels={store.recordLabels}
+                  onExpand={() => store.toggleBoardStrip(group.key, group.count)}
+                />
+              );
+            }
+
             const loadMore = group.hasMore
               ? {
                   label: loadMoreLabel,
@@ -739,19 +765,6 @@ export const DataKanbanView = observer(function DataKanbanView<E extends HasCust
               </KanbanColumn>
             );
           })}
-
-          {collapsedGroups.map((group) => (
-            <KanbanStrip
-              key={group.key}
-              color={group.color}
-              count={group.count}
-              droppable={supportsDragWriteBack && group.writable !== false}
-              id={group.key}
-              label={groupLabel(group)}
-              recordLabels={store.recordLabels}
-              onExpand={() => store.toggleBoardStrip(group.key, group.count)}
-            />
-          ))}
         </div>
 
         {overflow && (

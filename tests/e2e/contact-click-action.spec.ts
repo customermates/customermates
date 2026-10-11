@@ -8,6 +8,7 @@ test("opens or copies contact values and edits them from empty cell space", asyn
   context,
   companyId,
 }, testInfo) => {
+  test.skip(Boolean(test.info().project.use.isMobile), "Editing from empty cell space belongs to the desktop table cells; phone rows have no cells");
   test.setTimeout(300000);
   if (testInfo.project.name === "chromium") await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   const typeId = presetId(companyId, "organization");

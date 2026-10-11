@@ -11,7 +11,7 @@ import {
   confirmDeletion,
 } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
-import { openRecordDetails } from "./record-rows";
+import { openRecordDetails, openRecordLink, recordRows } from "./record-rows";
 import { invokesServerAction, serverActionIds } from "./server-actions";
 import { presetId } from "../../features/records/crm-preset";
 import {
@@ -1355,35 +1355,38 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
   expect(await sourceRows()).toEqual(afterSave);
   await expect(main.locator('[aria-busy="true"]')).toHaveCount(0);
   await page.goto(`/en/records/${service.typeId}`);
-  for (const name of ["Recovery service", "Recovery second"]) {
+  let afterBulk = afterSave;
+  if (!test.info().project.use.isMobile) {
+    for (const name of ["Recovery service", "Recovery second"]) {
+      await page
+        .getByRole("row")
+        .filter({ has: page.getByRole("link", { name, exact: true }) })
+        .getByRole("checkbox")
+        .check();
+    }
+    const mass = page.locator("[data-record-mass-actions]");
+    await mass.getByRole("button", { name: "Edit", exact: true }).click();
     await page
-      .getByRole("row")
-      .filter({ has: page.getByRole("link", { name, exact: true }) })
-      .getByRole("checkbox")
-      .check();
+      .getByRole("dialog", { name: "Edit", exact: true })
+      .getByRole("button", { name: "Price", exact: true })
+      .click();
+    await page.getByRole("textbox", { name: "Price", exact: false }).fill("17.125");
+    const beforeBulk = await receiptCount();
+    bulkFaultsRemaining = 2;
+    await page
+      .getByRole("dialog", { name: "Edit", exact: true })
+      .getByRole("button", { name: "Save", exact: true })
+      .click();
+    await expect(page.getByRole("dialog", { name: "Edit", exact: true })).not.toBeVisible();
+    await expect(mass.getByRole("button", { name: english.ErrorCard.retry, exact: true })).toBeVisible();
+    expect(await receiptCount()).toBe(beforeBulk + 1);
+    afterBulk = await sourceRows();
+    expect(afterBulk).toEqual(afterSave.map((row) => ({ ...row, version: row.version + 1, amount: "17.125" })));
+    await mass.getByRole("button", { name: english.ErrorCard.retry, exact: true }).click();
+    await expect(mass).toHaveCount(0);
+    expect(await receiptCount()).toBe(beforeBulk + 1);
+    expect(await sourceRows()).toEqual(afterBulk);
   }
-  const mass = page.locator("[data-record-mass-actions]");
-  await mass.getByRole("button", { name: "Edit", exact: true }).click();
-  await page
-    .getByRole("dialog", { name: "Edit", exact: true })
-    .getByRole("button", { name: "Price", exact: true })
-    .click();
-  await page.getByRole("textbox", { name: "Price", exact: false }).fill("17.125");
-  const beforeBulk = await receiptCount();
-  bulkFaultsRemaining = 2;
-  await page
-    .getByRole("dialog", { name: "Edit", exact: true })
-    .getByRole("button", { name: "Save", exact: true })
-    .click();
-  await expect(page.getByRole("dialog", { name: "Edit", exact: true })).not.toBeVisible();
-  await expect(mass.getByRole("button", { name: english.ErrorCard.retry, exact: true })).toBeVisible();
-  expect(await receiptCount()).toBe(beforeBulk + 1);
-  const afterBulk = await sourceRows();
-  expect(afterBulk).toEqual(afterSave.map((row) => ({ ...row, version: row.version + 1, amount: "17.125" })));
-  await mass.getByRole("button", { name: english.ErrorCard.retry, exact: true }).click();
-  await expect(mass).toHaveCount(0);
-  expect(await receiptCount()).toBe(beforeBulk + 1);
-  expect(await sourceRows()).toEqual(afterBulk);
   await followConfigureLink(page);
   const fields = page.getByRole("region", { name: english.RecordModel.fields, exact: true });
   await openConfigureRow(page, "Fields", "Price");
@@ -1433,8 +1436,7 @@ test("retries relationship reads and accepted record, bulk and schema refreshes 
     "linked records",
     "relationship projection",
     "accepted record refresh",
-    "accepted bulk refresh",
-    "accepted bulk fallback refresh",
+    ...(testInfo.project.use.isMobile ? [] : ["accepted bulk refresh", "accepted bulk fallback refresh"]),
     "accepted schema refresh",
     "accepted navigation refresh",
   ]);
@@ -1526,7 +1528,7 @@ test("recovers a parent after an embedded save without repeating the child mutat
     fields: [{ fieldId: notes.id, value: null }],
   });
   await expect(main.locator(`[data-entity-field="${id("deal.totalValue")}"]`)).toContainText("€100.00");
-  await embedded.getByRole("button", { name: "Recovery line", exact: true }).click();
+  await openRecordLink(embedded.getByRole("button", { name: "Recovery line", exact: true }));
   const child = page.getByRole("dialog");
   await child.getByRole("textbox", { name: "Quantity", exact: false }).fill("2");
   const before = await persisted();
@@ -1556,9 +1558,7 @@ test("recovers a parent after an embedded save without repeating the child mutat
   await expect(main.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
   await expect(main.locator(`[data-entity-field="${id("deal.totalValue")}"]`)).toContainText("€200.00");
   await expect(main.locator(`[data-entity-field="${id("deal.weightedValue")}"]`)).toContainText("€120.00");
-  const row = embedded
-    .getByRole("row")
-    .filter({ has: page.getByRole("button", { name: "Recovery line", exact: true }) });
+  const row = recordRows(embedded).filter({ hasText: "Recovery line" });
   await expect(row.getByRole("button", { name: "Edit Quantity", exact: true })).toHaveText("2");
   await expect(main.getByText(`Add ${notes.label}`, { exact: true })).toBeVisible();
   await expect(main.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
