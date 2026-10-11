@@ -868,7 +868,7 @@ path:focus {
 
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    [data-homepage-reveal] {
+    [data-reveal] {
       animation: homepage-reveal linear both;
       animation-timeline: view();
       animation-range: entry 5% cover 28%;

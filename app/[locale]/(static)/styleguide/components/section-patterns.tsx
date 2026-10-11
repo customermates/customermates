@@ -6,6 +6,8 @@ import { PatternHeader, type PatternSpec } from "./pattern-header";
 
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { Step, Steps } from "@/components/marketing/process-steps";
+import { ProductPanel, ProductWindow } from "@/components/marketing/product-window";
+import { SectionGlow } from "@/components/marketing/section-glow";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/core/utils/cn";
 
@@ -257,12 +259,16 @@ export function SectionPatterns() {
             </div>
 
             <div className="col-span-12 lg:col-start-8 lg:col-end-13">
-              <PatternMediaSlot
-                aspect="4:3"
-                collapse="Moves below the copy before lg"
-                crop="No crop; composition reflows"
-                placementRole="Trailing explanation"
-              />
+              <ProductPanel className="p-6 sm:p-8">
+                <ProductWindow>
+                  <PatternMediaSlot
+                    aspect="4:3"
+                    collapse="Moves below the copy before lg"
+                    crop="No crop; composition reflows"
+                    placementRole="Trailing explanation"
+                  />
+                </ProductWindow>
+              </ProductPanel>
             </div>
           </div>
         </MarketingSection>
@@ -277,12 +283,16 @@ export function SectionPatterns() {
         <MarketingSection>
           <div className="marketing-grid items-center gap-y-10">
             <div className="col-span-12 lg:col-span-5 lg:row-start-1">
-              <PatternMediaSlot
-                aspect="4:3"
-                collapse="Moves above the copy before lg"
-                crop="No crop; composition reflows"
-                placementRole="Leading explanation"
-              />
+              <ProductPanel className="p-6 sm:p-8">
+                <ProductWindow>
+                  <PatternMediaSlot
+                    aspect="4:3"
+                    collapse="Moves above the copy before lg"
+                    crop="No crop; composition reflows"
+                    placementRole="Leading explanation"
+                  />
+                </ProductWindow>
+              </ProductPanel>
             </div>
 
             <div className="col-span-12 lg:col-start-8 lg:col-end-13 lg:row-start-1">
@@ -409,7 +419,7 @@ export function SectionPatterns() {
         when="Steps that only make sense in order"
       >
         <MarketingSection description="Three steps, once." title="How the connection is set up">
-          <Steps className="mt-14 mb-0 max-w-3xl lg:mt-16">
+          <Steps data-step-progress className="mt-14 mb-0 max-w-3xl lg:mt-16">
             {STEPS.map((step, index) => (
               <Step key={step.title} id={`S-08-step-${index + 1}`} title={step.title}>
                 <p>{step.body}</p>
@@ -440,18 +450,25 @@ export function SectionPatterns() {
 
       <PatternBlock columns="full container width" id="S-10" name="Product proof" when="A real capture is the argument">
         <MarketingSection flush>
-          <PatternMediaSlot
-            aspect="16:9"
-            collapse="Remains full width at every breakpoint"
-            crop="Full frame; product chrome remains visible"
-            placementRole="Explicit local product evidence"
-          />
+          <ProductWindow>
+            <PatternMediaSlot
+              aspect="16:9"
+              collapse="Remains full width at every breakpoint"
+              crop="Full frame; product chrome remains visible"
+              placementRole="Explicit local product evidence"
+            />
+          </ProductWindow>
         </MarketingSection>
       </PatternBlock>
 
       <PatternBlock columns="stacked, measure capped" id="S-11" name="Closing panel" when="The last thing on the page">
         <MarketingSection flush>
-          <div className="rounded-card border border-border bg-sidebar px-6 py-14 text-center sm:px-10 sm:py-16">
+          <div
+            data-reveal
+            className="relative isolate overflow-hidden rounded-card border border-border bg-sidebar px-6 py-14 text-center sm:px-10 sm:py-16"
+          >
+            <SectionGlow />
+
             <div className="mx-auto max-w-3xl">
               <p className="text-eyebrow">Closing panel</p>
 

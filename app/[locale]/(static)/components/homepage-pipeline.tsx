@@ -7,7 +7,7 @@ import { MarketingSection } from "@/components/marketing/marketing-section";
 
 import { HomepageCaptureImage } from "./homepage-capture-image";
 import { STAGE_AREAS } from "./homepage-stage-areas";
-import { ProductPanel, ProductWindow } from "./homepage-product-window";
+import { ProductPanel, ProductWindow } from "@/components/marketing/product-window";
 import { HomepageStageLink } from "./homepage-stage-link";
 
 const POINT_ICONS = [Columns3, BarChart3, MousePointer2] as const;

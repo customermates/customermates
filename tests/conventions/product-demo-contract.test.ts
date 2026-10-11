@@ -65,7 +65,7 @@ describe("seeded public product demo", () => {
       "/company/webhooks",
     ]);
     expect(buildProductDemoUrl("en", "/inbox")).toBe(
-      "https://demo.customermates.com/en/inbox?agentChat=closed",
+      "https://demo.customermates.com/en/inbox?threadId=latest&agentChat=closed",
     );
     expect(buildProductDemoUrl("de", "/deals")).toBe(
       "https://demo.customermates.com/de/deals?agentChat=closed",

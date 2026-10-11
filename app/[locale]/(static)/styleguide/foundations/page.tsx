@@ -7,7 +7,7 @@ import { TokenTable, TypeTable } from "../components/style-readout";
 
 import { MarketingSection } from "@/components/marketing/marketing-section";
 import { Step, Steps } from "@/components/marketing/process-steps";
-import { PhoneFrame, ProductPanel, ProductWindow } from "@/app/[locale]/(static)/components/homepage-product-window";
+import { PhoneFrame, ProductPanel, ProductWindow } from "@/components/marketing/product-window";
 import { Button } from "@/components/ui/button";
 import { GridPattern } from "@/components/shared/grid-pattern";
 import { enableStaticLocale, type StaticLocaleProps } from "@/i18n/static-locale";

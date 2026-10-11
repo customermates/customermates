@@ -54,7 +54,12 @@ function HeroAction({ href, label, variant }: { href: string; label: string; var
   );
 
   return (
-    <Button asChild className="w-full sm:w-auto" size="lg" variant={variant}>
+    <Button
+      asChild
+      className={cn("w-full sm:w-auto", variant === "secondary" && "glass-surface")}
+      size="lg"
+      variant={variant === "secondary" ? "ghost" : variant}
+    >
       {isExternalHref(href) ? (
         <a href={href} rel="noopener noreferrer" target="_blank">
           {content}

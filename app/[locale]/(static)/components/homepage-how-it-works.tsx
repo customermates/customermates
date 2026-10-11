@@ -5,7 +5,7 @@ import { Step, Steps } from "@/components/marketing/process-steps";
 
 import { HomepageCaptureImage } from "./homepage-capture-image";
 import { HomepageMcpSnippet } from "./homepage-mcp-snippet";
-import { ProductPanel, ProductWindow } from "./homepage-product-window";
+import { ProductPanel, ProductWindow } from "@/components/marketing/product-window";
 import { HomepageStageLink } from "./homepage-stage-link";
 
 type StepItem = { description: string; n: string; title: string };

@@ -66,7 +66,6 @@ const components = [
   "homepage-pricing.tsx",
   "homepage-product-proof.tsx",
   "homepage-product-stage.tsx",
-  "homepage-product-window.tsx",
   "homepage-routines.tsx",
   "homepage-stage-link.tsx",
   "homepage-stats-row.tsx",
@@ -329,7 +328,7 @@ describe("homepage visual-system adoption", () => {
 
   it("frames every product capture in one window language on a lit panel", () => {
     const stage = readComponent("homepage-product-stage.tsx");
-    const productWindow = readComponent("homepage-product-window.tsx");
+    const productWindow = readFileSync(join(REPO_ROOT, "components", "marketing", "product-window.tsx"), "utf8");
 
     expect(stage).toContain("<ProductWindow");
     expect(stage).toContain("LIVE_REVEAL_DELAY_MS = 500");
@@ -340,14 +339,14 @@ describe("homepage visual-system adoption", () => {
     expect(stage).toContain('inbox: "/inbox?threadId=latest"');
     expect(productWindow).toContain("data-homepage-panel");
     expect(productWindow).toContain("data-homepage-phone");
-    expect(productWindow).toContain("data-homepage-reveal");
+    expect(productWindow).toContain("data-reveal");
     expect(readComponent("homepage-how-it-works.tsx")).toContain('<Steps data-step-progress className="my-0">');
     expect(readComponent("homepage-how-it-works.tsx")).toContain("<HomepageMcpSnippet");
     expect(readComponent("homepage-mcp-snippet.tsx")).toContain('getMcpInstallSnippet("cursor", DOCS_API_KEY_PLACEHOLDER, env.BASE_URL)');
     expect(globalStyles).toMatch(/\[data-step-progress\]::after/u);
     expect(readComponent("homepage-product-proof.tsx")).toContain("<ProductWindow>");
     expect(globalStyles).toContain("animation-timeline: view();");
-    expect(globalStyles).toMatch(/@media \(prefers-reduced-motion: no-preference\) \{\s+\[data-homepage-reveal\]/u);
+    expect(globalStyles).toMatch(/@media \(prefers-reduced-motion: no-preference\) \{\s+\[data-reveal\]/u);
     for (const file of [
       "homepage-walkthrough.tsx",
       "homepage-how-it-works.tsx",

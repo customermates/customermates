@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 
 import { Faq, FaqItem } from "@/components/marketing/faq";
 import { MarketingSection } from "@/components/marketing/marketing-section";
+import { SectionGlow } from "@/components/marketing/section-glow";
 import { Button } from "@/components/ui/button";
 import { AppLink } from "@/components/shared/app-link";
 
@@ -73,18 +74,10 @@ export function HomepageClosing({
   return (
     <MarketingSection flush id="get-started">
       <div
-        data-homepage-reveal
+        data-reveal
         className="relative isolate overflow-hidden rounded-card border border-border bg-sidebar px-5 py-14 text-center sm:px-10 sm:py-16 lg:py-20"
       >
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-1/3 -bottom-1/2 -z-10 bg-[radial-gradient(50%_60%_at_50%_100%,color-mix(in_oklab,var(--color-primary)_24%,transparent),transparent)]"
-        />
-
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-[15%] top-0 h-px bg-linear-to-r from-transparent via-foreground/25 to-transparent"
-        />
+        <SectionGlow />
 
         <div className="mx-auto max-w-3xl">
           <p className="text-eyebrow">{eyebrow}</p>

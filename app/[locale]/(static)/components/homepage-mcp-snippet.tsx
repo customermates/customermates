@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { env } from "@/env";
 import { DOCS_API_KEY_PLACEHOLDER, getMcpInstallSnippet } from "@/features/docs/mcp-install-snippet";
 
-import { ProductWindow } from "./homepage-product-window";
+import { ProductWindow } from "@/components/marketing/product-window";
 
 function highlightJson(line: string): ReactNode[] {
   const tokens: ReactNode[] = [];

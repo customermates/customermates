@@ -11,7 +11,7 @@ import { Inbox, KanbanSquare, LayoutDashboard, Repeat, UserRound } from "lucide-
 import { cn } from "@/core/utils/cn";
 
 import { HomepageCaptureImage } from "./homepage-capture-image";
-import { ProductWindow } from "./homepage-product-window";
+import { ProductWindow } from "@/components/marketing/product-window";
 import { useHomepageMotion } from "./homepage-motion";
 import {
   type HomepageStageArea,
@@ -302,7 +302,7 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
             className="pointer-events-none absolute inset-x-[12%] top-0 z-20 h-px bg-linear-to-r from-transparent via-white/40 to-transparent max-sm:hidden"
           />
 
-          <ProductWindow className="max-sm:rounded-[2rem]">
+          <ProductWindow className="max-sm:rounded-[1.6rem]">
             <div ref={liveBoxRef} className="relative">
               {tabs.map((tab, index) => (
                 <div

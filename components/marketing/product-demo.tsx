@@ -151,7 +151,9 @@ function isProductDemoPath(path: string): path is ProductDemoPath {
 export function buildProductDemoUrl(locale: ContentLocale, path: string): string {
   if (!isProductDemoPath(path)) throw new Error(`Unsupported product demo path: ${path}`);
 
-  return `https://demo.customermates.com/${locale}${path}?agentChat=closed`;
+  const query = path === "/inbox" ? "threadId=latest&agentChat=closed" : "agentChat=closed";
+
+  return `https://demo.customermates.com/${locale}${path}?${query}`;
 }
 
 type Props = {

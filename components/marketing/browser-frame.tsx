@@ -6,6 +6,8 @@ import { ArrowUpRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { preconnect, prefetchDNS } from "react-dom";
 
+import { ProductWindow } from "@/components/marketing/product-window";
+
 type Props = {
   fallbackMessage?: string;
   loadAhead?: boolean;
@@ -89,80 +91,85 @@ export function BrowserFrame({ fallbackMessage, loadAhead = false, size = "full"
 
   return (
     <div data-live-preview className="not-prose relative mx-auto w-full max-w-live-preview">
-      <div ref={frameRef} className="overflow-hidden rounded-xl border border-border bg-card">
-        <div className="grid min-h-10 grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 border-b border-border px-4 py-2 sm:grid-cols-[1fr_minmax(0,2fr)_1fr]">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <span className="inline-flex items-center gap-2 font-mono text-[10px] font-medium tracking-[0.14em] uppercase">
-              <span aria-hidden className="size-1.5 animate-pulse rounded-full bg-success motion-reduce:animate-none" />
+      <ProductWindow>
+        <div ref={frameRef} className="bg-card">
+          <div className="grid min-h-10 grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1 border-b border-border px-4 py-2 sm:grid-cols-[1fr_minmax(0,2fr)_1fr]">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="inline-flex items-center gap-2 font-mono text-[10px] font-medium tracking-[0.14em] uppercase">
+                <span
+                  aria-hidden
+                  className="size-1.5 animate-pulse rounded-full bg-success motion-reduce:animate-none"
+                />
 
-              {t("BrowserFrame.live")}
-            </span>
+                {t("BrowserFrame.live")}
+              </span>
+            </div>
+
+            <a
+              className="col-span-2 row-start-2 min-w-0 truncate text-center font-mono text-[11px] text-muted-foreground hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-ring sm:col-span-1 sm:col-start-2 sm:row-start-1"
+              href={currentUrl}
+              rel="noreferrer noopener"
+              target="_blank"
+              title={currentUrl}
+            >
+              {(getOrigin(currentUrl) ?? currentUrl).replace(/^https?:\/\//u, "")}
+            </a>
+
+            <a
+              className="inline-flex justify-self-end shrink-0 items-center gap-1.5 rounded-sm text-xs font-medium text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
+              href={currentUrl}
+              rel="noreferrer noopener"
+              target="_blank"
+            >
+              {t("BrowserFrame.open")}
+
+              <ArrowUpRight aria-hidden className="size-3.5" />
+            </a>
           </div>
 
-          <a
-            className="col-span-2 row-start-2 min-w-0 truncate text-center font-mono text-[11px] text-muted-foreground hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-ring sm:col-span-1 sm:col-start-2 sm:row-start-1"
-            href={currentUrl}
-            rel="noreferrer noopener"
-            target="_blank"
-            title={currentUrl}
-          >
-            {(getOrigin(currentUrl) ?? currentUrl).replace(/^https?:\/\//u, "")}
-          </a>
+          <div className={`relative ${FRAME_HEIGHT_CLASS[size]}`}>
+            {!loaded ? (
+              <div className="absolute inset-0 animate-pulse bg-placeholder motion-reduce:animate-none" />
+            ) : null}
 
-          <a
-            className="inline-flex justify-self-end shrink-0 items-center gap-1.5 rounded-sm text-xs font-medium text-muted-foreground hover:text-foreground focus-visible:outline-2 focus-visible:outline-ring"
-            href={currentUrl}
-            rel="noreferrer noopener"
-            target="_blank"
-          >
-            {t("BrowserFrame.open")}
-
-            <ArrowUpRight aria-hidden className="size-3.5" />
-          </a>
-        </div>
-
-        <div className={`relative ${FRAME_HEIGHT_CLASS[size]}`}>
-          {!loaded ? (
-            <div className="absolute inset-0 animate-pulse bg-placeholder motion-reduce:animate-none" />
-          ) : null}
-
-          {timedOut && fallbackMessage ? (
-            <div
-              className="absolute inset-x-4 bottom-4 z-10 flex flex-col gap-3 rounded-xl border border-border-strong bg-background/95 p-4 shadow-lg backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between"
-              role="status"
-            >
-              <p className="max-w-xl text-xs leading-5 text-muted-foreground">{fallbackMessage}</p>
-
-              <a
-                className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-foreground hover:underline"
-                href={src}
-                rel="noreferrer noopener"
-                target="_blank"
+            {timedOut && fallbackMessage ? (
+              <div
+                className="absolute inset-x-4 bottom-4 z-10 flex flex-col gap-3 rounded-xl border border-border-strong bg-background/95 p-4 shadow-lg backdrop-blur-sm sm:flex-row sm:items-center sm:justify-between"
+                role="status"
               >
-                {t("BrowserFrame.open")}
+                <p className="max-w-xl text-xs leading-5 text-muted-foreground">{fallbackMessage}</p>
 
-                <ArrowUpRight aria-hidden className="size-3" />
-              </a>
-            </div>
-          ) : null}
+                <a
+                  className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-foreground hover:underline"
+                  href={src}
+                  rel="noreferrer noopener"
+                  target="_blank"
+                >
+                  {t("BrowserFrame.open")}
 
-          {shouldMount ? (
-            <iframe
-              ref={iframeRef}
-              className={`block size-full border-0 bg-background transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
-              loading={loadAhead ? "eager" : "lazy"}
-              referrerPolicy="strict-origin-when-cross-origin"
-              sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-              src={src}
-              title={title}
-              onLoad={() => {
-                setLoaded(true);
-                setTimedOut(false);
-              }}
-            />
-          ) : null}
+                  <ArrowUpRight aria-hidden className="size-3" />
+                </a>
+              </div>
+            ) : null}
+
+            {shouldMount ? (
+              <iframe
+                ref={iframeRef}
+                className={`block size-full border-0 bg-background transition-opacity duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+                loading={loadAhead ? "eager" : "lazy"}
+                referrerPolicy="strict-origin-when-cross-origin"
+                sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
+                src={src}
+                title={title}
+                onLoad={() => {
+                  setLoaded(true);
+                  setTimedOut(false);
+                }}
+              />
+            ) : null}
+          </div>
         </div>
-      </div>
+      </ProductWindow>
     </div>
   );
 }

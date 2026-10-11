@@ -27,7 +27,7 @@ export function ProductPanel({ children, className }: FrameProps) {
   return (
     <div
       data-homepage-panel
-      data-homepage-reveal
+      data-reveal
       className={cn(
         "relative isolate overflow-hidden rounded-3xl border border-foreground/[0.08] bg-foreground/[0.025]",
         className,
@@ -48,11 +48,11 @@ export function PhoneFrame({ children, className }: FrameProps) {
     <div
       data-homepage-phone
       className={cn(
-        "rounded-[2.6rem] bg-neutral-950 p-[0.45rem] shadow-[0_36px_80px_-24px_rgb(0_0_0/0.6)] ring-1 ring-foreground/15",
+        "rounded-[1.9rem] bg-neutral-950 p-[0.35rem] shadow-[0_36px_80px_-24px_rgb(0_0_0/0.6)] ring-1 ring-foreground/15",
         className,
       )}
     >
-      <div className="overflow-hidden rounded-[2.2rem]">{children}</div>
+      <div className="overflow-hidden rounded-[1.6rem]">{children}</div>
     </div>
   );
 }

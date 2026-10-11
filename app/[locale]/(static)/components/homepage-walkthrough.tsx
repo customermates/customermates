@@ -6,7 +6,7 @@ import { Check } from "lucide-react";
 import { MarketingSection } from "@/components/marketing/marketing-section";
 
 import { HomepageCaptureImage } from "./homepage-capture-image";
-import { PhoneFrame, ProductPanel, ProductWindow } from "./homepage-product-window";
+import { PhoneFrame, ProductPanel, ProductWindow } from "@/components/marketing/product-window";
 import { HomepageStageLink } from "./homepage-stage-link";
 
 type Props = {

@@ -1,3 +1,4 @@
+import type { ComponentProps } from "react";
 import type { MDXComponents } from "mdx/types";
 
 import defaultMdxComponents from "fumadocs-ui/mdx";
@@ -12,6 +13,10 @@ import {
 import { Faq, FaqItem } from "@/components/marketing/faq";
 import { ProductDemo } from "@/components/marketing/product-demo";
 import { Step, Steps } from "@/components/marketing/process-steps";
+
+function ProgressSteps(props: ComponentProps<typeof Steps>) {
+  return <Steps data-step-progress {...props} />;
+}
 import { markdownBaseComponents } from "./markdown-base-components";
 import { McpInstallSnippet } from "./mcp-install-snippet";
 import { StatusAvailable, StatusPartial, StatusUnavailable } from "./status-icon";
@@ -28,7 +33,7 @@ export function getMDXComponents(components?: MDXComponents): MDXComponents {
     ProofItem,
     ProofRail,
     Step,
-    Steps,
+    Steps: ProgressSteps,
     SummaryItem,
     StatusAvailable,
     StatusPartial,

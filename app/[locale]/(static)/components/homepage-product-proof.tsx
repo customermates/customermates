@@ -4,7 +4,7 @@ import { Clock3, Play } from "lucide-react";
 
 import { MarketingSection } from "@/components/marketing/marketing-section";
 
-import { ProductWindow } from "./homepage-product-window";
+import { ProductWindow } from "@/components/marketing/product-window";
 import { HomepageViewportVideo } from "./homepage-viewport-video";
 
 export function HomepageProductProof({ proof }: { proof: HomepageProductProofContent }) {
@@ -39,7 +39,7 @@ export function HomepageProductProof({ proof }: { proof: HomepageProductProofCon
             </p>
           </div>
 
-          <div data-homepage-reveal className="mt-8">
+          <div data-reveal className="mt-8">
             <ProductWindow>
               <div className="relative aspect-video w-full">
                 <HomepageViewportVideo
