@@ -152,7 +152,7 @@ test("configures a type, formula, saved view and widget over authenticated MCP a
       operations: [
         {
           operation: "putType",
-          type: { ...type, defaults: { ...type.defaults, columns: [type.primaryFieldId, budget.id, half.id] } },
+          type: { ...type, description: "Projects tracked through the protocol" },
         },
       ],
     });

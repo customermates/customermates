@@ -121,7 +121,7 @@ test("edits two formatted text fields inline in the overview, collapses long tex
     },
   });
   const dealId = created.refs.find((ref: { typeId: string }) => ref.typeId === dealTypeId).recordId;
-  await page.goto(`/en/records/${dealTypeId}?viewMode=card`);
+  await page.goto(`/en/records/${dealTypeId}?viewMode=card&groupBy=${presetId(companyId, "deal.stage")}`);
   const card = page.locator(`[data-item-id="${dealId}"]`);
   await expect(card).toBeVisible();
   await expect(card.locator("[data-card-excerpt]")).toHaveCount(0);

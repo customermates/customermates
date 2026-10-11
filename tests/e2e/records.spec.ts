@@ -5,7 +5,6 @@ import {
   addFromConfigure,
   followConfigureLink,
   openConfigure,
-  openListAction,
   saveDrawer,
   saveGeneral,
 } from "./configure";
@@ -132,64 +131,67 @@ test("creates a custom list and field through the UI, then persists a decimal re
     .getByRole("textbox", { name: "Plural name", exact: true })
     .fill(renamed);
   await saveGeneral(page);
-  await openListAction(page, "Shared defaults");
-  await dialog.getByRole("combobox", { name: "Default grouping", exact: true }).click();
-  await page.getByRole("option", { name: "Assigned to", exact: true }).click();
-  await dialog.getByRole("button", { name: "Add summary", exact: true }).click();
-  await expect(dialog.getByRole("combobox", { name: "Summary field", exact: true })).toContainText("Budget");
-  await dialog
-    .getByRole("group", { name: "Default columns", exact: true })
-    .getByRole("checkbox", { name: "Budget", exact: true })
-    .uncheck();
-  await dialog.getByRole("combobox", { name: "Default sort", exact: true }).click();
-  await page.getByRole("option", { name: "Budget", exact: true }).click();
-  await saveDrawer(page);
   await openConfiguredRecords();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}`));
+  const budgetColumn = () =>
+    page.getByRole("columnheader").filter({ has: page.getByRole("button", { name: "Budget", exact: true }) });
+  const budgetSummary = page.locator(
+    '[data-slot="group-header-row"] [aria-label="Budget · Sum: €123,456,789,012,345.13"]',
+  );
+  const savedState = async () =>
+    (
+      await database.query(
+        'SELECT grouping, "hiddenColumns", "sortDescriptor" FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2',
+        [companyId, `records:${typeId}`],
+      )
+    ).rows[0];
+  await expect(budgetColumn()).toBeVisible();
+  await page.getByRole("button", { name: "Appearance", exact: true }).click();
+  await expect(page.getByText(englishMessages.DataView.summaries, { exact: true })).toHaveCount(0);
+  await page.getByRole("combobox", { name: "Group By", exact: true }).click();
+  await page.getByRole("option", { name: "Assigned to", exact: true }).click();
+  await page.getByRole("button", { name: englishMessages.RecordModel.addGroupSummary, exact: true }).click();
   await expect(
-    page.locator('[data-slot="group-header-row"] [aria-label="Budget · Sum: €123,456,789,012,345.13"]'),
-  ).toBeVisible();
+    page.getByRole("combobox", { name: englishMessages.RecordModel.summaryField, exact: true }),
+  ).toContainText("Budget");
   await expect(
-    page.getByRole("columnheader").filter({ has: page.getByRole("button", { name: "Budget", exact: true }) }),
-  ).not.toBeVisible();
+    page.getByRole("combobox", { name: englishMessages.RecordModel.summaryAggregation, exact: true }),
+  ).toContainText(englishMessages.RecordModel.reducers.sum);
+  await page.getByRole("checkbox", { name: "Budget", exact: true }).uncheck();
+  await page.getByRole("combobox", { name: "Sort by", exact: true }).click();
+  await page.getByRole("option", { name: "Budget", exact: true }).click();
+  await page.keyboard.press("Escape");
+  await expect(budgetSummary).toBeVisible();
+  await expect(budgetColumn()).not.toBeVisible();
+  await expect
+    .poll(async () => (await savedState())?.grouping)
+    .toEqual({ field: "system:assignedTo", summaries: [{ fieldId: expect.any(String), aggregation: "sum" }] });
+  const budgetId = (await savedState()).grouping.summaries[0].fieldId as string;
+  await expect.poll(async () => (await savedState())?.hiddenColumns).toEqual([budgetId]);
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await page.getByRole("checkbox", { name: "Budget", exact: true }).check();
   await page.keyboard.press("Escape");
-  await expect(
-    page.getByRole("columnheader").filter({ has: page.getByRole("button", { name: "Budget", exact: true }) }),
-  ).toBeVisible();
-  await expect
-    .poll(async () => {
-      const saved = await database.query('SELECT "hiddenColumns" FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2', [
-        companyId,
-        `records:${typeId}`,
-      ]);
-      return saved.rows[0]?.hiddenColumns;
-    })
-    .toEqual([]);
+  await expect(budgetColumn()).toBeVisible();
+  await expect.poll(async () => (await savedState())?.hiddenColumns).toEqual([]);
   await page.reload();
-  await expect(
-    page.getByRole("columnheader").filter({ has: page.getByRole("button", { name: "Budget", exact: true }) }),
-  ).toBeVisible();
+  await expect(budgetColumn()).toBeVisible();
+  await expect(budgetSummary).toBeVisible();
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
-  await page.getByRole("button", { name: "Reset to shared defaults", exact: true }).click();
-  await expect(
-    page.getByRole("columnheader").filter({ has: page.getByRole("button", { name: "Budget", exact: true }) }),
-  ).not.toBeVisible();
+  await page.getByRole("button", { name: englishMessages.RecordModel.resetLayout, exact: true }).click();
+  await expect(budgetSummary).toHaveCount(0);
+  await expect(budgetColumn()).toBeVisible();
   await expect(page.getByRole("checkbox", { name: "Budget", exact: true })).toHaveCount(0);
+  await expect.poll(async () => (await savedState())?.grouping ?? null).toBeNull();
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await expect(page.getByRole("checkbox", { name: "Budget", exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Reset to shared defaults", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: englishMessages.RecordModel.resetLayout, exact: true })).toHaveCount(0);
   await page.keyboard.press("Escape");
   const configured = await database.query(
     'SELECT definition FROM "RecordTypeDefinition" WHERE "companyId"=$1 AND id=$2',
     [companyId, typeId],
   );
   expect(configured.rows[0].definition.pluralLabel).toBe(renamed);
-  expect(configured.rows[0].definition.defaults.hiddenColumns).toHaveLength(1);
-  expect(configured.rows[0].definition.defaults.groupSummaries).toEqual([
-    { fieldId: configured.rows[0].definition.defaults.hiddenColumns[0], aggregation: "sum" },
-  ]);
+  expect("defaults" in configured.rows[0].definition).toBe(false);
 
   const dashboard = page.locator("#nav-dashboard");
   if (!(await dashboard.isVisible())) await page.locator("#sidebar-trigger").click();

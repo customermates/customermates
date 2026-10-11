@@ -27,7 +27,6 @@ import {
   openConfigure,
   openConfigureRow,
   openConfigureTab,
-  openListAction,
   saveDrawer,
   deleteFromDrawer,
   deleteSelectedList,
@@ -2057,17 +2056,6 @@ test("configures a two-hop relationship path and lets a genuine read-only user n
   }
 });
 
-async function presentationOptionUi(page: Page, id: string, label: string) {
-  await page
-    .getByRole("dialog", {
-      name: englishMessages.RecordModel.sharedDefaults,
-      exact: true,
-    })
-    .locator(`#${id}`)
-    .click();
-  await page.getByRole("option", { name: label, exact: true }).click();
-}
-
 async function presentationAppearanceUi(page: Page) {
   await page
     .getByRole("button", {
@@ -2123,7 +2111,7 @@ async function presentationNameViewUi(page: Page, name: string) {
   ).toHaveAttribute("aria-current", "page");
 }
 
-test("keeps personal views separate from shared defaults and completes their UI lifecycle for two genuine users", async ({
+test("keeps personal views separate from the list layout, groups and summarises them through Appearance for two genuine users", async ({
   page,
   browser,
   context,
@@ -2277,74 +2265,6 @@ test("keeps personal views separate from shared defaults and completes their UI 
     sortDescriptor: { field: type.primaryFieldId, direction: "asc" },
     hiddenColumns: [budgetId],
   });
-  await openConfigure(page, type.id);
-  await openListAction(page, "Shared defaults");
-  const shared = page.getByRole("dialog", {
-    name: englishMessages.RecordModel.sharedDefaults,
-    exact: true,
-  });
-  await presentationOptionUi(page, "layout", englishMessages.RecordModel.board);
-  await presentationOptionUi(page, "groupBy", "Stage");
-  await presentationOptionUi(page, "sortField", "Budget");
-  await presentationOptionUi(
-    page,
-    "sortDirection",
-    englishMessages.RecordModel.descending,
-  );
-  const columns = shared.getByRole("group", {
-    name: englishMessages.RecordModel.defaultColumns,
-    exact: true,
-  });
-  await columns
-    .getByRole("checkbox", { name: "Internal memo", exact: true })
-    .uncheck();
-  await columns
-    .getByRole("button", {
-      name: englishMessages.RecordModel.moveUp.replace("{field}", "Budget"),
-      exact: true,
-    })
-    .click();
-  const pinned = shared.getByRole("group", {
-    name: englishMessages.RecordModel.pinnedFields,
-    exact: true,
-  });
-  await pinned.getByRole("checkbox", { name: "Budget", exact: true }).check();
-  await shared
-    .getByRole("button", {
-      name: englishMessages.RecordModel.addGroupSummary,
-      exact: true,
-    })
-    .click();
-  await presentationOptionUi(page, "type-summary-field-0", "Budget");
-  await presentationOptionUi(
-    page,
-    "type-summary-aggregation-0",
-    englishMessages.RecordModel.reducers.average,
-  );
-  await presentationOptionUi(
-    page,
-    "type-summary-aggregation-0",
-    englishMessages.RecordModel.reducers.sum,
-  );
-  await saveDrawer(page);
-  const changed = (await readModel(page)).types.find(
-    (candidate) => candidate.id === type.id,
-  );
-  expect(changed?.defaults).toMatchObject({
-    layout: "board",
-    groupBy: stageId,
-    sortField: budgetId,
-    sortDirection: "desc",
-    hiddenColumns: [internalId],
-    pinnedFields: [type.primaryFieldId, budgetId],
-    groupSummaries: [{ fieldId: budgetId, aggregation: "sum" }],
-  });
-  expect(changed?.defaults.columns.slice(0, 3)).toEqual([
-    type.primaryFieldId,
-    budgetId,
-    stageId,
-  ]);
-  expect(await viewRows(workspace.userId)).toEqual([personal]);
   await page.goto(`/en/records/${type.id}`);
   await expect(
     page
@@ -2358,17 +2278,9 @@ test("keeps personal views separate from shared defaults and completes their UI 
   await expect(
     page.getByRole("columnheader", { name: "Internal memo", exact: false }),
   ).toBeVisible();
-  await openRecordDetails(page, "Alpha portfolio");
-  const detail = page.getByRole("dialog", { name: type.label, exact: true });
-  await expect(
-    detail.locator(`[data-chip-column="${budgetId}"]`),
-  ).toContainText("50");
-  await page.keyboard.press("Escape");
-  await expect(detail).not.toBeVisible();
   const role = await saveRole(page, {
     name: "Portfolio viewers",
-    description:
-      "Read the shared presentation without schema or record editing",
+    description: "Read the list layout without schema or record editing",
     permissions: [{ resource: "company", actions: [] }],
     recordGrants: [{ typeId: type.id, actions: ["readAll"] }],
   });
@@ -2410,9 +2322,22 @@ test("keeps personal views separate from shared defaults and completes their UI 
         .getByText("Internal memo", { exact: true }),
     ).toHaveCount(0);
   };
+  const assertListLayout = async (target: Page) => {
+    await expect(
+      target.getByRole("columnheader", { name: "Internal memo", exact: false }),
+    ).toBeVisible();
+    await expect(
+      target.getByRole("columnheader", { name: "Budget", exact: false }),
+    ).toBeVisible();
+    await expect(
+      target.getByRole("columnheader", { name: "Stage", exact: false }),
+    ).toBeVisible();
+    await expect(target.locator('[data-slot="kanban-root"]')).toHaveCount(0);
+    await expect(target.locator('[data-slot="group-header-row"]')).toHaveCount(0);
+  };
   try {
     await reader.page.goto(`/en/records/${type.id}`);
-    await assertBoard(reader.page);
+    await assertListLayout(reader.page);
     await expect(
       reader.page.locator("#global-data-views [data-view-chip]"),
     ).toHaveCount(1);
@@ -2429,20 +2354,11 @@ test("keeps personal views separate from shared defaults and completes their UI 
         name: englishMessages.Common.table.groupBy,
         exact: true,
       }),
-    ).toContainText("Stage");
+    ).toContainText(englishMessages.Common.none);
     await expect(
-      reader.page.getByRole("combobox", {
-        name: englishMessages.Common.sort.field,
-        exact: true,
-      }),
-    ).toContainText("Budget");
-    await expect(
-      reader.page.getByRole("button", {
-        name: englishMessages.Common.sort.descending,
-        exact: true,
-      }),
-    ).toBeVisible();
-    await expect(reader.page.locator(`#field-${internalId}`)).not.toBeChecked();
+      reader.page.getByText(englishMessages.DataView.summaries, { exact: true }),
+    ).toHaveCount(0);
+    await expect(reader.page.locator(`#field-${internalId}`)).toBeChecked();
     await expect(reader.page.locator(`#field-${budgetId}`)).toBeChecked();
     expect(
       (
@@ -2451,25 +2367,14 @@ test("keeps personal views separate from shared defaults and completes their UI 
           .evaluateAll((labels) =>
             labels.map((label) => label.getAttribute("for")?.slice(6)),
           )
-      ).slice(0, 3),
-    ).toEqual([type.primaryFieldId, budgetId, stageId]);
+      ).slice(0, 4),
+    ).toEqual([type.primaryFieldId, stageId, budgetId, internalId]);
     await presentationCloseAppearanceUi(reader.page, testInfo);
-    const alphaCard = reader.page.locator(`[data-item-id="${alpha.recordId}"]`);
-    await runRowAction(reader.page, alphaCard, "Alpha portfolio", "Open details");
-    const readerDetail = reader.page.getByRole("dialog", {
-      name: type.label,
-      exact: true,
-    });
-    await expect(
-      readerDetail.locator(`[data-chip-column="${budgetId}"]`),
-    ).toContainText("50");
-    await reader.page.keyboard.press("Escape");
-    await expect(readerDetail).not.toBeVisible();
     await reader.page.reload();
-    await assertBoard(reader.page);
+    await assertListLayout(reader.page);
     expect(await viewRows(reader.userId)).toEqual([]);
     await reader.page.screenshot({
-      path: testInfo.outputPath("inherited-shared-board-defaults.png"),
+      path: testInfo.outputPath("inherited-list-layout.png"),
       animations: "disabled",
     });
     expect(reader.errors).toEqual([]);
@@ -2545,9 +2450,110 @@ test("keeps personal views separate from shared defaults and completes their UI 
     expect([...copied.searchParams]).toEqual([["view", duplicateId]]);
   }
   await presentationAppearanceUi(page);
+  await page.locator("#records-layout-board").click();
+  await page
+    .getByRole("combobox", {
+      name: englishMessages.Common.table.groupBy,
+      exact: true,
+    })
+    .click();
+  await page.getByRole("option", { name: "Stage", exact: true }).click();
+  await page
+    .getByRole("combobox", {
+      name: englishMessages.Common.sort.field,
+      exact: true,
+    })
+    .click();
+  await page.getByRole("option", { name: "Budget", exact: true }).click();
   await page
     .getByRole("button", {
-      name: englishMessages.RecordModel.resetDefaults,
+      name: englishMessages.Common.sort.ascending,
+      exact: true,
+    })
+    .click();
+  await page.locator(`#field-${budgetId}`).check();
+  await page.locator(`#field-${internalId}`).uncheck();
+  await expect(
+    page.getByText(englishMessages.DataView.summaries, { exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", {
+      name: englishMessages.RecordModel.addGroupSummary,
+      exact: true,
+    })
+    .click();
+  const summaryAggregation = page.getByRole("combobox", {
+    name: englishMessages.RecordModel.summaryAggregation,
+    exact: true,
+  });
+  await expect(
+    page.getByRole("combobox", {
+      name: englishMessages.RecordModel.summaryField,
+      exact: true,
+    }),
+  ).toContainText("Budget");
+  await summaryAggregation.click();
+  await page
+    .getByRole("option", {
+      name: englishMessages.RecordModel.reducers.average,
+      exact: true,
+    })
+    .click();
+  await expect(summaryAggregation).toContainText(
+    englishMessages.RecordModel.reducers.average,
+  );
+  await summaryAggregation.click();
+  await page
+    .getByRole("option", {
+      name: englishMessages.RecordModel.reducers.sum,
+      exact: true,
+    })
+    .click();
+  await presentationCloseAppearanceUi(page, testInfo);
+  await assertBoard(page);
+  await expect
+    .poll(async () =>
+      (await viewRows(workspace.userId)).find(
+        (view) => view.id === duplicateId,
+      ),
+    )
+    .toMatchObject({
+      viewMode: "card",
+      grouping: {
+        field: stageId,
+        summaries: [{ fieldId: budgetId, aggregation: "sum" }],
+      },
+      sortDescriptor: { field: budgetId, direction: "desc" },
+      hiddenColumns: [internalId],
+    });
+  expect(
+    (await viewRows(workspace.userId)).find((view) => view.id === personal.id),
+  ).toEqual(personal);
+  await page.reload();
+  await assertBoard(page);
+  await presentationAppearanceUi(page);
+  await page
+    .getByRole("button", {
+      name: englishMessages.RecordModel.removeGroupSummary,
+      exact: true,
+    })
+    .click();
+  await presentationCloseAppearanceUi(page, testInfo);
+  await expect(
+    page.locator('[data-group-key="value:open"] [aria-label="Budget · Sum: 125"]'),
+  ).toHaveCount(0);
+  await expect
+    .poll(
+      async () =>
+        (await viewRows(workspace.userId)).find(
+          (view) => view.id === duplicateId,
+        )?.grouping?.summaries ?? [],
+    )
+    .toEqual([]);
+  await presentationAppearanceUi(page);
+  await page
+    .getByRole("button", {
+      name: englishMessages.RecordModel.resetLayout,
       exact: true,
     })
     .click();
@@ -2557,7 +2563,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
       exact: true,
     }),
   ).not.toBeVisible();
-  await assertBoard(page);
+  await assertListLayout(page);
   await expect
     .poll(async () =>
       (await viewRows(workspace.userId)).find(
@@ -2576,7 +2582,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
     (await viewRows(workspace.userId)).find((view) => view.id === personal.id),
   ).toEqual(personal);
   await page.reload();
-  await assertBoard(page);
+  await assertListLayout(page);
   await expect(
     page
       .locator("#global-data-views")
@@ -2617,7 +2623,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
   await presentationAppearanceUi(page);
   await page
     .getByRole("button", {
-      name: englishMessages.RecordModel.resetDefaults,
+      name: englishMessages.RecordModel.resetLayout,
       exact: true,
     })
     .click();
@@ -2627,7 +2633,7 @@ test("keeps personal views separate from shared defaults and completes their UI 
       exact: true,
     }),
   ).not.toBeVisible();
-  await assertBoard(page);
+  await assertListLayout(page);
   await expect
     .poll(
       async () =>
@@ -2662,9 +2668,9 @@ test("keeps personal views separate from shared defaults and completes their UI 
   ])
     expect(keys).not.toContain(key);
   await page.reload();
-  await assertBoard(page);
+  await assertListLayout(page);
   await page.screenshot({
-    path: testInfo.outputPath("reset-personal-view-to-shared-defaults.png"),
+    path: testInfo.outputPath("reset-personal-view-to-list-layout.png"),
     animations: "disabled",
   });
   expect(
@@ -2675,26 +2681,6 @@ test("keeps personal views separate from shared defaults and completes their UI 
       )
     ).rows,
   ).toEqual([]);
-  await openConfigure(page, type.id);
-  await openListAction(page, "Shared defaults");
-  await expect(shared.locator("#type-summary-field-0")).toContainText("Budget");
-  await shared
-    .getByRole("button", {
-      name: englishMessages.RecordModel.removeGroupSummary,
-      exact: true,
-    })
-    .click();
-  await expect(shared.locator("#type-summary-field-0")).toHaveCount(0);
-  await saveDrawer(page);
-  expect(
-    (await readModel(page)).types.find((candidate) => candidate.id === type.id)
-      ?.defaults.groupSummaries,
-  ).toEqual([]);
-  await page.reload();
-  await openListAction(page, "Shared defaults");
-  await expect(shared.locator("#type-summary-field-0")).toHaveCount(0);
-  await page.keyboard.press("Escape");
-  await expect(shared).not.toBeVisible();
   expect(await viewRows(workspace.userId)).toEqual([]);
   expect(errors).toEqual([]);
 });
@@ -2845,10 +2831,7 @@ test("keeps retained values restricted after a delegated manager converts fields
         operation: "putType",
         type: {
           ...summaryType,
-          defaults: {
-            ...summaryType.defaults,
-            columns: [summaryType.primaryFieldId, total.id, memo.id],
-          },
+          description: "Summaries of private source rows",
         },
       },
     ],

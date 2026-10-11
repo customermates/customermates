@@ -45,12 +45,6 @@ export async function addFromConfigure(page: Page, item: ConfigureAddItem) {
   await expect(configureDrawer(page)).toBeVisible();
 }
 
-export async function openListAction(page: Page, item: "Shared defaults") {
-  await configureTopBar(page).getByRole("button", { name: "List actions", exact: true }).click();
-  await page.getByRole("menuitem", { name: item, exact: true }).click();
-  await expect(configureDrawer(page)).toBeVisible();
-}
-
 export function configureRow(page: Page, section: ConfigureSection, label: string) {
   return page
     .getByRole("region", { name: section, exact: true })

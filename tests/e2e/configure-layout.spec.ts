@@ -3,7 +3,7 @@ import type { Client } from "pg";
 import { restoreFromTrash } from "./trash";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { addFromConfigure, backToConfigureGraph, openConfigureTab, configureDrawer, configureListCard, configureRow, configureTopBar, createConfiguredList, deleteSelectedList, openConfigure, openConfigureRow, openListAction, saveDrawer, saveGeneral, selectConfigureList } from "./configure";
+import { addFromConfigure, backToConfigureGraph, openConfigureTab, configureDrawer, configureListCard, configureRow, configureTopBar, createConfiguredList, deleteSelectedList, openConfigure, openConfigureRow, saveDrawer, saveGeneral } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function readModel(database: Client, companyId: string) {
@@ -210,7 +210,6 @@ test("deletes and restores a list from the list actions and labels hidden lists"
 }) => {
   const errors = captureErrors(page);
   const id = (key: string) => presetId(companyId, key);
-  const dialog = configureDrawer(page);
   await openConfigure(page, id("task"));
   const general = page.getByRole("region", { name: "General", exact: true });
   await general.getByRole("switch", { name: "Show in navigation", exact: true }).click();
@@ -225,7 +224,7 @@ test("deletes and restores a list from the list actions and labels hidden lists"
   const tripsId = await createConfiguredList(page, "Field trips");
   await openConfigure(page, tripsId);
   await configureTopBar(page).getByRole("button", { name: "List actions", exact: true }).click();
-  await expect(page.getByRole("menuitem")).toHaveText(["Shared defaults", "Trash", "Delete list"]);
+  await expect(page.getByRole("menuitem")).toHaveText(["Trash", "Delete list"]);
   await page.keyboard.press("Escape");
   await deleteSelectedList(page);
   expect((await readModel(database, companyId)).types.find((type) => type.id === tripsId)?.archived).toBe(true);
@@ -235,11 +234,6 @@ test("deletes and restores a list from the list actions and labels hidden lists"
   await openConfigure(page);
   await expect(configureListCard(page, "Field trips")).toBeVisible();
 
-  await selectConfigureList(page, "Services");
-  await openListAction(page, "Shared defaults");
-  await expect(dialog.getByText("Shared defaults", { exact: true }).first()).toBeVisible();
-  await dialog.getByRole("button", { name: "Cancel", exact: true }).first().click();
-  await expect(dialog).not.toBeVisible();
   expect(errors).toEqual([]);
 });
 
