@@ -22,7 +22,12 @@ export type NorthwindAssignmentRow = { typeKey: string; recordId: string; userId
 
 const text = (value: string): RecordScalar => ({ kind: "text", value });
 const number = (value: number): RecordScalar => ({ kind: "decimal", value: String(value), currency: null });
-const money = (value: number, currency = "EUR"): RecordScalar => ({ kind: "decimal", value: String(value), currency });
+// Money is written in cents precision so float residue never reaches values, rollups or view totals.
+const money = (value: number, currency = "EUR"): RecordScalar => ({
+  kind: "decimal",
+  value: String(Math.round(value * 100) / 100),
+  currency,
+});
 const date = (ms: number): RecordScalar => ({ kind: "date", value: northwindDay(ms) });
 const range = (start: number, end: number): RecordScalar => ({
   kind: "range",
