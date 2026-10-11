@@ -2,7 +2,7 @@ import { createHmac, randomBytes, randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { test as base, expect, type Browser, type BrowserContext, type Page, type TestInfo } from "@playwright/test";
+import { test as base, expect, type Browser, type BrowserContext, type TestInfo } from "@playwright/test";
 import { Client } from "pg";
 
 import { presetId } from "../../features/records/crm-preset";
@@ -161,40 +161,4 @@ export function displayedNumber(text: string) {
   const cleaned = text.replace(/[^0-9.,-]/g, "").replace(/,/g, "");
   if (!/\d/.test(cleaned)) throw new Error(`No number in "${text}"`);
   return Number(cleaned);
-}
-
-/** Decimal values of `fieldKeys` per record of `typeKey`, keyed by record id then field key. */
-export async function decimalValues(database: Client, typeKey: string, fieldKeys: string[]) {
-  const { rows } = await database.query<{ recordId: string; fieldId: string; value: string | null }>(
-    `SELECT v."recordId", v."fieldId", v."decimalValue"::text AS value FROM "RecordValue" v
-     JOIN "CrmRecord" r ON r."companyId"=v."companyId" AND r."typeId"=v."typeId" AND r.id=v."recordId"
-     WHERE v."companyId"=$1 AND v."typeId"=$2 AND v."fieldId"=ANY($3) AND r."deletedAt" IS NULL`,
-    [DEMO_COMPANY_ID, demoId(typeKey), fieldKeys.map(demoId)],
-  );
-  const byRecord = new Map<string, Record<string, number | null>>();
-  const keyOf = new Map(fieldKeys.map((key) => [demoId(key), key]));
-  for (const row of rows) {
-    const entry = byRecord.get(row.recordId) ?? {};
-    entry[keyOf.get(row.fieldId) as string] = row.value === null ? null : Number(row.value);
-    byRecord.set(row.recordId, entry);
-  }
-  return byRecord;
-}
-
-/** Linked record ids: outgoing from `sourceId` or incoming to `targetId` over `relationKey`. */
-export async function links(database: Client, relationKey: string) {
-  const { rows } = await database.query<{ sourceId: string; targetId: string }>(
-    `SELECT l."sourceId", l."targetId" FROM "RecordLink" l
-     JOIN "CrmRecord" s ON s."companyId"=l."companyId" AND s."typeId"=l."sourceTypeId" AND s.id=l."sourceId"
-     JOIN "CrmRecord" t ON t."companyId"=l."companyId" AND t."typeId"=l."targetTypeId" AND t.id=l."targetId"
-     WHERE l."companyId"=$1 AND l."relationId"=$2 AND l."deletedAt" IS NULL AND s."deletedAt" IS NULL AND t."deletedAt" IS NULL`,
-    [DEMO_COMPANY_ID, demoId(relationKey)],
-  );
-  return rows;
-}
-
-/** Waits until the page settled: no skeletons or spinners left. */
-export async function settled(page: Page) {
-  await page.waitForLoadState("networkidle").catch(() => undefined);
-  await expect(page.locator('[data-slot="skeleton"], [aria-busy="true"]')).toHaveCount(0, { timeout: 30000 });
 }
