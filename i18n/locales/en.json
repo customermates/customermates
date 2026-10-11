@@ -215,6 +215,23 @@
             "running": "Updating your profile"
           }
         },
+        "proposals": {
+          "create": {
+            "done": "{count, plural, one {Proposed a new page} other {Proposed # new pages}}",
+            "error": "{count, plural, one {Couldn’t propose a new page} other {Couldn’t propose # new pages}}",
+            "running": "{count, plural, one {Proposing a new page} other {Proposing # new pages}}"
+          },
+          "delete": {
+            "done": "Proposed a page deletion",
+            "error": "Couldn’t propose a page deletion",
+            "running": "Proposing a page deletion"
+          },
+          "update": {
+            "done": "Proposed a page edit",
+            "error": "Couldn’t propose a page edit",
+            "running": "Proposing a page edit"
+          }
+        },
         "records": {
           "analyze": {
             "done": "Analyzed {resource}",

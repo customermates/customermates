@@ -6,9 +6,11 @@ import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 import { approvalFreeActionsForTool, readOnlyActionsForTool } from "./gated-tools";
 import { recordToolRisk } from "./record-tool-risk";
 import type { AgentToolIdentity } from "./tool-identity";
+import type { AgentSurface } from "./agent-surface-policy";
 import { internalToolIdentity, isInternalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
 
 import { sanitizeAgentPlainText } from "./agent-output-safety";
+import { isWikiProposalWrite } from "./agent-wiki-proposal-policy";
 import { ANALYZE_RECORDS_TOOL_NAME, LOAD_TOOLSET_TOOL_NAME } from "./agent-toolset-routing";
 
 const ViewMutationActionSchema = z.enum(["create", "update", "select", "delete", "reset"]);
@@ -41,6 +43,9 @@ export const AGENT_ACTIVITY_KINDS = [
   "records.update",
   "records.delete",
   "records.link",
+  "proposals.create",
+  "proposals.update",
+  "proposals.delete",
   "messages.read",
   "messages.send",
   "messages.draft",
@@ -210,13 +215,21 @@ function multiplexedRisk(toolName: string, details: Record<string, unknown>): "w
   return approvalFree && action && approvalFree.includes(action) ? "write" : "sensitive";
 }
 
-export function describeAgentTool(identity: AgentToolIdentity, input: unknown): AgentActivityDescriptor {
-  const activity = describeAgentToolAction(identity, input);
+export function describeAgentTool(
+  identity: AgentToolIdentity,
+  input: unknown,
+  surface?: AgentSurface,
+): AgentActivityDescriptor {
+  const activity = describeAgentToolAction(identity, input, surface);
   const context = isInternalToolIdentity(identity) ? agentToolInputContext(identity.name, input) : undefined;
   return context ? { ...activity, context } : activity;
 }
 
-function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): AgentActivityDescriptor {
+function describeAgentToolAction(
+  identity: AgentToolIdentity,
+  input: unknown,
+  surface: AgentSurface | undefined,
+): AgentActivityDescriptor {
   if (!isInternalToolIdentity(identity)) return descriptor("generic", undefined, "sensitive");
 
   const toolName = identity.name;
@@ -257,6 +270,12 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
   if (toolName === "manage_wiki_pages") {
     const action = actionValue(details);
     if (isMultiplexedRead(toolName, details)) return descriptor("records.read", "wiki", "read");
+    if (isWikiProposalWrite(identity, details, surface)) {
+      const count = action === "create" ? boundedCount(details.pages) : 1;
+      const kind =
+        action === "create" ? "proposals.create" : action === "update" ? "proposals.update" : "proposals.delete";
+      return { ...descriptor(kind, "wiki", "write"), ...(count ? { count } : {}) };
+    }
     if (action === "create") {
       const count = boundedCount(details.pages);
       return {

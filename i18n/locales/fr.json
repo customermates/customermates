@@ -215,6 +215,23 @@
             "running": "Mise à jour du profil"
           }
         },
+        "proposals": {
+          "create": {
+            "done": "{count, plural, one {Nouvelle page proposée} other {# nouvelles pages proposées}}",
+            "error": "{count, plural, one {Impossible de proposer une nouvelle page} other {Impossible de proposer # nouvelles pages}}",
+            "running": "{count, plural, one {Proposition d’une nouvelle page} other {Proposition de # nouvelles pages}}"
+          },
+          "delete": {
+            "done": "Suppression de page proposée",
+            "error": "Impossible de proposer la suppression de la page",
+            "running": "Proposition de suppression de la page"
+          },
+          "update": {
+            "done": "Modification de page proposée",
+            "error": "Impossible de proposer la modification de la page",
+            "running": "Proposition de modification de la page"
+          }
+        },
         "records": {
           "analyze": {
             "done": "Analyse de {resource} terminée",

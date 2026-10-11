@@ -1225,7 +1225,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             transcript.beginToolCall({
               toolCallId: part.toolCallId,
               toolName: part.toolName,
-              activity: describeAgentTool(internalToolIdentity(part.toolName), part.input),
+              activity: describeAgentTool(internalToolIdentity(part.toolName), part.input, surface),
             });
           }
         }
@@ -1826,7 +1826,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       for (const request of requests) {
         transcript.beginApproval(
           request.requestId,
-          describeAgentTool(internalToolIdentity(request.toolName), request.input),
+          describeAgentTool(internalToolIdentity(request.toolName), request.input, surface),
         );
       }
       await publishTranscriptEvents(queued.splice(0));

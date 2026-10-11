@@ -215,6 +215,23 @@
             "running": "Profil wird aktualisiert"
           }
         },
+        "proposals": {
+          "create": {
+            "done": "{count, plural, one {Neue Seite vorgeschlagen} other {# neue Seiten vorgeschlagen}}",
+            "error": "{count, plural, one {Neue Seite konnte nicht vorgeschlagen werden} other {# neue Seiten konnten nicht vorgeschlagen werden}}",
+            "running": "{count, plural, one {Neue Seite wird vorgeschlagen} other {# neue Seiten werden vorgeschlagen}}"
+          },
+          "delete": {
+            "done": "Seitenlöschung vorgeschlagen",
+            "error": "Seitenlöschung konnte nicht vorgeschlagen werden",
+            "running": "Seitenlöschung wird vorgeschlagen"
+          },
+          "update": {
+            "done": "Seitenbearbeitung vorgeschlagen",
+            "error": "Seitenbearbeitung konnte nicht vorgeschlagen werden",
+            "running": "Seitenbearbeitung wird vorgeschlagen"
+          }
+        },
         "records": {
           "analyze": {
             "done": "{resource} wurden ausgewertet",
