@@ -29,7 +29,9 @@ export function HomepageProductProof({ proof }: { proof: HomepageProductProofCon
                 </span>
               </p>
 
-              <h2 className="mt-4 text-2xl font-medium tracking-tight sm:text-3xl">{proof.videoHeading}</h2>
+              <h2 className="text-display-gradient mt-4 text-2xl font-medium tracking-tight sm:text-3xl">
+                {proof.videoHeading}
+              </h2>
             </div>
 
             <p className="col-span-12 text-sm leading-relaxed text-muted-foreground lg:col-start-7 lg:col-end-13">
