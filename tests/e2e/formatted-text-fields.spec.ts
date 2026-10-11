@@ -389,7 +389,9 @@ test("formats a formatted text field from its toolbar without leaving edit mode"
   await expect(bold).toHaveAttribute("aria-pressed", "true");
   await expect(field).toHaveAttribute("data-state", "editing");
   await expect(notes).toBeFocused();
-  await expect(notes.locator("p")).toHaveText("Make this bold");
+  await expect(notes.locator("p", { hasText: "Make this" })).toHaveText(
+    "Make this bold",
+  );
 
   await field.scrollIntoViewIfNeeded();
   for (const scheme of ["light", "dark"] as const) {
