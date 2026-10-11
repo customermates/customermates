@@ -80,6 +80,7 @@ export function RecordCell({
     if (column.id === "system:assignedTo") {
       return record.assignedUsers.length ? (
         <AppChipStack
+          fill
           items={record.assignedUsers.map((member) => ({
             id: member.id,
             label: memberName(member),
@@ -116,6 +117,7 @@ export function RecordCell({
   }));
   return (
     <AppChipStack
+      fill
       chipLabel={(item) => t("RecordModel.openRecord", { name: item.label })}
       extraCount={summary.hasMore ? Math.max(0, summary.readableCount - summary.records.length) : 0}
       items={items}

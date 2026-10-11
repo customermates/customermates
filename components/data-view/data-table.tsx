@@ -23,6 +23,7 @@ import type { Prisma } from "@/generated/prisma";
 
 import { columnResizeLabel, MIN_COLUMN_WIDTH, withoutColumnWidth, type ColumnResizeSession } from "./data-table-resize";
 import { ColumnResizeHandle } from "./column-resize-handle";
+import { DataViewItemLayout } from "./data-view-item-layout";
 import { useGroupLabel, visibleGroups } from "./group-label";
 import { GroupSummaries } from "./group-summaries";
 import { isInteractiveClick } from "./is-interactive-click";
@@ -135,7 +136,9 @@ export const DataTable = observer(function DataTable<E extends HasId>({
             header: () => <span className="sr-only">{t("DataView.rowActions")}</span>,
             enableSorting: false,
             enableResizing: false,
-            cell: ({ row }) => rowActions(row.original),
+            cell: ({ row }) => (
+              <DataViewItemLayout.Provider value="table">{rowActions(row.original)}</DataViewItemLayout.Provider>
+            ),
           }
         : null,
     [rowActions, t],
@@ -170,7 +173,10 @@ export const DataTable = observer(function DataTable<E extends HasId>({
     return (
       <ItemActions key={row.id} href={onRowHref?.(row.original)}>
         <TableRow
-          className={cn("group/row", (onRowClick || onRowHref) && "cursor-pointer")}
+          className={cn(
+            "group/row [--row-tint:transparent] hover:[--row-tint:var(--accent)] has-aria-expanded:[--row-tint:var(--selected)] data-[state=selected]:[--row-tint:var(--selected)]",
+            (onRowClick || onRowHref) && "cursor-pointer",
+          )}
           data-focus-target={rowFocusKey?.(row.original)}
           data-row-id={row.original.id}
           data-state={store.selectedIds.has(row.original.id) ? "selected" : undefined}

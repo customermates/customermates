@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { saveViewChanges } from "./view-changes";
 import { openItemMenu } from "./item-actions";
 import { presetId } from "../../features/records/crm-preset";
 
@@ -115,6 +116,7 @@ test("board columns add a record with the column value, open the option, and col
   await openItemMenu(page, open.getByRole("button", { name: "More actions for New", exact: true }));
   await page.getByRole("menuitem", { name: "Hide column", exact: true }).click();
   await expect(open).toHaveCount(0);
+  await saveViewChanges(page);
   await expect.poll(storedGrouping).toMatchObject({ hidden: [`value:${id("deal.stage.new")}`] });
   await page.reload();
   await expect(won).toHaveAttribute("data-kanban-strip", "");
@@ -126,17 +128,20 @@ test("board columns add a record with the column value, open the option, and col
     await expect(page.getByText("Hidden columns", { exact: true })).toHaveCount(0);
   });
   await expect(open).toContainText("Added from the column");
+  await saveViewChanges(page);
   await expect.poll(async () => (await storedGrouping())?.hidden).toBeUndefined();
 
   await appearance(() => page.getByRole("switch", { name: "Hide empty columns", exact: true }).click());
   await expect(won).toHaveCount(0);
   await expect(open).toContainText("Column seed");
+  await saveViewChanges(page);
   await expect.poll(storedGrouping).toMatchObject({ hideEmpty: true });
   await page.reload();
   await expect(open).toContainText("Column seed");
   await expect(won).toHaveCount(0);
   await appearance(() => page.getByRole("switch", { name: "Hide empty columns", exact: true }).click());
   await expect(won).toHaveAttribute("data-kanban-strip", "");
+  await saveViewChanges(page);
   await expect.poll(async () => (await storedGrouping())?.hideEmpty).toBeUndefined();
 
   const optionRow = page.locator(`[data-focus-target="option:${id("deal.stage")}.${id("deal.stage.new")}"]`);

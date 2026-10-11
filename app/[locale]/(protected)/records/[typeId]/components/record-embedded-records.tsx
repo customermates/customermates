@@ -11,6 +11,7 @@ import { Plus } from "lucide-react";
 
 import { DataViewContent } from "@/components/data-view/data-view-content";
 import { DataViewPagination } from "@/components/data-view/header/pagination";
+import { ItemCount } from "@/components/data-view/item-count";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
@@ -197,17 +198,11 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
   return (
     <section aria-label={type.pluralLabel}>
       <RecordDetailField
-        action={
-          list.total > 0 ? (
-            <span className="text-xs text-muted-foreground tabular-nums" data-embedded-count="">
-              {list.total}
-            </span>
-          ) : undefined
-        }
+        action={list.total > 0 ? <ItemCount count={list.total} data-embedded-count="" /> : undefined}
         fieldId={relationshipColumnKey(parentRelationId, "incoming")}
         label={type.pluralLabel}
       >
-        <div className="min-w-0 space-y-1 rounded-md border border-border bg-background" data-embedded-frame="">
+        <div className="min-w-0 rounded-md border border-border bg-background" data-embedded-frame="">
           {!parent || store.hasUnsavedChanges ? (
             <p className="px-3 py-2 text-xs text-muted-foreground">{t("RecordModel.saveBeforeEmbedded")}</p>
           ) : null}
@@ -219,7 +214,7 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
           )}
 
           {(list.loadFailed || list.dataRequest.status === "refresh-error") && (
-            <div className="flex items-center gap-2 text-sm" role="alert">
+            <div className="flex items-center gap-2 px-3 py-2 text-sm" role="alert">
               <span>{t("Common.notifications.unexpectedError")}</span>
 
               <Button size="sm" type="button" variant="secondary" onClick={() => runUserAction(() => list.load())}>

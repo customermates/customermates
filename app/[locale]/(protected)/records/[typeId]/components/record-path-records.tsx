@@ -25,6 +25,7 @@ import { EmptyValue } from "@/components/shared/empty-value";
 import { relationshipPathColumnKey } from "@/features/records/record-column.schema";
 import { EntityDetailDerivation } from "@/components/entity-detail/entity-detail-derivation";
 import { configurePathLists } from "@/app/[locale]/(protected)/configure/components/configure-model";
+import { withFormulaReferences } from "@/features/records/formula-references";
 
 export const RecordPathRecords = observer(function RecordPathRecords({
   store,
@@ -52,8 +53,8 @@ export const RecordPathRecords = observer(function RecordPathRecords({
     const data = result.data;
     if (data) setPage((current) => Math.min(current, Math.max(1, Math.ceil(data.total / data.pageSize))));
   }, [result.data]);
-  const { model, typeId, canManageSchema } = store.presentation;
-  const lists = configurePathLists(model, typeId, path.path);
+  const { model, typeId, canManageSchema, formulaReferences } = store.presentation;
+  const lists = configurePathLists(withFormulaReferences(model, formulaReferences), typeId, path.path);
   const derivation = (
     <EntityDetailDerivation
       configureHref={canManageSchema ? `/configure?typeId=${typeId}&tab=relationships` : null}

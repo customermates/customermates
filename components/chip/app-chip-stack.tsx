@@ -55,6 +55,7 @@ type Props<T extends ChipStackItem> = {
   maxWidth?: number;
   extraCount?: number;
   overflowMenu?: boolean;
+  fill?: boolean;
   onMoreClick?: (trigger: HTMLElement) => void;
 };
 
@@ -68,6 +69,7 @@ export function AppChipStack<T extends ChipStackItem>({
   maxWidth,
   extraCount = 0,
   overflowMenu = true,
+  fill = false,
   onMoreClick,
 }: Props<T>) {
   const navigateToHref = useNavigateToHref();
@@ -220,7 +222,7 @@ export function AppChipStack<T extends ChipStackItem>({
   return (
     <div
       ref={containerRef}
-      className="relative flex min-w-0 overflow-hidden flex-nowrap whitespace-nowrap"
+      className={cn("relative flex min-w-0 overflow-hidden flex-nowrap whitespace-nowrap", fill && "w-full")}
       style={{ gap: GAP_PX, maxWidth }}
     >
       {needsOverflowHandling && (

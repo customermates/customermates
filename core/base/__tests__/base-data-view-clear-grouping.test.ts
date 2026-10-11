@@ -123,6 +123,8 @@ describe("clearing the grouping outlives the refresh it triggers", () => {
 
     await vi.advanceTimersByTimeAsync(1000);
 
+    expect(saveDataViewStateAction).not.toHaveBeenCalled();
+    await store.saveViewChanges();
     expect(saveDataViewStateAction).toHaveBeenCalledTimes(1);
     expect(saveDataViewStateAction.mock.calls[0]?.[0]?.state?.grouping).toBeNull();
     expect(store.grouping).toBeNull();

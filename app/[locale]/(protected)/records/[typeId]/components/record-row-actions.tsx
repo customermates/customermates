@@ -9,6 +9,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { PanelLeftOpen, Trash2 } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { ItemActionsTrigger } from "@/components/ui/item-actions";
 import { recordDisplayName } from "@/features/records/record-display-name";
@@ -20,6 +21,11 @@ export function recordRowName(store: RecordsStore, record: RecordRow, t: ReturnT
   const title = record.fields.find((field) => field.fieldId === store.type?.primaryFieldId)?.result;
   return recordDisplayName(title, store.type?.label, t);
 }
+
+export const TABLE_ROW_ACTIONS_SURFACE_CLASS =
+  "absolute inset-y-0 right-0 bg-background bg-[image:linear-gradient(var(--row-tint,transparent),var(--row-tint,transparent))] opacity-0 transition-opacity before:pointer-events-none before:absolute before:inset-y-0 before:right-full before:w-4 before:[background:inherit] before:[mask-image:linear-gradient(to_right,transparent,black)] fine-hover:group-hover/item-actions:opacity-100 fine-hover:group-focus-within/item-actions:opacity-100 has-focus-visible:opacity-100 has-data-[state=open]:opacity-100";
+
+export const TABLE_ROW_ACTIONS_TRIGGER_CLASS = "aspect-square h-full w-auto rounded-md text-muted-foreground";
 
 export const RecordRowActions = observer(function RecordRowActions({
   name,
@@ -44,10 +50,12 @@ export const RecordRowActions = observer(function RecordRowActions({
   return (
     <div
       className={cn(
-        "flex items-center justify-end rounded-md",
+        "flex items-center justify-end",
+        layout !== "table" && "rounded-md",
         layout === "row" &&
           "absolute top-1/2 right-2 -translate-y-1/2 focus-within:bg-background group-hover/row:bg-background group-hover/row:bg-[image:linear-gradient(var(--accent),var(--accent))] group-data-[state=selected]/row:bg-background group-data-[state=selected]/row:bg-[image:linear-gradient(var(--selected),var(--selected))]",
         layout === "card" && "group-hover/card:bg-card",
+        layout === "table" && TABLE_ROW_ACTIONS_SURFACE_CLASS,
       )}
       data-record-row-actions=""
     >
@@ -80,6 +88,11 @@ export const RecordRowActions = observer(function RecordRowActions({
               </DropdownMenuItem>
             )}
           </>
+        }
+        trigger={
+          layout === "table" ? (
+            <Button className={TABLE_ROW_ACTIONS_TRIGGER_CLASS} size={null} type="button" variant="secondary" />
+          ) : undefined
         }
         onCloseAutoFocus={(event) => {
           const action = pending.current;
