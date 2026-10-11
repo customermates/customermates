@@ -252,7 +252,7 @@ export function SectionPatterns() {
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button size="lg">Start a 7-day trial for 0€</Button>
 
-                <Button size="lg" variant="secondary">
+                <Button className="glass-surface" size="lg" variant="ghost">
                   Read the MCP docs
                 </Button>
               </div>
@@ -482,7 +482,7 @@ export function SectionPatterns() {
               <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
                 <Button size="lg">Primary action</Button>
 
-                <Button size="lg" variant="secondary">
+                <Button className="glass-surface" size="lg" variant="ghost">
                   Secondary action
                 </Button>
               </div>
