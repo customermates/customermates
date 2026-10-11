@@ -60,7 +60,7 @@ export async function expectTriggerVisuallyHidden(trigger: Locator) {
   await expect(trigger).toBeAttached();
   await expect
     .poll(() =>
-      trigger.evaluate((element) => {
+      trigger.evaluate((element: HTMLElement) => {
         const style = getComputedStyle(element);
         return `${element.offsetWidth}x${element.offsetHeight} ${style.position} ${style.clipPath} ${style.opacity}`;
       }),
