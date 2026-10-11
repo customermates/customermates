@@ -209,6 +209,23 @@ export function extendStep(
   return insertStep(expression, path, operator);
 }
 
+export function removeInput(expression: CalculationExpression, path: ExpressionPath): CalculationExpression {
+  if (!path.length) return UNSET;
+  const parentPath = path.slice(0, -1);
+  const parent = expressionAt(expression, parentPath);
+  const index = path.at(-1) ?? 0;
+  if (parent?.kind !== "operation") return expression;
+  if (isVariadic(parent.operator) && parent.arguments.length > operatorArity(parent.operator)) {
+    return replaceExpression(expression, parentPath, {
+      ...parent,
+      arguments: parent.arguments.filter((_, position) => position !== index),
+    });
+  }
+  if (parent.arguments.length === 2 && parent.operator !== "if")
+    return replaceExpression(expression, parentPath, parent.arguments[1 - index] ?? UNSET);
+  return replaceExpression(expression, path, UNSET);
+}
+
 export function removeStep(expression: CalculationExpression, path: ExpressionPath): CalculationExpression {
   const step = expressionAt(expression, path);
   if (step?.kind !== "operation") return expression;

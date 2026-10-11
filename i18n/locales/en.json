@@ -3109,6 +3109,7 @@
         "min": "Minimum",
         "sum": "Sum"
       },
+      "changeOperation": "Change calculation",
       "describe": {
         "failed": "Couldn't turn that into a calculation. Try describing it differently.",
         "label": "Describe the calculation",
@@ -3161,6 +3162,8 @@
       "pickRelationship": "Pick a relationship",
       "pickValue": "Pick a value",
       "private": "Private",
+      "removeInputNamed": "Remove {input}",
+      "removeStep": "Remove step",
       "sentence": {
         "average": "{field} is the average {value} of all linked {list}.",
         "count": "{field} counts the linked {list}.",

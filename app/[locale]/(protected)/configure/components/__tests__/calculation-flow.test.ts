@@ -20,6 +20,7 @@ import {
   formulaInputs,
   formulaSteps,
   insertStep,
+  removeInput,
   removeStep,
   stepInsertPath,
   replaceExpression,
@@ -233,6 +234,26 @@ describe("formula steps", () => {
     expect(first[0].arguments[0].expression).toEqual(steps[0].arguments[0].expression);
     expect(insertStep(weighted, stepInsertPath(steps, 2), "add")).toEqual(addStep(weighted, "add"));
     expect(insertStep(UNSET, stepInsertPath([], 0), "add")).toEqual(addStep(UNSET, "add"));
+  });
+
+  it("removes an input with the step that combined it, an extra list value, or clears a fixed slot", () => {
+    const weighted = expressionOf("deal.weightedValue");
+    expect(removeInput(weighted, [1])).toEqual(expressionAt(weighted, [0]));
+    expect(removeInput(weighted, [0, 1])).toEqual({
+      ...weighted,
+      arguments: [{ kind: "field", fieldId: id("deal.totalValue") }, expressionAt(weighted, [1])],
+    });
+    const joined: CalculationExpression = { kind: "operation", operator: "concat", arguments: [UNSET, UNSET, UNSET] };
+    expect(removeInput(joined, [2])).toEqual({ ...joined, arguments: [UNSET, UNSET] });
+    const pair: CalculationExpression = {
+      kind: "operation",
+      operator: "concat",
+      arguments: [UNSET, { kind: "field", fieldId: id("deal.totalValue") }],
+    };
+    expect(removeInput(pair, [0])).toEqual({ kind: "field", fieldId: id("deal.totalValue") });
+    const choice: CalculationExpression = { kind: "operation", operator: "if", arguments: [UNSET, weighted, UNSET] };
+    expect(removeInput(choice, [1])).toEqual({ ...choice, arguments: [UNSET, UNSET, UNSET] });
+    expect(removeInput({ kind: "field", fieldId: id("deal.totalValue") }, [])).toEqual(UNSET);
   });
 
   it("extends a list step in place and follows any other step with a new one", () => {

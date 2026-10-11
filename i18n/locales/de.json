@@ -3109,6 +3109,7 @@
         "min": "Minimum",
         "sum": "Summe"
       },
+      "changeOperation": "Berechnung ändern",
       "describe": {
         "failed": "Daraus ließ sich keine Berechnung machen. Beschreibe sie anders.",
         "label": "Berechnung beschreiben",
@@ -3161,6 +3162,8 @@
       "pickRelationship": "Verknüpfung wählen",
       "pickValue": "Wert wählen",
       "private": "Privat",
+      "removeInputNamed": "{input} entfernen",
+      "removeStep": "Schritt entfernen",
       "sentence": {
         "average": "{field} ist der Durchschnitt von {value} aller verknüpften {list}.",
         "count": "{field} zählt die verknüpften {list}.",

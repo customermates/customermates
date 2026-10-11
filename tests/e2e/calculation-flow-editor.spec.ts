@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
@@ -189,10 +189,15 @@ test("reads each step as one line and inserts steps from the connectors", async 
   await expect(line(0)).toHaveText(["Value", "×", /probability/i]);
   await expect(line(1)).toHaveText(["Step 1", "÷", "100"]);
   await expect(line(0).nth(1)).toHaveAttribute("aria-label", "Calculation: Multiply");
-  const boxes = await Promise.all((await line(1).all()).map((chip) => chip.boundingBox()));
+  const boxes = await steps
+    .nth(1)
+    .locator("[data-calculation-line]")
+    .evaluate((element) =>
+      [...element.querySelectorAll("[data-calculation-chip]")].map((chip) => chip.getBoundingClientRect().toJSON()),
+    );
   for (const [index, box] of boxes.entries()) {
-    expect(Math.abs((box?.y ?? 0) - (boxes[0]?.y ?? 0))).toBeLessThanOrEqual(2);
-    if (index > 0) expect(box?.x ?? 0).toBeGreaterThan(boxes[index - 1]?.x ?? 0);
+    expect(Math.abs(box.y - boxes[0].y)).toBeLessThanOrEqual(2);
+    if (index > 0) expect(box.x).toBeGreaterThan(boxes[index - 1].x);
   }
 
   const extend = steps.nth(0).locator("[data-calculation-extend-step]");
@@ -229,6 +234,77 @@ test("reads each step as one line and inserts steps from the connectors", async 
     await page.screenshot({ path: testInfo.outputPath(`calculation-flow-phone-${scheme}.png`), animations: "disabled" });
   }
   await page.emulateMedia({ colorScheme: "light" });
+
+  const menu = steps.nth(1).getByRole("button", { name: "More actions for Step 2", exact: true });
+  await menu.focus();
+  await page.keyboard.press("Enter");
+  await page.getByRole("menuitem", { name: "Remove step", exact: true }).click();
+  await expect(steps).toHaveCount(2);
+  await expect(line(1)).toHaveText(["Step 1", "÷", "100"]);
+
+  const inputs = flow.locator("[data-calculation-inputs]");
+  await expect(inputs.locator("[data-calculation-input]")).toHaveCount(3);
+  const removeHundred = inputs.getByRole("button", { name: "Remove 100", exact: true });
+  if (!coarse) {
+    await page.mouse.move(0, 0);
+    await expect(removeHundred).toHaveCSS("opacity", "0");
+    await inputs.locator("[data-calculation-input]").filter({ hasText: "100" }).hover();
+  }
+  await expect(removeHundred).toHaveCSS("opacity", "1");
+  await removeHundred.click();
+  await expect(steps).toHaveCount(1);
+  await expect(line(0)).toHaveText(["Value", "×", /probability/i]);
+  await expect(inputs.locator("[data-calculation-input]")).toHaveCount(2);
+  expect(errors).toEqual([]);
+});
+
+async function expectAligned(node: Locator) {
+  const offset = await node.evaluate((element) => {
+    const icon = element.querySelector("svg")?.getBoundingClientRect();
+    const first = element.querySelector("[data-calculation-row] > div > *")?.getBoundingClientRect();
+    return icon && first ? Math.abs(icon.left - first.left) : Number.POSITIVE_INFINITY;
+  });
+  expect(offset).toBeLessThanOrEqual(1);
+}
+
+test("lines up formula, lookup and rollup flows the same way", async ({ page, companyId }, testInfo) => {
+  const errors = captureErrors(page);
+  page.on("dialog", (dialog) => void dialog.accept());
+  const flows: Array<{ name: string; list: string; field?: string; node: string }> = [
+    { name: "formula", list: "deal", field: "Weighted value", node: "inputs" },
+    { name: "lookup", list: "lineItem", field: "Saved unit price", node: "linked" },
+    { name: "rollup", list: "deal", field: "Value", node: "linked" },
+    { name: "rollup-empty", list: "deal", node: "pick-relationship" },
+  ];
+  for (const width of [1280, 390]) {
+    for (const example of flows) {
+      await page.setViewportSize({ width, height: width > 400 ? 900 : 844 });
+      await page.goto("about:blank");
+      await openConfigure(page, presetId(companyId, example.list));
+      if (example.field) {
+        await openConfigureRow(page, "Fields", example.field);
+        await openDrawerTab(page, "Calculation");
+      } else {
+        await addFromConfigure(page, "Calculated field");
+        await chooseValueSource(page, "Counted or totalled from linked records");
+      }
+      const flow = calculationFlow(page);
+      const node = flow.locator(`[data-calculation-node="${example.node}"]`).first();
+      await expect(node).toBeVisible();
+      await expectAligned(node);
+      await node.scrollIntoViewIfNeeded();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+      for (const scheme of ["light", "dark"] as const) {
+        await page.emulateMedia({ colorScheme: scheme });
+        await page.mouse.move(0, 0);
+        await page.screenshot({
+          path: testInfo.outputPath(`${example.name}-${width > 400 ? "desktop" : "phone"}-${scheme}.png`),
+          animations: "disabled",
+        });
+      }
+      await page.emulateMedia({ colorScheme: "light" });
+    }
+  }
   expect(errors).toEqual([]);
 });
 

@@ -3109,6 +3109,7 @@
         "min": "Minimum",
         "sum": "Somme"
       },
+      "changeOperation": "Modifier le calcul",
       "describe": {
         "failed": "Impossible d'en faire un calcul. Essayez de le décrire autrement.",
         "label": "Décrire le calcul",
@@ -3161,6 +3162,8 @@
       "pickRelationship": "Choisir une relation",
       "pickValue": "Choisir une valeur",
       "private": "Privé",
+      "removeInputNamed": "Retirer {input}",
+      "removeStep": "Retirer l’étape",
       "sentence": {
         "average": "{field} est la moyenne de {value} de tous les {list} liés.",
         "count": "{field} compte les {list} liés.",

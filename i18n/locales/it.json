@@ -3109,6 +3109,7 @@
         "min": "Minimo",
         "sum": "Somma"
       },
+      "changeOperation": "Cambia calcolo",
       "describe": {
         "failed": "Non è stato possibile trasformarlo in un calcolo. Prova a descriverlo in altro modo.",
         "label": "Descrivi il calcolo",
@@ -3161,6 +3162,8 @@
       "pickRelationship": "Scegli una relazione",
       "pickValue": "Scegli un valore",
       "private": "Privato",
+      "removeInputNamed": "Rimuovi {input}",
+      "removeStep": "Rimuovi passo",
       "sentence": {
         "average": "{field} è la media di {value} di tutti i {list} collegati.",
         "count": "{field} conta i {list} collegati.",
