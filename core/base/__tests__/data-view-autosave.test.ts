@@ -45,6 +45,12 @@ const FILTERABLE_FIELDS: FilterableField[] = [
 
 const sort = (field: string): SortDescriptor => ({ field, direction: "asc" });
 
+const widen = (store: { setViewOptions: TestStore["setViewOptions"] }, uid: string) =>
+  store.setViewOptions({ columnWidths: { [uid]: 200 } });
+
+const widened = (state: { columnWidths?: Record<string, number> } | undefined) =>
+  Object.keys(state?.columnWidths ?? {})[0];
+
 const filter = (value: string): Filter => ({ field: "stage", operator: FilterOperatorKey.contains, value }) as Filter;
 
 const VIEW: DataViewChipDto = {
@@ -165,13 +171,13 @@ describe("data view autosave", () => {
     async (viewKey) => {
       const store = historyStore();
       store.activeViewKey = viewKey;
-      store.setQueryOptions({ sortDescriptor: sort("closed quickly") });
+      widen(store, "closed quickly");
       store.dispose();
       expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith(
         expect.objectContaining({
           surfaceKey: SURFACE.entityTimeline,
           viewKey,
-          state: expect.objectContaining({ sortDescriptor: sort("closed quickly") }),
+          state: expect.objectContaining({ columnWidths: { ["closed quickly"]: 200 } }),
         }),
       );
       await vi.advanceTimersByTimeAsync(1500);
@@ -184,7 +190,7 @@ describe("data view autosave", () => {
     async (property) => {
       const root = historyRoot();
       const store = historyStore(root);
-      store.setQueryOptions({ sortDescriptor: sort("old owner") });
+      widen(store, "old owner");
       replaceHistoryOwner(root, { [property]: "new owner" });
       store.dispose();
       await vi.advanceTimersByTimeAsync(1500);
@@ -197,30 +203,30 @@ describe("data view autosave", () => {
     const store = historyStore(root);
     const first = deferred<{ ok: true; data: { viewKey: string } }>();
     saveDataViewStateAction.mockReturnValueOnce(first.promise);
-    store.setQueryOptions({ sortDescriptor: sort("first") });
+    widen(store, "first");
     await vi.advanceTimersByTimeAsync(1000);
-    store.setQueryOptions({ sortDescriptor: sort("queued close") });
+    widen(store, "queued close");
     store.dispose();
     replaceHistoryOwner(root, { id: "new owner" });
     first.resolve({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
     await vi.advanceTimersByTimeAsync(1500);
     expect(saveDataViewStateAction).toHaveBeenCalledTimes(1);
-    expect(store.allViewState.sortDescriptor?.field).toBeUndefined();
+    expect(widened(store.allViewState)).toBeUndefined();
   });
 
   it("saves the latest owned History snapshot after an in-flight request during immediate close", async () => {
     const store = historyStore();
     const first = deferred<{ ok: true; data: { viewKey: string } }>();
     saveDataViewStateAction.mockReturnValueOnce(first.promise);
-    store.setQueryOptions({ sortDescriptor: sort("first") });
+    widen(store, "first");
     await vi.advanceTimersByTimeAsync(1000);
-    store.setQueryOptions({ sortDescriptor: sort("latest close") });
+    widen(store, "latest close");
     store.dispose();
     first.resolve({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
     await vi.advanceTimersByTimeAsync(1500);
     expect(saveDataViewStateAction).toHaveBeenCalledTimes(2);
-    expect(saveDataViewStateAction.mock.calls[1]?.[0]?.state.sortDescriptor?.field).toBe("latest close");
-    expect(store.allViewState.sortDescriptor?.field).toBe("latest close");
+    expect(widened(saveDataViewStateAction.mock.calls[1]?.[0]?.state)).toBe("latest close");
+    expect(widened(store.allViewState)).toBe("latest close");
   });
 
   it("does not let an old History instance dispatch its queued snapshot after a newer instance edits the same view", async () => {
@@ -228,25 +234,22 @@ describe("data view autosave", () => {
     const old = historyStore(root);
     const first = deferred<{ ok: true; data: { viewKey: string } }>();
     saveDataViewStateAction.mockReturnValueOnce(first.promise);
-    old.setQueryOptions({ sortDescriptor: sort("first") });
+    widen(old, "first");
     await vi.advanceTimersByTimeAsync(1000);
-    old.setQueryOptions({ sortDescriptor: sort("obsolete close") });
+    widen(old, "obsolete close");
     old.dispose();
     const latest = historyStore(root);
-    latest.setQueryOptions({ sortDescriptor: sort("new panel") });
+    widen(latest, "new panel");
     latest.dispose();
     first.resolve({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
     await vi.advanceTimersByTimeAsync(1500);
-    expect(saveDataViewStateAction.mock.calls.map(([input]) => input.state.sortDescriptor?.field)).toEqual([
-      "first",
-      "new panel",
-    ]);
-    expect(latest.allViewState.sortDescriptor?.field).toBe("new panel");
+    expect(saveDataViewStateAction.mock.calls.map(([input]) => widened(input.state))).toEqual(["first", "new panel"]);
+    expect(widened(latest.allViewState)).toBe("new panel");
   });
 
   it("retains explicit History discard when a view is removed", async () => {
     const store = historyStore();
-    store.setQueryOptions({ sortDescriptor: sort("deleted view") });
+    widen(store, "deleted view");
     store.discardPendingViewState();
     store.dispose();
     await vi.advanceTimersByTimeAsync(1500);
@@ -258,16 +261,14 @@ describe("data view autosave", () => {
     async (finish) => {
       const root = historyRoot();
       const old = historyStore(root);
-      old.setQueryOptions({ sortDescriptor: sort("old pending") });
+      widen(old, "old pending");
       const latest = historyStore(root);
-      latest.setQueryOptions({ sortDescriptor: sort("newer panel") });
+      widen(latest, "newer panel");
       latest.dispose();
       await vi.advanceTimersByTimeAsync(0);
       if (finish === "close") old.dispose();
       await vi.advanceTimersByTimeAsync(1500);
-      expect(saveDataViewStateAction.mock.calls.map(([input]) => input.state.sortDescriptor?.field)).toEqual([
-        "newer panel",
-      ]);
+      expect(saveDataViewStateAction.mock.calls.map(([input]) => widened(input.state))).toEqual(["newer panel"]);
     },
   );
 
@@ -276,21 +277,18 @@ describe("data view autosave", () => {
     const first = deferred<{ ok: true; data: { viewKey: string } }>();
     saveDataViewStateAction.mockReturnValueOnce(first.promise);
     const old = historyStore(root);
-    old.setQueryOptions({ sortDescriptor: sort("first") });
+    widen(old, "first");
     old.dispose();
     const pending = historyStore(root);
-    pending.setQueryOptions({ sortDescriptor: sort("middle pending") });
+    widen(pending, "middle pending");
     first.resolve({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
     await vi.advanceTimersByTimeAsync(0);
     const latest = historyStore(root);
-    latest.setQueryOptions({ sortDescriptor: sort("third panel") });
+    widen(latest, "third panel");
     latest.dispose();
     pending.dispose();
     await vi.advanceTimersByTimeAsync(1500);
-    expect(saveDataViewStateAction.mock.calls.map(([input]) => input.state.sortDescriptor?.field)).toEqual([
-      "first",
-      "third panel",
-    ]);
+    expect(saveDataViewStateAction.mock.calls.map(([input]) => widened(input.state))).toEqual(["first", "third panel"]);
   });
 
   it("does not publish a refused old-owner History save into the new user's UI", async () => {
@@ -298,13 +296,13 @@ describe("data view autosave", () => {
     const store = historyStore(root);
     const first = deferred<{ ok: false; error: { errors: string[] } }>();
     saveDataViewStateAction.mockReturnValueOnce(first.promise);
-    store.setQueryOptions({ sortDescriptor: sort("old user") });
+    widen(store, "old user");
     store.dispose();
     replaceHistoryOwner(root, { id: "new user" });
     first.resolve({ ok: false, error: { errors: ["Denied"] } });
     await vi.advanceTimersByTimeAsync(1500);
     expect(toastZodErrorTree).not.toHaveBeenCalled();
-    expect(store.allViewState.sortDescriptor?.field).toBeUndefined();
+    expect(widened(store.allViewState)).toBeUndefined();
   });
 
   it("keeps separate History views independent while an older request is held", async () => {
@@ -312,17 +310,17 @@ describe("data view autosave", () => {
     const all = historyStore(root);
     const first = deferred<{ ok: true; data: { viewKey: string } }>();
     saveDataViewStateAction.mockReturnValueOnce(first.promise);
-    all.setQueryOptions({ sortDescriptor: sort("all pending") });
+    widen(all, "all pending");
     all.dispose();
     const saved = historyStore(root);
     saved.activeViewKey = VIEW_ID;
-    saved.setQueryOptions({ sortDescriptor: sort("saved panel") });
+    widen(saved, "saved panel");
     saved.dispose();
     expect(saveDataViewStateAction).toHaveBeenCalledTimes(2);
     first.resolve({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
     await vi.advanceTimersByTimeAsync(1500);
-    expect(all.allViewState.sortDescriptor?.field).toBe("all pending");
-    expect(saved.views[0]?.state.sortDescriptor?.field).toBe("saved panel");
+    expect(widened(all.allViewState)).toBe("all pending");
+    expect(widened(saved.views[0]?.state)).toBe("saved panel");
   });
 
   it("writes nothing when the store is only hydrated from a server result", async () => {
@@ -360,9 +358,9 @@ describe("data view autosave", () => {
     const first = deferred<{ ok: true; data: { viewKey: string } }>();
     const second = deferred<{ ok: true; data: { viewKey: string } }>();
     saveDataViewStateAction.mockImplementationOnce(() => first.promise).mockImplementationOnce(() => second.promise);
-    store.setQueryOptions({ sortDescriptor: sort("first") });
+    widen(store, "first");
     await vi.advanceTimersByTimeAsync(1000);
-    store.setQueryOptions({ sortDescriptor: sort("latest") });
+    widen(store, "latest");
     let settled = false;
     const pending = store.settleViewState().then(() => {
       settled = true;
@@ -372,41 +370,35 @@ describe("data view autosave", () => {
     first.resolve({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
     await vi.advanceTimersByTimeAsync(0);
     expect(saveDataViewStateAction).toHaveBeenCalledTimes(2);
-    expect(saveDataViewStateAction.mock.calls[1]?.[0]?.state.sortDescriptor?.field).toBe("latest");
+    expect(widened(saveDataViewStateAction.mock.calls[1]?.[0]?.state)).toBe("latest");
     expect(settled).toBe(false);
     second.resolve({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
     await pending;
     expect(settled).toBe(true);
-    expect(store.allViewState.sortDescriptor?.field).toBe("latest");
+    expect(widened(store.allViewState)).toBe("latest");
     await vi.advanceTimersByTimeAsync(1500);
     expect(saveDataViewStateAction).toHaveBeenCalledTimes(2);
   });
 
-  it("fires exactly one debounced write of the display state into the All tab and keeps its saved query", async () => {
+  it("keeps display changes temporary and writes only a column width into the All tab", async () => {
     const store = hydrated();
 
     store.setQueryOptions({ filters: [filter("open")] });
     store.setQueryOptions({ searchTerm: "acme" });
     store.setQueryOptions({ sortDescriptor: { field: "stage", direction: "asc" } });
+    store.setViewOptions({ hiddenColumns: ["stage"], viewMode: ViewMode.card });
+    await vi.advanceTimersByTimeAsync(1500);
 
     expect(saveDataViewStateAction).not.toHaveBeenCalled();
+    expect(store.isViewModified).toBe(true);
 
+    store.setViewOptions({ columnWidth: { uid: "stage", width: 240 } });
     await vi.advanceTimersByTimeAsync(1000);
 
     expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith({
       surfaceKey: SURFACE.routines,
       viewKey: ALL_VIEW_KEY,
-      state: {
-        filters: [],
-        searchTerm: "",
-        sortDescriptor: { field: "stage", direction: "asc" },
-        pageSize: 25,
-        viewMode: ViewMode.table,
-        grouping: null,
-        columnOrder: [],
-        columnWidths: {},
-        hiddenColumns: [],
-      },
+      state: { filters: [], searchTerm: "", columnWidths: { stage: 240 } },
     });
   });
 
@@ -414,7 +406,7 @@ describe("data view autosave", () => {
     const store = hydrated();
 
     store.setQueryOptions({ filters: [filter("open")], searchTerm: "acme" });
-    await store.saveQueryToView();
+    await store.saveViewChanges();
 
     store.applyView(VIEW_ID);
     await vi.advanceTimersByTimeAsync(0);
@@ -451,7 +443,7 @@ describe("data view autosave", () => {
     await vi.advanceTimersByTimeAsync(0);
     store.requestedParams = [];
 
-    store.setQueryOptions({ sortDescriptor: sort("won") });
+    widen(store, "won");
     await vi.advanceTimersByTimeAsync(500);
     expect(saveDataViewStateAction).not.toHaveBeenCalled();
 
@@ -460,7 +452,7 @@ describe("data view autosave", () => {
     expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({
         viewKey: VIEW_ID,
-        state: expect.objectContaining({ filters: [filter("open")], sortDescriptor: sort("won") }),
+        state: expect.objectContaining({ filters: [filter("open")], columnWidths: { ["won"]: 200 } }),
       }),
     );
     expect(store.activeViewKey).toBe(ALL_VIEW_KEY);
@@ -477,7 +469,7 @@ describe("data view autosave", () => {
     store.applyView(VIEW_ID);
     await vi.advanceTimersByTimeAsync(0);
 
-    store.setQueryOptions({ sortDescriptor: sort("won") });
+    widen(store, "won");
     await vi.advanceTimersByTimeAsync(500);
     store.requestedParams = [];
 
@@ -492,7 +484,7 @@ describe("data view autosave", () => {
     store.applyView(VIEW_ID);
     await vi.advanceTimersByTimeAsync(0);
 
-    store.setQueryOptions({ sortDescriptor: sort("won") });
+    widen(store, "won");
     await vi.advanceTimersByTimeAsync(500);
     store.requestedParams = [];
 
@@ -514,7 +506,7 @@ describe("data view autosave", () => {
 
     const inFlight = deferred<GetResult<Item>>();
     store.nextRefresh = () => inFlight.promise;
-    store.setQueryOptions({ sortDescriptor: sort("won") });
+    widen(store, "won");
 
     const save = deferred<{ ok: true; data: { viewKey: string } }>();
     saveDataViewStateAction.mockReturnValue(save.promise);
@@ -523,12 +515,12 @@ describe("data view autosave", () => {
     store.applyView(VIEW_ID);
     store.nextRefresh = () => deferred<GetResult<Item>>().promise;
 
-    inFlight.resolve(serverEcho({ viewId: VIEW_ID, sortDescriptor: sort("won") }));
+    inFlight.resolve(serverEcho({ viewId: VIEW_ID }));
     await vi.advanceTimersByTimeAsync(0);
 
     expect(store.dataRequest).toEqual({ status: "refreshing" });
     expect(store.filters).toEqual([filter("open")]);
-    expect(store.sortDescriptor).toBeUndefined();
+    expect(store.columnWidths).toEqual({});
   });
 
   it("keeps a locally written All snapshot when a response computed before that write lands after it", async () => {
@@ -536,15 +528,15 @@ describe("data view autosave", () => {
     const pending = deferred<GetResult<Item>>();
     store.nextRefresh = () => pending.promise;
 
-    store.setQueryOptions({ sortDescriptor: sort("acme") });
+    widen(store, "acme");
     await vi.advanceTimersByTimeAsync(1000);
 
-    expect(store.allViewState).toMatchObject({ sortDescriptor: sort("acme") });
+    expect(store.allViewState).toMatchObject({ columnWidths: { ["acme"]: 200 } });
 
     pending.resolve({ ...serverEcho({ viewId: ALL_VIEW_KEY }), allState: {} });
     await vi.advanceTimersByTimeAsync(0);
 
-    expect(store.allViewState).toMatchObject({ sortDescriptor: sort("acme") });
+    expect(store.allViewState).toMatchObject({ columnWidths: { ["acme"]: 200 } });
   });
 
   it("keeps a locally written saved view snapshot when a response computed before that write lands after it", async () => {
@@ -554,15 +546,15 @@ describe("data view autosave", () => {
 
     const pending = deferred<GetResult<Item>>();
     store.nextRefresh = () => pending.promise;
-    store.setQueryOptions({ sortDescriptor: sort("won") });
+    widen(store, "won");
     await vi.advanceTimersByTimeAsync(1000);
 
-    expect(store.views[0].state).toMatchObject({ sortDescriptor: sort("won") });
+    expect(store.views[0].state).toMatchObject({ columnWidths: { ["won"]: 200 } });
 
     pending.resolve(serverEcho({ p13nId: SURFACE.routines, viewId: VIEW_ID }));
     await vi.advanceTimersByTimeAsync(0);
 
-    expect(store.views[0].state).toMatchObject({ sortDescriptor: sort("won") });
+    expect(store.views[0].state).toMatchObject({ columnWidths: { ["won"]: 200 } });
   });
 
   it("keeps saving into All when another tab has made a saved view the remembered selection", async () => {
@@ -574,6 +566,7 @@ describe("data view autosave", () => {
     };
 
     store.setQueryOptions({ sortDescriptor: { field: "stage", direction: "desc" } });
+    store.setViewOptions({ columnWidth: { uid: "stage", width: 240 } });
     await vi.advanceTimersByTimeAsync(1000);
 
     expect(store.requestedParams.at(-1)).toMatchObject({ viewId: ALL_VIEW_KEY });
@@ -586,7 +579,7 @@ describe("data view autosave", () => {
   it("drops a pending write when the caller discards it", async () => {
     const store = hydrated();
 
-    store.setQueryOptions({ sortDescriptor: sort("open") });
+    widen(store, "open");
     store.discardPendingViewState();
     await vi.advanceTimersByTimeAsync(1500);
 
@@ -621,11 +614,11 @@ describe("data view autosave", () => {
     const store = hydrated();
 
     store.setQueryOptions({ filters: [filter("open")], searchTerm: "acme" });
-    await store.saveQueryToView();
+    await store.saveViewChanges();
     saveDataViewStateAction.mockClear();
 
     store.setQueryOptions({ filters: [], searchTerm: "" });
-    await store.saveQueryToView();
+    await store.saveViewChanges();
 
     const state = saveDataViewStateAction.mock.calls[0]?.[0]?.state;
     expect(state).toMatchObject({ filters: [], searchTerm: "", sortDescriptor: null, grouping: null });
@@ -641,14 +634,20 @@ describe("data view autosave", () => {
     expect(store.pagination?.page).toBe(4);
   });
 
-  it("persists a page size change, because a page size is stored state", async () => {
+  it("keeps a page size change temporary until it is saved to the view", async () => {
     const store = hydrated();
 
     store.setQueryOptions({ pagination: { page: 1, pageSize: 100 } });
-    await vi.advanceTimersByTimeAsync(1000);
+    await vi.advanceTimersByTimeAsync(1500);
+
+    expect(saveDataViewStateAction).not.toHaveBeenCalled();
+    expect(store.isViewModified).toBe(true);
+
+    await store.saveViewChanges();
 
     expect(saveDataViewStateAction).toHaveBeenCalledTimes(1);
     expect(saveDataViewStateAction.mock.calls[0]?.[0]?.state?.pageSize).toBe(100);
+    expect(store.isViewModified).toBe(false);
   });
 
   it("fires nothing at all when the surface cannot persist, even once the debounce elapses", async () => {
@@ -672,11 +671,11 @@ describe("data view autosave", () => {
     const store = hydrated();
 
     saveDataViewStateAction.mockResolvedValue({ ok: false, error: { errors: ["nope"] } });
-    store.setQueryOptions({ sortDescriptor: sort("open") });
+    widen(store, "open");
     await vi.advanceTimersByTimeAsync(1000);
 
     expect(toastZodErrorTree).toHaveBeenCalledExactlyOnceWith({ errors: ["nope"] });
-    expect(store.sortDescriptor).toEqual(sort("open"));
+    expect(store.columnWidths).toEqual({ open: 200 });
     await expect(store.settleViewState()).rejects.toThrow("The current view could not be saved.");
   });
 
@@ -703,7 +702,7 @@ describe("same-view local column state across pending reads", () => {
     toastZodErrorTree.mockClear();
   });
   afterEach(() => vi.useRealTimers());
-  it("preserves a hide made during an earlier sort query and writes the same projection with the new query", async () => {
+  it("preserves a hide made during an earlier sort query and saves the same projection with the new query", async () => {
     const store = hydrated();
     const response = deferred<GetResult<Item>>();
     store.nextRefresh = () => response.promise;
@@ -714,7 +713,8 @@ describe("same-view local column state across pending reads", () => {
     await vi.advanceTimersByTimeAsync(0);
     expect(store.hiddenColumns).toEqual(["stage"]);
     expect(store.sortDescriptor).toEqual({ field: "stage", direction: "asc" });
-    await store.settleViewState();
+    expect(store.isViewModified).toBe(true);
+    await store.saveViewChanges();
     expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({
         surfaceKey: SURFACE.routines,
@@ -738,7 +738,10 @@ describe("same-view local column state across pending reads", () => {
     expect(store.columnOrder).toEqual(["stage"]);
     expect(store.columnWidths).toEqual({ stage: 240 });
     await store.settleViewState();
-    expect(saveDataViewStateAction.mock.calls[0][0].state).toMatchObject({
+    expect(saveDataViewStateAction.mock.calls[0][0].state).toMatchObject({ columnWidths: { stage: 240 } });
+    expect(saveDataViewStateAction.mock.calls[0][0].state.columnOrder).toBeUndefined();
+    await store.saveViewChanges();
+    expect(saveDataViewStateAction.mock.calls[1][0].state).toMatchObject({
       columnOrder: ["stage"],
       columnWidths: { stage: 240 },
     });
@@ -758,7 +761,8 @@ describe("same-view local column state across pending reads", () => {
     expect(store.columnWidths).toEqual({ stage: 260 });
     save.resolve({ ok: true, data: { viewKey: ALL_VIEW_KEY } });
     await store.settleViewState();
-    expect(store.allViewState).toMatchObject({ hiddenColumns: ["stage"], columnWidths: { stage: 260 } });
+    expect(store.allViewState).toMatchObject({ columnWidths: { stage: 260 } });
+    expect(store.isViewModified).toBe(true);
     await vi.advanceTimersByTimeAsync(1500);
     expect(saveDataViewStateAction).toHaveBeenCalledOnce();
   });
@@ -787,9 +791,8 @@ describe("same-view local column state across pending reads", () => {
     expect(store.activeViewKey).toBe(VIEW_ID);
     expect(store.hiddenColumns).toEqual([]);
     expect(store.columnWidths).toEqual({ stage: 300 });
-    expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith(
-      expect.objectContaining({ viewKey: ALL_VIEW_KEY, state: expect.objectContaining({ hiddenColumns: ["stage"] }) }),
-    );
+    expect(store.isViewModified).toBe(false);
+    expect(saveDataViewStateAction).not.toHaveBeenCalled();
   });
   it("keeps an untouched remote width while retaining a newer local hide and drops removed column identifiers", async () => {
     const store = hydrated();
@@ -812,11 +815,8 @@ describe("same-view local column state across pending reads", () => {
     expect(store.columnOrder).toEqual([]);
     expect(store.columnWidths).toEqual({});
     await store.settleViewState();
-    expect(saveDataViewStateAction.mock.calls[0][0].state).toMatchObject({
-      hiddenColumns: [],
-      columnOrder: [],
-      columnWidths: {},
-    });
+    expect(saveDataViewStateAction.mock.calls[0][0].state).toMatchObject({ columnWidths: {} });
+    expect(store.isViewModified).toBe(false);
   });
 });
 
@@ -845,13 +845,13 @@ describe("modified view query", () => {
   }
 
   it("starts clean after hydration", () => {
-    expect(hydrated().isQueryModified).toBe(false);
+    expect(hydrated().isViewModified).toBe(false);
   });
 
   it("keeps a filter and search change temporary instead of saving it into the view", async () => {
     const store = await modifiedSavedView();
 
-    expect(store.isQueryModified).toBe(true);
+    expect(store.isViewModified).toBe(true);
     expect(saveDataViewStateAction).not.toHaveBeenCalled();
     expect(store.views[0]?.state).toEqual(VIEW.state);
   });
@@ -859,7 +859,7 @@ describe("modified view query", () => {
   it("saves the temporary query into the view on request and becomes clean", async () => {
     const store = await modifiedSavedView();
 
-    await store.saveQueryToView();
+    await store.saveViewChanges();
 
     expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({
@@ -868,7 +868,7 @@ describe("modified view query", () => {
       }),
     );
     expect(store.views[0]?.state).toMatchObject({ filters: [filter("won")], searchTerm: "" });
-    expect(store.isQueryModified).toBe(false);
+    expect(store.isViewModified).toBe(false);
     expect(store.searchTerm).toBe("acme");
   });
 
@@ -876,12 +876,12 @@ describe("modified view query", () => {
     const store = await modifiedSavedView();
     store.requestedParams = [];
 
-    store.resetQueryToView();
+    store.resetViewChanges();
     await vi.advanceTimersByTimeAsync(1500);
 
     expect(store.filters).toEqual([filter("open")]);
     expect(store.searchTerm).toBe("acme");
-    expect(store.isQueryModified).toBe(false);
+    expect(store.isViewModified).toBe(false);
     expect(store.requestedParams.at(-1)).toMatchObject({ filters: [filter("open")] });
     expect(saveDataViewStateAction).not.toHaveBeenCalled();
   });
@@ -891,14 +891,14 @@ describe("modified view query", () => {
 
     store.applyView(ALL_VIEW_KEY);
     await vi.advanceTimersByTimeAsync(0);
-    expect(store.isQueryModified).toBe(false);
+    expect(store.isViewModified).toBe(false);
 
     store.requestedParams = [];
     store.applyView(VIEW_ID);
 
     expect(store.filters).toEqual([filter("won")]);
     expect(store.searchTerm).toBe("acme");
-    expect(store.isQueryModified).toBe(true);
+    expect(store.isViewModified).toBe(true);
     expect(store.requestedParams.at(-1)).toMatchObject({ viewId: VIEW_ID, filters: [filter("won")] });
   });
 
@@ -912,7 +912,7 @@ describe("modified view query", () => {
 
     expect(next.filters).toEqual([filter("won")]);
     expect(next.searchTerm).toBe("acme");
-    expect(next.isQueryModified).toBe(true);
+    expect(next.isViewModified).toBe(true);
     expect(next.requestedParams.at(-1)).toMatchObject({ filters: [filter("won")], searchTerm: "acme" });
   });
 
@@ -935,14 +935,14 @@ describe("modified view query", () => {
 
   it("forgets the temporary filters once they are saved or reset", async () => {
     const saved = await modifiedSavedView({ searchTerm: "" });
-    await saved.saveQueryToView();
+    await saved.saveViewChanges();
     const afterSave = new TestStore(rootStore());
     afterSave.setItems(serverEcho({ viewId: VIEW_ID, pagination: { page: 1, pageSize: 25 } }));
     afterSave.restoreQueryDraft();
     expect(afterSave.filters).toEqual([filter("open")]);
 
     const reset = await modifiedSavedView({ searchTerm: "" });
-    reset.resetQueryToView();
+    reset.resetViewChanges();
     const afterReset = new TestStore(rootStore());
     afterReset.setItems(serverEcho({ viewId: VIEW_ID, pagination: { page: 1, pageSize: 25 } }));
     afterReset.restoreQueryDraft();
@@ -956,8 +956,8 @@ describe("modified view query", () => {
     store.setQueryOptions({ searchTerm: "acme" });
     await vi.advanceTimersByTimeAsync(1500);
 
-    expect(store.isQueryModified).toBe(false);
-    await store.saveQueryToView();
+    expect(store.isViewModified).toBe(false);
+    await store.saveViewChanges();
     expect(saveDataViewStateAction).not.toHaveBeenCalled();
 
     const next = new TestStore(rootStore());
@@ -965,7 +965,7 @@ describe("modified view query", () => {
     next.restoreQueryDraft();
     expect(next.searchTerm).toBe("acme");
     expect(next.filters).toEqual([filter("open")]);
-    expect(next.isQueryModified).toBe(false);
+    expect(next.isViewModified).toBe(false);
   });
 
   it("treats the same filters in another order as unchanged", async () => {
@@ -973,13 +973,13 @@ describe("modified view query", () => {
     store.applyView(VIEW_ID);
     await vi.advanceTimersByTimeAsync(0);
     store.setQueryOptions({ filters: [filter("won"), filter("open")] });
-    expect(store.isQueryModified).toBe(true);
+    expect(store.isViewModified).toBe(true);
     const saved = new TestStore(rootStore());
     saved.setItems({
       ...serverEcho({ viewId: VIEW_ID, filters: [filter("open"), filter("won")] }),
       views: [{ ...VIEW, state: { filters: [filter("won"), filter("open")] } }],
     });
-    expect(saved.isQueryModified).toBe(false);
+    expect(saved.isViewModified).toBe(false);
 
     const reordered = new TestStore(rootStore());
     reordered.setItems({
@@ -991,7 +991,7 @@ describe("modified view query", () => {
         },
       ],
     });
-    expect(reordered.isQueryModified).toBe(false);
+    expect(reordered.isViewModified).toBe(false);
   });
 
   it("keeps drafts per person and company and forgets other people's drafts when a person signs in", async () => {
@@ -1000,7 +1000,7 @@ describe("modified view query", () => {
     otherPerson.setItems(serverEcho({ viewId: VIEW_ID, pagination: { page: 1, pageSize: 25 } }));
     otherPerson.restoreQueryDraft();
     expect(otherPerson.filters).toEqual([filter("open")]);
-    expect(otherPerson.isQueryModified).toBe(false);
+    expect(otherPerson.isViewModified).toBe(false);
 
     forgetOtherViewQueryDrafts(viewQueryDraftOwner({ id: "someone-else", companyId: "draft-company" }));
     const samePerson = new TestStore(rootStore());
@@ -1015,8 +1015,210 @@ describe("modified view query", () => {
 
     store.setQueryOptions({ filters: [filter("open")] });
 
-    expect(store.isQueryModified).toBe(false);
-    await store.saveQueryToView();
+    expect(store.isViewModified).toBe(false);
+    await store.saveViewChanges();
+    expect(saveDataViewStateAction).not.toHaveBeenCalled();
+  });
+});
+
+describe("temporary appearance changes", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    echoPersistable = true;
+    saveDataViewStateAction.mockReset();
+    saveDataViewStateAction.mockResolvedValue({ ok: true, data: { viewKey: VIEW_ID } });
+    selectDataViewAction.mockReset();
+    selectDataViewAction.mockResolvedValue({ ok: true, data: { activeViewKey: VIEW_ID } });
+    window.sessionStorage.clear();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  async function savedView(): Promise<TestStore> {
+    const store = hydrated();
+    store.applyView(VIEW_ID);
+    await vi.advanceTimersByTimeAsync(0);
+    store.requestedParams = [];
+    return store;
+  }
+
+  it.each([
+    ["sort", (store: TestStore) => store.setQueryOptions({ sortDescriptor: sort("stage") })],
+    ["page size", (store: TestStore) => store.setQueryOptions({ pagination: { page: 1, pageSize: 100 } })],
+    ["layout", (store: TestStore) => store.setViewOptions({ viewMode: ViewMode.card })],
+    ["grouping", (store: TestStore) => store.setViewOptions({ grouping: { field: "stage" } })],
+    ["hidden columns", (store: TestStore) => store.setViewOptions({ hiddenColumns: ["stage"] })],
+    ["column order", (store: TestStore) => store.setViewOptions({ columnOrder: ["stage", "name"] })],
+  ])("marks the view modified for a %s change without saving it", async (_, change) => {
+    const store = await savedView();
+
+    change(store);
+    await vi.advanceTimersByTimeAsync(1500);
+
+    expect(store.isViewModified).toBe(true);
+    expect(store.isAppearanceModified).toBe(true);
+    expect(store.isFilterModified).toBe(false);
+    expect(saveDataViewStateAction).not.toHaveBeenCalled();
+  });
+
+  it("keeps a column width a personal setting that is written at once and never marks the view modified", async () => {
+    const store = await savedView();
+
+    store.setViewOptions({ columnWidth: { uid: "stage", width: 240 } });
+    await vi.advanceTimersByTimeAsync(1000);
+
+    expect(store.isViewModified).toBe(false);
+    expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith({
+      surfaceKey: SURFACE.routines,
+      viewKey: VIEW_ID,
+      state: { filters: [filter("open")], searchTerm: "", columnWidths: { stage: 240 } },
+    });
+  });
+
+  it("becomes clean again when an appearance change is undone by hand", async () => {
+    const store = await savedView();
+
+    store.setViewOptions({ hiddenColumns: ["stage"] });
+    expect(store.isViewModified).toBe(true);
+    store.setViewOptions({ hiddenColumns: [] });
+
+    expect(store.isViewModified).toBe(false);
+  });
+
+  it("saves filters and appearance together into the active view and becomes clean", async () => {
+    const store = await savedView();
+    store.setQueryOptions({ filters: [filter("won")] });
+    store.setViewOptions({ viewMode: ViewMode.card, grouping: { field: "stage" }, hiddenColumns: ["stage"] });
+    await vi.advanceTimersByTimeAsync(0);
+
+    await store.saveViewChanges();
+
+    expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        viewKey: VIEW_ID,
+        state: expect.objectContaining({
+          filters: [filter("won")],
+          viewMode: ViewMode.card,
+          grouping: { field: "stage" },
+          hiddenColumns: ["stage"],
+        }),
+      }),
+    );
+    expect(store.views[0]?.state).toMatchObject({ grouping: { field: "stage" }, hiddenColumns: ["stage"] });
+    expect(store.isViewModified).toBe(false);
+  });
+
+  it("resets filters and appearance to the saved view without writing", async () => {
+    const store = await savedView();
+    store.setQueryOptions({ filters: [filter("won")], sortDescriptor: sort("stage") });
+    store.setViewOptions({ viewMode: ViewMode.card, grouping: { field: "stage" }, hiddenColumns: ["stage"] });
+    await vi.advanceTimersByTimeAsync(0);
+
+    store.resetViewChanges();
+    await vi.advanceTimersByTimeAsync(1500);
+
+    expect(store.filters).toEqual([filter("open")]);
+    expect(store.sortDescriptor).toBeUndefined();
+    expect(store.viewMode).toBe(ViewMode.table);
+    expect(store.grouping).toBeNull();
+    expect(store.hiddenColumns).toEqual([]);
+    expect(store.isViewModified).toBe(false);
+    expect(saveDataViewStateAction).not.toHaveBeenCalled();
+    expect(store.requestedParams.at(-1)).toMatchObject({ filters: [filter("open")], grouping: null });
+
+    const next = new TestStore(rootStore());
+    next.setItems(serverEcho({ viewId: VIEW_ID, pagination: { page: 1, pageSize: 25 } }));
+    next.restoreQueryDraft();
+    expect(next.isViewModified).toBe(false);
+  });
+
+  it("keeps a temporary appearance when a refresh answers with the saved state", async () => {
+    const store = await savedView();
+    store.setViewOptions({ hiddenColumns: ["stage"], columnOrder: ["stage"] });
+
+    store.nextRefresh = () =>
+      Promise.resolve({ ...serverEcho({ viewId: VIEW_ID }), hiddenColumns: [], columnOrder: [] });
+    await store.refreshQuery();
+
+    expect(store.hiddenColumns).toEqual(["stage"]);
+    expect(store.columnOrder).toEqual(["stage"]);
+    expect(store.isViewModified).toBe(true);
+  });
+
+  it("keeps a temporary hidden board column when the server answers with the stored grouping", async () => {
+    const store = await savedView();
+    store.setViewOptions({ viewMode: ViewMode.card, grouping: { field: "stage" } });
+    await store.saveViewChanges();
+    store.hideGroup("value:won");
+    expect(store.isViewModified).toBe(true);
+
+    store.nextRefresh = () =>
+      Promise.resolve({
+        ...serverEcho({ viewId: VIEW_ID, viewMode: ViewMode.card }),
+        grouping: { grouping: { field: "stage" }, groups: [] } as unknown as GetResult<Item>["grouping"],
+      });
+    await store.refreshQuery();
+
+    expect(store.grouping).toEqual({ field: "stage", hidden: ["value:won"] });
+    expect(store.isViewModified).toBe(true);
+  });
+
+  it("restores a temporary appearance in a new page within the browser session", async () => {
+    const store = await savedView();
+    store.setViewOptions({ hiddenColumns: ["stage"], viewMode: ViewMode.card });
+    await vi.advanceTimersByTimeAsync(0);
+
+    const next = new TestStore(rootStore());
+    next.setItems(serverEcho({ viewId: VIEW_ID, pagination: { page: 1, pageSize: 25 } }));
+    next.requestedParams = [];
+    next.restoreQueryDraft();
+
+    expect(next.hiddenColumns).toEqual(["stage"]);
+    expect(next.viewMode).toBe(ViewMode.card);
+    expect(next.isViewModified).toBe(true);
+    expect(next.requestedParams.at(-1)).toMatchObject({ viewMode: ViewMode.card });
+  });
+
+  it("keeps a layout carried by the address and still knows the saved layout after a reload", async () => {
+    const store = await savedView();
+    store.setViewOptions({ viewMode: ViewMode.card });
+    await vi.advanceTimersByTimeAsync(0);
+
+    const next = new TestStore(rootStore());
+    next.setItems(serverEcho({ viewId: VIEW_ID, viewMode: ViewMode.card, pagination: { page: 1, pageSize: 25 } }));
+    next.restoreQueryDraft();
+
+    expect(next.viewMode).toBe(ViewMode.card);
+    expect(next.isViewModified).toBe(true);
+    next.resetViewChanges();
+    expect(next.viewMode).toBe(ViewMode.table);
+  });
+
+  it("returns to a view's temporary appearance after visiting another view", async () => {
+    const store = await savedView();
+    store.setViewOptions({ hiddenColumns: ["stage"] });
+
+    store.applyView(ALL_VIEW_KEY);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(store.hiddenColumns).toEqual([]);
+    expect(store.isViewModified).toBe(false);
+
+    store.applyView(VIEW_ID);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(store.hiddenColumns).toEqual(["stage"]);
+    expect(store.isViewModified).toBe(true);
+  });
+
+  it("never reports appearance changes on a surface that cannot save views", async () => {
+    const store = await savedView();
+    store.viewPersistable = false;
+
+    store.setViewOptions({ hiddenColumns: ["stage"] });
+    await vi.advanceTimersByTimeAsync(1500);
+
+    expect(store.isViewModified).toBe(false);
     expect(saveDataViewStateAction).not.toHaveBeenCalled();
   });
 });
@@ -1052,7 +1254,7 @@ describe("assistant view proposals", () => {
 
     expect(store.activeViewKey).toBe(VIEW_ID);
     expect(store.proposal).toEqual({ isNew: false });
-    expect(store.isQueryModified).toBe(true);
+    expect(store.isViewModified).toBe(true);
     expect(store.filters).toEqual([filter("won")]);
     expect(store.sortDescriptor).toEqual(sort("stage"));
     expect(store.hiddenColumns).toEqual(["stage"]);
@@ -1067,7 +1269,7 @@ describe("assistant view proposals", () => {
     store.applyViewProposal(proposal());
     await vi.advanceTimersByTimeAsync(0);
 
-    await store.saveQueryToView();
+    await store.saveViewChanges();
 
     expect(saveDataViewStateAction).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({
@@ -1080,7 +1282,7 @@ describe("assistant view proposals", () => {
       }),
     );
     expect(store.proposal).toBeNull();
-    expect(store.isQueryModified).toBe(false);
+    expect(store.isViewModified).toBe(false);
   });
 
   it("resets a proposal back to the saved view and forgets it", async () => {
@@ -1088,7 +1290,7 @@ describe("assistant view proposals", () => {
     store.applyViewProposal(proposal());
     await vi.advanceTimersByTimeAsync(0);
 
-    store.resetQueryToView();
+    store.resetViewChanges();
     await vi.advanceTimersByTimeAsync(0);
 
     expect(store.proposal).toBeNull();
@@ -1135,7 +1337,7 @@ describe("assistant view proposals", () => {
       };
       return Promise.resolve({ ...serverEcho(), views: [VIEW, created] });
     };
-    await store.saveQueryToView();
+    await store.saveViewChanges();
 
     expect(upsertDataViewAction).toHaveBeenCalledExactlyOnceWith({
       name: "Won",
@@ -1153,7 +1355,7 @@ describe("assistant view proposals", () => {
     await vi.advanceTimersByTimeAsync(0);
     expect(store.proposal).toEqual({ name: "Won deals", isNew: false });
 
-    await store.saveQueryToView();
+    await store.saveViewChanges();
 
     expect(upsertDataViewAction).toHaveBeenCalledExactlyOnceWith({
       id: VIEW_ID,
@@ -1207,7 +1409,7 @@ describe("assistant view proposals", () => {
     expect(store.filters).toEqual([filter("lost")]);
     expect(store.sortDescriptor).toEqual(sort("stage"));
     expect(store.hiddenColumns).toEqual(["stage"]);
-    expect(store.isQueryModified).toBe(true);
+    expect(store.isViewModified).toBe(true);
   });
 
   it("keeps display changes made while a proposal is pending for the browser session", async () => {

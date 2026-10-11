@@ -32,6 +32,7 @@ import {
   deleteSelectedList,
 } from "./configure";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { saveViewChanges } from "./view-changes";
 import { openRecordDetails, recordItem, runRowAction } from "./record-rows";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
@@ -2228,6 +2229,7 @@ test("keeps personal views separate from the list layout, groups and summarises 
   await page.getByRole("option", { name: type.label, exact: true }).click();
   await page.locator(`#field-${budgetId}`).uncheck();
   await presentationCloseAppearanceUi(page, testInfo);
+  await saveViewChanges(page);
   await expect
     .poll(
       async () =>
@@ -2509,6 +2511,7 @@ test("keeps personal views separate from the list layout, groups and summarises 
     .click();
   await presentationCloseAppearanceUi(page, testInfo);
   await assertBoard(page);
+  await saveViewChanges(page);
   await expect
     .poll(async () =>
       (await viewRows(workspace.userId)).find(
@@ -2540,6 +2543,7 @@ test("keeps personal views separate from the list layout, groups and summarises 
   await expect(
     page.locator('[data-group-key="value:open"] [aria-label="Budget · Sum: 125"]'),
   ).toHaveCount(0);
+  await saveViewChanges(page);
   await expect
     .poll(
       async () =>

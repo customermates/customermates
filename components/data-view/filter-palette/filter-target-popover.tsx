@@ -22,6 +22,7 @@ type Props = {
   registerOpener?: (open: () => void) => () => void;
   headerAction?: (close: () => void) => ReactNode;
   footerAction?: ReactNode;
+  notice?: ReactNode;
   onCloseAutoFocus?: ComponentProps<typeof ResponsiveOverlay>["onCloseAutoFocus"];
   compact?: boolean;
   id?: string;
@@ -35,6 +36,7 @@ export const FilterTargetPopover = observer(function FilterTargetPopover({
   id,
   headerAction,
   footerAction,
+  notice,
   onCloseAutoFocus,
 }: Props) {
   const t = useTranslations();
@@ -166,6 +168,8 @@ export const FilterTargetPopover = observer(function FilterTargetPopover({
       onOpenChange={handleOpenChange}
     >
       <div ref={contentRef}>
+        {page.kind === "root" && notice}
+
         <FilterPalette palette={palette} search={search} store={store} />
       </div>
     </ResponsiveOverlay>

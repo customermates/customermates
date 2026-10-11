@@ -1,4 +1,5 @@
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { saveViewChanges } from "./view-changes";
 import { openItemMenu } from "./item-actions";
 import type { Request } from "@playwright/test";
 import { presetId } from "../../features/records/crm-preset";
@@ -89,6 +90,7 @@ test("moves a board card with the keyboard and restores relationship and date gr
   await expect(page.locator('[data-slot="kanban-root"]')).toContainText("Example organization");
   await expect(card).toBeVisible();
   await expect(page).toHaveURL(new RegExp(encodeURIComponent(`relationship:${id("deal.organizations")}:outgoing`)));
+  await saveViewChanges(page);
   await expect
     .poll(async () => {
       const value = await database.query('SELECT grouping FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2', [
@@ -107,6 +109,7 @@ test("moves a board card with the keyboard and restores relationship and date gr
   await page.getByRole("option", { name: "Created at · Month", exact: true }).click();
   await closeAppearance();
   await expect(card).toBeVisible();
+  await saveViewChanges(page);
   await expect
     .poll(async () => {
       const value = await database.query(
