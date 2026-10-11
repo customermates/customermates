@@ -58,6 +58,12 @@ export async function itemMenuLabels(page: Page, menu: Locator) {
 
 export async function expectTriggerVisuallyHidden(trigger: Locator) {
   await expect(trigger).toBeAttached();
-  const box = await trigger.boundingBox();
-  expect(box === null || (box.width <= 1 && box.height <= 1)).toBe(true);
+  await expect
+    .poll(() =>
+      trigger.evaluate((element) => {
+        const style = getComputedStyle(element);
+        return `${element.offsetWidth}x${element.offsetHeight} ${style.position} ${style.clipPath} ${style.opacity}`;
+      }),
+    )
+    .toMatch(/^1x1 absolute inset\(50%\)/);
 }
