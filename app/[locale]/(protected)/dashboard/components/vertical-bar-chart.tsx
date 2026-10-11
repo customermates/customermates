@@ -49,7 +49,7 @@ export const VerticalBarChart = observer(
         <BarChart
           barCategoryGap="24%"
           data={chartData}
-          margin={{ top: 8, right: 4, bottom: 0, left: Math.max(0, axis.overhang - valueAxisWidth) }}
+          margin={{ top: 8, right: axis.angled ? 8 : 4, bottom: 0, left: Math.max(0, axis.overhang - valueAxisWidth) }}
         >
           <CartesianGrid {...chartGridProps} vertical={false} />
 

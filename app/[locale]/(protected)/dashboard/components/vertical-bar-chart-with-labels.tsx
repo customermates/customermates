@@ -48,7 +48,7 @@ export const VerticalBarChartWithLabels = observer(
           data={chartData}
           margin={{
             top: reverseYAxis ? 0 : 20,
-            right: 4,
+            right: axis.angled ? 8 : 4,
             bottom: reverseYAxis ? 20 : 0,
             left: Math.max(4, axis.overhang),
           }}

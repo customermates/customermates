@@ -1,10 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import { formattingTagFor } from "../../i18n/locale-registry";
-import {
-  nextCronOccurrence,
-  parseCronExpression,
-} from "../../ee/routines/routine-schedule";
+import { nextCronOccurrence, parseCronExpression } from "../../ee/routines/routine-schedule";
 import { setPaletteText, expectPaletteText } from "./filter-palette";
 import { addFromConfigure, openConfigure } from "./configure";
 import { test, expect, isBenignPageError } from "./fixtures";
@@ -23,14 +20,8 @@ test("persists a routine for a customer-created type and matches only its config
   await openConfigure(page);
   await addFromConfigure(page, "List");
   const creation = page.getByRole("dialog");
-  await creation
-    .getByRole("textbox", { name: "Name", exact: false })
-    .first()
-    .fill("Projects");
-  await creation
-    .getByRole("button", { name: "Save", exact: true })
-    .first()
-    .click();
+  await creation.getByRole("textbox", { name: "Name", exact: false }).first().fill("Projects");
+  await creation.getByRole("button", { name: "Save", exact: true }).first().click();
   await expect(page).toHaveURL(/\/en\/records\/[a-f0-9-]+$/);
   const typeId = new URL(page.url()).pathname.split("/").at(-1);
   const field = await database.query(
@@ -42,29 +33,16 @@ test("persists a routine for a customer-created type and matches only its config
   await page.locator("#routines-add").click();
   const routine = page.getByRole("dialog", { name: "Routine", exact: true });
   await routine.locator("#name").fill("Project follow-up");
-  await routine
-    .locator("#prompt")
-    .fill("Summarize the changed project without sending messages.");
-  await routine
-    .getByRole("combobox", { name: "Trigger", exact: false })
-    .first()
-    .click();
-  await page
-    .getByRole("option", { name: "When something changes", exact: true })
-    .click();
+  await routine.locator("#prompt").fill("Summarize the changed project without sending messages.");
+  await routine.getByRole("combobox", { name: "Trigger", exact: false }).first().click();
+  await page.getByRole("option", { name: "When something changes", exact: true }).click();
   await routine.locator("#triggerEvents").click();
-  await page
-    .getByRole("option", { name: "Record updated", exact: true })
-    .click();
+  await page.getByRole("option", { name: "Record updated", exact: true }).click();
   await page.keyboard.press("Escape");
-  await routine
-    .getByRole("combobox", { name: "Records from", exact: false })
-    .click();
+  await routine.getByRole("combobox", { name: "Records from", exact: false }).click();
   await page.getByRole("option", { name: "Projects", exact: true }).click();
   await routine.locator('[id="recordTrigger.changedFieldIds"]').click();
-  await page
-    .getByRole("option", { name: field.rows[0].label, exact: true })
-    .click();
+  await page.getByRole("option", { name: field.rows[0].label, exact: true }).click();
   await page.keyboard.press("Escape");
   await setPaletteText(page, "record-trigger-filters", "query:search", "Ready");
   await routine.getByRole("button", { name: "Save", exact: true }).click();
@@ -80,41 +58,23 @@ test("persists a routine for a customer-created type and matches only its config
     query: { typeId, search: "Ready" },
   });
   await page.reload();
-  await page
-    .getByRole("button", { name: "Project follow-up", exact: true })
-    .click();
-  await expect(
-    routine.getByRole("combobox", { name: "Records from", exact: false }),
-  ).toContainText("Projects");
-  await expect(
-    routine.locator('[id="recordTrigger.changedFieldIds"]'),
-  ).toContainText(field.rows[0].label);
-  await expectPaletteText(
-    page,
-    "record-trigger-filters",
-    "query:search",
-    "Ready",
-  );
+  await page.getByRole("button", { name: "Project follow-up", exact: true }).click();
+  await expect(routine.getByRole("combobox", { name: "Records from", exact: false })).toContainText("Projects");
+  await expect(routine.locator('[id="recordTrigger.changedFieldIds"]')).toContainText(field.rows[0].label);
+  await expectPaletteText(page, "record-trigger-filters", "query:search", "Ready");
   await routine
     .locator("[data-record-trigger]")
-    .screenshot({
-      path: testInfo.outputPath("custom-type-routine.png"),
-      animations: "disabled",
-    });
+    .screenshot({ path: testInfo.outputPath("custom-type-routine.png"), animations: "disabled" });
   await page.keyboard.press("Escape");
   await expect(routine).not.toBeVisible();
   await page.goto(`/en/records/${typeId}`);
   await page.locator("#records-add").click();
   const record = page.getByRole("dialog");
-  await record
-    .getByRole("textbox", { name: field.rows[0].label, exact: false })
-    .fill("Draft project");
+  await record.getByRole("textbox", { name: field.rows[0].label, exact: false }).fill("Draft project");
   await record.getByRole("button", { name: "Save", exact: true }).click();
   await expect(record).not.toBeVisible();
   await openRecordDetails(page, "Draft project");
-  await record
-    .getByRole("textbox", { name: field.rows[0].label, exact: false })
-    .fill("Ready project");
+  await record.getByRole("textbox", { name: field.rows[0].label, exact: false }).fill("Ready project");
   await record.getByRole("button", { name: "Save", exact: true }).click();
   await expect(record).not.toBeVisible();
   const matches = await database.query(
