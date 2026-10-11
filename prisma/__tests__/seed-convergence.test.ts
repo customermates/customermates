@@ -62,9 +62,10 @@ suite("generic synthetic seed convergence", { timeout: 180000 }, () => {
       expect(await prisma.eventLog.count({ where: { companyId } })).toBe(counts.histories);
       expect(await prisma.webhookDelivery.count({ where: { companyId } })).toBe(counts.deliveries);
       for (const kind of ["contact", "organization", "deal", "service", "task"] as const) {
-        expect(await prisma.crmRecord.count({ where: { companyId, typeId: presetId(companyId, kind) } })).toBe(
-          entities[`${kind}s`].length + (kind === "contact" ? 1 : 0),
-        );
+        // Records in Trash (the seeded Trash fixtures) are not part of the live lists.
+        expect(
+          await prisma.crmRecord.count({ where: { companyId, typeId: presetId(companyId, kind), deletedAt: null } }),
+        ).toBe(entities[`${kind}s`].length + (kind === "contact" ? 1 : 0));
       }
 
       const hooks = await prisma.webhook.findMany({ where: { companyId } });
