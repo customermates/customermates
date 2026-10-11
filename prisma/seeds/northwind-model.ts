@@ -125,6 +125,7 @@ export const NORTHWIND_FIELD_KEYS = {
   },
   lineItem: {
     listAmount: "lineItem.listAmount",
+    discountPercent: "lineItem.discountPercent",
   },
   task: {
     team: "task.team",

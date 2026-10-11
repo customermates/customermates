@@ -13,6 +13,7 @@ import { WebhookDtoSchema } from "@/features/webhook/webhook.schema";
 import type { SeedContext } from "./context";
 
 import { fixtureId } from "./helpers";
+import { NORTHWIND_MEMBER_IDS, NORTHWIND_ROLE_IDS } from "./northwind-model";
 
 export const SYNTHETIC_AUDIT_LOG_ID_PREFIX = "1e000000";
 
@@ -42,7 +43,7 @@ export type SyntheticAuditSnapshot = {
   connectedAccounts: ConnectedAccountSnapshot[];
   roles: RoleDto[];
   users: RegisteredUserSnapshot[];
-  webhook: WebhookDto;
+  webhooks: WebhookDto[];
 };
 
 export type SyntheticAuditFixture = {
@@ -197,23 +198,22 @@ export function buildSyntheticAuditLogFixtures(args: {
     );
   }
 
-  const createdWebhook = toWebhookEventPayload(
-    creationState(snapshot.webhook, {
-      description: null,
-      enabled: true,
-    }),
-  );
-  const updatedWebhook = toWebhookEventPayload(updateState(snapshot.webhook));
-  push(DomainEvent.WEBHOOK_CREATED, createdWebhook.id, createdWebhook, createdWebhook.createdAt);
-  push(
-    DomainEvent.WEBHOOK_UPDATED,
-    updatedWebhook.id,
-    {
-      webhook: updatedWebhook,
-      changes: calculateChanges(createdWebhook, updatedWebhook),
-    },
-    updatedWebhook.updatedAt,
-  );
+  for (const webhook of snapshot.webhooks) {
+    const createdWebhook = toWebhookEventPayload(creationState(webhook, { enabled: true }));
+    push(DomainEvent.WEBHOOK_CREATED, createdWebhook.id, createdWebhook, createdWebhook.createdAt);
+    if (webhook.enabled) continue;
+    // The paused webhook was switched off after its receiver kept failing.
+    const updatedWebhook = toWebhookEventPayload(updateState(webhook));
+    push(
+      DomainEvent.WEBHOOK_UPDATED,
+      updatedWebhook.id,
+      {
+        webhook: updatedWebhook,
+        changes: calculateChanges(createdWebhook, updatedWebhook),
+      },
+      updatedWebhook.updatedAt,
+    );
+  }
 
   return fixtures;
 }
@@ -245,11 +245,11 @@ export async function persistSyntheticAuditLogFixtures(
 }
 
 async function loadSyntheticAuditSnapshot(prisma: PrismaClient, context: SeedContext): Promise<SyntheticAuditSnapshot> {
-  const [users, roles, connectedAccounts, webhook] = await Promise.all([
+  const [users, roles, connectedAccounts, webhooks] = await Promise.all([
     prisma.user.findMany({
       where: {
         id: {
-          in: [context.ids.user, context.ids.sofiaRossiUser, context.ids.elenaHoffmannUser],
+          in: Object.values(NORTHWIND_MEMBER_IDS),
         },
         companyId: context.ids.company,
       },
@@ -270,7 +270,7 @@ async function loadSyntheticAuditSnapshot(prisma: PrismaClient, context: SeedCon
     prisma.userRole.findMany({
       where: {
         id: {
-          in: [context.ids.salesManagerRole, context.ids.customerSuccessRole],
+          in: Object.values(NORTHWIND_ROLE_IDS).filter((id) => id !== NORTHWIND_ROLE_IDS.admin),
         },
         companyId: context.ids.company,
       },
@@ -305,8 +305,9 @@ async function loadSyntheticAuditSnapshot(prisma: PrismaClient, context: SeedCon
         lastSyncedAt: true,
       },
     }),
-    prisma.webhook.findUniqueOrThrow({
-      where: { id: fixtureId("22000000", 1), companyId: context.ids.company },
+    prisma.webhook.findMany({
+      where: { id: { in: [fixtureId("22000000", 1), fixtureId("22000000", 2)] }, companyId: context.ids.company },
+      orderBy: { id: "asc" },
       select: {
         id: true,
         url: true,
@@ -322,15 +323,16 @@ async function loadSyntheticAuditSnapshot(prisma: PrismaClient, context: SeedCon
     }),
   ]);
 
-  assertSnapshotCount("users", users.length, 3);
-  assertSnapshotCount("roles", roles.length, 2);
+  assertSnapshotCount("users", users.length, Object.keys(NORTHWIND_MEMBER_IDS).length);
+  assertSnapshotCount("roles", roles.length, Object.keys(NORTHWIND_ROLE_IDS).length - 1);
+  assertSnapshotCount("webhooks", webhooks.length, 2);
   assertSnapshotCount("connected accounts", connectedAccounts.length, 3);
 
   return {
     connectedAccounts,
     users,
     roles: roles.map((role) => RoleDtoSchema.parse(role)),
-    webhook: WebhookDtoSchema.parse(webhook),
+    webhooks: webhooks.map((webhook) => WebhookDtoSchema.parse(webhook)),
   };
 }
 

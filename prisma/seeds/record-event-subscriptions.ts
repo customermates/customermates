@@ -2,7 +2,6 @@ import { presetId } from "@/features/records/crm-preset";
 import { RecordEventSubscriptionSchema } from "@/features/records/record-event-subscription.schema";
 import { Prisma } from "@/generated/prisma";
 import type { SeedContext } from "./context";
-import type { SyntheticRecordType } from "./custom-fields";
 
 export type SyntheticRecordEvent = "record.created" | "record.updated" | "record.deleted";
 
@@ -13,7 +12,7 @@ export async function seedRecordEventSubscription(
     kind: "routine" | "webhook";
     ownerUserId: string;
     events: string[];
-    recordTypes: SyntheticRecordType[];
+    recordTypes: string[];
     enabled: boolean;
   },
 ): Promise<void> {

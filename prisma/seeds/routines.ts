@@ -513,6 +513,77 @@ const SYNTHETIC_ROUTINE_LIBRARY: SeedRoutine[] = [
       },
     ],
   },
+  {
+    index: 18,
+    owner: "elenaHoffmannUser",
+    name: "Start onboarding when a deal is won",
+    prompt: recordRoutinePrompt(18),
+    enabled: true,
+    trigger: {
+      kind: "event",
+      events: ["record.updated"],
+      recordTypes: ["deal"],
+      debounceSeconds: 300,
+      sample: { kind: "record", key: "deal:0:record.updated" },
+    },
+    runs: [
+      {
+        status: RoutineRunStatus.succeeded,
+        startedHoursAgo: 30,
+        durationSeconds: 46,
+        chargedCredits: 7,
+        summary: "Created the onboarding project and a kickoff task for the newly won deal.",
+      },
+      {
+        status: RoutineRunStatus.succeeded,
+        startedHoursAgo: 75,
+        durationSeconds: 12,
+        chargedCredits: 2,
+        summary: "The deal moved to Proposal, not Won; nothing to do.",
+      },
+    ],
+  },
+  {
+    index: 19,
+    owner: "elenaHoffmannUser",
+    name: "Task for overdue tickets",
+    prompt: recordRoutinePrompt(19),
+    enabled: true,
+    trigger: { kind: "schedule", cron: "0 8 * * 1-5" },
+    runs: [
+      {
+        status: RoutineRunStatus.succeeded,
+        startedHoursAgo: 6,
+        durationSeconds: 58,
+        chargedCredits: 9,
+        summary: "Found 4 overdue tickets and created 2 new tasks; 2 already had one.",
+      },
+      {
+        status: RoutineRunStatus.succeeded,
+        startedHoursAgo: 30,
+        durationSeconds: 41,
+        chargedCredits: 7,
+        summary: "Created 1 task for an overdue P2 High ticket.",
+      },
+    ],
+  },
+  {
+    index: 20,
+    owner: "elenaHoffmannUser",
+    name: "Renewal tasks 60 days ahead",
+    prompt: recordRoutinePrompt(20),
+    enabled: true,
+    trigger: { kind: "schedule", cron: "0 7 * * 1" },
+    runs: [
+      {
+        status: RoutineRunStatus.succeeded,
+        startedHoursAgo: 52,
+        durationSeconds: 66,
+        chargedCredits: 10,
+        summary: "Created renewal tasks for 3 subscriptions; 1 is Red with an open P2 ticket.",
+      },
+    ],
+  },
 ];
 
 export const SYNTHETIC_ROUTINES = SYNTHETIC_ROUTINE_LIBRARY.filter(({ index }) => index !== 10 && index !== 17);

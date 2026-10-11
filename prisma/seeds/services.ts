@@ -1,70 +1,22 @@
 import type { SeedContext } from "./context";
 import { fixtureId } from "./helpers";
-import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
+import { NORTHWIND_SERVICES, NORTHWIND_STORY_END_MS, northwindAt } from "./northwind-data";
 
-export const SYNTHETIC_SERVICE_NAMES = [
-  "Data Migration",
-  "Network Architecture Design",
-  "Rack Server",
-  "Custom Integrations",
-  "Cloud Readiness Assessment",
-  "Data Strategy Definition",
-  "CI/CD Pipeline Setup",
-  "Docking Station",
-  "System Integrations",
-  "Backend API Development",
-  "Executive Enablement Workshop",
-  "SAN Storage Array",
-  "Analytics Use Case Development",
-  "Frontend Development",
-  "Go-Live Support",
-  "Performance Testing",
-  "Configuration Improvements",
-  "Reporting & Dashboards",
-  "Infrastructure Migration",
-  "Network Interface Card",
-  "Installation & Configuration",
-  "User Training Session",
-  "CRM Setup & Configuration",
-  "HR System Audit",
-  "Firewall Appliance",
-  "Hypercare Support",
-  "Process Analysis Workshop",
-  "Security Review & Hardening",
-  "Automation Development",
-  "Post-Migration Support",
-  "Device Provisioning & Imaging",
-  "Documentation & Knowledge Transfer",
-  "Change Management Support",
-  "Data Warehouse Implementation",
-  "Monitor 27”",
-  "Admin Training",
-  "Core Network Switch (48-port)",
-  "Integration Architecture Design",
-  "Platform Architecture Design",
-  "Laptop (Business Class)",
-  "Hardware Installation & Testing",
-  "Extended Hardware Warranty (3y)",
-  "Edge Network Switch (24-port)",
-] as const;
+const DAY = 86_400_000;
 
-export const SYNTHETIC_SERVICE_AMOUNTS = [
-  25_000, 18_000, 18_500, 6_000, 18_000, 40_000, 16_000, 120, 14_000, 1_000, 10_000, 64_000, 12_000, 900, 15_000,
-  18_000, 1_100, 10_000, 4_000, 950, 12_000, 2_500, 45_000, 15_000, 11_600, 14_000, 3_500, 12_500, 7_000, 5_000, 30,
-  22_000, 1_200, 75_000, 280, 5_000, 9_200, 32_000, 35_000, 850, 21_700, 2_000, 4_800,
-] as const;
+/** The Northwind Labs price list: seats per year, onboarding packages and service days. */
+export const SYNTHETIC_SERVICE_NAMES = NORTHWIND_SERVICES.map(([name]) => name);
 
-export type ServiceDefinition = readonly [
-  name: (typeof SYNTHETIC_SERVICE_NAMES)[number],
-  amount: (typeof SYNTHETIC_SERVICE_AMOUNTS)[number],
-];
+export const SYNTHETIC_SERVICE_AMOUNTS = NORTHWIND_SERVICES.map(([, amount]) => amount);
+
+export type ServiceDefinition = readonly [name: string, amount: number];
 
 export type ServiceFixture = {
-  amount: ServiceDefinition[1];
+  amount: number;
   companyId: string;
   createdAt: Date;
   id: string;
-  name: ServiceDefinition[0];
+  name: string;
   updatedAt: Date;
 };
 
@@ -72,18 +24,17 @@ export type ServiceSeedData = {
   services: ServiceFixture[];
 };
 
+/** The catalog was set up when the workspace started and the prices were last reviewed in spring. */
 export function seedServices(context: SeedContext): Promise<ServiceSeedData> {
-  const serviceDefinitions = SYNTHETIC_SERVICE_NAMES.map(
-    (name, index) => [name, SYNTHETIC_SERVICE_AMOUNTS[index]] as const,
-  );
-  const services = serviceDefinitions.map(
+  const services = NORTHWIND_SERVICES.map(
     ([name, amount], index) =>
       ({
         id: fixtureId("90000000", index + 1),
         amount,
         companyId: context.ids.company,
         name,
-        ...SYNTHETIC_SEED_TIMELINE.service(index),
+        createdAt: northwindAt(NORTHWIND_STORY_END_MS - (540 - index) * DAY),
+        updatedAt: northwindAt(NORTHWIND_STORY_END_MS - (130 - index) * DAY),
       }) satisfies ServiceFixture,
   );
 

@@ -42,7 +42,7 @@ export const people: Record<
 > = {
   anna: {
     avatarPath: SYNTHETIC_AVATAR_URLS.annaMueller,
-    contactIndex: 22,
+    contactIndex: 20,
     displayName: "Anna Müller",
     email: "anna.mueller@roche.example",
     occupation: "Program Manager at Roche",
@@ -73,7 +73,7 @@ export const people: Record<
   },
   sophie: {
     avatarPath: SYNTHETIC_AVATAR_URLS.sophieWagner,
-    contactIndex: 19,
+    contactIndex: 17,
     displayName: "Sophie Wagner",
     email: "sophie.wagner@bmw.example",
     occupation: "Sales Operations Manager at BMW",
@@ -98,7 +98,7 @@ export const people: Record<
   },
   rashid: {
     avatarPath: SYNTHETIC_AVATAR_URLS.rashidMalik,
-    contactIndex: 26,
+    contactIndex: 24,
     displayName: "Rashid Malik",
     email: "rashid.malik@kpmg.example",
     headline: "Turning digital strategy into measurable change",
@@ -108,7 +108,7 @@ export const people: Record<
   },
   yasmin: {
     avatarPath: SYNTHETIC_AVATAR_URLS.yasminFarouk,
-    contactIndex: 23,
+    contactIndex: 21,
     displayName: "Yasmin Farouk",
     email: "yasmin.farouk@asml.example",
     instagram: "yasmin.farouk",
