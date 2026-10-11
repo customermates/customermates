@@ -25,9 +25,9 @@ const DISPLAY_ICONS: Record<string, LucideIcon> = {
 
 const TILE_SPANS: Record<string, string> = {
   small: "col-span-1",
-  medium: "col-span-1 sm:col-span-2",
+  medium: "col-span-1 @2xl/sketch:col-span-2",
   large: "col-span-2",
-  wide: "col-span-2 sm:col-span-4",
+  wide: "col-span-2 @2xl/sketch:col-span-4",
 };
 
 const BAR_HEIGHTS = ["h-1/3", "h-2/3", "h-1/2", "h-full", "h-3/4"];
@@ -161,43 +161,45 @@ export type DashboardTile = { key: string; title: string; display: string; size?
 
 export function DashboardSketch({ tiles, pulse = false }: { tiles: DashboardTile[]; pulse?: boolean }) {
   return (
-    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-      {tiles.map((tile) => {
-        const Icon = DISPLAY_ICONS[tile.display] ?? ChartColumn;
-        const numeric = tile.display === "number";
-        return (
-          <div
-            key={tile.key}
-            className={cn(
-              "flex min-h-24 animate-page-result-in flex-col gap-2 rounded-lg border border-border bg-background p-2.5 motion-reduce:animate-none",
-              TILE_SPANS[tile.size ?? (numeric ? "small" : "medium")] ?? "col-span-1",
-            )}
-          >
-            <div className="flex items-start gap-1.5 text-xs font-medium">
-              <Icon aria-hidden className="mt-px size-3.5 shrink-0 text-muted-foreground" />
+    <div className="@container/sketch">
+      <div className="grid grid-cols-2 gap-2 @2xl/sketch:grid-cols-4">
+        {tiles.map((tile) => {
+          const Icon = DISPLAY_ICONS[tile.display] ?? ChartColumn;
+          const numeric = tile.display === "number";
+          return (
+            <div
+              key={tile.key}
+              className={cn(
+                "flex min-h-24 animate-page-result-in flex-col gap-2 rounded-lg border border-border bg-background p-2.5 motion-reduce:animate-none",
+                TILE_SPANS[tile.size ?? (numeric ? "small" : "medium")] ?? "col-span-1",
+              )}
+            >
+              <div className="flex items-start gap-1.5 text-xs font-medium">
+                <Icon aria-hidden className="mt-px size-3.5 shrink-0 text-muted-foreground" />
 
-              <span className="line-clamp-2 min-w-0 break-words">{tile.title}</span>
-            </div>
-
-            {numeric ? (
-              <PlaceholderLine className="mt-auto h-4 w-1/2 bg-primary/25" pulse={pulse} />
-            ) : (
-              <div aria-hidden className="mt-auto flex h-10 items-end gap-1">
-                {BAR_HEIGHTS.map((height, bar) => (
-                  <span
-                    key={bar}
-                    className={cn(
-                      "flex-1 rounded-sm bg-primary/30",
-                      height,
-                      pulse && "animate-pulse motion-reduce:animate-none",
-                    )}
-                  />
-                ))}
+                <span className="line-clamp-2 min-w-0 break-words">{tile.title}</span>
               </div>
-            )}
-          </div>
-        );
-      })}
+
+              {numeric ? (
+                <PlaceholderLine className="mt-auto h-4 w-1/2 bg-primary/25" pulse={pulse} />
+              ) : (
+                <div aria-hidden className="mt-auto flex h-10 items-end gap-1">
+                  {BAR_HEIGHTS.map((height, bar) => (
+                    <span
+                      key={bar}
+                      className={cn(
+                        "flex-1 rounded-sm bg-primary/30",
+                        height,
+                        pulse && "animate-pulse motion-reduce:animate-none",
+                      )}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
