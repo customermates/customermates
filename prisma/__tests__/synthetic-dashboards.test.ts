@@ -99,7 +99,7 @@ describe("synthetic dashboards", () => {
     const measures = charts.map(({ measure }) => measure);
 
     expect(new Set(measures.map(({ aggregation }) => aggregation))).toEqual(
-      new Set(["count", "sum", "average", "max"]),
+      new Set(["count", "sum", "average", "min", "max"]),
     );
     expect(new Set(measures.flatMap(({ groupBy }) => groupBy?.dateInterval ?? []))).toEqual(
       new Set(["day", "week", "month", "quarter"]),

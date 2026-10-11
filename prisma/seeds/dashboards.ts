@@ -84,7 +84,7 @@ export function dashboardWidgetId(dashboard: DashboardKey, index: number): strin
 
 /**
  * The six Northwind Labs dashboards. Together they use every display type (number, vertical and horizontal
- * bars with and without labels, doughnut, radar, area, ranked table and funnel), count, sum, average and max,
+ * bars with and without labels, doughnut, radar, area, ranked table and funnel), count, sum, average, min and max,
  * day, week, month and quarter intervals, grouping by choice, member, date, related record and a field across a relationship, source,
  * relationship and group filters, and activity timelines.
  */
@@ -373,15 +373,22 @@ export function buildSyntheticDashboards(
   const support: WidgetDefinition[] = [
     kpi("Open tickets", measure(source("ticket", [openTickets]), "count", null), 0, C.warning1),
     kpi(
-      "Urgent and open",
-      measure(source("ticket", [openTickets, choice(f.ticket.priority, [o["ticket.priority"].urgent])]), "count", null),
+      "Urgent or high and open",
+      measure(
+        source("ticket", [
+          openTickets,
+          choice(f.ticket.priority, [o["ticket.priority"].urgent, o["ticket.priority"].high]),
+        ]),
+        "count",
+        null,
+      ),
       3,
       C.danger1,
     ),
     kpi("SLA breaches", measure(source("ticket", [isTrue(f.ticket.overdue)]), "count", null), 6, C.danger2),
     kpi(
-      "Average days over SLA",
-      measure(source("ticket", [isTrue(f.ticket.overdue)]), "average", f.ticket.daysOverSla),
+      "Longest SLA breach in days",
+      measure(source("ticket", [isTrue(f.ticket.overdue)]), "max", f.ticket.daysOverSla),
       9,
       C.warning2,
     ),
@@ -424,7 +431,7 @@ export function buildSyntheticDashboards(
     ),
     chart(
       "Tickets by status",
-      DisplayType.funnelChart,
+      DisplayType.verticalBarChartWithLabels,
       measure(source("ticket"), "count", null, byField(f.ticket.status)),
       { x: 0, y: 9, w: 4, h: 4 },
       [C.primary1],
@@ -455,7 +462,12 @@ export function buildSyntheticDashboards(
   const marketing: WidgetDefinition[] = [
     kpi("Campaign budget", measure(source("campaign"), "sum", f.campaign.budget), 0, C.secondary1),
     kpi("Pipeline sourced", measure(source("campaign"), "sum", f.campaign.pipelineSourced), 3, C.primary1),
-    kpi("Won revenue from campaigns", measure(source("campaign"), "sum", f.campaign.wonRevenue), 6, C.success1),
+    kpi(
+      "Won revenue from campaigns",
+      measure(source("deal", [wonDeals], [linked(r.dealCampaign, "outgoing")]), "sum", starter.dealTotalValue),
+      6,
+      C.success1,
+    ),
     kpi(
       "Average cost per deal",
       measure(source("campaign", [notEmpty(f.campaign.costPerDeal)]), "average", f.campaign.costPerDeal),
@@ -479,10 +491,11 @@ export function buildSyntheticDashboards(
     ),
     chart(
       "Budget by channel",
-      DisplayType.radarChart,
+      DisplayType.verticalBarChart,
       measure(source("campaign"), "sum", f.campaign.budget, byField(f.campaign.channel)),
       { x: 9, y: 2, w: 3, h: 4 },
       [C.secondary1],
+      true,
     ),
     chart(
       "New deals per month",
@@ -499,8 +512,8 @@ export function buildSyntheticDashboards(
       [C.secondary1, C.secondary2, C.primary1, C.primary2],
     ),
     chart(
-      "Campaign deal conversion",
-      DisplayType.funnelChart,
+      "Campaign deals by stage",
+      DisplayType.verticalBarChartWithLabels,
       measure(
         source("deal", [choice(f.deal.stage, [stage.lost], "notIn")], [linked(r.dealCampaign, "outgoing")]),
         "count",
@@ -672,11 +685,11 @@ export function buildSyntheticDashboards(
       [C.secondary1],
     ),
     chart(
-      "Salary expectation by department",
+      "Highest salary expectation by department",
       DisplayType.rankedTable,
       measure(
         source("candidate", [notEmpty(f.candidate.salaryExpectation)]),
-        "average",
+        "max",
         f.candidate.salaryExpectation,
         byField(f.candidate.department),
       ),
@@ -684,11 +697,11 @@ export function buildSyntheticDashboards(
       [C.warning1],
     ),
     chart(
-      "Highest salary expectation by stage",
+      "Lowest salary expectation by stage",
       DisplayType.verticalBarChartWithLabels,
       measure(
         source("candidate", [activeCandidates]),
-        "max",
+        "min",
         f.candidate.salaryExpectation,
         byField(f.candidate.stage),
       ),
