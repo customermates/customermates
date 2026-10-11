@@ -3723,7 +3723,6 @@
     "measure": "Medida",
     "noRecordsInPeriod": "Sin registros",
     "notes": "Sobre estas cifras",
-    "numberContext": "{count, number} {label}",
     "numberContextAverage": "{count, number} {label} · media {average}",
     "numberRecords": "{count, plural, one {registro} other {registros}}",
     "overall": "Total: {value}",

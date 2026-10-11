@@ -3723,7 +3723,6 @@
     "measure": "Measure",
     "noRecordsInPeriod": "No records",
     "notes": "About these numbers",
-    "numberContext": "{count, number} {label}",
     "numberContextAverage": "{count, number} {label} · avg {average}",
     "numberRecords": "{count, plural, one {record} other {records}}",
     "overall": "Overall: {value}",

@@ -3723,7 +3723,6 @@
     "measure": "Mesure",
     "noRecordsInPeriod": "Aucun enregistrement",
     "notes": "À propos de ces chiffres",
-    "numberContext": "{count, number} {label}",
     "numberContextAverage": "{count, number} {label} · moy. {average}",
     "numberRecords": "{count, plural, one {enregistrement} other {enregistrements}}",
     "overall": "Total : {value}",

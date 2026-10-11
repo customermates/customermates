@@ -169,7 +169,7 @@ export function RecordWidgetChart({
       <WidgetNumber
         context={
           average === null
-            ? t("RecordWidgets.numberContext", { count, label })
+            ? `${valueFormat.decimal(count, { maximumFractionDigits: 0 })} ${label}`
             : t("RecordWidgets.numberContextAverage", {
                 count,
                 label,

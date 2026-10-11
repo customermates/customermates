@@ -3723,7 +3723,6 @@
     "measure": "Kennzahl",
     "noRecordsInPeriod": "Keine Datensätze",
     "notes": "Zu diesen Zahlen",
-    "numberContext": "{count, number} {label}",
     "numberContextAverage": "{count, number} {label} · Ø {average}",
     "numberRecords": "{count, plural, one {Datensatz} other {Datensätze}}",
     "overall": "Insgesamt: {value}",

@@ -161,16 +161,14 @@ describe("record widget display types", () => {
       data: result({ count: 12345, result: plain("12345") }, []),
     });
     expect(view.querySelector('[data-slot="widget-number-value"]')?.textContent).toBe("12,345");
-    expect(context(view)).toBe('RecordWidgets.numberContext{"count":12345,"label":"open deals"}');
+    expect(context(view)).toBe("12,345 open deals");
     render({
       displayOptions: number,
       measure: measure(null, "average"),
       data: result({ count: 2, result: euro("80000") }, []),
     });
     expect(view.querySelector('[data-slot="widget-number-value"]')?.textContent).toBe("€80K");
-    expect(context(view)).toBe(
-      'RecordWidgets.numberContext{"count":2,"label":"RecordWidgets.numberRecords{\\"count\\":2}"}',
-    );
+    expect(context(view)).toBe('2 RecordWidgets.numberRecords{"count":2}');
   });
 
   it("ranks groups by value with shares of the total and summarizes truncated groups", () => {
