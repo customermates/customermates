@@ -39,7 +39,7 @@ export function HomepageHero({ heroSection, locale }: Props) {
             </span>
 
             <RotatingAccent
-              activeClassName="text-primary"
+              activeClassName="rounded-[0.32em] bg-primary/10 px-[0.16em] text-primary ring-1 ring-primary/15 ring-inset"
               prefix={heroSection.title}
               words={heroSection.titleRotations}
             />
