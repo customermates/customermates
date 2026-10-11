@@ -9,6 +9,7 @@ import {
   saveGeneral,
 } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { saveViewChanges } from "./view-changes";
 import { openRecordDetails, recordItem } from "./record-rows";
 import { openFilterPalette } from "./filter-palette";
 
@@ -161,6 +162,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await page.keyboard.press("Escape");
   if (!testInfo.project.use.isMobile) await expect(budgetSummary).toBeVisible();
   await expect(budgetColumn()).not.toBeVisible();
+  await saveViewChanges(page);
   await expect
     .poll(async () => (await savedState())?.grouping)
     .toEqual({ field: "system:assignedTo", summaries: [{ fieldId: expect.any(String), aggregation: "sum" }] });
@@ -170,6 +172,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await page.getByRole("checkbox", { name: "Budget", exact: true }).check();
   await page.keyboard.press("Escape");
   if (!testInfo.project.use.isMobile) await expect(budgetColumn()).toBeVisible();
+  await saveViewChanges(page);
   await expect.poll(async () => (await savedState())?.hiddenColumns).toEqual([]);
   await page.reload();
   if (!testInfo.project.use.isMobile) await expect(budgetColumn()).toBeVisible();

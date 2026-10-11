@@ -2,6 +2,7 @@ import { addFromConfigure, followConfigureLink, saveDrawer } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import { openRecordDetails, openRecordLink } from "./record-rows";
+import { saveViewChanges } from "./view-changes";
 
 test("edits duplicate embedded items, live and saved prices, and weighted totals through the generic UI", async ({
   page,
@@ -142,6 +143,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
   if (testInfo.project.name === "mobile") await page.locator('[data-slot="drawer-close"]').click();
   else await page.keyboard.press("Escape");
   await expect(page.getByRole("link", { name: "Local opportunity", exact: true })).toHaveCount(2);
+  await saveViewChanges(page);
   await expect
     .poll(async () => {
       const preferences = await database.query('SELECT grouping FROM "P13n" WHERE "companyId"=$1 AND "p13nId"=$2', [
