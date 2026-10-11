@@ -1090,6 +1090,7 @@
       "invalidCredentials": "Correo o contraseña no válidos.",
       "invalidEmail": "Introduce una dirección de correo válida.",
       "invalidFilterField": "Campo de filtro no encontrado o no accesible. Campos disponibles: {validValues}.",
+      "invalidGroupingField": "Este campo no puede agrupar la vista. Los campos de selección múltiple y los campos sin valores fijos no pueden agrupar una lista. Campos agrupables: {validValues}.",
       "invalidFilterOperator": "El operador '{operator}' no está permitido en el campo '{field}'. Operadores permitidos: {validValues}.",
       "invalidFilterValue": "Valor de filtro no válido. El valor debe corresponder al tipo del campo y al operador (por ejemplo un número para gt/lt, una fecha ISO para los campos de fecha, o un id para in/notIn).",
       "invalidJsonBody": "El cuerpo de la solicitud no es JSON válido.",

@@ -1090,6 +1090,7 @@
       "invalidCredentials": "E-mail o password non validi.",
       "invalidEmail": "Inserisci un indirizzo e-mail valido.",
       "invalidFilterField": "Campo del filtro non trovato o non accessibile. Campi disponibili: {validValues}.",
+      "invalidGroupingField": "Questo campo non può raggruppare la vista. I campi a scelta multipla e i campi senza valori fissi non possono raggruppare un elenco. Campi raggruppabili: {validValues}.",
       "invalidFilterOperator": "L'operatore '{operator}' non è consentito sul campo '{field}'. Operatori consentiti: {validValues}.",
       "invalidFilterValue": "Valore del filtro non valido. Il valore deve corrispondere al tipo del campo e all'operatore (ad esempio un numero per gt/lt, una data ISO per i campi data, o un id per in/notIn).",
       "invalidJsonBody": "Il corpo della richiesta non è un JSON valido.",

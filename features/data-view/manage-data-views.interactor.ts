@@ -576,6 +576,12 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
 
   private async validateState(surfaceKey: AiManageableDataViewSurfaceKey, state: AgentDataViewState) {
     if (isRecordDataViewSurface(surfaceKey) || isActivitySurface(surfaceKey)) {
+      const groupable =
+        isRecordDataViewSurface(surfaceKey) && state.grouping
+          ? await this.recordViews?.unsupportedGrouping(surfaceKey, state.grouping)
+          : null;
+      if (groupable)
+        return fail(CustomErrorCode.invalidGroupingField, ["state", "grouping"], { validValues: groupable.join(", ") });
       const invalid =
         (await this.recordViews?.validate(surfaceKey, state)) ??
         (this.recordViews ? null : CustomErrorCode.permissionDenied);

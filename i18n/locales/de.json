@@ -1090,6 +1090,7 @@
       "invalidCredentials": "Ungültige E-Mail-Adresse oder ungültiges Passwort.",
       "invalidEmail": "Gib eine gültige E-Mail-Adresse ein.",
       "invalidFilterField": "Filterfeld nicht gefunden oder nicht zugänglich. Verfügbare Felder: {validValues}.",
+      "invalidGroupingField": "Nach diesem Feld kann die Ansicht nicht gruppiert werden. Mehrfachauswahlfelder und Felder ohne feste Werte können keine Liste gruppieren. Gruppierbare Felder: {validValues}.",
       "invalidFilterOperator": "Der Operator '{operator}' ist für das Feld '{field}' nicht erlaubt. Erlaubte Operatoren: {validValues}.",
       "invalidFilterValue": "Ungültiger Filterwert. Der Wert muss zum Typ und Operator des Felds passen (z. B. eine Zahl für gt/lt, ein ISO-Datum für Datumsfelder oder eine ID für in/notIn).",
       "invalidJsonBody": "Der Request-Body ist kein gültiges JSON.",

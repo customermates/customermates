@@ -104,6 +104,7 @@ export enum CustomErrorCode {
   routineLimitReached = "routineLimitReached",
   routineTriggerEventsRequired = "routineTriggerEventsRequired",
   invalidFilterField = "invalidFilterField",
+  invalidGroupingField = "invalidGroupingField",
   invalidFilterOperator = "invalidFilterOperator",
   invalidFilterValue = "invalidFilterValue",
   invalidSortField = "invalidSortField",
