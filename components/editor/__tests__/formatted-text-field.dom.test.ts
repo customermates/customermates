@@ -140,4 +140,42 @@ describe("FormattedTextField", () => {
     expect(popover.isConnected).toBe(true);
     expect(editorElement(field).textContent).toContain("Read the brief before the call.");
   });
+
+  it("shows the shared formatting toolbar only while editing and keeps editing when a button is used", async () => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    const onChange = vi.fn();
+    const field = await renderField(host, onChange);
+    expect(field.querySelector("[role='toolbar']")).toBeNull();
+
+    await dispatch(area(field), new MouseEvent("click", { bubbles: true }));
+    expect(field.dataset.state).toBe("editing");
+    const toolbar = field.querySelector<HTMLElement>("[data-formatting-toolbar]");
+    expect(toolbar?.getAttribute("aria-label")).toBe("Editor.formatting");
+    const labels = Array.from(toolbar?.querySelectorAll("button") ?? []).map((button) =>
+      button.getAttribute("aria-label"),
+    );
+    expect(labels[0]).toBe("Editor.heading");
+    expect(labels).toEqual(expect.arrayContaining(["Editor.bold", "Editor.link", "Editor.divider"]));
+
+    const heading = toolbar?.querySelector<HTMLElement>("button[aria-label='Editor.heading']");
+    if (!heading) throw new Error("Missing heading button");
+    for (const level of ["1", "2", "3", "0"]) {
+      const mousedown = new MouseEvent("mousedown", { bubbles: true, cancelable: true, button: 0 });
+      await dispatch(heading, new MouseEvent("pointerdown", { bubbles: true }));
+      await dispatch(heading, mousedown);
+      expect(mousedown.defaultPrevented).toBe(true);
+      expect(heading.dataset.headingLevel).toBe(level);
+      expect(field.dataset.state).toBe("editing");
+    }
+    expect(editorElement(field).querySelector("h1, h2, h3")).toBeNull();
+
+    await dispatch(heading, new MouseEvent("mousedown", { bubbles: true, cancelable: true, button: 0 }));
+    expect(editorElement(field).querySelector("h1")?.textContent).toBe("Read the brief before the call.");
+    expect(onChange).toHaveBeenCalled();
+
+    await dispatch(editorElement(field), new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    expect(field.dataset.state).toBe("display");
+    expect(field.querySelector("[role='toolbar']")).toBeNull();
+  });
 });

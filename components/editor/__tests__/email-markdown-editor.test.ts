@@ -93,6 +93,41 @@ describe("EmailMarkdownEditor", () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
+  it("renders the shared formatting toolbar without a heading control and keeps focus on mousedown", async () => {
+    const container = document.createElement("div");
+    document.body.append(container);
+    const root = createRoot(container);
+    roots.add(root);
+    const onChange = vi.fn();
+    await renderEditor(root, "Plain", onChange);
+
+    const toolbar = container.querySelector<HTMLElement>("[data-formatting-toolbar]");
+    expect(toolbar?.getAttribute("role")).toBe("toolbar");
+    expect(toolbar?.getAttribute("aria-label")).toBe("Editor.formatting");
+    expect(
+      Array.from(toolbar?.querySelectorAll("button") ?? []).map((button) => button.getAttribute("aria-label")),
+    ).toEqual([
+      "Editor.bold",
+      "Editor.italic",
+      "Editor.strikethrough",
+      "Editor.bulletList",
+      "Editor.numberedList",
+      "Editor.blockQuote",
+      "Editor.link",
+      "Editor.divider",
+    ]);
+
+    const bold = toolbar?.querySelector("button[aria-label='Editor.bold']");
+    if (!bold) throw new Error("Missing bold button");
+    const mousedown = new MouseEvent("mousedown", { bubbles: true, cancelable: true, button: 0 });
+    await act(async () => {
+      bold.dispatchEvent(mousedown);
+      await Promise.resolve();
+    });
+    expect(mousedown.defaultPrevented).toBe(true);
+    expect(bold.getAttribute("aria-pressed")).toBe("true");
+  });
+
   it("clears its document when the controlled Markdown value is cleared", async () => {
     const container = document.createElement("div");
     document.body.append(container);
