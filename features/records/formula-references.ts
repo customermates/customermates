@@ -22,6 +22,7 @@ export function formulaReferences(
   model: RecordModel,
   present: Pick<RecordModelView, "fields" | "types" | "relationships">,
   canReadType: (typeId: string) => boolean,
+  pathTypeIds: Iterable<string> = [],
 ): FormulaReferences {
   const fieldIds = new Set<string>();
   const relationIds = new Set<string>();
@@ -45,6 +46,7 @@ export function formulaReferences(
     (field) => fieldIds.has(field.id) && !field.archived && canReadType(field.typeId) && !has(present.fields, field.id),
   );
   const typeIds = new Set([
+    ...pathTypeIds,
     ...referencedFields.map((field) => field.typeId),
     ...[...relationIds].flatMap((id) => {
       const relation = model.relationships.find((candidate) => candidate.id === id);

@@ -5,11 +5,11 @@ import type { ReactNode } from "react";
 
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Settings2 } from "lucide-react";
 
+import { AppModalActionRail } from "@/components/modal/app-modal-action";
 import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
-import { Button } from "@/components/ui/button";
 import { iconButtonClass } from "@/components/ui/icon-button-styles";
-import { IntlLink } from "@/i18n/navigation";
 import { cn } from "@/core/utils/cn";
 
 type Props = {
@@ -29,6 +29,20 @@ export function EntityDetailDerivation({ icon: Icon, label, configureHref, child
   return (
     <ResponsiveOverlay
       align="end"
+      headerAction={
+        configureHref ? (
+          <AppModalActionRail
+            actions={[
+              {
+                id: "edit-in-configure",
+                icon: Settings2,
+                label: t("EntityDetail.editInConfigure"),
+                href: configureHref,
+              },
+            ]}
+          />
+        ) : undefined
+      }
       open={open}
       popoverClassName="w-[min(22rem,var(--radix-popover-content-available-width))]"
       title={label}
@@ -49,14 +63,6 @@ export function EntityDetailDerivation({ icon: Icon, label, configureHref, child
         {typeof children === "function"
           ? children({ anchor: triggerRef.current, close: () => setOpen(false) })
           : children}
-
-        {configureHref ? (
-          <Button asChild className="h-auto px-0" size="sm" variant="link">
-            <IntlLink data-field-derivation-configure="" href={configureHref}>
-              {t("EntityDetail.editInConfigure")}
-            </IntlLink>
-          </Button>
-        ) : null}
       </div>
     </ResponsiveOverlay>
   );

@@ -5,7 +5,7 @@ import type { CalculationContext } from "./calculation";
 import type { CalculatedValue, CalculationExpression, RecordModel, RecordRef } from "./record-model.schema";
 import type { RecordRepo } from "./record.repo";
 
-import { evaluateCalculation, MISSING_VALUE, valueResult } from "./calculation";
+import { evaluateCalculation, fieldPrecisionResult, MISSING_VALUE, valueResult } from "./calculation";
 import { scalarMatchesType, validateRecordModel } from "./record-model-validation";
 import { decodeRecordValue } from "./record-storage";
 
@@ -114,6 +114,7 @@ export class RecordCalculationService {
             value: { ...result.value, currency: recordInvariant(definition.format?.currency) },
           };
         }
+        result = fieldPrecisionResult(result, definition);
         if (result.state === "value" && !scalarMatchesType(result.value, definition.valueType, definition.multiple))
           result = { state: "error", code: "type_mismatch" };
         const previous = await context.field(ref, fieldId);
@@ -328,6 +329,7 @@ export class RecordCalculationService {
         value: { ...result.value, currency: recordInvariant(definition.format?.currency) },
       };
     }
+    result = fieldPrecisionResult(result, definition);
     if (result.state === "value" && !scalarMatchesType(result.value, definition.valueType, definition.multiple))
       result = { state: "error", code: "type_mismatch" };
     const previous = await context.field(ref, fieldId);

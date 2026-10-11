@@ -70,4 +70,29 @@ describe("group summary presentation", () => {
     expect(html).toContain("RecordModel.calculationError");
     expect(html).not.toContain("currency_mismatch");
   });
+
+  it("rounds an average to two places when the field sets no decimal places, with or without a currency", () => {
+    const html = renderToStaticMarkup(
+      createElement(GroupSummaries, {
+        summaries: [
+          {
+            ...summary({
+              state: "value",
+              value: { kind: "decimal", value: "71346.0504347826086956", currency: "EUR" },
+            }),
+            aggregation: "average",
+            decimalPlaces: null,
+          },
+          {
+            ...summary({ state: "value", value: { kind: "decimal", value: "2.3333333333333333", currency: null } }),
+            aggregation: "average",
+            decimalPlaces: null,
+          },
+        ],
+      }),
+    );
+    expect(html).toContain("€71,346.05");
+    expect(html).toContain(">2.33<");
+    expect(html).not.toContain("2.3333");
+  });
 });

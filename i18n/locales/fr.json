@@ -1092,6 +1092,7 @@
       "invalidFilterField": "Champ de filtre introuvable ou inaccessible. Champs disponibles : {validValues}.",
       "invalidFilterOperator": "L'opérateur '{operator}' n'est pas autorisé sur le champ '{field}'. Opérateurs autorisés : {validValues}.",
       "invalidFilterValue": "Valeur de filtre invalide. La valeur doit correspondre au type du champ et à l'opérateur (par exemple un nombre pour gt/lt, une date ISO pour les champs de date, ou un id pour in/notIn).",
+      "invalidGroupingField": "Ce champ ne peut pas regrouper la vue. Les champs à choix multiple et les champs sans valeurs fixes ne peuvent pas regrouper une liste. Champs regroupables : {validValues}.",
       "invalidJsonBody": "Le corps de la requête n'est pas un JSON valide.",
       "invalidSortField": "Champ de tri introuvable ou inaccessible. Champs disponibles : {validValues}.",
       "invalidUrl": "Saisissez une URL valide.",
@@ -2013,7 +2014,8 @@
       "pickerTitle": "Changer de vue",
       "railLabel": "Vues enregistrées",
       "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}",
-      "resetChanges": "Réinitialiser les modifications"
+      "resetChanges": "Réinitialiser les modifications",
+      "unsavedChangesNotice": "Modifications non enregistrées de cette vue"
     }
   },
   "Diagrams": {
@@ -2086,6 +2088,7 @@
     "confirm": "Appliquer le lien",
     "divider": "Séparateur",
     "formatting": "Mise en forme",
+    "heading": "Titre",
     "heading1": "Titre 1",
     "heading2": "Titre 2",
     "heading3": "Titre 3",
@@ -3107,6 +3110,7 @@
         "min": "Minimum",
         "sum": "Somme"
       },
+      "changeOperation": "Modifier le calcul",
       "describe": {
         "failed": "Impossible d'en faire un calcul. Essayez de le décrire autrement.",
         "label": "Décrire le calcul",
@@ -3159,6 +3163,8 @@
       "pickRelationship": "Choisir une relation",
       "pickValue": "Choisir une valeur",
       "private": "Privé",
+      "removeInputNamed": "Retirer {input}",
+      "removeStep": "Retirer l’étape",
       "sentence": {
         "average": "{field} est la moyenne de {value} de tous les {list} liés.",
         "count": "{field} compte les {list} liés.",

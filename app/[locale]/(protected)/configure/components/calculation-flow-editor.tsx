@@ -10,7 +10,7 @@ import {
   expressionSegments,
   sentenceText,
 } from "@/features/records/calculation-sentence";
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
 import type {
   CalculationExpression,
   RecordField,
@@ -25,7 +25,7 @@ import type { ExpressionPath, FlowIssue, Operator } from "./calculation-flow";
 import { useEffect, useRef, useState } from "react";
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
-import { ChevronRight, Plus, Sigma, TextCursorInput, X } from "lucide-react";
+import { ChevronRight, Link2, Plus, Sigma, TextCursorInput, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
@@ -67,6 +67,7 @@ import {
   operandTypes,
   operatorArity,
   relationshipChoices,
+  removeInput,
   removeStep,
   replaceExpression,
   stepInsertPath,
@@ -76,13 +77,7 @@ import {
 import { CalculationLiteralInput } from "./calculation-literal-input";
 import { CalculationPicker } from "./calculation-picker";
 import { configureCardinality } from "./configure-graph-model";
-import {
-  ConfigureNode,
-  ConfigureNodeHeader,
-  ConfigureNodeRow,
-  ConfigureNodeRows,
-  ConfigureNodeStaticRow,
-} from "./configure-node";
+import { ConfigureNode, ConfigureNodeHeader } from "./configure-node";
 
 const FIELD_ICON = <TextCursorInput aria-hidden className="text-muted-foreground" />;
 
@@ -122,6 +117,20 @@ function FlowNode({
 
       {invalid && error && <p className="border-t border-border px-3.5 py-2 text-xs text-destructive">{error}</p>}
     </ConfigureNode>
+  );
+}
+
+function FlowRow({ end, className, children, ...props }: ComponentProps<"div"> & { end?: ReactNode }) {
+  return (
+    <div
+      className={cn("flex min-h-10 items-center gap-2 border-t border-border px-3.5 py-2 text-xs", className)}
+      data-calculation-row=""
+      {...props}
+    >
+      <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">{children}</div>
+
+      {end && <div className="flex shrink-0 items-center gap-1 text-muted-foreground">{end}</div>}
+    </div>
   );
 }
 
@@ -460,7 +469,9 @@ export const CalculationFlow = observer(function CalculationFlow({ store }: { st
     ],
   });
 
-  const leafChip = (path: ExpressionPath, leaf: CalculationExpression) => {
+  const leafLabel = (leaf: CalculationExpression) =>
+    isUnset(leaf) ? t("RecordModel.calculationFlow.pickValue") : sentenceText(expressionSegments(leaf, typeId, labels));
+  const leafChip = (path: ExpressionPath, leaf: CalculationExpression, tooltip?: string) => {
     const parent = path.length ? expressionAt(expression, path.slice(0, -1)) : null;
     const types = parent?.kind === "operation" ? operandTypes(parent.operator, path.at(-1) ?? 0) : null;
     const unset = isUnset(leaf);
@@ -476,9 +487,7 @@ export const CalculationFlow = observer(function CalculationFlow({ store }: { st
         data-calculation-chip={unset ? "pick-value" : "value"}
         disabled={disabled}
         invalid={showIssues && unset}
-        label={
-          unset ? t("RecordModel.calculationFlow.pickValue") : sentenceText(expressionSegments(leaf, typeId, labels))
-        }
+        label={leafLabel(leaf)}
         page={
           removable
             ? {
@@ -507,6 +516,7 @@ export const CalculationFlow = observer(function CalculationFlow({ store }: { st
             : page
         }
         placeholder={unset}
+        tooltip={tooltip}
       />
     );
   };
@@ -528,68 +538,64 @@ export const CalculationFlow = observer(function CalculationFlow({ store }: { st
       />
 
       {example.data && (
-        <ConfigureNodeRows label={t("RecordModel.calculationFlow.example.title")}>
-          <li data-calculation-example="">
-            {example.data?.value === null || example.data?.recordId === null ? (
-              <ConfigureNodeStaticRow
-                kind=""
-                name={
-                  <span className="font-normal text-muted-foreground">
-                    {example.data.value?.state === "restricted"
-                      ? t("RecordModel.calculationFlow.example.restricted")
-                      : example.data.recordId === null
-                        ? t("RecordModel.calculationFlow.example.none")
-                        : t("RecordModel.calculationFlow.example.unavailable")}
-                  </span>
-                }
-              />
-            ) : (
-              <ConfigureNodeStaticRow
-                kind={
-                  <span className="flex items-center gap-1">
-                    {example.data?.value && (
-                      <RecordValue
-                        field={{
-                          ...store.inputDefinition,
-                          valueType: resultType?.valueType ?? "text",
-                          multiple: false,
-                          format: {
-                            currency: resultType?.valueType === "currency" ? store.form.currency.toUpperCase() : null,
-                            decimalPlaces:
-                              store.form.decimalPlaces.trim() === "" ? null : Number(store.form.decimalPlaces),
-                          },
-                        }}
-                        result={example.data.value}
-                      />
-                    )}
+        <div data-calculation-example="">
+          {example.data?.value === null || example.data?.recordId === null ? (
+            <FlowRow>
+              <span className="text-muted-foreground">
+                {example.data.value?.state === "restricted"
+                  ? t("RecordModel.calculationFlow.example.restricted")
+                  : example.data.recordId === null
+                    ? t("RecordModel.calculationFlow.example.none")
+                    : t("RecordModel.calculationFlow.example.unavailable")}
+              </span>
+            </FlowRow>
+          ) : (
+            <FlowRow
+              end={
+                <>
+                  {example.data?.value && (
+                    <RecordValue
+                      field={{
+                        ...store.inputDefinition,
+                        valueType: resultType?.valueType ?? "text",
+                        multiple: false,
+                        format: {
+                          currency: resultType?.valueType === "currency" ? store.form.currency.toUpperCase() : null,
+                          decimalPlaces:
+                            store.form.decimalPlaces.trim() === "" ? null : Number(store.form.decimalPlaces),
+                        },
+                      }}
+                      result={example.data.value}
+                    />
+                  )}
 
-                    {(example.data?.examples.length ?? 0) > 1 && (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            aria-label={t("RecordModel.calculationFlow.example.next")}
-                            size="icon-xs"
-                            type="button"
-                            variant="ghost"
-                            onClick={example.next}
-                          >
-                            <ChevronRight aria-hidden />
-                          </Button>
-                        </TooltipTrigger>
+                  {(example.data?.examples.length ?? 0) > 1 && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          aria-label={t("RecordModel.calculationFlow.example.next")}
+                          size="icon-xs"
+                          type="button"
+                          variant="ghost"
+                          onClick={example.next}
+                        >
+                          <ChevronRight aria-hidden />
+                        </Button>
+                      </TooltipTrigger>
 
-                        <TooltipContent>{t("RecordModel.calculationFlow.example.next")}</TooltipContent>
-                      </Tooltip>
-                    )}
-                  </span>
-                }
-                name={
-                  example.data?.examples.find((candidate) => candidate.recordId === example.data?.recordId)?.title ??
-                  t("RecordModel.calculationFlow.example.title")
-                }
-              />
-            )}
-          </li>
-        </ConfigureNodeRows>
+                      <TooltipContent>{t("RecordModel.calculationFlow.example.next")}</TooltipContent>
+                    </Tooltip>
+                  )}
+                </>
+              }
+            >
+              <span className="truncate font-medium">
+                {example.data?.examples.find((candidate) => candidate.recordId === example.data?.recordId)?.title ??
+                  t("RecordModel.calculationFlow.example.title")}
+              </span>
+            </FlowRow>
+          )}
+        </div>
       )}
     </FlowNode>
   );
@@ -632,6 +638,7 @@ export const CalculationFlow = observer(function CalculationFlow({ store }: { st
           expression={expression}
           issueMessage={issueMessage}
           leafChip={leafChip}
+          leafLabel={leafLabel}
           list={list}
           operatorLabel={operatorLabel}
           operatorPicker={operatorPicker}
@@ -663,7 +670,7 @@ export const CalculationFlow = observer(function CalculationFlow({ store }: { st
       {resultNode}
 
       {!(showIssues && issues.length) && (
-        <p className="pt-3 text-sm text-muted-foreground" data-calculation-sentence="">
+        <p className="px-3.5 pt-3 text-sm text-muted-foreground" data-calculation-sentence="">
           {issue ? (
             issueMessage(issue)
           ) : (
@@ -699,11 +706,16 @@ export function CalculationFlowView({ field, model }: { field: RecordField; mode
           disabled
           expression={expression}
           issueMessage={() => ""}
-          leafChip={(_, leaf) => (
-            <AppChip className="text-xs" data-calculation-chip={isUnset(leaf) ? "pick-value" : "value"}>
+          leafChip={(_, leaf, tooltip) => (
+            <AppChip
+              className="text-xs"
+              data-calculation-chip={isUnset(leaf) ? "pick-value" : "value"}
+              tooltip={tooltip}
+            >
               {isUnset(leaf) ? t("RecordModel.calculationFlow.pickValue") : describe(leaf, typeId)}
             </AppChip>
           )}
+          leafLabel={(leaf) => (isUnset(leaf) ? t("RecordModel.calculationFlow.pickValue") : describe(leaf, typeId))}
           list={model.types.find((type) => type.id === typeId)}
           operatorLabel={labels.operatorLabel}
           operatorPicker={null}
@@ -799,6 +811,7 @@ function FormulaFlow({
   disabled,
   showIssues,
   leafChip,
+  leafLabel,
   operatorLabel,
   typeLabel,
   typeOf,
@@ -811,7 +824,8 @@ function FormulaFlow({
   list: RecordModelView["types"][number] | undefined;
   disabled: boolean;
   showIssues: boolean;
-  leafChip: (path: ExpressionPath, leaf: CalculationExpression) => ReactNode;
+  leafChip: (path: ExpressionPath, leaf: CalculationExpression, tooltip?: string) => ReactNode;
+  leafLabel: (leaf: CalculationExpression) => string;
   operatorLabel: (operator: Operator) => string;
   typeLabel: (valueType: string) => string;
   typeOf: (path: ExpressionPath) => string | null;
@@ -930,30 +944,49 @@ function FormulaFlow({
           name={t("RecordModel.calculationFlow.inputs")}
         />
 
-        <ConfigureNodeRows label={t("RecordModel.calculationFlow.inputs")}>
-          {inputs.map((input) => (
-            <li key={input.path.join(".")}>
-              <ConfigureNodeStaticRow
-                className="text-xs"
-                kind={typeOf(input.path) ? typeLabel(String(typeOf(input.path))) : ""}
-                name={leafChip(input.path, input.expression)}
-              />
-            </li>
-          ))}
+        <FlowRow aria-label={t("RecordModel.calculationFlow.inputs")} data-calculation-inputs="" role="group">
+          {inputs.map((input) => {
+            const inputType = typeOf(input.path);
+            return (
+              <span
+                key={input.path.join(".")}
+                className="group/input relative flex max-w-full min-w-0 items-center"
+                data-calculation-input=""
+              >
+                {leafChip(input.path, input.expression, inputType ? typeLabel(inputType) : undefined)}
+
+                {!disabled && (
+                  <Button
+                    aria-label={t("RecordModel.calculationFlow.removeInputNamed", {
+                      input: leafLabel(input.expression),
+                    })}
+                    className="absolute -end-1.5 -top-1.5 size-4 rounded-full border border-border bg-background opacity-0 transition-opacity group-focus-within/input:opacity-100 group-hover/input:opacity-100 hover:bg-accent focus-visible:opacity-100 any-pointer-coarse:opacity-100 [&_svg]:size-2.5"
+                    data-calculation-remove-input=""
+                    size="icon-xs"
+                    type="button"
+                    variant="ghost"
+                    onClick={() => onChange(removeInput(expression, input.path))}
+                  >
+                    <X aria-hidden />
+                  </Button>
+                )}
+              </span>
+            );
+          })}
 
           {!disabled && (
-            <li>
-              <ConfigureNodeRow
-                className="text-xs text-muted-foreground hover:text-foreground"
-                data-calculation-add-input=""
-                kind=""
-                marker={<Plus aria-hidden className="size-3.5" />}
-                name={t("RecordModel.addInput")}
-                onClick={() => onChange(addInput(expression, defaultOperator([])))}
-              />
-            </li>
+            <button
+              className="inline-flex h-[22px] items-center gap-1 rounded-md px-1.5 text-xs text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+              data-calculation-add-input=""
+              type="button"
+              onClick={() => onChange(addInput(expression, defaultOperator([])))}
+            >
+              <Plus aria-hidden className="size-3" />
+
+              {t("RecordModel.addInput")}
+            </button>
           )}
-        </ConfigureNodeRows>
+        </FlowRow>
       </FlowNode>
 
       {connector(0)}
@@ -976,9 +1009,14 @@ function FormulaFlow({
                 action={
                   disabled ? undefined : (
                     <RecordRowActions
+                      contextAction={{
+                        label: t("RecordModel.calculationFlow.changeOperation"),
+                        icon: Sigma,
+                        onSelect: () => setOperatorPicker(key),
+                      }}
+                      deleteLabel={t("RecordModel.calculationFlow.removeStep")}
                       name={stepName(number)}
                       onDelete={() => onChange(removeStep(expression, step.path))}
-                      onOpen={() => setOperatorPicker(key)}
                     />
                   )
                 }
@@ -987,12 +1025,7 @@ function FormulaFlow({
                 name={stepName(number)}
               />
 
-              <div
-                aria-label={operatorLabel(step.operator)}
-                className="flex flex-wrap items-center gap-1.5 border-t border-border px-3.5 py-2"
-                data-calculation-line=""
-                role="group"
-              >
+              <FlowRow aria-label={operatorLabel(step.operator)} data-calculation-line="" role="group">
                 {stepLine(step, key).map(
                   (part, index) =>
                     part && (
@@ -1031,7 +1064,7 @@ function FormulaFlow({
                     <TooltipContent>{extendLabel}</TooltipContent>
                   </Tooltip>
                 )}
-              </div>
+              </FlowRow>
             </FlowNode>
 
             {connector(number + 1)}
@@ -1243,11 +1276,9 @@ function LinkedFlowView({
             error={relationshipIssue && issueMessage(relationshipIssue)}
             invalid={showIssues && Boolean(relationshipIssue)}
           >
-            <ConfigureNodeRows label={t("RecordModel.calculationFlow.pickRelationship")}>
-              <li>
-                <ConfigureNodeStaticRow kind="" name={relationshipChip(0)} />
-              </li>
-            </ConfigureNodeRows>
+            <ConfigureNodeHeader compact icon={Link2} name={t("RecordModel.calculationFlow.linkedList")} />
+
+            <FlowRow>{relationshipChip(0)}</FlowRow>
           </FlowNode>
         </>
       )}
@@ -1283,40 +1314,35 @@ function LinkedFlowView({
               />
 
               {last && (
-                <ConfigureNodeRows label={target?.pluralLabel ?? ""}>
-                  <li>
-                    <ConfigureNodeStaticRow
-                      kind={valueField && reducer !== "count" ? typeLabel(valueField.valueType) : ""}
-                      name={
-                        <span className="flex min-w-0 items-center gap-1.5 font-normal">
-                          {lookup ? (
-                            <>
-                              {t("RecordModel.calculationFlow.take")}
+                <FlowRow
+                  aria-label={target?.pluralLabel ?? ""}
+                  end={valueField && reducer !== "count" ? typeLabel(valueField.valueType) : undefined}
+                  role="group"
+                >
+                  {lookup ? (
+                    <>
+                      <span className="text-muted-foreground">{t("RecordModel.calculationFlow.take")}</span>
 
-                              {valueChip}
-                            </>
-                          ) : reducer === "count" ? (
-                            <>
-                              {aggregateChip}
+                      {valueChip}
+                    </>
+                  ) : reducer === "count" ? (
+                    <>
+                      {aggregateChip}
 
-                              <span className="truncate">
-                                {t("RecordModel.calculationFlow.ofLinked", { list: target?.pluralLabel ?? "" })}
-                              </span>
-                            </>
-                          ) : (
-                            <>
-                              {aggregateChip}
+                      <span className="min-w-0 truncate text-muted-foreground">
+                        {t("RecordModel.calculationFlow.ofLinked", { list: target?.pluralLabel ?? "" })}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      {aggregateChip}
 
-                              {t("RecordModel.calculationFlow.of")}
+                      <span className="text-muted-foreground">{t("RecordModel.calculationFlow.of")}</span>
 
-                              {valueChip}
-                            </>
-                          )}
-                        </span>
-                      }
-                    />
-                  </li>
-                </ConfigureNodeRows>
+                      {valueChip}
+                    </>
+                  )}
+                </FlowRow>
               )}
             </FlowNode>
           </div>

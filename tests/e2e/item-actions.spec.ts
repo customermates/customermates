@@ -35,11 +35,12 @@ test.describe("item menus on a fine pointer", () => {
     const name = await createRecord(page, companyId);
     const row = recordItem(page, name);
     const more = row.getByRole("button", { name: `More actions for ${name}`, exact: true });
+    const moreSurface = row.locator("[data-record-row-actions]");
 
     await page.mouse.move(0, 0);
-    await expect(more).toHaveCSS("opacity", "0");
+    await expect(moreSurface).toHaveCSS("opacity", "0");
     await row.hover();
-    await expect(more).toHaveCSS("opacity", "1");
+    await expect(moreSurface).toHaveCSS("opacity", "1");
     const fromTrigger = await itemMenuLabels(page, await openItemMenu(page, more));
     expect(fromTrigger).toEqual(["Open in new tab", "Open details", "Delete"]);
 

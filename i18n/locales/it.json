@@ -1092,6 +1092,7 @@
       "invalidFilterField": "Campo del filtro non trovato o non accessibile. Campi disponibili: {validValues}.",
       "invalidFilterOperator": "L'operatore '{operator}' non è consentito sul campo '{field}'. Operatori consentiti: {validValues}.",
       "invalidFilterValue": "Valore del filtro non valido. Il valore deve corrispondere al tipo del campo e all'operatore (ad esempio un numero per gt/lt, una data ISO per i campi data, o un id per in/notIn).",
+      "invalidGroupingField": "Questo campo non può raggruppare la vista. I campi a scelta multipla e i campi senza valori fissi non possono raggruppare un elenco. Campi raggruppabili: {validValues}.",
       "invalidJsonBody": "Il corpo della richiesta non è un JSON valido.",
       "invalidSortField": "Campo di ordinamento non trovato o non accessibile. Campi disponibili: {validValues}.",
       "invalidUrl": "Inserisci un URL valido.",
@@ -2013,7 +2014,8 @@
       "pickerTitle": "Cambia vista",
       "railLabel": "Viste salvate",
       "recordCount": "{count, plural, one {# record} other {# record}}",
-      "resetChanges": "Ripristina modifiche"
+      "resetChanges": "Ripristina modifiche",
+      "unsavedChangesNotice": "Modifiche non salvate a questa vista"
     }
   },
   "Diagrams": {
@@ -2086,6 +2088,7 @@
     "confirm": "Applica il link",
     "divider": "Separatore",
     "formatting": "Formattazione",
+    "heading": "Titolo",
     "heading1": "Titolo 1",
     "heading2": "Titolo 2",
     "heading3": "Titolo 3",
@@ -3107,6 +3110,7 @@
         "min": "Minimo",
         "sum": "Somma"
       },
+      "changeOperation": "Cambia calcolo",
       "describe": {
         "failed": "Non è stato possibile trasformarlo in un calcolo. Prova a descriverlo in altro modo.",
         "label": "Descrivi il calcolo",
@@ -3159,6 +3163,8 @@
       "pickRelationship": "Scegli una relazione",
       "pickValue": "Scegli un valore",
       "private": "Privato",
+      "removeInputNamed": "Rimuovi {input}",
+      "removeStep": "Rimuovi passo",
       "sentence": {
         "average": "{field} è la media di {value} di tutti i {list} collegati.",
         "count": "{field} conta i {list} collegati.",

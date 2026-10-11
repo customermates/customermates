@@ -1092,6 +1092,7 @@
       "invalidFilterField": "Filter field not found or not accessible. Available fields: {validValues}.",
       "invalidFilterOperator": "The operator '{operator}' is not allowed on the field '{field}'. Allowed operators: {validValues}.",
       "invalidFilterValue": "Invalid filter value. The value must match the field's type and operator (e.g. a number for gt/lt, an ISO date for date fields, or an id for in/notIn).",
+      "invalidGroupingField": "This field cannot group the view. Multiple choice fields and fields without fixed values cannot group a list. Groupable fields: {validValues}.",
       "invalidJsonBody": "The request body is not valid JSON.",
       "invalidSortField": "Sort field not found or not accessible. Available fields: {validValues}.",
       "invalidUrl": "Enter a valid URL.",
@@ -2013,7 +2014,8 @@
       "pickerTitle": "Switch view",
       "railLabel": "Saved views",
       "recordCount": "{count, plural, one {# record} other {# records}}",
-      "resetChanges": "Reset changes"
+      "resetChanges": "Reset changes",
+      "unsavedChangesNotice": "Unsaved changes to this view"
     }
   },
   "Diagrams": {
@@ -2086,6 +2088,7 @@
     "confirm": "Apply Link",
     "divider": "Divider",
     "formatting": "Formatting",
+    "heading": "Heading",
     "heading1": "Heading 1",
     "heading2": "Heading 2",
     "heading3": "Heading 3",
@@ -3107,6 +3110,7 @@
         "min": "Minimum",
         "sum": "Sum"
       },
+      "changeOperation": "Change calculation",
       "describe": {
         "failed": "Couldn't turn that into a calculation. Try describing it differently.",
         "label": "Describe the calculation",
@@ -3159,6 +3163,8 @@
       "pickRelationship": "Pick a relationship",
       "pickValue": "Pick a value",
       "private": "Private",
+      "removeInputNamed": "Remove {input}",
+      "removeStep": "Remove step",
       "sentence": {
         "average": "{field} is the average {value} of all linked {list}.",
         "count": "{field} counts the linked {list}.",

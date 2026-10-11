@@ -11,6 +11,8 @@ import { recordViewStateIsValid } from "./record-view-state";
 import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
 import { recordColumns } from "./record-columns";
 import { resolveRecordPath } from "./record-relationship-path";
+import { recordGroupableFields, resolveRecordGrouping } from "./record-grouping";
+import type { Grouping } from "@/core/base/grouping/grouping.schema";
 
 export class RecordViewPolicy implements DataViewPolicy {
   constructor(
@@ -41,6 +43,14 @@ export class RecordViewPolicy implements DataViewPolicy {
       fields: model.fields.filter((field) => field.typeId === typeId && !field.archived),
       columns: recordColumns(typeId, { ...model, relationships }),
     };
+  }
+  async unsupportedGrouping(surfaceKey: string, grouping: Grouping): Promise<string[] | null> {
+    if (!RecordSurfaceKeySchema.safeParse(surfaceKey).success) return null;
+    const typeId = surfaceKey.slice(8);
+    const model = await this.records.getModel();
+    if (!model.types.some((type) => type.id === typeId && !type.archived)) return null;
+    if (resolveRecordGrouping(typeId, grouping, model)) return null;
+    return [...new Set(recordGroupableFields(typeId, model).map((field) => field.grouping.field))];
   }
   async validate(surfaceKey: string, state?: DataViewState): Promise<CustomErrorCode | null> {
     if (isActivitySurface(surfaceKey)) {

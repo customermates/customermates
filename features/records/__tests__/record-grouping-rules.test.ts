@@ -42,4 +42,14 @@ describe("group-by and sort rules shared by the server and the pickers", () => {
     expect(isRecordSortField(notes)).toBe(false);
     expect([stage, title].every(isRecordSortField)).toBe(true);
   });
+
+  it("never groups a list by a multiple choice field, so a record never needs to sit in several groups", () => {
+    const model = {
+      types: [{ id: TYPE_ID, relationshipPaths: [] }],
+      relationships: [],
+      fields: [stage, tags],
+    } as never;
+    expect(resolveRecordGrouping(TYPE_ID, { field: tags.id }, model)).toBeNull();
+    expect(resolveRecordGrouping(TYPE_ID, { field: stage.id }, model)?.kind).toBe("customSingleSelect");
+  });
 });

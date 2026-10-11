@@ -37,7 +37,7 @@ import {
   recordLinkLabels,
 } from "./record-presentation";
 import { recordColumns } from "./record-columns";
-import { liveGroupSummaries, recordGroupableFields } from "./record-grouping";
+import { liveGroupSummaries, recordGroupableFields, resolveRecordGrouping } from "./record-grouping";
 import { parseRelationshipColumnKey } from "./record-column.schema";
 import { resolveRecordPath } from "./record-relationship-path";
 
@@ -123,6 +123,7 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
         });
         if (!presentationFiltersAreValid(state.filters, fields, relationships, type.id, paths))
           return fail(CustomErrorCode.recordValueInvalid, ["filters"]);
+        if (state.grouping && !resolveRecordGrouping(type.id, state.grouping, model)) state.grouping = undefined;
         let query;
         try {
           query = presentationQuery(

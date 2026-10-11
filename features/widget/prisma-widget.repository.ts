@@ -68,7 +68,7 @@ export class PrismaWidgetRepo
       return getRecordActivityWidgetReader().read(stored);
     }
     if (row.measure !== null && row.measure !== undefined) {
-      const stored = RecordWidgetDtoSchema.omit({ data: true, status: true, groupOptions: true })
+      const stored = RecordWidgetDtoSchema.omit({ data: true, status: true, groupOptions: true, decimalPlaces: true })
         .strip()
         .parse({
           ...row,

@@ -1,23 +1,18 @@
 "use client";
 
 import type { BaseDataViewStore } from "@/core/base/base-data-view.store";
-import { RotateCcw } from "lucide-react";
 import { observer } from "mobx-react-lite";
-import { useTranslations } from "next-intl";
 import { useCallback, useRef } from "react";
 import { FilterTargetPopover } from "@/components/data-view/filter-palette/filter-target-popover";
 import { useViewAi } from "@/components/data-view/views/use-view-ai";
 import { AppModalActionRail } from "@/components/modal/app-modal-action";
 import { useAskAiAction } from "@/components/ui/ask-ai-action";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
-import { AppModalCloseContext } from "@/components/modal/app-modal-close-context";
-import { runUserAction } from "@/core/errors/report-application-error";
+import { ViewChangesNotice } from "@/components/data-view/views/view-changes-notice";
 import { useRootStore } from "@/core/stores/root-store.provider";
 
 type Props = { store: BaseDataViewStore<any>; compact?: boolean; searchLabel?: string; id?: string };
 
 export const FilterPopover = observer(function FilterPopover({ store, compact, searchLabel, id }: Props) {
-  const t = useTranslations();
   const ai = useViewAi(store, { registerPageContext: false, entry: "filters" });
   const askAiAction = useAskAiAction();
   const { keyboardShortcutsStore } = useRootStore();
@@ -40,13 +35,6 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, s
   return (
     <FilterTargetPopover
       compact={compact}
-      footerAction={
-        store.isQueryModified && (
-          <AppModalCloseContext.Provider value={null}>
-            <FormFooterActions dirty editable anchorScope={id} placement="overlay" onSave={store.saveQueryToView} />
-          </AppModalCloseContext.Provider>
-        )
-      }
       headerAction={(close) => (
         <AppModalActionRail
           actions={[
@@ -61,21 +49,11 @@ export const FilterPopover = observer(function FilterPopover({ store, compact, s
                   }),
                 ]
               : []),
-            ...(store.isQueryModified
-              ? [
-                  {
-                    id: "reset-view-changes",
-                    anchorId: id ? `${id}-reset` : undefined,
-                    icon: RotateCcw,
-                    label: t("DataView.views.resetChanges"),
-                    onClick: () => runUserAction(store.resetQueryToView),
-                  },
-                ]
-              : []),
           ]}
         />
       )}
       id={id}
+      notice={<ViewChangesNotice anchorScope={id} store={store} />}
       registerOpener={compact ? undefined : registerOpener}
       search={search}
       store={store}

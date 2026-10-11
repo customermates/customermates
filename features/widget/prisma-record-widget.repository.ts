@@ -7,7 +7,12 @@ import type { WidgetLayout } from "./widget-display.schema";
 import { listWidgetPlacements } from "./widget-placement";
 import { LIVE_WIDGET } from "./live-widget";
 
-const StoredSchema = RecordWidgetDtoSchema.omit({ data: true, status: true, groupOptions: true }).strip();
+const StoredSchema = RecordWidgetDtoSchema.omit({
+  data: true,
+  status: true,
+  groupOptions: true,
+  decimalPlaces: true,
+}).strip();
 
 export class PrismaRecordWidgetRepo extends TenantRepository implements RecordWidgetRepo {
   async findOwned(id: string): Promise<StoredRecordWidget | null> {

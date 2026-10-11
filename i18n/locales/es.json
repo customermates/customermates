@@ -1092,6 +1092,7 @@
       "invalidFilterField": "Campo de filtro no encontrado o no accesible. Campos disponibles: {validValues}.",
       "invalidFilterOperator": "El operador '{operator}' no está permitido en el campo '{field}'. Operadores permitidos: {validValues}.",
       "invalidFilterValue": "Valor de filtro no válido. El valor debe corresponder al tipo del campo y al operador (por ejemplo un número para gt/lt, una fecha ISO para los campos de fecha, o un id para in/notIn).",
+      "invalidGroupingField": "Este campo no puede agrupar la vista. Los campos de selección múltiple y los campos sin valores fijos no pueden agrupar una lista. Campos agrupables: {validValues}.",
       "invalidJsonBody": "El cuerpo de la solicitud no es JSON válido.",
       "invalidSortField": "Campo de ordenación no encontrado o no accesible. Campos disponibles: {validValues}.",
       "invalidUrl": "Introduce una URL válida.",
@@ -2013,7 +2014,8 @@
       "pickerTitle": "Cambiar de vista",
       "railLabel": "Vistas guardadas",
       "recordCount": "{count, plural, one {# registro} other {# registros}}",
-      "resetChanges": "Restablecer cambios"
+      "resetChanges": "Restablecer cambios",
+      "unsavedChangesNotice": "Cambios sin guardar en esta vista"
     }
   },
   "Diagrams": {
@@ -2086,6 +2088,7 @@
     "confirm": "Aplicar el enlace",
     "divider": "Separador",
     "formatting": "Formato",
+    "heading": "Título",
     "heading1": "Título 1",
     "heading2": "Título 2",
     "heading3": "Título 3",
@@ -3107,6 +3110,7 @@
         "min": "Mínimo",
         "sum": "Suma"
       },
+      "changeOperation": "Cambiar cálculo",
       "describe": {
         "failed": "No se pudo convertir en un cálculo. Prueba a describirlo de otra forma.",
         "label": "Describe el cálculo",
@@ -3159,6 +3163,8 @@
       "pickRelationship": "Elegir una relación",
       "pickValue": "Elegir un valor",
       "private": "Privado",
+      "removeInputNamed": "Quitar {input}",
+      "removeStep": "Quitar paso",
       "sentence": {
         "average": "{field} es el promedio de {value} de todos los {list} vinculados.",
         "count": "{field} cuenta los {list} vinculados.",

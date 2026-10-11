@@ -54,6 +54,14 @@ export const RecordWidgetDtoSchema = z
     updatedAt: z.date(),
     data: RecordMeasureResultSchema.nullable(),
     status: z.enum(["ready", "unavailable"]),
+    decimalPlaces: z
+      .number()
+      .int()
+      .min(0)
+      .max(30)
+      .nullable()
+      .optional()
+      .describe("Decimal places of the measured field, used to round displayed values; null when the field sets none."),
     groupOptions: z.array(
       z
         .object({
@@ -71,7 +79,7 @@ export const RecordWidgetDtoSchema = z
   })
   .strict();
 export type RecordWidgetDto = z.infer<typeof RecordWidgetDtoSchema>;
-export type StoredRecordWidget = Omit<RecordWidgetDto, "data" | "status" | "groupOptions">;
+export type StoredRecordWidget = Omit<RecordWidgetDto, "data" | "status" | "groupOptions" | "decimalPlaces">;
 
 export interface RecordWidgetRepo {
   findOwned(id: string): Promise<StoredRecordWidget | null>;

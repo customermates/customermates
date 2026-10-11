@@ -1092,6 +1092,7 @@
       "invalidFilterField": "Filterfeld nicht gefunden oder nicht zugänglich. Verfügbare Felder: {validValues}.",
       "invalidFilterOperator": "Der Operator '{operator}' ist für das Feld '{field}' nicht erlaubt. Erlaubte Operatoren: {validValues}.",
       "invalidFilterValue": "Ungültiger Filterwert. Der Wert muss zum Typ und Operator des Felds passen (z. B. eine Zahl für gt/lt, ein ISO-Datum für Datumsfelder oder eine ID für in/notIn).",
+      "invalidGroupingField": "Nach diesem Feld kann die Ansicht nicht gruppiert werden. Mehrfachauswahlfelder und Felder ohne feste Werte können keine Liste gruppieren. Gruppierbare Felder: {validValues}.",
       "invalidJsonBody": "Der Request-Body ist kein gültiges JSON.",
       "invalidSortField": "Sortierfeld nicht gefunden oder nicht zugänglich. Verfügbare Felder: {validValues}.",
       "invalidUrl": "Gib eine gültige URL ein.",
@@ -2013,7 +2014,8 @@
       "pickerTitle": "Ansicht wechseln",
       "railLabel": "Gespeicherte Ansichten",
       "recordCount": "{count, plural, one {# Datensatz} other {# Datensätze}}",
-      "resetChanges": "Änderungen zurücksetzen"
+      "resetChanges": "Änderungen zurücksetzen",
+      "unsavedChangesNotice": "Ungespeicherte Änderungen an dieser Ansicht"
     }
   },
   "Diagrams": {
@@ -2086,6 +2088,7 @@
     "confirm": "Link anwenden",
     "divider": "Trennlinie",
     "formatting": "Formatierung",
+    "heading": "Überschrift",
     "heading1": "Überschrift 1",
     "heading2": "Überschrift 2",
     "heading3": "Überschrift 3",
@@ -3107,6 +3110,7 @@
         "min": "Minimum",
         "sum": "Summe"
       },
+      "changeOperation": "Berechnung ändern",
       "describe": {
         "failed": "Daraus ließ sich keine Berechnung machen. Beschreibe sie anders.",
         "label": "Berechnung beschreiben",
@@ -3159,6 +3163,8 @@
       "pickRelationship": "Verknüpfung wählen",
       "pickValue": "Wert wählen",
       "private": "Privat",
+      "removeInputNamed": "{input} entfernen",
+      "removeStep": "Schritt entfernen",
       "sentence": {
         "average": "{field} ist der Durchschnitt von {value} aller verknüpften {list}.",
         "count": "{field} zählt die verknüpften {list}.",

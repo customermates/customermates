@@ -2,7 +2,13 @@ import { recordInvariant } from "./record-invariant";
 
 import Decimal from "decimal.js";
 
-import type { CalculatedValue, CalculationExpression, RecordRef, RecordScalar } from "./record-model.schema";
+import type {
+  CalculatedValue,
+  CalculationExpression,
+  RecordField,
+  RecordRef,
+  RecordScalar,
+} from "./record-model.schema";
 
 import { recordInstantMicros } from "./record-instant";
 
@@ -36,6 +42,19 @@ export function decimalResult(input: Decimal.Value, currency: string | null = nu
 const STORED_DECIMAL_SCALE = 30;
 function roundedResult(input: Decimal, currency: string | null = null): CalculatedValue {
   return decimalResult(input.toDecimalPlaces(STORED_DECIMAL_SCALE, Decimal.ROUND_HALF_UP), currency);
+}
+
+export function fieldPrecisionResult(
+  result: CalculatedValue,
+  field: Pick<RecordField, "valueType" | "format">,
+): CalculatedValue {
+  if (result.state !== "value" || result.value.kind !== "decimal") return result;
+  const places = field.format?.decimalPlaces;
+  if (places === null || places === undefined) return result;
+  return decimalResult(
+    new ExactDecimal(result.value.value).toDecimalPlaces(places, Decimal.ROUND_HALF_UP),
+    result.value.currency,
+  );
 }
 
 export function isRepresentableDecimal(input: string): boolean {
@@ -148,12 +167,12 @@ function operate(
     }
     if (operator === "multiply") {
       if (a.currency && b.currency) return error("currency_mismatch");
-      return decimalResult(left.times(right), a.currency ?? b.currency);
+      return roundedResult(left.times(right), a.currency ?? b.currency);
     }
     if (right.isZero()) return error("division_by_zero");
     [a, b] = alignCurrencies(a, b);
     if (b.currency && a.currency !== b.currency) return error("currency_mismatch");
-    return decimalResult(left.div(right), b.currency ? null : a.currency);
+    return roundedResult(left.div(right), b.currency ? null : a.currency);
   }
 
   if (["equal", "lessThan", "greaterThan"].includes(operator)) {
