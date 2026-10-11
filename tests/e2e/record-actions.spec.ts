@@ -166,17 +166,18 @@ test("record tables edit cells in place, open linked chips and offer row actions
   await expect(organization).not.toBeVisible();
 
   const more = row.getByRole("button", { name: `More actions for ${name}`, exact: true });
+  const moreSurface = row.locator("[data-record-row-actions]");
   await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
   await page.mouse.move(0, 0);
-  await expect(more).toHaveCSS("opacity", "0");
+  await expect(moreSurface).toHaveCSS("opacity", "0");
   const trailing = await row.locator("td").last().boundingBox();
   expect(trailing!.width).toBeLessThan(2);
   await row.hover();
-  await expect(more).toHaveCSS("opacity", "1");
+  await expect(moreSurface).toHaveCSS("opacity", "1");
   expect(await rowActionLabels(page, row, name)).toEqual(["Open in new tab", "Open details", "Delete"]);
   await page.mouse.move(0, 0);
   await more.focus();
-  await expect(more).toHaveCSS("opacity", "1");
+  await expect(moreSurface).toHaveCSS("opacity", "1");
   await page.keyboard.press("Enter");
   await page.getByRole("menuitem", { name: "Open details", exact: true }).click();
   await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue(name);

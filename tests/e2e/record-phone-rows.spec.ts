@@ -117,21 +117,65 @@ test("the row's More actions trigger sits on a solid surface on keyboard focus a
       const trigger = element.querySelector("[data-item-actions-trigger]");
       return {
         opacity: trigger ? getComputedStyle(trigger).opacity : "",
+        surfaceOpacity: style.opacity,
         color: style.backgroundColor,
         image: style.backgroundImage,
+      };
+    });
+  const triggerBox = () =>
+    row.evaluate((rowElement) => {
+      const trigger = rowElement.querySelector<HTMLElement>("[data-item-actions-trigger]");
+      const surface = rowElement.querySelector<HTMLElement>("[data-record-row-actions]");
+      if (!trigger || !surface) throw new Error("The row must render its More actions trigger");
+      const style = getComputedStyle(trigger);
+      const rect = trigger.getBoundingClientRect();
+      const rowRect = rowElement.getBoundingClientRect();
+      const container = rowElement.closest("[data-slot=\"table-container\"]");
+      const edge = container ? container.getBoundingClientRect().right : rowRect.right;
+      const alpha = (color: string) => {
+        const match = /rgba?\(([^)]+)\)/.exec(color);
+        const parts = match ? match[1].split(/[\s,/]+/).filter(Boolean) : [];
+        return parts.length === 4 ? Number(parts[3]) : parts.length === 3 ? 1 : 0;
+      };
+      const hit = document.elementFromPoint(rect.left + 1, rect.top + rect.height / 2);
+      return {
+        borderWidth: Number.parseFloat(style.borderTopWidth),
+        borderStyle: style.borderTopStyle,
+        height: rect.height,
+        width: rect.width,
+        rowHeight: rowRect.height,
+        rightGap: Math.min(rowRect.right, edge) - rect.right,
+        backgroundAlpha: alpha(style.backgroundColor),
+        hitsTrigger: hit !== null && (trigger.contains(hit) || surface === hit),
       };
     });
 
   await expect(page.locator("#records-add")).toBeEnabled();
   await row.hover();
   await expect.poll(async () => (await surface()).opacity).toBe("1");
+  await expect.poll(async () => (await surface()).surfaceOpacity).toBe("1");
   const hovered = await surface();
   expect(hovered.color).not.toBe("rgba(0, 0, 0, 0)");
   expect(hovered.image).toContain("linear-gradient");
+  const box = await triggerBox();
+  expect(box.borderStyle).toBe("solid");
+  expect(box.borderWidth).toBeGreaterThan(0);
+  expect(Math.abs(box.height - box.rowHeight)).toBeLessThanOrEqual(2);
+  expect(Math.abs(box.width - box.height)).toBeLessThanOrEqual(2);
+  expect(box.rightGap).toBeLessThanOrEqual(2);
+  expect(box.backgroundAlpha).toBe(1);
+  expect(box.hitsTrigger).toBe(true);
   await page.screenshot({ path: test.info().outputPath("row-actions-hover.png"), animations: "disabled" });
+  await page.emulateMedia({ colorScheme: "dark" });
+  await row.hover();
+  await expect.poll(async () => (await surface()).surfaceOpacity).toBe("1");
+  expect((await triggerBox()).backgroundAlpha).toBe(1);
+  await page.screenshot({ path: test.info().outputPath("row-actions-hover-dark.png"), animations: "disabled" });
+  await page.emulateMedia({ colorScheme: "light" });
 
   await page.mouse.move(0, 0);
   await expect.poll(async () => (await surface()).opacity).toBe("0");
+  await expect.poll(async () => (await surface()).surfaceOpacity).toBe("0");
   await more.focus();
   await expect.poll(async () => (await surface()).opacity).toBe("1");
   const focused = await surface();
