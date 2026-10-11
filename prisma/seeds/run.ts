@@ -26,6 +26,7 @@ import { seedRelationships } from "./relationships";
 import { seedRoutines } from "./routines";
 import { seedServices } from "./services";
 import { seedTasks } from "./tasks";
+import { seedTrash } from "./trash";
 import { seedWebhooks } from "./webhooks";
 import { seedWidgets } from "./widgets";
 import { seedWikiPages } from "./wiki";
@@ -69,6 +70,7 @@ export async function runSyntheticSeed(
   });
   await seedRecordHistory(context, entities);
   await seedWebhooks(context);
+  await seedTrash(context);
   await seedSyntheticAuditLogs(context);
   await seedWikiPages(context);
   await seedAgentConversations(context);
