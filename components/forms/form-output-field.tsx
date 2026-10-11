@@ -11,6 +11,7 @@ import { FormFieldHelp } from "./form-field-help";
 import { FormLabel } from "./form-label";
 import { FormOutput } from "./form-output";
 import { FormControlRow } from "./form-control-row";
+import { ReadOnlyHint } from "./read-only-hint";
 
 type Props = {
   id?: string;
@@ -20,9 +21,10 @@ type Props = {
   description?: ReactNode;
   labelEndAddon?: ReactNode;
   controlStartAddon?: ReactNode;
+  controlEndAddon?: ReactNode;
+  readOnlyHint?: boolean;
   className?: string;
   outputClassName?: string;
-  plain?: boolean;
 };
 
 export function FormOutputField({
@@ -33,13 +35,23 @@ export function FormOutputField({
   description,
   labelEndAddon,
   controlStartAddon,
+  controlEndAddon,
+  readOnlyHint,
   className,
   outputClassName,
-  plain,
 }: Props) {
   const t = useTranslations();
   const labelId = useId();
   const descriptionId = useId();
+  const output = (
+    <FormOutput
+      aria-describedby={description ? descriptionId : undefined}
+      aria-labelledby={labelId}
+      className={cn(controlEndAddon && "pr-9", outputClassName)}
+    >
+      {children}
+    </FormOutput>
+  );
 
   return (
     <div data-form-output-field className={cn("space-y-1.5", className)} id={id}>
@@ -54,14 +66,13 @@ export function FormOutputField({
       </div>
 
       <FormControlRow startAddon={controlStartAddon}>
-        <FormOutput
-          aria-describedby={description ? descriptionId : undefined}
-          aria-labelledby={labelId}
-          className={outputClassName}
-          plain={plain}
-        >
-          {children}
-        </FormOutput>
+        {readOnlyHint ? <ReadOnlyHint>{output}</ReadOnlyHint> : output}
+
+        {controlEndAddon ? (
+          <div className="absolute top-1/2 right-3 flex -translate-y-1/2 items-center" data-form-control-end="">
+            {controlEndAddon}
+          </div>
+        ) : null}
       </FormControlRow>
 
       {description ? (

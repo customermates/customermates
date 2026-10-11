@@ -1476,6 +1476,7 @@
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
+    "readOnlyField": "Du kannst dieses Feld nicht bearbeiten",
     "relatedPages": "Verwandte Seiten",
     "retryLater": "später",
     "scroll": {
@@ -2146,6 +2147,7 @@
   "EntityDetail": {
     "configureField": "Feld {field} bearbeiten",
     "donePersonalizing": "Fertig",
+    "editInConfigure": "In Konfigurieren bearbeiten",
     "fieldCancelled": "Verschieben von {field} abgebrochen.",
     "fieldDropped": "{field} abgelegt.",
     "fieldMoved": "{field} zu {target} verschoben.",
@@ -3317,6 +3319,11 @@
     "deletionRecords": "Dabei werden entfernt: {records}.",
     "deletionRestrictedLinks": "Die Anzahl der Verknüpfungen ist ausgeblendet, da einige verknüpfte Datensätze geschützt sind.",
     "dependencyHelp": "Löse die betroffenen Abhängigkeiten, bevor du diese Änderung anwendest.",
+    "derivation": {
+      "calculation": "Wie {field} berechnet wird",
+      "lookup": "Woher {field} kommt",
+      "saved": "Wann {field} gespeichert wird"
+    },
     "description": "Beschreibung",
     "detailLayoutReadFailed": "Dein gespeichertes Layout konnte nicht geladen werden.",
     "detailLayoutSaveFailed": "Layoutänderungen konnten nicht gespeichert werden.",
@@ -3674,7 +3681,6 @@
       "title": "Verwendet von"
     },
     "valueSource": {
-      "calculated": "Berechnet · {formula}",
       "from": "Aus {list} · {value}",
       "savedOnCreate": "Gespeichert, wenn {list} angelegt wird",
       "savedOnRequest": "Auf Anfrage gespeichert",

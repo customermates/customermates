@@ -40,23 +40,45 @@ function renderField(value: ReactNode, help?: ReactNode) {
 }
 
 describe("EntityDetailStaticField", () => {
-  it("shows the value plainly without input chrome and its source line underneath", () => {
+  it("shows the value in the bordered input box with the derivation control at its end and no source line", () => {
     const markup = renderToStaticMarkup(
       createElement(EntityDetailStaticField, {
         fieldId: "totalValue",
         label: "Deal value",
         value: "€12,500",
-        source: "Calculated · Quantity × Price",
+        derivation: createElement("button", { "aria-label": "How Deal value is calculated", type: "button" }),
       }),
     );
     const output = markup.match(/<div[^>]*data-field-state="read-only"[^>]*>/)?.[0] ?? "";
 
-    expect(output).toContain("border-transparent");
-    expect(output).toContain("bg-transparent");
-    expect(output).not.toContain("border-border");
+    expect(output).toContain("border-input");
+    expect(output).toContain("bg-input-background");
+    expect(output).toContain("min-h-9");
+    expect(output).toContain("px-3");
+    expect(output).toContain("pr-9");
+    expect(output).not.toContain("border-transparent");
+    expect(output).not.toContain("bg-transparent");
     expect(markup).toContain("select-text");
     expect(markup).not.toContain("<input");
-    expect(markup).toContain("Calculated · Quantity × Price");
+    expect(markup).not.toContain("<p");
+    expect(markup.indexOf('data-field-state="read-only"')).toBeLessThan(markup.indexOf("data-form-control-end"));
+    expect(markup).toContain('aria-label="How Deal value is calculated"');
+  });
+
+  it("wraps a permission-restricted value in the read-only hint without a derivation control", () => {
+    const markup = renderToStaticMarkup(
+      createElement(EntityDetailStaticField, {
+        fieldId: "totalValue",
+        label: "Deal value",
+        value: null,
+        readOnlyHint: true,
+      }),
+    );
+
+    expect(markup).toContain("data-read-only-hint");
+    expect(markup).toContain("Common.readOnlyField");
+    expect(markup).not.toContain("data-form-control-end");
+    expect(markup).not.toContain("pr-9");
   });
 
   it("associates its read-only output with the visible label and keeps help and pin actions named", () => {

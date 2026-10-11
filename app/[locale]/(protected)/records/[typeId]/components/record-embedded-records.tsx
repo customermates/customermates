@@ -45,7 +45,7 @@ const EmbeddedAddLine = observer(function EmbeddedAddLine({
   if (draft === null || !primary) {
     return (
       <Button
-        className="justify-start px-2 text-muted-foreground"
+        className="w-full justify-start px-3 text-muted-foreground"
         data-embedded-add=""
         size="sm"
         type="button"
@@ -207,9 +207,9 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
         fieldId={relationshipColumnKey(parentRelationId, "incoming")}
         label={type.pluralLabel}
       >
-        <div className="min-w-0 space-y-1">
+        <div className="min-w-0 space-y-1 rounded-md border border-border bg-background" data-embedded-frame="">
           {!parent || store.hasUnsavedChanges ? (
-            <p className="text-xs text-muted-foreground">{t("RecordModel.saveBeforeEmbedded")}</p>
+            <p className="px-3 py-2 text-xs text-muted-foreground">{t("RecordModel.saveBeforeEmbedded")}</p>
           ) : null}
 
           {key && !list.isReady && !list.loadFailed && (
