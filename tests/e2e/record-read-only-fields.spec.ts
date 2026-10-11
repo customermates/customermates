@@ -89,7 +89,9 @@ test("renders every record detail field in the input box and explains calculated
   await expect(diagram).toContainText("Line items");
   await expect(diagram).toContainText("Quantity");
   await expect(derivation.getByRole("button", { name: /^Add/ })).toHaveCount(0);
-  const configure = derivation.getByRole("link", { name: "Edit in Configure", exact: true });
+  const configure = derivation
+    .locator('[data-slot="app-modal-actions"]')
+    .getByRole("link", { name: "Edit in Configure", exact: true });
   await expect(configure).toHaveAttribute(
     "href",
     new RegExp(`/configure\\?typeId=${typeId("deal")}&tab=fields&focus=field%3A${typeId("deal.totalQuantity")}$`),

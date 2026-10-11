@@ -12837,6 +12837,24 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(savedPrice?.behavior).not.toHaveProperty("expression");
   });
 
+  it("sends the list labels that a readable relationship path passes through", async () => {
+    const f = await fixture();
+    const service = await f.create("service", "Path label service");
+    const result = await f.run(() => f.editor.invoke(service));
+    if (!result.ok) throw result.error;
+    expect(result.data.model.types.map((type) => type.id)).toEqual([f.id("service")]);
+    expect(result.data.model.types[0]?.relationshipPaths?.map((path) => path.id)).toEqual([f.id("service.deals.path")]);
+    expect(result.data.formulaReferences?.types).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ id: f.id("lineItem"), pluralLabel: "Line items" }),
+        expect.objectContaining({ id: f.id("deal"), pluralLabel: "Deals" }),
+      ]),
+    );
+    expect(result.data.model.relationships.map((relation) => relation.id)).toEqual(
+      expect.arrayContaining([f.id("lineItem.service"), f.id("lineItem.deal")]),
+    );
+  });
+
   it("inherits line access from its parent and immediately respects changed assignments", async () => {
     const f = await fixture();
     await f.run(() =>
