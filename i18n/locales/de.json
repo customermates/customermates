@@ -3100,6 +3100,7 @@
     "calculationError": "Berechnung nicht verfügbar",
     "calculationFlow": {
       "addStep": "Schritt hinzufügen",
+      "changeOperation": "Berechnung ändern",
       "aggregates": {
         "average": "Durchschnitt",
         "count": "Anzahl",
@@ -3177,6 +3178,8 @@
       "shown": "Für alle sichtbar",
       "showToEveryone": "Allen zeigen, die diesen Datensatz ({list}) sehen können",
       "showToEveryoneHelp": "Sie sehen diesen Wert, auch wenn sie den verknüpften Datensatz ({list}) nicht öffnen können.",
+      "removeInputNamed": "{input} entfernen",
+      "removeStep": "Schritt entfernen",
       "step": "Schritt {number}",
       "stepChip": "Schritt",
       "symbols": {

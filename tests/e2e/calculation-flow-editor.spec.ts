@@ -1,4 +1,4 @@
-import type { Page } from "@playwright/test";
+import type { Locator, Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
@@ -229,6 +229,73 @@ test("reads each step as one line and inserts steps from the connectors", async 
     await page.screenshot({ path: testInfo.outputPath(`calculation-flow-phone-${scheme}.png`), animations: "disabled" });
   }
   await page.emulateMedia({ colorScheme: "light" });
+
+  const menu = steps.nth(1).getByRole("button", { name: "More actions for Step 2", exact: true });
+  await menu.focus();
+  await page.keyboard.press("Enter");
+  await page.getByRole("menuitem", { name: "Remove step", exact: true }).click();
+  await expect(steps).toHaveCount(2);
+  await expect(line(1)).toHaveText(["Step 1", "÷", "100"]);
+
+  const inputs = flow.locator("[data-calculation-inputs]");
+  await expect(inputs.locator("[data-calculation-input]")).toHaveCount(3);
+  const removeHundred = inputs.getByRole("button", { name: "Remove 100", exact: true });
+  if (!coarse) {
+    await page.mouse.move(0, 0);
+    await expect(removeHundred).toHaveCSS("opacity", "0");
+    await inputs.locator("[data-calculation-input]").filter({ hasText: "100" }).hover();
+  }
+  await expect(removeHundred).toHaveCSS("opacity", "1");
+  await removeHundred.click();
+  await expect(steps).toHaveCount(1);
+  await expect(line(0)).toHaveText(["Value", "×", /probability/i]);
+  await expect(inputs.locator("[data-calculation-input]")).toHaveCount(2);
+  expect(errors).toEqual([]);
+});
+
+async function expectAligned(node: Locator) {
+  const icon = await node.locator("svg").first().boundingBox();
+  const chip = await node.locator("[data-calculation-row] > div > *").first().boundingBox();
+  expect(Math.abs((icon?.x ?? 0) - (chip?.x ?? -10))).toBeLessThanOrEqual(1);
+}
+
+test("lines up formula, lookup and rollup flows the same way", async ({ page, companyId }, testInfo) => {
+  const errors = captureErrors(page);
+  page.on("dialog", (dialog) => void dialog.accept());
+  const flows: Array<{ name: string; list: string; field?: string; node: string }> = [
+    { name: "formula", list: "deal", field: "Weighted value", node: "inputs" },
+    { name: "lookup", list: "lineItem", field: "Saved unit price", node: "linked" },
+    { name: "rollup", list: "deal", field: "Value", node: "linked" },
+    { name: "rollup-empty", list: "deal", node: "pick-relationship" },
+  ];
+  for (const width of [1280, 390]) {
+    for (const example of flows) {
+      await page.setViewportSize({ width, height: width > 400 ? 900 : 844 });
+      await openConfigure(page, presetId(companyId, example.list));
+      if (example.field) {
+        await openConfigureRow(page, "Fields", example.field);
+        await openDrawerTab(page, "Calculation");
+      } else {
+        await addFromConfigure(page, "Calculated field");
+        await chooseValueSource(page, "Counted or totalled from linked records");
+      }
+      const flow = calculationFlow(page);
+      const node = flow.locator(`[data-calculation-node="${example.node}"]`).first();
+      await expect(node).toBeVisible();
+      await expectAligned(node);
+      await node.scrollIntoViewIfNeeded();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+      for (const scheme of ["light", "dark"] as const) {
+        await page.emulateMedia({ colorScheme: scheme });
+        await page.mouse.move(0, 0);
+        await page.screenshot({
+          path: testInfo.outputPath(`${example.name}-${width > 400 ? "desktop" : "phone"}-${scheme}.png`),
+          animations: "disabled",
+        });
+      }
+      await page.emulateMedia({ colorScheme: "light" });
+    }
+  }
   expect(errors).toEqual([]);
 });
 

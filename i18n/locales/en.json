@@ -3100,6 +3100,7 @@
     "calculationError": "Calculation unavailable",
     "calculationFlow": {
       "addStep": "Add step",
+      "changeOperation": "Change calculation",
       "aggregates": {
         "average": "Average",
         "count": "Number",
@@ -3177,6 +3178,8 @@
       "shown": "Shown to everyone",
       "showToEveryone": "Show to everyone who can see the {list}",
       "showToEveryoneHelp": "They'll see this value even if they can't open the {list}.",
+      "removeInputNamed": "Remove {input}",
+      "removeStep": "Remove step",
       "step": "Step {number}",
       "stepChip": "Step",
       "symbols": {

@@ -3100,6 +3100,7 @@
     "calculationError": "Calcolo non disponibile",
     "calculationFlow": {
       "addStep": "Aggiungi passo",
+      "changeOperation": "Cambia calcolo",
       "aggregates": {
         "average": "Media",
         "count": "Numero",
@@ -3177,6 +3178,8 @@
       "shown": "Visibile a tutti",
       "showToEveryone": "Mostra a chiunque possa vedere il record ({list})",
       "showToEveryoneHelp": "Vedranno questo valore anche se non possono aprire il record collegato ({list}).",
+      "removeInputNamed": "Rimuovi {input}",
+      "removeStep": "Rimuovi passo",
       "step": "Passo {number}",
       "stepChip": "Passo",
       "symbols": {

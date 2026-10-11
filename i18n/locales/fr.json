@@ -3100,6 +3100,7 @@
     "calculationError": "Calcul indisponible",
     "calculationFlow": {
       "addStep": "Ajouter une étape",
+      "changeOperation": "Modifier le calcul",
       "aggregates": {
         "average": "Moyenne",
         "count": "Nombre",
@@ -3177,6 +3178,8 @@
       "shown": "Visible par tous",
       "showToEveryone": "Afficher à tous ceux qui peuvent voir l'enregistrement ({list})",
       "showToEveryoneHelp": "Ils verront cette valeur même s'ils ne peuvent pas ouvrir l'enregistrement lié ({list}).",
+      "removeInputNamed": "Retirer {input}",
+      "removeStep": "Retirer l’étape",
       "step": "Étape {number}",
       "stepChip": "Étape",
       "symbols": {
