@@ -776,6 +776,9 @@ export async function seedRoutines(context: SeedContext): Promise<void> {
       lastRunAt: lastRun ? new Date(now - lastRun.startedHoursAgo * HOUR) : null,
       lastRunStatus: lastRun?.status ?? null,
       disabledReason: null,
+      // Routines were set up over the past months, each a week or two after the previous one.
+      createdAt: new Date(now - (400 - routine.index * 17) * 24 * HOUR),
+      updatedAt: new Date(now - (380 - routine.index * 17) * 24 * HOUR),
     };
 
     await context.prisma.routine.upsert({
