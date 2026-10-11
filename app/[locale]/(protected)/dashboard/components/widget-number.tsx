@@ -1,27 +1,51 @@
-import { Rows3 } from "lucide-react";
+"use client";
 
-import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Props = {
-  caption: string;
   value: string;
+  exact: string;
+  context: string;
 };
 
-export function WidgetNumber({ caption, value }: Props) {
+export function WidgetNumber({ value, exact, context }: Props) {
+  const compacted = value !== exact;
+  const headline = compacted ? (
+    <button
+      aria-label={exact}
+      className="max-w-full cursor-pointer truncate rounded-sm text-left outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+      data-slot="widget-number-value"
+      type="button"
+    >
+      {value}
+    </button>
+  ) : (
+    <span data-slot="widget-number-value">{value}</span>
+  );
   return (
-    <div className="@container flex min-h-0 flex-1 flex-col justify-center gap-2" data-slot="widget-number">
+    <div className="@container flex min-h-0 min-w-0 flex-col gap-1.5" data-slot="widget-number">
       <p
-        className="min-h-[1em] max-w-full truncate font-semibold leading-none tracking-tight tabular-nums"
-        style={{ fontSize: `min(3.5rem, ${(140 / Math.max(value.length, 1)).toFixed(2)}cqw)` }}
+        className="min-h-[1em] max-w-full truncate font-medium leading-none tracking-tight tabular-nums"
+        style={{ fontSize: `min(2.25rem, ${(150 / Math.max(value.length, 1)).toFixed(2)}cqw)` }}
       >
-        {value}
+        {compacted ? (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>{headline}</TooltipTrigger>
+
+              <TooltipContent className="tabular-nums" side="bottom">
+                {exact}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ) : (
+          headline
+        )}
       </p>
 
-      <Badge className="gap-1 self-start font-normal tabular-nums" variant="secondary">
-        <Rows3 aria-hidden className="size-3" />
-
-        {caption}
-      </Badge>
+      <p className="truncate text-sm text-muted-foreground tabular-nums" data-slot="widget-number-context">
+        {context}
+      </p>
     </div>
   );
 }

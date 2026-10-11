@@ -4,7 +4,7 @@ import type { RecordWidgetDto } from "@/features/widget/record-widget.schema";
 import type { CalculatedValue } from "@/features/records/record-model.schema";
 import type { ChipColor } from "@/constants/chip-colors";
 import type { ReactNode } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { ChartNoAxesColumn } from "lucide-react";
 import { useTheme } from "next-themes";
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
@@ -18,10 +18,12 @@ import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
 import { RankedTable } from "./ranked-table";
 import { WidgetChart } from "./widget-chart";
 import { WidgetNumber } from "./widget-number";
+import { formatWidgetNumber, inlineListLabel, widgetNumberAverage } from "./widget-number-format";
 import { WidgetSubtitle } from "./widget-subtitle";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { TruncatedText } from "@/components/shared/truncated-text";
 import { AppCardBody } from "@/components/card/app-card-body";
+import { cn } from "@/core/utils/cn";
 import {
   RANKED_TABLE_ROW_LIMIT,
   bucketQuarter,
@@ -39,7 +41,10 @@ import {
 export type RecordWidgetChartProps = Pick<
   RecordWidgetDto,
   "data" | "groupOptions" | "displayOptions" | "measure" | "status" | "decimalPlaces"
-> & { name: string };
+> & {
+  name: string;
+  listLabels?: { label: string; pluralLabel: string } | null;
+};
 
 type ChartRow = {
   label: string;
@@ -62,8 +67,10 @@ export function RecordWidgetChart({
   status,
   name,
   decimalPlaces,
+  listLabels = null,
 }: RecordWidgetChartProps) {
   const t = useTranslations();
+  const language = useLocale();
   const locale = useHydratedIntlStore().formattingLocale;
   const valueFormat = useRecordValueFormat();
   const { resolvedTheme } = useTheme();
@@ -120,7 +127,7 @@ export function RecordWidgetChart({
       : []),
     ...(hasRecordMeasureGroupFilter(measure) ? [t("RecordWidgets.groupFilterSummary")] : []),
   ];
-  const frame = (body: ReactNode, subtitle: string | null = null) => (
+  const frame = (body: ReactNode, subtitle: string | null = null, bodyClassName?: string) => (
     <>
       <AppCardHeader className="flex-col items-start gap-0.5">
         <h2 className="text-x-md w-full">
@@ -130,7 +137,7 @@ export function RecordWidgetChart({
         <WidgetSubtitle notes={infoNotes} text={subtitle} />
       </AppCardHeader>
 
-      <AppCardBody className="overflow-visible recharts-no-focus-outline">{body}</AppCardBody>
+      <AppCardBody className={cn("overflow-visible recharts-no-focus-outline", bodyClassName)}>{body}</AppCardBody>
     </>
   );
   if (status === "unavailable" || !data) {
@@ -144,11 +151,36 @@ export function RecordWidgetChart({
   const total = data.total.result;
   const currency = total.state === "value" && total.value.kind === "decimal" ? (total.value.currency ?? null) : null;
   if (displayType === DisplayType.number && !widgetDisplayTypeIssue(displayType, measure, null)) {
+    const count = data.total.count ?? 0;
+    const numeric = total.state === "value" && total.value.kind === "decimal" ? String(total.value.value) : null;
+    const options = { currency, fractionDigits: derivedFractionDigits(decimalPlaces) };
+    const headline =
+      numeric !== null
+        ? formatWidgetNumber(numeric, { ...options, integer: measure.aggregation === "count" }, valueFormat.decimal)
+        : {
+            display: total.state === "missing" ? "" : format(total),
+            exact: total.state === "missing" ? "" : format(total),
+          };
+    const label = listLabels
+      ? inlineListLabel(count === 1 ? listLabels.label : listLabels.pluralLabel, language)
+      : t("RecordWidgets.numberRecords", { count });
+    const average = measure.aggregation === "sum" && numeric !== null ? widgetNumberAverage(numeric, count) : null;
     return frame(
       <WidgetNumber
-        caption={t("RecordWidgets.recordCount", { count: data.total.count })}
-        value={total.state === "missing" ? "" : format(total)}
+        context={
+          average === null
+            ? t("RecordWidgets.numberContext", { count, label })
+            : t("RecordWidgets.numberContextAverage", {
+                count,
+                label,
+                average: formatWidgetNumber(average, options, valueFormat.decimal).display,
+              })
+        }
+        exact={headline.exact}
+        value={headline.display}
       />,
+      null,
+      "pt-3",
     );
   }
   const overall = displayOptions.showFilters !== false ? t("RecordWidgets.overall", { value: format(total) }) : null;

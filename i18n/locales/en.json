@@ -3723,6 +3723,9 @@
     "measure": "Measure",
     "noRecordsInPeriod": "No records",
     "notes": "About these numbers",
+    "numberContext": "{count, number} {label}",
+    "numberContextAverage": "{count, number} {label} · avg {average}",
+    "numberRecords": "{count, plural, one {record} other {records}}",
     "overall": "Overall: {value}",
     "previewFailed": "The preview could not be loaded. Try again.",
     "quarterLabel": "Q{quarter} {year}",
@@ -3733,7 +3736,6 @@
       "share": "Share",
       "value": "Value"
     },
-    "recordCount": "{count, plural, one {# record} other {# records}}",
     "relatedAny": "At least one accessible linked record matches",
     "relatedNone": "No accessible linked records match",
     "search": "Search records",

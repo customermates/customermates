@@ -72,6 +72,11 @@ const REQUIRED_TRANSLATION_FRAGMENTS: Record<string, Record<string, readonly str
 };
 
 const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
+  // The number widget's context line is a count before a user-defined list label in every language.
+  "de:RecordWidgets.numberContext",
+  "es:RecordWidgets.numberContext",
+  "fr:RecordWidgets.numberContext",
+  "it:RecordWidgets.numberContext",
   // German dashboards abbreviate quarters with Q, as in English.
   "de:RecordWidgets.quarterLabel",
   // "Configuration" is the French word as well.

@@ -3723,6 +3723,9 @@
     "measure": "Mesure",
     "noRecordsInPeriod": "Aucun enregistrement",
     "notes": "À propos de ces chiffres",
+    "numberContext": "{count, number} {label}",
+    "numberContextAverage": "{count, number} {label} · moy. {average}",
+    "numberRecords": "{count, plural, one {enregistrement} other {enregistrements}}",
     "overall": "Total : {value}",
     "previewFailed": "Impossible de charger l’aperçu. Réessayez.",
     "quarterLabel": "T{quarter} {year}",
@@ -3733,7 +3736,6 @@
       "share": "Part",
       "value": "Valeur"
     },
-    "recordCount": "{count, plural, one {# enregistrement} other {# enregistrements}}",
     "relatedAny": "Au moins un enregistrement lié accessible correspond",
     "relatedNone": "Aucun enregistrement lié accessible ne correspond",
     "search": "Rechercher des enregistrements",

@@ -18,6 +18,15 @@ test.use({ timezoneId: TIME_ZONE });
 
 const money = (value: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "EUR", maximumFractionDigits: 20 }).format(value);
+const compactMoney = (value: number) =>
+  value < 10_000
+    ? new Intl.NumberFormat("en-US", { style: "currency", currency: "EUR", maximumFractionDigits: 2 }).format(value)
+    : new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "EUR",
+        notation: "compact",
+        maximumFractionDigits: 1,
+      }).format(value);
 const percent = (value: number) =>
   new Intl.NumberFormat("en-US", { style: "percent", maximumFractionDigits: 1 }).format(value);
 
@@ -354,7 +363,7 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
     await selectOption(page, "Group by", "No grouping");
     await showTab(page, "Appearance");
     await type("number").check();
-    await expect(dialog.locator('[data-slot="widget-number"]')).toContainText(money(total));
+    await expect(dialog.locator('[data-slot="widget-number-value"]')).toHaveText(compactMoney(total));
     await save(page);
     const saved = await readWidget(database, companyId, "Pipeline total");
     expect(saved.displayOptions.displayType).toBe("number");
@@ -365,8 +374,12 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
       groupBy: null,
     });
     const widget = card(page, "Pipeline total");
-    await expect(widget.locator('[data-slot="widget-number"] p').first()).toHaveText(money(total));
-    await expect(widget.locator('[data-slot="widget-number"]')).toContainText(`${DEALS.length} records`);
+    const headline = widget.locator('[data-slot="widget-number-value"]');
+    await expect(headline).toHaveText(compactMoney(total));
+    if (total >= 10_000) await expect(headline).toHaveAttribute("aria-label", money(total));
+    await expect(widget.locator('[data-slot="widget-number-context"]')).toHaveText(
+      `${DEALS.length} deals · avg ${compactMoney(total / DEALS.length)}`,
+    );
   });
 
   await test.step("bucket deals by close month, fill empty months and switch to quarters", async () => {
