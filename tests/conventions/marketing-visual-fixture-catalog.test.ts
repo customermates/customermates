@@ -37,6 +37,7 @@ import { SYNTHETIC_CONTACT_AVATAR_URLS } from "@/prisma/seeds/avatars";
 import { SYNTHETIC_CONTACT_NAMES } from "@/prisma/seeds/contacts";
 import { SYNTHETIC_COMPANY_MEMBER_DEFINITIONS } from "@/prisma/seeds/members";
 import { people, threads } from "@/prisma/seeds/messaging/fixtures";
+import { northwindDataset } from "@/prisma/seeds/northwind-data";
 
 function localAsset(url: string) {
   return new URL(url).pathname;
@@ -260,12 +261,24 @@ describe("marketing visual fixture catalog", () => {
     });
   });
 
-  // The marketing deals are a curated story of their own; the Northwind demo seed no longer projects them.
-  it("keeps every marketing deal consistent with its Status weight and assignment", () => {
-    for (const record of Object.values(VISUAL_RECORD_FIXTURES)) {
+  it("projects ten Northwind deals with their seeded Status and exact value facts", () => {
+    const seeded = new Map(northwindDataset().deals.map((deal) => [deal.name, deal]));
+    const records = Object.values(VISUAL_RECORD_FIXTURES);
+
+    expect(records).toHaveLength(10);
+    for (const record of records) {
+      const deal = seeded.get(record.name);
+      expect(deal, record.name).toBeDefined();
+      if (!deal) continue;
       const status = VISUAL_STATUS_FIXTURES[record.status];
-      expect(record).toMatchObject({ assignee: "max-bergmann", currency: "EUR", kind: "deal" });
-      expect(record.weightedValue).toBe((record.totalValue * status.weight) / 100);
+      expect(record).toMatchObject({
+        assignee: "max-bergmann",
+        currency: "EUR",
+        kind: "deal",
+        status: `deal-${deal.status}`,
+        totalValue: deal.totalValue,
+      });
+      expect(record.weightedValue).toBeCloseTo((deal.totalValue * status.weight) / 100, 2);
     }
 
     expect(
@@ -281,12 +294,15 @@ describe("marketing visual fixture catalog", () => {
     ]);
     expect(listVisualRecords({ status: "deal-won" })).toHaveLength(4);
     expect(listVisualRecords({ assignee: "sofia-rossi" })).toEqual([]);
-    expect(
-      VISUAL_RECORD_FIXTURES["deal-digital-customer-platform"],
-    ).toMatchObject({ projectPeriod: ["2026-06-01", "2026-08-28"], totalQuantity: 162 });
-    expect(
-      VISUAL_RECORD_FIXTURES["deal-digital-customer-platform"],
-    ).not.toHaveProperty("organization");
+
+    const focal = VISUAL_RECORD_FIXTURES["deal-sonnenhof-fire-safety"];
+    const focalDeal = seeded.get(focal.name);
+    expect(focal.totalQuantity).toBe(
+      northwindDataset()
+        .lineItems.filter(({ dealIndex }) => dealIndex === focalDeal?.index)
+        .reduce((sum, { quantity }) => sum + quantity, 0),
+    );
+    expect(focal).not.toHaveProperty("organization");
   });
 
   it("names every demo deal in each content locale, keeping the seeded English name", () => {
@@ -297,11 +313,11 @@ describe("marketing visual fixture catalog", () => {
     }
 
     const german = renderToStaticMarkup(
-      createElement(NativeRecordIdentity, { locale: "de", record: "deal-digital-customer-platform" }),
+      createElement(NativeRecordIdentity, { locale: "de", record: "deal-sonnenhof-fire-safety" }),
     );
-    expect(german).toContain("Digitale Kundenplattform");
+    expect(german).toContain("Sonnenhof Fire and Safety - Enterprise 377 - Neu");
     expect(german).toContain("Offen");
-    expect(german).not.toContain("Digital Customer Platform");
+    expect(german).not.toContain("Sonnenhof Fire and Safety - Enterprise 377 - New");
   });
 
   it("keeps the authoring catalog deterministic, local, complete and executable", () => {

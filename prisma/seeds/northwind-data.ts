@@ -911,6 +911,8 @@ export function buildNorthwindDataset(): NorthwindDataset {
         savedPrice,
       });
     }
+    totalValue = Math.round(totalValue * 100) / 100;
+    listValue = Math.round(listValue * 100) / 100;
     deals.push({
       index,
       id: fixtureId("80000000", index + 1),
