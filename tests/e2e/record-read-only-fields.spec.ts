@@ -84,7 +84,11 @@ test("renders every record detail field in the input box and explains calculated
   await info.click();
   const derivation = page.getByRole("dialog", { name: "How Quantity is calculated", exact: true });
   await expect(derivation).toBeVisible();
-  await expect(derivation.locator("[data-field-derivation-view]")).toContainText("Quantity adds up the");
+  const diagram = derivation.locator("[data-field-derivation-view] [data-calculation-readonly]");
+  await expect(diagram).toBeVisible();
+  await expect(diagram).toContainText("Line items");
+  await expect(diagram).toContainText("Quantity");
+  await expect(derivation.getByRole("button", { name: /^Add/ })).toHaveCount(0);
   const configure = derivation.getByRole("link", { name: "Edit in Configure", exact: true });
   await expect(configure).toHaveAttribute(
     "href",
@@ -156,7 +160,7 @@ test("renders every record detail field in the input box and explains calculated
     const memberInfo = memberQuantity.getByRole("button", { name: "How Quantity is calculated", exact: true });
     await memberInfo.click();
     const memberDerivation = member.page.getByRole("dialog", { name: "How Quantity is calculated", exact: true });
-    await expect(memberDerivation.locator("[data-field-derivation-view]")).toContainText("Quantity adds up the");
+    await expect(memberDerivation.locator("[data-field-derivation-view]")).toContainText("Line items");
     await expect(memberDerivation.getByRole("link", { name: "Edit in Configure", exact: true })).toHaveCount(0);
     await member.page.keyboard.press("Escape");
     await expect(memberDerivation).toHaveCount(0);
