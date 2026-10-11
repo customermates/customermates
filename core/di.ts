@@ -182,6 +182,7 @@ import { ValidateWebhookIdsInteractor } from "@/core/validation/validators/valid
 import { ValidateWidgetIdsInteractor } from "@/core/validation/validators/validate-widget-ids.interactor";
 import { ExportRecordsInteractor } from "@/features/data-transfer/export/export-records.interactor";
 import { ImportRecordsInteractor } from "@/features/data-transfer/import/import-records.interactor";
+import { ImportSpreadsheetInteractor } from "@/features/data-transfer/spreadsheet/import-spreadsheet.interactor";
 // Organizations interactors
 // Deals interactors
 // Services interactors
@@ -501,6 +502,8 @@ export const getQueryRecordsInteractor = () => new QueryRecordsInteractor(getRec
 export const getExportRecordsInteractor = () => new ExportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getImportRecordsInteractor = () =>
   new ImportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordWriteService());
+export const getImportSpreadsheetInteractor = () =>
+  new ImportSpreadsheetInteractor(getRecordRepo(), getQueryRecordsInteractor(), getImportRecordsInteractor());
 export const getGetRecordInteractor = () => new GetRecordInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getGetRecordEditorInteractor = () =>
   new GetRecordEditorInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordDetailLayoutReader());
