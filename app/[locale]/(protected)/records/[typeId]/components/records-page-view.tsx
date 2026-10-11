@@ -227,6 +227,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
           renderCard={renderCard}
           rowActions={rowActions}
           rowHref={recordHref}
+          rowLabel={(record) => recordRowName(store, record, t)}
           store={store}
           view={view}
         />

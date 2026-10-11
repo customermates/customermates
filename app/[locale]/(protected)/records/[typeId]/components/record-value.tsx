@@ -139,7 +139,11 @@ export const RecordValue = observer(function RecordValue({
         {valueFormat.decimal(
           value.value,
           compact && value.currency
-            ? { currency: value.currency, compact: true, maximumFractionDigits: 1 }
+            ? {
+                currency: value.currency,
+                compact: true,
+                maximumFractionDigits: Math.min(1, field.format?.decimalPlaces ?? 1),
+              }
             : {
                 currency: value.currency,
                 maximumFractionDigits: field.format?.decimalPlaces ?? (value.currency ? 2 : 10),

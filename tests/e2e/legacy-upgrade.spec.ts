@@ -5,7 +5,7 @@ import { applyConfigurableRecordsMigration, createLegacyMigrationDatabase } from
 import { legacyRecordFixture } from "../helpers/legacy-record-fixture";
 import { test as base, expect, isBenignPageError } from "./fixtures";
 import { removeBrowserWorkspace } from "./workspace";
-import { openRecordDetails } from "./record-rows";
+import { openRecordDetails, openRecordLink } from "./record-rows";
 
 const test = base.extend({
   workspace: async ({ database }, use) => {
@@ -97,7 +97,7 @@ test("opens upgraded records with persisted values, totals and links", async ({
       personType,
     ])
   ).rows[0];
-  await page.getByRole("link", { name: "Synthetic Person", exact: true }).first().click();
+  await openRecordLink(page.getByRole("link", { name: "Synthetic Person", exact: true }).first());
   await expect(page).toHaveURL(new RegExp(`/en/records/${personType}/${person.id}$`));
   await expect(page.getByText("Organization A", { exact: true }).first()).toBeVisible();
   expect(errors).toEqual([]);

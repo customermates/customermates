@@ -6,7 +6,7 @@ import { isDraftThreadId } from "../../ee/messaging/provider";
 import { decodeGetParams } from "../../core/utils/get-params";
 import type { RecordRef } from "../../features/records/record-model.schema";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
-import { openRecordDetails, recordItem } from "./record-rows";
+import { openRecordDetails, openRecordLink, recordItem } from "./record-rows";
 
 test("opens a list-qualified inbox and preserves, saves, edits and sends channel drafts locally", async ({
   page,
@@ -161,9 +161,12 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
       hasOpenedRecord = true;
     } else {
       await navigateType(typeId);
-      await recordItem(page, `Channel company ${index + 1}`)
-        .getByRole("link", { name: `Channel company ${index + 1}`, exact: true })
-        .click();
+      await openRecordLink(
+        recordItem(page, `Channel company ${index + 1}`).getByRole("link", {
+          name: `Channel company ${index + 1}`,
+          exact: true,
+        }),
+      );
       await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}/${records[index].recordId}$`));
     }
     await expect(page.locator("#sidebar-trigger")).toHaveAttribute("aria-disabled", "false");
