@@ -25,7 +25,6 @@ import {
   hasInlineRelationshipEditor,
 } from "./record-inline-field";
 
-// Table cells stretch their inline edit trigger so chip stacks fill the column width.
 const FILL_EDIT_TARGET_CLASS = "flex min-w-0 [&_[data-edit-target]]:w-full";
 
 export function recordAvatarFieldId(store: RecordsStore) {
