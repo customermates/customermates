@@ -25,7 +25,8 @@ async function expectViewShowsData(page: Page, view: SeededView, isMobile: boole
   await expect(page.getByText(/^No records yet$|^No records match/)).toHaveCount(0);
   const records = page.locator("[data-row-id], [data-item-id]");
   await expect(records.first(), `${view.name} shows records`).toBeVisible();
-  if (!view.grouping?.field) return;
+  // Phone rows show no group bands or group summaries (an accepted gap), so the phone checks stop at the records.
+  if (!view.grouping?.field || isMobile) return;
   const summaries = view.grouping.summaries ?? [];
   if (view.viewMode === "card") {
     const columns = page.locator("[data-group-key]");
@@ -41,7 +42,6 @@ async function expectViewShowsData(page: Page, view: SeededView, isMobile: boole
     return;
   }
   const groups = page.locator('[data-slot="group-header-row"]');
-  if (isMobile && (await groups.count()) === 0) return;
   await expect(groups.first(), `${view.name} shows groups`).toBeVisible();
   if (summaries.length === 0) return;
   const totals = groups.first().locator('[aria-label*=" · "]');

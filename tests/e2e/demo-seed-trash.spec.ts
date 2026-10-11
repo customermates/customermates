@@ -93,6 +93,8 @@ test("the seeded Trash lists records, a view and a field that restore and move b
         await page.goto(`/en/records/${item.typeId}/${item.targetId}`);
         await page.getByRole("main").getByRole("button", { name: "Delete", exact: true }).click();
         await confirmDeletion(page);
+        // The app leaves the deleted record; wait for that before navigating on.
+        await expect(page).not.toHaveURL(new RegExp(item.targetId));
       } else if (item.kind === "view") {
         await page.goto(`/en/records/${item.typeId}?view=${item.targetId}`);
         // The menu opens once the rail is interactive; retry the trigger until it does.

@@ -1,7 +1,7 @@
 import { DEMO_COMPANY_ID, demoId, expect, test } from "./demo-seed";
 
 /** Sub-lists and relationship paths of the seeded workspace: deal line items, and the Deals path of a service. */
-test("a deal shows its line items with every line item column", async ({ page, database, errors }) => {
+test("a deal shows its line items with every line item column", async ({ page, database, errors }, testInfo) => {
   const { rows: deals } = await database.query<{ id: string; items: number }>(
     `SELECT l."targetId" AS id, count(*)::int AS items FROM "RecordLink" l
      JOIN "CrmRecord" r ON r."companyId"=l."companyId" AND r."typeId"=l."sourceTypeId" AND r.id=l."sourceId"
@@ -30,6 +30,8 @@ test("a deal shows its line items with every line item column", async ({ page, d
   const lines = main.getByRole("region", { name: "Line items", exact: true });
   await expect(lines.locator("[data-embedded-count]")).toHaveText(String(deal.items));
   await expect(lines.locator("[data-row-id], [data-item-id]")).toHaveCount(deal.items);
+  // Phones show the sub-list as rows without column headers; the columns are a desktop check.
+  if (testInfo.project.use.isMobile) return expect(errors).toEqual([]);
   // Every line item field and the service it sells is a column of the sub-list.
   const headers = lines.getByRole("columnheader");
   for (const label of [...fields.map((field) => field.label), "Service"])

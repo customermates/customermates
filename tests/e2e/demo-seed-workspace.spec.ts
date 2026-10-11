@@ -97,7 +97,7 @@ test("the Knowledge Base lists the Operating Guide and the procedures, and a pro
   page,
   database,
   errors,
-}) => {
+}, testInfo) => {
   const { rows: pages } = await database.query<{ id: string; title: string; kind: string }>(
     `SELECT id, title, kind::text FROM "WikiPage" WHERE "companyId"=$1 ORDER BY "sortOrder"`,
     [DEMO_COMPANY_ID],
@@ -107,14 +107,18 @@ test("the Knowledge Base lists the Operating Guide and the procedures, and a pro
   const procedures = pages.filter(({ kind }) => kind === "procedure");
   expect(procedures.length).toBe(8);
 
-  await page.goto("/en/wiki");
-  const list = page
-    .getByRole("navigation", { name: "Knowledge Base pages" })
-    .or(page.getByLabel("Knowledge Base pages"));
-  for (const { title } of pages) await expect(list.getByText(title, { exact: true }).first()).toBeVisible();
-
   const procedure = procedures.find(({ title }) => title === "Support SLA and Escalation") ?? procedures[0];
-  await list.getByText(procedure.title, { exact: true }).first().click();
+  if (testInfo.project.use.isMobile) {
+    // Phones show one pane at a time: open the procedure by its link.
+    await page.goto(`/en/wiki?page=${procedure.id}`);
+  } else {
+    await page.goto("/en/wiki");
+    const list = page
+      .getByRole("navigation", { name: "Knowledge Base pages" })
+      .or(page.getByLabel("Knowledge Base pages"));
+    for (const { title } of pages) await expect(list.getByText(title, { exact: true }).first()).toBeVisible();
+    await list.getByText(procedure.title, { exact: true }).first().click();
+  }
   await expect(page).toHaveURL(new RegExp(`[?&]page=${procedure.id}`));
   await expect(page.getByRole("textbox", { name: "Page title", exact: true })).toHaveValue(procedure.title);
   await expect(page.getByRole("combobox", { name: "Page type" })).toHaveText("Procedure");
