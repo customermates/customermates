@@ -148,7 +148,7 @@ async function fixture() {
         ],
       },
     },
-    format: { currency: "EUR" },
+    format: { currency: "EUR", decimalPlaces: 2 },
     position: position + 4,
   };
   model.fields.push(listPrice, discount, percentage, third, share);

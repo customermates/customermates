@@ -44,19 +44,17 @@ function roundedResult(input: Decimal, currency: string | null = null): Calculat
   return decimalResult(input.toDecimalPlaces(STORED_DECIMAL_SCALE, Decimal.ROUND_HALF_UP), currency);
 }
 
-function currencyFractionDigits(currency: string): number {
-  return new Intl.NumberFormat("en", { style: "currency", currency }).resolvedOptions().maximumFractionDigits ?? 2;
-}
-
 export function fieldPrecisionResult(
   result: CalculatedValue,
   field: Pick<RecordField, "valueType" | "format">,
 ): CalculatedValue {
   if (result.state !== "value" || result.value.kind !== "decimal") return result;
-  const currency = result.value.currency ?? null;
-  const places = field.format?.decimalPlaces ?? (currency ? currencyFractionDigits(currency) : null);
-  if (places === null) return result;
-  return decimalResult(new ExactDecimal(result.value.value).toDecimalPlaces(places, Decimal.ROUND_HALF_UP), currency);
+  const places = field.format?.decimalPlaces;
+  if (places === null || places === undefined) return result;
+  return decimalResult(
+    new ExactDecimal(result.value.value).toDecimalPlaces(places, Decimal.ROUND_HALF_UP),
+    result.value.currency,
+  );
 }
 
 export function isRepresentableDecimal(input: string): boolean {

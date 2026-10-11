@@ -152,9 +152,10 @@ describe("deterministic record calculations", () => {
       decimalResult("33.3"),
     );
     const share = await evaluateCalculation(operation("divide", literal("100", "EUR"), literal("3")), ref, empty);
-    expect(fieldPrecisionResult(share, { valueType: "currency", format: { currency: "EUR" } })).toEqual(
-      decimalResult("33.33", "EUR"),
-    );
+    expect(fieldPrecisionResult(share, { valueType: "currency", format: { currency: "EUR" } })).toEqual(share);
+    expect(
+      fieldPrecisionResult(share, { valueType: "currency", format: { currency: "EUR", decimalPlaces: 2 } }),
+    ).toEqual(decimalResult("33.33", "EUR"));
     expect(
       fieldPrecisionResult(share, { valueType: "currency", format: { currency: "EUR", decimalPlaces: 4 } }),
     ).toEqual(decimalResult("33.3333", "EUR"));
