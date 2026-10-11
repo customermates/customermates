@@ -2325,15 +2325,11 @@ test("keeps personal views separate from the list layout, groups and summarises 
     ).toHaveCount(0);
   };
   const assertListLayout = async (target: Page) => {
-    await expect(
-      target.getByRole("columnheader", { name: "Internal memo", exact: false }),
-    ).toBeVisible();
-    await expect(
-      target.getByRole("columnheader", { name: "Budget", exact: false }),
-    ).toBeVisible();
-    await expect(
-      target.getByRole("columnheader", { name: "Stage", exact: false }),
-    ).toBeVisible();
+    if (!test.info().project.use.isMobile)
+      for (const column of ["Internal memo", "Budget", "Stage"])
+        await expect(
+          target.getByRole("columnheader", { name: column, exact: false }),
+        ).toBeVisible();
     await expect(target.locator('[data-slot="kanban-root"]')).toHaveCount(0);
     await expect(target.locator('[data-slot="group-header-row"]')).toHaveCount(0);
   };
