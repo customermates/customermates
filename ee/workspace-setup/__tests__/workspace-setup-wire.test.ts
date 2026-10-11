@@ -111,6 +111,12 @@ describe("plan wire format", () => {
     expect(converted).toEqual({ ok: true, plan: SetupPlanSchema.parse(input) });
   });
 
+  it("drops system columns from a list's column order, which only orders fields", () => {
+    const wire = planToWire(agencyPlan);
+    wire.listDefaults[0].columns = ["system:assignedTo", ...wire.listDefaults[0].columns, "system:createdAt"];
+    expect(planFromWire(wire)).toEqual({ ok: true, plan: SetupPlanSchema.parse(agencyPlan) });
+  });
+
   it("reports schema issues the model can repair instead of throwing", () => {
     const broken = planToWire(agencyPlan);
     broken.recordModel.calculations[0].expression = "{not json";

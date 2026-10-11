@@ -15,6 +15,7 @@ import {
 import {
   SETUP_FIELD_VALUE_TYPES,
   SETUP_PAGE_KINDS,
+  SetupFieldKeySchema,
   SetupPlanSchema,
 } from "@/features/workspace-setup/setup-plan.schema";
 import { WIDGET_STARTER_DISPLAY_TYPES } from "@/features/widget/widget-display-rules";
@@ -250,7 +251,7 @@ export const PlanWireSchema = z.object({
       layout: z.enum(["table", "board"]),
       groupBy: z.string().nullable().describe(FieldRefDescription),
       sort: z.object({ field: z.string(), direction: z.enum(["asc", "desc"]) }).nullable(),
-      columns: z.array(z.string()),
+      columns: z.array(z.string()).describe("Field keys of this list in display order; system columns are not listed."),
       summaries: z.array(z.object({ field: z.string(), aggregation: z.enum(["sum", "average", "min", "max"]) })),
     }),
   ),
@@ -346,7 +347,10 @@ export function planFromWire(
         expression: expression(calculation.expression),
       })),
     },
-    listDefaults: wire.listDefaults,
+    listDefaults: wire.listDefaults.map((value) => ({
+      ...value,
+      columns: value.columns.filter((column) => SetupFieldKeySchema.safeParse(column).success),
+    })),
     sampleData: {
       lists: wire.sampleData.lists.map((list) => ({ ...list, count: Math.round(list.count) })),
     },
