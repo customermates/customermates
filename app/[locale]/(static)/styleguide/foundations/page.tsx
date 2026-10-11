@@ -166,6 +166,10 @@ const SURFACE_RULES = [
     "Menus and popovers that can cross light and dark sections: solid popover fill with the same rim.",
   ],
   ["Never", "Glass over content that switches between light and dark sections, or on resting content panels."],
+  [
+    "Section edges",
+    "In continuous pages a canvas section fades in and out of the page colour over 7rem; the inverse band keeps hard edges.",
+  ],
 ] as const;
 
 const FRAMING_RULES = [

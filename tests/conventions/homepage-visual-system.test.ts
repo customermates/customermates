@@ -344,6 +344,9 @@ describe("homepage visual-system adoption", () => {
     expect(readComponent("homepage-how-it-works.tsx")).toContain("<HomepageMcpSnippet");
     expect(readComponent("homepage-mcp-snippet.tsx")).toContain('getMcpInstallSnippet("cursor", DOCS_API_KEY_PLACEHOLDER, env.BASE_URL)');
     expect(globalStyles).toMatch(/\[data-step-progress\]::after/u);
+    expect(globalStyles).toContain('[data-marketing-flow="continuous"] [data-marketing-tone="canvas"] {');
+    expect(globalStyles).toContain("--section-fade-top: var(--color-background);");
+    expect(globalStyles).toContain("--section-fade-bottom: var(--color-background);");
     expect(readComponent("homepage-product-proof.tsx")).toContain("<ProductWindow>");
     expect(globalStyles).toContain("animation-timeline: view();");
     expect(globalStyles).toMatch(/@media \(prefers-reduced-motion: no-preference\) \{\s+\[data-reveal\]/u);
