@@ -180,9 +180,9 @@ function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewSt
     sortDescriptor: undefined,
     viewMode: "table",
     views: VIEWS,
-    isQueryModified: false,
-    saveQueryToView: vi.fn(() => Promise.resolve()),
-    resetQueryToView: vi.fn(),
+    isViewModified: false,
+    saveViewChanges: vi.fn(() => Promise.resolve()),
+    resetViewChanges: vi.fn(),
     forgetQueryDraft: vi.fn(),
     viewStateSnapshot: ({ includeQuery }: { includeQuery: boolean }): DataViewState => {
       const saved =
@@ -650,7 +650,7 @@ describe("data view rail interaction", () => {
   });
 
   it("marks only the active chip as modified and offers Save and Reset changes after Ask AI", () => {
-    const value = store({ activeViewKey: "v-b", isQueryModified: true } as Partial<BaseDataViewStore<Item>>);
+    const value = store({ activeViewKey: "v-b", isViewModified: true } as Partial<BaseDataViewStore<Item>>);
     const host = render(value);
 
     const modified = host.querySelectorAll("[data-view-modified]");
@@ -664,10 +664,10 @@ describe("data view rail interaction", () => {
     ]);
 
     act(() => byText(host, "Common.actions.save").click());
-    expect(value.saveQueryToView).toHaveBeenCalledOnce();
+    expect(value.saveViewChanges).toHaveBeenCalledOnce();
 
     act(() => byText(host, "DataView.views.resetChanges").click());
-    expect(value.resetQueryToView).toHaveBeenCalledOnce();
+    expect(value.resetViewChanges).toHaveBeenCalledOnce();
   });
 
   it("shows no modified dot and no reset entry while the view is clean", () => {
@@ -808,7 +808,7 @@ describe("data view rail interaction", () => {
     const value = store({
       activeViewKey: "v-d",
       filters: [{ field: "stage", operator: "in", value: ["lost"] }],
-      isQueryModified: true,
+      isViewModified: true,
       searchTerm: "temporary",
       views: [...VIEWS, saved],
     } as unknown as Partial<BaseDataViewStore<Item>>);

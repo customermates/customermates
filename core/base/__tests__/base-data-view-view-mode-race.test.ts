@@ -101,7 +101,7 @@ describe("view mode survives the refresh that races its own persistence", () => 
     vi.useRealTimers();
   });
 
-  it("sends the live view mode on the refresh that fires before the autosave lands", async () => {
+  it("sends the live view mode on the refresh and saves it only when asked", async () => {
     const store = hydrated();
 
     store.setViewOptions({ viewMode: ViewMode.card, grouping: { field: GROUPING_COLUMN_ID } });
@@ -118,6 +118,8 @@ describe("view mode survives the refresh that races its own persistence", () => 
 
     await vi.advanceTimersByTimeAsync(1000);
 
+    expect(saveDataViewStateAction).not.toHaveBeenCalled();
+    await store.saveViewChanges();
     expect(saveDataViewStateAction).toHaveBeenCalledTimes(1);
     expect(saveDataViewStateAction.mock.calls[0]?.[0]?.state).toMatchObject({
       viewMode: ViewMode.card,
