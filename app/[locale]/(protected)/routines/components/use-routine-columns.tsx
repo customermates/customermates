@@ -12,7 +12,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { USER_STATUS_COLORS_MAP } from "@/constants/user-statuses";
 import { ROUTINE_RUN_STATUS_CHIP_COLOR } from "@/ee/routines/routine-run-chip-colors";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { describeRoutineSchedule } from "@/ee/routines/routine-schedule-preset";
+import { describeRoutineSchedule, routineDisplayTimeZone } from "@/ee/routines/routine-schedule-preset";
 
 export function useRoutineColumns(): ColumnDef<RoutineDto>[] {
   const intlStore = useHydratedIntlStore();
@@ -92,7 +92,13 @@ export function useRoutineColumns(): ColumnDef<RoutineDto>[] {
         header: t("Common.table.columns.nextRunAt"),
         cell: ({ row }) => (
           <span className="text-sm">
-            {row.original.nextRunAt ? intlStore.formatNumericalShortDateTime(row.original.nextRunAt) : <EmptyValue />}
+            {row.original.nextRunAt ? (
+              intlStore.formatNumericalShortDateTime(row.original.nextRunAt, {
+                timeZone: routineDisplayTimeZone(row.original.timezone),
+              })
+            ) : (
+              <EmptyValue />
+            )}
           </span>
         ),
       },

@@ -847,7 +847,7 @@ export const DYNAMIC_KEY_SITES = [
   "ee/routines/routine-run-outcome.ts :: t :: Common.errors.${reason}",
   "ee/routines/routine-run-outcome.ts :: t :: RoutineRunReason.${reason}",
   "ee/routines/routine-schedule-preset.ts :: t :: RoutineSchedulePreset.${schedule.preset}",
-  "ee/routines/routine-schedule-preset.ts :: t :: RoutineWeekday.${ROUTINE_WEEKDAY_KEYS[schedule.weekday]}",
+  "ee/routines/routine-schedule-preset.ts :: t :: RoutineWeekday.${ROUTINE_WEEKDAY_KEYS[day]}",
   "ee/subscription/entitlement.service.ts :: t :: ConnectedAccountsCard.${code}",
   "features/auth/sign-in-with-email.interactor.ts :: t :: Common.errors.${res.error}",
   "features/auth/sign-up-with-email.interactor.ts :: t :: Common.errors.${res.error}",

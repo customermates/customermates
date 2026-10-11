@@ -3930,8 +3930,13 @@
   },
   "RoutineSchedule": {
     "daily": "Ogni giorno alle {time}",
+    "days": "Ogni {weekdays} alle {time}",
+    "everyHours": "{count, plural, one {Ogni ora} other {Ogni # ore}} al minuto :{minute}",
+    "everyMinutes": "{count, plural, one {Ogni minuto} other {Ogni # minuti}}",
     "hourly": "Ogni ora al minuto :{minute}",
     "monthly": "Il giorno {day} di ogni mese alle {time}",
+    "weekdays": "Nei giorni feriali alle {time}",
+    "weekends": "Nel fine settimana alle {time}",
     "weekly": "Ogni {weekday} alle {time}"
   },
   "RoutineSchedulePreset": {

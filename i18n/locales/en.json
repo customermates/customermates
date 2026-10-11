@@ -3930,8 +3930,13 @@
   },
   "RoutineSchedule": {
     "daily": "Every day at {time}",
+    "days": "Every {weekdays} at {time}",
+    "everyHours": "{count, plural, one {Every hour} other {Every # hours}} at :{minute}",
+    "everyMinutes": "{count, plural, one {Every minute} other {Every # minutes}}",
     "hourly": "Every hour at :{minute}",
     "monthly": "Day {day} of every month at {time}",
+    "weekdays": "Weekdays at {time}",
+    "weekends": "Weekends at {time}",
     "weekly": "Every {weekday} at {time}"
   },
   "RoutineSchedulePreset": {
