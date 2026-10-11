@@ -1,7 +1,7 @@
 import { addFromConfigure, followConfigureLink, saveDrawer } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
-import { openRecordDetails } from "./record-rows";
+import { openRecordDetails, openRecordLink } from "./record-rows";
 
 test("edits duplicate embedded items, live and saved prices, and weighted totals through the generic UI", async ({
   page,
@@ -181,7 +181,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
     await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(1);
   }
   await expect.poll(totals).toEqual({ Value: "2600", Quantity: "5", "Weighted value": "1560" });
-  await dialogs.getByRole("region", { name: "Line items" }).getByRole("button", { name: "B", exact: true }).click();
+  await openRecordLink(dialogs.getByRole("region", { name: "Line items" }).getByRole("button", { name: "B", exact: true }));
   await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
   await dialogs.getByRole("combobox", { name: "Pricing", exact: false }).click();
   await page.getByRole("option", { name: "Saved price", exact: true }).click();

@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 
 import { test, expect } from "./fixtures";
-import { openRecordDetails } from "./record-rows";
+import { openRecordDetails, openRecordLink } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
 
 test("downloads generic records from the shared table with persisted typed values", async ({
@@ -177,7 +177,7 @@ test("round-trips deal line items and their calculated total through the transfe
   await page.keyboard.press("Enter");
   const line = dialogs.getByRole("region", { name: "Line items" }).getByRole("button", { name: "Transfer line", exact: true });
   await expect(line).toBeVisible();
-  await line.click();
+  await openRecordLink(line);
   await expect(page.getByRole("dialog", { includeHidden: true })).toHaveCount(2);
   const child = dialogs.last();
   await child.getByRole("textbox", { name: "Quantity", exact: false }).fill("2");
