@@ -19,14 +19,7 @@ export const NORTHWIND_COMPANY_NAME = "Northwind Labs";
 export const NORTHWIND_PRODUCT_NAME = "Northwind Field";
 
 /** Starter list keys (preset) and the custom list keys the demo adds, as `presetId` keys. */
-export const NORTHWIND_STARTER_TYPE_KEYS = [
-  "contact",
-  "organization",
-  "deal",
-  "lineItem",
-  "service",
-  "task",
-] as const;
+export const NORTHWIND_STARTER_TYPE_KEYS = ["contact", "organization", "deal", "lineItem", "service", "task"] as const;
 export const NORTHWIND_CUSTOM_TYPE_KEYS = [
   "subscription",
   "onboarding",
@@ -55,80 +48,46 @@ export const NORTHWIND_OPTION_KEYS = {
     "waterTreatment",
   ],
   "organization.segment": ["smb", "midMarket", "enterprise"],
-  "contact.dealRole": [
-    "decisionMaker",
-    "champion",
-    "influencer",
-    "user",
-    "procurement",
+  "contact.dealRole": ["decisionMaker", "champion", "influencer", "user", "procurement"],
+  "contact.leadSource": [
+    "websiteDemo",
+    "contentDownload",
+    "webinar",
+    "tradeFair",
+    "paidSearch",
+    "linkedin",
+    "outbound",
+    "partnerReferral",
+    "customerReferral",
   ],
-  "deal.stage": [
-    "new",
-    "qualified",
-    "demo",
-    "proposal",
-    "negotiation",
-    "won",
-    "lost",
+  "deal.stage": ["new", "qualified", "proposal", "won", "lost"],
+  "deal.dealType": ["new", "expansion", "renewal"],
+  "deal.lostReason": ["price", "noDecision", "competitor", "timing", "productGap", "notAFit"],
+  "deal.leadSource": [
+    "websiteDemo",
+    "contentDownload",
+    "webinar",
+    "tradeFair",
+    "paidSearch",
+    "linkedin",
+    "outbound",
+    "partnerReferral",
+    "customerReferral",
   ],
-  "task.team": [
-    "sales",
-    "customerSuccess",
-    "support",
-    "marketing",
-    "partnerships",
-    "hiring",
-    "management",
-  ],
+  "task.team": ["sales", "customerSuccess", "support", "marketing", "partnerships", "hiring", "management"],
   "subscription.plan": ["starter", "professional", "enterprise"],
   "subscription.billing": ["perSeat", "annualPrice"],
   "subscription.health": ["healthy", "watch", "atRisk"],
-  "onboarding.phase": [
-    "kickoff",
-    "configuration",
-    "dataMigration",
-    "training",
-    "goLive",
-    "hypercare",
-    "completed",
-  ],
-  "ticket.priority": ["low", "normal", "high", "urgent"],
+  "onboarding.phase": ["kickoff", "configuration", "pilot", "goLive", "hypercare", "completed"],
+  "ticket.priority": ["urgent", "high", "normal", "low"],
   "ticket.status": ["new", "open", "waitingOnCustomer", "resolved", "closed"],
-  "ticket.category": [
-    "routing",
-    "mobileApp",
-    "integrations",
-    "dataImport",
-    "billing",
-    "access",
-  ],
-  "campaign.channel": [
-    "webinar",
-    "tradeFair",
-    "linkedinAds",
-    "googleAds",
-    "email",
-    "partnerEvent",
-  ],
-  "partner.tier": ["gold", "silver", "registered"],
+  "ticket.category": ["routing", "mobileApp", "integrations", "dataImport", "billing", "access"],
+  "campaign.channel": ["webinar", "tradeFair", "linkedinAds", "googleAds", "email", "partnerEvent"],
+  "partner.tier": ["registered", "silver", "gold"],
   "partner.region": ["dach", "benelux", "nordics", "ukIreland"],
-  "openRole.department": [
-    "engineering",
-    "sales",
-    "customerSuccess",
-    "support",
-    "marketing",
-    "operations",
-  ],
+  "openRole.department": ["engineering", "sales", "customerSuccess", "support", "marketing", "operations"],
   "openRole.status": ["open", "onHold", "filled"],
-  "candidate.stage": [
-    "applied",
-    "screening",
-    "interview",
-    "offer",
-    "hired",
-    "rejected",
-  ],
+  "candidate.stage": ["applied", "screening", "interview", "caseTask", "offer", "hired", "rejected"],
   "candidate.source": ["linkedin", "referral", "careersPage", "agency"],
 } as const;
 export type NorthwindChoiceFieldKey = keyof typeof NORTHWIND_OPTION_KEYS;
@@ -148,6 +107,7 @@ export const NORTHWIND_FIELD_KEYS = {
   contact: {
     jobTitle: "contact.jobTitle",
     dealRole: "contact.dealRole",
+    leadSource: "contact.leadSource",
   },
   deal: {
     stage: "deal.stage",
@@ -159,6 +119,9 @@ export const NORTHWIND_FIELD_KEYS = {
     daysToClose: "deal.daysToClose",
     openValue: "deal.openValue",
     industry: "deal.industry",
+    dealType: "deal.dealType",
+    lostReason: "deal.lostReason",
+    leadSource: "deal.leadSource",
   },
   lineItem: {
     listAmount: "lineItem.listAmount",
@@ -208,6 +171,8 @@ export const NORTHWIND_FIELD_KEYS = {
     notes: "campaign.notes",
     channel: "campaign.channel",
     budget: "campaign.budget",
+    actualSpend: "campaign.actualSpend",
+    owner: "campaign.owner",
     period: "campaign.period",
     dealsSourced: "campaign.dealsSourced",
     pipelineSourced: "campaign.pipelineSourced",
@@ -258,6 +223,7 @@ export const NORTHWIND_RELATIONSHIP_KEYS = {
   subscriptionDeal: "subscription.deal",
   onboardingDeal: "onboarding.deal",
   onboardingOrganization: "onboarding.organization",
+  onboardingSubscription: "onboarding.subscription",
   ticketSubscription: "ticket.subscription",
   ticketContact: "ticket.contact",
   candidateOpenRole: "candidate.openRole",
@@ -271,16 +237,11 @@ export const NORTHWIND_PATH_KEYS = {
 
 type Ids<T> = { [K in keyof T]: T[K] extends string ? string : Ids<T[K]> };
 
-function mapIds<T extends Record<string, unknown>>(
-  value: T,
-  id: (key: string) => string,
-): Ids<T> {
+function mapIds<T extends Record<string, unknown>>(value: T, id: (key: string) => string): Ids<T> {
   return Object.fromEntries(
     Object.entries(value).map(([name, child]) => [
       name,
-      typeof child === "string"
-        ? id(child)
-        : mapIds(child as Record<string, unknown>, id),
+      typeof child === "string" ? id(child) : mapIds(child as Record<string, unknown>, id),
     ]),
   ) as Ids<T>;
 }
@@ -288,9 +249,7 @@ function mapIds<T extends Record<string, unknown>>(
 export function northwindModelIds(companyId: string) {
   const id = (key: string) => presetId(companyId, key);
   const types = Object.fromEntries(
-    [...NORTHWIND_STARTER_TYPE_KEYS, ...NORTHWIND_CUSTOM_TYPE_KEYS].map(
-      (key) => [key, id(key)],
-    ),
+    [...NORTHWIND_STARTER_TYPE_KEYS, ...NORTHWIND_CUSTOM_TYPE_KEYS].map((key) => [key, id(key)]),
   ) as Record<NorthwindTypeKey, string>;
   const options = Object.fromEntries(
     Object.entries(NORTHWIND_OPTION_KEYS).map(([field, keys]) => [
@@ -298,10 +257,7 @@ export function northwindModelIds(companyId: string) {
       Object.fromEntries(keys.map((key) => [key, id(`${field}.${key}`)])),
     ]),
   ) as {
-    [F in NorthwindChoiceFieldKey]: Record<
-      (typeof NORTHWIND_OPTION_KEYS)[F][number],
-      string
-    >;
+    [F in NorthwindChoiceFieldKey]: Record<(typeof NORTHWIND_OPTION_KEYS)[F][number], string>;
   };
   return {
     types,
