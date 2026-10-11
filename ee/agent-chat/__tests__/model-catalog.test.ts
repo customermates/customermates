@@ -28,10 +28,10 @@ describe("shipped agent models", () => {
     expect(resolveAgentModel("balanced", "routine")).toBe(AGENT_MODELS.routine);
   });
 
-  it("uses low effort for chat and medium effort for routines and Knowledge Base synthesis", () => {
+  it("uses low effort for chat, medium for routines and no thinking for structured Knowledge Base synthesis", () => {
     expect(AGENT_MODELS.chat.reasoningEffort).toBe("low");
     expect(AGENT_MODELS.routine.reasoningEffort).toBe("medium");
-    expect(AGENT_MODELS.wikiSynthesis.reasoningEffort).toBe("medium");
+    expect(AGENT_MODELS.wikiSynthesis.reasoningEffort).toBe("none");
     expect(AGENT_MODELS.wikiSummary).toMatchObject({ reasoningEffort: "low", maxOutputTokens: 512 });
   });
 

@@ -83,6 +83,7 @@ function callFailure(label: string, model: string, error: unknown): string {
 }
 
 export const STRUCTURED_OUTPUT_MAX_UNION_TYPES = 16;
+export const STRUCTURED_OUTPUT_REASONING = "none";
 
 export function structuredOutputUnionTypes(schema: z.ZodType): number {
   let unions = 0;
@@ -185,7 +186,7 @@ export async function generateStructuredObject<T>(args: {
       prompt: args.prompt,
       output: Output.object({ schema: args.schema }),
       maxOutputTokens: args.model.maxOutputTokens,
-      ...(args.model.reasoningEffort ? { reasoning: args.model.reasoningEffort } : {}),
+      reasoning: STRUCTURED_OUTPUT_REASONING,
       maxRetries: 0,
       abortSignal: AbortSignal.timeout(args.timeoutMs ?? TIMEOUT_MS),
       providerOptions: getAgentProviderOptions(args.model.servingProvider, args.model.inferenceRegion),

@@ -34,7 +34,7 @@ export const AGENT_MODELS = {
   wikiSynthesis: {
     ...HAIKU,
     maxOutputTokens: 16_384,
-    reasoningEffort: "medium",
+    reasoningEffort: "none",
   },
   wikiSummary: { ...HAIKU, maxOutputTokens: 512, reasoningEffort: "low" },
   setupDrafting: { ...HAIKU, reasoningEffort: "low" },

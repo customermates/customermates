@@ -47,7 +47,7 @@ beforeEach(() => {
 });
 
 describe("generateStructuredObject", () => {
-  it("sends the synthesis entry's output ceiling and reasoning effort to the provider", async () => {
+  it("sends the entry's output ceiling without thinking, which would turn off constrained decoding", async () => {
     provider.generate.mockResolvedValue({
       output: { title: "Overview" },
       usage: { inputTokens: 10, outputTokens: 5 },
@@ -58,7 +58,7 @@ describe("generateStructuredObject", () => {
       expect.objectContaining({
         model: "anthropic/claude-haiku-5.5",
         maxOutputTokens: 16_384,
-        reasoning: "medium",
+        reasoning: "none",
       }),
     );
   });
@@ -178,6 +178,18 @@ function nestedCall() {
 }
 
 describe("structured output the provider did not constrain", () => {
+  it("never thinks, even for an entry whose turns do", async () => {
+    provider.generate.mockResolvedValue({ output: { title: "x" }, usage: { inputTokens: 1, outputTokens: 1 } });
+    await generateStructuredObject({
+      label: "Workspace setup pre-fill",
+      model: AGENT_MODELS.routine,
+      schema: z.object({ title: z.string() }),
+      system: "system",
+      prompt: "prompt",
+    });
+    expect(provider.generate).toHaveBeenCalledWith(expect.objectContaining({ reasoning: "none" }));
+  });
+
   it("recovers a nested object the model returned as JSON text inside a string", async () => {
     rejectWith(await malformed(JSON.stringify({ recordModel: JSON.stringify({ lists: ["deal"] }) })));
     expect(await nestedCall()).toMatchObject({

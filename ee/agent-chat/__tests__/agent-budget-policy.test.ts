@@ -67,7 +67,7 @@ describe("agent turn credit budget", () => {
     const perRound = agentRoundWorstCaseMicrocents(model);
 
     expect(model.maxOutputTokens).toBe(16_384);
-    expect(model.reasoningEffort).toBe("medium");
+    expect(model.reasoningEffort).toBe("none");
     expect(perRound).toBe(2_276_120);
     expect(resolveAgentTurnBudget({ model, availableMicrocents: perRound - 1 })).toBeNull();
     expect(resolveAgentTurnBudget({ model, availableMicrocents: perRound })).toMatchObject({
