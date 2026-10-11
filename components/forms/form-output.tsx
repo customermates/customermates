@@ -12,7 +12,7 @@ export function FormOutput({ children, className, ...props }: Props) {
       {...props}
       aria-readonly="true"
       className={cn(
-        "flex min-h-9 w-full min-w-0 cursor-text items-center rounded-md border border-border bg-background px-3 py-1.5 text-sm text-foreground shadow-none outline-none focus-visible:border-ring focus-visible:ring-[2px] focus-visible:ring-inset focus-visible:ring-ring/30",
+        "flex min-h-9 w-full min-w-0 cursor-text items-center rounded-md border border-input bg-input-background px-3 py-1.5 text-sm text-foreground shadow-none outline-none focus-visible:border-ring focus-visible:ring-[2px] focus-visible:ring-inset focus-visible:ring-ring/30",
         className,
       )}
       data-field-state="read-only"

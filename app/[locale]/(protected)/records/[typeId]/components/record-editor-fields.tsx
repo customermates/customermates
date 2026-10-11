@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl";
 import { Camera, Link2, Sigma } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { RecordEditorStore } from "./record-editor.store";
-import type { RecordFieldView } from "@/features/records/record-model.schema";
+import type { RecordField, RecordFieldView } from "@/features/records/record-model.schema";
 import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
 import { RecordValue, useRecordValueFormat } from "./record-value";
 import { RecordDetailField } from "./record-detail-field";
@@ -22,6 +22,7 @@ import { EntityDetailDerivation } from "@/components/entity-detail/entity-detail
 import type { DerivationContext } from "@/components/entity-detail/entity-detail-derivation";
 import { focusHref } from "@/components/focus/focus-href";
 import { FieldDerivationView } from "./field-derivation-view";
+import { CalculationFlowView } from "@/app/[locale]/(protected)/configure/components/calculation-flow-editor";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { runUserAction } from "@/core/errors/report-application-error";
 
@@ -118,7 +119,16 @@ export const RecordEditorField = observer(function RecordEditorField({
             >
               {(context) =>
                 source.kind === "calculation" ? (
-                  <FieldDerivationView field={field} model={model} sentence={sentence(context)} />
+                  <FieldDerivationView
+                    diagram={
+                      field.behavior.kind !== "input" && field.behavior.expression ? (
+                        <CalculationFlowView field={field as RecordField} model={store.presentation.model} />
+                      ) : undefined
+                    }
+                    field={field}
+                    model={model}
+                    sentence={sentence(context)}
+                  />
                 ) : (
                   <ConfirmationSentenceView sentence={sentence(context)} />
                 )

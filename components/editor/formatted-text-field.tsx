@@ -101,7 +101,7 @@ export function FormattedTextField({
       <div
         data-formatted-text-area
         className={cn(
-          "relative min-h-9 rounded-md border border-border bg-background px-3 py-1.5 text-sm",
+          "relative min-h-9 rounded-md border border-input bg-input-background px-3 py-1.5 text-sm",
           !readOnly &&
             !isEditing &&
             "cursor-text has-[[data-edit-trigger]:focus-visible]:border-ring has-[[data-edit-trigger]:focus-visible]:ring-[2px] has-[[data-edit-trigger]:focus-visible]:ring-ring/30",

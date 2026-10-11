@@ -51,8 +51,8 @@ describe("EntityDetailStaticField", () => {
     );
     const output = markup.match(/<div[^>]*data-field-state="read-only"[^>]*>/)?.[0] ?? "";
 
-    expect(output).toContain("border-border");
-    expect(output).toContain("bg-background");
+    expect(output).toContain("border-input");
+    expect(output).toContain("bg-input-background");
     expect(output).toContain("min-h-9");
     expect(output).toContain("px-3");
     expect(output).toContain("pr-9");
