@@ -6,6 +6,7 @@ import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
+import { openRecordLink } from "./record-rows";
 
 async function create(page: Page, mutation: Record<string, unknown>) {
   const model = RecordModelSchema.parse(await (await page.request.post("/api/v1/model/discover", { data: {} })).json());
@@ -84,7 +85,7 @@ test("sub-list phone rows open the record on tap", async ({ page, companyId }) =
   const row = lineItems.locator("[data-phone-rows] [data-row-id]");
   await expect(row).toHaveCount(1);
   await expect(row).toContainText("Phone line");
-  await row.getByRole("button", { name: "Phone line", exact: true }).click();
+  await openRecordLink(row.getByRole("button", { name: "Phone line", exact: true }));
   const editor = page.getByRole("dialog");
   await expect(editor).toBeVisible();
   await expect(editor.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Phone line");
