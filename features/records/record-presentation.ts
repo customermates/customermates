@@ -134,20 +134,13 @@ export function recordFilterableFields(
       ),
   ];
 }
-export function recordDefaults(type: RecordType, fields: RecordFieldView[]): DataViewState {
+export function recordDefaults(typeId: string, fields: RecordFieldView[]): DataViewState {
   return {
-    columnOrder: type.defaults.columns,
-    hiddenColumns: defaultHiddenColumns(type, fields),
-    viewMode: type.defaults.layout === "board" ? ViewMode.card : ViewMode.table,
-    grouping: type.defaults.groupBy
-      ? { field: type.defaults.groupBy, ...(type.defaults.groupBucket ? { bucket: type.defaults.groupBucket } : {}) }
-      : null,
-    sortDescriptor: type.defaults.sortField
-      ? {
-          field: type.defaults.sortField,
-          direction: type.defaults.sortDirection,
-        }
-      : null,
+    columnOrder: fields.filter((field) => field.typeId === typeId && !field.archived).map((field) => field.id),
+    hiddenColumns: defaultHiddenColumns(typeId, fields),
+    viewMode: ViewMode.table,
+    grouping: null,
+    sortDescriptor: null,
   };
 }
 export function filterScalar(raw: string, field: Pick<RecordField, "valueType" | "format">): RecordScalar {

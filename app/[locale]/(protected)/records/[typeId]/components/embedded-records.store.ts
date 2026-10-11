@@ -99,14 +99,12 @@ export class EmbeddedRecordsStore extends RecordsStore {
     this.totals = totals;
     this.total = total;
   };
+  private get layout() {
+    return recordDefaults(this.presentation.typeId, this.presentation.model.fields);
+  }
   private get shownColumns() {
-    const type = this.type;
-    if (!type) return [];
-    return this.recordColumns.filter(
-      (column) =>
-        column.id !== this.parentColumnId &&
-        (column.id === type.primaryFieldId || type.defaults.columns.includes(column.id)),
-    );
+    const hidden = new Set(this.layout.hiddenColumns);
+    return this.recordColumns.filter((column) => column.id !== this.parentColumnId && !hidden.has(column.id));
   }
   private get totalFields() {
     return this.shownColumns
@@ -136,9 +134,8 @@ export class EmbeddedRecordsStore extends RecordsStore {
   protected override async refreshAction(params?: GetQueryParams): Promise<GetResult<RecordRow>> {
     const type = this.type;
     const parent = this.parent;
-    const defaults = type ? recordDefaults(type, this.presentation.model.fields) : undefined;
     if (!type || !parent) return { items: [], viewMode: ViewMode.table, viewPersistable: false };
-    const sort = params?.sortDescriptor ?? this.sortDescriptor ?? defaults?.sortDescriptor ?? undefined;
+    const sort = params?.sortDescriptor ?? this.sortDescriptor ?? undefined;
     const scope = {
       typeId: type.id,
       relationships: [
@@ -191,7 +188,7 @@ export class EmbeddedRecordsStore extends RecordsStore {
         total: rows.data.total,
         totalPages: Math.max(1, Math.ceil(rows.data.total / pageSize)),
       },
-      columnOrder: type.defaults.columns,
+      columnOrder: this.layout.columnOrder,
       hiddenColumns: this.recordColumns.filter((column) => !shown.includes(column)).map((column) => column.id),
       sortDescriptor: sort ?? undefined,
       viewMode: ViewMode.table,

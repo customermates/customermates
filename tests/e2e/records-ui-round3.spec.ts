@@ -567,6 +567,8 @@ test("board columns keep a one-line header, one fixed width and collapse into st
   await expect(page.locator("#records-add")).toBeEnabled();
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await page.locator("#records-layout-board").click();
+  await page.getByRole("combobox", { name: "Group By", exact: true }).click();
+  await page.getByRole("option", { name: "Stage", exact: true }).click();
   if (testInfo.project.name === "mobile") await page.locator('[data-slot="drawer-close"]').click();
   else await page.keyboard.press("Escape");
   const lanes = page.locator("[data-group-key]:not([data-kanban-strip])");

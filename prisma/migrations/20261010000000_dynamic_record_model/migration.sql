@@ -1179,15 +1179,13 @@ LANGUAGE sql IMMUTABLE AS $$
 $$;
 
 -- One preset type definition (createCrmPreset in features/records/crm-preset.ts).
-CREATE FUNCTION crm_upgrade.preset_type(p_company_id text, p_key text, p_label text, p_plural text, p_icon text, p_position integer,
-  p_columns jsonb, p_hidden jsonb) RETURNS jsonb
+CREATE FUNCTION crm_upgrade.preset_type(p_company_id text, p_key text, p_label text, p_plural text, p_icon text, p_position integer)
+RETURNS jsonb
 LANGUAGE sql IMMUTABLE AS $$
   SELECT jsonb_build_object('id', crm_upgrade.preset_id(p_company_id, p_key), 'label', p_label, 'pluralLabel', p_plural, 'icon', p_icon,
     'description', '', 'primaryFieldId', crm_upgrade.preset_id(p_company_id, p_key || '.name'),
     'parentRelationshipId', CASE WHEN p_key = 'lineItem' THEN to_jsonb(crm_upgrade.preset_id(p_company_id, 'lineItem.deal')) ELSE 'null'::jsonb END,
-    'archived', false, 'embedded', p_key = 'lineItem', 'navigationVisible', p_key <> 'lineItem', 'position', p_position,
-    'defaults', jsonb_build_object('columns', p_columns, 'hiddenColumns', p_hidden, 'layout', 'table', 'groupBy', NULL,
-      'sortField', crm_upgrade.preset_id(p_company_id, p_key || '.name'), 'sortDirection', 'asc', 'pinnedFields', '[]'::jsonb))
+    'archived', false, 'embedded', p_key = 'lineItem', 'navigationVisible', p_key <> 'lineItem', 'position', p_position)
 $$;
 
 -- createCrmPreset(companyId, currency) (features/records/crm-preset.ts): the starter model of a new workspace.
@@ -1251,25 +1249,12 @@ BEGIN
         crm_upgrade.expr_literal(crm_upgrade.scalar_decimal('100', NULL)))), false, 5)
   ]) WITH ORDINALITY AS f(field, ordinality));
   v_types := jsonb_build_array(
-    crm_upgrade.preset_type(c, 'contact', 'Contact', 'Contacts', 'contact', 0,
-      jsonb_build_array(crm_upgrade.preset_id(c, 'contact.name'), 'system:channels'),
-      jsonb_build_array(crm_upgrade.preset_id(c, 'contact.firstName'), crm_upgrade.preset_id(c, 'contact.lastName'), crm_upgrade.preset_id(c, 'contact.avatarUrl'))),
-    crm_upgrade.preset_type(c, 'organization', 'Organization', 'Organizations', 'building', 1,
-      jsonb_build_array(crm_upgrade.preset_id(c, 'organization.name')), '[]'),
-    crm_upgrade.preset_type(c, 'deal', 'Deal', 'Deals', 'handshake', 2,
-      jsonb_build_array(crm_upgrade.preset_id(c, 'deal.name'), crm_upgrade.preset_id(c, 'deal.stage'), crm_upgrade.preset_id(c, 'deal.totalValue'), crm_upgrade.preset_id(c, 'deal.weightedValue')),
-      jsonb_build_array('relationship:' || crm_upgrade.preset_id(c, 'lineItem.deal') || ':incoming')),
-    crm_upgrade.preset_type(c, 'service', 'Service', 'Services', 'package', 3,
-      jsonb_build_array(crm_upgrade.preset_id(c, 'service.name'), crm_upgrade.preset_id(c, 'service.amount')),
-      jsonb_build_array('relationship:' || crm_upgrade.preset_id(c, 'lineItem.service') || ':incoming')),
-    crm_upgrade.preset_type(c, 'task', 'Task', 'Tasks', 'check', 4, jsonb_build_array(crm_upgrade.preset_id(c, 'task.name')), '[]'),
-    crm_upgrade.preset_type(c, 'lineItem', 'Line item', 'Line items', 'list', 5,
-      jsonb_build_array(crm_upgrade.preset_id(c, 'lineItem.name'), crm_upgrade.preset_id(c, 'lineItem.quantity'), crm_upgrade.preset_id(c, 'lineItem.pricingMode'),
-        crm_upgrade.preset_id(c, 'lineItem.effectivePrice'), crm_upgrade.preset_id(c, 'lineItem.amount')), '[]'));
-  v_types := jsonb_set(v_types, '{2,defaults,groupBy}', to_jsonb(crm_upgrade.preset_id(c, 'deal.stage')));
-  v_types := jsonb_set(v_types, '{2,defaults,groupSummaries}', jsonb_build_array(
-    jsonb_build_object('fieldId', crm_upgrade.preset_id(c, 'deal.totalValue'), 'aggregation', 'sum'),
-    jsonb_build_object('fieldId', crm_upgrade.preset_id(c, 'deal.weightedValue'), 'aggregation', 'sum')));
+    crm_upgrade.preset_type(c, 'contact', 'Contact', 'Contacts', 'contact', 0),
+    crm_upgrade.preset_type(c, 'organization', 'Organization', 'Organizations', 'building', 1),
+    crm_upgrade.preset_type(c, 'deal', 'Deal', 'Deals', 'handshake', 2),
+    crm_upgrade.preset_type(c, 'service', 'Service', 'Services', 'package', 3),
+    crm_upgrade.preset_type(c, 'task', 'Task', 'Tasks', 'check', 4),
+    crm_upgrade.preset_type(c, 'lineItem', 'Line item', 'Line items', 'list', 5));
   v_types := jsonb_set(v_types, '{2,relationshipPaths}', jsonb_build_array(jsonb_build_object('id', crm_upgrade.preset_id(c, 'deal.services.path'),
     'label', 'Services', 'archived', false, 'path', jsonb_build_array(
       jsonb_build_object('relationId', crm_upgrade.preset_id(c, 'lineItem.deal'), 'direction', 'incoming'),
@@ -1360,8 +1345,8 @@ LANGUAGE sql IMMUTABLE AS $$
 $$;
 
 -- The workspace record model: the CRM preset without its stage field (legacy stages are custom columns),
--- one field per legacy custom column (trimmed label, options, default, format) appended to its type's default
--- columns, the weighted value bound to Company.dealWeightingColumnId and the deal totals as published summaries. Refusals are recorded as issues;
+-- one field per legacy custom column (trimmed label, options, default, format) appended after its type's fields,
+-- the weighted value bound to Company.dealWeightingColumnId and the deal totals as published summaries. Refusals are recorded as issues;
 -- the returned model is then only used if no issue exists.
 CREATE FUNCTION crm_upgrade.legacy_model(p_company_id text) RETURNS jsonb
 LANGUAGE plpgsql AS $$
@@ -1374,7 +1359,6 @@ DECLARE
   v_defaults jsonb;
   v_field jsonb;
   v_type_id text;
-  v_type_index integer;
   v_position integer;
   v_weighted_index integer;
   v_stage jsonb;
@@ -1382,9 +1366,6 @@ BEGIN
   SELECT id, currency::text AS currency, "dealWeightingColumnId" AS weighting INTO v_company FROM "Company" WHERE id = p_company_id;
   v_model := crm_upgrade.crm_preset(p_company_id, v_company.currency);
   v_model := jsonb_set(v_model, '{fields}', (SELECT jsonb_agg(f.value ORDER BY f.ordinality) FROM jsonb_array_elements(v_model -> 'fields') WITH ORDINALITY AS f(value, ordinality) WHERE f.value ->> 'id' <> v_stage_id));
-  v_model := jsonb_set(v_model, '{types,2,defaults,columns}', (SELECT jsonb_agg(c.value ORDER BY c.ordinality)
-    FROM jsonb_array_elements(v_model #> '{types,2,defaults,columns}') WITH ORDINALITY AS c(value, ordinality) WHERE c.value #>> '{}' <> v_stage_id));
-  v_model := jsonb_set(v_model, '{types,2,defaults,groupBy}', 'null');
   FOR v_column_row IN
     SELECT id, "entityType"::text AS entity_type, label, type::text AS type, options FROM "CustomColumn" WHERE "companyId" = p_company_id ORDER BY "createdAt", id
   LOOP
@@ -1431,8 +1412,6 @@ BEGIN
         FROM jsonb_array_elements(COALESCE(v_column_options -> 'options', '[]')) WITH ORDINALITY AS o(value, ordinality)), '[]'::jsonb),
       'position', v_position);
     v_model := jsonb_set(v_model, '{fields}', (v_model -> 'fields') || jsonb_build_array(v_field));
-    SELECT t.ordinality - 1 INTO v_type_index FROM jsonb_array_elements(v_model -> 'types') WITH ORDINALITY AS t(value, ordinality) WHERE t.value ->> 'id' = v_type_id;
-    v_model := jsonb_set(v_model, ARRAY['types', v_type_index::text, 'defaults', 'columns'], (v_model #> ARRAY['types', v_type_index::text, 'defaults', 'columns']) || to_jsonb(v_column_row.id));
   END LOOP;
   SELECT f.ordinality - 1 INTO v_weighted_index FROM jsonb_array_elements(v_model -> 'fields') WITH ORDINALITY AS f(value, ordinality) WHERE f.value ->> 'id' = crm_upgrade.preset_id(p_company_id, 'deal.weightedValue');
   IF v_company.weighting IS NOT NULL THEN
@@ -1446,7 +1425,6 @@ BEGIN
           crm_upgrade.expr_operation('multiply', crm_upgrade.expr_field(crm_upgrade.preset_id(p_company_id, 'deal.totalValue')),
             jsonb_build_object('kind', 'optionAttribute', 'fieldId', v_stage ->> 'id', 'attribute', 'probability')),
           crm_upgrade.expr_literal(crm_upgrade.scalar_decimal('100', NULL)))));
-      v_model := jsonb_set(v_model, '{types,2,defaults,groupBy}', v_stage -> 'id');
     END IF;
   ELSE
     v_model := jsonb_set(v_model, ARRAY['fields', v_weighted_index::text, 'behavior'], '{"kind":"formula","expression":{"kind":"literal","value":null}}'::jsonb);
@@ -3627,8 +3605,8 @@ ON CONFLICT ("companyId", kind, "targetId") DO NOTHING;
 --   * a disabled capability (enabled = false, in Recently deleted) becomes an archived field;
 --   * providerAvatar moves to format.providerAvatar (personIdentity always used the provider avatar);
 --   * the first and last name roles are dropped: the inbox derives them from the list's name formula.
--- The column key "system:channels" becomes the field id wherever a list layout, saved view, personal layout or
--- record detail layout stores it, and is removed where the list has no live Channels field. Stored
+-- The column key "system:channels" becomes the field id wherever a saved view, personal layout or record detail
+-- layout stores it, and is removed where the list has no live Channels field. Stored
 -- configuration changes are converted too: putCapability for channels becomes putField, and delete, restore,
 -- deletePermanently and deletion records that target channels now target the field. Identifiers and their
 -- links to records ("RecordIdentity", "RecordIdentityKey", "RecordIdentityLink") are not touched. Trash entries of
@@ -3749,12 +3727,6 @@ LANGUAGE sql IMMUTABLE AS $$
   )
   SELECT snapshot || jsonb_build_object(
     'fields', merged.fields,
-    'types', coalesce((
-      SELECT jsonb_agg(type.value || jsonb_build_object('defaults', channels_field_upgrade.rekey(type.value -> 'defaults',
-          channels_field_upgrade.live_field_id(merged.fields, type.value ->> 'id')))
-        ORDER BY type.ordinality)
-      FROM jsonb_array_elements(merged.types) WITH ORDINALITY AS type(value, ordinality)
-    ), '[]'::jsonb),
     'capabilities', coalesce((
       SELECT jsonb_agg(item.value ORDER BY item.ordinality)
       FROM jsonb_array_elements(merged.capabilities) WITH ORDINALITY AS item(value, ordinality)
@@ -3784,9 +3756,6 @@ LANGUAGE sql IMMUTABLE AS $$
         coalesce(stored.value ->> 'label', 'Channels'),
         coalesce((stored.value ->> 'position')::integer, 0),
         false) - 'archived' - 'publishedSummary')
-    WHEN operation ->> 'operation' = 'putType' THEN jsonb_set(operation, '{type,defaults}',
-      channels_field_upgrade.rekey(operation #> '{type,defaults}', channels_field_upgrade.live_field_id(snapshot -> 'fields',
-        channels_field_upgrade.resolve(change, operation #>> '{type,id}'))))
     WHEN operation ? 'target' THEN operation || jsonb_build_object('target',
       channels_field_upgrade.retarget(operation -> 'target'))
     ELSE operation END
@@ -3858,11 +3827,6 @@ LANGUAGE sql STABLE AS $$
     AND current.field ->> 'typeId' = regexp_replace(surface, '^(records|record-detail):', '')
   LIMIT 1
 $$;
-
-UPDATE "RecordTypeDefinition" type
-SET definition = jsonb_set(type.definition, '{defaults}', channels_field_upgrade.rekey(type.definition -> 'defaults',
-  channels_field_upgrade.surface_field_id(type."companyId", 'records:' || type.id)))
-WHERE type.definition::text LIKE '%system:channels%';
 
 UPDATE "DataView" view
 SET "columnOrder" = channels_field_upgrade.rekey(view."columnOrder", target.field_id),

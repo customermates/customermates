@@ -69,10 +69,6 @@ export function benchmarkRecordModel(
   const model = createCrmPreset(companyId);
   const stageId = presetId(companyId, "deal.stage");
   model.fields = model.fields.filter((field) => field.id !== stageId);
-  for (const type of model.types) {
-    type.defaults.columns = type.defaults.columns.filter((fieldId) => fieldId !== stageId);
-    if (type.defaults.groupBy === stageId) type.defaults.groupBy = null;
-  }
   for (const declaration of declarations) {
     const options = declaration.options ?? {};
     const typeId = presetId(companyId, declaration.entityType);
@@ -108,7 +104,6 @@ export function benchmarkRecordModel(
         })),
       position: model.fields.filter((field) => field.typeId === typeId).length,
     } as RecordField);
-    model.types.find((type) => type.id === typeId)?.defaults.columns.push(declaration.id);
   }
   const weighted = model.fields.find((field) => field.id === presetId(companyId, "deal.weightedValue"));
   if (weighted) weighted.behavior = { kind: "formula", expression: { kind: "literal", value: null } };

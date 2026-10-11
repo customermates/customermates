@@ -643,7 +643,9 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
         .map((field) => field.id)
         .sort(),
     ).toEqual([id("deal.totalValue"), id("deal.totalQuantity"), id("deal.weightedValue")].sort());
-    expect(model.types.find((type) => type.id === id("deal"))?.defaults.groupBy).toBe(f.columns.stage);
+    expect((revision.snapshot as { types: Record<string, unknown>[] }).types.some((type) => "defaults" in type)).toBe(
+      false,
+    );
     expect(model.fields).toContainEqual(
       expect.objectContaining({
         id: id("capability.identity"),
