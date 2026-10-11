@@ -19,8 +19,6 @@ async function recordOrTrashed(
   if (editor.ok) return editor.data;
   const trashed = await getGetTrashedRecordInteractor().invoke(ref);
   if (trashed.ok) return trashed.data;
-  // A record the viewer may not read fails exactly like a missing one, so both show the not-found page and the
-  // page reveals nothing about whether the record exists.
   if (["not_found", "authorization"].includes(interactorFailureKind(editor.error))) notFound();
   throw editor.error;
 }

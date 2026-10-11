@@ -41,7 +41,6 @@ export const RecordInputField = observer(function RecordInputField({
   id: string;
   inputId?: string;
   label?: string | null;
-  /** The members the record already references, so a member value shows its name before the picker loads. */
   members?: RecordMember[];
   onDatePicked?: () => void;
 }) {

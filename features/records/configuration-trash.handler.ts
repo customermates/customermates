@@ -74,8 +74,6 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
       });
       const value = restored.ok ? restored.value : null;
       if (value && "operationId" in value) {
-        // A workspace with more records than a synchronous change may touch restores the definition through the
-        // configuration's background operation, which also clears the Trash item once it publishes.
         result.operationId = value.operationId;
         break;
       }

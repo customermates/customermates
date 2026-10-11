@@ -13,10 +13,6 @@ import { recordWriteFailure } from "@/features/records/mutate-record.interactor"
 import { RestoreTrashSchema, type RestoreTrashData, type TrashRestoreResult } from "./trash.schema";
 import { itemsByHandler, trashVisibility } from "./trash-handlers";
 
-// Restoring a list, field or relationship previews and applies a configuration change inside this transaction. Up
-// to the synchronous record limit that apply rewrites and recalculates records itself and budgets 30 s on its own,
-// so the restore transaction matches the other Trash writes (60 s) instead of cutting that apply short; larger
-// changes continue as a background operation and the restore reports it as pending.
 const RESTORE_TIMEOUT_MS = 60000;
 
 @AllowInDemoMode

@@ -7,7 +7,6 @@ export type TrashKindRestore = {
   blocked: TrashRestoreBlocker[];
   restoredRecords: number;
   droppedLinks: number;
-  /** A restore that continues as a background operation; items after it stay in Trash for a later restore. */
   operationId?: string;
 };
 export type TrashKindImpact = {
