@@ -47,11 +47,13 @@ export const SYNTHETIC_DATA_VIEW_IDS = {
   inboxWhatsApp: view(19),
 } as const;
 
-/** Dashboard views (`dashboard` surface). The seed writes them with the widgets, which reference them. */
+/**
+ * Dashboard views (`dashboard` surface). The Sales dashboard is the main dashboard (widgets without a view), so
+ * only the other five are views. The seed writes them with the widgets, which reference them.
+ */
 export const SYNTHETIC_DASHBOARD_VIEW_ID_PREFIX = "1f200000";
 
 export const SYNTHETIC_DASHBOARD_VIEW_IDS = {
-  sales: fixtureId(SYNTHETIC_DASHBOARD_VIEW_ID_PREFIX, 1),
   revenue: fixtureId(SYNTHETIC_DASHBOARD_VIEW_ID_PREFIX, 2),
   support: fixtureId(SYNTHETIC_DASHBOARD_VIEW_ID_PREFIX, 3),
   marketing: fixtureId(SYNTHETIC_DASHBOARD_VIEW_ID_PREFIX, 4),

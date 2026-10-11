@@ -17,7 +17,9 @@ type Filter = RecordQuery["filters"][number];
 type Relationship = RecordQuery["relationships"][number];
 type PathStep = { relationId: string; direction: "outgoing" | "incoming" };
 
-export type DashboardKey = keyof typeof SYNTHETIC_DASHBOARD_VIEW_IDS;
+/** Dashboards in tab order; the first is the main dashboard. Widget ids derive from this order. */
+export const SYNTHETIC_DASHBOARD_KEYS = ["sales", "revenue", "support", "marketing", "teamActivity", "hiring"] as const;
+export type DashboardKey = (typeof SYNTHETIC_DASHBOARD_KEYS)[number];
 
 export type ChartWidgetDefinition = {
   kind: "chart";
@@ -40,13 +42,14 @@ export type WidgetDefinition = ChartWidgetDefinition | ActivityWidgetDefinition;
 
 export type DashboardDefinition = {
   key: DashboardKey;
-  viewId: string;
+  /** The dashboard view, or null for the main dashboard. */
+  viewId: string | null;
   name: string;
   widgets: WidgetDefinition[];
 };
 
-/** The dashboard the demo user lands on. */
-export const SYNTHETIC_DEFAULT_DASHBOARD: DashboardKey = "sales";
+/** The main dashboard: its widgets have no view, so /en/dashboard opens on it. */
+export const SYNTHETIC_MAIN_DASHBOARD = "sales" satisfies DashboardKey;
 
 const BREAKPOINTS = { md: 8, sm: 4, xs: 2 } as const;
 
@@ -78,7 +81,7 @@ export function dashboardLayouts(ids: string[], widgets: WidgetDefinition[]): Wi
 }
 
 export function dashboardWidgetId(dashboard: DashboardKey, index: number): string {
-  const offset = Object.keys(SYNTHETIC_DASHBOARD_VIEW_IDS).indexOf(dashboard) + 1;
+  const offset = SYNTHETIC_DASHBOARD_KEYS.indexOf(dashboard) + 1;
   return fixtureId(SYNTHETIC_WIDGET_ID_PREFIX, offset * 100 + index + 1);
 }
 
@@ -719,5 +722,10 @@ export function buildSyntheticDashboards(
     ["teamActivity", "Team activity", teamActivity],
     ["hiring", "Hiring", hiring],
   ];
-  return definitions.map(([key, name, widgets]) => ({ key, viewId: SYNTHETIC_DASHBOARD_VIEW_IDS[key], name, widgets }));
+  return definitions.map(([key, name, widgets]) => ({
+    key,
+    viewId: key === "sales" ? null : SYNTHETIC_DASHBOARD_VIEW_IDS[key],
+    name,
+    widgets,
+  }));
 }

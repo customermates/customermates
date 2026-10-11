@@ -1,3 +1,4 @@
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import type { PrismaClient } from "@/generated/prisma";
 
 import { describe, expect, it, vi } from "vitest";
@@ -15,7 +16,6 @@ import {
   SYNTHETIC_CUSTOM_OPTION_IDS,
   type CustomFieldSeedData,
 } from "../seeds/custom-fields";
-import { SYNTHETIC_DASHBOARD_VIEW_IDS } from "../seeds/data-view-ids";
 import { fixtureId } from "../seeds/helpers";
 import { northwindModelIds } from "../seeds/northwind-model";
 import { syntheticRecordKeys } from "../seeds/record-keys";
@@ -137,7 +137,7 @@ describe("synthetic personalization fixtures", () => {
       groupingColumnId: dealStage,
       viewMode: "card",
     });
-    expect(byP13nId.get("dashboard")).toMatchObject({ activeViewKey: SYNTHETIC_DASHBOARD_VIEW_IDS.sales });
+    expect(byP13nId.get("dashboard")).toMatchObject({ activeViewKey: ALL_VIEW_KEY });
     expect(byP13nId.get(surface("service"))).toMatchObject({
       columnOrder: [
         C.serviceType,

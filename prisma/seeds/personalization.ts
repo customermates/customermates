@@ -1,13 +1,11 @@
 import type { PrismaClient } from "@/generated/prisma";
 
-import { SURFACE } from "@/core/data-view/data-view-keys";
+import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import { Prisma } from "@/generated/prisma";
 
 import type { SeedContext } from "./context";
 import type { CustomFieldSeedData } from "./custom-fields";
 
-import { SYNTHETIC_DASHBOARD_VIEW_IDS } from "./data-view-ids";
-import { SYNTHETIC_DEFAULT_DASHBOARD } from "./dashboards";
 import { fixtureId } from "./helpers";
 import { northwindModelIds } from "./northwind-model";
 import { syntheticRecordKeys } from "./record-keys";
@@ -294,7 +292,7 @@ export function buildSyntheticP13nFixtures(
       columnOrder: [],
       hiddenColumns: [],
       viewMode: null,
-      activeViewKey: SYNTHETIC_DASHBOARD_VIEW_IDS[SYNTHETIC_DEFAULT_DASHBOARD],
+      activeViewKey: ALL_VIEW_KEY,
     }),
     fixture(SYNTHETIC_P13N_IDS.routines, SURFACE.routines, {
       columnOrder: [],

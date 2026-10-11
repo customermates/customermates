@@ -18,7 +18,7 @@ import { SYNTHETIC_DASHBOARD_VIEW_ID_PREFIX } from "./data-view-ids";
 import { persistSyntheticDataViewFixtures, type SyntheticDataViewFixture } from "./data-views";
 import { upsertFixturesById } from "./helpers";
 
-export { SYNTHETIC_DEFAULT_DASHBOARD } from "./dashboards";
+export { SYNTHETIC_MAIN_DASHBOARD } from "./dashboards";
 
 /** Widget names in seed order, dashboard by dashboard. */
 export const SYNTHETIC_WIDGET_NAMES = buildSyntheticDashboards(SEED_IDS.company, {
@@ -30,7 +30,7 @@ export type SyntheticWidgetFixture = {
   id: string;
   companyId: string;
   userId: string;
-  viewId: string;
+  viewId: string | null;
   name: string;
   kind: WidgetKind;
   displayOptions: Prisma.InputJsonValue;
@@ -44,14 +44,16 @@ export function buildSyntheticDashboardViewFixtures(
   context: Pick<SeedContext, "ids">,
   dashboards: DashboardDefinition[],
 ): SyntheticDataViewFixture[] {
-  return dashboards.map(({ viewId, name }, position) => ({
-    id: viewId,
-    userId: context.ids.user,
-    surfaceKey: SURFACE.dashboard,
-    name,
-    position,
-    state: {},
-  }));
+  return dashboards
+    .flatMap(({ viewId, name }) => (viewId ? [{ viewId, name }] : []))
+    .map(({ viewId, name }, position) => ({
+      id: viewId,
+      userId: context.ids.user,
+      surfaceKey: SURFACE.dashboard,
+      name,
+      position,
+      state: {},
+    }));
 }
 
 export function buildSyntheticWidgetFixtures(
@@ -112,8 +114,8 @@ export async function persistSyntheticWidgetFixtures(
 }
 
 /**
- * Seeds the six dashboards: their dashboard views first (the widgets reference them), then every widget. The
- * demo user lands on the Sales dashboard through the dashboard personalization (see personalization.ts).
+ * Seeds the six dashboards: the Sales widgets on the main dashboard (no view), so /en/dashboard opens on them,
+ * and the five other dashboards as dashboard views, written before the widgets that reference them.
  */
 export async function seedWidgets(context: SeedContext, customFields: CustomFieldSeedData): Promise<void> {
   const dashboards = buildSyntheticDashboards(context.ids.company, customFields);

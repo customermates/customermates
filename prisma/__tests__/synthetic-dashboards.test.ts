@@ -17,7 +17,7 @@ import {
   SYNTHETIC_CUSTOM_OPTION_IDS,
   type CustomFieldSeedData,
 } from "../seeds/custom-fields";
-import { buildSyntheticDashboards, SYNTHETIC_DEFAULT_DASHBOARD, SYNTHETIC_WIDGET_ID_PREFIX } from "../seeds/dashboards";
+import { buildSyntheticDashboards, SYNTHETIC_MAIN_DASHBOARD, SYNTHETIC_WIDGET_ID_PREFIX } from "../seeds/dashboards";
 import { SYNTHETIC_DASHBOARD_VIEW_ID_PREFIX, SYNTHETIC_DASHBOARD_VIEW_IDS } from "../seeds/data-view-ids";
 import { northwindModelIds } from "../seeds/northwind-model";
 import {
@@ -55,11 +55,12 @@ describe("synthetic dashboards", () => {
       "Team activity",
       "Hiring",
     ]);
-    expect(dashboards.map(({ viewId }) => viewId)).toEqual(Object.values(SYNTHETIC_DASHBOARD_VIEW_IDS));
-    expect(SYNTHETIC_DEFAULT_DASHBOARD).toBe("sales");
+    expect(SYNTHETIC_MAIN_DASHBOARD).toBe("sales");
+    expect(dashboards.map(({ viewId }) => viewId)).toEqual([null, ...Object.values(SYNTHETIC_DASHBOARD_VIEW_IDS)]);
 
     const views = buildSyntheticDashboardViewFixtures({ ids: SEED_IDS }, dashboards);
-    expect(views.map(({ position }) => position)).toEqual([0, 1, 2, 3, 4, 5]);
+    expect(views.map(({ name }) => name)).toEqual(dashboards.slice(1).map(({ name }) => name));
+    expect(views.map(({ position }) => position)).toEqual([0, 1, 2, 3, 4]);
     expect(views.every(({ surfaceKey, userId }) => surfaceKey === SURFACE.dashboard && userId === SEED_IDS.user)).toBe(
       true,
     );
@@ -70,7 +71,12 @@ describe("synthetic dashboards", () => {
     expect(widgets.map(({ name }) => name)).toEqual(SYNTHETIC_WIDGET_NAMES);
     expect(new Set(widgets.map(({ id }) => id)).size).toBe(widgets.length);
     expect(widgets.every(({ id }) => id.startsWith(`${SYNTHETIC_WIDGET_ID_PREFIX}-`))).toBe(true);
-    expect(new Set(widgets.map(({ viewId }) => viewId))).toEqual(new Set(Object.values(SYNTHETIC_DASHBOARD_VIEW_IDS)));
+    expect(new Set(widgets.map(({ viewId }) => viewId))).toEqual(
+      new Set([null, ...Object.values(SYNTHETIC_DASHBOARD_VIEW_IDS)]),
+    );
+    expect(widgets.filter(({ viewId }) => viewId === null).map(({ name }) => name)).toEqual(
+      dashboards[0].widgets.map(({ name }) => name),
+    );
 
     for (const widget of widgets) {
       if (widget.kind === WidgetKind.chart) {
@@ -118,7 +124,7 @@ describe("synthetic dashboards", () => {
 
   it("lays every dashboard out on each breakpoint without overlaps", () => {
     const columns = { lg: 12, md: 8, sm: 4, xs: 2 } as const;
-    for (const dashboard of Object.values(SYNTHETIC_DASHBOARD_VIEW_IDS)) {
+    for (const dashboard of [null, ...Object.values(SYNTHETIC_DASHBOARD_VIEW_IDS)]) {
       const items = widgets.filter(({ viewId }) => viewId === dashboard);
       for (const [breakpoint, count] of Object.entries(columns)) {
         const rects = items.map((item) => ({
