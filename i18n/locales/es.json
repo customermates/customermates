@@ -4156,6 +4156,7 @@
     "restored": "{count, plural, one {# elemento restaurado} other {# elementos restaurados}}",
     "restoredInBackground": "Restaurado",
     "restoredWithDroppedLinks": "Restaurado. {count, plural, one {# vínculo no se pudo} other {# vínculos no se pudieron}} restaurar porque el registro vinculado se eliminó definitivamente.",
+    "restoreFailed": "No se pudo restaurar. El elemento sigue en la papelera.",
     "restoring": "Restaurando…",
     "undo": "Deshacer"
   },

@@ -105,6 +105,19 @@ describe("TrashStore", () => {
     );
   });
 
+  it("shows an error toast when a restore fails without a message or the request throws", async () => {
+    const { store } = makeStore();
+    trashActions.restoreTrashAction.mockResolvedValueOnce({ ok: false, error: {} });
+    expect(await store.restoreItems([ITEM_ID])).toBe(false);
+    expect(sonner.toast.error).toHaveBeenLastCalledWith("Trash.restoreFailed", expect.anything());
+
+    sonner.toast.error.mockClear();
+    trashActions.restoreTrashAction.mockRejectedValueOnce(new Error("Transaction already closed"));
+    expect(await store.restoreItems([ITEM_ID])).toBe(false);
+    expect(sonner.toast.error).toHaveBeenLastCalledWith("Trash.restoreFailed", expect.anything());
+    expect(store.isMutating).toBe(false);
+  });
+
   it("confirms a permanent delete with the exact impact and sends its hash", async () => {
     const { store, deleteConfirmation } = makeStore();
     trashActions.previewTrashDeletionAction.mockResolvedValue({

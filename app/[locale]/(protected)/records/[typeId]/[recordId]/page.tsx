@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import type { InteractorOutcome } from "@/core/validation/validation.utils";
+import { interactorFailureKind, type InteractorOutcome } from "@/core/validation/validation.utils";
 import type { RecordEditorResult } from "@/features/records/get-record-editor.interactor";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import type { TrashedRecordInfo } from "@/features/trash/trash.schema";
@@ -18,8 +18,9 @@ async function recordOrTrashed(
 ): Promise<RecordEditorResult & { trash?: TrashedRecordInfo }> {
   if (editor.ok) return editor.data;
   const trashed = await getGetTrashedRecordInteractor().invoke(ref);
-  if (!trashed.ok) throw editor.error;
-  return trashed.data;
+  if (trashed.ok) return trashed.data;
+  if (["not_found", "authorization"].includes(interactorFailureKind(editor.error))) notFound();
+  throw editor.error;
 }
 
 export default async function RecordPage({ params }: { params: Promise<{ typeId: string; recordId: string }> }) {

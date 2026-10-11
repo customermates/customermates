@@ -7,6 +7,7 @@ export type TrashKindRestore = {
   blocked: TrashRestoreBlocker[];
   restoredRecords: number;
   droppedLinks: number;
+  operationId?: string;
 };
 export type TrashKindImpact = {
   removedRecords: Array<{ typeId: string; label: string; count: number }>;

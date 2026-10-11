@@ -4156,6 +4156,7 @@
     "restored": "{count, plural, one {# Element wiederhergestellt} other {# Elemente wiederhergestellt}}",
     "restoredInBackground": "Wiederhergestellt",
     "restoredWithDroppedLinks": "Wiederhergestellt. {count, plural, one {# Verknüpfung konnte} other {# Verknüpfungen konnten}} nicht wiederhergestellt werden, weil der verknüpfte Datensatz endgültig gelöscht wurde.",
+    "restoreFailed": "Wiederherstellen fehlgeschlagen. Das Element ist weiterhin im Papierkorb.",
     "restoring": "Wird wiederhergestellt…",
     "undo": "Rückgängig"
   },

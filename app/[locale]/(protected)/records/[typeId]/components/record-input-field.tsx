@@ -2,7 +2,7 @@
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import type { RecordFieldView } from "@/features/records/record-model.schema";
+import type { RecordFieldView, RecordMember } from "@/features/records/record-model.schema";
 import { useAppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormDecimalInput } from "@/components/forms/form-decimal-input";
@@ -21,17 +21,27 @@ import { FormattedTextField } from "@/components/editor/formatted-text-field";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 
+type KnownMember = Pick<RecordMember, "id" | "firstName" | "lastName"> & { avatarUrl?: string | null };
+
+export function knownMembers(members: RecordMember[], viewer: KnownMember | null | undefined): KnownMember[] {
+  const known = new Map<string, KnownMember>(members.map((member) => [member.id, member]));
+  if (viewer && !known.has(viewer.id)) known.set(viewer.id, viewer);
+  return [...known.values()];
+}
+
 export const RecordInputField = observer(function RecordInputField({
   field,
   id,
   inputId,
   label = field.label,
+  members = [],
   onDatePicked,
 }: {
   field: RecordFieldView;
   id: string;
   inputId?: string;
   label?: string | null;
+  members?: RecordMember[];
   onDatePicked?: () => void;
 }) {
   const t = useTranslations();
@@ -105,7 +115,7 @@ export const RecordInputField = observer(function RecordInputField({
         {...shared}
         ariaLabel={label ?? field.label}
         getItems={getUsersAction}
-        items={root.userStore.user ? [root.userStore.user] : []}
+        items={knownMembers(members, root.userStore.user)}
       />
     );
   }

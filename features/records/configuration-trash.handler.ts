@@ -70,14 +70,15 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
         if (!preview.ok || !preview.data.valid) return this.blocker(item, preview.ok ? preview.data : null);
         const applied = await this.apply.run(change);
         if (!applied.ok) throw new RecordWriteError(CustomErrorCode.trashItemNotFound, "not_found");
-        return null;
+        return applied.data.status === "pending" ? { operationId: applied.data.operationId } : null;
       });
-      if (restored.ok && !restored.value) result.restoredItemIds.push(item.id);
-      else {
-        result.blocked.push(
-          restored.ok && restored.value ? restored.value : { itemId: item.id, reason: "notFound", typeId: item.typeId },
-        );
+      const value = restored.ok ? restored.value : null;
+      if (value && "operationId" in value) {
+        result.operationId = value.operationId;
+        break;
       }
+      if (restored.ok && !value) result.restoredItemIds.push(item.id);
+      else result.blocked.push(value ?? { itemId: item.id, reason: "notFound", typeId: item.typeId });
     }
     return result;
   }

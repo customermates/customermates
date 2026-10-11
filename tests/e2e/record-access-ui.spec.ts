@@ -3861,3 +3861,71 @@ test("lets a read-only member pin and unpin header fields with the pin menu", as
     await reader.close();
   }
 });
+
+test("names another member in a member field on the record page and shows the not-found page for a record the member cannot read", async ({
+  page,
+  browser,
+  database,
+  companyId,
+  workspace,
+}, testInfo) => {
+  test.setTimeout(240000);
+  const dealTypeId = presetId(companyId, "deal");
+  const label = `Onboarding owner ${randomUUID().slice(0, 6)}`;
+  let model = await readModel(page);
+  await post(page, "/api/v1/model/apply", {
+    expectedRevision: model.revision,
+    idempotencyKey: randomUUID(),
+    operations: [
+      {
+        operation: "putField",
+        field: {
+          id: "$owner",
+          typeId: dealTypeId,
+          label,
+          valueType: "member",
+          required: false,
+          archived: false,
+          options: [],
+          position: 2,
+          behavior: { kind: "input" },
+        },
+      },
+    ],
+  });
+  model = await readModel(page);
+  const ownerField = model.fields.find((field) => field.typeId === dealTypeId && field.label === label);
+  const deal = model.types.find((type) => type.id === dealTypeId);
+  if (!ownerField || !deal) throw new Error("The member field fixture is missing");
+  const role = await saveRole(page, {
+    name: `Own deals only ${randomUUID().slice(0, 6)}`,
+    description: "Read assigned deals only",
+    permissions: [{ resource: "company", actions: [] }],
+    recordGrants: [{ typeId: dealTypeId, actions: ["readOwn"] }],
+  });
+  const member = await secondaryUser(browser, database, companyId, role.role.id, testInfo);
+  try {
+    const other = await mutate(page, {
+      action: "create",
+      typeId: dealTypeId,
+      fields: [
+        { fieldId: recordInvariant(deal.primaryFieldId), value: { kind: "text", value: "Another rep deal" } },
+        { fieldId: ownerField.id, value: { kind: "member", value: member.userId } },
+      ],
+      assignedUserIds: [workspace.userId],
+    });
+
+    await page.goto(`/en/records/${dealTypeId}/${other.recordId}`);
+    await expect(page.getByText("Secondary Browser User").first()).toBeVisible();
+    await expect(page.getByText(englishMessages.Common.inputs.unavailableSelection)).toHaveCount(0);
+
+    for (const recordId of [other.recordId, randomUUID()]) {
+      await member.page.goto(`/en/records/${dealTypeId}/${recordId}`);
+      await expect(member.page.getByText(englishMessages.NotFoundPage.title, { exact: true })).toBeVisible();
+      await expect(member.page.getByText("Another rep deal")).toHaveCount(0);
+      await expect(member.page.getByText(englishMessages.ErrorCard.title)).toHaveCount(0);
+    }
+  } finally {
+    await member.close();
+  }
+});

@@ -165,9 +165,12 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
   ): Promise<"restored" | "pending" | false> => {
     this.setMutating(true);
     try {
-      const result = await restoreTrashAction(data);
-      if (!result.ok) {
-        toastZodErrorTree(result.error);
+      const result = await restoreTrashAction(data).catch((error: unknown) => {
+        reportApplicationError(error);
+        return null;
+      });
+      if (!result?.ok) {
+        if (!result || !toastZodErrorTree(result.error)) this.toastError("Trash.restoreFailed");
         return false;
       }
       const outcome = result.data;
@@ -181,6 +184,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
       else if (restoredCount > 0) this.toastSuccess("Trash.restored", { values: { count: restoredCount } });
       for (const [reason, count] of countBy(outcome.blocked.map((blocker) => blocker.reason)))
         this.toastError(RESTORE_BLOCKED_KEYS[reason], { values: { count } });
+      if (restoredCount === 0 && outcome.blocked.length === 0) this.toastError("Trash.restoreFailed");
       if (restoredCount === 0) return false;
       await this.afterRestore();
       await onRestored?.();

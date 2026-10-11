@@ -355,7 +355,13 @@ const DetailChip = observer(function DetailChip({
     <ChipPopover chip={chip} label={column.label} open={open} onOpenChange={setOpen}>
       <EditorHeading label={column.label} />
 
-      <RecordInputField field={column.field} id={`values.${column.field.id}`} inputId={inputId} label={null} />
+      <RecordInputField
+        field={column.field}
+        id={`values.${column.field.id}`}
+        inputId={inputId}
+        label={null}
+        members={row.memberUsers}
+      />
     </ChipPopover>
   );
 });
