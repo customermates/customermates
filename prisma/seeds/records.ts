@@ -47,24 +47,7 @@ export function syntheticRecordModel(context: Pick<SeedContext, "ids">, fields: 
       ],
     },
   };
-  const model: RecordModel = {
-    ...preset,
-    fields: modelFields,
-    types: preset.types.map((type) => {
-      const columns = [
-        ...type.defaults.columns.filter((column) => column !== id("deal.stage")),
-        ...fields.customFields.filter((field) => field.typeId === type.id).map((field) => field.id),
-      ];
-      return {
-        ...type,
-        defaults: {
-          ...type.defaults,
-          columns,
-          groupBy: type.id === id("deal") ? SYNTHETIC_CUSTOM_FIELD_IDS.dealStatus : type.defaults.groupBy,
-        },
-      };
-    }),
-  };
+  const model: RecordModel = { ...preset, fields: modelFields };
   const parsed = RecordModelSchema.parse(model);
   const issues = validateRecordModel(parsed).issues;
   if (issues.length) throw new Error(`Invalid synthetic record configuration: ${JSON.stringify(issues)}`);

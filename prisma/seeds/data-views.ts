@@ -37,6 +37,14 @@ export function buildSyntheticDataViewFixtures(
     viewMode: ViewMode.card,
     grouping: bucket ? { field, bucket } : { field },
   });
+  const dealTotals: NonNullable<DataViewState["grouping"]>["summaries"] = [
+    { fieldId: id("deal.totalValue"), aggregation: "sum" },
+    { fieldId: id("deal.weightedValue"), aggregation: "sum" },
+  ];
+  const dealBoard = (field: string): Pick<DataViewState, "viewMode" | "grouping"> => ({
+    viewMode: ViewMode.card,
+    grouping: { field, summaries: dealTotals },
+  });
 
   const selected = (field: string, values: string[]): DataViewState["filters"] => [
     { field, operator: FilterOperatorKey.in, value: values },
@@ -64,7 +72,7 @@ export function buildSyntheticDataViewFixtures(
       position: 0,
       state: {
         filters: selected(customFieldIds.dealStatus, [customOptionIds.dealStatus.open]),
-        ...board(customFieldIds.dealStatus),
+        ...dealBoard(customFieldIds.dealStatus),
         hiddenColumns: [
           customFieldIds.dealStatus,
           dealContacts,
@@ -85,7 +93,7 @@ export function buildSyntheticDataViewFixtures(
       name: "Sales pipeline",
       position: 1,
       state: {
-        ...board(customFieldIds.dealStatus),
+        ...dealBoard(customFieldIds.dealStatus),
         sortDescriptor: sorted(id("deal.totalValue"), "desc"),
         hiddenColumns: [
           customFieldIds.dealStatus,
