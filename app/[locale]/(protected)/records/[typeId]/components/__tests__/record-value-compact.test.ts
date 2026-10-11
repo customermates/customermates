@@ -26,6 +26,13 @@ describe("compact money on cards", () => {
     expect(rendered(money, decimal("342000", "EUR"))).toBe(amount("€342,000.00"));
   });
 
+  it("never shows more decimals than the field allows", () => {
+    const whole = { ...money, format: { decimalPlaces: 0 } } as unknown as RecordFieldView;
+    expect(rendered(whole, decimal("19.8765", "EUR"), true)).toBe(amount("€20"));
+    expect(rendered(whole, decimal("1250000", "EUR"), true)).toBe(amount("€1M"));
+    expect(rendered(money, decimal("19.8765", "EUR"), true)).toBe(amount("€19.9"));
+  });
+
   it("keeps plain numbers in full even when compact", () => {
     expect(rendered(number, decimal("1050", null), true)).toBe(amount("1,050"));
   });

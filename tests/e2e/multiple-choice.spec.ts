@@ -8,6 +8,7 @@ test("creates a multiple choice field and edits, filters, bulk edits and groups 
   page,
   companyId,
 }, testInfo) => {
+  test.skip(Boolean(test.info().project.use.isMobile), "Bulk edits and in-place cell edits belong to the desktop table; phone rows have neither");
   test.setTimeout(300000);
   const typeId = presetId(companyId, "organization");
   const suffix = randomUUID().slice(0, 6);

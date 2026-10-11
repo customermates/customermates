@@ -84,14 +84,19 @@ test("sub-list phone rows open the record on tap", async ({ page, companyId }) =
   const row = lineItems.locator("[data-phone-rows] [data-row-id]");
   await expect(row).toHaveCount(1);
   await expect(row).toContainText("Phone line");
-  await row.getByRole("button", { name: "Open", exact: true }).click();
+  await row.getByRole("button", { name: "Phone line", exact: true }).click();
   const editor = page.getByRole("dialog");
   await expect(editor).toBeVisible();
   await expect(editor.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Phone line");
   expect(errors).toEqual([]);
 });
 
-test("the row action group sits on a solid surface on keyboard focus and on hover", async ({ page, companyId }) => {
+test("the row action group sits on a solid surface on keyboard focus and on hover", async ({
+  page,
+  companyId,
+  isMobile,
+}) => {
+  test.skip(isMobile, "The inline row action group is the desktop pointer layout; touch keeps the More actions menu");
   test.setTimeout(180000);
   const errors = trackErrors(page);
   const id = (key: string) => presetId(companyId, key);

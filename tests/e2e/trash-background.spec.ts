@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { presetId } from "../../features/records/crm-preset";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
-import { runNamedRowAction } from "./record-rows";
+import { recordItem, runNamedRowAction } from "./record-rows";
 
 const SERVICE = "Shared live catalogue price";
 
@@ -13,7 +13,7 @@ async function deleteService(page: Page, typeId: string) {
   await page.goto(`/en/records/${typeId}`);
   await runNamedRowAction(
     page,
-    page.getByRole("row").filter({ hasText: SERVICE }),
+    recordItem(page, SERVICE),
     SERVICE,
     englishMessages.Common.actions.delete,
   );
