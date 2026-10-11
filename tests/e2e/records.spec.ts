@@ -227,7 +227,7 @@ test("creates a custom list and field through the UI, then persists a decimal re
   await page.locator("#filter-palette-back").click();
   await page.keyboard.press("Escape");
   await expect(page.locator("#filter-palette-search")).toHaveCount(0);
-  await expect(dialog.getByText(/Overall:.*123,456,789,012,345\.125/)).toBeVisible();
+  await expect(dialog.getByText(/Overall:.*123,456,789,012,345\.13/)).toBeVisible();
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).not.toBeVisible();
   await expect(page.getByRole("heading", { name: widgetName, exact: true })).toBeVisible();
@@ -246,13 +246,13 @@ test("creates a custom list and field through the UI, then persists a decimal re
   const widgetCard = page
     .locator('[data-uid="app-card"]')
     .filter({ has: page.getByRole("heading", { name: widgetName, exact: true }) });
-  await expect(widgetCard.getByText(/Overall:.*123,456,789,012,345\.125/)).toBeVisible();
+  await expect(widgetCard.getByText(/Overall:.*123,456,789,012,345\.13/)).toBeVisible();
   const bar = widgetCard.locator(".recharts-bar-rectangle path").first();
   await expect(bar).toBeVisible();
   if (!testInfo.project.use.isMobile) {
     await bar.hover();
     await expect(
-      widgetCard.locator(".recharts-tooltip-wrapper").getByText("€123,456,789,012,345.125", { exact: true }),
+      widgetCard.locator(".recharts-tooltip-wrapper").getByText("€123,456,789,012,345.13", { exact: true }),
     ).toBeVisible();
   }
   await widgetCard.screenshot({ path: testInfo.outputPath("custom-budget-widget.png") });
