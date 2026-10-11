@@ -90,7 +90,8 @@ test("inbox threads are listed and linked to their deals, tickets and candidates
     }
     await page.keyboard.press("Escape");
   }
-  expect(errors).toEqual([]);
+  // Email bodies render in a sandboxed frame without scripts; Chromium reports that block, which is expected.
+  expect(errors.filter((error) => !error.startsWith("Blocked script execution in 'about:srcdoc'"))).toEqual([]);
 });
 
 test("the Knowledge Base lists the Operating Guide and the procedures, and a procedure opens", async ({
