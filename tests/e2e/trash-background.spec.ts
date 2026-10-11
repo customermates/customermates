@@ -101,6 +101,9 @@ test("moves a high fan-out delete to Trash in the background with one toast that
         [companyId, id(kind), refs, id(field), id("service"), service],
       );
     await database.query("COMMIT");
+    // The bulk insert bypasses the app; refresh planner statistics as maintenance would, or a seeded database keeps
+    // its pre-insert estimates and the service list query plans badly enough to exceed its transaction timeout.
+    await database.query("ANALYZE");
   } catch (error) {
     await database.query("ROLLBACK");
     throw error;
