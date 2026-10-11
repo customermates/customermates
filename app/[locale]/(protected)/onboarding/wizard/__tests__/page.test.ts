@@ -6,6 +6,7 @@ const mocks = vi.hoisted(() => ({
   requireAccountState: vi.fn(),
   resolveOnboardingIntent: vi.fn(),
   getProgress: vi.fn(),
+  env: { APP_MODE: "cloud" as "cloud" | "self-hosted" },
 }));
 
 vi.mock("next/navigation", () => ({
@@ -26,7 +27,7 @@ vi.mock("@/core/di", () => ({
     invoke: mocks.getWikiHomepageSetupState,
   }),
 }));
-vi.mock("@/env", () => ({ env: { APP_MODE: "cloud" } }));
+vi.mock("@/env", () => ({ env: mocks.env }));
 vi.mock("@/features/company/next/onboarding-intent", () => ({
   resolveOnboardingIntent: mocks.resolveOnboardingIntent,
 }));
@@ -42,6 +43,7 @@ import OnboardingWizardPage from "../page";
 describe("OnboardingWizardPage authentication detours", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.env.APP_MODE = "cloud";
     mocks.getWikiHomepageSetupState.mockResolvedValue({
       ok: true,
       data: {
@@ -173,6 +175,19 @@ describe("OnboardingWizardPage authentication detours", () => {
       profileCompleted: true,
       wikiStepCompleted: true,
     });
+  });
+
+  it("never waits on the Knowledge Base step on a self-hosted instance", async () => {
+    mocks.env.APP_MODE = "self-hosted";
+    mocks.resolveOnboardingIntent.mockResolvedValue({ status: "absent" });
+    mocks.requireAccountState.mockResolvedValue({
+      sessionUser: { id: "user-a", email: "owner@example.com", companyId: "company-a" },
+      user: { companyId: "company-a", role: { isSystemRole: true }, onboardingWikiStepCompletedAt: null },
+    });
+
+    const page = await OnboardingWizardPage({ searchParams: Promise.resolve({}) });
+
+    expect(page.props.children.props).toMatchObject({ profileCompleted: true, wikiStepCompleted: true });
   });
 
   it("restores an accepted setup turn on the Wiki step after refresh", async () => {

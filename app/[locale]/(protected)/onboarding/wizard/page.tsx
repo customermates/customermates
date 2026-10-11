@@ -14,6 +14,7 @@ import {
   getGetWikiHomepageSetupStateInteractor,
 } from "@/core/di";
 import { runWithTenant } from "@/core/decorators/tenant-context";
+import { env } from "@/env";
 import { isRedirect } from "@/features/auth/auth-outcome";
 import type { WikiHomepageSetupState } from "@/features/wiki/get-wiki-homepage-setup-state.interactor";
 
@@ -63,7 +64,7 @@ export default async function OnboardingWizardPage({ searchParams }: Props) {
       Promise.all([getGetWikiHomepageSetupStateInteractor().invoke(), getEntitlementService().require("agentChat")]),
     );
     if (setupState.ok) wikiSetupState = setupState.data;
-    wikiStepCompleted = user.onboardingWikiStepCompletedAt !== null;
+    wikiStepCompleted = user.onboardingWikiStepCompletedAt !== null || env.APP_MODE === "self-hosted";
     canSetupWithMate = agentDenial === null;
   }
 
