@@ -236,7 +236,7 @@ describe("PublicNavbarMenu", () => {
     expect(product.getAttribute("aria-expanded")).toBe("true");
     expect(content.className).toContain("overflow-y-auto");
     expect(content.className).not.toContain("overflow-hidden");
-    expect(surface.classList.contains("glass-panel")).toBe(true);
+    expect(surface.classList.contains("floating-panel")).toBe(true);
     expect(grid.classList.contains("bg-border")).toBe(false);
     expect(grid.classList.contains("border-sidebar")).toBe(false);
     expect(grid.classList.contains("bg-sidebar")).toBe(false);

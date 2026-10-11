@@ -393,7 +393,7 @@ export function PublicNavbarMenu({ ariaLabel, docsLabel, groups, onNavigate, pat
                     else panelRefs.current.delete(group.id);
                   }}
                   aria-hidden={!expanded}
-                  className={cn("glass-panel overflow-hidden rounded-2xl p-1.5", !expanded && "hidden")}
+                  className={cn("floating-panel overflow-hidden rounded-2xl p-1.5", !expanded && "hidden")}
                   data-public-nav-surface={group.id}
                   data-state={expanded ? "open" : "closed"}
                 >

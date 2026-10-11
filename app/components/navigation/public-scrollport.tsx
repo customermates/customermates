@@ -38,7 +38,7 @@ export function PublicScrollport({
       data-public-scrollport
       className="relative flex h-svh flex-col overflow-y-auto bg-background [--table-sticky-top:4rem] [--toc-sticky-top:4rem] [--toc-anchor-offset:5rem] xl:[--table-sticky-top:3.5rem] xl:[--toc-sticky-top:3.5rem] xl:[--toc-anchor-offset:4.5rem]"
     >
-      <header className="sticky top-0 z-50 flex shrink-0 flex-col bg-background/90 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-background/65">
+      <header className="sticky top-0 z-50 flex shrink-0 flex-col bg-background/90 backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-background/92">
         <PublicNavbar
           accountState={accountState}
           hasValidSession={hasValidSession}
