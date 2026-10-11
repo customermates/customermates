@@ -18,6 +18,8 @@ import { renderEmailMarkdown } from "@/ee/messaging/outbound/render-signature";
 
 import { SYNTHETIC_AVATAR_URLS } from "../avatars";
 import { fixtureId } from "../helpers";
+import { northwindDataset } from "../northwind-data";
+import { NORTHWIND_COMPANY_NAME, NORTHWIND_MEMBER_TITLES, NORTHWIND_RECORD_ID_PREFIXES } from "../northwind-model";
 import { SYNTHETIC_SEED_TIMELINE } from "../timeline";
 import {
   accountActivityFixtures,
@@ -63,9 +65,9 @@ const MARKDOWN_LINE_BREAK = "\\\n";
 function workspaceSignature(seedUserEmail: string): string {
   return [
     `**${SYNTHETIC_COMPANY_USERS.maxBergmann.name}**`,
-    "Customer Success, Customermates",
+    `${NORTHWIND_MEMBER_TITLES.maxBergmann}, ${NORTHWIND_COMPANY_NAME}`,
     `[${seedUserEmail}](mailto:${seedUserEmail})`,
-    "<https://customermates.com>",
+    "<https://northwind-labs.example>",
   ].join(MARKDOWN_LINE_BREAK);
 }
 
@@ -163,7 +165,7 @@ function personAttendee(personKey: PersonKey, provider: ThreadFixture["account"]
     isSelf: false,
     headline: person.headline,
     occupation: person.occupation,
-    pictureUrl: person.avatarPath,
+    pictureUrl: person.avatarPath ?? "",
     profileUrl,
   };
 }
@@ -510,7 +512,7 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
         fullName: activityPerson.displayName,
         headline: activityPerson.headline,
         profileUrl: activityPerson.profileUrl,
-        pictureUrl: activityPerson.avatarPath,
+        pictureUrl: activityPerson.avatarPath ?? null,
       }),
       occurredAt: new Date(anchor.getTime() - fixture.occurredMinutesAgo * MINUTE),
     };
@@ -815,6 +817,16 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
         },
       });
     }
+    if (fixture.links?.length) {
+      await prisma.messagingThreadRecordLink.createMany({
+        data: fixture.links.map((link) => ({
+          companyId: context.companyId,
+          threadId: seededThread.id,
+          ...threadRecord(context.companyId, context.contactIds, fixture, link),
+        })),
+        skipDuplicates: true,
+      });
+    }
   }
   await prisma.connectedAccount.deleteMany({
     where: {
@@ -822,4 +834,40 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
       id: { startsWith: "16000000-", notIn: desiredAccountIds },
     },
   });
+}
+
+/** The CRM record a demo conversation is about: the participant's deal or ticket, or the candidate's application. */
+function threadRecord(
+  companyId: string,
+  contactIds: readonly string[],
+  fixture: ThreadFixture,
+  link: "deal" | "ticket" | "candidate",
+): { typeId: string; recordId: string } {
+  const data = northwindDataset();
+  const person = people[fixture.participants[0]];
+  if (link === "candidate") {
+    const candidate = data.candidates.find(({ email }) => email === person.email);
+    if (!candidate) throw new Error(`Missing demo candidate for ${person.displayName}`);
+    return { typeId: presetId(companyId, "candidate"), recordId: candidate.id };
+  }
+  const contact = person.contactIndex === null ? undefined : data.contacts[person.contactIndex];
+  if (!contact || contactIds[contact.index] !== contact.id)
+    throw new Error(`Missing demo contact for the ${link} of ${person.displayName}`);
+  if (link === "deal") {
+    const deals = data.deals.filter(({ organizationIndex }) => organizationIndex === contact.organizationIndex);
+    const deal = deals.filter(({ status }) => status === "open").at(-1) ?? deals.at(-1);
+    if (!deal) throw new Error(`Missing demo deal for ${person.displayName}`);
+    return { typeId: presetId(companyId, "deal"), recordId: deal.id };
+  }
+  const subscriptions = new Set(
+    data.subscriptions
+      .filter(({ organizationIndex }) => organizationIndex === contact.organizationIndex)
+      .map(({ index }) => index),
+  );
+  const ticket =
+    data.tickets.filter(({ subscriptionIndex }) => subscriptions.has(subscriptionIndex)).at(-1) ??
+    data.tickets.filter(({ resolvedMs }) => resolvedMs === null).at(-1);
+  if (!ticket || !ticket.id.startsWith(NORTHWIND_RECORD_ID_PREFIXES.ticket))
+    throw new Error(`Missing demo ticket for ${person.displayName}`);
+  return { typeId: presetId(companyId, "ticket"), recordId: ticket.id };
 }
