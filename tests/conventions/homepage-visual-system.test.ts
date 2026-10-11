@@ -341,6 +341,10 @@ describe("homepage visual-system adoption", () => {
     expect(productWindow).toContain("data-homepage-panel");
     expect(productWindow).toContain("data-homepage-phone");
     expect(productWindow).toContain("data-homepage-reveal");
+    expect(readComponent("homepage-how-it-works.tsx")).toContain('<Steps data-step-progress className="my-0">');
+    expect(readComponent("homepage-how-it-works.tsx")).toContain("<HomepageMcpSnippet");
+    expect(readComponent("homepage-mcp-snippet.tsx")).toContain('getMcpInstallSnippet("cursor", DOCS_API_KEY_PLACEHOLDER, env.BASE_URL)');
+    expect(globalStyles).toMatch(/\[data-step-progress\]::after/u);
     expect(readComponent("homepage-product-proof.tsx")).toContain("<ProductWindow>");
     expect(globalStyles).toContain("animation-timeline: view();");
     expect(globalStyles).toMatch(/@media \(prefers-reduced-motion: no-preference\) \{\s+\[data-homepage-reveal\]/u);

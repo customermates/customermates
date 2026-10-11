@@ -6,6 +6,8 @@ import { StyleguideChapter } from "../components/styleguide-chapter";
 import { TokenTable, TypeTable } from "../components/style-readout";
 
 import { MarketingSection } from "@/components/marketing/marketing-section";
+import { Step, Steps } from "@/components/marketing/process-steps";
+import { PhoneFrame, ProductPanel, ProductWindow } from "@/app/[locale]/(static)/components/homepage-product-window";
 import { Button } from "@/components/ui/button";
 import { GridPattern } from "@/components/shared/grid-pattern";
 import { enableStaticLocale, type StaticLocaleProps } from "@/i18n/static-locale";
@@ -146,10 +148,63 @@ const GEOMETRY = [
   },
 ];
 
+const GRADIENT_RULES = [
+  "text-display, text-display-sm and text-hero carry it; text-display-gradient opts in a custom-sized heading.",
+  "Muted accent spans inside a display heading join the gradient instead of keeping their grey.",
+  "Moving or separately coloured text stays outside it, because background-clip paints through every glyph.",
+  "Forced colours fall back to plain text.",
+] as const;
+
+const SURFACE_RULES = [
+  ["glass-surface", "Floating controls over a constant backdrop: the stage switcher and the hero secondary action."],
+  [
+    "floating-panel",
+    "Menus and popovers that can cross light and dark sections: solid popover fill with the same rim.",
+  ],
+  ["Never", "Glass over content that switches between light and dark sections, or on resting content panels."],
+] as const;
+
+const FRAMING_RULES = [
+  [
+    "ProductWindow",
+    "A thin translucent bezel with a ring and a deep soft shadow around an app-coloured surface; no imitation title bar.",
+  ],
+  [
+    "ProductPanel",
+    "A tinted, primary-lit well the window bleeds out of, so a section shows a readable crop of one area.",
+  ],
+  ["PhoneFrame", "A dark device bezel for phone captures, layered over a desktop window when both appear."],
+  ["Crops", "Cropping happens in CSS on unedited stills; no section adds its own card shadow or radius."],
+] as const;
+
+const MOTION_RULES = [
+  [
+    "Rotating claim",
+    "One word on its own line, in primary on a soft highlight padded from the font metrics; the highlight animates its real width every 2.6 s.",
+  ],
+  [
+    "Live stage",
+    "From 40rem, one live demo iframe per tab after hydration with the next tab preloaded; 6 s rotation with a progress ring, stopped by any visitor action.",
+  ],
+  ["Scroll reveal", "Panels, video and closing card rise 2rem and fade in once through a CSS view timeline."],
+  [
+    "Step progress",
+    "Numbered steps fill their line in primary and light each number as it crosses the middle of the screen.",
+  ],
+  [
+    "Restraint",
+    "Every motion stops off screen and while the document is hidden, and reduced motion receives the final state.",
+  ],
+] as const;
+
 const FORBIDDEN = [
   [
     "No shadow on a new resting surface",
-    "Elevation is a rung, not a distance. Illustration depth stays inside its artboard.",
+    "Elevation is a rung, not a distance. Only floating layers carry shadow: product windows, floating panels and glass controls.",
+  ],
+  [
+    "No glass across a section change",
+    "Blur cannot hide a hard light-to-dark edge, so a translucent surface splits. Menus that can cross sections use floating-panel.",
   ],
   ["No wash as a resting fill", "A wash carries state and must not silently become another surface tier."],
   ["No literal colour", "Theme changes reach every pixel through Customermates tokens."],
@@ -342,6 +397,139 @@ export default async function FoundationsPage({ params }: StaticLocaleProps) {
           <Button disabled size="lg">
             Disabled
           </Button>
+        </div>
+      </MarketingSection>
+
+      <MarketingSection
+        description="One vertical gradient for every display heading, from the foreground colour to 65 per cent of it."
+        id="heading-gradient"
+        title="Display gradient"
+      >
+        <div className="mt-14 grid gap-10 lg:mt-16 lg:grid-cols-2">
+          <div className="rounded-card border border-border bg-background p-8">
+            <p className="text-meta mb-4">text-display-sm</p>
+
+            <p className="text-display-sm m-0">
+              Every channel, <span className="text-muted-foreground">one customer story.</span>
+            </p>
+          </div>
+
+          <ul className="m-0 list-none space-y-3 p-0 text-sm leading-relaxed text-muted-foreground">
+            {GRADIENT_RULES.map((rule) => (
+              <li key={rule}>{rule}</li>
+            ))}
+          </ul>
+        </div>
+      </MarketingSection>
+
+      <MarketingSection
+        description="Glass belongs to small floating controls over a constant backdrop; menus stay solid."
+        id="glass"
+        title="Glass and floating surfaces"
+      >
+        <div className="mt-14 grid gap-10 lg:mt-16 lg:grid-cols-2">
+          <div className="relative isolate flex min-h-64 flex-col items-center justify-center gap-6 overflow-hidden rounded-card border border-border bg-sidebar p-8">
+            <div
+              aria-hidden
+              className="absolute inset-0 -z-10 bg-[radial-gradient(60%_70%_at_50%_100%,color-mix(in_oklab,var(--color-primary)_30%,transparent),transparent)]"
+            />
+
+            <div className="glass-surface flex gap-0.5 rounded-full p-1 text-sm font-medium">
+              <span className="relative rounded-full bg-foreground/[0.09] px-3.5 py-1.5 text-foreground ring-1 ring-foreground/15">
+                Inbox
+              </span>
+
+              <span className="px-3.5 py-1.5 text-muted-foreground">Customers</span>
+
+              <span className="px-3.5 py-1.5 text-muted-foreground">Pipeline</span>
+            </div>
+
+            <div className="floating-panel w-full max-w-xs rounded-2xl p-1.5 text-[13px] font-medium">
+              <p className="m-0 rounded-xl bg-foreground/[0.07] px-3 py-2.5">Unified inbox</p>
+
+              <p className="m-0 px-3 py-2.5">Sales pipeline</p>
+            </div>
+          </div>
+
+          <ul className="m-0 list-none divide-y divide-border overflow-hidden rounded-card border border-border bg-card p-0">
+            {SURFACE_RULES.map(([name, rule]) => (
+              <li key={name} className="flex flex-col gap-1 px-6 py-4">
+                <span className="font-mono text-sm">{name}</span>
+
+                <span className="text-sm text-muted-foreground">{rule}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </MarketingSection>
+
+      <MarketingSection
+        description="Product views share one frame language built from the platform tokens."
+        id="product-framing"
+        title="Product framing"
+      >
+        <div className="mt-14 grid gap-10 lg:mt-16 lg:grid-cols-2">
+          <ProductPanel className="h-80">
+            <ProductWindow className="absolute top-8 left-8 w-[115%]">
+              <div className="grid aspect-[16/10] grid-cols-[22%_1fr] gap-3 p-3">
+                <div className="rounded-md bg-placeholder" />
+
+                <div className="space-y-2">
+                  <div className="h-3 w-1/3 rounded bg-placeholder" />
+
+                  <div className="h-24 rounded-md bg-card" />
+
+                  <div className="h-24 rounded-md bg-card" />
+                </div>
+              </div>
+            </ProductWindow>
+
+            <PhoneFrame className="absolute right-8 -bottom-20 w-32">
+              <div className="aspect-[9/19.5] bg-sidebar" />
+            </PhoneFrame>
+          </ProductPanel>
+
+          <ul className="m-0 list-none divide-y divide-border overflow-hidden rounded-card border border-border bg-card p-0">
+            {FRAMING_RULES.map(([name, rule]) => (
+              <li key={name} className="flex flex-col gap-1 px-6 py-4">
+                <span className="font-mono text-sm">{name}</span>
+
+                <span className="text-sm text-muted-foreground">{rule}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </MarketingSection>
+
+      <MarketingSection
+        description="Motion explains one state change at a time and always has a calm final state."
+        id="motion-rules"
+        title="Motion"
+      >
+        <div className="mt-14 grid gap-10 lg:mt-16 lg:grid-cols-2">
+          <Steps data-step-progress className="my-0">
+            <Step title="Sign in">
+              <p>The line fills as the sequence scrolls past.</p>
+            </Step>
+
+            <Step title="Connect">
+              <p>Each number lights up at the middle of the screen.</p>
+            </Step>
+
+            <Step title="Ask">
+              <p>Reduced motion shows the plain sequence.</p>
+            </Step>
+          </Steps>
+
+          <ul className="m-0 list-none divide-y divide-border overflow-hidden rounded-card border border-border bg-card p-0">
+            {MOTION_RULES.map(([name, rule]) => (
+              <li key={name} className="flex flex-col gap-1 px-6 py-4">
+                <span className="text-sm font-medium">{name}</span>
+
+                <span className="text-sm text-muted-foreground">{rule}</span>
+              </li>
+            ))}
+          </ul>
         </div>
       </MarketingSection>
 

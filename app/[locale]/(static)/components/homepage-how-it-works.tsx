@@ -4,6 +4,7 @@ import { MarketingSection } from "@/components/marketing/marketing-section";
 import { Step, Steps } from "@/components/marketing/process-steps";
 
 import { HomepageCaptureImage } from "./homepage-capture-image";
+import { HomepageMcpSnippet } from "./homepage-mcp-snippet";
 import { ProductPanel, ProductWindow } from "./homepage-product-window";
 import { HomepageStageLink } from "./homepage-stage-link";
 
@@ -62,10 +63,12 @@ export function HomepageHowItWorks({ eyebrow, handoff, liveLabel, locale, steps,
             <p className="text-eyebrow">{eyebrow}</p>
 
             <h2 className="text-display-sm mt-5">{title}</h2>
+
+            <HomepageMcpSnippet className="mt-10 max-w-md" />
           </div>
 
           <div className="col-span-12 lg:col-start-7 lg:col-end-13">
-            <Steps className="my-0">
+            <Steps data-step-progress className="my-0">
               {steps.map((step) => (
                 <Step key={step.n} title={step.title}>
                   <p>{step.description}</p>

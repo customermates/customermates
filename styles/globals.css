@@ -904,3 +904,46 @@ path:focus {
       0 24px 48px -16px rgb(0 0 0 / 0.45);
   }
 }
+
+@keyframes step-progress-fill {
+  from {
+    transform: scaleY(0);
+  }
+
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes step-progress-on {
+  to {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary);
+    color: var(--color-primary-foreground);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-step-progress]::after {
+      position: absolute;
+      z-index: 0;
+      width: 1px;
+      inset-block: 0;
+      inset-inline-start: -1px;
+      background-color: var(--color-primary);
+      content: "";
+      transform-origin: top;
+      animation: step-progress-fill linear both;
+      animation-timeline: view();
+      animation-range: cover 20% cover 60%;
+    }
+
+    [data-step-progress] > li::before {
+      z-index: 1;
+      animation: step-progress-on linear both;
+      animation-timeline: view();
+      animation-range: cover 45% cover 50%;
+    }
+  }
+}
