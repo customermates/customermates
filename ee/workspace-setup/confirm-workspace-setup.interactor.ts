@@ -15,6 +15,7 @@ import { WORKSPACE_SETUP_PHASES } from "./workspace-setup.schema";
 import { ConfirmWorkspaceSetupSchema } from "./workspace-setup-input.schema";
 import { workspaceSetupUnavailability } from "./workspace-setup-availability";
 import { emptySetupPhase } from "./workspace-setup-build.service";
+import { setupLanguage } from "./workspace-setup-inputs";
 
 @TenantInteractor({ resource: Resource.dataModel, manage: "update" })
 export class ConfirmWorkspaceSetupInteractor extends AuthenticatedInteractor<
@@ -45,6 +46,9 @@ export class ConfirmWorkspaceSetupInteractor extends AuthenticatedInteractor<
         return { ok: true, data: { setupId: data.setupId } };
       return failConflict(CustomErrorCode.workspaceSetupConflict);
     }
+    if (confirmed.setup.crawlId)
+      await this.repo.setCrawlLocale(confirmed.setup.crawlId, setupLanguage(confirmed.setup.answers));
+
     await this.background.dispatch("build-workspace-setup", { setupId: data.setupId, userId: this.userId });
     return { ok: true, data: { setupId: data.setupId } };
   }

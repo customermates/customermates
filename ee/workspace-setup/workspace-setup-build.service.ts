@@ -62,6 +62,7 @@ import {
   SETUP_MAPPING_INSTRUCTION,
   SETUP_SAMPLE_RECORDS_INSTRUCTION,
   encodePromptJson,
+  setupLanguageName,
   untrustedText,
 } from "./workspace-setup-prompts";
 import { generatedSampleList, sampleListSpecs } from "./workspace-setup-samples";
@@ -581,7 +582,7 @@ export class WorkspaceSetupBuildService extends UserAccessor {
       schema: sampleRecordsWireSchema(headers),
       system: SETUP_SAMPLE_RECORDS_INSTRUCTION,
       prompt: [
-        `Workspace language: ${setupLanguage(setup.answers)}. Currency: ${setupCurrency(setup.answers) ?? "EUR"}.`,
+        `Workspace language: ${setupLanguageName(setupLanguage(setup.answers))}. Currency: ${setupCurrency(setup.answers) ?? "EUR"}.`,
         `List: ${spec.label}. Write ${spec.count} records${spec.kinds.length ? ` covering: ${spec.kinds.join(", ")}` : ""}.`,
         `Columns: ${encodePromptJson(spec.columns.map(({ column, label, valueType, multiple, options, required }) => ({ column, label, valueType, multiple, required, ...(options.length ? { options } : {}) })))}`,
         ...spec.links.map(

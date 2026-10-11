@@ -250,6 +250,18 @@ export class PrismaWorkspaceSetupRepo extends TenantRepository implements Worksp
     }));
   }
 
+  async setCrawlLocale(crawlId: string, locale: string) {
+    await this.prisma.wikiWebsiteCrawl.updateMany({
+      where: {
+        id: crawlId,
+        companyId: this.companyId,
+        status: { in: [...WIKI_CRAWL_ACTIVE_STATUSES] },
+        topics: { equals: Prisma.AnyNull },
+      },
+      data: { locale },
+    });
+  }
+
   async knowledgeBasePages(crawlId: string) {
     const crawl = await this.crawlState(crawlId);
     if (!crawl) return [];

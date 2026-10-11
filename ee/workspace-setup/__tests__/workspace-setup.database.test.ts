@@ -431,6 +431,48 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(view.knowledgeBase).toMatchObject({ crawlStatus: "completed", pagesPlanned: 1, pagesWritten: 1 });
   });
 
+  it("writes the Knowledge Base in the confirmed interview language, not the interface language", async () => {
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    const crawl = await runWithoutTenant(() =>
+      prisma.wikiWebsiteCrawl.create({
+        data: {
+          companyId: ws.companyId,
+          userId: ws.owner.id,
+          clientRequestId: randomUUID(),
+          homepageUrl: "https://studio-example.de/",
+          registrableDomain: "studio-example.de",
+          locale: "de",
+          payer: "workspaceSetup",
+          status: "synthesizing",
+          targets: [{ url: "https://studio-example.de/preise", category: "pricing", status: "read" }],
+          sources: {
+            create: {
+              companyId: ws.companyId,
+              url: "https://studio-example.de/preise",
+              canonicalUrl: "https://studio-example.de/preise",
+              category: "pricing",
+              title: "Preise",
+              text: "Websites ab 5.000 Euro.",
+              contentHash: "pricing",
+            },
+          },
+        },
+      }),
+    );
+    await ws.run(() => di.getWorkspaceSetupRepo().mutate(setupId, () => ({ crawlId: crawl.id })));
+    expect(await ws.run(() => di.getWorkspaceSetupRepo().crawlSources(crawl.id))).toEqual([
+      expect.objectContaining({ category: "pricing", title: "Preise" }),
+    ]);
+
+    const confirmed = await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
+    expect(confirmed.ok).toBe(true);
+    const stored = await runWithoutTenant(() =>
+      prisma.wikiWebsiteCrawl.findUniqueOrThrow({ where: { id: crawl.id }, select: { locale: true } }),
+    );
+    expect(stored.locale).toBe("en");
+  });
+
   it("plans the website import's pages from the confirmed plan, the chosen pages, tone and competitors", async () => {
     const ws = await workspace();
     const { setupId } = await planned(ws);

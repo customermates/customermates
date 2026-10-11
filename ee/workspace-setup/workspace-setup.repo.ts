@@ -26,6 +26,7 @@ export abstract class WorkspaceSetupRepo {
   abstract crawlState(crawlId: string): Promise<SetupCrawlState | null>;
   abstract stopCrawl(crawlId: string): Promise<void>;
   abstract crawlSources(crawlId: string): Promise<SetupCrawlSource[]>;
+  abstract setCrawlLocale(crawlId: string, locale: string): Promise<void>;
   abstract knowledgeBasePages(crawlId: string): Promise<Array<{ id: string; title: string; updatedAt: Date }>>;
   abstract wikiPages(ids: string[]): Promise<Array<{ id: string; title: string; updatedAt: Date }>>;
   abstract findOwnedView(surfaceKey: string, name: string): Promise<string | null>;
