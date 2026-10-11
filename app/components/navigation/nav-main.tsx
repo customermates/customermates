@@ -14,6 +14,7 @@ import {
 import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import { Icon } from "@/components/shared/icon";
 import { AppLink } from "@/components/shared/app-link";
+import { ItemActions } from "@/components/ui/item-actions";
 
 import { NavLinkPendingIndicator } from "./nav-link-pending-indicator";
 
@@ -42,7 +43,12 @@ type NavMainParentProps = {
   onOpenChange: (open: boolean) => void;
   itemProps?: React.ComponentProps<"li">;
   action?: React.ReactNode;
+  actionsLabel?: string;
+  menu?: React.ReactNode;
 };
+
+export const NAV_ITEM_ACTION_PADDING =
+  "pointer-fine:group-focus-within/item-actions:pr-8 pointer-fine:group-hover/item-actions:pr-8";
 
 export function NavBadge({ count }: { count: number }) {
   if (count <= 0) return null;
@@ -62,64 +68,71 @@ export function NavMainParent({
   onOpenChange,
   itemProps,
   action,
+  actionsLabel,
+  menu,
 }: NavMainParentProps) {
   const subBadgeCount = (item.items ?? []).reduce((sum, sub) => sum + (sub.badge ?? 0), 0);
 
   return (
     <Collapsible asChild className="group/collapsible" open={open} onOpenChange={onOpenChange}>
-      <SidebarMenuItem {...itemProps}>
-        <SidebarMenuButton
-          className={
-            action ? "pr-8 md:pr-2 md:group-focus-within/menu-item:pr-8 md:group-hover/menu-item:pr-8" : undefined
-          }
-          id={`nav-${item.key}`}
-          tooltip={item.title}
-          onClick={() => onOpenChange(!open)}
-        >
-          <Icon icon={item.icon} />
+      <ItemActions label={actionsLabel} menu={menu}>
+        <SidebarMenuItem {...itemProps}>
+          <SidebarMenuButton
+            className={action ? NAV_ITEM_ACTION_PADDING : undefined}
+            id={`nav-${item.key}`}
+            tooltip={item.title}
+            onClick={() => onOpenChange(!open)}
+          >
+            <Icon icon={item.icon} />
 
-          <span className="min-w-0 truncate">{item.title}</span>
+            <span className="min-w-0 truncate">{item.title}</span>
 
-          {!open && <NavBadge count={subBadgeCount} />}
+            {!open && <NavBadge count={subBadgeCount} />}
 
-          <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-        </SidebarMenuButton>
+            <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+          </SidebarMenuButton>
 
-        {action}
+          {action}
 
-        <CollapsibleContent
-          className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up"
-          onMouseDown={itemProps ? (event) => event.stopPropagation() : undefined}
-        >
-          <SidebarMenuSub>
-            {(item.items ?? []).map((sub) => {
-              const subActive = pathname ? pathname === sub.href || pathname.startsWith(sub.href + "/") : false;
-              return (
-                <SidebarMenuSubItem key={sub.key}>
-                  {subActive && (
-                    <span aria-hidden className="absolute -left-[11px] top-1 bottom-1 w-0.5 rounded-full bg-primary" />
-                  )}
+          <CollapsibleContent
+            className="overflow-hidden data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up"
+            onContextMenu={menu ? (event) => event.stopPropagation() : undefined}
+            onMouseDown={itemProps ? (event) => event.stopPropagation() : undefined}
+            onPointerDown={menu ? (event) => event.stopPropagation() : undefined}
+          >
+            <SidebarMenuSub>
+              {(item.items ?? []).map((sub) => {
+                const subActive = pathname ? pathname === sub.href || pathname.startsWith(sub.href + "/") : false;
+                return (
+                  <SidebarMenuSubItem key={sub.key}>
+                    {subActive && (
+                      <span
+                        aria-hidden
+                        className="absolute -left-[11px] top-1 bottom-1 w-0.5 rounded-full bg-primary"
+                      />
+                    )}
 
-                  <SidebarMenuSubButton asChild isActive={subActive}>
-                    <AppLink
-                      appearance="unstyled"
-                      href={sub.href}
-                      id={`nav-${sub.key}`}
-                      onClick={() => onNavigate(sub.key)}
-                    >
-                      <span className="min-w-0 truncate">{sub.title}</span>
+                    <SidebarMenuSubButton asChild isActive={subActive}>
+                      <AppLink
+                        appearance="unstyled"
+                        href={sub.href}
+                        id={`nav-${sub.key}`}
+                        onClick={() => onNavigate(sub.key)}
+                      >
+                        <span className="min-w-0 truncate">{sub.title}</span>
 
-                      <NavBadge count={sub.badge ?? 0} />
+                        <NavBadge count={sub.badge ?? 0} />
 
-                      <NavLinkPendingIndicator />
-                    </AppLink>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-              );
-            })}
-          </SidebarMenuSub>
-        </CollapsibleContent>
-      </SidebarMenuItem>
+                        <NavLinkPendingIndicator />
+                      </AppLink>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                );
+              })}
+            </SidebarMenuSub>
+          </CollapsibleContent>
+        </SidebarMenuItem>
+      </ItemActions>
     </Collapsible>
   );
 }

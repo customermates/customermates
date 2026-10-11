@@ -22,7 +22,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ListPlus, MoreHorizontal, RotateCcw } from "lucide-react";
+import { ListPlus, RotateCcw } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useId, useState } from "react";
@@ -34,16 +34,8 @@ import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { ItemActions, ItemActionsTrigger } from "@/components/ui/item-actions";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { DragHandle } from "@/components/shared/drag-handle";
@@ -56,8 +48,8 @@ import { SIDEBAR_SECTION_NAME_MAX } from "@/features/p13n/sidebar-layout.schema"
 import {
   createSidebarSection,
   entryPosition,
-  itemPosition,
   moveTargets,
+  SidebarItemMenuItems,
   useDeleteSidebarSection,
   useResolvedSidebar,
 } from "./nav-sections";
@@ -71,7 +63,6 @@ import {
   sectionsOf,
   setSidebarItemHidden,
   shiftSidebarEntry,
-  shiftSidebarItem,
   sidebarLayoutOf,
 } from "./sidebar-layout";
 
@@ -392,39 +383,10 @@ function EditorSection({
       data-customize-section={label}
       style={{ transform: CSS.Translate.toString(sortable.transform), transition: sortable.transition }}
     >
-      <div className="flex min-h-10 items-center gap-1 border-b px-1.5 py-1">
-        <DragHandle
-          attributes={sortable.attributes}
-          label={t("SidebarCustomize.dragSection", { section: label })}
-          listeners={sortable.listeners}
-          setActivatorNodeRef={sortable.setActivatorNodeRef}
-        />
-
-        {renaming ? (
-          <SectionNameInput initial={label} onDone={onRename} />
-        ) : (
-          <button
-            className="min-w-0 flex-1 truncate rounded px-1 py-0.5 text-left text-sm font-medium hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
-            type="button"
-            onClick={onStartRename}
-          >
-            {label}
-          </button>
-        )}
-
-        <DropdownMenu modal={false}>
-          <DropdownMenuTrigger asChild>
-            <Button
-              aria-label={t("SidebarCustomize.sectionActions", { section: label })}
-              size="icon-xs"
-              type="button"
-              variant="ghost"
-            >
-              <Icon icon={MoreHorizontal} />
-            </Button>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent align="end">
+      <ItemActions
+        label={t("SidebarCustomize.sectionActions", { section: label })}
+        menu={
+          <>
             <DropdownMenuItem onSelect={onStartRename}>{t("SidebarCustomize.rename")}</DropdownMenuItem>
 
             <DropdownMenuItem disabled={!canMoveUp} onSelect={() => onMove(-1)}>
@@ -440,9 +402,36 @@ function EditorSection({
             <DropdownMenuItem variant="destructive" onSelect={onDelete}>
               {t("SidebarCustomize.deleteSection")}
             </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
+          </>
+        }
+      >
+        <div className="flex min-h-10 items-center gap-1 border-b px-1.5 py-1">
+          <DragHandle
+            attributes={sortable.attributes}
+            label={t("SidebarCustomize.dragSection", { section: label })}
+            listeners={sortable.listeners}
+            setActivatorNodeRef={sortable.setActivatorNodeRef}
+          />
+
+          {renaming ? (
+            <SectionNameInput initial={label} onDone={onRename} />
+          ) : (
+            <button
+              className="min-w-0 flex-1 truncate rounded px-1 py-0.5 text-left text-sm font-medium hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+              type="button"
+              onClick={onStartRename}
+            >
+              {label}
+            </button>
+          )}
+
+          <ItemActionsTrigger
+            modal={false}
+            tooltip={false}
+            trigger={<Button size="icon-xs" type="button" variant="ghost" />}
+          />
+        </div>
+      </ItemActions>
 
       <SortableContext items={keys} strategy={verticalListSortingStrategy}>
         <ul ref={droppable.setNodeRef} className="flex min-h-10 flex-col py-1">
@@ -471,84 +460,51 @@ function EditorItem({ item, droppable, resolved, targets, isShown, onChange, onN
   const t = useTranslations();
   const sortable = useSortable({ id: item.key, disabled: { draggable: false, droppable: !droppable } });
   const hidden = resolved.hidden.has(item.key);
-  const position = itemPosition(resolved, item.key, isShown);
 
   return (
-    <li
-      ref={sortable.setNodeRef}
-      className={cn("flex items-center gap-1 px-1.5 py-0.5 text-sm", sortable.isDragging && "opacity-50")}
-      data-customize-item={item.key}
-      style={{ transform: CSS.Translate.toString(sortable.transform), transition: sortable.transition }}
+    <ItemActions
+      label={t("SidebarCustomize.itemActions", { item: item.title })}
+      menu={
+        <SidebarItemMenuItems
+          isShown={isShown}
+          itemKey={item.key}
+          resolved={resolved}
+          targets={targets}
+          onChange={onChange}
+          onNewSection={onNewSection}
+        />
+      }
     >
-      <DragHandle
-        attributes={sortable.attributes}
-        label={t("SidebarCustomize.dragItem", { item: item.title })}
-        listeners={sortable.listeners}
-        setActivatorNodeRef={sortable.setActivatorNodeRef}
-      />
+      <li
+        ref={sortable.setNodeRef}
+        className={cn("flex items-center gap-1 px-1.5 py-0.5 text-sm", sortable.isDragging && "opacity-50")}
+        data-customize-item={item.key}
+        style={{ transform: CSS.Translate.toString(sortable.transform), transition: sortable.transition }}
+      >
+        <DragHandle
+          attributes={sortable.attributes}
+          label={t("SidebarCustomize.dragItem", { item: item.title })}
+          listeners={sortable.listeners}
+          setActivatorNodeRef={sortable.setActivatorNodeRef}
+        />
 
-      <Icon className={cn("size-4 shrink-0 text-muted-foreground", hidden && "opacity-50")} icon={item.icon} />
+        <Icon className={cn("size-4 shrink-0 text-muted-foreground", hidden && "opacity-50")} icon={item.icon} />
 
-      <span className={cn("min-w-0 flex-1 truncate", hidden && "text-muted-foreground")}>{item.title}</span>
+        <span className={cn("min-w-0 flex-1 truncate", hidden && "text-muted-foreground")}>{item.title}</span>
 
-      <Switch
-        aria-label={t("SidebarCustomize.show", { item: item.title })}
-        checked={!hidden}
-        onCheckedChange={(checked) => onChange(setSidebarItemHidden(resolved, item.key, !checked))}
-      />
+        <Switch
+          aria-label={t("SidebarCustomize.show", { item: item.title })}
+          checked={!hidden}
+          onCheckedChange={(checked) => onChange(setSidebarItemHidden(resolved, item.key, !checked))}
+        />
 
-      <DropdownMenu modal={false}>
-        <DropdownMenuTrigger asChild>
-          <Button
-            aria-label={t("SidebarCustomize.itemActions", { item: item.title })}
-            size="icon-xs"
-            type="button"
-            variant="ghost"
-          >
-            <Icon icon={MoreHorizontal} />
-          </Button>
-        </DropdownMenuTrigger>
-
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem
-            disabled={!position.canMoveUp}
-            onSelect={() => onChange(shiftSidebarItem(resolved, item.key, -1, isShown))}
-          >
-            {t("SidebarCustomize.moveUp")}
-          </DropdownMenuItem>
-
-          <DropdownMenuItem
-            disabled={!position.canMoveDown}
-            onSelect={() => onChange(shiftSidebarItem(resolved, item.key, 1, isShown))}
-          >
-            {t("SidebarCustomize.moveDown")}
-          </DropdownMenuItem>
-
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger>{t("SidebarCustomize.moveToSection")}</DropdownMenuSubTrigger>
-
-            <DropdownMenuSubContent>
-              {targets
-                .filter((candidate) => candidate.id !== position.container)
-                .map((candidate) => (
-                  <DropdownMenuItem
-                    key={candidate.id ?? ""}
-                    onSelect={() => onChange(moveSidebarItem(resolved, item.key, candidate.id))}
-                  >
-                    <span className="truncate">{candidate.label}</span>
-                  </DropdownMenuItem>
-                ))}
-
-              <DropdownMenuSeparator />
-
-              <DropdownMenuItem onSelect={() => onNewSection(item.key)}>
-                {t("SidebarCustomize.newSection")}
-              </DropdownMenuItem>
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </li>
+        <ItemActionsTrigger
+          modal={false}
+          tooltip={false}
+          trigger={<Button size="icon-xs" type="button" variant="ghost" />}
+        />
+      </li>
+    </ItemActions>
   );
 }
 

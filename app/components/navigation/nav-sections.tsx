@@ -7,7 +7,7 @@ import type { ResolvedSidebar, SidebarContainer, SidebarEntry } from "./sidebar-
 import { closestCenter, DndContext, MouseSensor, useDroppable, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ChevronDown, MoreHorizontal } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -24,15 +24,13 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ItemActions, ItemActionsTrigger } from "@/components/ui/item-actions";
 import { AppLink } from "@/components/shared/app-link";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -40,7 +38,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
 import { SIDEBAR_SECTION_NAME_MAX } from "@/features/p13n/sidebar-layout.schema";
 
-import { NavBadge, NavMainParent } from "./nav-main";
+import { NAV_ITEM_ACTION_PADDING, NavBadge, NavMainParent } from "./nav-main";
 import { NavLinkPendingIcon } from "./nav-link-pending-icon";
 import {
   CUSTOM_SECTION_PREFIX,
@@ -99,18 +97,6 @@ export function useDeleteSidebarSection(groups: NavGroup[]) {
   };
 }
 
-export function useContextMenu() {
-  const [open, setOpen] = useState(false);
-  return {
-    menu: { open, onOpenChange: setOpen },
-    onContextMenu: (event: React.MouseEvent) => {
-      event.preventDefault();
-      event.stopPropagation();
-      setOpen(true);
-    },
-  };
-}
-
 export function createSidebarSection(resolved: ResolvedSidebar, baseName: string, item?: string) {
   const taken = new Set(sectionsOf(resolved).map((section) => section.name?.toLocaleLowerCase()));
   let name = baseName;
@@ -159,6 +145,75 @@ export function itemPosition(resolved: ResolvedSidebar, item: string, isShown: (
   return { container, canMoveUp: index > 0, canMoveDown: index >= 0 && index < visible.length - 1 };
 }
 
+export function SidebarItemMenuItems({
+  itemKey,
+  resolved,
+  targets,
+  isShown,
+  hideable = false,
+  onChange,
+  onNewSection,
+}: {
+  itemKey: string;
+  resolved: ResolvedSidebar;
+  targets: MoveTarget[];
+  isShown: (item: string) => boolean;
+  hideable?: boolean;
+  onChange: (next: ResolvedSidebar) => void;
+  onNewSection: (item: string) => void;
+}) {
+  const t = useTranslations();
+  const position = itemPosition(resolved, itemKey, isShown);
+  return (
+    <>
+      <DropdownMenuItem
+        disabled={!position.canMoveUp}
+        onSelect={() => onChange(shiftSidebarItem(resolved, itemKey, -1, isShown))}
+      >
+        {t("SidebarCustomize.moveUp")}
+      </DropdownMenuItem>
+
+      <DropdownMenuItem
+        disabled={!position.canMoveDown}
+        onSelect={() => onChange(shiftSidebarItem(resolved, itemKey, 1, isShown))}
+      >
+        {t("SidebarCustomize.moveDown")}
+      </DropdownMenuItem>
+
+      <DropdownMenuSub>
+        <DropdownMenuSubTrigger>{t("SidebarCustomize.moveToSection")}</DropdownMenuSubTrigger>
+
+        <DropdownMenuSubContent>
+          {targets
+            .filter((candidate) => candidate.id !== position.container)
+            .map((candidate) => (
+              <DropdownMenuItem
+                key={candidate.id ?? ""}
+                onSelect={() => onChange(moveSidebarItem(resolved, itemKey, candidate.id))}
+              >
+                <span className="truncate">{candidate.label}</span>
+              </DropdownMenuItem>
+            ))}
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem onSelect={() => onNewSection(itemKey)}>{t("SidebarCustomize.newSection")}</DropdownMenuItem>
+        </DropdownMenuSubContent>
+      </DropdownMenuSub>
+
+      {hideable && (
+        <>
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem onSelect={() => onChange(setSidebarItemHidden(resolved, itemKey, true))}>
+            {t("SidebarCustomize.hide")}
+          </DropdownMenuItem>
+        </>
+      )}
+    </>
+  );
+}
+
 function SortableNavItem({
   item,
   customizable,
@@ -176,8 +231,6 @@ function SortableNavItem({
 }: ItemProps) {
   const t = useTranslations();
   const sortable = useSortable({ id: item.key, disabled: !customizable });
-  const position = itemPosition(resolved, item.key, isShown);
-  const contextMenu = useContextMenu();
   const itemProps = {
     ref: sortable.setNodeRef,
     className: cn(sortable.isDragging && "z-10 rounded-md bg-sidebar-accent shadow-md"),
@@ -188,69 +241,32 @@ function SortableNavItem({
       event.preventDefault();
       event.stopPropagation();
     },
-    ...(customizable ? { ...sortable.listeners, onContextMenu: contextMenu.onContextMenu } : {}),
+    ...(customizable ? sortable.listeners : {}),
   };
+  const label = t("SidebarCustomize.itemActions", { item: item.title });
+  const menu = customizable && (
+    <SidebarItemMenuItems
+      hideable
+      isShown={isShown}
+      itemKey={item.key}
+      resolved={resolved}
+      targets={targets}
+      onChange={onChange}
+      onNewSection={onNewSection}
+    />
+  );
   const action = customizable && (
-    <DropdownMenu modal={false} {...contextMenu.menu}>
-      <DropdownMenuTrigger asChild>
-        <SidebarMenuAction showOnHover aria-label={t("SidebarCustomize.itemActions", { item: item.title })}>
-          <MoreHorizontal />
-        </SidebarMenuAction>
-      </DropdownMenuTrigger>
-
-      <DropdownMenuContent align="start" side="right">
-        <DropdownMenuItem
-          disabled={!position.canMoveUp}
-          onSelect={() => onChange(shiftSidebarItem(resolved, item.key, -1, isShown))}
-        >
-          {t("SidebarCustomize.moveUp")}
-        </DropdownMenuItem>
-
-        <DropdownMenuItem
-          disabled={!position.canMoveDown}
-          onSelect={() => onChange(shiftSidebarItem(resolved, item.key, 1, isShown))}
-        >
-          {t("SidebarCustomize.moveDown")}
-        </DropdownMenuItem>
-
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>{t("SidebarCustomize.moveToSection")}</DropdownMenuSubTrigger>
-
-          <DropdownMenuSubContent>
-            {targets
-              .filter((candidate) => candidate.id !== position.container)
-              .map((candidate) => (
-                <DropdownMenuItem
-                  key={candidate.id ?? ""}
-                  onSelect={() => onChange(moveSidebarItem(resolved, item.key, candidate.id))}
-                >
-                  <span className="truncate">{candidate.label}</span>
-                </DropdownMenuItem>
-              ))}
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem onSelect={() => onNewSection(item.key)}>
-              {t("SidebarCustomize.newSection")}
-            </DropdownMenuItem>
-          </DropdownMenuSubContent>
-        </DropdownMenuSub>
-
-        <DropdownMenuSeparator />
-
-        <DropdownMenuItem onSelect={() => onChange(setSidebarItemHidden(resolved, item.key, true))}>
-          {t("SidebarCustomize.hide")}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <ItemActionsTrigger align="start" modal={false} side="right" tooltip={false} trigger={<SidebarMenuAction />} />
   );
 
   if (item.items && item.items.length > 0) {
     return (
       <NavMainParent
         action={action}
+        actionsLabel={label}
         item={item}
         itemProps={itemProps}
+        menu={menu}
         open={open}
         pathname={pathname}
         onNavigate={onNavigate}
@@ -260,26 +276,26 @@ function SortableNavItem({
   }
 
   return (
-    <SidebarMenuItem {...itemProps}>
-      <SidebarMenuButton
-        asChild
-        className={cn(
-          customizable && "pr-8 md:pr-2 md:group-focus-within/menu-item:pr-8 md:group-hover/menu-item:pr-8",
-        )}
-        isActive={isActive}
-        tooltip={item.title}
-      >
-        <AppLink appearance="unstyled" href={item.href} id={`nav-${item.key}`} onClick={() => onNavigate(item.key)}>
-          <NavLinkPendingIcon icon={item.icon} />
+    <ItemActions href={item.href} label={label} menu={menu}>
+      <SidebarMenuItem {...itemProps}>
+        <SidebarMenuButton
+          asChild
+          className={cn(customizable && NAV_ITEM_ACTION_PADDING)}
+          isActive={isActive}
+          tooltip={item.title}
+        >
+          <AppLink appearance="unstyled" href={item.href} id={`nav-${item.key}`} onClick={() => onNavigate(item.key)}>
+            <NavLinkPendingIcon icon={item.icon} />
 
-          <span className="min-w-0 truncate">{item.title}</span>
+            <span className="min-w-0 truncate">{item.title}</span>
 
-          <NavBadge count={item.badge ?? 0} />
-        </AppLink>
-      </SidebarMenuButton>
+            <NavBadge count={item.badge ?? 0} />
+          </AppLink>
+        </SidebarMenuButton>
 
-      {action}
-    </SidebarMenuItem>
+        {action}
+      </SidebarMenuItem>
+    </ItemActions>
   );
 }
 
@@ -347,7 +363,6 @@ function NavSection({
 }: SectionProps) {
   const t = useTranslations();
   const droppable = useDroppable({ id: SECTION_DROP_PREFIX + id });
-  const contextMenu = useContextMenu();
   const key = SECTION_DROP_PREFIX + id;
   const position = entryPosition(resolved, key, isShown);
 
@@ -365,65 +380,66 @@ function NavSection({
           }}
         />
       ) : (
-        <SidebarGroupLabel
-          ref={droppable.setNodeRef}
-          asChild
-          className={cn("group/section-label cursor-pointer pr-7", droppable.isOver && "bg-sidebar-accent")}
+        <ItemActions
+          label={t("SidebarCustomize.sectionActions", { section: label })}
+          menu={
+            <>
+              <DropdownMenuItem onSelect={() => onEdit(true)}>{t("SidebarCustomize.rename")}</DropdownMenuItem>
+
+              <DropdownMenuItem
+                disabled={!position.canMoveUp}
+                onSelect={() => onChange(shiftSidebarEntry(resolved, key, -1, isShown))}
+              >
+                {t("SidebarCustomize.moveUp")}
+              </DropdownMenuItem>
+
+              <DropdownMenuItem
+                disabled={!position.canMoveDown}
+                onSelect={() => onChange(shiftSidebarEntry(resolved, key, 1, isShown))}
+              >
+                {t("SidebarCustomize.moveDown")}
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem variant="destructive" onSelect={onDelete}>
+                {t("SidebarCustomize.deleteSection")}
+              </DropdownMenuItem>
+            </>
+          }
         >
-          <button
-            aria-expanded={!collapsed}
-            type="button"
-            onClick={() => onChange(updateSidebarSection(resolved, id, { collapsed: !collapsed }))}
-            onContextMenu={contextMenu.onContextMenu}
-          >
-            <span className="min-w-0 truncate">{label}</span>
+          <div className="relative" data-sidebar-section-header="">
+            <SidebarGroupLabel
+              ref={droppable.setNodeRef}
+              asChild
+              className={cn("group/section-label cursor-pointer pr-7", droppable.isOver && "bg-sidebar-accent")}
+            >
+              <button
+                aria-expanded={!collapsed}
+                type="button"
+                onClick={() => onChange(updateSidebarSection(resolved, id, { collapsed: !collapsed }))}
+              >
+                <span className="min-w-0 truncate">{label}</span>
 
-            <ChevronDown
-              aria-hidden
-              className={cn(
-                "ml-1 size-3 transition-transform",
-                collapsed ? "-rotate-90" : "opacity-0 group-hover/section-label:opacity-100",
-              )}
+                <ChevronDown
+                  aria-hidden
+                  className={cn(
+                    "ml-1 size-3 transition-transform",
+                    collapsed ? "-rotate-90" : "opacity-0 group-hover/section-label:opacity-100",
+                  )}
+                />
+              </button>
+            </SidebarGroupLabel>
+
+            <ItemActionsTrigger
+              align="start"
+              modal={false}
+              side="right"
+              tooltip={false}
+              trigger={<SidebarGroupAction className="top-1.5 right-1" />}
             />
-          </button>
-        </SidebarGroupLabel>
-      )}
-
-      {customizable && !editing && (
-        <DropdownMenu modal={false} {...contextMenu.menu}>
-          <DropdownMenuTrigger asChild>
-            <SidebarGroupAction
-              aria-label={t("SidebarCustomize.sectionActions", { section: label })}
-              className="md:opacity-0 group-hover/sidebar-group:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100"
-            >
-              <MoreHorizontal />
-            </SidebarGroupAction>
-          </DropdownMenuTrigger>
-
-          <DropdownMenuContent align="start" side="right">
-            <DropdownMenuItem onSelect={() => onEdit(true)}>{t("SidebarCustomize.rename")}</DropdownMenuItem>
-
-            <DropdownMenuItem
-              disabled={!position.canMoveUp}
-              onSelect={() => onChange(shiftSidebarEntry(resolved, key, -1, isShown))}
-            >
-              {t("SidebarCustomize.moveUp")}
-            </DropdownMenuItem>
-
-            <DropdownMenuItem
-              disabled={!position.canMoveDown}
-              onSelect={() => onChange(shiftSidebarEntry(resolved, key, 1, isShown))}
-            >
-              {t("SidebarCustomize.moveDown")}
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem variant="destructive" onSelect={onDelete}>
-              {t("SidebarCustomize.deleteSection")}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          </div>
+        </ItemActions>
       )}
 
       <SidebarGroupContent className={cn(collapsed && "hidden group-data-[collapsible=icon]:block")}>

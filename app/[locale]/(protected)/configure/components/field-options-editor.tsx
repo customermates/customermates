@@ -17,7 +17,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Ellipsis, Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 
 import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
 import { useRecordValueFormat } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
@@ -29,15 +29,10 @@ import { AppModalCloseContext } from "@/components/modal/app-modal-close-context
 import { DragHandle } from "@/components/shared/drag-handle";
 import { Button } from "@/components/ui/button";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { ItemActions, ItemActionsTrigger } from "@/components/ui/item-actions";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useFocusAfterRemoval } from "@/components/ui/use-focus-after-removal";
 import { CHIP_COLORS, toChipColor } from "@/constants/chip-colors";
 import { cn } from "@/core/utils/cn";
@@ -193,38 +188,11 @@ const AttributeColumnHeader = observer(function AttributeColumnHeader({
       onOpenChange={setRenaming}
     >
       <PopoverAnchor asChild>
-        <div className="flex min-h-6 min-w-0 items-center gap-0.5" data-option-column={column.key}>
-          <span className="min-w-0 truncate text-xs leading-4 font-medium text-muted-foreground">{label}</span>
-
-          {!store.isDisabled && (
-            <DropdownMenu>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      ref={menuButton}
-                      aria-label={moreLabel}
-                      className="text-muted-foreground"
-                      size="icon-xs"
-                      variant="ghost"
-                    >
-                      <Ellipsis aria-hidden />
-                    </Button>
-                  </DropdownMenuTrigger>
-                </TooltipTrigger>
-
-                <TooltipContent>{moreLabel}</TooltipContent>
-              </Tooltip>
-
-              <DropdownMenuContent
-                align="end"
-                onCloseAutoFocus={(event) => {
-                  if (!keepFocus.current) return;
-                  keepFocus.current = false;
-                  event.preventDefault();
-                  setRenaming(true);
-                }}
-              >
+        <ItemActions
+          label={moreLabel}
+          menu={
+            !store.isDisabled && (
+              <>
                 {!probability && (
                   <DropdownMenuItem
                     onSelect={() => {
@@ -248,10 +216,27 @@ const AttributeColumnHeader = observer(function AttributeColumnHeader({
 
                   {t("Common.actions.delete")}
                 </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-        </div>
+              </>
+            )
+          }
+          onCloseAutoFocus={(event) => {
+            if (!keepFocus.current) return;
+            keepFocus.current = false;
+            event.preventDefault();
+            setRenaming(true);
+          }}
+        >
+          <div className="flex min-h-6 min-w-0 items-center gap-0.5" data-option-column={column.key}>
+            <span className="min-w-0 truncate text-xs leading-4 font-medium text-muted-foreground">{label}</span>
+
+            {!store.isDisabled && (
+              <ItemActionsTrigger
+                ref={menuButton}
+                trigger={<Button className="text-muted-foreground" size="icon-xs" variant="ghost" />}
+              />
+            )}
+          </div>
+        </ItemActions>
       </PopoverAnchor>
     </AttributeColumnPopover>
   );
@@ -338,62 +323,70 @@ const OptionRow = observer(function OptionRow({
   const sortable = useSortable({ id: option.id, disabled: store.isDisabled });
   const name = option.label.trim() || t("RecordModel.option");
   return (
-    <li
-      ref={sortable.setNodeRef}
-      className={cn(
-        "group/row relative bg-background",
-        ROW_GRID,
-        ROW_AREAS[Number(store.form.choices.columns.length > 0)],
-        WIDE_ROW_GRID[step],
-        store.form.choices.columns.length > 0 && WRAPPED_ROW[step],
-        sortable.isDragging && "z-10 shadow-md",
-      )}
-      data-focus-target={store.form.id ? `option:${store.form.id}.${option.id}` : undefined}
-      data-option-row={option.id}
-      style={{ ...style, transform: CSS.Translate.toString(sortable.transform), transition: sortable.transition }}
-    >
-      <DragHandle
-        attributes={sortable.attributes}
-        className={cn("mt-1 [grid-area:drag]", WIDE_PLACEMENT[step], store.isDisabled && "invisible")}
-        label={`${t("DataView.dragToReorder")}: ${name}`}
-        listeners={sortable.listeners}
-        setActivatorNodeRef={sortable.setActivatorNodeRef}
-      />
+    <ItemActions>
+      <li
+        ref={sortable.setNodeRef}
+        className={cn(
+          "group/row relative bg-background",
+          ROW_GRID,
+          ROW_AREAS[Number(store.form.choices.columns.length > 0)],
+          WIDE_ROW_GRID[step],
+          store.form.choices.columns.length > 0 && WRAPPED_ROW[step],
+          sortable.isDragging && "z-10 shadow-md",
+        )}
+        data-focus-target={store.form.id ? `option:${store.form.id}.${option.id}` : undefined}
+        data-option-row={option.id}
+        style={{ ...style, transform: CSS.Translate.toString(sortable.transform), transition: sortable.transition }}
+      >
+        <DragHandle
+          attributes={sortable.attributes}
+          className={cn("mt-1 [grid-area:drag]", WIDE_PLACEMENT[step], store.isDisabled && "invisible")}
+          label={`${t("DataView.dragToReorder")}: ${name}`}
+          listeners={sortable.listeners}
+          setActivatorNodeRef={sortable.setActivatorNodeRef}
+        />
 
-      <FormSelect
-        ariaLabel={t("RecordModel.color")}
-        containerClassName={cn("min-w-0 [grid-area:color]", WIDE_PLACEMENT[step])}
-        id={`choices.options.${index}.color`}
-        items={CHIP_COLORS.map((color) => ({ value: color, label: t(`Common.colors.${color}`), color }))}
-        label={null}
-        value={toChipColor(option.color)}
-      />
+        <FormSelect
+          ariaLabel={t("RecordModel.color")}
+          containerClassName={cn("min-w-0 [grid-area:color]", WIDE_PLACEMENT[step])}
+          id={`choices.options.${index}.color`}
+          items={CHIP_COLORS.map((color) => ({ value: color, label: t(`Common.colors.${color}`), color }))}
+          label={null}
+          value={toChipColor(option.color)}
+        />
 
-      <FormInput
-        aria-label={t("RecordModel.option")}
-        containerClassName={cn("min-w-0 [grid-area:name]", WIDE_PLACEMENT[step])}
-        id={`choices.options.${index}.label`}
-        label={null}
-      />
+        <FormInput
+          aria-label={t("RecordModel.option")}
+          containerClassName={cn("min-w-0 [grid-area:name]", WIDE_PLACEMENT[step])}
+          id={`choices.options.${index}.label`}
+          label={null}
+        />
 
-      {store.form.choices.columns.length > 0 && (
-        <div
-          className={cn(
-            "grid min-w-0 grid-cols-(--option-cells) gap-2 [grid-area:cells]",
-            WIDE_CELLS[step],
-            WIDE_PLACEMENT[step],
-          )}
-        >
-          {store.form.choices.columns.map((column) => (
-            <OptionCellInput key={column.id} column={column} index={index} label={columnLabel(column)} store={store} />
-          ))}
+        {store.form.choices.columns.length > 0 && (
+          <div
+            className={cn(
+              "grid min-w-0 grid-cols-(--option-cells) gap-2 [grid-area:cells]",
+              WIDE_CELLS[step],
+              WIDE_PLACEMENT[step],
+            )}
+          >
+            {store.form.choices.columns.map((column) => (
+              <OptionCellInput
+                key={column.id}
+                column={column}
+                index={index}
+                label={columnLabel(column)}
+                store={store}
+              />
+            ))}
+          </div>
+        )}
+
+        <div className={cn("mt-1 [grid-area:menu]", WIDE_PLACEMENT[step])}>
+          {!store.isDisabled && <RecordRowActions name={name} onDelete={onDelete} />}
         </div>
-      )}
-
-      <div className={cn("mt-1 [grid-area:menu]", WIDE_PLACEMENT[step])}>
-        {!store.isDisabled && <RecordRowActions name={name} onDelete={onDelete} />}
-      </div>
-    </li>
+      </li>
+    </ItemActions>
   );
 });
 

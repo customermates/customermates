@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { Button } from "@/components/ui/button";
+import { ItemActions } from "@/components/ui/item-actions";
 import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 import { cn } from "@/core/utils/cn";
 
@@ -49,40 +50,41 @@ export const DataPhoneRows = observer(function DataPhoneRows<E extends HasId>({
       else if (href) navigateToHref(href);
     };
     return (
-      <li
-        key={item.id}
-        className="group/row relative px-4 py-3 transition-colors hover:bg-accent has-[>a:focus-visible]:bg-accent has-[>button:focus-visible]:bg-accent"
-        data-focus-target={rowFocusKey?.(item)}
-        data-row-id={item.id}
-      >
-        {!href && onRowClick && (
-          <button aria-label={label} className="absolute inset-0 outline-none" type="button" onClick={open} />
-        )}
+      <ItemActions key={item.id} href={href}>
+        <li
+          className="group/row relative px-4 py-3 transition-colors hover:bg-accent has-[>a:focus-visible]:bg-accent has-[>button:focus-visible]:bg-accent"
+          data-focus-target={rowFocusKey?.(item)}
+          data-row-id={item.id}
+        >
+          {!href && onRowClick && (
+            <button aria-label={label} className="absolute inset-0 outline-none" type="button" onClick={open} />
+          )}
 
-        {href && (
-          <a
-            aria-label={label}
-            className="absolute inset-0 outline-none"
-            href={href}
-            onClick={(event) => {
-              if (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1) return;
-              event.preventDefault();
-              event.stopPropagation();
-              open();
-            }}
-          />
-        )}
+          {href && (
+            <a
+              aria-label={label}
+              className="absolute inset-0 outline-none"
+              href={href}
+              onClick={(event) => {
+                if (event.metaKey || event.ctrlKey || event.shiftKey || event.button === 1) return;
+                event.preventDefault();
+                event.stopPropagation();
+                open();
+              }}
+            />
+          )}
 
-        <div className="pointer-events-none relative [&_[data-add-property]]:pointer-events-auto [&_[data-chip-column]]:pointer-events-auto">
-          {renderCard(item)}
-        </div>
-
-        {rowActions && (
-          <div className="absolute top-2 right-2">
-            <DataViewItemLayout.Provider value="card">{rowActions(item)}</DataViewItemLayout.Provider>
+          <div className="pointer-events-none relative [&_[data-add-property]]:pointer-events-auto [&_[data-chip-column]]:pointer-events-auto">
+            {renderCard(item)}
           </div>
-        )}
-      </li>
+
+          {rowActions && (
+            <div className="absolute top-2 right-2">
+              <DataViewItemLayout.Provider value="card">{rowActions(item)}</DataViewItemLayout.Provider>
+            </div>
+          )}
+        </li>
+      </ItemActions>
     );
   };
   return (

@@ -250,6 +250,16 @@ function ListNodeView({ data: { list } }: NodeProps<ListNode>) {
         }
         disabled={disabled}
         icon={recordTypeIcon(list.type.icon)}
+        menu={
+          canManage &&
+          !disabled && (
+            <ConfigureListAddItems
+              channels={!list.type.embedded && !hasChannels(list.type.id)}
+              sublist={canAddSublist && !list.type.embedded}
+              onAdd={(kind) => onAdd(list.type.id, kind)}
+            />
+          )
+        }
         name={list.type.pluralLabel}
         onClick={() => onSelectList(list.type.id)}
       />

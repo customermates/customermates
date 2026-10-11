@@ -6,7 +6,7 @@ import type { AgentChatStore } from "./agent-chat.store";
 import { observer } from "mobx-react-lite";
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Archive, Ellipsis, History, Loader2, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Archive, History, Loader2, Plus, RotateCcw, Trash2 } from "lucide-react";
 
 import { type AgentConversationSummary } from "@/ee/agent-chat/agent-chat.schema";
 
@@ -16,16 +16,12 @@ import { runUserAction } from "@/core/errors/report-application-error";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/modal/confirm-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { ItemActions, ItemActionsTrigger } from "@/components/ui/item-actions";
 import { OVERLAY_SCROLL_REGION, OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 import { cn } from "@/core/utils/cn";
 
-import { ActionTooltip, chatUiCopy } from "./chat-ui";
+import { chatUiCopy } from "./chat-ui";
 
 function historyLocked(
   store: Pick<AgentChatStore, "isWorking" | "conversationLoadPendingId" | "historyMutationPending">,
@@ -33,38 +29,35 @@ function historyLocked(
   return store.isWorking || Boolean(store.conversationLoadPendingId) || Boolean(store.historyMutationPending);
 }
 
-function ConversationRowMenu({
+function ConversationRow({
   label,
   disabled,
   triggerId,
+  menu,
+  className,
   children,
 }: {
   label: string;
   disabled: boolean;
   triggerId?: string;
+  menu: ReactNode;
+  className?: string;
   children: ReactNode;
 }) {
   return (
-    <DropdownMenu modal={false}>
-      <ActionTooltip label={label}>
-        <DropdownMenuTrigger asChild>
-          <Button
-            aria-label={label}
-            className="mr-1 size-8 shrink-0 opacity-70 transition-opacity hover:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
-            disabled={disabled}
-            id={triggerId}
-            size="icon"
-            variant="ghost"
-          >
-            <Ellipsis aria-hidden className="size-4" />
-          </Button>
-        </DropdownMenuTrigger>
-      </ActionTooltip>
-
-      <DropdownMenuContent align="end" aria-labelledby={triggerId} className={OVERLAY_TOPMOST_LAYER_CLASS}>
+    <ItemActions contentClassName={OVERLAY_TOPMOST_LAYER_CLASS} label={label} menu={disabled ? undefined : menu}>
+      <div className={className} role="listitem">
         {children}
-      </DropdownMenuContent>
-    </DropdownMenu>
+
+        <ItemActionsTrigger
+          contentLabelledBy={triggerId}
+          disabled={disabled}
+          id={triggerId}
+          modal={false}
+          trigger={<Button className="mr-1 size-8 shrink-0" size="icon" variant="ghost" />}
+        />
+      </div>
+    </ItemActions>
   );
 }
 
@@ -144,13 +137,21 @@ export const ConversationHistory = observer(function ConversationHistory() {
         {store.conversations.map((conversation) => {
           const index = store.conversations.findIndex((candidate) => candidate.id === conversation.id);
           return (
-            <div
+            <ConversationRow
               key={conversation.id}
               className={cn(
-                "group flex items-center gap-1 overflow-hidden rounded-lg border",
+                "flex items-center gap-1 overflow-hidden rounded-lg border",
                 conversation.id === store.conversationId && "bg-muted",
               )}
-              role="listitem"
+              disabled={historyActionsDisabled}
+              label={copy.moreActions(conversation.title || copy.untitled)}
+              menu={
+                <DropdownMenuItem onSelect={() => runUserAction(() => archive(conversation.id, index))}>
+                  <Archive aria-hidden className="size-4" />
+
+                  {copy.archive}
+                </DropdownMenuItem>
+              }
             >
               <Button
                 aria-current={conversation.id === store.conversationId ? "true" : undefined}
@@ -179,18 +180,7 @@ export const ConversationHistory = observer(function ConversationHistory() {
                   )}
                 </span>
               </Button>
-
-              <ConversationRowMenu
-                disabled={historyActionsDisabled}
-                label={copy.moreActions(conversation.title || copy.untitled)}
-              >
-                <DropdownMenuItem onSelect={() => runUserAction(() => archive(conversation.id, index))}>
-                  <Archive aria-hidden className="size-4" />
-
-                  {copy.archive}
-                </DropdownMenuItem>
-              </ConversationRowMenu>
-            </div>
+            </ConversationRow>
           );
         })}
       </div>
@@ -318,7 +308,30 @@ export const ArchivedConversationList = observer(function ArchivedConversationLi
 
       <div className="mt-1 space-y-1" role="list">
         {conversations.map((conversation) => (
-          <div key={conversation.id} className="group flex items-center gap-2 rounded-md px-2 py-1.5" role="listitem">
+          <ConversationRow
+            key={conversation.id}
+            className="flex items-center gap-2 rounded-md px-2 py-1.5"
+            disabled={historyActionsDisabled}
+            label={copy.moreActions(conversation.title || copy.untitled)}
+            menu={
+              <>
+                <DropdownMenuItem
+                  onSelect={() => runUserAction(() => store.restoreArchivedConversation(conversation.id))}
+                >
+                  <RotateCcw aria-hidden className="size-4" />
+
+                  {copy.restore}
+                </DropdownMenuItem>
+
+                <DropdownMenuItem variant="destructive" onSelect={() => setDeleteCandidate(conversation)}>
+                  <Trash2 aria-hidden className="size-4" />
+
+                  {copy.deleteChat}
+                </DropdownMenuItem>
+              </>
+            }
+            triggerId={`agent-archived-${conversation.id}`}
+          >
             <span className="min-w-0 flex-1">
               <span className="block truncate font-medium">{conversation.title || copy.untitled}</span>
 
@@ -326,27 +339,7 @@ export const ArchivedConversationList = observer(function ArchivedConversationLi
                 <span className="block truncate text-muted-foreground">{conversation.preview}</span>
               )}
             </span>
-
-            <ConversationRowMenu
-              disabled={historyActionsDisabled}
-              label={copy.moreActions(conversation.title || copy.untitled)}
-              triggerId={`agent-archived-${conversation.id}`}
-            >
-              <DropdownMenuItem
-                onSelect={() => runUserAction(() => store.restoreArchivedConversation(conversation.id))}
-              >
-                <RotateCcw aria-hidden className="size-4" />
-
-                {copy.restore}
-              </DropdownMenuItem>
-
-              <DropdownMenuItem variant="destructive" onSelect={() => setDeleteCandidate(conversation)}>
-                <Trash2 aria-hidden className="size-4" />
-
-                {copy.deleteChat}
-              </DropdownMenuItem>
-            </ConversationRowMenu>
-          </div>
+          </ConversationRow>
         ))}
 
         {store.archivedConversationNextCursor && (

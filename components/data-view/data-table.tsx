@@ -16,6 +16,7 @@ import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { IconButton } from "@/components/ui/icon-button";
+import { ItemActions } from "@/components/ui/item-actions";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/core/utils/cn";
 import type { Prisma } from "@/generated/prisma";
@@ -167,104 +168,105 @@ export const DataTable = observer(function DataTable<E extends HasId>({
 
   function renderRow(row: Row<E>): ReactNode {
     return (
-      <TableRow
-        key={row.id}
-        className={cn("group/row", (onRowClick || onRowHref) && "cursor-pointer")}
-        data-focus-target={rowFocusKey?.(row.original)}
-        data-row-id={row.original.id}
-        data-state={store.selectedIds.has(row.original.id) ? "selected" : undefined}
-        onClick={(e) => {
-          if (!e.currentTarget.contains(e.target as Node) || isInteractiveClick(e)) return;
-          if (store.selectedIds.size > 0 && canBulkAct) {
-            store.toggleItemSelection(row.original.id);
-            return;
-          }
-          if (onRowClick) {
-            e.currentTarget.querySelector<HTMLElement>('[data-slot="data-row-open"]')?.focus({ preventScroll: true });
-            onRowClick(row.original);
-            return;
-          }
-          const href = onRowHref?.(row.original);
-          if (href) navigateToHref(href);
-        }}
-      >
-        {row.getVisibleCells().map((cell) => {
-          const columnId = cell.column.id;
-          const isSelectionCell = columnId === "__select" || columnId === "__actions";
-          const isNameCell = columnId === (store.primaryColumnId ?? store.columnsDefinition[0]?.uid);
-          const liveWidth = getColumnWidth(columnId);
-          const content = flexRender(cell.column.columnDef.cell, cell.getContext());
-          const rowHref = onRowHref?.(row.original);
-          const wrapped =
-            isNameCell && rowHref ? (
-              <a
-                className="block truncate text-inherit [&:hover_span:not([data-slot])]:underline"
-                data-slot="data-row-open"
-                href={rowHref}
-                onClick={(e) => {
-                  if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
-                  if (store.selectedIds.size > 0 && canBulkAct) {
+      <ItemActions key={row.id} href={onRowHref?.(row.original)}>
+        <TableRow
+          className={cn("group/row", (onRowClick || onRowHref) && "cursor-pointer")}
+          data-focus-target={rowFocusKey?.(row.original)}
+          data-row-id={row.original.id}
+          data-state={store.selectedIds.has(row.original.id) ? "selected" : undefined}
+          onClick={(e) => {
+            if (!e.currentTarget.contains(e.target as Node) || isInteractiveClick(e)) return;
+            if (store.selectedIds.size > 0 && canBulkAct) {
+              store.toggleItemSelection(row.original.id);
+              return;
+            }
+            if (onRowClick) {
+              e.currentTarget.querySelector<HTMLElement>('[data-slot="data-row-open"]')?.focus({ preventScroll: true });
+              onRowClick(row.original);
+              return;
+            }
+            const href = onRowHref?.(row.original);
+            if (href) navigateToHref(href);
+          }}
+        >
+          {row.getVisibleCells().map((cell) => {
+            const columnId = cell.column.id;
+            const isSelectionCell = columnId === "__select" || columnId === "__actions";
+            const isNameCell = columnId === (store.primaryColumnId ?? store.columnsDefinition[0]?.uid);
+            const liveWidth = getColumnWidth(columnId);
+            const content = flexRender(cell.column.columnDef.cell, cell.getContext());
+            const rowHref = onRowHref?.(row.original);
+            const wrapped =
+              isNameCell && rowHref ? (
+                <a
+                  className="block truncate text-inherit [&:hover_span:not([data-slot])]:underline"
+                  data-slot="data-row-open"
+                  href={rowHref}
+                  onClick={(e) => {
+                    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+                    if (store.selectedIds.size > 0 && canBulkAct) {
+                      e.preventDefault();
+                      return;
+                    }
                     e.preventDefault();
-                    return;
-                  }
-                  e.preventDefault();
-                  if (onRowClick) {
+                    if (onRowClick) {
+                      e.currentTarget.focus({ preventScroll: true });
+                      onRowClick(row.original);
+                    } else navigateToHref(rowHref);
+                  }}
+                >
+                  {content}
+                </a>
+              ) : isNameCell && onRowClick ? (
+                <button
+                  className="block w-full truncate rounded-sm text-left text-inherit outline-none [&:hover_span:not([data-slot])]:underline focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-offset-1 focus-visible:ring-offset-background"
+                  data-slot="data-row-open"
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (store.selectedIds.size > 0 && canBulkAct) {
+                      store.toggleItemSelection(row.original.id);
+                      return;
+                    }
                     e.currentTarget.focus({ preventScroll: true });
                     onRowClick(row.original);
-                  } else navigateToHref(rowHref);
-                }}
-              >
-                {content}
-              </a>
-            ) : isNameCell && onRowClick ? (
-              <button
-                className="block w-full truncate rounded-sm text-left text-inherit outline-none [&:hover_span:not([data-slot])]:underline focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:ring-offset-1 focus-visible:ring-offset-background"
-                data-slot="data-row-open"
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (store.selectedIds.size > 0 && canBulkAct) {
-                    store.toggleItemSelection(row.original.id);
-                    return;
-                  }
-                  e.currentTarget.focus({ preventScroll: true });
-                  onRowClick(row.original);
-                }}
-              >
-                {content}
-              </button>
-            ) : (
-              content
-            );
-          const style = isSelectionCell ? undefined : columnStyle?.(columnId);
-          return (
-            <TableCell
-              key={cell.id}
-              className={
-                columnId === "__actions"
-                  ? "sticky right-0 w-px py-0 pl-0 whitespace-nowrap any-pointer-coarse:static md:pointer-fine:not-any-pointer-coarse:w-0 md:pointer-fine:not-any-pointer-coarse:p-0 focus-within:bg-background group-hover/row:bg-background group-hover/row:bg-[image:linear-gradient(var(--accent),var(--accent))] group-data-[state=selected]/row:bg-[image:linear-gradient(var(--selected),var(--selected))]"
-                  : isSelectionCell
-                    ? "w-10"
-                    : cn(
-                        style && !style.emphasis && !isNameCell && "text-muted-foreground",
-                        style?.align === "end" &&
-                          "text-right [&_[data-edit-target]]:justify-end [&_[data-inline-edit-space]]:justify-end",
-                      )
-              }
-              data-align={style?.align}
-              style={liveWidth != null && !isSelectionCell ? fixedWidthStyle(liveWidth) : undefined}
-            >
-              {liveWidth != null && !isSelectionCell ? (
-                <div className="truncate" style={{ width: Math.max(0, liveWidth - 24) }}>
-                  {wrapped}
-                </div>
+                  }}
+                >
+                  {content}
+                </button>
               ) : (
-                wrapped
-              )}
-            </TableCell>
-          );
-        })}
-      </TableRow>
+                content
+              );
+            const style = isSelectionCell ? undefined : columnStyle?.(columnId);
+            return (
+              <TableCell
+                key={cell.id}
+                className={
+                  columnId === "__actions"
+                    ? "sticky right-0 w-0 p-0 whitespace-nowrap"
+                    : isSelectionCell
+                      ? "w-10"
+                      : cn(
+                          style && !style.emphasis && !isNameCell && "text-muted-foreground",
+                          style?.align === "end" &&
+                            "text-right [&_[data-edit-target]]:justify-end [&_[data-inline-edit-space]]:justify-end",
+                        )
+                }
+                data-align={style?.align}
+                style={liveWidth != null && !isSelectionCell ? fixedWidthStyle(liveWidth) : undefined}
+              >
+                {liveWidth != null && !isSelectionCell ? (
+                  <div className="truncate" style={{ width: Math.max(0, liveWidth - 24) }}>
+                    {wrapped}
+                  </div>
+                ) : (
+                  wrapped
+                )}
+              </TableCell>
+            );
+          })}
+        </TableRow>
+      </ItemActions>
     );
   }
 
@@ -301,7 +303,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
                     canResize && "group/resize-header",
                     canSort && "cursor-pointer select-none",
                     columnId === "__select" && "w-10",
-                    columnId === "__actions" && "w-px md:pointer-fine:w-0 md:pointer-fine:p-0",
+                    columnId === "__actions" && "w-0 p-0",
                   )}
                   style={
                     liveWidth != null
