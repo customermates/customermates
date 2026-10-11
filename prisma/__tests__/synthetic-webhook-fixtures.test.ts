@@ -7,22 +7,19 @@ import { presetId } from "@/features/records/crm-preset";
 
 import { SEED_IDS, type SeedContext } from "../seeds/context";
 import { fixtureId } from "../seeds/helpers";
-import { SYNTHETIC_SEED_TIMELINE } from "../seeds/timeline";
 import {
   seedWebhooks,
-  SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS,
+  SYNTHETIC_PAUSED_WEBHOOK_ID,
+  SYNTHETIC_PAUSED_WEBHOOK_URL,
   SYNTHETIC_WEBHOOK_ID,
   SYNTHETIC_WEBHOOK_URL,
 } from "../seeds/webhooks";
 
-const PREFIX = { contact: "60000000", deal: "80000000", organization: "70000000" } as const;
-
-function recordEvents() {
-  return SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS.map((definition, index) => ({
-    id: fixtureId("3a000000", index + 1),
-    subjectTypeId: presetId(SEED_IDS.company, definition.entityType),
-    subjectId: fixtureId(PREFIX[definition.entityType], definition.entityIndex + 1),
-    kind: definition.event,
+function recordEvents(take: number, offset: number) {
+  return Array.from({ length: take }, (_, index) => ({
+    id: fixtureId("3a000000", offset + index + 1),
+    kind: index % 3 ? "record.updated" : "record.created",
+    createdAt: new Date(Date.UTC(2026, 6, 30 - index, 9)),
   }));
 }
 
@@ -32,6 +29,7 @@ async function seed() {
     deliveries: [] as Array<{ create: Record<string, unknown>; update: Record<string, unknown> }>,
     subscriptions: [] as Array<{ create: Record<string, unknown> }>,
   };
+  let lookups = 0;
   const prisma = {
     recordEventSubscription: {
       upsert: vi.fn((input: { create: Record<string, unknown> }) => {
@@ -40,7 +38,9 @@ async function seed() {
       }),
       deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
     },
-    eventLog: { findMany: vi.fn().mockResolvedValue(recordEvents()) },
+    eventLog: {
+      findMany: vi.fn((input: { take: number }) => Promise.resolve(recordEvents(input.take, 100 * lookups++))),
+    },
     webhook: {
       upsert: vi.fn((input: { create: Record<string, unknown>; update: Record<string, unknown> }) => {
         calls.webhook.push(input);
@@ -67,61 +67,52 @@ async function seed() {
 }
 
 describe("synthetic webhook fixtures", () => {
-  it("restores the disabled demo webhook on record events without a credential or live endpoint", async () => {
+  it("restores a healthy and a paused webhook on reserved hosts without a credential", async () => {
     const calls = await seed();
 
-    expect(calls.webhook).toHaveLength(1);
-    expect(calls.webhook[0].create).toMatchObject({
-      id: SYNTHETIC_WEBHOOK_ID,
-      companyId: SEED_IDS.company,
-      enabled: false,
-      events: ["record.created", "record.updated"],
-      secret: null,
-      url: SYNTHETIC_WEBHOOK_URL,
-      createdAt: SYNTHETIC_SEED_TIMELINE.webhook.createdAt,
-      updatedAt: SYNTHETIC_SEED_TIMELINE.webhook.updatedAt,
-    });
-    expect(new URL(SYNTHETIC_WEBHOOK_URL).hostname).toBe("receiver.example");
-    expect(calls.subscriptions).toHaveLength(1);
-    expect(calls.subscriptions[0].create).toMatchObject({
-      id: SYNTHETIC_WEBHOOK_ID,
-      kind: "webhook",
-      ownerUserId: SEED_IDS.user,
-      enabled: false,
-      events: ["record.created", "record.updated"],
-      sources: ["contact", "deal", "organization"].map((type) => ({
-        query: { typeId: presetId(SEED_IDS.company, type), filters: [], relationships: [] },
-        events: ["record.created", "record.updated"],
-        changedFieldIds: [],
-      })),
-    });
+    expect(calls.webhook.map(({ create }) => [create.id, create.enabled, create.secret])).toEqual([
+      [SYNTHETIC_WEBHOOK_ID, true, null],
+      [SYNTHETIC_PAUSED_WEBHOOK_ID, false, null],
+    ]);
+    for (const url of [SYNTHETIC_WEBHOOK_URL, SYNTHETIC_PAUSED_WEBHOOK_URL])
+      expect(new URL(url).hostname).toMatch(/\.example$/);
+    expect(calls.subscriptions.map(({ create }) => create)).toMatchObject([
+      {
+        id: SYNTHETIC_WEBHOOK_ID,
+        kind: "webhook",
+        ownerUserId: SEED_IDS.user,
+        enabled: true,
+        sources: ["deal", "subscription"].map((type) => ({
+          query: { typeId: presetId(SEED_IDS.company, type), filters: [], relationships: [] },
+          events: ["record.created", "record.updated"],
+          changedFieldIds: [],
+        })),
+      },
+      { id: SYNTHETIC_PAUSED_WEBHOOK_ID, enabled: false },
+    ]);
   });
 
-  it("restores 14 deliveries bound to the seeded record events of their record", async () => {
+  it("restores successful deliveries for the healthy webhook and failures for the paused one", async () => {
     const calls = await seed();
-    const events = recordEvents();
+    const healthy = calls.deliveries.filter(({ create }) => create.webhookId === SYNTHETIC_WEBHOOK_ID);
+    const paused = calls.deliveries.filter(({ create }) => create.webhookId === SYNTHETIC_PAUSED_WEBHOOK_ID);
 
-    expect(calls.deliveries).toHaveLength(14);
+    expect(healthy).toHaveLength(18);
+    expect(paused).toHaveLength(8);
+    expect(healthy.every(({ create }) => create.status === "success" && create.statusCode === 200)).toBe(true);
+    expect(paused.every(({ create }) => create.status === "failed" && !create.success)).toBe(true);
     for (const [index, { create }] of calls.deliveries.entries()) {
-      const definition = SYNTHETIC_WEBHOOK_DELIVERY_DEFINITIONS[index];
-      const event = events[index];
       expect(create).toMatchObject({
         id: fixtureId("23000000", index + 1),
-        webhookId: SYNTHETIC_WEBHOOK_ID,
-        eventId: event.id,
         subscriptionRevision: 1,
-        admissionKey: `${SYNTHETIC_WEBHOOK_ID}:${event.id}`,
-        event: definition.event,
-        requestBody: { eventId: event.id },
-        status: definition.status,
-        statusCode: definition.statusCode,
-        success: definition.status === "success",
-        url: SYNTHETIC_WEBHOOK_URL,
+        admissionKey: `${String(create.webhookId)}:${String(create.eventId)}`,
+        requestBody: { eventId: create.eventId },
         nextAttemptAt: null,
-        createdAt: SYNTHETIC_SEED_TIMELINE.webhookDelivery(index),
       });
-      expect(create.deliveredAt === null).toBe(definition.status === "processing");
+      expect(create.deliveredAt).toBeInstanceOf(Date);
     }
+    const times = healthy.map(({ create }) => (create.createdAt as Date).getTime());
+    expect(times).toEqual(times.toSorted((a, b) => a - b));
   });
 
   it("produces the same upsert data on every run", async () => {

@@ -1,6 +1,18 @@
 import { SYNTHETIC_AVATAR_URLS } from "../avatars";
+import { northwindDataset } from "../northwind-data";
+import { NORTHWIND_MEMBER_TITLES } from "../northwind-model";
 
-export type PersonKey = "amin" | "anna" | "clara" | "jonas" | "leon" | "marco" | "rashid" | "sophie" | "yasmin";
+export type PersonKey =
+  | "amin"
+  | "anna"
+  | "candidate"
+  | "clara"
+  | "jonas"
+  | "leon"
+  | "marco"
+  | "rashid"
+  | "sophie"
+  | "yasmin";
 
 export type SenderKey = PersonKey | "self";
 
@@ -20,12 +32,32 @@ export type ThreadFixture = {
   state: "open" | "unread";
   subject: string | null;
   type: "single" | "group";
+  /** Records the conversation is linked to, resolved from the first participant: their deal, ticket or application. */
+  links?: ReadonlyArray<"deal" | "ticket" | "candidate">;
 };
+
+const northwind = northwindDataset();
+
+/** Email address and job of a demo contact, from the generated Northwind dataset. */
+function contactFacts(index: number) {
+  const contact = northwind.contacts[index];
+  const organization = contact && northwind.organizations[contact.organizationIndex];
+  if (!contact || !organization) throw new Error(`Missing Northwind contact ${index} for messaging`);
+  return { email: contact.email, occupation: `${contact.jobTitle} at ${organization.name}` };
+}
+
+/** The candidate who is in the case task stage; the recruiting thread is with them. */
+export const MESSAGING_CANDIDATE = (() => {
+  const candidate = northwind.candidates.find(({ stage }) => stage === "caseTask");
+  const role = candidate && northwind.openRoles[candidate.openRoleIndex];
+  if (!candidate || !role) throw new Error("Missing Northwind candidate for messaging");
+  return { ...candidate, roleName: role.name };
+})();
 
 export const people: Record<
   PersonKey,
   {
-    avatarPath: string;
+    avatarPath?: string;
     contactIndex: number | null;
     displayName: string;
     email?: string;
@@ -42,49 +74,44 @@ export const people: Record<
 > = {
   anna: {
     avatarPath: SYNTHETIC_AVATAR_URLS.annaMueller,
-    contactIndex: 22,
+    contactIndex: 20,
+    ...contactFacts(20),
     displayName: "Anna Müller",
-    email: "anna.mueller@roche.example",
-    occupation: "Program Manager at Roche",
   },
   amin: {
     avatarPath: SYNTHETIC_AVATAR_URLS.aminHassan,
     contactIndex: 7,
+    ...contactFacts(7),
     displayName: "Amin Hassan",
-    email: "amin.hassan@tui.example",
-    occupation: "Customer Experience Lead at TUI",
   },
   clara: {
     avatarPath: SYNTHETIC_AVATAR_URLS.claraNeumann,
     contactIndex: null,
     displayName: "Clara Neumann",
-    email: "clara.neumann@partner.demo.example",
-    occupation: "Customer Operations Consultant",
+    email: "clara.neumann@customermates.com",
+    occupation: `${NORTHWIND_MEMBER_TITLES.claraNeumann} at Northwind Labs`,
   },
   leon: {
     avatarPath: SYNTHETIC_AVATAR_URLS.leonBecker,
     contactIndex: 0,
+    ...contactFacts(0),
     displayName: "Leon Becker",
-    email: "leon.becker@bmw.example",
-    headline: "Leading practical IT transformation",
+    headline: "Planning field service that runs on time",
     linkedin: "leon-becker.linkedin.example",
-    occupation: "IT Transformation Lead at BMW",
     profileUrl: "https://linkedin.example/in/leon-becker",
   },
   sophie: {
     avatarPath: SYNTHETIC_AVATAR_URLS.sophieWagner,
-    contactIndex: 19,
+    contactIndex: 17,
+    ...contactFacts(17),
     displayName: "Sophie Wagner",
-    email: "sophie.wagner@bmw.example",
-    occupation: "Sales Operations Manager at BMW",
     phone: "+12025550119",
   },
   jonas: {
     avatarPath: SYNTHETIC_AVATAR_URLS.jonasWeber,
     contactIndex: 6,
+    ...contactFacts(6),
     displayName: "Jonas Weber",
-    email: "jonas.weber@continental.example",
-    occupation: "Product Lead at Continental",
     phone: "+12025550106",
     telegram: "jonas_weber",
     telegramProfileUrl: "https://telegram.example/jonas-weber",
@@ -93,27 +120,31 @@ export const people: Record<
     avatarPath: SYNTHETIC_AVATAR_URLS.marcoSilva,
     contactIndex: null,
     displayName: "Marco Silva",
-    occupation: "Implementation Partner",
+    occupation: `${NORTHWIND_MEMBER_TITLES.marcoSilva} at Northwind Labs`,
     phone: "+12025550127",
   },
   rashid: {
     avatarPath: SYNTHETIC_AVATAR_URLS.rashidMalik,
-    contactIndex: 26,
+    contactIndex: 24,
+    ...contactFacts(24),
     displayName: "Rashid Malik",
-    email: "rashid.malik@kpmg.example",
-    headline: "Turning digital strategy into measurable change",
+    headline: "Fewer second visits, better service data",
     linkedin: "rashid-malik.linkedin.example",
-    occupation: "Digital Strategy Manager at KPMG",
     profileUrl: "https://linkedin.example/in/rashid-malik",
   },
   yasmin: {
     avatarPath: SYNTHETIC_AVATAR_URLS.yasminFarouk,
-    contactIndex: 23,
+    contactIndex: 21,
+    ...contactFacts(21),
     displayName: "Yasmin Farouk",
-    email: "yasmin.farouk@asml.example",
     instagram: "yasmin.farouk",
     instagramProfileUrl: "https://instagram.example/yasmin-farouk",
-    occupation: "Partner Manager at ASML",
+  },
+  candidate: {
+    contactIndex: null,
+    displayName: MESSAGING_CANDIDATE.name,
+    email: MESSAGING_CANDIDATE.email,
+    occupation: `Candidate for ${MESSAGING_CANDIDATE.roleName}`,
   },
 };
 
@@ -136,7 +167,7 @@ export const calendarFixture = {
       ],
       durationMinutes: 60,
       startsMinutesAgo: 6 * 60,
-      title: "BMW rollout checkpoint",
+      title: "Onboarding checkpoint",
       unipileEventId: "demo-fixture-calendar-event-2",
     },
     {
@@ -230,12 +261,13 @@ const threadFixtures: ThreadFixture[] = [
     name: null,
     participants: ["anna"],
     state: "open",
-    subject: "Next steps for the Roche rollout",
+    subject: "Next steps for the Northwind Field rollout",
     type: "single",
+    links: ["deal"],
   },
   {
     account: "google",
-    latestMinutesAgo: 90,
+    latestMinutesAgo: 3 * 24 * 60 + 90,
     messages: [
       {
         sender: "self",
@@ -251,7 +283,7 @@ const threadFixtures: ThreadFixture[] = [
       },
       {
         sender: "amin",
-        text: "I added the measurement goals from the TUI team. The 24-hour response target is the one leadership cares about most.",
+        text: "I added the measurement goals from our service desk. The 24-hour response target is the one leadership cares about most.",
       },
       {
         sender: "self",
@@ -270,7 +302,7 @@ const threadFixtures: ThreadFixture[] = [
   },
   {
     account: "google",
-    latestMinutesAgo: 70,
+    latestMinutesAgo: 2 * 24 * 60,
     messages: [
       {
         sender: "yasmin",
@@ -301,8 +333,9 @@ const threadFixtures: ThreadFixture[] = [
     name: null,
     participants: ["yasmin"],
     state: "open",
-    subject: "ASML retainer: contract review",
+    subject: "Order form review: Northwind Field Enterprise",
     type: "single",
+    links: ["deal"],
   },
   {
     account: "linkedin",
@@ -373,7 +406,7 @@ const threadFixtures: ThreadFixture[] = [
     messages: [
       {
         sender: "sophie",
-        text: "Morning! Are we still on for the BMW kickoff at 14:00?",
+        text: "Morning! Are we still on for the onboarding kickoff at 14:00?",
       },
       {
         sender: "self",
@@ -464,8 +497,9 @@ const threadFixtures: ThreadFixture[] = [
     name: null,
     participants: ["amin"],
     state: "open",
-    subject: "TUI response-time baseline",
+    subject: "SLA response-time baseline",
     type: "single",
+    links: ["ticket"],
   },
   {
     account: "google",
@@ -495,7 +529,7 @@ const threadFixtures: ThreadFixture[] = [
     name: null,
     participants: ["anna"],
     state: "unread",
-    subject: "Roche data mapping review",
+    subject: "Asset data mapping review",
     type: "single",
   },
   {
@@ -557,7 +591,7 @@ const threadFixtures: ThreadFixture[] = [
     name: null,
     participants: ["yasmin"],
     state: "open",
-    subject: "ASML partner enablement materials",
+    subject: "Partner enablement materials",
     type: "single",
   },
   {
@@ -621,6 +655,7 @@ const threadFixtures: ThreadFixture[] = [
     state: "open",
     subject: "Security questionnaire follow-up",
     type: "single",
+    links: ["deal"],
   },
   {
     account: "google",
@@ -1084,8 +1119,41 @@ const threadFixtures: ThreadFixture[] = [
     name: null,
     participants: ["amin"],
     state: "open",
-    subject: "TUI service journey baseline",
+    subject: "Service report baseline",
     type: "single",
+    links: ["ticket"],
+  },
+  {
+    account: "google",
+    latestMinutesAgo: 9 * 24 * 60,
+    messages: [
+      {
+        sender: "self",
+        text: `Hi ${MESSAGING_CANDIDATE.name.split(" ")[0]}, thank you for the interviews. As the next step we would like to invite you to a short case task: plan one week of maintenance jobs for a fictional HVAC team and present it in 30 minutes.`,
+      },
+      {
+        sender: "candidate",
+        text: "Thank you, I am happy to do the case task. Could you send the material and two possible dates for the presentation?",
+      },
+      {
+        sender: "self",
+        text: "The material is attached. Would Tuesday at 14:00 or Thursday at 10:00 work for you? Laura from our People team will send the invite.",
+      },
+      {
+        sender: "candidate",
+        text: "Thursday at 10:00 works well. I will send my questions by Monday if anything is unclear.",
+      },
+      {
+        sender: "self",
+        text: "Thursday at 10:00 is confirmed. The panel is the hiring manager and one team member; plan for 30 minutes and 15 minutes of questions.",
+      },
+    ],
+    name: null,
+    participants: ["candidate"],
+    state: "unread",
+    subject: `Case task for the ${MESSAGING_CANDIDATE.roleName} role`,
+    type: "single",
+    links: ["candidate"],
   },
 ];
 

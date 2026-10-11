@@ -189,7 +189,8 @@ describeDatabase("hosted AI operator migration", { timeout: 120_000 }, () => {
         await seedLocalHostedAiOperatorAccess(context);
 
         await expect(prisma.company.count()).resolves.toBe(2);
-        await expect(prisma.user.count()).resolves.toBe(4);
+        // Seven Northwind Labs members plus the hosted AI fixture company's ordinary user.
+        await expect(prisma.user.count()).resolves.toBe(8);
         await expect(prisma.agentUsageEvent.count()).resolves.toBe(3);
 
         const [operator, ordinary, ordinaryAuth, enterprise, usage] = await Promise.all([

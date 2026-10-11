@@ -1,53 +1,26 @@
 import type { SeedContext } from "./context";
-import { fixtureId, relationshipTargets } from "./helpers";
-import { SYNTHETIC_SEED_TIMELINE } from "./timeline";
+import { northwindAt, northwindDataset } from "./northwind-data";
+import { northwindUpdatedAt } from "./northwind-history";
 
-export const SYNTHETIC_TASK_NAMES = [
-  "Prepare and send a proposal for Wavestone",
-  "Discuss contract renewal",
-  "Review inbound lead from website and assign qualification score",
-  "Update training materials",
-  "Schedule discovery call with BMW",
-  "Coordinate demo appointment",
-  "Prepare Q3 sales pipeline review",
-  "Follow up with legal on contract approval for Roche",
-  "Schedule discovery call with PwC",
-  "Follow up on cold call",
-  "Prepare kickoff workshop",
-  "Review proposal response",
-  "Finalize quote",
-  "Review follow-up notes from the Roche demo",
-  "Loop in legal team",
-] as const;
+export const SYNTHETIC_TASK_NAMES = northwindDataset().tasks.map(({ name }) => name);
 
-export const SYNTHETIC_TASK_CONTACT_LINKS = [
-  [5, 25],
-  [9, 6],
-  [10, 22],
-  [11, 22],
-  [12, 25],
-] as const;
+const TASK_STATUSES = ["open", "inProgress", "blocked", "onHold", "done", "archived"] as const;
+const TASK_PRIORITIES = ["low", "medium", "high"] as const;
 
-export const SYNTHETIC_TASK_ORGANIZATION_LINKS = [
-  [1, 13],
-  [10, 14],
-  [12, 14],
-] as const;
+/** Index into the task Status options (Open, In Progress, Blocked, On Hold, Done, Archived). */
+export const SYNTHETIC_TASK_STATUS_INDEXES = northwindDataset().tasks.map(({ status }) =>
+  TASK_STATUSES.indexOf(status),
+);
 
-export const SYNTHETIC_TASK_DEAL_LINKS = [
-  [10, 2],
-  [11, 2],
-  [12, 2],
-  [14, 7],
-] as const;
+/** Index into the task Priority options (Low, Medium, High). */
+export const SYNTHETIC_TASK_PRIORITY_INDEXES = northwindDataset().tasks.map(({ priority }) =>
+  TASK_PRIORITIES.indexOf(priority),
+);
 
-export const SYNTHETIC_TASK_SERVICE_LINKS = [[3, 35]] as const;
-
-export const SYNTHETIC_ASSIGNED_TASK_INDEXES = [0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 14] as const;
-
-export const SYNTHETIC_TASK_STATUS_INDEXES = [2, 0, 4, 4, 1, 0, 0, 2, 1, 0, 1, 1, 2, 0, 0] as const;
-
-export const SYNTHETIC_TASK_PRIORITY_INDEXES = [1, 1, 2, 0, 1, 1, 2, 0, 0, 0, 2, 2, 2, 0, 1] as const;
+/** Tasks that have an assignee. */
+export const SYNTHETIC_ASSIGNED_TASK_INDEXES = northwindDataset()
+  .tasks.filter(({ assigneeKey }) => assigneeKey !== null)
+  .map(({ index }) => index);
 
 export type TaskDefinition = readonly [
   name: string,
@@ -74,27 +47,28 @@ export type TaskSeedData = {
 };
 
 export function seedTasks(context: SeedContext): Promise<TaskSeedData> {
-  const taskDefinitions: readonly TaskDefinition[] = SYNTHETIC_TASK_NAMES.map(
-    (name, index) =>
+  const dataset = northwindDataset().tasks;
+  const taskDefinitions: readonly TaskDefinition[] = dataset.map(
+    (task) =>
       [
-        name,
-        relationshipTargets(SYNTHETIC_TASK_CONTACT_LINKS, index),
-        relationshipTargets(SYNTHETIC_TASK_ORGANIZATION_LINKS, index),
-        relationshipTargets(SYNTHETIC_TASK_DEAL_LINKS, index),
-        relationshipTargets(SYNTHETIC_TASK_SERVICE_LINKS, index),
-        SYNTHETIC_TASK_STATUS_INDEXES[index],
+        task.name,
+        task.contactIndexes,
+        task.organizationIndexes,
+        task.dealIndexes,
+        task.serviceIndexes,
+        SYNTHETIC_TASK_STATUS_INDEXES[task.index] ?? 0,
       ] as const,
   );
-
-  const tasks = taskDefinitions.map(
-    ([name], index) =>
+  const tasks = dataset.map(
+    (task) =>
       ({
-        id: fixtureId("a0000000", index + 1),
+        id: task.id,
         companyId: context.ids.company,
-        name,
+        name: task.name,
         relatedUserId: null,
         type: "custom",
-        ...SYNTHETIC_SEED_TIMELINE.task(index),
+        createdAt: northwindAt(task.createdAtMs),
+        updatedAt: northwindUpdatedAt("task", task.id, task.createdAtMs),
       }) satisfies TaskFixture,
   );
 

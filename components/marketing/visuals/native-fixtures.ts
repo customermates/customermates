@@ -67,12 +67,12 @@ export const VISUAL_RECORD_FIXTURES = DEMO_VISUAL_DEALS;
 export const VISUAL_DEAL_BOARD_FIXTURES = {
   "agency-new-business-board": {
     records: [
-      "deal-digital-customer-platform",
-      "deal-data-analytics",
-      "deal-cloud-infrastructure",
-      "deal-hr-systems",
-      "deal-data-center-refresh",
-      "deal-process-automation",
+      "deal-sonnenhof-fire-safety",
+      "deal-oakridge-climate-systems",
+      "deal-hansen-building-services",
+      "deal-lowell-property-care",
+      "deal-ironvale-pump-service",
+      "deal-riverton-hvac-service",
     ],
     statuses: ["deal-open", "deal-won", "deal-lost"],
   },
@@ -82,12 +82,12 @@ export const VISUAL_DEAL_BOARD_FIXTURES = {
   },
   "professional-services-board": {
     records: [
-      "deal-data-analytics",
-      "deal-workplace-hardware",
-      "deal-crm-rollout",
-      "deal-enterprise-integration",
-      "deal-process-automation",
-      "deal-data-center-refresh",
+      "deal-oakridge-climate-systems",
+      "deal-mainbrueck-solar",
+      "deal-moorfield-property-management",
+      "deal-altmark-heating-cooling",
+      "deal-riverton-hvac-service",
+      "deal-ironvale-pump-service",
     ],
     statuses: ["deal-open", "deal-won", "deal-lost"],
   },

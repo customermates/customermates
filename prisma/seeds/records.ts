@@ -12,8 +12,9 @@ import { RecordCalculationService, type CalculationRecordRepo } from "@/features
 import { encodeRecordValue, recordJson } from "@/features/records/record-storage";
 import type { SeedContext } from "./context";
 import type { SyntheticSeedData } from "./run";
-import type { CustomFieldSeedData, SyntheticRecordType } from "./custom-fields";
-import { SYNTHETIC_CUSTOM_FIELD_IDS } from "./custom-fields";
+import type { CustomFieldSeedData } from "./custom-fields";
+import { NORTHWIND_RECORD_PREFIXES, buildNorthwindRecords } from "./northwind-records";
+import { applyNorthwindModel } from "./northwind-schema";
 import { SYNTHETIC_CUSTOM_ROLES } from "./roles";
 
 export function syntheticRecordModel(context: Pick<SeedContext, "ids">, fields: CustomFieldSeedData): RecordModel {
@@ -27,27 +28,7 @@ export function syntheticRecordModel(context: Pick<SeedContext, "ids">, fields: 
     if ([id("deal.totalValue"), id("deal.totalQuantity"), id("deal.weightedValue")].includes(field.id))
       field.publishedSummary = true;
   }
-  const weighted = modelFields.find((field) => field.id === id("deal.weightedValue"));
-  if (!weighted || weighted.behavior.kind !== "formula") throw new Error("Synthetic weighted value is missing");
-  weighted.behavior = {
-    kind: "formula",
-    expression: {
-      kind: "operation",
-      operator: "divide",
-      arguments: [
-        {
-          kind: "operation",
-          operator: "multiply",
-          arguments: [
-            { kind: "field", fieldId: id("deal.totalValue") },
-            { kind: "optionAttribute", fieldId: SYNTHETIC_CUSTOM_FIELD_IDS.dealStatus, attribute: "probability" },
-          ],
-        },
-        { kind: "literal", value: { kind: "decimal", value: "100", currency: null } },
-      ],
-    },
-  };
-  const model: RecordModel = { ...preset, fields: modelFields };
+  const model = applyNorthwindModel({ ...preset, fields: modelFields }, companyId);
   const parsed = RecordModelSchema.parse(model);
   const issues = validateRecordModel(parsed).issues;
   if (issues.length) throw new Error(`Invalid synthetic record configuration: ${JSON.stringify(issues)}`);
@@ -181,6 +162,14 @@ export function syntheticCalculationRepo(prisma: Prisma.TransactionClient, compa
   };
 }
 
+const CHUNK = 1000;
+
+function chunks<T>(rows: readonly T[], size = CHUNK): T[][] {
+  const result: T[][] = [];
+  for (let start = 0; start < rows.length; start += size) result.push(rows.slice(start, start + size));
+  return result;
+}
+
 export async function seedRecordFixtures(
   context: SeedContext,
   entities: SyntheticSeedData,
@@ -188,87 +177,112 @@ export async function seedRecordFixtures(
 ): Promise<void> {
   const proposed = syntheticRecordModel(context, fields),
     companyId = context.ids.company;
+  const id = (key: string) => presetId(companyId, key);
+  const northwind = buildNorthwindRecords(companyId);
   await context.prisma.$transaction(
     async (prisma) => {
       await prisma.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${companyId}, 0))`;
-      const model = await initialize(prisma, companyId, proposed),
-        records = syntheticCalculationRepo(prisma, companyId);
-      for (const [kind, prefix] of [
-        ["contact", "60000000-"],
-        ["organization", "70000000-"],
-        ["deal", "80000000-"],
-        ["service", "90000000-"],
-        ["task", "a0000000-"],
-      ] as const) {
+      const model = await initialize(prisma, companyId, proposed);
+      const fieldsById = new Map(model.fields.map((field) => [field.id, field]));
+
+      const rows = [
+        ...(["contact", "organization", "deal", "service", "task"] as const).flatMap((kind) =>
+          entities[`${kind}s`].map(({ id: recordId, createdAt, updatedAt }) => ({
+            typeKey: kind as string,
+            id: recordId,
+            createdAt,
+            updatedAt,
+          })),
+        ),
+        ...northwind.records,
+      ];
+      for (const [typeKey, prefix] of NORTHWIND_RECORD_PREFIXES) {
         await prisma.crmRecord.deleteMany({
           where: {
             companyId,
-            typeId: presetId(companyId, kind),
-            id: { startsWith: prefix, notIn: entities[`${kind}s`].map((row) => row.id) },
+            typeId: id(typeKey),
+            id: { startsWith: prefix, notIn: rows.filter((row) => row.typeKey === typeKey).map((row) => row.id) },
           },
         });
       }
+      for (const batch of chunks(rows)) {
+        const typeIds = batch.map((row) => id(row.typeKey));
+        const recordIds = batch.map((row) => row.id);
+        const created = batch.map((row) => row.createdAt.toISOString());
+        const updated = batch.map((row) => row.updatedAt.toISOString());
+        await prisma.$executeRaw`
+          INSERT INTO "CrmRecord" ("companyId", "typeId", "id", "createdAt", "updatedAt")
+          SELECT ${companyId}, row.type_id, row.id, row.created_at::timestamptz AT TIME ZONE 'UTC', row.updated_at::timestamptz AT TIME ZONE 'UTC'
+          FROM unnest(${typeIds}::text[], ${recordIds}::text[], ${created}::text[], ${updated}::text[])
+            AS row(type_id, id, created_at, updated_at)
+          ON CONFLICT ("companyId", "typeId", "id")
+          DO UPDATE SET "createdAt" = EXCLUDED."createdAt", "updatedAt" = EXCLUDED."updatedAt"`;
+      }
 
-      const save = async (
-        kind: SyntheticRecordType,
-        row: { id: string; createdAt: Date; updatedAt: Date },
-        values: Array<[string, RecordScalar | null]>,
-      ) => {
-        const ref = { typeId: presetId(companyId, kind), recordId: row.id };
-        const key = { companyId, typeId: ref.typeId, id: ref.recordId },
-          data = { ...key, createdAt: row.createdAt, updatedAt: row.updatedAt };
-        await prisma.crmRecord.upsert({ where: { companyId_typeId_id: key }, create: data, update: data });
-        for (const [name, value] of values) {
-          const field = model.fields.find((field) => field.id === presetId(companyId, `${kind}.${name}`));
-          if (!field) throw new Error(`Synthetic field is missing: ${kind}.${name}`);
-          if (field.behavior.kind !== "input") throw new Error(`Synthetic field behavior has changed: ${kind}.${name}`);
-          await records.setValue(
-            ref,
-            field.id,
-            value ? { state: "value", value } : { state: "missing" },
-            model.revision,
-          );
+      const values: Array<{ typeId: string; recordId: string; fieldId: string; value: RecordScalar }> = [];
+      const text = (value: string): RecordScalar => ({ kind: "text", value });
+      for (const contact of entities.contacts) {
+        const typeId = id("contact");
+        values.push({ typeId, recordId: contact.id, fieldId: id("contact.firstName"), value: text(contact.firstName) });
+        values.push({ typeId, recordId: contact.id, fieldId: id("contact.lastName"), value: text(contact.lastName) });
+        if (contact.avatarUrl) {
+          values.push({
+            typeId,
+            recordId: contact.id,
+            fieldId: id("contact.avatarUrl"),
+            value: text(contact.avatarUrl),
+          });
         }
-      };
-      for (const row of entities.contacts) {
-        await save("contact", row, [
-          ["firstName", { kind: "text", value: row.firstName }],
-          ["lastName", { kind: "text", value: row.lastName }],
-          ["avatarUrl", row.avatarUrl ? { kind: "text", value: row.avatarUrl } : null],
-          ["notes", null],
-        ]);
       }
       for (const kind of ["organization", "deal", "service", "task"] as const) {
-        const rows = entities[`${kind}s`];
-        for (const row of rows) {
-          await save(kind, row, [
-            ["name", { kind: "text", value: row.name }],
-            ["notes", null],
-            ...(kind === "service"
-              ? [
-                  [
-                    "amount",
-                    {
-                      kind: "decimal",
-                      value: String((row as SyntheticSeedData["services"][number]).amount),
-                      currency: "EUR",
-                    },
-                  ] as [string, RecordScalar],
-                ]
-              : []),
-          ]);
-        }
+        for (const row of entities[`${kind}s`])
+          values.push({ typeId: id(kind), recordId: row.id, fieldId: id(`${kind}.name`), value: text(row.name) });
       }
-      for (const row of fields.customFieldValues) {
-        const field = model.fields.find((field) => field.id === row.fieldId);
-        if (!field || field.typeId !== presetId(companyId, row.recordType) || field.behavior.kind !== "input")
-          throw new Error("Synthetic custom field has changed");
-        await records.setValue(
-          { typeId: field.typeId, recordId: row.recordId },
-          field.id,
-          { state: "value", value: row.value },
-          model.revision,
-        );
+      for (const service of entities.services) {
+        values.push({
+          typeId: id("service"),
+          recordId: service.id,
+          fieldId: id("service.amount"),
+          value: { kind: "decimal", value: String(service.amount), currency: "EUR" },
+        });
+      }
+      for (const row of fields.customFieldValues)
+        values.push({ typeId: id(row.recordType), recordId: row.recordId, fieldId: row.fieldId, value: row.value });
+      for (const row of northwind.values)
+        values.push({ typeId: id(row.typeKey), recordId: row.recordId, fieldId: id(row.fieldKey), value: row.value });
+      for (const row of values) {
+        const field = fieldsById.get(row.fieldId);
+        if (!field || field.typeId !== row.typeId) throw new Error(`Synthetic field is missing: ${row.fieldId}`);
+        if (field.behavior.kind !== "input" && field.behavior.kind !== "snapshot")
+          throw new Error(`Synthetic field is calculated: ${field.label}`);
+      }
+
+      for (const batch of chunks(rows)) {
+        await prisma.recordValue.deleteMany({
+          where: {
+            companyId,
+            OR: [...new Set(batch.map((row) => row.typeKey))].map((typeKey) => ({
+              typeId: id(typeKey),
+              recordId: { in: batch.filter((row) => row.typeKey === typeKey).map((row) => row.id) },
+            })),
+          },
+        });
+      }
+      for (const batch of chunks(values, 2000)) {
+        await prisma.recordValue.createMany({
+          data: batch.map((row) => {
+            const encoded = encodeRecordValue({ state: "value", value: row.value });
+            return {
+              companyId,
+              typeId: row.typeId,
+              recordId: row.recordId,
+              fieldId: row.fieldId,
+              ...encoded,
+              jsonValue: encoded.jsonValue ?? Prisma.DbNull,
+              schemaRevision: model.revision,
+            };
+          }),
+        });
       }
     },
     { maxWait: 60000, timeout: 600000 },
@@ -293,6 +307,106 @@ export async function seedRecordFixtures(
   }
 }
 
+type BufferedRecord = NonNullable<Awaited<ReturnType<CalculationRecordRepo["getRecordCompanyWide"]>>>;
+
+/**
+ * A calculation repository over an in-memory copy of the workspace's records, links and dependencies. The seed
+ * calculates thousands of records at once; reading them once and writing the changed values in bulk keeps that to a
+ * few seconds instead of one round trip per value.
+ */
+async function bufferedCalculationRepo(prisma: Prisma.TransactionClient, companyId: string) {
+  const [records, links, dependencies] = await Promise.all([
+    prisma.crmRecord.findMany({ where: { companyId }, include: { values: true, assignments: true } }),
+    prisma.recordLink.findMany({ where: { companyId }, orderBy: { id: "asc" } }),
+    prisma.recordValueDependency.findMany({ where: { companyId } }),
+  ]);
+  const refKey = (typeId: string, recordId: string) => `${typeId}:${recordId}`;
+  const valueKey = (ref: RecordRef, fieldId: string) => `${ref.typeId}:${ref.recordId}:${fieldId}`;
+  const byRef = new Map<string, BufferedRecord>(records.map((record) => [refKey(record.typeId, record.id), record]));
+  const related = new Map<string, RecordRef[]>();
+  const relate = (key: string, ref: RecordRef) => related.set(key, [...(related.get(key) ?? []), ref]);
+  for (const link of links) {
+    relate(`outgoing:${link.relationId}:${link.sourceTypeId}:${link.sourceId}`, {
+      typeId: link.targetTypeId,
+      recordId: link.targetId,
+    });
+    relate(`incoming:${link.relationId}:${link.targetTypeId}:${link.targetId}`, {
+      typeId: link.sourceTypeId,
+      recordId: link.sourceId,
+    });
+  }
+  const sources = new Map<string, RecordRef[]>();
+  for (const row of dependencies) {
+    sources.set(valueKey({ typeId: row.typeId, recordId: row.recordId }, row.fieldId), [
+      ...(sources.get(valueKey({ typeId: row.typeId, recordId: row.recordId }, row.fieldId)) ?? []),
+      { typeId: row.sourceTypeId, recordId: row.sourceId },
+    ]);
+  }
+  const dirtyValues = new Map<string, Prisma.RecordValueCreateManyInput>();
+  const dirtySources = new Map<string, { ref: RecordRef; fieldId: string }>();
+  const repo: CalculationRecordRepo = {
+    getRecordCompanyWide: (ref) => Promise.resolve(byRef.get(refKey(ref.typeId, ref.recordId)) ?? null),
+    linkedRecordsCompanyWide: (ref, relationId, direction, take = 501) =>
+      Promise.resolve((related.get(`${direction}:${relationId}:${ref.typeId}:${ref.recordId}`) ?? []).slice(0, take)),
+    setValue: (ref, fieldId, result, schemaRevision) => {
+      const encoded = encodeRecordValue(result);
+      const now = new Date();
+      const row = { companyId, typeId: ref.typeId, recordId: ref.recordId, fieldId, ...encoded, schemaRevision };
+      dirtyValues.set(valueKey(ref, fieldId), { ...row, jsonValue: encoded.jsonValue ?? Prisma.DbNull });
+      const record = byRef.get(refKey(ref.typeId, ref.recordId));
+      if (record) {
+        const stored = { ...row, createdAt: now, updatedAt: now } as unknown as BufferedRecord["values"][number];
+        record.values = [...record.values.filter((value) => value.fieldId !== fieldId), stored];
+      }
+      return Promise.resolve();
+    },
+    getValueDependencies: (ref, fieldId) => Promise.resolve(sources.get(valueKey(ref, fieldId)) ?? []),
+    setValueDependencies: (ref, fieldId, refs) => {
+      sources.set(valueKey(ref, fieldId), [...refs]);
+      dirtySources.set(valueKey(ref, fieldId), { ref, fieldId });
+      return Promise.resolve();
+    },
+  };
+  const deleteKeys = async (
+    table: "RecordValue" | "RecordValueDependency",
+    keys: Array<{ ref: RecordRef; fieldId: string }>,
+  ) => {
+    for (let start = 0; start < keys.length; start += 2000) {
+      const batch = keys.slice(start, start + 2000);
+      const typeIds = batch.map(({ ref }) => ref.typeId);
+      const recordIds = batch.map(({ ref }) => ref.recordId);
+      const fieldIds = batch.map(({ fieldId }) => fieldId);
+      if (table === "RecordValue")
+        await prisma.$executeRaw`DELETE FROM "RecordValue" AS row USING unnest(${typeIds}::text[], ${recordIds}::text[], ${fieldIds}::text[]) AS key(type_id, record_id, field_id) WHERE row."companyId" = ${companyId} AND row."typeId" = key.type_id AND row."recordId" = key.record_id AND row."fieldId" = key.field_id`;
+      else
+        await prisma.$executeRaw`DELETE FROM "RecordValueDependency" AS row USING unnest(${typeIds}::text[], ${recordIds}::text[], ${fieldIds}::text[]) AS key(type_id, record_id, field_id) WHERE row."companyId" = ${companyId} AND row."typeId" = key.type_id AND row."recordId" = key.record_id AND row."fieldId" = key.field_id`;
+    }
+  };
+  const flush = async () => {
+    const values = [...dirtyValues.values()];
+    await deleteKeys("RecordValueDependency", [...dirtySources.values()]);
+    await deleteKeys(
+      "RecordValue",
+      values.map((row) => ({ ref: { typeId: row.typeId, recordId: row.recordId }, fieldId: row.fieldId })),
+    );
+    for (let start = 0; start < values.length; start += 2000)
+      await prisma.recordValue.createMany({ data: values.slice(start, start + 2000) });
+    const rows = [...dirtySources.entries()].flatMap(([key, { ref, fieldId }]) =>
+      (sources.get(key) ?? []).map((source) => ({
+        companyId,
+        typeId: ref.typeId,
+        recordId: ref.recordId,
+        fieldId,
+        sourceTypeId: source.typeId,
+        sourceId: source.recordId,
+      })),
+    );
+    for (let start = 0; start < rows.length; start += 2000)
+      await prisma.recordValueDependency.createMany({ data: rows.slice(start, start + 2000), skipDuplicates: true });
+  };
+  return { repo, flush, refs: records.map((record) => ({ typeId: record.typeId, recordId: record.id })) };
+}
+
 export async function calculateSyntheticRecords(prisma: PrismaClient, companyId: string): Promise<void> {
   await prisma.$transaction(
     async (tx) => {
@@ -303,16 +417,15 @@ export async function calculateSyntheticRecords(prisma: PrismaClient, companyId:
         where: { companyId_revision: { companyId, revision: state.revision } },
       });
       const model = RecordModelSchema.parse(revision.snapshot);
-      const refs: RecordRef[] = (
-        await tx.crmRecord.findMany({ where: { companyId }, select: { typeId: true, id: true } })
-      ).map((row) => ({ typeId: row.typeId, recordId: row.id }));
-      const result = await new RecordCalculationService(syntheticCalculationRepo(tx, companyId)).recalculate(
+      const buffered = await bufferedCalculationRepo(tx, companyId);
+      const result = await new RecordCalculationService(buffered.repo).recalculate(
         model,
-        refs,
+        buffered.refs,
         new Map(),
         10000,
       );
       if (!result.complete) throw new Error("Synthetic calculation exceeded its record budget");
+      await buffered.flush();
     },
     { maxWait: 60000, timeout: 600000 },
   );

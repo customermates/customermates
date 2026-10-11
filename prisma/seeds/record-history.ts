@@ -14,151 +14,28 @@ import { decodeRecordValue } from "@/features/records/record-storage";
 import type { Prisma, PrismaClient } from "@/generated/prisma";
 
 import type { SeedContext } from "./context";
-import type { SyntheticRecordType } from "./custom-fields";
-import { fixtureId } from "./helpers";
+import { northwindAt } from "./northwind-data";
+import { SYNTHETIC_RECORD_EVENT_ID_PREFIX, buildNorthwindHistory } from "./northwind-history";
 import type { RelationshipSeedInput } from "./relationships";
-import {
-  SYNTHETIC_CONTACT_UPDATE_INDEXES,
-  SYNTHETIC_DEAL_UPDATE_INDEXES,
-  SYNTHETIC_ORGANIZATION_UPDATE_INDEXES,
-  SYNTHETIC_TASK_UPDATE_INDEXES,
-} from "./timeline";
 
-export const SYNTHETIC_RECORD_EVENT_ID_PREFIX = "3a000000";
+export { SYNTHETIC_RECORD_EVENT_ID_PREFIX } from "./northwind-history";
 
-export const SYNTHETIC_PREVIOUS_ORGANIZATION_NAMES = new Map<number, string>([
-  [5, "ASM Lithography"],
-  [10, "PricewaterhouseCoopers"],
-  [12, "NRW Bank"],
-  [13, "Hoffmann-La Roche"],
-]);
+const factsByModel = new WeakMap<RecordModel, Map<string, { publications: unknown; dependencyHash: unknown }>>();
 
-export const SYNTHETIC_PREVIOUS_CONTACT_FIRST_NAMES = new Map<number, string>([
-  [0, "Leo"],
-  [6, "Johannes"],
-  [7, "Ayman"],
-  [19, "Sophia"],
-  [22, "Annika"],
-  [23, "Jasmin"],
-  [26, "Rachid"],
-]);
-
-export const SYNTHETIC_PREVIOUS_DEAL_NAMES = new Map<number, string>([
-  [0, "Workflow Automation Program"],
-  [1, "Business Intelligence Transformation"],
-  [2, "CRM Implementation"],
-]);
-
-export const SYNTHETIC_PREVIOUS_TASK_NAMES = new Map<number, string>([
-  [0, "Draft the Wavestone proposal"],
-  [4, "Arrange a discovery call with BMW"],
-  [7, "Follow up with Roche legal"],
-  [8, "Arrange a discovery call with PwC"],
-  [13, "Review notes from the Roche demo"],
-]);
-
-export const SYNTHETIC_RECENT_TASK_HISTORY_OFFSETS_MINUTES = {
-  created: new Map<number, number>([
-    [10, 156],
-    [11, 126],
-    [12, 66],
-    [13, 96],
-    [14, 12],
-  ]),
-  updated: new Map<number, number>([[13, 38]]),
-} as const;
-
-export type SyntheticHistoryEntry = {
-  id: string;
-  type: SyntheticRecordType;
-  index: number;
-  recordId: string;
-  kind: "record.created" | "record.updated";
-  at: Date;
-  actorId: string;
-  previous: Array<[key: string, value: string]>;
-};
-
-export function buildSyntheticRecordHistory(args: {
-  entities: RelationshipSeedInput;
-  primaryUserId: string;
-  taskActorIds: string[];
-  messagingSyncAt: Date;
-}): SyntheticHistoryEntry[] {
-  const { entities, primaryUserId, taskActorIds, messagingSyncAt } = args;
-  const entries: SyntheticHistoryEntry[] = [];
-  const push = (entry: Omit<SyntheticHistoryEntry, "id">) =>
-    entries.push({ id: fixtureId(SYNTHETIC_RECORD_EVENT_ID_PREFIX, entries.length + 1), ...entry });
-  const recentTaskTime = (phase: "created" | "updated", index: number, fallback: Date) => {
-    const offset = SYNTHETIC_RECENT_TASK_HISTORY_OFFSETS_MINUTES[phase].get(index);
-    return offset === undefined ? fallback : new Date(messagingSyncAt.getTime() - offset * 60_000);
+/** Publications and dependency hash of a field, computed once per model. */
+function fieldFacts(field: RecordModel["fields"][number], model: RecordModel) {
+  const facts = factsByModel.get(model) ?? new Map();
+  factsByModel.set(model, facts);
+  if (!facts.has(field.id)) {
+    facts.set(field.id, {
+      publications: historyPublications(field, model),
+      dependencyHash: calculationDependencyHash(field, model),
+    });
+  }
+  return facts.get(field.id) as {
+    publications: ReturnType<typeof historyPublications>;
+    dependencyHash: ReturnType<typeof calculationDependencyHash>;
   };
-  const renamed = (
-    type: SyntheticRecordType,
-    rows: ReadonlyArray<{ id: string; createdAt: Date; updatedAt: Date }>,
-    key: string,
-    previousValues: ReadonlyMap<number, string>,
-    updates: readonly number[],
-    actorId: (index: number) => string = () => primaryUserId,
-    time: (phase: "created" | "updated", index: number, fallback: Date) => Date = (_phase, _index, fallback) =>
-      fallback,
-  ) => {
-    for (const [index, row] of rows.entries()) {
-      const previous = previousValues.get(index);
-      push({
-        type,
-        index,
-        recordId: row.id,
-        kind: "record.created",
-        at: time("created", index, row.createdAt),
-        actorId: actorId(index),
-        previous: previous === undefined ? [] : [[key, previous]],
-      });
-    }
-    for (const index of updates) {
-      const row = rows[index];
-      const previous = previousValues.get(index);
-      if (!row || previous === undefined) throw new Error(`Missing ${type} history update ${index}`);
-      if (row.updatedAt.getTime() <= row.createdAt.getTime())
-        throw new Error(`Synthetic ${type} update ${index} must follow its creation`);
-      push({
-        type,
-        index,
-        recordId: row.id,
-        kind: "record.updated",
-        at: time("updated", index, row.updatedAt),
-        actorId: actorId(index),
-        previous: [[key, previous]],
-      });
-    }
-  };
-
-  renamed(
-    "organization",
-    entities.organizations,
-    "name",
-    SYNTHETIC_PREVIOUS_ORGANIZATION_NAMES,
-    SYNTHETIC_ORGANIZATION_UPDATE_INDEXES,
-  );
-  renamed(
-    "contact",
-    entities.contacts,
-    "firstName",
-    SYNTHETIC_PREVIOUS_CONTACT_FIRST_NAMES,
-    SYNTHETIC_CONTACT_UPDATE_INDEXES,
-  );
-  renamed("service", entities.services, "name", new Map(), []);
-  renamed("deal", entities.deals, "name", SYNTHETIC_PREVIOUS_DEAL_NAMES, SYNTHETIC_DEAL_UPDATE_INDEXES);
-  renamed(
-    "task",
-    entities.tasks,
-    "name",
-    SYNTHETIC_PREVIOUS_TASK_NAMES,
-    SYNTHETIC_TASK_UPDATE_INDEXES,
-    (index) => taskActorIds[index % taskActorIds.length],
-    recentTaskTime,
-  );
-  return entries;
 }
 
 async function readSnapshot(
@@ -209,8 +86,7 @@ async function readSnapshot(
             .filter((dependency) => dependency.fieldId === field.id)
             .map((dependency) => ({ typeId: dependency.sourceTypeId, recordId: dependency.sourceId }))
             .sort((a, b) => compareRecordKey(`${a.typeId}:${a.recordId}`, `${b.typeId}:${b.recordId}`)),
-          publications: historyPublications(field, model),
-          dependencyHash: calculationDependencyHash(field, model),
+          ...fieldFacts(field, model),
           publishedSummary: field.publishedSummary,
         };
       }),
@@ -266,7 +142,68 @@ export async function writeRecordChange(
   });
 }
 
-export async function seedRecordHistory(context: SeedContext, entities: RelationshipSeedInput): Promise<void> {
+const HISTORY_CONCURRENCY = 50;
+
+/**
+ * Reads the workspace's records, dependencies and identities once and serves the three lookups
+ * `writeRecordChange` makes, collecting the events instead of writing them one by one.
+ */
+async function historyReader(prisma: PrismaClient, companyId: string) {
+  const [records, dependencies, identities] = await Promise.all([
+    prisma.crmRecord.findMany({ where: { companyId }, include: { values: true, assignments: true } }),
+    prisma.recordValueDependency.findMany({ where: { companyId } }),
+    prisma.recordIdentity.findMany({ where: { companyId }, include: { records: true } }),
+  ]);
+  const key = (typeId: string, recordId: string) => `${typeId}:${recordId}`;
+  const byRef = new Map(records.map((record) => [key(record.typeId, record.id), record]));
+  const dependenciesByRef = new Map<string, typeof dependencies>();
+  for (const row of dependencies) {
+    dependenciesByRef.set(key(row.typeId, row.recordId), [
+      ...(dependenciesByRef.get(key(row.typeId, row.recordId)) ?? []),
+      row,
+    ]);
+  }
+  const identitiesByRef = new Map<string, typeof identities>();
+  for (const identity of identities) {
+    for (const link of identity.records) {
+      identitiesByRef.set(key(link.typeId, link.recordId), [
+        ...(identitiesByRef.get(key(link.typeId, link.recordId)) ?? []),
+        identity,
+      ]);
+    }
+  }
+  const events: Prisma.EventLogCreateManyInput[] = [];
+  type RecordWhere = { companyId_typeId_id: { typeId: string; id: string } };
+  type RefWhere = { typeId: string; recordId: string };
+  type IdentityWhere = { records: { some: RefWhere } };
+  const client = {
+    crmRecord: {
+      findUniqueOrThrow: ({ where }: { where: RecordWhere }) => {
+        const record = byRef.get(key(where.companyId_typeId_id.typeId, where.companyId_typeId_id.id));
+        if (!record) throw new Error(`Missing synthetic history record ${where.companyId_typeId_id.id}`);
+        return Promise.resolve(record);
+      },
+    },
+    recordValueDependency: {
+      findMany: ({ where }: { where: RefWhere }) =>
+        Promise.resolve(dependenciesByRef.get(key(where.typeId, where.recordId)) ?? []),
+    },
+    recordIdentity: {
+      findMany: ({ where }: { where: IdentityWhere }) =>
+        Promise.resolve(identitiesByRef.get(key(where.records.some.typeId, where.records.some.recordId)) ?? []),
+    },
+    eventLog: {
+      upsert: ({ create }: { create: Prisma.EventLogCreateManyInput }) => {
+        events.push(create);
+        return Promise.resolve(create);
+      },
+    },
+  } as unknown as PrismaClient;
+  return { client, events };
+}
+
+/** Writes the demo's record history: every creation and the changes of the story, at their story times. */
+export async function seedRecordHistory(context: SeedContext, _entities: RelationshipSeedInput): Promise<void> {
   const { prisma, ids } = context;
   const companyId = ids.company;
   const state = await prisma.recordSchemaState.findUniqueOrThrow({ where: { companyId } });
@@ -277,55 +214,47 @@ export async function seedRecordHistory(context: SeedContext, entities: Relation
       })
     ).snapshot,
   );
-  const accounts = await prisma.connectedAccount.findMany({
-    where: { companyId, lastSyncedAt: { not: null } },
-    select: { lastSyncedAt: true },
-  });
-  const syncTimes = accounts.flatMap(({ lastSyncedAt }) => (lastSyncedAt ? [lastSyncedAt.getTime()] : []));
-  if (!syncTimes.length) throw new Error("Missing synthetic messaging sync anchor for recent record history");
-  const users = await prisma.user.findMany({
-    where: { companyId, id: { in: [ids.user, ids.sofiaRossiUser, ids.elenaHoffmannUser] } },
-    select: { id: true },
-  });
-  const entries = buildSyntheticRecordHistory({
-    entities,
-    primaryUserId: ids.user,
-    taskActorIds: [
-      ids.user,
-      ...users
-        .map(({ id }) => id)
-        .filter((id) => id !== ids.user)
-        .sort(),
-    ],
-    messagingSyncAt: new Date(Math.max(...syncTimes)),
-  });
-  for (const entry of entries) {
-    const ref = { typeId: presetId(companyId, entry.type), recordId: entry.recordId };
-    const overrides = new Map<string, RecordScalar>(
-      entry.previous.map(([key, value]) => [presetId(companyId, `${entry.type}.${key}`), { kind: "text", value }]),
-    );
-    const previousFirstName = entry.previous.find(([key]) => key === "firstName")?.[1];
-    if (entry.type === "contact" && previousFirstName !== undefined) {
-      overrides.set(presetId(companyId, "contact.name"), {
-        kind: "text",
-        value: `${previousFirstName} ${entities.contacts[entry.index].lastName}`.trim(),
-      });
-    }
-    await writeRecordChange(prisma, companyId, model, {
-      id: entry.id,
-      ref,
-      actorId: entry.actorId,
-      at: entry.at,
-      before: entry.kind === "record.updated" ? overrides : null,
-      after: entry.kind === "record.updated" ? new Map() : overrides,
-    });
-  }
+  const entries = buildNorthwindHistory(companyId);
+  const memory = await historyReader(prisma, companyId);
+  const firstValues = new Map<string, Map<string, RecordScalar>>();
+  const updates = new Map<string, number>();
   for (const entry of entries.filter((candidate) => candidate.kind === "record.updated")) {
-    const row = entities[`${entry.type}s`][entry.index];
-    await prisma.crmRecord.update({
-      where: { companyId_typeId_id: { companyId, typeId: presetId(companyId, entry.type), id: entry.recordId } },
-      data: { version: 2, updatedAt: row.updatedAt },
-    });
+    const key = `${entry.typeKey}:${entry.recordId}`;
+    const values = firstValues.get(key) ?? new Map<string, RecordScalar>();
+    for (const [fieldId, value] of entry.previous) if (!values.has(fieldId)) values.set(fieldId, value);
+    firstValues.set(key, values);
+    updates.set(key, (updates.get(key) ?? 0) + 1);
+  }
+  for (let start = 0; start < entries.length; start += HISTORY_CONCURRENCY) {
+    await Promise.all(
+      entries.slice(start, start + HISTORY_CONCURRENCY).map((entry) => {
+        const ref = { typeId: presetId(companyId, entry.typeKey), recordId: entry.recordId };
+        const created = entry.kind === "record.created";
+        return writeRecordChange(memory.client, companyId, model, {
+          id: entry.id,
+          ref,
+          actorId: entry.actorId,
+          at: northwindAt(entry.atMs),
+          before: created ? null : new Map(entry.previous),
+          after: created ? (firstValues.get(`${entry.typeKey}:${entry.recordId}`) ?? new Map()) : new Map(),
+        });
+      }),
+    );
+  }
+  await prisma.eventLog.deleteMany({
+    where: { companyId, id: { in: entries.map(({ id }) => id) } },
+  });
+  for (let start = 0; start < memory.events.length; start += 1000)
+    await prisma.eventLog.createMany({ data: memory.events.slice(start, start + 1000) });
+  const versions = [...updates];
+  if (versions.length) {
+    const typeIds = versions.map(([key]) => presetId(companyId, key.split(":")[0]));
+    const recordIds = versions.map(([key]) => key.split(":")[1]);
+    const counts = versions.map(([, count]) => count + 1);
+    await prisma.$executeRaw`
+      UPDATE "CrmRecord" AS record SET "version" = row.version
+      FROM unnest(${typeIds}::text[], ${recordIds}::text[], ${counts}::int[]) AS row(type_id, id, version)
+      WHERE record."companyId" = ${companyId} AND record."typeId" = row.type_id AND record."id" = row.id`;
   }
   await prisma.eventLog.deleteMany({
     where: {

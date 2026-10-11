@@ -17,76 +17,80 @@ import { SEED_IDS } from "../seeds/context";
 import { fixtureId } from "../seeds/helpers";
 import { SYNTHETIC_CUSTOM_ROLES } from "../seeds/roles";
 import { SYNTHETIC_SEED_TIMELINE, SYNTHETIC_TIMELINE_SHIFT_MS } from "../seeds/timeline";
-import { SYNTHETIC_WEBHOOK_DESCRIPTION, SYNTHETIC_WEBHOOK_URL } from "../seeds/webhooks";
+import { SYNTHETIC_COMPANY_MEMBER_DEFINITIONS } from "../seeds/members";
+import { NORTHWIND_STORY_END_MS, northwindAt, northwindMemberJoinedMs } from "../seeds/northwind-data";
+import { NORTHWIND_MEMBER_IDS } from "../seeds/northwind-model";
+import {
+  SYNTHETIC_PAUSED_WEBHOOK_DESCRIPTION,
+  SYNTHETIC_PAUSED_WEBHOOK_ID,
+  SYNTHETIC_PAUSED_WEBHOOK_URL,
+  SYNTHETIC_WEBHOOK_DESCRIPTION,
+  SYNTHETIC_WEBHOOK_ID,
+  SYNTHETIC_WEBHOOK_URL,
+} from "../seeds/webhooks";
 
-const primaryUserReference = {
-  id: SEED_IDS.user,
-  email: SYNTHETIC_COMPANY_USERS.maxBergmann.email,
-  firstName: SYNTHETIC_COMPANY_USERS.maxBergmann.firstName,
-  lastName: SYNTHETIC_COMPANY_USERS.maxBergmann.lastName,
-  avatarUrl: "https://customermates.com/demo/avatars/photos/max-bergmann.png",
-};
 const messagingSyncAt = new Date(Date.parse("2026-08-06T00:00:00.000Z") + SYNTHETIC_TIMELINE_SHIFT_MS);
+const DAY = 86_400_000;
+const memberKeys = Object.keys(NORTHWIND_MEMBER_IDS) as Array<keyof typeof NORTHWIND_MEMBER_IDS>;
 
 function syntheticSnapshot(): SyntheticAuditSnapshot {
-  const users = [
-    {
-      ...primaryUserReference,
-      ...SYNTHETIC_SEED_TIMELINE.user(0),
-      country: "de" as const,
-      roleId: SEED_IDS.role,
-      status: "active" as const,
-    },
-    {
-      id: SEED_IDS.sofiaRossiUser,
-      email: SYNTHETIC_COMPANY_USERS.sofiaRossi.email,
-      firstName: SYNTHETIC_COMPANY_USERS.sofiaRossi.firstName,
-      lastName: SYNTHETIC_COMPANY_USERS.sofiaRossi.lastName,
-      avatarUrl: "https://customermates.com/demo/avatars/photos/sofia-rossi.png",
-      country: "it" as const,
-      roleId: SEED_IDS.salesManagerRole,
-      status: "active" as const,
-      ...SYNTHETIC_SEED_TIMELINE.user(1),
-    },
-    {
-      id: SEED_IDS.elenaHoffmannUser,
-      email: SYNTHETIC_COMPANY_USERS.elenaHoffmann.email,
-      firstName: SYNTHETIC_COMPANY_USERS.elenaHoffmann.firstName,
-      lastName: SYNTHETIC_COMPANY_USERS.elenaHoffmann.lastName,
-      avatarUrl: "https://customermates.com/demo/avatars/photos/elena-hoffmann.png",
-      country: "de" as const,
-      roleId: SEED_IDS.customerSuccessRole,
-      status: "active" as const,
-      ...SYNTHETIC_SEED_TIMELINE.user(2),
-    },
-  ];
+  const users = SYNTHETIC_COMPANY_MEMBER_DEFINITIONS.map((member, index) => {
+    const createdAt = northwindAt(northwindMemberJoinedMs(memberKeys[index]));
+    return {
+      id: member.id,
+      email: member.email,
+      firstName: member.firstName,
+      lastName: member.lastName,
+      avatarUrl: member.avatarPath,
+      country: member.country,
+      roleId: member.roleId,
+      status: member.status,
+      createdAt,
+      updatedAt: new Date(createdAt.getTime() + 30 * 60_000),
+    };
+  });
+  const webhook = (id: string, url: string, description: string, enabled: boolean, createdDaysAgo: number) => ({
+    id,
+    url,
+    description,
+    events: ["record.created", "record.updated"] as Array<"record.created" | "record.updated">,
+    secret: null,
+    headers: null,
+    bodyTemplate: null,
+    enabled,
+    createdAt: northwindAt(NORTHWIND_STORY_END_MS - createdDaysAgo * DAY),
+    updatedAt: northwindAt(NORTHWIND_STORY_END_MS - (enabled ? createdDaysAgo : 2) * DAY),
+  });
 
   return {
     connectedAccounts: ["google", "linkedin", "whatsapp"].map((provider, index) => ({
       id: fixtureId("16000000", index + 1),
       provider: provider as "google" | "linkedin" | "whatsapp",
       displayName: `Max Bergmann · ${provider}`,
-      emailAddress: provider === "google" ? primaryUserReference.email : null,
+      emailAddress: provider === "google" ? SYNTHETIC_COMPANY_USERS.maxBergmann.email : null,
       createdAt: SYNTHETIC_SEED_TIMELINE.connectedAccount(index).createdAt,
       lastSyncedAt: messagingSyncAt,
     })),
     users,
-    roles: SYNTHETIC_CUSTOM_ROLES.map(({ companyId: _companyId, permissions, ...role }, index) => ({
-      ...role,
-      ...SYNTHETIC_SEED_TIMELINE.customRole(index),
-      permissions: permissions.map(({ companyId: _permissionCompanyId, roleId: _roleId, ...permission }) => permission),
-    })),
-    webhook: {
-      id: fixtureId("22000000", 1),
-      url: SYNTHETIC_WEBHOOK_URL,
-      description: SYNTHETIC_WEBHOOK_DESCRIPTION,
-      events: ["record.created", "record.updated"],
-      secret: null,
-      headers: null,
-      bodyTemplate: null,
-      enabled: false,
-      ...SYNTHETIC_SEED_TIMELINE.webhook,
-    },
+    roles: SYNTHETIC_CUSTOM_ROLES.map(
+      ({ companyId: _companyId, permissions, recordGrants: _grants, ...role }, index) => ({
+        ...role,
+        ...SYNTHETIC_SEED_TIMELINE.customRole(index),
+        permissions: permissions.map(
+          ({ companyId: _permissionCompanyId, roleId: _roleId, ...permission }) => permission,
+        ),
+      }),
+    ),
+    webhooks: [
+      webhook(SYNTHETIC_WEBHOOK_ID, SYNTHETIC_WEBHOOK_URL, SYNTHETIC_WEBHOOK_DESCRIPTION, true, 210),
+      webhook(
+        SYNTHETIC_PAUSED_WEBHOOK_ID,
+        SYNTHETIC_PAUSED_WEBHOOK_URL,
+        SYNTHETIC_PAUSED_WEBHOOK_DESCRIPTION,
+        false,
+        120,
+      ),
+    ],
   };
 }
 
@@ -127,12 +131,12 @@ describe("synthetic audit-log fixtures", () => {
       userUpdated: snapshot.users.filter(
         ({ id, roleId, status }) => id !== SEED_IDS.user && status === "active" && roleId !== null,
       ).length,
-      webhookCreated: 1,
+      webhookCreated: 2,
       webhookUpdated: 1,
     };
     const expectedAuditLogCount = Object.values(expectedCountsByEvent).reduce((total, count) => total + count, 0);
 
-    expect(expectedAuditLogCount).toBe(12);
+    expect(expectedAuditLogCount).toBe(24);
     expect(fixtures).toHaveLength(expectedAuditLogCount);
     expect(new Set(fixtures.map(({ id }) => id))).toHaveLength(fixtures.length);
     expect(fixtures.every(({ id }) => id.startsWith(`${SYNTHETIC_AUDIT_LOG_ID_PREFIX}-`))).toBe(true);
@@ -155,8 +159,7 @@ describe("synthetic audit-log fixtures", () => {
     const updates = fixturesFor(fixtures, DomainEvent.USER_UPDATED);
 
     const primaryRegistration = fixtureForEntity(registrations, DomainEvent.USER_REGISTERED, SEED_IDS.user);
-    const pendingRegistration = fixtureForEntity(registrations, DomainEvent.USER_REGISTERED, SEED_IDS.sofiaRossiUser);
-    const activeRegistration = fixtureForEntity(registrations, DomainEvent.USER_REGISTERED, SEED_IDS.elenaHoffmannUser);
+    const invitedRegistration = fixtureForEntity(registrations, DomainEvent.USER_REGISTERED, SEED_IDS.sofiaRossiUser);
 
     expect(primaryRegistration).toMatchObject({ actorId: SEED_IDS.user });
     expect(eventPayload(primaryRegistration)).toMatchObject({
@@ -164,62 +167,44 @@ describe("synthetic audit-log fixtures", () => {
       status: "active",
       roleId: SEED_IDS.role,
     });
-    expect(eventPayload(pendingRegistration)).toMatchObject({
+    expect(eventPayload(invitedRegistration)).toMatchObject({
       isNewCompany: false,
       status: "pendingAuthorization",
       roleId: null,
     });
-    expect(eventPayload(activeRegistration)).toMatchObject({
-      isNewCompany: false,
-      status: "pendingAuthorization",
-      roleId: null,
-    });
-    expect(updates).toHaveLength(2);
-    expect(updates.map(({ subjectId, actorId }) => ({ subjectId, actorId }))).toEqual([
-      { subjectId: SEED_IDS.sofiaRossiUser, actorId: SEED_IDS.user },
-      { subjectId: SEED_IDS.elenaHoffmannUser, actorId: SEED_IDS.user },
-    ]);
+    expect(updates.map(({ subjectId, actorId }) => ({ subjectId, actorId }))).toEqual(
+      SYNTHETIC_COMPANY_MEMBER_DEFINITIONS.slice(1).map(({ id }) => ({ subjectId: id, actorId: SEED_IDS.user })),
+    );
     expect(eventPayload(fixtureForEntity(updates, DomainEvent.USER_UPDATED, SEED_IDS.sofiaRossiUser))).toEqual({
       changes: {
         status: { previous: "pendingAuthorization", current: "active" },
-        role: { previous: null, current: "Sales Manager" },
+        role: { previous: null, current: "Sales lead" },
       },
     });
-    expect(eventPayload(fixtureForEntity(updates, DomainEvent.USER_UPDATED, SEED_IDS.elenaHoffmannUser))).toEqual({
+    expect(eventPayload(fixtureForEntity(updates, DomainEvent.USER_UPDATED, NORTHWIND_MEMBER_IDS.kianRahimi))).toEqual({
       changes: {
         status: { previous: "pendingAuthorization", current: "active" },
-        role: { previous: null, current: "Customer Success" },
+        role: { previous: null, current: "Support" },
       },
     });
   });
 
-  it("records a real disabled-webhook lifecycle around its historical deliveries", () => {
+  it("records both webhooks, and pausing the one whose receiver kept failing", () => {
     const fixtures = buildFixtures();
-    const created = fixturesFor(fixtures, DomainEvent.WEBHOOK_CREATED)[0];
-    const updated = fixturesFor(fixtures, DomainEvent.WEBHOOK_UPDATED)[0];
+    const created = fixturesFor(fixtures, DomainEvent.WEBHOOK_CREATED);
+    const updated = fixturesFor(fixtures, DomainEvent.WEBHOOK_UPDATED);
 
-    expect(eventPayload(created)).toMatchObject({
-      id: fixtureId("22000000", 1),
-      enabled: true,
-      description: null,
-      hasSecret: false,
-      headerNames: [],
+    expect(created.map(({ subjectId }) => subjectId)).toEqual([SYNTHETIC_WEBHOOK_ID, SYNTHETIC_PAUSED_WEBHOOK_ID]);
+    for (const fixture of created) {
+      expect(eventPayload(fixture)).toMatchObject({ enabled: true, hasSecret: false, headerNames: [] });
+      expect(eventPayload(fixture)).not.toHaveProperty("secret");
+    }
+    expect(updated).toHaveLength(1);
+    expect(eventPayload(updated[0])).toMatchObject({
+      webhook: { id: SYNTHETIC_PAUSED_WEBHOOK_ID, enabled: false, url: SYNTHETIC_PAUSED_WEBHOOK_URL },
+      changes: { enabled: { previous: true, current: false } },
     });
-    expect(eventPayload(created)).not.toHaveProperty("secret");
-    expect(eventPayload(created)).not.toHaveProperty("headers");
-    expect(eventPayload(updated)).toMatchObject({
-      webhook: {
-        enabled: false,
-        description: SYNTHETIC_WEBHOOK_DESCRIPTION,
-        url: SYNTHETIC_WEBHOOK_URL,
-      },
-      changes: {
-        description: { previous: null, current: SYNTHETIC_WEBHOOK_DESCRIPTION },
-        enabled: { previous: true, current: false },
-      },
-    });
-    expect(created.createdAt.getTime()).toBeLessThan(SYNTHETIC_SEED_TIMELINE.webhookDelivery(0).getTime());
-    expect(updated.createdAt.getTime()).toBeGreaterThan(SYNTHETIC_SEED_TIMELINE.webhookDelivery(13).getTime());
+    expect(updated[0]?.createdAt.getTime()).toBeGreaterThan(created[1]?.createdAt.getTime() ?? Infinity);
   });
 
   it("upserts idempotently and removes only stale deterministic audit rows", async () => {

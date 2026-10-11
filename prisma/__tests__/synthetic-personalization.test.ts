@@ -1,3 +1,4 @@
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import type { PrismaClient } from "@/generated/prisma";
 
 import { describe, expect, it, vi } from "vitest";
@@ -16,6 +17,7 @@ import {
   type CustomFieldSeedData,
 } from "../seeds/custom-fields";
 import { fixtureId } from "../seeds/helpers";
+import { northwindModelIds } from "../seeds/northwind-model";
 import { syntheticRecordKeys } from "../seeds/record-keys";
 import {
   buildSyntheticP13nFixtures,
@@ -33,13 +35,14 @@ const customFields: CustomFieldSeedData = {
 };
 const { id, surface, relationship, path } = syntheticRecordKeys(SEED_IDS.company);
 const C = SYNTHETIC_CUSTOM_FIELD_IDS;
+const dealStage = northwindModelIds(SEED_IDS.company).fields.deal.stage;
 
 describe("synthetic personalization fixtures", () => {
   it("seeds list and record-detail personalization with deterministic field, option and user IDs", () => {
     const fixtures = buildSyntheticP13nFixtures({ ids: SEED_IDS }, customFields);
     const byP13nId = new Map(fixtures.map((fixture) => [fixture.p13nId, fixture]));
 
-    expect(fixtures).toHaveLength(15);
+    expect(fixtures).toHaveLength(16);
     expect(fixtures.map(({ p13nId }) => p13nId)).toEqual([
       surface("contact"),
       "users-card-store",
@@ -50,6 +53,7 @@ describe("synthetic personalization fixtures", () => {
       surface("service"),
       "webhook-deliveries-card-store",
       surface("organization"),
+      "dashboard",
       "routines-card-store",
       ...["contact", "organization", "deal", "service", "task"].map((type) => `record-detail:${id(type)}`),
     ]);
@@ -117,7 +121,7 @@ describe("synthetic personalization fixtures", () => {
     });
     expect(byP13nId.get(surface("deal"))).toMatchObject({
       columnOrder: [
-        C.dealStatus,
+        dealStage,
         id("deal.totalValue"),
         id("deal.weightedValue"),
         relationship("task.deals", "incoming"),
@@ -130,9 +134,10 @@ describe("synthetic personalization fixtures", () => {
         "system:updatedAt",
         "system:createdAt",
       ],
-      groupingColumnId: C.dealStatus,
+      groupingColumnId: dealStage,
       viewMode: "card",
     });
+    expect(byP13nId.get("dashboard")).toMatchObject({ activeViewKey: ALL_VIEW_KEY });
     expect(byP13nId.get(surface("service"))).toMatchObject({
       columnOrder: [
         C.serviceType,
@@ -299,12 +304,12 @@ describe("synthetic personalization fixtures", () => {
     await persistSyntheticP13nFixtures(prisma, SEED_IDS.company, SEED_IDS.user, fixtures);
     await persistSyntheticP13nFixtures(prisma, SEED_IDS.company, SEED_IDS.user, fixtures);
 
-    expect(rows).toHaveLength(16);
+    expect(rows).toHaveLength(17);
     expect(rows.has("unrelated-p13n-row")).toBe(true);
     expect(rows.has(fixtureId(SYNTHETIC_P13N_ID_PREFIX, 999))).toBe(false);
 
     await persistSyntheticP13nFixtures(prisma, SEED_IDS.company, SEED_IDS.user, fixtures.slice(0, -1));
-    expect(rows).toHaveLength(15);
+    expect(rows).toHaveLength(16);
     expect(rows.has(fixtures.at(-1)?.id ?? "")).toBe(false);
     expect(rows.has("unrelated-p13n-row")).toBe(true);
   });

@@ -59,7 +59,7 @@ describeDatabase("synthetic Knowledge Base persistence", { timeout: 120_000 }, (
       const context = seedContext(prisma);
       await seedWikiPages(context);
       const baseline = await prisma.wikiPage.findMany({ orderBy: { sortOrder: "asc" } });
-      expect(baseline).toHaveLength(12);
+      expect(baseline).toHaveLength(15);
       expect(baseline[0]).toMatchObject({ id: SYNTHETIC_WIKI_PAGE_IDS.guide, kind: "guide", sortOrder: -1 });
       await seedWikiPages(context);
       expect(await prisma.wikiPage.findMany({ orderBy: { sortOrder: "asc" } })).toEqual(baseline);
@@ -77,7 +77,7 @@ describeDatabase("synthetic Knowledge Base persistence", { timeout: 120_000 }, (
         },
       });
       await prisma.wikiPage.update({
-        where: { id: SYNTHETIC_WIKI_PAGE_IDS.voice },
+        where: { id: SYNTHETIC_WIKI_PAGE_IDS.emails },
         data: { markdown: "Edited fixture" },
       });
       await prisma.wikiPage.create({
@@ -100,10 +100,10 @@ describeDatabase("synthetic Knowledge Base persistence", { timeout: 120_000 }, (
       expect(await prisma.wikiPage.findUnique({ where: { id: fixtureId("36000000", 99) } })).toBeNull();
 
       const search = await client.query(
-        'SELECT id FROM "WikiPage" WHERE "companyId" = $1 AND "searchVector" @@ plainto_tsquery(\'simple\', \'handover\')',
+        'SELECT id FROM "WikiPage" WHERE "companyId" = $1 AND "searchVector" @@ plainto_tsquery(\'simple\', \'onboarding\')',
         [SEED_IDS.company],
       );
-      expect(search.rows.map(({ id }: { id: string }) => id)).toContain(SYNTHETIC_WIKI_PAGE_IDS.handover);
+      expect(search.rows.map(({ id }: { id: string }) => id)).toContain(SYNTHETIC_WIKI_PAGE_IDS.onboarding);
       expect(baseline.every(({ sourceUrl, sourceFetchedAt }) => sourceUrl === null && sourceFetchedAt === null)).toBe(
         true,
       );
@@ -136,14 +136,14 @@ describeDatabase("synthetic Knowledge Base persistence", { timeout: 120_000 }, (
       const context = seedContext(prisma);
       await seedWikiPages(context);
       await prisma.wikiPage.update({
-        where: { id: SYNTHETIC_WIKI_PAGE_IDS.company },
+        where: { id: SYNTHETIC_WIKI_PAGE_IDS.product },
         data: { title: "Edited fixture" },
       });
-      await prisma.wikiPage.delete({ where: { id: SYNTHETIC_WIKI_PAGE_IDS.voice } });
+      await prisma.wikiPage.delete({ where: { id: SYNTHETIC_WIKI_PAGE_IDS.emails } });
       const otherCompany = await prisma.company.create({ data: {} });
       await prisma.wikiPage.create({
         data: {
-          id: SYNTHETIC_WIKI_PAGE_IDS.voice,
+          id: SYNTHETIC_WIKI_PAGE_IDS.emails,
           companyId: otherCompany.id,
           title: "Keep here",
           markdown: "Foreign.",

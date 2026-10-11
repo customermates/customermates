@@ -11,16 +11,17 @@ import type { ServiceSeedData } from "./services";
 import { SYNTHETIC_TASK_PRIORITY_INDEXES, type TaskSeedData } from "./tasks";
 
 import { fixtureId } from "./helpers";
+import { northwindDataset, northwindDay } from "./northwind-data";
 
 export type SyntheticRecordType = "contact" | "organization" | "deal" | "service" | "task";
 
 export const SYNTHETIC_CUSTOM_FIELD_DEFINITIONS = [
   { recordType: "contact", label: "Phones", optionLabels: [], valueType: "phone" },
-  { recordType: "service", label: "Type", optionLabels: ["Service", "Hardware"], valueType: "select" },
+  { recordType: "service", label: "Type", optionLabels: ["Service", "Subscription"], valueType: "select" },
   {
     recordType: "organization",
-    label: "Type",
-    optionLabels: ["Direct customer", "Affiliated company"],
+    label: "Customer status",
+    optionLabels: ["Customer", "Prospect", "Former customer"],
     valueType: "select",
   },
   { recordType: "organization", label: "Website", optionLabels: [], valueType: "url" },
@@ -32,14 +33,19 @@ export const SYNTHETIC_CUSTOM_FIELD_DEFINITIONS = [
     optionLabels: ["Open", "In Progress", "Blocked", "On Hold", "Done", "Archived"],
     valueType: "select",
   },
-  { recordType: "deal", label: "Project Period", optionLabels: [], valueType: "dateRange" },
+  { recordType: "deal", label: "Contract term", optionLabels: [], valueType: "dateRange" },
   {
     recordType: "contact",
-    label: "Sales Pipeline",
-    optionLabels: ["New", "Contact", "Qualified", "In Progress", "Won", "Lost"],
+    label: "Lifecycle stage",
+    optionLabels: ["Lead", "Marketing qualified", "Sales qualified", "Opportunity", "Customer", "Disqualified"],
     valueType: "select",
   },
-  { recordType: "service", label: "Pricing model", optionLabels: ["Fixed", "Monthly", "Daily"], valueType: "select" },
+  {
+    recordType: "service",
+    label: "Pricing model",
+    optionLabels: ["One-time", "Annual subscription", "Per day"],
+    valueType: "select",
+  },
 ] as const;
 
 export const SYNTHETIC_CUSTOM_FIELD_IDS = {
@@ -63,6 +69,7 @@ export const SYNTHETIC_CUSTOM_OPTION_IDS = {
   organizationType: {
     directCustomer: fixtureId("17000000", 3),
     affiliatedCompany: fixtureId("17000000", 4),
+    formerCustomer: fixtureId("17000000", 27),
   },
   taskPriority: {
     low: fixtureId("17000000", 5),
@@ -124,7 +131,7 @@ type OptionDefinition = readonly [id: string, label: string, color: string, prob
 
 export function seedCustomFields(context: SeedContext, entities: CustomFieldSeedInput): CustomFieldSeedData {
   const companyId = context.ids.company;
-  const { contacts, deals, dealDefinitions, organizations, services, tasks, taskDefinitions } = entities;
+  const { contacts, deals, organizations, services, tasks, taskDefinitions } = entities;
   const ids = SYNTHETIC_CUSTOM_FIELD_IDS;
   const options = SYNTHETIC_CUSTOM_OPTION_IDS;
 
@@ -166,11 +173,12 @@ export function seedCustomFields(context: SeedContext, entities: CustomFieldSeed
 
   const serviceTypeOptions: OptionDefinition[] = [
     [options.serviceType.service, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[1].optionLabels[0], "secondary"],
-    [options.serviceType.hardware, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[1].optionLabels[1], "secondary"],
+    [options.serviceType.hardware, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[1].optionLabels[1], "info"],
   ];
   const organizationTypeOptions: OptionDefinition[] = [
-    [options.organizationType.directCustomer, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[2].optionLabels[0], "default"],
-    [options.organizationType.affiliatedCompany, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[2].optionLabels[1], "secondary"],
+    [options.organizationType.directCustomer, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[2].optionLabels[0], "success"],
+    [options.organizationType.affiliatedCompany, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[2].optionLabels[1], "info"],
+    [options.organizationType.formerCustomer, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[2].optionLabels[2], "secondary"],
   ];
   const priorityOptions: OptionDefinition[] = [
     [options.taskPriority.low, SYNTHETIC_CUSTOM_FIELD_DEFINITIONS[4].optionLabels[0], "secondary"],
@@ -253,95 +261,110 @@ export function seedCustomFields(context: SeedContext, entities: CustomFieldSeed
     select(9, ids.servicePricing, servicePricingOptions, options.servicePricing.fixed),
   ];
 
-  const contactSalesPipelineIndexes = [
-    5, 1, 4, 2, 1, 0, 5, 3, 2, 1, 0, 0, 0, 0, 0, 4, 2, 5, 0, 5, 4, 0, 2, 0, 3, 1, 0, 3, 3, 4,
-  ] as const;
-  const organizationTypeIndexes = [1, 1, 1, 0, 1, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0] as const;
-  const hardwareServiceIndexes = new Set([2, 7, 11, 19, 20, 24, 30, 34, 36, 39, 42]);
-  const monthlyServiceIndexes = new Set([14, 21, 25, 28, 29]);
-  const dailyServiceIndexes = new Set([9, 13, 23, 26, 32, 35]);
+  const data = northwindDataset();
   const selected = (entries: OptionDefinition[], index: number): RecordScalar => ({
     kind: "select",
     value: entries[index][0],
   });
-  const month = (value: number) => String(value).padStart(2, "0");
+  const lifecycleIndex = { new: 0, contact: 1, qualified: 2, inProgress: 3, won: 4, lost: 5 } as const;
+  const profileIndex = { legacyCustomer: 0, newCustomer: 0, prospect: 1, formerCustomer: 2 } as const;
+  const statusIndex = { open: 0, won: 1, lost: 2, abandoned: 3 } as const;
+  const day = (ms: number) => northwindDay(ms);
 
   const customFieldValues: SyntheticCustomFieldValue[] = [
-    ...contacts.flatMap((contact, index) => [
-      {
-        recordType: "contact" as const,
-        recordId: contact.id,
-        fieldId: ids.contactPhone,
-        value: { kind: "textList" as const, value: [`+1202555${String(100 + index).padStart(4, "0")}`] },
-      },
-      {
-        recordType: "contact" as const,
-        recordId: contact.id,
-        fieldId: ids.contactSalesPipeline,
-        value: selected(contactSalesPipelineOptions, contactSalesPipelineIndexes[index]),
-      },
-    ]),
-    ...organizations.flatMap((organization, index) => [
-      {
-        recordType: "organization" as const,
-        recordId: organization.id,
-        fieldId: ids.organizationType,
-        value: selected(organizationTypeOptions, organizationTypeIndexes[index]),
-      },
-      {
-        recordType: "organization" as const,
-        recordId: organization.id,
-        fieldId: ids.organizationWebsite,
-        value: { kind: "text" as const, value: organization.website },
-      },
-    ]),
-    ...deals.flatMap((deal, index) => [
-      {
-        recordType: "deal" as const,
-        recordId: deal.id,
-        fieldId: ids.dealStatus,
-        value: selected(dealStatusOptions, dealDefinitions[index][3]),
-      },
-      {
-        recordType: "deal" as const,
-        recordId: deal.id,
-        fieldId: ids.dealProjectPeriod,
-        value: {
-          kind: "range" as const,
-          start: `2026-${month((index % 9) + 1)}-01`,
-          end: `2026-${month((index % 9) + 3)}-28`,
+    ...contacts.flatMap((contact, index) => {
+      const source = data.contacts[index];
+      if (!source) throw new Error(`Missing Northwind contact ${index}`);
+      return [
+        {
+          recordType: "contact" as const,
+          recordId: contact.id,
+          fieldId: ids.contactPhone,
+          value: { kind: "textList" as const, value: [source.phone] },
         },
-      },
-    ]),
-    ...services.flatMap((service, index) => [
-      {
-        recordType: "service" as const,
-        recordId: service.id,
-        fieldId: ids.serviceType,
-        value: selected(serviceTypeOptions, hardwareServiceIndexes.has(index) ? 1 : 0),
-      },
-      {
-        recordType: "service" as const,
-        recordId: service.id,
-        fieldId: ids.servicePricing,
-        value: selected(
-          servicePricingOptions,
-          dailyServiceIndexes.has(index) ? 2 : monthlyServiceIndexes.has(index) ? 1 : 0,
-        ),
-      },
-    ]),
+        {
+          recordType: "contact" as const,
+          recordId: contact.id,
+          fieldId: ids.contactSalesPipeline,
+          value: selected(contactSalesPipelineOptions, lifecycleIndex[source.lifecycle]),
+        },
+      ];
+    }),
+    ...organizations.flatMap((organization, index) => {
+      const source = data.organizations[index];
+      if (!source) throw new Error(`Missing Northwind organization ${index}`);
+      return [
+        {
+          recordType: "organization" as const,
+          recordId: organization.id,
+          fieldId: ids.organizationType,
+          value: selected(organizationTypeOptions, profileIndex[source.profile]),
+        },
+        {
+          recordType: "organization" as const,
+          recordId: organization.id,
+          fieldId: ids.organizationWebsite,
+          value: { kind: "text" as const, value: organization.website },
+        },
+      ];
+    }),
+    ...deals.flatMap((deal, index) => {
+      const source = data.deals[index];
+      if (!source) throw new Error(`Missing Northwind deal ${index}`);
+      const termStart = source.closeAtMs + 14 * 86_400_000;
+      return [
+        {
+          recordType: "deal" as const,
+          recordId: deal.id,
+          fieldId: ids.dealStatus,
+          value: selected(dealStatusOptions, statusIndex[source.status]),
+        },
+        ...(source.status === "lost" || source.status === "abandoned"
+          ? []
+          : [
+              {
+                recordType: "deal" as const,
+                recordId: deal.id,
+                fieldId: ids.dealProjectPeriod,
+                value: {
+                  kind: "range" as const,
+                  start: day(termStart),
+                  end: day(termStart + 364 * 86_400_000),
+                },
+              },
+            ]),
+      ];
+    }),
+    ...services.flatMap((service, index) => {
+      const source = data.services[index];
+      if (!source) throw new Error(`Missing Northwind service ${index}`);
+      return [
+        {
+          recordType: "service" as const,
+          recordId: service.id,
+          fieldId: ids.serviceType,
+          value: selected(serviceTypeOptions, source[2] === "license" ? 1 : 0),
+        },
+        {
+          recordType: "service" as const,
+          recordId: service.id,
+          fieldId: ids.servicePricing,
+          value: selected(servicePricingOptions, source[3] === "subscription" ? 1 : source[3] === "perDay" ? 2 : 0),
+        },
+      ];
+    }),
     ...tasks.flatMap((task, index) => [
       {
         recordType: "task" as const,
         recordId: task.id,
         fieldId: ids.taskPriority,
-        value: selected(priorityOptions, SYNTHETIC_TASK_PRIORITY_INDEXES[index]),
+        value: selected(priorityOptions, SYNTHETIC_TASK_PRIORITY_INDEXES[index] ?? 0),
       },
       {
         recordType: "task" as const,
         recordId: task.id,
         fieldId: ids.taskStatus,
-        value: selected(taskStatusOptions, taskDefinitions[index][5]),
+        value: selected(taskStatusOptions, taskDefinitions[index]?.[5] ?? 0),
       },
     ]),
   ];

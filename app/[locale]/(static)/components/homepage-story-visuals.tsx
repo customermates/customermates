@@ -1076,9 +1076,9 @@ function PipelineCard({
 }
 
 const PIPELINE_RECORDS = {
-  active: "deal-digital-customer-platform",
-  lost: "deal-process-automation",
-  won: "deal-crm-rollout",
+  active: "deal-sonnenhof-fire-safety",
+  lost: "deal-riverton-hvac-service",
+  won: "deal-moorfield-property-management",
 } as const satisfies Record<string, VisualRecordFixtureId>;
 
 export function HomepagePipelineVisual({ className, labels, locale }: VisualProps) {
