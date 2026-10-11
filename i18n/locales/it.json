@@ -4317,7 +4317,6 @@
       "description": "Modifiche suggerite da Mate durante l’esecuzione delle routine. La base di conoscenza cambia solo quando ne approvi una.",
       "empty": "Nessuna proposta in attesa di revisione.",
       "entry": "Proposte",
-      "entryLabel": "{count, plural, one {# proposta in attesa di revisione} other {# proposte in attesa di revisione}}",
       "fromRoutine": "Da {routine}",
       "fromRoutineDeleted": "Da una routine eliminata",
       "loadFailed": "Impossibile caricare le proposte.",

@@ -5,25 +5,16 @@ import type { WikiPageKind } from "@/features/wiki/wiki.schema";
 import type { WikiPageProposalAction, WikiPageProposalReviewItem } from "@/features/wiki/wiki-page-proposal.schema";
 import type { WikiProposalsStore } from "./wiki-proposals.store";
 import type { ChipColor } from "@/constants/chip-colors";
+import type { AppModalActionProps } from "@/components/modal";
 
 import { observer } from "mobx-react-lite";
-import { ArrowLeft, Check, ChevronRight, Inbox, X } from "lucide-react";
+import { ArrowLeft, Check, ChevronRight, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { Alert } from "@/components/shared/alert";
-import { Badge } from "@/components/ui/badge";
+import { AppModal, AppModalTitle } from "@/components/modal";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetBody,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import { Spinner } from "@/components/ui/spinner";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
@@ -220,99 +211,81 @@ export const WikiProposals = observer(({ store, canApply }: Props) => {
   const t = useTranslations();
   const selected = store.selected;
   const busy = store.reviewingId !== null;
-
-  if (store.total === 0 && !store.open) return null;
+  const actions: AppModalActionProps[] = selected
+    ? [
+        {
+          id: "wiki-proposal-back",
+          kind: "navigate",
+          icon: ArrowLeft,
+          label: t("Wiki.proposals.back"),
+          onClick: () => store.select(null),
+        },
+        {
+          id: "wiki-proposal-reject",
+          icon: X,
+          label: t("Wiki.proposals.reject"),
+          disabled: busy,
+          onClick: async () => {
+            await store.reject(selected.id);
+          },
+        },
+        {
+          id: "wiki-proposal-approve",
+          kind: selected.action === "delete" ? "destructive" : "other",
+          variant: selected.action === "delete" ? "destructive" : "neutral",
+          icon: Check,
+          label: t("Wiki.proposals.approve"),
+          disabled: busy || selected.stale || !canApply(selected.action),
+          onClick: async () => {
+            await store.approve(selected.id);
+          },
+        },
+      ]
+    : [];
 
   return (
-    <Sheet open={store.open} onOpenChange={store.setOpen}>
-      <SheetTrigger asChild>
-        <Button
-          aria-label={t("Wiki.proposals.entryLabel", { count: store.total })}
-          data-wiki-proposals-entry=""
-          size="sm"
-          variant="secondary"
-        >
-          <Inbox aria-hidden="true" className="size-4" />
+    <AppModal
+      sheet
+      titleInContent
+      actions={actions}
+      bodyClassName="flex flex-col gap-4 pb-4"
+      open={store.open}
+      title={t("Wiki.proposals.title")}
+      onClose={() => store.setOpen(false)}
+    >
+      <div className="grid gap-1">
+        <AppModalTitle className="text-lg font-semibold">{t("Wiki.proposals.title")}</AppModalTitle>
 
-          <span className="hidden sm:inline">{t("Wiki.proposals.entry")}</span>
+        <p className="text-subdued text-sm">{t("Wiki.proposals.description")}</p>
+      </div>
 
-          <Badge className="tabular-nums" variant="info">
-            {store.total}
-          </Badge>
-        </Button>
-      </SheetTrigger>
+      {selected ? (
+        <>
+          <div className="grid gap-2">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
+              <AppChip variant={ACTION_CHIP_COLOR[selected.action]}>{actionLabel(t, selected.action)}</AppChip>
 
-      <SheetContent className="gap-0 sm:max-w-2xl" side="right">
-        <SheetHeader>
-          <SheetTitle>{t("Wiki.proposals.title")}</SheetTitle>
+              <h2 className="min-w-0 break-words text-base font-semibold">
+                {proposalTitle(selected, t("Wiki.untitled"))}
+              </h2>
+            </div>
 
-          <SheetDescription>{t("Wiki.proposals.description")}</SheetDescription>
-        </SheetHeader>
+            <p className="text-subdued text-xs">
+              {selected.routineName
+                ? t("Wiki.proposals.fromRoutine", { routine: selected.routineName })
+                : t("Wiki.proposals.fromRoutineDeleted")}
+            </p>
 
-        <SheetBody className="flex flex-col gap-4 pb-4">
-          {selected ? (
-            <>
-              <div className="grid gap-2">
-                <Button className="w-fit" size="sm" type="button" variant="ghost" onClick={() => store.select(null)}>
-                  <ArrowLeft aria-hidden="true" className="size-4" />
-
-                  {t("Wiki.proposals.back")}
-                </Button>
-
-                <div className="flex min-w-0 flex-wrap items-center gap-2">
-                  <AppChip variant={ACTION_CHIP_COLOR[selected.action]}>{actionLabel(t, selected.action)}</AppChip>
-
-                  <h2 className="min-w-0 break-words text-base font-semibold">
-                    {proposalTitle(selected, t("Wiki.untitled"))}
-                  </h2>
-                </div>
-
-                <p className="text-subdued text-xs">
-                  {selected.routineName
-                    ? t("Wiki.proposals.fromRoutine", { routine: selected.routineName })
-                    : t("Wiki.proposals.fromRoutineDeleted")}
-                </p>
-              </div>
-
-              <ProposalPreview proposal={selected} />
-            </>
-          ) : (
-            <ProposalList store={store} />
-          )}
-        </SheetBody>
-
-        {selected && (
-          <SheetFooter className="flex-row flex-wrap items-center justify-end">
             {!canApply(selected.action) && (
-              <p className="text-subdued mr-auto text-xs">{t("Wiki.proposals.needsPermission")}</p>
+              <p className="text-subdued text-xs">{t("Wiki.proposals.needsPermission")}</p>
             )}
+          </div>
 
-            <Button
-              disabled={busy}
-              size="sm"
-              type="button"
-              variant="secondary"
-              onClick={() => runUserAction(() => store.reject(selected.id))}
-            >
-              <X aria-hidden="true" className="size-4" />
-
-              {t("Wiki.proposals.reject")}
-            </Button>
-
-            <Button
-              disabled={busy || selected.stale || !canApply(selected.action)}
-              size="sm"
-              type="button"
-              variant={selected.action === "delete" ? "destructive" : "default"}
-              onClick={() => runUserAction(() => store.approve(selected.id))}
-            >
-              <Check aria-hidden="true" className="size-4" />
-
-              {t("Wiki.proposals.approve")}
-            </Button>
-          </SheetFooter>
-        )}
-      </SheetContent>
-    </Sheet>
+          <ProposalPreview proposal={selected} />
+        </>
+      ) : (
+        <ProposalList store={store} />
+      )}
+    </AppModal>
   );
 });

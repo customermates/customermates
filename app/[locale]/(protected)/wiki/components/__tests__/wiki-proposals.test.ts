@@ -3,7 +3,7 @@ import type { Root } from "react-dom/client";
 import type { RootStore } from "@/core/stores/root.store";
 import type { WikiPageProposalReviewItem } from "@/features/wiki/wiki-page-proposal.schema";
 
-import { act, createElement } from "react";
+import { act, createElement, Fragment } from "react";
 import { createRoot } from "react-dom/client";
 import { runInAction } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -23,28 +23,51 @@ vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({ formatNumericalShortDateTime: () => "08.10.2026, 09:00" }),
 }));
-vi.mock("@/components/ui/sheet", () => {
-  const pass = (tag: string) =>
-    function SheetPart({ children }: { children?: ReactNode }) {
-      return createElement(tag, null, children);
-    };
-  return {
-    Sheet: function Sheet({ children, open }: { children?: ReactNode; open?: boolean }) {
-      return createElement("div", { "data-sheet-open": String(Boolean(open)) }, children);
-    },
-    SheetTrigger: function SheetTrigger({ children }: { children?: ReactNode }) {
-      return children;
-    },
-    SheetContent: pass("aside"),
-    SheetHeader: pass("header"),
-    SheetTitle: pass("h2"),
-    SheetDescription: pass("p"),
-    SheetBody: pass("div"),
-    SheetFooter: pass("footer"),
-  };
-});
+vi.mock("@/components/modal", () => ({
+  AppModal: function AppModal({
+    actions = [],
+    children,
+    open,
+  }: {
+    actions?: { id: string; label: string; disabled?: boolean; onClick: () => unknown }[];
+    children?: ReactNode;
+    open?: boolean;
+  }) {
+    return createElement(
+      "aside",
+      { "data-sheet-open": String(Boolean(open)) },
+      ...actions.map((action) =>
+        createElement(
+          "button",
+          { key: action.id, disabled: action.disabled, type: "button", onClick: () => void action.onClick() },
+          action.label,
+        ),
+      ),
+      children,
+    );
+  },
+  AppModalTitle: function AppModalTitle({ children }: { children?: ReactNode }) {
+    return createElement("h2", null, children);
+  },
+}));
+vi.mock("@/components/shared/top-bar-action-buttons", () => ({
+  TopBarPrimaryButton: function TopBarPrimaryButton({
+    anchorId,
+    count,
+    label,
+    onClick,
+  }: {
+    anchorId?: string;
+    count?: number;
+    label: string;
+    onClick: () => void;
+  }) {
+    return createElement("button", { "aria-label": label, id: anchorId, type: "button", onClick }, label, count);
+  },
+}));
 
 import { WikiProposals } from "../wiki-proposals";
+import { WikiProposalsEntry } from "../wiki-proposals-entry";
 import { WikiProposalsStore } from "../wiki-proposals.store";
 
 const PAGE_ID = "10000000-0000-4000-8000-000000000001";
@@ -101,7 +124,14 @@ async function mount(store: WikiProposalsStore, canApply = () => true) {
   const root = createRoot(container);
   roots.push(root);
   await act(async () => {
-    root.render(createElement(WikiProposals, { store, canApply }));
+    root.render(
+      createElement(
+        Fragment,
+        null,
+        createElement(WikiProposalsEntry, { store }),
+        createElement(WikiProposals, { store, canApply }),
+      ),
+    );
     await Promise.resolve();
   });
   return container;
@@ -129,7 +159,7 @@ describe("Knowledge Base proposals entry", () => {
   it("stays out of the toolbar while nothing waits for review", async () => {
     const container = await mount(storeWith([]));
 
-    expect(container.querySelector("[data-wiki-proposals-entry]")).toBeNull();
+    expect(container.querySelector("#wiki-proposals-entry")).toBeNull();
   });
 
   it("shows a compact entry with the pending count and lists each proposal with its routine", async () => {
@@ -147,8 +177,8 @@ describe("Knowledge Base proposals entry", () => {
       ]),
     );
 
-    const entry = container.querySelector("[data-wiki-proposals-entry]");
-    expect(entry?.getAttribute("aria-label")).toBe('Wiki.proposals.entryLabel:{"count":2}');
+    const entry = container.querySelector("#wiki-proposals-entry");
+    expect(entry?.getAttribute("aria-label")).toBe("Wiki.proposals.entry");
     expect(entry?.textContent).toContain("2");
     const list = container.querySelector("[data-wiki-proposal-list]");
     expect(list?.textContent).toContain("Refunds");

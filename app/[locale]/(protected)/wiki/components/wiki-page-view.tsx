@@ -41,6 +41,7 @@ import { mergeStoredPanelSizes, readStoredPanelSizes } from "@/components/layout
 
 import { WikiPageActions } from "./wiki-page-actions";
 import { WikiProposals } from "./wiki-proposals";
+import { WikiProposalsEntry } from "./wiki-proposals-entry";
 import { WikiProposalsStore } from "./wiki-proposals.store";
 import { WikiPageOutline } from "./wiki-page-outline";
 import { WikiPageSkeleton } from "./wiki-page-skeleton";
@@ -186,26 +187,14 @@ const WikiPageViewContent = observer(function WikiPageView({
           canManage={canManage}
           formId={formId}
           hasDocument={hasDocument}
-          proposals={canReviewProposals ? <WikiProposals canApply={canApplyProposal} store={proposals} /> : undefined}
+          proposals={canReviewProposals ? <WikiProposalsEntry store={proposals} /> : undefined}
           store={store}
           onCancelCreate={cancelCreate}
           onCreate={create}
           onReload={reload}
         />
       ),
-    [
-      canApplyProposal,
-      canManage,
-      canReviewProposals,
-      cancelCreate,
-      create,
-      formId,
-      hasDocument,
-      isNavigating,
-      proposals,
-      reload,
-      store,
-    ],
+    [canManage, canReviewProposals, cancelCreate, create, formId, hasDocument, isNavigating, proposals, reload, store],
   );
   useSetTopBarActions(topBar);
   const kindLabels: Record<WikiPageKind, string> = {
@@ -461,6 +450,8 @@ const WikiPageViewContent = observer(function WikiPageView({
           )}
 
           {documentBody}
+
+          {canReviewProposals && <WikiProposals canApply={canApplyProposal} store={proposals} />}
         </section>
       ),
     },

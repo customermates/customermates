@@ -4317,7 +4317,6 @@
       "description": "Modifications suggérées par Mate pendant l’exécution des routines. La base de connaissances ne change que lorsque vous en approuvez une.",
       "empty": "Aucune proposition n’attend de validation.",
       "entry": "Propositions",
-      "entryLabel": "{count, plural, one {# proposition en attente de validation} other {# propositions en attente de validation}}",
       "fromRoutine": "Depuis {routine}",
       "fromRoutineDeleted": "Depuis une routine supprimée",
       "loadFailed": "Impossible de charger les propositions.",

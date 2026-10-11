@@ -4317,7 +4317,6 @@
       "description": "Cambios que Mate sugirió al ejecutar rutinas. La base de conocimientos solo cambia cuando apruebas uno.",
       "empty": "No hay propuestas pendientes de revisión.",
       "entry": "Propuestas",
-      "entryLabel": "{count, plural, one {# propuesta pendiente de revisión} other {# propuestas pendientes de revisión}}",
       "fromRoutine": "De {routine}",
       "fromRoutineDeleted": "De una rutina eliminada",
       "loadFailed": "No se pudieron cargar las propuestas.",

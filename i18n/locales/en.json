@@ -4306,8 +4306,8 @@
     "proposals": {
       "action": {
         "create": "New page",
-        "delete": "Delete",
-        "update": "Edit"
+        "delete": "Page deletion",
+        "update": "Page edit"
       },
       "approve": "Approve",
       "approved": "Proposal approved",
@@ -4317,7 +4317,6 @@
       "description": "Changes Mate suggested while running routines. The Knowledge Base changes only when you approve one.",
       "empty": "No proposals are waiting for review.",
       "entry": "Proposals",
-      "entryLabel": "{count, plural, one {# proposal awaiting review} other {# proposals awaiting review}}",
       "fromRoutine": "From {routine}",
       "fromRoutineDeleted": "From a deleted routine",
       "loadFailed": "Proposals could not be loaded.",
