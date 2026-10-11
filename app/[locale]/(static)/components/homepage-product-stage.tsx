@@ -66,6 +66,27 @@ type Props = {
   tabs: HomepageStageTab[];
 };
 
+function StageProgressRing() {
+  return (
+    <svg aria-hidden className="size-4 shrink-0 -rotate-90" data-homepage-stage-progress="running" viewBox="0 0 16 16">
+      <circle cx="8" cy="8" fill="none" r="6" stroke="currentColor" strokeOpacity={0.2} strokeWidth="2" />
+
+      <motion.circle
+        animate={{ pathLength: 1 }}
+        cx="8"
+        cy="8"
+        fill="none"
+        initial={{ pathLength: 0 }}
+        r="6"
+        stroke="var(--color-primary)"
+        strokeLinecap="round"
+        strokeWidth="2"
+        transition={{ duration: PRODUCT_STAGE_INTERVAL_MS / 1000, ease: "linear" }}
+      />
+    </svg>
+  );
+}
+
 export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liveCopy, locale, tabs }: Props) {
   const { ref, shouldAnimate, shouldReduceMotion } = useHomepageMotion<HTMLDivElement>();
   const frameRef = useRef<HTMLDivElement>(null);
@@ -345,13 +366,25 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
               )}
             </div>
           </ProductWindow>
+
+          <p className="glass-surface pointer-events-none absolute -bottom-3.5 left-1/2 z-30 flex w-max max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-2 rounded-2xl px-3 py-1 text-center text-xs font-medium text-muted-foreground sm:rounded-full sm:whitespace-nowrap">
+            <span
+              aria-hidden
+              className={cn(
+                "size-1.5 shrink-0 rounded-full",
+                liveReady ? "animate-pulse bg-success motion-reduce:animate-none" : "bg-muted-foreground/60",
+              )}
+            />
+
+            {liveReady ? liveCopy.status : disclosure}
+          </p>
         </div>
       </div>
 
       <div
         ref={listRef}
         aria-label={label}
-        className="relative z-10 mx-auto mt-8 flex w-fit max-w-full snap-x gap-1 overflow-x-auto rounded-full border border-foreground/10 bg-foreground/[0.03] p-1 backdrop-blur-sm [scrollbar-width:none]"
+        className="glass-surface relative z-10 mx-auto mt-10 flex w-fit max-w-full snap-x gap-0.5 overflow-x-auto rounded-full p-1 [scrollbar-width:none]"
         role="tablist"
         onPointerDown={() => setStopped(true)}
       >
@@ -368,8 +401,8 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
               aria-controls={`${baseId}-panel-${index}`}
               aria-selected={isActive}
               className={cn(
-                "relative isolate inline-flex shrink-0 snap-start items-center gap-2 overflow-hidden rounded-full px-3.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
-                isActive && "bg-background text-foreground shadow-sm ring-1 ring-foreground/10",
+                "relative isolate inline-flex shrink-0 snap-start items-center gap-2 rounded-full px-3.5 py-1.5 text-sm font-medium text-muted-foreground transition-colors duration-300 hover:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring",
+                isActive && "text-foreground",
               )}
               data-homepage-stage-tab={tab.capture}
               id={`${baseId}-tab-${index}`}
@@ -379,24 +412,21 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
               onClick={() => select(index)}
               onKeyDown={(event) => onTabKeyDown(event, index)}
             >
-              <span aria-hidden className="absolute inset-0 -z-10 overflow-hidden rounded-full">
-                {isActive ? (
-                  autoAdvance && !shouldReduceMotion ? (
-                    <motion.span
-                      key={`progress-${activeIndex}`}
-                      animate={{ scaleX: 1 }}
-                      className="block h-full origin-left bg-primary/20"
-                      data-homepage-stage-progress="running"
-                      initial={{ scaleX: 0 }}
-                      transition={{ duration: PRODUCT_STAGE_INTERVAL_MS / 1000, ease: "linear" }}
-                    />
-                  ) : (
-                    <span className="block h-full" data-homepage-stage-progress="static" />
-                  )
-                ) : null}
-              </span>
+              {isActive ? (
+                <motion.span
+                  aria-hidden
+                  className="absolute inset-0 -z-10 rounded-full bg-foreground/[0.09] shadow-[inset_0_1px_0_0_rgb(255_255_255/0.14),0_1px_3px_rgb(0_0_0/0.2)] ring-1 ring-foreground/15"
+                  data-homepage-stage-progress={autoAdvance && !shouldReduceMotion ? undefined : "static"}
+                  layoutId={`${baseId}-thumb`}
+                  transition={{ duration: shouldReduceMotion ? 0 : 0.45, ease: [0.22, 1, 0.36, 1] }}
+                />
+              ) : null}
 
-              <Icon aria-hidden className="size-4 shrink-0" strokeWidth={1.75} />
+              {isActive && autoAdvance && !shouldReduceMotion ? (
+                <StageProgressRing key={`progress-${activeIndex}`} />
+              ) : (
+                <Icon aria-hidden className="size-4 shrink-0" strokeWidth={1.75} />
+              )}
 
               {tab.label}
             </button>
@@ -404,22 +434,15 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
         })}
       </div>
 
-      <p className="mt-5 text-center text-sm text-muted-foreground">{activeTab.caption}</p>
-
-      <p className="text-meta mt-1.5 flex items-center justify-center gap-2 text-center text-xs">
-        {liveReady ? (
-          <>
-            <span
-              aria-hidden
-              className="size-1.5 shrink-0 animate-pulse rounded-full bg-success motion-reduce:animate-none"
-            />
-
-            {liveCopy.status}
-          </>
-        ) : (
-          disclosure
-        )}
-      </p>
+      <motion.p
+        key={activeTab.capture}
+        animate={{ opacity: 1, y: 0 }}
+        className="mt-4 text-center text-sm text-muted-foreground"
+        initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+      >
+        {activeTab.caption}
+      </motion.p>
     </div>
   );
 }

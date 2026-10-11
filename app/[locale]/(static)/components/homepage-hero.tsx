@@ -31,7 +31,7 @@ export function HomepageHero({ heroSection, locale }: Props) {
           <AgplGithubBadge className="!mb-0" />
 
           <h1
-            className="mt-6 bg-linear-to-b from-foreground to-foreground/65 bg-clip-text text-[clamp(2.25rem,6.4vw,4.75rem)] leading-[1.04] font-medium tracking-[-0.045em] text-balance text-transparent"
+            className="mt-6 text-[clamp(2.25rem,6.4vw,4.75rem)] leading-[1.04] font-medium tracking-[-0.045em] text-balance"
             data-homepage-hero-line="lead"
           >
             <span className="sr-only">
@@ -43,12 +43,14 @@ export function HomepageHero({ heroSection, locale }: Props) {
               words={heroSection.titleRotations}
             />
 
-            <span aria-hidden className="block">
-              {heroSection.title}
-            </span>
+            <span
+              aria-hidden
+              className="block bg-linear-to-b from-foreground to-foreground/65 bg-clip-text pb-[0.06em] text-transparent"
+              data-homepage-hero-line="accent"
+            >
+              <span className="block">{heroSection.title}</span>
 
-            <span aria-hidden className="block" data-homepage-hero-line="accent">
-              {heroSection.titleAccent}
+              <span className="block">{heroSection.titleAccent}</span>
             </span>
           </h1>
 
@@ -65,7 +67,7 @@ export function HomepageHero({ heroSection, locale }: Props) {
               </AppLink>
             </Button>
 
-            <Button asChild className="border border-border" size="lg" variant="ghost">
+            <Button asChild className="glass-surface" size="lg" variant="ghost">
               {heroSection.buttonRightHref.startsWith("#") ? (
                 <a href={heroSection.buttonRightHref}>
                   {heroSection.buttonRightText}

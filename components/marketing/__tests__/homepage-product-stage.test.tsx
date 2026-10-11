@@ -1,6 +1,6 @@
 import type { HomepageStageTab } from "@/core/fumadocs/schemas/homepage";
 
-import { act, type ComponentProps, createElement } from "react";
+import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, expect, it, vi } from "vitest";
 
@@ -8,17 +8,23 @@ const motionState = vi.hoisted(() => ({ isInView: true, shouldAnimate: true, sho
 vi.mock("@/app/[locale]/(static)/components/homepage-motion", () => ({
   useHomepageMotion: () => ({ ref: { current: null }, ...motionState }),
 }));
-vi.mock("framer-motion", () => ({
-  motion: {
-    span: ({
+vi.mock("framer-motion", () => {
+  function strip(tag: string) {
+    function MotionMock({
       animate: _animate,
       initial: _initial,
+      layoutId: _layoutId,
       transition: _transition,
       ...props
-    }: ComponentProps<"span"> & { animate?: unknown; initial?: unknown; transition?: unknown }) =>
-      createElement("span", props),
-  },
-}));
+    }: Record<string, unknown> & { animate?: unknown; initial?: unknown; layoutId?: unknown; transition?: unknown }) {
+      return createElement(tag, props);
+    }
+
+    return MotionMock;
+  }
+
+  return { motion: { circle: strip("circle"), p: strip("p"), span: strip("span") } };
+});
 import {
   HomepageProductStage,
   LIVE_REVEAL_DELAY_MS,

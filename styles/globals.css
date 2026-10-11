@@ -847,3 +847,12 @@ path:focus {
     }
   }
 }
+
+@utility glass-surface {
+  border: 1px solid color-mix(in oklab, var(--color-foreground) 12%, transparent);
+  background-color: color-mix(in oklab, var(--color-background) 55%, transparent);
+  box-shadow:
+    inset 0 1px 0 0 rgb(255 255 255 / 0.1),
+    0 12px 32px -14px rgb(0 0 0 / 0.4);
+  backdrop-filter: blur(24px) saturate(180%);
+}
