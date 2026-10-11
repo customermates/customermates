@@ -31,7 +31,7 @@ export function HomepageHero({ heroSection, locale }: Props) {
           <AgplGithubBadge className="!mb-0" />
 
           <h1
-            className="mt-6 text-[clamp(2.4rem,6.4vw,4.75rem)] leading-[1.04] font-medium tracking-[-0.045em] text-balance"
+            className="mt-6 text-[clamp(2.25rem,6.4vw,4.75rem)] leading-[1.04] font-medium tracking-[-0.045em] text-balance"
             data-homepage-hero-line="lead"
           >
             <span className="sr-only">
@@ -39,7 +39,7 @@ export function HomepageHero({ heroSection, locale }: Props) {
             </span>
 
             <RotatingAccent
-              activeClassName="rounded-[0.32em] bg-primary/10 px-[0.16em] text-primary ring-1 ring-primary/15 ring-inset"
+              activeClassName="rounded-[0.32em] bg-primary/10 pt-[0.12em] pr-[0.2em] pb-[0.19em] pl-[0.16em] text-primary ring-1 ring-primary/15 ring-inset"
               prefix={heroSection.title}
               words={heroSection.titleRotations}
             />

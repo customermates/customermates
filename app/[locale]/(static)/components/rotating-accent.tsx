@@ -43,7 +43,10 @@ export function RotatingAccent({ activeClassName, className, prefix, words }: Pr
     <span
       ref={ref}
       aria-hidden
-      className={cn("flex max-w-full flex-col items-center sm:flex-row sm:justify-center sm:gap-x-[0.25em]", className)}
+      className={cn(
+        "flex max-w-full flex-col items-center sm:flex-row sm:items-baseline sm:justify-center sm:gap-x-[0.25em]",
+        className,
+      )}
       data-homepage-motion="rotating-accent"
       data-motion-active={shouldAnimate ? "true" : "false"}
     >
@@ -54,7 +57,7 @@ export function RotatingAccent({ activeClassName, className, prefix, words }: Pr
       ) : null}
 
       <motion.span
-        className="relative inline-flex overflow-hidden pb-[0.08em] whitespace-nowrap"
+        className="relative inline-flex overflow-hidden whitespace-nowrap"
         layout={shouldAnimate}
         transition={transition}
       >
