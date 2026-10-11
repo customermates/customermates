@@ -274,6 +274,7 @@ test("lines up formula, lookup and rollup flows the same way", async ({ page, co
   for (const width of [1280, 390]) {
     for (const example of flows) {
       await page.setViewportSize({ width, height: width > 400 ? 900 : 844 });
+      await page.goto("about:blank");
       await openConfigure(page, presetId(companyId, example.list));
       if (example.field) {
         await openConfigureRow(page, "Fields", example.field);
