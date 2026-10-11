@@ -60,9 +60,9 @@ describe("hero headings", () => {
           },
           startFree: "No card",
           subtitle: "Subtitle",
-          title: "Your",
-          titleAccent: "in one workspace your AI can work in.",
-          titleRotations: ["customer data", "projects", "business data"],
+          title: "and your AI,",
+          titleAccent: "in one workspace.",
+          titleRotations: ["Customer data", "Projects", "Business data"],
           useCase: "Use case",
         },
         locale: "en",
@@ -71,8 +71,8 @@ describe("hero headings", () => {
 
     const heading = html.match(/<h1\b[\s\S]*?<\/h1>/u)?.[0] ?? "";
 
-    expect(headingText(html).startsWith("Your customer data in one workspace your AI can work in.")).toBe(true);
-    expect(heading).toContain('<span class="sr-only">Your customer data in one workspace your AI can work in.</span>');
+    expect(headingText(html).startsWith("Customer data and your AI, in one workspace.")).toBe(true);
+    expect(heading).toContain('<span class="sr-only">Customer data and your AI, in one workspace.</span>');
     expect(heading.match(/aria-hidden="true"/gu)?.length).toBeGreaterThanOrEqual(2);
     expect(heading).toContain('data-homepage-motion="rotating-accent"');
     expect(html).toContain('role="tablist"');

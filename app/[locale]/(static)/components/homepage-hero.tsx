@@ -31,20 +31,23 @@ export function HomepageHero({ heroSection, locale }: Props) {
           <AgplGithubBadge className="!mb-0" />
 
           <h1
-            className="mt-6 text-[clamp(2.25rem,6.4vw,4.75rem)] leading-[1.04] font-medium tracking-[-0.045em] text-balance"
+            className="mt-6 bg-linear-to-b from-foreground to-foreground/65 bg-clip-text text-[clamp(2.25rem,6.4vw,4.75rem)] leading-[1.04] font-medium tracking-[-0.045em] text-balance text-transparent"
             data-homepage-hero-line="lead"
           >
             <span className="sr-only">
-              {`${heroSection.title} ${heroSection.titleRotations[0]} ${heroSection.titleAccent}`}
+              {`${heroSection.titleRotations[0]} ${heroSection.title} ${heroSection.titleAccent}`}
             </span>
 
             <RotatingAccent
-              activeClassName="rounded-[0.32em] bg-primary/10 pt-[0.12em] pr-[0.2em] pb-[0.19em] pl-[0.16em] text-primary ring-1 ring-primary/15 ring-inset"
-              prefix={heroSection.title}
+              highlightClassName="rounded-[0.32em] bg-primary/10 pt-[0.12em] pr-[0.2em] pb-[0.19em] pl-[0.16em] text-primary ring-1 ring-primary/15 ring-inset"
               words={heroSection.titleRotations}
             />
 
-            <span aria-hidden className="block text-muted-foreground" data-homepage-hero-line="accent">
+            <span aria-hidden className="block">
+              {heroSection.title}
+            </span>
+
+            <span aria-hidden className="block" data-homepage-hero-line="accent">
               {heroSection.titleAccent}
             </span>
           </h1>

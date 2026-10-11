@@ -222,12 +222,12 @@ describe("homepage visual-system adoption", () => {
     expect(hero).toContain("heroSection.titleRotations[0]");
     expect(hero).toContain('className="sr-only"');
     expect(rotations(englishHomepage)).toEqual([
-      "customer data",
-      "projects",
-      "suppliers",
-      "campaigns",
-      "team tasks",
-      "business data",
+      "Customer data",
+      "Projects",
+      "Suppliers",
+      "Campaigns",
+      "Team tasks",
+      "Business data",
     ]);
     expect(rotations(germanHomepage)).toEqual([
       "Kundendaten",
@@ -237,8 +237,11 @@ describe("homepage visual-system adoption", () => {
       "Teamaufgaben",
       "Geschäftsdaten",
     ]);
-    expect(englishHomepage).toContain("  titleAccent: in one workspace your AI can work in.");
-    expect(germanHomepage).toContain("  titleAccent: in einem Arbeitsbereich für Sie und Ihre KI.");
+    expect(englishHomepage).toContain("  title: and your AI,");
+    expect(englishHomepage).toContain("  titleAccent: in one workspace.");
+    expect(germanHomepage).toContain("  title: und Ihre KI,");
+    expect(germanHomepage).toContain("  titleAccent: in einem Arbeitsbereich.");
+    expect(hero).toContain("bg-linear-to-b from-foreground to-foreground/65 bg-clip-text");
     for (const mdx of [englishHomepage, germanHomepage]) {
       const hero = mdx.slice(mdx.indexOf("\nhero:\n"), mdx.indexOf("  subtitle:"));
       expect(hero).not.toMatch(/\bERP\b|financ|Finanz|Budget|Buchhaltung|accounting|invoic|Rechnung/iu);
