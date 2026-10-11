@@ -157,7 +157,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
     animations: "disabled",
   });
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
-  await page.getByRole("button", { name: "Reset to shared defaults", exact: true }).click();
+  await page.getByRole("button", { name: "Reset layout", exact: true }).click();
   await expect(page.getByRole("link", { name: "Local opportunity", exact: true })).toHaveCount(1);
   const changeLivePrice = async (price: string) => {
     await openRecords("service");

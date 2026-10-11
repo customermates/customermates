@@ -81,8 +81,6 @@ export function createWorkspaceRecordPreset(companyId: string, t: (key: string) 
     };
     model.fields = model.fields.filter((existing) => existing.id !== field.id);
     model.fields.push(field);
-    if (!type.defaults.columns.includes(field.id)) type.defaults.columns.push(field.id);
-    type.defaults.groupBy = field.id;
   }
   return model;
 }

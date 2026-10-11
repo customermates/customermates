@@ -16,11 +16,14 @@ import { RecordModelSchema } from "../record-model.schema";
 import { canonicalRecordJson } from "../record-json";
 import { invalidRecordQueryPart } from "../record-query-validation";
 import { RecordQuerySchema } from "../record-query.schema";
-import { recordViewStateIsValid } from "../record-view-state";
+import { cleanRecordViewState, recordViewStateIsValid } from "../record-view-state";
+import { liveGroupSummaries, recordSummaryFields } from "../record-grouping";
+import { recordInvariant } from "../record-invariant";
+import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { scalarMatchesType } from "../record-model-validation";
 import { defaultHiddenColumns, recordColumns } from "../record-columns";
 import { RecordColumnKeySchema, RecordFieldKeySchema } from "../record-column.schema";
-import { FilterOperatorKey as Operator } from "@/core/base/base-query-builder";
+import { FilterOperatorKey as Operator, ViewMode } from "@/core/base/base-query-builder";
 import {
   resolveFilterDateGranularity,
   resolveFilterValueClass,
@@ -173,15 +176,95 @@ describe("generic record presentation filters", () => {
 });
 
 describe("record view defaults", () => {
-  it("starts Formatted text fields hidden until the shared defaults place them", () => {
-    const deal = model.types.find((type) => type.id === id("deal"));
-    if (!deal) throw new Error("Missing deal list");
+  it("shows every field in its configured order as an ungrouped, unsorted table with Formatted text hidden", () => {
+    const deal = recordInvariant(model.types.find((type) => type.id === id("deal")));
     const notes = id("deal.notes");
+    const own = model.fields.filter((field) => field.typeId === deal.id).map((field) => field.id);
     expect(recordColumns(deal.id, model).some((column) => column.id === notes)).toBe(true);
-    expect(recordDefaults(deal, model.fields).hiddenColumns).toContain(notes);
-    const placed = { ...deal, defaults: { ...deal.defaults, columns: [...deal.defaults.columns, notes] } };
-    expect(defaultHiddenColumns(placed, model.fields)).not.toContain(notes);
-    expect(defaultHiddenColumns(placed, model.fields)).toEqual(placed.defaults.hiddenColumns);
+    expect(recordDefaults(deal.id, model.fields)).toEqual({
+      columnOrder: own,
+      hiddenColumns: [notes],
+      viewMode: ViewMode.table,
+      grouping: null,
+      sortDescriptor: null,
+    });
+    expect(defaultHiddenColumns(deal.id, model.fields)).toEqual([notes]);
+    expect(
+      defaultHiddenColumns(
+        deal.id,
+        model.fields.map((field) => (field.id === notes ? { ...field, archived: true } : field)),
+      ),
+    ).toEqual([]);
+  });
+});
+
+describe("view group summaries", () => {
+  const value = id("deal.totalValue");
+  const weighted = id("deal.weightedValue");
+  const stage = id("deal.stage");
+
+  it("keeps only live number and currency fields of the list, each pair once", () => {
+    expect(recordSummaryFields(id("deal"), model.fields).map((field) => field.id)).toEqual(
+      expect.arrayContaining([value, weighted]),
+    );
+    expect(
+      liveGroupSummaries(
+        id("deal"),
+        [
+          { fieldId: value, aggregation: "sum" },
+          { fieldId: value, aggregation: "sum" },
+          { fieldId: stage, aggregation: "sum" },
+          { fieldId: id("service.amount"), aggregation: "max" },
+          { fieldId: weighted, aggregation: "average" },
+        ],
+        model.fields,
+      ),
+    ).toEqual([
+      { fieldId: value, aggregation: "sum" },
+      { fieldId: weighted, aggregation: "average" },
+    ]);
+    expect(liveGroupSummaries(id("deal"), undefined, model.fields)).toEqual([]);
+  });
+
+  it("validates summaries as part of a view's grouping and drops stale fields when cleaning", () => {
+    const grouping = { field: stage, summaries: [{ fieldId: value, aggregation: "sum" as const }] };
+    expect(recordViewStateIsValid(id("deal"), { grouping }, model)).toBe(true);
+    expect(
+      recordViewStateIsValid(
+        id("deal"),
+        { grouping: { field: stage, summaries: [{ fieldId: stage, aggregation: "sum" }] } },
+        model,
+      ),
+    ).toBe(false);
+    const archived = {
+      ...model,
+      fields: model.fields.map((field) => (field.id === weighted ? { ...field, archived: true } : field)),
+    };
+    const state = {
+      grouping: {
+        field: stage,
+        summaries: [
+          { fieldId: value, aggregation: "sum" as const },
+          { fieldId: weighted, aggregation: "sum" as const },
+        ],
+      },
+    };
+    expect(recordViewStateIsValid(id("deal"), state, archived)).toBe(false);
+    expect(cleanRecordViewState(id("deal"), state, archived)).toEqual({
+      grouping: { field: stage, summaries: [{ fieldId: value, aggregation: "sum" }] },
+    });
+  });
+
+  it("caps summaries at eight and rejects unknown aggregations in the view grouping", () => {
+    const summary = { fieldId: value, aggregation: "sum" as const };
+    expect(GroupingSchema.safeParse({ field: stage, summaries: Array(8).fill(summary) }).success).toBe(true);
+    expect(GroupingSchema.safeParse({ field: stage, summaries: Array(9).fill(summary) }).success).toBe(false);
+    expect(
+      GroupingSchema.safeParse({ field: stage, summaries: [{ fieldId: value, aggregation: "count" }] }).success,
+    ).toBe(false);
+    expect(
+      RecordQuerySchema.parse({ typeId: id("deal"), grouping: { field: stage, summaries: [summary] } }).grouping,
+    ).toEqual({ field: stage });
   });
 });
 

@@ -4,7 +4,7 @@ import type { RecordModel } from "./record-model.schema";
 import { presentationFiltersAreValid, presentationQuery } from "./record-presentation";
 import { invalidRecordQueryPart } from "./record-query-validation";
 import { recordColumns } from "./record-columns";
-import { resolveRecordGrouping } from "./record-grouping";
+import { liveGroupSummaries, resolveRecordGrouping } from "./record-grouping";
 
 export function recordViewStateIsValid(typeId: string, state: DataViewState, model: RecordModel): boolean {
   if (!model.types.some((type) => type.id === typeId && !type.archived)) return false;
@@ -17,6 +17,11 @@ export function recordViewStateIsValid(typeId: string, state: DataViewState, mod
   )
     return false;
   if (state.grouping && !resolveRecordGrouping(typeId, state.grouping, model)) return false;
+  if (
+    state.grouping?.summaries &&
+    liveGroupSummaries(typeId, state.grouping.summaries, fields).length !== state.grouping.summaries.length
+  )
+    return false;
   if (!presentationFiltersAreValid(state.filters ?? [], fields, model.relationships, typeId, paths)) return false;
   try {
     const query = presentationQuery(
@@ -45,6 +50,10 @@ export function cleanRecordViewState(typeId: string, state: DataViewState, model
   if (state.columnWidths && Object.keys(state.columnWidths).some((id) => !ids.has(id)))
     cleaned.columnWidths = Object.fromEntries(Object.entries(state.columnWidths).filter(([id]) => ids.has(id)));
   if (state.grouping && !resolveRecordGrouping(typeId, state.grouping, model)) cleaned.grouping = null;
+  else if (state.grouping?.summaries) {
+    const summaries = liveGroupSummaries(typeId, state.grouping.summaries, fields);
+    if (summaries.length !== state.grouping.summaries.length) cleaned.grouping = { ...state.grouping, summaries };
+  }
   const filters = state.filters?.filter((filter) =>
     presentationFiltersAreValid([filter], fields, model.relationships, typeId, paths),
   );

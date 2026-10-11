@@ -188,6 +188,27 @@ export function addInput(expression: CalculationExpression, operator: Operator):
   return addStep(expression, operator);
 }
 
+export function insertStep(
+  expression: CalculationExpression,
+  path: ExpressionPath,
+  operator: Operator,
+): CalculationExpression {
+  const target = expressionAt(expression, path);
+  return target ? replaceExpression(expression, path, addStep(target, operator)) : expression;
+}
+
+export function extendStep(
+  expression: CalculationExpression,
+  path: ExpressionPath,
+  operator: Operator,
+): CalculationExpression {
+  const step = expressionAt(expression, path);
+  if (step?.kind !== "operation") return expression;
+  if (isVariadic(step.operator) && step.arguments.length < 32)
+    return replaceExpression(expression, path, { ...step, arguments: [...step.arguments, UNSET] });
+  return insertStep(expression, path, operator);
+}
+
 export function removeStep(expression: CalculationExpression, path: ExpressionPath): CalculationExpression {
   const step = expressionAt(expression, path);
   if (step?.kind !== "operation") return expression;
@@ -213,6 +234,11 @@ export function formulaSteps(expression: CalculationExpression): FormulaStep[] {
   };
   visit(expression, []);
   return steps;
+}
+
+export function stepInsertPath(steps: FormulaStep[], index: number): ExpressionPath {
+  if (index > 0) return steps[index - 1]?.path ?? [];
+  return steps[0]?.arguments[0]?.path ?? [];
 }
 
 export function formulaInputs(expression: CalculationExpression) {

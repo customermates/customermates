@@ -15,6 +15,7 @@ import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { recordColumns } from "@/features/records/record-columns";
+import { recordSummaryFields } from "@/features/records/record-grouping";
 import { MANUAL_ORDER_SORT_KEY } from "@/features/records/record-column.schema";
 import { recordColumnPresentation, recordDefaults } from "@/features/records/record-presentation";
 import { getRecordPresentationAction, mutateRecordAction, resetRecordViewAction } from "../../actions";
@@ -47,7 +48,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       presentation: observable.ref,
       fields: computed,
       type: computed,
-      differsFromSharedDefaults: computed,
+      differsFromDefaultLayout: computed,
       recordColumns: computed,
       setPresentation: action,
       moveItemBetweenGroups: action.bound,
@@ -334,7 +335,7 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       this.movingRecords.delete(params.item.id);
     }
   }
-  resetToSharedDefaults = async () => {
+  resetLayout = async () => {
     await this.settleViewState();
     const result = await resetRecordViewAction({
       surfaceKey: recordSurfaceKey(this.presentation.typeId),
@@ -354,6 +355,12 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   }
   get type() {
     return this.presentation.model.types.find((type) => type.id === this.presentation.typeId);
+  }
+  override get summaryFields() {
+    return recordSummaryFields(this.presentation.typeId, this.fields).map((field) => ({
+      id: field.id,
+      label: field.label,
+    }));
   }
   override get recordLabels() {
     return this.type ? { singular: this.type.label, plural: this.type.pluralLabel } : undefined;
@@ -377,10 +384,9 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
   override get viewTypeLabel() {
     return this.type?.pluralLabel;
   }
-  override get differsFromSharedDefaults() {
-    const type = this.type;
-    if (!type) return false;
-    const defaults = recordDefaults(type, this.presentation.model.fields);
+  override get differsFromDefaultLayout() {
+    if (!this.type) return false;
+    const defaults = recordDefaults(this.presentation.typeId, this.presentation.model.fields);
     const available = new Set(this.columnsDefinition.map((column) => column.uid));
     const columns = (ids: string[] | undefined) =>
       (ids ?? []).filter((id) => available.has(id) && id !== this.primaryColumnId);

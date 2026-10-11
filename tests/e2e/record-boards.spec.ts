@@ -48,6 +48,8 @@ test("moves a board card with the keyboard and restores relationship and date gr
   const recordId = created.rows[0].id as string;
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await page.locator("#records-layout-board").click();
+  await page.getByRole("combobox", { name: "Group By", exact: true }).click();
+  await page.getByRole("option", { name: "Stage", exact: true }).click();
   await closeAppearance();
   const card = page.locator(`[data-item-id="${recordId}"]`);
   await expect(page.locator(`[data-group-key="value:${id("deal.stage.new")}"]`).locator(card)).toBeVisible();

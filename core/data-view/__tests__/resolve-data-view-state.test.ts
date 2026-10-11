@@ -165,6 +165,31 @@ describe("resolveDataViewState three layer precedence", () => {
     ).toEqual({ field: "system:assignedTo" });
   });
 
+  it("keeps the stored summaries for a bare grouping and lets requested summaries replace them", () => {
+    const value = "4f0f3f7c-61a4-4b0e-9a55-4fe0a2c3a6d1";
+    const weighted = "7c4b4f0e-1f2a-4b9e-8d3c-2a6f5e9b1c0d";
+    const stored = {
+      field: A_GROUPING_COLUMN,
+      hidden: ["__empty__"],
+      summaries: [{ fieldId: value, aggregation: "sum" as const }],
+    };
+    expect(
+      resolveDataViewState({ params: { grouping: { field: A_GROUPING_COLUMN } }, base: { grouping: stored } }).grouping,
+    ).toEqual(stored);
+    expect(
+      resolveDataViewState({
+        params: { grouping: { field: A_GROUPING_COLUMN, summaries: [{ fieldId: weighted, aggregation: "max" }] } },
+        base: { grouping: stored },
+      }).grouping,
+    ).toEqual({ ...stored, summaries: [{ fieldId: weighted, aggregation: "max" }] });
+    expect(
+      resolveDataViewState({
+        params: { grouping: { field: A_GROUPING_COLUMN, summaries: [] } },
+        base: { grouping: stored },
+      }).grouping,
+    ).toEqual({ ...stored, summaries: [] });
+  });
+
   it("treats a cleared grouping as no grouping with no floor", () => {
     expect(
       resolveDataViewState({ params: { grouping: null }, base: { grouping: { field: A_GROUPING_COLUMN } } }).grouping,

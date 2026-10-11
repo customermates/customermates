@@ -1,6 +1,11 @@
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { GroupableFieldDto } from "@/core/base/grouping/groupable-field";
-import type { GroupPageRequest, Grouping, GroupingResult } from "@/core/base/grouping/grouping.schema";
+import type {
+  GroupPageRequest,
+  GroupSummaryDefinition,
+  Grouping,
+  GroupingResult,
+} from "@/core/base/grouping/grouping.schema";
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 import type { DataViewSurfaceKey } from "@/core/data-view/data-view-keys";
 import type { DataViewChipDto, DataViewState } from "@/core/data-view/data-view-state.schema";
@@ -93,7 +98,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
   filterableFields: FilterableField[] = [];
 
   p13nId?: string;
-  resetToSharedDefaults?: () => Promise<void>;
+  resetLayout?: () => Promise<void>;
   columnOrder: string[] = [];
   columnWidths: Record<string, number> = {};
   hiddenColumns: string[] = [];
@@ -200,8 +205,12 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
     return "name";
   }
 
-  get differsFromSharedDefaults(): boolean {
+  get differsFromDefaultLayout(): boolean {
     return false;
+  }
+
+  get summaryFields(): { id: string; label: string }[] {
+    return [];
   }
 
   constructor(rootStore: RootStore, resource?: Resource) {
@@ -295,6 +304,7 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
       hideGroup: action,
       showGroup: action,
       setHideEmptyGroups: action,
+      setGroupSummaries: action,
       setGroupSelection: action,
       resetGroupedTakeOverrides: action,
     });
@@ -640,6 +650,13 @@ export abstract class BaseDataViewStore<Entity extends HasId> extends BaseStore 
 
   setHideEmptyGroups = (hideEmpty: boolean): void => {
     this.setGroupPresentation({ hideEmpty });
+  };
+
+  setGroupSummaries = (summaries: GroupSummaryDefinition[]): void => {
+    if (!this.grouping) return;
+    this.grouping = { ...this.grouping, summaries };
+    this.persistViewState();
+    this.refreshInBackground();
   };
 
   private setGroupPresentation(patch: Pick<Grouping, "hidden" | "hideEmpty">): void {

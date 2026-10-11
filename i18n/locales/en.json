@@ -1983,6 +1983,7 @@
     "selectAllRows": "Select all rows",
     "selectGroup": "Select group {group}",
     "selectRow": "Select row {id}",
+    "summaries": "Summaries",
     "views": {
       "activityCount": "{count, plural, one {# activity} other {# activities}}",
       "aiLabel": "Ask AI about {name}",
@@ -3081,7 +3082,6 @@
     "addRelationship": "Add relationship",
     "addValue": "Add {field}",
     "aggregation": "Aggregation",
-    "ascending": "Ascending",
     "assignedTo": "Assigned to",
     "attribute": "Attribute name",
     "attributeNameTaken": "Another attribute already has this name",
@@ -3093,7 +3093,6 @@
       "rollup": "Counted or totalled from linked records",
       "snapshot": "Saved at an event"
     },
-    "board": "Board",
     "calculatedValue": "Calculated: {formula}",
     "calculatedValuePlain": "Calculated value",
     "calculationError": "Calculation unavailable",
@@ -3121,6 +3120,7 @@
         "title": "Example",
         "unavailable": "Too many linked records to show an example."
       },
+      "extendStep": "Add to {step}",
       "inputs": "Inputs",
       "linkedList": "Linked list",
       "missing": {
@@ -3176,6 +3176,19 @@
       "showToEveryone": "Show to everyone who can see the {list}",
       "showToEveryoneHelp": "They'll see this value even if they can't open the {list}.",
       "step": "Step {number}",
+      "stepChip": "Step",
+      "symbols": {
+        "and": "AND",
+        "coalesce": "ELSE",
+        "if": "IF",
+        "lower": "lower",
+        "not": "NOT",
+        "or": "OR",
+        "otherwise": "ELSE",
+        "then": "THEN",
+        "trim": "trim",
+        "upper": "upper"
+      },
       "take": "Take",
       "text": {
         "average": "average {value} across linked {list}",
@@ -3235,9 +3248,6 @@
       }
     },
     "color": "Color",
-    "conditionIf": "Condition",
-    "conditionOtherwise": "Otherwise",
-    "conditionThen": "Then",
     "configurationDeletion": {
       "blockedMessage": "{name} can't be deleted while other parts of your setup still use it.",
       "blockers": {
@@ -3294,11 +3304,6 @@
     "currency": "Currency",
     "decimalPlaces": "Decimal places",
     "decimalPlacesHelp": "Leave empty for the default. This changes how values are displayed, not how they are calculated.",
-    "defaultColumns": "Default columns",
-    "defaultGrouping": "Default grouping",
-    "defaultLayout": "Default layout",
-    "defaultOrder": "Creation order",
-    "defaultSort": "Default sort",
     "defaultValue": "Default value",
     "deleteRecord": "Delete {name}",
     "deletion": {
@@ -3312,7 +3317,6 @@
     "deletionRecords": "This removes {records}.",
     "deletionRestrictedLinks": "The link count is hidden because some linked records are restricted.",
     "dependencyHelp": "Resolve the affected dependencies before applying this change.",
-    "descending": "Descending",
     "description": "Description",
     "detailLayoutReadFailed": "Your saved layout could not be loaded.",
     "detailLayoutSaveFailed": "Layout changes could not be saved.",
@@ -3363,8 +3367,6 @@
       "zoomIn": "Zoom in",
       "zoomOut": "Zoom out"
     },
-    "groupSummaries": "Group summaries",
-    "groupSummariesDescription": "Show totals and other measures in table groups and board columns. Each record contributes once per group, including records on later pages.",
     "hiddenList": "Hidden",
     "icon": "Icon",
     "iconChoose": "Choose icon",
@@ -3493,8 +3495,6 @@
     "member": "Member",
     "missing": "No value",
     "moreActions": "More actions for {name}",
-    "moveDown": "Move {field} down",
-    "moveUp": "Move {field} up",
     "multipleValues": "Allow several values",
     "name": "Name",
     "newRecord": "New record",
@@ -3536,7 +3536,6 @@
     "option": "Option",
     "optionCount": "{count, plural, =0 {No options} one {# option} other {# options}}",
     "options": "Options",
-    "pinnedFields": "Pinned detail fields",
     "pluralDescription": "Shown in navigation and list titles. Suggested from the name until you change it.",
     "pluralName": "Plural name",
     "previewReady": "Ready to apply. {count} records will be checked.",
@@ -3591,8 +3590,8 @@
     "renewPublishedSummaries": "Renew published summaries",
     "renewPublishedSummariesHelp": "Approve the changed inputs for these summaries. Their values remain visible to readers who cannot access the linked inputs.",
     "required": "Required",
-    "resetDefaults": "Reset to shared defaults",
     "resetDetailLayout": "Reset to default",
+    "resetLayout": "Reset layout",
     "restricted": "Restricted",
     "resume": "Resume",
     "retry": "Retry",
@@ -3600,10 +3599,7 @@
     "saveBeforeEmbedded": "Save this record before changing linked items.",
     "savingDetailLayout": "Saving layout…",
     "setDefaultValue": "Set a default value",
-    "sharedDefaults": "Shared defaults",
-    "sharedDefaultsDescription": "These defaults apply until someone customizes their own view. Existing personal choices stay unchanged.",
     "showInNavigation": "Show in navigation",
-    "sortDirection": "Sort direction",
     "stagedValidation": "Existing data will be validated in the background. The previous complete state stays active until validation and recalculation succeed.",
     "staleControlConflict": "A setting changed elsewhere. Choose which version to use before previewing again.",
     "staleKeepDraft": "Keep my draft",
@@ -3640,7 +3636,6 @@
     "summaryApprovalRequired": "This summary is published. An administrator must approve changes to its calculation inputs.",
     "summaryField": "Summary field",
     "systemActor": "System",
-    "table": "Table",
     "triggerField": "When this field changes",
     "triggerValue": "To this value",
     "typeHints": {

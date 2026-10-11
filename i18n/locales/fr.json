@@ -1983,6 +1983,7 @@
     "selectAllRows": "Sélectionner toutes les lignes",
     "selectGroup": "Sélectionner le groupe {group}",
     "selectRow": "Sélectionner la ligne {id}",
+    "summaries": "Synthèses",
     "views": {
       "activityCount": "{count, plural, one {# activité} other {# activités}}",
       "aiLabel": "Interroger l’IA sur {name}",
@@ -3081,7 +3082,6 @@
     "addRelationship": "Ajouter une relation",
     "addValue": "Ajouter {field}",
     "aggregation": "Agrégation",
-    "ascending": "Croissant",
     "assignedTo": "Attribué à",
     "attribute": "Nom de l’attribut",
     "attributeNameTaken": "Un autre attribut porte déjà ce nom",
@@ -3093,7 +3093,6 @@
       "rollup": "Compté ou totalisé depuis les enregistrements liés",
       "snapshot": "Enregistré lors d’un événement"
     },
-    "board": "Tableau Kanban",
     "calculatedValue": "Calculé : {formula}",
     "calculatedValuePlain": "Valeur calculée",
     "calculationError": "Calcul indisponible",
@@ -3121,6 +3120,7 @@
         "title": "Exemple",
         "unavailable": "Trop d'enregistrements liés pour afficher un exemple."
       },
+      "extendStep": "Ajouter à {step}",
       "inputs": "Entrées",
       "linkedList": "Liste liée",
       "missing": {
@@ -3176,6 +3176,19 @@
       "showToEveryone": "Afficher à tous ceux qui peuvent voir l'enregistrement ({list})",
       "showToEveryoneHelp": "Ils verront cette valeur même s'ils ne peuvent pas ouvrir l'enregistrement lié ({list}).",
       "step": "Étape {number}",
+      "stepChip": "Étape",
+      "symbols": {
+        "and": "ET",
+        "coalesce": "SINON",
+        "if": "SI",
+        "lower": "minusc.",
+        "not": "NON",
+        "or": "OU",
+        "otherwise": "SINON",
+        "then": "ALORS",
+        "trim": "rogner",
+        "upper": "majusc."
+      },
       "take": "Reprendre",
       "text": {
         "average": "moyenne de {value} des {list} liés",
@@ -3235,9 +3248,6 @@
       }
     },
     "color": "Couleur",
-    "conditionIf": "Condition",
-    "conditionOtherwise": "Sinon",
-    "conditionThen": "Alors",
     "configurationDeletion": {
       "blockedMessage": "{name} ne peut pas être supprimé tant que d’autres éléments de votre configuration l’utilisent.",
       "blockers": {
@@ -3294,11 +3304,6 @@
     "currency": "Devise",
     "decimalPlaces": "Décimales",
     "decimalPlacesHelp": "Laissez vide pour utiliser le format par défaut. Cela modifie l’affichage des valeurs, pas leur calcul.",
-    "defaultColumns": "Colonnes par défaut",
-    "defaultGrouping": "Regroupement par défaut",
-    "defaultLayout": "Disposition par défaut",
-    "defaultOrder": "Ordre de création",
-    "defaultSort": "Tri par défaut",
     "defaultValue": "Valeur par défaut",
     "deleteRecord": "Supprimer {name}",
     "deletion": {
@@ -3312,7 +3317,6 @@
     "deletionRecords": "Seront supprimés : {records}.",
     "deletionRestrictedLinks": "Le nombre de liens est masqué car certains enregistrements liés ont un accès restreint.",
     "dependencyHelp": "Résolvez les dépendances concernées avant d’appliquer cette modification.",
-    "descending": "Décroissant",
     "description": "Description",
     "detailLayoutReadFailed": "Impossible de charger votre mise en page enregistrée.",
     "detailLayoutSaveFailed": "Impossible d’enregistrer les modifications de la disposition.",
@@ -3363,8 +3367,6 @@
       "zoomIn": "Zoom avant",
       "zoomOut": "Zoom arrière"
     },
-    "groupSummaries": "Synthèses de groupe",
-    "groupSummariesDescription": "Affichez des totaux et d’autres indicateurs dans les groupes du tableau et les colonnes du kanban. Chaque enregistrement compte une fois par groupe, y compris ceux des pages suivantes.",
     "hiddenList": "Masquée",
     "icon": "Icône",
     "iconChoose": "Choisir une icône",
@@ -3493,8 +3495,6 @@
     "member": "Membre",
     "missing": "Aucune valeur",
     "moreActions": "Plus d’actions pour {name}",
-    "moveDown": "Descendre {field}",
-    "moveUp": "Monter {field}",
     "multipleValues": "Autoriser plusieurs valeurs",
     "name": "Nom",
     "newRecord": "Nouvelle fiche",
@@ -3536,7 +3536,6 @@
     "option": "Option",
     "optionCount": "{count, plural, =0 {Aucune option} one {# option} other {# options}}",
     "options": "Options",
-    "pinnedFields": "Champs de détail épinglés",
     "pluralDescription": "Affiché dans la navigation et les titres de liste. Proposé à partir du nom jusqu’à ce que vous le modifiiez.",
     "pluralName": "Nom au pluriel",
     "previewReady": "Prêt à appliquer. {count} fiches seront vérifiées.",
@@ -3591,8 +3590,8 @@
     "renewPublishedSummaries": "Renouveler les synthèses publiées",
     "renewPublishedSummariesHelp": "Approuver les données modifiées de ces synthèses. Leurs valeurs restent visibles pour les lecteurs qui ne peuvent pas accéder aux données liées.",
     "required": "Obligatoire",
-    "resetDefaults": "Rétablir les valeurs partagées",
     "resetDetailLayout": "Rétablir les valeurs par défaut",
+    "resetLayout": "Réinitialiser la disposition",
     "restricted": "Accès restreint",
     "resume": "Reprendre",
     "retry": "Réessayer",
@@ -3600,10 +3599,7 @@
     "saveBeforeEmbedded": "Enregistrez cet enregistrement avant de modifier les éléments liés.",
     "savingDetailLayout": "Enregistrement de la disposition…",
     "setDefaultValue": "Définir une valeur par défaut",
-    "sharedDefaults": "Valeurs par défaut partagées",
-    "sharedDefaultsDescription": "Ces valeurs s’appliquent jusqu’à la personnalisation d’une vue. Les préférences personnelles existantes sont conservées.",
     "showInNavigation": "Afficher dans la navigation",
-    "sortDirection": "Sens du tri",
     "stagedValidation": "Les données existantes seront validées en arrière-plan. Le dernier état complet reste actif jusqu’à la réussite de la validation et du recalcul.",
     "staleControlConflict": "Un réglage a été modifié ailleurs. Choisissez la version à utiliser avant de relancer l’aperçu.",
     "staleKeepDraft": "Garder mon brouillon",
@@ -3640,7 +3636,6 @@
     "summaryApprovalRequired": "Ce résumé est publié. Un administrateur doit approuver les modifications des données utilisées dans le calcul.",
     "summaryField": "Champ de la synthèse",
     "systemActor": "Système",
-    "table": "Tableau",
     "triggerField": "Quand ce champ change",
     "triggerValue": "À cette valeur",
     "typeHints": {

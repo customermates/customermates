@@ -4,6 +4,7 @@ import type { Client } from "pg";
 import { afterAll, describe, expect, it } from "vitest";
 import { presetId } from "@/features/records/crm-preset";
 import { recordChannelsField } from "@/features/records/record-channels";
+import { recordDefaults } from "@/features/records/record-presentation";
 import { RecordModelSchema, type RecordModel } from "@/features/records/record-model.schema";
 import { validateRecordModel } from "@/features/records/record-model-validation";
 import { RecordRevisionChangeSchema } from "@/features/records/record-revision.schema";
@@ -100,8 +101,6 @@ async function customizeWorkspace(client: Client, companyId: string, userId: str
     { id: organizationChannels, kind: "channels", typeId: id("organization"), fields: [], enabled: false },
     { id: dealChannels, kind: "personIdentity", typeId: id("deal"), fields: [] },
   );
-  const organization = snapshot.types.find((type) => type.id === id("organization"));
-  organization?.defaults.hiddenColumns.push("system:channels" as never);
   const revision = latest.revision + 1;
   const configuration = (operations: unknown[]) => ({
     version: 1,
@@ -242,9 +241,8 @@ describeDatabase("channels field migration", { timeout: 240000 }, () => {
       position:
         Math.max(...contactFields.filter((field) => field !== contactChannels).map((field) => field.position)) + 1,
     });
-    expect(starterModel.types.find((type) => type.id === id("contact"))?.defaults.columns).toContain(
-      id("capability.identity"),
-    );
+    expect(recordDefaults(id("contact"), starterModel.fields).columnOrder).toContain(id("capability.identity"));
+    expect(starterModel.types.some((type) => "defaults" in type)).toBe(false);
 
     const customId = (key: string) => presetId(customized.companyId, key);
     const customizedModel = await current(client, customized.companyId);
@@ -262,9 +260,7 @@ describeDatabase("channels field migration", { timeout: 240000 }, () => {
       archived: false,
       format: { providerAvatar: true },
     });
-    expect(customizedModel.types.find((type) => type.id === customId("organization"))?.defaults.hiddenColumns).toEqual(
-      expect.not.arrayContaining(["system:channels"]),
-    );
+    expect(customizedModel.types.some((type) => "defaults" in type)).toBe(false);
     const definitions = converted.fields as Array<{
       companyId: string;
       id: string;

@@ -31,6 +31,7 @@ import { AppModalActionRail } from "@/components/modal/app-modal-action";
 import { useAskAiAction } from "@/components/ui/ask-ai-action";
 import { MANUAL_ORDER_SORT_KEY } from "@/features/records/record-column.schema";
 
+import { GroupSummaryOptions } from "./group-summary-options";
 import { PopoverSection as Section } from "./popover-section";
 
 type DataViewMode = "table" | "board";
@@ -199,8 +200,10 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 
   function handleGroupingChange(next: string) {
     const entry = store.groupableFields.find((field) => field.id === next);
+    const summaries = store.grouping?.summaries;
     store.setViewOptions({
-      grouping: next === "__none__" ? null : (entry?.grouping ?? null),
+      grouping:
+        next === "__none__" || !entry ? null : { ...entry.grouping, ...(summaries?.length ? { summaries } : {}) },
     });
   }
 
@@ -258,15 +261,15 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
                   }),
                 ]
               : []),
-            ...(store.resetToSharedDefaults && store.differsFromSharedDefaults
+            ...(store.resetLayout && store.differsFromDefaultLayout
               ? [
                   {
-                    id: "reset-shared-defaults",
+                    id: "reset-layout",
                     anchorId: id ? `${id}-reset` : undefined,
                     icon: RotateCcw,
-                    label: t("RecordModel.resetDefaults"),
+                    label: t("RecordModel.resetLayout"),
                     onClick: async () => {
-                      await store.resetToSharedDefaults?.();
+                      await store.resetLayout?.();
                       setIsOpen(false);
                     },
                   },
@@ -356,6 +359,8 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
               )}
             </Section>
           )}
+
+          <GroupSummaryOptions store={store} />
 
           {boardGrouped && hiddenGroups.length > 0 && <HiddenBoardColumns groups={hiddenGroups} store={store} />}
 

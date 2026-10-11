@@ -3,8 +3,8 @@ import { recordInvariant } from "./record-invariant";
 import { z } from "zod";
 import { CHIP_COLORS } from "@/constants/chip-colors";
 import { RecordIdentitySchema } from "./record-identity.schema";
-import { RecordColumnKeySchema, RecordFieldKeySchema } from "./record-column.schema";
 import { RecordRelationshipPathSchema } from "./record-relationship-path.schema";
+import { GroupSummaryDefinitionSchema } from "@/core/base/grouping/grouping.schema";
 
 export const RecordRefSchema = z.object({ typeId: z.uuid(), recordId: z.uuid() }).strict();
 export type RecordRef = z.infer<typeof RecordRefSchema>;
@@ -363,12 +363,7 @@ export const RecordRelationshipSchema = z
   .strict();
 export type RecordRelationship = z.infer<typeof RecordRelationshipSchema>;
 
-export const RecordGroupSummaryDefinitionSchema = z
-  .object({
-    fieldId: z.uuid(),
-    aggregation: z.enum(["sum", "average", "min", "max"]),
-  })
-  .strict();
+export const RecordGroupSummaryDefinitionSchema = GroupSummaryDefinitionSchema;
 export type RecordGroupSummaryDefinition = z.infer<typeof RecordGroupSummaryDefinitionSchema>;
 
 export const RecordTypeSchema = z
@@ -385,19 +380,6 @@ export const RecordTypeSchema = z
     navigationVisible: z.boolean().default(true),
     archived: z.boolean().describe("True while the item is in Trash."),
     position: z.number().int().nonnegative(),
-    defaults: z
-      .object({
-        columns: z.array(RecordColumnKeySchema),
-        hiddenColumns: z.array(RecordColumnKeySchema),
-        layout: z.enum(["table", "board"]),
-        groupBy: RecordColumnKeySchema.nullable(),
-        groupBucket: z.enum(["day", "week", "month"]).optional(),
-        groupSummaries: z.array(RecordGroupSummaryDefinitionSchema).max(8).optional(),
-        sortField: RecordFieldKeySchema.nullable(),
-        sortDirection: z.enum(["asc", "desc"]),
-        pinnedFields: z.array(RecordColumnKeySchema),
-      })
-      .strict(),
     relationshipPaths: z.array(RecordRelationshipPathSchema).max(32).optional(),
   })
   .strict();

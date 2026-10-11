@@ -5,7 +5,7 @@ import type { RecordModelView, RecordType } from "@/features/records/record-mode
 import type { TypeModalStore } from "./type-modal";
 
 import { observer } from "mobx-react-lite";
-import { LayoutList, List, MoreHorizontal, Plus, Trash2 } from "lucide-react";
+import { List, MoreHorizontal, Plus, Trash2 } from "lucide-react";
 
 import { CONFIGURATION_TRASH_HREF } from "@/features/trash/trash-routes";
 import { useTranslations } from "next-intl";
@@ -31,7 +31,6 @@ type Props = {
   selected?: RecordType;
   canAddSublist: boolean;
   onAdd: (kind: ConfigureAddKind) => void;
-  onSharedDefaults: () => void;
   model: RecordModelView;
   onDeleted: () => Promise<void>;
 };
@@ -45,7 +44,6 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
   selected,
   canAddSublist,
   onAdd,
-  onSharedDefaults,
   model,
   onDeleted,
 }: Props) {
@@ -77,14 +75,6 @@ export const ConfigureTopBarActions = observer(function ConfigureTopBarActions({
 
       {selected && (
         <TopBarMenuButton disabled={disabled} icon={MoreHorizontal} label={t("RecordModel.listActions")}>
-          <DropdownMenuItem onSelect={onSharedDefaults}>
-            <LayoutList aria-hidden="true" />
-
-            {t("RecordModel.sharedDefaults")}
-          </DropdownMenuItem>
-
-          <DropdownMenuSeparator />
-
           <DropdownMenuItem asChild>
             <IntlLink href={CONFIGURATION_TRASH_HREF}>
               <Trash2 aria-hidden="true" />

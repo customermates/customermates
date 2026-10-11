@@ -442,7 +442,10 @@ test("builds every calculation operator with the linear editor and persists resu
       await calculation.locator('[data-calculation-node="step"] [data-calculation-chip="operation"]').click();
       await page.locator(`[data-calculation-option="${example.id}"]`).click();
       await expect(calculation.locator('[data-calculation-node="step"]')).toHaveCount(1);
-      await expect(calculation.locator('[data-calculation-chip="operation"]')).toHaveText(example.operator);
+      await expect(calculation.locator('[data-calculation-chip="operation"]')).toHaveAttribute(
+        "aria-label",
+        `Calculation: ${example.operator}`,
+      );
       if (example.operator === "Join text")
         await calculation.getByRole("button", { name: "Add input", exact: true }).click();
       await expect(

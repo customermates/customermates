@@ -43,6 +43,7 @@ export function ConfigureNodeHeader({
   action,
   menu,
   label,
+  compact = false,
   ...target
 }: HeaderTarget & {
   icon: LucideIcon;
@@ -52,14 +53,15 @@ export function ConfigureNodeHeader({
   action?: ReactNode;
   menu?: ReactNode;
   label?: string;
+  compact?: boolean;
 }) {
   const content = (
     <>
       <Icon aria-hidden className="size-4 shrink-0" />
 
-      <span className="min-w-0 flex-1 truncate text-base font-semibold">{name}</span>
+      <span className={cn("min-w-0 flex-1 truncate font-semibold", compact ? "text-sm" : "text-base")}>{name}</span>
 
-      {kind && <span className="shrink-0 text-sm text-muted-foreground">{kind}</span>}
+      {kind && <span className={cn("shrink-0 text-muted-foreground", compact ? "text-xs" : "text-sm")}>{kind}</span>}
 
       {badge}
     </>
@@ -80,7 +82,9 @@ export function ConfigureNodeHeader({
       {content}
     </button>
   ) : (
-    <div className="flex min-w-0 flex-1 items-center gap-2.5 px-3.5 pt-3 pb-2.5">{content}</div>
+    <div className={cn("flex min-w-0 flex-1 items-center gap-2.5 px-3.5", compact ? "h-10" : "pt-3 pb-2.5")}>
+      {content}
+    </div>
   );
   if (!action) return trigger;
   return (
