@@ -2,7 +2,7 @@ import { createHmac, randomBytes, randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { test as base, expect, type Browser, type BrowserContext, type TestInfo } from "@playwright/test";
+import { test as base, expect, type Browser, type BrowserContext, type Page, type TestInfo } from "@playwright/test";
 import { Client } from "pg";
 
 import { presetId } from "../../features/records/crm-preset";
@@ -118,6 +118,7 @@ export async function memberPage(browser: Browser, database: Client, member: Dem
   });
   const signOut = await signInMember(context, database, member);
   const page = await context.newPage();
+  trackRequests(page);
   return {
     page,
     errors: collectErrors(page),
@@ -126,6 +127,38 @@ export async function memberPage(browser: Browser, database: Client, member: Dem
       await signOut();
     },
   };
+}
+
+const requestActivity = new WeakMap<Page, { inflight: number; last: number }>();
+
+/** Counts the requests the page has in flight, so `settle` can wait until it is quiet. */
+function trackRequests(page: Page) {
+  const activity = { inflight: 0, last: Date.now() };
+  requestActivity.set(page, activity);
+  const started = () => {
+    activity.inflight += 1;
+    activity.last = Date.now();
+  };
+  const ended = () => {
+    activity.inflight = Math.max(0, activity.inflight - 1);
+    activity.last = Date.now();
+  };
+  page.on("request", started);
+  page.on("requestfinished", ended);
+  page.on("requestfailed", ended);
+}
+
+/**
+ * Waits until the page had no request in flight for half a second (at most ten seconds), so leaving it does not
+ * abort lazy chunks it is still loading. A page that keeps a request open continues after the bound.
+ */
+export async function settle(page: Page) {
+  const activity = requestActivity.get(page);
+  if (!activity) return;
+  await expect
+    .poll(() => activity.inflight === 0 && Date.now() - activity.last > 500, { timeout: 10000, intervals: [100] })
+    .toBe(true)
+    .catch(() => undefined);
 }
 
 type Fixtures = { database: Client; errors: string[] };
@@ -149,6 +182,10 @@ export const test = base.extend<Fixtures>({
       await Promise.all(context.pages().map((page) => page.close()));
       await signOut();
     }
+  },
+  page: async ({ page }, use) => {
+    trackRequests(page);
+    await use(page);
   },
   errors: async ({ page }, use) => {
     await use(collectErrors(page));

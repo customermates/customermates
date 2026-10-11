@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 
-import { confirmDeletion, deleteFromDrawer, openConfigure, openConfigureRow } from "./configure";
+import { configureDrawer, confirmDeletion, openConfigure, openConfigureRow } from "./configure";
 import { DEMO_COMPANY_ID, demoId, expect, test } from "./demo-seed";
 import { runNamedRowAction } from "./record-rows";
 import { openTrash, trashRow } from "./trash";
@@ -32,8 +32,12 @@ async function restore(page: Page, label: string) {
   await openTrash(page);
   await expect(trashRow(page, label)).toBeVisible();
   await runNamedRowAction(page, trashRow(page, label), label, "Restore");
-  await expect(page.locator("[data-sonner-toast]").filter({ hasText: "1 item restored" }).first()).toBeVisible();
-  await expect(trashRow(page, label)).toHaveCount(0);
+  // Records and views restore at once ("1 item restored"); a field restores in the background: Trash polls the
+  // operation, reports "Restored" when it finished, and only then the item leaves Trash.
+  const done = page.locator("[data-sonner-toast]").filter({ hasText: /1 item restored|Restored/ });
+  await expect(done.first()).toBeVisible({ timeout: 180000 });
+  await expect(page.locator("[data-sonner-toast]").filter({ hasText: "Restore failed" })).toHaveCount(0);
+  await expect(trashRow(page, label)).toHaveCount(0, { timeout: 180000 });
 }
 
 test("the seeded Trash lists records, a view and a field that restore and move back to Trash", async ({
@@ -41,7 +45,7 @@ test("the seeded Trash lists records, a view and a field that restore and move b
   database,
   errors,
 }) => {
-  test.setTimeout(240000);
+  test.setTimeout(480000);
   const { rows: items } = await database.query<TrashedItem>(
     `SELECT t.kind::text AS kind, t.label, t."typeId", t."targetId", t."deletedById", t."deletedAt", t."expiresAt",
        concat(u."firstName", ' ', u."lastName") AS "deletedBy"
@@ -108,9 +112,17 @@ test("the seeded Trash lists records, a view and a field that restore and move b
       } else {
         await openConfigure(page, item.typeId);
         await openConfigureRow(page, "Fields", item.label);
-        await deleteFromDrawer(page, "Delete field");
+        // Deleting the field also cleans it out of three seeded views, which takes a while on the demo workspace.
+        await configureDrawer(page).getByRole("button", { name: "Delete field", exact: true }).click();
+        const confirmation = page.getByRole("alertdialog");
+        const confirm = confirmation.getByRole("button", { name: "Delete", exact: true });
+        // The dialog lists the views it cleans up before Delete takes effect; click again only while it is idle.
+        await expect(async () => {
+          if (await confirm.isEnabled()) await confirm.click();
+          await expect(confirmation).not.toBeVisible({ timeout: 30000 });
+        }).toPass({ timeout: 240000 });
       }
-      await expect.poll(() => live(item), { message: `${item.label} is back in Trash` }).toBe(false);
+      await expect.poll(() => live(item), { message: `${item.label} is back in Trash`, timeout: 180000 }).toBe(false);
     }
     // Keep the seeded story: who deleted each item and when.
     for (const item of items) {
