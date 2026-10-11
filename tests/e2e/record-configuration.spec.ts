@@ -4,7 +4,7 @@ import { restoreFromTrash, deleteFromTrashPermanently } from "./trash";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { recordChannelsField } from "../../features/records/record-channels";
-import { addChannelsField, addFromConfigure, configureListCard, configureRow, configureTopBar, deleteFromDrawer, deleteSelectedList, followConfigureLink, openConfigure, openConfigureRow, openConfigureTab, openDrawerTab, openListAction, saveDrawer, saveGeneral, selectConfigureList } from "./configure";
+import { addChannelsField, addFromConfigure, configureListCard, configureRow, configureTopBar, deleteFromDrawer, deleteSelectedList, followConfigureLink, openConfigure, openConfigureRow, openConfigureTab, openDrawerTab, saveDrawer, saveGeneral, selectConfigureList } from "./configure";
 import { calculationChip, calculationFlow, chooseValueSource, pickFixedValue, pickOption } from "./calculation-flow";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { recordItem } from "./record-rows";

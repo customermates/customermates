@@ -76,7 +76,13 @@ export function resolveDataViewState({ params, base, defaults }: ResolveDataView
   const stored = [base?.grouping, defaults?.grouping].find((grouping) =>
     sameGrouping(grouping, out.grouping as Grouping | null | undefined),
   );
-  if (stored) out.grouping = stored;
+  const requested = params?.grouping;
+  if (stored) {
+    out.grouping =
+      requested && stored !== requested && requested.summaries !== undefined
+        ? { ...stored, summaries: requested.summaries }
+        : stored;
+  }
 
   const searchTerm = out.searchTerm as string | undefined;
 

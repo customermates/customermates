@@ -92,15 +92,7 @@ function nextNameField(model: RecordModel, deleted: RecordModel["fields"][number
 }
 
 function setNameField(model: RecordModel, typeId: string, fieldId: string | null) {
-  model.types = model.types.map((type) =>
-    type.id === typeId
-      ? {
-          ...type,
-          primaryFieldId: fieldId,
-          defaults: { ...type.defaults, hiddenColumns: type.defaults.hiddenColumns.filter((id) => id !== fieldId) },
-        }
-      : type,
-  );
+  model.types = model.types.map((type) => (type.id === typeId ? { ...type, primaryFieldId: fieldId } : type));
 }
 
 export function assignMissingNameFields(model: RecordModel) {
@@ -274,9 +266,9 @@ function restoreBindingFields(model: RecordModel, dropped: DroppedBinding[]) {
   });
 }
 
-function cleanListDefaults(
+function cleanRelationshipPaths(
   model: RecordModel,
-  removed: { fieldIds: Set<string>; relationIds: Set<string> },
+  removed: { relationIds: Set<string> },
   reference: (target: ConfigurationTarget) => DeletionReference,
   cause: DeletionReference,
 ): DeletionCleanup[] {
@@ -288,33 +280,9 @@ function cleanListDefaults(
         .filter((path) => path.path.some((step) => removed.relationIds.has(step.relationId)))
         .map((path) => path.id),
     );
-    const stale = (id: string | null | undefined) => {
-      if (!id) return false;
-      if (removed.fieldIds.has(id)) return true;
-      if (id.startsWith("relationship:")) return removed.relationIds.has(id.split(":")[1]);
-      if (id.startsWith("path:")) return pathIds.has(id.slice("path:".length));
-      return false;
-    };
-    const keep = (ids: string[]) => ids.filter((id) => !stale(id));
-    const grouped = stale(type.defaults.groupBy);
-    const defaults = {
-      ...type.defaults,
-      columns: keep(type.defaults.columns),
-      hiddenColumns: keep(type.defaults.hiddenColumns),
-      pinnedFields: keep(type.defaults.pinnedFields),
-      sortField: stale(type.defaults.sortField) ? null : type.defaults.sortField,
-      ...(grouped ? { groupBy: null, groupBucket: undefined } : {}),
-      ...(type.defaults.groupSummaries
-        ? { groupSummaries: type.defaults.groupSummaries.filter((summary) => !stale(summary.fieldId)) }
-        : {}),
-    };
-    if (JSON.stringify(defaults) === JSON.stringify(type.defaults) && !pathIds.size) return type;
+    if (!pathIds.size) return type;
     cleaned.push({ consumer: reference({ kind: "type", id: type.id }), target: cause });
-    return {
-      ...type,
-      defaults,
-      ...(pathIds.size ? { relationshipPaths: type.relationshipPaths?.filter((path) => !pathIds.has(path.id)) } : {}),
-    };
+    return { ...type, relationshipPaths: type.relationshipPaths?.filter((path) => !pathIds.has(path.id)) };
   });
   return cleaned;
 }
@@ -416,10 +384,9 @@ export function applyConfigurationLifecycle(
     }
   }
   if (operations.some((operation) => operation.operation === "restore")) {
-    cleanListDefaults(
+    cleanRelationshipPaths(
       model,
       {
-        fieldIds: new Set(model.fields.filter((field) => field.archived).map((field) => field.id)),
         relationIds: new Set(
           model.relationships.filter((relation) => relation.archived).map((relation) => relation.id),
         ),
@@ -443,7 +410,7 @@ export function applyConfigurationLifecycle(
       const own = bindings.dropped.filter((entry) => entry.fieldId === deletion.target.id);
       if (own.length) deletion.bindings = own;
     }
-    cleaned.push(...cleanListDefaults(model, sets, reference, reference(deletions[0].target)));
+    cleaned.push(...cleanRelationshipPaths(model, sets, reference, reference(deletions[0].target)));
   }
   let removed: RecordDefinitionDeletion | null = null;
   if (permanent.length) {

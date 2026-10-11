@@ -11,6 +11,7 @@ import { ViewMode } from "@/core/base/base-query-builder";
 
 const harness = vi.hoisted(() => ({
   onLayoutChange: undefined as ((value: string) => void) | undefined,
+  onGroupingChange: undefined as ((value: string) => void) | undefined,
 }));
 
 vi.mock("@/components/ui/segmented-control", async (importOriginal) => {
@@ -43,7 +44,18 @@ vi.mock("@/components/modal", () => ({
     createElement("div", null, trigger, createElement("h2", { "data-slot": "overlay-title" }, title), children),
 }));
 vi.mock("@/components/ui/select", () => ({
-  Select: ({ children }: { children: ReactNode }) => createElement("div", { "data-slot": "select" }, children),
+  Select: ({
+    children,
+    value,
+    onValueChange,
+  }: {
+    children: ReactNode;
+    value?: string;
+    onValueChange?: (value: string) => void;
+  }) => {
+    if (value === "stage" || value === "owner") harness.onGroupingChange = onValueChange;
+    return createElement("div", { "data-slot": "select" }, children);
+  },
   SelectContent: ({ children }: { children: ReactNode }) => createElement("div", null, children),
   SelectItem: ({ children, value }: { children: ReactNode; value: string }) =>
     createElement("div", { "data-value": value }, children),
@@ -53,6 +65,7 @@ vi.mock("@/components/ui/select", () => ({
 }));
 
 import { DataViewDisplayOptions } from "../display-options";
+import { nextGroupSummary } from "../group-summary-options";
 
 type Item = { id: string };
 
@@ -70,6 +83,7 @@ function store(overrides: Partial<BaseDataViewStore<Item>> = {}): BaseDataViewSt
     hiddenColumns: [],
     orderedColumns: [],
     sortDescriptor: undefined,
+    summaryFields: [],
     viewMode: ViewMode.table,
     views: [],
     ...overrides,
@@ -278,5 +292,59 @@ describe("display options", () => {
     harness.onLayoutChange?.("table");
 
     expect(setViewOptions).toHaveBeenCalledWith({ viewMode: ViewMode.table });
+  });
+
+  it("offers summaries only while the list is grouped and the list has number fields", () => {
+    const value = { id: "value", label: "Value" };
+    expect(render(store({ summaryFields: [value] }))).not.toContain("DataView.summaries");
+    expect(render(store({ grouping: STAGE.grouping }))).not.toContain("DataView.summaries");
+
+    const html = render(
+      store({
+        grouping: { ...STAGE.grouping, summaries: [{ fieldId: "value", aggregation: "sum" }] },
+        groupableFields: [STAGE],
+        summaryFields: [value, { id: "weighted", label: "Weighted value" }],
+      }),
+    );
+
+    expect(html).toContain("DataView.summaries");
+    expect(html).toContain('aria-label="RecordModel.summaryField"');
+    expect(html).toContain('aria-label="RecordModel.summaryAggregation"');
+    expect(html).toContain('data-value="weighted"');
+    expect(html).toContain("RecordModel.reducers.sum");
+    expect(html).toContain('aria-label="RecordModel.removeGroupSummary"');
+    expect(html).toContain("RecordModel.addGroupSummary");
+  });
+
+  it("proposes the next unused summary and stops at eight", () => {
+    const fields = [{ id: "value" }, { id: "weighted" }];
+    expect(nextGroupSummary([], fields)).toEqual({ fieldId: "value", aggregation: "sum" });
+    expect(nextGroupSummary([{ fieldId: "value", aggregation: "sum" }], fields)).toEqual({
+      fieldId: "weighted",
+      aggregation: "sum",
+    });
+    const full = (["sum", "average", "min", "max"] as const).flatMap((aggregation) =>
+      fields.map((field) => ({ fieldId: field.id, aggregation })),
+    );
+    expect(nextGroupSummary(full, [...fields, { id: "quantity" }])).toBeUndefined();
+  });
+
+  it("keeps the summaries when the grouping field changes", () => {
+    const setViewOptions = vi.fn();
+    const summaries = [{ fieldId: "value", aggregation: "sum" as const }];
+    const owner = { ...STAGE, id: "owner", grouping: { field: "system:assignedTo" } };
+    render(
+      store({
+        currentGroupableFieldId: "stage",
+        grouping: { ...STAGE.grouping, summaries },
+        groupableFields: [STAGE, owner],
+        setViewOptions,
+        summaryFields: [{ id: "value", label: "Value" }],
+      }),
+    );
+    expect(harness.onGroupingChange).toBeDefined();
+    harness.onGroupingChange?.("owner");
+
+    expect(setViewOptions).toHaveBeenCalledWith({ grouping: { field: "system:assignedTo", summaries } });
   });
 });

@@ -60,7 +60,7 @@ export const ManageDataViewsToolSchema = z
       .max(DATA_VIEW_STATE_FIELDS.length)
       .optional()
       .describe(
-        "reset only: remove personal overrides for these keys, restoring shared type defaults. Only dynamic record surfaces support reset.",
+        "reset only: remove personal overrides for these keys; the list then shows every field in its configured order as an ungrouped, unsorted table. Only dynamic record surfaces support reset.",
       ),
     state: AgentDataViewStateSchema.optional().describe(
       "Call config first. Create: initial state. Update: call list immediately before every update with the exact viewKey; include only keys the user asked to change. Keys equal to the listed value are no-ops. Arrays replace. Never copy old conversation/full state.",

@@ -37,7 +37,7 @@ import {
   recordLinkLabels,
 } from "./record-presentation";
 import { recordColumns } from "./record-columns";
-import { recordGroupableFields } from "./record-grouping";
+import { liveGroupSummaries, recordGroupableFields } from "./record-grouping";
 import { parseRelationshipColumnKey } from "./record-column.schema";
 import { resolveRecordPath } from "./record-relationship-path";
 
@@ -119,7 +119,7 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
             pageSize: input.params.pageSize ?? input.params.pagination?.pageSize,
           },
           base: selected?.state ?? viewState.allState,
-          defaults: recordDefaults(type, fields),
+          defaults: recordDefaults(type.id, fields),
         });
         if (!presentationFiltersAreValid(state.filters, fields, relationships, type.id, paths))
           return fail(CustomErrorCode.recordValueInvalid, ["filters"]);
@@ -163,8 +163,10 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
         query.includePaths = pathSelections;
         const channels = recordChannelsField(model, type.id);
         query.includeIdentities = channels?.archived === false && !state.hiddenColumns.includes(channels.id);
-        query.grouping = state.grouping ?? undefined;
-        query.groupSummaries = state.grouping ? type.defaults.groupSummaries : undefined;
+        const { summaries, ...queryGrouping } = state.grouping ?? { field: "" };
+        const groupSummaries = liveGroupSummaries(type.id, summaries, fields);
+        query.grouping = state.grouping ? queryGrouping : undefined;
+        query.groupSummaries = state.grouping && groupSummaries.length ? groupSummaries : undefined;
         query.groupPage = state.grouping ? input.params.groupPage : undefined;
         const queried = await this.query.invoke(query);
         if (!queried.ok) return queried;
@@ -172,7 +174,13 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
           ...record,
           id: record.ref.recordId,
         }));
-        const grouping = queried.data.grouping;
+        const grouping =
+          queried.data.grouping && summaries !== undefined
+            ? {
+                ...queried.data.grouping,
+                grouping: { ...queried.data.grouping.grouping, summaries: groupSummaries },
+              }
+            : queried.data.grouping;
         const visibleFields = visibleFormulaFields(fields, model, policy);
         return {
           ok: true as const,

@@ -37,6 +37,8 @@ async function openManualBoard(page: Page, typeId: string, testInfo: TestInfo) {
   await expect(page.locator("#records-add")).toBeEnabled();
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await page.locator("#records-layout-board").click();
+  await page.getByRole("combobox", { name: "Group By", exact: true }).click();
+  await page.getByRole("option", { name: "Stage", exact: true }).click();
   if (testInfo.project.name === "mobile") await page.locator('[data-slot="drawer-close"]').click();
   else await page.keyboard.press("Escape");
   await expect(page.locator('[data-slot="kanban-root"]')).toBeVisible();

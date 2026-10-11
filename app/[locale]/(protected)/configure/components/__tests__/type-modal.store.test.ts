@@ -46,13 +46,14 @@ describe("list configuration", () => {
     store.onChange("name", "Applicants");
     expect(store.operations().map((operation) => operation.operation)).toEqual(["createType"]);
   });
-  it("does not rewrite channel configuration when appearance alone changes", () => {
+  it("saves list settings without any list layout", () => {
     const model = createCrmPreset(company);
     const store = new TypeModalStore(root, model, vi.fn());
-    store.edit(model, model.types[0], "appearance");
-    store.onChange("layout", "board");
-    expect(store.section).toBe("appearance");
-    expect(store.operations().map((operation) => operation.operation)).toEqual(["putType"]);
+    store.edit(model, model.types[0]);
+    store.onChange("description", "People we talk to");
+    const [operation] = store.operations();
+    expect(operation).toMatchObject({ operation: "putType", type: { description: "People we talk to" } });
+    expect(operation.operation === "putType" && "defaults" in operation.type).toBe(false);
   });
   it("saves a dragged field order with the General settings and resets it with the form", () => {
     const model = createCrmPreset(company);

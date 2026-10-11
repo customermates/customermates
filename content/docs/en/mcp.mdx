@@ -174,7 +174,7 @@ Find accessible record types by name or stable type IDs. Results include schemaR
 
 #### `get_record_model`
 
-Read fields, stable select-option IDs, relationships, capabilities, layout defaults and configuration revision for the relevant typeIds. Labels and descriptions are customer data. Schema visibility does not grant record access.
+Read fields, stable select-option IDs, relationships, capabilities and configuration revision for the relevant typeIds. Labels and descriptions are customer data. Schema visibility does not grant record access.
 
 **Read-only.** Optional: `typeIds`.
 
@@ -321,13 +321,13 @@ Team members with id, name, email, roleId, and status. When the caller's role ha
 {/* mcp-catalog:views */}
 #### `manage_data_views`
 
-Discover, inspect, create, update, select, reset and delete personal saved views. Discover the surfaceKey first; generic record surfaces use stable type IDs. Updates patch only supplied settings. Reset restores shared type defaults without changing records. Deleting a view moves it to Trash (a dashboard view takes its widgets along), never its records. Configuration and view lists are paginated and searchable.
+Discover, inspect, create, update, select, reset and delete personal saved views. Discover the surfaceKey first; generic record surfaces use stable type IDs. Updates patch only supplied settings; a grouping can carry up to 8 summaries (sum, average, min or max of a number or currency field). Reset removes your overrides so the list shows every field in its configured order as an ungrouped table, without changing records. Deleting a view moves it to Trash (a dashboard view takes its widgets along), never its records. Configuration and view lists are paginated and searchable.
 
 **Can delete data.** Required: `action`. Optional: `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `fields`, `state`.
 
 #### `manage_record_detail_layout`
 
-Read, save or reset your personal record-detail layout with stable type and field IDs. Read returns accessible field choices, pins, hidden fields, field order and the configuration revision. Save requires the complete layout, expectedRevision and an idempotencyKey. Reset clears your override so shared type defaults apply again. It does not change records or other users’ preferences. Shared defaults belong to configure_record_model.
+Read, save or reset your personal record-detail layout with stable type and field IDs. Read returns accessible field choices, pins, hidden fields, field order and the configuration revision. Save requires the complete layout, expectedRevision and an idempotencyKey. Reset removes your layout: every field shows in its configured order and none is pinned. It does not change records or other users’ preferences.
 
 Required: `typeId`, `action`. Optional: `expectedRevision`, `idempotencyKey`, `layout`.
 {/* /mcp-catalog */}
@@ -535,7 +535,7 @@ Read a result from `search` by its unchanged id: `wiki:<uuid>` or the exact retu
 
 ### Record model [#record-model]
 
-Create or update lists, fields, relationships, calculations and shared defaults through one configuration bundle. **Data model** **Edit** is separate from **Edit** on a list. New lists default to administrator-only access; delegated schema managers can apply an access preset, which may include their own role, only when creating a list, without gaining role-administration rights.
+Create or update lists, fields, relationships and calculations through one configuration bundle. **Data model** **Edit** is separate from **Edit** on a list. New lists default to administrator-only access; delegated schema managers can apply an access preset, which may include their own role, only when creating a list, without gaining role-administration rights.
 
 Read the relevant model, preview the bundle, inspect dependencies and permission effects, then apply the same bundle with its expected revision and idempotency key. `$client` references let new definitions refer to one another inside the bundle. Formula programs are typed nodes ordered before their dependents plus a root node; they cannot run JavaScript or SQL. The backend rejects cycles, invalid types, unsafe currency combinations and incompatible dependencies. A field's `format.onClick` (`open`, the default, or `copy`) sets what clicking a value does and is accepted only on email, phone and url fields; on any other type the bundle is rejected.
 
@@ -544,7 +544,7 @@ A pending result returns an operation id. Read its progress until it completes; 
 {/* mcp-catalog:record-model */}
 #### `configure_record_model`
 
-Preview or apply a typed configuration bundle containing types, fields, relationships, calculations, access presets and shared defaults. Preserve the same expectedRevision, idempotencyKey and operations between preview and apply. Temporary $client references connect new definitions atomically. Calculations use a bounded node program, never executable code. Schema management is separate from record access; role grants and published summaries require their own authority. Use delete to move a list, field or relationship to Trash; restore it or delete it permanently with manage_trash.
+Preview or apply a typed configuration bundle containing types, fields, relationships, calculations and access presets. Preserve the same expectedRevision, idempotencyKey and operations between preview and apply. Temporary $client references connect new definitions atomically. Calculations use a bounded node program, never executable code. Schema management is separate from record access; role grants and published summaries require their own authority. Use delete to move a list, field or relationship to Trash; restore it or delete it permanently with manage_trash.
 
 **Can delete data.** Required: `action`, `change`.
 

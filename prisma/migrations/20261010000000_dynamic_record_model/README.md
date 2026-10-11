@@ -42,7 +42,7 @@ search stays keyword only. Section 10 adds one nullable column. Section 11 inser
 field, relationship and Channels field that is already deleted, as the former Recently deleted page listed them,
 expiring 30 days after the migration; a second run inserts nothing. Section 12 turns every Channels capability into
 a Channels field of its list (same id, appended last, archived when disabled), re-keys `system:channels` in
-snapshots, changes, type defaults, saved views and personal layouts, turns Trash entries of the retired kind
+saved views and personal layouts, turns Trash entries of the retired kind
 channels into field entries and recreates `TrashKind` without channels; it leaves identities untouched and a second
 run changes nothing. Section 13 adds one nullable column. Section 14 adds an enum value that nothing in this file
 uses, so adding it inside the transaction is safe. Section 15 adds an enum value that nothing in this file uses, so
@@ -100,7 +100,7 @@ It runs on PostgreSQL 16 and 17. It requires the `pg_trgm` extension (created if
 | Role permissions on the five legacy resources | Per-type grants |
 | Conversation participants | The normalised lookup key that matches them to channel identities |
 
-Every workspace gets the starter record model with deterministic preset IDs as configuration revision 1 (actor `system:configurable-records-upgrade`): the five starter types and line items, without the preset stage field because legacy stages are custom columns. The weighted value reads the probability of the option selected in `Company.dealWeightingColumnId`, which also groups the deal list by default. Deal value, quantity and weighted value are published summaries, so whoever can read a deal keeps seeing its totals without access to the services behind them, as before. Explicit conversation-to-record links start empty: the legacy schema had none.
+Every workspace gets the starter record model with deterministic preset IDs as configuration revision 1 (actor `system:configurable-records-upgrade`): the five starter types and line items, without the preset stage field because legacy stages are custom columns. The weighted value reads the probability of the option selected in `Company.dealWeightingColumnId`. Lists carry no layout of their own: without view state a list shows every field in its configured order as an ungrouped table, so the upgrade writes no list layout and creates no saved views. Deal value, quantity and weighted value are published summaries, so whoever can read a deal keeps seeing its totals without access to the services behind them, as before. Explicit conversation-to-record links start empty: the legacy schema had none.
 
 ### What is not carried over
 

@@ -213,7 +213,13 @@ export function buildSyntheticP13nFixtures(
       ],
       viewMode: "card",
       groupingColumnId: customFieldIds.dealStatus,
-      grouping: inputJson({ field: customFieldIds.dealStatus }),
+      grouping: inputJson({
+        field: customFieldIds.dealStatus,
+        summaries: [
+          { fieldId: id("deal.totalValue"), aggregation: "sum" },
+          { fieldId: id("deal.weightedValue"), aggregation: "sum" },
+        ],
+      }),
       viewStateKeys: inputJson(listStateKeys(true)),
     }),
     fixture(SYNTHETIC_P13N_IDS.services, surface("service"), {

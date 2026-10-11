@@ -15,7 +15,6 @@ import { useTranslations } from "next-intl";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { confirmationSentence } from "@/components/modal/confirmation-sentence";
 import { focusHref } from "@/components/focus/focus-href";
-import { relationshipPathColumnKey } from "@/features/records/record-column.schema";
 import { movedToTrashOr, movingToTrash } from "@/features/trash/moved-to-trash";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 
@@ -246,7 +245,6 @@ export function useConfigurationDeletion(onChanged: () => Promise<void>) {
     const type = model.types.find((candidate) => candidate.id === typeId);
     if (!type || isBusy) return;
     const definition = typeDefinition(type);
-    const column = relationshipPathColumnKey(pathId);
     const change: ConfigurationChange = {
       expectedRevision: model.revision,
       idempotencyKey: crypto.randomUUID(),
@@ -256,14 +254,6 @@ export function useConfigurationDeletion(onChanged: () => Promise<void>) {
           type: {
             ...definition,
             relationshipPaths: (definition.relationshipPaths ?? []).filter((path) => path.id !== pathId),
-            defaults: {
-              ...definition.defaults,
-              columns: definition.defaults.columns.filter((id) => id !== column),
-              hiddenColumns: definition.defaults.hiddenColumns.filter((id) => id !== column),
-              pinnedFields: definition.defaults.pinnedFields.filter((id) => id !== column),
-              sortField: definition.defaults.sortField === column ? null : definition.defaults.sortField,
-              ...(definition.defaults.groupBy === column ? { groupBy: null, groupBucket: undefined } : {}),
-            },
           },
         },
       ],

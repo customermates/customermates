@@ -40,6 +40,8 @@ test("board columns add a record with the column value, open the option, and col
   await page.reload();
   await page.getByRole("button", { name: "Appearance", exact: true }).click();
   await page.locator("#records-layout-board").click();
+  await page.getByRole("combobox", { name: "Group By", exact: true }).click();
+  await page.getByRole("option", { name: "Stage", exact: true }).click();
   if (testInfo.project.name === "mobile") await page.locator('[data-slot="drawer-close"]').click();
   else await page.keyboard.press("Escape");
   await expect(column("new")).not.toHaveAttribute("data-kanban-strip");

@@ -11,6 +11,16 @@ export type DateBucket = Data<typeof DateBucketSchema>;
 export const DEFAULT_DATE_BUCKET: DateBucket = "month";
 
 export const MAX_AXIS_GROUPS = 50;
+export const MAX_GROUP_SUMMARIES = 8;
+export const GROUP_SUMMARY_AGGREGATIONS = ["sum", "average", "min", "max"] as const;
+
+export const GroupSummaryDefinitionSchema = z
+  .object({
+    fieldId: z.uuid(),
+    aggregation: z.enum(GROUP_SUMMARY_AGGREGATIONS),
+  })
+  .strict();
+export type GroupSummaryDefinition = Data<typeof GroupSummaryDefinitionSchema>;
 
 export const GroupingSchema = z.object({
   field: z.string().min(1).max(200),
@@ -21,6 +31,13 @@ export const GroupingSchema = z.object({
     .optional()
     .describe("Group keys the board hides (value:<optionId> or __empty__); Display options lists them to show again."),
   hideEmpty: z.boolean().optional().describe("The board hides columns without records."),
+  summaries: z
+    .array(GroupSummaryDefinitionSchema)
+    .max(MAX_GROUP_SUMMARIES)
+    .optional()
+    .describe(
+      "Totals shown on each table group and board column: a number or currency field of the list with sum, average, min or max. Each pair at most once.",
+    ),
 });
 export type Grouping = Data<typeof GroupingSchema>;
 

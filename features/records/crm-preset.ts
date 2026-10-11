@@ -101,15 +101,6 @@ export function createCrmPreset(companyId: string): RecordModel {
       embedded: key === "lineItem",
       navigationVisible: key !== "lineItem",
       position: types.length,
-      defaults: {
-        columns: [name.id],
-        hiddenColumns: [],
-        layout: "table",
-        groupBy: null,
-        sortField: name.id,
-        sortDirection: "asc",
-        pinnedFields: [],
-      },
     });
   }
   addField("contact", "contact.firstName", "First name", "text");
@@ -117,12 +108,6 @@ export function createCrmPreset(companyId: string): RecordModel {
   addField("contact", "contact.avatarUrl", "Avatar", "url");
   const channels = addField("contact", "capability.identity", "Channels", "channels");
   channels.format = { onClick: "open", providerAvatar: true };
-  recordInvariant(types.find((type) => type.id === id("contact"))).defaults.columns.push(channels.id);
-  recordInvariant(types.find((type) => type.id === id("contact"))).defaults.hiddenColumns = [
-    id("contact.firstName"),
-    id("contact.lastName"),
-    id("contact.avatarUrl"),
-  ];
   recordInvariant(fields.find((value) => value.id === id("contact.name"))).behavior = {
     kind: "formula",
     expression: operation(
@@ -136,7 +121,7 @@ export function createCrmPreset(companyId: string): RecordModel {
     ),
   };
 
-  const amount = addField(
+  addField(
     "service",
     "service.amount",
     "Price",
@@ -151,7 +136,6 @@ export function createCrmPreset(companyId: string): RecordModel {
     },
     true,
   );
-  recordInvariant(types.find((value) => value.id === id("service"))).defaults.columns.push(amount.id);
 
   const addRelation = (
     key: string,
@@ -196,7 +180,6 @@ export function createCrmPreset(companyId: string): RecordModel {
     ["service", "deal", "Deals"],
   ]) {
     const type = recordInvariant(types.find((type) => type.id === id(source)));
-    type.defaults.hiddenColumns.push(`relationship:${id(`lineItem.${source}`)}:incoming`);
     type.relationshipPaths = [
       {
         id: id(`${source}.${target}s.path`),
@@ -299,20 +282,6 @@ export function createCrmPreset(companyId: string): RecordModel {
       literal({ kind: "decimal", value: "100", currency: null }),
     ),
   });
-  const deals = recordInvariant(types.find((value) => value.id === id("deal")));
-  deals.defaults.columns.push(stage.id, id("deal.totalValue"), id("deal.weightedValue"));
-  deals.defaults.groupBy = stage.id;
-  deals.defaults.groupSummaries = [
-    { fieldId: id("deal.totalValue"), aggregation: "sum" },
-    { fieldId: id("deal.weightedValue"), aggregation: "sum" },
-  ];
-  const lines = recordInvariant(types.find((value) => value.id === id("lineItem")));
-  lines.defaults.columns.push(
-    id("lineItem.quantity"),
-    id("lineItem.pricingMode"),
-    id("lineItem.effectivePrice"),
-    id("lineItem.amount"),
-  );
 
   return {
     revision: 1,
