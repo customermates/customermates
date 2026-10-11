@@ -65,6 +65,11 @@ export type WorkspaceSetupView = {
   canRollBack: boolean;
 };
 
+export function canUseStandardSetup(setup: Pick<WorkspaceSetupRecord, "status" | "phases">): boolean {
+  const dataModel = setup.phases.dataModel?.status;
+  return setup.status !== "completed" && dataModel !== "completed" && dataModel !== "running";
+}
+
 export function workspaceSetupView(
   setup: WorkspaceSetupRecord,
   crawl: SetupCrawlState | null,
@@ -82,7 +87,6 @@ export function workspaceSetupView(
       finishedAt: phase.finishedAt,
     };
   });
-  const dataModel = setup.phases.dataModel?.status;
   const idle = !phases.some((phase) => phase.status === "running");
   return {
     id: setup.id,
@@ -125,7 +129,7 @@ export function workspaceSetupView(
       capMicrocents,
       capReached: spend.usedMicrocents + spend.heldMicrocents >= capMicrocents,
     },
-    canUseStandardSetup: setup.status !== "completed" && dataModel !== "completed" && dataModel !== "running",
+    canUseStandardSetup: canUseStandardSetup(setup),
     canRemoveSampleData: setup.created.sampleRecords.length > 0 && idle,
     canRollBack: (setup.status === "completed" || setup.status === "failed") && idle,
   };

@@ -5,6 +5,8 @@ import type { WorkspaceSetupPatch, WorkspaceSetupRecord } from "./workspace-setu
 
 import { Prisma } from "@/generated/prisma";
 
+import { WIKI_CRAWL_ACTIVE_STATUSES } from "@/ee/wiki-crawl/wiki-website-crawl.service";
+
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { SetupAnswersSchema } from "@/features/workspace-setup/setup-answers.schema";
 import { SetupPlanSchema } from "@/features/workspace-setup/setup-plan.schema";
@@ -211,6 +213,25 @@ export class PrismaWorkspaceSetupRepo extends TenantRepository implements Worksp
       registrableDomain: row.registrableDomain,
       topics,
     };
+  }
+
+  async stopCrawl(crawlId: string) {
+    const crawl = await this.prisma.wikiWebsiteCrawl.findFirst({
+      where: { id: crawlId, companyId: this.companyId, status: { in: [...WIKI_CRAWL_ACTIVE_STATUSES] } },
+      select: { topics: true, importedPages: true },
+    });
+    if (!crawl) return;
+    const written =
+      crawl.importedPages > 0 ||
+      (Array.isArray(crawl.topics) && crawl.topics.some((topic) => objectOf(topic).status === "created"));
+    await this.prisma.wikiWebsiteCrawl.updateMany({
+      where: { id: crawlId, companyId: this.companyId, status: { in: [...WIKI_CRAWL_ACTIVE_STATUSES] } },
+      data: {
+        status: written ? "completed" : "failed",
+        failureReason: written ? null : "cancelled",
+        finishedAt: new Date(),
+      },
+    });
   }
 
   async crawlSources(crawlId: string): Promise<SetupCrawlSource[]> {

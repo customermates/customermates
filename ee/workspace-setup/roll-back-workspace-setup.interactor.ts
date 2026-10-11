@@ -35,6 +35,7 @@ export class RollBackWorkspaceSetupInteractor extends AuthenticatedInteractor<
     if (!setup) return failNotFound(CustomErrorCode.workspaceSetupNotFound, ["setupId"]);
     if (!ROLLBACKABLE.has(setup.status) || Object.values(setup.phases).some((phase) => phase?.status === "running"))
       return failConflict(CustomErrorCode.workspaceSetupConflict);
+    if (setup.crawlId) await this.repo.stopCrawl(setup.crawlId);
     const removed = await this.cleanup.rollback(setup);
     if (!removed.ok) return { ok: false, error: removed.error };
     await this.repo.mutate(data.setupId, () => ({

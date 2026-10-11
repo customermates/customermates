@@ -528,6 +528,127 @@ describeDatabase("AI workspace setup against the record engine", { timeout: 120_
     expect(await owner()).toEqual({ country: "at", formattingLocale: "de" });
   });
 
+  it("switches to the standard setup before the data model is applied and keeps the pages already written", async () => {
+    const ws = await workspace();
+    const { setupId, planRevision } = await planned(ws);
+    const page = await ws.run(() =>
+      di.getCreateWikiPagesInteractor().invoke({
+        requireEmpty: false,
+        pages: [{ title: "About Studio Example", kind: "knowledge", markdown: "We design websites." }],
+      }),
+    );
+    if (!page.ok) throw new Error(JSON.stringify(page.error));
+    const crawl = await runWithoutTenant(() =>
+      prisma.wikiWebsiteCrawl.create({
+        data: {
+          companyId: ws.companyId,
+          userId: ws.owner.id,
+          clientRequestId: randomUUID(),
+          homepageUrl: "https://studio-example.com/",
+          registrableDomain: "studio-example.com",
+          locale: "en",
+          payer: "workspaceSetup",
+          status: "synthesizing",
+          topics: [
+            {
+              title: "About Studio Example",
+              role: "company_overview",
+              sourceIds: [],
+              status: "created",
+              pageId: page.data[0].id,
+            },
+            { title: "Pricing", role: "offering", sourceIds: [], status: "pending" },
+          ],
+        },
+      }),
+    );
+    await ws.run(() => di.getWorkspaceSetupRepo().mutate(setupId, () => ({ crawlId: crawl.id })));
+    await ws.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId, planRevision }));
+    const service = di.getWorkspaceSetupBuildService();
+    expect(await ws.run(() => service.runPhase(setupId, "knowledgeBase"))).toBe("wait");
+    const before = await ws.run(() => new PrismaRecordRepo().getModel());
+
+    const useStandard = () => ws.run(() => di.getUseStandardWorkspaceSetupInteractor().invoke({ setupId }));
+    expect(await useStandard()).toEqual({ ok: true, data: { setupId } });
+    const view = await status(ws);
+    expect(view).toMatchObject({ status: "completed", canUseStandardSetup: false });
+    expect(view.results).toMatchObject({
+      standard: true,
+      pages: [{ id: page.data[0].id, title: "About Studio Example" }],
+    });
+    expect(view.phases.map((phase) => [phase.key, phase.status])).toEqual([
+      ["knowledgeBase", "stopped"],
+      ["dataModel", "stopped"],
+      ["views", "stopped"],
+      ["records", "stopped"],
+      ["dashboard", "stopped"],
+    ]);
+    expect(
+      await runWithoutTenant(() =>
+        prisma.wikiWebsiteCrawl.findUniqueOrThrow({ where: { id: crawl.id }, select: { status: true } }),
+      ),
+    ).toEqual({ status: "completed" });
+    expect(await ws.run(() => service.runPhase(setupId, "dataModel"))).toBe("skip");
+    expect((await ws.run(() => new PrismaRecordRepo().getModel())).revision).toBe(before.revision);
+    expect(await useStandard()).toEqual({ ok: true, data: { setupId } });
+    const setup = await ws.run(() => di.getWorkspaceSetupRepo().get(setupId));
+    expect(setup?.created.pages).toEqual([page.data[0].id]);
+  });
+
+  it("stops a plan still being written and refuses the standard setup once the data model is applied", async () => {
+    const ws = await workspace();
+    const started = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null }));
+    if (!started.ok) throw new Error(JSON.stringify(started.error));
+    const setupId = started.data.setupId;
+    await ws.run(() => di.getPlanWorkspaceSetupInteractor().invoke({ setupId }));
+    expect(await ws.run(() => di.getUseStandardWorkspaceSetupInteractor().invoke({ setupId }))).toEqual({
+      ok: true,
+      data: { setupId },
+    });
+    await ws.run(() => di.getWorkspaceSetupInterviewService().plan(setupId));
+    const view = await status(ws);
+    expect(view).toMatchObject({ status: "completed", plan: { status: "idle", plan: null } });
+    expect(state.generate).not.toHaveBeenCalled();
+
+    const other = await workspace();
+    const { setupId: appliedId, planRevision } = await planned(other);
+    await other.run(() => di.getConfirmWorkspaceSetupInteractor().invoke({ setupId: appliedId, planRevision }));
+    await other.run(() => di.getWorkspaceSetupBuildService().runPhase(appliedId, "dataModel"));
+    const refused = await other.run(() => di.getUseStandardWorkspaceSetupInteractor().invoke({ setupId: appliedId }));
+    expect(refused.ok).toBe(false);
+    expect((await status(other)).status).toBe("building");
+  });
+
+  it("stops the website import of a setup that starts over, so it spends nothing more", async () => {
+    const ws = await workspace();
+    const { setupId } = await planned(ws);
+    const crawl = await runWithoutTenant(() =>
+      prisma.wikiWebsiteCrawl.create({
+        data: {
+          companyId: ws.companyId,
+          userId: ws.owner.id,
+          clientRequestId: randomUUID(),
+          homepageUrl: "https://studio-example.com/",
+          registrableDomain: "studio-example.com",
+          locale: "en",
+          payer: "workspaceSetup",
+          status: "fetching",
+        },
+      }),
+    );
+    await ws.run(() => di.getWorkspaceSetupRepo().mutate(setupId, () => ({ crawlId: crawl.id, status: "failed" })));
+    const restarted = await ws.run(() => di.getStartWorkspaceSetupInteractor().invoke({ websiteUrl: null }));
+    expect(restarted).toEqual({ ok: true, data: { setupId } });
+    expect(
+      await runWithoutTenant(() =>
+        prisma.wikiWebsiteCrawl.findUniqueOrThrow({
+          where: { id: crawl.id },
+          select: { status: true, failureReason: true },
+        }),
+      ),
+    ).toEqual({ status: "failed", failureReason: "cancelled" });
+  });
+
   it("keeps each workspace's setup to its own tenant", async () => {
     const first = await workspace();
     const second = await workspace();

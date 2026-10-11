@@ -251,9 +251,13 @@ export class WorkspaceSetupBuildService extends UserAccessor {
 
   private async knowledgeBase(setup: WorkspaceSetupRecord, giveUp: boolean): Promise<PhaseOutcome> {
     if (!setup.crawlId) return { status: "skipped" };
-    const crawl = await this.repo.crawlState(setup.crawlId);
+    let crawl = await this.repo.crawlState(setup.crawlId);
     if (!crawl) return { status: "failed", error: "crawlFailed" };
-    if (CRAWL_ACTIVE.has(crawl.status) && !giveUp) return { status: "wait" };
+    if (CRAWL_ACTIVE.has(crawl.status)) {
+      if (!giveUp) return { status: "wait" };
+      await this.repo.stopCrawl(setup.crawlId);
+      crawl = (await this.repo.crawlState(setup.crawlId)) ?? crawl;
+    }
     const pages = await this.repo.knowledgeBasePages(setup.crawlId);
     const patch = (current: WorkspaceSetupRecord): WorkspaceSetupPatch => ({
       created: { ...current.created, pages: pages.map((page) => page.id) },

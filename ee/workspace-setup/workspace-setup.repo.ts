@@ -24,6 +24,7 @@ export abstract class WorkspaceSetupRepo {
   abstract storeSpreadsheet(id: string, fileName: string, bytes: Uint8Array): Promise<boolean>;
   abstract readSpreadsheet(id: string): Promise<{ fileName: string; bytes: Uint8Array } | null>;
   abstract crawlState(crawlId: string): Promise<SetupCrawlState | null>;
+  abstract stopCrawl(crawlId: string): Promise<void>;
   abstract crawlSources(crawlId: string): Promise<SetupCrawlSource[]>;
   abstract knowledgeBasePages(crawlId: string): Promise<Array<{ id: string; title: string; updatedAt: Date }>>;
   abstract wikiPages(ids: string[]): Promise<Array<{ id: string; title: string; updatedAt: Date }>>;

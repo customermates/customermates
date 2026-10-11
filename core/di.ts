@@ -1832,6 +1832,7 @@ import { ConfirmWorkspaceSetupInteractor } from "@/ee/workspace-setup/confirm-wo
 import { RetryWorkspaceSetupPhaseInteractor } from "@/ee/workspace-setup/retry-workspace-setup-phase.interactor";
 import { RemoveWorkspaceSetupSampleDataInteractor } from "@/ee/workspace-setup/remove-workspace-setup-sample-data.interactor";
 import { RollBackWorkspaceSetupInteractor } from "@/ee/workspace-setup/roll-back-workspace-setup.interactor";
+import { UseStandardWorkspaceSetupInteractor } from "@/ee/workspace-setup/use-standard-workspace-setup.interactor";
 
 export const getWorkspaceSetupRepo = () => new PrismaWorkspaceSetupRepo();
 export const getWorkspaceSetupKnowledgeBrief = () => new WorkspaceSetupKnowledgeBrief(getWorkspaceSetupRepo());
@@ -1898,5 +1899,7 @@ export const getRetryWorkspaceSetupPhaseInteractor = () =>
   );
 export const getRemoveWorkspaceSetupSampleDataInteractor = () =>
   new RemoveWorkspaceSetupSampleDataInteractor(getWorkspaceSetupRepo(), getWorkspaceSetupCleanupService());
+export const getUseStandardWorkspaceSetupInteractor = () =>
+  new UseStandardWorkspaceSetupInteractor(getWorkspaceSetupRepo());
 export const getRollBackWorkspaceSetupInteractor = () =>
   new RollBackWorkspaceSetupInteractor(getWorkspaceSetupRepo(), getWorkspaceSetupCleanupService());
