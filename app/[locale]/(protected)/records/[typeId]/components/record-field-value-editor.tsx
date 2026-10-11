@@ -1,7 +1,7 @@
 "use client";
 
 import type { RootStore } from "@/core/stores/root.store";
-import type { RecordFieldView, RecordScalar } from "@/features/records/record-model.schema";
+import type { RecordFieldView, RecordMember, RecordScalar } from "@/features/records/record-model.schema";
 
 import { observer } from "mobx-react-lite";
 import { toJS } from "mobx";
@@ -74,10 +74,12 @@ export const RecordFieldValueEditor = observer(function RecordFieldValueEditor({
   store,
   busy = false,
   saveOnDatePick = false,
+  members,
   onCancel,
 }: {
   store: RecordFieldValueStore;
   busy?: boolean;
+  members?: RecordMember[];
   saveOnDatePick?: boolean;
   onCancel: () => void;
 }) {
@@ -89,6 +91,7 @@ export const RecordFieldValueEditor = observer(function RecordFieldValueEditor({
         <RecordInputField
           field={store.field}
           id="value"
+          members={members}
           onDatePicked={saveOnDatePick ? () => runUserAction(() => store.apply(false)) : undefined}
         />
 

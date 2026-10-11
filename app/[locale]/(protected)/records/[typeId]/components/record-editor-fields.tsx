@@ -152,7 +152,7 @@ export const RecordEditorField = observer(function RecordEditorField({
       readOnlyHint={permissionReadOnly}
       required={field.required}
     >
-      <RecordInputField field={field} id={id} inputId={inputId} label={null} />
+      <RecordInputField field={field} id={id} inputId={inputId} label={null} members={store.record?.memberUsers} />
     </RecordDetailField>
   );
 });

@@ -204,7 +204,7 @@ const InlineFieldForm = observer(function InlineFieldForm({
   onDone: () => void;
 }) {
   const store = useFieldValueStore(records, record, field, onDone);
-  return <RecordFieldValueEditor saveOnDatePick store={store} onCancel={onDone} />;
+  return <RecordFieldValueEditor saveOnDatePick members={record.memberUsers} store={store} onCancel={onDone} />;
 });
 
 const InPlaceFieldInput = observer(function InPlaceFieldInput({
@@ -265,7 +265,7 @@ const InPlaceFieldInput = observer(function InPlaceFieldInput({
           {field.label}
         </label>
 
-        <RecordInputField field={field} id="value" inputId={inputId} label={null} />
+        <RecordInputField field={field} id="value" inputId={inputId} label={null} members={record.memberUsers} />
       </AppForm>
     </div>
   );
