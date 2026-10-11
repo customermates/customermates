@@ -9,7 +9,15 @@ import { useReducedMotion } from "framer-motion";
 import { useChartFormatter } from "./use-chart-formatter";
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
 
-import { CHART_MAX_BAR_SIZE, TruncatedTick, chartAxisProps, chartBarCursor, chartGridProps } from "./chart-theme";
+import {
+  CHART_MAX_BAR_SIZE,
+  TruncatedTick,
+  chartAxisProps,
+  chartBarCursor,
+  chartGridProps,
+  estimateTextWidth,
+  useCategoryXAxisLayout,
+} from "./chart-theme";
 import { DashboardChartContainer } from "./dashboard-chart-container";
 
 type Props = {
@@ -25,18 +33,24 @@ export const VerticalBarChart = observer(
   ({ currency, chartData, colors, reverseXAxis, reverseYAxis, allowDecimals = true }: Props) => {
     const formatValue = useChartFormatter(currency);
     const reducedMotion = useReducedMotion();
+    const widestValue = Math.max(0, ...chartData.map((entry) => Math.abs(entry.value)));
+    const axis = useCategoryXAxisLayout(
+      chartData.map((entry) => entry.label),
+      estimateTextWidth(formatValue(widestValue, true)) + 20,
+    );
 
     return (
-      <DashboardChartContainer>
+      <DashboardChartContainer onResize={axis.onResize}>
         <BarChart barCategoryGap="24%" data={chartData} margin={{ top: 8, right: 4, bottom: 0, left: 0 }}>
           <CartesianGrid {...chartGridProps} vertical={false} />
 
           <XAxis
             {...chartAxisProps}
             dataKey="label"
+            height={axis.height}
             interval={0}
             reversed={Boolean(reverseXAxis)}
-            tick={<TruncatedTick />}
+            tick={<TruncatedTick angled={axis.angled} />}
             type="category"
           />
 

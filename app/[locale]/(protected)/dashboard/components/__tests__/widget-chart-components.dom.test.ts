@@ -19,6 +19,8 @@ vi.mock("../dashboard-chart-container", () => ({
 import { AreaTimeChart } from "../area-time-chart";
 import { HorizontalBarChart } from "../horizontal-bar-chart";
 import { FunnelChart } from "../funnel-chart";
+import { VerticalBarChartWithLabels } from "../vertical-bar-chart-with-labels";
+import { TruncatedTick, categoryXAxisLayout } from "../chart-theme";
 
 let root: Root;
 let container: HTMLElement;
@@ -106,6 +108,76 @@ describe("time series and funnel charts", () => {
     expect(curve.match(/M/g)?.length).toBe(2);
     const ticks = [...container.querySelectorAll(".recharts-xAxis-tick-labels text")].map((tick) => tick.textContent);
     expect(ticks).toEqual(["Jan 26", "Feb 26", "Mar 26"]);
+  });
+
+  it("keeps the smoothed area between its lowest and highest data points", async () => {
+    const values = [8, 0, 0, 9, 1, 0, 12, 0];
+    await act(async () => {
+      root.render(
+        createElement(AreaTimeChart, {
+          currency: null,
+          chartData: values.map((value, index) => point(`P${index}`, value)),
+          colors: ["#336699"],
+          strokeColors: ["#224466"],
+        }),
+      );
+      await Promise.resolve();
+    });
+    const ys = (selector: string) =>
+      [...(container.querySelector(selector)?.getAttribute("d") ?? "").matchAll(/(-?[\d.]+)[ ,](-?[\d.]+)/g)].map(
+        (match) => Number(match[2]),
+      );
+    const curve = ys(".recharts-area-curve");
+    const baseline = Math.max(...ys(".recharts-area-area"));
+    expect(curve.length).toBeGreaterThan(values.length);
+    expect(Math.max(...curve)).toBeLessThanOrEqual(baseline + 0.01);
+    expect(Math.min(...curve)).toBeGreaterThan(0);
+  });
+
+  it("shortens bar value labels that do not fit and keeps the full value as a title", async () => {
+    await act(async () => {
+      root.render(
+        createElement(VerticalBarChartWithLabels, {
+          currency: "EUR",
+          chartData: ["Webinar", "Google Ads", "LinkedIn Ads", "Trade fair", "Email", "Partner event"].map(
+            (label, index) => point(label, 1239425.5 - index, { formattedValue: "€1,239,425.50" }),
+          ),
+          colors: ["#336699"],
+        }),
+      );
+      await Promise.resolve();
+    });
+    const labels = [...container.querySelectorAll(".recharts-label-list text")].map((text) => text.textContent);
+    expect(labels).toHaveLength(6);
+    for (const label of labels) expect(label).toBe("€1.24M");
+    expect(container.querySelector(".recharts-label-list title")?.textContent).toBe("€1,239,425.50");
+  });
+
+  it("angles category labels that do not fit their band and titles truncated ticks", () => {
+    expect(categoryXAxisLayout(["Q1", "Q2"], 400)).toEqual({ angled: false, height: 30 });
+    expect(categoryXAxisLayout(["Paid search", "LinkedIn Ads", "Partner event"], 0).angled).toBe(false);
+    const angled = categoryXAxisLayout(["Paid search", "LinkedIn Ads", "Partner event", "Trade fair", "Email"], 220);
+    expect(angled.angled).toBe(true);
+    expect(angled.height).toBeGreaterThan(30);
+    const tick = (props: Record<string, unknown>) => {
+      act(() => root.render(createElement("svg", null, createElement(TruncatedTick, props))));
+      return {
+        text: container.querySelector("text")?.textContent,
+        title: container.querySelector("title")?.textContent ?? null,
+        transform: container.querySelector("text")?.getAttribute("transform") ?? null,
+      };
+    };
+    const full = "Interviews by the hiring manager panel";
+    expect(tick({ x: 0, y: 0, payload: { value: full }, angled: true })).toEqual({
+      text: "Interviews by…",
+      title: full,
+      transform: "rotate(-35)",
+    });
+    expect(tick({ x: 0, y: 0, payload: { value: "Email" }, angled: true }).title).toBeNull();
+    expect(tick({ x: 0, y: 0, payload: { value: full }, width: 200, visibleTicksCount: 4 })).toMatchObject({
+      title: full,
+      transform: null,
+    });
   });
 
   it("centers narrowing bars and labels each step with its value and conversion", async () => {

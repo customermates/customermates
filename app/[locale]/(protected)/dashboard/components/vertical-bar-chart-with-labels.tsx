@@ -15,7 +15,9 @@ import {
   TruncatedTick,
   chartAxisProps,
   chartBarCursor,
+  estimateTextWidth,
   truncateLabel,
+  useCategoryXAxisLayout,
 } from "./chart-theme";
 import { DashboardChartContainer } from "./dashboard-chart-container";
 
@@ -31,9 +33,13 @@ export const VerticalBarChartWithLabels = observer(
   ({ currency, chartData, colors, reverseXAxis, reverseYAxis }: Props) => {
     const formatValue = useChartFormatter(currency);
     const reducedMotion = useReducedMotion();
+    const axis = useCategoryXAxisLayout(
+      chartData.map((entry) => entry.label),
+      8,
+    );
 
     return (
-      <DashboardChartContainer>
+      <DashboardChartContainer onResize={axis.onResize}>
         <BarChart
           barCategoryGap="24%"
           data={chartData}
@@ -42,10 +48,11 @@ export const VerticalBarChartWithLabels = observer(
           <XAxis
             {...chartAxisProps}
             dataKey="label"
+            height={axis.height}
             interval={0}
             orientation={reverseYAxis ? "top" : "bottom"}
             reversed={Boolean(reverseXAxis)}
-            tick={<TruncatedTick />}
+            tick={<TruncatedTick angled={axis.angled} flipped={Boolean(reverseYAxis)} />}
             type="category"
           />
 
@@ -74,20 +81,29 @@ export const VerticalBarChartWithLabels = observer(
                 const { x, width, y, height, index } = props;
                 const entry = chartData[index as number];
                 if (!entry) return null;
-                const text = entry.formattedValue ?? formatValue(entry.value);
+                const full = entry.formattedValue ?? formatValue(entry.value);
+                const room = Math.max(Number(width) + 16, 40);
+                const text = truncateLabel(
+                  estimateTextWidth(full) > room ? formatValue(entry.value, true) : full,
+                  room,
+                );
                 const top = reverseYAxis ? Number(y) + Number(height) + 6 : Number(y) - 6;
                 return (
-                  <text
-                    dominantBaseline={reverseYAxis ? "hanging" : "auto"}
-                    fill="var(--foreground)"
-                    fontSize={CHART_FONT_SIZE}
-                    fontWeight={500}
-                    textAnchor="middle"
-                    x={Number(x) + Number(width) / 2}
-                    y={top}
-                  >
-                    {truncateLabel(text, Math.max(Number(width) + 16, 40))}
-                  </text>
+                  <g>
+                    {text !== full && <title>{full}</title>}
+
+                    <text
+                      dominantBaseline={reverseYAxis ? "hanging" : "auto"}
+                      fill="var(--foreground)"
+                      fontSize={CHART_FONT_SIZE}
+                      fontWeight={500}
+                      textAnchor="middle"
+                      x={Number(x) + Number(width) / 2}
+                      y={top}
+                    >
+                      {text}
+                    </text>
+                  </g>
                 );
               }}
               dataKey="value"
