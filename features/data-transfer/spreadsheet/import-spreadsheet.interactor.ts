@@ -81,6 +81,7 @@ export class ImportSpreadsheetInteractor extends AuthenticatedInteractor<
         });
         let created = 0;
         let linked = 0;
+        const records = conversion.documents.flatMap((document) => document.records.map((record) => record.ref));
         for (const [index, document] of conversion.documents.entries()) {
           const result = await this.importer.invoke({
             document,
@@ -100,6 +101,7 @@ export class ImportSpreadsheetInteractor extends AuthenticatedInteractor<
             errorCount: conversion.errors.length,
             errors: conversion.errors.slice(0, SPREADSHEET_MAX_ROW_ERRORS),
             schemaRevision: model.revision,
+            records,
           },
         };
       },

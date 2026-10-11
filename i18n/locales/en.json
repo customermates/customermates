@@ -1222,7 +1222,11 @@
       "wikiProposalNotFound": "This proposal no longer exists.",
       "wikiProposalReviewed": "Someone already reviewed this proposal.",
       "wikiProposalStale": "The page changed after Mate made this proposal. Reject the proposal, or ask Mate to propose the change again.",
-      "wikiWhenToUseRequired": "A procedure needs a short description of when to use it."
+      "wikiWhenToUseRequired": "A procedure needs a short description of when to use it.",
+      "workspaceSetupAnswerInvalid": "This answer does not fit the question. Check it and try again.",
+      "workspaceSetupConflict": "The workspace setup is busy with another step. Reload it and try again.",
+      "workspaceSetupNotFound": "No workspace setup was found for this workspace.",
+      "workspaceSetupUnavailable": "The AI workspace setup is not available here."
     },
     "events": {
       "connected_account": {

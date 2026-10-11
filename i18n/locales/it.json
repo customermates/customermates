@@ -1222,7 +1222,11 @@
       "wikiProposalNotFound": "Questa proposta non esiste più.",
       "wikiProposalReviewed": "Questa proposta è già stata rivista.",
       "wikiProposalStale": "La pagina è cambiata dopo la proposta di Mate. Rifiuta la proposta o chiedi a Mate di proporre di nuovo la modifica.",
-      "wikiWhenToUseRequired": "Una procedura richiede una breve descrizione di quando usarla."
+      "wikiWhenToUseRequired": "Una procedura richiede una breve descrizione di quando usarla.",
+      "workspaceSetupAnswerInvalid": "Questa risposta non corrisponde alla domanda. Controllala e riprova.",
+      "workspaceSetupConflict": "La configurazione dello spazio di lavoro è occupata con un altro passaggio. Ricaricala e riprova.",
+      "workspaceSetupNotFound": "Nessuna configurazione trovata per questo spazio di lavoro.",
+      "workspaceSetupUnavailable": "La configurazione dello spazio di lavoro con l'IA non è disponibile qui."
     },
     "events": {
       "connected_account": {

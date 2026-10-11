@@ -38,6 +38,7 @@ const { ImportRecordsInteractor } = await import("@/features/data-transfer/impor
 const { ImportSpreadsheetInteractor } = await import("../import-spreadsheet.interactor");
 const { readSpreadsheet } = await import("../read-spreadsheet");
 const { ImportSpreadsheetSchema } = await import("../spreadsheet.schema");
+const { spreadsheetRecordId } = await import("../spreadsheet-conversion");
 const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
@@ -138,6 +139,10 @@ describeDatabase("ImportSpreadsheetInteractor", () => {
         errorCount: 1,
         errors: [{ rowNumber: 4, column: "Firma", code: "required" }],
         schemaRevision: 1,
+        records: [
+          { typeId: f.id("organization"), recordId: spreadsheetRecordId(organizationKey, "record:2") },
+          { typeId: f.id("organization"), recordId: spreadsheetRecordId(organizationKey, "record:3") },
+        ],
       },
     });
     expect(await f.run(() => f.spreadsheet.invoke(organizationImport))).toEqual(first);

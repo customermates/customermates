@@ -33,6 +33,7 @@ export type SetupModelContext = {
   setupId: string;
   model: RecordModel;
   brandChip?: ChipColor | null;
+  listGrants?: Array<{ roleId: string; actions: Array<"create" | "readOwn" | "readAll" | "update" | "delete"> }>;
 };
 
 const PROBABILITY = "probability";
@@ -202,6 +203,11 @@ export function compileSetupRecordModel(
       });
     }
   });
+
+  if (context.listGrants?.length) {
+    for (const list of plan.recordModel.lists)
+      operations.push({ operation: "setTypeGrants", typeId: setupListReference(list.key), grants: context.listGrants });
+  }
 
   const labels = new Map(model.types.map((type) => [type.id, { label: type.label, plural: type.pluralLabel }]));
   const renamed = new Map<string, { label: string; plural: string }>();

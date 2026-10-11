@@ -1222,7 +1222,11 @@
       "wikiProposalNotFound": "Diesen Vorschlag gibt es nicht mehr.",
       "wikiProposalReviewed": "Dieser Vorschlag wurde bereits geprüft.",
       "wikiProposalStale": "Die Seite wurde geändert, nachdem Mate diesen Vorschlag gemacht hat. Lehne ihn ab oder bitte Mate, die Änderung neu vorzuschlagen.",
-      "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt."
+      "wikiWhenToUseRequired": "Ein Verfahren braucht eine kurze Beschreibung, wann es gilt.",
+      "workspaceSetupAnswerInvalid": "Diese Antwort passt nicht zur Frage. Prüfe sie und versuche es erneut.",
+      "workspaceSetupConflict": "Die Workspace-Einrichtung ist gerade mit einem anderen Schritt beschäftigt. Lade sie neu und versuche es erneut.",
+      "workspaceSetupNotFound": "Für diesen Workspace wurde keine Einrichtung gefunden.",
+      "workspaceSetupUnavailable": "Die KI-Einrichtung des Workspace ist hier nicht verfügbar."
     },
     "events": {
       "connected_account": {

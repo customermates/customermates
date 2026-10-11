@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { RecordRefSchema } from "@/features/records/record-model.schema";
+
 import { DEFAULT_LOCALE, FORMATTING_LOCALES, formattingTagFor, type FormattingLocale } from "@/i18n/locale-registry";
 
 export const SPREADSHEET_MAX_FILE_BYTES = 5 * 1024 * 1024;
@@ -206,6 +208,7 @@ export const ImportSpreadsheetResultSchema = z
     errorCount: z.number().int().nonnegative(),
     errors: z.array(SpreadsheetRowErrorSchema).max(SPREADSHEET_MAX_ROW_ERRORS),
     schemaRevision: z.number().int().nonnegative(),
+    records: z.array(RecordRefSchema).max(SPREADSHEET_MAX_ROWS),
   })
   .strict();
 export type ImportSpreadsheetResult = z.infer<typeof ImportSpreadsheetResultSchema>;
