@@ -27,6 +27,7 @@ export function ProductPanel({ children, className }: FrameProps) {
   return (
     <div
       data-homepage-panel
+      data-homepage-reveal
       className={cn(
         "relative isolate overflow-hidden rounded-3xl border border-foreground/[0.08] bg-foreground/[0.025]",
         className,

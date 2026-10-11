@@ -337,6 +337,10 @@ describe("homepage visual-system adoption", () => {
     expect(stage).toContain('inbox: "/inbox?threadId=latest"');
     expect(productWindow).toContain("data-homepage-panel");
     expect(productWindow).toContain("data-homepage-phone");
+    expect(productWindow).toContain("data-homepage-reveal");
+    expect(readComponent("homepage-product-proof.tsx")).toContain("<ProductWindow>");
+    expect(globalStyles).toContain("animation-timeline: view();");
+    expect(globalStyles).toMatch(/@media \(prefers-reduced-motion: no-preference\) \{\s+\[data-homepage-reveal\]/u);
     for (const file of [
       "homepage-walkthrough.tsx",
       "homepage-how-it-works.tsx",

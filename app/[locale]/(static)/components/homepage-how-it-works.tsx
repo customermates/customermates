@@ -29,7 +29,7 @@ export function HomepageHowItWorks({ eyebrow, handoff, liveLabel, locale, steps,
       <MarketingSection id="human-handoff">
         <div className="marketing-grid items-center gap-y-10">
           <div className="col-span-12 lg:col-span-7 lg:row-start-1">
-            <ProductPanel className="h-[19rem] sm:h-[26rem] lg:h-[28rem]">
+            <ProductPanel className="h-[17rem] sm:h-[22rem] lg:h-[24rem]">
               <ProductWindow className="absolute top-8 left-8 w-full sm:top-12 sm:left-12">
                 <HomepageStageLink area="inbox" label={liveLabel}>
                   <div className="overflow-hidden">

@@ -4,6 +4,7 @@ import { Clock3, Play } from "lucide-react";
 
 import { MarketingSection } from "@/components/marketing/marketing-section";
 
+import { ProductWindow } from "./homepage-product-window";
 import { HomepageViewportVideo } from "./homepage-viewport-video";
 
 export function HomepageProductProof({ proof }: { proof: HomepageProductProofContent }) {
@@ -36,12 +37,16 @@ export function HomepageProductProof({ proof }: { proof: HomepageProductProofCon
             </p>
           </div>
 
-          <div className="relative mt-6 aspect-video w-full overflow-hidden rounded-card border border-border/70 bg-sidebar shadow-xl shadow-black/5">
-            <HomepageViewportVideo
-              ariaLabel={proof.videoTitle}
-              className="absolute inset-0 size-full object-cover"
-              src={proof.videoSrc}
-            />
+          <div data-homepage-reveal className="mt-8">
+            <ProductWindow>
+              <div className="relative aspect-video w-full">
+                <HomepageViewportVideo
+                  ariaLabel={proof.videoTitle}
+                  className="absolute inset-0 size-full object-cover"
+                  src={proof.videoSrc}
+                />
+              </div>
+            </ProductWindow>
           </div>
         </div>
       </div>

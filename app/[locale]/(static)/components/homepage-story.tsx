@@ -17,7 +17,7 @@ export function HomepageStory({ flow }: { flow: HomepageFlow }) {
             key={step.title}
             className="grid content-start gap-3 border-b border-border py-7 lg:border-b-0 lg:py-8 lg:pr-8 lg:not-first:border-l lg:not-first:pl-8"
           >
-            <span className="text-sm text-muted-foreground tabular-nums">{`${index + 1}.0`}</span>
+            <span className="text-sm text-muted-foreground tabular-nums">{String(index + 1).padStart(2, "0")}</span>
 
             <h3 className="text-lg font-medium tracking-tight">{step.title}</h3>
 
