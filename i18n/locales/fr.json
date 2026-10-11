@@ -3120,6 +3120,7 @@
         "title": "Exemple",
         "unavailable": "Trop d'enregistrements liés pour afficher un exemple."
       },
+      "extendStep": "Ajouter à {step}",
       "inputs": "Entrées",
       "linkedList": "Liste liée",
       "missing": {
@@ -3175,6 +3176,19 @@
       "showToEveryone": "Afficher à tous ceux qui peuvent voir l'enregistrement ({list})",
       "showToEveryoneHelp": "Ils verront cette valeur même s'ils ne peuvent pas ouvrir l'enregistrement lié ({list}).",
       "step": "Étape {number}",
+      "stepChip": "Étape",
+      "symbols": {
+        "and": "ET",
+        "coalesce": "SINON",
+        "if": "SI",
+        "lower": "minusc.",
+        "not": "NON",
+        "or": "OU",
+        "otherwise": "SINON",
+        "then": "ALORS",
+        "trim": "rogner",
+        "upper": "majusc."
+      },
       "take": "Reprendre",
       "text": {
         "average": "moyenne de {value} des {list} liés",
@@ -3234,9 +3248,6 @@
       }
     },
     "color": "Couleur",
-    "conditionIf": "Condition",
-    "conditionOtherwise": "Sinon",
-    "conditionThen": "Alors",
     "configurationDeletion": {
       "blockedMessage": "{name} ne peut pas être supprimé tant que d’autres éléments de votre configuration l’utilisent.",
       "blockers": {

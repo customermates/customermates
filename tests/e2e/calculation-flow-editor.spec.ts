@@ -173,6 +173,65 @@ test("fits the flow and its picker to a phone screen", async ({ page, companyId 
   expect(errors).toEqual([]);
 });
 
+test("reads each step as one line and inserts steps from the connectors", async ({ page, companyId }, testInfo) => {
+  const errors = captureErrors(page);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await openConfigure(page, presetId(companyId, "deal"));
+  await openConfigureRow(page, "Fields", "Weighted value");
+  await openDrawerTab(page, "Calculation");
+  const flow = calculationFlow(page);
+  const steps = flow.locator('[data-calculation-node="step"]');
+  const line = (index: number) => steps.nth(index).locator("[data-calculation-line] [data-calculation-chip]");
+  await expect(steps).toHaveCount(2);
+  await expect(flow.locator("[data-calculation-insert-step]")).toHaveCount(3);
+  await expect(flow.getByRole("button", { name: "Add input", exact: true })).toHaveCount(1);
+  await expect(steps.getByRole("button", { name: "Add step", exact: true })).toHaveCount(0);
+  await expect(line(0)).toHaveText(["Value", "×", /probability/i]);
+  await expect(line(1)).toHaveText(["Step 1", "÷", "100"]);
+  await expect(line(0).nth(1)).toHaveAttribute("aria-label", "Calculation: Multiply");
+  const boxes = await Promise.all((await line(1).all()).map((chip) => chip.boundingBox()));
+  for (const [index, box] of boxes.entries()) {
+    expect(Math.abs((box?.y ?? 0) - (boxes[0]?.y ?? 0))).toBeLessThanOrEqual(2);
+    if (index > 0) expect(box?.x ?? 0).toBeGreaterThan(boxes[index - 1]?.x ?? 0);
+  }
+
+  const extend = steps.nth(0).locator("[data-calculation-extend-step]");
+  const coarse = await page.evaluate(() => window.matchMedia("(any-pointer: coarse)").matches);
+  if (!coarse) {
+    await page.mouse.move(0, 0);
+    await expect(extend).toHaveCSS("opacity", "0");
+    await steps.nth(0).hover();
+  }
+  await expect(extend).toHaveCSS("opacity", "1");
+  await expect(extend).toHaveAccessibleName("Add to Step 1");
+
+  await steps.nth(0).scrollIntoViewIfNeeded();
+  for (const scheme of ["light", "dark"] as const) {
+    await page.emulateMedia({ colorScheme: scheme });
+    await page.mouse.move(0, 0);
+    await page.screenshot({ path: testInfo.outputPath(`calculation-flow-desktop-${scheme}.png`), animations: "disabled" });
+  }
+  await page.emulateMedia({ colorScheme: "light" });
+
+  await flow.locator('[data-calculation-insert-step="1"]').click();
+  await expect(steps).toHaveCount(3);
+  await expect(line(0)).toHaveText(["Value", "×", /probability/i]);
+  await expect(line(1)).toHaveText(["Step 1", "+", "Pick a value"]);
+  await expect(line(2)).toHaveText(["Step 2", "÷", "100"]);
+  await expect(flow.locator("[data-calculation-insert-step]")).toHaveCount(4);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect.poll(async () => Math.round((await page.getByRole("dialog").boundingBox())?.x ?? -1)).toBe(0);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  await steps.nth(1).scrollIntoViewIfNeeded();
+  for (const scheme of ["light", "dark"] as const) {
+    await page.emulateMedia({ colorScheme: scheme });
+    await page.screenshot({ path: testInfo.outputPath(`calculation-flow-phone-${scheme}.png`), animations: "disabled" });
+  }
+  await page.emulateMedia({ colorScheme: "light" });
+  expect(errors).toEqual([]);
+});
+
 test("hides the composer and keeps the flow unchanged when drafting isn't available", async ({ page, companyId }) => {
   const errors = captureErrors(page);
   const dialog = page.getByRole("dialog");

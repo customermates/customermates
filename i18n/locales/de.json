@@ -3120,6 +3120,7 @@
         "title": "Beispiel",
         "unavailable": "Zu viele verknüpfte Datensätze für ein Beispiel."
       },
+      "extendStep": "Zu {step} hinzufügen",
       "inputs": "Eingaben",
       "linkedList": "Verknüpfte Liste",
       "missing": {
@@ -3175,6 +3176,19 @@
       "showToEveryone": "Allen zeigen, die diesen Datensatz ({list}) sehen können",
       "showToEveryoneHelp": "Sie sehen diesen Wert, auch wenn sie den verknüpften Datensatz ({list}) nicht öffnen können.",
       "step": "Schritt {number}",
+      "stepChip": "Schritt",
+      "symbols": {
+        "and": "UND",
+        "coalesce": "SONST",
+        "if": "WENN",
+        "lower": "klein",
+        "not": "NICHT",
+        "or": "ODER",
+        "otherwise": "SONST",
+        "then": "DANN",
+        "trim": "trimmen",
+        "upper": "groß"
+      },
       "take": "Übernimm",
       "text": {
         "average": "Durchschnitt von {value} der verknüpften {list}",
@@ -3234,9 +3248,6 @@
       }
     },
     "color": "Farbe",
-    "conditionIf": "Bedingung",
-    "conditionOtherwise": "Andernfalls",
-    "conditionThen": "Dann",
     "configurationDeletion": {
       "blockedMessage": "{name} kann nicht gelöscht werden, solange andere Teile deiner Einrichtung es noch verwenden.",
       "blockers": {
