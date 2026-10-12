@@ -206,7 +206,7 @@ describe("record detail personalization transaction controls", () => {
       h.editor.onChange(`values.${nameId}`, "Draft name");
       pending = h.editor.onSubmit();
     });
-    expect(h.button("Common.actions.reset").disabled).toBe(true);
+    expect(h.container.querySelector('[aria-label="Common.actions.reset"]')).toBeNull();
     expect(h.button("EntityDetail.personalize").disabled).toBe(true);
     act(() => h.button("EntityDetail.personalize").click());
     expect(h.container.querySelector('[aria-label="RecordModel.resetDetailLayout"]')).toBeNull();

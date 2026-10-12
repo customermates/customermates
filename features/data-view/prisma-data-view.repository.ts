@@ -35,6 +35,30 @@ export type UpdateOwnedDataViewStateArgs = {
   state: DataViewState;
 };
 
+type ResetField = ResetDataViewStateInput["fields"][number];
+
+function resetViewColumns(fields: ResetField[]): Prisma.DataViewUpdateManyMutationInput {
+  const data: Prisma.DataViewUpdateManyMutationInput = {};
+  for (const field of fields) {
+    if (field === "searchTerm" || field === "viewMode" || field === "pageSize") data[field] = null;
+    else data[field] = Prisma.DbNull;
+    if (field === "grouping") data.groupingColumnId = null;
+  }
+  return data;
+}
+
+function resetPersonalizationColumns(fields: ResetField[]): Prisma.P13nUpdateManyMutationInput {
+  const data: Prisma.P13nUpdateManyMutationInput = {};
+  for (const field of fields) {
+    if (field === "pageSize") data.pagination = Prisma.DbNull;
+    else if (field === "columnOrder" || field === "hiddenColumns") data[field] = [];
+    else if (field === "searchTerm" || field === "viewMode") data[field] = null;
+    else data[field] = Prisma.DbNull;
+    if (field === "grouping") data.groupingColumnId = null;
+  }
+  return data;
+}
+
 const VIEW_SELECT = {
   id: true,
   surfaceKey: true,
@@ -115,19 +139,11 @@ export class PrismaDataViewRepo extends TenantRepository implements DataViewStat
 
   async resetOwnedViewState({ surfaceKey, viewKey, fields }: ResetDataViewStateInput): Promise<boolean> {
     const { companyId, id: userId } = this.user;
-    const all = viewKey === ALL_VIEW_KEY;
-    const column = (field: string) => (field === "pageSize" && all ? "pagination" : field);
-    const changes = fields
-      .flatMap((field) => [field, ...(field === "grouping" ? ["groupingColumnId"] : [])])
-      .map((field) =>
-        Prisma.raw(
-          `"${column(field)}" = ${all && ["columnOrder", "hiddenColumns"].includes(field) ? "ARRAY[]::text[]" : "NULL"}`,
-        ),
-      );
-    if (!all) {
-      const count = await this.prisma.$executeRaw(
-        Prisma.sql`UPDATE "DataView" SET ${Prisma.join(changes)}, "updatedAt" = CURRENT_TIMESTAMP WHERE "companyId" = ${companyId} AND "userId" = ${userId} AND "surfaceKey" = ${surfaceKey} AND id = ${viewKey} AND "deletedAt" IS NULL`,
-      );
+    if (viewKey !== ALL_VIEW_KEY) {
+      const { count } = await this.prisma.dataView.updateMany({
+        where: { companyId, userId, surfaceKey, id: viewKey, deletedAt: null },
+        data: resetViewColumns(fields),
+      });
       return count === 1;
     }
     const current = await this.prisma.p13n.findUnique({
@@ -138,9 +154,10 @@ export class PrismaDataViewRepo extends TenantRepository implements DataViewStat
       ? current.viewStateKeys
       : Object.keys(readStoredPersonalizationState(current));
     const remaining = keys.filter((key) => typeof key === "string" && !fields.includes(key as (typeof fields)[number]));
-    await this.prisma.$executeRaw(
-      Prisma.sql`UPDATE "P13n" SET ${Prisma.join(changes)}, "viewStateKeys" = ${JSON.stringify(remaining)}::jsonb, "updatedAt" = CURRENT_TIMESTAMP WHERE "companyId" = ${companyId} AND "userId" = ${userId} AND "p13nId" = ${surfaceKey}`,
-    );
+    await this.prisma.p13n.updateMany({
+      where: { companyId, userId, p13nId: surfaceKey },
+      data: { ...resetPersonalizationColumns(fields), viewStateKeys: remaining as Prisma.InputJsonValue },
+    });
     return true;
   }
 
