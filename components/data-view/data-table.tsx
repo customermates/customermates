@@ -286,7 +286,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
 
   return (
     <Table className={className} footer={footer}>
-      <TableHeader className="sticky top-0 z-10 bg-background">
+      <TableHeader className="sticky top-0 z-10 bg-[var(--row-surface,var(--background))]">
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {

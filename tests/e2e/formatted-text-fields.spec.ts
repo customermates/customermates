@@ -322,7 +322,7 @@ test("keeps a bulk-edited formatted text on Escape and follows links in display 
   expect(errors).toEqual([]);
 });
 
-test("formats a formatted text field from its toolbar without leaving edit mode", async ({
+test("shows the formatting toolbar at rest and formats from it without leaving edit mode", async ({
   page,
   database,
   companyId,
@@ -363,7 +363,7 @@ test("formats a formatted text field from its toolbar without leaving edit mode"
     exact: true,
   });
   await expect(field).toHaveAttribute("data-state", "display");
-  await expect(toolbar).toHaveCount(0);
+  await expect(toolbar).toBeVisible();
 
   await editFormattedText(main, "Notes");
   await expect(toolbar).toBeVisible();
@@ -407,7 +407,7 @@ test("formats a formatted text field from its toolbar without leaving edit mode"
 
   await page.keyboard.press("Escape");
   await expect(field).toHaveAttribute("data-state", "display");
-  await expect(toolbar).toHaveCount(0);
+  await expect(toolbar).toBeVisible();
   await main.getByRole("button", { name: "Save", exact: true }).click();
   await expect(
     main.getByRole("button", { name: "Reset", exact: true }),

@@ -14,6 +14,10 @@ async function post(page: Page, path: string, data: unknown): Promise<unknown> {
   return response.json();
 }
 
+function surface(locator: Locator) {
+  return locator.evaluate((element) => getComputedStyle(element).backgroundColor);
+}
+
 async function showOverview(scope: Locator) {
   const overview = scope.getByRole("tab", { name: "Overview", exact: true });
   if (await overview.isVisible()) await overview.click();
@@ -101,6 +105,27 @@ test("renders every record detail field in the input box and explains calculated
   const createdAt = main.locator('[data-entity-field="system:createdAt"] [data-field-state="read-only"]');
   if (await createdAt.count()) await expect(createdAt).toHaveCSS("border-top-width", "1px");
   await expect(main.locator("[data-formatted-text-area]").first()).toHaveCSS("border-top-width", "1px");
+  const notes = main
+    .locator("[data-formatted-text-field]")
+    .filter({ has: page.locator("[role=textbox][aria-label=Notes]") });
+  await expect(notes).toHaveAttribute("data-state", "display");
+  await expect(notes.locator("[data-formatting-toolbar]")).toBeVisible();
+  const notesArea = notes.locator("[data-formatted-text-area]");
+  expect((await notesArea.boundingBox())?.height ?? 0).toBeGreaterThan((nameBox?.height ?? 0) * 2);
+  const plainSurface = await surface(name);
+  expect(await surface(output)).toBe(plainSurface);
+  expect(await surface(notesArea)).toBe(plainSurface);
+  expect(await surface(frame)).toBe(plainSurface);
+  const frameHeader = frame.locator("[data-slot=table-header]");
+  if (await frameHeader.count()) {
+    expect(await surface(frameHeader.first())).toBe(plainSurface);
+    expect(await surface(frame.locator("[data-record-row-actions]").first())).toBe(plainSurface);
+  }
+  await expect(frame).toHaveCSS("overflow-x", "clip");
+  const inputBorder = await name.evaluate((element) => getComputedStyle(element).borderTopColor);
+  await expect(frame).toHaveCSS("border-top-color", inputBorder);
+  await output.hover();
+  await expect(output).toHaveCSS("cursor", "default");
   const services = main.getByRole("region", { name: "Services", exact: true });
   await expect(services.getByRole("button", { name: "Where Services comes from", exact: true })).toBeVisible();
   const switcher = page.locator('[data-detail-panel-switcher] [data-slot="segmented-control-list"]');
@@ -137,6 +162,34 @@ test("renders every record detail field in the input box and explains calculated
   for (const scheme of ["light", "dark"] as const) {
     await page.emulateMedia({ colorScheme: scheme });
     await showOverview(main);
+    const hinted = main.locator("[data-slot=tooltip-trigger]:visible").first();
+    if (!testInfo.project.use.isMobile && (await hinted.count())) {
+      await hinted.hover();
+      const tooltip = page.locator('[data-slot="tooltip-content"]');
+      await expect(tooltip).toBeVisible();
+      const [fill, ink] = await tooltip.evaluate((element) => [
+        getComputedStyle(element).backgroundColor,
+        getComputedStyle(element).color,
+      ]);
+      const brightness = (color: string) =>
+        (color.match(/[\d.]+/g) ?? []).slice(0, 3).reduce((sum, channel) => sum + Number(channel), 0) / 3;
+      if (scheme === "dark") {
+        expect(brightness(fill)).toBeLessThan(60);
+        expect(brightness(ink)).toBeGreaterThan(200);
+      } else {
+        expect(brightness(fill)).toBeGreaterThan(240);
+        expect(brightness(ink)).toBeLessThan(40);
+      }
+      for (const key of await tooltip.locator("kbd").all()) {
+        const keyInk = await key.evaluate((element) => getComputedStyle(element).color);
+        expect(Math.abs(brightness(keyInk) - brightness(fill))).toBeGreaterThan(60);
+      }
+      await page.screenshot({
+        path: testInfo.outputPath(`deal-record-tooltip-${scheme}-${testInfo.project.name}.png`),
+        animations: "disabled",
+      });
+      await page.mouse.move(0, 0);
+    }
     await page.screenshot({
       path: testInfo.outputPath(`deal-record-${scheme}-${testInfo.project.name}.png`),
       fullPage: true,
@@ -198,8 +251,14 @@ test("renders every record detail field in the input box and explains calculated
     await expect(memberDerivation).toHaveCount(0);
     const memberName = memberMain.getByRole("textbox", { name: "Name", exact: false });
     await expect(memberName).toHaveAttribute("readonly", "");
+    expect(await surface(memberName)).toBe(plainSurface);
+    expect(await surface(memberQuantity.locator('[data-field-state="read-only"]'))).toBe(plainSurface);
+    expect(await surface(memberMain.locator("[data-formatted-text-area]").first())).toBe(plainSurface);
+    await expect(memberMain.locator("[data-formatting-toolbar]")).toHaveCount(0);
+    await memberName.hover();
+    await expect(memberName).toHaveCSS("cursor", "not-allowed");
     await memberName.focus();
-    await expect(member.page.getByRole("tooltip", { name: "You can't edit this field", exact: true })).toBeVisible();
+    await expect(member.page.getByRole("tooltip")).toHaveCount(0);
     await expect(
       memberMain.locator(`[data-entity-field="${typeId("deal.name")}"]`).locator("[data-field-derivation-trigger]"),
     ).toHaveCount(0);
