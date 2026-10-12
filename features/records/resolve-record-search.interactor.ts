@@ -10,7 +10,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { failAuthorization } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { recordWriteFailure } from "./mutate-record.interactor";
+import { recordWriteFailure } from "./record-write-failure";
 
 import { ResolveRecordSearchSchema, type ResolveRecordSearchInput } from "./record-search.schema";
 

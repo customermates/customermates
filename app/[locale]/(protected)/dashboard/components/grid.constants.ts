@@ -9,7 +9,7 @@ export const GRID_COLS: Record<Breakpoint, number> = WIDGET_GRID_BREAKPOINT_COLU
 
 export const GRID_BREAKPOINTS: Record<Breakpoint, number> = {
   [Breakpoint.xs]: 400,
-  [Breakpoint.sm]: 560,
+  [Breakpoint.sm]: 420,
   [Breakpoint.md]: 700,
   [Breakpoint.lg]: 960,
 };

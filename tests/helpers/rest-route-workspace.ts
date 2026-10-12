@@ -45,6 +45,9 @@ export async function createRestRouteWorkspace() {
   const { MutateRecordInteractor } = await import(
     "@/features/records/mutate-record.interactor"
   );
+  const { RecordTrashService } = await import(
+    "@/features/records/record-trash.service"
+  );
   const { GetRecordInteractor } = await import(
     "@/features/records/get-record.interactor"
   );
@@ -101,6 +104,7 @@ export async function createRestRouteWorkspace() {
     {
       dispatch: () => Promise.resolve(),
     },
+    new RecordTrashService(repo),
   );
   const read = new GetRecordInteractor(repo, policy);
   const id = (key: string) => presetId(companyId, key);

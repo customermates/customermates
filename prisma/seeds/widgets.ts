@@ -2,6 +2,7 @@ import type { Prisma, PrismaClient } from "@/generated/prisma";
 
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { WidgetKind } from "@/generated/prisma";
+import { DisplayType } from "@/features/widget/widget-display.schema";
 
 import type { SeedContext } from "./context";
 import type { CustomFieldSeedData } from "./custom-fields";
@@ -91,7 +92,7 @@ export function buildSyntheticWidgetFixtures(
           reverseXAxis: false,
           reverseYAxis: false,
           showFilters: filtered,
-          showLegend: widget.useGroupColors,
+          showLegend: widget.useGroupColors || widget.displayType === DisplayType.doughnutChart,
           useGroupColors: widget.useGroupColors,
         },
         measure: widget.measure as Prisma.InputJsonValue,

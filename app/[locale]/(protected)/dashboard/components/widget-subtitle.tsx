@@ -8,9 +8,17 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 
 import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
 
-export function WidgetSubtitle({ notes, text }: { notes: string[]; text: string | null }) {
+export function WidgetSubtitle({
+  notes,
+  text,
+  reserve = false,
+}: {
+  notes: string[];
+  text: string | null;
+  reserve?: boolean;
+}) {
   const t = useTranslations();
-  if (!text && notes.length === 0) return null;
+  if (!text && notes.length === 0) return reserve ? <div aria-hidden className="h-4" /> : null;
   return (
     <TooltipProvider>
       <div

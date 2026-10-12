@@ -12,7 +12,7 @@ import { fail, failNotFound, failConflict } from "@/core/validation/interactor-f
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordDetailLayoutIsValid } from "./record-detail-layout";
 import { SaveRecordDetailLayoutSchema, recordDetailKey } from "./record-detail-layout.schema";
-import { recordRequestHash } from "./mutate-record.interactor";
+import { recordRequestHash } from "./record-request-hash";
 
 export type Policy = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
 

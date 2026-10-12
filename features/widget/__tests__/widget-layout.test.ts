@@ -20,16 +20,16 @@ describe("widgetLayoutGeometry", () => {
     });
   });
 
-  it("keeps number widgets tall enough for their value and context line", () => {
+  it("lets number widgets shrink to the two rows their title, value and context line need", () => {
     expect(widgetLayoutGeometry(WidgetKind.chart, 12, { w: 3, h: 1 }, DisplayType.number)).toEqual({
       w: 3,
-      h: 3,
-      minH: 3,
+      h: 2,
+      minH: 2,
     });
     expect(widgetLayoutGeometry(WidgetKind.chart, 12, { w: 3, h: 5 }, DisplayType.number)).toEqual({
       w: 3,
       h: 5,
-      minH: 3,
+      minH: 2,
     });
   });
 

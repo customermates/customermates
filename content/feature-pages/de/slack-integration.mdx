@@ -58,7 +58,7 @@ Das Muster ist immer dasselbe: Customermates feuert einen Webhook, Ihr Automatis
 
 Die Gegenrichtung läuft über die REST API oder MCP, wieder gesteuert von Ihrem Automatisierungstool.
 
-**Datensätze aus Slack erstellen.** Ein Slack-Shortcut oder Slash-Befehl löst Ihren Workflow aus. Er ermittelt Typ- und Feld-IDs über `POST /api/v1/model/discover` und sendet dann eine Erstellen-Mutation an `POST /api/v1/records/mutate` mit einem `x-api-key`-Header. Derselbe Vertrag gilt für die fünf Starttypen und selbst angelegte Typen.
+**Datensätze aus Slack erstellen.** Ein Slack-Shortcut oder Slash-Befehl löst Ihren Workflow aus. Er ermittelt die Typ-ID über `POST /api/v1/model/discover` und die Feld-IDs über `POST /api/v1/model/read` und sendet dann eine Erstellen-Mutation an `POST /api/v1/records/mutate` mit einem `x-api-key`-Header. Derselbe Vertrag gilt für die fünf Starttypen und selbst angelegte Typen.
 
 **Datensätze aus Slack aktualisieren.** Senden Sie eine Aktualisieren-Mutation mit der aktuellen Datensatzversion an `POST /api/v1/records/mutate`. Beziehungen ändern Sie mit einer Verknüpfen- oder Trennen-Mutation. Das entsprechende MCP-Tool ist `mutate_crm_record`.
 

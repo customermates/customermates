@@ -10,12 +10,20 @@ import { action, makeObservable, observable, reaction, runInAction, toJS } from 
 import { refreshWidgetsAction, updateWidgetLayoutsAction } from "../actions";
 
 import { GRID_COLS } from "./grid.constants";
-import { firstFreeSpot, widgetLayoutGeometry } from "@/features/widget/widget-grid";
+import {
+  firstFreeSpot,
+  packBreakpointLayout,
+  WIDGET_GRID_MAX_ROW,
+  widgetLayoutGeometry,
+} from "@/features/widget/widget-grid";
+import { DisplayType } from "@/features/widget/widget-display.schema";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { BREAKPOINTS } from "@/constants/breakpoints";
+import { Breakpoint } from "@/core/types/breakpoint";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 type MutableLayouts = Record<string, LayoutItem[]>;
 
@@ -37,6 +45,7 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
   } | null = null;
   private layoutWrite: Promise<void> | null = null;
   private layoutViewKey: string | null = null;
+  private layoutConflict = false;
 
   constructor(rootStore: RootStore) {
     super(rootStore);
@@ -79,26 +88,48 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
     for (const id of this.layoutReceipts.keys()) if (!ids.has(id)) this.layoutReceipts.delete(id);
     const layouts: MutableLayouts = { xs: [], sm: [], md: [], lg: [] };
 
-    this.items.forEach((widget) => {
-      for (const breakpoint of BREAKPOINTS) {
+    for (const breakpoint of [Breakpoint.lg, ...BREAKPOINTS.filter((entry) => entry !== Breakpoint.lg)]) {
+      const cols = GRID_COLS[breakpoint];
+      const derived: WidgetDto[] = [];
+      this.items.forEach((widget) => {
         const layoutItem = widget.layout?.[breakpoint];
-        const cols = GRID_COLS[breakpoint];
         const geometry = geometryOf(widget, cols, layoutItem);
-        const { w, h } = geometry;
-
+        if (breakpoint !== Breakpoint.lg && (layoutItem?.x == null || layoutItem?.y == null)) {
+          derived.push(widget);
+          return;
+        }
         let x = layoutItem?.x;
         let y = layoutItem?.y;
-
         if (x == null || y == null) {
-          const spot = firstFreeSpot(layouts[breakpoint], cols, w, h);
+          const spot = firstFreeSpot(layouts[breakpoint], cols, geometry.w, geometry.h);
           x ??= spot.x;
           y ??= spot.y;
         }
-
-        x = Math.min(x, Math.max(0, cols - w));
-        layouts[breakpoint].push({ x, y, i: widget.id, ...geometry });
+        layouts[breakpoint].push({ x: Math.min(x, Math.max(0, cols - geometry.w)), y, i: widget.id, ...geometry });
+      });
+      if (derived.length === 0) continue;
+      const bottom = Math.max(0, ...layouts[breakpoint].map((item) => item.y + item.h));
+      const desktop = new Map(layouts.lg.map((item) => [item.i, item]));
+      const packed = packBreakpointLayout(
+        derived.map((widget) => {
+          const lg = desktop.get(widget.id);
+          return {
+            id: widget.id,
+            lg: lg ? { x: lg.x, y: lg.y, w: lg.w, h: lg.h } : { x: 0, y: WIDGET_GRID_MAX_ROW, w: cols, h: 8 },
+            compact: isRecordWidget(widget) && widget.displayOptions.displayType === DisplayType.number,
+          };
+        }),
+        cols,
+        bottom,
+      );
+      const byId = new Map(derived.map((widget) => [widget.id, widget]));
+      for (const rect of packed) {
+        const widget = byId.get(rect.id);
+        if (!widget) continue;
+        const geometry = geometryOf(widget, cols, { w: rect.w, h: rect.h });
+        layouts[breakpoint].push({ x: rect.x, y: rect.y, i: rect.id, ...geometry });
       }
-    });
+    }
 
     const sameView = this.layoutViewKey === this.activeViewKey;
     const ownsPending = this.layoutWrite !== null && this.collectionActor === this.layoutActor && sameView;
@@ -143,6 +174,11 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
       .withLoading(() => this.saveLayouts())
       .finally(() => {
         this.layoutWrite = null;
+        if (this.layoutConflict) {
+          this.layoutConflict = false;
+          void this.refreshQuery().catch(reportApplicationError);
+          return;
+        }
         if (this.pendingLayout) this.startLayoutWrite();
       });
     void this.layoutWrite.catch(reportApplicationError);
@@ -180,7 +216,10 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
             pending.payload[breakpoint].filter((item) => changed.has(item.i)),
           ]),
         ) as UpdateWidgetLayoutsData["layouts"];
-        const result = await updateWidgetLayoutsAction({ layouts });
+        const expectedVersions = Object.fromEntries(
+          this.items.filter((widget) => changed.has(widget.id)).map((widget) => [widget.id, widget.version]),
+        );
+        const result = await updateWidgetLayoutsAction({ layouts, expectedVersions });
         if (!ownsActor()) continue;
         if (result.ok) {
           const saved = new Map(result.data.map((widget) => [widget.id, widget]));
@@ -208,6 +247,11 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
               }
             }
           });
+        } else if (result.code === CustomErrorCode.widgetLayoutChanged) {
+          this.pendingLayout = null;
+          this.layoutConflict = true;
+          this.restoreLayouts(this.confirmedLayouts);
+          toastZodErrorTree(result.error);
         } else {
           if (!this.pendingLayout) this.restoreLayouts(this.confirmedLayouts);
           if (this.hasCurrentWidgets(pending.layouts)) toastZodErrorTree(result.error);

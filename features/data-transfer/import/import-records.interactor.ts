@@ -17,7 +17,8 @@ import {
   RECORD_IMPORT_LINK_LIMIT,
 } from "@/features/data-transfer/record-transfer.schema";
 import type { ImportRecordsInput, ImportRecordsResult } from "@/features/data-transfer/record-transfer.schema";
-import { recordRequestHash, recordWriteFailure } from "@/features/records/mutate-record.interactor";
+import { recordRequestHash } from "@/features/records/record-request-hash";
+import { recordWriteFailure } from "@/features/records/record-write-failure";
 import { RecordJournal } from "@/features/records/record-journal";
 import { decodeRecordValue } from "@/features/records/record-storage";
 import { sameRecordResult } from "@/features/records/record-write.service";

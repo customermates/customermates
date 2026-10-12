@@ -1,7 +1,8 @@
 import type { Prisma } from "@/generated/prisma";
 import type { TrashItem, TrashRepo } from "./trash.repo";
 import type { TrashKindHandler, TrashKindImpact, TrashKindRestore } from "./trash-kind-handler";
-import type { TrashKind, TrashRestoreBlocker } from "./trash.schema";
+import type { TrashKind } from "./trash.schema";
+import type { TrashRestoreBlockerSource } from "./trash-restore-blocker-source";
 
 import type { DomainEvent } from "@/features/event/domain-events";
 import type { EventService } from "@/features/event/event.service";
@@ -27,7 +28,7 @@ export type EntityTrashKind = {
   kind: TrashKind;
   restoreOrder: number;
   visibility: (alias: Prisma.Sql) => Promise<Prisma.Sql>;
-  blockers?: (items: TrashItem[]) => Promise<TrashRestoreBlocker[]>;
+  blockers?: TrashRestoreBlockerSource;
   audit?: EntityTrashAudit;
 };
 
@@ -51,7 +52,7 @@ export class EntityTrashHandler implements TrashKindHandler {
   }
 
   async restore(items: TrashItem[]): Promise<TrashKindRestore> {
-    const blocked = (await this.definition.blockers?.(items)) ?? [];
+    const blocked = (await this.definition.blockers?.blockers(items)) ?? [];
     const blockedIds = new Set(blocked.map((blocker) => blocker.itemId));
     const candidates = items.filter((item) => !blockedIds.has(item.id));
     const restored = new Set(await this.repo.restoreTrashed(candidates.map((item) => item.targetId)));

@@ -13,8 +13,8 @@ import { fail, failNotFound } from "@/core/validation/interactor-failure-server"
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordQuerySchema, RecordReadSchema } from "./record-query.schema";
 import { invalidRecordQueryPart } from "./record-query-validation";
-import { recordWriteFailure } from "./mutate-record.interactor";
-import { recordDto, withMemberUsers } from "./query-records.interactor";
+import { recordWriteFailure } from "./record-write-failure";
+import { recordDto, withMemberUsers } from "./record-dto";
 
 @AllowInDemoMode
 @TenantInteractor()

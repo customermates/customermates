@@ -30,6 +30,7 @@ const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
 const { RecordWriteService } = await import("../record-write.service");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
+const { RecordTrashService } = await import("../record-trash.service");
 const { QueryRecordsInteractor } = await import("../query-records.interactor");
 const { ApplyRecordConfigurationInteractor } = await import("../configure-records.interactor");
 const { RecordConfigurationService } = await import("../configuration.service");
@@ -69,6 +70,7 @@ async function fixture() {
     policy,
     new RecordWriteService(repo, policy, calculations),
     background,
+    new RecordTrashService(repo),
   );
   const query = new QueryRecordsInteractor(repo, policy);
   const configure = new ApplyRecordConfigurationInteractor(

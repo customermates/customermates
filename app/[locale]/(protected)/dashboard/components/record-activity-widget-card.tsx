@@ -22,6 +22,8 @@ import {
   recordActivityFilterCount,
 } from "@/ee/messaging/activities/record-activity-sources";
 import { WIDGET_INTERACTIVE_ATTRIBUTE } from "./widget-interaction";
+import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS, WIDGET_CARD_TITLE_CLASS } from "./widget-card-frame";
+import { cn } from "@/core/utils/cn";
 import { accountSupportsActivitySources, resolveActivityWidgetState } from "./activity-widget-state";
 
 export const RecordActivityWidgetCard = observer(
@@ -59,8 +61,8 @@ export const RecordActivityWidgetCard = observer(
     });
     return (
       <AppCard className="h-full cursor-pointer overflow-hidden">
-        <AppCardHeader className="flex-col items-start gap-0.5">
-          <h2 className="text-x-md w-full truncate">{widget.name}</h2>
+        <AppCardHeader className={WIDGET_CARD_HEADER_CLASS}>
+          <h2 className={cn(WIDGET_CARD_TITLE_CLASS, "truncate")}>{widget.name}</h2>
 
           <span className="text-xs text-muted-foreground">
             {t("Dashboard.activityWidget.activityCount", { count: timeline.items.length })}
@@ -79,7 +81,7 @@ export const RecordActivityWidgetCard = observer(
         </AppCardHeader>
 
         <AppCardBody
-          className="min-h-0 flex-1 overflow-auto px-4 pb-4 pt-2"
+          className={cn(WIDGET_CARD_BODY_CLASS, "min-h-0 flex-1 overflow-auto")}
           {...{ [WIDGET_INTERACTIVE_ATTRIBUTE]: "true" }}
         >
           {timeline.error && (

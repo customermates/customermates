@@ -25,7 +25,10 @@ export class SearchCatalogIndexDispatcher extends UserAccessor implements Search
       await this.backgroundTaskService.dispatch("index-search-catalog", { userId: this.userId });
     } catch (error) {
       lastDispatch.delete(key);
-      Sentry.captureException(error);
+      Sentry.captureException(error, {
+        tags: { kind: "search-catalog-index-dispatch", companyId: this.companyId },
+        user: { id: this.userId },
+      });
     }
   }
 }
