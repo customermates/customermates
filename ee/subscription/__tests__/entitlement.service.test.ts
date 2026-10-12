@@ -15,10 +15,10 @@ const ACTIVE_TRIAL = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 const EXPIRED_TRIAL = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
 function makeService(subscription: { status: string; trialEndDate: Date | null; plan: string }) {
-  const getSubscriptionOrThrow = vi.fn().mockResolvedValue(subscription);
+  const findSubscription = vi.fn().mockResolvedValue(subscription);
   return {
-    service: new EntitlementService({ getSubscriptionOrThrow } as never),
-    getSubscriptionOrThrow,
+    service: new EntitlementService({ findSubscription } as never),
+    findSubscription,
   };
 }
 
@@ -70,6 +70,15 @@ describe('EntitlementService.require("messaging")', () => {
     });
     const denied = await service.require("messaging");
     expect(denialCode(denied)).toBe("paidSubscriptionRequired");
+  });
+});
+
+describe("EntitlementService without a subscription row", () => {
+  it("denies every feature with paidSubscriptionRequired instead of failing the lookup", async () => {
+    const findSubscription = vi.fn().mockResolvedValue(null);
+    const service = new EntitlementService({ findSubscription } as never);
+    for (const feature of ["messaging", "sharedAccounts", "agentChat"] as const)
+      expect(denialCode(await service.require(feature))).toBe("paidSubscriptionRequired");
   });
 });
 
@@ -127,8 +136,8 @@ describe("EntitlementService self-hosted", () => {
     }));
 
     const { EntitlementService: SelfHosted } = await import("../entitlement.service");
-    const getSubscriptionOrThrow = vi.fn();
-    const service = new SelfHosted({ getSubscriptionOrThrow } as never);
+    const findSubscription = vi.fn();
+    const service = new SelfHosted({ findSubscription } as never);
 
     const messaging = await service.require("messaging");
     expect(denialCode(messaging)).toBe("messagingRequiresCloud");
@@ -136,7 +145,7 @@ describe("EntitlementService self-hosted", () => {
     const shared = await service.require("sharedAccounts");
     expect(denialCode(shared)).toBe("sharedAccountsRequiresCloud");
 
-    expect(getSubscriptionOrThrow).not.toHaveBeenCalled();
+    expect(findSubscription).not.toHaveBeenCalled();
   });
 });
 
@@ -154,20 +163,20 @@ describe("EntitlementService demo", () => {
     }));
 
     const { EntitlementService: Demo } = await import("../entitlement.service");
-    const getSubscriptionOrThrow = vi.fn().mockResolvedValue({ plan: "pro", status: "active", trialEndDate: null });
-    const service = new Demo({ getSubscriptionOrThrow } as never);
+    const findSubscription = vi.fn().mockResolvedValue({ plan: "pro", status: "active", trialEndDate: null });
+    const service = new Demo({ findSubscription } as never);
 
     const denied = await service.require("agentChat");
     expect(denied).toBeNull();
-    expect(getSubscriptionOrThrow).toHaveBeenCalledOnce();
+    expect(findSubscription).toHaveBeenCalledOnce();
 
-    getSubscriptionOrThrow.mockResolvedValue({
+    findSubscription.mockResolvedValue({
       status: "active",
       trialEndDate: null,
       plan: "pro",
     });
     expect(await service.require("messaging")).toBeNull();
-    expect(getSubscriptionOrThrow).toHaveBeenCalledTimes(2);
+    expect(findSubscription).toHaveBeenCalledTimes(2);
   });
 });
 
@@ -189,15 +198,15 @@ describe("EntitlementService Assistant kill switch", () => {
     }));
 
     const { EntitlementService: Disabled } = await import("../entitlement.service");
-    const getSubscriptionOrThrow = vi.fn().mockResolvedValue({ status: "active", trialEndDate: null, plan: "pro" });
-    const service = new Disabled({ getSubscriptionOrThrow } as never);
+    const findSubscription = vi.fn().mockResolvedValue({ status: "active", trialEndDate: null, plan: "pro" });
+    const service = new Disabled({ findSubscription } as never);
 
     const denied = await service.require("agentChat");
     expect(denialCode(denied)).toBe("agentChatDisabled");
     expect(denied?.error.issues[0]?.message).toBe("ConnectedAccountsCard.agentChatDisabled");
-    expect(getSubscriptionOrThrow).not.toHaveBeenCalled();
+    expect(findSubscription).not.toHaveBeenCalled();
 
     expect(await service.require("messaging")).toBeNull();
-    expect(getSubscriptionOrThrow).toHaveBeenCalledOnce();
+    expect(findSubscription).toHaveBeenCalledOnce();
   });
 });

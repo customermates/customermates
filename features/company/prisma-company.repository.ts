@@ -2,7 +2,7 @@ import type { RepoArgs } from "@/core/utils/types";
 import type { CreateAuthLinkSubscriptionRepo } from "@/ee/messaging/connect/create-auth-link-subscription.repo";
 import type { UpsertRoutineSubscriptionRepo } from "@/ee/routines/upsert-routine-subscription.repo";
 import type { CreateCheckoutCompanyRepo } from "@/ee/subscription/create-checkout-session.repo";
-import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement.service";
+import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement-subscription.repo";
 import type { GetBillingPortalUrlRepo } from "@/ee/subscription/get-billing-portal-url.repo";
 import type { GetSubscriptionRepo } from "@/ee/subscription/get-subscription.repo";
 import type { RefreshSubscriptionRepo } from "@/ee/subscription/refresh-subscription.repo";
@@ -137,6 +137,13 @@ export class PrismaCompanyRepo
   async getSubscriptionOrThrow() {
     return this.prisma.subscription.findUniqueOrThrow({
       where: { companyId: this.companyId },
+    });
+  }
+
+  async findSubscription() {
+    return this.prisma.subscription.findUnique({
+      where: { companyId: this.companyId },
+      select: { status: true, trialEndDate: true, plan: true },
     });
   }
 

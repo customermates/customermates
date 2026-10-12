@@ -1,5 +1,5 @@
 import type { EntitlementFeature } from "@/ee/subscription/entitlements";
-import type { SubscriptionStatus, SubscriptionPlan } from "@/generated/prisma";
+import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement-subscription.repo";
 import type { AppLocale } from "@/i18n/locale-registry";
 
 import type { z } from "zod";
@@ -10,12 +10,6 @@ import { getEntitlements, isSubscriptionUsable } from "@/ee/subscription/entitle
 import { getTranslator } from "@/i18n/get-translator";
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 import { env } from "@/env";
-
-type PlanSummary = { status: SubscriptionStatus; trialEndDate: Date | null; plan: SubscriptionPlan };
-
-export abstract class EntitlementSubscriptionRepo {
-  abstract getSubscriptionOrThrow(): Promise<PlanSummary>;
-}
 
 export type EntitlementDenialCode =
   | "agentChatDisabled"
@@ -55,9 +49,9 @@ export class EntitlementService {
     if (feature === "agentChat" && env.AGENT_CHAT_DISABLED) return this.denial(t, "agentChatDisabled");
     if (env.APP_MODE === "self-hosted") return this.denial(t, FEATURE_DENIALS[feature].cloud);
 
-    const subscription = await this.repo.getSubscriptionOrThrow();
+    const subscription = await this.repo.findSubscription();
 
-    if (!isSubscriptionUsable(subscription)) return this.denial(t, "paidSubscriptionRequired");
+    if (!subscription || !isSubscriptionUsable(subscription)) return this.denial(t, "paidSubscriptionRequired");
     if (!getEntitlements(subscription.plan)[feature]) return this.denial(t, FEATURE_DENIALS[feature].plan);
 
     return null;
