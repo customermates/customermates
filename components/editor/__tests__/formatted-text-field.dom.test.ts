@@ -40,11 +40,11 @@ afterEach(() => {
   document.body.innerHTML = "";
 });
 
-async function renderField(host: HTMLElement, onChange = vi.fn()) {
+async function renderField(host: HTMLElement, onChange = vi.fn(), readOnly = false) {
   const root = createRoot(host);
   roots.add(root);
   await act(async () => {
-    root.render(createElement(FormattedTextField, { data: DOCUMENT, label: "Notes", onChange }));
+    root.render(createElement(FormattedTextField, { data: DOCUMENT, label: "Notes", onChange, readOnly }));
     await Promise.resolve();
   });
   const field = host.querySelector<HTMLElement>("[data-formatted-text-field]");
@@ -141,15 +141,12 @@ describe("FormattedTextField", () => {
     expect(editorElement(field).textContent).toContain("Read the brief before the call.");
   });
 
-  it("shows the shared formatting toolbar only while editing and keeps editing when a button is used", async () => {
+  it("always shows the shared formatting toolbar on an editable field and starts editing from it", async () => {
     const host = document.createElement("div");
     document.body.append(host);
     const onChange = vi.fn();
     const field = await renderField(host, onChange);
-    expect(field.querySelector("[role='toolbar']")).toBeNull();
-
-    await dispatch(area(field), new MouseEvent("click", { bubbles: true }));
-    expect(field.dataset.state).toBe("editing");
+    expect(field.dataset.state).toBe("display");
     const toolbar = field.querySelector<HTMLElement>("[data-formatting-toolbar]");
     expect(toolbar?.getAttribute("aria-label")).toBe("Editor.formatting");
     const labels = Array.from(toolbar?.querySelectorAll("button") ?? []).map((button) =>
@@ -157,6 +154,7 @@ describe("FormattedTextField", () => {
     );
     expect(labels[0]).toBe("Editor.heading");
     expect(labels).toEqual(expect.arrayContaining(["Editor.bold", "Editor.link", "Editor.divider"]));
+    expect(field.querySelector("[data-editor-content]")?.className).toContain("min-h-18");
 
     const heading = toolbar?.querySelector<HTMLElement>("button[aria-label='Editor.heading']");
     if (!heading) throw new Error("Missing heading button");
@@ -176,6 +174,15 @@ describe("FormattedTextField", () => {
 
     await dispatch(editorElement(field), new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
     expect(field.dataset.state).toBe("display");
-    expect(field.querySelector("[role='toolbar']")).toBeNull();
+    expect(field.querySelector("[data-formatting-toolbar]")).not.toBeNull();
+  });
+
+  it("shows no toolbar on a read-only field", async () => {
+    const host = document.createElement("div");
+    document.body.append(host);
+    const field = await renderField(host, vi.fn(), true);
+    expect(field.querySelector("[data-formatting-toolbar]")).toBeNull();
+    expect(field.querySelector("button[aria-label='RecordModel.editValue']")).toBeNull();
+    expect(area(field).className).not.toContain("cursor-text");
   });
 });

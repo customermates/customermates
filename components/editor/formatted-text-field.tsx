@@ -34,21 +34,26 @@ export function FormattedTextField({
   const [expanded, setExpanded] = useState(false);
   const [overflowing, setOverflowing] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const areaRef = useRef<HTMLDivElement>(null);
   const editButtonRef = useRef<HTMLButtonElement>(null);
   const isEditing = editing && !readOnly;
   const collapsed = !isEditing && !expanded;
   const showPrompt = !readOnly && !isEditing && isEmptyDocument(data);
 
   useEffect(() => {
-    const content = contentRef.current;
-    if (!content) return;
-    const measure = () => setOverflowing(content.scrollHeight > content.clientHeight + 1);
+    const area = areaRef.current;
+    if (!area) return;
+    const measure = () => {
+      const content = area.querySelector<HTMLElement>("[data-editor-content]");
+      setOverflowing(content ? content.scrollHeight > content.clientHeight + 1 : false);
+    };
     measure();
     if (typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(measure);
-    observer.observe(content);
-    if (content.firstElementChild) observer.observe(content.firstElementChild);
+    observer.observe(area);
+    const content = area.querySelector<HTMLElement>("[data-editor-content]");
+    if (content) observer.observe(content);
+    if (content?.firstElementChild) observer.observe(content.firstElementChild);
     return () => observer.disconnect();
   }, [collapsed, data]);
 
@@ -99,9 +104,10 @@ export function FormattedTextField({
       onBlur={finishOnBlur}
     >
       <div
+        ref={areaRef}
         data-formatted-text-area
         className={cn(
-          "relative min-h-9 rounded-md border border-input bg-input-background px-3 py-1.5 text-sm",
+          "relative rounded-md border border-input bg-input-background px-3 py-1.5 text-sm text-foreground shadow-xs",
           !readOnly &&
             !isEditing &&
             "cursor-text has-[[data-edit-trigger]:focus-visible]:border-ring has-[[data-edit-trigger]:focus-visible]:ring-[2px] has-[[data-edit-trigger]:focus-visible]:ring-ring/30",
@@ -110,28 +116,26 @@ export function FormattedTextField({
         role="presentation"
         onClick={startEditingOnClick}
       >
-        <div
-          ref={contentRef}
-          className={cn(
+        <Editor
+          inline
+          toolbar
+          autoFocus={isEditing}
+          contentClassName={cn(
+            "min-h-18",
             collapsed && "max-h-48 overflow-hidden",
             collapsed && overflowing && "mask-b-from-75% mask-b-to-100%",
             showPrompt && "hidden",
           )}
-        >
-          <Editor
-            inline
-            toolbar
-            autoFocus={isEditing}
-            data={data}
-            label={label}
-            readOnly={!isEditing}
-            toolbarClassName="-mx-3 -mt-1.5 mb-1.5"
-            onChange={onChange}
-          />
-        </div>
+          data={data}
+          label={label}
+          readOnly={!isEditing}
+          toolbarClassName="-mx-3 -mt-1.5 mb-1.5"
+          onChange={onChange}
+          onToolbarActivate={readOnly ? undefined : () => setEditing(true)}
+        />
 
         {showPrompt && (
-          <p className="py-0.5 text-sm text-muted-foreground">{t("RecordModel.addValue", { field: label })}</p>
+          <p className="min-h-18 py-0.5 text-sm text-muted-foreground">{t("RecordModel.addValue", { field: label })}</p>
         )}
 
         {!readOnly && !isEditing && (
