@@ -691,7 +691,7 @@ describe("authoritative action and condition excerpts", () => {
       facts: [
         "Öffnen Sie [Weitere Aktionen](http://localhost:4000/open/records/contact?focus=more) in der Toolbar, zum Beispiel bei [Kontakte](http://localhost:4000/open/records/contact)",
         "Dateien einer anderen Liste, von vor einer Strukturänderung oder mit mehr als 100 Datensätzen oder 500 Verknüpfungen werden abgelehnt",
-        "Excel- und CSV-Dateien müssen zuerst in das Exportformat übertragen werden",
+        "Mit einer Excel-Arbeitsmappe startet ein Assistent",
       ],
     },
     {
