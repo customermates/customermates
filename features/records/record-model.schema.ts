@@ -460,7 +460,18 @@ const RecordFieldAppendSchema = z
       ),
   })
   .strict();
-export const RecordFieldUpdateSchema = z.union([RecordFieldAssignmentSchema, RecordFieldAppendSchema]);
+export const RecordFieldUpdateSchema = z.preprocess(
+  (input, context) => {
+    const branch =
+      typeof input === "object" && input !== null && "append" in input
+        ? RecordFieldAppendSchema
+        : RecordFieldAssignmentSchema;
+    const parsed = branch.safeParse(input);
+    if (!parsed.success) for (const issue of parsed.error.issues) context.addIssue(issue as z.core.$ZodRawIssue);
+    return input;
+  },
+  z.union([RecordFieldAssignmentSchema, RecordFieldAppendSchema]),
+);
 export type RecordFieldUpdate = z.infer<typeof RecordFieldUpdateSchema>;
 export const RecordRelationshipSummarySchema = z
   .object({
