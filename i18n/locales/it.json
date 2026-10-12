@@ -3606,6 +3606,7 @@
     "required": "Obbligatorio",
     "resetDetailLayout": "Ripristina impostazioni predefinite",
     "resetLayout": "Ripristina layout",
+    "resetSublistColumns": "Ripristina predefinite",
     "restricted": "Riservato",
     "resume": "Riprendi",
     "retry": "Riprova",
@@ -3644,6 +3645,8 @@
         "singular": "Attività"
       }
     },
+    "sublistColumns": "Colonne di {list}",
+    "sublistColumnsSection": "Colonne",
     "sublistSentence": "Sottoelenco di {list} · ogni voce vive all’interno di un record di {parent}, ne condivide l’accesso e viene eliminata con esso.",
     "suggestedAttribute": "Suggerimento",
     "summaryAggregation": "Calcolo",

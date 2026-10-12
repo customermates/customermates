@@ -1,14 +1,10 @@
 "use client";
 
-import type { DragEndEvent } from "@dnd-kit/core";
 import type { Prisma } from "@/generated/prisma";
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 import type { DataViewGroup } from "@/core/base/grouping/grouping.schema";
 
-import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
-import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { ArrowDownAZ, ArrowUpAZ, GripVertical, RotateCcw, SlidersHorizontal } from "lucide-react";
+import { ArrowDownAZ, ArrowUpAZ, RotateCcw, SlidersHorizontal } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -25,13 +21,13 @@ import { ViewMode } from "@/core/base/base-query-builder";
 import { useColumnLabel } from "@/components/data-view/use-column-label";
 import { useGroupableFieldLabel } from "@/components/data-view/use-groupable-field-label";
 import { useGroupLabel } from "@/components/data-view/group-label";
-import { cn } from "@/core/utils/cn";
 import { useViewAi } from "@/components/data-view/views/use-view-ai";
 import { ViewChangesNotice } from "@/components/data-view/views/view-changes-notice";
 import { AppModalActionRail } from "@/components/modal/app-modal-action";
 import { useAskAiAction } from "@/components/ui/ask-ai-action";
 import { MANUAL_ORDER_SORT_KEY } from "@/features/records/record-column.schema";
 
+import { ColumnVisibilityList } from "./column-visibility-list";
 import { GroupSummaryOptions } from "./group-summary-options";
 import { PopoverSection as Section } from "./popover-section";
 
@@ -41,14 +37,6 @@ type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
   id?: string;
   anchorScope?: string;
-};
-
-type FieldRowProps = {
-  uid: string;
-  label: string;
-  isVisible: boolean;
-  isPinned: boolean;
-  onToggle: (visible: boolean) => void;
 };
 
 function HiddenBoardColumns<E extends HasId>({
@@ -83,53 +71,6 @@ function HiddenBoardColumns<E extends HasId>({
   );
 }
 
-function FieldRow({ uid, label, isVisible, isPinned, onToggle }: FieldRowProps) {
-  const t = useTranslations();
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: uid,
-    disabled: isPinned,
-  });
-  const style = { transform: CSS.Transform.toString(transform), transition };
-
-  return (
-    <div
-      ref={setNodeRef}
-      className={cn(
-        "flex items-center gap-2 rounded-md p-1 text-sm hover:bg-accent",
-        isDragging && "bg-accent shadow-md",
-      )}
-      style={style}
-    >
-      <button
-        aria-label={t("DataView.dragToReorder")}
-        className={cn(
-          "flex h-6 w-4 shrink-0 items-center justify-center rounded text-muted-foreground",
-          isPinned
-            ? "opacity-20 cursor-not-allowed"
-            : "cursor-grab transition-[color,background-color,transform] hover:bg-accent hover:text-foreground active:scale-[0.97] active:cursor-grabbing motion-reduce:transition-none",
-        )}
-        disabled={isPinned}
-        type="button"
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical className="size-3.5" />
-      </button>
-
-      <Label className="flex flex-1 items-center gap-2 font-normal cursor-pointer min-w-0" htmlFor={`field-${uid}`}>
-        <Checkbox
-          checked={isVisible}
-          disabled={isPinned}
-          id={`field-${uid}`}
-          onCheckedChange={(checked) => onToggle(checked === true)}
-        />
-
-        <span className="truncate">{label}</span>
-      </Label>
-    </div>
-  );
-}
-
 export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E extends HasId>({
   store,
   id,
@@ -145,11 +86,6 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
   const pendingAi = useRef<(() => void) | null>(null);
   const columnLabel = useColumnLabel();
   const groupableLabel = useGroupableFieldLabel();
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor),
-  );
-
   const orderedColumns = store.orderedColumns;
   const hiddenSet = new Set(store.hiddenColumns);
   const canBoard = store.canBoard;
@@ -214,19 +150,6 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
     if (visible) next.delete(uid);
     else next.add(uid);
     store.setViewOptions({ hiddenColumns: Array.from(next) });
-  }
-
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-
-    const ids = orderedColumns.map((c) => c.uid);
-    const from = ids.indexOf(String(active.id));
-    const to = ids.indexOf(String(over.id));
-    if (from === -1 || to === -1) return;
-
-    const next = arrayMove(ids, from, to);
-    store.setViewOptions({ columnOrder: next });
   }
 
   const trigger = (
@@ -411,27 +334,16 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
 
           {orderedColumns.length > 0 && (
             <Section label={t("Common.table.fields")}>
-              <DndContext collisionDetection={closestCenter} sensors={sensors} onDragEnd={handleDragEnd}>
-                <SortableContext items={orderedColumns.map((c) => c.uid)} strategy={verticalListSortingStrategy}>
-                  <div className="flex flex-col gap-0.5">
-                    {orderedColumns.map((col) => {
-                      const isPinned = col.uid === store.primaryColumnId;
-                      const isVisible = !hiddenSet.has(col.uid);
-                      const label = col.label || columnLabel(col.uid);
-                      return (
-                        <FieldRow
-                          key={col.uid}
-                          isPinned={isPinned}
-                          isVisible={isVisible}
-                          label={label}
-                          uid={col.uid}
-                          onToggle={(v) => handleToggle(col.uid, v)}
-                        />
-                      );
-                    })}
-                  </div>
-                </SortableContext>
-              </DndContext>
+              <ColumnVisibilityList
+                items={orderedColumns.map((col) => ({
+                  uid: col.uid,
+                  label: col.label || columnLabel(col.uid),
+                  isVisible: !hiddenSet.has(col.uid),
+                  isPinned: col.uid === store.primaryColumnId,
+                }))}
+                onReorder={(columnOrder) => store.setViewOptions({ columnOrder })}
+                onToggle={handleToggle}
+              />
             </Section>
           )}
         </div>

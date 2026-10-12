@@ -600,6 +600,17 @@
     --scrollbar-track: #12121400;
   }
 
+  [tabindex="-1"]:focus,
+  [data-overlay-surface]:focus,
+  [data-radix-popper-content-wrapper] > :focus,
+  [role="dialog"]:focus,
+  [role="alertdialog"]:focus,
+  [role="menu"]:focus,
+  [role="listbox"]:focus,
+  main:focus {
+    outline: none;
+  }
+
   body {
     @apply bg-background text-foreground text-sm;
     font-feature-settings: "cv11", "ss01", "ss03";
