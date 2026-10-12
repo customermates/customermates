@@ -54,10 +54,15 @@ async function workspace() {
   return created;
 }
 
-function failure(kind: Kind, code: keyof typeof messages.Common.errors, path: Array<string | number> = []) {
+function failure(
+  kind: Kind,
+  code: keyof typeof messages.Common.errors,
+  path: Array<string | number> = [],
+  message: string = messages.Common.errors[code],
+) {
   return {
     kind,
-    issues: [{ code: "custom", path, message: messages.Common.errors[code], customCode: code }],
+    issues: [{ code: "custom", path, message, customCode: code }],
   };
 }
 
@@ -130,7 +135,12 @@ describeDatabase("record write failure shapes across REST, MCP and UI", () => {
       { ok: false, failure: notFound },
     );
 
-    const invalid = failure("validation", "recordValueInvalid");
+    const invalid = failure(
+      "validation",
+      "recordValueRequired",
+      ["mutation", "fields", 0, "value"],
+      messages.Common.errors.recordValueRequired.replace("{field}", "Name"),
+    );
     await expectRest(w, w.admin, mutateRoute, await create({ kind: "text", value: "   " }), invalid);
     await expectMcp(w, w.admin, mutateRecordV2Tool, await create({ kind: "text", value: "   " }), invalid);
     expect(
@@ -138,6 +148,25 @@ describeDatabase("record write failure shapes across REST, MCP and UI", () => {
         recordActions.mutateRecordAction((await create({ kind: "text", value: "   " })) as never),
       ),
     ).toMatchObject({ ok: false, failure: invalid });
+
+    const contact = async (avatar: string) => ({
+      expectedRevision: await w.revision(),
+      idempotencyKey: randomUUID(),
+      mutation: {
+        action: "create",
+        typeId: w.id("contact"),
+        fields: [
+          { fieldId: w.id("contact.firstName"), value: { kind: "text", value: "Ada" } },
+          { fieldId: w.id("contact.avatarUrl"), value: { kind: "text", value: avatar } },
+        ],
+      },
+    });
+    const invalidUrl = failure("validation", "invalidUrl", ["mutation", "fields", 1, "value"]);
+    await expectRest(w, w.admin, mutateRoute, await contact("not a url"), invalidUrl);
+    await expectMcp(w, w.admin, mutateRecordV2Tool, await contact("not a url"), invalidUrl);
+    expect(
+      await w.as(w.admin, async () => recordActions.mutateRecordAction((await contact("not a url")) as never)),
+    ).toMatchObject({ ok: false, failure: invalidUrl });
   }, 180_000);
 
   it("pins permission, not found and conflict failures of role management", async () => {

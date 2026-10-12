@@ -40,14 +40,14 @@ const usable = { plan: "pro", status: "active", trialEndDate: null } as const;
 function setup({
   read = true,
   create = false,
-  subscription = usable as { plan: string; status: string; trialEndDate: Date | null },
+  subscription = usable as { plan: string; status: string; trialEndDate: Date | null } | null,
 } = {}) {
   const permissions = {
     canRead: vi.fn(() => read),
     has: vi.fn(() => create),
   };
   const repo = { listAccounts: vi.fn(() => Promise.resolve([account(LIVE, "ok"), account(GONE, "deleted")])) };
-  const subscriptions = { getSubscriptionOrThrow: vi.fn(() => Promise.resolve(subscription)) };
+  const subscriptions = { findSubscription: vi.fn(() => Promise.resolve(subscription)) };
   const interactor = new GetMessagingAccountsStateInteractor(
     repo as never,
     permissions as never,
@@ -69,7 +69,13 @@ describe("messaging accounts state for the Configure graph and the Inbox", () =>
     const { interactor, repo, subscriptions } = setup();
     expect(await invoke(interactor)).toEqual({ ok: true, data: { state: "unavailable" } });
     expect(repo.listAccounts).not.toHaveBeenCalled();
-    expect(subscriptions.getSubscriptionOrThrow).not.toHaveBeenCalled();
+    expect(subscriptions.findSubscription).not.toHaveBeenCalled();
+  });
+
+  it("is locked by the subscription when the workspace has no subscription row", async () => {
+    const { interactor, repo } = setup({ subscription: null });
+    expect(await invoke(interactor)).toEqual({ ok: true, data: { state: "locked", reason: "subscription" } });
+    expect(repo.listAccounts).not.toHaveBeenCalled();
   });
 
   it("is unavailable for a role that cannot read the inbox", async () => {

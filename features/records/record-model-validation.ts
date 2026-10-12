@@ -10,6 +10,8 @@ import type {
 
 import { RecordDateTimeSchema } from "./record-model.schema";
 
+import { CustomErrorCode } from "@/core/validation/validation.types";
+
 import { isRepresentableDecimal } from "./calculation";
 import { recordInstantMicros } from "./record-instant";
 import { resolveRecordPath } from "./record-relationship-path";
@@ -24,6 +26,8 @@ export type ModelIssue = {
   viewName?: string;
   columnId?: string;
   columnLabel?: string;
+  count?: number;
+  examples?: string[];
 };
 
 export const MULTIPLE_VALUE_TYPES: readonly RecordValueType[] = ["text", "email", "phone", "url", "select"];
@@ -73,6 +77,57 @@ export function scalarMatchesType(value: RecordScalar, type: RecordValueType, mu
     default:
       return value.kind === type;
   }
+}
+
+export function normalizePhoneNumber(text: string): string {
+  const compact = text.trim().replace(/[\s().\-/]/g, "");
+  return compact.startsWith("00") ? `+${compact.slice(2)}` : compact;
+}
+
+export function normalizeRecordInput(value: RecordScalar, type: RecordValueType): RecordScalar {
+  if (type !== "phone") return value;
+  if (value.kind === "text") return { kind: "text", value: normalizePhoneNumber(value.value) };
+  if (value.kind === "textList") return { kind: "textList", value: value.value.map(normalizePhoneNumber) };
+  return value;
+}
+
+const TYPE_MISMATCH_CODES: Partial<Record<RecordValueType, CustomErrorCode>> = {
+  email: CustomErrorCode.invalidEmail,
+  url: CustomErrorCode.invalidUrl,
+  phone: CustomErrorCode.invalidPhone,
+  number: CustomErrorCode.recordNumberInvalid,
+  currency: CustomErrorCode.recordNumberInvalid,
+  date: CustomErrorCode.recordDateInvalid,
+  dateTime: CustomErrorCode.recordDateInvalid,
+  dateRange: CustomErrorCode.recordDateRangeInvalid,
+  dateTimeRange: CustomErrorCode.recordDateRangeInvalid,
+  select: CustomErrorCode.recordOptionInvalid,
+};
+
+export function recordValueIssue(
+  value: RecordScalar,
+  field: Pick<RecordField, "valueType" | "multiple" | "options">,
+): CustomErrorCode | null {
+  if (!scalarMatchesType(value, field.valueType, field.multiple))
+    return TYPE_MISMATCH_CODES[field.valueType] ?? CustomErrorCode.recordValueTypeMismatch;
+  if (!selectedOptionIds(value).every((id) => field.options.some((option) => option.id === id)))
+    return CustomErrorCode.recordOptionInvalid;
+  return null;
+}
+
+export function recordValueIssueValues(
+  issue: CustomErrorCode,
+  value: RecordScalar,
+  field: Pick<RecordField, "id" | "label" | "options">,
+): Record<string, string> | undefined {
+  if (issue !== CustomErrorCode.recordOptionInvalid) return undefined;
+  const unknown = selectedOptionIds(value).find((id) => !field.options.some((option) => option.id === id));
+  return {
+    field: field.label,
+    fieldId: field.id,
+    value: unknown ?? (value.kind === "text" ? value.value : ""),
+    validValues: field.options.map((option) => `${option.id} (${option.label})`).join(", "),
+  };
 }
 
 export function expressionFieldDependencies(expression: CalculationExpression): Set<string> {

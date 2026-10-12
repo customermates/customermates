@@ -22,7 +22,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { unwindFailure } from "@/core/validation/failure-unwind";
 import { MAX_RICH_TEXT_JSON_SIZE, validateRichTextDocument } from "@/core/validation/rich-text-document";
 import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
-import { scalarMatchesType, selectedOptionIds } from "./record-model-validation";
+import { normalizeRecordInput, recordValueIssue, recordValueIssueValues } from "./record-model-validation";
 import { valueResult } from "./calculation";
 import { decodeRecordValue } from "./record-storage";
 import type { RecordCalculationService } from "./record-calculation.service";
@@ -43,22 +43,20 @@ function reject(
   throw unwindFailure(code, kind, path, values);
 }
 
-export function normalizeRecordScalar(value: RecordScalar | null, field: RecordField): RecordScalar | null {
-  if (!value) {
-    if (field.required) reject(CustomErrorCode.recordValueInvalid);
+export function normalizeRecordScalar(
+  input: RecordScalar | null,
+  field: RecordField,
+  path: Array<string | number> = [],
+): RecordScalar | null {
+  const required = () => reject(CustomErrorCode.recordValueRequired, "validation", path, { field: field.label });
+  if (!input) {
+    if (field.required) required();
     return null;
   }
-  if (!scalarMatchesType(value, field.valueType, field.multiple)) reject(CustomErrorCode.recordValueInvalid);
-  const unknownOption = selectedOptionIds(value).find((id) => !field.options.some((option) => option.id === id));
-  if (unknownOption !== undefined) {
-    reject(CustomErrorCode.recordOptionInvalid, "validation", ["fields"], {
-      field: field.label,
-      fieldId: field.id,
-      value: unknownOption,
-      validValues: field.options.map((option) => `${option.id} (${option.label})`).join(", "),
-    });
-  }
-  if (field.required && value.kind === "text" && !value.value.trim()) reject(CustomErrorCode.recordValueInvalid);
+  const value = normalizeRecordInput(input, field.valueType);
+  const issue = recordValueIssue(value, field);
+  if (issue) reject(issue, "validation", path, recordValueIssueValues(issue, value, field));
+  if (field.required && value.kind === "text" && !value.value.trim()) required();
   if (value.kind === "richText") {
     const document = validateRichTextDocument(value.documentJson);
     if (!document) reject(CustomErrorCode.notesInvalidFormat);
@@ -437,6 +435,7 @@ export class RecordWriteService {
         )
           continue;
         if (!create && !supplied.has(field.id)) continue;
+        const index = assignments.findIndex((assignment) => assignment.fieldId === field.id);
         const value = normalizeRecordScalar(
           supplied.has(field.id)
             ? (supplied.get(field.id) ?? null)
@@ -444,6 +443,7 @@ export class RecordWriteService {
               ? (field.behavior.defaultValue ?? null)
               : null,
           field,
+          index < 0 ? ["mutation", "fields"] : ["mutation", "fields", index, "value"],
         );
         if (
           value?.kind === "member" &&

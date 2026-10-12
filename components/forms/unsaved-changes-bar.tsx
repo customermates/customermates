@@ -11,6 +11,7 @@ import { FormFooterActions } from "./form-footer-actions";
 type UnsavedChangesMode = "footer" | "bar" | "none";
 
 const UNSAVED_CHANGES_BAR_SPACE = "--unsaved-changes-bar-space";
+const UNSAVED_CHANGES_BAR_CLEARANCE = "--unsaved-changes-bar-clearance";
 
 export function unsavedChangesMode({
   creating = false,
@@ -54,6 +55,28 @@ export function UnsavedChangesBar({ formId, anchorScope, saving = false, placeme
       host.style.removeProperty(UNSAVED_CHANGES_BAR_SPACE);
     };
   }, [placement]);
+
+  useLayoutEffect(() => {
+    const bar = containerRef.current;
+    if (!bar) return;
+    const root = document.documentElement;
+    const update = () => {
+      const { top, bottom } = bar.getBoundingClientRect();
+      const clearance = top < window.innerHeight && bottom > window.innerHeight / 2 ? window.innerHeight - top : 0;
+      root.style.setProperty(UNSAVED_CHANGES_BAR_CLEARANCE, `${Math.max(0, Math.ceil(clearance))}px`);
+    };
+    update();
+    const observer = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(update);
+    observer?.observe(bar);
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+      root.style.removeProperty(UNSAVED_CHANGES_BAR_CLEARANCE);
+    };
+  }, []);
 
   return (
     <div

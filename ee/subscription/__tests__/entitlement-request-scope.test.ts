@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 
 import { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
-import { EntitlementService, EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement.service";
+import { EntitlementService } from "@/ee/subscription/entitlement.service";
+import { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement-subscription.repo";
 
 class StubEntitlementSubscriptionRepo extends EntitlementSubscriptionRepo {
-  getSubscriptionOrThrow() {
+  findSubscription() {
     return Promise.resolve({ status: SubscriptionStatus.active, trialEndDate: null, plan: SubscriptionPlan.pro });
   }
 }

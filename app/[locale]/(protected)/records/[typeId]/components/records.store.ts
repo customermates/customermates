@@ -205,7 +205,8 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
         },
       });
       if (!result.ok) {
-        if (result.failure?.kind === "validation") return { saved: false, invalid: result.error.errors };
+        if (result.failure?.kind === "validation")
+          return { saved: false, invalid: [...new Set(result.failure.issues.map((issue) => issue.message))] };
         toastZodErrorTree(result.error);
         await this.refresh();
         return { saved: false };

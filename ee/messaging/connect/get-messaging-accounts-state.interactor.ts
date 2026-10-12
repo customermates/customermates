@@ -1,5 +1,5 @@
 import type { PermissionService } from "@/core/base/permission.service";
-import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement.service";
+import type { EntitlementSubscriptionRepo } from "@/ee/subscription/entitlement-subscription.repo";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { GetMyConnectedAccountsRepo } from "./get-my-connected-accounts.repo";
 
@@ -40,7 +40,8 @@ export class GetMessagingAccountsStateInteractor extends AuthenticatedInteractor
   async invoke(): Validated<MessagingAccountsState> {
     if (env.APP_MODE === "self-hosted" || !this.permissions.canRead(Resource.inboxMessages))
       return { ok: true as const, data: { state: "unavailable" } };
-    const subscription = await this.subscriptions.getSubscriptionOrThrow();
+    const subscription = await this.subscriptions.findSubscription();
+    if (!subscription) return { ok: true as const, data: { state: "locked", reason: "subscription" } };
     if (!getEntitlements(subscription.plan).messaging)
       return { ok: true as const, data: { state: "locked", reason: "plan" } };
     if (!isSubscriptionUsable(subscription))

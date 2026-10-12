@@ -15,11 +15,22 @@ import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { RecordScalarSchema } from "@/features/records/record-model.schema";
 import { recordInputValue } from "@/features/records/record-input-value";
-import { scalarMatchesType } from "@/features/records/record-model-validation";
+import { recordValueIssue, recordValueIssueValues } from "@/features/records/record-model-validation";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { RecordInputField } from "./record-input-field";
 
 export type RecordFieldSaveOutcome = { saved: boolean; invalid?: string[] };
+
+export function recordValueIssueMessage(
+  rootStore: RootStore,
+  value: RecordScalar,
+  field: RecordFieldView,
+): string | null {
+  const code = recordValueIssue(value, field);
+  return (
+    code && rootStore.localeStore.getTranslation(`Common.errors.${code}`, recordValueIssueValues(code, value, field))
+  );
+}
 
 export class RecordFieldValueStore extends BaseFormStore<{ value: unknown }> {
   constructor(
@@ -32,14 +43,6 @@ export class RecordFieldValueStore extends BaseFormStore<{ value: unknown }> {
     super(rootStore, { value: initialValue });
   }
   onSubmit = async () => this.apply(false);
-  private invalidValueMessage() {
-    const { getTranslation } = this.rootStore.localeStore;
-    if (this.field.valueType === "email") return getTranslation("Common.errors.invalidEmail");
-    if (this.field.valueType === "url") return getTranslation("Common.errors.invalidUrl");
-    if (this.field.valueType === "phone") return getTranslation("RecordModel.invalidPhone");
-    return getTranslation("RecordModel.invalidValue");
-  }
-
   apply = async (clear: boolean) => {
     if (this.isReadOnly || this.isLoading) return;
     const value = clear ? null : recordInputValue(toJS(this.form.value), this.field);
@@ -49,8 +52,9 @@ export class RecordFieldValueStore extends BaseFormStore<{ value: unknown }> {
         this.setError({ errors: [], properties: { value: z.treeifyError(parsed.error) } });
         return;
       }
-      if (!scalarMatchesType(parsed.data, this.field.valueType, this.field.multiple)) {
-        this.showInvalid([this.invalidValueMessage()]);
+      const invalid = recordValueIssueMessage(this.rootStore, parsed.data, this.field);
+      if (invalid) {
+        this.showInvalid([invalid]);
         return;
       }
     }

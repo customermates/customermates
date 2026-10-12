@@ -47,19 +47,18 @@ export function failAuthorization(code: CustomErrorCode, path: FailurePath = [],
 export function unwoundFailure(error: unknown): Promise<InteractorFailure> {
   const cause = failureUnwindCause(error);
   if (!cause) throw error;
-  const values = cause.values ?? {};
   switch (cause.failureKind) {
     case "authorization":
-      return failAuthorization(cause.code, cause.path, values);
+      return failAuthorization(cause.code, cause.path, cause.values);
     case "conflict":
-      return failConflict(cause.code, cause.path, values);
+      return failConflict(cause.code, cause.path, cause.values);
     case "not_found":
-      return failNotFound(cause.code, cause.path, values);
+      return failNotFound(cause.code, cause.path, cause.values);
     case "rate_limit":
-      return failRateLimit(cause.code, cause.path, values);
+      return failRateLimit(cause.code, cause.path, cause.values);
     case "unavailable":
-      return failUnavailable(cause.code, cause.path, values);
+      return failUnavailable(cause.code, cause.path, cause.values);
     default:
-      return fail(cause.code, cause.path, values);
+      return fail(cause.code, cause.path, cause.values);
   }
 }

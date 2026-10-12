@@ -374,6 +374,17 @@ export const ConfigurationPreviewSchema = z
             .optional()
             .describe("saved_view_incompatible: the column, filter, sort or grouping field the view still uses."),
           columnLabel: z.string().optional().describe("saved_view_incompatible: the label of columnId."),
+          count: z
+            .number()
+            .int()
+            .nonnegative()
+            .optional()
+            .describe("For existing_values_incompatible: how many records hold a value that cannot be converted."),
+          examples: z
+            .array(z.string())
+            .max(3)
+            .optional()
+            .describe("For existing_values_incompatible: up to three of the values that cannot be converted."),
         })
         .strict(),
     ),
