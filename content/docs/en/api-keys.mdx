@@ -54,6 +54,21 @@ curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
 
 Every REST operation, with its request and response, is in the [API reference](/docs/openapi).
 
+## What does a failed REST call return? [#what-does-a-failed-rest-call-return]
+
+Every REST endpoint answers a refused call with the same JSON body: an `error` object holding the `kind` and the `issues` that MCP returns in `_meta.failure` (see [when a call is refused](/docs/mcp#when-a-call-is-refused)).
+
+```json
+{
+  "error": {
+    "kind": "not_found",
+    "issues": [{ "code": "custom", "path": [], "message": "Webhook ID not found or not accessible.", "customCode": "webhookNotFound" }]
+  }
+}
+```
+
+The HTTP status follows `error.kind`: `validation` 400, `authentication` 401, `authorization` 403, `not_found` 404, `conflict` 409, `unavailable` 422 and `rate_limit` 429. Each issue names the field `path` it belongs to and, where one applies, a stable `customCode`. `error.retryable` is `true` only when the same call can succeed later. Branch on `kind` and `customCode` rather than on `message`, which is text for people. An unexpected server error answers 500 without this body.
+
 ## How long does a key last, and do keys expire? [#do-keys-expire]
 
 A **Standard API key** expires only if you pick a date under **Expires in**; the default, **Never expires**, keeps it valid until you delete it. A date must lie between 1 and 365 days ahead. A key from **Quick connections** (a quick connection key), including those from the onboarding wizard, is valid for 365 days: it always expires 365 days after creation. Expiry cannot be extended: before it passes, create a new key and update the client. Each key card shows **Created at**, **Expires at** (**Never** when unset) and **Last used**.

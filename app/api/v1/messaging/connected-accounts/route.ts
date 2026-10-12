@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getGetMyConnectedAccountsApiInteractor } from "@/core/di";
-import { handleError, interactorFailureResponse } from "@/core/api/interactor-handler";
+import { handleError, interactorFailureResponse } from "@/core/api/structured-interactor-handler";
 
 export async function GET() {
   try {

@@ -3,7 +3,6 @@ import { createDocument } from "zod-openapi";
 import { CalculationExpressionShapeSchema } from "@/features/records/record-model.schema";
 import { CalculationExpressionInputSchema } from "@/features/records/configuration.schema";
 
-import { ErrorResponseSchema } from "@/core/api/interactor-handler";
 import { StructuredErrorResponseSchema } from "@/core/api/structured-interactor-handler";
 import { getCalendarByIdOperation } from "@/ee/calendar/get-calendar-by-id.openapi";
 import { getCalendarEventByIdOperation } from "@/ee/calendar/get-calendar-event-by-id.openapi";
@@ -272,7 +271,6 @@ export function generateOpenApiSpec() {
       schemas: {
         CalculationExpression: CalculationExpressionShapeSchema,
         CalculationExpressionInput: CalculationExpressionInputSchema,
-        ErrorResponseSchema,
         StructuredErrorResponseSchema,
         WebhookMessagingMessageReceivedSchema,
         WebhookMessagingMessageUpdatedSchema,

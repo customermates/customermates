@@ -7,7 +7,7 @@ import {
   getListSocialCommentReactionsInteractor,
   getListSocialPostReactionsInteractor,
 } from "@/core/di";
-import { handleError, interactorFailureResponse } from "@/core/api/interactor-handler";
+import { handleError, interactorFailureResponse } from "@/core/api/structured-interactor-handler";
 import { mapRequestJsonError } from "@/core/api/request-json-error";
 
 export async function POST(request: NextRequest) {
