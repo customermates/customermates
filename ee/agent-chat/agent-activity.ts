@@ -351,7 +351,7 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
       : descriptor(kind, undefined, risk);
   }
   if (isMultiplexedRead(toolName, details)) return descriptor("workspace.read", undefined, "read");
-  if (toolName === "update_workspace_settings") return descriptor("profile.configure", undefined, "write");
+  if (toolName === "update_my_profile") return descriptor("profile.configure", undefined, "write");
 
   if (toolName === "manage_roles") {
     const action = actionValue(details);

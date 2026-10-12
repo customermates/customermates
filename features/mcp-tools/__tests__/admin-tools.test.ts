@@ -5,8 +5,7 @@ import { createMockDiModule, MOCK_ENV_MODULE, MOCK_ZOD_MODULE } from "@/tests/he
 
 const mockUser = createMockUser();
 const spies = vi.hoisted(() => ({
-  adminUpdateUserDetails: vi.fn(),
-  getTeamMember: vi.fn(),
+  updateTeamMember: vi.fn(),
   updateUserDetails: vi.fn(),
 }));
 
@@ -18,15 +17,14 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/core/di", () => ({
   ...createMockDiModule(() => mockUser),
-  getAdminUpdateUserDetailsInteractor: () => ({ invoke: spies.adminUpdateUserDetails }),
-  getGetTeamMemberInteractor: () => ({ invoke: spies.getTeamMember }),
+  getUpdateTeamMemberInteractor: () => ({ invoke: spies.updateTeamMember }),
   getInviteUsersByEmailInteractor: vi.fn(),
   getUpdateUserDetailsInteractor: () => ({ invoke: spies.updateUserDetails }),
 }));
 
 import { ForbiddenError } from "@/core/errors/app-errors";
 
-import { manageTeamTool, updateWorkspaceSettingsTool } from "../admin.mcp-tools";
+import { manageTeamTool, updateMyProfileTool } from "../admin.mcp-tools";
 import { executeMcpTool, mcpToolResultText } from "../mcp-tool";
 
 const MEMBER_ID = "30000000-0000-4000-8000-000000000002";
@@ -35,7 +33,7 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe("update_workspace_settings", () => {
+describe("update_my_profile", () => {
   it("reports only the profile fields changed in country and avatar updates", async () => {
     spies.updateUserDetails.mockResolvedValue({
       ok: true,
@@ -46,12 +44,12 @@ describe("update_workspace_settings", () => {
         avatarUrl: "https://example.com/ada.png",
       },
     });
-    const input = updateWorkspaceSettingsTool.inputSchema.parse({
+    const input = updateMyProfileTool.inputSchema.parse({
       country: "de",
       avatarUrl: "https://example.com/ada.png",
     });
 
-    const result = await updateWorkspaceSettingsTool.execute(input);
+    const result = await updateMyProfileTool.execute(input);
 
     expect(spies.updateUserDetails).toHaveBeenCalledWith({
       country: "de",
@@ -73,11 +71,11 @@ describe("update_workspace_settings", () => {
         avatarUrl: null,
       },
     });
-    const input = updateWorkspaceSettingsTool.inputSchema.parse({
+    const input = updateMyProfileTool.inputSchema.parse({
       firstName: "Grace",
     });
 
-    const result = await updateWorkspaceSettingsTool.execute(input);
+    const result = await updateMyProfileTool.execute(input);
 
     expect(mcpToolResultText(result)).toContain("firstName: Grace");
     expect(mcpToolResultText(result)).not.toContain("lastName");
@@ -85,30 +83,63 @@ describe("update_workspace_settings", () => {
     expect(mcpToolResultText(result)).not.toContain("avatarUrl");
   });
 
-  it("points record type renaming and field currencies to the generic configuration contract", () => {
-    expect(updateWorkspaceSettingsTool.description).toContain("configure_record_model");
-    expect(updateWorkspaceSettingsTool.description).toContain("currency");
+  it("passes theme, display language and formatting locale to the profile interactor the settings page uses", async () => {
+    spies.updateUserDetails.mockResolvedValue({
+      ok: true,
+      data: {
+        firstName: "Ada",
+        lastName: "Lovelace",
+        country: "de",
+        avatarUrl: null,
+        theme: "dark",
+        displayLanguage: "de",
+        formattingLocale: "en",
+      },
+    });
+    const input = updateMyProfileTool.inputSchema.parse({
+      theme: "dark",
+      displayLanguage: "de",
+      formattingLocale: "en",
+    });
+
+    const result = await updateMyProfileTool.execute(input);
+
+    expect(spies.updateUserDetails).toHaveBeenCalledWith({
+      theme: "dark",
+      displayLanguage: "de",
+      formattingLocale: "en",
+    });
+    expect(result).toMatchObject({
+      structuredContent: { theme: "dark", displayLanguage: "de", formattingLocale: "en", message: "Profile updated" },
+    });
+    expect(mcpToolResultText(result)).not.toContain("firstName");
+  });
+
+  it("only edits the caller's profile and no longer points at record configuration", () => {
+    expect(updateMyProfileTool.name).toBe("update_my_profile");
+    expect(updateMyProfileTool.description).not.toContain("configure_record_model");
+    expect(updateMyProfileTool.description).not.toContain("currency");
   });
 
   it("rejects the removed company target and workspace currency", () => {
     expect(
-      updateWorkspaceSettingsTool.inputSchema.safeParse({
+      updateMyProfileTool.inputSchema.safeParse({
         target: "company",
         currency: "eur",
       }).success,
     ).toBe(false);
 
     expect(
-      updateWorkspaceSettingsTool.inputSchema.safeParse({
+      updateMyProfileTool.inputSchema.safeParse({
         currency: "eur",
       }).success,
     ).toBe(false);
   });
 
   it("rejects an empty profile update instead of publishing a no-op as success", async () => {
-    const input = updateWorkspaceSettingsTool.inputSchema.parse({});
+    const input = updateMyProfileTool.inputSchema.parse({});
 
-    const result = await updateWorkspaceSettingsTool.execute(input);
+    const result = await updateMyProfileTool.execute(input);
 
     expect(mcpToolResultText(result)).toContain("Validation error:");
     expect(spies.updateUserDetails).not.toHaveBeenCalled();
@@ -116,34 +147,45 @@ describe("update_workspace_settings", () => {
 });
 
 describe("manage_team update_member", () => {
-  it("reports a caller who may not manage members as an authorization failure, not a missing member", async () => {
-    spies.getTeamMember.mockRejectedValue(new ForbiddenError("Access denied. Required permissions: update on users"));
+  it("passes only the requested change to the member interactor, which merges the current values", async () => {
+    spies.updateTeamMember.mockResolvedValue({
+      ok: true,
+      data: { email: "member@example.test", roleId: "30000000-0000-4000-8000-000000000003", status: "inactive" },
+    });
 
     const outcome = await executeMcpTool(manageTeamTool, [
-      manageTeamTool.inputSchema.parse({ action: "update_member", userId: MEMBER_ID, status: "active" }),
+      manageTeamTool.inputSchema.parse({ action: "update_member", userId: MEMBER_ID, status: "inactive" }),
     ]);
 
-    expect(outcome.ok).toBe(false);
-    expect(outcome).toMatchObject({ failure: { kind: "authorization" } });
-    expect(spies.getTeamMember).toHaveBeenCalledWith({ id: MEMBER_ID });
-    expect(spies.adminUpdateUserDetails).not.toHaveBeenCalled();
+    expect(spies.updateTeamMember).toHaveBeenCalledWith({ userId: MEMBER_ID, status: "inactive" });
+    expect(outcome).toMatchObject({ ok: true, structuredContent: { status: "inactive", message: "Member updated" } });
   });
 
-  it("still reports a member the caller may manage but cannot find as not found", async () => {
-    spies.getTeamMember.mockResolvedValue({ ok: true, data: { user: null } });
+  it("reports a caller who may not manage members as an authorization failure", async () => {
+    spies.updateTeamMember.mockRejectedValue(
+      new ForbiddenError("Access denied. Required permissions: update on users"),
+    );
 
     const outcome = await executeMcpTool(manageTeamTool, [
       manageTeamTool.inputSchema.parse({ action: "update_member", userId: MEMBER_ID, status: "active" }),
     ]);
 
-    expect(outcome).toMatchObject({ ok: false, failure: { kind: "not_found" } });
-    expect(spies.adminUpdateUserDetails).not.toHaveBeenCalled();
+    expect(outcome).toMatchObject({ ok: false, failure: { kind: "authorization" } });
+  });
+
+  it("rejects an update_member call without userId before reaching the interactor", async () => {
+    const outcome = await executeMcpTool(manageTeamTool, [
+      manageTeamTool.inputSchema.parse({ action: "update_member", status: "active" }),
+    ]);
+
+    expect(outcome).toMatchObject({ ok: false, failure: { kind: "validation" } });
+    expect(spies.updateTeamMember).not.toHaveBeenCalled();
   });
 });
 
 describe("admin tool descriptions", () => {
   it("state the role permissions the interactors check instead of admin rights", () => {
-    const texts = [updateWorkspaceSettingsTool.description, manageTeamTool.description];
+    const texts = [updateMyProfileTool.description, manageTeamTool.description];
 
     for (const text of texts) expect(text).not.toContain("admin rights");
     expect(manageTeamTool.description).toContain("invite requires create permission on users");

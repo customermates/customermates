@@ -6,6 +6,7 @@ import type { FindWidgetsByIdsRepo } from "./find-widgets-by-ids.repo";
 import type { GetCompanyWidgetsRepo } from "./get-company-widgets.interactor";
 import type { GetWidgetByIdRepo } from "./get-widget-by-id.interactor";
 import type { GetWidgetsRepo } from "./get-widgets.repo";
+import type { FindOwnedWidgetKindRepo } from "./find-owned-widget-kind.repo";
 import { RecordActivityWidgetDtoSchema } from "./record-activity-widget.schema";
 import { RecordWidgetDtoSchema } from "./record-widget.schema";
 import type { UpdateWidgetLayoutsRepo, WidgetLayoutTarget, WidgetLayoutWrite } from "./update-widget-layouts.repo";
@@ -31,7 +32,8 @@ export class PrismaWidgetRepo
     GetCompanyWidgetsRepo,
     GetWidgetByIdRepo,
     UpdateWidgetLayoutsRepo,
-    FindWidgetsByIdsRepo
+    FindWidgetsByIdsRepo,
+    FindOwnedWidgetKindRepo
 {
   constructor(private readonly scopedCompanyId?: string) {
     super();
@@ -187,6 +189,14 @@ export class PrismaWidgetRepo
       lastName: widget.user.lastName,
       avatarUrl: widget.user.avatarUrl,
     }));
+  }
+
+  async findOwnedWidgetKind(id: string): Promise<WidgetKind | null> {
+    const row = await this.prisma.widget.findFirst({
+      where: { id, companyId: this.companyId, userId: this.user.id, ...LIVE_WIDGET },
+      select: { kind: true },
+    });
+    return row?.kind ?? null;
   }
 
   async getWidgetById(id: string) {

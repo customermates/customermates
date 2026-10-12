@@ -8,6 +8,7 @@ import {
   getDeleteWikiPageInteractor,
   getGetWikiPageInteractor,
   getGetWikiPagesInteractor,
+  getMoveWikiPageInteractor,
   getSearchWikiKnowledgeInteractor,
   getUpdateWikiPageInteractor,
 } from "@/core/di";
@@ -17,6 +18,7 @@ import { extractWikiPageLinks } from "@/features/wiki/wiki-markdown-links";
 import { wikiPageUrl } from "@/features/wiki/wiki-links";
 import { wikiOutline } from "@/features/wiki/wiki-markdown-sections";
 import { WikiPageKindSchema, WIKI_TITLE_MAX_LENGTH, type WikiPageKind } from "@/features/wiki/wiki.schema";
+import { MoveWikiPageSchema } from "@/features/wiki/move-wiki-page.interactor";
 import { env } from "@/env";
 
 import {
@@ -90,9 +92,9 @@ const DeleteSchema = z.object({
 
 const ManageWikiPagesSchema = z.object({
   action: z
-    .enum(["list", "search", "get", "create", "update", "delete"])
+    .enum(["list", "search", "get", "create", "update", "move", "delete"])
     .describe(
-      "list: page, kind; search: query, page; get: id, offset; create: pages, requireEmpty; update: id, expectedUpdatedAt, fields; delete: id, expectedUpdatedAt.",
+      "list: page, kind; search: query, page; get: id, offset; create: pages, requireEmpty; update: id, expectedUpdatedAt, fields; move: id, targetId, placement; delete: id, expectedUpdatedAt.",
     ),
   id: z.uuid().optional().describe("Page id."),
   query: z.string().optional().describe("Search terms."),
@@ -101,6 +103,10 @@ const ManageWikiPagesSchema = z.object({
   pages: z.array(PageInputSchema).min(1).max(5).optional().describe("Created atomically."),
   requireEmpty: z.boolean().optional().describe("Only into an empty Knowledge Base."),
   expectedUpdatedAt: z.string().optional().describe("updatedAt from a prior read."),
+  targetId: z.uuid().optional().describe("move only: the page to place this page next to."),
+  placement: MoveWikiPageSchema.shape.placement
+    .optional()
+    .describe("move only: before or after targetId in the saved order."),
   title: z.string().optional().describe("New title."),
   markdown: MarkdownInputSchema.optional(),
   kind: WikiPageKindSchema.optional(),
@@ -146,6 +152,7 @@ export const ManageWikiPagesOutputSchema = z.looseObject({
   didYouMean: z.array(z.string()).optional(),
   retrieval: z.enum(["semantic", "keyword"]).optional(),
   deleted: z.boolean().optional(),
+  moved: z.boolean().optional(),
 });
 
 type WikiPageKindFields = {
@@ -296,6 +303,7 @@ export const manageWikiPagesTool = {
     "kind: guide = the one Operating Guide; procedure = numbered steps + whenToUse; default knowledge. " +
     "list: 5 per page, guide pinned first, remaining pages in saved order; search: follow hasMore to continue; total is a lower bound unless totalIsExact. Returns snippets and section offsets, plus didYouMean when a misspelled word was corrected. " +
     "get: one Markdown chunk (outline at 0); repeat with nextOffset until null; restart at 0 if updatedAt changes. " +
+    "move: places page id before or after targetId in the saved order; the Operating Guide stays pinned first, so it can neither move nor serve as targetId. " +
     "delete moves the page to Trash, where it is deleted permanently after 30 days unless manage_trash restores it with the returned trashBatchId. " +
     "Link pages as /wiki?page=<id>; ids survive renames.",
   annotations: {
@@ -363,6 +371,14 @@ export const manageWikiPagesTool = {
           expectedUpdatedAt: new Date(parsed.data.expectedUpdatedAt),
         }),
         (page) => toonResult(formatDatesInResponse(wikiPageSummary(page))),
+      );
+    }
+
+    if (params.action === "move") {
+      const parsed = MoveWikiPageSchema.safeParse(params);
+      if (!parsed.success) return mcpValidationFailure(parsed.error);
+      return runInteractor(getMoveWikiPageInteractor().invoke(parsed.data), () =>
+        toonResult({ moved: true, id: parsed.data.id }),
       );
     }
 
