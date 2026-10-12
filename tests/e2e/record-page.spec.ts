@@ -1,5 +1,5 @@
 import type { Locator } from "@playwright/test";
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails, editFormattedText } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
 
@@ -8,13 +8,7 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
   database,
   companyId,
 }, testInfo) => {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const typeId = (key: string) => presetId(companyId, key);
   const dialogs = page.getByRole("dialog");
   const waitForDealReads = async (container: Locator) => {

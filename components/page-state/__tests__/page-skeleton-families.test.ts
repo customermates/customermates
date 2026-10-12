@@ -11,10 +11,7 @@ import {
   ConnectedAccountsPageSkeleton,
 } from "@/app/[locale]/(protected)/settings/(account)/components/profile-resource-page-skeleton";
 import { ProfileSettingsPageSkeleton } from "@/app/[locale]/(protected)/settings/(account)/components/profile-settings-page-skeleton";
-import {
-  EntityDetailDrawerSkeleton,
-  EntityDetailPageSkeleton,
-} from "@/components/entity-detail/entity-detail-page-skeleton";
+import { EntityDetailPageSkeleton } from "@/components/entity-detail/entity-detail-page-skeleton";
 import { CenteredCardPageSkeleton } from "@/components/shared/centered-card-page-skeleton";
 
 const count = (markup: string, marker: string) => markup.split(marker).length - 1;
@@ -92,17 +89,6 @@ describe("page skeleton families", () => {
     expect(subscription).toContain("shadow-none");
     expect(subscription).not.toContain("bg-muted");
     expect(subscription).not.toContain("data-subscription-plan-picker");
-  });
-
-  it("keeps drawer loading on one body scroll owner without page timeline geometry", () => {
-    const withFooter = renderToStaticMarkup(createElement(EntityDetailDrawerSkeleton));
-    const withoutFooter = renderToStaticMarkup(createElement(EntityDetailDrawerSkeleton, { showFooter: false }));
-
-    expect(count(withFooter, "data-skeleton-scroll-owner")).toBe(1);
-    expect(withFooter).toContain('data-skeleton-scroll-owner="entity-drawer-body"');
-    expect(withFooter).toContain("data-entity-drawer-footer");
-    expect(withFooter).not.toContain("data-entity-detail-page-skeleton");
-    expect(withoutFooter).not.toContain("data-entity-drawer-footer");
   });
 
   it("uses onboarding's profile-step geometry instead of the generic guarded card", () => {

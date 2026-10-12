@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/drawer";
 import {
   Popover,
+  PopoverAnchor,
   PopoverContent,
   PopoverFooter,
   PopoverHeader,
@@ -34,6 +35,7 @@ function focusOverlayContent(event: Event) {
 
 type Props = {
   trigger: ReactNode;
+  anchor?: (trigger: ReactNode) => ReactNode;
   title: ReactNode;
   headerAction?: ReactNode;
   children: ReactNode;
@@ -43,11 +45,13 @@ type Props = {
   align?: "start" | "center" | "end";
   popoverClassName?: string;
   onEscapeKeyDown?: (event: KeyboardEvent) => void;
+  onOpenAutoFocus?: (event: Event) => void;
   onCloseAutoFocus?: (event: Event) => void;
 };
 
 export function ResponsiveOverlay({
   trigger,
+  anchor,
   title,
   headerAction,
   children,
@@ -57,6 +61,7 @@ export function ResponsiveOverlay({
   align = "start",
   popoverClassName,
   onEscapeKeyDown,
+  onOpenAutoFocus = focusOverlayContent,
   onCloseAutoFocus,
 }: Props) {
   const isWide = useIsWiderThan("md");
@@ -73,11 +78,20 @@ export function ResponsiveOverlay({
     if (!event.defaultPrevented) onEscapeKeyDown?.(event);
   }
 
+  const popoverTrigger = (
+    <PopoverTrigger asChild aria-expanded={open}>
+      {trigger}
+    </PopoverTrigger>
+  );
+  const drawerTrigger = (
+    <DrawerTrigger asChild aria-expanded={open}>
+      {trigger}
+    </DrawerTrigger>
+  );
+
   return isWide ? (
     <Popover open={open} onOpenChange={handleOpenChange}>
-      <PopoverTrigger asChild aria-expanded={open}>
-        {trigger}
-      </PopoverTrigger>
+      {anchor ? <PopoverAnchor asChild>{anchor(popoverTrigger)}</PopoverAnchor> : popoverTrigger}
 
       <PopoverContent
         align={align}
@@ -89,7 +103,7 @@ export function ResponsiveOverlay({
         onCloseAutoFocus={onCloseAutoFocus}
         onEscapeKeyDown={handleEscapeKeyDown}
         onInteractOutside={keepOpenForAssistantSurface}
-        onOpenAutoFocus={focusOverlayContent}
+        onOpenAutoFocus={onOpenAutoFocus}
       >
         <PopoverHeader className={cn("shrink-0 p-3", headerAction && "flex-row items-center gap-2 py-1.5 pr-1.5")}>
           <PopoverTitle className={cn(headerAction && "min-w-0 flex-1 truncate")} id={titleId}>
@@ -108,9 +122,7 @@ export function ResponsiveOverlay({
     </Popover>
   ) : (
     <Drawer open={open} repositionInputs={false} onOpenChange={handleOpenChange}>
-      <DrawerTrigger asChild aria-expanded={open}>
-        {trigger}
-      </DrawerTrigger>
+      {anchor ? anchor(drawerTrigger) : drawerTrigger}
 
       <DrawerContent
         aria-describedby={undefined}
@@ -119,7 +131,7 @@ export function ResponsiveOverlay({
         onCloseAutoFocus={onCloseAutoFocus}
         onEscapeKeyDown={handleEscapeKeyDown}
         onInteractOutside={keepOpenForAssistantSurface}
-        onOpenAutoFocus={focusOverlayContent}
+        onOpenAutoFocus={onOpenAutoFocus}
       >
         <DrawerHeader className={cn(headerAction && "flex-row items-center gap-2 py-2 pr-12")}>
           <DrawerTitle className={cn("min-w-0 truncate", headerAction && "flex-1")}>{title}</DrawerTitle>

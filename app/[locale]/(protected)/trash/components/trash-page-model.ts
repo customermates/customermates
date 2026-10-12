@@ -34,12 +34,12 @@ export function toTrashQuery(params: GetQueryParams = {}): QueryTrashData {
   };
 }
 
-export const TRASH_FILTERABLE_FIELDS: FilterableField[] = [
+const TRASH_FILTERABLE_FIELDS: FilterableField[] = [
   { field: TRASH_FILTER.kind, operators: [FilterOperatorKey.in] },
   { field: TRASH_FILTER.list, operators: [FilterOperatorKey.in] },
 ];
 
-export type TrashKindLabelKey = TrashKind | "dashboardView";
+type TrashKindLabelKey = TrashKind | "dashboardView";
 
 export function trashKindLabelKey(item: { kind: TrashKind; surfaceKey: string | null }): TrashKindLabelKey {
   return item.kind === "view" && item.surfaceKey === "dashboard" ? "dashboardView" : item.kind;

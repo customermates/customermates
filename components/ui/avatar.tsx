@@ -5,7 +5,7 @@ import { Avatar as AvatarPrimitive } from "radix-ui";
 
 import { cn } from "@/core/utils/cn";
 import { initialsFor, personInitials } from "@/core/utils/initials";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 function Avatar({
   className,
@@ -56,13 +56,11 @@ function Avatar({
   if (!tooltipLabel) return root;
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>{root}</TooltipTrigger>
+    <Tooltip>
+      <TooltipTrigger asChild>{root}</TooltipTrigger>
 
-        <TooltipContent className="whitespace-pre-line">{tooltipLabel}</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+      <TooltipContent className="whitespace-pre-line">{tooltipLabel}</TooltipContent>
+    </Tooltip>
   );
 }
 

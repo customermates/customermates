@@ -17,7 +17,7 @@ import { useAppForm } from "./form-context";
 import { useFormFieldErrors, useResolvedFieldLabel } from "./use-form-field";
 import { SelectionOptionsSkeleton, SelectionValueSkeleton } from "./selection-loading";
 
-export type FormSelectItem = {
+type FormSelectItem = {
   value: string;
   label: string;
   chipLabel?: string;

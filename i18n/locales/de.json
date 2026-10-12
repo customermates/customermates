@@ -1818,7 +1818,6 @@
       "noActivity": "Noch keine Aktivität.",
       "noMatches": "Keine Aktivität entspricht den aktuellen Filtern.",
       "noPermission": "Du hast keinen Zugriff auf Aktivitäten in diesem Workspace.",
-      "scopeTooBroad": "Diese Beziehungsfilter treffen auf zu viele Kontakte zu, um sie sicher zu laden. Wähle weniger Datensätze aus.",
       "title": "Letzte Aktivität"
     },
     "addCard": "Widget hinzufügen",

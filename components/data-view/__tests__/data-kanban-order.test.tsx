@@ -40,6 +40,7 @@ vi.mock("@/components/ui/select", () => ({
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({
     formatCurrency: (amount: number) => `eur:${amount}`,
+    formatNumber: (value: number) => String(value),
     formatMonthYear: (date: Date) => `month:${date.toISOString()}`,
     formatDescriptiveShortDate: (date: Date) => `date:${date.toISOString()}`,
   }),
@@ -274,7 +275,7 @@ describe("board column order and labels", () => {
       }),
     );
 
-    expect(host.querySelector('[data-slot="kanban-root"] [data-slot="empty-state"]')).not.toBeNull();
+    expect(host.querySelector('[data-slot="kanban-root"] [data-page-state="empty"]')).not.toBeNull();
     expect(host.textContent).toContain("DataView.board.promptTitle");
     expect(host.textContent).toContain("DataView.board.createField");
     expect(host.querySelector('[data-slot="kanban-root"] [data-slot="select"]')).toBeNull();

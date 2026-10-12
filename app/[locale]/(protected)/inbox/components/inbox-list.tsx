@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Cable, RefreshCw } from "lucide-react";
+import { Cable, Inbox, RefreshCw } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Action, Resource } from "@/generated/prisma";
@@ -24,7 +24,6 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { TopBarActionButtons, TopBarPrimaryButton } from "@/components/shared/top-bar-action-buttons";
 import { PageState } from "@/components/page-state/page-state";
-import { DataViewEmptyState } from "@/components/data-view/data-view-empty-state";
 import { resolveDataViewPageState, type DataViewPageState } from "@/components/data-view/data-view-state";
 
 import { InboxPageSkeleton } from "./inbox-page-skeleton";
@@ -182,16 +181,19 @@ const InboxListContent = observer(({ canConnect, threads, selectedThreadId, lock
       break;
     case "filtered-empty":
       listBody = (
-        <DataViewEmptyState
-          body={t("Common.emptyState.genericFilteredBody")}
-          secondaryAction={{
-            label: t("Common.emptyState.clearFilters"),
-            onClick: () =>
-              messagingThreadsStore.setQueryOptions({
-                filters: [],
-                searchTerm: "",
-              }),
-          }}
+        <PageState
+          action={
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => messagingThreadsStore.setQueryOptions({ filters: [], searchTerm: "" })}
+            >
+              {t("Common.emptyState.clearFilters")}
+            </Button>
+          }
+          description={t("Common.emptyState.genericFilteredBody")}
+          icon={Inbox}
+          state="empty"
           title={t("Common.emptyState.filteredTitle")}
         />
       );

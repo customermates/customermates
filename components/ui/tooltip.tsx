@@ -43,14 +43,18 @@ export function fitWrappedTooltip(content: HTMLElement, text: HTMLElement) {
   if (width < content.getBoundingClientRect().width) content.style.width = `${width}px`;
 }
 
+const TooltipProviderContext = React.createContext(false);
+
 function TooltipProvider({ delayDuration = 0, ...props }: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
   return (
-    <TooltipPrimitive.Provider
-      disableHoverableContent
-      data-slot="tooltip-provider"
-      delayDuration={delayDuration}
-      {...props}
-    />
+    <TooltipProviderContext.Provider value>
+      <TooltipPrimitive.Provider
+        disableHoverableContent
+        data-slot="tooltip-provider"
+        delayDuration={delayDuration}
+        {...props}
+      />
+    </TooltipProviderContext.Provider>
   );
 }
 
@@ -60,13 +64,14 @@ function Tooltip({ children, ...props }: React.ComponentProps<typeof TooltipPrim
   const hasContent = React.Children.toArray(children).some(
     (child) => React.isValidElement(child) && child.type === TooltipContent,
   );
-  return (
+  const root = (
     <TooltipHasContentContext.Provider value={hasContent}>
       <TooltipPrimitive.Root data-slot="tooltip" {...props}>
         {children}
       </TooltipPrimitive.Root>
     </TooltipHasContentContext.Provider>
   );
+  return React.useContext(TooltipProviderContext) ? root : <TooltipProvider>{root}</TooltipProvider>;
 }
 
 function TooltipTrigger({ onFocus, onPointerMove, ...props }: React.ComponentProps<typeof TooltipPrimitive.Trigger>) {

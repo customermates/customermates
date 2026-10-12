@@ -2,7 +2,7 @@ import type { KeyChord, KeyPress, KeyboardPlatform } from "./key-matching";
 
 import { chordLabel, chordMatches, detectKeyboardPlatform } from "./key-matching";
 
-export type ShortcutGroup = "general" | "navigation" | "create" | "listsAndViews" | "forms";
+type ShortcutGroup = "general" | "navigation" | "create" | "listsAndViews" | "forms";
 
 export type ShortcutId =
   | "search"
@@ -37,7 +37,7 @@ export const GO_PREFIX: KeyChord = { key: "g", codes: ["KeyG"] };
 
 export const SHORTCUT_SEQUENCE_TIMEOUT_MS = 1000;
 
-export const LIST_POSITION_CHORDS: readonly KeyChord[] = Array.from({ length: 9 }, (_, index) => ({
+const LIST_POSITION_CHORDS: readonly KeyChord[] = Array.from({ length: 9 }, (_, index) => ({
   key: String(index + 1),
   codes: [`Digit${index + 1}`, `Numpad${index + 1}`],
 }));

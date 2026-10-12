@@ -29,7 +29,7 @@ function itemIcon(item: TrashItemDto): LucideIcon {
   return item.icon ? recordTypeIcon(item.icon) : (KIND_ICONS[item.kind] ?? Rows3);
 }
 
-export function TrashItemChip({ item }: { item: TrashItemDto }) {
+function TrashItemChip({ item }: { item: TrashItemDto }) {
   const Icon = itemIcon(item);
   return (
     <AppChip startContent={<Icon aria-hidden className="size-3 shrink-0" />} variant={toChipColor(item.color)}>
@@ -38,7 +38,7 @@ export function TrashItemChip({ item }: { item: TrashItemDto }) {
   );
 }
 
-export function useTrashKindLabel() {
+function useTrashKindLabel() {
   const t = useTranslations();
   return useCallback(
     (item: TrashItemDto) => {

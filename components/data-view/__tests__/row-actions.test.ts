@@ -7,9 +7,9 @@ vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 import { DataViewItemLayout } from "@/components/data-view/data-view-item-layout";
 import { ITEM_ACTIONS_TRIGGER_CLASS } from "@/components/ui/item-actions";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { RecordRowActions } from "../record-row-actions";
+import { RowActions } from "../row-actions";
 
-function render(props: Partial<Parameters<typeof RecordRowActions>[0]> = {}, layout: "row" | "card" | "table" = "row") {
+function render(props: Partial<Parameters<typeof RowActions>[0]> = {}, layout: "row" | "card" | "table" = "row") {
   return renderToStaticMarkup(
     createElement(
       DataViewItemLayout.Provider,
@@ -17,7 +17,7 @@ function render(props: Partial<Parameters<typeof RecordRowActions>[0]> = {}, lay
       createElement(
         TooltipProvider,
         null,
-        createElement(RecordRowActions, { name: "Acme", onOpen: vi.fn(), onDelete: vi.fn(), ...props }),
+        createElement(RowActions, { name: "Acme", onOpen: vi.fn(), onDelete: vi.fn(), ...props }),
       ),
     ),
   );

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, type ReactNode } from "react";
 
-export type MenuSurfaceKind = "dropdown" | "context";
+type MenuSurfaceKind = "dropdown" | "context";
 
 const MenuSurfaceContext = createContext<MenuSurfaceKind>("dropdown");
 

@@ -108,7 +108,7 @@ type AgentStreamStepCheckpoint = {
   viewChanges: AgentViewChange[];
 };
 
-export type AgentStreamStatus =
+type AgentStreamStatus =
   | "idle"
   | "working"
   | "awaitingApproval"
@@ -117,7 +117,7 @@ export type AgentStreamStatus =
   | "stopping"
   | "finalizing";
 
-export type AgentRouteSyncStatus = "idle" | "queued" | "waiting" | "refreshing";
+type AgentRouteSyncStatus = "idle" | "queued" | "waiting" | "refreshing";
 
 export type AgentProgressPhase = "starting" | "working" | "preparing_action";
 
@@ -139,7 +139,7 @@ const AGENT_CANCEL_RETRY_DELAYS_MS = [0, 500, 1500, 4000] as const;
 const AGENT_UI_COMMAND_RETRY_DELAYS_MS = [0, 500, 1500, 3000] as const;
 const AGENT_CHAT_OPEN_STORAGE_PREFIX = "customermates:agentChat:open:v2";
 type UiCommandName = (typeof UI_COMMAND_NAMES)[number];
-export type AgentConfigLoadStatus = "ready" | "disabled" | "retry";
+type AgentConfigLoadStatus = "ready" | "disabled" | "retry";
 
 function agentChatOpenStorageKey(rootStore: RootStore): string | null {
   const user = rootStore.userStore.user;

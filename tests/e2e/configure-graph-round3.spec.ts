@@ -3,18 +3,7 @@ import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { configureTopBar, openConfigure, openConfigureRow, openDrawerTab } from "./configure";
 import { calculationChip, calculationFlow, pickOption } from "./calculation-flow";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
-
-function captureErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
-  return errors;
-}
+import { expect, test, collectPageErrors } from "./fixtures";
 
 async function savedLayout(database: Client, companyId: string) {
   const result = await database.query(
@@ -33,7 +22,7 @@ async function transformOf(node: Locator) {
 }
 
 test("moves graph lists, keeps the layout per person and resets it", async ({ page, database, companyId }, testInfo) => {
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   const dealId = presetId(companyId, "deal");
   await openConfigure(page);
   const graph = page.locator("[data-configure-graph]");
@@ -99,7 +88,7 @@ test("moves graph lists, keeps the layout per person and resets it", async ({ pa
 });
 
 test("shows the calculation as a node flow in the Calculation section", async ({ page, companyId }) => {
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   await openConfigure(page, presetId(companyId, "deal"));
   await openConfigureRow(page, "Fields", "Value");
   await openDrawerTab(page, "Calculation");
@@ -132,7 +121,7 @@ test("shows the calculation as a node flow in the Calculation section", async ({
 });
 
 test("suggests the plural list name until it is edited", async ({ page }) => {
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   await openConfigure(page);
   await configureTopBar(page).getByRole("button", { name: "Add", exact: true }).click();
   const dialog = page.getByRole("dialog");

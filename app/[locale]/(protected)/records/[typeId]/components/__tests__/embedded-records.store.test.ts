@@ -18,7 +18,9 @@ vi.mock("../../../actions", () => mocks);
 vi.mock("@/app/actions", () => p13n);
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({ toastZodErrorTree: vi.fn() }));
 
-import { EmbeddedRecordsStore, embeddedColumnLayout, embeddedPresentation } from "../embedded-records.store";
+import { embeddedColumnLayout } from "@/features/records/embedded-sublist";
+
+import { EmbeddedRecordsStore, embeddedPresentation } from "../embedded-records.store";
 
 const companyId = randomUUID();
 const id = (key: string) => presetId(companyId, key);

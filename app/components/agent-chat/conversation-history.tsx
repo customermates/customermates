@@ -205,7 +205,7 @@ export const ConversationHistory = observer(function ConversationHistory() {
   );
 });
 
-export const ConversationHistoryStatus = observer(function ConversationHistoryStatus() {
+const ConversationHistoryStatus = observer(function ConversationHistoryStatus() {
   const { agentChatStore: store } = useRootStore();
   const copy = chatUiCopy(useTranslations());
   if (store.conversationLoadPendingId) {
@@ -255,7 +255,7 @@ export const ArchiveUndo = observer(function ArchiveUndo() {
   );
 });
 
-export const ArchivedConversationList = observer(function ArchivedConversationList() {
+const ArchivedConversationList = observer(function ArchivedConversationList() {
   const { agentChatStore: store } = useRootStore();
   const copy = chatUiCopy(useTranslations());
   const [deleteCandidate, setDeleteCandidate] = useState<AgentConversationSummary | null>(null);

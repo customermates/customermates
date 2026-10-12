@@ -113,7 +113,7 @@ describe("board grouping prompt", () => {
   it("explains the board and lists every groupable field with its label", () => {
     const host = render(store());
 
-    expect(host.querySelector('[data-slot="empty-state"]')?.textContent).toContain("DataView.board.promptTitle");
+    expect(host.querySelector('[data-page-state="empty"]')?.textContent).toContain("DataView.board.promptTitle");
     expect(host.textContent).toContain("DataView.board.promptBody");
     expect([...host.querySelectorAll("[data-value]")].map((item) => item.textContent)).toEqual([
       "Stage",

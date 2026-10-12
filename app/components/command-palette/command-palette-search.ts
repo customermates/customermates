@@ -1,8 +1,8 @@
 import { commandScore } from "@/components/ui/command";
 
-export type PaletteScope = "lists" | "views" | "settings" | "docs" | "records";
+type PaletteScope = "lists" | "views" | "settings" | "docs" | "records";
 
-export type PaletteCandidateKind = "list" | "view" | "page" | "setting" | "field" | "action";
+type PaletteCandidateKind = "list" | "view" | "page" | "setting" | "field" | "action";
 
 export type PaletteCandidate = {
   key: string;
@@ -17,8 +17,8 @@ export type Ranked<T extends PaletteCandidate = PaletteCandidate> = T & { score:
 
 export type ListGroup<T extends PaletteCandidate = PaletteCandidate> = { list: T; views: T[] };
 
-export const BEST_MATCH_MIN_SCORE = 0.98;
-export const BEST_MATCH_MIN_LENGTH = 2;
+const BEST_MATCH_MIN_SCORE = 0.98;
+const BEST_MATCH_MIN_LENGTH = 2;
 const MIN_SCORE = 0.1;
 const CONTEXT_BOOST = 0.1;
 
@@ -63,7 +63,7 @@ export function parsePaletteQuery(raw: string): { scope: PaletteScope | null; te
   return { scope, term: match[2].trim() };
 }
 
-export function scopeIncludes(scope: PaletteScope | null, kind: PaletteCandidateKind): boolean {
+function scopeIncludes(scope: PaletteScope | null, kind: PaletteCandidateKind): boolean {
   return scope === null || SCOPE_KINDS[scope].includes(kind);
 }
 
@@ -114,7 +114,7 @@ function words(text: string): string[] {
     .filter(Boolean);
 }
 
-export function significantWords(term: string): string[] {
+function significantWords(term: string): string[] {
   const all = words(term);
   const significant = all.filter((word) => !STOP_WORDS.has(word));
   return significant.length ? significant : all;
@@ -124,7 +124,7 @@ function everyWordPrefixes(query: readonly string[], candidates: readonly string
   return query.every((word) => candidates.some((candidate) => candidate.startsWith(word)));
 }
 
-export function candidateScore(term: string, candidate: PaletteCandidate): number {
+function candidateScore(term: string, candidate: PaletteCandidate): number {
   const query = significantWords(term);
   if (!query.length) return 0;
   const phrase = query.join(" ");
@@ -225,7 +225,7 @@ export function stableOrder(previous: readonly string[], next: readonly string[]
   return [...kept, ...next.filter((key) => !keptSet.has(key))];
 }
 
-export type SemanticHit = { key: string; similarity: number };
+type SemanticHit = { key: string; similarity: number };
 
 const RRF_K = 60;
 

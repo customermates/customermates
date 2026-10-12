@@ -35,7 +35,12 @@ import { useTranslations } from "next-intl";
 import { AppChip } from "@/components/chip/app-chip";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { ItemActions, ItemActionsTrigger } from "@/components/ui/item-actions";
+import {
+  ITEM_REVEAL_CLASS,
+  ITEM_REVEAL_GROUP_CLASS,
+  ItemActions,
+  ItemActionsTrigger,
+} from "@/components/ui/item-actions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ChipColor } from "@/constants/chip-colors";
@@ -140,6 +145,7 @@ function KanbanCard({
           drop.setNodeRef(node);
         }}
         className={cn(
+          ITEM_REVEAL_GROUP_CLASS,
           "group/card gap-2 py-3 select-none relative",
           draggable && "touch-manipulation",
           (onClick || href) && !isDragging && "interactive-surface",
@@ -360,7 +366,7 @@ const KanbanColumn = observer(function KanbanColumn({
           </>
         }
       >
-        <div className={cn(DATA_KANBAN_HEADER_CLASS_NAME, "group/header")}>
+        <div className={cn(DATA_KANBAN_HEADER_CLASS_NAME, ITEM_REVEAL_GROUP_CLASS)}>
           {editHref ? (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -392,7 +398,7 @@ const KanbanColumn = observer(function KanbanColumn({
                 <TooltipTrigger asChild>
                   <Button
                     aria-label={addLabel}
-                    className="text-muted-foreground fine-hover:opacity-0 fine-hover:transition-opacity fine-hover:group-hover/header:opacity-100 fine-hover:focus-visible:opacity-100"
+                    className={cn(ITEM_REVEAL_CLASS, "text-muted-foreground")}
                     size="icon-xs"
                     variant="ghost"
                     onClick={(event) => onCreate(event.currentTarget)}

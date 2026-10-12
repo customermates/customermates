@@ -6,6 +6,7 @@ import { isDraftThreadId } from "../../ee/messaging/provider";
 import { decodeGetParams } from "../../core/utils/get-params";
 import type { RecordRef } from "../../features/records/record-model.schema";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { postOk } from "./api";
 import { openRecordDetails, openRecordLink, recordItem } from "./record-rows";
 
 test("opens a list-qualified inbox and preserves, saves, edits and sends channel drafts locally", async ({
@@ -32,15 +33,10 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   page.on("console", (message) => {
     if (isAppConsoleError(message)) captureError(message.text());
   });
-  const post = async (path: string, data: unknown) => {
-    const response = await page.request.post(path, { data });
-    expect(response.status(), await response.text()).toBe(200);
-    return response.json();
-  };
-  let model = await post("/api/v1/model/read", {});
+  let model = await postOk(page, "/api/v1/model/read", {});
   const typeId = presetId(companyId, "organization");
   const channelsFieldId = randomUUID();
-  await post("/api/v1/model/apply", {
+  await postOk(page, "/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     operations: [
@@ -59,11 +55,11 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
       },
     ],
   });
-  model = await post("/api/v1/model/read", {});
+  model = await postOk(page, "/api/v1/model/read", {});
   const recipients = ["first-channel@example.test", "second-channel@example.test"];
   const records: RecordRef[] = [];
   for (const [index, recipient] of recipients.entries()) {
-    const result = await post("/api/v1/records/mutate", {
+    const result = await postOk(page, "/api/v1/records/mutate", {
       expectedRevision: model.revision,
       idempotencyKey: randomUUID(),
       mutation: {

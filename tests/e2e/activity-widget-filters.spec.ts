@@ -11,7 +11,7 @@ import {
 } from "../../features/records/record-query.schema";
 import type { RecordActivityQuery } from "../../ee/messaging/activities/record-activities.schema";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 
 async function model(database: Client, companyId: string): Promise<RecordModel> {
   const result = await database.query(
@@ -115,13 +115,7 @@ test("shows contact messages on organizations and applies provider, channel, con
   workspace,
 }, testInfo) => {
   test.setTimeout(300000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const organizationTypeId = presetId(companyId, "organization");
   const contactTypeId = presetId(companyId, "contact");
   const dialog = page.locator(

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Page } from "@playwright/test";
-import { test, expect, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import {
   openRecordDetails,
   recordItem,
@@ -21,10 +21,7 @@ test("edits two formatted text fields inline in the overview, collapses long tex
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
+  const errors = collectPageErrors(page, { console: false });
   const typeId = presetId(companyId, "organization");
   await page.goto(`/en/records/${typeId}`);
   const current = await post(page, "/api/v1/model/read", {});
@@ -201,10 +198,7 @@ test("keeps a bulk-edited formatted text on Escape and follows links in display 
     "Bulk selection uses the desktop table's row checkboxes; phone rows have no selection",
   );
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
+  const errors = collectPageErrors(page, { console: false });
   const typeId = presetId(companyId, "organization");
   await page.goto(`/en/records/${typeId}`);
   const suffix = randomUUID().slice(0, 6);
@@ -328,10 +322,7 @@ test("shows the formatting toolbar at rest and formats from it without leaving e
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
+  const errors = collectPageErrors(page, { console: false });
   const dealTypeId = presetId(companyId, "deal");
   await page.goto(`/en/records/${dealTypeId}`);
   const current = await post(page, "/api/v1/model/read", {});
@@ -408,10 +399,10 @@ test("shows the formatting toolbar at rest and formats from it without leaving e
   await page.keyboard.press("Escape");
   await expect(field).toHaveAttribute("data-state", "display");
   await expect(toolbar).toBeVisible();
-  await main.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(
-    main.getByRole("button", { name: "Reset", exact: true }),
-  ).not.toBeVisible();
+  const unsavedBar = main.locator("[data-slot='unsaved-changes-bar']");
+  await expect(unsavedBar).toContainText("Unsaved changes");
+  await unsavedBar.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(unsavedBar).toHaveCount(0);
   const savedMarkdown = async () => {
     const saved = await database.query(
       'SELECT "jsonValue" FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=$3 AND "fieldId"=$4',

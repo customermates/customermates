@@ -9,7 +9,7 @@ import { isAskAiAction, orderAppModalActions, type AppModalActionProps } from "@
 import { AskAiAction } from "@/components/ui/ask-ai-action";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { IntlLink } from "@/i18n/navigation";
 
@@ -61,21 +61,19 @@ function TopBarActionButton({ action }: { action: AppModalActionProps }) {
     </Button>
   );
   return (
-    <TooltipProvider>
-      <Tooltip key={disabled ? "disabled" : "enabled"}>
-        <TooltipTrigger asChild>
-          {disabled ? (
-            <span aria-disabled="true" aria-label={label} className="inline-flex" role="button" tabIndex={0}>
-              {control}
-            </span>
-          ) : (
-            control
-          )}
-        </TooltipTrigger>
+    <Tooltip key={disabled ? "disabled" : "enabled"}>
+      <TooltipTrigger asChild>
+        {disabled ? (
+          <span aria-disabled="true" aria-label={label} className="inline-flex" role="button" tabIndex={0}>
+            {control}
+          </span>
+        ) : (
+          control
+        )}
+      </TooltipTrigger>
 
-        <TooltipContent>{tooltip ?? label}</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+      <TooltipContent>{tooltip ?? label}</TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -175,36 +173,34 @@ export function TopBarMenuButton({
   const ActiveIcon = busy ? LoaderCircle : Icon;
 
   return (
-    <TooltipProvider>
-      <DropdownMenu>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <DropdownMenuTrigger asChild>
-              <Button
-                aria-label={label}
-                className="h-8"
-                data-slot="top-bar-action"
-                disabled={busy || disabled}
-                id={anchorId}
-                size={primary ? "sm" : "icon-sm"}
-                type="button"
-                variant={primary ? "default" : "secondary"}
-                {...props}
-              >
-                <ActiveIcon aria-hidden className={busy ? "size-4 animate-spin" : primary ? "size-3.5" : "size-4"} />
+    <DropdownMenu>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DropdownMenuTrigger asChild>
+            <Button
+              aria-label={label}
+              className="h-8"
+              data-slot="top-bar-action"
+              disabled={busy || disabled}
+              id={anchorId}
+              size={primary ? "sm" : "icon-sm"}
+              type="button"
+              variant={primary ? "default" : "secondary"}
+              {...props}
+            >
+              <ActiveIcon aria-hidden className={busy ? "size-4 animate-spin" : primary ? "size-3.5" : "size-4"} />
 
-                {primary && <span className="hidden sm:inline">{label}</span>}
-              </Button>
-            </DropdownMenuTrigger>
-          </TooltipTrigger>
+              {primary && <span className="hidden sm:inline">{label}</span>}
+            </Button>
+          </DropdownMenuTrigger>
+        </TooltipTrigger>
 
-          <TooltipContent>{label}</TooltipContent>
-        </Tooltip>
+        <TooltipContent>{label}</TooltipContent>
+      </Tooltip>
 
-        <DropdownMenuContent align="end" aria-labelledby={anchorId}>
-          {children}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </TooltipProvider>
+      <DropdownMenuContent align="end" aria-labelledby={anchorId}>
+        {children}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

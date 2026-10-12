@@ -9,8 +9,9 @@ import type { RecordChoice, RecordChoicesResult } from "@/features/records/get-r
 const actions = vi.hoisted(() => ({ choices: vi.fn() }));
 vi.mock("../../../actions", () => ({ getRecordChoicesAction: (...args: unknown[]) => actions.choices(...args) }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
-vi.mock("../record-detail-field", () => ({
-  RecordDetailField: ({ children }: { children: ReactNode }) => createElement("div", { "data-field": "" }, children),
+vi.mock("@/components/entity-detail/entity-detail-field-shell", () => ({
+  EntityDetailFieldShell: ({ children }: { children: ReactNode }) =>
+    createElement("div", { "data-field": "" }, children),
 }));
 
 import { RecordRelationshipEditor } from "../record-relationship-editor";

@@ -17,7 +17,7 @@ import {
   fieldActionIconClass,
   iconButtonClass,
   iconButtonIconClass,
-} from "@/components/ui/icon-button";
+} from "@/components/ui/icon-button-styles";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";

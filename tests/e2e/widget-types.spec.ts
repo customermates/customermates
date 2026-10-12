@@ -14,7 +14,8 @@ import {
   WIDGET_STARTER_DISPLAY_TYPES,
   widgetDisplayRequirement,
 } from "../../features/widget/widget-display-rules";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { expect, test, collectPageErrors } from "./fixtures";
+import { postOk } from "./api";
 
 const TIME_ZONE = "Europe/Berlin";
 test.use({ timezoneId: TIME_ZONE });
@@ -139,21 +140,15 @@ const TASK_STATUSES = [
   { id: "archived", label: "Archived" },
 ];
 
-async function post(page: Page, path: string, data: unknown): Promise<unknown> {
-  const response = await page.request.post(path, { data });
-  expect(response.status(), await response.text()).toBe(200);
-  return response.json();
-}
-
 async function mutate(
   page: Page,
   mutation: Extract<RecordMutation, { action: "create" }>,
 ): Promise<RecordRef> {
   const model = RecordModelSchema.parse(
-    await post(page, "/api/v1/model/read", {}),
+    await postOk(page, "/api/v1/model/read", {}),
   );
   const result = RecordOperationResultSchema.parse(
-    await post(page, "/api/v1/records/mutate", {
+    await postOk(page, "/api/v1/records/mutate", {
       expectedRevision: model.revision,
       idempotencyKey: randomUUID(),
       mutation,
@@ -180,7 +175,7 @@ async function seedPipeline(
   const closeDateId = randomUUID();
   const statusId = randomUUID();
   const model = RecordModelSchema.parse(
-    await post(page, "/api/v1/model/read", {}),
+    await postOk(page, "/api/v1/model/read", {}),
   );
   const field = (
     fieldId: string,
@@ -202,7 +197,7 @@ async function seedPipeline(
       position: 40,
     },
   });
-  await post(page, "/api/v1/model/apply", {
+  await postOk(page, "/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     operations: [
@@ -470,17 +465,6 @@ async function expectNoHorizontalOverflow(page: Page) {
   expect(overflow).toBeLessThanOrEqual(0);
 }
 
-async function trackErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
-  return errors;
-}
-
 async function keepShot(page: Page, testInfo: TestInfo, name: string) {
   const path = testInfo.outputPath(`${name}.png`);
   const viewport = page.viewportSize();
@@ -512,7 +496,7 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
   isMobile,
 }, testInfo) => {
   test.setTimeout(420000);
-  const errors = await trackErrors(page);
+  const errors = collectPageErrors(page);
   const dialog = page.getByRole("dialog");
   await page.goto("/en/dashboard");
   const { id, closeDateId } = await seedPipeline(
@@ -833,7 +817,7 @@ test("builds, edits and renders number, time series, ranked table and funnel wid
 test("starts a widget from every display type card with that type preset on the Data segment", async ({
   page,
 }) => {
-  const errors = await trackErrors(page);
+  const errors = collectPageErrors(page);
   const dialog = page.getByRole("dialog");
   await page.goto("/en/dashboard");
   for (const displayType of WIDGET_STARTER_DISPLAY_TYPES) {

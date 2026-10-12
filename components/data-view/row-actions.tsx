@@ -1,8 +1,6 @@
 "use client";
 
-import type { RecordRow } from "@/features/records/record-presentation";
 import type { LucideIcon } from "lucide-react";
-import type { RecordsStore } from "./records.store";
 
 import { useRef } from "react";
 import { observer } from "mobx-react-lite";
@@ -12,15 +10,9 @@ import { PanelLeftOpen, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { ItemActionsTrigger } from "@/components/ui/item-actions";
-import { recordDisplayName } from "@/features/records/record-display-name";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useDataViewItemLayout } from "@/components/data-view/data-view-item-layout";
 import { cn } from "@/core/utils/cn";
-
-export function recordRowName(store: RecordsStore, record: RecordRow, t: ReturnType<typeof useTranslations>) {
-  const title = record.fields.find((field) => field.fieldId === store.type?.primaryFieldId)?.result;
-  return recordDisplayName(title, store.type?.label, t);
-}
 
 export const TABLE_ROW_ACTIONS_SURFACE_CLASS =
   "absolute inset-y-0 right-0 p-1 bg-[var(--row-surface,var(--background))] bg-[image:linear-gradient(var(--row-tint,transparent),var(--row-tint,transparent))] opacity-0 transition-opacity before:pointer-events-none before:absolute before:inset-y-0 before:right-full before:w-4 before:[background:inherit] before:[mask-image:linear-gradient(to_right,transparent,black)] fine-hover:group-hover/item-actions:opacity-100 fine-hover:group-focus-within/item-actions:opacity-100 has-focus-visible:opacity-100 has-data-[state=open]:opacity-100";
@@ -28,7 +20,7 @@ export const TABLE_ROW_ACTIONS_SURFACE_CLASS =
 export const TABLE_ROW_ACTIONS_TRIGGER_CLASS =
   "aspect-square h-full w-auto rounded-md bg-[var(--row-surface,var(--background))] bg-[image:linear-gradient(var(--row-tint,transparent),var(--row-tint,transparent))] text-muted-foreground";
 
-export const RecordRowActions = observer(function RecordRowActions({
+export const RowActions = observer(function RowActions({
   name,
   contextAction,
   onOpen,

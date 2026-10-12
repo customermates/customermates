@@ -8,7 +8,7 @@ import { useReducedMotion } from "framer-motion";
 
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
 import { TruncatedText } from "@/components/shared/truncated-text";
-import { useRecordValueFormat } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
+import { useRecordValueFormat } from "@/components/records/record-value";
 
 import { useChartFormatter } from "./use-chart-formatter";
 import { DashboardChartContainer } from "./dashboard-chart-container";

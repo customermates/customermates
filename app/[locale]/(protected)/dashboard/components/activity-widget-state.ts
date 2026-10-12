@@ -1,9 +1,7 @@
 import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
 import type { ActivityKind } from "@/ee/messaging/activities/activities.schema";
-import type { Filter } from "@/core/base/base-get.schema";
 
-import { ACTIVITY_KINDS, isChangeActivityKind } from "@/ee/messaging/activities/activities.schema";
-import { interpretFilters } from "@/ee/messaging/activities/timeline-filters";
+import { isChangeActivityKind } from "@/ee/messaging/activities/activities.schema";
 
 export type ActivityWidgetState =
   | "content"
@@ -12,8 +10,7 @@ export type ActivityWidgetState =
   | "noAccount"
   | "noActivity"
   | "noMatches"
-  | "noPermission"
-  | "scopeTooBroad";
+  | "noPermission";
 
 type ActivityWidgetStateInput = {
   accountsError: boolean;
@@ -26,38 +23,9 @@ type ActivityWidgetStateInput = {
   loadError: boolean;
   ready: boolean;
   requestedSources: readonly ActivityKind[];
-  scopeTruncated: boolean;
 };
 
 type AccountActivityKind = Exclude<ActivityKind, "record" | "audit" | "configuration">;
-
-type ActivityWidgetSourcePlan = {
-  availableRequestedSources: ActivityKind[];
-  connectedAccountSources: AccountActivityKind[];
-  requestedSources: ActivityKind[];
-};
-
-export function requestedActivitySources(filters: Filter[] | undefined): ActivityKind[] {
-  const query = interpretFilters(filters);
-
-  return ACTIVITY_KINDS.filter(
-    (kind) => (!query.kindsIn || query.kindsIn.has(kind)) && (!query.kindsNotIn || !query.kindsNotIn.has(kind)),
-  );
-}
-
-export function activityWidgetSourcePlan(
-  filters: Filter[] | undefined,
-  availableSources: readonly ActivityKind[],
-): ActivityWidgetSourcePlan {
-  const requestedSources = requestedActivitySources(filters);
-  const available = new Set(availableSources);
-  const availableRequestedSources = requestedSources.filter((source) => available.has(source));
-  const connectedAccountSources = availableRequestedSources.filter(
-    (source): source is AccountActivityKind => !isChangeActivityKind(source),
-  );
-
-  return { availableRequestedSources, connectedAccountSources, requestedSources };
-}
 
 export function accountSupportsActivitySources(
   account: Pick<ConnectedAccountDto, "hasCalendar" | "hasMessaging">,
@@ -80,7 +48,6 @@ export function resolveActivityWidgetState(input: ActivityWidgetStateInput): Act
   const needsConnectedAccount = input.availableRequestedSources.some((source) => !isChangeActivityKind(source));
   if (needsConnectedAccount && input.accountsError) return "error";
   if (needsConnectedAccount && !input.accountsReady) return "loading";
-  if (input.scopeTruncated && input.itemCount === 0) return "scopeTooBroad";
   if (needsConnectedAccount && !canReadAudit && input.itemCount === 0 && input.connectedAccountCount === 0)
     return "noAccount";
   if (input.itemCount === 0) return input.constrained ? "noMatches" : "noActivity";

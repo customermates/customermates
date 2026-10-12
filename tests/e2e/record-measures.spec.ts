@@ -1,5 +1,5 @@
 import { setPaletteText } from "./filter-palette";
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 
 test("keeps source totals separate from filtered widget groups across save and reload", async ({
@@ -8,13 +8,7 @@ test("keeps source totals separate from filtered widget groups across save and r
   companyId,
 }, testInfo) => {
   test.setTimeout(180000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const dialogs = page.getByRole("dialog");
   const typeId = presetId(companyId, "service");
   await page.goto(`/en/records/${typeId}`);

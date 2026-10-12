@@ -1,19 +1,8 @@
 import type { Page } from "@playwright/test";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { runNamedRowAction } from "./record-rows";
-
-function collectErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
-  return errors;
-}
 
 test("moves a routine to Trash, stops listing it and restores it from Trash", async ({
   page,
@@ -21,7 +10,7 @@ test("moves a routine to Trash, stops listing it and restores it from Trash", as
   companyId,
   workspace,
 }) => {
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   await database.query(
     `INSERT INTO "Routine" (id, "companyId", "ownerUserId", name, prompt, enabled, "triggerKind", "cronExpression", timezone, "updatedAt")
      VALUES (gen_random_uuid(), $1, $2, 'Weekly digest', 'Summarize', false, 'schedule', '0 9 * * 1', 'Europe/Berlin', NOW())`,
@@ -51,7 +40,7 @@ test("moves a routine to Trash, stops listing it and restores it from Trash", as
 });
 
 test("undoes a Knowledge Base page delete from the toast", async ({ page, database, companyId }) => {
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   const created = await database.query(
     `INSERT INTO "WikiPage" (id, "companyId", title, markdown, "updatedAt") VALUES (gen_random_uuid(), $1, 'Refund policy', 'Refunds take five days.', NOW()) RETURNING id`,
     [companyId],

@@ -8,7 +8,7 @@ import {
   RecordOperationResultSchema,
   type RecordMutation,
 } from "../../features/records/record-query.schema";
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 
 async function model(database: Client, companyId: string): Promise<RecordModel> {
   const result = await database.query(
@@ -59,13 +59,7 @@ test("shows contacts' messages on organizations and deals but not tasks, followi
   workspace,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const email = "activity-sources@example.test";
   const contactTypeId = presetId(companyId, "contact");
   const personResult = await mutation(page, database, companyId, {

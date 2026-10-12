@@ -39,25 +39,24 @@ describe("technical-id loading contract", () => {
   it("uses geometric pending states and never falls back to selected keys", () => {
     const autocomplete = read("components/forms/form-autocomplete.tsx");
     const select = read("components/forms/form-select.tsx");
-    const filterSelect = read("components/data-view/filter-modal/inputs/filter-input-select.tsx");
+    const paletteSelect = read("components/data-view/filter-palette/palette-value-select.tsx");
     const filterChip = read("components/data-view/filter-modal/filter-chip-display.tsx");
 
-    for (const source of [autocomplete, select, filterSelect]) {
+    for (const source of [autocomplete, select]) {
       expect(source).toContain("SelectionValueSkeleton");
       expect(source).toContain("SelectionOptionsSkeleton");
       expect(source).toContain("Common.inputs.unavailableSelection");
     }
     expect(autocomplete).toContain("const popoverOpen = canEdit && open");
     expect(autocomplete).toContain("popoverOpen && getItems");
-    expect(filterSelect).toContain("!getItems || optionRequestKey === null");
-    expect(filterSelect).not.toMatch(/textValue\s*\?\?\s*k/);
+    expect(paletteSelect).toContain("!getItems || optionRequestKey === null");
+    expect(paletteSelect).not.toMatch(/textValue\s*\?\?\s*k/);
     expect(filterChip).toContain("requiresResolvedLabel");
     expect(filterChip).toContain("filterValueKind");
   });
 
   it("loads selected labels without exposing their keys and keeps request failures distinct from empty results", () => {
     const options = read("components/data-view/filter-modal/inputs/use-filter-select-items.tsx");
-    const filterSelect = read("components/data-view/filter-modal/inputs/filter-input-select.tsx");
     const autocomplete = read("components/forms/form-autocomplete.tsx");
     const paletteSelect = read("components/data-view/filter-palette/palette-value-select.tsx");
 
@@ -72,8 +71,8 @@ describe("technical-id loading contract", () => {
     expect(selectedResolver).not.toMatch(/pagination|pageSize/);
     expect(paletteSelect).not.toMatch(/pagination|pageSize/);
     expect(options).toContain('status: "error"');
-    expect(filterSelect).toContain("optionError");
-    expect(filterSelect).toContain('t("ErrorCard.retry")');
+    expect(paletteSelect).toContain("optionError");
+    expect(paletteSelect).toContain('t("ErrorCard.retry")');
     expect(autocomplete).toContain("!isCreating");
     expect(autocomplete).toContain('if (e.key === "Enter" && showCreate)');
     expect(autocomplete).toContain('t("ErrorCard.retry")');

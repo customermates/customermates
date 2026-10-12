@@ -1,5 +1,5 @@
 import { addFromConfigure, followConfigureLink, saveDrawer } from "./configure";
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import { openRecordDetails, openRecordLink } from "./record-rows";
 import { saveViewChanges } from "./view-changes";
@@ -11,13 +11,7 @@ test("edits duplicate embedded items, live and saved prices, and weighted totals
 }, testInfo) => {
   test.skip(Boolean(test.info().project.use.isMobile), "The sub-list table with headers, totals and in-place cells is the desktop layout");
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const dialogs = page.getByRole("dialog");
   const typeId = (key: string) => presetId(companyId, key);
   const openRecords = async (key: string) => {
@@ -268,10 +262,7 @@ test("refreshes the deal from in-place sub-list edits in the drawer and locks th
 }) => {
   test.skip(Boolean(test.info().project.use.isMobile), "In-place sub-list cell edits belong to the desktop table");
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
+  const errors = collectPageErrors(page, { console: false });
   const dialogs = page.getByRole("dialog");
   const typeId = (key: string) => presetId(companyId, key);
   await page.goto(`/en/records/${typeId("service")}`);

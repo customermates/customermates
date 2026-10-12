@@ -175,8 +175,8 @@ describe("rule 36: one open-and-highlight mechanism", () => {
 });
 
 const ROW_MENU_PLUMBING = "components/data-view/";
-const ROW_MENU_COMPONENT = "RecordRowActions";
-const ROW_MENU_OWNER = "app/[locale]/(protected)/records/[typeId]/components/record-row-actions.tsx";
+const ROW_MENU_COMPONENT = "RowActions";
+const ROW_MENU_OWNER = "components/data-view/row-actions.tsx";
 const ROW_MENU_ITEMS = ["RecordModel.openDetails", "Common.actions.delete"];
 
 function ownRowMenuFindings(sources: SourceFile[]) {
@@ -375,5 +375,34 @@ describe("rule 64: values are the edit target, without reserved hint slots", () 
       'import { Pencil } from "lucide-react";\nconst HINT = "inline-flex size-6 opacity-0 group-hover/row:opacity-100";',
     );
     expect(inlineHintFindings([source]).map(({ line }) => line)).toEqual([2, 1]);
+  });
+});
+
+const REVEAL_OWNER = "components/ui/item-actions.tsx";
+const HAND_BUILT_REVEAL = /["'`][^"'`]*\bopacity-0\b[^"'`]*\bgroup-(?:hover|focus-within)\/[\w-]+:opacity-100\b[^"'`]*["'`]/;
+const HAND_BUILT_REVEAL_ALLOWLIST: Allowlist = {
+  "components/data-view/column-resize-handle.tsx": "a resize handle widens and stays visible for coarse pointers",
+  "components/data-view/row-actions.tsx": "the table row menu surface follows the item-actions group",
+  "components/layout/resizable-panels.tsx": "a resize handle stays visible while resizing and for coarse pointers",
+};
+
+function handBuiltRevealFindings(sources: SourceFile[]) {
+  return patternFindings(
+    sources.filter(({ file }) => file !== REVEAL_OWNER),
+    HAND_BUILT_REVEAL,
+  );
+}
+
+describe("rule 19: one reveal-on-hover utility", () => {
+  it("reveals hover affordances only through ITEM_REVEAL_CLASS and ITEM_REVEAL_GROUP_CLASS", () => {
+    enforce(handBuiltRevealFindings(PRODUCT_SOURCES), HAND_BUILT_REVEAL_ALLOWLIST);
+  });
+
+  it("recognizes a hand-built reveal and ignores the shared class", () => {
+    const source = sourceFromText(
+      "components/data-view/cell.tsx",
+      'const a = "opacity-0 transition-opacity group-hover/row:opacity-100";\nconst b = cn(ITEM_REVEAL_CLASS, "size-7");',
+    );
+    expect(handBuiltRevealFindings([source]).map(({ line }) => line)).toEqual([1]);
   });
 });

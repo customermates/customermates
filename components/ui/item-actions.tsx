@@ -4,18 +4,10 @@ import type { ComponentProps, KeyboardEvent, ReactElement, ReactNode, Ref, Synth
 
 import { Ellipsis, ExternalLink } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  cloneElement,
-  createContext,
-  useCallback,
-  useContext,
-  useLayoutEffect,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { cloneElement, createContext, useCallback, useContext, useLayoutEffect, useRef, useState } from "react";
 
 import { cn } from "@/core/utils/cn";
+import { useTouchInput } from "@/hooks/use-touch-input";
 import { stripLocalePrefix } from "@/i18n/locale-registry";
 import { IntlLink } from "@/i18n/navigation";
 
@@ -39,8 +31,6 @@ const ItemActionsContext = createContext<ItemActionsValue | null>(null);
 
 const RegisterContext = createContext<((menu: ItemMenu | null) => void) | null>(null);
 
-const TOUCH_INPUT = "not all and (hover: hover) and (pointer: fine)";
-
 const KEYBOARD_ECHO_MS = 500;
 
 const LONG_PRESS_CLICK_MS = 1000;
@@ -55,24 +45,6 @@ export const ITEM_REVEAL_CLASS =
 
 const DEFAULT_TRIGGER_CLASS =
   "inline-flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring/70 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent [&_svg]:size-4";
-
-function touchQuery() {
-  return typeof window.matchMedia === "function" ? window.matchMedia(TOUCH_INPUT) : null;
-}
-
-function subscribeTouchInput(onChange: () => void) {
-  const query = touchQuery();
-  query?.addEventListener("change", onChange);
-  return () => query?.removeEventListener("change", onChange);
-}
-
-function useTouchInput() {
-  return useSyncExternalStore(
-    subscribeTouchInput,
-    () => touchQuery()?.matches ?? false,
-    () => false,
-  );
-}
 
 function isEditable(target: EventTarget | null) {
   if (!(target instanceof HTMLElement)) return false;

@@ -1,93 +1,78 @@
 import { SkeletonShape as Shape } from "@/components/page-state/skeleton-shape";
 
+import { DASHBOARD_GRID_MARGIN, DASHBOARD_ROW_HEIGHT } from "./grid.constants";
+import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS } from "./widget-card-frame";
+
 type Props = { animated?: boolean };
 
-const CARDS = Array.from({ length: 4 }, (_, index) => index);
-const ROWS = Array.from({ length: 4 }, (_, index) => index);
+const NUMBER_ROWS = 2;
+const CHART_ROWS = 7;
+const NUMBER_CARDS = [0, 1, 2, 3];
+const CHART_CARDS = [
+  { id: 4, span: "lg:col-span-5", bars: [45, 72, 58, 88, 64] },
+  { id: 5, span: "lg:col-span-7", bars: [38, 52, 66, 48, 80, 72, 90] },
+];
+
+function cardHeight(rows: number) {
+  return rows * DASHBOARD_ROW_HEIGHT + (rows - 1) * DASHBOARD_GRID_MARGIN;
+}
+
+const CARD_CLASS = "flex min-w-0 flex-col overflow-hidden rounded-xl border border-border bg-card shadow-xs";
 
 export function DashboardPageSkeleton({ animated = true }: Props) {
   return (
     <div
       data-dashboard-page-skeleton
       aria-hidden="true"
-      className="grid min-h-[34rem] grid-cols-1 gap-4 md:grid-cols-2"
+      className="grid grid-cols-2 content-start lg:grid-cols-12"
       data-page-skeleton-empty={!animated || undefined}
       data-page-skeleton-loading={animated || undefined}
       data-skeleton-kind="dashboard"
+      style={{ gap: DASHBOARD_GRID_MARGIN }}
     >
-      {CARDS.map((card) => (
+      {NUMBER_CARDS.map((card) => (
         <div
           key={card}
-          className="flex h-[264px] flex-col gap-0 rounded-xl border border-border bg-card py-0 shadow-xs"
+          className={`${CARD_CLASS} lg:col-span-3`}
           data-dashboard-card={card}
           data-skeleton-group={card}
+          style={{ height: cardHeight(NUMBER_ROWS) }}
         >
-          <div className="flex w-full shrink-0 flex-col items-start gap-0.5 p-6 pb-0">
-            <Shape breathe animated={animated} className="h-4 w-32" />
+          <div className={`flex ${WIDGET_CARD_HEADER_CLASS}`}>
+            <Shape breathe animated={animated} className="h-3.5 w-28" />
+          </div>
+
+          <div className={`flex flex-1 items-end ${WIDGET_CARD_BODY_CLASS}`}>
+            <Shape animated={animated} className="h-7 w-24" motionPhase={1} />
+          </div>
+        </div>
+      ))}
+
+      {CHART_CARDS.map((card) => (
+        <div
+          key={card.id}
+          className={`${CARD_CLASS} col-span-2 ${card.span}`}
+          data-dashboard-card={card.id}
+          data-skeleton-group={card.id}
+          style={{ height: cardHeight(CHART_ROWS) }}
+        >
+          <div className={`flex ${WIDGET_CARD_HEADER_CLASS}`}>
+            <Shape breathe animated={animated} className="h-3.5 w-36" />
 
             <Shape animated={animated} className="h-2.5 w-20" motionPhase={1} />
           </div>
 
-          <div className="flex min-h-0 flex-1 flex-col gap-4 p-6">
-            {card === 0 ? (
-              <div className="flex flex-1 items-end gap-3 pt-4">
-                {[45, 72, 58, 88, 64, 78].map((height, index) => (
-                  <Shape
-                    key={index}
-                    animated={animated}
-                    breathe={index === 0}
-                    className="flex-1"
-                    motionPhase={index < 3 ? 2 : 3}
-                    style={{ height: `${height}%` }}
-                  />
-                ))}
-              </div>
-            ) : card === 1 ? (
-              <div className="flex flex-1 items-center gap-6">
-                <Shape
-                  breathe
-                  animated={animated}
-                  className="size-32 shrink-0 rounded-full border-[16px] border-placeholder bg-transparent"
-                  motionPhase={2}
-                />
-
-                <div className="flex flex-1 flex-col gap-4">
-                  {ROWS.slice(0, 3).map((row) => (
-                    <div key={row} className="flex items-center gap-2">
-                      <Shape animated={animated} className="size-3 rounded-full" motionPhase={row === 0 ? 2 : 3} />
-
-                      <Shape animated={animated} className="h-3 flex-1" motionPhase={row === 0 ? 2 : 3} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : card === 2 ? (
-              <div className="flex flex-1 flex-col justify-center gap-4">
-                {[82, 64, 45, 72].map((width, index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <Shape animated={animated} className="h-3 w-20 shrink-0" motionPhase={index < 2 ? 2 : 3} />
-
-                    <Shape
-                      animated={animated}
-                      breathe={index === 0}
-                      className="h-5"
-                      motionPhase={index < 2 ? 2 : 3}
-                      style={{ width: `${width}%` }}
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="grid flex-1 grid-cols-2 gap-4">
-                {ROWS.map((row) => (
-                  <div key={row} className="flex flex-col justify-center gap-3 rounded-lg bg-placeholder p-4">
-                    <Shape animated={animated} className="h-3 w-16" motionPhase={row < 2 ? 2 : 3} />
-
-                    <Shape animated={animated} breathe={row === 0} className="h-7 w-24" motionPhase={row < 2 ? 2 : 3} />
-                  </div>
-                ))}
-              </div>
-            )}
+          <div className={`flex min-h-0 flex-1 items-end gap-3 ${WIDGET_CARD_BODY_CLASS}`}>
+            {card.bars.map((height, index) => (
+              <Shape
+                key={index}
+                animated={animated}
+                breathe={index === 0}
+                className="flex-1"
+                motionPhase={index < 3 ? 2 : 3}
+                style={{ height: `${height}%` }}
+              />
+            ))}
           </div>
         </div>
       ))}

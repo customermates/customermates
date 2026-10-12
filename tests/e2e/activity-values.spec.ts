@@ -2,7 +2,7 @@ import type { Locator, Page } from "@playwright/test";
 
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
-import { test, expect, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
 
 function chip(scope: Locator, label: string) {
@@ -28,10 +28,7 @@ test("renders change values with the shared value renderers on every activity su
   companyId,
 }, testInfo) => {
   test.setTimeout(300000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
+  const errors = collectPageErrors(page, { console: false });
   const memberId = randomUUID();
   const roleId = randomUUID();
   await database.query('INSERT INTO "UserRole" (id,"companyId",name,"updatedAt") VALUES ($1,$2,\'Field team\',NOW())', [

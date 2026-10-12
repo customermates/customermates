@@ -8,7 +8,7 @@ import { Tabs as TabsPrimitive } from "radix-ui";
 import { cn } from "@/core/utils/cn";
 import { useIsWiderThan } from "@/hooks/use-media-query";
 
-export type SegmentedControlItem<Value extends string> = {
+type SegmentedControlItem<Value extends string> = {
   value: Value;
   label: ReactNode;
   invalid?: boolean;

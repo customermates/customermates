@@ -232,9 +232,8 @@ describe("generic widget modal", () => {
     const { store } = setup(),
       old = chart();
     mocks.getWidgetByIdAction.mockResolvedValueOnce(old);
-    await store.openWithFilter(old.id, "filters", "owner");
+    await store.openWithFilter(old.id, "filters");
     expect(store.expandedSection).toBe("filters");
-    expect(store.expandedFilterField).toBe("owner");
   });
   it("requires a name before sending a mutation", async () => {
     const { store } = setup();

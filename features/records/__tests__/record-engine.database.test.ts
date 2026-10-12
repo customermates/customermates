@@ -70,6 +70,7 @@ const { RecordTrashService } = await import("../record-trash.service");
 const { QueryRecordsInteractor } = await import("../query-records.interactor");
 const { GetRecordInteractor } = await import("../get-record.interactor");
 const { GetRecordEditorInteractor } = await import("../get-record-editor.interactor");
+const { EmbeddedSublistReader } = await import("../embedded-sublist-reader");
 const { SaveRecordDetailLayoutInteractor } = await import("../record-detail-layout.interactor");
 const { RecordDetailLayoutReader } = await import("../record-detail-layout-reader");
 const { ReadRecordDetailLayoutInteractor } = await import("../read-record-detail-layout.interactor");
@@ -232,7 +233,13 @@ async function fixture() {
   const layouts = new RecordDetailLayoutReader(personalization);
   const readLayout = new ReadRecordDetailLayoutInteractor(repo, policy, layouts);
   const saveLayout = new SaveRecordDetailLayoutInteractor(repo, policy, personalization, layouts);
-  const editor = new GetRecordEditorInteractor(repo, policy, layouts);
+  const query = new QueryRecordsInteractor(repo, policy);
+  const editor = new GetRecordEditorInteractor(
+    repo,
+    policy,
+    layouts,
+    new EmbeddedSublistReader(query, personalization),
+  );
   const navigation = new GetRecordNavigationInteractor(repo, policy);
   const search = new SearchRecordsInteractor(repo, policy);
   const resolveSearch = new ResolveRecordSearchInteractor(repo, policy);
@@ -241,7 +248,6 @@ async function fixture() {
     policy,
     new RecordWriteService(repo, policy, calculations),
   );
-  const query = new QueryRecordsInteractor(repo, policy);
   const choices = new GetRecordChoicesInteractor(repo, policy, query);
   const measure = new QueryRecordMeasureInteractor(repo, policy);
   const widgets = new PrismaRecordWidgetRepo(new PrismaWidgetRepo());

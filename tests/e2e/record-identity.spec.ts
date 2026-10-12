@@ -1,4 +1,4 @@
-import { test, expect, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails, recordItem, rowActionFocusTarget } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
 
@@ -8,10 +8,7 @@ test("edits identity channels in the generic drawer and searches persisted chann
   companyId,
 }, testInfo) => {
   test.setTimeout(180000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
+  const errors = collectPageErrors(page, { console: false });
   const typeId = presetId(companyId, "contact");
   await page.goto(`/en/records/${typeId}`);
   await page.locator("#records-add").click();

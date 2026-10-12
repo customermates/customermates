@@ -1,7 +1,7 @@
 import { findAgentUiTarget } from "@/ee/agent-chat/ui-targets";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
 
-export const FOCUS_KINDS = [
+const FOCUS_KINDS = [
   "list",
   "field",
   "option",

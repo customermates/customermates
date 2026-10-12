@@ -1,19 +1,8 @@
 import type { Page, Route } from "@playwright/test";
 import { presetId } from "../../features/records/crm-preset";
 import { addFromConfigure, openConfigure, saveDrawer } from "./configure";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { expect, test, collectPageErrors } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
-
-function collectErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
-  return errors;
-}
 
 async function delayNextAction(page: Page) {
   let accepted!: () => void;
@@ -74,7 +63,7 @@ test("keeps the current record draft when a previous real save response arrives 
   companyId,
 }, testInfo) => {
   const typeId = presetId(companyId, "service");
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   await page.goto(`/en/records/${typeId}`);
   await page.locator("#records-add").click();
   const editor = page.getByRole("dialog");
@@ -130,7 +119,7 @@ test("discards an earlier real configuration preview without attaching it to ano
   companyId,
 }, testInfo) => {
   const typeId = presetId(companyId, "organization");
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   await openConfigure(page, typeId);
   await addFromConfigure(page, "Field");
   const editor = page.getByRole("dialog");
@@ -171,7 +160,7 @@ test("keeps a newly opened record draft when an accepted deletion response arriv
   companyId,
 }, testInfo) => {
   const typeId = presetId(companyId, "service");
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   await page.goto(`/en/records/${typeId}`);
   await page.locator("#records-add").click();
   const editor = page.getByRole("dialog");

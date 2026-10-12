@@ -16,7 +16,7 @@ import { ResponsiveOverlay } from "@/components/modal";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Switch } from "@/components/ui/switch";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { useColumnLabel } from "@/components/data-view/use-column-label";
 import { useGroupableFieldLabel } from "@/components/data-view/use-groupable-field-label";
@@ -215,139 +215,135 @@ export const DataViewDisplayOptions = observer(function DataViewDisplayOptions<E
       }}
       onOpenChange={setIsOpen}
     >
-      <TooltipProvider>
-        <div className="flex flex-col">
-          <ViewChangesNotice anchorScope={id ? `${id}-view` : undefined} store={store} />
+      <div className="flex flex-col">
+        <ViewChangesNotice anchorScope={id ? `${id}-view` : undefined} store={store} />
 
-          {store.supportsBoard && (
-            <Section label={t("Common.table.layout")}>
-              <SegmentedControl
-                items={[
-                  {
-                    value: "table",
-                    label: t("Common.table.layouts.table"),
-                    id: anchorScope ? `${anchorScope}-layout-table` : undefined,
-                    controls: false,
-                  },
-                  {
-                    value: "board",
-                    label: t("Common.table.layouts.board"),
-                    id: anchorScope ? `${anchorScope}-layout-board` : undefined,
-                    disabled: !canBoard,
-                    controls: false,
-                  },
-                ]}
-                label={t("Common.table.layout")}
-                value={currentLayout}
-                onValueChange={handleLayoutChange}
-              />
+        {store.supportsBoard && (
+          <Section label={t("Common.table.layout")}>
+            <SegmentedControl
+              items={[
+                {
+                  value: "table",
+                  label: t("Common.table.layouts.table"),
+                  id: anchorScope ? `${anchorScope}-layout-table` : undefined,
+                  controls: false,
+                },
+                {
+                  value: "board",
+                  label: t("Common.table.layouts.board"),
+                  id: anchorScope ? `${anchorScope}-layout-board` : undefined,
+                  disabled: !canBoard,
+                  controls: false,
+                },
+              ]}
+              label={t("Common.table.layout")}
+              value={currentLayout}
+              onValueChange={handleLayoutChange}
+            />
 
-              {!canBoard && (
-                <p className="mt-1.5 text-xs text-muted-foreground">
-                  {t("Common.ariaLabels.switchToBoardViewDisabled")}
-                </p>
-              )}
-            </Section>
-          )}
+            {!canBoard && (
+              <p className="mt-1.5 text-xs text-muted-foreground">{t("Common.ariaLabels.switchToBoardViewDisabled")}</p>
+            )}
+          </Section>
+        )}
 
-          {store.groupableFields.length > 0 && (
-            <Section label={t("Common.table.groupBy")}>
-              <Select value={currentGroupingId || "__none__"} onValueChange={handleGroupingChange}>
-                <SelectTrigger aria-label={t("Common.table.groupBy")} className="h-8 w-full" size="sm">
+        {store.groupableFields.length > 0 && (
+          <Section label={t("Common.table.groupBy")}>
+            <Select value={currentGroupingId || "__none__"} onValueChange={handleGroupingChange}>
+              <SelectTrigger aria-label={t("Common.table.groupBy")} className="h-8 w-full" size="sm">
+                <SelectValue />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem value="__none__">{t("Common.none")}</SelectItem>
+
+                {store.groupableFields.map((field) => (
+                  <SelectItem key={field.id} value={field.id}>
+                    {groupableLabel(field)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {boardGrouped && (
+              <Label
+                className="mt-1 flex items-center justify-between gap-2 text-sm font-normal"
+                htmlFor="board-hide-empty"
+              >
+                {t("DataView.hideEmptyColumns")}
+
+                <Switch
+                  checked={Boolean(store.grouping?.hideEmpty)}
+                  id="board-hide-empty"
+                  size="sm"
+                  onCheckedChange={(checked) => store.setHideEmptyGroups(checked)}
+                />
+              </Label>
+            )}
+          </Section>
+        )}
+
+        <GroupSummaryOptions store={store} />
+
+        {boardGrouped && hiddenGroups.length > 0 && <HiddenBoardColumns groups={hiddenGroups} store={store} />}
+
+        {sortable.length > 0 && (
+          <Section label={t("Common.sort.field")}>
+            <div className="flex gap-1 w-full">
+              <Select value={currentSortField} onValueChange={handleSortFieldChange}>
+                <SelectTrigger aria-label={t("Common.sort.field")} className="h-8 flex-1" size="sm">
                   <SelectValue />
                 </SelectTrigger>
 
                 <SelectContent>
-                  <SelectItem value="__none__">{t("Common.none")}</SelectItem>
-
-                  {store.groupableFields.map((field) => (
-                    <SelectItem key={field.id} value={field.id}>
-                      {groupableLabel(field)}
+                  {sortable.map((col) => (
+                    <SelectItem key={col.uid} value={col.uid}>
+                      {col.label || columnLabel(col.uid)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
 
-              {boardGrouped && (
-                <Label
-                  className="mt-1 flex items-center justify-between gap-2 text-sm font-normal"
-                  htmlFor="board-hide-empty"
-                >
-                  {t("DataView.hideEmptyColumns")}
+              {currentSortField && currentSortField !== MANUAL_ORDER_SORT_KEY && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      aria-label={currentSortDirectionLabel}
+                      className="h-8 shrink-0"
+                      size="icon"
+                      variant="secondary"
+                      onClick={() => handleSortDirectionChange(currentSortDirection === "asc" ? "desc" : "asc")}
+                    >
+                      {currentSortDirection === "asc" ? (
+                        <ArrowUpAZ className="size-3.5" />
+                      ) : (
+                        <ArrowDownAZ className="size-3.5" />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
 
-                  <Switch
-                    checked={Boolean(store.grouping?.hideEmpty)}
-                    id="board-hide-empty"
-                    size="sm"
-                    onCheckedChange={(checked) => store.setHideEmptyGroups(checked)}
-                  />
-                </Label>
+                  <TooltipContent>{currentSortDirectionLabel}</TooltipContent>
+                </Tooltip>
               )}
-            </Section>
-          )}
+            </div>
+          </Section>
+        )}
 
-          <GroupSummaryOptions store={store} />
-
-          {boardGrouped && hiddenGroups.length > 0 && <HiddenBoardColumns groups={hiddenGroups} store={store} />}
-
-          {sortable.length > 0 && (
-            <Section label={t("Common.sort.field")}>
-              <div className="flex gap-1 w-full">
-                <Select value={currentSortField} onValueChange={handleSortFieldChange}>
-                  <SelectTrigger aria-label={t("Common.sort.field")} className="h-8 flex-1" size="sm">
-                    <SelectValue />
-                  </SelectTrigger>
-
-                  <SelectContent>
-                    {sortable.map((col) => (
-                      <SelectItem key={col.uid} value={col.uid}>
-                        {col.label || columnLabel(col.uid)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                {currentSortField && currentSortField !== MANUAL_ORDER_SORT_KEY && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        aria-label={currentSortDirectionLabel}
-                        className="h-8 shrink-0"
-                        size="icon"
-                        variant="secondary"
-                        onClick={() => handleSortDirectionChange(currentSortDirection === "asc" ? "desc" : "asc")}
-                      >
-                        {currentSortDirection === "asc" ? (
-                          <ArrowUpAZ className="size-3.5" />
-                        ) : (
-                          <ArrowDownAZ className="size-3.5" />
-                        )}
-                      </Button>
-                    </TooltipTrigger>
-
-                    <TooltipContent>{currentSortDirectionLabel}</TooltipContent>
-                  </Tooltip>
-                )}
-              </div>
-            </Section>
-          )}
-
-          {orderedColumns.length > 0 && (
-            <Section label={t("Common.table.fields")}>
-              <ColumnVisibilityList
-                items={orderedColumns.map((col) => ({
-                  uid: col.uid,
-                  label: col.label || columnLabel(col.uid),
-                  isVisible: !hiddenSet.has(col.uid),
-                  isPinned: col.uid === store.primaryColumnId,
-                }))}
-                onReorder={(columnOrder) => store.setViewOptions({ columnOrder })}
-                onToggle={handleToggle}
-              />
-            </Section>
-          )}
-        </div>
-      </TooltipProvider>
+        {orderedColumns.length > 0 && (
+          <Section label={t("Common.table.fields")}>
+            <ColumnVisibilityList
+              items={orderedColumns.map((col) => ({
+                uid: col.uid,
+                label: col.label || columnLabel(col.uid),
+                isVisible: !hiddenSet.has(col.uid),
+                isPinned: col.uid === store.primaryColumnId,
+              }))}
+              onReorder={(columnOrder) => store.setViewOptions({ columnOrder })}
+              onToggle={handleToggle}
+            />
+          </Section>
+        )}
+      </div>
     </ResponsiveOverlay>
   );
 

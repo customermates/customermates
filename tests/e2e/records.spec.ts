@@ -8,7 +8,7 @@ import {
   saveDrawer,
   saveGeneral,
 } from "./configure";
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, isAppConsoleError, isBenignPageError, collectPageErrors } from "./fixtures";
 import { saveViewChanges } from "./view-changes";
 import { openRecordDetails, recordItem } from "./record-rows";
 import { openFilterPalette } from "./filter-palette";
@@ -283,13 +283,7 @@ test("resizes table columns with keyboard controls, restores saved widths and re
   isMobile,
 }, testInfo) => {
   test.skip(isMobile, "Column resizing is a desktop table control; phone rows have no columns");
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "organization");
   const fieldId = presetId(companyId, "organization.name");
   await page.goto(`/en/records/${typeId}`);
