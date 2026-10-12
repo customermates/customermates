@@ -55,7 +55,7 @@ test("board columns add a record with the column value, open the option, and col
   await expect(won.locator("[aria-label]")).toHaveCount(0);
   const labelOffset = async (lane: typeof won) =>
     lane.evaluate((element) => {
-      const badge = element.querySelector('[data-slot="badge"]');
+      const badge = element.querySelector("[data-kanban-column-label]");
       return badge ? badge.getBoundingClientRect().top - element.getBoundingClientRect().top : null;
     });
   const stripOffset = await labelOffset(won);
