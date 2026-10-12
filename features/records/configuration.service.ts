@@ -432,12 +432,33 @@ export class RecordConfigurationService extends UserAccessor {
     }
     const changedTypes = new Set<string>();
     const channelTypes = new Set<string>(lifecycle?.removed?.channelTypeIds);
+    const archivedOnlyTypes = new Set<string>();
+    const referenced = (fieldId: string) =>
+      model.fields.some(
+        (candidate) =>
+          !candidate.archived &&
+          candidate.behavior.kind !== "input" &&
+          expressionFieldDependencies(candidate.behavior.expression).has(fieldId),
+      );
     for (const field of model.fields) {
       const before = current.fields.find((candidate) => candidate.id === field.id);
       if (before && (before.valueType === "channels") !== (field.valueType === "channels"))
         validation.issues.push({ code: "channels_type_change", fieldId: field.id, typeId: field.typeId });
       if (fieldValueDefinition(before) === fieldValueDefinition(field)) continue;
-      (field.valueType === "channels" ? channelTypes : changedTypes).add(field.typeId);
+      if (field.valueType === "channels") {
+        channelTypes.add(field.typeId);
+        continue;
+      }
+      if (
+        before &&
+        field.behavior.kind === "input" &&
+        fieldValueDefinition({ ...before, archived: field.archived }) === fieldValueDefinition(field) &&
+        !referenced(field.id)
+      ) {
+        archivedOnlyTypes.add(field.typeId);
+        continue;
+      }
+      changedTypes.add(field.typeId);
     }
     let changed = true;
     while (changed) {
@@ -455,7 +476,7 @@ export class RecordConfigurationService extends UserAccessor {
         }
       }
     }
-    const viewTypes = new Set([...changedTypes, ...channelTypes]);
+    const viewTypes = new Set([...changedTypes, ...channelTypes, ...archivedOnlyTypes]);
     const changedRelations = new Set(
       [...current.relationships, ...model.relationships]
         .filter(

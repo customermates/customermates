@@ -250,6 +250,30 @@ afterAll(async () => {
 });
 
 describeDatabase("configuration trash", () => {
+  it("moves an unreferenced input field to Trash and back without rewriting the records of its list", async () => {
+    const f = await fixture();
+    const companyId = f.seed.company.id;
+    const deal = await f.create("deal", "deal.name", "Untouched by the notes field");
+    const version = () =>
+      runWithoutTenant(() =>
+        prisma.crmRecord.findUniqueOrThrow({
+          where: { companyId_typeId_id: { companyId, typeId: deal.typeId, id: deal.recordId } },
+          select: { version: true, updatedAt: true },
+        }),
+      );
+    const before = await version();
+    const change = await f.change([{ operation: "delete", target: { kind: "field", id: f.id("deal.notes") } }]);
+    const removed = await f.as(() => f.apply.invoke(change));
+    expect(removed).toMatchObject({ ok: true, data: { status: "completed" } });
+    expect(await version()).toEqual(before);
+    const item = (await f.items()).find((row) => row.targetId === f.id("deal.notes"));
+    expect(await f.as(() => f.trash.restore.invoke({ itemIds: [item?.id ?? ""] }))).toMatchObject({
+      ok: true,
+      data: { restoredItemIds: [item?.id] },
+    });
+    expect(await version()).toEqual(before);
+  }, 180_000);
+
   it("moves a field to Trash with an undo batch, lists it and restores it through Trash", async () => {
     const f = await fixture();
     const fieldId = f.id("deal.notes");
@@ -279,7 +303,7 @@ describeDatabase("configuration trash", () => {
     expect(model.fields.find((field) => field.id === fieldId)?.archived).toBe(false);
   }, 180_000);
 
-  it("restores a trashed field through a background operation on a workspace with two thousand records", async () => {
+  it("restores a trashed input field at once on a workspace with two thousand records, without rewriting them", async () => {
     const f = await fixture();
     const typeId = f.id("organization");
     const fieldId = f.id("organization.notes");
@@ -307,17 +331,13 @@ describeDatabase("configuration trash", () => {
       }),
     );
     const restored = await f.as(() => f.trash.restore.invoke({ batchId: trashBatchId } as never));
-    if (!restored.ok || restored.data.status !== "pending") throw new Error(JSON.stringify(restored));
-    const { operationId } = restored.data;
-    expect(await f.items()).toHaveLength(1);
-    const worker = new RecordOperationService(
-      createTestRecordRepo(),
-      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), createTestRecordRepo()),
-      new RecordConfigurationService(createTestRecordRepo()),
-      noWebhooks,
-    );
-    for (let done = false; !done; ) done = (await f.as(() => worker.advance(operationId))).done;
+    expect(restored).toMatchObject({ ok: true, data: { status: "completed", blocked: [] } });
     expect(await f.items()).toEqual([]);
+    expect(
+      await runWithoutTenant(() =>
+        prisma.crmRecord.count({ where: { companyId: f.seed.company.id, id: { in: ids }, version: { gt: 1 } } }),
+      ),
+    ).toBe(0);
     const model = await f.as(() => createTestRecordRepo().getModel());
     expect(model.fields.find((field) => field.id === fieldId)?.archived).toBe(false);
   }, 300_000);
