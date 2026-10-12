@@ -14809,6 +14809,85 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
   });
 
+  it("completes a replayed background configuration once with idempotent progress and a total", async () => {
+    const stage = async (concurrentReplays: number) => {
+      const f = await fixture();
+      const typeId = f.id("service");
+      const recordIds = Array.from({ length: 501 }, () => randomUUID());
+      await f.run(() =>
+        runInTransaction(async () => {
+          await prisma.crmRecord.createMany({
+            data: recordIds.map((id) => ({ id, companyId: f.company.id, typeId })),
+          });
+          await prisma.recordValue.createMany({
+            data: recordIds.map((recordId, index) => ({
+              companyId: f.company.id,
+              typeId,
+              recordId,
+              fieldId: f.id("service.name"),
+              state: "value",
+              textValue: `Service ${index}`,
+              schemaRevision: 1,
+            })),
+          });
+        }),
+      );
+      const accepted = await f.run(() =>
+        f.configure.invoke({
+          expectedRevision: 1,
+          idempotencyKey: randomUUID(),
+          operations: [
+            {
+              operation: "putField",
+              field: {
+                id: "$label",
+                typeId,
+                label: "Replay label",
+                valueType: "text",
+                required: false,
+                archived: false,
+                options: [],
+                position: 99,
+                behavior: { kind: "formula", expression: { kind: "literal", value: textValue("replayed") } },
+              },
+            },
+          ],
+        }),
+      );
+      if (!accepted.ok || accepted.data.status !== "pending") throw new Error("Configuration was not staged");
+      const operationId = accepted.data.operationId;
+      let done = false;
+      let processed = 0;
+      for (let step = 0; step < 200 && !done; step++) {
+        const results = await Promise.all(
+          Array.from({ length: concurrentReplays }, () => f.run(() => f.worker().advance(operationId))),
+        );
+        done = results.some((result) => result.done);
+        const operation = recordInvariant(await f.run(() => f.repo.getOperation(operationId)));
+        expect(operation.processed).toBeGreaterThanOrEqual(processed);
+        if (operation.processed > 0) expect(operation.total).toBeGreaterThanOrEqual(operation.processed);
+        processed = operation.processed;
+      }
+      expect(done).toBe(true);
+      const status = await f.run(() => f.status.invoke({ operationId }));
+      if (!status.ok) throw new Error("Operation status failed");
+      expect(status.data.state).toBe("completed");
+      expect(status.data.total).toBe(status.data.processed);
+      const field = recordInvariant(
+        (await f.run(() => f.repo.getModel())).fields.find((entry) => entry.label === "Replay label"),
+      );
+      const values = await f.run(() =>
+        prisma.recordValue.findMany({ where: { companyId: f.company.id, typeId, fieldId: field.id } }),
+      );
+      expect(values).toHaveLength(recordIds.length);
+      expect(values.every((value) => value.textValue === "replayed")).toBe(true);
+      return status.data.processed;
+    };
+    const sequential = await stage(1);
+    expect(sequential).toBeGreaterThan(0);
+    expect(await stage(3)).toBe(sequential);
+  }, 180000);
+
   it("retains recoverable staging and its write pause until an operation becomes terminal", async () => {
     const f = await fixture();
     const service = await f.create("service", "Recoverable source");

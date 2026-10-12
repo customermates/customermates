@@ -5,6 +5,7 @@ import {
   getFailRecordOperationInteractor,
   getRecordOperationService,
 } from "@/core/di";
+import { sleep } from "workflow";
 import { RECORD_SYSTEM_ACTOR } from "@/features/records/record-system-actor";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 
@@ -14,8 +15,18 @@ export type RecordOperationWorkflowPayload =
   | { operationId: string; ownerUserId: string; system?: never; tenant?: WorkflowTenant }
   | { operationId: string; ownerUserId?: never; system: { companyId: string }; tenant?: WorkflowTenant };
 
+const STEP_BUDGET_MS = 10_000;
+
 async function advanceRecordOperation(payload: RecordOperationWorkflowPayload): Promise<{ done: boolean }> {
   "use step";
+  const startedAt = Date.now();
+  let done = false;
+  while (!done && Date.now() - startedAt < STEP_BUDGET_MS) done = (await advanceOnce(payload)).done;
+  return { done };
+}
+advanceRecordOperation.maxRetries = 3;
+
+function advanceOnce(payload: RecordOperationWorkflowPayload): Promise<{ done: boolean }> {
   if (payload.system) {
     return getAdvanceSystemRecordOperationInteractor().invoke({
       companyId: payload.system.companyId,
@@ -30,7 +41,6 @@ async function advanceRecordOperation(payload: RecordOperationWorkflowPayload): 
     return service.advance(payload.operationId);
   });
 }
-advanceRecordOperation.maxRetries = 3;
 
 async function failRecordOperation(payload: RecordOperationWorkflowPayload): Promise<void> {
   "use step";
@@ -53,8 +63,7 @@ async function failRecordOperation(payload: RecordOperationWorkflowPayload): Pro
 export async function recordOperation(payload: RecordOperationWorkflowPayload): Promise<void> {
   "use workflow";
   try {
-    let done = false;
-    while (!done) done = (await advanceRecordOperation(payload)).done;
+    while (!(await advanceRecordOperation(payload)).done) await sleep("1s");
   } catch (error) {
     await failRecordOperation(payload);
     await reportFailure("record-operation", toWorkflowFailure(error), payload.tenant);
