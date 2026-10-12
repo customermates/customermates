@@ -22,7 +22,7 @@ vi.mock("next-intl/server", () => ({
 
 await import("@/core/di");
 await import("@/features/mcp-tools/tool-registry");
-const { createRestRouteWorkspace, postAs } = await import("@/tests/helpers/rest-route-workspace");
+const { createRestRouteWorkspace, postAs, restRoute } = await import("@/tests/helpers/rest-route-workspace");
 const { executeMcpTool } = await import("@/features/mcp-tools/mcp-tool");
 const { mutateRecordV2Tool } = await import("@/features/mcp-tools/record-model.mcp-tools");
 const { manageRolesTool } = await import("@/features/mcp-tools/role.mcp-tools");
@@ -32,10 +32,10 @@ const { prisma } = await import("@/prisma/db");
 const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const recordActions = await import("@/app/[locale]/(protected)/records/actions");
 const settingsActions = await import("@/app/[locale]/(protected)/settings/(workspace)/actions");
-const mutateRoute = (await import("@/app/api/v1/records/mutate/route")).POST;
-const applyRoute = (await import("@/app/api/v1/model/apply/route")).POST;
-const saveRoleRoute = (await import("@/app/api/v1/roles/save/route")).POST;
-const deleteRoleRoute = (await import("@/app/api/v1/roles/delete/route")).POST;
+const mutateRoute = await restRoute("/v1/records/mutate");
+const applyRoute = await restRoute("/v1/model/apply");
+const saveRoleRoute = await restRoute("/v1/roles/save");
+const deleteRoleRoute = await restRoute("/v1/roles/delete");
 
 type Workspace = Awaited<ReturnType<typeof createRestRouteWorkspace>>;
 type Kind = "validation" | "authorization" | "not_found" | "conflict";

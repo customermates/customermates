@@ -1142,6 +1142,7 @@
       "recordWritePaused": "El modelo de datos se está actualizando. Tu borrador se conserva; inténtalo cuando termine.",
       "roleAccessPresetInUse": "Una plantilla de acceso utiliza este rol. Actualiza la plantilla antes de eliminar el rol.",
       "roleAssignedCannotDelete": "No se puede eliminar un rol asignado a usuarios.",
+      "roleNameTaken": "Ya existe un rol con este nombre.",
       "roleNotFound": "ID de rol no encontrado o no accesible.",
       "roleSelfEditForbidden": "No puedes cambiar los permisos del rol que tienes asignado.",
       "roleSystemImmutable": "Los roles del sistema no se pueden editar.",
@@ -1454,6 +1455,41 @@
       "userIds": "Asignado a"
     },
     "language": "Idioma",
+    "legacyEvents": {
+      "company": {
+        "updated": "Empresa actualizada (heredado)"
+      },
+      "contact": {
+        "created": "Contacto creado (heredado)",
+        "deleted": "Contacto eliminado (heredado)",
+        "updated": "Contacto actualizado (heredado)"
+      },
+      "custom_column": {
+        "created": "Columna personalizada creada (heredado)",
+        "deleted": "Columna personalizada eliminada (heredado)",
+        "updated": "Columna personalizada actualizada (heredado)"
+      },
+      "deal": {
+        "created": "Oportunidad creada (heredado)",
+        "deleted": "Oportunidad eliminada (heredado)",
+        "updated": "Oportunidad actualizada (heredado)"
+      },
+      "organization": {
+        "created": "Organización creada (heredado)",
+        "deleted": "Organización eliminada (heredado)",
+        "updated": "Organización actualizada (heredado)"
+      },
+      "service": {
+        "created": "Servicio creado (heredado)",
+        "deleted": "Servicio eliminado (heredado)",
+        "updated": "Servicio actualizado (heredado)"
+      },
+      "task": {
+        "created": "Tarea creada (heredado)",
+        "deleted": "Tarea eliminada (heredado)",
+        "updated": "Tarea actualizada (heredado)"
+      }
+    },
     "locales": {
       "de": "Alemán",
       "en": "Inglés",
@@ -2068,10 +2104,10 @@
     "summaries": "Resúmenes",
     "views": {
       "activityCount": "{count, plural, one {# actividad} other {# actividades}}",
-      "aiLabel": "Preguntar a la IA sobre {name}",
+      "aiLabel": "Preguntar a Mate sobre {name}",
       "all": "Todas",
       "applied": "Mostrando {name}",
-      "askAi": "Preguntar a la IA",
+      "askAi": "Preguntar a Mate",
       "conversationCount": "{count, plural, one {# conversación} other {# conversaciones}}",
       "copyLink": "Copiar enlace",
       "createTitle": "Nueva vista",

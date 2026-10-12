@@ -35,7 +35,7 @@ export const DecimalStringSchema = z
 export const RecordDateTimeSchema = z.iso
   .datetime({ offset: true })
   .refine((value) => !/\.\d{7}/.test(value), "Timestamp precision cannot exceed six decimal places");
-const ValidatedRecordScalarSchema = z.union([
+const ValidatedRecordScalarSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("text"), value: z.string().max(100000) }).strict(),
   z
     .object({
@@ -113,7 +113,9 @@ export const RecordScalarSchema = z
     documentJson: z.string().max(1000000).optional(),
   })
   .strict()
-  .describe("Typed CRM value; only the fields for the selected kind are allowed.")
+  .describe(
+    "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none.",
+  )
   .pipe(ValidatedRecordScalarSchema);
 export type RecordScalar = z.infer<typeof RecordScalarSchema>;
 

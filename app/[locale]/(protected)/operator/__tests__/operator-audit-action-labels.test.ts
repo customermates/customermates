@@ -2,7 +2,9 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { jsx } from "react/jsx-runtime";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => `translated:${key}` }));
+vi.mock("next-intl", () => ({
+  useTranslations: () => Object.assign((key: string) => `translated:${key}`, { has: () => true, raw: () => "" }),
+}));
 
 import en from "@/i18n/locales/en.json";
 

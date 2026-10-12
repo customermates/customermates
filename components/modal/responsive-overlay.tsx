@@ -133,10 +133,8 @@ export function ResponsiveOverlay({
         onInteractOutside={keepOpenForAssistantSurface}
         onOpenAutoFocus={onOpenAutoFocus}
       >
-        <DrawerHeader className={cn(headerAction && "flex-row items-center gap-2 py-2 pr-12")}>
+        <DrawerHeader actions={headerAction}>
           <DrawerTitle className={cn("min-w-0 truncate", headerAction && "flex-1")}>{title}</DrawerTitle>
-
-          {headerAction}
         </DrawerHeader>
 
         <OverlayDismissGuardContext.Provider value={dismissGuard.guard}>

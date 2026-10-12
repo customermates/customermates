@@ -21,6 +21,7 @@ import { ROUTINE_RUN_REASONS } from "@/ee/routines/routine-run-outcome";
 import { ROUTINE_SCHEDULE_PRESETS } from "@/ee/routines/routine-schedule-preset";
 import { RECORD_PRESET_KEYS } from "@/features/records/record-navigation.schema";
 import { DomainEvent } from "@/features/event/domain-events";
+import { LEGACY_DOMAIN_EVENTS } from "@/features/event/event-label";
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";
 import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";
 import { CONFIGURATION_ACTIVITY_EVENTS } from "@/ee/messaging/activities/activities.schema";
@@ -60,6 +61,7 @@ const ACTIVITY_EVENTS = [
   ...CONFIGURATION_ACTIVITY_EVENTS,
 ];
 const DOMAIN_EVENT_KEYS = ACTIVITY_EVENTS.map((event) => `Common.events.${event}`);
+const LEGACY_EVENT_KEYS = LEGACY_DOMAIN_EVENTS.map((event) => `Common.legacyEvents.${event}`);
 const CLICK_ACTION_KEYS = ["email", "phone", "url", "channels"].flatMap((kind) =>
   ["open", "copy"].map((action) => `RecordModel.clickActions.${kind}.${action}`),
 );
@@ -573,6 +575,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Common.defaultData.${*}.options.${*}", DEFAULT_DATA_OPTION_KEYS],
   ["Common.errors.${*}", CUSTOM_ERROR_CODE_KEYS],
   ["Common.events.${*}", DOMAIN_EVENT_KEYS],
+  ["Common.legacyEvents.${*}", LEGACY_EVENT_KEYS],
   ["AccountRemovalReason.${*}", ACCOUNT_REMOVAL_REASON_KEYS],
   ["RoutineRunStatus.${*}", ROUTINE_RUN_STATUS_KEYS],
   ["RoutineTriggerKind.${*}", ROUTINE_TRIGGER_KIND_KEYS],
@@ -688,13 +691,14 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-panel.tsx :: t :: Subscription.status.${subscription?.status ?? SubscriptionStatus.trial}",
   "app/[locale]/(protected)/settings/(workspace)/components/user/use-member-columns.tsx :: t :: Common.userStatuses.${row.original.status}",
   "app/[locale]/(protected)/settings/(workspace)/components/user/user-modal.tsx :: t :: Common.userStatuses.${key}",
-  "app/[locale]/(protected)/settings/(workspace)/components/webhook/use-webhook-columns.tsx :: t :: Common.events.${event}",
-  "app/[locale]/(protected)/settings/(workspace)/components/webhook/use-webhook-delivery-columns.tsx :: t :: Common.events.${row.original.event}",
+  "features/event/event-label.ts :: t :: Common.events.${event}",
+  "features/event/event-label.ts :: t :: Common.legacyEvents.${event}",
+  "features/event/event-label.ts :: t.has :: Common.events.${event}",
+  "features/event/event-label.ts :: t.has :: Common.legacyEvents.${event}",
+  "features/event/event-label.ts :: t.raw :: Common.events.${event}",
+  "features/event/event-label.ts :: t.raw :: Common.legacyEvents.${event}",
   "app/[locale]/(protected)/settings/(workspace)/components/webhook/use-webhook-delivery-columns.tsx :: t :: WebhookDeliveryModal.deliveryStatus.${row.original.status}",
-  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-delivery-modal.tsx :: t :: Common.events.${delivery.event}",
   "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-delivery-modal.tsx :: t :: WebhookDeliveryModal.deliveryStatus.${delivery.status}",
-  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-modal.tsx :: t :: Common.events.${event}",
-  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-modal.tsx :: t :: Common.events.${item.key}",
   "app/[locale]/(protected)/configure/components/configure-list-pane.tsx :: t :: RecordModel.cardinality.${cardinality}",
   "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: ConnectedAccountsCard.statusLabels.${account.status}",
   "app/[locale]/(protected)/configure/components/configure-graph.tsx :: t :: RecordModel.cardinality.${edge.cardinality}",
@@ -729,7 +733,6 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/inbox/components/thread-state-picker.tsx :: t :: Inbox.threadStates.${s}",
   "app/[locale]/(protected)/onboarding/wizard/components/onboarding-wizard.tsx :: t :: OnboardingWizard.steps.${currentStep}.subtitle",
   "app/[locale]/(protected)/onboarding/wizard/components/onboarding-wizard.tsx :: t :: OnboardingWizard.steps.${currentStep}.title",
-  "app/[locale]/(protected)/operator/components/operator-value-labels.tsx :: t :: Common.events.${action}",
   "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Common.userStatuses.${status}",
   "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Subscription.planNames.${plan}",
   "app/[locale]/(protected)/operator/components/use-operator-chip-options.ts :: t :: Subscription.status.${status}",
@@ -758,16 +761,11 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/records/[typeId]/components/record-field-value-editor.tsx :: getTranslation :: Common.errors.${code}",
   "app/[locale]/(protected)/records/[typeId]/components/record-identity-editor.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
   "app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx :: t :: RecordModel.operators.${operator}",
-  "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: Common.events.${event}",
-  "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: Common.events.${item.key}",
   "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: Common.userStatuses.${form.owner.status}",
   "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: RoutineSchedulePreset.${value}",
   "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: RoutineWeekday.${key}",
-  "app/[locale]/(protected)/routines/components/routine-empty-state.tsx :: t :: Common.events.${event}",
   "app/[locale]/(protected)/routines/components/routine-run-detail.tsx :: t :: RoutineRunStatus.${run.status}",
-  "app/[locale]/(protected)/routines/components/routine-run-trigger-card.tsx :: t :: Common.events.${run.triggerEvent}",
   "app/[locale]/(protected)/routines/components/routine-run-trigger-card.tsx :: t :: RoutineTriggerKind.${run.triggerKind}",
-  "app/[locale]/(protected)/routines/components/routine-runs-pane.tsx :: t :: Common.events.${run.triggerEvent}",
   "app/[locale]/(protected)/routines/components/routine-runs-pane.tsx :: t :: RoutineRunStatus.${run.status}",
   "app/[locale]/(protected)/routines/components/routine-runs-pane.tsx :: t :: RoutineTriggerKind.${run.triggerKind}",
   "app/[locale]/(protected)/routines/components/use-routine-columns.tsx :: t :: Common.userStatuses.${owner.status}",
@@ -808,7 +806,6 @@ export const DYNAMIC_KEY_SITES = [
   "components/ai-connection/ai-connection-provider-grid.tsx :: t :: OnboardingWizard.ai.choices.${provider}",
   "components/data-view/filter-modal/inputs/filter-input-iso-date-range.tsx :: t :: Common.datePresets.${key}",
   "components/data-view/filter-modal/inputs/filter-input-iso-date.tsx :: t :: Common.datePresets.${preset.key}",
-  "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.events.${event}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${account.provider}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${option.provider}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.providers.${provider}",
@@ -859,15 +856,11 @@ export const DYNAMIC_KEY_SITES = [
   "ee/subscription/entitlement.service.ts :: t :: ConnectedAccountsCard.${code}",
   "features/auth/sign-in-with-email.interactor.ts :: t :: Common.errors.${res.error}",
   "features/auth/sign-up-with-email.interactor.ts :: t :: Common.errors.${res.error}",
-  "features/messaging/activities/activities-detail-modal.tsx :: t :: Common.events.${entry.event}",
   "features/messaging/activities/activities-detail-modal.tsx :: t :: Common.providers.${event.provider}",
   "features/messaging/activities/activities-detail-modal.tsx :: t :: Common.providers.${message.provider}",
-  "features/messaging/activities/activities-list.tsx :: t :: Common.events.${entry.event}",
   "features/messaging/activities/activities-list.tsx :: t :: Common.providers.${ev.provider}",
   "features/messaging/activities/activities-list.tsx :: t :: Common.providers.${message.provider}",
-  "features/messaging/activities/audit-detail.tsx :: t :: Common.events.${entry.event}",
   "features/messaging/activities/change-value.tsx :: t :: AccountRemovalReason.${code}",
-  "features/messaging/activities/change-value.tsx :: t :: Common.events.${code}",
   "features/messaging/activities/change-value.tsx :: t :: Common.providers.${code}",
   "features/messaging/activities/change-value.tsx :: t :: Common.userStatuses.${code}",
   "features/messaging/activities/change-value.tsx :: t :: LegalDocumentNotice.documents.${code}",
@@ -875,11 +868,9 @@ export const DYNAMIC_KEY_SITES = [
   "features/messaging/activities/change-value.tsx :: t :: RoleModal.resources.${code}",
   "features/messaging/activities/change-value.tsx :: t.has :: RoleModal.resources.${code}",
   "features/messaging/activities/change-value.tsx :: t.has :: AccountRemovalReason.${code}",
-  "features/messaging/activities/change-value.tsx :: t.has :: Common.events.${code}",
   "features/messaging/activities/change-value.tsx :: t.has :: Common.providers.${code}",
   "features/messaging/activities/change-value.tsx :: t.has :: Common.userStatuses.${code}",
   "features/messaging/activities/change-value.tsx :: t.has :: LegalDocumentNotice.documents.${code}",
-  "features/messaging/activities/record-audit-detail.tsx :: t :: Common.events.${entry.event}",
   "features/records/record-detail-layout-reader.ts :: t :: RecordModel.${column.label}",
   "features/records/workspace-record-preset.ts :: t :: Common.defaultData.${preset.entityType}.columnLabel",
   "features/records/workspace-record-preset.ts :: t :: Common.defaultData.${preset.entityType}.options.${option.key}",

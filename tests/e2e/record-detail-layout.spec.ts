@@ -69,7 +69,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
     [companyId, nameId],
   );
   expect(source.rows).toEqual([{ textValue: "Example organization" }, { textValue: "Layout company" }]);
-  await drawer.getByRole("button", { name: "Ask AI", exact: true }).click();
+  await drawer.getByRole("button", { name: "Ask Mate", exact: true }).click();
   await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Draft stays here");
   await page.getByTestId("agent-panel").getByRole("button", { name: "Close", exact: true }).click();
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
