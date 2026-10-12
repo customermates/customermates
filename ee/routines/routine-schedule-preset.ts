@@ -21,7 +21,7 @@ export const ROUTINE_WEEKDAY_KEYS = [
   "saturday",
 ] as const;
 
-export type RoutineScheduleForm = {
+type RoutineScheduleForm = {
   preset: RoutineSchedulePreset;
   minute: number;
   hour: number;

@@ -6,7 +6,7 @@ import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { FilterOperatorKey as Op } from "@/core/base/base-query-builder";
 import { createRecordQueryFilterTarget } from "@/components/records/record-query-filter-target";
-import type { QueryFilters } from "../record-filter-target";
+import type { QueryFilters } from "@/components/records/record-filter-target";
 import type { RecordField, RecordScalar } from "../record-model.schema";
 import type { RecordMutation } from "../record-query.schema";
 import { RecordQuerySchema } from "../record-query.schema";

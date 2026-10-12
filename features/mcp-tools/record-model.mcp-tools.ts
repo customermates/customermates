@@ -33,10 +33,7 @@ import {
   RecordReadSchema,
 } from "@/features/records/record-query.schema";
 import { RecordMeasureSchema, RecordMeasureResultSchema } from "@/features/records/record-measure.schema";
-import {
-  RecordOperationInputSchema,
-  RecordOperationStatusSchema,
-} from "@/features/records/record-operation.interactor";
+import { RecordOperationInputSchema, RecordOperationStatusSchema } from "@/features/records/record-operation.schema";
 import { mcpValidationFailure, recordToonResult, runInteractor, toonResult } from "./utils";
 import {
   MarkedRecordOutputSchema,

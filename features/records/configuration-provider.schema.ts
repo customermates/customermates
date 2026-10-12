@@ -6,7 +6,7 @@ import { RecordScalarSchema } from "./record-model.schema";
 import { ConfigurationReferenceSchema, configurationSchemaWithExpression } from "./configuration.schema";
 
 const NodeIdSchema = z.string().regex(/^[a-zA-Z][a-zA-Z0-9_-]{0,63}$/);
-export const CalculationProgramSchema = z
+const CalculationProgramSchema = z
   .object({
     root: NodeIdSchema,
     nodes: z

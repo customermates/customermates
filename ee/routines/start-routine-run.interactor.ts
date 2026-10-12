@@ -57,9 +57,9 @@ function startFailureReason(error: z.ZodError): RoutineRunErrorCode | "startFail
   return "startFailed";
 }
 
-export type StartRoutineRunData = Data<typeof Schema>;
+type StartRoutineRunData = Data<typeof Schema>;
 
-export type StartRoutineRunOutcome = { started: boolean; reason?: StartRoutineRunReason };
+type StartRoutineRunOutcome = { started: boolean; reason?: StartRoutineRunReason };
 
 @TenantInteractor({ resource: Resource.routines, read: true })
 export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRoutineRunData, StartRoutineRunOutcome> {

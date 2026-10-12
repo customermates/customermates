@@ -113,7 +113,7 @@ const ManageWikiPagesSchema = z.object({
   whenToUse: z.string().optional(),
 });
 
-export const ManageWikiPagesOutputSchema = z.looseObject({
+const ManageWikiPagesOutputSchema = z.looseObject({
   items: z.array(z.looseObject({ id: z.string(), title: z.string() })).optional(),
   total: z.number().optional(),
   totalIsExact: z.boolean().optional(),
@@ -167,7 +167,7 @@ function wikiPageKindOutput(page: WikiPageKindFields) {
   };
 }
 
-export function wikiPageSummary(
+function wikiPageSummary(
   page: {
     id: string;
     title: string;

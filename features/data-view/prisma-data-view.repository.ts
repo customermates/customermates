@@ -18,23 +18,23 @@ import type { RecordViewConfigurationRepo } from "./record-view-configuration.re
 import type { ViewWidgetPurgeRepo } from "@/features/widget/view-widget-purge.repo";
 import type { SurfaceStateResetRepo } from "@/features/p13n/surface-state-reset.repo";
 
-export type DataViewRepoOwners = { widgets: ViewWidgetPurgeRepo; personalizations: SurfaceStateResetRepo };
+type DataViewRepoOwners = { widgets: ViewWidgetPurgeRepo; personalizations: SurfaceStateResetRepo };
 
-export type CreateDataViewArgs = {
+type CreateDataViewArgs = {
   surfaceKey: string;
   name: string;
   position: number;
   state: DataViewState;
 };
 
-export type UpdateOwnedDataViewArgs = {
+type UpdateOwnedDataViewArgs = {
   id: string;
   name?: string;
   position?: number;
   state?: DataViewState;
 };
 
-export type UpdateOwnedDataViewStateArgs = {
+type UpdateOwnedDataViewStateArgs = {
   id: string;
   surfaceKey: string;
   state: DataViewState;

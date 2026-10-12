@@ -20,7 +20,7 @@ function expandExponential(text: string): string {
   return `${sign}${digits.slice(0, pointIndex)}.${digits.slice(pointIndex)}`;
 }
 
-export function canonicalFilterNumber(value: number): string | undefined {
+function canonicalFilterNumber(value: number): string | undefined {
   if (!Number.isFinite(value)) return undefined;
 
   const direct = String(value);
@@ -45,7 +45,7 @@ function canonicalFilterValue(value: unknown): unknown {
   return canonicalFilterNumber(value) ?? value;
 }
 
-export function normalizeFilterNumberValueInput(input: unknown): unknown {
+function normalizeFilterNumberValueInput(input: unknown): unknown {
   if (!input || typeof input !== "object" || Array.isArray(input)) return input;
 
   const filter = input as Record<string, unknown>;

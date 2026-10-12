@@ -1,9 +1,9 @@
 export const WEBHOOK_BODY_TEMPLATE_MAX_CHARS = 8192;
-export const WEBHOOK_RENDERED_BODY_MAX_CHARS = 131072;
+const WEBHOOK_RENDERED_BODY_MAX_CHARS = 131072;
 
 const PLACEHOLDER_PATTERN = /\{\{\s*([A-Za-z0-9_]+(?:\.[A-Za-z0-9_]+)*)\s*\}\}/g;
 
-export type RenderedWebhookBody =
+type RenderedWebhookBody =
   | { ok: true; body: Record<string, unknown> }
   | { ok: false; reason: "unrenderable" | "invalidJson" | "notAnObject" | "tooLarge" };
 

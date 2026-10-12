@@ -13,7 +13,7 @@ const FailRecordOperationSchema = z
     operationId: z.uuid(),
   })
   .strict();
-export type FailRecordOperationData = z.infer<typeof FailRecordOperationSchema>;
+type FailRecordOperationData = z.infer<typeof FailRecordOperationSchema>;
 
 @SystemInteractor
 export class FailRecordOperationInteractor {

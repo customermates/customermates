@@ -9,7 +9,7 @@ import {
 import type { RoleDto } from "@/features/role/role.schema";
 import { mcpValidationFailure, runInteractor, toonResult } from "./utils";
 
-export const ManageRolesSchema = z
+const ManageRolesSchema = z
   .object({
     action: z.enum(["read", "save", "delete"]),
     roleId: z.uuid().optional().describe("Read an existing role; omit for new-role defaults and the type catalog."),

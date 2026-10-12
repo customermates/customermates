@@ -36,7 +36,7 @@ export const InteractorFailureKindSchema = z.enum([
 
 export type InteractorFailureKind = z.infer<typeof InteractorFailureKindSchema>;
 
-export const SerializedInteractorIssueSchema = z.object({
+const SerializedInteractorIssueSchema = z.object({
   code: z.string(),
   path: z.array(z.union([z.string(), z.number()])),
   message: z.string(),

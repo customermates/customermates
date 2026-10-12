@@ -1363,7 +1363,7 @@ describe("AgentChatStore", () => {
           parts: [
             {
               type: "text",
-              text: `<routine_trigger event="deal.updated" entityId="abc" />\n${prompt}`,
+              text: `<routine_trigger event="record.updated" entityId="abc" />\n${prompt}`,
             },
           ],
         },

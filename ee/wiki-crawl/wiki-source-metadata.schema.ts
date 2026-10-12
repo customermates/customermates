@@ -12,7 +12,7 @@ const StoredWikiSourceMetadataSchema = z.object({
     .nullable()
     .transform((pairs) => pairs ?? []),
 });
-export type StoredWikiSourceMetadata = Data<typeof StoredWikiSourceMetadataSchema>;
+type StoredWikiSourceMetadata = Data<typeof StoredWikiSourceMetadataSchema>;
 
 export function parseStoredWikiSourceMetadata(value: unknown): StoredWikiSourceMetadata {
   const parsed = StoredWikiSourceMetadataSchema.safeParse(value);

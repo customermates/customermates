@@ -60,7 +60,7 @@ export function docsHref(slug: string, anchor: string, text: string): string {
   return link ? appLinkPath(link, null) : `/docs/${slug}#${anchor}`;
 }
 
-export function catalogFingerprint(revision: number, views: ReadonlyArray<{ id: string; name: string }>): string {
+function catalogFingerprint(revision: number, views: ReadonlyArray<{ id: string; name: string }>): string {
   return createHash("sha256")
     .update(JSON.stringify([revision, views.map((view) => [view.id, view.name])]))
     .digest("hex");

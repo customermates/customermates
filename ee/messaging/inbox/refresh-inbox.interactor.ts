@@ -18,13 +18,13 @@ import { getRetryAfterSeconds, isUnipileRateLimit } from "../messaging.service";
 import { accountNeedsReconnect } from "../account-health";
 import type { RefreshInboxRepo } from "./refresh-inbox.repo";
 
-export const RefreshInboxResultSchema = z.object({
+const RefreshInboxResultSchema = z.object({
   rateLimited: z.boolean(),
   retryAfterSeconds: z.number().nullable(),
   reconnectAccounts: z.number().int(),
   failedAccounts: z.number().int(),
 });
-export type RefreshInboxResult = z.infer<typeof RefreshInboxResultSchema>;
+type RefreshInboxResult = z.infer<typeof RefreshInboxResultSchema>;
 
 @TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class RefreshInboxInteractor extends AuthenticatedInteractor<void, RefreshInboxResult> {

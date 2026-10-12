@@ -22,11 +22,11 @@ export const ROUTINE_TRIGGER_GUIDANCE_ACTIONS = [
 
 export type RoutineTriggerGuidanceAction = (typeof ROUTINE_TRIGGER_GUIDANCE_ACTIONS)[number];
 
-export type RoutineTriggerGuidance = {
+type RoutineTriggerGuidance = {
   action: RoutineTriggerGuidanceAction;
 };
 
-export type RoutineTriggerGuidanceItem = {
+type RoutineTriggerGuidanceItem = {
   event: string;
   guidance: RoutineTriggerGuidance;
 };

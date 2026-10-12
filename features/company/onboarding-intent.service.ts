@@ -7,7 +7,7 @@ import {
   onboardingIntentSigningSecret,
 } from "./onboarding-intent-codec";
 
-export type OnboardingIntentError =
+type OnboardingIntentError =
   | "invalidInviteLink"
   | "invalidOnboardingIntent"
   | "inviteLinkExpired"
@@ -15,7 +15,7 @@ export type OnboardingIntentError =
 
 type IntentSource = "explicit" | "legacy";
 
-export type OnboardingIntentState =
+type OnboardingIntentState =
   | { status: "absent" }
   | { errorMessage: OnboardingIntentError; source: IntentSource; status: "invalid" }
   | { authUserId: string; intent: string; source: IntentSource; status: "valid"; type: "createCompany" }

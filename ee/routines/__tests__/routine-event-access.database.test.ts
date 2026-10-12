@@ -77,12 +77,13 @@ describeDatabase("routine event access against PostgreSQL", () => {
 
   it("fails closed for retired CRM event contracts", async () => {
     await expect(
-      access.canUserAccessUnscoped({
+      access.matchesUserUnscoped({
         companyId,
         userId: assignedOwnerId,
         event: "contact.updated",
         entityId: randomUUID(),
         triggerPayload: {},
+        filters: [],
       }),
     ).resolves.toBe(false);
   });
@@ -112,6 +113,7 @@ describeDatabase("routine event access against PostgreSQL", () => {
       userId,
       event,
       entityId,
+      filters: [],
       triggerPayload: {
         event,
         id: randomUUID(),
@@ -173,32 +175,32 @@ describeDatabase("routine event access against PostgreSQL", () => {
       }
 
       await expect(
-        access.canUserAccessUnscoped(
+        access.matchesUserUnscoped(
           messagingArgs("messaging.message.received", visibleMessageId, ownedAccountId, ownedThreadId),
         ),
       ).resolves.toBe(true);
       await expect(
-        access.canUserAccessUnscoped(
+        access.matchesUserUnscoped(
           messagingArgs("messaging.message.updated", unselectedMessageId, ownedAccountId, ownedThreadId),
         ),
       ).resolves.toBe(false);
       await expect(
-        access.canUserAccessUnscoped(
+        access.matchesUserUnscoped(
           messagingArgs("messaging.message.reaction", hiddenMessageId, ownedAccountId, ownedThreadId),
         ),
       ).resolves.toBe(false);
       await expect(
-        access.canUserAccessUnscoped(
+        access.matchesUserUnscoped(
           messagingArgs("messaging.message.received", visibleMessageId, sharedAccountId, ownedThreadId),
         ),
       ).resolves.toBe(false);
       await expect(
-        access.canUserAccessUnscoped(
+        access.matchesUserUnscoped(
           messagingArgs("messaging.message.received", visibleMessageId, ownedAccountId, sharedThreadId),
         ),
       ).resolves.toBe(false);
       await expect(
-        access.canUserAccessUnscoped(
+        access.matchesUserUnscoped(
           messagingArgs(
             "messaging.message.received",
             visibleMessageId,
@@ -209,45 +211,45 @@ describeDatabase("routine event access against PostgreSQL", () => {
         ),
       ).resolves.toBe(false);
       await expect(
-        access.canUserAccessUnscoped(
+        access.matchesUserUnscoped(
           messagingArgs("messaging.message.received", unsyncedMessageId, unsyncedAccountId, unsyncedThreadId),
         ),
       ).resolves.toBe(true);
 
       await client.query(`UPDATE "MessagingMessage" SET "isDeleted" = true WHERE "id" = $1`, [visibleMessageId]);
       await expect(
-        access.canUserAccessUnscoped(
+        access.matchesUserUnscoped(
           messagingArgs("messaging.message.deleted", visibleMessageId, ownedAccountId, ownedThreadId),
         ),
       ).resolves.toBe(true);
       await expect(
-        access.canUserAccessUnscoped(
+        access.matchesUserUnscoped(
           messagingArgs("messaging.email.deleted", randomUUID(), ownedAccountId, ownedThreadId),
         ),
       ).resolves.toBe(false);
 
       await expect(
-        access.canUserAccessUnscoped(messagingArgs("messaging.chat.updated", ownedThreadId, ownedAccountId)),
+        access.matchesUserUnscoped(messagingArgs("messaging.chat.updated", ownedThreadId, ownedAccountId)),
       ).resolves.toBe(true);
       await expect(
-        access.canUserAccessUnscoped(messagingArgs("messaging.chat.updated", sharedThreadId, sharedAccountId)),
+        access.matchesUserUnscoped(messagingArgs("messaging.chat.updated", sharedThreadId, sharedAccountId)),
       ).resolves.toBe(false);
 
       await client.query(`UPDATE "MessagingMessage" SET "folderIds" = ARRAY['inbox'] WHERE "id" = $1`, [
         sharedMessageId,
       ]);
       await expect(
-        access.canUserAccessUnscoped(
+        access.matchesUserUnscoped(
           messagingArgs("messaging.message.received", sharedMessageId, sharedAccountId, sharedThreadId),
         ),
       ).resolves.toBe(true);
       await expect(
-        access.canUserAccessUnscoped(messagingArgs("messaging.chat.updated", sharedThreadId, sharedAccountId)),
+        access.matchesUserUnscoped(messagingArgs("messaging.chat.updated", sharedThreadId, sharedAccountId)),
       ).resolves.toBe(true);
 
       await client.query(`DELETE FROM "MessagingThread" WHERE "id" = $1`, [sharedThreadId]);
       await expect(
-        access.canUserAccessUnscoped(messagingArgs("messaging.chat.deleted", sharedThreadId, sharedAccountId)),
+        access.matchesUserUnscoped(messagingArgs("messaging.chat.deleted", sharedThreadId, sharedAccountId)),
       ).resolves.toBe(false);
     } finally {
       await client.query(`DELETE FROM "ConnectedAccount" WHERE "id" = ANY($1)`, [accountIds]);

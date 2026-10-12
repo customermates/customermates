@@ -1,12 +1,12 @@
 const INLINE_FIELD_LIMIT = 3;
 
-export type MessageSubtitleModel =
+type MessageSubtitleModel =
   | { kind: "prefixedPreview"; prefix: string; preview: string }
   | { kind: "preview"; preview: string }
   | { kind: "attachmentKind"; label: string }
   | { kind: "unsupported" };
 
-export type MessageSubtitleInput = {
+type MessageSubtitleInput = {
   preview: string | null;
   isGroup: boolean;
   senderIsMine: boolean;

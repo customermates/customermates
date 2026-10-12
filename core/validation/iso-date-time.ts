@@ -10,8 +10,3 @@ export function canonicalIsoDateTime(value: string): string {
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? value : parsed.toISOString();
 }
-
-export function canonicalIsoDateTimeIfValid(value: string | null | undefined): string | null | undefined {
-  if (typeof value !== "string" || !isIsoDateTime(value)) return value;
-  return canonicalIsoDateTime(value);
-}

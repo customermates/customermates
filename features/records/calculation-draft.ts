@@ -14,7 +14,7 @@ export const CalculationDraftOutputSchema = z
     expression: z.string().max(8000),
   })
   .strict();
-export type CalculationDraftOutput = z.infer<typeof CalculationDraftOutputSchema>;
+type CalculationDraftOutput = z.infer<typeof CalculationDraftOutputSchema>;
 
 export type CalculationDraft = { source: "formula" | "lookup" | "rollup"; expression: CalculationExpression };
 

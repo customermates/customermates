@@ -19,7 +19,7 @@ import { WikiCrawlModeSchema } from "./wiki-crawl-mode.schema";
 
 const [firstAppLocale, ...otherAppLocales] = APP_LOCALES;
 
-export const StartWikiHomepageSetupSchema = z.object({
+const StartWikiHomepageSetupSchema = z.object({
   homepage: z.string().trim().min(1).max(2_000),
   clientRequestId: z.uuid(),
   locale: z.enum([firstAppLocale, ...otherAppLocales]).optional(),
@@ -27,7 +27,7 @@ export const StartWikiHomepageSetupSchema = z.object({
 });
 export type StartWikiHomepageSetupData = Data<typeof StartWikiHomepageSetupSchema>;
 
-export type StartedWikiHomepageSetup = {
+type StartedWikiHomepageSetup = {
   homepage: string;
   domain: string;
   mode: WikiWebsiteCrawlMode;

@@ -8,11 +8,11 @@ export function contactFullName(contact: { firstName: string; lastName: string }
   return contact ? `${contact.firstName} ${contact.lastName}`.trim() : "";
 }
 
-export function isGroupThread(thread: { type: MessagingThreadType }): boolean {
+function isGroupThread(thread: { type: MessagingThreadType }): boolean {
   return thread.type !== "single";
 }
 
-export function groupThreadName(
+function groupThreadName(
   thread: {
     name: string | null;
     subject: string | null;
@@ -29,7 +29,7 @@ export function isAttendeeUnlinked(attendee: LinkableAttendee): boolean {
   return !attendee.isSelf && Boolean(attendee.identifier?.trim()) && !attendee.records?.length;
 }
 
-export function threadHasUnlinkedAttendee(attendees: LinkableAttendee[]): boolean {
+function threadHasUnlinkedAttendee(attendees: LinkableAttendee[]): boolean {
   return attendees.some(isAttendeeUnlinked);
 }
 
@@ -57,7 +57,7 @@ export function formatChannelIdentifier(provider: MessagingProvider, identifier:
   return id;
 }
 
-export function channelUrl(provider: MessagingProvider, value: string, profileUrl?: string | null): string | null {
+function channelUrl(provider: MessagingProvider, value: string, profileUrl?: string | null): string | null {
   return profileUrl ?? getProviderProfileUrl(provider, value);
 }
 

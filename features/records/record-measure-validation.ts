@@ -5,12 +5,12 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordQuerySchema } from "./record-query.schema";
 import { invalidRecordQueryPart, keepValidQueryParts } from "./record-query-validation";
 
-export type RecordMeasureIssue = { code: CustomErrorCode; path: string[] };
+type RecordMeasureIssue = { code: CustomErrorCode; path: string[] };
 
 const TEMPORAL_SYSTEM_FIELDS = ["system:createdAt", "system:updatedAt"];
 const SYSTEM_GROUP_FIELDS = [...TEMPORAL_SYSTEM_FIELDS, "system:assignedTo"];
 
-export function recordMeasureGroupTypeId(measure: RecordMeasure, model: RecordModel): string | null {
+function recordMeasureGroupTypeId(measure: RecordMeasure, model: RecordModel): string | null {
   let typeId = measure.source.typeId;
   for (const step of measure.groupBy?.path ?? []) {
     const relation = model.relationships.find((relation) => relation.id === step.relationId && !relation.archived);

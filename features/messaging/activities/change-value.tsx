@@ -196,7 +196,7 @@ export function InlineChange({ previous, current }: { previous: ReactNode; curre
   );
 }
 
-export type AuditChangeKind = "created" | "removed" | "changed";
+type AuditChangeKind = "created" | "removed" | "changed";
 
 export function auditChangeKind(event: string): AuditChangeKind {
   const tone = auditEventTone(event);

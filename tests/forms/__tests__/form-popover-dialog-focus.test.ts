@@ -73,9 +73,9 @@ import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 
 const EVENTS = [
-  { value: "contact.created", label: "Contact created" },
-  { value: "deal.created", label: "Deal created" },
-  { value: "deal.updated", label: "Deal updated" },
+  { value: "record.created", label: "Record created" },
+  { value: "record.updated", label: "Record updated" },
+  { value: "record.deleted", label: "Record deleted" },
 ];
 
 let container: HTMLDivElement;
@@ -172,7 +172,7 @@ describe("form popovers inside a modal dialog", () => {
     await press("ArrowDown");
     await press("Enter");
 
-    expect(form.onChange).toHaveBeenCalledWith("events", ["deal.created"]);
+    expect(form.onChange).toHaveBeenCalledWith("events", ["record.updated"]);
   });
 
   it("moves focus into the filter value search box, so arrow keys and Enter pick a value", async () => {

@@ -16,7 +16,7 @@ const PurgeCompanyTrashSchema = z
     after: z.object({ expiresAt: z.iso.datetime(), id: z.uuid() }).strict().nullable(),
   })
   .strict();
-export type PurgeCompanyTrashData = z.infer<typeof PurgeCompanyTrashSchema>;
+type PurgeCompanyTrashData = z.infer<typeof PurgeCompanyTrashSchema>;
 
 export type CompanyTrashPurgeBatch = {
   next: TrashExpiryCursor | null;

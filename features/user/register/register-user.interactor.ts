@@ -111,14 +111,10 @@ export class RegisterUserInteractor {
           ? await this.repo.findAuthUserCompanyIdUnscoped(data.sessionUserId)
           : null;
 
-    try {
-      return await runInTransaction(
-        () => this.registerLocked(data, plannedCompanyId),
-        plannedCompanyId ? { companyId: plannedCompanyId } : undefined,
-      );
-    } catch (error) {
-      return unwoundFailure(error);
-    }
+    return runInTransaction(
+      () => this.registerLocked(data, plannedCompanyId),
+      plannedCompanyId ? { companyId: plannedCompanyId } : undefined,
+    ).catch(unwoundFailure);
   }
 
   @ValidateOutput(OutputSchema)

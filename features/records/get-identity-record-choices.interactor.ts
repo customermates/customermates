@@ -16,7 +16,7 @@ import { identityReference } from "./record-identity-reader";
 import { recordChannelsTypeIds } from "./record-channels";
 import { expressionFieldDependencies } from "./record-model-validation";
 
-export const IdentityRecordChoicesSchema = z
+const IdentityRecordChoicesSchema = z
   .object({
     search: z.string().trim().max(200).default(""),
     refs: z
@@ -30,7 +30,7 @@ export type IdentityRecordCreateChoice = {
   label: string;
   nameFieldIds: string[];
 };
-export type IdentityRecordChoices = {
+type IdentityRecordChoices = {
   records: RecordIdentityReference[];
   createTypes: IdentityRecordCreateChoice[];
   schemaRevision: number;
@@ -57,85 +57,81 @@ export class GetIdentityRecordChoicesInteractor extends AuthenticatedInteractor<
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
         const typeIds = recordChannelsTypeIds(model);
-        try {
-          const rows = typeIds.length
-            ? await this.records.searchRecords(
-                input.refs
-                  ? {
-                      refs: input.refs
-                        .map((ref) =>
-                          typeof ref === "string"
-                            ? {
-                                typeId: presetId(this.companyId, "contact"),
-                                recordId: ref,
-                              }
-                            : ref,
-                        )
-                        .filter((ref) => typeIds.includes(ref.typeId)),
-                    }
-                  : {
-                      search: {
-                        searchTerm: input.search,
-                        typeIds,
-                        limit: 10,
-                        cursor: null,
-                      },
-                      includeEmbedded: true,
+        const rows = typeIds.length
+          ? await this.records.searchRecords(
+              input.refs
+                ? {
+                    refs: input.refs
+                      .map((ref) =>
+                        typeof ref === "string"
+                          ? {
+                              typeId: presetId(this.companyId, "contact"),
+                              recordId: ref,
+                            }
+                          : ref,
+                      )
+                      .filter((ref) => typeIds.includes(ref.typeId)),
+                  }
+                : {
+                    search: {
+                      searchTerm: input.search,
+                      typeIds,
+                      limit: 10,
+                      cursor: null,
                     },
-                model,
-                policy.access(model.types.filter((type) => !type.archived).map((type) => type.id)),
-              )
-            : [];
-          const createTypes = typeIds.flatMap((typeId) => {
-            const type = model.types.find((type) => type.id === typeId);
-            if (!type || type.embedded || !policy.allowed(type.id, "create") || !policy.canReadType(type.id)) return [];
-            const fields = model.fields.filter((field) => field.typeId === type.id && !field.archived);
-            const primary = fields.find((field) => field.id === type.primaryFieldId);
-            const named = !primary
-              ? []
-              : primary.behavior.kind === "input"
-                ? [primary]
-                : [...expressionFieldDependencies(primary.behavior.expression)]
-                    .slice(0, 2)
-                    .flatMap((id) => fields.filter((field) => field.id === id && field.behavior.kind === "input"));
-            if (
-              !named.length ||
-              named.some((field) => field.valueType !== "text") ||
-              fields.some(
-                (field) =>
-                  field.required &&
-                  field.behavior.kind === "input" &&
-                  !field.behavior.defaultValue &&
-                  !named.some((name) => name.id === field.id),
-              )
+                    includeEmbedded: true,
+                  },
+              model,
+              policy.access(model.types.filter((type) => !type.archived).map((type) => type.id)),
             )
-              return [];
-            return [
-              {
-                typeId: type.id,
-                label: type.label,
-                nameFieldIds: named.map((field) => field.id),
-              },
-            ];
-          });
-          return {
-            ok: true,
-            data: {
-              records: (input.refs ? rows : rows.slice(0, 10)).map((row) =>
-                identityReference(row, model, policy.allowed(row.typeId, "update")),
-              ),
-              createTypes,
-              schemaRevision: model.revision,
-              canManage:
-                createTypes.length > 0 ||
-                typeIds.some((typeId) => policy.allowed(typeId, "update") && policy.canReadType(typeId)),
+          : [];
+        const createTypes = typeIds.flatMap((typeId) => {
+          const type = model.types.find((type) => type.id === typeId);
+          if (!type || type.embedded || !policy.allowed(type.id, "create") || !policy.canReadType(type.id)) return [];
+          const fields = model.fields.filter((field) => field.typeId === type.id && !field.archived);
+          const primary = fields.find((field) => field.id === type.primaryFieldId);
+          const named = !primary
+            ? []
+            : primary.behavior.kind === "input"
+              ? [primary]
+              : [...expressionFieldDependencies(primary.behavior.expression)]
+                  .slice(0, 2)
+                  .flatMap((id) => fields.filter((field) => field.id === id && field.behavior.kind === "input"));
+          if (
+            !named.length ||
+            named.some((field) => field.valueType !== "text") ||
+            fields.some(
+              (field) =>
+                field.required &&
+                field.behavior.kind === "input" &&
+                !field.behavior.defaultValue &&
+                !named.some((name) => name.id === field.id),
+            )
+          )
+            return [];
+          return [
+            {
+              typeId: type.id,
+              label: type.label,
+              nameFieldIds: named.map((field) => field.id),
             },
-          };
-        } catch (error) {
-          return unwoundFailure(error);
-        }
+          ];
+        });
+        return {
+          ok: true as const,
+          data: {
+            records: (input.refs ? rows : rows.slice(0, 10)).map((row) =>
+              identityReference(row, model, policy.allowed(row.typeId, "update")),
+            ),
+            createTypes,
+            schemaRevision: model.revision,
+            canManage:
+              createTypes.length > 0 ||
+              typeIds.some((typeId) => policy.allowed(typeId, "update") && policy.canReadType(typeId)),
+          },
+        };
       },
       { readOnly: true },
-    );
+    ).catch(unwoundFailure);
   }
 }

@@ -109,7 +109,7 @@ function cleanedSentences(t: Translate, deletion: Deletion, model: RecordModelVi
           ? "view"
           : entry.consumer.kind === "widget"
             ? "widget"
-            : "listDefaults";
+            : "defaultLayout";
     const id = `${key}:${entry.target.kind}:${entry.target.id}`;
     const group = groups.get(id) ?? { key, target: entry.target, consumers: [] };
     if (!group.consumers.some((consumer) => consumer.kind === entry.consumer.kind && consumer.id === entry.consumer.id))

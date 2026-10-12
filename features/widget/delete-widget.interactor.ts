@@ -21,7 +21,7 @@ export const DeleteWidgetSchema = z
 export type DeleteWidgetData = Data<typeof DeleteWidgetSchema>;
 
 export const DeleteWidgetResultSchema = z.object({ id: z.uuid(), trashBatchId: z.uuid() });
-export type DeleteWidgetResult = Data<typeof DeleteWidgetResultSchema>;
+type DeleteWidgetResult = Data<typeof DeleteWidgetResultSchema>;
 
 @TenantInteractor()
 export class DeleteWidgetInteractor extends AuthenticatedInteractor<DeleteWidgetData, DeleteWidgetResult> {

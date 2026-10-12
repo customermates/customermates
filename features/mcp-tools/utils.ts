@@ -5,7 +5,6 @@ import { getTranslations } from "next-intl/server";
 import type { CustomErrorCode } from "@/core/validation/validation.types";
 
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
-import { FilterFieldKey } from "@/core/types/filter-field-key";
 import {
   createZodError,
   interactorFailureKind,
@@ -40,8 +39,6 @@ export function encodeToToon(data: unknown): string {
 export type McpPageSize = 5 | 10 | 25 | 100;
 
 export const MCP_PAGE_SIZES: readonly McpPageSize[] = [5, 10, 25, 100];
-
-export const MCP_DEFAULT_PAGE_SIZE: McpPageSize = 25;
 
 export const MCP_PAGE_SIZE_DESCRIPTION =
   "Results per page, any whole number from 1 to 100, served exactly: page 2 of pageSize 50 holds records 51 to 100. When a result was truncated, ask again with about half the size.";
@@ -156,7 +153,7 @@ function formatDatesRecursively(value: unknown): unknown {
   return value;
 }
 
-export type SerializedDates<T> = T extends Date
+type SerializedDates<T> = T extends Date
   ? string
   : T extends readonly unknown[]
     ? { [Index in keyof T]: SerializedDates<T[Index]> }
@@ -168,7 +165,7 @@ export function formatDatesInResponse<T>(data: T): SerializedDates<T> {
   return formatDatesRecursively(data) as SerializedDates<T>;
 }
 
-export const FILTER_OPERATOR_GROUPS = {
+const FILTER_OPERATOR_GROUPS = {
   singleValue: [
     FilterOperatorKey.equals,
     FilterOperatorKey.notEquals,
@@ -209,10 +206,6 @@ export const filtersDescription = (filterableFields: string) =>
 export const sortDescription = (sortableFields: string) =>
   `Sort by one field: { field, direction: "asc" | "desc" }. Sortable fields: ${sortableFields}.`;
 
-export function enumHint(values: readonly string[]): string {
-  return `(one of: ${values.join(", ")})`;
-}
-
 export async function runInteractor<T>(
   result: InteractorResult<T>,
   format: (data: T) => string | McpToolResult,
@@ -224,33 +217,6 @@ export async function runInteractor<T>(
   if (typeof formatted !== "string") return formatted;
   if (!structured) return formatted;
   return { text: formatted, structuredContent: structured(outcome.data) };
-}
-
-const MIN_NAME_MATCH_TERM_LENGTH = 3;
-
-export function nameMatchNote(
-  term: string | undefined,
-  items: readonly { name?: string | null }[],
-): string | undefined {
-  const needle = term?.trim().toLowerCase();
-  if (!needle || needle.length < MIN_NAME_MATCH_TERM_LENGTH) return undefined;
-  const matches = items.filter((item) => item.name?.toLowerCase().includes(needle)).length;
-  if (matches < 2) return undefined;
-  return `${matches} records here match the name "${term?.trim()}". If the user meant one record, ask which one before changing anything; if they asked for every match, act on all of them.`;
-}
-
-const NAME_FILTER_FIELDS: readonly unknown[] = [FilterFieldKey.name, FilterFieldKey.firstName, FilterFieldKey.lastName];
-
-export function nameQueryOf(
-  searchTerm: string | undefined,
-  filters: readonly unknown[] | undefined,
-): string | undefined {
-  if (searchTerm?.trim()) return searchTerm;
-  const names = (filters ?? []).flatMap((raw) => {
-    const filter = raw as { field?: unknown; value?: unknown };
-    return NAME_FILTER_FIELDS.includes(filter?.field) && typeof filter.value === "string" ? [filter.value] : [];
-  });
-  return names.length > 0 ? names.join(" ") : undefined;
 }
 
 export function toonResult(payload: Record<string, unknown>): McpToolResult {

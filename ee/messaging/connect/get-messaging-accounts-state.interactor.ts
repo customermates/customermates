@@ -16,14 +16,14 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
-export const MessagingAccountsStateSchema = z.discriminatedUnion("state", [
+const MessagingAccountsStateSchema = z.discriminatedUnion("state", [
   z.object({ state: z.literal("unavailable") }).strict(),
   z.object({ state: z.literal("locked"), reason: z.enum(["plan", "subscription"]) }).strict(),
   z
     .object({ state: z.literal("available"), canConnect: z.boolean(), accounts: z.array(ConnectedAccountAppDtoSchema) })
     .strict(),
 ]);
-export type MessagingAccountsState = z.infer<typeof MessagingAccountsStateSchema>;
+type MessagingAccountsState = z.infer<typeof MessagingAccountsStateSchema>;
 
 @AllowInDemoMode
 @TenantInteractor()

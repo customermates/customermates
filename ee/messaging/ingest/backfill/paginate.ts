@@ -5,7 +5,7 @@ export const BACKFILL_MESSAGE_PAGE_BUDGET = 4;
 export const UNIPILE_CALENDAR_EVENT_MAX_LIMIT = 100;
 export const UNIPILE_EMAIL_MAX_LIMIT = 100;
 export const BACKFILL_EMAIL_TIMEOUT_MS = 90_000;
-export const PAGE_SAFETY = 200;
+const PAGE_SAFETY = 200;
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const BACKFILL_SINCE_DAYS = 365;
@@ -24,7 +24,7 @@ async function paceUnipileRequest(): Promise<void> {
 }
 
 export type PageResult = { nextCursor: string | null; done: boolean; complete: boolean };
-export type PageQuery = { cursor?: string; offset?: number };
+type PageQuery = { cursor?: string; offset?: number };
 type FetchPage = (query: PageQuery) => Promise<{ data?: unknown[]; next_cursor?: string | null }>;
 
 type Position = { cursor?: string; offset: number; mode?: "cursor" | "offset" };

@@ -469,7 +469,7 @@ export class RecordOperationService extends UserAccessor {
     return { done: false };
   }
 
-  async fail(operationId: string, errorCode: string): Promise<void> {
+  async fail(operationId: string, errorCode: CustomErrorCode): Promise<void> {
     await runInTransaction(async () => {
       const operation = await this.records.getOperation(operationId);
       if (

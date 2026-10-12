@@ -40,80 +40,76 @@ export class QueryRecordsInteractor extends AuthenticatedInteractor<RecordQuery,
         if (access.get(query.typeId)?.access === "none") return failNotFound(CustomErrorCode.recordTypeNotFound);
         const invalid = invalidRecordQueryPart(query, model);
         if (invalid) return fail(CustomErrorCode.recordValueInvalid, [invalid]);
-        try {
-          const result = await this.records.query(query, model, access, policy.memberScope);
-          const identities =
-            query.includeIdentities && recordChannelsEnabled(model, query.typeId)
-              ? await this.records.getRecordIdentitiesCompanyWide(
-                  query.typeId,
-                  result.records.map((record) => record.id),
-                )
-              : null;
-          const relationships = await this.records.relationshipSummaries(
-            query.typeId,
-            result.records.map((record) => record.id),
-            query.includeRelationships ?? [],
-            model,
-            access,
-          );
-          const groupedField = model.fields.find((field) => field.id === result.grouping?.columnId);
-          const paths = await this.records.pathSummaries(
-            query.typeId,
-            result.records.map((record) => record.id),
-            query.includePaths ?? [],
-            model,
-            access,
-          );
-          const canMove = recordGroupableFields(query.typeId, model, policy.allowed(query.typeId, "update")).some(
-            (field) => field.grouping.field === result.grouping?.grouping.field && field.supportsDragWriteBack,
-          );
-          return {
-            ok: true as const,
-            data: {
-              records: await withMemberUsers(
-                result.records.map((record) => ({
-                  ...recordDto(
-                    record,
-                    model,
-                    result.visibleFields.get(record.id) ?? new Set(),
-                    policy.memberScope,
-                    query.fields,
-                  ),
-                  ...(identities ? { identities: identities.get(record.id) ?? [] } : {}),
-                  relationships: relationships.get(record.id) ?? [],
-                  relationshipPaths: paths.get(record.id) ?? [],
-                })),
-                this.records,
-                policy.memberScope,
-              ),
-              total: result.total,
-              page: query.page,
-              pageSize: query.pageSize,
-              schemaRevision: model.revision,
-              ...(result.grouping
-                ? {
-                    grouping: {
-                      ...result.grouping,
-                      supportsDragWriteBack: canMove,
-                      groups: result.grouping.groups.map((group) => ({
-                        ...group,
-                        writable:
-                          canMove &&
-                          Boolean(groupedField) &&
-                          (group.isNoValue
-                            ? !groupedField?.required
-                            : groupedField?.options.some((option) => `value:${option.id}` === group.key)),
-                      })),
-                    },
-                  }
-                : {}),
-            },
-          };
-        } catch (error) {
-          return unwoundFailure(error);
-        }
+        const result = await this.records.query(query, model, access, policy.memberScope);
+        const identities =
+          query.includeIdentities && recordChannelsEnabled(model, query.typeId)
+            ? await this.records.getRecordIdentitiesCompanyWide(
+                query.typeId,
+                result.records.map((record) => record.id),
+              )
+            : null;
+        const relationships = await this.records.relationshipSummaries(
+          query.typeId,
+          result.records.map((record) => record.id),
+          query.includeRelationships ?? [],
+          model,
+          access,
+        );
+        const groupedField = model.fields.find((field) => field.id === result.grouping?.columnId);
+        const paths = await this.records.pathSummaries(
+          query.typeId,
+          result.records.map((record) => record.id),
+          query.includePaths ?? [],
+          model,
+          access,
+        );
+        const canMove = recordGroupableFields(query.typeId, model, policy.allowed(query.typeId, "update")).some(
+          (field) => field.grouping.field === result.grouping?.grouping.field && field.supportsDragWriteBack,
+        );
+        return {
+          ok: true as const,
+          data: {
+            records: await withMemberUsers(
+              result.records.map((record) => ({
+                ...recordDto(
+                  record,
+                  model,
+                  result.visibleFields.get(record.id) ?? new Set(),
+                  policy.memberScope,
+                  query.fields,
+                ),
+                ...(identities ? { identities: identities.get(record.id) ?? [] } : {}),
+                relationships: relationships.get(record.id) ?? [],
+                relationshipPaths: paths.get(record.id) ?? [],
+              })),
+              this.records,
+              policy.memberScope,
+            ),
+            total: result.total,
+            page: query.page,
+            pageSize: query.pageSize,
+            schemaRevision: model.revision,
+            ...(result.grouping
+              ? {
+                  grouping: {
+                    ...result.grouping,
+                    supportsDragWriteBack: canMove,
+                    groups: result.grouping.groups.map((group) => ({
+                      ...group,
+                      writable:
+                        canMove &&
+                        Boolean(groupedField) &&
+                        (group.isNoValue
+                          ? !groupedField?.required
+                          : groupedField?.options.some((option) => `value:${option.id}` === group.key)),
+                    })),
+                  },
+                }
+              : {}),
+          },
+        };
       },
       { readOnly: true },
-    );
+    ).catch(unwoundFailure);
   }
 }

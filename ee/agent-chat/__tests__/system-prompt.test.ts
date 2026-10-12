@@ -161,10 +161,10 @@ describe("system prompt", () => {
   });
 
   it("extracts the trigger event from the routine's first line only", () => {
-    expect(routineTriggerEventOf('<routine_trigger event="deal.updated" entity="deal" />\nCheck it')).toBe(
-      "deal.updated",
+    expect(routineTriggerEventOf('<routine_trigger event="record.updated" entity="deal" />\nCheck it')).toBe(
+      "record.updated",
     );
-    expect(routineTriggerEventOf('Please read <routine_trigger event="deal.updated" />')).toBeNull();
+    expect(routineTriggerEventOf('Please read <routine_trigger event="record.updated" />')).toBeNull();
     expect(routineTriggerEventOf(null)).toBeNull();
   });
 });

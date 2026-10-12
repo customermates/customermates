@@ -6,7 +6,7 @@ import { Enforce } from "@/core/decorators/enforce.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
 const AdvanceSystemRecordOperationSchema = z.object({ companyId: z.uuid(), operationId: z.uuid() }).strict();
-export type AdvanceSystemRecordOperationData = z.infer<typeof AdvanceSystemRecordOperationSchema>;
+type AdvanceSystemRecordOperationData = z.infer<typeof AdvanceSystemRecordOperationSchema>;
 
 @SystemInteractor
 export class AdvanceSystemRecordOperationInteractor {

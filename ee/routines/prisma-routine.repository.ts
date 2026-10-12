@@ -162,7 +162,7 @@ function routineDto(row: unknown): RoutineDto {
   };
 }
 
-export function resolveNextRunAt(
+function resolveNextRunAt(
   routine: {
     cronExpression: string | null;
     timezone: string | null;

@@ -48,42 +48,32 @@ export class GetRecordInteractor extends AuthenticatedInteractor<RecordRead, Rec
         });
         const invalid = invalidRecordQueryPart(selection, model);
         if (invalid) return fail(CustomErrorCode.recordValueInvalid, [invalid]);
-        try {
-          const access = policy.access(model.types.filter((type) => !type.archived).map((type) => type.id));
-          const visible = await this.records.getVisibleFields(ref, model, access);
-          const [data] = await withMemberUsers(
-            [recordDto(record, model, visible, policy.memberScope)],
-            this.records,
-            policy.memberScope,
+        const access = policy.access(model.types.filter((type) => !type.archived).map((type) => type.id));
+        const visible = await this.records.getVisibleFields(ref, model, access);
+        const [data] = await withMemberUsers(
+          [recordDto(record, model, visible, policy.memberScope)],
+          this.records,
+          policy.memberScope,
+        );
+        if (recordChannelsEnabled(model, ref.typeId))
+          data.identities = await this.records.getIdentitiesCompanyWide(ref);
+        if (input.includeRelationships?.length) {
+          const summaries = await this.records.relationshipSummaries(
+            ref.typeId,
+            [ref.recordId],
+            input.includeRelationships,
+            model,
+            access,
           );
-          if (recordChannelsEnabled(model, ref.typeId))
-            data.identities = await this.records.getIdentitiesCompanyWide(ref);
-          if (input.includeRelationships?.length) {
-            const summaries = await this.records.relationshipSummaries(
-              ref.typeId,
-              [ref.recordId],
-              input.includeRelationships,
-              model,
-              access,
-            );
-            data.relationships = summaries.get(ref.recordId) ?? [];
-          }
-          if (input.includePaths?.length) {
-            const paths = await this.records.pathSummaries(
-              ref.typeId,
-              [ref.recordId],
-              input.includePaths,
-              model,
-              access,
-            );
-            data.relationshipPaths = paths.get(ref.recordId) ?? [];
-          }
-          return { ok: true as const, data };
-        } catch (error) {
-          return unwoundFailure(error);
+          data.relationships = summaries.get(ref.recordId) ?? [];
         }
+        if (input.includePaths?.length) {
+          const paths = await this.records.pathSummaries(ref.typeId, [ref.recordId], input.includePaths, model, access);
+          data.relationshipPaths = paths.get(ref.recordId) ?? [];
+        }
+        return { ok: true as const, data };
       },
       { readOnly: true },
-    );
+    ).catch(unwoundFailure);
   }
 }

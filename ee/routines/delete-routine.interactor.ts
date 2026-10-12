@@ -20,7 +20,7 @@ export const DeleteRoutineSchema = z.object({ id: z.uuid() });
 export const DeleteRoutineResultSchema = z.object({ id: z.uuid(), trashBatchId: z.uuid() });
 
 export type DeleteRoutineData = Data<typeof DeleteRoutineSchema>;
-export type DeleteRoutineResult = Data<typeof DeleteRoutineResultSchema>;
+type DeleteRoutineResult = Data<typeof DeleteRoutineResultSchema>;
 
 @TenantInteractor({ resource: Resource.routines, manage: "delete" })
 export class DeleteRoutineInteractor extends AuthenticatedInteractor<DeleteRoutineData, DeleteRoutineResult> {

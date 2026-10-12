@@ -20,7 +20,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { fail, failConflict } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-export const WIDGET_LAYOUT_MAX_ITEMS = 500;
+const WIDGET_LAYOUT_MAX_ITEMS = 500;
 
 function breakpointPlacements(columns: number) {
   const item = z

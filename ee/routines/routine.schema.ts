@@ -11,7 +11,7 @@ import {
 } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
-import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
+import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { FilterSchema } from "@/core/base/base-get.schema";
 import { ROUTINE_TRIGGER_EVENTS, RoutineTriggerEventSchema } from "./routine-trigger-events";
 import { ROUTINE_TRIGGER_FIELD_LIMIT } from "./routine-run-trigger-context";
@@ -31,14 +31,14 @@ import {
 export const ROUTINE_PROMPT_MAX_CHARS = 5000;
 export const ROUTINE_NAME_MAX_CHARS = 120;
 
-export const RoutineTriggerKindSchema = z.enum(RoutineTriggerKind);
-export const RoutineRunStatusSchema = z.enum(RoutineRunStatus);
+const RoutineTriggerKindSchema = z.enum(RoutineTriggerKind);
+const RoutineRunStatusSchema = z.enum(RoutineRunStatus);
 
 export const RoutineRecordTriggerSchema = RecordTriggerDefinitionSchema;
 
 export { ROUTINE_TRIGGER_EVENTS, RoutineTriggerEventSchema };
 
-export const RoutineOwnerDtoSchema = z.object({
+const RoutineOwnerDtoSchema = z.object({
   id: z.uuid(),
   firstName: z.string(),
   lastName: z.string(),
@@ -58,7 +58,7 @@ export const RoutineDtoSchema = z.object({
   triggerKind: RoutineTriggerKindSchema,
   cronExpression: z.string().nullable(),
   timezone: z.string().nullable(),
-  triggerEvents: z.array(WebhookCurrentEventSchema),
+  triggerEvents: z.array(WebhookEventSchema),
   triggerFilters: z.array(FilterSchema),
   recordTrigger: RoutineRecordTriggerSchema.nullable().optional(),
   recordSources: z.array(RecordTriggerSourceSchema).nullable().optional(),
@@ -73,7 +73,7 @@ export const RoutineDtoSchema = z.object({
 
 export type RoutineDto = Data<typeof RoutineDtoSchema>;
 
-export const RoutineRunTriggerContextSchema = z.object({
+const RoutineRunTriggerContextSchema = z.object({
   recordRef: RecordRefSchema.optional(),
   threadId: z.string().nullable(),
   changedFields: z.array(z.string()).max(ROUTINE_TRIGGER_FIELD_LIMIT),

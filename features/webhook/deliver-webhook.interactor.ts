@@ -12,7 +12,7 @@ export { WEBHOOK_PREFLIGHT_FAILURE_STATUS } from "./webhook-transport.service";
 
 const Schema = z.object({ deliveryId: z.uuid(), companyId: z.uuid() });
 export type DeliverWebhookPayload = z.infer<typeof Schema>;
-export type DeliveryOutcome = {
+type DeliveryOutcome = {
   status: "success" | "failed" | "pending" | "missing";
   statusCode: number | null;
   responseMessage: string | null;

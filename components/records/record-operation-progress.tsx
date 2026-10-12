@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { z } from "zod";
-import type { RecordOperationStatusSchema } from "@/features/records/record-operation.interactor";
+import type { RecordOperationStatusSchema } from "@/features/records/record-operation.schema";
 import { Button } from "@/components/ui/button";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import {

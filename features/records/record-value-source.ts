@@ -7,7 +7,7 @@ import { calculationSentence, fillSentence, linkedFlow } from "./calculation-sen
 type Translate = (key: string, values?: Record<string, string>) => string;
 
 export type RecordValueSourceKind = "calculation" | "lookup" | "saved";
-export type RecordValueSource = { kind: RecordValueSourceKind; segments: SentenceSegment[]; lookup: LinkedHop | null };
+type RecordValueSource = { kind: RecordValueSourceKind; segments: SentenceSegment[]; lookup: LinkedHop | null };
 
 export function recordValueSource({
   model,

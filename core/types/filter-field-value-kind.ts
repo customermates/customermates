@@ -34,7 +34,7 @@ export const TIMELINE_KIND_FILTER_VALUES = [
   "calendar_event",
 ] as const;
 
-export const BOOLEAN_FILTER_VALUES = ["true", "false"] as const;
+const BOOLEAN_FILTER_VALUES = ["true", "false"] as const;
 
 export const AUDIT_SOURCE_FILTER_VALUES = ["product", "operator"] as const;
 
@@ -75,7 +75,7 @@ export const DEFAULT_FILTER_VALUE_KIND: Record<FilterFieldKey, FilterValueKind> 
   [FilterFieldKey.trashList]: { kind: "string" },
 };
 
-export const FILTER_FIELD_AGENT_NOTES: Partial<Record<FilterFieldKey, string>> = {
+const FILTER_FIELD_AGENT_NOTES: Partial<Record<FilterFieldKey, string>> = {
   [FilterFieldKey.lastMessageSentAt]:
     "Date of the latest actual sent or received message; ignores drafts, hidden or deleted messages and system events. Use for last message, last received or sent, or no reply for N days; N to M days ago is notInLastDays N plus inLastDays M.",
   [FilterFieldKey.lastMessageAt]:
@@ -92,7 +92,7 @@ export const filterFieldAgentNote = (field: string): string | undefined =>
 export const filterValueKind = (field: string): FilterValueKind | undefined =>
   (DEFAULT_FILTER_VALUE_KIND as Record<string, FilterValueKind | undefined>)[field];
 
-export function describeFilterFieldValue(field: FilterFieldKey): string {
+function describeFilterFieldValue(field: FilterFieldKey): string {
   const valueKind = DEFAULT_FILTER_VALUE_KIND[field];
   const ops = FILTER_FIELD_DEFAULT_OPERATORS[field].join(", ");
   switch (valueKind.kind) {

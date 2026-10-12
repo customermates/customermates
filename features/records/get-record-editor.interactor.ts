@@ -29,7 +29,7 @@ import {
 import type { RecordDetailLayoutReader } from "./record-detail-layout-reader";
 import type { RecordDetailLayoutResult } from "./record-detail-layout.schema";
 
-export const GetRecordEditorSchema = z.object({ typeId: z.uuid(), recordId: z.uuid().optional() }).strict();
+const GetRecordEditorSchema = z.object({ typeId: z.uuid(), recordId: z.uuid().optional() }).strict();
 export type RecordEditorContext = {
   model: RecordModelView;
   typeId: string;
@@ -65,7 +65,7 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
 
   read(input: z.infer<typeof GetRecordEditorSchema>, options: TrashReadOptions = {}): Validated<RecordEditorResult> {
     return runInTransaction(
-      async () => {
+      async (): Validated<RecordEditorResult> => {
         const [storedModel, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         const model = liveRecordModel(storedModel);
         const type = model.types.find((type) => type.id === input.typeId && !type.archived);
@@ -110,89 +110,84 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
             accessible.has(relation.targetTypeId) &&
             (ids.has(relation.sourceTypeId) || ids.has(relation.targetTypeId) || pathRelations.has(relation.id)),
         );
-        try {
-          const layout = await this.layouts.read(type.id, model, policy);
-          if (!layout.ok) return layout;
-          const visible = ref
-            ? await this.records.getVisibleFields(ref, storedModel, policy.access([...accessible]))
-            : new Set<string>();
-          const record = stored
-            ? (
-                await withMemberUsers(
-                  [recordDto(stored, storedModel, visible, policy.memberScope)],
-                  this.records,
-                  policy.memberScope,
-                )
-              )[0]
-            : null;
-          const fields = visibleFormulaFields(
-            model.fields.filter((field) => ids.has(field.typeId) && !field.archived),
-            model,
-            policy,
-          );
-          const lookups = lookupSelections(fields, type.id, relationships);
-          if (record && lookups.length) {
-            record.relationships =
-              (
-                await this.records.relationshipSummaries(
-                  type.id,
-                  [record.ref.recordId],
-                  lookups,
-                  storedModel,
-                  policy.access([...accessible]),
-                )
-              ).get(record.ref.recordId) ?? [];
-          }
-          if (record && recordChannelsEnabled(model, type.id))
-            record.identities = await this.records.getIdentitiesCompanyWide(record.ref);
-          return {
-            ok: true,
-            data: {
-              typeId: type.id,
-              record,
-              detailLayout: layout.data,
-              canManageSchema: policy.canManageSchema,
-              linkColors: recordLinkColors(model.types, relationships),
-              linkIcons: recordLinkIcons(model.types, relationships),
-              linkLabels: recordLinkLabels(model.types, relationships),
-              systemActions:
-                stored?.protectedKind === "membershipAuthorization" &&
-                policy.allowedSystem("users", "update") &&
-                policy.allowedSystem("users", "readAll")
-                  ? ["manageMembership"]
-                  : [],
-              permittedActions: (["create", "readOwn", "readAll", "update", "delete"] as const).filter(
-                (action) =>
-                  policy.allowed(type.id, action) &&
-                  (!stored?.protectedKind || ["readOwn", "readAll"].includes(action)),
-              ),
-              model: {
-                ...model,
-                types,
-                fields,
-                relationships,
-                capabilities: model.capabilities.filter((binding) => ids.has(binding.typeId)),
-                accessPresets: [],
-              },
-              formulaReferences: formulaReferences(
-                fields,
-                model,
-                { fields, types, relationships },
-                (id) => accessible.has(id),
-                types.flatMap(
-                  (candidate) =>
-                    candidate.relationshipPaths?.flatMap(
-                      (path) => resolveRecordPath(candidate.id, path.path, model)?.map((step) => step.typeId) ?? [],
-                    ) ?? [],
-                ),
-              ),
-            },
-          };
-        } catch (error) {
-          return unwoundFailure(error);
+        const layout = await this.layouts.read(type.id, model, policy);
+        if (!layout.ok) return layout;
+        const visible = ref
+          ? await this.records.getVisibleFields(ref, storedModel, policy.access([...accessible]))
+          : new Set<string>();
+        const record = stored
+          ? (
+              await withMemberUsers(
+                [recordDto(stored, storedModel, visible, policy.memberScope)],
+                this.records,
+                policy.memberScope,
+              )
+            )[0]
+          : null;
+        const fields = visibleFormulaFields(
+          model.fields.filter((field) => ids.has(field.typeId) && !field.archived),
+          model,
+          policy,
+        );
+        const lookups = lookupSelections(fields, type.id, relationships);
+        if (record && lookups.length) {
+          record.relationships =
+            (
+              await this.records.relationshipSummaries(
+                type.id,
+                [record.ref.recordId],
+                lookups,
+                storedModel,
+                policy.access([...accessible]),
+              )
+            ).get(record.ref.recordId) ?? [];
         }
+        if (record && recordChannelsEnabled(model, type.id))
+          record.identities = await this.records.getIdentitiesCompanyWide(record.ref);
+        return {
+          ok: true,
+          data: {
+            typeId: type.id,
+            record,
+            detailLayout: layout.data,
+            canManageSchema: policy.canManageSchema,
+            linkColors: recordLinkColors(model.types, relationships),
+            linkIcons: recordLinkIcons(model.types, relationships),
+            linkLabels: recordLinkLabels(model.types, relationships),
+            systemActions:
+              stored?.protectedKind === "membershipAuthorization" &&
+              policy.allowedSystem("users", "update") &&
+              policy.allowedSystem("users", "readAll")
+                ? ["manageMembership"]
+                : [],
+            permittedActions: (["create", "readOwn", "readAll", "update", "delete"] as const).filter(
+              (action) =>
+                policy.allowed(type.id, action) && (!stored?.protectedKind || ["readOwn", "readAll"].includes(action)),
+            ),
+            model: {
+              ...model,
+              types,
+              fields,
+              relationships,
+              capabilities: model.capabilities.filter((binding) => ids.has(binding.typeId)),
+              accessPresets: [],
+            },
+            formulaReferences: formulaReferences(
+              fields,
+              model,
+              { fields, types, relationships },
+              (id) => accessible.has(id),
+              types.flatMap(
+                (candidate) =>
+                  candidate.relationshipPaths?.flatMap(
+                    (path) => resolveRecordPath(candidate.id, path.path, model)?.map((step) => step.typeId) ?? [],
+                  ) ?? [],
+              ),
+            ),
+          },
+        };
       },
       { readOnly: true },
-    );
+    ).catch(unwoundFailure);
   }
 }

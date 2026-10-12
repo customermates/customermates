@@ -19,7 +19,7 @@ import type { RecordTrashService } from "@/features/records/record-trash.service
 import { trashVisibility } from "./trash-handlers";
 import { trashDaysLeft } from "./trash-retention";
 
-export type TrashedRecordEditor = RecordEditorResult & { trash: TrashedRecordInfo };
+type TrashedRecordEditor = RecordEditorResult & { trash: TrashedRecordInfo };
 
 @AllowInDemoMode
 @TenantInteractor()

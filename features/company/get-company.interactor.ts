@@ -7,7 +7,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 const CompanySchema = z.object({ id: z.string(), createdAt: z.date(), updatedAt: z.date() });
-export type CompanyDto = z.infer<typeof CompanySchema>;
+type CompanyDto = z.infer<typeof CompanySchema>;
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.company, read: true })

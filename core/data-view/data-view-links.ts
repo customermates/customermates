@@ -18,7 +18,7 @@ type DataViewNavigationOptions = {
   origin?: string;
 };
 
-export type DataViewNavigationRange = {
+type DataViewNavigationRange = {
   start: number;
   end: number;
   href: string;

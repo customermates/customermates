@@ -1046,7 +1046,6 @@
       "title": "No {plural} yet"
     },
     "errors": {
-      "activityDuplicateFilterField": "Each activity filter field can be configured only once.",
       "agentApprovalUnavailable": "This approval request is unavailable or has expired.",
       "agentConversationNotFound": "This conversation was not found or is no longer accessible.",
       "agentLimitReached": "Not enough AI credits remain to start another request.",
@@ -1056,7 +1055,6 @@
       "apiKeyMaxExpiration": "API key expiration cannot exceed 365 days.",
       "apiKeyMinExpiration": "API key expiration must be at least 1 day.",
       "apiKeyNameLength": "API key names must be between 1 and 255 characters long.",
-      "assigneeRequired": "You must assign yourself to this item. Please note that you will only be able to view items assigned to you.",
       "billingPortalUnavailable": "The billing portal is not available for this workspace. Contact support to make changes.",
       "calendarEventNotFound": "Calendar event ID not found or not accessible.",
       "channelAlreadyLinked": "This channel is already linked to another contact.",
@@ -1126,6 +1124,7 @@
       "recordIdUnavailable": "This record ID belongs to an earlier record. Import the record with a new ID.",
       "recordMeasureDateIntervalInvalid": "Time intervals need a date, date-and-time, created or updated grouping field, and a time zone needs a time interval.",
       "recordNotFound": "This record is unavailable.",
+      "recordOperationFailed": "The background operation failed. Try again.",
       "recordProtected": "This record is managed by a system workflow.",
       "recordReadOnlyField": "This field is calculated. Change its definition to enter values manually.",
       "recordRelationConflict": "This link does not match the relationship rules.",
@@ -3348,7 +3347,7 @@
       "cleaned": {
         "bindingAvatar": "{target} is no longer used as the profile picture of {consumers}.",
         "bindingCalendar": "{target} is no longer used for the calendar events of {consumers}.",
-        "listDefaults": "{target} is removed from the default layout of {consumers}.",
+        "defaultLayout": "{target} is removed from the default layout of {consumers}.",
         "nameField": "{consumers} will be shown by {replacement} instead.",
         "nameFieldNone": "No field in {consumers} can name its records any more, so they show as “Untitled {singular}”.",
         "personalLayouts": "{target} is removed from {count, plural, one {# personal layout} other {# personal layouts}}.",
@@ -3411,7 +3410,7 @@
     "detailLayoutSaveFailed": "Layout changes could not be saved.",
     "directRelationship": "Direct relationship",
     "disabled": "Off",
-    "duplicateFieldName": "Another field in this list already uses this name, including recently deleted fields. Choose a different name.",
+    "duplicateFieldName": "Another field in this list already uses this name, including fields in Trash. Choose a different name.",
     "duplicateListName": "Another list already uses this name. List names must be unique, ignoring case, accents and extra spaces.",
     "duplicateOptionLabel": "Two options of this field have the same label. Option labels must be unique.",
     "duplicateRelationshipLabel": "Another relationship on this list already uses this label. Choose a different label.",

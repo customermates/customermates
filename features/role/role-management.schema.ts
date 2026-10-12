@@ -6,7 +6,7 @@ import { grantableActions, RESOURCE_ACCESS } from "./resource-access";
 
 const uniqueActions = (actions: readonly Action[]) => new Set(actions).size === actions.length;
 
-export const RoleResourceGrantSchema = z
+const RoleResourceGrantSchema = z
   .object({
     resource: z.enum(Resource),
     actions: z.array(z.enum(Action)).max(5).refine(uniqueActions),
@@ -20,7 +20,7 @@ export const RoleResourceGrantSchema = z
     { message: "Action is not applicable to this resource", path: ["actions"] },
   );
 
-export const RoleRecordGrantSchema = z
+const RoleRecordGrantSchema = z
   .object({
     typeId: z.uuid(),
     actions: z.array(z.enum(Action)).max(5).refine(uniqueActions),
@@ -83,7 +83,7 @@ export const RoleMutationResultSchema = z
   .strict();
 export type RoleMutationResult = z.infer<typeof RoleMutationResultSchema>;
 
-export const RoleApiDtoSchema = RolePermissionsDtoSchema.extend({
+const RoleApiDtoSchema = RolePermissionsDtoSchema.extend({
   createdAt: z.iso.datetime(),
   updatedAt: z.iso.datetime(),
 });

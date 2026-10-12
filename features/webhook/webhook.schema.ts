@@ -7,19 +7,19 @@ import {
   RecordTriggerDefinitionSchema,
   RecordTriggerSourceSchema,
 } from "@/features/records/record-event-subscription.schema";
-import { WEBHOOK_CURRENT_EVENTS } from "./webhook-event-registry";
+import { WEBHOOK_EVENTS } from "./webhook-event-registry";
 
-export const WebhookCurrentEventSchema = z.enum(WEBHOOK_CURRENT_EVENTS);
+export const WebhookEventSchema = z.enum(WEBHOOK_EVENTS);
 
 export const WEBHOOK_MASKED_VALUE = "********";
 
-export const WEBHOOK_PAUSE_REASONS = ["triggerFieldDeleted"] as const;
+const WEBHOOK_PAUSE_REASONS = ["triggerFieldDeleted"] as const;
 
 export const WebhookDtoSchema = z.object({
   id: z.uuid(),
   url: zx.secureUrl(),
   description: z.string().nullable(),
-  events: z.array(WebhookCurrentEventSchema),
+  events: z.array(WebhookEventSchema),
   secret: z.string().nullable(),
   headers: z.record(z.string(), z.string()).nullable(),
   bodyTemplate: z.string().nullable(),

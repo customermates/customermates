@@ -6,14 +6,14 @@ import type {
   RecordModelView,
   RecordRelationship,
   RecordScalar,
-} from "./record-model.schema";
-import type { RecordQuery } from "./record-query.schema";
-import type { RecordPathStep } from "./record-relationship-path.schema";
+} from "@/features/records/record-model.schema";
+import type { RecordQuery } from "@/features/records/record-query.schema";
+import type { RecordPathStep } from "@/features/records/record-relationship-path.schema";
 
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 
-import { parseRelationshipColumnKey, relationshipColumnKey } from "./record-column.schema";
-import { filterScalar, recordColumnPresentation, recordFilterableFields } from "./record-presentation";
+import { parseRelationshipColumnKey, relationshipColumnKey } from "@/features/records/record-column.schema";
+import { filterScalar, recordColumnPresentation, recordFilterableFields } from "@/features/records/record-presentation";
 
 type RecordFilter = RecordQuery["filters"][number];
 type RecordRelatedFilter = NonNullable<RecordQuery["relatedFilters"]>[number];

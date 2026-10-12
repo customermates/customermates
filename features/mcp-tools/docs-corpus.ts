@@ -9,7 +9,7 @@ import { DOCS_EMBEDDING_FORMAT, docsEmbeddingBody, docsEmbeddingText } from "./d
 import { docsCorpusSections, type DocsLocale, type DocsSource } from "./docs-manifest";
 
 const DOCS_CORPUS_SCHEMA = "docs-chunks-v1";
-export const DOCS_CORPUS_SOURCES: readonly DocsSource[] = ["docs", "api"];
+const DOCS_CORPUS_SOURCES: readonly DocsSource[] = ["docs", "api"];
 
 export type DocsChunk = {
   locale: DocsLocale;
@@ -43,7 +43,7 @@ function sha256(value: string): string {
   return createHash("sha256").update(value).digest("hex");
 }
 
-export function docsChunkLabel(section: DocsSection): string {
+function docsChunkLabel(section: DocsSection): string {
   const heading = section.headingPath.join(" > ");
   return heading && heading !== section.pageTitle ? `${section.pageTitle} > ${heading}` : section.pageTitle;
 }

@@ -26,17 +26,6 @@ export class PrismaMembershipTaskRepo extends TenantRepository implements Member
     return rows.map(({ typeId, id }) => ({ typeId, recordId: id }));
   }
 
-  async protect(ref: RecordRef, userId: string): Promise<void> {
-    if (!(await this.getMemberCompanyWide(userId))) throw new Error("The membership task user is unavailable.");
-    await this.prisma.crmRecord.update({
-      where: {
-        companyId: this.companyId,
-        companyId_typeId_id: { companyId: this.companyId, typeId: ref.typeId, id: ref.recordId },
-      },
-      data: { protectedKind: "membershipAuthorization", systemData: { relatedUserId: userId } },
-    });
-  }
-
   count(typeId: string, scope: RecordReadScope): Promise<number> {
     if (scope.access === "none") return Promise.resolve(0);
     return this.prisma.crmRecord.count({

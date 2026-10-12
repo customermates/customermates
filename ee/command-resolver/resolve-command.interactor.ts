@@ -37,7 +37,7 @@ import { getTranslator } from "@/i18n/get-translator";
 import { DEFAULT_LOCALE, isAppLocale } from "@/i18n/locale-registry";
 
 const UNRESOLVABLE_COMMANDS = new Set(["action.signOut"]);
-export const COMMAND_RESOLVE_TIMEOUT_MS = 8_000;
+const COMMAND_RESOLVE_TIMEOUT_MS = 8_000;
 
 function resolvableLists(
   model: RecordModel,

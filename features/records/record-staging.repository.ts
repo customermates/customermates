@@ -15,7 +15,7 @@ import { RecordIdentitySchema } from "./record-identity.schema";
 import { identityAssociations, identityKeys } from "./record-identity";
 import { channelClass } from "@/ee/messaging/provider";
 
-export const StagedRecordSchema = z.object({
+const StagedRecordSchema = z.object({
   ref: RecordRefSchema,
   deleted: z.boolean(),
   trashItemId: z.string().nullable().default(null),
@@ -26,7 +26,7 @@ export const StagedRecordSchema = z.object({
   updatedAt: z.iso.datetime(),
   assignedUserIds: z.array(z.uuid()),
 });
-export const StagedValueSchema = z.object({
+const StagedValueSchema = z.object({
   ref: RecordRefSchema,
   fieldId: z.uuid(),
   result: CalculatedValueSchema,

@@ -2,15 +2,15 @@ export type XlsxCell = string | number | boolean | Date | null;
 
 export type XlsxRow = { sheetRow: number; cells: XlsxCell[] };
 
-export type XlsxSheet = { name: string; headers: string[]; rows: XlsxRow[] };
+type XlsxSheet = { name: string; headers: string[]; rows: XlsxRow[] };
 
 export type XlsxWorkbook = { sheets: XlsxSheet[] };
 
 export type XlsxFileProblem = "tooLarge" | "tooManyRows" | "empty" | "unreadable";
 
-export const XLSX_MAX_FILE_BYTES = 10 * 1024 * 1024;
+const XLSX_MAX_FILE_BYTES = 10 * 1024 * 1024;
 
-export const XLSX_MAX_ROWS = 5_000;
+const XLSX_MAX_ROWS = 5_000;
 
 const XLSX_MAX_COLUMNS = 200;
 

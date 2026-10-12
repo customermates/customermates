@@ -11,13 +11,13 @@ import { Validate } from "@/core/decorators/validate.decorator";
 
 import { SaveReplyDraftBodySchema } from "./save-draft.interactor";
 
-export const SaveReplyDraftSchema = z
+const SaveReplyDraftSchema = z
   .object({
     threadId: z.uuid(),
     draft: SaveReplyDraftBodySchema,
   })
   .strict();
-export type SaveReplyDraftData = Data<typeof SaveReplyDraftSchema>;
+type SaveReplyDraftData = Data<typeof SaveReplyDraftSchema>;
 
 @TenantInteractor({ resource: Resource.inboxMessages, manage: "create" })
 export class SaveReplyDraftInteractor extends AuthenticatedInteractor<SaveReplyDraftData, MessagingMessageDto> {

@@ -18,9 +18,9 @@ export const RECORD_EVENT_KINDS = [
 export const RecordEventKindSchema = z.enum(RECORD_EVENT_KINDS);
 export type RecordEventKind = z.infer<typeof RecordEventKindSchema>;
 
-export const RecordHistoryPublicationSchema = z.object({ fieldId: z.uuid(), dependencyHash: z.string() }).strict();
+const RecordHistoryPublicationSchema = z.object({ fieldId: z.uuid(), dependencyHash: z.string() }).strict();
 
-export const RecordHistoryValueSchema = z
+const RecordHistoryValueSchema = z
   .object({
     fieldId: z.uuid(),
     label: z.string(),
@@ -35,7 +35,7 @@ export const RecordHistoryValueSchema = z
   })
   .strict();
 
-export const RecordHistoryIdentitySchema = RecordIdentitySchema.pick({
+const RecordHistoryIdentitySchema = RecordIdentitySchema.pick({
   id: true,
   provider: true,
   value: true,
@@ -44,7 +44,7 @@ export const RecordHistoryIdentitySchema = RecordIdentitySchema.pick({
   profileUrl: true,
 });
 
-export const RecordHistorySnapshotSchema = z
+const RecordHistorySnapshotSchema = z
   .object({
     version: z.number().int().positive(),
     assignedUserIds: z.array(z.uuid()),
@@ -53,7 +53,7 @@ export const RecordHistorySnapshotSchema = z
   })
   .strict();
 
-export const RecordEventLinkSchema = z
+const RecordEventLinkSchema = z
   .object({
     relationId: z.uuid(),
     source: RecordRefSchema,

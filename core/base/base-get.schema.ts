@@ -132,21 +132,12 @@ export const FilterableFieldSchema = z.object({
 });
 export type FilterableField = Data<typeof FilterableFieldSchema>;
 
-export const SortableFieldDescriptorSchema = z.object({
-  field: z.string(),
-  label: z.string().optional(),
-  columnType: z.string().optional(),
-});
-export type SortableFieldDescriptor = Data<typeof SortableFieldDescriptorSchema>;
-
 export const GetQueryParamsApiSchema = z.object({
   filters: z.array(FilterSchema).max(50).optional(),
   searchTerm: zx.nulFreeText().max(200).optional(),
   sortDescriptor: SortDescriptorSchema.optional(),
   pagination: PaginationRequestSchema.optional(),
 });
-export type GetQueryParamsApi = Data<typeof GetQueryParamsApiSchema>;
-
 export const GetQueryParamsSchema = GetQueryParamsApiSchema.extend({
   p13nId: z.string().optional(),
   viewId: z.string().optional(),
@@ -173,7 +164,7 @@ export const GetResultSchema = z.object({
   filterableFields: z.array(FilterableFieldSchema).optional(),
 });
 
-export const GroupingResultFields = {
+const GroupingResultFields = {
   grouping: z.any().optional(),
   groupableFields: z.array(z.any()).optional(),
 };

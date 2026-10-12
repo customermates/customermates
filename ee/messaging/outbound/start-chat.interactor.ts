@@ -49,7 +49,7 @@ import type { FindUsableAccountRepo } from "../persistence/find-usable-account.r
 import { accountNeedsReconnect } from "../account-health";
 import { identityLookupValue } from "../identity-lookup";
 
-export const LinkedinProductSchema = z.enum(LINKEDIN_PRODUCTS);
+const LinkedinProductSchema = z.enum(LINKEDIN_PRODUCTS);
 
 export const BaseStartChatInputSchema = z.object({
   connectedAccountId: z.uuid(),
@@ -109,7 +109,7 @@ export const StartChatInputSchema = BaseStartChatInputSchema.superRefine((d, ctx
 
 export type StartChatData = Data<typeof StartChatInputSchema>;
 
-export type StartChatResult = { threadId: string | null };
+type StartChatResult = { threadId: string | null };
 
 type ResolvedAttendees =
   | { ok: true; ids: string[]; attendees: MessagingAttendee[] }

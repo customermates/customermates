@@ -7,7 +7,7 @@ export const RECORD_EXPORT_LINK_LIMIT = 50_000;
 export const RECORD_IMPORT_LIMIT = 100;
 export const RECORD_IMPORT_LINK_LIMIT = 500;
 
-export const RecordExportLinkSchema = z
+const RecordExportLinkSchema = z
   .object({ relationId: z.uuid(), source: RecordRefSchema, target: RecordRefSchema })
   .strict();
 export type RecordExportLink = z.infer<typeof RecordExportLinkSchema>;

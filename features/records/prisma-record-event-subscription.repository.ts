@@ -1,4 +1,5 @@
 import { unwindFailure } from "@/core/validation/failure-unwind";
+import { CONFIGURATION_CONSUMER_PAGE } from "@/features/records/record.repo";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import type { RecordSubscriptionConfigurationRepo } from "./record-subscription-configuration.repo";
 import { Transaction } from "@/core/decorators/transaction.decorator";
@@ -127,7 +128,7 @@ export class PrismaRecordEventSubscriptionRepo
     return this.prisma.recordEventSubscription.findMany({
       where: { companyId, ...(afterId ? { id: { gt: afterId } } : {}) },
       orderBy: { id: "asc" },
-      take: 200,
+      take: CONFIGURATION_CONSUMER_PAGE,
     });
   }
 

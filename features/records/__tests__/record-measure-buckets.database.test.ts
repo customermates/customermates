@@ -40,7 +40,6 @@ const { createWorkspaceRecordPreset } = await import("../workspace-record-preset
 const { createTestRecordRepo, createTestDataViewRepo } = await import("@/tests/helpers/record-repository");
 const { PrismaWidgetRepo } = await import("@/features/widget/prisma-widget.repository");
 const { GetWidgetsInteractor } = await import("@/features/widget/get-widgets.interactor");
-const { PrismaRecordWidgetRepo } = await import("@/features/widget/prisma-record-widget.repository");
 const { RecordWidgetReader } = await import("@/features/widget/record-widget-reader");
 const { UpsertRecordWidgetInteractor } = await import("@/features/widget/record-widget.interactor");
 
@@ -84,7 +83,7 @@ async function fixture(preset: Preset = "crm") {
   const measure = new QueryRecordMeasureInteractor(repo, policy);
   const reader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
   const widgets = new UpsertRecordWidgetInteractor(
-    new PrismaRecordWidgetRepo(new PrismaWidgetRepo()),
+    new PrismaWidgetRepo(),
     repo,
     policy,
     measure,
@@ -852,10 +851,7 @@ describeDatabase("time-bucketed record measures", () => {
     );
     expect(back.ok && back.data).toMatchObject({ viewId: null, layout: { lg: { x: 3, y: 0 } } });
     if (!back.ok) return;
-    const shared = await f.run(
-      () => new PrismaRecordWidgetRepo(new PrismaWidgetRepo()).findReadable(back.data.id),
-      f.member,
-    );
+    const shared = await f.run(() => new PrismaWidgetRepo().findReadableRecordWidget("chart", back.data.id), f.member);
     expect(shared?.viewId).toBeNull();
     await f.run(async () =>
       f.widgets.invoke({
@@ -871,7 +867,7 @@ describeDatabase("time-bucketed record measures", () => {
       }),
     );
     const sharedOnView = await f.run(
-      () => new PrismaRecordWidgetRepo(new PrismaWidgetRepo()).findReadable(back.data.id),
+      () => new PrismaWidgetRepo().findReadableRecordWidget("chart", back.data.id),
       f.member,
     );
     expect(sharedOnView?.viewId).toBeNull();

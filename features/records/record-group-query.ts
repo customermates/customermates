@@ -17,7 +17,7 @@ import { compileRecordQuery, fieldReadPredicate, recordReadPredicate } from "./r
 import { resolveRecordGrouping } from "./record-grouping";
 import { recordCollation } from "./record-collation";
 import { recordGroupSummaryCtes } from "./record-group-summary";
-import { recordPathJoins } from "./record-path-query";
+import { liveLinkJoin, recordPathJoins } from "./record-path-query";
 
 export type RecordGroupRow = {
   key: string;
@@ -133,12 +133,18 @@ export function compileRecordGroups(
     const targetScope = access.get(targetTypeId) ?? { userId: "", access: "none" as const };
     const readable = recordReadPredicate(companyId, targetScope, target);
     const titleReadable = title ? fieldReadPredicate(companyId, title, model, access, target) : Prisma.sql`TRUE`;
-    const sourceId = outgoing ? Prisma.sql`link."sourceId"` : Prisma.sql`link."targetId"`;
-    const targetId = outgoing ? Prisma.sql`link."targetId"` : Prisma.sql`link."sourceId"`;
-    joins = Prisma.sql`LEFT JOIN "RecordLink" link ON link."companyId" = ${companyId} AND link."relationId" = ${relation.id} AND link."deletedAt" IS NULL
-      AND link."sourceTypeId" = ${relation.sourceTypeId} AND link."targetTypeId" = ${relation.targetTypeId} AND ${sourceId} = ${root}.id
-        AND EXISTS (SELECT 1 FROM "CrmRecord" group_alive WHERE group_alive."companyId" = ${companyId} AND group_alive."typeId" = ${targetTypeId} AND group_alive.id = ${targetId} AND group_alive."deletedAt" IS NULL)
-      LEFT JOIN "CrmRecord" ${target} ON ${target}."companyId" = ${companyId} AND ${target}."typeId" = ${targetTypeId} AND ${target}.id = ${targetId} AND ${target}."deletedAt" IS NULL
+    const link = liveLinkJoin({
+      companyId,
+      relation,
+      direction,
+      typeId: targetTypeId,
+      parent: root,
+      link: Prisma.sql`link`,
+      alive: Prisma.sql`group_alive`,
+      target,
+      left: true,
+    });
+    joins = Prisma.sql`${link}
       LEFT JOIN "RecordValue" title ON title."companyId" = ${companyId} AND title."typeId" = ${targetTypeId}
         AND title."recordId" = ${target}.id AND title."fieldId" = ${title?.id ?? null}`;
     key = Prisma.sql`CASE WHEN ${readable} THEN ${target}.id ELSE NULL END`;

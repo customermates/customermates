@@ -13,7 +13,7 @@ import { RecordIdentityInputsSchema } from "./record-identity.schema";
 import { RecordPathSelectionSchema } from "./record-relationship-path.schema";
 import { GroupingSchema, GroupPageRequestSchema } from "@/core/base/grouping/grouping.schema";
 
-export const RecordFilterSchema = z
+const RecordFilterSchema = z
   .object({
     fieldId: RecordFieldKeySchema,
     operator: z
@@ -43,7 +43,7 @@ export const RecordFilterSchema = z
   })
   .strict();
 
-export const RecordRelationshipFilterSchema = z
+const RecordRelationshipFilterSchema = z
   .object({
     relationId: z.uuid(),
     direction: z.enum(["outgoing", "incoming"]),
@@ -52,7 +52,7 @@ export const RecordRelationshipFilterSchema = z
   })
   .strict();
 
-export const RecordRelatedFilterSchema = z
+const RecordRelatedFilterSchema = z
   .object({
     path: z
       .array(
@@ -140,7 +140,7 @@ export const RecordReadSchema = RecordRefSchema.extend({
 }).strict();
 export type RecordRead = z.infer<typeof RecordReadSchema>;
 
-export const RecordLinkChangeSchema = z
+const RecordLinkChangeSchema = z
   .object({
     action: z.enum(["link", "unlink"]),
     relationId: z.uuid(),

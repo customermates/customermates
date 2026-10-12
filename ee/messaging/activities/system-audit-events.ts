@@ -2,7 +2,7 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { extractAuditChanges } from "@/features/event/audit-changes";
 import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
 
-export const SYSTEM_ACTIVITY_AUDIT_EVENTS = [
+const SYSTEM_ACTIVITY_AUDIT_EVENTS = [
   DomainEvent.USER_REGISTERED,
   DomainEvent.USER_UPDATED,
   DomainEvent.ROLE_CREATED,
@@ -26,7 +26,7 @@ export const SYSTEM_ACTIVITY_AUDIT_EVENTS = [
   DomainEvent.RECORDS_EXPORTED,
 ] as const;
 
-export const WIKI_ACTIVITY_AUDIT_EVENTS = WIKI_PAGE_AUDIT_EVENTS;
+const WIKI_ACTIVITY_AUDIT_EVENTS = WIKI_PAGE_AUDIT_EVENTS;
 
 const systemEvents = new Set<string>([...SYSTEM_ACTIVITY_AUDIT_EVENTS, ...WIKI_ACTIVITY_AUDIT_EVENTS]);
 

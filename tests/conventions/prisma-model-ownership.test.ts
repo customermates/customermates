@@ -110,8 +110,6 @@ const ALLOWLIST: Record<string, string> = {
   "Company features/user/prisma-user.repository.ts": REGISTRATION,
   "ConversionEvent features/user/prisma-user.repository.ts": REGISTRATION,
   "CrmRecord ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "CrmRecord features/records/prisma-membership-task.repository.ts":
-    "Membership task protection stamps the protected task record that the record repository created for the member",
   "EventLog features/event/prisma-event-outbox.repository.ts":
     "The event outbox worker owns the delivery bookkeeping columns of EventLog rows",
   "InviteToken ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
@@ -137,7 +135,7 @@ const ALLOWLIST: Record<string, string> = {
   "WebhookDelivery features/webhook/prisma-webhook.repository.ts":
     "Deleting a webhook detaches and cancels its pending deliveries in the webhook deletion transaction",
 };
-const ALLOWLIST_CEILING = 25;
+const ALLOWLIST_CEILING = 24;
 
 type WriteSite = { model: string; file: string; line: number; operation: string };
 

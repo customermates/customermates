@@ -16,9 +16,9 @@ import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 
 type RecordHistoryDisplayValue = z.infer<typeof RecordHistoryDisplayValueSchema>;
 
-export type ChangeChoice = { id: string; label: string; color?: ChipColor; provider?: MessagingProvider };
+type ChangeChoice = { id: string; label: string; color?: ChipColor; provider?: MessagingProvider };
 
-export type ChangeLinkedRecord = { id: string; label: string; icon: string; color: ChipColor | null };
+type ChangeLinkedRecord = { id: string; label: string; icon: string; color: ChipColor | null };
 
 export type ChangeValueDescriptor =
   | { kind: "empty" }
@@ -97,28 +97,8 @@ export function auditValueDescriptor(
   if (isEmpty(value)) return EMPTY;
   if (options.isWikiEvent && key === "kind") return choices([value], labels.wikiKind);
   switch (key) {
-    case "notes":
     case "markdown":
       return { kind: "richText", markdown: markdownOf(value) };
-    case "users":
-      return {
-        kind: "members",
-        members: (value as ActivityMemberDto[]).map(({ id, firstName, lastName, avatarUrl }) => ({
-          id,
-          firstName,
-          lastName,
-          avatarUrl: avatarUrl ?? null,
-        })),
-      };
-    case "identifiers":
-      return {
-        kind: "choices",
-        choices: (value as Array<{ id?: string; provider: MessagingProvider; value: string }>).map((identifier) => ({
-          id: identifier.id ?? `${identifier.provider}:${identifier.value}`,
-          label: identifier.value,
-          provider: identifier.provider,
-        })),
-      };
     case "status":
       return choices(
         [value],

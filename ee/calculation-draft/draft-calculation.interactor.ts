@@ -27,7 +27,7 @@ import {
   parseCalculationDraft,
 } from "@/features/records/calculation-draft";
 
-export const DraftCalculationSchema = z
+const DraftCalculationSchema = z
   .object({
     typeId: z.uuid(),
     fieldId: z.uuid().optional(),
@@ -36,7 +36,7 @@ export const DraftCalculationSchema = z
   .strict();
 export type DraftCalculationInput = z.infer<typeof DraftCalculationSchema>;
 
-export const CALCULATION_DRAFT_TIMEOUT_MS = 8_000;
+const CALCULATION_DRAFT_TIMEOUT_MS = 8_000;
 
 @TenantInteractor()
 export class DraftCalculationInteractor extends AuthenticatedInteractor<

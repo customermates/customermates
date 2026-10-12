@@ -12,7 +12,7 @@ import {
   recordQueryToPaletteFilters,
   relatedFieldKey,
   relatedRecordKey,
-} from "@/features/records/record-filter-target";
+} from "@/components/records/record-filter-target";
 import { relationshipColumnKey } from "@/features/records/record-column.schema";
 
 const companyId = "6487f9fb-7b10-439a-b783-9d3da8184b14";

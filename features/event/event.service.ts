@@ -4,7 +4,7 @@ import type { EventLogRepo } from "./event-log.repo";
 import type { ChangeRecord } from "@/core/utils/calculate-changes";
 
 import { UserAccessor } from "@/core/base/user-accessor";
-import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
+import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { env } from "@/env";
 
 type ScopedEventData<E extends DomainEvent> = Omit<DomainEventMap[E], "userId" | "companyId">;
@@ -46,7 +46,7 @@ export class EventService extends UserAccessor {
   }
 
   private async log(event: DomainEvent, data: DomainEventMap[DomainEvent]): Promise<boolean> {
-    const subscribable = WebhookCurrentEventSchema.options.some((option) => option === event);
+    const subscribable = WebhookEventSchema.options.some((option) => option === event);
     if (subscribable && !(await this.eventLog.hasSubscribersUnscoped(data.companyId, event))) return false;
     await this.eventLog.appendUnscoped(data.companyId, {
       kind: event,

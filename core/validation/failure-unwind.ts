@@ -3,7 +3,7 @@ import type { InteractorFailureKind } from "./validation.utils";
 
 type FailurePath = Array<string | number>;
 
-export type FailureUnwindCause = {
+type FailureUnwindCause = {
   kind: "interactorFailure";
   code: CustomErrorCode;
   failureKind: InteractorFailureKind;

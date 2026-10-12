@@ -24,7 +24,7 @@ const DERIVED_FACTS = {
   "webhooks.events.messaging": WEBHOOK_MESSAGING_EVENT_COUNT,
 } as const;
 
-export type DerivedFactToken = keyof typeof DERIVED_FACTS;
+type DerivedFactToken = keyof typeof DERIVED_FACTS;
 
 export function resolveDerivedToken(token: string): string {
   if (!(token in DERIVED_FACTS)) throw new Error(`Unknown derived token: ${token}`);

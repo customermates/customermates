@@ -15,7 +15,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { CalendarDtoSchema } from "./calendar.schema";
 import type { GetCalendarByIdRepo } from "./get-calendar-by-id.repo";
 
-export const GetCalendarByIdSchema = z.object({ id: z.uuid() });
+const GetCalendarByIdSchema = z.object({ id: z.uuid() });
 type GetCalendarByIdData = Data<typeof GetCalendarByIdSchema>;
 
 @AllowInDemoMode

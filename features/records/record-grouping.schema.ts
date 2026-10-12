@@ -4,7 +4,7 @@ import { CHIP_COLORS } from "@/constants/chip-colors";
 import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { CalculatedValueSchema, RecordGroupSummaryDefinitionSchema } from "./record-model.schema";
 
-export const RecordGroupSummaryResultSchema = RecordGroupSummaryDefinitionSchema.extend({
+const RecordGroupSummaryResultSchema = RecordGroupSummaryDefinitionSchema.extend({
   label: z.string(),
   decimalPlaces: z.number().int().min(0).max(30).nullable(),
   result: CalculatedValueSchema,

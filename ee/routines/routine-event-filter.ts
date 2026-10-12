@@ -27,10 +27,6 @@ export function isRecordChangeEvent(event: string): boolean {
   return event === "record.updated";
 }
 
-export function isRecordRemovalEvent(event: string): boolean {
-  return event === "record.deleted" || event === "record.deletedPermanently";
-}
-
 export function changedFieldsOf(eventData: unknown): string[] {
   const record = RecordDeliveryEnvelopeSchema.safeParse(eventData);
   return record.success ? record.data.data.record.fields.map((field) => field.fieldId) : [];

@@ -1,4 +1,5 @@
 import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { CONFIGURATION_CONSUMER_PAGE } from "@/features/records/record.repo";
 import deepEqual from "fast-deep-equal";
 import { recordJson } from "@/features/records/record-storage";
 import type { DeleteWidgetRepo } from "./delete-widget.repo";
@@ -18,6 +19,15 @@ import type { WidgetDto } from "./widget.schema";
 import type { RecordWidgetConfigurationRepo, RecordWidgetConfigurationRow } from "./record-widget-configuration.repo";
 import type { OwnedWidgetWrite, OwnedWidgetWriteRepo } from "./owned-widget-write.repo";
 import type { ViewWidgetPurgeRepo } from "./view-widget-purge.repo";
+import type { SavedRecordActivityWidgetInput } from "./record-activity-widget.schema";
+import type { SavedRecordWidgetInput } from "./record-widget.schema";
+import type { WidgetLayout } from "./widget-display.schema";
+import type {
+  RecordWidgetKind,
+  RecordWidgetStoreRepo,
+  SavedRecordWidgetOf,
+  StoredRecordWidgetOf,
+} from "./record-widget-store.repo";
 
 import { Prisma, WidgetKind } from "@/generated/prisma";
 
@@ -25,6 +35,16 @@ import { TenantRepository } from "@/core/base/tenant-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { getRecordActivityWidgetReader, getRecordWidgetReader } from "@/core/di";
 import { LIVE_WIDGET } from "./live-widget";
+
+const STORED_RECORD_WIDGET = {
+  chart: RecordWidgetDtoSchema.omit({ data: true, status: true, groupOptions: true, decimalPlaces: true }).strip(),
+  activityTimeline: RecordActivityWidgetDtoSchema.omit({ schemaRevision: true, data: true, status: true }).strip(),
+};
+
+const RECORD_WIDGET_WHERE = {
+  chart: { measure: { not: Prisma.AnyNull } },
+  activityTimeline: { kind: WidgetKind.activityTimeline, activityQuery: { not: Prisma.AnyNull } },
+} satisfies Record<RecordWidgetKind, Prisma.WidgetWhereInput>;
 
 export class PrismaWidgetRepo
   extends TenantRepository
@@ -38,7 +58,8 @@ export class PrismaWidgetRepo
     RecordWidgetConfigurationRepo,
     OwnedWidgetWriteRepo,
     ViewWidgetPurgeRepo,
-    FindOwnedWidgetKindRepo
+    FindOwnedWidgetKindRepo,
+    RecordWidgetStoreRepo
 {
   constructor(private readonly scopedCompanyId?: string) {
     super();
@@ -70,21 +91,10 @@ export class PrismaWidgetRepo
   private async toDto(
     row: Prisma.WidgetGetPayload<{ select: PrismaWidgetRepo["dtoSelect"] }>,
   ): Promise<WidgetDto | null> {
-    if (row.kind === WidgetKind.activityTimeline && row.activityQuery) {
-      const stored = RecordActivityWidgetDtoSchema.omit({ schemaRevision: true, data: true, status: true })
-        .strip()
-        .parse({ ...row, viewId: row.userId === this.user.id ? row.viewId : null });
-      return getRecordActivityWidgetReader().read(stored);
-    }
-    if (row.measure !== null && row.measure !== undefined) {
-      const stored = RecordWidgetDtoSchema.omit({ data: true, status: true, groupOptions: true, decimalPlaces: true })
-        .strip()
-        .parse({
-          ...row,
-          viewId: row.userId === this.user.id ? row.viewId : null,
-        });
-      return getRecordWidgetReader().read(stored);
-    }
+    if (row.kind === WidgetKind.activityTimeline && row.activityQuery)
+      return getRecordActivityWidgetReader().read(this.storedRecordWidget("activityTimeline", row));
+    if (row.measure !== null && row.measure !== undefined)
+      return getRecordWidgetReader().read(this.storedRecordWidget("chart", row));
     throw new Error(`Widget ${row.id} has no record definition`);
   }
 
@@ -259,6 +269,67 @@ export class PrismaWidgetRepo
     return saved;
   }
 
+  private storedRecordWidget<K extends RecordWidgetKind>(
+    kind: K,
+    row: { userId: string; viewId: string | null },
+  ): StoredRecordWidgetOf[K] {
+    return STORED_RECORD_WIDGET[kind].parse({
+      ...row,
+      viewId: row.userId === this.userId ? row.viewId : null,
+    }) as StoredRecordWidgetOf[K];
+  }
+
+  async findOwnedRecordWidget<K extends RecordWidgetKind>(kind: K, id: string) {
+    const row = await this.prisma.widget.findFirst({
+      where: { id, companyId: this.companyId, userId: this.userId, ...LIVE_WIDGET, ...RECORD_WIDGET_WHERE[kind] },
+    });
+    return row ? this.storedRecordWidget(kind, row) : null;
+  }
+
+  async findReadableRecordWidget<K extends RecordWidgetKind>(kind: K, id: string) {
+    const row = await this.prisma.widget.findFirst({
+      where: {
+        id,
+        companyId: this.companyId,
+        OR: [{ userId: this.userId }, { isTemplate: true }],
+        ...LIVE_WIDGET,
+        ...RECORD_WIDGET_WHERE[kind],
+      },
+    });
+    return row ? this.storedRecordWidget(kind, row) : null;
+  }
+
+  async saveRecordWidget<K extends RecordWidgetKind>(
+    kind: K,
+    input: SavedRecordWidgetOf[K],
+    id: string,
+    viewId: string | null,
+    layout?: WidgetLayout,
+  ) {
+    const definition =
+      kind === "chart"
+        ? { kind: "chart" as const, measure: recordJson((input as SavedRecordWidgetInput).measure) }
+        : {
+            kind: "activityTimeline" as const,
+            activityQuery: recordJson((input as SavedRecordActivityWidgetInput).activityQuery),
+          };
+    const row = await this.saveOwnedWidget({
+      companyId: this.companyId,
+      userId: this.userId,
+      id,
+      update: input.id ? { expectedVersion: input.expectedVersion } : null,
+      data: {
+        name: input.name,
+        ...definition,
+        displayOptions: recordJson(input.displayOptions),
+        isTemplate: input.isTemplate,
+        viewId,
+        ...(layout ? { layout: recordJson(layout) } : {}),
+      },
+    });
+    return this.storedRecordWidget(kind, row);
+  }
+
   async saveOwnedWidget({ companyId, userId, id, update, data }: OwnedWidgetWrite) {
     return update
       ? this.prisma.widget.update({
@@ -279,7 +350,7 @@ export class PrismaWidgetRepo
       where: { companyId, activityQuery: { not: Prisma.AnyNull }, ...(afterId ? { id: { gt: afterId } } : {}) },
       select: { id: true, name: true, activityQuery: true, deletedAt: true, view: { select: { deletedAt: true } } },
       orderBy: { id: "asc" },
-      take: 200,
+      take: CONFIGURATION_CONSUMER_PAGE,
     });
     return rows.map(({ activityQuery, ...row }) => ({ ...row, definition: activityQuery }));
   }
@@ -289,7 +360,7 @@ export class PrismaWidgetRepo
       where: { companyId, measure: { not: Prisma.AnyNull }, ...(afterId ? { id: { gt: afterId } } : {}) },
       select: { id: true, name: true, measure: true, deletedAt: true, view: { select: { deletedAt: true } } },
       orderBy: { id: "asc" },
-      take: 200,
+      take: CONFIGURATION_CONSUMER_PAGE,
     });
     return rows.map(({ measure, ...row }) => ({ ...row, definition: measure }));
   }

@@ -17,7 +17,7 @@ import {
 } from "@/features/trash/trash.schema";
 import { runInteractor, toonResult } from "./utils";
 
-export const ManageTrashSchema = z
+const ManageTrashSchema = z
   .object({
     action: z.enum(["restore", "preview", "delete_permanently", "empty"]),
     itemIds: z.array(z.uuid()).min(1).max(500).optional(),

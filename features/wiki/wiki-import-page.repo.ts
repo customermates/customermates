@@ -1,4 +1,4 @@
-export type WikiImportedPageRecord = {
+type WikiImportedPageRecord = {
   id: string;
   updatedAt: Date;
   sourceFetchedAt: Date | null;

@@ -1,4 +1,4 @@
-export type RoleNameSource = {
+type RoleNameSource = {
   isSystemRole: boolean;
   name: string;
 };

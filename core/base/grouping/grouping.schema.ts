@@ -6,7 +6,7 @@ import type { RecordGroupSummaryResult } from "@/features/records/record-groupin
 import { z } from "zod";
 
 export const DATE_BUCKETS = ["day", "week", "month"] as const;
-export const DateBucketSchema = z.enum(DATE_BUCKETS);
+const DateBucketSchema = z.enum(DATE_BUCKETS);
 export type DateBucket = Data<typeof DateBucketSchema>;
 export const DEFAULT_DATE_BUCKET: DateBucket = "month";
 
@@ -54,7 +54,7 @@ export const GroupPageRequestSchema = z.object({
 });
 export type GroupPageRequest = Data<typeof GroupPageRequestSchema>;
 
-export type GroupLabelKind = "value" | "noValue" | "unavailable";
+type GroupLabelKind = "value" | "noValue" | "unavailable";
 
 export type GroupOverflow = { shown: number; withRecords: boolean };
 

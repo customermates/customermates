@@ -14,7 +14,7 @@ import { deleteWebhookAction, upsertWebhookAction } from "../../actions";
 import { BaseModalStore } from "@/core/base/base-modal.store";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { parseWebhookHeaderLines } from "@/features/webhook/webhook-headers";
-import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
+import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { omit } from "lodash";
 
 export type WebhookFormData = Omit<UpsertWebhookData, "headers" | "events"> & {
@@ -178,7 +178,7 @@ export class WebhookModalStore extends BaseModalStore<WebhookFormData> {
 
     try {
       const { headers, secret, bodyTemplate, ...form } = toJS(this.form);
-      const events = z.object({ events: z.array(WebhookCurrentEventSchema) }).safeParse({ events: form.events });
+      const events = z.object({ events: z.array(WebhookEventSchema) }).safeParse({ events: form.events });
       if (!events.success) {
         this.setError(z.treeifyError(events.error));
         return;

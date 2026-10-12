@@ -5,7 +5,7 @@ import { recordInvariant } from "@/features/records/record-invariant";
 import { describe, expect, it } from "vitest";
 import { FilterOperatorKey as Op } from "@/core/base/base-query-builder";
 import { createCrmPreset, presetId } from "@/features/records/crm-preset";
-import { relatedFieldKey, type QueryFilters } from "@/features/records/record-filter-target";
+import { relatedFieldKey, type QueryFilters } from "@/components/records/record-filter-target";
 import { createRecordQueryFilterTarget } from "../record-query-filter-target";
 
 const company = "6487f9fb-7b10-439a-b783-9d3da8184b14";

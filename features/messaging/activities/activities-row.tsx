@@ -18,7 +18,7 @@ import { ActivityRecordChips } from "./activity-record-chips";
 const BADGE_BASE =
   "ring-background bg-background absolute -right-px -bottom-px size-3.5 overflow-hidden rounded-full ring-2";
 
-export type BadgeTone = "created" | "updated" | "deleted" | "received" | "sent" | "calendar" | "activity";
+type BadgeTone = "created" | "updated" | "deleted" | "received" | "sent" | "calendar" | "activity";
 
 const BADGE_TONE: Record<BadgeTone, string> = {
   created: "border-success/30 bg-success/20 text-success",

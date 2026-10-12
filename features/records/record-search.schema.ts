@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { CalculatedValueSchema, RecordDateTimeSchema, RecordRefSchema } from "./record-model.schema";
 
-export const RecordSearchCursorSchema = z
+const RecordSearchCursorSchema = z
   .object({
     revision: z.number().int().nonnegative(),
     createdAt: RecordDateTimeSchema,

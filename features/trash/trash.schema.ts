@@ -19,10 +19,10 @@ export const TRASH_KINDS = [
   "routine",
   "wikiPage",
 ] as const;
-export const TrashKindSchema = z.enum(TRASH_KINDS);
+const TrashKindSchema = z.enum(TRASH_KINDS);
 export type TrashKind = z.infer<typeof TrashKindSchema>;
 
-export const TrashItemDtoSchema = z
+const TrashItemDtoSchema = z
   .object({
     id: z.uuid(),
     kind: TrashKindSchema,
@@ -81,7 +81,7 @@ export const RestoreTrashSchema = z
   });
 export type RestoreTrashData = z.infer<typeof RestoreTrashSchema>;
 
-export const TrashRestoreBlockerSchema = z
+const TrashRestoreBlockerSchema = z
   .object({
     itemId: z.uuid(),
     reason: z.enum(["listDeleted", "parentDeleted", "notFound", "requiresRestore", "nameTaken"]),
@@ -142,7 +142,7 @@ export type TrashDeletionResult = z.infer<typeof TrashDeletionResultSchema>;
 export const EmptyTrashSchema = z.object({ expectedImpactHash: z.string().regex(/^[a-f0-9]{64}$/) }).strict();
 export type EmptyTrashData = z.infer<typeof EmptyTrashSchema>;
 
-export const TrashedRecordInfoSchema = z
+const TrashedRecordInfoSchema = z
   .object({
     itemId: z.uuid(),
     deletedAt: z.iso.datetime(),

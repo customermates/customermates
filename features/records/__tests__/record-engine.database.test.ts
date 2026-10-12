@@ -155,11 +155,9 @@ const { manageDataViewsTool } = await import("@/features/mcp-tools/data-view.mcp
 const { manageRecordDetailLayoutV2Tool } = await import("@/features/mcp-tools/record-model.mcp-tools");
 
 const { createTestRecordRepo, createTestDataViewRepo } = await import("@/tests/helpers/record-repository");
-const { PrismaRecordWidgetRepo } = await import("@/features/widget/prisma-record-widget.repository");
 const { UpsertRecordWidgetInteractor } = await import("@/features/widget/record-widget.interactor");
 const { RecordWidgetReader } = await import("@/features/widget/record-widget-reader");
 
-const { PrismaRecordActivityWidgetRepo } = await import("@/features/widget/prisma-record-activity-widget.repository");
 const { UpsertRecordActivityWidgetInteractor } = await import("@/features/widget/record-activity-widget.interactor");
 const { RecordActivityWidgetReader } = await import("@/features/widget/record-activity-widget-reader");
 const { RecordActivityQuerySchema } = await import("@/ee/messaging/activities/record-activities.schema");
@@ -245,7 +243,7 @@ async function fixture() {
   const query = new QueryRecordsInteractor(repo, policy);
   const choices = new GetRecordChoicesInteractor(repo, policy, query);
   const measure = new QueryRecordMeasureInteractor(repo, policy);
-  const widgets = new PrismaRecordWidgetRepo(new PrismaWidgetRepo());
+  const widgets = new PrismaWidgetRepo();
   const widgetReader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
   const writeWidget = new UpsertRecordWidgetInteractor(
     widgets,
@@ -316,7 +314,7 @@ async function fixture() {
     new RecordHistoryReader(repo),
     { require: () => Promise.resolve(null) },
   );
-  const activityWidgets = new PrismaRecordActivityWidgetRepo(new PrismaWidgetRepo());
+  const activityWidgets = new PrismaWidgetRepo();
   const activityWidgetReader = new RecordActivityWidgetReader(repo, activities);
   const writeActivityWidget = new UpsertRecordActivityWidgetInteractor(
     activityWidgets,
@@ -1703,12 +1701,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       recordQuery: RecordQuerySchema.parse(trigger.query),
       subscriptionId: routineId,
     };
-    expect(await f.run(() => access.matchesCurrentUser(args))).toBe(true);
     expect(await f.run(() => access.currentUserTrigger(args))).toMatchObject({
       payload: { id: match.eventId, data: { record: { ref: service } } },
     });
     expect(await f.update(service, [["service.amount", decimal("5")]])).toMatchObject({ ok: true });
-    expect(await f.run(() => access.matchesCurrentUser(args))).toBe(false);
     expect(await f.run(() => access.currentUserTrigger(args))).toBeNull();
     expect(
       await f.run(() =>
@@ -1729,7 +1725,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       ),
     ).toMatchObject({ ok: true, data: { recordTrigger: trigger } });
-    expect(await f.run(() => access.matchesCurrentUser(args))).toBe(false);
+    expect(await f.run(() => access.currentUserTrigger(args))).toBeNull();
   });
 
   it("rolls back routine creation for stale schemas and invalid cross-workspace trigger references", async () => {
@@ -5796,7 +5792,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ok: false,
     });
     expect(await f.run(() => prisma.widget.count({ where: { companyId: f.company.id } }))).toBe(1);
-    const shared = await f.run(() => f.activityWidgets.findReadable(saved.data.id), f.member);
+    const shared = await f.run(
+      () => f.activityWidgets.findReadableRecordWidget("activityTimeline", saved.data.id),
+      f.member,
+    );
     expect(shared).not.toBeNull();
     expect(await f.run(() => f.activityWidgetReader.read(recordInvariant(shared)), f.member)).toMatchObject({
       status: "unavailable",
@@ -5832,7 +5831,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ),
     ).toMatchObject({ ok: false });
     const foreign = await fixture();
-    expect(await foreign.run(() => foreign.activityWidgets.findReadable(saved.data.id))).toBeNull();
+    expect(
+      await foreign.run(() => foreign.activityWidgets.findReadableRecordWidget("activityTimeline", saved.data.id)),
+    ).toBeNull();
     expect(
       await foreign.run(() =>
         foreign.writeActivityWidget.invoke({
@@ -5874,7 +5875,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ),
     );
     expect(updates.filter((result) => result.ok)).toHaveLength(1);
-    expect(await f.run(() => f.activityWidgets.findOwned(saved.data.id))).toMatchObject({ version: 2 });
+    expect(await f.run(() => f.activityWidgets.findOwnedRecordWidget("activityTimeline", saved.data.id))).toMatchObject(
+      { version: 2 },
+    );
     expect(
       await f.run(() =>
         f.writeActivityWidget.invoke({
@@ -14597,15 +14600,15 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect(await f.run(() => f.repo.getStageRows(operationId, "record"))).toEqual(staged);
     expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBe(operationId);
-    await f.run(() => f.worker().fail(operationId, "worker_failed"));
+    await f.run(() => f.worker().fail(operationId, CustomErrorCode.recordOperationFailed));
     expect(await f.run(() => f.repo.getOperation(operationId))).toMatchObject({
       state: "failed",
-      errorCode: "worker_failed",
+      errorCode: CustomErrorCode.recordOperationFailed,
     });
     expect(await f.run(() => f.cancel.invoke({ operationId }))).toMatchObject({ ok: false });
     expect(await f.run(() => f.status.invoke({ operationId }))).toMatchObject({
       ok: true,
-      data: { state: "failed", errorCode: "worker_failed" },
+      data: { state: "failed", errorCode: CustomErrorCode.recordOperationFailed },
     });
     expect(
       await f.run(() =>
@@ -14669,7 +14672,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     expect(await f.run(() => f.repo.getOperation(operationId))).toMatchObject({
       state: "failed",
-      errorCode: "worker_failed",
+      errorCode: CustomErrorCode.recordOperationFailed,
     });
     expect(
       await f.run(() =>
@@ -14762,7 +14765,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ok: true,
       data: { id: created.data.id, version: 1 },
     });
-    expect(await f.run(() => f.widgets.listOwned())).toHaveLength(1);
+    expect(await f.run(() => prisma.widget.count({ where: { companyId: f.company.id, name: input.name } }))).toBe(1);
     expect(await f.run(() => f.writeWidget.invoke({ ...input, name: "Different retry" }))).toMatchObject({
       ok: false,
       error: {
@@ -14979,15 +14982,15 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         { id: created.data.id, version: 2, layout: { xs: undefined, sm: undefined, md: undefined, lg: position } },
       ],
     });
-    expect(await f.run(() => f.widgets.findOwned(created.data.id))).toMatchObject({
+    expect(await f.run(() => f.widgets.findOwnedRecordWidget("chart", created.data.id))).toMatchObject({
       version: 2,
       layout: { lg: position },
     });
-    expect(await other.run(() => other.widgets.findOwned(foreign.data.id))).toMatchObject({
+    expect(await other.run(() => other.widgets.findOwnedRecordWidget("chart", foreign.data.id))).toMatchObject({
       version: 1,
       layout: foreign.data.layout,
     });
-    expect(await f.run(() => f.widgets.findOwned(untouchedId))).toMatchObject({
+    expect(await f.run(() => f.widgets.findOwnedRecordWidget("chart", untouchedId))).toMatchObject({
       version: 1,
       layout: { lg: untouchedPosition },
     });
@@ -15105,7 +15108,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toMatchObject({ ok: true });
     if (!preview.ok || !preview.data.deletion) throw new Error("Expected a deletion preview");
     expect(preview.data.deletion.blockers.some((blocker) => blocker.reason === "widget")).toBe(false);
-    const stored = await f.run(() => f.widgets.findOwned(saved.data.id), f.member);
+    const stored = await f.run(() => f.widgets.findOwnedRecordWidget("chart", saved.data.id), f.member);
     if (!stored) throw new Error("Widget missing");
     expect(await f.run(() => f.widgetReader.read(stored), f.member)).toMatchObject({
       status: "ready",
@@ -17541,7 +17544,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       const f = await fixture();
       const foreign = await fixture();
       const { ProviderAvatarService } = await import("../provider-avatar.service");
-      const { ResumeRecordOperationInteractor } = await import("../record-operation.interactor");
+      const { ResumeRecordOperationInteractor } = await import("../resume-record-operation.interactor");
       const relationId = randomUUID();
       const fieldId = randomUUID();
       const sourceField = recordInvariant(f.model.fields.find((field) => field.id === f.id("contact.avatarUrl")));

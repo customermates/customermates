@@ -62,39 +62,35 @@ export class SearchRecordsInteractor extends AuthenticatedInteractor<RecordSearc
         if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
         if (input.cursor && input.cursor.revision !== model.revision)
           return failConflict(CustomErrorCode.recordSchemaChanged);
-        try {
-          const access = policy.access(model.types.filter((type) => !type.archived).map((type) => type.id));
-          const { term, similarTitles } = parseRecordSearchTerm(input.searchTerm);
-          const search = { ...input, searchTerm: term };
-          const includeEmbedded = input.includeEmbedded === true;
-          const exact = await this.records.searchRecords({ search, includeEmbedded }, model, access);
-          const similar =
-            exact.length === 0 && similarTitles && !input.cursor
-              ? await this.records.searchRecords({ search, includeEmbedded, similarTitles }, model, access)
-              : [];
-          const rows = exact.length > 0 ? exact : similar.slice(0, input.limit);
-          const selected = rows.slice(0, input.limit);
-          const last = selected.at(-1);
-          return {
-            ok: true,
-            data: {
-              results: selected.map((row) => recordSearchHit(row, model, policy.allowed(row.typeId, "update"))),
-              schemaRevision: model.revision,
-              nextCursor:
-                rows.length > input.limit && last
-                  ? {
-                      revision: model.revision,
-                      createdAt: last.createdAt,
-                      ref: { typeId: last.typeId, recordId: last.recordId },
-                    }
-                  : null,
-            },
-          };
-        } catch (error) {
-          return unwoundFailure(error);
-        }
+        const access = policy.access(model.types.filter((type) => !type.archived).map((type) => type.id));
+        const { term, similarTitles } = parseRecordSearchTerm(input.searchTerm);
+        const search = { ...input, searchTerm: term };
+        const includeEmbedded = input.includeEmbedded === true;
+        const exact = await this.records.searchRecords({ search, includeEmbedded }, model, access);
+        const similar =
+          exact.length === 0 && similarTitles && !input.cursor
+            ? await this.records.searchRecords({ search, includeEmbedded, similarTitles }, model, access)
+            : [];
+        const rows = exact.length > 0 ? exact : similar.slice(0, input.limit);
+        const selected = rows.slice(0, input.limit);
+        const last = selected.at(-1);
+        return {
+          ok: true as const,
+          data: {
+            results: selected.map((row) => recordSearchHit(row, model, policy.allowed(row.typeId, "update"))),
+            schemaRevision: model.revision,
+            nextCursor:
+              rows.length > input.limit && last
+                ? {
+                    revision: model.revision,
+                    createdAt: last.createdAt,
+                    ref: { typeId: last.typeId, recordId: last.recordId },
+                  }
+                : null,
+          },
+        };
       },
       { readOnly: true },
-    );
+    ).catch(unwoundFailure);
   }
 }

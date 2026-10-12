@@ -23,9 +23,9 @@ const GetWidgetsSchema = z
   })
   .strict()
   .optional();
-export type GetWidgetsData = Data<typeof GetWidgetsSchema>;
+type GetWidgetsData = Data<typeof GetWidgetsSchema>;
 
-export const DashboardWidgetsSchema = z.object({
+const DashboardWidgetsSchema = z.object({
   p13nId: z.literal(SURFACE.dashboard),
   items: z.array(WidgetDtoSchema),
   views: z.array(DataViewChipDtoSchema),

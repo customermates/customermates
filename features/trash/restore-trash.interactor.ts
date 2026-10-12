@@ -38,20 +38,16 @@ export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrash
           "itemIds" in input ? { ids: input.itemIds } : input,
           await trashVisibility(this.handlers),
         );
-        try {
-          let operationId: string | null = null;
-          for (const group of itemsByHandler(this.handlers, items)) {
-            if (group.handler.restoreInBackground) operationId = await group.handler.restoreInBackground(group.items);
-            else operationId = (await group.handler.restore(group.items)).operationId ?? operationId;
-          }
-          if (!operationId) return result;
-          return { ok: true as const, data: { status: "pending" as const, operationId } };
-        } catch (error) {
-          return unwoundFailure(error);
+        let operationId: string | null = null;
+        for (const group of itemsByHandler(this.handlers, items)) {
+          if (group.handler.restoreInBackground) operationId = await group.handler.restoreInBackground(group.items);
+          else operationId = (await group.handler.restore(group.items)).operationId ?? operationId;
         }
+        if (!operationId) return result;
+        return { ok: true as const, data: { status: "pending" as const, operationId } };
       },
       { timeout: RESTORE_TIMEOUT_MS },
-    );
+    ).catch(unwoundFailure);
   }
 
   private restore(input: RestoreTrashData): Validated<TrashRestoreResult> {
@@ -63,29 +59,25 @@ export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrash
         );
         if (!items.length || ("itemIds" in input && items.length !== new Set(input.itemIds).size))
           return failNotFound(CustomErrorCode.trashItemNotFound);
-        try {
-          const result: TrashRestoreResult = {
-            status: "completed",
-            restoredItemIds: [],
-            blocked: [],
-            restoredRecords: 0,
-            droppedLinks: 0,
-          };
-          for (const group of itemsByHandler(this.handlers, items)) {
-            const restored = await group.handler.restore(group.items);
-            if (restored.operationId)
-              return { ok: true as const, data: { status: "pending" as const, operationId: restored.operationId } };
-            result.restoredItemIds.push(...restored.restoredItemIds);
-            result.blocked.push(...restored.blocked);
-            result.restoredRecords += restored.restoredRecords;
-            result.droppedLinks += restored.droppedLinks;
-          }
-          return { ok: true as const, data: result };
-        } catch (error) {
-          return unwoundFailure(error);
+        const result: TrashRestoreResult = {
+          status: "completed",
+          restoredItemIds: [],
+          blocked: [],
+          restoredRecords: 0,
+          droppedLinks: 0,
+        };
+        for (const group of itemsByHandler(this.handlers, items)) {
+          const restored = await group.handler.restore(group.items);
+          if (restored.operationId)
+            return { ok: true as const, data: { status: "pending" as const, operationId: restored.operationId } };
+          result.restoredItemIds.push(...restored.restoredItemIds);
+          result.blocked.push(...restored.blocked);
+          result.restoredRecords += restored.restoredRecords;
+          result.droppedLinks += restored.droppedLinks;
         }
+        return { ok: true as const, data: result };
       },
       { timeout: RESTORE_TIMEOUT_MS },
-    );
+    ).catch(unwoundFailure);
   }
 }

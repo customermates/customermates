@@ -67,16 +67,12 @@ export class ResolveRecordIdentitiesInteractor extends AuthenticatedInteractor<I
       async () => {
         const policy = await this.policy.load();
         if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
-        try {
-          return {
-            ok: true,
-            data: await this.identities.resolveForUpdate(input.identifiers, input.typeIds),
-          };
-        } catch (error) {
-          return unwoundFailure(error);
-        }
+        return {
+          ok: true as const,
+          data: await this.identities.resolveForUpdate(input.identifiers, input.typeIds),
+        };
       },
       { readOnly: true },
-    );
+    ).catch(unwoundFailure);
   }
 }

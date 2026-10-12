@@ -24,7 +24,7 @@ import { wikiSectionLocation, wikiSectionPlainText, wikiSectionTexts, wikiSnippe
 import { wikiSectionOffsetIn } from "./wiki-markdown-sections";
 import { WikiPageSearchResultSchema, WikiPageSearchSchema } from "./wiki.schema";
 
-export type WikiSearchHit = WikiSearchResult & { markdown: string };
+type WikiSearchHit = WikiSearchResult & { markdown: string };
 
 const WIKI_RERANK_CANDIDATES = 10;
 const WIKI_SEMANTIC_CANDIDATES = 30;

@@ -60,9 +60,9 @@ function compactDocsSearchText(results: DocsSearchHit[], total: number): string 
 
 export const DOCS_RERANK_EXCERPT_CHARS = 1_400;
 
-export type SearchDocsInput = { query: string; locale: DocsLocale; source: "docs" | "api" | "all" };
+type SearchDocsInput = { query: string; locale: DocsLocale; source: "docs" | "api" | "all" };
 
-export function docsRerankExcerpt(
+function docsRerankExcerpt(
   section: DocsSection,
   chars = DOCS_RERANK_EXCERPT_CHARS,
   query = "",
@@ -167,7 +167,7 @@ export const getDocsPageTool = {
   execute: (input: GetDocsPageInput) => getDocsPage(input),
 };
 
-export type GetDocsPageInput = {
+type GetDocsPageInput = {
   slug: string;
   anchor?: string;
   query?: string;
@@ -240,7 +240,7 @@ export async function unifiedDocsSearchResult(input: SearchDocsInput, deps: Unif
   return { text, structuredContent: { results, total } };
 }
 
-export async function searchDocs(input: SearchDocsInput) {
+async function searchDocs(input: SearchDocsInput) {
   return unifiedDocsSearchResult(input, await unifiedDocsDeps());
 }
 
@@ -260,7 +260,7 @@ export async function unifiedDocsPageResult(input: GetDocsPageInput, deps: Unifi
   return docsPageResult(input, excerpt);
 }
 
-export async function getDocsPage(input: GetDocsPageInput) {
+async function getDocsPage(input: GetDocsPageInput) {
   if (input.anchor !== undefined || !input.query) return docsPageResult(input);
   return unifiedDocsPageResult(input, await unifiedDocsDeps());
 }

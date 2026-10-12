@@ -96,8 +96,8 @@ export const UpdateOperatorSubscriptionTermsSchema = z
 
 export const GetOperatorWorkspaceStatsSchema = z.object({ companyId: z.uuid() }).strict();
 
-export const WORKSPACE_TAG_MAX_LENGTH = 60;
-export const WORKSPACE_TAG_MAX_COUNT = 25;
+const WORKSPACE_TAG_MAX_LENGTH = 60;
+const WORKSPACE_TAG_MAX_COUNT = 25;
 
 export const WorkspaceTagSchema = z.string().trim().min(1).max(WORKSPACE_TAG_MAX_LENGTH);
 
@@ -170,7 +170,7 @@ export const DeleteOperatorWorkspaceResultDtoSchema = z.object({
 
 export type DeleteOperatorWorkspaceResultDto = z.infer<typeof DeleteOperatorWorkspaceResultDtoSchema>;
 
-export const HostedAiUsageTotalsDtoSchema = z.object({
+const HostedAiUsageTotalsDtoSchema = z.object({
   settledCostMicrocents: z.string(),
   reservedExposureMicrocents: z.string(),
   totalCommittedMicrocents: z.string(),
@@ -197,7 +197,7 @@ export const HostedAiOperatorOverviewDtoSchema = z.object({
 
 export type HostedAiOperatorOverviewDto = z.infer<typeof HostedAiOperatorOverviewDtoSchema>;
 
-export const HostedAiSubscriptionDtoSchema = z.object({
+const HostedAiSubscriptionDtoSchema = z.object({
   plan: z.enum(SubscriptionPlan),
   status: z.enum(SubscriptionStatus),
   enterpriseCreditsPerUser: z.number().nullable(),
@@ -205,8 +205,6 @@ export const HostedAiSubscriptionDtoSchema = z.object({
   trialEndDate: z.date().nullable(),
   currentPeriodEnd: z.date().nullable(),
 });
-
-export type HostedAiSubscriptionDto = z.infer<typeof HostedAiSubscriptionDtoSchema>;
 
 export const HostedAiOperatorCompanyDtoSchema = z.object({
   companyId: z.uuid(),
@@ -217,7 +215,7 @@ export const HostedAiOperatorCompanyDtoSchema = z.object({
 
 export type HostedAiOperatorCompanyDto = z.infer<typeof HostedAiOperatorCompanyDtoSchema>;
 
-export const OperatorUserCreditPeriodDtoSchema = z.object({
+const OperatorUserCreditPeriodDtoSchema = z.object({
   periodStart: z.date(),
   periodEnd: z.date(),
   baseAllowanceMicrocents: z.number(),
@@ -263,7 +261,7 @@ export const OperatorUserSummaryDtoSchema = z.object({
 
 export type OperatorUserSummaryDto = z.infer<typeof OperatorUserSummaryDtoSchema>;
 
-export const OperatorUserSubscriptionDtoSchema = z.object({
+const OperatorUserSubscriptionDtoSchema = z.object({
   plan: z.enum(SubscriptionPlan),
   status: z.enum(SubscriptionStatus),
   quantity: z.number().nullable(),
@@ -274,8 +272,6 @@ export const OperatorUserSubscriptionDtoSchema = z.object({
   trialEndDate: z.date().nullable(),
   currentPeriodEnd: z.date().nullable(),
 });
-
-export type OperatorUserSubscriptionDto = z.infer<typeof OperatorUserSubscriptionDtoSchema>;
 
 export const OperatorUserDetailDtoSchema = z.object({
   userId: z.uuid(),

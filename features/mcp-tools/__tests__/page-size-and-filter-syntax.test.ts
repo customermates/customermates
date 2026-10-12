@@ -15,8 +15,6 @@ import {
   mcpOptionalPageSize,
   mcpPageSize,
   planMcpPageFetch,
-  nameMatchNote,
-  nameQueryOf,
   type McpPageSize,
 } from "../utils";
 
@@ -167,36 +165,5 @@ describe("filter syntax", () => {
   it("lists every filter operator the query builder supports, exactly once", () => {
     expect([...FILTER_OPERATORS].toSorted()).toEqual(Object.values(FilterOperatorKey).toSorted());
     expect(new Set(FILTER_OPERATORS).size).toBe(FILTER_OPERATORS.length);
-  });
-});
-
-describe("name match note", () => {
-  it("says so when two or more listed names contain the searched name", () => {
-    const note = nameMatchNote("Nova Expansion", [{ name: "Nova Expansion" }, { name: "Nova Expansion 2025" }]);
-    expect(note).toContain('2 records here match the name "Nova Expansion"');
-    expect(note).toContain("ask which one");
-    expect(note).toContain("act on all of them");
-  });
-
-  it("stays silent for a single match, a short term, or no term", () => {
-    expect(nameMatchNote("Nova Expansion", [{ name: "Nova Expansion" }, { name: "Kestrel" }])).toBeUndefined();
-    expect(nameMatchNote("No", [{ name: "Nova" }, { name: "Nordwind" }])).toBeUndefined();
-    expect(nameMatchNote(undefined, [{ name: "Nova" }, { name: "Nova" }])).toBeUndefined();
-  });
-
-  it("reads the name query from a search term or a name filter", () => {
-    expect(nameQueryOf("Acme", undefined)).toBe("Acme");
-    expect(nameQueryOf(undefined, [{ field: "name", operator: "startsWith", value: "Renewal" }])).toBe("Renewal");
-    expect(nameQueryOf(undefined, [{ field: "status", operator: "in", value: ["x"] }])).toBeUndefined();
-  });
-
-  it("reads a contact's first and last name filters as a name query, since contacts have no name filter", () => {
-    expect(
-      nameQueryOf(undefined, [
-        { field: "firstName", operator: "equals", value: "Anna" },
-        { field: "lastName", operator: "startsWith", value: "Probe 1" },
-      ]),
-    ).toBe("Anna Probe 1");
-    expect(nameQueryOf(undefined, [{ field: "lastName", operator: "isNull" }])).toBeUndefined();
   });
 });

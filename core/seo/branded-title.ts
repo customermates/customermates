@@ -1,4 +1,4 @@
-export const BRAND_NAME = "Customermates";
+const BRAND_NAME = "Customermates";
 export const SEARCH_TITLE_LIMIT = 60;
 
 const BRAND_SUFFIX = ` | ${BRAND_NAME}`;

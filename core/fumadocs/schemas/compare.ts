@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { ctaSchema, heroSchema, relatedHrefsSchema } from "./common";
 
-export const comparisonFeatureSchema = z.object({
+const comparisonFeatureSchema = z.object({
   name: z.string(),
   source: z.union([z.boolean(), z.string()]),
   competitor: z.union([z.boolean(), z.string()]),
@@ -11,7 +11,7 @@ export const comparisonFeatureSchema = z.object({
 });
 export type ComparisonFeature = z.infer<typeof comparisonFeatureSchema>;
 
-export const comparisonItemSchema = z.object({
+const comparisonItemSchema = z.object({
   title: z.string(),
   features: z.array(comparisonFeatureSchema),
 });
