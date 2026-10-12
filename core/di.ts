@@ -118,6 +118,7 @@ import { MutateRecordInteractor } from "@/features/records/mutate-record.interac
 import { PreviewRecordDeletionInteractor } from "@/features/records/preview-record-deletion.interactor";
 import { PrismaMembershipTaskRepo } from "@/features/records/prisma-membership-task.repository";
 import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
+import type { RecordRepoOwners } from "@/features/records/record.repo";
 import { EntityTrashHandler } from "@/features/trash/entity-trash.handler";
 import { EntityTrashVisibility } from "@/features/trash/entity-trash-visibility";
 import { RecordTrashHandler } from "@/features/records/record-trash.handler";
@@ -435,7 +436,7 @@ import { WikiSemanticIndexDispatcher } from "@/ee/wiki-retrieval/wiki-semantic-i
 import { WikiSemanticIndexListener } from "@/ee/wiki-retrieval/wiki-semantic-index-listener";
 export const getProviderAvatarService = (companyId: string) =>
   new ProviderAvatarService(
-    new PrismaRecordRepo(companyId, getBackgroundTaskService()),
+    createPrismaRecordRepo(companyId, getBackgroundTaskService()),
     companyId,
     getBackgroundTaskService(),
   );
@@ -446,7 +447,21 @@ export const getSearchChannelCandidatesInteractor = () =>
   new SearchChannelCandidatesInteractor(getMessagingRepo(), getEntitlementService());
 export const getCheckRecordIdentityInteractor = () =>
   new CheckRecordIdentityInteractor(getRecordRepo(), getRecordAccessPolicy());
-export const getRecordRepo = () => new PrismaRecordRepo(undefined, getBackgroundTaskService());
+const getRecordRepoOwners = (): RecordRepoOwners => ({
+  widgets: getWidgetRepo(),
+  views: getDataViewRepo(),
+  personalizations: getP13nRepo(),
+  trash: getTrashRepo(),
+  events: getEventLogRepo(),
+  webhooks: getWebhookRepo(),
+  routines: getRoutineRepo(),
+  members: getUserRepo(),
+  roles: getRoleRepo(),
+  subscriptions: getRecordEventSubscriptionRepo(),
+});
+export const createPrismaRecordRepo = (companyId?: string, background?: Pick<BackgroundTaskService, "dispatch">) =>
+  new PrismaRecordRepo(getRecordRepoOwners, companyId, background);
+export const getRecordRepo = () => createPrismaRecordRepo(undefined, getBackgroundTaskService());
 export const getRecordActivitiesRepo = () => new PrismaRecordActivitiesRepo(getPermissionService());
 export const getRecordHistoryReader = () => new RecordHistoryReader(getRecordRepo());
 export const getGetRecordActivityPresentationInteractor = () =>
@@ -541,7 +556,7 @@ export const getApplyRecordConfigurationInteractor = () =>
   );
 export const getTrashRepo = (companyId?: string) => new PrismaTrashRepo(companyId);
 const getConfigurationSystemPurge = (companyId?: string) => {
-  const records = new PrismaRecordRepo(companyId, getBackgroundTaskService());
+  const records = createPrismaRecordRepo(companyId, getBackgroundTaskService());
   return new ConfigurationSystemPurge(
     records,
     new RecordConfigurationService(records),
@@ -552,7 +567,7 @@ const getConfigurationSystemPurge = (companyId?: string) => {
 };
 export const getTrashKindHandlers = (companyId?: string): TrashKindHandler[] => [
   new ConfigurationTrashHandler(
-    new PrismaRecordRepo(companyId, getBackgroundTaskService()),
+    createPrismaRecordRepo(companyId, getBackgroundTaskService()),
     getRecordAccessPolicy(),
     getPreviewRecordConfigurationInteractor(),
     getApplyRecordConfigurationInteractor(),
@@ -560,10 +575,10 @@ export const getTrashKindHandlers = (companyId?: string): TrashKindHandler[] => 
     getConfigurationSystemPurge(companyId),
   ),
   new RecordTrashHandler(
-    new PrismaRecordRepo(companyId, getBackgroundTaskService()),
+    createPrismaRecordRepo(companyId, getBackgroundTaskService()),
     getRecordAccessPolicy(),
     getBackgroundTaskService(),
-    new RecordTrashService(new PrismaRecordRepo(companyId, getBackgroundTaskService())),
+    new RecordTrashService(createPrismaRecordRepo(companyId, getBackgroundTaskService())),
   ),
   ...entityTrashHandlers(companyId),
 ];
@@ -579,9 +594,9 @@ const entityTrashHandlers = (companyId?: string) => {
         kind: "view",
         restoreOrder: 2,
         visibility: visibility.owned("view"),
-        blockers: new ViewTrashBlockers(new PrismaRecordRepo(companyId, getBackgroundTaskService())),
+        blockers: new ViewTrashBlockers(createPrismaRecordRepo(companyId, getBackgroundTaskService())),
       },
-      new PrismaDataViewRepo(companyId),
+      createPrismaDataViewRepo(companyId),
       trash,
       events,
       companyId,
@@ -656,7 +671,7 @@ export const getGetTrashedRecordInteractor = () =>
   );
 export const getFailRecordOperationInteractor = () => new FailRecordOperationInteractor(getRecordRepo());
 export const getSystemRecordOperationService = (companyId: string) => {
-  const records = new PrismaRecordRepo(companyId, getBackgroundTaskService());
+  const records = createPrismaRecordRepo(companyId, getBackgroundTaskService());
   return new RecordOperationService(
     records,
     getRecordAccessPolicy(),
@@ -685,8 +700,10 @@ export const getUserRepo = () => new PrismaUserRepo(getPermissionService());
 export const getCompanyRepo = () => new PrismaCompanyRepo();
 export const getRoleRepo = () => new PrismaRoleRepo();
 export const getP13nRepo = () => new PrismaP13nRepo();
-export const getDataViewRepo = () => new PrismaDataViewRepo();
-export const getDataViewStateRepo = () => new PrismaDataViewRepo();
+export const createPrismaDataViewRepo = (companyId?: string) =>
+  new PrismaDataViewRepo({ widgets: getWidgetRepo(), personalizations: getP13nRepo() }, companyId);
+export const getDataViewRepo = () => createPrismaDataViewRepo();
+export const getDataViewStateRepo = () => createPrismaDataViewRepo();
 export const getWidgetRepo = () => new PrismaWidgetRepo();
 export const getWebhookRepo = () => new PrismaWebhookRepo(getRecordEventSubscriptionRepo(), getPermissionService());
 export const getWebhookPauseNotifier = (companyId?: string) =>
@@ -699,13 +716,18 @@ export const getWebhookPauseNotifier = (companyId?: string) =>
   );
 
 export const getRecordRecipientReader = () =>
-  new RecordRecipientReader((companyId) => new PrismaRecordRepo(companyId), new PrismaRecordRecipientRepo());
+  new RecordRecipientReader((companyId) => createPrismaRecordRepo(companyId), new PrismaRecordRecipientRepo());
 export const getRecordEventSubscriptionRepo = (companyId?: string) =>
   new PrismaRecordEventSubscriptionRepo(getRecordRepo(), companyId);
 export const getRoutineAdmission = () =>
   new RoutineAdmission(getRoutineRepo(), getBackgroundTaskService(), getRecordRecipientReader());
 export const getWebhookAdmission = () =>
-  new WebhookAdmission(getRecordRecipientReader(), getBackgroundTaskService(), new PrismaWebhookAdmissionRepo());
+  new WebhookAdmission(
+    getRecordRecipientReader(),
+    getBackgroundTaskService(),
+    new PrismaWebhookAdmissionRepo(),
+    getWebhookDeliveryRepo(),
+  );
 export const getProcessEventInteractor = (
   admission: EventAdmission = new EventAdmissionGroup([getWebhookAdmission(), getRoutineAdmission()]),
 ) => new ProcessEventInteractor(new PrismaEventOutboxRepo(), admission);
@@ -1749,7 +1771,7 @@ export const getGetRecordPresentationInteractor = () =>
     getQueryRecordsInteractor(),
   );
 
-export const getRecordWidgetRepo = () => new PrismaRecordWidgetRepo();
+export const getRecordWidgetRepo = () => new PrismaRecordWidgetRepo(getWidgetRepo());
 export const getRecordWidgetReader = () =>
   new RecordWidgetReader(getRecordRepo(), getQueryRecordMeasureInteractor(), getUserRepo());
 export const getPreviewRecordWidgetInteractor = () => new PreviewRecordWidgetInteractor(getRecordWidgetReader());
@@ -1780,7 +1802,7 @@ export const getGetRecordWidgetsInteractor = () =>
     getRecordActivityWidgetReader(),
   );
 
-export const getRecordActivityWidgetRepo = () => new PrismaRecordActivityWidgetRepo();
+export const getRecordActivityWidgetRepo = () => new PrismaRecordActivityWidgetRepo(getWidgetRepo());
 export const getRecordActivityWidgetReader = () =>
   new RecordActivityWidgetReader(getRecordRepo(), getGetRecordActivitiesInteractor());
 export const getUpsertRecordActivityWidgetInteractor = () =>

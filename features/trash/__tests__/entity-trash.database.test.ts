@@ -24,7 +24,6 @@ vi.mock("next-intl/server", () => ({
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
-const { PrismaRecordRepo } = await import("@/features/records/prisma-record.repository");
 const { PrismaTrashRepo } = await import("../prisma-trash.repository");
 const { EntityTrashHandler } = await import("../entity-trash.handler");
 const { EntityTrashVisibility } = await import("../entity-trash-visibility");
@@ -34,7 +33,7 @@ const { DeleteTrashPermanentlyInteractor } = await import("../delete-trash-perma
 const { EmptyTrashInteractor } = await import("../empty-trash.interactor");
 const { TRASH_PURGE_BATCH_SIZE } = await import("../purge-company-trash.interactor");
 const { PreviewTrashDeletionInteractor } = await import("../preview-trash-deletion.interactor");
-const { PrismaDataViewRepo } = await import("@/features/data-view/prisma-data-view.repository");
+const { createTestRecordRepo, createTestDataViewRepo } = await import("@/tests/helpers/record-repository");
 const { PrismaP13nRepo } = await import("@/features/p13n/prisma-p13n.repository");
 const { DeleteDataViewInteractor } = await import("@/features/data-view/delete-data-view.interactor");
 const { PrismaWidgetRepo } = await import("@/features/widget/prisma-widget.repository");
@@ -84,7 +83,7 @@ async function fixture() {
   const handlers: TrashKindHandler[] = [
     new EntityTrashHandler(
       { kind: "view", restoreOrder: 2, visibility: visibility.owned("view") },
-      new PrismaDataViewRepo(),
+      createTestDataViewRepo(),
       trashRepo,
       events,
     ),
@@ -107,7 +106,7 @@ async function fixture() {
     ),
   ];
   const trash = {
-    query: new QueryTrashInteractor(trashRepo, new PrismaRecordRepo(), handlers),
+    query: new QueryTrashInteractor(trashRepo, createTestRecordRepo(), handlers),
     restore: new RestoreTrashInteractor(trashRepo, handlers),
     preview: new PreviewTrashDeletionInteractor(trashRepo, handlers),
     remove: new DeleteTrashPermanentlyInteractor(trashRepo, handlers),
@@ -166,7 +165,7 @@ describeDatabase("views, widgets, routines and knowledge base pages in Trash", (
     const handlers = [
       new EntityTrashHandler(
         { kind: "view", restoreOrder: 2, visibility: new EntityTrashVisibility().owned("view") },
-        new PrismaDataViewRepo(),
+        createTestDataViewRepo(),
         trashRepo,
         events,
       ),
@@ -196,7 +195,7 @@ describeDatabase("views, widgets, routines and knowledge base pages in Trash", (
 
   it("moves an owned view to Trash, hides it, restores it with Undo and purges it permanently", async () => {
     const f = await fixture();
-    const views = new PrismaDataViewRepo();
+    const views = createTestDataViewRepo();
     const view = await f.tx(f.admin, () =>
       views.createView({ surfaceKey: "routines-card-store", name: "Mine", position: 0, state: {} }),
     );
@@ -224,7 +223,7 @@ describeDatabase("views, widgets, routines and knowledge base pages in Trash", (
 
   it("hides widgets with their dashboard view and refuses to restore one while its view is in Trash", async () => {
     const f = await fixture();
-    const views = new PrismaDataViewRepo();
+    const views = createTestDataViewRepo();
     const view = await f.tx(f.admin, () =>
       views.createView({ surfaceKey: "dashboard", name: "Board", position: 0, state: {} }),
     );

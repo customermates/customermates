@@ -27,9 +27,7 @@ export async function createRestRouteWorkspace() {
     "@/core/decorators/transaction-runner"
   );
   const { PermissionService } = await import("@/core/base/permission.service");
-  const { PrismaRecordRepo } = await import(
-    "@/features/records/prisma-record.repository"
-  );
+  const { createTestRecordRepo } = await import("./record-repository");
   const { PrismaUserRepo } = await import(
     "@/features/user/prisma-user.repository"
   );
@@ -92,7 +90,7 @@ export async function createRestRouteWorkspace() {
     ...seed.member,
     role: { ...seed.memberRole, permissions: [] },
   });
-  const repo = new PrismaRecordRepo();
+  const repo = createTestRecordRepo();
   const policy = new RecordAccessPolicy(
     new PrismaUserRepo(new PermissionService()),
     repo,

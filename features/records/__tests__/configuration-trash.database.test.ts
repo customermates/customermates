@@ -39,7 +39,6 @@ vi.mock("next-intl/server", () => ({
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
-const { PrismaRecordRepo } = await import("../prisma-record.repository");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
@@ -73,6 +72,7 @@ const { PurgeCompanyTrashInteractor } = await import("@/features/trash/purge-com
 const { AdvanceSystemRecordOperationInteractor } = await import("../advance-system-record-operation.interactor");
 const { getWebhookPauseNotifier } = await import("@/core/di");
 const { createCrmPreset, presetId } = await import("../crm-preset");
+const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -104,7 +104,7 @@ async function fixture() {
     webhooks = noWebhooks,
     systemConfigurations?: InstanceType<typeof RecordConfigurationService>,
   ) => {
-    const scoped = new PrismaRecordRepo(companyId);
+    const scoped = createTestRecordRepo(companyId);
     const scopedPolicy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), scoped);
     const configurations = new RecordConfigurationService(scoped);
     return [
@@ -141,7 +141,7 @@ async function fixture() {
       ),
     ];
   };
-  const repo = new PrismaRecordRepo();
+  const repo = createTestRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const configurations = new RecordConfigurationService(repo);
   const apply = new ApplyRecordConfigurationInteractor(
@@ -299,7 +299,7 @@ describeDatabase("configuration trash", () => {
       data: { status: "completed", blocked: [] },
     });
     expect(await f.items()).toEqual([]);
-    const model = await f.as(() => new PrismaRecordRepo().getModel());
+    const model = await f.as(() => createTestRecordRepo().getModel());
     expect(model.fields.find((field) => field.id === fieldId)?.archived).toBe(false);
   }, 180_000);
 
@@ -338,7 +338,7 @@ describeDatabase("configuration trash", () => {
         prisma.crmRecord.count({ where: { companyId: f.seed.company.id, id: { in: ids }, version: { gt: 1 } } }),
       ),
     ).toBe(0);
-    const model = await f.as(() => new PrismaRecordRepo().getModel());
+    const model = await f.as(() => createTestRecordRepo().getModel());
     expect(model.fields.find((field) => field.id === fieldId)?.archived).toBe(false);
   }, 300_000);
 
@@ -351,7 +351,7 @@ describeDatabase("configuration trash", () => {
     const batchId = deleted.data.trashBatchId;
     const restored = await f.as(() => f.trash.restore.invoke({ batchId } as never));
     expect(restored).toMatchObject({ ok: true, data: { status: "completed", blocked: [] } });
-    const model = await f.as(() => new PrismaRecordRepo().getModel());
+    const model = await f.as(() => createTestRecordRepo().getModel());
     expect(model.types.find((type) => type.id === f.id("organization"))?.archived).toBe(false);
     expect(await f.items()).toEqual([]);
   }, 180_000);
@@ -360,7 +360,7 @@ describeDatabase("configuration trash", () => {
     const f = await fixture();
     const avatar = () =>
       f.as(async () =>
-        (await new PrismaRecordRepo().getModel()).capabilities.find(
+        (await createTestRecordRepo().getModel()).capabilities.find(
           (binding) => binding.kind === "avatar" && binding.typeId === f.id("contact"),
         ),
       );
@@ -637,7 +637,7 @@ describeDatabase("configuration trash", () => {
     };
     const handlers = [...f.handlers(companyId), failing];
     const repo = new PrismaTrashRepo(companyId);
-    const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), new PrismaRecordRepo(companyId));
+    const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), createTestRecordRepo(companyId));
     const empty = new EmptyTrashInteractor(repo, policy, handlers);
     const broken = await orphan("widget");
     const field = await deleteNotes();
@@ -800,7 +800,7 @@ describeDatabase("configuration trash", () => {
     const [item] = await f.items();
     if (!item) throw new Error("The field is not in Trash");
     sentry.captured.length = 0;
-    const real = new RecordConfigurationService(new PrismaRecordRepo(companyId));
+    const real = new RecordConfigurationService(createTestRecordRepo(companyId));
     const background = Object.assign(Object.create(real) as typeof real, {
       prepare: async (...args: Parameters<typeof real.prepare>) => {
         const prepared = await real.prepare(...args);
@@ -829,7 +829,7 @@ describeDatabase("configuration trash", () => {
     expect(await purge()).toEqual({ next: null, deleted: 0, pending: 1, failed: 0 });
     expect(f.systemDispatches).toHaveLength(1);
     const advance = new AdvanceSystemRecordOperationInteractor((scoped) => {
-      const records = new PrismaRecordRepo(scoped);
+      const records = createTestRecordRepo(scoped);
       return new RecordOperationService(
         records,
         new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), records),
@@ -893,8 +893,8 @@ describeDatabase("configuration trash", () => {
     );
     const [config] = f.handlers(companyId);
     const background = new ConfigurationTrashHandler(
-      new PrismaRecordRepo(companyId),
-      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), new PrismaRecordRepo(companyId)),
+      createTestRecordRepo(companyId),
+      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), createTestRecordRepo(companyId)),
       (config as unknown as { preview: never }).preview,
       { run: () => Promise.resolve({ ok: true, data: { status: "pending", operationId: randomUUID() } }) } as never,
       new PrismaTrashRepo(companyId),

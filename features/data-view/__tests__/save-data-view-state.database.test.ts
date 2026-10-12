@@ -20,8 +20,8 @@ import { resolveDataViewState } from "@/core/data-view/resolve-data-view-state";
 import { FilterOperatorKey, ViewMode } from "@/core/base/base-query-builder";
 import { PrismaP13nRepo } from "@/features/p13n/prisma-p13n.repository";
 
-import { PrismaDataViewRepo } from "../prisma-data-view.repository";
 import { SaveDataViewStateInteractor } from "../save-data-view-state.interactor";
+import { createTestDataViewRepo } from "@/tests/helpers/record-repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -40,7 +40,7 @@ describeDatabase("data view state round trip on PostgreSQL", () => {
 
   const tenant: TenantUser = createMockUser({ id: userId, companyId });
   const asTenant = <T>(fn: () => Promise<T>) => runWithTenant(tenant, fn);
-  const views = () => new PrismaDataViewRepo();
+  const views = () => createTestDataViewRepo();
   const save = (viewKey: string, state: Parameters<SaveDataViewStateInteractor["invoke"]>[0]["state"]) =>
     asTenant(() =>
       new SaveDataViewStateInteractor(views(), new PrismaP13nRepo()).invoke({ surfaceKey: SURFACE, viewKey, state }),
