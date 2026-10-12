@@ -1,12 +1,10 @@
-import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@/generated/prisma";
 
 import { getTenantUser, isTenantGuardBypassed } from "@/core/decorators/tenant-context";
 import { env } from "@/env";
+import { serializedPgAdapter } from "./serialized-pg-adapter";
 
-const adapter = new PrismaPg({
-  connectionString: env.DATABASE_URL,
-});
+const adapter = serializedPgAdapter(env.DATABASE_URL);
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
