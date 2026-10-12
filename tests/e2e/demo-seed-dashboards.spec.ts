@@ -135,6 +135,39 @@ for (const width of [1440, 390]) {
       await expect(
         numbers.first().locator('[data-slot="widget-number-value"]'),
       ).toHaveText(/\d/);
+      // The grid re-measures its width after the cards mount and animates them into place, so wait until
+      // every card row spans the grid before reading the geometry.
+      await expect
+        .poll(
+          () =>
+            page.evaluate((gap) => {
+              const grid = document
+                .querySelector(".react-grid-layout")
+                ?.getBoundingClientRect();
+              if (!grid) return Number.POSITIVE_INFINITY;
+              const rows = new Map<number, number[]>();
+              for (const item of document.querySelectorAll(
+                ".react-grid-item",
+              )) {
+                const rect = item.getBoundingClientRect();
+                rows.set(Math.round(rect.top), [
+                  ...(rows.get(Math.round(rect.top)) ?? []),
+                  rect.width,
+                ]);
+              }
+              return Math.max(
+                ...[...rows.values()].map((widths) =>
+                  Math.abs(
+                    widths.reduce((sum, width) => sum + width, 0) +
+                      gap * (widths.length - 1) -
+                      grid.width,
+                  ),
+                ),
+              );
+            }, WIDGET_GRID_GAP),
+          { timeout: 10_000 },
+        )
+        .toBeLessThanOrEqual(2);
       const grid = await page.locator(".react-grid-layout").boundingBox();
       if (!grid)
         throw new Error(
