@@ -138,7 +138,7 @@ export const RecordEditorField = observer(function RecordEditorField({
         }
         fieldId={field.id}
         label={field.label}
-        readOnlyHint={restricted}
+        locked={restricted}
         value={<RecordValue field={field} members={store.record.memberUsers} result={result} />}
       />
     );
@@ -149,7 +149,7 @@ export const RecordEditorField = observer(function RecordEditorField({
       fieldId={field.id}
       inputId={field.valueType === "richText" ? undefined : inputId}
       label={field.label}
-      readOnlyHint={permissionReadOnly}
+      locked={permissionReadOnly}
       required={field.required}
     >
       <RecordInputField field={field} id={id} inputId={inputId} label={null} members={store.record?.memberUsers} />

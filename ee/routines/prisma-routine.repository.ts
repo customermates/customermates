@@ -226,7 +226,7 @@ export class PrismaRoutineRepo
   }
 
   private async withRecordTriggers(rows: RoutineDto[], companyId: string): Promise<RoutineDto[]> {
-    const subscriptions = await this.subscriptions.findCompanyWide(
+    const subscriptions = await this.subscriptions.findUnscoped(
       companyId,
       rows.map((row) => row.id),
     );

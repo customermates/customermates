@@ -65,7 +65,7 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
   await expect(
     main.getByRole("navigation", { name: "Breadcrumb" }).getByRole("link", { name: "Opportunity with notes" }),
   ).toBeVisible();
-  await expect(main.getByRole("button", { name: "Reset", exact: true })).not.toBeVisible();
+  await expect(main.locator("[data-slot='unsaved-changes-bar']")).toHaveCount(0);
   await waitForDealReads(main);
   await page.reload();
   await expect(main.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Opportunity with notes");
@@ -102,7 +102,7 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
     "Draft transferred onto the mounted page.",
   );
   await main.getByRole("button", { name: "Save", exact: true }).click();
-  await expect(main.getByRole("button", { name: "Reset", exact: true })).not.toBeVisible();
+  await expect(main.locator("[data-slot='unsaved-changes-bar']")).toHaveCount(0);
   await waitForDealReads(main);
   await page.reload();
   await expect(main.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Same page drawer draft");

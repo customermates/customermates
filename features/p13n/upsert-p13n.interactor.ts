@@ -13,24 +13,32 @@ import { ViewMode } from "@/core/base/base-query-builder";
 import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { EntityDetailOptionsSchema, P13nEntrySchema } from "./p13n.schema";
 import { p13nSettingsSchema, type P13nSettings } from "./p13n-settings.schema";
+import { isWritableP13nId, P13N_ID_MAX_LENGTH } from "./writable-p13n-id";
+
+const P13N_KEY_MAX_LENGTH = 200;
+const P13N_SEARCH_MAX_LENGTH = 500;
+const P13N_FILTERS_MAX = 50;
+const P13N_COLUMNS_MAX = 500;
+const P13N_COLUMN_WIDTH_MAX = 10_000;
 
 const Schema = z
   .object({
     p13nId: z
       .string()
       .min(1)
-      .refine(
-        (value) => !value.startsWith("records:") && !value.startsWith("record-detail:"),
-        "Record presentation requires the validated view or detail-layout operations",
-      ),
-    activeViewKey: z.string().nullish(),
-    filters: z.array(FilterSchema).nullish(),
-    searchTerm: z.string().nullish(),
+      .max(P13N_ID_MAX_LENGTH)
+      .refine(isWritableP13nId, "This personalization cannot be stored here"),
+    activeViewKey: z.string().max(P13N_KEY_MAX_LENGTH).nullish(),
+    filters: z.array(FilterSchema).max(P13N_FILTERS_MAX).nullish(),
+    searchTerm: z.string().max(P13N_SEARCH_MAX_LENGTH).nullish(),
     sortDescriptor: SortDescriptorSchema.nullish(),
     pagination: PaginationRequestSchema.pick({ pageSize: true }).nullish(),
-    columnOrder: z.array(z.string()).nullish(),
-    columnWidths: z.record(z.string(), z.number()).nullish(),
-    hiddenColumns: z.array(z.string()).optional(),
+    columnOrder: z.array(z.string().min(1).max(P13N_KEY_MAX_LENGTH)).max(P13N_COLUMNS_MAX).nullish(),
+    columnWidths: z
+      .record(z.string().min(1).max(P13N_KEY_MAX_LENGTH), z.number().finite().min(0).max(P13N_COLUMN_WIDTH_MAX))
+      .refine((widths) => Object.keys(widths).length <= P13N_COLUMNS_MAX, "Too many column widths")
+      .nullish(),
+    hiddenColumns: z.array(z.string().min(1).max(P13N_KEY_MAX_LENGTH)).max(P13N_COLUMNS_MAX).optional(),
     viewMode: z.enum(ViewMode).nullish(),
     grouping: GroupingSchema.nullish(),
     detailOptions: EntityDetailOptionsSchema.nullish(),

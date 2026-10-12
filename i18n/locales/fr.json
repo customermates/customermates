@@ -1193,6 +1193,7 @@
       "webhookTriggerRequired": "Choisissez quelles modifications de champ ou conditions déclenchent ce webhook avant de le réactiver.",
       "widgetDisplayTypeUnsupported": "Ce style de graphique ne correspond pas au regroupement choisi. Choisissez un autre style ou modifiez le regroupement.",
       "widgetKindImmutable": "Le type d'un widget ne peut pas être modifié après sa création.",
+      "widgetLayoutChanged": "Le tableau de bord a changé entre-temps. Il a été rechargé, réorganisez donc les widgets.",
       "widgetLayoutOverlap": "Cette position chevauche un autre widget. Choisissez un emplacement libre dans la grille de 12 colonnes ou omettez la disposition pour le placer automatiquement.",
       "widgetLayoutTooSmall": "Ce widget est trop petit : les graphiques et les chiffres nécessitent au moins 2 lignes, les fils d’activité 2 colonnes et 6 lignes.",
       "widgetNotFound": "ID de widget introuvable ou inaccessible.",
@@ -1477,7 +1478,6 @@
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
-    "readOnlyField": "Vous ne pouvez pas modifier ce champ",
     "relatedPages": "Pages associées",
     "retryLater": "plus tard",
     "scroll": {
@@ -1589,6 +1589,7 @@
       "system": "Système"
     },
     "unnamed": "Sans nom",
+    "unsavedChanges": "Modifications non enregistrées",
     "userStatuses": {
       "active": "Actif",
       "inactive": "Inactif",

@@ -21,7 +21,7 @@ async function api(page: Page, path: string, data: unknown) {
 }
 
 async function readModel(page: Page) {
-  return RecordModelSchema.parse(await api(page, "/api/v1/model/discover", {}));
+  return RecordModelSchema.parse(await api(page, "/api/v1/model/read", {}));
 }
 
 async function createLabList(page: Page, contactTypeId: string) {
@@ -151,18 +151,25 @@ test("rows and cards open the record page and keep only Open details and Delete 
   expect(errors).toEqual([]);
 });
 
-test("record drawer Cancel closes clean forms and guards unsaved changes", async ({ page, companyId }, testInfo) => {
+test("record drawer shows an unsaved-changes bar only while edits are pending and guards closing", async ({
+  page,
+  companyId,
+}, testInfo) => {
   const typeId = presetId(companyId, "organization");
   const name = `Cancel guard ${randomUUID().slice(0, 8)}`;
   const draft = `${name} unsaved`;
+  const saved = `${name} saved`;
   await page.goto(`/en/records/${typeId}`);
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog");
   const input = drawer.getByRole("textbox", { name: "Name", exact: false });
-  const cancel = drawer.getByRole("button", { name: "Cancel", exact: true });
-  const save = drawer.getByRole("button", { name: "Save", exact: true });
+  const bar = drawer.locator("[data-slot='unsaved-changes-bar']");
+  const cancel = bar.getByRole("button", { name: "Cancel", exact: true });
+  const save = bar.getByRole("button", { name: "Save", exact: true });
+  await expect(drawer.locator("[data-slot='form-footer-actions']")).toBeVisible();
+  await expect(drawer.getByRole("button", { name: "Cancel", exact: true })).toBeVisible();
   await input.fill(name);
-  await save.click();
+  await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   await page.waitForLoadState("networkidle");
   const errors = trackErrors(page);
@@ -170,29 +177,37 @@ test("record drawer Cancel closes clean forms and guards unsaved changes", async
 
   await openRecordDetails(page, name);
   await expect(input).toHaveValue(name);
-  await expect(save).toBeDisabled();
+  await expect(drawer.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
+  await expect(drawer.getByRole("button", { name: "Cancel", exact: true })).toHaveCount(0);
+  await expect(drawer.locator("[data-slot='form-footer-actions']")).toHaveCount(0);
+  await expect(bar).toHaveCount(0);
   await page.screenshot({ path: testInfo.outputPath("record-drawer-clean.png"), animations: "disabled" });
-  await expect(cancel).toBeVisible();
-  await cancel.click();
-  await expect(drawer).not.toBeVisible();
-  await expect(page.getByRole("alertdialog")).not.toBeVisible();
-  await expect(moreActions).toBeFocused();
+  const cleanTop = (await input.boundingBox())?.y;
 
-  await openRecordDetails(page, name);
-  await expect(input).toHaveValue(name);
   await input.fill(draft);
-  await expect(save).toBeEnabled();
+  await expect(bar).toBeVisible();
+  await expect(bar).toHaveAttribute("role", "status");
+  await expect(bar).toHaveAttribute("aria-live", "polite");
+  await expect(bar).toContainText("Unsaved changes");
+  expect((await input.boundingBox())?.y).toBe(cleanTop);
+  await page.screenshot({ path: testInfo.outputPath("record-drawer-unsaved-bar.png"), animations: "disabled" });
   await cancel.click();
+  await expect(bar).toHaveCount(0);
+  await expect(drawer).toBeVisible();
+  await expect(input).toHaveValue(name);
+
+  await input.fill(draft);
+  await expect(bar).toBeVisible();
+  await page.keyboard.press("Escape");
   const guard = page.getByRole("alertdialog");
   await expect(guard).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("record-drawer-discard.png"), animations: "disabled" });
   await guard.getByRole("button", { name: "Cancel", exact: true }).click();
   await expect(guard).not.toBeVisible();
   await expect(input).toHaveValue(draft);
-  await expect(save).toBeEnabled();
-  await expect(cancel).toBeFocused();
+  await expect(bar).toBeVisible();
 
-  await cancel.click();
+  await page.keyboard.press("Escape");
   await expect(guard).toBeVisible();
   await guard.getByRole("button", { name: "Discard", exact: true }).click();
   await expect(guard).not.toBeVisible();
@@ -201,9 +216,16 @@ test("record drawer Cancel closes clean forms and guards unsaved changes", async
   await page.reload();
   await openRecordDetails(page, name);
   await expect(input).toHaveValue(name);
-  await expect(save).toBeDisabled();
-  await cancel.click();
+  await expect(bar).toHaveCount(0);
+
+  await input.fill(saved);
+  await save.click();
+  await expect(bar).toHaveCount(0);
   await expect(drawer).not.toBeVisible();
+  await page.reload();
+  await openRecordDetails(page, saved);
+  await expect(input).toHaveValue(saved);
+  await expect(bar).toHaveCount(0);
   expect(errors).toEqual([]);
 });
 

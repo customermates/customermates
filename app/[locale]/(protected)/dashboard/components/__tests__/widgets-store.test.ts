@@ -177,6 +177,35 @@ describe("WidgetsStore refresh compatibility", () => {
     unregister();
   });
 
+  it("sends the expected widget versions and reloads the dashboard after a version conflict", async () => {
+    const root = {
+      localeStore: { getTranslation: (key: string) => key },
+      loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
+    } as unknown as RootStore;
+    const store = new WidgetsStore(root);
+    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0)] });
+    await store.refresh();
+
+    updateWidgetLayoutsAction.mockResolvedValueOnce({
+      ok: false,
+      code: "widgetLayoutChanged",
+      error: { errors: ["The dashboard changed in the meantime."] },
+    });
+    const elsewhere = { ...widget(FIRST_ID, 6, 0), version: 2 };
+    refreshWidgetsAction.mockResolvedValueOnce({ items: [elsewhere] });
+
+    store.onLayoutChange([], { ...store.layouts, lg: [{ h: 2, i: FIRST_ID, w: 3, x: 1, y: 0 }] });
+
+    await vi.waitFor(() => expect(refreshWidgetsAction).toHaveBeenCalledTimes(2));
+    expect(updateWidgetLayoutsAction).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ expectedVersions: { [FIRST_ID]: 1 } }),
+    );
+    await vi.waitFor(() =>
+      expect(store.layouts.lg).toEqual([expect.objectContaining({ h: 2, i: FIRST_ID, w: 3, x: 6, y: 0 })]),
+    );
+    expect(store.items[0]?.version).toBe(2);
+  });
+
   it("reverts the layout when the server rejects the write without throwing", async () => {
     const root = {
       localeStore: { getTranslation: (key: string) => key },

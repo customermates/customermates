@@ -11,7 +11,7 @@ export type AnchorPage = {
 };
 
 export type FormAnchorPage = AnchorPage & {
-  discard: "reset" | "cancel";
+  discard: "reset" | "cancel" | "unsavedChangesBar";
   resetOpener?: string;
 };
 
@@ -52,7 +52,7 @@ export const FORM_PAGES: FormAnchorPage[] = [
     scope: "settings-profile",
     route: settingsHref("profile"),
     label: "profile settings form",
-    discard: "reset",
+    discard: "unsavedChangesBar",
   },
   {
     scope: "member-modal",
@@ -498,7 +498,7 @@ export const TOOLBAR_SCOPES_WITHOUT_ADD = TOOLBAR_PAGES_WITHOUT_ADD.map((page) =
 export const FORM_SCOPES = FORM_PAGES.map((page) => page.scope);
 
 export function formDiscardSuffix(page: FormAnchorPage) {
-  return page.discard === "cancel" ? "-cancel" : "-reset";
+  return page.discard === "reset" ? "-reset" : "-cancel";
 }
 
 export const NAV_KEYS = [

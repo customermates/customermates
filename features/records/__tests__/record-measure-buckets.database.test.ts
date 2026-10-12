@@ -33,6 +33,7 @@ const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
 const { RecordWriteService } = await import("../record-write.service");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
+const { RecordTrashService } = await import("../record-trash.service");
 const { QueryRecordMeasureInteractor } = await import("../query-record-measure.interactor");
 const { RecordMeasureSchema } = await import("../record-measure.schema");
 const { createCrmPreset, presetId } = await import("../crm-preset");
@@ -79,6 +80,7 @@ async function fixture(preset: Preset = "crm") {
     policy,
     new RecordWriteService(repo, policy, new RecordCalculationService(repo)),
     { dispatch: () => Promise.resolve() },
+    new RecordTrashService(repo),
   );
   const measure = new QueryRecordMeasureInteractor(repo, policy);
   const reader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
@@ -521,6 +523,7 @@ describeDatabase("time-bucketed record measures", () => {
           new RecordCalculationService(restricted.repo),
         ),
         { dispatch: () => Promise.resolve() },
+        new RecordTrashService(restricted.repo),
       ).invoke({
         expectedRevision: await restricted.revision(),
         idempotencyKey: randomUUID(),
@@ -545,6 +548,7 @@ describeDatabase("time-bucketed record measures", () => {
           new RecordCalculationService(restricted.repo),
         ),
         { dispatch: () => Promise.resolve() },
+        new RecordTrashService(restricted.repo),
       ).invoke({
         expectedRevision: await restricted.revision(),
         idempotencyKey: randomUUID(),

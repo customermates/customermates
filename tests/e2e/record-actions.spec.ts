@@ -13,7 +13,7 @@ async function api(page: Page, path: string, data: unknown) {
 }
 
 async function setListColor(page: Page, typeId: string, color: string) {
-  const model = RecordModelSchema.parse(await api(page, "/api/v1/model/discover", {}));
+  const model = RecordModelSchema.parse(await api(page, "/api/v1/model/read", {}));
   const type = model.types.find((candidate) => candidate.id === typeId);
   if (!type) throw new Error(`List ${typeId} is missing`);
   await api(page, "/api/v1/model/apply", {
@@ -216,7 +216,7 @@ test("record tables edit number fields in place without opening the drawer", asy
 test("linked record chips collapse into a +N stack so rows and cards keep one height", async ({ page, companyId }) => {
   test.setTimeout(180000);
   const id = (key: string) => presetId(companyId, key);
-  const model = RecordModelSchema.parse(await api(page, "/api/v1/model/discover", {}));
+  const model = RecordModelSchema.parse(await api(page, "/api/v1/model/read", {}));
   const create = async (typeKey: string, name: string, links: unknown[] = []) => {
     const result = await api(page, "/api/v1/records/mutate", {
       expectedRevision: model.revision,

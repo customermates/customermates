@@ -387,8 +387,9 @@
      --placeholder       skeleton fill
    Alphas remain theme-specific so state stays legible on the compressed dark ladder.
 
-   Tooltips use a dedicated white surface and dark foreground in both themes. Shared
-   hints, their arrows and chart readouts use this pair independently of the host theme.
+   Tooltips follow the theme: a white surface with dark text in light, and the raised popover
+   surface with light text in dark. A --border rim keeps the edge on any rung, the arrow
+   shares the fill, and nested hints such as shortcut keys use the host theme's tokens.
 
    --muted is a wash, not a rung. "Subdued" is inherently relative to the host, and a
    host can be two rungs away: pinned to the canvas rung it read as a gentle stripe on a
@@ -504,8 +505,8 @@
   --secondary: var(--card);
   --secondary-foreground: #fafafa;
   --selected: rgb(255 255 255 / 5.5%);
-  --tooltip: #ffffff;
-  --tooltip-foreground: #000000;
+  --tooltip: var(--popover);
+  --tooltip-foreground: var(--popover-foreground);
   --muted: rgb(255 255 255 / 4.5%);
   --muted-foreground: #a1a1a8;
   --placeholder: rgb(255 255 255 / 7%);

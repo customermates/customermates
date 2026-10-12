@@ -27,7 +27,7 @@ test("edits two formatted text fields inline in the overview, collapses long tex
   });
   const typeId = presetId(companyId, "organization");
   await page.goto(`/en/records/${typeId}`);
-  const current = await post(page, "/api/v1/model/discover", {});
+  const current = await post(page, "/api/v1/model/read", {});
   const summaryId = randomUUID();
   const applied = await post(page, "/api/v1/model/apply", {
     expectedRevision: current.revision,
@@ -137,7 +137,7 @@ test("edits two formatted text fields inline in the overview, collapses long tex
   await drawer.getByRole("button", { name: "Close", exact: true }).click();
 
   const dealTypeId = presetId(companyId, "deal");
-  const latest = await post(page, "/api/v1/model/discover", {});
+  const latest = await post(page, "/api/v1/model/read", {});
   const created = await post(page, "/api/v1/records/mutate", {
     expectedRevision: latest.revision,
     idempotencyKey: randomUUID(),
@@ -230,7 +230,7 @@ test("keeps a bulk-edited formatted text on Escape and follows links in display 
     ],
   };
   for (const name of [...names, linked]) {
-    const current = await post(page, "/api/v1/model/discover", {});
+    const current = await post(page, "/api/v1/model/read", {});
     await post(page, "/api/v1/records/mutate", {
       expectedRevision: current.revision,
       idempotencyKey: randomUUID(),
@@ -322,7 +322,7 @@ test("keeps a bulk-edited formatted text on Escape and follows links in display 
   expect(errors).toEqual([]);
 });
 
-test("formats a formatted text field from its toolbar without leaving edit mode", async ({
+test("shows the formatting toolbar at rest and formats from it without leaving edit mode", async ({
   page,
   database,
   companyId,
@@ -334,7 +334,7 @@ test("formats a formatted text field from its toolbar without leaving edit mode"
   });
   const dealTypeId = presetId(companyId, "deal");
   await page.goto(`/en/records/${dealTypeId}`);
-  const current = await post(page, "/api/v1/model/discover", {});
+  const current = await post(page, "/api/v1/model/read", {});
   const created = await post(page, "/api/v1/records/mutate", {
     expectedRevision: current.revision,
     idempotencyKey: randomUUID(),
@@ -363,7 +363,7 @@ test("formats a formatted text field from its toolbar without leaving edit mode"
     exact: true,
   });
   await expect(field).toHaveAttribute("data-state", "display");
-  await expect(toolbar).toHaveCount(0);
+  await expect(toolbar).toBeVisible();
 
   await editFormattedText(main, "Notes");
   await expect(toolbar).toBeVisible();
@@ -407,7 +407,7 @@ test("formats a formatted text field from its toolbar without leaving edit mode"
 
   await page.keyboard.press("Escape");
   await expect(field).toHaveAttribute("data-state", "display");
-  await expect(toolbar).toHaveCount(0);
+  await expect(toolbar).toBeVisible();
   await main.getByRole("button", { name: "Save", exact: true }).click();
   await expect(
     main.getByRole("button", { name: "Reset", exact: true }),

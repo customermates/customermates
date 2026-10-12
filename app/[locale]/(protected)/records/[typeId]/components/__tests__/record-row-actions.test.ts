@@ -53,10 +53,14 @@ describe("record row actions (H9 item menu pattern)", () => {
     const surface = /<div class="([^"]*)"[^>]*data-record-row-actions/.exec(markup)?.[1].split(" ") ?? [];
     const trigger = /<button[^>]*class="([^"]*)"[^>]*data-item-actions-trigger/.exec(markup)?.[1].split(" ") ?? [];
 
-    expect(surface).toEqual(expect.arrayContaining(["absolute", "inset-y-0", "right-0", "p-1", "bg-background"]));
+    expect(surface).toEqual(
+      expect.arrayContaining(["absolute", "inset-y-0", "right-0", "p-1", "bg-[var(--row-surface,var(--background))]"]),
+    );
     expect(surface).not.toContain("right-2");
     expect(surface.some((token) => token.startsWith("bg-[image:") && token.includes("--row-tint"))).toBe(true);
-    expect(trigger).toEqual(expect.arrayContaining(["border", "bg-secondary", "h-full", "aspect-square"]));
+    expect(trigger).toEqual(
+      expect.arrayContaining(["border", "bg-[var(--row-surface,var(--background))]", "h-full", "aspect-square"]),
+    );
     expect(trigger.some((token) => token.startsWith("focus-visible:ring"))).toBe(true);
     expect(trigger).not.toContain("size-7");
   });

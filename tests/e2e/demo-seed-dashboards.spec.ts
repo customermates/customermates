@@ -1,4 +1,4 @@
-import { WIDGET_GRID_GAP } from "../../features/widget/widget-grid";
+import { WIDGET_GRID_MARGIN } from "../../features/widget/widget-grid";
 
 import {
   DEMO_COMPANY_ID,
@@ -164,7 +164,7 @@ for (const width of [1440, 390]) {
                   ),
                 ),
               );
-            }, WIDGET_GRID_GAP),
+            }, WIDGET_GRID_MARGIN),
           { timeout: 10_000 },
         )
         .toBeLessThanOrEqual(2);
@@ -197,7 +197,7 @@ for (const width of [1440, 390]) {
       for (const [top, row] of rows) {
         const span =
           row.reduce((sum, box) => sum + box.width, 0) +
-          WIDGET_GRID_GAP * (row.length - 1);
+          WIDGET_GRID_MARGIN * (row.length - 1);
         expect(
           Math.abs(span - grid.width),
           `${dashboard.name} row at ${top}px spans the grid`,

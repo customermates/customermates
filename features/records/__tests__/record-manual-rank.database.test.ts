@@ -29,6 +29,7 @@ const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
 const { RecordWriteService } = await import("../record-write.service");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
+const { RecordTrashService } = await import("../record-trash.service");
 const { QueryRecordsInteractor } = await import("../query-records.interactor");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 
@@ -63,6 +64,7 @@ async function fixture() {
     policy,
     new RecordWriteService(repo, policy, new RecordCalculationService(repo)),
     { dispatch: () => Promise.resolve() },
+    new RecordTrashService(repo),
   );
   const query = new QueryRecordsInteractor(repo, policy);
   const id = (key: string) => presetId(seed.company.id, key);
@@ -152,12 +154,13 @@ describeDatabase("manual record order", () => {
     const cId = await f.createDeal("C", open);
     expect(await f.ordered()).toEqual(["C", "B", "A"]);
 
-    const version = (await f.stored(a)).version;
+    const { version, updatedAt } = await f.stored(a);
     const events = await f.history(a);
 
     expect(await f.move(a, { afterRecordId: cId })).toMatchObject({ ok: true });
     expect(await f.ordered()).toEqual(["C", "A", "B"]);
     expect((await f.stored(a)).version).toBe(version);
+    expect((await f.stored(a)).updatedAt).toEqual(updatedAt);
     expect(await f.history(a)).toBe(events);
 
     expect(await f.move(b, { beforeRecordId: cId })).toMatchObject({ ok: true });

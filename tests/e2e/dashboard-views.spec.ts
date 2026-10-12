@@ -8,7 +8,7 @@ import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function revision(page: Page) {
-  const response = await page.request.post("/api/v1/model/discover", {
+  const response = await page.request.post("/api/v1/model/read", {
     data: {},
   });
   expect(response.status()).toBe(200);

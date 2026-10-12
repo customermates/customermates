@@ -5,10 +5,11 @@ import type { WidgetLayout } from "./widget-display.schema";
 import { DisplayType } from "./widget-display.schema";
 
 export const WIDGET_GRID_COLUMNS = 12;
+export const WIDGET_GRID_BREAKPOINT_COLUMNS = { xs: 2, sm: 4, md: 8, lg: WIDGET_GRID_COLUMNS } as const;
+export const WIDGET_GRID_ROW_HEIGHT = 54;
+export const WIDGET_GRID_MARGIN = 12;
 export const WIDGET_GRID_MAX_HEIGHT = 24;
 export const WIDGET_GRID_MAX_ROW = 1000;
-export const WIDGET_GRID_ROW_HEIGHT = 54;
-export const WIDGET_GRID_GAP = 12;
 
 type WidgetKindName = "chart" | "activityTimeline";
 export type GridRect = { x: number; y: number; w: number; h: number };
@@ -35,7 +36,7 @@ export const WidgetPlacementSchema = z
       .min(1)
       .max(WIDGET_GRID_MAX_HEIGHT)
       .describe(
-        `Height in rows of ${WIDGET_GRID_ROW_HEIGHT} px with ${WIDGET_GRID_GAP} px gaps, 1 to ${WIDGET_GRID_MAX_HEIGHT}.`,
+        `Height in rows of ${WIDGET_GRID_ROW_HEIGHT} px with ${WIDGET_GRID_MARGIN} px gaps, 1 to ${WIDGET_GRID_MAX_HEIGHT}.`,
       ),
   })
   .strict()

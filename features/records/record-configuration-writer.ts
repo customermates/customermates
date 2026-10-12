@@ -3,12 +3,18 @@ import type { PreparedConfiguration } from "./configuration.service";
 import type { RecordModel, RecordRef } from "./record-model.schema";
 import type { WebhookPauseNotifier } from "@/features/webhook/webhook-pause-notifier";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { RecordCalculationService, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
+import type { RecordCalculationService } from "./record-calculation.service";
+import { SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import { RecordWriteError } from "./record-write.service";
 import { configurationInputFields, configurationInputValue } from "./record-configuration-values";
 import { RecordTrashService } from "./record-trash.service";
+import { RECORD_SYSTEM_ACTOR } from "./record-system-actor";
 
-export async function purgeTrashOfDeletedLists(records: RecordRepo, prepared: PreparedConfiguration, userId: string) {
+export async function purgeTrashOfDeletedLists(
+  records: RecordRepo,
+  prepared: PreparedConfiguration,
+  userId: string | null,
+) {
   if (!prepared.deletion?.typeIds.length) return;
   const items = await records.getRecordTrashItemsCompanyWide({ typeIds: prepared.deletion.typeIds });
   await new RecordTrashService(records).purge(
@@ -28,7 +34,7 @@ export class RecordConfigurationWriter {
   ) {}
 
   withRepository(records: RecordRepo): RecordConfigurationWriter {
-    return new RecordConfigurationWriter(records, new RecordCalculationService(records), this.webhooks);
+    return new RecordConfigurationWriter(records, this.calculations.withRepository(records), this.webhooks);
   }
 
   async initializeRecord(
@@ -66,7 +72,7 @@ export class RecordConfigurationWriter {
   async apply(
     prepared: PreparedConfiguration,
     previous: RecordModel,
-    userId: string,
+    userId: string | null,
     limit = SYNCHRONOUS_RECORD_LIMIT,
   ): Promise<RecordRef[]> {
     if (!prepared.preview.valid) throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
@@ -83,7 +89,7 @@ export class RecordConfigurationWriter {
         throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
     }
 
-    await this.records.saveModel(prepared.model, userId, prepared.change);
+    await this.records.saveModel(prepared.model, userId ?? RECORD_SYSTEM_ACTOR, prepared.change);
     if (prepared.deletion) {
       await purgeTrashOfDeletedLists(this.records, prepared, userId);
       await this.records.deleteDefinitions(prepared.deletion);

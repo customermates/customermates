@@ -14,11 +14,11 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { fail, failAuthorization, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { recordDto } from "@/features/records/query-records.interactor";
+import { recordDto } from "@/features/records/record-dto";
 import { RECORD_EXPORT_LIMIT, RECORD_EXPORT_LINK_LIMIT } from "@/features/data-transfer/record-transfer.schema";
 import { RecordQuerySchema } from "@/features/records/record-query.schema";
 import { invalidRecordQueryPart } from "@/features/records/record-query-validation";
-import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
+import { recordWriteFailure } from "@/features/records/record-write-failure";
 
 const PAGE_SIZE = 250;
 

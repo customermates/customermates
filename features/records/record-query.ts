@@ -29,7 +29,8 @@ export function recordReadPredicate(
     return Prisma.sql`EXISTS (SELECT 1 FROM "RecordLink" ${link}
       JOIN LATERAL (SELECT ${parent}.id FROM "CrmRecord" ${parent}
         WHERE ${parent}."companyId" = ${companyId} AND ${parent}."typeId" = ${scope.parent.typeId}
-        AND ${parent}.id = ${link}."targetId" AND ${recordReadPredicate(companyId, scope.parent.scope, parent, depth + 1)} OFFSET 0) ${parent} ON TRUE
+        AND ${parent}.id = ${link}."targetId" AND ${parent}."deletedAt" IS NULL
+        AND ${recordReadPredicate(companyId, scope.parent.scope, parent, depth + 1)} OFFSET 0) ${parent} ON TRUE
       WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${scope.parent.relationId} AND ${link}."deletedAt" IS NULL
       AND ${link}."sourceTypeId" = ${record}."typeId" AND ${link}."targetTypeId" = ${scope.parent.typeId}
       AND ${link}."sourceId" = ${record}.id OFFSET 0)`;
@@ -400,7 +401,7 @@ export function compileRecordQuery(
         : filter.recordIds.length
           ? Prisma.sql`${target}.id IN (${Prisma.join(filter.recordIds)})`
           : Prisma.sql`FALSE`;
-    const matching = Prisma.sql`EXISTS (SELECT 1 FROM "RecordLink" ${link} JOIN "CrmRecord" ${target} ON ${target}."companyId" = ${companyId} AND ${target}."typeId" = ${typeId} AND ${target}.id = ${targetId} WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${relation.id} AND ${link}."deletedAt" IS NULL AND ${sourceId} = ${record}.id AND ${recordReadPredicate(companyId, scope, target)} AND ${selected})`;
+    const matching = Prisma.sql`EXISTS (SELECT 1 FROM "RecordLink" ${link} JOIN "CrmRecord" ${target} ON ${target}."companyId" = ${companyId} AND ${target}."typeId" = ${typeId} AND ${target}.id = ${targetId} AND ${target}."deletedAt" IS NULL WHERE ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${relation.id} AND ${link}."deletedAt" IS NULL AND ${sourceId} = ${record}.id AND ${recordReadPredicate(companyId, scope, target)} AND ${selected})`;
     conditions.push(filter.operator === "none" ? Prisma.sql`NOT (${matching})` : matching);
   }
   for (const [index, filter] of (query.relatedFilters ?? []).entries()) {
@@ -446,7 +447,7 @@ export function compileRecordQuery(
           ? Prisma.sql`LATERAL (SELECT * FROM "RecordLink" ${link} WHERE ${endpoint} OFFSET 0) ${link}`
           : Prisma.sql`JOIN LATERAL (SELECT * FROM "RecordLink" ${link} WHERE ${endpoint} OFFSET 0) ${link} ON TRUE`,
         Prisma.sql`JOIN LATERAL (SELECT * FROM "CrmRecord" ${target} WHERE ${target}."companyId" = ${companyId}
-          AND ${target}."typeId" = ${step.typeId} AND ${target}.id = ${targetId} LIMIT 1) ${target} ON TRUE`,
+          AND ${target}."typeId" = ${step.typeId} AND ${target}.id = ${targetId} AND ${target}."deletedAt" IS NULL LIMIT 1) ${target} ON TRUE`,
       );
       predicates.push(recordReadPredicate(companyId, scope, target));
       parent = target;

@@ -4,7 +4,7 @@ import {
   RecordTriggerSourceSchema,
 } from "@/features/records/record-event-subscription.schema";
 import { RecordWriteError } from "@/features/records/record-write.service";
-import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
+import { recordWriteFailure } from "@/features/records/record-write-failure";
 import type { WebhookDto } from "./webhook.schema";
 import type { EventService } from "@/features/event/event.service";
 import type { Data } from "@/core/validation/validation.utils";

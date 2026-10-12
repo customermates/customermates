@@ -149,3 +149,40 @@ test("the personal menu holds profile, theme, language, docs, feedback and custo
     .toBe("de");
   expect(errors).toEqual([]);
 });
+
+test("profile settings show the unsaved-changes bar only while edits are pending", async ({ page }) => {
+  const errors = collectErrors(page, [COUNTRY_FLAG_ORIGIN]);
+  await page.goto("/en/settings/profile");
+  await page.waitForLoadState("networkidle");
+  const firstName = page.locator("#settings-profile-first-name");
+  const bar = page.locator("[data-slot='unsaved-changes-bar']");
+  const original = await firstName.inputValue();
+  const edited = `${original} edited`;
+  await expect(page.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
+  await expect(bar).toHaveCount(0);
+  const cleanTop = (await firstName.boundingBox())?.y;
+
+  await firstName.fill(edited);
+  await expect(bar).toBeVisible();
+  await expect(bar).toHaveAttribute("role", "status");
+  await expect(bar).toContainText("Unsaved changes");
+  expect((await firstName.boundingBox())?.y).toBe(cleanTop);
+  await page.locator("#settings-profile-cancel").click();
+  await expect(bar).toHaveCount(0);
+  await expect(firstName).toHaveValue(original);
+
+  await firstName.fill(edited);
+  await page.locator("#settings-profile-save").click();
+  await expect(bar).toHaveCount(0);
+  await page.reload();
+  await page.waitForLoadState("networkidle");
+  await expect(firstName).toHaveValue(edited);
+
+  await expect(async () => {
+    await firstName.fill(original);
+    await expect(bar).toBeVisible({ timeout: 2_000 });
+  }).toPass();
+  await page.locator("#settings-profile-save").click();
+  await expect(bar).toHaveCount(0);
+  expect(errors).toEqual([]);
+});

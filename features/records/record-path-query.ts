@@ -25,14 +25,16 @@ export function recordPathJoins(
     const parent = target;
     const link = Prisma.raw(`"path_link_${index}"`);
     target = Prisma.raw(`"path_record_${index}"`);
+    const alive = Prisma.raw(`"path_alive_${index}"`);
     const sourceId = step.direction === "outgoing" ? Prisma.sql`${link}."sourceId"` : Prisma.sql`${link}."targetId"`;
     const targetId = step.direction === "outgoing" ? Prisma.sql`${link}."targetId"` : Prisma.sql`${link}."sourceId"`;
     const scope = access.get(step.typeId) ?? { userId: "", access: "none" as const };
     const join = left ? Prisma.sql`LEFT JOIN` : Prisma.sql`JOIN`;
     joins.push(Prisma.sql`${join} "RecordLink" ${link} ON ${link}."companyId" = ${companyId} AND ${link}."relationId" = ${step.relation.id} AND ${link}."deletedAt" IS NULL
       AND ${link}."sourceTypeId" = ${step.relation.sourceTypeId} AND ${link}."targetTypeId" = ${step.relation.targetTypeId} AND ${sourceId} = ${parent}.id
+        AND EXISTS (SELECT 1 FROM "CrmRecord" ${alive} WHERE ${alive}."companyId" = ${companyId} AND ${alive}."typeId" = ${step.typeId} AND ${alive}.id = ${targetId} AND ${alive}."deletedAt" IS NULL)
       ${join} "CrmRecord" ${target} ON ${target}."companyId" = ${companyId} AND ${target}."typeId" = ${step.typeId} AND ${target}.id = ${targetId}
-        AND ${recordReadPredicate(companyId, scope, target)}`);
+        AND ${target}."deletedAt" IS NULL AND ${recordReadPredicate(companyId, scope, target)}`);
     restricted.push(Prisma.sql`(${link}.id IS NOT NULL AND ${target}.id IS NULL)`);
   }
   return {

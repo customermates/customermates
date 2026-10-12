@@ -43,6 +43,10 @@ export function calculationSources(
 export class RecordCalculationService {
   constructor(private records: CalculationRecordRepo) {}
 
+  withRepository(records: CalculationRecordRepo): RecordCalculationService {
+    return new RecordCalculationService(records);
+  }
+
   async recalculate(
     model: RecordModel,
     seeds: RecordRef[],
