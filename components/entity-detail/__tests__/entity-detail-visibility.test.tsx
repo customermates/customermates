@@ -164,6 +164,18 @@ afterEach(() => {
 });
 
 describe("entity detail field visibility", () => {
+  it("shows pin buttons only while Customize is open", () => {
+    const { container } = mount(view({ starred: ["name"] }));
+
+    expect(container.querySelector('[aria-label="EntityDetail.unpinField:Name"]')).toBeNull();
+    expect(container.querySelector('[aria-label="EntityDetail.pinField:Name"]')).toBeNull();
+    expect(container.querySelector("[data-pinned-fields]")?.getAttribute("data-pinned-fields")).toBe("name");
+
+    act(() => container.querySelector<HTMLButtonElement>("[data-personalizing]")?.click());
+
+    expect(container.querySelector('[aria-label="EntityDetail.unpinField:Name"]')).not.toBeNull();
+  });
+
   it("keeps hidden fields restorable in Customize and removes them from the normal detail view", () => {
     const { container } = mount(view({ hidden: ["name"] }));
 
