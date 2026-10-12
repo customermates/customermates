@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { AppChip } from "@/components/chip/app-chip";
 import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
 import { OPERATOR_AUDIT_SOURCE } from "@/ee/operator/operator-lists.schema";
+import { eventLabel } from "@/features/event/event-label";
 
 const OPERATOR_AUDIT_ACTION_KEY = Object.fromEntries(
   Object.entries(OPERATOR_AUDIT_ACTION).map(([name, action]) => [action, `OperatorAudit.values.action.${name}`]),
@@ -30,5 +31,5 @@ export function AuditActionLabel({ action, source }: { action: string; source: O
     return key ? t(key) : action;
   }
 
-  return t(`Common.events.${action}`);
+  return eventLabel(t, action);
 }

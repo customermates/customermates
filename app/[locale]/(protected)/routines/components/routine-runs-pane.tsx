@@ -18,6 +18,7 @@ import { ROUTINE_RUN_STATUS_CHIP_COLOR } from "@/ee/routines/routine-run-chip-co
 import { routineRunDetail, routineRunStopReason } from "@/ee/routines/routine-run-outcome";
 
 import { RoutineEmptyState } from "./routine-empty-state";
+import { eventLabel } from "@/features/event/event-label";
 
 function RoutineRunRow({ run, store }: { run: RoutineRunDto; store: RoutineModalStore }) {
   const t = useTranslations();
@@ -31,7 +32,7 @@ function RoutineRunRow({ run, store }: { run: RoutineRunDto; store: RoutineModal
       <span className="min-w-0 flex-1">
         <span className="flex items-baseline gap-2">
           <span className="truncate text-sm font-medium">
-            {run.triggerEvent ? t(`Common.events.${run.triggerEvent}`) : t(`RoutineTriggerKind.${run.triggerKind}`)}
+            {run.triggerEvent ? eventLabel(t, run.triggerEvent) : t(`RoutineTriggerKind.${run.triggerKind}`)}
           </span>
 
           {run.chargedCredits > 0 && (

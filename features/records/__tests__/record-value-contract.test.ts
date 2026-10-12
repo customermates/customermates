@@ -38,6 +38,11 @@ describe("typed record value boundary", () => {
   ])("rejects mismatched, lossy or cross-kind inputs: %j", (value) => {
     expect(RecordScalarSchema.safeParse(value).success).toBe(false);
   });
+  it("names the missing currency of a decimal instead of failing the whole union", () => {
+    const result = RecordScalarSchema.safeParse({ kind: "decimal", value: "2" });
+    expect(result.success).toBe(false);
+    expect(result.error?.issues).toEqual([expect.objectContaining({ code: "invalid_type", path: ["currency"] })]);
+  });
   it("keeps the discovery schema bounded while the application checks discriminator semantics", () => {
     const input = z.toJSONSchema(RecordScalarSchema, { io: "input", target: "draft-07" });
     expect(JSON.stringify(input).length).toBeLessThan(1100);
