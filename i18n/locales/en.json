@@ -3387,7 +3387,7 @@
     "createSublist": "New sub-list of {list}",
     "currency": "Currency",
     "decimalPlaces": "Decimal places",
-    "decimalPlacesHelp": "Leave empty for the default. This changes how values are displayed, not how they are calculated.",
+    "decimalPlacesHelp": "Leave empty for the default (money uses the currency's smallest unit). Calculated values are rounded to this many places; entered values are shown with them.",
     "defaultValue": "Default value",
     "deleteRecord": "Delete {name}",
     "deletion": {

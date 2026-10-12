@@ -21,7 +21,13 @@ import { ACTIVITY_KINDS, CHANGE_ACTIVITY_KINDS } from "./activities.schema";
 import { activityViewColumns, activityViewFilterableFields, activityViewFilters } from "./record-activity-view";
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 
-const Input = z.object({ record: RecordRefSchema.nullable(), params: GetQueryParamsSchema.default({}) }).strict();
+const Input = z
+  .object({
+    record: RecordRefSchema.nullable(),
+    params: GetQueryParamsSchema.default({}),
+    includeTrashed: z.boolean().optional(),
+  })
+  .strict();
 export type RecordActivityPresentationInput = z.infer<typeof Input>;
 export type RecordActivityPresentation = GetResult<ActivityEntryDto> &
   RecordActivitiesResult & { columns: ColumnPresentation[] };
@@ -40,7 +46,11 @@ export class GetRecordActivityPresentationInteractor extends AuthenticatedIntera
     super();
   }
   @Validate(Input)
-  async invoke({ record, params }: RecordActivityPresentationInput): Validated<RecordActivityPresentation> {
+  async invoke({
+    record,
+    params,
+    includeTrashed,
+  }: RecordActivityPresentationInput): Validated<RecordActivityPresentation> {
     return runInTransaction(
       async () => {
         const surface = record ? SURFACE.entityTimeline : SURFACE.activity;
@@ -55,13 +65,16 @@ export class GetRecordActivityPresentationInteractor extends AuthenticatedIntera
         });
         const invalid = await this.policy.validate(surface, state);
         if (invalid) return fail(invalid);
-        const result = await this.activities.invoke({
-          scope: { records: record ? [record] : [], typeIds: [] },
-          kinds: [...kinds],
-          filters: activityViewFilters(state.filters),
-          cursor: null,
-          limit: 25,
-        });
+        const result = await this.activities.read(
+          {
+            scope: { records: record ? [record] : [], typeIds: [] },
+            kinds: [...kinds],
+            filters: activityViewFilters(state.filters),
+            cursor: null,
+            limit: 25,
+          },
+          { includeTrashed: Boolean(record) && includeTrashed === true },
+        );
         if (!result.ok) return result;
         const types = await this.policy.list();
         return {

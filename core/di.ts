@@ -2,6 +2,8 @@ import { Resource } from "@/generated/prisma";
 import { GetRecordActivityPresentationInteractor } from "@/ee/messaging/activities/get-record-activity-presentation.interactor";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { GetRecordActivitiesInteractor } from "@/ee/messaging/activities/get-record-activities.interactor";
+import { GetTrashedRecordActivitiesInteractor } from "@/ee/messaging/activities/get-trashed-record-activities.interactor";
+import { TrashedRecordAccess } from "@/features/trash/trashed-record-access";
 import { PrismaRecordActivitiesRepo } from "@/ee/messaging/activities/prisma-record-activities.repository";
 import { SearchChannelCandidatesInteractor } from "@/ee/messaging/inbox/search-channel-candidates.interactor";
 import { RoutineAdmission } from "@/ee/routines/routine-admission";
@@ -480,7 +482,10 @@ export const getGetRecordActivitiesInteractor = () =>
     getRecordIdentityReader(),
     getRecordHistoryReader(),
     getEntitlementService(),
+    new TrashedRecordAccess(getRecordRepo(), getTrashRepo(), getTrashKindHandlers()),
   );
+export const getGetTrashedRecordActivitiesInteractor = () =>
+  new GetTrashedRecordActivitiesInteractor(getGetRecordActivitiesInteractor());
 export const getGetIdentityRecordChoicesInteractor = () =>
   new GetIdentityRecordChoicesInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getRecordIdentityReader = () => new RecordIdentityReader(getRecordRepo(), getRecordAccessPolicy());

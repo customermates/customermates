@@ -35,6 +35,7 @@ import {
   getGetRecordChoicesInteractor,
   getPreviewRecordDeletionInteractor,
   getGetRecordActivitiesInteractor,
+  getGetTrashedRecordActivitiesInteractor,
   getReadRecordDetailLayoutInteractor,
   getSaveRecordDetailLayoutInteractor,
   getCheckRecordIdentityInteractor,
@@ -67,6 +68,10 @@ export async function getRecordActivityPresentationAction(input: RecordActivityP
 
 export async function getRecordActivitiesAction(input: RecordActivitiesInput) {
   return serializeResult(getGetRecordActivitiesInteractor().invoke(input));
+}
+
+export async function getTrashedRecordActivitiesAction(input: RecordActivitiesInput) {
+  return serializeResult(getGetTrashedRecordActivitiesInteractor().invoke(input));
 }
 
 export async function resetRecordViewAction(input: ResetDataViewStateInput) {

@@ -11,6 +11,7 @@ import type {
 } from "./record-model.schema";
 
 import { recordInstantMicros } from "./record-instant";
+import { currencyFractionDigits } from "./derived-value-format";
 
 const ExactDecimal = Decimal.clone({
   precision: 160,
@@ -49,8 +50,9 @@ export function fieldPrecisionResult(
   field: Pick<RecordField, "valueType" | "format">,
 ): CalculatedValue {
   if (result.state !== "value" || result.value.kind !== "decimal") return result;
-  const places = field.format?.decimalPlaces;
-  if (places === null || places === undefined) return result;
+  const currency = field.valueType === "currency" ? result.value.currency : null;
+  const places = field.format?.decimalPlaces ?? (currency ? currencyFractionDigits(currency) : null);
+  if (places === null) return result;
   return decimalResult(
     new ExactDecimal(result.value.value).toDecimalPlaces(places, Decimal.ROUND_HALF_UP),
     result.value.currency,

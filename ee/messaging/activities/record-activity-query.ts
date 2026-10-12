@@ -1,6 +1,6 @@
 import { recordChannelsEnabled } from "@/features/records/record-channels";
 import { Prisma } from "@/generated/prisma";
-import type { RecordModel } from "@/features/records/record-model.schema";
+import type { RecordModel, RecordRef } from "@/features/records/record-model.schema";
 import type { RecordAccessMap } from "@/features/records/record-query.schema";
 import { recordReadPredicate } from "@/features/records/record-query";
 import { RecordWriteError } from "@/features/records/record-write.service";
@@ -21,6 +21,7 @@ export function compileRecordActivityScope(
   input: RecordActivitiesInput,
   model: RecordModel,
   access: RecordAccessMap,
+  trashed: RecordRef[] = [],
 ): Prisma.Sql {
   const scope = input.scope;
   const restricted = scope.records.length > 0 || scope.typeIds.length > 0;
@@ -38,10 +39,16 @@ export function compileRecordActivityScope(
       ? Prisma.sql`TRUE`
       : Prisma.sql`${record}.id IN (${Prisma.join(ids)})`;
   };
+  const present = (typeId: string) => {
+    const ids = trashed.filter((ref) => ref.typeId === typeId).map((ref) => ref.recordId);
+    return ids.length
+      ? Prisma.sql`(record."deletedAt" IS NULL OR record.id IN (${Prisma.join(ids)}))`
+      : Prisma.sql`record."deletedAt" IS NULL`;
+  };
   const branches = roots.map(
     (type) => Prisma.sql`SELECT record."typeId", record.id, TRUE AS audit,
       ${recordChannelsEnabled(model, type.id)}::boolean AS messaging, TRUE AS threading
-      FROM "CrmRecord" record WHERE record."companyId" = ${companyId} AND record."typeId" = ${type.id} AND record."deletedAt" IS NULL
+      FROM "CrmRecord" record WHERE record."companyId" = ${companyId} AND record."typeId" = ${type.id} AND ${present(type.id)}
       AND ${selected(type.id, Prisma.sql`record`)} AND ${allowed(type.id, Prisma.sql`record`)}`,
   );
   const sources = model.relationships.flatMap((relationship) =>
@@ -88,8 +95,9 @@ export function compileRecordActivityIndex(
   access: RecordAccessMap,
   available: ActivityKind[],
   canReadWiki = false,
+  trashed: RecordRef[] = [],
 ): Prisma.Sql {
-  const scope = compileRecordActivityScope(companyId, userId, input, model, access);
+  const scope = compileRecordActivityScope(companyId, userId, input, model, access, trashed);
   const scoped = input.scope.records.length > 0 || input.scope.typeIds.length > 0;
   const filters = input.filters ?? [];
   const enabled = (kind: ActivityKind) =>

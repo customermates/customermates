@@ -3387,7 +3387,7 @@
     "createSublist": "Nueva sublista de {list}",
     "currency": "Moneda",
     "decimalPlaces": "Decimales",
-    "decimalPlacesHelp": "Déjalo vacío para usar el formato predeterminado. Solo cambia cómo se muestran los valores, no su cálculo.",
+    "decimalPlacesHelp": "Déjalo vacío para usar el valor predeterminado (los importes usan la unidad más pequeña de la moneda). Los valores calculados se redondean a estos decimales y los introducidos se muestran con ellos.",
     "defaultValue": "Valor predeterminado",
     "deleteRecord": "Eliminar {name}",
     "deletion": {

@@ -22,7 +22,8 @@ function useSummaryText() {
         ? valueFormat.decimal(decimal.value, {
             currency: decimal.currency,
             compact: notation === "compact",
-            maximumFractionDigits: notation === "compact" ? 1 : derivedFractionDigits(summary.decimalPlaces),
+            maximumFractionDigits:
+              notation === "compact" ? 1 : derivedFractionDigits(summary.decimalPlaces, decimal.currency),
           })
         : undefined;
     const full = format("standard");
