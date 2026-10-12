@@ -37,6 +37,12 @@ Every list starts with some fields, and you can add your own; tables show them a
 
 A field is entered by hand or calculated: from other fields of the same record, taken from a linked record, or counted or totalled from linked records. A calculated value is always up to date unless you choose to save it at a moment, such as when the record is created. Formulas use a checked expression language and never run arbitrary code; cycles, mismatched types and overly expensive definitions are rejected. Fields can be used in filters, sorting, views, widgets, routines and Mate, as far as access allows.
 
+## Can I change a field's type when records already have values? [#can-i-change-a-fields-type]
+
+Yes. Pick another **Value type** in the field's drawer; the preview checks every existing value and converts the ones that fit without loss. Text becomes a Number when it is a plain number such as `1250.50`, a Date when written as `2026-10-12`, a Date and time in ISO form, and an Email, Phone or Web address when it is a valid one. Text that matches an option label becomes that option of a Single choice or Multiple choice field. Numbers, dates, Yes or no values and choices become Text. Switching Single choice to Multiple choice keeps every value; switching back works only while each record holds at most one option.
+
+When some values do not fit, the change is blocked, and the preview says how many records hold such values and shows up to three of them, for example: 2 records have values in Budget that don't fit the change, for example "n/a", "tbd". Correct or clear them first. Over MCP and REST, the preview issue `existing_values_incompatible` carries the same `count` and `examples`.
+
 ## How do I add, change or delete fields, including the deal stage field? [#how-do-i-add-change-or-delete-a-custom-column]
 
 Open [Configure](app:configure), which shows all lists as a graph. On each list, the header opens the list's configure page, the body shows the first fields (an entry such as **3 more fields** expands the rest in place, **Show fewer** collapses them) and the footer's record count opens the list. Sub-lists sit in one frame with their parent and move with it. Positions and expanded lists are saved for you; **Reset layout** restores the default arrangement.
@@ -56,6 +62,10 @@ The **Calculation** section draws the calculation from top to bottom with the sa
 The last box shows the result type and an example: a record of the list with the value this calculation gives it, and an arrow to show another record. Under the boxes one sentence says what the field does, for example "Value adds up the Amount of all linked Line items." While something is missing the sentence names it, such as "Pick which value to add up.", and **Save** marks the incomplete box.
 
 **More options** sets **Updates**: **Always up to date**, **Saved when the record is created**, **Saved when a field changes** (pick the field and the value that triggers it) or **Saved on request**. A saved value can allow **Let people type over it**. When linked records are involved, **Show to everyone who can see the Deal** lets people see this value even if they cannot open the linked records; for a single linked value or a total over one record they see that value exactly, so changing such a calculation needs an administrator's approval.
+
+## How are calculated money values rounded? [#how-are-calculated-money-values-rounded]
+
+A calculated Money field without **Decimal places** rounds its result half-up to the smallest unit of its currency before it is stored: two places for EUR or USD, none for JPY, three for KWD. With **Decimal places** set, a calculated value rounds to that many places instead. The app, the REST API, exports and webhooks return the rounded value. Each value rounds on its own, so a deal total adds up already rounded line amounts and can differ by a cent from a sum of unrounded figures. Stored values change when they are next recalculated. Entered values are never rounded; **Decimal places** only sets how they are shown.
 
 ## How does a weighted pipeline work, and how is the weighted value calculated? [#how-does-a-weighted-pipeline-work]
 
