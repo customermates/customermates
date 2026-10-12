@@ -61,8 +61,7 @@ export function configurationActivity(
         .filter((operation) => operation.operation !== "setTypeGrants")
         .map((operation) => ({
           field: operation.operation,
-          snapshot: true,
-          previous: undefined,
+          snapshot: true as const,
           current: name(operation),
         })),
       ...change.grants.flatMap((grant) =>

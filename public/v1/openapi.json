@@ -89,7 +89,7 @@
                                     "const": "value"
                                   },
                                   "value": {
-                                    "anyOf": [
+                                    "oneOf": [
                                       {
                                         "type": "object",
                                         "properties": {
@@ -341,7 +341,8 @@
                                         ],
                                         "additionalProperties": false
                                       }
-                                    ]
+                                    ],
+                                    "type": "object"
                                   }
                                 },
                                 "required": [
@@ -3499,7 +3500,7 @@
                                                               "maxLength": 64
                                                             },
                                                             "value": {
-                                                              "anyOf": [
+                                                              "oneOf": [
                                                                 {
                                                                   "type": "object",
                                                                   "properties": {
@@ -3751,7 +3752,8 @@
                                                                   ],
                                                                   "additionalProperties": false
                                                                 }
-                                                              ]
+                                                              ],
+                                                              "type": "object"
                                                             }
                                                           },
                                                           "required": [
@@ -3781,7 +3783,7 @@
                                                           "const": "value"
                                                         },
                                                         "value": {
-                                                          "anyOf": [
+                                                          "oneOf": [
                                                             {
                                                               "type": "object",
                                                               "properties": {
@@ -4033,7 +4035,8 @@
                                                               ],
                                                               "additionalProperties": false
                                                             }
-                                                          ]
+                                                          ],
+                                                          "type": "object"
                                                         }
                                                       },
                                                       "required": [
@@ -4251,7 +4254,7 @@
                                                               "maxLength": 64
                                                             },
                                                             "value": {
-                                                              "anyOf": [
+                                                              "oneOf": [
                                                                 {
                                                                   "type": "object",
                                                                   "properties": {
@@ -4503,7 +4506,8 @@
                                                                   ],
                                                                   "additionalProperties": false
                                                                 }
-                                                              ]
+                                                              ],
+                                                              "type": "object"
                                                             }
                                                           },
                                                           "required": [
@@ -4533,7 +4537,7 @@
                                                           "const": "value"
                                                         },
                                                         "value": {
-                                                          "anyOf": [
+                                                          "oneOf": [
                                                             {
                                                               "type": "object",
                                                               "properties": {
@@ -4785,7 +4789,8 @@
                                                               ],
                                                               "additionalProperties": false
                                                             }
-                                                          ]
+                                                          ],
+                                                          "type": "object"
                                                         }
                                                       },
                                                       "required": [
@@ -5148,26 +5153,51 @@
                               "changes": {
                                 "type": "array",
                                 "items": {
-                                  "type": "object",
-                                  "properties": {
-                                    "field": {
-                                      "type": "string"
+                                  "anyOf": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "field": {
+                                          "type": "string"
+                                        },
+                                        "label": {
+                                          "type": "string"
+                                        },
+                                        "snapshot": {
+                                          "type": "boolean",
+                                          "const": true
+                                        },
+                                        "current": {}
+                                      },
+                                      "required": [
+                                        "field",
+                                        "snapshot",
+                                        "current"
+                                      ],
+                                      "additionalProperties": false,
+                                      "description": "A value captured when the item was created or removed; it has no previous value."
                                     },
-                                    "label": {
-                                      "type": "string"
-                                    },
-                                    "snapshot": {
-                                      "type": "boolean"
-                                    },
-                                    "previous": {},
-                                    "current": {}
-                                  },
-                                  "required": [
-                                    "field",
-                                    "previous",
-                                    "current"
-                                  ],
-                                  "additionalProperties": false
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "field": {
+                                          "type": "string"
+                                        },
+                                        "label": {
+                                          "type": "string"
+                                        },
+                                        "previous": {},
+                                        "current": {}
+                                      },
+                                      "required": [
+                                        "field",
+                                        "previous",
+                                        "current"
+                                      ],
+                                      "additionalProperties": false,
+                                      "description": "A value that changed from previous to current; null stands for an empty value."
+                                    }
+                                  ]
                                 }
                               },
                               "records": {
@@ -5360,26 +5390,51 @@
                               "changes": {
                                 "type": "array",
                                 "items": {
-                                  "type": "object",
-                                  "properties": {
-                                    "field": {
-                                      "type": "string"
+                                  "anyOf": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "field": {
+                                          "type": "string"
+                                        },
+                                        "label": {
+                                          "type": "string"
+                                        },
+                                        "snapshot": {
+                                          "type": "boolean",
+                                          "const": true
+                                        },
+                                        "current": {}
+                                      },
+                                      "required": [
+                                        "field",
+                                        "snapshot",
+                                        "current"
+                                      ],
+                                      "additionalProperties": false,
+                                      "description": "A value captured when the item was created or removed; it has no previous value."
                                     },
-                                    "label": {
-                                      "type": "string"
-                                    },
-                                    "snapshot": {
-                                      "type": "boolean"
-                                    },
-                                    "previous": {},
-                                    "current": {}
-                                  },
-                                  "required": [
-                                    "field",
-                                    "previous",
-                                    "current"
-                                  ],
-                                  "additionalProperties": false
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "field": {
+                                          "type": "string"
+                                        },
+                                        "label": {
+                                          "type": "string"
+                                        },
+                                        "previous": {},
+                                        "current": {}
+                                      },
+                                      "required": [
+                                        "field",
+                                        "previous",
+                                        "current"
+                                      ],
+                                      "additionalProperties": false,
+                                      "description": "A value that changed from previous to current; null stands for an empty value."
+                                    }
+                                  ]
                                 }
                               },
                               "records": {
@@ -7298,7 +7353,7 @@
                                     "const": "value"
                                   },
                                   "value": {
-                                    "anyOf": [
+                                    "oneOf": [
                                       {
                                         "type": "object",
                                         "properties": {
@@ -7550,7 +7605,8 @@
                                         ],
                                         "additionalProperties": false
                                       }
-                                    ]
+                                    ],
+                                    "type": "object"
                                   }
                                 },
                                 "required": [
@@ -7943,7 +7999,7 @@
                                 "kind"
                               ],
                               "additionalProperties": false,
-                              "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                             },
                             {
                               "type": "null"
@@ -8032,7 +8088,7 @@
                               "kind"
                             ],
                             "additionalProperties": false,
-                            "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                           }
                         }
                       },
@@ -8210,7 +8266,7 @@
                                       "kind"
                                     ],
                                     "additionalProperties": false,
-                                    "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                    "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                   },
                                   {
                                     "type": "null"
@@ -8299,7 +8355,7 @@
                                     "kind"
                                   ],
                                   "additionalProperties": false,
-                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                 }
                               }
                             },
@@ -8632,7 +8688,7 @@
                                           "const": "value"
                                         },
                                         "value": {
-                                          "anyOf": [
+                                          "oneOf": [
                                             {
                                               "type": "object",
                                               "properties": {
@@ -8884,7 +8940,8 @@
                                               ],
                                               "additionalProperties": false
                                             }
-                                          ]
+                                          ],
+                                          "type": "object"
                                         }
                                       },
                                       "required": [
@@ -9090,7 +9147,7 @@
                                                 "const": "value"
                                               },
                                               "value": {
-                                                "anyOf": [
+                                                "oneOf": [
                                                   {
                                                     "type": "object",
                                                     "properties": {
@@ -9342,7 +9399,8 @@
                                                     ],
                                                     "additionalProperties": false
                                                   }
-                                                ]
+                                                ],
+                                                "type": "object"
                                               }
                                             },
                                             "required": [
@@ -9472,7 +9530,7 @@
                                                 "const": "value"
                                               },
                                               "value": {
-                                                "anyOf": [
+                                                "oneOf": [
                                                   {
                                                     "type": "object",
                                                     "properties": {
@@ -9724,7 +9782,8 @@
                                                     ],
                                                     "additionalProperties": false
                                                   }
-                                                ]
+                                                ],
+                                                "type": "object"
                                               }
                                             },
                                             "required": [
@@ -10276,7 +10335,7 @@
                                               "kind"
                                             ],
                                             "additionalProperties": false,
-                                            "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                           }
                                         },
                                         "required": [
@@ -10560,7 +10619,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                 }
                                               },
                                               "required": [
@@ -10768,7 +10827,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                 }
                                               },
                                               "required": [
@@ -11720,7 +11779,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                         },
                                         {
                                           "type": "null"
@@ -11809,7 +11868,7 @@
                                           "kind"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                       }
                                     }
                                   },
@@ -11987,7 +12046,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                               },
                                               {
                                                 "type": "null"
@@ -12076,7 +12135,7 @@
                                                 "kind"
                                               ],
                                               "additionalProperties": false,
-                                              "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                             }
                                           }
                                         },
@@ -12451,7 +12510,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                 },
                                                 {
                                                   "type": "null"
@@ -12540,7 +12599,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                               }
                                             }
                                           },
@@ -12770,7 +12829,7 @@
                                                           "kind"
                                                         ],
                                                         "additionalProperties": false,
-                                                        "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                       },
                                                       {
                                                         "type": "null"
@@ -12859,7 +12918,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                     }
                                                   }
                                                 },
@@ -13621,7 +13680,7 @@
                                       "value": {
                                         "anyOf": [
                                           {
-                                            "anyOf": [
+                                            "oneOf": [
                                               {
                                                 "type": "object",
                                                 "properties": {
@@ -13873,7 +13932,8 @@
                                                 ],
                                                 "additionalProperties": false
                                               }
-                                            ]
+                                            ],
+                                            "type": "object"
                                           },
                                           {
                                             "type": "null"
@@ -13884,7 +13944,7 @@
                                         "maxItems": 100,
                                         "type": "array",
                                         "items": {
-                                          "anyOf": [
+                                          "oneOf": [
                                             {
                                               "type": "object",
                                               "properties": {
@@ -14136,7 +14196,8 @@
                                               ],
                                               "additionalProperties": false
                                             }
-                                          ]
+                                          ],
+                                          "type": "object"
                                         }
                                       }
                                     },
@@ -14236,7 +14297,7 @@
                                             "value": {
                                               "anyOf": [
                                                 {
-                                                  "anyOf": [
+                                                  "oneOf": [
                                                     {
                                                       "type": "object",
                                                       "properties": {
@@ -14488,7 +14549,8 @@
                                                       ],
                                                       "additionalProperties": false
                                                     }
-                                                  ]
+                                                  ],
+                                                  "type": "object"
                                                 },
                                                 {
                                                   "type": "null"
@@ -14499,7 +14561,7 @@
                                               "maxItems": 100,
                                               "type": "array",
                                               "items": {
-                                                "anyOf": [
+                                                "oneOf": [
                                                   {
                                                     "type": "object",
                                                     "properties": {
@@ -14751,7 +14813,8 @@
                                                     ],
                                                     "additionalProperties": false
                                                   }
-                                                ]
+                                                ],
+                                                "type": "object"
                                               }
                                             }
                                           },
@@ -15051,7 +15114,7 @@
                                               "value": {
                                                 "anyOf": [
                                                   {
-                                                    "anyOf": [
+                                                    "oneOf": [
                                                       {
                                                         "type": "object",
                                                         "properties": {
@@ -15303,7 +15366,8 @@
                                                         ],
                                                         "additionalProperties": false
                                                       }
-                                                    ]
+                                                    ],
+                                                    "type": "object"
                                                   },
                                                   {
                                                     "type": "null"
@@ -15314,7 +15378,7 @@
                                                 "maxItems": 100,
                                                 "type": "array",
                                                 "items": {
-                                                  "anyOf": [
+                                                  "oneOf": [
                                                     {
                                                       "type": "object",
                                                       "properties": {
@@ -15566,7 +15630,8 @@
                                                       ],
                                                       "additionalProperties": false
                                                     }
-                                                  ]
+                                                  ],
+                                                  "type": "object"
                                                 }
                                               }
                                             },
@@ -15718,7 +15783,7 @@
                                                     "value": {
                                                       "anyOf": [
                                                         {
-                                                          "anyOf": [
+                                                          "oneOf": [
                                                             {
                                                               "type": "object",
                                                               "properties": {
@@ -15970,7 +16035,8 @@
                                                               ],
                                                               "additionalProperties": false
                                                             }
-                                                          ]
+                                                          ],
+                                                          "type": "object"
                                                         },
                                                         {
                                                           "type": "null"
@@ -15981,7 +16047,7 @@
                                                       "maxItems": 100,
                                                       "type": "array",
                                                       "items": {
-                                                        "anyOf": [
+                                                        "oneOf": [
                                                           {
                                                             "type": "object",
                                                             "properties": {
@@ -16233,7 +16299,8 @@
                                                             ],
                                                             "additionalProperties": false
                                                           }
-                                                        ]
+                                                        ],
+                                                        "type": "object"
                                                       }
                                                     }
                                                   },
@@ -16673,7 +16740,7 @@
                                               "const": "value"
                                             },
                                             "value": {
-                                              "anyOf": [
+                                              "oneOf": [
                                                 {
                                                   "type": "object",
                                                   "properties": {
@@ -16925,7 +16992,8 @@
                                                   ],
                                                   "additionalProperties": false
                                                 }
-                                              ]
+                                              ],
+                                              "type": "object"
                                             }
                                           },
                                           "required": [
@@ -17061,7 +17129,7 @@
                                                 "const": "value"
                                               },
                                               "value": {
-                                                "anyOf": [
+                                                "oneOf": [
                                                   {
                                                     "type": "object",
                                                     "properties": {
@@ -17313,7 +17381,8 @@
                                                     ],
                                                     "additionalProperties": false
                                                   }
-                                                ]
+                                                ],
+                                                "type": "object"
                                               }
                                             },
                                             "required": [
@@ -17398,7 +17467,7 @@
                                                 "const": "value"
                                               },
                                               "value": {
-                                                "anyOf": [
+                                                "oneOf": [
                                                   {
                                                     "type": "object",
                                                     "properties": {
@@ -17650,7 +17719,8 @@
                                                     ],
                                                     "additionalProperties": false
                                                   }
-                                                ]
+                                                ],
+                                                "type": "object"
                                               }
                                             },
                                             "required": [
@@ -18992,7 +19062,7 @@
                                                                           "maxLength": 64
                                                                         },
                                                                         "value": {
-                                                                          "anyOf": [
+                                                                          "oneOf": [
                                                                             {
                                                                               "type": "object",
                                                                               "properties": {
@@ -19244,7 +19314,8 @@
                                                                               ],
                                                                               "additionalProperties": false
                                                                             }
-                                                                          ]
+                                                                          ],
+                                                                          "type": "object"
                                                                         }
                                                                       },
                                                                       "required": [
@@ -19274,7 +19345,7 @@
                                                                       "const": "value"
                                                                     },
                                                                     "value": {
-                                                                      "anyOf": [
+                                                                      "oneOf": [
                                                                         {
                                                                           "type": "object",
                                                                           "properties": {
@@ -19526,7 +19597,8 @@
                                                                           ],
                                                                           "additionalProperties": false
                                                                         }
-                                                                      ]
+                                                                      ],
+                                                                      "type": "object"
                                                                     }
                                                                   },
                                                                   "required": [
@@ -19744,7 +19816,7 @@
                                                                           "maxLength": 64
                                                                         },
                                                                         "value": {
-                                                                          "anyOf": [
+                                                                          "oneOf": [
                                                                             {
                                                                               "type": "object",
                                                                               "properties": {
@@ -19996,7 +20068,8 @@
                                                                               ],
                                                                               "additionalProperties": false
                                                                             }
-                                                                          ]
+                                                                          ],
+                                                                          "type": "object"
                                                                         }
                                                                       },
                                                                       "required": [
@@ -20026,7 +20099,7 @@
                                                                       "const": "value"
                                                                     },
                                                                     "value": {
-                                                                      "anyOf": [
+                                                                      "oneOf": [
                                                                         {
                                                                           "type": "object",
                                                                           "properties": {
@@ -20278,7 +20351,8 @@
                                                                           ],
                                                                           "additionalProperties": false
                                                                         }
-                                                                      ]
+                                                                      ],
+                                                                      "type": "object"
                                                                     }
                                                                   },
                                                                   "required": [
@@ -20641,26 +20715,51 @@
                                           "changes": {
                                             "type": "array",
                                             "items": {
-                                              "type": "object",
-                                              "properties": {
-                                                "field": {
-                                                  "type": "string"
+                                              "anyOf": [
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "field": {
+                                                      "type": "string"
+                                                    },
+                                                    "label": {
+                                                      "type": "string"
+                                                    },
+                                                    "snapshot": {
+                                                      "type": "boolean",
+                                                      "const": true
+                                                    },
+                                                    "current": {}
+                                                  },
+                                                  "required": [
+                                                    "field",
+                                                    "snapshot",
+                                                    "current"
+                                                  ],
+                                                  "additionalProperties": false,
+                                                  "description": "A value captured when the item was created or removed; it has no previous value."
                                                 },
-                                                "label": {
-                                                  "type": "string"
-                                                },
-                                                "snapshot": {
-                                                  "type": "boolean"
-                                                },
-                                                "previous": {},
-                                                "current": {}
-                                              },
-                                              "required": [
-                                                "field",
-                                                "previous",
-                                                "current"
-                                              ],
-                                              "additionalProperties": false
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "field": {
+                                                      "type": "string"
+                                                    },
+                                                    "label": {
+                                                      "type": "string"
+                                                    },
+                                                    "previous": {},
+                                                    "current": {}
+                                                  },
+                                                  "required": [
+                                                    "field",
+                                                    "previous",
+                                                    "current"
+                                                  ],
+                                                  "additionalProperties": false,
+                                                  "description": "A value that changed from previous to current; null stands for an empty value."
+                                                }
+                                              ]
                                             }
                                           },
                                           "records": {
@@ -20853,26 +20952,51 @@
                                           "changes": {
                                             "type": "array",
                                             "items": {
-                                              "type": "object",
-                                              "properties": {
-                                                "field": {
-                                                  "type": "string"
+                                              "anyOf": [
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "field": {
+                                                      "type": "string"
+                                                    },
+                                                    "label": {
+                                                      "type": "string"
+                                                    },
+                                                    "snapshot": {
+                                                      "type": "boolean",
+                                                      "const": true
+                                                    },
+                                                    "current": {}
+                                                  },
+                                                  "required": [
+                                                    "field",
+                                                    "snapshot",
+                                                    "current"
+                                                  ],
+                                                  "additionalProperties": false,
+                                                  "description": "A value captured when the item was created or removed; it has no previous value."
                                                 },
-                                                "label": {
-                                                  "type": "string"
-                                                },
-                                                "snapshot": {
-                                                  "type": "boolean"
-                                                },
-                                                "previous": {},
-                                                "current": {}
-                                              },
-                                              "required": [
-                                                "field",
-                                                "previous",
-                                                "current"
-                                              ],
-                                              "additionalProperties": false
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "field": {
+                                                      "type": "string"
+                                                    },
+                                                    "label": {
+                                                      "type": "string"
+                                                    },
+                                                    "previous": {},
+                                                    "current": {}
+                                                  },
+                                                  "required": [
+                                                    "field",
+                                                    "previous",
+                                                    "current"
+                                                  ],
+                                                  "additionalProperties": false,
+                                                  "description": "A value that changed from previous to current; null stands for an empty value."
+                                                }
+                                              ]
                                             }
                                           },
                                           "records": {
@@ -22826,7 +22950,7 @@
                                       "value": {
                                         "anyOf": [
                                           {
-                                            "anyOf": [
+                                            "oneOf": [
                                               {
                                                 "type": "object",
                                                 "properties": {
@@ -23078,7 +23202,8 @@
                                                 ],
                                                 "additionalProperties": false
                                               }
-                                            ]
+                                            ],
+                                            "type": "object"
                                           },
                                           {
                                             "type": "null"
@@ -23089,7 +23214,7 @@
                                         "maxItems": 100,
                                         "type": "array",
                                         "items": {
-                                          "anyOf": [
+                                          "oneOf": [
                                             {
                                               "type": "object",
                                               "properties": {
@@ -23341,7 +23466,8 @@
                                               ],
                                               "additionalProperties": false
                                             }
-                                          ]
+                                          ],
+                                          "type": "object"
                                         }
                                       }
                                     },
@@ -23441,7 +23567,7 @@
                                             "value": {
                                               "anyOf": [
                                                 {
-                                                  "anyOf": [
+                                                  "oneOf": [
                                                     {
                                                       "type": "object",
                                                       "properties": {
@@ -23693,7 +23819,8 @@
                                                       ],
                                                       "additionalProperties": false
                                                     }
-                                                  ]
+                                                  ],
+                                                  "type": "object"
                                                 },
                                                 {
                                                   "type": "null"
@@ -23704,7 +23831,7 @@
                                               "maxItems": 100,
                                               "type": "array",
                                               "items": {
-                                                "anyOf": [
+                                                "oneOf": [
                                                   {
                                                     "type": "object",
                                                     "properties": {
@@ -23956,7 +24083,8 @@
                                                     ],
                                                     "additionalProperties": false
                                                   }
-                                                ]
+                                                ],
+                                                "type": "object"
                                               }
                                             }
                                           },
@@ -24256,7 +24384,7 @@
                                               "value": {
                                                 "anyOf": [
                                                   {
-                                                    "anyOf": [
+                                                    "oneOf": [
                                                       {
                                                         "type": "object",
                                                         "properties": {
@@ -24508,7 +24636,8 @@
                                                         ],
                                                         "additionalProperties": false
                                                       }
-                                                    ]
+                                                    ],
+                                                    "type": "object"
                                                   },
                                                   {
                                                     "type": "null"
@@ -24519,7 +24648,7 @@
                                                 "maxItems": 100,
                                                 "type": "array",
                                                 "items": {
-                                                  "anyOf": [
+                                                  "oneOf": [
                                                     {
                                                       "type": "object",
                                                       "properties": {
@@ -24771,7 +24900,8 @@
                                                       ],
                                                       "additionalProperties": false
                                                     }
-                                                  ]
+                                                  ],
+                                                  "type": "object"
                                                 }
                                               }
                                             },
@@ -24923,7 +25053,7 @@
                                                     "value": {
                                                       "anyOf": [
                                                         {
-                                                          "anyOf": [
+                                                          "oneOf": [
                                                             {
                                                               "type": "object",
                                                               "properties": {
@@ -25175,7 +25305,8 @@
                                                               ],
                                                               "additionalProperties": false
                                                             }
-                                                          ]
+                                                          ],
+                                                          "type": "object"
                                                         },
                                                         {
                                                           "type": "null"
@@ -25186,7 +25317,7 @@
                                                       "maxItems": 100,
                                                       "type": "array",
                                                       "items": {
-                                                        "anyOf": [
+                                                        "oneOf": [
                                                           {
                                                             "type": "object",
                                                             "properties": {
@@ -25438,7 +25569,8 @@
                                                             ],
                                                             "additionalProperties": false
                                                           }
-                                                        ]
+                                                        ],
+                                                        "type": "object"
                                                       }
                                                     }
                                                   },
@@ -25878,7 +26010,7 @@
                                               "const": "value"
                                             },
                                             "value": {
-                                              "anyOf": [
+                                              "oneOf": [
                                                 {
                                                   "type": "object",
                                                   "properties": {
@@ -26130,7 +26262,8 @@
                                                   ],
                                                   "additionalProperties": false
                                                 }
-                                              ]
+                                              ],
+                                              "type": "object"
                                             }
                                           },
                                           "required": [
@@ -26266,7 +26399,7 @@
                                                 "const": "value"
                                               },
                                               "value": {
-                                                "anyOf": [
+                                                "oneOf": [
                                                   {
                                                     "type": "object",
                                                     "properties": {
@@ -26518,7 +26651,8 @@
                                                     ],
                                                     "additionalProperties": false
                                                   }
-                                                ]
+                                                ],
+                                                "type": "object"
                                               }
                                             },
                                             "required": [
@@ -26603,7 +26737,7 @@
                                                 "const": "value"
                                               },
                                               "value": {
-                                                "anyOf": [
+                                                "oneOf": [
                                                   {
                                                     "type": "object",
                                                     "properties": {
@@ -26855,7 +26989,8 @@
                                                     ],
                                                     "additionalProperties": false
                                                   }
-                                                ]
+                                                ],
+                                                "type": "object"
                                               }
                                             },
                                             "required": [
@@ -28197,7 +28332,7 @@
                                                                           "maxLength": 64
                                                                         },
                                                                         "value": {
-                                                                          "anyOf": [
+                                                                          "oneOf": [
                                                                             {
                                                                               "type": "object",
                                                                               "properties": {
@@ -28449,7 +28584,8 @@
                                                                               ],
                                                                               "additionalProperties": false
                                                                             }
-                                                                          ]
+                                                                          ],
+                                                                          "type": "object"
                                                                         }
                                                                       },
                                                                       "required": [
@@ -28479,7 +28615,7 @@
                                                                       "const": "value"
                                                                     },
                                                                     "value": {
-                                                                      "anyOf": [
+                                                                      "oneOf": [
                                                                         {
                                                                           "type": "object",
                                                                           "properties": {
@@ -28731,7 +28867,8 @@
                                                                           ],
                                                                           "additionalProperties": false
                                                                         }
-                                                                      ]
+                                                                      ],
+                                                                      "type": "object"
                                                                     }
                                                                   },
                                                                   "required": [
@@ -28949,7 +29086,7 @@
                                                                           "maxLength": 64
                                                                         },
                                                                         "value": {
-                                                                          "anyOf": [
+                                                                          "oneOf": [
                                                                             {
                                                                               "type": "object",
                                                                               "properties": {
@@ -29201,7 +29338,8 @@
                                                                               ],
                                                                               "additionalProperties": false
                                                                             }
-                                                                          ]
+                                                                          ],
+                                                                          "type": "object"
                                                                         }
                                                                       },
                                                                       "required": [
@@ -29231,7 +29369,7 @@
                                                                       "const": "value"
                                                                     },
                                                                     "value": {
-                                                                      "anyOf": [
+                                                                      "oneOf": [
                                                                         {
                                                                           "type": "object",
                                                                           "properties": {
@@ -29483,7 +29621,8 @@
                                                                           ],
                                                                           "additionalProperties": false
                                                                         }
-                                                                      ]
+                                                                      ],
+                                                                      "type": "object"
                                                                     }
                                                                   },
                                                                   "required": [
@@ -29846,26 +29985,51 @@
                                           "changes": {
                                             "type": "array",
                                             "items": {
-                                              "type": "object",
-                                              "properties": {
-                                                "field": {
-                                                  "type": "string"
+                                              "anyOf": [
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "field": {
+                                                      "type": "string"
+                                                    },
+                                                    "label": {
+                                                      "type": "string"
+                                                    },
+                                                    "snapshot": {
+                                                      "type": "boolean",
+                                                      "const": true
+                                                    },
+                                                    "current": {}
+                                                  },
+                                                  "required": [
+                                                    "field",
+                                                    "snapshot",
+                                                    "current"
+                                                  ],
+                                                  "additionalProperties": false,
+                                                  "description": "A value captured when the item was created or removed; it has no previous value."
                                                 },
-                                                "label": {
-                                                  "type": "string"
-                                                },
-                                                "snapshot": {
-                                                  "type": "boolean"
-                                                },
-                                                "previous": {},
-                                                "current": {}
-                                              },
-                                              "required": [
-                                                "field",
-                                                "previous",
-                                                "current"
-                                              ],
-                                              "additionalProperties": false
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "field": {
+                                                      "type": "string"
+                                                    },
+                                                    "label": {
+                                                      "type": "string"
+                                                    },
+                                                    "previous": {},
+                                                    "current": {}
+                                                  },
+                                                  "required": [
+                                                    "field",
+                                                    "previous",
+                                                    "current"
+                                                  ],
+                                                  "additionalProperties": false,
+                                                  "description": "A value that changed from previous to current; null stands for an empty value."
+                                                }
+                                              ]
                                             }
                                           },
                                           "records": {
@@ -30058,26 +30222,51 @@
                                           "changes": {
                                             "type": "array",
                                             "items": {
-                                              "type": "object",
-                                              "properties": {
-                                                "field": {
-                                                  "type": "string"
+                                              "anyOf": [
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "field": {
+                                                      "type": "string"
+                                                    },
+                                                    "label": {
+                                                      "type": "string"
+                                                    },
+                                                    "snapshot": {
+                                                      "type": "boolean",
+                                                      "const": true
+                                                    },
+                                                    "current": {}
+                                                  },
+                                                  "required": [
+                                                    "field",
+                                                    "snapshot",
+                                                    "current"
+                                                  ],
+                                                  "additionalProperties": false,
+                                                  "description": "A value captured when the item was created or removed; it has no previous value."
                                                 },
-                                                "label": {
-                                                  "type": "string"
-                                                },
-                                                "snapshot": {
-                                                  "type": "boolean"
-                                                },
-                                                "previous": {},
-                                                "current": {}
-                                              },
-                                              "required": [
-                                                "field",
-                                                "previous",
-                                                "current"
-                                              ],
-                                              "additionalProperties": false
+                                                {
+                                                  "type": "object",
+                                                  "properties": {
+                                                    "field": {
+                                                      "type": "string"
+                                                    },
+                                                    "label": {
+                                                      "type": "string"
+                                                    },
+                                                    "previous": {},
+                                                    "current": {}
+                                                  },
+                                                  "required": [
+                                                    "field",
+                                                    "previous",
+                                                    "current"
+                                                  ],
+                                                  "additionalProperties": false,
+                                                  "description": "A value that changed from previous to current; null stands for an empty value."
+                                                }
+                                              ]
                                             }
                                           },
                                           "records": {
@@ -32357,7 +32546,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                         },
                                         {
                                           "type": "null"
@@ -32470,7 +32659,7 @@
                                         "kind"
                                       ],
                                       "additionalProperties": false,
-                                      "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                     }
                                   },
                                   "required": [
@@ -32674,7 +32863,7 @@
                                                 "kind"
                                               ],
                                               "additionalProperties": false,
-                                              "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                             }
                                           },
                                           "required": [
@@ -34192,7 +34381,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                         },
                                         {
                                           "type": "null"
@@ -34305,7 +34494,7 @@
                                         "kind"
                                       ],
                                       "additionalProperties": false,
-                                      "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                     }
                                   },
                                   "required": [
@@ -34509,7 +34698,7 @@
                                                 "kind"
                                               ],
                                               "additionalProperties": false,
-                                              "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                             }
                                           },
                                           "required": [
@@ -35430,7 +35619,7 @@
                                     "const": "value"
                                   },
                                   "value": {
-                                    "anyOf": [
+                                    "oneOf": [
                                       {
                                         "type": "object",
                                         "properties": {
@@ -35682,7 +35871,8 @@
                                         ],
                                         "additionalProperties": false
                                       }
-                                    ]
+                                    ],
+                                    "type": "object"
                                   }
                                 },
                                 "required": [
@@ -35888,7 +36078,7 @@
                                           "const": "value"
                                         },
                                         "value": {
-                                          "anyOf": [
+                                          "oneOf": [
                                             {
                                               "type": "object",
                                               "properties": {
@@ -36140,7 +36330,8 @@
                                               ],
                                               "additionalProperties": false
                                             }
-                                          ]
+                                          ],
+                                          "type": "object"
                                         }
                                       },
                                       "required": [
@@ -36270,7 +36461,7 @@
                                           "const": "value"
                                         },
                                         "value": {
-                                          "anyOf": [
+                                          "oneOf": [
                                             {
                                               "type": "object",
                                               "properties": {
@@ -36522,7 +36713,8 @@
                                               ],
                                               "additionalProperties": false
                                             }
-                                          ]
+                                          ],
+                                          "type": "object"
                                         }
                                       },
                                       "required": [
@@ -37036,7 +37228,7 @@
                                 "kind"
                               ],
                               "additionalProperties": false,
-                              "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                             },
                             {
                               "type": "null"
@@ -37125,7 +37317,7 @@
                               "kind"
                             ],
                             "additionalProperties": false,
-                            "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                           }
                         }
                       },
@@ -37303,7 +37495,7 @@
                                       "kind"
                                     ],
                                     "additionalProperties": false,
-                                    "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                    "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                   },
                                   {
                                     "type": "null"
@@ -37392,7 +37584,7 @@
                                     "kind"
                                   ],
                                   "additionalProperties": false,
-                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                 }
                               }
                             },
@@ -37806,7 +37998,7 @@
                                           "const": "value"
                                         },
                                         "value": {
-                                          "anyOf": [
+                                          "oneOf": [
                                             {
                                               "type": "object",
                                               "properties": {
@@ -38058,7 +38250,8 @@
                                               ],
                                               "additionalProperties": false
                                             }
-                                          ]
+                                          ],
+                                          "type": "object"
                                         }
                                       },
                                       "required": [
@@ -38264,7 +38457,7 @@
                                                 "const": "value"
                                               },
                                               "value": {
-                                                "anyOf": [
+                                                "oneOf": [
                                                   {
                                                     "type": "object",
                                                     "properties": {
@@ -38516,7 +38709,8 @@
                                                     ],
                                                     "additionalProperties": false
                                                   }
-                                                ]
+                                                ],
+                                                "type": "object"
                                               }
                                             },
                                             "required": [
@@ -38646,7 +38840,7 @@
                                                 "const": "value"
                                               },
                                               "value": {
-                                                "anyOf": [
+                                                "oneOf": [
                                                   {
                                                     "type": "object",
                                                     "properties": {
@@ -38898,7 +39092,8 @@
                                                     ],
                                                     "additionalProperties": false
                                                   }
-                                                ]
+                                                ],
+                                                "type": "object"
                                               }
                                             },
                                             "required": [
@@ -39345,7 +39540,7 @@
                                               "const": "value"
                                             },
                                             "value": {
-                                              "anyOf": [
+                                              "oneOf": [
                                                 {
                                                   "type": "object",
                                                   "properties": {
@@ -39597,7 +39792,8 @@
                                                   ],
                                                   "additionalProperties": false
                                                 }
-                                              ]
+                                              ],
+                                              "type": "object"
                                             }
                                           },
                                           "required": [
@@ -39920,7 +40116,7 @@
                                         "kind"
                                       ],
                                       "additionalProperties": false,
-                                      "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                     },
                                     {
                                       "type": "null"
@@ -40192,7 +40388,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                         },
                                         {
                                           "type": "null"
@@ -40709,7 +40905,7 @@
                                         "kind"
                                       ],
                                       "additionalProperties": false,
-                                      "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                     },
                                     {
                                       "type": "null"
@@ -42530,7 +42726,7 @@
                                     "kind"
                                   ],
                                   "additionalProperties": false,
-                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                 },
                                 {
                                   "type": "null"
@@ -42619,7 +42815,7 @@
                                   "kind"
                                 ],
                                 "additionalProperties": false,
-                                "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                               }
                             }
                           },
@@ -42797,7 +42993,7 @@
                                           "kind"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                       },
                                       {
                                         "type": "null"
@@ -42886,7 +43082,7 @@
                                         "kind"
                                       ],
                                       "additionalProperties": false,
-                                      "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                     }
                                   }
                                 },
@@ -43261,7 +43457,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                         },
                                         {
                                           "type": "null"
@@ -43350,7 +43546,7 @@
                                           "kind"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                       }
                                     }
                                   },
@@ -43580,7 +43776,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                               },
                                               {
                                                 "type": "null"
@@ -43669,7 +43865,7 @@
                                                 "kind"
                                               ],
                                               "additionalProperties": false,
-                                              "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                             }
                                           }
                                         },
@@ -43825,7 +44021,7 @@
                                   "const": "value"
                                 },
                                 "value": {
-                                  "anyOf": [
+                                  "oneOf": [
                                     {
                                       "type": "object",
                                       "properties": {
@@ -44077,7 +44273,8 @@
                                       ],
                                       "additionalProperties": false
                                     }
-                                  ]
+                                  ],
+                                  "type": "object"
                                 }
                               },
                               "required": [
@@ -44213,7 +44410,7 @@
                                     "const": "value"
                                   },
                                   "value": {
-                                    "anyOf": [
+                                    "oneOf": [
                                       {
                                         "type": "object",
                                         "properties": {
@@ -44465,7 +44662,8 @@
                                         ],
                                         "additionalProperties": false
                                       }
-                                    ]
+                                    ],
+                                    "type": "object"
                                   }
                                 },
                                 "required": [
@@ -44550,7 +44748,7 @@
                                     "const": "value"
                                   },
                                   "value": {
-                                    "anyOf": [
+                                    "oneOf": [
                                       {
                                         "type": "object",
                                         "properties": {
@@ -44802,7 +45000,8 @@
                                         ],
                                         "additionalProperties": false
                                       }
-                                    ]
+                                    ],
+                                    "type": "object"
                                   }
                                 },
                                 "required": [
@@ -48267,7 +48466,7 @@
                                   "defaultValue": {
                                     "anyOf": [
                                       {
-                                        "anyOf": [
+                                        "oneOf": [
                                           {
                                             "type": "object",
                                             "properties": {
@@ -48519,7 +48718,8 @@
                                             ],
                                             "additionalProperties": false
                                           }
-                                        ]
+                                        ],
+                                        "type": "object"
                                       },
                                       {
                                         "type": "null"
@@ -48607,7 +48807,7 @@
                                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                                   },
                                   "triggerValue": {
-                                    "anyOf": [
+                                    "oneOf": [
                                       {
                                         "type": "object",
                                         "properties": {
@@ -48859,7 +49059,8 @@
                                         ],
                                         "additionalProperties": false
                                       }
-                                    ]
+                                    ],
+                                    "type": "object"
                                   }
                                 },
                                 "required": [
@@ -48992,7 +49193,7 @@
                                         "maxLength": 64
                                       },
                                       "value": {
-                                        "anyOf": [
+                                        "oneOf": [
                                           {
                                             "type": "object",
                                             "properties": {
@@ -49244,7 +49445,8 @@
                                             ],
                                             "additionalProperties": false
                                           }
-                                        ]
+                                        ],
+                                        "type": "object"
                                       }
                                     },
                                     "required": [
@@ -64334,7 +64536,7 @@
                                             "value": {
                                               "anyOf": [
                                                 {
-                                                  "anyOf": [
+                                                  "oneOf": [
                                                     {
                                                       "type": "object",
                                                       "properties": {
@@ -64586,7 +64788,8 @@
                                                       ],
                                                       "additionalProperties": false
                                                     }
-                                                  ]
+                                                  ],
+                                                  "type": "object"
                                                 },
                                                 {
                                                   "type": "null"
@@ -64597,7 +64800,7 @@
                                               "maxItems": 100,
                                               "type": "array",
                                               "items": {
-                                                "anyOf": [
+                                                "oneOf": [
                                                   {
                                                     "type": "object",
                                                     "properties": {
@@ -64849,7 +65052,8 @@
                                                     ],
                                                     "additionalProperties": false
                                                   }
-                                                ]
+                                                ],
+                                                "type": "object"
                                               }
                                             }
                                           },
@@ -64949,7 +65153,7 @@
                                                   "value": {
                                                     "anyOf": [
                                                       {
-                                                        "anyOf": [
+                                                        "oneOf": [
                                                           {
                                                             "type": "object",
                                                             "properties": {
@@ -65201,7 +65405,8 @@
                                                             ],
                                                             "additionalProperties": false
                                                           }
-                                                        ]
+                                                        ],
+                                                        "type": "object"
                                                       },
                                                       {
                                                         "type": "null"
@@ -65212,7 +65417,7 @@
                                                     "maxItems": 100,
                                                     "type": "array",
                                                     "items": {
-                                                      "anyOf": [
+                                                      "oneOf": [
                                                         {
                                                           "type": "object",
                                                           "properties": {
@@ -65464,7 +65669,8 @@
                                                           ],
                                                           "additionalProperties": false
                                                         }
-                                                      ]
+                                                      ],
+                                                      "type": "object"
                                                     }
                                                   }
                                                 },
@@ -65764,7 +65970,7 @@
                                                     "value": {
                                                       "anyOf": [
                                                         {
-                                                          "anyOf": [
+                                                          "oneOf": [
                                                             {
                                                               "type": "object",
                                                               "properties": {
@@ -66016,7 +66222,8 @@
                                                               ],
                                                               "additionalProperties": false
                                                             }
-                                                          ]
+                                                          ],
+                                                          "type": "object"
                                                         },
                                                         {
                                                           "type": "null"
@@ -66027,7 +66234,7 @@
                                                       "maxItems": 100,
                                                       "type": "array",
                                                       "items": {
-                                                        "anyOf": [
+                                                        "oneOf": [
                                                           {
                                                             "type": "object",
                                                             "properties": {
@@ -66279,7 +66486,8 @@
                                                             ],
                                                             "additionalProperties": false
                                                           }
-                                                        ]
+                                                        ],
+                                                        "type": "object"
                                                       }
                                                     }
                                                   },
@@ -66431,7 +66639,7 @@
                                                           "value": {
                                                             "anyOf": [
                                                               {
-                                                                "anyOf": [
+                                                                "oneOf": [
                                                                   {
                                                                     "type": "object",
                                                                     "properties": {
@@ -66683,7 +66891,8 @@
                                                                     ],
                                                                     "additionalProperties": false
                                                                   }
-                                                                ]
+                                                                ],
+                                                                "type": "object"
                                                               },
                                                               {
                                                                 "type": "null"
@@ -66694,7 +66903,7 @@
                                                             "maxItems": 100,
                                                             "type": "array",
                                                             "items": {
-                                                              "anyOf": [
+                                                              "oneOf": [
                                                                 {
                                                                   "type": "object",
                                                                   "properties": {
@@ -66946,7 +67155,8 @@
                                                                   ],
                                                                   "additionalProperties": false
                                                                 }
-                                                              ]
+                                                              ],
+                                                              "type": "object"
                                                             }
                                                           }
                                                         },
@@ -67386,7 +67596,7 @@
                                                     "const": "value"
                                                   },
                                                   "value": {
-                                                    "anyOf": [
+                                                    "oneOf": [
                                                       {
                                                         "type": "object",
                                                         "properties": {
@@ -67638,7 +67848,8 @@
                                                         ],
                                                         "additionalProperties": false
                                                       }
-                                                    ]
+                                                    ],
+                                                    "type": "object"
                                                   }
                                                 },
                                                 "required": [
@@ -67774,7 +67985,7 @@
                                                       "const": "value"
                                                     },
                                                     "value": {
-                                                      "anyOf": [
+                                                      "oneOf": [
                                                         {
                                                           "type": "object",
                                                           "properties": {
@@ -68026,7 +68237,8 @@
                                                           ],
                                                           "additionalProperties": false
                                                         }
-                                                      ]
+                                                      ],
+                                                      "type": "object"
                                                     }
                                                   },
                                                   "required": [
@@ -68111,7 +68323,7 @@
                                                       "const": "value"
                                                     },
                                                     "value": {
-                                                      "anyOf": [
+                                                      "oneOf": [
                                                         {
                                                           "type": "object",
                                                           "properties": {
@@ -68363,7 +68575,8 @@
                                                           ],
                                                           "additionalProperties": false
                                                         }
-                                                      ]
+                                                      ],
+                                                      "type": "object"
                                                     }
                                                   },
                                                   "required": [
@@ -69705,7 +69918,7 @@
                                                                                 "maxLength": 64
                                                                               },
                                                                               "value": {
-                                                                                "anyOf": [
+                                                                                "oneOf": [
                                                                                   {
                                                                                     "type": "object",
                                                                                     "properties": {
@@ -69957,7 +70170,8 @@
                                                                                     ],
                                                                                     "additionalProperties": false
                                                                                   }
-                                                                                ]
+                                                                                ],
+                                                                                "type": "object"
                                                                               }
                                                                             },
                                                                             "required": [
@@ -69987,7 +70201,7 @@
                                                                             "const": "value"
                                                                           },
                                                                           "value": {
-                                                                            "anyOf": [
+                                                                            "oneOf": [
                                                                               {
                                                                                 "type": "object",
                                                                                 "properties": {
@@ -70239,7 +70453,8 @@
                                                                                 ],
                                                                                 "additionalProperties": false
                                                                               }
-                                                                            ]
+                                                                            ],
+                                                                            "type": "object"
                                                                           }
                                                                         },
                                                                         "required": [
@@ -70457,7 +70672,7 @@
                                                                                 "maxLength": 64
                                                                               },
                                                                               "value": {
-                                                                                "anyOf": [
+                                                                                "oneOf": [
                                                                                   {
                                                                                     "type": "object",
                                                                                     "properties": {
@@ -70709,7 +70924,8 @@
                                                                                     ],
                                                                                     "additionalProperties": false
                                                                                   }
-                                                                                ]
+                                                                                ],
+                                                                                "type": "object"
                                                                               }
                                                                             },
                                                                             "required": [
@@ -70739,7 +70955,7 @@
                                                                             "const": "value"
                                                                           },
                                                                           "value": {
-                                                                            "anyOf": [
+                                                                            "oneOf": [
                                                                               {
                                                                                 "type": "object",
                                                                                 "properties": {
@@ -70991,7 +71207,8 @@
                                                                                 ],
                                                                                 "additionalProperties": false
                                                                               }
-                                                                            ]
+                                                                            ],
+                                                                            "type": "object"
                                                                           }
                                                                         },
                                                                         "required": [
@@ -71354,26 +71571,51 @@
                                                 "changes": {
                                                   "type": "array",
                                                   "items": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                      "field": {
-                                                        "type": "string"
+                                                    "anyOf": [
+                                                      {
+                                                        "type": "object",
+                                                        "properties": {
+                                                          "field": {
+                                                            "type": "string"
+                                                          },
+                                                          "label": {
+                                                            "type": "string"
+                                                          },
+                                                          "snapshot": {
+                                                            "type": "boolean",
+                                                            "const": true
+                                                          },
+                                                          "current": {}
+                                                        },
+                                                        "required": [
+                                                          "field",
+                                                          "snapshot",
+                                                          "current"
+                                                        ],
+                                                        "additionalProperties": false,
+                                                        "description": "A value captured when the item was created or removed; it has no previous value."
                                                       },
-                                                      "label": {
-                                                        "type": "string"
-                                                      },
-                                                      "snapshot": {
-                                                        "type": "boolean"
-                                                      },
-                                                      "previous": {},
-                                                      "current": {}
-                                                    },
-                                                    "required": [
-                                                      "field",
-                                                      "previous",
-                                                      "current"
-                                                    ],
-                                                    "additionalProperties": false
+                                                      {
+                                                        "type": "object",
+                                                        "properties": {
+                                                          "field": {
+                                                            "type": "string"
+                                                          },
+                                                          "label": {
+                                                            "type": "string"
+                                                          },
+                                                          "previous": {},
+                                                          "current": {}
+                                                        },
+                                                        "required": [
+                                                          "field",
+                                                          "previous",
+                                                          "current"
+                                                        ],
+                                                        "additionalProperties": false,
+                                                        "description": "A value that changed from previous to current; null stands for an empty value."
+                                                      }
+                                                    ]
                                                   }
                                                 },
                                                 "records": {
@@ -71566,26 +71808,51 @@
                                                 "changes": {
                                                   "type": "array",
                                                   "items": {
-                                                    "type": "object",
-                                                    "properties": {
-                                                      "field": {
-                                                        "type": "string"
+                                                    "anyOf": [
+                                                      {
+                                                        "type": "object",
+                                                        "properties": {
+                                                          "field": {
+                                                            "type": "string"
+                                                          },
+                                                          "label": {
+                                                            "type": "string"
+                                                          },
+                                                          "snapshot": {
+                                                            "type": "boolean",
+                                                            "const": true
+                                                          },
+                                                          "current": {}
+                                                        },
+                                                        "required": [
+                                                          "field",
+                                                          "snapshot",
+                                                          "current"
+                                                        ],
+                                                        "additionalProperties": false,
+                                                        "description": "A value captured when the item was created or removed; it has no previous value."
                                                       },
-                                                      "label": {
-                                                        "type": "string"
-                                                      },
-                                                      "snapshot": {
-                                                        "type": "boolean"
-                                                      },
-                                                      "previous": {},
-                                                      "current": {}
-                                                    },
-                                                    "required": [
-                                                      "field",
-                                                      "previous",
-                                                      "current"
-                                                    ],
-                                                    "additionalProperties": false
+                                                      {
+                                                        "type": "object",
+                                                        "properties": {
+                                                          "field": {
+                                                            "type": "string"
+                                                          },
+                                                          "label": {
+                                                            "type": "string"
+                                                          },
+                                                          "previous": {},
+                                                          "current": {}
+                                                        },
+                                                        "required": [
+                                                          "field",
+                                                          "previous",
+                                                          "current"
+                                                        ],
+                                                        "additionalProperties": false,
+                                                        "description": "A value that changed from previous to current; null stands for an empty value."
+                                                      }
+                                                    ]
                                                   }
                                                 },
                                                 "records": {
@@ -74282,7 +74549,7 @@
                                             "const": "value"
                                           },
                                           "value": {
-                                            "anyOf": [
+                                            "oneOf": [
                                               {
                                                 "type": "object",
                                                 "properties": {
@@ -74534,7 +74801,8 @@
                                                 ],
                                                 "additionalProperties": false
                                               }
-                                            ]
+                                            ],
+                                            "type": "object"
                                           }
                                         },
                                         "required": [
@@ -74740,7 +75008,7 @@
                                                   "const": "value"
                                                 },
                                                 "value": {
-                                                  "anyOf": [
+                                                  "oneOf": [
                                                     {
                                                       "type": "object",
                                                       "properties": {
@@ -74992,7 +75260,8 @@
                                                       ],
                                                       "additionalProperties": false
                                                     }
-                                                  ]
+                                                  ],
+                                                  "type": "object"
                                                 }
                                               },
                                               "required": [
@@ -75122,7 +75391,7 @@
                                                   "const": "value"
                                                 },
                                                 "value": {
-                                                  "anyOf": [
+                                                  "oneOf": [
                                                     {
                                                       "type": "object",
                                                       "properties": {
@@ -75374,7 +75643,8 @@
                                                       ],
                                                       "additionalProperties": false
                                                     }
-                                                  ]
+                                                  ],
+                                                  "type": "object"
                                                 }
                                               },
                                               "required": [
@@ -75872,7 +76142,7 @@
                                       "defaultValue": {
                                         "anyOf": [
                                           {
-                                            "anyOf": [
+                                            "oneOf": [
                                               {
                                                 "type": "object",
                                                 "properties": {
@@ -76124,7 +76394,8 @@
                                                 ],
                                                 "additionalProperties": false
                                               }
-                                            ]
+                                            ],
+                                            "type": "object"
                                           },
                                           {
                                             "type": "null"
@@ -76212,7 +76483,7 @@
                                         "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                                       },
                                       "triggerValue": {
-                                        "anyOf": [
+                                        "oneOf": [
                                           {
                                             "type": "object",
                                             "properties": {
@@ -76464,7 +76735,8 @@
                                             ],
                                             "additionalProperties": false
                                           }
-                                        ]
+                                        ],
+                                        "type": "object"
                                       }
                                     },
                                     "required": [
@@ -76597,7 +76869,7 @@
                                             "maxLength": 64
                                           },
                                           "value": {
-                                            "anyOf": [
+                                            "oneOf": [
                                               {
                                                 "type": "object",
                                                 "properties": {
@@ -76849,7 +77121,8 @@
                                                 ],
                                                 "additionalProperties": false
                                               }
-                                            ]
+                                            ],
+                                            "type": "object"
                                           }
                                         },
                                         "required": [
@@ -77928,67 +78201,44 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "searchTerm": {
+                    "p13nId": {
                       "type": "string"
                     },
-                    "sortDescriptor": {
-                      "type": "object",
-                      "properties": {
-                        "field": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/UserDtoSchema"
+                      }
+                    },
+                    "filters": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "searchTerm": {
+                      "anyOf": [
+                        {
                           "type": "string"
                         },
-                        "direction": {
-                          "type": "string",
-                          "enum": [
-                            "asc",
-                            "desc"
-                          ]
+                        {
+                          "type": "null"
                         }
-                      },
-                      "required": [
-                        "field",
-                        "direction"
-                      ],
-                      "additionalProperties": false
+                      ]
                     },
+                    "sortDescriptor": {},
                     "pagination": {
                       "type": "object",
                       "properties": {
                         "page": {
-                          "type": "number",
-                          "minimum": 1
+                          "type": "number"
                         },
                         "pageSize": {
-                          "anyOf": [
-                            {
-                              "type": "number",
-                              "const": 5,
-                              "title": "5"
-                            },
-                            {
-                              "type": "number",
-                              "const": 10,
-                              "title": "10"
-                            },
-                            {
-                              "type": "number",
-                              "const": 25,
-                              "title": "25"
-                            },
-                            {
-                              "type": "number",
-                              "const": 100,
-                              "title": "100"
-                            }
-                          ]
+                          "type": "number"
                         },
                         "totalPages": {
-                          "type": "number",
-                          "exclusiveMinimum": 0
+                          "type": "number"
                         },
                         "total": {
-                          "type": "number",
-                          "exclusiveMinimum": 0
+                          "type": "number"
                         }
                       },
                       "required": [
@@ -77999,10 +78249,41 @@
                       ],
                       "additionalProperties": false
                     },
-                    "items": {
+                    "filterableFields": {
+                      "type": "array",
+                      "items": {}
+                    },
+                    "columnOrder": {
                       "type": "array",
                       "items": {
-                        "$ref": "#/components/schemas/UserDtoSchema"
+                        "type": "string"
+                      }
+                    },
+                    "columnWidths": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "number"
+                      }
+                    },
+                    "hiddenColumns": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "viewMode": {
+                      "type": "string"
+                    },
+                    "groupCounts": {
+                      "type": "object",
+                      "propertyNames": {
+                        "type": "string"
+                      },
+                      "additionalProperties": {
+                        "type": "number"
                       }
                     }
                   },
@@ -80487,7 +80768,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                         },
                                         {
                                           "type": "null"
@@ -80576,7 +80857,7 @@
                                           "kind"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                       }
                                     }
                                   },
@@ -80806,7 +81087,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                               },
                                               {
                                                 "type": "null"
@@ -80895,7 +81176,7 @@
                                                 "kind"
                                               ],
                                               "additionalProperties": false,
-                                              "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                             }
                                           }
                                         },
@@ -81157,7 +81438,7 @@
                                               "kind"
                                             ],
                                             "additionalProperties": false,
-                                            "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                           },
                                           {
                                             "type": "null"
@@ -81246,7 +81527,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                         }
                                       }
                                     },
@@ -81476,7 +81757,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                 },
                                                 {
                                                   "type": "null"
@@ -81565,7 +81846,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                               }
                                             }
                                           },
@@ -82084,7 +82365,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                         },
                                         {
                                           "type": "null"
@@ -82173,7 +82454,7 @@
                                           "kind"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                       }
                                     }
                                   },
@@ -82403,7 +82684,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                               },
                                               {
                                                 "type": "null"
@@ -82492,7 +82773,7 @@
                                                 "kind"
                                               ],
                                               "additionalProperties": false,
-                                              "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                             }
                                           }
                                         },
@@ -82754,7 +83035,7 @@
                                               "kind"
                                             ],
                                             "additionalProperties": false,
-                                            "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                           },
                                           {
                                             "type": "null"
@@ -82843,7 +83124,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                         }
                                       }
                                     },
@@ -83073,7 +83354,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                 },
                                                 {
                                                   "type": "null"
@@ -83162,7 +83443,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                               }
                                             }
                                           },
@@ -84596,7 +84877,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                         },
                                         {
                                           "type": "null"
@@ -84685,7 +84966,7 @@
                                           "kind"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                       }
                                     }
                                   },
@@ -84915,7 +85196,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                               },
                                               {
                                                 "type": "null"
@@ -85004,7 +85285,7 @@
                                                 "kind"
                                               ],
                                               "additionalProperties": false,
-                                              "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                             }
                                           }
                                         },
@@ -85267,7 +85548,7 @@
                                               "kind"
                                             ],
                                             "additionalProperties": false,
-                                            "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                           },
                                           {
                                             "type": "null"
@@ -85356,7 +85637,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                         }
                                       }
                                     },
@@ -85586,7 +85867,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                 },
                                                 {
                                                   "type": "null"
@@ -85675,7 +85956,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                               }
                                             }
                                           },
@@ -86254,7 +86535,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                         },
                                         {
                                           "type": "null"
@@ -86343,7 +86624,7 @@
                                           "kind"
                                         ],
                                         "additionalProperties": false,
-                                        "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                        "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                       }
                                     }
                                   },
@@ -86573,7 +86854,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                               },
                                               {
                                                 "type": "null"
@@ -86662,7 +86943,7 @@
                                                 "kind"
                                               ],
                                               "additionalProperties": false,
-                                              "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                              "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                             }
                                           }
                                         },
@@ -86925,7 +87206,7 @@
                                               "kind"
                                             ],
                                             "additionalProperties": false,
-                                            "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                            "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                           },
                                           {
                                             "type": "null"
@@ -87014,7 +87295,7 @@
                                             "kind"
                                           ],
                                           "additionalProperties": false,
-                                          "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                          "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                         }
                                       }
                                     },
@@ -87244,7 +87525,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                 },
                                                 {
                                                   "type": "null"
@@ -87333,7 +87614,7 @@
                                                   "kind"
                                                 ],
                                                 "additionalProperties": false,
-                                                "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                               }
                                             }
                                           },
@@ -102515,7 +102796,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                     }
                                                   },
                                                   "required": [
@@ -102623,7 +102904,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                 }
                                               },
                                               "required": [
@@ -102918,7 +103199,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                     }
                                                   },
                                                   "required": [
@@ -103026,7 +103307,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                 }
                                               },
                                               "required": [
@@ -103861,7 +104142,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                     }
                                                   },
                                                   "required": [
@@ -103969,7 +104250,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                 }
                                               },
                                               "required": [
@@ -104264,7 +104545,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                     }
                                                   },
                                                   "required": [
@@ -104372,7 +104653,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                 }
                                               },
                                               "required": [
@@ -105207,7 +105488,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                     }
                                                   },
                                                   "required": [
@@ -105315,7 +105596,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                 }
                                               },
                                               "required": [
@@ -105610,7 +105891,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                     }
                                                   },
                                                   "required": [
@@ -105718,7 +105999,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                 }
                                               },
                                               "required": [
@@ -106553,7 +106834,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                     }
                                                   },
                                                   "required": [
@@ -106661,7 +106942,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                 }
                                               },
                                               "required": [
@@ -106956,7 +107237,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                     }
                                                   },
                                                   "required": [
@@ -107064,7 +107345,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                 }
                                               },
                                               "required": [
@@ -107899,7 +108180,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                     }
                                                   },
                                                   "required": [
@@ -108007,7 +108288,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                 }
                                               },
                                               "required": [
@@ -108302,7 +108583,7 @@
                                                         "kind"
                                                       ],
                                                       "additionalProperties": false,
-                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                      "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                     }
                                                   },
                                                   "required": [
@@ -108410,7 +108691,7 @@
                                                     "kind"
                                                   ],
                                                   "additionalProperties": false,
-                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                                                  "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                                                 }
                                               },
                                               "required": [
@@ -108894,7 +109175,7 @@
                       "kind"
                     ],
                     "additionalProperties": false,
-                    "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                    "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                   },
                   {
                     "type": "null"
@@ -109132,7 +109413,7 @@
                       "kind"
                     ],
                     "additionalProperties": false,
-                    "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                    "description": "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none."
                   },
                   {
                     "type": "null"
@@ -111555,7 +111836,7 @@
                             "value": {
                               "anyOf": [
                                 {
-                                  "anyOf": [
+                                  "oneOf": [
                                     {
                                       "type": "object",
                                       "properties": {
@@ -111807,7 +112088,8 @@
                                       ],
                                       "additionalProperties": false
                                     }
-                                  ]
+                                  ],
+                                  "type": "object"
                                 },
                                 {
                                   "type": "null"
@@ -111818,7 +112100,7 @@
                               "maxItems": 100,
                               "type": "array",
                               "items": {
-                                "anyOf": [
+                                "oneOf": [
                                   {
                                     "type": "object",
                                     "properties": {
@@ -112070,7 +112352,8 @@
                                     ],
                                     "additionalProperties": false
                                   }
-                                ]
+                                ],
+                                "type": "object"
                               }
                             }
                           },
@@ -112222,7 +112505,7 @@
                                   "value": {
                                     "anyOf": [
                                       {
-                                        "anyOf": [
+                                        "oneOf": [
                                           {
                                             "type": "object",
                                             "properties": {
@@ -112474,7 +112757,8 @@
                                             ],
                                             "additionalProperties": false
                                           }
-                                        ]
+                                        ],
+                                        "type": "object"
                                       },
                                       {
                                         "type": "null"
@@ -112485,7 +112769,7 @@
                                     "maxItems": 100,
                                     "type": "array",
                                     "items": {
-                                      "anyOf": [
+                                      "oneOf": [
                                         {
                                           "type": "object",
                                           "properties": {
@@ -112737,7 +113021,8 @@
                                           ],
                                           "additionalProperties": false
                                         }
-                                      ]
+                                      ],
+                                      "type": "object"
                                     }
                                   }
                                 },
@@ -112922,7 +113207,7 @@
                               "value": {
                                 "anyOf": [
                                   {
-                                    "anyOf": [
+                                    "oneOf": [
                                       {
                                         "type": "object",
                                         "properties": {
@@ -113174,7 +113459,8 @@
                                         ],
                                         "additionalProperties": false
                                       }
-                                    ]
+                                    ],
+                                    "type": "object"
                                   },
                                   {
                                     "type": "null"
@@ -113185,7 +113471,7 @@
                                 "maxItems": 100,
                                 "type": "array",
                                 "items": {
-                                  "anyOf": [
+                                  "oneOf": [
                                     {
                                       "type": "object",
                                       "properties": {
@@ -113437,7 +113723,8 @@
                                       ],
                                       "additionalProperties": false
                                     }
-                                  ]
+                                  ],
+                                  "type": "object"
                                 }
                               }
                             },
@@ -113589,7 +113876,7 @@
                                     "value": {
                                       "anyOf": [
                                         {
-                                          "anyOf": [
+                                          "oneOf": [
                                             {
                                               "type": "object",
                                               "properties": {
@@ -113841,7 +114128,8 @@
                                               ],
                                               "additionalProperties": false
                                             }
-                                          ]
+                                          ],
+                                          "type": "object"
                                         },
                                         {
                                           "type": "null"
@@ -113852,7 +114140,7 @@
                                       "maxItems": 100,
                                       "type": "array",
                                       "items": {
-                                        "anyOf": [
+                                        "oneOf": [
                                           {
                                             "type": "object",
                                             "properties": {
@@ -114104,7 +114392,8 @@
                                             ],
                                             "additionalProperties": false
                                           }
-                                        ]
+                                        ],
+                                        "type": "object"
                                       }
                                     }
                                   },
@@ -114460,7 +114749,7 @@
                             "value": {
                               "anyOf": [
                                 {
-                                  "anyOf": [
+                                  "oneOf": [
                                     {
                                       "type": "object",
                                       "properties": {
@@ -114712,7 +115001,8 @@
                                       ],
                                       "additionalProperties": false
                                     }
-                                  ]
+                                  ],
+                                  "type": "object"
                                 },
                                 {
                                   "type": "null"
@@ -114723,7 +115013,7 @@
                               "maxItems": 100,
                               "type": "array",
                               "items": {
-                                "anyOf": [
+                                "oneOf": [
                                   {
                                     "type": "object",
                                     "properties": {
@@ -114975,7 +115265,8 @@
                                     ],
                                     "additionalProperties": false
                                   }
-                                ]
+                                ],
+                                "type": "object"
                               }
                             }
                           },
@@ -115127,7 +115418,7 @@
                                   "value": {
                                     "anyOf": [
                                       {
-                                        "anyOf": [
+                                        "oneOf": [
                                           {
                                             "type": "object",
                                             "properties": {
@@ -115379,7 +115670,8 @@
                                             ],
                                             "additionalProperties": false
                                           }
-                                        ]
+                                        ],
+                                        "type": "object"
                                       },
                                       {
                                         "type": "null"
@@ -115390,7 +115682,7 @@
                                     "maxItems": 100,
                                     "type": "array",
                                     "items": {
-                                      "anyOf": [
+                                      "oneOf": [
                                         {
                                           "type": "object",
                                           "properties": {
@@ -115642,7 +115934,8 @@
                                           ],
                                           "additionalProperties": false
                                         }
-                                      ]
+                                      ],
+                                      "type": "object"
                                     }
                                   }
                                 },
@@ -115827,7 +116120,7 @@
                               "value": {
                                 "anyOf": [
                                   {
-                                    "anyOf": [
+                                    "oneOf": [
                                       {
                                         "type": "object",
                                         "properties": {
@@ -116079,7 +116372,8 @@
                                         ],
                                         "additionalProperties": false
                                       }
-                                    ]
+                                    ],
+                                    "type": "object"
                                   },
                                   {
                                     "type": "null"
@@ -116090,7 +116384,7 @@
                                 "maxItems": 100,
                                 "type": "array",
                                 "items": {
-                                  "anyOf": [
+                                  "oneOf": [
                                     {
                                       "type": "object",
                                       "properties": {
@@ -116342,7 +116636,8 @@
                                       ],
                                       "additionalProperties": false
                                     }
-                                  ]
+                                  ],
+                                  "type": "object"
                                 }
                               }
                             },
@@ -116494,7 +116789,7 @@
                                     "value": {
                                       "anyOf": [
                                         {
-                                          "anyOf": [
+                                          "oneOf": [
                                             {
                                               "type": "object",
                                               "properties": {
@@ -116746,7 +117041,8 @@
                                               ],
                                               "additionalProperties": false
                                             }
-                                          ]
+                                          ],
+                                          "type": "object"
                                         },
                                         {
                                           "type": "null"
@@ -116757,7 +117053,7 @@
                                       "maxItems": 100,
                                       "type": "array",
                                       "items": {
-                                        "anyOf": [
+                                        "oneOf": [
                                           {
                                             "type": "object",
                                             "properties": {
@@ -117009,7 +117305,8 @@
                                             ],
                                             "additionalProperties": false
                                           }
-                                        ]
+                                        ],
+                                        "type": "object"
                                       }
                                     }
                                   },
@@ -118446,7 +118743,7 @@
               "value": {
                 "anyOf": [
                   {
-                    "anyOf": [
+                    "oneOf": [
                       {
                         "type": "object",
                         "properties": {
@@ -118698,7 +118995,8 @@
                         ],
                         "additionalProperties": false
                       }
-                    ]
+                    ],
+                    "type": "object"
                   },
                   {
                     "type": "null"
@@ -118858,7 +119156,7 @@
               "value": {
                 "anyOf": [
                   {
-                    "anyOf": [
+                    "oneOf": [
                       {
                         "type": "object",
                         "properties": {
@@ -119110,7 +119408,8 @@
                         ],
                         "additionalProperties": false
                       }
-                    ]
+                    ],
+                    "type": "object"
                   },
                   {
                     "type": "null"
