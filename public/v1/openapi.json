@@ -87407,6 +87407,7 @@
                         "customFieldInvalidDate",
                         "widgetKindImmutable",
                         "widgetDisplayTypeUnsupported",
+                        "widgetLayoutChanged",
                         "widgetLayoutOverlap",
                         "widgetLayoutTooSmall",
                         "userNotFound",
