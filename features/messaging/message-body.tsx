@@ -42,7 +42,7 @@ export function hasLoadableRemoteImages(html: string): boolean {
   });
 }
 
-function TextWithQuote({ visible, quoted, onPaper }: { visible: string; quoted: string | null; onPaper?: boolean }) {
+function TextWithQuote({ visible, quoted }: { visible: string; quoted: string | null }) {
   const t = useTranslations();
   const [showQuoted, setShowQuoted] = useState(false);
 
@@ -53,10 +53,7 @@ function TextWithQuote({ visible, quoted, onPaper }: { visible: string; quoted: 
       {quoted && (
         <>
           <button
-            className={cn(
-              "mt-1 text-xs underline underline-offset-2",
-              onPaper ? "text-neutral-500 hover:text-neutral-800" : "text-muted-foreground hover:text-foreground",
-            )}
+            className="text-muted-foreground hover:text-foreground mt-1 text-xs underline underline-offset-2"
             type="button"
             onClick={() => setShowQuoted((prev) => !prev)}
           >
@@ -64,12 +61,7 @@ function TextWithQuote({ visible, quoted, onPaper }: { visible: string; quoted: 
           </button>
 
           {showQuoted && (
-            <div
-              className={cn(
-                "mt-1 border-l-2 pl-2",
-                onPaper ? "border-neutral-300 text-neutral-500" : "border-border text-muted-foreground",
-              )}
-            >
+            <div className="border-border text-muted-foreground mt-1 border-l-2 pl-2">
               <MessageText text={quoted} />
             </div>
           )}
@@ -102,8 +94,8 @@ export const MessageBody = observer(function MessageBody({
 
   if (isEmail) {
     return emailPlainBody ? (
-      <div className="bg-white px-4 py-3 leading-normal text-neutral-900 wrap-anywhere">
-        <TextWithQuote quoted={quoteSplit.quoted} visible={quoteSplit.visible} onPaper />
+      <div className="text-card-foreground px-3.5 pt-2.5 pb-3.5 leading-relaxed wrap-anywhere">
+        <TextWithQuote quoted={quoteSplit.quoted} visible={quoteSplit.visible} />
       </div>
     ) : (
       <EmailFrame html={emailHtml} showRemoteImages={showRemoteImages} />

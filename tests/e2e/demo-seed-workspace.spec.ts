@@ -1,3 +1,5 @@
+import type { Locator } from "@playwright/test";
+
 import { DEMO_COMPANY_ID, expect, settle, test } from "./demo-seed";
 
 /** The seeded workspace beyond records: webhooks and deliveries, the inbox, the Knowledge Base and routines. */
@@ -94,6 +96,72 @@ test("inbox threads are listed and linked to their deals, tickets and candidates
     await page.keyboard.press("Escape");
   }
   // Email bodies render in a sandboxed frame without scripts; Chromium reports that block, which is expected.
+  expect(errors.filter((error) => !error.startsWith("Blocked script execution in 'about:srcdoc'"))).toEqual([]);
+});
+
+async function emailBodyColors(frame: Locator) {
+  return frame.contentFrame().locator("body").evaluate((body) => {
+    const luminance = (color: string) => {
+      const [red = 0, green = 0, blue = 0] = (color.match(/[\d.]+/g) ?? []).map(Number);
+      return (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
+    };
+    const style = getComputedStyle(body);
+    const painted = [style.backgroundColor, getComputedStyle(body.ownerDocument.documentElement).backgroundColor].find(
+      (color) => !/^rgba\(.*,\s*0\)$|^transparent$/.test(color),
+    );
+    return { background: luminance(painted ?? ""), text: luminance(style.color) };
+  });
+}
+
+test("email bodies follow the app theme, adaptive emails switch, and other external HTML stays on paper", async ({
+  page,
+  database,
+  errors,
+}, testInfo) => {
+  const { rows: threads } = await database.query<{ id: string; subject: string }>(
+    `SELECT id, subject FROM "MessagingThread" WHERE "companyId"=$1 AND subject = ANY($2)`,
+    [DEMO_COMPANY_ID, ["Service report baseline", "Order form review: Northwind Field Enterprise"]],
+  );
+  const threadId = (subject: string) => threads.find((thread) => thread.subject === subject)?.id;
+  for (const scheme of ["light", "dark"] as const) {
+    await page.emulateMedia({ colorScheme: scheme });
+    await settle(page);
+    await page.goto(`/en/inbox?threadId=${threadId("Service report baseline")}`);
+    const own = page.locator('iframe[data-email-tone="own"]').first();
+    const adaptive = page.locator('iframe[data-email-tone="adaptive"]').first();
+    await expect(own).toBeVisible();
+    await expect(adaptive).toBeVisible();
+    await expect(adaptive.contentFrame().getByText("Service journey baseline")).toBeVisible();
+    await expect(own).toHaveCSS("color-scheme", scheme);
+    await expect.poll(async () => (await emailBodyColors(own)).background > 0.5).toBe(scheme === "light");
+    const ownColors = await emailBodyColors(own);
+    const adaptiveColors = await emailBodyColors(adaptive);
+    if (scheme === "dark") {
+      expect(ownColors.background).toBeLessThan(0.2);
+      expect(ownColors.text).toBeGreaterThan(0.8);
+      expect(adaptiveColors.background).toBeLessThan(0.2);
+      expect(adaptiveColors.text).toBeGreaterThan(0.8);
+    } else {
+      expect(ownColors.background).toBeGreaterThan(0.9);
+      expect(adaptiveColors.background).toBeGreaterThan(0.9);
+    }
+    const ownHeight = await own.evaluate((frame) => frame.getBoundingClientRect().height);
+    const ownContent = await own.contentFrame().locator("body").evaluate((body) => body.scrollHeight);
+    expect(ownHeight).toBeGreaterThanOrEqual(ownContent);
+    await adaptive.scrollIntoViewIfNeeded();
+    await settle(page);
+    await page.screenshot({ path: testInfo.outputPath(`email-thread-${scheme}.png`), animations: "disabled" });
+
+    await page.goto(`/en/inbox?threadId=${threadId("Order form review: Northwind Field Enterprise")}`);
+    const paper = page.locator('iframe[data-email-tone="paper"]').first();
+    await expect(paper.contentFrame().getByText("Signature complete")).toBeVisible();
+    await expect(paper).toHaveCSS("color-scheme", "light");
+    expect((await emailBodyColors(paper)).background).toBeGreaterThan(0.9);
+    await paper.scrollIntoViewIfNeeded();
+    await settle(page);
+    await page.screenshot({ path: testInfo.outputPath(`email-paper-${scheme}.png`), animations: "disabled" });
+  }
+  await page.emulateMedia({ colorScheme: "light" });
   expect(errors.filter((error) => !error.startsWith("Blocked script execution in 'about:srcdoc'"))).toEqual([]);
 });
 

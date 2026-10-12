@@ -39,7 +39,7 @@ import { GetModelSchema } from "./configure-records.interactor";
 import { ConfigurationContractSchema, ConfigurationPreviewSchema } from "./configuration.schema";
 import {
   RecordQuerySchema,
-  MutateRecordSchema,
+  MutateRecordRequestSchema,
   RecordOperationResultSchema,
   RecordReadSchema,
 } from "./record-query.schema";
@@ -64,32 +64,144 @@ import {
   TrashRestoreResultSchema,
 } from "@/features/trash/trash.schema";
 
+type OperationTag = "records" | "roles" | "widgets" | "trash" | "operations" | "record-links";
+
+type OperationOptions = {
+  requires: string;
+  tag?: OperationTag;
+  read?: boolean;
+  description?: string;
+  examples?: Record<string, { summary: string; value: unknown }>;
+};
+
+const RECORD_CONTRACT =
+  "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings.";
+const READ_DESCRIPTION = `${RECORD_CONTRACT} Reads change nothing and return only what the caller may read.`;
+const WRITE_DESCRIPTION = `${RECORD_CONTRACT} Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.`;
+
 function operation(
   operationId: string,
   summary: string,
   input: z.ZodType,
   output: z.ZodType,
+  { requires, tag = "records", read = false, description, examples }: OperationOptions,
 ): ZodOpenApiOperationObject {
   return {
     operationId,
     summary,
-    tags: ["records"],
+    tags: [tag],
     security: [{ apiKeyAuth: [] }],
-    description:
-      "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Writes require their documented revision and idempotency preconditions; pending results refer to a durable operation.",
+    description: `${description ?? (read ? READ_DESCRIPTION : WRITE_DESCRIPTION)}\n\nRequires: ${requires}`,
     requestBody: {
       required: true,
-      content: { "application/json": { schema: input } },
+      content: { "application/json": { schema: input, ...(examples ? { examples } : {}) } },
     },
     responses: {
       "200": {
-        description: "The operation was accepted or completed.",
+        description: read ? "The requested data." : "The operation was accepted or completed.",
         content: { "application/json": { schema: output } },
       },
       ...StructuredApiResponses,
     },
   };
 }
+
+const TYPE_ID = "0b6f3c1e-8a52-4c39-9d7e-2f4a6b8c1d01";
+const RECORD_ID = "5d2e9a47-1c3b-4f6a-8e0d-7b9c2a4f6e11";
+const NAME_FIELD_ID = "9a4c2e61-3b5d-4f7a-8c9e-1d2b3a4c5e21";
+const AMOUNT_FIELD_ID = "c7e1a3b5-2d4f-4a6c-9e8b-0f1a2b3c4d31";
+const TRASH_ITEM_ID = "e3b5c7d9-4f6a-4b8c-9d0e-1a2b3c4d5e41";
+const TRASH_BATCH_ID = "f4c6d8e0-5a7b-4c9d-8e1f-2a3b4c5d6e51";
+
+export const recordApiExamples = {
+  query: {
+    filtered: {
+      summary: "Query records with a filter and sort",
+      value: {
+        typeId: TYPE_ID,
+        fields: [NAME_FIELD_ID, AMOUNT_FIELD_ID],
+        filters: [{ fieldId: NAME_FIELD_ID, operator: "contains", value: { kind: "text", value: "Acme" } }],
+        sort: [{ fieldId: "system:updatedAt", direction: "desc" }],
+        page: 1,
+        pageSize: 25,
+      },
+    },
+  },
+  mutate: {
+    create: {
+      summary: "Create a record",
+      value: {
+        expectedRevision: 42,
+        idempotencyKey: "create-acme-renewal-2026",
+        mutation: {
+          action: "create",
+          typeId: TYPE_ID,
+          fields: [
+            { fieldId: NAME_FIELD_ID, value: { kind: "text", value: "Acme renewal" } },
+            { fieldId: AMOUNT_FIELD_ID, value: { kind: "decimal", value: "12000.00", currency: "EUR" } },
+          ],
+        },
+      },
+    },
+    update: {
+      summary: "Update a record at its current version",
+      value: {
+        expectedRevision: 42,
+        idempotencyKey: "update-acme-renewal-amount",
+        mutation: {
+          action: "update",
+          ref: { typeId: TYPE_ID, recordId: RECORD_ID },
+          expectedVersion: 3,
+          fields: [{ fieldId: AMOUNT_FIELD_ID, value: { kind: "decimal", value: "15000.00", currency: "EUR" } }],
+        },
+      },
+    },
+    delete: {
+      summary: "Move a record to Trash",
+      value: {
+        expectedRevision: 42,
+        idempotencyKey: "delete-acme-renewal",
+        mutation: {
+          action: "delete",
+          ref: { typeId: TYPE_ID, recordId: RECORD_ID },
+          expectedVersion: 4,
+        },
+      },
+    },
+  },
+  discover: {
+    all: { summary: "Discover every readable list", value: {} },
+    selected: { summary: "Discover selected lists", value: { typeIds: [TYPE_ID] } },
+  },
+  apply: {
+    createList: {
+      summary: "Create a list",
+      value: {
+        expectedRevision: 42,
+        idempotencyKey: "create-projects-list",
+        operations: [
+          {
+            operation: "createType",
+            reference: "$projects",
+            label: "Project",
+            pluralLabel: "Projects",
+            description: "Client projects",
+            icon: "folder",
+            embedded: false,
+            accessPresetId: null,
+          },
+        ],
+      },
+    },
+  },
+  restore: {
+    items: { summary: "Restore Trash items", value: { itemIds: [TRASH_ITEM_ID] } },
+    batch: { summary: "Restore everything one delete moved to Trash", value: { batchId: TRASH_BATCH_ID } },
+  },
+};
+
+const TRASH_ACCESS =
+  "delete access to each item: to its list for records, data-model management for lists, fields and relationships, Knowledge Base delete access for pages, an administrator role for routines, and ownership for personal views and widgets.";
 
 export const recordApiPaths = {
   "/v1/messaging/record-links/read": {
@@ -98,6 +210,11 @@ export const recordApiPaths = {
       "Read accessible conversation records",
       ReadThreadRecordsSchema,
       ThreadRecordsResultSchema,
+      {
+        tag: "record-links",
+        read: true,
+        requires: "read access to inbox messages; only records of readable lists are returned.",
+      },
     ),
   },
   "/v1/messaging/record-links/mutate": {
@@ -106,6 +223,10 @@ export const recordApiPaths = {
       "Link or unlink one conversation record",
       MutateThreadRecordsSchema,
       ThreadRecordMutationResultSchema,
+      {
+        tag: "record-links",
+        requires: "read and edit access to inbox messages, and edit access to the record's list.",
+      },
     ),
   },
   "/v1/records/identities/resolve": {
@@ -114,6 +235,7 @@ export const recordApiPaths = {
       "Resolve exact channel identifiers to every accessible linked record",
       ResolveRecordIdentitiesSchema,
       ResolveRecordIdentitiesResultSchema,
+      { read: true, requires: "read access to the lists; records the caller cannot read are omitted." },
     ),
   },
   "/v1/roles/read": {
@@ -122,6 +244,11 @@ export const recordApiPaths = {
       "Read role permissions and the record type catalog",
       GetRoleEditorSchema,
       RoleApiEditorContextSchema,
+      {
+        tag: "roles",
+        read: true,
+        requires: "role management (edit access to users), or read or create access to users.",
+      },
     ),
   },
   "/v1/roles/save": {
@@ -130,10 +257,20 @@ export const recordApiPaths = {
       "Save system and record type permissions atomically",
       UpsertRoleSchema,
       RoleApiMutationResultSchema,
+      {
+        tag: "roles",
+        requires: "role management: create access to users for a new role, edit access for an existing one.",
+      },
     ),
   },
   "/v1/roles/delete": {
-    post: operation("deleteRoleConfiguration", "Delete an unused custom role", DeleteRoleSchema, z.string()),
+    post: operation(
+      "deleteRoleConfiguration",
+      "Delete an unused custom role",
+      DeleteRoleSchema,
+      z.object({ deletedId: z.uuid().describe("The id of the deleted role.") }).strict(),
+      { tag: "roles", requires: "role management: delete access to users." },
+    ),
   },
   "/v1/records/detail-layout/read": {
     post: operation(
@@ -141,6 +278,7 @@ export const recordApiPaths = {
       "Read personal record detail layout",
       ReadRecordDetailLayoutSchema,
       RecordDetailLayoutResultSchema,
+      { read: true, requires: "read access to the list." },
     ),
   },
   "/v1/records/detail-layout/save": {
@@ -149,6 +287,7 @@ export const recordApiPaths = {
       "Save or reset personal record detail layout",
       SaveRecordDetailLayoutSchema,
       RecordDetailLayoutResultSchema,
+      { requires: "read access to the list; the layout applies only to the caller." },
     ),
   },
   "/v1/records/activities": {
@@ -157,34 +296,44 @@ export const recordApiPaths = {
       "Read the activity timeline through declared record paths",
       RecordActivitiesInputSchema,
       RecordActivitiesResultSchema,
+      {
+        read: true,
+        requires: "read access to the record's list; change history also requires read access to the audit log.",
+      },
     ),
   },
   "/v1/records/search": {
-    post: operation("searchRecords", "Search accessible record types", RecordSearchSchema, RecordSearchResultSchema),
+    post: operation("searchRecords", "Search accessible record types", RecordSearchSchema, RecordSearchResultSchema, {
+      read: true,
+      requires: "read access to the list; only readable records are returned.",
+    }),
   },
   "/v1/records/export": {
-    post: {
-      ...operation(
-        "exportRecords",
-        "Export accessible records and their embedded children",
-        ExportRecordsSchema,
-        RecordExportSchema,
-      ),
-      description:
-        "Exports the selected type's filtered records, readable embedded descendants and readable outbound links from one consistent workspace snapshot. Maximum 5,000 records and 50,000 candidate links. The document carries stable type, field, relationship and record IDs plus the current schema revision; restricted values remain marked restricted. Incoming links from records outside the selection are not included.",
-    },
+    post: operation(
+      "exportRecords",
+      "Export accessible records and their embedded children",
+      ExportRecordsSchema,
+      RecordExportSchema,
+      {
+        read: true,
+        requires: "read access to the list.",
+        description:
+          "Exports the selected type's filtered records, readable embedded descendants and readable outbound links from one consistent workspace snapshot. Maximum 5,000 records and 50,000 candidate links. The document carries stable type, field, relationship and record IDs plus the current schema revision; restricted values remain marked restricted. Incoming links from records outside the selection are not included.",
+      },
+    ),
   },
   "/v1/records/import": {
-    post: {
-      ...operation(
-        "importRecords",
-        "Import a same-workspace record document",
-        ImportRecordsSchema,
-        ImportRecordsResultSchema,
-      ),
-      description:
-        "Creates records with their exported IDs or updates matching IDs in one transaction. Embedded descendants are created after their parents, saved-price snapshots are preserved, and readable outbound links are merged. The document must match the current workspace's type IDs and schema revision. Maximum 100 records and 500 links per request. Create rejects existing IDs; update checks each exported record version. Retries of the identical request use its idempotency key.",
-    },
+    post: operation(
+      "importRecords",
+      "Import a same-workspace record document",
+      ImportRecordsSchema,
+      ImportRecordsResultSchema,
+      {
+        requires: "create access to the list in create mode, edit access in update mode.",
+        description:
+          "Creates records with their exported IDs or updates matching IDs in one transaction. Embedded descendants are created after their parents, saved-price snapshots are preserved, and readable outbound links are merged. The document must match the current workspace's type IDs and schema revision. Maximum 100 records and 500 links per request. Create rejects existing IDs; update checks each exported record version. Retries of the identical request use its idempotency key.",
+      },
+    ),
   },
   "/v1/records/preview-deletion": {
     post: operation(
@@ -192,6 +341,7 @@ export const recordApiPaths = {
       "Preview record deletion and cascading effects",
       PreviewRecordDeletionSchema,
       RecordDeletionPreviewSchema,
+      { read: true, requires: "delete access to the list." },
     ),
   },
   "/v1/widgets/save": {
@@ -200,6 +350,7 @@ export const recordApiPaths = {
       "Save a schema-aware widget",
       GenericRecordWidgetInputSchema,
       GenericRecordWidgetDtoSchema,
+      { tag: "widgets", requires: "an active workspace member; widgets are personal and show only readable values." },
     ),
   },
   "/v1/widgets/read": {
@@ -208,6 +359,7 @@ export const recordApiPaths = {
       "Read a widget with current authorized results",
       RecordWidgetReadSchema,
       GenericRecordWidgetDtoSchema,
+      { tag: "widgets", read: true, requires: "read access to the widget's lists; restricted values stay hidden." },
     ),
   },
   "/v1/widgets/list": {
@@ -216,6 +368,7 @@ export const recordApiPaths = {
       "Read personal widgets",
       z.object({}).strict(),
       z.object({ widgets: z.array(GenericRecordWidgetDtoSchema) }),
+      { tag: "widgets", read: true, requires: "read access to the widgets' lists; restricted values stay hidden." },
     ),
   },
   "/v1/model/discover": {
@@ -224,6 +377,11 @@ export const recordApiPaths = {
       "Discover record types and their configuration",
       GetModelSchema,
       RecordModelViewSchema,
+      {
+        read: true,
+        requires: "read access to the list; data-model and role managers see every list and its access presets.",
+        examples: recordApiExamples.discover,
+      },
     ),
   },
   "/v1/model/preview": {
@@ -232,6 +390,11 @@ export const recordApiPaths = {
       "Preview a configuration change",
       ConfigurationContractSchema,
       ConfigurationPreviewSchema,
+      {
+        read: true,
+        requires:
+          "data-model management; role management suffices when every operation is setTypeGrants or putAccessPreset.",
+      },
     ),
   },
   "/v1/model/apply": {
@@ -240,28 +403,46 @@ export const recordApiPaths = {
       "Apply a configuration change",
       ConfigurationContractSchema,
       RecordOperationResultSchema,
+      {
+        requires:
+          "data-model management; role management suffices when every operation is setTypeGrants or putAccessPreset.",
+        examples: recordApiExamples.apply,
+      },
     ),
   },
   "/v1/records/read": {
-    post: operation("readRecord", "Read one record", RecordReadSchema, RecordDtoSchema),
+    post: operation("readRecord", "Read one record", RecordReadSchema, RecordDtoSchema, {
+      read: true,
+      requires: "read access to the list and to the record.",
+    }),
   },
   "/v1/records/query": {
-    post: operation("queryRecords", "Query records", RecordQuerySchema, RecordQueryResultSchema),
+    post: operation("queryRecords", "Query records", RecordQuerySchema, RecordQueryResultSchema, {
+      read: true,
+      requires: "read access to the list; only readable records and values are returned.",
+      examples: recordApiExamples.query,
+    }),
   },
   "/v1/records/mutate": {
     post: operation(
       "mutateRecord",
       "Create, update, delete or link records",
-      MutateRecordSchema,
+      MutateRecordRequestSchema,
       RecordOperationResultSchema,
+      {
+        requires:
+          "create access to the list for create; edit access for update, updateMany, link and unlink (on the source record's list); delete access for delete and deleteMany. Every referenced record must be readable.",
+        examples: recordApiExamples.mutate,
+      },
     ),
   },
   "/v1/trash/query": {
     post: operation(
       "queryTrash",
-      "List items in Trash (deleted records, lists, fields, relationships, views, widgets, routines)",
+      "List items in Trash (deleted records, lists, fields, relationships, views, widgets, routines, Knowledge Base pages)",
       QueryTrashSchema,
       TrashPageSchema,
+      { tag: "trash", read: true, requires: `${TRASH_ACCESS} Items without access are not listed.` },
     ),
   },
   "/v1/trash/restore": {
@@ -270,6 +451,7 @@ export const recordApiPaths = {
       "Restore Trash items, or every item of one delete by batchId",
       RestoreTrashSchema,
       TrashRestoreResultSchema,
+      { tag: "trash", requires: TRASH_ACCESS, examples: recordApiExamples.restore },
     ),
   },
   "/v1/trash/preview": {
@@ -278,6 +460,7 @@ export const recordApiPaths = {
       "Preview exactly what deleting Trash items permanently removes",
       PreviewTrashDeletionSchema,
       TrashDeletionPreviewSchema,
+      { tag: "trash", read: true, requires: TRASH_ACCESS },
     ),
   },
   "/v1/trash/delete-permanently": {
@@ -286,10 +469,14 @@ export const recordApiPaths = {
       "Delete Trash items permanently and erase their values from history",
       DeleteTrashPermanentlySchema,
       TrashDeletionResultSchema,
+      { tag: "trash", requires: TRASH_ACCESS },
     ),
   },
   "/v1/trash/empty": {
-    post: operation("emptyTrash", "Empty Trash (administrators)", EmptyTrashSchema, TrashDeletionResultSchema),
+    post: operation("emptyTrash", "Empty Trash (administrators)", EmptyTrashSchema, TrashDeletionResultSchema, {
+      tag: "trash",
+      requires: "an administrator.",
+    }),
   },
   "/v1/reports/query": {
     post: operation(
@@ -297,6 +484,7 @@ export const recordApiPaths = {
       "Aggregate record values at an explicit grain",
       RecordMeasureSchema,
       RecordMeasureResultSchema,
+      { read: true, requires: "read access to the source list; restricted inputs are hidden." },
     ),
   },
   "/v1/operations/status": {
@@ -305,6 +493,7 @@ export const recordApiPaths = {
       "Read the status of a staged operation",
       RecordOperationInputSchema,
       RecordOperationStatusSchema,
+      { tag: "operations", read: true, requires: "the user who started the operation, or an administrator." },
     ),
   },
   "/v1/operations/cancel": {
@@ -313,6 +502,7 @@ export const recordApiPaths = {
       "Cancel an operation before publication",
       RecordOperationInputSchema,
       z.object({ cancelled: z.boolean() }),
+      { tag: "operations", requires: "the user who started the operation, or an administrator." },
     ),
   },
   "/v1/operations/resume": {
@@ -321,6 +511,7 @@ export const recordApiPaths = {
       "Resume an interrupted operation",
       RecordOperationInputSchema,
       z.object({ resumed: z.boolean() }),
+      { tag: "operations", requires: "the user who started the operation." },
     ),
   },
 };

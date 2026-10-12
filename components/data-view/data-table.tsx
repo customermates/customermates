@@ -38,6 +38,7 @@ type Props<E extends HasId> = {
   columnStyle?: (columnId: string) => DataTableColumnStyle;
   rowFocusKey?: (item: E) => string | undefined;
   totals?: RecordGroupSummaryResult[];
+  footer?: ReactNode;
 };
 
 export type DataTableColumnStyle = { align?: "end"; emphasis?: boolean };
@@ -58,6 +59,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   columnStyle,
   rowFocusKey,
   totals,
+  footer,
 }: Props<E>) {
   const t = useTranslations();
   const navigateToHref = useNavigateToHref();
@@ -283,7 +285,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
   const overflow = store.groupingResult?.overflow;
 
   return (
-    <Table className={className}>
+    <Table className={className} footer={footer}>
       <TableHeader className="sticky top-0 z-10 bg-background">
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>

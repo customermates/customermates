@@ -1,4 +1,3 @@
-import { recordWebhookOperations } from "@/features/records/record-webhooks.openapi";
 import { createDocument } from "zod-openapi";
 
 import { ErrorResponseSchema } from "@/core/api/interactor-handler";
@@ -78,6 +77,8 @@ import {
   webhookMessagingRelationCreatedOperation,
   WebhookMessagingRelationCreatedSchema,
 } from "@/ee/messaging/webhooks/relation/relation-created.openapi";
+import { recordWebhookOperations } from "@/features/records/record-webhooks.openapi";
+import { recordApiPaths } from "@/features/records/records.openapi";
 import { getUserDetailsOperation } from "@/features/user/get/get-user-details.openapi";
 import { getUsersOperation } from "@/features/user/get/get-users.openapi";
 import { UserDtoSchema } from "@/features/user/user.schema";
@@ -93,8 +94,6 @@ import {
 import { routineApiPaths } from "@/ee/routines/routines.openapi";
 import { RoutineDtoSchema } from "@/ee/routines/routine.schema";
 import { WebhookPublicDtoSchema } from "@/features/webhook/webhook.schema";
-
-import { recordApiPaths } from "@/features/records/records.openapi";
 
 export function generateOpenApiSpec() {
   const document = createDocument({
