@@ -3311,7 +3311,7 @@
     "createSublist": "Nouvelle sous-liste de {list}",
     "currency": "Devise",
     "decimalPlaces": "Décimales",
-    "decimalPlacesHelp": "Laissez vide pour utiliser le format par défaut. Cela modifie l’affichage des valeurs, pas leur calcul.",
+    "decimalPlacesHelp": "Laissez vide pour la valeur par défaut (les montants utilisent la plus petite unité de la devise). Les valeurs calculées sont arrondies à ce nombre de décimales, les valeurs saisies sont affichées avec.",
     "defaultValue": "Valeur par défaut",
     "deleteRecord": "Supprimer {name}",
     "deletion": {
