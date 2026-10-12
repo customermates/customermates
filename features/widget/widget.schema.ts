@@ -15,7 +15,7 @@ import { z } from "zod";
 
 import { CHIP_COLORS } from "@/constants/chip-colors";
 
-export const CompanyWidgetSchema = z.object({
+const CompanyWidgetSchema = z.object({
   id: z.string(),
   kind: z.enum(WidgetKind),
   name: z.string(),
@@ -49,12 +49,6 @@ export const DiagramDataPointSchema = z.discriminatedUnion("labelKind", [
 ]);
 
 export type DiagramDataPoint = Data<typeof DiagramDataPointSchema>;
-
-export const ActivityWidgetDisplayOptionsSchema = z.object({
-  showFilters: z.boolean().optional(),
-});
-
-export type ActivityWidgetDisplayOptions = Data<typeof ActivityWidgetDisplayOptionsSchema>;
 
 export const WidgetDtoSchema = GenericRecordWidgetDtoSchema;
 export type WidgetDto = Data<typeof WidgetDtoSchema>;

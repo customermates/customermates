@@ -13,7 +13,7 @@ export type RecordWidgetPreview = {
   decimalPlaces: number | null;
 };
 
-export type WidgetMemberDirectory = {
+type WidgetMemberDirectory = {
   resolveUserOptions(ids: string[]): Promise<Array<{ id: string; firstName: string; lastName: string }>>;
 };
 

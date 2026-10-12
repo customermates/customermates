@@ -8,7 +8,7 @@ import { SystemInteractor } from "@/core/decorators/system-interactor.decorator"
 const AdvanceProviderAvatarSchema = z
   .object({ companyId: z.uuid(), operationId: z.uuid(), outcome: z.enum(["advance", "fail"]) })
   .strict();
-export type AdvanceProviderAvatarData = z.infer<typeof AdvanceProviderAvatarSchema>;
+type AdvanceProviderAvatarData = z.infer<typeof AdvanceProviderAvatarSchema>;
 
 @SystemInteractor
 export class AdvanceProviderAvatarInteractor {

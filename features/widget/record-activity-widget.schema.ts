@@ -1,6 +1,4 @@
 import { z } from "zod";
-import type { WidgetLayout } from "./widget-display.schema";
-import type { WidgetPlacementRow } from "./widget-placement";
 import { WidgetPlacementSchema } from "./widget-grid";
 import {
   RecordActivityQuerySchema,
@@ -81,16 +79,3 @@ export const RecordActivityWidgetDtoSchema = z
 export type RecordActivityWidgetInput = z.infer<typeof RecordActivityWidgetInputSchema>;
 export type RecordActivityWidgetDto = z.infer<typeof RecordActivityWidgetDtoSchema>;
 export type StoredRecordActivityWidget = Omit<RecordActivityWidgetDto, "schemaRevision" | "data" | "status">;
-
-export interface RecordActivityWidgetRepo {
-  findReadable(id: string): Promise<StoredRecordActivityWidget | null>;
-  listOwned(): Promise<StoredRecordActivityWidget[]>;
-  findOwned(id: string): Promise<StoredRecordActivityWidget | null>;
-  listPlacements(viewId: string | null): Promise<WidgetPlacementRow[]>;
-  save(
-    input: SavedRecordActivityWidgetInput,
-    id: string,
-    viewId: string | null,
-    layout?: WidgetLayout,
-  ): Promise<StoredRecordActivityWidget>;
-}

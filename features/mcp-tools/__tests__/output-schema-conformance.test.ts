@@ -140,7 +140,7 @@ function arrange() {
         id: "webhook-1",
         url: "https://example.com/hook",
         description: null,
-        events: ["contact.created"],
+        events: ["record.created"],
         enabled: true,
         createdAt: sentAt,
         updatedAt: sentAt,

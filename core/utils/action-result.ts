@@ -3,7 +3,7 @@ import "server-only";
 import type { $ZodErrorTree } from "zod/v4/core";
 import type { Validated } from "../validation/validation.utils";
 import type { Redirect } from "@/features/auth/auth-outcome";
-import type { SerializedInteractorFailure, Validated as ValidatedResult } from "../validation/validation.utils";
+import type { SerializedInteractorFailure } from "../validation/validation.utils";
 
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -15,7 +15,7 @@ type ActionResult<T> =
   | { ok: true; data: T }
   | { ok: false; error: $ZodErrorTree<unknown>; code?: string; retryable?: boolean };
 
-export type TypedActionResult<T> = { ok: true; data: T } | { ok: false; failure: SerializedInteractorFailure };
+type TypedActionResult<T> = { ok: true; data: T } | { ok: false; failure: SerializedInteractorFailure };
 
 export async function serializeTypedResult<T>(
   result: Validated<T> | Awaited<Validated<T>> | Promise<Awaited<Validated<T>> | Redirect> | Redirect,
@@ -39,16 +39,4 @@ export async function serializeResult<T>(
     ...(code ? { code } : {}),
     ...(isRetryableFailure(resolved.error) ? { retryable: true } : {}),
   };
-}
-
-export type RowActionResult = { ok: true; ids: string[] } | { ok: false; failure: SerializedInteractorFailure };
-
-export async function serializeRowResult(
-  result: ValidatedResult<Array<{ id: string }> | null>,
-): Promise<RowActionResult> {
-  const resolved = await result;
-
-  return resolved.ok
-    ? { ok: true as const, ids: (resolved.data ?? []).map((record) => record.id) }
-    : { ok: false as const, failure: serializeInteractorFailure(resolved.error) };
 }

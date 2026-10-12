@@ -33,7 +33,7 @@ import { z } from "zod";
 
 import { StructuredApiResponses } from "@/core/api/structured-interactor-handler";
 import { GenericRecordWidgetInputSchema, GenericRecordWidgetDtoSchema } from "@/features/widget/record-widget.schema";
-import { RecordWidgetReadSchema } from "@/features/widget/get-record-widgets.interactor";
+import { RecordWidgetReadSchema } from "@/features/widget/record-widget.schema";
 import { RecordDtoSchema } from "./record-model.schema";
 import { ConfigurationContractSchema, ConfigurationPreviewSchema } from "./configuration.schema";
 import {
@@ -44,7 +44,7 @@ import {
 } from "./record-query.schema";
 import { RecordQueryResultSchema } from "./record-query-result.schema";
 import { RecordMeasureSchema, RecordMeasureResultSchema } from "./record-measure.schema";
-import { RecordOperationInputSchema, RecordOperationStatusSchema } from "./record-operation.interactor";
+import { RecordOperationInputSchema, RecordOperationStatusSchema } from "./record-operation.schema";
 import { PreviewRecordDeletionSchema, RecordDeletionPreviewSchema } from "./preview-record-deletion.interactor";
 import {
   RecordActivitiesInputSchema,

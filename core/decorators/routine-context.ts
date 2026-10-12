@@ -1,8 +1,8 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 
-export type RoutineCausationContext = { causationDepth: number };
+type RoutineCausationContext = { causationDepth: number };
 
-export const routineContextStorage = new AsyncLocalStorage<RoutineCausationContext>();
+const routineContextStorage = new AsyncLocalStorage<RoutineCausationContext>();
 
 export function runInRoutineContext<T>(context: RoutineCausationContext | null, fn: () => T | Promise<T>): Promise<T> {
   if (!context) return Promise.resolve(fn());

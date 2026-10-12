@@ -60,7 +60,7 @@ export class MembershipTaskService extends UserAccessor {
       const created = create ? { typeId: type.id, recordId: randomUUID() } : null;
       if (created) {
         await records.create(created, []);
-        await this.tasks.protect(created, userId);
+        await this.records.protectMembershipTask(created, userId);
         for (const field of model.fields.filter((field) => field.typeId === type.id && !field.archived)) {
           if (field.behavior.kind !== "input") continue;
           const value =

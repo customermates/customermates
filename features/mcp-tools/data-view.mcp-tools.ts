@@ -28,7 +28,7 @@ function withoutRenderedMessage(issue: $ZodIssue): $ZodRawIssue {
   return raw as $ZodRawIssue;
 }
 
-export const ManageDataViewsToolSchema = z
+const ManageDataViewsToolSchema = z
   .object({
     action: z
       .enum(["surfaces", "config", "list", "create", "update", "select", "delete", "reset"])

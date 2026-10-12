@@ -427,14 +427,14 @@ export const RecordModelSchema = z
 export type RecordModel = z.infer<typeof RecordModelSchema>;
 
 const withoutFormula = { expression: CalculationExpressionSchema.optional() };
-export const FieldBehaviorViewSchema = z.discriminatedUnion("kind", [
+const FieldBehaviorViewSchema = z.discriminatedUnion("kind", [
   FieldBehaviorSchema.options[0],
   FieldBehaviorSchema.options[1].extend(withoutFormula),
   FieldBehaviorSchema.options[2].extend(withoutFormula),
   FieldBehaviorSchema.options[3].extend(withoutFormula),
   FieldBehaviorSchema.options[4].extend(withoutFormula),
 ]);
-export const RecordFieldViewSchema = RecordFieldSchema.extend({
+const RecordFieldViewSchema = RecordFieldSchema.extend({
   behavior: FieldBehaviorViewSchema.describe(
     "Calculated fields omit expression, triggerFieldId and triggerValue when the caller cannot read every input.",
   ),
@@ -446,7 +446,7 @@ export type RecordModelView = z.infer<typeof RecordModelViewSchema>;
 export const RecordFieldAssignmentSchema = z
   .object({ fieldId: z.uuid(), value: RecordScalarSchema.nullable() })
   .strict();
-export const RecordFieldAppendSchema = z
+const RecordFieldAppendSchema = z
   .object({
     fieldId: z.uuid(),
     append: z
@@ -470,7 +470,7 @@ export const RecordRelationshipSummarySchema = z
   })
   .strict();
 export type RecordRelationshipSummary = z.infer<typeof RecordRelationshipSummarySchema>;
-export const RecordPathSummarySchema = RecordRelationshipSummarySchema.omit({
+const RecordPathSummarySchema = RecordRelationshipSummarySchema.omit({
   relationId: true,
   direction: true,
 })

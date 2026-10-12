@@ -51,49 +51,45 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
         if (state?.activeOperationId) return failConflict(CustomErrorCode.recordWritePaused);
         const model = await this.records.getModel();
         if (model.revision !== input.expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
-        try {
-          const journal = new RecordJournal(this.records, model);
-          const cause = {
-            kind: "mutation" as const,
-            routineDepth: currentRoutineContext()?.causationDepth,
-          };
-          const changed = await this.writer
-            .withRepository(journal.repository)
-            .apply(input.mutation, model, policy, undefined, {
-              beforeDeletion: (refs) => journal.prepareDeletion(refs, model, this.userId, input.idempotencyKey, cause),
-            });
-          await journal.flush(model, this.userId, input.idempotencyKey, cause);
-          const permanent =
-            (input.mutation.action === "delete" || input.mutation.action === "deleteMany") && input.mutation.permanent;
-          if (permanent && changed.trashBatchId) {
-            const items = await this.records.getRecordTrashItemsCompanyWide({ batchId: changed.trashBatchId });
-            await this.trash.purge(
-              items.map((item) => item.id),
-              model,
-              this.userId,
-              input.idempotencyKey,
-              cause,
-            );
-          }
-          const refs = [];
-          for (const ref of changed.refs) {
-            const row = await this.records.getRecordCompanyWide(ref);
-            if (row && (await policy.canRead(row))) refs.push(ref);
-          }
-          const data: RecordOperationResult = {
-            status: "completed",
-            refs,
-            schemaRevision: model.revision,
-            ...(changed.trashBatchId && !permanent ? { trashBatchId: changed.trashBatchId } : {}),
-          };
-          await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);
-          return { ok: true, data };
-        } catch (error) {
-          return unwoundFailure(error);
+        const journal = new RecordJournal(this.records, model);
+        const cause = {
+          kind: "mutation" as const,
+          routineDepth: currentRoutineContext()?.causationDepth,
+        };
+        const changed = await this.writer
+          .withRepository(journal.repository)
+          .apply(input.mutation, model, policy, undefined, {
+            beforeDeletion: (refs) => journal.prepareDeletion(refs, model, this.userId, input.idempotencyKey, cause),
+          });
+        await journal.flush(model, this.userId, input.idempotencyKey, cause);
+        const permanent =
+          (input.mutation.action === "delete" || input.mutation.action === "deleteMany") && input.mutation.permanent;
+        if (permanent && changed.trashBatchId) {
+          const items = await this.records.getRecordTrashItemsCompanyWide({ batchId: changed.trashBatchId });
+          await this.trash.purge(
+            items.map((item) => item.id),
+            model,
+            this.userId,
+            input.idempotencyKey,
+            cause,
+          );
         }
+        const refs = [];
+        for (const ref of changed.refs) {
+          const row = await this.records.getRecordCompanyWide(ref);
+          if (row && (await policy.canRead(row))) refs.push(ref);
+        }
+        const data: RecordOperationResult = {
+          status: "completed",
+          refs,
+          schemaRevision: model.revision,
+          ...(changed.trashBatchId && !permanent ? { trashBatchId: changed.trashBatchId } : {}),
+        };
+        await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);
+        return { ok: true, data };
       },
       { timeout: 20000 },
-    );
+    ).catch(unwoundFailure);
     if (
       result.ok ||
       (input.mutation.action === "update" && input.mutation.placement) ||
@@ -117,11 +113,7 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
       const state = await this.records.getState();
       if (state?.revision !== input.expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
       if (state.activeOperationId) return failConflict(CustomErrorCode.recordWritePaused);
-      try {
-        await this.writer.validateAccess(input.mutation, policy);
-      } catch (error) {
-        return unwoundFailure(error);
-      }
+      await this.writer.validateAccess(input.mutation, policy);
       const operationId = randomUUID();
       await this.records.createOperation({
         id: operationId,
@@ -146,6 +138,6 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
         ownerUserId: this.userId,
       });
       return { ok: true, data };
-    });
+    }).catch(unwoundFailure);
   }
 }

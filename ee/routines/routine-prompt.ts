@@ -3,7 +3,7 @@ import { ROUTINE_TRIGGER_FIELD_LIMIT } from "./routine-run-trigger-context";
 import { routineRecordReference } from "./routine-record-reference";
 import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";
 
-export type RoutineTriggerContext = {
+type RoutineTriggerContext = {
   routineName: string;
   triggerEvent?: string | null;
   triggerEntityId?: string | null;

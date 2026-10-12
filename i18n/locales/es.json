@@ -1046,7 +1046,6 @@
       "title": "Aún no hay elementos «{plural}»"
     },
     "errors": {
-      "activityDuplicateFilterField": "Cada campo de filtro de actividad solo se puede configurar una vez.",
       "agentApprovalUnavailable": "Esta solicitud de aprobación no está disponible o ha caducado.",
       "agentConversationNotFound": "No se encontró esta conversación o ya no es accesible.",
       "agentLimitReached": "No quedan suficientes créditos de IA para iniciar otra solicitud.",
@@ -1056,7 +1055,6 @@
       "apiKeyMaxExpiration": "La caducidad de una clave de API no puede superar los 365 días.",
       "apiKeyMinExpiration": "La caducidad de una clave de API debe ser de al menos 1 día.",
       "apiKeyNameLength": "El nombre de una clave de API debe tener entre 1 y 255 caracteres.",
-      "assigneeRequired": "Debes asignarte este elemento. Ten en cuenta que solo podrás ver los elementos asignados a ti.",
       "billingPortalUnavailable": "El portal de facturación no está disponible para este espacio de trabajo. Contacta con soporte para hacer cambios.",
       "calendarEventNotFound": "ID de evento de calendario no encontrado o no accesible.",
       "channelAlreadyLinked": "Este canal ya está vinculado a otro contacto.",
@@ -1126,6 +1124,7 @@
       "recordIdUnavailable": "Este ID ya perteneció a un registro anterior. Importa el registro con un ID nuevo.",
       "recordMeasureDateIntervalInvalid": "Los intervalos de tiempo requieren agrupar por un campo de fecha, fecha y hora, creación o actualización, y una zona horaria requiere un intervalo de tiempo.",
       "recordNotFound": "Este registro no está disponible.",
+      "recordOperationFailed": "La operación en segundo plano ha fallado. Inténtalo de nuevo.",
       "recordProtected": "Este registro está gestionado por un proceso del sistema.",
       "recordReadOnlyField": "Este campo se calcula. Cambia su definición para introducir valores manualmente.",
       "recordRelationConflict": "Este enlace no cumple las reglas de la relación.",
@@ -3347,7 +3346,7 @@
       "cleaned": {
         "bindingAvatar": "{target} deja de usarse como foto de perfil de {consumers}.",
         "bindingCalendar": "{target} deja de usarse para los eventos de calendario de {consumers}.",
-        "listDefaults": "{target} se quita del diseño predeterminado de {consumers}.",
+        "defaultLayout": "{target} se quita del diseño predeterminado de {consumers}.",
         "nameField": "{consumers} se mostrará con {replacement} en su lugar.",
         "nameFieldNone": "Ningún campo de {consumers} puede ya dar nombre a sus registros, así que aparecen como «{singular} sin nombre».",
         "personalLayouts": "{target} se quita de {count, plural, one {# diseño personal} other {# diseños personales}}.",
@@ -3410,7 +3409,7 @@
     "detailLayoutSaveFailed": "No se pudieron guardar los cambios de diseño.",
     "directRelationship": "Relación directa",
     "disabled": "Desactivado",
-    "duplicateFieldName": "Otro campo de esta lista ya usa este nombre, incluidos los campos eliminados recientemente. Elige otro nombre.",
+    "duplicateFieldName": "Otro campo de esta lista ya usa este nombre, incluidos los campos de la Papelera. Elige otro nombre.",
     "duplicateListName": "Otra lista ya usa este nombre. Los nombres de lista deben ser únicos, sin distinguir mayúsculas, acentos ni espacios adicionales.",
     "duplicateOptionLabel": "Dos opciones de este campo tienen la misma etiqueta. Las etiquetas de opción deben ser únicas.",
     "duplicateRelationshipLabel": "Otra relación de esta lista ya usa esta etiqueta. Elige otra etiqueta.",

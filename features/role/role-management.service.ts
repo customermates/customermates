@@ -46,174 +46,160 @@ export class RoleManagementService extends UserAccessor {
   read(id?: string, typeIds?: string[]): Validated<RoleEditorContext> {
     return runInTransaction(
       async () => {
-        try {
-          const policy = await this.policy.load();
-          if (
-            !policy.actor ||
-            !(policy.canManageRoles || policy.canReadSystem("users") || policy.allowedSystem("users", "create"))
-          )
-            return failAuthorization(CustomErrorCode.permissionDenied);
-          const model = await this.records.getModel();
-          if (typeIds?.some((id) => !model.types.some((type) => type.id === id && !type.embedded)))
-            return failNotFound(CustomErrorCode.recordTypeNotFound);
-          const role = id ? await this.roles.findRoleById(id) : null;
-          if (id && !role) return failNotFound(CustomErrorCode.roleNotFound);
-          const mutable = !role || (!role.isSystemRole && role.id !== policy.actor.role?.id);
-          const usedByPreset = model.accessPresets.some((preset) => preset.grants.some((grant) => grant.roleId === id));
-          return {
-            ok: true as const,
-            data: {
-              schemaRevision: model.revision,
-              role:
-                role && typeIds
-                  ? { ...role, recordGrants: role.recordGrants?.filter((grant) => typeIds.includes(grant.typeId)) }
-                  : role,
-              canEdit: mutable && policy.allowedSystem("users", role ? "update" : "create"),
-              canDelete: Boolean(
-                role &&
-                  mutable &&
-                  policy.allowedSystem("users", "delete") &&
-                  !usedByPreset &&
-                  !(await this.roles.hasUsersAssigned(role.id)),
-              ),
-              types: model.types
-                .filter((type) => !type.embedded && !type.archived && (!typeIds || typeIds.includes(type.id)))
-                .map((type) => ({ id: type.id, label: type.pluralLabel })),
-            },
-          };
-        } catch (error) {
-          return unwoundFailure(error);
-        }
+        const policy = await this.policy.load();
+        if (
+          !policy.actor ||
+          !(policy.canManageRoles || policy.canReadSystem("users") || policy.allowedSystem("users", "create"))
+        )
+          return failAuthorization(CustomErrorCode.permissionDenied);
+        const model = await this.records.getModel();
+        if (typeIds?.some((id) => !model.types.some((type) => type.id === id && !type.embedded)))
+          return failNotFound(CustomErrorCode.recordTypeNotFound);
+        const role = id ? await this.roles.findRoleById(id) : null;
+        if (id && !role) return failNotFound(CustomErrorCode.roleNotFound);
+        const mutable = !role || (!role.isSystemRole && role.id !== policy.actor.role?.id);
+        const usedByPreset = model.accessPresets.some((preset) => preset.grants.some((grant) => grant.roleId === id));
+        return {
+          ok: true as const,
+          data: {
+            schemaRevision: model.revision,
+            role:
+              role && typeIds
+                ? { ...role, recordGrants: role.recordGrants?.filter((grant) => typeIds.includes(grant.typeId)) }
+                : role,
+            canEdit: mutable && policy.allowedSystem("users", role ? "update" : "create"),
+            canDelete: Boolean(
+              role &&
+                mutable &&
+                policy.allowedSystem("users", "delete") &&
+                !usedByPreset &&
+                !(await this.roles.hasUsersAssigned(role.id)),
+            ),
+            types: model.types
+              .filter((type) => !type.embedded && !type.archived && (!typeIds || typeIds.includes(type.id)))
+              .map((type) => ({ id: type.id, label: type.pluralLabel })),
+          },
+        };
       },
       { readOnly: true },
-    );
+    ).catch(unwoundFailure);
   }
 
   upsert(input: UpsertRoleData): Validated<RoleMutationResult> {
     return runInTransaction(
       async (): Validated<RoleMutationResult> => {
-        try {
-          const policy = await this.policy.load();
-          if (!policy.actor || !policy.allowedSystem("users", input.id ? "update" : "create"))
-            return failAuthorization(CustomErrorCode.permissionDenied);
-          const hash = recordRequestHash({ kind: "roleUpsert", input });
-          const receipt = await this.records.receipt(input.idempotencyKey, this.userId);
-          if (receipt) {
-            if (receipt.requestHash !== hash) return failConflict(CustomErrorCode.recordIdempotencyConflict);
-            return { ok: true, data: storedResult.parse(receipt.result) };
-          }
-          const model = await this.currentModel(input.expectedRevision);
-          if ("ok" in model) return model;
-          const previous = input.id ? await this.roles.findRoleById(input.id) : null;
-          if (input.id && !previous) return failNotFound(CustomErrorCode.roleNotFound);
-          if (input.id === policy.actor.role?.id) return failAuthorization(CustomErrorCode.roleSelfEditForbidden);
-          if (previous?.isSystemRole) return failConflict(CustomErrorCode.roleSystemImmutable);
-          if (
-            input.recordGrants.some((grant) => !model.types.some((type) => type.id === grant.typeId && !type.embedded))
-          )
-            return fail(CustomErrorCode.recordConfigurationInvalid);
-          const saved = await this.roles.upsertRoleOrThrow(input);
-          const currentGrants = await this.records.getGrants();
-          const operations: ConfigurationChange["operations"] = [];
-          for (const { typeId, actions } of input.recordGrants) {
-            const before =
-              currentGrants.find((grant) => grant.typeId === typeId && grant.roleId === saved.id)?.actions ?? [];
-            if ([...actions].sort().join() === [...before].sort().join()) continue;
-            operations.push({
-              operation: "setTypeGrants",
-              typeId,
-              grants: [
-                ...currentGrants
-                  .filter((grant) => grant.typeId === typeId && grant.roleId !== saved.id)
-                  .map(({ roleId, actions }) => ({ roleId, actions })),
-                ...(actions.length ? [{ roleId: saved.id, actions }] : []),
-              ],
-            });
-          }
-          const change: RecordRevisionChange = {
-            version: 1,
-            source: { kind: "role", roleId: saved.id, action: previous ? "update" : "create" },
-            causeId: input.idempotencyKey,
-            expectedRevision: model.revision,
-            references: [],
-            grants: [],
-          };
-          if (operations.length) {
-            const prepared = await this.configurations.prepare(
-              { expectedRevision: model.revision, idempotencyKey: input.idempotencyKey, operations },
-              model,
-              previous ? policy : { ...policy, canManageRoles: true },
-            );
-            prepared.change.source = change.source;
-            await this.writer.apply(prepared, model, this.userId);
-          } else await this.records.saveModel({ ...model, revision: model.revision + 1 }, this.userId, change);
-          const role = await this.roles.getRoleByIdOrThrow(saved.id);
-          if (previous) {
-            await this.events.publish(DomainEvent.ROLE_UPDATED, {
-              entityId: role.id,
-              payload: { role, changes: calculateChanges(previous, role) },
-            });
-          } else await this.events.publish(DomainEvent.ROLE_CREATED, { entityId: role.id, payload: role });
-          const data = { role, schemaRevision: model.revision + 1 };
-          await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);
-          return { ok: true, data };
-        } catch (error) {
-          return unwoundFailure(error);
+        const policy = await this.policy.load();
+        if (!policy.actor || !policy.allowedSystem("users", input.id ? "update" : "create"))
+          return failAuthorization(CustomErrorCode.permissionDenied);
+        const hash = recordRequestHash({ kind: "roleUpsert", input });
+        const receipt = await this.records.receipt(input.idempotencyKey, this.userId);
+        if (receipt) {
+          if (receipt.requestHash !== hash) return failConflict(CustomErrorCode.recordIdempotencyConflict);
+          return { ok: true, data: storedResult.parse(receipt.result) };
         }
+        const model = await this.currentModel(input.expectedRevision);
+        if ("ok" in model) return model;
+        const previous = input.id ? await this.roles.findRoleById(input.id) : null;
+        if (input.id && !previous) return failNotFound(CustomErrorCode.roleNotFound);
+        if (input.id === policy.actor.role?.id) return failAuthorization(CustomErrorCode.roleSelfEditForbidden);
+        if (previous?.isSystemRole) return failConflict(CustomErrorCode.roleSystemImmutable);
+        if (input.recordGrants.some((grant) => !model.types.some((type) => type.id === grant.typeId && !type.embedded)))
+          return fail(CustomErrorCode.recordConfigurationInvalid);
+        const saved = await this.roles.upsertRoleOrThrow(input);
+        const currentGrants = await this.records.getGrants();
+        const operations: ConfigurationChange["operations"] = [];
+        for (const { typeId, actions } of input.recordGrants) {
+          const before =
+            currentGrants.find((grant) => grant.typeId === typeId && grant.roleId === saved.id)?.actions ?? [];
+          if ([...actions].sort().join() === [...before].sort().join()) continue;
+          operations.push({
+            operation: "setTypeGrants",
+            typeId,
+            grants: [
+              ...currentGrants
+                .filter((grant) => grant.typeId === typeId && grant.roleId !== saved.id)
+                .map(({ roleId, actions }) => ({ roleId, actions })),
+              ...(actions.length ? [{ roleId: saved.id, actions }] : []),
+            ],
+          });
+        }
+        const change: RecordRevisionChange = {
+          version: 1,
+          source: { kind: "role", roleId: saved.id, action: previous ? "update" : "create" },
+          causeId: input.idempotencyKey,
+          expectedRevision: model.revision,
+          references: [],
+          grants: [],
+        };
+        if (operations.length) {
+          const prepared = await this.configurations.prepare(
+            { expectedRevision: model.revision, idempotencyKey: input.idempotencyKey, operations },
+            model,
+            previous ? policy : { ...policy, canManageRoles: true },
+          );
+          prepared.change.source = change.source;
+          await this.writer.apply(prepared, model, this.userId);
+        } else await this.records.saveModel({ ...model, revision: model.revision + 1 }, this.userId, change);
+        const role = await this.roles.getRoleByIdOrThrow(saved.id);
+        if (previous) {
+          await this.events.publish(DomainEvent.ROLE_UPDATED, {
+            entityId: role.id,
+            payload: { role, changes: calculateChanges(previous, role) },
+          });
+        } else await this.events.publish(DomainEvent.ROLE_CREATED, { entityId: role.id, payload: role });
+        const data = { role, schemaRevision: model.revision + 1 };
+        await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);
+        return { ok: true, data };
       },
       { timeout: 30000 },
-    );
+    ).catch(unwoundFailure);
   }
 
   delete(input: DeleteRoleData): Validated<string> {
     return runInTransaction(
       async (): Validated<string> => {
-        try {
-          const policy = await this.policy.load();
-          if (!policy.actor || !policy.allowedSystem("users", "delete"))
-            return failAuthorization(CustomErrorCode.permissionDenied);
-          const hash = recordRequestHash({ kind: "roleDelete", input });
-          const receipt = await this.records.receipt(input.idempotencyKey, this.userId);
-          if (receipt) {
-            if (receipt.requestHash !== hash) return failConflict(CustomErrorCode.recordIdempotencyConflict);
-            return { ok: true, data: z.string().parse(receipt.result) };
-          }
-          const model = await this.currentModel(input.expectedRevision);
-          if ("ok" in model) return model;
-          const role = await this.roles.findRoleById(input.id);
-          if (!role) return failNotFound(CustomErrorCode.roleNotFound);
-          if (role.id === policy.actor.role?.id) return failAuthorization(CustomErrorCode.roleSelfEditForbidden);
-          if (role.isSystemRole) return failConflict(CustomErrorCode.roleSystemImmutable);
-          if (await this.roles.hasUsersAssigned(role.id)) return failConflict(CustomErrorCode.roleAssignedCannotDelete);
-          if (model.accessPresets.some((preset) => preset.grants.some((grant) => grant.roleId === role.id)))
-            return failConflict(CustomErrorCode.roleAccessPresetInUse);
-          const previousGrants = await this.records.getGrants();
-          const typeIds = new Set(
-            previousGrants.filter((grant) => grant.roleId === role.id).map((grant) => grant.typeId),
-          );
-          await this.roles.deleteRoleOrThrow(role.id);
-          await this.records.saveModel({ ...model, revision: model.revision + 1 }, this.userId, {
-            version: 1,
-            source: { kind: "role", roleId: role.id, action: "delete" },
-            causeId: input.idempotencyKey,
-            expectedRevision: model.revision,
-            references: [],
-            grants: [...typeIds].map((typeId) => {
-              const before = previousGrants
-                .filter((grant) => grant.typeId === typeId)
-                .map(({ roleId, actions }) => ({ roleId, actions }));
-              return { typeId, before, after: before.filter((grant) => grant.roleId !== role.id) };
-            }),
-          });
-          await this.events.publish(DomainEvent.ROLE_DELETED, { entityId: role.id, payload: role });
-          await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, role.id);
-          return { ok: true, data: role.id };
-        } catch (error) {
-          return unwoundFailure(error);
+        const policy = await this.policy.load();
+        if (!policy.actor || !policy.allowedSystem("users", "delete"))
+          return failAuthorization(CustomErrorCode.permissionDenied);
+        const hash = recordRequestHash({ kind: "roleDelete", input });
+        const receipt = await this.records.receipt(input.idempotencyKey, this.userId);
+        if (receipt) {
+          if (receipt.requestHash !== hash) return failConflict(CustomErrorCode.recordIdempotencyConflict);
+          return { ok: true, data: z.string().parse(receipt.result) };
         }
+        const model = await this.currentModel(input.expectedRevision);
+        if ("ok" in model) return model;
+        const role = await this.roles.findRoleById(input.id);
+        if (!role) return failNotFound(CustomErrorCode.roleNotFound);
+        if (role.id === policy.actor.role?.id) return failAuthorization(CustomErrorCode.roleSelfEditForbidden);
+        if (role.isSystemRole) return failConflict(CustomErrorCode.roleSystemImmutable);
+        if (await this.roles.hasUsersAssigned(role.id)) return failConflict(CustomErrorCode.roleAssignedCannotDelete);
+        if (model.accessPresets.some((preset) => preset.grants.some((grant) => grant.roleId === role.id)))
+          return failConflict(CustomErrorCode.roleAccessPresetInUse);
+        const previousGrants = await this.records.getGrants();
+        const typeIds = new Set(
+          previousGrants.filter((grant) => grant.roleId === role.id).map((grant) => grant.typeId),
+        );
+        await this.roles.deleteRoleOrThrow(role.id);
+        await this.records.saveModel({ ...model, revision: model.revision + 1 }, this.userId, {
+          version: 1,
+          source: { kind: "role", roleId: role.id, action: "delete" },
+          causeId: input.idempotencyKey,
+          expectedRevision: model.revision,
+          references: [],
+          grants: [...typeIds].map((typeId) => {
+            const before = previousGrants
+              .filter((grant) => grant.typeId === typeId)
+              .map(({ roleId, actions }) => ({ roleId, actions }));
+            return { typeId, before, after: before.filter((grant) => grant.roleId !== role.id) };
+          }),
+        });
+        await this.events.publish(DomainEvent.ROLE_DELETED, { entityId: role.id, payload: role });
+        await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, role.id);
+        return { ok: true, data: role.id };
       },
       { timeout: 30000 },
-    );
+    ).catch(unwoundFailure);
   }
 
   private async currentModel(expectedRevision: number): Promise<RecordModel | InteractorFailure> {

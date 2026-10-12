@@ -12,7 +12,7 @@ import type { RecordDefinitionDeletion } from "./record.repo";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { expressionFieldDependencies, expressionRelationshipDependencies } from "./record-model-validation";
 
-export type ConfigurationDeletion = {
+type ConfigurationDeletion = {
   target: ConfigurationTarget;
   cascade: ConfigurationTarget[];
   nameField?: { typeId: string; replacementId: string | null };
@@ -20,7 +20,7 @@ export type ConfigurationDeletion = {
 };
 export type ConfigurationDeletionRecord = ConfigurationDeletion & { actorId: string; deletedAt: Date };
 
-export type ConfigurationLifecycle = {
+type ConfigurationLifecycle = {
   deletions: ConfigurationDeletion[];
   removed: RecordDefinitionDeletion | null;
   blockers: DeletionBlocker[];
@@ -77,7 +77,7 @@ function setDeleted(model: RecordModel, target: ConfigurationTarget, archived: b
   items[index] = { ...items[index], archived };
 }
 
-export function canNameRecords(field: RecordModel["fields"][number]) {
+function canNameRecords(field: RecordModel["fields"][number]) {
   return !field.archived && field.valueType === "text" && !field.multiple;
 }
 

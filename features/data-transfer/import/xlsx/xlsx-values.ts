@@ -30,7 +30,7 @@ export type XlsxIssueCode =
   | "restricted"
   | "lookupUnavailable";
 
-export type XlsxParsed<T> = { ok: true; value: T } | { ok: false; code: XlsxIssueCode; value?: string };
+type XlsxParsed<T> = { ok: true; value: T } | { ok: false; code: XlsxIssueCode; value?: string };
 
 export type XlsxMember = { id: string; email: string; name: string };
 
@@ -178,7 +178,7 @@ export function parseXlsxBoolean(cell: XlsxCell): boolean | null {
   return null;
 }
 
-export function splitXlsxList(text: string, separators: RegExp = /[\n;,]/): string[] {
+function splitXlsxList(text: string, separators: RegExp = /[\n;,]/): string[] {
   return text
     .split(separators)
     .map((part) => part.trim())
@@ -237,7 +237,7 @@ function rangeScalar(cell: XlsxCell, kind: "date" | "dateTime"): XlsxParsed<Reco
   return ok({ kind: "range", start: start.value || null, end: end.value || null });
 }
 
-export function parseXlsxMember(text: string, members: XlsxMember[]): XlsxParsed<string> {
+function parseXlsxMember(text: string, members: XlsxMember[]): XlsxParsed<string> {
   const lower = text.trim().toLocaleLowerCase("en");
   const byEmail = members.filter((member) => member.email.toLocaleLowerCase("en") === lower);
   if (byEmail.length === 1) return ok(byEmail[0].id);

@@ -32,7 +32,7 @@ import { DeleteRoutineInteractor } from "../delete-routine.interactor";
 import { PauseRoutineInteractor } from "../pause-routine.interactor";
 import { UpsertRoutineInteractor } from "../upsert-routine.interactor";
 import { DomainEvent } from "@/features/event/domain-events";
-import { WEBHOOK_CURRENT_EVENTS } from "@/features/webhook/webhook-event-registry";
+import { WEBHOOK_EVENTS } from "@/features/webhook/webhook-event-registry";
 
 const trashStub = () => ({ add: vi.fn(), remove: vi.fn() }) as never;
 
@@ -254,6 +254,6 @@ describe("routine audit event wiring", () => {
       DomainEvent.ROUTINE_DELETED,
     ];
 
-    for (const event of routineEvents) expect(WEBHOOK_CURRENT_EVENTS).not.toContain(event);
+    for (const event of routineEvents) expect(WEBHOOK_EVENTS).not.toContain(event);
   });
 });

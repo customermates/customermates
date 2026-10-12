@@ -4,16 +4,16 @@ import type { WidgetLayout } from "./widget-display.schema";
 
 import { DisplayType } from "./widget-display.schema";
 
-export const WIDGET_GRID_COLUMNS = 12;
+const WIDGET_GRID_COLUMNS = 12;
 export const WIDGET_GRID_BREAKPOINT_COLUMNS = { xs: 2, sm: 4, md: 8, lg: WIDGET_GRID_COLUMNS } as const;
 export const WIDGET_GRID_ROW_HEIGHT = 54;
 export const WIDGET_GRID_MARGIN = 12;
-export const WIDGET_GRID_MAX_HEIGHT = 24;
+const WIDGET_GRID_MAX_HEIGHT = 24;
 export const WIDGET_GRID_MAX_ROW = 1000;
 
 type WidgetKindName = "chart" | "activityTimeline";
 export type GridRect = { x: number; y: number; w: number; h: number };
-export type PlacedRect = GridRect & { id: string };
+type PlacedRect = GridRect & { id: string };
 
 export const WidgetPlacementSchema = z
   .object({
@@ -125,7 +125,7 @@ function pushBelowCollisions(rect: GridRect, placed: GridRect[]): { x: number; y
   return { x: rect.x, y };
 }
 
-export function compactGrid<T extends GridRect>(rects: T[]): T[] {
+function compactGrid<T extends GridRect>(rects: T[]): T[] {
   const placed: T[] = [];
   for (const rect of [...rects].sort((left, right) => left.y - right.y || left.x - right.x))
     placed.push(floatUp(rect, placed));
@@ -146,7 +146,7 @@ export function occupiedGrid(widgets: StoredWidget[]): PlacedRect[] {
   return compactGrid(placed);
 }
 
-export type PlacementResult =
+type PlacementResult =
   | { ok: true; placement: GridRect }
   | { ok: false; reason: "tooSmall" | "overlap"; conflictId?: string };
 
@@ -170,9 +170,9 @@ export function placeWidget(args: {
   return { ok: true, placement: { ...firstFreeSpot(others, WIDGET_GRID_COLUMNS, size.w, size.h), ...size } };
 }
 
-export type BreakpointItem = { id: string; lg: GridRect; compact: boolean };
+type BreakpointItem = { id: string; lg: GridRect; compact: boolean };
 
-export const WIDGET_COMPACT_SPAN: Record<number, number> = { 8: 4, 4: 2, 2: 2 };
+const WIDGET_COMPACT_SPAN: Record<number, number> = { 8: 4, 4: 2, 2: 2 };
 
 function narrowSpan(item: BreakpointItem, cols: number): number {
   if (cols >= WIDGET_GRID_COLUMNS) return Math.min(item.lg.w, cols);

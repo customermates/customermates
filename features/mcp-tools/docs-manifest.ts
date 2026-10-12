@@ -67,11 +67,11 @@ export function pageMarkdown(source: DocsSource, locale: DocsLocale, slug: strin
   return markdown;
 }
 
-export function pageSections(source: DocsSource, locale: DocsLocale, slug: string, page: ManifestPage): DocsSection[] {
+function pageSections(source: DocsSource, locale: DocsLocale, slug: string, page: ManifestPage): DocsSection[] {
   return splitSections({ slug, source, pageTitle: page.title, markdown: pageMarkdown(source, locale, slug, page) });
 }
 
-export function docsManifestPages(source: DocsSource, locale: DocsLocale): Array<[string, ManifestPage]> {
+function docsManifestPages(source: DocsSource, locale: DocsLocale): Array<[string, ManifestPage]> {
   return Object.entries(manifest[source]?.[locale] ?? {});
 }
 

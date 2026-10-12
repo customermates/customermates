@@ -8,7 +8,7 @@ import type { ActivityKind, ActivityMemberDto, ActivityThreadRef, ActivityCalend
 import type { RecordActivityIndexRow } from "./record-activity-query";
 
 export type RecordActivityActor = { firstName: string; lastName: string; email: string; avatarUrl: string | null };
-export type RecordActivityMessage = { message: MessagingMessage; thread: ActivityThreadRef; senderIsMine: boolean };
+type RecordActivityMessage = { message: MessagingMessage; thread: ActivityThreadRef; senderIsMine: boolean };
 export interface RecordActivitiesRepo {
   index(
     input: RecordActivitiesInput,

@@ -21,7 +21,7 @@ export const UpdateTeamMemberSchema = z.object({
   roleId: AdminUpdateUserDetailsSchema.shape.roleId.optional(),
   status: AdminUpdateUserDetailsSchema.shape.status.optional(),
 });
-export type UpdateTeamMemberData = Data<typeof UpdateTeamMemberSchema>;
+type UpdateTeamMemberData = Data<typeof UpdateTeamMemberSchema>;
 
 @TenantInteractor({ resource: Resource.users, read: "all", manage: "update" })
 export class UpdateTeamMemberInteractor extends AuthenticatedInteractor<

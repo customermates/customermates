@@ -4,7 +4,7 @@ import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
 export const NOT_FOUND_PAGE_PATH = "/_missing-page";
 
-export type ContentSlugCollection = "api" | "blog-posts" | "compare-pages" | "docs" | "feature-pages" | "for-pages";
+type ContentSlugCollection = "api" | "blog-posts" | "compare-pages" | "docs" | "feature-pages" | "for-pages";
 
 export type ContentSlugManifest = Record<ContentSlugCollection, Record<string, readonly string[]>>;
 

@@ -73,7 +73,7 @@ export function isSentEmailFolder(folder: { role?: string | null; name?: string 
   return SENT_FOLDER_NAMES.has(normalizeFolderName(folder.name ?? ""));
 }
 
-export function isDraftEmailFolder(folder: { role?: string | null; name?: string | null }): boolean {
+function isDraftEmailFolder(folder: { role?: string | null; name?: string | null }): boolean {
   if (folder.role?.toUpperCase() === "DRAFTS") return true;
 
   return normalizeFolderName(folder.name ?? "").includes("draft");

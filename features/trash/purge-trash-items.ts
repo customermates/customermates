@@ -8,10 +8,10 @@ import { Prisma } from "@/generated/prisma";
 import { runInSavepoint, runInTransaction } from "@/core/decorators/transaction-runner";
 import { itemsByHandler } from "./trash-handlers";
 
-export const TRASH_ITEM_PURGE_TIMEOUT_MS = 15000;
+const TRASH_ITEM_PURGE_TIMEOUT_MS = 15000;
 
-export type TrashPurgeOutcome = Pick<TrashDeletionResult, "deletedItemIds" | "pendingItemIds" | "failedItemIds">;
-export type TrashPurgeScope = { companyId: string; actorId: string | null };
+type TrashPurgeOutcome = Pick<TrashDeletionResult, "deletedItemIds" | "pendingItemIds" | "failedItemIds">;
+type TrashPurgeScope = { companyId: string; actorId: string | null };
 
 export async function purgeTrashItems(
   trash: Pick<TrashRepo, "find">,

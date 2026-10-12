@@ -7,12 +7,12 @@ import type { TrashRestoreBlockerSource } from "./trash-restore-blocker-source";
 import type { DomainEvent } from "@/features/event/domain-events";
 import type { EventService } from "@/features/event/event.service";
 
-export type TrashableEntityRepo = {
+type TrashableEntityRepo = {
   restoreTrashed(ids: string[]): Promise<string[]>;
   purgeTrashed(ids: string[]): Promise<void>;
 };
 
-export type EntityTrashAudit =
+type EntityTrashAudit =
   | {
       restored: DomainEvent.ROUTINE_RESTORED;
       deletedPermanently: DomainEvent.ROUTINE_DELETED_PERMANENTLY;
@@ -24,7 +24,7 @@ export type EntityTrashAudit =
       label: "title";
     };
 
-export type EntityTrashKind = {
+type EntityTrashKind = {
   kind: TrashKind;
   restoreOrder: number;
   visibility: (alias: Prisma.Sql) => Promise<Prisma.Sql>;

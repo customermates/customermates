@@ -52,7 +52,7 @@ import { DATA_VIEW_SURFACES, type SurfaceDescriptor } from "./data-view-surfaces
 import { ManageDataViewsResultSchema, ManageDataViewsSchema } from "./manage-data-views.schema";
 import { isRecordSortField } from "@/features/records/record-query-validation";
 
-export type DataViewConfigurationSources = Record<
+type DataViewConfigurationSources = Record<
   Exclude<
     BuiltinAiManageableDataViewSurfaceKey,
     typeof SURFACE.entityTimeline | typeof SURFACE.activity | typeof SURFACE.dashboard

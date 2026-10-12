@@ -9,13 +9,12 @@ import { Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma
 import { DATE_BUCKETS, GroupingSchema } from "./grouping.schema";
 
 export const OPERATOR_GROUPABLE_MODELS = ["user", "company", "operatorAudit"] as const;
-export const AUTOMATION_GROUPABLE_MODELS = ["routine"] as const;
+const AUTOMATION_GROUPABLE_MODELS = ["routine"] as const;
 export const GROUPABLE_MODELS = [...OPERATOR_GROUPABLE_MODELS, ...AUTOMATION_GROUPABLE_MODELS] as const;
-export type OperatorGroupableModel = (typeof OPERATOR_GROUPABLE_MODELS)[number];
 export type GroupableModel = (typeof GROUPABLE_MODELS)[number];
 export type GroupingKind = "customSingleSelect" | "enum" | "relation" | "dateBucket";
 
-export type EnumWiring = {
+type EnumWiring = {
   column: string;
   values: readonly string[];
   nullable: boolean;
@@ -76,11 +75,11 @@ export const GROUPING_ENUM = {
 
 export const GROUPABLE_DATE_FIELDS = [FilterFieldKey.createdAt, FilterFieldKey.updatedAt] as const;
 
-export type GroupableRelationField<M extends GroupableModel> = keyof (typeof GROUPING_RELATIONS)[M] & string;
-export type GroupableEnumField<M extends GroupableModel> = keyof (typeof GROUPING_ENUM)[M] & string;
-export type GroupableDateField = (typeof GROUPABLE_DATE_FIELDS)[number];
+type GroupableRelationField<M extends GroupableModel> = keyof (typeof GROUPING_RELATIONS)[M] & string;
+type GroupableEnumField<M extends GroupableModel> = keyof (typeof GROUPING_ENUM)[M] & string;
+type GroupableDateField = (typeof GROUPABLE_DATE_FIELDS)[number];
 
-export type GroupableClaims<T extends string> = Record<T, boolean>;
+type GroupableClaims<T extends string> = Record<T, boolean>;
 
 type SpecBase = { field: string; model: GroupableModel };
 

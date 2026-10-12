@@ -12,10 +12,10 @@ import {
   ExpressionBudgetSchema,
 } from "./record-model.schema";
 
-export const CONFIGURATION_TARGET_KINDS = ["type", "field", "relationship"] as const;
+const CONFIGURATION_TARGET_KINDS = ["type", "field", "relationship"] as const;
 export const ConfigurationTargetSchema = z.object({ kind: z.enum(CONFIGURATION_TARGET_KINDS), id: z.uuid() }).strict();
 export type ConfigurationTarget = z.infer<typeof ConfigurationTargetSchema>;
-export const DeletionReferenceSchema = z
+const DeletionReferenceSchema = z
   .object({
     kind: z.enum([
       ...CONFIGURATION_TARGET_KINDS,
@@ -50,7 +50,7 @@ export const DeletionBlockerSchema = z
   })
   .strict();
 export type DeletionBlocker = z.infer<typeof DeletionBlockerSchema>;
-export const DeletionCleanupSchema = z
+const DeletionCleanupSchema = z
   .object({
     consumer: DeletionReferenceSchema,
     target: DeletionReferenceSchema,

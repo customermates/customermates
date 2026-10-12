@@ -17,10 +17,10 @@ import { withMemberUsers } from "@/features/records/record-dto";
 import { collectRecordExport, ExportRecordsSchema } from "./export-records.interactor";
 import { recordWorkbookRelationships, recordWorkbookSheets, writeRecordWorkbook } from "./record-workbook";
 
-export const RECORD_WORKBOOK_LINK_NAMES = 200;
+const RECORD_WORKBOOK_LINK_NAMES = 200;
 const SUMMARY_BATCH = 250;
 
-export type RecordWorkbookExport = { typeId: string; fileName: string; rowCount: number; workbook: Buffer };
+type RecordWorkbookExport = { typeId: string; fileName: string; rowCount: number; workbook: Buffer };
 
 function fileStem(label: string): string {
   return (

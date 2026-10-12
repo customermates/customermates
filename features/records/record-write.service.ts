@@ -4,7 +4,6 @@ import { recordInvariant } from "./record-invariant";
 import { createHash, randomUUID } from "node:crypto";
 
 import Decimal from "decimal.js";
-import { z } from "zod";
 
 import type { RecordAccessPolicy } from "./record-access";
 import type { RecordRepo, StoredRecord } from "./record.repo";
@@ -21,7 +20,7 @@ import type { InteractorFailureKind } from "@/core/validation/validation.utils";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { unwindFailure } from "@/core/validation/failure-unwind";
-import { MAX_NOTES_JSON_SIZE, validateNotes } from "@/core/validation/validate-notes";
+import { MAX_RICH_TEXT_JSON_SIZE, validateRichTextDocument } from "@/core/validation/rich-text-document";
 import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { scalarMatchesType, selectedOptionIds } from "./record-model-validation";
 import { valueResult } from "./calculation";
@@ -53,30 +52,16 @@ export function normalizeRecordScalar(value: RecordScalar | null, field: RecordF
     reject(CustomErrorCode.recordValueInvalid);
   if (field.required && value.kind === "text" && !value.value.trim()) reject(CustomErrorCode.recordValueInvalid);
   if (value.kind === "richText") {
-    const schema = z.string().transform((input, ctx) => {
-      let parsed: unknown;
-      try {
-        parsed = JSON.parse(input);
-      } catch {
-        ctx.addIssue({ code: "custom", message: "Invalid document" });
-        return null;
-      }
-      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
-        ctx.addIssue({ code: "custom", message: "Invalid document" });
-        return null;
-      }
-      return validateNotes(parsed, ctx, []);
-    });
-    const parsed = schema.safeParse(value.documentJson);
-    if (!parsed.success) reject(CustomErrorCode.notesInvalidFormat);
-    return { kind: "richText", documentJson: JSON.stringify(parsed.data) };
+    const document = validateRichTextDocument(value.documentJson);
+    if (!document) reject(CustomErrorCode.notesInvalidFormat);
+    return { kind: "richText", documentJson: JSON.stringify(document) };
   }
   return value;
 }
 
 const MAX_TEXT_LENGTH = 100_000;
 
-export function appendedRecordValue(field: RecordField, current: CalculatedValue, append: string): RecordScalar {
+function appendedRecordValue(field: RecordField, current: CalculatedValue, append: string): RecordScalar {
   if (field.multiple || (field.valueType !== "text" && field.valueType !== "richText"))
     reject(CustomErrorCode.recordValueInvalid, "validation", ["fields"]);
   const existing = current.state === "value" ? current.value : null;
@@ -91,7 +76,7 @@ export function appendedRecordValue(field: RecordField, current: CalculatedValue
   const before = document && serializeJSONToMarkdown(document).trim() ? (document.content ?? []) : [];
   const added = parseMarkdownToJSON(append) as { content?: unknown[] };
   const documentJson = JSON.stringify({ type: "doc", content: [...before, ...(added.content ?? [])] });
-  if (documentJson.length > MAX_NOTES_JSON_SIZE)
+  if (documentJson.length > MAX_RICH_TEXT_JSON_SIZE)
     reject(CustomErrorCode.notesExceedsMaxLength, "validation", ["fields"]);
   return { kind: "richText", documentJson };
 }

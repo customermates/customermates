@@ -16,11 +16,11 @@ export type SentenceReference =
   | { kind: "field"; id: string; label: string; typeId: string }
   | { kind: "list"; id: string; label: string; icon: string };
 export type SentenceSegment = string | SentenceReference;
-export type SavedClause =
+type SavedClause =
   | { kind: "create" }
   | { kind: "explicit" }
   | { kind: "whenChanged"; field: SentenceReference | null; value: string | null };
-export type CalculationSentence = {
+type CalculationSentence = {
   sentence: SentenceSegment[] | null;
   value: SentenceSegment[] | null;
   list: SentenceSegment[] | null;

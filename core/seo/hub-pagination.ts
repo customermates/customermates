@@ -1,22 +1,22 @@
 import { DEFAULT_LOCALE } from "@/i18n/locale-registry";
 
-export const HUB_PAGE_SIZE = 24;
+const HUB_PAGE_SIZE = 24;
 
 export const HUB_PAGE_PARAM = "page";
 
 export const HUB_PAGE_SEGMENT = "page";
 
-export type HubPage<T> = {
+type HubPage<T> = {
   items: T[];
   page: number;
   pageCount: number;
 };
 
-export type HubPageResolution = { kind: "page"; page: number } | { kind: "not-found" };
+type HubPageResolution = { kind: "page"; page: number } | { kind: "not-found" };
 
-export type LegacyHubPageResolution = { kind: "redirect"; href: string } | { kind: "not-found" };
+type LegacyHubPageResolution = { kind: "redirect"; href: string } | { kind: "not-found" };
 
-export type HubPagerModel = {
+type HubPagerModel = {
   nextPage: number | null;
   pageNumbers: number[];
   previousPage: number | null;
@@ -30,7 +30,7 @@ type HubPageCountSource = {
   getPages: (locale: string) => readonly unknown[];
 };
 
-export type SluggedPage<T extends SourcePage> = {
+type SluggedPage<T extends SourcePage> = {
   page: T;
   slug: string;
 };

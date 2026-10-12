@@ -30,6 +30,7 @@ import type {
   RecordTrashItemInput,
   TrashReadOptions,
 } from "./record.repo";
+import { CONFIGURATION_CONSUMER_PAGE } from "./record.repo";
 import { rankBetween, recordManualOrderKey } from "./record-rank";
 import type { CalculatedValue, RecordModel, RecordRef, RecordRelationshipSummary } from "./record-model.schema";
 import type { RecordRelationshipSelection } from "./record-column.schema";
@@ -70,7 +71,6 @@ import { configurationTrashBatchId } from "./configuration-trash-batch";
 import type { ProviderAvatarRecordRepo, RecordOperationUpdate } from "./provider-avatar-record.repo";
 
 const CONFIGURATION_DELETION_PAGE = 200;
-const VIEW_STATE_PAGE = 200;
 const PERSONALIZATION_KEY = "personalization:";
 const VIEW_KEY = "view:";
 
@@ -486,11 +486,6 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo, Pr
     }
   }
 
-  async getUserNamesCompanyWide(userIds: string[]) {
-    const users = await this.owners.members.getRecordMembersCompanyWide(this.companyId, userIds);
-    return new Map(users.map((user) => [user.id, `${user.firstName} ${user.lastName}`.trim()]));
-  }
-
   async applyConsumerCleanups(cleanups: ConfigurationConsumerCleanup[]): Promise<{ pausedWebhookIds: string[] }> {
     const companyId = this.companyId;
     const pausedWebhookIds: string[] = [];
@@ -537,7 +532,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo, Pr
           },
           data: {
             state: "failed",
-            errorCode: "worker_failed",
+            errorCode: CustomErrorCode.recordOperationFailed,
             leaseUntil: null,
           },
         });
@@ -610,15 +605,15 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo, Pr
           companyId,
           surfaces,
           afterPersonalization,
-          VIEW_STATE_PAGE,
+          CONFIGURATION_CONSUMER_PAGE,
         );
     const views =
-      personalizations.length < VIEW_STATE_PAGE
+      personalizations.length < CONFIGURATION_CONSUMER_PAGE
         ? await this.owners.views.getViewsCompanyWide(
             companyId,
             surfaces,
             afterView,
-            VIEW_STATE_PAGE - personalizations.length,
+            CONFIGURATION_CONSUMER_PAGE - personalizations.length,
           )
         : [];
     return [
@@ -2079,6 +2074,16 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo, Pr
       operationId,
     });
     await this.wakeRecordEvents();
+  }
+
+  async protectMembershipTask(ref: RecordRef, userId: string): Promise<void> {
+    await this.prisma.crmRecord.update({
+      where: {
+        companyId: this.companyId,
+        companyId_typeId_id: { companyId: this.companyId, typeId: ref.typeId, id: ref.recordId },
+      },
+      data: { protectedKind: "membershipAuthorization", systemData: { relatedUserId: userId } },
+    });
   }
 
   async clearOperationLock(id: string): Promise<void> {

@@ -1,8 +1,8 @@
 import { HTML_QUOTE_SELECTORS } from "@/ee/messaging/email-quote";
 
-export type EmailFrameTone = "own" | "adaptive" | "paper";
+type EmailFrameTone = "own" | "adaptive" | "paper";
 
-export type EmailFrameScheme = "light" | "dark";
+type EmailFrameScheme = "light" | "dark";
 
 export type EmailFramePalette = {
   background: string;
@@ -13,7 +13,7 @@ export type EmailFramePalette = {
   fontFamily: string;
 };
 
-export const OWN_EMAIL_SELECTOR =
+const OWN_EMAIL_SELECTOR =
   "[data-customermates-email-markdown], [data-customermates-signature], [data-customermates-email-body]";
 
 const FALLBACK_PALETTE: EmailFramePalette = {

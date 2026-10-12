@@ -34,11 +34,8 @@ const REDACTED_FIELDS = new Set(["secret", "headers"]);
 
 const IDENTITY_FIELDS = new Set(["name", "firstName", "lastName", "label", "displayName"]);
 
-const RELATION_FIELDS = new Set(["users", "identifiers", "emails"]);
-
 function fieldRank(change: AuditChange): number {
-  if (change.field === "notes" || change.field === "markdown") return 3;
-  if (RELATION_FIELDS.has(change.field)) return 2;
+  if (change.field === "markdown") return 2;
   if (IDENTITY_FIELDS.has(change.field)) return 0;
   return 1;
 }

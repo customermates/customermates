@@ -1,7 +1,7 @@
 "use client";
 
 import type { RecordModelView } from "@/features/records/record-model.schema";
-import type { QueryFilters } from "@/features/records/record-filter-target";
+import type { QueryFilters } from "@/components/records/record-filter-target";
 import { useMemo } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";

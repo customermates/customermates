@@ -21,7 +21,7 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
 }));
 
-import { MAX_NOTES_LENGTH } from "@/core/validation/validate-notes";
+import { MAX_RICH_TEXT_MARKDOWN_LENGTH } from "@/core/validation/rich-text-document";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { DomainEvent } from "@/features/event/domain-events";
 
@@ -161,7 +161,7 @@ describe("CreateWikiPagesInteractor", () => {
       pages: [
         {
           title: "Long page",
-          markdown: "a".repeat(MAX_NOTES_LENGTH + 1),
+          markdown: "a".repeat(MAX_RICH_TEXT_MARKDOWN_LENGTH + 1),
         },
       ],
       requireEmpty: true,

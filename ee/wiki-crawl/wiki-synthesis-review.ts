@@ -22,7 +22,7 @@ export type WikiSynthesisCandidate = {
   gaps: string[];
 };
 
-export type WikiSynthesisReviewIssue = { section: number | null; decision: "qualified" | "unsupported" };
+type WikiSynthesisReviewIssue = { section: number | null; decision: "qualified" | "unsupported" };
 export type WikiSynthesisReviewDecision =
   | { kind: "supported" }
   | { kind: "unavailable" }
@@ -62,7 +62,7 @@ export function invalidWikiSynthesisEvidence(
   );
 }
 
-export function wikiSynthesisReviewPassages(text: string, quotes: readonly string[]) {
+function wikiSynthesisReviewPassages(text: string, quotes: readonly string[]) {
   const starts = [0];
   for (const match of text.matchAll(/\n[\t ]*\n/g)) starts.push(match.index + match[0].length);
   const ranges: Array<{ start: number; end: number }> = [];

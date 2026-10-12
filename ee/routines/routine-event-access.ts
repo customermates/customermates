@@ -36,7 +36,6 @@ export const CHAT_EVENTS = new Set<string>([DomainEvent.MESSAGING_CHAT_UPDATED, 
 export type CurrentRoutineTrigger = { payload: unknown };
 
 export abstract class RoutineEventAccess {
-  abstract matchesCurrentUser(args: RoutineEventAccessArgs & { filters: Filter[] }): Promise<boolean>;
   abstract currentUserTrigger(
     args: RoutineEventAccessArgs & { filters: Filter[] },
   ): Promise<CurrentRoutineTrigger | null>;
@@ -46,8 +45,5 @@ export abstract class RoutineEventAccess {
       userId: string;
       filters: Filter[];
     },
-  ): Promise<boolean>;
-  abstract canUserAccessUnscoped(
-    args: RoutineEventAccessArgs & { companyId: string; userId: string },
   ): Promise<boolean>;
 }

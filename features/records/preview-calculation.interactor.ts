@@ -15,9 +15,9 @@ import { CalculationExpressionSchema } from "./record-model.schema";
 import { calculationSources, type RecordCalculationService } from "./record-calculation.service";
 import { decodeRecordValue } from "./record-storage";
 
-export const CALCULATION_PREVIEW_EXAMPLES = 5;
+const CALCULATION_PREVIEW_EXAMPLES = 5;
 
-export const PreviewCalculationSchema = z
+const PreviewCalculationSchema = z
   .object({
     typeId: z.uuid(),
     expression: CalculationExpressionSchema,

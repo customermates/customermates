@@ -17,7 +17,7 @@ import {
   wikiEmbeddingWorstCaseMicrocents,
 } from "./wiki-embedding-model";
 
-export type WikiEmbeddingPayer = { id: string; companyId: string };
+type WikiEmbeddingPayer = { id: string; companyId: string };
 
 export function isWikiSemanticSearchAvailable() {
   return isAgentChatAvailable() && env.APP_MODE !== "demo";

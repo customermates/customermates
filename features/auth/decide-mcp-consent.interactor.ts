@@ -16,7 +16,7 @@ const Schema = z.object({
 export type DecideMcpConsentData = Data<typeof Schema>;
 
 const OutputSchema = z.object({ redirectURI: z.url() }).nullable();
-export type DecideMcpConsentResult = Data<typeof OutputSchema>;
+type DecideMcpConsentResult = Data<typeof OutputSchema>;
 
 @AllowInDemoMode
 @SystemInteractor

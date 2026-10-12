@@ -9,7 +9,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 
 import { SaveNewThreadDraftSchema } from "./save-draft.interactor";
 
-export type SaveNewThreadDraftData = Data<typeof SaveNewThreadDraftSchema>;
+type SaveNewThreadDraftData = Data<typeof SaveNewThreadDraftSchema>;
 
 @TenantInteractor({ resource: Resource.inboxMessages, manage: "create" })
 export class SaveNewThreadDraftInteractor extends AuthenticatedInteractor<SaveNewThreadDraftData, MessagingMessageDto> {

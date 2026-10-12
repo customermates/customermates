@@ -1046,7 +1046,6 @@
       "title": "Noch keine {plural}"
     },
     "errors": {
-      "activityDuplicateFilterField": "Jedes Aktivitätsfilterfeld kann nur einmal konfiguriert werden.",
       "agentApprovalUnavailable": "Diese Freigabeanfrage ist nicht verfügbar oder abgelaufen.",
       "agentConversationNotFound": "Diese Unterhaltung wurde nicht gefunden oder ist nicht mehr zugänglich.",
       "agentLimitReached": "Es sind nicht genügend KI-Credits übrig, um eine weitere Anfrage zu starten.",
@@ -1056,7 +1055,6 @@
       "apiKeyMaxExpiration": "Die Ablaufzeit des API-Schlüssels darf 365 Tage nicht überschreiten.",
       "apiKeyMinExpiration": "Die Ablaufzeit des API-Schlüssels muss mindestens 1 Tag betragen.",
       "apiKeyNameLength": "Der Name eines API-Schlüssels muss zwischen 1 und 255 Zeichen lang sein.",
-      "assigneeRequired": "Du musst dich diesem Element zuweisen. Beachte, dass du nur Elemente sehen kannst, die dir zugewiesen sind.",
       "billingPortalUnavailable": "Das Abrechnungsportal ist für diesen Workspace nicht verfügbar. Wende dich für Änderungen an den Support.",
       "calendarEventNotFound": "Kalenderereignis-ID nicht gefunden oder nicht zugänglich.",
       "channelAlreadyLinked": "Dieser Kanal ist bereits mit einem anderen Kontakt verknüpft.",
@@ -1126,6 +1124,7 @@
       "recordIdUnavailable": "Diese Datensatz-ID gehörte bereits zu einem früheren Datensatz. Importiere den Datensatz mit einer neuen ID.",
       "recordMeasureDateIntervalInvalid": "Zeitintervalle brauchen ein Datums-, Datums- und Uhrzeit-, Erstellt- oder Geändert-Feld zum Gruppieren, und eine Zeitzone braucht ein Zeitintervall.",
       "recordNotFound": "Dieser Datensatz ist nicht verfügbar.",
+      "recordOperationFailed": "Der Vorgang im Hintergrund ist fehlgeschlagen. Versuche es erneut.",
       "recordProtected": "Dieser Datensatz wird durch einen Systemablauf verwaltet.",
       "recordReadOnlyField": "Dieses Feld wird berechnet. Ändere seine Definition, um Werte manuell einzugeben.",
       "recordRelationConflict": "Diese Verknüpfung entspricht nicht den festgelegten Regeln.",
@@ -3347,7 +3346,7 @@
       "cleaned": {
         "bindingAvatar": "{target} wird nicht mehr als Profilbild von {consumers} verwendet.",
         "bindingCalendar": "{target} wird nicht mehr für die Kalendertermine von {consumers} verwendet.",
-        "listDefaults": "{target} wird aus dem Standardlayout von {consumers} entfernt.",
+        "defaultLayout": "{target} wird aus dem Standardlayout von {consumers} entfernt.",
         "nameField": "{consumers} werden stattdessen mit {replacement} angezeigt.",
         "nameFieldNone": "In {consumers} kann kein Feld mehr die Datensätze benennen, sie erscheinen daher als „{singular} ohne Namen“.",
         "personalLayouts": "{target} wird aus {count, plural, one {# persönlichen Layout} other {# persönlichen Layouts}} entfernt.",
@@ -3410,7 +3409,7 @@
     "detailLayoutSaveFailed": "Layoutänderungen konnten nicht gespeichert werden.",
     "directRelationship": "Direkte Beziehung",
     "disabled": "Aus",
-    "duplicateFieldName": "Ein anderes Feld dieser Liste verwendet diesen Namen bereits, auch kürzlich gelöschte Felder. Wähle einen anderen Namen.",
+    "duplicateFieldName": "Ein anderes Feld dieser Liste verwendet diesen Namen bereits, auch Felder im Papierkorb. Wähle einen anderen Namen.",
     "duplicateListName": "Eine andere Liste verwendet diesen Namen bereits. Listennamen müssen eindeutig sein, unabhängig von Groß- und Kleinschreibung, Akzenten und zusätzlichen Leerzeichen.",
     "duplicateOptionLabel": "Zwei Optionen dieses Felds haben dieselbe Bezeichnung. Optionsbezeichnungen müssen eindeutig sein.",
     "duplicateRelationshipLabel": "Eine andere Beziehung dieser Liste verwendet diese Bezeichnung bereits. Wähle eine andere Bezeichnung.",

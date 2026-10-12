@@ -5,7 +5,7 @@ import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery
 
 export const ROUTINE_TRIGGER_FIELD_LIMIT = 24;
 
-export type RoutineRunTriggerContext = {
+type RoutineRunTriggerContext = {
   threadId: string | null;
   changedFields: string[];
   changedFieldsTruncated: boolean;

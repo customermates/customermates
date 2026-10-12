@@ -7,11 +7,11 @@ import type { QueryRecordMeasureInteractor } from "@/features/records/query-reco
 import type {
   RecordWidgetInput,
   RecordWidgetDto,
-  RecordWidgetRepo,
   SavedRecordWidgetInput,
   StoredRecordWidget,
 } from "./record-widget.schema";
 import type { Validated } from "@/core/validation/validation.utils";
+import type { RecordWidgetStoreRepo } from "./record-widget-store.repo";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -36,7 +36,7 @@ function completeChart(input: RecordWidgetInput, current: StoredRecordWidget | n
 @TenantInteractor()
 export class UpsertRecordWidgetInteractor extends AuthenticatedInteractor<RecordWidgetInput, RecordWidgetDto> {
   constructor(
-    private widgets: RecordWidgetRepo,
+    private widgets: RecordWidgetStoreRepo,
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
     private measures: QueryRecordMeasureInteractor,
@@ -57,14 +57,14 @@ export class UpsertRecordWidgetInteractor extends AuthenticatedInteractor<Record
         if (receipt) {
           if (receipt.requestHash !== hash) return failConflict(CustomErrorCode.recordIdempotencyConflict);
           const saved = receipt.result as { widgetId?: string };
-          const row = saved.widgetId ? await this.widgets.findOwned(saved.widgetId) : null;
+          const row = saved.widgetId ? await this.widgets.findOwnedRecordWidget("chart", saved.widgetId) : null;
           if (!row) return failNotFound(CustomErrorCode.widgetNotFound);
           return { ok: true as const, data: await this.reader.read(row) };
         }
         const state = await this.records.getState();
         if (state?.activeOperationId) return failConflict(CustomErrorCode.recordWritePaused);
         if (state?.revision !== input.expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
-        const current = input.id ? await this.widgets.findOwned(input.id) : null;
+        const current = input.id ? await this.widgets.findOwnedRecordWidget("chart", input.id) : null;
         if (input.id) {
           if (!current) return failNotFound(CustomErrorCode.widgetNotFound);
           if (current.version !== input.expectedVersion) return failConflict(CustomErrorCode.recordVersionChanged);
@@ -84,10 +84,10 @@ export class UpsertRecordWidgetInteractor extends AuthenticatedInteractor<Record
           displayType: widget.displayOptions.displayType,
           requested: input.layout,
           needsPlacement: !current || current.viewId !== view.viewId,
-          widgets: await this.widgets.listPlacements(view.viewId),
+          widgets: await this.widgets.listLayoutPlacements(view.viewId),
         });
         if (!placement.ok) return fail(placement.code, ["layout"]);
-        const row = await this.widgets.save(widget, id, view.viewId, placement.layout);
+        const row = await this.widgets.saveRecordWidget("chart", widget, id, view.viewId, placement.layout);
         await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, { widgetId: row.id });
         return { ok: true as const, data: await this.reader.read(row) };
       },

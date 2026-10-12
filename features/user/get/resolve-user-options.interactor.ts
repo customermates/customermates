@@ -9,7 +9,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 
-export const ResolveUserOptionsSchema = z.object({ ids: z.array(z.uuid()).max(100) }).strict();
+const ResolveUserOptionsSchema = z.object({ ids: z.array(z.uuid()).max(100) }).strict();
 export type ResolveUserOptionsInput = z.infer<typeof ResolveUserOptionsSchema>;
 export type UserOption = { id: string; firstName: string; lastName: string; avatarUrl: string | null };
 

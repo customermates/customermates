@@ -2,12 +2,12 @@ import type { DateBucket } from "./grouping.schema";
 
 import { addDays, addMonths, addWeeks, startOfDay, startOfMonth, startOfWeek } from "date-fns";
 
-export const EARLIER_GROUP_KEY = "earlier";
-export const LATER_GROUP_KEY = "later";
+const EARLIER_GROUP_KEY = "earlier";
+const LATER_GROUP_KEY = "later";
 
-export type DateBucketRole = "window" | "earlier" | "later";
+type DateBucketRole = "window" | "earlier" | "later";
 
-export type DateBucketEntry = {
+type DateBucketEntry = {
   key: string;
   role: DateBucketRole;
   start?: Date;

@@ -65,13 +65,13 @@ export type DataViewRequestState =
   | { readonly status: "refreshing" }
   | { readonly status: "refresh-error"; readonly error: unknown };
 
-export type DataViewRefreshMode = "background" | "visible";
+type DataViewRefreshMode = "background" | "visible";
 
 type SelectionScope = { filters: Filter[]; searchTerm: string | null };
 
 type ViewQuery = { filters: Filter[]; searchTerm: string | undefined };
 
-export type ViewProposalStatus = { name?: string; isNew: boolean };
+type ViewProposalStatus = { name?: string; isNew: boolean };
 
 function canonicalJson(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;

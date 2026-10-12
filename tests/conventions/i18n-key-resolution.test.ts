@@ -526,7 +526,7 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   [
     "RecordModel.configurationDeletion.cleaned.${*}",
     [
-      "listDefaults",
+      "defaultLayout",
       "personalLayouts",
       "view",
       "widget",

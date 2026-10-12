@@ -43,10 +43,7 @@ import { SweepRecordDeliveriesInteractor } from "@/features/records/sweep-record
 import { PrismaWebhookDeliveryQueueRepo } from "@/features/webhook/prisma-webhook-delivery-queue.repository";
 import { WebhookAdmission } from "@/features/webhook/webhook-admission";
 import { WebhookTransport } from "@/features/webhook/webhook-transport.service";
-import { GetRecordWidgetsInteractor } from "@/features/widget/get-record-widgets.interactor";
 import { GetRecordWidgetInteractor } from "@/features/widget/get-record-widget.interactor";
-import { PrismaRecordActivityWidgetRepo } from "@/features/widget/prisma-record-activity-widget.repository";
-import { PrismaRecordWidgetRepo } from "@/features/widget/prisma-record-widget.repository";
 import { UpsertRecordActivityWidgetInteractor } from "@/features/widget/record-activity-widget.interactor";
 import { RecordActivityWidgetReader } from "@/features/widget/record-activity-widget-reader";
 import { UpsertRecordWidgetInteractor } from "@/features/widget/record-widget.interactor";
@@ -152,7 +149,7 @@ import { DraftCalculationInteractor } from "@/ee/calculation-draft/draft-calcula
 import { SaveRecordDetailLayoutInteractor } from "@/features/records/record-detail-layout.interactor";
 import { RecordDetailLayoutReader } from "@/features/records/record-detail-layout-reader";
 import { ReadRecordDetailLayoutInteractor } from "@/features/records/read-record-detail-layout.interactor";
-import { ResumeRecordOperationInteractor } from "@/features/records/record-operation.interactor";
+import { ResumeRecordOperationInteractor } from "@/features/records/resume-record-operation.interactor";
 import { GetRecordOperationInteractor } from "@/features/records/get-record-operation.interactor";
 import { CancelRecordOperationInteractor } from "@/features/records/cancel-record-operation.interactor";
 import { RecordOperationService } from "@/features/records/record-operation.service";
@@ -187,7 +184,6 @@ import { UserPendingAuthorizationTaskListener } from "@/features/records/members
 // Contacts interactors
 // Data transfer interactors
 import { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
-import { ValidateAssigneeGuardInteractor } from "@/core/validation/validators/validate-assignee-guard.interactor";
 import { ValidateConnectedAccountIdsInteractor } from "@/core/validation/validators/validate-connected-account-ids.interactor";
 import { ValidateThreadIdsInteractor } from "@/core/validation/validators/validate-thread-ids.interactor";
 import { ValidateUserIdsInteractor } from "@/core/validation/validators/validate-user-ids.interactor";
@@ -206,7 +202,6 @@ import { CompleteOnboardingWizardInteractor } from "@/features/onboarding-wizard
 import { GetOnboardingWizardProgressInteractor } from "@/features/onboarding-wizard/get-onboarding-wizard-progress.interactor";
 import { SaveOnboardingWizardProgressInteractor } from "@/features/onboarding-wizard/save-onboarding-wizard-progress.interactor";
 import { CompleteOnboardingWikiStepInteractor } from "@/features/onboarding-wizard/complete-onboarding-wiki-step.interactor";
-import { GetTeamMemberInteractor } from "@/features/user/get/get-team-member.interactor";
 import { GetUserByIdInteractor } from "@/features/user/get/get-user-by-id.interactor";
 import { GetUserDetailsInteractor } from "@/features/user/get/get-user-details.interactor";
 import { GetUsersInteractor } from "@/features/user/get/get-users.interactor";
@@ -877,7 +872,6 @@ export const getIngestUnipileWebhookInteractor = () =>
   new IngestUnipileWebhookInteractor(getUnipileWebhookRepo(), getProcessUnipileWebhookInteractor());
 
 export const getUserIdsValidator = () => new ValidateUserIdsInteractor(getUserRepo());
-export const getAssigneeGuardValidator = () => new ValidateAssigneeGuardInteractor(getUserService());
 export const getQueryParamsPrecheck = () =>
   new QueryParamsPrecheckInteractor(
     getUserIdsValidator(),
@@ -942,8 +936,6 @@ export const getGetUserDetailsInteractor = () => new GetUserDetailsInteractor();
 
 export const getGetUserByIdInteractor = () => new GetUserByIdInteractor(getUserRepo());
 export const getResolveUserOptionsInteractor = () => new ResolveUserOptionsInteractor(getUserRepo());
-
-export const getGetTeamMemberInteractor = () => new GetTeamMemberInteractor(getUserRepo());
 
 export const getUpdateTeamMemberInteractor = () =>
   new UpdateTeamMemberInteractor(getUserRepo(), getAdminUpdateUserDetailsInteractor());
@@ -1786,13 +1778,12 @@ export const getGetRecordPresentationInteractor = () =>
     getQueryRecordsInteractor(),
   );
 
-export const getRecordWidgetRepo = () => new PrismaRecordWidgetRepo(getWidgetRepo());
 export const getRecordWidgetReader = () =>
   new RecordWidgetReader(getRecordRepo(), getQueryRecordMeasureInteractor(), getUserRepo());
 export const getPreviewRecordWidgetInteractor = () => new PreviewRecordWidgetInteractor(getRecordWidgetReader());
 export const getUpsertRecordWidgetInteractor = () =>
   new UpsertRecordWidgetInteractor(
-    getRecordWidgetRepo(),
+    getWidgetRepo(),
     getRecordRepo(),
     getRecordAccessPolicy(),
     getQueryRecordMeasureInteractor(),
@@ -1802,27 +1793,17 @@ export const getUpsertRecordWidgetInteractor = () =>
 
 export const getGetRecordWidgetInteractor = () =>
   new GetRecordWidgetInteractor(
-    getRecordWidgetRepo(),
+    getWidgetRepo(),
     getRecordWidgetReader(),
     getRecordAccessPolicy(),
-    getRecordActivityWidgetRepo(),
-    getRecordActivityWidgetReader(),
-  );
-export const getGetRecordWidgetsInteractor = () =>
-  new GetRecordWidgetsInteractor(
-    getRecordWidgetRepo(),
-    getRecordWidgetReader(),
-    getRecordAccessPolicy(),
-    getRecordActivityWidgetRepo(),
     getRecordActivityWidgetReader(),
   );
 
-export const getRecordActivityWidgetRepo = () => new PrismaRecordActivityWidgetRepo(getWidgetRepo());
 export const getRecordActivityWidgetReader = () =>
   new RecordActivityWidgetReader(getRecordRepo(), getGetRecordActivitiesInteractor());
 export const getUpsertRecordActivityWidgetInteractor = () =>
   new UpsertRecordActivityWidgetInteractor(
-    getRecordActivityWidgetRepo(),
+    getWidgetRepo(),
     getRecordRepo(),
     getRecordAccessPolicy(),
     getGetRecordActivitiesInteractor(),

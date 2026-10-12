@@ -2,7 +2,7 @@ import { z } from "zod";
 import { RecordQuerySchema } from "./record-query.schema";
 import { RECORD_EVENT_KINDS, RecordEventKindSchema } from "./record-event.schema";
 
-export const RecordTriggerQuerySchema = RecordQuerySchema.pick({
+const RecordTriggerQuerySchema = RecordQuerySchema.pick({
   typeId: true,
   filters: true,
   relationships: true,

@@ -176,114 +176,106 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
         const orderedRows = [...document.records].sort(
           (left, right) => (depth(left.ref.typeId) ?? 0) - (depth(right.ref.typeId) ?? 0),
         );
-        try {
-          const journal = new RecordJournal(this.records, model);
-          const writer = this.writer.withRepository(journal.repository);
-          let skipped = 0;
-          for (const row of orderedRows) {
-            const existing = await this.records.getRecordCompanyWide(row.ref);
-            const parent = parentLinks.get(recordKey(row.ref));
-            if (input.mode === "create") {
-              if (existing) return failConflict(CustomErrorCode.recordVersionChanged);
-              if (await this.records.hasRecordHistoryCompanyWide(row.ref)) {
-                return failConflict(CustomErrorCode.recordIdUnavailable, [
-                  "document",
-                  "records",
-                  document.records.indexOf(row),
-                  "ref",
-                  "recordId",
-                ]);
-              }
-              await writer.apply(
-                {
-                  action: "create",
-                  typeId: row.ref.typeId,
-                  fields: assignments.get(recordKey(row.ref)) ?? [],
-                  assignedUserIds: row.assignedUserIds,
-                  ...(parent
-                    ? {
-                        links: [
-                          { relationId: parent.relationId, direction: "outgoing" as const, record: parent.target },
-                        ],
-                      }
-                    : {}),
-                  identities: row.identities?.map(({ provider, value, messagingId, displayName, profileUrl }) => ({
-                    provider,
-                    value,
-                    messagingId,
-                    displayName,
-                    profileUrl,
-                  })),
-                },
-                model,
-                policy,
-                undefined,
-                { createRecordId: row.ref.recordId },
-              );
-            } else {
-              if (!existing || !(await policy.canRead(existing))) return failNotFound(CustomErrorCode.recordNotFound);
-              const key = recordKey(row.ref);
-              if (
-                (captured.get(key) ?? []).some(
-                  ({ field, result }) => !sameRecordResult(storedResult(existing, field), result),
-                )
-              )
-                return fail(CustomErrorCode.recordReadOnlyField);
-              if (row.protectedKind || existing.protectedKind) {
-                if (!(await this.unchanged(row, existing, assignments.get(key) ?? [], model.fields)))
-                  return failAuthorization(CustomErrorCode.recordProtected);
-                skipped += 1;
-                continue;
-              }
-              await writer.apply(
-                {
-                  action: "update",
-                  ref: row.ref,
-                  expectedVersion: row.version,
-                  fields: assignments.get(recordKey(row.ref)) ?? [],
-                  assignedUserIds: row.assignedUserIds,
-                  identities: row.identities?.map(({ provider, value, messagingId, displayName, profileUrl }) => ({
-                    provider,
-                    value,
-                    messagingId,
-                    displayName,
-                    profileUrl,
-                  })),
-                },
-                model,
-                policy,
-              );
+        const journal = new RecordJournal(this.records, model);
+        const writer = this.writer.withRepository(journal.repository);
+        let skipped = 0;
+        for (const row of orderedRows) {
+          const existing = await this.records.getRecordCompanyWide(row.ref);
+          const parent = parentLinks.get(recordKey(row.ref));
+          if (input.mode === "create") {
+            if (existing) return failConflict(CustomErrorCode.recordVersionChanged);
+            if (await this.records.hasRecordHistoryCompanyWide(row.ref)) {
+              return failConflict(CustomErrorCode.recordIdUnavailable, [
+                "document",
+                "records",
+                document.records.indexOf(row),
+                "ref",
+                "recordId",
+              ]);
             }
-          }
-          let linked = 0;
-          for (const link of document.links) {
-            const existing = await this.records.linkedRecordsCompanyWide(link.source, link.relationId, "outgoing");
+            await writer.apply(
+              {
+                action: "create",
+                typeId: row.ref.typeId,
+                fields: assignments.get(recordKey(row.ref)) ?? [],
+                assignedUserIds: row.assignedUserIds,
+                ...(parent
+                  ? {
+                      links: [{ relationId: parent.relationId, direction: "outgoing" as const, record: parent.target }],
+                    }
+                  : {}),
+                identities: row.identities?.map(({ provider, value, messagingId, displayName, profileUrl }) => ({
+                  provider,
+                  value,
+                  messagingId,
+                  displayName,
+                  profileUrl,
+                })),
+              },
+              model,
+              policy,
+              undefined,
+              { createRecordId: row.ref.recordId },
+            );
+          } else {
+            if (!existing || !(await policy.canRead(existing))) return failNotFound(CustomErrorCode.recordNotFound);
+            const key = recordKey(row.ref);
             if (
-              existing.some(
-                (target) => target.typeId === link.target.typeId && target.recordId === link.target.recordId,
+              (captured.get(key) ?? []).some(
+                ({ field, result }) => !sameRecordResult(storedResult(existing, field), result),
               )
             )
+              return fail(CustomErrorCode.recordReadOnlyField);
+            if (row.protectedKind || existing.protectedKind) {
+              if (!(await this.unchanged(row, existing, assignments.get(key) ?? [], model.fields)))
+                return failAuthorization(CustomErrorCode.recordProtected);
+              skipped += 1;
               continue;
-            await writer.apply({ action: "link", ...link }, model, policy);
-            linked += 1;
+            }
+            await writer.apply(
+              {
+                action: "update",
+                ref: row.ref,
+                expectedVersion: row.version,
+                fields: assignments.get(recordKey(row.ref)) ?? [],
+                assignedUserIds: row.assignedUserIds,
+                identities: row.identities?.map(({ provider, value, messagingId, displayName, profileUrl }) => ({
+                  provider,
+                  value,
+                  messagingId,
+                  displayName,
+                  profileUrl,
+                })),
+              },
+              model,
+              policy,
+            );
           }
-          await journal.flush(model, this.userId, input.idempotencyKey, {
-            kind: "mutation",
-          });
-          const data: ImportRecordsResult = {
-            created: input.mode === "create" ? document.records.length : 0,
-            updated: input.mode === "update" ? document.records.length - skipped : 0,
-            linked,
-            schemaRevision: model.revision,
-          };
-          await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);
-          return { ok: true as const, data };
-        } catch (error) {
-          return unwoundFailure(error);
         }
+        let linked = 0;
+        for (const link of document.links) {
+          const existing = await this.records.linkedRecordsCompanyWide(link.source, link.relationId, "outgoing");
+          if (
+            existing.some((target) => target.typeId === link.target.typeId && target.recordId === link.target.recordId)
+          )
+            continue;
+          await writer.apply({ action: "link", ...link }, model, policy);
+          linked += 1;
+        }
+        await journal.flush(model, this.userId, input.idempotencyKey, {
+          kind: "mutation",
+        });
+        const data: ImportRecordsResult = {
+          created: input.mode === "create" ? document.records.length : 0,
+          updated: input.mode === "update" ? document.records.length - skipped : 0,
+          linked,
+          schemaRevision: model.revision,
+        };
+        await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);
+        return { ok: true as const, data };
       },
       { timeout: 120_000 },
-    );
+    ).catch(unwoundFailure);
   }
 
   private async unchanged(

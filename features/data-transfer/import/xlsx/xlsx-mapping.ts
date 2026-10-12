@@ -2,7 +2,7 @@ import type { RecordFieldView, RecordModelView } from "@/features/records/record
 
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
 
-export type XlsxTarget =
+type XlsxTarget =
   | { kind: "skip" }
   | { kind: "recordId" }
   | { kind: "assignedTo" }
@@ -68,23 +68,6 @@ function synonymMatch(header: string, label: string): boolean {
   return SYNONYM_GROUPS.some(
     (group) => group.some((word) => sameWord(word, header)) && group.some((word) => sameWord(word, label)),
   );
-}
-
-export function xlsxTargetKey(target: XlsxTarget): string {
-  switch (target.kind) {
-    case "skip":
-      return XLSX_SKIP_KEY;
-    case "recordId":
-      return "recordId";
-    case "assignedTo":
-      return "assignedTo";
-    case "field":
-      return `field:${target.fieldId}`;
-    case "rangePart":
-      return `field:${target.fieldId}:${target.part}`;
-    case "relationship":
-      return `relationship:${target.relationId}`;
-  }
 }
 
 export function xlsxImportFields(model: RecordModelView, typeId: string): RecordFieldView[] {

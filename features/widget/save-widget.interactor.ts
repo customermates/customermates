@@ -14,11 +14,11 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-export const SaveWidgetSchema = z.looseObject({
+const SaveWidgetSchema = z.looseObject({
   kind: z.enum(WidgetKind).optional(),
   id: z.uuid().optional(),
 });
-export type SaveWidgetInput = z.infer<typeof SaveWidgetSchema>;
+type SaveWidgetInput = z.infer<typeof SaveWidgetSchema>;
 
 @TenantInteractor()
 export class SaveWidgetInteractor extends AuthenticatedInteractor<SaveWidgetInput, GenericRecordWidgetDto> {

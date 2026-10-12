@@ -1046,7 +1046,6 @@
       "title": "Aucun élément « {plural} » pour le moment"
     },
     "errors": {
-      "activityDuplicateFilterField": "Chaque champ de filtre d'activité ne peut être configuré qu'une seule fois.",
       "agentApprovalUnavailable": "Cette demande d’approbation n’est pas disponible ou a expiré.",
       "agentConversationNotFound": "Cette conversation est introuvable ou n’est plus accessible.",
       "agentLimitReached": "Il ne reste pas assez de crédits IA pour lancer une autre demande.",
@@ -1056,7 +1055,6 @@
       "apiKeyMaxExpiration": "L'expiration d'une clé API ne peut pas dépasser 365 jours.",
       "apiKeyMinExpiration": "L'expiration d'une clé API doit être d'au moins 1 jour.",
       "apiKeyNameLength": "Le nom d'une clé API doit comporter entre 1 et 255 caractères.",
-      "assigneeRequired": "Vous devez vous assigner cet élément. Notez que vous ne pourrez consulter que les éléments qui vous sont assignés.",
       "billingPortalUnavailable": "Le portail de facturation n’est pas disponible pour cet espace de travail. Contactez l’assistance pour effectuer des modifications.",
       "calendarEventNotFound": "ID d'évènement d'agenda introuvable ou inaccessible.",
       "channelAlreadyLinked": "Ce canal est déjà lié à un autre contact.",
@@ -1126,6 +1124,7 @@
       "recordIdUnavailable": "Cet identifiant appartenait déjà à un enregistrement précédent. Importe l’enregistrement avec un nouvel identifiant.",
       "recordMeasureDateIntervalInvalid": "Les intervalles de temps nécessitent un regroupement par un champ de date, de date et heure, de création ou de modification, et un fuseau horaire nécessite un intervalle de temps.",
       "recordNotFound": "Cet enregistrement est indisponible.",
+      "recordOperationFailed": "L'opération en arrière-plan a échoué. Réessaie.",
       "recordProtected": "Cet enregistrement est géré par un processus système.",
       "recordReadOnlyField": "Ce champ est calculé. Modifie sa définition pour saisir des valeurs manuellement.",
       "recordRelationConflict": "Ce lien ne respecte pas les règles de la relation.",
@@ -3347,7 +3346,7 @@
       "cleaned": {
         "bindingAvatar": "{target} n’est plus utilisé comme photo de profil de {consumers}.",
         "bindingCalendar": "{target} n’est plus utilisé pour les événements d’agenda de {consumers}.",
-        "listDefaults": "{target} est retiré de la mise en page par défaut de {consumers}.",
+        "defaultLayout": "{target} est retiré de la mise en page par défaut de {consumers}.",
         "nameField": "{consumers} sera affiché avec {replacement} à la place.",
         "nameFieldNone": "Plus aucun champ de {consumers} ne peut nommer ses éléments, ils s’affichent donc comme « {singular} sans nom ».",
         "personalLayouts": "{target} est retiré de {count, plural, one {# mise en page personnelle} other {# mises en page personnelles}}.",
@@ -3410,7 +3409,7 @@
     "detailLayoutSaveFailed": "Impossible d’enregistrer les modifications de la disposition.",
     "directRelationship": "Relation directe",
     "disabled": "Désactivé",
-    "duplicateFieldName": "Un autre champ de cette liste utilise déjà ce nom, y compris les champs supprimés récemment. Choisissez un autre nom.",
+    "duplicateFieldName": "Un autre champ de cette liste utilise déjà ce nom, y compris les champs dans la Corbeille. Choisissez un autre nom.",
     "duplicateListName": "Une autre liste utilise déjà ce nom. Les noms de liste doivent être uniques, sans tenir compte de la casse, des accents ni des espaces superflus.",
     "duplicateOptionLabel": "Deux options de ce champ ont le même libellé. Les libellés d'option doivent être uniques.",
     "duplicateRelationshipLabel": "Une autre relation de cette liste utilise déjà ce libellé. Choisissez un autre libellé.",

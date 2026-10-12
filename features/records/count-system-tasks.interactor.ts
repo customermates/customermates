@@ -1,4 +1,4 @@
-import type { CountSystemTasksRepo } from "./count-system-tasks.repo";
+import type { MembershipTaskService } from "./membership-task.service";
 import { z } from "zod";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -9,12 +9,12 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 @AllowInDemoMode
 @TenantInteractor()
 export class CountSystemTasksInteractor extends AuthenticatedInteractor<void, number> {
-  constructor(private repo: CountSystemTasksRepo) {
+  constructor(private tasks: Pick<MembershipTaskService, "getSystemTasksCount">) {
     super();
   }
 
   @ValidateOutput(z.number())
   async invoke(): Promise<{ ok: true; data: number }> {
-    return { ok: true as const, data: await this.repo.getSystemTasksCount() };
+    return { ok: true as const, data: await this.tasks.getSystemTasksCount() };
   }
 }

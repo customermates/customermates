@@ -16,7 +16,7 @@ import { resolveUserLocale } from "@/i18n/user-locale";
 import { env } from "@/env";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
 
-export type DeleteAccountsForPlanPayload = { companyId: string; plan: SubscriptionPlan };
+type DeleteAccountsForPlanPayload = { companyId: string; plan: SubscriptionPlan };
 
 @SystemInteractor
 export class DeleteAccountsForPlanInteractor {

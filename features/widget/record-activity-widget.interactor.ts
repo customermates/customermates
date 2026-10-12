@@ -6,11 +6,11 @@ import type { GetRecordActivitiesInteractor } from "@/ee/messaging/activities/ge
 import type {
   RecordActivityWidgetInput,
   RecordActivityWidgetDto,
-  RecordActivityWidgetRepo,
   SavedRecordActivityWidgetInput,
   StoredRecordActivityWidget,
 } from "./record-activity-widget.schema";
 import type { Validated } from "@/core/validation/validation.utils";
+import type { RecordWidgetStoreRepo } from "./record-widget-store.repo";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -44,7 +44,7 @@ export class UpsertRecordActivityWidgetInteractor extends AuthenticatedInteracto
   RecordActivityWidgetDto
 > {
   constructor(
-    private widgets: RecordActivityWidgetRepo,
+    private widgets: RecordWidgetStoreRepo,
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
     private activities: GetRecordActivitiesInteractor,
@@ -64,14 +64,16 @@ export class UpsertRecordActivityWidgetInteractor extends AuthenticatedInteracto
         if (receipt) {
           if (receipt.requestHash !== hash) return failConflict(CustomErrorCode.recordIdempotencyConflict);
           const saved = receipt.result as { widgetId?: string };
-          const row = saved.widgetId ? await this.widgets.findOwned(saved.widgetId) : null;
+          const row = saved.widgetId
+            ? await this.widgets.findOwnedRecordWidget("activityTimeline", saved.widgetId)
+            : null;
           if (!row) return failNotFound(CustomErrorCode.widgetNotFound);
           return { ok: true as const, data: await this.reader.read(row) };
         }
         const state = await this.records.getState();
         if (state?.activeOperationId) return failConflict(CustomErrorCode.recordWritePaused);
         if (state?.revision !== input.expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
-        const current = input.id ? await this.widgets.findOwned(input.id) : null;
+        const current = input.id ? await this.widgets.findOwnedRecordWidget("activityTimeline", input.id) : null;
         if (input.id) {
           if (!current) return failNotFound(CustomErrorCode.widgetNotFound);
           if (current.version !== input.expectedVersion) return failConflict(CustomErrorCode.recordVersionChanged);
@@ -88,10 +90,10 @@ export class UpsertRecordActivityWidgetInteractor extends AuthenticatedInteracto
           kind: "activityTimeline",
           requested: input.layout,
           needsPlacement: !current || current.viewId !== view.viewId,
-          widgets: await this.widgets.listPlacements(view.viewId),
+          widgets: await this.widgets.listLayoutPlacements(view.viewId),
         });
         if (!placement.ok) return fail(placement.code, ["layout"]);
-        const row = await this.widgets.save(widget, id, view.viewId, placement.layout);
+        const row = await this.widgets.saveRecordWidget("activityTimeline", widget, id, view.viewId, placement.layout);
         await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, { widgetId: row.id });
         return {
           ok: true as const,

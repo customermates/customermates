@@ -1,6 +1,6 @@
 import type { z } from "zod";
 
-import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
+import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { DomainEvent } from "@/features/event/domain-events";
 
 const NON_TRIGGERING_EVENTS = [
@@ -9,7 +9,7 @@ const NON_TRIGGERING_EVENTS = [
   "record.deletedPermanently",
 ] as const;
 
-export const RoutineTriggerEventSchema = WebhookCurrentEventSchema.exclude([...NON_TRIGGERING_EVENTS]);
+export const RoutineTriggerEventSchema = WebhookEventSchema.exclude([...NON_TRIGGERING_EVENTS]);
 
 export const ROUTINE_TRIGGER_EVENTS = RoutineTriggerEventSchema.options;
 

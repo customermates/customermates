@@ -11,20 +11,20 @@ import { recordInvariant } from "./record-invariant";
 
 type Policy = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
 
-export type RecordRestoreBlocker = {
+type RecordRestoreBlocker = {
   itemId: string;
   reason: "listDeleted" | "parentDeleted" | "notFound";
   typeId: string;
   parent?: RecordRef;
 };
-export type RecordRestoreResult = {
+type RecordRestoreResult = {
   restoredItemIds: string[];
   blocked: RecordRestoreBlocker[];
   restoredRecords: number;
   droppedLinks: number;
 };
 
-export function deletedPermanentlyPayload(
+function deletedPermanentlyPayload(
   ref: RecordRef,
   model: RecordModel,
   cause: RecordEventPayload["cause"],

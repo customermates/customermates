@@ -46,18 +46,18 @@ const exampleDelivery = {
 
 const WebhookPathParamsSchema = z.object({ id: z.uuid().describe("The webhook id.") });
 
-export const UpdateWebhookApiSchema = z
+const UpdateWebhookApiSchema = z
   .object(UpsertWebhookSchema.shape)
   .omit({ id: true })
   .describe(
     "Only the supplied fields change. events replaces the subscribed events. Omit secret to keep it, pass null to clear it or a string to set a new one; headers follow the same rule. Send an empty object to change nothing.",
   );
 
-export const ResendWebhookDeliveryApiSchema = z
+const ResendWebhookDeliveryApiSchema = z
   .object({})
   .describe("No fields; send an empty object. The webhook and delivery come from the path.");
 
-export const ResendWebhookDeliveryResultSchema = z.object({
+const ResendWebhookDeliveryResultSchema = z.object({
   resentDeliveryId: z.uuid().describe("The delivery that was resent."),
   deliveryId: z.uuid().describe("The new queued delivery."),
 });

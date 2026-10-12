@@ -12,7 +12,7 @@ export type ResolvedGrouping = { spec: GroupableFieldSpec; grouping: Grouping };
 
 export type GroupAxis = { groups: DataViewGroup[]; overflow?: GroupOverflow };
 
-export type GroupAxisInput = {
+type GroupAxisInput = {
   spec: GroupableFieldSpec;
   bucket?: DateBucket;
   now?: string;

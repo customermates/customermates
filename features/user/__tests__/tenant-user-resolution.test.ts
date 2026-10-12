@@ -54,7 +54,7 @@ describe("resolving the user an operation runs as", () => {
     expect(resolved.id).toBe("session-user");
   });
 
-  it("reads permissions off the resolved user without another session round trip", () => {
+  it("reads permissions off the resolved user without another session round trip", async () => {
     const users = service();
     const withRole = createMockUser({
       id: "scoped",
@@ -65,10 +65,12 @@ describe("resolving the user an operation runs as", () => {
       } as never,
     });
 
-    expect(users.hasPermissionForUser(withRole, Resource.routines, Action.readAll)).toBe(true);
-    expect(users.hasPermissionForUser(withRole, Resource.wiki, Action.readAll)).toBe(false);
-    expect(users.hasPermissionForUser({ ...withRole, role: null } as never, Resource.routines, Action.readAll)).toBe(
-      false,
-    );
+    expect(await runWithTenant(withRole, () => users.hasPermission(Resource.routines, Action.readAll))).toBe(true);
+    expect(await runWithTenant(withRole, () => users.hasPermission(Resource.wiki, Action.readAll))).toBe(false);
+    expect(
+      await runWithTenant({ ...withRole, role: null } as never, () =>
+        users.hasPermission(Resource.routines, Action.readAll),
+      ),
+    ).toBe(false);
   });
 });

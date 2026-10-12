@@ -5,11 +5,11 @@ import { SIDEBAR_P13N_ID, SidebarLayoutSchema } from "./sidebar-layout.schema";
 import { SublistColumnsSchema, isSublistColumnsP13nId } from "./sublist-columns.schema";
 
 export const CONFIGURE_GRAPH_P13N_ID = "configure-graph";
-export const CONFIGURE_GRAPH_MAX_POSITIONS = 500;
+const CONFIGURE_GRAPH_MAX_POSITIONS = 500;
 
 const GraphCoordinateSchema = z.number().finite().min(-1_000_000).max(1_000_000);
 
-export const ConfigureGraphLayoutSchema = z
+const ConfigureGraphLayoutSchema = z
   .object({
     positions: z
       .record(z.string().min(1).max(120), z.object({ x: GraphCoordinateSchema, y: GraphCoordinateSchema }).strict())
@@ -22,15 +22,15 @@ export const ConfigureGraphLayoutSchema = z
 
 export type ConfigureGraphLayout = z.infer<typeof ConfigureGraphLayoutSchema>;
 
-export const P13N_SETTINGS_SCHEMAS = {
+const P13N_SETTINGS_SCHEMAS = {
   [SIDEBAR_P13N_ID]: SidebarLayoutSchema,
   [CONFIGURE_GRAPH_P13N_ID]: ConfigureGraphLayoutSchema,
   [KEYBOARD_P13N_ID]: KeyboardPreferencesSchema,
 } as const;
 
-export type P13nSettingsId = keyof typeof P13N_SETTINGS_SCHEMAS;
+type P13nSettingsId = keyof typeof P13N_SETTINGS_SCHEMAS;
 
-export type P13nSettingsOf<Id extends P13nSettingsId> = z.infer<(typeof P13N_SETTINGS_SCHEMAS)[Id]>;
+type P13nSettingsOf<Id extends P13nSettingsId> = z.infer<(typeof P13N_SETTINGS_SCHEMAS)[Id]>;
 
 export const P13nSettingsSchema = z.union([
   SidebarLayoutSchema,

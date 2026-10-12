@@ -22,7 +22,7 @@ const untrustedRecordTextMarkerLine = new RegExp(
   "gm",
 );
 
-export function stripUntrustedRecordTextMarkers(text: string) {
+function stripUntrustedRecordTextMarkers(text: string) {
   return text
     .replace(untrustedRecordTextMarkerLine, "")
     .replace(/<{3,}/g, (run) => "‹".repeat(run.length))

@@ -3,7 +3,7 @@ import type { ExpiredTrashRepo } from "./expired-trash.repo";
 
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
 
-export const TRASH_PURGE_COMPANY_PAGE = 200;
+const TRASH_PURGE_COMPANY_PAGE = 200;
 
 @SystemInteractor
 export class PurgeExpiredTrashInteractor {

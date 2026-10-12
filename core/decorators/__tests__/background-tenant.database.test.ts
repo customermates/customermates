@@ -118,14 +118,6 @@ describeDatabase("background tenant context on PostgreSQL", () => {
     expect(powerless).toBe(false);
   });
 
-  it("throws the permission error rather than an auth error when a background user lacks the right", async () => {
-    await expect(
-      runAsBackgroundTenant(powerlessUserId, () =>
-        getUserService().hasPermissionOrThrow(Resource.users, Action.readAll),
-      ),
-    ).rejects.toThrow(/insufficient permissions/);
-  });
-
   it("refuses to assume an inactive user", async () => {
     await expect(runAsBackgroundTenant(inactiveUserId, () => getTenantUser())).rejects.toThrow(/not active/);
   });

@@ -33,26 +33,22 @@ export class ResolveRecordSearchInteractor extends AuthenticatedInteractor<
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
         const refs = input.refs;
-        try {
-          const rows = await this.records.searchRecords(
-            { refs },
-            model,
-            policy.access(model.types.filter((type) => !type.archived).map((type) => type.id)),
-          );
-          const positions = new Map(refs.map((ref, index) => [`${ref.typeId}:${ref.recordId}`, index]));
-          rows.sort(
-            (a, b) =>
-              (positions.get(`${a.typeId}:${a.recordId}`) ?? 0) - (positions.get(`${b.typeId}:${b.recordId}`) ?? 0),
-          );
-          return {
-            ok: true,
-            data: { results: rows.map((row) => recordSearchHit(row, model, policy.allowed(row.typeId, "update"))) },
-          };
-        } catch (error) {
-          return unwoundFailure(error);
-        }
+        const rows = await this.records.searchRecords(
+          { refs },
+          model,
+          policy.access(model.types.filter((type) => !type.archived).map((type) => type.id)),
+        );
+        const positions = new Map(refs.map((ref, index) => [`${ref.typeId}:${ref.recordId}`, index]));
+        rows.sort(
+          (a, b) =>
+            (positions.get(`${a.typeId}:${a.recordId}`) ?? 0) - (positions.get(`${b.typeId}:${b.recordId}`) ?? 0),
+        );
+        return {
+          ok: true as const,
+          data: { results: rows.map((row) => recordSearchHit(row, model, policy.allowed(row.typeId, "update"))) },
+        };
       },
       { readOnly: true },
-    );
+    ).catch(unwoundFailure);
   }
 }

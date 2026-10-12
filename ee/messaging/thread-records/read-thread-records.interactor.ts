@@ -48,45 +48,41 @@ export class ReadThreadRecordsInteractor extends AuthenticatedInteractor<
         if (!policy.actor || !canReadInbox(policy)) return failAuthorization(CustomErrorCode.permissionDenied);
         if (!(await this.links.canAccessThread(input.threadId)))
           return failNotFound(CustomErrorCode.threadNotFound, ["threadId"]);
-        try {
-          const model = await this.records.getModel();
-          const refs = await this.links.listLinks(input.threadId, 101);
-          if (refs.length > 100) return failConflict(CustomErrorCode.recordCalculationBudget);
-          const protectedRefs = new Set(
-            refs.filter((ref) => ref.protected).map((ref) => `${ref.typeId}:${ref.recordId}`),
+        const model = await this.records.getModel();
+        const refs = await this.links.listLinks(input.threadId, 101);
+        if (refs.length > 100) return failConflict(CustomErrorCode.recordCalculationBudget);
+        const protectedRefs = new Set(
+          refs.filter((ref) => ref.protected).map((ref) => `${ref.typeId}:${ref.recordId}`),
+        );
+        const rows = refs.length
+          ? await this.records.searchRecords(
+              { refs },
+              model,
+              policy.access(model.types.filter((type) => !type.archived).map((type) => type.id)),
+            )
+          : [];
+        const canEditThread = policy.allowedSystem("inboxMessages", "update");
+        const canManage =
+          canEditThread &&
+          model.types.some(
+            (type) => !type.archived && policy.allowed(type.id, "update") && policy.canReadType(type.id),
           );
-          const rows = refs.length
-            ? await this.records.searchRecords(
-                { refs },
-                model,
-                policy.access(model.types.filter((type) => !type.archived).map((type) => type.id)),
-              )
-            : [];
-          const canEditThread = policy.allowedSystem("inboxMessages", "update");
-          const canManage =
-            canEditThread &&
-            model.types.some(
-              (type) => !type.archived && policy.allowed(type.id, "update") && policy.canReadType(type.id),
-            );
-          return {
-            ok: true as const,
-            data: {
-              records: rows.map((row) => ({
-                ...recordSearchHit(row, model),
-                canUnlink:
-                  canEditThread &&
-                  policy.allowed(row.typeId, "update") &&
-                  !protectedRefs.has(`${row.typeId}:${row.recordId}`),
-              })),
-              schemaRevision: model.revision,
-              canManage,
-            },
-          };
-        } catch (error) {
-          return unwoundFailure(error);
-        }
+        return {
+          ok: true as const,
+          data: {
+            records: rows.map((row) => ({
+              ...recordSearchHit(row, model),
+              canUnlink:
+                canEditThread &&
+                policy.allowed(row.typeId, "update") &&
+                !protectedRefs.has(`${row.typeId}:${row.recordId}`),
+            })),
+            schemaRevision: model.revision,
+            canManage,
+          },
+        };
       },
       { readOnly: true },
-    );
+    ).catch(unwoundFailure);
   }
 }

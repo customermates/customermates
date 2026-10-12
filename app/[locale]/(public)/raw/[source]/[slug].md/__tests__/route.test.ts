@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { env } from "@/env";
 
 import { generateOpenApiSpec } from "@/core/openapi/openapi-spec";
-import { WEBHOOK_CURRENT_EVENTS } from "@/features/webhook/webhook-event-registry";
+import { WEBHOOK_EVENTS } from "@/features/webhook/webhook-event-registry";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
 vi.mock("@/env", async (importOriginal) => {
@@ -88,7 +88,7 @@ describe("raw markdown twin route", () => {
       named.push(text.slice(start + marker.length, text.indexOf("`", start + marker.length)));
     }
 
-    expect(named.sort()).toEqual([...WEBHOOK_CURRENT_EVENTS].sort());
+    expect(named.sort()).toEqual([...WEBHOOK_EVENTS].sort());
   });
 
   it.each([

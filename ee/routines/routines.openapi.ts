@@ -19,19 +19,19 @@ const FIELD_ID = "9a8b7c6d-5e4f-4a3b-8c2d-1e0f9a8b7c6d";
 
 const routineFields = z.object(UpsertRoutineSchema.shape);
 
-export const CreateRoutineApiSchema = routineFields
+const CreateRoutineApiSchema = routineFields
   .omit({ id: true })
   .describe(
     "A new routine. name, prompt and triggerKind are required. A schedule routine needs cronExpression (five fields, optional IANA timezone). An event routine needs triggerEvents: record events take either recordTrigger (one type, with recordTrigger.query.filters and changedFieldIds) or recordSources (one entry per source type), and messaging events take neither. Omitting enabled creates a live routine; pass enabled false for a draft. expectedSchemaRevision is required with recordTrigger or recordSources.",
   );
 
-export const UpdateRoutineApiSchema = routineFields
+const UpdateRoutineApiSchema = routineFields
   .extend({ id: z.uuid().describe("The routine to change.") })
   .describe(
     "Changes only the supplied fields of a routine the caller owns. Changing triggerKind must arrive with that kind's schedule or events. Supplying recordSources replaces recordTrigger and the reverse.",
   );
 
-export const ResumeRoutineApiSchema = z.object({ id: z.uuid().describe("The routine to re-enable.") });
+const ResumeRoutineApiSchema = z.object({ id: z.uuid().describe("The routine to re-enable.") });
 
 const RoutineListResultSchema = createGetResultSchema(RoutineDtoSchema);
 

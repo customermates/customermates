@@ -25,7 +25,7 @@ import type { SaveDraftRepo } from "./save-draft.repo";
 
 const DraftRecipientsSchema = z.array(z.string().min(1)).max(100).describe("Recipients to preserve with the draft");
 
-export const BaseSaveDraftSchema = z.object({
+const BaseSaveDraftSchema = z.object({
   threadId: z
     .uuid()
     .optional()

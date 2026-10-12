@@ -8,18 +8,18 @@ import { RECORD_PRESET_KEYS, type RecordPresetKey } from "@/features/records/rec
 import { escapeRegExp } from "@/i18n/routing";
 
 export const APP_LINK_SCHEME = "app:";
-export const APP_LINK_OPEN_ROUTE = "/open";
+const APP_LINK_OPEN_ROUTE = "/open";
 
 const APP_LINK_HREF = /\]\(app:([^)\s]*)\)/g;
 const LIST_AREAS = ["records", "configure"] as const;
 
 type ListArea = (typeof LIST_AREAS)[number];
 
-export type ParsedAppLink =
+type ParsedAppLink =
   | { kind: "page"; place: string; route: string; focus: string | null }
   | { kind: ListArea; place: string; preset: RecordPresetKey; focus: string | null };
 
-export type AppLinkWorkspace = { listId: (preset: RecordPresetKey) => string };
+type AppLinkWorkspace = { listId: (preset: RecordPresetKey) => string };
 
 const PAGE_ROUTES = new Set([
   ...AGENT_UI_TARGETS.filter((target) => target.id.startsWith("nav-") && target.route.startsWith("/")).map(
@@ -95,7 +95,7 @@ export function appLinkHrefs(markdown: string): string[] {
   return [...markdown.matchAll(APP_LINK_HREF)].map((match) => `${APP_LINK_SCHEME}${match[1]}`);
 }
 
-export function resolveAppLinks(markdown: string, toHref: (link: ParsedAppLink) => string): string {
+function resolveAppLinks(markdown: string, toHref: (link: ParsedAppLink) => string): string {
   return markdown.replace(APP_LINK_HREF, (_match, rest: string) => {
     const link = parseAppLink(`${APP_LINK_SCHEME}${rest}`);
     if (!link) throw new Error(`Unknown app link: ${APP_LINK_SCHEME}${rest}`);

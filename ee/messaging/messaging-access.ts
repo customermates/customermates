@@ -1,6 +1,6 @@
 import type { Prisma } from "@/generated/prisma";
 
-export type MessagingFolderVisibilityState = { id: string; visibleSet: string[] };
+type MessagingFolderVisibilityState = { id: string; visibleSet: string[] };
 
 function accessibleAccountWhere(userId: string): Prisma.ConnectedAccountWhereInput {
   return { OR: [{ userId }, { shared: true }] };

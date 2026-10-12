@@ -66,7 +66,7 @@ export const RecordDeletionPreviewSchema = z
     calculations: z.array(z.object({ typeId: z.uuid(), fieldId: z.uuid(), label: z.string() }).strict()),
   })
   .strict();
-export type RecordDeletionPreview = z.infer<typeof RecordDeletionPreviewSchema>;
+type RecordDeletionPreview = z.infer<typeof RecordDeletionPreviewSchema>;
 
 @AllowInDemoMode
 @TenantInteractor()
@@ -88,73 +88,69 @@ export class PreviewRecordDeletionInteractor extends AuthenticatedInteractor<
       async () => {
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         if (model.revision !== input.expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
-        try {
-          const plan = await this.writer.planDeletion(
-            "targets" in input
-              ? { action: "deleteMany", targets: input.targets }
-              : {
-                  action: "delete",
-                  ref: input.ref,
-                  expectedVersion: input.expectedVersion,
-                },
-            model,
-            policy,
-            5000,
-          );
-          const visible = new Set(plan.deleted.keys());
-          const candidates = [...plan.affected].filter(([key]) => !visible.has(key)).map(([, ref]) => ref);
-          for (let index = 0; index < candidates.length; index += 100) {
-            for (const row of await this.records.getRecordsCompanyWide(candidates.slice(index, index + 100)))
-              if (await policy.canRead(row)) visible.add(recordKey({ typeId: row.typeId, recordId: row.id }));
-          }
-          const deletedTypes = new Set([...plan.deleted.values()].map((record) => record.typeId));
-          const calculations = new Map<string, RecordDeletionPreview["calculations"][number]>();
-          let expanded = true;
-          while (expanded) {
-            expanded = false;
-            for (const field of model.fields) {
-              if (
-                field.archived ||
-                field.behavior.kind === "input" ||
-                field.behavior.kind === "snapshot" ||
-                calculations.has(field.id)
-              )
-                continue;
-              const reads = calculationSources(field.behavior.expression, field.typeId, model).some(
-                (source) =>
-                  (source.path.length > 0 && deletedTypes.has(source.typeId)) ||
-                  (source.fieldId !== null && calculations.has(source.fieldId)),
-              );
-              if (!reads) continue;
-              calculations.set(field.id, {
-                typeId: field.typeId,
-                fieldId: field.id,
-                label: field.label,
-              });
-              expanded = true;
-            }
-          }
-          return {
-            ok: true as const,
-            data: {
-              ...("targets" in input
-                ? { targets: input.targets }
-                : { ref: input.ref, recordVersion: input.expectedVersion }),
-              schemaRevision: model.revision,
-              impactHash: plan.impactHash,
-              removedRecords: model.types.flatMap((type) => {
-                const count = [...plan.deleted.values()].filter((row) => row.typeId === type.id).length;
-                return count ? [{ typeId: type.id, label: type.pluralLabel, count }] : [];
-              }),
-              removedLinks: visible.size === plan.affected.size ? plan.links.size : null,
-              calculations: [...calculations.values()].filter((field) => policy.canReadType(field.typeId)),
-            },
-          };
-        } catch (error) {
-          return unwoundFailure(error);
+        const plan = await this.writer.planDeletion(
+          "targets" in input
+            ? { action: "deleteMany", targets: input.targets }
+            : {
+                action: "delete",
+                ref: input.ref,
+                expectedVersion: input.expectedVersion,
+              },
+          model,
+          policy,
+          5000,
+        );
+        const visible = new Set(plan.deleted.keys());
+        const candidates = [...plan.affected].filter(([key]) => !visible.has(key)).map(([, ref]) => ref);
+        for (let index = 0; index < candidates.length; index += 100) {
+          for (const row of await this.records.getRecordsCompanyWide(candidates.slice(index, index + 100)))
+            if (await policy.canRead(row)) visible.add(recordKey({ typeId: row.typeId, recordId: row.id }));
         }
+        const deletedTypes = new Set([...plan.deleted.values()].map((record) => record.typeId));
+        const calculations = new Map<string, RecordDeletionPreview["calculations"][number]>();
+        let expanded = true;
+        while (expanded) {
+          expanded = false;
+          for (const field of model.fields) {
+            if (
+              field.archived ||
+              field.behavior.kind === "input" ||
+              field.behavior.kind === "snapshot" ||
+              calculations.has(field.id)
+            )
+              continue;
+            const reads = calculationSources(field.behavior.expression, field.typeId, model).some(
+              (source) =>
+                (source.path.length > 0 && deletedTypes.has(source.typeId)) ||
+                (source.fieldId !== null && calculations.has(source.fieldId)),
+            );
+            if (!reads) continue;
+            calculations.set(field.id, {
+              typeId: field.typeId,
+              fieldId: field.id,
+              label: field.label,
+            });
+            expanded = true;
+          }
+        }
+        return {
+          ok: true as const,
+          data: {
+            ...("targets" in input
+              ? { targets: input.targets }
+              : { ref: input.ref, recordVersion: input.expectedVersion }),
+            schemaRevision: model.revision,
+            impactHash: plan.impactHash,
+            removedRecords: model.types.flatMap((type) => {
+              const count = [...plan.deleted.values()].filter((row) => row.typeId === type.id).length;
+              return count ? [{ typeId: type.id, label: type.pluralLabel, count }] : [];
+            }),
+            removedLinks: visible.size === plan.affected.size ? plan.links.size : null,
+            calculations: [...calculations.values()].filter((field) => policy.canReadType(field.typeId)),
+          },
+        };
       },
       { readOnly: true, timeout: 20000 },
-    );
+    ).catch(unwoundFailure);
   }
 }

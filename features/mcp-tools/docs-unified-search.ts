@@ -33,9 +33,9 @@ export type UnifiedDocsDeps = {
   relevanceFloor?: RelevanceFloor | null;
 };
 
-export type UnifiedDocsHit = { section: DocsSection; snippet: string };
+type UnifiedDocsHit = { section: DocsSection; snippet: string };
 
-export type UnifiedDocsSearch = {
+type UnifiedDocsSearch = {
   pages: UnifiedDocsHit[];
   total: number;
   chosen: DocsSection[] | null;
@@ -49,7 +49,7 @@ const TOOL_CATALOG_QUESTION =
 const ASSISTANT_WORD = /\b(?:mate|assistant|assistent\w*)\b/;
 const TOOL_CATALOG_ANCHOR = "tool-catalog";
 
-export function pinnedDocsSections(query: string, scope: Omit<DocsScope, "buildHash">): DocsSection[] {
+function pinnedDocsSections(query: string, scope: Omit<DocsScope, "buildHash">): DocsSection[] {
   const sections = scope.sources
     .flatMap((source) => docsCorpusSections(source, scope.locale))
     .filter((section) => scope.slug === undefined || section.slug === scope.slug);

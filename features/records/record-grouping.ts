@@ -8,7 +8,7 @@ import { recordColumns } from "./record-columns";
 import { resolveRecordPath } from "./record-relationship-path";
 import type { RecordPathStep } from "./record-relationship-path.schema";
 
-export type RecordGroupingSource<F extends RecordFieldView = RecordField> =
+type RecordGroupingSource<F extends RecordFieldView = RecordField> =
   | { kind: "field"; field: F }
   | { kind: "system"; field: "system:assignedTo" | "system:createdAt" | "system:updatedAt" }
   | { kind: "relationshipPath"; path: RecordPathStep[]; targetTypeId: string }

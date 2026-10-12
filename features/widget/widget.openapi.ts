@@ -25,8 +25,8 @@ const ACCESS =
 const WIDGET_ID = "3a4b5c6d-7e8f-4a1b-9c2d-3e4f5a6b7c8d";
 const SECOND_WIDGET_ID = "4b5c6d7e-8f9a-4b2c-8d3e-4f5a6b7c8d9e";
 
-export const WidgetListRequestSchema = z.object({}).strict();
-export const WidgetListResultSchema = z.object({ widgets: z.array(WidgetDtoSchema) }).strict();
+const WidgetListRequestSchema = z.object({}).strict();
+const WidgetListResultSchema = z.object({ widgets: z.array(WidgetDtoSchema) }).strict();
 
 const sideBySide = (columns: number) => [
   { i: WIDGET_ID, x: 0, y: 0, w: columns / 2, h: 3 },

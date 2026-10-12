@@ -16,7 +16,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 
 export const GetRoutineByIdSchema = z.object({ id: z.uuid() });
 
-export type GetRoutineByIdData = Data<typeof GetRoutineByIdSchema>;
+type GetRoutineByIdData = Data<typeof GetRoutineByIdSchema>;
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.routines, read: true })

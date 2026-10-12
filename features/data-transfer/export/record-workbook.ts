@@ -29,7 +29,7 @@ const BLOCK_NODES = new Set([
   "horizontalRule",
 ]);
 
-export type RecordWorkbookCell =
+type RecordWorkbookCell =
   | string
   | number
   | boolean
@@ -38,11 +38,11 @@ export type RecordWorkbookCell =
   | { value: number; numFmt: string }
   | { value: Date; numFmt: string };
 
-export type RecordWorkbookColumn = { header: string; numFmt?: string; hidden?: boolean };
+type RecordWorkbookColumn = { header: string; numFmt?: string; hidden?: boolean };
 
-export type RecordWorkbookSheet = { name: string; columns: RecordWorkbookColumn[]; rows: RecordWorkbookCell[][] };
+type RecordWorkbookSheet = { name: string; columns: RecordWorkbookColumn[]; rows: RecordWorkbookCell[][] };
 
-export type RecordWorkbookLabels = {
+type RecordWorkbookLabels = {
   assignedTo: string;
   createdAt: string;
   updatedAt: string;

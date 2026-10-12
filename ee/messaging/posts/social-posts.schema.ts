@@ -137,8 +137,6 @@ export const LinkedinCompanyProfileSchema = z.looseObject({
   industry: z.array(z.string()).nullish(),
   website: z.string().nullish(),
 });
-export type LinkedinCompanyProfile = z.infer<typeof LinkedinCompanyProfileSchema>;
-
 export const SocialProfileSchema = z.looseObject({
   object: z.enum(["User", "UserProfile", "CompanyProfile"]).nullish(),
   id: z
@@ -161,7 +159,7 @@ export const SocialProfileSchema = z.looseObject({
 });
 export type SocialProfile = z.infer<typeof SocialProfileSchema>;
 
-export const RelationRequestSchema = z.looseObject({
+const RelationRequestSchema = z.looseObject({
   object: z.literal("RelationRequest").nullish(),
   type: z.enum(["sent", "received"]).nullish(),
   id: z.string(),

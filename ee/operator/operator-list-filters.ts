@@ -267,7 +267,7 @@ export function partitionOperatorWorkspaceFilters(filters: Filter[] | undefined)
   return { baseWhere, passthrough };
 }
 
-export function createdAtFilter(filter: Filter): Prisma.DateTimeFilter | undefined {
+function createdAtFilter(filter: Filter): Prisma.DateTimeFilter | undefined {
   const raw = (filter as { value?: unknown }).value;
   const toDate = (value: unknown) => (typeof value === "string" || value instanceof Date ? new Date(value) : undefined);
 
@@ -294,7 +294,7 @@ export function createdAtFilter(filter: Filter): Prisma.DateTimeFilter | undefin
   }
 }
 
-export type OperatorAuditFilterPlan = {
+type OperatorAuditFilterPlan = {
   sources: OperatorAuditSource[];
   workspaceIds: string[] | null;
   createdAt: Prisma.DateTimeFilter[];

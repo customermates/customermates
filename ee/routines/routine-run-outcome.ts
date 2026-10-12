@@ -85,7 +85,7 @@ export function routineRunStopReason(
   }
 }
 
-export function isTerminalTurnStatus(status: AgentTurnStatus): boolean {
+function isTerminalTurnStatus(status: AgentTurnStatus): boolean {
   return status !== "running" && status !== "waitingBudget";
 }
 

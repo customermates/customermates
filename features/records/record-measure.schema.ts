@@ -19,7 +19,7 @@ export function isRecordMeasureTimeZone(timeZone: string): boolean {
   }
 }
 
-export const RecordMeasureGroupFilterSchema = RecordQuerySchema.pick({
+const RecordMeasureGroupFilterSchema = RecordQuerySchema.pick({
   search: true,
   filters: true,
   relationships: true,

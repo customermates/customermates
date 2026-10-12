@@ -27,13 +27,13 @@ import {
   Workflow,
 } from "lucide-react";
 
-export type DocNavItem = {
+type DocNavItem = {
   slug: string;
   i18nKey: string;
   icon: LucideIcon;
 };
 
-export type DocNavGroup = {
+type DocNavGroup = {
   key: string;
   labelEn: string;
   i18nKey: string;

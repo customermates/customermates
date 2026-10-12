@@ -32,25 +32,21 @@ export class PreviewRecordConfigurationInteractor extends AuthenticatedInteracto
   run(input: ConfigurationChange): Validated<ConfigurationPreview> {
     return runInTransaction(
       async () => {
-        try {
-          const prepared = await this.configurations.prepare(
-            input,
-            await this.records.getModel(),
-            await this.policy.load(),
-          );
-          for (const relationId of await this.records.validateRelationshipCardinality(prepared.model)) {
-            prepared.preview.issues.push({
-              code: "cardinality_conflict",
-              relationId,
-            });
-          }
-          prepared.preview.valid = !prepared.preview.issues.length && !prepared.preview.deletion?.blockers.length;
-          return { ok: true as const, data: prepared.preview };
-        } catch (error) {
-          return unwoundFailure(error);
+        const prepared = await this.configurations.prepare(
+          input,
+          await this.records.getModel(),
+          await this.policy.load(),
+        );
+        for (const relationId of await this.records.validateRelationshipCardinality(prepared.model)) {
+          prepared.preview.issues.push({
+            code: "cardinality_conflict",
+            relationId,
+          });
         }
+        prepared.preview.valid = !prepared.preview.issues.length && !prepared.preview.deletion?.blockers.length;
+        return { ok: true as const, data: prepared.preview };
       },
       { readOnly: true },
-    );
+    ).catch(unwoundFailure);
   }
 }

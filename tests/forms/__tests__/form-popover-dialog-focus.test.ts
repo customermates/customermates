@@ -55,9 +55,9 @@ import { FilterInputIsoDateRange } from "@/components/data-view/filter-modal/inp
 import { LinkPopover } from "@/components/editor/link-popover";
 
 const EVENTS = [
-  { value: "contact.created", label: "Contact created" },
-  { value: "deal.created", label: "Deal created" },
-  { value: "deal.updated", label: "Deal updated" },
+  { value: "record.created", label: "Record created" },
+  { value: "record.updated", label: "Record updated" },
+  { value: "record.deleted", label: "Record deleted" },
 ];
 
 let container: HTMLDivElement;
@@ -154,7 +154,7 @@ describe("form popovers inside a modal dialog", () => {
     await press("ArrowDown");
     await press("Enter");
 
-    expect(form.onChange).toHaveBeenCalledWith("events", ["deal.created"]);
+    expect(form.onChange).toHaveBeenCalledWith("events", ["record.updated"]);
   });
 
   it.each([

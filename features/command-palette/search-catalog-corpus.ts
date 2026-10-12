@@ -10,7 +10,7 @@ import { APP_LOCALES, type AppLocale } from "@/i18n/locale-registry";
 const SEARCH_CATALOG_SCHEMA = "search-catalog-v1";
 
 export type SearchCatalogText = { targetId: string; text: string; contentHash: string };
-export type StaticSearchCatalogEntry = SearchCatalogText & { locale: AppLocale };
+type StaticSearchCatalogEntry = SearchCatalogText & { locale: AppLocale };
 export type StaticSearchCatalog = { buildHash: string; entries: StaticSearchCatalogEntry[] };
 
 let staticCatalog: Promise<StaticSearchCatalog> | undefined;
@@ -27,7 +27,7 @@ export function searchCatalogText(targetId: string, parts: readonly (string | nu
   return { targetId, text, contentHash: sha256(`${SEARCH_CATALOG_SCHEMA}\u0000${text}`) };
 }
 
-export function searchCatalogBuildHash(entries: readonly StaticSearchCatalogEntry[]): string {
+function searchCatalogBuildHash(entries: readonly StaticSearchCatalogEntry[]): string {
   return sha256(
     [
       SEARCH_CATALOG_SCHEMA,

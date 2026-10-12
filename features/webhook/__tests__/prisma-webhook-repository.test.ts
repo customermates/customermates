@@ -36,7 +36,7 @@ function webhookRow(overrides: Record<string, unknown> = {}) {
     id: WEBHOOK_ID,
     url: "https://example.com/webhook",
     description: null,
-    events: ["contact.created"],
+    events: ["messaging.message.received"],
     secret: "signing-secret",
     headers: { Authorization: "Bearer token", "X-Trace": "trace-value" },
     bodyTemplate: null,

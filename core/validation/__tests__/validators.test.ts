@@ -6,7 +6,6 @@ import { MessagingProvider } from "@/generated/prisma";
 
 import { checkIds } from "@/core/validation/validators/check-ids";
 import { normalizeChannelValue } from "@/features/records/channel-value";
-import { validateAssigneeGuard } from "../validate-assignee-guard";
 import { validateEnumValue } from "../validate-enum-value";
 import { validateEvent } from "../validate-event";
 import { CustomErrorCode } from "../validation.types";
@@ -138,46 +137,6 @@ describe("checkIds (entity id existence)", () => {
       expect(ctx.addIssue).toHaveBeenCalledTimes(1);
       expect(ctx.addIssue).toHaveBeenCalledWith(expect.objectContaining({ params: { error: code }, path: ["b"] }));
     }
-  });
-});
-
-describe("validateAssigneeGuard", () => {
-  it("skips when userIds is undefined", () => {
-    const ctx = createMockCtx();
-    validateAssigneeGuard(undefined, "user-1", false, ctx, ["userIds"]);
-    expect(ctx.addIssue).not.toHaveBeenCalled();
-  });
-
-  it("skips when the user can read all", () => {
-    const ctx = createMockCtx();
-    validateAssigneeGuard([], "user-1", true, ctx, ["userIds"]);
-    expect(ctx.addIssue).not.toHaveBeenCalled();
-  });
-
-  it("passes when the current user is assigned", () => {
-    const ctx = createMockCtx();
-    validateAssigneeGuard(["user-2", "user-1"], "user-1", false, ctx, ["userIds"]);
-    expect(ctx.addIssue).not.toHaveBeenCalled();
-  });
-
-  it("adds issue when the current user is not assigned", () => {
-    const ctx = createMockCtx();
-    validateAssigneeGuard(["user-2"], "user-1", false, ctx, ["userIds"]);
-    expect(ctx.addIssue).toHaveBeenCalledWith(
-      expect.objectContaining({ params: { error: CustomErrorCode.assigneeRequired }, path: ["userIds"] }),
-    );
-  });
-
-  it("adds issue when assignees are cleared with an empty array", () => {
-    const ctx = createMockCtx();
-    validateAssigneeGuard([], "user-1", false, ctx, ["userIds"]);
-    expect(ctx.addIssue).toHaveBeenCalledTimes(1);
-  });
-
-  it("adds issue when assignees are cleared with null", () => {
-    const ctx = createMockCtx();
-    validateAssigneeGuard(null, "user-1", false, ctx, ["userIds"]);
-    expect(ctx.addIssue).toHaveBeenCalledTimes(1);
   });
 });
 

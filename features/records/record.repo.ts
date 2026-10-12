@@ -41,6 +41,8 @@ import type { RoutineLabelRepo } from "@/ee/routines/routine-label.repo";
 import type { RecordMemberRepo } from "@/features/user/record-member.repo";
 import type { RecordRoleRepo } from "@/features/role/record-role.repo";
 
+export const CONFIGURATION_CONSUMER_PAGE = 200;
+
 export type RecordRepoOwners = {
   widgets: RecordWidgetConfigurationRepo;
   views: RecordViewConfigurationRepo;
@@ -78,7 +80,7 @@ export type RecordTrashItem = {
   payload: Prisma.JsonValue;
 };
 export type RecordTrashItemInput = Omit<RecordTrashItem, "deletedAt" | "expiresAt" | "payload">;
-export type TrashedRecordLink = { id: string; relationId: string; source: RecordRef; target: RecordRef };
+type TrashedRecordLink = { id: string; relationId: string; source: RecordRef; target: RecordRef };
 export type TrashReadOptions = { includeTrash?: boolean };
 
 export type StoredRecord = CrmRecord & {
@@ -124,18 +126,12 @@ export interface RecordRepo {
       ref: RecordRef;
     }>
   >;
-  getIdentityOwnerRefsPageCompanyWide(
-    identityId: string,
-    after: RecordRef | undefined,
-    take: number,
-    typeIds: string[],
-  ): Promise<RecordRef[]>;
   setIdentityResolutionCompanyWide(
     identityId: string,
     input: Pick<RecordIdentityInput, "messagingId" | "displayName" | "profileUrl">,
   ): Promise<void>;
   setIdentities(ref: RecordRef, inputs: RecordIdentityInput[]): Promise<void>;
-  getLastFieldWritersCompanyWide(targets: Array<{ ref: RecordRef; fieldId: string }>): Promise<Map<string, string>>;
+  protectMembershipTask(ref: RecordRef, userId: string): Promise<void>;
   getModel(): Promise<RecordModel>;
   searchRecords(request: RecordSearchRequest, model: RecordModel, access: RecordAccessMap): Promise<RecordSearchRow[]>;
   getViewStatesCompanyWide(
@@ -157,7 +153,6 @@ export interface RecordRepo {
   ): Promise<Array<{ id: string; name: string; measure: RecordMeasure; trashed: boolean }>>;
   getConfigurationDeletions(targets?: ConfigurationTarget[]): Promise<Map<string, ConfigurationDeletionRecord>>;
   applyConsumerCleanups(cleanups: ConfigurationConsumerCleanup[]): Promise<{ pausedWebhookIds: string[] }>;
-  getUserNamesCompanyWide(userIds: string[]): Promise<Map<string, string>>;
   getState(): Promise<RecordSchemaState | null>;
   getGrants(): Promise<RecordTypeGrant[]>;
   countRecordsCompanyWide(typeIds: string[]): Promise<number>;

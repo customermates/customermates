@@ -1,4 +1,5 @@
 import type { RepoArgs } from "@/core/utils/types";
+import { CONFIGURATION_CONSUMER_PAGE } from "@/features/records/record.repo";
 import type { Filter, SortDescriptor, PaginationRequest } from "@/core/base/base-get.schema";
 import type { ViewMode } from "@/core/base/base-query-builder";
 import type { Grouping } from "@/core/base/grouping/grouping.schema";
@@ -249,7 +250,7 @@ export class PrismaP13nRepo
       },
       select: { id: true, p13nId: true, detailOptions: true, columnOrder: true },
       orderBy: { id: "asc" },
-      take: 200,
+      take: CONFIGURATION_CONSUMER_PAGE,
     });
   }
 

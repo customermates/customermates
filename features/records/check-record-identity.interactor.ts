@@ -15,7 +15,7 @@ import { channelClass } from "@/ee/messaging/provider";
 import { RecordIdentityInputSchema } from "./record-identity.schema";
 import { identityKeys, normalizedIdentity } from "./record-identity";
 
-export const CheckRecordIdentitySchema = z
+const CheckRecordIdentitySchema = z
   .object({
     typeId: z.uuid(),
     recordId: z.uuid().optional(),

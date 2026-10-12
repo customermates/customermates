@@ -3,7 +3,7 @@ import { z } from "zod";
 import { VisualBriefSchema } from "@/components/marketing/visuals/visual-contract";
 import { CONTENT_LOCALES } from "@/i18n/locale-registry";
 
-export const metaSchema = z.object({
+const metaSchema = z.object({
   description: z.string(),
   title: z.string(),
 });
@@ -149,8 +149,6 @@ export const acquisitionPageSchema = z.strictObject({
   }),
   visual: VisualBriefSchema,
 });
-export type AcquisitionPage = z.infer<typeof acquisitionPageSchema>;
-
 export const heroSchema = z.object({
   buttonLeftHref: z.string(),
   buttonLeftText: z.string(),
@@ -164,7 +162,7 @@ export const heroSchema = z.object({
 });
 export type Hero = z.infer<typeof heroSchema>;
 
-export const faqItemSchema = z.object({
+const faqItemSchema = z.object({
   id: z.string(),
   title: z.string(),
   content: z.string(),

@@ -3,8 +3,9 @@ import { z } from "zod";
 import { WidgetPlacementSchema } from "./widget-grid";
 
 import { RecordMeasureSchema, RecordMeasureResultSchema } from "@/features/records/record-measure.schema";
-import { WidgetDisplayOptionsSchema, WidgetLayoutSchema, type WidgetLayout } from "./widget-display.schema";
-import type { WidgetPlacementRow } from "./widget-placement";
+import { WidgetDisplayOptionsSchema, WidgetLayoutSchema } from "./widget-display.schema";
+
+export const RecordWidgetReadSchema = z.object({ id: z.uuid() }).strict();
 
 const RecordWidgetFieldsSchema = z
   .object({
@@ -94,19 +95,6 @@ export const RecordWidgetDtoSchema = z
   .strict();
 export type RecordWidgetDto = z.infer<typeof RecordWidgetDtoSchema>;
 export type StoredRecordWidget = Omit<RecordWidgetDto, "data" | "status" | "groupOptions" | "decimalPlaces">;
-
-export interface RecordWidgetRepo {
-  findOwned(id: string): Promise<StoredRecordWidget | null>;
-  findReadable(id: string): Promise<StoredRecordWidget | null>;
-  listOwned(): Promise<StoredRecordWidget[]>;
-  listPlacements(viewId: string | null): Promise<WidgetPlacementRow[]>;
-  save(
-    input: SavedRecordWidgetInput,
-    id: string,
-    viewId: string | null,
-    layout?: WidgetLayout,
-  ): Promise<StoredRecordWidget>;
-}
 
 export const GenericRecordWidgetDtoSchema = z.discriminatedUnion("kind", [
   RecordWidgetDtoSchema,

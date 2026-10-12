@@ -44,8 +44,8 @@ export const EMAIL_FONT_STACK: Record<EmailFontFamily, string> = {
 export const SIGNATURE_LOGO_URL = "https://customermates.com/images/email/customermates-icon@2x.png";
 export const DEFAULT_LINK_HEX = "#7161e8";
 
-export const EMAIL_FONT_SIZE_MIN = 10;
-export const EMAIL_FONT_SIZE_MAX = 20;
+const EMAIL_FONT_SIZE_MIN = 10;
+const EMAIL_FONT_SIZE_MAX = 20;
 
 const HEX_COLOR = /^#[0-9a-fA-F]{6}$/;
 const EXPLICIT_URL_SCHEME = /^[a-z][a-z0-9+.-]*:/i;
@@ -141,17 +141,17 @@ function channelLuminance(hex: string, start: number): number {
   return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
 }
 
-export function relativeLuminance(hex: string): number {
+function relativeLuminance(hex: string): number {
   return 0.2126 * channelLuminance(hex, 1) + 0.7152 * channelLuminance(hex, 3) + 0.0722 * channelLuminance(hex, 5);
 }
 
-export function contrastRatio(hex: string, background: string): number {
+function contrastRatio(hex: string, background: string): number {
   const a = relativeLuminance(hex);
   const b = relativeLuminance(background);
   return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 }
 
-export const EMAIL_LINK_CONTRAST_FLOOR = 3;
+const EMAIL_LINK_CONTRAST_FLOOR = 3;
 const LIGHT_MAIL_SURFACE = "#ffffff";
 const DARK_MAIL_SURFACE = "#1f1f1f";
 
@@ -233,7 +233,7 @@ export function defaultEmailSettings(): EmailSettings {
   };
 }
 
-export type ResolvedEmailSettings = {
+type ResolvedEmailSettings = {
   markdown: string;
   settings: EmailSettings;
 };

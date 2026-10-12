@@ -25,7 +25,7 @@ import { FilterSchema, SortDescriptorSchema } from "@/core/base/base-get.schema"
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
+import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 import {
@@ -83,7 +83,7 @@ const CreateWebhookSchema = z.object({
   ...recordWebhookFields,
   url: zx.secureUrl().describe("Endpoint that will receive event POST requests (https recommended)"),
   description: z.string().optional().describe("Human-readable note about what this webhook does"),
-  events: z.array(WebhookCurrentEventSchema).min(1).describe("Event types to subscribe to."),
+  events: z.array(WebhookEventSchema).min(1).describe("Event types to subscribe to."),
   secret: z.string().optional().describe("Shared secret used to sign outgoing requests"),
   headers: z
     .record(z.string(), z.string())
@@ -107,7 +107,7 @@ const UpdateWebhookSchema = z.object({
   id: z.uuid(),
   url: zx.secureUrl().optional(),
   description: z.string().optional(),
-  events: z.array(WebhookCurrentEventSchema).min(1).optional().describe("REPLACES the subscribed events."),
+  events: z.array(WebhookEventSchema).min(1).optional().describe("REPLACES the subscribed events."),
   secret: z
     .string()
     .nullable()
@@ -173,7 +173,7 @@ const ManageWebhooksSchema = z.object({
     .describe("Endpoint that will receive event POST requests (https recommended). Required for create."),
   description: z.string().optional().describe("create and update. Human-readable note about what this webhook does."),
   events: z
-    .array(WebhookCurrentEventSchema)
+    .array(WebhookEventSchema)
     .min(1)
     .optional()
     .describe("Required for create; on update REPLACES the subscribed events."),

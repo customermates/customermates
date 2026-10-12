@@ -21,7 +21,7 @@ import { invalidRecordQueryPart } from "@/features/records/record-query-validati
 
 const PAGE_SIZE = 250;
 
-export const RecordExportFormatSchema = z
+const RecordExportFormatSchema = z
   .enum(["json", "xlsx"])
   .describe(
     "json (default) returns the schema-aware record document that import accepts; xlsx returns an Excel workbook with one sheet per list.",
@@ -38,7 +38,7 @@ export const ExportRecordsSchema = RecordQuerySchema.pick({
 }).extend({ format: RecordExportFormatSchema.optional() });
 export type ExportRecordsInput = z.infer<typeof ExportRecordsSchema>;
 
-export type LoadedRecordAccess = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
+type LoadedRecordAccess = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
 
 @AllowInDemoMode
 @TenantInteractor()

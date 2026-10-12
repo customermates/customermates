@@ -41,9 +41,7 @@ import { liveGroupSummaries, recordGroupableFields, resolveRecordGrouping } from
 import { parseRelationshipColumnKey } from "./record-column.schema";
 import { resolveRecordPath } from "./record-relationship-path";
 
-export const GetRecordPresentationSchema = z
-  .object({ typeId: z.uuid(), params: GetQueryParamsSchema.default({}) })
-  .strict();
+const GetRecordPresentationSchema = z.object({ typeId: z.uuid(), params: GetQueryParamsSchema.default({}) }).strict();
 export type RecordPresentationResult = {
   model: RecordModelView;
   typeId: string;

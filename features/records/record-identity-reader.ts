@@ -10,13 +10,13 @@ import type { RecordSearchRow } from "./record-search-query";
 import type { RecordModel } from "./record-model.schema";
 import { recordChannelsTypeIds } from "./record-channels";
 
-export type IdentityLookup = Pick<RecordIdentityInput, "provider" | "value">;
-export type IdentityMatch = IdentityLookup & {
+type IdentityLookup = Pick<RecordIdentityInput, "provider" | "value">;
+type IdentityMatch = IdentityLookup & {
   records: RecordIdentityReference[];
   moreRecords?: true;
 };
 type VersionedIdentityReference = RecordIdentityReference & { version: number };
-export type VersionedIdentityMatch = IdentityLookup & {
+type VersionedIdentityMatch = IdentityLookup & {
   records: VersionedIdentityReference[];
   moreRecords?: true;
 };

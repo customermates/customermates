@@ -35,7 +35,7 @@ import { ReconcileRoutineRunsInteractor } from "../reconcile-routine-runs.intera
 import { UpsertRoutineInteractor } from "../upsert-routine.interactor";
 import { PruneRoutineRunsInteractor } from "../prune-routine-runs.interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
+import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { RoutineLimitExceededError, type RoutineCountLimit } from "../routine-run-limits";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { ForbiddenError } from "@/core/errors/app-errors";
@@ -100,7 +100,7 @@ describe("UpsertRoutineSchema", () => {
   });
 
   it("excludes messaging deletions that lack an access snapshot while keeping soft-deleted messages", () => {
-    expect(WebhookCurrentEventSchema.options).toEqual(
+    expect(WebhookEventSchema.options).toEqual(
       expect.arrayContaining(["messaging.email.deleted", "messaging.chat.deleted"]),
     );
     expect(ROUTINE_TRIGGER_EVENTS).toContain("messaging.message.deleted");
@@ -466,14 +466,12 @@ function startFixtures(
     deleteUnusedAgentConversation: vi.fn().mockResolvedValue(undefined),
   };
   const filterMatcher = {
-    matchesCurrentUser: vi.fn().mockResolvedValue(true),
     currentUserTrigger: vi
       .fn()
       .mockImplementation(({ triggerPayload }: { triggerPayload: unknown }) =>
         Promise.resolve({ payload: triggerPayload }),
       ),
     matchesUserUnscoped: vi.fn().mockResolvedValue(true),
-    canUserAccessUnscoped: vi.fn().mockResolvedValue(true),
   };
   const sendAgentMessage = {
     invokeRoutine: vi.fn().mockResolvedValue({
@@ -798,7 +796,7 @@ describe("StartRoutineRunInteractor", () => {
 
   it("skips a run whose record no longer matches the routine's conditions", async () => {
     const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures({
-      run: { triggerEvent: "contact.updated", triggerEntityId: "contact-1" },
+      run: { triggerEvent: "record.updated", triggerEntityId: "contact-1" },
       routine: {
         triggerFilters: [{ field: "stage", operator: "equals", value: "won" }],
       },
@@ -823,7 +821,7 @@ describe("StartRoutineRunInteractor", () => {
 
   it("rechecks record visibility even when an event routine has no filters", async () => {
     const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures({
-      run: { triggerEvent: "contact.updated", triggerEntityId: "contact-1" },
+      run: { triggerEvent: "record.updated", triggerEntityId: "contact-1" },
     });
     filterMatcher.currentUserTrigger.mockResolvedValue(null);
     const interactor = new StartRoutineRunInteractor(
@@ -836,10 +834,12 @@ describe("StartRoutineRunInteractor", () => {
     const result = await interactor.invoke({ routineRunId: RUN_ID });
 
     expect(filterMatcher.currentUserTrigger).toHaveBeenCalledWith({
-      event: "contact.updated",
+      event: "record.updated",
       entityId: "contact-1",
       triggerPayload: null,
       filters: [],
+      recordQuery: undefined,
+      subscriptionId: ROUTINE_ID,
     });
     expect(result).toEqual({
       ok: true,
@@ -850,7 +850,7 @@ describe("StartRoutineRunInteractor", () => {
 
   it("fails a filtered deleted-record trigger closed when its required deletion snapshot is missing", async () => {
     const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures({
-      run: { triggerEvent: "contact.deleted", triggerEntityId: "contact-1" },
+      run: { triggerEvent: "record.deleted", triggerEntityId: "contact-1" },
       routine: {
         triggerFilters: [{ field: "stage", operator: "equals", value: "won" }],
       },
@@ -866,10 +866,12 @@ describe("StartRoutineRunInteractor", () => {
     const result = await interactor.invoke({ routineRunId: RUN_ID });
 
     expect(filterMatcher.currentUserTrigger).toHaveBeenCalledWith({
-      event: "contact.deleted",
+      event: "record.deleted",
       entityId: "contact-1",
       triggerPayload: null,
       filters: [{ field: "stage", operator: "equals", value: "won" }],
+      recordQuery: undefined,
+      subscriptionId: ROUTINE_ID,
     });
     expect(result).toEqual({
       ok: true,
@@ -1414,7 +1416,7 @@ describe("per-user routine plan allowance", () => {
           triggerKind: "event",
           cronExpression: null,
           timezone: null,
-          triggerEvents: ["deal.updated"],
+          triggerEvents: ["record.updated"],
         }),
       ),
       isEligibleRoutineOwner: vi.fn().mockResolvedValue(true),

@@ -13,7 +13,7 @@ type NullableJson = Prisma.InputJsonValue | typeof Prisma.DbNull;
 
 const CLEARED_SORT_DESCRIPTOR = {};
 
-export type DataViewStateColumns = {
+type DataViewStateColumns = {
   filters: NullableJson;
   searchTerm: string | null;
   sortDescriptor: NullableJson;
@@ -26,7 +26,7 @@ export type DataViewStateColumns = {
   pageSize: number | null;
 };
 
-export type StoredStateRow = {
+type StoredStateRow = {
   filters: unknown;
   searchTerm: string | null;
   sortDescriptor: unknown;
@@ -46,7 +46,7 @@ export type StoredViewRow = StoredStateRow & {
   position: number;
 };
 
-export type StoredPersonalizationRow = Omit<StoredStateRow, "pageSize"> & {
+type StoredPersonalizationRow = Omit<StoredStateRow, "pageSize"> & {
   pagination: unknown;
   viewStateKeys?: unknown;
 };

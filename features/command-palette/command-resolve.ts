@@ -5,7 +5,7 @@ import { z } from "zod";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterSchema } from "@/core/base/base-get.schema";
 
-export const COMMAND_RESOLVE_QUERY_LIMIT = 300;
+const COMMAND_RESOLVE_QUERY_LIMIT = 300;
 
 export const ResolveCommandInputSchema = z
   .object({
@@ -79,7 +79,7 @@ export const CommandResolutionSchema = z.discriminatedUnion("kind", [
 ]);
 export type CommandResolution = z.infer<typeof CommandResolutionSchema>;
 
-export type ResolvableField = {
+type ResolvableField = {
   key: string;
   label: string;
   valueType: string;
@@ -99,7 +99,7 @@ export type ResolvableCommand = { key: string; label: string };
 
 type FieldAlias = { typeId: string; field: ResolvableField; options: Map<string, string> };
 
-export type CommandResolveAliases = {
+type CommandResolveAliases = {
   lists: Map<string, string>;
   views: Map<string, { typeId: string; viewId: string }>;
   fields: Map<string, FieldAlias>;

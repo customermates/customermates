@@ -7,9 +7,9 @@ import { ViewMode } from "@/core/base/base-query-builder";
 
 import { DATA_VIEW_STATE_FIELDS } from "./data-view-state.schema";
 
-export const DEFAULT_DATA_VIEW_PAGE_SIZE = 100;
+const DEFAULT_DATA_VIEW_PAGE_SIZE = 100;
 
-export type DataViewPageSize = 5 | 10 | 25 | 100;
+type DataViewPageSize = 5 | 10 | 25 | 100;
 
 const PARAM_CARRIED_FIELDS = new Set<keyof DataViewState>([
   "filters",
@@ -43,7 +43,7 @@ export type ResolvedDataViewState = {
   hiddenColumns: string[];
 };
 
-export type ResolveDataViewStateArgs = {
+type ResolveDataViewStateArgs = {
   params?: DataViewParamsLayer;
   base?: DataViewState;
   defaults?: DataViewDefaultsLayer;

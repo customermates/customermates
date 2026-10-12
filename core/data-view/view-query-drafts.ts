@@ -5,7 +5,7 @@ import type { DataViewState } from "./data-view-state.schema";
 import { ALL_VIEW_KEY } from "./data-view-keys";
 import { DataViewStateSchema } from "./data-view-state.schema";
 
-export type ViewProposalDraft = { state: DataViewState; name?: string; isNew: boolean };
+type ViewProposalDraft = { state: DataViewState; name?: string; isNew: boolean };
 
 export type ViewDraft = {
   filters?: Filter[];

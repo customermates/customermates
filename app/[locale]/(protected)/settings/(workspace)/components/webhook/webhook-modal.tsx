@@ -23,13 +23,13 @@ import { FormCheckbox } from "@/components/forms/form-checkbox";
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
+import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
 import { AppChip } from "@/components/chip/app-chip";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { Action } from "@/generated/prisma";
 
-const WEBHOOK_EVENTS = WebhookCurrentEventSchema.options.map((event) => ({ key: event }));
+const WEBHOOK_EVENT_ITEMS = WebhookEventSchema.options.map((event) => ({ key: event }));
 
 const HEADERS_PLACEHOLDER = "Authorization: Bearer your-token";
 const BODY_TEMPLATE_PLACEHOLDER = '{"text": "{{event}} ({{id}})"}';
@@ -88,7 +88,7 @@ export const WebhookModal = observer(() => {
               required
               id="events"
               inputId="webhook-modal-events"
-              items={WEBHOOK_EVENTS}
+              items={WEBHOOK_EVENT_ITEMS}
               renderValue={(items) =>
                 items.map((item) => <AppChip key={item.key}>{t(`Common.events.${item.key}`)}</AppChip>)
               }

@@ -7,7 +7,7 @@ export const SEMANTIC_MATCH_MIN_SIMILARITY = 0.63;
 export const SEMANTIC_BEST_MATCH_MIN_SIMILARITY = 0.66;
 export const SEMANTIC_BEST_MATCH_MARGIN = 0.03;
 
-export const COMMAND_SEARCH_SCOPES = ["lists", "views", "settings", "docs", "records"] as const;
+const COMMAND_SEARCH_SCOPES = ["lists", "views", "settings", "docs", "records"] as const;
 export type CommandSearchScope = (typeof COMMAND_SEARCH_SCOPES)[number];
 
 export const CommandSearchInputSchema = z
@@ -24,9 +24,9 @@ export const CommandSearchInputSchema = z
   .strict();
 export type CommandSearchInput = z.infer<typeof CommandSearchInputSchema>;
 
-export const CommandSemanticHitSchema = z.object({ key: z.string(), similarity: z.number() }).strict();
+const CommandSemanticHitSchema = z.object({ key: z.string(), similarity: z.number() }).strict();
 
-export const CommandDocsHitSchema = z
+const CommandDocsHitSchema = z
   .object({
     key: z.string(),
     title: z.string(),
@@ -37,7 +37,7 @@ export const CommandDocsHitSchema = z
   .strict();
 export type CommandDocsHit = z.infer<typeof CommandDocsHitSchema>;
 
-export const CommandCatalogSearchResultSchema = z
+const CommandCatalogSearchResultSchema = z
   .object({
     semantic: z.array(CommandSemanticHitSchema),
     docs: z.array(CommandDocsHitSchema),

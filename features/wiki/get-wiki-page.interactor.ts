@@ -14,7 +14,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { WikiPageDtoSchema } from "./wiki.schema";
 
 export const GetWikiPageSchema = z.object({ id: z.uuid() });
-export type GetWikiPageData = Data<typeof GetWikiPageSchema>;
+type GetWikiPageData = Data<typeof GetWikiPageSchema>;
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.wiki, read: "all" })

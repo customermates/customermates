@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { RecordColumnKeySchema } from "@/features/records/record-column.schema";
 
-export const SUBLIST_COLUMNS_P13N_PREFIX = "sublist-columns:";
+const SUBLIST_COLUMNS_P13N_PREFIX = "sublist-columns:";
 
 export const SublistColumnsSchema = z
   .object({ columns: z.array(RecordColumnKeySchema).max(500) })

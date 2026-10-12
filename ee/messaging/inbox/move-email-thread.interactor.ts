@@ -49,7 +49,7 @@ function moveStopMessage(t: Awaited<ReturnType<typeof getTranslations>>, code: C
   }
 }
 
-export const MoveEmailThreadResultSchema = z.object({
+const MoveEmailThreadResultSchema = z.object({
   threadId: z.string(),
   folderId: z.string(),
   folderName: z.string(),
@@ -62,7 +62,7 @@ export const MoveEmailThreadResultSchema = z.object({
   stoppedReason: z.string().optional(),
   stoppedMessage: z.string().optional(),
 });
-export type MoveEmailThreadResult = Data<typeof MoveEmailThreadResultSchema>;
+type MoveEmailThreadResult = Data<typeof MoveEmailThreadResultSchema>;
 
 @TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class MoveEmailThreadInteractor extends AuthenticatedInteractor<MoveEmailThreadData, MoveEmailThreadResult> {

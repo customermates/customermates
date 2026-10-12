@@ -3,7 +3,7 @@ import type { ColumnPresentation } from "@/core/data-view/column-presentation.sc
 import type { FilterTarget, FilterTargetGroup } from "@/components/data-view/filter-palette/filter-target";
 import type { RecordModelView } from "@/features/records/record-model.schema";
 import type { RecordPathStep } from "@/features/records/record-relationship-path.schema";
-import type { QueryFilters } from "@/features/records/record-filter-target";
+import type { QueryFilters } from "@/components/records/record-filter-target";
 import equal from "fast-deep-equal";
 import { FilterOperatorKey as Op } from "@/core/base/base-query-builder";
 import {
@@ -13,7 +13,7 @@ import {
   paletteFiltersToRecordQuery,
   parseRelatedFieldKey,
   parseRelatedRecordKey,
-} from "@/features/records/record-filter-target";
+} from "@/components/records/record-filter-target";
 
 type Labels = {
   createdAt: string;

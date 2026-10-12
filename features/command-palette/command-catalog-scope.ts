@@ -1,7 +1,7 @@
 import type { RecordModel } from "@/features/records/record-model.schema";
 import type { RecordViewName } from "./command-catalog.repo";
 
-export type CommandCatalogAccess = { canManageSchema: boolean; canReadType: (typeId: string) => boolean };
+type CommandCatalogAccess = { canManageSchema: boolean; canReadType: (typeId: string) => boolean };
 
 export function commandCatalogScope(
   model: RecordModel,

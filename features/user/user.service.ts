@@ -19,16 +19,6 @@ export class UserService {
     private repo: FindUserRepo,
   ) {}
 
-  async getUser() {
-    const session = await this.authService.getSession();
-
-    const email = session?.user?.email;
-
-    if (!email) return null;
-
-    return await this.repo.findCurrentUserUnscoped(email);
-  }
-
   async getUserOrThrow() {
     const session = await this.authService.getSession();
 
@@ -56,10 +46,6 @@ export class UserService {
     return ambient;
   }
 
-  hasPermissionForUser(user: TenantUser, resource: Resource, action: Action): boolean {
-    return rolePermits(user.role, resource, action);
-  }
-
   async getActiveUserByIdOrThrow(userId: string, options: { allowInactive?: boolean } = {}) {
     const user = await this.repo.findUserByIdOrThrowUnscoped(userId);
 
@@ -82,12 +68,6 @@ export class UserService {
   async hasPermission(resource: Resource, action: Action): Promise<boolean> {
     const user = await this.getActiveTenantUserOrThrow();
 
-    return this.hasPermissionForUser(user, resource, action);
-  }
-
-  async hasPermissionOrThrow(resource: Resource, action: Action): Promise<void> {
-    const hasPermission = await this.hasPermission(resource, action);
-
-    if (!hasPermission) throw new ForbiddenError("User has insufficient permissions", AppErrorCode.permissionDenied);
+    return rolePermits(user.role, resource, action);
   }
 }

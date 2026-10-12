@@ -6,10 +6,10 @@ import { crawlPathCategory, isSkippedCrawlPath } from "./website-url-vocabulary"
 
 export { isExternalHelpHost } from "./website-url-vocabulary";
 
-export const WIKI_CRAWL_USER_AGENT_TOKEN = "customermates";
+const WIKI_CRAWL_USER_AGENT_TOKEN = "customermates";
 export const WIKI_CRAWL_USER_AGENT =
   "Customermates/1.0 (+https://customermates.com/docs/app-assistant; website import)";
-export const WIKI_CRAWL_MAX_PAGES = 40;
+const WIKI_CRAWL_MAX_PAGES = 40;
 export const WIKI_CRAWL_MAX_SITEMAP_URLS = 5_000;
 const WIKI_CRAWL_MAX_CRAWL_DELAY_MS = 10_000;
 
@@ -43,7 +43,7 @@ export type RobotsRules = {
 
 export const WIKI_CRAWL_MAX_ROBOTS_RULES = 1_000;
 export const WIKI_CRAWL_MAX_ROBOTS_WILDCARDS = 16;
-export const WIKI_CRAWL_MAX_ROBOTS_PATTERN_LENGTH = 1_024;
+const WIKI_CRAWL_MAX_ROBOTS_PATTERN_LENGTH = 1_024;
 export const WIKI_CRAWL_MAX_LLMS_LINKS = 500;
 
 type RobotsRule = { allow: boolean; length: number; segments: string[]; anchored: boolean };

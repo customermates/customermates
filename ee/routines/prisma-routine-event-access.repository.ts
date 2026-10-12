@@ -25,10 +25,6 @@ export class PrismaRoutineEventAccess extends TenantRepository implements Routin
     super();
   }
 
-  async matchesCurrentUser(args: RoutineEventAccessArgs & { filters: Filter[] }): Promise<boolean> {
-    return (await this.currentUserTrigger(args)) !== null;
-  }
-
   async currentUserTrigger(
     args: RoutineEventAccessArgs & { filters: Filter[] },
   ): Promise<CurrentRoutineTrigger | null> {
@@ -53,14 +49,6 @@ export class PrismaRoutineEventAccess extends TenantRepository implements Routin
     const user = await this.findActiveEventUser(args.companyId, args.userId);
     if (!user) return false;
     return args.filters.length === 0 && this.canUserAccess(user, args);
-  }
-
-  @BypassTenantGuard
-  async canUserAccessUnscoped(args: RoutineEventAccessArgs & { companyId: string; userId: string }): Promise<boolean> {
-    if (args.event.startsWith("record.")) return this.matchesRecordEvent(args, args.companyId, args.userId);
-    const user = await this.findActiveEventUser(args.companyId, args.userId);
-
-    return user ? this.canUserAccess(user, args) : false;
   }
 
   private async matchesRecordEvent(args: RoutineEventAccessArgs, companyId: string, userId: string) {

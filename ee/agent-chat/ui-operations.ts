@@ -1,13 +1,9 @@
 import { z } from "zod";
 
-import type { Data } from "@/core/validation/validation.utils";
-
 import { NavigationUiTargetIdSchema } from "./ui-targets";
 import { isResolvedAppLinkPath } from "@/features/docs/app-links";
 
 export const NavigateRecordTargetSchema = z.object({ typeId: z.uuid(), recordId: z.uuid() }).strict();
-
-export type NavigateRecordTarget = Data<typeof NavigateRecordTargetSchema>;
 
 export const NavigateInputSchema = z
   .object({
@@ -39,5 +35,3 @@ export const NavigateInputSchema = z
     if (hasRecord && (value.typeId === undefined || value.recordId === undefined))
       ctx.addIssue({ code: "custom", message: "typeId and recordId are required together." });
   });
-
-export type NavigateInput = Data<typeof NavigateInputSchema>;

@@ -40,9 +40,9 @@ export type XlsxLookups = {
   relations: Map<string, XlsxRecordIndex | null>;
 };
 
-export type XlsxExisting = { records: RecordDto[] };
+type XlsxExisting = { records: RecordDto[] };
 
-export type XlsxPlannedRow = {
+type XlsxPlannedRow = {
   sheetRow: number;
   record: RecordDto | null;
   links: RecordExportLink[];
@@ -60,7 +60,7 @@ export type XlsxPlanInput = {
   lookups: XlsxLookups;
 };
 
-export type XlsxRowFailure = { sheetRow: number; reasons: string[] };
+type XlsxRowFailure = { sheetRow: number; reasons: string[] };
 
 export type XlsxImportSummary = { created: number; updated: number; skipped: number; failed: XlsxRowFailure[] };
 
@@ -149,7 +149,7 @@ export function parseXlsxRows(input: XlsxPlanInput, rows: XlsxRow[] = input.rows
   });
 }
 
-export function xlsxMatchKey(value: RecordScalar | null | undefined): string | null {
+function xlsxMatchKey(value: RecordScalar | null | undefined): string | null {
   if (!value) return null;
   switch (value.kind) {
     case "text":

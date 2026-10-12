@@ -103,14 +103,6 @@ describe("audit value descriptors", () => {
     });
   });
 
-  it("renders members as avatar chips and identifiers as provider chips", () => {
-    expect(auditValueDescriptor("users", [MEMBER], labels)).toEqual({ kind: "members", members: [MEMBER] });
-    expect(auditValueDescriptor("identifiers", [{ provider: "gmail", value: "elena@example.test" }], labels)).toEqual({
-      kind: "choices",
-      choices: [{ id: "gmail:elena@example.test", label: "elena@example.test", provider: "gmail" }],
-    });
-  });
-
   it("renders scalars through the record value types", () => {
     expect(auditValueDescriptor("enabled", false, labels)).toMatchObject({
       kind: "field",

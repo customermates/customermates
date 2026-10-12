@@ -18,13 +18,13 @@ export {
   PUBLIC_AD_ATTRIBUTION_PENDING_PARAM,
 } from "./ad-attribution.constants";
 
-export const adIdentifierValueSchema = z
+const adIdentifierValueSchema = z
   .string()
   .min(1)
   .max(AD_IDENTIFIER_VALUE_MAX_LENGTH)
   .regex(AD_IDENTIFIER_VALUE_PATTERN);
 
-export const AdClickSchema = z.object({
+const AdClickSchema = z.object({
   provider: AdProviderSchema,
   kind: AdIdentifierKindSchema,
   value: adIdentifierValueSchema,
@@ -53,7 +53,7 @@ export const PublicAdAttributionCookieSchema = z.object({
 });
 export type PublicAdAttributionCookie = z.infer<typeof PublicAdAttributionCookieSchema>;
 
-export const PublicAdAttributionSearchInputSchema = z.object({ search: z.string().max(AD_SEARCH_MAX_LENGTH) });
+const PublicAdAttributionSearchInputSchema = z.object({ search: z.string().max(AD_SEARCH_MAX_LENGTH) });
 
 export const PublicAdAttributionVisitInputSchema = PublicAdAttributionSearchInputSchema.extend({
   pendingAt: z.iso.datetime(),
@@ -64,7 +64,6 @@ export const PublicAdAttributionDecisionInputSchema = z.object({
   choice: z.enum(["allow-attribution", "necessary-only"]),
   visit: PublicAdAttributionVisitInputSchema.nullable(),
 });
-export type PublicAdAttributionDecisionInput = z.input<typeof PublicAdAttributionDecisionInputSchema>;
 export type PublicAdAttributionDecisionData = z.output<typeof PublicAdAttributionDecisionInputSchema>;
 
 export const RegistrationAdAttributionSchema = z

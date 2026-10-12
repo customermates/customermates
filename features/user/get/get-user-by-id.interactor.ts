@@ -12,7 +12,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import type { GetUserByIdRepo } from "./get-user-by-id.repo";
 
-export const GetUserByIdSchema = z.object({
+const GetUserByIdSchema = z.object({
   id: z.uuid(),
 });
 export type GetUserByIdData = Data<typeof GetUserByIdSchema>;
