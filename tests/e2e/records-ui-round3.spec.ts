@@ -442,7 +442,9 @@ test("board cards show one chip row with icons, hide empty and grouped values an
   await chip("Double").hover();
   await expect(page.getByRole("tooltip", { name: "Calculated: Number × 2", exact: true })).toBeVisible();
 
-  const editor = page.locator('[data-slot="popover-content"][data-state="open"]').last();
+  const editor = page
+    .locator('[data-slot="popover-content"][data-state="open"], [data-slot="drawer-content"][data-state="open"]')
+    .last();
   await chip("Money").getByRole("button", { name: "Edit Money", exact: true }).click();
   await expect(editor).toContainText("Money");
   await expect(editor.locator("input").first()).toHaveValue(/342,?000/);
