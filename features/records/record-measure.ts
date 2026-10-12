@@ -143,7 +143,7 @@ export function compileRecordMeasure(
     groupValue = Prisma.sql`CASE WHEN ${groupReadable} AND ${instant} IS NOT NULL THEN ${scalar} ELSE NULL END`;
     groupState = Prisma.sql`CASE WHEN NOT (${groupReadable}) THEN 'restricted' WHEN ${instant} IS NULL THEN 'missing' ELSE 'value' END`;
     joins.push(
-      Prisma.sql`LEFT JOIN "CrmRecord" group_record ON group_record."companyId" = ${companyId} AND group_record."typeId" = ${typeId} AND group_record.id = ${group}.id`,
+      Prisma.sql`LEFT JOIN "CrmRecord" group_record ON group_record."companyId" = ${companyId} AND group_record."typeId" = ${typeId} AND group_record.id = ${group}.id AND group_record."deletedAt" IS NULL`,
     );
   }
   if (field) {

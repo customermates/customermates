@@ -10,7 +10,6 @@ import {
   type RecordSearchRow,
 } from "./record-search-query";
 import { recordInvariant } from "./record-invariant";
-import type { StoredStateRow, StoredPersonalizationRow } from "@/features/data-view/data-view-row-mapping";
 import {
   readStoredState,
   readStoredPersonalizationState,
@@ -76,6 +75,11 @@ import { TRASH_RETENTION_DAYS } from "@/features/trash/trash-retention";
 import { deleteTrashItems, insertTrashItems } from "@/features/trash/trash-item-store";
 import { RECORD_EVENT_KINDS } from "./record-event.schema";
 import { configurationTrashBatchId } from "./configuration-trash-batch";
+
+const CONFIGURATION_DELETION_PAGE = 200;
+const VIEW_STATE_PAGE = 200;
+const PERSONALIZATION_KEY = "personalization:";
+const VIEW_KEY = "view:";
 
 export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   constructor(
@@ -182,15 +186,17 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
 
   async stageIdentityChannelsCompanyWide(operationId: string, identities: RecordIdentity[]): Promise<void> {
     if (!identities.length) return;
-    await this.prisma.$executeRaw(Prisma.sql`
-      INSERT INTO "RecordStageRow" ("companyId", "operationId", kind, key, payload)
-      SELECT DISTINCT ${this.companyId}, ${operationId}, 'identity-key', item.data->>'channelClass' || ':' || alias.value, item.data
-      FROM jsonb_array_elements(${JSON.stringify(identities)}::jsonb) item(data)
-      CROSS JOIN LATERAL (SELECT DISTINCT value FROM (
-        SELECT item.data->>'value' AS value UNION SELECT item.data->>'messagingId'
-        UNION SELECT jsonb_array_elements_text(COALESCE(item.data->'aliases', '[]'::jsonb))) aliases WHERE value IS NOT NULL) alias
-      ON CONFLICT ("companyId", "operationId", kind, key) DO NOTHING
-    `);
+    const rows = new Map<string, Prisma.RecordStageRowCreateManyInput>();
+    for (const identity of identities) {
+      const payload = recordJson(identity);
+      for (const alias of new Set([identity.value, identity.messagingId, ...(identity.aliases ?? [])])) {
+        if (alias === null || alias === undefined) continue;
+        const key = `${identity.channelClass}:${alias}`;
+        if (!rows.has(key))
+          rows.set(key, { companyId: this.companyId, operationId, kind: "identity-key", key, payload });
+      }
+    }
+    await this.prisma.recordStageRow.createMany({ data: [...rows.values()], skipDuplicates: true });
   }
 
   async getIdentityOwnersCompanyWide(
@@ -343,12 +349,9 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
 
   private async deleteOrphanedIdentities(identityIds: string[]): Promise<void> {
     if (!identityIds.length) return;
-    await this.prisma.$executeRaw(Prisma.sql`
-      DELETE FROM "RecordIdentity" identity
-      WHERE identity."companyId" = ${this.companyId} AND identity.id = ANY(${[...new Set(identityIds)]}::text[])
-        AND NOT EXISTS (SELECT 1 FROM "RecordIdentityLink" association
-          WHERE association."companyId" = identity."companyId" AND association."identityId" = identity.id)
-    `);
+    await this.prisma.recordIdentity.deleteMany({
+      where: { companyId: this.companyId, id: { in: [...new Set(identityIds)] }, records: { none: {} } },
+    });
   }
 
   async getLastFieldWritersCompanyWide(targets: Array<{ ref: RecordRef; fieldId: string }>) {
@@ -501,21 +504,32 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     const wanted = targets ? new Set(targets.map(targetKey)) : null;
     const records = new Map<string, ConfigurationDeletionRecord>();
     if (wanted && !wanted.size) return records;
-    const rows = await this.prisma.$queryRaw<
-      Array<{ actorId: string; createdAt: Date; deletions: unknown }>
-    >(Prisma.sql`
-      SELECT "actorId", "createdAt", change->'deletions' AS deletions FROM "RecordSchemaRevision"
-      WHERE "companyId" = ${this.companyId} AND jsonb_exists(change, 'deletions') ORDER BY revision DESC
-    `);
-    for (const row of rows) {
-      for (const deletion of RecordRevisionChangeSchema.shape.deletions.unwrap().parse(row.deletions)) {
-        const key = targetKey(deletion.target);
-        if (records.has(key) || (wanted && !wanted.has(key))) continue;
-        records.set(key, { ...deletion, actorId: row.actorId, deletedAt: row.createdAt });
+    const companyId = this.companyId;
+    const deletions = RecordRevisionChangeSchema.shape.deletions.unwrap();
+    let cursor: number | undefined;
+    for (;;) {
+      const rows = await this.prisma.recordSchemaRevision.findMany({
+        where: {
+          companyId,
+          change: { path: ["deletions"], not: Prisma.AnyNull },
+          ...(cursor === undefined ? {} : { revision: { lt: cursor } }),
+        },
+        select: { revision: true, actorId: true, createdAt: true, change: true },
+        orderBy: { revision: "desc" },
+        take: CONFIGURATION_DELETION_PAGE,
+      });
+      for (const row of rows) {
+        const change = row.change as { deletions?: unknown };
+        for (const deletion of deletions.parse(change.deletions)) {
+          const key = targetKey(deletion.target);
+          if (records.has(key) || (wanted && !wanted.has(key))) continue;
+          records.set(key, { ...deletion, actorId: row.actorId, deletedAt: row.createdAt });
+        }
+        if (wanted && records.size === wanted.size) return records;
       }
-      if (wanted && records.size === wanted.size) break;
+      if (rows.length < CONFIGURATION_DELETION_PAGE) return records;
+      cursor = rows.at(-1)?.revision;
     }
-    return records;
   }
 
   async getUserNamesCompanyWide(userIds: string[]) {
@@ -696,30 +710,47 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
 
   async getViewStatesCompanyWide(typeIds: string[], afterKey = "") {
     if (!typeIds.length) return [];
-    const surfaces = Prisma.join(typeIds.map(recordSurfaceKey));
-    const rows = await this.prisma.$queryRaw<
-      Array<{
-        key: string;
-        surface: string;
-        kind: "view" | "personalization";
-        payload: StoredStateRow & StoredPersonalizationRow & { name?: string; deletedAt?: string | null };
-      }>
-    >(Prisma.sql`
-      SELECT * FROM (
-        SELECT 'view:' || v."id" AS key, v."surfaceKey" AS surface, 'view' AS kind, to_jsonb(v) AS payload
-        FROM "DataView" v WHERE v."companyId" = ${this.companyId} AND v."surfaceKey" IN (${surfaces})
-        UNION ALL
-        SELECT 'personalization:' || p."id" AS key, p."p13nId" AS surface, 'personalization' AS kind, to_jsonb(p) AS payload
-        FROM "P13n" p WHERE p."companyId" = ${this.companyId} AND p."p13nId" IN (${surfaces})
-      ) consumers WHERE key > ${afterKey} ORDER BY key LIMIT 200
-    `);
-    return rows.map((row) => ({
-      key: row.key,
-      typeId: row.surface.slice(8),
-      name: row.kind === "view" ? (row.payload.name ?? null) : null,
-      trashed: row.kind === "view" && Boolean(row.payload.deletedAt),
-      state: row.kind === "view" ? readStoredState(row.payload) : readStoredPersonalizationState(row.payload),
-    }));
+    const companyId = this.companyId;
+    const surfaces = typeIds.map(recordSurfaceKey);
+    const afterPersonalization = afterKey.startsWith(PERSONALIZATION_KEY)
+      ? afterKey.slice(PERSONALIZATION_KEY.length)
+      : "";
+    const afterView = afterKey.startsWith(VIEW_KEY) ? afterKey.slice(VIEW_KEY.length) : "";
+    const personalizations = afterKey.startsWith(VIEW_KEY)
+      ? []
+      : await this.prisma.p13n.findMany({
+          where: {
+            companyId,
+            p13nId: { in: surfaces },
+            ...(afterPersonalization ? { id: { gt: afterPersonalization } } : {}),
+          },
+          orderBy: { id: "asc" },
+          take: VIEW_STATE_PAGE,
+        });
+    const views =
+      personalizations.length < VIEW_STATE_PAGE
+        ? await this.prisma.dataView.findMany({
+            where: { companyId, surfaceKey: { in: surfaces }, ...(afterView ? { id: { gt: afterView } } : {}) },
+            orderBy: { id: "asc" },
+            take: VIEW_STATE_PAGE - personalizations.length,
+          })
+        : [];
+    return [
+      ...personalizations.map((row) => ({
+        key: `${PERSONALIZATION_KEY}${row.id}`,
+        typeId: row.p13nId.slice(8),
+        name: null,
+        trashed: false,
+        state: readStoredPersonalizationState(row),
+      })),
+      ...views.map((row) => ({
+        key: `${VIEW_KEY}${row.id}`,
+        typeId: row.surfaceKey.slice(8),
+        name: row.name,
+        trashed: Boolean(row.deletedAt),
+        state: readStoredState(row),
+      })),
+    ];
   }
 
   async getGrants() {
@@ -740,11 +771,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     const [records, cascaded, values, links, relationships, views, personalizations, grants, identityLinks] =
       await Promise.all([
         this.prisma.crmRecord.count({ where: { companyId, typeId: { in: typeIds } } }),
-        this.prisma.$queryRaw<Array<{ count: number }>>(Prisma.sql`
-        SELECT COUNT(*)::integer AS count FROM "CrmRecord" record
-        JOIN "TrashItem" item ON item."companyId" = record."companyId" AND item.id = record."trashItemId"
-        WHERE record."companyId" = ${companyId} AND item.kind = 'record'
-          AND item."typeId" = ANY(${typeIds}::text[]) AND NOT record."typeId" = ANY(${typeIds}::text[])`),
+        this.countCascadedTrashedRecords(typeIds),
         this.prisma.recordValue.count({
           where: { companyId, state: "value", OR: [{ typeId: { in: typeIds } }, { fieldId: { in: fieldIds } }] },
         }),
@@ -758,7 +785,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         this.countIdentityLinks(channelTypeIds),
       ]);
     return {
-      records: records + (cascaded[0]?.count ?? 0),
+      records: records + cascaded,
       values,
       links,
       relationships,
@@ -766,6 +793,18 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       grants,
       ...identityLinks,
     };
+  }
+
+  private async countCascadedTrashedRecords(typeIds: string[]): Promise<number> {
+    const companyId = this.companyId;
+    const items = await this.prisma.trashItem.findMany({
+      where: { companyId, kind: "record", typeId: { in: typeIds } },
+      select: { id: true },
+    });
+    if (!items.length) return 0;
+    return this.prisma.crmRecord.count({
+      where: { companyId, trashItemId: { in: items.map((item) => item.id) }, typeId: { notIn: typeIds } },
+    });
   }
 
   private async countIdentityLinks(typeIds: string[]) {
@@ -835,12 +874,16 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       for (const [cardinality, column] of [
         [relation.sourceCardinality, "sourceId"],
         [relation.targetCardinality, "targetId"],
-      ]) {
+      ] as const) {
         if (cardinality !== "one") continue;
-        const rows = await this.prisma.$queryRaw<Array<{ invalid: boolean }>>(
-          Prisma.sql`SELECT EXISTS (SELECT 1 FROM "RecordLink" WHERE "companyId" = ${this.companyId} AND "relationId" = ${relation.id} AND "deletedAt" IS NULL GROUP BY ${Prisma.raw(`"${column}"`)} HAVING COUNT(*) > 1) AS invalid`,
-        );
-        if (rows[0]?.invalid) invalid.push(relation.id);
+        const duplicates = await this.prisma.recordLink.groupBy({
+          by: [column],
+          where: { companyId: this.companyId, relationId: relation.id, deletedAt: null },
+          having: { [column]: { _count: { gt: 1 } } },
+          orderBy: { [column]: "asc" },
+          take: 1,
+        });
+        if (duplicates.length) invalid.push(relation.id);
       }
     }
     for (const type of model.types) {
@@ -1174,14 +1217,16 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     const fields = model.fields.filter((field) => field.typeId === typeId && !field.archived);
     if (!fields.length) return result;
     const projections = fields.map(
-      (field) =>
-        Prisma.sql`${fieldReadPredicate(this.companyId, field, model, access)} AS ${Prisma.raw(`"${field.id}"`)}`,
+      (field, index) =>
+        Prisma.sql`${fieldReadPredicate(this.companyId, field, model, access)} AS ${Prisma.raw(`"f_${index}"`)}`,
     );
     const rows = await this.prisma.$queryRaw<Array<Record<string, boolean | string>>>(
       Prisma.sql`SELECT "record_0"."id", ${Prisma.join(projections, ", ")} FROM "CrmRecord" "record_0" WHERE "record_0"."companyId" = ${this.companyId} AND "record_0"."typeId" = ${typeId} AND "record_0"."id" IN (${Prisma.join(refs.map((ref) => ref.recordId))})`,
     );
-    for (const row of rows)
-      for (const field of fields) if (row[field.id] === true) recordInvariant(result.get(String(row.id))).add(field.id);
+    for (const row of rows) {
+      for (const [index, field] of fields.entries())
+        if (row[`f_${index}`] === true) recordInvariant(result.get(String(row.id))).add(field.id);
+    }
     return result;
   }
 
@@ -1506,19 +1551,19 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   async countTrashedRecordsCompanyWide(trashItemIds: string[]) {
     if (!trashItemIds.length) return { records: [], links: 0 };
     const companyId = this.companyId;
-    const [records, links] = await Promise.all([
-      this.prisma.$queryRaw<Array<{ typeId: string; count: number }>>(Prisma.sql`
-        SELECT record."typeId", COUNT(*)::integer AS count FROM "CrmRecord" record
-        WHERE record."companyId" = ${companyId} AND record."trashItemId" = ANY(${trashItemIds}::text[])
-        GROUP BY record."typeId" ORDER BY record."typeId"`),
-      this.prisma.$queryRaw<Array<{ count: number }>>(Prisma.sql`
-        SELECT COUNT(DISTINCT link.id)::integer AS count FROM "RecordLink" link JOIN "CrmRecord" record
-          ON record."companyId" = link."companyId" AND record."trashItemId" = ANY(${trashItemIds}::text[])
-          AND ((link."sourceTypeId" = record."typeId" AND link."sourceId" = record.id)
-            OR (link."targetTypeId" = record."typeId" AND link."targetId" = record.id))
-        WHERE link."companyId" = ${companyId}`),
+    const trashed = { companyId, trashItemId: { in: trashItemIds } };
+    const [groups, links] = await Promise.all([
+      this.prisma.crmRecord.groupBy({
+        by: ["typeId"],
+        where: trashed,
+        _count: { _all: true },
+        orderBy: { typeId: "asc" },
+      }),
+      this.prisma.recordLink.count({
+        where: { companyId, OR: [{ source: { is: trashed } }, { target: { is: trashed } }] },
+      }),
     ]);
-    return { records, links: links[0]?.count ?? 0 };
+    return { records: groups.map((group) => ({ typeId: group.typeId, count: group._count._all })), links };
   }
 
   async purgeTrashItems(ids: string[]): Promise<RecordRef[]> {

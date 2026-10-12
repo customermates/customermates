@@ -1,4 +1,3 @@
-import { recordWebhookOperations } from "@/features/records/record-webhooks.openapi";
 import { createDocument } from "zod-openapi";
 
 import { ErrorResponseSchema } from "@/core/api/interactor-handler";
@@ -78,6 +77,8 @@ import {
   webhookMessagingRelationCreatedOperation,
   WebhookMessagingRelationCreatedSchema,
 } from "@/ee/messaging/webhooks/relation/relation-created.openapi";
+import { recordWebhookOperations } from "@/features/records/record-webhooks.openapi";
+import { recordApiPaths } from "@/features/records/records.openapi";
 import { getUserDetailsOperation } from "@/features/user/get/get-user-details.openapi";
 import { getUsersOperation } from "@/features/user/get/get-users.openapi";
 import { UserDtoSchema } from "@/features/user/user.schema";
@@ -85,7 +86,6 @@ import { createWebhookOperation } from "@/features/webhook/create-webhook.openap
 import { deleteWebhookOperation } from "@/features/webhook/delete-webhook.openapi";
 import { getWebhookOperation } from "@/features/webhook/get-webhook.openapi";
 
-import { recordApiPaths } from "@/features/records/records.openapi";
 import { recordModelApiPaths } from "@/features/records/record-model.openapi";
 import { dataViewApiPaths } from "@/features/data-view/data-view.openapi";
 import { widgetApiPaths } from "@/features/widget/widget.openapi";

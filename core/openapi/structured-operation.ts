@@ -12,7 +12,8 @@ type StructuredOperation = {
   input: z.ZodType;
   output: z.ZodType;
   outputDescription: string;
-  example: unknown;
+  example?: unknown;
+  examples?: Record<string, { summary: string; value: unknown }>;
 };
 
 export function structuredOperation(operation: StructuredOperation): ZodOpenApiOperationObject {
@@ -24,7 +25,12 @@ export function structuredOperation(operation: StructuredOperation): ZodOpenApiO
     security: [{ apiKeyAuth: [] }],
     requestBody: {
       required: true,
-      content: { "application/json": { schema: operation.input, example: operation.example } },
+      content: {
+        "application/json": {
+          schema: operation.input,
+          ...(operation.examples ? { examples: operation.examples } : { example: operation.example }),
+        },
+      },
     },
     responses: {
       "200": {

@@ -62,7 +62,7 @@ The reverse direction runs through the REST API or MCP, again driven by your aut
 
 **Update records from Slack.** Call `POST /api/v1/records/mutate` with an update mutation and the record's current version. Use its link or unlink mutation to change a relationship. The MCP equivalent is `mutate_crm_record`.
 
-**Log notes from Slack.** Update the record's configured Notes field through the same mutation API or `mutate_crm_record` MCP tool.
+**Log notes from Slack.** Add the message to any Formatted text field of the record with an update mutation whose field entry is `{ fieldId, append }`, through the same mutation API or the `mutate_crm_record` MCP tool. The text is added after the current value, and an update that only appends never conflicts with a newer version.
 
 **Let an agent do it.** Instead of hand-building each call, point an MCP-speaking agent at `/api/v1/mcp` and let it interpret the Slack message. That is the same [[derived.mcp.tools.total]]-tool surface Claude, ChatGPT, and Gemini use.
 

@@ -11,8 +11,8 @@ export const trashApiPaths = {
       description:
         "Reads one deleted record read only, as the Trash preview in the app shows it: its field values and related records as they were when it was deleted, the configuration of its type, and its Trash item with deletion and expiry dates, who deleted it and whether the caller can restore it. Find records with /v1/trash/query, where an item of kind record carries the typeId and its targetId is the recordId, and restore them with /v1/trash/restore. A record that is not in the caller's Trash answers 404.",
       requires:
-        "delete on the record's type and read all on it, or read own when the record is assigned to the caller: the rule that shows the record in Trash. Field values stay filtered by the caller's field access.",
-      tag: "records",
+        "delete access to the record's list and read access to the record (read all, or read own when it is assigned to the caller), the rule that shows it in Trash; field values stay filtered by field access.",
+      tag: "trash",
       input: RecordRefSchema,
       output: TrashedRecordSchema,
       outputDescription: "The trashed record, its type configuration and its Trash item.",

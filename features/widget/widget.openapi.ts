@@ -14,7 +14,7 @@ const COLUMNS = (Object.entries(WIDGET_GRID_BREAKPOINT_COLUMNS) as Array<[string
   .map(([breakpoint, columns]) => `${columns} on ${breakpoint}`)
   .join(", ");
 const ACCESS =
-  "an active workspace member. Widgets are personal: the list holds the caller's own widgets, and delete and layout change only widgets the caller owns. Widget results stay filtered by the caller's record access.";
+  "ownership of the widgets; the list holds only the caller's own widgets and their results stay filtered by read access to the widgets' lists.";
 const WIDGET_ID = "3a4b5c6d-7e8f-4a1b-9c2d-3e4f5a6b7c8d";
 const SECOND_WIDGET_ID = "4b5c6d7e-8f9a-4b2c-8d3e-4f5a6b7c8d9e";
 

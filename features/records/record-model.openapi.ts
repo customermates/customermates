@@ -3,10 +3,10 @@ import { structuredOperation } from "@/core/openapi/structured-operation";
 import { GetModelSchema } from "./configure-records.interactor";
 import { DiscoverRecordTypesSchema, DiscoveredRecordTypesSchema } from "./discover-record-types.interactor";
 import { RecordModelViewSchema } from "./record-model.schema";
+import { recordApiExamples } from "./records.openapi";
 
 const TAG = "records";
-const ACCESS =
-  "an active workspace member. Types the caller cannot read are omitted unless the caller manages the schema or roles.";
+const ACCESS = "read access to the list; data-model and role managers see every list.";
 
 export const recordModelApiPaths = {
   "/v1/model/discover": {
@@ -29,12 +29,12 @@ export const recordModelApiPaths = {
       summary: "Read record types and their configuration",
       description:
         "Returns the configuration revision with the fields, stable select option ids, relationships, relationship paths and capabilities of the requested types, or of every accessible type when typeIds is omitted. Access presets are included only for schema and role managers. Pass the smallest set of typeIds you need, and send revision as expectedRevision on record and configuration writes.",
-      requires: ACCESS,
+      requires: "read access to the list; data-model and role managers see every list and its access presets.",
       tag: TAG,
       input: GetModelSchema,
       output: RecordModelViewSchema,
       outputDescription: "The accessible record model.",
-      example: { typeIds: ["0b8c7d6e-5f4a-4b3c-9d2e-1f0a9b8c7d6e"] },
+      examples: recordApiExamples.discover,
     }),
   },
 };
