@@ -95,7 +95,7 @@ test("restores a deleted record from Trash and shows a trashed record read only"
   }
   await page.emulateMedia({ colorScheme: "light" });
   await expect(page.getByText("Something went wrong")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Ask AI", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("main").getByRole("button", { name: "Ask Mate", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Customize", exact: true })).toHaveCount(0);
   const history = page.locator('main [data-detail-panel="activities"]');
   if (!(await history.isVisible())) await page.getByRole("tab", { name: "Activities", exact: true }).click();

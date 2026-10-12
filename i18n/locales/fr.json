@@ -2061,10 +2061,10 @@
     "summaries": "Synthèses",
     "views": {
       "activityCount": "{count, plural, one {# activité} other {# activités}}",
-      "aiLabel": "Interroger l’IA sur {name}",
+      "aiLabel": "Interroger Mate sur {name}",
       "all": "Toutes",
       "applied": "Affichage de {name}",
-      "askAi": "Demander à l'IA",
+      "askAi": "Demander à Mate",
       "conversationCount": "{count, plural, one {# discussion} other {# discussions}}",
       "copyLink": "Copier le lien",
       "createTitle": "Nouvelle vue",

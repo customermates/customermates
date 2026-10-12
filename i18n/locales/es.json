@@ -2061,10 +2061,10 @@
     "summaries": "Resúmenes",
     "views": {
       "activityCount": "{count, plural, one {# actividad} other {# actividades}}",
-      "aiLabel": "Preguntar a la IA sobre {name}",
+      "aiLabel": "Preguntar a Mate sobre {name}",
       "all": "Todas",
       "applied": "Mostrando {name}",
-      "askAi": "Preguntar a la IA",
+      "askAi": "Preguntar a Mate",
       "conversationCount": "{count, plural, one {# conversación} other {# conversaciones}}",
       "copyLink": "Copiar enlace",
       "createTitle": "Nueva vista",
