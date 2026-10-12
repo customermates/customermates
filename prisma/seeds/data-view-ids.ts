@@ -23,6 +23,7 @@ export const SYNTHETIC_DATA_VIEW_IDS = {
   tasksDueThisWeek: view(9),
   tasksByTeam: view(10),
   tasksOverdue: view(18),
+  myTasks: view(42),
   subscriptionRenewals: view(23),
   subscriptionsAtRisk: view(24),
   subscriptionsByPlan: view(25),

@@ -198,14 +198,14 @@ export function buildSyntheticDashboards(
       "Open pipeline by stage",
       DisplayType.verticalBarChartWithLabels,
       measure(source("deal", [openDeals]), "sum", starter.dealTotalValue, byField(f.deal.stage)),
-      { x: 0, y: 2, w: 5, h: 7 },
+      { x: 0, y: 9, w: 5, h: 7 },
       [C.primary1],
     ),
     chart(
       "Weighted forecast by close month",
       DisplayType.verticalBarChartWithLabels,
       measure(source("deal", [openDeals]), "sum", starter.dealWeightedValue, byDate(f.deal.closeDate, "month")),
-      { x: 5, y: 2, w: 7, h: 7 },
+      { x: 5, y: 9, w: 7, h: 7 },
       [C.primary1],
     ),
     chart(
@@ -217,7 +217,7 @@ export function buildSyntheticDashboards(
         starter.dealTotalValue,
         byDate(f.deal.closeDate, "month"),
       ),
-      { x: 0, y: 9, w: 6, h: 7 },
+      { x: 0, y: 2, w: 6, h: 7 },
       [C.primary1],
     ),
     chart(
@@ -229,7 +229,7 @@ export function buildSyntheticDashboards(
         null,
         byField(f.deal.stage),
       ),
-      { x: 6, y: 9, w: 3, h: 7 },
+      { x: 6, y: 2, w: 3, h: 7 },
       [C.primary1, C.default2],
     ),
     chart(
@@ -241,7 +241,7 @@ export function buildSyntheticDashboards(
         starter.dealTotalValue,
         byField("system:assignedTo"),
       ),
-      { x: 9, y: 9, w: 3, h: 7 },
+      { x: 9, y: 2, w: 3, h: 7 },
       [C.primary1],
     ),
     chart(

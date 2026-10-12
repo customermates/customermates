@@ -46,6 +46,17 @@ const SINGLE_CHOICE_FIELDS = new Set([
 ]);
 
 describe("synthetic dashboards", () => {
+  it("opens Main with the won-revenue row above the pipeline row", () => {
+    const sales = dashboards.find(({ key }) => key === SYNTHETIC_MAIN_DASHBOARD)?.widgets ?? [];
+    const row = (y: number) =>
+      sales
+        .filter(({ lg }) => lg.y === y)
+        .sort((left, right) => left.lg.x - right.lg.x)
+        .map(({ name }) => name);
+    expect(row(2)).toEqual(["Won revenue by month", "Won vs lost, last 12 months", "Won revenue per rep"]);
+    expect(row(9)).toEqual(["Open pipeline by stage", "Weighted forecast by close month"]);
+  });
+
   it("seeds six named dashboard views and lands on Sales", () => {
     expect(dashboards.map(({ name }) => name)).toEqual([
       "Sales",

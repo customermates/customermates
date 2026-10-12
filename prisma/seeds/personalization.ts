@@ -72,11 +72,6 @@ export function buildSyntheticP13nFixtures(
   const dealStage = f.deal.stage;
   const columns = northwindColumns(company, customFieldIds);
   const rel = relationship;
-  const assignedToMe = {
-    field: "system:assignedTo",
-    operator: "in",
-    value: [user],
-  } as const;
   const listStateKeys = (grouping: boolean) => [
     "filters",
     "sortDescriptor",
@@ -168,7 +163,7 @@ export function buildSyntheticP13nFixtures(
         id("capability.identity"),
       ]),
       columnWidths: inputJson({ [f.contact.jobTitle]: 220 }),
-      filters: inputJson([assignedToMe]),
+      filters: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({
         direction: "asc",
@@ -195,7 +190,7 @@ export function buildSyntheticP13nFixtures(
     fixture(SYNTHETIC_P13N_IDS.tasks, surface("task"), {
       ...curated("task", [f.task.dueDate, customFieldIds.taskPriority, rel("task.deals", "outgoing")]),
       columnWidths: inputJson({}),
-      filters: inputJson([assignedToMe]),
+      filters: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({
         direction: "desc",
