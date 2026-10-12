@@ -23,7 +23,7 @@ vi.mock("next-intl/server", () => ({
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
-const { PrismaRecordRepo } = await import("@/features/records/prisma-record.repository");
+const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("@/features/records/record-access");
 const { createCrmPreset } = await import("@/features/records/crm-preset");
@@ -86,7 +86,7 @@ describeDatabase("Knowledge Base audit entries in workspace activity", () => {
       return { company, adminRole, auditRole, admin, auditor, wikiEntry, roleEntry };
     });
     const admin = createMockUser({ ...seed.admin, role: { ...seed.adminRole, permissions: [] } });
-    const repo = new PrismaRecordRepo();
+    const repo = createTestRecordRepo();
     await runWithTenant(admin, () =>
       runInTransaction(() => repo.saveModel(createCrmPreset(seed.company.id), admin.id), { timeout: 30000 }),
     );

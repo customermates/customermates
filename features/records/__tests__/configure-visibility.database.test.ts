@@ -29,7 +29,6 @@ const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tena
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { WebhookPauseNotifier } = await import("@/features/webhook/webhook-pause-notifier");
 const { PermissionService } = await import("@/core/base/permission.service");
-const { PrismaRecordRepo } = await import("../prisma-record.repository");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
@@ -43,6 +42,7 @@ const { DiscoverRecordTypesInteractor } = await import("../discover-record-types
 const { PreviewRecordConfigurationInteractor } = await import("../preview-record-configuration.interactor");
 const { ApplyRecordConfigurationInteractor } = await import("../configure-records.interactor");
 const { createCrmPreset, presetId } = await import("../crm-preset");
+const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 
@@ -52,7 +52,7 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
   const id = (key: string) => presetId(companyId, key);
   const actors: Record<"admin" | "schema" | "grants" | "steward" | "reader" | "restricted", TenantUser> = {} as never;
   const roleIds: Record<string, string> = {};
-  const repo = new PrismaRecordRepo();
+  const repo = createTestRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const calculations = new RecordCalculationService(repo);
   const background = { dispatch: () => Promise.resolve() };

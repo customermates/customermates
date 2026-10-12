@@ -19,10 +19,10 @@ import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { PrismaP13nRepo } from "@/features/p13n/prisma-p13n.repository";
 
-import { PrismaDataViewRepo } from "../prisma-data-view.repository";
 import { DeleteDataViewInteractor } from "../delete-data-view.interactor";
 import { SaveDataViewStateInteractor } from "../save-data-view-state.interactor";
 import { SelectDataViewInteractor } from "../select-data-view.interactor";
+import { createTestDataViewRepo } from "@/tests/helpers/record-repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -39,7 +39,7 @@ describeDatabase("data view user isolation on PostgreSQL", () => {
   const asOwner = <T>(fn: () => Promise<T>) => runWithTenant(tenant(ownerId), fn);
   const asColleague = <T>(fn: () => Promise<T>) => runWithTenant(tenant(colleagueId), fn);
 
-  const views = () => new PrismaDataViewRepo();
+  const views = () => createTestDataViewRepo();
   const saver = () => new SaveDataViewStateInteractor(views(), new PrismaP13nRepo());
 
   let viewId = "";

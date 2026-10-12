@@ -126,6 +126,11 @@ function asTenant<T>(fn: () => Promise<T>) {
 
 const ownerWhere = { companyId: mockUser.companyId, surfaceKey: SURFACE, userId: mockUser.id, deletedAt: null };
 
+const UNUSED_OWNERS = {
+  widgets: { purgeOnTrashedViewsCompanyWide: vi.fn() },
+  personalizations: { resetSurfaceState: vi.fn() },
+};
+
 describe("PrismaDataViewRepo scoping", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -139,13 +144,13 @@ describe("PrismaDataViewRepo scoping", () => {
   });
 
   it("lists only the caller's own views of the surface", async () => {
-    await asTenant(() => new PrismaDataViewRepo().listDataViews(SURFACE));
+    await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).listDataViews(SURFACE));
 
     expect(dataViewFindMany).toHaveBeenCalledWith(expect.objectContaining({ where: ownerWhere }));
   });
 
   it("loads the surface from the caller's own views and the caller's own personalization row", async () => {
-    await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
+    await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).loadSurfaceState(SURFACE));
 
     expect(dataViewFindMany).toHaveBeenCalledWith(expect.objectContaining({ where: ownerWhere }));
     expect(p13nFindUnique).toHaveBeenCalledWith(
@@ -159,16 +164,16 @@ describe("PrismaDataViewRepo scoping", () => {
   });
 
   it("selects no owner join, because a view is only ever shown to the user who made it", async () => {
-    await asTenant(() => new PrismaDataViewRepo().listDataViews(SURFACE));
+    await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).listDataViews(SURFACE));
 
     expect(dataViewFindMany.mock.calls[0][0].select).not.toHaveProperty("user");
     expect(dataViewFindMany.mock.calls[0][0].select).not.toHaveProperty("visibility");
   });
 
   it("scopes the owner-only lookup, update and move to Trash by companyId, userId and live rows", async () => {
-    await asTenant(() => new PrismaDataViewRepo().findOwnedOrNull(A_VIEW_ID));
-    await asTenant(() => new PrismaDataViewRepo().updateOwned({ id: A_VIEW_ID, name: "Renamed" }));
-    await asTenant(() => new PrismaDataViewRepo().trashOwned(A_VIEW_ID));
+    await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).findOwnedOrNull(A_VIEW_ID));
+    await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).updateOwned({ id: A_VIEW_ID, name: "Renamed" }));
+    await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).trashOwned(A_VIEW_ID));
 
     const ownedWhere = { id: A_VIEW_ID, companyId: mockUser.companyId, userId: mockUser.id, deletedAt: null };
 
@@ -181,7 +186,9 @@ describe("PrismaDataViewRepo scoping", () => {
   it("returns null from updateOwned when the row is not owned, and never re-reads it", async () => {
     dataViewUpdateMany.mockResolvedValue({ count: 0 });
 
-    const updated = await asTenant(() => new PrismaDataViewRepo().updateOwned({ id: A_VIEW_ID, name: "Renamed" }));
+    const updated = await asTenant(() =>
+      new PrismaDataViewRepo(UNUSED_OWNERS).updateOwned({ id: A_VIEW_ID, name: "Renamed" }),
+    );
 
     expect(updated).toBeNull();
     expect(dataViewFindFirst).not.toHaveBeenCalled();
@@ -189,14 +196,14 @@ describe("PrismaDataViewRepo scoping", () => {
 
   it("writes only the state columns a partial save declares, so the rest of the view survives", async () => {
     await asTenant(() =>
-      new PrismaDataViewRepo().updateOwned({ id: A_VIEW_ID, name: "Hot leads", state: { filters: [] } }),
+      new PrismaDataViewRepo(UNUSED_OWNERS).updateOwned({ id: A_VIEW_ID, name: "Hot leads", state: { filters: [] } }),
     );
 
     expect(dataViewUpdateMany.mock.calls[0][0].data).toEqual({ name: "Hot leads", filters: [] });
   });
 
   it("writes every state column when the save carries a total state", async () => {
-    await asTenant(() => new PrismaDataViewRepo().updateOwned({ id: A_VIEW_ID, state: TOTAL_STATE }));
+    await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).updateOwned({ id: A_VIEW_ID, state: TOTAL_STATE }));
 
     expect(Object.keys(dataViewUpdateMany.mock.calls[0][0].data).sort()).toEqual(EVERY_STATE_COLUMN);
   });
@@ -205,7 +212,11 @@ describe("PrismaDataViewRepo scoping", () => {
     dataViewUpdateMany.mockResolvedValue({ count: 1 });
 
     const saved = await asTenant(() =>
-      new PrismaDataViewRepo().updateOwnedState({ id: A_VIEW_ID, surfaceKey: SURFACE, state: TOTAL_STATE }),
+      new PrismaDataViewRepo(UNUSED_OWNERS).updateOwnedState({
+        id: A_VIEW_ID,
+        surfaceKey: SURFACE,
+        state: TOTAL_STATE,
+      }),
     );
 
     expect(saved).toBe(true);
@@ -224,7 +235,11 @@ describe("PrismaDataViewRepo scoping", () => {
     dataViewUpdateMany.mockResolvedValue({ count: 1 });
 
     await asTenant(() =>
-      new PrismaDataViewRepo().updateOwnedState({ id: A_VIEW_ID, surfaceKey: SURFACE, state: { pageSize: 10 } }),
+      new PrismaDataViewRepo(UNUSED_OWNERS).updateOwnedState({
+        id: A_VIEW_ID,
+        surfaceKey: SURFACE,
+        state: { pageSize: 10 },
+      }),
     );
 
     expect(dataViewUpdateMany.mock.calls[0][0].data).toEqual({ pageSize: 10 });
@@ -234,7 +249,7 @@ describe("PrismaDataViewRepo scoping", () => {
     dataViewUpdateMany.mockResolvedValue({ count: 1 });
 
     await asTenant(() =>
-      new PrismaDataViewRepo().updateOwnedState({
+      new PrismaDataViewRepo(UNUSED_OWNERS).updateOwnedState({
         id: A_VIEW_ID,
         surfaceKey: SURFACE,
         state: { filters: [], searchTerm: "", sortDescriptor: null, grouping: null },
@@ -254,7 +269,11 @@ describe("PrismaDataViewRepo scoping", () => {
     dataViewUpdateMany.mockResolvedValue({ count: 0 });
 
     const saved = await asTenant(() =>
-      new PrismaDataViewRepo().updateOwnedState({ id: A_VIEW_ID, surfaceKey: SURFACE, state: TOTAL_STATE }),
+      new PrismaDataViewRepo(UNUSED_OWNERS).updateOwnedState({
+        id: A_VIEW_ID,
+        surfaceKey: SURFACE,
+        state: TOTAL_STATE,
+      }),
     );
 
     expect(saved).toBe(false);
@@ -262,7 +281,7 @@ describe("PrismaDataViewRepo scoping", () => {
 
   it("carries companyId in data on create", async () => {
     await asTenant(() =>
-      new PrismaDataViewRepo().createView({
+      new PrismaDataViewRepo(UNUSED_OWNERS).createView({
         surfaceKey: SURFACE,
         name: "Hot leads",
         position: 0,
@@ -280,10 +299,10 @@ describe("PrismaDataViewRepo scoping", () => {
   });
 
   it("starts positions at zero and continues from the caller's own highest position", async () => {
-    expect(await asTenant(() => new PrismaDataViewRepo().nextPosition(SURFACE))).toBe(0);
+    expect(await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).nextPosition(SURFACE))).toBe(0);
 
     dataViewAggregate.mockResolvedValue({ _max: { position: 4 } });
-    expect(await asTenant(() => new PrismaDataViewRepo().nextPosition(SURFACE))).toBe(5);
+    expect(await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).nextPosition(SURFACE))).toBe(5);
 
     expect(dataViewAggregate).toHaveBeenCalledWith({
       where: { companyId: mockUser.companyId, userId: mockUser.id, surfaceKey: SURFACE, deletedAt: null },
@@ -304,7 +323,7 @@ describe("PrismaDataViewRepo stored state", () => {
     dataViewFindMany.mockResolvedValue([storedView({ filters: malformed })]);
     p13nFindUnique.mockResolvedValue(storedPersonalization({ filters: malformed }));
 
-    const surface = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
+    const surface = await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).loadSurfaceState(SURFACE));
 
     expect(surface.views[0].state.filters).toEqual(malformed);
     expect(surface.allState.filters).toEqual(malformed);
@@ -315,7 +334,7 @@ describe("PrismaDataViewRepo stored state", () => {
       storedView({ filters: [], searchTerm: "", columnOrder: [], columnWidths: {}, hiddenColumns: [] }),
     ]);
 
-    const surface = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
+    const surface = await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).loadSurfaceState(SURFACE));
 
     expect(surface.views[0].state).toEqual({
       filters: [],
@@ -329,7 +348,7 @@ describe("PrismaDataViewRepo stored state", () => {
   it("reads a cleared sort descriptor as a present null and a null grouping as absent", async () => {
     dataViewFindMany.mockResolvedValue([storedView({ sortDescriptor: {}, grouping: null })]);
 
-    const surface = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
+    const surface = await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).loadSurfaceState(SURFACE));
 
     expect(surface.views[0].state).toEqual({ sortDescriptor: null });
     expect("sortDescriptor" in surface.views[0].state).toBe(true);
@@ -341,14 +360,14 @@ describe("PrismaDataViewRepo stored state", () => {
       { ...storedView({ groupingColumnId: A_GROUPING_COLUMN, viewMode: "table" }), id: A_SECOND_VIEW_ID },
     ]);
 
-    const surface = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
+    const surface = await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).loadSurfaceState(SURFACE));
 
     expect(surface.views[0].state).not.toHaveProperty("grouping");
     expect(surface.views[1].state).not.toHaveProperty("grouping");
   });
 
   it("reads an empty All tab state when the caller has no personalization row yet", async () => {
-    const surface = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
+    const surface = await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).loadSurfaceState(SURFACE));
 
     expect(surface).toEqual({ activeViewKey: null, views: [], allState: {} });
   });
@@ -370,7 +389,7 @@ describe("PrismaDataViewRepo stored state", () => {
       }),
     );
 
-    const surface = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
+    const surface = await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).loadSurfaceState(SURFACE));
 
     expect(surface.activeViewKey).toBe(A_VIEW_ID);
     expect(surface.allState).toEqual({
@@ -389,10 +408,10 @@ describe("PrismaDataViewRepo stored state", () => {
 
   it("lifts only a supported page size out of the personalization pagination", async () => {
     p13nFindUnique.mockResolvedValueOnce(storedPersonalization({ pagination: { page: 2, pageSize: 50 } }));
-    const unsupported = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
+    const unsupported = await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).loadSurfaceState(SURFACE));
 
     p13nFindUnique.mockResolvedValueOnce(storedPersonalization({ pagination: { pageSize: 10 } }));
-    const supported = await asTenant(() => new PrismaDataViewRepo().loadSurfaceState(SURFACE));
+    const supported = await asTenant(() => new PrismaDataViewRepo(UNUSED_OWNERS).loadSurfaceState(SURFACE));
 
     expect(unsupported.allState).not.toHaveProperty("pageSize");
     expect(supported.allState.pageSize).toBe(10);

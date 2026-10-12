@@ -14,8 +14,7 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
-
-import { PrismaDataViewRepo } from "../prisma-data-view.repository";
+import { createTestDataViewRepo } from "@/tests/helpers/record-repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -94,7 +93,7 @@ describeDatabase("data view state reset on PostgreSQL", () => {
   it("clears only the requested columns of an owned live view", async () => {
     const id = await createView(userId);
     const reset = await asTenant(() =>
-      new PrismaDataViewRepo().resetOwnedViewState({
+      createTestDataViewRepo().resetOwnedViewState({
         surfaceKey,
         viewKey: id,
         fields: ["grouping", "pageSize", "columnOrder", "filters", "searchTerm"],
@@ -117,7 +116,7 @@ describeDatabase("data view state reset on PostgreSQL", () => {
     expect(row.updatedAt.getTime()).toBeGreaterThan(new Date("2020-01-02T00:00:00Z").getTime());
 
     const rest = await asTenant(() =>
-      new PrismaDataViewRepo().resetOwnedViewState({
+      createTestDataViewRepo().resetOwnedViewState({
         surfaceKey,
         viewKey: id,
         fields: ["sortDescriptor", "viewMode", "columnWidths", "hiddenColumns"],
@@ -132,7 +131,7 @@ describeDatabase("data view state reset on PostgreSQL", () => {
     const foreign = await createView(otherUserId);
     const reset = (viewKey: string, surface = surfaceKey) =>
       asTenant(() =>
-        new PrismaDataViewRepo().resetOwnedViewState({ surfaceKey: surface, viewKey, fields: ["filters"] }),
+        createTestDataViewRepo().resetOwnedViewState({ surfaceKey: surface, viewKey, fields: ["filters"] }),
       );
     expect(await reset(trashed)).toBe(false);
     expect(await reset(foreign)).toBe(false);
@@ -159,7 +158,7 @@ describeDatabase("data view state reset on PostgreSQL", () => {
       ],
     );
     const reset = await asTenant(() =>
-      new PrismaDataViewRepo().resetOwnedViewState({
+      createTestDataViewRepo().resetOwnedViewState({
         surfaceKey,
         viewKey: ALL_VIEW_KEY,
         fields: ["pageSize", "columnOrder", "hiddenColumns", "grouping", "searchTerm"],
@@ -185,7 +184,7 @@ describeDatabase("data view state reset on PostgreSQL", () => {
   it("treats a missing All personalization as already reset", async () => {
     expect(
       await asTenant(() =>
-        new PrismaDataViewRepo().resetOwnedViewState({
+        createTestDataViewRepo().resetOwnedViewState({
           surfaceKey: `records:${randomUUID()}` as const,
           viewKey: ALL_VIEW_KEY,
           fields: ["filters"],

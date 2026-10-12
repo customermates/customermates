@@ -3,12 +3,14 @@ import type { BackgroundTaskService } from "@/core/utils/background-task.service
 import type { EventAdmission } from "@/features/event/event-admission";
 import type { RecordRecipientReader } from "@/features/records/record-recipient-reader";
 import type { WebhookAdmissionRepo } from "./webhook-admission.repo";
+import type { WebhookDeliveryAdmissionRepo } from "./webhook-delivery-admission.repo";
 
 export class WebhookAdmission implements EventAdmission {
   constructor(
     private readonly reader: RecordRecipientReader,
     private readonly background: Pick<BackgroundTaskService, "dispatch">,
     private readonly webhooks: WebhookAdmissionRepo,
+    private readonly deliveries: WebhookDeliveryAdmissionRepo,
   ) {}
 
   async admit(event: EventLog): Promise<void> {
@@ -38,7 +40,7 @@ export class WebhookAdmission implements EventAdmission {
   }
 
   private async deliver(event: EventLog, webhook: Webhook, subscriptionRevision: number | null): Promise<void> {
-    const delivery = await this.webhooks.admitDeliveryOrThrowUnscoped({ event, webhook, subscriptionRevision });
+    const delivery = await this.deliveries.admitDeliveryOrThrowUnscoped({ event, webhook, subscriptionRevision });
     if (delivery.nextAttemptAt)
       await this.background.dispatch("deliver-webhook", { deliveryId: delivery.id, companyId: event.companyId });
   }
