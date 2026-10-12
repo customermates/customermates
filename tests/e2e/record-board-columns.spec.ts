@@ -22,7 +22,7 @@ test("board columns add a record with the column value, open the option, and col
   const typeId = id("deal");
   const column = (option: string) => page.locator(`[data-group-key="value:${id(`deal.stage.${option}`)}"]`);
   await page.goto(`/en/records/${typeId}`);
-  const model = await (await page.request.post("/api/v1/model/discover", { data: {} })).json();
+  const model = await (await page.request.post("/api/v1/model/read", { data: {} })).json();
   const created = await page.request.post("/api/v1/records/mutate", {
     data: {
       expectedRevision: model.revision,

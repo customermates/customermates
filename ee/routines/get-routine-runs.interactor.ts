@@ -14,12 +14,12 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import type { GetRoutineRunsRepo } from "./get-routine-runs.repo";
 
-const Schema = z.object({
+export const GetRoutineRunsSchema = z.object({
   routineId: z.uuid(),
   cursor: z.string().max(500).nullable().optional(),
 });
 
-export type GetRoutineRunsData = Data<typeof Schema>;
+export type GetRoutineRunsData = Data<typeof GetRoutineRunsSchema>;
 
 @AllowInDemoMode
 @TenantInteractor({ resource: Resource.routines, read: true })
@@ -28,7 +28,7 @@ export class GetRoutineRunsInteractor extends AuthenticatedInteractor<GetRoutine
     super();
   }
 
-  @Validate(Schema)
+  @Validate(GetRoutineRunsSchema)
   @ValidateOutput(RoutineRunPageSchema)
   async invoke(data: GetRoutineRunsData): Validated<RoutineRunPage> {
     return {

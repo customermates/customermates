@@ -222,7 +222,7 @@ test("renders every record detail field in the input box and explains calculated
   }
   await page.emulateMedia({ colorScheme: "light" });
 
-  const discovered = RecordModelSchema.parse(await post(page, "/api/v1/model/discover", {}));
+  const discovered = RecordModelSchema.parse(await post(page, "/api/v1/model/read", {}));
   const saved = RoleApiMutationResultSchema.parse(
     await post(page, "/api/v1/roles/save", {
       name: "Deal readers",

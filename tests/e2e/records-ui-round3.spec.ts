@@ -21,7 +21,7 @@ async function api(page: Page, path: string, data: unknown) {
 }
 
 async function readModel(page: Page) {
-  return RecordModelSchema.parse(await api(page, "/api/v1/model/discover", {}));
+  return RecordModelSchema.parse(await api(page, "/api/v1/model/read", {}));
 }
 
 async function createLabList(page: Page, contactTypeId: string) {

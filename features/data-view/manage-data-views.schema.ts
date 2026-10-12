@@ -46,54 +46,54 @@ const page = {
   query: ManageDataViewQuerySchema,
 };
 
-const UpdateDataViewSchema = z
-  .object({
-    action: z.literal("update"),
-    ...surface,
-    viewKey: ViewKeySchema,
-    name: z.string().trim().min(1).max(DATA_VIEW_NAME_MAX_LENGTH).optional(),
-    state: AgentDataViewStateSchema.optional(),
-  })
-  .strict()
-  .superRefine((data, ctx) => {
-    if (data.name !== undefined || (data.state !== undefined && Object.keys(data.state).length > 0)) return;
-    ctx.addIssue({
-      code: "custom",
-      path: [],
-      params: { error: CustomErrorCode.dataViewUpdateEmpty },
-    });
+const update = {
+  ...surface,
+  viewKey: ViewKeySchema,
+  name: z.string().trim().min(1).max(DATA_VIEW_NAME_MAX_LENGTH).optional(),
+  state: AgentDataViewStateSchema.optional(),
+};
+
+function requireUpdateChange(data: { name?: string; state?: AgentDataViewState }, ctx: z.RefinementCtx) {
+  if (data.name !== undefined || (data.state !== undefined && Object.keys(data.state).length > 0)) return;
+  ctx.addIssue({
+    code: "custom",
+    path: [],
+    params: { error: CustomErrorCode.dataViewUpdateEmpty },
   });
+}
+
+const UpdateDataViewSchema = z
+  .object({ action: z.literal("update"), ...update })
+  .strict()
+  .superRefine(requireUpdateChange);
+
+export const DataViewSurfacesRequestSchema = z.object({}).strict();
+export const DataViewConfigRequestSchema = z
+  .object({ ...surface, section: DataViewConfigSectionSchema.optional(), ...page })
+  .strict();
+export const ListDataViewsRequestSchema = z.object({ ...surface, ...page }).strict();
+export const ReadDataViewRequestSchema = z.object({ ...surface, viewKey: ViewKeySchema }).strict();
+export const CreateDataViewRequestSchema = z
+  .object({
+    ...surface,
+    name: z.string().trim().min(1).max(DATA_VIEW_NAME_MAX_LENGTH),
+    state: AgentDataViewStateSchema,
+  })
+  .strict();
+export const UpdateDataViewRequestSchema = z.object(update).strict().superRefine(requireUpdateChange);
+export const SelectDataViewRequestSchema = z.object({ ...surface, viewKey: ViewKeySchema }).strict();
+export const DeleteDataViewRequestSchema = z.object({ ...surface, viewKey: z.uuid() }).strict();
 
 export const ManageDataViewsSchema = z.discriminatedUnion("action", [
-  z.object({ action: z.literal("surfaces") }).strict(),
-  z
-    .object({
-      action: z.literal("config"),
-      ...surface,
-      section: DataViewConfigSectionSchema.optional(),
-      ...page,
-    })
-    .strict(),
-  z
-    .object({
-      action: z.literal("list"),
-      ...surface,
-      viewKey: ViewKeySchema.optional(),
-      ...page,
-    })
-    .strict(),
-  z
-    .object({
-      action: z.literal("create"),
-      ...surface,
-      name: z.string().trim().min(1).max(DATA_VIEW_NAME_MAX_LENGTH),
-      state: AgentDataViewStateSchema,
-    })
-    .strict(),
+  DataViewSurfacesRequestSchema.extend({ action: z.literal("surfaces") }),
+  DataViewConfigRequestSchema.extend({ action: z.literal("config") }),
+  ListDataViewsRequestSchema.extend({ action: z.literal("list"), viewKey: ViewKeySchema.optional() }),
+  ReadDataViewRequestSchema.extend({ action: z.literal("read") }),
+  CreateDataViewRequestSchema.extend({ action: z.literal("create") }),
   UpdateDataViewSchema,
   ResetDataViewStateSchema.extend({ action: z.literal("reset") }),
-  z.object({ action: z.literal("select"), ...surface, viewKey: ViewKeySchema }).strict(),
-  z.object({ action: z.literal("delete"), ...surface, viewKey: z.uuid() }).strict(),
+  SelectDataViewRequestSchema.extend({ action: z.literal("select") }),
+  DeleteDataViewRequestSchema.extend({ action: z.literal("delete") }),
 ]);
 export type ManageDataViewsData = Data<typeof ManageDataViewsSchema>;
 
@@ -111,7 +111,7 @@ const ResultItemSchema = z.looseObject({
 
 export const ManageDataViewsResultSchema = z
   .looseObject({
-    action: z.enum(["surfaces", "config", "list", "create", "update", "select", "delete", "reset"]),
+    action: z.enum(["surfaces", "config", "list", "read", "create", "update", "select", "delete", "reset"]),
     surfaceKey: AiManageableDataViewSurfaceKeySchema.optional(),
     label: z.string().optional(),
     path: z.string().nullable().optional(),

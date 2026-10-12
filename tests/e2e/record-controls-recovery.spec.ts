@@ -35,7 +35,7 @@ async function post(page: Page, path: string, data: unknown) {
   return response.json();
 }
 async function model(page: Page) {
-  return RecordModelSchema.parse(await post(page, "/api/v1/model/discover", {}));
+  return RecordModelSchema.parse(await post(page, "/api/v1/model/read", {}));
 }
 async function mutate(page: Page, current: RecordModel, mutation: RecordMutation) {
   const result = RecordOperationResultSchema.parse(

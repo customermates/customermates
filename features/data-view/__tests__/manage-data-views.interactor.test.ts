@@ -364,6 +364,32 @@ describe("agent saved-view management", () => {
     });
   });
 
+  it("reads one exact view, including All, and requires a view key", async () => {
+    const subject = setup();
+
+    const named = await subject.run({ action: "read", surfaceKey: SURFACE.users, viewKey: VIEW_ID });
+    expect(named.ok && named.data).toMatchObject({
+      action: "read",
+      total: 1,
+      items: [{ id: VIEW_ID, name: "Existing", state: { searchTerm: "old" } }],
+      activeViewKey: VIEW_ID,
+    });
+
+    const all = await subject.run({ action: "read", surfaceKey: SURFACE.users, viewKey: ALL_VIEW_KEY });
+    expect(all.ok && all.data).toMatchObject({
+      action: "read",
+      items: [{ id: ALL_VIEW_KEY, state: { pageSize: 25 } }],
+    });
+
+    const missing = await subject.run({ action: "read", surfaceKey: SURFACE.users, viewKey: MISSING_ID });
+    expect(!missing.ok && interactorFailureKind(missing.error)).toBe("not_found");
+
+    const withoutKey = await subject.run({ action: "read", surfaceKey: SURFACE.users } as never);
+    expect(withoutKey.ok).toBe(false);
+    const paged = await subject.run({ action: "read", surfaceKey: SURFACE.users, viewKey: VIEW_ID, page: 2 } as never);
+    expect(paged.ok).toBe(false);
+  });
+
   it.each([
     { action: "list", surfaceKey: SURFACE.users, page: 0 },
     { action: "list", surfaceKey: SURFACE.users, pageSize: 0 },
