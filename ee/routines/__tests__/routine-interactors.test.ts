@@ -1375,6 +1375,7 @@ describe("per-user routine plan allowance", () => {
     const issue = result.error.issues[0];
     expect(issue?.code === "custom" ? issue.params?.error : undefined).toBe(CustomErrorCode.routineLimitReached);
     expect(issue?.code === "custom" ? issue.params?.limit : undefined).toBe(5);
+    expect(issue?.path).toEqual([]);
     expect(repo.upsertRoutineOrThrow).toHaveBeenCalledOnce();
   });
 

@@ -99,7 +99,7 @@ export class UpsertRoutineInteractor extends AuthenticatedInteractor<UpsertRouti
     } catch (error) {
       if (failureUnwindCause(error)) return unwoundFailure(error);
       if (!(error instanceof RoutineLimitExceededError)) throw error;
-      return failConflict(CustomErrorCode.routineLimitReached, ["name"], { limit: error.limit });
+      return failConflict(CustomErrorCode.routineLimitReached, [], { limit: error.limit });
     }
 
     const eventPromise = previous

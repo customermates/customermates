@@ -2097,10 +2097,10 @@
     "summaries": "Riepiloghi",
     "views": {
       "activityCount": "{count, plural, one {# attività} other {# attività}}",
-      "aiLabel": "Chiedi all’IA della vista {name}",
+      "aiLabel": "Chiedi a Mate sulla vista {name}",
       "all": "Tutte",
       "applied": "Visualizzazione di {name}",
-      "askAi": "Chiedi all'IA",
+      "askAi": "Chiedi a Mate",
       "conversationCount": "{count, plural, one {# conversazione} other {# conversazioni}}",
       "copyLink": "Copia link",
       "createTitle": "Nuova vista",
