@@ -23,9 +23,10 @@ test("persists personal detail pins, visibility and keyboard order without losin
   await expect(drawer).not.toBeVisible();
   await openRecordDetails(page, "Layout company");
   await drawer.getByRole("textbox", { name: "Name", exact: false }).fill("Draft stays here");
+  await expect(drawer.getByRole("button", { name: /^(Pin|Unpin) .* (to|from) the overview$/ })).toHaveCount(0);
+  await drawer.getByRole("button", { name: "Customize", exact: true }).click();
   await drawer.getByRole("button", { name: "Pin Name to the overview", exact: true }).click();
   await expect(drawer.locator(`[data-chip-column="${nameId}"]`)).toContainText("Draft stays here");
-  await drawer.getByRole("button", { name: "Customize", exact: true }).click();
   await expect(drawer.getByRole("link", { name: "Edit field Name", exact: true })).toHaveAttribute(
     "href",
     new RegExp(`/configure\\?typeId=${typeId}&tab=fields&focus=field%3A${nameId}$`),
@@ -105,10 +106,13 @@ test("persists personal detail pins, visibility and keyboard order without losin
   await editFormattedText(main, "Notes");
   await main.getByRole("textbox", { name: "Notes", exact: true }).fill("A note from the full-page editor");
   await expect(main.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Draft stays here");
-  await page.locator("[data-record-page-actions]").getByRole("button", { name: "Save", exact: true }).click();
-  await expect(
-    page.locator("[data-record-page-actions]").getByRole("button", { name: "Save", exact: true }),
-  ).toHaveCount(0);
+  await expect(page.locator("[data-record-page-actions]").getByRole("button", { name: "Save", exact: true })).toHaveCount(
+    0,
+  );
+  const pageBar = main.locator("[data-slot='unsaved-changes-bar']");
+  await expect(pageBar).toContainText("Unsaved changes");
+  await pageBar.getByRole("button", { name: "Save", exact: true }).click();
+  await expect(pageBar).toHaveCount(0);
   const notesId = presetId(companyId, "organization.notes");
   await expect
     .poll(async () => {

@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { KEYBOARD_P13N_ID, KeyboardPreferencesSchema } from "./keyboard-preferences.schema";
 import { SIDEBAR_P13N_ID, SidebarLayoutSchema } from "./sidebar-layout.schema";
+import { SublistColumnsSchema, isSublistColumnsP13nId } from "./sublist-columns.schema";
 
 export const CONFIGURE_GRAPH_P13N_ID = "configure-graph";
 export const CONFIGURE_GRAPH_MAX_POSITIONS = 500;
@@ -31,7 +32,12 @@ export type P13nSettingsId = keyof typeof P13N_SETTINGS_SCHEMAS;
 
 export type P13nSettingsOf<Id extends P13nSettingsId> = z.infer<(typeof P13N_SETTINGS_SCHEMAS)[Id]>;
 
-export const P13nSettingsSchema = z.union([SidebarLayoutSchema, ConfigureGraphLayoutSchema, KeyboardPreferencesSchema]);
+export const P13nSettingsSchema = z.union([
+  SidebarLayoutSchema,
+  ConfigureGraphLayoutSchema,
+  KeyboardPreferencesSchema,
+  SublistColumnsSchema,
+]);
 
 export type P13nSettings = z.infer<typeof P13nSettingsSchema>;
 
@@ -40,6 +46,7 @@ function isP13nSettingsId(p13nId: string): p13nId is P13nSettingsId {
 }
 
 export function p13nSettingsSchema(p13nId: string) {
+  if (isSublistColumnsP13nId(p13nId)) return SublistColumnsSchema;
   return isP13nSettingsId(p13nId) ? P13N_SETTINGS_SCHEMAS[p13nId] : undefined;
 }
 

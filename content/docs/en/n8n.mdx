@@ -38,8 +38,12 @@ Use an **HTTP Request** node with an `x-api-key` credential and JSON matching th
 | Create, update, delete, link, or unlink | `POST /api/v1/records/mutate` |
 | Preview a deletion | `POST /api/v1/records/preview-deletion` |
 | Export or import | `POST /api/v1/records/export` or `POST /api/v1/records/import` |
+| List, restore or permanently delete Trash items | `POST /api/v1/trash/query`, `POST /api/v1/trash/restore`, `POST /api/v1/trash/preview`, `POST /api/v1/trash/delete-permanently` or `POST /api/v1/trash/empty` |
+| Preview or apply a configuration change | `POST /api/v1/model/preview` or `POST /api/v1/model/apply` |
+| Aggregate values for a report | `POST /api/v1/reports/query` |
+| Follow, cancel or resume a pending operation | `POST /api/v1/operations/status`, `POST /api/v1/operations/cancel` or `POST /api/v1/operations/resume` |
 
-**Breaking change:** these routes replaced the former entity-specific endpoints and the `/api/v2` prefix, which were removed. Update HTTP Request nodes that still call a contact, organization, deal, service or task endpoint.
+**Breaking change:** these routes replaced the former entity-specific endpoints, which were removed. Update HTTP Request nodes that still call a contact, organization, deal, service or task endpoint.
 
 The base URL is the address at which you open Customermates. A mutation carries a stable `typeId`, an idempotency key and the expected configuration revision; updates and deletes also carry the record reference and expected version. Fields are typed assignments, and links name a relationship definition. A deletion may require a current impact preview hash. See [filter syntax](/docs/filter-syntax) for query shapes.
 

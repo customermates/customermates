@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
     const input = await request.json().catch(mapRequestJsonError);
     const result = await getDeleteRoleInteractor().invoke(input);
     if (!result.ok) return interactorFailureResponse(result.error);
-    return NextResponse.json(result.data);
+    return NextResponse.json({ deletedId: result.data });
   } catch (error) {
     return handleError(error);
   }

@@ -31,6 +31,8 @@ Choose an overlay by what the interaction is, not by how much room is left.
 - Escape closes only the top layer. Pressed inside an assistant surface, it belongs to the assistant, which takes it with `claimEscapeForAssistant`: it ends a running tour, or closes the panel while no spotlight is showing, and the page overlay beneath stays open. Pressed anywhere else, only the most recently opened layer closes, and the panel closes only when no other layer is open.
 - An AppModal launched from the assistant passes `layerClassName={OVERLAY_TOPMOST_LAYER_CLASS}`, covers the panel, and keeps its focus trap.
 - Drawers and ResponsiveOverlay move focus into themselves when they open, as the desktop dialog does, and an overlay without a description renders no `aria-describedby`.
+- A programmatically focused container never draws the browser's default focus outline. Overlay contents carry `outline-none`, and the base layer of `styles/globals.css` clears the outline on `[tabindex="-1"]`, overlay surfaces, Radix popper content, and `main`. Interactive controls keep the design-system `focus-visible` ring.
+- CommandDialog renders Close inside the `CommandInput` row, vertically centred, with its glyph inset from the right edge by the same distance as the search icon from the left.
 - Controlled overlays without a primitive trigger use `useOverlayFocusReturn`. Custom navigation lifecycles reuse `overlay-focus-target` rather than duplicating element, stable-ID, visibility, or remount logic.
 - Always provide a stable focus fallback when an opener can unmount. Never return focus into an inert or closing overlay.
 - Import raw `radix-ui` overlay roots and `cmdk` only inside `components/ui/*`; all other code composes these wrappers.

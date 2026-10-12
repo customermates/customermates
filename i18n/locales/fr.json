@@ -1590,6 +1590,7 @@
       "system": "Système"
     },
     "unnamed": "Sans nom",
+    "unsavedChanges": "Modifications non enregistrées",
     "userStatuses": {
       "active": "Actif",
       "inactive": "Inactif",
@@ -3606,6 +3607,7 @@
     "required": "Obligatoire",
     "resetDetailLayout": "Rétablir les valeurs par défaut",
     "resetLayout": "Réinitialiser la disposition",
+    "resetSublistColumns": "Rétablir les valeurs par défaut",
     "restricted": "Accès restreint",
     "resume": "Reprendre",
     "retry": "Réessayer",
@@ -3644,6 +3646,8 @@
         "singular": "Tâche"
       }
     },
+    "sublistColumns": "Colonnes de {list}",
+    "sublistColumnsSection": "Colonnes",
     "sublistSentence": "Sous-liste de {list} · chaque entrée vit dans un élément {parent}, partage ses accès et est supprimée avec lui.",
     "suggestedAttribute": "Suggestion",
     "summaryAggregation": "Calcul",

@@ -154,12 +154,13 @@ describeDatabase("manual record order", () => {
     const cId = await f.createDeal("C", open);
     expect(await f.ordered()).toEqual(["C", "B", "A"]);
 
-    const version = (await f.stored(a)).version;
+    const { version, updatedAt } = await f.stored(a);
     const events = await f.history(a);
 
     expect(await f.move(a, { afterRecordId: cId })).toMatchObject({ ok: true });
     expect(await f.ordered()).toEqual(["C", "A", "B"]);
     expect((await f.stored(a)).version).toBe(version);
+    expect((await f.stored(a)).updatedAt).toEqual(updatedAt);
     expect(await f.history(a)).toBe(events);
 
     expect(await f.move(b, { beforeRecordId: cId })).toMatchObject({ ok: true });

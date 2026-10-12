@@ -1590,6 +1590,7 @@
       "system": "System"
     },
     "unnamed": "Unnamed",
+    "unsavedChanges": "Unsaved changes",
     "userStatuses": {
       "active": "Active",
       "inactive": "Inactive",
@@ -3606,6 +3607,7 @@
     "required": "Required",
     "resetDetailLayout": "Reset to default",
     "resetLayout": "Reset layout",
+    "resetSublistColumns": "Reset to default",
     "restricted": "Restricted",
     "resume": "Resume",
     "retry": "Retry",
@@ -3644,6 +3646,8 @@
         "singular": "Task"
       }
     },
+    "sublistColumns": "Columns for {list}",
+    "sublistColumnsSection": "Columns",
     "sublistSentence": "Sub-list of {list} · each entry lives inside one {parent}, shares its access and is removed with it.",
     "suggestedAttribute": "Suggested",
     "summaryAggregation": "Calculation",

@@ -43,7 +43,11 @@ function widget(id: string, x: number, y: number): WidgetDto {
     groupOptions: [],
     displayOptions: { displayType: DisplayType.verticalBarChart },
     measure: {
-      source: { typeId: "00000000-0000-4000-8000-000000000099", filters: [], relationships: [] },
+      source: {
+        typeId: "00000000-0000-4000-8000-000000000099",
+        filters: [],
+        relationships: [],
+      },
       aggregation: "count",
       valueFieldId: null,
       groupBy: null,
@@ -92,12 +96,14 @@ describe("WidgetsStore refresh compatibility", () => {
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
     store.setItems({ items: [widget(FIRST_ID, 0, 0)] });
-    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(SECOND_ID, 6, 4)] });
+    refreshWidgetsAction.mockResolvedValueOnce({
+      items: [widget(SECOND_ID, 6, 4)],
+    });
 
     await store.refresh();
 
     expect(store.items.map(({ id }) => id)).toEqual([SECOND_ID]);
-    expect(store.layouts.lg).toEqual([{ h: 2, i: SECOND_ID, w: 3, x: 6, y: 4 }]);
+    expect(store.layouts.lg).toEqual([{ h: 2, i: SECOND_ID, minH: 2, w: 3, x: 6, y: 4 }]);
     expect(store.layouts.lg).not.toEqual(expect.arrayContaining([expect.objectContaining({ i: FIRST_ID })]));
     expect(store.isReady).toBe(true);
     expect(store.isRefreshing).toBe(false);
@@ -107,7 +113,9 @@ describe("WidgetsStore refresh compatibility", () => {
   it("reports a rejected layout write instead of leaving the dropped promise unhandled", async () => {
     const root = {
       localeStore: { getTranslation: (key: string) => key },
-      loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
+      loadingOverlayStore: {
+        withLoading: (run: () => Promise<unknown>) => run(),
+      },
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
     const initial = widget(FIRST_ID, 0, 0);
@@ -164,16 +172,24 @@ describe("WidgetsStore refresh compatibility", () => {
   it("reverts the layout when the server rejects the write without throwing", async () => {
     const root = {
       localeStore: { getTranslation: (key: string) => key },
-      loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
+      loadingOverlayStore: {
+        withLoading: (run: () => Promise<unknown>) => run(),
+      },
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
     const initial = widget(FIRST_ID, 0, 0);
     refreshWidgetsAction.mockResolvedValueOnce({ items: [initial] });
     await store.refresh();
 
-    updateWidgetLayoutsAction.mockResolvedValueOnce({ ok: false, error: { errors: ["nope"] } });
+    updateWidgetLayoutsAction.mockResolvedValueOnce({
+      ok: false,
+      error: { errors: ["nope"] },
+    });
     const before = JSON.parse(JSON.stringify(store.layouts)) as typeof store.layouts;
-    const moved = { ...store.layouts, lg: [{ h: 2, i: FIRST_ID, w: 3, x: 1, y: 0 }] };
+    const moved = {
+      ...store.layouts,
+      lg: [{ h: 2, i: FIRST_ID, w: 3, x: 1, y: 0 }],
+    };
 
     store.onLayoutChange([], moved);
 
@@ -185,16 +201,23 @@ describe("WidgetsStore refresh compatibility", () => {
   it("serializes layout writes and persists only the newest queued arrangement", async () => {
     const root = {
       localeStore: { getTranslation: (key: string) => key },
-      loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
+      loadingOverlayStore: {
+        withLoading: (run: () => Promise<unknown>) => run(),
+      },
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
-    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0)] });
+    refreshWidgetsAction.mockResolvedValueOnce({
+      items: [widget(FIRST_ID, 0, 0)],
+    });
     await store.refresh();
     const first = Promise.withResolvers<unknown>();
     updateWidgetLayoutsAction
       .mockReturnValueOnce(first.promise)
       .mockImplementation(({ layouts }: UpdateWidgetLayoutsData) => Promise.resolve(layoutResult(layouts, 3)));
-    const move = (x: number) => ({ ...store.layouts, lg: [{ h: 2, i: FIRST_ID, w: 3, x, y: 0 }] });
+    const move = (x: number) => ({
+      ...store.layouts,
+      lg: [{ h: 2, i: FIRST_ID, w: 3, x, y: 0 }],
+    });
     store.onLayoutChange([], move(1));
     store.onLayoutChange([], move(2));
     const final = move(3);
@@ -209,16 +232,24 @@ describe("WidgetsStore refresh compatibility", () => {
   it("still saves a queued arrangement when the dashboard view changes during a layout write", async () => {
     const root = {
       localeStore: { getTranslation: (key: string) => key },
-      loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
+      loadingOverlayStore: {
+        withLoading: (run: () => Promise<unknown>) => run(),
+      },
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
-    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0)], activeViewKey: "__all__" });
+    refreshWidgetsAction.mockResolvedValueOnce({
+      items: [widget(FIRST_ID, 0, 0)],
+      activeViewKey: "__all__",
+    });
     await store.refresh();
     const first = Promise.withResolvers<unknown>();
     updateWidgetLayoutsAction
       .mockReturnValueOnce(first.promise)
       .mockImplementation(({ layouts }: UpdateWidgetLayoutsData) => Promise.resolve(layoutResult(layouts, 3)));
-    const move = (x: number) => ({ ...store.layouts, lg: [{ h: 2, i: FIRST_ID, w: 3, x, y: 0 }] });
+    const move = (x: number) => ({
+      ...store.layouts,
+      lg: [{ h: 2, i: FIRST_ID, w: 3, x, y: 0 }],
+    });
     store.onLayoutChange([], move(1));
     const queued = move(2);
     store.onLayoutChange([], queued);
@@ -236,10 +267,14 @@ describe("WidgetsStore refresh compatibility", () => {
   it("keeps a queued layout after failure and rolls back a later failure to the last successful arrangement", async () => {
     const root = {
       localeStore: { getTranslation: (key: string) => key },
-      loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
+      loadingOverlayStore: {
+        withLoading: (run: () => Promise<unknown>) => run(),
+      },
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
-    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0)] });
+    refreshWidgetsAction.mockResolvedValueOnce({
+      items: [widget(FIRST_ID, 0, 0)],
+    });
     await store.refresh();
     const first = Promise.withResolvers<unknown>();
     const second = Promise.withResolvers<unknown>();
@@ -247,8 +282,14 @@ describe("WidgetsStore refresh compatibility", () => {
     const unregister = registerApplicationErrorHandler((error) => seen.push(error));
     try {
       updateWidgetLayoutsAction.mockReturnValueOnce(first.promise).mockReturnValueOnce(second.promise);
-      store.onLayoutChange([], { ...store.layouts, lg: [{ h: 2, i: FIRST_ID, w: 3, x: 1, y: 0 }] });
-      const latest = { ...store.layouts, lg: [{ h: 2, i: FIRST_ID, w: 3, x: 2, y: 0 }] };
+      store.onLayoutChange([], {
+        ...store.layouts,
+        lg: [{ h: 2, i: FIRST_ID, w: 3, x: 1, y: 0 }],
+      });
+      const latest = {
+        ...store.layouts,
+        lg: [{ h: 2, i: FIRST_ID, minH: 2, w: 3, x: 2, y: 0 }],
+      };
       store.onLayoutChange([], latest);
       const error = new Error("Earlier layout failed");
       first.reject(error);
@@ -259,7 +300,10 @@ describe("WidgetsStore refresh compatibility", () => {
       await vi.waitFor(() => expect(store.layouts).toEqual(latest));
       const failure = new Error("Latest layout failed");
       updateWidgetLayoutsAction.mockRejectedValueOnce(failure);
-      store.onLayoutChange([], { ...latest, lg: [{ h: 2, i: FIRST_ID, w: 3, x: 3, y: 0 }] });
+      store.onLayoutChange([], {
+        ...latest,
+        lg: [{ h: 2, i: FIRST_ID, w: 3, x: 3, y: 0 }],
+      });
       await vi.waitFor(() => expect(seen).toEqual([error, failure]));
       expect(store.layouts).toEqual(latest);
     } finally {
@@ -273,17 +317,27 @@ describe("WidgetsStore refresh compatibility", () => {
       const root = {
         userStore: { user: { id: "user-1", companyId: "company-1" } },
         localeStore: { getTranslation: (key: string) => key },
-        loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
+        loadingOverlayStore: {
+          withLoading: (run: () => Promise<unknown>) => run(),
+        },
       } as unknown as RootStore;
       const store = new WidgetsStore(root);
-      refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0)] });
+      refreshWidgetsAction.mockResolvedValueOnce({
+        items: [widget(FIRST_ID, 0, 0)],
+      });
       await store.refresh();
       const pending = Promise.withResolvers<unknown>();
       updateWidgetLayoutsAction
         .mockReturnValueOnce(pending.promise)
         .mockImplementation(({ layouts }: UpdateWidgetLayoutsData) => Promise.resolve(layoutResult(layouts, 3)));
-      store.onLayoutChange([], { ...store.layouts, lg: [{ h: 2, i: FIRST_ID, w: 3, x: 1, y: 0 }] });
-      store.onLayoutChange([], { ...store.layouts, lg: [{ h: 2, i: FIRST_ID, w: 3, x: 2, y: 0 }] });
+      store.onLayoutChange([], {
+        ...store.layouts,
+        lg: [{ h: 2, i: FIRST_ID, w: 3, x: 1, y: 0 }],
+      });
+      store.onLayoutChange([], {
+        ...store.layouts,
+        lg: [{ h: 2, i: FIRST_ID, w: 3, x: 2, y: 0 }],
+      });
       if (replacement === "collection") store.setItems({ items: [widget(SECOND_ID, 6, 4)] });
       else {
         const actor = root.userStore.user;
@@ -308,10 +362,14 @@ describe("WidgetsStore refresh compatibility", () => {
   it("retains pending positions across a same-collection data refresh and a subsequent removal", async () => {
     const root = {
       localeStore: { getTranslation: (key: string) => key },
-      loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
+      loadingOverlayStore: {
+        withLoading: (run: () => Promise<unknown>) => run(),
+      },
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
-    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0), widget(SECOND_ID, 6, 4)] });
+    refreshWidgetsAction.mockResolvedValueOnce({
+      items: [widget(FIRST_ID, 0, 0), widget(SECOND_ID, 6, 4)],
+    });
     await store.refresh();
     const first = Promise.withResolvers<unknown>();
     const second = Promise.withResolvers<unknown>();
@@ -322,14 +380,19 @@ describe("WidgetsStore refresh compatibility", () => {
     });
     store.onLayoutChange([], move(1));
     store.onLayoutChange([], move(2));
-    store.setItems({ items: [widget(FIRST_ID, 0, 0), widget(SECOND_ID, 6, 4)] });
+    store.setItems({
+      items: [widget(FIRST_ID, 0, 0), widget(SECOND_ID, 6, 4)],
+    });
     expect(store.layouts.lg?.find((item) => item.i === FIRST_ID)?.x).toBe(2);
     await store.removeItem(SECOND_ID);
     expect(store.layouts.lg?.map((item) => item.i)).toEqual([FIRST_ID]);
     first.resolve(layoutResult(updateWidgetLayoutsAction.mock.calls[0][0].layouts));
     await vi.waitFor(() => expect(updateWidgetLayoutsAction).toHaveBeenCalledTimes(2));
     expect(updateWidgetLayoutsAction.mock.calls[1][0].layouts.lg).toEqual([{ i: FIRST_ID, x: 2, y: 0, w: 3, h: 2 }]);
-    second.resolve({ ok: false, error: { errors: ["Rejected latest layout"] } });
+    second.resolve({
+      ok: false,
+      error: { errors: ["Rejected latest layout"] },
+    });
     await vi.waitFor(() => expect(store.layouts.lg?.find((item) => item.i === FIRST_ID)?.x).toBe(1));
     expect(store.layouts.lg?.map((item) => item.i)).toEqual([FIRST_ID]);
   });
@@ -337,10 +400,14 @@ describe("WidgetsStore refresh compatibility", () => {
   it("retains confirmed positions after a completed save followed by removing another widget", async () => {
     const root = {
       localeStore: { getTranslation: (key: string) => key },
-      loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
+      loadingOverlayStore: {
+        withLoading: (run: () => Promise<unknown>) => run(),
+      },
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
-    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0), widget(SECOND_ID, 6, 4)] });
+    refreshWidgetsAction.mockResolvedValueOnce({
+      items: [widget(FIRST_ID, 0, 0), widget(SECOND_ID, 6, 4)],
+    });
     await store.refresh();
     updateWidgetLayoutsAction.mockImplementationOnce(({ layouts }: UpdateWidgetLayoutsData) =>
       Promise.resolve(layoutResult(layouts)),
@@ -362,10 +429,14 @@ describe("WidgetsStore refresh compatibility", () => {
   it("rejects a pre-save refresh and stale server props after a confirmed layout write", async () => {
     const root = {
       localeStore: { getTranslation: (key: string) => key },
-      loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
+      loadingOverlayStore: {
+        withLoading: (run: () => Promise<unknown>) => run(),
+      },
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
-    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0)] });
+    refreshWidgetsAction.mockResolvedValueOnce({
+      items: [widget(FIRST_ID, 0, 0)],
+    });
     await store.refresh();
     const read = Promise.withResolvers<{ items: WidgetDto[] }>();
     refreshWidgetsAction.mockReturnValueOnce(read.promise);
@@ -373,7 +444,10 @@ describe("WidgetsStore refresh compatibility", () => {
     updateWidgetLayoutsAction.mockImplementationOnce(({ layouts }: UpdateWidgetLayoutsData) =>
       Promise.resolve(layoutResult(layouts)),
     );
-    store.onLayoutChange([], { ...store.layouts, lg: [{ h: 2, i: FIRST_ID, w: 3, x: 2, y: 0 }] });
+    store.onLayoutChange([], {
+      ...store.layouts,
+      lg: [{ h: 2, i: FIRST_ID, w: 3, x: 2, y: 0 }],
+    });
     await new Promise((resolve) => setTimeout(resolve, 0));
     read.resolve({ items: [widget(FIRST_ID, 0, 0)] });
     await refreshing;
@@ -388,20 +462,51 @@ describe("WidgetsStore refresh compatibility", () => {
   it("retains layout receipts without pretending that an unseen configuration version was read", async () => {
     const root = {
       localeStore: { getTranslation: (key: string) => key },
-      loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
+      loadingOverlayStore: {
+        withLoading: (run: () => Promise<unknown>) => run(),
+      },
     } as unknown as RootStore;
     const store = new WidgetsStore(root);
-    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0)] });
+    refreshWidgetsAction.mockResolvedValueOnce({
+      items: [widget(FIRST_ID, 0, 0)],
+    });
     await store.refresh();
     updateWidgetLayoutsAction.mockImplementationOnce(({ layouts }: UpdateWidgetLayoutsData) =>
       Promise.resolve(layoutResult(layouts, 4)),
     );
-    store.onLayoutChange([], { ...store.layouts, lg: [{ h: 2, i: FIRST_ID, w: 3, x: 2, y: 0 }] });
+    store.onLayoutChange([], {
+      ...store.layouts,
+      lg: [{ h: 2, i: FIRST_ID, w: 3, x: 2, y: 0 }],
+    });
     await new Promise((resolve) => setTimeout(resolve, 0));
     expect(store.items[0].version).toBe(1);
-    store.setItems({ items: [{ ...widget(FIRST_ID, 0, 0), version: 3, name: "Concurrent configuration" }] });
-    expect(store.items[0]).toMatchObject({ name: "Concurrent configuration", version: 3, layout: { lg: { x: 2 } } });
-    store.setItems({ items: [{ ...widget(FIRST_ID, 2, 0), version: 4, name: "Confirmed configuration" }] });
-    expect(store.items[0]).toMatchObject({ name: "Confirmed configuration", version: 4, layout: { lg: { x: 2 } } });
+    store.setItems({
+      items: [
+        {
+          ...widget(FIRST_ID, 0, 0),
+          version: 3,
+          name: "Concurrent configuration",
+        },
+      ],
+    });
+    expect(store.items[0]).toMatchObject({
+      name: "Concurrent configuration",
+      version: 3,
+      layout: { lg: { x: 2 } },
+    });
+    store.setItems({
+      items: [
+        {
+          ...widget(FIRST_ID, 2, 0),
+          version: 4,
+          name: "Confirmed configuration",
+        },
+      ],
+    });
+    expect(store.items[0]).toMatchObject({
+      name: "Confirmed configuration",
+      version: 4,
+      layout: { lg: { x: 2 } },
+    });
   });
 });

@@ -5,7 +5,7 @@ import type { WidgetLayout } from "./widget-display.schema";
 import { DisplayType } from "./widget-display.schema";
 
 export const WIDGET_GRID_COLUMNS = 12;
-export const WIDGET_GRID_MAX_HEIGHT = 12;
+export const WIDGET_GRID_MAX_HEIGHT = 24;
 export const WIDGET_GRID_MAX_ROW = 1000;
 
 type WidgetKindName = "chart" | "activityTimeline";
@@ -27,7 +27,12 @@ export const WidgetPlacementSchema = z
       .max(WIDGET_GRID_MAX_ROW)
       .describe("Row from the top. Widgets float up into empty rows above them, as on the dashboard."),
     w: z.number().int().min(1).max(WIDGET_GRID_COLUMNS).describe("Width in columns, 1 to 12."),
-    h: z.number().int().min(1).max(WIDGET_GRID_MAX_HEIGHT).describe("Height in rows of 124 px, 1 to 12."),
+    h: z
+      .number()
+      .int()
+      .min(1)
+      .max(WIDGET_GRID_MAX_HEIGHT)
+      .describe("Height in rows of 54 px with 16 px gaps, 1 to 24."),
   })
   .strict()
   .refine((value) => value.x + value.w <= WIDGET_GRID_COLUMNS, {
@@ -39,8 +44,9 @@ export const WidgetPlacementSchema = z
   );
 export type WidgetPlacement = z.infer<typeof WidgetPlacementSchema>;
 
-export function widgetMinimumSize(kind: WidgetKindName): { w: number; h: number } {
-  return kind === "activityTimeline" ? { w: 2, h: 3 } : { w: 1, h: 1 };
+export function widgetMinimumSize(kind: WidgetKindName, displayType?: DisplayType): { w: number; h: number } {
+  if (kind === "activityTimeline") return { w: 2, h: 6 };
+  return displayType === DisplayType.number ? { w: 1, h: 3 } : { w: 1, h: 2 };
 }
 
 export type WidgetLayoutGeometry = { w: number; h: number; minW?: number; minH?: number };
@@ -49,37 +55,39 @@ export function widgetLayoutGeometry(
   kind: WidgetKindName,
   cols: number,
   persisted?: { w: number; h: number },
+  displayType?: DisplayType,
 ): WidgetLayoutGeometry {
-  if (kind === "chart") return { w: Math.min(persisted?.w ?? 4, cols), h: persisted?.h ?? 4 };
-  const minimum = widgetMinimumSize(kind);
+  const minimum = widgetMinimumSize(kind, displayType);
+  if (kind === "chart")
+    return { w: Math.min(persisted?.w ?? 4, cols), h: Math.max(minimum.h, persisted?.h ?? 8), minH: minimum.h };
   const minW = Math.min(minimum.w, cols);
   return {
     w: Math.max(minW, Math.min(persisted?.w ?? Math.min(cols >= 12 ? 6 : 4, cols), cols)),
-    h: Math.max(minimum.h, persisted?.h ?? 4),
+    h: Math.max(minimum.h, persisted?.h ?? 8),
     minW,
     minH: minimum.h,
   };
 }
 
 export function widgetDefaultSize(kind: WidgetKindName, displayType?: DisplayType): { w: number; h: number } {
-  if (kind === "activityTimeline") return { w: 6, h: 4 };
+  if (kind === "activityTimeline") return { w: 6, h: 8 };
   switch (displayType) {
     case DisplayType.number:
-      return { w: 3, h: 2 };
+      return { w: 3, h: 3 };
     case DisplayType.areaChart:
-      return { w: 6, h: 3 };
+      return { w: 6, h: 6 };
     case DisplayType.doughnutChart:
     case DisplayType.radarChart:
-      return { w: 3, h: 3 };
+      return { w: 3, h: 6 };
     case DisplayType.rankedTable:
     case DisplayType.funnelChart:
     case DisplayType.horizontalBarChart:
     case DisplayType.horizontalBarChartWithLabels:
-      return { w: 4, h: 3 };
+      return { w: 4, h: 6 };
     case undefined:
-      return { w: 4, h: 4 };
+      return { w: 4, h: 8 };
     default:
-      return { w: 4, h: 3 };
+      return { w: 4, h: 6 };
   }
 }
 
@@ -147,7 +155,7 @@ export function placeWidget(args: {
 }): PlacementResult {
   const others = occupiedGrid(args.widgets).filter((rect) => rect.id !== args.id);
   if (args.requested) {
-    const minimum = widgetMinimumSize(args.kind);
+    const minimum = widgetMinimumSize(args.kind, args.displayType);
     if (args.requested.w < minimum.w || args.requested.h < minimum.h) return { ok: false, reason: "tooSmall" };
     const conflict = others.find((rect) => rectsOverlap(rect, args.requested as GridRect));
     return conflict
