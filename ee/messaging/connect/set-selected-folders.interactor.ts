@@ -17,10 +17,12 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import type { SetSelectedFoldersRepo } from "./set-selected-folders.repo";
 
-export const SetSelectedFoldersSchema = z.object({
-  id: z.uuid(),
-  selectedFolderIds: z.array(z.string()),
-});
+export const SetSelectedFoldersSchema = z
+  .object({
+    id: z.uuid(),
+    selectedFolderIds: z.array(z.string()),
+  })
+  .strict();
 type SetSelectedFoldersData = Data<typeof SetSelectedFoldersSchema>;
 
 @TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
