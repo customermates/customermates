@@ -39,7 +39,7 @@ export const memberApiPaths = {
       operationId: "inviteMembers",
       summary: "Invite members by email",
       description:
-        "Sends a workspace invitation email with the workspace's invitation link to each address, 1 to 20 per call; duplicate addresses receive one email. An invited person joins with no role until an administrator assigns one through POST /v1/members/update. Returns how many emails were sent. Requires: Users & Roles Manage (create).",
+        "Sends a workspace invitation email with the workspace's invitation link to each address, 1 to 20 per call; duplicate addresses receive one email. An invited person joins with no role until an administrator assigns one through POST /v1/members/update. Returns how many emails were sent. Requires: Users & Roles Create.",
       tags: ["members"],
       security: [{ apiKeyAuth: [] }],
       requestBody: {
@@ -65,7 +65,7 @@ export const memberApiPaths = {
       operationId: "updateMember",
       summary: "Change a member's role or status",
       description:
-        "Saves another member's profile, role and status in one call, as the members settings page does. Read the member from POST /v1/users/search, send every field, and change roleId and/or status: status inactive deactivates the member and frees their seat, active reactivates them. The member is identified by email. You cannot update your own membership, a platform operator cannot be deactivated, and the workspace always keeps an active member with a system role. Requires: Users & Roles Manage (update).",
+        "Saves another member's profile, role and status in one call, as the members settings page does. Read the member from POST /v1/users/search, send every field, and change roleId and/or status: status inactive deactivates the member and frees their seat, active reactivates them. The member is identified by email. You cannot update your own membership, a platform operator cannot be deactivated, and the workspace always keeps an active member with a system role. Requires: Users & Roles Edit.",
       tags: ["members"],
       security: [{ apiKeyAuth: [] }],
       requestBody: {

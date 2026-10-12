@@ -21,8 +21,10 @@ const EXAMPLE_PAGE_ID = "00000000-0000-4000-8000-000000000001";
 const EXAMPLE_TARGET_ID = "00000000-0000-4000-8000-000000000002";
 const EXAMPLE_UPDATED_AT = "2026-10-01T09:30:00.000Z";
 
-const READ = "Requires: Knowledge Base Read.";
-const MANAGE = "Requires: Knowledge Base Manage.";
+const READ = "Requires: Knowledge Base read access.";
+const CREATE = "Requires: Knowledge Base Create.";
+const EDIT = "Requires: Knowledge Base Edit.";
+const DELETE = "Requires: Knowledge Base Delete.";
 
 function wikiOperation(
   operationId: string,
@@ -88,7 +90,7 @@ export const wikiApiPaths = {
     post: wikiOperation(
       "createWikiPages",
       "Create Knowledge Base pages",
-      `Creates one to five pages atomically and appends them to the saved order. kind defaults to knowledge; a procedure needs whenToUse and numbered steps; the workspace has at most one guide. With requireEmpty, the call fails with 409 unless the Knowledge Base is empty. ${MANAGE}`,
+      `Creates one to five pages atomically and appends them to the saved order. kind defaults to knowledge; a procedure needs whenToUse and numbered steps; the workspace has at most one guide. With requireEmpty, the call fails with 409 unless the Knowledge Base is empty. ${CREATE}`,
       CreateWikiPagesSchema,
       {
         pages: [
@@ -108,7 +110,7 @@ export const wikiApiPaths = {
     post: wikiOperation(
       "updateWikiPage",
       "Update a Knowledge Base page",
-      `Changes the title, Markdown, kind or whenToUse of one page; omitted fields keep their values. Send updatedAt from your latest read as expectedUpdatedAt: a page changed since answers 409, so read it again and retry. ${MANAGE}`,
+      `Changes the title, Markdown, kind or whenToUse of one page; omitted fields keep their values. Send updatedAt from your latest read as expectedUpdatedAt: a page changed since answers 409, so read it again and retry. ${EDIT}`,
       UpdateWikiPageSchema,
       { id: EXAMPLE_PAGE_ID, expectedUpdatedAt: EXAMPLE_UPDATED_AT, title: "Support handoff" },
       WikiPageDtoSchema,
@@ -119,7 +121,7 @@ export const wikiApiPaths = {
     post: wikiOperation(
       "moveWikiPage",
       "Move a Knowledge Base page",
-      `Places a page before or after another page in the order the whole workspace shares. Content and edit timestamps are unchanged. The Operating Guide stays pinned first: it can be neither moved nor used as the target. ${MANAGE}`,
+      `Places a page before or after another page in the order the whole workspace shares. Content and edit timestamps are unchanged. The Operating Guide stays pinned first: it can be neither moved nor used as the target. ${EDIT}`,
       MoveWikiPageSchema,
       { id: EXAMPLE_PAGE_ID, targetId: EXAMPLE_TARGET_ID, placement: "after" },
       z.literal(true),
@@ -130,7 +132,7 @@ export const wikiApiPaths = {
     post: wikiOperation(
       "deleteWikiPage",
       "Delete a Knowledge Base page",
-      `Moves one page to Trash, where it is deleted permanently after 30 days unless POST /v1/trash/restore restores it with the returned trashBatchId. Send updatedAt from your latest read as expectedUpdatedAt. ${MANAGE}`,
+      `Moves one page to Trash, where it is deleted permanently after 30 days unless POST /v1/trash/restore restores it with the returned trashBatchId. Send updatedAt from your latest read as expectedUpdatedAt. ${DELETE}`,
       DeleteWikiPageSchema,
       { id: EXAMPLE_PAGE_ID, expectedUpdatedAt: EXAMPLE_UPDATED_AT },
       DeleteWikiPageResultSchema,

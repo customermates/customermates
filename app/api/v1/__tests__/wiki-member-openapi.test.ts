@@ -10,15 +10,15 @@ type Operation = {
 };
 
 const OPERATIONS = [
-  ["/v1/wiki/list", "post", "Knowledge Base Read"],
-  ["/v1/wiki/search", "post", "Knowledge Base Read"],
-  ["/v1/wiki/read", "post", "Knowledge Base Read"],
-  ["/v1/wiki/create", "post", "Knowledge Base Manage"],
-  ["/v1/wiki/update", "post", "Knowledge Base Manage"],
-  ["/v1/wiki/move", "post", "Knowledge Base Manage"],
-  ["/v1/wiki/delete", "post", "Knowledge Base Manage"],
-  ["/v1/members/invite", "post", "Users & Roles Manage (create)"],
-  ["/v1/members/update", "post", "Users & Roles Manage (update)"],
+  ["/v1/wiki/list", "post", "Knowledge Base read access"],
+  ["/v1/wiki/search", "post", "Knowledge Base read access"],
+  ["/v1/wiki/read", "post", "Knowledge Base read access"],
+  ["/v1/wiki/create", "post", "Knowledge Base Create"],
+  ["/v1/wiki/update", "post", "Knowledge Base Edit"],
+  ["/v1/wiki/move", "post", "Knowledge Base Edit"],
+  ["/v1/wiki/delete", "post", "Knowledge Base Delete"],
+  ["/v1/members/invite", "post", "Users & Roles Create"],
+  ["/v1/members/update", "post", "Users & Roles Edit"],
   ["/v1/users/me", "patch", "an active workspace membership"],
 ] as const;
 

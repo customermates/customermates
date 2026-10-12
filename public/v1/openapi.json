@@ -55179,7 +55179,7 @@
       "post": {
         "operationId": "listWikiPages",
         "summary": "List Knowledge Base pages",
-        "description": "Lists Knowledge Base pages without their Markdown: the Operating Guide first, then the other pages in the workspace's saved order. Filter by kind (guide, procedure or knowledge). Requires: Knowledge Base Read.",
+        "description": "Lists Knowledge Base pages without their Markdown: the Operating Guide first, then the other pages in the workspace's saved order. Filter by kind (guide, procedure or knowledge). Requires: Knowledge Base read access.",
         "tags": [
           "knowledge-base"
         ],
@@ -55395,7 +55395,7 @@
       "post": {
         "operationId": "searchWikiPages",
         "summary": "Search Knowledge Base pages",
-        "description": "Searches titles, headings and text, ranked by relevance. Each hit carries a snippet, its section and the character offset of that section. total is a lower bound unless totalIsExact; continue with the next page while hasMore. didYouMean reports a corrected spelling. Later pages reuse the first page's order for five minutes. Requires: Knowledge Base Read.",
+        "description": "Searches titles, headings and text, ranked by relevance. Each hit carries a snippet, its section and the character offset of that section. total is a lower bound unless totalIsExact; continue with the next page while hasMore. didYouMean reports a corrected spelling. Later pages reuse the first page's order for five minutes. Requires: Knowledge Base read access.",
         "tags": [
           "knowledge-base"
         ],
@@ -55644,7 +55644,7 @@
       "post": {
         "operationId": "readWikiPage",
         "summary": "Read a Knowledge Base page",
-        "description": "Reads one page with its full Markdown. Keep updatedAt: update and delete require it as expectedUpdatedAt. Link pages as `/wiki?page=<id>`; ids survive renames. A missing page answers 404. Requires: Knowledge Base Read.",
+        "description": "Reads one page with its full Markdown. Keep updatedAt: update and delete require it as expectedUpdatedAt. Link pages as `/wiki?page=<id>`; ids survive renames. A missing page answers 404. Requires: Knowledge Base read access.",
         "tags": [
           "knowledge-base"
         ],
@@ -55805,7 +55805,7 @@
       "post": {
         "operationId": "createWikiPages",
         "summary": "Create Knowledge Base pages",
-        "description": "Creates one to five pages atomically and appends them to the saved order. kind defaults to knowledge; a procedure needs whenToUse and numbered steps; the workspace has at most one guide. With requireEmpty, the call fails with 409 unless the Knowledge Base is empty. Requires: Knowledge Base Manage.",
+        "description": "Creates one to five pages atomically and appends them to the saved order. kind defaults to knowledge; a procedure needs whenToUse and numbered steps; the workspace has at most one guide. With requireEmpty, the call fails with 409 unless the Knowledge Base is empty. Requires: Knowledge Base Create.",
         "tags": [
           "knowledge-base"
         ],
@@ -56008,7 +56008,7 @@
       "post": {
         "operationId": "updateWikiPage",
         "summary": "Update a Knowledge Base page",
-        "description": "Changes the title, Markdown, kind or whenToUse of one page; omitted fields keep their values. Send updatedAt from your latest read as expectedUpdatedAt: a page changed since answers 409, so read it again and retry. Requires: Knowledge Base Manage.",
+        "description": "Changes the title, Markdown, kind or whenToUse of one page; omitted fields keep their values. Send updatedAt from your latest read as expectedUpdatedAt: a page changed since answers 409, so read it again and retry. Requires: Knowledge Base Edit.",
         "tags": [
           "knowledge-base"
         ],
@@ -56194,7 +56194,7 @@
       "post": {
         "operationId": "moveWikiPage",
         "summary": "Move a Knowledge Base page",
-        "description": "Places a page before or after another page in the order the whole workspace shares. Content and edit timestamps are unchanged. The Operating Guide stays pinned first: it can be neither moved nor used as the target. Requires: Knowledge Base Manage.",
+        "description": "Places a page before or after another page in the order the whole workspace shares. Content and edit timestamps are unchanged. The Operating Guide stays pinned first: it can be neither moved nor used as the target. Requires: Knowledge Base Edit.",
         "tags": [
           "knowledge-base"
         ],
@@ -56325,7 +56325,7 @@
       "post": {
         "operationId": "deleteWikiPage",
         "summary": "Delete a Knowledge Base page",
-        "description": "Moves one page to Trash, where it is deleted permanently after 30 days unless POST /v1/trash/restore restores it with the returned trashBatchId. Send updatedAt from your latest read as expectedUpdatedAt. Requires: Knowledge Base Manage.",
+        "description": "Moves one page to Trash, where it is deleted permanently after 30 days unless POST /v1/trash/restore restores it with the returned trashBatchId. Send updatedAt from your latest read as expectedUpdatedAt. Requires: Knowledge Base Delete.",
         "tags": [
           "knowledge-base"
         ],
@@ -56497,7 +56497,7 @@
       "post": {
         "operationId": "inviteMembers",
         "summary": "Invite members by email",
-        "description": "Sends a workspace invitation email with the workspace's invitation link to each address, 1 to 20 per call; duplicate addresses receive one email. An invited person joins with no role until an administrator assigns one through POST /v1/members/update. Returns how many emails were sent. Requires: Users & Roles Manage (create).",
+        "description": "Sends a workspace invitation email with the workspace's invitation link to each address, 1 to 20 per call; duplicate addresses receive one email. An invited person joins with no role until an administrator assigns one through POST /v1/members/update. Returns how many emails were sent. Requires: Users & Roles Create.",
         "tags": [
           "members"
         ],
@@ -56627,7 +56627,7 @@
       "post": {
         "operationId": "updateMember",
         "summary": "Change a member's role or status",
-        "description": "Saves another member's profile, role and status in one call, as the members settings page does. Read the member from POST /v1/users/search, send every field, and change roleId and/or status: status inactive deactivates the member and frees their seat, active reactivates them. The member is identified by email. You cannot update your own membership, a platform operator cannot be deactivated, and the workspace always keeps an active member with a system role. Requires: Users & Roles Manage (update).",
+        "description": "Saves another member's profile, role and status in one call, as the members settings page does. Read the member from POST /v1/users/search, send every field, and change roleId and/or status: status inactive deactivates the member and frees their seat, active reactivates them. The member is identified by email. You cannot update your own membership, a platform operator cannot be deactivated, and the workspace always keeps an active member with a system role. Requires: Users & Roles Edit.",
         "tags": [
           "members"
         ],
