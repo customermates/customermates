@@ -12,7 +12,7 @@ import { PageContainer } from "@/components/shared/page-container";
 import { LockedFeatureOverlay } from "@/components/shared/locked-feature-overlay";
 import { getEntitlements } from "@/ee/subscription/entitlements";
 import { env } from "@/env";
-import { unwrapValidated } from "@/core/validation/validation.utils";
+import { unwrapPage } from "@/core/validation/next/unwrap-page";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 export default async function ConnectedAccountsPage() {
@@ -23,7 +23,7 @@ export default async function ConnectedAccountsPage() {
   const subscriptionResult = await getGetSubscriptionInteractor().invoke();
   const locked = !getEntitlements(subscriptionResult.data.plan).messaging;
 
-  const accounts = locked ? [] : await unwrapValidated(getGetMyConnectedAccountsInteractor().invoke());
+  const accounts = locked ? [] : await unwrapPage(getGetMyConnectedAccountsInteractor().invoke());
 
   if (!locked) {
     return (

@@ -1,6 +1,6 @@
 import type { DeliverWebhookPayload } from "@/features/webhook/deliver-webhook.interactor";
 import type { WorkflowTenant } from "./workflow-tenant";
-import { sleep } from "workflow";
+import { getStepMetadata, RetryableError } from "workflow";
 import { getDeliverWebhookInteractor } from "@/core/di";
 import { reportFailure, toWorkflowFailure } from "./capture-failure";
 
@@ -8,19 +8,18 @@ export type DeliverWebhookWorkflowPayload = DeliverWebhookPayload & { tenant?: W
 
 async function deliverStep(payload: DeliverWebhookPayload) {
   "use step";
-  return getDeliverWebhookInteractor().invoke(payload);
+  const result = await getDeliverWebhookInteractor().invoke(payload);
+  if (result.nextAttemptAt && getStepMetadata().attempt <= deliverStep.maxRetries)
+    throw new RetryableError("Webhook delivery retry is scheduled", { retryAfter: new Date(result.nextAttemptAt) });
+  return result;
 }
-deliverStep.maxRetries = 3;
+deliverStep.maxRetries = 16;
 
 export async function deliverWebhook(payload: DeliverWebhookWorkflowPayload): Promise<void> {
   "use workflow";
   const { tenant, ...delivery } = payload;
   try {
-    for (let attempt = 0; attempt < 16; attempt += 1) {
-      const result = await deliverStep(delivery);
-      if (!result.nextAttemptAt) return;
-      await sleep(new Date(result.nextAttemptAt));
-    }
+    await deliverStep(delivery);
   } catch (error) {
     await reportFailure("deliver-webhook", toWorkflowFailure(error), tenant);
     throw error;

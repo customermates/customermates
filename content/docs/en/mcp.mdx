@@ -149,9 +149,9 @@ Customermates exposes [[derived.mcp.tools.total]] MCP tools, all enabled by defa
 **Read-only** means the tool does not write. **Can delete data** marks a tool that includes destructive operations; not every action on it deletes (a configuration preview, for example, writes nothing). Tools that send messages, invitations or support requests, move email or change provider data have real effects even without the destructive flag. Set client approval for the actual operation: the server enforces authorization and validation, but an external MCP call does not open the hosted assistant's approval dialog.
 
 {/* mcp-catalog:flags */}
-**Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
+**Read-only:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
-**Can delete data:** `mutate_crm_record`, `manage_trash`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
+**Can delete data:** `mutate_crm_record`, `manage_trash`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
 {/* /mcp-catalog */}
 
 Full JSON Schema for every tool is available live at `POST /api/v1/mcp` with `method: "tools/list"`.
@@ -250,6 +250,18 @@ List deleted items in Trash, newest first, with who deleted them, when, and the 
 Restore Trash items (or every item of one delete by its batchId), preview exactly what a permanent deletion removes, delete items permanently, or empty Trash as an administrator. Deleting items permanently needs delete access to each of them. Permanent deletion cannot be undone and erases the deleted records' values from history.
 
 **Can delete data.** Required: `action`. Optional: `itemIds`, `batchId`, `all`, `expectedImpactHash`.
+
+#### `export_crm_records`
+
+Export one list as the JSON document of the list page's Export as JSON: every readable record matching the search, filters and sort, with sub-list rows, assignments, channel identities and links, up to 5,000 records. Formatted text arrives between untrusted-content markers. Excel export stays a REST download.
+
+**Read-only.** Required: `typeId`. Optional: `search`, `filters`, `relatedFilters`, `relationships`, `sort`.
+
+#### `import_crm_records`
+
+Create or update up to 100 records and 500 links of one list from an export document in one atomic call (mode create or update), checked against the current schema revision. An invalid row rejects the whole document. Needs create or edit access on the list.
+
+Required: `document`, `mode`, `idempotencyKey`.
 {/* /mcp-catalog */}
 
 ### Batch update by channel identifiers [#batch-identifier-update]
@@ -427,6 +439,12 @@ Required: `action`, `threadId`. Optional: `ref`, `expectedRevision`, `idempotenc
 Generate a link the user opens in a browser to connect a channel: Gmail (google), Outlook, IMAP email, WhatsApp, LinkedIn Classic, Sales Navigator or Recruiter, Instagram, or Telegram. You return the link; the user finishes auth there. The link is for the requesting user only and expires in 30 minutes. Needs Create on Inbox messages, a plan with messaging, and a free connected-account slot on that plan.
 
 Required: `channel`.
+
+#### `manage_connected_accounts`
+
+List your connected accounts with folders and email settings, and change one you own: choose the synced email folders, set the signature and email appearance, share it with the workspace or make it private, resync it, or disconnect it. Disconnecting cannot be undone. Needs Edit on Inbox messages, Delete to disconnect.
+
+**Can delete data.** Required: `action`. Optional: `id`, `selectedFolderIds`, `signature`, `settings`, `shared`.
 {/* /mcp-catalog */}
 
 ### Social posts
@@ -607,7 +625,7 @@ Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `theme`, `displayLang
 
 #### `manage_team`
 
-Invite members by email (action invite, up to 20, sends real invitation emails) or change a member's role and status (action update_member). invite needs Create on Users & Roles; update_member needs Edit and read access All on Users & Roles.
+Invite members by email (action invite, up to 20, sends real invitation emails), return the invitation link (invite_link), or change a member's role and status (update_member). invite and invite_link need Create on Users & Roles; update_member needs Edit and read access All.
 
 Required: `action`. Optional: `emails`, `userId`, `roleId`, `status`.
 
@@ -639,6 +657,8 @@ All [[derived.mcp.tools.total]] tools are on by default. To expose only part of 
 ```
 
 Keys: records, workspace, views, wiki, messaging, social, docs, record-model, widgets, routines, webhooks, admin, support. No parameter means everything; an unknown key returns HTTP `400` with `error: invalid_toolsets`, the unknown keys and the valid ones. `records` also holds the operation tools (`read_crm_operation`, `cancel_crm_operation`, `resume_crm_operation`) and the Trash tools; `record-model` holds only `configure_record_model`. `search` and `fetch` are always on so deep-research connectors keep working on any narrowed surface.
+
+`widgets` and `routines` also include `discover_record_types` and `get_record_model`, which their tools need for type and field ids. API keys and billing stay in the web app by design; no tool reads or changes them.
 
 ### When a call is refused
 

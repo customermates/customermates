@@ -23,7 +23,8 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { GetQueryParamsSchema } from "@/core/base/base-get.schema";
-import { ALL_VIEW_KEY, recordSurfaceKey } from "@/core/data-view/data-view-keys";
+import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
+import { selectActiveViewKey } from "@/core/base/base-get.interactor";
 import { resolveDataViewState } from "@/core/data-view/resolve-data-view-state";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -108,9 +109,12 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
             relation.targetTypeId === type.id ||
             pathRelationships.has(relation.id),
         );
-        const viewKey = input.params.viewId ?? viewState.activeViewKey ?? ALL_VIEW_KEY;
+        const viewKey = selectActiveViewKey(
+          input.params.viewId,
+          viewState.activeViewKey,
+          new Map(viewState.views.map((view) => [view.id, view])),
+        );
         const selected = viewState.views.find((view) => view.id === viewKey);
-        if (viewKey !== ALL_VIEW_KEY && !selected) return failNotFound(CustomErrorCode.dataViewNotFound);
         const state = resolveDataViewState({
           params: {
             ...input.params,

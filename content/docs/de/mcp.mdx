@@ -149,9 +149,9 @@ Customermates bietet [[derived.mcp.tools.total]] MCP-Tools, standardmäßig alle
 **Nur lesend** bedeutet, dass ein Tool nicht schreibt. **Kann Daten löschen** kennzeichnet ein Tool mit destruktiven Aktionen; nicht jede seiner Aktionen löscht (eine Konfigurationsvorschau schreibt zum Beispiel nichts). Tools, die Nachrichten, Einladungen oder Supportanfragen versenden, E-Mails verschieben oder Anbieterdaten ändern, haben auch ohne destruktives Kennzeichen reale Auswirkungen. Stellen Sie die Client-Freigabe für die konkrete Aktion ein: Das Backend prüft Berechtigungen und Eingaben, aber ein externer MCP-Aufruf öffnet keinen Freigabedialog des gehosteten Assistenten.
 
 {/* mcp-catalog:flags */}
-**Nur lesend:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
+**Nur lesend:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
-**Kann Daten löschen:** `mutate_crm_record`, `manage_trash`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
+**Kann Daten löschen:** `mutate_crm_record`, `manage_trash`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
 {/* /mcp-catalog */}
 
 Das volle JSON-Schema jedes Tools liegt live an `POST /api/v1/mcp` mit `method: "tools/list"`.
@@ -250,6 +250,18 @@ Gelöschte Elemente im Papierkorb auflisten, neueste zuerst, mit wer sie gelösc
 Elemente aus dem Papierkorb wiederherstellen (oder alle Elemente eines Löschvorgangs über seine batchId), genau ansehen, was eine endgültige Löschung entfernt, Elemente endgültig löschen oder als Administrator den Papierkorb leeren. Endgültiges Löschen braucht Löschrechte für jedes Element. Endgültiges Löschen lässt sich nicht rückgängig machen und entfernt die Werte der gelöschten Datensätze aus dem Verlauf.
 
 **Kann Daten löschen.** Pflicht: `action`. Optional: `itemIds`, `batchId`, `all`, `expectedImpactHash`.
+
+#### `export_crm_records`
+
+Exportiert eine Liste als JSON-Dokument wie Als JSON exportieren auf der Listenseite: alle lesbaren Datensätze, die zu Suche, Filtern und Sortierung passen, mit Unterlisten-Zeilen, Zuweisungen, Kanal-Identitäten und Verknüpfungen, bis 5.000 Datensätze. Formatierter Text kommt zwischen Markern für nicht vertrauenswürdige Inhalte. Der Excel-Export bleibt ein REST-Download.
+
+**Nur lesend.** Pflicht: `typeId`. Optional: `search`, `filters`, `relatedFilters`, `relationships`, `sort`.
+
+#### `import_crm_records`
+
+Erstellt oder aktualisiert bis zu 100 Datensätze und 500 Verknüpfungen einer Liste aus einem Export-Dokument in einem atomaren Aufruf (mode create oder update), geprüft gegen die aktuelle Schema-Revision. Eine ungültige Zeile weist das ganze Dokument ab. Braucht Erstellen- oder Bearbeiten-Rechte auf der Liste.
+
+Pflicht: `document`, `mode`, `idempotencyKey`.
 {/* /mcp-catalog */}
 
 ### Stapel-Update über Kanalkennungen [#batch-identifier-update]
@@ -427,6 +439,12 @@ Pflicht: `action`, `threadId`. Optional: `ref`, `expectedRevision`, `idempotency
 Erzeugt einen Link, den der User im Browser öffnet, um einen Kanal zu verbinden: Gmail (google), Outlook, IMAP-E-Mail, WhatsApp, LinkedIn Classic, Sales Navigator oder Recruiter, Instagram oder Telegram. Sie geben den Link zurück; der User schließt die Auth dort ab. Der Link gilt nur für den anfragenden User und läuft nach 30 Minuten ab. Braucht Erstellen auf Inbox-Nachrichten, einen Tarif mit Messaging und einen freien Platz für ein verbundenes Konto in diesem Tarif.
 
 Pflicht: `channel`.
+
+#### `manage_connected_accounts`
+
+Listet Ihre verbundenen Konten mit Ordnern und E-Mail-Einstellungen und ändert ein eigenes Konto: synchronisierte E-Mail-Ordner wählen, Signatur und E-Mail-Darstellung setzen, mit dem Workspace teilen oder wieder privat machen, neu synchronisieren oder trennen. Trennen lässt sich nicht rückgängig machen. Braucht Bearbeiten auf Inbox-Nachrichten, Löschen zum Trennen.
+
+**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `selectedFolderIds`, `signature`, `settings`, `shared`.
 {/* /mcp-catalog */}
 
 ### Social Posts [#social-posts]
@@ -607,7 +625,7 @@ Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `theme`, `displayLang
 
 #### `manage_team`
 
-Mitglieder per E-Mail einladen (Action invite, bis 20, verschickt echte Einladungs-E-Mails) oder Rolle und Status eines Mitglieds ändern (Action update_member). invite braucht Erstellen auf Benutzer & Rollen, update_member braucht Bearbeiten und Leserecht Alle auf Benutzer & Rollen.
+Mitglieder per E-Mail einladen (Action invite, bis 20, verschickt echte Einladungs-E-Mails), den Einladungslink abrufen (invite_link) oder Rolle und Status eines Mitglieds ändern (update_member). invite und invite_link brauchen Erstellen auf Benutzer & Rollen, update_member Bearbeiten und Leserecht Alle.
 
 Pflicht: `action`. Optional: `emails`, `userId`, `roleId`, `status`.
 
@@ -639,6 +657,8 @@ Alle [[derived.mcp.tools.total]] Tools sind standardmäßig an. Um nur einen Tei
 ```
 
 Keys: records, workspace, views, wiki, messaging, social, docs, record-model, widgets, routines, webhooks, admin, support. Kein Parameter heißt alles; ein unbekannter Key liefert HTTP `400` mit `error: invalid_toolsets`, den unbekannten und den gültigen Keys. `records` enthält auch die Operations-Tools (`read_crm_operation`, `cancel_crm_operation`, `resume_crm_operation`) und die Papierkorb-Tools; `record-model` enthält nur `configure_record_model`. `search` und `fetch` sind immer an, damit Deep-Research-Connectors auch auf einer eingegrenzten Oberfläche funktionieren.
+
+`widgets` und `routines` enthalten auch `discover_record_types` und `get_record_model`, die ihre Tools für Typ- und Feld-IDs brauchen. API-Keys und Abrechnung bleiben bewusst in der Web-App; kein Tool liest oder ändert sie.
 
 ### Wenn ein Aufruf abgelehnt wird [#when-a-call-is-refused]
 

@@ -10,7 +10,7 @@ import { requireAccess } from "@/features/auth/next/require";
 import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { PageContainer } from "@/components/shared/page-container";
-import { unwrapValidated } from "@/core/validation/validation.utils";
+import { unwrapPage } from "@/core/validation/next/unwrap-page";
 import { WEBHOOK_DELIVERIES_HREF } from "@/app/components/navigation/settings-routes";
 import { buildLocalePath } from "@/i18n/locale-registry";
 
@@ -25,7 +25,7 @@ export default async function CompanyWebhooksPage({ searchParams }: Props) {
 
   const webhookParams = await readSurfaceParams(SURFACE.webhooks, searchParams);
 
-  const webhooks = await unwrapValidated(getGetWebhooksInteractor().invoke(webhookParams));
+  const webhooks = await unwrapPage(getGetWebhooksInteractor().invoke(webhookParams));
 
   return (
     <PageContainer padded={false}>

@@ -55,6 +55,8 @@ describe("handleError", () => {
     ["P2003", 400, "validation", "A referenced record was not found"],
     ["P2002", 409, "conflict", "That value conflicts with an existing record"],
     ["P2023", 400, "validation", "Invalid identifier"],
+    ["P2024", 429, "rate_limit", "The service is busy. Retry the request shortly."],
+    ["P2028", 429, "rate_limit", "The service is busy. Retry the request shortly."],
   ])("maps Prisma %s to a structured HTTP %s", (code, status, kind, message) => {
     const result = structured(handleError(Object.assign(new Error("prisma"), { code })));
     expect(result).toEqual({ status, error: { kind, issues: [{ code: "custom", path: [], message }] } });

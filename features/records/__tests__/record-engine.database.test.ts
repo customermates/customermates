@@ -3960,7 +3960,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       ),
     ).rejects.toThrow("Rollback source mutation");
-    expect(dispatch).toHaveBeenCalledTimes(1);
+    expect(dispatch).not.toHaveBeenCalled();
     expect(started).not.toHaveBeenCalled();
   });
 
@@ -3976,11 +3976,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     const outbox = new PrismaEventOutboxRepo();
     const admit = vi.fn(() => Promise.resolve());
-    const batch = new ProcessDueEventsInteractor(outbox, new ProcessEventInteractor(outbox, { admit }));
-    expect(await batch.invoke({ companyId: f.company.id })).toMatchObject({
-      processed: 1,
-      hasMore: false,
-    });
+    const dispatch = vi.fn().mockResolvedValue(undefined);
+    const batch = new ProcessDueEventsInteractor(outbox, new ProcessEventInteractor(outbox, { admit }), { dispatch });
+    expect(await batch.invoke({ companyId: f.company.id })).toEqual({ processed: 1, continued: false });
+    expect(dispatch).not.toHaveBeenCalled();
     expect(admit).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ id: event.id }));
     expect(await outbox.findUnscoped(f.company.id, event.id)).toMatchObject({
       deliveredAt: expect.any(Date),

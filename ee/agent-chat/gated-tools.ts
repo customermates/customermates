@@ -27,6 +27,10 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   },
   manage_roles: { approvalFreeActions: ["read"], readOnlyActions: ["read"] },
   manage_team: { approvalFreeActions: ["update_member"] },
+  manage_connected_accounts: {
+    approvalFreeActions: ["list", "set_folders", "set_signature", "resync"],
+    readOnlyActions: ["list"],
+  },
   manage_webhooks: {
     approvalFreeActions: ["list", "get", "list_deliveries", "create", "update"],
     readOnlyActions: ["list", "get", "list_deliveries"],

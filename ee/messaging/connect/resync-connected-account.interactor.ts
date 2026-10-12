@@ -8,7 +8,7 @@ import { z } from "zod";
 import { Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { DomainEvent } from "@/features/event/domain-events";
 import type { ResyncConnectedAccountRepo } from "./resync-connected-account.repo";
@@ -27,7 +27,7 @@ export class ResyncConnectedAccountInteractor extends AuthenticatedInteractor<Re
     super();
   }
 
-  @Enforce(Schema)
+  @Validate(Schema)
   async invoke(data: ResyncConnectedAccountData): Validated<null> {
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;

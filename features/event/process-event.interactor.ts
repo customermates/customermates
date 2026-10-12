@@ -19,15 +19,16 @@ export class ProcessEventInteractor {
 
   @Enforce(ProcessEventSchema)
   async invoke(input: ProcessEventInput): Promise<ProcessEventResult> {
+    const settled = this.settledStatus(await this.outbox.findUnscoped(input.companyId, input.eventId), new Date());
+    if (settled) return { status: settled };
     const attempt: { event: EventLog | null } = { event: null };
     try {
       return await runInTransaction(
         async () => {
           const event = await this.outbox.findUnscoped(input.companyId, input.eventId);
-          if (!event) return { status: "not_found" } as const;
-          if (event.deliveredAt) return { status: "delivered" } as const;
           const now = new Date();
-          if (event.nextAttemptAt > now) return { status: "deferred" } as const;
+          const status = this.settledStatus(event, now);
+          if (status || !event) return { status: status ?? "not_found" };
           attempt.event = event;
           await this.admission.admit(event);
           await this.outbox.markDeliveredUnscoped(event, now);
@@ -44,5 +45,12 @@ export class ProcessEventInteractor {
       });
       return { status: "deferred" };
     }
+  }
+
+  private settledStatus(event: EventLog | null, now: Date): ProcessEventResult["status"] | null {
+    if (!event) return "not_found";
+    if (event.deliveredAt) return "delivered";
+    if (event.nextAttemptAt > now) return "deferred";
+    return null;
   }
 }

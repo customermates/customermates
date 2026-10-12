@@ -3,6 +3,7 @@
 exports[`gated-tools > snapshots the surface so new tools and actions force a conscious approval decision 1`] = `
 [
   "discover_record_types",
+  "export_crm_records",
   "fetch",
   "get_activities",
   "get_calendars",
@@ -36,6 +37,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "connect_messaging_account",
   "discard_message_draft",
   "linkedin_manage_sales_lists",
+  "manage_connected_accounts",
   "manage_data_views",
   "manage_routines",
   "manage_social_relations",
@@ -55,6 +57,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
 exports[`gated-tools > snapshots the surface so new tools and actions force a conscious approval decision 3`] = `
 [
   "configure_record_model",
+  "import_crm_records",
   "manage_conversation_records",
   "manage_record_detail_layout",
   "manage_roles",
@@ -71,6 +74,12 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
     "list",
     "browse",
     "save",
+  ],
+  "manage_connected_accounts": [
+    "list",
+    "set_folders",
+    "set_signature",
+    "resync",
   ],
   "manage_conversation_records": [
     "read",

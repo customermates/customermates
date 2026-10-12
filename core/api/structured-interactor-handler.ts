@@ -82,8 +82,10 @@ export function handleError(source: unknown): NextResponse {
 
   const prismaError = prismaClientError(source);
   if (prismaError) {
-    const kind = prismaError.status === 404 ? "not_found" : prismaError.status === 409 ? "conflict" : "validation";
-    return failure({ kind, issues: [{ code: "custom", path: [], message: prismaError.message }] }, prismaError.status);
+    return failure(
+      { kind: prismaError.kind, issues: [{ code: "custom", path: [], message: prismaError.message }] },
+      prismaError.status,
+    );
   }
 
   throw source instanceof Error ? source : new Error("Unexpected non-Error thrown", { cause: source });

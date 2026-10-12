@@ -98,9 +98,17 @@ describeDatabase("routine REST routes over API keys", () => {
     expect(foreignRead.status).toBe(404);
     expect(foreignRead.body).toMatchObject({ error: { kind: "not_found" } });
 
-    const foreignRuns = await call(runs, "runs", admin.apiKey, { routineId: foreignRoutineId });
-    expect(foreignRuns.status).toBe(200);
-    expect(foreignRuns.body).toEqual({ runs: [], nextCursor: null });
+    const foreignRuns = await call(runs, "runs", admin.apiKey, { id: foreignRoutineId });
+    expect(foreignRuns.status).toBe(404);
+    expect(foreignRuns.body).toMatchObject({ error: { kind: "not_found" } });
+
+    const unknownRuns = await call(runs, "runs", admin.apiKey, { id: randomUUID() });
+    expect(unknownRuns.status).toBe(404);
+    expect(unknownRuns.body).toMatchObject({ error: { kind: "not_found" } });
+
+    const ownRuns = await call(runs, "runs", reader.apiKey, { id: ownRoutineId });
+    expect(ownRuns.status).toBe(200);
+    expect(ownRuns.body).toEqual({ runs: [], nextCursor: null });
   });
 
   it("denies callers without the routine permissions the operation requires", async () => {
@@ -108,7 +116,7 @@ describeDatabase("routine REST routes over API keys", () => {
     expect(noRead.status).toBe(403);
     expect(noRead.body).toMatchObject({ error: { kind: "authorization" } });
 
-    const readerPause = await call(pause, "pause", reader.apiKey, { routineId: ownRoutineId });
+    const readerPause = await call(pause, "pause", reader.apiKey, { id: ownRoutineId });
     expect(readerPause.status).toBe(403);
 
     const readerResume = await call(resume, "resume", reader.apiKey, { id: ownRoutineId });
@@ -125,7 +133,7 @@ describeDatabase("routine REST routes over API keys", () => {
     const foreignUpdate = await call(update, "update", admin.apiKey, { id: foreignRoutineId, name: "Hijacked" });
     expect(foreignUpdate.status).toBe(404);
 
-    const foreignPause = await call(pause, "pause", admin.apiKey, { routineId: foreignRoutineId });
+    const foreignPause = await call(pause, "pause", admin.apiKey, { id: foreignRoutineId });
     expect(foreignPause.status).toBe(404);
 
     const foreignRow = await client.query('SELECT "name", "enabled" FROM "Routine" WHERE "id" = $1', [
@@ -146,7 +154,7 @@ describeDatabase("routine REST routes over API keys", () => {
     const missingId = await call(update, "update", admin.apiKey, { name: "Would be created" });
     expect(missingId.status).toBe(400);
 
-    const paused = await call(pause, "pause", admin.apiKey, { routineId: ownRoutineId });
+    const paused = await call(pause, "pause", admin.apiKey, { id: ownRoutineId });
     expect(paused.status).toBe(200);
     expect(paused.body).toMatchObject({ id: ownRoutineId, enabled: false });
 

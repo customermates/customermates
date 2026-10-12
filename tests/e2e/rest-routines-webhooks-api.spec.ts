@@ -263,7 +263,7 @@ test("drives routines and webhooks through the public REST API with an API key a
     });
 
     await call(api, "post", "/v1/routines/run", "/v1/routines/run", 409, {
-      routineId: scheduleRoutine.id,
+      id: scheduleRoutine.id,
     });
     const resumed = await call(
       api,
@@ -284,7 +284,7 @@ test("drives routines and webhooks through the public REST API with an API key a
       "/v1/routines/run",
       202,
       {
-        routineId: scheduleRoutine.id,
+        id: scheduleRoutine.id,
       },
     );
     const runs = await call(
@@ -294,7 +294,7 @@ test("drives routines and webhooks through the public REST API with an API key a
       "/v1/routines/runs",
       200,
       {
-        routineId: scheduleRoutine.id,
+        id: scheduleRoutine.id,
       },
     );
     expect((runs.runs as Array<{ id: string }>).map(({ id }) => id)).toContain(
@@ -308,7 +308,7 @@ test("drives routines and webhooks through the public REST API with an API key a
       "/v1/routines/pause",
       200,
       {
-        routineId: scheduleRoutine.id,
+        id: scheduleRoutine.id,
       },
     );
     expect(paused).toMatchObject({ enabled: false });
