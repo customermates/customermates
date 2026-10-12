@@ -586,6 +586,11 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
       const invalid =
         (await this.recordViews?.validate(surfaceKey, state)) ??
         (this.recordViews ? null : CustomErrorCode.permissionDenied);
+      const filter =
+        invalid === CustomErrorCode.recordValueInvalid && isRecordDataViewSurface(surfaceKey)
+          ? await this.recordViews?.invalidFilter(surfaceKey, state.filters ?? [])
+          : null;
+      if (filter) return fail(filter.code, ["state", "filters", filter.index], filter.values);
       return invalid ? fail(invalid, ["state"]) : { ok: true as const, data: state };
     }
     const config = await this.configuration(surfaceKey);

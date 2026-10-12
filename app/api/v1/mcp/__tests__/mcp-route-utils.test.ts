@@ -5,8 +5,13 @@ import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { mutateRecordV2Tool } from "@/features/mcp-tools/record-model.mcp-tools";
 import { mcpInteractorFailure, type McpTool } from "@/features/mcp-tools/mcp-tool";
+import { AppErrorCode, ForbiddenError } from "@/core/errors/app-errors";
 
 const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
+const apiKeys = vi.hoisted(() => ({
+  isMcpApiKeyValid: vi.fn(() => Promise.resolve(true)),
+  authorize: vi.fn(() => Promise.resolve({ ok: true, data: true })),
+}));
 
 vi.mock("@sentry/nextjs", () => sentry);
 vi.mock("@/env", () => ({ env: { BASE_URL: "http://localhost:4105" } }));
@@ -15,6 +20,8 @@ vi.mock("@/core/di", () => ({
   getGetCustomColumnsInteractor: vi.fn(),
   getGetCustomColumnsByEntityTypeInteractor: vi.fn(),
   getDeleteCustomColumnInteractor: vi.fn(),
+  getAuthService: () => apiKeys,
+  getAuthorizeMcpConnectionInteractor: () => ({ invoke: apiKeys.authorize }),
 }));
 
 import { createMcpRoute } from "../mcp-route-utils";
@@ -171,5 +178,55 @@ describe("public MCP execution boundary", () => {
     expect((captured as Error).cause).toBeUndefined();
     expect(captured).not.toBe(unexpectedFailure);
     expect((captured as Error).stack).not.toContain("must-not-leak");
+  });
+
+  it("rejects an invalid or expired API key with the OAuth challenge before any tool runs", async () => {
+    const handler = createMcpRoute({ test: [expectedFailureTool] });
+    apiKeys.isMcpApiKeyValid.mockResolvedValueOnce(false);
+
+    const rejected = await rpc(handler, requestBody("initialize", 1));
+
+    expect(rejected.response.status).toBe(401);
+    expect(rejected.response.headers.get("www-authenticate")).toBe(
+      'Bearer resource_metadata="http://localhost:4105/.well-known/oauth-protected-resource"',
+    );
+    expect(apiKeys.isMcpApiKeyValid).toHaveBeenCalledWith(expect.any(Headers));
+  });
+
+  it("rejects unknown toolsets with the valid toolset names", async () => {
+    const handler = createMcpRoute({ test: [expectedFailureTool], other: [unexpectedFailureTool] });
+    const response = await handler(
+      new Request("http://localhost:4105/api/v1/mcp?toolsets=test,nonsense", {
+        method: "POST",
+        headers: {
+          accept: "application/json, text/event-stream",
+          "content-type": "application/json",
+          "x-api-key": "test",
+        },
+        body: JSON.stringify(requestBody("initialize", 1)),
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toMatchObject({
+      error: "invalid_toolsets",
+      unknown: ["nonsense"],
+      validToolsets: ["test", "other"],
+    });
+  });
+
+  it("refuses a valid credential without the API & Webhooks permission with a structured 403", async () => {
+    const handler = createMcpRoute({ test: [expectedFailureTool] });
+    apiKeys.authorize.mockRejectedValueOnce(
+      new ForbiddenError("Access denied. Required permissions: readAll on api", AppErrorCode.permissionDenied),
+    );
+
+    const refused = await rpc(handler, requestBody("initialize", 1));
+
+    expect(refused.response.status).toBe(403);
+    expect(refused.data).toMatchObject({
+      error: "insufficient_permissions",
+      requiredPermission: { resource: "api", action: "readAll" },
+    });
   });
 });

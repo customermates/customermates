@@ -8,15 +8,23 @@ type FailureUnwindCause = {
   code: CustomErrorCode;
   failureKind: InteractorFailureKind;
   path: FailurePath;
+  values?: Record<string, string | number>;
 };
 
 export function unwindFailure(
   code: CustomErrorCode,
   failureKind: InteractorFailureKind = "validation",
   path: FailurePath = [],
+  values?: Record<string, string | number>,
 ): Error {
   return new Error(code, {
-    cause: { kind: "interactorFailure", code, failureKind, path } satisfies FailureUnwindCause,
+    cause: {
+      kind: "interactorFailure",
+      code,
+      failureKind,
+      path,
+      ...(values ? { values } : {}),
+    } satisfies FailureUnwindCause,
   });
 }
 

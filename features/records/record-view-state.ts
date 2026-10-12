@@ -37,18 +37,61 @@ export function recordViewStateIsValid(typeId: string, state: DataViewState, mod
   }
 }
 
-export function cleanRecordViewState(typeId: string, state: DataViewState, model: RecordModel): DataViewState | null {
-  if (!model.types.some((type) => type.id === typeId && !type.archived)) return null;
-  const fields = model.fields.filter((field) => field.typeId === typeId && !field.archived);
-  const paths = model.types.find((type) => type.id === typeId)?.relationshipPaths;
-  const ids = new Set(recordColumns(typeId, model).map((column) => column.id));
+function staleColumnCleanup(state: DataViewState, ids: Set<string>): DataViewState {
   const cleaned: DataViewState = {};
   if (state.columnOrder?.some((id) => !ids.has(id)))
     cleaned.columnOrder = state.columnOrder.filter((id) => ids.has(id));
   if (state.hiddenColumns?.some((id) => !ids.has(id)))
     cleaned.hiddenColumns = state.hiddenColumns.filter((id) => ids.has(id));
-  if (state.columnWidths && Object.keys(state.columnWidths).some((id) => !ids.has(id)))
-    cleaned.columnWidths = Object.fromEntries(Object.entries(state.columnWidths).filter(([id]) => ids.has(id)));
+  if (state.columnWidths && Object.keys(state.columnWidths).some((id) => !isPersistedColumnWidthKey(id, ids))) {
+    cleaned.columnWidths = Object.fromEntries(
+      Object.entries(state.columnWidths).filter(([id]) => isPersistedColumnWidthKey(id, ids)),
+    );
+  }
+  return cleaned;
+}
+
+export function pruneStaleRecordViewColumns(
+  typeId: string,
+  state: DataViewState,
+  model: RecordModel,
+): DataViewState | null {
+  if (!model.types.some((type) => type.id === typeId && !type.archived)) return null;
+  const cleaned = staleColumnCleanup(state, new Set(recordColumns(typeId, model).map((column) => column.id)));
+  return Object.keys(cleaned).length && recordViewStateIsValid(typeId, { ...state, ...cleaned }, model)
+    ? cleaned
+    : null;
+}
+
+export function invalidRecordViewReference(
+  typeId: string,
+  state: DataViewState,
+  model: RecordModel,
+  labels: RecordModel,
+): { columnId: string; columnLabel: string } | null {
+  const ids = new Set(recordColumns(typeId, model).map((column) => column.id));
+  const fields = model.fields.filter((field) => field.typeId === typeId && !field.archived);
+  const paths = model.types.find((type) => type.id === typeId)?.relationshipPaths;
+  const columnId =
+    [...(state.columnOrder ?? []), ...(state.hiddenColumns ?? [])].find((id) => !ids.has(id)) ??
+    Object.keys(state.columnWidths ?? {}).find((id) => !isPersistedColumnWidthKey(id, ids)) ??
+    (state.grouping && !resolveRecordGrouping(typeId, state.grouping, model) ? state.grouping.field : undefined) ??
+    state.grouping?.summaries?.find((summary) => !liveGroupSummaries(typeId, [summary], fields).length)?.fieldId ??
+    state.filters?.find((filter) => !presentationFiltersAreValid([filter], fields, model.relationships, typeId, paths))
+      ?.field ??
+    state.sortDescriptor?.field;
+  if (!columnId) return null;
+  const label =
+    [...recordColumns(typeId, labels), ...recordColumns(typeId, model)].find((column) => column.id === columnId)
+      ?.label ?? labels.fields.find((field) => field.id === columnId)?.label;
+  return { columnId, columnLabel: label ?? columnId };
+}
+
+export function cleanRecordViewState(typeId: string, state: DataViewState, model: RecordModel): DataViewState | null {
+  if (!model.types.some((type) => type.id === typeId && !type.archived)) return null;
+  const fields = model.fields.filter((field) => field.typeId === typeId && !field.archived);
+  const paths = model.types.find((type) => type.id === typeId)?.relationshipPaths;
+  const cleaned = staleColumnCleanup(state, new Set(recordColumns(typeId, model).map((column) => column.id)));
   if (state.grouping && !resolveRecordGrouping(typeId, state.grouping, model)) cleaned.grouping = null;
   else if (state.grouping?.summaries) {
     const summaries = liveGroupSummaries(typeId, state.grouping.summaries, fields);

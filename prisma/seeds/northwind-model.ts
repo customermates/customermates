@@ -92,6 +92,9 @@ export const NORTHWIND_OPTION_KEYS = {
 } as const;
 export type NorthwindChoiceFieldKey = keyof typeof NORTHWIND_OPTION_KEYS;
 
+/** Fields the demo seeds already in Trash. Saved views and layouts never reference them. */
+export const NORTHWIND_ARCHIVED_FIELD_KEYS: readonly string[] = ["organization.legacyAccountId"];
+
 /** Every field the demo adds, as `presetId` keys, grouped by list. Starter fields keep their preset keys. */
 export const NORTHWIND_FIELD_KEYS = {
   organization: {

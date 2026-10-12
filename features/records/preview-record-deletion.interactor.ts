@@ -29,22 +29,28 @@ const ValidatedDeletionPreviewSchema = z.union([
     })
     .strict(),
 ]);
-export const PreviewRecordDeletionSchema = z
+export const PreviewRecordDeletionRequestSchema = z
   .object({
-    ref: RecordRefSchema.optional(),
-    targets: RecordMutationTargetsSchema.optional(),
-    expectedRevision: z.number().int().nonnegative(),
-    expectedVersion: z.number().int().positive().optional(),
+    ref: RecordRefSchema.optional().describe("The record to delete. Send with expectedVersion; omit targets."),
+    targets: RecordMutationTargetsSchema.optional().describe(
+      "The selection for an atomic deleteMany preview. Omit ref and expectedVersion.",
+    ),
+    expectedRevision: z
+      .number()
+      .int()
+      .nonnegative()
+      .describe("The data model revision from discover_record_types or get_record_model."),
+    expectedVersion: z.number().int().positive().optional().describe("The latest version of ref."),
   })
-  .strict()
-  .transform((input, ctx) => {
-    const result = ValidatedDeletionPreviewSchema.safeParse(input);
-    if (!result.success) {
-      result.error.issues.forEach((issue) => ctx.addIssue({ ...issue }));
-      return z.NEVER;
-    }
-    return result.data;
-  });
+  .strict();
+export const PreviewRecordDeletionSchema = PreviewRecordDeletionRequestSchema.transform((input, ctx) => {
+  const result = ValidatedDeletionPreviewSchema.safeParse(input);
+  if (!result.success) {
+    result.error.issues.forEach((issue) => ctx.addIssue({ ...issue }));
+    return z.NEVER;
+  }
+  return result.data;
+});
 export type PreviewRecordDeletionInput = z.infer<typeof PreviewRecordDeletionSchema>;
 export const RecordDeletionPreviewSchema = z
   .object({

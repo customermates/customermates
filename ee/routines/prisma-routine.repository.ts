@@ -674,6 +674,26 @@ export class PrismaRoutineRepo
     return routine;
   }
 
+  async trashedRoutineOwners(ids: string[]): Promise<Array<{ id: string; ownerUserId: string }>> {
+    const routines = await this.prisma.routine.findMany({
+      where: { id: { in: ids }, companyId: this.companyId, deletedAt: { not: null } },
+      select: { id: true, ownerUserId: true },
+      orderBy: { deletedAt: "desc" },
+    });
+    return routines.flatMap(({ id, ownerUserId }) => (ownerUserId ? [{ id, ownerUserId }] : []));
+  }
+
+  async countActiveRoutinesByOwner(ownerUserIds: string[]): Promise<Map<string, number>> {
+    const groups = await this.prisma.routine.groupBy({
+      by: ["ownerUserId"],
+      where: { companyId: this.companyId, ownerUserId: { in: ownerUserIds }, deletedAt: null },
+      _count: { _all: true },
+    });
+    return new Map(
+      groups.flatMap((group) => (group.ownerUserId ? [[group.ownerUserId, group._count._all] as const] : [])),
+    );
+  }
+
   async restoreTrashed(ids: string[]): Promise<string[]> {
     const now = new Date();
     const routines = await this.prisma.routine.findMany({

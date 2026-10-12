@@ -8,6 +8,7 @@ vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 import { DecideMcpConsentInteractor } from "../decide-mcp-consent.interactor";
 import { ACCOUNT_STATES } from "../account-state";
 
+const admin = { role: { isSystemRole: true, permissions: [] } };
 const consent = {
   consentCode: "consent-code",
   accept: true,
@@ -29,7 +30,7 @@ describe("DecideMcpConsentInteractor", () => {
       }),
     };
     routeGuardService = {
-      resolveAccountState: vi.fn().mockResolvedValue({ state: "allowed" }),
+      resolveAccountState: vi.fn().mockResolvedValue({ state: "allowed", user: admin }),
       resolveMcpConsentState: vi.fn((resolution: { state: string }) => Promise.resolve(resolution.state)),
     };
   });
@@ -44,7 +45,7 @@ describe("DecideMcpConsentInteractor", () => {
     { state: "onboarding", accept: true },
     { state: "onboarding", accept: false },
   ])("delegates consent for $state with accept=$accept", async ({ state, accept }) => {
-    routeGuardService.resolveAccountState.mockResolvedValue({ state });
+    routeGuardService.resolveAccountState.mockResolvedValue({ state, user: admin });
     const decision = { ...consent, accept };
 
     await expect(createInteractor().invoke(decision)).resolves.toEqual({
@@ -54,6 +55,17 @@ describe("DecideMcpConsentInteractor", () => {
 
     expect(routeGuardService.resolveAccountState).toHaveBeenCalledOnce();
     expect(authService.decideMcpConsent).toHaveBeenCalledWith(decision);
+  });
+
+  it.each([
+    { isSystemRole: false, permissions: [{ resource: "wiki", action: "readAll" }] },
+    { isSystemRole: false, permissions: [{ resource: "api", action: "create" }] },
+  ])("turns an approval into a denial when the role lacks Read access All on API & Webhooks", async (role) => {
+    routeGuardService.resolveAccountState.mockResolvedValue({ state: "allowed", user: { role } });
+
+    await createInteractor().invoke(consent);
+
+    expect(authService.decideMcpConsent).toHaveBeenCalledWith({ ...consent, accept: false });
   });
 
   it.each(ACCOUNT_STATES.filter((state) => state !== "allowed" && state !== "onboarding"))(

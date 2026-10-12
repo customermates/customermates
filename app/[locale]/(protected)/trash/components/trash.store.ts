@@ -34,6 +34,7 @@ const RESTORE_BLOCKED_KEYS: Record<TrashRestoreBlocker["reason"], string> = {
   notFound: "Trash.restoreBlocked.notFound",
   requiresRestore: "Trash.restoreBlocked.requiresRestore",
   nameTaken: "Trash.restoreBlocked.nameTaken",
+  routineLimitReached: "Trash.restoreBlocked.routineLimitReached",
 };
 
 const countBy = <T>(values: T[]) =>

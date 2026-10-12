@@ -117,6 +117,7 @@ test("shares an indexed identifier across lists, unlinks one association and lin
     const roleId = randomUUID();
     await database.query('INSERT INTO "UserRole" (id,"companyId",name,"updatedAt") VALUES ($1,$2,\'Record reader\',NOW())', [roleId, companyId]);
     await database.query('INSERT INTO "RecordTypeGrant" ("companyId","typeId","roleId",actions) VALUES ($1,$2,$3,ARRAY[\'readAll\']::"Action"[])', [companyId, contact.typeId, roleId]);
+    await database.query('INSERT INTO "RolePermission" (id,"roleId","companyId",resource,action) VALUES ($1,$2,$3,\'api\',\'readAll\')', [randomUUID(), roleId, companyId]);
     await database.query('UPDATE "User" SET "roleId"=$1 WHERE "companyId"=$2 AND id=$3', [roleId, companyId, workspace.userId]);
     try {
       expect((await resolve()).matches[0].records.map((record: { ref: unknown }) => record.ref)).toEqual([contact]);

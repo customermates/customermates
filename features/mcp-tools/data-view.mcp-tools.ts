@@ -9,6 +9,7 @@ import { AiManageableDataViewSurfaceKeySchema } from "@/core/data-view/ai-manage
 import { DATA_VIEW_NAME_MAX_LENGTH } from "@/core/data-view/data-view-limits";
 import { ViewKeySchema } from "@/core/data-view/data-view-state.schema";
 import { getZodParseContext } from "@/core/validation/zod-error-map-server";
+import { env } from "@/env";
 import {
   AgentDataViewStateSchema,
   DataViewConfigSectionSchema,
@@ -21,6 +22,10 @@ import {
 
 import { mcpInteractorFailure, mcpValidationFailure } from "./mcp-tool";
 import { toonResult } from "./utils";
+
+function withAbsoluteLink<T extends { link?: string | null }>(result: T): T {
+  return result.link ? { ...result, link: new URL(result.link, env.BASE_URL).toString() } : result;
+}
 
 function withoutRenderedMessage(issue: $ZodIssue): $ZodRawIssue {
   const raw: Record<string, unknown> = { ...issue };
@@ -82,7 +87,7 @@ export const manageDataViewsTool = {
     "List returns paged summaries; pass viewKey to read current state immediately before update. Create requires name/state and selects it; update patches only supplied keys, so omit name unless the user requested renaming and include only changed state keys. Select remembers a view. Reset (dynamic record surfaces only) removes personal overrides for the given fields, so the list shows every field in its configured order as an ungrouped, unsorted table. " +
     "Clear filters with [], search with an empty string, and sort/grouping with null; filters are ANDed. Timeline views accept only filters and sortDescriptor. Use only filter fields config returns for that surface, following their descriptions; never create a custom column to manufacture a missing saved-view filter. If the requested field is absent, report that it is unavailable and leave the view unchanged. Record option IDs come from get_record_model. " +
     "Relative days (last N, over N ago, N-M ago) use whole-day inLastDays/notInLastDays, never absolute dates. Verify every requested condition in the saved state before reporting success. " +
-    "Deleting a view moves it to Trash, where it is deleted permanently after 30 days unless manage_trash restores it with the returned trashBatchId; it never deletes records, and All (__all__) cannot be renamed or deleted. Use the returned link rather than constructing one.",
+    "Deleting a view moves it to Trash, where it is deleted permanently after 30 days unless manage_trash restores it with the returned trashBatchId; it never deletes records, and All (__all__) cannot be renamed or deleted. Use the returned absolute link rather than constructing one.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: true,
@@ -96,7 +101,7 @@ export const manageDataViewsTool = {
     if (!parsed.success) return mcpValidationFailure(parsed.error);
     const result = await getManageDataViewsInteractor().invoke(parsed.data);
     if (!result.ok) return mcpInteractorFailure(result.error);
-    return toonResult(result.data);
+    return toonResult(withAbsoluteLink(result.data));
   },
 } satisfies McpTool;
 

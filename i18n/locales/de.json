@@ -1058,6 +1058,7 @@
       "billingPortalUnavailable": "Das Abrechnungsportal ist für diesen Workspace nicht verfügbar. Wende dich für Änderungen an den Support.",
       "calendarEventNotFound": "Kalenderereignis-ID nicht gefunden oder nicht zugänglich.",
       "channelAlreadyLinked": "Dieser Kanal ist bereits mit einem anderen Kontakt verknüpft.",
+      "chatThreadRequired": "Dies ist ein E-Mail-Verlauf. Antworte darauf mit einer E-Mail statt mit einer Chatnachricht.",
       "connectedAccountNotFound": "Kanal-ID nicht gefunden oder nicht zugänglich.",
       "customFieldInvalidDate": "Der Datumswert ist ungültig. Muss im ISO 8601 Datumsformat sein (z.B. 2024-01-15) oder im ISO 8601 Datums-/Zeitformat (z.B. 2024-01-15T00:00:00Z).",
       "dataViewAllNameImmutable": "Die Ansicht Alle kann nicht umbenannt werden. Lasse name weg und ändere nur die angeforderten Einstellungen in state. Lies vor einem erneuten Versuch config für unterstützte Einstellungen und list für den aktuellen Zustand.",
@@ -1125,9 +1126,11 @@
       "recordMeasureDateIntervalInvalid": "Zeitintervalle brauchen ein Datums-, Datums- und Uhrzeit-, Erstellt- oder Geändert-Feld zum Gruppieren, und eine Zeitzone braucht ein Zeitintervall.",
       "recordNotFound": "Dieser Datensatz ist nicht verfügbar.",
       "recordOperationFailed": "Der Vorgang im Hintergrund ist fehlgeschlagen. Versuche es erneut.",
+      "recordOptionInvalid": "\"{value}\" ist keine Option von {field} ({fieldId}). Verwende eine dieser Options-IDs: {validValues}.",
       "recordProtected": "Dieser Datensatz wird durch einen Systemablauf verwaltet.",
       "recordReadOnlyField": "Dieses Feld wird berechnet. Ändere seine Definition, um Werte manuell einzugeben.",
       "recordRelationConflict": "Diese Verknüpfung entspricht nicht den festgelegten Regeln.",
+      "recordSavedViewIncompatible": "Die gespeicherte Ansicht \"{viewName}\" ({viewId}) verwendet noch \"{columnLabel}\" ({columnId}). Passe die Ansicht an oder lösche sie und versuche es dann erneut.",
       "recordSchemaChanged": "Das Datenmodell wurde geändert. Lade die Seite neu und versuche es erneut.",
       "recordTypeNotFound": "Dieser Datensatztyp ist nicht verfügbar.",
       "recordValueInvalid": "Prüfe die markierten Werte des Datensatzes.",
@@ -2655,11 +2658,16 @@
     "selectedCount": "{count, plural, one {# Element ausgewählt} other {# Elemente ausgewählt}}"
   },
   "McpConsentCard": {
+    "access": {
+      "crmData": "Deine CRM-Daten und Einstellungen lesen und ändern, soweit deine Rolle es erlaubt",
+      "messaging": "Nachrichten und E-Mails über deine verbundenen Konten senden"
+    },
     "approve": "Zulassen",
     "body": "{client} fordert Zugriff auf dein Customermates-Konto an. Lass den Zugriff nur zu, wenn du diese Verbindung selbst gestartet hast.",
     "deny": "Ablehnen",
     "destination": "Verbindungsziel: {host}",
     "error": "Etwas ist schiefgelaufen. Bitte versuche es erneut oder starte die Verbindung in deinem Client neu.",
+    "permissionRequired": "Deine Rolle erlaubt keine MCP-Verbindungen. Die Verbindung über MCP braucht Lesen Alle bei API & Webhooks. Bitte eine Person mit Admin-Rechten, sie dir zu geben.",
     "scopes": {
       "email": "Deine E-Mail-Adresse lesen",
       "offlineAccess": "Verbunden bleiben, während du abwesend bist",
@@ -3371,6 +3379,7 @@
         "existingValues": "Einige vorhandene Werte von {subject} passen nicht zur Änderung.",
         "readAll": "{subject} enthält noch Datensätze, die Sie nicht sehen können. Endgültig löschen kann nur, wer alle Datensätze lesen darf, oder ein Admin.",
         "savedView": "Gespeicherte Ansichten oder persönliche Layouts verwenden noch {subject}.",
+        "savedViewColumn": "Die gespeicherte Ansicht {view} verwendet noch {column}.",
         "summaryApproval": "{subject} braucht eine erneute Freigabe der Zusammenfassung."
       },
       "moved": "In den Papierkorb verschoben"
@@ -4135,7 +4144,10 @@
       "connectedAccountsPerUser": "{accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
       "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Jede Anfrage wird mit ihren genauen Anbieterkosten berechnet und auf eine Nachkommastelle angezeigt. Externe MCP-Clients rechnen die Modellnutzung über deinen eigenen KI-Anbieter ab. Serverseitige semantische Suchen können gehostete KI-Credits verbrauchen.",
       "features": {
-        "business": ["Alles aus Pro", "Geteilte Konten und priorisierter Support"],
+        "business": [
+          "Alles aus Pro",
+          "Geteilte Konten und priorisierter Support"
+        ],
         "pro": ["Alles aus Starter", "Einheitlicher Posteingang"],
         "starter": [
           "Vollständiges CRM: Kontakte, Deals, Organisationen, Aufgaben",
@@ -4237,7 +4249,8 @@
       "nameTaken": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ein anderes Element jetzt ihren Namen oder Platz hat.",
       "notFound": "{count, plural, one {# Element existiert} other {# Elemente existieren}} nicht mehr und wurden aus dem Papierkorb entfernt.",
       "parentDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil das, wozu sie gehören, im Papierkorb liegt. Stellen Sie das zuerst wieder her.",
-      "requiresRestore": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil etwas, das sie brauchen, im Papierkorb liegt. Stellen Sie das zuerst wieder her."
+      "requiresRestore": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil etwas, das sie brauchen, im Papierkorb liegt. Stellen Sie das zuerst wieder her.",
+      "routineLimitReached": "{count, plural, one {# Routine bleibt} other {# Routinen bleiben}} im Papierkorb, weil die Person bereits alle Routinen ihres Tarifs nutzt."
     },
     "restored": "{count, plural, one {# Element wiederhergestellt} other {# Elemente wiederhergestellt}}",
     "restoredInBackground": "Wiederhergestellt",

@@ -19,6 +19,8 @@ vi.mock("@/core/di", () => ({
   getGetRecordInteractor: vi.fn(),
   getGetRecordModelInteractor: vi.fn(),
   getResolveRecordSearchInteractor: vi.fn(),
+  getAuthService: () => ({ isMcpApiKeyValid: () => Promise.resolve(true) }),
+  getAuthorizeMcpConnectionInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: true }) }),
 }));
 vi.mock("@/features/mcp-tools/docs.mcp-tools", () => ({
   getDocsPageRaw: vi.fn(),

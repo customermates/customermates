@@ -14,7 +14,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { fail, failAuthorization, failConflict, unwoundFailure } from "@/core/validation/interactor-failure-server";
+import { failAuthorization, failConflict, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { PublicConfigurationChangeSchema } from "./configuration.schema";
 import { canConfigureRecords, type RecordConfigurationService } from "./configuration.service";
@@ -22,6 +22,7 @@ import { RecordOperationResultSchema } from "./record-query.schema";
 import { recordRequestHash } from "./record-request-hash";
 import { RecordJournal } from "./record-journal";
 import { configurationTrashBatchId } from "./configuration-trash-batch";
+import { invalidConfigurationFailure } from "./configuration-issue-failure";
 import { currentRoutineContext } from "@/core/decorators/routine-context";
 
 @TenantInteractor()
@@ -61,7 +62,7 @@ export class ApplyRecordConfigurationInteractor extends AuthenticatedInteractor<
         if ((await this.records.getState())?.activeOperationId) return failConflict(CustomErrorCode.recordWritePaused);
         const current = await this.records.getModel();
         const prepared = await this.configurations.prepare(input, current, policy);
-        if (!prepared.preview.valid) return fail(CustomErrorCode.recordConfigurationInvalid);
+        if (!prepared.preview.valid) return invalidConfigurationFailure(prepared.preview.issues);
         let data: RecordOperationResult;
         if (prepared.preview.execution === "background") {
           const operationId = randomUUID();
@@ -97,6 +98,7 @@ export class ApplyRecordConfigurationInteractor extends AuthenticatedInteractor<
           data = {
             status: "completed",
             refs: [],
+            references: prepared.preview.references,
             schemaRevision: prepared.model.revision,
             ...(prepared.change.deletions?.length
               ? { trashBatchId: configurationTrashBatchId(this.companyId, input.idempotencyKey) }

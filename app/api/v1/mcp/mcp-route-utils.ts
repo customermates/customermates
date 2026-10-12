@@ -7,6 +7,7 @@ import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 import { executeMcpTool, type McpTool } from "@/features/mcp-tools/mcp-tool";
 import { buildMcpServerInstructions, GET_STARTED_PROMPT } from "@/features/mcp-tools/server-instructions";
 import { env } from "@/env";
+import { AppErrorCode, AuthError, ForbiddenError } from "@/core/errors/app-errors";
 import type { SerializedInteractorFailure } from "@/core/validation/validation.utils";
 
 export type { McpTool, McpToolResult } from "@/features/mcp-tools/mcp-tool";
@@ -102,28 +103,74 @@ function unauthorizedChallenge() {
 }
 
 async function isMcpRequestAuthorized(request: Request): Promise<boolean> {
-  if (request.headers.has("x-api-key")) return true;
-
+  const hasApiKey = request.headers.has("x-api-key");
   const hasBearer = (request.headers.get("authorization") ?? "").toLowerCase().startsWith("bearer ");
-  if (!hasBearer) return false;
+  if (!hasApiKey && !hasBearer) return false;
 
   const { getAuthService } = await import("@/core/di");
 
-  return getAuthService().isMcpBearerValid(request.headers);
+  return hasApiKey
+    ? getAuthService().isMcpApiKeyValid(request.headers)
+    : getAuthService().isMcpBearerValid(request.headers);
 }
 
-function resolveToolsetKey(request: Request, knownKeys: string[]): string {
+function insufficientPermissions() {
+  return new Response(
+    JSON.stringify({
+      error: "insufficient_permissions",
+      message:
+        "Connecting through MCP requires Read access All on API & Webhooks for your role. Ask a workspace administrator to grant it.",
+      requiredPermission: { resource: "api", action: "readAll" },
+    }),
+    {
+      status: 403,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+    },
+  );
+}
+
+async function mcpAccessRefusal(): Promise<Response | null> {
+  const { getAuthorizeMcpConnectionInteractor } = await import("@/core/di");
+  try {
+    await getAuthorizeMcpConnectionInteractor().invoke();
+    return null;
+  } catch (error) {
+    if (error instanceof AuthError) return unauthorizedChallenge();
+    if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied)
+      return insufficientPermissions();
+    if (error instanceof ForbiddenError) return null;
+    throw error;
+  }
+}
+
+function resolveToolsetKey(request: Request, knownKeys: string[]): { key: string } | { unknown: string[] } {
   const raw = new URL(request.url).searchParams.get("toolsets");
-  if (!raw) return "";
+  if (!raw) return { key: "" };
 
   const requested = raw
     .split(",")
     .map((key) => key.trim())
-    .filter((key) => knownKeys.includes(key));
+    .filter(Boolean);
+  const unknown = requested.filter((key) => !knownKeys.includes(key));
+  if (unknown.length) return { unknown };
+  if (requested.length === 0) return { key: "" };
 
-  if (requested.length === 0) return "";
+  return { key: [...new Set(requested)].sort().join(",") };
+}
 
-  return [...new Set(requested)].sort().join(",");
+function unknownToolsets(unknown: string[], knownKeys: string[]) {
+  return new Response(
+    JSON.stringify({
+      error: "invalid_toolsets",
+      message: `Unknown toolsets: ${unknown.join(", ")}. Valid toolsets: ${knownKeys.join(", ")}.`,
+      unknown,
+      validToolsets: knownKeys,
+    }),
+    {
+      status: 400,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+    },
+  );
 }
 
 export function createMcpRoute(
@@ -158,6 +205,10 @@ export function createMcpRoute(
 
   return async (request: Request) => {
     if (!(await isMcpRequestAuthorized(request))) return unauthorizedChallenge();
-    return handlerFor(resolveToolsetKey(request, knownKeys))(request);
+    const refused = await mcpAccessRefusal();
+    if (refused) return refused;
+    const toolsets = resolveToolsetKey(request, knownKeys);
+    if ("unknown" in toolsets) return unknownToolsets(toolsets.unknown, knownKeys);
+    return handlerFor(toolsets.key)(request);
   };
 }

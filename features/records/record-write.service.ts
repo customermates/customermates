@@ -38,8 +38,9 @@ function reject(
   code: CustomErrorCode,
   kind: InteractorFailureKind = "validation",
   path: Array<string | number> = [],
+  values?: Record<string, string | number>,
 ): never {
-  throw unwindFailure(code, kind, path);
+  throw unwindFailure(code, kind, path, values);
 }
 
 export function normalizeRecordScalar(value: RecordScalar | null, field: RecordField): RecordScalar | null {
@@ -48,8 +49,15 @@ export function normalizeRecordScalar(value: RecordScalar | null, field: RecordF
     return null;
   }
   if (!scalarMatchesType(value, field.valueType, field.multiple)) reject(CustomErrorCode.recordValueInvalid);
-  if (!selectedOptionIds(value).every((id) => field.options.some((option) => option.id === id)))
-    reject(CustomErrorCode.recordValueInvalid);
+  const unknownOption = selectedOptionIds(value).find((id) => !field.options.some((option) => option.id === id));
+  if (unknownOption !== undefined) {
+    reject(CustomErrorCode.recordOptionInvalid, "validation", ["fields"], {
+      field: field.label,
+      fieldId: field.id,
+      value: unknownOption,
+      validValues: field.options.map((option) => `${option.id} (${option.label})`).join(", "),
+    });
+  }
   if (field.required && value.kind === "text" && !value.value.trim()) reject(CustomErrorCode.recordValueInvalid);
   if (value.kind === "richText") {
     const document = validateRichTextDocument(value.documentJson);

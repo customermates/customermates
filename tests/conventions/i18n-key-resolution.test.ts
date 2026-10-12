@@ -13,7 +13,10 @@ import { ALL_LEGAL_DOCUMENTS } from "@/constants/legal-documents";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { AGENT_ACTIVITY_KINDS, AGENT_APPROVAL_COPY_KINDS } from "@/ee/agent-chat/agent-activity";
+import {
+  AGENT_ACTIVITY_KINDS,
+  AGENT_APPROVAL_COPY_KINDS,
+} from "@/ee/agent-chat/agent-activity";
 import { ACCOUNT_REMOVAL_REASONS } from "@/ee/messaging/connect/account-removal-reason";
 import { SignatureTemplate } from "@/ee/messaging/email-settings";
 import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
@@ -24,12 +27,21 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { FeedbackType } from "@/features/feedback/send-feedback.schema";
 import { RecordDeliveryEnvelopeSchema } from "@/features/records/record-delivery.schema";
 import { CONFIGURATION_ACTIVITY_EVENTS } from "@/ee/messaging/activities/activities.schema";
-import { FieldBehaviorSchema, RecordValueTypeSchema } from "@/features/records/record-model.schema";
-import { RECORD_MEASURE_DATE_INTERVALS, RecordMeasureSchema } from "@/features/records/record-measure.schema";
+import {
+  FieldBehaviorSchema,
+  RecordValueTypeSchema,
+} from "@/features/records/record-model.schema";
+import {
+  RECORD_MEASURE_DATE_INTERVALS,
+  RecordMeasureSchema,
+} from "@/features/records/record-measure.schema";
 import { WIDGET_DISPLAY_REQUIREMENTS } from "@/features/widget/widget-display-rules";
 import { WIDGET_STARTER_DISPLAY_TYPES } from "@/features/widget/widget-display-rules";
 import { DeletionBlockerSchema } from "@/features/records/configuration.schema";
-import { DIAGRAM_SYSTEM_LABEL_KEYS, DisplayType } from "@/features/widget/widget.schema";
+import {
+  DIAGRAM_SYSTEM_LABEL_KEYS,
+  DisplayType,
+} from "@/features/widget/widget.schema";
 import {
   ConnectedAccountStatus,
   MessagingProvider,
@@ -45,13 +57,18 @@ import {
   WebhookDeliveryStatus,
 } from "@/generated/prisma";
 import { ROUTING_LOCALES } from "@/i18n/locale-registry";
-import { SHORTCUTS, SHORTCUT_GROUPS } from "@/components/keyboard/shortcut-registry";
+import {
+  SHORTCUTS,
+  SHORTCUT_GROUPS,
+} from "@/components/keyboard/shortcut-registry";
 import { STATIC_COMMANDS } from "@/components/keyboard/command-registry";
 import { WIKI_PAGE_KINDS } from "@/features/wiki/wiki.schema";
 import { TRASH_KINDS } from "@/features/trash/trash.schema";
 
 const STARTER_TYPE_KEYS = RECORD_PRESET_KEYS.flatMap((preset) =>
-  (["plural", "singular"] as const).map((form) => `RecordModel.starterTypes.${preset}.${form}`),
+  (["plural", "singular"] as const).map(
+    (form) => `RecordModel.starterTypes.${preset}.${form}`,
+  ),
 );
 
 const ACTIVITY_EVENTS = [
@@ -59,19 +76,30 @@ const ACTIVITY_EVENTS = [
   ...RecordDeliveryEnvelopeSchema.shape.event.options,
   ...CONFIGURATION_ACTIVITY_EVENTS,
 ];
-const DOMAIN_EVENT_KEYS = ACTIVITY_EVENTS.map((event) => `Common.events.${event}`);
-const CLICK_ACTION_KEYS = ["email", "phone", "url", "channels"].flatMap((kind) =>
-  ["open", "copy"].map((action) => `RecordModel.clickActions.${kind}.${action}`),
+const DOMAIN_EVENT_KEYS = ACTIVITY_EVENTS.map(
+  (event) => `Common.events.${event}`,
 );
-const RECORD_VALUE_TYPE_KEYS = [...RecordValueTypeSchema.options, "multiSelect"].map(
-  (value) => `RecordModel.types.${value}`,
+const CLICK_ACTION_KEYS = ["email", "phone", "url", "channels"].flatMap(
+  (kind) =>
+    ["open", "copy"].map(
+      (action) => `RecordModel.clickActions.${kind}.${action}`,
+    ),
 );
+const RECORD_VALUE_TYPE_KEYS = [
+  ...RecordValueTypeSchema.options,
+  "multiSelect",
+].map((value) => `RecordModel.types.${value}`);
 const RECORD_BEHAVIOR_KEYS = FieldBehaviorSchema.options.map(
   (behavior) => `RecordModel.behaviors.${behavior.shape.kind.value}`,
 );
-const RECORD_REDUCER_KEYS = ["one", "sum", "count", "average", "min", "max"].map(
-  (reducer) => `RecordModel.reducers.${reducer}`,
-);
+const RECORD_REDUCER_KEYS = [
+  "one",
+  "sum",
+  "count",
+  "average",
+  "min",
+  "max",
+].map((reducer) => `RecordModel.reducers.${reducer}`);
 const RECORD_OPERATOR_KEYS = [
   "add",
   "subtract",
@@ -108,11 +136,21 @@ const RECORD_TOP_LEVEL_DYNAMIC_KEYS = [
   "yes",
   "no",
 ].map((key) => `RecordModel.${key}`);
-const ACCOUNT_REMOVAL_REASON_KEYS = ACCOUNT_REMOVAL_REASONS.map((reason) => `AccountRemovalReason.${reason}`);
-const ROUTINE_RUN_STATUS_KEYS = Object.values(RoutineRunStatus).map((status) => `RoutineRunStatus.${status}`);
-const ROUTINE_TRIGGER_KIND_KEYS = Object.values(RoutineTriggerKind).map((kind) => `RoutineTriggerKind.${kind}`);
-const ROUTINE_SCHEDULE_PRESET_KEYS = ROUTINE_SCHEDULE_PRESETS.map((preset) => `RoutineSchedulePreset.${preset}`);
-const ROUTINE_RUN_REASON_KEYS = ROUTINE_RUN_REASONS.map((reason) => `RoutineRunReason.${reason}`);
+const ACCOUNT_REMOVAL_REASON_KEYS = ACCOUNT_REMOVAL_REASONS.map(
+  (reason) => `AccountRemovalReason.${reason}`,
+);
+const ROUTINE_RUN_STATUS_KEYS = Object.values(RoutineRunStatus).map(
+  (status) => `RoutineRunStatus.${status}`,
+);
+const ROUTINE_TRIGGER_KIND_KEYS = Object.values(RoutineTriggerKind).map(
+  (kind) => `RoutineTriggerKind.${kind}`,
+);
+const ROUTINE_SCHEDULE_PRESET_KEYS = ROUTINE_SCHEDULE_PRESETS.map(
+  (preset) => `RoutineSchedulePreset.${preset}`,
+);
+const ROUTINE_RUN_REASON_KEYS = ROUTINE_RUN_REASONS.map(
+  (reason) => `RoutineRunReason.${reason}`,
+);
 const ROUTINE_WEEKDAY_KEYS = [
   "RoutineWeekday.sunday",
   "RoutineWeekday.monday",
@@ -122,12 +160,24 @@ const ROUTINE_WEEKDAY_KEYS = [
   "RoutineWeekday.friday",
   "RoutineWeekday.saturday",
 ] as const;
-const FEEDBACK_DESCRIPTION_KEYS = Object.values(FeedbackType).map((type) => `feedback.${type}.description`);
-const FEEDBACK_TITLE_KEYS = Object.values(FeedbackType).map((type) => `feedback.${type}.title`);
-const CUSTOM_ERROR_CODE_KEYS = Object.values(CustomErrorCode).map((code) => `Common.errors.${code}`);
-const FILTER_FIELD_KEYS = Object.values(FilterFieldKey).map((field) => `Common.filters.fields.${field}`);
-const ROLE_RESOURCE_KEYS = Object.values(Resource).map((resource) => `RoleModal.resources.${resource}`);
-const DISPLAY_TYPE_KEYS = Object.values(DisplayType).map((displayType) => `Dashboard.displayTypes.${displayType}`);
+const FEEDBACK_DESCRIPTION_KEYS = Object.values(FeedbackType).map(
+  (type) => `feedback.${type}.description`,
+);
+const FEEDBACK_TITLE_KEYS = Object.values(FeedbackType).map(
+  (type) => `feedback.${type}.title`,
+);
+const CUSTOM_ERROR_CODE_KEYS = Object.values(CustomErrorCode).map(
+  (code) => `Common.errors.${code}`,
+);
+const FILTER_FIELD_KEYS = Object.values(FilterFieldKey).map(
+  (field) => `Common.filters.fields.${field}`,
+);
+const ROLE_RESOURCE_KEYS = Object.values(Resource).map(
+  (resource) => `RoleModal.resources.${resource}`,
+);
+const DISPLAY_TYPE_KEYS = Object.values(DisplayType).map(
+  (displayType) => `Dashboard.displayTypes.${displayType}`,
+);
 const WIDGET_DISPLAY_REQUIREMENT_KEYS = WIDGET_DISPLAY_REQUIREMENTS.map(
   (requirement) => `Dashboard.displayTypeRequirements.${requirement}`,
 );
@@ -140,7 +190,9 @@ const WIDGET_STARTER_DESCRIPTION_KEYS = WIDGET_STARTER_DISPLAY_TYPES.map(
 const RECORD_MEASURE_INTERVAL_KEYS = RECORD_MEASURE_DATE_INTERVALS.map(
   (interval) => `RecordWidgets.intervals.${interval}`,
 );
-const DIAGRAM_SYSTEM_KEYS = DIAGRAM_SYSTEM_LABEL_KEYS.map((key) => `Diagrams.${key}`);
+const DIAGRAM_SYSTEM_KEYS = DIAGRAM_SYSTEM_LABEL_KEYS.map(
+  (key) => `Diagrams.${key}`,
+);
 const AGGREGATION_TYPE_KEYS = RecordMeasureSchema.shape.aggregation.options.map(
   (aggregation) => `RecordModel.reducers.${aggregation}`,
 );
@@ -152,7 +204,9 @@ const DATE_BUCKET_KEYS = [
   "Common.dateBuckets.week",
 ] as const;
 const WIKI_PAGE_KIND_KEYS = WIKI_PAGE_KINDS.map((kind) => `Wiki.kind.${kind}`);
-const TRASH_KIND_KEYS = [...TRASH_KINDS, "dashboardView"].map((kind) => `Trash.kinds.${kind}`);
+const TRASH_KIND_KEYS = [...TRASH_KINDS, "dashboardView"].map(
+  (kind) => `Trash.kinds.${kind}`,
+);
 const DATE_PRESET_KEYS = [
   "Common.datePresets.endTime",
   "Common.datePresets.inAMonth",
@@ -324,16 +378,28 @@ const TABLE_COLUMN_KEYS = [
   "Common.table.columns.workspace",
 ] as const;
 
-const PROVIDER_KEYS = Object.values(MessagingProvider).map((provider) => `Common.providers.${provider}`);
-const USER_STATUS_KEYS = Object.values(Status).map((status) => `Common.userStatuses.${status}`);
-const LOCALE_KEYS = [...ROUTING_LOCALES, "system"].map((locale) => `Common.locales.${locale}`);
-const THEME_KEYS = Object.values(Theme).map((theme) => `Common.themes.${theme}`);
-const FILTER_OPERATOR_KEYS = Object.values(FilterOperatorKey).map((operator) => `Common.filters.operators.${operator}`);
-const COLOR_KEYS = CHIP_COLORS.map((color) => `Common.colors.${color}`);
-const LAST_MESSAGE_DIRECTION_KEYS = Object.values(MessagingMessageDirection).map(
-  (direction) => `Inbox.lastMessageDirections.${direction}`,
+const PROVIDER_KEYS = Object.values(MessagingProvider).map(
+  (provider) => `Common.providers.${provider}`,
 );
-const THREAD_STATE_KEYS = Object.values(MessagingThreadState).map((state) => `Inbox.threadStates.${state}`);
+const USER_STATUS_KEYS = Object.values(Status).map(
+  (status) => `Common.userStatuses.${status}`,
+);
+const LOCALE_KEYS = [...ROUTING_LOCALES, "system"].map(
+  (locale) => `Common.locales.${locale}`,
+);
+const THEME_KEYS = Object.values(Theme).map(
+  (theme) => `Common.themes.${theme}`,
+);
+const FILTER_OPERATOR_KEYS = Object.values(FilterOperatorKey).map(
+  (operator) => `Common.filters.operators.${operator}`,
+);
+const COLOR_KEYS = CHIP_COLORS.map((color) => `Common.colors.${color}`);
+const LAST_MESSAGE_DIRECTION_KEYS = Object.values(
+  MessagingMessageDirection,
+).map((direction) => `Inbox.lastMessageDirections.${direction}`);
+const THREAD_STATE_KEYS = Object.values(MessagingThreadState).map(
+  (state) => `Inbox.threadStates.${state}`,
+);
 const WEBHOOK_DELIVERY_STATUS_KEYS = Object.values(WebhookDeliveryStatus).map(
   (status) => `WebhookDeliveryModal.deliveryStatus.${status}`,
 );
@@ -343,13 +409,20 @@ const CONNECTED_ACCOUNT_STATUS_KEYS = Object.values(ConnectedAccountStatus).map(
 const SIGNATURE_TEMPLATE_KEYS = Object.values(SignatureTemplate).map(
   (template) => `ConnectedAccountsCard.signatureTemplates.${template}`,
 );
-const SUBSCRIPTION_PLAN_KEYS = Object.values(SubscriptionPlan).map((plan) => `Subscription.planNames.${plan}`);
-const SUBSCRIPTION_STATUS_KEYS = Object.values(SubscriptionStatus).map((status) => `Subscription.status.${status}`);
+const SUBSCRIPTION_PLAN_KEYS = Object.values(SubscriptionPlan).map(
+  (plan) => `Subscription.planNames.${plan}`,
+);
+const SUBSCRIPTION_STATUS_KEYS = Object.values(SubscriptionStatus).map(
+  (status) => `Subscription.status.${status}`,
+);
 const SELECTABLE_SUBSCRIPTION_PLANS = Object.values(SubscriptionPlan).filter(
   (plan) => plan !== SubscriptionPlan.enterprise,
 );
-const SUBSCRIPTION_FEATURE_KEYS = [...loadCatalogPaths().leafPaths].filter((key) =>
-  SELECTABLE_SUBSCRIPTION_PLANS.some((plan) => key.startsWith(`Subscription.picker.features.${plan}.`)),
+const SUBSCRIPTION_FEATURE_KEYS = [...loadCatalogPaths().leafPaths].filter(
+  (key) =>
+    SELECTABLE_SUBSCRIPTION_PLANS.some((plan) =>
+      key.startsWith(`Subscription.picker.features.${plan}.`),
+    ),
 );
 const ENTITY_TIMELINE_TYPE_KEYS = [
   "EntityTimeline.types.activities",
@@ -422,18 +495,35 @@ const ONBOARDING_CHOICE_KEYS = [
   "gemini",
   "openai",
 ].map((choice) => `OnboardingWizard.ai.choices.${choice}`);
-const MCP_TOOL_KEYS = ["claudeCode", "claudeDesktop", "codex", "cursor", "gemini"] as const;
-const ONBOARDING_INSTALL_KEYS = MCP_TOOL_KEYS.map((tool) => `OnboardingWizard.ai.install.instruction.${tool}`);
+const MCP_TOOL_KEYS = [
+  "claudeCode",
+  "claudeDesktop",
+  "codex",
+  "cursor",
+  "gemini",
+] as const;
+const ONBOARDING_INSTALL_KEYS = MCP_TOOL_KEYS.map(
+  (tool) => `OnboardingWizard.ai.install.instruction.${tool}`,
+);
 const ONBOARDING_METHODS = ["account", "local"] as const;
 const onboardingMethodKeys = (field: string) =>
-  ONBOARDING_METHODS.map((method) => `OnboardingWizard.ai.methods.${method}.${field}`);
+  ONBOARDING_METHODS.map(
+    (method) => `OnboardingWizard.ai.methods.${method}.${field}`,
+  );
 const ONBOARDING_OPENAI_METHODS = ["chatgpt", "codex"] as const;
 const onboardingOpenAiMethodKeys = (field: string) =>
-  ONBOARDING_OPENAI_METHODS.map((method) => `OnboardingWizard.ai.openai.methods.${method}.${field}`);
-const LEGAL_DOCUMENT_KEYS = ALL_LEGAL_DOCUMENTS.map((document) => `LegalDocumentNotice.documents.${document}`);
-const AGENT_APPROVAL_RESOLUTION_KEYS = ["approve", "cancelled", "reject", "timeout"].map(
-  (resolution) => `AgentChat.approval.${resolution}`,
+  ONBOARDING_OPENAI_METHODS.map(
+    (method) => `OnboardingWizard.ai.openai.methods.${method}.${field}`,
+  );
+const LEGAL_DOCUMENT_KEYS = ALL_LEGAL_DOCUMENTS.map(
+  (document) => `LegalDocumentNotice.documents.${document}`,
 );
+const AGENT_APPROVAL_RESOLUTION_KEYS = [
+  "approve",
+  "cancelled",
+  "reject",
+  "timeout",
+].map((resolution) => `AgentChat.approval.${resolution}`);
 const AGENT_ACTIVITY_RESOURCE_KEYS = [
   "AgentChat.activity.resource.messages",
   "AgentChat.activity.resource.widgets",
@@ -457,9 +547,13 @@ const AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS = [
   "AgentChat.activity.resourceSingular.wiki",
 ];
 const AGENT_ACTIVITY_STATE_KEYS = AGENT_ACTIVITY_KINDS.flatMap((kind) =>
-  (["done", "error", "running"] as const).map((state) => `AgentChat.activity.state.${kind}.${state}`),
+  (["done", "error", "running"] as const).map(
+    (state) => `AgentChat.activity.state.${kind}.${state}`,
+  ),
 );
-const AGENT_ACTIVITY_APPROVAL_KEYS = AGENT_APPROVAL_COPY_KINDS.map((kind) => `AgentChat.activity.approval.${kind}`);
+const AGENT_ACTIVITY_APPROVAL_KEYS = AGENT_APPROVAL_COPY_KINDS.map(
+  (kind) => `AgentChat.activity.approval.${kind}`,
+);
 const AGENT_SUGGESTION_KEYS = [
   "AgentChat.suggestions.pages.connected-accounts.data.accounts-add-channel",
   "AgentChat.suggestions.pages.connected-accounts.data.accounts-list",
@@ -514,14 +608,30 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
     ),
   ],
   ["RecordModel.${*}", RECORD_TOP_LEVEL_DYNAMIC_KEYS],
-  ["RecordModel.range${*}", ["Start", "End"].map((key) => `RecordModel.range${key}`)],
+  [
+    "RecordModel.range${*}",
+    ["Start", "End"].map((key) => `RecordModel.range${key}`),
+  ],
   ["RecordModel.behaviors.${*}", RECORD_BEHAVIOR_KEYS],
-  ["RecordModel.starterTypes.${*}.singular", STARTER_TYPE_KEYS.filter((key) => key.endsWith(".singular"))],
-  ["RecordModel.starterTypes.${*}.plural", STARTER_TYPE_KEYS.filter((key) => key.endsWith(".plural"))],
-  ["RecordModel.deletion.${*}", ["unlink", "restrict", "cascade"].map((value) => `RecordModel.deletion.${value}`)],
+  [
+    "RecordModel.starterTypes.${*}.singular",
+    STARTER_TYPE_KEYS.filter((key) => key.endsWith(".singular")),
+  ],
+  [
+    "RecordModel.starterTypes.${*}.plural",
+    STARTER_TYPE_KEYS.filter((key) => key.endsWith(".plural")),
+  ],
+  [
+    "RecordModel.deletion.${*}",
+    ["unlink", "restrict", "cascade"].map(
+      (value) => `RecordModel.deletion.${value}`,
+    ),
+  ],
   [
     "RecordModel.configurationDeletion.blockers.${*}",
-    DeletionBlockerSchema.shape.reason.options.map((reason) => `RecordModel.configurationDeletion.blockers.${reason}`),
+    DeletionBlockerSchema.shape.reason.options.map(
+      (reason) => `RecordModel.configurationDeletion.blockers.${reason}`,
+    ),
   ],
   [
     "RecordModel.configurationDeletion.cleaned.${*}",
@@ -535,25 +645,36 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
       "webhookPaused",
       "bindingAvatar",
       "bindingCalendar",
-    ].map(
-      (key) => `RecordModel.configurationDeletion.cleaned.${key}`,
-    ),
+    ].map((key) => `RecordModel.configurationDeletion.cleaned.${key}`),
   ],
   [
     "RecordModel.configurationDeletion.issues.${*}",
-    ["existingValues", "savedView", "detailLayout", "summaryApproval", "readAll", "dependency"].map(
-      (key) => `RecordModel.configurationDeletion.issues.${key}`,
-    ),
+    [
+      "existingValues",
+      "savedView",
+      "detailLayout",
+      "summaryApproval",
+      "readAll",
+      "dependency",
+    ].map((key) => `RecordModel.configurationDeletion.issues.${key}`),
   ],
   ["RecordModel.operators.${*}", RECORD_OPERATOR_KEYS],
   ["RecordModel.reducers.${*}", RECORD_REDUCER_KEYS],
   ["RecordModel.types.${*}", RECORD_VALUE_TYPE_KEYS],
   ["RecordModel.clickActions.${*}.${*}", CLICK_ACTION_KEYS],
-  ["RecordModel.clickActions.${*}.open", CLICK_ACTION_KEYS.filter((key) => key.endsWith(".open"))],
-  ["RecordModel.clickActions.${*}.copy", CLICK_ACTION_KEYS.filter((key) => key.endsWith(".copy"))],
+  [
+    "RecordModel.clickActions.${*}.open",
+    CLICK_ACTION_KEYS.filter((key) => key.endsWith(".open")),
+  ],
+  [
+    "RecordModel.clickActions.${*}.copy",
+    CLICK_ACTION_KEYS.filter((key) => key.endsWith(".copy")),
+  ],
   [
     "RecordModel.cardinality.${*}",
-    ["oneToOne", "oneToMany", "manyToOne", "manyToMany"].map((value) => `RecordModel.cardinality.${value}`),
+    ["oneToOne", "oneToMany", "manyToOne", "manyToMany"].map(
+      (value) => `RecordModel.cardinality.${value}`,
+    ),
   ],
   ["AuditLogModal.fields.${*}", AUDIT_FIELD_KEYS],
   ["AuthSocialErrors.${*}", AUTH_SOCIAL_ERROR_KEYS],
@@ -561,7 +682,10 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Common.dateBuckets.${*}", DATE_BUCKET_KEYS],
   ["Common.datePresets.${*}", DATE_PRESET_KEYS],
   ["Common.defaultData.${*}.columnLabel", DEFAULT_DATA_COLUMN_KEYS],
-  ["RecordModel.priceModes.${*}", ["RecordModel.priceModes.live", "RecordModel.priceModes.saved"]],
+  [
+    "RecordModel.priceModes.${*}",
+    ["RecordModel.priceModes.live", "RecordModel.priceModes.saved"],
+  ],
   ["Common.defaultData.${*}.options.${*}", DEFAULT_DATA_OPTION_KEYS],
   ["Common.errors.${*}", CUSTOM_ERROR_CODE_KEYS],
   ["Common.events.${*}", DOMAIN_EVENT_KEYS],
@@ -583,17 +707,38 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Dashboard.displayTypes.${*}", DISPLAY_TYPE_KEYS],
   ["Dashboard.displayTypeRequirements.${*}", WIDGET_DISPLAY_REQUIREMENT_KEYS],
   ["Dashboard.widgetEditor.starters.${*}.title", WIDGET_STARTER_TITLE_KEYS],
-  ["Dashboard.widgetEditor.starters.${*}.description", WIDGET_STARTER_DESCRIPTION_KEYS],
+  [
+    "Dashboard.widgetEditor.starters.${*}.description",
+    WIDGET_STARTER_DESCRIPTION_KEYS,
+  ],
   ["RecordWidgets.intervals.${*}", RECORD_MEASURE_INTERVAL_KEYS],
   ["EntityTimeline.types.${*}", ENTITY_TIMELINE_TYPE_KEYS],
-  ["KeyboardShortcuts.actions.${*}", SHORTCUTS.map((entry) => `KeyboardShortcuts.actions.${entry.id}`)],
-  ["CommandPalette.synonyms.${*}", STATIC_COMMANDS.map((entry) => `CommandPalette.synonyms.${entry.id}`)],
-  ["KeyboardShortcuts.groups.${*}", SHORTCUT_GROUPS.map((group) => `KeyboardShortcuts.groups.${group}`)],
+  [
+    "KeyboardShortcuts.actions.${*}",
+    SHORTCUTS.map((entry) => `KeyboardShortcuts.actions.${entry.id}`),
+  ],
+  [
+    "CommandPalette.synonyms.${*}",
+    STATIC_COMMANDS.map((entry) => `CommandPalette.synonyms.${entry.id}`),
+  ],
+  [
+    "KeyboardShortcuts.groups.${*}",
+    SHORTCUT_GROUPS.map((group) => `KeyboardShortcuts.groups.${group}`),
+  ],
   ["ErrorCard.${*}", ERROR_CARD_DYNAMIC_KEYS],
   ["HomepagePricing.${*}.${*}", HOMEPAGE_PRICING_VARIABLE_KEYS],
-  ["HomepagePricing.${*}.ctaText", ["HomepagePricing.cloud.ctaText", "HomepagePricing.selfHosted.ctaText"]],
-  ["HomepagePricing.${*}.tag", ["HomepagePricing.cloud.tag", "HomepagePricing.selfHosted.tag"]],
-  ["HomepagePricing.${*}.title", ["HomepagePricing.cloud.title", "HomepagePricing.selfHosted.title"]],
+  [
+    "HomepagePricing.${*}.ctaText",
+    ["HomepagePricing.cloud.ctaText", "HomepagePricing.selfHosted.ctaText"],
+  ],
+  [
+    "HomepagePricing.${*}.tag",
+    ["HomepagePricing.cloud.tag", "HomepagePricing.selfHosted.tag"],
+  ],
+  [
+    "HomepagePricing.${*}.title",
+    ["HomepagePricing.cloud.title", "HomepagePricing.selfHosted.title"],
+  ],
   [
     "HomepagePricing.compare.${*}",
     [
@@ -607,14 +752,29 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["Inbox.lastMessageDirections.${*}", LAST_MESSAGE_DIRECTION_KEYS],
   ["OnboardingWizard.ai.choices.${*}", ONBOARDING_CHOICE_KEYS],
   ["OnboardingWizard.ai.install.instruction.${*}", ONBOARDING_INSTALL_KEYS],
-  ["OnboardingWizard.ai.methods.${*}.description", onboardingMethodKeys("description")],
+  [
+    "OnboardingWizard.ai.methods.${*}.description",
+    onboardingMethodKeys("description"),
+  ],
   ["OnboardingWizard.ai.methods.${*}.meta", onboardingMethodKeys("meta")],
   ["OnboardingWizard.ai.methods.${*}.note", onboardingMethodKeys("note")],
   ["OnboardingWizard.ai.methods.${*}.title", onboardingMethodKeys("title")],
-  ["OnboardingWizard.ai.openai.methods.${*}.description", onboardingOpenAiMethodKeys("description")],
-  ["OnboardingWizard.ai.openai.methods.${*}.meta", onboardingOpenAiMethodKeys("meta")],
-  ["OnboardingWizard.ai.openai.methods.${*}.note", onboardingOpenAiMethodKeys("note")],
-  ["OnboardingWizard.ai.openai.methods.${*}.title", onboardingOpenAiMethodKeys("title")],
+  [
+    "OnboardingWizard.ai.openai.methods.${*}.description",
+    onboardingOpenAiMethodKeys("description"),
+  ],
+  [
+    "OnboardingWizard.ai.openai.methods.${*}.meta",
+    onboardingOpenAiMethodKeys("meta"),
+  ],
+  [
+    "OnboardingWizard.ai.openai.methods.${*}.note",
+    onboardingOpenAiMethodKeys("note"),
+  ],
+  [
+    "OnboardingWizard.ai.openai.methods.${*}.title",
+    onboardingOpenAiMethodKeys("title"),
+  ],
   ["OnboardingWizard.steps.${*}.subtitle", ONBOARDING_STEP_SUBTITLE_KEYS],
   ["OnboardingWizard.steps.${*}.title", ONBOARDING_STEP_TITLE_KEYS],
   ["RoleModal.resources.${*}", ROLE_RESOURCE_KEYS],
@@ -625,16 +785,31 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ["WebhookDeliveryModal.deliveryStatus.${*}", WEBHOOK_DELIVERY_STATUS_KEYS],
   ["documents.${*}", LEGAL_DOCUMENT_KEYS],
   ["AgentChat.activity.resource.${*}", AGENT_ACTIVITY_RESOURCE_KEYS],
-  ["AgentChat.activity.resourceSingular.${*}", AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS],
+  [
+    "AgentChat.activity.resourceSingular.${*}",
+    AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS,
+  ],
   ["AgentChat.activity.label.${*}", AGENT_ACTIVITY_LABEL_KEYS],
   ["AgentChat.activity.state.${*}.${*}", AGENT_ACTIVITY_STATE_KEYS],
   ["AgentChat.activity.approval.${*}", AGENT_ACTIVITY_APPROVAL_KEYS],
   ["AgentChat.approval.${*}", AGENT_APPROVAL_RESOLUTION_KEYS],
   ["AgentChat.credits.blocked.${*}", AGENT_CREDIT_BLOCKED_KEYS],
-  ["AgentChat.suggestions.pages.${*}.${*}.${*}.label", AGENT_SUGGESTION_KEYS.map((key) => `${key}.label`)],
-  ["AgentChat.suggestions.pages.${*}.${*}.${*}.prompt", AGENT_SUGGESTION_KEYS.map((key) => `${key}.prompt`)],
-  ["AgentChat.suggestions.readOnly.${*}.label", AGENT_READ_ONLY_SUGGESTION_KEYS.map((key) => `${key}.label`)],
-  ["AgentChat.suggestions.readOnly.${*}.prompt", AGENT_READ_ONLY_SUGGESTION_KEYS.map((key) => `${key}.prompt`)],
+  [
+    "AgentChat.suggestions.pages.${*}.${*}.${*}.label",
+    AGENT_SUGGESTION_KEYS.map((key) => `${key}.label`),
+  ],
+  [
+    "AgentChat.suggestions.pages.${*}.${*}.${*}.prompt",
+    AGENT_SUGGESTION_KEYS.map((key) => `${key}.prompt`),
+  ],
+  [
+    "AgentChat.suggestions.readOnly.${*}.label",
+    AGENT_READ_ONLY_SUGGESTION_KEYS.map((key) => `${key}.label`),
+  ],
+  [
+    "AgentChat.suggestions.readOnly.${*}.prompt",
+    AGENT_READ_ONLY_SUGGESTION_KEYS.map((key) => `${key}.prompt`),
+  ],
 ]);
 
 const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
@@ -646,18 +821,30 @@ const DYNAMIC_SITE_CONSUMERS = new Map<string, readonly string[]>([
     "app/[locale]/(protected)/settings/(workspace)/components/feedback/feedback-modal.tsx :: t :: ${translationKey}.title",
     FEEDBACK_TITLE_KEYS,
   ],
-  ["components/data-view/use-column-label.ts :: t :: Common.table.columns.${columnId}", TABLE_COLUMN_KEYS],
-  ["components/data-view/use-column-label.ts :: t.has :: Common.table.columns.${columnId}", TABLE_COLUMN_KEYS],
+  [
+    "components/data-view/use-column-label.ts :: t :: Common.table.columns.${columnId}",
+    TABLE_COLUMN_KEYS,
+  ],
+  [
+    "components/data-view/use-column-label.ts :: t.has :: Common.table.columns.${columnId}",
+    TABLE_COLUMN_KEYS,
+  ],
   [
     'components/data-view/use-filter-field-label.ts :: t :: Common.filters.fields.${field.replace(/\\./g, "_")}',
     FILTER_FIELD_KEYS,
   ],
-  ["components/forms/use-form-field.ts :: t :: Common.inputs.${id}", FORM_FIELD_INPUT_KEYS],
+  [
+    "components/forms/use-form-field.ts :: t :: Common.inputs.${id}",
+    FORM_FIELD_INPUT_KEYS,
+  ],
   [
     "components/records/form-record-type-icon.tsx :: t :: RecordModel.icons.${key}",
     RECORD_TYPE_ICON_KEYS.map((key) => `RecordModel.icons.${key}`),
   ],
-  ["ee/subscription/entitlement.service.ts :: t :: ConnectedAccountsCard.${code}", ENTITLEMENT_DENIAL_KEYS],
+  [
+    "ee/subscription/entitlement.service.ts :: t :: ConnectedAccountsCard.${code}",
+    ENTITLEMENT_DENIAL_KEYS,
+  ],
 ]);
 
 const ENFORCED = true;
@@ -878,16 +1065,43 @@ export const DYNAMIC_KEY_SITES = [
 ];
 
 const NONLITERAL_T_CALL_SITES = new Map<string, number>([
-  ["ee/command-resolver/resolve-command.interactor.ts :: t :: command.labelKey", 1],
-  ["ee/command-resolver/resolve-command.interactor.ts :: t :: parent.labelKey", 1],
+  [
+    "ee/command-resolver/resolve-command.interactor.ts :: t :: command.labelKey",
+    1,
+  ],
+  [
+    "ee/command-resolver/resolve-command.interactor.ts :: t :: parent.labelKey",
+    1,
+  ],
   ["app/components/global-search-modal.tsx :: t :: key", 1],
-  ["app/components/command-palette/palette-entries.ts :: t :: entry.labelKey", 1],
-  ["app/components/command-palette/palette-entries.ts :: t :: parent.labelKey", 1],
-  ["features/command-palette/search-catalog-corpus.ts :: t :: command.labelKey", 1],
-  ["features/command-palette/search-catalog-corpus.ts :: t :: parent.labelKey", 1],
-  ["app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: key", 2],
-  ["app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx :: t :: key", 1],
-  ["app/[locale]/(protected)/configure/components/field-options-editor.tsx :: t :: key", 2],
+  [
+    "app/components/command-palette/palette-entries.ts :: t :: entry.labelKey",
+    1,
+  ],
+  [
+    "app/components/command-palette/palette-entries.ts :: t :: parent.labelKey",
+    1,
+  ],
+  [
+    "features/command-palette/search-catalog-corpus.ts :: t :: command.labelKey",
+    1,
+  ],
+  [
+    "features/command-palette/search-catalog-corpus.ts :: t :: parent.labelKey",
+    1,
+  ],
+  [
+    "app/[locale]/(protected)/configure/components/calculation-flow-editor.tsx :: t :: key",
+    2,
+  ],
+  [
+    "app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx :: t :: key",
+    1,
+  ],
+  [
+    "app/[locale]/(protected)/configure/components/field-options-editor.tsx :: t :: key",
+    2,
+  ],
   ["core/validation/interactor-failure-server.ts :: t.raw :: code", 1],
   ["features/mcp-tools/mcp-tool.ts :: t.raw :: customCode", 1],
   [
@@ -906,14 +1120,26 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     'components/records/record-activity-filters.tsx :: t :: isChangeActivityKind(id) ? `EntityTimeline.types.${id}` : id === "message" ? "EntityTimeline.types.messages" : id === "calendar_event" ? "ContactHistory.calendarMeeting" : "EntityTimeline.types.activities"',
     1,
   ],
-  ["app/[locale]/(protected)/inbox/components/attachment-classify.ts :: t :: typeLabelKey", 2],
-  ["app/[locale]/(protected)/inbox/components/email-message-header.tsx :: t :: labelKey", 1],
-  ["app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: PREVIEW_KIND_LABEL[thread.previewKind]", 1],
+  [
+    "app/[locale]/(protected)/inbox/components/attachment-classify.ts :: t :: typeLabelKey",
+    2,
+  ],
+  [
+    "app/[locale]/(protected)/inbox/components/email-message-header.tsx :: t :: labelKey",
+    1,
+  ],
+  [
+    "app/[locale]/(protected)/inbox/components/thread-row.tsx :: t :: PREVIEW_KIND_LABEL[thread.previewKind]",
+    1,
+  ],
   [
     'app/[locale]/(protected)/onboarding/wizard/components/step-profile.tsx :: t.rich :: isInvited ? "OnboardingForm.invitedAgreeToTerms" : "OnboardingForm.agreeToTerms"',
     1,
   ],
-  ["app/[locale]/(protected)/operator/components/operator-value-labels.tsx :: t :: key", 1],
+  [
+    "app/[locale]/(protected)/operator/components/operator-value-labels.tsx :: t :: key",
+    1,
+  ],
   [
     "app/[locale]/(protected)/settings/(account)/components/connected-accounts-page-view.tsx :: t :: option.labelKey",
     1,
@@ -927,20 +1153,32 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
     1,
   ],
   ["app/[locale]/(static)/docs/[slug]/page.tsx :: t :: navKey", 1],
-  ["app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: group.i18nKey", 1],
-  ["app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: item.i18nKey", 1],
+  [
+    "app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: group.i18nKey",
+    1,
+  ],
+  [
+    "app/[locale]/(static)/docs/components/docs-sidebar.tsx :: t :: item.i18nKey",
+    1,
+  ],
   ["app/[locale]/(static)/docs/openapi/page.tsx :: t :: navKey", 1],
   ["app/[locale]/(static)/docs/page.tsx :: t :: navKey", 1],
   ["app/components/app-sidebar.tsx :: t :: subroute.labelKey", 2],
   ["app/components/app-topbar-crumbs.ts :: t :: labelKey", 1],
   ["app/components/app-topbar-crumbs.ts :: t :: subroute.labelKey", 1],
   ["components/data-view/group-label.ts :: t :: group.labelKey", 1],
-  ["components/data-view/use-groupable-field-label.ts :: t :: field.labelKey", 1],
+  [
+    "components/data-view/use-groupable-field-label.ts :: t :: field.labelKey",
+    1,
+  ],
   [
     'components/data-view/views/view-ai-type-label.ts :: t :: form === "standalone" ? "AgentChat.context.surfaceViewTypeStandalone" : "AgentChat.context.surfaceViewType"',
     1,
   ],
-  ["app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: duplicate", 1],
+  [
+    "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts :: t :: duplicate",
+    1,
+  ],
   [
     'components/records/record-operation-progress.tsx :: t :: status.state === "failed" ? "RecordModel.operationFailed" : "RecordModel.operationCancelled"',
     1,
@@ -953,7 +1191,10 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ["ee/messaging/connect/create-auth-link.interactor.ts :: t :: denial.key", 1],
   ["features/mcp-tools/mcp-tool.ts :: t.raw :: customCode", 1],
   ["features/mcp-tools/utils.ts :: t.raw :: code", 1],
-  ["features/messaging/activities/activities-detail-modal.tsx :: t :: responseKey as never", 1],
+  [
+    "features/messaging/activities/activities-detail-modal.tsx :: t :: responseKey as never",
+    1,
+  ],
   [
     "features/messaging/activities/activities-list.tsx :: t :: PREVIEW_KIND_LABEL[classifyAttachment(firstAttachment)]",
     1,
@@ -964,7 +1205,17 @@ const NONLITERAL_T_CALL_SITES = new Map<string, number>([
   ],
   ["features/records/workspace-record-preset.ts :: t :: key", 1],
 ]);
-const SOURCE_DIRECTORIES = ["app", "components", "constants", "core", "ee", "features", "hooks", "i18n", "workflows"];
+const SOURCE_DIRECTORIES = [
+  "app",
+  "components",
+  "constants",
+  "core",
+  "ee",
+  "features",
+  "hooks",
+  "i18n",
+  "workflows",
+];
 
 type SourceEvidence = {
   kind: "literal" | "property" | "template";
@@ -1002,6 +1253,7 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
       "Trash.restoreBlocked.notFound",
       "Trash.restoreBlocked.requiresRestore",
       "Trash.restoreBlocked.nameTaken",
+      "Trash.restoreBlocked.routineLimitReached",
     ],
   },
   {
@@ -1015,7 +1267,10 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
   },
   {
     file: "app/[locale]/(protected)/records/[typeId]/components/record-identity-editor.tsx",
-    keys: ["EntityChannels.addChannel.sourceConversations", "EntityChannels.addChannel.sourceLookup"],
+    keys: [
+      "EntityChannels.addChannel.sourceConversations",
+      "EntityChannels.addChannel.sourceLookup",
+    ],
   },
   {
     file: "app/[locale]/(protected)/configure/components/use-configuration-deletion.ts",
@@ -1053,7 +1308,13 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
       "RecordModel.priceModes.saved",
     ],
     evidence: Object.fromEntries([
-      ...["quantity", "pricingMode", "savedPrice", "effectivePrice", "amount"].map((key) => [
+      ...[
+        "quantity",
+        "pricingMode",
+        "savedPrice",
+        "effectivePrice",
+        "amount",
+      ].map((key) => [
         `RecordModel.lineFields.${key}`,
         [
           {
@@ -1137,7 +1398,10 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
   },
   {
     file: "ee/messaging/connect/create-auth-link.interactor.ts",
-    keys: ["ConnectedAccountsCard.accountLimitReached", "ConnectedAccountsCard.upgradeToBusinessForMoreAccounts"],
+    keys: [
+      "ConnectedAccountsCard.accountLimitReached",
+      "ConnectedAccountsCard.upgradeToBusinessForMoreAccounts",
+    ],
   },
   {
     file: "app/[locale]/(protected)/settings/(account)/components/connected-accounts-status-toast.tsx",
@@ -1160,11 +1424,16 @@ const INDIRECT_KEY_CONSUMERS: readonly IndirectKeyConsumer[] = [
 
 const T_CALL_PATTERN =
   /(?:(?<![\w$.])|(?<=this\.))(t(?:\.(?:rich|raw|markup|has))?)\(\s*("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g;
-const GET_TRANSLATION_PATTERN = /(?<![\w$])(getTranslation)\(\s*("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g;
-const TRANSLATION_REF_CALL_PATTERN = /(?<![\w$.])(translationRef\.current)\(\s*("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g;
-const NAMESPACE_PATTERN = /(?:useTranslations|getTranslations)\(\s*"([^"]+)"\s*\)/g;
-const TRANSLATOR_NAMESPACE_PATTERN = /getTranslator\(\s*[^,)]+,\s*"([^"]+)"\s*\)/g;
-const STRING_LITERAL_PATTERN = /"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|`((?:[^`\\]|\\.)*)`/g;
+const GET_TRANSLATION_PATTERN =
+  /(?<![\w$])(getTranslation)\(\s*("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g;
+const TRANSLATION_REF_CALL_PATTERN =
+  /(?<![\w$.])(translationRef\.current)\(\s*("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`)/g;
+const NAMESPACE_PATTERN =
+  /(?:useTranslations|getTranslations)\(\s*"([^"]+)"\s*\)/g;
+const TRANSLATOR_NAMESPACE_PATTERN =
+  /getTranslator\(\s*[^,)]+,\s*"([^"]+)"\s*\)/g;
+const STRING_LITERAL_PATTERN =
+  /"((?:[^"\\]|\\.)*)"|'((?:[^'\\]|\\.)*)'|`((?:[^`\\]|\\.)*)`/g;
 const INDIRECT_TRANSLATION_KEY_PATTERN =
   /(?:alertTranslationKey|descriptionKey|i18nKey|labelKey|nameTranslationKey|primaryButtonLabel|successKey|titleKey|translationKey)\s*(?::|=)\s*("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')/g;
 const TOAST_CALL_PATTERN = /toast(?:Success|Error)\(([\s\S]*?)\);/g;
@@ -1173,13 +1442,17 @@ function loadCatalogPaths(): {
   leafPaths: Set<string>;
   nodePaths: Set<string>;
 } {
-  const raw = readFileSync(join(REPO_ROOT, "i18n", "locales", "en.json"), "utf8");
+  const raw = readFileSync(
+    join(REPO_ROOT, "i18n", "locales", "en.json"),
+    "utf8",
+  );
   const leafPaths = new Set<string>();
   const nodePaths = new Set<string>();
   const collect = (value: unknown, prefix: string) => {
     if (value !== null && typeof value === "object") {
       if (prefix) nodePaths.add(prefix);
-      for (const [key, child] of Object.entries(value)) collect(child, prefix ? `${prefix}.${key}` : key);
+      for (const [key, child] of Object.entries(value))
+        collect(child, prefix ? `${prefix}.${key}` : key);
       return;
     }
     leafPaths.add(prefix);
@@ -1188,11 +1461,17 @@ function loadCatalogPaths(): {
   return { leafPaths, nodePaths };
 }
 
-function resolves(key: string, namespaces: string[], catalog: ReturnType<typeof loadCatalogPaths>): boolean {
+function resolves(
+  key: string,
+  namespaces: string[],
+  catalog: ReturnType<typeof loadCatalogPaths>,
+): boolean {
   if (catalog.leafPaths.has(key) || catalog.nodePaths.has(key)) return true;
 
   return namespaces.some(
-    (namespace) => catalog.leafPaths.has(`${namespace}.${key}`) || catalog.nodePaths.has(`${namespace}.${key}`),
+    (namespace) =>
+      catalog.leafPaths.has(`${namespace}.${key}`) ||
+      catalog.nodePaths.has(`${namespace}.${key}`),
   );
 }
 
@@ -1201,9 +1480,15 @@ function matchingStaticCatalogPaths(
   namespaces: string[],
   catalog: ReturnType<typeof loadCatalogPaths>,
 ): string[] {
-  const candidates = new Set([key, ...namespaces.map((namespace) => `${namespace}.${key}`)]);
+  const candidates = new Set([
+    key,
+    ...namespaces.map((namespace) => `${namespace}.${key}`),
+  ]);
 
-  return [...candidates].filter((candidate) => catalog.leafPaths.has(candidate) || catalog.nodePaths.has(candidate));
+  return [...candidates].filter(
+    (candidate) =>
+      catalog.leafPaths.has(candidate) || catalog.nodePaths.has(candidate),
+  );
 }
 
 function normalizeDynamicTemplate(template: string): string {
@@ -1219,13 +1504,23 @@ function normalizeNodeText(value: string): string {
 function translationCallee(node: ts.Expression): string | undefined {
   if (ts.isIdentifier(node) && node.text === "t") return "t";
   if (!ts.isPropertyAccessExpression(node)) return undefined;
-  if (node.name.text === "current" && ts.isIdentifier(node.expression) && node.expression.text === "translationRef")
+  if (
+    node.name.text === "current" &&
+    ts.isIdentifier(node.expression) &&
+    node.expression.text === "translationRef"
+  )
     return "translationRef.current";
-  if (node.name.text === "t" && node.expression.kind === ts.SyntaxKind.ThisKeyword) return "this.t";
+  if (
+    node.name.text === "t" &&
+    node.expression.kind === ts.SyntaxKind.ThisKeyword
+  )
+    return "this.t";
   if (!T_METHODS.has(node.name.text)) return undefined;
 
   const base = translationCallee(node.expression);
-  return base === "t" || base === "this.t" ? `${base}.${node.name.text}` : undefined;
+  return base === "t" || base === "this.t"
+    ? `${base}.${node.name.text}`
+    : undefined;
 }
 
 function unwrapExpression(node: ts.Expression): ts.Expression {
@@ -1242,7 +1537,11 @@ function unwrapExpression(node: ts.Expression): ts.Expression {
   return current;
 }
 
-function scanNonliteralTranslationCalls(source: string, relPath: string, nonliteralSites: Map<string, number>): void {
+function scanNonliteralTranslationCalls(
+  source: string,
+  relPath: string,
+  nonliteralSites: Map<string, number>,
+): void {
   const sourceFile = ts.createSourceFile(
     relPath,
     source,
@@ -1261,7 +1560,10 @@ function scanNonliteralTranslationCalls(source: string, relPath: string, nonlite
           nonliteralSites.set(site, (nonliteralSites.get(site) ?? 0) + 1);
         } else {
           const argument = unwrapExpression(firstArgument);
-          if (!ts.isStringLiteralLike(argument) && !ts.isTemplateExpression(argument)) {
+          if (
+            !ts.isStringLiteralLike(argument) &&
+            !ts.isTemplateExpression(argument)
+          ) {
             const site = `${relPath} :: ${callee} :: ${normalizeNodeText(firstArgument.getText(sourceFile))}`;
             nonliteralSites.set(site, (nonliteralSites.get(site) ?? 0) + 1);
           }
@@ -1294,8 +1596,10 @@ function loadSourceEvidence(file: string): {
   const templates = new Set<string>();
   const visit = (node: ts.Node): void => {
     if (ts.isStringLiteralLike(node)) literals.add(node.text);
-    if (ts.isPropertyAssignment(node)) properties.add(normalizeNodeText(node.getText(sourceFile)));
-    if (ts.isTemplateExpression(node)) templates.add(normalizeNodeText(node.getText(sourceFile)));
+    if (ts.isPropertyAssignment(node))
+      properties.add(normalizeNodeText(node.getText(sourceFile)));
+    if (ts.isTemplateExpression(node))
+      templates.add(normalizeNodeText(node.getText(sourceFile)));
     ts.forEachChild(node, visit);
   };
   visit(sourceFile);
@@ -1320,7 +1624,10 @@ function scanSources(): {
   for (const directory of SOURCE_DIRECTORIES) {
     const files = walkFiles(
       join(REPO_ROOT, directory),
-      (path) => /\.tsx?$/.test(path) && !path.includes("__tests__") && !/\.test\.tsx?$/.test(path),
+      (path) =>
+        /\.tsx?$/.test(path) &&
+        !path.includes("__tests__") &&
+        !/\.test\.tsx?$/.test(path),
     );
     for (const file of files) {
       const source = readFileSync(file, "utf8");
@@ -1328,9 +1635,15 @@ function scanSources(): {
       scanNonliteralTranslationCalls(source, relPath, nonliteralSites);
       const namespaces = [
         ...[...source.matchAll(NAMESPACE_PATTERN)].map((match) => match[1]),
-        ...[...source.matchAll(TRANSLATOR_NAMESPACE_PATTERN)].map((match) => match[1]),
+        ...[...source.matchAll(TRANSLATOR_NAMESPACE_PATTERN)].map(
+          (match) => match[1],
+        ),
       ];
-      for (const pattern of [T_CALL_PATTERN, GET_TRANSLATION_PATTERN, TRANSLATION_REF_CALL_PATTERN]) {
+      for (const pattern of [
+        T_CALL_PATTERN,
+        GET_TRANSLATION_PATTERN,
+        TRANSLATION_REF_CALL_PATTERN,
+      ]) {
         for (const match of source.matchAll(pattern)) {
           const [full, callee, argument] = match;
           const matchIndex = match.index ?? 0;
@@ -1341,9 +1654,17 @@ function scanSources(): {
             dynamicSites.add(site);
             const template = normalizeDynamicTemplate(body);
             dynamicTemplates.add(template);
-            const keys = DYNAMIC_SITE_CONSUMERS.get(site) ?? DYNAMIC_TEMPLATE_CONSUMERS.get(template);
-            if (!keys) indirectViolations.push(`${site} has no exact dynamic consumer domain for template ${template}`);
-            else if (keys.length === 0) indirectViolations.push(`${site} has an empty dynamic consumer domain`);
+            const keys =
+              DYNAMIC_SITE_CONSUMERS.get(site) ??
+              DYNAMIC_TEMPLATE_CONSUMERS.get(template);
+            if (!keys)
+              indirectViolations.push(
+                `${site} has no exact dynamic consumer domain for template ${template}`,
+              );
+            else if (keys.length === 0)
+              indirectViolations.push(
+                `${site} has an empty dynamic consumer domain`,
+              );
             else for (const leafPath of keys) consumerKeys.add(leafPath);
 
             continue;
@@ -1358,8 +1679,14 @@ function scanSources(): {
             const site = `${relPath} :: ${callee} :: ${body}`;
             dynamicSites.add(site);
             const keys = DYNAMIC_SITE_CONSUMERS.get(site);
-            if (!keys) indirectViolations.push(`${site} has no exact concatenated-key consumer domain`);
-            else if (keys.length === 0) indirectViolations.push(`${site} has an empty dynamic consumer domain`);
+            if (!keys)
+              indirectViolations.push(
+                `${site} has no exact concatenated-key consumer domain`,
+              );
+            else if (keys.length === 0)
+              indirectViolations.push(
+                `${site} has an empty dynamic consumer domain`,
+              );
             else for (const leafPath of keys) consumerKeys.add(leafPath);
 
             continue;
@@ -1369,9 +1696,17 @@ function scanSources(): {
             staticViolations.push(`${relPath}:${line} ${callee}("${body}")`);
             continue;
           }
-          for (const candidate of matchingStaticCatalogPaths(body, namespaces, catalog)) {
+          for (const candidate of matchingStaticCatalogPaths(
+            body,
+            namespaces,
+            catalog,
+          )) {
             for (const leafPath of catalog.leafPaths)
-              if (leafPath === candidate || leafPath.startsWith(`${candidate}.`)) consumerKeys.add(leafPath);
+              if (
+                leafPath === candidate ||
+                leafPath.startsWith(`${candidate}.`)
+              )
+                consumerKeys.add(leafPath);
           }
         }
       }
@@ -1379,53 +1714,80 @@ function scanSources(): {
         const body = match[1].slice(1, -1);
         if (catalog.leafPaths.has(body)) consumerKeys.add(body);
         else if (body.includes("."))
-          indirectViolations.push(`${relPath} references missing indirect catalog key ${body}`);
+          indirectViolations.push(
+            `${relPath} references missing indirect catalog key ${body}`,
+          );
       }
       for (const toastCall of source.matchAll(TOAST_CALL_PATTERN)) {
         for (const match of toastCall[1].matchAll(STRING_LITERAL_PATTERN)) {
           const body = match[1] ?? match[2] ?? match[3];
           if (catalog.leafPaths.has(body)) consumerKeys.add(body);
           else if (/^[A-Za-z][\w-]*(?:\.[\w-]+)+$/.test(body))
-            indirectViolations.push(`${relPath} references missing toast catalog key ${body}`);
+            indirectViolations.push(
+              `${relPath} references missing toast catalog key ${body}`,
+            );
         }
       }
     }
   }
 
-  const evidenceCache = new Map<string, ReturnType<typeof loadSourceEvidence>>();
+  const evidenceCache = new Map<
+    string,
+    ReturnType<typeof loadSourceEvidence>
+  >();
   const evidenceFor = (file: string) => {
-    if (!evidenceCache.has(file)) evidenceCache.set(file, loadSourceEvidence(file));
+    if (!evidenceCache.has(file))
+      evidenceCache.set(file, loadSourceEvidence(file));
     return evidenceCache.get(file) ?? null;
   };
   for (const { file, keys, evidence } of INDIRECT_KEY_CONSUMERS) {
     if (!evidenceFor(file)) indirectViolations.push(`${file} does not exist`);
     for (const key of keys) {
-      if (!catalog.leafPaths.has(key)) indirectViolations.push(`${file} references missing catalog key ${key}`);
-      const requirements = evidence?.[key] ?? [{ kind: "literal" as const, value: key }];
+      if (!catalog.leafPaths.has(key))
+        indirectViolations.push(
+          `${file} references missing catalog key ${key}`,
+        );
+      const requirements = evidence?.[key] ?? [
+        { kind: "literal" as const, value: key },
+      ];
       const hasEvidence =
         requirements.length > 0 &&
         requirements.every((requirement) => {
           const index = evidenceFor(requirement.file ?? file);
           if (!index) return false;
-          if (requirement.kind === "literal") return index.literals.has(requirement.value);
-          if (requirement.kind === "property") return index.properties.has(requirement.value);
+          if (requirement.kind === "literal")
+            return index.literals.has(requirement.value);
+          if (requirement.kind === "property")
+            return index.properties.has(requirement.value);
           return index.templates.has(requirement.value);
         });
-      if (!hasEvidence) indirectViolations.push(`${file} has no declared source evidence for ${key}`);
+      if (!hasEvidence)
+        indirectViolations.push(
+          `${file} has no declared source evidence for ${key}`,
+        );
       else if (catalog.leafPaths.has(key)) consumerKeys.add(key);
     }
     for (const key of Object.keys(evidence ?? {}))
-      if (!keys.includes(key)) indirectViolations.push(`${file} has stale source evidence for ${key}`);
+      if (!keys.includes(key))
+        indirectViolations.push(`${file} has stale source evidence for ${key}`);
   }
   for (const [site, keys] of DYNAMIC_SITE_CONSUMERS) {
-    if (!dynamicSites.has(site)) indirectViolations.push(`stale dynamic consumer override ${site}`);
+    if (!dynamicSites.has(site))
+      indirectViolations.push(`stale dynamic consumer override ${site}`);
     for (const key of keys)
-      if (!catalog.leafPaths.has(key)) indirectViolations.push(`${site} references missing catalog key ${key}`);
+      if (!catalog.leafPaths.has(key))
+        indirectViolations.push(
+          `${site} references missing catalog key ${key}`,
+        );
   }
   for (const [template, keys] of DYNAMIC_TEMPLATE_CONSUMERS) {
-    if (!dynamicTemplates.has(template)) indirectViolations.push(`stale dynamic consumer template ${template}`);
+    if (!dynamicTemplates.has(template))
+      indirectViolations.push(`stale dynamic consumer template ${template}`);
     for (const key of keys)
-      if (!catalog.leafPaths.has(key)) indirectViolations.push(`${template} references missing catalog key ${key}`);
+      if (!catalog.leafPaths.has(key))
+        indirectViolations.push(
+          `${template} references missing catalog key ${key}`,
+        );
   }
 
   return {
@@ -1438,71 +1800,125 @@ function scanSources(): {
 }
 
 describe("i18n key resolution", () => {
-  const { staticViolations, dynamicSites, consumerKeys, indirectViolations, nonliteralSites } = scanSources();
+  const {
+    staticViolations,
+    dynamicSites,
+    consumerKeys,
+    indirectViolations,
+    nonliteralSites,
+  } = scanSources();
 
   it("checks literal translator-ref calls and registers nonliteral ones", () => {
     const call = 'translationRef.current("DataTransfer.export.missing")';
     const match = [...call.matchAll(TRANSLATION_REF_CALL_PATTERN)][0];
     expect(match?.[1]).toBe("translationRef.current");
     expect(match?.[2]).toBe('"DataTransfer.export.missing"');
-    expect(resolves("DataTransfer.export.missing", [], loadCatalogPaths())).toBe(false);
+    expect(
+      resolves("DataTransfer.export.missing", [], loadCatalogPaths()),
+    ).toBe(false);
     expect(consumerKeys.has("DataTransfer.export.success")).toBe(true);
     expect(consumerKeys.has("DataTransfer.export.failed")).toBe(true);
 
     const nonliteral = new Map<string, number>();
-    scanNonliteralTranslationCalls("translationRef.current(variableKey);", "fixture.ts", nonliteral);
-    expect([...nonliteral]).toEqual([["fixture.ts :: translationRef.current :: variableKey", 1]]);
+    scanNonliteralTranslationCalls(
+      "translationRef.current(variableKey);",
+      "fixture.ts",
+      nonliteral,
+    );
+    expect([...nonliteral]).toEqual([
+      ["fixture.ts :: translationRef.current :: variableKey", 1],
+    ]);
   });
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("resolves every static translation key against the catalog", () => {
-    expect(staticViolations, `unresolvable translation keys:\n${staticViolations.join("\n")}`).toEqual([]);
-  });
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "resolves every static translation key against the catalog",
+    () => {
+      expect(
+        staticViolations,
+        `unresolvable translation keys:\n${staticViolations.join("\n")}`,
+      ).toEqual([]);
+    },
+  );
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
     "keeps every nonliteral translation call explicitly registered",
     () => {
-      const actual = [...nonliteralSites].sort(([left], [right]) => left.localeCompare(right));
-      const expected = [...NONLITERAL_T_CALL_SITES].sort(([left], [right]) => left.localeCompare(right));
+      const actual = [...nonliteralSites].sort(([left], [right]) =>
+        left.localeCompare(right),
+      );
+      const expected = [...NONLITERAL_T_CALL_SITES].sort(([left], [right]) =>
+        left.localeCompare(right),
+      );
       expect(actual).toEqual(expected);
     },
   );
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("registers every dynamic translation key site", () => {
-    const registered = new Set(DYNAMIC_KEY_SITES);
-    const unregistered = [...dynamicSites].filter((site) => !registered.has(site)).sort();
-    expect(unregistered, `dynamic key sites missing from DYNAMIC_KEY_SITES:\n${unregistered.join("\n")}`).toEqual([]);
-  });
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "registers every dynamic translation key site",
+    () => {
+      const registered = new Set(DYNAMIC_KEY_SITES);
+      const unregistered = [...dynamicSites]
+        .filter((site) => !registered.has(site))
+        .sort();
+      expect(
+        unregistered,
+        `dynamic key sites missing from DYNAMIC_KEY_SITES:\n${unregistered.join("\n")}`,
+      ).toEqual([]);
+    },
+  );
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps the dynamic-site registry free of stale entries", () => {
-    const stale = DYNAMIC_KEY_SITES.filter((site) => !dynamicSites.has(site));
-    expect(stale, `stale DYNAMIC_KEY_SITES entries:\n${stale.join("\n")}`).toEqual([]);
-  });
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "keeps the dynamic-site registry free of stale entries",
+    () => {
+      const stale = DYNAMIC_KEY_SITES.filter((site) => !dynamicSites.has(site));
+      expect(
+        stale,
+        `stale DYNAMIC_KEY_SITES entries:\n${stale.join("\n")}`,
+      ).toEqual([]);
+    },
+  );
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps explicit indirect consumers valid", () => {
-    expect(indirectViolations, `invalid indirect translation consumers:\n${indirectViolations.join("\n")}`).toEqual([]);
-  });
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "keeps explicit indirect consumers valid",
+    () => {
+      expect(
+        indirectViolations,
+        `invalid indirect translation consumers:\n${indirectViolations.join("\n")}`,
+      ).toEqual([]);
+    },
+  );
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps event translations aligned with domain events", () => {
-    const { leafPaths } = loadCatalogPaths();
-    const translatedEvents = [...leafPaths]
-      .filter((key) => key.startsWith("Common.events."))
-      .map((key) => key.slice("Common.events.".length))
-      .sort();
-    const domainEvents = [...ACTIVITY_EVENTS].sort();
-    expect(translatedEvents).toEqual(domainEvents);
-  });
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "keeps event translations aligned with domain events",
+    () => {
+      const { leafPaths } = loadCatalogPaths();
+      const translatedEvents = [...leafPaths]
+        .filter((key) => key.startsWith("Common.events."))
+        .map((key) => key.slice("Common.events.".length))
+        .sort();
+      const domainEvents = [...ACTIVITY_EVENTS].sort();
+      expect(translatedEvents).toEqual(domainEvents);
+    },
+  );
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps starter type translations aligned with presets", () => {
-    const { leafPaths } = loadCatalogPaths();
-    const translated = [...leafPaths].filter((key) => key.startsWith("RecordModel.starterTypes.")).sort();
-    expect(translated).toEqual([...STARTER_TYPE_KEYS].sort());
-  });
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "keeps starter type translations aligned with presets",
+    () => {
+      const { leafPaths } = loadCatalogPaths();
+      const translated = [...leafPaths]
+        .filter((key) => key.startsWith("RecordModel.starterTypes."))
+        .sort();
+      expect(translated).toEqual([...STARTER_TYPE_KEYS].sort());
+    },
+  );
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
     "keeps filter-field translations aligned with filter fields",
     () => {
       const { leafPaths } = loadCatalogPaths();
-      const translatedFields = [...leafPaths].filter((key) => key.startsWith("Common.filters.fields.")).sort();
+      const translatedFields = [...leafPaths]
+        .filter((key) => key.startsWith("Common.filters.fields."))
+        .sort();
       expect(translatedFields).toEqual([...FILTER_FIELD_KEYS].sort());
     },
   );
@@ -1511,7 +1927,9 @@ describe("i18n key resolution", () => {
     "keeps role-resource translations aligned with role resources",
     () => {
       const { leafPaths } = loadCatalogPaths();
-      const translatedResources = [...leafPaths].filter((key) => key.startsWith("RoleModal.resources.")).sort();
+      const translatedResources = [...leafPaths]
+        .filter((key) => key.startsWith("RoleModal.resources."))
+        .sort();
       expect(translatedResources).toEqual([...ROLE_RESOURCE_KEYS].sort());
     },
   );
@@ -1520,7 +1938,9 @@ describe("i18n key resolution", () => {
     "keeps display-type translations aligned with display types",
     () => {
       const { leafPaths } = loadCatalogPaths();
-      const translatedDisplayTypes = [...leafPaths].filter((key) => key.startsWith("Dashboard.displayTypes.")).sort();
+      const translatedDisplayTypes = [...leafPaths]
+        .filter((key) => key.startsWith("Dashboard.displayTypes."))
+        .sort();
       expect(translatedDisplayTypes).toEqual([...DISPLAY_TYPE_KEYS].sort());
     },
   );
@@ -1530,9 +1950,15 @@ describe("i18n key resolution", () => {
     () => {
       const { leafPaths } = loadCatalogPaths();
       const translatedAggregationTypes = [...leafPaths]
-        .filter((key) => key.startsWith("RecordModel.reducers.") && key !== "RecordModel.reducers.one")
+        .filter(
+          (key) =>
+            key.startsWith("RecordModel.reducers.") &&
+            key !== "RecordModel.reducers.one",
+        )
         .sort();
-      expect(translatedAggregationTypes).toEqual([...AGGREGATION_TYPE_KEYS].sort());
+      expect(translatedAggregationTypes).toEqual(
+        [...AGGREGATION_TYPE_KEYS].sort(),
+      );
     },
   );
 
@@ -1540,29 +1966,46 @@ describe("i18n key resolution", () => {
     "keeps date-preset translations aligned with rendered presets",
     () => {
       const { leafPaths } = loadCatalogPaths();
-      const translatedDatePresets = [...leafPaths].filter((key) => key.startsWith("Common.datePresets.")).sort();
+      const translatedDatePresets = [...leafPaths]
+        .filter((key) => key.startsWith("Common.datePresets."))
+        .sort();
       expect(translatedDatePresets).toEqual([...DATE_PRESET_KEYS].sort());
     },
   );
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("keeps error translations aligned with error codes", () => {
-    const { leafPaths } = loadCatalogPaths();
-    const translatedErrors = [...leafPaths].filter((key) => key.startsWith("Common.errors.")).sort();
-    expect(translatedErrors).toEqual([...COMMON_ERROR_KEYS].sort());
-  });
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "keeps error translations aligned with error codes",
+    () => {
+      const { leafPaths } = loadCatalogPaths();
+      const translatedErrors = [...leafPaths]
+        .filter((key) => key.startsWith("Common.errors."))
+        .sort();
+      expect(translatedErrors).toEqual([...COMMON_ERROR_KEYS].sort());
+    },
+  );
 
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
     "keeps canonical column translations aligned with rendered columns",
     () => {
       const { leafPaths } = loadCatalogPaths();
-      const translatedColumns = [...leafPaths].filter((key) => key.startsWith("Common.table.columns.")).sort();
+      const translatedColumns = [...leafPaths]
+        .filter((key) => key.startsWith("Common.table.columns."))
+        .sort();
       expect(translatedColumns).toEqual([...TABLE_COLUMN_KEYS].sort());
     },
   );
 
-  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)("maps every catalog leaf to a source consumer", () => {
-    const { leafPaths } = loadCatalogPaths();
-    const unconsumed = [...leafPaths].filter((key) => !consumerKeys.has(key)).sort();
-    expect(unconsumed, `catalog keys without a source consumer:\n${unconsumed.join("\n")}`).toEqual([]);
-  });
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "maps every catalog leaf to a source consumer",
+    () => {
+      const { leafPaths } = loadCatalogPaths();
+      const unconsumed = [...leafPaths]
+        .filter((key) => !consumerKeys.has(key))
+        .sort();
+      expect(
+        unconsumed,
+        `catalog keys without a source consumer:\n${unconsumed.join("\n")}`,
+      ).toEqual([]);
+    },
+  );
 });

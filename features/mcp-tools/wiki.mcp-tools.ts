@@ -94,7 +94,7 @@ const ManageWikiPagesSchema = z.object({
   action: z
     .enum(["list", "search", "get", "create", "update", "move", "delete"])
     .describe(
-      "list: page, kind; search: query, page; get: id, offset; create: pages, requireEmpty; update: id, expectedUpdatedAt, fields; move: id, targetId, placement; delete: id, expectedUpdatedAt.",
+      "list: page, kind; search: query, page; get: id, offset; create: pages, requireEmpty; update: id, expectedUpdatedAt, title, markdown, kind, whenToUse; move: id, targetId, placement; delete: id, expectedUpdatedAt. update changes only the supplied title, markdown, kind and whenToUse, at least one of them, as top-level fields.",
     ),
   id: z.uuid().optional().describe("Page id."),
   query: z.string().optional().describe("Search terms."),

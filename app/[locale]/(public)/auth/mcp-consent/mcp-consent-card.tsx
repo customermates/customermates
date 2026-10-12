@@ -15,11 +15,12 @@ import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 type Props = {
   clientName: string;
   consentCode: string;
+  permitted: boolean;
   redirectHost: string;
   scopes: string[];
 };
 
-const McpConsentCardContent = observer(({ clientName, consentCode, redirectHost, scopes }: Props) => {
+const McpConsentCardContent = observer(({ clientName, consentCode, permitted, redirectHost, scopes }: Props) => {
   const t = useTranslations();
   const { mcpConsentStore, navigationGuard } = useRootStore();
 
@@ -57,13 +58,17 @@ const McpConsentCardContent = observer(({ clientName, consentCode, redirectHost,
       <AppCardBody>
         <p className="text-x-sm">{t("McpConsentCard.body", { client: clientName })}</p>
 
-        {scopes.length > 0 && (
-          <ul className="text-x-sm text-subdued list-disc space-y-1 pl-5">
-            {scopes.map((scope) => (
-              <li key={scope}>{scopeLabel(scope)}</li>
-            ))}
-          </ul>
-        )}
+        {!permitted && <p className="text-x-sm text-destructive">{t("McpConsentCard.permissionRequired")}</p>}
+
+        <ul className="text-x-sm text-subdued list-disc space-y-1 pl-5">
+          <li>{t("McpConsentCard.access.crmData")}</li>
+
+          <li>{t("McpConsentCard.access.messaging")}</li>
+
+          {scopes.map((scope) => (
+            <li key={scope}>{scopeLabel(scope)}</li>
+          ))}
+        </ul>
 
         <p className="text-x-xs text-subdued">{t("McpConsentCard.destination", { host: redirectHost })}</p>
       </AppCardBody>
@@ -77,9 +82,11 @@ const McpConsentCardContent = observer(({ clientName, consentCode, redirectHost,
           {t("McpConsentCard.deny")}
         </Button>
 
-        <Button disabled={mcpConsentStore.isSubmitting} onClick={() => runUserAction(() => decide(true))}>
-          {t("McpConsentCard.approve")}
-        </Button>
+        {permitted && (
+          <Button disabled={mcpConsentStore.isSubmitting} onClick={() => runUserAction(() => decide(true))}>
+            {t("McpConsentCard.approve")}
+          </Button>
+        )}
       </AppCardFooter>
     </AppCard>
   );

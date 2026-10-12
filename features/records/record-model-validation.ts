@@ -19,6 +19,11 @@ export type ModelIssue = {
   fieldId?: string;
   typeId?: string;
   relationId?: string;
+  viewKind?: "view" | "personalLayout";
+  viewId?: string;
+  viewName?: string;
+  columnId?: string;
+  columnLabel?: string;
 };
 
 export const MULTIPLE_VALUE_TYPES: readonly RecordValueType[] = ["text", "email", "phone", "url", "select"];

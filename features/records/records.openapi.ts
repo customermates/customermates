@@ -45,7 +45,7 @@ import {
 import { RecordQueryResultSchema } from "./record-query-result.schema";
 import { RecordMeasureSchema, RecordMeasureResultSchema } from "./record-measure.schema";
 import { RecordOperationInputSchema, RecordOperationStatusSchema } from "./record-operation.schema";
-import { PreviewRecordDeletionSchema, RecordDeletionPreviewSchema } from "./preview-record-deletion.interactor";
+import { PreviewRecordDeletionRequestSchema, RecordDeletionPreviewSchema } from "./preview-record-deletion.interactor";
 import {
   RecordActivitiesInputSchema,
   RecordActivitiesResultSchema,
@@ -379,7 +379,7 @@ export const recordApiPaths = {
     post: operation(
       "previewRecordDeletion",
       "Preview record deletion and cascading effects",
-      PreviewRecordDeletionSchema,
+      PreviewRecordDeletionRequestSchema,
       RecordDeletionPreviewSchema,
       { read: true, requires: "delete access to the list." },
     ),

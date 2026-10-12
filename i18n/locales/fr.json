@@ -1058,6 +1058,7 @@
       "billingPortalUnavailable": "Le portail de facturation n’est pas disponible pour cet espace de travail. Contactez l’assistance pour effectuer des modifications.",
       "calendarEventNotFound": "ID d'évènement d'agenda introuvable ou inaccessible.",
       "channelAlreadyLinked": "Ce canal est déjà lié à un autre contact.",
+      "chatThreadRequired": "Ceci est un fil d'e-mails. Répondez par e-mail plutôt que par un message de chat.",
       "connectedAccountNotFound": "ID de canal introuvable ou inaccessible.",
       "customFieldInvalidDate": "La date est invalide. Elle doit être au format ISO 8601 (par exemple 2024-01-15) ou au format date-heure ISO 8601 (par exemple 2024-01-15T00:00:00Z).",
       "dataViewAllNameImmutable": "La vue Toutes ne peut pas être renommée. Omettez name et modifiez uniquement les paramètres demandés dans state. Consultez config pour les paramètres pris en charge et list pour l’état actuel avant de réessayer.",
@@ -1125,9 +1126,11 @@
       "recordMeasureDateIntervalInvalid": "Les intervalles de temps nécessitent un regroupement par un champ de date, de date et heure, de création ou de modification, et un fuseau horaire nécessite un intervalle de temps.",
       "recordNotFound": "Cet enregistrement est indisponible.",
       "recordOperationFailed": "L'opération en arrière-plan a échoué. Réessaie.",
+      "recordOptionInvalid": "« {value} » n'est pas une option de {field} ({fieldId}). Utilisez l'un de ces ID d'option : {validValues}.",
       "recordProtected": "Cet enregistrement est géré par un processus système.",
       "recordReadOnlyField": "Ce champ est calculé. Modifie sa définition pour saisir des valeurs manuellement.",
       "recordRelationConflict": "Ce lien ne respecte pas les règles de la relation.",
+      "recordSavedViewIncompatible": "La vue enregistrée « {viewName} » ({viewId}) utilise encore « {columnLabel} » ({columnId}). Modifiez ou supprimez cette vue, puis réessayez.",
       "recordSchemaChanged": "Le modèle de données a changé. Actualise la page et réessaie.",
       "recordTypeNotFound": "Ce type d’enregistrement est indisponible.",
       "recordValueInvalid": "Vérifie les valeurs signalées de l’enregistrement.",
@@ -2655,11 +2658,16 @@
     "selectedCount": "{count, plural, one {# élément sélectionné} other {# éléments sélectionnés}}"
   },
   "McpConsentCard": {
+    "access": {
+      "crmData": "Lire et modifier vos données et paramètres CRM, dans la limite de votre rôle",
+      "messaging": "Envoyer des messages et des e-mails via vos comptes connectés"
+    },
     "approve": "Approuver",
     "body": "{client} demande l'accès à votre compte Customermates. N'approuvez que si vous êtes à l'origine de cette connexion.",
     "deny": "Refuser",
     "destination": "Destination de la connexion : {host}",
     "error": "Une erreur est survenue. Réessayez ou relancez la connexion depuis votre client.",
+    "permissionRequired": "Votre rôle n'autorise pas les connexions MCP. Une connexion via MCP nécessite l'accès en lecture Tous sur API et webhooks. Demandez-le à un administrateur de l'espace de travail.",
     "scopes": {
       "email": "Lire votre adresse e-mail",
       "offlineAccess": "Rester connecté en votre absence",
@@ -3371,6 +3379,7 @@
         "existingValues": "Certaines valeurs existantes de {subject} ne correspondent pas à la modification.",
         "readAll": "{subject} contient encore des fiches que vous ne pouvez pas voir. Seule une personne pouvant lire toutes ses fiches, ou un administrateur, peut le supprimer définitivement.",
         "savedView": "Des vues enregistrées ou mises en page personnelles utilisent encore {subject}.",
+        "savedViewColumn": "La vue enregistrée {view} utilise encore {column}.",
         "summaryApproval": "{subject} nécessite une nouvelle approbation du résumé."
       },
       "moved": "Déplacé dans la Corbeille"
@@ -4135,8 +4144,14 @@
       "connectedAccountsPerUser": "{accounts, plural, one {# compte connecté par utilisateur} other {# comptes connectés par utilisateur}}",
       "creditNote": "Les crédits IA hébergés sont renouvelés chaque mois ; les crédits non utilisés ne sont pas reportés. Chaque demande est facturée à son coût exact chez le fournisseur, affiché avec une décimale. Les clients MCP externes facturent les modèles via votre propre fournisseur d'IA. Les recherches sémantiques côté serveur peuvent consommer des crédits IA hébergés.",
       "features": {
-        "business": ["Tout ce qui est inclus dans Pro", "Comptes partagés et assistance prioritaire"],
-        "pro": ["Tout ce qui est inclus dans Starter", "Boîte de réception unifiée"],
+        "business": [
+          "Tout ce qui est inclus dans Pro",
+          "Comptes partagés et assistance prioritaire"
+        ],
+        "pro": [
+          "Tout ce qui est inclus dans Starter",
+          "Boîte de réception unifiée"
+        ],
         "starter": [
           "CRM complet : contacts, affaires, organisations, tâches",
           "Journal d'audit",
@@ -4237,7 +4252,8 @@
       "nameTaken": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car un autre élément utilise désormais leur nom ou leur place.",
       "notFound": "{count, plural, one {# élément n'existe plus et a quitté} other {# éléments n'existent plus et ont quitté}} la corbeille.",
       "parentDeleted": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car ce à quoi ils appartiennent est dans la corbeille. Restaurez-le d'abord.",
-      "requiresRestore": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car un élément dont ils ont besoin est dans la corbeille. Restaurez-le d'abord."
+      "requiresRestore": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car un élément dont ils ont besoin est dans la corbeille. Restaurez-le d'abord.",
+      "routineLimitReached": "{count, plural, one {# routine reste} other {# routines restent}} dans la corbeille car son propriétaire a déjà toutes les routines incluses dans son forfait."
     },
     "restored": "{count, plural, one {# élément restauré} other {# éléments restaurés}}",
     "restoredInBackground": "Restauré",

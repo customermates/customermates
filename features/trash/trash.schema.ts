@@ -84,9 +84,14 @@ export type RestoreTrashData = z.infer<typeof RestoreTrashSchema>;
 const TrashRestoreBlockerSchema = z
   .object({
     itemId: z.uuid(),
-    reason: z.enum(["listDeleted", "parentDeleted", "notFound", "requiresRestore", "nameTaken"]),
+    reason: z.enum(["listDeleted", "parentDeleted", "notFound", "requiresRestore", "nameTaken", "routineLimitReached"]),
     typeId: z.uuid().nullable(),
     parent: RecordRefSchema.optional(),
+    limit: z
+      .number()
+      .int()
+      .optional()
+      .describe("routineLimitReached only: the routines per user the plan includes; the owner is at this limit."),
   })
   .strict();
 export type TrashRestoreBlocker = z.infer<typeof TrashRestoreBlockerSchema>;

@@ -1058,6 +1058,7 @@
       "billingPortalUnavailable": "Il portale di fatturazione non è disponibile per questo spazio di lavoro. Contatta l’assistenza per apportare modifiche.",
       "calendarEventNotFound": "ID evento del calendario non trovato o non accessibile.",
       "channelAlreadyLinked": "Questo canale è già collegato a un altro contatto.",
+      "chatThreadRequired": "Questo è un thread email. Rispondi con un'email invece che con un messaggio di chat.",
       "connectedAccountNotFound": "ID canale non trovato o non accessibile.",
       "customFieldInvalidDate": "La data non è valida. Deve essere nel formato ISO 8601 (ad esempio 2024-01-15) o nel formato data-ora ISO 8601 (ad esempio 2024-01-15T00:00:00Z).",
       "dataViewAllNameImmutable": "La vista Tutte non può essere rinominata. Ometti name e aggiorna solo le impostazioni richieste in state. Consulta config per le impostazioni supportate e list per lo stato attuale prima di riprovare.",
@@ -1125,9 +1126,11 @@
       "recordMeasureDateIntervalInvalid": "Gli intervalli di tempo richiedono un raggruppamento per un campo data, data e ora, creazione o modifica, e un fuso orario richiede un intervallo di tempo.",
       "recordNotFound": "Questo record non è disponibile.",
       "recordOperationFailed": "L'operazione in background non è riuscita. Riprova.",
+      "recordOptionInvalid": "\"{value}\" non è un'opzione di {field} ({fieldId}). Usa uno di questi ID opzione: {validValues}.",
       "recordProtected": "Questo record è gestito da un processo di sistema.",
       "recordReadOnlyField": "Questo campo è calcolato. Modifica la definizione per inserire valori manualmente.",
       "recordRelationConflict": "Questo collegamento non rispetta le regole della relazione.",
+      "recordSavedViewIncompatible": "La vista salvata \"{viewName}\" ({viewId}) usa ancora \"{columnLabel}\" ({columnId}). Aggiorna o elimina quella vista, poi riprova.",
       "recordSchemaChanged": "Il modello dati è cambiato. Aggiorna la pagina e riprova.",
       "recordTypeNotFound": "Questo tipo di record non è disponibile.",
       "recordValueInvalid": "Controlla i valori evidenziati del record.",
@@ -2655,11 +2658,16 @@
     "selectedCount": "{count, plural, one {# elemento selezionato} other {# elementi selezionati}}"
   },
   "McpConsentCard": {
+    "access": {
+      "crmData": "Leggere e modificare i tuoi dati e le impostazioni del CRM, nei limiti del tuo ruolo",
+      "messaging": "Inviare messaggi ed email tramite i tuoi account collegati"
+    },
     "approve": "Approva",
     "body": "{client} sta chiedendo l'accesso al tuo account Customermates. Approva solo se hai avviato tu questo collegamento.",
     "deny": "Rifiuta",
     "destination": "Destinazione del collegamento: {host}",
     "error": "Qualcosa è andato storto. Riprova oppure riavvia il collegamento dal tuo client.",
+    "permissionRequired": "Il tuo ruolo non consente connessioni MCP. La connessione tramite MCP richiede l'accesso in lettura Tutti su API e webhook. Chiedilo a un amministratore del workspace.",
     "scopes": {
       "email": "Leggere il tuo indirizzo e-mail",
       "offlineAccess": "Restare collegato mentre sei assente",
@@ -3371,6 +3379,7 @@
         "existingValues": "Alcuni valori esistenti di {subject} non sono compatibili con la modifica.",
         "readAll": "{subject} contiene ancora record che non puoi vedere. Solo chi può leggere tutti i suoi record, o un amministratore, può eliminarlo definitivamente.",
         "savedView": "Viste salvate o layout personali usano ancora {subject}.",
+        "savedViewColumn": "La vista salvata {view} usa ancora {column}.",
         "summaryApproval": "{subject} richiede una nuova approvazione del riepilogo."
       },
       "moved": "Spostato nel Cestino"
@@ -4135,7 +4144,10 @@
       "connectedAccountsPerUser": "{accounts, plural, one {# account collegato per utente} other {# account collegati per utente}}",
       "creditNote": "I crediti IA in hosting si rinnovano ogni mese; i crediti non utilizzati non vengono trasferiti al mese successivo. Ogni richiesta viene addebitata al suo costo esatto presso il provider e mostrata con un decimale. I client MCP esterni fatturano i modelli tramite il tuo provider di IA. Le ricerche semantiche lato server possono consumare crediti IA in hosting.",
       "features": {
-        "business": ["Tutto ciò che c'è in Pro", "Account condivisi e assistenza prioritaria"],
+        "business": [
+          "Tutto ciò che c'è in Pro",
+          "Account condivisi e assistenza prioritaria"
+        ],
         "pro": ["Tutto ciò che c'è in Starter", "Posta in arrivo unificata"],
         "starter": [
           "CRM completo: contatti, trattative, organizzazioni, attività",
@@ -4237,7 +4249,8 @@
       "nameTaken": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché un altro elemento usa ora il loro nome o posto.",
       "notFound": "{count, plural, one {# elemento non esiste più ed è uscito} other {# elementi non esistono più e sono usciti}} dal cestino.",
       "parentDeleted": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché ciò a cui appartengono è nel cestino. Ripristinalo prima.",
-      "requiresRestore": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché qualcosa di cui hanno bisogno è nel cestino. Ripristinalo prima."
+      "requiresRestore": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché qualcosa di cui hanno bisogno è nel cestino. Ripristinalo prima.",
+      "routineLimitReached": "{count, plural, one {# routine resta} other {# routine restano}} nel cestino perché il proprietario ha già tutte le routine incluse nel suo piano."
     },
     "restored": "{count, plural, one {# elemento ripristinato} other {# elementi ripristinati}}",
     "restoredInBackground": "Ripristinato",

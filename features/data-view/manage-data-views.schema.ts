@@ -161,7 +161,8 @@ export const ManageDataViewsResultSchema = z
       if (result.surfaceKey && result.viewKey && result.link !== undefined) {
         const path = dataViewPath(result.surfaceKey);
         const expectedLink = path ? `${path}?view=${result.viewKey}` : null;
-        if (result.link !== expectedLink) {
+        const linkPath = result.link && URL.canParse(result.link) ? new URL(result.link) : null;
+        if (result.link !== expectedLink && `${linkPath?.pathname}${linkPath?.search}` !== expectedLink) {
           ctx.addIssue({
             code: "custom",
             path: ["link"],

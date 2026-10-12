@@ -50,6 +50,7 @@ import {
   RecordDetailLayoutResultSchema,
 } from "@/features/records/record-detail-layout.schema";
 import {
+  PreviewRecordDeletionRequestSchema,
   PreviewRecordDeletionSchema,
   RecordDeletionPreviewSchema,
 } from "@/features/records/preview-record-deletion.interactor";
@@ -187,12 +188,15 @@ export const previewRecordDeletionV2Tool = {
   name: "preview_crm_deletion",
   title: "Preview deletion",
   description:
-    "Preview records and links removed by a deletion, including cascading line items. Supply a single ref and expectedVersion, or targets for an atomic selection deletion. Calculations lists definitions that may need recalculation. Null removedLinks means the total is restricted. No records are changed. Pass the returned impactHash to mutate_crm_record as expectedImpactHash after approval. Both preview and deletion enforce record access, deletion policies and protected capabilities.",
-  inputSchema: PreviewRecordDeletionSchema,
+    "Preview records and links removed by a deletion, including cascading line items. Always supply expectedRevision, plus either a single ref with expectedVersion, or targets for an atomic selection deletion. Calculations lists definitions that may need recalculation. Null removedLinks means the total is restricted. No records are changed. Pass the returned impactHash to mutate_crm_record as expectedImpactHash after approval. Both preview and deletion enforce record access, deletion policies and protected capabilities.",
+  inputSchema: PreviewRecordDeletionRequestSchema,
   outputSchema: RecordDeletionPreviewSchema,
   annotations: read,
-  execute: (input: z.infer<typeof PreviewRecordDeletionSchema>) =>
-    runInteractor(getPreviewRecordDeletionInteractor().invoke(input), toonResult),
+  execute: (input: z.infer<typeof PreviewRecordDeletionRequestSchema>) => {
+    const parsed = PreviewRecordDeletionSchema.safeParse(input);
+    if (!parsed.success) return mcpValidationFailure(parsed.error);
+    return runInteractor(getPreviewRecordDeletionInteractor().invoke(parsed.data), toonResult);
+  },
 };
 export const queryRecordMeasureV2Tool = {
   name: "query_crm_measure",

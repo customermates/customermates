@@ -28,7 +28,7 @@ The endpoint speaks the Model Context Protocol (streamable HTTP variant). `tools
 
 An API key is 64 letters (a-z, A-Z) and carries the permissions of the user who created it; there is no per-key scoping. Custom-connector clients (Claude, ChatGPT) use OAuth instead and obtain and refresh a bearer token for you, see [Connect with a custom connector](/docs/connect-custom-connector).
 
-A request with no `x-api-key` header and no valid bearer token (missing, expired or revoked) gets HTTP `401` with a `WWW-Authenticate` header that points OAuth clients at `/.well-known/oauth-protected-resource`, so the client signs in again. The key's value is checked only when a tool reads or changes workspace data: with a wrong, truncated, expired or deleted key the client still connects and lists every tool, and each such call fails with "Sign in to use this action." (kind `authentication`). The documentation tools (`search_docs`, `get_docs_page`, and `fetch` for a `doc:` id) still answer because they read only public documentation, so test a key with `get_workspace_context`.
+A request without valid credentials gets HTTP `401` with a `WWW-Authenticate` header that points OAuth clients at `/.well-known/oauth-protected-resource`, so the client signs in again: no `x-api-key` header and no bearer token, a wrong, truncated, expired or deleted key, or a missing, expired or revoked token. Connecting through MCP also needs **Read access** **All** on the **API & Webhooks** row of the user's role, the same permission as the API keys page; the built-in **Admin** role has it. A valid key or OAuth token of a user whose role lacks it gets HTTP `403` with `error: insufficient_permissions` before any tool runs, and the OAuth consent screen refuses such a user. The in-app assistant does not need it.
 
 The endpoint and API keys are available on every plan and on self-hosted instances. Only the messaging, calendar and social tools need a plan with messaging (Pro or higher, cloud only); see [Messaging](/docs/mcp#messaging).
 
@@ -638,7 +638,7 @@ All [[derived.mcp.tools.total]] tools are on by default. To expose only part of 
 <BASE_URL>/api/v1/mcp?toolsets=records,messaging
 ```
 
-Keys: records, workspace, views, wiki, messaging, social, docs, record-model, widgets, routines, webhooks, admin, support. No parameter means everything; unknown keys are ignored, and a list with no recognised key serves the full surface. `records` also holds the operation tools (`read_crm_operation`, `cancel_crm_operation`, `resume_crm_operation`) and the Trash tools; `record-model` holds only `configure_record_model`. `search` and `fetch` are always on so deep-research connectors keep working on any narrowed surface.
+Keys: records, workspace, views, wiki, messaging, social, docs, record-model, widgets, routines, webhooks, admin, support. No parameter means everything; an unknown key returns HTTP `400` with `error: invalid_toolsets`, the unknown keys and the valid ones. `records` also holds the operation tools (`read_crm_operation`, `cancel_crm_operation`, `resume_crm_operation`) and the Trash tools; `record-model` holds only `configure_record_model`. `search` and `fetch` are always on so deep-research connectors keep working on any narrowed surface.
 
 ### When a call is refused
 
@@ -666,7 +666,7 @@ Only a `validation` refusal's text starts with `Validation error:`; the other ki
 - **not_found**: the id does not exist or belongs to another workspace; every call is tenant-scoped, so a foreign id reads as missing, not forbidden. A recipient, profile or thread the messaging provider cannot find or show also returns `not_found`, with `customCode` `unipileResourceNotFound`; your own record ids are fine in that case.
 - **conflict**: the state changed or a resource is already claimed. For `recordSchemaChanged` or `recordVersionChanged`, read current state and preview again. `recordIdempotencyConflict` means a retry key was reused with a different payload. `channelAlreadyLinked` means an identity key belongs to another record.
 - **rate_limit** and **unavailable**: transient or capacity-bound. Back off, and report `unavailable` as a provider problem, not a user mistake. A messaging channel at its provider limit returns `rate_limit` with `customCode` `unipileRateLimit`, and the message says when to try again ([messaging rate limits](/docs/messaging-rate-limits)). A provider outage or timeout returns `unavailable`; after a timeout the action may still have completed, so check before retrying. An unexpected server error while the tool runs also returns `unavailable`, with the text `Error: The operation could not be completed because of an unexpected server error.`
-- **authentication**: the key is wrong, truncated, expired or deleted, and every call that reads or changes workspace data says "Sign in to use this action." Only the documentation tools still answer; the user must create a new key. A request with no key and no valid OAuth token gets HTTP `401` before any tool runs.
+- **authentication**: the signed-in user could not be resolved for this call, and it says "Sign in to use this action." A wrong, truncated, expired or deleted key, or a request with no key and no valid OAuth token, gets HTTP `401` before any tool runs; the user must create a new key or sign in again.
 
 One kind of `isError: true` result carries no `_meta.failure`:
 
