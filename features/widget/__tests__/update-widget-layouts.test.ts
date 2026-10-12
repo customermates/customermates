@@ -1,3 +1,4 @@
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { describe, expect, it, vi } from "vitest";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
@@ -78,6 +79,24 @@ describe("widget layout batch contract", () => {
 
     expect(!result.ok && interactorFailureKind(result.error)).toBe("validation");
     expect(repo.saveWidgetLayouts).not.toHaveBeenCalled();
+  });
+
+  it("accepts a two-row chart or number and refuses a one-row one as too small", async () => {
+    const save = (h: number) => {
+      const repo = repository(valid.expectedVersions);
+      const lg = [
+        { i: FIRST, x: 0, y: 0, w: 3, h },
+        { i: SECOND, x: 0, y: 3, w: 12, h: 2 },
+      ];
+      return runWithTenant(createMockUser(), () =>
+        new UpdateWidgetLayoutsInteractor(repo).invoke({ ...valid, layouts: { ...valid.layouts, lg } }),
+      ).then((result) => ({ result, repo }));
+    };
+    const fits = await save(2);
+    expect(fits.result.ok).toBe(true);
+    const short = await save(1);
+    expect(!short.result.ok && JSON.stringify(short.result.error)).toContain(CustomErrorCode.widgetLayoutTooSmall);
+    expect(short.repo.saveWidgetLayouts).not.toHaveBeenCalled();
   });
 
   it("refuses a stale widget version as a conflict without writing", async () => {

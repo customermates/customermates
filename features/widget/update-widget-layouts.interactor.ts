@@ -4,7 +4,12 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 import { z } from "zod";
 
 import { WidgetLayoutSchema } from "./widget.schema";
-import { WIDGET_GRID_BREAKPOINT_COLUMNS, WIDGET_GRID_MAX_ROW, WIDGET_GRID_ROW_HEIGHT } from "./widget-grid";
+import {
+  WIDGET_GRID_BREAKPOINT_COLUMNS,
+  WIDGET_GRID_MARGIN,
+  WIDGET_GRID_MAX_ROW,
+  WIDGET_GRID_ROW_HEIGHT,
+} from "./widget-grid";
 import { resolveWidgetLayout } from "./widget-placement";
 
 import { BREAKPOINTS } from "@/constants/breakpoints";
@@ -32,9 +37,14 @@ function breakpointPlacements(columns: number) {
         .int()
         .min(0)
         .max(WIDGET_GRID_MAX_ROW)
-        .describe(`Row from the top, in rows of ${WIDGET_GRID_ROW_HEIGHT} px.`),
+        .describe(`Row from the top, in rows of ${WIDGET_GRID_ROW_HEIGHT} px with ${WIDGET_GRID_MARGIN} px gaps.`),
       w: z.number().int().min(1).max(columns).describe(`Width in columns, 1 to ${columns}.`),
-      h: z.number().int().min(1).max(WIDGET_GRID_MAX_ROW).describe(`Height in rows of ${WIDGET_GRID_ROW_HEIGHT} px.`),
+      h: z
+        .number()
+        .int()
+        .min(1)
+        .max(WIDGET_GRID_MAX_ROW)
+        .describe(`Height in rows of ${WIDGET_GRID_ROW_HEIGHT} px with ${WIDGET_GRID_MARGIN} px gaps.`),
     })
     .strict()
     .refine((value) => value.x + value.w <= columns, {
