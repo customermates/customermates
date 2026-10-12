@@ -3,7 +3,7 @@ import { GRID_BREAKPOINTS, GRID_COLS } from "../../app/[locale]/(protected)/dash
 import { DisplayType } from "../../features/widget/widget-display.schema";
 import { widgetDisplayRequirement } from "../../features/widget/widget-display-rules";
 import { presetId } from "../../features/records/crm-preset";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { expect, test, collectPageErrors } from "./fixtures";
 
 test("persists every chart style, appearance, a copied template, resizing and deletion through the unified builder", async ({
   page,
@@ -12,13 +12,7 @@ test("persists every chart style, appearance, a copied template, resizing and de
   isMobile,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const dialog = page.getByRole("dialog");
   await page.goto(`/en/records/${presetId(companyId, "service")}`);
   for (const [name, price] of [
@@ -233,13 +227,7 @@ test("preserves widget previews and accessible draft confirmations across respon
   database,
   companyId,
 }) => {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const originalViewport = page.viewportSize();
   await page.setViewportSize({ width: 1100, height: 900 });
   await page.goto(`/en/records/${presetId(companyId, "service")}`);

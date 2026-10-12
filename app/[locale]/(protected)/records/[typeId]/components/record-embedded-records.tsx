@@ -25,7 +25,7 @@ import { EMBEDDED_PAGE_SIZE, EmbeddedRecordsStore, embeddedPresentation } from "
 import { RecordDetailField } from "./record-detail-field";
 import { RecordEmbeddedColumns } from "./record-embedded-columns";
 import { RecordEditorStore } from "./record-editor.store";
-import { RecordRowActions } from "./record-row-actions";
+import { RowActions } from "@/components/data-view/row-actions";
 import { useRecordCardRenderer, useRecordTableColumns } from "./record-table-columns";
 import { useRecordDeletion } from "./use-record-deletion";
 
@@ -256,7 +256,7 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
               footer={footer}
               renderCard={renderCard}
               rowActions={(record) => (
-                <RecordRowActions
+                <RowActions
                   name={recordName(record)}
                   onDelete={
                     canDelete && !deletion.isPreviewing

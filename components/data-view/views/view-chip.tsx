@@ -7,7 +7,7 @@ import { ItemActions } from "@/components/ui/item-actions";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
 
-export const VIEW_SURFACE_CLASS =
+const VIEW_SURFACE_CLASS =
   "border border-border bg-secondary text-muted-foreground shadow-xs hover:bg-accent hover:text-foreground";
 
 export const VIEW_TAB_CLASS = cn(
@@ -16,7 +16,7 @@ export const VIEW_TAB_CLASS = cn(
   VIEW_SURFACE_CLASS,
 );
 
-export const VIEW_TAB_ACTIVE_CLASS =
+const VIEW_TAB_ACTIVE_CLASS =
   "border-primary/40 bg-primary/20 text-primary-soft-foreground hover:bg-primary/20 hover:text-primary-soft-foreground";
 
 type Props = {

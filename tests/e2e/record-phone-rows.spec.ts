@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 
 import type { Page } from "@playwright/test";
 
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
@@ -23,20 +23,9 @@ async function create(page: Page, mutation: Record<string, unknown>) {
   return result.refs[0];
 }
 
-function trackErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
-  return errors;
-}
-
 test("phone rows load more per group until every record of the group is reachable", async ({ page, companyId }) => {
   test.setTimeout(180000);
-  const errors = trackErrors(page);
+  const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const typeId = id("deal");
   await page.setViewportSize({ width: 390, height: 844 });
@@ -66,7 +55,7 @@ test("phone rows load more per group until every record of the group is reachabl
 
 test("sub-list phone rows open the record on tap", async ({ page, companyId }) => {
   test.setTimeout(180000);
-  const errors = trackErrors(page);
+  const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`/en/records/${id("deal")}`);
@@ -99,7 +88,7 @@ test("the row's More actions trigger sits on a solid surface on keyboard focus a
 }) => {
   test.skip(isMobile, "Touch shows no More actions trigger; a long press on the row opens the same menu");
   test.setTimeout(180000);
-  const errors = trackErrors(page);
+  const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const typeId = id("deal");
   await page.setViewportSize({ width: 1280, height: 800 });

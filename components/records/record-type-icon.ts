@@ -202,7 +202,7 @@ const icons = {
   leaf: Leaf,
 };
 
-export type RecordTypeIconKey = keyof typeof icons;
+type RecordTypeIconKey = keyof typeof icons;
 
 export const RECORD_TYPE_ICON_KEYS = Object.keys(icons) as RecordTypeIconKey[];
 

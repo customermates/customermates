@@ -175,8 +175,8 @@ describe("rule 36: one open-and-highlight mechanism", () => {
 });
 
 const ROW_MENU_PLUMBING = "components/data-view/";
-const ROW_MENU_COMPONENT = "RecordRowActions";
-const ROW_MENU_OWNER = "app/[locale]/(protected)/records/[typeId]/components/record-row-actions.tsx";
+const ROW_MENU_COMPONENT = "RowActions";
+const ROW_MENU_OWNER = "components/data-view/row-actions.tsx";
 const ROW_MENU_ITEMS = ["RecordModel.openDetails", "Common.actions.delete"];
 
 function ownRowMenuFindings(sources: SourceFile[]) {
@@ -381,8 +381,9 @@ describe("rule 64: values are the edit target, without reserved hint slots", () 
 const REVEAL_OWNER = "components/ui/item-actions.tsx";
 const HAND_BUILT_REVEAL = /["'`][^"'`]*\bopacity-0\b[^"'`]*\bgroup-(?:hover|focus-within)\/[\w-]+:opacity-100\b[^"'`]*["'`]/;
 const HAND_BUILT_REVEAL_ALLOWLIST: Allowlist = {
-  "components/data-view/column-resize-handle.tsx":
-    "the resize handle widens and stays visible for coarse pointers, which the data-table-resize contract pins",
+  "components/data-view/column-resize-handle.tsx": "a resize handle widens and stays visible for coarse pointers",
+  "components/data-view/row-actions.tsx": "the table row menu surface follows the item-actions group",
+  "components/layout/resizable-panels.tsx": "a resize handle stays visible while resizing and for coarse pointers",
 };
 
 function handBuiltRevealFindings(sources: SourceFile[]) {

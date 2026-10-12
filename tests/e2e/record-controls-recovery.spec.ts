@@ -11,6 +11,7 @@ import {
   confirmDeletion,
 } from "./configure";
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { postOk } from "./api";
 import { openRecordDetails, openRecordLink, recordRows } from "./record-rows";
 import { invokesServerAction, serverActionIds } from "./server-actions";
 import { presetId } from "../../features/records/crm-preset";
@@ -29,17 +30,12 @@ import type { RecordActivityQuery } from "../../ee/messaging/activities/record-a
 import { ALL_VIEW_KEY, SURFACE, recordSurfaceKey } from "../../core/data-view/data-view-keys";
 import english from "../../i18n/locales/en.json" with { type: "json" };
 
-async function post(page: Page, path: string, data: unknown) {
-  const response = await page.request.post(path, { data });
-  expect(response.status(), await response.text()).toBe(200);
-  return response.json();
-}
 async function model(page: Page) {
-  return RecordModelSchema.parse(await post(page, "/api/v1/model/read", {}));
+  return RecordModelSchema.parse(await postOk(page, "/api/v1/model/read", {}));
 }
 async function mutate(page: Page, current: RecordModel, mutation: RecordMutation) {
   const result = RecordOperationResultSchema.parse(
-    await post(
+    await postOk(
       page,
       "/api/v1/records/mutate",
       MutateRecordSchema.parse({
@@ -492,7 +488,7 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
   let current = await model(page);
   const stage = current.fields.find((field) => field.id === id("deal.stage"));
   if (!stage) throw new Error("Expected the shipped stage field");
-  const applied = await post(page, "/api/v1/model/apply", {
+  const applied = await postOk(page, "/api/v1/model/apply", {
     expectedRevision: current.revision,
     idempotencyKey: randomUUID(),
     operations: [
@@ -923,7 +919,7 @@ test("uses explicit activity record scope, event kinds, positive and negative re
       recordIds: [],
     },
   ]);
-  const result = await post(page, "/api/v1/records/activities", {
+  const result = await postOk(page, "/api/v1/records/activities", {
     ...query,
     cursor: null,
     limit: 25,
@@ -1520,7 +1516,7 @@ test("recovers a parent after an embedded save without repeating the child mutat
   const main = page.getByRole("main");
   const embedded = main.getByRole("region", { name: "Line items", exact: true });
   await expect(main.getByRole("textbox", { name: notes.label, exact: true })).toHaveText("Previously stored notes");
-  const latestDeal = await post(page, "/api/v1/records/read", deal);
+  const latestDeal = await postOk(page, "/api/v1/records/read", deal);
   await mutate(page, current, {
     action: "update",
     ref: deal,

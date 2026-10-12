@@ -16,7 +16,7 @@ import { runUserAction } from "@/core/errors/report-application-error";
 
 export type AppModalActionVariant = OverlayIconControlVariant;
 
-export type AppModalActionKind = "assistant" | "customize" | "other" | "destructive" | "navigate";
+type AppModalActionKind = "assistant" | "customize" | "other" | "destructive" | "navigate";
 
 const ACTION_KIND_ORDER: Record<AppModalActionKind, number> = {
   assistant: 0,

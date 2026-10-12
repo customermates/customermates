@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
-import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
+import { RowActions } from "@/components/data-view/row-actions";
 import type { FocusKind } from "@/components/focus/focus-href";
 import { useFocusTarget } from "@/components/focus/focus-target";
 
@@ -43,7 +43,7 @@ const RoutinesPageViewContent = observer(function RoutinesPageView({ initialRout
   const canDelete = routineModalStore.isAdmin;
   const rowActions = useCallback(
     (routine: RoutineDto) => (
-      <RecordRowActions
+      <RowActions
         name={routine.name}
         onDelete={
           canDelete

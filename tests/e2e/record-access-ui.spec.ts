@@ -31,19 +31,14 @@ import {
   deleteFromDrawer,
   deleteSelectedList,
 } from "./configure";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { expect, test, collectPageErrors } from "./fixtures";
+import { postOk } from "./api";
 import { saveViewChanges } from "./view-changes";
 import { openRecordDetails, recordItem, runRowAction } from "./record-rows";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { RecordIdentityReferenceSchema } from "../../features/records/record-identity-reference.schema";
 import { recordInvariant } from "../../features/records/record-invariant";
-
-async function post(page: Page, path: string, data: unknown): Promise<unknown> {
-  const response = await page.request.post(path, { data });
-  expect(response.status(), await response.text()).toBe(200);
-  return response.json();
-}
 
 async function storedModel(database: Client, companyId: string) {
   const result = await database.query(
@@ -55,7 +50,7 @@ async function storedModel(database: Client, companyId: string) {
 
 async function readModel(page: Page) {
   return RecordModelSchema.parse(
-    await post(page, "/api/v1/model/read", {}),
+    await postOk(page, "/api/v1/model/read", {}),
   );
 }
 
@@ -65,7 +60,7 @@ async function saveRole(
 ) {
   const model = await readModel(page);
   return RoleApiMutationResultSchema.parse(
-    await post(page, "/api/v1/roles/save", {
+    await postOk(page, "/api/v1/roles/save", {
       ...role,
       expectedRevision: model.revision,
       idempotencyKey: randomUUID(),
@@ -79,7 +74,7 @@ async function mutate(
 ) {
   const model = await readModel(page);
   const result = RecordOperationResultSchema.parse(
-    await post(page, "/api/v1/records/mutate", {
+    await postOk(page, "/api/v1/records/mutate", {
       expectedRevision: model.revision,
       idempotencyKey: randomUUID(),
       mutation,
@@ -158,13 +153,7 @@ async function secondaryUser(
     },
   );
   const page = await context.newPage();
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   return {
     page,
     userId,
@@ -192,7 +181,7 @@ test("admits an assigned-record writer and separately delegates schema configura
 }, testInfo) => {
   test.setTimeout(240000);
   let model = await readModel(page);
-  await post(page, "/api/v1/model/apply", {
+  await postOk(page, "/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     operations: [
@@ -558,7 +547,7 @@ test("admits an assigned-record writer and separately delegates schema configura
     model = await readModel(page);
     const presetId = randomUUID();
     expect(
-      await post(page, "/api/v1/model/apply", {
+      await postOk(page, "/api/v1/model/apply", {
         expectedRevision: model.revision,
         idempotencyKey: randomUUID(),
         operations: [
@@ -654,7 +643,7 @@ test("admits an assigned-record writer and separately delegates schema configura
         })
       ).status(),
     ).toBe(404);
-    const readable = await post(member.page, "/api/v1/records/query", {
+    const readable = await postOk(member.page, "/api/v1/records/query", {
       typeId: approved.id,
     });
     expect(readable).toMatchObject({ total: 1 });
@@ -763,7 +752,7 @@ test("renders dependency-restricted calculated widget values as a secondary read
       ],
     });
     const authoritative = RecordDtoSchema.parse(
-      await post(page, "/api/v1/records/read", deal),
+      await postOk(page, "/api/v1/records/read", deal),
     );
     expect(
       authoritative.fields.find(
@@ -780,7 +769,7 @@ test("renders dependency-restricted calculated widget values as a secondary read
     });
     const widgetName = "Restricted deal total";
     const widget = WidgetSchema.parse(
-      await post(member.page, "/api/v1/widgets/save", {
+      await postOk(member.page, "/api/v1/widgets/save", {
         expectedRevision: (await readModel(page)).revision,
         idempotencyKey: randomUUID(),
         name: widgetName,
@@ -818,7 +807,7 @@ test("renders dependency-restricted calculated widget values as a secondary read
       ).toHaveCount(0);
       expect(
         WidgetSchema.parse(
-          await post(member.page, "/api/v1/widgets/read", { id: widget.id }),
+          await postOk(member.page, "/api/v1/widgets/read", { id: widget.id }),
         ),
       ).toMatchObject({
         status: "ready",
@@ -846,7 +835,7 @@ test("renders dependency-restricted calculated widget values as a secondary read
     await expect(card.getByText("Restricted", { exact: true })).toHaveCount(0);
     expect(
       WidgetSchema.parse(
-        await post(member.page, "/api/v1/widgets/read", { id: widget.id }),
+        await postOk(member.page, "/api/v1/widgets/read", { id: widget.id }),
       ),
     ).toMatchObject({
       status: "ready",
@@ -896,7 +885,7 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
   workspace,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors = relationshipCaptureErrors(page);
+  const errors = collectPageErrors(page);
   const contactTypeId = presetId(companyId, "contact");
   const email = "shared-reader@example.test";
   const contact = await mutate(page, {
@@ -989,7 +978,7 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
           ),
         })
         .parse(
-          await post(actorPage, "/api/v1/records/identities/resolve", {
+          await postOk(actorPage, "/api/v1/records/identities/resolve", {
             identifiers: [{ provider: "mail", value: email.toUpperCase() }],
           }),
         );
@@ -1295,17 +1284,6 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
   }
 });
 
-function relationshipCaptureErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
-  return errors;
-}
-
 async function relationshipCreateTypeUi(page: Page, name: string) {
   await openConfigure(page);
   await addFromConfigure(page, "List");
@@ -1511,7 +1489,7 @@ test("configures self-type singular and many relationships, edits from both ends
   companyId,
 }, testInfo) => {
   test.setTimeout(360000);
-  const errors = relationshipCaptureErrors(page);
+  const errors = collectPageErrors(page);
   const type = await relationshipCreateTypeUi(page, "Graph nodes");
   const parent = await relationshipCreateUi(
     page,
@@ -1893,7 +1871,7 @@ test("configures a two-hop relationship path and lets a genuine read-only user n
   companyId,
 }, testInfo) => {
   test.setTimeout(300000);
-  const errors = relationshipCaptureErrors(page);
+  const errors = collectPageErrors(page);
   const type = await relationshipCreateTypeUi(page, "Reporting nodes");
   const parent = await relationshipCreateUi(
     page,
@@ -2121,9 +2099,9 @@ test("keeps personal views separate from the list layout, groups and summarises 
   workspace,
 }, testInfo) => {
   test.setTimeout(360000);
-  const errors = relationshipCaptureErrors(page);
+  const errors = collectPageErrors(page);
   let model = await readModel(page);
-  await post(page, "/api/v1/model/apply", {
+  await postOk(page, "/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     operations: [
@@ -2173,7 +2151,7 @@ test("keeps personal views separate from the list layout, groups and summarises 
       position: 4,
     },
   ];
-  await post(page, "/api/v1/model/apply", {
+  await postOk(page, "/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     operations: definitions.map((definition) => ({
@@ -2707,8 +2685,8 @@ test("keeps retained values restricted after a delegated manager converts fields
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors = relationshipCaptureErrors(page);
-  await post(page, "/api/v1/model/apply", {
+  const errors = collectPageErrors(page);
+  await postOk(page, "/api/v1/model/apply", {
     expectedRevision: (await readModel(page)).revision,
     idempotencyKey: randomUUID(),
     operations: [
@@ -2827,7 +2805,7 @@ test("keeps retained values restricted after a delegated manager converts fields
   );
   if (!sourceType || !summaryType || !amount || !total || !memo || !relation)
     throw new Error("The private-source fixture schema is incomplete");
-  await post(page, "/api/v1/model/apply", {
+  await postOk(page, "/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     operations: [
@@ -2868,7 +2846,7 @@ test("keeps retained values restricted after a delegated manager converts fields
   });
   expect(
     RecordDtoSchema.parse(
-      await post(page, "/api/v1/records/read", summary),
+      await postOk(page, "/api/v1/records/read", summary),
     ).fields.find((field) => field.fieldId === total.id)?.result,
   ).toEqual({
     state: "value",
@@ -2942,7 +2920,7 @@ test("keeps retained values restricted after a delegated manager converts fields
       ).toBe(200);
     }
     const widget = widgetSchema.parse(
-      await post(reader.page, "/api/v1/widgets/save", {
+      await postOk(reader.page, "/api/v1/widgets/save", {
         expectedRevision: (await readModel(page)).revision,
         idempotencyKey: randomUUID(),
         name: widgetName,
@@ -2986,7 +2964,7 @@ test("keeps retained values restricted after a delegated manager converts fields
     };
     const assertRestricted = async () => {
       const dto = RecordDtoSchema.parse(
-        await post(reader.page, "/api/v1/records/read", summary),
+        await postOk(reader.page, "/api/v1/records/read", summary),
       );
       for (const field of [total, memo])
         expect(
@@ -3042,7 +3020,7 @@ test("keeps retained values restricted after a delegated manager converts fields
         z
           .object({ results: z.array(z.unknown()) })
           .parse(
-            await post(reader.page, "/api/v1/records/search", {
+            await postOk(reader.page, "/api/v1/records/search", {
               searchTerm: canary,
             }),
           ).results,
@@ -3084,7 +3062,7 @@ test("keeps retained values restricted after a delegated manager converts fields
       await expect(card).not.toContainText("€41.25");
       expect(
         widgetSchema.parse(
-          await post(reader.page, "/api/v1/widgets/read", { id: widget.id }),
+          await postOk(reader.page, "/api/v1/widgets/read", { id: widget.id }),
         ),
       ).toMatchObject({
         status: "ready",
@@ -3183,7 +3161,7 @@ test("publishes and withdraws a private-input summary through the field UI witho
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors = relationshipCaptureErrors(page);
+  const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const initial = await readModel(page);
   const summary = initial.fields.find(
@@ -3273,7 +3251,7 @@ test("publishes and withdraws a private-input summary through the field UI witho
     ).rows;
   const readSummary = async () =>
     RecordDtoSchema.parse(
-      await post(member.page, "/api/v1/records/read", deal),
+      await postOk(member.page, "/api/v1/records/read", deal),
     ).fields.find((field) => field.fieldId === summary.id)?.result;
   const openReader = async () => {
     await member.page.goto(`/en/records/${deal.typeId}`);
@@ -3540,7 +3518,7 @@ test("copies another member's widget template into an independent owned widget w
   workspace,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors = relationshipCaptureErrors(page);
+  const errors = collectPageErrors(page);
   const serviceId = presetId(companyId, "service");
   for (const name of ["Template service A", "Template service B"]) {
     await mutate(page, {
@@ -3876,7 +3854,7 @@ test("names another member in a member field on the record page and shows the no
   const dealTypeId = presetId(companyId, "deal");
   const label = `Onboarding owner ${randomUUID().slice(0, 6)}`;
   let model = await readModel(page);
-  await post(page, "/api/v1/model/apply", {
+  await postOk(page, "/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     operations: [

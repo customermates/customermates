@@ -19,7 +19,7 @@ export function ActionTooltip({ children, label }: { children: React.ReactNode; 
   );
 }
 
-export type ChatTranslator = ReturnType<typeof useTranslations>;
+type ChatTranslator = ReturnType<typeof useTranslations>;
 
 export function agentProgressLabel(phase: AgentProgressPhase | null, t: ChatTranslator) {
   if (phase === "starting") return t("AgentChat.ui.startingRequest");

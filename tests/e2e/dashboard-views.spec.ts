@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { expect, test, collectPageErrors } from "./fixtures";
 
 async function revision(page: Page) {
   const response = await page.request.post("/api/v1/model/read", {
@@ -21,13 +21,7 @@ test("keeps separate widget sets per dashboard view and targets a view through t
   companyId,
 }) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const dialog = page.getByRole("dialog");
   const rail = page.locator("[data-joins-top-bar]");
   await page.goto("/en/dashboard");

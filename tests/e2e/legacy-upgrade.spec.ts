@@ -3,7 +3,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { copyGenericWorkspace } from "../helpers/copy-generic-workspace";
 import { applyConfigurableRecordsMigration, createLegacyMigrationDatabase } from "../helpers/legacy-migration-database";
 import { legacyRecordFixture } from "../helpers/legacy-record-fixture";
-import { test as base, expect, isBenignPageError } from "./fixtures";
+import { test as base, expect, collectPageErrors } from "./fixtures";
 import { removeBrowserWorkspace } from "./workspace";
 import { openRecordDetails, openRecordLink } from "./record-rows";
 
@@ -51,10 +51,7 @@ test("opens upgraded records with persisted values, totals and links", async ({
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
+  const errors = collectPageErrors(page, { console: false });
   const typeId = presetId(companyId, "deal");
   await page.goto(`/en/records/${typeId}`);
   await expect(page.locator("header")).toContainText("Deals");

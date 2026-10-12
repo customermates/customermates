@@ -13,7 +13,7 @@ import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/edito
 
 import { createWikiPagesAction, deleteWikiPageAction, getWikiPageAction, updateWikiPageAction } from "../actions";
 
-export type WikiPageForm = {
+type WikiPageForm = {
   id: string | null;
   title: string;
   markdown: string;

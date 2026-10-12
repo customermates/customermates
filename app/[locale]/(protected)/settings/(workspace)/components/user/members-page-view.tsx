@@ -11,7 +11,7 @@ import { useTranslations } from "next-intl";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { DataViewContent } from "@/components/data-view/data-view-content";
-import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
+import { RowActions } from "@/components/data-view/row-actions";
 import { DataViewEmpty } from "@/components/data-view/data-view-empty";
 import { DataViewLayout } from "@/components/data-view/data-view-layout";
 import { resolveDataViewPageState, resolveDataViewView } from "@/components/data-view/data-view-state";
@@ -112,7 +112,7 @@ const MembersPageViewContent = observer(function MembersPageView({ initialRoles,
         <DataViewContent
           columns={columns}
           rowActions={(user) => (
-            <RecordRowActions
+            <RowActions
               name={memberName(user)}
               onDelete={
                 userModalStore.allows(Action.update) && user.id !== userStore.user?.id && isRemovableMember(user)

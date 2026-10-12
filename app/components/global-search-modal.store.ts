@@ -81,7 +81,7 @@ function persistCommandKeys(scope: string | null, keys: string[]) {
   } catch {}
 }
 
-export type ResolveOutcome =
+type ResolveOutcome =
   | { status: "resolved"; resolution: Exclude<CommandResolution, { kind: "none" }> }
   | { status: "none" }
   | { status: "stale" }

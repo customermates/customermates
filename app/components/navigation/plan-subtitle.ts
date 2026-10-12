@@ -1,8 +1,8 @@
 import type { SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
-export type PlanChipVariant = "success" | "warning" | "destructive";
+type PlanChipVariant = "success" | "warning" | "destructive";
 
-export type PlanChipModel = {
+type PlanChipModel = {
   label: string;
   variant: PlanChipVariant;
 };

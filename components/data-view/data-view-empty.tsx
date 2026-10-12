@@ -13,7 +13,7 @@ import { PageState } from "@/components/page-state/page-state";
 
 import { DataViewEmptyState } from "./data-view-empty-state";
 
-export type EmptyStateDescriptor = {
+type EmptyStateDescriptor = {
   title: string;
   body?: string;
   icon?: LucideIcon;

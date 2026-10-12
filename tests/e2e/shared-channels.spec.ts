@@ -3,34 +3,27 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { presetId } from "../../features/records/crm-preset";
 import { localE2eEnvironment } from "./local-environment";
-import { test, expect, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
+import { postOk } from "./api";
 
 test("shares an indexed identifier across lists, unlinks one association and links only one conversation", async ({
   page, context, database, companyId, workspace,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
+  const errors = collectPageErrors(page, { console: false });
   const typeId = (key: string) => presetId(companyId, key);
-  const post = async (path: string, data: unknown) => {
-    const response = await page.request.post(path, { data });
-    expect(response.status(), await response.text()).toBe(200);
-    return response.json();
-  };
-  let model = await post("/api/v1/model/read", {});
-  await post("/api/v1/model/apply", {
+  let model = await postOk(page, "/api/v1/model/read", {});
+  await postOk(page, "/api/v1/model/apply", {
     expectedRevision: model.revision, idempotencyKey: randomUUID(),
     operations: [{ operation: "putField", field: {
       id: randomUUID(), typeId: typeId("organization"), label: "Channels", valueType: "channels",
       behavior: { kind: "input" }, required: false, options: [], position: 99,
     } }],
   });
-  model = await post("/api/v1/model/read", {});
+  model = await postOk(page, "/api/v1/model/read", {});
   const email = "shared-person@example.test";
   const create = async (kind: string, fields: Array<[string, string]>, identities?: unknown[]) => {
-    const result = await post("/api/v1/records/mutate", {
+    const result = await postOk(page, "/api/v1/records/mutate", {
       expectedRevision: model.revision, idempotencyKey: randomUUID(), mutation: {
         action: "create", typeId: typeId(kind),
         fields: fields.map(([name, value]) => ({ fieldId: typeId(`${kind}.${name}`), value: { kind: "text", value } })),
@@ -43,7 +36,7 @@ test("shares an indexed identifier across lists, unlinks one association and lin
   const contact = await create("contact", [["firstName", "Shared"], ["lastName", "Person"]], [{ provider: "mail", value: email }]);
   const organization = await create("organization", [["name", "Shared Organization"]], [{ provider: "google", value: email.toUpperCase() }]);
   const deal = await create("deal", [["name", "Conversation project"]]);
-  const resolve = async () => post("/api/v1/records/identities/resolve", { identifiers: [
+  const resolve = async () => postOk(page, "/api/v1/records/identities/resolve", { identifiers: [
     { provider: "mail", value: email.toUpperCase() }, { provider: "mail", value: "missing@example.test" },
   ] });
   const resolved = await resolve();
@@ -52,7 +45,7 @@ test("shares an indexed identifier across lists, unlinks one association and lin
   expect(resolved.matches[1].records).toEqual([]);
   const identity = (await database.query('SELECT id FROM "RecordIdentity" WHERE "companyId"=$1 AND value=$2', [companyId, email])).rows[0];
   expect((await database.query('SELECT * FROM "RecordIdentityLink" WHERE "companyId"=$1', [companyId])).rows).toHaveLength(2);
-  const filtered = await post("/api/v1/records/identities/resolve", { identifiers: [{ provider: "mail", value: email }], typeIds: [organization.typeId] });
+  const filtered = await postOk(page, "/api/v1/records/identities/resolve", { identifiers: [{ provider: "mail", value: email }], typeIds: [organization.typeId] });
   expect(filtered.matches[0].records.map((record: { ref: unknown }) => record.ref)).toEqual([organization]);
 
   const accountId = randomUUID();
@@ -95,15 +88,15 @@ test("shares an indexed identifier across lists, unlinks one association and lin
   expect((await database.query('SELECT id FROM "RecordIdentity" WHERE "companyId"=$1', [companyId])).rows).toEqual([identity]);
 
   const request = { action: "link", threadId: threadIds[0], ref: deal, expectedRevision: model.revision, idempotencyKey: randomUUID() };
-  const first = await post("/api/v1/messaging/record-links/mutate", request);
-  expect(await post("/api/v1/messaging/record-links/mutate", request)).toEqual(first);
+  const first = await postOk(page, "/api/v1/messaging/record-links/mutate", request);
+  expect(await postOk(page, "/api/v1/messaging/record-links/mutate", request)).toEqual(first);
   const conflict = await page.request.post("/api/v1/messaging/record-links/mutate", { data: { ...request, action: "unlink" } });
   expect(conflict.status()).toBe(409);
   const stale = await page.request.post("/api/v1/messaging/record-links/mutate", { data: { ...request, expectedRevision: model.revision - 1, idempotencyKey: randomUUID() } });
   expect(stale.status()).toBe(409);
   const foreign = await page.request.post("/api/v1/messaging/record-links/mutate", { data: { ...request, threadId: randomUUID(), idempotencyKey: randomUUID() } });
   expect(foreign.status()).toBe(404);
-  expect((await post("/api/v1/messaging/record-links/read", { threadId: threadIds[1] })).records).toEqual([]);
+  expect((await postOk(page, "/api/v1/messaging/record-links/read", { threadId: threadIds[1] })).records).toEqual([]);
 
   const { baseUrl } = localE2eEnvironment();
   const credentialResponse = await context.request.post(`${baseUrl}/api/auth/api-key/create`, { headers: { origin: baseUrl }, data: { name: "Shared identifier local verification", expiresIn: 86400 } });
@@ -119,7 +112,7 @@ test("shares an indexed identifier across lists, unlinks one association and lin
     expect(toolContent.matches[0].records.map((record) => record.ref)).toEqual(expect.arrayContaining([contact, organization]));
     const unlink = await client.callTool({ name: "manage_conversation_records", arguments: { ...request, action: "unlink", idempotencyKey: randomUUID() } });
     expect(unlink.isError).not.toBe(true);
-    expect((await post("/api/v1/messaging/record-links/read", { threadId: threadIds[0] })).records).toEqual([]);
+    expect((await postOk(page, "/api/v1/messaging/record-links/read", { threadId: threadIds[0] })).records).toEqual([]);
     const originalRole = (await database.query('SELECT "roleId" FROM "User" WHERE id=$1 AND "companyId"=$2', [workspace.userId, companyId])).rows[0].roleId;
     const roleId = randomUUID();
     await database.query('INSERT INTO "UserRole" (id,"companyId",name,"updatedAt") VALUES ($1,$2,\'Record reader\',NOW())', [roleId, companyId]);

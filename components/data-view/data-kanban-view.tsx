@@ -35,7 +35,12 @@ import { useTranslations } from "next-intl";
 import { AppChip } from "@/components/chip/app-chip";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
-import { ITEM_REVEAL_CLASS, ITEM_REVEAL_GROUP_CLASS, ItemActions, ItemActionsTrigger } from "@/components/ui/item-actions";
+import {
+  ITEM_REVEAL_CLASS,
+  ITEM_REVEAL_GROUP_CLASS,
+  ItemActions,
+  ItemActionsTrigger,
+} from "@/components/ui/item-actions";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ChipColor } from "@/constants/chip-colors";

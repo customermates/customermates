@@ -25,7 +25,6 @@ import { RecordDetailField } from "./record-detail-field";
 import { EmptyValue } from "@/components/shared/empty-value";
 import { relationshipColumnKey } from "@/features/records/record-column.schema";
 
-
 export const RECORD_LINK_FRAME_CLASS =
   "flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border px-3 py-1.5 text-sm";
 export const RECORD_LINK_FRAME_READ_ONLY_CLASS = "border-input bg-input-background shadow-xs";

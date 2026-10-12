@@ -32,7 +32,7 @@ function shortcutAvailable(entry: Shortcut, store: KeyboardShortcutsStore, agent
   return true;
 }
 
-export const KeyboardShortcutsSingleKeySwitch = observer(({ id }: { id: string }) => {
+const KeyboardShortcutsSingleKeySwitch = observer(({ id }: { id: string }) => {
   const t = useTranslations();
   const { keyboardShortcutsStore: store } = useRootStore();
 

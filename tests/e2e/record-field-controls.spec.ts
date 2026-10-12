@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { Page } from "@playwright/test";
 import { RecordModelSchema, type RecordModel } from "../../features/records/record-model.schema";
 import { openDrawerTab, addFromConfigure, followConfigureLink, openConfigure, openConfigureRow, saveDrawer } from "./configure";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { expect, test, collectPageErrors } from "./fixtures";
 import { openItemMenu } from "./item-actions";
 import { openRecordDetails, recordItem, runNamedRowAction, editFormattedText } from "./record-rows";
 
@@ -83,17 +83,6 @@ async function list(page: Page, typeId: string) {
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}$`));
 }
 
-function collectErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
-  return errors;
-}
-
 test("configures and persists all fourteen field types, multiple values and calendar controls through the UI", async ({
   page,
   database,
@@ -101,7 +90,7 @@ test("configures and persists all fourteen field types, multiple values and cale
   workspace,
 }, testInfo) => {
   test.setTimeout(480000);
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   const name = `Field controls ${randomUUID().slice(0, 8)}`;
   const typeId = await createList(page, name);
   const definitions = [
@@ -297,7 +286,7 @@ test("builds every calculation operator with the linear editor and persists resu
   companyId,
 }, testInfo) => {
   test.setTimeout(600000);
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   const name = `Calculation controls ${randomUUID().slice(0, 8)}`;
   const typeId = await createList(page, name);
   type Literal = { type: string; value: string };
@@ -498,7 +487,7 @@ test("captures snapshots on request and on stage changes while preserving manual
   companyId,
 }, testInfo) => {
   test.setTimeout(300000);
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   const name = `Snapshot controls ${randomUUID().slice(0, 8)}`;
   const typeId = await createList(page, name);
   const dialog = page.getByRole("dialog");
@@ -631,7 +620,7 @@ test("preserves missing, false, zero and exact money defaults and captures a sna
   companyId,
 }, testInfo) => {
   test.setTimeout(360000);
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   const name = `Default parity ${randomUUID().slice(0, 8)}`;
   const typeId = await createList(page, name);
   const dialog = page.getByRole("dialog");
@@ -819,7 +808,7 @@ test("changes numeric display precision through the field editor without roundin
   companyId,
 }, testInfo) => {
   test.setTimeout(300000);
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   const name = `Display precision ${randomUUID().slice(0, 8)}`;
   const typeId = await createList(page, name);
   const dialog = page.getByRole("dialog");

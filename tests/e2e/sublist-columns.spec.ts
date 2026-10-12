@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import type { Client } from "pg";
 import type { Locator, Page } from "@playwright/test";
 
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
@@ -20,17 +20,6 @@ async function create(page: Page, mutation: Record<string, unknown>) {
   const result = RecordOperationResultSchema.parse(await response.json());
   if (result.status !== "completed") throw new Error("The record must be created synchronously");
   return result.refs[0];
-}
-
-function trackErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
-  return errors;
 }
 
 async function openLineItems(page: Page, url: string) {
@@ -70,7 +59,7 @@ test("each person picks their own sub-list columns and the default leaves out sy
   workspace,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors = trackErrors(page);
+  const errors = collectPageErrors(page);
   const isMobile = Boolean(testInfo.project.use.isMobile);
   const id = (key: string) => presetId(companyId, key);
   await page.goto(`/en/records/${id("deal")}`);

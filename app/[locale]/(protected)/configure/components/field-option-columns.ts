@@ -7,7 +7,7 @@ export const OPTION_ATTRIBUTE_TYPES = ["number", "text", "boolean"] as const;
 
 export type OptionAttributeType = (typeof OPTION_ATTRIBUTE_TYPES)[number] | "preserved";
 export type OptionAttributeColumn = { id: string; key: string; type: OptionAttributeType };
-export type OptionCell = string | RecordScalar;
+type OptionCell = string | RecordScalar;
 export type OptionDraft = {
   id: string;
   label: string;

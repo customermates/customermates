@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { expect, test, collectPageErrors } from "./fixtures";
 
 async function revision(page: Page) {
   const response = await page.request.post("/api/v1/model/read", { data: {} });
@@ -19,20 +19,9 @@ async function post(page: Page, path: string, data: Record<string, unknown>) {
   return response;
 }
 
-function collectErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
-  return errors;
-}
-
 test("rounds an average widget to the measured currency field's cents", async ({ page, companyId }) => {
   test.setTimeout(180000);
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const prefix = `Avg ${randomUUID().slice(0, 6)}`;
   for (const [index, amount] of ["10", "20", "20"].entries()) {
@@ -80,7 +69,7 @@ test("shows a list ungrouped when a link groups it by a multiple choice field, w
   companyId,
 }) => {
   test.setTimeout(180000);
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const typeId = id("contact");
   const roleId = randomUUID();

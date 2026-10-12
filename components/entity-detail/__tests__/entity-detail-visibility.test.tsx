@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode } from "react";
 import type { Root } from "react-dom/client";
 
 import { act, createElement } from "react";
@@ -39,6 +39,7 @@ vi.mock("@/components/ui/icon-button", () => ({
 }));
 
 const roots = new Set<Root>();
+const TestField = EntityDetailField as ComponentType<{ fieldId: string; children?: ReactNode }>;
 
 function Controls() {
   const { isPersonalizing, setIsPersonalizing } = useEntityDetailPersonalization();
@@ -74,9 +75,10 @@ function view({
     { applyFieldVisibility, hidden, starred },
     createElement(Controls),
     createElement(PinnedFields),
-    createElement(EntityDetailField, {
-      fieldId: "name",
-      children: createElement(
+    createElement(
+      TestField,
+      { fieldId: "name" },
+      createElement(
         "div",
         { "data-field-content": true },
         createElement("span", null, "Name"),
@@ -85,7 +87,7 @@ function view({
           label: "Name",
         }),
       ),
-    }),
+    ),
   );
 }
 

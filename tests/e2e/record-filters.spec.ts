@@ -1,4 +1,4 @@
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 
 test("restores relationship, assignment and date filters with labels after reloading the generic list", async ({
@@ -7,13 +7,7 @@ test("restores relationship, assignment and date filters with labels after reloa
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "deal");
   const relationship = `relationship:${presetId(companyId, "deal.organizations")}:outgoing`;
   await page.goto(`/en/records/${typeId}`);

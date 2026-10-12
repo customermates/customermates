@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { expect, test, collectPageErrors } from "./fixtures";
 import { openFilterPalette } from "./filter-palette";
 
 async function revision(page: Page) {
@@ -24,13 +24,7 @@ test("starts from a recommended starter, previews it live at dashboard size and 
 }) => {
   test.skip(isMobile, "Grid positions are asserted on the desktop grid");
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const dialog = page.getByRole("dialog");
   await page.goto("/en/dashboard");
   await page.locator("#dashboard-add-widget").click();

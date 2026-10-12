@@ -34,7 +34,7 @@ import { Action, Resource } from "@/generated/prisma";
 import { SETTINGS_SECTIONS } from "@/app/components/navigation/settings-sections";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
 
-export type CommandKind = "page" | "setting" | "action";
+type CommandKind = "page" | "setting" | "action";
 
 export type CommandActionId =
   | "add"
@@ -47,9 +47,9 @@ export type CommandActionId =
   | "sendFeedback"
   | "signOut";
 
-export type CommandTarget = { href: string } | { control: string } | { action: CommandActionId };
+type CommandTarget = { href: string } | { control: string } | { action: CommandActionId };
 
-export type CommandRequirement = {
+type CommandRequirement = {
   resource?: Resource;
   action?: Action;
   cloudOnly?: boolean;
@@ -57,7 +57,7 @@ export type CommandRequirement = {
   listPage?: boolean;
 };
 
-export type StaticCommand = {
+type StaticCommand = {
   id: string;
   labelKey: string;
   kind: CommandKind;
