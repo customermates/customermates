@@ -1,5 +1,6 @@
-import type { FilterableField, GetQueryParams } from "@/core/base/base-get.schema";
-import type { QueryTrashData, TrashKind } from "@/features/trash/trash.schema";
+import type { FilterableField, GetQueryParams, PaginationResponse } from "@/core/base/base-get.schema";
+import type { GetResult } from "@/core/base/base-get.interactor";
+import type { QueryTrashData, TrashItemDto, TrashKind, TrashPage } from "@/features/trash/trash.schema";
 
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
@@ -42,4 +43,24 @@ export type TrashKindLabelKey = TrashKind | "dashboardView";
 
 export function trashKindLabelKey(item: { kind: TrashKind; surfaceKey: string | null }): TrashKindLabelKey {
   return item.kind === "view" && item.surfaceKey === "dashboard" ? "dashboardView" : item.kind;
+}
+
+export function toTrashResult(
+  params: GetQueryParams | undefined,
+  query: QueryTrashData,
+  page: TrashPage,
+): GetResult<TrashItemDto> {
+  return {
+    items: page.items,
+    filters: params?.filters,
+    searchTerm: params?.searchTerm,
+    sortDescriptor: query.sortDescriptor,
+    pagination: {
+      page: query.page,
+      pageSize: query.pageSize,
+      totalPages: Math.max(1, Math.ceil(page.total / query.pageSize)),
+      total: page.total,
+    } as PaginationResponse,
+    filterableFields: TRASH_FILTERABLE_FIELDS,
+  };
 }

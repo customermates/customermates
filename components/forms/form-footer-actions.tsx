@@ -37,6 +37,7 @@ type Props = {
   placement?: "card" | "topbar" | "overlay";
   reset?: FormFooterReset;
   onCancel?: () => void;
+  saveLabel?: string;
   onSave?: () => void | Promise<void>;
 };
 
@@ -51,6 +52,7 @@ export const FormFooterActions = observer(
     placement = "card",
     reset: resetProp,
     onCancel: onCancelProp,
+    saveLabel,
     onSave,
   }: Props) => {
     const t = useTranslations();
@@ -153,7 +155,7 @@ export const FormFooterActions = observer(
           <Button
             ref={saveButtonRef}
             aria-busy={saving || undefined}
-            aria-label={isTopBar ? t("Common.actions.save") : undefined}
+            aria-label={isTopBar ? (saveLabel ?? t("Common.actions.save")) : undefined}
             className={buttonClassName}
             disabled={!dirty || saving}
             form={onSave ? undefined : formId}
@@ -169,7 +171,7 @@ export const FormFooterActions = observer(
               isTopBar && <Save aria-hidden className="size-4 sm:hidden" />
             )}
 
-            <span className={cn(isTopBar && "hidden sm:inline")}>{t("Common.actions.save")}</span>
+            <span className={cn(isTopBar && "hidden sm:inline")}>{saveLabel ?? t("Common.actions.save")}</span>
           </Button>
         )}
 

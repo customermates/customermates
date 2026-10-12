@@ -15,11 +15,8 @@ import { SelectionValueSkeleton } from "@/components/forms/selection-loading";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { recordLinkColor } from "@/features/records/record-presentation";
 import { cn } from "@/core/utils/cn";
-import {
-  RECORD_LINK_FRAME_CLASS,
-  RECORD_LINK_FRAME_READ_ONLY_CLASS,
-  useRecordChoices,
-} from "./record-relationship-editor";
+import { RECORD_LINK_FRAME_CLASS, RECORD_LINK_FRAME_READ_ONLY_CLASS } from "./record-relationship-editor";
+import { useRecordChoices } from "@/components/records/use-record-choices";
 import { RecordDetailField } from "./record-detail-field";
 import { EmptyValue } from "@/components/shared/empty-value";
 import { relationshipPathColumnKey } from "@/features/records/record-column.schema";

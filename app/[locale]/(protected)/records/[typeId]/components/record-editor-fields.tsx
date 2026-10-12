@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { RecordField, RecordFieldView } from "@/features/records/record-model.schema";
 import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
-import { RecordValue, useRecordValueFormat } from "./record-value";
+import { RecordValue, useRecordValueFormat } from "@/components/records/record-value";
 import { RecordDetailField } from "./record-detail-field";
 import { RecordInputField } from "./record-input-field";
 import { FormattedTextField } from "@/components/editor/formatted-text-field";

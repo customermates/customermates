@@ -28,8 +28,8 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: () => ({ customColumnModalStore }),
 }));
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string, values?: { section?: string }) =>
-    values?.section ? `${key}:${values.section}` : key,
+  useTranslations: () => (key: string, values?: { section?: string; name?: string }) =>
+    values?.section ? `${key}:${values.section}` : values?.name ? `${key}: ${values.name}` : key,
 }));
 
 import { FormControlRow } from "@/components/forms/form-control-row";
@@ -114,7 +114,7 @@ describe("entity detail drag handle placement", () => {
 
     const handle = container.querySelector<HTMLButtonElement>("[data-field-drag-handle]");
     expect(handle?.closest("[data-form-control-row]")).toBe(input.closest("[data-form-control-row]"));
-    expect(handle?.getAttribute("aria-label")).toBe("DataView.dragToReorder: Name");
+    expect(handle?.getAttribute("aria-label")).toBe("DataView.dragToReorderNamed: Name");
     expect(handle?.type).toBe("button");
     expect(container.querySelector("[data-field-label] [data-field-drag-handle]")).toBeNull();
     expect(container.querySelector("[data-sortable-field]")?.classList.contains("pl-7")).toBe(true);

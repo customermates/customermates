@@ -1943,6 +1943,7 @@
       "create": "Mit exportierten IDs erstellen",
       "failed": "Die Datensätze konnten nicht importiert werden. Prüfe Datei und Berechtigungen.",
       "fileHint": "Wähle einen Customermates-JSON-Export für diese Liste.",
+      "mode": "Importmodus",
       "ready": "{count, plural, one {# Datensatz} other {# Datensätze}} und {links, plural, one {# Verknüpfung} other {# Verknüpfungen}} sind bereit für den Import.",
       "schemaMismatch": "Die Listenstruktur hat sich seit dem Export geändert.",
       "submit": "Datensätze importieren",
@@ -1968,7 +1969,7 @@
     "boardPickedUp": "Datensatz aufgenommen.",
     "collapseColumn": "Spalte einklappen",
     "collapseGroup": "Gruppe {group} einklappen",
-    "dragToReorder": "Zum Neuanordnen ziehen",
+    "dragToReorderNamed": "Zum Neuanordnen ziehen: {name}",
     "editOption": "Option bearbeiten",
     "expandColumn": "{name} ausklappen",
     "expandGroup": "Gruppe {group} ausklappen",
@@ -2157,6 +2158,7 @@
     "fieldPickedUp": "{field} aufgenommen.",
     "hideField": "{field} in den Details ausblenden",
     "overview": "Übersicht",
+    "panelSwitcher": "Detailbereiche",
     "personalize": "Anpassen",
     "pinField": "{field} an die Übersicht anheften",
     "pinMore": "Felder anheften oder lösen",
@@ -3524,6 +3526,7 @@
     "operation": "Berechnung",
     "operationCancelled": "Die Änderung wurde abgebrochen.",
     "operationFailed": "Die Änderung ist fehlgeschlagen. Der vorherige vollständige Stand bleibt aktiv.",
+    "operationNamed": "Berechnung: {operation}",
     "operationPending": "Änderungen werden vorbereitet. Bestehende Daten bleiben verfügbar.",
     "operationProgress": "{processed} von {total} vorbereitet",
     "operators": {
@@ -3809,6 +3812,7 @@
   },
   "RoutineDetail": {
     "credits": "Guthaben",
+    "creditsAmount": "Guthaben: {amount}",
     "empty": {
       "event": {
         "actions": {

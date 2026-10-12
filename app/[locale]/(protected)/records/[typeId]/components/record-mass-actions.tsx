@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { observer } from "mobx-react-lite";
-import { ChevronDown, ChevronLeft, ChevronRight, Search, Trash2 } from "lucide-react";
+import { ChevronDown, ChevronRight, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { RecordFieldView } from "@/features/records/record-model.schema";
 import type { RecordsStore } from "./records.store";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { OverlayBackTitle } from "@/components/shared/overlay-back-title";
 import { DataViewSelectionBar } from "@/components/data-view/data-view-selection-bar";
 import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -46,7 +47,6 @@ const BulkFieldEditor = observer(function BulkFieldEditor({
 export const RecordMassActions = observer(function RecordMassActions({ store }: { store: RecordsStore }) {
   const t = useTranslations();
   const [open, setOpen] = useState(false);
-  const [query, setQuery] = useState("");
   const [activeId, setActiveId] = useState<string | null>(null);
   const deletion = useRecordDeletion({
     onDeleted: store.bulkCompleted,
@@ -55,11 +55,9 @@ export const RecordMassActions = observer(function RecordMassActions({ store }: 
   });
   const fields = store.fields.filter(isRecordFieldWritable);
   const active = fields.find((field) => field.id === activeId);
-  const filtered = fields.filter((field) => field.label.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
   const close = () => {
     setOpen(false);
     setActiveId(null);
-    setQuery("");
   };
   const busy = store.isBulkMutating || Boolean(store.pendingBulkOperation);
   return (
@@ -91,11 +89,7 @@ export const RecordMassActions = observer(function RecordMassActions({ store }: 
           popoverClassName="w-80"
           title={
             active ? (
-              <button className="flex items-center gap-1.5" type="button" onClick={() => setActiveId(null)}>
-                <ChevronLeft className="size-3.5" />
-
-                {t("MassActions.edit")}
-              </button>
+              <OverlayBackTitle onBack={() => setActiveId(null)}>{t("MassActions.edit")}</OverlayBackTitle>
             ) : (
               t("MassActions.edit")
             )
@@ -104,7 +98,7 @@ export const RecordMassActions = observer(function RecordMassActions({ store }: 
             <Button disabled={busy} size="sm" variant="secondary">
               {t("MassActions.edit")}
 
-              <ChevronDown className="size-3.5" />
+              <ChevronDown aria-hidden />
             </Button>
           }
           onOpenChange={(next) => {
@@ -121,40 +115,25 @@ export const RecordMassActions = observer(function RecordMassActions({ store }: 
               onCancel={() => setActiveId(null)}
             />
           ) : (
-            <div className="flex flex-col divide-y divide-border">
-              {fields.length > 6 && (
-                <div className="flex items-center gap-2 px-3 py-2">
-                  <Search className="size-4 shrink-0 text-muted-foreground" />
+            <Command loop className="h-auto! min-h-0 overflow-visible bg-transparent" label={t("MassActions.edit")}>
+              {fields.length > 6 && <CommandInput autoFocus placeholder={t("MassActions.searchFieldPlaceholder")} />}
 
-                  <Input
-                    aria-label={t("MassActions.searchFieldPlaceholder")}
-                    className="h-7 border-0 px-0 shadow-none"
-                    placeholder={t("MassActions.searchFieldPlaceholder")}
-                    value={query}
-                    onChange={(event) => setQuery(event.target.value)}
-                  />
-                </div>
-              )}
+              <CommandList className="max-h-none! overflow-visible">
+                <CommandEmpty>{t("MassActions.noMatchingFields")}</CommandEmpty>
 
-              {filtered.length ? (
-                filtered.map((field) => (
-                  <button
+                {fields.map((field) => (
+                  <CommandItem
                     key={field.id}
-                    className="flex items-center justify-between gap-2 px-3 py-2.5 text-left text-sm hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                    type="button"
-                    onClick={() => setActiveId(field.id)}
+                    value={`${field.label} ${field.id}`}
+                    onSelect={() => setActiveId(field.id)}
                   >
-                    {field.label}
+                    <span className="min-w-0 flex-1 truncate">{field.label}</span>
 
-                    <ChevronRight className="size-3.5" />
-                  </button>
-                ))
-              ) : (
-                <p className="px-3 py-6 text-center text-sm text-muted-foreground">
-                  {t("MassActions.noMatchingFields")}
-                </p>
-              )}
-            </div>
+                    <ChevronRight aria-hidden className="size-4 text-muted-foreground" />
+                  </CommandItem>
+                ))}
+              </CommandList>
+            </Command>
           )}
         </ResponsiveOverlay>
       )}
@@ -170,7 +149,7 @@ export const RecordMassActions = observer(function RecordMassActions({ store }: 
             runUserAction(() => deletion.requestMany(store.selectionTargets, store.presentation.model.revision))
           }
         >
-          <Trash2 className="size-4" />
+          <Trash2 aria-hidden />
 
           {t("MassActions.delete")}
         </Button>
