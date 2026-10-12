@@ -66,6 +66,7 @@ export enum CustomErrorCode {
   widgetLayoutTooSmall = "widgetLayoutTooSmall",
   userNotFound = "userNotFound",
   userSelfAdminUpdateForbidden = "userSelfAdminUpdateForbidden",
+  userRoleRequired = "userRoleRequired",
   userPlatformOperatorStatusForbidden = "userPlatformOperatorStatusForbidden",
   widgetNotFound = "widgetNotFound",
   webhookNotFound = "webhookNotFound",

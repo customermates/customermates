@@ -48,7 +48,7 @@ export const RecordDetailOverview = observer(function RecordDetailOverview({
             fieldId={column.id}
             inputId={assignedInputId}
             label={label}
-            readOnlyHint={store.isPermissionReadOnly}
+            locked={store.isPermissionReadOnly}
           >
             <FormAutocompleteAvatar
               ariaLabel={label}

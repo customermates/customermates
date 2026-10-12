@@ -1179,6 +1179,7 @@
       "userInactive": "Your user account is inactive. Contact a workspace administrator.",
       "userNotFound": "User ID not found or not accessible.",
       "userPlatformOperatorStatusForbidden": "This account belongs to a platform operator and cannot be deactivated here. Use the operator console.",
+      "userRoleRequired": "This member has no role yet. Choose a role together with the change.",
       "userSelfAdminUpdateForbidden": "You cannot update your own account through team administration.",
       "webhookBodyTemplateInvalid": "The body template must produce a valid JSON object.",
       "webhookDeliveryNotFound": "Webhook delivery ID not found or not accessible.",
@@ -1477,7 +1478,6 @@
       "telegram": "Telegram",
       "whatsapp": "WhatsApp"
     },
-    "readOnlyField": "You can't edit this field",
     "relatedPages": "Related pages",
     "retryLater": "later",
     "scroll": {

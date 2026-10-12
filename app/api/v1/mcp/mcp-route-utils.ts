@@ -7,8 +7,16 @@ import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 import { executeMcpTool, type McpTool } from "@/features/mcp-tools/mcp-tool";
 import { buildMcpServerInstructions, GET_STARTED_PROMPT } from "@/features/mcp-tools/server-instructions";
 import { env } from "@/env";
+import type { SerializedInteractorFailure } from "@/core/validation/validation.utils";
 
 export type { McpTool, McpToolResult } from "@/features/mcp-tools/mcp-tool";
+
+const UNEXPECTED_FAILURE_MESSAGE = "The operation could not be completed because of an unexpected server error.";
+
+const UNEXPECTED_FAILURE: SerializedInteractorFailure = {
+  kind: "unavailable",
+  issues: [{ code: "custom", path: [], message: UNEXPECTED_FAILURE_MESSAGE }],
+};
 
 function createTextContent(text: string, isError = false) {
   return {
@@ -47,7 +55,10 @@ function registerAllTools(server: Parameters<Parameters<typeof createMcpHandler>
           };
         } catch (error) {
           Sentry.captureException(redactUnexpectedError(error, "The MCP tool could not be completed."));
-          return createTextContent("Error: The operation could not be completed", true);
+          return {
+            ...createTextContent(`Error: ${UNEXPECTED_FAILURE_MESSAGE}`, true),
+            _meta: { failure: UNEXPECTED_FAILURE },
+          };
         }
       },
     );

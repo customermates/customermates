@@ -57,7 +57,6 @@ export const EMPTY_ROUTINE_FORM: RoutineModalForm = {
   triggerKind: RoutineTriggerKind.schedule,
   timezone: DEFAULT_ROUTINE_TIMEZONE,
   triggerEvents: [],
-  triggerFilters: [],
   schedulePreset: DEFAULT_ROUTINE_SCHEDULE.preset,
   scheduleHour: String(DEFAULT_ROUTINE_SCHEDULE.hour),
   scheduleMinute: String(DEFAULT_ROUTINE_SCHEDULE.minute),
@@ -79,7 +78,6 @@ export function routineFormFor(routine: RoutineDto): RoutineModalForm {
     triggerKind: routine.triggerKind,
     timezone: routine.timezone ?? DEFAULT_ROUTINE_TIMEZONE,
     triggerEvents: routine.triggerEvents.filter(isRoutineTriggerEvent),
-    triggerFilters: routine.triggerFilters,
     recordTrigger: routine.recordTrigger ?? null,
     recordSources: routine.recordSources ?? null,
     schedulePreset: schedule.preset,
@@ -690,7 +688,6 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
         scheduled || !this.usesRecordTrigger ? null : form.recordSources?.length ? undefined : form.recordTrigger,
       recordSources: scheduled || !this.usesRecordTrigger ? null : form.recordSources,
       expectedSchemaRevision: !scheduled && this.usesRecordTrigger ? this.recordModel?.revision : undefined,
-      triggerFilters: [],
       cronExpression: scheduled ? this.compiledCron : null,
     };
   }

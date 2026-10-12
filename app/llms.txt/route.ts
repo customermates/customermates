@@ -21,7 +21,7 @@ export function GET() {
   const lines: string[] = [
     "# Customermates",
     "",
-    `> Customermates is an open-source, AI-native CRM: contacts, organizations, deals, services, and tasks, kept fresh by the AI you already use. Native MCP endpoint: ${env.BASE_URL}/api/v1/mcp (${MCP_TOOL_COUNT} tools). Every link below is the raw-markdown twin of an HTML page at ${env.BASE_URL}/${DEFAULT_LOCALE}/docs/<slug>, except intro-page, whose HTML page is ${env.BASE_URL}/${DEFAULT_LOCALE}/docs.${translationNote}`,
+    `> Customermates is an open-source, AI-native CRM with configurable lists that start with Contacts, Organizations, Deals, Services and Tasks, kept fresh by the AI you already use. Native MCP endpoint: ${env.BASE_URL}/api/v1/mcp (${MCP_TOOL_COUNT} tools). Every link below is the raw-markdown twin of an HTML page at ${env.BASE_URL}/${DEFAULT_LOCALE}/docs/<slug>, except intro-page, whose HTML page is ${env.BASE_URL}/${DEFAULT_LOCALE}/docs.${translationNote}`,
     "",
   ];
 

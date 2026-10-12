@@ -158,8 +158,8 @@ export const FormInputChips = observer(
             "flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border border-input bg-input-background px-2 py-1 text-sm shadow-xs",
             "focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50",
             className,
-            isReadOnly && "cursor-default border-border bg-background text-foreground shadow-none",
-            isDisabled && "cursor-not-allowed border-border bg-background text-muted-foreground shadow-none",
+            isReadOnly && "cursor-[inherit]",
+            isDisabled && "cursor-not-allowed",
             hasError &&
               "border-destructive focus-within:border-destructive ring-destructive/20 focus-within:ring-destructive/20",
           )}

@@ -81,7 +81,9 @@ import { recordWebhookOperations } from "@/features/records/record-webhooks.open
 import { recordApiPaths } from "@/features/records/records.openapi";
 import { getUserDetailsOperation } from "@/features/user/get/get-user-details.openapi";
 import { getUsersOperation } from "@/features/user/get/get-users.openapi";
+import { memberApiPaths, updateUserProfileOperation } from "@/features/user/upsert/team.openapi";
 import { UserDtoSchema } from "@/features/user/user.schema";
+import { wikiApiPaths } from "@/features/wiki/wiki.openapi";
 import { createWebhookOperation } from "@/features/webhook/create-webhook.openapi";
 import { deleteWebhookOperation } from "@/features/webhook/delete-webhook.openapi";
 import { getWebhookOperation } from "@/features/webhook/get-webhook.openapi";
@@ -111,11 +113,14 @@ export function generateOpenApiSpec() {
     ],
     paths: {
       ...recordApiPaths,
+      ...wikiApiPaths,
+      ...memberApiPaths,
       "/v1/users/search": {
         post: getUsersOperation,
       },
       "/v1/users/me": {
         get: getUserDetailsOperation,
+        patch: updateUserProfileOperation,
       },
       ...routineApiPaths,
       "/v1/webhooks": {

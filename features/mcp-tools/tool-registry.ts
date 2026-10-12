@@ -20,7 +20,7 @@ import {
 import { getDocsPageTool, searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
 import { getWorkspaceContextTool, listUsersTool } from "@/features/mcp-tools/workspace.mcp-tools";
 import { fetchTool, searchTool } from "@/features/mcp-tools/deep-research.mcp-tools";
-import { manageTeamTool, updateWorkspaceSettingsTool } from "@/features/mcp-tools/admin.mcp-tools";
+import { manageTeamTool, updateMyProfileTool } from "@/features/mcp-tools/admin.mcp-tools";
 import { manageWebhooksTool } from "@/features/mcp-tools/webhook.mcp-tools";
 import { manageWidgetsTool } from "@/features/mcp-tools/widget.mcp-tools";
 import { manageRoutinesTool } from "@/features/mcp-tools/routine.mcp-tools";
@@ -66,10 +66,12 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
     previewRecordDeletionV2Tool,
     queryRecordMeasureV2Tool,
     readRecordOperationV2Tool,
+    cancelRecordOperationV2Tool,
+    resumeRecordOperationV2Tool,
     readTrashTool,
     manageTrashTool,
   ],
-  "record-model": [configureRecordModelV2Tool, cancelRecordOperationV2Tool, resumeRecordOperationV2Tool],
+  "record-model": [configureRecordModelV2Tool],
   workspace: [getWorkspaceContextTool, listUsersTool],
   views: [manageDataViewsTool, manageRecordDetailLayoutV2Tool],
   wiki: [manageWikiPagesTool],
@@ -100,7 +102,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
   widgets: [manageWidgetsTool],
   routines: [manageRoutinesTool],
   webhooks: [manageWebhooksTool],
-  admin: [updateWorkspaceSettingsTool, manageTeamTool, manageRolesTool],
+  admin: [updateMyProfileTool, manageTeamTool, manageRolesTool],
   support: [requestSupportTool],
 };
 
