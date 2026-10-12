@@ -192,21 +192,21 @@ test("serves saved views, widgets, model discovery and Trash reads over an API k
       ]),
     );
     const placement = (columns: number) => [
-      { i: widgetId, x: 0, y: 1, w: columns, h: 2 },
+      { i: widgetId, x: 0, y: 1, w: columns, h: 3 },
     ];
     const moved = await call("/v1/widgets/layout", {
       layouts: {
         xs: placement(2),
         sm: placement(4),
         md: placement(8),
-        lg: [{ i: widgetId, x: 6, y: 1, w: 6, h: 2 }],
+        lg: [{ i: widgetId, x: 6, y: 1, w: 6, h: 3 }],
       },
     });
     expect(moved).toEqual([
       expect.objectContaining({
         id: widgetId,
         layout: expect.objectContaining({
-          lg: { i: widgetId, x: 6, y: 1, w: 6, h: 2 },
+          lg: { i: widgetId, x: 6, y: 1, w: 6, h: 3 },
         }),
       }),
     ]);
@@ -217,7 +217,7 @@ test("serves saved views, widgets, model discovery and Trash reads over an API k
           xs: [],
           sm: [],
           md: [],
-          lg: [{ i: widgetId, x: 8, y: 0, w: 6, h: 2 }],
+          lg: [{ i: widgetId, x: 8, y: 0, w: 6, h: 3 }],
         },
       },
       400,

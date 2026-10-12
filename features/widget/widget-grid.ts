@@ -5,12 +5,10 @@ import type { WidgetLayout } from "./widget-display.schema";
 import { DisplayType } from "./widget-display.schema";
 
 export const WIDGET_GRID_COLUMNS = 12;
-<<<<<<< HEAD
 export const WIDGET_GRID_BREAKPOINT_COLUMNS = { xs: 2, sm: 4, md: 8, lg: WIDGET_GRID_COLUMNS } as const;
-export const WIDGET_GRID_MAX_HEIGHT = 12;
-=======
+export const WIDGET_GRID_ROW_HEIGHT = 54;
+export const WIDGET_GRID_MARGIN = 16;
 export const WIDGET_GRID_MAX_HEIGHT = 24;
->>>>>>> pr203/integration
 export const WIDGET_GRID_MAX_ROW = 1000;
 
 type WidgetKindName = "chart" | "activityTimeline";
@@ -37,7 +35,9 @@ export const WidgetPlacementSchema = z
       .int()
       .min(1)
       .max(WIDGET_GRID_MAX_HEIGHT)
-      .describe("Height in rows of 54 px with 16 px gaps, 1 to 24."),
+      .describe(
+        `Height in rows of ${WIDGET_GRID_ROW_HEIGHT} px with ${WIDGET_GRID_MARGIN} px gaps, 1 to ${WIDGET_GRID_MAX_HEIGHT}.`,
+      ),
   })
   .strict()
   .refine((value) => value.x + value.w <= WIDGET_GRID_COLUMNS, {
