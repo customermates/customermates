@@ -3,7 +3,7 @@ import { oAuthProxy, mcp } from "better-auth/plugins";
 import { apiKey } from "@better-auth/api-key";
 import { nextCookies } from "better-auth/next-js";
 import { betterAuth } from "better-auth/minimal";
-import { APIError, createAuthMiddleware } from "better-auth/api";
+import { APIError, createAuthMiddleware, getSessionFromCtx } from "better-auth/api";
 import * as Sentry from "@sentry/nextjs";
 
 import { prisma } from "@/prisma/db";
@@ -14,6 +14,7 @@ import { onboardingIntentFromPath, pathWithOnboardingIntent } from "@/features/c
 import { API_KEY_MAX_EXPIRATION_DAYS, API_KEY_MIN_EXPIRATION_DAYS } from "@/features/api-key/api-key-expiration";
 import { API_KEY_NAME_MAX_LENGTH, API_KEY_NAME_MIN_LENGTH } from "@/features/api-key/api-key-name";
 import { PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "@/core/validation/validation.utils";
+import { apiKeyRouteAction, decideApiKeyRoute } from "@/core/auth/api-key-route-guard";
 import {
   MCP_LIBRARY_CONSENT_PATH,
   MCP_TOKEN_PATH,
@@ -74,6 +75,35 @@ export const auth = betterAuth({
 
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
+      const apiKeyAction = apiKeyRouteAction(ctx.path);
+      if (apiKeyAction) {
+        const session = await getSessionFromCtx(ctx, { disableCookieCache: true });
+        if (!session) {
+          if (ctx.request) throw new APIError("UNAUTHORIZED", { code: "UNAUTHORIZED", message: "Sign in required" });
+          return;
+        }
+
+        const member = await runWithoutTenant(() =>
+          prisma.user.findUnique({
+            where: { email: session.user.email },
+            select: {
+              status: true,
+              role: { select: { isSystemRole: true, permissions: { select: { resource: true, action: true } } } },
+            },
+          }),
+        );
+        const decision = decideApiKeyRoute(apiKeyAction, member);
+        if (decision === "inactive")
+          throw new APIError("FORBIDDEN", { code: "USER_INACTIVE", message: "User is not active" });
+        if (decision === "permissionDenied") {
+          throw new APIError("FORBIDDEN", {
+            code: "PERMISSION_DENIED",
+            message: `Access denied. Required permissions: ${apiKeyAction} on api`,
+          });
+        }
+        return;
+      }
+
       if (ctx.path !== MCP_TOKEN_PATH) return;
 
       const code = authorizationCodeFromTokenRequest(ctx.body);
