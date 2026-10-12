@@ -3360,6 +3360,7 @@
     },
     "changeBlocked": "Diese Änderung kann noch nicht übernommen werden",
     "channelsHelp": "E-Mail-Adressen, WhatsApp-Telefonnummern und soziale Konten, über die Nachrichten diesem Datensatz zugeordnet werden. Telefonnummern werden nur bei WhatsApp-Chats zugeordnet. Eine Kennung kann mit mehreren Datensätzen verknüpft sein.",
+    "chooseOption": "Wähle eine der Optionen des Felds.",
     "clickAction": "Beim Klicken",
     "clickActions": {
       "channels": {

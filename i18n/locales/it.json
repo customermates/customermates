@@ -3360,6 +3360,7 @@
     },
     "changeBlocked": "Questa modifica non può ancora essere applicata",
     "channelsHelp": "Indirizzi e-mail, numeri di telefono WhatsApp e account social che associano i messaggi a questo record. I numeri di telefono vengono associati solo per le chat WhatsApp. Un identificatore può essere collegato a più record.",
+    "chooseOption": "Scegli una delle opzioni del campo.",
     "clickAction": "Al clic",
     "clickActions": {
       "channels": {

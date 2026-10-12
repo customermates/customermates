@@ -15,7 +15,8 @@ import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { RecordScalarSchema } from "@/features/records/record-model.schema";
 import { recordInputValue } from "@/features/records/record-input-value";
-import { recordValueIssue, recordValueIssueValues } from "@/features/records/record-model-validation";
+import { recordValueIssue } from "@/features/records/record-model-validation";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { RecordInputField } from "./record-input-field";
 
@@ -27,9 +28,10 @@ export function recordValueIssueMessage(
   field: RecordFieldView,
 ): string | null {
   const code = recordValueIssue(value, field);
-  return (
-    code && rootStore.localeStore.getTranslation(`Common.errors.${code}`, recordValueIssueValues(code, value, field))
-  );
+  if (!code) return null;
+  if (code === CustomErrorCode.recordOptionInvalid)
+    return rootStore.localeStore.getTranslation("RecordModel.chooseOption");
+  return rootStore.localeStore.getTranslation(`Common.errors.${code}`);
 }
 
 export class RecordFieldValueStore extends BaseFormStore<{ value: unknown }> {

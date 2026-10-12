@@ -3360,6 +3360,7 @@
     },
     "changeBlocked": "This change can't be applied yet",
     "channelsHelp": "Email addresses, WhatsApp phone numbers and social accounts that match messages to this record. Phone numbers are only matched for WhatsApp chats. An identifier can link to several records.",
+    "chooseOption": "Choose one of the field's options.",
     "clickAction": "On click",
     "clickActions": {
       "channels": {

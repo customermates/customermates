@@ -3360,6 +3360,7 @@
     },
     "changeBlocked": "Cette modification ne peut pas encore être appliquée",
     "channelsHelp": "Adresses e-mail, numéros de téléphone WhatsApp et comptes sociaux qui associent les messages à cette fiche. Les numéros de téléphone ne sont associés que pour les discussions WhatsApp. Un identifiant peut être lié à plusieurs fiches.",
+    "chooseOption": "Choisissez l’une des options du champ.",
     "clickAction": "Au clic",
     "clickActions": {
       "channels": {
