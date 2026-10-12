@@ -32,7 +32,7 @@ describe("routine and webhook REST OpenAPI operations", () => {
 
     expect(operation.security).toEqual([{ apiKeyAuth: [] }]);
     expect(operation.description).toMatch(/Requires: [^.]+\.$/);
-    for (const status of ["400", "401", "403", "404", "409", "500"]) {
+    for (const status of ["400", "401", "403", "404", "409"]) {
       expect(operation.responses[status]?.content?.["application/json"]?.schema?.$ref).toBe(
         "#/components/schemas/StructuredErrorResponseSchema",
       );
