@@ -112,6 +112,7 @@ import { GetRecordModelInteractor } from "@/features/records/get-record-model.in
 import { DiscoverRecordTypesInteractor } from "@/features/records/discover-record-types.interactor";
 import { GetRecordChoicesInteractor } from "@/features/records/get-record-choices.interactor";
 import { GetRecordEditorInteractor } from "@/features/records/get-record-editor.interactor";
+import { EmbeddedSublistReader } from "@/features/records/embedded-sublist-reader";
 import { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
 import { MembershipTaskService } from "@/features/records/membership-task.service";
 import { MutateRecordInteractor } from "@/features/records/mutate-record.interactor";
@@ -507,8 +508,14 @@ export const getExportRecordsInteractor = () => new ExportRecordsInteractor(getR
 export const getImportRecordsInteractor = () =>
   new ImportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordWriteService());
 export const getGetRecordInteractor = () => new GetRecordInteractor(getRecordRepo(), getRecordAccessPolicy());
+export const getEmbeddedSublistReader = () => new EmbeddedSublistReader(getQueryRecordsInteractor(), getP13nRepo());
 export const getGetRecordEditorInteractor = () =>
-  new GetRecordEditorInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordDetailLayoutReader());
+  new GetRecordEditorInteractor(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordDetailLayoutReader(),
+    getEmbeddedSublistReader(),
+  );
 export const getRecordDetailLayoutReader = () => new RecordDetailLayoutReader(getP13nRepo());
 export const getReadRecordDetailLayoutInteractor = () =>
   new ReadRecordDetailLayoutInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordDetailLayoutReader());

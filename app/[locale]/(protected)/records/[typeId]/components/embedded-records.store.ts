@@ -4,8 +4,9 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { RecordPresentationResult } from "@/features/records/get-record-presentation.interactor";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import type { RecordGroupSummaryResult } from "@/features/records/record-grouping.schema";
-import type { RecordColumn } from "@/features/records/record-columns";
+import type { RecordQueryResult } from "@/features/records/record-query-result.schema";
 import type { RecordRow } from "@/features/records/record-presentation";
+import type { EmbeddedSublistPage } from "@/features/records/embedded-sublist";
 import type { RecordFieldSaveOutcome } from "./record-field-value-editor";
 
 import { action, makeObservable, observable } from "mobx";
@@ -14,39 +15,16 @@ import { getP13nAction, upsertP13nAction } from "@/app/actions";
 import { ViewMode } from "@/core/base/base-query-builder";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { readSublistColumns, sublistColumnsP13nId } from "@/features/p13n/sublist-columns.schema";
-import { parseRelationshipColumnKey, relationshipColumnKey } from "@/features/records/record-column.schema";
-import { defaultHiddenColumns } from "@/features/records/record-columns";
+import { relationshipColumnKey } from "@/features/records/record-column.schema";
+import {
+  EMBEDDED_PAGE_SIZE,
+  embeddedSublistLayout,
+  embeddedSublistQueries,
+  embeddedTotals,
+} from "@/features/records/embedded-sublist";
 import { RecordQuerySchema } from "@/features/records/record-query.schema";
 import { mutateRecordAction, queryRecordsAction } from "../../actions";
 import { RecordsStore } from "./records.store";
-
-export const EMBEDDED_PAGE_SIZE = 10;
-
-export function embeddedColumnLayout({
-  columns,
-  primaryColumnId,
-  parentColumnId,
-  defaultHidden,
-  chosen,
-}: {
-  columns: Pick<RecordColumn, "id" | "kind">[];
-  primaryColumnId: string;
-  parentColumnId: string;
-  defaultHidden: string[];
-  chosen: string[] | null;
-}): { columnOrder: string[]; hiddenColumns: string[] } {
-  const choosable = columns.filter((column) => column.id !== primaryColumnId && column.id !== parentColumnId);
-  const available = new Set(choosable.map((column) => column.id));
-  const quiet = new Set(defaultHidden);
-  const unhidden = choosable.filter((column) => !quiet.has(column.id));
-  const own = unhidden.filter((column) => column.kind !== "system");
-  const shown = chosen
-    ? [...new Set(chosen)].filter((id) => available.has(id))
-    : (own.length ? own : unhidden).map((column) => column.id);
-  const visible = new Set(shown);
-  const rest = choosable.filter((column) => !visible.has(column.id)).map((column) => column.id);
-  return { columnOrder: [...shown, ...rest], hiddenColumns: [...rest, parentColumnId] };
-}
 
 export function embeddedPresentation(
   editor: Omit<RecordPresentationResult, "systemColumnLabels" | "query" | "result" | "typeId">,
@@ -134,13 +112,12 @@ export class EmbeddedRecordsStore extends RecordsStore {
     this.total = total;
   };
   private get layout() {
-    return embeddedColumnLayout({
-      columns: this.recordColumns,
-      primaryColumnId: this.primaryColumnId,
-      parentColumnId: this.parentColumnId,
-      defaultHidden: defaultHiddenColumns(this.presentation.typeId, this.presentation.model.fields),
-      chosen: this.columnChoice,
-    });
+    return embeddedSublistLayout(
+      this.presentation.model,
+      this.presentation.typeId,
+      this.parentRelationId,
+      this.columnChoice,
+    );
   }
   private get columnChoiceP13nId() {
     return sublistColumnsP13nId(this.presentation.typeId);
@@ -193,17 +170,35 @@ export class EmbeddedRecordsStore extends RecordsStore {
     });
   };
   private get shownColumns() {
-    const hidden = new Set(this.layout.hiddenColumns);
-    return this.recordColumns.filter((column) => !hidden.has(column.id));
+    return this.layout.shown;
   }
-  private get totalFields() {
-    return this.shownColumns
-      .flatMap((column) =>
-        column.kind === "field" && (column.field.valueType === "number" || column.field.valueType === "currency")
-          ? [{ fieldId: column.field.id, aggregation: "sum" as const }]
-          : [],
-      )
-      .slice(0, 8);
+  hydrate = (page: EmbeddedSublistPage) => {
+    this.choiceRequest = Promise.resolve();
+    this.applyColumnChoice(page.columns);
+    this.setTotals(page.totals, page.rows.total);
+    this.setItems(this.rowsResult(page.rows, EMBEDDED_PAGE_SIZE));
+    this.setLoadFailed(false);
+  };
+  private rowsResult(
+    rows: RecordQueryResult,
+    pageSize: NonNullable<GetResult<RecordRow>["pagination"]>["pageSize"],
+    sort?: GetQueryParams["sortDescriptor"],
+  ): GetResult<RecordRow> {
+    const { columnOrder, hiddenColumns } = this.layout;
+    return {
+      items: rows.records.map((record) => ({ ...record, id: record.ref.recordId })) as RecordRow[],
+      pagination: {
+        page: rows.page,
+        pageSize,
+        total: rows.total,
+        totalPages: Math.max(1, Math.ceil(rows.total / pageSize)),
+      },
+      columnOrder,
+      hiddenColumns,
+      sortDescriptor: sort ?? undefined,
+      viewMode: ViewMode.table,
+      viewPersistable: false,
+    };
   }
   createChild = async (fieldId: string, name: string) => {
     if (!this.parent) return { created: false };
@@ -226,65 +221,29 @@ export class EmbeddedRecordsStore extends RecordsStore {
     const parent = this.parent;
     if (!type || !parent) return { items: [], viewMode: ViewMode.table, viewPersistable: false };
     const sort = params?.sortDescriptor ?? this.sortDescriptor ?? undefined;
-    const scope = {
-      typeId: type.id,
-      relationships: [
-        { relationId: this.parentRelationId, direction: "outgoing", operator: "any", recordIds: [parent.recordId] },
-      ],
-    };
     await this.loadColumnChoice();
-    const layout = this.layout;
-    const shown = this.shownColumns;
     const page = params?.pagination?.page ?? params?.page ?? 1;
     const pageSize = params?.pagination?.pageSize ?? this.pagination?.pageSize ?? EMBEDDED_PAGE_SIZE;
-    const rowsQuery = (requested: number) =>
-      queryRecordsAction(
-        RecordQuerySchema.parse({
-          ...scope,
-          page: requested,
-          pageSize,
-          sort: sort ? [{ fieldId: sort.field, direction: sort.direction }] : [],
-          includeRelationships: shown.flatMap((column) => {
-            const selection = column.kind === "relationship" ? parseRelationshipColumnKey(column.id) : null;
-            return selection ? [selection] : [];
-          }),
-          includePaths: shown.flatMap((column) =>
-            column.kind === "relationshipPath" ? [{ pathId: column.definition.id, limit: 3 }] : [],
-          ),
-        }),
-      );
+    const queries = embeddedSublistQueries({
+      typeId: type.id,
+      parentRelationId: this.parentRelationId,
+      parentRecordId: parent.recordId,
+      shown: this.shownColumns,
+      page,
+      pageSize,
+      sort,
+    });
     const [loaded, totals] = await Promise.all([
-      rowsQuery(page),
-      this.totalFields.length
-        ? queryRecordsAction(
-            RecordQuerySchema.parse({
-              ...scope,
-              pageSize: 1,
-              grouping: { field: this.parentColumnId },
-              groupPage: { perGroup: 1 },
-              groupSummaries: this.totalFields,
-            }),
-          )
-        : Promise.resolve(null),
+      queryRecordsAction(queries.rows()),
+      queries.totals ? queryRecordsAction(queries.totals) : Promise.resolve(null),
     ]);
     const lastPage = loaded.ok ? Math.max(1, Math.ceil(loaded.data.total / pageSize)) : 1;
-    const rows = loaded.ok && !loaded.data.records.length && page > lastPage ? await rowsQuery(lastPage) : loaded;
+    const rows =
+      loaded.ok && !loaded.data.records.length && page > lastPage
+        ? await queryRecordsAction(queries.rows(lastPage))
+        : loaded;
     if (!rows.ok) throw new Error("The sub-list could not be loaded.");
-    const group = totals?.ok ? totals.data.grouping?.groups[0] : undefined;
-    this.setTotals(group?.summaries ?? [], rows.data.total);
-    return {
-      items: rows.data.records.map((record) => ({ ...record, id: record.ref.recordId })) as RecordRow[],
-      pagination: {
-        page: rows.data.page,
-        pageSize,
-        total: rows.data.total,
-        totalPages: Math.max(1, Math.ceil(rows.data.total / pageSize)),
-      },
-      columnOrder: layout.columnOrder,
-      hiddenColumns: layout.hiddenColumns,
-      sortDescriptor: sort ?? undefined,
-      viewMode: ViewMode.table,
-      viewPersistable: false,
-    };
+    this.setTotals(embeddedTotals(totals?.ok ? totals.data : null), rows.data.total);
+    return this.rowsResult(rows.data, pageSize, sort);
   }
 }
