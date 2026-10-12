@@ -48,9 +48,12 @@ export class PrismaWebhookRepo
     return this.scopedCompanyId ?? super.companyId;
   }
 
-  private async withRecordSubscriptions(rows: WebhookDto[]): Promise<WebhookDto[]> {
+  private async withRecordSubscriptions(rows: WebhookDto[], stored = false): Promise<WebhookDto[]> {
     const ids = rows.filter((row) => row.events.some((event) => event.startsWith("record."))).map((row) => row.id);
-    const subscriptions = await this.subscriptions.findUnscoped(this.companyId, ids);
+    const subscriptions =
+      stored || this.scopedCompanyId !== undefined
+        ? await this.subscriptions.findUnscoped(this.companyId, ids)
+        : await this.subscriptions.findReadable(ids);
     const byId = new Map(subscriptions.filter((row) => row.kind === "webhook").map((row) => [row.id, row]));
     return rows.map((row) => {
       const subscription = byId.get(row.id);
@@ -221,7 +224,7 @@ export class PrismaWebhookRepo
   async upsertWebhookOrThrow(args: RepoArgs<UpsertWebhookRepo, "upsertWebhookOrThrow">) {
     const { companyId } = this.user;
     const { id, ...webhookData } = args;
-    const previous = id ? await this.getWebhookByIdOrThrow(id) : undefined;
+    const previous = id ? await this.storedWebhookOrThrow(id) : undefined;
     await this.assertWriter(previous ? "update" : "create", previous?.recordOwnerUserId);
 
     if (id) {
@@ -241,7 +244,7 @@ export class PrismaWebhookRepo
         },
       });
 
-      await this.saveRecordSubscription(await this.getWebhookByIdOrThrow(id), args, previous);
+      await this.saveRecordSubscription(await this.storedWebhookOrThrow(id), args, previous);
       return this.getWebhookByIdOrThrow(id);
     }
 
@@ -259,7 +262,7 @@ export class PrismaWebhookRepo
       select: { id: true },
     });
 
-    await this.saveRecordSubscription(await this.getWebhookByIdOrThrow(created.id), args);
+    await this.saveRecordSubscription(await this.storedWebhookOrThrow(created.id), args);
     return this.getWebhookByIdOrThrow(created.id);
   }
 
@@ -287,14 +290,20 @@ export class PrismaWebhookRepo
   }
 
   async getWebhookByIdOrThrow(id: string) {
-    const companyId = this.companyId;
+    return this.loadWebhookOrThrow(id, false);
+  }
 
+  private async storedWebhookOrThrow(id: string) {
+    return this.loadWebhookOrThrow(id, true);
+  }
+
+  private async loadWebhookOrThrow(id: string, stored: boolean) {
     const webhook = await this.prisma.webhook.findFirstOrThrow({
-      where: { id, companyId },
+      where: { id, companyId: this.companyId },
       select: this.baseSelect,
     });
 
-    return (await this.withRecordSubscriptions([this.toWebhookDto(webhook)]))[0];
+    return (await this.withRecordSubscriptions([this.toWebhookDto(webhook)], stored))[0];
   }
 
   async getWebhookById(id: string) {

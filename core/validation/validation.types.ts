@@ -38,6 +38,7 @@ export enum CustomErrorCode {
   notAuthenticated = "notAuthenticated",
   userInactive = "userInactive",
   permissionDenied = "permissionDenied",
+  insufficientPermissions = "insufficientPermissions",
   demoMode = "demoMode",
   apiKeyMinExpiration = "apiKeyMinExpiration",
   apiKeyMaxExpiration = "apiKeyMaxExpiration",

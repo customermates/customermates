@@ -16,6 +16,10 @@ export type ApiKeyRouteMember = { status: Status; role: PermissionRole | null } 
 
 export type ApiKeyRouteDecision = "allowed" | "inactive" | "permissionDenied";
 
+export function canUseApiKeys(role: PermissionRole | null | undefined): boolean {
+  return rolePermits(role, Resource.api, Action.readAll);
+}
+
 export function apiKeyRouteAction(path: string): Action | undefined {
   return API_KEY_ROUTE_ACTIONS[path];
 }

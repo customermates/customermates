@@ -69,7 +69,14 @@ describeDatabase("routine REST routes over API keys", () => {
     await client.connect();
     tenant = await createApiKeyTenant(client, [
       { label: "routine-admin", systemRole: true },
-      { label: "routine-reader", systemRole: false, permissions: [["routines", "readAll"]] },
+      {
+        label: "routine-reader",
+        systemRole: false,
+        permissions: [
+          ["routines", "readAll"],
+          ["api", "readAll"],
+        ],
+      },
       { label: "routine-outsider", systemRole: false },
     ]);
     foreign = await createApiKeyTenant(client, [{ label: "routine-foreign", systemRole: true }]);

@@ -85,11 +85,11 @@ Ein **Standard-API-Key** läuft nur ab, wenn Sie unter **Läuft ab** ein Datum w
 
 ## Wie kann ich einen Key widerrufen, löschen oder rotieren? [#how-do-i-revoke-delete-or-rotate-a-key]
 
-Klicken Sie unter [API-Schlüssel](app:settings/api-keys) auf die Karte des Keys und wählen Sie **Löschen**; nach der Bestätigung funktioniert der Key sofort nicht mehr. Zum Löschen brauchen Sie **Löschen** auf **API & Webhooks**. Eine separate Rotate- oder Revoke-Aktion gibt es nicht: Zum Rotieren legen Sie einen neuen Key an, aktualisieren jeden Client, der den alten genutzt hat, und löschen dann den alten Key.
+Klicken Sie unter [API-Schlüssel](app:settings/api-keys) auf die Karte des Keys und wählen Sie **Löschen**; nach der Bestätigung ist er sofort ungültig. Zum Löschen brauchen Sie **Löschen** auf **API & Webhooks**. Eine eigene Rotate- oder Revoke-Aktion fehlt: Zum Rotieren legen Sie einen neuen Key an, stellen jeden Client darauf um und löschen den alten.
 
-Rotieren Sie, wenn ein Gerät mit dem Key verloren geht oder kompromittiert ist, wenn ein Teammitglied mit Zugriff das Team verlässt oder wenn Sie einen Leak vermuten. Ein Key pro Client erlaubt es, einen einzelnen Client zu löschen, ohne die anderen zu brechen. Im Audit-Log trennt er sie nicht, denn dort steht der Nutzer, dem ein Key gehört, nicht der Key selbst. Bewahren Sie Keys in einer Umgebungsvariable oder einem Passwort-Manager auf, nie in einer Config-Datei, die Sie committen.
+Rotieren Sie, wenn ein Gerät mit dem Key verloren oder kompromittiert ist, ein Teammitglied mit Zugriff geht oder Sie einen Leak vermuten. Mit einem Key pro Client löschen Sie einen Client, ohne die anderen zu brechen; im Audit-Log steht aber der Nutzer, nicht der Key. Speichern Sie Keys in einer Umgebungsvariable oder einem Passwort-Manager, nie in einer committeten Datei.
 
-Nur der Besitzer kann einen Key löschen. Um die Keys eines ausscheidenden Mitglieds zu stoppen, öffnen Sie [Mitglieder](app:settings/members), öffnen das Mitglied, setzen **Status** auf **Inaktiv** und klicken auf **Speichern**. Dafür brauchen Sie **Bearbeiten** und Leserecht **Alle** auf **Benutzer & Rollen**; sich selbst können Sie nicht deaktivieren, und das letzte aktive Mitglied mit der Rolle **Admin** lässt sich nicht deaktivieren. Danach wird jeder Aufruf mit den Keys dieses Mitglieds abgelehnt, der Workspace-Daten liest oder ändert. Seiner Rolle die Berechtigung **API & Webhooks** zu entziehen, reicht nicht: Das blendet die Seite aus und beendet seine MCP-Verbindungen, aber bereits vorhandene Keys funktionieren für REST-Aufrufe weiter.
+Nur der Besitzer kann einen Key löschen. Um die Keys eines ausscheidenden Mitglieds zu stoppen, setzen Sie unter [Mitglieder](app:settings/members) seinen **Status** auf **Inaktiv** und klicken auf **Speichern**. Dafür brauchen Sie **Bearbeiten** und Leserecht **Alle** auf **Benutzer & Rollen**. Danach wird jeder Aufruf mit seinen Keys abgelehnt, der Daten liest oder ändert. Auch der Entzug von **Lesen** **Alle** auf **API & Webhooks** stoppt seine Keys für MCP und REST, siehe [Welche Berechtigungen hat ein Key](#what-permissions-does-a-key-have).
 
 ## Welches Format hat ein Key, und wie lang darf sein Name sein? [#what-is-the-key-format]
 
@@ -98,6 +98,8 @@ Der **Name** eines Keys ist 1 bis 255 Zeichen lang. Keys bestehen aus 64 ASCII-B
 ## Welche Berechtigungen hat ein Key, und kann ich ihn auf Lesezugriff beschränken? [#what-permissions-does-a-key-have]
 
 Alles, was sein Besitzer darf, und nicht mehr. Ein Berechtigungs-Scoping pro Key gibt es nicht, ein Key lässt sich also nicht auf Lesezugriff beschränken. Jeder Aufruf wird gegen die aktuelle Rolle des Besitzers geprüft. Eine Änderung dieser Rolle, etwa wenn das Mitglied von der Rolle **Admin** in eine eigene Rolle mit weniger Rechten wechselt, gilt für seine Keys also ab dem nächsten Aufruf. Steht der **Status** des Besitzers auf **Inaktiv**, wird jeder Aufruf mit seinen Keys abgelehnt, der Workspace-Daten liest oder ändert.
+
+Ein Key funktioniert außerdem nur, solange die Rolle seines Besitzers **Lesen** **Alle** auf **API & Webhooks** hat; das wird bei jedem Aufruf geprüft. Ohne diese Berechtigung antwortet MCP mit `403` und `error: insufficient_permissions`, REST mit `403`, `kind` `authorization` und `customCode` `insufficientPermissions`. Die angemeldete Nutzung der Web-App bleibt davon unberührt.
 
 ## Weiter [#next]
 

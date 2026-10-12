@@ -103,8 +103,8 @@ describeDatabase("member and profile REST routes", () => {
       [adminRoleId, companyId, memberRoleId, foreignRoleId, foreignCompanyId],
     );
     await client.query(
-      'INSERT INTO "RolePermission" ("id", "roleId", "companyId", "resource", "action") VALUES ($1, $2, $3, \'users\', \'readAll\')',
-      [randomUUID(), memberRoleId, companyId],
+      'INSERT INTO "RolePermission" ("id", "roleId", "companyId", "resource", "action") VALUES ($1, $2, $3, \'users\', \'readAll\'), ($4, $2, $3, \'api\', \'readAll\')',
+      [randomUUID(), memberRoleId, companyId, randomUUID()],
     );
     await client.query(
       "INSERT INTO \"User\" (\"id\", \"email\", \"firstName\", \"lastName\", \"companyId\", \"roleId\", \"status\", \"country\", \"updatedAt\") VALUES ($1, $2, 'REST', 'Admin', $3, $4, 'active', 'de', CURRENT_TIMESTAMP), ($5, $6, 'REST', 'Member', $3, $7, 'active', 'de', CURRENT_TIMESTAMP), ($8, $9, 'Target', 'Member', $3, $7, 'active', 'de', CURRENT_TIMESTAMP), ($10, $11, 'Foreign', 'Admin', $12, $13, 'active', 'de', CURRENT_TIMESTAMP)",

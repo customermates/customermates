@@ -2,6 +2,7 @@ import type { RecordEventSubscriptionDefinition } from "./record-event-subscript
 
 export abstract class RecordEventSubscriptionRepo {
   abstract findUnscoped(companyId: string, ids: string[]): Promise<RecordEventSubscriptionDefinition[]>;
+  abstract findReadable(ids: string[]): Promise<RecordEventSubscriptionDefinition[]>;
   abstract save(
     definition: Omit<RecordEventSubscriptionDefinition, "revision">,
     action: "create" | "update",
