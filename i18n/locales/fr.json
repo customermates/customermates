@@ -1180,6 +1180,7 @@
       "userNotFound": "ID d'utilisateur introuvable ou inaccessible.",
       "userPlatformOperatorStatusForbidden": "Ce compte appartient à un opérateur de la plateforme et ne peut pas être désactivé ici. Utilisez la console opérateur.",
       "userSelfAdminUpdateForbidden": "Vous ne pouvez pas mettre à jour votre propre compte depuis l’administration de l’équipe.",
+      "userRoleRequired": "Ce membre n’a pas encore de rôle. Choisissez un rôle avec la modification.",
       "webhookBodyTemplateInvalid": "Le modèle de corps doit produire un objet JSON valide.",
       "webhookDeliveryNotFound": "ID de livraison de webhook introuvable ou inaccessible.",
       "webhookEventsRequired": "Sélectionnez au moins un évènement.",

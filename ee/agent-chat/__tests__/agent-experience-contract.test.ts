@@ -213,7 +213,7 @@ describe("agent experience contract", () => {
       ["manage_widgets", { action: "create", name: "Private widget" }, "widgets.create"],
       ["manage_widgets", { action: "update", id: privateId, name: "Private widget" }, "widgets.update"],
       ["manage_widgets", { action: "delete", id: privateId }, "widgets.delete"],
-      ["update_workspace_settings", { firstName: "Private name" }, "profile.configure"],
+      ["update_my_profile", { firstName: "Private name" }, "profile.configure"],
     ] as const;
     const activities = tools.map(([toolName, input, kind]) => {
       const activity = describeInternalTool(toolName, input);
