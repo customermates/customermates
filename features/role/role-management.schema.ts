@@ -14,7 +14,11 @@ const RoleResourceGrantSchema = z
   .strict()
   .refine(
     ({ resource, actions }) => {
-      const grantable = grantableActions(RESOURCE_ACCESS[resource]);
+      const access = RESOURCE_ACCESS[resource];
+      const grantable = [
+        ...grantableActions(access),
+        ...(access.read.length === 0 ? [Action.readAll, Action.readOwn] : []),
+      ];
       return actions.every((action) => grantable.includes(action));
     },
     { message: "Action is not applicable to this resource", path: ["actions"] },
@@ -36,7 +40,7 @@ export const UpsertRoleSchema = z
       .array(RoleResourceGrantSchema)
       .max(Object.keys(RESOURCE_ACCESS).length)
       .describe(
-        "Only listed resources change; each listed resource's actions replace its current actions and an empty actions array removes its access. Applicable actions per resource: api, users, wiki, inboxMessages and routines take create, update and delete; company and dataModel take update only; auditLog takes none. Read: readAll for every resource except company and dataModel, plus readOwn for users and routines. Any wiki manage action also grants readAll. Company and dataModel always keep their read rows, which make Settings and Subscription visible.",
+        "Only listed resources change; each listed resource's actions replace its current actions and an empty actions array removes its access. Applicable actions per resource: api, users, wiki, inboxMessages and routines take create, update and delete; company and dataModel take update only; auditLog takes none. Read: readAll for every resource except company and dataModel, plus readOwn for users and routines. Any wiki manage action also grants readAll. Company and dataModel always keep their read rows, which make Settings and Subscription visible; readAll and readOwn returned by a read are accepted there and change nothing.",
       )
       .refine((grants) => new Set(grants.map((grant) => grant.resource)).size === grants.length),
     recordGrants: z
