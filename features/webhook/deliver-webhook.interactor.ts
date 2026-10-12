@@ -20,6 +20,7 @@ type DeliveryOutcome = {
 };
 const RETRYABLE_4XX = new Set([408, 425, 429]);
 const MAX_ATTEMPTS = 10;
+const FIRST_RETRY_MS = 10_000;
 
 @SystemInteractor
 export class DeliverWebhookInteractor {
@@ -89,7 +90,7 @@ export class DeliverWebhookInteractor {
     const retryable = result.statusCode === null || result.statusCode >= 500 || RETRYABLE_4XX.has(result.statusCode);
     const nextAttemptAt =
       !result.success && retryable && claim.attempts < MAX_ATTEMPTS
-        ? new Date(Date.now() + Math.min(3_600_000, 1000 * 2 ** (claim.attempts - 1)))
+        ? new Date(Date.now() + Math.min(3_600_000, FIRST_RETRY_MS * 2 ** (claim.attempts - 1)))
         : null;
     const settled = await this.queue.finishUnscoped({
       companyId: input.companyId,

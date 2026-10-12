@@ -1,36 +1,34 @@
 import { randomUUID } from "node:crypto";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
-import { runInTransaction } from "@/core/decorators/transaction-runner";
 import type { WebhookDeliveryQueueRepo, WebhookDeliveryClaim } from "./webhook-delivery-queue.repo";
 
 const LEASE_MS = 60_000;
 
 export class PrismaWebhookDeliveryQueueRepo extends TenantRepository implements WebhookDeliveryQueueRepo {
   @BypassTenantGuard
-  claimUnscoped(companyId: string, deliveryId: string, now: Date): Promise<WebhookDeliveryClaim> {
-    return runInTransaction(
-      async () => {
-        const row = await this.prisma.webhookDelivery.findFirst({ where: { companyId, id: deliveryId } });
-        if (!row) return { status: "missing" };
-        if (row.status === "success" || !row.nextAttemptAt) return { status: "complete", success: row.success };
-        if (row.leaseExpiresAt && row.leaseExpiresAt > now)
-          return { status: "deferred", nextAttemptAt: row.leaseExpiresAt };
-        if (row.nextAttemptAt > now) return { status: "deferred", nextAttemptAt: row.nextAttemptAt };
-        const token = randomUUID();
-        await this.prisma.webhookDelivery.update({
-          where: { companyId, id: deliveryId },
-          data: {
-            status: "processing",
-            leaseToken: token,
-            leaseExpiresAt: new Date(now.getTime() + LEASE_MS),
-            attempts: { increment: 1 },
-          },
-        });
-        return { status: "claimed", token, attempts: row.attempts + 1 };
+  async claimUnscoped(companyId: string, deliveryId: string, now: Date): Promise<WebhookDeliveryClaim> {
+    const row = await this.prisma.webhookDelivery.findFirst({ where: { companyId, id: deliveryId } });
+    if (!row) return { status: "missing" };
+    if (row.status === "success" || !row.nextAttemptAt) return { status: "complete", success: row.success };
+    if (row.leaseExpiresAt && row.leaseExpiresAt > now)
+      return { status: "deferred", nextAttemptAt: row.leaseExpiresAt };
+    if (row.nextAttemptAt > now) return { status: "deferred", nextAttemptAt: row.nextAttemptAt };
+    const token = randomUUID();
+    const leaseExpiresAt = new Date(now.getTime() + LEASE_MS);
+    const claimed = await this.prisma.webhookDelivery.updateMany({
+      where: {
+        companyId,
+        id: deliveryId,
+        attempts: row.attempts,
+        status: { not: "success" },
+        nextAttemptAt: { lte: now },
+        OR: [{ leaseExpiresAt: null }, { leaseExpiresAt: { lte: now } }],
       },
-      { companyId },
-    );
+      data: { status: "processing", leaseToken: token, leaseExpiresAt, attempts: { increment: 1 } },
+    });
+    if (claimed.count !== 1) return { status: "deferred", nextAttemptAt: leaseExpiresAt };
+    return { status: "claimed", token, attempts: row.attempts + 1 };
   }
 
   @BypassTenantGuard

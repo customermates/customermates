@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-const invoke = vi.hoisted(() => vi.fn().mockResolvedValue({ processed: 1, hasMore: false }));
+const invoke = vi.hoisted(() => vi.fn().mockResolvedValue({ processed: 1, continued: false }));
 vi.mock("@/core/di", () => ({ getProcessDueEventsInteractor: () => ({ invoke }) }));
 vi.mock("../capture-failure", () => ({ reportFailure: vi.fn(), toWorkflowFailure: vi.fn() }));
 

@@ -123,9 +123,7 @@ export async function expectedMcpToolFailure(error: unknown): Promise<McpToolExe
 
   const prismaError = prismaClientError(error);
   if (!prismaError) return null;
-  const kind: InteractorFailureKind =
-    prismaError.status === 404 ? "not_found" : prismaError.status === 409 ? "conflict" : "validation";
-  const failure = mcpInteractorFailure(createZodError(prismaError.message), kind, prismaError.message);
+  const failure = mcpInteractorFailure(createZodError(prismaError.message), prismaError.kind, prismaError.message);
   return { ok: false, result: failure.text, failure: failure.failure };
 }
 
