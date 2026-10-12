@@ -6,6 +6,10 @@ import { RecordExportSchema, type RecordExport } from "../../features/data-trans
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
 
+function isImportCall(body: string | null) {
+  return Boolean(body?.includes('"idempotencyKey"') && body.includes('"customermates-records"'));
+}
+
 async function importState(database: Client, companyId: string, typeId: string, recordIds: string[]) {
   const result = await database.query(
     'SELECT (SELECT COUNT(*)::integer FROM "CrmRecord" WHERE "companyId"=$1 AND "typeId"=$2 AND id=ANY($3::text[])) AS records, (SELECT COUNT(*)::integer FROM "RecordValue" WHERE "companyId"=$1 AND "typeId"=$2 AND "recordId"=ANY($3::text[])) AS values, (SELECT COUNT(*)::integer FROM "EventLog" WHERE "companyId"=$1 AND "subjectTypeId"=$2 AND "subjectId"=ANY($3::text[])) AS events, (SELECT COUNT(*)::integer FROM "RecordMutationReceipt" WHERE "companyId"=$1) AS receipts',
@@ -21,23 +25,16 @@ test("rejects malformed and invalid typed imports without partial records and ac
 }, testInfo) => {
   test.setTimeout(180000);
   const errors: string[] = [];
-  let expectedImportRejection = false;
   const importRequests: string[] = [];
   page.on("request", (request) => {
-    if (new URL(request.url()).pathname === "/api/v1/records/import") importRequests.push(request.url());
+    if (request.method() === "POST" && request.headers()["next-action"] && isImportCall(request.postData()))
+      importRequests.push(request.url());
   });
   page.on("pageerror", (error) => {
     if (!isBenignPageError(error.message)) errors.push(error.message);
   });
   page.on("console", (message) => {
-    if (!isAppConsoleError(message)) return;
-    if (
-      expectedImportRejection &&
-      message.location().url.endsWith("/api/v1/records/import") &&
-      /400/.test(message.text())
-    )
-      return;
-    errors.push(message.text());
+    if (isAppConsoleError(message)) errors.push(message.text());
   });
   const typeId = presetId(companyId, "service");
   const titleId = presetId(companyId, "service.name");
@@ -112,11 +109,11 @@ test("rejects malformed and invalid typed imports without partial records and ac
   });
   await expect(dialog.getByRole("alert")).toHaveCount(0);
   await expect(dialog).toContainText("2 records and 0 links are ready to import.");
-  expectedImportRejection = true;
-  const rejected = page.waitForResponse((response) => new URL(response.url()).pathname === "/api/v1/records/import");
   await submit.click();
-  expect((await rejected).status()).toBe(400);
-  await expect(dialog.getByRole("alert")).toHaveText(englishMessages.DataTransfer.recordImport.failed);
+  await expect(
+    page.locator('[data-sonner-toast][data-type="error"]').or(dialog.getByRole("alert")).first(),
+  ).toBeVisible();
+  await expect(submit).toBeEnabled();
   await expect(dialog).toBeVisible();
   expect(importRequests).toHaveLength(1);
   expect(await importState(database, companyId, typeId, ids)).toEqual(baseline);
@@ -130,11 +127,8 @@ test("rejects malformed and invalid typed imports without partial records and ac
   await expect(dialog).not.toContainText("invalid-typed-batch.json");
   await expect(dialog).toContainText("corrected-batch.json");
   await expect(submit).toBeEnabled();
-  const imported = page.waitForResponse((response) => new URL(response.url()).pathname === "/api/v1/records/import");
   await submit.click();
-  expect((await imported).status()).toBe(200);
   await expect(dialog).not.toBeVisible();
-  expectedImportRejection = false;
   expect(importRequests).toHaveLength(2);
   const persisted = await database.query(
     'SELECT record.id,title."textValue" AS title,trim_scale(price."decimalValue")::text AS price,price.currency FROM "CrmRecord" record JOIN "RecordValue" title ON title."companyId"=record."companyId" AND title."typeId"=record."typeId" AND title."recordId"=record.id AND title."fieldId"=$4 JOIN "RecordValue" price ON price."companyId"=record."companyId" AND price."typeId"=record."typeId" AND price."recordId"=record.id AND price."fieldId"=$5 WHERE record."companyId"=$1 AND record."typeId"=$2 AND record.id=ANY($3::text[]) ORDER BY title."textValue"',
