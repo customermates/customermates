@@ -1425,6 +1425,49 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toEqual(expect.arrayContaining(ids));
   }, 30000);
 
+  it("restricts a calculation over an unreadable type on every record, including records without related data", async () => {
+    const f = await fixture();
+    const service = await f.create("service", "Hidden catalog", [["service.amount", decimal("50")]]);
+    const deal = await f.create("deal", "Readable deal");
+    const empty = await f.create("deal", "Deal without lines");
+    const addLine = (links: Extract<RecordMutation, { action: "create" }>["links"]) =>
+      f.create("lineItem", "Line", [["lineItem.quantity", decimal("2", null)]], links);
+    const linked = await addLine([
+      { relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal },
+      { relationId: f.id("lineItem.service"), direction: "outgoing", record: service },
+    ]);
+    const unlinked = await addLine([{ relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal }]);
+    await f.run(() =>
+      runInTransaction(() => f.repo.setGrants(deal.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }])),
+    );
+    const results = async (as: typeof f.admin, fieldId: string) => {
+      const exported = await f.run(
+        () =>
+          new ExportRecordsInteractor(f.repo, f.policy).invoke({
+            typeId: deal.typeId,
+            filters: [],
+            relationships: [],
+            sort: [],
+          }),
+        as,
+      );
+      if (!exported.ok) throw exported.error;
+      return new Map(
+        exported.data.records.map((row) => [
+          row.ref.recordId,
+          row.fields.find((field) => field.fieldId === f.id(fieldId))?.result,
+        ]),
+      );
+    };
+
+    const member = await results(f.member, "lineItem.effectivePrice");
+    expect(member.get(linked.recordId)).toEqual({ state: "restricted" });
+    expect(member.get(unlinked.recordId)).toEqual({ state: "restricted" });
+    const admin = await results(f.admin, "lineItem.effectivePrice");
+    expect(admin.get(unlinked.recordId)).not.toEqual({ state: "restricted" });
+    expect((await results(f.member, "deal.totalValue")).get(empty.recordId)).not.toEqual({ state: "restricted" });
+  });
+
   it("limits embedded export to readable parents and redacts restricted child calculations", async () => {
     const f = await fixture();
     const service = await f.create("service", "Private catalog", [["service.amount", decimal("50")]]);
@@ -4823,6 +4866,25 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(await f.run(() => f.repo.getState())).toMatchObject({ revision: 2 });
   });
 
+  it("role management refuses a duplicate role name as a conflict on the name", async () => {
+    const f = await fixture();
+    const { interactorFailureKind } = await import("@/core/validation/validation.utils");
+    const first = roleInput({ name: "Duplicate check" });
+    expect(await f.run(() => getUpsertRoleInteractor().invoke(first))).toMatchObject({ ok: true });
+
+    const duplicate = await f.run(() =>
+      getUpsertRoleInteractor().invoke(roleInput({ name: "Duplicate check", expectedRevision: 2 })),
+    );
+    if (duplicate.ok) throw new Error("A duplicate role name was saved");
+    expect(interactorFailureKind(duplicate.error)).toBe("conflict");
+    expect(duplicate.error.issues).toEqual([
+      expect.objectContaining({ path: ["name"], params: expect.objectContaining({ error: "roleNameTaken" }) }),
+    ]);
+    expect(
+      await f.run(() => prisma.userRole.count({ where: { companyId: f.company.id, name: "Duplicate check" } })),
+    ).toBe(1);
+  });
+
   it("role management rejects cross-workspace references and rolls back invalid grants", async () => {
     const f = await fixture();
     const other = await fixture();
@@ -5575,10 +5637,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       }),
     );
     expect(await f.run(() => getMembershipTaskService().getSystemTasksCount(), f.member)).toBe(0);
-    expect(await f.run(() => f.editor.invoke(ref), f.member)).toMatchObject({
-      ok: true,
-      data: { systemActions: [] },
-    });
+    expect(await f.run(() => f.editor.invoke(ref), f.member)).toMatchObject({ ok: false });
     await expect(f.run(() => getMembershipTaskService().registered(foreign.member.id))).rejects.toMatchObject({
       cause: { code: "userNotFound", failureKind: "not_found" },
     });
@@ -5637,6 +5696,53 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       }),
     );
     expect(await f.run(() => getMembershipTaskService().getSystemTasksCount())).toBe(1);
+  });
+
+  it("shows the membership approval task only to members who can manage members", async () => {
+    const f = await fixture();
+    const pending = await f.run(() =>
+      prisma.user.create({
+        data: {
+          companyId: f.company.id,
+          roleId: f.memberRole.id,
+          firstName: "Pending",
+          lastName: "Applicant",
+          email: `${randomUUID()}@example.test`,
+          status: "pendingAuthorization",
+        },
+      }),
+    );
+    await f.run(() => getMembershipTaskService().registered(pending.id));
+    const task = recordInvariant(
+      await f.run(() =>
+        prisma.crmRecord.findFirst({ where: { companyId: f.company.id, protectedKind: "membershipAuthorization" } }),
+      ),
+    );
+    await f.run(() =>
+      runInTransaction(() => f.repo.setGrants(task.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }])),
+    );
+    const listed = async (as: typeof f.admin) => {
+      const result = await f.run(() => f.query.invoke(RecordQuerySchema.parse({ typeId: task.typeId })), as);
+      if (!result.ok) throw new Error("The task list was refused");
+      return result.data.records.some((record) => record.ref.recordId === task.id);
+    };
+    const readable = (as: typeof f.admin) =>
+      f.run(async () => {
+        const stored = recordInvariant(await f.repo.getRecordCompanyWide({ typeId: task.typeId, recordId: task.id }));
+        return (await getRecordAccessPolicy().load()).canRead(stored);
+      }, as);
+
+    expect(await listed(f.admin)).toBe(true);
+    expect(await listed(f.member)).toBe(false);
+    expect(await readable(f.member)).toBe(false);
+
+    await f.run(() =>
+      prisma.rolePermission.create({
+        data: { companyId: f.company.id, roleId: f.memberRole.id, resource: "users", action: "update" },
+      }),
+    );
+    expect(await listed(f.member)).toBe(true);
+    expect(await readable(f.member)).toBe(true);
   });
 
   it("journals committed field, assignment and identity changes without duplicate or no-op events", async () => {

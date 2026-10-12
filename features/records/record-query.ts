@@ -23,6 +23,8 @@ export function recordReadPredicate(
   record: Prisma.Sql,
   depth = 0,
 ): Prisma.Sql {
+  if (scope.protectedHidden)
+    return Prisma.sql`(${record}."protectedKind" IS NULL AND ${recordReadPredicate(companyId, { ...scope, protectedHidden: undefined }, record, depth)})`;
   if (scope.parent) {
     const parent = Prisma.raw(`"access_parent_${depth}"`);
     const link = Prisma.raw(`"access_link_${depth}"`);
@@ -49,7 +51,11 @@ export function fieldReadPredicate(
 ): Prisma.Sql {
   const fullyReadable = (scope: RecordReadScope | undefined, depth = 0): boolean =>
     Boolean(
-      scope && depth <= 12 && scope.access === "all" && (!scope.parent || fullyReadable(scope.parent.scope, depth + 1)),
+      scope &&
+        depth <= 12 &&
+        scope.access === "all" &&
+        !scope.protectedHidden &&
+        (!scope.parent || fullyReadable(scope.parent.scope, depth + 1)),
     );
   if (model.types.every((type) => fullyReadable(access.get(type.id)))) return Prisma.sql`TRUE`;
   const fields = new Map(model.fields.map((definition) => [definition.id, definition]));
@@ -99,11 +105,12 @@ export function fieldReadPredicate(
     const outgoing = expression.direction === "outgoing";
     const targetTypeId = outgoing ? relation.targetTypeId : relation.sourceTypeId;
     const scope = access.get(targetTypeId);
+    if (!scope || scope.access === "none") return Prisma.sql`FALSE`;
     const target = alias(++sequence);
     const link = Prisma.raw(`"link_${sequence}"`);
     const sourceId = outgoing ? Prisma.sql`${link}."sourceId"` : Prisma.sql`${link}."targetId"`;
     const targetId = outgoing ? Prisma.sql`${link}."targetId"` : Prisma.sql`${link}."sourceId"`;
-    const accessPredicate = scope ? recordReadPredicate(companyId, scope, target) : Prisma.sql`FALSE`;
+    const accessPredicate = recordReadPredicate(companyId, scope, target);
     const dependencyPredicate = expressionPredicate(expression.expression, targetTypeId, target);
     return Prisma.sql`NOT EXISTS (
       SELECT 1 FROM "RecordLink" ${link}

@@ -6,4 +6,5 @@ export abstract class UpsertRoleRepo {
   abstract upsertRoleOrThrow(data: UpsertRoleData): Promise<RoleDto>;
   abstract getRoleByIdOrThrow(id: string): Promise<RoleDto>;
   abstract findRoleById(id: string): Promise<RoleDto | null>;
+  abstract isRoleNameTaken(name: string, exceptId?: string): Promise<boolean>;
 }
