@@ -105,7 +105,14 @@ export class RoleManagementService extends UserAccessor {
         if (previous?.isSystemRole) return failConflict(CustomErrorCode.roleSystemImmutable);
         if (input.recordGrants.some((grant) => !model.types.some((type) => type.id === grant.typeId && !type.embedded)))
           return fail(CustomErrorCode.recordConfigurationInvalid);
-        const saved = await this.roles.upsertRoleOrThrow(input);
+        if (await this.roles.isRoleNameTaken(input.name, input.id))
+          return failConflict(CustomErrorCode.roleNameTaken, ["name"]);
+        const saved = await this.roles.upsertRoleOrThrow(input).catch((error: unknown) => {
+          if ((error as { code?: unknown } | null)?.code === "P2002")
+            return failConflict(CustomErrorCode.roleNameTaken, ["name"]);
+          throw error;
+        });
+        if ("ok" in saved) return saved;
         const currentGrants = await this.records.getGrants();
         const operations: ConfigurationChange["operations"] = [];
         for (const { typeId, actions } of input.recordGrants) {

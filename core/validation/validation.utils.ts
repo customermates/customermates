@@ -80,6 +80,7 @@ const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
 const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.channelAlreadyLinked,
   CustomErrorCode.operatorConflict,
+  CustomErrorCode.roleNameTaken,
   CustomErrorCode.roleSystemImmutable,
   CustomErrorCode.roleAccessPresetInUse,
   CustomErrorCode.unipileProviderRejected,

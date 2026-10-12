@@ -89,6 +89,7 @@ export enum CustomErrorCode {
   connectedAccountNotFound = "connectedAccountNotFound",
   roleNotFound = "roleNotFound",
   roleAssignedCannotDelete = "roleAssignedCannotDelete",
+  roleNameTaken = "roleNameTaken",
   roleSelfEditForbidden = "roleSelfEditForbidden",
   roleSystemImmutable = "roleSystemImmutable",
   roleAccessPresetInUse = "roleAccessPresetInUse",

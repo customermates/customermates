@@ -1135,6 +1135,7 @@
       "recordWritePaused": "Das Datenmodell wird aktualisiert. Dein Entwurf bleibt erhalten; versuche es nach Abschluss erneut.",
       "roleAccessPresetInUse": "Diese Rolle wird von einer Zugriffsvorlage verwendet. Aktualisiere die Vorlage, bevor du die Rolle löschst.",
       "roleAssignedCannotDelete": "Eine Nutzern zugewiesene Rolle kann nicht gelöscht werden.",
+      "roleNameTaken": "Eine Rolle mit diesem Namen existiert bereits.",
       "roleNotFound": "Rollen-ID nicht gefunden oder nicht zugänglich.",
       "roleSelfEditForbidden": "Du kannst die Berechtigungen deiner eigenen Rolle nicht ändern.",
       "roleSystemImmutable": "Systemrollen können nicht bearbeitet werden.",

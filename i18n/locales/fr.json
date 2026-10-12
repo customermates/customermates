@@ -1135,6 +1135,7 @@
       "recordWritePaused": "Le modèle de données est en cours de mise à jour. Ton brouillon est conservé ; réessaie une fois la mise à jour terminée.",
       "roleAccessPresetInUse": "Ce rôle est utilisé par un modèle d’accès. Modifiez le modèle avant de supprimer le rôle.",
       "roleAssignedCannotDelete": "Un rôle attribué à des utilisateurs ne peut pas être supprimé.",
+      "roleNameTaken": "Un rôle portant ce nom existe déjà.",
       "roleNotFound": "ID de rôle introuvable ou inaccessible.",
       "roleSelfEditForbidden": "Vous ne pouvez pas modifier les autorisations de votre propre rôle.",
       "roleSystemImmutable": "Les rôles système ne peuvent pas être modifiés.",
