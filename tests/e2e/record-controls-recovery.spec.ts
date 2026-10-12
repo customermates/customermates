@@ -28,6 +28,8 @@ import {
 } from "../../features/records/record-query.schema";
 import type { RecordActivityQuery } from "../../ee/messaging/activities/record-activities.schema";
 import { ALL_VIEW_KEY, SURFACE, recordSurfaceKey } from "../../core/data-view/data-view-keys";
+import { getChartRankShades } from "../../constants/chart-colors";
+import { ChartColor } from "../../features/widget/widget-display.schema";
 import english from "../../i18n/locales/en.json" with { type: "json" };
 
 async function model(page: Page) {
@@ -645,20 +647,25 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
     ),
   ];
   await expect.poll(fills).toHaveLength(2);
+  const groupFills = await fills();
+  const theme = await page.evaluate(() => (document.documentElement.classList.contains("dark") ? "dark" : "light"));
+  const rankShades = getChartRankShades(ChartColor.primary1, theme, [5, 12.5]);
+  expect(new Set(rankShades).size).toBe(2);
+  expect(rankShades).not.toEqual(groupFills);
   await dialog
     .getByRole("switch", {
       name: english.Common.inputs.displayOptions.useGroupColors,
       exact: true,
     })
     .uncheck();
-  await expect.poll(fills).toHaveLength(1);
+  await expect.poll(fills).toEqual(rankShades);
   await dialog
     .getByRole("switch", {
       name: english.Common.inputs.displayOptions.useGroupColors,
       exact: true,
     })
     .check();
-  await expect.poll(fills).toHaveLength(2);
+  await expect.poll(fills).toEqual(groupFills);
   await expect(dialog.getByRole("alert")).toHaveCount(0);
   await dialog.getByRole("tab", { name: english.Dashboard.widgetEditor.tabs.data, exact: true }).click();
   previewFault = true;

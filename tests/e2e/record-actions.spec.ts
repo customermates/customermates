@@ -167,9 +167,13 @@ test("record tables edit cells in place, open linked chips and offer row actions
 
   const more = row.getByRole("button", { name: `More actions for ${name}`, exact: true });
   const moreSurface = row.locator("[data-record-row-actions]");
-  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
   await page.mouse.move(0, 0);
-  await expect(moreSurface).toHaveCSS("opacity", "0");
+  await expect
+    .poll(async () => {
+      await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+      return moreSurface.evaluate((element) => getComputedStyle(element).opacity);
+    })
+    .toBe("0");
   const trailing = await row.locator("td").last().boundingBox();
   expect(trailing!.width).toBeLessThan(2);
   await row.hover();
