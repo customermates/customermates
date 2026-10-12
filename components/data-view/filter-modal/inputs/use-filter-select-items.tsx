@@ -60,6 +60,7 @@ import { OPERATOR_AUDIT_SOURCE } from "@/ee/operator/operator-lists.schema";
 import { AD_PROVIDER_ORDER, adProviderDisplayName } from "@/features/acquisition/ad-provider-registry";
 import { DomainEvent } from "@/features/event/domain-events";
 import { useActivityQuery } from "@/features/messaging/activities/activity-query-context";
+import { eventLabel } from "@/features/event/event-label";
 
 export type FilterSelectItem = {
   key: string;
@@ -190,7 +191,7 @@ export function filterOptionSources(
         Object.values(DomainEvent).map((event) => ({
           key: event,
           value: event,
-          textValue: t(`Common.events.${event}`),
+          textValue: eventLabel(t, event),
         })),
     },
     [FilterFieldKey.url]: NO_FILTER_OPTIONS,

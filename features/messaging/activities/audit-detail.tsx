@@ -23,6 +23,7 @@ import {
   InlineChange,
   useChangeValueLabels,
 } from "./change-value";
+import { eventLabel } from "@/features/event/event-label";
 
 type Props = {
   entry: Extract<ActivityEntryDto, { kind: "audit" | "configuration" }>;
@@ -131,14 +132,14 @@ export const AuditDetail = observer(({ entry }: Props) => {
       <DetailHeader
         avatar={
           <IdentityAvatar
-            badge={<TypeBadge icon={category.icon} label={t(`Common.events.${entry.event}`)} tone={category.tone} />}
+            badge={<TypeBadge icon={category.icon} label={eventLabel(t, entry.event)} tone={category.tone} />}
             name={[entry.actor.firstName, entry.actor.lastName]}
             size="xl"
             src={entry.actor.avatarUrl}
           />
         }
         records={entry.records}
-        subtitle={`${t(`Common.events.${entry.event}`)} · ${intlStore.formatNumericalShortDateTime(entry.at)}`}
+        subtitle={`${eventLabel(t, entry.event)} · ${intlStore.formatNumericalShortDateTime(entry.at)}`}
         title={authorName}
       />
 

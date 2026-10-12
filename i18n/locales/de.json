@@ -1447,6 +1447,41 @@
       "userIds": "Zugewiesen"
     },
     "language": "Sprache",
+    "legacyEvents": {
+      "company": {
+        "updated": "Unternehmen aktualisiert (veraltet)"
+      },
+      "contact": {
+        "created": "Kontakt erstellt (veraltet)",
+        "deleted": "Kontakt gelöscht (veraltet)",
+        "updated": "Kontakt aktualisiert (veraltet)"
+      },
+      "custom_column": {
+        "created": "Benutzerdefinierte Spalte erstellt (veraltet)",
+        "deleted": "Benutzerdefinierte Spalte gelöscht (veraltet)",
+        "updated": "Benutzerdefinierte Spalte aktualisiert (veraltet)"
+      },
+      "deal": {
+        "created": "Deal erstellt (veraltet)",
+        "deleted": "Deal gelöscht (veraltet)",
+        "updated": "Deal aktualisiert (veraltet)"
+      },
+      "organization": {
+        "created": "Organisation erstellt (veraltet)",
+        "deleted": "Organisation gelöscht (veraltet)",
+        "updated": "Organisation aktualisiert (veraltet)"
+      },
+      "service": {
+        "created": "Service erstellt (veraltet)",
+        "deleted": "Service gelöscht (veraltet)",
+        "updated": "Service aktualisiert (veraltet)"
+      },
+      "task": {
+        "created": "Aufgabe erstellt (veraltet)",
+        "deleted": "Aufgabe gelöscht (veraltet)",
+        "updated": "Aufgabe aktualisiert (veraltet)"
+      }
+    },
     "locales": {
       "de": "Deutsch",
       "en": "Englisch",
