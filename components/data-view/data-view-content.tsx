@@ -29,6 +29,7 @@ type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
   totals?: RecordGroupSummaryResult[];
   view: DataViewView;
+  footer?: ReactNode;
 };
 
 export const DataViewContent = observer(function DataViewContent<E extends HasId>({
@@ -43,6 +44,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
   store,
   totals,
   view,
+  footer,
 }: Props<E>) {
   const interactive = useClientReady();
   const wide = useIsWiderThan("sm");
@@ -60,16 +62,20 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
 
   if (view === "table" && renderCard && !wide) {
     return (
-      <DataPhoneRows
-        className="animate-page-result-in motion-reduce:animate-none"
-        renderCard={renderCard}
-        rowActions={rowActions}
-        rowFocusKey={rowFocusKey}
-        rowLabel={rowLabel}
-        store={store}
-        onRowClick={interactive ? onRowClick : undefined}
-        onRowHref={rowHref}
-      />
+      <>
+        <DataPhoneRows
+          className="animate-page-result-in motion-reduce:animate-none"
+          renderCard={renderCard}
+          rowActions={rowActions}
+          rowFocusKey={rowFocusKey}
+          rowLabel={rowLabel}
+          store={store}
+          onRowClick={interactive ? onRowClick : undefined}
+          onRowHref={rowHref}
+        />
+
+        {footer}
+      </>
     );
   }
 
@@ -79,6 +85,7 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
         className="animate-page-result-in motion-reduce:animate-none"
         columnStyle={columnStyle}
         columns={resolvedColumns}
+        footer={footer}
         rowActions={rowActions}
         rowFocusKey={rowFocusKey}
         store={store}
@@ -90,13 +97,17 @@ export const DataViewContent = observer(function DataViewContent<E extends HasId
   }
 
   return (
-    <DataKanbanView
-      cardActions={rowActions}
-      cardHref={rowHref}
-      className="animate-page-result-in motion-reduce:animate-none"
-      renderCard={renderCard}
-      store={store}
-      onCardClick={interactive ? onRowClick : undefined}
-    />
+    <>
+      <DataKanbanView
+        cardActions={rowActions}
+        cardHref={rowHref}
+        className="animate-page-result-in motion-reduce:animate-none"
+        renderCard={renderCard}
+        store={store}
+        onCardClick={interactive ? onRowClick : undefined}
+      />
+
+      {footer}
+    </>
   );
 });
