@@ -37,7 +37,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     expect(response.status(), await response.text()).toBe(200);
     return response.json();
   };
-  let model = await post("/api/v1/model/discover", {});
+  let model = await post("/api/v1/model/read", {});
   const typeId = presetId(companyId, "organization");
   const channelsFieldId = randomUUID();
   await post("/api/v1/model/apply", {
@@ -59,7 +59,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
       },
     ],
   });
-  model = await post("/api/v1/model/discover", {});
+  model = await post("/api/v1/model/read", {});
   const recipients = ["first-channel@example.test", "second-channel@example.test"];
   const records: RecordRef[] = [];
   for (const [index, recipient] of recipients.entries()) {

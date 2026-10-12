@@ -97,6 +97,11 @@ import { routineApiPaths } from "@/ee/routines/routines.openapi";
 import { RoutineDtoSchema } from "@/ee/routines/routine.schema";
 import { WebhookPublicDtoSchema } from "@/features/webhook/webhook.schema";
 
+import { recordModelApiPaths } from "@/features/records/record-model.openapi";
+import { dataViewApiPaths } from "@/features/data-view/data-view.openapi";
+import { widgetApiPaths } from "@/features/widget/widget.openapi";
+import { trashApiPaths } from "@/features/trash/trash.openapi";
+
 export function generateOpenApiSpec() {
   const document = createDocument({
     openapi: "3.1.0",
@@ -115,6 +120,10 @@ export function generateOpenApiSpec() {
       ...recordApiPaths,
       ...wikiApiPaths,
       ...memberApiPaths,
+      ...recordModelApiPaths,
+      ...dataViewApiPaths,
+      ...widgetApiPaths,
+      ...trashApiPaths,
       "/v1/users/search": {
         post: getUsersOperation,
       },

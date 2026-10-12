@@ -150,7 +150,7 @@ async function mutate(
   mutation: Extract<RecordMutation, { action: "create" }>,
 ): Promise<RecordRef> {
   const model = RecordModelSchema.parse(
-    await post(page, "/api/v1/model/discover", {}),
+    await post(page, "/api/v1/model/read", {}),
   );
   const result = RecordOperationResultSchema.parse(
     await post(page, "/api/v1/records/mutate", {
@@ -180,7 +180,7 @@ async function seedPipeline(
   const closeDateId = randomUUID();
   const statusId = randomUUID();
   const model = RecordModelSchema.parse(
-    await post(page, "/api/v1/model/discover", {}),
+    await post(page, "/api/v1/model/read", {}),
   );
   const field = (
     fieldId: string,

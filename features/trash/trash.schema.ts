@@ -1,7 +1,13 @@
 import { z } from "zod";
 
 import { CHIP_COLORS } from "@/constants/chip-colors";
-import { RecordMemberSchema, RecordRefSchema } from "@/features/records/record-model.schema";
+import { RecordDetailLayoutResultSchema } from "@/features/records/record-detail-layout.schema";
+import {
+  RecordDtoSchema,
+  RecordMemberSchema,
+  RecordModelViewSchema,
+  RecordRefSchema,
+} from "@/features/records/record-model.schema";
 
 export const TRASH_KINDS = [
   "record",
@@ -147,3 +153,40 @@ export const TrashedRecordInfoSchema = z
   })
   .strict();
 export type TrashedRecordInfo = z.infer<typeof TrashedRecordInfoSchema>;
+
+export const TrashedRecordSchema = z
+  .object({
+    typeId: z.uuid(),
+    record: RecordDtoSchema.nullable().describe(
+      "The record's values as they were when it was deleted, filtered by the caller's field access, with up to 25 related records per relationship.",
+    ),
+    trash: TrashedRecordInfoSchema,
+    model: RecordModelViewSchema.describe("The record type, its embedded types and the fields the caller can read."),
+    permittedActions: z.array(z.string()).max(0).describe("Always empty: a record in Trash is read only."),
+    systemActions: z.array(z.literal("manageMembership")).max(0).optional(),
+    canManageSchema: z.boolean(),
+    linkColors: z.record(z.string(), z.enum(CHIP_COLORS)),
+    linkIcons: z.record(z.string(), z.string()),
+    linkLabels: z.record(z.string(), z.string()),
+    detailLayout: RecordDetailLayoutResultSchema.optional(),
+    formulaReferences: z
+      .object({
+        fields: z.array(
+          z
+            .object({
+              id: z.uuid(),
+              typeId: z.uuid(),
+              label: z.string(),
+              options: z.array(z.object({ id: z.string(), label: z.string() }).strict()),
+            })
+            .strict(),
+        ),
+        types: z.array(
+          z.object({ id: z.uuid(), label: z.string(), pluralLabel: z.string(), icon: z.string() }).strict(),
+        ),
+        relationships: RecordModelViewSchema.shape.relationships,
+      })
+      .strict()
+      .optional(),
+  })
+  .strict();

@@ -82,7 +82,7 @@ test("finds a list with its views, opens a view, and deep links a setting with a
 test("changes a record field and links a record from a second palette level", async ({ page, companyId }) => {
   test.setTimeout(180000);
   const id = (key: string) => presetId(companyId, key);
-  const model = RecordModelSchema.parse(await api(page, "/api/v1/model/discover", {}));
+  const model = RecordModelSchema.parse(await api(page, "/api/v1/model/read", {}));
   const suffix = randomUUID().slice(0, 6);
   const create = async (typeKey: string, name: string) => {
     const result = await api(page, "/api/v1/records/mutate", {
@@ -197,7 +197,7 @@ async function answerResolver(route: Route, resolution: unknown) {
 test("resolves a request with conditions to a filtered list and falls back to Ask Mate", async ({ page, companyId }) => {
   test.setTimeout(180000);
   const id = (key: string) => presetId(companyId, key);
-  const model = RecordModelSchema.parse(await api(page, "/api/v1/model/discover", {}));
+  const model = RecordModelSchema.parse(await api(page, "/api/v1/model/read", {}));
   const suffix = randomUUID().slice(0, 6);
   for (const [name, stage] of [
     [`Won resolver deal ${suffix}`, "won"],
@@ -253,7 +253,7 @@ test("resolves a request with conditions to a filtered list and falls back to As
 test("opens a record on Enter for a two-word partial name without calling the resolver", async ({ page, companyId }) => {
   test.setTimeout(120000);
   const id = (key: string) => presetId(companyId, key);
-  const model = RecordModelSchema.parse(await api(page, "/api/v1/model/discover", {}));
+  const model = RecordModelSchema.parse(await api(page, "/api/v1/model/read", {}));
   const suffix = randomUUID().slice(0, 6);
   await api(page, "/api/v1/records/mutate", {
     expectedRevision: model.revision,

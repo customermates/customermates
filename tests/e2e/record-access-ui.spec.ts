@@ -55,7 +55,7 @@ async function storedModel(database: Client, companyId: string) {
 
 async function readModel(page: Page) {
   return RecordModelSchema.parse(
-    await post(page, "/api/v1/model/discover", {}),
+    await post(page, "/api/v1/model/read", {}),
   );
 }
 
