@@ -1,3 +1,4 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { randomUUID } from "node:crypto";
 
 import type { RecordRepo } from "./record.repo";
@@ -11,7 +12,6 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { purgeOperationIdOf } from "@/features/trash/trash-purge-marker";
 import { RECORD_SYSTEM_ACTOR } from "./record-system-actor";
 import { RecordJournal } from "./record-journal";
-import { RecordWriteError } from "./record-write-error";
 import { systemRecordAccess } from "./system-record-access";
 
 const SETTLED_OPERATION_STATES = ["completed", "cancelled", "failed"];
@@ -34,7 +34,7 @@ export class ConfigurationSystemPurge {
     const activeOperationId = (await this.records.getState())?.activeOperationId;
     if (activeOperationId) {
       if ((await this.records.getOperation(activeOperationId))?.userId === RECORD_SYSTEM_ACTOR) return;
-      throw new RecordWriteError(CustomErrorCode.recordWritePaused, "conflict");
+      throw unwindFailure(CustomErrorCode.recordWritePaused, "conflict");
     }
     const current = await this.records.getModel();
     const prepared = await this.configurations.prepare(
@@ -42,7 +42,7 @@ export class ConfigurationSystemPurge {
       current,
       await systemRecordAccess(this.records, companyId),
     );
-    if (!prepared.preview.valid) throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+    if (!prepared.preview.valid) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
     if (prepared.preview.execution === "background") {
       const operationId = randomUUID();
       await this.records.createOperation({

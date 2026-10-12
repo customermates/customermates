@@ -8,16 +8,22 @@ import type { RecordConfigurationService } from "@/features/records/configuratio
 import type { RecordConfigurationWriter } from "@/features/records/record-configuration-writer";
 import type { ConfigurationChange } from "@/features/records/configuration.schema";
 import type { EventService } from "@/features/event/event.service";
-import type { Validated } from "@/core/validation/validation.utils";
+import type { InteractorFailure, Validated } from "@/core/validation/validation.utils";
+import type { RecordModel } from "@/features/records/record-model.schema";
 import type { UpsertRoleData, DeleteRoleData, RoleMutationResult, RoleEditorContext } from "./role-management.schema";
 import { RoleMutationResultSchema } from "./role-management.schema";
 import { RolePermissionsDtoSchema } from "./role.schema";
 import { UserAccessor } from "@/core/base/user-accessor";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { RecordWriteError } from "@/features/records/record-write.service";
+import {
+  fail,
+  failAuthorization,
+  failConflict,
+  failNotFound,
+  unwoundFailure,
+} from "@/core/validation/interactor-failure-server";
 import { recordRequestHash } from "@/features/records/record-request-hash";
-import { recordWriteFailure } from "@/features/records/record-write-failure";
 import { DomainEvent } from "@/features/event/domain-events";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 
@@ -46,12 +52,12 @@ export class RoleManagementService extends UserAccessor {
             !policy.actor ||
             !(policy.canManageRoles || policy.canReadSystem("users") || policy.allowedSystem("users", "create"))
           )
-            throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+            return failAuthorization(CustomErrorCode.permissionDenied);
           const model = await this.records.getModel();
           if (typeIds?.some((id) => !model.types.some((type) => type.id === id && !type.embedded)))
-            throw new RecordWriteError(CustomErrorCode.recordTypeNotFound, "not_found");
+            return failNotFound(CustomErrorCode.recordTypeNotFound);
           const role = id ? await this.roles.findRoleById(id) : null;
-          if (id && !role) throw new RecordWriteError(CustomErrorCode.roleNotFound, "not_found");
+          if (id && !role) return failNotFound(CustomErrorCode.roleNotFound);
           const mutable = !role || (!role.isSystemRole && role.id !== policy.actor.role?.id);
           const usedByPreset = model.accessPresets.some((preset) => preset.grants.some((grant) => grant.roleId === id));
           return {
@@ -76,7 +82,7 @@ export class RoleManagementService extends UserAccessor {
             },
           };
         } catch (error) {
-          return recordWriteFailure(error);
+          return unwoundFailure(error);
         }
       },
       { readOnly: true },
@@ -89,24 +95,23 @@ export class RoleManagementService extends UserAccessor {
         try {
           const policy = await this.policy.load();
           if (!policy.actor || !policy.allowedSystem("users", input.id ? "update" : "create"))
-            throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+            return failAuthorization(CustomErrorCode.permissionDenied);
           const hash = recordRequestHash({ kind: "roleUpsert", input });
           const receipt = await this.records.receipt(input.idempotencyKey, this.userId);
           if (receipt) {
-            if (receipt.requestHash !== hash)
-              throw new RecordWriteError(CustomErrorCode.recordIdempotencyConflict, "conflict");
+            if (receipt.requestHash !== hash) return failConflict(CustomErrorCode.recordIdempotencyConflict);
             return { ok: true, data: storedResult.parse(receipt.result) };
           }
           const model = await this.currentModel(input.expectedRevision);
+          if ("ok" in model) return model;
           const previous = input.id ? await this.roles.findRoleById(input.id) : null;
-          if (input.id && !previous) throw new RecordWriteError(CustomErrorCode.roleNotFound, "not_found");
-          if (input.id === policy.actor.role?.id)
-            throw new RecordWriteError(CustomErrorCode.roleSelfEditForbidden, "authorization");
-          if (previous?.isSystemRole) throw new RecordWriteError(CustomErrorCode.roleSystemImmutable, "conflict");
+          if (input.id && !previous) return failNotFound(CustomErrorCode.roleNotFound);
+          if (input.id === policy.actor.role?.id) return failAuthorization(CustomErrorCode.roleSelfEditForbidden);
+          if (previous?.isSystemRole) return failConflict(CustomErrorCode.roleSystemImmutable);
           if (
             input.recordGrants.some((grant) => !model.types.some((type) => type.id === grant.typeId && !type.embedded))
           )
-            throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+            return fail(CustomErrorCode.recordConfigurationInvalid);
           const saved = await this.roles.upsertRoleOrThrow(input);
           const currentGrants = await this.records.getGrants();
           const operations: ConfigurationChange["operations"] = [];
@@ -153,7 +158,7 @@ export class RoleManagementService extends UserAccessor {
           await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);
           return { ok: true, data };
         } catch (error) {
-          return recordWriteFailure(error);
+          return unwoundFailure(error);
         }
       },
       { timeout: 30000 },
@@ -166,24 +171,22 @@ export class RoleManagementService extends UserAccessor {
         try {
           const policy = await this.policy.load();
           if (!policy.actor || !policy.allowedSystem("users", "delete"))
-            throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+            return failAuthorization(CustomErrorCode.permissionDenied);
           const hash = recordRequestHash({ kind: "roleDelete", input });
           const receipt = await this.records.receipt(input.idempotencyKey, this.userId);
           if (receipt) {
-            if (receipt.requestHash !== hash)
-              throw new RecordWriteError(CustomErrorCode.recordIdempotencyConflict, "conflict");
+            if (receipt.requestHash !== hash) return failConflict(CustomErrorCode.recordIdempotencyConflict);
             return { ok: true, data: z.string().parse(receipt.result) };
           }
           const model = await this.currentModel(input.expectedRevision);
+          if ("ok" in model) return model;
           const role = await this.roles.findRoleById(input.id);
-          if (!role) throw new RecordWriteError(CustomErrorCode.roleNotFound, "not_found");
-          if (role.id === policy.actor.role?.id)
-            throw new RecordWriteError(CustomErrorCode.roleSelfEditForbidden, "authorization");
-          if (role.isSystemRole) throw new RecordWriteError(CustomErrorCode.roleSystemImmutable, "conflict");
-          if (await this.roles.hasUsersAssigned(role.id))
-            throw new RecordWriteError(CustomErrorCode.roleAssignedCannotDelete, "conflict");
+          if (!role) return failNotFound(CustomErrorCode.roleNotFound);
+          if (role.id === policy.actor.role?.id) return failAuthorization(CustomErrorCode.roleSelfEditForbidden);
+          if (role.isSystemRole) return failConflict(CustomErrorCode.roleSystemImmutable);
+          if (await this.roles.hasUsersAssigned(role.id)) return failConflict(CustomErrorCode.roleAssignedCannotDelete);
           if (model.accessPresets.some((preset) => preset.grants.some((grant) => grant.roleId === role.id)))
-            throw new RecordWriteError(CustomErrorCode.roleAccessPresetInUse, "conflict");
+            return failConflict(CustomErrorCode.roleAccessPresetInUse);
           const previousGrants = await this.records.getGrants();
           const typeIds = new Set(
             previousGrants.filter((grant) => grant.roleId === role.id).map((grant) => grant.typeId),
@@ -206,20 +209,18 @@ export class RoleManagementService extends UserAccessor {
           await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, role.id);
           return { ok: true, data: role.id };
         } catch (error) {
-          return recordWriteFailure(error);
+          return unwoundFailure(error);
         }
       },
       { timeout: 30000 },
     );
   }
 
-  private async currentModel(expectedRevision: number) {
-    if ((await this.records.getState())?.activeOperationId)
-      throw new RecordWriteError(CustomErrorCode.recordWritePaused, "conflict");
+  private async currentModel(expectedRevision: number): Promise<RecordModel | InteractorFailure> {
+    if ((await this.records.getState())?.activeOperationId) return failConflict(CustomErrorCode.recordWritePaused);
     const model = await this.records.getModel();
-    if (!model.revision) throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
-    if (model.revision !== expectedRevision)
-      throw new RecordWriteError(CustomErrorCode.recordSchemaChanged, "conflict");
+    if (!model.revision) return fail(CustomErrorCode.recordConfigurationInvalid);
+    if (model.revision !== expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
     return model;
   }
 }

@@ -1,3 +1,4 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { randomUUID } from "node:crypto";
 
 import type { RecordRepo } from "./record.repo";
@@ -11,7 +12,6 @@ import { UserAccessor } from "@/core/base/user-accessor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordJournal } from "./record-journal";
 import type { RecordTrashService } from "./record-trash.service";
-import { RecordWriteError } from "./record-write-error";
 import { recordInvariant } from "./record-invariant";
 
 export class RecordTrashHandler extends UserAccessor implements TrashKindHandler {
@@ -61,9 +61,9 @@ export class RecordTrashHandler extends UserAccessor implements TrashKindHandler
 
   async restore(items: TrashItem[]): Promise<TrashKindRestore> {
     const state = await this.records.getState();
-    if (state?.activeOperationId) throw new RecordWriteError(CustomErrorCode.recordWritePaused, "conflict");
+    if (state?.activeOperationId) throw unwindFailure(CustomErrorCode.recordWritePaused, "conflict");
     const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
-    if (!policy.actor) throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+    if (!policy.actor) throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
     const journal = new RecordJournal(this.records, model);
     const stored = await this.records.getRecordTrashItemsCompanyWide({ ids: items.map((item) => item.id) });
     const result = await this.recordTrash.restore(stored, model, policy, journal);
@@ -73,7 +73,7 @@ export class RecordTrashHandler extends UserAccessor implements TrashKindHandler
 
   async restoreInBackground(items: TrashItem[]): Promise<string> {
     const state = await this.records.getState();
-    if (!state || state.activeOperationId) throw new RecordWriteError(CustomErrorCode.recordWritePaused, "conflict");
+    if (!state || state.activeOperationId) throw unwindFailure(CustomErrorCode.recordWritePaused, "conflict");
     const operationId = randomUUID();
     await this.records.createOperation({
       id: operationId,

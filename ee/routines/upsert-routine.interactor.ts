@@ -1,3 +1,4 @@
+import { failureUnwindCause } from "@/core/validation/failure-unwind";
 import type { UpsertRoutineSubscriptionRepo } from "./upsert-routine-subscription.repo";
 import type { UpsertRoutineRepo } from "./upsert-routine.repo";
 import type { RoutineDto, RoutineValidationData, UpsertRoutineData } from "./routine.schema";
@@ -12,15 +13,13 @@ import { DomainEvent } from "@/features/event/domain-events";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 import { getEntitlements } from "@/ee/subscription/entitlements";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { failAuthorization, failConflict } from "@/core/validation/interactor-failure-server";
+import { failAuthorization, failConflict, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { runPrecheck } from "@/core/validation/run-precheck";
 import { RoutineLimitExceededError } from "./routine-run-limits";
 import { isRoutineTriggerEvent } from "./routine-trigger-events";
-import { RecordWriteError } from "@/features/records/record-write.service";
-import { recordWriteFailure } from "@/features/records/record-write-failure";
 
 function mergeRoutineFinalState(previous: RoutineDto, update: UpsertRoutineData): RoutineValidationData {
   const triggerKind = update.triggerKind ?? previous.triggerKind;
@@ -98,7 +97,7 @@ export class UpsertRoutineInteractor extends AuthenticatedInteractor<UpsertRouti
     try {
       routine = await this.repo.upsertRoutineOrThrow(data, routineLimit);
     } catch (error) {
-      if (error instanceof RecordWriteError) return recordWriteFailure(error);
+      if (failureUnwindCause(error)) return unwoundFailure(error);
       if (!(error instanceof RoutineLimitExceededError)) throw error;
       return failConflict(CustomErrorCode.routineLimitReached, ["name"], { limit: error.limit });
     }

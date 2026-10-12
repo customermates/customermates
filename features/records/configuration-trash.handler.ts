@@ -1,3 +1,4 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import type { RecordRepo } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";
 import type { ConfigurationChange, ConfigurationTarget } from "./configuration.schema";
@@ -12,7 +13,6 @@ import type { ConfigurationSystemPurge } from "./configuration-system-purge";
 import { Prisma } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { runInSavepoint } from "@/core/decorators/transaction-runner";
-import { RecordWriteError } from "./record-write-error";
 
 const CONFIGURATION_KINDS = ["list", "field", "relationship"] as const;
 const ORDER: Record<string, number> = { list: 0, relationship: 1, field: 2 };
@@ -71,7 +71,7 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
         const preview = await this.preview.run(change);
         if (!preview.ok || !preview.data.valid) return this.blocker(item, preview.ok ? preview.data : null);
         const applied = await this.apply.run(change);
-        if (!applied.ok) throw new RecordWriteError(CustomErrorCode.trashItemNotFound, "not_found");
+        if (!applied.ok) throw unwindFailure(CustomErrorCode.trashItemNotFound, "not_found");
         return applied.data.status === "pending" ? { operationId: applied.data.operationId } : null;
       });
       const value = restored.ok ? restored.value : null;
@@ -129,7 +129,7 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
         continue;
       }
       const applied = await this.apply.run(await this.change(item, "deletePermanently"));
-      if (!applied.ok) throw new RecordWriteError(CustomErrorCode.trashChanged, "conflict");
+      if (!applied.ok) throw unwindFailure(CustomErrorCode.trashChanged, "conflict");
     }
   }
 }

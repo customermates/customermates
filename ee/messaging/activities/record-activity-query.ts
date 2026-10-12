@@ -1,9 +1,9 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { recordChannelsEnabled } from "@/features/records/record-channels";
 import { Prisma } from "@/generated/prisma";
 import type { RecordModel, RecordRef } from "@/features/records/record-model.schema";
 import type { RecordAccessMap } from "@/features/records/record-query.schema";
 import { recordReadPredicate } from "@/features/records/record-query";
-import { RecordWriteError } from "@/features/records/record-write.service";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { ActivityKind } from "./activities.schema";
 import type { RecordActivitiesInput } from "./record-activities.schema";
@@ -241,7 +241,7 @@ export function compileRecordActivityIndex(
     AND ${input.before ? Prisma.sql`at <= (${input.before}::timestamptz AT TIME ZONE 'UTC')` : Prisma.sql`TRUE`}
     ORDER BY at DESC, kind DESC, id DESC LIMIT ${input.limit + 1}`;
   if (query.values.length > 12000 || query.sql.length > 1500000)
-    throw new RecordWriteError(CustomErrorCode.recordCalculationBudget);
+    throw unwindFailure(CustomErrorCode.recordCalculationBudget);
   return query;
 }
 

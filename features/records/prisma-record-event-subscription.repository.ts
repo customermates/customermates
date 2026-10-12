@@ -1,10 +1,10 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import type { RecordSubscriptionConfigurationRepo } from "./record-subscription-configuration.repo";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Prisma } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { RecordWriteError } from "./record-write.service";
 import {
   RecordEventSubscriptionSchema,
   type RecordEventSubscriptionDefinition,
@@ -79,20 +79,19 @@ export class PrismaRecordEventSubscriptionRepo
       !policy.allowedSystem(input.kind === "routine" ? "routines" : "api", action) ||
       (!policy.isAdmin && input.ownerUserId !== this.userId)
     )
-      throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+      throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
     const [previous] = await this.findUnscoped(companyId, [input.id]);
     const definitionChanged = !previous || deliveryDefinition(previous) !== deliveryDefinition(input);
     if (state?.activeOperationId && (definitionChanged || (input.enabled && !previous?.enabled)))
-      throw new RecordWriteError(CustomErrorCode.recordWritePaused, "conflict");
+      throw unwindFailure(CustomErrorCode.recordWritePaused, "conflict");
     if (expectedSchemaRevision !== undefined && expectedSchemaRevision !== model.revision)
-      throw new RecordWriteError(CustomErrorCode.recordSchemaChanged, "conflict");
-    if (!recordEventSubscriptionIsValid(input, model))
-      throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+      throw unwindFailure(CustomErrorCode.recordSchemaChanged, "conflict");
+    if (!recordEventSubscriptionIsValid(input, model)) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
     const owner = await this.prisma.user.findFirst({
       where: { companyId, id: input.ownerUserId, status: "active" },
       select: { id: true },
     });
-    if (!owner) throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+    if (!owner) throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
     const { id, revision, ...data } = input;
     const stored = {
       ...data,

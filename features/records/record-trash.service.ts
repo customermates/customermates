@@ -1,3 +1,4 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import type { RecordAccessPolicy } from "./record-access";
 import type { RecordRepo, RecordTrashItem } from "./record.repo";
 import type { RecordModel, RecordRef } from "./record-model.schema";
@@ -6,7 +7,6 @@ import type { RecordEventPayload } from "./record-event.schema";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordCalculationService, recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
-import { RecordWriteError } from "./record-write-error";
 import { recordInvariant } from "./record-invariant";
 
 type Policy = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
@@ -99,7 +99,7 @@ export class RecordTrashService {
           limit - result.restoredRecords + 1,
         );
         if (result.restoredRecords + refs.length > limit)
-          throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
+          throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
         result.droppedLinks += await this.restoreRecords(refs, model, journal, limit);
         await journal.repository.removeTrashItems([item.id]);
         result.restoredItemIds.push(item.id);
@@ -126,7 +126,7 @@ export class RecordTrashService {
       return recordInvariant(live.get(key));
     };
     const links = await records.getTrashedLinksCompanyWide(refs, limit * 4 + 1);
-    if (links.length > limit * 4) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
+    if (links.length > limit * 4) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
     let droppedLinks = 0;
     for (const link of links) {
       if (!(await isLive(link.source)) || !(await isLive(link.target))) continue;
@@ -147,7 +147,7 @@ export class RecordTrashService {
       await journal.restoreLink(link);
       seeds.set(recordKey(link.source), link.source);
       seeds.set(recordKey(link.target), link.target);
-      if (seeds.size > limit) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
+      if (seeds.size > limit) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
     }
     const recalculated = await new RecordCalculationService(records).recalculate(
       model,
@@ -155,7 +155,7 @@ export class RecordTrashService {
       new Map(),
       limit,
     );
-    if (!recalculated.complete) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
+    if (!recalculated.complete) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
     for (const ref of recalculated.changed) seeds.set(recordKey(ref), ref);
     for (const [key, ref] of seeds) if (!restored.has(key)) await records.touch(ref);
     return droppedLinks;

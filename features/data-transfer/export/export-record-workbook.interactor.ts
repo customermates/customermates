@@ -11,7 +11,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { recordWriteFailure } from "@/features/records/record-write-failure";
+import { unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { withMemberUsers } from "@/features/records/record-dto";
 
 import { collectRecordExport, ExportRecordsSchema } from "./export-records.interactor";
@@ -83,7 +83,7 @@ export class ExportRecordWorkbookInteractor extends AuthenticatedInteractor<Expo
           return { ok: true as const, data: { model, records, typeId: exported.data.typeId, policy } };
         },
         { readOnly: true, timeout: 120_000 },
-      ).catch(recordWriteFailure),
+      ).catch(unwoundFailure),
       getTranslations(),
     ]);
     if (!collected.ok) return collected;

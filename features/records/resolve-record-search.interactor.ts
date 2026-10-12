@@ -8,9 +8,8 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { failAuthorization } from "@/core/validation/interactor-failure-server";
+import { failAuthorization, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { recordWriteFailure } from "./record-write-failure";
 
 import { ResolveRecordSearchSchema, type ResolveRecordSearchInput } from "./record-search.schema";
 
@@ -50,7 +49,7 @@ export class ResolveRecordSearchInteractor extends AuthenticatedInteractor<
             data: { results: rows.map((row) => recordSearchHit(row, model, policy.allowed(row.typeId, "update"))) },
           };
         } catch (error) {
-          return recordWriteFailure(error);
+          return unwoundFailure(error);
         }
       },
       { readOnly: true },

@@ -1,3 +1,4 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import type {
   ConfigurationChange,
   ConfigurationTarget,
@@ -9,7 +10,6 @@ import type { RecordModel, RecordType } from "./record-model.schema";
 import type { RecordDefinitionDeletion } from "./record.repo";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { RecordWriteError } from "./record-write.service";
 import { expressionFieldDependencies, expressionRelationshipDependencies } from "./record-model-validation";
 
 export type ConfigurationDeletion = {
@@ -60,7 +60,7 @@ export function deletionReference(model: RecordModel, target: ConfigurationTarge
 }
 
 function invalid(): never {
-  throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+  throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
 }
 
 function isDeleted(model: RecordModel, target: ConfigurationTarget): boolean {

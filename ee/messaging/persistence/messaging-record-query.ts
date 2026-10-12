@@ -1,3 +1,4 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { startOfDay, subDays } from "date-fns";
 import { z } from "zod";
 import { MessagingMessageDirection, Prisma } from "@/generated/prisma";
@@ -9,7 +10,6 @@ import type { RecordModel, RecordRef } from "@/features/records/record-model.sch
 import type { RecordAccessMap } from "@/features/records/record-query.schema";
 import { recordReadPredicate } from "@/features/records/record-query";
 import { recordChannelsTypeIds } from "@/features/records/record-channels";
-import { RecordWriteError } from "@/features/records/record-write.service";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { parseRecordReferenceKey } from "@/features/records/record-reference-key";
 import { presetId } from "@/features/records/crm-preset";
@@ -73,7 +73,7 @@ export function compileMessagingRecordQuery(
   const filters = (params.filters ?? []).flatMap((filter): Prisma.Sql[] => {
     const fieldKey = filter.field as FilterFieldKey;
     if (!SUPPORTED_FIELDS.includes(fieldKey) || !FILTER_FIELD_DEFAULT_OPERATORS[fieldKey]?.includes(filter.operator))
-      throw new RecordWriteError(CustomErrorCode.invalidFilterField);
+      throw unwindFailure(CustomErrorCode.invalidFilterField);
     if (fieldKey === FilterFieldKey.lastMessageDirection || fieldKey === FilterFieldKey.lastMessageSentAt) {
       lastMessageFilters.push(filter);
       return [];
@@ -112,7 +112,7 @@ export function compileMessagingRecordQuery(
         const ref = parseRecordReferenceKey(value);
         if (ref) return ref;
         if (z.uuid().safeParse(value).success) return { typeId: presetId(companyId, "contact"), recordId: value };
-        throw new RecordWriteError(CustomErrorCode.invalidFilterField);
+        throw unwindFailure(CustomErrorCode.invalidFilterField);
       });
       const match = participant(linked(refs));
       return [filter.operator === FilterOperatorKey.notIn ? Prisma.sql`NOT ${match}` : match];
@@ -145,14 +145,14 @@ export function compileMessagingRecordQuery(
       AND (thread."lastMessageAt" IS NOT NULL OR EXISTS (SELECT 1 FROM "MessagingMessage" message WHERE message."messagingThreadId" = thread.id AND message."companyId" = thread."companyId" AND message."isDraft"))
       AND (account."foldersSyncedAt" IS NULL OR EXISTS (SELECT 1 FROM "MessagingMessage" message WHERE message."messagingThreadId" = thread.id AND message."companyId" = thread."companyId" AND ${messageVisible}))
       AND (${filters.length ? Prisma.join(filters, " AND ") : Prisma.sql`TRUE`})`;
-  if (query.values.length > 12000) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget);
+  if (query.values.length > 12000) throw unwindFailure(CustomErrorCode.recordCalculationBudget);
   return query;
 }
 
 function values(filter: Filter): string[] {
   if (!("value" in filter)) return [];
   const selected = Array.isArray(filter.value) ? filter.value : [String(filter.value)];
-  if (selected.length > 100) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget);
+  if (selected.length > 100) throw unwindFailure(CustomErrorCode.recordCalculationBudget);
   return selected;
 }
 

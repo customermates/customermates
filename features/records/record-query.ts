@@ -1,8 +1,8 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { z } from "zod";
 import { recordChannelsEnabled } from "./record-channels";
 import { Prisma } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { RecordWriteError } from "./record-write.service";
 
 import type { CalculationExpression, RecordField, RecordModel, RecordScalar } from "./record-model.schema";
 import type { RecordAccessMap, RecordQuery, RecordReadScope } from "./record-query.schema";
@@ -71,7 +71,7 @@ export function fieldReadPredicate(
       AND NOT EXISTS (SELECT 1 FROM "CrmRecord" ${source} WHERE ${source}."companyId" = ${companyId} AND ${source}."typeId" = ${dependency}."sourceTypeId" AND ${source}."id" = ${dependency}."sourceId" AND (${permitted.length ? Prisma.join(permitted, " OR ") : Prisma.sql`FALSE`})))`;
   };
   const readableField = (definition: RecordField, record: Prisma.Sql): Prisma.Sql => {
-    if (++cost > 2048) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget);
+    if (++cost > 2048) throw unwindFailure(CustomErrorCode.recordCalculationBudget);
     if (definition.publishedSummary) return Prisma.sql`TRUE`;
     const fields = visited.get(record) ?? new Set<string>();
     if (fields.has(definition.id)) return Prisma.sql`TRUE`;

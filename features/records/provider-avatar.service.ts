@@ -11,8 +11,12 @@ import type { ProviderAvatarRecordRepo } from "./provider-avatar-record.repo";
 import type { RecordModel, RecordRef } from "./record-model.schema";
 import { RecordRefSchema } from "./record-model.schema";
 import { RecordJournal } from "./record-journal";
-import { RecordCalculationService, calculationSources, recordKey } from "./record-calculation.service";
-import { CalculationBudgetExceeded } from "./calculation-budget-exceeded";
+import {
+  RecordCalculationService,
+  calculationSources,
+  isCalculationBudgetExceeded,
+  recordKey,
+} from "./record-calculation.service";
 import { createRecordStagingRepo } from "./record-staging.repository";
 import { decodeRecordValue } from "./record-storage";
 import { validateRecordModel } from "./record-model-validation";
@@ -418,7 +422,7 @@ export class ProviderAvatarService {
         { companyId: this.companyId, timeout: 60000 },
       );
     } catch (error) {
-      if (error instanceof CalculationBudgetExceeded) {
+      if (isCalculationBudgetExceeded(error)) {
         await this.fail(operationId, "recordCalculationBudget");
         return { done: true };
       }
