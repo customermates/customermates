@@ -8,10 +8,9 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { failAuthorization } from "@/core/validation/interactor-failure-server";
+import { failAuthorization, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordIdentityInputSchema } from "./record-identity.schema";
-import { recordWriteFailure } from "./record-write-failure";
 
 export const ResolveRecordIdentitiesSchema = z
   .object({
@@ -74,7 +73,7 @@ export class ResolveRecordIdentitiesInteractor extends AuthenticatedInteractor<I
             data: await this.identities.resolveForUpdate(input.identifiers, input.typeIds),
           };
         } catch (error) {
-          return recordWriteFailure(error);
+          return unwoundFailure(error);
         }
       },
       { readOnly: true },

@@ -1,3 +1,4 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { RECORD_EVENT_KINDS, type RecordEventKind } from "@/features/records/record-event.schema";
 import type { PermissionService } from "@/core/base/permission.service";
 import type { RepoArgs } from "@/core/utils/types";
@@ -43,7 +44,6 @@ import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operat
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { isAgentTurnStopReason } from "@/ee/agent-chat/agent-turn-request";
 import type { RecordEventSubscriptionRepo } from "@/features/records/record-event-subscription.repo";
-import { RecordWriteError } from "@/features/records/record-write.service";
 import { userAccessWhere } from "@/features/user/user-access";
 import { routineAccessWhere } from "./routine-access";
 import { routineRunTriggerContext } from "./routine-run-trigger-context";
@@ -264,7 +264,7 @@ export class PrismaRoutineRepo
       (!trigger && !sources?.length) ||
       (trigger && routine.triggerEvents.some((event) => !event.startsWith("record.")))
     )
-      throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+      throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
     await subscriptions.save(
       {
         id: routine.id,
@@ -525,7 +525,7 @@ export class PrismaRoutineRepo
       })) === 1;
     if (!ownerIsEligible) throw new Error("Routine owner is no longer eligible");
     if (input.recordTrigger && input.expectedSchemaRevision === undefined)
-      throw new RecordWriteError(CustomErrorCode.recordSchemaChanged, "conflict");
+      throw unwindFailure(CustomErrorCode.recordSchemaChanged, "conflict");
 
     if (id) {
       const existing = await this.prisma.routine.findFirstOrThrow({

@@ -1,3 +1,4 @@
+import { unwoundFailure } from "@/core/validation/interactor-failure-server";
 import type { RegisterUserCompanyRepo } from "./register-user-company.repo";
 import type { RegisterUserRepo } from "./register-user.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
@@ -6,7 +7,6 @@ import type { EventService } from "@/features/event/event.service";
 import type { RouteGuardService } from "@/features/auth/route-guard.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 import type { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
-import { recordWriteFailure } from "@/features/records/record-write-failure";
 
 import { z } from "zod";
 import { CountryCode, Status } from "@/generated/prisma";
@@ -117,7 +117,7 @@ export class RegisterUserInteractor {
         plannedCompanyId ? { companyId: plannedCompanyId } : undefined,
       );
     } catch (error) {
-      return recordWriteFailure(error);
+      return unwoundFailure(error);
     }
   }
 

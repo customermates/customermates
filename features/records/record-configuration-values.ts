@@ -1,8 +1,9 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import type { RecordField, RecordModel, RecordScalar } from "./record-model.schema";
 import type { StoredRecord } from "./record.repo";
 
 import { decodeRecordValue } from "./record-storage";
-import { normalizeRecordScalar, RecordWriteError } from "./record-write.service";
+import { normalizeRecordScalar } from "./record-write.service";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { canonicalRecordJson, compareRecordKey } from "./record-json";
 
@@ -42,7 +43,7 @@ export function configurationInputValue(
     row.values.find((value) => value.fieldId === field.id),
     before ?? field,
   );
-  if (before && value.state === "error") throw new RecordWriteError(CustomErrorCode.recordValueInvalid);
+  if (before && value.state === "error") throw unwindFailure(CustomErrorCode.recordValueInvalid);
   const scalar =
     value.state === "value"
       ? value.value

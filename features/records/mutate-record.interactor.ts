@@ -10,7 +10,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { failAuthorization, failConflict } from "@/core/validation/interactor-failure-server";
+import { failAuthorization, failConflict, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { MutateRecordSchema, RecordOperationResultSchema } from "./record-query.schema";
 import type { RecordWriteService } from "./record-write.service";
@@ -18,7 +18,6 @@ import type { RecordTrashService } from "./record-trash.service";
 import { RecordJournal } from "./record-journal";
 import { currentRoutineContext } from "@/core/decorators/routine-context";
 import { recordRequestHash } from "./record-request-hash";
-import { recordWriteFailure } from "./record-write-failure";
 
 @TenantInteractor()
 export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecordInput, RecordOperationResult> {
@@ -90,7 +89,7 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
           await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);
           return { ok: true, data };
         } catch (error) {
-          return recordWriteFailure(error);
+          return unwoundFailure(error);
         }
       },
       { timeout: 20000 },
@@ -121,7 +120,7 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
       try {
         await this.writer.validateAccess(input.mutation, policy);
       } catch (error) {
-        return recordWriteFailure(error);
+        return unwoundFailure(error);
       }
       const operationId = randomUUID();
       await this.records.createOperation({

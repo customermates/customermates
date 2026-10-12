@@ -9,12 +9,11 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { failAuthorization, failConflict } from "@/core/validation/interactor-failure-server";
+import { failAuthorization, failConflict, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordInvariant } from "./record-invariant";
 import { RecordSearchSchema } from "./record-search.schema";
 import { CalculatedValueSchema } from "./record-model.schema";
-import { recordWriteFailure } from "./record-write-failure";
 import { SIMILAR_TITLE_MIN_LENGTH } from "./record-search-query";
 
 const QUOTED_PHRASE = /^"(.+)"$/su;
@@ -92,7 +91,7 @@ export class SearchRecordsInteractor extends AuthenticatedInteractor<RecordSearc
             },
           };
         } catch (error) {
-          return recordWriteFailure(error);
+          return unwoundFailure(error);
         }
       },
       { readOnly: true },

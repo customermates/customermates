@@ -6,7 +6,6 @@ import type { ReleaseOwnerRoutinesInteractor } from "@/ee/routines/release-owner
 import type { Data } from "@/core/validation/validation.utils";
 import type { SubscriptionService } from "@/ee/subscription/subscription.service";
 import type { CountActiveUsersRepo } from "@/features/user/count-active-users.repo";
-import { recordWriteFailure } from "@/features/records/record-write-failure";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 
 import { z } from "zod";
@@ -20,7 +19,7 @@ import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { checkIds } from "@/core/validation/validators/check-ids";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { failAuthorization } from "@/core/validation/interactor-failure-server";
+import { failAuthorization, unwoundFailure } from "@/core/validation/interactor-failure-server";
 
 export const AdminUpdateUserDetailsSchema = z.object({
   email: z.email(),
@@ -119,7 +118,7 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
       if (Object.keys(changes).length)
         await this.eventService.publish(DomainEvent.USER_UPDATED, { entityId: targetUserId, payload: { changes } });
     } catch (error) {
-      return recordWriteFailure(error);
+      return unwoundFailure(error);
     }
 
     return { ok: true as const, data };

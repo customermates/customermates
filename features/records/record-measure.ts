@@ -1,3 +1,4 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { recordInvariant } from "./record-invariant";
 import { Prisma } from "@/generated/prisma";
 
@@ -6,7 +7,6 @@ import type { RecordMeasure } from "./record-measure.schema";
 import type { RecordAccessMap } from "./record-query.schema";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { RecordWriteError } from "./record-write.service";
 import { compileRecordQuery, fieldReadPredicate } from "./record-query";
 import { RecordQuerySchema } from "./record-query.schema";
 import { recordPathJoins } from "./record-path-query";
@@ -36,7 +36,7 @@ function scalarJson(field: RecordField, value: Prisma.Sql): Prisma.Sql {
   if (field.valueType === "dateTime")
     return Prisma.sql`jsonb_build_object('kind', 'dateTime', 'value', to_char(${value}."instantValue", 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'))`;
   if (["richText", "dateRange", "dateTimeRange"].includes(field.valueType))
-    throw new RecordWriteError(CustomErrorCode.recordValueInvalid);
+    throw unwindFailure(CustomErrorCode.recordValueInvalid);
   return Prisma.sql`jsonb_build_object('kind', ${field.valueType === "select" || field.valueType === "member" ? field.valueType : "text"}::text, 'value', ${value}."textValue")`;
 }
 
@@ -53,7 +53,7 @@ export function compileRecordMeasure(
       candidate.id === measure.valueFieldId && candidate.typeId === measure.source.typeId && !candidate.archived,
   );
   if (measure.aggregation !== "count" && (!field || !["currency", "number"].includes(field.valueType)))
-    throw new RecordWriteError(CustomErrorCode.recordValueInvalid);
+    throw unwindFailure(CustomErrorCode.recordValueInvalid);
   const joins: Prisma.Sql[] = [];
   let pathReadable = Prisma.sql`TRUE`;
   let group = Prisma.sql`grain`;
@@ -84,7 +84,7 @@ export function compileRecordMeasure(
             !candidate.archived,
         )
       : undefined;
-  if (measure.groupBy && !groupField && !systemField) throw new RecordWriteError(CustomErrorCode.recordValueInvalid);
+  if (measure.groupBy && !groupField && !systemField) throw unwindFailure(CustomErrorCode.recordValueInvalid);
   const interval = measure.groupBy?.dateInterval;
   if (
     interval &&
@@ -92,7 +92,7 @@ export function compileRecordMeasure(
       ? systemField !== "system:assignedTo"
       : groupField && measure.groupBy?.fieldId && ["date", "dateTime"].includes(groupField.valueType))
   )
-    throw new RecordWriteError(CustomErrorCode.recordMeasureDateIntervalInvalid);
+    throw unwindFailure(CustomErrorCode.recordMeasureDateIntervalInvalid);
   const groupByRecord = measure.groupBy?.fieldId === null;
   const groupFilter = measure.groupBy?.filter;
   const groupSelection = hasRecordMeasureGroupFilter(measure)

@@ -1,3 +1,4 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { recordInvariant } from "./record-invariant";
 import { Prisma } from "@/generated/prisma";
 
@@ -5,7 +6,6 @@ import type { RecordModel, RecordGroupSummaryDefinition } from "./record-model.s
 import type { RecordAccessMap } from "./record-query.schema";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { RecordWriteError } from "./record-write.service";
 import { fieldReadPredicate } from "./record-query";
 
 export function recordGroupSummaryCtes(
@@ -21,7 +21,7 @@ export function recordGroupSummaryCtes(
       (field) => field.id === definition.fieldId && field.typeId === typeId && !field.archived,
     );
     if (!field || !["number", "currency"].includes(field.valueType))
-      throw new RecordWriteError(CustomErrorCode.recordValueInvalid);
+      throw unwindFailure(CustomErrorCode.recordValueInvalid);
     const operators = { sum: "SUM", average: "AVG", min: "MIN", max: "MAX" } as const;
     const readable = fieldReadPredicate(companyId, field, model, access, Prisma.sql`grain`);
     const value = Prisma.sql`CASE WHEN amount.state = 'value' THEN amount."decimalValue" ELSE NULL END`;

@@ -9,11 +9,10 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
+import { fail, failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordQuerySchema, RecordReadSchema } from "./record-query.schema";
 import { invalidRecordQueryPart } from "./record-query-validation";
-import { recordWriteFailure } from "./record-write-failure";
 import { recordDto, withMemberUsers } from "./record-dto";
 
 @AllowInDemoMode
@@ -81,7 +80,7 @@ export class GetRecordInteractor extends AuthenticatedInteractor<RecordRead, Rec
           }
           return { ok: true as const, data };
         } catch (error) {
-          return recordWriteFailure(error);
+          return unwoundFailure(error);
         }
       },
       { readOnly: true },

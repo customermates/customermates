@@ -1,5 +1,5 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { RecordWriteError } from "@/features/records/record-write.service";
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { MessagingProvider } from "@/generated/prisma";
@@ -369,7 +369,7 @@ export class PrismaMessagingRepo
   private async recordInboxQuery(params: GetQueryParams) {
     if (!this.inboxRecords || !this.inboxPolicy) throw new Error("Messaging inbox record access is not configured");
     const [model, policy] = await Promise.all([this.inboxRecords.getModel(), this.inboxPolicy.load()]);
-    if (!policy.actor) throw new RecordWriteError(CustomErrorCode.permissionDenied);
+    if (!policy.actor) throw unwindFailure(CustomErrorCode.permissionDenied);
     return compileMessagingRecordQuery(
       this.companyId,
       this.userId,
@@ -388,12 +388,11 @@ export class PrismaMessagingRepo
       !Number.isInteger(skip) ||
       skip < 0
     )
-      throw new RecordWriteError(CustomErrorCode.recordCalculationBudget);
+      throw unwindFailure(CustomErrorCode.recordCalculationBudget);
     const direction = params.sortDescriptor?.direction === "asc" ? Prisma.sql`ASC` : Prisma.sql`DESC`;
     const selected = await this.prisma.$queryRaw<Array<{ id: string }>>(Prisma.sql`SELECT thread.id ${query}
       ORDER BY thread."lastMessageAt" ${direction} NULLS LAST, thread.id ${direction} LIMIT ${take ?? 1001} OFFSET ${skip}`);
-    if (take === undefined && selected.length > 1000)
-      throw new RecordWriteError(CustomErrorCode.recordCalculationBudget);
+    if (take === undefined && selected.length > 1000) throw unwindFailure(CustomErrorCode.recordCalculationBudget);
     const rows = await this.prisma.messagingThread.findMany({
       where: {
         companyId: this.companyId,

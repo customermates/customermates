@@ -12,9 +12,8 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { failNotFound } from "@/core/validation/interactor-failure-server";
+import { failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { recordWriteFailure } from "./record-write-failure";
 import { recordDto, withMemberUsers } from "./record-dto";
 import { resolveRecordPath } from "./record-relationship-path";
 import { visibleFormulaFields } from "./record-formula-visibility";
@@ -190,7 +189,7 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
             },
           };
         } catch (error) {
-          return recordWriteFailure(error);
+          return unwoundFailure(error);
         }
       },
       { readOnly: true },

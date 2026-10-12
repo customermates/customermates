@@ -62,7 +62,8 @@ const { ImportRecordsInteractor } = await import("@/features/data-transfer/impor
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
-const { RecordWriteService, RecordWriteError } = await import("../record-write.service");
+const { RecordWriteService } = await import("../record-write.service");
+const { unwindFailure } = await import("@/core/validation/failure-unwind");
 const { RecordOperationService } = await import("../record-operation.service");
 const { CancelRecordOperationInteractor } = await import("../cancel-record-operation.interactor");
 const { GetRecordOperationInteractor } = await import("../get-record-operation.interactor");
@@ -863,7 +864,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const input = { typeId: source.typeId, filters: [], relationships: [], sort: [] };
     const query = vi.spyOn(f.repo, "query");
     try {
-      query.mockRejectedValueOnce(new RecordWriteError(CustomErrorCode.recordCalculationBudget));
+      query.mockRejectedValueOnce(unwindFailure(CustomErrorCode.recordCalculationBudget));
       const rejected = await f.run(() => exporter.invoke(input));
       expect(rejected).toMatchObject({ ok: false });
       expect(rejected).not.toHaveProperty("data");

@@ -1,3 +1,5 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { RecordRepo } from "./record.repo";
 import { recordChannelsField } from "./record-channels";
 import type { RecordField, RecordModel, RecordRef } from "./record-model.schema";
@@ -8,7 +10,6 @@ import { compareRecordKey } from "./record-json";
 import { calculationDependencyHash } from "./configuration.service";
 import { expressionFieldDependencies } from "./record-model-validation";
 import { recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
-import { CalculationBudgetExceeded } from "./calculation-budget-exceeded";
 import { decodeRecordValue } from "./record-storage";
 import { recordInvariant } from "./record-invariant";
 
@@ -181,14 +182,14 @@ export class RecordJournal {
       delete: async (ref) => {
         await this.capture(ref);
         const links = await records.getLinksCompanyWide(ref, limit * 4 + 1);
-        if (links.length > limit * 4) throw new CalculationBudgetExceeded();
+        if (links.length > limit * 4) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
         for (const link of links) await this.linkChange(link.relationId, link.source, link.target, false, true);
         await records.delete(ref);
       },
       moveToTrash: async (ref, trashItemId) => {
         await this.capture(ref);
         const links = await records.getLinksCompanyWide(ref, limit * 4 + 1);
-        if (links.length > limit * 4) throw new CalculationBudgetExceeded();
+        if (links.length > limit * 4) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
         for (const link of links) await this.linkChange(link.relationId, link.source, link.target, false, true);
         await records.moveToTrash(ref, trashItemId);
       },
@@ -246,7 +247,7 @@ export class RecordJournal {
     const key = recordKey(ref);
     const existing = this.entries.get(key);
     if (existing) return existing;
-    if (this.entries.size >= this.limit) throw new CalculationBudgetExceeded();
+    if (this.entries.size >= this.limit) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
     const saved = this.staging ? await this.staging.base.getStageRow(this.staging.operationId, "journal", key) : null;
     const entry = saved
       ? RecordJournalEntrySchema.parse(saved)
@@ -293,7 +294,7 @@ export class RecordJournal {
     for (const ref of refs) await this.capture(ref);
     for (const ref of refs) {
       const links = await this.records.getLinksCompanyWide(ref, this.limit * 4 + 1);
-      if (links.length > this.limit * 4) throw new CalculationBudgetExceeded();
+      if (links.length > this.limit * 4) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
       for (const link of links) await this.linkChange(link.relationId, link.source, link.target, false, true);
     }
     for (const ref of refs) {
