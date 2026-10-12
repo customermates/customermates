@@ -27,7 +27,11 @@ Eine neue Rolle startet ohne angehakte Checkbox und mit **Lesen** **Keine**; ohn
 
 Jede Person sieht nur ihre eigenen Keys. Niemand, auch nicht die Rolle **Admin**, kann die Keys eines anderen Mitglieds auflisten oder löschen. Kein Assistenten- oder MCP-Tool legt API-Keys an, listet oder löscht sie; verwaltet werden sie nur auf der Seite API-Keys, und der gehostete Assistent kann Ihnen höchstens diese Seite öffnen.
 
-Der Custom Connector für Claude und ChatGPT meldet sich per OAuth an und braucht weder einen API-Key noch die Berechtigung **API & Webhooks**. Siehe [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
+Der Custom Connector für Claude und ChatGPT meldet sich per OAuth an und braucht keinen API-Key. Wie jede MCP-Verbindung braucht er **Lesen** **Alle** auf **API & Webhooks** ([MCP-Endpoint](/docs/mcp#the-endpoint)). Siehe [Mit einem Custom Connector verbinden](/docs/connect-custom-connector).
+
+## Welche Berechtigung braucht jede Aktion mit API-Keys? [#which-permission-does-each-api-key-action-need]
+
+Jede Verwaltung von Keys prüft die Zeile **API & Webhooks** Ihrer Rolle, auch die Anfragen, die die Seite API-Keys an `/api/auth/api-key/` sendet: Einen Key anzulegen braucht **Erstellen**, ihn zu ändern **Bearbeiten**, ihn zu löschen **Löschen**, und Ihre Keys zu lesen oder aufzulisten **Lesen** **Alle**. Eine nicht angemeldete Anfrage erhält `401`, eine Rolle ohne die Berechtigung `403` mit `PERMISSION_DENIED`, und ein Mitglied mit **Status** **Inaktiv** `403` mit `USER_INACTIVE`. Diese Prüfungen gelten nur für die Verwaltung von Keys; was ein Aufruf mit einem Key darf, richtet sich nach der Rolle seines Eigentümers, siehe [Welche Berechtigungen hat ein Key](#what-permissions-does-a-key-have).
 
 ## Wie kann ich einen Key nutzen, und in welchen Header gehört er? [#how-do-i-use-a-key]
 
@@ -67,7 +71,13 @@ Jeder REST-Endpunkt beantwortet einen abgelehnten Aufruf mit demselben JSON-Body
 }
 ```
 
-Der HTTP-Status folgt `error.kind`: `validation` 400, `authentication` 401, `authorization` 403, `not_found` 404, `conflict` 409, `unavailable` 422 und `rate_limit` 429. Jedes Issue nennt den Feld-`path`, zu dem es gehört, und, wo vorhanden, einen stabilen `customCode`. `error.retryable` ist nur dann `true`, wenn derselbe Aufruf später gelingen kann. Werten Sie `kind` und `customCode` aus statt `message`, die Text für Menschen ist. Ein unerwarteter Serverfehler antwortet mit 500 ohne diesen Body.
+Der HTTP-Status folgt `error.kind`: `validation` 400, `authentication` 401, `authorization` 403, `not_found` 404, `conflict` 409, `unavailable` 422 und `rate_limit` 429. Jedes Issue nennt den Feld-`path`, zu dem es gehört, und, wo vorhanden, einen stabilen `customCode`. `error.retryable` ist `true`, wenn ein Nachrichtenanbieter einen Aufruf abgelehnt hat, der später unverändert gelingen kann; auch ein `429` ohne dieses Feld lässt sich wiederholen, siehe [den nächsten Abschnitt](#what-should-a-client-do-on-429). Werten Sie `kind` und `customCode` aus statt `message`, die Text für Menschen ist. Ein unerwarteter Serverfehler antwortet mit 500 ohne diesen Body.
+
+## Was tut ein Client, wenn ein Aufruf 429 liefert? [#what-should-a-client-do-on-429]
+
+`rate_limit` (HTTP `429`) bedeutet, dass der Aufruf gerade nicht laufen konnte und später unverändert gelingen kann. Ein Nachrichtenkanal am Limit seines Anbieters antwortet mit `customCode` `unipileRateLimit` und nennt, wann Sie es erneut versuchen können ([Nachrichten-Ratenlimits](/docs/messaging-rate-limits)). Ist Customermates selbst überlastet, etwa wenn eine Datenbanktransaktion oder der Verbindungspool in ein Zeitlimit läuft, antwortet der Aufruf mit `429` ohne `customCode` und mit der Meldung `The service is busy. Retry the request shortly.`. MCP-Tools liefern dieselbe Art `rate_limit` in `_meta.failure`.
+
+Wiederholen Sie nach einer Pause, die mit jedem Versuch wächst, etwa 1, 2, 4 und 8 Sekunden plus etwas zufälligem Jitter, und geben Sie nach wenigen Versuchen auf. Wiederholen Sie nicht in einer engen Schleife und senden Sie nicht mehr Aufrufe parallel, das hält den Dienst ausgelastet. Senden Sie eine Schreiboperation mit demselben `idempotencyKey` erneut, damit eine Änderung, die durchgegangen ist, nicht doppelt angewendet wird.
 
 ## Wie lange ist ein Key gültig, und laufen Keys ab? [#do-keys-expire]
 
@@ -79,7 +89,7 @@ Klicken Sie unter [API-Schlüssel](app:settings/api-keys) auf die Karte des Keys
 
 Rotieren Sie, wenn ein Gerät mit dem Key verloren geht oder kompromittiert ist, wenn ein Teammitglied mit Zugriff das Team verlässt oder wenn Sie einen Leak vermuten. Ein Key pro Client erlaubt es, einen einzelnen Client zu löschen, ohne die anderen zu brechen. Im Audit-Log trennt er sie nicht, denn dort steht der Nutzer, dem ein Key gehört, nicht der Key selbst. Bewahren Sie Keys in einer Umgebungsvariable oder einem Passwort-Manager auf, nie in einer Config-Datei, die Sie committen.
 
-Nur der Besitzer kann einen Key löschen. Um die Keys eines ausscheidenden Mitglieds zu stoppen, öffnen Sie [Mitglieder](app:settings/members), öffnen das Mitglied, setzen **Status** auf **Inaktiv** und klicken auf **Speichern**. Dafür brauchen Sie **Bearbeiten** und Leserecht **Alle** auf **Benutzer & Rollen**; sich selbst können Sie nicht deaktivieren, und das letzte aktive Mitglied mit der Rolle **Admin** lässt sich nicht deaktivieren. Danach wird jeder Aufruf mit den Keys dieses Mitglieds abgelehnt, der Workspace-Daten liest oder ändert. Seiner Rolle die Berechtigung **API & Webhooks** zu entziehen, reicht nicht: Das blendet die Seite und ihre Schaltfläche **Hinzufügen** aus, aber bereits vorhandene Keys funktionieren weiter.
+Nur der Besitzer kann einen Key löschen. Um die Keys eines ausscheidenden Mitglieds zu stoppen, öffnen Sie [Mitglieder](app:settings/members), öffnen das Mitglied, setzen **Status** auf **Inaktiv** und klicken auf **Speichern**. Dafür brauchen Sie **Bearbeiten** und Leserecht **Alle** auf **Benutzer & Rollen**; sich selbst können Sie nicht deaktivieren, und das letzte aktive Mitglied mit der Rolle **Admin** lässt sich nicht deaktivieren. Danach wird jeder Aufruf mit den Keys dieses Mitglieds abgelehnt, der Workspace-Daten liest oder ändert. Seiner Rolle die Berechtigung **API & Webhooks** zu entziehen, reicht nicht: Das blendet die Seite aus und beendet seine MCP-Verbindungen, aber bereits vorhandene Keys funktionieren für REST-Aufrufe weiter.
 
 ## Welches Format hat ein Key, und wie lang darf sein Name sein? [#what-is-the-key-format]
 

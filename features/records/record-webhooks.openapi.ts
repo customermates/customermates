@@ -40,9 +40,10 @@ export const recordWebhookOperations = Object.fromEntries(
       post: {
         operationId: event.replace(".", "_"),
         summary: RECORD_EVENT_DOCS[event].summary,
-        description: `${RECORD_EVENT_DOCS[event].description}\n\n${RECORD_EVENT_PAYLOAD_DETAILS}`,
+        description: RECORD_EVENT_DOCS[event].description,
         tags: ["webhooks"],
         requestBody: {
+          description: RECORD_EVENT_PAYLOAD_DETAILS,
           content: {
             "application/json": {
               schema: RecordDeliveryEnvelopeSchema.extend({

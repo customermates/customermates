@@ -43,6 +43,12 @@ The starter lists are ordinary lists with a useful setup. Field types include **
 
 [Deals](app:records/deal) start with line items linked to [Services](app:records/service): quantity times unit price gives each line amount, the lines add up to the deal value, and a stage probability gives a weighted value. Live-priced lines follow the service price; saved prices stay fixed. A sub-list such as line items has its own column picker: the columns button in its header shows, hides and reorders its columns for you alone, and **Reset to default** returns to the sub-list's own fields and relationships, without **Assigned to**, **Created at** and **Updated at**. See [Core concepts](/docs/concepts) for relationships and calculations.
 
+## How are phone numbers and other values checked? [#how-are-values-checked]
+
+Values are checked against their field type whenever they are saved: in the app, over REST and MCP, and on import. Phone numbers are stored in international format. Spaces, dashes, dots, slashes and brackets are removed and a leading `00` becomes `+`, so `0049 (30) 123-456` is saved as `+4930123456`; a number without a country code, such as `030 123456`, is refused. Email addresses, web addresses, numbers, dates, date ranges (the end may not lie before the start) and choice options are checked the same way, and a required field needs a value.
+
+The form, the record page, sub-lists and table cells mark the field whose value was refused. Over REST and MCP, the issue's `path` is `mutation.fields.<i>.value`, where `<i>` is the position of the entry in the `fields` you sent, and its `customCode` names the problem: `invalidPhone`, `invalidEmail`, `invalidUrl`, `recordNumberInvalid`, `recordDateInvalid`, `recordDateRangeInvalid`, `recordOptionInvalid`, `recordValueRequired` or `recordValueTypeMismatch`. A required field you left out is reported at `mutation.fields`.
+
 ## How do I switch between table and board, group a pipeline, and sort by a custom field? [#how-do-i-switch-between-table-and-board-view]
 
 In [Appearance](app:records/deal?focus=display-options), choose **Table** or **Board**. A board groups by a choice field such as deal stage or task status; you can adjust its column widths. **Group by** groups a table, and **Sort by** sorts by any field, including custom and calculated ones such as weighted value or a due date field on Tasks.

@@ -45,7 +45,7 @@ There is no setting for password, email address, time zone, notifications or del
 - **Standard API key**: a **Name** and an optional **Expires in** date 1 to 365 days ahead (default **Never expires**). The key is shown once, so copy it immediately.
 - **Quick connections**: tiles for **Claude**, **ChatGPT & Codex**, **Cursor** and **Gemini**. Local setups (Claude Code or Desktop, Codex, Cursor, Gemini) create a key named after the client that expires after 365 days and show the setup snippet with the key filled in. The Claude account and ChatGPT app methods use the hosted connector and create no key.
 
-A key card shows **Created at**, **Expires at** and **Last used**; open it to **Delete** the key (needs **Delete**), which stops it at once. To rotate, create a new key, update the client, then delete the old one. Removing **API & Webhooks** from a role does not disable existing keys; set the member **Inactive** in [Members](app:settings/members) instead. Full rules: [API keys](/docs/api-keys).
+A key card shows **Created at**, **Expires at** and **Last used**; open it to **Delete** the key (needs **Delete**), which stops it at once. To rotate, create a new key, update the client, then delete the old one. Removing **API & Webhooks** from a role stops MCP connections but leaves existing keys working for REST; to stop every key, set the member **Inactive** in [Members](app:settings/members). Full rules: [API keys](/docs/api-keys).
 
 ## Channels [#channels-tab]
 

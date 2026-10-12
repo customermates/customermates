@@ -27,7 +27,11 @@ A new role starts with no checkbox ticked and **Read access** **None**, so out o
 
 Everyone sees only their own keys. Nobody, including the **Admin** role, can list or delete another member's keys. No assistant or MCP tool creates, lists or deletes API keys; they are managed only on the API keys page, and the hosted assistant can at most open it for you.
 
-The custom connector for Claude and ChatGPT signs in over OAuth and needs neither an API key nor the **API & Webhooks** permission. See [Connect with a custom connector](/docs/connect-custom-connector).
+The custom connector for Claude and ChatGPT signs in over OAuth and needs no API key. Like every MCP connection, it needs **Read access** **All** on **API & Webhooks** ([MCP endpoint](/docs/mcp#the-endpoint)). See [Connect with a custom connector](/docs/connect-custom-connector).
+
+## Which permission does each API key action need? [#which-permission-does-each-api-key-action-need]
+
+Every way of managing keys checks the **API & Webhooks** row of your role, including the requests the API keys page sends to `/api/auth/api-key/`: creating a key needs **Create**, changing one **Edit**, deleting one **Delete**, and reading or listing your keys **Read access** **All**. A request that is not signed in answers `401`, a role without the permission answers `403` with `PERMISSION_DENIED`, and a member whose **Status** is **Inactive** gets `403` with `USER_INACTIVE`. These checks cover managing keys only; what a call made with a key may do follows its owner's role, see [What permissions does a key have](#what-permissions-does-a-key-have).
 
 ## How do I use a key, and which header does it go in? [#how-do-i-use-a-key]
 
@@ -67,7 +71,13 @@ Every REST endpoint answers a refused call with the same JSON body: an `error` o
 }
 ```
 
-The HTTP status follows `error.kind`: `validation` 400, `authentication` 401, `authorization` 403, `not_found` 404, `conflict` 409, `unavailable` 422 and `rate_limit` 429. Each issue names the field `path` it belongs to and, where one applies, a stable `customCode`. `error.retryable` is `true` only when the same call can succeed later. Branch on `kind` and `customCode` rather than on `message`, which is text for people. An unexpected server error answers 500 without this body.
+The HTTP status follows `error.kind`: `validation` 400, `authentication` 401, `authorization` 403, `not_found` 404, `conflict` 409, `unavailable` 422 and `rate_limit` 429. Each issue names the field `path` it belongs to and, where one applies, a stable `customCode`. `error.retryable` is `true` when a messaging provider refused a call that can succeed later unchanged; a `429` without it can be retried as well, see [the next section](#what-should-a-client-do-on-429). Branch on `kind` and `customCode` rather than on `message`, which is text for people. An unexpected server error answers 500 without this body.
+
+## What should a client do when a call returns 429? [#what-should-a-client-do-on-429]
+
+`rate_limit` (HTTP `429`) means the call could not run now and can succeed later unchanged. A messaging channel at its provider's limit answers with `customCode` `unipileRateLimit` and says when to try again ([messaging rate limits](/docs/messaging-rate-limits)). When Customermates itself is overloaded, for example when a database transaction or the connection pool times out, the call answers `429` without a `customCode` and with the message `The service is busy. Retry the request shortly.`. MCP tools return the same `rate_limit` kind in `_meta.failure`.
+
+Retry after a pause that grows with each attempt, for example 1, 2, 4 and 8 seconds plus a little random jitter, and give up after a few attempts. Do not retry in a tight loop or send more calls in parallel, which keeps the service busy. Send a write again with the same `idempotencyKey`, so a change that went through is not applied twice.
 
 ## How long does a key last, and do keys expire? [#do-keys-expire]
 
@@ -79,7 +89,7 @@ On [API keys](app:settings/api-keys), click the key's card and choose **Delete**
 
 Rotate when a device that held the key is lost or compromised, when a teammate with access leaves, or when you suspect the key leaked. One key per client lets you delete a single client without breaking the others. It does not separate them in the audit log, which names the user a key belongs to, not the key. Keep keys in an environment variable or a password manager, never in a config file you commit.
 
-Only the owner can delete a key. To stop the keys of a member who leaves, open [Members](app:settings/members), open the member, set **Status** to **Inactive** and click **Save**. This needs **Edit** and read access **All** on **Users & Roles**; you cannot deactivate yourself, and the last active member with the **Admin** role cannot be deactivated. Every call with that member's keys that reads or changes workspace data is then refused. Taking **API & Webhooks** away from their role is not enough: it hides the page and its **Add** button, but keys they already hold keep working.
+Only the owner can delete a key. To stop the keys of a member who leaves, open [Members](app:settings/members), open the member, set **Status** to **Inactive** and click **Save**. This needs **Edit** and read access **All** on **Users & Roles**; you cannot deactivate yourself, and the last active member with the **Admin** role cannot be deactivated. Every call with that member's keys that reads or changes workspace data is then refused. Taking **API & Webhooks** away from their role is not enough: it hides the page and stops their MCP connections, but keys they already hold keep working for REST calls.
 
 ## What is the key format, and how long can a key name be? [#what-is-the-key-format]
 
