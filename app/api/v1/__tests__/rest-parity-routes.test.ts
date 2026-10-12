@@ -120,11 +120,12 @@ describe("widget REST routes", () => {
     interactors.deleteWidget.mockResolvedValue({ ok: true, data: { id: ID, trashBatchId: ID } });
     interactors.updateWidgetLayouts.mockResolvedValue({ ok: true, data: [] });
     const layouts = { xs: [], sm: [], md: [], lg: [{ i: ID, x: 6, y: 0, w: 6, h: 3 }] };
+    const expectedVersions = { [ID]: 1 };
 
     expect(await (await deleteWidget(request({ id: ID }))).json()).toEqual({ id: ID, trashBatchId: ID });
-    expect(await (await layoutWidgets(request({ layouts }))).json()).toEqual([]);
+    expect(await (await layoutWidgets(request({ layouts, expectedVersions }))).json()).toEqual([]);
     expect(interactors.deleteWidget).toHaveBeenCalledExactlyOnceWith({ id: ID });
-    expect(interactors.updateWidgetLayouts).toHaveBeenCalledExactlyOnceWith({ layouts });
+    expect(interactors.updateWidgetLayouts).toHaveBeenCalledExactlyOnceWith({ layouts, expectedVersions });
   });
 
   it("returns a missing widget as 404", async () => {

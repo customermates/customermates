@@ -11,7 +11,7 @@ Profil & Einstellungen sieht jedes Mitglied. Kanäle braucht **Lesen** **Alle** 
 
 ## Profil & Einstellungen [#settings-tab]
 
-Ändern Sie ein Feld unter [Profil & Einstellungen](app:settings/profile) und klicken Sie auf **Speichern**, das das ganze Formular sichert. **Speichern** und **Zurücksetzen** erscheinen, sobald sich etwas geändert hat.
+Ändern Sie ein Feld unter [Profil & Einstellungen](app:settings/profile) und klicken Sie auf **Speichern**, das das ganze Formular sichert. Sobald sich etwas geändert hat, bietet eine schwebende Leiste **Ungespeicherte Änderungen** **Abbrechen**, das Ihre Änderungen verwirft, und **Speichern**.
 
 ### Wie ändere ich Namen, Avatar, Sprache oder Darstellung? [#how-do-i-change-my-name-avatar-language-or-theme]
 
@@ -115,7 +115,7 @@ Die Darstellung gilt für E-Mails in Klartext oder Markdown, also alles, was Sie
 
 ## Für Agents [#tips-for-agents]
 
-Über MCP und in Mate ändert `update_my_profile` nur Ihren eigenen Vornamen, Nachnamen, Ihr Land, Ihre Avatar-URL, Ihr Farbschema, Ihre Anzeigesprache und Ihr regionales Format; `connect_messaging_account` erstellt einen Verbindungslink nach denselben Regeln zu Tarif, Berechtigung und Kontingent. Tastenkürzel, Sichtbarkeit, Ordner, E-Mail-Darstellung, Signatur, Reaktivieren, Neu synchronisieren, Trennen und API-Keys stellen Sie nur in der App ein. Wiederholen Sie die Signatur eines Kanals nicht im Nachrichtentext. Ein neuer API-Key wird einmal angezeigt.
+Über MCP und in Mate ändert `update_my_profile` nur Ihren eigenen Vornamen, Nachnamen, Ihr Land, Ihre Avatar-URL, Ihr Farbschema, Ihre Anzeigesprache und Ihr regionales Format; `connect_messaging_account` erstellt einen Verbindungslink nach denselben Regeln zu Tarif, Berechtigung und Kontingent. Tastenkürzel, Sichtbarkeit, Ordner, E-Mail-Darstellung, Signatur, Reaktivieren, Neu synchronisieren, Trennen und API-Keys stellen Sie nur in der App ein. Wiederholen Sie die Signatur eines Kanals nicht im Nachrichtentext. Ein neuer API-Key wird einmal angezeigt. Über REST liest `GET /api/v1/users/me` Ihr Profil, und `PATCH /api/v1/users/me` ändert dieselben Felder wie `update_my_profile`; weggelassene Felder behalten ihren Wert.
 
 ## Verwandt [#related]
 

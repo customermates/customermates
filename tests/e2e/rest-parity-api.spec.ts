@@ -191,16 +191,23 @@ test("serves saved views, widgets, model discovery and Trash reads over an API k
         }),
       ]),
     );
+    const widgetVersion = (
+      (
+        widgets as { widgets: Array<{ id: string; version: number }> }
+      ).widgets.find((widget) => widget.id === widgetId) ?? { version: 0 }
+    ).version;
     const placement = (columns: number) => [
       { i: widgetId, x: 0, y: 1, w: columns, h: 3 },
     ];
+    const layouts = {
+      xs: placement(2),
+      sm: placement(4),
+      md: placement(8),
+      lg: [{ i: widgetId, x: 6, y: 1, w: 6, h: 3 }],
+    };
     const moved = await call("/v1/widgets/layout", {
-      layouts: {
-        xs: placement(2),
-        sm: placement(4),
-        md: placement(8),
-        lg: [{ i: widgetId, x: 6, y: 1, w: 6, h: 3 }],
-      },
+      layouts,
+      expectedVersions: { [widgetId]: widgetVersion },
     });
     expect(moved).toEqual([
       expect.objectContaining({
@@ -219,8 +226,17 @@ test("serves saved views, widgets, model discovery and Trash reads over an API k
           md: [],
           lg: [{ i: widgetId, x: 8, y: 0, w: 6, h: 3 }],
         },
+        expectedVersions: { [widgetId]: widgetVersion + 1 },
       },
       400,
+    );
+    await call(
+      "/v1/widgets/layout",
+      {
+        layouts: { ...layouts, lg: [{ i: widgetId, x: 0, y: 1, w: 6, h: 3 }] },
+        expectedVersions: { [widgetId]: widgetVersion },
+      },
+      409,
     );
     await call("/v1/widgets/delete", { id: widgetId });
     await call("/v1/widgets/delete", { id: widgetId }, 404);
@@ -284,6 +300,7 @@ test("serves saved views, widgets, model discovery and Trash reads over an API k
         "/v1/widgets/list 200",
         "/v1/widgets/layout 200",
         "/v1/widgets/layout 400",
+        "/v1/widgets/layout 409",
         "/v1/widgets/delete 200",
         "/v1/widgets/delete 404",
         "/v1/trash/read 200",

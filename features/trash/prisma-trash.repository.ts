@@ -7,7 +7,7 @@ import type {
   TrashExpiryCursor,
   TrashSelection,
 } from "./trash.repo";
-import type { ExpiredTrashRepo } from "./purge-expired-trash.interactor";
+import type { ExpiredTrashRepo } from "./expired-trash.repo";
 
 import { Prisma } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
@@ -16,6 +16,21 @@ import { deleteTrashItems, insertTrashItems } from "./trash-item-store";
 import { TRASH_ITEM_ALIAS } from "./trash-item-alias";
 
 type TrashItemRow = Omit<TrashItem, "payload"> & { payload: Prisma.JsonValue };
+
+const TRASH_ITEM_SELECT = {
+  id: true,
+  kind: true,
+  targetId: true,
+  typeId: true,
+  surfaceKey: true,
+  ownerUserId: true,
+  label: true,
+  deletedById: true,
+  deletedAt: true,
+  expiresAt: true,
+  batchId: true,
+  payload: true,
+} satisfies Prisma.TrashItemSelect;
 
 export class PrismaTrashRepo extends TenantRepository implements TrashRepo, ExpiredTrashRepo {
   constructor(private readonly scopedCompanyId?: string) {
@@ -83,30 +98,47 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo, Expi
       ORDER BY ${item}."deletedAt" ASC, ${item}.id ASC`);
   }
 
-  async findExpired(now: Date, take: number, after?: TrashExpiryCursor) {
-    const item = TRASH_ITEM_ALIAS;
+  async findExpired(now: Date, take: number, after?: TrashExpiryCursor): Promise<TrashItem[]> {
     const cursor = after
-      ? Prisma.sql`AND (${item}."expiresAt", ${item}.id) > (${new Date(after.expiresAt)}, ${after.id})`
-      : Prisma.empty;
-    return this.prisma.$queryRaw<TrashItemRow[]>(Prisma.sql`
-      SELECT ${item}.id, ${item}.kind::text AS kind, ${item}."targetId", ${item}."typeId", ${item}."surfaceKey",
-        ${item}."ownerUserId", ${item}.label, ${item}."deletedById", ${item}."deletedAt", ${item}."expiresAt",
-        ${item}."batchId", ${item}.payload
-      FROM "TrashItem" ${item} WHERE ${item}."companyId" = ${this.companyId} AND ${item}."expiresAt" <= ${now} ${cursor}
-      ORDER BY ${item}."expiresAt" ASC, ${item}.id ASC LIMIT ${take}`);
+      ? {
+          OR: [
+            { expiresAt: { gt: new Date(after.expiresAt) } },
+            { expiresAt: new Date(after.expiresAt), id: { gt: after.id } },
+          ],
+        }
+      : {};
+    return this.prisma.trashItem.findMany({
+      where: { companyId: this.companyId, expiresAt: { lte: now }, ...cursor },
+      orderBy: [{ expiresAt: "asc" }, { id: "asc" }],
+      take,
+      select: TRASH_ITEM_SELECT,
+    });
   }
 
   @BypassTenantGuard
-  async findExpiredTrashCompaniesUnscoped(now: Date, after: string | null, limit: number) {
-    return this.prisma.$queryRaw<Array<{ companyId: string; actorUserId: string | null }>>(Prisma.sql`
-      SELECT due."companyId", (
-        SELECT member.id FROM "User" member JOIN "UserRole" role ON role.id = member."roleId"
-        WHERE member."companyId" = due."companyId" AND role."isSystemRole"
-        ORDER BY (member.status = 'active') DESC, member."createdAt", member.id LIMIT 1
-      ) AS "actorUserId"
-      FROM (SELECT DISTINCT "companyId" FROM "TrashItem" WHERE "expiresAt" <= ${now}) due
-      ${after ? Prisma.sql`WHERE due."companyId" > ${after}` : Prisma.empty}
-      ORDER BY due."companyId" LIMIT ${limit}`);
+  async findExpiredTrashCompaniesUnscoped(now: Date, after: string | null, limit: number): Promise<string[]> {
+    const due = await this.prisma.trashItem.findMany({
+      where: { expiresAt: { lte: now }, ...(after ? { companyId: { gt: after } } : {}) },
+      distinct: ["companyId"],
+      orderBy: { companyId: "asc" },
+      take: limit,
+      select: { companyId: true },
+    });
+    return due.map((row) => row.companyId);
+  }
+
+  async markPurgePending(id: string, operationId: string): Promise<void> {
+    const item = await this.prisma.trashItem.findFirst({
+      where: { companyId: this.companyId, id },
+      select: { payload: true },
+    });
+    if (!item) return;
+    const payload =
+      item.payload && typeof item.payload === "object" && !Array.isArray(item.payload) ? item.payload : {};
+    await this.prisma.trashItem.updateMany({
+      where: { companyId: this.companyId, id },
+      data: { payload: { ...payload, purgeOperationId: operationId } },
+    });
   }
 
   async deletedBy(userIds: string[]): Promise<Map<string, TrashDeletedBy>> {

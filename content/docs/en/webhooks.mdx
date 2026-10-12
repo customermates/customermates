@@ -28,13 +28,13 @@ To change a webhook, click its row, edit and click **Save**. To remove it, click
 
 Use an HTTPS endpoint. Plain `http://` is accepted for any host only while the webhook has no custom headers. With custom headers the URL must use `https://`, or `http://` on `localhost`, `127.0.0.1` or `::1`, because headers usually carry a credential. This is checked when you save and again before every delivery.
 
-Through MCP, use `manage_webhooks` with `action: "create"`, plus `url`, `events[]` and optional `description`, `secret`, `headers`, `bodyTemplate`, `enabled`.
+Through MCP, use `manage_webhooks` with `action: "create"`, plus `url`, `events[]` and optional `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. Over REST, `POST /api/v1/webhooks` creates one with the same fields and `GET /api/v1/webhooks` lists them; `GET`, `PATCH` and `DELETE /api/v1/webhooks/{id}` read, update and delete one, and an update changes only the fields you send.
 
 ## Which records trigger a webhook, and whose access does a delivery use? [#record-event-sources]
 
 When you pick a record event, the dialog shows the record source: choose the list under **Records from** (or **All accessible types**), then optionally **Changed fields**, **Search records** and **Record filters** on fields and relationships. Deliveries use the record access of the **Record access owner**, by default the member who creates the webhook; only an administrator can choose another owner. Older migrated webhooks can keep several sources, shown as chips.
 
-Through MCP, record subscriptions in `manage_webhooks` also need `expectedSchemaRevision` from `get_record_model`. `recordTrigger` holds a query with stable type and field IDs and optional `changedFieldIds`; `null` selects all accessible types. `recordOwnerUserId` optionally sets the delivery owner. On update, omit these settings to keep them; changing the trigger or owner requires the current schema revision.
+Through MCP, record subscriptions in `manage_webhooks` also need `expectedSchemaRevision` from `get_record_model`. `recordTrigger` holds a query with stable type and field IDs and optional `changedFieldIds`; `null` selects all accessible types. `recordOwnerUserId` optionally sets the delivery owner. On update, omit these settings to keep them; changing the trigger or owner requires the current schema revision. A webhook that follows several lists uses `recordSources` instead of `recordTrigger`: up to 50 sources, each with its own `query`, `changedFieldIds` and `events`; the two cannot be combined, and `null` clears the sources. The REST API takes the same settings.
 
 ```json
 {
@@ -114,7 +114,7 @@ Example, `record.updated` for a contact, with unrelated fields omitted:
 }
 ```
 
-A real record change also carries assignments, identities, link changes and related records. Field entries include display metadata and may show `missing`, `restricted` or `error` instead of a value. Resolve stable type and field IDs with `POST /api/v1/model/discover` or the `get_record_model` MCP tool.
+A real record change also carries assignments, identities, link changes and related records. Field entries include display metadata and may show `missing`, `restricted` or `error` instead of a value. Find the list with `POST /api/v1/model/discover` and resolve its stable field IDs with `POST /api/v1/model/read`, or use the `get_record_model` MCP tool.
 
 ## Changed fields in `data.record.fields` [#the-changes-object]
 
@@ -140,7 +140,7 @@ Placeholders are `{{event}}`, `{{id}}`, `{{timestamp}}`, `{{companyId}}`, `{{act
 
 The template may be up to 8,192 characters, must produce a JSON object and is checked when you save. A delivery whose template fails to render, or whose rendered body exceeds 131,072 characters, is recorded as failed without being sent and is not retried. The signature is computed over the body actually sent, so verify it against the rendered body.
 
-**Removing a secret or a template.** The dialog rejects saving **Secret** or **Body template** empty once set. Update the webhook through `manage_webhooks` or the REST API with `secret: null` or `bodyTemplate: null`, or delete and recreate it.
+**Removing a secret or a template.** The dialog rejects saving **Secret** or **Body template** empty once set. Update the webhook through `manage_webhooks` or `PATCH /api/v1/webhooks/{id}` with `secret: null` or `bodyTemplate: null`, or delete and recreate it.
 
 Deliveries are recorded with the event payload, not the rendered body, so **Event Details** shows the event that fired rather than the exact bytes sent.
 
@@ -234,13 +234,13 @@ function verify(rawBody: string, received: string, secret: string) {
 
 A delivery fails when the HTTP status is outside 2xx, the request times out (after 5 seconds) or no response arrives. Customermates retries timeouts, network errors, 5xx responses and 408, 425 and 429 automatically, up to 10 attempts in total, with a growing pause of at most one hour. Other 4xx responses, such as 400, 401, 403, 404 and 422, are not retried, because a repeat would fail the same way. A delivery also fails before any request is sent, with status code 422, when headers would go to an address that does not allow them or the body template cannot be rendered.
 
-Every delivery is recorded on the [Deliveries](app:settings/webhook-deliveries) page, newest first, with **URL**, **Event**, **Element** (the affected record), **Status**, **Status Code** and **Created at**. In [Filter](app:settings/webhook-deliveries?focus=filter), searching matches the event and the URL, and filters cover the event, the URL and the creation date. Through MCP, use `manage_webhooks` with `action: "list_deliveries"`. Delivery records are kept as long as the workspace exists.
+Every delivery is recorded on the [Deliveries](app:settings/webhook-deliveries) page, newest first, with **URL**, **Event**, **Element** (the affected record), **Status**, **Status Code** and **Created at**. In [Filter](app:settings/webhook-deliveries?focus=filter), searching matches the event and the URL, and filters cover the event, the URL and the creation date. Through MCP, use `manage_webhooks` with `action: "list_deliveries"`; over REST, `GET /api/v1/webhooks/{id}/deliveries` lists one webhook's deliveries, newest first. Delivery records are kept as long as the workspace exists.
 
 Retries run inside the same delivery, so they add no records: each record shows the latest outcome and can show **Failed** while retries are pending, then change to **Delivered** when one succeeds.
 
 Click a row to open **Event Details**: the status (**Pending**, **Sending**, **Delivered** or **Failed**), **URL**, **Event**, **Element**, **Created At**, **Status Code**, **Response Message** and the **Event payload**. A messaging event's payload is shown as it was sent. A record event's payload is read again with your current access: values you cannot read appear as restricted, and the payload stays empty when you cannot read the record.
 
-To resend, click **Resend** at the top of **Event Details**. It appears once the delivery is **Delivered** or **Failed**, for roles with **Create** on **API & Webhooks**; through MCP, use `manage_webhooks` with `action: "resend_delivery"` and the delivery id. A resend creates a new delivery record with the webhook's current URL, secret, headers and template; the original stays unchanged. A messaging event is resent from its stored event. A record event is read again with the webhook owner's current access, only that owner or an administrator can resend it, and the resend is refused when the webhook's record sources changed since the original delivery. The webhook must still exist, be enabled and subscribe to the event; deliveries of retired type-specific events cannot be resent.
+To resend, click **Resend** at the top of **Event Details**. It appears once the delivery is **Delivered** or **Failed**, for roles with **Create** on **API & Webhooks**; through MCP, use `manage_webhooks` with `action: "resend_delivery"` and the delivery id, and over REST `POST /api/v1/webhooks/{id}/deliveries/{deliveryId}/resend`. A resend creates a new delivery record with the webhook's current URL, secret, headers and template; the original stays unchanged. A messaging event is resent from its stored event. A record event is read again with the webhook owner's current access, only that owner or an administrator can resend it, and the resend is refused when the webhook's record sources changed since the original delivery. The webhook must still exist, be enabled and subscribe to the event; deliveries of retired type-specific events cannot be resent.
 
 ## Are deliveries ordered, and do they arrive in the right order? [#are-deliveries-ordered]
 
@@ -248,7 +248,7 @@ No. Two `record.updated` events milliseconds apart can arrive out of order. Use 
 
 ## Why is formatted text Tiptap JSON in payloads? [#formatted-text-is-json-not-markdown]
 
-The value of a Formatted text field in payloads is a `richText` value whose `documentJson` is Tiptap JSON, the structure the editor stores. Run it through a Tiptap-compatible serializer to get markdown. In MCP, `read_crm_record` returns the rich-text value with `documentJson`, which converts the same way.
+The value of a Formatted text field in payloads is a `richText` value whose `documentJson` is Tiptap JSON, the structure the editor stores. Run it through a Tiptap-compatible serializer to get markdown. The REST record routes return the same `documentJson`. MCP record tools return Formatted text as Markdown instead, marked as untrusted content; see [MCP](/docs/mcp#how-the-tool-surface-is-shaped).
 
 ## What do delete payloads contain? [#what-do-delete-payloads-contain]
 
@@ -260,7 +260,7 @@ The value of a Formatted text field in payloads is a `richText` value whose `doc
 
 - Find the delivery under [Deliveries](app:settings/webhook-deliveries) and open it to see **Event Details**.
 - Use [webhook.site](https://webhook.site) as a throwaway receiver while testing.
-- `manage_webhooks` with `action: "list_deliveries"` supports `searchTerm` on URL and event name.
+- `manage_webhooks` with `action: "list_deliveries"` and `GET /api/v1/webhooks/{id}/deliveries` support `searchTerm` on URL and event name.
 - Customermates stores only the HTTP status code and status text your receiver returned (for example `404` and `Not Found`), shown as **Status Code** and **Response Message** in **Event Details**. The response body is not stored, so log it on the receiving side. Without a response, **Status Code** shows a dash (the list column stays empty) and **Response Message** names the cause, such as the timeout.
 
 ## Which events exist? [#which-events-exist]
@@ -318,4 +318,5 @@ Messaging events fire on inbound provider activity on connected accounts. **Even
 ## Next [#next]
 
 - [MCP tool catalog](/docs/mcp#tool-catalog): programmatic webhook management.
+- [API reference](/docs/openapi): the REST webhook endpoints and every event payload.
 - [n8n integration](/docs/n8n): drop webhooks into visual workflows.

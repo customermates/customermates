@@ -43,6 +43,17 @@ curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
 
 The `Accept: application/json, text/event-stream` header is required by the MCP streamable HTTP transport; without it the endpoint returns `406 Not Acceptable`. For MCP clients the key goes into the client's configuration, see [CLI and editor clients](/docs/connect-cli) and [ChatGPT with an API key](/docs/connect-custom-connector#chatgpt).
 
+The REST API takes the same header. This call lists the record types you can access:
+
+```bash
+curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
+     -H "Content-Type: application/json" \
+     <BASE_URL>/api/v1/model/discover \
+     -d '{}'
+```
+
+Every REST operation, with its request and response, is in the [API reference](/docs/openapi).
+
 ## How long does a key last, and do keys expire? [#do-keys-expire]
 
 A **Standard API key** expires only if you pick a date under **Expires in**; the default, **Never expires**, keeps it valid until you delete it. A date must lie between 1 and 365 days ahead. A key from **Quick connections** (a quick connection key), including those from the onboarding wizard, is valid for 365 days: it always expires 365 days after creation. Expiry cannot be extended: before it passes, create a new key and update the client. Each key card shows **Created at**, **Expires at** (**Never** when unset) and **Last used**.

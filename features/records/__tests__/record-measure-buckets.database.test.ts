@@ -33,6 +33,7 @@ const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
 const { RecordWriteService } = await import("../record-write.service");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
+const { RecordTrashService } = await import("../record-trash.service");
 const { QueryRecordMeasureInteractor } = await import("../query-record-measure.interactor");
 const { RecordMeasureSchema } = await import("../record-measure.schema");
 const { createCrmPreset, presetId } = await import("../crm-preset");
@@ -79,6 +80,7 @@ async function fixture(preset: Preset = "crm") {
     policy,
     new RecordWriteService(repo, policy, new RecordCalculationService(repo)),
     { dispatch: () => Promise.resolve() },
+    new RecordTrashService(repo),
   );
   const measure = new QueryRecordMeasureInteractor(repo, policy);
   const reader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
@@ -521,6 +523,7 @@ describeDatabase("time-bucketed record measures", () => {
           new RecordCalculationService(restricted.repo),
         ),
         { dispatch: () => Promise.resolve() },
+        new RecordTrashService(restricted.repo),
       ).invoke({
         expectedRevision: await restricted.revision(),
         idempotencyKey: randomUUID(),
@@ -545,6 +548,7 @@ describeDatabase("time-bucketed record measures", () => {
           new RecordCalculationService(restricted.repo),
         ),
         { dispatch: () => Promise.resolve() },
+        new RecordTrashService(restricted.repo),
       ).invoke({
         expectedRevision: await restricted.revision(),
         idempotencyKey: randomUUID(),
@@ -704,16 +708,16 @@ describeDatabase("time-bucketed record measures", () => {
         } as Parameters<typeof f.widgets.invoke>[0]),
       );
     const first = await save("Auto placed");
-    expect(first.ok && first.data.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 3 });
+    expect(first.ok && first.data.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 2 });
     const second = await save("Auto placed beside");
-    expect(second.ok && second.data.layout?.lg).toMatchObject({ x: 3, y: 0, w: 3, h: 3 });
-    const placed = await save("Requested", { layout: { x: 0, y: 3, w: 12, h: 3 } });
+    expect(second.ok && second.data.layout?.lg).toMatchObject({ x: 3, y: 0, w: 3, h: 2 });
+    const placed = await save("Requested", { layout: { x: 0, y: 2, w: 12, h: 2 } });
     expect(placed.ok && placed.data.layout?.lg).toEqual({
       i: placed.ok ? placed.data.id : "",
       x: 0,
-      y: 3,
+      y: 2,
       w: 12,
-      h: 3,
+      h: 2,
     });
     const overlap = await save("Overlap", { layout: { x: 2, y: 1, w: 4, h: 3 } });
     expect(overlap.ok).toBe(false);
@@ -732,7 +736,7 @@ describeDatabase("time-bucketed record measures", () => {
         displayOptions: first.data.displayOptions,
       }),
     );
-    expect(rename.ok && rename.data.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 3 });
+    expect(rename.ok && rename.data.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 2 });
     if (!rename.ok) return;
     const moved = await f.run(async () =>
       f.widgets.invoke({
@@ -744,10 +748,10 @@ describeDatabase("time-bucketed record measures", () => {
         isTemplate: false,
         measure: first.data.measure,
         displayOptions: first.data.displayOptions,
-        layout: { x: 6, y: 0, w: 6, h: 3 },
+        layout: { x: 6, y: 0, w: 6, h: 2 },
       }),
     );
-    expect(moved.ok && moved.data.layout?.lg).toMatchObject({ x: 6, y: 0, w: 6, h: 3 });
+    expect(moved.ok && moved.data.layout?.lg).toMatchObject({ x: 6, y: 0, w: 6, h: 2 });
     const stored = await runWithoutTenant(() => prisma.widget.count({ where: { companyId: f.company.id } }));
     expect(stored).toBe(3);
   }, 120_000);

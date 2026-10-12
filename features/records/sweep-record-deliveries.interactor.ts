@@ -3,6 +3,7 @@ import type { BackgroundTaskService } from "@/core/utils/background-task.service
 import type { WebhookDeliveryQueueRepo } from "@/features/webhook/webhook-delivery-queue.repo";
 import type { EventOutboxRepo } from "@/features/event/event-outbox.repo";
 import type { RecordOperationQueueRepo } from "./record-operation-queue.repo";
+import { RECORD_SYSTEM_ACTOR } from "./record-system-actor";
 
 @SystemInteractor
 export class SweepRecordDeliveriesInteractor {
@@ -32,11 +33,13 @@ export class SweepRecordDeliveriesInteractor {
       ...operations.map(({ companyId, operationId, ownerUserId, kind }) =>
         kind === "provider-avatar"
           ? this.background.dispatch("provider-avatar-operation", { companyId, operationId })
-          : this.background.dispatch("record-operation", {
-              operationId,
-              ownerUserId,
-              tenant: { companyId, userId: ownerUserId },
-            }),
+          : ownerUserId === RECORD_SYSTEM_ACTOR
+            ? this.background.dispatch("record-operation", { operationId, system: { companyId } })
+            : this.background.dispatch("record-operation", {
+                operationId,
+                ownerUserId,
+                tenant: { companyId, userId: ownerUserId },
+              }),
       ),
     ]);
     if (results.some((result) => result.status === "rejected"))

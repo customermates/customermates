@@ -7,6 +7,7 @@ import type { RecordModel } from "./record-model.schema";
 import type { TrashItem, TrashRepo } from "@/features/trash/trash.repo";
 import type { TrashKindHandler, TrashKindImpact, TrashKindRestore } from "@/features/trash/trash-kind-handler";
 import type { TrashRestoreBlocker } from "@/features/trash/trash.schema";
+import type { ConfigurationSystemPurge } from "./configuration-system-purge";
 
 import { Prisma } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -40,6 +41,7 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
     private preview: PreviewRecordConfigurationInteractor,
     private apply: ApplyRecordConfigurationInteractor,
     private trash: Pick<TrashRepo, "remove">,
+    private system: ConfigurationSystemPurge,
   ) {}
 
   async visibility(alias: Prisma.Sql): Promise<Prisma.Sql> {
@@ -116,10 +118,14 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
     return { removedRecords, removedLinks };
   }
 
-  async purge(items: TrashItem[]): Promise<void> {
+  async purge(items: TrashItem[], actorId: string | null, companyId: string): Promise<void> {
     for (const item of [...items].sort((left, right) => ORDER[right.kind] - ORDER[left.kind])) {
       if (!targetExists(await this.records.getModel(), item)) {
         await this.trash.remove([item.id]);
+        continue;
+      }
+      if (actorId === null) {
+        await this.system.deletePermanently(item, await this.change(item, "deletePermanently"), companyId);
         continue;
       }
       const applied = await this.apply.run(await this.change(item, "deletePermanently"));

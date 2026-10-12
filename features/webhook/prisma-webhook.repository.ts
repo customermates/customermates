@@ -32,13 +32,18 @@ export class PrismaWebhookRepo
   constructor(
     private readonly subscriptions: RecordEventSubscriptionRepo,
     private readonly permissions: PermissionService,
+    private readonly scopedCompanyId?: string,
   ) {
     super();
   }
 
+  override get companyId(): string {
+    return this.scopedCompanyId ?? super.companyId;
+  }
+
   private async withRecordSubscriptions(rows: WebhookDto[]): Promise<WebhookDto[]> {
     const ids = rows.filter((row) => row.events.some((event) => event.startsWith("record."))).map((row) => row.id);
-    const subscriptions = await this.subscriptions.findCompanyWide(this.companyId, ids);
+    const subscriptions = await this.subscriptions.findUnscoped(this.companyId, ids);
     const byId = new Map(subscriptions.filter((row) => row.kind === "webhook").map((row) => [row.id, row]));
     return rows.map((row) => {
       const subscription = byId.get(row.id);
@@ -157,7 +162,7 @@ export class PrismaWebhookRepo
     const headers = parseStoredWebhookHeaders(row.headers);
     const webhook = { ...row, headers: Object.keys(headers).length > 0 ? headers : null } as WebhookDto;
 
-    if (this.permissions.has(Resource.api, Action.update)) return webhook;
+    if (this.scopedCompanyId === undefined && this.permissions.has(Resource.api, Action.update)) return webhook;
 
     return {
       ...webhook,
@@ -275,7 +280,7 @@ export class PrismaWebhookRepo
   }
 
   async getWebhookByIdOrThrow(id: string) {
-    const { companyId } = this.user;
+    const companyId = this.companyId;
 
     const webhook = await this.prisma.webhook.findFirstOrThrow({
       where: { id, companyId },

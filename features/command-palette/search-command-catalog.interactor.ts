@@ -139,7 +139,10 @@ export class SearchCommandCatalogInteractor extends AuthenticatedInteractor<
         },
       };
     } catch (error) {
-      Sentry.captureException(error);
+      Sentry.captureException(error, {
+        tags: { kind: "command-search-semantic", companyId: this.companyId, scope: input.scope ?? "all" },
+        user: { id: this.userId },
+      });
       return { ok: true, data: { ...empty, degraded: true } };
     }
   }
@@ -158,7 +161,7 @@ export class SearchCommandCatalogInteractor extends AuthenticatedInteractor<
 
   private async catalogMatches(locale: string, vector: QueryVector, targetIds: readonly string[]) {
     const catalog = await staticSearchCatalog();
-    return this.searchCatalog.semanticMatches({
+    return this.searchCatalog.semanticMatchesUnscoped({
       companyId: this.companyId,
       buildHash: catalog.buildHash,
       locale,

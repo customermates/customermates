@@ -31,12 +31,15 @@ const { EntityTrashVisibility } = await import("../entity-trash-visibility");
 const { QueryTrashInteractor } = await import("../query-trash.interactor");
 const { RestoreTrashInteractor } = await import("../restore-trash.interactor");
 const { DeleteTrashPermanentlyInteractor } = await import("../delete-trash-permanently.interactor");
+const { EmptyTrashInteractor } = await import("../empty-trash.interactor");
+const { TRASH_PURGE_BATCH_SIZE } = await import("../purge-company-trash.interactor");
 const { PreviewTrashDeletionInteractor } = await import("../preview-trash-deletion.interactor");
 const { PrismaDataViewRepo } = await import("@/features/data-view/prisma-data-view.repository");
 const { PrismaP13nRepo } = await import("@/features/p13n/prisma-p13n.repository");
 const { DeleteDataViewInteractor } = await import("@/features/data-view/delete-data-view.interactor");
 const { PrismaWidgetRepo } = await import("@/features/widget/prisma-widget.repository");
 const { LIVE_WIDGET } = await import("@/features/widget/live-widget");
+const { WidgetTrashBlockers } = await import("@/features/widget/widget-trash-blockers");
 const { DeleteWidgetInteractor } = await import("@/features/widget/delete-widget.interactor");
 const { ValidateWidgetIdsInteractor } = await import("@/core/validation/validators/validate-widget-ids.interactor");
 const { PrismaWikiPageRepo } = await import("@/features/wiki/prisma-wiki-page.repository");
@@ -90,12 +93,7 @@ async function fixture() {
         kind: "widget",
         restoreOrder: 3,
         visibility: visibility.owned("widget"),
-        blockers: async (items) => {
-          const hidden = new Set(await widgets.widgetsOnTrashedViews(items.map((item) => item.targetId)));
-          return items
-            .filter((item) => hidden.has(item.targetId))
-            .map((item) => ({ itemId: item.id, reason: "parentDeleted" as const, typeId: null }));
-        },
+        blockers: new WidgetTrashBlockers(widgets),
       },
       widgets,
       trashRepo,
@@ -131,6 +129,71 @@ async function fixture() {
 }
 
 describeDatabase("views, widgets, routines and knowledge base pages in Trash", () => {
+  it("empties a Trash larger than one purge batch, each item in its own short transaction", async () => {
+    const f = await fixture();
+    const companyId = f.seed.company.id;
+    const count = TRASH_PURGE_BATCH_SIZE * 2 + 5;
+    const ids = Array.from({ length: count }, () => randomUUID());
+    await runWithoutTenant(async () => {
+      const deletedAt = new Date();
+      await prisma.dataView.createMany({
+        data: ids.map((id, position) => ({
+          id,
+          companyId,
+          userId: f.seed.admin.id,
+          surfaceKey: "routines-card-store",
+          name: `View ${position}`,
+          position,
+          deletedAt,
+        })),
+      });
+      await prisma.trashItem.createMany({
+        data: ids.map((targetId, position) => ({
+          id: randomUUID(),
+          companyId,
+          kind: "view" as const,
+          targetId,
+          ownerUserId: f.seed.admin.id,
+          label: `View ${position}`,
+          deletedById: f.seed.admin.id,
+          deletedAt,
+          expiresAt: new Date(deletedAt.getTime() + 86_400_000),
+          batchId: randomUUID(),
+        })),
+      });
+    });
+    const trashRepo = new PrismaTrashRepo();
+    const handlers = [
+      new EntityTrashHandler(
+        { kind: "view", restoreOrder: 2, visibility: new EntityTrashVisibility().owned("view") },
+        new PrismaDataViewRepo(),
+        trashRepo,
+        events,
+      ),
+    ];
+    const preview = await runWithTenant(f.admin, () =>
+      new PreviewTrashDeletionInteractor(trashRepo, handlers).invoke({ all: true }),
+    );
+    if (!preview.ok) throw new Error(JSON.stringify(preview));
+    const admin = { load: () => Promise.resolve({ actor: { id: f.seed.admin.id }, isAdmin: true }) } as never;
+    const transactions = vi.spyOn(prisma, "$transaction");
+    const result = await runWithTenant(f.admin, () =>
+      new EmptyTrashInteractor(trashRepo, admin, handlers).invoke({ expectedImpactHash: preview.data.impactHash }),
+    );
+    expect(result).toMatchObject({ ok: true, data: { pendingItemIds: [], failedItemIds: [] } });
+    expect(result.ok && result.data.deletedItemIds).toHaveLength(count);
+    expect(transactions.mock.calls.length).toBeGreaterThanOrEqual(count);
+    transactions.mockRestore();
+    expect(
+      await runWithoutTenant(() =>
+        Promise.all([
+          prisma.trashItem.count({ where: { companyId } }),
+          prisma.dataView.count({ where: { companyId, id: { in: ids } } }),
+        ]),
+      ),
+    ).toEqual([0, 0]);
+  }, 120_000);
+
   it("moves an owned view to Trash, hides it, restores it with Undo and purges it permanently", async () => {
     const f = await fixture();
     const views = new PrismaDataViewRepo();

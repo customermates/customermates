@@ -34,7 +34,7 @@ Jeder Nutzer hat ein eigenes Kontingent: Starter enthält [[commercial.entitleme
 | Aufeinanderfolgende fehlgeschlagene Läufe | 3 | Die Routine pausiert sich selbst und zeigt den Grund; der Eigentümer schaltet sie wieder ein, sobald die Ursache behoben ist |
 | Kürzestes Zeitplan-Intervall | 15 Minuten | Ein häufigerer Zeitplan wird beim Speichern abgelehnt |
 | Laufverlauf | 90 Tage | Ältere Läufe werden entfernt |
-| Ereignis-Debounce | Standard 300 Sekunden, 0 bis 86.400, nur über Mate oder MCP einstellbar | Weitere passende Ereignisse innerhalb des Fensters nach einem Laufstart werden ignoriert |
+| Ereignis-Debounce | Standard 300 Sekunden, 0 bis 86.400, nur über Mate, MCP oder die REST-API einstellbar | Weitere passende Ereignisse innerhalb des Fensters nach einem Laufstart werden ignoriert |
 
 Übersprungene Läufe zählen nicht gegen die Stundenobergrenze.
 
@@ -42,11 +42,11 @@ Jeder Nutzer hat ein eigenes Kontingent: Starter enthält [[commercial.entitleme
 
 Öffnen Sie in [Routinen](app:routines) eine Routine oder klicken Sie auf [Hinzufügen](app:routines?focus=add), und wählen Sie unter **Wiederholung** **Alle 15 Minuten**, **Alle 30 Minuten**, **Stündlich**, **Täglich**, **Wöchentlich** oder **Monatlich**, dazu wo nötig den Wochentag, den Tag im Monat (1 bis 28) oder die Uhrzeit in Fünf-Minuten-Schritten. Standard ist täglich um 09:00. Ab **Stündlich** steht der Zeitplan darunter ausgeschrieben, gefolgt von **Zeiten werden in … angezeigt** mit der Zeitzone, die aus dem Browser stammt, in dem die Routine erstellt wurde (UTC, wenn unbekannt).
 
-Einen Zeitplan, der zu keinem Muster passt, etwa nur werktags, und eine andere Zeitzone können Sie nur über Mate oder einen MCP-Client festlegen; der Dialog zeigt dann **Diese Routine nutzt einen eigenen Zeitplan** mit **Zu einem Muster wechseln**. Der Planer prüft alle fünf Minuten, ein Lauf kann also einige Minuten später starten, und ein Lauf, der nach zwei Minuten noch wartet, wird erneut ausgelöst.
+Einen Zeitplan, der zu keinem Muster passt, etwa nur werktags, und eine andere Zeitzone können Sie nur über Mate, einen MCP-Client oder die REST-API festlegen; der Dialog zeigt dann **Diese Routine nutzt einen eigenen Zeitplan** mit **Zu einem Muster wechseln**. Der Planer prüft alle fünf Minuten, ein Lauf kann also einige Minuten später starten, und ein Lauf, der nach zwei Minuten noch wartet, wird erneut ausgelöst.
 
 ## Wie funktionieren Ereignis-Auslöser, etwa um eine Routine zu starten, wenn sich ein Deal ändert? [#how-do-event-triggers-work]
 
-Wählen Sie unter **Ereignisse** ein oder mehrere Ereignisse: jedes Datensatz- und Messaging-Ereignis, das ein [Webhook](/docs/webhooks#which-events-exist) abonnieren kann, außer E-Mail gelöscht und Chat gelöscht. Änderungen in der App, in einem Mate-Chat, über die API oder über MCP lösen Routinen aus; Änderungen eines Routinenlaufs nie, Routinen können sich also weder verketten noch in einer Schleife laufen.
+Wählen Sie unter **Ereignisse** ein oder mehrere Ereignisse: jedes Datensatz- und Messaging-Ereignis, das ein [Webhook](/docs/webhooks#which-events-exist) abonnieren kann, außer Datensatz endgültig gelöscht, E-Mail gelöscht und Chat gelöscht. Änderungen in der App, in einem Mate-Chat, über die API oder über MCP lösen Routinen aus; Änderungen eines Routinenlaufs nie, Routinen können sich also weder verketten noch in einer Schleife laufen.
 
 Zwei optionale Controls verhindern, dass eine Routine Credits für Fälle ausgibt, die Sie nicht interessieren:
 
@@ -89,4 +89,4 @@ In einem Chat kann Mate Routinen auflisten, den Laufverlauf lesen, Routinen anle
 
 ## Für Agents [#tips-for-agents]
 
-Nutzen Sie `manage_routines`. Ein eigener Zeitplan ist ein fünfteiliger Cron-Ausdruck, etwa `0 9 * * 1-5`. Laufstatus kommen als `queued`, `running`, `succeeded`, `partial`, `failed`, `skipped` und `blocked` zurück. Die Aktion `pause` erfordert die Rolle **Admin**, auch bei der eigenen Routine; ein Eigentümer ohne sie pausiert, indem er mit `enabled: false` aktualisiert. Ereignisnamen sind die Webhook-Ereignisnamen, ohne `messaging.email.deleted` und `messaging.chat.deleted`.
+Nutzen Sie `manage_routines`. Ein eigener Zeitplan ist ein fünfteiliger Cron-Ausdruck, etwa `0 9 * * 1-5`. Laufstatus kommen als `queued`, `running`, `succeeded`, `partial`, `failed`, `skipped` und `blocked` zurück. Die Aktion `pause` erfordert die Rolle **Admin**, auch bei der eigenen Routine; ein Eigentümer ohne sie pausiert, indem er mit `enabled: false` aktualisiert. Ereignisnamen sind die Webhook-Ereignisnamen, ohne `record.deletedPermanently`, `messaging.email.deleted` und `messaging.chat.deleted`. Datensatzfilter stehen in `recordTrigger.query.filters`; eine Routine, die mehreren Listen folgt, nutzt stattdessen `recordSources`, bis zu 50 Quellen mit jeweils eigener `query`, eigenen `changedFieldIds` und `events`, und kann das nicht mit `recordTrigger` kombinieren. Die frühere Einstellung `triggerFilters` gibt es nicht mehr. Über REST liegen Routinen unter `/api/v1/routines/`: `list`, `read`, `runs`, `create`, `update`, `pause`, `resume`, `run` und `delete`.

@@ -26,7 +26,7 @@ export const HorizontalBarChartWithLabels = observer(({ currency, chartData, rev
   return (
     <TooltipProvider>
       <div aria-hidden className="h-full min-h-0 overflow-y-auto pr-1" data-slot="widget-bar-list">
-        <ul className="flex min-h-full flex-col justify-around gap-2">
+        <ul className="flex flex-col gap-3">
           {rows.map((row, index) => {
             const value = row.formattedValue ?? formatValue(row.value);
             const width = (Math.abs(row.value) / range) * 100;
