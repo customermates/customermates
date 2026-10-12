@@ -16,6 +16,7 @@ const { ProcessEventInteractor } = await import("../process-event.interactor");
 const { EventAdmissionGroup } = await import("../event-admission-group");
 const { WebhookAdmission } = await import("@/features/webhook/webhook-admission");
 const { PrismaWebhookAdmissionRepo } = await import("@/features/webhook/prisma-webhook-admission.repository");
+const { PrismaWebhookDeliveryRepo } = await import("@/features/webhook/prisma-webhook-delivery.repository");
 const { RoutineAdmission } = await import("@/ee/routines/routine-admission");
 const { createTestRecordRecipientReader } = await import("@/tests/helpers/record-delivery");
 
@@ -93,7 +94,12 @@ describeDatabase("event outbox for messaging events", () => {
     const process = new ProcessEventInteractor(
       new PrismaEventOutboxRepo(),
       new EventAdmissionGroup([
-        new WebhookAdmission(reader, background as never, new PrismaWebhookAdmissionRepo()),
+        new WebhookAdmission(
+          reader,
+          background as never,
+          new PrismaWebhookAdmissionRepo(),
+          new PrismaWebhookDeliveryRepo(reader),
+        ),
         new RoutineAdmission(routines, background as never, reader),
       ]),
     );

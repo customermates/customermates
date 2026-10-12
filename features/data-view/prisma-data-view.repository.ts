@@ -14,6 +14,11 @@ import {
   writePartialStoredState,
   writeStoredState,
 } from "./data-view-row-mapping";
+import type { RecordViewConfigurationRepo } from "./record-view-configuration.repo";
+import type { ViewWidgetPurgeRepo } from "@/features/widget/view-widget-purge.repo";
+import type { SurfaceStateResetRepo } from "@/features/p13n/surface-state-reset.repo";
+
+export type DataViewRepoOwners = { widgets: ViewWidgetPurgeRepo; personalizations: SurfaceStateResetRepo };
 
 export type CreateDataViewArgs = {
   surfaceKey: string;
@@ -41,18 +46,6 @@ function resetViewColumns(fields: ResetField[]): Prisma.DataViewUpdateManyMutati
   const data: Prisma.DataViewUpdateManyMutationInput = {};
   for (const field of fields) {
     if (field === "searchTerm" || field === "viewMode" || field === "pageSize") data[field] = null;
-    else data[field] = Prisma.DbNull;
-    if (field === "grouping") data.groupingColumnId = null;
-  }
-  return data;
-}
-
-function resetPersonalizationColumns(fields: ResetField[]): Prisma.P13nUpdateManyMutationInput {
-  const data: Prisma.P13nUpdateManyMutationInput = {};
-  for (const field of fields) {
-    if (field === "pageSize") data.pagination = Prisma.DbNull;
-    else if (field === "columnOrder" || field === "hiddenColumns") data[field] = [];
-    else if (field === "searchTerm" || field === "viewMode") data[field] = null;
     else data[field] = Prisma.DbNull;
     if (field === "grouping") data.groupingColumnId = null;
   }
@@ -107,8 +100,14 @@ function toDto(row: StoredViewRow): DataViewDto {
   };
 }
 
-export class PrismaDataViewRepo extends TenantRepository implements DataViewStateRepo, CommandCatalogRepo {
-  constructor(private readonly scopedCompanyId?: string) {
+export class PrismaDataViewRepo
+  extends TenantRepository
+  implements DataViewStateRepo, CommandCatalogRepo, RecordViewConfigurationRepo
+{
+  constructor(
+    private readonly owners: DataViewRepoOwners,
+    private readonly scopedCompanyId?: string,
+  ) {
     super();
   }
 
@@ -146,18 +145,7 @@ export class PrismaDataViewRepo extends TenantRepository implements DataViewStat
       });
       return count === 1;
     }
-    const current = await this.prisma.p13n.findUnique({
-      where: { companyId, companyId_userId_p13nId: { companyId, userId, p13nId: surfaceKey } },
-    });
-    if (!current) return true;
-    const keys = Array.isArray(current.viewStateKeys)
-      ? current.viewStateKeys
-      : Object.keys(readStoredPersonalizationState(current));
-    const remaining = keys.filter((key) => typeof key === "string" && !fields.includes(key as (typeof fields)[number]));
-    await this.prisma.p13n.updateMany({
-      where: { companyId, userId, p13nId: surfaceKey },
-      data: { ...resetPersonalizationColumns(fields), viewStateKeys: remaining as Prisma.InputJsonValue },
-    });
+    await this.owners.personalizations.resetSurfaceState(companyId, userId, surfaceKey, fields);
     return true;
   }
 
@@ -312,11 +300,29 @@ export class PrismaDataViewRepo extends TenantRepository implements DataViewStat
   }
 
   async purgeTrashed(ids: string[]): Promise<void> {
-    await this.prisma.widget.deleteMany({
-      where: { companyId: this.companyId, viewId: { in: ids }, view: { is: { deletedAt: { not: null } } } },
-    });
+    await this.owners.widgets.purgeOnTrashedViewsCompanyWide(this.companyId, ids);
     await this.prisma.dataView.deleteMany({
       where: { id: { in: ids }, companyId: this.companyId, deletedAt: { not: null } },
     });
+  }
+
+  async getViewsCompanyWide(companyId: string, surfaceKeys: string[], afterId: string, take: number) {
+    return this.prisma.dataView.findMany({
+      where: { companyId, surfaceKey: { in: surfaceKeys }, ...(afterId ? { id: { gt: afterId } } : {}) },
+      orderBy: { id: "asc" },
+      take,
+    });
+  }
+
+  async countViewsCompanyWide(companyId: string, surfaceKeys: string[]) {
+    return this.prisma.dataView.count({ where: { companyId, surfaceKey: { in: surfaceKeys } } });
+  }
+
+  async deleteViewsCompanyWide(companyId: string, surfaceKeys: string[]): Promise<void> {
+    await this.prisma.dataView.deleteMany({ where: { companyId, surfaceKey: { in: surfaceKeys } } });
+  }
+
+  async rewriteViewStateCompanyWide(companyId: string, id: string, state: DataViewState): Promise<void> {
+    await this.prisma.dataView.updateMany({ where: { companyId, id }, data: writePartialStoredState(state) });
   }
 }
