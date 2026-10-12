@@ -19,12 +19,17 @@ vi.mock("@/env", () => ({
   },
 }));
 const sentry = vi.hoisted(() => ({ captured: [] as unknown[] }));
-vi.mock("@sentry/nextjs", async (importOriginal) => ({
-  ...(await importOriginal<Record<string, unknown>>()),
+vi.mock("@sentry/nextjs", () => ({
   captureException: (error: unknown) => {
     sentry.captured.push(error);
     return "captured";
   },
+  captureMessage: () => "captured",
+  flush: () => Promise.resolve(true),
+  setTag: () => undefined,
+  setUser: () => undefined,
+  withScope: (callback: (scope: Record<string, () => void>) => unknown) =>
+    callback({ setContext: () => undefined, setTag: () => undefined, setUser: () => undefined }),
 }));
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
