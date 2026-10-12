@@ -1448,6 +1448,41 @@
       "userIds": "Assigned"
     },
     "language": "Language",
+    "legacyEvents": {
+      "company": {
+        "updated": "Company updated (legacy)"
+      },
+      "contact": {
+        "created": "Contact created (legacy)",
+        "deleted": "Contact deleted (legacy)",
+        "updated": "Contact updated (legacy)"
+      },
+      "custom_column": {
+        "created": "Custom column created (legacy)",
+        "deleted": "Custom column deleted (legacy)",
+        "updated": "Custom column updated (legacy)"
+      },
+      "deal": {
+        "created": "Deal created (legacy)",
+        "deleted": "Deal deleted (legacy)",
+        "updated": "Deal updated (legacy)"
+      },
+      "organization": {
+        "created": "Organization created (legacy)",
+        "deleted": "Organization deleted (legacy)",
+        "updated": "Organization updated (legacy)"
+      },
+      "service": {
+        "created": "Service created (legacy)",
+        "deleted": "Service deleted (legacy)",
+        "updated": "Service updated (legacy)"
+      },
+      "task": {
+        "created": "Task created (legacy)",
+        "deleted": "Task deleted (legacy)",
+        "updated": "Task updated (legacy)"
+      }
+    },
     "locales": {
       "de": "German",
       "en": "English",

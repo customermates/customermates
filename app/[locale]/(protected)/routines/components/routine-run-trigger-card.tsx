@@ -10,6 +10,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { useChangeFieldLabel } from "@/components/data-view/use-column-label";
 import { InfoRow } from "@/components/shared/info-row";
 import { IntlLink } from "@/i18n/navigation";
+import { eventLabel } from "@/features/event/event-label";
 
 type Props = {
   run: RoutineRunDto;
@@ -26,7 +27,7 @@ export function RoutineRunTriggerCard({ run, customColumns = [], recordFields }:
     <div className="space-y-1.5 rounded-lg border p-4">
       <InfoRow label={t("RoutineDetail.trigger")}>
         <AppChip size="sm" variant="secondary">
-          {run.triggerEvent ? t(`Common.events.${run.triggerEvent}`) : t(`RoutineTriggerKind.${run.triggerKind}`)}
+          {run.triggerEvent ? eventLabel(t, run.triggerEvent) : t(`RoutineTriggerKind.${run.triggerKind}`)}
         </AppChip>
       </InfoRow>
 

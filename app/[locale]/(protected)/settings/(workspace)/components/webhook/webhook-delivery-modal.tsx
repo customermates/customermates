@@ -15,6 +15,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { AppChip } from "@/components/chip/app-chip";
 import { CodeBlockAccordion } from "@/components/shared/code-block-accordion";
+import { eventLabel } from "@/features/event/event-label";
 
 export const WebhookDeliveryModal = observer(() => {
   const t = useTranslations();
@@ -63,7 +64,7 @@ export const WebhookDeliveryModal = observer(() => {
           {delivery.event && (
             <InfoRow label={t("WebhookDeliveryModal.event")}>
               <AppChip size="sm" variant="secondary">
-                {t(`Common.events.${delivery.event}`)}
+                {eventLabel(t, delivery.event)}
               </AppChip>
             </InfoRow>
           )}

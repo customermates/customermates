@@ -30,6 +30,7 @@ import {
   resolveMessageSenderName,
   resolveMessageTitle,
 } from "./activity-row-labels";
+import { eventLabel } from "@/features/event/event-label";
 
 type Props = {
   items: ActivityEntryDto[];
@@ -213,9 +214,7 @@ export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }
                 key={activityEntryKey(entry)}
                 avatar={
                   <IdentityAvatar
-                    badge={
-                      <TypeBadge icon={category.icon} label={t(`Common.events.${entry.event}`)} tone={category.tone} />
-                    }
+                    badge={<TypeBadge icon={category.icon} label={eventLabel(t, entry.event)} tone={category.tone} />}
                     name={[entry.actor.firstName, entry.actor.lastName]}
                     src={entry.actor.avatarUrl}
                   />
@@ -232,7 +231,7 @@ export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }
                       </>
                     )}
 
-                    {fields || t(`Common.events.${entry.event}`)}
+                    {fields || eventLabel(t, entry.event)}
                   </>
                 }
                 time={time}
@@ -265,16 +264,14 @@ export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }
               key={activityEntryKey(entry)}
               avatar={
                 <IdentityAvatar
-                  badge={
-                    <TypeBadge icon={category.icon} label={t(`Common.events.${entry.event}`)} tone={category.tone} />
-                  }
+                  badge={<TypeBadge icon={category.icon} label={eventLabel(t, entry.event)} tone={category.tone} />}
                   name={[entry.actor.firstName, entry.actor.lastName]}
                   src={entry.actor.avatarUrl}
                 />
               }
               isFirst={index === 0}
               isLast={isLast}
-              subtitle={fields || t(`Common.events.${entry.event}`)}
+              subtitle={fields || eventLabel(t, entry.event)}
               time={time}
               title={actorName}
               onClick={() => timelineDetailModalStore.openWith({ entry })}
