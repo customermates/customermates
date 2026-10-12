@@ -5,7 +5,6 @@ import {
 } from "@/features/records/record-event-subscription.schema";
 
 import {
-  customMcpFailure,
   encodeToToon,
   fetchMcpPage,
   filtersDescription,
@@ -26,7 +25,6 @@ import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { filterFieldsHint } from "@/core/types/filter-field-value-kind";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { WebhookEventSchema } from "@/features/webhook/webhook.schema";
-import { CustomErrorCode } from "@/core/validation/validation.types";
 import { zx } from "@/core/validation/validation.utils";
 import {
   getGetWebhooksApiInteractor,
@@ -327,7 +325,6 @@ export const manageWebhooksTool = {
       const result = await getGetWebhookByIdInteractor().invoke({ id: parsed.data.id });
       if (!result.ok) return mcpInteractorFailure(result.error);
       const webhook = result.data;
-      if (!webhook) return customMcpFailure(CustomErrorCode.webhookNotFound);
       return toonResult(
         formatDatesInResponse({
           id: webhook.id,
@@ -363,7 +360,6 @@ export const manageWebhooksTool = {
         const webhookResult = await getGetWebhookByIdInteractor().invoke({ id: params.id });
         if (!webhookResult.ok) return mcpInteractorFailure(webhookResult.error);
         const webhook = webhookResult.data;
-        if (!webhook) return customMcpFailure(CustomErrorCode.webhookNotFound);
         filters = [
           { field: FilterFieldKey.url, operator: FilterOperatorKey.equals, value: webhook.url },
           ...(filters ?? []),
