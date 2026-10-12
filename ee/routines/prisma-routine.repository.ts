@@ -1,4 +1,5 @@
 import { RECORD_EVENT_KINDS, type RecordEventKind } from "@/features/records/record-event.schema";
+import type { RoutineLabelRepo } from "./routine-label.repo";
 import type { PermissionService } from "@/core/base/permission.service";
 import type { RepoArgs } from "@/core/utils/types";
 import { RecordFieldSchema } from "@/features/records/record-model.schema";
@@ -210,7 +211,8 @@ export class PrismaRoutineRepo
     SweepDueRoutinesRepo,
     ReconcileRoutineRunsRepo,
     ReleaseOwnerRoutinesRepo,
-    TriggerRoutinesRepo
+    TriggerRoutinesRepo,
+    RoutineLabelRepo
 {
   constructor(
     private readonly routineEventAccess: RoutineEventAccess,
@@ -1566,5 +1568,12 @@ export class PrismaRoutineRepo
       chargedMicrocents: agentMicrocentsFromStorage(usage?.chargedMicrocents, "Routine run usage"),
       summary: summarizeAssistantParts(assistantMessage?.parts),
     };
+  }
+
+  async getLabelsCompanyWide(companyId: string, ids: string[]) {
+    return this.prisma.routine.findMany({
+      where: { companyId, id: { in: ids } },
+      select: { id: true, name: true },
+    });
   }
 }
