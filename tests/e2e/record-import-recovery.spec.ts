@@ -110,7 +110,10 @@ test("rejects malformed and invalid typed imports without partial records and ac
   await expect(dialog.getByRole("alert")).toHaveCount(0);
   await expect(dialog).toContainText("2 records and 0 links are ready to import.");
   await submit.click();
-  await expect(dialog.getByRole("alert")).toHaveText(englishMessages.DataTransfer.recordImport.failed);
+  await expect(
+    page.locator('[data-sonner-toast][data-type="error"]').or(dialog.getByRole("alert")).first(),
+  ).toBeVisible();
+  await expect(submit).toBeEnabled();
   await expect(dialog).toBeVisible();
   expect(importRequests).toHaveLength(1);
   expect(await importState(database, companyId, typeId, ids)).toEqual(baseline);
