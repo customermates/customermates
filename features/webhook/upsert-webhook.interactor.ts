@@ -54,10 +54,34 @@ export const UpsertWebhookSchema = z
           ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.webhookBodyTemplateInvalid } });
       }),
     enabled: z.boolean().optional(),
-    recordTrigger: RecordTriggerDefinitionSchema.nullable().optional(),
-    recordSources: z.array(RecordTriggerSourceSchema).min(1).max(50).nullable().optional(),
-    recordOwnerUserId: z.uuid().optional(),
-    expectedSchemaRevision: z.number().int().nonnegative().optional(),
+    recordTrigger: RecordTriggerDefinitionSchema.nullable()
+      .optional()
+      .describe(
+        "Narrows the record events to one filter: query (typeId, filters, relationships, relatedFilters, search) selects the records, and changedFieldIds limits record.updated to changes of those fields. Cannot be combined with recordSources. null clears it.",
+      ),
+    recordSources: z
+      .array(RecordTriggerSourceSchema)
+      .min(1)
+      .max(50)
+      .nullable()
+      .optional()
+      .describe(
+        "Up to 50 trigger sources, each with its own query, changedFieldIds and record events, for a webhook that follows several lists. Cannot be combined with recordTrigger. null clears them.",
+      ),
+    recordOwnerUserId: z
+      .uuid()
+      .optional()
+      .describe(
+        "The user whose record access filters and redacts record deliveries. Defaults to the existing owner, or to the caller for a new subscription.",
+      ),
+    expectedSchemaRevision: z
+      .number()
+      .int()
+      .nonnegative()
+      .optional()
+      .describe(
+        "The current configuration revision from POST /v1/model/discover. Required whenever record events are subscribed for the first time or recordTrigger, recordSources or recordOwnerUserId change; a stale revision fails with a conflict.",
+      ),
   })
   .superRefine((data, ctx) => {
     if (data.recordTrigger && data.recordSources?.length) {

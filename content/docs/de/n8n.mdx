@@ -38,8 +38,12 @@ Verwenden Sie einen **HTTP Request**-Node mit einer `x-api-key`-Credential und J
 | Anlegen, ändern, löschen oder verknüpfen | `POST /api/v1/records/mutate` |
 | Löschung vorab prüfen | `POST /api/v1/records/preview-deletion` |
 | Export oder Import | `POST /api/v1/records/export` oder `POST /api/v1/records/import` |
+| Papierkorb-Einträge auflisten, wiederherstellen oder endgültig löschen | `POST /api/v1/trash/query`, `POST /api/v1/trash/restore`, `POST /api/v1/trash/preview`, `POST /api/v1/trash/delete-permanently` oder `POST /api/v1/trash/empty` |
+| Konfigurationsänderung vorab prüfen oder anwenden | `POST /api/v1/model/preview` oder `POST /api/v1/model/apply` |
+| Werte für einen Bericht aggregieren | `POST /api/v1/reports/query` |
+| Ausstehende Operation verfolgen, abbrechen oder fortsetzen | `POST /api/v1/operations/status`, `POST /api/v1/operations/cancel` oder `POST /api/v1/operations/resume` |
 
-**Breaking Change:** Diese Routen ersetzen die früheren entitätsspezifischen Endpunkte und das Präfix `/api/v2`, die entfernt wurden. Passen Sie HTTP-Request-Nodes an, die noch einen Endpunkt für Kontakte, Organisationen, Deals, Leistungen oder Aufgaben aufrufen.
+**Breaking Change:** Diese Routen ersetzen die früheren entitätsspezifischen Endpunkte, die entfernt wurden. Passen Sie HTTP-Request-Nodes an, die noch einen Endpunkt für Kontakte, Organisationen, Deals, Leistungen oder Aufgaben aufrufen.
 
 Die Basis-URL ist die Adresse, unter der Sie Customermates öffnen. Eine Mutation enthält eine stabile `typeId`, einen Idempotenzschlüssel und die erwartete Konfigurationsrevision; Änderungen und Löschungen enthalten außerdem Datensatzreferenz und erwartete Version. Felder sind typisierte Zuweisungen, Verknüpfungen nennen ihre Beziehungsdefinition. Eine Löschung kann den Hash einer aktuellen Auswirkungs-Vorschau verlangen. Abfrageformen stehen unter [Filtersyntax](/docs/filter-syntax).
 

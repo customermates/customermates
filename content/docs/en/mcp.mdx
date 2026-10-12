@@ -70,7 +70,7 @@ Keep CRM processes, company voice, product knowledge and support answers in the 
 
 ### Write and link pages
 
-Choose **New page**, enter a title and write in the visual editor, which uses the same formatting as CRM Notes. Changes are not saved automatically: **Save** keeps them, **Reset** discards unsaved edits. The page list switches documents and searches titles and content; the Operating Guide stays pinned first, and people who can edit Knowledge Base pages drag the others into one order for the whole workspace. An empty Knowledge Base offers **New page** and, when hosted Mate is available, **Build from my website**. Give each page a clear, specific title so people and agents can find it.
+Choose **New page**, enter a title and write in the visual editor, which uses the same formatting as a Formatted text field on a CRM record. Changes are not saved automatically: **Save** keeps them, **Reset** discards unsaved edits. The page list switches documents and searches titles and content; the Operating Guide stays pinned first, and people who can edit Knowledge Base pages drag the others into one order for the whole workspace. An empty Knowledge Base offers **New page** and, when hosted Mate is available, **Build from my website**. Give each page a clear, specific title so people and agents can find it.
 
 To link another page, use the editor's link control or **Copy page link** in **Page actions**. These are ordinary Markdown links, and renaming a page keeps its address; no separate index or linking metadata is needed.
 
@@ -137,7 +137,7 @@ Local clients such as `mcporter` connect to the same endpoint: store the API key
 
 Both live at the same base URL: MCP at `/api/v1/mcp`, the OpenAPI spec at `/api/v1/openapi`. OpenAPI operations map 1:1 to REST endpoints; MCP wraps supported operations as typed tools with instructions, annotations and the same authorization. Those instructions add no second server-side confirmation step.
 
-**Breaking change:** the former entity-specific REST endpoints and MCP tools for contacts, organizations, deals, services and tasks, the separate `/api/v2` prefix and the per-type export route were removed without a compatibility layer. The configurable record API lives under `/api/v1`, for example `/api/v1/model/discover` and `/api/v1/records/mutate`. Removed endpoints answer `404` and removed tool names are no longer listed. Update saved integrations to discover record types and use `typeId` and `recordId` references.
+**Breaking change:** the former entity-specific REST endpoints and MCP tools for contacts, organizations, deals, services and tasks and the per-type export route were removed without a compatibility layer. The configurable record API lives under `/api/v1`, for example `/api/v1/model/discover` and `/api/v1/records/mutate`. Removed endpoints answer `404` and removed tool names are no longer listed. Update saved integrations to discover record types and use `typeId` and `recordId` references.
 
 ## What can the MCP server do? Tool catalog [#tool-catalog]
 
