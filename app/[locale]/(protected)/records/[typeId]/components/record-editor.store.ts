@@ -21,7 +21,9 @@ import { rebaseModelChangeDraft } from "@/app/[locale]/(protected)/configure/com
 import { isRecordFieldWritable, recordDraftValue, recordInputValue } from "@/features/records/record-input-value";
 import { recordChannelsEnabled } from "@/features/records/record-channels";
 import { RecordScalarSchema } from "@/features/records/record-model.schema";
+import { recordFieldErrors, recordValuesErrorTree } from "@/features/records/record-mutation-failure";
 import { mutateRecordAction, getRecordEditorAction } from "../../actions";
+import { recordValueIssueMessage } from "./record-field-value-editor";
 
 export type RecordDraft = {
   id: string | undefined;
@@ -481,33 +483,31 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
       const value = this.scalar(field);
       return value === null || (value.kind === "text" && !value.value.trim());
     });
-    if (missing.length) {
-      const required = this.rootStore.localeStore.getTranslation("RecordModel.required");
-      this.setError({
-        errors: [],
-        properties: {
-          values: {
-            errors: [],
-            properties: Object.fromEntries(missing.map((field) => [field.id, { errors: [required] }])),
-          },
-        },
-      } as Parameters<typeof this.setError>[0]);
+    const fields = this.fields
+      .filter(
+        (field) =>
+          isRecordFieldWritable(field) &&
+          !this.form.captureFieldIds.includes(field.id) &&
+          (field.behavior.kind !== "snapshot" || this.form.values[field.id] !== undefined) &&
+          (!this.record ||
+            JSON.stringify(this.form.values[field.id]) !== JSON.stringify(this.savedState.values[field.id])),
+      )
+      .map((field) => ({ field, fieldId: field.id, value: this.scalar(field) }));
+    const invalid: Record<string, string[]> = Object.fromEntries(
+      missing.map((field) => [field.id, [this.rootStore.localeStore.getTranslation("RecordModel.required")]]),
+    );
+    for (const { field, value } of fields) {
+      const message = value && !invalid[field.id] ? recordValueIssueMessage(this.rootStore, value, field) : null;
+      if (message) invalid[field.id] = [message];
+    }
+    if (Object.keys(invalid).length) {
+      this.setError(recordValuesErrorTree({ errors: [], fields: invalid }) as Parameters<typeof this.setError>[0]);
       return;
     }
     const session = this.sessionGeneration;
     const isCurrent = () => session === this.sessionGeneration && this.isOpen;
     this.setIsLoading(true);
     try {
-      const fields = this.fields
-        .filter(
-          (field) =>
-            isRecordFieldWritable(field) &&
-            !this.form.captureFieldIds.includes(field.id) &&
-            (field.behavior.kind !== "snapshot" || this.form.values[field.id] !== undefined) &&
-            (!this.record ||
-              JSON.stringify(this.form.values[field.id]) !== JSON.stringify(this.savedState.values[field.id])),
-        )
-        .map((field) => ({ fieldId: field.id, value: this.scalar(field) }));
       const identities =
         recordChannelsEnabled(this.presentation.model, this.presentation.typeId) &&
         (!this.record || JSON.stringify(this.form.identities) !== JSON.stringify(this.savedState.identities))
@@ -521,7 +521,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
               action: "update",
               ref: toJS(this.record.ref),
               expectedVersion: this.record.version,
-              fields,
+              fields: fields.map(({ fieldId, value }) => ({ fieldId, value })),
               ...identities,
               ...(this.form.captureFieldIds.length ? { captureFieldIds: toJS(this.form.captureFieldIds) } : {}),
               linkChanges: toJS(this.form.linkChanges).map(({ action, relationId, direction, record }) => ({
@@ -537,7 +537,7 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
           : {
               action: "create",
               typeId: this.presentation.typeId,
-              fields,
+              fields: fields.map(({ fieldId, value }) => ({ fieldId, value })),
               ...identities,
               ...(!this.presentation.model.types.find((type) => type.id === this.presentation.typeId)?.embedded
                 ? { assignedUserIds: toJS(this.form.assignedUserIds) }
@@ -555,7 +555,16 @@ export class RecordEditorStore extends BaseModalStore<RecordDraft> {
         if (!isCurrent()) return;
         if (result.failure?.issues.some((issue) => issue.customCode && STALE_WRITE_CODES.has(issue.customCode)))
           this.markStale();
-        this.setError(result.error);
+        this.setError(
+          (result.failure?.kind === "validation"
+            ? recordValuesErrorTree(
+                recordFieldErrors(
+                  result.failure,
+                  fields.map(({ fieldId }) => fieldId),
+                ),
+              )
+            : result.error) as Parameters<typeof this.setError>[0],
+        );
         return;
       }
       if (result.data.status === "pending") {

@@ -49,16 +49,16 @@ export function unwoundFailure(error: unknown): Promise<InteractorFailure> {
   if (!cause) throw error;
   switch (cause.failureKind) {
     case "authorization":
-      return failAuthorization(cause.code, cause.path);
+      return failAuthorization(cause.code, cause.path, cause.values);
     case "conflict":
-      return failConflict(cause.code, cause.path);
+      return failConflict(cause.code, cause.path, cause.values);
     case "not_found":
-      return failNotFound(cause.code, cause.path);
+      return failNotFound(cause.code, cause.path, cause.values);
     case "rate_limit":
-      return failRateLimit(cause.code, cause.path);
+      return failRateLimit(cause.code, cause.path, cause.values);
     case "unavailable":
-      return failUnavailable(cause.code, cause.path);
+      return failUnavailable(cause.code, cause.path, cause.values);
     default:
-      return fail(cause.code, cause.path);
+      return fail(cause.code, cause.path, cause.values);
   }
 }

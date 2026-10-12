@@ -33438,6 +33438,20 @@
                           },
                           "relationId": {
                             "type": "string"
+                          },
+                          "count": {
+                            "description": "For existing_values_incompatible: how many records hold a value that cannot be converted.",
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "examples": {
+                            "description": "For existing_values_incompatible: up to three of the values that cannot be converted.",
+                            "maxItems": 3,
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
                           }
                         },
                         "required": [
@@ -112952,6 +112966,12 @@
                         "recordConfigurationInvalid",
                         "webhookTriggerRequired",
                         "recordValueInvalid",
+                        "recordValueRequired",
+                        "recordValueTypeMismatch",
+                        "recordNumberInvalid",
+                        "recordDateInvalid",
+                        "recordDateRangeInvalid",
+                        "recordOptionInvalid",
                         "recordSchemaChanged",
                         "recordVersionChanged",
                         "recordWritePaused",
@@ -112998,6 +113018,7 @@
                         "socialActionRequiresSocialAccount",
                         "salesNavigatorNotAvailable",
                         "invalidUrl",
+                        "invalidPhone",
                         "emailLinkColourInvalid",
                         "legalNoticeNotDelivered",
                         "termsNotAgreed",

@@ -363,6 +363,17 @@ export const ConfigurationPreviewSchema = z
           fieldId: z.string().optional(),
           typeId: z.string().optional(),
           relationId: z.string().optional(),
+          count: z
+            .number()
+            .int()
+            .nonnegative()
+            .optional()
+            .describe("For existing_values_incompatible: how many records hold a value that cannot be converted."),
+          examples: z
+            .array(z.string())
+            .max(3)
+            .optional()
+            .describe("For existing_values_incompatible: up to three of the values that cannot be converted."),
         })
         .strict(),
     ),

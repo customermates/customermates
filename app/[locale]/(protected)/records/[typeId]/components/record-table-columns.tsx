@@ -24,7 +24,7 @@ import {
   hasInlineRelationshipEditor,
 } from "./record-inline-field";
 
-const FILL_EDIT_TARGET_CLASS = "flex min-w-0 [&_[data-edit-target]]:w-full";
+const FILL_EDIT_TARGET_CLASS = "flex min-w-0 [&_[data-edit-target]:not([data-slot=switch])]:w-full";
 
 function recordAvatarFieldId(store: RecordsStore) {
   return store.presentation.model.capabilities

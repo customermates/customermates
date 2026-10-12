@@ -31,7 +31,11 @@ import {
   validateRecordModel,
 } from "./record-model-validation";
 import { SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
-import { configurationInputFields, configurationInputValue } from "./record-configuration-values";
+import {
+  configurationInputFields,
+  configurationInputValue,
+  configurationValueExample,
+} from "./record-configuration-values";
 import { canonicalRecordJson } from "./record-json";
 import { duplicateNameIssues } from "./record-names";
 
@@ -271,7 +275,7 @@ export class RecordConfigurationService extends UserAccessor {
     const dataValidation =
       checkedTypes.length < inputTypes.length || validationCount > SYNCHRONOUS_RECORD_LIMIT ? "staged" : "complete";
     if (validationCount <= SYNCHRONOUS_RECORD_LIMIT) {
-      const invalid = new Set<string>();
+      const invalid = new Map<string, { typeId: string; count: number; examples: string[] }>();
       for (const typeId of checkedTypes) {
         const refs = await this.records.getRecordRefsCompanyWide(typeId, undefined, SYNCHRONOUS_RECORD_LIMIT + 1, {
           includeTrash: true,
@@ -279,25 +283,23 @@ export class RecordConfigurationService extends UserAccessor {
         const rows = await this.records.getRecordsCompanyWide(refs, { includeTrash: true });
         for (const row of rows) {
           for (const field of inputs.filter((field) => field.typeId === typeId)) {
-            if (invalid.has(field.id)) continue;
+            const before = current.fields.find((candidate) => candidate.id === field.id);
             try {
-              configurationInputValue(
-                row,
-                current.fields.find((before) => before.id === field.id),
-                field,
-              );
+              configurationInputValue(row, before, field);
             } catch (error) {
               if (!failureUnwindCause(error)) throw error;
-              invalid.add(field.id);
-              validation.issues.push({
-                code: "existing_values_incompatible",
-                fieldId: field.id,
-                typeId,
-              });
+              const entry = invalid.get(field.id) ?? { typeId, count: 0, examples: [] };
+              const example = configurationValueExample(row, before);
+              entry.count += 1;
+              if (example !== null && entry.examples.length < 3 && !entry.examples.includes(example))
+                entry.examples.push(example);
+              invalid.set(field.id, entry);
             }
           }
         }
       }
+      for (const [fieldId, { typeId, count, examples }] of invalid)
+        validation.issues.push({ code: "existing_values_incompatible", fieldId, typeId, count, examples });
     }
     const deletionCounts = removed ? await this.records.countDefinitionDeletion(removed.deletion) : null;
     const deletionReadable =
