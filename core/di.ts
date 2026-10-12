@@ -1746,7 +1746,7 @@ export const getGetRecordPresentationInteractor = () =>
     getQueryRecordsInteractor(),
   );
 
-export const getRecordWidgetRepo = () => new PrismaRecordWidgetRepo();
+export const getRecordWidgetRepo = () => new PrismaRecordWidgetRepo(getWidgetRepo());
 export const getRecordWidgetReader = () =>
   new RecordWidgetReader(getRecordRepo(), getQueryRecordMeasureInteractor(), getUserRepo());
 export const getPreviewRecordWidgetInteractor = () => new PreviewRecordWidgetInteractor(getRecordWidgetReader());
@@ -1777,7 +1777,7 @@ export const getGetRecordWidgetsInteractor = () =>
     getRecordActivityWidgetReader(),
   );
 
-export const getRecordActivityWidgetRepo = () => new PrismaRecordActivityWidgetRepo();
+export const getRecordActivityWidgetRepo = () => new PrismaRecordActivityWidgetRepo(getWidgetRepo());
 export const getRecordActivityWidgetReader = () =>
   new RecordActivityWidgetReader(getRecordRepo(), getGetRecordActivitiesInteractor());
 export const getUpsertRecordActivityWidgetInteractor = () =>

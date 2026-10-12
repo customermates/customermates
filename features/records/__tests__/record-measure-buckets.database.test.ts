@@ -85,7 +85,7 @@ async function fixture(preset: Preset = "crm") {
   const measure = new QueryRecordMeasureInteractor(repo, policy);
   const reader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
   const widgets = new UpsertRecordWidgetInteractor(
-    new PrismaRecordWidgetRepo(),
+    new PrismaRecordWidgetRepo(new PrismaWidgetRepo()),
     repo,
     policy,
     measure,
@@ -853,7 +853,10 @@ describeDatabase("time-bucketed record measures", () => {
     );
     expect(back.ok && back.data).toMatchObject({ viewId: null, layout: { lg: { x: 3, y: 0 } } });
     if (!back.ok) return;
-    const shared = await f.run(() => new PrismaRecordWidgetRepo().findReadable(back.data.id), f.member);
+    const shared = await f.run(
+      () => new PrismaRecordWidgetRepo(new PrismaWidgetRepo()).findReadable(back.data.id),
+      f.member,
+    );
     expect(shared?.viewId).toBeNull();
     await f.run(async () =>
       f.widgets.invoke({
@@ -868,7 +871,10 @@ describeDatabase("time-bucketed record measures", () => {
         viewId: support.id,
       }),
     );
-    const sharedOnView = await f.run(() => new PrismaRecordWidgetRepo().findReadable(back.data.id), f.member);
+    const sharedOnView = await f.run(
+      () => new PrismaRecordWidgetRepo(new PrismaWidgetRepo()).findReadable(back.data.id),
+      f.member,
+    );
     expect(sharedOnView?.viewId).toBeNull();
 
     const read = (viewId?: string, allViews?: boolean) =>

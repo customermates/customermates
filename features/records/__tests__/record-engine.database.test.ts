@@ -243,7 +243,7 @@ async function fixture() {
   const query = new QueryRecordsInteractor(repo, policy);
   const choices = new GetRecordChoicesInteractor(repo, policy, query);
   const measure = new QueryRecordMeasureInteractor(repo, policy);
-  const widgets = new PrismaRecordWidgetRepo();
+  const widgets = new PrismaRecordWidgetRepo(new PrismaWidgetRepo());
   const widgetReader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
   const writeWidget = new UpsertRecordWidgetInteractor(
     widgets,
@@ -314,7 +314,7 @@ async function fixture() {
     new RecordHistoryReader(repo),
     { require: () => Promise.resolve(null) },
   );
-  const activityWidgets = new PrismaRecordActivityWidgetRepo();
+  const activityWidgets = new PrismaRecordActivityWidgetRepo(new PrismaWidgetRepo());
   const activityWidgetReader = new RecordActivityWidgetReader(repo, activities);
   const writeActivityWidget = new UpsertRecordActivityWidgetInteractor(
     activityWidgets,
