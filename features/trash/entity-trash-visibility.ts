@@ -5,7 +5,7 @@ import { Action, Prisma } from "@/generated/prisma";
 import { rolePermits } from "@/core/base/permission.service";
 import { UserAccessor } from "@/core/base/user-accessor";
 
-const kindSql = (kind: TrashKind) => Prisma.raw(`'${kind}'`);
+const kindSql = (kind: TrashKind) => Prisma.sql`CAST(${kind} AS "TrashKind")`;
 
 export class EntityTrashVisibility extends UserAccessor {
   owned(kind: TrashKind) {

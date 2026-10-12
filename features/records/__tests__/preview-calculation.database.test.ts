@@ -32,6 +32,7 @@ const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
 const { RecordWriteService } = await import("../record-write.service");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
+const { RecordTrashService } = await import("../record-trash.service");
 const { PreviewCalculationInteractor } = await import("../preview-calculation.interactor");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 
@@ -45,9 +46,15 @@ describeDatabase("Calculation preview", { timeout: 240_000 }, () => {
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const calculations = new RecordCalculationService(repo);
   const preview = new PreviewCalculationInteractor(repo, policy, calculations);
-  const mutate = new MutateRecordInteractor(repo, policy, new RecordWriteService(repo, policy, calculations), {
-    dispatch: () => Promise.resolve(),
-  });
+  const mutate = new MutateRecordInteractor(
+    repo,
+    policy,
+    new RecordWriteService(repo, policy, calculations),
+    {
+      dispatch: () => Promise.resolve(),
+    },
+    new RecordTrashService(repo),
+  );
   const recordIds: string[] = [];
 
   beforeAll(async () => {

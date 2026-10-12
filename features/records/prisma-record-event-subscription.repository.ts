@@ -39,7 +39,7 @@ export class PrismaRecordEventSubscriptionRepo extends TenantRepository implemen
   }
 
   @BypassTenantGuard
-  async findCompanyWide(companyId: string, ids: string[]) {
+  async findUnscoped(companyId: string, ids: string[]) {
     if (!ids.length) return [];
     const rows = await this.prisma.recordEventSubscription.findMany({ where: { companyId, id: { in: ids } } });
     return rows.map(({ companyId: _companyId, ...row }) => RecordEventSubscriptionSchema.parse(row));
@@ -76,7 +76,7 @@ export class PrismaRecordEventSubscriptionRepo extends TenantRepository implemen
       (!policy.isAdmin && input.ownerUserId !== this.userId)
     )
       throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
-    const [previous] = await this.findCompanyWide(companyId, [input.id]);
+    const [previous] = await this.findUnscoped(companyId, [input.id]);
     const definitionChanged = !previous || deliveryDefinition(previous) !== deliveryDefinition(input);
     if (state?.activeOperationId && (definitionChanged || (input.enabled && !previous?.enabled)))
       throw new RecordWriteError(CustomErrorCode.recordWritePaused, "conflict");

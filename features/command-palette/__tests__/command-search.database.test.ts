@@ -66,6 +66,7 @@ const { RecordAccessPolicy } = await import("@/features/records/record-access");
 const { RecordCalculationService } = await import("@/features/records/record-calculation.service");
 const { RecordWriteService } = await import("@/features/records/record-write.service");
 const { MutateRecordInteractor } = await import("@/features/records/mutate-record.interactor");
+const { RecordTrashService } = await import("@/features/records/record-trash.service");
 const { SearchRecordsInteractor } = await import("@/features/records/search-records.interactor");
 const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 const { PrismaDataViewRepo } = await import("@/features/data-view/prisma-data-view.repository");
@@ -162,6 +163,7 @@ async function workspace(viewName: string) {
     policy,
     new RecordWriteService(repo, policy, new RecordCalculationService(repo)),
     { dispatch: () => Promise.resolve() },
+    new RecordTrashService(repo),
   );
   const createOrganization = async (name: string) => {
     const mutation: RecordMutation = {
@@ -268,16 +270,16 @@ describeDatabase("command search catalog and semantic search on PostgreSQL with 
     expect(pending).toBeGreaterThan(4);
 
     const [first, second] = await Promise.all([
-      catalogRepo.claimPendingEmbeddings(scope, WIKI_EMBEDDING_MODEL, 2),
-      catalogRepo.claimPendingEmbeddings(scope, WIKI_EMBEDDING_MODEL, 2),
+      catalogRepo.claimPendingEmbeddingsUnscoped(scope, WIKI_EMBEDDING_MODEL, 2),
+      catalogRepo.claimPendingEmbeddingsUnscoped(scope, WIKI_EMBEDDING_MODEL, 2),
     ]);
     const firstHashes = first.map((entry) => entry.contentHash);
     expect(first).toHaveLength(2);
     expect(second).toHaveLength(2);
     expect(second.some((entry) => firstHashes.includes(entry.contentHash))).toBe(false);
 
-    await catalogRepo.releaseClaims(scope, firstHashes);
-    const again = await catalogRepo.claimPendingEmbeddings(scope, WIKI_EMBEDDING_MODEL, 2);
+    await catalogRepo.releaseClaimsUnscoped(scope, firstHashes);
+    const again = await catalogRepo.claimPendingEmbeddingsUnscoped(scope, WIKI_EMBEDDING_MODEL, 2);
     expect(again.map((entry) => entry.contentHash).sort()).toEqual([...firstHashes].sort());
 
     await runWithoutTenant(
@@ -286,7 +288,7 @@ describeDatabase("command search catalog and semantic search on PostgreSQL with 
         WHERE "companyId" = ${f.companyId} AND "contentHash" = ${second[0].contentHash}`,
     );
     expect(
-      (await catalogRepo.claimPendingEmbeddings(scope, WIKI_EMBEDDING_MODEL, 50)).map((e) => e.contentHash),
+      (await catalogRepo.claimPendingEmbeddingsUnscoped(scope, WIKI_EMBEDDING_MODEL, 50)).map((e) => e.contentHash),
     ).toContain(second[0].contentHash);
 
     await runWithTenant(f.admin, () => indexer(fakeEmbeddings().service).indexPending());

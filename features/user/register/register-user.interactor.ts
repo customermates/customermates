@@ -6,7 +6,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { RouteGuardService } from "@/features/auth/route-guard.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 import type { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
-import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
+import { recordWriteFailure } from "@/features/records/record-write-failure";
 
 import { z } from "zod";
 import { CountryCode, Status } from "@/generated/prisma";

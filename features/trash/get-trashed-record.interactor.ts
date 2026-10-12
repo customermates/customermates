@@ -15,7 +15,7 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordRefSchema } from "@/features/records/record-model.schema";
-import { RecordTrashService } from "@/features/records/record-trash.service";
+import type { RecordTrashService } from "@/features/records/record-trash.service";
 import { trashVisibility } from "./trash-handlers";
 import { trashDaysLeft } from "./trash-retention";
 
@@ -30,6 +30,7 @@ export class GetTrashedRecordInteractor extends AuthenticatedInteractor<RecordRe
     private editor: GetRecordEditorInteractor,
     private trash: TrashRepo,
     private handlers: TrashKindHandler[],
+    private recordTrash: RecordTrashService,
   ) {
     super();
   }
@@ -73,7 +74,7 @@ export class GetTrashedRecordInteractor extends AuthenticatedInteractor<RecordRe
               )
             ).get(ref.recordId) ?? [])
           : [];
-        const service = new RecordTrashService(this.records);
+        const service = this.recordTrash;
         const deletedBy = item.deletedById
           ? ((await this.trash.deletedBy([item.deletedById])).get(item.deletedById) ?? null)
           : null;
