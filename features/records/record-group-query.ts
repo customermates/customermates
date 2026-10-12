@@ -137,7 +137,8 @@ export function compileRecordGroups(
     const targetId = outgoing ? Prisma.sql`link."targetId"` : Prisma.sql`link."sourceId"`;
     joins = Prisma.sql`LEFT JOIN "RecordLink" link ON link."companyId" = ${companyId} AND link."relationId" = ${relation.id} AND link."deletedAt" IS NULL
       AND link."sourceTypeId" = ${relation.sourceTypeId} AND link."targetTypeId" = ${relation.targetTypeId} AND ${sourceId} = ${root}.id
-      LEFT JOIN "CrmRecord" ${target} ON ${target}."companyId" = ${companyId} AND ${target}."typeId" = ${targetTypeId} AND ${target}.id = ${targetId}
+        AND EXISTS (SELECT 1 FROM "CrmRecord" group_alive WHERE group_alive."companyId" = ${companyId} AND group_alive."typeId" = ${targetTypeId} AND group_alive.id = ${targetId} AND group_alive."deletedAt" IS NULL)
+      LEFT JOIN "CrmRecord" ${target} ON ${target}."companyId" = ${companyId} AND ${target}."typeId" = ${targetTypeId} AND ${target}.id = ${targetId} AND ${target}."deletedAt" IS NULL
       LEFT JOIN "RecordValue" title ON title."companyId" = ${companyId} AND title."typeId" = ${targetTypeId}
         AND title."recordId" = ${target}.id AND title."fieldId" = ${title?.id ?? null}`;
     key = Prisma.sql`CASE WHEN ${readable} THEN ${target}.id ELSE NULL END`;

@@ -310,6 +310,31 @@ describe("overlay contract", () => {
     expect(appCardHeader).toContain("OVERLAY_HEADER_ALIGNMENT_CLASS");
   });
 
+  it("draws no browser focus outline on programmatically focused containers", () => {
+    const globals = readFileSync(join(REPO_ROOT, "styles/globals.css"), "utf8");
+    const base = globals.slice(globals.indexOf("@layer base"));
+    const rule = base.slice(0, base.indexOf("outline: none;"));
+    for (const selector of [
+      '[tabindex="-1"]:focus',
+      "[data-overlay-surface]:focus",
+      "[data-radix-popper-content-wrapper] > :focus",
+      '[role="dialog"]:focus',
+      "main:focus",
+    ])
+      expect(rule).toContain(selector);
+
+    for (const [file, slot] of [
+      ["dialog.tsx", "dialog-content"],
+      ["sheet.tsx", "sheet-content"],
+      ["drawer.tsx", "drawer-content"],
+      ["alert-dialog.tsx", "alert-dialog-content"],
+    ]) {
+      const source = readFileSync(join(REPO_ROOT, "components/ui", file), "utf8");
+      const content = source.slice(0, source.indexOf(`data-slot="${slot}"`));
+      expect(content.slice(content.lastIndexOf("className={cn("))).toMatch(/\boutline-none\b/);
+    }
+  });
+
   it("keeps AppModal actions in the shared top-right action row", () => {
     const sources = sourceFiles().map((absolute) => ({
       file: relative(REPO_ROOT, absolute),

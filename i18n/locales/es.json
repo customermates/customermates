@@ -1589,6 +1589,7 @@
       "system": "Sistema"
     },
     "unnamed": "Sin nombre",
+    "unsavedChanges": "Cambios sin guardar",
     "userStatuses": {
       "active": "Activo",
       "inactive": "Inactivo",
@@ -3605,6 +3606,7 @@
     "required": "Obligatorio",
     "resetDetailLayout": "Restablecer valores predeterminados",
     "resetLayout": "Restablecer diseño",
+    "resetSublistColumns": "Restablecer valores predeterminados",
     "restricted": "Restringido",
     "resume": "Reanudar",
     "retry": "Reintentar",
@@ -3643,6 +3645,8 @@
         "singular": "Tarea"
       }
     },
+    "sublistColumns": "Columnas de {list}",
+    "sublistColumnsSection": "Columnas",
     "sublistSentence": "Sublista de {list} · cada entrada vive dentro de un registro de {parent}, comparte su acceso y se elimina con él.",
     "suggestedAttribute": "Sugerencia",
     "summaryAggregation": "Cálculo",

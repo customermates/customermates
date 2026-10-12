@@ -1589,6 +1589,7 @@
       "system": "System"
     },
     "unnamed": "Unbenannt",
+    "unsavedChanges": "Ungespeicherte Änderungen",
     "userStatuses": {
       "active": "Aktiv",
       "inactive": "Inaktiv",
@@ -3605,6 +3606,7 @@
     "required": "Erforderlich",
     "resetDetailLayout": "Auf Standard zurücksetzen",
     "resetLayout": "Layout zurücksetzen",
+    "resetSublistColumns": "Auf Standard zurücksetzen",
     "restricted": "Eingeschränkt",
     "resume": "Fortsetzen",
     "retry": "Erneut versuchen",
@@ -3643,6 +3645,8 @@
         "singular": "Aufgabe"
       }
     },
+    "sublistColumns": "Spalten für {list}",
+    "sublistColumnsSection": "Spalten",
     "sublistSentence": "Unterliste von {list} · jeder Eintrag gehört zu genau einem Datensatz vom Typ {parent}, teilt dessen Zugriff und wird mit ihm gelöscht.",
     "suggestedAttribute": "Vorschlag",
     "summaryAggregation": "Berechnung",

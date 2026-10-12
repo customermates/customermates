@@ -1,4 +1,4 @@
-import { Prisma, type EventLog } from "@/generated/prisma";
+import type { EventLog } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import type { EventOutboxRepo } from "./event-outbox.repo";
@@ -29,11 +29,13 @@ export class PrismaEventOutboxRepo extends TenantRepository implements EventOutb
 
   @BypassTenantGuard
   async dueCompaniesUnscoped(now: Date, take: number): Promise<string[]> {
-    const rows = await this.prisma.$queryRaw<Array<{ companyId: string }>>(
-      Prisma.sql`SELECT "companyId" FROM "EventLog"
-        WHERE "deliveredAt" IS NULL AND "nextAttemptAt" <= ${now}
-        GROUP BY "companyId" ORDER BY MIN("nextAttemptAt"), "companyId" LIMIT ${take}`,
-    );
+    const rows = await this.prisma.eventLog.groupBy({
+      by: ["companyId"],
+      where: { deliveredAt: null, nextAttemptAt: { lte: now } },
+      _min: { nextAttemptAt: true },
+      orderBy: [{ _min: { nextAttemptAt: "asc" } }, { companyId: "asc" }],
+      take,
+    });
     return rows.map((row) => row.companyId);
   }
 
