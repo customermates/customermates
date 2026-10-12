@@ -1138,6 +1138,7 @@
       "recordWritePaused": "Le modèle de données est en cours de mise à jour. Ton brouillon est conservé ; réessaie une fois la mise à jour terminée.",
       "roleAccessPresetInUse": "Ce rôle est utilisé par un modèle d’accès. Modifiez le modèle avant de supprimer le rôle.",
       "roleAssignedCannotDelete": "Un rôle attribué à des utilisateurs ne peut pas être supprimé.",
+      "roleNameTaken": "Un rôle portant ce nom existe déjà.",
       "roleNotFound": "ID de rôle introuvable ou inaccessible.",
       "roleSelfEditForbidden": "Vous ne pouvez pas modifier les autorisations de votre propre rôle.",
       "roleSystemImmutable": "Les rôles système ne peuvent pas être modifiés.",
@@ -1450,6 +1451,41 @@
       "userIds": "Assigné à"
     },
     "language": "Langue",
+    "legacyEvents": {
+      "company": {
+        "updated": "Entreprise mise à jour (ancien)"
+      },
+      "contact": {
+        "created": "Contact créé (ancien)",
+        "deleted": "Contact supprimé (ancien)",
+        "updated": "Contact mis à jour (ancien)"
+      },
+      "custom_column": {
+        "created": "Colonne personnalisée créée (ancien)",
+        "deleted": "Colonne personnalisée supprimée (ancien)",
+        "updated": "Colonne personnalisée mise à jour (ancien)"
+      },
+      "deal": {
+        "created": "Affaire créée (ancien)",
+        "deleted": "Affaire supprimée (ancien)",
+        "updated": "Affaire mise à jour (ancien)"
+      },
+      "organization": {
+        "created": "Organisation créée (ancien)",
+        "deleted": "Organisation supprimée (ancien)",
+        "updated": "Organisation mise à jour (ancien)"
+      },
+      "service": {
+        "created": "Service créé (ancien)",
+        "deleted": "Service supprimé (ancien)",
+        "updated": "Service mis à jour (ancien)"
+      },
+      "task": {
+        "created": "Tâche créée (ancien)",
+        "deleted": "Tâche supprimée (ancien)",
+        "updated": "Tâche mise à jour (ancien)"
+      }
+    },
     "locales": {
       "de": "Allemand",
       "en": "Anglais",
@@ -2064,10 +2100,10 @@
     "summaries": "Synthèses",
     "views": {
       "activityCount": "{count, plural, one {# activité} other {# activités}}",
-      "aiLabel": "Interroger l’IA sur {name}",
+      "aiLabel": "Interroger Mate sur {name}",
       "all": "Toutes",
       "applied": "Affichage de {name}",
-      "askAi": "Demander à l'IA",
+      "askAi": "Demander à Mate",
       "conversationCount": "{count, plural, one {# discussion} other {# discussions}}",
       "copyLink": "Copier le lien",
       "createTitle": "Nouvelle vue",
@@ -4144,14 +4180,8 @@
       "connectedAccountsPerUser": "{accounts, plural, one {# compte connecté par utilisateur} other {# comptes connectés par utilisateur}}",
       "creditNote": "Les crédits IA hébergés sont renouvelés chaque mois ; les crédits non utilisés ne sont pas reportés. Chaque demande est facturée à son coût exact chez le fournisseur, affiché avec une décimale. Les clients MCP externes facturent les modèles via votre propre fournisseur d'IA. Les recherches sémantiques côté serveur peuvent consommer des crédits IA hébergés.",
       "features": {
-        "business": [
-          "Tout ce qui est inclus dans Pro",
-          "Comptes partagés et assistance prioritaire"
-        ],
-        "pro": [
-          "Tout ce qui est inclus dans Starter",
-          "Boîte de réception unifiée"
-        ],
+        "business": ["Tout ce qui est inclus dans Pro", "Comptes partagés et assistance prioritaire"],
+        "pro": ["Tout ce qui est inclus dans Starter", "Boîte de réception unifiée"],
         "starter": [
           "CRM complet : contacts, affaires, organisations, tâches",
           "Journal d'audit",

@@ -25,6 +25,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -306,18 +307,23 @@ const InlineSelect = observer(function InlineSelect({
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="start" className="max-h-60 overflow-y-auto">
-        {field.options.map((option) => (
-          <DropdownMenuItem
-            key={option.id}
-            data-selected={option.id === current || undefined}
-            onSelect={() => {
-              if (option.id !== current) save({ kind: "select", value: option.id });
-            }}
-          >
-            <AppChip variant={toChipColor(option.color)}>{option.label}</AppChip>
-          </DropdownMenuItem>
-        ))}
+      <DropdownMenuContent
+        align="start"
+        className="flex max-h-[min(var(--radix-dropdown-menu-content-available-height),70dvh)] flex-col overflow-y-hidden"
+      >
+        <DropdownMenuGroup className="min-h-0 overflow-y-auto overscroll-contain">
+          {field.options.map((option) => (
+            <DropdownMenuItem
+              key={option.id}
+              data-selected={option.id === current || undefined}
+              onSelect={() => {
+                if (option.id !== current) save({ kind: "select", value: option.id });
+              }}
+            >
+              <AppChip variant={toChipColor(option.color)}>{option.label}</AppChip>
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuGroup>
 
         {!field.required && current !== null && (
           <>

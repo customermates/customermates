@@ -354,6 +354,7 @@ export type RecordOperationResult = z.infer<typeof RecordOperationResultSchema>;
 export type RecordReadScope = {
   userId: string;
   access: "all" | "own" | "none";
+  protectedHidden?: true;
   parent?: { relationId: string; typeId: string; scope: RecordReadScope };
 };
 export type RecordAccessMap = Map<string, RecordReadScope>;

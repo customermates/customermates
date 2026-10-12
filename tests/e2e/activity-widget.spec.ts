@@ -57,7 +57,7 @@ test("creates a custom-type activity widget, previews history, edits it and pres
   await expect(card.getByText("Harbour renewal", { exact: true })).toBeVisible();
   await card.getByRole("button", { name: "Filters, 1 active", exact: true }).click();
   await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Tender history");
-  await dialog.getByRole("button", { name: "Ask AI", exact: true }).click();
+  await dialog.getByRole("button", { name: "Ask Mate", exact: true }).click();
   await expect(page.getByTestId("agent-composer-contexts").getByText("Tender history", { exact: true })).toBeVisible();
   await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Tender history");
   await page.getByTestId("agent-panel").getByRole("button", { name: "Close", exact: true }).click();

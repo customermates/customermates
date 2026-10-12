@@ -82,6 +82,17 @@ export class PrismaRoleRepo
     return await this.prisma.userRole.count({ where: { companyId: this.companyId } });
   }
 
+  async isRoleNameTaken(name: string, exceptId?: string) {
+    const { companyId } = this.user;
+
+    const role = await this.prisma.userRole.findFirst({
+      where: { companyId, name, ...(exceptId ? { NOT: { id: exceptId } } : {}) },
+      select: { id: true },
+    });
+
+    return role !== null;
+  }
+
   @Transaction
   async upsertRoleOrThrow(args: RepoArgs<UpsertRoleRepo, "upsertRoleOrThrow">) {
     const { companyId } = this.user;

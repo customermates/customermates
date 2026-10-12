@@ -1138,6 +1138,7 @@
       "recordWritePaused": "Das Datenmodell wird aktualisiert. Dein Entwurf bleibt erhalten; versuche es nach Abschluss erneut.",
       "roleAccessPresetInUse": "Diese Rolle wird von einer Zugriffsvorlage verwendet. Aktualisiere die Vorlage, bevor du die Rolle löschst.",
       "roleAssignedCannotDelete": "Eine Nutzern zugewiesene Rolle kann nicht gelöscht werden.",
+      "roleNameTaken": "Eine Rolle mit diesem Namen existiert bereits.",
       "roleNotFound": "Rollen-ID nicht gefunden oder nicht zugänglich.",
       "roleSelfEditForbidden": "Du kannst die Berechtigungen deiner eigenen Rolle nicht ändern.",
       "roleSystemImmutable": "Systemrollen können nicht bearbeitet werden.",
@@ -1450,6 +1451,41 @@
       "userIds": "Zugewiesen"
     },
     "language": "Sprache",
+    "legacyEvents": {
+      "company": {
+        "updated": "Unternehmen aktualisiert (veraltet)"
+      },
+      "contact": {
+        "created": "Kontakt erstellt (veraltet)",
+        "deleted": "Kontakt gelöscht (veraltet)",
+        "updated": "Kontakt aktualisiert (veraltet)"
+      },
+      "custom_column": {
+        "created": "Benutzerdefinierte Spalte erstellt (veraltet)",
+        "deleted": "Benutzerdefinierte Spalte gelöscht (veraltet)",
+        "updated": "Benutzerdefinierte Spalte aktualisiert (veraltet)"
+      },
+      "deal": {
+        "created": "Deal erstellt (veraltet)",
+        "deleted": "Deal gelöscht (veraltet)",
+        "updated": "Deal aktualisiert (veraltet)"
+      },
+      "organization": {
+        "created": "Organisation erstellt (veraltet)",
+        "deleted": "Organisation gelöscht (veraltet)",
+        "updated": "Organisation aktualisiert (veraltet)"
+      },
+      "service": {
+        "created": "Service erstellt (veraltet)",
+        "deleted": "Service gelöscht (veraltet)",
+        "updated": "Service aktualisiert (veraltet)"
+      },
+      "task": {
+        "created": "Aufgabe erstellt (veraltet)",
+        "deleted": "Aufgabe gelöscht (veraltet)",
+        "updated": "Aufgabe aktualisiert (veraltet)"
+      }
+    },
     "locales": {
       "de": "Deutsch",
       "en": "Englisch",
@@ -2064,10 +2100,10 @@
     "summaries": "Übersichten",
     "views": {
       "activityCount": "{count, plural, one {# Aktivität} other {# Aktivitäten}}",
-      "aiLabel": "KI zu {name} fragen",
+      "aiLabel": "Mate zu {name} fragen",
       "all": "Alle",
       "applied": "{name} wird angezeigt",
-      "askAi": "KI fragen",
+      "askAi": "Mate fragen",
       "conversationCount": "{count, plural, one {# Unterhaltung} other {# Unterhaltungen}}",
       "copyLink": "Link kopieren",
       "createTitle": "Neue Ansicht",
@@ -4144,10 +4180,7 @@
       "connectedAccountsPerUser": "{accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
       "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Jede Anfrage wird mit ihren genauen Anbieterkosten berechnet und auf eine Nachkommastelle angezeigt. Externe MCP-Clients rechnen die Modellnutzung über deinen eigenen KI-Anbieter ab. Serverseitige semantische Suchen können gehostete KI-Credits verbrauchen.",
       "features": {
-        "business": [
-          "Alles aus Pro",
-          "Geteilte Konten und priorisierter Support"
-        ],
+        "business": ["Alles aus Pro", "Geteilte Konten und priorisierter Support"],
         "pro": ["Alles aus Starter", "Einheitlicher Posteingang"],
         "starter": [
           "Vollständiges CRM: Kontakte, Deals, Organisationen, Aufgaben",

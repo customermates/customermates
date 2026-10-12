@@ -12,6 +12,7 @@ import {
   OVERLAY_CLOSE_CLASS,
   OVERLAY_CLOSE_POSITION_CLASS,
   OVERLAY_DRAWER_HANDLE_CLOSE_CLASS,
+  OVERLAY_DRAWER_HEADER_ACTIONS_CLASS,
   OVERLAY_HEADER_ALIGNMENT_CLASS,
   OVERLAY_SCROLL_REGION,
 } from "./overlay-contract";
@@ -105,13 +106,28 @@ function DrawerContent({
   );
 }
 
-function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
+function DrawerHeader({
+  className,
+  actions,
+  children,
+  ...props
+}: React.ComponentProps<"div"> & { actions?: React.ReactNode }) {
   return (
     <div
-      className={cn("flex shrink-0 flex-col gap-0.5 p-4 md:gap-1.5", OVERLAY_HEADER_ALIGNMENT_CLASS, className)}
+      className={cn(
+        "flex shrink-0 flex-col gap-0.5 p-4 md:gap-1.5",
+        OVERLAY_HEADER_ALIGNMENT_CLASS,
+        actions && OVERLAY_DRAWER_HEADER_ACTIONS_CLASS,
+        className,
+      )}
+      data-header-actions={actions ? "" : undefined}
       data-slot="drawer-header"
       {...props}
-    />
+    >
+      {children}
+
+      {actions}
+    </div>
   );
 }
 

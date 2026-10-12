@@ -1,5 +1,8 @@
 import type { ErrorObject, ValidateFunction } from "ajv";
 
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 
@@ -81,4 +84,21 @@ export function createOpenApiValidator(spec: OpenApiDocument) {
       };
     },
   };
+}
+
+let published: ReturnType<typeof createOpenApiValidator> | null = null;
+
+export function publishedOpenApiValidator() {
+  published ??= createOpenApiValidator(
+    JSON.parse(readFileSync(join(process.cwd(), "public", "v1", "openapi.json"), "utf8")) as OpenApiDocument,
+  );
+  return published;
+}
+
+export function assertPublishedResponse(path: string, method: string, status: number, body: unknown) {
+  const errors = publishedOpenApiValidator().response(path, method, status, body);
+  if (errors.length)
+    throw new Error(
+      `${method.toUpperCase()} ${path} answered ${status} with a body that public/v1/openapi.json rejects: ${JSON.stringify(errors.slice(0, 5))}`,
+    );
 }
