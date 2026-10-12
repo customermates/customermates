@@ -1,4 +1,4 @@
-import { unwindFailure, unwindInteractorFailure } from "@/core/validation/failure-unwind";
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { randomUUID } from "node:crypto";
 
 import type { RecordRepo } from "./record.repo";
@@ -37,13 +37,11 @@ export class ConfigurationSystemPurge {
       throw unwindFailure(CustomErrorCode.recordWritePaused, "conflict");
     }
     const current = await this.records.getModel();
-    const preparation = await this.configurations.prepare(
+    const prepared = await this.configurations.prepare(
       change,
       current,
       await systemRecordAccess(this.records, companyId),
     );
-    if (!preparation.ok) throw unwindInteractorFailure(preparation);
-    const prepared = preparation.data;
     if (!prepared.preview.valid) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
     if (prepared.preview.execution === "background") {
       const operationId = randomUUID();

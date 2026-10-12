@@ -33,13 +33,11 @@ export class PreviewRecordConfigurationInteractor extends AuthenticatedInteracto
     return runInTransaction(
       async () => {
         try {
-          const preparation = await this.configurations.prepare(
+          const prepared = await this.configurations.prepare(
             input,
             await this.records.getModel(),
             await this.policy.load(),
           );
-          if (!preparation.ok) return preparation;
-          const prepared = preparation.data;
           for (const relationId of await this.records.validateRelationshipCardinality(prepared.model)) {
             prepared.preview.issues.push({
               code: "cardinality_conflict",

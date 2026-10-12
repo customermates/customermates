@@ -61,9 +61,7 @@ export class ApplyRecordConfigurationInteractor extends AuthenticatedInteractor<
         if ((await this.records.getState())?.activeOperationId) return failConflict(CustomErrorCode.recordWritePaused);
         try {
           const current = await this.records.getModel();
-          const preparation = await this.configurations.prepare(input, current, policy);
-          if (!preparation.ok) return preparation;
-          const prepared = preparation.data;
+          const prepared = await this.configurations.prepare(input, current, policy);
           if (!prepared.preview.valid) return fail(CustomErrorCode.recordConfigurationInvalid);
           let data: RecordOperationResult;
           if (prepared.preview.execution === "background") {

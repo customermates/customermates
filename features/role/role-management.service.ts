@@ -139,13 +139,11 @@ export class RoleManagementService extends UserAccessor {
             grants: [],
           };
           if (operations.length) {
-            const preparation = await this.configurations.prepare(
+            const prepared = await this.configurations.prepare(
               { expectedRevision: model.revision, idempotencyKey: input.idempotencyKey, operations },
               model,
               previous ? policy : { ...policy, canManageRoles: true },
             );
-            if (!preparation.ok) return preparation;
-            const prepared = preparation.data;
             prepared.change.source = change.source;
             await this.writer.apply(prepared, model, this.userId);
           } else await this.records.saveModel({ ...model, revision: model.revision + 1 }, this.userId, change);

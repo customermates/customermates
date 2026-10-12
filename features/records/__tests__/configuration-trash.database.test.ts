@@ -784,11 +784,7 @@ describeDatabase("configuration trash", () => {
     const background = Object.assign(Object.create(real) as typeof real, {
       prepare: async (...args: Parameters<typeof real.prepare>) => {
         const prepared = await real.prepare(...args);
-        if (!prepared.ok) return prepared;
-        return {
-          ok: true as const,
-          data: { ...prepared.data, preview: { ...prepared.data.preview, execution: "background" as const } },
-        };
+        return { ...prepared, preview: { ...prepared.preview, execution: "background" as const } };
       },
     });
     const purge = () =>

@@ -8,8 +8,8 @@ vi.mock("next-intl/server", () => ({
     Promise.resolve(createTranslator({ locale: "en", messages, namespace: namespace as never })),
 }));
 
-const { failureUnwindCause, unwindFailure, unwindInteractorFailure } = await import("../failure-unwind");
-const { failConflict, failNotFound, unwoundFailure } = await import("../interactor-failure-server");
+const { failureUnwindCause, unwindFailure } = await import("../failure-unwind");
+const { unwoundFailure } = await import("../interactor-failure-server");
 const { CustomErrorCode } = await import("../validation.types");
 const { interactorFailureStatus, serializeInteractorFailure } = await import("../validation.utils");
 
@@ -44,12 +44,5 @@ describe("failure unwind", () => {
   it("rethrows anything that is not an unwound failure", async () => {
     const unexpected = new Error("Unexpected database failure");
     await expect(Promise.resolve().then(() => unwoundFailure(unexpected))).rejects.toBe(unexpected);
-  });
-
-  it("round-trips a returned failure through an unwind", async () => {
-    const conflict = await failConflict(CustomErrorCode.recordWritePaused);
-    expect(await unwoundFailure(unwindInteractorFailure(conflict))).toEqual(conflict);
-    const missing = await failNotFound(CustomErrorCode.recordNotFound, ["ref"]);
-    expect(await unwoundFailure(unwindInteractorFailure(missing))).toEqual(missing);
   });
 });

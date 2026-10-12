@@ -1,4 +1,3 @@
-import { fail, failAuthorization, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { recordInvariant } from "./record-invariant";
 
 import { z } from "zod";
@@ -9,8 +8,7 @@ import type { RecordAccessPolicy } from "./record-access";
 import { UserAccessor } from "@/core/base/user-accessor";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { failureUnwindCause } from "@/core/validation/failure-unwind";
-import { interactorFailureCodes, isInteractorFailure } from "@/core/validation/validation.utils";
+import { failureUnwindCause, unwindFailure } from "@/core/validation/failure-unwind";
 import { RecordRefSchema } from "./record-model.schema";
 import { ConfigurationChangeSchema } from "./configuration.schema";
 import type { RecordConfigurationService } from "./configuration.service";
@@ -83,19 +81,20 @@ export class RecordOperationService extends UserAccessor {
 
   async advance(operationId: string): Promise<{ done: boolean }> {
     try {
-      const result = await runInTransaction(
+      return await runInTransaction(
         async () => {
           const operator = this.operator;
           const operation = await this.records.getOperation(operationId);
-          if (!operation || operation.userId !== operator.userId) return failNotFound(CustomErrorCode.recordNotFound);
+          if (!operation || operation.userId !== operator.userId)
+            throw unwindFailure(CustomErrorCode.recordNotFound, "not_found");
           if (["completed", "cancelled", "failed"].includes(operation.state)) return { done: true };
           if (this.systemCompanyId !== undefined && operation.kind !== "configuration")
-            return fail(CustomErrorCode.recordConfigurationInvalid);
+            throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
           const policy = await this.loadPolicy();
-          if (!policy.actor) return failAuthorization(CustomErrorCode.permissionDenied);
+          if (!policy.actor) throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
           const state = await this.records.getState();
           if (state?.activeOperationId !== operationId || state.revision !== operation.expectedRevision)
-            return failConflict(CustomErrorCode.recordSchemaChanged);
+            throw unwindFailure(CustomErrorCode.recordSchemaChanged, "conflict");
           const current = await this.records.getModel();
           if (operation.kind === "restore") return await this.advanceRestore(operation, current, policy);
           const staging = createRecordStagingRepo(this.records, operationId, operator.companyId);
@@ -105,13 +104,11 @@ export class RecordOperationService extends UserAccessor {
           });
           const staged = journal.repository;
           const calculations = new RecordCalculationService(staged);
-          const preparation =
+          const prepared =
             operation.kind === "configuration"
               ? await this.configurations.prepare(ConfigurationChangeSchema.parse(operation.request), current, policy)
               : null;
-          if (preparation && !preparation.ok) return preparation;
-          const prepared = preparation?.data ?? null;
-          if (prepared && !prepared.preview.valid) return fail(CustomErrorCode.recordConfigurationInvalid);
+          if (prepared && !prepared.preview.valid) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
           const cursor = CursorSchema.parse(operation.cursor ?? { phase: "source", index: 0 });
           await this.records.updateOperation(operationId, {
             state: "staging",
@@ -121,10 +118,10 @@ export class RecordOperationService extends UserAccessor {
           if (cursor.phase === "source") {
             if (prepared) {
               if ((await this.records.validateRelationshipCardinality(prepared.model)).length)
-                return failConflict(CustomErrorCode.recordRelationConflict);
+                throw unwindFailure(CustomErrorCode.recordRelationConflict, "conflict");
               for (const grant of prepared.grants) {
                 if (!(await this.records.validRecordRolesCompanyWide(grant.grants.map((entry) => entry.roleId))))
-                  return fail(CustomErrorCode.recordConfigurationInvalid);
+                  throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
               }
               await staged.saveModel(prepared.model, operator.userId, prepared.change);
               await this.records.stageRow(operationId, "sources", "affected", {
@@ -187,7 +184,7 @@ export class RecordOperationService extends UserAccessor {
           if (deletionCursor.success) {
             const mutation = MutateRecordSchema.parse(operation.request).mutation;
             if (mutation.action !== "delete" && mutation.action !== "deleteMany")
-              return fail(CustomErrorCode.recordConfigurationInvalid);
+              throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
             const result = await new RecordDeletionStaging(
               this.records,
               journal,
@@ -229,7 +226,7 @@ export class RecordOperationService extends UserAccessor {
           }
           const sources = SourcesSchema.parse(await this.records.getStageRow(operationId, "sources", "affected"));
           if (cursor.phase === "values") {
-            if (!prepared) return fail(CustomErrorCode.recordConfigurationInvalid);
+            if (!prepared) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
             const typeId = prepared.affectedTypeIds[cursor.index];
             if (!typeId) {
               await this.records.updateOperation(operationId, {
@@ -257,7 +254,7 @@ export class RecordOperationService extends UserAccessor {
           }
           if (cursor.phase === "calculations") {
             const validation = validateRecordModel(model);
-            if (validation.issues.length) return fail(CustomErrorCode.recordConfigurationInvalid);
+            if (validation.issues.length) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
             const fields = validation.calculationOrder
               .map((id) => recordInvariant(model.fields.find((field) => field.id === id)))
               .filter((field) => sources.affectedTypeIds.includes(field.typeId));
@@ -337,7 +334,7 @@ export class RecordOperationService extends UserAccessor {
             if (mutation.action === "delete" || mutation.action === "deleteMany") {
               const typeIds = current.types.filter((type) => policy.allowed(type.id, "delete")).map((type) => type.id);
               if (!(await this.records.validateStagedDeletionAccess(operationId, policy.access(typeIds))))
-                return failAuthorization(CustomErrorCode.permissionDenied);
+                throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
             }
           }
           await this.records.publishStage(operationId, model.revision);
@@ -378,9 +375,6 @@ export class RecordOperationService extends UserAccessor {
         },
         { timeout: 60000 },
       );
-      if (!isInteractorFailure(result)) return result;
-      await this.fail(operationId, recordInvariant(interactorFailureCodes(result.error)[0]));
-      return { done: true };
     } catch (error) {
       const cause = failureUnwindCause(error);
       if (!cause) throw error;

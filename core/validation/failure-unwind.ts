@@ -1,5 +1,5 @@
 import type { CustomErrorCode } from "./validation.types";
-import { InteractorFailureKindSchema, type InteractorFailure, type InteractorFailureKind } from "./validation.utils";
+import type { InteractorFailureKind } from "./validation.utils";
 
 type FailurePath = Array<string | number>;
 
@@ -18,19 +18,6 @@ export function unwindFailure(
   return new Error(code, {
     cause: { kind: "interactorFailure", code, failureKind, path } satisfies FailureUnwindCause,
   });
-}
-
-export function unwindInteractorFailure(failure: InteractorFailure): Error {
-  const [issue] = failure.error.issues;
-  if (failure.error.issues.length !== 1 || issue?.code !== "custom") return failure.error;
-  const code: unknown = issue.params?.error;
-  if (typeof code !== "string") return failure.error;
-  const kind = InteractorFailureKindSchema.safeParse(issue.params?.kind);
-  return unwindFailure(
-    code as CustomErrorCode,
-    kind.success ? kind.data : "validation",
-    issue.path.filter((part): part is string | number => typeof part !== "symbol"),
-  );
 }
 
 export function failureUnwindCause(error: unknown): FailureUnwindCause | null {

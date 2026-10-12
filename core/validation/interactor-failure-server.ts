@@ -1,8 +1,5 @@
 import { getTranslations } from "next-intl/server";
 
-import { getTranslator } from "@/i18n/get-translator";
-import { appLocaleOrDefault } from "@/i18n/locale-registry";
-
 import type { CustomErrorCode } from "./validation.types";
 import { failureUnwindCause } from "./failure-unwind";
 import { createZodError, type InteractorFailure, type InteractorFailureKind } from "./validation.utils";
@@ -10,21 +7,13 @@ import { createZodError, type InteractorFailure, type InteractorFailureKind } fr
 type FailureValues = Record<string, string | number>;
 type FailurePath = Array<string | number>;
 
-async function errorMessages() {
-  try {
-    return await getTranslations("Common.errors");
-  } catch {
-    return getTranslator(appLocaleOrDefault(undefined), "Common.errors");
-  }
-}
-
 async function interactorFailure(
   kind: InteractorFailureKind | null,
   code: CustomErrorCode,
   path: FailurePath,
   values: FailureValues,
 ): Promise<InteractorFailure> {
-  const t = await errorMessages();
+  const t = await getTranslations("Common.errors");
   let message = t.raw(code) as string;
   for (const [key, value] of Object.entries(values)) message = message.replaceAll(`{${key}}`, String(value));
 
