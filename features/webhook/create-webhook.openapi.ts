@@ -3,7 +3,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { WebhookPublicDtoSchema } from "./webhook.schema";
 import { UpsertWebhookSchema } from "./upsert-webhook.interactor";
 
-import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
+import { StructuredApiResponses } from "@/core/api/structured-interactor-handler";
 
 export const createWebhookOperation: ZodOpenApiOperationObject = {
   operationId: "createWebhook",
@@ -29,7 +29,6 @@ export const createWebhookOperation: ZodOpenApiOperationObject = {
         },
       },
     },
-    ...CommonApiResponses,
-    ...NotFoundApiResponse,
+    ...StructuredApiResponses,
   },
 };

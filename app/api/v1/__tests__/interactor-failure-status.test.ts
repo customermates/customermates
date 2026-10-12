@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { createZodError } from "@/core/validation/validation.utils";
+import { createZodError, serializeInteractorFailure } from "@/core/validation/validation.utils";
 
 const interactors = vi.hoisted(() => ({
   searchUsers: vi.fn(),
@@ -48,6 +48,7 @@ const cases = [
     kind: "authorization",
     status: 403,
     code: CustomErrorCode.permissionDenied,
+    structured: true,
     spy: interactors.deleteWebhook,
     invoke: () => deleteWebhook(request(`webhooks/${ID}`, "DELETE"), params),
   },
@@ -72,14 +73,15 @@ beforeEach(() => {
 });
 
 describe("v1 REST interactor failure status", () => {
-  it.each(cases)("returns a $kind failure as HTTP $status", async ({ status, code, spy, invoke }) => {
+  it.each(cases)("returns a $kind failure as HTTP $status", async ({ status, code, spy, invoke, structured }) => {
     const error = createZodError(`Failure ${code}`, ["id"], { error: code });
     spy.mockResolvedValue({ ok: false, error });
 
     const response = await invoke();
 
     expect(response.status).toBe(status);
-    expect(await response.json()).toBe(z.prettifyError(error));
+    if (structured) expect(await response.json()).toEqual({ error: serializeInteractorFailure(error) });
+    else expect(await response.json()).toBe(z.prettifyError(error));
     expect(spy).toHaveBeenCalledOnce();
   });
 });

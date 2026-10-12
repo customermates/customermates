@@ -5,6 +5,7 @@ import { RecordFieldSchema } from "@/features/records/record-model.schema";
 import type { DeleteRoutineRepo } from "./delete-routine.repo";
 import type { GetRoutineRunsRepo } from "./get-routine-runs.repo";
 import type { GetRoutinesRepo } from "./get-routines.repo";
+import type { GetRoutineByIdRepo } from "./get-routine-by-id.repo";
 import type { PauseRoutineRepo } from "./pause-routine.repo";
 import type { ReconcileRoutineRunsRepo } from "./reconcile-routine-runs.repo";
 import type { ReleaseOwnerRoutinesRepo } from "./release-owner-routines.interactor";
@@ -201,6 +202,7 @@ export class PrismaRoutineRepo
   extends QueryRepository<Prisma.RoutineWhereInput>
   implements
     GetRoutinesRepo,
+    GetRoutineByIdRepo,
     GetRoutineRunsRepo,
     UpsertRoutineRepo,
     DeleteRoutineRepo,

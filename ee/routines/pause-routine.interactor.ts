@@ -17,9 +17,9 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RoutineDtoSchema } from "./routine.schema";
 import type { PauseRoutineRepo } from "./pause-routine.repo";
 
-const Schema = z.object({ routineId: z.uuid() });
+export const PauseRoutineSchema = z.object({ routineId: z.uuid() });
 
-export type PauseRoutineData = Data<typeof Schema>;
+export type PauseRoutineData = Data<typeof PauseRoutineSchema>;
 
 @TenantInteractor({ resource: Resource.routines, manage: "delete" })
 export class PauseRoutineInteractor extends AuthenticatedInteractor<PauseRoutineData, RoutineDto> {
@@ -30,7 +30,7 @@ export class PauseRoutineInteractor extends AuthenticatedInteractor<PauseRoutine
     super();
   }
 
-  @Write({ input: Schema, output: RoutineDtoSchema })
+  @Write({ input: PauseRoutineSchema, output: RoutineDtoSchema })
   async invoke(data: PauseRoutineData): Validated<RoutineDto> {
     if (!this.user.role?.isSystemRole || !(await this.repo.isActiveSystemAdministrator(this.user.id)))
       return failAuthorization(CustomErrorCode.routineAdminRequired);

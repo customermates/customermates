@@ -79,6 +79,7 @@ import { PrismaMessagingRepo } from "@/ee/messaging/persistence/prisma-messaging
 import { PrismaUnipileWebhookRepo } from "@/ee/messaging/persistence/prisma-unipile-webhook.repository";
 import { DeleteRoutineInteractor } from "@/ee/routines/delete-routine.interactor";
 import { FailRoutineRunInteractor } from "@/ee/routines/fail-routine-run.interactor";
+import { GetRoutineByIdInteractor } from "@/ee/routines/get-routine-by-id.interactor";
 import { GetRoutineRunsInteractor } from "@/ee/routines/get-routine-runs.interactor";
 import { GetRoutinesInteractor } from "@/ee/routines/get-routines.interactor";
 import { PauseRoutineInteractor } from "@/ee/routines/pause-routine.interactor";
@@ -1555,6 +1556,8 @@ export const getGetRoutinesInteractor = () =>
 
 export const getGetRoutinesApiInteractor = () =>
   new GetRoutinesInteractor(getRoutineRepo(), getDataViewStateRepo(), "api", getQueryParamsPrecheck());
+
+export const getGetRoutineByIdInteractor = () => new GetRoutineByIdInteractor(getRoutineRepo());
 
 export const getGetRoutineRunsInteractor = () => new GetRoutineRunsInteractor(getRoutineRepo());
 
