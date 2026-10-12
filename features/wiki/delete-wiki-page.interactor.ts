@@ -24,7 +24,7 @@ export const DeleteWikiPageSchema = z.object({
 });
 export type DeleteWikiPageData = Data<typeof DeleteWikiPageSchema>;
 
-const DeleteWikiPageResultSchema = WikiPageDtoSchema.extend({ trashBatchId: z.uuid() });
+export const DeleteWikiPageResultSchema = WikiPageDtoSchema.extend({ trashBatchId: z.uuid() });
 export type DeleteWikiPageResult = Data<typeof DeleteWikiPageResultSchema>;
 
 export type DeleteWikiPageRepoResult =

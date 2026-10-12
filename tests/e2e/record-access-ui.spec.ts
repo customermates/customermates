@@ -3012,13 +3012,16 @@ test("keeps retained values restricted after a delegated manager converts fields
         ).toBeVisible();
         await expect(value.locator("input,textarea")).toHaveCount(0);
         const pinned = editor.locator(`[data-chip-column="${field.id}"]`);
-        if ((await pinned.count()) === 0)
+        if ((await pinned.count()) === 0) {
+          await editor.getByRole("button", { name: "Customize", exact: true }).click();
           await editor
             .getByRole("button", {
               name: `Pin ${field.label} to the overview`,
               exact: true,
             })
             .click();
+          await editor.getByRole("button", { name: "Done", exact: true }).click();
+        }
         await expect(
           pinned.getByText("Restricted", { exact: true }),
         ).toBeVisible();

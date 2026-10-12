@@ -45514,6 +45514,2190 @@
         }
       }
     },
+    "/v1/wiki/list": {
+      "post": {
+        "operationId": "listWikiPages",
+        "summary": "List Knowledge Base pages",
+        "description": "Lists Knowledge Base pages without their Markdown: the Operating Guide first, then the other pages in the workspace's saved order. Filter by kind (guide, procedure or knowledge). Requires: Knowledge Base read access.",
+        "tags": [
+          "knowledge-base"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "page": {
+                    "default": 1,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  },
+                  "pageSize": {
+                    "default": 25,
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "const": 5
+                      },
+                      {
+                        "type": "number",
+                        "const": 10
+                      },
+                      {
+                        "type": "number",
+                        "const": 25
+                      },
+                      {
+                        "type": "number",
+                        "const": 100
+                      }
+                    ]
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "guide",
+                      "procedure",
+                      "knowledge"
+                    ]
+                  }
+                }
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "page": 1,
+                    "pageSize": 25,
+                    "kind": "procedure"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "One page of Knowledge Base page summaries.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "guide",
+                              "procedure",
+                              "knowledge"
+                            ]
+                          },
+                          "whenToUse": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "createdAt": {
+                            "type": "string"
+                          },
+                          "updatedAt": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "kind",
+                          "whenToUse",
+                          "createdAt",
+                          "updatedAt"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "total": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "page": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9007199254740991
+                    },
+                    "pageSize": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "total",
+                    "page",
+                    "pageSize"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/wiki/search": {
+      "post": {
+        "operationId": "searchWikiPages",
+        "summary": "Search Knowledge Base pages",
+        "description": "Searches titles, headings and text, ranked by relevance. Each hit carries a snippet, its section and the character offset of that section. total is a lower bound unless totalIsExact; continue with the next page while hasMore. didYouMean reports a corrected spelling. Later pages reuse the first page's order for five minutes. Requires: Knowledge Base read access.",
+        "tags": [
+          "knowledge-base"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "page": {
+                    "default": 1,
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 9007199254740991
+                  },
+                  "pageSize": {
+                    "default": 25,
+                    "anyOf": [
+                      {
+                        "type": "number",
+                        "const": 5
+                      },
+                      {
+                        "type": "number",
+                        "const": 10
+                      },
+                      {
+                        "type": "number",
+                        "const": 25
+                      },
+                      {
+                        "type": "number",
+                        "const": 100
+                      }
+                    ]
+                  },
+                  "query": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "query": "support escalation",
+                    "page": 1,
+                    "pageSize": 10
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "One page of ranked search hits.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hasMore": {
+                      "type": "boolean"
+                    },
+                    "totalIsExact": {
+                      "type": "boolean"
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "guide",
+                              "procedure",
+                              "knowledge"
+                            ]
+                          },
+                          "whenToUse": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "createdAt": {
+                            "type": "string"
+                          },
+                          "updatedAt": {
+                            "type": "string"
+                          },
+                          "snippet": {
+                            "type": "string"
+                          },
+                          "offset": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991
+                          },
+                          "section": {
+                            "type": "string"
+                          },
+                          "anchor": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "kind",
+                          "whenToUse",
+                          "createdAt",
+                          "updatedAt",
+                          "snippet"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "total": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "page": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9007199254740991
+                    },
+                    "pageSize": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9007199254740991
+                    },
+                    "didYouMean": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "retrieval": {
+                      "type": "string",
+                      "enum": [
+                        "semantic",
+                        "keyword"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "total",
+                    "page",
+                    "pageSize"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/wiki/read": {
+      "post": {
+        "operationId": "readWikiPage",
+        "summary": "Read a Knowledge Base page",
+        "description": "Reads one page with its full Markdown. Keep updatedAt: update and delete require it as expectedUpdatedAt. Link pages as `/wiki?page=<id>`; ids survive renames. A missing page answers 404. Requires: Knowledge Base read access.",
+        "tags": [
+          "knowledge-base"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  }
+                },
+                "required": [
+                  "id"
+                ]
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "id": "00000000-0000-4000-8000-000000000001"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The page.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "markdown": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "guide",
+                        "procedure",
+                        "knowledge"
+                      ]
+                    },
+                    "whenToUse": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "markdown",
+                    "kind",
+                    "whenToUse",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/wiki/create": {
+      "post": {
+        "operationId": "createWikiPages",
+        "summary": "Create Knowledge Base pages",
+        "description": "Creates one to five pages atomically and appends them to the saved order. kind defaults to knowledge; a procedure needs whenToUse and numbered steps; the workspace has at most one guide. With requireEmpty, the call fails with 409 unless the Knowledge Base is empty. Requires: Knowledge Base Create.",
+        "tags": [
+          "knowledge-base"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "pages": {
+                    "minItems": 1,
+                    "maxItems": 5,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "maxLength": 120
+                        },
+                        "markdown": {
+                          "type": "string"
+                        },
+                        "kind": {
+                          "type": "string",
+                          "enum": [
+                            "guide",
+                            "procedure",
+                            "knowledge"
+                          ]
+                        },
+                        "whenToUse": {
+                          "type": "string",
+                          "maxLength": 300
+                        }
+                      },
+                      "required": [
+                        "title",
+                        "markdown"
+                      ]
+                    }
+                  },
+                  "requireEmpty": {
+                    "default": false,
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "pages"
+                ]
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "pages": [
+                      {
+                        "title": "Support escalation",
+                        "kind": "procedure",
+                        "whenToUse": "A customer reports an outage or a billing error.",
+                        "markdown": "1. Confirm the account.\n2. Hand over to the support lead."
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The created pages.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "markdown": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "guide",
+                          "procedure",
+                          "knowledge"
+                        ]
+                      },
+                      "whenToUse": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "createdAt": {
+                        "type": "string"
+                      },
+                      "updatedAt": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "title",
+                      "markdown",
+                      "kind",
+                      "whenToUse",
+                      "createdAt",
+                      "updatedAt"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/wiki/update": {
+      "post": {
+        "operationId": "updateWikiPage",
+        "summary": "Update a Knowledge Base page",
+        "description": "Changes the title, Markdown, kind or whenToUse of one page; omitted fields keep their values. Send updatedAt from your latest read as expectedUpdatedAt: a page changed since answers 409, so read it again and retry. Requires: Knowledge Base Edit.",
+        "tags": [
+          "knowledge-base"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "expectedUpdatedAt": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 120
+                  },
+                  "markdown": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "guide",
+                      "procedure",
+                      "knowledge"
+                    ]
+                  },
+                  "whenToUse": {
+                    "type": "string",
+                    "maxLength": 300
+                  }
+                },
+                "required": [
+                  "id",
+                  "expectedUpdatedAt"
+                ]
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "expectedUpdatedAt": "2026-10-01T09:30:00.000Z",
+                    "title": "Support handoff"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The updated page.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "markdown": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "guide",
+                        "procedure",
+                        "knowledge"
+                      ]
+                    },
+                    "whenToUse": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "markdown",
+                    "kind",
+                    "whenToUse",
+                    "createdAt",
+                    "updatedAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/wiki/move": {
+      "post": {
+        "operationId": "moveWikiPage",
+        "summary": "Move a Knowledge Base page",
+        "description": "Places a page before or after another page in the order the whole workspace shares. Content and edit timestamps are unchanged. The Operating Guide stays pinned first: it can be neither moved nor used as the target. Requires: Knowledge Base Edit.",
+        "tags": [
+          "knowledge-base"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "targetId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "placement": {
+                    "type": "string",
+                    "enum": [
+                      "before",
+                      "after"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "targetId",
+                  "placement"
+                ]
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "targetId": "00000000-0000-4000-8000-000000000002",
+                    "placement": "after"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The page was moved.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean",
+                  "const": true
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/wiki/delete": {
+      "post": {
+        "operationId": "deleteWikiPage",
+        "summary": "Delete a Knowledge Base page",
+        "description": "Moves one page to Trash, where it is deleted permanently after 30 days unless POST /v1/trash/restore restores it with the returned trashBatchId. Send updatedAt from your latest read as expectedUpdatedAt. Requires: Knowledge Base Delete.",
+        "tags": [
+          "knowledge-base"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "expectedUpdatedAt": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "expectedUpdatedAt"
+                ]
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "id": "00000000-0000-4000-8000-000000000001",
+                    "expectedUpdatedAt": "2026-10-01T09:30:00.000Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The deleted page and its Trash batch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "markdown": {
+                      "type": "string"
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "guide",
+                        "procedure",
+                        "knowledge"
+                      ]
+                    },
+                    "whenToUse": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "updatedAt": {
+                      "type": "string"
+                    },
+                    "trashBatchId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "markdown",
+                    "kind",
+                    "whenToUse",
+                    "createdAt",
+                    "updatedAt",
+                    "trashBatchId"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/members/invite": {
+      "post": {
+        "operationId": "inviteMembers",
+        "summary": "Invite members by email",
+        "description": "Sends a workspace invitation email with the workspace's invitation link to each address, 1 to 20 per call; duplicate addresses receive one email. An invited person joins with no role until an administrator assigns one through POST /v1/members/update. Returns how many emails were sent. Requires: Users & Roles Create.",
+        "tags": [
+          "members"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "emails": {
+                    "minItems": 1,
+                    "maxItems": 20,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    }
+                  }
+                },
+                "required": [
+                  "emails"
+                ]
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "emails": [
+                      "new.colleague@example.com"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The invitations were sent.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "sent": {
+                      "type": "number"
+                    }
+                  },
+                  "required": [
+                    "sent"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/members/update": {
+      "post": {
+        "operationId": "updateMember",
+        "summary": "Change a member's role or status",
+        "description": "Saves another member's profile, role and status in one call, as the members settings page does. Read the member from POST /v1/users/search, send every field, and change roleId and/or status: status inactive deactivates the member and frees their seat, active reactivates them. The member is identified by email. You cannot update your own membership, a platform operator cannot be deactivated, and the workspace always keeps an active member with a system role. Requires: Users & Roles Edit.",
+        "tags": [
+          "members"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                  },
+                  "firstName": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "country": {
+                    "type": "string",
+                    "enum": [
+                      "af",
+                      "ao",
+                      "al",
+                      "ad",
+                      "ae",
+                      "ar",
+                      "am",
+                      "ag",
+                      "au",
+                      "at",
+                      "az",
+                      "bi",
+                      "be",
+                      "bj",
+                      "bf",
+                      "bd",
+                      "bg",
+                      "bh",
+                      "bs",
+                      "ba",
+                      "by",
+                      "bz",
+                      "bo",
+                      "br",
+                      "bb",
+                      "bn",
+                      "bt",
+                      "bw",
+                      "cf",
+                      "ca",
+                      "ch",
+                      "cl",
+                      "cn",
+                      "ci",
+                      "cm",
+                      "cd",
+                      "cg",
+                      "co",
+                      "km",
+                      "cv",
+                      "cr",
+                      "cu",
+                      "cy",
+                      "cz",
+                      "de",
+                      "dj",
+                      "dm",
+                      "dk",
+                      "do",
+                      "dz",
+                      "ec",
+                      "eg",
+                      "er",
+                      "es",
+                      "ee",
+                      "et",
+                      "fi",
+                      "fj",
+                      "fr",
+                      "fm",
+                      "ga",
+                      "gb",
+                      "ge",
+                      "gh",
+                      "gn",
+                      "gm",
+                      "gw",
+                      "gq",
+                      "gr",
+                      "gd",
+                      "gt",
+                      "gy",
+                      "hn",
+                      "hr",
+                      "ht",
+                      "hu",
+                      "id",
+                      "in",
+                      "ie",
+                      "ir",
+                      "iq",
+                      "is",
+                      "il",
+                      "it",
+                      "jm",
+                      "jo",
+                      "jp",
+                      "ke",
+                      "kg",
+                      "kh",
+                      "ki",
+                      "kn",
+                      "kp",
+                      "kr",
+                      "kw",
+                      "kz",
+                      "la",
+                      "lb",
+                      "lc",
+                      "li",
+                      "lk",
+                      "lr",
+                      "ls",
+                      "lt",
+                      "lu",
+                      "lv",
+                      "ly",
+                      "ma",
+                      "mc",
+                      "md",
+                      "me",
+                      "mg",
+                      "mh",
+                      "mk",
+                      "ml",
+                      "mm",
+                      "mn",
+                      "mr",
+                      "mt",
+                      "mu",
+                      "mv",
+                      "mw",
+                      "mx",
+                      "my",
+                      "mz",
+                      "na",
+                      "ne",
+                      "ng",
+                      "ni",
+                      "nl",
+                      "no",
+                      "np",
+                      "nr",
+                      "nz",
+                      "om",
+                      "pa",
+                      "pe",
+                      "pg",
+                      "ph",
+                      "pk",
+                      "pl",
+                      "pt",
+                      "pw",
+                      "py",
+                      "qa",
+                      "ro",
+                      "rs",
+                      "ru",
+                      "rw",
+                      "sa",
+                      "sb",
+                      "sc",
+                      "sd",
+                      "se",
+                      "sg",
+                      "si",
+                      "sk",
+                      "sl",
+                      "sm",
+                      "sn",
+                      "so",
+                      "sr",
+                      "ss",
+                      "st",
+                      "sv",
+                      "sy",
+                      "sz",
+                      "td",
+                      "tg",
+                      "th",
+                      "tj",
+                      "tl",
+                      "tm",
+                      "tn",
+                      "to",
+                      "tr",
+                      "tt",
+                      "tv",
+                      "tz",
+                      "ua",
+                      "ug",
+                      "us",
+                      "uy",
+                      "uz",
+                      "va",
+                      "vc",
+                      "ve",
+                      "vn",
+                      "vu",
+                      "ws",
+                      "ye",
+                      "za",
+                      "zm",
+                      "zw"
+                    ]
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "active",
+                      "inactive"
+                    ]
+                  },
+                  "avatarUrl": {
+                    "anyOf": [
+                      {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          {
+                            "type": "string",
+                            "const": ""
+                          }
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "roleId": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  }
+                },
+                "required": [
+                  "email",
+                  "firstName",
+                  "lastName",
+                  "country",
+                  "status",
+                  "avatarUrl",
+                  "roleId"
+                ]
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "email": "new.colleague@example.com",
+                    "firstName": "Grace",
+                    "lastName": "Hopper",
+                    "country": "us",
+                    "avatarUrl": null,
+                    "roleId": "00000000-0000-4000-8000-000000000003",
+                    "status": "inactive"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The saved member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "email": {
+                      "type": "string",
+                      "format": "email",
+                      "pattern": "^(?!\\.)(?!.*\\.\\.)([A-Za-z0-9_'+\\-\\.]*)[A-Za-z0-9_+-]@([A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                    },
+                    "firstName": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "lastName": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "country": {
+                      "type": "string",
+                      "enum": [
+                        "af",
+                        "ao",
+                        "al",
+                        "ad",
+                        "ae",
+                        "ar",
+                        "am",
+                        "ag",
+                        "au",
+                        "at",
+                        "az",
+                        "bi",
+                        "be",
+                        "bj",
+                        "bf",
+                        "bd",
+                        "bg",
+                        "bh",
+                        "bs",
+                        "ba",
+                        "by",
+                        "bz",
+                        "bo",
+                        "br",
+                        "bb",
+                        "bn",
+                        "bt",
+                        "bw",
+                        "cf",
+                        "ca",
+                        "ch",
+                        "cl",
+                        "cn",
+                        "ci",
+                        "cm",
+                        "cd",
+                        "cg",
+                        "co",
+                        "km",
+                        "cv",
+                        "cr",
+                        "cu",
+                        "cy",
+                        "cz",
+                        "de",
+                        "dj",
+                        "dm",
+                        "dk",
+                        "do",
+                        "dz",
+                        "ec",
+                        "eg",
+                        "er",
+                        "es",
+                        "ee",
+                        "et",
+                        "fi",
+                        "fj",
+                        "fr",
+                        "fm",
+                        "ga",
+                        "gb",
+                        "ge",
+                        "gh",
+                        "gn",
+                        "gm",
+                        "gw",
+                        "gq",
+                        "gr",
+                        "gd",
+                        "gt",
+                        "gy",
+                        "hn",
+                        "hr",
+                        "ht",
+                        "hu",
+                        "id",
+                        "in",
+                        "ie",
+                        "ir",
+                        "iq",
+                        "is",
+                        "il",
+                        "it",
+                        "jm",
+                        "jo",
+                        "jp",
+                        "ke",
+                        "kg",
+                        "kh",
+                        "ki",
+                        "kn",
+                        "kp",
+                        "kr",
+                        "kw",
+                        "kz",
+                        "la",
+                        "lb",
+                        "lc",
+                        "li",
+                        "lk",
+                        "lr",
+                        "ls",
+                        "lt",
+                        "lu",
+                        "lv",
+                        "ly",
+                        "ma",
+                        "mc",
+                        "md",
+                        "me",
+                        "mg",
+                        "mh",
+                        "mk",
+                        "ml",
+                        "mm",
+                        "mn",
+                        "mr",
+                        "mt",
+                        "mu",
+                        "mv",
+                        "mw",
+                        "mx",
+                        "my",
+                        "mz",
+                        "na",
+                        "ne",
+                        "ng",
+                        "ni",
+                        "nl",
+                        "no",
+                        "np",
+                        "nr",
+                        "nz",
+                        "om",
+                        "pa",
+                        "pe",
+                        "pg",
+                        "ph",
+                        "pk",
+                        "pl",
+                        "pt",
+                        "pw",
+                        "py",
+                        "qa",
+                        "ro",
+                        "rs",
+                        "ru",
+                        "rw",
+                        "sa",
+                        "sb",
+                        "sc",
+                        "sd",
+                        "se",
+                        "sg",
+                        "si",
+                        "sk",
+                        "sl",
+                        "sm",
+                        "sn",
+                        "so",
+                        "sr",
+                        "ss",
+                        "st",
+                        "sv",
+                        "sy",
+                        "sz",
+                        "td",
+                        "tg",
+                        "th",
+                        "tj",
+                        "tl",
+                        "tm",
+                        "tn",
+                        "to",
+                        "tr",
+                        "tt",
+                        "tv",
+                        "tz",
+                        "ua",
+                        "ug",
+                        "us",
+                        "uy",
+                        "uz",
+                        "va",
+                        "vc",
+                        "ve",
+                        "vn",
+                        "vu",
+                        "ws",
+                        "ye",
+                        "za",
+                        "zm",
+                        "zw"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "active",
+                        "inactive"
+                      ]
+                    },
+                    "avatarUrl": {
+                      "anyOf": [
+                        {
+                          "anyOf": [
+                            {
+                              "type": "string",
+                              "format": "uri"
+                            },
+                            {
+                              "type": "string",
+                              "const": ""
+                            }
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "roleId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
+                  },
+                  "required": [
+                    "email",
+                    "firstName",
+                    "lastName",
+                    "country",
+                    "status",
+                    "avatarUrl",
+                    "roleId"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
     "/v1/model/discover": {
       "post": {
         "operationId": "discoverRecordTypes",
@@ -76139,7 +78323,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -76149,7 +78333,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -76159,20 +78343,668 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateUserProfile",
+        "summary": "Update own user profile",
+        "description": "Partially updates the authenticated user's own profile, the same fields as the account settings page: firstName, lastName, country, avatarUrl (an http or https URL, or '' or null to clear), theme, displayLanguage and formattingLocale. Omitted fields keep their values. Returns the saved profile. Requires: an active workspace membership; no further permission.",
+        "tags": [
+          "users"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255
+                  },
+                  "lastName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 255
+                  },
+                  "country": {
+                    "type": "string",
+                    "enum": [
+                      "af",
+                      "ao",
+                      "al",
+                      "ad",
+                      "ae",
+                      "ar",
+                      "am",
+                      "ag",
+                      "au",
+                      "at",
+                      "az",
+                      "bi",
+                      "be",
+                      "bj",
+                      "bf",
+                      "bd",
+                      "bg",
+                      "bh",
+                      "bs",
+                      "ba",
+                      "by",
+                      "bz",
+                      "bo",
+                      "br",
+                      "bb",
+                      "bn",
+                      "bt",
+                      "bw",
+                      "cf",
+                      "ca",
+                      "ch",
+                      "cl",
+                      "cn",
+                      "ci",
+                      "cm",
+                      "cd",
+                      "cg",
+                      "co",
+                      "km",
+                      "cv",
+                      "cr",
+                      "cu",
+                      "cy",
+                      "cz",
+                      "de",
+                      "dj",
+                      "dm",
+                      "dk",
+                      "do",
+                      "dz",
+                      "ec",
+                      "eg",
+                      "er",
+                      "es",
+                      "ee",
+                      "et",
+                      "fi",
+                      "fj",
+                      "fr",
+                      "fm",
+                      "ga",
+                      "gb",
+                      "ge",
+                      "gh",
+                      "gn",
+                      "gm",
+                      "gw",
+                      "gq",
+                      "gr",
+                      "gd",
+                      "gt",
+                      "gy",
+                      "hn",
+                      "hr",
+                      "ht",
+                      "hu",
+                      "id",
+                      "in",
+                      "ie",
+                      "ir",
+                      "iq",
+                      "is",
+                      "il",
+                      "it",
+                      "jm",
+                      "jo",
+                      "jp",
+                      "ke",
+                      "kg",
+                      "kh",
+                      "ki",
+                      "kn",
+                      "kp",
+                      "kr",
+                      "kw",
+                      "kz",
+                      "la",
+                      "lb",
+                      "lc",
+                      "li",
+                      "lk",
+                      "lr",
+                      "ls",
+                      "lt",
+                      "lu",
+                      "lv",
+                      "ly",
+                      "ma",
+                      "mc",
+                      "md",
+                      "me",
+                      "mg",
+                      "mh",
+                      "mk",
+                      "ml",
+                      "mm",
+                      "mn",
+                      "mr",
+                      "mt",
+                      "mu",
+                      "mv",
+                      "mw",
+                      "mx",
+                      "my",
+                      "mz",
+                      "na",
+                      "ne",
+                      "ng",
+                      "ni",
+                      "nl",
+                      "no",
+                      "np",
+                      "nr",
+                      "nz",
+                      "om",
+                      "pa",
+                      "pe",
+                      "pg",
+                      "ph",
+                      "pk",
+                      "pl",
+                      "pt",
+                      "pw",
+                      "py",
+                      "qa",
+                      "ro",
+                      "rs",
+                      "ru",
+                      "rw",
+                      "sa",
+                      "sb",
+                      "sc",
+                      "sd",
+                      "se",
+                      "sg",
+                      "si",
+                      "sk",
+                      "sl",
+                      "sm",
+                      "sn",
+                      "so",
+                      "sr",
+                      "ss",
+                      "st",
+                      "sv",
+                      "sy",
+                      "sz",
+                      "td",
+                      "tg",
+                      "th",
+                      "tj",
+                      "tl",
+                      "tm",
+                      "tn",
+                      "to",
+                      "tr",
+                      "tt",
+                      "tv",
+                      "tz",
+                      "ua",
+                      "ug",
+                      "us",
+                      "uy",
+                      "uz",
+                      "va",
+                      "vc",
+                      "ve",
+                      "vn",
+                      "vu",
+                      "ws",
+                      "ye",
+                      "za",
+                      "zm",
+                      "zw"
+                    ]
+                  },
+                  "avatarUrl": {
+                    "anyOf": [
+                      {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "uri"
+                          },
+                          {
+                            "type": "string",
+                            "const": ""
+                          }
+                        ]
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "theme": {
+                    "type": "string",
+                    "enum": [
+                      "system",
+                      "dark",
+                      "light"
+                    ]
+                  },
+                  "displayLanguage": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "de",
+                      "fr",
+                      "it",
+                      "es",
+                      "system"
+                    ]
+                  },
+                  "formattingLocale": {
+                    "type": "string",
+                    "enum": [
+                      "en",
+                      "de",
+                      "fr",
+                      "it",
+                      "es",
+                      "system"
+                    ]
+                  }
+                }
+              },
+              "examples": {
+                "default": {
+                  "value": {
+                    "firstName": "Ada",
+                    "lastName": "Lovelace",
+                    "country": "gb",
+                    "theme": "dark"
+                  }
                 }
               }
             }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The saved profile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "firstName": {
+                      "type": "string"
+                    },
+                    "lastName": {
+                      "type": "string"
+                    },
+                    "country": {
+                      "type": "string",
+                      "enum": [
+                        "af",
+                        "ao",
+                        "al",
+                        "ad",
+                        "ae",
+                        "ar",
+                        "am",
+                        "ag",
+                        "au",
+                        "at",
+                        "az",
+                        "bi",
+                        "be",
+                        "bj",
+                        "bf",
+                        "bd",
+                        "bg",
+                        "bh",
+                        "bs",
+                        "ba",
+                        "by",
+                        "bz",
+                        "bo",
+                        "br",
+                        "bb",
+                        "bn",
+                        "bt",
+                        "bw",
+                        "cf",
+                        "ca",
+                        "ch",
+                        "cl",
+                        "cn",
+                        "ci",
+                        "cm",
+                        "cd",
+                        "cg",
+                        "co",
+                        "km",
+                        "cv",
+                        "cr",
+                        "cu",
+                        "cy",
+                        "cz",
+                        "de",
+                        "dj",
+                        "dm",
+                        "dk",
+                        "do",
+                        "dz",
+                        "ec",
+                        "eg",
+                        "er",
+                        "es",
+                        "ee",
+                        "et",
+                        "fi",
+                        "fj",
+                        "fr",
+                        "fm",
+                        "ga",
+                        "gb",
+                        "ge",
+                        "gh",
+                        "gn",
+                        "gm",
+                        "gw",
+                        "gq",
+                        "gr",
+                        "gd",
+                        "gt",
+                        "gy",
+                        "hn",
+                        "hr",
+                        "ht",
+                        "hu",
+                        "id",
+                        "in",
+                        "ie",
+                        "ir",
+                        "iq",
+                        "is",
+                        "il",
+                        "it",
+                        "jm",
+                        "jo",
+                        "jp",
+                        "ke",
+                        "kg",
+                        "kh",
+                        "ki",
+                        "kn",
+                        "kp",
+                        "kr",
+                        "kw",
+                        "kz",
+                        "la",
+                        "lb",
+                        "lc",
+                        "li",
+                        "lk",
+                        "lr",
+                        "ls",
+                        "lt",
+                        "lu",
+                        "lv",
+                        "ly",
+                        "ma",
+                        "mc",
+                        "md",
+                        "me",
+                        "mg",
+                        "mh",
+                        "mk",
+                        "ml",
+                        "mm",
+                        "mn",
+                        "mr",
+                        "mt",
+                        "mu",
+                        "mv",
+                        "mw",
+                        "mx",
+                        "my",
+                        "mz",
+                        "na",
+                        "ne",
+                        "ng",
+                        "ni",
+                        "nl",
+                        "no",
+                        "np",
+                        "nr",
+                        "nz",
+                        "om",
+                        "pa",
+                        "pe",
+                        "pg",
+                        "ph",
+                        "pk",
+                        "pl",
+                        "pt",
+                        "pw",
+                        "py",
+                        "qa",
+                        "ro",
+                        "rs",
+                        "ru",
+                        "rw",
+                        "sa",
+                        "sb",
+                        "sc",
+                        "sd",
+                        "se",
+                        "sg",
+                        "si",
+                        "sk",
+                        "sl",
+                        "sm",
+                        "sn",
+                        "so",
+                        "sr",
+                        "ss",
+                        "st",
+                        "sv",
+                        "sy",
+                        "sz",
+                        "td",
+                        "tg",
+                        "th",
+                        "tj",
+                        "tl",
+                        "tm",
+                        "tn",
+                        "to",
+                        "tr",
+                        "tt",
+                        "tv",
+                        "tz",
+                        "ua",
+                        "ug",
+                        "us",
+                        "uy",
+                        "uz",
+                        "va",
+                        "vc",
+                        "ve",
+                        "vn",
+                        "vu",
+                        "ws",
+                        "ye",
+                        "za",
+                        "zm",
+                        "zw"
+                      ]
+                    },
+                    "avatarUrl": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "theme": {
+                      "type": "string",
+                      "enum": [
+                        "system",
+                        "dark",
+                        "light"
+                      ]
+                    },
+                    "displayLanguage": {
+                      "type": "string",
+                      "enum": [
+                        "en",
+                        "de",
+                        "fr",
+                        "it",
+                        "es",
+                        "system"
+                      ]
+                    },
+                    "formattingLocale": {
+                      "type": "string",
+                      "enum": [
+                        "en",
+                        "de",
+                        "fr",
+                        "it",
+                        "es",
+                        "system"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "firstName",
+                    "lastName",
+                    "country",
+                    "avatarUrl",
+                    "theme",
+                    "displayLanguage",
+                    "formattingLocale"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
