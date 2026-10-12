@@ -1,9 +1,8 @@
 import { recordChannelsEnabled } from "./record-channels";
 
-import type { RecordRepo, StoredRecord } from "./record.repo";
+import type { RecordRepo } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";
-import type { RecordDto, RecordModel } from "./record-model.schema";
-import type { RecordQuery, RecordReadScope } from "./record-query.schema";
+import type { RecordQuery } from "./record-query.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -15,78 +14,10 @@ import { fail, failAuthorization, failNotFound } from "@/core/validation/interac
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordQuerySchema } from "./record-query.schema";
 import { invalidRecordQueryPart } from "./record-query-validation";
-import { decodeRecordValue } from "./record-storage";
-import { recordWriteFailure } from "./mutate-record.interactor";
+import { recordDto, withMemberUsers } from "./record-dto";
+import { recordWriteFailure } from "./record-write-failure";
 import type { RecordQueryResult } from "./record-query-result.schema";
 import { recordGroupableFields } from "./record-grouping";
-
-export function recordDto(
-  record: StoredRecord,
-  model: RecordModel,
-  visible: Set<string>,
-  memberScope: RecordReadScope,
-  selected?: string[],
-): RecordDto {
-  return {
-    ref: { typeId: record.typeId, recordId: record.id },
-    version: record.version,
-    ...(record.protectedKind === "membershipAuthorization" ? { protectedKind: record.protectedKind } : {}),
-    schemaRevision: model.revision,
-    createdAt: record.createdAt.toISOString(),
-    updatedAt: record.updatedAt.toISOString(),
-    assignedUserIds: record.assignments.map((assignment) => assignment.userId),
-    assignedUsers: record.assignments.flatMap((assignment) =>
-      assignment.user &&
-      (memberScope.access === "all" || (memberScope.access === "own" && assignment.userId === memberScope.userId))
-        ? [assignment.user]
-        : [],
-    ),
-    memberUsers: [],
-    relationships: [],
-    fields: model.fields
-      .filter(
-        (field) =>
-          field.typeId === record.typeId &&
-          !field.archived &&
-          field.valueType !== "channels" &&
-          (!selected || selected.includes(field.id)),
-      )
-      .map((field) => ({
-        fieldId: field.id,
-        result: visible.has(field.id)
-          ? decodeRecordValue(
-              record.values.find((value) => value.fieldId === field.id),
-              field,
-            )
-          : { state: "restricted" },
-      })),
-  };
-}
-
-function memberIds(record: RecordDto) {
-  return record.fields.flatMap(({ result }) =>
-    result.state === "value" && result.value.kind === "member" ? [result.value.value] : [],
-  );
-}
-
-export async function withMemberUsers<T extends RecordDto>(
-  records: T[],
-  repo: Pick<RecordRepo, "getMembersCompanyWide">,
-  memberScope: RecordReadScope,
-): Promise<T[]> {
-  const readable = [...new Set(records.flatMap(memberIds))].filter(
-    (id) => memberScope.access === "all" || (memberScope.access === "own" && id === memberScope.userId),
-  );
-  if (!readable.length) return records;
-  const users = new Map((await repo.getMembersCompanyWide(readable)).map((user) => [user.id, user]));
-  return records.map((record) => ({
-    ...record,
-    memberUsers: [...new Set(memberIds(record))].flatMap((id) => {
-      const user = users.get(id);
-      return user ? [user] : [];
-    }),
-  }));
-}
 
 @AllowInDemoMode
 @TenantInteractor()

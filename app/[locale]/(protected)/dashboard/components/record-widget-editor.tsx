@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { RecordQueryFilters } from "@/components/records/record-query-filters";
 import { toJS } from "mobx";
 import { observer } from "mobx-react-lite";
@@ -8,7 +8,6 @@ import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import { omit } from "lodash";
 import type { RecordModelView } from "@/features/records/record-model.schema";
-import type { RecordWidgetPreview } from "@/features/widget/record-widget-reader";
 import type { WidgetModalStore } from "./widget-modal.store";
 import {
   RECORD_MEASURE_DATE_INTERVALS,
@@ -21,10 +20,9 @@ import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { FormSelect } from "@/components/forms/form-select";
 import { Button } from "@/components/ui/button";
-import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
+import { runUserAction } from "@/core/errors/report-application-error";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
-import { getRecordModelAction } from "../../records/actions";
-import { discoverWidgetRecordTypesAction, previewRecordWidgetAction } from "../actions";
+import { discoverWidgetRecordTypesAction } from "../actions";
 import { isRecordWidgetForm } from "./record-widget-form";
 import { browserTimeZone } from "./widget-time-zone";
 import { RecordWidgetCard } from "./record-widget-card";
@@ -43,28 +41,6 @@ import { isRecordMeasureGroupField } from "@/features/records/record-measure-val
 
 const AUTO_PREVIEW_DELAY_MS = 600;
 
-function useWidgetModel(store: WidgetModalStore) {
-  const form = store.form;
-  const key = isRecordWidgetForm(form) && store.isOpen ? form.measure.source.typeId : null;
-  const [state, setState] = useState<{ key: string; model: RecordModelView | null } | null>(null);
-  const [attempt, setAttempt] = useState(0);
-  useEffect(() => {
-    if (!key) return;
-    let current = true;
-    const load = async () => {
-      const model = await getRecordModelAction();
-      if (current) setState({ key, model });
-    };
-    void load().catch(() => {
-      if (current) setState({ key, model: null });
-    });
-    return () => {
-      current = false;
-    };
-  }, [key, attempt]);
-  return { model: state?.key === key ? state.model : undefined, retry: () => setAttempt((value) => value + 1) };
-}
-
 export const RecordWidgetEditor = observer(
   ({
     store,
@@ -78,70 +54,27 @@ export const RecordWidgetEditor = observer(
     section: "data" | "filters" | "preview" | "all";
   }) => {
     const t = useTranslations();
-    const { model, retry } = useWidgetModel(store);
+    const model = store.recordModel;
+    const retry = () => runUserAction(store.loadRecordModel);
     const form = store.form;
-    const [preview, setPreview] = useState<({ key: string } & RecordWidgetPreview) | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [previewError, setPreviewError] = useState(false);
-    const previewGeneration = useRef(0);
-    const previewKey = isRecordWidgetForm(form) ? JSON.stringify(form.measure) : null;
-    useEffect(() => {
-      previewGeneration.current += 1;
-      setLoading(false);
-      setPreviewError(false);
-      return () => {
-        previewGeneration.current += 1;
-      };
-    }, [form, previewKey, model?.revision, store.isOpen]);
-    const runMeasurePreview = async () => {
-      const current = store.form;
-      if (!isRecordWidgetForm(current)) return;
-      const previewed = JSON.stringify(current.measure);
-      const generation = ++previewGeneration.current;
-      const isCurrent = () => generation === previewGeneration.current;
-      setLoading(true);
-      setPreviewError(false);
-      try {
-        const parsed = RecordMeasureSchema.safeParse(current.measure);
-        if (!parsed.success) {
-          setPreviewError(true);
-          return;
-        }
-        const result = await store.runPreview(() => previewRecordWidgetAction(parsed.data));
-        if (!result || !isCurrent()) return;
-        if (!result.ok) {
-          setPreviewError(true);
-          return;
-        }
-        if (model && result.data.result.schemaRevision !== model.revision) {
-          retry();
-          return;
-        }
-        setPreview({ key: previewed, ...result.data });
-        if (store.hasUnsavedChanges) store.onChange("expectedRevision", result.data.result.schemaRevision);
-      } catch {
-        if (isCurrent()) setPreviewError(true);
-      } finally {
-        if (isCurrent()) setLoading(false);
-      }
-    };
+    const preview = store.recordPreview;
+    const loading = store.recordPreviewLoading;
+    const previewError = store.recordPreviewFailed;
+    const previewKey = store.recordMeasureKey;
     const autoPreviewKey =
       (section === "preview" || section === "all") &&
       previewKey &&
       model &&
       store.isOpen &&
-      RecordMeasureSchema.safeParse(JSON.parse(previewKey)).success
+      isRecordWidgetForm(form) &&
+      RecordMeasureSchema.safeParse(form.measure).success
         ? `${model.revision}:${previewKey}`
         : null;
     const debouncedAutoPreviewKey = useDebouncedValue(autoPreviewKey, AUTO_PREVIEW_DELAY_MS);
-    const runAutoPreview = useRef(runMeasurePreview);
-    useEffect(() => {
-      runAutoPreview.current = runMeasurePreview;
-    });
     useEffect(() => {
       if (!debouncedAutoPreviewKey || debouncedAutoPreviewKey !== autoPreviewKey) return;
-      runAutoPreview.current().catch(reportApplicationError);
-    }, [debouncedAutoPreviewKey, autoPreviewKey, form]);
+      runUserAction(store.runRecordPreview);
+    }, [debouncedAutoPreviewKey, autoPreviewKey, form, store]);
     const displayIssue =
       model && isRecordWidgetForm(form)
         ? widgetDisplayTypeIssue(form.displayOptions.displayType, form.measure, model)
@@ -186,7 +119,7 @@ export const RecordWidgetEditor = observer(
                   {t("RecordWidgets.previewFailed")}
                 </p>
 
-                <Button type="button" variant="secondary" onClick={() => runUserAction(runMeasurePreview)}>
+                <Button type="button" variant="secondary" onClick={() => runUserAction(store.runRecordPreview)}>
                   {t("ErrorCard.retry")}
                 </Button>
               </>

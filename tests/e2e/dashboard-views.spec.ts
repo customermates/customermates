@@ -8,7 +8,7 @@ import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function revision(page: Page) {
-  const response = await page.request.post("/api/v1/model/discover", {
+  const response = await page.request.post("/api/v1/model/read", {
     data: {},
   });
   expect(response.status()).toBe(200);
@@ -98,7 +98,7 @@ test("keeps separate widget sets per dashboard view and targets a view through t
           },
           displayOptions: { displayType: "number" },
           viewId: target,
-          layout: { x: 6, y: 0, w: 3, h: 3 },
+          layout: { x: 6, y: 0, w: 3, h: 2 },
         },
       }),
     );
@@ -106,7 +106,7 @@ test("keeps separate widget sets per dashboard view and targets a view through t
   expect(placed.status(), await placed.text()).toBe(200);
   expect(await placed.json()).toMatchObject({
     viewId,
-    layout: { lg: { x: 6, y: 0, w: 3, h: 3 } },
+    layout: { lg: { x: 6, y: 0, w: 3, h: 2 } },
   });
   const unknown = await save("Nowhere", randomUUID());
   expect(unknown.status()).toBe(404);

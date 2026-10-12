@@ -1179,6 +1179,7 @@
       "userInactive": "Tu cuenta de usuario está inactiva. Contacta con un administrador del espacio de trabajo.",
       "userNotFound": "ID de usuario no encontrado o no accesible.",
       "userPlatformOperatorStatusForbidden": "Esta cuenta pertenece a un operador de plataforma y no se puede desactivar aquí. Usa la consola de operador.",
+      "userRoleRequired": "Este miembro aún no tiene un rol. Elige un rol junto con el cambio.",
       "userSelfAdminUpdateForbidden": "No puedes actualizar tu propia cuenta desde la administración del equipo.",
       "webhookBodyTemplateInvalid": "La plantilla del cuerpo debe producir un objeto JSON válido.",
       "webhookDeliveryNotFound": "ID de entrega de webhook no encontrado o no accesible.",
@@ -1193,8 +1194,9 @@
       "webhookTriggerRequired": "Elige qué cambios de campo o condiciones disparan este webhook antes de volver a activarlo.",
       "widgetDisplayTypeUnsupported": "Este estilo de gráfico no encaja con la agrupación seleccionada. Elige otro estilo o cambia la agrupación.",
       "widgetKindImmutable": "El tipo de un widget no se puede cambiar después de crearlo.",
+      "widgetLayoutChanged": "El panel ha cambiado mientras tanto. Se ha recargado, así que vuelve a organizar los widgets.",
       "widgetLayoutOverlap": "Esta posición se superpone con otro widget. Elige un hueco libre en la cuadrícula de 12 columnas u omite el diseño para colocarlo automáticamente.",
-      "widgetLayoutTooSmall": "Este widget necesita al menos 2 columnas y 3 filas.",
+      "widgetLayoutTooSmall": "Este widget es demasiado pequeño: los gráficos y las cifras necesitan al menos 2 filas, las cronologías de actividad 2 columnas y 6 filas.",
       "widgetNotFound": "ID de widget no encontrado o no accesible.",
       "wikiGuideExists": "Esta base de conocimientos ya tiene una guía operativa. Actualiza la guía existente.",
       "wikiNotEmpty": "Esta acción requiere que la base de conocimientos esté vacía.",
@@ -1943,6 +1945,7 @@
       "create": "Crear con los ID exportados",
       "failed": "No se pudieron importar los registros. Revisa el archivo y los permisos.",
       "fileHint": "Elige una exportación JSON de Customermates para esta lista.",
+      "mode": "Modo de importación",
       "ready": "{count, plural, one {# registro} other {# registros}} y {links, plural, one {# vínculo} other {# vínculos}} están listos para importar.",
       "schemaMismatch": "La estructura de la lista cambió desde la exportación.",
       "submit": "Importar registros",
@@ -1968,7 +1971,7 @@
     "boardPickedUp": "Registro seleccionado.",
     "collapseColumn": "Contraer columna",
     "collapseGroup": "Contraer el grupo {group}",
-    "dragToReorder": "Arrastrar para reordenar",
+    "dragToReorderNamed": "Arrastrar para reordenar: {name}",
     "editOption": "Editar opción",
     "expandColumn": "Expandir {name}",
     "expandGroup": "Expandir el grupo {group}",
@@ -2157,6 +2160,7 @@
     "fieldPickedUp": "Se ha seleccionado {field}.",
     "hideField": "Ocultar {field} de los detalles",
     "overview": "Vista general",
+    "panelSwitcher": "Paneles de detalle",
     "personalize": "Personalizar",
     "pinField": "Fijar {field} en el resumen",
     "pinMore": "Fijar o soltar campos",
@@ -3524,6 +3528,7 @@
     "operation": "Cálculo",
     "operationCancelled": "El cambio se canceló.",
     "operationFailed": "El cambio falló. El estado completo anterior sigue activo.",
+    "operationNamed": "Cálculo: {operation}",
     "operationPending": "Se están preparando los cambios. Los datos existentes siguen disponibles.",
     "operationProgress": "{processed} de {total} preparados",
     "operators": {
@@ -3809,6 +3814,7 @@
   },
   "RoutineDetail": {
     "credits": "Créditos",
+    "creditsAmount": "Créditos: {amount}",
     "empty": {
       "event": {
         "actions": {

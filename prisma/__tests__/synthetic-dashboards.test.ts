@@ -122,7 +122,7 @@ describe("synthetic dashboards", () => {
     expect(widgets.filter(({ kind }) => kind === WidgetKind.activityTimeline)).toHaveLength(2);
   });
 
-  it("lays every dashboard out on each breakpoint without overlaps", () => {
+  it("lays every dashboard out on each breakpoint in full rows without overlaps or holes", () => {
     const columns = { lg: 12, md: 8, sm: 4, xs: 2 } as const;
     for (const dashboard of [null, ...Object.values(SYNTHETIC_DASHBOARD_VIEW_IDS)]) {
       const items = widgets.filter(({ viewId }) => viewId === dashboard);
@@ -146,10 +146,36 @@ describe("synthetic dashboards", () => {
           }
         }
       }
-      const desktop = items.map((item) => (item.layout as Record<string, { y: number; h: number; w: number }>).lg);
-      const rows = new Map<number, number>();
-      for (const rect of desktop) rows.set(rect.y, (rows.get(rect.y) ?? 0) + rect.w);
-      for (const [row, width] of rows) expect(width, `${dashboard} row ${row}`).toBe(12);
+      for (const [breakpoint, count] of Object.entries(columns)) {
+        const rects = items.map(
+          (item) => (item.layout as Record<string, { y: number; h: number; w: number }>)[breakpoint],
+        );
+        const rows = new Map<number, { width: number; heights: Set<number> }>();
+        for (const rect of rects) {
+          const row = rows.get(rect.y) ?? { width: 0, heights: new Set<number>() };
+          row.width += rect.w;
+          row.heights.add(rect.h);
+          rows.set(rect.y, row);
+        }
+        for (const [y, row] of rows) {
+          expect(row.width, `${dashboard} ${breakpoint} row ${y} fills the grid`).toBe(count);
+          expect(row.heights.size, `${dashboard} ${breakpoint} row ${y} has one height`).toBe(1);
+        }
+        const bottom = Math.max(...rects.map((rect) => rect.y + rect.h));
+        const area = rects.reduce((sum, rect) => sum + rect.w * rect.h, 0);
+        expect(area, `${dashboard} ${breakpoint} leaves no holes`).toBe(bottom * count);
+      }
+      const metrics = items.filter(
+        (item) => (item.displayOptions as { displayType?: DisplayType }).displayType === DisplayType.number,
+      );
+      expect(metrics, `${dashboard} opens with four metrics`).toHaveLength(4);
+      for (const item of metrics) {
+        const layout = item.layout as Record<string, { y: number; w: number; h: number }>;
+        expect(layout.lg, `${dashboard} metric on the top row`).toMatchObject({ y: 0, w: 3, h: 2 });
+        expect(layout.md.w).toBe(4);
+        expect(layout.sm.w).toBe(2);
+        expect(layout.xs.w).toBe(2);
+      }
     }
   });
 

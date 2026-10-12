@@ -11,7 +11,7 @@ Every member sees Profile & preferences. Channels needs **Read access** **All** 
 
 ## Profile & preferences [#settings-tab]
 
-Change any field in [Profile & preferences](app:settings/profile) and click **Save**, which stores the whole form. **Save** and **Reset** appear once something changed.
+Change any field in [Profile & preferences](app:settings/profile) and click **Save**, which stores the whole form. Once something changed, a floating **Unsaved changes** bar offers **Cancel**, which discards your changes, and **Save**.
 
 ### How do I change my name, avatar, language or theme? [#how-do-i-change-my-name-avatar-language-or-theme]
 
@@ -115,7 +115,7 @@ Open a channel you own:
 
 ## For agents [#tips-for-agents]
 
-Over MCP and in Mate, `update_workspace_settings` with `target: "profile"` changes only first name, last name, country and avatar URL; `connect_messaging_account` creates a connection link under the same plan, permission and allowance rules. Language, formats, theme, shortcuts, channel visibility, folders, appearance, signature, reactivate, resync, disconnect and API keys are set in the app only. Do not repeat a channel's signature in a message body. A new API key is shown once.
+Over MCP and in Mate, `update_my_profile` changes only your own first name, last name, country, avatar URL, theme, display language and formatting locale; `connect_messaging_account` creates a connection link under the same plan, permission and allowance rules. Shortcuts, channel visibility, folders, appearance, signature, reactivate, resync, disconnect and API keys are set in the app only. Do not repeat a channel's signature in a message body. A new API key is shown once. Over REST, `GET /api/v1/users/me` reads your profile and `PATCH /api/v1/users/me` changes the same fields as `update_my_profile`; omitted fields keep their values.
 
 ## Related [#related]
 

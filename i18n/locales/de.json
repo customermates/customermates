@@ -1179,6 +1179,7 @@
       "userInactive": "Dein Benutzerkonto ist inaktiv. Wende dich an einen Workspace-Administrator.",
       "userNotFound": "Benutzer-ID nicht gefunden oder nicht zugänglich.",
       "userPlatformOperatorStatusForbidden": "Dieses Konto gehört einem Plattform-Operator und kann hier nicht deaktiviert werden. Nutze die Operator-Konsole.",
+      "userRoleRequired": "Dieses Mitglied hat noch keine Rolle. Wähle zusammen mit der Änderung eine Rolle aus.",
       "userSelfAdminUpdateForbidden": "Du kannst dein eigenes Konto nicht über die Teamverwaltung aktualisieren.",
       "webhookBodyTemplateInvalid": "Die Body-Vorlage muss ein gültiges JSON-Objekt ergeben.",
       "webhookDeliveryNotFound": "Webhook-Zustellungs-ID nicht gefunden oder nicht zugänglich.",
@@ -1193,8 +1194,9 @@
       "webhookTriggerRequired": "Wählen Sie, welche Feldänderungen oder Bedingungen diesen Webhook auslösen, bevor Sie ihn wieder einschalten.",
       "widgetDisplayTypeUnsupported": "Dieser Diagrammstil passt nicht zur gewählten Gruppierung. Wähle einen anderen Stil oder ändere die Gruppierung.",
       "widgetKindImmutable": "Der Typ eines Widgets kann nach dem Erstellen nicht geändert werden.",
+      "widgetLayoutChanged": "Das Dashboard wurde zwischenzeitlich geändert. Es wurde neu geladen, ordne die Widgets bitte erneut an.",
       "widgetLayoutOverlap": "Diese Position überschneidet sich mit einem anderen Widget. Wähle einen freien Platz im 12-Spalten-Raster oder lass das Layout weg, damit das Widget automatisch platziert wird.",
-      "widgetLayoutTooSmall": "Dieses Widget braucht mindestens 2 Spalten und 3 Zeilen.",
+      "widgetLayoutTooSmall": "Dieses Widget ist zu klein: Diagramme und Kennzahlen brauchen mindestens 2 Zeilen, Aktivitätsverläufe 2 Spalten und 6 Zeilen.",
       "widgetNotFound": "Widget-ID nicht gefunden oder nicht zugänglich.",
       "wikiGuideExists": "Diese Wissensdatenbank hat bereits einen Betriebsleitfaden. Aktualisiere stattdessen den vorhandenen Leitfaden.",
       "wikiNotEmpty": "Diese Aktion erfordert eine leere Wissensdatenbank.",
@@ -1943,6 +1945,7 @@
       "create": "Mit exportierten IDs erstellen",
       "failed": "Die Datensätze konnten nicht importiert werden. Prüfe Datei und Berechtigungen.",
       "fileHint": "Wähle einen Customermates-JSON-Export für diese Liste.",
+      "mode": "Importmodus",
       "ready": "{count, plural, one {# Datensatz} other {# Datensätze}} und {links, plural, one {# Verknüpfung} other {# Verknüpfungen}} sind bereit für den Import.",
       "schemaMismatch": "Die Listenstruktur hat sich seit dem Export geändert.",
       "submit": "Datensätze importieren",
@@ -1968,7 +1971,7 @@
     "boardPickedUp": "Datensatz aufgenommen.",
     "collapseColumn": "Spalte einklappen",
     "collapseGroup": "Gruppe {group} einklappen",
-    "dragToReorder": "Zum Neuanordnen ziehen",
+    "dragToReorderNamed": "Zum Neuanordnen ziehen: {name}",
     "editOption": "Option bearbeiten",
     "expandColumn": "{name} ausklappen",
     "expandGroup": "Gruppe {group} ausklappen",
@@ -2157,6 +2160,7 @@
     "fieldPickedUp": "{field} aufgenommen.",
     "hideField": "{field} in den Details ausblenden",
     "overview": "Übersicht",
+    "panelSwitcher": "Detailbereiche",
     "personalize": "Anpassen",
     "pinField": "{field} an die Übersicht anheften",
     "pinMore": "Felder anheften oder lösen",
@@ -3524,6 +3528,7 @@
     "operation": "Berechnung",
     "operationCancelled": "Die Änderung wurde abgebrochen.",
     "operationFailed": "Die Änderung ist fehlgeschlagen. Der vorherige vollständige Stand bleibt aktiv.",
+    "operationNamed": "Berechnung: {operation}",
     "operationPending": "Änderungen werden vorbereitet. Bestehende Daten bleiben verfügbar.",
     "operationProgress": "{processed} von {total} vorbereitet",
     "operators": {
@@ -3809,6 +3814,7 @@
   },
   "RoutineDetail": {
     "credits": "Guthaben",
+    "creditsAmount": "Guthaben: {amount}",
     "empty": {
       "event": {
         "actions": {

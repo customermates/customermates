@@ -12,7 +12,7 @@ import { recordLinkColor } from "@/features/records/record-presentation";
 import { MemberAvatar, memberName } from "@/components/chip/member-chip";
 import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { RecordValue } from "./record-value";
+import { RecordValue } from "@/components/records/record-value";
 import { EmptyValue } from "@/components/shared/empty-value";
 import { Avatar } from "@/components/ui/avatar";
 import { recordDisplayName } from "@/features/records/record-display-name";

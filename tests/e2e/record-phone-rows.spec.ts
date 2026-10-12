@@ -9,7 +9,7 @@ import { RecordOperationResultSchema } from "../../features/records/record-query
 import { openRecordLink } from "./record-rows";
 
 async function create(page: Page, mutation: Record<string, unknown>) {
-  const model = RecordModelSchema.parse(await (await page.request.post("/api/v1/model/discover", { data: {} })).json());
+  const model = RecordModelSchema.parse(await (await page.request.post("/api/v1/model/read", { data: {} })).json());
   const response = await page.request.post("/api/v1/records/mutate", {
     data: {
       expectedRevision: model.revision,

@@ -4,7 +4,7 @@ import { z } from "zod";
 
 import { WebhookPublicDtoSchema } from "./webhook.schema";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { StructuredApiResponses } from "@/core/api/structured-interactor-handler";
 
 export const getWebhookOperation: ZodOpenApiOperationObject = {
   operationId: "getWebhook",
@@ -23,6 +23,9 @@ export const getWebhookOperation: ZodOpenApiOperationObject = {
         },
       },
     },
-    ...CommonApiResponses,
+    "400": StructuredApiResponses["400"],
+    "401": StructuredApiResponses["401"],
+    "403": StructuredApiResponses["403"],
+    "500": StructuredApiResponses["500"],
   },
 };

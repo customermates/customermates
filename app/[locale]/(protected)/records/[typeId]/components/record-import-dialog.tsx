@@ -1,6 +1,6 @@
 "use client";
 
-import { runUserAction } from "@/core/errors/report-application-error";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -14,7 +14,11 @@ import {
   RecordExportSchema,
 } from "@/features/data-transfer/record-transfer.schema";
 import { Button } from "@/components/ui/button";
+import { SegmentedControl } from "@/components/ui/segmented-control";
+import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { AppModal } from "@/components/modal";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { importRecordsAction } from "../../actions";
 import { AppCard } from "@/components/card/app-card";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -100,8 +104,10 @@ export function RecordImportDialog({
         return;
       }
       setDocument(parsed.data);
-    } catch {
-      if (generation === selectionGeneration.current) setError(t("DataTransfer.import.fileRejected"));
+    } catch (error) {
+      if (generation !== selectionGeneration.current) return;
+      if (!(error instanceof SyntaxError)) reportApplicationError(error);
+      setError(t("DataTransfer.import.fileRejected"));
     }
   };
   const submit = async () => {
@@ -109,18 +115,18 @@ export function RecordImportDialog({
     setBusy(true);
     setError("");
     try {
-      const response = await fetch("/api/v1/records/import", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ document, mode, idempotencyKey: key.current }),
-      });
-      if (!response.ok) throw new Error(`Import failed (${response.status})`);
-      const result = await response.json();
+      const result = await importRecordsAction({ document, mode, idempotencyKey: key.current });
+      if (!result.ok) {
+        if (!toastZodErrorTree(result.error)) setError(t("DataTransfer.recordImport.failed"));
+        setBusy(false);
+        return;
+      }
       await onImported();
-      toast.success(t("DataTransfer.recordImport.success", { count: result.created + result.updated }));
+      toast.success(t("DataTransfer.recordImport.success", { count: result.data.created + result.data.updated }));
       setBusy(false);
       close(false);
-    } catch {
+    } catch (error) {
+      reportApplicationError(error);
       setError(t("DataTransfer.recordImport.failed"));
       setBusy(false);
     }
@@ -166,33 +172,18 @@ export function RecordImportDialog({
                 })}
               </p>
 
-              <div aria-label={t("DataTransfer.recordImport.title")} className="flex flex-wrap gap-2" role="group">
-                <Button
-                  aria-pressed={mode === "create"}
-                  disabled={busy}
-                  type="button"
-                  variant={mode === "create" ? "default" : "secondary"}
-                  onClick={() => {
-                    setMode("create");
-                    key.current = crypto.randomUUID();
-                  }}
-                >
-                  {t("DataTransfer.recordImport.create")}
-                </Button>
-
-                <Button
-                  aria-pressed={mode === "update"}
-                  disabled={busy}
-                  type="button"
-                  variant={mode === "update" ? "default" : "secondary"}
-                  onClick={() => {
-                    setMode("update");
-                    key.current = crypto.randomUUID();
-                  }}
-                >
-                  {t("DataTransfer.recordImport.update")}
-                </Button>
-              </div>
+              <SegmentedControl
+                items={[
+                  { value: "create", label: t("DataTransfer.recordImport.create"), disabled: busy, controls: false },
+                  { value: "update", label: t("DataTransfer.recordImport.update"), disabled: busy, controls: false },
+                ]}
+                label={t("DataTransfer.recordImport.mode")}
+                value={mode}
+                onValueChange={(next) => {
+                  setMode(next);
+                  key.current = crypto.randomUUID();
+                }}
+              />
             </>
           )}
 
@@ -201,13 +192,16 @@ export function RecordImportDialog({
               {error}
             </p>
           )}
-
-          <div className="flex justify-end">
-            <Button disabled={!document || busy} type="button" onClick={() => runUserAction(() => submit())}>
-              {t("DataTransfer.recordImport.submit")}
-            </Button>
-          </div>
         </AppCardBody>
+
+        <FormFooterActions
+          editable
+          dirty={document !== null}
+          saveLabel={t("DataTransfer.recordImport.submit")}
+          saving={busy}
+          onCancel={() => close(false)}
+          onSave={submit}
+        />
       </AppCard>
     </AppModal>
   );

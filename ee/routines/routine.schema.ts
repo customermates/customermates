@@ -116,7 +116,6 @@ const UpsertRoutineFieldsSchema = z.object({
   cronExpression: z.string().min(1).max(120).nullable().optional(),
   timezone: z.string().min(1).max(64).nullable().optional(),
   triggerEvents: z.array(RoutineTriggerEventSchema).optional(),
-  triggerFilters: z.array(FilterSchema).optional(),
   recordTrigger: RoutineRecordTriggerSchema.nullable().optional(),
   recordSources: z.array(RecordTriggerSourceSchema).min(1).max(50).nullable().optional(),
   expectedSchemaRevision: z.number().int().nonnegative().optional(),

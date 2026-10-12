@@ -1,7 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { DeferredWebhookError } from "@/core/errors/app-errors";
-import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import { channelClass } from "@/ee/messaging/provider";
@@ -111,7 +110,6 @@ export class ProviderAvatarService {
     private background: Pick<BackgroundTaskService, "dispatch">,
   ) {}
 
-  @BypassTenantGuard
   synchronize(provider: MessagingProvider, identifier: string | null, pictureUrl: string | null | undefined) {
     return runInTransaction(
       async () => {
@@ -239,7 +237,6 @@ export class ProviderAvatarService {
     );
   }
 
-  @BypassTenantGuard
   async advance(operationId: string): Promise<{ done: boolean }> {
     try {
       return await runInTransaction(
@@ -415,7 +412,6 @@ export class ProviderAvatarService {
     }
   }
 
-  @BypassTenantGuard
   async fail(operationId: string, errorCode = "recordConfigurationInvalid") {
     await runInTransaction(
       async () => {

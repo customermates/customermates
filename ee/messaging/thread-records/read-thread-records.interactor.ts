@@ -14,7 +14,7 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { failAuthorization, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordSearchHit } from "@/features/records/search-records.interactor";
-import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
+import { recordWriteFailure } from "@/features/records/record-write-failure";
 import { ReadThreadRecordsSchema, ThreadRecordsResultSchema } from "./thread-records.schema";
 import { canReadInbox } from "./thread-records.interactor";
 

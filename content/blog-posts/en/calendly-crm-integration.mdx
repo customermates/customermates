@@ -224,7 +224,7 @@ Add any transformation logic here: split "John Smith" into first name and last n
 
 ### Step 3: Create or Update the Contact in Customermates
 
-First call `POST <BASE_URL>/api/v1/model/discover` with `{}` and save the current schema revision, the Contacts type ID, and the field and relationship IDs you need. These stable IDs still work if someone renames a type or field. Then add an **HTTP Request** node:
+First call `POST <BASE_URL>/api/v1/model/discover` with `{}` to find the Contacts type ID, then `POST <BASE_URL>/api/v1/model/read` with that ID in `typeIds`, and save the current schema revision and the field and relationship IDs you need. These stable IDs still work if someone renames a type or field. Then add an **HTTP Request** node:
 
 - **Method:** POST
 - **URL:** `<BASE_URL>/api/v1/records/mutate` (the address you open Customermates at)

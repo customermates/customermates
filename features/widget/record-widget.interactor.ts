@@ -4,7 +4,13 @@ import { randomUUID } from "node:crypto";
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { QueryRecordMeasureInteractor } from "@/features/records/query-record-measure.interactor";
-import type { RecordWidgetInput, RecordWidgetDto, RecordWidgetRepo } from "./record-widget.schema";
+import type {
+  RecordWidgetInput,
+  RecordWidgetDto,
+  RecordWidgetRepo,
+  SavedRecordWidgetInput,
+  StoredRecordWidget,
+} from "./record-widget.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -13,11 +19,19 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { fail, failAuthorization, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { recordRequestHash } from "@/features/records/mutate-record.interactor";
+import { recordRequestHash } from "@/features/records/record-request-hash";
 import { RecordWidgetInputSchema } from "./record-widget.schema";
 import { widgetDisplayTypeIssue } from "./widget-display-rules";
 import { resolveDashboardView, resolveWidgetLayout } from "./widget-placement";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
+
+function completeChart(input: RecordWidgetInput, current: StoredRecordWidget | null): SavedRecordWidgetInput | null {
+  const name = input.name ?? current?.name;
+  const measure = input.measure ?? current?.measure;
+  const displayOptions = input.displayOptions ?? current?.displayOptions;
+  if (name === undefined || measure === undefined || displayOptions === undefined) return null;
+  return { ...input, name, measure, displayOptions, isTemplate: input.isTemplate ?? current?.isTemplate ?? false };
+}
 
 @TenantInteractor()
 export class UpsertRecordWidgetInteractor extends AuthenticatedInteractor<RecordWidgetInput, RecordWidgetDto> {
@@ -55,9 +69,11 @@ export class UpsertRecordWidgetInteractor extends AuthenticatedInteractor<Record
           if (!current) return failNotFound(CustomErrorCode.widgetNotFound);
           if (current.version !== input.expectedVersion) return failConflict(CustomErrorCode.recordVersionChanged);
         }
-        const data = await this.measures.invoke(input.measure);
+        const widget = completeChart(input, current);
+        if (!widget) return fail(CustomErrorCode.widgetNotFound, ["id"]);
+        const data = await this.measures.invoke(widget.measure);
         if (!data.ok) return data;
-        if (widgetDisplayTypeIssue(input.displayOptions.displayType, input.measure, await this.records.getModel()))
+        if (widgetDisplayTypeIssue(widget.displayOptions.displayType, widget.measure, await this.records.getModel()))
           return fail(CustomErrorCode.widgetDisplayTypeUnsupported, ["displayOptions", "displayType"]);
         const id = input.id ?? randomUUID();
         const view = await resolveDashboardView(this.views, input.viewId, current ? current.viewId : undefined);
@@ -65,13 +81,13 @@ export class UpsertRecordWidgetInteractor extends AuthenticatedInteractor<Record
         const placement = resolveWidgetLayout({
           id,
           kind: "chart",
-          displayType: input.displayOptions.displayType,
+          displayType: widget.displayOptions.displayType,
           requested: input.layout,
           needsPlacement: !current || current.viewId !== view.viewId,
           widgets: await this.widgets.listPlacements(view.viewId),
         });
         if (!placement.ok) return fail(placement.code, ["layout"]);
-        const row = await this.widgets.save(input, id, view.viewId, placement.layout);
+        const row = await this.widgets.save(widget, id, view.viewId, placement.layout);
         await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, { widgetId: row.id });
         return { ok: true as const, data: await this.reader.read(row) };
       },

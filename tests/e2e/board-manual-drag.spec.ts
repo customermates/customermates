@@ -64,7 +64,7 @@ test("reorders board cards by dragging within and across columns in manual order
   await page.goto(`/en/records/${typeId}`);
   const names = new Map<string, string>();
   const deal = async (name: string, stage: string) => {
-    const model = RecordModelSchema.parse(await post(page, "/api/v1/model/discover", {}));
+    const model = RecordModelSchema.parse(await post(page, "/api/v1/model/read", {}));
     const result = RecordOperationResultSchema.parse(
       await post(page, "/api/v1/records/mutate", {
         expectedRevision: model.revision,

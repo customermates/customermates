@@ -7,7 +7,7 @@ import type { RecordGroupSummaryResult } from "@/features/records/record-groupin
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/core/utils/cn";
-import { useRecordValueFormat } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
+import { useRecordValueFormat } from "@/components/records/record-value";
 import { derivedFractionDigits } from "@/features/records/derived-value-format";
 
 function useSummaryText() {

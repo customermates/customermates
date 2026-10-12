@@ -5,7 +5,7 @@ import { MOCK_ENV_MODULE, createMockDiModule, MOCK_PRISMA_DB_MODULE } from "@/te
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { RecordAccessPolicy } from "@/features/records/record-access";
 import { createCrmPreset, presetId } from "@/features/records/crm-preset";
-import { recordRequestHash } from "@/features/records/mutate-record.interactor";
+import { recordRequestHash } from "@/features/records/record-request-hash";
 import { MutateThreadRecordsInteractor } from "../thread-records.interactor";
 import { ReadThreadRecordsInteractor } from "../read-thread-records.interactor";
 

@@ -20,7 +20,7 @@ import { runPrecheck } from "@/core/validation/run-precheck";
 import { RoutineLimitExceededError } from "./routine-run-limits";
 import { isRoutineTriggerEvent } from "./routine-trigger-events";
 import { RecordWriteError } from "@/features/records/record-write.service";
-import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
+import { recordWriteFailure } from "@/features/records/record-write-failure";
 
 function mergeRoutineFinalState(previous: RoutineDto, update: UpsertRoutineData): RoutineValidationData {
   const triggerKind = update.triggerKind ?? previous.triggerKind;
@@ -48,7 +48,6 @@ function mergeRoutineFinalState(previous: RoutineDto, update: UpsertRoutineData)
         : update.timezone
       : null,
     triggerEvents: update.triggerEvents ?? previous.triggerEvents.filter(isRoutineTriggerEvent),
-    triggerFilters: update.triggerFilters ?? previous.triggerFilters,
     recordTrigger:
       scheduled || update.recordSources?.length
         ? null

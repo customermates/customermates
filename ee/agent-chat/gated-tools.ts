@@ -34,8 +34,8 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   manage_trash: { approvalFreeActions: ["restore", "preview"], readOnlyActions: ["preview"] },
   manage_widgets: { approvalFreeActions: ["list", "get", "create", "update"], readOnlyActions: ["list", "get"] },
   manage_data_views: {
-    approvalFreeActions: ["surfaces", "list", "config", "create", "update", "select", "reset"],
-    readOnlyActions: ["surfaces", "list", "config"],
+    approvalFreeActions: ["surfaces", "list", "read", "config", "create", "update", "select", "reset"],
+    readOnlyActions: ["surfaces", "list", "read", "config"],
   },
   manage_record_detail_layout: {
     approvalFreeActions: ["read", "save", "reset"],
@@ -62,7 +62,7 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   send_chat_message: { approvalFree: true },
   send_email: { approvalFree: true },
   update_messaging_thread: { approvalFree: true },
-  update_workspace_settings: { approvalFree: true },
+  update_my_profile: { approvalFree: true },
 };
 
 const AGENT_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = Object.fromEntries(

@@ -1,9 +1,11 @@
 import type { SearchCatalogText, StaticSearchCatalog } from "./search-catalog-corpus";
 
-import { Prisma } from "@/generated/prisma";
-import { prisma } from "@/prisma/db";
+import type { SearchCatalogMatch, SearchCatalogRepo, SearchCatalogScope } from "./search-catalog.repo";
 
-import { SearchCatalogRepo, type SearchCatalogMatch, type SearchCatalogScope } from "./search-catalog.repo";
+import { Prisma } from "@/generated/prisma";
+import { TenantRepository } from "@/core/base/tenant-repository";
+import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 
 const STATIC_SYNC_LOCK = "SearchCatalogEntry:static";
 const WORKSPACE_SYNC_LOCK = "SearchCatalogEntry:workspace:";
@@ -20,6 +22,10 @@ function scopeFilter(scope: SearchCatalogScope, alias: Prisma.Sql = Prisma.sql`e
     : Prisma.sql`${alias}."companyId" IS NULL AND ${alias}."buildHash" = ${scope.buildHash}`;
 }
 
+function scopeWhere(scope: SearchCatalogScope) {
+  return "companyId" in scope ? { companyId: scope.companyId } : { companyId: null, buildHash: scope.buildHash };
+}
+
 function textColumns(entries: readonly SearchCatalogText[]) {
   return Prisma.sql`unnest(
     ${entries.map((entry) => entry.targetId)}::text[],
@@ -28,9 +34,9 @@ function textColumns(entries: readonly SearchCatalogText[]) {
   ) AS v("targetId", "text", "contentHash")`;
 }
 
-export class PrismaSearchCatalogRepo extends SearchCatalogRepo {
+export class PrismaSearchCatalogRepo extends TenantRepository implements SearchCatalogRepo {
   semanticIndexAvailable(): Promise<boolean> {
-    embeddingColumn ??= prisma
+    embeddingColumn ??= this.prisma
       .$queryRaw<Array<{ available: boolean }>>(
         Prisma.sql`
         SELECT EXISTS (
@@ -47,7 +53,8 @@ export class PrismaSearchCatalogRepo extends SearchCatalogRepo {
     return embeddingColumn;
   }
 
-  ensureStaticCatalog(catalog: StaticSearchCatalog): Promise<void> {
+  @BypassTenantGuard
+  ensureStaticCatalogUnscoped(catalog: StaticSearchCatalog): Promise<void> {
     const known = syncedBuilds.get(catalog.buildHash);
     if (known) return known;
     const syncing = this.writeStaticCatalog(catalog).catch((error: unknown) => {
@@ -58,21 +65,18 @@ export class PrismaSearchCatalogRepo extends SearchCatalogRepo {
     return syncing;
   }
 
-  private async storedStaticEntries(buildHash: string, client: Pick<typeof prisma, "$queryRaw"> = prisma) {
-    const rows = await client.$queryRaw<Array<{ count: number }>>(Prisma.sql`
-      SELECT count(*)::int AS "count" FROM "SearchCatalogEntry" e WHERE e."companyId" IS NULL AND e."buildHash" = ${buildHash}
-    `);
-    return rows[0]?.count ?? 0;
+  private storedStaticEntries(buildHash: string): Promise<number> {
+    return this.prisma.searchCatalogEntry.count({ where: { companyId: null, buildHash } });
   }
 
   private async writeStaticCatalog(catalog: StaticSearchCatalog) {
     if ((await this.storedStaticEntries(catalog.buildHash)) === catalog.entries.length) return;
     const withEmbedding = await this.semanticIndexAvailable();
-    await prisma.$transaction(
-      async (tx) => {
-        await tx.$executeRaw(Prisma.sql`SELECT pg_advisory_xact_lock(hashtext(${STATIC_SYNC_LOCK}))`);
-        if ((await this.storedStaticEntries(catalog.buildHash, tx)) === catalog.entries.length) return;
-        await tx.$executeRaw(Prisma.sql`
+    await runInTransaction(
+      async () => {
+        await this.prisma.$executeRaw(Prisma.sql`SELECT pg_advisory_xact_lock(hashtext(${STATIC_SYNC_LOCK}))`);
+        if ((await this.storedStaticEntries(catalog.buildHash)) === catalog.entries.length) return;
+        await this.prisma.$executeRaw(Prisma.sql`
           INSERT INTO "SearchCatalogEntry" (
             "id", "buildHash", "locale", "targetId", "text", "contentHash"
             ${withEmbedding ? Prisma.sql`, "model", "embedding"` : Prisma.empty}
@@ -96,11 +100,13 @@ export class PrismaSearchCatalogRepo extends SearchCatalogRepo {
           }
           ON CONFLICT ("buildHash", "locale", "targetId") DO NOTHING
         `);
-        await tx.$executeRaw(Prisma.sql`
-          DELETE FROM "SearchCatalogEntry"
-          WHERE "companyId" IS NULL AND "buildHash" <> ${catalog.buildHash}
-            AND "createdAt" < CURRENT_TIMESTAMP - make_interval(days => ${STATIC_BUILD_RETENTION_DAYS})
-        `);
+        await this.prisma.searchCatalogEntry.deleteMany({
+          where: {
+            companyId: null,
+            buildHash: { not: catalog.buildHash },
+            createdAt: { lt: new Date(Date.now() - STATIC_BUILD_RETENTION_DAYS * 24 * 60 * 60 * 1000) },
+          },
+        });
       },
       { timeout: SYNC_TIMEOUT_MS, maxWait: SYNC_TIMEOUT_MS },
     );
@@ -108,16 +114,16 @@ export class PrismaSearchCatalogRepo extends SearchCatalogRepo {
 
   async replaceWorkspaceCatalog(companyId: string, entries: readonly SearchCatalogText[]): Promise<void> {
     const withEmbedding = await this.semanticIndexAvailable();
-    await prisma.$transaction(
-      async (tx) => {
-        await tx.$executeRaw(Prisma.sql`SELECT pg_advisory_xact_lock(hashtext(${WORKSPACE_SYNC_LOCK + companyId}))`);
-        await tx.$executeRaw(Prisma.sql`
-          DELETE FROM "SearchCatalogEntry" e
-          WHERE ${scopeFilter({ companyId })}
-            AND NOT (e."targetId" = ANY(${entries.map((entry) => entry.targetId)}::text[]))
-        `);
+    await runInTransaction(
+      async () => {
+        await this.prisma.$executeRaw(
+          Prisma.sql`SELECT pg_advisory_xact_lock(hashtext(${WORKSPACE_SYNC_LOCK + companyId}))`,
+        );
+        await this.prisma.searchCatalogEntry.deleteMany({
+          where: { companyId, targetId: { notIn: entries.map((entry) => entry.targetId) } },
+        });
         if (entries.length === 0) return;
-        await tx.$executeRaw(Prisma.sql`
+        await this.prisma.$executeRaw(Prisma.sql`
           INSERT INTO "SearchCatalogEntry" (
             "id", "companyId", "targetId", "text", "contentHash"
             ${withEmbedding ? Prisma.sql`, "model", "embedding"` : Prisma.empty}
@@ -146,13 +152,18 @@ export class PrismaSearchCatalogRepo extends SearchCatalogRepo {
     );
   }
 
-  async claimPendingEmbeddings(scope: SearchCatalogScope, model: string, limit: number): Promise<SearchCatalogText[]> {
+  @BypassTenantGuard
+  async claimPendingEmbeddingsUnscoped(
+    scope: SearchCatalogScope,
+    model: string,
+    limit: number,
+  ): Promise<SearchCatalogText[]> {
     if (!(await this.semanticIndexAvailable())) return [];
     const claimable = (alias: Prisma.Sql) => Prisma.sql`${scopeFilter(scope, alias)}
       AND (${alias}."embedding" IS NULL OR ${alias}."model" IS DISTINCT FROM ${model})
       AND (${alias}."claimedAt" IS NULL
         OR ${alias}."claimedAt" < CURRENT_TIMESTAMP - make_interval(secs => ${CLAIM_EXPIRY_SECONDS}))`;
-    const rows = await prisma.$queryRaw<SearchCatalogText[]>(Prisma.sql`
+    const rows = await this.prisma.$queryRaw<SearchCatalogText[]>(Prisma.sql`
       WITH picked AS MATERIALIZED (
         SELECT c."contentHash" FROM "SearchCatalogEntry" c
         WHERE ${claimable(Prisma.sql`c`)}
@@ -166,21 +177,23 @@ export class PrismaSearchCatalogRepo extends SearchCatalogRepo {
     return [...new Map(rows.map((row) => [row.contentHash, row])).values()];
   }
 
-  async releaseClaims(scope: SearchCatalogScope, contentHashes: readonly string[]): Promise<void> {
+  @BypassTenantGuard
+  async releaseClaimsUnscoped(scope: SearchCatalogScope, contentHashes: readonly string[]): Promise<void> {
     if (contentHashes.length === 0) return;
-    await prisma.$executeRaw(Prisma.sql`
-      UPDATE "SearchCatalogEntry" e SET "claimedAt" = NULL
-      WHERE ${scopeFilter(scope)} AND e."contentHash" = ANY(${[...contentHashes]}::text[])
-    `);
+    await this.prisma.searchCatalogEntry.updateMany({
+      where: { ...scopeWhere(scope), contentHash: { in: [...contentHashes] } },
+      data: { claimedAt: null },
+    });
   }
 
-  async storeEmbeddings(
+  @BypassTenantGuard
+  async storeEmbeddingsUnscoped(
     scope: SearchCatalogScope,
     model: string,
     rows: ReadonlyArray<{ contentHash: string; embedding: string }>,
   ): Promise<void> {
     if (rows.length === 0) return;
-    await prisma.$executeRaw(Prisma.sql`
+    await this.prisma.$executeRaw(Prisma.sql`
       UPDATE "SearchCatalogEntry" AS e SET "embedding" = v."embedding"::vector, "model" = ${model}, "claimedAt" = NULL
       FROM unnest(
         ${rows.map((row) => row.contentHash)}::text[],
@@ -190,7 +203,8 @@ export class PrismaSearchCatalogRepo extends SearchCatalogRepo {
     `);
   }
 
-  async semanticMatches(args: {
+  @BypassTenantGuard
+  async semanticMatchesUnscoped(args: {
     companyId: string;
     buildHash: string;
     locale: string;
@@ -202,7 +216,7 @@ export class PrismaSearchCatalogRepo extends SearchCatalogRepo {
   }): Promise<SearchCatalogMatch[]> {
     if (!(await this.semanticIndexAvailable())) return [];
     const embedding = `[${args.vector.join(",")}]`;
-    return prisma.$queryRaw<SearchCatalogMatch[]>(Prisma.sql`
+    return this.prisma.$queryRaw<SearchCatalogMatch[]>(Prisma.sql`
       WITH distances AS MATERIALIZED (
         SELECT e."targetId", e."embedding" <=> ${embedding}::vector AS "distance"
         FROM "SearchCatalogEntry" e

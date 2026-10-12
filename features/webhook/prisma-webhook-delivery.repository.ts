@@ -107,9 +107,11 @@ export class PrismaWebhookDeliveryRepo
     return this.prisma.webhookDelivery.count({ where });
   }
 
-  async createRetryById(id: string): ReturnType<GetWebhookDeliveryByIdRepo["createRetryById"]> {
+  async createRetryById(id: string, webhookId?: string): ReturnType<GetWebhookDeliveryByIdRepo["createRetryById"]> {
     const { companyId } = this.user;
-    const original = await this.prisma.webhookDelivery.findFirst({ where: { id, companyId } });
+    const original = await this.prisma.webhookDelivery.findFirst({
+      where: { id, companyId, ...(webhookId ? { webhookId } : {}) },
+    });
     if (!original) return { status: "missing" };
     if (
       (original.status !== WebhookDeliveryStatus.success && original.status !== WebhookDeliveryStatus.failed) ||

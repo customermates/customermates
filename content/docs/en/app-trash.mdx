@@ -24,7 +24,7 @@ Everyone finds **Trash** in the sidebar. You see the items you could see and del
 
 Open [Trash](app:trash), hover the row and click **Restore**, or select several rows and click **Restore** in the selection bar. Restoring needs the same access as deleting did. A restored record comes back with its values, links and sub-list rows. A link to a record that was deleted permanently in the meantime cannot come back; the message after restoring says how many links were dropped. A large restore runs in the background: the record shows **Restoring…** until it is done. A record whose list is itself in Trash can be restored only after its list.
 
-Opening a deleted record from Trash shows it read only with the banner **In Trash** and a **Restore** button.
+Opening a deleted record from Trash shows it read only with the banner **In Trash** and a **Restore** button. Over REST, `POST /api/v1/trash/query` lists Trash items and `POST /api/v1/trash/read` returns the same read-only view of a deleted record.
 
 ## How do I delete something permanently? [#how-do-i-delete-permanently]
 

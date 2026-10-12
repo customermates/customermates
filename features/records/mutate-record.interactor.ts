@@ -1,4 +1,4 @@
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 
 import type { RecordRepo } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";
@@ -10,32 +10,15 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { fail, failAuthorization, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
+import { failAuthorization, failConflict } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { MutateRecordSchema, RecordOperationResultSchema } from "./record-query.schema";
 import type { RecordWriteService } from "./record-write.service";
-import { RecordWriteError } from "./record-write.service";
-import { RecordTrashService } from "./record-trash.service";
+import type { RecordTrashService } from "./record-trash.service";
 import { RecordJournal } from "./record-journal";
-import { CalculationBudgetExceeded } from "./calculation-budget-exceeded";
 import { currentRoutineContext } from "@/core/decorators/routine-context";
-import { canonicalRecordJson } from "./record-json";
-
-export const recordRequestHash = (request: unknown) =>
-  createHash("sha256").update(canonicalRecordJson(request)).digest("hex");
-export function recordWriteFailure(error: unknown) {
-  if (error instanceof CalculationBudgetExceeded) return failConflict(CustomErrorCode.recordCalculationBudget);
-  if (!(error instanceof RecordWriteError)) throw error;
-  const respond =
-    error.kind === "authorization"
-      ? failAuthorization
-      : error.kind === "conflict"
-        ? failConflict
-        : error.kind === "not_found"
-          ? failNotFound
-          : fail;
-  return respond(error.code, error.path);
-}
+import { recordRequestHash } from "./record-request-hash";
+import { recordWriteFailure } from "./record-write-failure";
 
 @TenantInteractor()
 export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecordInput, RecordOperationResult> {
@@ -44,6 +27,7 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
     private policy: RecordAccessPolicy,
     private writer: RecordWriteService,
     private background: Pick<BackgroundTaskService, "dispatch">,
+    private trash: RecordTrashService,
   ) {
     super();
   }
@@ -84,7 +68,7 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
             (input.mutation.action === "delete" || input.mutation.action === "deleteMany") && input.mutation.permanent;
           if (permanent && changed.trashBatchId) {
             const items = await this.records.getRecordTrashItemsCompanyWide({ batchId: changed.trashBatchId });
-            await new RecordTrashService(this.records).purge(
+            await this.trash.purge(
               items.map((item) => item.id),
               model,
               this.userId,

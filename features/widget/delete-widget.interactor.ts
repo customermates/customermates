@@ -13,12 +13,14 @@ import { Write } from "@/core/decorators/write.decorator";
 import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-const Schema = z.object({
-  id: z.uuid(),
-});
-export type DeleteWidgetData = Data<typeof Schema>;
+export const DeleteWidgetSchema = z
+  .object({
+    id: z.uuid(),
+  })
+  .strict();
+export type DeleteWidgetData = Data<typeof DeleteWidgetSchema>;
 
-const DeleteWidgetResultSchema = z.object({ id: z.uuid(), trashBatchId: z.uuid() });
+export const DeleteWidgetResultSchema = z.object({ id: z.uuid(), trashBatchId: z.uuid() });
 export type DeleteWidgetResult = Data<typeof DeleteWidgetResultSchema>;
 
 @TenantInteractor()
@@ -32,7 +34,7 @@ export class DeleteWidgetInteractor extends AuthenticatedInteractor<DeleteWidget
   }
 
   @Write({
-    input: Schema,
+    input: DeleteWidgetSchema,
     output: DeleteWidgetResultSchema,
     precheck: (self, data, ctx) => self.validator.invoke([{ ids: data.id, path: ["id"] }], ctx),
   })
