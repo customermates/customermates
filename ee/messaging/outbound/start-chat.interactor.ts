@@ -1,5 +1,6 @@
 import type { StartChatThreadRepo } from "./start-chat-thread.repo";
-import type { StartChatContactRepo } from "./start-chat-contact.repo";
+import type { StartChatContactChannel, StartChatContactRepo } from "./start-chat-contact.repo";
+import type { RecordIdentityReader } from "@/features/records/record-identity-reader";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
@@ -15,6 +16,7 @@ import { z } from "zod";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Write } from "@/core/decorators/write.decorator";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { normalizeChannelValue } from "@/features/records/channel-value";
 import {
@@ -45,6 +47,7 @@ import { SendAttachmentSchema } from "./send-email.interactor";
 
 import type { FindUsableAccountRepo } from "../persistence/find-usable-account.repo";
 import { accountNeedsReconnect } from "../account-health";
+import { identityLookupValue } from "../identity-lookup";
 
 export const LinkedinProductSchema = z.enum(LINKEDIN_PRODUCTS);
 
@@ -126,6 +129,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
     private messagingService: MessagingService,
     private threadRepo: StartChatThreadRepo,
     private entitlements: EntitlementService,
+    private identities: Pick<RecordIdentityReader, "resolve">,
   ) {
     super();
   }
@@ -292,6 +296,48 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
     return inboxIds.find((id) => id === LINKEDIN_PRODUCT_PRIMARY_INBOX[product]);
   }
 
+  private findContactChannel(provider: MessagingProvider, identifier: string) {
+    return runInTransaction(
+      async (): Promise<StartChatContactChannel | null> => {
+        const value = identityLookupValue(provider, identifier);
+        if (!value) return null;
+        const matches = await this.identities.resolve([{ provider, value }]);
+        const ids = new Set(
+          matches.flatMap((match) => match.records.flatMap((record) => (record.identityId ? [record.identityId] : []))),
+        );
+        if (ids.size !== 1) return null;
+        return (
+          (await this.contactRepo.findIdentityChannelsCompanyWide(provider, value)).find((row) => ids.has(row.id)) ??
+          null
+        );
+      },
+      { readOnly: true },
+    );
+  }
+
+  private async saveResolvedContactChannel(args: {
+    id: string;
+    messagingId: string;
+    displayName: string | null;
+    profileUrl: string | null;
+  }): Promise<void> {
+    await runInTransaction(async () => {
+      if (await this.contactRepo.isRecordWritePaused()) return;
+      const identity = await this.contactRepo.findIdentityCompanyWide(args.id);
+      if (!identity) return;
+      const matches = await this.identities.resolve([{ provider: identity.provider, value: identity.value }]);
+      for (const reference of matches.flatMap((match) => match.records)) {
+        if (!reference.canEdit || !(await this.contactRepo.isRecordEditableCompanyWide(reference.ref))) continue;
+        await this.contactRepo.setIdentityResolutionCompanyWide(args.id, {
+          messagingId: args.messagingId,
+          displayName: args.displayName,
+          profileUrl: args.profileUrl,
+        });
+        return;
+      }
+    });
+  }
+
   private plainAttendees(identifiers: string[]): ResolvedAttendees {
     return {
       ok: true,
@@ -317,7 +363,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
     const attendees: MessagingAttendee[] = [];
 
     for (const identifier of identifiers) {
-      const channel = await this.contactRepo.findContactChannelCompanyWide({ provider: account.provider, identifier });
+      const channel = await this.findContactChannel(account.provider, identifier);
 
       if (channel?.messagingId) {
         ids.push(channel.messagingId);
@@ -344,7 +390,7 @@ export class StartChatInteractor extends AuthenticatedInteractor<StartChatData, 
       if (!res.ok) return { ok: false, error: res.error, retryAfterSeconds: res.retryAfterSeconds };
 
       if (channel) {
-        await this.contactRepo.saveResolvedContactChannel({
+        await this.saveResolvedContactChannel({
           id: channel.id,
           messagingId: res.data.providerId,
           displayName: res.data.displayName,

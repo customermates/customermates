@@ -17,7 +17,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordMeasureSchema, RecordMeasureResultSchema } from "./record-measure.schema";
 import { RecordScalarSchema } from "./record-model.schema";
 import { recordMeasureIssue } from "./record-measure-validation";
-import { recordWriteFailure } from "./mutate-record.interactor";
+import { recordWriteFailure } from "./record-write-failure";
 
 @AllowInDemoMode
 @TenantInteractor()

@@ -16,7 +16,8 @@ import { UserAccessor } from "@/core/base/user-accessor";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordWriteError } from "@/features/records/record-write.service";
-import { recordRequestHash, recordWriteFailure } from "@/features/records/mutate-record.interactor";
+import { recordRequestHash } from "@/features/records/record-request-hash";
+import { recordWriteFailure } from "@/features/records/record-write-failure";
 import { DomainEvent } from "@/features/event/domain-events";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 

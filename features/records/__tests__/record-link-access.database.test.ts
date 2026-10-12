@@ -30,6 +30,7 @@ const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
 const { RecordWriteService } = await import("../record-write.service");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
+const { RecordTrashService } = await import("../record-trash.service");
 const { QueryRecordsInteractor } = await import("../query-records.interactor");
 const { GetRecordInteractor } = await import("../get-record.interactor");
 const { createCrmPreset, presetId } = await import("../crm-preset");
@@ -67,9 +68,15 @@ async function fixture() {
   const repo = new PrismaRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const calculations = new RecordCalculationService(repo);
-  const mutate = new MutateRecordInteractor(repo, policy, new RecordWriteService(repo, policy, calculations), {
-    dispatch: () => Promise.resolve(),
-  });
+  const mutate = new MutateRecordInteractor(
+    repo,
+    policy,
+    new RecordWriteService(repo, policy, calculations),
+    {
+      dispatch: () => Promise.resolve(),
+    },
+    new RecordTrashService(repo),
+  );
   const read = new GetRecordInteractor(repo, policy);
   const query = new QueryRecordsInteractor(repo, policy);
   const id = (key: string) => presetId(seed.company.id, key);

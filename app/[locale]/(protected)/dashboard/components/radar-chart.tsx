@@ -3,6 +3,7 @@
 import type { ChartDataPoint } from "./chart.types";
 
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
+import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useReducedMotion } from "framer-motion";
 
@@ -19,12 +20,14 @@ type Props = {
 
 export const RadarChartComponent = observer(({ currency, chartData, colors }: Props) => {
   const reducedMotion = useReducedMotion();
+  const [width, setWidth] = useState(0);
+  const labelWidth = Math.round(Math.min(88, Math.max(40, width * 0.16)));
   return (
-    <DashboardChartContainer>
-      <RadarChart data={chartData}>
+    <DashboardChartContainer onResize={(next: number) => setWidth((current) => (current === next ? current : next))}>
+      <RadarChart data={chartData} outerRadius={width > 0 && width < 420 ? "62%" : "75%"}>
         <ChartTooltip currency={currency} />
 
-        <PolarAngleAxis dataKey="label" tick={<TruncatedTick polar maxWidth={88} />} />
+        <PolarAngleAxis dataKey="label" tick={<TruncatedTick polar maxWidth={labelWidth} />} />
 
         <PolarGrid stroke="var(--border)" />
 

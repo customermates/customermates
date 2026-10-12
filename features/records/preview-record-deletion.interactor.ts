@@ -12,7 +12,7 @@ import { failConflict } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordRefSchema } from "./record-model.schema";
 import { calculationSources, recordKey } from "./record-calculation.service";
-import { recordWriteFailure } from "./mutate-record.interactor";
+import { recordWriteFailure } from "./record-write-failure";
 import { RecordMutationTargetsSchema } from "./record-query.schema";
 
 const ValidatedDeletionPreviewSchema = z.union([

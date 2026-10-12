@@ -10,7 +10,7 @@ import { Prisma } from "@/generated/prisma";
 import { UserAccessor } from "@/core/base/user-accessor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordJournal } from "./record-journal";
-import { RecordTrashService } from "./record-trash.service";
+import type { RecordTrashService } from "./record-trash.service";
 import { RecordWriteError } from "./record-write-error";
 import { recordInvariant } from "./record-invariant";
 
@@ -22,6 +22,7 @@ export class RecordTrashHandler extends UserAccessor implements TrashKindHandler
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
     private background: Pick<BackgroundTaskService, "dispatch">,
+    private recordTrash: RecordTrashService,
   ) {
     super();
   }
@@ -65,7 +66,7 @@ export class RecordTrashHandler extends UserAccessor implements TrashKindHandler
     if (!policy.actor) throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
     const journal = new RecordJournal(this.records, model);
     const stored = await this.records.getRecordTrashItemsCompanyWide({ ids: items.map((item) => item.id) });
-    const result = await new RecordTrashService(this.records).restore(stored, model, policy, journal);
+    const result = await this.recordTrash.restore(stored, model, policy, journal);
     await journal.flush(model, this.userId, randomUUID(), { kind: "mutation" });
     return result;
   }
@@ -99,7 +100,7 @@ export class RecordTrashHandler extends UserAccessor implements TrashKindHandler
 
   async purge(items: TrashItem[], actorId: string | null): Promise<void> {
     const model = await this.records.getModel();
-    await new RecordTrashService(this.records).purge(
+    await this.recordTrash.purge(
       items.map((item) => item.id),
       model,
       actorId,

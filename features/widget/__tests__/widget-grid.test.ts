@@ -5,6 +5,7 @@ import {
   WidgetPlacementSchema,
   firstFreeSpot,
   occupiedGrid,
+  packBreakpointLayout,
   placeWidget,
   rectsOverlap,
   widgetDefaultSize,
@@ -62,7 +63,7 @@ describe("grid geometry", () => {
   });
 
   it("sizes new widgets for their display type", () => {
-    expect(widgetDefaultSize("chart", DisplayType.number)).toEqual({ w: 3, h: 3 });
+    expect(widgetDefaultSize("chart", DisplayType.number)).toEqual({ w: 3, h: 2 });
     expect(widgetDefaultSize("chart", DisplayType.areaChart)).toEqual({ w: 6, h: 6 });
     expect(widgetDefaultSize("activityTimeline")).toEqual({ w: 6, h: 8 });
   });
@@ -107,8 +108,8 @@ describe("placing a widget", () => {
     ).toEqual({ ok: false, reason: "tooSmall" });
   });
 
-  it("enforces the number widget minimum height", () => {
-    const requested = { x: 0, y: 6, w: 3, h: 2 };
+  it("enforces the number widget minimum height of two rows", () => {
+    const requested = { x: 0, y: 6, w: 3, h: 1 };
     expect(placeWidget({ id: "new", kind: "chart", displayType: DisplayType.number, requested, widgets })).toEqual({
       ok: false,
       reason: "tooSmall",
@@ -118,7 +119,7 @@ describe("placing a widget", () => {
         id: "new",
         kind: "chart",
         displayType: DisplayType.number,
-        requested: { ...requested, h: 3 },
+        requested: { ...requested, h: 2 },
         widgets,
       }).ok,
     ).toBe(true);
@@ -127,7 +128,7 @@ describe("placing a widget", () => {
   it("auto-places a new widget in the first free spot with its default size", () => {
     expect(placeWidget({ id: "new", kind: "chart", displayType: DisplayType.number, widgets })).toEqual({
       ok: true,
-      placement: { x: 0, y: 6, w: 3, h: 3 },
+      placement: { x: 0, y: 6, w: 3, h: 2 },
     });
   });
 
@@ -137,5 +138,62 @@ describe("placing a widget", () => {
       md: layout.md,
       lg: { i: "a", x: 1, y: 4, w: 3, h: 8 },
     });
+  });
+});
+
+describe("deriving a narrower breakpoint", () => {
+  const metric = (id: string, x: number) => ({ id, lg: { x, y: 0, w: 3, h: 2 }, compact: true });
+  const panel = (id: string, x: number, y: number, w: number) => ({ id, lg: { x, y, w, h: 7 }, compact: false });
+  const rows = (rects: Array<{ y: number; x: number; w: number }>) => {
+    const widths = new Map<number, number>();
+    for (const rect of rects) widths.set(rect.y, (widths.get(rect.y) ?? 0) + rect.w);
+    return [...widths.values()];
+  };
+  const dashboard = [
+    metric("m1", 0),
+    metric("m2", 3),
+    metric("m3", 6),
+    metric("m4", 9),
+    panel("a", 0, 2, 4),
+    panel("b", 4, 2, 4),
+    panel("c", 8, 2, 4),
+    panel("d", 0, 9, 6),
+    panel("e", 6, 9, 6),
+  ];
+
+  it("puts two metrics and two half-width charts on each md row in reading order and widens a lone chart", () => {
+    const packed = packBreakpointLayout(dashboard, 8);
+    expect(packed.slice(0, 4).map(({ x, y, w, h }) => ({ x, y, w, h }))).toEqual([
+      { x: 0, y: 0, w: 4, h: 2 },
+      { x: 4, y: 0, w: 4, h: 2 },
+      { x: 0, y: 2, w: 4, h: 2 },
+      { x: 4, y: 2, w: 4, h: 2 },
+    ]);
+    expect(packed.find(({ id }) => id === "d")).toMatchObject({ x: 4, w: 4 });
+    expect(packed.find(({ id }) => id === "e")).toMatchObject({ x: 0, w: 8 });
+    expect(rows(packed).every((width) => width === 8)).toBe(true);
+  });
+
+  it("keeps metrics two to a row on sm, one on xs, and every chart full width", () => {
+    const small = packBreakpointLayout(dashboard, 4);
+    expect(small.filter(({ id }) => id.startsWith("m")).map(({ w }) => w)).toEqual([2, 2, 2, 2]);
+    expect(small.filter(({ id }) => !id.startsWith("m")).every(({ w }) => w === 4)).toBe(true);
+    expect(rows(small).every((width) => width === 4)).toBe(true);
+    const phone = packBreakpointLayout(dashboard, 2);
+    expect(phone.every(({ w, x }) => w === 2 && x === 0)).toBe(true);
+  });
+
+  it("never mixes metrics into a chart row, leaving no holes", () => {
+    const packed = packBreakpointLayout([metric("m1", 0), metric("m2", 3), metric("m3", 6), panel("a", 0, 2, 6)], 8);
+    expect(packed.map(({ id, x, y, w, h }) => ({ id, x, y, w, h }))).toEqual([
+      { id: "m1", x: 0, y: 0, w: 4, h: 2 },
+      { id: "m2", x: 4, y: 0, w: 4, h: 2 },
+      { id: "m3", x: 0, y: 2, w: 8, h: 2 },
+      { id: "a", x: 0, y: 4, w: 8, h: 7 },
+    ]);
+  });
+
+  it("starts below widgets that keep a stored position", () => {
+    expect(packBreakpointLayout([panel("a", 0, 0, 12)], 4, 5)).toEqual([{ id: "a", x: 0, y: 5, w: 4, h: 7 }]);
   });
 });

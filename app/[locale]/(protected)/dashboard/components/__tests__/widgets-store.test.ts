@@ -110,6 +110,41 @@ describe("WidgetsStore refresh compatibility", () => {
     expect(store.dataRequest).toEqual({ status: "ready" });
   });
 
+  it("derives missing narrow breakpoints as full rows: metrics two to a row on md, charts beneath", () => {
+    const root = {
+      localeStore: { getTranslation: (key: string) => key },
+      loadingOverlayStore: { isLoading: false },
+    } as unknown as RootStore;
+    const store = new WidgetsStore(root);
+    const metric = (id: string, x: number) =>
+      ({
+        ...widget(id, x, 0),
+        displayOptions: { displayType: DisplayType.number },
+        layout: { lg: { i: id, x, y: 0, w: 4, h: 2 } },
+      }) as WidgetDto;
+    const chartId = "00000000-0000-4000-8000-000000000003";
+    store.setItems({
+      items: [
+        metric(FIRST_ID, 0),
+        metric(SECOND_ID, 4),
+        { ...widget(chartId, 8, 0), layout: { lg: { i: chartId, x: 8, y: 0, w: 4, h: 7 } } },
+      ],
+    });
+    const geometry = (breakpoint: "md" | "sm" | "xs") =>
+      store.layouts[breakpoint]?.map(({ i, x, y, w, h }) => ({ i, x, y, w, h }));
+    expect(geometry("md")).toEqual([
+      { i: FIRST_ID, x: 0, y: 0, w: 4, h: 2 },
+      { i: SECOND_ID, x: 4, y: 0, w: 4, h: 2 },
+      { i: chartId, x: 0, y: 2, w: 8, h: 7 },
+    ]);
+    expect(geometry("sm")?.map(({ w }) => w)).toEqual([2, 2, 4]);
+    expect(geometry("xs")?.map(({ x, w }) => [x, w])).toEqual([
+      [0, 2],
+      [0, 2],
+      [0, 2],
+    ]);
+  });
+
   it("reports a rejected layout write instead of leaving the dropped promise unhandled", async () => {
     const root = {
       localeStore: { getTranslation: (key: string) => key },
@@ -140,6 +175,35 @@ describe("WidgetsStore refresh compatibility", () => {
     expect(store.layouts).not.toEqual(moved);
     expect(captureException).toHaveBeenCalledExactlyOnceWith(error);
     unregister();
+  });
+
+  it("sends the expected widget versions and reloads the dashboard after a version conflict", async () => {
+    const root = {
+      localeStore: { getTranslation: (key: string) => key },
+      loadingOverlayStore: { withLoading: (run: () => Promise<unknown>) => run() },
+    } as unknown as RootStore;
+    const store = new WidgetsStore(root);
+    refreshWidgetsAction.mockResolvedValueOnce({ items: [widget(FIRST_ID, 0, 0)] });
+    await store.refresh();
+
+    updateWidgetLayoutsAction.mockResolvedValueOnce({
+      ok: false,
+      code: "widgetLayoutChanged",
+      error: { errors: ["The dashboard changed in the meantime."] },
+    });
+    const elsewhere = { ...widget(FIRST_ID, 6, 0), version: 2 };
+    refreshWidgetsAction.mockResolvedValueOnce({ items: [elsewhere] });
+
+    store.onLayoutChange([], { ...store.layouts, lg: [{ h: 2, i: FIRST_ID, w: 3, x: 1, y: 0 }] });
+
+    await vi.waitFor(() => expect(refreshWidgetsAction).toHaveBeenCalledTimes(2));
+    expect(updateWidgetLayoutsAction).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({ expectedVersions: { [FIRST_ID]: 1 } }),
+    );
+    await vi.waitFor(() =>
+      expect(store.layouts.lg).toEqual([expect.objectContaining({ h: 2, i: FIRST_ID, w: 3, x: 6, y: 0 })]),
+    );
+    expect(store.items[0]?.version).toBe(2);
   });
 
   it("reverts the layout when the server rejects the write without throwing", async () => {

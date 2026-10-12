@@ -59,14 +59,18 @@ function makeInteractor(account: unknown, service: any, threadRepo: any = { pers
   return new StartChatInteractor(
     { findUsableAccountByIdOrThrow: vi.fn().mockResolvedValue(account) } as never,
     {
-      findContactChannelCompanyWide: vi
+      findIdentityChannelsCompanyWide: vi
         .fn()
-        .mockResolvedValue({ id: "ch-1", messagingId: "prov-1", displayName: "Ada", profileUrl: null }),
-      saveResolvedContactChannel: vi.fn(),
+        .mockResolvedValue([{ id: "ch-1", messagingId: "prov-1", displayName: "Ada", profileUrl: null }]),
+      findIdentityCompanyWide: vi.fn(),
+      isRecordWritePaused: vi.fn(),
+      isRecordEditableCompanyWide: vi.fn(),
+      setIdentityResolutionCompanyWide: vi.fn(),
     } as never,
     service,
     threadRepo,
     mockEntitlementService(),
+    { resolve: vi.fn().mockResolvedValue([{ records: [{ identityId: "ch-1" }] }]) } as never,
   );
 }
 

@@ -37,6 +37,7 @@ const { RecordConfigurationService } = await import("../configuration.service");
 const { RecordConfigurationWriter } = await import("../record-configuration-writer");
 const { RecordWriteService } = await import("../record-write.service");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
+const { RecordTrashService } = await import("../record-trash.service");
 const { GetRecordModelInteractor } = await import("../get-record-model.interactor");
 const { DiscoverRecordTypesInteractor } = await import("../discover-record-types.interactor");
 const { PreviewRecordConfigurationInteractor } = await import("../preview-record-configuration.interactor");
@@ -78,6 +79,7 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
     policy,
     new RecordWriteService(repo, policy, calculations),
     background,
+    new RecordTrashService(repo),
   );
 
   const rename = (expectedRevision: number): ConfigurationChange => ({

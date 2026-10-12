@@ -2,6 +2,7 @@ import type { z } from "zod";
 
 import type { Validated } from "@/core/validation/validation.utils";
 import type { DataViewPolicy } from "./data-view-policy";
+import type { ResetDataViewStateRepo } from "./reset-data-view-state.repo";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -13,10 +14,6 @@ import {
 } from "./reset-data-view-state.schema";
 import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-
-export interface ResetDataViewStateRepo {
-  resetOwnedViewState(input: ResetDataViewStateInput): Promise<boolean>;
-}
 
 @TenantInteractor()
 export class ResetDataViewStateInteractor extends AuthenticatedInteractor<

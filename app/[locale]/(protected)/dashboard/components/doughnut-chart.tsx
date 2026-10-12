@@ -8,6 +8,7 @@ import { useReducedMotion } from "framer-motion";
 
 import { ChartTooltip } from "@/components/chart/chart-tooltip";
 import { TruncatedText } from "@/components/shared/truncated-text";
+import { useRecordValueFormat } from "@/components/records/record-value";
 
 import { useChartFormatter } from "./use-chart-formatter";
 import { DashboardChartContainer } from "./dashboard-chart-container";
@@ -21,57 +22,64 @@ type Props = {
 export const DoughnutChart = observer(({ currency, chartData, showLegend = true }: Props) => {
   const reducedMotion = useReducedMotion();
   const formatValue = useChartFormatter(currency);
+  const valueFormat = useRecordValueFormat();
   const total = chartData.reduce((sum, entry) => sum + entry.value, 0);
   const slices = chartData.filter((entry) => entry.value > 0).length;
 
   return (
-    <div className="flex size-full min-h-0 flex-col gap-3 overflow-hidden">
-      <div className="relative min-h-0 flex-1">
-        <DashboardChartContainer>
-          <PieChart>
-            <ChartTooltip currency={currency} />
+    <div className="@container/doughnut size-full min-h-0">
+      <div className="flex size-full min-h-0 flex-col gap-3 overflow-hidden @sm/doughnut:flex-row @sm/doughnut:items-center @sm/doughnut:gap-6">
+        <div className="relative min-h-0 flex-1 @sm/doughnut:h-full">
+          <DashboardChartContainer>
+            <PieChart>
+              <ChartTooltip currency={currency} />
 
-            <Pie
-              cornerRadius={4}
-              data={chartData}
-              dataKey="value"
-              innerRadius="72%"
-              isAnimationActive={reducedMotion === false}
-              nameKey="label"
-              outerRadius="100%"
-              paddingAngle={slices > 1 ? 2 : 0}
-              stroke="var(--background)"
-              strokeWidth={2}
-            >
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.fill} />
-              ))}
-            </Pie>
-          </PieChart>
-        </DashboardChartContainer>
+              <Pie
+                cornerRadius={4}
+                data={chartData}
+                dataKey="value"
+                innerRadius="72%"
+                isAnimationActive={reducedMotion === false}
+                nameKey="label"
+                outerRadius="100%"
+                paddingAngle={slices > 1 ? 2 : 0}
+                stroke="var(--background)"
+                strokeWidth={2}
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.fill} />
+                ))}
+              </Pie>
+            </PieChart>
+          </DashboardChartContainer>
 
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 flex items-center justify-center"
-          data-slot="doughnut-total"
-        >
-          <span className="max-w-[55%] truncate text-sm font-semibold tabular-nums text-foreground">
-            {formatValue(total, true)}
-          </span>
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 flex items-center justify-center"
+            data-slot="doughnut-total"
+          >
+            <span className="max-w-[55%] truncate text-sm font-semibold tabular-nums text-foreground">
+              {formatValue(total, true)}
+            </span>
+          </div>
         </div>
+
+        {showLegend && (
+          <ul className="flex max-h-[40%] min-w-0 shrink-0 flex-wrap justify-center gap-x-3 gap-y-1 overflow-hidden @sm/doughnut:max-h-full @sm/doughnut:w-2/5 @sm/doughnut:flex-col @sm/doughnut:flex-nowrap @sm/doughnut:gap-y-1.5">
+            {chartData.map((entry, index) => (
+              <li key={index} className="flex min-w-0 max-w-full items-center gap-1.5 text-xs">
+                <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: entry.fill }} />
+
+                <TruncatedText className="text-muted-foreground">{entry.label}</TruncatedText>
+
+                <span className="ml-auto hidden pl-2 font-medium tabular-nums text-foreground @sm/doughnut:inline">
+                  {total > 0 ? valueFormat.percent(entry.value / total) : null}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
-
-      {showLegend && (
-        <ul className="flex max-h-[40%] min-w-0 shrink-0 flex-wrap justify-center gap-x-3 gap-y-1 overflow-hidden">
-          {chartData.map((entry, index) => (
-            <li key={index} className="flex min-w-0 max-w-full items-center gap-1.5 text-xs">
-              <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: entry.fill }} />
-
-              <TruncatedText className="text-muted-foreground">{entry.label}</TruncatedText>
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 });

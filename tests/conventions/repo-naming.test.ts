@@ -80,6 +80,30 @@ function collectRepoMethods() {
 
 const methods = collectRepoMethods();
 
+function bypassOutsideRepositories() {
+  const violations: string[] = [];
+  for (const path of ["app", "features", "ee", "core", "workflows"].flatMap((dir) =>
+    walkFiles(
+      join(REPO_ROOT, dir),
+      (candidate) => /\.tsx?$/.test(candidate) && !/(__tests__|\.test\.tsx?$)/.test(candidate),
+    ),
+  )) {
+    if (/(\.repository\.ts|-repository\.ts)$/.test(path)) continue;
+    const text = readFileSync(path, "utf8");
+    if (!text.includes(`@${BYPASS_DECORATOR}`)) continue;
+    const source = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true);
+    const visit = (node: ts.Node) => {
+      if (ts.isMethodDeclaration(node) && hasBypassDecorator(node))
+        violations.push(
+          `${relative(REPO_ROOT, path)}:${ts.getLineAndCharacterOfPosition(source, node.getStart(source)).line + 1} ${node.name.getText(source)}`,
+        );
+      ts.forEachChild(node, visit);
+    };
+    visit(source);
+  }
+  return violations;
+}
+
 describe("repository naming conventions", () => {
   it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
     "every method named *Unscoped* carries @BypassTenantGuard",
@@ -121,6 +145,15 @@ describe("repository naming conventions", () => {
           (method) =>
             `${method.file}:${method.line} ${method.name} throws on missing rows but is not named *OrThrow`,
         );
+
+      expect(violations, violations.join("\n")).toEqual([]);
+    },
+  );
+
+  it.skipIf(!ENFORCED && !process.env.AUDIT_REPORT)(
+    "@BypassTenantGuard is used only inside *.repository.ts files",
+    () => {
+      const violations = bypassOutsideRepositories();
 
       expect(violations, violations.join("\n")).toEqual([]);
     },

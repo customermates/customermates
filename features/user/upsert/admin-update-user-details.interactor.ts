@@ -6,7 +6,7 @@ import type { ReleaseOwnerRoutinesInteractor } from "@/ee/routines/release-owner
 import type { Data } from "@/core/validation/validation.utils";
 import type { SubscriptionService } from "@/ee/subscription/subscription.service";
 import type { CountActiveUsersRepo } from "@/features/user/count-active-users.repo";
-import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
+import { recordWriteFailure } from "@/features/records/record-write-failure";
 import { calculateChanges } from "@/core/utils/calculate-changes";
 
 import { z } from "zod";

@@ -285,7 +285,7 @@ export class RecordJournal {
   async prepareDeletion(
     refs: RecordRef[],
     model: RecordModel,
-    actorId: string,
+    actorId: string | null,
     causeId: string,
     cause: RecordEventPayload["cause"],
   ): Promise<void> {
@@ -306,13 +306,18 @@ export class RecordJournal {
     }
   }
 
-  async flush(model: RecordModel, actorId: string, causeId: string, cause: RecordEventPayload["cause"]): Promise<void> {
+  async flush(
+    model: RecordModel,
+    actorId: string | null,
+    causeId: string,
+    cause: RecordEventPayload["cause"],
+  ): Promise<void> {
     for (const entry of this.entries.values()) await this.emit(entry, model, actorId, causeId, cause);
   }
 
   async flushPage(
     model: RecordModel,
-    actorId: string,
+    actorId: string | null,
     causeId: string,
     cause: RecordEventPayload["cause"],
     afterKey: string | undefined,
@@ -328,7 +333,7 @@ export class RecordJournal {
   private async emit(
     entry: RecordJournalEntry,
     model: RecordModel,
-    actorId: string,
+    actorId: string | null,
     causeId: string,
     cause: RecordEventPayload["cause"],
   ): Promise<void> {

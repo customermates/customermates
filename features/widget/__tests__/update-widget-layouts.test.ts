@@ -1,3 +1,4 @@
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { describe, expect, it, vi } from "vitest";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
@@ -8,6 +9,10 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+vi.mock("next-intl/server", () => ({
+  getLocale: () => Promise.resolve("en"),
+  getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
+}));
 
 import { UpdateWidgetLayoutsInteractor, UpdateWidgetLayoutsSchema } from "../update-widget-layouts.interactor";
 
@@ -24,6 +29,7 @@ const valid = {
       { i: SECOND, x: 0, y: 3, w: 12, h: 2 },
     ],
   },
+  expectedVersions: { [FIRST]: 1, [SECOND]: 4 },
 };
 
 describe("widget layout batch contract", () => {
@@ -41,29 +47,77 @@ describe("widget layout batch contract", () => {
     ["an unknown placement key", { ...valid.layouts, lg: [{ i: FIRST, x: 0, y: 0, w: 6, h: 3, static: true }] }],
     ["a missing breakpoint", { xs: [], sm: [], md: [] }],
   ])("rejects %s", (_, layouts) => {
-    expect(UpdateWidgetLayoutsSchema.safeParse({ layouts }).success).toBe(false);
+    expect(UpdateWidgetLayoutsSchema.safeParse({ layouts, expectedVersions: valid.expectedVersions }).success).toBe(
+      false,
+    );
+  });
+
+  it("requires the version of every widget it moves", () => {
+    expect(UpdateWidgetLayoutsSchema.safeParse({ layouts: valid.layouts }).success).toBe(false);
+    expect(
+      UpdateWidgetLayoutsSchema.safeParse({ layouts: valid.layouts, expectedVersions: { [FIRST]: 1 } }).success,
+    ).toBe(false);
+  });
+
+  const repository = (versions: Record<string, number>) => ({
+    findLayoutTargets: vi
+      .fn()
+      .mockResolvedValue(
+        Object.entries(versions).map(([id, version]) => ({ id, kind: "chart", layout: null, version, viewId: null })),
+      ),
+    listLayoutPlacements: vi.fn().mockResolvedValue([]),
+    saveWidgetLayouts: vi.fn().mockResolvedValue([]),
   });
 
   it("returns a validation failure without writing", async () => {
-    const repo = { updateWidgetLayouts: vi.fn() };
+    const repo = repository(valid.expectedVersions);
     const interactor = new UpdateWidgetLayoutsInteractor(repo);
 
     const result = await runWithTenant(createMockUser(), () =>
-      interactor.invoke({ layouts: { ...valid.layouts, lg: [{ i: FIRST, x: 8, y: 0, w: 6, h: 3 }] } }),
+      interactor.invoke({ ...valid, layouts: { ...valid.layouts, lg: [{ i: FIRST, x: 8, y: 0, w: 6, h: 3 }] } }),
     );
 
     expect(!result.ok && interactorFailureKind(result.error)).toBe("validation");
-    expect(repo.updateWidgetLayouts).not.toHaveBeenCalled();
+    expect(repo.saveWidgetLayouts).not.toHaveBeenCalled();
   });
 
-  it("saves a valid batch through the repository", async () => {
-    const saved = [{ id: FIRST, version: 2, layout: { lg: valid.layouts.lg[0] } }];
-    const repo = { updateWidgetLayouts: vi.fn().mockResolvedValue(saved) };
-    const interactor = new UpdateWidgetLayoutsInteractor(repo);
+  it("accepts a two-row chart or number and refuses a one-row one as too small", async () => {
+    const save = (h: number) => {
+      const repo = repository(valid.expectedVersions);
+      const lg = [
+        { i: FIRST, x: 0, y: 0, w: 3, h },
+        { i: SECOND, x: 0, y: 3, w: 12, h: 2 },
+      ];
+      return runWithTenant(createMockUser(), () =>
+        new UpdateWidgetLayoutsInteractor(repo).invoke({ ...valid, layouts: { ...valid.layouts, lg } }),
+      ).then((result) => ({ result, repo }));
+    };
+    const fits = await save(2);
+    expect(fits.result.ok).toBe(true);
+    const short = await save(1);
+    expect(!short.result.ok && JSON.stringify(short.result.error)).toContain(CustomErrorCode.widgetLayoutTooSmall);
+    expect(short.repo.saveWidgetLayouts).not.toHaveBeenCalled();
+  });
 
-    const result = await runWithTenant(createMockUser(), () => interactor.invoke(valid));
+  it("refuses a stale widget version as a conflict without writing", async () => {
+    const repo = repository({ [FIRST]: 2, [SECOND]: 4 });
+    const result = await runWithTenant(createMockUser(), () => new UpdateWidgetLayoutsInteractor(repo).invoke(valid));
+
+    expect(!result.ok && interactorFailureKind(result.error)).toBe("conflict");
+    expect(repo.saveWidgetLayouts).not.toHaveBeenCalled();
+  });
+
+  it("saves a valid batch with the versions it read", async () => {
+    const saved = [{ id: FIRST, version: 2, layout: { lg: valid.layouts.lg[0] } }];
+    const repo = repository(valid.expectedVersions);
+    repo.saveWidgetLayouts.mockResolvedValue(saved);
+
+    const result = await runWithTenant(createMockUser(), () => new UpdateWidgetLayoutsInteractor(repo).invoke(valid));
 
     expect(result).toEqual({ ok: true, data: saved });
-    expect(repo.updateWidgetLayouts).toHaveBeenCalledExactlyOnceWith(valid);
+    expect(repo.saveWidgetLayouts).toHaveBeenCalledExactlyOnceWith([
+      expect.objectContaining({ id: FIRST, expectedVersion: 1 }),
+      expect.objectContaining({ id: SECOND, expectedVersion: 4 }),
+    ]);
   });
 });
