@@ -11,7 +11,6 @@ import { FormFieldHelp } from "./form-field-help";
 import { FormLabel } from "./form-label";
 import { FormOutput } from "./form-output";
 import { FormControlRow } from "./form-control-row";
-import { ReadOnlyHint } from "./read-only-hint";
 
 type Props = {
   id?: string;
@@ -22,7 +21,7 @@ type Props = {
   labelEndAddon?: ReactNode;
   controlStartAddon?: ReactNode;
   controlEndAddon?: ReactNode;
-  readOnlyHint?: boolean;
+  locked?: boolean;
   className?: string;
   outputClassName?: string;
 };
@@ -36,7 +35,7 @@ export function FormOutputField({
   labelEndAddon,
   controlStartAddon,
   controlEndAddon,
-  readOnlyHint,
+  locked,
   className,
   outputClassName,
 }: Props) {
@@ -66,7 +65,12 @@ export function FormOutputField({
       </div>
 
       <FormControlRow startAddon={controlStartAddon}>
-        {readOnlyHint ? <ReadOnlyHint>{output}</ReadOnlyHint> : output}
+        <div
+          className={cn("w-full min-w-0", locked ? "cursor-not-allowed" : "cursor-default")}
+          data-field-locked={locked ? "" : undefined}
+        >
+          {output}
+        </div>
 
         {controlEndAddon ? (
           <div className="absolute top-1/2 right-3 flex -translate-y-1/2 items-center" data-form-control-end="">

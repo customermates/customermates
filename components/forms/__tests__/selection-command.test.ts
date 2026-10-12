@@ -521,7 +521,7 @@ describe("selection field state semantics", () => {
     expect(document.activeElement).toBe(trigger);
   });
 
-  it("renders interactive read-only chip inputs as labelled recessed groups without a nested wrapper tab stop", async () => {
+  it("renders interactive read-only chip inputs as labelled groups on the shared surface without a nested wrapper tab stop", async () => {
     testContext.formIsReadOnly = true;
     testContext.formValue = "alpha,beta";
     const onChipClick = vi.fn();
@@ -546,10 +546,10 @@ describe("selection field state semantics", () => {
     expect(field.getAttribute("aria-labelledby")).toBe("external-tags-label");
     expect(field.getAttribute("aria-readonly")).toBeNull();
     expect(field.getAttribute("aria-disabled")).toBeNull();
-    expect(field.className).toContain("border-border");
-    expect(field.className).toContain("bg-background");
-    expect(field.className).toContain("text-foreground");
-    expect(field.className).toContain("shadow-none");
+    expect(field.className).toContain("border-input");
+    expect(field.className).toContain("bg-input-background");
+    expect(field.className).toContain("cursor-[inherit]");
+    expect(field.className).toContain("shadow-xs");
     expect(field.className).not.toContain("opacity-50");
     expect(container.querySelector("input")).toBeNull();
     expect(container.querySelector('[aria-label="Remove"]')).toBeNull();
@@ -567,7 +567,7 @@ describe("selection field state semantics", () => {
     expect(testContext.onChange).not.toHaveBeenCalled();
   });
 
-  it("renders explicitly disabled chip inputs as muted native-disabled fields", () => {
+  it("renders explicitly disabled chip inputs as native-disabled fields on the shared surface", () => {
     testContext.formIsReadOnly = true;
     testContext.formValue = "alpha";
     const container = mount(
@@ -585,10 +585,10 @@ describe("selection field state semantics", () => {
     expect(field.getAttribute("aria-disabled")).toBe("true");
     expect(field.getAttribute("aria-readonly")).toBeNull();
     expect(field.className).toContain("cursor-not-allowed");
-    expect(field.className).toContain("border-border");
-    expect(field.className).toContain("bg-background");
-    expect(field.className).toContain("text-muted-foreground");
-    expect(field.className).toContain("shadow-none");
+    expect(field.className).toContain("border-input");
+    expect(field.className).toContain("bg-input-background");
+    expect(field.className).not.toContain("text-muted-foreground");
+    expect(field.className).toContain("shadow-xs");
     expect(field.className).not.toContain("opacity-50");
     expect(container.querySelector('[aria-label="Remove"]')).toBeNull();
     expect(container.querySelector('[role="button"]')).toBeNull();

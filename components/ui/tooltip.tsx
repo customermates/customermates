@@ -8,6 +8,41 @@ import { OVERLAY_COLLISION_PADDING } from "./overlay-contract";
 
 const pointerMovesClaimedByTooltip = new WeakSet<Event>();
 
+function px(value: string) {
+  return Number.parseFloat(value) || 0;
+}
+
+export function fitWrappedTooltip(content: HTMLElement, text: HTMLElement) {
+  content.style.width = "";
+  const style = getComputedStyle(content);
+  const lineHeight = px(style.lineHeight) || px(style.fontSize) * 1.5;
+  const inner =
+    content.getBoundingClientRect().height -
+    px(style.paddingTop) -
+    px(style.paddingBottom) -
+    px(style.borderTopWidth) -
+    px(style.borderBottomWidth);
+  if (!lineHeight || inner <= lineHeight * 1.5) return;
+  const range = document.createRange();
+  range.selectNodeContents(text);
+  if (typeof range.getClientRects !== "function") return;
+  const lines = new Map<number, { left: number; right: number }>();
+  for (const rect of Array.from(range.getClientRects())) {
+    if (!rect.width) continue;
+    const key = Math.round(rect.top);
+    const line = lines.get(key);
+    lines.set(key, {
+      left: Math.min(line?.left ?? rect.left, rect.left),
+      right: Math.max(line?.right ?? rect.right, rect.right),
+    });
+  }
+  if (lines.size < 2) return;
+  const longest = Math.max(...Array.from(lines.values(), (line) => line.right - line.left));
+  const frame = px(style.paddingLeft) + px(style.paddingRight) + px(style.borderLeftWidth) + px(style.borderRightWidth);
+  const width = Math.ceil(longest + frame) + 1;
+  if (width < content.getBoundingClientRect().width) content.style.width = `${width}px`;
+}
+
 function TooltipProvider({ delayDuration = 0, ...props }: React.ComponentProps<typeof TooltipPrimitive.Provider>) {
   return (
     <TooltipPrimitive.Provider
@@ -60,11 +95,17 @@ function TooltipContent({
   children,
   ...props
 }: React.ComponentProps<typeof TooltipPrimitive.Content>) {
+  const contentRef = React.useRef<HTMLDivElement>(null);
+  const textRef = React.useRef<HTMLSpanElement>(null);
+  React.useLayoutEffect(() => {
+    if (contentRef.current && textRef.current) fitWrappedTooltip(contentRef.current, textRef.current);
+  }, [children]);
   return (
     <TooltipPrimitive.Portal>
       <TooltipPrimitive.Content
+        ref={contentRef}
         className={cn(
-          "pointer-events-none z-50 w-fit max-w-[min(20rem,var(--radix-tooltip-content-available-width))] origin-(--radix-tooltip-content-transform-origin) animate-in rounded-md bg-tooltip px-2.5 py-1.5 text-xs text-balance break-words text-tooltip-foreground shadow-md fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 motion-reduce:animate-none",
+          "pointer-events-none z-50 w-fit max-w-[min(20rem,var(--radix-tooltip-content-available-width))] origin-(--radix-tooltip-content-transform-origin) animate-in rounded-md border border-border bg-tooltip px-2.5 py-1.5 text-xs text-balance break-words text-tooltip-foreground shadow-md fade-in-0 zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 motion-reduce:animate-none",
           className,
         )}
         collisionPadding={collisionPadding}
@@ -72,7 +113,9 @@ function TooltipContent({
         sideOffset={sideOffset}
         {...props}
       >
-        {children}
+        <span ref={textRef} className="contents" data-tooltip-text="">
+          {children}
+        </span>
 
         <TooltipPrimitive.Arrow className="z-50 size-2 translate-y-[calc(-50%_-_2px)] rotate-45 bg-tooltip fill-tooltip" />
       </TooltipPrimitive.Content>

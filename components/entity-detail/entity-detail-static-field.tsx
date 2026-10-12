@@ -16,10 +16,10 @@ type Props = {
   help?: ReactNode;
   action?: ReactNode;
   derivation?: ReactNode;
-  readOnlyHint?: boolean;
+  locked?: boolean;
 };
 
-export function EntityDetailStaticField({ fieldId, label, value, help, action, derivation, readOnlyHint }: Props) {
+export function EntityDetailStaticField({ fieldId, label, value, help, action, derivation, locked }: Props) {
   const displayValue = value === null || value === undefined || value === "" ? <EmptyValue /> : value;
 
   return (
@@ -36,7 +36,7 @@ export function EntityDetailStaticField({ fieldId, label, value, help, action, d
             <EntityDetailFieldActions fieldId={fieldId} label={label} />
           </>
         }
-        readOnlyHint={readOnlyHint}
+        locked={locked}
       >
         <span suppressHydrationWarning className="select-text truncate">
           {displayValue}
