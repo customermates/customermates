@@ -13,10 +13,10 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { SURFACE, ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
+import { SURFACE } from "@/core/data-view/data-view-keys";
+import { selectActiveViewKey } from "@/core/base/base-get.interactor";
 import { resolveDataViewState } from "@/core/data-view/resolve-data-view-state";
-import { failNotFound, fail } from "@/core/validation/interactor-failure-server";
-import { CustomErrorCode } from "@/core/validation/validation.types";
+import { fail } from "@/core/validation/interactor-failure-server";
 import { ACTIVITY_KINDS, CHANGE_ACTIVITY_KINDS } from "./activities.schema";
 import { activityViewColumns, activityViewFilterableFields, activityViewFilters } from "./record-activity-view";
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
@@ -56,9 +56,12 @@ export class GetRecordActivityPresentationInteractor extends AuthenticatedIntera
         const surface = record ? SURFACE.entityTimeline : SURFACE.activity;
         const kinds = record ? ACTIVITY_KINDS : CHANGE_ACTIVITY_KINDS;
         const persisted = await this.views.loadSurfaceState(surface);
-        const viewKey = params.viewId ?? persisted.activeViewKey ?? ALL_VIEW_KEY;
+        const viewKey = selectActiveViewKey(
+          params.viewId,
+          persisted.activeViewKey,
+          new Map(persisted.views.map((view) => [view.id, view])),
+        );
         const selected = persisted.views.find((view) => view.id === viewKey);
-        if (viewKey !== ALL_VIEW_KEY && !selected) return failNotFound(CustomErrorCode.dataViewNotFound);
         const state = resolveDataViewState({
           params: { filters: params.filters },
           base: selected?.state ?? persisted.allState,

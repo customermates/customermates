@@ -14,7 +14,7 @@ import {
 import { appErrorDetails } from "@/core/errors/app-errors";
 import { formatLocalizedNumber } from "@/core/stores/intl-number";
 import { appLocaleOrDefault, formattingTagFor } from "@/i18n/locale-registry";
-import { unwrapValidated } from "@/core/validation/validation.utils";
+import { unwrapPage } from "@/core/validation/next/unwrap-page";
 
 function microcentsAsDollars(value: string): number {
   return Number(BigInt(value)) / 100_000_000;
@@ -29,9 +29,9 @@ export default async function OperatorOverviewPage() {
   let risk;
   try {
     [overview, summary, risk] = await Promise.all([
-      unwrapValidated(getGetHostedAiOperatorOverviewInteractor().invoke()),
-      unwrapValidated(getGetOperatorUserSummaryInteractor().invoke()),
-      unwrapValidated(getGetOperatorRiskSummaryInteractor().invoke()),
+      unwrapPage(getGetHostedAiOperatorOverviewInteractor().invoke()),
+      unwrapPage(getGetOperatorUserSummaryInteractor().invoke()),
+      unwrapPage(getGetOperatorRiskSummaryInteractor().invoke()),
     ]);
   } catch (error) {
     if (appErrorDetails(error)) notFound();

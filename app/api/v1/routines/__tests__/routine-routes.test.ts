@@ -54,9 +54,9 @@ describe("routine REST routes", () => {
   it.each([
     ["list", list, interactors.list, { searchTerm: "deal", pagination: { page: 1, pageSize: 25 } }, 200],
     ["read", read, interactors.read, { id: ID }, 200],
-    ["runs", runs, interactors.runs, { routineId: ID, cursor: null }, 200],
-    ["pause", pause, interactors.pause, { routineId: ID }, 200],
-    ["run", run, interactors.run, { routineId: ID }, 202],
+    ["runs", runs, interactors.runs, { id: ID, cursor: null }, 200],
+    ["pause", pause, interactors.pause, { id: ID }, 200],
+    ["run", run, interactors.run, { id: ID }, 202],
     ["delete", remove, interactors.remove, { id: ID }, 200],
   ] as const)("passes the %s body to its interactor unchanged", async (path, handler, spy, body, status) => {
     spy.mockResolvedValue({ ok: true, data: { done: path } });
@@ -103,7 +103,7 @@ describe("routine REST routes", () => {
     });
     interactors.read.mockRejectedValue(new ForbiddenError("Access denied"));
 
-    const denied = await pause(request("pause", { routineId: ID }));
+    const denied = await pause(request("pause", { id: ID }));
     const forbidden = await read(request("read", { id: ID }));
 
     expect(denied.status).toBe(403);

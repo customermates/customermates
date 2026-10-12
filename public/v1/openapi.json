@@ -80084,7 +80084,7 @@
       "post": {
         "operationId": "listRoutineRuns",
         "summary": "List a routine's runs",
-        "description": "Returns one routine's run history newest first, each with its status, trigger, summary and charged credits. Pass nextCursor from the previous page as cursor to continue; a null nextCursor ends the history. Requires: read permission on routines.",
+        "description": "Returns one routine's run history newest first, each with its status, trigger, summary and charged credits. Pass nextCursor from the previous page as cursor to continue; a null nextCursor ends the history. An id outside the workspace or the caller's access answers 404. Requires: read permission on routines.",
         "tags": [
           "routines"
         ],
@@ -80098,13 +80098,13 @@
           "content": {
             "application/json": {
               "example": {
-                "routineId": "0b5f3c1e-7a2d-4c8e-9f10-2a3b4c5d6e7f",
+                "id": "0b5f3c1e-7a2d-4c8e-9f10-2a3b4c5d6e7f",
                 "cursor": null
               },
               "schema": {
                 "type": "object",
                 "properties": {
-                  "routineId": {
+                  "id": {
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
@@ -80122,7 +80122,7 @@
                   }
                 },
                 "required": [
-                  "routineId"
+                  "id"
                 ]
               }
             }
@@ -83730,19 +83730,19 @@
           "content": {
             "application/json": {
               "example": {
-                "routineId": "0b5f3c1e-7a2d-4c8e-9f10-2a3b4c5d6e7f"
+                "id": "0b5f3c1e-7a2d-4c8e-9f10-2a3b4c5d6e7f"
               },
               "schema": {
                 "type": "object",
                 "properties": {
-                  "routineId": {
+                  "id": {
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   }
                 },
                 "required": [
-                  "routineId"
+                  "id"
                 ]
               }
             }
@@ -84069,19 +84069,19 @@
           "content": {
             "application/json": {
               "example": {
-                "routineId": "0b5f3c1e-7a2d-4c8e-9f10-2a3b4c5d6e7f"
+                "id": "0b5f3c1e-7a2d-4c8e-9f10-2a3b4c5d6e7f"
               },
               "schema": {
                 "type": "object",
                 "properties": {
-                  "routineId": {
+                  "id": {
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   }
                 },
                 "required": [
-                  "routineId"
+                  "id"
                 ]
               }
             }

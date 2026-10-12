@@ -7,7 +7,7 @@ import { requireAccess } from "@/features/auth/next/require";
 import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { PageContainer } from "@/components/shared/page-container";
-import { unwrapValidated } from "@/core/validation/validation.utils";
+import { unwrapPage } from "@/core/validation/next/unwrap-page";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -17,7 +17,7 @@ export default async function CompanyRolesPage({ searchParams }: Props) {
   await requireAccess({ resource: Resource.users });
 
   const roleParams = await readSurfaceParams(SURFACE.roles, searchParams);
-  const roles = await unwrapValidated(getGetRolesInteractor().invoke(roleParams));
+  const roles = await unwrapPage(getGetRolesInteractor().invoke(roleParams));
 
   return (
     <PageContainer padded={false}>

@@ -12,7 +12,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Write } from "@/core/decorators/write.decorator";
 import type { RunRoutineNowRepo } from "./run-routine-now.repo";
 
-export const RunRoutineNowSchema = z.object({ routineId: z.uuid() });
+export const RunRoutineNowSchema = z.object({ id: z.uuid() });
 
 export type RunRoutineNowData = Data<typeof RunRoutineNowSchema>;
 
@@ -27,11 +27,11 @@ export class RunRoutineNowInteractor extends AuthenticatedInteractor<RunRoutineN
 
   @Write({ input: RunRoutineNowSchema, output: z.string() })
   async invoke(data: RunRoutineNowData): Validated<string> {
-    const routine = await this.repo.getRoutineByIdOrThrow(data.routineId);
+    const routine = await this.repo.getRoutineByIdOrThrow(data.id);
     if (routine.ownerUserId !== this.user.id) return failAuthorization(CustomErrorCode.routineRunNotOwner);
     if (routine.triggerKind !== RoutineTriggerKind.schedule)
-      return failConflict(CustomErrorCode.routineRunNowRequiresSchedule, ["routineId"]);
-    if (!routine.enabled) return failConflict(CustomErrorCode.routineTestRequiresEnabled, ["routineId"]);
+      return failConflict(CustomErrorCode.routineRunNowRequiresSchedule, ["id"]);
+    if (!routine.enabled) return failConflict(CustomErrorCode.routineTestRequiresEnabled, ["id"]);
 
     const run = await this.repo.createManualRoutineRunOrThrow(routine.id, this.user.id, new Date());
 

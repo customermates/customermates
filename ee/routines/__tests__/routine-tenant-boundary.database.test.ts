@@ -199,7 +199,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
 
     await client.query('UPDATE "User" SET "roleId" = $1 WHERE "id" = $2', [memberRoleId, teammateId]);
     const pauseResult = await runWithTenant(staleAdmin, () =>
-      new PauseRoutineInteractor(createTestRoutineRepo(), eventServiceStub()).invoke({ routineId }),
+      new PauseRoutineInteractor(createTestRoutineRepo(), eventServiceStub()).invoke({ id: routineId }),
     );
 
     await client.query('UPDATE "User" SET "roleId" = $1, "status" = $2 WHERE "id" = $3', [

@@ -467,6 +467,13 @@ export class PrismaRoutineRepo
     );
   }
 
+  async assertReadableRoutineOrThrow(routineId: string): Promise<void> {
+    await this.prisma.routine.findFirstOrThrow({
+      where: { id: routineId, companyId: this.companyId, AND: [routineAccessWhere(this.permissions)] },
+      select: { id: true },
+    });
+  }
+
   async getRoutineRuns(routineId: string, limit: number, cursor?: string | null): Promise<RoutineRunPage> {
     const decoded = cursor ? decodeRoutineRunCursor(cursor) : null;
     const rows = await this.prisma.routineRun.findMany({

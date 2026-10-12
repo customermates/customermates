@@ -15,7 +15,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import type { GetRoutineRunsRepo } from "./get-routine-runs.repo";
 
 export const GetRoutineRunsSchema = z.object({
-  routineId: z.uuid(),
+  id: z.uuid(),
   cursor: z.string().max(500).nullable().optional(),
 });
 
@@ -31,9 +31,10 @@ export class GetRoutineRunsInteractor extends AuthenticatedInteractor<GetRoutine
   @Validate(GetRoutineRunsSchema)
   @ValidateOutput(RoutineRunPageSchema)
   async invoke(data: GetRoutineRunsData): Validated<RoutineRunPage> {
+    await this.repo.assertReadableRoutineOrThrow(data.id);
     return {
       ok: true as const,
-      data: await this.repo.getRoutineRuns(data.routineId, ROUTINE_RUN_PAGE_SIZE, data.cursor),
+      data: await this.repo.getRoutineRuns(data.id, ROUTINE_RUN_PAGE_SIZE, data.cursor),
     };
   }
 }

@@ -7,13 +7,13 @@ import {
   getGetP13nInteractor,
 } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
-import { unwrapValidated } from "@/core/validation/validation.utils";
+import { unwrapPage } from "@/core/validation/next/unwrap-page";
 import { PageContainer } from "@/components/shared/page-container";
 import { CONFIGURE_GRAPH_P13N_ID, readP13nSettings } from "@/features/p13n/p13n-settings.schema";
 import { ConfigurePageView } from "./components/configure-page-view";
 
 async function loadAccounts(): Promise<ConfigureGraphAccounts> {
-  const messaging = await unwrapValidated(getGetMessagingAccountsStateInteractor().invoke());
+  const messaging = await unwrapPage(getGetMessagingAccountsStateInteractor().invoke());
   if (messaging.state !== "available") return { state: messaging.state };
   return {
     state: "available",
@@ -37,8 +37,8 @@ async function loadSavedLayout() {
 export default async function ConfigurePage() {
   await requireAccess();
   const [model, catalog, accounts, savedLayout] = await Promise.all([
-    unwrapValidated(getGetRecordModelInteractor().invoke({})),
-    unwrapValidated(
+    unwrapPage(getGetRecordModelInteractor().invoke({})),
+    unwrapPage(
       getDiscoverRecordTypesInteractor().invoke({
         page: 1,
         pageSize: 100,

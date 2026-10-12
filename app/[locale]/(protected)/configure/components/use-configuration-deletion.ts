@@ -17,6 +17,7 @@ import { confirmationSentence } from "@/components/modal/confirmation-sentence";
 import { focusHref } from "@/components/focus/focus-href";
 import { movedToTrashOr, movingToTrash } from "@/features/trash/moved-to-trash";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { useRootStore } from "@/core/stores/root-store.provider";
 
 import { typeDefinition } from "./configure-model";
 
@@ -175,6 +176,10 @@ export function useConfigurationDeletion(onChanged: () => Promise<void>) {
   const t = useTranslations();
   const { showConfirmation } = useDeleteConfirmation();
   const [isBusy, setIsBusy] = useState(false);
+  const { recordWorkspaceStore } = useRootStore();
+  const changed = async () => {
+    await Promise.all([onChanged(), recordWorkspaceStore.refreshNavigation()]);
+  };
 
   const run = async (
     target: ConfigurationTarget,
@@ -194,7 +199,7 @@ export function useConfigurationDeletion(onChanged: () => Promise<void>) {
         toastZodErrorTree(applied.error);
         return false;
       }
-      await onChanged();
+      await changed();
       return applied.data.status === "completed"
         ? movedToTrashOr(applied.data)
         : movingToTrash(applied.data.operationId, 1);
@@ -234,7 +239,7 @@ export function useConfigurationDeletion(onChanged: () => Promise<void>) {
         blockers,
         successKey: "RecordModel.configurationDeletion.moved",
         onConfirm: apply,
-        onRestored: onChanged,
+        onRestored: changed,
       });
     } finally {
       setIsBusy(false);
@@ -275,7 +280,7 @@ export function useConfigurationDeletion(onChanged: () => Promise<void>) {
             toastZodErrorTree(applied.error);
             return false;
           }
-          await onChanged();
+          await changed();
           return true;
         },
       });
