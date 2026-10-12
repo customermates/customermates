@@ -89,6 +89,7 @@ import { GetRoutineRunsInteractor } from "@/ee/routines/get-routine-runs.interac
 import { GetRoutinesInteractor } from "@/ee/routines/get-routines.interactor";
 import { PauseRoutineInteractor } from "@/ee/routines/pause-routine.interactor";
 import { PrismaRoutineRepo } from "@/ee/routines/prisma-routine.repository";
+import { RoutineTrashBlockers } from "@/ee/routines/routine-trash-blockers";
 import { PruneRoutineRunsInteractor } from "@/ee/routines/prune-routine-runs.interactor";
 import { ReconcileRoutineRunsInteractor } from "@/ee/routines/reconcile-routine-runs.interactor";
 import { ReleaseOwnerRoutinesInteractor } from "@/ee/routines/release-owner-routines.interactor";
@@ -353,6 +354,7 @@ import { SendFeedbackInteractor } from "@/features/feedback/send-feedback.intera
 // API Key interactors
 import { CreateApiKeyInteractor } from "@/features/api-key/create-api-key.interactor";
 import { DeleteApiKeyInteractor } from "@/features/api-key/delete-api-key.interactor";
+import { AuthorizeMcpConnectionInteractor } from "@/features/auth/authorize-mcp-connection.interactor";
 import { GetApiKeysInteractor } from "@/features/api-key/get-api-keys.interactor";
 // EE Subscription interactors
 import { CreateCheckoutSessionInteractor } from "@/ee/subscription/create-checkout-session.interactor";
@@ -629,6 +631,7 @@ const entityTrashHandlers = (companyId?: string) => {
         kind: "routine",
         restoreOrder: 2,
         visibility: visibility.administered("routine"),
+        blockers: new RoutineTrashBlockers(getRoutineRepo(companyId), getCompanyRepo()),
         audit: {
           restored: DomainEvent.ROUTINE_RESTORED,
           deletedPermanently: DomainEvent.ROUTINE_DELETED_PERMANENTLY,
@@ -1530,6 +1533,7 @@ export const getCreateApiKeyInteractor = () => new CreateApiKeyInteractor(getAut
 export const getGetApiKeysInteractor = () => new GetApiKeysInteractor(getAuthService());
 
 export const getDeleteApiKeyInteractor = () => new DeleteApiKeyInteractor(getAuthService());
+export const getAuthorizeMcpConnectionInteractor = () => new AuthorizeMcpConnectionInteractor();
 
 // --- EE Subscription ---
 

@@ -22,6 +22,9 @@ import {
   SYNTHETIC_DATA_VIEW_IDS,
 } from "../seeds/data-views";
 import { fixtureId } from "../seeds/helpers";
+import { buildSyntheticP13nFixtures } from "../seeds/personalization";
+import { applyNorthwindModel } from "../seeds/northwind-schema";
+import { createCrmPreset } from "@/features/records/crm-preset";
 import { syntheticRecordKeys } from "../seeds/record-keys";
 import {
   NORTHWIND_CUSTOM_TYPE_KEYS,
@@ -82,6 +85,26 @@ function createViewRecorder() {
 }
 
 describe("synthetic data view fixtures", () => {
+  it("never references a field the demo seeds in Trash, so data model changes stay unblocked", () => {
+    const archived = applyNorthwindModel(createCrmPreset(SEED_IDS.company), SEED_IDS.company)
+      .fields.filter((field) => field.archived)
+      .map((field) => field.id);
+    const states = [
+      ...views().map(({ name, state }) => [name, JSON.stringify(state)] as const),
+      ...buildSyntheticP13nFixtures({ ids: SEED_IDS }, customFields).map(
+        ({ p13nId, ...state }) => [p13nId, JSON.stringify(state)] as const,
+      ),
+    ];
+
+    expect(archived.length).toBeGreaterThan(0);
+    for (const [name, state] of states) {
+      expect(
+        archived.filter((id) => state.includes(id)),
+        name,
+      ).toEqual([]);
+    }
+  });
+
   it("seeds valid, deterministic views on every Northwind list and the inbox", () => {
     const fixtures = views();
 

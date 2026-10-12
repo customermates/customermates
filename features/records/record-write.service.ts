@@ -22,7 +22,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { unwindFailure } from "@/core/validation/failure-unwind";
 import { MAX_RICH_TEXT_JSON_SIZE, validateRichTextDocument } from "@/core/validation/rich-text-document";
 import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
-import { normalizeRecordInput, recordValueIssue } from "./record-model-validation";
+import { normalizeRecordInput, recordValueIssue, recordValueIssueValues } from "./record-model-validation";
 import { valueResult } from "./calculation";
 import { decodeRecordValue } from "./record-storage";
 import type { RecordCalculationService } from "./record-calculation.service";
@@ -38,7 +38,7 @@ function reject(
   code: CustomErrorCode,
   kind: InteractorFailureKind = "validation",
   path: Array<string | number> = [],
-  values?: Record<string, string>,
+  values?: Record<string, string | number>,
 ): never {
   throw unwindFailure(code, kind, path, values);
 }
@@ -55,7 +55,7 @@ export function normalizeRecordScalar(
   }
   const value = normalizeRecordInput(input, field.valueType);
   const issue = recordValueIssue(value, field);
-  if (issue) reject(issue, "validation", path);
+  if (issue) reject(issue, "validation", path, recordValueIssueValues(issue, value, field));
   if (field.required && value.kind === "text" && !value.value.trim()) required();
   if (value.kind === "richText") {
     const document = validateRichTextDocument(value.documentJson);

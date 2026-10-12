@@ -2,6 +2,7 @@ import { presetId } from "@/features/records/crm-preset";
 
 import type { CustomFieldSeedData } from "./custom-fields";
 import {
+  NORTHWIND_ARCHIVED_FIELD_KEYS,
   NORTHWIND_FIELD_KEYS,
   NORTHWIND_PATH_KEYS,
   NORTHWIND_RELATIONSHIP_KEYS,
@@ -80,7 +81,9 @@ export function northwindColumns(companyId: string, legacy: CustomFieldSeedData[
     const northwind = (NORTHWIND_FIELD_KEYS as Partial<Record<ListKey, Record<string, string>>>)[type] ?? {};
     return [
       ...starterFields[type],
-      ...Object.values(northwind).map(id),
+      ...Object.values(northwind)
+        .filter((key) => !NORTHWIND_ARCHIVED_FIELD_KEYS.includes(key))
+        .map(id),
       ...relationships.flatMap(([key, source, target]) => [
         ...(source === type ? [rel(key, "outgoing")] : []),
         ...(target === type ? [rel(key, "incoming")] : []),

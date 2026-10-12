@@ -4,6 +4,8 @@ export enum CustomErrorCode {
   recordNotFound = "recordNotFound",
   recordTypeNotFound = "recordTypeNotFound",
   recordConfigurationInvalid = "recordConfigurationInvalid",
+  recordSavedViewIncompatible = "recordSavedViewIncompatible",
+  chatThreadRequired = "chatThreadRequired",
   webhookTriggerRequired = "webhookTriggerRequired",
   recordValueInvalid = "recordValueInvalid",
   recordValueRequired = "recordValueRequired",

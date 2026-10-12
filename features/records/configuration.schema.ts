@@ -363,6 +363,17 @@ export const ConfigurationPreviewSchema = z
           fieldId: z.string().optional(),
           typeId: z.string().optional(),
           relationId: z.string().optional(),
+          viewKind: z
+            .enum(["view", "personalLayout"])
+            .optional()
+            .describe("saved_view_incompatible: a saved view, or a member's personal All layout."),
+          viewId: z.string().optional().describe("saved_view_incompatible: the view or personal layout to update."),
+          viewName: z.string().optional().describe("saved_view_incompatible: the view title; All for a layout."),
+          columnId: z
+            .string()
+            .optional()
+            .describe("saved_view_incompatible: the column, filter, sort or grouping field the view still uses."),
+          columnLabel: z.string().optional().describe("saved_view_incompatible: the label of columnId."),
           count: z
             .number()
             .int()

@@ -11257,6 +11257,7 @@
                 "type": "object",
                 "properties": {
                   "ref": {
+                    "description": "The record to delete. Send with expectedVersion; omit targets.",
                     "type": "object",
                     "properties": {
                       "typeId": {
@@ -11277,6 +11278,7 @@
                     "additionalProperties": false
                   },
                   "targets": {
+                    "description": "The selection for an atomic deleteMany preview. Omit ref and expectedVersion.",
                     "minItems": 1,
                     "maxItems": 100,
                     "type": "array",
@@ -11319,9 +11321,11 @@
                   "expectedRevision": {
                     "type": "integer",
                     "minimum": 0,
-                    "maximum": 9007199254740991
+                    "maximum": 9007199254740991,
+                    "description": "The data model revision from discover_record_types or get_record_model."
                   },
                   "expectedVersion": {
+                    "description": "The latest version of ref.",
                     "type": "integer",
                     "exclusiveMinimum": 0,
                     "maximum": 9007199254740991
@@ -33439,6 +33443,30 @@
                           "relationId": {
                             "type": "string"
                           },
+                          "viewKind": {
+                            "description": "saved_view_incompatible: a saved view, or a member's personal All layout.",
+                            "type": "string",
+                            "enum": [
+                              "view",
+                              "personalLayout"
+                            ]
+                          },
+                          "viewId": {
+                            "description": "saved_view_incompatible: the view or personal layout to update.",
+                            "type": "string"
+                          },
+                          "viewName": {
+                            "description": "saved_view_incompatible: the view title; All for a layout.",
+                            "type": "string"
+                          },
+                          "columnId": {
+                            "description": "saved_view_incompatible: the column, filter, sort or grouping field the view still uses.",
+                            "type": "string"
+                          },
+                          "columnLabel": {
+                            "description": "saved_view_incompatible: the label of columnId.",
+                            "type": "string"
+                          },
                           "count": {
                             "description": "For existing_values_incompatible: how many records hold a value that cannot be converted.",
                             "type": "integer",
@@ -35252,6 +35280,28 @@
                             "required": [
                               "typeId",
                               "recordId"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "references": {
+                          "description": "Data model changes only: the id created or resolved for each reference in the change.",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "reference": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              }
+                            },
+                            "required": [
+                              "reference",
+                              "id"
                             ],
                             "additionalProperties": false
                           }
@@ -41190,6 +41240,28 @@
                             "additionalProperties": false
                           }
                         },
+                        "references": {
+                          "description": "Data model changes only: the id created or resolved for each reference in the change.",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "reference": {
+                                "type": "string"
+                              },
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              }
+                            },
+                            "required": [
+                              "reference",
+                              "id"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
                         "schemaRevision": {
                           "type": "integer",
                           "minimum": -9007199254740991,
@@ -41852,7 +41924,8 @@
                                   "parentDeleted",
                                   "notFound",
                                   "requiresRestore",
-                                  "nameTaken"
+                                  "nameTaken",
+                                  "routineLimitReached"
                                 ]
                               },
                               "typeId": {
@@ -41886,6 +41959,12 @@
                                   "recordId"
                                 ],
                                 "additionalProperties": false
+                              },
+                              "limit": {
+                                "description": "routineLimitReached only: the routines per user the plan includes; the owner is at this limit.",
+                                "type": "integer",
+                                "minimum": -9007199254740991,
+                                "maximum": 9007199254740991
                               }
                             },
                             "required": [
@@ -45284,6 +45363,28 @@
                                     "required": [
                                       "typeId",
                                       "recordId"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "references": {
+                                  "description": "Data model changes only: the id created or resolved for each reference in the change.",
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "reference": {
+                                        "type": "string"
+                                      },
+                                      "id": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      }
+                                    },
+                                    "required": [
+                                      "reference",
+                                      "id"
                                     ],
                                     "additionalProperties": false
                                   }
@@ -112967,6 +113068,8 @@
                         "recordNotFound",
                         "recordTypeNotFound",
                         "recordConfigurationInvalid",
+                        "recordSavedViewIncompatible",
+                        "chatThreadRequired",
                         "webhookTriggerRequired",
                         "recordValueInvalid",
                         "recordValueRequired",

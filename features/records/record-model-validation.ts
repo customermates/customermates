@@ -21,6 +21,11 @@ export type ModelIssue = {
   fieldId?: string;
   typeId?: string;
   relationId?: string;
+  viewKind?: "view" | "personalLayout";
+  viewId?: string;
+  viewName?: string;
+  columnId?: string;
+  columnLabel?: string;
   count?: number;
   examples?: string[];
 };
@@ -108,6 +113,21 @@ export function recordValueIssue(
   if (!selectedOptionIds(value).every((id) => field.options.some((option) => option.id === id)))
     return CustomErrorCode.recordOptionInvalid;
   return null;
+}
+
+export function recordValueIssueValues(
+  issue: CustomErrorCode,
+  value: RecordScalar,
+  field: Pick<RecordField, "id" | "label" | "options">,
+): Record<string, string> | undefined {
+  if (issue !== CustomErrorCode.recordOptionInvalid) return undefined;
+  const unknown = selectedOptionIds(value).find((id) => !field.options.some((option) => option.id === id));
+  return {
+    field: field.label,
+    fieldId: field.id,
+    value: unknown ?? (value.kind === "text" ? value.value : ""),
+    validValues: field.options.map((option) => `${option.id} (${option.label})`).join(", "),
+  };
 }
 
 export function expressionFieldDependencies(expression: CalculationExpression): Set<string> {

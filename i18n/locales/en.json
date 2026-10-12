@@ -1058,6 +1058,7 @@
       "billingPortalUnavailable": "The billing portal is not available for this workspace. Contact support to make changes.",
       "calendarEventNotFound": "Calendar event ID not found or not accessible.",
       "channelAlreadyLinked": "This channel is already linked to another contact.",
+      "chatThreadRequired": "This is an email thread. Send an email to reply to it instead of a chat message.",
       "connectedAccountNotFound": "Channel ID not found or not accessible.",
       "customFieldInvalidDate": "The date value is invalid. Must be in ISO 8601 date format (e.g., 2024-01-15) or ISO 8601 datetime format (e.g., 2024-01-15T00:00:00Z).",
       "dataViewAllNameImmutable": "The All view cannot be renamed. Omit name and update only the requested state settings. Read config for supported settings and list for the current state before retrying.",
@@ -1129,10 +1130,11 @@
       "recordNotFound": "This record is unavailable.",
       "recordNumberInvalid": "Enter a valid number.",
       "recordOperationFailed": "The background operation failed. Try again.",
-      "recordOptionInvalid": "Choose one of the field's options.",
+      "recordOptionInvalid": "\"{value}\" is not an option of {field} ({fieldId}). Use one of these option IDs: {validValues}.",
       "recordProtected": "This record is managed by a system workflow.",
       "recordReadOnlyField": "This field is calculated. Change its definition to enter values manually.",
       "recordRelationConflict": "This link does not match the relationship rules.",
+      "recordSavedViewIncompatible": "The saved view \"{viewName}\" ({viewId}) still uses \"{columnLabel}\" ({columnId}). Update or delete that view, then try again.",
       "recordSchemaChanged": "The data model changed. Refresh and try again.",
       "recordTypeNotFound": "This record type is unavailable.",
       "recordValueInvalid": "Review the highlighted record values.",
@@ -2698,11 +2700,16 @@
     "selectedCount": "{count, plural, one {# item selected} other {# items selected}}"
   },
   "McpConsentCard": {
+    "access": {
+      "crmData": "Read and change your CRM data and settings, as far as your role allows",
+      "messaging": "Send messages and emails through your connected accounts"
+    },
     "approve": "Approve",
     "body": "{client} is requesting access to your Customermates account. Approve only if you started this connection.",
     "deny": "Deny",
     "destination": "Connection destination: {host}",
     "error": "Something went wrong. Please try again, or restart the connection from your client.",
+    "permissionRequired": "Your role does not allow MCP connections. Connecting through MCP requires Read access All on API & Webhooks. Ask a workspace administrator to grant it.",
     "scopes": {
       "email": "Read your email address",
       "offlineAccess": "Stay connected while you are away",
@@ -3353,6 +3360,7 @@
     },
     "changeBlocked": "This change can't be applied yet",
     "channelsHelp": "Email addresses, WhatsApp phone numbers and social accounts that match messages to this record. Phone numbers are only matched for WhatsApp chats. An identifier can link to several records.",
+    "chooseOption": "Choose one of the field's options.",
     "clickAction": "On click",
     "clickActions": {
       "channels": {
@@ -3415,6 +3423,7 @@
         "existingValuesDetail": "{count, plural, one {# record has a value} other {# records have values}} in {subject} that don't fit the change, for example {examples}. Correct or clear them first.",
         "readAll": "{subject} still contains records you can't see. Only someone who can read all of its records, or an admin, can delete it permanently.",
         "savedView": "Saved views or personal layouts still use {subject}.",
+        "savedViewColumn": "The saved view {view} still uses {column}.",
         "summaryApproval": "{subject} needs a renewed summary approval."
       },
       "moved": "Moved to Trash"
@@ -4279,7 +4288,8 @@
       "nameTaken": "{count, plural, one {# item stays} other {# items stay}} in Trash because another item now uses their name or place.",
       "notFound": "{count, plural, one {# item} other {# items}} no longer exist and left Trash.",
       "parentDeleted": "{count, plural, one {# item stays} other {# items stay}} in Trash because what they belong to is in Trash. Restore that first.",
-      "requiresRestore": "{count, plural, one {# item stays} other {# items stay}} in Trash because something they need is in Trash. Restore that first."
+      "requiresRestore": "{count, plural, one {# item stays} other {# items stay}} in Trash because something they need is in Trash. Restore that first.",
+      "routineLimitReached": "{count, plural, one {# routine stays} other {# routines stay}} in Trash because the owner already has all the routines their plan includes."
     },
     "restored": "{count, plural, one {# item restored} other {# items restored}}",
     "restoredInBackground": "Restored",

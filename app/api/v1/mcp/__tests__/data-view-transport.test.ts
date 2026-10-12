@@ -11,6 +11,8 @@ vi.mock("@/core/validation/zod-error-map-server", () => ({
 }));
 vi.mock("@/core/di", () => ({
   getManageDataViewsInteractor: () => ({ invoke: interactors.manage }),
+  getAuthService: () => ({ isMcpApiKeyValid: () => Promise.resolve(true) }),
+  getAuthorizeMcpConnectionInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: true }) }),
 }));
 
 import { POST } from "../route";
@@ -102,7 +104,10 @@ describe("saved-view MCP HTTP transport", () => {
     );
 
     expect(interactors.manage).toHaveBeenCalledExactlyOnceWith(input);
-    expect(called.data?.result?.structuredContent).toEqual(output);
+    expect(called.data?.result?.structuredContent).toEqual({
+      ...output,
+      link: `http://localhost:4105${output.link}`,
+    });
     expect(called.data?.result?.isError).not.toBe(true);
   });
 });

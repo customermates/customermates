@@ -11992,6 +11992,138 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
   });
 
+  it("prunes columns of fields already in Trash instead of blocking unrelated changes, and names a blocking view", async () => {
+    const f = await fixture();
+    const organization = f.id("organization");
+    const legacyId = randomUUID();
+    const textField = (id: string, typeId: string, label: string) => ({
+      id,
+      typeId,
+      label,
+      required: false,
+      archived: false,
+      position: 99,
+      options: [],
+      valueType: "text" as const,
+      behavior: { kind: "input" as const },
+    });
+    const change = async (operations: ConfigurationChange["operations"]) => ({
+      expectedRevision: (await f.run(() => f.repo.getModel())).revision,
+      idempotencyKey: randomUUID(),
+      operations,
+    });
+    expect(
+      await f.run(async () =>
+        f.configure.invoke(
+          await change([{ operation: "putField", field: textField(legacyId, organization, "Legacy account ID") }]),
+        ),
+      ),
+    ).toMatchObject({ ok: true });
+    expect(
+      await f.run(async () =>
+        f.configure.invoke(await change([{ operation: "delete", target: { kind: "field", id: legacyId } }])),
+      ),
+    ).toMatchObject({ ok: true });
+    const stale = await f.run(() =>
+      prisma.dataView.create({
+        data: {
+          companyId: f.company.id,
+          userId: f.admin.id,
+          surfaceKey: `records:${organization}`,
+          name: "Key accounts",
+          columnOrder: [f.id("organization.name")],
+          hiddenColumns: [legacyId],
+          columnWidths: { [legacyId]: 180 },
+        },
+      }),
+    );
+
+    for (const typeId of [organization, f.id("deal"), f.id("service")]) {
+      const preview = await f.run(async () =>
+        f.preview.invoke(
+          await change([{ operation: "putField", field: textField(randomUUID(), typeId, "Review checkpoint") }]),
+        ),
+      );
+      expect(preview, typeId).toMatchObject({ ok: true, data: { valid: true, issues: [] } });
+    }
+    const relationship = await change([
+      {
+        operation: "putRelationship",
+        relationship: {
+          id: randomUUID(),
+          sourceTypeId: f.id("service"),
+          targetTypeId: organization,
+          sourceLabel: "Buyers",
+          targetLabel: "Bought services",
+          sourceCardinality: "many",
+          targetCardinality: "many",
+          onSourceDelete: "unlink",
+          onTargetDelete: "unlink",
+          messagesOnSource: false,
+          messagesOnTarget: false,
+          archived: false,
+        },
+      },
+    ]);
+    expect(await f.run(() => f.preview.invoke(relationship))).toMatchObject({ ok: true, data: { valid: true } });
+    expect(await f.run(() => f.configure.invoke(relationship))).toMatchObject({ ok: true });
+    const pruned = await f.run(() =>
+      prisma.dataView.findFirstOrThrow({ where: { companyId: f.company.id, id: stale.id } }),
+    );
+    expect(pruned.hiddenColumns).toEqual([]);
+    expect(pruned.columnWidths).toEqual({});
+
+    const kept = randomUUID();
+    expect(
+      await f.run(async () =>
+        f.configure.invoke(
+          await change([{ operation: "putField", field: textField(kept, organization, "Account code") }]),
+        ),
+      ),
+    ).toMatchObject({ ok: true });
+    const filtered = await f.run(() =>
+      prisma.dataView.create({
+        data: {
+          companyId: f.company.id,
+          userId: f.admin.id,
+          surfaceKey: `records:${organization}`,
+          name: "Coded accounts",
+          filters: [{ field: kept, operator: "gt", value: 5 }],
+        },
+      }),
+    );
+    const unrelated = await change([
+      { operation: "putField", field: textField(randomUUID(), organization, "Region code") },
+    ]);
+    expect(await f.run(() => f.preview.invoke(unrelated))).toMatchObject({
+      ok: true,
+      data: {
+        valid: false,
+        issues: [
+          {
+            code: "saved_view_incompatible",
+            typeId: organization,
+            viewKind: "view",
+            viewId: filtered.id,
+            viewName: "Coded accounts",
+            columnId: kept,
+            columnLabel: "Account code",
+          },
+        ],
+      },
+    });
+    const refused = await f.run(() => f.configure.invoke(unrelated));
+    expect(refused.ok ? null : refused.error.issues[0]).toMatchObject({
+      params: {
+        error: "recordSavedViewIncompatible",
+        viewId: filtered.id,
+        viewName: "Coded accounts",
+        columnId: kept,
+        columnLabel: "Account code",
+      },
+    });
+  });
+
   it("filters indexed date ranges without rounding microseconds or treating absent bounds as zero", async () => {
     const f = await fixture();
     const fieldId = randomUUID();

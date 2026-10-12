@@ -18,7 +18,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { isDraftThreadId } from "../provider";
+import { isDraftThreadId, isEmailProvider } from "../provider";
 import { accountNeedsReconnect } from "../account-health";
 import {
   DraftRevisionSchema,
@@ -85,6 +85,7 @@ export class SendChatMessageInteractor extends AuthenticatedInteractor<SendChatM
 
     const thread = await this.repo.findThreadByIdOrThrow(data.threadId);
     if (isDraftThreadId(thread.unipileThreadId)) return fail(CustomErrorCode.draftThreadNotSent, ["threadId"]);
+    if (isEmailProvider(thread.provider)) return fail(CustomErrorCode.chatThreadRequired, ["threadId"]);
 
     const account = await this.accountRepo.findUsableAccountByIdOrThrow(thread.connectedAccountId);
     if (accountNeedsReconnect(account)) return fail(CustomErrorCode.unipileDisconnectedAccount, []);

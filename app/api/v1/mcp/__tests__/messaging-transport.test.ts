@@ -9,6 +9,7 @@ const interactors = vi.hoisted(() => ({
   save: vi.fn(),
   discard: vi.fn(),
   isMcpBearerValid: vi.fn(),
+  isMcpApiKeyValid: vi.fn(() => Promise.resolve(true)),
 }));
 
 vi.mock("@/env", () => ({ env: { BASE_URL: "http://localhost:4105" } }));
@@ -20,7 +21,11 @@ vi.mock("@/core/di", () => ({
   getSendEmailInteractor: () => ({ invoke: interactors.send }),
   getSaveDraftInteractor: () => ({ invoke: interactors.save }),
   getDiscardDraftInteractor: () => ({ invoke: interactors.discard }),
-  getAuthService: () => ({ isMcpBearerValid: interactors.isMcpBearerValid }),
+  getAuthService: () => ({
+    isMcpBearerValid: interactors.isMcpBearerValid,
+    isMcpApiKeyValid: interactors.isMcpApiKeyValid,
+  }),
+  getAuthorizeMcpConnectionInteractor: () => ({ invoke: () => Promise.resolve({ ok: true, data: true }) }),
 }));
 
 import { discardMessageDraftTool, saveMessageDraftTool, sendEmailTool } from "@/features/mcp-tools/messaging.mcp-tools";

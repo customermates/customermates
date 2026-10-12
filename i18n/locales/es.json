@@ -1058,6 +1058,7 @@
       "billingPortalUnavailable": "El portal de facturación no está disponible para este espacio de trabajo. Contacta con soporte para hacer cambios.",
       "calendarEventNotFound": "ID de evento de calendario no encontrado o no accesible.",
       "channelAlreadyLinked": "Este canal ya está vinculado a otro contacto.",
+      "chatThreadRequired": "Este es un hilo de correo. Responde con un correo en lugar de un mensaje de chat.",
       "connectedAccountNotFound": "ID de canal no encontrado o no accesible.",
       "customFieldInvalidDate": "La fecha no es válida. Debe estar en formato ISO 8601 (por ejemplo 2024-01-15) o en formato fecha-hora ISO 8601 (por ejemplo 2024-01-15T00:00:00Z).",
       "dataViewAllNameImmutable": "La vista Todas no se puede renombrar. Omite name y actualiza solo los ajustes solicitados en state. Consulta config para los ajustes compatibles y list para el estado actual antes de reintentar.",
@@ -1129,10 +1130,11 @@
       "recordNotFound": "Este registro no está disponible.",
       "recordNumberInvalid": "Introduce un número válido.",
       "recordOperationFailed": "La operación en segundo plano ha fallado. Inténtalo de nuevo.",
-      "recordOptionInvalid": "Elige una de las opciones del campo.",
+      "recordOptionInvalid": "\"{value}\" no es una opción de {field} ({fieldId}). Usa uno de estos ID de opción: {validValues}.",
       "recordProtected": "Este registro está gestionado por un proceso del sistema.",
       "recordReadOnlyField": "Este campo se calcula. Cambia su definición para introducir valores manualmente.",
       "recordRelationConflict": "Este enlace no cumple las reglas de la relación.",
+      "recordSavedViewIncompatible": "La vista guardada \"{viewName}\" ({viewId}) todavía usa \"{columnLabel}\" ({columnId}). Actualiza o elimina esa vista y vuelve a intentarlo.",
       "recordSchemaChanged": "El modelo de datos ha cambiado. Actualiza la página e inténtalo de nuevo.",
       "recordTypeNotFound": "Este tipo de registro no está disponible.",
       "recordValueInvalid": "Revisa los valores resaltados del registro.",
@@ -2698,11 +2700,16 @@
     "selectedCount": "{count, plural, one {# elemento seleccionado} other {# elementos seleccionados}}"
   },
   "McpConsentCard": {
+    "access": {
+      "crmData": "Leer y cambiar tus datos y ajustes del CRM, en la medida en que tu rol lo permita",
+      "messaging": "Enviar mensajes y correos a través de tus cuentas conectadas"
+    },
     "approve": "Aprobar",
     "body": "{client} solicita acceso a tu cuenta de Customermates. Apruébalo solo si has sido tú quien ha iniciado esta conexión.",
     "deny": "Denegar",
     "destination": "Destino de la conexión: {host}",
     "error": "Algo ha salido mal. Inténtalo de nuevo o reinicia la conexión desde tu cliente.",
+    "permissionRequired": "Tu rol no permite conexiones MCP. Conectar mediante MCP requiere acceso de lectura Todos en API y webhooks. Pide a un administrador del espacio de trabajo que te lo conceda.",
     "scopes": {
       "email": "Leer tu dirección de correo",
       "offlineAccess": "Mantener la conexión mientras estás ausente",
@@ -3353,6 +3360,7 @@
     },
     "changeBlocked": "Este cambio todavía no se puede aplicar",
     "channelsHelp": "Direcciones de correo, números de teléfono de WhatsApp y cuentas sociales que asocian los mensajes con este registro. Los números de teléfono solo se asocian en los chats de WhatsApp. Un identificador puede vincularse con varios registros.",
+    "chooseOption": "Elige una de las opciones del campo.",
     "clickAction": "Al hacer clic",
     "clickActions": {
       "channels": {
@@ -3415,6 +3423,7 @@
         "existingValuesDetail": "{count, plural, one {# registro tiene un valor} other {# registros tienen valores}} en {subject} que no encajan con el cambio, por ejemplo {examples}. Corrígelos o vacíalos primero.",
         "readAll": "{subject} todavía contiene registros que no puede ver. Solo quien puede leer todos sus registros, o un administrador, puede eliminarlo definitivamente.",
         "savedView": "Vistas guardadas o diseños personales todavía usan {subject}.",
+        "savedViewColumn": "La vista guardada {view} todavía usa {column}.",
         "summaryApproval": "{subject} necesita una nueva aprobación del resumen."
       },
       "moved": "Movido a la Papelera"
@@ -4279,7 +4288,8 @@
       "nameTaken": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque otro elemento usa ahora su nombre o lugar.",
       "notFound": "{count, plural, one {# elemento ya no existe y salió} other {# elementos ya no existen y salieron}} de la papelera.",
       "parentDeleted": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque aquello a lo que pertenecen está en la papelera. Restáuralo primero.",
-      "requiresRestore": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque algo que necesitan está en la papelera. Restáuralo primero."
+      "requiresRestore": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque algo que necesitan está en la papelera. Restáuralo primero.",
+      "routineLimitReached": "{count, plural, one {# rutina sigue} other {# rutinas siguen}} en la papelera porque su propietario ya tiene todas las rutinas que incluye su plan."
     },
     "restored": "{count, plural, one {# elemento restaurado} other {# elementos restaurados}}",
     "restoredInBackground": "Restaurado",

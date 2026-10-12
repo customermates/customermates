@@ -8,7 +8,12 @@ import { cleanRecordEventSubscription, recordEventSubscriptionIsValid } from "./
 import { cleanRecordMeasure, recordMeasureIsValid } from "./record-measure-validation";
 import { expressionFieldDependencies } from "./record-model-validation";
 import { fieldValueDefinition } from "./record-configuration-values";
-import { cleanRecordViewState, recordViewStateIsValid } from "./record-view-state";
+import {
+  cleanRecordViewState,
+  invalidRecordViewReference,
+  pruneStaleRecordViewColumns,
+  recordViewStateIsValid,
+} from "./record-view-state";
 import { CONFIGURATION_CONSUMER_PAGE } from "./record.repo";
 
 type Rows<K extends keyof RecordRepo> = RecordRepo[K] extends (...args: never[]) => Promise<Array<infer Row>>
@@ -152,25 +157,35 @@ export async function collectConsumerImpact(
       blockedLayouts.add(entry.typeId);
       issues.push({ code: "detail_layout_incompatible", typeId: entry.typeId });
     }
-    const blockedTypes = new Set<string>();
     for await (const consumer of consumers.viewStates) {
       if (deletedTypeIds.has(consumer.typeId) || recordViewStateIsValid(consumer.typeId, consumer.state, model))
         continue;
-      const state =
-        cause && recordViewStateIsValid(consumer.typeId, consumer.state, current)
-          ? cleanRecordViewState(consumer.typeId, consumer.state, model)
-          : null;
+      const kind = consumer.key.startsWith("view:") ? "view" : "personalLayout";
+      const id = consumer.key.slice(consumer.key.indexOf(":") + 1);
+      const validBefore = recordViewStateIsValid(consumer.typeId, consumer.state, current);
+      if (!validBefore) {
+        const pruned = pruneStaleRecordViewColumns(consumer.typeId, consumer.state, model);
+        if (pruned) {
+          cleanups.push({ kind, id, state: pruned });
+          continue;
+        }
+      }
+      const state = cause && validBefore ? cleanRecordViewState(consumer.typeId, consumer.state, model) : null;
       if (cause && state) {
-        const kind = consumer.key.startsWith("view:") ? "view" : "personalLayout";
-        const id = consumer.key.slice(consumer.key.indexOf(":") + 1);
         cleanups.push({ kind, id, state });
         if (!consumer.trashed)
           cleaned.push({ consumer: { kind, id, typeId: consumer.typeId, label: consumer.name ?? "" }, target: cause });
         continue;
       }
-      if (consumer.trashed || blockedTypes.has(consumer.typeId)) continue;
-      blockedTypes.add(consumer.typeId);
-      issues.push({ code: "saved_view_incompatible", typeId: consumer.typeId });
+      if (consumer.trashed) continue;
+      issues.push({
+        code: "saved_view_incompatible",
+        typeId: consumer.typeId,
+        viewKind: kind,
+        viewId: id,
+        viewName: consumer.name ?? "All",
+        ...invalidRecordViewReference(consumer.typeId, consumer.state, model, current),
+      });
     }
   }
   for await (const widget of consumers.widgetMeasures) {

@@ -304,6 +304,62 @@ describeDatabase("views, widgets, routines and knowledge base pages in Trash", (
     expect(restored.nextRunAt?.getTime() ?? 0).toBeGreaterThan(Date.now());
   });
 
+  it("keeps a trashed routine in Trash while its owner is at the plan's routine allowance", async () => {
+    const f = await fixture();
+    await runWithoutTenant(() =>
+      prisma.subscription.create({ data: { companyId: f.seed.company.id, plan: "starter", status: "active" } }),
+    );
+    const routine = (name: string) =>
+      runWithoutTenant(() =>
+        prisma.routine.create({
+          data: {
+            companyId: f.seed.company.id,
+            ownerUserId: f.seed.admin.id,
+            name,
+            prompt: "Summarize",
+            enabled: false,
+            triggerKind: "schedule",
+            cronExpression: "0 9 * * *",
+            timezone: "Europe/Berlin",
+          },
+        }),
+      );
+    const remove = new DeleteRoutineInteractor(getRoutineRepo(), events, new PrismaTrashRepo());
+    const trashed = await routine("Trashed digest");
+    const deleted = await runWithTenant(f.admin, () => remove.invoke({ id: trashed.id }));
+    if (!deleted.ok) throw new Error(JSON.stringify(deleted));
+    const replacement = await routine("Replacement digest");
+    const restoreAll = new RestoreTrashInteractor(new PrismaTrashRepo(), getTrashKindHandlers());
+
+    const refused = await runWithTenant(f.admin, () =>
+      restoreAll.invoke({ batchId: deleted.data.trashBatchId } as never),
+    );
+
+    expect(refused).toMatchObject({
+      ok: true,
+      data: { restoredItemIds: [], blocked: [{ reason: "routineLimitReached", limit: 1, typeId: null }] },
+    });
+    expect(
+      (await runWithoutTenant(() => prisma.routine.findUniqueOrThrow({ where: { id: trashed.id } }))).deletedAt,
+    ).not.toBeNull();
+    expect((await f.items(f.admin)).map((item) => item.kind)).toEqual(["routine"]);
+
+    const freed = await runWithTenant(f.admin, () => remove.invoke({ id: replacement.id }));
+    if (!freed.ok) throw new Error(JSON.stringify(freed));
+    const restored = await runWithTenant(f.admin, () =>
+      restoreAll.invoke({ batchId: deleted.data.trashBatchId } as never),
+    );
+
+    expect(restored).toMatchObject({ ok: true, data: { blocked: [] } });
+    expect(
+      await runWithoutTenant(() =>
+        prisma.routine.count({
+          where: { companyId: f.seed.company.id, ownerUserId: f.seed.admin.id, deletedAt: null },
+        }),
+      ),
+    ).toBe(1);
+  });
+
   it("keeps a trashed knowledge base page out of lists and search and blocks restoring a second guide", async () => {
     const f = await fixture();
     const handlers = getTrashKindHandlers();

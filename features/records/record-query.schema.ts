@@ -332,6 +332,10 @@ export const RecordOperationResultSchema = z.discriminatedUnion("status", [
     .object({
       status: z.literal("completed"),
       refs: z.array(RecordRefSchema),
+      references: z
+        .array(z.object({ reference: z.string(), id: z.uuid() }).strict())
+        .optional()
+        .describe("Data model changes only: the id created or resolved for each reference in the change."),
       schemaRevision: z.number().int(),
       trashBatchId: z.uuid().optional(),
       restore: RestoreSummarySchema.optional(),

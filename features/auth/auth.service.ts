@@ -419,6 +419,16 @@ export class AuthService {
     return (headersList.get("authorization") ?? "").toLowerCase().startsWith("bearer ");
   }
 
+  async isMcpApiKeyValid(headersList: Headers): Promise<boolean> {
+    const key = headersList.get("x-api-key");
+    if (!key) return false;
+    try {
+      return (await auth.api.getSession({ headers: new Headers({ "x-api-key": key }) })) !== null;
+    } catch {
+      return false;
+    }
+  }
+
   async isMcpBearerValid(headersList: Headers): Promise<boolean> {
     try {
       return (await this.resolveMcpBearerSession(headersList)) !== null;

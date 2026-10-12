@@ -139,6 +139,14 @@ export function issueSentences(
   return preview.issues.map((issue) => {
     const duplicate = DUPLICATE_ISSUES[issue.code as keyof typeof DUPLICATE_ISSUES];
     if (duplicate) return [t(duplicate)];
+    if (issue.code === "saved_view_incompatible" && issue.viewName) {
+      return [
+        t("RecordModel.configurationDeletion.issues.savedViewColumn", {
+          view: issue.viewName,
+          column: issue.columnLabel ?? issue.columnId ?? "",
+        }),
+      ];
+    }
     const field = model?.fields.find((candidate) => candidate.id === issue.fieldId);
     const type = model?.types.find((candidate) => candidate.id === (field?.typeId ?? issue.typeId));
     const relation = model?.relationships.find((candidate) => candidate.id === issue.relationId);
