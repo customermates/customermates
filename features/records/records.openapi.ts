@@ -34,8 +34,7 @@ import { z } from "zod";
 import { StructuredApiResponses } from "@/core/api/structured-interactor-handler";
 import { GenericRecordWidgetInputSchema, GenericRecordWidgetDtoSchema } from "@/features/widget/record-widget.schema";
 import { RecordWidgetReadSchema } from "@/features/widget/get-record-widgets.interactor";
-import { RecordModelViewSchema, RecordDtoSchema } from "./record-model.schema";
-import { GetModelSchema } from "./configure-records.interactor";
+import { RecordDtoSchema } from "./record-model.schema";
 import { ConfigurationContractSchema, ConfigurationPreviewSchema } from "./configuration.schema";
 import {
   RecordQuerySchema,
@@ -360,28 +359,6 @@ export const recordApiPaths = {
       RecordWidgetReadSchema,
       GenericRecordWidgetDtoSchema,
       { tag: "widgets", read: true, requires: "read access to the widget's lists; restricted values stay hidden." },
-    ),
-  },
-  "/v1/widgets/list": {
-    post: operation(
-      "listRecordWidgets",
-      "Read personal widgets",
-      z.object({}).strict(),
-      z.object({ widgets: z.array(GenericRecordWidgetDtoSchema) }),
-      { tag: "widgets", read: true, requires: "read access to the widgets' lists; restricted values stay hidden." },
-    ),
-  },
-  "/v1/model/discover": {
-    post: operation(
-      "discoverRecordModel",
-      "Discover record types and their configuration",
-      GetModelSchema,
-      RecordModelViewSchema,
-      {
-        read: true,
-        requires: "read access to the list; data-model and role managers see every list and its access presets.",
-        examples: recordApiExamples.discover,
-      },
     ),
   },
   "/v1/model/preview": {

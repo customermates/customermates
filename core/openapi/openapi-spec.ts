@@ -81,10 +81,17 @@ import { recordWebhookOperations } from "@/features/records/record-webhooks.open
 import { recordApiPaths } from "@/features/records/records.openapi";
 import { getUserDetailsOperation } from "@/features/user/get/get-user-details.openapi";
 import { getUsersOperation } from "@/features/user/get/get-users.openapi";
+import { memberApiPaths, updateUserProfileOperation } from "@/features/user/upsert/team.openapi";
 import { UserDtoSchema } from "@/features/user/user.schema";
+import { wikiApiPaths } from "@/features/wiki/wiki.openapi";
 import { createWebhookOperation } from "@/features/webhook/create-webhook.openapi";
 import { deleteWebhookOperation } from "@/features/webhook/delete-webhook.openapi";
 import { getWebhookOperation } from "@/features/webhook/get-webhook.openapi";
+
+import { recordModelApiPaths } from "@/features/records/record-model.openapi";
+import { dataViewApiPaths } from "@/features/data-view/data-view.openapi";
+import { widgetApiPaths } from "@/features/widget/widget.openapi";
+import { trashApiPaths } from "@/features/trash/trash.openapi";
 
 export function generateOpenApiSpec() {
   const document = createDocument({
@@ -102,11 +109,18 @@ export function generateOpenApiSpec() {
     ],
     paths: {
       ...recordApiPaths,
+      ...wikiApiPaths,
+      ...memberApiPaths,
+      ...recordModelApiPaths,
+      ...dataViewApiPaths,
+      ...widgetApiPaths,
+      ...trashApiPaths,
       "/v1/users/search": {
         post: getUsersOperation,
       },
       "/v1/users/me": {
         get: getUserDetailsOperation,
+        patch: updateUserProfileOperation,
       },
       "/v1/webhooks": {
         post: createWebhookOperation,

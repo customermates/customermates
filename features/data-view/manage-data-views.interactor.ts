@@ -219,7 +219,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     }
 
     const surfaceState = await this.views.loadSurfaceState(data.surfaceKey);
-    if (data.action === "list") {
+    if (data.action === "list" || data.action === "read") {
       if (data.viewKey === ALL_VIEW_KEY) {
         return {
           ok: true,
@@ -259,15 +259,16 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           },
         };
       }
+      const listing: { page?: number; pageSize?: number; query?: string } = data.action === "list" ? data : {};
       const candidates = surfaceState.views.map(({ id, name, position }) => ({
         id,
         name,
         position,
       }));
       const result = paged(
-        candidates.filter((item) => matchesQuery(item, data.query, ["id", "name"])),
-        data.page ?? 1,
-        data.pageSize ?? 10,
+        candidates.filter((item) => matchesQuery(item, listing.query, ["id", "name"])),
+        listing.page ?? 1,
+        listing.pageSize ?? 10,
       );
       return {
         ok: true,

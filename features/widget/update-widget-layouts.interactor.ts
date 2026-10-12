@@ -3,12 +3,8 @@ import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
-import {
-  WIDGET_BREAKPOINT_COLUMNS,
-  WIDGET_LAYOUT_MAX_ITEMS,
-  WidgetLayoutSchema,
-  widgetLayoutUpdateItemSchema,
-} from "./widget-display.schema";
+import { WidgetLayoutSchema } from "./widget.schema";
+import { WIDGET_GRID_BREAKPOINT_COLUMNS, WIDGET_GRID_MAX_ROW, WIDGET_GRID_ROW_HEIGHT } from "./widget-grid";
 import { resolveWidgetLayout } from "./widget-placement";
 
 import { BREAKPOINTS } from "@/constants/breakpoints";
@@ -19,21 +15,49 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { fail, failConflict } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-const LayoutSchema = z
-  .object({
-    xs: z.array(widgetLayoutUpdateItemSchema(WIDGET_BREAKPOINT_COLUMNS.xs)).max(WIDGET_LAYOUT_MAX_ITEMS),
-    sm: z.array(widgetLayoutUpdateItemSchema(WIDGET_BREAKPOINT_COLUMNS.sm)).max(WIDGET_LAYOUT_MAX_ITEMS),
-    md: z.array(widgetLayoutUpdateItemSchema(WIDGET_BREAKPOINT_COLUMNS.md)).max(WIDGET_LAYOUT_MAX_ITEMS),
-    lg: z.array(widgetLayoutUpdateItemSchema(WIDGET_BREAKPOINT_COLUMNS.lg)).max(WIDGET_LAYOUT_MAX_ITEMS),
-  })
-  .strict();
+export const WIDGET_LAYOUT_MAX_ITEMS = 500;
 
-const Schema = z
+function breakpointPlacements(columns: number) {
+  const item = z
+    .object({
+      i: z.uuid().describe("Widget id."),
+      x: z
+        .number()
+        .int()
+        .min(0)
+        .max(columns - 1)
+        .describe(`Column from the left edge, 0 to ${columns - 1}.`),
+      y: z
+        .number()
+        .int()
+        .min(0)
+        .max(WIDGET_GRID_MAX_ROW)
+        .describe(`Row from the top, in rows of ${WIDGET_GRID_ROW_HEIGHT} px.`),
+      w: z.number().int().min(1).max(columns).describe(`Width in columns, 1 to ${columns}.`),
+      h: z.number().int().min(1).max(WIDGET_GRID_MAX_ROW).describe(`Height in rows of ${WIDGET_GRID_ROW_HEIGHT} px.`),
+    })
+    .strict()
+    .refine((value) => value.x + value.w <= columns, {
+      path: ["w"],
+      message: `The widget must fit the ${columns}-column grid: x + w can be at most ${columns}.`,
+    });
+  return z.array(item).max(WIDGET_LAYOUT_MAX_ITEMS);
+}
+
+export const UpdateWidgetLayoutsSchema = z
   .object({
-    layouts: LayoutSchema,
+    layouts: z
+      .object({
+        xs: breakpointPlacements(WIDGET_GRID_BREAKPOINT_COLUMNS.xs),
+        sm: breakpointPlacements(WIDGET_GRID_BREAKPOINT_COLUMNS.sm),
+        md: breakpointPlacements(WIDGET_GRID_BREAKPOINT_COLUMNS.md),
+        lg: breakpointPlacements(WIDGET_GRID_BREAKPOINT_COLUMNS.lg),
+      })
+      .strict(),
     expectedVersions: z
       .record(z.uuid(), z.number().int().positive())
-      .refine((versions) => Object.keys(versions).length <= WIDGET_LAYOUT_MAX_ITEMS, "Too many widgets"),
+      .refine((versions) => Object.keys(versions).length <= WIDGET_LAYOUT_MAX_ITEMS, "Too many widgets")
+      .describe("The version you last read for every widget named in layouts, keyed by widget id."),
   })
   .strict()
   .superRefine((data, ctx) => {
@@ -58,7 +82,7 @@ const Schema = z
       });
     }
   });
-export type UpdateWidgetLayoutsData = Data<typeof Schema>;
+export type UpdateWidgetLayoutsData = Data<typeof UpdateWidgetLayoutsSchema>;
 
 export const SavedWidgetLayoutSchema = z.object({
   id: z.uuid(),
@@ -76,7 +100,7 @@ export class UpdateWidgetLayoutsInteractor extends AuthenticatedInteractor<
     super();
   }
 
-  @Validate(Schema)
+  @Validate(UpdateWidgetLayoutsSchema)
   async invoke(data: UpdateWidgetLayoutsData): Validated<SavedWidgetLayout[]> {
     return runInTransaction(async (): Validated<SavedWidgetLayout[]> => {
       const ids = [...new Set(BREAKPOINTS.flatMap((breakpoint) => data.layouts[breakpoint].map((item) => item.i)))];
