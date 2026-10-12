@@ -50,12 +50,12 @@ export function RankedTable({ color, hiddenCount, rows }: Props) {
         <tbody>
           {rows.map((row, index) => (
             <tr key={row.key} className="border-t border-border align-top">
-              <td className="py-1.5 pr-2 tabular-nums text-muted-foreground">{index + 1}</td>
+              <td className="py-1 pr-2 tabular-nums text-muted-foreground">{index + 1}</td>
 
-              <th className="w-full max-w-0 py-1.5 text-left font-normal" scope="row">
+              <th className="w-full max-w-0 py-1 text-left font-normal" scope="row">
                 <TruncatedText>{row.label}</TruncatedText>
 
-                <span aria-hidden className="mt-1 block h-1 overflow-hidden rounded-full bg-muted">
+                <span aria-hidden className="mt-0.5 block h-1 overflow-hidden rounded-full bg-muted">
                   <span
                     className="block h-full rounded-full"
                     style={{ backgroundColor: color, width: `${Math.round(row.barWidth * 1000) / 10}%` }}
@@ -63,11 +63,9 @@ export function RankedTable({ color, hiddenCount, rows }: Props) {
                 </span>
               </th>
 
-              <td className="whitespace-nowrap py-1.5 pl-2 text-right font-medium tabular-nums">
-                {row.formattedValue}
-              </td>
+              <td className="whitespace-nowrap py-1 pl-2 text-right font-medium tabular-nums">{row.formattedValue}</td>
 
-              <td className="whitespace-nowrap py-1.5 pl-3 text-right tabular-nums text-muted-foreground">
+              <td className="whitespace-nowrap py-1 pl-3 text-right tabular-nums text-muted-foreground">
                 {row.share === null ? <EmptyValue /> : valueFormat.percent(row.share)}
               </td>
             </tr>

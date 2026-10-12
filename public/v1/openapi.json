@@ -13023,7 +13023,7 @@
                             "type": "integer",
                             "minimum": 1,
                             "maximum": 24,
-                            "description": "Height in rows of 54 px with 16 px gaps, 1 to 24."
+                            "description": "Height in rows of 54 px with 12 px gaps, 1 to 24."
                           }
                         },
                         "required": [
@@ -13425,7 +13425,7 @@
                             "type": "integer",
                             "minimum": 1,
                             "maximum": 24,
-                            "description": "Height in rows of 54 px with 16 px gaps, 1 to 24."
+                            "description": "Height in rows of 54 px with 12 px gaps, 1 to 24."
                           }
                         },
                         "required": [

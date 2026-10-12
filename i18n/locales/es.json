@@ -1194,7 +1194,7 @@
       "widgetDisplayTypeUnsupported": "Este estilo de gráfico no encaja con la agrupación seleccionada. Elige otro estilo o cambia la agrupación.",
       "widgetKindImmutable": "El tipo de un widget no se puede cambiar después de crearlo.",
       "widgetLayoutOverlap": "Esta posición se superpone con otro widget. Elige un hueco libre en la cuadrícula de 12 columnas u omite el diseño para colocarlo automáticamente.",
-      "widgetLayoutTooSmall": "Este widget necesita al menos 2 columnas y 3 filas.",
+      "widgetLayoutTooSmall": "Este widget es demasiado pequeño: los gráficos y las cifras necesitan al menos 2 filas, las cronologías de actividad 2 columnas y 6 filas.",
       "widgetNotFound": "ID de widget no encontrado o no accesible.",
       "wikiGuideExists": "Esta base de conocimientos ya tiene una guía operativa. Actualiza la guía existente.",
       "wikiNotEmpty": "Esta acción requiere que la base de conocimientos esté vacía.",

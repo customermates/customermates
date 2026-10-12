@@ -86,7 +86,7 @@ test("starts from a recommended starter, previews it live at dashboard size and 
     'SELECT layout FROM "Widget" WHERE "companyId"=$1 AND name=$2',
     [companyId, "Open value overview"],
   );
-  expect(saved.rows[0]?.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 3 });
+  expect(saved.rows[0]?.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 2 });
 
   const measure = {
     source: {
@@ -113,15 +113,17 @@ test("starts from a recommended starter, previews it live at dashboard size and 
         },
       }),
     );
-  const placed = await create("Placed by the API", { x: 6, y: 0, w: 6, h: 3 });
+  const tooShort = await create("Too short", { x: 6, y: 0, w: 6, h: 1 });
+  expect(tooShort.status()).toBe(400);
+  const placed = await create("Placed by the API", { x: 6, y: 0, w: 6, h: 2 });
   expect(placed.status(), await placed.text()).toBe(200);
   expect((await placed.json()).layout.lg).toMatchObject({
     x: 6,
     y: 0,
     w: 6,
-    h: 3,
+    h: 2,
   });
-  const overlapping = await create("Overlapping", { x: 2, y: 0, w: 6, h: 3 });
+  const overlapping = await create("Overlapping", { x: 2, y: 0, w: 6, h: 2 });
   expect(overlapping.status()).toBe(400);
   expect(await overlapping.text()).toContain(
     englishMessages.Common.errors.widgetLayoutOverlap,
