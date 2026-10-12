@@ -49,6 +49,11 @@ test("edits identity channels in the generic drawer and searches persisted chann
   await expect(dialog.getByText("person@example.test", { exact: true })).not.toBeVisible();
   await expect(dialog.getByRole("button", { name: "Save", exact: true })).toBeEnabled();
   await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+  await expect(dialog.getByText("person@example.test", { exact: true })).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
+  await dialog.getByRole("button", { name: "Unlink Email", exact: false }).click();
+  await expect(dialog.getByText("person@example.test", { exact: true })).not.toBeVisible();
+  await page.keyboard.press("Escape");
   const discard = page.getByRole("alertdialog");
   await expect(discard).toBeVisible();
   await expect(dialog).toBeVisible();
@@ -59,7 +64,7 @@ test("edits identity channels in the generic drawer and searches persisted chann
   await page.reload();
   await openRecordDetails(page, "Identity Person");
   await expect(dialog.getByText("person@example.test", { exact: true })).toBeVisible();
-  await expect(dialog.getByRole("button", { name: "Save", exact: true })).toBeDisabled();
+  await expect(dialog.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
   await dialog.getByText("person@example.test", { exact: true }).scrollIntoViewIfNeeded();
   await page.screenshot({
     path: testInfo.outputPath("record-identity-channels.png"),

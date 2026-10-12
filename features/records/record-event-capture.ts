@@ -7,6 +7,51 @@ import { RecordQuerySchema } from "./record-query.schema";
 import { invalidRecordQueryPart } from "./record-query-validation";
 import { compileRecordQuery, fieldReadPredicate } from "./record-query";
 
+const STAGED_EVENT_PAGE = 1000;
+
+async function capturedEventTypes(
+  client: AppPrismaClient,
+  companyId: string,
+  selection: { eventId: string } | { operationId: string },
+): Promise<Array<{ typeId: string }>> {
+  const typeIds = new Set<string>();
+  const collect = async (eventIds: string[]) => {
+    if (!eventIds.length) return;
+    const rows = await client.eventLog.findMany({
+      where: { companyId, subjectKind: "record", id: { in: eventIds } },
+      distinct: ["subjectTypeId"],
+      select: { subjectTypeId: true },
+    });
+    for (const row of rows) if (row.subjectTypeId !== null) typeIds.add(row.subjectTypeId);
+  };
+  if ("eventId" in selection) await collect([selection.eventId]);
+  else {
+    let afterKey: string | undefined;
+    for (;;) {
+      const staged = await client.recordStageRow.findMany({
+        where: {
+          companyId,
+          operationId: selection.operationId,
+          kind: "event",
+          ...(afterKey === undefined ? {} : { key: { gt: afterKey } }),
+        },
+        select: { key: true, payload: true },
+        orderBy: { key: "asc" },
+        take: STAGED_EVENT_PAGE,
+      });
+      await collect(
+        staged.flatMap((row) => {
+          const id = (row.payload as { id?: unknown } | null)?.id;
+          return typeof id === "string" ? [id] : [];
+        }),
+      );
+      if (staged.length < STAGED_EVENT_PAGE) break;
+      afterKey = staged.at(-1)?.key;
+    }
+  }
+  return [...typeIds].map((typeId) => ({ typeId }));
+}
+
 export async function captureRecordEventMatches(
   client: AppPrismaClient,
   records: RecordRepo,
@@ -43,9 +88,7 @@ export async function captureRecordEventMatches(
   const [model, grants, types] = await Promise.all([
     records.getModel(),
     records.getGrants(),
-    client.$queryRaw<Array<{ typeId: string }>>(Prisma.sql`
-      SELECT DISTINCT event."subjectTypeId" AS "typeId" FROM "EventLog" event
-      WHERE event."companyId" = ${companyId} AND event."subjectKind" = 'record' AND ${selected}`),
+    capturedEventTypes(client, companyId, selection),
   ]);
   for (const { owner, companyId: rowCompanyId, ...stored } of rows) {
     if (rowCompanyId !== companyId) throw new Error("Foreign record event subscription");

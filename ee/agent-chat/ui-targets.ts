@@ -106,27 +106,40 @@ function prerequisiteOf(opener: string | undefined) {
   return opener ? { prerequisite: opener } : {};
 }
 
+function formDiscardTarget(page: FormAnchorPage) {
+  if (page.discard === "cancel") {
+    return {
+      id: `${page.scope}-cancel`,
+      description: `Cancel button that closes the ${page.label} without saving and asks before discarding changes`,
+      ...prerequisiteOf(page.opener),
+    };
+  }
+  if (page.discard === "unsavedChangesBar") {
+    return {
+      id: `${page.scope}-cancel`,
+      description: `Cancel button in the unsaved-changes bar that reverts unsaved changes in the ${page.label}; shown once something changed`,
+      ...prerequisiteOf(page.resetOpener ?? page.opener),
+    };
+  }
+  return {
+    id: `${page.scope}-reset`,
+    description: `Reset button that discards unsaved changes in the ${page.label}; shown once something changed`,
+    ...prerequisiteOf(page.resetOpener ?? page.opener),
+  };
+}
+
 function formTargets(page: FormAnchorPage): AgentUiTarget[] {
-  const discard =
-    page.discard === "cancel"
-      ? {
-          id: `${page.scope}-cancel`,
-          description: `Cancel button that closes the ${page.label} without saving and asks before discarding changes`,
-          ...prerequisiteOf(page.opener),
-        }
-      : {
-          id: `${page.scope}-reset`,
-          description: `Reset button that discards unsaved changes in the ${page.label}; shown once something changed`,
-          ...prerequisiteOf(page.resetOpener ?? page.opener),
-        };
   return [
     {
       id: `${page.scope}-save`,
       route: page.route,
-      description: `Save button of the ${page.label}; always shown, enabled once something changed`,
+      description:
+        page.discard === "unsavedChangesBar"
+          ? `Save button in the unsaved-changes bar of the ${page.label}; shown once something changed`
+          : `Save button of the ${page.label}; always shown, enabled once something changed`,
       ...prerequisiteOf(page.opener),
     },
-    { route: page.route, ...discard },
+    { route: page.route, ...formDiscardTarget(page) },
   ];
 }
 

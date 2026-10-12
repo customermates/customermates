@@ -25,25 +25,23 @@ export function EntityDetailFieldActions({ fieldId, label, className }: Props) {
     fieldSettingsHref,
   } = useEntityDetailPersonalization();
   const hidden = hiddenFieldIds.includes(fieldId);
-  const settingsHref = isPersonalizing ? fieldSettingsHref?.(fieldId) : null;
+  const settingsHref = fieldSettingsHref?.(fieldId);
 
-  if (!enabled) return null;
+  if (!enabled || !isPersonalizing) return null;
 
   return (
     <span className={cn("flex items-center gap-0.5", className)}>
       <EntityDetailPinButton fieldId={fieldId} label={label} />
 
-      {isPersonalizing ? (
-        <IconButton
-          fieldAction
-          className="size-5"
-          icon={hidden ? EyeOff : Eye}
-          iconClassName={cn(hidden && "text-primary")}
-          label={hidden ? t("EntityDetail.showField", { field: label }) : t("EntityDetail.hideField", { field: label })}
-          pressed={hidden}
-          onClick={() => toggleFieldVisibility(fieldId)}
-        />
-      ) : null}
+      <IconButton
+        fieldAction
+        className="size-5"
+        icon={hidden ? EyeOff : Eye}
+        iconClassName={cn(hidden && "text-primary")}
+        label={hidden ? t("EntityDetail.showField", { field: label }) : t("EntityDetail.hideField", { field: label })}
+        pressed={hidden}
+        onClick={() => toggleFieldVisibility(fieldId)}
+      />
 
       {settingsHref ? (
         <IconButton

@@ -227,10 +227,9 @@ describe("agent interface targets", () => {
   });
 
   it("describes when a form's save button exists and who sees conditional controls", () => {
-    expect(findAgentUiTarget("settings-profile-save")?.description).toContain(
-      "always shown, enabled once something changed",
-    );
-    expect(findAgentUiTarget("settings-profile-reset")?.description).toContain("shown once something changed");
+    expect(findAgentUiTarget("settings-profile-save")?.description).toContain("unsaved-changes bar");
+    expect(findAgentUiTarget("settings-profile-cancel")?.description).toContain("shown once something changed");
+    expect(findAgentUiTarget("settings-profile-reset")).toBeNull();
     expect(findAgentUiTarget("member-modal-save")?.description).toContain("roles with Manage");
     expect(findAgentUiTarget("role-modal-save")?.description).toContain("not shown for the system role");
     expect(findAgentUiTarget("settings-billing-manage")?.description).toContain("Lemon Squeezy subscription");

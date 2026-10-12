@@ -176,34 +176,38 @@ const RecordEditorBody = observer(function RecordEditorBody({
 
         {notices}
 
-        <EntityDetailPanels
-          activities={
-            store.record ? (
-              <div className="px-4 pt-1 pb-4 @6xl/detail:pt-4">
-                <RecordActivitiesPanel
-                  key={`${store.record.ref.typeId}:${store.record.ref.recordId}:${store.trash ? "trash" : "live"}`}
-                  viewSyncToUrl
-                  record={store.record.ref}
-                  trashed={Boolean(store.trash)}
-                />
+        <div className="relative flex min-h-0 w-full flex-1 flex-col">
+          <EntityDetailPanels
+            activities={
+              store.record ? (
+                <div className="px-4 pt-1 pb-4 @6xl/detail:pt-4">
+                  <RecordActivitiesPanel
+                    key={`${store.record.ref.typeId}:${store.record.ref.recordId}:${store.trash ? "trash" : "live"}`}
+                    viewSyncToUrl
+                    record={store.record.ref}
+                    trashed={Boolean(store.trash)}
+                  />
+                </div>
+              ) : undefined
+            }
+            details={
+              <div className="p-4 pb-[calc(1rem+var(--unsaved-changes-bar-space,0px))]">
+                <RecordDetailOverview renderEditor={renderEditor} store={store} />
               </div>
-            ) : undefined
-          }
-          details={
-            <div className="p-4">
-              <RecordDetailOverview renderEditor={renderEditor} store={store} />
-            </div>
-          }
-          initialPanel={params.get("viewSurface") === SURFACE.entityTimeline ? "activities" : "details"}
-          panelLayout={panelLayout}
-          summary={<RecordDetailChipRow joinsTopBar store={store} />}
-        />
+            }
+            initialPanel={params.get("viewSurface") === SURFACE.entityTimeline ? "activities" : "details"}
+            panelLayout={panelLayout}
+            summary={<RecordDetailChipRow joinsTopBar store={store} />}
+          />
+
+          <RecordEditorActions formId={id} placement="page" store={store} />
+        </div>
       </AppForm>
     );
   }
   return (
     <AppForm id={id} store={store}>
-      <AppCard className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-none border-0 bg-transparent shadow-none">
+      <AppCard className="relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-none border-0 bg-transparent shadow-none">
         <div className="flex shrink-0 items-start pr-12">
           <AppCardHeader className="min-w-0 flex-1 pr-4! pb-4">
             <h2 className="min-w-0 flex-1 truncate text-lg font-semibold">
@@ -241,7 +245,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
               label: t("EntityDetail.overview"),
               fields: [...store.fields.map((field) => `values.${field.id}`), "assignedUserIds", "identities"],
               content: (
-                <AppCardBody className="space-y-4 overflow-y-auto overscroll-contain">
+                <AppCardBody className="space-y-4 overflow-y-auto overscroll-contain pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
                   <RecordDetailOverview renderEditor={renderEditor} store={store} />
                 </AppCardBody>
               ),
@@ -252,7 +256,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
                     value: "activities",
                     label: t("EntityTimeline.types.activities"),
                     content: (
-                      <AppCardBody className="overflow-y-auto overscroll-contain pt-1">
+                      <AppCardBody className="overflow-y-auto overscroll-contain pt-1 pb-[calc(1.5rem+var(--unsaved-changes-bar-space,var(--safe-bottom)))]">
                         <RecordActivitiesPanel
                           key={`${store.record.ref.typeId}:${store.record.ref.recordId}:${store.trash ? "trash" : "live"}`}
                           record={store.record.ref}

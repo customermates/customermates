@@ -4,6 +4,7 @@ import { useMemo, type MouseEvent } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
 import { Check, Maximize2, RotateCcw, Settings2, Trash2 } from "lucide-react";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { useRecordDeletion } from "./use-record-deletion";
@@ -136,18 +137,29 @@ const RecordTopBarActions = observer(function RecordTopBarActions(props: HeaderA
 export const RecordEditorActions = observer(function RecordEditorActions({
   store,
   formId,
-  compact = false,
-}: Pick<Props, "store" | "formId"> & { compact?: boolean }) {
-  return (
-    <FormFooterActions
-      dirty={store.record === null || store.hasUnsavedChanges}
-      editable={!store.isReadOnly}
-      formId={formId}
-      placement={compact ? "topbar" : "card"}
-      saving={store.isLoading || store.isDisabled}
-      store={store}
-    />
-  );
+  placement = "drawer",
+}: Pick<Props, "store" | "formId"> & { placement?: "drawer" | "topbar" | "page" }) {
+  const saving = store.isLoading || store.isDisabled;
+  const mode = unsavedChangesMode({
+    creating: store.record === null,
+    dirty: store.hasUnsavedChanges,
+    editable: !store.isReadOnly,
+  });
+  if (mode === "footer" && placement !== "page") {
+    return (
+      <FormFooterActions
+        dirty
+        editable
+        formId={formId}
+        placement={placement === "topbar" ? "topbar" : "card"}
+        saving={saving}
+        store={store}
+      />
+    );
+  }
+  if (mode === "bar" && placement !== "topbar")
+    return <UnsavedChangesBar formId={formId} saving={saving} onCancel={store.resetForm} />;
+  return null;
 });
 
 export const RecordPageActions = observer(function RecordPageActions(props: Props) {
@@ -158,7 +170,7 @@ export const RecordPageActions = observer(function RecordPageActions(props: Prop
       <div data-record-page-actions className="flex items-center gap-1">
         <RecordTopBarActions deletion={deletion} layout={layout} name={name} store={store} />
 
-        <RecordEditorActions compact formId={formId} store={store} />
+        <RecordEditorActions formId={formId} placement="topbar" store={store} />
       </div>
     ),
     [deletion, formId, layout, name, store],

@@ -142,7 +142,10 @@ test("edits Channels inline on a record, pins it and copies on click", async ({ 
   const field = drawer.locator(`[data-entity-field="${channelsId}"]`);
   await expect(field).toContainText("inline@example.test");
   await expect(field.locator('[data-contact-action="open"]')).toHaveCount(1);
+  await expect(drawer.getByRole("button", { name: "Pin Channels to the overview", exact: true })).toHaveCount(0);
+  await drawer.getByRole("button", { name: "Customize", exact: true }).click();
   await drawer.getByRole("button", { name: "Pin Channels to the overview", exact: true }).click();
+  await drawer.getByRole("button", { name: "Done", exact: true }).click();
   await expect(drawer.locator(`[data-chip-column="${channelsId}"]`)).toContainText("inline@example.test");
   await expect
     .poll(async () => {
