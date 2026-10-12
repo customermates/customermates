@@ -1932,9 +1932,9 @@
   "DataTransfer": {
     "export": {
       "action": "Als JSON exportieren",
-      "xlsxAction": "Als Excel exportieren (.xlsx)",
       "failed": "Die Datensätze konnten nicht exportiert werden. Prüfen Sie Ihre Filter und Berechtigungen.",
-      "success": "{count, plural, one {# Datensatz exportiert} other {# Datensätze exportiert}}."
+      "success": "{count, plural, one {# Datensatz exportiert} other {# Datensätze exportiert}}.",
+      "xlsxAction": "Als Excel exportieren (.xlsx)"
     },
     "import": {
       "action": "Aus Datei hinzufügen",
@@ -3568,9 +3568,9 @@
     "progressUnavailable": "Fortschritt konnte nicht geladen werden. Dein Entwurf bleibt erhalten.",
     "rangeEnd": "Bis",
     "rangeStart": "Von",
-    "recordId": "Datensatz-ID",
     "record": "Datensatz",
     "recordConflictFields": "Auch an anderer Stelle geändert: {fields}. Wähle vor dem Speichern, welche Version gelten soll.",
+    "recordId": "Datensatz-ID",
     "recordReload": "Datensatz neu laden",
     "recordReloadKeepChanges": "Neu laden und meine Änderungen behalten",
     "records": "Datensätze",

@@ -1932,9 +1932,9 @@
   "DataTransfer": {
     "export": {
       "action": "Exporter en JSON",
-      "xlsxAction": "Exporter en Excel (.xlsx)",
       "failed": "Les fiches n'ont pas pu être exportées. Vérifiez vos filtres et vos autorisations.",
-      "success": "{count, plural, one {# fiche exportée} other {# fiches exportées}}."
+      "success": "{count, plural, one {# fiche exportée} other {# fiches exportées}}.",
+      "xlsxAction": "Exporter en Excel (.xlsx)"
     },
     "import": {
       "action": "Ajouter depuis un fichier",
@@ -3568,9 +3568,9 @@
     "progressUnavailable": "Impossible de charger la progression. Votre brouillon est conservé.",
     "rangeEnd": "Au",
     "rangeStart": "Du",
-    "recordId": "ID de la fiche",
     "record": "Fiche",
     "recordConflictFields": "Également modifié ailleurs : {fields}. Choisissez la version à conserver avant d’enregistrer.",
+    "recordId": "ID de la fiche",
     "recordReload": "Recharger l’enregistrement",
     "recordReloadKeepChanges": "Recharger et garder mes modifications",
     "records": "Fiches",
