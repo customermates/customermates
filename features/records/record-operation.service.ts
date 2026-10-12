@@ -53,6 +53,11 @@ const RestoreCursorSchema = z.object({
 });
 
 const BACKGROUND_FANOUT_LIMIT = 1000000;
+
+function progress(operation: { processed: number; total: number }, units: number) {
+  const processed = operation.processed + units;
+  return { processed, total: Math.max(operation.total, processed) };
+}
 const BATCH_SIZE = 50;
 const RESTORE_PAGE_SIZE = 200;
 
@@ -220,7 +225,7 @@ export class RecordOperationService extends UserAccessor {
             await journal.persist();
             await this.records.updateOperation(operationId, {
               cursor: result.cursor,
-              processed: operation.processed + result.processed,
+              ...progress(operation, result.processed),
             });
             return { done: false };
           }
@@ -234,6 +239,14 @@ export class RecordOperationService extends UserAccessor {
               });
               return { done: false };
             }
+            const total =
+              operation.total ||
+              operation.processed +
+                (await this.remainingUnits(
+                  staged,
+                  prepared.affectedTypeIds.slice(cursor.index),
+                  this.calculatedFields(model, sources.affectedTypeIds),
+                ));
             const refs = await staged.getRecordRefsCompanyWide(typeId, cursor.afterId, BATCH_SIZE, {
               includeTrash: true,
             });
@@ -241,7 +254,7 @@ export class RecordOperationService extends UserAccessor {
             for (const ref of refs) await writer.initializeRecord(ref, prepared, current, BACKGROUND_FANOUT_LIMIT);
             await journal.persist();
             await this.records.updateOperation(operationId, {
-              processed: operation.processed + refs.length,
+              ...progress({ ...operation, total }, refs.length),
               cursor:
                 refs.length === BATCH_SIZE
                   ? {
@@ -253,11 +266,7 @@ export class RecordOperationService extends UserAccessor {
             return { done: false };
           }
           if (cursor.phase === "calculations") {
-            const validation = validateRecordModel(model);
-            if (validation.issues.length) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
-            const fields = validation.calculationOrder
-              .map((id) => recordInvariant(model.fields.find((field) => field.id === id)))
-              .filter((field) => sources.affectedTypeIds.includes(field.typeId));
+            const fields = this.calculatedFields(model, sources.affectedTypeIds);
             const field = fields[cursor.index];
             if (!field) {
               await this.records.updateOperation(operationId, {
@@ -265,6 +274,9 @@ export class RecordOperationService extends UserAccessor {
               });
               return { done: false };
             }
+            const total =
+              operation.total ||
+              operation.processed + (await this.remainingUnits(staged, [], fields.slice(cursor.index)));
             const refs = await staged.getRecordRefsCompanyWide(field.typeId, cursor.afterId, BATCH_SIZE);
             for (const ref of refs) {
               if (
@@ -278,7 +290,7 @@ export class RecordOperationService extends UserAccessor {
             }
             await journal.persist();
             await this.records.updateOperation(operationId, {
-              processed: operation.processed + refs.length,
+              ...progress({ ...operation, total }, refs.length),
               cursor:
                 refs.length === BATCH_SIZE
                   ? {
@@ -354,6 +366,7 @@ export class RecordOperationService extends UserAccessor {
           }
           await this.records.updateOperation(operationId, {
             state: "completed",
+            total: operation.processed,
             result: {
               status: "completed",
               refs: [],
@@ -381,6 +394,33 @@ export class RecordOperationService extends UserAccessor {
       await this.fail(operationId, cause.code);
       return { done: true };
     }
+  }
+
+  private calculatedFields(model: RecordModel, typeIds: string[]) {
+    const validation = validateRecordModel(model);
+    if (validation.issues.length) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
+    return validation.calculationOrder
+      .map((id) => recordInvariant(model.fields.find((field) => field.id === id)))
+      .filter((field) => typeIds.includes(field.typeId));
+  }
+
+  private async remainingUnits(
+    records: RecordRepo,
+    valueTypeIds: string[],
+    fields: Array<{ typeId: string }>,
+  ): Promise<number> {
+    const counts = new Map<string, number>();
+    const count = async (typeId: string) => {
+      const known = counts.get(typeId);
+      if (known !== undefined) return known;
+      const counted = await records.countRecordsCompanyWide([typeId]);
+      counts.set(typeId, counted);
+      return counted;
+    };
+    let units = 0;
+    for (const typeId of valueTypeIds) units += await count(typeId);
+    for (const field of fields) units += await count(field.typeId);
+    return units;
   }
 
   private async advanceRestore(

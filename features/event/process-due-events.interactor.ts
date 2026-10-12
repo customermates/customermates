@@ -8,6 +8,7 @@ import { beginEventDrain, endEventDrain } from "./event-drain";
 
 const Schema = z.object({ companyId: z.uuid() }).strict();
 const BATCH_SIZE = 100;
+const DRAIN_BUDGET_MS = 10_000;
 
 @SystemInteractor
 export class ProcessDueEventsInteractor {
@@ -21,14 +22,22 @@ export class ProcessDueEventsInteractor {
   async invoke(input: z.infer<typeof Schema>): Promise<{ processed: number; continued: boolean }> {
     const drain = beginEventDrain(input.companyId);
     if (!drain) return { processed: 0, continued: false };
+    const startedAt = Date.now();
+    const withinBudget = () => Date.now() - startedAt < DRAIN_BUDGET_MS;
     let processed = 0;
     try {
       do {
         drain.rescan = false;
         const ids = await this.outbox.dueEventsUnscoped(input.companyId, new Date(), BATCH_SIZE - processed);
-        for (const eventId of ids) await this.process.invoke({ companyId: input.companyId, eventId });
-        processed += ids.length;
-      } while (drain.rescan && processed < BATCH_SIZE);
+        for (const eventId of ids) {
+          if (!withinBudget()) {
+            drain.rescan = true;
+            break;
+          }
+          await this.process.invoke({ companyId: input.companyId, eventId });
+          processed += 1;
+        }
+      } while (drain.rescan && processed < BATCH_SIZE && withinBudget());
     } finally {
       endEventDrain(input.companyId, drain);
     }
