@@ -207,6 +207,46 @@ test("record drawer Cancel closes clean forms and guards unsaved changes", async
   expect(errors).toEqual([]);
 });
 
+test("record drawer takes focus without a browser outline while controls keep the focus ring", async ({
+  page,
+  companyId,
+}) => {
+  const typeId = presetId(companyId, "organization");
+  await page.goto(`/en/records/${typeId}`);
+  await page.locator("#records-add").click();
+  const drawer = page.locator('[role="dialog"][data-state="open"]');
+  await expect(drawer).toBeVisible();
+  await expect(drawer).toBeFocused();
+  await expect
+    .poll(() =>
+      drawer.evaluate((element) => {
+        const style = getComputedStyle(element);
+        return {
+          focused: document.activeElement === element,
+          outline: style.outlineStyle === "none" || style.outlineWidth === "0px",
+          ringless: ["", "0 0 #0000"].includes(style.getPropertyValue("--tw-ring-shadow").trim()),
+        };
+      }),
+    )
+    .toEqual({ focused: true, outline: true, ringless: true });
+
+  const ring = await (async () => {
+    for (let step = 0; step < 30; step += 1) {
+      await page.keyboard.press("Tab");
+      const state = await page.evaluate(() => {
+        const active = document.activeElement as HTMLElement | null;
+        if (!active || active.tagName !== "BUTTON") return null;
+        const style = getComputedStyle(active);
+        return { visible: active.matches(":focus-visible"), boxShadow: style.boxShadow };
+      });
+      if (state) return state;
+    }
+    return null;
+  })();
+  expect(ring?.visible).toBe(true);
+  expect(ring?.boxShadow).not.toBe("none");
+});
+
 test("edits every field type inline in rows and on board cards, with validation, cancel and calculated tooltips", async ({
   page,
   companyId,
