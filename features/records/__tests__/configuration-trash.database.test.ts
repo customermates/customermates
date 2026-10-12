@@ -303,7 +303,7 @@ describeDatabase("configuration trash", () => {
     expect(model.fields.find((field) => field.id === fieldId)?.archived).toBe(false);
   }, 180_000);
 
-  it("restores a trashed field through a background operation on a workspace with two thousand records", async () => {
+  it("restores a trashed input field at once on a workspace with two thousand records, without rewriting them", async () => {
     const f = await fixture();
     const typeId = f.id("organization");
     const fieldId = f.id("organization.notes");
@@ -331,17 +331,13 @@ describeDatabase("configuration trash", () => {
       }),
     );
     const restored = await f.as(() => f.trash.restore.invoke({ batchId: trashBatchId } as never));
-    if (!restored.ok || restored.data.status !== "pending") throw new Error(JSON.stringify(restored));
-    const { operationId } = restored.data;
-    expect(await f.items()).toHaveLength(1);
-    const worker = new RecordOperationService(
-      new PrismaRecordRepo(),
-      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), new PrismaRecordRepo()),
-      new RecordConfigurationService(new PrismaRecordRepo()),
-      noWebhooks,
-    );
-    for (let done = false; !done; ) done = (await f.as(() => worker.advance(operationId))).done;
+    expect(restored).toMatchObject({ ok: true, data: { status: "completed", blocked: [] } });
     expect(await f.items()).toEqual([]);
+    expect(
+      await runWithoutTenant(() =>
+        prisma.crmRecord.count({ where: { companyId: f.seed.company.id, id: { in: ids }, version: { gt: 1 } } }),
+      ),
+    ).toBe(0);
     const model = await f.as(() => new PrismaRecordRepo().getModel());
     expect(model.fields.find((field) => field.id === fieldId)?.archived).toBe(false);
   }, 300_000);
