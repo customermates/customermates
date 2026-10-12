@@ -2910,7 +2910,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           expectedSchemaRevision: revision,
         }),
       );
-    await expect(reenable(null)).rejects.toMatchObject({ code: CustomErrorCode.webhookTriggerRequired });
+    await expect(reenable(null)).rejects.toMatchObject({ cause: { code: CustomErrorCode.webhookTriggerRequired } });
     expect(
       await reenable({ query: { typeId: f.id("service"), filters: [], relationships: [] }, changedFieldIds: [] }),
     ).toMatchObject({ enabled: true, pausedReason: null });
@@ -5501,7 +5501,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       data: { systemActions: [] },
     });
     await expect(f.run(() => getMembershipTaskService().registered(foreign.member.id))).rejects.toMatchObject({
-      code: "userNotFound",
+      cause: { code: "userNotFound", failureKind: "not_found" },
     });
   });
 
@@ -6751,8 +6751,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect(await f.run(() => f.repo.getIdentityOwnersCompanyWide(keys.slice(0, 1)))).toHaveLength(21);
     await expect(f.run(() => f.repo.getIdentityOwnersCompanyWide(keys))).rejects.toMatchObject({
-      code: CustomErrorCode.recordCalculationBudget,
-      kind: "conflict",
+      cause: { code: CustomErrorCode.recordCalculationBudget, failureKind: "conflict" },
     });
     expect(await f.run(() => f.repo.getIdentityOwnersCompanyWide(keys, [f.id("service")]))).toEqual([]);
   });
@@ -6784,8 +6783,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         ),
       );
       await expect(f.run(() => f.repo.getIdentityOwnersCompanyWide([key]))).rejects.toMatchObject({
-        code: CustomErrorCode.recordCalculationBudget,
-        kind: "conflict",
+        cause: { code: CustomErrorCode.recordCalculationBudget, failureKind: "conflict" },
       });
       const reader = new RecordIdentityReader(f.repo, f.policy);
       const lookup = { provider: "mail" as const, value: "Heavily-Shared@example.test" };
@@ -6793,7 +6791,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       expect(display.records).toHaveLength(IDENTITY_MATCH_DISPLAY_LIMIT);
       expect(display.moreRecords).toBe(true);
       await expect(f.run(() => reader.resolve([lookup], undefined, { complete: true }))).rejects.toMatchObject({
-        code: CustomErrorCode.recordCalculationBudget,
+        cause: { code: CustomErrorCode.recordCalculationBudget },
       });
       const memberAccess = (await f.run(() => f.policy.load(), f.member)).access([typeId]);
       expect(
