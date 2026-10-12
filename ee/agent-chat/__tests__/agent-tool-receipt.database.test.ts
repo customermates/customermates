@@ -57,7 +57,7 @@ const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.
 const { prismaAgentChatRepoDependencies } = await import("@/tests/helpers/prisma-agent-chat-repo");
 const { getAgentAiTools, normalizeAgentAiToolInput } = await import("@/ee/agent-chat/agent-tools");
 const { createAgentToolInputResolver } = await import("@/ee/agent-chat/agent-tool-input");
-const { PrismaRecordRepo } = await import("@/features/records/prisma-record.repository");
+const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 
 const company = randomUUID();
@@ -110,7 +110,7 @@ describeDatabase("agent tool receipts wrap a real mutation", { timeout: 120_000 
       });
     });
     await runWithTenant(tenantUser, () =>
-      runInTransaction(() => new PrismaRecordRepo().saveModel(createCrmPreset(company), user)),
+      runInTransaction(() => createTestRecordRepo().saveModel(createCrmPreset(company), user)),
     );
   });
 

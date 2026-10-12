@@ -174,7 +174,7 @@ const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tena
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { BackgroundTaskService } = await import("@/core/utils/background-task.service");
 const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
-const { PrismaRecordRepo } = await import("@/features/records/prisma-record.repository");
+const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 const { createCrmPreset } = await import("@/features/records/crm-preset");
 const { ConfigurationPreviewSchema } = await import("@/features/records/configuration.schema");
 const { DiscoveredRecordTypesSchema } = await import("@/features/records/discover-record-types.interactor");
@@ -386,7 +386,7 @@ async function fixture(): Promise<AgentTurnWorkflowPayload> {
     });
   });
   await runWithTenant(actor, () =>
-    runInTransaction(() => new PrismaRecordRepo().saveModel(createCrmPreset(companyId), userId)),
+    runInTransaction(() => createTestRecordRepo().saveModel(createCrmPreset(companyId), userId)),
   );
   return {
     turnRequestId,
