@@ -237,7 +237,7 @@ const RecordEditorBody = observer(function RecordEditorBody({
         <RecordDetailChipRow className="shrink-0 px-6 pb-3" store={store} />
 
         <RecordDrawerSegments
-          label={t("EntityDetail.overview")}
+          label={t("EntityDetail.panelSwitcher")}
           segments={[
             {
               value: "details",

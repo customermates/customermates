@@ -54,7 +54,6 @@ vi.mock("@/core/stores/root-store.provider", () => {
       harness.focusedAtOpen = document.activeElement;
       harness.loadById(id);
     },
-    setExpandedFilterField: vi.fn(),
     setExpandedSection: vi.fn(),
   };
   const widgetsStore = {

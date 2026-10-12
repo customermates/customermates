@@ -377,3 +377,31 @@ describe("rule 64: values are the edit target, without reserved hint slots", () 
     expect(inlineHintFindings([source]).map(({ line }) => line)).toEqual([2, 1]);
   });
 });
+
+const REVEAL_OWNER = "components/ui/item-actions.tsx";
+const HAND_BUILT_REVEAL = /["'`][^"'`]*\bopacity-0\b[^"'`]*\bgroup-(?:hover|focus-within)\/[\w-]+:opacity-100\b[^"'`]*["'`]/;
+const HAND_BUILT_REVEAL_ALLOWLIST: Allowlist = {
+  "components/data-view/column-resize-handle.tsx":
+    "the resize handle widens and stays visible for coarse pointers, which the data-table-resize contract pins",
+};
+
+function handBuiltRevealFindings(sources: SourceFile[]) {
+  return patternFindings(
+    sources.filter(({ file }) => file !== REVEAL_OWNER),
+    HAND_BUILT_REVEAL,
+  );
+}
+
+describe("rule 19: one reveal-on-hover utility", () => {
+  it("reveals hover affordances only through ITEM_REVEAL_CLASS and ITEM_REVEAL_GROUP_CLASS", () => {
+    enforce(handBuiltRevealFindings(PRODUCT_SOURCES), HAND_BUILT_REVEAL_ALLOWLIST);
+  });
+
+  it("recognizes a hand-built reveal and ignores the shared class", () => {
+    const source = sourceFromText(
+      "components/data-view/cell.tsx",
+      'const a = "opacity-0 transition-opacity group-hover/row:opacity-100";\nconst b = cn(ITEM_REVEAL_CLASS, "size-7");',
+    );
+    expect(handBuiltRevealFindings([source]).map(({ line }) => line)).toEqual([1]);
+  });
+});

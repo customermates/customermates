@@ -39,11 +39,12 @@ import { isInteractiveClick } from "@/components/data-view/is-interactive-click"
 import { useDataViewItemLayout } from "@/components/data-view/data-view-item-layout";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { cn } from "@/core/utils/cn";
+import { ITEM_REVEAL_CLASS } from "@/components/ui/item-actions";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
-import { useRecordValueFormat } from "./record-value";
+import { useRecordValueFormat } from "@/components/records/record-value";
 import { isRecordFieldWritable, recordDraftValue } from "@/features/records/record-input-value";
 import type { SentenceValueFormat } from "@/features/records/calculation-sentence";
 import type { SentenceModel } from "@/features/records/formula-references";
@@ -51,7 +52,7 @@ import type { SentenceModel } from "@/features/records/formula-references";
 import { expressionResolves, expressionSegments, sentenceText } from "@/features/records/calculation-sentence";
 import { RecordFieldValueEditor, RecordFieldValueStore } from "./record-field-value-editor";
 import { RecordInputField } from "./record-input-field";
-import { useRecordChoices } from "./record-relationship-editor";
+import { useRecordChoices } from "@/components/records/use-record-choices";
 import { isEmptyResult } from "./record-chip-row-model";
 
 const EDIT_TARGET_SELECTOR = "[data-edit-target]";
@@ -149,7 +150,10 @@ function nextEditTarget(from: HTMLElement | null, backwards: boolean) {
 function EmptyValueTarget({ member = false }: { member?: boolean }) {
   return (
     <span
-      className="inline-flex items-center text-muted-foreground/60 opacity-0 transition-opacity group-hover/row:opacity-100 group-hover/card:opacity-100 group-focus-visible/edit:opacity-100 group-data-[state=open]/edit:opacity-100 any-pointer-coarse:opacity-100"
+      className={cn(
+        ITEM_REVEAL_CLASS,
+        "inline-flex items-center text-muted-foreground/60 group-focus-visible/edit:opacity-100 group-data-[state=open]/edit:opacity-100",
+      )}
       data-empty-target=""
     >
       <EmptyValue />

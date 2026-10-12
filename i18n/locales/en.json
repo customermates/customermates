@@ -1817,7 +1817,6 @@
       "noActivity": "No activity yet.",
       "noMatches": "No activity matches the current filters.",
       "noPermission": "You do not have access to any activity in this workspace.",
-      "scopeTooBroad": "These relationship filters match too many contacts to load safely. Select fewer records.",
       "title": "Recent activity"
     },
     "addCard": "Add widget",

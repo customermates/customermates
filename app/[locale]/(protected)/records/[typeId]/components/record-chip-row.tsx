@@ -33,7 +33,9 @@ import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { recordLinkColor } from "@/features/records/record-presentation";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { withFormulaReferences } from "@/features/records/formula-references";
-import { formattedTextExcerpt, RecordValue, useRecordValueFormat } from "./record-value";
+import { formattedTextExcerpt, RecordValue, useRecordValueFormat } from "@/components/records/record-value";
+import { ITEM_REVEAL_CLASS } from "@/components/ui/item-actions";
+import { cn } from "@/core/utils/cn";
 import {
   RecordInlineField,
   RecordInlineRelationship,
@@ -299,7 +301,10 @@ const AddPropertyChip = observer(function AddPropertyChip({
           <DropdownMenuTrigger asChild>
             <button
               aria-label={t("RecordModel.addProperty")}
-              className="inline-flex rounded-md opacity-0 outline-none transition-opacity group-hover/card:opacity-100 group-hover/row:opacity-100 focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/70 data-[state=open]:opacity-100 any-pointer-coarse:opacity-100"
+              className={cn(
+                ITEM_REVEAL_CLASS,
+                "inline-flex rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring/70 data-[state=open]:opacity-100",
+              )}
               data-add-property=""
               type="button"
               onClick={(event) => event.stopPropagation()}

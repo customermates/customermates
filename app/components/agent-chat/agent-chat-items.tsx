@@ -20,6 +20,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { MessageResponse } from "@/components/ai-elements/message";
 import { agentMessageComponents, agentMessageRehypePlugins } from "./agent-message-links";
 import { cn } from "@/core/utils/cn";
+import { ITEM_REVEAL_CLASS, ITEM_REVEAL_GROUP_CLASS } from "@/components/ui/item-actions";
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 import { ActionTooltip, ItemTime, TypingDots, chatUiCopy, focusAgentComposer } from "./chat-ui";
 import { AgentComposerContexts } from "./agent-composer-contexts";
@@ -47,7 +48,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
 
   if (item.kind === "user") {
     return (
-      <article aria-label={userLabel ?? t("Inbox.senderYou")} className="group/message flex justify-end">
+      <article aria-label={userLabel ?? t("Inbox.senderYou")} className="flex justify-end">
         <div className="flex max-w-[85%] flex-col items-end gap-1">
           {userLabel && <span className="text-subdued text-xs">{userLabel}</span>}
 
@@ -65,7 +66,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
 
   if (item.kind === "assistant") {
     return (
-      <article aria-label={t("AgentChat.title")} className="group/message flex flex-col gap-1.5">
+      <article aria-label={t("AgentChat.title")} className={cn(ITEM_REVEAL_GROUP_CLASS, "flex flex-col gap-1.5")}>
         <div className="flex min-w-0 flex-col items-start gap-1.5">
           <div className="w-full text-sm leading-relaxed [&_pre]:overflow-x-auto">
             <MessageResponse
@@ -82,7 +83,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
             <ActionTooltip label={t("Common.actions.copy")}>
               <Button
                 aria-label={t("Common.actions.copy")}
-                className="size-7 text-muted-foreground opacity-0 transition-opacity focus-visible:opacity-100 group-hover/message:opacity-100"
+                className={cn(ITEM_REVEAL_CLASS, "size-7 text-muted-foreground")}
                 size="icon"
                 variant="ghost"
                 onClick={() => runUserAction(() => copyToClipboard(item.text))}

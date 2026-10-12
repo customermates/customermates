@@ -21,7 +21,6 @@ import type { RecordValueSourceKind } from "@/features/records/record-value-sour
 import { EntityDetailDerivation } from "@/components/entity-detail/entity-detail-derivation";
 import type { DerivationContext } from "@/components/entity-detail/entity-detail-derivation";
 import { focusHref } from "@/components/focus/focus-href";
-import { FieldDerivationView } from "./field-derivation-view";
 import { CalculationFlowView } from "@/app/[locale]/(protected)/configure/components/calculation-flow-editor";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -117,22 +116,15 @@ export const RecordEditorField = observer(function RecordEditorField({
               icon={DERIVATION_ICONS[source.kind]}
               label={derivationLabel(source.kind)}
             >
-              {(context) =>
-                source.kind === "calculation" ? (
-                  <FieldDerivationView
-                    diagram={
-                      field.behavior.kind !== "input" && field.behavior.expression ? (
-                        <CalculationFlowView field={field as RecordField} model={store.presentation.model} />
-                      ) : undefined
-                    }
-                    field={field}
-                    model={model}
-                    sentence={sentence(context)}
-                  />
-                ) : (
-                  <ConfirmationSentenceView sentence={sentence(context)} />
-                )
-              }
+              {(context) => (
+                <div data-field-derivation-view={field.id}>
+                  {source.kind === "calculation" && field.behavior.kind !== "input" && field.behavior.expression ? (
+                    <CalculationFlowView field={field as RecordField} model={store.presentation.model} />
+                  ) : (
+                    <ConfirmationSentenceView sentence={sentence(context)} />
+                  )}
+                </div>
+              )}
             </EntityDetailDerivation>
           ) : undefined
         }

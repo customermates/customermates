@@ -270,7 +270,7 @@ test("record drawer tabs remember the last tab and flag invalid fields on other 
   await page.goto(`/en/records/${id("organization")}`);
   await openRecordDetails(page, "Example organization");
   const drawer = page.getByRole("dialog", { name: "Organization", exact: true });
-  const tabs = drawer.getByRole("tablist", { name: "Overview", exact: true });
+  const tabs = drawer.getByRole("tablist", { name: "Detail panels", exact: true });
   await expect(tabs.getByRole("tab")).toHaveText(["Overview", "Activities"]);
   const name = drawer.getByRole("textbox", { name: "Name", exact: false });
   const renamed = `Tabbed ${randomUUID().slice(0, 6)}`;

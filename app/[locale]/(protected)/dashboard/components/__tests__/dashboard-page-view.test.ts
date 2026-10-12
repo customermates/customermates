@@ -98,7 +98,6 @@ function renderDashboard(
     availableEntityTypes: options.canAdd === false ? [] : ["contact"],
     availableKinds: options.canAdd === false ? [] : [WidgetKind.chart],
     loadById: vi.fn(),
-    setExpandedFilterField: vi.fn(),
     setExpandedSection: vi.fn(),
   };
   harness.isTouchDevice = options.touch ?? false;

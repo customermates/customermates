@@ -476,8 +476,16 @@ function sentenceChipFindings(sources: SourceFile[]) {
       visit(scope, (node) => {
         if (!ts.isJsxElement(node) && !ts.isJsxSelfClosingElement(node)) return;
         const tag = tagNameOf(node);
-        if (tag && CHIP_TAGS.has(tag))
-          findings.push(finding(source, node.getStart(source.ast), `<${tag}> inside a sentence, use <InlineChip>`));
+        const inline = attributesOf(node).properties.some(
+          (property) =>
+            ts.isJsxAttribute(property) &&
+            property.name.getText(source.ast) === "size" &&
+            property.initializer?.getText(source.ast) === '"inline"',
+        );
+        if (tag && CHIP_TAGS.has(tag) && !(tag === "AppChip" && inline))
+          findings.push(
+            finding(source, node.getStart(source.ast), `<${tag}> inside a sentence, use <AppChip size="inline">`),
+          );
       });
     }
 
@@ -485,7 +493,7 @@ function sentenceChipFindings(sources: SourceFile[]) {
 }
 
 describe("rule 66: chips inside sentences use the inline chip", () => {
-  it("renders every chip inside a sentence component as the shared InlineChip", () => {
+  it("renders every chip inside a sentence component as an inline AppChip", () => {
     const { findings, scopeCount } = sentenceChipFindings(PRODUCT_SOURCES);
 
     expect(scopeCount).toBeGreaterThan(0);

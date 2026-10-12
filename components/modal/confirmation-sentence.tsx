@@ -6,7 +6,7 @@ import type { SentenceReference, SentenceSegment } from "@/features/records/calc
 
 import { LayoutDashboard, Link2, Repeat, Table2, TextCursorInput, Webhook } from "lucide-react";
 
-import { InlineChip } from "@/components/chip/inline-chip";
+import { AppChip } from "@/components/chip/app-chip";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { IntlLink } from "@/i18n/navigation";
 import { sentenceTemplate } from "@/core/utils/sentence-template";
@@ -81,13 +81,14 @@ export function ConfirmationSentenceView({
         if (typeof part === "string") return <span key={index}>{part}</span>;
         const interactive = Boolean(part.action ?? part.href);
         const chip = (
-          <InlineChip
+          <AppChip
             data-sentence-reference={part.reference}
             interactive={interactive}
+            size="inline"
             startContent={<ChipIcon icon={part.icon} />}
           >
             {part.label}
-          </InlineChip>
+          </AppChip>
         );
         const { action, href } = part;
         if (action) {

@@ -209,7 +209,15 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
         action={
           list.total > 0 ? (
             <>
-              <ItemCount count={list.total} data-embedded-count="" />
+              <ItemCount
+                aria-label={t("DataView.kanbanCount", {
+                  count: list.total,
+                  singular: type.label,
+                  plural: type.pluralLabel,
+                })}
+                count={list.total}
+                data-embedded-count=""
+              />
 
               <RecordEmbeddedColumns label={type.pluralLabel} list={list} />
             </>

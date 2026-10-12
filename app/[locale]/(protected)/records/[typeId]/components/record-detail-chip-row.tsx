@@ -39,7 +39,7 @@ import { IdentityChips, RecordPropertyChipView } from "./record-chip-row";
 import { RecordChannelPopover } from "./record-identity-editor";
 import { focusFirstControl, RecordLinkPicker } from "./record-inline-field";
 import { RecordInputField } from "./record-input-field";
-import { useRecordChoices } from "./record-relationship-editor";
+import { useRecordChoices } from "@/components/records/use-record-choices";
 
 const CHIP_TRIGGER_CLASS =
   "inline-flex max-w-full min-w-0 cursor-pointer rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring/70";

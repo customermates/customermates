@@ -1817,7 +1817,6 @@
       "noActivity": "Aún no hay actividad.",
       "noMatches": "Ninguna actividad coincide con los filtros actuales.",
       "noPermission": "No tienes acceso a ninguna actividad de este espacio de trabajo.",
-      "scopeTooBroad": "Estos filtros de relación coinciden con demasiados contactos para cargarlos de forma segura. Selecciona menos registros.",
       "title": "Actividad reciente"
     },
     "addCard": "Añadir widget",
