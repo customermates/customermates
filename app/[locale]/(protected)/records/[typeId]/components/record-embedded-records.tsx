@@ -195,6 +195,13 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
   const columns = useRecordTableColumns(list, openRelated, { markCalculated: true });
   const renderCard = useRecordCardRenderer(list, openRelated);
   const rows = list.items;
+  const footer = (
+    <>
+      {list.total > (list.pagination?.pageSize ?? EMBEDDED_PAGE_SIZE) && <DataViewPagination store={list} />}
+
+      {canCreate && <EmbeddedAddLine list={list} type={type} onOpenEditor={(name) => open(undefined, name)} />}
+    </>
+  );
   return (
     <section aria-label={type.pluralLabel}>
       <RecordDetailField
@@ -223,9 +230,10 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
             </div>
           )}
 
-          {rows.length > 0 && (
+          {rows.length > 0 ? (
             <DataViewContent
               columns={columns}
+              footer={footer}
               renderCard={renderCard}
               rowActions={(record) => (
                 <RecordRowActions
@@ -244,11 +252,9 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
               view="table"
               onRowClick={canOpen ? (record) => open(record) : undefined}
             />
+          ) : (
+            footer
           )}
-
-          {list.total > (list.pagination?.pageSize ?? EMBEDDED_PAGE_SIZE) && <DataViewPagination store={list} />}
-
-          {canCreate && <EmbeddedAddLine list={list} type={type} onOpenEditor={(name) => open(undefined, name)} />}
         </div>
 
         {renderEditor(child)}

@@ -48,12 +48,12 @@ describe("record row actions (H9 item menu pattern)", () => {
     expect(render({}, "card")).not.toMatch(/class="[^"]*absolute[^"]*"[^>]*data-record-row-actions/);
   });
 
-  it("puts a bordered, row-tall trigger on a solid surface flush with a table row's right edge (H17)", () => {
+  it("insets a bordered trigger on a solid row-tall backing strip at a table row's right edge (H17, H33)", () => {
     const markup = render({}, "table");
     const surface = /<div class="([^"]*)"[^>]*data-record-row-actions/.exec(markup)?.[1].split(" ") ?? [];
     const trigger = /<button[^>]*class="([^"]*)"[^>]*data-item-actions-trigger/.exec(markup)?.[1].split(" ") ?? [];
 
-    expect(surface).toEqual(expect.arrayContaining(["absolute", "inset-y-0", "right-0", "bg-background"]));
+    expect(surface).toEqual(expect.arrayContaining(["absolute", "inset-y-0", "right-0", "p-1", "bg-background"]));
     expect(surface).not.toContain("right-2");
     expect(surface.some((token) => token.startsWith("bg-[image:") && token.includes("--row-tint"))).toBe(true);
     expect(trigger).toEqual(expect.arrayContaining(["border", "bg-secondary", "h-full", "aspect-square"]));

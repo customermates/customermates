@@ -132,12 +132,17 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     return isRecordActivityWidgetForm(this.form) ? recordActivityFilterCount(this.form.activityQuery) : 0;
   }
   get previewGeometry(): WidgetLayoutGeometry {
+    const displayType = isRecordWidgetForm(this.form) ? this.form.displayOptions.displayType : undefined;
     if (this.form.id) {
       const saved = this.rootStore.widgetsStore.layouts.lg?.find((item) => item.i === this.form.id);
-      return widgetLayoutGeometry(this.form.kind, GRID_COLS.lg, saved);
+      return widgetLayoutGeometry(this.form.kind, GRID_COLS.lg, saved, displayType);
     }
-    const displayType = isRecordWidgetForm(this.form) ? this.form.displayOptions.displayType : undefined;
-    return widgetLayoutGeometry(this.form.kind, GRID_COLS.lg, widgetDefaultSize(this.form.kind, displayType));
+    return widgetLayoutGeometry(
+      this.form.kind,
+      GRID_COLS.lg,
+      widgetDefaultSize(this.form.kind, displayType),
+      displayType,
+    );
   }
 
   get availableKinds() {
