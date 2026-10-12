@@ -135,9 +135,9 @@ const ACCEPTED_TODAY: [string, unknown][] = [
   ["configure_record_model", { ...TOOL_CREATE_TYPE, action: "preview" }],
   ["manage_webhooks", { action: "update", secret: null }],
   ["manage_webhooks", { action: "list", pageSize: 100 }],
-  ["update_workspace_settings", { avatarUrl: null }],
-  ["update_workspace_settings", { avatarUrl: "" }],
-  ["update_workspace_settings", { avatarUrl: "https://example.com/a.png" }],
+  ["update_my_profile", { avatarUrl: null }],
+  ["update_my_profile", { avatarUrl: "" }],
+  ["update_my_profile", { avatarUrl: "https://example.com/a.png" }],
   ["navigate", { targetId: "nav-deals" }],
   ["navigate", { typeId: UUID, recordId: UUID }],
   ["linkedin_search_sales_leads", { connectedAccountId: UUID, filters: { network_distance: [1, 2, "GROUP"] } }],
@@ -628,23 +628,23 @@ describe("the shipped tool catalog on the Google wire", () => {
 
     expect(summarizeGoogleSchemaChanges(changes)).toEqual({
       "$schema:removed": 54,
-      "additionalProperties:removed": 206,
-      "anyOf:collapsed": 166,
-      "anyOf:merged": 30,
+      "additionalProperties:removed": 229,
+      "anyOf:collapsed": 200,
+      "anyOf:merged": 25,
       "const:removed": 6,
-      "const:rewritten": 159,
+      "const:rewritten": 137,
       "enum:removed": 19,
-      "exclusiveMinimum:rewritten": 14,
-      "nullable:rewritten": 162,
+      "exclusiveMinimum:rewritten": 13,
+      "nullable:rewritten": 196,
       "propertyNames:removed": 4,
-      "oneOf:rewritten": 10,
+      "oneOf:rewritten": 9,
     });
     expect(summarizeGoogleSchemaChanges(changes.filter((change) => change.loosened))).toEqual({
-      "additionalProperties:removed": 206,
+      "additionalProperties:removed": 229,
       "const:removed": 6,
       "enum:removed": 19,
       "propertyNames:removed": 4,
-      "oneOf:rewritten": 10,
+      "oneOf:rewritten": 9,
     });
   });
 
@@ -769,9 +769,9 @@ describe("empty enum members, which Google rejects outright", () => {
 
   it("keeps accepting the empty string it used to enumerate", () => {
     const ajv = new Ajv({ strict: false });
-    const before = getAgentAiToolDefinitions().find((d) => d.name === "update_workspace_settings");
-    const after = getAgentAiToolDefinitions("vertex").find((d) => d.name === "update_workspace_settings");
-    if (!before || !after) throw new Error("update_workspace_settings must exist on both wires");
+    const before = getAgentAiToolDefinitions().find((d) => d.name === "update_my_profile");
+    const after = getAgentAiToolDefinitions("vertex").find((d) => d.name === "update_my_profile");
+    if (!before || !after) throw new Error("update_my_profile must exist on both wires");
     const accepts = ajv.compile(after.inputSchema as object);
     const probe = { avatarUrl: "" };
     expect(ajv.compile(before.inputSchema as object)(probe)).toBe(true);

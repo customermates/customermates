@@ -13,6 +13,7 @@ const calls = vi.hoisted(() => ({
   delete: vi.fn(),
   get: vi.fn(),
   list: vi.fn(),
+  move: vi.fn(),
   search: vi.fn(),
   update: vi.fn(),
 }));
@@ -29,6 +30,7 @@ vi.mock("@/core/di", () => ({
   getDeleteWikiPageInteractor: () => ({ invoke: calls.delete }),
   getGetWikiPageInteractor: () => ({ invoke: calls.get }),
   getGetWikiPagesInteractor: () => ({ invoke: calls.list }),
+  getMoveWikiPageInteractor: () => ({ invoke: calls.move }),
   getSearchWikiKnowledgeInteractor: () => ({ invoke: calls.search }),
   getUpdateWikiPageInteractor: () => ({ invoke: calls.update }),
 }));
@@ -578,5 +580,29 @@ describe("manage_wiki_pages permissions", () => {
       failure: { kind: "authorization" },
     });
     expect(calls[call]).toHaveBeenCalledOnce();
+  });
+});
+
+describe("manage_wiki_pages move", () => {
+  const TARGET_ID = "00000000-0000-4000-8000-000000000002";
+
+  it("moves a page next to another through the move interactor", async () => {
+    calls.move.mockResolvedValue({ ok: true, data: true });
+
+    const outcome = await executeMcpTool(manageWikiPagesTool, [
+      manageWikiPagesTool.inputSchema.parse({ action: "move", id: PAGE_ID, targetId: TARGET_ID, placement: "after" }),
+    ]);
+
+    expect(calls.move).toHaveBeenCalledWith({ id: PAGE_ID, targetId: TARGET_ID, placement: "after" });
+    expect(outcome).toMatchObject({ ok: true, structuredContent: { moved: true, id: PAGE_ID } });
+  });
+
+  it("rejects a move without a target before reaching the interactor", async () => {
+    const outcome = await executeMcpTool(manageWikiPagesTool, [
+      manageWikiPagesTool.inputSchema.parse({ action: "move", id: PAGE_ID }),
+    ]);
+
+    expect(outcome).toMatchObject({ ok: false, failure: { kind: "validation" } });
+    expect(calls.move).not.toHaveBeenCalled();
   });
 });

@@ -63,3 +63,10 @@ export async function resolveDashboardView(
   }
   return requested === null || readable.has(requested) ? { ok: true, viewId: requested } : { ok: false };
 }
+
+export function desktopPlacement(layout: WidgetLayout | null | undefined) {
+  const large = layout?.lg;
+  return large && large.y !== null && large.y !== undefined
+    ? { layout: { x: large.x, y: large.y, w: large.w, h: large.h } }
+    : {};
+}

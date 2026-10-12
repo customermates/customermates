@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { RecordTriggerDefinitionSchema } from "@/features/records/record-event-subscription.schema";
+import {
+  RecordTriggerDefinitionSchema,
+  RecordTriggerSourceSchema,
+} from "@/features/records/record-event-subscription.schema";
 
 import {
   customMcpFailure,
@@ -49,7 +52,16 @@ const recordWebhookFields = {
   recordTrigger: RecordTriggerDefinitionSchema.nullable()
     .optional()
     .describe(
-      "For record.created, record.updated and record.deleted: a stable type ID, query filters and watched field IDs. Null selects every accessible type. On update omit to keep the current trigger. Filters capture event-time matches; deletes match the complete state before removal. Delivery rechecks current access and rechecks live filters for creation and update events.",
+      "For record.created, record.updated and record.deleted from one list: a stable type ID, query filters and watched field IDs. Null selects every accessible type. On update omit to keep the current trigger. Filters capture event-time matches; deletes match the complete state before removal. Delivery rechecks current access and rechecks live filters for creation and update events. Use recordSources instead to watch several lists.",
+    ),
+  recordSources: z
+    .array(RecordTriggerSourceSchema)
+    .min(1)
+    .max(50)
+    .nullable()
+    .optional()
+    .describe(
+      "For record events from several lists, or with different filters per event: each source has its own query (typeId, filters, relationships), changedFieldIds and the record events it handles. Every record event in events needs a source. Replaces recordTrigger; null clears it. On update omit to keep the current sources.",
     ),
   recordOwnerUserId: z
     .uuid()
@@ -229,7 +241,7 @@ export const manageWebhooksTool = {
   title: "Manage webhooks",
   description:
     "Use this when you need to manage webhook subscriptions or inspect their deliveries. " +
-    "action create requires url and events. Record events also require expectedSchemaRevision; recordTrigger selects the source and filters. " +
+    "action create requires url and events. Record events also require expectedSchemaRevision; recordTrigger selects one list and its filters, and recordSources selects several lists, each with its own filters and events. Record events can be combined with messaging events in one webhook. " +
     "Delivery uses recordOwnerUserId permissions. Only its owner or an administrator can change a record subscription. " +
     "action update requires id; events REPLACES the full subscription list; secret: omit to keep, null to clear, string to set. " +
     "action delete is IRREVERSIBLE. " +
@@ -262,6 +274,7 @@ export const manageWebhooksTool = {
               events: webhook.events,
               enabled: webhook.enabled,
               recordTrigger: webhook.recordTrigger ?? null,
+              recordSources: webhook.recordSources ?? null,
               recordOwnerUserId: webhook.recordOwnerUserId ?? null,
               createdAt: webhook.createdAt,
               updatedAt: webhook.updatedAt,
@@ -287,6 +300,7 @@ export const manageWebhooksTool = {
           description: data.description,
           events: data.events,
           recordTrigger: data.recordTrigger ?? null,
+          recordSources: data.recordSources ?? null,
           recordOwnerUserId: data.recordOwnerUserId ?? null,
         }),
       );
@@ -302,6 +316,7 @@ export const manageWebhooksTool = {
           events: data.events,
           enabled: data.enabled,
           recordTrigger: data.recordTrigger ?? null,
+          recordSources: data.recordSources ?? null,
           recordOwnerUserId: data.recordOwnerUserId ?? null,
         }),
       );
@@ -321,6 +336,7 @@ export const manageWebhooksTool = {
           events: webhook.events,
           enabled: webhook.enabled,
           recordTrigger: webhook.recordTrigger ?? null,
+          recordSources: webhook.recordSources ?? null,
           recordOwnerUserId: webhook.recordOwnerUserId ?? null,
           createdAt: webhook.createdAt,
           updatedAt: webhook.updatedAt,

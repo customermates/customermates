@@ -1,21 +1,18 @@
 import { z } from "zod";
 import { WidgetKind } from "@/generated/prisma";
 import {
-  getUpsertRecordWidgetInteractor,
-  getUpsertRecordActivityWidgetInteractor,
+  getSaveWidgetInteractor,
   getGetWidgetsInteractor,
   getGetWidgetByIdInteractor,
   getDeleteWidgetInteractor,
 } from "@/core/di";
-import { RecordWidgetInputSchema } from "@/features/widget/record-widget.schema";
 import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
-import { WidgetDisplayOptionsSchema, isRecordWidget, type WidgetLayout } from "@/features/widget/widget.schema";
+import { WidgetDisplayOptionsSchema } from "@/features/widget/widget.schema";
 import { WidgetPlacementSchema, occupiedGrid } from "@/features/widget/widget-grid";
+import { desktopPlacement } from "@/features/widget/widget-placement";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
-import { RecordActivityWidgetInputSchema } from "@/features/widget/record-activity-widget.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import {
-  customMcpFailure,
   formatDatesInResponse,
   mcpInteractorFailure,
   mcpMessageFailure,
@@ -28,7 +25,10 @@ import {
 const ManageWidgetsSchema = z
   .object({
     action: z.enum(["create", "update", "delete", "get", "list"]),
-    kind: z.enum(WidgetKind).optional(),
+    kind: z
+      .enum(WidgetKind)
+      .optional()
+      .describe("Widget kind on create: chart (default) or activityTimeline. A saved widget keeps its kind."),
     id: z.uuid().optional(),
     ids: z.array(z.uuid()).min(1).max(100).optional(),
     name: z.string().trim().min(1).max(255).optional(),
@@ -70,29 +70,6 @@ const ManageWidgetsSchema = z
       ),
   })
   .strict();
-
-function placementOf(layout: WidgetLayout | null | undefined) {
-  const large = layout?.lg;
-  return large && large.y !== null && large.y !== undefined
-    ? { layout: { x: large.x, y: large.y, w: large.w, h: large.h } }
-    : {};
-}
-
-const ActivityChangeSchema = ManageWidgetsSchema.pick({
-  action: true,
-  kind: true,
-  id: true,
-  name: true,
-  isTemplate: true,
-  activityQuery: true,
-  expectedVersion: true,
-  expectedRevision: true,
-  idempotencyKey: true,
-  showFilters: true,
-  layout: true,
-  viewId: true,
-});
-const ChartChangeSchema = ManageWidgetsSchema.omit({ activityQuery: true, showFilters: true, ids: true });
 
 export const manageWidgetsTool = {
   name: "manage_widgets",
@@ -166,71 +143,22 @@ export const manageWidgetsTool = {
         ? toonResult({ id: valid.data.id, deleted: true, trashBatchId: result.data.trashBatchId })
         : mcpInteractorFailure(result.error);
     }
-    if (params.action === "create" && !params.name)
-      return mcpMessageFailure("Creation requires a widget name.", ["name"]);
-    if (params.action === "create" && (params.id || params.expectedVersion))
+    const { action, showFilters, displayOptions, ...change } = params;
+    if (action === "create" && (change.id || change.expectedVersion))
       return mcpMessageFailure("Creation cannot supply an existing widget ID or version.");
-    if (params.action === "update" && !params.id) return mcpMessageFailure("An update requires the widget ID.", ["id"]);
-    const existing = params.id ? await getGetWidgetByIdInteractor().invoke({ id: params.id }) : null;
-    if (existing && !existing.ok) return mcpInteractorFailure(existing.error);
-    if (existing && !existing.data) return customMcpFailure(CustomErrorCode.widgetNotFound);
-    const widget = existing?.data;
-    if (widget && params.kind && params.kind !== widget.kind)
-      return customMcpFailure(CustomErrorCode.widgetKindImmutable);
-    const kind = widget?.kind ?? params.kind ?? WidgetKind.chart;
-    if (kind === WidgetKind.activityTimeline) {
-      const valid = ActivityChangeSchema.safeParse(params);
-      if (!valid.success) return mcpValidationFailure(valid.error);
-      if (widget && widget.kind !== WidgetKind.activityTimeline)
-        return customMcpFailure(CustomErrorCode.widgetKindImmutable);
-      const change = RecordActivityWidgetInputSchema.safeParse({
-        id: params.id,
-        expectedVersion: params.expectedVersion,
-        expectedRevision: params.expectedRevision,
-        idempotencyKey: params.idempotencyKey,
-        name: params.name ?? widget?.name,
-        activityQuery: params.activityQuery ?? widget?.activityQuery,
-        displayOptions: { showFilters: params.showFilters ?? widget?.displayOptions.showFilters ?? true },
-        isTemplate: params.isTemplate ?? widget?.isTemplate ?? false,
-        layout: params.layout,
-        viewId: params.viewId,
-      });
-      if (!change.success) return mcpValidationFailure(change.error);
-      const result = await getUpsertRecordActivityWidgetInteractor().invoke(change.data);
-      return result.ok
-        ? toonResult({
-            id: result.data.id,
-            kind: result.data.kind,
-            name: result.data.name,
-            version: result.data.version,
-            ...placementOf(result.data.layout),
-          })
-        : mcpInteractorFailure(result.error);
-    }
-    const chart = widget && isRecordWidget(widget) ? widget : undefined;
-    const valid = ChartChangeSchema.safeParse(params);
-    if (!valid.success) return mcpValidationFailure(valid.error);
-    const change = RecordWidgetInputSchema.safeParse({
-      id: params.id,
-      expectedVersion: params.expectedVersion,
-      expectedRevision: params.expectedRevision,
-      idempotencyKey: params.idempotencyKey,
-      name: params.name ?? widget?.name,
-      measure: params.measure ?? chart?.measure,
-      displayOptions: params.displayOptions ?? widget?.displayOptions,
-      isTemplate: params.isTemplate ?? widget?.isTemplate ?? false,
-      layout: params.layout,
-      viewId: params.viewId,
+    if (action === "update" && !change.id) return mcpMessageFailure("An update requires the widget ID.", ["id"]);
+    const options = showFilters === undefined ? displayOptions : { ...displayOptions, showFilters };
+    const result = await getSaveWidgetInteractor().invoke({
+      ...change,
+      ...(options ? { displayOptions: options } : {}),
     });
-    if (!change.success) return mcpValidationFailure(change.error);
-    const result = await getUpsertRecordWidgetInteractor().invoke(change.data);
     return result.ok
       ? toonResult({
           id: result.data.id,
           kind: result.data.kind,
           name: result.data.name,
           version: result.data.version,
-          ...placementOf(result.data.layout),
+          ...desktopPlacement(result.data.layout),
         })
       : mcpInteractorFailure(result.error);
   },

@@ -11492,6 +11492,11 @@
                   {
                     "type": "object",
                     "properties": {
+                      "kind": {
+                        "description": "chart. Optional; a saved widget keeps its kind.",
+                        "type": "string",
+                        "const": "chart"
+                      },
                       "id": {
                         "type": "string",
                         "format": "uuid",
@@ -13051,17 +13056,18 @@
                     },
                     "required": [
                       "expectedRevision",
-                      "idempotencyKey",
-                      "name",
-                      "measure",
-                      "displayOptions",
-                      "isTemplate"
+                      "idempotencyKey"
                     ],
                     "additionalProperties": false
                   },
                   {
                     "type": "object",
                     "properties": {
+                      "kind": {
+                        "type": "string",
+                        "const": "activityTimeline",
+                        "description": "activityTimeline. Optional on update; a saved widget keeps its kind."
+                      },
                       "id": {
                         "type": "string",
                         "format": "uuid",
@@ -13453,11 +13459,7 @@
                     },
                     "required": [
                       "expectedRevision",
-                      "idempotencyKey",
-                      "name",
-                      "activityQuery",
-                      "displayOptions",
-                      "isTemplate"
+                      "idempotencyKey"
                     ],
                     "additionalProperties": false
                   }
@@ -90243,6 +90245,7 @@
                         "widgetLayoutTooSmall",
                         "userNotFound",
                         "userSelfAdminUpdateForbidden",
+                        "userRoleRequired",
                         "userPlatformOperatorStatusForbidden",
                         "widgetNotFound",
                         "webhookNotFound",

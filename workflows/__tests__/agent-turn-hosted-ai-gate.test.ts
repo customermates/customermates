@@ -341,7 +341,7 @@ vi.mock("@/features/mcp-tools/tool-registry", () => ({
     { name: "manage_widgets", annotations: { readOnlyHint: false } },
     { name: "manage_wiki_pages", annotations: { readOnlyHint: false } },
     { name: "mutate_crm_record", annotations: { readOnlyHint: false } },
-    { name: "update_workspace_settings", annotations: { readOnlyHint: false } },
+    { name: "update_my_profile", annotations: { readOnlyHint: false } },
   ],
 }));
 vi.mock("@/ee/agent-chat/classifier/metered", () => ({
@@ -2761,11 +2761,11 @@ describe("agent-turn authoritative tool inputs", () => {
   });
 
   it("does not ask for an approval before a profile change", async () => {
-    define("update_workspace_settings");
+    define("update_my_profile");
     const profile = { firstName: "Ada" };
     state.normalize.mockImplementation((_name: string, value: unknown) => Promise.resolve({ ok: true, input: value }));
     state.runTools = async ({ tools }) => {
-      expect(await tools.update_workspace_settings.needsApproval(profile, { toolCallId: "call-1" })).toBe(false);
+      expect(await tools.update_my_profile.needsApproval(profile, { toolCallId: "call-1" })).toBe(false);
       return finish();
     };
 
