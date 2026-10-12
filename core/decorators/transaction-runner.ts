@@ -7,6 +7,8 @@ import { prisma, type AppPrismaClient } from "@/prisma/db";
 import { Prisma } from "@/generated/prisma";
 import { isInteractorFailure, type InteractorOutcome } from "@/core/validation/validation.utils";
 
+const DEFAULT_TRANSACTION_TIMEOUT_MS = 5000;
+
 class InteractorFailureRollback extends Error {
   constructor(public readonly failure: Extract<InteractorOutcome<never>, { ok: false }>) {
     super("Rolling back an expected interactor failure.");
@@ -38,13 +40,16 @@ export async function runInTransaction<T>(
         }
       : undefined;
 
+  const lockTimeout = String(options?.timeout ?? DEFAULT_TRANSACTION_TIMEOUT_MS);
   let result: T;
   try {
     result = await client.$transaction(async (tx: any) => {
       const store = tenantStorage.getStore();
       const companyId = options?.companyId ?? (store?.bypass || !store?.user ? undefined : store.user.companyId);
       if (options?.readOnly) await tx.$executeRaw`SET TRANSACTION READ ONLY`;
-      else if (companyId) await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${companyId}, 0))`;
+      await tx.$executeRaw`SELECT set_config('lock_timeout', ${lockTimeout}, true)`;
+      if (!options?.readOnly && companyId)
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${companyId}, 0))`;
 
       return await transactionStorage.run(
         {
