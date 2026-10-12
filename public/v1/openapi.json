@@ -47123,6 +47123,23 @@
             "apiKeyAuth": []
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              },
+              "examples": {
+                "default": {
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "The current invitation link.",
@@ -79438,7 +79455,7 @@
       "post": {
         "operationId": "resyncConnectedAccount",
         "summary": "Resync a connected account",
-        "description": "Fetches the account's history again in the background. Only the account owner can change it; another member's account answers 404. Requires: Inbox messages Edit.",
+        "description": "Fetches the account's history again in the background. Send an empty JSON object. Only the account owner can change it; another member's account answers 404. Requires: Inbox messages Edit.",
         "tags": [
           "messaging"
         ],
@@ -79459,6 +79476,23 @@
             "required": true
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              },
+              "examples": {
+                "default": {
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "The resync started.",
