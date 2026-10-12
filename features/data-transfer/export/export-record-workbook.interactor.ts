@@ -12,7 +12,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
-import { withMemberUsers } from "@/features/records/query-records.interactor";
+import { withMemberUsers } from "@/features/records/record-dto";
 
 import { collectRecordExport, ExportRecordsSchema } from "./export-records.interactor";
 import { recordWorkbookRelationships, recordWorkbookSheets, writeRecordWorkbook } from "./record-workbook";
