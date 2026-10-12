@@ -14,7 +14,7 @@ import { AppForm } from "@/components/forms/form-context";
 import { FormInput } from "@/components/forms/form-input";
 import { FormSelect } from "@/components/forms/form-select";
 import { FormAutocompleteCountry } from "@/components/forms/form-autocomplete-country";
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
+import { UnsavedChangesBar, unsavedChangesMode } from "@/components/forms/unsaved-changes-bar";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
 import { usePathname } from "@/i18n/navigation";
@@ -168,7 +168,15 @@ const ProfileSettingsFormContent = observer(({ userDetails, emailVerified }: Pro
           />
         </div>
 
-        <FormFooterActions anchorScope="settings-profile" store={store} />
+        {unsavedChangesMode({ dirty: store.hasUnsavedChanges, editable: store.canManage && !store.isReadOnly }) ===
+          "bar" && (
+          <UnsavedChangesBar
+            anchorScope="settings-profile"
+            placement="sticky"
+            saving={store.isLoading}
+            onCancel={store.resetForm}
+          />
+        )}
       </div>
     </AppForm>
   );
