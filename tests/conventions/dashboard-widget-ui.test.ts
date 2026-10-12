@@ -76,7 +76,9 @@ describe("generic dashboard widget UI", () => {
     const chart = component("record-widget-editor.tsx");
     const activity = component("record-activity-widget-editor.tsx");
     expect(chart).not.toContain("onRefresh");
-    expect(chart).toContain("await store.runPreview(() => previewRecordWidgetAction(parsed.data))");
+    expect(component("widget-modal.store.ts")).toContain(
+      "await this.runPreview(() => previewRecordWidgetAction(parsed.data))",
+    );
     expect(chart).toContain("<RecordWidgetCard");
     expect(chart).toContain("preview?.key === key");
     expect(activity).not.toContain("onRefresh");
@@ -94,7 +96,7 @@ describe("generic dashboard widget UI", () => {
   it("resolves current record and thread labels through their authorized interfaces", () => {
     const activity = component("record-activity-widget-editor.tsx");
     const items = read("components/data-view/filter-modal/inputs/use-filter-select-items.tsx");
-    expect(activity).toContain("resolveSearchReferencesAction({ refs:");
+    expect(component("widget-modal.store.ts")).toContain("resolveSearchReferencesAction({ refs:");
     expect(activity).toContain("getRecordChoicesAction({ typeId");
     expect(items).toContain("getMessagingThreadAction(id)");
     expect(items).toContain("getMessagingThreadsAction");

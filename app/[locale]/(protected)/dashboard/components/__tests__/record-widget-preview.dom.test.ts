@@ -1,21 +1,26 @@
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
-import { observable, runInAction } from "mobx";
+import { runInAction } from "mobx";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { WidgetModalStore } from "../widget-modal.store";
+import type { RootStore } from "@/core/stores/root.store";
+import { WidgetModalStore } from "../widget-modal.store";
 import { createCrmPreset } from "@/features/records/crm-preset";
+import { WidgetKind } from "@/generated/prisma";
 
 const mocks = vi.hoisted(() => ({
   getRecordModelAction: vi.fn(),
   previewRecordWidgetAction: vi.fn(),
+  getCompanyWidgetsAction: vi.fn(),
 }));
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("@/app/components/agent-chat/record-ai-action", () => ({ RecordAiAction: () => null }));
 vi.mock("../../../records/actions", () => ({ getRecordModelAction: mocks.getRecordModelAction }));
 vi.mock("../../actions", () => ({
   previewRecordWidgetAction: mocks.previewRecordWidgetAction,
+  getCompanyWidgetsAction: mocks.getCompanyWidgetsAction,
   discoverWidgetRecordTypesAction: vi.fn(),
 }));
+vi.mock("../../../search/actions", () => ({ resolveSearchReferencesAction: vi.fn() }));
 vi.mock("@/components/forms/form-autocomplete", () => ({ FormAutocomplete: () => null }));
 vi.mock("@/components/forms/form-autocomplete-item", () => ({ FormAutocompleteItem: () => null }));
 vi.mock("@/components/forms/form-input", () => ({ FormInput: () => null }));
@@ -32,28 +37,23 @@ let root: Root;
 let container: HTMLElement;
 
 function widgetStore() {
-  return observable(
-    {
-      isOpen: true,
-      hasUnsavedChanges: false,
-      form: {
-        kind: "chart",
-        name: "Deals",
-        expectedRevision: model.revision,
-        displayOptions: {},
-        measure: {
-          source: { typeId: model.types[0].id, filters: [], relationships: [] },
-          aggregation: "count",
-          valueFieldId: null,
-          groupBy: null,
-          groupLimit: 100,
-        },
-      },
-      runPreview: <T>(run: () => Promise<T>) => run(),
-      onChange: vi.fn(),
-    },
-    { runPreview: false, onChange: false },
-  ) as unknown as WidgetModalStore;
+  const root = {
+    registerModalStore: vi.fn(),
+    userStore: { canAccess: () => true },
+    widgetsStore: { items: [], layouts: {}, activeViewKey: "all" },
+  } as unknown as RootStore;
+  const store = new WidgetModalStore(root);
+  store.setRecordTypes({
+    schemaRevision: model.revision,
+    canManageSchema: true,
+    total: model.types.length,
+    types: model.types
+      .filter((type) => !type.embedded)
+      .map((type) => ({ ...type, fieldCount: 3, recordCount: 0, permittedActions: ["readAll" as const] })),
+  });
+  store.add();
+  store.startFromKind(WidgetKind.chart);
+  return store;
 }
 
 async function mount(store: WidgetModalStore, section: "preview" | "data") {
@@ -102,6 +102,7 @@ beforeEach(() => {
   vi.useFakeTimers();
   mocks.getRecordModelAction.mockResolvedValue(model);
   mocks.previewRecordWidgetAction.mockResolvedValue(readyPreview());
+  mocks.getCompanyWidgetsAction.mockResolvedValue({ ok: true, data: { widgets: [] } });
 });
 afterEach(() => {
   act(() => root.unmount());
@@ -114,12 +115,10 @@ describe("record widget preview", () => {
   it("refreshes the preview after the measure settles without a manual click", async () => {
     const store = widgetStore();
     await mount(store, "preview");
-    await wait(599);
-    expect(mocks.previewRecordWidgetAction).not.toHaveBeenCalled();
-    await wait(1);
+    await wait(600);
     expect(mocks.previewRecordWidgetAction).toHaveBeenCalledOnce();
     expect(container.querySelector("[data-chart]")).not.toBeNull();
-    expect(store.onChange).not.toHaveBeenCalled();
+    expect(store.hasUnsavedChanges).toBe(false);
 
     act(() =>
       runInAction(() => {

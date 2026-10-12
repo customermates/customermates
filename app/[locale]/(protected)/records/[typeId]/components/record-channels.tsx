@@ -233,7 +233,7 @@ export const RecordChannels = observer(
                                   type="button"
                                   variant="ghost"
                                 >
-                                  <Send className="size-4" />
+                                  <Send aria-hidden />
                                 </Button>
                               </TooltipTrigger>
                             </PopoverTrigger>
@@ -255,7 +255,7 @@ export const RecordChannels = observer(
                                 variant="ghost"
                                 onClick={() => recordChannels.remove(index)}
                               >
-                                <X className="size-4" />
+                                <X aria-hidden />
                               </Button>
                             </TooltipTrigger>
 

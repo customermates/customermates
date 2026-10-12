@@ -12,7 +12,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical } from "lucide-react";
+import { DragHandle } from "@/components/shared/drag-handle";
 import { useTranslations } from "next-intl";
 import { createContext, useContext, useId } from "react";
 
@@ -55,17 +55,14 @@ export function EntityDetailFieldDragHandle({ label }: { label: string }) {
   if (!sortable || !enabled || !isPersonalizing) return null;
 
   return (
-    <button
-      ref={sortable.setActivatorNodeRef}
-      {...sortable.attributes}
-      {...sortable.listeners}
+    <DragHandle
       data-field-drag-handle
-      aria-label={`${t("DataView.dragToReorder")}: ${label}`}
-      className="flex size-5 shrink-0 touch-none items-center justify-center rounded text-muted-foreground cursor-grab hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing"
-      type="button"
-    >
-      <GripVertical className="size-3.5" />
-    </button>
+      attributes={sortable.attributes}
+      className="size-5"
+      label={t("DataView.dragToReorderNamed", { name: label })}
+      listeners={sortable.listeners}
+      setActivatorNodeRef={sortable.setActivatorNodeRef}
+    />
   );
 }
 

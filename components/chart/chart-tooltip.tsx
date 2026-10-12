@@ -6,7 +6,7 @@ import { Tooltip } from "recharts";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
-import { useRecordValueFormat } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
+import { useRecordValueFormat } from "@/components/records/record-value";
 
 type TooltipContentProps = {
   active?: boolean;

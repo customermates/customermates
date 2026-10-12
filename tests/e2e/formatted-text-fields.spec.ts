@@ -265,7 +265,7 @@ test("keeps a bulk-edited formatted text on Escape and follows links in display 
     .getByRole("button", { name: "Edit", exact: true })
     .click();
   const bulk = page.getByRole("dialog", { name: "Edit", exact: true });
-  await bulk.getByRole("button", { name: "Notes", exact: true }).click();
+  await bulk.getByRole("option", { name: "Notes", exact: true }).click();
   await editFormattedText(bulk, "Notes");
   await expect(
     bulk.getByRole("textbox", { name: "Notes", exact: true }),

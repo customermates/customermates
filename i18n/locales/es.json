@@ -1945,6 +1945,7 @@
       "create": "Crear con los ID exportados",
       "failed": "No se pudieron importar los registros. Revisa el archivo y los permisos.",
       "fileHint": "Elige una exportación JSON de Customermates para esta lista.",
+      "mode": "Modo de importación",
       "ready": "{count, plural, one {# registro} other {# registros}} y {links, plural, one {# vínculo} other {# vínculos}} están listos para importar.",
       "schemaMismatch": "La estructura de la lista cambió desde la exportación.",
       "submit": "Importar registros",
@@ -1970,7 +1971,7 @@
     "boardPickedUp": "Registro seleccionado.",
     "collapseColumn": "Contraer columna",
     "collapseGroup": "Contraer el grupo {group}",
-    "dragToReorder": "Arrastrar para reordenar",
+    "dragToReorderNamed": "Arrastrar para reordenar: {name}",
     "editOption": "Editar opción",
     "expandColumn": "Expandir {name}",
     "expandGroup": "Expandir el grupo {group}",
@@ -2159,6 +2160,7 @@
     "fieldPickedUp": "Se ha seleccionado {field}.",
     "hideField": "Ocultar {field} de los detalles",
     "overview": "Vista general",
+    "panelSwitcher": "Paneles de detalle",
     "personalize": "Personalizar",
     "pinField": "Fijar {field} en el resumen",
     "pinMore": "Fijar o soltar campos",
@@ -3526,6 +3528,7 @@
     "operation": "Cálculo",
     "operationCancelled": "El cambio se canceló.",
     "operationFailed": "El cambio falló. El estado completo anterior sigue activo.",
+    "operationNamed": "Cálculo: {operation}",
     "operationPending": "Se están preparando los cambios. Los datos existentes siguen disponibles.",
     "operationProgress": "{processed} de {total} preparados",
     "operators": {
@@ -3811,6 +3814,7 @@
   },
   "RoutineDetail": {
     "credits": "Créditos",
+    "creditsAmount": "Créditos: {amount}",
     "empty": {
       "event": {
         "actions": {

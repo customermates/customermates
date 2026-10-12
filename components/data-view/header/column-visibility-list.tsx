@@ -5,9 +5,9 @@ import type { DragEndEvent } from "@dnd-kit/core";
 import { DndContext, KeyboardSensor, PointerSensor, closestCenter, useSensor, useSensors } from "@dnd-kit/core";
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical } from "lucide-react";
 import { useTranslations } from "next-intl";
 
+import { DragHandle } from "@/components/shared/drag-handle";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/core/utils/cn";
@@ -52,21 +52,13 @@ function ColumnVisibilityRow({
       )}
       style={style}
     >
-      <button
-        aria-label={t("DataView.dragToReorder")}
-        className={cn(
-          "flex h-6 w-4 shrink-0 items-center justify-center rounded text-muted-foreground",
-          isPinned
-            ? "opacity-20 cursor-not-allowed"
-            : "cursor-grab transition-[color,background-color,transform] hover:bg-accent hover:text-foreground active:scale-[0.97] active:cursor-grabbing motion-reduce:transition-none",
-        )}
+      <DragHandle
+        attributes={attributes}
+        className="h-6 w-4"
         disabled={isPinned}
-        type="button"
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical className="size-3.5" />
-      </button>
+        label={t("DataView.dragToReorderNamed", { name: label })}
+        listeners={listeners}
+      />
 
       <Label
         className="flex flex-1 items-center gap-2 font-normal cursor-pointer min-w-0"

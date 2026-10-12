@@ -1,6 +1,6 @@
 "use client";
 
-import { useRecordValueFormat } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
+import { useRecordValueFormat } from "@/components/records/record-value";
 
 export function useChartFormatter(currency?: string | null) {
   const valueFormat = useRecordValueFormat();

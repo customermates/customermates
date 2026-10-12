@@ -17,6 +17,10 @@ const mocks = vi.hoisted(() => ({
   upsertRecordActivityWidgetAction: vi.fn(),
 }));
 vi.mock("../../actions", () => mocks);
+vi.mock("../../../records/actions", () => ({ getRecordModelAction: vi.fn(() => new Promise(() => undefined)) }));
+vi.mock("../../../search/actions", () => ({
+  resolveSearchReferencesAction: vi.fn(() => new Promise(() => undefined)),
+}));
 const model = createCrmPreset(randomUUID());
 const discovery = {
   schemaRevision: model.revision,

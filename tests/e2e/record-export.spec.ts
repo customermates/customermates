@@ -85,7 +85,7 @@ test("downloads generic records from the shared table with persisted typed value
     buffer: Buffer.from(JSON.stringify(exported)),
   });
   await importDialog
-    .getByRole("button", { name: "Update matching IDs", exact: true })
+    .getByRole("tab", { name: "Update matching IDs", exact: true })
     .click();
   await importDialog
     .getByRole("button", { name: "Import records", exact: true })

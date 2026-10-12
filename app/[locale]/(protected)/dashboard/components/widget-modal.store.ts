@@ -9,13 +9,19 @@ import type { CompanyWidget, WidgetDto } from "@/features/widget/widget.schema";
 import { isRecordActivityWidget, isRecordWidget } from "@/features/widget/widget.schema";
 import type { FormEvent } from "react";
 import { z } from "zod";
-import { upsertRecordActivityWidgetAction, upsertRecordWidgetAction } from "../actions";
+import { previewRecordWidgetAction, upsertRecordActivityWidgetAction, upsertRecordWidgetAction } from "../actions";
+import { getRecordModelAction } from "../../records/actions";
+import { resolveSearchReferencesAction } from "../../search/actions";
+import type { RecordModelView } from "@/features/records/record-model.schema";
+import type { RecordSearchHit } from "@/features/records/record-search.schema";
+import type { RecordWidgetPreview } from "@/features/widget/record-widget-reader";
+import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import type { RecordActivityWidgetForm, RecordWidgetForm } from "./record-widget-form";
 import { isRecordActivityWidgetForm, isRecordWidgetForm } from "./record-widget-form";
 
 import { Resource, WidgetKind } from "@/generated/prisma";
 import { cloneDeep, omit } from "lodash";
-import { action, computed, makeObservable, observable, reaction, runInAction, toJS } from "mobx";
+import { action, comparer, computed, makeObservable, observable, reaction, runInAction, toJS } from "mobx";
 
 import { deleteWidgetAction, getCompanyWidgetsAction, getWidgetByIdAction } from "../actions";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
@@ -59,6 +65,14 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   private sessionGeneration = 0;
   private companyWidgetsGeneration = 0;
   private previewGeneration = 0;
+  public recordModel: RecordModelView | null | undefined = undefined;
+  public recordPreview: ({ key: string } & RecordWidgetPreview) | null = null;
+  public recordPreviewLoading = false;
+  public recordPreviewFailed = false;
+  public scopeRecordHits: RecordSearchHit[] = [];
+  private recordModelRequest = 0;
+  private recordPreviewRequest = 0;
+  private scopeRecordsRequest = 0;
 
   constructor(rootStore: RootStore) {
     super(rootStore, {
@@ -86,6 +100,15 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       creationStep: observable,
       isHydrating: observable,
       activityFilterableFields: observable,
+      recordModel: observable.ref,
+      recordPreview: observable.ref,
+      recordPreviewLoading: observable,
+      recordPreviewFailed: observable,
+      scopeRecordHits: observable.ref,
+      loadRecordModel: action,
+      runRecordPreview: action,
+      loadScopeRecords: action,
+      recordMeasureKey: computed,
 
       add: action,
       delete: action,
@@ -127,7 +150,121 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
         if (!isOpen) runInAction(() => this.advanceSession());
       },
     );
+    reaction(
+      () => (this.isOpen && isRecordWidgetForm(this.form) ? this.form.measure.source.typeId : null),
+      (typeId) => {
+        if (typeId) void this.loadRecordModel();
+        else {
+          runInAction(() => {
+            this.recordModelRequest += 1;
+            this.recordModel = undefined;
+          });
+        }
+      },
+    );
+    reaction(
+      () => [this.form, this.recordMeasureKey, this.recordModel?.revision, this.isOpen],
+      () =>
+        runInAction(() => {
+          this.recordPreviewRequest += 1;
+          this.recordPreviewLoading = false;
+          this.recordPreviewFailed = false;
+        }),
+      { equals: comparer.shallow },
+    );
+    reaction(
+      () =>
+        this.isOpen && isRecordActivityWidgetForm(this.form)
+          ? JSON.stringify(this.form.activityQuery.scope.records)
+          : null,
+      (key) => {
+        if (key && isRecordActivityWidgetForm(this.form))
+          void this.loadScopeRecords(this.form.activityQuery.scope.records);
+      },
+    );
   }
+
+  get recordMeasureKey() {
+    return isRecordWidgetForm(this.form) ? JSON.stringify(this.form.measure) : null;
+  }
+
+  loadRecordModel = async () => {
+    const request = ++this.recordModelRequest;
+    this.recordModel = undefined;
+    try {
+      const model = await getRecordModelAction();
+      runInAction(() => {
+        if (request === this.recordModelRequest) this.recordModel = model;
+      });
+    } catch (error) {
+      if (request !== this.recordModelRequest) return;
+      reportApplicationError(error);
+      runInAction(() => {
+        this.recordModel = null;
+      });
+    }
+  };
+
+  runRecordPreview = async () => {
+    const form = this.form;
+    if (!isRecordWidgetForm(form)) return;
+    const previewed = JSON.stringify(form.measure);
+    const request = ++this.recordPreviewRequest;
+    const isCurrent = () => request === this.recordPreviewRequest;
+    this.recordPreviewLoading = true;
+    this.recordPreviewFailed = false;
+    try {
+      const parsed = RecordMeasureSchema.safeParse(form.measure);
+      if (!parsed.success) {
+        runInAction(() => {
+          this.recordPreviewFailed = true;
+        });
+        return;
+      }
+      const result = await this.runPreview(() => previewRecordWidgetAction(parsed.data));
+      if (!result || !isCurrent()) return;
+      if (!result.ok) {
+        runInAction(() => {
+          this.recordPreviewFailed = true;
+        });
+        return;
+      }
+      if (this.recordModel && result.data.result.schemaRevision !== this.recordModel.revision) {
+        void this.loadRecordModel();
+        return;
+      }
+      runInAction(() => {
+        this.recordPreview = { key: previewed, ...result.data };
+      });
+      if (this.hasUnsavedChanges) this.onChange("expectedRevision", result.data.result.schemaRevision);
+    } catch (error) {
+      if (!isCurrent()) return;
+      reportApplicationError(error);
+      runInAction(() => {
+        this.recordPreviewFailed = true;
+      });
+    } finally {
+      runInAction(() => {
+        if (isCurrent()) this.recordPreviewLoading = false;
+      });
+    }
+  };
+
+  loadScopeRecords = async (refs: RecordActivityWidgetForm["activityQuery"]["scope"]["records"]) => {
+    const request = ++this.scopeRecordsRequest;
+    if (refs.length === 0) {
+      this.scopeRecordHits = [];
+      return;
+    }
+    try {
+      const result = await resolveSearchReferencesAction({ refs: toJS(refs) });
+      runInAction(() => {
+        if (request === this.scopeRecordsRequest && result.ok) this.scopeRecordHits = result.data.results;
+      });
+    } catch (error) {
+      if (request === this.scopeRecordsRequest) reportApplicationError(error);
+    }
+  };
   get activeTimelineFiltersCount() {
     return isRecordActivityWidgetForm(this.form) ? recordActivityFilterCount(this.form.activityQuery) : 0;
   }
@@ -541,6 +678,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
 
   private advanceSession = () => {
     this.sessionGeneration += 1;
+    this.recordPreview = null;
     this.recordSubmission = null;
     this.companyWidgetsGeneration += 1;
     this.invalidateLoads();

@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { EmptyValue } from "@/components/shared/empty-value";
 
 import { TruncatedText } from "@/components/shared/truncated-text";
-import { useRecordValueFormat } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
+import { useRecordValueFormat } from "@/components/records/record-value";
 
 export type RankedTableRow = {
   key: string;
