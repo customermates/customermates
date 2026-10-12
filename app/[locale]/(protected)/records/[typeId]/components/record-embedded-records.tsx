@@ -218,7 +218,10 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
         fieldId={relationshipColumnKey(parentRelationId, "incoming")}
         label={type.pluralLabel}
       >
-        <div className="min-w-0 rounded-md border border-border bg-background" data-embedded-frame="">
+        <div
+          className="min-w-0 overflow-clip rounded-md border border-input bg-input-background shadow-xs [--row-surface:var(--input-background)]"
+          data-embedded-frame=""
+        >
           {!parent || store.hasUnsavedChanges ? (
             <p className="px-3 py-2 text-xs text-muted-foreground">{t("RecordModel.saveBeforeEmbedded")}</p>
           ) : null}
