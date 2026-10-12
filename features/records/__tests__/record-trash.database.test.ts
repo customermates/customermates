@@ -26,7 +26,6 @@ const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { WebhookPauseNotifier } = await import("@/features/webhook/webhook-pause-notifier");
-const { PrismaRecordRepo } = await import("../prisma-record.repository");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
@@ -49,6 +48,7 @@ const { RecordOperationService } = await import("../record-operation.service");
 const { RecordTrashService } = await import("../record-trash.service");
 const { RecordJournal } = await import("../record-journal");
 const { applyConfigurationLifecycle } = await import("../configuration-lifecycle");
+const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -81,7 +81,7 @@ async function fixture() {
   });
   const admin = createMockUser({ ...seed.admin, role: { ...seed.adminRole, permissions: [] } });
   const member = createMockUser({ ...seed.member, role: { ...seed.memberRole, permissions: [] } });
-  const repo = new PrismaRecordRepo();
+  const repo = createTestRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const writer = new RecordWriteService(repo, policy, new RecordCalculationService(repo));
   const mutate = new MutateRecordInteractor(
@@ -334,6 +334,33 @@ describeDatabase("record trash", () => {
     expect(await f.field(deal, f.id("deal.totalQuantity"))).toMatchObject({ value: { value: "4" } });
     await runWithTenant(f.admin, () => f.trash.restore.invoke({ batchId: deleted.trashBatchId } as never));
     expect(await f.field(deal, f.id("deal.totalQuantity"))).toMatchObject({ value: { value: "10" } });
+  }, 180_000);
+
+  it("counts an embedded record whose only parent link is in Trash as missing its parent", async () => {
+    const f = await fixture();
+    const deal = await f.created({
+      action: "create",
+      typeId: f.id("deal"),
+      fields: [{ fieldId: f.id("deal.name"), value: text("Parent") }],
+    });
+    const line = await f.created({
+      action: "create",
+      typeId: f.id("lineItem"),
+      fields: [{ fieldId: f.id("lineItem.quantity"), value: decimal("1") }],
+      links: [{ relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal }],
+    });
+    const model = await runWithTenant(f.admin, () => f.repo.getModel());
+    expect(model.types.find((type) => type.id === f.id("lineItem"))?.parentRelationshipId).toBe(f.id("lineItem.deal"));
+    expect(await runWithTenant(f.admin, () => f.repo.validateRelationshipCardinality(model))).toEqual([]);
+    await runWithoutTenant(() =>
+      prisma.recordLink.updateMany({
+        where: { companyId: f.seed.company.id, relationId: f.id("lineItem.deal"), sourceId: line.recordId },
+        data: { deletedAt: new Date() },
+      }),
+    );
+    expect(await runWithTenant(f.admin, () => f.repo.validateRelationshipCardinality(model))).toEqual([
+      f.id("lineItem.deal"),
+    ]);
   }, 180_000);
 
   it("drops a link whose single side was taken while the record was in Trash and reports it", async () => {

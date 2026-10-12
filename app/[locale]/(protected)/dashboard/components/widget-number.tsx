@@ -23,10 +23,10 @@ export function WidgetNumber({ value, exact, context }: Props) {
     <span data-slot="widget-number-value">{value}</span>
   );
   return (
-    <div className="@container flex min-h-0 min-w-0 flex-col gap-1.5" data-slot="widget-number">
+    <div className="@container flex min-h-0 min-w-0 flex-col gap-1" data-slot="widget-number">
       <p
-        className="min-h-[1em] max-w-full truncate font-medium leading-none tracking-tight tabular-nums"
-        style={{ fontSize: `min(2.25rem, ${(150 / Math.max(value.length, 1)).toFixed(2)}cqw)` }}
+        className="min-h-[1em] max-w-full truncate font-medium leading-tight tracking-tight tabular-nums"
+        style={{ fontSize: `min(2rem, ${(150 / Math.max(value.length, 1)).toFixed(2)}cqw)` }}
       >
         {compacted ? (
           <TooltipProvider>
@@ -43,7 +43,7 @@ export function WidgetNumber({ value, exact, context }: Props) {
         )}
       </p>
 
-      <p className="truncate text-sm text-muted-foreground tabular-nums" data-slot="widget-number-context">
+      <p className="truncate text-xs text-muted-foreground tabular-nums" data-slot="widget-number-context">
         {context}
       </p>
     </div>

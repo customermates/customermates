@@ -10,12 +10,7 @@ import {
   type RecordSearchRow,
 } from "./record-search-query";
 import { recordInvariant } from "./record-invariant";
-import {
-  readStoredState,
-  readStoredPersonalizationState,
-  writePartialStoredState,
-  writePersonalizationState,
-} from "@/features/data-view/data-view-row-mapping";
+import { readStoredState, readStoredPersonalizationState } from "@/features/data-view/data-view-row-mapping";
 import { deletionReference, targetKey, type ConfigurationDeletionRecord } from "./configuration-lifecycle";
 import type { ConfigurationTarget } from "./configuration.schema";
 import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
@@ -30,6 +25,7 @@ import type {
   RecordDefinitionDeletion,
   RecordPlacement,
   RecordRepo,
+  RecordRepoOwners,
   RecordTrashItemInput,
   TrashReadOptions,
 } from "./record.repo";
@@ -48,7 +44,6 @@ import { compileRecordGroups } from "./record-group-query";
 import { resolveRecordGrouping } from "./record-grouping";
 import { RecordGroupingResultSchema } from "./record-grouping.schema";
 import { MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
-import { groupingShadowColumnId } from "@/core/base/grouping/stored-grouping";
 import { RecordWriteError } from "./record-write.service";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { RecordMeasure } from "./record-measure.schema";
@@ -71,22 +66,33 @@ import { resolveUserFormattingTag, resolveUserLocale } from "@/i18n/user-locale"
 import { RecordQuerySchema } from "./record-query.schema";
 import { RecordDetailLayoutSchema, recordDetailKey } from "./record-detail-layout.schema";
 import { EntityDetailOptionsSchema } from "@/features/p13n/p13n.schema";
-import { TRASH_RETENTION_DAYS } from "@/features/trash/trash-retention";
-import { deleteTrashItems, insertTrashItems } from "@/features/trash/trash-item-store";
-import { RECORD_EVENT_KINDS } from "./record-event.schema";
 import { configurationTrashBatchId } from "./configuration-trash-batch";
+import type { ProviderAvatarRecordRepo, RecordOperationUpdate } from "./provider-avatar-record.repo";
 
 const CONFIGURATION_DELETION_PAGE = 200;
 const VIEW_STATE_PAGE = 200;
 const PERSONALIZATION_KEY = "personalization:";
 const VIEW_KEY = "view:";
 
-export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
+export class PrismaRecordRepo extends TenantRepository implements RecordRepo, ProviderAvatarRecordRepo {
+  private resolvedOwners?: RecordRepoOwners;
+
   constructor(
+    private readonly resolveOwners: () => RecordRepoOwners,
     private readonly scopedCompanyId?: string,
     private readonly background?: Pick<BackgroundTaskService, "dispatch">,
   ) {
     super();
+  }
+
+  private get owners(): RecordRepoOwners {
+    this.resolvedOwners ??= this.resolveOwners();
+    return this.resolvedOwners;
+  }
+
+  private forCompany(companyId: string): PrismaRecordRepo {
+    if (companyId === this.scopedCompanyId) return this;
+    return new PrismaRecordRepo(() => this.owners, companyId, this.background);
   }
 
   private async wakeRecordEvents(): Promise<void> {
@@ -355,27 +361,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   }
 
   async getLastFieldWritersCompanyWide(targets: Array<{ ref: RecordRef; fieldId: string }>) {
-    const writers = new Map<string, string>();
-    if (!targets.length) return writers;
-    const rows = await this.prisma.$queryRaw<
-      Array<{ typeId: string; recordId: string; fieldId: string; actorId: string }>
-    >(Prisma.sql`
-      SELECT target."typeId", target."recordId", target."fieldId", writer."actorId"
-      FROM (VALUES ${Prisma.join(
-        targets.map(
-          (target) => Prisma.sql`(${target.ref.typeId}::text, ${target.ref.recordId}::text, ${target.fieldId}::text)`,
-        ),
-      )}) AS target("typeId", "recordId", "fieldId")
-      CROSS JOIN LATERAL (
-        SELECT event."actorId" FROM "EventLog" event
-        WHERE event."companyId" = ${this.companyId} AND event."subjectKind" = 'record' AND event."subjectTypeId" = target."typeId" AND event."subjectId" = target."recordId"
-          AND event.payload->'changedFieldIds' @> jsonb_build_array(target."fieldId")
-        ORDER BY event."createdAt" DESC, event.id DESC
-        LIMIT 1
-      ) writer
-    `);
-    for (const row of rows) writers.set(`${row.typeId}:${row.recordId}:${row.fieldId}`, row.actorId);
-    return writers;
+    return this.owners.events.getLastFieldWritersCompanyWide(this.companyId, targets);
   }
 
   async setIdentityResolutionCompanyWide(
@@ -435,60 +421,29 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     },
   } as const;
   async getActivityWidgetQueriesCompanyWide(afterId?: string) {
-    const rows = await this.prisma.widget.findMany({
-      where: {
-        companyId: this.companyId,
-        activityQuery: { not: Prisma.AnyNull },
-        ...(afterId ? { id: { gt: afterId } } : {}),
-      },
-      select: { id: true, name: true, activityQuery: true, deletedAt: true, view: { select: { deletedAt: true } } },
-      orderBy: { id: "asc" },
-      take: 200,
-    });
+    const rows = await this.owners.widgets.getActivityQueriesCompanyWide(this.companyId, afterId);
     return rows.map((row) => ({
       id: row.id,
       name: row.name,
-      query: RecordActivityQuerySchema.parse(row.activityQuery),
+      query: RecordActivityQuerySchema.parse(row.definition),
       trashed: row.deletedAt !== null || Boolean(row.view?.deletedAt),
     }));
   }
   async getWidgetMeasuresCompanyWide(afterId?: string) {
-    const rows = await this.prisma.widget.findMany({
-      where: {
-        companyId: this.companyId,
-        measure: { not: Prisma.AnyNull },
-        ...(afterId ? { id: { gt: afterId } } : {}),
-      },
-      select: { id: true, name: true, measure: true, deletedAt: true, view: { select: { deletedAt: true } } },
-      orderBy: { id: "asc" },
-      take: 200,
-    });
+    const rows = await this.owners.widgets.getMeasuresCompanyWide(this.companyId, afterId);
     return rows.map((row) => ({
       id: row.id,
       name: row.name,
-      measure: RecordMeasureSchema.parse(row.measure),
+      measure: RecordMeasureSchema.parse(row.definition),
       trashed: row.deletedAt !== null || Boolean(row.view?.deletedAt),
     }));
   }
   async getEventSubscriptionsCompanyWide(afterId?: string) {
-    const rows = await this.prisma.recordEventSubscription.findMany({
-      where: {
-        companyId: this.companyId,
-        ...(afterId ? { id: { gt: afterId } } : {}),
-      },
-      orderBy: { id: "asc" },
-      take: 200,
-    });
+    const rows = await this.owners.subscriptions.getPageCompanyWide(this.companyId, afterId);
     const ids = rows.map((row) => row.id);
     const [routines, webhooks] = await Promise.all([
-      this.prisma.routine.findMany({
-        where: { companyId: this.companyId, id: { in: ids } },
-        select: { id: true, name: true },
-      }),
-      this.prisma.webhook.findMany({
-        where: { companyId: this.companyId, id: { in: ids } },
-        select: { id: true, url: true, description: true },
-      }),
+      this.owners.routines.getLabelsCompanyWide(this.companyId, ids),
+      this.owners.webhooks.getLabelsCompanyWide(this.companyId, ids),
     ]);
     const labels = new Map([
       ...routines.map((routine) => [routine.id, routine.name] as const),
@@ -533,10 +488,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   }
 
   async getUserNamesCompanyWide(userIds: string[]) {
-    const users = await this.prisma.user.findMany({
-      where: { companyId: this.companyId, id: { in: [...new Set(userIds)] } },
-      select: { id: true, firstName: true, lastName: true },
-    });
+    const users = await this.owners.members.getRecordMembersCompanyWide(this.companyId, userIds);
     return new Map(users.map((user) => [user.id, `${user.firstName} ${user.lastName}`.trim()]));
   }
 
@@ -544,80 +496,28 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     const companyId = this.companyId;
     const pausedWebhookIds: string[] = [];
     for (const cleanup of cleanups) {
-      if (cleanup.kind === "view") {
-        await this.prisma.dataView.updateMany({
-          where: { companyId, id: cleanup.id },
-          data: writePartialStoredState(cleanup.state),
-        });
-      } else if (cleanup.kind === "personalLayout") {
-        const write = writePersonalizationState(cleanup.state);
-        await this.prisma.p13n.updateMany({
-          where: { companyId, id: cleanup.id },
-          data: {
-            ...(write.filters !== undefined ? { filters: write.filters as Prisma.InputJsonValue } : {}),
-            ...(write.sortDescriptor !== undefined
-              ? { sortDescriptor: (write.sortDescriptor ?? {}) as Prisma.InputJsonValue }
-              : {}),
-            ...(write.grouping !== undefined
-              ? {
-                  grouping: write.grouping === null ? Prisma.DbNull : (write.grouping as Prisma.InputJsonValue),
-                  groupingColumnId: write.grouping === null ? null : groupingShadowColumnId(write.grouping),
-                }
-              : {}),
-            ...(write.columnOrder !== undefined ? { columnOrder: write.columnOrder } : {}),
-            ...(write.columnWidths !== undefined ? { columnWidths: write.columnWidths } : {}),
-            ...(write.hiddenColumns !== undefined ? { hiddenColumns: write.hiddenColumns } : {}),
-          },
-        });
-      } else if (cleanup.kind === "detailLayout") {
-        const row = await this.prisma.p13n.findFirst({ where: { companyId, id: cleanup.id } });
-        if (!row) continue;
-        const options = EntityDetailOptionsSchema.parse(row.detailOptions);
-        await this.prisma.p13n.updateMany({
-          where: { companyId, id: cleanup.id },
-          data: {
-            detailOptions: {
-              ...options,
-              starredFieldIds: cleanup.layout.pinnedFields,
-              hiddenFieldIds: cleanup.layout.hiddenFields,
-              fieldOrder: cleanup.layout.fieldOrder,
-            },
-          },
-        });
-      } else if (cleanup.kind === "widget") {
-        await this.prisma.widget.updateMany({
-          where: { companyId, id: cleanup.id },
-          data: { measure: cleanup.measure as Prisma.InputJsonValue, version: { increment: 1 } },
-        });
+      if (cleanup.kind === "view")
+        await this.owners.views.rewriteViewStateCompanyWide(companyId, cleanup.id, cleanup.state);
+      else if (cleanup.kind === "personalLayout")
+        await this.owners.personalizations.rewritePersonalizationStateCompanyWide(companyId, cleanup.id, cleanup.state);
+      else if (cleanup.kind === "detailLayout")
+        await this.owners.personalizations.rewriteDetailLayoutCompanyWide(companyId, cleanup.id, cleanup.layout);
+      else if (cleanup.kind === "widget") {
+        await this.owners.widgets.rewriteMeasureCompanyWide(
+          companyId,
+          cleanup.id,
+          cleanup.measure as Prisma.InputJsonValue,
+        );
       } else if (cleanup.kind === "webhookSubscription") {
-        const { id, typeId, events, changedFieldIds, query, sources, enabled } = cleanup.subscription;
-        await this.prisma.recordEventSubscription.updateMany({
-          where: { companyId, id },
-          data: {
-            typeId,
-            events,
-            changedFieldIds,
-            query: query === null ? Prisma.DbNull : (query as Prisma.InputJsonValue),
-            sources: sources?.length ? (sources as Prisma.InputJsonValue) : Prisma.DbNull,
-            enabled,
-            revision: { increment: 1 },
-          },
-        });
-        const webhook = await this.prisma.webhook.findFirst({
-          where: { companyId, id },
-          select: { events: true, enabled: true },
-        });
-        if (!webhook) continue;
-        const paused = cleanup.paused && webhook.enabled;
-        const kept = webhook.events.filter((event) => !(RECORD_EVENT_KINDS as readonly string[]).includes(event));
-        await this.prisma.webhook.updateMany({
-          where: { companyId, id },
-          data: {
-            events: [...kept, ...events],
-            ...(paused ? { enabled: false, pausedReason: "triggerFieldDeleted" } : {}),
-          },
-        });
-        if (paused) pausedWebhookIds.push(id);
+        const { id, events } = cleanup.subscription;
+        await this.owners.subscriptions.rewriteCompanyWide(companyId, cleanup.subscription);
+        const replaced = await this.owners.webhooks.replaceRecordEventsCompanyWide(
+          companyId,
+          id,
+          events,
+          cleanup.paused,
+        );
+        if (replaced?.paused) pausedWebhookIds.push(id);
       }
     }
     return { pausedWebhookIds };
@@ -678,22 +578,11 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
 
   async getDetailLayoutsCompanyWide(typeIds: string[], afterId?: string) {
     if (!typeIds.length) return [];
-    const rows = await this.prisma.p13n.findMany({
-      where: {
-        companyId: this.companyId,
-        p13nId: { in: typeIds.map(recordDetailKey) },
-        detailOptions: { not: Prisma.AnyNull },
-        ...(afterId ? { id: { gt: afterId } } : {}),
-      },
-      select: {
-        id: true,
-        p13nId: true,
-        detailOptions: true,
-        columnOrder: true,
-      },
-      orderBy: { id: "asc" },
-      take: 200,
-    });
+    const rows = await this.owners.personalizations.getDetailOptionsCompanyWide(
+      this.companyId,
+      typeIds.map(recordDetailKey),
+      afterId,
+    );
     return rows.map((row) => {
       const options = EntityDetailOptionsSchema.parse(row.detailOptions);
       return {
@@ -718,22 +607,20 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     const afterView = afterKey.startsWith(VIEW_KEY) ? afterKey.slice(VIEW_KEY.length) : "";
     const personalizations = afterKey.startsWith(VIEW_KEY)
       ? []
-      : await this.prisma.p13n.findMany({
-          where: {
-            companyId,
-            p13nId: { in: surfaces },
-            ...(afterPersonalization ? { id: { gt: afterPersonalization } } : {}),
-          },
-          orderBy: { id: "asc" },
-          take: VIEW_STATE_PAGE,
-        });
+      : await this.owners.personalizations.getPersonalizationsCompanyWide(
+          companyId,
+          surfaces,
+          afterPersonalization,
+          VIEW_STATE_PAGE,
+        );
     const views =
       personalizations.length < VIEW_STATE_PAGE
-        ? await this.prisma.dataView.findMany({
-            where: { companyId, surfaceKey: { in: surfaces }, ...(afterView ? { id: { gt: afterView } } : {}) },
-            orderBy: { id: "asc" },
-            take: VIEW_STATE_PAGE - personalizations.length,
-          })
+        ? await this.owners.views.getViewsCompanyWide(
+            companyId,
+            surfaces,
+            afterView,
+            VIEW_STATE_PAGE - personalizations.length,
+          )
         : [];
     return [
       ...personalizations.map((row) => ({
@@ -777,10 +664,11 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         }),
         this.prisma.recordLink.count({ where: { companyId, relationId: { in: relationIds } } }),
         this.prisma.recordRelationshipDefinition.count({ where: { companyId, id: { in: relationIds } } }),
-        this.prisma.dataView.count({ where: { companyId, surfaceKey: { in: surfaces } } }),
-        this.prisma.p13n.count({
-          where: { companyId, p13nId: { in: [...surfaces, ...typeIds.map(recordDetailKey)] } },
-        }),
+        this.owners.views.countViewsCompanyWide(companyId, surfaces),
+        this.owners.personalizations.countPersonalizationsCompanyWide(companyId, [
+          ...surfaces,
+          ...typeIds.map(recordDetailKey),
+        ]),
         this.prisma.recordTypeGrant.count({ where: { companyId, typeId: { in: typeIds } } }),
         this.countIdentityLinks(channelTypeIds),
       ]);
@@ -797,10 +685,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
 
   private async countCascadedTrashedRecords(typeIds: string[]): Promise<number> {
     const companyId = this.companyId;
-    const items = await this.prisma.trashItem.findMany({
-      where: { companyId, kind: "record", typeId: { in: typeIds } },
-      select: { id: true },
-    });
+    const items = await this.owners.trash.findItemsCompanyWide(companyId, { kinds: ["record"], typeIds });
     if (!items.length) return 0;
     return this.prisma.crmRecord.count({
       where: { companyId, trashItemId: { in: items.map((item) => item.id) }, typeId: { notIn: typeIds } },
@@ -820,19 +705,16 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   async deleteDefinitions({ typeIds, fieldIds, relationIds, channelTypeIds }: RecordDefinitionDeletion): Promise<void> {
     const companyId = this.companyId;
     const surfaces = typeIds.map(recordSurfaceKey);
-    const views = await this.prisma.trashItem.findMany({
-      where: { companyId, kind: "view", surfaceKey: { in: surfaces } },
-      select: { id: true },
-    });
-    await deleteTrashItems(
-      this.prisma,
+    const views = await this.owners.trash.findItemsCompanyWide(companyId, { kinds: ["view"], surfaceKeys: surfaces });
+    await this.owners.trash.removeItemsCompanyWide(
       companyId,
       views.map((item) => item.id),
     );
-    await this.prisma.dataView.deleteMany({ where: { companyId, surfaceKey: { in: surfaces } } });
-    await this.prisma.p13n.deleteMany({
-      where: { companyId, p13nId: { in: [...surfaces, ...typeIds.map(recordDetailKey)] } },
-    });
+    await this.owners.views.deleteViewsCompanyWide(companyId, surfaces);
+    await this.owners.personalizations.deletePersonalizationsCompanyWide(companyId, [
+      ...surfaces,
+      ...typeIds.map(recordDetailKey),
+    ]);
     await this.prisma.recordValueDependency.deleteMany({ where: { companyId, sourceTypeId: { in: typeIds } } });
     const identities = await this.prisma.recordIdentityLink.findMany({
       where: { companyId, typeId: { in: [...typeIds, ...channelTypeIds] } },
@@ -860,11 +742,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   }
 
   async validRecordRolesCompanyWide(roleIds: string[]): Promise<boolean> {
-    return (
-      (await this.prisma.userRole.count({
-        where: { companyId: this.companyId, id: { in: roleIds } },
-      })) === new Set(roleIds).size
-    );
+    return (await this.owners.roles.countRolesCompanyWide(this.companyId, roleIds)) === new Set(roleIds).size;
   }
 
   async validateRelationshipCardinality(model: RecordModel): Promise<string[]> {
@@ -893,7 +771,8 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
           WHERE record."companyId" = ${this.companyId} AND record."typeId" = ${type.id} AND record."deletedAt" IS NULL
             AND NOT EXISTS (SELECT 1 FROM "RecordLink" link
               WHERE link."companyId" = record."companyId" AND link."relationId" = ${type.parentRelationshipId}
-                AND link."sourceTypeId" = record."typeId" AND link."sourceId" = record.id)) AS invalid`);
+                AND link."sourceTypeId" = record."typeId" AND link."sourceId" = record.id
+                AND link."deletedAt" IS NULL)) AS invalid`);
       if (rows[0]?.invalid) invalid.push(type.parentRelationshipId);
     }
     return [...new Set(invalid)];
@@ -972,9 +851,8 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
       operation.operation === "deletePermanently" && operation.target.kind === "type" ? [operation.target.id] : [],
     );
     if (leaving.length || removedTypeIds.length) {
-      const items = await this.prisma.trashItem.findMany({
-        where: { companyId: this.companyId, kind: { in: ["list", "field", "relationship"] } },
-        select: { id: true, kind: true, targetId: true, typeId: true },
+      const items = await this.owners.trash.findItemsCompanyWide(this.companyId, {
+        kinds: ["list", "field", "relationship"],
       });
       const present = new Set([
         ...model.types.map((type) => type.id),
@@ -982,8 +860,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
         ...model.relationships.map((relation) => relation.id),
         ...model.capabilities.map((capability) => capability.id),
       ]);
-      await deleteTrashItems(
-        this.prisma,
+      await this.owners.trash.removeItemsCompanyWide(
         this.companyId,
         items
           .filter(
@@ -998,8 +875,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     if (!change.deletions?.length) return;
     const batchId = configurationTrashBatchId(this.companyId, change.causeId);
     const kinds = { type: "list", field: "field", relationship: "relationship" } as const;
-    await insertTrashItems(
-      this.prisma,
+    await this.owners.trash.addItemsCompanyWide(
       this.companyId,
       change.deletions.map(({ target }) => {
         const reference = deletionReference(model, target);
@@ -1397,11 +1273,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   }
 
   async hasRecordHistoryCompanyWide(ref: RecordRef): Promise<boolean> {
-    const event = await this.prisma.eventLog.findFirst({
-      where: { companyId: this.companyId, subjectKind: "record", subjectTypeId: ref.typeId, subjectId: ref.recordId },
-      select: { id: true },
-    });
-    return Boolean(event);
+    return this.owners.events.hasRecordHistoryCompanyWide(this.companyId, ref);
   }
 
   async delete(ref: RecordRef): Promise<void> {
@@ -1448,25 +1320,20 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   }
 
   async addTrashItems(items: RecordTrashItemInput[]): Promise<void> {
-    await insertTrashItems(
-      this.prisma,
+    await this.owners.trash.addItemsCompanyWide(
       this.companyId,
       items.map((item) => ({ ...item, kind: "record" as const })),
     );
   }
 
   async getRecordTrashItemsCompanyWide(selection: { ids: string[] } | { batchId: string } | { typeIds: string[] }) {
-    const rows = await this.prisma.trashItem.findMany({
-      where: {
-        companyId: this.companyId,
-        kind: "record",
-        ...("ids" in selection
-          ? { id: { in: selection.ids } }
-          : "typeIds" in selection
-            ? { typeId: { in: selection.typeIds } }
-            : { batchId: selection.batchId }),
-      },
-      orderBy: [{ deletedAt: "asc" }, { id: "asc" }],
+    const rows = await this.owners.trash.findItemsCompanyWide(this.companyId, {
+      kinds: ["record"],
+      ...("ids" in selection
+        ? { ids: selection.ids }
+        : "typeIds" in selection
+          ? { typeIds: selection.typeIds }
+          : { batchId: selection.batchId }),
     });
     return rows.map((row) => ({
       id: row.id,
@@ -1545,7 +1412,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
   }
 
   async removeTrashItems(ids: string[]): Promise<void> {
-    await deleteTrashItems(this.prisma, this.companyId, ids);
+    await this.owners.trash.removeItemsCompanyWide(this.companyId, ids);
   }
 
   async countTrashedRecordsCompanyWide(trashItemIds: string[]) {
@@ -1575,13 +1442,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     });
     const refs = purged.map((row) => ({ typeId: row.typeId, recordId: row.id }));
     if (refs.length) {
-      await this.prisma.$executeRaw(Prisma.sql`
-        UPDATE "EventLog" event SET payload = jsonb_set(jsonb_set(event.payload, '{fields}', '[]'::jsonb), '{identities}', 'null'::jsonb)
-        FROM "CrmRecord" record
-        WHERE event."companyId" = ${companyId} AND event."subjectKind" = 'record'
-          AND record."companyId" = ${companyId} AND record."trashItemId" = ANY(${ids}::text[]) AND record."deletedAt" IS NOT NULL
-          AND event."subjectTypeId" = record."typeId" AND event."subjectId" = record.id
-          AND jsonb_typeof(event.payload->'fields') = 'array'`);
+      await this.owners.events.eraseTrashedRecordPayloadsCompanyWide(companyId, ids);
       const identities = await this.prisma.recordIdentityLink.findMany({
         where: { companyId, record: { is: { companyId, trashItemId: { in: ids }, deletedAt: { not: null } } } },
         select: { identityId: true },
@@ -1597,10 +1458,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
 
   async getMembersCompanyWide(userIds: string[]): Promise<RecordMember[]> {
     if (!userIds.length) return [];
-    return this.prisma.user.findMany({
-      where: { companyId: this.companyId, id: { in: [...new Set(userIds)] } },
-      select: { id: true, firstName: true, lastName: true, avatarUrl: true },
-    });
+    return this.owners.members.getRecordMembersCompanyWide(this.companyId, userIds);
   }
 
   async setAssignments(ref: RecordRef, userIds: string[]): Promise<void> {
@@ -1949,18 +1807,13 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     beforeDeletion = false,
   ): Promise<void> {
     const id = randomUUID();
-    await this.prisma.eventLog.create({
-      data: {
-        companyId: this.companyId,
-        id,
-        subjectKind: "record",
-        subjectTypeId: ref.typeId,
-        subjectId: ref.recordId,
-        actorId,
-        causeId,
-        kind,
-        payload: recordJson(payload),
-      },
+    await this.owners.events.appendRecordEventCompanyWide(this.companyId, {
+      id,
+      ref,
+      actorId,
+      causeId,
+      kind,
+      payload: recordJson(payload),
     });
     await captureRecordEventMatches(this.prisma, this, this.companyId, { eventId: id }, beforeDeletion);
     await this.wakeRecordEvents();
@@ -1999,18 +1852,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     });
   }
 
-  async updateOperation(
-    id: string,
-    data: {
-      state?: string;
-      processed?: number;
-      total?: number;
-      cursor?: Prisma.InputJsonValue;
-      result?: Prisma.InputJsonValue;
-      errorCode?: string | null;
-      leaseUntil?: Date | null;
-    },
-  ): Promise<void> {
+  async updateOperation(id: string, data: RecordOperationUpdate): Promise<void> {
     await this.prisma.recordOperation.update({
       where: {
         companyId: this.companyId,
@@ -2129,19 +1971,9 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     const companyId = this.companyId;
     const stage = (kind: string) =>
       Prisma.sql`stage."companyId" = ${companyId} AND stage."operationId" = ${operationId} AND stage.kind = ${kind}`;
-    await this.prisma.$executeRaw(Prisma.sql`
-      INSERT INTO "EventLog" ("companyId", id, "subjectKind", "subjectTypeId", "subjectId", "actorId", "causeId", kind, payload, "createdAt", attempts, "nextAttemptAt")
-      SELECT ${companyId}, stage.payload->>'id', 'record', stage.payload->'ref'->>'typeId', stage.payload->'ref'->>'recordId',
-        stage.payload->>'actorId', stage.payload->>'causeId', stage.payload->>'kind', stage.payload->'payload', NOW(), 0, NOW()
-      FROM "RecordStageRow" stage WHERE ${stage("event")}
-    `);
+    await this.owners.events.publishStagedRecordEventsCompanyWide(companyId, operationId);
     await captureRecordEventMatches(this.prisma, this, companyId, { operationId }, true);
-    await this.prisma.$executeRaw(Prisma.sql`
-      INSERT INTO "TrashItem" ("companyId", id, kind, "targetId", "typeId", label, "deletedById", "deletedAt", "expiresAt", "batchId")
-      SELECT ${companyId}, stage.payload->>'id', 'record', stage.payload->>'targetId', stage.payload->>'typeId', stage.payload->>'label',
-        stage.payload->>'deletedById', NOW(), NOW() + make_interval(days => ${TRASH_RETENTION_DAYS}), stage.payload->>'batchId'
-      FROM "RecordStageRow" stage WHERE ${stage("trash-item")}
-      ON CONFLICT DO NOTHING`);
+    await this.owners.trash.publishStagedRecordItemsCompanyWide(companyId, operationId);
     const detachedIdentities = await this.prisma.$queryRaw<Array<{ identityId: string }>>(Prisma.sql`
       SELECT DISTINCT association."identityId" FROM "RecordIdentityLink" association JOIN "RecordStageRow" stage
         ON stage.payload->'ref'->>'typeId' = association."typeId" AND stage.payload->'ref'->>'recordId' = association."recordId"
@@ -2270,5 +2102,69 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo {
     await this.prisma.recordStageRow.deleteMany({
       where: { companyId, operationId: id },
     });
+  }
+
+  @BypassTenantGuard
+  async getModelUnscoped(companyId: string): Promise<RecordModel> {
+    return this.forCompany(companyId).getModel();
+  }
+
+  @BypassTenantGuard
+  async getStateUnscoped(companyId: string) {
+    return this.forCompany(companyId).getState();
+  }
+
+  @BypassTenantGuard
+  async getIdentityChannelsUnscoped(companyId: string, keys: Array<{ channelClass: string; value: string }>) {
+    return this.forCompany(companyId).getIdentityChannelsCompanyWide(keys);
+  }
+
+  @BypassTenantGuard
+  async getIdentityOwnerRefsPageUnscoped(
+    companyId: string,
+    identityId: string,
+    after: RecordRef | undefined,
+    take: number,
+    typeIds: string[],
+  ) {
+    return this.forCompany(companyId).getIdentityOwnerRefsPageCompanyWide(identityId, after, take, typeIds);
+  }
+
+  @BypassTenantGuard
+  async getRecordUnscoped(companyId: string, ref: RecordRef) {
+    return this.forCompany(companyId).getRecordCompanyWide(ref);
+  }
+
+  @BypassTenantGuard
+  async getLastFieldWritersUnscoped(companyId: string, targets: Array<{ ref: RecordRef; fieldId: string }>) {
+    return this.forCompany(companyId).getLastFieldWritersCompanyWide(targets);
+  }
+
+  @BypassTenantGuard
+  async createOperationUnscoped(
+    companyId: string,
+    request: { id: string; userId: string; kind: string; expectedRevision: number; request: unknown },
+  ) {
+    return this.forCompany(companyId).createOperation(request);
+  }
+
+  @BypassTenantGuard
+  async getOperationUnscoped(companyId: string, id: string) {
+    return this.forCompany(companyId).getOperation(id);
+  }
+
+  @BypassTenantGuard
+  async updateOperationUnscoped(companyId: string, id: string, data: RecordOperationUpdate): Promise<void> {
+    await this.forCompany(companyId).updateOperation(id, data);
+  }
+
+  @BypassTenantGuard
+  async clearOperationLockUnscoped(companyId: string, id: string): Promise<void> {
+    await this.releaseTerminalOperation(companyId, id);
+  }
+
+  @BypassTenantGuard
+  async publishStageUnscoped(companyId: string, operationId: string, revision: number): Promise<void> {
+    await this.forCompany(companyId).publishStage(operationId, revision);
   }
 }

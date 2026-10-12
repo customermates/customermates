@@ -7,6 +7,7 @@ import type { SeedContext } from "./context";
 import type { CustomFieldSeedData } from "./custom-fields";
 
 import { fixtureId } from "./helpers";
+import { northwindColumns } from "./northwind-columns";
 import { northwindModelIds } from "./northwind-model";
 import { syntheticRecordKeys } from "./record-keys";
 
@@ -28,6 +29,20 @@ export const SYNTHETIC_P13N_IDS = {
   taskDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 15),
   routines: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 16),
   dashboard: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 19),
+  subscriptions: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 20),
+  onboardings: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 21),
+  tickets: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 22),
+  campaigns: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 23),
+  partners: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 24),
+  openRoles: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 25),
+  candidates: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 26),
+  subscriptionDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 27),
+  onboardingDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 28),
+  ticketDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 29),
+  campaignDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 30),
+  partnerDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 31),
+  openRoleDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 32),
+  candidateDetail: fixtureId(SYNTHETIC_P13N_ID_PREFIX, 33),
 } as const;
 
 export const SYNTHETIC_TEAM_ROUTINE_P13N_IDS = {
@@ -41,6 +56,11 @@ function inputJson(value: unknown): Prisma.InputJsonValue {
   return value as Prisma.InputJsonValue;
 }
 
+/**
+ * The demo user's personalization: the "All" view of every list and the pinned fields of every record page. Like
+ * the saved views, each is curated for an overview: a card shows three to five chips, a table the name plus four to
+ * six columns, and a record page pins three to five facts. Every other field stays available but hidden.
+ */
 export function buildSyntheticP13nFixtures(
   context: Pick<SeedContext, "ids">,
   customFields: CustomFieldSeedData,
@@ -48,8 +68,15 @@ export function buildSyntheticP13nFixtures(
   const { customFieldIds } = customFields;
   const { company, user } = context.ids;
   const { id, surface, relationship, path } = syntheticRecordKeys(company);
-  const dealStage = northwindModelIds(company).fields.deal.stage;
-  const assignedToMe = { field: "system:assignedTo", operator: "in", value: [user] } as const;
+  const { fields: f } = northwindModelIds(company);
+  const dealStage = f.deal.stage;
+  const columns = northwindColumns(company, customFieldIds);
+  const rel = relationship;
+  const assignedToMe = {
+    field: "system:assignedTo",
+    operator: "in",
+    value: [user],
+  } as const;
   const listStateKeys = (grouping: boolean) => [
     "filters",
     "sortDescriptor",
@@ -93,31 +120,61 @@ export function buildSyntheticP13nFixtures(
       }),
     });
 
+  type ListKey = Parameters<typeof columns.showOnly>[0];
+  /** Shows `visible` in that order (plus the name) and hides every other column of the list. */
+  const curated = (type: ListKey, visible: string[]) => ({
+    columnOrder: visible,
+    hiddenColumns: columns.showOnly(type, visible),
+  });
+  /** The curated "All" table of a custom list, sorted by `sortField`. */
+  const customListFixture = (
+    fixtureId: string,
+    type: ListKey,
+    visible: string[],
+    sortField: string,
+    direction: "asc" | "desc",
+  ): SyntheticP13nFixture =>
+    fixture(fixtureId, surface(type), {
+      ...curated(type, visible),
+      columnWidths: inputJson({}),
+      filters: inputJson([]),
+      searchTerm: null,
+      sortDescriptor: inputJson({ direction, field: sortField }),
+      pagination: inputJson({ pageSize: 100 }),
+      viewMode: "table",
+      groupingColumnId: null,
+      grouping: Prisma.DbNull,
+      viewStateKeys: inputJson(listStateKeys(false)),
+    });
+  /** The record page of a custom list: pins `starredFieldIds` and keeps the default field order. */
+  const pinsFixture = (fixtureId: string, type: string, starredFieldIds: string[]): SyntheticP13nFixture =>
+    fixture(fixtureId, `record-detail:${id(type)}`, {
+      columnOrder: [],
+      hiddenColumns: [],
+      viewMode: null,
+      detailOptions: inputJson({
+        starredFieldIds,
+        collapsedSectionIds: [],
+        hiddenFieldIds: [],
+      }),
+    });
+
   return [
     fixture(SYNTHETIC_P13N_IDS.contacts, surface("contact"), {
-      columnOrder: [
-        relationship("contact.organizations", "outgoing"),
-        relationship("task.contacts", "incoming"),
-        relationship("deal.contacts", "incoming"),
+      ...curated("contact", [
+        f.contact.jobTitle,
+        rel("contact.organizations", "outgoing"),
         customFieldIds.contactSalesPipeline,
-        customFieldIds.contactPhone,
         id("capability.identity"),
-        "system:updatedAt",
-        "system:createdAt",
-        "system:assignedTo",
-      ],
-      columnWidths: inputJson({ [relationship("task.contacts", "incoming")]: 133 }),
+      ]),
+      columnWidths: inputJson({ [f.contact.jobTitle]: 220 }),
       filters: inputJson([assignedToMe]),
       searchTerm: null,
-      sortDescriptor: inputJson({ direction: "asc", field: id("contact.name") }),
+      sortDescriptor: inputJson({
+        direction: "asc",
+        field: id("contact.name"),
+      }),
       pagination: inputJson({ pageSize: 100 }),
-      hiddenColumns: [
-        relationship("deal.contacts", "incoming"),
-        "system:createdAt",
-        id("contact.firstName"),
-        id("contact.lastName"),
-        id("contact.avatarUrl"),
-      ],
       viewMode: "table",
       groupingColumnId: null,
       grouping: Prisma.DbNull,
@@ -136,28 +193,15 @@ export function buildSyntheticP13nFixtures(
       grouping: Prisma.DbNull,
     }),
     fixture(SYNTHETIC_P13N_IDS.tasks, surface("task"), {
-      columnOrder: [
-        customFieldIds.taskPriority,
-        customFieldIds.taskStatus,
-        "system:updatedAt",
-        "system:createdAt",
-        "system:assignedTo",
-      ],
+      ...curated("task", [f.task.dueDate, customFieldIds.taskPriority, rel("task.deals", "outgoing")]),
       columnWidths: inputJson({}),
       filters: inputJson([assignedToMe]),
       searchTerm: null,
-      sortDescriptor: inputJson({ direction: "desc", field: "system:updatedAt" }),
+      sortDescriptor: inputJson({
+        direction: "desc",
+        field: "system:updatedAt",
+      }),
       pagination: inputJson({ pageSize: 100 }),
-      hiddenColumns: [
-        customFieldIds.taskStatus,
-        "system:createdAt",
-        relationship("task.contacts", "outgoing"),
-        relationship("task.organizations", "outgoing"),
-        relationship("task.deals", "outgoing"),
-        relationship("task.services", "outgoing"),
-        "system:assignedTo",
-        "system:updatedAt",
-      ],
       viewMode: "card",
       groupingColumnId: customFieldIds.taskStatus,
       grouping: inputJson({ field: customFieldIds.taskStatus }),
@@ -188,64 +232,40 @@ export function buildSyntheticP13nFixtures(
       grouping: Prisma.DbNull,
     }),
     fixture(SYNTHETIC_P13N_IDS.deals, surface("deal"), {
-      columnOrder: [
-        dealStage,
+      ...curated("deal", [
         id("deal.totalValue"),
-        id("deal.weightedValue"),
-        relationship("task.deals", "incoming"),
-        id("deal.totalQuantity"),
-        customFieldIds.dealProjectPeriod,
-        relationship("deal.contacts", "outgoing"),
-        relationship("deal.organizations", "outgoing"),
-        path("deal.services.path"),
+        rel("deal.organizations", "outgoing"),
         "system:assignedTo",
-        "system:updatedAt",
-        "system:createdAt",
-      ],
+        f.deal.openedOn,
+      ]),
       columnWidths: inputJson({}),
       filters: inputJson([]),
       searchTerm: null,
       sortDescriptor: inputJson({ direction: "desc", field: id("deal.name") }),
       pagination: inputJson({ pageSize: 100 }),
-      hiddenColumns: [
-        relationship("deal.contacts", "outgoing"),
-        "system:updatedAt",
-        "system:createdAt",
-        relationship("task.deals", "incoming"),
-        relationship("lineItem.deal", "incoming"),
-      ],
       viewMode: "card",
       groupingColumnId: dealStage,
       grouping: inputJson({
         field: dealStage,
-        summaries: [
-          { fieldId: id("deal.totalValue"), aggregation: "sum" },
-          { fieldId: id("deal.weightedValue"), aggregation: "sum" },
-        ],
+        summaries: [{ fieldId: id("deal.totalValue"), aggregation: "sum" }],
       }),
       viewStateKeys: inputJson(listStateKeys(true)),
     }),
     fixture(SYNTHETIC_P13N_IDS.services, surface("service"), {
-      columnOrder: [
+      ...curated("service", [
         customFieldIds.serviceType,
         id("service.amount"),
         customFieldIds.servicePricing,
         path("service.deals.path"),
-        relationship("task.services", "incoming"),
-        "system:updatedAt",
-        "system:createdAt",
-        "system:assignedTo",
-      ],
+      ]),
       columnWidths: inputJson({}),
       filters: inputJson([]),
       searchTerm: null,
-      sortDescriptor: inputJson({ direction: "asc", field: id("service.name") }),
+      sortDescriptor: inputJson({
+        direction: "asc",
+        field: id("service.name"),
+      }),
       pagination: inputJson({ pageSize: 100 }),
-      hiddenColumns: [
-        "system:createdAt",
-        relationship("task.services", "incoming"),
-        relationship("lineItem.service", "incoming"),
-      ],
       viewMode: "table",
       groupingColumnId: null,
       grouping: Prisma.DbNull,
@@ -264,25 +284,21 @@ export function buildSyntheticP13nFixtures(
       grouping: Prisma.DbNull,
     }),
     fixture(SYNTHETIC_P13N_IDS.organizations, surface("organization"), {
-      columnOrder: [
-        relationship("contact.organizations", "incoming"),
-        relationship("deal.organizations", "incoming"),
-        relationship("task.organizations", "incoming"),
+      ...curated("organization", [
         customFieldIds.organizationType,
-        customFieldIds.organizationWebsite,
-        "system:updatedAt",
-        "system:createdAt",
+        f.organization.industry,
+        f.organization.segment,
+        f.organization.arr,
         "system:assignedTo",
-      ],
-      columnWidths: inputJson({
-        [relationship("deal.organizations", "incoming")]: 227,
-        [relationship("task.organizations", "incoming")]: 191,
-      }),
+      ]),
+      columnWidths: inputJson({ [id("organization.name")]: 260 }),
       filters: inputJson([]),
       searchTerm: null,
-      sortDescriptor: inputJson({ direction: "asc", field: id("organization.name") }),
+      sortDescriptor: inputJson({
+        direction: "asc",
+        field: id("organization.name"),
+      }),
       pagination: inputJson({ pageSize: 100 }),
-      hiddenColumns: ["system:createdAt"],
       viewMode: "table",
       groupingColumnId: null,
       grouping: Prisma.DbNull,
@@ -306,18 +322,75 @@ export function buildSyntheticP13nFixtures(
       groupingColumnId: "ownerUserId",
       grouping: inputJson({ field: "ownerUserId" }),
     }),
+    customListFixture(
+      SYNTHETIC_P13N_IDS.subscriptions,
+      "subscription",
+      [
+        rel("subscription.organization", "outgoing"),
+        f.subscription.plan,
+        f.subscription.arr,
+        f.subscription.renewalDate,
+        f.subscription.health,
+      ],
+      f.subscription.renewalDate,
+      "asc",
+    ),
+    customListFixture(
+      SYNTHETIC_P13N_IDS.onboardings,
+      "onboarding",
+      [rel("onboarding.organization", "outgoing"), f.onboarding.phase, f.onboarding.owner, f.onboarding.progress],
+      f.onboarding.progress,
+      "asc",
+    ),
+    customListFixture(
+      SYNTHETIC_P13N_IDS.tickets,
+      "ticket",
+      [f.ticket.priority, f.ticket.status, f.ticket.assignee, f.ticket.slaDue],
+      f.ticket.slaDue,
+      "asc",
+    ),
+    customListFixture(
+      SYNTHETIC_P13N_IDS.campaigns,
+      "campaign",
+      [f.campaign.channel, f.campaign.period, f.campaign.budget, f.campaign.pipelineSourced],
+      f.campaign.pipelineSourced,
+      "desc",
+    ),
+    customListFixture(
+      SYNTHETIC_P13N_IDS.partners,
+      "partner",
+      [f.partner.tier, f.partner.region, f.partner.referredPipeline, f.partner.revenueInfluenced],
+      f.partner.revenueInfluenced,
+      "desc",
+    ),
+    customListFixture(
+      SYNTHETIC_P13N_IDS.openRoles,
+      "openRole",
+      [f.openRole.department, f.openRole.status, f.openRole.hiringManager, f.openRole.targetStart],
+      f.openRole.targetStart,
+      "asc",
+    ),
+    customListFixture(
+      SYNTHETIC_P13N_IDS.candidates,
+      "candidate",
+      [rel("candidate.openRole", "outgoing"), f.candidate.stage, f.candidate.source, f.candidate.appliedOn],
+      f.candidate.appliedOn,
+      "desc",
+    ),
     detailFixture(
       SYNTHETIC_P13N_IDS.contactDetail,
       "contact",
       [customFieldIds.contactSalesPipeline, customFieldIds.contactPhone],
       [
-        id("capability.identity"),
+        f.contact.jobTitle,
         relationship("contact.organizations", "outgoing"),
         customFieldIds.contactSalesPipeline,
+        id("capability.identity"),
       ],
       [
         id("contact.firstName"),
         id("contact.lastName"),
+        f.contact.jobTitle,
         customFieldIds.contactSalesPipeline,
         relationship("contact.organizations", "outgoing"),
         id("capability.identity"),
@@ -331,10 +404,12 @@ export function buildSyntheticP13nFixtures(
       SYNTHETIC_P13N_IDS.organizationDetail,
       "organization",
       [customFieldIds.organizationType, customFieldIds.organizationWebsite],
-      [customFieldIds.organizationType, customFieldIds.organizationWebsite, "system:assignedTo"],
+      [customFieldIds.organizationType, f.organization.industry, f.organization.arr, "system:assignedTo"],
       [
         id("organization.name"),
         customFieldIds.organizationType,
+        f.organization.industry,
+        f.organization.arr,
         customFieldIds.organizationWebsite,
         relationship("contact.organizations", "incoming"),
         relationship("deal.organizations", "incoming"),
@@ -348,12 +423,15 @@ export function buildSyntheticP13nFixtures(
       [customFieldIds.dealStatus, customFieldIds.dealProjectPeriod],
       [
         id("deal.totalValue"),
-        id("deal.totalQuantity"),
+        dealStage,
+        f.deal.openedOn,
         relationship("deal.organizations", "outgoing"),
-        customFieldIds.dealStatus,
+        "system:assignedTo",
       ],
       [
         id("deal.name"),
+        dealStage,
+        f.deal.openedOn,
         customFieldIds.dealStatus,
         relationship("deal.organizations", "outgoing"),
         customFieldIds.dealProjectPeriod,
@@ -385,11 +463,12 @@ export function buildSyntheticP13nFixtures(
       SYNTHETIC_P13N_IDS.taskDetail,
       "task",
       [customFieldIds.taskPriority, customFieldIds.taskStatus],
-      [customFieldIds.taskStatus, customFieldIds.taskPriority, "system:assignedTo"],
+      [customFieldIds.taskStatus, customFieldIds.taskPriority, f.task.dueDate, "system:assignedTo"],
       [
         id("task.name"),
         customFieldIds.taskStatus,
         customFieldIds.taskPriority,
+        f.task.dueDate,
         relationship("task.contacts", "outgoing"),
         relationship("task.organizations", "outgoing"),
         relationship("task.deals", "outgoing"),
@@ -397,6 +476,48 @@ export function buildSyntheticP13nFixtures(
       ],
       [relationship("task.organizations", "outgoing"), relationship("task.services", "outgoing")],
     ),
+    pinsFixture(SYNTHETIC_P13N_IDS.subscriptionDetail, "subscription", [
+      rel("subscription.organization", "outgoing"),
+      f.subscription.plan,
+      f.subscription.arr,
+      f.subscription.renewalDate,
+      f.subscription.health,
+    ]),
+    pinsFixture(SYNTHETIC_P13N_IDS.onboardingDetail, "onboarding", [
+      rel("onboarding.organization", "outgoing"),
+      f.onboarding.phase,
+      f.onboarding.owner,
+      f.onboarding.progress,
+    ]),
+    pinsFixture(SYNTHETIC_P13N_IDS.ticketDetail, "ticket", [
+      f.ticket.priority,
+      f.ticket.status,
+      f.ticket.assignee,
+      f.ticket.slaDue,
+    ]),
+    pinsFixture(SYNTHETIC_P13N_IDS.campaignDetail, "campaign", [
+      f.campaign.channel,
+      f.campaign.owner,
+      f.campaign.budget,
+      f.campaign.pipelineSourced,
+    ]),
+    pinsFixture(SYNTHETIC_P13N_IDS.partnerDetail, "partner", [
+      f.partner.tier,
+      f.partner.region,
+      f.partner.revenueInfluenced,
+    ]),
+    pinsFixture(SYNTHETIC_P13N_IDS.openRoleDetail, "openRole", [
+      f.openRole.department,
+      f.openRole.status,
+      f.openRole.hiringManager,
+      f.openRole.targetStart,
+    ]),
+    pinsFixture(SYNTHETIC_P13N_IDS.candidateDetail, "candidate", [
+      rel("candidate.openRole", "outgoing"),
+      f.candidate.stage,
+      f.candidate.source,
+      f.candidate.appliedOn,
+    ]),
   ];
 }
 

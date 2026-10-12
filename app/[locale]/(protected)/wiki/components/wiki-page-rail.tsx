@@ -17,7 +17,9 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Compass, FileText, GripVertical, ListChecks, Search } from "lucide-react";
+import { Compass, FileText, ListChecks, Search } from "lucide-react";
+import { DragHandle } from "@/components/shared/drag-handle";
+import { ITEM_REVEAL_GROUP_CLASS } from "@/components/ui/item-actions";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
 
@@ -61,7 +63,8 @@ function SortablePage({
     <div
       ref={sortable.setNodeRef}
       className={cn(
-        "group relative flex min-w-0 items-center rounded-md",
+        ITEM_REVEAL_GROUP_CLASS,
+        "relative flex min-w-0 items-center rounded-md",
         sortable.isDragging && "z-10 bg-card shadow-md",
       )}
       style={{ transform: CSS.Transform.toString(sortable.transform), transition: sortable.transition }}
@@ -69,17 +72,15 @@ function SortablePage({
       <div className="min-w-0 flex-1">{children}</div>
 
       {showHandle && (
-        <button
-          ref={sortable.setActivatorNodeRef}
-          {...sortable.attributes}
-          {...sortable.listeners}
+        <DragHandle
+          reveal
           aria-disabled={disabled}
-          aria-label={`${t("DataView.dragToReorder")}: ${page.title}`}
-          className="mr-1 flex size-6 shrink-0 touch-none items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing cursor-grab sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
-          type="button"
-        >
-          <GripVertical aria-hidden="true" className="size-3.5" />
-        </button>
+          attributes={sortable.attributes}
+          className="mr-1 size-6"
+          label={t("DataView.dragToReorderNamed", { name: page.title })}
+          listeners={sortable.listeners}
+          setActivatorNodeRef={sortable.setActivatorNodeRef}
+        />
       )}
     </div>
   );

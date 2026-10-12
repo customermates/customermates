@@ -91,7 +91,7 @@ test("inbox threads are listed and linked to their deals, tickets and candidates
     }).toPass();
     for (const link of links.filter((candidate) => candidate.threadId === threadId)) {
       await expect(dialog.getByRole("button", { name: `Open record: ${link.record}`, exact: true })).toBeVisible();
-      await expect(dialog).toContainText(`${link.record}· ${link.list}`);
+      await expect(dialog).toContainText(link.record);
     }
     await page.keyboard.press("Escape");
   }

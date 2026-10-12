@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Settings2 } from "lucide-react";
@@ -22,15 +22,14 @@ import { resolveDataViewPageState, resolveDataViewView } from "@/components/data
 import { useDataViewSync } from "@/components/data-view/use-data-view-sync";
 import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
-import { RecordsStore } from "./records.store";
+import { NUMBER_VALUE_TYPES, RecordsStore } from "./records.store";
 import { RecordsPageSkeleton } from "./records-page-skeleton";
 import { useRecordCardRenderer, useRecordTableColumns } from "./record-table-columns";
 import type { DataTableColumnStyle } from "@/components/data-view/data-table";
 import type { RecordFieldView } from "@/features/records/record-model.schema";
 
-const NUMBER_TYPES: RecordFieldView["valueType"][] = ["number", "currency"];
 const END_ALIGNED_TYPES: RecordFieldView["valueType"][] = [
-  ...NUMBER_TYPES,
+  ...NUMBER_VALUE_TYPES,
   "date",
   "dateTime",
   "dateRange",
@@ -56,12 +55,11 @@ const RecordsPageViewContent = observer(function RecordsPageView({
   const t = useTranslations();
   const [store] = useState(() => new RecordsStore(root, presentation));
   const [importOpen, setImportOpen] = useState(false);
-  const applied = useRef(presentation);
-  useEffect(() => {
-    if (applied.current === presentation) return;
-    applied.current = presentation;
+  const [appliedPresentation, setAppliedPresentation] = useState(presentation);
+  if (appliedPresentation !== presentation) {
+    setAppliedPresentation(presentation);
     store.setPresentation(presentation);
-  }, [presentation, store]);
+  }
   useDataViewSync(store, presentation.result);
   useEffect(
     () =>
@@ -96,22 +94,29 @@ const RecordsPageViewContent = observer(function RecordsPageView({
   const recordHref = useCallback((record: RecordRow) => `/records/${record.ref.typeId}/${record.ref.recordId}`, []);
   const view = resolveDataViewView(store.viewMode, store.canBoard);
   const columns = useRecordTableColumns(store, openRelated, { openRecord });
+  const { recordColumns, primaryColumnId, firstNumberColumnId } = store;
+  const columnStyles = useMemo(
+    () =>
+      new Map(
+        recordColumns.map((column): [string, DataTableColumnStyle] => [
+          column.id,
+          {
+            align:
+              (column.kind === "field" && END_ALIGNED_TYPES.includes(column.field.valueType)) ||
+              column.id === "system:createdAt" ||
+              column.id === "system:updatedAt"
+                ? "end"
+                : undefined,
+            emphasis: column.id === primaryColumnId || column.id === firstNumberColumnId,
+          },
+        ]),
+      ),
+    [recordColumns, primaryColumnId, firstNumberColumnId],
+  );
   const columnStyle = useCallback(
-    (columnId: string): DataTableColumnStyle => {
-      const column = store.recordColumns.find((candidate) => candidate.id === columnId);
-      const firstNumber = store.visibleColumns
-        .map((visible) => store.recordColumns.find((candidate) => candidate.id === visible.uid))
-        .find((candidate) => candidate?.kind === "field" && NUMBER_TYPES.includes(candidate.field.valueType));
-      const endAligned =
-        (column?.kind === "field" && END_ALIGNED_TYPES.includes(column.field.valueType)) ||
-        columnId === "system:createdAt" ||
-        columnId === "system:updatedAt";
-      return {
-        align: endAligned ? "end" : undefined,
-        emphasis: columnId === store.primaryColumnId || column === firstNumber,
-      };
-    },
-    [store],
+    (columnId: string): DataTableColumnStyle =>
+      columnStyles.get(columnId) ?? { align: undefined, emphasis: columnId === primaryColumnId },
+    [columnStyles, primaryColumnId],
   );
   const renderCard = useRecordCardRenderer(store, openRelated);
   const deletion = useRecordDeletion({

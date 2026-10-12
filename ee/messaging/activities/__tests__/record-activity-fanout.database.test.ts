@@ -29,7 +29,7 @@ const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { getTransactionClient } = await import("@/core/decorators/transaction-context");
-const { PrismaRecordRepo } = await import("@/features/records/prisma-record.repository");
+const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("@/features/records/record-access");
 const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
@@ -97,7 +97,7 @@ async function createWorkspace() {
   });
   const admin = createMockUser({ ...seed.adminUser, role: { ...seed.adminRole, permissions: [] } });
   const member = createMockUser({ ...seed.memberUser, role: { ...seed.memberRole, permissions: [] } });
-  const repo = new PrismaRecordRepo();
+  const repo = createTestRecordRepo();
   const id = (key: string) => presetId(seed.company.id, key);
   await runWithTenant(admin, () =>
     runInTransaction(async () => {

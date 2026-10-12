@@ -8,7 +8,6 @@ import {
   getRunRoutineNowInteractor,
   getUpsertRoutineInteractor,
 } from "@/core/di";
-import { FilterSchema } from "@/core/base/base-get.schema";
 import { MIN_ROUTINE_INTERVAL_MINUTES } from "@/ee/routines/routine-schedule";
 import {
   ROUTINE_NAME_MAX_CHARS,
@@ -16,6 +15,7 @@ import {
   RoutineTriggerEventSchema,
   RoutineRecordTriggerSchema,
 } from "@/ee/routines/routine.schema";
+import { RecordTriggerSourceSchema } from "@/features/records/record-event-subscription.schema";
 
 import {
   fetchMcpPage,
@@ -31,7 +31,7 @@ const ManageRoutinesSchema = z.object({
   action: z
     .enum(["list", "runs", "create", "update", "pause", "run_now", "delete"])
     .describe(
-      "list = every routine with its full configuration (optional page, pageSize, searchTerm); runs = one routine's run history (id, optional cursor); create = name, prompt, triggerKind, enabled, plus cronExpression and timezone for a schedule or triggerEvents (optional changedFields, triggerFilters, debounceSeconds) for an event; update = id plus the fields to change; pause, run_now and delete = id.",
+      "list = every routine with its full configuration (optional page, pageSize, searchTerm); runs = one routine's run history (id, optional cursor); create = name, prompt, triggerKind, enabled, plus cronExpression and timezone for a schedule or triggerEvents for an event (record events also need recordTrigger or recordSources; optional debounceSeconds); update = id plus the fields to change; pause, run_now and delete = id.",
     ),
   id: z.uuid().optional().describe("Routine id. Required for update, pause, run_now and delete."),
   cursor: z.string().max(500).nullable().optional().describe("runs only. Page cursor from a previous runs call."),
@@ -62,16 +62,19 @@ const ManageRoutinesSchema = z.object({
     .array(RoutineTriggerEventSchema)
     .optional()
     .describe("Events an event routine reacts to. Required for triggerKind event."),
-  triggerFilters: z
-    .array(FilterSchema)
-    .optional()
-    .describe(
-      "Restricts an event routine to records matching these filters. Dropped unless every event shares one entity type.",
-    ),
   recordTrigger: RoutineRecordTriggerSchema.nullable()
     .optional()
     .describe(
-      "For record.created/updated/deleted: a query with stable typeId, filters and relationships, plus watched field IDs. Discover the type schema first. Deletion filters match before removal; creation and update filters match the resulting state and are rechecked at admission. Current owner access is always rechecked. Do not mix record events with messaging events.",
+      "For record.created/updated/deleted from one list: a query with stable typeId, filters and relationships, plus watched field IDs (changedFieldIds). The query filters decide which records fire the routine. Discover the type schema first. Deletion filters match before removal; creation and update filters match the resulting state and are rechecked at admission. Current owner access is always rechecked. Use recordSources instead to watch several lists.",
+    ),
+  recordSources: z
+    .array(RecordTriggerSourceSchema)
+    .min(1)
+    .max(50)
+    .nullable()
+    .optional()
+    .describe(
+      "For record events from several lists, or with different filters per event: each source has its own query (typeId, filters, relationships), changedFieldIds and the record events it handles. Every record event in triggerEvents needs a source. Replaces recordTrigger; null clears it.",
     ),
   expectedSchemaRevision: z
     .number()
@@ -108,7 +111,7 @@ export const manageRoutinesTool = {
     "Use this to read, create, change or remove routines: saved instructions the assistant runs on a schedule or when a CRM event fires. " +
     "action list returns every routine with its prompt and trigger, and takes page, pageSize and searchTerm for pagination. " +
     "action runs returns one routine's run history newest first, paginated by cursor, each with its status, summary and trigger. " +
-    "action create needs name, prompt and triggerKind, plus cronExpression for a schedule, or triggerEvents for an event. " +
+    "action create needs name, prompt and triggerKind, plus cronExpression for a schedule, or triggerEvents for an event. Record events (record.created, record.updated, record.deleted) also need recordTrigger for one list or recordSources for several lists; the query filters decide which records fire the routine, and record events can be combined with messaging events in one routine. " +
     "Omitting enabled on create produces a routine that is immediately LIVE and will start running, so pass enabled false to draft one. " +
     "action update changes only the fields supplied, but a change of triggerKind must arrive with that kind's schedule or events or validation fails. " +
     "action pause disables a routine and settles its queued runs to skipped; re-enabling restores the schedule but never those runs. Only an active system administrator may pause. " +
@@ -165,8 +168,8 @@ export const manageRoutinesTool = {
           cronExpression: params.cronExpression,
           timezone: params.timezone,
           triggerEvents: params.triggerEvents,
-          triggerFilters: params.triggerFilters,
           recordTrigger: params.recordTrigger,
+          recordSources: params.recordSources,
           expectedSchemaRevision: params.expectedSchemaRevision,
           debounceSeconds: params.debounceSeconds,
         }),

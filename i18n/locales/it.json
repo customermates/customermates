@@ -1179,6 +1179,7 @@
       "userInactive": "Il tuo account utente è inattivo. Contatta un amministratore dello spazio di lavoro.",
       "userNotFound": "ID utente non trovato o non accessibile.",
       "userPlatformOperatorStatusForbidden": "Questo account appartiene a un operatore della piattaforma e non può essere disattivato qui. Usa la console operatore.",
+      "userRoleRequired": "Questo membro non ha ancora un ruolo. Scegli un ruolo insieme alla modifica.",
       "userSelfAdminUpdateForbidden": "Non puoi aggiornare il tuo account dall’amministrazione del team.",
       "webhookBodyTemplateInvalid": "Il modello del corpo deve produrre un oggetto JSON valido.",
       "webhookDeliveryNotFound": "ID consegna del webhook non trovato o non accessibile.",
@@ -1195,7 +1196,7 @@
       "widgetKindImmutable": "Il tipo di un widget non può essere modificato dopo la creazione.",
       "widgetLayoutChanged": "La dashboard è cambiata nel frattempo. È stata ricaricata, quindi riorganizza i widget.",
       "widgetLayoutOverlap": "Questa posizione si sovrappone a un altro widget. Scegli uno spazio libero nella griglia a 12 colonne oppure ometti il layout per posizionarlo automaticamente.",
-      "widgetLayoutTooSmall": "Questo widget richiede almeno 2 colonne e 3 righe.",
+      "widgetLayoutTooSmall": "Questo widget è troppo piccolo: grafici e numeri richiedono almeno 2 righe, le cronologie delle attività 2 colonne e 6 righe.",
       "widgetNotFound": "ID widget non trovato o non accessibile.",
       "wikiGuideExists": "Questa base di conoscenza ha già una guida operativa. Aggiorna la guida esistente.",
       "wikiNotEmpty": "Questa azione richiede una base di conoscenza vuota.",
@@ -1944,6 +1945,7 @@
       "create": "Crea con gli ID esportati",
       "failed": "Impossibile importare i record. Controlla il file e le autorizzazioni.",
       "fileHint": "Scegli un'esportazione JSON di Customermates per questo elenco.",
+      "mode": "Modalità di importazione",
       "ready": "{count, plural, one {# record} other {# record}} e {links, plural, one {# collegamento} other {# collegamenti}} sono pronti per l'importazione.",
       "schemaMismatch": "La struttura dell'elenco è cambiata dopo l'esportazione.",
       "submit": "Importa record",
@@ -1969,7 +1971,7 @@
     "boardPickedUp": "Record selezionato.",
     "collapseColumn": "Comprimi colonna",
     "collapseGroup": "Comprimi il gruppo {group}",
-    "dragToReorder": "Trascina per riordinare",
+    "dragToReorderNamed": "Trascina per riordinare: {name}",
     "editOption": "Modifica opzione",
     "expandColumn": "Espandi {name}",
     "expandGroup": "Espandi il gruppo {group}",
@@ -2158,6 +2160,7 @@
     "fieldPickedUp": "Campo {field} selezionato.",
     "hideField": "Nascondi {field} dai dettagli",
     "overview": "Panoramica",
+    "panelSwitcher": "Pannelli di dettaglio",
     "personalize": "Personalizza",
     "pinField": "Fissa {field} nella panoramica",
     "pinMore": "Fissa o sblocca campi",
@@ -3525,6 +3528,7 @@
     "operation": "Calcolo",
     "operationCancelled": "La modifica è stata annullata.",
     "operationFailed": "La modifica non è riuscita. Lo stato completo precedente resta attivo.",
+    "operationNamed": "Calcolo: {operation}",
     "operationPending": "Le modifiche sono in preparazione. I dati esistenti restano disponibili.",
     "operationProgress": "{processed} di {total} preparati",
     "operators": {
@@ -3810,6 +3814,7 @@
   },
   "RoutineDetail": {
     "credits": "Crediti",
+    "creditsAmount": "Crediti: {amount}",
     "empty": {
       "event": {
         "actions": {

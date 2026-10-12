@@ -11,7 +11,7 @@ import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 import { toChipColor } from "@/constants/chip-colors";
 import { getChartColors } from "@/constants/chart-colors";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { useRecordValueFormat } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
+import { useRecordValueFormat } from "@/components/records/record-value";
 import { hasRecordMeasureGroupFilter } from "@/features/records/record-measure.schema";
 import { derivedFractionDigits } from "@/features/records/derived-value-format";
 import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";
@@ -20,6 +20,7 @@ import { WidgetChart } from "./widget-chart";
 import { WidgetNumber } from "./widget-number";
 import { formatWidgetNumber, inlineListLabel, widgetNumberAverage } from "./widget-number-format";
 import { WidgetSubtitle } from "./widget-subtitle";
+import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS, WIDGET_CARD_TITLE_CLASS } from "./widget-card-frame";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { TruncatedText } from "@/components/shared/truncated-text";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -127,17 +128,19 @@ export function RecordWidgetChart({
       : []),
     ...(hasRecordMeasureGroupFilter(measure) ? [t("RecordWidgets.groupFilterSummary")] : []),
   ];
-  const frame = (body: ReactNode, subtitle: string | null = null, bodyClassName?: string) => (
+  const frame = (body: ReactNode, subtitle: string | null = null, bodyClassName?: string, reserve = true) => (
     <>
-      <AppCardHeader className="flex-col items-start gap-0.5">
-        <h2 className="text-x-md w-full">
+      <AppCardHeader className={WIDGET_CARD_HEADER_CLASS}>
+        <h2 className={WIDGET_CARD_TITLE_CLASS}>
           <TruncatedText>{name}</TruncatedText>
         </h2>
 
-        <WidgetSubtitle notes={infoNotes} text={subtitle} />
+        <WidgetSubtitle notes={infoNotes} reserve={reserve} text={subtitle} />
       </AppCardHeader>
 
-      <AppCardBody className={cn("overflow-visible recharts-no-focus-outline", bodyClassName)}>{body}</AppCardBody>
+      <AppCardBody className={cn(WIDGET_CARD_BODY_CLASS, "overflow-visible recharts-no-focus-outline", bodyClassName)}>
+        {body}
+      </AppCardBody>
     </>
   );
   if (status === "unavailable" || !data) {
@@ -180,7 +183,8 @@ export function RecordWidgetChart({
         value={headline.display}
       />,
       null,
-      "pt-3",
+      "justify-end pt-1",
+      false,
     );
   }
   const overall = displayOptions.showFilters !== false ? t("RecordWidgets.overall", { value: format(total) }) : null;

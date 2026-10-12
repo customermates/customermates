@@ -3,8 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { observer } from "mobx-react-lite";
-import { ChevronLeft, Plus, Unlink } from "lucide-react";
+import { ChevronLeft, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { AppChip } from "@/components/chip/app-chip";
+import { RecordChipIcon } from "@/components/records/record-chip-icon";
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { SelectionOptionsSkeleton } from "@/components/forms/selection-loading";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -39,7 +41,7 @@ export const ThreadRecords = observer(({ threadId }: { threadId: string }) => {
             variant="ghost"
             onClick={() => store.setSearching(!store.searching)}
           >
-            {store.searching ? <ChevronLeft className="size-3.5" /> : <Plus className="size-3.5" />}
+            {store.searching ? <ChevronLeft aria-hidden /> : <Plus aria-hidden />}
 
             {store.searching ? t("Common.actions.back") : t("Inbox.participants.linkRecord")}
           </Button>
@@ -101,55 +103,58 @@ export const ThreadRecords = observer(({ threadId }: { threadId: string }) => {
           </CommandList>
         </Command>
       ) : (
-        <div ref={list} className="flex flex-col gap-1">
+        <div ref={list} className="flex flex-wrap gap-1">
           {store.loading && !store.detail && <SelectionOptionsSkeleton label={t("Loading.text")} />}
 
           {!store.loading && !store.error && store.detail?.records.length === 0 && (
-            <p className="text-muted-foreground text-xs">{t("Inbox.participants.noRecords")}</p>
+            <p className="text-muted-foreground text-sm">{t("Inbox.participants.noRecords")}</p>
           )}
 
-          {store.detail?.records.map((record, index) => (
-            <div key={recordSearchKey(record)} className="flex items-center gap-1">
-              <Button
-                aria-label={t("Inbox.participants.openRecordNamed", {
-                  name: recordDisplayName(record.title, record.typeLabel, t),
-                })}
-                className="min-w-0 flex-1 justify-start"
-                data-thread-record-open=""
-                size="sm"
-                variant="secondary"
-                onClick={(event) => root.recordWorkspaceStore.open(record.ref, event.currentTarget)}
+          {store.detail?.records.map((record, index) => {
+            const name = recordDisplayName(record.title, record.typeLabel, t);
+            return (
+              <AppChip
+                key={recordSearchKey(record)}
+                data-thread-record-chip=""
+                endContent={
+                  record.canUnlink ? (
+                    <button
+                      aria-label={t("Inbox.participants.unlinkRecordNamed", { name })}
+                      className="inline-flex size-5 items-center justify-center rounded-sm focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+                      disabled={store.pending}
+                      type="button"
+                      onClick={() =>
+                        runUserAction(async () => {
+                          await store.mutate("unlink", record.ref);
+                          focusAfterRemoval({
+                            container: () => list.current,
+                            selector: "[data-thread-record-open]",
+                            index,
+                            fallback: () => toggle.current,
+                          });
+                        })
+                      }
+                    >
+                      <X aria-hidden className="size-3" />
+                    </button>
+                  ) : undefined
+                }
+                startContent={
+                  <RecordChipIcon icons={{ [record.ref.typeId]: record.icon }} typeId={record.ref.typeId} />
+                }
               >
-                <span className="truncate">{recordDisplayName(record.title, record.typeLabel, t)}</span>
-
-                <span className="text-muted-foreground shrink-0 text-xs">· {record.typeLabel}</span>
-              </Button>
-
-              {record.canUnlink && (
-                <Button
-                  aria-label={t("Inbox.participants.unlinkRecordNamed", {
-                    name: recordDisplayName(record.title, record.typeLabel, t),
-                  })}
-                  disabled={store.pending}
-                  size="icon-sm"
-                  variant="ghost"
-                  onClick={() =>
-                    runUserAction(async () => {
-                      await store.mutate("unlink", record.ref);
-                      focusAfterRemoval({
-                        container: () => list.current,
-                        selector: "[data-thread-record-open]",
-                        index,
-                        fallback: () => toggle.current,
-                      });
-                    })
-                  }
+                <button
+                  aria-label={t("Inbox.participants.openRecordNamed", { name })}
+                  className="max-w-full rounded-sm text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  data-thread-record-open=""
+                  type="button"
+                  onClick={(event) => root.recordWorkspaceStore.open(record.ref, event.currentTarget)}
                 >
-                  <Unlink className="size-3.5" />
-                </Button>
-              )}
-            </div>
-          ))}
+                  {name}
+                </button>
+              </AppChip>
+            );
+          })}
         </div>
       )}
     </section>

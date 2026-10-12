@@ -62,7 +62,7 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   send_chat_message: { approvalFree: true },
   send_email: { approvalFree: true },
   update_messaging_thread: { approvalFree: true },
-  update_workspace_settings: { approvalFree: true },
+  update_my_profile: { approvalFree: true },
 };
 
 const AGENT_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = Object.fromEntries(

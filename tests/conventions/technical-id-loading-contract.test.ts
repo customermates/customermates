@@ -105,6 +105,6 @@ describe("technical-id loading contract", () => {
     const relationship = read("app/[locale]/(protected)/records/[typeId]/components/record-relationship-editor.tsx");
     expect(relationship).toContain("options.loading || search !== debounced");
     expect(relationship).toContain("options.failed");
-    expect(relationship).toContain("state?.key === key");
+    expect(read("components/records/record-choices.store.ts")).toContain("this.response?.key === key");
   });
 });

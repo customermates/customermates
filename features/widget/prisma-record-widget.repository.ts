@@ -1,7 +1,8 @@
-import type { RecordWidgetRepo, RecordWidgetInput, StoredRecordWidget } from "./record-widget.schema";
+import type { RecordWidgetRepo, SavedRecordWidgetInput, StoredRecordWidget } from "./record-widget.schema";
 import { RecordWidgetDtoSchema } from "./record-widget.schema";
 import { Prisma } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
+import type { OwnedWidgetWriteRepo } from "./owned-widget-write.repo";
 import { recordJson } from "@/features/records/record-storage";
 import type { WidgetLayout } from "./widget-display.schema";
 import { listWidgetPlacements } from "./widget-placement";
@@ -15,6 +16,10 @@ const StoredSchema = RecordWidgetDtoSchema.omit({
 }).strip();
 
 export class PrismaRecordWidgetRepo extends TenantRepository implements RecordWidgetRepo {
+  constructor(private readonly widgets: OwnedWidgetWriteRepo) {
+    super();
+  }
+
   async findOwned(id: string): Promise<StoredRecordWidget | null> {
     const row = await this.prisma.widget.findFirst({
       where: { id, companyId: this.companyId, userId: this.userId, measure: { not: Prisma.AnyNull }, ...LIVE_WIDGET },
@@ -44,7 +49,7 @@ export class PrismaRecordWidgetRepo extends TenantRepository implements RecordWi
     return listWidgetPlacements(this.prisma, this.companyId, this.userId, viewId);
   }
   async save(
-    input: RecordWidgetInput,
+    input: SavedRecordWidgetInput,
     id: string,
     viewId: string | null,
     layout?: WidgetLayout,
@@ -58,18 +63,13 @@ export class PrismaRecordWidgetRepo extends TenantRepository implements RecordWi
       viewId,
       ...(layout ? { layout: recordJson(layout) } : {}),
     };
-    const row = input.id
-      ? await this.prisma.widget.update({
-          where: {
-            id,
-            companyId: this.companyId,
-            userId: this.userId,
-            version: input.expectedVersion,
-            deletedAt: null,
-          },
-          data: { ...data, version: { increment: 1 } },
-        })
-      : await this.prisma.widget.create({ data: { ...data, id, companyId: this.companyId, userId: this.userId } });
+    const row = await this.widgets.saveOwnedWidget({
+      companyId: this.companyId,
+      userId: this.userId,
+      id,
+      update: input.id ? { expectedVersion: input.expectedVersion } : null,
+      data,
+    });
     return StoredSchema.parse(row);
   }
 }

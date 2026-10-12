@@ -391,7 +391,7 @@ describe("RoutineModalStore", () => {
       filters: [],
       relationships: [],
     });
-    expect(store.payload.triggerFilters).toEqual([]);
+    expect(store.payload).not.toHaveProperty("triggerFilters");
   });
 
   it("refreshes the configured record metadata whenever the editor is opened", async () => {

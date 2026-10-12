@@ -6,6 +6,7 @@ import type { FindWidgetsByIdsRepo } from "./find-widgets-by-ids.repo";
 import type { GetCompanyWidgetsRepo } from "./get-company-widgets.interactor";
 import type { GetWidgetByIdRepo } from "./get-widget-by-id.interactor";
 import type { GetWidgetsRepo } from "./get-widgets.repo";
+import type { FindOwnedWidgetKindRepo } from "./find-owned-widget-kind.repo";
 import { RecordActivityWidgetDtoSchema } from "./record-activity-widget.schema";
 import { RecordWidgetDtoSchema } from "./record-widget.schema";
 import type { UpdateWidgetLayoutsRepo, WidgetLayoutTarget, WidgetLayoutWrite } from "./update-widget-layouts.repo";
@@ -14,9 +15,11 @@ import type { WidgetPlacementRow } from "./widget-placement";
 import { listWidgetPlacements } from "./widget-placement";
 import { WidgetLayoutSchema } from "./widget-display.schema";
 import type { WidgetDto } from "./widget.schema";
+import type { RecordWidgetConfigurationRepo, RecordWidgetConfigurationRow } from "./record-widget-configuration.repo";
+import type { OwnedWidgetWrite, OwnedWidgetWriteRepo } from "./owned-widget-write.repo";
+import type { ViewWidgetPurgeRepo } from "./view-widget-purge.repo";
 
-import type { Prisma } from "@/generated/prisma";
-import { WidgetKind } from "@/generated/prisma";
+import { Prisma, WidgetKind } from "@/generated/prisma";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
@@ -31,7 +34,11 @@ export class PrismaWidgetRepo
     GetCompanyWidgetsRepo,
     GetWidgetByIdRepo,
     UpdateWidgetLayoutsRepo,
-    FindWidgetsByIdsRepo
+    FindWidgetsByIdsRepo,
+    RecordWidgetConfigurationRepo,
+    OwnedWidgetWriteRepo,
+    ViewWidgetPurgeRepo,
+    FindOwnedWidgetKindRepo
 {
   constructor(private readonly scopedCompanyId?: string) {
     super();
@@ -189,6 +196,14 @@ export class PrismaWidgetRepo
     }));
   }
 
+  async findOwnedWidgetKind(id: string): Promise<WidgetKind | null> {
+    const row = await this.prisma.widget.findFirst({
+      where: { id, companyId: this.companyId, userId: this.user.id, ...LIVE_WIDGET },
+      select: { kind: true },
+    });
+    return row?.kind ?? null;
+  }
+
   async getWidgetById(id: string) {
     return runInTransaction(
       async () => {
@@ -242,5 +257,47 @@ export class PrismaWidgetRepo
       saved.push({ id: write.id, version: write.expectedVersion + 1, layout: write.layout });
     }
     return saved;
+  }
+
+  async saveOwnedWidget({ companyId, userId, id, update, data }: OwnedWidgetWrite) {
+    return update
+      ? this.prisma.widget.update({
+          where: { id, companyId, userId, version: update.expectedVersion, deletedAt: null },
+          data: { ...data, version: { increment: 1 } },
+        })
+      : this.prisma.widget.create({ data: { ...data, id, companyId, userId } });
+  }
+
+  async purgeOnTrashedViewsCompanyWide(companyId: string, viewIds: string[]): Promise<void> {
+    await this.prisma.widget.deleteMany({
+      where: { companyId, viewId: { in: viewIds }, view: { is: { deletedAt: { not: null } } } },
+    });
+  }
+
+  async getActivityQueriesCompanyWide(companyId: string, afterId?: string): Promise<RecordWidgetConfigurationRow[]> {
+    const rows = await this.prisma.widget.findMany({
+      where: { companyId, activityQuery: { not: Prisma.AnyNull }, ...(afterId ? { id: { gt: afterId } } : {}) },
+      select: { id: true, name: true, activityQuery: true, deletedAt: true, view: { select: { deletedAt: true } } },
+      orderBy: { id: "asc" },
+      take: 200,
+    });
+    return rows.map(({ activityQuery, ...row }) => ({ ...row, definition: activityQuery }));
+  }
+
+  async getMeasuresCompanyWide(companyId: string, afterId?: string): Promise<RecordWidgetConfigurationRow[]> {
+    const rows = await this.prisma.widget.findMany({
+      where: { companyId, measure: { not: Prisma.AnyNull }, ...(afterId ? { id: { gt: afterId } } : {}) },
+      select: { id: true, name: true, measure: true, deletedAt: true, view: { select: { deletedAt: true } } },
+      orderBy: { id: "asc" },
+      take: 200,
+    });
+    return rows.map(({ measure, ...row }) => ({ ...row, definition: measure }));
+  }
+
+  async rewriteMeasureCompanyWide(companyId: string, id: string, measure: Prisma.InputJsonValue): Promise<void> {
+    await this.prisma.widget.updateMany({
+      where: { companyId, id },
+      data: { measure, version: { increment: 1 } },
+    });
   }
 }

@@ -30,6 +30,29 @@ import type { RecordRevisionChange } from "./record-revision.schema";
 import type { RecordEventSubscriptionDefinition } from "./record-event-subscription.schema";
 import type { ConfigurationPreview, ConfigurationTarget } from "./configuration.schema";
 import type { ConfigurationDeletionRecord } from "./configuration-lifecycle";
+import type { RecordSubscriptionConfigurationRepo } from "./record-subscription-configuration.repo";
+import type { RecordWidgetConfigurationRepo } from "@/features/widget/record-widget-configuration.repo";
+import type { RecordViewConfigurationRepo } from "@/features/data-view/record-view-configuration.repo";
+import type { RecordPersonalizationRepo } from "@/features/p13n/record-personalization.repo";
+import type { RecordTrashItemRepo } from "@/features/trash/record-trash-item.repo";
+import type { RecordEventLogRepo } from "@/features/event/record-event-log.repo";
+import type { RecordWebhookConfigurationRepo } from "@/features/webhook/record-webhook-configuration.repo";
+import type { RoutineLabelRepo } from "@/ee/routines/routine-label.repo";
+import type { RecordMemberRepo } from "@/features/user/record-member.repo";
+import type { RecordRoleRepo } from "@/features/role/record-role.repo";
+
+export type RecordRepoOwners = {
+  widgets: RecordWidgetConfigurationRepo;
+  views: RecordViewConfigurationRepo;
+  personalizations: RecordPersonalizationRepo;
+  trash: RecordTrashItemRepo;
+  events: RecordEventLogRepo;
+  webhooks: RecordWebhookConfigurationRepo;
+  routines: RoutineLabelRepo;
+  members: RecordMemberRepo;
+  roles: RecordRoleRepo;
+  subscriptions: RecordSubscriptionConfigurationRepo;
+};
 
 export type RecordDefinitionDeletion = {
   typeIds: string[];

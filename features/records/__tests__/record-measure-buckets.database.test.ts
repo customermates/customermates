@@ -27,7 +27,6 @@ vi.mock("next-intl/server", () => ({
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
-const { PrismaRecordRepo } = await import("../prisma-record.repository");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
@@ -38,7 +37,7 @@ const { QueryRecordMeasureInteractor } = await import("../query-record-measure.i
 const { RecordMeasureSchema } = await import("../record-measure.schema");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 const { createWorkspaceRecordPreset } = await import("../workspace-record-preset");
-const { PrismaDataViewRepo } = await import("@/features/data-view/prisma-data-view.repository");
+const { createTestRecordRepo, createTestDataViewRepo } = await import("@/tests/helpers/record-repository");
 const { PrismaWidgetRepo } = await import("@/features/widget/prisma-widget.repository");
 const { GetWidgetsInteractor } = await import("@/features/widget/get-widgets.interactor");
 const { PrismaRecordWidgetRepo } = await import("@/features/widget/prisma-record-widget.repository");
@@ -73,7 +72,7 @@ async function fixture(preset: Preset = "crm") {
   });
   const admin = createMockUser({ ...seed.admin, role: { ...seed.role, permissions: [] } });
   const member = createMockUser({ ...seed.member, role: { ...seed.memberRole, permissions: [] } });
-  const repo = new PrismaRecordRepo();
+  const repo = createTestRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const mutate = new MutateRecordInteractor(
     repo,
@@ -85,12 +84,12 @@ async function fixture(preset: Preset = "crm") {
   const measure = new QueryRecordMeasureInteractor(repo, policy);
   const reader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
   const widgets = new UpsertRecordWidgetInteractor(
-    new PrismaRecordWidgetRepo(),
+    new PrismaRecordWidgetRepo(new PrismaWidgetRepo()),
     repo,
     policy,
     measure,
     reader,
-    new PrismaDataViewRepo(),
+    createTestDataViewRepo(),
   );
   const id = (key: string) => presetId(seed.company.id, key);
   const model =
@@ -708,16 +707,16 @@ describeDatabase("time-bucketed record measures", () => {
         } as Parameters<typeof f.widgets.invoke>[0]),
       );
     const first = await save("Auto placed");
-    expect(first.ok && first.data.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 3 });
+    expect(first.ok && first.data.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 2 });
     const second = await save("Auto placed beside");
-    expect(second.ok && second.data.layout?.lg).toMatchObject({ x: 3, y: 0, w: 3, h: 3 });
-    const placed = await save("Requested", { layout: { x: 0, y: 3, w: 12, h: 3 } });
+    expect(second.ok && second.data.layout?.lg).toMatchObject({ x: 3, y: 0, w: 3, h: 2 });
+    const placed = await save("Requested", { layout: { x: 0, y: 2, w: 12, h: 2 } });
     expect(placed.ok && placed.data.layout?.lg).toEqual({
       i: placed.ok ? placed.data.id : "",
       x: 0,
-      y: 3,
+      y: 2,
       w: 12,
-      h: 3,
+      h: 2,
     });
     const overlap = await save("Overlap", { layout: { x: 2, y: 1, w: 4, h: 3 } });
     expect(overlap.ok).toBe(false);
@@ -736,7 +735,7 @@ describeDatabase("time-bucketed record measures", () => {
         displayOptions: first.data.displayOptions,
       }),
     );
-    expect(rename.ok && rename.data.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 3 });
+    expect(rename.ok && rename.data.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 2 });
     if (!rename.ok) return;
     const moved = await f.run(async () =>
       f.widgets.invoke({
@@ -748,10 +747,10 @@ describeDatabase("time-bucketed record measures", () => {
         isTemplate: false,
         measure: first.data.measure,
         displayOptions: first.data.displayOptions,
-        layout: { x: 6, y: 0, w: 6, h: 3 },
+        layout: { x: 6, y: 0, w: 6, h: 2 },
       }),
     );
-    expect(moved.ok && moved.data.layout?.lg).toMatchObject({ x: 6, y: 0, w: 6, h: 3 });
+    expect(moved.ok && moved.data.layout?.lg).toMatchObject({ x: 6, y: 0, w: 6, h: 2 });
     const stored = await runWithoutTenant(() => prisma.widget.count({ where: { companyId: f.company.id } }));
     expect(stored).toBe(3);
   }, 120_000);
@@ -853,7 +852,10 @@ describeDatabase("time-bucketed record measures", () => {
     );
     expect(back.ok && back.data).toMatchObject({ viewId: null, layout: { lg: { x: 3, y: 0 } } });
     if (!back.ok) return;
-    const shared = await f.run(() => new PrismaRecordWidgetRepo().findReadable(back.data.id), f.member);
+    const shared = await f.run(
+      () => new PrismaRecordWidgetRepo(new PrismaWidgetRepo()).findReadable(back.data.id),
+      f.member,
+    );
     expect(shared?.viewId).toBeNull();
     await f.run(async () =>
       f.widgets.invoke({
@@ -868,12 +870,15 @@ describeDatabase("time-bucketed record measures", () => {
         viewId: support.id,
       }),
     );
-    const sharedOnView = await f.run(() => new PrismaRecordWidgetRepo().findReadable(back.data.id), f.member);
+    const sharedOnView = await f.run(
+      () => new PrismaRecordWidgetRepo(new PrismaWidgetRepo()).findReadable(back.data.id),
+      f.member,
+    );
     expect(sharedOnView?.viewId).toBeNull();
 
     const read = (viewId?: string, allViews?: boolean) =>
       f.run(() =>
-        new GetWidgetsInteractor(new PrismaWidgetRepo(), new PrismaDataViewRepo()).invoke({ viewId, allViews }),
+        new GetWidgetsInteractor(new PrismaWidgetRepo(), createTestDataViewRepo()).invoke({ viewId, allViews }),
       );
     const supportView = await read(support.id);
     expect(supportView.data).toMatchObject({ p13nId: SURFACE.dashboard, activeViewKey: support.id });

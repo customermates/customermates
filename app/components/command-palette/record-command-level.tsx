@@ -18,7 +18,7 @@ import { toChipColor } from "@/constants/chip-colors";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
-import { useRecordChoices } from "@/app/[locale]/(protected)/records/[typeId]/components/record-relationship-editor";
+import { useRecordChoices } from "@/components/records/use-record-choices";
 import { foldText } from "./command-palette-search";
 
 type Props = {
