@@ -1,4 +1,4 @@
-import type { RecordDto, RecordModelView } from "@/features/records/record-model.schema";
+import type { CalculatedValue, RecordDto, RecordModelView, RecordRef } from "@/features/records/record-model.schema";
 import type { RecordQuery } from "@/features/records/record-query.schema";
 import type { RecordQueryResult } from "@/features/records/record-query-result.schema";
 import type { XlsxTargetOption } from "@/features/data-transfer/import/xlsx/xlsx-mapping";
@@ -36,16 +36,26 @@ const QUERY_PAGE_LIMIT = 40;
 
 const MEMBER_PAGE_SIZE = 100;
 
+const CHOICE_PAGE_SIZE = 100;
+
+const CHOICE_PAGE_LIMIT = 200;
+
 export type XlsxWizardPorts = {
   queryRecords: (query: RecordQuery) => Promise<{ ok: true; data: RecordQueryResult } | { ok: false }>;
   listMembers: (page: number, pageSize: 100) => Promise<{ members: XlsxMember[]; totalPages: number }>;
+  listChoices: (
+    typeId: string,
+    page: number,
+    pageSize: 100,
+  ) => Promise<{ ok: true; data: { records: XlsxChoice[]; total: number } } | { ok: false }>;
   importRecords: XlsxImportPort;
 };
 
-function recordTitle(record: RecordDto, fieldId: string | null): string | null {
-  const result = record.fields.find((field) => field.fieldId === fieldId)?.result;
-  if (result?.state !== "value") return null;
-  const value = result.value;
+export type XlsxChoice = { ref: RecordRef; title: CalculatedValue };
+
+function choiceTitle(title: CalculatedValue): string | null {
+  if (title.state !== "value") return null;
+  const value = title.value;
   if (value.kind === "text" || value.kind === "select" || value.kind === "decimal") return value.value;
   if (value.kind === "textList") return value.value.join(", ");
   return null;
@@ -323,10 +333,7 @@ export class XlsxImportWizardStore {
     }
   }
 
-  private async loadRecords(
-    typeId: string,
-    fields?: string[],
-  ): Promise<{ records: RecordDto[]; complete: boolean } | null> {
+  private async loadRecords(typeId: string): Promise<{ records: RecordDto[]; complete: boolean } | null> {
     const records: RecordDto[] = [];
     for (let page = 1; page <= QUERY_PAGE_LIMIT; page += 1) {
       const result = await this.ports.queryRecords({
@@ -336,7 +343,6 @@ export class XlsxImportWizardStore {
         filters: [],
         relationships: [],
         sort: [],
-        ...(fields ? { fields } : {}),
       });
       if (!result.ok) return null;
       records.push(...result.data.records);
@@ -346,15 +352,19 @@ export class XlsxImportWizardStore {
   }
 
   private async loadIndex(typeId: string): Promise<XlsxRecordIndex | null> {
-    const primary = this.model.types.find((type) => type.id === typeId)?.primaryFieldId ?? null;
-    const loaded = await this.loadRecords(typeId, primary ? [primary] : []);
-    if (!loaded) return null;
-    const index: XlsxRecordIndex = { byTitle: new Map(), byId: new Map(), complete: loaded.complete };
-    for (const record of loaded.records) {
-      index.byId.set(record.ref.recordId, record.ref);
-      const title = recordTitle(record, primary);
-      const key = title ? normalizeXlsxHeader(title) : "";
-      if (key) index.byTitle.set(key, [...(index.byTitle.get(key) ?? []), record.ref]);
+    const index: XlsxRecordIndex = { byTitle: new Map(), byId: new Map(), complete: false };
+    let loaded = 0;
+    for (let page = 1; page <= CHOICE_PAGE_LIMIT; page += 1) {
+      const result = await this.ports.listChoices(typeId, page, CHOICE_PAGE_SIZE);
+      if (!result.ok) return null;
+      for (const choice of result.data.records) {
+        index.byId.set(choice.ref.recordId, choice.ref);
+        const title = choiceTitle(choice.title);
+        const key = title ? normalizeXlsxHeader(title) : "";
+        if (key) index.byTitle.set(key, [...(index.byTitle.get(key) ?? []), choice.ref]);
+      }
+      loaded += result.data.records.length;
+      if (loaded >= result.data.total || result.data.records.length === 0) return { ...index, complete: true };
     }
     return index;
   }

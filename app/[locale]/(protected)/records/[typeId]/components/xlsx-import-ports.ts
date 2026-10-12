@@ -1,7 +1,7 @@
 import type { XlsxWizardPorts } from "./xlsx-import-wizard.store";
 
 import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
-import { importRecordsAction, queryRecordsAction } from "../../actions";
+import { getRecordChoicesAction, importRecordsAction, queryRecordsAction } from "../../actions";
 
 const FATAL_CODES = new Set([
   "recordSchemaChanged",
@@ -42,6 +42,10 @@ export function xlsxImportPorts(fallbackMessage: string): XlsxWizardPorts {
         })),
         totalPages: result.pagination?.totalPages ?? 1,
       };
+    },
+    listChoices: async (typeId, page, pageSize) => {
+      const result = await getRecordChoicesAction({ typeId, page, pageSize });
+      return result.ok ? { ok: true, data: { records: result.data.records, total: result.data.total } } : { ok: false };
     },
     importRecords: async (input) => {
       try {

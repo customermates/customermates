@@ -33,6 +33,7 @@ const { RecordCalculationService } = await import("@/features/records/record-cal
 const { RecordWriteService } = await import("@/features/records/record-write.service");
 const { MutateRecordInteractor } = await import("@/features/records/mutate-record.interactor");
 const { QueryRecordsInteractor } = await import("@/features/records/query-records.interactor");
+const { GetRecordChoicesInteractor } = await import("@/features/records/get-record-choices.interactor");
 const { ImportRecordsInteractor } = await import("@/features/data-transfer/import/import-records.interactor");
 const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 const { XlsxImportWizardStore } = await import(
@@ -75,6 +76,7 @@ async function fixture() {
   const mutate = new MutateRecordInteractor(repo, policy, writer, { dispatch: () => Promise.resolve() });
   const query = new QueryRecordsInteractor(repo, policy);
   const importer = new ImportRecordsInteractor(repo, policy, writer);
+  const choices = new GetRecordChoicesInteractor(repo, policy, query);
   const id = (key: string) => presetId(seed.company.id, key);
   await runWithTenant(admin, () =>
     runInTransaction(
@@ -86,7 +88,8 @@ async function fixture() {
       { timeout: 30000 },
     ),
   );
-  const model = await runWithTenant(admin, () => runInTransaction(() => repo.getModel()));
+  const stored = await runWithTenant(admin, () => runInTransaction(() => repo.getModel()));
+  const model = { ...stored, types: stored.types.filter((type) => type.id === id("deal")) };
   const create = async (mutation: Extract<RecordMutation, { action: "create" }>) => {
     const state = await runWithoutTenant(() =>
       prisma.recordSchemaState.findUniqueOrThrow({ where: { companyId: seed.company.id } }),
@@ -113,6 +116,10 @@ async function fixture() {
         })),
         totalPages: 1,
       }),
+    listChoices: async (typeId, page, pageSize) => {
+      const result = await runWithTenant(user, () => choices.invoke({ typeId, page, pageSize }));
+      return result.ok ? { ok: true, data: { records: result.data.records, total: result.data.total } } : { ok: false };
+    },
     importRecords: async (input) => {
       const result = await runWithTenant(user, () => importer.invoke(input));
       return result.ok ? { ok: true, data: result.data } : { ok: false, message: result.error.message, fatal: false };

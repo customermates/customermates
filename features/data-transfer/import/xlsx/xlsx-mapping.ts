@@ -93,7 +93,6 @@ export function xlsxTargetOptions(
   typeId: string,
   labels: { recordId: string; assignedTo: string },
 ): XlsxTargetOption[] {
-  const activeTypes = new Set(model.types.filter((type) => !type.archived).map((type) => type.id));
   const parent = model.types.find((type) => type.id === typeId)?.parentRelationshipId ?? null;
   const fields = xlsxImportFields(model, typeId).map<XlsxTargetOption>((field) => ({
     key: `field:${field.id}`,
@@ -101,13 +100,7 @@ export function xlsxTargetOptions(
     target: { kind: "field", fieldId: field.id },
   }));
   const relationships = model.relationships
-    .filter(
-      (relation) =>
-        !relation.archived &&
-        relation.id !== parent &&
-        relation.sourceTypeId === typeId &&
-        activeTypes.has(relation.targetTypeId),
-    )
+    .filter((relation) => !relation.archived && relation.id !== parent && relation.sourceTypeId === typeId)
     .map<XlsxTargetOption>((relation) => ({
       key: `relationship:${relation.id}`,
       label: relation.sourceLabel,
