@@ -37,6 +37,12 @@ Jede Liste beginnt mit einigen Feldern, und Sie können eigene hinzufügen; Tabe
 
 Ein Feld wird von Hand erfasst oder berechnet: aus anderen Feldern desselben Datensatzes, aus einem verknüpften Datensatz übernommen oder aus verknüpften Datensätzen gezählt oder summiert. Ein berechneter Wert ist immer aktuell, außer Sie lassen ihn zu einem Zeitpunkt speichern, etwa beim Anlegen des Datensatzes. Formeln nutzen eine geprüfte Ausdruckssprache und führen nie beliebigen Code aus; Zyklen, unpassende Typen und zu teure Definitionen werden abgelehnt. Felder lassen sich je nach Zugriff in Filtern, Sortierung, Ansichten, Widgets, Routinen und Mate nutzen.
 
+## Kann ich den Typ eines Felds ändern, wenn Datensätze schon Werte haben? [#can-i-change-a-fields-type]
+
+Ja. Wählen Sie im Drawer des Felds einen anderen **Werttyp**; die Vorschau prüft jeden vorhandenen Wert und wandelt die passenden ohne Verlust um. Text wird zur Zahl, wenn er eine einfache Zahl wie `1250.50` ist, zum Datum in der Form `2026-10-12`, zu Datum und Uhrzeit in ISO-Form und zu E-Mail, Telefon oder Webadresse, wenn er eine gültige ist. Text, der einem Optionsnamen entspricht, wird zu dieser Option eines Einzelauswahl- oder Mehrfachauswahlfelds. Zahlen, Daten, Ja-oder-nein-Werte und Auswahlen werden zu Text. Der Wechsel von Einzelauswahl zu Mehrfachauswahl behält alle Werte; zurück geht es nur, solange jeder Datensatz höchstens eine Option hat.
+
+Passen manche Werte nicht, wird die Änderung blockiert, und die Vorschau nennt, wie viele Datensätze solche Werte haben, und zeigt bis zu drei davon, etwa: 2 Datensätze haben Werte in Budget, die nicht zur Änderung passen, zum Beispiel "n/a", "tbd". Korrigiere oder leere sie zuerst. Über MCP und REST trägt das Vorschau-Issue `existing_values_incompatible` dieselben Angaben `count` und `examples`.
+
 ## Wie lege ich eigene Felder an, ändere oder lösche sie, etwa das Deal-Phasenfeld? [#how-do-i-add-change-or-delete-a-custom-column]
 
 Öffnen Sie [Konfigurieren](app:configure), das alle Listen als Graph zeigt. Bei jeder Liste öffnet der Kopf ihre Konfigurationsseite, der Inhalt zeigt die ersten Felder (ein Eintrag wie **3 weitere Felder** klappt die übrigen an Ort und Stelle auf, **Weniger anzeigen** wieder zu), und die Anzahl der Datensätze in der Fußzeile öffnet die Liste. Unterlisten stehen in einem gemeinsamen Rahmen mit ihrer übergeordneten Liste und bewegen sich mit ihr. Die Anordnung und aufgeklappte Listen werden für Sie gespeichert; **Layout zurücksetzen** stellt die Standardanordnung wieder her.
@@ -56,6 +62,10 @@ Der Abschnitt **Berechnung** zeichnet die Berechnung von oben nach unten mit den
 Der letzte Kasten zeigt den Ergebnistyp und ein Beispiel: einen Datensatz der Liste mit dem Wert, den diese Berechnung ergibt, und einen Pfeil für einen anderen Datensatz. Unter den Kästen beschreibt ein Satz, was das Feld tut, zum Beispiel „Wert summiert Betrag aller verknüpften Positionen.“ Solange etwas fehlt, nennt der Satz es, etwa „Wähle, welcher Wert summiert wird.“, und **Speichern** markiert den unvollständigen Kasten.
 
 **Weitere Optionen** legt die **Aktualisierung** fest: **Immer aktuell**, **Beim Anlegen des Datensatzes gespeichert**, **Gespeichert, wenn sich ein Feld ändert** (mit dem Feld und dem Wert, der es auslöst) oder **Auf Anfrage gespeichert**. Ein gespeicherter Wert kann **Überschreiben erlauben**. Sind verknüpfte Datensätze beteiligt, zeigt **Allen zeigen, die diesen Datensatz (Deal) sehen können** den Wert auch Personen, die die verknüpften Datensätze nicht öffnen dürfen; bei einem einzelnen verknüpften Wert oder einer Summe über einen Datensatz sehen sie genau diesen Wert, deshalb braucht eine Änderung einer solchen Berechnung die Freigabe eines Administrators.
+
+## Wie werden berechnete Geldbeträge gerundet? [#how-are-calculated-money-values-rounded]
+
+Ein berechnetes Geldbetrag-Feld ohne **Dezimalstellen** rundet sein Ergebnis kaufmännisch auf die kleinste Einheit seiner Währung, bevor es gespeichert wird: zwei Stellen für EUR oder USD, keine für JPY, drei für KWD. Sind **Dezimalstellen** gesetzt, rundet ein berechneter Wert stattdessen auf so viele Stellen. App, REST-API, Exporte und Webhooks liefern den gerundeten Wert. Jeder Wert rundet für sich, eine Deal-Summe addiert also bereits gerundete Positionsbeträge und kann um einen Cent von einer Summe ungerundeter Werte abweichen. Gespeicherte Werte ändern sich bei ihrer nächsten Neuberechnung. Eingegebene Werte werden nie gerundet; **Dezimalstellen** legt nur fest, wie sie angezeigt werden.
 
 ## Wie funktioniert eine gewichtete Pipeline, und wie wird der gewichtete Wert berechnet? [#how-does-a-weighted-pipeline-work]
 
