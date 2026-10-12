@@ -1,4 +1,5 @@
 import type { RepoArgs } from "@/core/utils/types";
+import type { RecordRoleRepo } from "./record-role.repo";
 import type { UpsertRoleRepo } from "@/features/role/upsert-role.repo";
 import type { GetRolesRepo } from "@/features/role/get-roles.repo";
 import type { DeleteRoleRepo } from "./delete-role.repo";
@@ -27,7 +28,7 @@ export function mapRoleWithAssignments<T extends { _count: { users: number } }>(
 
 export class PrismaRoleRepo
   extends QueryRepository
-  implements UpsertRoleRepo, GetRolesRepo, DeleteRoleRepo, UpdateUserRoleRepo, FindRolesByIdsRepo
+  implements UpsertRoleRepo, GetRolesRepo, DeleteRoleRepo, UpdateUserRoleRepo, FindRolesByIdsRepo, RecordRoleRepo
 {
   private get baseSelect() {
     return {
@@ -207,5 +208,9 @@ export class PrismaRoleRepo
     });
 
     return roleDto(role);
+  }
+
+  async countRolesCompanyWide(companyId: string, roleIds: string[]) {
+    return this.prisma.userRole.count({ where: { companyId, id: { in: roleIds } } });
   }
 }

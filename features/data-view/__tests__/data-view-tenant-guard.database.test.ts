@@ -9,8 +9,7 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { prisma } from "@/prisma/db";
-
-import { PrismaDataViewRepo } from "../prisma-data-view.repository";
+import { createTestDataViewRepo } from "@/tests/helpers/record-repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -40,7 +39,7 @@ describeDatabase("data view tenant guard on PostgreSQL", () => {
     );
 
     const created = await asTenant(() =>
-      new PrismaDataViewRepo().createView({
+      createTestDataViewRepo().createView({
         surfaceKey: SURFACE,
         name: "Guarded",
         position: 0,
@@ -96,13 +95,13 @@ describeDatabase("data view tenant guard on PostgreSQL", () => {
   it("accepts the shapes the repository itself writes", async () => {
     expect(
       await asTenant(() =>
-        new PrismaDataViewRepo().updateOwnedState({ id: viewId, surfaceKey: SURFACE, state: { pageSize: 10 } }),
+        createTestDataViewRepo().updateOwnedState({ id: viewId, surfaceKey: SURFACE, state: { pageSize: 10 } }),
       ),
     ).toBe(true);
-    expect(await asTenant(() => new PrismaDataViewRepo().updateOwned({ id: viewId, name: "Renamed" }))).toMatchObject({
+    expect(await asTenant(() => createTestDataViewRepo().updateOwned({ id: viewId, name: "Renamed" }))).toMatchObject({
       name: "Renamed",
       state: { pageSize: 10 },
     });
-    expect(await asTenant(() => new PrismaDataViewRepo().trashOwned(viewId))).toBe(true);
+    expect(await asTenant(() => createTestDataViewRepo().trashOwned(viewId))).toBe(true);
   });
 });

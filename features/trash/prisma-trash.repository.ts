@@ -8,11 +8,12 @@ import type {
   TrashSelection,
 } from "./trash.repo";
 import type { ExpiredTrashRepo } from "./expired-trash.repo";
+import type { RecordTrashItemRepo, TrashItemFilter } from "./record-trash-item.repo";
 
 import { Prisma } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
-import { deleteTrashItems, insertTrashItems } from "./trash-item-store";
+import { TRASH_RETENTION_DAYS } from "./trash-retention";
 import { TRASH_ITEM_ALIAS } from "./trash-item-alias";
 
 type TrashItemRow = Omit<TrashItem, "payload"> & { payload: Prisma.JsonValue };
@@ -32,7 +33,7 @@ const TRASH_ITEM_SELECT = {
   payload: true,
 } satisfies Prisma.TrashItemSelect;
 
-export class PrismaTrashRepo extends TenantRepository implements TrashRepo, ExpiredTrashRepo {
+export class PrismaTrashRepo extends TenantRepository implements TrashRepo, ExpiredTrashRepo, RecordTrashItemRepo {
   constructor(private readonly scopedCompanyId?: string) {
     super();
   }
@@ -46,11 +47,48 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo, Expi
   }
 
   async add(items: TrashItemInput[]): Promise<void> {
-    await insertTrashItems(this.prisma, this.companyId, items);
+    await this.addItemsCompanyWide(this.companyId, items);
   }
 
   async remove(ids: string[]): Promise<void> {
-    await deleteTrashItems(this.prisma, this.companyId, ids);
+    await this.removeItemsCompanyWide(this.companyId, ids);
+  }
+
+  async addItemsCompanyWide(companyId: string, items: TrashItemInput[]): Promise<void> {
+    if (!items.length) return;
+    const deletedAt = new Date();
+    const expiresAt = new Date(deletedAt.getTime() + TRASH_RETENTION_DAYS * 24 * 60 * 60 * 1000);
+    await this.prisma.trashItem.createMany({
+      data: items.map((item) => ({ ...item, companyId, deletedAt, expiresAt })),
+    });
+  }
+
+  async removeItemsCompanyWide(companyId: string, ids: string[]): Promise<void> {
+    if (!ids.length) return;
+    await this.prisma.trashItem.deleteMany({ where: { companyId, id: { in: ids } } });
+  }
+
+  async findItemsCompanyWide(companyId: string, filter: TrashItemFilter) {
+    return this.prisma.trashItem.findMany({
+      where: {
+        companyId,
+        kind: { in: filter.kinds },
+        ...(filter.ids ? { id: { in: filter.ids } } : {}),
+        ...(filter.typeIds ? { typeId: { in: filter.typeIds } } : {}),
+        ...(filter.surfaceKeys ? { surfaceKey: { in: filter.surfaceKeys } } : {}),
+        ...(filter.batchId === undefined ? {} : { batchId: filter.batchId }),
+      },
+      orderBy: [{ deletedAt: "asc" }, { id: "asc" }],
+    });
+  }
+
+  async publishStagedRecordItemsCompanyWide(companyId: string, operationId: string): Promise<void> {
+    await this.prisma.$executeRaw(Prisma.sql`
+      INSERT INTO "TrashItem" ("companyId", id, kind, "targetId", "typeId", label, "deletedById", "deletedAt", "expiresAt", "batchId")
+      SELECT ${companyId}, stage.payload->>'id', 'record', stage.payload->>'targetId', stage.payload->>'typeId', stage.payload->>'label',
+        stage.payload->>'deletedById', NOW(), NOW() + make_interval(days => ${TRASH_RETENTION_DAYS}), stage.payload->>'batchId'
+      FROM "RecordStageRow" stage WHERE stage."companyId" = ${companyId} AND stage."operationId" = ${operationId} AND stage.kind = 'trash-item'
+      ON CONFLICT DO NOTHING`);
   }
 
   private conditions(visibility: Prisma.Sql, query: Partial<TrashListQuery> = {}): Prisma.Sql {

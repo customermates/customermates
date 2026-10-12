@@ -16,7 +16,7 @@ vi.mock("@/env", () => ({
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
-const { PrismaRecordRepo } = await import("@/features/records/prisma-record.repository");
+const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 const { PrismaRecordActivitiesRepo } = await import("@/ee/messaging/activities/prisma-record-activities.repository");
 const { configurationActivity } = await import("@/ee/messaging/activities/configuration-activity");
@@ -49,7 +49,7 @@ describeDatabase("configuration history labels", () => {
       return { company, role, user };
     });
     const admin = createMockUser({ ...seed.user, role: { ...seed.role, permissions: [] } });
-    const repo = new PrismaRecordRepo();
+    const repo = createTestRecordRepo();
     await runWithTenant(admin, () =>
       runInTransaction(() => repo.saveModel(createCrmPreset(seed.company.id), admin.id), { timeout: 30000 }),
     );
