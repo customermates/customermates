@@ -103,7 +103,13 @@ describeRoundTrip("XLSX export and import round trip", () => {
     const repo = new PrismaRecordRepo();
     const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
     const writer = new RecordWriteService(repo, policy, new RecordCalculationService(repo));
-    const mutate = new MutateRecordInteractor(repo, policy, writer, { dispatch: () => Promise.resolve() }, new RecordTrashService(repo));
+    const mutate = new MutateRecordInteractor(
+      repo,
+      policy,
+      writer,
+      { dispatch: () => Promise.resolve() },
+      new RecordTrashService(repo),
+    );
     const query = new QueryRecordsInteractor(repo, policy);
     const read = new GetRecordInteractor(repo, policy);
     const choices = new GetRecordChoicesInteractor(repo, policy, query);

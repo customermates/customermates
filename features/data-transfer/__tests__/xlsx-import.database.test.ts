@@ -74,7 +74,13 @@ async function fixture() {
   const repo = new PrismaRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const writer = new RecordWriteService(repo, policy, new RecordCalculationService(repo));
-  const mutate = new MutateRecordInteractor(repo, policy, writer, { dispatch: () => Promise.resolve() }, new RecordTrashService(repo));
+  const mutate = new MutateRecordInteractor(
+    repo,
+    policy,
+    writer,
+    { dispatch: () => Promise.resolve() },
+    new RecordTrashService(repo),
+  );
   const query = new QueryRecordsInteractor(repo, policy);
   const importer = new ImportRecordsInteractor(repo, policy, writer);
   const choices = new GetRecordChoicesInteractor(repo, policy, query);
