@@ -1523,14 +1523,16 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       eventId: matchedEvent.id,
       subscriptionId: subscription.id,
     };
-    expect(await reader.readEvent(request)).toMatchObject({
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toMatchObject({
       id: matchedEvent.id,
     });
     expect(
-      await reader.readEvent({
-        ...request,
-        eventId: recordInvariant(captured[0]).id,
-      }),
+      await runWithoutTenant(() =>
+        reader.readEvent({
+          ...request,
+          eventId: recordInvariant(captured[0]).id,
+        }),
+      ),
     ).toBeNull();
     await f.run(() =>
       prisma.recordEventSubscription.update({
@@ -1541,7 +1543,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         data: { revision: { increment: 1 } },
       }),
     );
-    expect(await reader.readEvent(request)).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toBeNull();
     expect((await events()).map((event) => event.matches.length)).toEqual([0, 1, 0]);
   });
 
@@ -1609,11 +1611,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       subscriptionId: subscription.id,
       recheckSubscriptionSources: true,
     };
-    expect(await reader.readEvent(delivery)).toMatchObject({
+    expect(await runWithoutTenant(() => reader.readEvent(delivery))).toMatchObject({
       id: matchedServiceUpdate.eventId,
     });
     expect(await f.update(service, [["service.amount", decimal("0")]])).toMatchObject({ ok: true });
-    expect(await reader.readEvent(delivery)).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent(delivery))).toBeNull();
   });
 
   it("creates a generic record routine through the application interactor and durably admits its matched event once", async () => {
@@ -2625,15 +2627,17 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       subscriptionId: member.id,
     };
     const reader = createTestRecordRecipientReader();
-    expect(await reader.readEvent(request)).not.toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent(request))).not.toBeNull();
     await f.run(() => runInTransaction(() => f.repo.setGrants(service.typeId, [])));
-    expect(await reader.readEvent(request)).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toBeNull();
     expect(
-      await reader.readEvent({
-        ...request,
-        companyId: foreign.company.id,
-        userId: foreign.admin.id,
-      }),
+      await runWithoutTenant(() =>
+        reader.readEvent({
+          ...request,
+          companyId: foreign.company.id,
+          userId: foreign.admin.id,
+        }),
+      ),
     ).toBeNull();
     await expect(
       f.run(() =>
@@ -3288,12 +3292,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       recheckSubscriptionSources: true,
     };
     const reader = createTestRecordRecipientReader();
-    expect(await reader.readEvent(request)).toMatchObject({
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toMatchObject({
       event: "record.deleted",
       data: { record: { ref: services[0] } },
     });
     await f.run(() => runInTransaction(() => f.repo.setGrants(f.id("service"), [])));
-    expect(await reader.readEvent(request)).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toBeNull();
   });
 
   it(
@@ -3454,12 +3458,14 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       expect(await matches()).toEqual(accepted);
       const first = recordInvariant(accepted[0]);
       expect(
-        await createTestRecordRecipientReader().readEvent({
-          companyId: f.company.id,
-          userId: f.admin.id,
-          eventId: first.eventId,
-          subscriptionId: subscription.id,
-        }),
+        await runWithoutTenant(() =>
+          createTestRecordRecipientReader().readEvent({
+            companyId: f.company.id,
+            userId: f.admin.id,
+            eventId: first.eventId,
+            subscriptionId: subscription.id,
+          }),
+        ),
       ).toMatchObject({ event: "record.deleted" });
     },
   );
@@ -3681,12 +3687,14 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     const reader = createTestRecordRecipientReader();
     expect(
-      await reader.readEvent({
-        companyId: f.company.id,
-        userId: f.member.id,
-        eventId: match.eventId,
-        subscriptionId: subscription.id,
-      }),
+      await runWithoutTenant(() =>
+        reader.readEvent({
+          companyId: f.company.id,
+          userId: f.member.id,
+          eventId: match.eventId,
+          subscriptionId: subscription.id,
+        }),
+      ),
     ).toMatchObject({ event: "record.deleted", data: { record: { ref: service } } });
     expect(
       await f.run(
@@ -3939,24 +3947,26 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       userId: f.member.id,
       eventId: event.id,
     };
-    expect(await reader.readEvent(request)).toBeNull();
-    expect(await reader.readEvent({ ...request, userId: f.admin.id })).toMatchObject({
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent({ ...request, userId: f.admin.id }))).toMatchObject({
       id: event.id,
       event: "record.created",
       data: { record: { ref: service } },
     });
     expect(
-      await reader.readEvent({
-        ...request,
-        companyId: other.company.id,
-        userId: other.admin.id,
-      }),
+      await runWithoutTenant(() =>
+        reader.readEvent({
+          ...request,
+          companyId: other.company.id,
+          userId: other.admin.id,
+        }),
+      ),
     ).toBeNull();
-    expect(await reader.readEvent({ ...request, userId: other.admin.id })).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent({ ...request, userId: other.admin.id }))).toBeNull();
     await f.run(() =>
       runInTransaction(() => f.repo.setGrants(service.typeId, [{ roleId: f.memberRole.id, actions: ["readOwn"] }])),
     );
-    expect(await reader.readEvent(request)).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toBeNull();
     expect(
       await f.mutation({
         action: "update",
@@ -3966,7 +3976,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         assignedUserIds: [f.member.id],
       }),
     ).toMatchObject({ ok: true });
-    expect(await reader.readEvent(request)).toMatchObject({
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toMatchObject({
       data: { record: { ref: service } },
     });
     const query = RecordQuerySchema.parse({
@@ -3979,34 +3989,38 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       ],
     });
-    expect(await reader.readEvent({ ...request, query })).toMatchObject({
+    expect(await runWithoutTenant(() => reader.readEvent({ ...request, query }))).toMatchObject({
       data: { record: { ref: service } },
     });
     expect(
-      await reader.readEvent({
-        ...request,
-        query: {
-          ...query,
-          filters: [
-            {
-              ...recordInvariant(query.filters[0]),
-              value: textValue("Different"),
-            },
-          ],
-        },
-      }),
+      await runWithoutTenant(() =>
+        reader.readEvent({
+          ...request,
+          query: {
+            ...query,
+            filters: [
+              {
+                ...recordInvariant(query.filters[0]),
+                value: textValue("Different"),
+              },
+            ],
+          },
+        }),
+      ),
     ).toBeNull();
     expect(
-      await reader.readEvent({
-        ...request,
-        query: { ...query, typeId: other.id("service") },
-      }),
+      await runWithoutTenant(() =>
+        reader.readEvent({
+          ...request,
+          query: { ...query, typeId: other.id("service") },
+        }),
+      ),
     ).toBeNull();
     const foreign = await other.create("service", "Foreign");
     const foreignRow = recordInvariant(await other.run(() => other.repo.getRecordCompanyWide(foreign)));
     expect(await (await f.run(() => f.policy.load())).canRead(foreignRow)).toBe(false);
     await f.run(() => runInTransaction(() => f.repo.setGrants(service.typeId, [])));
-    expect(await reader.readEvent(request)).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toBeNull();
     await f.run(() =>
       runInTransaction(() => f.repo.setGrants(service.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }])),
     );
@@ -4016,7 +4030,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         data: { status: "inactive" },
       }),
     );
-    expect(await reader.readEvent(request)).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toBeNull();
   });
 
   it("redacts restricted calculation dependencies from delivery payloads and filter matches", async () => {
@@ -4062,7 +4076,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       userId: f.member.id,
       eventId: event.id,
     };
-    const restricted = await reader.readEvent(request);
+    const restricted = await runWithoutTenant(() => reader.readEvent(request));
     expect(restricted?.data.record.fields.find((field) => field.fieldId === f.id("deal.totalValue"))).toMatchObject({
       after: { value: { state: "restricted" } },
     });
@@ -4078,7 +4092,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       ],
     });
-    expect(await reader.readEvent({ ...request, query })).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent({ ...request, query }))).toBeNull();
     const subscription = await subscribeRecordEvents(f, {
       ownerUserId: f.member.id,
       typeId: deal.typeId,
@@ -4113,7 +4127,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       ),
     ).toBe(1);
-    const readable = await reader.readEvent({ ...request, query });
+    const readable = await runWithoutTenant(() => reader.readEvent({ ...request, query }));
     expect(readable?.data.record.fields.find((field) => field.fieldId === f.id("deal.totalValue"))).toMatchObject({
       after: { value: { state: "value", value: decimal("34") } },
     });
@@ -13363,11 +13377,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         (await f.readRecord(summary, retainedReader)).fields.find((field) => field.fieldId === total.id)?.result,
       ).toEqual({ state: "value", value: decimal("37") });
       expect(
-        await createTestRecordRecipientReader().readEvent({
-          companyId: f.company.id,
-          userId: retainedReader.id,
-          eventId: deletedSourceEvent.id,
-        }),
+        await runWithoutTenant(() =>
+          createTestRecordRecipientReader().readEvent({
+            companyId: f.company.id,
+            userId: retainedReader.id,
+            eventId: deletedSourceEvent.id,
+          }),
+        ),
       ).not.toBeNull();
       const originalEvent = recordInvariant(
         await f.run(() =>
@@ -13625,17 +13641,21 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         ),
       ).toBe(false);
       expect(
-        await recipient.readEvent({
+        await runWithoutTenant(() =>
+          recipient.readEvent({
+            companyId: f.company.id,
+            userId: retainedReader.id,
+            eventId: deletedSourceEvent.id,
+          }),
+        ),
+      ).toBeNull();
+      const envelope = await runWithoutTenant(() =>
+        recipient.readEvent({
           companyId: f.company.id,
           userId: retainedReader.id,
-          eventId: deletedSourceEvent.id,
+          eventId: originalEvent.id,
         }),
-      ).toBeNull();
-      const envelope = await recipient.readEvent({
-        companyId: f.company.id,
-        userId: retainedReader.id,
-        eventId: originalEvent.id,
-      });
+      );
       expect(envelope).not.toBeNull();
       for (const field of [total, memo]) {
         expect(envelope?.data.record.fields.find((entry) => entry.fieldId === field.id)?.after?.value).toEqual({
@@ -13647,12 +13667,14 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         filters: [{ fieldId: total.id, operator: "eq", value: decimal("37") }],
       });
       expect(
-        await recipient.readEvent({
-          companyId: f.company.id,
-          userId: retainedReader.id,
-          eventId: originalEvent.id,
-          query,
-        }),
+        await runWithoutTenant(() =>
+          recipient.readEvent({
+            companyId: f.company.id,
+            userId: retainedReader.id,
+            eventId: originalEvent.id,
+            query,
+          }),
+        ),
       ).toBeNull();
       const subscription = await subscribeRecordEvents(f, {
         ownerUserId: retainedReader.id,
@@ -13721,11 +13743,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         value: decimal("37"),
       });
       expect(
-        await recipient.readEvent({
-          companyId: f.company.id,
-          userId: retainedReader.id,
-          eventId: deletedSourceEvent.id,
-        }),
+        await runWithoutTenant(() =>
+          recipient.readEvent({
+            companyId: f.company.id,
+            userId: retainedReader.id,
+            eventId: deletedSourceEvent.id,
+          }),
+        ),
       ).not.toBeNull();
     },
   );

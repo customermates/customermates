@@ -18,6 +18,14 @@ vi.mock("@/env", () => ({
     NODE_ENV: "test",
   },
 }));
+const sentry = vi.hoisted(() => ({ captured: [] as unknown[] }));
+vi.mock("@sentry/nextjs", async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  captureException: (error: unknown) => {
+    sentry.captured.push(error);
+    return "captured";
+  },
+}));
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
@@ -86,7 +94,11 @@ async function fixture() {
   });
   const admin = createMockUser({ ...seed.admin, role: { ...seed.adminRole, permissions: [] } });
   const systemDispatches: Array<{ operationId: string; system?: { companyId: string } }> = [];
-  const handlers = (companyId?: string, webhooks = noWebhooks) => {
+  const handlers = (
+    companyId?: string,
+    webhooks = noWebhooks,
+    systemConfigurations?: InstanceType<typeof RecordConfigurationService>,
+  ) => {
     const scoped = new PrismaRecordRepo(companyId);
     const scopedPolicy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), scoped);
     const configurations = new RecordConfigurationService(scoped);
@@ -105,7 +117,7 @@ async function fixture() {
         new PrismaTrashRepo(companyId),
         new ConfigurationSystemPurge(
           scoped,
-          new RecordConfigurationService(scoped),
+          systemConfigurations ?? new RecordConfigurationService(scoped),
           new RecordConfigurationWriter(scoped, new RecordCalculationService(scoped), webhooks),
           new PrismaTrashRepo(companyId),
           {
@@ -719,7 +731,7 @@ describeDatabase("configuration trash", () => {
     180_000,
   );
 
-  it("purges an expired list above the synchronous limit through a system record operation", async () => {
+  it("purges an expired list of more than 500 records in one system purge", async () => {
     const f = await fixture();
     const companyId = f.seed.company.id;
     const typeId = f.id("organization");
@@ -732,14 +744,50 @@ describeDatabase("configuration trash", () => {
       await prisma.trashItem.updateMany({ where: { companyId }, data: { expiresAt: new Date(Date.now() - 1000) } });
       await prisma.user.update({ where: { id: f.admin.id }, data: { status: "inactive" } });
     });
-    const list = (await f.items()).find((item) => item.kind === "list");
-    if (!list) throw new Error("The list is not in Trash");
+    expect(
+      await new PurgeCompanyTrashInteractor(
+        (scoped) => new PrismaTrashRepo(scoped),
+        (scoped) => f.handlers(scoped),
+      ).invoke({ companyId, now: new Date().toISOString(), after: null }),
+    ).toEqual({ next: null, deleted: 1, pending: 0, failed: 0 });
+    expect(f.systemDispatches).toEqual([]);
+    expect(
+      await runWithoutTenant(() =>
+        Promise.all([
+          prisma.recordTypeDefinition.count({ where: { companyId, id: typeId } }),
+          prisma.crmRecord.count({ where: { companyId, id: { in: recordIds } } }),
+        ]),
+      ),
+    ).toEqual([0, 0]);
+  }, 300_000);
+
+  it("drives a background system purge to completion as a system record operation", async () => {
+    const f = await fixture();
+    const companyId = f.seed.company.id;
+    const fieldId = f.id("deal.notes");
+    await f.as(async () =>
+      f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "field", id: fieldId } }])),
+    );
+    await runWithoutTenant(async () => {
+      await prisma.trashItem.updateMany({ where: { companyId }, data: { expiresAt: new Date(Date.now() - 1000) } });
+      await prisma.userRole.update({ where: { id: f.seed.adminRole.id }, data: { isSystemRole: false } });
+    });
+    const [item] = await f.items();
+    if (!item) throw new Error("The field is not in Trash");
+    sentry.captured.length = 0;
+    const real = new RecordConfigurationService(new PrismaRecordRepo(companyId));
+    const background = Object.assign(Object.create(real) as typeof real, {
+      prepare: async (...args: Parameters<typeof real.prepare>) => {
+        const prepared = await real.prepare(...args);
+        return { ...prepared, preview: { ...prepared.preview, execution: "background" as const } };
+      },
+    });
     const purge = () =>
       new PurgeCompanyTrashInteractor(
         (scoped) => new PrismaTrashRepo(scoped),
-        (scoped) => f.handlers(scoped),
+        (scoped) => f.handlers(scoped, noWebhooks, background),
       ).invoke({ companyId, now: new Date().toISOString(), after: null });
-    expect(await purge()).toMatchObject({ pending: 1, failed: 0 });
+    expect(await purge()).toEqual({ next: null, deleted: 0, pending: 1, failed: 0 });
     expect(f.systemDispatches).toEqual([{ operationId: expect.any(String), system: { companyId } }]);
     const operationId = f.systemDispatches[0]?.operationId ?? "";
     expect(
@@ -750,10 +798,10 @@ describeDatabase("configuration trash", () => {
         }),
       ),
     ).toEqual({ userId: "system:trash", kind: "configuration" });
-    expect((await f.items()).find((item) => item.id === list.id)?.payload).toMatchObject({
+    expect((await f.items()).find((row) => row.id === item.id)?.payload).toMatchObject({
       purgeOperationId: operationId,
     });
-    expect(await purge()).toMatchObject({ pending: 1, failed: 0 });
+    expect(await purge()).toEqual({ next: null, deleted: 0, pending: 1, failed: 0 });
     expect(f.systemDispatches).toHaveLength(1);
     const advance = new AdvanceSystemRecordOperationInteractor((scoped) => {
       const records = new PrismaRecordRepo(scoped);
@@ -770,22 +818,18 @@ describeDatabase("configuration trash", () => {
     expect(done).toBe(true);
     expect(
       await runWithoutTenant(() =>
-        prisma.recordOperation.findUniqueOrThrow({
-          where: { companyId_id: { companyId, id: operationId } },
-          select: { state: true },
-        }),
-      ),
-    ).toEqual({ state: "completed" });
-    expect((await f.items()).find((item) => item.id === list.id)).toBeUndefined();
-    expect(
-      await runWithoutTenant(() =>
         Promise.all([
-          prisma.recordTypeDefinition.count({ where: { companyId, id: typeId } }),
-          prisma.crmRecord.count({ where: { companyId, id: { in: recordIds } } }),
+          prisma.recordOperation.findUniqueOrThrow({
+            where: { companyId_id: { companyId, id: operationId } },
+            select: { state: true },
+          }),
+          prisma.recordFieldDefinition.count({ where: { companyId, id: fieldId } }),
           prisma.recordSchemaState.findUniqueOrThrow({ where: { companyId }, select: { activeOperationId: true } }),
         ]),
       ),
-    ).toEqual([0, 0, { activeOperationId: null }]);
+    ).toEqual([{ state: "completed" }, 0, { activeOperationId: null }]);
+    expect(await f.items()).toEqual([]);
+    expect(sentry.captured).toEqual([]);
   }, 300_000);
 
   it("pauses a webhook through a company-scoped notifier when the system purges its trigger field", async () => {
@@ -821,12 +865,13 @@ describeDatabase("configuration trash", () => {
       await prisma.trashItem.updateMany({ where: { companyId }, data: { expiresAt: new Date(Date.now() - 1000) } });
       await prisma.userRole.update({ where: { id: f.seed.adminRole.id }, data: { isSystemRole: false } });
     });
-    expect(
-      await new PurgeCompanyTrashInteractor(
-        (scoped) => new PrismaTrashRepo(scoped),
-        (scoped) => f.handlers(scoped, getWebhookPauseNotifier(scoped)),
-      ).invoke({ companyId, now: new Date().toISOString(), after: null }),
-    ).toEqual({ next: null, deleted: 1, pending: 0, failed: 0 });
+    sentry.captured.length = 0;
+    const purged = await new PurgeCompanyTrashInteractor(
+      (scoped) => new PrismaTrashRepo(scoped),
+      (scoped) => f.handlers(scoped, getWebhookPauseNotifier(scoped)),
+    ).invoke({ companyId, now: new Date().toISOString(), after: null });
+    expect(sentry.captured.map(String)).toEqual([]);
+    expect(purged).toEqual({ next: null, deleted: 1, pending: 0, failed: 0 });
     expect(
       await runWithoutTenant(() =>
         prisma.webhook.findUniqueOrThrow({ where: { id: webhookId }, select: { enabled: true, pausedReason: true } }),

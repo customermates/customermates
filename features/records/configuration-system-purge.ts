@@ -31,8 +31,11 @@ export class ConfigurationSystemPurge {
       const operation = await this.records.getOperation(pendingId);
       if (operation && !SETTLED_OPERATION_STATES.includes(operation.state)) return;
     }
-    if ((await this.records.getState())?.activeOperationId)
+    const activeOperationId = (await this.records.getState())?.activeOperationId;
+    if (activeOperationId) {
+      if ((await this.records.getOperation(activeOperationId))?.userId === RECORD_SYSTEM_ACTOR) return;
       throw new RecordWriteError(CustomErrorCode.recordWritePaused, "conflict");
+    }
     const current = await this.records.getModel();
     const prepared = await this.configurations.prepare(
       change,
