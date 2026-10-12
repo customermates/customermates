@@ -110770,6 +110770,7 @@
                         "connectedAccountNotFound",
                         "roleNotFound",
                         "roleAssignedCannotDelete",
+                        "roleNameTaken",
                         "roleSelfEditForbidden",
                         "roleSystemImmutable",
                         "roleAccessPresetInUse",

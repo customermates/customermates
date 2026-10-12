@@ -87,6 +87,11 @@ export function recordAccessForActor({
   const readScope = (typeId: string): ReadScope =>
     allowed(typeId, "readAll") ? "all" : allowed(typeId, "readOwn") ? "own" : "none";
   const canReadType = (typeId: string) => readScope(typeId) !== "none";
+  const canManageMembers = rolePermits(role, "users", "update");
+  const membershipTaskTypeIds = new Set(
+    model.capabilities.filter((binding) => binding.kind === "membershipAuthorization").map((binding) => binding.typeId),
+  );
+  const protectedHidden = (typeId: string) => !isAdmin && !canManageMembers && membershipTaskTypeIds.has(typeId);
   const scopeFor = (typeId: string, depth = 0): RecordReadScope => {
     if (depth > 12 || !activeTypeIds.has(typeId)) return { userId: userId, access: "none" };
     const access = readScope(typeId);
@@ -94,6 +99,7 @@ export function recordAccessForActor({
     return {
       userId: userId,
       access,
+      ...(protectedHidden(typeId) ? { protectedHidden: true as const } : {}),
       ...(parent
         ? {
             parent: {
@@ -108,6 +114,7 @@ export function recordAccessForActor({
   const canRead = async (record: StoredRecord, depth = 0): Promise<boolean> => {
     if (depth > 12 || !valid || record.companyId !== companyId || !activeTypeIds.has(record.typeId)) return false;
     if (isAdmin) return true;
+    if (record.protectedKind && protectedHidden(record.typeId)) return false;
     const parent = parentOf(record.typeId);
     if (parent) {
       const ref = { typeId: record.typeId, recordId: record.id };
@@ -132,7 +139,7 @@ export function recordAccessForActor({
     canManageSchema: resourceAllowed("dataModel", "update"),
     canAssignOthers: resourceAllowed("users", "readAll"),
     memberScope: { userId: userId, access: roleReadScope(role, "users") } as RecordReadScope,
-    canManageRoles: resourceAllowed("users", "update"),
+    canManageRoles: canManageMembers,
     access: (typeIds: string[]): RecordAccessMap => new Map(typeIds.map((typeId) => [typeId, scopeFor(typeId)])),
     readScope,
     canReadType,

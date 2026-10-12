@@ -1135,6 +1135,7 @@
       "recordWritePaused": "The workspace is updating its data model. Your draft is preserved; try again when the update finishes.",
       "roleAccessPresetInUse": "This role is used by an access preset. Update the preset before deleting the role.",
       "roleAssignedCannotDelete": "A role assigned to users cannot be deleted.",
+      "roleNameTaken": "A role with this name already exists.",
       "roleNotFound": "Role ID not found or not accessible.",
       "roleSelfEditForbidden": "You cannot change the permissions of the role assigned to you.",
       "roleSystemImmutable": "System roles cannot be edited.",

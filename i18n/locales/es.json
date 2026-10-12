@@ -1135,6 +1135,7 @@
       "recordWritePaused": "El modelo de datos se está actualizando. Tu borrador se conserva; inténtalo cuando termine.",
       "roleAccessPresetInUse": "Una plantilla de acceso utiliza este rol. Actualiza la plantilla antes de eliminar el rol.",
       "roleAssignedCannotDelete": "No se puede eliminar un rol asignado a usuarios.",
+      "roleNameTaken": "Ya existe un rol con este nombre.",
       "roleNotFound": "ID de rol no encontrado o no accesible.",
       "roleSelfEditForbidden": "No puedes cambiar los permisos del rol que tienes asignado.",
       "roleSystemImmutable": "Los roles del sistema no se pueden editar.",
