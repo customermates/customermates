@@ -89,6 +89,14 @@ test("restores a deleted record from Trash and shows a trashed record read only"
   const banner = page.locator("[data-record-trash-banner]");
   await expect(banner).toContainText("In Trash");
   await expect(banner).toContainText("Deletes permanently in 30 days");
+  const bannerBox = await banner.boundingBox();
+  expect(bannerBox?.height ?? 0).toBeLessThan(56);
+  const bannerGap = await banner.evaluate((element) => {
+    const next = element.nextElementSibling;
+    if (!next) return null;
+    return next.getBoundingClientRect().top - element.getBoundingClientRect().bottom;
+  });
+  expect(bannerGap ?? 0).toBeGreaterThanOrEqual(8);
   await expect(page.getByRole("main").getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
   await expect(page.getByRole("main").getByRole("button", { name: "Pin or unpin fields", exact: true })).toHaveCount(0);
   await expect(page.getByRole("main").locator("[aria-busy=true]")).toHaveCount(0);
