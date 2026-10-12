@@ -27,8 +27,7 @@ Open [More actions](app:records/contact?focus=more) in the toolbar, for example 
 
 - **Export** downloads the records the list currently shows, with search, filters and sorting applied, as a Customermates JSON file including links.
 - **Add from file** opens **Import records**: **Choose file**, pick a JSON export of the same list, choose **Create with exported IDs** or **Update matching IDs**, then **Import records**. Files from another list, from before a structure change, or with more than 100 records or 500 links are rejected. This needs create access.
-
-**Add from file** also takes an Excel workbook (.xlsx) and walks through five steps: pick the sheet, map each column to a field, a linked list, **Assigned to** or the record ID (columns are matched by name, and any column can be skipped), check the preview of the first rows with each problem shown in its cell, choose **New records** or **Existing records** matched by the record ID or a text, email, phone, URL or number column, then **Import records**. Linked records are found by name, members by email or name, and choices by label; an Excel export of the same list maps itself. Large sheets are imported 100 rows at a time, and the summary lists created, updated, skipped and failed rows with the reason for each failure. CSV files must be saved as .xlsx first. The record API offers the same import and export.
+- **Add from file** with an Excel workbook (.xlsx) runs a wizard: pick the sheet, map columns to fields by name or skip them, check the preview, choose **New records** or **Existing records**, then import. Failed rows are listed with their reason. The record API offers the same import and export.
 
 ## How do saved views work, and can I share one with my team? [#how-do-saved-views-work]
 
