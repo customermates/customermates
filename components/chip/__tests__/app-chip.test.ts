@@ -25,6 +25,8 @@ const TestAppChip = AppChip as ComponentType<{
   tooltip?: ReactNode;
 }>;
 
+const VariantAppChip = AppChip as ComponentType<{ children?: ReactNode; variant?: "secondary" | "warning" }>;
+
 beforeEach(() => {
   harness.isTruncated = false;
 });
@@ -86,5 +88,16 @@ describe("AppChip tooltip repeating its own label", () => {
     const markup = renderToStaticMarkup(createElement(TestAppChip, { tooltip: "Services" }, nestedLabel()));
 
     expect(markup).toContain('data-tooltip-content="true">Services</span>');
+  });
+});
+
+describe("AppChip label parts", () => {
+  it("tints label and icon parts in the chip colour on coloured chips only", () => {
+    const part = createElement("span", { "data-chip-part": "" }, "Lead source");
+    const tinted = renderToStaticMarkup(createElement(VariantAppChip, { variant: "warning" }, part, "Trade fair"));
+    const neutral = renderToStaticMarkup(createElement(VariantAppChip, { variant: "secondary" }, part, "Trade fair"));
+
+    expect(tinted).toContain("[&amp;_[data-chip-part]]:text-current/70");
+    expect(neutral).not.toContain("[&amp;_[data-chip-part]]:text-current/70");
   });
 });

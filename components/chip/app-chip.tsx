@@ -24,6 +24,9 @@ const chipVariants = cva("", {
   },
 });
 
+const NEUTRAL_CHIP_VARIANTS = new Set(["secondary", "outline", "ghost", "link"]);
+const TINTED_CHIP_PARTS_CLASS_NAME = "[&_[data-chip-part]]:text-current/70";
+
 type Props = Omit<ComponentProps<typeof Badge>, "children"> & {
   children: ReactNode;
   startContent?: ReactNode;
@@ -60,7 +63,12 @@ export function AppChip({
 
   const chip = (
     <Badge
-      className={cn("rounded-md shrink min-w-0 w-auto max-w-full", chipVariants({ size }), className)}
+      className={cn(
+        "rounded-md shrink min-w-0 w-auto max-w-full",
+        chipVariants({ size }),
+        !NEUTRAL_CHIP_VARIANTS.has(variant ?? "secondary") && TINTED_CHIP_PARTS_CLASS_NAME,
+        className,
+      )}
       data-slot="badge"
       interactive={interactive}
       // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- a truncated, noninteractive chip needs a keyboard focus target for its tooltip
