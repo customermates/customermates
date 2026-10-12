@@ -1,6 +1,7 @@
 import type { EventLog } from "@/generated/prisma";
 import type { RecordActor } from "./record.repo";
-import type { RecordEventMatchWithSubscription, RecordRecipientRepo } from "./record-recipient.repo";
+import type { RecordEventMatchWithSubscription, RecordQueryMatch, RecordRecipientRepo } from "./record-recipient.repo";
+import { compileRecordQuery } from "./record-query";
 
 import { Prisma } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
@@ -59,9 +60,9 @@ export class PrismaRecordRecipientRepo extends TenantRepository implements Recor
   }
 
   @BypassTenantGuard
-  async matchesRecordQueryUnscoped(matching: Prisma.Sql, subjectId: string | null): Promise<boolean> {
+  async matchesRecordQueryUnscoped(args: RecordQueryMatch): Promise<boolean> {
     const matched = await this.prisma.$queryRaw<Array<{ matches: boolean }>>(
-      Prisma.sql`SELECT EXISTS (SELECT 1 FROM (${matching}) matching WHERE matching.id = ${subjectId}) AS matches`,
+      Prisma.sql`SELECT EXISTS (SELECT 1 FROM (${compileRecordQuery(args.companyId, args.query, args.model, args.access).matching}) matching WHERE matching.id = ${args.subjectId}) AS matches`,
     );
     return Boolean(matched[0]?.matches);
   }

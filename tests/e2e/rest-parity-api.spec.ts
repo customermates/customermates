@@ -192,9 +192,9 @@ test("serves saved views, widgets, model discovery and Trash reads over an API k
       ]),
     );
     const widgetVersion = (
-      (widgets as { widgets: Array<{ id: string; version: number }> }).widgets.find(
-        (widget) => widget.id === widgetId,
-      ) ?? { version: 0 }
+      (
+        widgets as { widgets: Array<{ id: string; version: number }> }
+      ).widgets.find((widget) => widget.id === widgetId) ?? { version: 0 }
     ).version;
     const placement = (columns: number) => [
       { i: widgetId, x: 0, y: 1, w: columns, h: 3 },

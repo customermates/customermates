@@ -8,7 +8,6 @@ import type { RecordEventMatchWithSubscription, RecordRecipientRepo } from "./re
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { RecordQuerySchema, type RecordQuery } from "./record-query.schema";
 import { invalidRecordQueryPart } from "./record-query-validation";
-import { compileRecordQuery } from "./record-query";
 import {
   RecordEventSubscriptionSchema,
   type RecordEventSubscriptionDefinition,
@@ -82,8 +81,13 @@ export class RecordRecipientReader {
           ): Promise<boolean> => {
             const query = RecordQuerySchema.parse(raw);
             if (query.typeId !== event.subjectTypeId || invalidRecordQueryPart(query, model)) return false;
-            const sql = compileRecordQuery(companyId, query, model, policy.access(model.types.map((type) => type.id)));
-            return this.recipients.matchesRecordQueryUnscoped(sql.matching, event.subjectId);
+            return this.recipients.matchesRecordQueryUnscoped({
+              companyId,
+              query,
+              model,
+              access: policy.access(model.types.map((type) => type.id)),
+              subjectId: event.subjectId,
+            });
           };
           if (input.query && !(await matchesQuery(input.query))) return null;
           if (input.recheckSubscriptionSources && sourceQueries.length) {

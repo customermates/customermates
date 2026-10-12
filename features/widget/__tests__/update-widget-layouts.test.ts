@@ -8,6 +8,10 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+vi.mock("next-intl/server", () => ({
+  getLocale: () => Promise.resolve("en"),
+  getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
+}));
 
 import { UpdateWidgetLayoutsInteractor, UpdateWidgetLayoutsSchema } from "../update-widget-layouts.interactor";
 

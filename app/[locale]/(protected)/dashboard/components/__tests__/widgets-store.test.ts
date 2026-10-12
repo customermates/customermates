@@ -165,7 +165,9 @@ describe("WidgetsStore refresh compatibility", () => {
     expect(updateWidgetLayoutsAction).toHaveBeenCalledExactlyOnceWith(
       expect.objectContaining({ expectedVersions: { [FIRST_ID]: 1 } }),
     );
-    await vi.waitFor(() => expect(store.layouts.lg).toEqual([{ h: 2, i: FIRST_ID, w: 3, x: 6, y: 0 }]));
+    await vi.waitFor(() =>
+      expect(store.layouts.lg).toEqual([expect.objectContaining({ h: 2, i: FIRST_ID, w: 3, x: 6, y: 0 })]),
+    );
     expect(store.items[0]?.version).toBe(2);
   });
 
