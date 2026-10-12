@@ -5,12 +5,12 @@ import { ApiKeysPageView } from "../components/api-keys-page-view";
 import { getGetApiKeysInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
 import { PageContainer } from "@/components/shared/page-container";
-import { unwrapValidated } from "@/core/validation/validation.utils";
+import { unwrapPage } from "@/core/validation/next/unwrap-page";
 
 export default async function ProfileApiKeysPage() {
   await requireAccess({ resource: Resource.api });
 
-  const apiKeys = await unwrapValidated(getGetApiKeysInteractor().invoke());
+  const apiKeys = await unwrapPage(getGetApiKeysInteractor().invoke());
 
   return (
     <PageContainer>

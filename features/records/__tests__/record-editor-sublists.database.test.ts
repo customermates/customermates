@@ -2,7 +2,7 @@ import type { RecordRef } from "../record-model.schema";
 import type { RecordMutation } from "../record-query.schema";
 
 import { randomUUID } from "node:crypto";
-import { afterAll, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { PermissionService } from "@/core/base/permission.service";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -24,7 +24,7 @@ vi.mock("next-intl/server", () => ({
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
-const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+const { createTestRecordRepo, preloadTestRecordRepo } = await import("@/tests/helpers/record-repository");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { PrismaP13nRepo } = await import("@/features/p13n/prisma-p13n.repository");
 const { RecordAccessPolicy } = await import("../record-access");
@@ -118,7 +118,9 @@ afterAll(async () => {
   if (companies.length) await runWithoutTenant(() => prisma.company.deleteMany({ where: { id: { in: companies } } }));
 });
 
-describeDatabase("record editor embedded sub-lists", () => {
+describeDatabase("record editor embedded sub-lists", { timeout: 120_000 }, () => {
+  beforeAll(() => preloadTestRecordRepo(), 120_000);
+
   it("returns the first page of each sub-list with the editor payload, within the reader's access", async () => {
     const f = await fixture();
     const deal = await f.create("deal", "Renewal");

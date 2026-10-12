@@ -7,7 +7,7 @@ import { requireAccess } from "@/features/auth/next/require";
 import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { PageContainer } from "@/components/shared/page-container";
-import { unwrapValidated } from "@/core/validation/validation.utils";
+import { unwrapPage } from "@/core/validation/next/unwrap-page";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -19,8 +19,8 @@ export default async function CompanyUsersPage({ searchParams }: Props) {
   const userParams = await readSurfaceParams(SURFACE.users, searchParams);
 
   const [users, roles] = await Promise.all([
-    unwrapValidated(getGetUsersInteractor().invoke(userParams)),
-    unwrapValidated(getGetRolesInteractor().invoke({ p13nId: SURFACE.roles })),
+    unwrapPage(getGetUsersInteractor().invoke(userParams)),
+    unwrapPage(getGetRolesInteractor().invoke({ p13nId: SURFACE.roles })),
   ]);
 
   return (

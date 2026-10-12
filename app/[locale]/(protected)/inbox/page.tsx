@@ -18,7 +18,7 @@ import { PageContainer } from "@/components/shared/page-container";
 import { LockedFeatureOverlay } from "@/components/shared/locked-feature-overlay";
 import { env } from "@/env";
 import { cn } from "@/core/utils/cn";
-import { unwrapValidated } from "@/core/validation/validation.utils";
+import { unwrapPage } from "@/core/validation/next/unwrap-page";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
 
 type Props = {
@@ -30,7 +30,7 @@ export default async function InboxPage({ searchParams }: Props) {
 
   if (env.APP_MODE === "self-hosted") redirect("/dashboard");
 
-  const messaging = await unwrapValidated(getGetMessagingAccountsStateInteractor().invoke());
+  const messaging = await unwrapPage(getGetMessagingAccountsStateInteractor().invoke());
   const locked = messaging.state !== "available";
   const canConnect = messaging.state === "available" && messaging.canConnect;
 
@@ -42,9 +42,7 @@ export default async function InboxPage({ searchParams }: Props) {
 
   if (threadResult && !threadResult.ok) redirect("/inbox");
 
-  const threads = locked
-    ? { items: [] }
-    : await unwrapValidated(getGetMessagingThreadsInteractor().invoke(threadParams));
+  const threads = locked ? { items: [] } : await unwrapPage(getGetMessagingThreadsInteractor().invoke(threadParams));
 
   const threadDetail = threadResult?.ok ? threadResult.data : null;
 

@@ -5,7 +5,6 @@ import type { GetOrCreateInviteTokenInteractor } from "@/features/company/get-or
 import { z } from "zod";
 
 import { createElement } from "react";
-import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { Resource } from "@/generated/prisma";
 
@@ -13,11 +12,10 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
-import { resolveRequestOrigin } from "@/core/config/environment";
-import { env } from "@/env";
 import CompanyInvite from "@/components/emails/company-invite";
 import { getEmailLayoutCopy } from "@/components/emails/base/email-layout-copy";
 import { getRequestAppLocale } from "@/i18n/request-app-locale";
+import { invitationLink } from "@/features/company/invitation-link";
 
 export const InviteUsersByEmailSchema = z.object({
   emails: z.array(z.email()).min(1).max(20),
@@ -48,9 +46,7 @@ export class InviteUsersByEmailInteractor extends AuthenticatedInteractor<
     const user = this.user;
     const tokenResult = await this.getOrCreateInviteToken.invoke();
 
-    const requestOrigin = (await headers()).get("origin") ?? env.BASE_URL;
-    const baseUrl = resolveRequestOrigin(requestOrigin, env.AUTH_ALLOWED_HOSTS, env.BASE_URL);
-    const inviteLink = `${baseUrl}/invitation/${tokenResult.data.token}`;
+    const inviteLink = await invitationLink(tokenResult.data.token);
     const inviterName = `${user.firstName} ${user.lastName}`.trim();
 
     const t = await getTranslations();

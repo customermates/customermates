@@ -47309,6 +47309,137 @@
         }
       }
     },
+    "/v1/members/invite-link": {
+      "post": {
+        "operationId": "getInvitationLink",
+        "summary": "Get the workspace invitation link",
+        "description": "Returns the workspace invitation link and when it expires, as the Share link tab of the Invite dialog shows it. The link is reused until it expires after 7 days; the first call after that creates a new one. Anyone who opens it can register and joins with status Waiting for approval and no role. Requires: Users & Roles Create.",
+        "tags": [
+          "members"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              },
+              "examples": {
+                "default": {
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The current invitation link.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "link": {
+                      "type": "string",
+                      "description": "The workspace invitation link: anyone who opens it before expiresAt can request to join."
+                    },
+                    "expiresAt": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "link",
+                    "expiresAt"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
     "/v1/members/update": {
       "post": {
         "operationId": "updateMember",
@@ -77886,6 +78017,1858 @@
         }
       }
     },
+    "/v1/messaging/connected-accounts/{id}": {
+      "delete": {
+        "operationId": "disconnectConnectedAccount",
+        "summary": "Disconnect a connected account",
+        "description": "Disconnects one of your connected accounts: it is removed from the workspace and from the messaging provider, and its synced conversations disappear. This cannot be undone; connecting the account again starts a new sync. Only the account owner can change it; another member's account answers 404. Requires: Inbox messages Delete.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The account was disconnected.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "disconnected": {
+                      "type": "boolean",
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "disconnected"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/messaging/connected-accounts/{id}/folders": {
+      "post": {
+        "operationId": "setConnectedAccountFolders",
+        "summary": "Choose the synced email folders",
+        "description": "Replaces the set of email folders that sync, as the account's Folders tab does. Pass folder ids from GET /v1/messaging/connected-accounts; unknown ids are ignored, and newly enabled folders sync in the background. Only the account owner can change it; another member's account answers 404. Returns the saved account. Requires: Inbox messages Edit.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "selectedFolderIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "selectedFolderIds"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The saved connected account.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "provider": {
+                      "type": "string",
+                      "enum": [
+                        "google",
+                        "outlook",
+                        "mail",
+                        "linkedin",
+                        "whatsapp",
+                        "instagram",
+                        "telegram"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "connecting",
+                        "credentials",
+                        "permissions",
+                        "error",
+                        "stopped",
+                        "deleted"
+                      ]
+                    },
+                    "hasMessaging": {
+                      "type": "boolean"
+                    },
+                    "hasCalendar": {
+                      "type": "boolean"
+                    },
+                    "emailAddress": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "displayName": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "shared": {
+                      "type": "boolean"
+                    },
+                    "syncing": {
+                      "type": "boolean"
+                    },
+                    "lastSyncedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "owner": {
+                      "type": "object",
+                      "properties": {
+                        "userId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "firstName": {
+                          "type": "string"
+                        },
+                        "lastName": {
+                          "type": "string"
+                        },
+                        "avatarUrl": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "userId",
+                        "firstName",
+                        "lastName",
+                        "avatarUrl"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "isOwner": {
+                      "type": "boolean"
+                    },
+                    "folders": {
+                      "default": [],
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "role": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "totalCount": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "unreadCount": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "role",
+                          "totalCount",
+                          "unreadCount"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "selectedFolderIds": {
+                      "default": [],
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "foldersSyncedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "linkedinProducts": {
+                      "default": [],
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "signature": {
+                      "default": null,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "emailSettings": {
+                      "default": {
+                        "version": 2,
+                        "appearance": {
+                          "fontFamily": "sansSerif",
+                          "fontSize": 13,
+                          "linkHex": "#7161e8",
+                          "linkStyle": "underlined"
+                        },
+                        "signature": {
+                          "enabled": false,
+                          "template": "stacked",
+                          "logoUrl": "https://customermates.com/images/email/customermates-icon@2x.png",
+                          "logoSize": "medium",
+                          "divider": "none",
+                          "spacing": "comfortable"
+                        }
+                      },
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "number",
+                          "const": 2
+                        },
+                        "appearance": {
+                          "type": "object",
+                          "properties": {
+                            "fontFamily": {
+                              "type": "string",
+                              "enum": [
+                                "sansSerif",
+                                "serif",
+                                "monospace"
+                              ]
+                            },
+                            "fontSize": {
+                              "type": "integer",
+                              "minimum": 10,
+                              "maximum": 20
+                            },
+                            "linkHex": {
+                              "type": "string"
+                            },
+                            "linkStyle": {
+                              "type": "string",
+                              "enum": [
+                                "underlined",
+                                "plain"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "fontFamily",
+                            "fontSize",
+                            "linkHex",
+                            "linkStyle"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "signature": {
+                          "type": "object",
+                          "properties": {
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "template": {
+                              "type": "string",
+                              "enum": [
+                                "plain",
+                                "stacked",
+                                "sideBySide"
+                              ]
+                            },
+                            "logoUrl": {
+                              "type": "string",
+                              "maxLength": 500
+                            },
+                            "logoSize": {
+                              "default": "medium",
+                              "type": "string",
+                              "enum": [
+                                "small",
+                                "medium",
+                                "large"
+                              ]
+                            },
+                            "divider": {
+                              "default": "none",
+                              "type": "string",
+                              "enum": [
+                                "none",
+                                "line"
+                              ]
+                            },
+                            "spacing": {
+                              "default": "comfortable",
+                              "type": "string",
+                              "enum": [
+                                "compact",
+                                "comfortable"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "enabled",
+                            "template",
+                            "logoUrl",
+                            "logoSize",
+                            "divider",
+                            "spacing"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "appearance",
+                        "signature"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "signatureHtml": {
+                      "default": null,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "provider",
+                    "status",
+                    "hasMessaging",
+                    "hasCalendar",
+                    "emailAddress",
+                    "displayName",
+                    "shared",
+                    "syncing",
+                    "lastSyncedAt",
+                    "createdAt",
+                    "owner",
+                    "isOwner",
+                    "folders",
+                    "selectedFolderIds",
+                    "foldersSyncedAt",
+                    "linkedinProducts",
+                    "signature",
+                    "emailSettings",
+                    "signatureHtml"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/messaging/connected-accounts/{id}/signature": {
+      "post": {
+        "operationId": "setConnectedAccountSignature",
+        "summary": "Set the email signature and appearance",
+        "description": "Saves the signature text (Markdown, up to 2,000 characters, empty to clear) and the complete email settings (appearance and signature layout), as the account's Email tab does. Only the account owner can change it; another member's account answers 404. Returns the saved account. Requires: Inbox messages Edit.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "signature": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "settings": {
+                    "type": "object",
+                    "properties": {
+                      "version": {
+                        "type": "number",
+                        "const": 2
+                      },
+                      "appearance": {
+                        "type": "object",
+                        "properties": {
+                          "fontFamily": {
+                            "type": "string",
+                            "enum": [
+                              "sansSerif",
+                              "serif",
+                              "monospace"
+                            ]
+                          },
+                          "fontSize": {
+                            "type": "integer",
+                            "minimum": 10,
+                            "maximum": 20
+                          },
+                          "linkHex": {
+                            "type": "string"
+                          },
+                          "linkStyle": {
+                            "type": "string",
+                            "enum": [
+                              "underlined",
+                              "plain"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "fontFamily",
+                          "fontSize",
+                          "linkHex",
+                          "linkStyle"
+                        ]
+                      },
+                      "signature": {
+                        "type": "object",
+                        "properties": {
+                          "enabled": {
+                            "type": "boolean"
+                          },
+                          "template": {
+                            "type": "string",
+                            "enum": [
+                              "plain",
+                              "stacked",
+                              "sideBySide"
+                            ]
+                          },
+                          "logoUrl": {
+                            "type": "string",
+                            "maxLength": 500
+                          },
+                          "logoSize": {
+                            "default": "medium",
+                            "type": "string",
+                            "enum": [
+                              "small",
+                              "medium",
+                              "large"
+                            ]
+                          },
+                          "divider": {
+                            "default": "none",
+                            "type": "string",
+                            "enum": [
+                              "none",
+                              "line"
+                            ]
+                          },
+                          "spacing": {
+                            "default": "comfortable",
+                            "type": "string",
+                            "enum": [
+                              "compact",
+                              "comfortable"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "enabled",
+                          "template",
+                          "logoUrl"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "version",
+                      "appearance",
+                      "signature"
+                    ]
+                  }
+                },
+                "required": [
+                  "signature",
+                  "settings"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The saved connected account.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "provider": {
+                      "type": "string",
+                      "enum": [
+                        "google",
+                        "outlook",
+                        "mail",
+                        "linkedin",
+                        "whatsapp",
+                        "instagram",
+                        "telegram"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "connecting",
+                        "credentials",
+                        "permissions",
+                        "error",
+                        "stopped",
+                        "deleted"
+                      ]
+                    },
+                    "hasMessaging": {
+                      "type": "boolean"
+                    },
+                    "hasCalendar": {
+                      "type": "boolean"
+                    },
+                    "emailAddress": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "displayName": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "shared": {
+                      "type": "boolean"
+                    },
+                    "syncing": {
+                      "type": "boolean"
+                    },
+                    "lastSyncedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "owner": {
+                      "type": "object",
+                      "properties": {
+                        "userId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "firstName": {
+                          "type": "string"
+                        },
+                        "lastName": {
+                          "type": "string"
+                        },
+                        "avatarUrl": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "userId",
+                        "firstName",
+                        "lastName",
+                        "avatarUrl"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "isOwner": {
+                      "type": "boolean"
+                    },
+                    "folders": {
+                      "default": [],
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "role": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "totalCount": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "unreadCount": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "role",
+                          "totalCount",
+                          "unreadCount"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "selectedFolderIds": {
+                      "default": [],
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "foldersSyncedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "linkedinProducts": {
+                      "default": [],
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "signature": {
+                      "default": null,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "emailSettings": {
+                      "default": {
+                        "version": 2,
+                        "appearance": {
+                          "fontFamily": "sansSerif",
+                          "fontSize": 13,
+                          "linkHex": "#7161e8",
+                          "linkStyle": "underlined"
+                        },
+                        "signature": {
+                          "enabled": false,
+                          "template": "stacked",
+                          "logoUrl": "https://customermates.com/images/email/customermates-icon@2x.png",
+                          "logoSize": "medium",
+                          "divider": "none",
+                          "spacing": "comfortable"
+                        }
+                      },
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "number",
+                          "const": 2
+                        },
+                        "appearance": {
+                          "type": "object",
+                          "properties": {
+                            "fontFamily": {
+                              "type": "string",
+                              "enum": [
+                                "sansSerif",
+                                "serif",
+                                "monospace"
+                              ]
+                            },
+                            "fontSize": {
+                              "type": "integer",
+                              "minimum": 10,
+                              "maximum": 20
+                            },
+                            "linkHex": {
+                              "type": "string"
+                            },
+                            "linkStyle": {
+                              "type": "string",
+                              "enum": [
+                                "underlined",
+                                "plain"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "fontFamily",
+                            "fontSize",
+                            "linkHex",
+                            "linkStyle"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "signature": {
+                          "type": "object",
+                          "properties": {
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "template": {
+                              "type": "string",
+                              "enum": [
+                                "plain",
+                                "stacked",
+                                "sideBySide"
+                              ]
+                            },
+                            "logoUrl": {
+                              "type": "string",
+                              "maxLength": 500
+                            },
+                            "logoSize": {
+                              "default": "medium",
+                              "type": "string",
+                              "enum": [
+                                "small",
+                                "medium",
+                                "large"
+                              ]
+                            },
+                            "divider": {
+                              "default": "none",
+                              "type": "string",
+                              "enum": [
+                                "none",
+                                "line"
+                              ]
+                            },
+                            "spacing": {
+                              "default": "comfortable",
+                              "type": "string",
+                              "enum": [
+                                "compact",
+                                "comfortable"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "enabled",
+                            "template",
+                            "logoUrl",
+                            "logoSize",
+                            "divider",
+                            "spacing"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "appearance",
+                        "signature"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "signatureHtml": {
+                      "default": null,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "provider",
+                    "status",
+                    "hasMessaging",
+                    "hasCalendar",
+                    "emailAddress",
+                    "displayName",
+                    "shared",
+                    "syncing",
+                    "lastSyncedAt",
+                    "createdAt",
+                    "owner",
+                    "isOwner",
+                    "folders",
+                    "selectedFolderIds",
+                    "foldersSyncedAt",
+                    "linkedinProducts",
+                    "signature",
+                    "emailSettings",
+                    "signatureHtml"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/messaging/connected-accounts/{id}/sharing": {
+      "post": {
+        "operationId": "setConnectedAccountSharing",
+        "summary": "Share or unshare a connected account",
+        "description": "shared true shows every conversation of the account to all members who can read the Inbox; false makes it private again. Needs a plan with shared accounts (Business or Enterprise). Only the account owner can change it; another member's account answers 404. Returns the saved account. Requires: Inbox messages Edit.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "shared": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "shared"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The saved connected account.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "provider": {
+                      "type": "string",
+                      "enum": [
+                        "google",
+                        "outlook",
+                        "mail",
+                        "linkedin",
+                        "whatsapp",
+                        "instagram",
+                        "telegram"
+                      ]
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "ok",
+                        "connecting",
+                        "credentials",
+                        "permissions",
+                        "error",
+                        "stopped",
+                        "deleted"
+                      ]
+                    },
+                    "hasMessaging": {
+                      "type": "boolean"
+                    },
+                    "hasCalendar": {
+                      "type": "boolean"
+                    },
+                    "emailAddress": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "displayName": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "shared": {
+                      "type": "boolean"
+                    },
+                    "syncing": {
+                      "type": "boolean"
+                    },
+                    "lastSyncedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "createdAt": {
+                      "type": "string"
+                    },
+                    "owner": {
+                      "type": "object",
+                      "properties": {
+                        "userId": {
+                          "type": "string",
+                          "format": "uuid",
+                          "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "firstName": {
+                          "type": "string"
+                        },
+                        "lastName": {
+                          "type": "string"
+                        },
+                        "avatarUrl": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ]
+                        }
+                      },
+                      "required": [
+                        "userId",
+                        "firstName",
+                        "lastName",
+                        "avatarUrl"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "isOwner": {
+                      "type": "boolean"
+                    },
+                    "folders": {
+                      "default": [],
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "role": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "totalCount": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "unreadCount": {
+                            "anyOf": [
+                              {
+                                "type": "number"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "role",
+                          "totalCount",
+                          "unreadCount"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "selectedFolderIds": {
+                      "default": [],
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "foldersSyncedAt": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "linkedinProducts": {
+                      "default": [],
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "signature": {
+                      "default": null,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "emailSettings": {
+                      "default": {
+                        "version": 2,
+                        "appearance": {
+                          "fontFamily": "sansSerif",
+                          "fontSize": 13,
+                          "linkHex": "#7161e8",
+                          "linkStyle": "underlined"
+                        },
+                        "signature": {
+                          "enabled": false,
+                          "template": "stacked",
+                          "logoUrl": "https://customermates.com/images/email/customermates-icon@2x.png",
+                          "logoSize": "medium",
+                          "divider": "none",
+                          "spacing": "comfortable"
+                        }
+                      },
+                      "type": "object",
+                      "properties": {
+                        "version": {
+                          "type": "number",
+                          "const": 2
+                        },
+                        "appearance": {
+                          "type": "object",
+                          "properties": {
+                            "fontFamily": {
+                              "type": "string",
+                              "enum": [
+                                "sansSerif",
+                                "serif",
+                                "monospace"
+                              ]
+                            },
+                            "fontSize": {
+                              "type": "integer",
+                              "minimum": 10,
+                              "maximum": 20
+                            },
+                            "linkHex": {
+                              "type": "string"
+                            },
+                            "linkStyle": {
+                              "type": "string",
+                              "enum": [
+                                "underlined",
+                                "plain"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "fontFamily",
+                            "fontSize",
+                            "linkHex",
+                            "linkStyle"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "signature": {
+                          "type": "object",
+                          "properties": {
+                            "enabled": {
+                              "type": "boolean"
+                            },
+                            "template": {
+                              "type": "string",
+                              "enum": [
+                                "plain",
+                                "stacked",
+                                "sideBySide"
+                              ]
+                            },
+                            "logoUrl": {
+                              "type": "string",
+                              "maxLength": 500
+                            },
+                            "logoSize": {
+                              "default": "medium",
+                              "type": "string",
+                              "enum": [
+                                "small",
+                                "medium",
+                                "large"
+                              ]
+                            },
+                            "divider": {
+                              "default": "none",
+                              "type": "string",
+                              "enum": [
+                                "none",
+                                "line"
+                              ]
+                            },
+                            "spacing": {
+                              "default": "comfortable",
+                              "type": "string",
+                              "enum": [
+                                "compact",
+                                "comfortable"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "enabled",
+                            "template",
+                            "logoUrl",
+                            "logoSize",
+                            "divider",
+                            "spacing"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "version",
+                        "appearance",
+                        "signature"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "signatureHtml": {
+                      "default": null,
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "provider",
+                    "status",
+                    "hasMessaging",
+                    "hasCalendar",
+                    "emailAddress",
+                    "displayName",
+                    "shared",
+                    "syncing",
+                    "lastSyncedAt",
+                    "createdAt",
+                    "owner",
+                    "isOwner",
+                    "folders",
+                    "selectedFolderIds",
+                    "foldersSyncedAt",
+                    "linkedinProducts",
+                    "signature",
+                    "emailSettings",
+                    "signatureHtml"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
+    "/v1/messaging/connected-accounts/{id}/resync": {
+      "post": {
+        "operationId": "resyncConnectedAccount",
+        "summary": "Resync a connected account",
+        "description": "Fetches the account's history again in the background. Send an empty JSON object. Only the account owner can change it; another member's account answers 404. Requires: Inbox messages Edit.",
+        "tags": [
+          "messaging"
+        ],
+        "security": [
+          {
+            "apiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            },
+            "required": true
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {},
+                "additionalProperties": false
+              },
+              "examples": {
+                "default": {
+                  "value": {}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The resync started.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "resyncStarted": {
+                      "type": "boolean",
+                      "const": true
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "resyncStarted"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
+          }
+        }
+      }
+    },
     "/v1/users/search": {
       "post": {
         "operationId": "getUsers",
@@ -80084,7 +82067,7 @@
       "post": {
         "operationId": "listRoutineRuns",
         "summary": "List a routine's runs",
-        "description": "Returns one routine's run history newest first, each with its status, trigger, summary and charged credits. Pass nextCursor from the previous page as cursor to continue; a null nextCursor ends the history. Requires: read permission on routines.",
+        "description": "Returns one routine's run history newest first, each with its status, trigger, summary and charged credits. Pass nextCursor from the previous page as cursor to continue; a null nextCursor ends the history. An id outside the workspace or the caller's access answers 404. Requires: read permission on routines.",
         "tags": [
           "routines"
         ],
@@ -80098,13 +82081,13 @@
           "content": {
             "application/json": {
               "example": {
-                "routineId": "0b5f3c1e-7a2d-4c8e-9f10-2a3b4c5d6e7f",
+                "id": "0b5f3c1e-7a2d-4c8e-9f10-2a3b4c5d6e7f",
                 "cursor": null
               },
               "schema": {
                 "type": "object",
                 "properties": {
-                  "routineId": {
+                  "id": {
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
@@ -80122,7 +82105,7 @@
                   }
                 },
                 "required": [
-                  "routineId"
+                  "id"
                 ]
               }
             }
@@ -83730,19 +85713,19 @@
           "content": {
             "application/json": {
               "example": {
-                "routineId": "0b5f3c1e-7a2d-4c8e-9f10-2a3b4c5d6e7f"
+                "id": "0b5f3c1e-7a2d-4c8e-9f10-2a3b4c5d6e7f"
               },
               "schema": {
                 "type": "object",
                 "properties": {
-                  "routineId": {
+                  "id": {
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   }
                 },
                 "required": [
-                  "routineId"
+                  "id"
                 ]
               }
             }
@@ -84069,19 +86052,19 @@
           "content": {
             "application/json": {
               "example": {
-                "routineId": "0b5f3c1e-7a2d-4c8e-9f10-2a3b4c5d6e7f"
+                "id": "0b5f3c1e-7a2d-4c8e-9f10-2a3b4c5d6e7f"
               },
               "schema": {
                 "type": "object",
                 "properties": {
-                  "routineId": {
+                  "id": {
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   }
                 },
                 "required": [
-                  "routineId"
+                  "id"
                 ]
               }
             }

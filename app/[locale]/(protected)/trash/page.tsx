@@ -5,7 +5,7 @@ import { decodeGetParams } from "@/core/utils/get-params";
 import { PageContainer } from "@/components/shared/page-container";
 
 import { getQueryTrashInteractor } from "@/core/di";
-import { unwrapValidated } from "@/core/validation/validation.utils";
+import { unwrapPage } from "@/core/validation/next/unwrap-page";
 
 import { toTrashQuery, toTrashResult } from "./components/trash-page-model";
 
@@ -17,7 +17,7 @@ export default async function TrashPage({ searchParams }: Props) {
   await requireAccess();
   const params = decodeGetParams(await searchParams);
   const query = toTrashQuery(params);
-  const initialTrash = toTrashResult(params, query, await unwrapValidated(getQueryTrashInteractor().invoke(query)));
+  const initialTrash = toTrashResult(params, query, await unwrapPage(getQueryTrashInteractor().invoke(query)));
   return (
     <PageContainer padded={false}>
       <TrashPageView initialTrash={initialTrash} />

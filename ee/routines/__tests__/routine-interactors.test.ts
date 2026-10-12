@@ -273,7 +273,7 @@ describe("RunRoutineNowInteractor", () => {
     const { repo, background } = fixtures();
 
     const result = await new RunRoutineNowInteractor(repo as never, background as never).invoke({
-      routineId: ROUTINE_ID,
+      id: ROUTINE_ID,
     });
 
     expect(result).toEqual({ ok: true, data: RUN_ID });
@@ -290,7 +290,7 @@ describe("RunRoutineNowInteractor", () => {
 
     await expect(
       runWithTenant(readOwnRoutineUser(), () =>
-        new RunRoutineNowInteractor(repo as never, background as never).invoke({ routineId: ROUTINE_ID }),
+        new RunRoutineNowInteractor(repo as never, background as never).invoke({ id: ROUTINE_ID }),
       ),
     ).rejects.toThrow(ForbiddenError);
     expect(repo.createManualRoutineRunOrThrow).not.toHaveBeenCalled();
@@ -301,13 +301,13 @@ describe("RunRoutineNowInteractor", () => {
     const { repo, background } = fixtures({ triggerKind: "event" });
 
     const result = await new RunRoutineNowInteractor(repo as never, background as never).invoke({
-      routineId: ROUTINE_ID,
+      id: ROUTINE_ID,
     });
 
     expect(result.ok).toBe(false);
     if (result.ok) throw new Error("Expected the event routine test to be rejected");
     expect(result.error.issues[0]).toMatchObject({
-      path: ["routineId"],
+      path: ["id"],
       params: {
         error: CustomErrorCode.routineRunNowRequiresSchedule,
         kind: "conflict",
@@ -324,7 +324,7 @@ describe("RunRoutineNowInteractor", () => {
     });
 
     const result = await new RunRoutineNowInteractor(repo as never, background as never).invoke({
-      routineId: ROUTINE_ID,
+      id: ROUTINE_ID,
     });
 
     expect(result.ok).toBe(false);
@@ -343,13 +343,13 @@ describe("RunRoutineNowInteractor", () => {
     const { repo, background } = fixtures({ enabled: false });
 
     const result = await new RunRoutineNowInteractor(repo as never, background as never).invoke({
-      routineId: ROUTINE_ID,
+      id: ROUTINE_ID,
     });
 
     expect(result.ok).toBe(false);
     if (result.ok) throw new Error("Expected the paused routine test to be rejected");
     expect(result.error.issues[0]).toMatchObject({
-      path: ["routineId"],
+      path: ["id"],
       params: {
         error: CustomErrorCode.routineTestRequiresEnabled,
         kind: "conflict",

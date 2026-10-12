@@ -230,7 +230,7 @@ describe("routine audit events", () => {
     };
     const { publish, service } = eventService();
 
-    const result = await new PauseRoutineInteractor(repo as never, service).invoke({ routineId: ROUTINE_ID });
+    const result = await new PauseRoutineInteractor(repo as never, service).invoke({ id: ROUTINE_ID });
 
     expect(result).toEqual({ ok: true, data: paused });
     expect(publish).toHaveBeenCalledExactlyOnceWith(DomainEvent.ROUTINE_UPDATED, {

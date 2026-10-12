@@ -362,6 +362,7 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
   }
   if (toolName === "manage_team") {
     const action = actionValue(details);
+    if (action === "invite_link") return descriptor("team.manage", undefined, multiplexedRisk(toolName, details));
     return descriptor("team.manage", undefined, multiplexedRisk(toolName, details), [], {
       action: action === "invite" ? "team.invite" : "team.update",
       target: action === "invite" ? safeStringList(details.emails) : "the selected team member",
@@ -387,6 +388,15 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
       preview: safeText(details.description, 240),
       count: boundedCount(details.events),
       state: typeof details.enabled === "boolean" ? (details.enabled ? "enabled" : "disabled") : undefined,
+    });
+  }
+  if (toolName === "export_crm_records") return descriptor("records.read", undefined, "read");
+  if (toolName === "import_crm_records") return descriptor("generic", undefined, "sensitive");
+  if (toolName === "manage_connected_accounts") {
+    const action = actionValue(details);
+    return descriptor("generic", undefined, multiplexedRisk(toolName, details), [], {
+      action: "external.manage",
+      state: safeText(action, 80),
     });
   }
   if (toolName === "connect_messaging_account") {
