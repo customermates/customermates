@@ -250,6 +250,30 @@ afterAll(async () => {
 });
 
 describeDatabase("configuration trash", () => {
+  it("moves an unreferenced input field to Trash and back without rewriting the records of its list", async () => {
+    const f = await fixture();
+    const companyId = f.seed.company.id;
+    const deal = await f.create("deal", "deal.name", "Untouched by the notes field");
+    const version = () =>
+      runWithoutTenant(() =>
+        prisma.crmRecord.findUniqueOrThrow({
+          where: { companyId_typeId_id: { companyId, typeId: deal.typeId, id: deal.recordId } },
+          select: { version: true, updatedAt: true },
+        }),
+      );
+    const before = await version();
+    const change = await f.change([{ operation: "delete", target: { kind: "field", id: f.id("deal.notes") } }]);
+    const removed = await f.as(() => f.apply.invoke(change));
+    expect(removed).toMatchObject({ ok: true, data: { status: "completed" } });
+    expect(await version()).toEqual(before);
+    const item = (await f.items()).find((row) => row.targetId === f.id("deal.notes"));
+    expect(await f.as(() => f.trash.restore.invoke({ itemIds: [item?.id ?? ""] }))).toMatchObject({
+      ok: true,
+      data: { restoredItemIds: [item?.id] },
+    });
+    expect(await version()).toEqual(before);
+  }, 180_000);
+
   it("moves a field to Trash with an undo batch, lists it and restores it through Trash", async () => {
     const f = await fixture();
     const fieldId = f.id("deal.notes");
