@@ -1,3 +1,6 @@
+import { failureUnwindCause, unwindFailure } from "@/core/validation/failure-unwind";
+import type { Validated } from "@/core/validation/validation.utils";
+import { fail, failAuthorization, failConflict } from "@/core/validation/interactor-failure-server";
 import type { RecordRevisionChange } from "./record-revision.schema";
 import { createHash } from "node:crypto";
 import { compareRecordKey } from "./record-json";
@@ -19,7 +22,7 @@ import {
 } from "./configuration-lifecycle";
 import { UserAccessor } from "@/core/base/user-accessor";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { RecordWriteError, normalizeRecordScalar } from "./record-write.service";
+import { normalizeRecordScalar } from "./record-write.service";
 import { RecordModelSchema } from "./record-model.schema";
 import {
   expressionFieldDependencies,
@@ -115,17 +118,15 @@ export class RecordConfigurationService extends UserAccessor {
     input: ConfigurationChange,
     current: RecordModel,
     policy: Awaited<ReturnType<RecordAccessPolicy["load"]>>,
-  ): Promise<PreparedConfiguration> {
-    if (!canConfigureRecords(input, policy))
-      throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
-    if (input.expectedRevision !== current.revision)
-      throw new RecordWriteError(CustomErrorCode.recordSchemaChanged, "conflict");
+  ): Validated<PreparedConfiguration> {
+    if (!canConfigureRecords(input, policy)) return failAuthorization(CustomErrorCode.permissionDenied);
+    if (input.expectedRevision !== current.revision) return failConflict(CustomErrorCode.recordSchemaChanged);
     const references = new Map<string, string>();
     const register = (reference: string, generated = false) => {
       if (!reference.startsWith("$")) return;
       if (references.has(reference)) {
         if (generated) return;
-        throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+        throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
       }
       references.set(reference, deterministicId(this.companyId, `configuration:${input.idempotencyKey}:${reference}`));
     };
@@ -150,7 +151,7 @@ export class RecordConfigurationService extends UserAccessor {
       }
       if (!reference.startsWith("$")) return reference;
       const id = references.get(reference);
-      if (!id) throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+      if (!id) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
       return id;
     };
     const resolveDefinition = (value: unknown, key = ""): unknown => {
@@ -199,9 +200,9 @@ export class RecordConfigurationService extends UserAccessor {
       : [];
     for (const operation of input.operations) {
       if (operation.operation === "putAccessPreset") {
-        if (!policy.canManageRoles) throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+        if (!policy.canManageRoles) return failAuthorization(CustomErrorCode.permissionDenied);
         if (!(await this.records.validRecordRolesCompanyWide(operation.preset.grants.map((grant) => grant.roleId))))
-          throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+          return fail(CustomErrorCode.recordConfigurationInvalid);
         upsert(model.accessPresets, {
           ...operation.preset,
           id: resolve(operation.preset.id),
@@ -211,8 +212,7 @@ export class RecordConfigurationService extends UserAccessor {
     for (const operation of input.operations) {
       if (operation.operation === "createType") {
         const id = resolve(operation.reference);
-        if (model.types.some((type) => type.id === id))
-          throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+        if (model.types.some((type) => type.id === id)) return fail(CustomErrorCode.recordConfigurationInvalid);
         const nameId =
           references.get(`${operation.reference}.name`) ??
           deterministicId(this.companyId, `configuration:${input.idempotencyKey}:${id}:name`);
@@ -245,7 +245,7 @@ export class RecordConfigurationService extends UserAccessor {
           const preset = model.accessPresets.find(
             (preset) => preset.id === resolve(operation.accessPresetId ?? "") && !preset.archived,
           );
-          if (!preset) throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+          if (!preset) return fail(CustomErrorCode.recordConfigurationInvalid);
           grants.push({ typeId: id, grants: preset.grants });
         }
       }
@@ -265,15 +265,14 @@ export class RecordConfigurationService extends UserAccessor {
             : {}),
         } as RecordModel["types"][number];
         if ((existing?.parentRelationshipId ?? null) !== type.parentRelationshipId && !policy.canManageRoles)
-          throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+          return failAuthorization(CustomErrorCode.permissionDenied);
         upsert(model.types, type);
       }
       if (operation.operation === "putField") {
         const input = resolveDefinition(operation.field) as Omit<RecordField, "publishedSummary" | "archived">;
         const existing = current.fields.find((candidate) => candidate.id === input.id);
         const field = { ...input, archived: existing?.archived ?? false };
-        if (existing && existing.typeId !== field.typeId)
-          throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+        if (existing && existing.typeId !== field.typeId) return fail(CustomErrorCode.recordConfigurationInvalid);
         if (existing && existing.position !== field.position) reorderedTypes.add(field.typeId);
         upsert(model.fields, {
           ...field,
@@ -291,11 +290,11 @@ export class RecordConfigurationService extends UserAccessor {
           existing &&
           (existing.sourceTypeId !== relation.sourceTypeId || existing.targetTypeId !== relation.targetTypeId)
         )
-          throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+          return fail(CustomErrorCode.recordConfigurationInvalid);
         upsert(model.relationships, relation);
       }
       if (operation.operation === "setTypeGrants") {
-        if (!policy.canManageRoles) throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+        if (!policy.canManageRoles) return failAuthorization(CustomErrorCode.permissionDenied);
         const typeId = resolve(operation.typeId);
         if (
           grants.some((grant) => grant.typeId === typeId) ||
@@ -303,28 +302,28 @@ export class RecordConfigurationService extends UserAccessor {
           operation.grants.some((grant) => new Set(grant.actions).size !== grant.actions.length) ||
           !(await this.records.validRecordRolesCompanyWide(operation.grants.map((grant) => grant.roleId)))
         )
-          throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+          return fail(CustomErrorCode.recordConfigurationInvalid);
         if (!policy.isAdmin && policy.actor?.role) {
           const previous =
             previousGrants.find((grant) => grant.typeId === typeId && grant.roleId === policy.actor?.role?.id)
               ?.actions ?? [];
           const next = operation.grants.find((grant) => grant.roleId === policy.actor?.role?.id)?.actions ?? [];
           if ([...previous].sort().join() !== [...next].sort().join())
-            throw new RecordWriteError(CustomErrorCode.roleSelfEditForbidden, "authorization");
+            return failAuthorization(CustomErrorCode.roleSelfEditForbidden);
         }
         grants.push({ typeId, grants: operation.grants });
       }
       if (operation.operation === "putCapability") {
         const binding = resolveDefinition(operation.capability) as RecordModel["capabilities"][number];
         const existing = current.capabilities.find((candidate) => candidate.id === binding.id);
-        if (!policy.isAdmin) throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+        if (!policy.isAdmin) return failAuthorization(CustomErrorCode.permissionDenied);
         const protectedKind = (kind: string) => kind === "membershipAuthorization";
         if (
           (existing && (existing.typeId !== binding.typeId || existing.kind !== binding.kind)) ||
           (existing && protectedKind(existing.kind) && JSON.stringify(existing) !== JSON.stringify(binding)) ||
           (!existing && protectedKind(binding.kind))
         )
-          throw new RecordWriteError(CustomErrorCode.recordProtected, "authorization");
+          return failAuthorization(CustomErrorCode.recordProtected);
         upsert(model.capabilities, binding);
       }
     }
@@ -338,9 +337,9 @@ export class RecordConfigurationService extends UserAccessor {
         )
       : null;
     if (lifecycle?.removed?.typeIds.length && !policy.canManageRoles)
-      throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+      return failAuthorization(CustomErrorCode.permissionDenied);
     if (lifecycle?.removed?.channelTypeIds.some((typeId) => !policy.isAdmin && !policy.allowed(typeId, "readAll")))
-      throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+      return failAuthorization(CustomErrorCode.permissionDenied);
     const deletedTypeIds = new Set(
       lifecycle?.deletedTargets.filter((target) => target.kind === "type").map((target) => target.id),
     );
@@ -356,8 +355,7 @@ export class RecordConfigurationService extends UserAccessor {
       });
     }
     assignMissingNameFields(model);
-    if (!RecordModelSchema.safeParse(model).success)
-      throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+    if (!RecordModelSchema.safeParse(model).success) return fail(CustomErrorCode.recordConfigurationInvalid);
     const validation = validateRecordModel(model);
     validation.issues.push(...duplicateNameIssues(model, current));
     const removed = lifecycle?.removed ? { deletion: lifecycle.removed } : null;
@@ -401,7 +399,7 @@ export class RecordConfigurationService extends UserAccessor {
         normalizeRecordScalar(field.behavior.defaultValue, field);
       const approval = approvals.get(field.id);
       if (approval) {
-        if (!policy.isAdmin) throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+        if (!policy.isAdmin) return failAuthorization(CustomErrorCode.permissionDenied);
         if (approval.dependencyHash !== calculationDependencyHash(field, model)) {
           validation.issues.push({
             code: "summary_approval_changed",
@@ -654,7 +652,7 @@ export class RecordConfigurationService extends UserAccessor {
                 field,
               );
             } catch (error) {
-              if (!(error instanceof RecordWriteError)) throw error;
+              if (!failureUnwindCause(error)) throw error;
               invalid.add(field.id);
               validation.issues.push({
                 code: "existing_values_incompatible",
@@ -691,50 +689,53 @@ export class RecordConfigurationService extends UserAccessor {
         ? { ...deletionCounts, records: null, values: null, links: null, identifiers: null, identifierRecords: null }
         : deletionCounts;
     return {
-      change: {
-        version: 1,
-        source: { kind: "configuration" },
-        causeId: input.idempotencyKey,
-        expectedRevision: current.revision,
-        configuration: input,
-        ...(lifecycle?.deletions.length ? { deletions: lifecycle.deletions } : {}),
-        references: [...references].map(([reference, id]) => ({
-          reference,
-          id,
-        })),
-        grants: grants.map(({ typeId, grants: after }) => ({
-          typeId,
-          before: previousGrants
-            .filter((grant) => grant.typeId === typeId)
-            .map(({ roleId, actions }) => ({ roleId, actions })),
-          after,
-        })),
-      },
-      model,
-      grants,
-      deletion: lifecycle?.removed ?? null,
-      cleanups,
-      affectedTypeIds: [...changedTypes],
-      preview: {
-        expectedRevision: current.revision,
-        nextRevision: model.revision,
-        valid: !validation.issues.length && !blockers.length,
-        execution: affectedRecords > SYNCHRONOUS_RECORD_LIMIT ? "background" : "synchronous",
-        dataValidation,
-        affectedRecords: affectedReadable || affectedRecords === 0 ? affectedRecords : null,
-        hiddenRecords: (!affectedReadable && affectedRecords > 0) || hiddenDeletion,
-        references: [...references].map(([reference, id]) => ({
-          reference,
-          id,
-        })),
-        issues: validation.issues,
-        calculations: model.fields
-          .filter((field) => !field.archived && field.behavior.kind !== "input")
-          .map((field) => ({
-            fieldId: field.id,
-            dependencyHash: calculationDependencyHash(field, model),
+      ok: true,
+      data: {
+        change: {
+          version: 1,
+          source: { kind: "configuration" },
+          causeId: input.idempotencyKey,
+          expectedRevision: current.revision,
+          configuration: input,
+          ...(lifecycle?.deletions.length ? { deletions: lifecycle.deletions } : {}),
+          references: [...references].map(([reference, id]) => ({
+            reference,
+            id,
           })),
-        ...(lifecycle ? { deletion: { blockers, cleaned, removed: deletion } } : {}),
+          grants: grants.map(({ typeId, grants: after }) => ({
+            typeId,
+            before: previousGrants
+              .filter((grant) => grant.typeId === typeId)
+              .map(({ roleId, actions }) => ({ roleId, actions })),
+            after,
+          })),
+        },
+        model,
+        grants,
+        deletion: lifecycle?.removed ?? null,
+        cleanups,
+        affectedTypeIds: [...changedTypes],
+        preview: {
+          expectedRevision: current.revision,
+          nextRevision: model.revision,
+          valid: !validation.issues.length && !blockers.length,
+          execution: affectedRecords > SYNCHRONOUS_RECORD_LIMIT ? "background" : "synchronous",
+          dataValidation,
+          affectedRecords: affectedReadable || affectedRecords === 0 ? affectedRecords : null,
+          hiddenRecords: (!affectedReadable && affectedRecords > 0) || hiddenDeletion,
+          references: [...references].map(([reference, id]) => ({
+            reference,
+            id,
+          })),
+          issues: validation.issues,
+          calculations: model.fields
+            .filter((field) => !field.archived && field.behavior.kind !== "input")
+            .map((field) => ({
+              fieldId: field.id,
+              dependencyHash: calculationDependencyHash(field, model),
+            })),
+          ...(lifecycle ? { deletion: { blockers, cleaned, removed: deletion } } : {}),
+        },
       },
     };
   }
