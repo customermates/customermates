@@ -16,33 +16,4 @@ export class PrismaWebhookAdmissionRepo extends TenantRepository implements Webh
       },
     });
   }
-
-  @BypassTenantGuard
-  async admitDeliveryOrThrowUnscoped(args: {
-    event: Pick<EventLog, "companyId" | "id" | "kind">;
-    webhook: Pick<Webhook, "id" | "url">;
-    subscriptionRevision: number | null;
-  }): Promise<{ id: string; nextAttemptAt: Date | null }> {
-    const { event, webhook, subscriptionRevision } = args;
-    const admissionKey = `${webhook.id}:${event.id}`;
-    await this.prisma.webhookDelivery.createMany({
-      data: [
-        {
-          companyId: event.companyId,
-          webhookId: webhook.id,
-          eventId: event.id,
-          admissionKey,
-          subscriptionRevision,
-          url: webhook.url,
-          event: event.kind,
-          requestBody: { eventId: event.id },
-        },
-      ],
-      skipDuplicates: true,
-    });
-    return this.prisma.webhookDelivery.findFirstOrThrow({
-      where: { companyId: event.companyId, admissionKey },
-      select: { id: true, nextAttemptAt: true },
-    });
-  }
 }

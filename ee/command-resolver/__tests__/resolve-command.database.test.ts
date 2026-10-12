@@ -30,7 +30,7 @@ const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { PermissionService } = await import("@/core/base/permission.service");
-const { PrismaRecordRepo } = await import("@/features/records/prisma-record.repository");
+const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("@/features/records/record-access");
 const { ResolveCommandInteractor } = await import("../resolve-command.interactor");
@@ -50,7 +50,7 @@ describeDatabase("Command resolver", { timeout: 240_000 }, () => {
   let companyId = "";
   const id = (key: string) => presetId(companyId, key);
   const actors: Record<"admin" | "reader", TenantUser> = {} as never;
-  const repo = new PrismaRecordRepo();
+  const repo = createTestRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const views = { listRecordViewNames: vi.fn() };
   const grant = { purpose: "commandResolve" };

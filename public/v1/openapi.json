@@ -48498,7 +48498,7 @@
                                     "const": "formula"
                                   },
                                   "expression": {
-                                    "$ref": "#/components/schemas/CalculationExpression"
+                                    "$ref": "#/components/schemas/CalculationExpressionOutput"
                                   }
                                 },
                                 "required": [
@@ -48514,7 +48514,7 @@
                                     "const": "lookup"
                                   },
                                   "expression": {
-                                    "$ref": "#/components/schemas/CalculationExpression"
+                                    "$ref": "#/components/schemas/CalculationExpressionOutput"
                                   }
                                 },
                                 "required": [
@@ -48530,7 +48530,7 @@
                                     "const": "rollup"
                                   },
                                   "expression": {
-                                    "$ref": "#/components/schemas/CalculationExpression"
+                                    "$ref": "#/components/schemas/CalculationExpressionOutput"
                                   }
                                 },
                                 "required": [
@@ -48546,7 +48546,7 @@
                                     "const": "snapshot"
                                   },
                                   "expression": {
-                                    "$ref": "#/components/schemas/CalculationExpression"
+                                    "$ref": "#/components/schemas/CalculationExpressionOutput"
                                   },
                                   "capture": {
                                     "type": "string",
@@ -76103,7 +76103,7 @@
                                         "const": "formula"
                                       },
                                       "expression": {
-                                        "$ref": "#/components/schemas/CalculationExpression"
+                                        "$ref": "#/components/schemas/CalculationExpressionOutput"
                                       }
                                     },
                                     "required": [
@@ -76119,7 +76119,7 @@
                                         "const": "lookup"
                                       },
                                       "expression": {
-                                        "$ref": "#/components/schemas/CalculationExpression"
+                                        "$ref": "#/components/schemas/CalculationExpressionOutput"
                                       }
                                     },
                                     "required": [
@@ -76135,7 +76135,7 @@
                                         "const": "rollup"
                                       },
                                       "expression": {
-                                        "$ref": "#/components/schemas/CalculationExpression"
+                                        "$ref": "#/components/schemas/CalculationExpressionOutput"
                                       }
                                     },
                                     "required": [
@@ -76151,7 +76151,7 @@
                                         "const": "snapshot"
                                       },
                                       "expression": {
-                                        "$ref": "#/components/schemas/CalculationExpression"
+                                        "$ref": "#/components/schemas/CalculationExpressionOutput"
                                       },
                                       "capture": {
                                         "type": "string",
@@ -101964,8 +101964,8 @@
     "record.created": {
       "post": {
         "operationId": "record_created",
-        "summary": "record.created",
-        "description": "A record event. The payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it. record.deleted means the record moved to Trash and record.restored that it came back; deleted events do not apply record-query filters. record.deletedPermanently carries only the reference because the values are erased.",
+        "summary": "Record Created",
+        "description": "Sent when a record that matches the webhook's record source is created, with its values after the change.\n\nThe payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it.",
         "tags": [
           "webhooks"
         ],
@@ -103310,8 +103310,8 @@
     "record.updated": {
       "post": {
         "operationId": "record_updated",
-        "summary": "record.updated",
-        "description": "A record event. The payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it. record.deleted means the record moved to Trash and record.restored that it came back; deleted events do not apply record-query filters. record.deletedPermanently carries only the reference because the values are erased.",
+        "summary": "Record Updated",
+        "description": "Sent when a field, assignment, identity or link of a matching record changes, with the values before and after the change.\n\nThe payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it.",
         "tags": [
           "webhooks"
         ],
@@ -104656,8 +104656,8 @@
     "record.deleted": {
       "post": {
         "operationId": "record_deleted",
-        "summary": "record.deleted",
-        "description": "A record event. The payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it. record.deleted means the record moved to Trash and record.restored that it came back; deleted events do not apply record-query filters. record.deletedPermanently carries only the reference because the values are erased.",
+        "summary": "Record Moved to Trash",
+        "description": "Sent when a matching record moves to Trash, with its values before the delete; record-query filters match the record just before the move.\n\nThe payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it.",
         "tags": [
           "webhooks"
         ],
@@ -106002,8 +106002,8 @@
     "record.restored": {
       "post": {
         "operationId": "record_restored",
-        "summary": "record.restored",
-        "description": "A record event. The payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it. record.deleted means the record moved to Trash and record.restored that it came back; deleted events do not apply record-query filters. record.deletedPermanently carries only the reference because the values are erased.",
+        "summary": "Record Restored",
+        "description": "Sent when a matching record comes back from Trash, with its restored values.\n\nThe payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it.",
         "tags": [
           "webhooks"
         ],
@@ -107348,8 +107348,8 @@
     "record.deletedPermanently": {
       "post": {
         "operationId": "record_deletedPermanently",
-        "summary": "record.deletedPermanently",
-        "description": "A record event. The payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it. record.deleted means the record moved to Trash and record.restored that it came back; deleted events do not apply record-query filters. record.deletedPermanently carries only the reference because the values are erased.",
+        "summary": "Record Deleted Permanently",
+        "description": "Sent when a record is deleted permanently, by hand or 30 days after it moved to Trash; it carries only the record reference because the values are erased.\n\nThe payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it.",
         "tags": [
           "webhooks"
         ],
@@ -108958,6 +108958,244 @@
   },
   "components": {
     "schemas": {
+      "CalculationExpression": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "literal"
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "text",
+                          "textList",
+                          "decimal",
+                          "boolean",
+                          "date",
+                          "dateTime",
+                          "range",
+                          "select",
+                          "selectList",
+                          "member",
+                          "richText"
+                        ]
+                      },
+                      "value": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "maxLength": 100000
+                          },
+                          {
+                            "type": "boolean"
+                          },
+                          {
+                            "minItems": 1,
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 100000
+                            }
+                          }
+                        ]
+                      },
+                      "currency": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^[A-Z]{3}$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "start": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "end": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "documentJson": {
+                        "type": "string",
+                        "maxLength": 1000000
+                      }
+                    },
+                    "required": [
+                      "kind"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Typed CRM value; only the fields for the selected kind are allowed."
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "field"
+              },
+              "fieldId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              }
+            },
+            "required": [
+              "kind",
+              "fieldId"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "related"
+              },
+              "relationId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "outgoing",
+                  "incoming"
+                ]
+              },
+              "expression": {
+                "$ref": "#/components/schemas/CalculationExpression"
+              },
+              "reducer": {
+                "type": "string",
+                "enum": [
+                  "one",
+                  "sum",
+                  "count",
+                  "average",
+                  "min",
+                  "max"
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "relationId",
+              "direction",
+              "expression",
+              "reducer"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "optionAttribute"
+              },
+              "fieldId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "attribute": {
+                "type": "string",
+                "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,63}$"
+              }
+            },
+            "required": [
+              "kind",
+              "fieldId",
+              "attribute"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "operation"
+              },
+              "operator": {
+                "type": "string",
+                "enum": [
+                  "add",
+                  "subtract",
+                  "multiply",
+                  "divide",
+                  "equal",
+                  "lessThan",
+                  "greaterThan",
+                  "and",
+                  "or",
+                  "not",
+                  "if",
+                  "coalesce",
+                  "concat",
+                  "lower",
+                  "upper",
+                  "trim",
+                  "daysBetween"
+                ]
+              },
+              "arguments": {
+                "minItems": 1,
+                "maxItems": 32,
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CalculationExpression"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "operator",
+              "arguments"
+            ],
+            "additionalProperties": false
+          }
+        ],
+        "type": "object"
+      },
       "CalculationExpressionInput": {
         "oneOf": [
           {
@@ -110552,418 +110790,6 @@
           "attendeeIdentifiers",
           "text"
         ]
-      },
-      "CalculationExpression": {
-        "oneOf": [
-          {
-            "type": "object",
-            "properties": {
-              "kind": {
-                "type": "string",
-                "const": "literal"
-              },
-              "value": {
-                "anyOf": [
-                  {
-                    "anyOf": [
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "text"
-                          },
-                          "value": {
-                            "type": "string",
-                            "maxLength": 100000
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "value"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "textList"
-                          },
-                          "value": {
-                            "minItems": 1,
-                            "maxItems": 100,
-                            "type": "array",
-                            "items": {
-                              "type": "string",
-                              "maxLength": 100000
-                            }
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "value"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "decimal"
-                          },
-                          "value": {
-                            "type": "string",
-                            "maxLength": 128,
-                            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
-                          },
-                          "currency": {
-                            "anyOf": [
-                              {
-                                "type": "string",
-                                "pattern": "^[A-Z]{3}$"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "value",
-                          "currency"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "boolean"
-                          },
-                          "value": {
-                            "type": "boolean"
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "value"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "date"
-                          },
-                          "value": {
-                            "anyOf": [
-                              {
-                                "type": "string",
-                                "format": "date",
-                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
-                              },
-                              {
-                                "type": "string",
-                                "format": "date-time",
-                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
-                              }
-                            ]
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "value"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "dateTime"
-                          },
-                          "value": {
-                            "type": "string",
-                            "format": "date-time",
-                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "value"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "range"
-                          },
-                          "start": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          },
-                          "end": {
-                            "anyOf": [
-                              {
-                                "type": "string"
-                              },
-                              {
-                                "type": "null"
-                              }
-                            ]
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "start",
-                          "end"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "select"
-                          },
-                          "value": {
-                            "type": "string",
-                            "minLength": 1,
-                            "maxLength": 200
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "value"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "selectList"
-                          },
-                          "value": {
-                            "minItems": 1,
-                            "maxItems": 100,
-                            "type": "array",
-                            "items": {
-                              "type": "string",
-                              "minLength": 1,
-                              "maxLength": 200
-                            }
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "value"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "member"
-                          },
-                          "value": {
-                            "type": "string",
-                            "format": "uuid",
-                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "value"
-                        ],
-                        "additionalProperties": false
-                      },
-                      {
-                        "type": "object",
-                        "properties": {
-                          "kind": {
-                            "type": "string",
-                            "const": "richText"
-                          },
-                          "documentJson": {
-                            "type": "string",
-                            "maxLength": 1000000
-                          }
-                        },
-                        "required": [
-                          "kind",
-                          "documentJson"
-                        ],
-                        "additionalProperties": false
-                      }
-                    ]
-                  },
-                  {
-                    "type": "null"
-                  }
-                ]
-              }
-            },
-            "required": [
-              "kind",
-              "value"
-            ],
-            "additionalProperties": false
-          },
-          {
-            "type": "object",
-            "properties": {
-              "kind": {
-                "type": "string",
-                "const": "field"
-              },
-              "fieldId": {
-                "type": "string",
-                "format": "uuid",
-                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-              }
-            },
-            "required": [
-              "kind",
-              "fieldId"
-            ],
-            "additionalProperties": false
-          },
-          {
-            "type": "object",
-            "properties": {
-              "kind": {
-                "type": "string",
-                "const": "related"
-              },
-              "relationId": {
-                "type": "string",
-                "format": "uuid",
-                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-              },
-              "direction": {
-                "type": "string",
-                "enum": [
-                  "outgoing",
-                  "incoming"
-                ]
-              },
-              "expression": {
-                "$ref": "#/components/schemas/CalculationExpression"
-              },
-              "reducer": {
-                "type": "string",
-                "enum": [
-                  "one",
-                  "sum",
-                  "count",
-                  "average",
-                  "min",
-                  "max"
-                ]
-              }
-            },
-            "required": [
-              "kind",
-              "relationId",
-              "direction",
-              "expression",
-              "reducer"
-            ],
-            "additionalProperties": false
-          },
-          {
-            "type": "object",
-            "properties": {
-              "kind": {
-                "type": "string",
-                "const": "optionAttribute"
-              },
-              "fieldId": {
-                "type": "string",
-                "format": "uuid",
-                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
-              },
-              "attribute": {
-                "type": "string",
-                "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,63}$"
-              }
-            },
-            "required": [
-              "kind",
-              "fieldId",
-              "attribute"
-            ],
-            "additionalProperties": false
-          },
-          {
-            "type": "object",
-            "properties": {
-              "kind": {
-                "type": "string",
-                "const": "operation"
-              },
-              "operator": {
-                "type": "string",
-                "enum": [
-                  "add",
-                  "subtract",
-                  "multiply",
-                  "divide",
-                  "equal",
-                  "lessThan",
-                  "greaterThan",
-                  "and",
-                  "or",
-                  "not",
-                  "if",
-                  "coalesce",
-                  "concat",
-                  "lower",
-                  "upper",
-                  "trim",
-                  "daysBetween"
-                ]
-              },
-              "arguments": {
-                "minItems": 1,
-                "maxItems": 32,
-                "type": "array",
-                "items": {
-                  "$ref": "#/components/schemas/CalculationExpression"
-                }
-              }
-            },
-            "required": [
-              "kind",
-              "operator",
-              "arguments"
-            ],
-            "additionalProperties": false
-          }
-        ],
-        "type": "object"
       },
       "ErrorResponseSchema": {
         "type": "string"
@@ -118764,6 +118590,854 @@
           "folderContext"
         ],
         "additionalProperties": false
+      },
+      "CalculationExpressionOutput": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "literal"
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "text"
+                          },
+                          "value": {
+                            "type": "string",
+                            "maxLength": 100000
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "textList"
+                          },
+                          "value": {
+                            "minItems": 1,
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 100000
+                            }
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "decimal"
+                          },
+                          "value": {
+                            "type": "string",
+                            "maxLength": 128,
+                            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                          },
+                          "currency": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^[A-Z]{3}$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value",
+                          "currency"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "boolean"
+                          },
+                          "value": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "date"
+                          },
+                          "value": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                              },
+                              {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "dateTime"
+                          },
+                          "value": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "range"
+                          },
+                          "start": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "end": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "start",
+                          "end"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "select"
+                          },
+                          "value": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "selectList"
+                          },
+                          "value": {
+                            "minItems": 1,
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "member"
+                          },
+                          "value": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "richText"
+                          },
+                          "documentJson": {
+                            "type": "string",
+                            "maxLength": 1000000
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "documentJson"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "field"
+              },
+              "fieldId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              }
+            },
+            "required": [
+              "kind",
+              "fieldId"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "related"
+              },
+              "relationId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "outgoing",
+                  "incoming"
+                ]
+              },
+              "expression": {
+                "$ref": "#/components/schemas/CalculationExpressionOutput"
+              },
+              "reducer": {
+                "type": "string",
+                "enum": [
+                  "one",
+                  "sum",
+                  "count",
+                  "average",
+                  "min",
+                  "max"
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "relationId",
+              "direction",
+              "expression",
+              "reducer"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "optionAttribute"
+              },
+              "fieldId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "attribute": {
+                "type": "string",
+                "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,63}$"
+              }
+            },
+            "required": [
+              "kind",
+              "fieldId",
+              "attribute"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "operation"
+              },
+              "operator": {
+                "type": "string",
+                "enum": [
+                  "add",
+                  "subtract",
+                  "multiply",
+                  "divide",
+                  "equal",
+                  "lessThan",
+                  "greaterThan",
+                  "and",
+                  "or",
+                  "not",
+                  "if",
+                  "coalesce",
+                  "concat",
+                  "lower",
+                  "upper",
+                  "trim",
+                  "daysBetween"
+                ]
+              },
+              "arguments": {
+                "minItems": 1,
+                "maxItems": 32,
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CalculationExpressionOutput"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "operator",
+              "arguments"
+            ],
+            "additionalProperties": false
+          }
+        ],
+        "type": "object"
+      },
+      "CalculationExpressionInputOutput": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "literal"
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "anyOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "text"
+                          },
+                          "value": {
+                            "type": "string",
+                            "maxLength": 100000
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "textList"
+                          },
+                          "value": {
+                            "minItems": 1,
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 100000
+                            }
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "decimal"
+                          },
+                          "value": {
+                            "type": "string",
+                            "maxLength": 128,
+                            "pattern": "^-?(?:0|[1-9]\\d*)(?:\\.\\d+)?$"
+                          },
+                          "currency": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "pattern": "^[A-Z]{3}$"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value",
+                          "currency"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "boolean"
+                          },
+                          "value": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "date"
+                          },
+                          "value": {
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "format": "date",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                              },
+                              {
+                                "type": "string",
+                                "format": "date-time",
+                                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "dateTime"
+                          },
+                          "value": {
+                            "type": "string",
+                            "format": "date-time",
+                            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d(?::[0-5]\\d(?:\\.\\d+)?)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "range"
+                          },
+                          "start": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          },
+                          "end": {
+                            "anyOf": [
+                              {
+                                "type": "string"
+                              },
+                              {
+                                "type": "null"
+                              }
+                            ]
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "start",
+                          "end"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "select"
+                          },
+                          "value": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "selectList"
+                          },
+                          "value": {
+                            "minItems": 1,
+                            "maxItems": 100,
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "minLength": 1,
+                              "maxLength": 200
+                            }
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "member"
+                          },
+                          "value": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "richText"
+                          },
+                          "documentJson": {
+                            "type": "string",
+                            "maxLength": 1000000
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "documentJson"
+                        ],
+                        "additionalProperties": false
+                      }
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "field"
+              },
+              "fieldId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^\\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "fieldId"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "optionAttribute"
+              },
+              "fieldId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^\\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$"
+                  }
+                ]
+              },
+              "attribute": {
+                "type": "string",
+                "pattern": "^[a-zA-Z][a-zA-Z0-9_]{0,63}$"
+              }
+            },
+            "required": [
+              "kind",
+              "fieldId",
+              "attribute"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "related"
+              },
+              "relationId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  {
+                    "type": "string",
+                    "pattern": "^\\$[a-zA-Z][a-zA-Z0-9_.-]{0,63}$"
+                  }
+                ]
+              },
+              "direction": {
+                "type": "string",
+                "enum": [
+                  "outgoing",
+                  "incoming"
+                ]
+              },
+              "expression": {
+                "$ref": "#/components/schemas/CalculationExpressionInputOutput"
+              },
+              "reducer": {
+                "type": "string",
+                "enum": [
+                  "one",
+                  "sum",
+                  "count",
+                  "average",
+                  "min",
+                  "max"
+                ]
+              }
+            },
+            "required": [
+              "kind",
+              "relationId",
+              "direction",
+              "expression",
+              "reducer"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "const": "operation"
+              },
+              "operator": {
+                "type": "string",
+                "enum": [
+                  "add",
+                  "subtract",
+                  "multiply",
+                  "divide",
+                  "equal",
+                  "lessThan",
+                  "greaterThan",
+                  "and",
+                  "or",
+                  "not",
+                  "if",
+                  "coalesce",
+                  "concat",
+                  "lower",
+                  "upper",
+                  "trim",
+                  "daysBetween"
+                ]
+              },
+              "arguments": {
+                "minItems": 1,
+                "maxItems": 32,
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CalculationExpressionInputOutput"
+                }
+              }
+            },
+            "required": [
+              "kind",
+              "operator",
+              "arguments"
+            ],
+            "additionalProperties": false
+          }
+        ],
+        "type": "object"
       },
       "MessagingThreadSchemaOutput": {
         "type": "object",

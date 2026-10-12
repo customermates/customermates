@@ -224,7 +224,7 @@ Fügen Sie hier jede Transformationslogik hinzu: "Max Mustermann" in Vor- und Na
 
 ### Schritt 3: Kontakt in Customermates erstellen oder aktualisieren
 
-Rufen Sie zuerst `POST <BASE_URL>/api/v1/model/discover` mit `{}` auf und speichern Sie die aktuelle Schema-Revision sowie die IDs des Kontakttyps und der benötigten Felder und Beziehungen. Diese stabilen IDs bleiben auch nach einer Umbenennung gültig. Fügen Sie dann einen **HTTP Request**-Knoten hinzu:
+Rufen Sie zuerst `POST <BASE_URL>/api/v1/model/discover` mit `{}` auf, um die ID des Kontakttyps zu finden, dann `POST <BASE_URL>/api/v1/model/read` mit dieser ID in `typeIds`, und speichern Sie die aktuelle Schema-Revision sowie die IDs der benötigten Felder und Beziehungen. Diese stabilen IDs bleiben auch nach einer Umbenennung gültig. Fügen Sie dann einen **HTTP Request**-Knoten hinzu:
 
 - **Methode:** POST
 - **URL:** `<BASE_URL>/api/v1/records/mutate` (die Adresse, unter der Sie Customermates öffnen)
