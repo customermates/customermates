@@ -79,7 +79,7 @@ const UntrustedTextHandlingShape = {
     .describe("Present when the result holds marked untrusted text; how to treat the text between the markers."),
 };
 
-const MarkedRecordDtoSchema = RecordDtoSchema.extend({
+export const MarkedRecordDtoSchema = RecordDtoSchema.extend({
   fields: z.array(z.object({ fieldId: z.uuid(), result: MarkedCalculatedValueSchema }).strict()),
   relationships: z.array(MarkedRelationshipSummarySchema).default([]),
   relationshipPaths: z

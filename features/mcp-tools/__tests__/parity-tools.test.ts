@@ -7,6 +7,7 @@ const mockUser = createMockUser();
 const spies = vi.hoisted(() => ({
   exportRecords: vi.fn(),
   importRecords: vi.fn(),
+  readRecord: vi.fn(),
   listAccounts: vi.fn(),
   setFolders: vi.fn(),
   setSignature: vi.fn(),
@@ -25,6 +26,7 @@ vi.mock("@/core/di", () => ({
   ...createMockDiModule(() => mockUser),
   getExportRecordsInteractor: () => ({ invoke: spies.exportRecords }),
   getImportRecordsInteractor: () => ({ invoke: spies.importRecords }),
+  getGetRecordInteractor: () => ({ invoke: spies.readRecord }),
   getGetMyConnectedAccountsInteractor: () => ({ invoke: spies.listAccounts }),
   getSetSelectedFoldersInteractor: () => ({ invoke: spies.setFolders }),
   getSetConnectedAccountSignatureInteractor: () => ({ invoke: spies.setSignature }),
@@ -154,6 +156,48 @@ describe("import_crm_records", () => {
 
     expect(spies.importRecords).toHaveBeenCalledWith(input);
     expect(structured(result)).toEqual({ created: 1, updated: 0, linked: 0, schemaRevision: 3 });
+  });
+
+  it("accepts an export_crm_records result unchanged, restoring stored Formatted text", async () => {
+    const stored = exportDocument();
+    spies.exportRecords.mockResolvedValue({ ok: true, data: exportDocument() });
+    spies.readRecord.mockResolvedValue({ ok: true, data: stored.records[0] });
+    spies.importRecords.mockResolvedValue({ ok: true, data: { created: 0, updated: 1, linked: 0, schemaRevision: 3 } });
+    const exported = structured(
+      await exportCrmRecordsTool.execute(exportCrmRecordsTool.inputSchema.parse({ typeId: TYPE_ID })),
+    );
+    expect(exported).toHaveProperty("untrustedTextHandling");
+
+    const result = await executeMcpTool(importCrmRecordsTool, [
+      importCrmRecordsTool.inputSchema.parse({
+        document: exported,
+        mode: "update",
+        idempotencyKey: "import-round-trip",
+      }),
+    ]);
+
+    expect(result.ok).toBe(true);
+    expect(spies.readRecord).toHaveBeenCalledWith({ typeId: TYPE_ID, recordId: RECORD_ID });
+    const sent = spies.importRecords.mock.calls[0][0];
+    expect(sent.document).not.toHaveProperty("untrustedTextHandling");
+    expect(sent.document.records[0].fields[0].result).toEqual(stored.records[0].fields[0].result);
+    expect(importCrmRecordsTool.annotations.destructiveHint).toBe(true);
+  });
+
+  it("refuses changed marked Formatted text instead of parsing it", async () => {
+    spies.exportRecords.mockResolvedValue({ ok: true, data: exportDocument() });
+    spies.readRecord.mockResolvedValue({ ok: true, data: exportDocument().records[0] });
+    const exported = structured(
+      await exportCrmRecordsTool.execute(exportCrmRecordsTool.inputSchema.parse({ typeId: TYPE_ID })),
+    ) as { records: Array<{ fields: Array<{ result: { value: { markdown: string } } }> }> };
+    exported.records[0].fields[0].result.value.markdown += " and more";
+
+    const result = await executeMcpTool(importCrmRecordsTool, [
+      importCrmRecordsTool.inputSchema.parse({ document: exported, mode: "update", idempotencyKey: "import-changed" }),
+    ]);
+
+    expect(result.ok).toBe(false);
+    expect(spies.importRecords).not.toHaveBeenCalled();
   });
 
   it("rejects an unknown mode before calling the interactor", () => {

@@ -13,7 +13,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { DomainEvent } from "@/features/event/domain-events";
 import type { ResyncConnectedAccountRepo } from "./resync-connected-account.repo";
 
-const Schema = z.object({ id: z.uuid() });
+const Schema = z.object({ id: z.uuid() }).strict();
 type ResyncConnectedAccountData = Data<typeof Schema>;
 
 @TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
