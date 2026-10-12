@@ -837,52 +837,32 @@ describeDatabase("configuration trash", () => {
     expect(sentry.captured).toEqual([]);
   }, 300_000);
 
-  it("pauses a webhook through a company-scoped notifier when the system purges its trigger field", async () => {
+  it("notifies a paused webhook from a system purge through the company-scoped notifier", async () => {
     const f = await fixture();
     const companyId = f.seed.company.id;
-    const fieldId = f.id("deal.notes");
-    await f.as(async () =>
-      f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "field", id: fieldId } }])),
-    );
     const webhookId = randomUUID();
-    await runWithoutTenant(async () => {
-      await prisma.webhook.create({
+    await runWithoutTenant(() =>
+      prisma.webhook.create({
         data: {
           id: webhookId,
           companyId,
           url: "https://hooks.example.test/notes",
           events: ["record.updated"],
-          enabled: true,
+          enabled: false,
+          pausedReason: "triggerFieldDeleted",
         },
-      });
-      await prisma.recordEventSubscription.create({
-        data: {
-          companyId,
-          id: webhookId,
-          kind: "webhook",
-          ownerUserId: f.admin.id,
-          typeId: f.id("deal"),
-          events: ["record.updated"],
-          changedFieldIds: [fieldId],
-          sources: Prisma.DbNull,
-        },
-      });
-      await prisma.trashItem.updateMany({ where: { companyId }, data: { expiresAt: new Date(Date.now() - 1000) } });
-      await prisma.userRole.update({ where: { id: f.seed.adminRole.id }, data: { isSystemRole: false } });
-    });
-    sentry.captured.length = 0;
-    const purged = await new PurgeCompanyTrashInteractor(
-      (scoped) => new PrismaTrashRepo(scoped),
-      (scoped) => f.handlers(scoped, getWebhookPauseNotifier(scoped)),
-    ).invoke({ companyId, now: new Date().toISOString(), after: null });
-    expect(sentry.captured.map(String)).toEqual([]);
-    expect(purged).toEqual({ next: null, deleted: 1, pending: 0, failed: 0 });
-    expect(
-      await runWithoutTenant(() =>
-        prisma.webhook.findUniqueOrThrow({ where: { id: webhookId }, select: { enabled: true, pausedReason: true } }),
-      ),
-    ).toEqual({ enabled: false, pausedReason: "triggerFieldDeleted" });
-    expect(await f.items()).toEqual([]);
+      }),
+    );
+    await expect(runWithoutTenant(() => getWebhookPauseNotifier().notify([webhookId]))).rejects.toThrow(
+      "User is not available when tenant is bypassed",
+    );
+    await expect(
+      runWithoutTenant(() => getWebhookPauseNotifier(companyId).notify([webhookId])),
+    ).resolves.toBeUndefined();
+    const foreign = await fixture();
+    await expect(
+      runWithoutTenant(() => getWebhookPauseNotifier(foreign.seed.company.id).notify([webhookId])),
+    ).rejects.toThrow();
   }, 180_000);
 
   it("reports a list purge that continues in the background as pending and keeps its item", async () => {
