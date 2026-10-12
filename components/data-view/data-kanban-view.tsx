@@ -240,12 +240,13 @@ function KanbanColumnLabel({
       </AppChip>
     );
   }
-  if (!tooltip)
+  if (!tooltip) {
     return (
       <span className="min-w-0 truncate text-sm font-medium" data-kanban-column-label="">
         {label}
       </span>
     );
+  }
   return (
     <Tooltip>
       <TooltipTrigger asChild>
