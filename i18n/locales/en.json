@@ -1193,6 +1193,7 @@
       "webhookTriggerRequired": "Choose which field changes or conditions trigger this webhook before turning it back on.",
       "widgetDisplayTypeUnsupported": "This chart style does not fit the selected grouping. Choose another style or change the grouping.",
       "widgetKindImmutable": "A widget's type cannot be changed after it is created.",
+      "widgetLayoutChanged": "The dashboard changed in the meantime. It was reloaded, so arrange the widgets again.",
       "widgetLayoutOverlap": "This position overlaps another widget. Choose a free spot on the 12-column grid or leave the layout out to place the widget automatically.",
       "widgetLayoutTooSmall": "This widget needs at least 2 columns and 3 rows.",
       "widgetNotFound": "Widget ID not found or not accessible.",

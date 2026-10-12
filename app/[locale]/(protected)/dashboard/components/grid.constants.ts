@@ -1,11 +1,7 @@
 import { Breakpoint } from "@/core/types/breakpoint";
+import { WIDGET_BREAKPOINT_COLUMNS } from "@/features/widget/widget-display.schema";
 
-export const GRID_COLS: Record<Breakpoint, number> = {
-  [Breakpoint.xs]: 2,
-  [Breakpoint.sm]: 4,
-  [Breakpoint.md]: 8,
-  [Breakpoint.lg]: 12,
-};
+export const GRID_COLS: Record<Breakpoint, number> = WIDGET_BREAKPOINT_COLUMNS;
 
 export const GRID_BREAKPOINTS: Record<Breakpoint, number> = {
   [Breakpoint.xs]: 400,

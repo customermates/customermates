@@ -29,6 +29,7 @@ const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
 const { RecordWriteService } = await import("../record-write.service");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
+const { RecordTrashService } = await import("../record-trash.service");
 const { QueryRecordsInteractor } = await import("../query-records.interactor");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 
@@ -63,6 +64,7 @@ async function fixture() {
     policy,
     new RecordWriteService(repo, policy, new RecordCalculationService(repo)),
     { dispatch: () => Promise.resolve() },
+    new RecordTrashService(repo),
   );
   const query = new QueryRecordsInteractor(repo, policy);
   const id = (key: string) => presetId(seed.company.id, key);

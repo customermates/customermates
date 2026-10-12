@@ -67,6 +67,7 @@ const { RecordOperationService } = await import("../record-operation.service");
 const { CancelRecordOperationInteractor } = await import("../cancel-record-operation.interactor");
 const { GetRecordOperationInteractor } = await import("../get-record-operation.interactor");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
+const { RecordTrashService } = await import("../record-trash.service");
 const { QueryRecordsInteractor } = await import("../query-records.interactor");
 const { GetRecordInteractor } = await import("../get-record.interactor");
 const { GetRecordEditorInteractor } = await import("../get-record-editor.interactor");
@@ -95,6 +96,7 @@ const { RecordRevisionChangeSchema } = await import("../record-revision.schema")
 const { RecordHistoryReader } = await import("../record-history-reader");
 const { createTestRecordRecipientReader, createTestRoutineRepo } = await import("@/tests/helpers/record-delivery");
 const { WebhookAdmission } = await import("@/features/webhook/webhook-admission");
+const { PrismaWebhookAdmissionRepo } = await import("@/features/webhook/prisma-webhook-admission.repository");
 const { DeliverWebhookInteractor } = await import("@/features/webhook/deliver-webhook.interactor");
 const { PrismaWebhookDeliveryQueueRepo } = await import("@/features/webhook/prisma-webhook-delivery-queue.repository");
 const { PrismaWebhookDeliveryRepo } = await import("@/features/webhook/prisma-webhook-delivery.repository");
@@ -103,7 +105,7 @@ const { ValidateWebhookDeliveryIdsInteractor } = await import(
   "@/core/validation/validators/validate-webhook-delivery-ids.interactor"
 );
 const { RoutineAdmission } = await import("@/ee/routines/routine-admission");
-const { PrismaRoutineEventAccess } = await import("@/ee/routines/prisma-routine-event-access");
+const { PrismaRoutineEventAccess } = await import("@/ee/routines/prisma-routine-event-access.repository");
 const { ProcessEventInteractor } = await import("@/features/event/process-event.interactor");
 const { ProcessDueEventsInteractor } = await import("@/features/event/process-due-events.interactor");
 const { PrismaEventOutboxRepo } = await import("@/features/event/prisma-event-outbox.repository");
@@ -132,6 +134,8 @@ const {
   getDeleteWebhookInteractor,
   getGetRecordModelInteractor,
   getQueryTrashInteractor,
+  getRecordAccessPolicy,
+  getRecordRepo,
 } = await import("@/core/di");
 const { manageWebhooksTool } = await import("@/features/mcp-tools/webhook.mcp-tools");
 const { manageRolesTool } = await import("@/features/mcp-tools/role.mcp-tools");
@@ -220,6 +224,7 @@ async function fixture() {
     policy,
     new RecordWriteService(repo, policy, calculations),
     background,
+    new RecordTrashService(repo),
   );
   const read = new GetRecordInteractor(repo, policy);
   const personalization = new PrismaP13nRepo();
@@ -547,7 +552,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const dave = await contact("Dave", [{ provider: "mail", value: "shared@batch.example.test" }]);
     const eve = await contact("Eve", [{ provider: "mail", value: "eve@batch.example.test" }]);
     await f.update(bob, [["contact.lastName", textValue("Moved")]]);
-    const lookup = new ResolveRecordIdentitiesInteractor(f.repo, f.policy);
+    const lookup = new ResolveRecordIdentitiesInteractor(f.policy, new RecordIdentityReader(f.repo, f.policy));
     const resolve = async (identifiers: Array<{ provider: "mail" | "linkedin"; value: string }>, as = f.admin) => {
       const result = await f.run(() => lookup.invoke({ identifiers }), as);
       if (!result.ok) throw new Error(JSON.stringify(result.error));
@@ -1887,7 +1892,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const reader = createTestRecordRecipientReader();
     const process = new ProcessEventInteractor(
       new PrismaEventOutboxRepo(),
-      new WebhookAdmission(reader, { dispatch } as never),
+      new WebhookAdmission(reader, { dispatch } as never, new PrismaWebhookAdmissionRepo()),
     );
     expect(await process.invoke({ companyId: f.company.id, eventId: event.id })).toEqual({ status: "delivered" });
     expect(await process.invoke({ companyId: f.company.id, eventId: event.id })).toEqual({ status: "delivered" });
@@ -2086,9 +2091,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     await new ProcessEventInteractor(
       new PrismaEventOutboxRepo(),
-      new WebhookAdmission(createTestRecordRecipientReader(), {
-        dispatch: vi.fn(),
-      } as never),
+      new WebhookAdmission(
+        createTestRecordRecipientReader(),
+        {
+          dispatch: vi.fn(),
+        } as never,
+        new PrismaWebhookAdmissionRepo(),
+      ),
     ).invoke({ companyId: f.company.id, eventId: event.id });
     const original = recordInvariant(
       await f.run(() =>
@@ -2211,9 +2220,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const reader = createTestRecordRecipientReader();
     const process = new ProcessEventInteractor(
       new PrismaEventOutboxRepo(),
-      new WebhookAdmission(reader, {
-        dispatch: vi.fn().mockResolvedValue(undefined),
-      } as never),
+      new WebhookAdmission(
+        reader,
+        {
+          dispatch: vi.fn().mockResolvedValue(undefined),
+        } as never,
+        new PrismaWebhookAdmissionRepo(),
+      ),
     );
     await process.invoke({ companyId: f.company.id, eventId: event.id });
     const delivery = recordInvariant(
@@ -6798,7 +6811,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     const identity = recordInvariant((await f.run(() => f.repo.getIdentitiesCompanyWide(second)))[0]);
     const versions = [(await f.readRecord(first)).version, (await f.readRecord(second)).version];
-    const channels = new StartChatRecordChannelRepo(f.repo, f.policy, undefined as never);
+    const channels = new StartChatRecordChannelRepo(f.repo, f.policy);
     const save = (messagingId: string, displayName: string | null, profileUrl: string | null) =>
       f.run(() => channels.saveResolvedContactChannel({ id: identity.id, messagingId, displayName, profileUrl }));
     const current = async () => recordInvariant((await f.run(() => f.repo.getIdentitiesCompanyWide(first)))[0]);
@@ -7372,9 +7385,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     if (!result.ok || result.data.status !== "completed") throw new Error("Fixture person failed");
     const ref = recordInvariant(result.data.refs[0]);
+    const resolverPolicy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo);
     const resolver = new ResolveRecordIdentitiesInteractor(
-      f.repo,
-      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo),
+      resolverPolicy,
+      new RecordIdentityReader(f.repo, resolverPolicy),
     );
     const resolve = () =>
       resolver.invoke({
@@ -7512,7 +7526,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       }),
     );
-    const inbox = new PrismaMessagingRepo();
+    const inbox = new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
     const lookup = new GetIdentityRecordChoicesInteractor(
       f.repo,
       new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo),
@@ -7707,7 +7721,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       }),
     );
-    const inbox = new PrismaMessagingRepo();
+    const inbox = new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
     const names = async () => {
       const threads = await f.run(() => inbox.getItems({ pagination: { page: 1, pageSize: 10 } }), f.member);
       const selected = recordInvariant(threads.find((thread) => thread.id === target.id));
@@ -7836,7 +7850,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       );
     }
-    const inbox = new PrismaMessagingRepo();
+    const inbox = new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
     const params: GetQueryParams = {
       filters: [
         {
@@ -7942,7 +7956,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           },
         }),
       );
-      const inbox = new PrismaMessagingRepo();
+      const inbox = new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
       await inbox.upsertThreadParticipantsUnscoped({
         companyId: f.company.id,
         messagingThreadId: thread.id,
@@ -14754,25 +14768,29 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       }),
     );
-    const layouts = {
-      xs: [],
-      sm: [],
-      md: [],
-      lg: [
-        ...[created.data.id, foreign.data.id, member.id].map((id) => ({ i: id, x: 2, y: 1, w: 3, h: 2 })),
-        untouchedPosition,
-      ],
-    };
+    const position = { i: created.data.id, x: 0, y: 0, w: 3, h: 2 };
+    const layouts = { xs: [], sm: [], md: [], lg: [position, untouchedPosition] };
+    const versions = { [created.data.id]: 1, [untouchedId]: 1 };
     const writer = new UpdateWidgetLayoutsInteractor(new PrismaWidgetRepo());
-    expect(await f.run(() => writer.invoke({ layouts }))).toEqual({
+    const failure = (result: { ok: boolean; error?: unknown }) => (result.ok ? null : JSON.stringify(result.error));
+    for (const id of [foreign.data.id, member.id]) {
+      const rejected = await f.run(() =>
+        writer.invoke({
+          layouts: { ...layouts, lg: [...layouts.lg, { ...position, i: id, x: 8 }] },
+          expectedVersions: { ...versions, [id]: 1 },
+        }),
+      );
+      expect(failure(rejected)).toContain(CustomErrorCode.widgetLayoutChanged);
+    }
+    expect(await f.run(() => writer.invoke({ layouts, expectedVersions: versions }))).toEqual({
       ok: true,
       data: [
-        { id: created.data.id, version: 2, layout: { xs: undefined, sm: undefined, md: undefined, lg: layouts.lg[0] } },
+        { id: created.data.id, version: 2, layout: { xs: undefined, sm: undefined, md: undefined, lg: position } },
       ],
     });
     expect(await f.run(() => f.widgets.findOwned(created.data.id))).toMatchObject({
       version: 2,
-      layout: { lg: layouts.lg[0] },
+      layout: { lg: position },
     });
     expect(await other.run(() => other.widgets.findOwned(foreign.data.id))).toMatchObject({
       version: 1,
@@ -14799,15 +14817,32 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       ),
     ).toMatchObject({ ok: false });
-    expect(await f.run(() => writer.invoke({ layouts }))).toEqual({ ok: true, data: [] });
+    const stale = await f.run(() =>
+      writer.invoke({ layouts: { ...layouts, lg: [{ ...position, x: 1 }] }, expectedVersions: versions }),
+    );
+    expect(failure(stale)).toContain(CustomErrorCode.widgetLayoutChanged);
+    const current = { ...versions, [created.data.id]: 2 };
+    const overlap = await f.run(() =>
+      writer.invoke({ layouts: { ...layouts, lg: [{ ...position, x: 3, y: 1 }] }, expectedVersions: current }),
+    );
+    expect(failure(overlap)).toContain(CustomErrorCode.widgetLayoutOverlap);
+    for (const invalid of [
+      { ...position, x: 10 },
+      { ...position, w: 0 },
+      { ...position, h: 1.5 },
+      { ...position, y: -1 },
+    ]) {
+      expect(
+        (await f.run(() => writer.invoke({ layouts: { ...layouts, lg: [invalid] }, expectedVersions: current }))).ok,
+      ).toBe(false);
+    }
+    expect(
+      (await f.run(() => writer.invoke({ layouts: { ...layouts, lg: [position] }, expectedVersions: {} }))).ok,
+    ).toBe(false);
+    expect(await f.run(() => writer.invoke({ layouts, expectedVersions: current }))).toEqual({ ok: true, data: [] });
     expect(
       await f.run(() =>
-        writer.invoke({
-          layouts: {
-            ...layouts,
-            lg: layouts.lg.map((item) => (item.i === created.data.id ? { ...item, x: 3 } : item)),
-          },
-        }),
+        writer.invoke({ layouts: { ...layouts, lg: [{ ...position, x: 1 }] }, expectedVersions: current }),
       ),
     ).toMatchObject({
       ok: true,
@@ -15977,7 +16012,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const reader = createTestRecordRecipientReader();
     await new ProcessEventInteractor(
       new PrismaEventOutboxRepo(),
-      new WebhookAdmission(reader, { dispatch: vi.fn().mockResolvedValue(undefined) } as never),
+      new WebhookAdmission(
+        reader,
+        { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
+        new PrismaWebhookAdmissionRepo(),
+      ),
     ).invoke({ companyId: f.company.id, eventId: event.id });
     const delivery = recordInvariant(
       await f.run(() => prisma.webhookDelivery.findFirst({ where: { companyId: f.company.id, eventId: event.id } })),
@@ -16686,7 +16725,9 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
     const service = new ProviderAvatarService(new PrismaRecordRepo(f.company.id), f.company.id, background);
     const original = await f.readRecord(organization);
-    await service.synchronize("google", "filtered-avatar@example.test", "https://example.test/updated.png");
+    await runWithoutTenant(() =>
+      service.synchronize("google", "filtered-avatar@example.test", "https://example.test/updated.png"),
+    );
     expect((await f.readRecord(organization)).version).toBe(original.version);
     expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
     expect(background.dispatch).not.toHaveBeenCalled();
@@ -16722,7 +16763,9 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         return f.repo.getIdentityOwnerRefsPageCompanyWide(identity.id, undefined, 1001, [person.typeId]);
       }),
     ).toEqual([]);
-    await service.synchronize("google", "filtered-avatar@example.test", "https://example.test/updated.png");
+    await runWithoutTenant(() =>
+      service.synchronize("google", "filtered-avatar@example.test", "https://example.test/updated.png"),
+    );
     expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
     expect(background.dispatch).not.toHaveBeenCalled();
     await f.run(() =>
@@ -16735,7 +16778,9 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         });
       }),
     );
-    await service.synchronize("google", "filtered-avatar@example.test", "https://example.test/updated.png");
+    await runWithoutTenant(() =>
+      service.synchronize("google", "filtered-avatar@example.test", "https://example.test/updated.png"),
+    );
     expect(await f.value(person, "contact.avatarUrl")).toEqual({
       state: "value",
       value: textValue("https://example.test/updated.png"),
@@ -16943,7 +16988,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         .mockRejectedValue(new Error("Transient Workflow start failure"));
       try {
         const ingested = await runWithoutTenant(() =>
-          new PrismaMessagingRepo().ingestMessageUnscoped({
+          new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy()).ingestMessageUnscoped({
             companyId: f.company.id,
             connectedAccountId: account.id,
             backfill: false,
@@ -17020,7 +17065,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         ),
       ).toBe(1001);
       let done = false;
-      for (let i = 0; i < 1000 && !done; i++) done = (await service.advance(operationId)).done;
+      for (let i = 0; i < 1000 && !done; i++) done = (await runWithoutTenant(() => service.advance(operationId))).done;
       expect(done).toBe(true);
       expect(
         await f.run(() =>
@@ -17084,7 +17129,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
           }),
         ),
       ).toBe(0);
-      expect(await service.advance(operationId)).toEqual({ done: true });
+      expect(await runWithoutTenant(() => service.advance(operationId))).toEqual({ done: true });
       expect(
         await f.run(() =>
           prisma.eventLog.count({
@@ -17115,7 +17160,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         .mockRejectedValue(new Error("Transient Workflow start failure"));
       try {
         const ingested = await runWithoutTenant(() =>
-          new PrismaMessagingRepo().ingestMessageUnscoped({
+          new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy()).ingestMessageUnscoped({
             companyId: f.company.id,
             connectedAccountId: account.id,
             backfill: false,
@@ -17156,7 +17201,8 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       const noChangeOperationId = recordInvariant((await f.run(() => f.repo.getState()))?.activeOperationId);
       expect(noChangeOperationId).not.toBe(operationId);
       let noChangeDone = false;
-      for (let i = 0; i < 100 && !noChangeDone; i++) noChangeDone = (await service.advance(noChangeOperationId)).done;
+      for (let i = 0; i < 100 && !noChangeDone; i++)
+        noChangeDone = (await runWithoutTenant(() => service.advance(noChangeOperationId))).done;
       expect(noChangeDone).toBe(true);
       expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
       expect(
@@ -17212,10 +17258,14 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
     const service = new ProviderAvatarService(new PrismaRecordRepo(f.company.id), f.company.id, background);
     const avatar = (ref: RecordRef) => f.value(ref, "contact.avatarUrl");
-    await service.synchronize("google", "shared-avatar@example.test", "https://example.test/provider.png");
+    await runWithoutTenant(() =>
+      service.synchronize("google", "shared-avatar@example.test", "https://example.test/provider.png"),
+    );
     expect(await avatar(entered)).toEqual({ state: "value", value: textValue("https://example.test/entered.png") });
     expect(await avatar(empty)).toEqual({ state: "value", value: textValue("https://example.test/provider.png") });
-    await service.synchronize("google", "shared-avatar@example.test", "https://example.test/rotated.png");
+    await runWithoutTenant(() =>
+      service.synchronize("google", "shared-avatar@example.test", "https://example.test/rotated.png"),
+    );
     expect(await avatar(entered)).toEqual({ state: "value", value: textValue("https://example.test/entered.png") });
     expect(await avatar(empty)).toEqual({ state: "value", value: textValue("https://example.test/rotated.png") });
     expect(
@@ -17226,7 +17276,9 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         fields: [{ fieldId: f.id("contact.avatarUrl"), value: textValue("https://example.test/chosen.png") }],
       }),
     ).toMatchObject({ ok: true });
-    await service.synchronize("google", "shared-avatar@example.test", "https://example.test/later.png");
+    await runWithoutTenant(() =>
+      service.synchronize("google", "shared-avatar@example.test", "https://example.test/later.png"),
+    );
     expect(await avatar(empty)).toEqual({ state: "value", value: textValue("https://example.test/chosen.png") });
     expect(background.dispatch).not.toHaveBeenCalled();
   });
@@ -17264,14 +17316,18 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
     const ref = recordInvariant(result.data.refs.find((ref) => ref.typeId === type.id));
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
     const service = new ProviderAvatarService(new PrismaRecordRepo(f.company.id), f.company.id, background);
-    await service.synchronize("outlook", " AVATAR@example.test ", "https://example.test/avatar.png");
+    await runWithoutTenant(() =>
+      service.synchronize("outlook", " AVATAR@example.test ", "https://example.test/avatar.png"),
+    );
     expect(await f.value(ref, "contact.avatarUrl")).toEqual({
       state: "value",
       value: textValue("https://example.test/avatar.png"),
     });
     const version = (await f.readRecord(ref)).version;
-    await service.synchronize("google", "avatar@example.test", "https://example.test/avatar.png");
-    await service.synchronize("google", "unknown@example.test", "https://example.test/new.png");
+    await runWithoutTenant(() =>
+      service.synchronize("google", "avatar@example.test", "https://example.test/avatar.png"),
+    );
+    await runWithoutTenant(() => service.synchronize("google", "unknown@example.test", "https://example.test/new.png"));
     expect((await f.readRecord(ref)).version).toBe(version);
     expect(background.dispatch).not.toHaveBeenCalled();
     const operations = await f.run(() =>
@@ -17418,32 +17474,38 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
           ),
         ).toBe(501);
       };
-      await service().synchronize("outlook", "many@example.test", "https://example.test/new.png");
+      await runWithoutTenant(() =>
+        service().synchronize("outlook", "many@example.test", "https://example.test/new.png"),
+      );
       const cancelledId = await activeId();
       expect(background.dispatch).toHaveBeenCalledWith("provider-avatar-operation", {
         companyId: f.company.id,
         operationId: cancelledId,
       });
       await old();
-      await service().advance(cancelledId);
+      await runWithoutTenant(() => service().advance(cancelledId));
       await old();
       expect(await f.run(() => f.cancel.invoke({ operationId: cancelledId }))).toMatchObject({
         ok: true,
         data: { cancelled: true },
       });
-      expect(await service().advance(cancelledId)).toEqual({ done: true });
+      expect(await runWithoutTenant(() => service().advance(cancelledId))).toEqual({ done: true });
       await old();
-      await service().synchronize("google", "many@example.test", "https://example.test/new.png");
+      await runWithoutTenant(() =>
+        service().synchronize("google", "many@example.test", "https://example.test/new.png"),
+      );
       const operationId = await activeId();
       await expect(
-        new ProviderAvatarService(new PrismaRecordRepo(foreign.company.id), foreign.company.id, background).advance(
-          operationId,
+        runWithoutTenant(() =>
+          new ProviderAvatarService(new PrismaRecordRepo(foreign.company.id), foreign.company.id, background).advance(
+            operationId,
+          ),
         ),
       ).rejects.toThrow("Invalid avatar operation");
       await expect(
-        service().synchronize("google", "many@example.test", "https://example.test/later.png"),
+        runWithoutTenant(() => service().synchronize("google", "many@example.test", "https://example.test/later.png")),
       ).rejects.toThrow("waits for the workspace change");
-      await service().advance(operationId);
+      await runWithoutTenant(() => service().advance(operationId));
       await f.run(() =>
         prisma.recordOperation.updateMany({
           where: { companyId: f.company.id, id: operationId },
@@ -17456,7 +17518,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       let done = false;
       for (let i = 0; i < 100 && !done; i++) {
         await old();
-        done = (await service().advance(operationId)).done;
+        done = (await runWithoutTenant(() => service().advance(operationId))).done;
       }
       expect(done).toBe(true);
       expect(await f.value(ref, "contact.avatarUrl")).toEqual({

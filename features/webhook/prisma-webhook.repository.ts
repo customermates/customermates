@@ -38,7 +38,7 @@ export class PrismaWebhookRepo
 
   private async withRecordSubscriptions(rows: WebhookDto[]): Promise<WebhookDto[]> {
     const ids = rows.filter((row) => row.events.some((event) => event.startsWith("record."))).map((row) => row.id);
-    const subscriptions = await this.subscriptions.findCompanyWide(this.companyId, ids);
+    const subscriptions = await this.subscriptions.findUnscoped(this.companyId, ids);
     const byId = new Map(subscriptions.filter((row) => row.kind === "webhook").map((row) => [row.id, row]));
     return rows.map((row) => {
       const subscription = byId.get(row.id);

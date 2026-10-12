@@ -5,20 +5,20 @@ export type SearchCatalogMatch = { targetId: string; similarity: number };
 
 export abstract class SearchCatalogRepo {
   abstract semanticIndexAvailable(): Promise<boolean>;
-  abstract ensureStaticCatalog(catalog: StaticSearchCatalog): Promise<void>;
+  abstract ensureStaticCatalogUnscoped(catalog: StaticSearchCatalog): Promise<void>;
   abstract replaceWorkspaceCatalog(companyId: string, entries: readonly SearchCatalogText[]): Promise<void>;
-  abstract claimPendingEmbeddings(
+  abstract claimPendingEmbeddingsUnscoped(
     scope: SearchCatalogScope,
     model: string,
     limit: number,
   ): Promise<SearchCatalogText[]>;
-  abstract releaseClaims(scope: SearchCatalogScope, contentHashes: readonly string[]): Promise<void>;
-  abstract storeEmbeddings(
+  abstract releaseClaimsUnscoped(scope: SearchCatalogScope, contentHashes: readonly string[]): Promise<void>;
+  abstract storeEmbeddingsUnscoped(
     scope: SearchCatalogScope,
     model: string,
     rows: ReadonlyArray<{ contentHash: string; embedding: string }>,
   ): Promise<void>;
-  abstract semanticMatches(args: {
+  abstract semanticMatchesUnscoped(args: {
     companyId: string;
     buildHash: string;
     locale: string;

@@ -16,6 +16,7 @@ import { BaseDataViewStore } from "@/core/base/base-data-view.store";
 import { BREAKPOINTS } from "@/constants/breakpoints";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { reportApplicationError } from "@/core/errors/report-application-error";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 type MutableLayouts = Record<string, LayoutItem[]>;
 
@@ -32,6 +33,7 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
   } | null = null;
   private layoutWrite: Promise<void> | null = null;
   private layoutViewKey: string | null = null;
+  private layoutConflict = false;
 
   constructor(rootStore: RootStore) {
     super(rootStore);
@@ -138,6 +140,11 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
       .withLoading(() => this.saveLayouts())
       .finally(() => {
         this.layoutWrite = null;
+        if (this.layoutConflict) {
+          this.layoutConflict = false;
+          void this.refreshQuery().catch(reportApplicationError);
+          return;
+        }
         if (this.pendingLayout) this.startLayoutWrite();
       });
     void this.layoutWrite.catch(reportApplicationError);
@@ -175,7 +182,10 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
             pending.payload[breakpoint].filter((item) => changed.has(item.i)),
           ]),
         ) as UpdateWidgetLayoutsData["layouts"];
-        const result = await updateWidgetLayoutsAction({ layouts });
+        const expectedVersions = Object.fromEntries(
+          this.items.filter((widget) => changed.has(widget.id)).map((widget) => [widget.id, widget.version]),
+        );
+        const result = await updateWidgetLayoutsAction({ layouts, expectedVersions });
         if (!ownsActor()) continue;
         if (result.ok) {
           const saved = new Map(result.data.map((widget) => [widget.id, widget]));
@@ -203,6 +213,11 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
               }
             }
           });
+        } else if (result.code === CustomErrorCode.widgetLayoutChanged) {
+          this.pendingLayout = null;
+          this.layoutConflict = true;
+          this.restoreLayouts(this.confirmedLayouts);
+          toastZodErrorTree(result.error);
         } else {
           if (!this.pendingLayout) this.restoreLayouts(this.confirmedLayouts);
           if (this.hasCurrentWidgets(pending.layouts)) toastZodErrorTree(result.error);

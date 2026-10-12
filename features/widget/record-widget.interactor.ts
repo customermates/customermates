@@ -13,7 +13,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { fail, failAuthorization, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { recordRequestHash } from "@/features/records/mutate-record.interactor";
+import { recordRequestHash } from "@/features/records/record-request-hash";
 import { RecordWidgetInputSchema } from "./record-widget.schema";
 import { widgetDisplayTypeIssue } from "./widget-display-rules";
 import { resolveDashboardView, resolveWidgetLayout } from "./widget-placement";

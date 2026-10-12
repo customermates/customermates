@@ -1193,6 +1193,7 @@
       "webhookTriggerRequired": "Wählen Sie, welche Feldänderungen oder Bedingungen diesen Webhook auslösen, bevor Sie ihn wieder einschalten.",
       "widgetDisplayTypeUnsupported": "Dieser Diagrammstil passt nicht zur gewählten Gruppierung. Wähle einen anderen Stil oder ändere die Gruppierung.",
       "widgetKindImmutable": "Der Typ eines Widgets kann nach dem Erstellen nicht geändert werden.",
+      "widgetLayoutChanged": "Das Dashboard wurde zwischenzeitlich geändert. Es wurde neu geladen, ordne die Widgets bitte erneut an.",
       "widgetLayoutOverlap": "Diese Position überschneidet sich mit einem anderen Widget. Wähle einen freien Platz im 12-Spalten-Raster oder lass das Layout weg, damit das Widget automatisch platziert wird.",
       "widgetLayoutTooSmall": "Dieses Widget braucht mindestens 2 Spalten und 3 Zeilen.",
       "widgetNotFound": "Widget-ID nicht gefunden oder nicht zugänglich.",

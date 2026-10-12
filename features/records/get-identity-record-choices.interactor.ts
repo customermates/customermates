@@ -13,7 +13,7 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { failAuthorization } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { identityReference } from "./record-identity-reader";
-import { recordWriteFailure } from "./mutate-record.interactor";
+import { recordWriteFailure } from "./record-write-failure";
 import { recordChannelsTypeIds } from "./record-channels";
 import { expressionFieldDependencies } from "./record-model-validation";
 

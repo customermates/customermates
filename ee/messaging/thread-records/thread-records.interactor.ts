@@ -12,7 +12,7 @@ import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { failAuthorization, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { recordRequestHash } from "@/features/records/mutate-record.interactor";
+import { recordRequestHash } from "@/features/records/record-request-hash";
 import { MutateThreadRecordsSchema, ThreadRecordMutationResultSchema } from "./thread-records.schema";
 
 export function canReadInbox(policy: Awaited<ReturnType<RecordAccessPolicy["load"]>>) {

@@ -63,6 +63,27 @@ export const WidgetLayoutItemSchema = z.object({
   maxH: z.number().optional(),
 });
 
+export const WIDGET_BREAKPOINT_COLUMNS = { xs: 2, sm: 4, md: 8, lg: 12 } as const;
+export const WIDGET_LAYOUT_MAX_ROW = 1000;
+export const WIDGET_LAYOUT_MAX_ITEMS = 200;
+
+export function widgetLayoutUpdateItemSchema(columns: number) {
+  return z
+    .object({
+      i: z.uuid(),
+      x: z
+        .number()
+        .int()
+        .min(0)
+        .max(columns - 1),
+      y: z.number().int().min(0).max(WIDGET_LAYOUT_MAX_ROW),
+      w: z.number().int().min(1).max(columns),
+      h: z.number().int().min(1).max(WIDGET_LAYOUT_MAX_ROW),
+    })
+    .strict()
+    .refine((item) => item.x + item.w <= columns, { path: ["w"], message: `x + w can be at most ${columns}` });
+}
+
 export const WidgetLayoutSchema = z.object({
   xs: WidgetLayoutItemSchema.optional(),
   sm: WidgetLayoutItemSchema.optional(),

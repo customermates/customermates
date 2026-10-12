@@ -1193,6 +1193,7 @@
       "webhookTriggerRequired": "Elige qué cambios de campo o condiciones disparan este webhook antes de volver a activarlo.",
       "widgetDisplayTypeUnsupported": "Este estilo de gráfico no encaja con la agrupación seleccionada. Elige otro estilo o cambia la agrupación.",
       "widgetKindImmutable": "El tipo de un widget no se puede cambiar después de crearlo.",
+      "widgetLayoutChanged": "El panel ha cambiado mientras tanto. Se ha recargado, así que vuelve a organizar los widgets.",
       "widgetLayoutOverlap": "Esta posición se superpone con otro widget. Elige un hueco libre en la cuadrícula de 12 columnas u omite el diseño para colocarlo automáticamente.",
       "widgetLayoutTooSmall": "Este widget necesita al menos 2 columnas y 3 filas.",
       "widgetNotFound": "ID de widget no encontrado o no accesible.",

@@ -25,7 +25,7 @@ export class SearchCatalogIndexService extends UserAccessor {
 
   async indexPending(): Promise<{ remaining: boolean }> {
     const catalog = await staticSearchCatalog();
-    await this.repo.ensureStaticCatalog(catalog);
+    await this.repo.ensureStaticCatalogUnscoped(catalog);
     const [model, views] = await Promise.all([this.records.getModel(), this.views.listWorkspaceRecordViewNames()]);
     await this.repo.replaceWorkspaceCatalog(this.companyId, workspaceSearchCatalog(model, views));
     if (!isWikiSemanticSearchAvailable() || !(await this.repo.semanticIndexAvailable())) return { remaining: false };
@@ -46,18 +46,22 @@ export class SearchCatalogIndexService extends UserAccessor {
     embedBatch: (texts: string[]) => Promise<number[][] | null>,
   ): Promise<boolean> {
     for (let batch = 0; batch < SEARCH_CATALOG_BATCHES_PER_STEP; batch += 1) {
-      const claimed = await this.repo.claimPendingEmbeddings(scope, WIKI_EMBEDDING_MODEL, WIKI_EMBEDDING_BATCH_SIZE);
+      const claimed = await this.repo.claimPendingEmbeddingsUnscoped(
+        scope,
+        WIKI_EMBEDDING_MODEL,
+        WIKI_EMBEDDING_BATCH_SIZE,
+      );
       if (claimed.length === 0) return false;
       const hashes = claimed.map((entry) => entry.contentHash);
       let vectors: number[][] | null = null;
       try {
         vectors = await embedBatch(claimed.map((entry) => entry.text));
       } finally {
-        if (!vectors) await this.repo.releaseClaims(scope, hashes);
+        if (!vectors) await this.repo.releaseClaimsUnscoped(scope, hashes);
       }
       if (!vectors) return false;
       const embedded = vectors;
-      await this.repo.storeEmbeddings(
+      await this.repo.storeEmbeddingsUnscoped(
         scope,
         WIKI_EMBEDDING_MODEL,
         claimed.map((entry, index) => ({

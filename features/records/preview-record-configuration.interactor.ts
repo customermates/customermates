@@ -9,7 +9,7 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { PublicConfigurationChangeSchema } from "./configuration.schema";
 import { type RecordConfigurationService } from "./configuration.service";
-import { recordWriteFailure } from "./mutate-record.interactor";
+import { recordWriteFailure } from "./record-write-failure";
 
 @AllowInDemoMode
 @TenantInteractor()

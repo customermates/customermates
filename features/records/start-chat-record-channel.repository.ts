@@ -2,7 +2,6 @@ import type { StartChatContactRepo } from "@/ee/messaging/outbound/start-chat-co
 import type { RepoArgs } from "@/core/utils/types";
 import type { RecordRepo } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";
-import type { MutateRecordInteractor } from "./mutate-record.interactor";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { channelClass } from "@/ee/messaging/provider";
@@ -13,7 +12,6 @@ export class StartChatRecordChannelRepo extends TenantRepository implements Star
   constructor(
     private records: RecordRepo,
     private access: RecordAccessPolicy,
-    _mutate: MutateRecordInteractor,
   ) {
     super();
   }

@@ -1,6 +1,4 @@
 import type { EventLog } from "@/generated/prisma";
-import { TenantRepository } from "@/core/base/tenant-repository";
-import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
 import type { EventAdmission } from "@/features/event/event-admission";
 import { eventEnvelope } from "@/features/event/event-envelope";
@@ -8,16 +6,13 @@ import { RecordEventPayloadSchema } from "@/features/records/record-event.schema
 import type { RecordRecipientReader } from "@/features/records/record-recipient-reader";
 import type { EventRoutineCandidate, TriggerRoutinesRepo } from "./trigger-routines.repo";
 
-export class RoutineAdmission extends TenantRepository implements EventAdmission {
+export class RoutineAdmission implements EventAdmission {
   constructor(
     private readonly routines: TriggerRoutinesRepo,
     private readonly background: BackgroundTaskService,
     private readonly reader: RecordRecipientReader,
-  ) {
-    super();
-  }
+  ) {}
 
-  @BypassTenantGuard
   async admit(event: EventLog): Promise<void> {
     const subscribed = await this.routines.findEventRoutinesUnscoped(event.companyId, event.kind);
     if (!subscribed.length) return;
@@ -27,14 +22,7 @@ export class RoutineAdmission extends TenantRepository implements EventAdmission
     }
     const payload = RecordEventPayloadSchema.parse(event.payload);
     if (payload.cause.routineDepth !== undefined) return;
-    const matches = await this.prisma.recordEventMatch.findMany({
-      where: {
-        companyId: event.companyId,
-        eventId: event.id,
-        subscription: { companyId: event.companyId, kind: "routine", enabled: true },
-      },
-      include: { subscription: true },
-    });
+    const matches = await this.reader.findEventMatches(event, "routine");
     const byId = new Map(subscribed.map((routine) => [routine.id, routine]));
     for (const match of matches) {
       const routine = byId.get(match.subscriptionId);

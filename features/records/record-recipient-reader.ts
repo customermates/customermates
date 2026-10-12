@@ -3,11 +3,9 @@ import { recordAccessForActor } from "./record-access";
 import { RecordHistoryReader } from "./record-history-reader";
 import { RecordEventPayloadSchema } from "./record-event.schema";
 import { RecordDeliveryEnvelopeSchema, type RecordDeliveryEnvelope } from "./record-delivery.schema";
-import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
+import type { EventLog } from "@/generated/prisma";
+import type { RecordEventMatchWithSubscription, RecordRecipientRepo } from "./record-recipient.repo";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { getTransactionClient } from "@/core/decorators/transaction-context";
-import { prisma, type AppPrismaClient } from "@/prisma/db";
-import { Prisma } from "@/generated/prisma";
 import { RecordQuerySchema, type RecordQuery } from "./record-query.schema";
 import { invalidRecordQueryPart } from "./record-query-validation";
 import { compileRecordQuery } from "./record-query";
@@ -17,8 +15,18 @@ import {
 } from "./record-event-subscription.schema";
 
 export class RecordRecipientReader {
-  constructor(private readonly recordsForCompany: (companyId: string) => RecordRepo) {}
-  @BypassTenantGuard
+  constructor(
+    private readonly recordsForCompany: (companyId: string) => RecordRepo,
+    private readonly recipients: RecordRecipientRepo,
+  ) {}
+
+  findEventMatches(
+    event: Pick<EventLog, "companyId" | "id">,
+    kind: "webhook" | "routine",
+  ): Promise<RecordEventMatchWithSubscription[]> {
+    return this.recipients.findEventMatchesUnscoped(event, kind);
+  }
+
   readEvent(input: {
     companyId: string;
     userId: string;
@@ -30,35 +38,17 @@ export class RecordRecipientReader {
     return runInTransaction(
       async () => {
         const { companyId, userId, eventId } = input;
-        const client = getTransactionClient<AppPrismaClient>() ?? prisma;
         const records = this.recordsForCompany(companyId);
         const [actor, event, model, grants] = await Promise.all([
-          client.user.findFirst({
-            where: { companyId, id: userId, status: "active", role: { companyId } },
-            select: {
-              id: true,
-              status: true,
-              role: {
-                select: {
-                  id: true,
-                  companyId: true,
-                  isSystemRole: true,
-                  permissions: { where: { companyId }, select: { resource: true, action: true } },
-                },
-              },
-            },
-          }),
-          client.eventLog.findFirst({ where: { companyId, id: eventId, subjectKind: "record" } }),
+          this.recipients.findRecipientActorUnscoped(companyId, userId),
+          this.recipients.findRecordEventUnscoped(companyId, eventId),
           records.getModel(),
           records.getGrants(),
         ]);
         if (!actor || !event) return null;
         let subscription: RecordEventSubscriptionDefinition | null = null;
         if (input.subscriptionId) {
-          const match = await client.recordEventMatch.findFirst({
-            where: { companyId, eventId, subscriptionId: input.subscriptionId },
-            include: { subscription: true },
-          });
+          const match = await this.recipients.findSubscriptionMatchUnscoped(companyId, eventId, input.subscriptionId);
           if (
             !match ||
             !match.subscription.enabled ||
@@ -93,10 +83,7 @@ export class RecordRecipientReader {
             const query = RecordQuerySchema.parse(raw);
             if (query.typeId !== event.subjectTypeId || invalidRecordQueryPart(query, model)) return false;
             const sql = compileRecordQuery(companyId, query, model, policy.access(model.types.map((type) => type.id)));
-            const matched = await client.$queryRaw<Array<{ matches: boolean }>>(
-              Prisma.sql`SELECT EXISTS (SELECT 1 FROM (${sql.matching}) matching WHERE matching.id = ${event.subjectId}) AS matches`,
-            );
-            return Boolean(matched[0]?.matches);
+            return this.recipients.matchesRecordQueryUnscoped(sql.matching, event.subjectId);
           };
           if (input.query && !(await matchesQuery(input.query))) return null;
           if (input.recheckSubscriptionSources && sourceQueries.length) {

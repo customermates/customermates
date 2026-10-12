@@ -1,6 +1,6 @@
 import type { WorkflowTenant } from "./workflow-tenant";
 
-import { getRecordOperationService, getRecordRepo } from "@/core/di";
+import { getFailRecordOperationInteractor, getRecordOperationService } from "@/core/di";
 import { runAsBackgroundTenant } from "@/core/decorators/background-tenant";
 
 import { reportFailure, toWorkflowFailure } from "./capture-failure";
@@ -22,7 +22,7 @@ advanceRecordOperation.maxRetries = 3;
 async function failRecordOperation(payload: RecordOperationWorkflowPayload): Promise<void> {
   "use step";
   if (!payload.tenant || payload.ownerUserId !== payload.tenant.userId) return;
-  await getRecordRepo().failOperationUnscoped({
+  await getFailRecordOperationInteractor().invoke({
     companyId: payload.tenant.companyId,
     userId: payload.ownerUserId,
     operationId: payload.operationId,
