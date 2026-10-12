@@ -32,8 +32,13 @@ export class PrismaWebhookRepo
   constructor(
     private readonly subscriptions: RecordEventSubscriptionRepo,
     private readonly permissions: PermissionService,
+    private readonly scopedCompanyId?: string,
   ) {
     super();
+  }
+
+  override get companyId(): string {
+    return this.scopedCompanyId ?? super.companyId;
   }
 
   private async withRecordSubscriptions(rows: WebhookDto[]): Promise<WebhookDto[]> {
@@ -275,7 +280,7 @@ export class PrismaWebhookRepo
   }
 
   async getWebhookByIdOrThrow(id: string) {
-    const { companyId } = this.user;
+    const companyId = this.companyId;
 
     const webhook = await this.prisma.webhook.findFirstOrThrow({
       where: { id, companyId },

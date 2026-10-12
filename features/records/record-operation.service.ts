@@ -27,6 +27,8 @@ import { configurationTrashBatchId } from "./configuration-trash-batch";
 import type { RecordModel } from "./record-model.schema";
 import type { WebhookPauseNotifier } from "@/features/webhook/webhook-pause-notifier";
 import { RestoreSummarySchema } from "./record-query.schema";
+import { RECORD_SYSTEM_ACTOR } from "./record-system-actor";
+import { systemRecordAccess } from "./system-record-access";
 
 const CursorSchema = z.union([
   z.object({
@@ -60,26 +62,42 @@ export class RecordOperationService extends UserAccessor {
     private policy: RecordAccessPolicy,
     private configurations: RecordConfigurationService,
     private webhooks: WebhookPauseNotifier,
+    private systemCompanyId?: string,
   ) {
     super();
+  }
+
+  private get operator(): { companyId: string; userId: string; eventActorId: string | null } {
+    return this.systemCompanyId === undefined
+      ? { companyId: this.companyId, userId: this.userId, eventActorId: this.userId }
+      : { companyId: this.systemCompanyId, userId: RECORD_SYSTEM_ACTOR, eventActorId: null };
+  }
+
+  private loadPolicy() {
+    return this.systemCompanyId === undefined
+      ? this.policy.load()
+      : systemRecordAccess(this.records, this.systemCompanyId);
   }
 
   async advance(operationId: string): Promise<{ done: boolean }> {
     try {
       return await runInTransaction(
         async () => {
+          const operator = this.operator;
           const operation = await this.records.getOperation(operationId);
-          if (!operation || operation.userId !== this.userId)
+          if (!operation || operation.userId !== operator.userId)
             throw new RecordWriteError(CustomErrorCode.recordNotFound, "not_found");
           if (["completed", "cancelled", "failed"].includes(operation.state)) return { done: true };
-          const policy = await this.policy.load();
+          if (this.systemCompanyId !== undefined && operation.kind !== "configuration")
+            throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+          const policy = await this.loadPolicy();
           if (!policy.actor) throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
           const state = await this.records.getState();
           if (state?.activeOperationId !== operationId || state.revision !== operation.expectedRevision)
             throw new RecordWriteError(CustomErrorCode.recordSchemaChanged, "conflict");
           const current = await this.records.getModel();
           if (operation.kind === "restore") return await this.advanceRestore(operation, current, policy);
-          const staging = createRecordStagingRepo(this.records, operationId, this.companyId);
+          const staging = createRecordStagingRepo(this.records, operationId, operator.companyId);
           const journal = new RecordJournal(staging, current, BACKGROUND_FANOUT_LIMIT, {
             base: this.records,
             operationId,
@@ -106,7 +124,7 @@ export class RecordOperationService extends UserAccessor {
                 if (!(await this.records.validRecordRolesCompanyWide(grant.grants.map((entry) => entry.roleId))))
                   throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
               }
-              await staged.saveModel(prepared.model, this.userId, prepared.change);
+              await staged.saveModel(prepared.model, operator.userId, prepared.change);
               await this.records.stageRow(operationId, "sources", "affected", {
                 refs: [],
                 captures: [],
@@ -130,7 +148,7 @@ export class RecordOperationService extends UserAccessor {
               }
               const result = await writer.apply(request.mutation, current, policy, BACKGROUND_FANOUT_LIMIT, {
                 skipCalculations: true,
-                createRecordId: deterministicId(this.companyId, `operation:${operationId}:record`),
+                createRecordId: deterministicId(operator.companyId, `operation:${operationId}:record`),
               });
               const typeIds = new Set(result.refs.map((ref) => ref.typeId));
               let expanded = true;
@@ -174,7 +192,7 @@ export class RecordOperationService extends UserAccessor {
               operationId,
               BATCH_SIZE,
               BACKGROUND_FANOUT_LIMIT,
-              { companyId: this.companyId, actorId: this.userId },
+              { companyId: operator.companyId, actorId: operator.userId },
             ).advance(deletionCursor.data, mutation, model, policy);
             if (result.affectedTypeIds) {
               const typeIds = new Set(result.affectedTypeIds);
@@ -283,7 +301,7 @@ export class RecordOperationService extends UserAccessor {
             const request = z.object({ idempotencyKey: z.string() }).parse(operation.request);
             const page = await journal.flushPage(
               model,
-              this.userId,
+              operator.eventActorId,
               request.idempotencyKey,
               cause,
               cursor.afterId,
@@ -299,9 +317,9 @@ export class RecordOperationService extends UserAccessor {
           }
 
           if (prepared) {
-            await this.records.saveModel(prepared.model, this.userId, prepared.change);
+            await this.records.saveModel(prepared.model, operator.userId, prepared.change);
             if (prepared.deletion) {
-              await purgeTrashOfDeletedLists(this.records, prepared, this.userId);
+              await purgeTrashOfDeletedLists(this.records, prepared, operator.eventActorId);
               await this.records.deleteDefinitions(prepared.deletion);
             }
             const { pausedWebhookIds } = await this.records.applyConsumerCleanups(prepared.cleanups);
@@ -330,7 +348,7 @@ export class RecordOperationService extends UserAccessor {
             await new RecordTrashService(this.records).purge(
               items.map((item) => item.id),
               model,
-              this.userId,
+              operator.eventActorId,
               request.idempotencyKey,
               { kind: "mutation", operationId },
             );
@@ -345,7 +363,7 @@ export class RecordOperationService extends UserAccessor {
               ...(prepared?.change.deletions?.length
                 ? {
                     trashBatchId: configurationTrashBatchId(
-                      this.companyId,
+                      operator.companyId,
                       z.object({ idempotencyKey: z.string() }).parse(operation.request).idempotencyKey,
                     ),
                   }
@@ -459,7 +477,7 @@ export class RecordOperationService extends UserAccessor {
       const operation = await this.records.getOperation(operationId);
       if (
         !operation ||
-        operation.userId !== this.userId ||
+        operation.userId !== this.operator.userId ||
         ["completed", "cancelled", "failed"].includes(operation.state)
       )
         return;

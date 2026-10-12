@@ -125,7 +125,7 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
         continue;
       }
       if (actorId === null) {
-        await this.system.deletePermanently(await this.change(item, "deletePermanently"), companyId);
+        await this.system.deletePermanently(item, await this.change(item, "deletePermanently"), companyId);
         continue;
       }
       const applied = await this.apply.run(await this.change(item, "deletePermanently"));

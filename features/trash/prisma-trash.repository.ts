@@ -127,6 +127,20 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo, Expi
     return due.map((row) => row.companyId);
   }
 
+  async markPurgePending(id: string, operationId: string): Promise<void> {
+    const item = await this.prisma.trashItem.findFirst({
+      where: { companyId: this.companyId, id },
+      select: { payload: true },
+    });
+    if (!item) return;
+    const payload =
+      item.payload && typeof item.payload === "object" && !Array.isArray(item.payload) ? item.payload : {};
+    await this.prisma.trashItem.updateMany({
+      where: { companyId: this.companyId, id },
+      data: { payload: { ...payload, purgeOperationId: operationId } },
+    });
+  }
+
   async deletedBy(userIds: string[]): Promise<Map<string, TrashDeletedBy>> {
     const ids = [...new Set(userIds)];
     if (!ids.length) return new Map();

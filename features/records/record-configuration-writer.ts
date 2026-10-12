@@ -8,8 +8,7 @@ import { SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import { RecordWriteError } from "./record-write.service";
 import { configurationInputFields, configurationInputValue } from "./record-configuration-values";
 import { RecordTrashService } from "./record-trash.service";
-
-export const RECORD_SYSTEM_SCHEMA_ACTOR = "system:trash";
+import { RECORD_SYSTEM_ACTOR } from "./record-system-actor";
 
 export async function purgeTrashOfDeletedLists(
   records: RecordRepo,
@@ -90,7 +89,7 @@ export class RecordConfigurationWriter {
         throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
     }
 
-    await this.records.saveModel(prepared.model, userId ?? RECORD_SYSTEM_SCHEMA_ACTOR, prepared.change);
+    await this.records.saveModel(prepared.model, userId ?? RECORD_SYSTEM_ACTOR, prepared.change);
     if (prepared.deletion) {
       await purgeTrashOfDeletedLists(this.records, prepared, userId);
       await this.records.deleteDefinitions(prepared.deletion);

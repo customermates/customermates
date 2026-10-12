@@ -5,6 +5,9 @@ import { randomUUID } from "node:crypto";
 import { Client } from "pg";
 import { createTranslator } from "next-intl";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { ZodError } from "zod";
+
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
@@ -70,6 +73,16 @@ describeDatabase("bounded P13n writes", () => {
     expect(await stored()).toEqual([panels, sublist, "wiki-layout"].sort());
   });
 
+  it("caps saved filters at fifty otherwise valid filters", async () => {
+    const filter = { field: "name", operator: FilterOperatorKey.contains, value: "acme" };
+    expect((await upsert({ p13nId: panels, filters: Array.from({ length: 50 }, () => filter) })).ok).toBe(true);
+    const refused = await upsert({ p13nId: panels, filters: Array.from({ length: 51 }, () => filter) }).catch(
+      (error: unknown) => error,
+    );
+    expect(refused).toBeInstanceOf(ZodError);
+    expect((refused as ZodError).issues).toEqual([expect.objectContaining({ code: "too_big", path: ["filters"] })]);
+  });
+
   it("refuses unknown ids, oversized ids and unbounded layout state", async () => {
     const widths = Object.fromEntries(Array.from({ length: 501 }, (_, i) => [`c${i}`, 100]));
     const invalid = [
@@ -82,10 +95,6 @@ describeDatabase("bounded P13n writes", () => {
       { p13nId: panels, columnWidths: widths },
       { p13nId: panels, columnWidths: { main: 20_000 } },
       { p13nId: panels, columnWidths: { main: Number.POSITIVE_INFINITY } },
-      {
-        p13nId: panels,
-        filters: Array.from({ length: 51 }, () => ({ field: "name", operator: "contains", value: "a" })),
-      },
     ];
     const before = await stored();
     for (const data of invalid) await expect(upsert(data)).rejects.toThrow();

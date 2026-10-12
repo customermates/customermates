@@ -4,8 +4,15 @@ import { z } from "zod";
 
 import { Enforce } from "@/core/decorators/enforce.decorator";
 import { SystemInteractor } from "@/core/decorators/system-interactor.decorator";
+import { RECORD_SYSTEM_ACTOR } from "./record-system-actor";
 
-const FailRecordOperationSchema = z.object({ companyId: z.uuid(), userId: z.uuid(), operationId: z.uuid() }).strict();
+const FailRecordOperationSchema = z
+  .object({
+    companyId: z.uuid(),
+    userId: z.union([z.uuid(), z.literal(RECORD_SYSTEM_ACTOR)]),
+    operationId: z.uuid(),
+  })
+  .strict();
 export type FailRecordOperationData = z.infer<typeof FailRecordOperationSchema>;
 
 @SystemInteractor
