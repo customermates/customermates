@@ -32,7 +32,7 @@ export const UpdateUserDetailsSchema = z.object({
 });
 export type UpdateUserDetailsData = Data<typeof UpdateUserDetailsSchema>;
 
-const OutputSchema = z.object({
+export const UserProfileSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
   country: z.enum(CountryCode),
@@ -41,7 +41,7 @@ const OutputSchema = z.object({
   displayLanguage: StoredDisplayLanguageSchema,
   formattingLocale: StoredFormattingLocaleSchema,
 });
-export type UserProfileData = Data<typeof OutputSchema>;
+export type UserProfileData = Data<typeof UserProfileSchema>;
 
 export type StoredUserProfileData = Omit<UserProfileData, "displayLanguage" | "formattingLocale"> & {
   displayLanguage: Locale;
@@ -59,7 +59,7 @@ export class UpdateUserDetailsInteractor extends AuthenticatedInteractor<UpdateU
 
   @Validate(UpdateUserDetailsSchema)
   @Transaction
-  @ValidateOutput(OutputSchema)
+  @ValidateOutput(UserProfileSchema)
   async invoke(data: UpdateUserDetailsData): Validated<UserProfileData> {
     const previous = { firstName: this.user.firstName, lastName: this.user.lastName, country: this.user.country };
     const storedProfile = await this.repo.updateDetails(data);

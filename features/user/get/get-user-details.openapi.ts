@@ -1,6 +1,6 @@
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { StructuredApiResponses } from "@/core/api/structured-interactor-handler";
 import { UserDetailsDtoSchema } from "@/features/user/get/get-user-details.interactor";
 
 export const getUserDetailsOperation: ZodOpenApiOperationObject = {
@@ -18,6 +18,6 @@ export const getUserDetailsOperation: ZodOpenApiOperationObject = {
         },
       },
     },
-    ...CommonApiResponses,
+    ...StructuredApiResponses,
   },
 };
