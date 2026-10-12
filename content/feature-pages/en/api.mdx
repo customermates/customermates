@@ -40,7 +40,7 @@ A good CRM API is well-documented, versioned, predictable, and gives you access 
 
 Customermates provides a versioned REST API for documented CRM resources and operations. API access is included in published pricing tiers from [[commercial.price.starter.monthly]] per user per month, without a separate developer tier.
 
-**REST architecture with predictable endpoints.** The API follows standard REST conventions with predictable URL structures, standard HTTP methods (GET, POST, PUT, PATCH, DELETE), and JSON request and response bodies. If you have worked with any modern REST API, working with the Customermates API will feel familiar immediately. Endpoints follow a consistent pattern: `/api/v1/{resource}` for collections and `/api/v1/{resource}/{id}` for individual records.
+**Action endpoints with JSON bodies.** Every record operation is a `POST` to a named action under `/api/v1` with a JSON request and response body: `/api/v1/records/query` lists records, `/api/v1/records/read` reads one, `/api/v1/records/mutate` creates, updates, deletes, links or unlinks, and `/api/v1/model/discover` returns the lists, fields and relationships with their stable IDs. Records are not addressed by URL; a record reference is a JSON object with the list's `typeId` and the record's `recordId`, so the same routes serve the starter lists and every list your workspace adds. Failures return a structured `error` object whose `kind` matches the HTTP status.
 
 **Documented operations by resource.** Create, read, update, or delete only where the current OpenAPI document exposes that operation. Availability differs by resource; do not assume complete UI/API feature parity.
 
@@ -56,7 +56,7 @@ Customermates provides a versioned REST API for documented CRM resources and ope
 
 **Supported custom-field access.** Read or write custom-field values only where the documented resource and operation expose them. Treat the current OpenAPI document, field types, and validation responses as the integration contract.
 
-**Large data operations through integrations.** In the app, each record type can be imported and exported as an XLSX workbook, scoped to permissions and the current view and row-capped; there is no CSV and no generic batch endpoint. For larger or recurring loads, a customer-run integration can create or update supported records through documented API calls and owns batching, validation, mapping, deduplication, and retries.
+**Large data operations through integrations.** In the app, each record type can be imported and exported as an XLSX workbook, scoped to permissions and the current view and row-capped; there is no CSV. The API takes up to 100 records per `updateMany`, `deleteMany` or `/api/v1/records/import` request. For larger or recurring loads, a customer-run integration can create or update supported records through documented API calls and owns batching, validation, mapping, deduplication, and retries.
 
 **Endpoint behavior.** Follow the current API documentation and responses when planning throughput and retries. Customermates does not publish a generic application rate-limit quota or rate-limit headers for this API surface.
 

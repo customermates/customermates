@@ -116,7 +116,7 @@ Example, `record.updated` for a contact, with unrelated fields omitted:
 
 A real record change also carries assignments, identities, link changes and related records. Field entries include display metadata and may show `missing`, `restricted` or `error` instead of a value. Resolve stable type and field IDs with `POST /api/v1/model/discover` or the `get_record_model` MCP tool.
 
-## The `changes` object: changed fields [#the-changes-object]
+## Changed fields in `data.record.fields` [#the-changes-object]
 
 `data.record.fields` lists changed fields with `before` and `after` values; `data.record.links`, `data.record.assignments` and `data.record.identities` describe other changed connections. `data.record.beforeVersion` and `data.record.afterVersion` identify the record versions. A missing or restricted field is not the same as zero.
 

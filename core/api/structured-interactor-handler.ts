@@ -29,7 +29,9 @@ export const StructuredApiResponses = {
   "403": failureResponse("Not authorized"),
   "404": failureResponse("Not found"),
   "409": failureResponse("Conflict"),
-  "500": failureResponse("Unexpected error"),
+  "422": failureResponse("Unavailable: the request is valid but cannot be served right now (error.kind unavailable)"),
+  "429": failureResponse("Rate limited: retry later (error.kind rate_limit)"),
+  "500": { description: "Unexpected error. The body is not a structured failure." },
 } as const;
 
 const APP_ERROR_FAILURES: Record<AppErrorCode, [InteractorFailureKind, CustomErrorCode]> = {
