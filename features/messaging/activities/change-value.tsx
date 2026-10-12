@@ -27,6 +27,7 @@ import { getProviderIcon } from "@/ee/messaging/provider-icon";
 import { channelDisplayLabel } from "@/ee/messaging/thread-display";
 import { isEmpty } from "@/features/event/audit-changes";
 import { WikiPageKindSchema } from "@/features/wiki/wiki.schema";
+import { eventLabel } from "@/features/event/event-label";
 
 const STRUCTURAL_KEYS = new Set(["id", "columnId", "createdAt", "updatedAt"]);
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
@@ -100,7 +101,7 @@ export function useChangeValueLabels(): ChangeValueLabels {
       legalDocument: (code: string) =>
         t.has(`LegalDocumentNotice.documents.${code}`) ? t(`LegalDocumentNotice.documents.${code}`) : code,
       wikiKind: (code: string) => (WikiPageKindSchema.safeParse(code).success ? t(`Wiki.kind.${code}`) : code),
-      event: (code: string) => (t.has(`Common.events.${code}`) ? t(`Common.events.${code}`) : code),
+      event: (code: string) => eventLabel(t, code),
       country: (code: string) => countryLabelForLocale(code, locale),
       currency: (code: string) => getCurrencyLabel(code, locale),
       date: (value: string) =>

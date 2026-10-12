@@ -11,6 +11,7 @@ import { auditChangeKind, ChangeRow, ChangeValue, FieldChangeRow } from "./chang
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { membersDescriptor, recordsDescriptor, recordValueDescriptor } from "./change-value-descriptor";
 import { hasNotesDiff, NotesDiff } from "./notes-diff";
+import { eventLabel } from "@/features/event/event-label";
 
 type FieldSide = Extract<ActivityEntryDto, { kind: "record" }>["changes"]["fields"][number]["before"];
 
@@ -57,14 +58,14 @@ export function RecordAuditDetail({ entry }: { entry: Entry }) {
       <DetailHeader
         avatar={
           <IdentityAvatar
-            badge={<TypeBadge icon={category.icon} label={t(`Common.events.${entry.event}`)} tone={category.tone} />}
+            badge={<TypeBadge icon={category.icon} label={eventLabel(t, entry.event)} tone={category.tone} />}
             name={[entry.actor.firstName, entry.actor.lastName]}
             size="xl"
             src={entry.actor.avatarUrl}
           />
         }
         records={entry.records}
-        subtitle={`${t(`Common.events.${entry.event}`)} · ${intl.formatNumericalShortDateTime(entry.at)}`}
+        subtitle={`${eventLabel(t, entry.event)} · ${intl.formatNumericalShortDateTime(entry.at)}`}
         title={
           resolveActorName(entry.actor.firstName, entry.actor.lastName, entry.actor.email) ||
           t("RecordModel.systemActor")

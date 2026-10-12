@@ -47,7 +47,7 @@ test("opens a stable record page, preserves its draft alongside the assistant, a
   await expect(dialogs).not.toBeVisible();
   const main = page.getByRole("main");
   await main.getByRole("textbox", { name: "Name", exact: false }).fill("Opportunity with notes");
-  await main.getByRole("button", { name: "Ask AI", exact: true }).click();
+  await main.getByRole("button", { name: "Ask Mate", exact: true }).click();
   await expect(
     page.getByTestId("agent-composer-contexts").getByText("Local opportunity", { exact: true }),
   ).toBeVisible();

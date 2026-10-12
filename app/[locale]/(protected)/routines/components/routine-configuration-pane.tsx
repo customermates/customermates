@@ -27,6 +27,7 @@ import {
 } from "@/ee/routines/routine-schedule-preset";
 import { ROUTINE_TRIGGER_EVENTS } from "@/ee/routines/routine.schema";
 import { RoutineRecordTrigger } from "./routine-record-trigger";
+import { eventLabel } from "@/features/event/event-label";
 
 const TRIGGER_EVENT_ITEMS = ROUTINE_TRIGGER_EVENTS.map((event) => ({
   key: event,
@@ -279,12 +280,10 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
             required
             id="triggerEvents"
             items={TRIGGER_EVENT_ITEMS}
-            renderValue={(items) =>
-              items.map((item) => <AppChip key={item.key}>{t(`Common.events.${item.key}`)}</AppChip>)
-            }
+            renderValue={(items) => items.map((item) => <AppChip key={item.key}>{eventLabel(t, item.key)}</AppChip>)}
             selectionMode="multiple"
           >
-            {(item) => <span>{t(`Common.events.${item.key}`)}</span>}
+            {(item) => <span>{eventLabel(t, item.key)}</span>}
           </FormAutocomplete>
 
           <p className="text-subdued text-xs">{t("RoutineModal.eventSuppressionNote")}</p>
@@ -299,7 +298,7 @@ export const RoutineConfigurationPane = observer(({ store, onPause }: Props) => 
 
                     {" · "}
 
-                    {source.events.map((event) => t(`Common.events.${event}`)).join(", ")}
+                    {source.events.map((event) => eventLabel(t, event)).join(", ")}
                   </AppChip>
                 ))}
               </div>

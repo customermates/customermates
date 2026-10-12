@@ -9,6 +9,7 @@ import { useTranslations } from "next-intl";
 import { AppChip } from "@/components/chip/app-chip";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { WEBHOOK_DELIVERY_QUEUE_STATUS_CHIP_COLOR } from "@/features/webhook/webhook-delivery-chip-colors";
+import { eventLabel } from "@/features/event/event-label";
 
 export function useWebhookDeliveryColumns(): ColumnDef<WebhookDeliveryDto>[] {
   const intlStore = useHydratedIntlStore();
@@ -25,7 +26,7 @@ export function useWebhookDeliveryColumns(): ColumnDef<WebhookDeliveryDto>[] {
         header: t("Common.table.columns.event"),
         cell: ({ row }) => (
           <AppChip size="sm" variant="secondary">
-            {t(`Common.events.${row.original.event}`)}
+            {eventLabel(t, row.original.event)}
           </AppChip>
         ),
       },

@@ -64,7 +64,7 @@ test("searches custom records across pages, opens generic drawers, and attaches 
   await dialog.getByRole("link", { name: "Open page", exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[a-f0-9-]+$`));
   await expect(dialog).not.toBeVisible();
-  await page.getByRole("main").getByRole("button", { name: "Ask AI", exact: true }).click();
+  await page.getByRole("main").getByRole("button", { name: "Ask Mate", exact: true }).click();
   await expect(
     page.getByTestId("agent-composer-contexts").getByText("Searchable project", { exact: true }),
   ).toBeVisible();

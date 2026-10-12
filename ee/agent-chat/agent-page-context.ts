@@ -56,7 +56,7 @@ export function agentViewRequestMismatch(pageRoute: string | null | undefined, i
   const request = input as Record<string, unknown>;
   if (request.action === "surfaces" || request.action === "list" || request.action === "config") return null;
   if (target.kind === "invalid")
-    return "The Ask AI request has invalid view context. No change was made. Ask the user to reopen Ask AI from the intended view.";
+    return "The Ask AI request has invalid view context. No change was made. Ask the user to reopen Ask Mate from the intended view.";
   if (
     request.surfaceKey === target.surfaceKey &&
     (request.action === target.action || (target.action === "update" && request.action === "reset")) &&
@@ -80,7 +80,7 @@ export function agentViewToolMismatch(
   const target = agentViewRequestTarget(pageRoute);
   if (target.kind === "ordinary") return null;
   if (target.kind === "invalid")
-    return "The Ask AI request has invalid view context. No change was made. Ask the user to reopen Ask AI from the intended view.";
+    return "The Ask AI request has invalid view context. No change was made. Ask the user to reopen Ask Mate from the intended view.";
 
   return "This Ask AI request is scoped to a saved view. Creating, updating, or deleting a custom field is outside that request, so no change was made. Use only filter fields returned by manage_data_views config; if the requested field is absent, report that it is unavailable and leave the view unchanged.";
 }

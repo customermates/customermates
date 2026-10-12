@@ -28,6 +28,7 @@ import { AppChip } from "@/components/chip/app-chip";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { AppCardHeader } from "@/components/card/app-card-header";
 import { Action } from "@/generated/prisma";
+import { eventLabel } from "@/features/event/event-label";
 
 const WEBHOOK_EVENT_ITEMS = WebhookEventSchema.options.map((event) => ({ key: event }));
 
@@ -89,12 +90,10 @@ export const WebhookModal = observer(() => {
               id="events"
               inputId="webhook-modal-events"
               items={WEBHOOK_EVENT_ITEMS}
-              renderValue={(items) =>
-                items.map((item) => <AppChip key={item.key}>{t(`Common.events.${item.key}`)}</AppChip>)
-              }
+              renderValue={(items) => items.map((item) => <AppChip key={item.key}>{eventLabel(t, item.key)}</AppChip>)}
               selectionMode="multiple"
             >
-              {(item) => <span>{t(`Common.events.${item.key}`)}</span>}
+              {(item) => <span>{eventLabel(t, item.key)}</span>}
             </FormAutocomplete>
 
             {webhookModalStore.usesRecordTrigger && (
@@ -134,7 +133,7 @@ export const WebhookModal = observer(() => {
 
                         {" · "}
 
-                        {source.events.map((event) => t(`Common.events.${event}`)).join(", ")}
+                        {source.events.map((event) => eventLabel(t, event)).join(", ")}
                       </AppChip>
                     ))}
                   </div>
