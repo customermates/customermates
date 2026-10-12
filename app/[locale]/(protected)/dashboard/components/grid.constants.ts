@@ -14,5 +14,5 @@ export const GRID_BREAKPOINTS: Record<Breakpoint, number> = {
   [Breakpoint.lg]: 960,
 };
 
-export const DASHBOARD_ROW_HEIGHT = 124;
+export const DASHBOARD_ROW_HEIGHT = 54;
 export const DASHBOARD_GRID_MARGIN = 16;

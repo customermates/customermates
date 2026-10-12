@@ -1,6 +1,6 @@
 import type { Layout, LayoutItem, ResponsiveLayouts } from "react-grid-layout/legacy";
 import type { SavedWidgetLayout, UpdateWidgetLayoutsData } from "@/features/widget/update-widget-layouts.interactor";
-import type { WidgetDto } from "@/features/widget/widget.schema";
+import { isRecordWidget, type WidgetDto } from "@/features/widget/widget.schema";
 import type { GetResult } from "@/core/base/base-get.interactor";
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { RootStore } from "@/core/stores/root.store";
@@ -18,6 +18,11 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 
 type MutableLayouts = Record<string, LayoutItem[]>;
+
+function geometryOf(widget: WidgetDto, cols: number, persisted?: { w: number; h: number }) {
+  const displayType = isRecordWidget(widget) ? widget.displayOptions.displayType : undefined;
+  return widgetLayoutGeometry(widget.kind, cols, persisted, displayType);
+}
 
 export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
   layouts: ResponsiveLayouts = { xs: [], sm: [], md: [], lg: [] };
@@ -78,7 +83,7 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
       for (const breakpoint of BREAKPOINTS) {
         const layoutItem = widget.layout?.[breakpoint];
         const cols = GRID_COLS[breakpoint];
-        const geometry = widgetLayoutGeometry(widget.kind, cols, layoutItem);
+        const geometry = geometryOf(widget, cols, layoutItem);
         const { w, h } = geometry;
 
         let x = layoutItem?.x;
@@ -232,7 +237,7 @@ export class WidgetsStore extends BaseDataViewStore<WidgetDto> {
             const widget = widgets.get(item.i);
             if (!widget) return [];
             const preferred = overrides.get(item.i) ?? item;
-            const geometry = widgetLayoutGeometry(widget.kind, cols, preferred);
+            const geometry = geometryOf(widget, cols, preferred);
             return [
               { i: item.i, x: Math.min(preferred.x, Math.max(0, cols - geometry.w)), y: preferred.y, ...geometry },
             ];
