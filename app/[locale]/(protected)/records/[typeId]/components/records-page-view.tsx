@@ -271,6 +271,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
       </DataViewLayout>
 
       <RecordImportDialog
+        model={store.presentation.model}
         open={importOpen}
         schemaRevision={store.presentation.model.revision}
         typeId={presentation.typeId}

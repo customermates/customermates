@@ -11,6 +11,7 @@ vi.mock("@/core/errors/report-application-error", () => ({
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => ({ navigationGuard: {} }) }));
 vi.mock("../../../actions", () => ({ importRecordsAction: (...args: unknown[]) => importMock(...args) }));
+vi.mock("../xlsx-import-ports", () => ({ xlsxImportPorts: () => ({}) }));
 vi.mock("@/components/modal", async () => {
   const React = await import("react");
   return {
