@@ -151,9 +151,15 @@ export function issueSentences(
         : type
           ? referenceChip({ kind: "type", id: type.id, label: type.pluralLabel }, model)
           : null;
+    const detail =
+      issue.code === "existing_values_incompatible" && issue.count && issue.examples?.length
+        ? { count: issue.count, examples: issue.examples.map((example) => `"${example}"`).join(", ") }
+        : null;
     const key =
       issue.code === "existing_values_incompatible"
-        ? "existingValues"
+        ? detail
+          ? "existingValuesDetail"
+          : "existingValues"
         : issue.code === "saved_view_incompatible"
           ? "savedView"
           : issue.code === "detail_layout_incompatible"
@@ -164,9 +170,14 @@ export function issueSentences(
                 ? "readAll"
                 : "dependency";
     return chip
-      ? confirmationSentence((values) => t(`RecordModel.configurationDeletion.issues.${key}`, values), {
-          subject: chip,
-        })
+      ? confirmationSentence(
+          (values) =>
+            t(`RecordModel.configurationDeletion.issues.${key}`, {
+              ...values,
+              ...detail,
+            }),
+          { subject: chip },
+        )
       : [t("RecordModel.dependencyHelp")];
   });
 }

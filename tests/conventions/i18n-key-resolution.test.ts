@@ -541,7 +541,15 @@ const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   ],
   [
     "RecordModel.configurationDeletion.issues.${*}",
-    ["existingValues", "savedView", "detailLayout", "summaryApproval", "readAll", "dependency"].map(
+    [
+      "existingValues",
+      "existingValuesDetail",
+      "savedView",
+      "detailLayout",
+      "summaryApproval",
+      "readAll",
+      "dependency",
+    ].map(
       (key) => `RecordModel.configurationDeletion.issues.${key}`,
     ),
   ],
@@ -747,6 +755,7 @@ export const DYNAMIC_KEY_SITES = [
   "app/[locale]/(protected)/records/[typeId]/components/record-channels.tsx :: t :: Common.providers.${channelLabelKey(identifier.provider)}",
   "app/[locale]/(protected)/records/[typeId]/components/record-detail-chip-row.tsx :: t :: RecordModel.${column.label}",
   "app/[locale]/(protected)/records/[typeId]/components/record-detail-overview.tsx :: t :: RecordModel.${column.label}",
+  "app/[locale]/(protected)/records/[typeId]/components/record-field-value-editor.tsx :: getTranslation :: Common.errors.${code}",
   "app/[locale]/(protected)/records/[typeId]/components/record-identity-editor.tsx :: t :: Common.providers.${channelLabelKey(provider)}",
   "app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx :: t :: RecordModel.operators.${operator}",
   "app/[locale]/(protected)/routines/components/routine-configuration-pane.tsx :: t :: Common.events.${event}",

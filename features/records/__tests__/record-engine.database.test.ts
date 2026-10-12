@@ -8706,6 +8706,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             code: "existing_values_incompatible",
             fieldId: amount.id,
             typeId: amount.typeId,
+            count: 1,
+            examples: ["123.45 EUR"],
           },
         ]),
       },
@@ -17760,6 +17762,162 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       ).toBe(0);
     },
   );
+});
+
+describeDatabase("value type conversion of populated fields", { timeout: 60000 }, () => {
+  async function retypeFixture() {
+    const f = await fixture();
+    const model = () => f.run(() => f.repo.getModel());
+    const template = omit(
+      recordInvariant((await model()).fields.find((field) => field.id === f.id("service.name"))),
+      "publishedSummary",
+    );
+    const change = async (field: Record<string, unknown>): Promise<ConfigurationChange> => ({
+      expectedRevision: (await model()).revision,
+      idempotencyKey: randomUUID(),
+      operations: [{ operation: "putField", field } as ConfigurationChange["operations"][number]],
+    });
+    const apply = async (field: Record<string, unknown>) => {
+      const next = await change(field);
+      const preview = await f.run(() => f.preview.invoke(next));
+      if (!preview.ok) throw preview.error;
+      if (preview.data.valid) expect(await f.run(() => f.configure.invoke(next))).toMatchObject({ ok: true });
+      return preview.data;
+    };
+    const fieldNamed = async (label: string) =>
+      omit(recordInvariant((await model()).fields.find((field) => field.label === label)), "publishedSummary");
+    const add = async (label: string, valueType: string, extra: Record<string, unknown> = {}) => {
+      await apply({ ...template, id: `$${label}`, label, valueType, required: false, position: 50, ...extra });
+      return fieldNamed(label);
+    };
+    const record = async (values: Array<[string, RecordScalar]>) => {
+      const result = await f.mutation(
+        {
+          action: "create",
+          typeId: f.id("service"),
+          fields: [
+            { fieldId: f.id("service.name"), value: textValue(randomUUID()) },
+            ...values.map(([fieldId, value]) => ({ fieldId, value })),
+          ],
+        },
+        f.admin,
+        randomUUID(),
+        (await model()).revision,
+      );
+      if (!result.ok || result.data.status !== "completed") throw new Error(JSON.stringify(result));
+      return recordInvariant(result.data.refs.find((ref) => ref.typeId === f.id("service")));
+    };
+    const stored = async (ref: RecordRef, fieldId: string) =>
+      (await f.readRecord(ref)).fields.find((value) => value.fieldId === fieldId)?.result;
+    const option = (id: string, label: string) => ({ id, label, color: null, attributes: [] });
+    return { f, apply, add, record, stored, fieldNamed, option };
+  }
+
+  it("converts number, yes or no, date and choice values to text without loss", async () => {
+    const { apply, add, record, stored, option } = await retypeFixture();
+    const employees = await add("employees", "number");
+    const active = await add("active", "boolean");
+    const founded = await add("founded", "date");
+    const tier = await add("tier", "select", { options: [option("gold", "Gold"), option("silver", "Silver")] });
+    const ref = await record([
+      [employees.id, { kind: "decimal", value: "42", currency: null }],
+      [active.id, { kind: "boolean", value: true }],
+      [founded.id, { kind: "date", value: "2020-05-17" }],
+      [tier.id, { kind: "select", value: "gold" }],
+    ]);
+    for (const field of [employees, active, founded])
+      expect(await apply({ ...field, valueType: "text" })).toMatchObject({ valid: true, issues: [] });
+    expect(await apply({ ...tier, valueType: "text", options: [] })).toMatchObject({ valid: true, issues: [] });
+    expect(await stored(ref, employees.id)).toEqual({ state: "value", value: textValue("42") });
+    expect(await stored(ref, active.id)).toEqual({ state: "value", value: textValue("true") });
+    expect(await stored(ref, founded.id)).toEqual({ state: "value", value: textValue("2020-05-17") });
+    expect(await stored(ref, tier.id)).toEqual({ state: "value", value: textValue("Gold") });
+  });
+
+  it("converts text to number, date, phone and choices when every value parses", async () => {
+    const { apply, add, record, stored, option } = await retypeFixture();
+    const count = await add("count", "text");
+    const since = await add("since", "text");
+    const phone = await add("phone", "text");
+    const industry = await add("industry", "text");
+    const labels = await add("labels", "text");
+    const first = await record([
+      [count.id, textValue(" 12 ")],
+      [since.id, textValue("2026-01-15")],
+      [phone.id, textValue("+49 30 1234567")],
+      [industry.id, textValue("food")],
+      [labels.id, textValue("Hospitality")],
+    ]);
+    const second = await record([
+      [count.id, textValue("7.50")],
+      [industry.id, textValue("hosp")],
+    ]);
+    expect(await apply({ ...count, valueType: "number" })).toMatchObject({ valid: true });
+    expect(await apply({ ...since, valueType: "date" })).toMatchObject({ valid: true });
+    expect(await apply({ ...phone, valueType: "phone" })).toMatchObject({ valid: true });
+    const options = [option("food", "Food"), option("hosp", "Hospitality")];
+    expect(await apply({ ...industry, valueType: "select", options })).toMatchObject({ valid: true });
+    expect(
+      await apply({ ...labels, valueType: "select", multiple: true, behavior: { kind: "input" }, options }),
+    ).toMatchObject({ valid: true });
+    expect(await stored(first, count.id)).toEqual({
+      state: "value",
+      value: { kind: "decimal", value: "12", currency: null },
+    });
+    expect(await stored(second, count.id)).toEqual({
+      state: "value",
+      value: { kind: "decimal", value: "7.5", currency: null },
+    });
+    expect(await stored(first, since.id)).toEqual({ state: "value", value: { kind: "date", value: "2026-01-15" } });
+    expect(await stored(first, phone.id)).toEqual({ state: "value", value: textValue("+49301234567") });
+    expect(await stored(first, industry.id)).toEqual({ state: "value", value: { kind: "select", value: "food" } });
+    expect(await stored(second, industry.id)).toEqual({ state: "value", value: { kind: "select", value: "hosp" } });
+    expect(await stored(first, labels.id)).toEqual({
+      state: "value",
+      value: { kind: "selectList", value: ["hosp"] },
+    });
+  });
+
+  it("converts a multiple choice to a single choice only while no record holds several values", async () => {
+    const { apply, add, record, stored, option } = await retypeFixture();
+    const options = [option("a", "Alpha"), option("b", "Beta")];
+    const tags = await add("tags", "select", { multiple: true, options });
+    const stage = await add("stage", "select", { multiple: true, options });
+    const several = await record([
+      [tags.id, { kind: "selectList", value: ["a", "b"] }],
+      [stage.id, { kind: "selectList", value: ["b"] }],
+    ]);
+    expect(await apply({ ...tags, multiple: false })).toMatchObject({
+      valid: false,
+      issues: [{ code: "existing_values_incompatible", fieldId: tags.id, count: 1, examples: ["Alpha, Beta"] }],
+    });
+    expect(await stored(several, tags.id)).toEqual({
+      state: "value",
+      value: { kind: "selectList", value: ["a", "b"] },
+    });
+    expect(await apply({ ...stage, multiple: false })).toMatchObject({ valid: true, issues: [] });
+    expect(await stored(several, stage.id)).toEqual({ state: "value", value: { kind: "select", value: "b" } });
+  });
+
+  it("explains how many values block a conversion and keeps them unchanged", async () => {
+    const { apply, add, record, stored, fieldNamed } = await retypeFixture();
+    const size = await add("size", "text");
+    const refs = [
+      await record([[size.id, textValue("abc")]]),
+      await record([[size.id, textValue("12")]]),
+      await record([[size.id, textValue("n/a")]]),
+      await record([[size.id, textValue("abc")]]),
+    ];
+    const preview = await apply({ ...size, valueType: "number" });
+    expect(preview).toMatchObject({
+      valid: false,
+      dataValidation: "complete",
+      issues: [{ code: "existing_values_incompatible", fieldId: size.id, count: 3 }],
+    });
+    expect(preview.issues[0].examples?.slice().sort()).toEqual(["abc", "n/a"]);
+    expect((await fieldNamed("size")).valueType).toBe("text");
+    expect(await stored(refs[0], size.id)).toEqual({ state: "value", value: textValue("abc") });
+  });
 });
 
 afterAll(async () => {

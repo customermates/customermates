@@ -745,3 +745,49 @@ describe("record editor draft handoff to the full page", () => {
     expect(newer.conflicts).toEqual([nameId]);
   });
 });
+
+describe("record editor value feedback", () => {
+  const localized = { ...root, localeStore: { getTranslation: (key: string) => key } } as unknown as RootStore;
+  const avatar = id("contact.avatarUrl");
+  const valueErrors = (store: RecordEditorStore) =>
+    (store.error as { properties?: { values?: { properties?: Record<string, { errors: string[] }> } } } | undefined)
+      ?.properties?.values?.properties;
+
+  it("marks a type-invalid value on its field before saving", async () => {
+    const store = new RecordEditorStore(localized, context("contact"), vi.fn());
+    store.edit(context("contact"), null);
+    store.onChange(`values.${id("contact.firstName")}`, "Ada");
+    store.onChange(`values.${avatar}`, "not a url");
+    await store.onSubmit();
+    expect(mocks.mutateRecordAction).not.toHaveBeenCalled();
+    expect(valueErrors(store)).toEqual({ [avatar]: { errors: ["Common.errors.invalidUrl"] } });
+  });
+
+  it("maps a server value failure to the field it names", async () => {
+    const store = new RecordEditorStore(localized, context("contact"), vi.fn());
+    store.edit(context("contact"), null);
+    store.onChange(`values.${id("contact.firstName")}`, "Ada");
+    store.onChange(`values.${avatar}`, "https://example.test/ada.png");
+    mocks.mutateRecordAction.mockImplementation((input: { mutation: { fields: { fieldId: string }[] } }) => {
+      const index = input.mutation.fields.findIndex((field) => field.fieldId === avatar);
+      return Promise.resolve({
+        ok: false,
+        error: { errors: [] },
+        failure: {
+          kind: "validation",
+          issues: [
+            {
+              code: "custom",
+              path: ["mutation", "fields", index, "value"],
+              message: "Enter a valid URL.",
+              customCode: "invalidUrl",
+            },
+          ],
+        },
+      });
+    });
+    await store.onSubmit();
+    expect(mocks.mutateRecordAction).toHaveBeenCalledOnce();
+    expect(valueErrors(store)).toEqual({ [avatar]: { errors: ["Enter a valid URL."] } });
+  });
+});

@@ -1,7 +1,7 @@
 import type { RecordFieldView, RecordRef, RecordScalar } from "@/features/records/record-model.schema";
 import type { XlsxCell } from "./xlsx-workbook";
 
-import { scalarMatchesType } from "@/features/records/record-model-validation";
+import { normalizePhoneNumber, scalarMatchesType } from "@/features/records/record-model-validation";
 
 import { normalizeXlsxHeader } from "./xlsx-mapping";
 import { xlsxCellText } from "./xlsx-workbook";
@@ -195,13 +195,8 @@ export function plainTextDocument(text: string): string {
   });
 }
 
-function normalizePhone(text: string): string {
-  const compact = text.replace(/[\s().\-/]/g, "");
-  return compact.startsWith("00") ? `+${compact.slice(2)}` : compact;
-}
-
 function textScalar(text: string, field: RecordFieldView): XlsxParsed<string> {
-  const value = field.valueType === "phone" ? normalizePhone(text) : text;
+  const value = field.valueType === "phone" ? normalizePhoneNumber(text) : text;
   if (scalarMatchesType({ kind: "text", value }, field.valueType)) return ok(value);
   if (field.valueType === "email") return issue("invalidEmail", text);
   if (field.valueType === "url") return issue("invalidUrl", text);

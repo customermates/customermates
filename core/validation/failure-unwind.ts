@@ -2,21 +2,30 @@ import type { CustomErrorCode } from "./validation.types";
 import type { InteractorFailureKind } from "./validation.utils";
 
 type FailurePath = Array<string | number>;
+type FailureValues = Record<string, string | number>;
 
 type FailureUnwindCause = {
   kind: "interactorFailure";
   code: CustomErrorCode;
   failureKind: InteractorFailureKind;
   path: FailurePath;
+  values?: FailureValues;
 };
 
 export function unwindFailure(
   code: CustomErrorCode,
   failureKind: InteractorFailureKind = "validation",
   path: FailurePath = [],
+  values?: FailureValues,
 ): Error {
   return new Error(code, {
-    cause: { kind: "interactorFailure", code, failureKind, path } satisfies FailureUnwindCause,
+    cause: {
+      kind: "interactorFailure",
+      code,
+      failureKind,
+      path,
+      ...(values ? { values } : {}),
+    } satisfies FailureUnwindCause,
   });
 }
 
