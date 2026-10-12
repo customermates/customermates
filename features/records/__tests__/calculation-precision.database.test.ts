@@ -31,6 +31,7 @@ const { RecordWriteService } = await import("../record-write.service");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
 const { GetRecordInteractor } = await import("../get-record.interactor");
 const { createCrmPreset, presetId } = await import("../crm-preset");
+const { currencyFractionDigits } = await import("../derived-value-format");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -151,7 +152,33 @@ async function fixture() {
     format: { currency: "EUR", decimalPlaces: 2 },
     position: position + 4,
   };
-  model.fields.push(listPrice, discount, percentage, third, share);
+  const defaultShare: RecordField = {
+    ...share,
+    id: randomUUID(),
+    label: "Default share",
+    format: { currency: "EUR" },
+    position: position + 5,
+  };
+  const yen: RecordField = {
+    ...base,
+    id: randomUUID(),
+    label: "Yen share",
+    valueType: "currency",
+    behavior: {
+      kind: "formula",
+      expression: {
+        kind: "operation",
+        operator: "divide",
+        arguments: [
+          { kind: "literal", value: decimal("1000", "JPY") },
+          { kind: "literal", value: decimal("3") },
+        ],
+      },
+    },
+    format: { currency: "JPY" },
+    position: position + 6,
+  };
+  model.fields.push(listPrice, discount, percentage, third, share, defaultShare, yen);
   await runWithTenant(admin, () => runInTransaction(() => repo.saveModel(model, admin.id), { timeout: 30000 }));
   const revision = async () =>
     (
@@ -201,7 +228,7 @@ async function fixture() {
     );
     expect(result, JSON.stringify(result)).toMatchObject({ ok: true });
   };
-  return { create, update, value, percentage, third, share };
+  return { create, update, value, percentage, third, share, defaultShare, yen };
 }
 
 function recordRef(refs: RecordRef[], typeId: string): RecordRef {
@@ -225,5 +252,32 @@ describeDatabase("calculated fields round divisions to the field's precision", (
     await f.update(deal, "70");
     expect(await f.value(deal, f.percentage)).toEqual({ state: "value", value: decimal("21.4") });
     expect(await f.value(deal, f.share)).toEqual({ state: "value", value: decimal("23.33", "EUR") });
+  }, 120_000);
+});
+
+describeDatabase("calculated money without decimal places", () => {
+  it("stores the value rounded to the currency minor units, so the API value is the displayed value", async () => {
+    const f = await fixture();
+    const deal = await f.create("70", "15");
+    const displayed = (value: Extract<RecordScalar, { kind: "decimal" }>) =>
+      new Intl.NumberFormat("en", {
+        style: "currency",
+        currency: value.currency ?? "EUR",
+        maximumFractionDigits: currencyFractionDigits(value.currency ?? "EUR"),
+        useGrouping: false,
+      })
+        .format(value.value as unknown as number)
+        .replace(/[^0-9.-]/gu, "");
+    const euro = await f.value(deal, f.defaultShare);
+    expect(euro).toEqual({ state: "value", value: decimal("23.33", "EUR") });
+    const yen = await f.value(deal, f.yen);
+    expect(yen).toEqual({ state: "value", value: decimal("333", "JPY") });
+    for (const result of [euro, yen]) {
+      if (result?.state !== "value" || result.value.kind !== "decimal") throw new Error("Money value missing");
+      expect(result.value.value).toBe(displayed(result.value));
+    }
+
+    await f.update(deal, "100.01");
+    expect(await f.value(deal, f.defaultShare)).toEqual({ state: "value", value: decimal("33.34", "EUR") });
   }, 120_000);
 });

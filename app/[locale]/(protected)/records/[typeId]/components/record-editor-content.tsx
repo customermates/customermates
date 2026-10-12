@@ -181,9 +181,10 @@ const RecordEditorBody = observer(function RecordEditorBody({
             store.record ? (
               <div className="px-4 pt-1 pb-4 @6xl/detail:pt-4">
                 <RecordActivitiesPanel
-                  key={`${store.record.ref.typeId}:${store.record.ref.recordId}`}
+                  key={`${store.record.ref.typeId}:${store.record.ref.recordId}:${store.trash ? "trash" : "live"}`}
                   viewSyncToUrl
                   record={store.record.ref}
+                  trashed={Boolean(store.trash)}
                 />
               </div>
             ) : undefined
@@ -253,8 +254,9 @@ const RecordEditorBody = observer(function RecordEditorBody({
                     content: (
                       <AppCardBody className="overflow-y-auto overscroll-contain pt-1">
                         <RecordActivitiesPanel
-                          key={`${store.record.ref.typeId}:${store.record.ref.recordId}`}
+                          key={`${store.record.ref.typeId}:${store.record.ref.recordId}:${store.trash ? "trash" : "live"}`}
                           record={store.record.ref}
+                          trashed={Boolean(store.trash)}
                         />
                       </AppCardBody>
                     ),

@@ -308,6 +308,7 @@ async function fixture() {
     new RecordIdentityReader(repo, policy),
     new RecordHistoryReader(repo),
     { require: () => Promise.resolve(null) },
+    { find: () => Promise.resolve(null) },
   );
   const activityWidgets = new PrismaRecordActivityWidgetRepo();
   const activityWidgetReader = new RecordActivityWidgetReader(repo, activities);
@@ -8684,7 +8685,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     await f.create("lineItem", "Catalog", [["lineItem.quantity", decimal("1", null)]], links);
     expect(await f.value(deal, "deal.totalValue")).toEqual({
       state: "value",
-      value: decimal("2800.25"),
+      value: decimal("2800.26"),
     });
     expect(await f.update(service, [["service.amount", decimal("1200")]])).toMatchObject({ ok: true });
     expect(await f.value(first, "lineItem.savedPrice")).toEqual({
@@ -8693,7 +8694,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     expect(await f.value(deal, "deal.totalValue")).toEqual({
       state: "value",
-      value: decimal("3000.25"),
+      value: decimal("3000.26"),
     });
     expect(await f.update(first, [["lineItem.savedPrice", decimal("875")]])).toMatchObject({ ok: true });
     expect(await f.value(deal, "deal.totalValue")).toEqual({

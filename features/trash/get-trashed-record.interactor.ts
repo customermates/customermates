@@ -16,7 +16,7 @@ import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordRefSchema } from "@/features/records/record-model.schema";
 import { RecordTrashService } from "@/features/records/record-trash.service";
-import { trashVisibility } from "./trash-handlers";
+import { TrashedRecordAccess } from "./trashed-record-access";
 import { trashDaysLeft } from "./trash-retention";
 
 export type TrashedRecordEditor = RecordEditorResult & { trash: TrashedRecordInfo };
@@ -38,10 +38,9 @@ export class GetTrashedRecordInteractor extends AuthenticatedInteractor<RecordRe
   async invoke(ref: RecordRef): Validated<TrashedRecordEditor> {
     return runInTransaction(
       async (): Validated<TrashedRecordEditor> => {
-        const record = await this.records.getRecordCompanyWide(ref, { includeTrash: true });
-        if (!record?.trashItemId) return failNotFound(CustomErrorCode.recordNotFound);
-        const [item] = await this.trash.find({ ids: [record.trashItemId] }, await trashVisibility(this.handlers));
-        if (!item) return failNotFound(CustomErrorCode.recordNotFound);
+        const trashed = await new TrashedRecordAccess(this.records, this.trash, this.handlers).find(ref);
+        if (!trashed) return failNotFound(CustomErrorCode.recordNotFound);
+        const { item } = trashed;
         const editor = await this.editor.read(ref, { includeTrash: true });
         if (!editor.ok) return editor;
         const [model, policy, stored] = await Promise.all([

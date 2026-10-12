@@ -49,6 +49,16 @@ const { RecordOperationService } = await import("../record-operation.service");
 const { RecordTrashService } = await import("../record-trash.service");
 const { RecordJournal } = await import("../record-journal");
 const { applyConfigurationLifecycle } = await import("../configuration-lifecycle");
+const { RecordIdentityReader } = await import("../record-identity-reader");
+const { RecordHistoryReader } = await import("../record-history-reader");
+const { TrashedRecordAccess } = await import("@/features/trash/trashed-record-access");
+const { PrismaRecordActivitiesRepo } = await import("@/ee/messaging/activities/prisma-record-activities.repository");
+const { GetRecordActivitiesInteractor } = await import("@/ee/messaging/activities/get-record-activities.interactor");
+const { GetTrashedRecordActivitiesInteractor } = await import(
+  "@/ee/messaging/activities/get-trashed-record-activities.interactor"
+);
+const { RecordActivitiesInputSchema } = await import("@/ee/messaging/activities/record-activities.schema");
+const { interactorFailureKind } = await import("@/core/validation/validation.utils");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -209,6 +219,77 @@ afterAll(async () => {
 });
 
 describeDatabase("record trash", () => {
+  it("lists a trashed record's activities only to people who can see it in Trash", async () => {
+    const f = await fixture();
+    const outsider = await runWithoutTenant(async () => {
+      await prisma.rolePermission.create({
+        data: { companyId: f.seed.company.id, roleId: f.seed.memberRole.id, resource: "auditLog", action: "readAll" },
+      });
+      return prisma.user.create({
+        data: {
+          companyId: f.seed.company.id,
+          roleId: f.seed.memberRole.id,
+          firstName: "Other",
+          lastName: "Member",
+          email: `${randomUUID()}@example.test`,
+          status: "active",
+        },
+      });
+    });
+    const other = createMockUser({ ...outsider, role: { ...f.seed.memberRole, permissions: [] } });
+    const deal = (name: string) =>
+      f.created(
+        {
+          action: "create",
+          typeId: f.id("deal"),
+          fields: [{ fieldId: f.id("deal.name"), value: text(name) }],
+          assignedUserIds: [f.member.id],
+        },
+        f.member,
+      );
+    const trashed = await deal("Archived pitch");
+    const live = await deal("Live pitch");
+    await f.remove(trashed, f.member);
+    const activities = new GetRecordActivitiesInteractor(
+      new PrismaRecordActivitiesRepo(new PermissionService()),
+      f.repo,
+      f.policy,
+      new RecordIdentityReader(f.repo, f.policy),
+      new RecordHistoryReader(f.repo),
+      { require: () => Promise.resolve(null) },
+      new TrashedRecordAccess(f.repo, new PrismaTrashRepo(), [f.handler]),
+    );
+    const trashedActivities = new GetTrashedRecordActivitiesInteractor(activities);
+    const input = (ref: RecordRef) => RecordActivitiesInputSchema.parse({ scope: { records: [ref], typeIds: [] } });
+    const events = (result: Awaited<ReturnType<typeof activities.invoke>>) => {
+      if (!result.ok) throw new Error(JSON.stringify(result.error.issues));
+      return result.data.items.map((item) => (item.kind === "record" ? item.event : item.kind));
+    };
+    const notFound = (result: Awaited<ReturnType<typeof activities.invoke>>) => {
+      if (result.ok) throw new Error("The trashed record activity was readable");
+      return [interactorFailureKind(result.error), JSON.stringify(result.error.issues).includes("recordNotFound")];
+    };
+
+    for (const as of [f.member, f.admin]) {
+      expect(events(await runWithTenant(as, () => trashedActivities.invoke(input(trashed))))).toEqual(
+        expect.arrayContaining(["record.created", "record.deleted"]),
+      );
+    }
+    expect(notFound(await runWithTenant(other, () => trashedActivities.invoke(input(trashed))))).toEqual([
+      "not_found",
+      true,
+    ]);
+    expect(notFound(await runWithTenant(f.member, () => activities.invoke(input(trashed))))).toEqual([
+      "not_found",
+      true,
+    ]);
+
+    const liveEvents = events(await runWithTenant(f.member, () => activities.invoke(input(live))));
+    expect(liveEvents).toContain("record.created");
+    expect(events(await runWithTenant(f.member, () => trashedActivities.invoke(input(live))))).toEqual(liveEvents);
+    expect(notFound(await runWithTenant(other, () => activities.invoke(input(live))))).toEqual(["not_found", true]);
+  }, 180_000);
+
   it("moves a deal and its line items to Trash, hides them from every read path and restores them", async () => {
     const f = await fixture();
     const deal = await f.created({

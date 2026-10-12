@@ -108,6 +108,13 @@ test("restores a deleted record from Trash and shows a trashed record read only"
   await expect(page.getByText("Something went wrong")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Ask AI", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Customize", exact: true })).toHaveCount(0);
+  const history = page.locator('main [data-detail-panel="activities"]');
+  if (!(await history.isVisible())) await page.getByRole("tab", { name: "Activities", exact: true }).click();
+  const activities = history.locator("[data-record-activities-read-only]");
+  await expect(activities.locator("ol > li").first()).toBeVisible();
+  expect(await activities.locator("ol > li").count()).toBeGreaterThanOrEqual(2);
+  await expect(history.getByText("Activity could not be loaded.")).toHaveCount(0);
+  await expect(history.getByRole("navigation", { name: "Saved views", exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Restore", exact: true }).click();
   await expect(banner).not.toBeVisible();
 
