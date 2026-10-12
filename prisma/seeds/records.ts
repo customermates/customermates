@@ -206,17 +206,36 @@ export async function seedRecordFixtures(
         });
       }
       for (const batch of chunks(rows)) {
-        const typeIds = batch.map((row) => id(row.typeKey));
-        const recordIds = batch.map((row) => row.id);
-        const created = batch.map((row) => row.createdAt.toISOString());
-        const updated = batch.map((row) => row.updatedAt.toISOString());
-        await prisma.$executeRaw`
-          INSERT INTO "CrmRecord" ("companyId", "typeId", "id", "createdAt", "updatedAt")
-          SELECT ${companyId}, row.type_id, row.id, row.created_at::timestamptz AT TIME ZONE 'UTC', row.updated_at::timestamptz AT TIME ZONE 'UTC'
-          FROM unnest(${typeIds}::text[], ${recordIds}::text[], ${created}::text[], ${updated}::text[])
-            AS row(type_id, id, created_at, updated_at)
-          ON CONFLICT ("companyId", "typeId", "id")
-          DO UPDATE SET "createdAt" = EXCLUDED."createdAt", "updatedAt" = EXCLUDED."updatedAt"`;
+        const data = batch.map((row) => ({
+          companyId,
+          typeId: id(row.typeKey),
+          id: row.id,
+          createdAt: row.createdAt,
+          updatedAt: row.updatedAt,
+        }));
+        const existing = await prisma.crmRecord.findMany({
+          where: {
+            companyId,
+            typeId: { in: [...new Set(data.map((row) => row.typeId))] },
+            id: { in: data.map((row) => row.id) },
+          },
+          select: { typeId: true, id: true, createdAt: true, updatedAt: true },
+        });
+        const stored = new Map(existing.map((row) => [`${row.typeId}:${row.id}`, row]));
+        await prisma.crmRecord.createMany({ data, skipDuplicates: true });
+        for (const row of data) {
+          const current = stored.get(`${row.typeId}:${row.id}`);
+          if (
+            !current ||
+            (current.createdAt.getTime() === row.createdAt.getTime() &&
+              current.updatedAt.getTime() === row.updatedAt.getTime())
+          )
+            continue;
+          await prisma.crmRecord.update({
+            where: { companyId, companyId_typeId_id: { companyId, typeId: row.typeId, id: row.id } },
+            data: { createdAt: row.createdAt, updatedAt: row.updatedAt },
+          });
+        }
       }
 
       const values: Array<{ typeId: string; recordId: string; fieldId: string; value: RecordScalar }> = [];
