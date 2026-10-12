@@ -171,60 +171,58 @@ export type CalculationExpression =
       arguments: CalculationExpression[];
     };
 
-const ExpressionShape: z.ZodType<CalculationExpression> = z
-  .lazy(() =>
-    z.discriminatedUnion("kind", [
-      z
-        .object({
-          kind: z.literal("literal"),
-          value: RecordScalarSchema.nullable(),
-        })
-        .strict(),
-      z.object({ kind: z.literal("field"), fieldId: z.uuid() }).strict(),
-      z
-        .object({
-          kind: z.literal("related"),
-          relationId: z.uuid(),
-          direction: z.enum(["outgoing", "incoming"]),
-          expression: ExpressionShape,
-          reducer: z.enum(["one", "sum", "count", "average", "min", "max"]),
-        })
-        .strict(),
-      z
-        .object({
-          kind: z.literal("optionAttribute"),
-          fieldId: z.uuid(),
-          attribute: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]{0,63}$/),
-        })
-        .strict(),
-      z
-        .object({
-          kind: z.literal("operation"),
-          operator: z.enum([
-            "add",
-            "subtract",
-            "multiply",
-            "divide",
-            "equal",
-            "lessThan",
-            "greaterThan",
-            "and",
-            "or",
-            "not",
-            "if",
-            "coalesce",
-            "concat",
-            "lower",
-            "upper",
-            "trim",
-            "daysBetween",
-          ]),
-          arguments: z.array(ExpressionShape).min(1).max(32),
-        })
-        .strict(),
-    ]),
-  )
-  .meta({ id: "CalculationExpression" });
+export const CalculationExpressionShapeSchema: z.ZodType<CalculationExpression> = z.lazy(() =>
+  z.discriminatedUnion("kind", [
+    z
+      .object({
+        kind: z.literal("literal"),
+        value: RecordScalarSchema.nullable(),
+      })
+      .strict(),
+    z.object({ kind: z.literal("field"), fieldId: z.uuid() }).strict(),
+    z
+      .object({
+        kind: z.literal("related"),
+        relationId: z.uuid(),
+        direction: z.enum(["outgoing", "incoming"]),
+        expression: CalculationExpressionShapeSchema,
+        reducer: z.enum(["one", "sum", "count", "average", "min", "max"]),
+      })
+      .strict(),
+    z
+      .object({
+        kind: z.literal("optionAttribute"),
+        fieldId: z.uuid(),
+        attribute: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]{0,63}$/),
+      })
+      .strict(),
+    z
+      .object({
+        kind: z.literal("operation"),
+        operator: z.enum([
+          "add",
+          "subtract",
+          "multiply",
+          "divide",
+          "equal",
+          "lessThan",
+          "greaterThan",
+          "and",
+          "or",
+          "not",
+          "if",
+          "coalesce",
+          "concat",
+          "lower",
+          "upper",
+          "trim",
+          "daysBetween",
+        ]),
+        arguments: z.array(CalculationExpressionShapeSchema).min(1).max(32),
+      })
+      .strict(),
+  ]),
+);
 
 export const ExpressionBudgetSchema = z.unknown().superRefine((input, ctx) => {
   const pending: Array<{ value: unknown; depth: number }> = [{ value: input, depth: 0 }];
@@ -245,7 +243,7 @@ export const ExpressionBudgetSchema = z.unknown().superRefine((input, ctx) => {
       for (const child of value.arguments) pending.push({ value: child, depth: current.depth + 1 });
   }
 });
-export const CalculationExpressionSchema = ExpressionBudgetSchema.pipe(ExpressionShape);
+export const CalculationExpressionSchema = ExpressionBudgetSchema.pipe(CalculationExpressionShapeSchema);
 
 export const FieldBehaviorSchema = z.discriminatedUnion("kind", [
   z
