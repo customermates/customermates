@@ -78019,7 +78019,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -78029,7 +78029,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -78039,20 +78039,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -88295,7 +88288,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -88305,7 +88298,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -88315,20 +88308,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -88747,7 +88733,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -88757,7 +88743,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -88767,7 +88753,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -88777,20 +88763,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -88836,7 +88815,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -88846,7 +88825,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -88856,7 +88835,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -88866,20 +88845,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -89843,7 +89815,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -89853,7 +89825,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -89863,7 +89835,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -89873,7 +89845,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -89883,40 +89855,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "422": {
-            "description": "Unavailable",
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "429": {
-            "description": "Rate limited",
+            "description": "Rate limited: retry later (error.kind rate_limit)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -90708,7 +90673,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -90718,7 +90683,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -90728,7 +90693,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -90738,20 +90703,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -90871,7 +90829,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -90881,7 +90839,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -90891,20 +90849,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -91834,7 +91785,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -91844,7 +91795,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -91854,7 +91805,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -91864,20 +91815,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -92135,7 +92079,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -92145,7 +92089,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -92155,20 +92099,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -93078,7 +93015,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -93088,7 +93025,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -93098,7 +93035,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -93108,7 +93045,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -93118,40 +93055,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "422": {
-            "description": "Unavailable",
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "429": {
-            "description": "Rate limited",
+            "description": "Rate limited: retry later (error.kind rate_limit)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -93213,7 +93143,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -93223,7 +93153,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -93233,7 +93163,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -93243,7 +93173,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -93253,40 +93183,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "422": {
-            "description": "Unavailable",
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "429": {
-            "description": "Rate limited",
+            "description": "Rate limited: retry later (error.kind rate_limit)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -94246,7 +94169,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -94256,7 +94179,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -94266,7 +94189,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -94276,20 +94199,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -95243,7 +95159,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -95253,7 +95169,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -95263,7 +95179,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -95273,20 +95189,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -95362,7 +95271,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -95372,7 +95281,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -95382,7 +95291,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -95392,20 +95301,13 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -96358,7 +96260,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -96368,7 +96270,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -96378,7 +96280,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -96388,7 +96290,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -96398,40 +96300,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "422": {
-            "description": "Unavailable",
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "429": {
-            "description": "Rate limited",
+            "description": "Rate limited: retry later (error.kind rate_limit)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -97152,7 +97047,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -97162,7 +97057,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -97172,7 +97067,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -97182,7 +97077,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -97192,40 +97087,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "422": {
-            "description": "Unavailable",
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "429": {
-            "description": "Rate limited",
+            "description": "Rate limited: retry later (error.kind rate_limit)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -97723,7 +97611,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -97733,7 +97621,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -97743,7 +97631,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -97753,7 +97641,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -97763,40 +97651,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "422": {
-            "description": "Unavailable",
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "429": {
-            "description": "Rate limited",
+            "description": "Rate limited: retry later (error.kind rate_limit)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -98219,7 +98100,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -98229,7 +98110,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -98239,7 +98120,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -98249,7 +98130,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -98259,40 +98140,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "422": {
-            "description": "Unavailable",
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "429": {
-            "description": "Rate limited",
+            "description": "Rate limited: retry later (error.kind rate_limit)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -99247,7 +99121,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -99257,7 +99131,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -99267,7 +99141,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -99277,7 +99151,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -99287,40 +99161,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "422": {
-            "description": "Unavailable",
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "429": {
-            "description": "Rate limited",
+            "description": "Rate limited: retry later (error.kind rate_limit)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -99904,7 +99771,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -99914,7 +99781,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -99924,7 +99791,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -99934,7 +99801,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -99944,40 +99811,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "422": {
-            "description": "Unavailable",
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "429": {
-            "description": "Rate limited",
+            "description": "Rate limited: retry later (error.kind rate_limit)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -100112,7 +99972,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -100122,7 +99982,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -100132,7 +99992,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -100142,7 +100002,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -100152,40 +100012,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "422": {
-            "description": "Unavailable",
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "429": {
-            "description": "Rate limited",
+            "description": "Rate limited: retry later (error.kind rate_limit)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -100353,7 +100206,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -100363,7 +100216,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -100373,7 +100226,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -100383,7 +100236,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -100393,40 +100246,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "422": {
-            "description": "Unavailable",
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "429": {
-            "description": "Rate limited",
+            "description": "Rate limited: retry later (error.kind rate_limit)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -100857,7 +100703,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -100867,7 +100713,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -100877,7 +100723,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -100887,7 +100733,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -100897,40 +100743,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "422": {
-            "description": "Unavailable",
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "429": {
-            "description": "Rate limited",
+            "description": "Rate limited: retry later (error.kind rate_limit)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -101015,7 +100854,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101025,7 +100864,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101035,7 +100874,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101045,7 +100884,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101055,40 +100894,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "422": {
-            "description": "Unavailable",
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "429": {
-            "description": "Rate limited",
+            "description": "Rate limited: retry later (error.kind rate_limit)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -101454,7 +101286,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101464,7 +101296,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101474,7 +101306,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101484,7 +101316,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101494,40 +101326,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "422": {
-            "description": "Unavailable",
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "429": {
-            "description": "Rate limited",
+            "description": "Rate limited: retry later (error.kind rate_limit)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -101613,7 +101438,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101623,7 +101448,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101633,7 +101458,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101643,7 +101468,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101653,40 +101478,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "422": {
-            "description": "Unavailable",
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "429": {
-            "description": "Rate limited",
+            "description": "Rate limited: retry later (error.kind rate_limit)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -101768,7 +101586,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101778,7 +101596,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101788,7 +101606,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101798,7 +101616,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101808,40 +101626,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "422": {
-            "description": "Unavailable",
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "429": {
-            "description": "Rate limited",
+            "description": "Rate limited: retry later (error.kind rate_limit)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -101923,7 +101734,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101933,7 +101744,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101943,7 +101754,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101953,7 +101764,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
@@ -101963,40 +101774,33 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "422": {
-            "description": "Unavailable",
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "429": {
-            "description": "Rate limited",
+            "description": "Rate limited: retry later (error.kind rate_limit)",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
                 }
               }
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -110832,9 +110636,6 @@
           "attendeeIdentifiers",
           "text"
         ]
-      },
-      "ErrorResponseSchema": {
-        "type": "string"
       },
       "StructuredErrorResponseSchema": {
         "type": "object",

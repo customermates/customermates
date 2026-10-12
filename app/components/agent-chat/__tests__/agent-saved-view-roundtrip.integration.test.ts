@@ -38,7 +38,7 @@ vi.mock("@/core/di", () => ({
     invoke: harness.sendAgentMessageInvoke,
   }),
 }));
-vi.mock("@/core/api/interactor-handler", async (importOriginal) => ({
+vi.mock("@/core/api/structured-interactor-handler", async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   handleError: (error: unknown) => new Response(String(error), { status: 500 }),
 }));

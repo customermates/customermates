@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 import { AuthError, ForbiddenError } from "@/core/errors/app-errors";
+import { StructuredErrorResponseSchema } from "@/core/api/structured-interactor-handler";
 
 const interactors = vi.hoisted(() => ({ send: vi.fn(), save: vi.fn(), reply: vi.fn(), discard: vi.fn() }));
 
@@ -157,7 +158,10 @@ describe("messaging REST draft/send adapters", () => {
 
     expect(interactors.discard).toHaveBeenCalledExactlyOnceWith({ messageId: DRAFT_ID, draftRevision: "" });
     expect(response.status).toBe(400);
-    expect(await response.json()).toContain("Draft revision is required");
+    expect(StructuredErrorResponseSchema.parse(await response.json()).error).toMatchObject({
+      kind: "validation",
+      issues: [{ path: ["draftRevision"], message: "Draft revision is required" }],
+    });
   });
 });
 
@@ -196,7 +200,9 @@ describe.each(routes)("$name REST failure mapping", ({ invoke, spy }) => {
     const response = await invoke();
 
     expect(response.status).toBe(status);
-    expect(await response.json()).toBe((error as Error).message);
+    expect(StructuredErrorResponseSchema.parse(await response.json()).error.issues[0]?.message).toBe(
+      (error as Error).message,
+    );
     expect(spy).toHaveBeenCalledOnce();
   });
 
@@ -208,7 +214,10 @@ describe.each(routes)("$name REST failure mapping", ({ invoke, spy }) => {
     const response = await invoke();
 
     expect(response.status).toBe(400);
-    expect(await response.json()).toContain("Draft revision no longer exists");
+    expect(StructuredErrorResponseSchema.parse(await response.json()).error).toMatchObject({
+      kind: "validation",
+      issues: [{ path: ["draftRevision"], message: "Draft revision no longer exists" }],
+    });
     expect(spy).toHaveBeenCalledOnce();
   });
 });

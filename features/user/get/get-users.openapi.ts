@@ -5,7 +5,7 @@ import { z } from "zod";
 import { UserDtoSchema } from "../user.schema";
 
 import { GetQueryParamsApiSchema, PaginationResponseSchema, SortDescriptorSchema } from "@/core/base/base-get.schema";
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses } from "@/core/api/structured-interactor-handler";
 
 export const getUsersOperation: ZodOpenApiOperationObject = {
   operationId: "getUsers",

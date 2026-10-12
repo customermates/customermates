@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
+import { StructuredErrorResponseSchema } from "@/core/api/structured-interactor-handler";
 import { AuthError, ForbiddenError } from "@/core/errors/app-errors";
 
 const invoke = vi.hoisted(() => vi.fn());
@@ -27,7 +28,10 @@ describe("connected accounts REST adapter", () => {
     });
     const response = await GET();
     expect(response.status).toBe(400);
-    expect(await response.json()).toContain("Invalid request");
+    expect(StructuredErrorResponseSchema.parse(await response.json()).error).toMatchObject({
+      kind: "validation",
+      issues: [{ path: [], message: "Invalid request" }],
+    });
     expect(invoke).toHaveBeenCalledOnce();
   });
 
