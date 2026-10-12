@@ -1307,10 +1307,11 @@ export const getDiscardDraftInteractor = () => new DiscardDraftInteractor(getMes
 export const getStartChatInteractor = () =>
   new StartChatInteractor(
     getConnectedAccountRepo(),
-    new StartChatRecordChannelRepo(getRecordRepo(), getRecordAccessPolicy()),
+    new StartChatRecordChannelRepo(getRecordRepo()),
     getMessagingService(),
     getMessagingRepo(),
     getEntitlementService(),
+    getRecordIdentityReader(),
   );
 
 export const getResolveProviderProfileInteractor = () =>

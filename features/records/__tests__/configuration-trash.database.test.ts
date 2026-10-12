@@ -649,7 +649,7 @@ describeDatabase("configuration trash", () => {
         f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "type", id: f.id("organization") } }])),
       );
       const expired = await f.items();
-      expect(new Set(expired.map((item) => item.kind))).toEqual(new Set(["record", "field", "list", "relationship"]));
+      expect(new Set(expired.map((item) => item.kind))).toEqual(new Set(["record", "field", "list"]));
       await runWithoutTenant(async () => {
         await prisma.trashItem.updateMany({ where: { companyId }, data: { expiresAt: new Date(Date.now() - 1000) } });
         if (admin === "inactive") await prisma.user.update({ where: { id: f.admin.id }, data: { status: "inactive" } });

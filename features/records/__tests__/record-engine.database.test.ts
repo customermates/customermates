@@ -6811,9 +6811,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     const identity = recordInvariant((await f.run(() => f.repo.getIdentitiesCompanyWide(second)))[0]);
     const versions = [(await f.readRecord(first)).version, (await f.readRecord(second)).version];
-    const channels = new StartChatRecordChannelRepo(f.repo, f.policy);
+    const channels = new StartChatRecordChannelRepo(f.repo);
     const save = (messagingId: string, displayName: string | null, profileUrl: string | null) =>
-      f.run(() => channels.saveResolvedContactChannel({ id: identity.id, messagingId, displayName, profileUrl }));
+      f.run(() => channels.setIdentityResolutionCompanyWide(identity.id, { messagingId, displayName, profileUrl }));
     const current = async () => recordInvariant((await f.run(() => f.repo.getIdentitiesCompanyWide(first)))[0]);
     await save("urn:resolved-chat", "Provider name", "https://example.test/resolved");
     expect(await current()).toMatchObject({
