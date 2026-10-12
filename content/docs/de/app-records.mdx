@@ -25,11 +25,9 @@ Jede Liste hat dieselbe Toolbar, hier bei [Deals](app:records/deal): **KI fragen
 
 Öffnen Sie [Weitere Aktionen](app:records/contact?focus=more) in der Toolbar, zum Beispiel bei [Kontakte](app:records/contact).
 
-- **Als Excel exportieren (.xlsx)** lädt, was die Liste gerade zeigt, mit Suche, Filtern und Sortierung als Arbeitsmappe: ein Tabellenblatt je Liste, eine Spalte je lesbarem Feld, echte Datums- und Zahlenwerte und Namen für Auswahl und Verknüpfungen.
-- **Als JSON exportieren** lädt dieselbe Auswahl als Customermates-JSON-Datei samt Verknüpfungen herunter, die **Aus Datei hinzufügen** wieder importiert.
-- Beide Exporte enden bei 5.000 Datensätzen. Die Datensatz-API bietet sie über `POST /api/v1/records/export` mit `format` gleich `xlsx` oder `json`.
+- **Als Excel exportieren (.xlsx)** oder **Als JSON exportieren** lädt, was die Liste gerade zeigt, mit Suche, Filtern und Sortierung, bis 5.000 Datensätze: Excel mit einem Tabellenblatt je Liste und einer Spalte je lesbarem Feld, JSON samt Verknüpfungen zum Wiederimport. Die API: `POST /api/v1/records/export` mit `format` `xlsx` oder `json`.
 - **Aus Datei hinzufügen** öffnet **Datensätze importieren**: **Datei wählen**, einen JSON-Export derselben Liste auswählen, **Mit exportierten IDs erstellen** oder **Übereinstimmende IDs aktualisieren** wählen, dann **Datensätze importieren**. Dateien einer anderen Liste, von vor einer Strukturänderung oder mit mehr als 100 Datensätzen oder 500 Verknüpfungen werden abgelehnt. Dafür brauchen Sie die Erstellen-Berechtigung.
-- **Aus Datei hinzufügen** mit einer Excel-Arbeitsmappe (.xlsx) startet einen Assistenten: Tabellenblatt wählen, Spalten über den Namen Feldern zuordnen oder überspringen, Vorschau prüfen, **Neue Datensätze** oder **Vorhandene Datensätze** wählen, dann importieren. Fehlgeschlagene Zeilen werden mit Grund aufgeführt. Die Datensatz-API bietet denselben Import und Export.
+- Mit einer Excel-Arbeitsmappe startet ein Assistent: Tabellenblatt wählen, Spalten zuordnen, Vorschau prüfen, **Neue Datensätze** oder **Vorhandene Datensätze** wählen, importieren. Fehlgeschlagene Zeilen werden mit Grund aufgeführt.
 
 ## Wie funktionieren gespeicherte Ansichten, und kann ich eine mit dem Team teilen? [#how-do-saved-views-work]
 
