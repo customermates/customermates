@@ -34,6 +34,7 @@ import { FieldModal, FieldModalStore } from "./field-modal";
 import { RelationshipModal, RelationshipModalStore } from "./relationship-modal";
 import { TypeModal, TypeModalStore } from "./type-modal";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+import { useApplyOnChange } from "@/hooks/use-apply-on-change";
 
 const ConfigureGraph = dynamic(() => import("./configure-graph").then((module) => module.ConfigureGraph), {
   ssr: false,
@@ -83,11 +84,7 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   const generalFormId = useId();
   const [store] = useState(() => new DataModelStore(initialModel));
   const [graphLayout, setGraphLayout] = useState(savedLayout);
-  const [authoritative, setAuthoritative] = useState(initialModel);
-  if (authoritative !== initialModel) {
-    setAuthoritative(initialModel);
-    store.hydrate(initialModel);
-  }
+  useApplyOnChange(initialModel, store.hydrate);
   const model = store.model;
   const refresh = store.refresh;
   const [typeModal] = useState(

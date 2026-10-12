@@ -11,6 +11,7 @@ import {
   settle,
   test,
 } from "./demo-seed";
+import { openSidebar } from "./sidebar";
 
 type SeededView = {
   id: string;
@@ -278,5 +279,54 @@ test("seeded views and pins stay curated for an overview: at most five card chip
   );
   await expect(openedOn).toContainText(/\d/);
   await page.screenshot({ path: testInfo.outputPath("deal-record.png") });
+  expect(errors).toEqual([]);
+});
+
+test("opening a list and switching its views updates no component while another renders", async ({
+  page,
+  database,
+  errors,
+}) => {
+  const deals = demoId("deal");
+  const views = (await seededViews(database)).filter(
+    (view) =>
+      view.typeId === deals && view.userId === DEMO_MEMBERS.maxBergmann.userId,
+  );
+  expect(
+    views.length,
+    "Deals has saved views to switch",
+  ).toBeGreaterThanOrEqual(2);
+  await page.goto("/en/dashboard");
+  await openSidebar(page);
+  await page.locator(`[id="nav-records:${deals}"]`).click();
+  await expect
+    .poll(() => new URL(page.url()).pathname)
+    .toBe(`/en/records/${deals}`);
+  const rail = page.locator("#global-data-views");
+  const records = page.locator("[data-row-id], [data-item-id]");
+  await expect(records.first()).toBeVisible();
+  for (const view of views) {
+    await settle(page);
+    const chip = rail
+      .locator("a[data-view-chip]", { hasText: view.name })
+      .first();
+    await chip.click();
+    await expect(chip).toHaveAttribute("aria-current", "page");
+    await expect(records.first(), `${view.name} shows records`).toBeVisible();
+  }
+  await settle(page);
+  const all = page.locator("#global-data-views-all");
+  await all.click();
+  await expect(all).toHaveAttribute("aria-current", "page");
+  await expect(records.first()).toBeVisible();
+  await settle(page);
+  await page.evaluate(() =>
+    document.dispatchEvent(new Event("visibilitychange")),
+  );
+  await settle(page);
+  await expect(records.first()).toBeVisible();
+  expect(
+    errors.filter((error) => error.includes("Cannot update a component")),
+  ).toEqual([]);
   expect(errors).toEqual([]);
 });

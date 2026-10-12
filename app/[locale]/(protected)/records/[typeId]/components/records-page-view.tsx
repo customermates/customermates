@@ -11,6 +11,7 @@ import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordRef } from "@/features/records/record-model.schema";
 
 import { useRootStore } from "@/core/stores/root-store.provider";
+import { useApplyOnChange } from "@/hooks/use-apply-on-change";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { IntlLink } from "@/i18n/navigation";
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
@@ -61,11 +62,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
   const t = useTranslations();
   const [store] = useState(() => new RecordsStore(root, presentation));
   const [importOpen, setImportOpen] = useState(false);
-  const [appliedPresentation, setAppliedPresentation] = useState(presentation);
-  if (appliedPresentation !== presentation) {
-    setAppliedPresentation(presentation);
-    store.setPresentation(presentation);
-  }
+  useApplyOnChange(presentation, store.setPresentation);
   useDataViewSync(store, presentation.result);
   useEffect(
     () =>
