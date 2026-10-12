@@ -53,6 +53,15 @@ test("board columns add a record with the column value, open the option, and col
   await expect(won).toHaveAttribute("data-kanban-strip", "");
   await expect(won).toHaveAccessibleName("Expand Won, 0 Deals");
   await expect(won.locator("[aria-label]")).toHaveCount(0);
+  const labelOffset = async (lane: typeof won) =>
+    lane.evaluate((element) => {
+      const badge = element.querySelector('[data-slot="badge"]');
+      return badge ? badge.getBoundingClientRect().top - element.getBoundingClientRect().top : null;
+    });
+  const stripOffset = await labelOffset(won);
+  const columnOffset = await labelOffset(column("new"));
+  expect(stripOffset).not.toBeNull();
+  expect(Math.abs((stripOffset ?? 0) - (columnOffset ?? 0))).toBeLessThanOrEqual(1);
   await page.screenshot({ path: testInfo.outputPath("board-strips.png"), animations: "disabled" });
   await won.click();
   await expect(won).not.toHaveAttribute("data-kanban-strip");
