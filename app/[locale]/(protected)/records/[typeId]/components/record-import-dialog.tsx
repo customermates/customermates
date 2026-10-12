@@ -65,7 +65,12 @@ export const RecordImportDialog = observer(function RecordImportDialog({
       ? new XlsxImportWizardStore(
           model,
           typeId,
-          { recordId: t("DataTransfer.xlsxImport.recordId"), assignedTo: t("DataTransfer.xlsxImport.assignedTo") },
+          {
+            recordId: t("DataTransfer.xlsxImport.recordId"),
+            assignedTo: t("DataTransfer.xlsxImport.assignedTo"),
+            rangeStart: t("RecordModel.rangeStart"),
+            rangeEnd: t("RecordModel.rangeEnd"),
+          },
           xlsxImportPorts(t("DataTransfer.recordImport.failed")),
         )
       : null,
@@ -257,6 +262,7 @@ export const RecordImportDialog = observer(function RecordImportDialog({
         {xlsxActive ? (
           <FormFooterActions
             editable
+            anchorScope="xlsx-import"
             dirty={wizard.canAdvance}
             saveLabel={
               wizard.step === "result"
@@ -266,7 +272,8 @@ export const RecordImportDialog = observer(function RecordImportDialog({
                   : t("DataTransfer.xlsxImport.next")
             }
             saving={wizard.loading || wizard.running}
-            onCancel={() => close(false)}
+            onCancel={wizard.summary ? undefined : () => close(false)}
+            onRevert={wizard.summary ? () => close(false) : undefined}
             onSave={advanceWizard}
           />
         ) : (

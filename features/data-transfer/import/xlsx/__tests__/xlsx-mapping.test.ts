@@ -54,6 +54,15 @@ describe("xlsx column auto-mapping", () => {
     ]);
   });
 
+  it("reads exported headers with a currency suffix and split date ranges", () => {
+    expect(autoMapXlsxColumns(["Budget (EUR)", "Period (From)", "Period (Until)", "Record ID"], options)).toEqual([
+      `field:${fields.budget.id}`,
+      `field:${fields.period.id}:start`,
+      `field:${fields.period.id}:end`,
+      "recordId",
+    ]);
+  });
+
   it("skips unknown and empty headers", () => {
     expect(autoMapXlsxColumns(["Favourite colour", ""], options)).toEqual([XLSX_SKIP_KEY, XLSX_SKIP_KEY]);
   });

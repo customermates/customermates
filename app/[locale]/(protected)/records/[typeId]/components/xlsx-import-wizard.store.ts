@@ -1,7 +1,7 @@
 import type { CalculatedValue, RecordDto, RecordModelView, RecordRef } from "@/features/records/record-model.schema";
 import type { RecordQuery } from "@/features/records/record-query.schema";
 import type { RecordQueryResult } from "@/features/records/record-query-result.schema";
-import type { XlsxTargetOption } from "@/features/data-transfer/import/xlsx/xlsx-mapping";
+import type { XlsxTargetLabels, XlsxTargetOption } from "@/features/data-transfer/import/xlsx/xlsx-mapping";
 import type {
   XlsxImportMode,
   XlsxImportPort,
@@ -82,7 +82,7 @@ export class XlsxImportWizardStore {
   constructor(
     private model: RecordModelView,
     private typeId: string,
-    private labels: { recordId: string; assignedTo: string },
+    private labels: XlsxTargetLabels,
     private ports: XlsxWizardPorts,
   ) {
     makeObservable<XlsxImportWizardStore, "model">(this, {

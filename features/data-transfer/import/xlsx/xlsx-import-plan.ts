@@ -17,7 +17,13 @@ import type { XlsxRow } from "./xlsx-workbook";
 import { RECORD_IMPORT_LIMIT, RECORD_IMPORT_LINK_LIMIT } from "@/features/data-transfer/record-transfer.schema";
 
 import { normalizeXlsxHeader, xlsxImportFields, XLSX_SKIP_KEY } from "./xlsx-mapping";
-import { parseXlsxFieldCell, parseXlsxMembersCell, parseXlsxRecordId, parseXlsxRelationshipCell } from "./xlsx-values";
+import {
+  parseXlsxFieldCell,
+  parseXlsxMembersCell,
+  parseXlsxRangePart,
+  parseXlsxRecordId,
+  parseXlsxRelationshipCell,
+} from "./xlsx-values";
 
 export type XlsxImportMode = "create" | "update";
 
@@ -89,6 +95,7 @@ export function parseXlsxRows(input: XlsxPlanInput, rows: XlsxRow[] = input.rows
       recordId: null,
       issues: [],
     };
+    const ranges = new Map<string, { start: string | null; end: string | null }>();
     input.mapping.forEach((key, column) => {
       if (key === XLSX_SKIP_KEY) return;
       const target = options.get(key)?.target;
@@ -109,6 +116,16 @@ export function parseXlsxRows(input: XlsxPlanInput, rows: XlsxRow[] = input.rows
         const result = parseXlsxFieldCell(cell, field, input.lookups.members);
         if (result.ok) parsed.values.set(field.id, result.value);
         else report(result.code, result.value);
+      } else if (target.kind === "rangePart") {
+        const field = fields.get(target.fieldId);
+        if (!field) return;
+        const result = parseXlsxRangePart(cell, field);
+        if (!result.ok) {
+          report(result.code, result.value);
+          return;
+        }
+        const current = ranges.get(field.id) ?? { start: null, end: null };
+        ranges.set(field.id, { ...current, [target.part]: result.value });
       } else if (target.kind === "relationship") {
         const result = parseXlsxRelationshipCell(cell, input.lookups.relations.get(target.relationId) ?? null);
         if (result.ok) {
@@ -124,6 +141,10 @@ export function parseXlsxRows(input: XlsxPlanInput, rows: XlsxRow[] = input.rows
         else report(result.code, result.value);
       }
     });
+    for (const [fieldId, range] of ranges) {
+      if (!parsed.values.has(fieldId))
+        parsed.values.set(fieldId, range.start || range.end ? { kind: "range", ...range } : null);
+    }
     return parsed;
   });
 }

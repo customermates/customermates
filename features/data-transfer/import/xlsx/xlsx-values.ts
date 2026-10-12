@@ -223,6 +223,11 @@ function dateScalar(cell: XlsxCell, kind: "date" | "dateTime"): XlsxParsed<strin
   return ok(kind === "date" ? utcDate(parsed.date) : parsed.date.toISOString());
 }
 
+export function parseXlsxRangePart(cell: XlsxCell, field: RecordFieldView): XlsxParsed<string | null> {
+  if (!xlsxCellText(cell)) return ok(null);
+  return dateScalar(cell, field.valueType === "dateRange" ? "date" : "dateTime");
+}
+
 function rangeScalar(cell: XlsxCell, kind: "date" | "dateTime"): XlsxParsed<RecordScalar> {
   const text = xlsxCellText(cell);
   const parts = text.split(/\s+(?:\/|–|-|to|bis)\s+|\s*\/\s*(?=\d{4}-)/).map((part) => part.trim());
@@ -303,7 +308,7 @@ export function parseXlsxFieldCell(
         return parsed.ok ? ok({ kind: "text", value: parsed.value }) : parsed;
       }
       const values: string[] = [];
-      for (const part of splitXlsxList(text, field.valueType === "text" ? /\n/ : /[\n;,]/)) {
+      for (const part of splitXlsxList(text, field.valueType === "text" ? /\n|,\s/ : /[\n;,]/)) {
         const parsed = textScalar(part, field);
         if (!parsed.ok) return parsed;
         values.push(parsed.value);

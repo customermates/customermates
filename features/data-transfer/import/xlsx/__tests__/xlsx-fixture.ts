@@ -116,4 +116,4 @@ export const model: RecordModelView = {
   capabilities: [],
 };
 
-export const labels = { recordId: "Record ID", assignedTo: "Assigned to" };
+export const labels = { recordId: "Record ID", assignedTo: "Assigned to", rangeStart: "From", rangeEnd: "Until" };

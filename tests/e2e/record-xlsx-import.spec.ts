@@ -103,10 +103,7 @@ test("imports an Excel workbook through the column-mapping wizard and reports th
   );
   expect(linked.rows[0]?.count).toBe(1);
 
-  await dialog
-    .getByRole("button", { name: "Close", exact: true })
-    .last()
-    .click();
+  await dialog.locator("#xlsx-import-save").click();
   await expect(dialog).not.toBeVisible();
   await expect(page.getByText("Atlas spreadsheet deal").first()).toBeVisible();
   await expect(

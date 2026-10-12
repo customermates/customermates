@@ -166,7 +166,7 @@ describeDatabase("XLSX import through the generic record import", () => {
       typeId: f.id("organization"),
       fields: [{ fieldId: f.id("organization.name"), value: text("Acme GmbH") }],
     });
-    const labels = { recordId: "Record ID", assignedTo: "Assigned to" };
+    const labels = { recordId: "Record ID", assignedTo: "Assigned to", rangeStart: "From", rangeEnd: "Until" };
     const file = await workbook([
       ["Name", "Stage", "Organizations", "Notes", "Assigned to"],
       ["Atlas", "qualified", "ACME GmbH", "First line\nSecond line", f.seed.admin.email],

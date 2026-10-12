@@ -7,11 +7,14 @@ export type XlsxTarget =
   | { kind: "recordId" }
   | { kind: "assignedTo" }
   | { kind: "field"; fieldId: string }
+  | { kind: "rangePart"; fieldId: string; part: "start" | "end" }
   | { kind: "relationship"; relationId: string; targetTypeId: string };
 
 export type XlsxTargetOption = { key: string; label: string; target: XlsxTarget };
 
 export const XLSX_SKIP_KEY = "skip";
+
+export type XlsxTargetLabels = { recordId: string; assignedTo: string; rangeStart: string; rangeEnd: string };
 
 const SYNONYM_GROUPS: string[][] = [
   ["amount", "price", "value", "betrag", "preis", "montant", "importe", "prezzo"],
@@ -77,6 +80,8 @@ export function xlsxTargetKey(target: XlsxTarget): string {
       return "assignedTo";
     case "field":
       return `field:${target.fieldId}`;
+    case "rangePart":
+      return `field:${target.fieldId}:${target.part}`;
     case "relationship":
       return `relationship:${target.relationId}`;
   }
@@ -91,14 +96,19 @@ export function xlsxImportFields(model: RecordModelView, typeId: string): Record
 export function xlsxTargetOptions(
   model: RecordModelView,
   typeId: string,
-  labels: { recordId: string; assignedTo: string },
+  labels: XlsxTargetLabels,
 ): XlsxTargetOption[] {
   const parent = model.types.find((type) => type.id === typeId)?.parentRelationshipId ?? null;
-  const fields = xlsxImportFields(model, typeId).map<XlsxTargetOption>((field) => ({
-    key: `field:${field.id}`,
-    label: field.label,
-    target: { kind: "field", fieldId: field.id },
-  }));
+  const fields = xlsxImportFields(model, typeId).flatMap<XlsxTargetOption>((field) => [
+    { key: `field:${field.id}`, label: field.label, target: { kind: "field", fieldId: field.id } },
+    ...(field.valueType === "dateRange" || field.valueType === "dateTimeRange"
+      ? (["start", "end"] as const).map<XlsxTargetOption>((part) => ({
+          key: `field:${field.id}:${part}`,
+          label: `${field.label} (${part === "start" ? labels.rangeStart : labels.rangeEnd})`,
+          target: { kind: "rangePart", fieldId: field.id, part },
+        }))
+      : []),
+  ]);
   const relationships = model.relationships
     .filter((relation) => !relation.archived && relation.id !== parent && relation.sourceTypeId === typeId)
     .map<XlsxTargetOption>((relation) => ({
@@ -128,8 +138,12 @@ export function autoMapXlsxColumns(headers: string[], options: XlsxTargetOption[
   const candidates = headers.map((header) => {
     const normalized = normalizeXlsxHeader(header);
     if (!normalized) return [];
+    const base = normalizeXlsxHeader(header.replace(/\s*\([^()]*\)\s*$/, ""));
     return options
-      .map((option) => ({ option, score: matchScore(normalized, option) }))
+      .map((option) => ({
+        option,
+        score: Math.max(matchScore(normalized, option), base && base !== normalized ? matchScore(base, option) - 5 : 0),
+      }))
       .filter((candidate) => candidate.score > 0)
       .sort((left, right) => right.score - left.score);
   });
