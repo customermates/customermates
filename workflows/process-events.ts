@@ -4,7 +4,7 @@ import type { WorkflowTenant } from "./workflow-tenant";
 
 export type ProcessEventsWorkflowPayload = { companyId: string; tenant?: WorkflowTenant };
 
-async function processBatch(payload: { companyId: string }): Promise<{ hasMore: boolean }> {
+async function processBatch(payload: { companyId: string }): Promise<{ processed: number; continued: boolean }> {
   "use step";
   return getProcessDueEventsInteractor().invoke(payload);
 }
@@ -14,10 +14,7 @@ export async function processEvents(payload: ProcessEventsWorkflowPayload): Prom
   "use workflow";
   const { tenant, ...input } = payload;
   try {
-    for (let batch = 0; batch < 20; batch += 1) {
-      const result = await processBatch(input);
-      if (!result.hasMore) return;
-    }
+    await processBatch(input);
   } catch (error) {
     await reportFailure("process-events", toWorkflowFailure(error), tenant);
     throw error;

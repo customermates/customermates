@@ -743,7 +743,7 @@ export const getProcessEventInteractor = (
   admission: EventAdmission = new EventAdmissionGroup([getWebhookAdmission(), getRoutineAdmission()]),
 ) => new ProcessEventInteractor(new PrismaEventOutboxRepo(), admission);
 export const getProcessDueEventsInteractor = () =>
-  new ProcessDueEventsInteractor(new PrismaEventOutboxRepo(), getProcessEventInteractor());
+  new ProcessDueEventsInteractor(new PrismaEventOutboxRepo(), getProcessEventInteractor(), getBackgroundTaskService());
 export const getSweepRecordDeliveriesInteractor = () =>
   new SweepRecordDeliveriesInteractor(
     new PrismaEventOutboxRepo(),
