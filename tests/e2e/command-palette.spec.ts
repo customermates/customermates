@@ -162,6 +162,29 @@ test("keeps Ask Mate as the last fallback row and reports no matches plainly", a
   }
 });
 
+test("centres the close button inside the search row with the search icon inset", async ({ page }) => {
+  await page.goto("/en/dashboard");
+  await openPalette(page);
+  const dialog = page.getByRole("dialog");
+  const row = dialog.locator("[data-slot=command-input-wrapper]");
+  const close = row.getByRole("button", { name: "Close", exact: true });
+  await expect(close).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Close", exact: true })).toHaveCount(1);
+  const [rowBox, closeBox, iconBox] = await Promise.all([
+    row.boundingBox(),
+    close.boundingBox(),
+    row.locator("svg").first().boundingBox(),
+  ]);
+  if (!rowBox || !closeBox || !iconBox) throw new Error("search row geometry is missing");
+  expect(Math.abs(closeBox.y + closeBox.height / 2 - (rowBox.y + rowBox.height / 2))).toBeLessThanOrEqual(1);
+  expect(closeBox.y).toBeGreaterThanOrEqual(rowBox.y);
+  expect(closeBox.y + closeBox.height).toBeLessThanOrEqual(rowBox.y + rowBox.height);
+  const glyphInset = rowBox.x + rowBox.width - (closeBox.x + closeBox.width / 2 + iconBox.width / 2);
+  expect(Math.abs(glyphInset - (iconBox.x - rowBox.x))).toBeLessThanOrEqual(1);
+  await close.click();
+  await expect(dialog).not.toBeVisible();
+});
+
 async function answerResolver(route: Route, resolution: unknown) {
   const response = await route.fetch();
   const lines = (await response.text()).split("\n");

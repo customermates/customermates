@@ -5,16 +5,30 @@ import { Command as CommandPrimitive, defaultFilter as commandScore, useCommandS
 import { SearchIcon } from "lucide-react";
 
 import { cn } from "@/core/utils/cn";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogCloseButton,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
+
+const CommandDialogCloseContext = React.createContext(false);
 
 function Command({ className, ...props }: React.ComponentProps<typeof CommandPrimitive>) {
   return (
-    <CommandPrimitive
-      className={cn("flex size-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground", className)}
-      data-slot="command"
-      {...props}
-    />
+    <CommandDialogCloseContext.Provider value={false}>
+      <CommandPrimitive
+        className={cn(
+          "flex size-full flex-col overflow-hidden rounded-md bg-popover text-popover-foreground",
+          className,
+        )}
+        data-slot="command"
+        {...props}
+      />
+    </CommandDialogCloseContext.Provider>
   );
 }
 
@@ -46,7 +60,7 @@ function CommandDialog({
     <Dialog open={open} {...props}>
       <DialogContent
         className={cn("overflow-hidden p-0", className)}
-        showCloseButton={showCloseButton}
+        showCloseButton={false}
         onEscapeKeyDown={onEscapeKeyDown}
         {...focusReturn}
       >
@@ -63,7 +77,7 @@ function CommandDialog({
             commandProps?.className,
           )}
         >
-          {children}
+          <CommandDialogCloseContext.Provider value={showCloseButton}>{children}</CommandDialogCloseContext.Provider>
         </Command>
       </DialogContent>
     </Dialog>
@@ -95,6 +109,7 @@ function useCommandInputAria(containerRef: React.RefObject<HTMLElement | null>, 
 
 function CommandInput({ className, ...props }: React.ComponentProps<typeof CommandPrimitive.Input>) {
   const wrapperRef = React.useRef<HTMLDivElement>(null);
+  const showCloseButton = React.useContext(CommandDialogCloseContext);
   useCommandInputAria(wrapperRef);
 
   return (
@@ -109,6 +124,16 @@ function CommandInput({ className, ...props }: React.ComponentProps<typeof Comma
         data-slot="command-input"
         {...props}
       />
+
+      {showCloseButton && (
+        <DialogCloseButton
+          inline
+          className="-mr-2 shrink-0"
+          onKeyDown={(event) => {
+            if (event.key === "Enter") event.stopPropagation();
+          }}
+        />
+      )}
     </div>
   );
 }

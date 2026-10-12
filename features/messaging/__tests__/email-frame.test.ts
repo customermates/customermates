@@ -13,6 +13,7 @@ vi.mock("next-intl", () => ({
 }));
 
 vi.mock("@/ee/messaging/email-quote", () => ({
+  HTML_QUOTE_SELECTORS: "div.gmail_quote",
   HTML_QUOTE_HIDE_CSS: "",
   htmlContainsQuote: () => false,
 }));

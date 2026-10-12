@@ -138,14 +138,20 @@ test("the row's More actions trigger sits on a solid surface on keyboard focus a
         return parts.length === 4 ? Number(parts[3]) : parts.length === 3 ? 1 : 0;
       };
       const hit = document.elementFromPoint(rect.left + 1, rect.top + rect.height / 2);
+      const surfaceRect = surface.getBoundingClientRect();
       return {
         borderWidth: Number.parseFloat(style.borderTopWidth),
         borderStyle: style.borderTopStyle,
         height: rect.height,
         width: rect.width,
         rowHeight: rowRect.height,
+        topInset: rect.top - rowRect.top,
+        bottomInset: rowRect.bottom - rect.bottom,
         rightGap: Math.min(rowRect.right, edge) - rect.right,
         backgroundAlpha: alpha(style.backgroundColor),
+        surfaceHeight: surfaceRect.height,
+        surfaceRightGap: Math.min(rowRect.right, edge) - surfaceRect.right,
+        surfaceAlpha: alpha(getComputedStyle(surface).backgroundColor),
         hitsTrigger: hit !== null && (trigger.contains(hit) || surface === hit),
       };
     });
@@ -160,10 +166,15 @@ test("the row's More actions trigger sits on a solid surface on keyboard focus a
   const box = await triggerBox();
   expect(box.borderStyle).toBe("solid");
   expect(box.borderWidth).toBeGreaterThan(0);
-  expect(Math.abs(box.height - box.rowHeight)).toBeLessThanOrEqual(2);
+  expect(box.height).toBeLessThan(box.rowHeight - 4);
+  expect(box.topInset).toBeGreaterThanOrEqual(2);
+  expect(box.bottomInset).toBeGreaterThanOrEqual(2);
+  expect(box.rightGap).toBeGreaterThanOrEqual(2);
   expect(Math.abs(box.width - box.height)).toBeLessThanOrEqual(2);
-  expect(box.rightGap).toBeLessThanOrEqual(2);
   expect(box.backgroundAlpha).toBe(1);
+  expect(Math.abs(box.surfaceHeight - box.rowHeight)).toBeLessThanOrEqual(2);
+  expect(box.surfaceRightGap).toBeLessThanOrEqual(2);
+  expect(box.surfaceAlpha).toBe(1);
   expect(box.hitsTrigger).toBe(true);
   await page.screenshot({ path: test.info().outputPath("row-actions-hover.png"), animations: "disabled" });
   await page.emulateMedia({ colorScheme: "dark" });

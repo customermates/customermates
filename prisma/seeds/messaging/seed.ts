@@ -768,9 +768,11 @@ export async function seedDemoMessagingFixtures(prisma: PrismaClient, context: S
         : null;
       const unipileMessageId = `demo-fixture-message-${messageIndex}`;
       const composedBodies = isEmailFixtureProvider(provider)
-        ? message.draft === true
-          ? draftBodies(message.text)
-          : emailBodies(message.text, message.sender, context.seedUserEmail)
+        ? message.html
+          ? { plainText: message.text, html: message.html }
+          : message.draft === true
+            ? draftBodies(message.text)
+            : emailBodies(message.text, message.sender, context.seedUserEmail)
         : null;
       const data = {
         companyId: context.companyId,

@@ -57,6 +57,36 @@ test("renders every record detail field in the input box and explains calculated
   const frame = lines.locator("[data-embedded-frame]");
   await expect(frame).toHaveCSS("border-top-width", "1px");
   await expect(frame).toHaveCSS("border-top-left-radius", /^[1-9]/);
+  const subListScroll = () =>
+    frame.evaluate((element) => {
+      const add = element.querySelector<HTMLElement>("[data-embedded-add]");
+      const scroller = element.querySelector<HTMLElement>('[data-slot="table-container"]');
+      if (!add) throw new Error("The sub-list must render its Add row");
+      const addRect = add.getBoundingClientRect();
+      const frameRect = element.getBoundingClientRect();
+      return {
+        hasScroller: scroller !== null,
+        addInsideScroller: scroller?.contains(add) ?? false,
+        scrollerBottom: scroller?.getBoundingClientRect().bottom ?? 0,
+        addBottom: addRect.bottom,
+        addLeftOffset: addRect.left - frameRect.left,
+        addVisible: addRect.right > frameRect.left && addRect.left < frameRect.right,
+      };
+    });
+  const beforeScroll = await subListScroll();
+  if (beforeScroll.hasScroller) {
+    expect(beforeScroll.addInsideScroller).toBe(true);
+    expect(beforeScroll.scrollerBottom).toBeGreaterThanOrEqual(beforeScroll.addBottom);
+    await frame.locator('[data-slot="table-container"]').evaluate((scroller) => {
+      scroller.scrollLeft = scroller.scrollWidth;
+    });
+    const afterScroll = await subListScroll();
+    expect(afterScroll.addVisible).toBe(true);
+    expect(Math.abs(afterScroll.addLeftOffset - beforeScroll.addLeftOffset)).toBeLessThanOrEqual(1);
+    await frame.locator('[data-slot="table-container"]').evaluate((scroller) => {
+      scroller.scrollLeft = 0;
+    });
+  }
   await expect(lines.locator("[data-embedded-count]")).toHaveText("1");
 
   const quantity = main.locator(`[data-entity-field="${typeId("deal.totalQuantity")}"]`);

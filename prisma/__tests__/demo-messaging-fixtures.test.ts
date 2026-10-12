@@ -6,10 +6,12 @@ import { SYNTHETIC_COMPANY_USERS } from "@/core/config/synthetic-seed-user";
 import {
   EmailSettingsSchema,
   SIGNATURE_LOGO_URL,
+  defaultEmailSettings,
   SignatureTemplate,
   emailLinkContrast,
 } from "@/ee/messaging/email-settings";
 import { SIGNATURE_DELIMITER } from "@/ee/messaging/outbound/email-signature";
+import { renderEmailMarkdown } from "@/ee/messaging/outbound/render-signature";
 
 import { seedDemoMessagingFixtures } from "../seeds/messaging/seed";
 import {
@@ -737,6 +739,11 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
       });
     }
 
+    const externalEmailHtml = new Set(
+      threadFixtures.flatMap((thread) => thread.messages.flatMap((message) => (message.html ? [message.html] : []))),
+    );
+    expect(externalEmailHtml.size).toBe(2);
+    expect([...externalEmailHtml].filter((html) => /prefers-color-scheme:\s*dark/.test(html))).toHaveLength(1);
     const threadsById = new Map(threads.map((thread) => [String(thread.id), thread]));
     const accountsById = new Map(accounts.map((account) => [String(account.id), account]));
     const messagesByThread = Map.groupBy(messages, (message) => String(message.messagingThreadId));
@@ -768,11 +775,13 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
 
       if (message.provider === "google" || message.provider === "outlook") {
         const folderPrefix = message.provider === "google" ? "google" : "outlook";
-        expect(String(message.bodyHtml)).toContain('data-customermates-email-markdown="true"');
+        const externalHtml = externalEmailHtml.has(String(message.bodyHtml));
+        if (!externalHtml) expect(String(message.bodyHtml)).toContain('data-customermates-email-markdown="true"');
         expect(String(message.bodyHtml)).not.toMatch(/<img/i);
         expect(String(message.bodyHtml)).not.toContain(SIGNATURE_LOGO_URL);
 
-        if (message.isDraft === true)
+        if (externalHtml) expect(message.direction).toBe("inbound");
+        else if (message.isDraft === true)
           expect(String(message.bodyHtml).match(/data-customermates-signature/g)).toBeNull();
         else {
           expect(String(message.bodyHtml).match(/data-customermates-signature/g)).toHaveLength(1);
@@ -809,7 +818,15 @@ describe.each(["demo", "cloud"] as const)("synthetic messaging fixtures in APP_M
       const orderedBodies = threadMessages
         .toSorted((left, right) => (left.sentAt as Date).getTime() - (right.sentAt as Date).getTime())
         .map((message) => String(message.bodyText).split(SIGNATURE_DELIMITER)[0]);
-      expect(orderedBodies).toEqual(threadFixtures[threadIndex].messages.map((message) => message.text));
+      const fixture = threadFixtures[threadIndex];
+      const emailThread = fixture.account === "google" || fixture.account === "outlook";
+      expect(orderedBodies).toEqual(
+        fixture.messages.map((message) =>
+          emailThread && !message.html && message.draft !== true
+            ? renderEmailMarkdown(message.text, defaultEmailSettings().appearance).text
+            : message.text,
+        ),
+      );
     }
 
     const resetContracts = [

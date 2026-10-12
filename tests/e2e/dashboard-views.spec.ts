@@ -8,7 +8,13 @@ import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 
 async function revision(page: Page) {
+<<<<<<< HEAD
   const response = await page.request.post("/api/v1/model/read", { data: {} });
+=======
+  const response = await page.request.post("/api/v1/model/discover", {
+    data: {},
+  });
+>>>>>>> pr203/integration
   expect(response.status()).toBe(200);
   return RecordModelSchema.parse(await response.json()).revision;
 }
@@ -31,9 +37,21 @@ test("keeps separate widget sets per dashboard view and targets a view through t
   await page.goto("/en/dashboard");
   await expect(rail).toBeVisible();
 
-  await rail.getByRole("button", { name: englishMessages.DataView.views.createTitle, exact: true }).click();
-  await page.getByPlaceholder(englishMessages.DataView.views.namePlaceholder).fill("Site Berlin");
-  await page.getByRole("button", { name: englishMessages.Common.actions.save, exact: true }).click();
+  await rail
+    .getByRole("button", {
+      name: englishMessages.DataView.views.createTitle,
+      exact: true,
+    })
+    .click();
+  await page
+    .getByPlaceholder(englishMessages.DataView.views.namePlaceholder)
+    .fill("Site Berlin");
+  await page
+    .getByRole("button", {
+      name: englishMessages.Common.actions.save,
+      exact: true,
+    })
+    .click();
   await expect(page).toHaveURL(/[?&]view=[0-9a-f-]{36}/);
   const viewId = new URL(page.url()).searchParams.get("view");
   expect(viewId).toBeTruthy();
@@ -41,18 +59,25 @@ test("keeps separate widget sets per dashboard view and targets a view through t
 
   await page.locator("#dashboard-add-widget").click();
   await dialog.locator("#widget-starter-number").click();
-  await dialog.getByRole("textbox", { name: "Name", exact: false }).fill("Berlin starter");
+  await dialog
+    .getByRole("textbox", { name: "Name", exact: false })
+    .fill("Berlin starter");
   await dialog.locator("#widget-modal-save").click();
   await expect(dialog).toHaveCount(0);
-  const card = page.getByRole("heading", { name: "Berlin starter", exact: true });
+  const card = page.getByRole("heading", {
+    name: "Berlin starter",
+    exact: true,
+  });
   await expect(card).toBeVisible();
-  const stored = await database.query('SELECT "viewId" FROM "Widget" WHERE "companyId"=$1 AND name=$2', [
-    companyId,
-    "Berlin starter",
-  ]);
+  const stored = await database.query(
+    'SELECT "viewId" FROM "Widget" WHERE "companyId"=$1 AND name=$2',
+    [companyId, "Berlin starter"],
+  );
   expect(stored.rows).toEqual([{ viewId }]);
 
-  await rail.getByText(englishMessages.Dashboard.mainView, { exact: true }).click();
+  await rail
+    .getByText(englishMessages.Dashboard.mainView, { exact: true })
+    .click();
   await expect(page).not.toHaveURL(/[?&]view=/);
   await expect(card).toHaveCount(0);
 
@@ -65,7 +90,11 @@ test("keeps separate widget sets per dashboard view and targets a view through t
           name,
           isTemplate: false,
           measure: {
-            source: { typeId: presetId(companyId, "deal"), filters: [], relationships: [] },
+            source: {
+              typeId: presetId(companyId, "deal"),
+              filters: [],
+              relationships: [],
+            },
             aggregation: "count",
             valueFieldId: null,
             groupBy: null,
@@ -73,34 +102,65 @@ test("keeps separate widget sets per dashboard view and targets a view through t
           },
           displayOptions: { displayType: "number" },
           viewId: target,
-          layout: { x: 6, y: 0, w: 3, h: 2 },
+          layout: { x: 6, y: 0, w: 3, h: 3 },
         },
       }),
     );
   const placed = await save("Berlin via API", viewId);
   expect(placed.status(), await placed.text()).toBe(200);
-  expect(await placed.json()).toMatchObject({ viewId, layout: { lg: { x: 6, y: 0, w: 3, h: 2 } } });
+  expect(await placed.json()).toMatchObject({
+    viewId,
+    layout: { lg: { x: 6, y: 0, w: 3, h: 3 } },
+  });
   const unknown = await save("Nowhere", randomUUID());
   expect(unknown.status()).toBe(404);
-  expect(await unknown.text()).toContain(englishMessages.Common.errors.dataViewNotFound);
+  expect(await unknown.text()).toContain(
+    englishMessages.Common.errors.dataViewNotFound,
+  );
 
   await page.goto(`/en/dashboard?view=${viewId}`);
-  await expect(page.getByRole("heading", { name: "Berlin via API", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Berlin starter", exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Berlin via API", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Berlin starter", exact: true }),
+  ).toBeVisible();
 
   await page.locator("#global-data-views-menu").click();
-  await page.getByRole("menuitem", { name: englishMessages.DataView.views.delete, exact: true }).click();
+  await page
+    .getByRole("menuitem", {
+      name: englishMessages.DataView.views.delete,
+      exact: true,
+    })
+    .click();
   const confirm = page.getByRole("alertdialog");
-  await expect(confirm).toContainText('Delete "Site Berlin"? Its 2 widgets move to Trash with it:');
+  await expect(confirm).toContainText(
+    'Delete "Site Berlin"? Its 2 widgets move to Trash with it:',
+  );
   await expect
-    .poll(async () => (await confirm.locator("[data-delete-confirmation-details] li").allTextContents()).sort())
+    .poll(async () =>
+      (
+        await confirm
+          .locator("[data-delete-confirmation-details] li")
+          .allTextContents()
+      ).sort(),
+    )
     .toEqual(["Berlin starter", "Berlin via API"]);
-  await confirm.getByRole("button", { name: englishMessages.Common.actions.delete, exact: true }).click();
+  await confirm
+    .getByRole("button", {
+      name: englishMessages.Common.actions.delete,
+      exact: true,
+    })
+    .click();
   await expect(confirm).toHaveCount(0);
   await expect(page).not.toHaveURL(/[?&]view=/);
   await expect(rail.getByText("Site Berlin", { exact: true })).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: "Berlin via API", exact: true })).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: "Berlin starter", exact: true })).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "Berlin via API", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page.getByRole("heading", { name: "Berlin starter", exact: true }),
+  ).toHaveCount(0);
   const kept = await database.query(
     'SELECT name, "viewId" FROM "Widget" WHERE "companyId"=$1 AND name = ANY($2) ORDER BY name',
     [companyId, ["Berlin starter", "Berlin via API"]],
@@ -110,11 +170,19 @@ test("keeps separate widget sets per dashboard view and targets a view through t
     { name: "Berlin via API", viewId },
   ]);
 
-  const toast = page.locator("[data-sonner-toast]").filter({ hasText: englishMessages.Trash.movedToTrash });
-  await toast.getByRole("button", { name: englishMessages.Trash.undo, exact: true }).click();
+  const toast = page
+    .locator("[data-sonner-toast]")
+    .filter({ hasText: englishMessages.Trash.movedToTrash });
+  await toast
+    .getByRole("button", { name: englishMessages.Trash.undo, exact: true })
+    .click();
   await expect(rail.getByText("Site Berlin", { exact: true })).toBeVisible();
   await rail.getByText("Site Berlin", { exact: true }).click();
-  await expect(page.getByRole("heading", { name: "Berlin via API", exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Berlin starter", exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Berlin via API", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Berlin starter", exact: true }),
+  ).toBeVisible();
   expect(errors).toEqual([]);
 });
