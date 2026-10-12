@@ -24,8 +24,8 @@ const { prisma } = await import("@/prisma/db");
 const { Prisma } = await import("@/generated/prisma");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
-const { PrismaRecordRepo } = await import("../prisma-record.repository");
 const { createCrmPreset, presetId } = await import("../crm-preset");
+const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -89,7 +89,7 @@ describeDatabase("record value encoders", () => {
     });
     const companyId = seed.company.id;
     const admin = createMockUser({ ...seed.user, role: { ...seed.role, permissions: [] } });
-    const repo = new PrismaRecordRepo();
+    const repo = createTestRecordRepo();
     await runWithTenant(admin, () =>
       runInTransaction(() => repo.saveModel(createCrmPreset(companyId), admin.id), { timeout: 30000 }),
     );

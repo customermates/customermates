@@ -56,7 +56,6 @@ const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { transactionStorage, getTransactionClient } = await import("@/core/decorators/transaction-context");
-const { PrismaRecordRepo } = await import("../prisma-record.repository");
 const { ExportRecordsInteractor } = await import("@/features/data-transfer/export/export-records.interactor");
 const { ImportRecordsInteractor } = await import("@/features/data-transfer/import/import-records.interactor");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
@@ -152,7 +151,7 @@ const { executeMcpTool } = await import("@/features/mcp-tools/mcp-tool");
 const { manageDataViewsTool } = await import("@/features/mcp-tools/data-view.mcp-tools");
 const { manageRecordDetailLayoutV2Tool } = await import("@/features/mcp-tools/record-model.mcp-tools");
 
-const { PrismaDataViewRepo } = await import("@/features/data-view/prisma-data-view.repository");
+const { createTestRecordRepo, createTestDataViewRepo } = await import("@/tests/helpers/record-repository");
 const { PrismaRecordWidgetRepo } = await import("@/features/widget/prisma-record-widget.repository");
 const { UpsertRecordWidgetInteractor } = await import("@/features/widget/record-widget.interactor");
 const { RecordWidgetReader } = await import("@/features/widget/record-widget-reader");
@@ -215,7 +214,7 @@ async function fixture() {
     ...seed.member,
     role: { ...seed.memberRole, permissions: [] },
   });
-  const repo = new PrismaRecordRepo();
+  const repo = createTestRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const calculations = new RecordCalculationService(repo);
   const background = { dispatch: () => Promise.resolve() };
@@ -251,7 +250,7 @@ async function fixture() {
     policy,
     measure,
     widgetReader,
-    new PrismaDataViewRepo(),
+    createTestDataViewRepo(),
   );
   const configurations = new RecordConfigurationService(repo);
   const preview = new PreviewRecordConfigurationInteractor(repo, policy, configurations);
@@ -322,7 +321,7 @@ async function fixture() {
     policy,
     activities,
     activityWidgetReader,
-    new PrismaDataViewRepo(),
+    createTestDataViewRepo(),
   );
   const timeline = (input: Partial<RecordActivitiesInput>, as = admin) =>
     run(
@@ -2103,8 +2102,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         {
           dispatch: vi.fn(),
         } as never,
-        new PrismaWebhookDeliveryRepo(createTestRecordRecipientReader()),
         new PrismaWebhookAdmissionRepo(),
+        new PrismaWebhookDeliveryRepo(createTestRecordRecipientReader()),
       ),
     ).invoke({ companyId: f.company.id, eventId: event.id });
     const original = recordInvariant(
@@ -2233,8 +2232,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         {
           dispatch: vi.fn().mockResolvedValue(undefined),
         } as never,
-        new PrismaWebhookDeliveryRepo(reader),
         new PrismaWebhookAdmissionRepo(),
+        new PrismaWebhookDeliveryRepo(reader),
       ),
     );
     await process.invoke({ companyId: f.company.id, eventId: event.id });
@@ -3822,7 +3821,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       } else started();
       return Promise.resolve();
     });
-    const wakingRepo = new PrismaRecordRepo(undefined, { dispatch });
+    const wakingRepo = createTestRecordRepo(undefined, { dispatch });
     await f.run(() =>
       runInTransaction(async () => {
         await wakingRepo.appendEvent(ref, f.admin.id, randomUUID(), "record.updated", {});
@@ -16046,8 +16045,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       new WebhookAdmission(
         reader,
         { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
-        new PrismaWebhookDeliveryRepo(reader),
         new PrismaWebhookAdmissionRepo(),
+        new PrismaWebhookDeliveryRepo(reader),
       ),
     ).invoke({ companyId: f.company.id, eventId: event.id });
     const delivery = recordInvariant(
@@ -16755,7 +16754,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       ),
     );
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
-    const service = new ProviderAvatarService(new PrismaRecordRepo(f.company.id), f.company.id, background);
+    const service = new ProviderAvatarService(createTestRecordRepo(f.company.id), f.company.id, background);
     const original = await f.readRecord(organization);
     await runWithoutTenant(() =>
       service.synchronize("google", "filtered-avatar@example.test", "https://example.test/updated.png"),
@@ -17084,7 +17083,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       );
       expect(liveLease.some((candidate) => candidate.operationId === operationId)).toBe(false);
       const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
-      const service = new ProviderAvatarService(new PrismaRecordRepo(f.company.id), f.company.id, background);
+      const service = new ProviderAvatarService(createTestRecordRepo(f.company.id), f.company.id, background);
       expect(
         await f.run(() =>
           prisma.recordValue.count({
@@ -17288,7 +17287,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
     const entered = await create("https://example.test/entered.png");
     const empty = await create();
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
-    const service = new ProviderAvatarService(new PrismaRecordRepo(f.company.id), f.company.id, background);
+    const service = new ProviderAvatarService(createTestRecordRepo(f.company.id), f.company.id, background);
     const avatar = (ref: RecordRef) => f.value(ref, "contact.avatarUrl");
     await runWithoutTenant(() =>
       service.synchronize("google", "shared-avatar@example.test", "https://example.test/provider.png"),
@@ -17347,7 +17346,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
     if (!result.ok || result.data.status !== "completed") throw new Error("Avatar fixture failed");
     const ref = recordInvariant(result.data.refs.find((ref) => ref.typeId === type.id));
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
-    const service = new ProviderAvatarService(new PrismaRecordRepo(f.company.id), f.company.id, background);
+    const service = new ProviderAvatarService(createTestRecordRepo(f.company.id), f.company.id, background);
     await runWithoutTenant(() =>
       service.synchronize("outlook", " AVATAR@example.test ", "https://example.test/avatar.png"),
     );
@@ -17487,7 +17486,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         }),
       );
       const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
-      const service = () => new ProviderAvatarService(new PrismaRecordRepo(f.company.id), f.company.id, background);
+      const service = () => new ProviderAvatarService(createTestRecordRepo(f.company.id), f.company.id, background);
       const activeId = async () => recordInvariant((await f.run(() => f.repo.getState()))?.activeOperationId);
       const old = async () => {
         expect(await f.value(ref, "contact.avatarUrl")).toEqual({
@@ -17529,7 +17528,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       const operationId = await activeId();
       await expect(
         runWithoutTenant(() =>
-          new ProviderAvatarService(new PrismaRecordRepo(foreign.company.id), foreign.company.id, background).advance(
+          new ProviderAvatarService(createTestRecordRepo(foreign.company.id), foreign.company.id, background).advance(
             operationId,
           ),
         ),

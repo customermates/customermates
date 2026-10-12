@@ -27,7 +27,6 @@ vi.mock("next-intl/server", () => ({
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
-const { PrismaRecordRepo } = await import("../prisma-record.repository");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
@@ -38,7 +37,7 @@ const { QueryRecordMeasureInteractor } = await import("../query-record-measure.i
 const { RecordMeasureSchema } = await import("../record-measure.schema");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 const { createWorkspaceRecordPreset } = await import("../workspace-record-preset");
-const { PrismaDataViewRepo } = await import("@/features/data-view/prisma-data-view.repository");
+const { createTestRecordRepo, createTestDataViewRepo } = await import("@/tests/helpers/record-repository");
 const { PrismaWidgetRepo } = await import("@/features/widget/prisma-widget.repository");
 const { GetWidgetsInteractor } = await import("@/features/widget/get-widgets.interactor");
 const { PrismaRecordWidgetRepo } = await import("@/features/widget/prisma-record-widget.repository");
@@ -73,7 +72,7 @@ async function fixture(preset: Preset = "crm") {
   });
   const admin = createMockUser({ ...seed.admin, role: { ...seed.role, permissions: [] } });
   const member = createMockUser({ ...seed.member, role: { ...seed.memberRole, permissions: [] } });
-  const repo = new PrismaRecordRepo();
+  const repo = createTestRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const mutate = new MutateRecordInteractor(
     repo,
@@ -90,7 +89,7 @@ async function fixture(preset: Preset = "crm") {
     policy,
     measure,
     reader,
-    new PrismaDataViewRepo(),
+    createTestDataViewRepo(),
   );
   const id = (key: string) => presetId(seed.company.id, key);
   const model =
@@ -879,7 +878,7 @@ describeDatabase("time-bucketed record measures", () => {
 
     const read = (viewId?: string, allViews?: boolean) =>
       f.run(() =>
-        new GetWidgetsInteractor(new PrismaWidgetRepo(), new PrismaDataViewRepo()).invoke({ viewId, allViews }),
+        new GetWidgetsInteractor(new PrismaWidgetRepo(), createTestDataViewRepo()).invoke({ viewId, allViews }),
       );
     const supportView = await read(support.id);
     expect(supportView.data).toMatchObject({ p13nId: SURFACE.dashboard, activeViewKey: support.id });

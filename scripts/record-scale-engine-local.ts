@@ -58,7 +58,7 @@ const [
 ] = await Promise.all([
   import("../prisma/db"),
   import("../core/decorators/tenant-context"),
-  import("../features/records/prisma-record.repository"),
+  import("../tests/helpers/record-repository"),
   import("../features/user/prisma-user.repository"),
   import("../features/records/record-access"),
   import("../features/records/record-calculation.service"),
@@ -93,7 +93,7 @@ try {
   );
   const user = TenantUserSchema.parse(actor);
   const run = <T>(work: () => Promise<T>) => context.runWithTenant(user, work);
-  const repo = new repository.PrismaRecordRepo();
+  const repo = repository.createTestRecordRepo();
   const { PermissionService } = await import("../core/base/permission.service");
   const { WebhookPauseNotifier } = await import("../features/webhook/webhook-pause-notifier");
   const policy = new access.RecordAccessPolicy(new users.PrismaUserRepo(new PermissionService()), repo);
