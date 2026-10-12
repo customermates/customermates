@@ -2,8 +2,10 @@ import type { NextRequest } from "next/server";
 
 import { NextResponse } from "next/server";
 
-import { getDeleteWebhookInteractor, getGetWebhookByIdInteractor } from "@/core/di";
-import { handleError, interactorFailureResponse } from "@/core/api/interactor-handler";
+import { getDeleteWebhookInteractor, getGetWebhookByIdInteractor, getUpsertWebhookInteractor } from "@/core/di";
+import { handleError, interactorFailureResponse } from "@/core/api/structured-interactor-handler";
+import { mapRequestJsonError } from "@/core/api/request-json-error";
+import { toPublicWebhook } from "@/features/webhook/public-webhook";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -13,12 +15,21 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (!result.ok) return interactorFailureResponse(result.error);
     if (!result.data) return NextResponse.json(null, { status: 200 });
 
-    const { secret, headers, ...webhook } = result.data;
+    return NextResponse.json(toPublicWebhook(result.data), { status: 200 });
+  } catch (error) {
+    return handleError(error);
+  }
+}
 
-    return NextResponse.json(
-      { ...webhook, hasSecret: secret != null && secret !== "", headerNames: Object.keys(headers ?? {}) },
-      { status: 200 },
-    );
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    const data = await request.json().catch(mapRequestJsonError);
+    const result = await getUpsertWebhookInteractor().invoke({ ...data, id });
+
+    if (!result.ok) return interactorFailureResponse(result.error);
+
+    return NextResponse.json(toPublicWebhook(result.data), { status: 200 });
   } catch (error) {
     return handleError(error);
   }

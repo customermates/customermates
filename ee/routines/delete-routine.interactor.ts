@@ -16,11 +16,11 @@ import { failAuthorization, failConflict } from "@/core/validation/interactor-fa
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { DeleteRoutineRepo } from "./delete-routine.repo";
 
-const Schema = z.object({ id: z.uuid() });
-const ResultSchema = z.object({ id: z.uuid(), trashBatchId: z.uuid() });
+export const DeleteRoutineSchema = z.object({ id: z.uuid() });
+export const DeleteRoutineResultSchema = z.object({ id: z.uuid(), trashBatchId: z.uuid() });
 
-export type DeleteRoutineData = Data<typeof Schema>;
-export type DeleteRoutineResult = Data<typeof ResultSchema>;
+export type DeleteRoutineData = Data<typeof DeleteRoutineSchema>;
+export type DeleteRoutineResult = Data<typeof DeleteRoutineResultSchema>;
 
 @TenantInteractor({ resource: Resource.routines, manage: "delete" })
 export class DeleteRoutineInteractor extends AuthenticatedInteractor<DeleteRoutineData, DeleteRoutineResult> {
@@ -32,7 +32,7 @@ export class DeleteRoutineInteractor extends AuthenticatedInteractor<DeleteRouti
     super();
   }
 
-  @Write({ input: Schema, output: ResultSchema })
+  @Write({ input: DeleteRoutineSchema, output: DeleteRoutineResultSchema })
   async invoke(data: DeleteRoutineData): Validated<DeleteRoutineResult> {
     if (!this.user.role?.isSystemRole || !(await this.repo.isActiveSystemAdministrator(this.user.id)))
       return failAuthorization(CustomErrorCode.routineAdminRequired);

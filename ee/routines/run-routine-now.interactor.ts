@@ -12,9 +12,9 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Write } from "@/core/decorators/write.decorator";
 import type { RunRoutineNowRepo } from "./run-routine-now.repo";
 
-const Schema = z.object({ routineId: z.uuid() });
+export const RunRoutineNowSchema = z.object({ routineId: z.uuid() });
 
-export type RunRoutineNowData = Data<typeof Schema>;
+export type RunRoutineNowData = Data<typeof RunRoutineNowSchema>;
 
 @TenantInteractor({ resource: Resource.routines, manage: "update" })
 export class RunRoutineNowInteractor extends AuthenticatedInteractor<RunRoutineNowData, string> {
@@ -25,7 +25,7 @@ export class RunRoutineNowInteractor extends AuthenticatedInteractor<RunRoutineN
     super();
   }
 
-  @Write({ input: Schema, output: z.string() })
+  @Write({ input: RunRoutineNowSchema, output: z.string() })
   async invoke(data: RunRoutineNowData): Validated<string> {
     const routine = await this.repo.getRoutineByIdOrThrow(data.routineId);
     if (routine.ownerUserId !== this.user.id) return failAuthorization(CustomErrorCode.routineRunNotOwner);

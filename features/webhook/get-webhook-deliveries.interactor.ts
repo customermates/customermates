@@ -30,7 +30,7 @@ export type WebhookDeliveryDto = {
   createdAt: Date;
 };
 
-const OutputSchema = z.object({
+export const WebhookDeliveryDtoSchema = z.object({
   id: z.string(),
   url: z.string(),
   event: z.string(),
@@ -63,7 +63,7 @@ export class GetWebhookDeliveriesInteractor extends BaseGetInteractor<WebhookDel
   }
 
   @Validate(GetQueryParamsSchema)
-  @ValidateOutput(createGetResultSchema(OutputSchema))
+  @ValidateOutput(createGetResultSchema(WebhookDeliveryDtoSchema))
   async invoke(params: GetQueryParams = {}): Validated<GetResult<WebhookDeliveryDto>> {
     return await super.invoke(params);
   }

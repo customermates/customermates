@@ -12,10 +12,11 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { failConflict, failNotFound, failAuthorization } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-const Schema = z.object({
+export const ResendWebhookDeliverySchema = z.object({
   id: z.uuid(),
+  webhookId: z.uuid().optional().describe("When given, the delivery must belong to this webhook."),
 });
-export type ResendWebhookDeliveryData = z.infer<typeof Schema>;
+export type ResendWebhookDeliveryData = z.infer<typeof ResendWebhookDeliverySchema>;
 
 @TenantInteractor({ resource: Resource.api, manage: "create" })
 export class ResendWebhookDeliveryInteractor extends AuthenticatedInteractor<ResendWebhookDeliveryData, string> {
@@ -28,12 +29,12 @@ export class ResendWebhookDeliveryInteractor extends AuthenticatedInteractor<Res
   }
 
   @Write({
-    input: Schema,
+    input: ResendWebhookDeliverySchema,
     output: z.string(),
     precheck: (self, data, ctx) => self.validator.invoke([{ ids: data.id, path: ["id"] }], ctx),
   })
   async invoke(data: ResendWebhookDeliveryData): Validated<string> {
-    const result = await this.deliveryRepo.createRetryById(data.id);
+    const result = await this.deliveryRepo.createRetryById(data.id, data.webhookId);
     if (result.status === "missing") return failNotFound(CustomErrorCode.webhookDeliveryNotFound);
     if (result.status === "unavailable") return failConflict(CustomErrorCode.webhookNotFound);
     if (result.status === "stale") return failConflict(CustomErrorCode.recordSchemaChanged);

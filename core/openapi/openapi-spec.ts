@@ -87,6 +87,15 @@ import { wikiApiPaths } from "@/features/wiki/wiki.openapi";
 import { createWebhookOperation } from "@/features/webhook/create-webhook.openapi";
 import { deleteWebhookOperation } from "@/features/webhook/delete-webhook.openapi";
 import { getWebhookOperation } from "@/features/webhook/get-webhook.openapi";
+import {
+  listWebhookDeliveriesOperation,
+  listWebhooksOperation,
+  resendWebhookDeliveryOperation,
+  updateWebhookOperation,
+} from "@/features/webhook/webhook-rest.openapi";
+import { routineApiPaths } from "@/ee/routines/routines.openapi";
+import { RoutineDtoSchema } from "@/ee/routines/routine.schema";
+import { WebhookPublicDtoSchema } from "@/features/webhook/webhook.schema";
 
 export function generateOpenApiSpec() {
   const document = createDocument({
@@ -113,12 +122,21 @@ export function generateOpenApiSpec() {
         get: getUserDetailsOperation,
         patch: updateUserProfileOperation,
       },
+      ...routineApiPaths,
       "/v1/webhooks": {
+        get: listWebhooksOperation,
         post: createWebhookOperation,
       },
       "/v1/webhooks/{id}": {
         get: getWebhookOperation,
+        patch: updateWebhookOperation,
         delete: deleteWebhookOperation,
+      },
+      "/v1/webhooks/{id}/deliveries": {
+        get: listWebhookDeliveriesOperation,
+      },
+      "/v1/webhooks/{id}/deliveries/{deliveryId}/resend": {
+        post: resendWebhookDeliveryOperation,
       },
       "/v1/messaging/connected-accounts": {
         get: getConnectedAccountsOperation,
@@ -254,6 +272,8 @@ export function generateOpenApiSpec() {
         WebhookMessagingCalendarEventChangedSchema,
         WebhookMessagingRelationCreatedSchema,
         UserDtoSchema,
+        RoutineDtoSchema,
+        WebhookPublicDtoSchema,
         ConnectedAccountDtoSchema,
         MessagingThreadSchema,
         GetMessagingThreadResultSchema,
