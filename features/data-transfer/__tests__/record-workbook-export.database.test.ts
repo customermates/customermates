@@ -31,6 +31,7 @@ const { RecordAccessPolicy } = await import("@/features/records/record-access");
 const { RecordCalculationService } = await import("@/features/records/record-calculation.service");
 const { RecordWriteService } = await import("@/features/records/record-write.service");
 const { MutateRecordInteractor } = await import("@/features/records/mutate-record.interactor");
+const { RecordTrashService } = await import("@/features/records/record-trash.service");
 const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 const { ExportRecordWorkbookInteractor } = await import(
   "@/features/data-transfer/export/export-record-workbook.interactor"
@@ -75,6 +76,7 @@ async function workspace() {
     policy,
     new RecordWriteService(repo, policy, new RecordCalculationService(repo)),
     { dispatch: () => Promise.resolve() },
+    new RecordTrashService(repo),
   );
   const exporter = new ExportRecordWorkbookInteractor(repo, policy);
   await runWithTenant(admin, () =>
