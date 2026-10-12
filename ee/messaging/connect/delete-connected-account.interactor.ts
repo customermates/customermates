@@ -3,6 +3,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
+import * as Sentry from "@sentry/node";
 
 import { Resource } from "@/generated/prisma";
 
@@ -12,7 +13,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { DomainEvent } from "@/features/event/domain-events";
 import type { DeleteConnectedAccountRepo } from "./delete-connected-account.repo";
 
-const Schema = z.object({ id: z.uuid() });
+const Schema = z.object({ id: z.uuid() }).strict();
 type DeleteConnectedAccountData = Data<typeof Schema>;
 
 @TenantInteractor({ resource: Resource.inboxMessages, manage: "delete" })
@@ -40,7 +41,9 @@ export class DeleteConnectedAccountInteractor extends AuthenticatedInteractor<De
       },
     });
 
-    await this.messagingService.deleteAccount({ accountId: existing.unipileAccountId });
+    await this.messagingService.deleteAccount({ accountId: existing.unipileAccountId }).catch((error: unknown) => {
+      Sentry.captureException(error, { tags: { kind: "unipile-account-removal-deferred" } });
+    });
 
     return { ok: true as const, data: null };
   }

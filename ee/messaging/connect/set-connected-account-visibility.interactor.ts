@@ -17,10 +17,12 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { DomainEvent } from "@/features/event/domain-events";
 import type { SetConnectedAccountVisibilityRepo } from "./set-connected-account-visibility.repo";
 
-export const SetConnectedAccountVisibilitySchema = z.object({
-  id: z.uuid(),
-  shared: z.boolean(),
-});
+export const SetConnectedAccountVisibilitySchema = z
+  .object({
+    id: z.uuid(),
+    shared: z.boolean(),
+  })
+  .strict();
 type SetConnectedAccountVisibilityData = Data<typeof SetConnectedAccountVisibilitySchema>;
 
 @TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
