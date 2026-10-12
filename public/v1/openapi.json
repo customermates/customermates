@@ -57655,8 +57655,8 @@
               }
             }
           },
-          "500": {
-            "description": "Unexpected error",
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
@@ -57664,6 +57664,19 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -57811,8 +57824,8 @@
               }
             }
           },
-          "500": {
-            "description": "Unexpected error",
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
@@ -57820,6 +57833,19 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -58238,8 +58264,8 @@
               }
             }
           },
-          "500": {
-            "description": "Unexpected error",
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
@@ -58247,6 +58273,19 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -60056,8 +60095,8 @@
               }
             }
           },
-          "500": {
-            "description": "Unexpected error",
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
@@ -60065,6 +60104,19 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -61846,8 +61898,8 @@
               }
             }
           },
-          "500": {
-            "description": "Unexpected error",
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
@@ -61855,6 +61907,19 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -62002,8 +62067,8 @@
               }
             }
           },
-          "500": {
-            "description": "Unexpected error",
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
@@ -62011,6 +62076,19 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -62159,8 +62237,8 @@
               }
             }
           },
-          "500": {
-            "description": "Unexpected error",
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
@@ -62168,6 +62246,19 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -62273,8 +62364,8 @@
               }
             }
           },
-          "500": {
-            "description": "Unexpected error",
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
@@ -62282,6 +62373,19 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -62404,8 +62508,8 @@
               }
             }
           },
-          "500": {
-            "description": "Unexpected error",
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
@@ -62413,6 +62517,19 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -62700,8 +62817,8 @@
               }
             }
           },
-          "500": {
-            "description": "Unexpected error",
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
@@ -62709,6 +62826,19 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       },
@@ -64251,8 +64381,8 @@
               }
             }
           },
-          "500": {
-            "description": "Unexpected error",
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
@@ -64260,6 +64390,19 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -64338,14 +64481,7 @@
             }
           },
           "500": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
-                }
-              }
-            }
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       },
@@ -64471,6 +64607,7 @@
                     "type": "boolean"
                   },
                   "recordTrigger": {
+                    "description": "Narrows the record events to one filter: query (typeId, filters, relationships, relatedFilters, search) selects the records, and changedFieldIds limits record.updated to changes of those fields. Cannot be combined with recordSources. null clears it.",
                     "anyOf": [
                       {
                         "type": "object",
@@ -65137,6 +65274,7 @@
                     ]
                   },
                   "recordSources": {
+                    "description": "Up to 50 trigger sources, each with its own query, changedFieldIds and record events, for a webhook that follows several lists. Cannot be combined with recordTrigger. null clears them.",
                     "anyOf": [
                       {
                         "minItems": 1,
@@ -65824,11 +65962,13 @@
                     ]
                   },
                   "recordOwnerUserId": {
+                    "description": "The user whose record access filters and redacts record deliveries. Defaults to the existing owner, or to the caller for a new subscription.",
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   },
                   "expectedSchemaRevision": {
+                    "description": "The current configuration revision from POST /v1/model/discover. Required whenever record events are subscribed for the first time or recordTrigger, recordSources or recordOwnerUserId change; a stale revision fails with a conflict.",
                     "type": "integer",
                     "minimum": 0,
                     "maximum": 9007199254740991
@@ -65920,8 +66060,8 @@
               }
             }
           },
-          "500": {
-            "description": "Unexpected error",
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
@@ -65929,6 +66069,19 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       },
@@ -66017,8 +66170,8 @@
               }
             }
           },
-          "500": {
-            "description": "Unexpected error",
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
@@ -66026,6 +66179,19 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -66395,8 +66561,8 @@
               }
             }
           },
-          "500": {
-            "description": "Unexpected error",
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
@@ -66404,6 +66570,19 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
@@ -66544,8 +66723,8 @@
               }
             }
           },
-          "500": {
-            "description": "Unexpected error",
+          "422": {
+            "description": "Unavailable: the request is valid but cannot be served right now (error.kind unavailable)",
             "content": {
               "application/json": {
                 "schema": {
@@ -66553,6 +66732,19 @@
                 }
               }
             }
+          },
+          "429": {
+            "description": "Rate limited: retry later (error.kind rate_limit)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error. The body is not a structured failure."
           }
         }
       }
