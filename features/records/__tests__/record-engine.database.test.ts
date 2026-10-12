@@ -137,6 +137,7 @@ const {
   getQueryTrashInteractor,
   getRecordAccessPolicy,
   getRecordRepo,
+  getRoutineRepo,
 } = await import("@/core/di");
 const { manageWebhooksTool } = await import("@/features/mcp-tools/webhook.mcp-tools");
 const { manageRoutinesTool } = await import("@/features/mcp-tools/routine.mcp-tools");
@@ -2503,6 +2504,163 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ok: true,
       data: { recordSources: sources },
     });
+  });
+
+  it("hides unreadable trigger and source lists from webhook and routine reads and refuses to save them", async () => {
+    const f = await fixture();
+    await f.run(() =>
+      prisma.subscription.create({
+        data: { companyId: f.company.id, status: "active", plan: "enterprise" },
+      }),
+    );
+    const permissions = (["api", "routines"] as const).flatMap((resource) =>
+      (["readAll", "create", "update"] as const).map((action) => ({
+        companyId: f.company.id,
+        roleId: f.memberRole.id,
+        resource,
+        action,
+      })),
+    );
+    await f.run(async () => {
+      await prisma.rolePermission.createMany({ data: permissions });
+      await prisma.recordTypeGrant.create({
+        data: { companyId: f.company.id, roleId: f.memberRole.id, typeId: f.id("deal"), actions: ["readAll"] },
+      });
+    });
+    const member = createMockUser({
+      ...f.member,
+      role: {
+        ...f.memberRole,
+        permissions: permissions.map(({ resource, action }) => ({ id: randomUUID(), resource, action })),
+      },
+    });
+    const source = (type: string) => ({
+      query: { typeId: f.id(type), filters: [], relationships: [] },
+      changedFieldIds: [],
+      events: ["record.updated" as const],
+    });
+    const trigger = (type: string) => ({
+      query: { typeId: f.id(type), filters: [], relationships: [] },
+      changedFieldIds: [],
+    });
+
+    const multiHook = await f.run(() =>
+      getUpsertWebhookInteractor().invoke({
+        url: "https://receiver.example.test/multi",
+        events: ["record.updated"],
+        recordSources: [source("service"), source("deal")],
+        expectedSchemaRevision: 1,
+      }),
+    );
+    const singleHook = await f.run(() =>
+      getUpsertWebhookInteractor().invoke({
+        url: "https://receiver.example.test/single",
+        events: ["record.updated"],
+        recordTrigger: trigger("service"),
+        expectedSchemaRevision: 1,
+      }),
+    );
+    const multiRoutine = await f.run(() =>
+      getUpsertRoutineInteractor().invoke({
+        name: "Watch both lists",
+        prompt: "Inspect changes.",
+        triggerKind: "event",
+        triggerEvents: ["record.updated"],
+        recordSources: [source("service"), source("deal")],
+        expectedSchemaRevision: 1,
+      }),
+    );
+    const singleRoutine = await f.run(() =>
+      getUpsertRoutineInteractor().invoke({
+        name: "Watch services",
+        prompt: "Inspect changes.",
+        triggerKind: "event",
+        triggerEvents: ["record.updated"],
+        recordTrigger: trigger("service"),
+        expectedSchemaRevision: 1,
+      }),
+    );
+    if (!multiHook.ok || !singleHook.ok || !multiRoutine.ok || !singleRoutine.ok)
+      throw new Error("Trigger fixtures failed");
+
+    expect(await f.run(() => getWebhookRepo().getWebhookByIdOrThrow(multiHook.data.id))).toMatchObject({
+      recordSources: [source("service"), source("deal")],
+    });
+    expect(await f.run(() => getWebhookRepo().getWebhookByIdOrThrow(multiHook.data.id), member)).toMatchObject({
+      recordSources: [source("deal")],
+    });
+    expect(await f.run(() => getWebhookRepo().getWebhookByIdOrThrow(singleHook.data.id), member)).toMatchObject({
+      recordTrigger: null,
+    });
+    const listedHooks = await f.run(() => getWebhookRepo().getItems({ page: 1, pageSize: 25 }), member);
+    expect(JSON.stringify(listedHooks)).not.toContain(f.id("service"));
+    expect(await f.run(() => getRoutineRepo().getRoutineByIdOrThrow(multiRoutine.data.id), member)).toMatchObject({
+      recordSources: [source("deal")],
+    });
+    expect(await f.run(() => getRoutineRepo().getRoutineByIdOrThrow(singleRoutine.data.id), member)).toMatchObject({
+      recordTrigger: null,
+    });
+    const listedRoutines = await f.run(() => getRoutineRepo().getItems({ page: 1, pageSize: 25 }), member);
+    expect(JSON.stringify(listedRoutines)).not.toContain(f.id("service"));
+    expect(
+      await f.run(() =>
+        prisma.recordEventSubscription.findFirstOrThrow({
+          where: { companyId: f.company.id, id: singleHook.data.id },
+          select: { typeId: true },
+        }),
+      ),
+    ).toEqual({ typeId: f.id("service") });
+
+    const refusedSources = await f.run(
+      () =>
+        getUpsertWebhookInteractor().invoke({
+          url: "https://receiver.example.test/member",
+          events: ["record.updated"],
+          recordSources: [source("deal"), source("service")],
+          expectedSchemaRevision: 1,
+        }),
+      member,
+    );
+    expect(refusedSources.ok ? null : refusedSources.error.issues[0]).toMatchObject({
+      path: ["recordSources", 1, "query", "typeId"],
+      params: { error: "permissionDenied" },
+    });
+    const refusedTrigger = await f.run(
+      () =>
+        getUpsertRoutineInteractor().invoke({
+          name: "Member routine",
+          prompt: "Inspect changes.",
+          triggerKind: "event",
+          triggerEvents: ["record.updated"],
+          recordTrigger: trigger("service"),
+          expectedSchemaRevision: 1,
+        }),
+      member,
+    );
+    expect(refusedTrigger.ok ? null : refusedTrigger.error.issues[0]).toMatchObject({
+      path: ["recordTrigger", "query", "typeId"],
+      params: { error: "permissionDenied" },
+    });
+    expect(
+      await f.run(
+        () =>
+          getUpsertWebhookInteractor().invoke({
+            url: "https://receiver.example.test/member",
+            events: ["record.updated"],
+            recordTrigger: trigger("deal"),
+            expectedSchemaRevision: 1,
+          }),
+        member,
+      ),
+    ).toMatchObject({ ok: true, data: { recordTrigger: trigger("deal") } });
+    expect(
+      await f.run(() =>
+        Promise.all([
+          prisma.webhook.count({ where: { companyId: f.company.id } }),
+          prisma.routine.count({ where: { companyId: f.company.id } }),
+        ]),
+      ),
+    ).toEqual([3, 2]);
   });
 
   it("lets an update-only API role add record events to its existing webhook", async () => {

@@ -113108,6 +113108,7 @@
                         "notAuthenticated",
                         "userInactive",
                         "permissionDenied",
+                        "insufficientPermissions",
                         "demoMode",
                         "apiKeyMinExpiration",
                         "apiKeyMaxExpiration",

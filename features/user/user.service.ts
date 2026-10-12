@@ -9,6 +9,8 @@ import type { Action, Resource } from "@/generated/prisma";
 
 import { AppErrorCode, AuthError, ForbiddenError } from "@/core/errors/app-errors";
 import { tenantStorage } from "@/core/decorators/tenant-context";
+import { canUseApiKeys } from "@/core/auth/api-key-route-guard";
+import { ApiKeyAccessDeniedError } from "@/core/auth/api-key-access-denied-error";
 
 export type { TenantUser } from "./user.schema";
 export type { AuthUserAccountState, FindUserRepo } from "./find-user.repo";
@@ -33,6 +35,8 @@ export class UserService {
     const user = await this.getUserOrThrow();
 
     if (user.status !== Status.active) throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
+
+    if (!canUseApiKeys(user.role) && (await this.authService.isApiKeyRequest())) throw new ApiKeyAccessDeniedError();
 
     return user;
   }
