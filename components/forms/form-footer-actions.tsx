@@ -37,6 +37,7 @@ type Props = {
   placement?: "card" | "topbar" | "overlay";
   reset?: FormFooterReset;
   onCancel?: () => void;
+  onRevert?: () => void;
   onSave?: () => void | Promise<void>;
 };
 
@@ -51,6 +52,7 @@ export const FormFooterActions = observer(
     placement = "card",
     reset: resetProp,
     onCancel: onCancelProp,
+    onRevert,
     onSave,
   }: Props) => {
     const t = useTranslations();
@@ -66,15 +68,15 @@ export const FormFooterActions = observer(
     const dirty = dirtyProp ?? store?.hasUnsavedChanges ?? false;
     const saving = savingProp ?? store?.isLoading ?? false;
     const isTopBar = placement === "topbar";
-    const cancel = onCancelProp ?? (isTopBar ? undefined : modalClose?.requestClose);
-    const cancelIsGuarded = !onCancelProp && Boolean(modalClose?.guardsUnsavedChanges);
-    const confirmsLocally = Boolean(cancel) && !cancelIsGuarded && !store;
+    const cancel = onRevert ?? onCancelProp ?? (isTopBar ? undefined : modalClose?.requestClose);
+    const cancelIsGuarded = !onRevert && !onCancelProp && Boolean(modalClose?.guardsUnsavedChanges);
+    const confirmsLocally = Boolean(cancel) && !onRevert && !cancelIsGuarded && !store;
     const reset =
       resetProp ?? (!cancel && store ? { differs: store.hasUnsavedChanges, onReset: store.resetForm } : undefined);
 
     function requestCancel() {
       if (!cancel) return;
-      if (cancelIsGuarded) cancel();
+      if (onRevert || cancelIsGuarded) cancel();
       else if (store) navigationGuard.tryNavigate(cancel);
       else if (dirty) setConfirmingDiscard(true);
       else cancel();
@@ -86,7 +88,7 @@ export const FormFooterActions = observer(
       saveButtonRef,
       formId,
       interceptDismiss: () => {
-        if (!cancel || cancelIsGuarded || !dirty) return false;
+        if (!cancel || onRevert || cancelIsGuarded || !dirty) return false;
         requestCancel();
         return true;
       },
