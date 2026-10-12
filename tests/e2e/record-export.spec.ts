@@ -22,7 +22,7 @@ test("downloads generic records from the shared table with persisted typed value
 
   await page.locator("#records-more").click();
   const downloaded = page.waitForEvent("download", { timeout: 60000 });
-  await page.getByRole("menuitem", { name: "Export", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Export as JSON", exact: true }).click();
   const download = await downloaded;
   expect(download.suggestedFilename()).toBe(`records-${typeId}.json`);
   const file = await download.path();
@@ -131,7 +131,7 @@ test("exports a customer-created type through the same transfer menu", async ({
   await expect(dialog).not.toBeVisible();
   await page.locator("#records-more").click();
   const downloaded = page.waitForEvent("download", { timeout: 60000 });
-  await page.getByRole("menuitem", { name: "Export", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Export as JSON", exact: true }).click();
   const download = await downloaded;
   expect(download.suggestedFilename()).toBe(`records-${typeId}.json`);
   const file = await download.path();
@@ -190,7 +190,7 @@ test("round-trips deal line items and their calculated total through the transfe
 
   await page.locator("#records-more").click();
   const downloaded = page.waitForEvent("download", { timeout: 60000 });
-  await page.getByRole("menuitem", { name: "Export", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Export as JSON", exact: true }).click();
   const path = await (await downloaded).path();
   expect(path).toBeTruthy();
   const exported = JSON.parse(await readFile(path!, "utf8"));

@@ -192,6 +192,7 @@ import { ValidateWebhookDeliveryIdsInteractor } from "@/core/validation/validato
 import { ValidateWebhookIdsInteractor } from "@/core/validation/validators/validate-webhook-ids.interactor";
 import { ValidateWidgetIdsInteractor } from "@/core/validation/validators/validate-widget-ids.interactor";
 import { ExportRecordsInteractor } from "@/features/data-transfer/export/export-records.interactor";
+import { ExportRecordWorkbookInteractor } from "@/features/data-transfer/export/export-record-workbook.interactor";
 import { ImportRecordsInteractor } from "@/features/data-transfer/import/import-records.interactor";
 // Organizations interactors
 // Deals interactors
@@ -519,6 +520,8 @@ export const getRecordConfigurationService = () => new RecordConfigurationServic
 export const getGetRecordModelInteractor = () => new GetRecordModelInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getQueryRecordsInteractor = () => new QueryRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getExportRecordsInteractor = () => new ExportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
+export const getExportRecordWorkbookInteractor = () =>
+  new ExportRecordWorkbookInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getImportRecordsInteractor = () =>
   new ImportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordWriteService());
 export const getGetRecordInteractor = () => new GetRecordInteractor(getRecordRepo(), getRecordAccessPolicy());

@@ -1932,9 +1932,10 @@
   },
   "DataTransfer": {
     "export": {
-      "action": "Exportieren",
+      "action": "Als JSON exportieren",
       "failed": "Die Datensätze konnten nicht exportiert werden. Prüfen Sie Ihre Filter und Berechtigungen.",
-      "success": "{count, plural, one {# Datensatz exportiert} other {# Datensätze exportiert}}."
+      "success": "{count, plural, one {# Datensatz exportiert} other {# Datensätze exportiert}}.",
+      "xlsxAction": "Als Excel exportieren (.xlsx)"
     },
     "import": {
       "action": "Aus Datei hinzufügen",
@@ -3570,6 +3571,7 @@
     "rangeStart": "Von",
     "record": "Datensatz",
     "recordConflictFields": "Auch an anderer Stelle geändert: {fields}. Wähle vor dem Speichern, welche Version gelten soll.",
+    "recordId": "Datensatz-ID",
     "recordReload": "Datensatz neu laden",
     "recordReloadKeepChanges": "Neu laden und meine Änderungen behalten",
     "records": "Datensätze",
