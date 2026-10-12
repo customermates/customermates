@@ -33,7 +33,7 @@ export const ManageDataViewsToolSchema = z
     action: z
       .enum(["surfaces", "config", "list", "create", "update", "select", "delete", "reset"])
       .describe(
-        "surfaces discovers supported pages; config reads one capability section; list pages view summaries or reads one exact view; create/update/select/delete change personal views.",
+        "surfaces discovers supported pages; config reads one capability section; list pages view summaries or reads one exact view; create/update/select/delete change personal views; reset removes personal overrides for the given fields.",
       ),
     surfaceKey: AiManageableDataViewSurfaceKeySchema.optional().describe(
       "Required for every action except surfaces. Operator-console surfaces are intentionally unavailable.",
@@ -79,7 +79,7 @@ export const manageDataViewsTool = {
   description:
     "Manage personal saved views on supported workspace pages; operator-console views are excluded. " +
     "Discover authorized pages with surfaces, including customer-defined record types; dynamic surface keys contain stable type IDs. Select filters use stable option IDs from config, not editable labels. Start config at overview, then page filters/sorting/grouping/appearance; narrow query/page after truncation. " +
-    "List returns paged summaries; pass viewKey to read current state immediately before update. Create requires name/state and selects it; update patches only supplied keys, so omit name unless the user requested renaming and include only changed state keys. Select remembers a view. " +
+    "List returns paged summaries; pass viewKey to read current state immediately before update. Create requires name/state and selects it; update patches only supplied keys, so omit name unless the user requested renaming and include only changed state keys. Select remembers a view. Reset (dynamic record surfaces only) removes personal overrides for the given fields, so the list shows every field in its configured order as an ungrouped, unsorted table. " +
     "Clear filters with [], search with an empty string, and sort/grouping with null; filters are ANDed. Timeline views accept only filters and sortDescriptor. Use only filter fields config returns for that surface, following their descriptions; never create a custom column to manufacture a missing saved-view filter. If the requested field is absent, report that it is unavailable and leave the view unchanged. Record option IDs come from get_record_model. " +
     "Relative days (last N, over N ago, N-M ago) use whole-day inLastDays/notInLastDays, never absolute dates. Verify every requested condition in the saved state before reporting success. " +
     "Deleting a view moves it to Trash, where it is deleted permanently after 30 days unless manage_trash restores it with the returned trashBatchId; it never deletes records, and All (__all__) cannot be renamed or deleted. Use the returned link rather than constructing one.",

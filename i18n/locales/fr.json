@@ -1179,6 +1179,7 @@
       "userInactive": "Votre compte utilisateur est inactif. Contactez un administrateur de l’espace de travail.",
       "userNotFound": "ID d'utilisateur introuvable ou inaccessible.",
       "userPlatformOperatorStatusForbidden": "Ce compte appartient à un opérateur de la plateforme et ne peut pas être désactivé ici. Utilisez la console opérateur.",
+      "userRoleRequired": "Ce membre n’a pas encore de rôle. Choisissez un rôle avec la modification.",
       "userSelfAdminUpdateForbidden": "Vous ne pouvez pas mettre à jour votre propre compte depuis l’administration de l’équipe.",
       "webhookBodyTemplateInvalid": "Le modèle de corps doit produire un objet JSON valide.",
       "webhookDeliveryNotFound": "ID de livraison de webhook introuvable ou inaccessible.",

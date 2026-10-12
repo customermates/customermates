@@ -67,10 +67,10 @@ describe("gated-tools", () => {
   });
 
   it("keeps profile settings immediate", () => {
-    const settings = toolByName("update_workspace_settings");
+    const settings = toolByName("update_my_profile");
 
     expect(approvalNeeded(settings, { firstName: "Ada" })).toBe(false);
-    expect(describeInternalTool("update_workspace_settings", { firstName: "Ada" })).toMatchObject({
+    expect(describeInternalTool("update_my_profile", { firstName: "Ada" })).toMatchObject({
       kind: "profile.configure",
       risk: "write",
     });
@@ -177,7 +177,7 @@ describe("gated-tools", () => {
       ["manage_conversation_records", { action: "read" }],
       ["manage_conversation_records", { action: "link" }],
       ["manage_conversation_records", { action: "unlink" }],
-      ["update_workspace_settings", {}],
+      ["update_my_profile", {}],
       ["manage_team", { action: "update_member" }],
       ["connect_messaging_account", {}],
       [
@@ -367,8 +367,8 @@ describe("gated-tools", () => {
     const groupSizes = Object.fromEntries(Object.entries(MCP_TOOL_GROUPS).map(([key, tools]) => [key, tools.length]));
 
     expect(groupSizes).toEqual({
-      "record-model": 3,
-      records: 12,
+      "record-model": 1,
+      records: 14,
       workspace: 2,
       views: 2,
       wiki: 1,

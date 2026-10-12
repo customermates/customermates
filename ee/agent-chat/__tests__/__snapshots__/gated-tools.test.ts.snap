@@ -48,7 +48,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "send_chat_message",
   "send_email",
   "update_messaging_thread",
-  "update_workspace_settings",
+  "update_my_profile",
 ]
 `;
 

@@ -8,8 +8,11 @@ import {
 } from "@/ee/messaging/activities/record-activities.schema";
 import { WidgetLayoutSchema } from "./widget-display.schema";
 
-export const RecordActivityWidgetInputSchema = z
+const RecordActivityWidgetFieldsSchema = z
   .object({
+    kind: z
+      .literal("activityTimeline")
+      .describe("activityTimeline. Optional on update; a saved widget keeps its kind."),
     id: z.uuid().optional(),
     expectedVersion: z.number().int().positive().optional(),
     expectedRevision: z.number().int().nonnegative(),
@@ -27,16 +30,32 @@ export const RecordActivityWidgetInputSchema = z
         "Dashboard view that holds the widget: a dashboard view ID, or null for the main dashboard. Omit it to create the widget on the caller's current dashboard view or to keep an existing widget where it is.",
       ),
   })
-  .strict()
-  .superRefine((value, context) => {
-    if (Boolean(value.id) !== Boolean(value.expectedVersion)) {
-      context.addIssue({
-        code: "custom",
-        path: ["expectedVersion"],
-        message: "Updates require the saved widget version",
-      });
-    }
-  });
+  .strict();
+
+export type SavedRecordActivityWidgetInput = Omit<z.infer<typeof RecordActivityWidgetFieldsSchema>, "kind"> & {
+  kind?: "activityTimeline";
+};
+
+export const RecordActivityWidgetInputSchema = RecordActivityWidgetFieldsSchema.partial({
+  kind: true,
+  name: true,
+  activityQuery: true,
+  displayOptions: true,
+  isTemplate: true,
+}).superRefine((value, context) => {
+  if (Boolean(value.id) !== Boolean(value.expectedVersion)) {
+    context.addIssue({
+      code: "custom",
+      path: ["expectedVersion"],
+      message: "Updates require the saved widget version",
+    });
+  }
+  if (value.id) return;
+  for (const key of ["name", "activityQuery"] as const) {
+    if (value[key] === undefined)
+      context.addIssue({ code: "custom", path: [key], message: "Creation requires this field" });
+  }
+});
 
 export const RecordActivityWidgetDtoSchema = z
   .object({
@@ -69,7 +88,7 @@ export interface RecordActivityWidgetRepo {
   findOwned(id: string): Promise<StoredRecordActivityWidget | null>;
   listPlacements(viewId: string | null): Promise<WidgetPlacementRow[]>;
   save(
-    input: RecordActivityWidgetInput,
+    input: SavedRecordActivityWidgetInput,
     id: string,
     viewId: string | null,
     layout?: WidgetLayout,

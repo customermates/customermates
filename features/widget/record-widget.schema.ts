@@ -6,8 +6,9 @@ import { RecordMeasureSchema, RecordMeasureResultSchema } from "@/features/recor
 import { WidgetDisplayOptionsSchema, WidgetLayoutSchema, type WidgetLayout } from "./widget-display.schema";
 import type { WidgetPlacementRow } from "./widget-placement";
 
-export const RecordWidgetInputSchema = z
+const RecordWidgetFieldsSchema = z
   .object({
+    kind: z.literal("chart").optional().describe("chart. Optional; a saved widget keeps its kind."),
     id: z.uuid().optional(),
     expectedVersion: z.number().int().positive().optional(),
     expectedRevision: z.number().int().nonnegative(),
@@ -25,16 +26,29 @@ export const RecordWidgetInputSchema = z
         "Dashboard view that holds the widget: a dashboard view ID, or null for the main dashboard. Omit it to create the widget on the caller's current dashboard view or to keep an existing widget where it is.",
       ),
   })
-  .strict()
-  .superRefine((value, context) => {
-    if (Boolean(value.id) !== Boolean(value.expectedVersion)) {
-      context.addIssue({
-        code: "custom",
-        path: ["expectedVersion"],
-        message: "Updates require the saved widget version",
-      });
-    }
-  });
+  .strict();
+
+export type SavedRecordWidgetInput = z.infer<typeof RecordWidgetFieldsSchema>;
+
+export const RecordWidgetInputSchema = RecordWidgetFieldsSchema.partial({
+  name: true,
+  measure: true,
+  displayOptions: true,
+  isTemplate: true,
+}).superRefine((value, context) => {
+  if (Boolean(value.id) !== Boolean(value.expectedVersion)) {
+    context.addIssue({
+      code: "custom",
+      path: ["expectedVersion"],
+      message: "Updates require the saved widget version",
+    });
+  }
+  if (value.id) return;
+  for (const key of ["name", "measure", "displayOptions"] as const) {
+    if (value[key] === undefined)
+      context.addIssue({ code: "custom", path: [key], message: "Creation requires this field" });
+  }
+});
 export type RecordWidgetInput = z.infer<typeof RecordWidgetInputSchema>;
 
 export const RecordWidgetDtoSchema = z
@@ -86,7 +100,12 @@ export interface RecordWidgetRepo {
   findReadable(id: string): Promise<StoredRecordWidget | null>;
   listOwned(): Promise<StoredRecordWidget[]>;
   listPlacements(viewId: string | null): Promise<WidgetPlacementRow[]>;
-  save(input: RecordWidgetInput, id: string, viewId: string | null, layout?: WidgetLayout): Promise<StoredRecordWidget>;
+  save(
+    input: SavedRecordWidgetInput,
+    id: string,
+    viewId: string | null,
+    layout?: WidgetLayout,
+  ): Promise<StoredRecordWidget>;
 }
 
 export const GenericRecordWidgetDtoSchema = z.discriminatedUnion("kind", [

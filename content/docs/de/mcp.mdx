@@ -226,6 +226,18 @@ Einen dauerhaften Vorgang über operationId bis zum Abschluss, Fehler oder Abbru
 
 **Nur lesend.** Pflicht: `operationId`.
 
+#### `cancel_crm_operation`
+
+Einen Vorgang vor der Veröffentlichung abbrechen und den letzten vollständigen CRM-Stand erhalten. Abgeschlossene Vorgänge können nicht abgebrochen werden. Das Backend prüft die Berechtigung; bereits veröffentlichte Daten werden dadurch nicht zurückgesetzt.
+
+Pflicht: `operationId`.
+
+#### `resume_crm_operation`
+
+Einen eigenen ausstehenden Vorgang nach Ablauf der Worker-Sperrfrist fortsetzen. Bereits vorbereitete Daten werden wiederverwendet und Voraussetzungen erneut geprüft. Ein wiederholtes Fortsetzen erzeugt keine doppelten Datensatzänderungen.
+
+Pflicht: `operationId`.
+
 #### `read_trash`
 
 Gelöschte Elemente im Papierkorb auflisten, neueste zuerst, mit wer sie gelöscht hat, wann, und wie viele Tage bleiben, bis sie endgültig gelöscht werden. Nach Art, Liste und Name filtern. Aufgelistet wird nur, was du sehen und löschen könntest; Administratoren sehen alles.
@@ -234,7 +246,7 @@ Gelöschte Elemente im Papierkorb auflisten, neueste zuerst, mit wer sie gelösc
 
 #### `manage_trash`
 
-Elemente aus dem Papierkorb wiederherstellen (oder alle Elemente eines Löschvorgangs über seine batchId), genau ansehen, was eine endgültige Löschung entfernt, Elemente endgültig löschen oder als Administrator den Papierkorb leeren. Endgültiges Löschen lässt sich nicht rückgängig machen und entfernt die Werte der gelöschten Datensätze aus dem Verlauf.
+Elemente aus dem Papierkorb wiederherstellen (oder alle Elemente eines Löschvorgangs über seine batchId), genau ansehen, was eine endgültige Löschung entfernt, Elemente endgültig löschen oder als Administrator den Papierkorb leeren. Endgültiges Löschen braucht Löschrechte für jedes Element. Endgültiges Löschen lässt sich nicht rückgängig machen und entfernt die Werte der gelöschten Datensätze aus dem Verlauf.
 
 **Kann Daten löschen.** Pflicht: `action`. Optional: `itemIds`, `batchId`, `all`, `expectedImpactHash`.
 {/* /mcp-catalog */}
@@ -337,9 +349,9 @@ Pflicht: `typeId`, `action`. Optional: `expectedRevision`, `idempotencyKey`, `la
 {/* mcp-catalog:wiki */}
 #### `manage_wiki_pages`
 
-Wissensdatenbank-Seiten auflisten, suchen, lesen, anlegen, aktualisieren oder löschen (in den Papierkorb verschieben), jeweils eine Wissensseite, ein Ablauf mit Einsatzfall oder der eine Betriebsleitfaden. Updates und Löschungen benötigen den neuesten updatedAt-Wert; Create kann atomar eine leere Wissensdatenbank voraussetzen.
+Wissensdatenbank-Seiten auflisten, suchen, lesen, anlegen, aktualisieren, umsortieren (vor oder nach eine andere Seite verschieben) oder löschen (in den Papierkorb verschieben), jeweils eine Wissensseite, ein Ablauf mit Einsatzfall oder der eine Betriebsleitfaden. Updates und Löschungen benötigen den neuesten updatedAt-Wert; Create kann atomar eine leere Wissensdatenbank voraussetzen.
 
-**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `query`, `offset`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `title`, `markdown`, `kind`, `whenToUse`.
+**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `query`, `offset`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `kind`, `whenToUse`.
 {/* /mcp-catalog */}
 
 ### Messaging [#messaging]
@@ -547,18 +559,6 @@ Ein ausstehendes Ergebnis liefert eine Vorgangs-ID. Den Fortschritt bis zum Absc
 Ein typisiertes Konfigurationspaket mit Typen, Feldern, Beziehungen, Berechnungen und Zugriffsvorlagen prüfen oder anwenden. expectedRevision, idempotencyKey und Operationen zwischen Vorschau und Anwendung beibehalten. Temporäre $client-Referenzen verbinden neue Definitionen atomar. Berechnungen verwenden ein begrenztes Knotenprogramm, keinen ausführbaren Code. Schema-Verwaltung, Datensatzzugriff, Rollenfreigaben und veröffentlichte Zusammenfassungen haben getrennte Berechtigungen. Mit delete verschieben Sie eine Liste, ein Feld oder eine Beziehung in den Papierkorb; wiederherstellen oder endgültig löschen Sie sie mit manage_trash.
 
 **Kann Daten löschen.** Pflicht: `action`, `change`.
-
-#### `cancel_crm_operation`
-
-Einen Vorgang vor der Veröffentlichung abbrechen und den letzten vollständigen CRM-Stand erhalten. Abgeschlossene Vorgänge können nicht abgebrochen werden. Das Backend prüft die Berechtigung; bereits veröffentlichte Daten werden dadurch nicht zurückgesetzt.
-
-Pflicht: `operationId`.
-
-#### `resume_crm_operation`
-
-Einen eigenen ausstehenden Vorgang nach Ablauf der Worker-Sperrfrist fortsetzen. Bereits vorbereitete Daten werden wiederverwendet und Voraussetzungen erneut geprüft. Ein wiederholtes Fortsetzen erzeugt keine doppelten Datensatzänderungen.
-
-Pflicht: `operationId`.
 {/* /mcp-catalog */}
 
 ### Widgets [#widgets]
@@ -582,7 +582,7 @@ Widgets auflisten und lesen sowie Diagramm- und Aktivitätskonfigurationen erste
 
 Ein Tool mit einem `action`-Schalter: list, runs, create, update, pause, run_now, delete. Eine Routine sind gespeicherte Anweisungen, die der Assistent nach Zeitplan oder bei einem CRM-Ereignis ausführt. Ohne `enabled` erzeugt create eine LIVE-Routine; für einen Entwurf `enabled: false` übergeben; der gehostete Assistent muss `enabled` ausdrücklich angeben und speichert einen Entwurf, sofern der Nutzer nicht die Aktivierung verlangt hat. Ein Wechsel von `triggerKind` muss den Zeitplan oder die Ereignisse der neuen Art mitbringen. pause deaktiviert die Routine und setzt wartende Läufe auf übersprungen, was ein erneutes Aktivieren nicht rückgängig macht; nur aktive Systemadministratoren dürfen eine Routine pausieren oder löschen. run_now gilt nur für geplante Routinen und nur für eine aktivierte Routine, die der Aufrufer besitzt. Läufe werden über `cursor` paginiert und enthalten Status, Zusammenfassung und Auslöser. delete verschiebt die Routine in den Papierkorb, wo sie nicht läuft, bis manage_trash sie wiederherstellt.
 
-**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `triggerFilters`, `recordTrigger`, `expectedSchemaRevision`, `debounceSeconds`.
+**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `recordTrigger`, `recordSources`, `expectedSchemaRevision`, `debounceSeconds`.
 {/* /mcp-catalog */}
 
 ### Webhooks [#webhooks]
@@ -592,17 +592,17 @@ Ein Tool mit einem `action`-Schalter: list, runs, create, update, pause, run_now
 
 Ein Tool mit `action`-Schalter: list, get, create, update, delete, dazu das Delivery-Log (Action list_deliveries, auf die aktuelle url eines Webhooks beschränkt, wenn Sie dessen `id` übergeben) und die erneute Zustellung (Action resend_delivery). Lesen braucht bei API & Webhooks die Leseberechtigung Alle; create und resend_delivery brauchen Erstellen, update braucht Bearbeiten und delete braucht Löschen auf API & Webhooks.
 
-**Kann Daten löschen.** Pflicht: `action`. Optional: `recordTrigger`, `recordOwnerUserId`, `expectedSchemaRevision`, `id`, `url`, `description`, `events`, `secret`, `headers`, `bodyTemplate`, `enabled`, `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+**Kann Daten löschen.** Pflicht: `action`. Optional: `recordTrigger`, `recordSources`, `recordOwnerUserId`, `expectedSchemaRevision`, `id`, `url`, `description`, `events`, `secret`, `headers`, `bodyTemplate`, `enabled`, `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
 {/* /mcp-catalog */}
 
 ### Admin und Team [#admin-and-team]
 
 {/* mcp-catalog:admin */}
-#### `update_workspace_settings`
+#### `update_my_profile`
 
-Ändert den eigenen Namen, das Land und den Avatar. Geldfelder haben ihre eigene Währung: Diese ändern und Datensatztypen umbenennen Sie über configure_record_model.
+Ändert den eigenen Namen, das Land, den Avatar, das Farbschema, die Anzeigesprache und das regionale Format.
 
-Optional: `firstName`, `lastName`, `country`, `avatarUrl`.
+Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `theme`, `displayLanguage`, `formattingLocale`.
 
 #### `manage_team`
 
