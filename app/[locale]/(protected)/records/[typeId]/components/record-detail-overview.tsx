@@ -6,13 +6,12 @@ import { useTranslations } from "next-intl";
 import type { RecordEditorStore } from "./record-editor.store";
 import { recordColumns } from "@/features/records/record-columns";
 import { EntityDetailFields } from "@/components/entity-detail/entity-detail-fields";
-import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
+import { EntityDetailFieldShell } from "@/components/entity-detail/entity-detail-field-shell";
 import { FormAutocompleteAvatar } from "@/components/forms/form-autocomplete-avatar";
 import { RecordEditorField } from "./record-editor-fields";
 import { RecordRelationshipEditor } from "./record-relationship-editor";
 import { RecordPathRecords } from "./record-path-records";
 import { RecordEmbeddedRecords } from "./record-embedded-records";
-import { RecordDetailField } from "./record-detail-field";
 import { RecordCell } from "./record-cell";
 import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { useEntityDetailPersonalization } from "@/components/entity-detail/entity-detail-personalization";
@@ -44,7 +43,7 @@ export const RecordDetailOverview = observer(function RecordDetailOverview({
       if (column.id === "system:assignedTo") {
         if (type?.embedded) return [];
         content = (
-          <RecordDetailField
+          <EntityDetailFieldShell
             fieldId={column.id}
             inputId={assignedInputId}
             label={label}
@@ -62,12 +61,12 @@ export const RecordDetailOverview = observer(function RecordDetailOverview({
               selectionMode="multiple"
               onSelectionDataChange={previewAssignees}
             />
-          </RecordDetailField>
+          </EntityDetailFieldShell>
         );
       } else {
         if (!store.record) return [];
         content = (
-          <EntityDetailStaticField
+          <EntityDetailFieldShell
             fieldId={column.id}
             label={label}
             value={

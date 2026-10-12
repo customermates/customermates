@@ -1,6 +1,6 @@
 "use client";
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Props = {
   value: string;
@@ -29,15 +29,13 @@ export function WidgetNumber({ value, exact, context }: Props) {
         style={{ fontSize: `min(2rem, ${(150 / Math.max(value.length, 1)).toFixed(2)}cqw)` }}
       >
         {compacted ? (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>{headline}</TooltipTrigger>
+          <Tooltip>
+            <TooltipTrigger asChild>{headline}</TooltipTrigger>
 
-              <TooltipContent className="tabular-nums" side="bottom">
-                {exact}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+            <TooltipContent className="tabular-nums" side="bottom">
+              {exact}
+            </TooltipContent>
+          </Tooltip>
         ) : (
           headline
         )}

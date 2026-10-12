@@ -275,7 +275,7 @@ describe("board column order and labels", () => {
       }),
     );
 
-    expect(host.querySelector('[data-slot="kanban-root"] [data-slot="empty-state"]')).not.toBeNull();
+    expect(host.querySelector('[data-slot="kanban-root"] [data-page-state="empty"]')).not.toBeNull();
     expect(host.textContent).toContain("DataView.board.promptTitle");
     expect(host.textContent).toContain("DataView.board.createField");
     expect(host.querySelector('[data-slot="kanban-root"] [data-slot="select"]')).toBeNull();

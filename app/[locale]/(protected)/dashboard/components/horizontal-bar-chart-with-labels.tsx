@@ -4,7 +4,7 @@ import type { ChartDataPoint } from "./chart.types";
 
 import { observer } from "mobx-react-lite";
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 import { useChartFormatter } from "./use-chart-formatter";
 
@@ -24,50 +24,48 @@ export const HorizontalBarChartWithLabels = observer(({ currency, chartData, rev
   const zero = (-minimum / range) * 100;
 
   return (
-    <TooltipProvider>
-      <div aria-hidden className="h-full min-h-0 overflow-y-auto pr-1" data-slot="widget-bar-list">
-        <ul className="flex flex-col gap-3">
-          {rows.map((row, index) => {
-            const value = row.formattedValue ?? formatValue(row.value);
-            const width = (Math.abs(row.value) / range) * 100;
-            const start = row.value < 0 ? zero - width : zero;
-            return (
-              <Tooltip key={`${index}:${row.label}`}>
-                <TooltipTrigger asChild>
-                  <li className="min-w-0 space-y-1" data-slot="widget-bar-row">
-                    <div className="flex min-w-0 items-baseline justify-between gap-3 text-xs">
-                      <span className="min-w-0 truncate text-foreground">{row.label}</span>
+    <div aria-hidden className="h-full min-h-0 overflow-y-auto pr-1" data-slot="widget-bar-list">
+      <ul className="flex flex-col gap-3">
+        {rows.map((row, index) => {
+          const value = row.formattedValue ?? formatValue(row.value);
+          const width = (Math.abs(row.value) / range) * 100;
+          const start = row.value < 0 ? zero - width : zero;
+          return (
+            <Tooltip key={`${index}:${row.label}`}>
+              <TooltipTrigger asChild>
+                <li className="min-w-0 space-y-1" data-slot="widget-bar-row">
+                  <div className="flex min-w-0 items-baseline justify-between gap-3 text-xs">
+                    <span className="min-w-0 truncate text-foreground">{row.label}</span>
 
-                      <span className="shrink-0 font-medium tabular-nums text-muted-foreground">{value}</span>
-                    </div>
+                    <span className="shrink-0 font-medium tabular-nums text-muted-foreground">{value}</span>
+                  </div>
 
-                    <div className="relative h-2 overflow-hidden rounded-full bg-muted">
-                      <span
-                        className="absolute inset-y-0 rounded-full transition-[width,left,right] duration-500 motion-reduce:transition-none"
-                        style={{
-                          backgroundColor: row.fill,
-                          width: `${Math.max(width, row.value === 0 ? 0 : 1)}%`,
-                          ...(reverseXAxis ? { right: `${start}%` } : { left: `${start}%` }),
-                        }}
-                      />
-                    </div>
-                  </li>
-                </TooltipTrigger>
+                  <div className="relative h-2 overflow-hidden rounded-full bg-muted">
+                    <span
+                      className="absolute inset-y-0 rounded-full transition-[width,left,right] duration-500 motion-reduce:transition-none"
+                      style={{
+                        backgroundColor: row.fill,
+                        width: `${Math.max(width, row.value === 0 ? 0 : 1)}%`,
+                        ...(reverseXAxis ? { right: `${start}%` } : { left: `${start}%` }),
+                      }}
+                    />
+                  </div>
+                </li>
+              </TooltipTrigger>
 
-                <TooltipContent side="top">
-                  <span className="flex items-center gap-2">
-                    <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: row.color }} />
+              <TooltipContent side="top">
+                <span className="flex items-center gap-2">
+                  <span className="size-2 shrink-0 rounded-full" style={{ backgroundColor: row.color }} />
 
-                    <span className="font-semibold">{row.label}</span>
+                  <span className="font-semibold">{row.label}</span>
 
-                    <span className="tabular-nums">{value}</span>
-                  </span>
-                </TooltipContent>
-              </Tooltip>
-            );
-          })}
-        </ul>
-      </div>
-    </TooltipProvider>
+                  <span className="tabular-nums">{value}</span>
+                </span>
+              </TooltipContent>
+            </Tooltip>
+          );
+        })}
+      </ul>
+    </div>
   );
 });

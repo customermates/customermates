@@ -21,7 +21,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
 import { useRecordChoices } from "@/components/records/use-record-choices";
-import { RecordDetailField } from "./record-detail-field";
+import { EntityDetailFieldShell } from "@/components/entity-detail/entity-detail-field-shell";
 import { EmptyValue } from "@/components/shared/empty-value";
 import { relationshipColumnKey } from "@/features/records/record-column.schema";
 
@@ -113,7 +113,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
     </div>
   );
   return (
-    <RecordDetailField
+    <EntityDetailFieldShell
       fieldId={relationshipColumnKey(relationship.id, direction)}
       inputId={id}
       label={label}
@@ -308,6 +308,6 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
           </Button>
         </div>
       )}
-    </RecordDetailField>
+    </EntityDetailFieldShell>
   );
 });

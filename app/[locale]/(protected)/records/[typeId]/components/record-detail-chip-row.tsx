@@ -9,7 +9,6 @@ import type { RecordRef } from "@/features/records/record-model.schema";
 import { useCallback, useId, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { Plus } from "lucide-react";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { AppChipStack } from "@/components/chip/app-chip-stack";
@@ -21,8 +20,6 @@ import {
   type EntityDetailPreviewItem,
   useEntityDetailPersonalization,
 } from "@/components/entity-detail/entity-detail-personalization";
-import { RecordChipIcon } from "@/components/records/record-chip-icon";
-import { RecordValueTypeIcon } from "@/components/records/record-value-type-icon";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -35,28 +32,22 @@ import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { getUsersAction } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { type RecordChipColumn, type RecordChipEntry, recordChipRowModel } from "./record-chip-row-model";
-import { IdentityChips, RecordPropertyChipView } from "./record-chip-row";
+import {
+  AddChip,
+  CHIP_TRIGGER_CLASS,
+  ChipColumnIcon,
+  IdentityChips,
+  RecordChipList,
+  RecordPropertyChipView,
+  chipPopoverClass,
+  linkTypeId,
+} from "./record-chip";
 import { RecordChannelPopover } from "./record-identity-editor";
 import { focusFirstControl, RecordLinkPicker } from "./record-inline-field";
 import { RecordInputField } from "./record-input-field";
 import { useRecordChoices } from "@/components/records/use-record-choices";
 
-const CHIP_TRIGGER_CLASS =
-  "inline-flex max-w-full min-w-0 cursor-pointer rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring/70";
-
 type LinkColumn = Extract<RecordChipColumn, { kind: "relationship" | "relationshipPath" }>;
-
-function linkTypeId(column: LinkColumn) {
-  if (column.kind === "relationshipPath") return column.targetTypeId;
-  return column.direction === "outgoing" ? column.relation.targetTypeId : column.relation.sourceTypeId;
-}
-
-function columnIcon(store: RecordEditorStore, column: RecordChipColumn) {
-  if (column.kind === "field") return <RecordValueTypeIcon valueType={column.field.valueType} />;
-  if (column.kind === "relationship" || column.kind === "relationshipPath")
-    return <RecordChipIcon icons={store.presentation.linkIcons} typeId={linkTypeId(column)} />;
-  return <RecordValueTypeIcon valueType={column.kind === "system" ? "dateTime" : "text"} />;
-}
 
 function previewUsers(items: EntityDetailPreviewItem[] | undefined) {
   return (items ?? []).flatMap((item) =>
@@ -144,7 +135,11 @@ function useLinkedChoices(store: RecordEditorStore, column: LinkColumn) {
 
 function PlaceholderChip({ store, column }: { store: RecordEditorStore; column: RecordChipColumn }) {
   return (
-    <AppChip className="text-muted-foreground" data-placeholder-chip="" startContent={columnIcon(store, column)}>
+    <AppChip
+      className="text-muted-foreground"
+      data-placeholder-chip=""
+      startContent={<ChipColumnIcon column={column} icons={store.presentation.linkIcons} />}
+    >
       {column.label}
     </AppChip>
   );
@@ -174,11 +169,7 @@ function ChipPopover({
         </button>
       </PopoverTrigger>
 
-      <PopoverContent
-        align="start"
-        className={wide ? "w-72 p-0" : "w-80 space-y-2 p-3"}
-        onOpenAutoFocus={focusFirstControl}
-      >
+      <PopoverContent align="start" className={chipPopoverClass(wide)} onOpenAutoFocus={focusFirstControl}>
         {open && children}
       </PopoverContent>
     </Popover>
@@ -381,13 +372,7 @@ const PinChip = observer(function PinChip({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button aria-label={t("EntityDetail.pinMore")} className={CHIP_TRIGGER_CLASS} data-pin-chip="" type="button">
-          <AppChip
-            interactive
-            className="border-dashed border-border bg-transparent text-muted-foreground"
-            tooltip={t("EntityDetail.pinMore")}
-          >
-            <Plus aria-hidden className="size-3" />
-          </AppChip>
+          <AddChip label={t("EntityDetail.pinMore")} />
         </button>
       </DropdownMenuTrigger>
 
@@ -399,7 +384,7 @@ const PinChip = observer(function PinChip({
             onCheckedChange={() => toggleStarredField(column.id)}
             onSelect={(event) => event.preventDefault()}
           >
-            {columnIcon(store, column)}
+            <ChipColumnIcon column={column} icons={store.presentation.linkIcons} />
 
             {column.label}
           </DropdownMenuCheckboxItem>
@@ -441,21 +426,12 @@ export const RecordDetailChipRow = observer(function RecordDetailChipRow({
       data-joins-top-bar={joinsTopBar ? "" : undefined}
       data-record-chip-row=""
     >
-      <div className="flex min-w-0 flex-wrap items-center gap-1">
-        {entries.map((entry) => (
-          <span
-            key={entry.column.id}
-            aria-label={entry.column.label}
-            className="inline-flex max-w-full min-w-0"
-            data-chip-column={entry.column.id}
-            role="group"
-          >
-            <DetailChip entry={entry} personalizing={isPersonalizing} row={row} store={store} />
-          </span>
-        ))}
-
+      <RecordChipList
+        entries={entries}
+        renderChip={(entry) => <DetailChip entry={entry} personalizing={isPersonalizing} row={row} store={store} />}
+      >
         {canPin && <PinChip columns={all} pinnedIds={starredFieldIds} store={store} />}
-      </div>
+      </RecordChipList>
     </div>
   );
 });

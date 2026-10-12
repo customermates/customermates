@@ -41,8 +41,8 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   useRootStore: harness.getRootStore,
 }));
 
-vi.mock("@/core/utils/use-is-touch-device", () => ({
-  useIsTouchDevice: () => harness.isTouchDevice,
+vi.mock("@/hooks/use-touch-input", () => ({
+  useTouchInput: () => harness.isTouchDevice,
 }));
 
 vi.mock("@/components/page-state/page-state", async (importOriginal) => {

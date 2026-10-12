@@ -22,7 +22,7 @@ import { relationshipColumnKey } from "@/features/records/record-column.schema";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { getRecordEditorAction } from "../../actions";
 import { EMBEDDED_PAGE_SIZE, EmbeddedRecordsStore, embeddedPresentation } from "./embedded-records.store";
-import { RecordDetailField } from "./record-detail-field";
+import { EntityDetailFieldShell } from "@/components/entity-detail/entity-detail-field-shell";
 import { RecordEmbeddedColumns } from "./record-embedded-columns";
 import { RecordEditorStore } from "./record-editor.store";
 import { RowActions } from "@/components/data-view/row-actions";
@@ -205,7 +205,7 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
   );
   return (
     <section aria-label={type.pluralLabel}>
-      <RecordDetailField
+      <EntityDetailFieldShell
         action={
           list.total > 0 ? (
             <>
@@ -278,7 +278,7 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
         </div>
 
         {renderEditor(child)}
-      </RecordDetailField>
+      </EntityDetailFieldShell>
     </section>
   );
 });

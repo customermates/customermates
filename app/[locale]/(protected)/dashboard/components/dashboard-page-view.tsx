@@ -23,7 +23,7 @@ import { resolveResourcePageState } from "@/components/page-state/resource-page-
 import { Button } from "@/components/ui/button";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useRootStore } from "@/core/stores/root-store.provider";
-import { useIsTouchDevice } from "@/core/utils/use-is-touch-device";
+import { useTouchInput } from "@/hooks/use-touch-input";
 
 import { DashboardPageSkeleton } from "./dashboard-page-skeleton";
 import { DASHBOARD_GRID_MARGIN, DASHBOARD_ROW_HEIGHT, GRID_BREAKPOINTS, GRID_COLS } from "./grid.constants";
@@ -61,7 +61,7 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
   useEffect(() => {
     if (recordTypes) widgetModalStore.setRecordTypes(recordTypes);
   }, [recordTypes, widgetModalStore]);
-  const isTouchDevice = useIsTouchDevice();
+  const touchInput = useTouchInput();
   const pointerStart = useRef<{
     id: string;
     x: number;
@@ -208,7 +208,7 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
           isResizable
           breakpoints={GRID_BREAKPOINTS}
           className={
-            isTouchDevice
+            touchInput
               ? "layout touch-scrollable animate-page-result-in motion-reduce:animate-none"
               : "layout animate-page-result-in motion-reduce:animate-none"
           }
@@ -216,7 +216,7 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
           compactType="vertical"
           containerPadding={[0, 0]}
           draggableCancel={WIDGET_INTERACTIVE_SELECTOR}
-          isDraggable={!isTouchDevice}
+          isDraggable={!touchInput}
           layouts={layouts}
           margin={[DASHBOARD_GRID_MARGIN, DASHBOARD_GRID_MARGIN]}
           resizeHandles={["n", "s", "e", "w", "ne", "nw", "se", "sw"]}

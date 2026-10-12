@@ -29,7 +29,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppForm } from "@/components/forms/form-context";
@@ -461,57 +462,51 @@ const PopoverField = observer(function PopoverField({
   const empty = isEmptyResult(fieldResult(record, field));
   const contact = CONTACT_VALUE_TYPES.includes(field.valueType) && !empty;
   const label = t("RecordModel.editValue", { field: field.label });
+  const trigger = (
+    <button
+      aria-label={label}
+      className={contact ? EDIT_SPACE_BUTTON_CLASS : EDIT_TARGET_CLASS}
+      data-edit-target=""
+      data-inline-edit={field.id}
+      type="button"
+      {...selectionHandlers(records, record)}
+    >
+      {contact ? t("RecordModel.edit") : empty ? <EmptyValueTarget member={field.valueType === "member"} /> : children}
+    </button>
+  );
   return (
-    <Popover modal open={open} onOpenChange={setOpen}>
-      {contact ? (
-        <PopoverAnchor asChild>
-          <span
-            className={cn("flex min-w-0 items-center", layout === "row" && "-mx-3 -my-2 cursor-text px-3 py-2")}
-            data-inline-edit-space={layout === "row" ? field.id : undefined}
-            role="presentation"
-            onClick={(event: MouseEvent<HTMLSpanElement>) => {
-              if (layout !== "row" || records.selectedIds.size > 0 || isInteractiveClick(event)) return;
-              event.stopPropagation();
-              setOpen(true);
-            }}
-          >
-            <span className="min-w-0 truncate">{children}</span>
-
-            <PopoverTrigger asChild>
-              <button
-                aria-label={label}
-                className={EDIT_SPACE_BUTTON_CLASS}
-                data-edit-target=""
-                data-inline-edit={field.id}
-                type="button"
-                {...selectionHandlers(records, record)}
+    <ResponsiveOverlay
+      anchor={
+        contact
+          ? (editTrigger) => (
+              <span
+                className={cn("flex min-w-0 items-center", layout === "row" && "-mx-3 -my-2 cursor-text px-3 py-2")}
+                data-inline-edit-space={layout === "row" ? field.id : undefined}
+                role="presentation"
+                onClick={(event: MouseEvent<HTMLSpanElement>) => {
+                  if (layout !== "row" || records.selectedIds.size > 0 || isInteractiveClick(event)) return;
+                  event.stopPropagation();
+                  setOpen(true);
+                }}
               >
-                {t("RecordModel.edit")}
-              </button>
-            </PopoverTrigger>
-          </span>
-        </PopoverAnchor>
-      ) : (
-        <PopoverTrigger asChild>
-          <button
-            aria-label={label}
-            className={EDIT_TARGET_CLASS}
-            data-edit-target=""
-            data-inline-edit={field.id}
-            type="button"
-            {...selectionHandlers(records, record)}
-          >
-            {empty ? <EmptyValueTarget member={field.valueType === "member"} /> : children}
-          </button>
-        </PopoverTrigger>
-      )}
+                <span className="min-w-0 truncate">{children}</span>
 
-      <PopoverContent align="start" className="w-80 space-y-2 p-3" onOpenAutoFocus={focusFirstControl}>
-        <p className="text-xs font-medium text-muted-foreground">{field.label}</p>
-
+                {editTrigger}
+              </span>
+            )
+          : undefined
+      }
+      open={open}
+      popoverClassName="w-80"
+      title={field.label}
+      trigger={trigger}
+      onOpenAutoFocus={focusFirstControl}
+      onOpenChange={setOpen}
+    >
+      <div className="space-y-2 px-3 pb-3 max-md:px-4">
         {open && <InlineFieldForm field={field} record={record} records={records} onDone={() => setOpen(false)} />}
-      </PopoverContent>
-    </Popover>
+      </div>
+    </ResponsiveOverlay>
   );
 });
 

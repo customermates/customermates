@@ -6,7 +6,7 @@ import { Dialog as DialogPrimitive } from "radix-ui";
 import { useTranslations } from "next-intl";
 
 import { cn } from "@/core/utils/cn";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 import {
   OVERLAY_CLOSE_CLASS,
   OVERLAY_CLOSE_POSITION_CLASS,
@@ -39,23 +39,21 @@ function DialogCloseButton({
   const t = useTranslations();
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <DialogPrimitive.Close
-            className={cn(inline && overlayIconControlClass(), className)}
-            data-slot="dialog-close"
-            {...props}
-          >
-            <XIcon />
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <DialogPrimitive.Close
+          className={cn(inline && overlayIconControlClass(), className)}
+          data-slot="dialog-close"
+          {...props}
+        >
+          <XIcon />
 
-            <span className="sr-only">{t("Common.actions.close")}</span>
-          </DialogPrimitive.Close>
-        </TooltipTrigger>
+          <span className="sr-only">{t("Common.actions.close")}</span>
+        </DialogPrimitive.Close>
+      </TooltipTrigger>
 
-        <TooltipContent>{t("Common.actions.close")}</TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+      <TooltipContent>{t("Common.actions.close")}</TooltipContent>
+    </Tooltip>
   );
 }
 
