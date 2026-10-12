@@ -11,17 +11,17 @@ import { ConnectedAccountAppDtoSchema } from "../messaging.schema";
 import { toConnectedAccountDto } from "./connected-account-dto";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { DomainEvent } from "@/features/event/domain-events";
 import type { SetConnectedAccountVisibilityRepo } from "./set-connected-account-visibility.repo";
 
-const Schema = z.object({
+export const SetConnectedAccountVisibilitySchema = z.object({
   id: z.uuid(),
   shared: z.boolean(),
 });
-type SetConnectedAccountVisibilityData = Data<typeof Schema>;
+type SetConnectedAccountVisibilityData = Data<typeof SetConnectedAccountVisibilitySchema>;
 
 @TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class SetConnectedAccountVisibilityInteractor extends AuthenticatedInteractor<
@@ -36,7 +36,7 @@ export class SetConnectedAccountVisibilityInteractor extends AuthenticatedIntera
     super();
   }
 
-  @Enforce(Schema)
+  @Validate(SetConnectedAccountVisibilitySchema)
   @ValidateOutput(ConnectedAccountAppDtoSchema)
   async invoke(data: SetConnectedAccountVisibilityData): Validated<ConnectedAccountDto> {
     const denied = await this.entitlements.require("sharedAccounts");

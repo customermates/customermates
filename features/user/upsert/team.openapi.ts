@@ -5,6 +5,7 @@ import {
   InviteUsersByEmailResultSchema,
   InviteUsersByEmailSchema,
 } from "@/features/company/invite-users-by-email.interactor";
+import { InvitationLinkRequestSchema, InvitationLinkSchema } from "@/features/company/invitation-link";
 import { AdminUpdateUserDetailsSchema } from "@/features/user/upsert/admin-update-user-details.interactor";
 import { UpdateUserDetailsSchema, UserProfileSchema } from "@/features/user/upsert/update-user-details.interactor";
 
@@ -55,6 +56,27 @@ export const memberApiPaths = {
         "200": {
           description: "The invitations were sent.",
           content: { "application/json": { schema: InviteUsersByEmailResultSchema } },
+        },
+        ...StructuredApiResponses,
+      },
+    },
+  },
+  "/v1/members/invite-link": {
+    post: {
+      operationId: "getInvitationLink",
+      summary: "Get the workspace invitation link",
+      description:
+        "Returns the workspace invitation link and when it expires, as the Share link tab of the Invite dialog shows it. The link is reused until it expires after 7 days; the first call after that creates a new one. Anyone who opens it can register and joins with status Waiting for approval and no role. Requires: Users & Roles Create.",
+      tags: ["members"],
+      security: [{ apiKeyAuth: [] }],
+      requestBody: {
+        required: true,
+        content: { "application/json": { schema: InvitationLinkRequestSchema, examples: { default: { value: {} } } } },
+      },
+      responses: {
+        "200": {
+          description: "The current invitation link.",
+          content: { "application/json": { schema: InvitationLinkSchema } },
         },
         ...StructuredApiResponses,
       },

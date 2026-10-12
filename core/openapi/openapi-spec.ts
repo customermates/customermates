@@ -9,6 +9,7 @@ import { getCalendarEventByIdOperation } from "@/ee/calendar/get-calendar-event-
 import { getCalendarEventsOperation } from "@/ee/calendar/get-calendar-events.openapi";
 import { getCalendarsOperation } from "@/ee/calendar/get-calendars.openapi";
 import { getConnectedAccountsOperation } from "@/ee/messaging/connect/get-my-connected-accounts.openapi";
+import { connectedAccountSettingsApiPaths } from "@/ee/messaging/connect/connected-account-settings.openapi";
 import { GetMessagingThreadResultSchema } from "@/ee/messaging/inbox/get-messaging-thread.interactor";
 import { getMessagingThreadOperation } from "@/ee/messaging/inbox/get-messaging-thread.openapi";
 import { getMessagingThreadsOperation } from "@/ee/messaging/inbox/get-messaging-threads.openapi";
@@ -126,6 +127,7 @@ export function generateOpenApiSpec() {
       ...dataViewApiPaths,
       ...widgetApiPaths,
       ...trashApiPaths,
+      ...connectedAccountSettingsApiPaths,
       "/v1/users/search": {
         post: getUsersOperation,
       },

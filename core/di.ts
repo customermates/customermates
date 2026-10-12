@@ -225,6 +225,7 @@ import { env } from "@/env";
 import { ChooseWorkspaceOnboardingInteractor } from "@/features/company/choose-workspace-onboarding.interactor";
 import { GetCompanyInteractor } from "@/features/company/get-company.interactor";
 import { GetOrCreateInviteTokenInteractor } from "@/features/company/get-or-create-invite-token.interactor";
+import { GetInvitationLinkInteractor } from "@/features/company/get-invitation-link.interactor";
 import { InviteTokenValidationInteractor } from "@/features/company/invite-token-validation.interactor";
 import { InviteUsersByEmailInteractor } from "@/features/company/invite-users-by-email.interactor";
 import { OpenInvitationInteractor } from "@/features/company/open-invitation.interactor";
@@ -987,6 +988,8 @@ export const getDecideMcpConsentInteractor = () =>
 export const getGetCompanyInteractor = () => new GetCompanyInteractor(getCompanyRepo());
 
 export const getGetOrCreateInviteTokenInteractor = () => new GetOrCreateInviteTokenInteractor(getCompanyRepo());
+export const getGetInvitationLinkInteractor = () =>
+  new GetInvitationLinkInteractor(getGetOrCreateInviteTokenInteractor());
 
 export const getInviteUsersByEmailInteractor = () =>
   new InviteUsersByEmailInteractor(getEmailService(), getGetOrCreateInviteTokenInteractor());
