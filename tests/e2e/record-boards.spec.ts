@@ -108,7 +108,12 @@ test("moves a board card with the keyboard and restores relationship and date gr
   await page.getByRole("combobox", { name: "Group By", exact: true }).click();
   await page.getByRole("option", { name: "Created at · Month", exact: true }).click();
   await closeAppearance();
+  await expect(page).toHaveURL(/groupBy=system%3AcreatedAt%3Amonth/);
+  await expect(page.locator('[data-slot="kanban-root"]')).toContainText(
+    new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric", timeZone: "America/Los_Angeles" }).format(new Date()),
+  );
   await expect(card).toBeVisible();
+  await expect.poll(() => pending.size).toBe(0);
   await saveViewChanges(page);
   await expect
     .poll(async () => {

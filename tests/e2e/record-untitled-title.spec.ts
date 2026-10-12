@@ -7,17 +7,23 @@ import { openRecordLink } from "./record-rows";
 test("keeps an Untitled title column that opens the record after the only name field is deleted", async ({
   page,
   companyId,
-}) => {
+}, testInfo) => {
   const typeId = presetId(companyId, "organization");
   await openConfigure(page, typeId);
   await openConfigureRow(page, "Fields", "Name");
   await deleteFromDrawer(page, "Delete field");
 
   await page.goto(`/en/records/${typeId}`);
-  const table = page.getByRole("table");
-  await expect(table.getByRole("columnheader", { name: "Organization", exact: false })).toBeVisible();
-  const title = table.locator('[data-slot="data-row-open"]').first();
-  await expect(title).toHaveText("Untitled Organization");
+  if (testInfo.project.name === "mobile") {
+    const row = page.locator("[data-phone-rows] [data-row-id]").first();
+    await expect(row).toContainText("Untitled Organization");
+    await expect(row.getByRole("link", { name: "Untitled Organization", exact: true })).toHaveCount(1);
+  } else {
+    const table = page.getByRole("table");
+    await expect(table.getByRole("columnheader", { name: "Organization", exact: false })).toBeVisible();
+    const title = table.locator('[data-slot="data-row-open"]').first();
+    await expect(title).toHaveText("Untitled Organization");
+  }
   await openRecordLink(page.getByRole("link", { name: "Untitled Organization", exact: true }).first());
   await expect(page).toHaveURL(new RegExp(`/records/${typeId}/[0-9a-f-]{36}$`));
   await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toContainText("Untitled Organization");
