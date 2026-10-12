@@ -1,3 +1,4 @@
+import { unwoundFailure } from "@/core/validation/interactor-failure-server";
 import type { DeleteWebhookRepo } from "./delete-webhook.repo";
 import type { WebhookDto } from "./webhook.schema";
 import type { EventService } from "@/features/event/event.service";
@@ -13,8 +14,6 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { type Validated } from "@/core/validation/validation.utils";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { RecordWriteError } from "@/features/records/record-write.service";
-import { recordWriteFailure } from "@/features/records/record-write-failure";
 
 const Schema = z.object({
   id: z.uuid(),
@@ -41,8 +40,7 @@ export class DeleteWebhookInteractor extends AuthenticatedInteractor<DeleteWebho
     try {
       webhook = await this.repo.deleteWebhookOrThrow(data.id);
     } catch (error) {
-      if (error instanceof RecordWriteError) return recordWriteFailure(error);
-      throw error;
+      return unwoundFailure(error);
     }
 
     await this.eventService.publish(DomainEvent.WEBHOOK_DELETED, {

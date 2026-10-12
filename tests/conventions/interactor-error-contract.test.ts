@@ -18,6 +18,11 @@ const ACCESS_ERROR_OWNER_FILES = new Set([
   "ee/operator/operator-access.service.ts",
   "features/user/user.service.ts",
 ]);
+const FEATURE_ERROR_ROOTS = ["app", "components", "ee", "features", "workflows"];
+const FEATURE_ERROR_SUBCLASS_ALLOWLIST = new Map([
+  ["ee/routines/routine-run-limits.ts", "RoutineLimitExceededError"],
+  ["ee/messaging/unipile-request-error.ts", "UnipileRequestError"],
+]);
 const LEGACY_MCP_FAILURE_IDENTIFIERS = new Set([
   "customErrorMessage",
   "validationError",
@@ -191,6 +196,39 @@ describe("interactor error contract", () => {
     }
     expect(violations).toEqual([]);
   });
+
+  it("keeps feature code free of Error subclasses outside the documented exceptions", () => {
+    const found: string[] = [];
+    for (const path of FEATURE_ERROR_ROOTS.flatMap((root) =>
+      walkFiles(
+        `${REPO_ROOT}/${root}`,
+        (file) => /\.tsx?$/.test(file) && !file.includes("/__tests__/"),
+      ),
+    )) {
+      const file = ts.createSourceFile(
+        path,
+        readFileSync(path, "utf8"),
+        ts.ScriptTarget.Latest,
+        true,
+        path.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+      );
+      const visit = (node: ts.Node) => {
+        if (ts.isClassLike(node)) {
+          const extended = node.heritageClauses
+            ?.filter((clause) => clause.token === ts.SyntaxKind.ExtendsKeyword)
+            .flatMap((clause) => clause.types)
+            .map((type) => type.expression.getText(file));
+          if (extended?.some((name) => /Error$/.test(name)))
+            found.push(`${relative(REPO_ROOT, path)}:${node.name?.text ?? "anonymous"}`);
+        }
+        ts.forEachChild(node, visit);
+      };
+      visit(file);
+    }
+    expect(found.sort()).toEqual(
+      [...FEATURE_ERROR_SUBCLASS_ALLOWLIST].map(([path, name]) => `${path}:${name}`).sort(),
+    );
+  }, REPO_SCAN_TIMEOUT_MS);
 
   it("keeps terminal MCP failures structured", () => {
     const violations: string[] = [];

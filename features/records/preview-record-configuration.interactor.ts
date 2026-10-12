@@ -9,7 +9,7 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { PublicConfigurationChangeSchema } from "./configuration.schema";
 import { type RecordConfigurationService } from "./configuration.service";
-import { recordWriteFailure } from "./record-write-failure";
+import { unwoundFailure } from "@/core/validation/interactor-failure-server";
 
 @AllowInDemoMode
 @TenantInteractor()
@@ -47,7 +47,7 @@ export class PreviewRecordConfigurationInteractor extends AuthenticatedInteracto
           prepared.preview.valid = !prepared.preview.issues.length && !prepared.preview.deletion?.blockers.length;
           return { ok: true as const, data: prepared.preview };
         } catch (error) {
-          return recordWriteFailure(error);
+          return unwoundFailure(error);
         }
       },
       { readOnly: true },

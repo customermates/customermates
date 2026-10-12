@@ -12,12 +12,11 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { fail, failAuthorization, failNotFound } from "@/core/validation/interactor-failure-server";
+import { fail, failAuthorization, failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordMeasureSchema, RecordMeasureResultSchema } from "./record-measure.schema";
 import { RecordScalarSchema } from "./record-model.schema";
 import { recordMeasureIssue } from "./record-measure-validation";
-import { recordWriteFailure } from "./record-write-failure";
 
 @AllowInDemoMode
 @TenantInteractor()
@@ -126,7 +125,7 @@ export class QueryRecordMeasureInteractor extends AuthenticatedInteractor<Record
             }),
           };
         } catch (error) {
-          return recordWriteFailure(error);
+          return unwoundFailure(error);
         }
       },
       { readOnly: true },

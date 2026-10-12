@@ -1,3 +1,4 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import type { RecordRepo } from "./record.repo";
 import type { PreparedConfiguration } from "./configuration.service";
 import type { RecordModel, RecordRef } from "./record-model.schema";
@@ -5,7 +6,6 @@ import type { WebhookPauseNotifier } from "@/features/webhook/webhook-pause-noti
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { RecordCalculationService } from "./record-calculation.service";
 import { SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
-import { RecordWriteError } from "./record-write.service";
 import { configurationInputFields, configurationInputValue } from "./record-configuration-values";
 import { RecordTrashService } from "./record-trash.service";
 import { RECORD_SYSTEM_ACTOR } from "./record-system-actor";
@@ -44,7 +44,7 @@ export class RecordConfigurationWriter {
     limit = SYNCHRONOUS_RECORD_LIMIT,
   ): Promise<{ trashed: boolean }> {
     const row = await this.records.getRecordCompanyWide(ref, { includeTrash: true });
-    if (!row) throw new RecordWriteError(CustomErrorCode.recordNotFound, "not_found");
+    if (!row) throw unwindFailure(CustomErrorCode.recordNotFound, "not_found");
     for (const field of configurationInputFields(previous, prepared.model).filter(
       (field) => field.typeId === ref.typeId,
     )) {
@@ -75,18 +75,18 @@ export class RecordConfigurationWriter {
     userId: string | null,
     limit = SYNCHRONOUS_RECORD_LIMIT,
   ): Promise<RecordRef[]> {
-    if (!prepared.preview.valid) throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+    if (!prepared.preview.valid) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
     if ((await this.records.validateRelationshipCardinality(prepared.model)).length)
-      throw new RecordWriteError(CustomErrorCode.recordRelationConflict, "conflict");
+      throw unwindFailure(CustomErrorCode.recordRelationConflict, "conflict");
     const refs: RecordRef[] = [];
     for (const typeId of prepared.affectedTypeIds) {
       const page = await this.records.getRecordRefsCompanyWide(typeId, undefined, limit + 1, { includeTrash: true });
       refs.push(...page);
-      if (refs.length > limit) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
+      if (refs.length > limit) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
     }
     for (const grant of prepared.grants) {
       if (!(await this.records.validRecordRolesCompanyWide(grant.grants.map((entry) => entry.roleId))))
-        throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+        throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
     }
 
     await this.records.saveModel(prepared.model, userId ?? RECORD_SYSTEM_ACTOR, prepared.change);
@@ -100,7 +100,7 @@ export class RecordConfigurationWriter {
     for (const ref of refs) if (!(await this.initializeRecord(ref, prepared, previous, limit)).trashed) live.push(ref);
     for (const grant of prepared.grants) await this.records.setGrants(grant.typeId, grant.grants);
     const recalculated = await this.calculations.recalculate(prepared.model, live, new Map(), limit);
-    if (!recalculated.complete) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
+    if (!recalculated.complete) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
     for (const ref of recalculated.changed) await this.records.touch(ref);
     return refs;
   }

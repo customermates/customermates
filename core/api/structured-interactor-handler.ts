@@ -23,15 +23,35 @@ function failureResponse(description: string) {
   return { description, content: { "application/json": { schema: StructuredErrorResponseSchema } } };
 }
 
-export const StructuredApiResponses = {
+export const CommonApiResponses = {
   "400": failureResponse("Bad Request"),
   "401": failureResponse("Not authenticated"),
   "403": failureResponse("Not authorized"),
-  "404": failureResponse("Not found"),
-  "409": failureResponse("Conflict"),
-  "422": failureResponse("Unavailable: the request is valid but cannot be served right now (error.kind unavailable)"),
-  "429": failureResponse("Rate limited: retry later (error.kind rate_limit)"),
   "500": { description: "Unexpected error. The body is not a structured failure." },
+} as const;
+
+export const NotFoundApiResponse = { "404": failureResponse("Not found") } as const;
+
+export const ConflictApiResponse = { "409": failureResponse("Conflict") } as const;
+
+const UnavailableApiResponse = {
+  "422": failureResponse("Unavailable: the request is valid but cannot be served right now (error.kind unavailable)"),
+} as const;
+
+const RateLimitApiResponse = { "429": failureResponse("Rate limited: retry later (error.kind rate_limit)") } as const;
+
+export const MessagingProviderApiResponses = {
+  "409": failureResponse("Conflict, such as a provider rejection or a disconnected or restricted channel"),
+  ...UnavailableApiResponse,
+  ...RateLimitApiResponse,
+} as const;
+
+export const StructuredApiResponses = {
+  ...CommonApiResponses,
+  ...NotFoundApiResponse,
+  ...ConflictApiResponse,
+  ...UnavailableApiResponse,
+  ...RateLimitApiResponse,
 } as const;
 
 const APP_ERROR_FAILURES: Record<AppErrorCode, [InteractorFailureKind, CustomErrorCode]> = {

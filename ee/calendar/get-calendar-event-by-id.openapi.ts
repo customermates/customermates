@@ -3,7 +3,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { z } from "zod";
 
 import { CalendarEventDtoSchema } from "@/ee/calendar/calendar.schema";
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { CommonApiResponses } from "@/core/api/structured-interactor-handler";
 
 export const getCalendarEventByIdOperation: ZodOpenApiOperationObject = {
   operationId: "getCalendarEventById",

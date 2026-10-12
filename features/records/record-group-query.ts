@@ -1,3 +1,4 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { Prisma } from "@/generated/prisma";
 
 import type { RecordModel } from "./record-model.schema";
@@ -12,7 +13,6 @@ import {
   NO_VALUE_GROUP_KEY,
 } from "@/core/base/grouping/grouping.schema";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { RecordWriteError } from "./record-write.service";
 import { compileRecordQuery, fieldReadPredicate, recordReadPredicate } from "./record-query";
 import { resolveRecordGrouping } from "./record-grouping";
 import { recordCollation } from "./record-collation";
@@ -51,7 +51,7 @@ export function compileRecordGroups(
   memberScope: RecordReadScope,
 ): Prisma.Sql {
   const resolved = query.grouping && resolveRecordGrouping(query.typeId, query.grouping, model);
-  if (!resolved) throw new RecordWriteError(CustomErrorCode.recordValueInvalid);
+  if (!resolved) throw unwindFailure(CustomErrorCode.recordValueInvalid);
   const { source, grouping } = resolved;
   const root = Prisma.sql`"record_0"`;
   const value = Prisma.sql`"group_value"`;

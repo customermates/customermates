@@ -20,6 +20,7 @@ import type { RecordMutation } from "./record-query.schema";
 import type { InteractorFailureKind } from "@/core/validation/validation.utils";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { MAX_NOTES_JSON_SIZE, validateNotes } from "@/core/validation/validate-notes";
 import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/editor/editor.utils";
 import { scalarMatchesType, selectedOptionIds } from "./record-model-validation";
@@ -34,14 +35,12 @@ import { canonicalRecordJson, compareRecordKey } from "./record-json";
 import { recordTrashLabel } from "./record-trash-label";
 
 type Policy = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
-export { RecordWriteError } from "./record-write-error";
-import { RecordWriteError } from "./record-write-error";
 function reject(
   code: CustomErrorCode,
   kind: InteractorFailureKind = "validation",
   path: Array<string | number> = [],
 ): never {
-  throw new RecordWriteError(code, kind, path);
+  throw unwindFailure(code, kind, path);
 }
 
 export function normalizeRecordScalar(value: RecordScalar | null, field: RecordField): RecordScalar | null {

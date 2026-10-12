@@ -1,10 +1,9 @@
+import { unwoundFailure } from "@/core/validation/interactor-failure-server";
 import type { UpsertWebhookRepo } from "./upsert-webhook.repo";
 import {
   RecordTriggerDefinitionSchema,
   RecordTriggerSourceSchema,
 } from "@/features/records/record-event-subscription.schema";
-import { RecordWriteError } from "@/features/records/record-write.service";
-import { recordWriteFailure } from "@/features/records/record-write-failure";
 import type { WebhookDto } from "./webhook.schema";
 import type { EventService } from "@/features/event/event.service";
 import type { Data } from "@/core/validation/validation.utils";
@@ -129,8 +128,7 @@ export class UpsertWebhookInteractor extends AuthenticatedInteractor<UpsertWebho
     try {
       webhook = await this.repo.upsertWebhookOrThrow(data);
     } catch (error) {
-      if (error instanceof RecordWriteError) return recordWriteFailure(error);
-      throw error;
+      return unwoundFailure(error);
     }
 
     if (previousWebhook) {

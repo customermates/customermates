@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 
 import type { CustomErrorCode } from "./validation.types";
+import { failureUnwindCause } from "./failure-unwind";
 import { createZodError, type InteractorFailure, type InteractorFailureKind } from "./validation.utils";
 
 type FailureValues = Record<string, string | number>;
@@ -41,4 +42,23 @@ export function failUnavailable(code: CustomErrorCode, path: FailurePath = [], v
 
 export function failAuthorization(code: CustomErrorCode, path: FailurePath = [], values: FailureValues = {}) {
   return interactorFailure("authorization", code, path, values);
+}
+
+export function unwoundFailure(error: unknown): Promise<InteractorFailure> {
+  const cause = failureUnwindCause(error);
+  if (!cause) throw error;
+  switch (cause.failureKind) {
+    case "authorization":
+      return failAuthorization(cause.code, cause.path);
+    case "conflict":
+      return failConflict(cause.code, cause.path);
+    case "not_found":
+      return failNotFound(cause.code, cause.path);
+    case "rate_limit":
+      return failRateLimit(cause.code, cause.path);
+    case "unavailable":
+      return failUnavailable(cause.code, cause.path);
+    default:
+      return fail(cause.code, cause.path);
+  }
 }

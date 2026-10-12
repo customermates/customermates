@@ -1,4 +1,5 @@
-import { CalculationBudgetExceeded } from "./calculation-budget-exceeded";
+import { failureUnwindCause, unwindFailure } from "@/core/validation/failure-unwind";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordInvariant } from "./record-invariant";
 
 import type { CalculationContext } from "./calculation";
@@ -11,6 +12,11 @@ import { decodeRecordValue } from "./record-storage";
 
 export const SYNCHRONOUS_RECORD_LIMIT = 500;
 export const recordKey = (ref: RecordRef) => `${ref.typeId}:${ref.recordId}`;
+
+export function isCalculationBudgetExceeded(error: unknown): boolean {
+  const cause = failureUnwindCause(error);
+  return cause?.code === CustomErrorCode.recordCalculationBudget && cause.failureKind === "conflict";
+}
 
 type PathStep = { relationId: string; direction: "outgoing" | "incoming" };
 type Source = { typeId: string; fieldId: string | null; path: PathStep[] };
@@ -56,7 +62,7 @@ export class RecordCalculationService {
     try {
       return await this.calculate(model, seeds, capture, limit);
     } catch (error) {
-      if (error instanceof CalculationBudgetExceeded) return { complete: false, changed: [] };
+      if (isCalculationBudgetExceeded(error)) return { complete: false, changed: [] };
       throw error;
     }
   }
@@ -149,7 +155,7 @@ export class RecordCalculationService {
     try {
       return await evaluateCalculation(expression, ref, this.context(model, limit).context);
     } catch (error) {
-      if (error instanceof CalculationBudgetExceeded) return null;
+      if (isCalculationBudgetExceeded(error)) return null;
       throw error;
     }
   }
@@ -179,7 +185,7 @@ export class RecordCalculationService {
       },
       related: async (ref, relationId, direction) => {
         const refs = await this.records.linkedRecordsCompanyWide(ref, relationId, direction, limit + 1);
-        if (refs.length > limit) throw new CalculationBudgetExceeded();
+        if (refs.length > limit) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
         return refs;
       },
       optionAttribute: async (ref, fieldId, attribute) => {
@@ -203,7 +209,7 @@ export class RecordCalculationService {
     const dependencies = new Map<string, RecordRef>();
     const add = (source: RecordRef) => {
       dependencies.set(recordKey(source), source);
-      if (dependencies.size > limit) throw new CalculationBudgetExceeded();
+      if (dependencies.size > limit) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
     };
     const visit = async (node: CalculationExpression, current: RecordRef): Promise<void> => {
       if (node.kind === "literal") return;
@@ -218,7 +224,7 @@ export class RecordCalculationService {
           node.direction,
           limit + 1,
         );
-        if (related.length > limit) throw new CalculationBudgetExceeded();
+        if (related.length > limit) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
         for (const source of related) {
           add(source);
           await visit(node.expression, source);
@@ -304,7 +310,7 @@ export class RecordCalculationService {
       },
       related: async (source, relationId, direction) => {
         const refs = await this.records.linkedRecordsCompanyWide(source, relationId, direction, limit + 1);
-        if (refs.length > limit) throw new CalculationBudgetExceeded();
+        if (refs.length > limit) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
         return refs;
       },
       optionAttribute: async (source, sourceFieldId, attribute) => {

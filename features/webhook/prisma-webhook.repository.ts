@@ -1,3 +1,4 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { RECORD_EVENT_KINDS, type RecordEventKind } from "@/features/records/record-event.schema";
 import type { RecordWebhookConfigurationRepo } from "./record-webhook-configuration.repo";
 import type { PermissionService } from "@/core/base/permission.service";
@@ -6,7 +7,6 @@ import {
   RecordTriggerDefinitionSchema,
   RecordTriggerSourceSchema,
 } from "@/features/records/record-event-subscription.schema";
-import { RecordWriteError } from "@/features/records/record-write.service";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { RepoArgs } from "@/core/utils/types";
 import type { GetWebhooksRepo } from "@/features/webhook/get-webhooks.repo";
@@ -86,7 +86,7 @@ export class PrismaWebhookRepo
       !actor?.role ||
       (!actor.role.isSystemRole && (!actor.role.permissions.length || (ownerUserId && ownerUserId !== this.userId)))
     )
-      throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
+      throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
   }
 
   private async saveRecordSubscription(
@@ -99,7 +99,7 @@ export class PrismaWebhookRepo
     );
     if (!events.length) {
       if (input.recordTrigger || input.recordSources?.length || input.recordOwnerUserId)
-        throw new RecordWriteError(CustomErrorCode.recordConfigurationInvalid);
+        throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
       await this.subscriptions.remove(webhook.id);
       return;
     }
@@ -110,7 +110,7 @@ export class PrismaWebhookRepo
         input.recordOwnerUserId !== undefined) &&
       input.expectedSchemaRevision === undefined
     )
-      throw new RecordWriteError(CustomErrorCode.recordSchemaChanged, "conflict");
+      throw unwindFailure(CustomErrorCode.recordSchemaChanged, "conflict");
     const sources =
       input.recordSources !== undefined
         ? input.recordSources
@@ -131,7 +131,7 @@ export class PrismaWebhookRepo
         trigger?.query.relatedFilters?.length,
     );
     if (previous?.pausedReason && webhook.enabled && !filtered)
-      throw new RecordWriteError(CustomErrorCode.webhookTriggerRequired);
+      throw unwindFailure(CustomErrorCode.webhookTriggerRequired);
     await this.subscriptions.save(
       {
         id: webhook.id,

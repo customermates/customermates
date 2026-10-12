@@ -1,9 +1,9 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { randomUUID } from "node:crypto";
 
 import { channelClass, isDeterministicProvider } from "@/ee/messaging/provider";
 import { normalizeChannelValue } from "@/features/records/channel-value";
 import type { RecordIdentity, RecordIdentityInput } from "./record-identity.schema";
-import { RecordWriteError } from "./record-write-error";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 export function identityKeys(
@@ -88,7 +88,7 @@ export function identityAssociations(inputs: RecordIdentityInput[], known: Recor
       (row) => row.channelClass === kind && identityKeys(row).some((value) => keys.has(value)),
     );
     if (new Set(matches.map((row) => row.id)).size > 1)
-      throw new RecordWriteError(CustomErrorCode.channelAlreadyLinked, "conflict", ["identities"]);
+      throw unwindFailure(CustomErrorCode.channelAlreadyLinked, "conflict", ["identities"]);
     const identity = matches[0] ?? updatedIdentities([], [input])[0];
     if (!identity) throw new Error("An identity input must create a channel");
     if (!matches.length) candidates.push(identity);

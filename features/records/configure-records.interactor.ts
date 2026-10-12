@@ -14,13 +14,12 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { fail, failAuthorization, failConflict } from "@/core/validation/interactor-failure-server";
+import { fail, failAuthorization, failConflict, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { PublicConfigurationChangeSchema } from "./configuration.schema";
 import { canConfigureRecords, type RecordConfigurationService } from "./configuration.service";
 import { RecordOperationResultSchema } from "./record-query.schema";
 import { recordRequestHash } from "./record-request-hash";
-import { recordWriteFailure } from "./record-write-failure";
 import { RecordJournal } from "./record-journal";
 import { configurationTrashBatchId } from "./configuration-trash-batch";
 import { currentRoutineContext } from "@/core/decorators/routine-context";
@@ -108,7 +107,7 @@ export class ApplyRecordConfigurationInteractor extends AuthenticatedInteractor<
           await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);
           return { ok: true, data };
         } catch (error) {
-          return recordWriteFailure(error);
+          return unwoundFailure(error);
         }
       },
       { timeout: 30000 },

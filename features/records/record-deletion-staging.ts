@@ -1,3 +1,4 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { z } from "zod";
 
 import type { RecordRepo } from "./record.repo";
@@ -8,7 +9,6 @@ import type { RecordJournal } from "./record-journal";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordRefSchema } from "./record-model.schema";
-import { RecordWriteError } from "./record-write.service";
 import { recordKey } from "./record-calculation.service";
 import { recordInvariant } from "./record-invariant";
 import { recordTrashLabel } from "./record-trash-label";
@@ -67,10 +67,10 @@ export class RecordDeletionStaging {
         if (!ref) {
           const status = await this.records.getStagedDeletionStatus(this.operationId, model.revision);
           if (status.affectedCount > this.limit || status.linkCount > this.limit * 4)
-            throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
-          if (status.restricted) throw new RecordWriteError(CustomErrorCode.recordDependencies, "conflict");
+            throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
+          if (status.restricted) throw unwindFailure(CustomErrorCode.recordDependencies, "conflict");
           if (mutation.expectedImpactHash && mutation.expectedImpactHash !== status.impactHash)
-            throw new RecordWriteError(CustomErrorCode.recordVersionChanged, "conflict");
+            throw unwindFailure(CustomErrorCode.recordVersionChanged, "conflict");
           return {
             cursor: { phase: "deleteLinks", index: 0 },
             processed,
@@ -80,13 +80,12 @@ export class RecordDeletionStaging {
         const key = recordKey(ref);
         if (!afterId) {
           if (!model.types.some((type) => type.id === ref?.typeId && !type.archived))
-            throw new RecordWriteError(CustomErrorCode.recordTypeNotFound, "not_found");
+            throw unwindFailure(CustomErrorCode.recordTypeNotFound, "not_found");
           const row = await this.records.getRecordCompanyWide(ref);
-          if (!row || !(await policy.canRead(row)))
-            throw new RecordWriteError(CustomErrorCode.recordNotFound, "not_found");
+          if (!row || !(await policy.canRead(row))) throw unwindFailure(CustomErrorCode.recordNotFound, "not_found");
           if (!policy.allowed(ref.typeId, "delete"))
-            throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
-          if (row.protectedKind) throw new RecordWriteError(CustomErrorCode.recordProtected, "authorization");
+            throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
+          if (row.protectedKind) throw unwindFailure(CustomErrorCode.recordProtected, "authorization");
           await this.records.stageRow(this.operationId, "delete-plan", key, {
             ref,
             version: row.version,

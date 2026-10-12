@@ -20,12 +20,11 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { failAuthorization, failNotFound } from "@/core/validation/interactor-failure-server";
+import { failAuthorization, failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordActivitiesInputSchema, RecordActivitiesResultSchema } from "./record-activities.schema";
 import { RecordEventPayloadSchema } from "@/features/records/record-event.schema";
 import { recordKey } from "@/features/records/record-calculation.service";
-import { recordWriteFailure } from "@/features/records/record-write-failure";
 import { hydrateMessageRecordIdentities } from "../record-message-identities";
 import { toMessagingMessageDto } from "../inbox/inbox.schema";
 import { ACTIVITY_RELATED_RECORD_LIMIT } from "./activity-record-refs";
@@ -301,7 +300,7 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
             }),
           };
         } catch (error) {
-          return recordWriteFailure(error);
+          return unwoundFailure(error);
         }
       },
       { readOnly: true },

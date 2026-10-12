@@ -1,3 +1,4 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { channelClass } from "@/ee/messaging/provider";
 import { RecordRevisionChangeSchema, type RecordRevisionChange } from "./record-revision.schema";
 import { captureRecordEventMatches } from "./record-event-capture";
@@ -44,7 +45,6 @@ import { compileRecordGroups } from "./record-group-query";
 import { resolveRecordGrouping } from "./record-grouping";
 import { RecordGroupingResultSchema } from "./record-grouping.schema";
 import { MAX_AXIS_GROUPS, NO_VALUE_GROUP_KEY } from "@/core/base/grouping/grouping.schema";
-import { RecordWriteError } from "./record-write.service";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { RecordMeasure } from "./record-measure.schema";
 import { RecordMeasureSchema } from "./record-measure.schema";
@@ -265,7 +265,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo, Pr
       ${limitPerKey === undefined ? Prisma.sql`LIMIT 10001` : Prisma.empty}
     `);
     if (limitPerKey === undefined && rows.length > 10000)
-      throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
+      throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
     return rows.map(({ typeId, recordId, ...key }) => ({ ...key, ref: { typeId, recordId } }));
   }
 
@@ -403,8 +403,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo, Pr
           },
         },
       });
-      if (owner?.identityId !== identityId)
-        throw new RecordWriteError(CustomErrorCode.channelAlreadyLinked, "conflict");
+      if (owner?.identityId !== identityId) throw unwindFailure(CustomErrorCode.channelAlreadyLinked, "conflict");
     }
     await this.prisma.recordIdentity.update({
       where: {
@@ -1040,19 +1039,18 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo, Pr
     memberScope: RecordReadScope,
   ) {
     const resolved = query.grouping && resolveRecordGrouping(query.typeId, query.grouping, model);
-    if (!resolved) throw new RecordWriteError(CustomErrorCode.recordValueInvalid);
+    if (!resolved) throw unwindFailure(CustomErrorCode.recordValueInvalid);
     const rows = await this.prisma.$queryRaw<RecordGroupRow[]>(
       compileRecordGroups(this.companyId, query, model, access, memberScope),
     );
-    if (rows.some((row) => row.restricted)) throw new RecordWriteError(CustomErrorCode.permissionDenied);
-    if (rows.some((row) => row.overflowWithRecords))
-      throw new RecordWriteError(CustomErrorCode.recordCalculationBudget);
+    if (rows.some((row) => row.restricted)) throw unwindFailure(CustomErrorCode.permissionDenied);
+    if (rows.some((row) => row.overflowWithRecords)) throw unwindFailure(CustomErrorCode.recordCalculationBudget);
     let valueGroups = 0;
     const axisRows = rows.filter((row) => row.key === NO_VALUE_GROUP_KEY || ++valueGroups <= MAX_AXIS_GROUPS);
     const groups = query.groupPage?.only ? axisRows.filter((row) => row.key === query.groupPage?.only) : axisRows;
-    if (!groups.length) throw new RecordWriteError(CustomErrorCode.recordValueInvalid);
+    if (!groups.length) throw unwindFailure(CustomErrorCode.recordValueInvalid);
     const ids = [...new Set(groups.flatMap((group) => group.itemIds))];
-    if (ids.length > 1000) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget);
+    if (ids.length > 1000) throw unwindFailure(CustomErrorCode.recordCalculationBudget);
     const records = await this.getRecordsCompanyWide(ids.map((recordId) => ({ typeId: query.typeId, recordId })));
     const visibleFields = await this.visibleFields(
       records.map((record) => ({ typeId: record.typeId, recordId: record.id })),
@@ -2004,7 +2002,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo, Pr
         JOIN "RecordIdentityKey" key ON key."companyId" = ${companyId} AND key."channelClass" = item.data->>'channelClass' AND key.value = alias.value
         WHERE ${stage("identity")} AND key."identityId" <> item.data->>'id'
       ) AS collision`);
-    if (collisions[0]?.collision) throw new RecordWriteError(CustomErrorCode.channelAlreadyLinked, "conflict");
+    if (collisions[0]?.collision) throw unwindFailure(CustomErrorCode.channelAlreadyLinked, "conflict");
     await this.prisma.$executeRaw(Prisma.sql`
       DELETE FROM "RecordIdentityLink" association USING "RecordStageRow" stage
       WHERE ${stage("identity")} AND association."companyId" = ${companyId}
@@ -2094,7 +2092,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo, Pr
     });
     if (!operation) return;
     if (!["completed", "cancelled", "failed"].includes(operation.state))
-      throw new RecordWriteError(CustomErrorCode.recordVersionChanged, "conflict");
+      throw unwindFailure(CustomErrorCode.recordVersionChanged, "conflict");
     await this.prisma.recordSchemaState.updateMany({
       where: { companyId, activeOperationId: id },
       data: { activeOperationId: null },

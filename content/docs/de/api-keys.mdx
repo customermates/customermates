@@ -54,6 +54,21 @@ curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
 
 Alle REST-Operationen mit Request und Response stehen in der [API-Referenz](/docs/openapi).
 
+## Was liefert ein abgelehnter REST-Aufruf? [#what-does-a-failed-rest-call-return]
+
+Jeder REST-Endpunkt beantwortet einen abgelehnten Aufruf mit demselben JSON-Body: einem `error`-Objekt mit `kind` und den `issues`, die MCP in `_meta.failure` liefert (siehe [Wenn ein Aufruf abgelehnt wird](/docs/mcp#when-a-call-is-refused)).
+
+```json
+{
+  "error": {
+    "kind": "not_found",
+    "issues": [{ "code": "custom", "path": [], "message": "Webhook ID not found or not accessible.", "customCode": "webhookNotFound" }]
+  }
+}
+```
+
+Der HTTP-Status folgt `error.kind`: `validation` 400, `authentication` 401, `authorization` 403, `not_found` 404, `conflict` 409, `unavailable` 422 und `rate_limit` 429. Jedes Issue nennt den Feld-`path`, zu dem es gehört, und, wo vorhanden, einen stabilen `customCode`. `error.retryable` ist nur dann `true`, wenn derselbe Aufruf später gelingen kann. Werten Sie `kind` und `customCode` aus statt `message`, die Text für Menschen ist. Ein unerwarteter Serverfehler antwortet mit 500 ohne diesen Body.
+
 ## Wie lange ist ein Key gültig, und laufen Keys ab? [#do-keys-expire]
 
 Ein **Standard-API-Key** läuft nur ab, wenn Sie unter **Läuft ab** ein Datum wählen; die Voreinstellung **Läuft nie ab** hält ihn gültig, bis Sie ihn löschen. Ein Datum muss zwischen 1 und 365 Tagen in der Zukunft liegen. Ein Key aus den **Schnellverbindungen** (Schnellverbindungs-Schlüssel), auch aus dem Onboarding-Assistenten, gilt 365 Tage: Er läuft immer 365 Tage nach der Erstellung ab. Das Ablaufdatum lässt sich nicht verlängern: Legen Sie vorher einen neuen Key an und aktualisieren Sie den Client. Jede Key-Karte zeigt **Erstellt am**, **Läuft ab** (**Nie**, wenn kein Datum gesetzt ist) und **Zuletzt verwendet**.

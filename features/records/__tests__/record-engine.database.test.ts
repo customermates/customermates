@@ -61,7 +61,8 @@ const { ImportRecordsInteractor } = await import("@/features/data-transfer/impor
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
-const { RecordWriteService, RecordWriteError } = await import("../record-write.service");
+const { RecordWriteService } = await import("../record-write.service");
+const { unwindFailure } = await import("@/core/validation/failure-unwind");
 const { RecordOperationService } = await import("../record-operation.service");
 const { CancelRecordOperationInteractor } = await import("../cancel-record-operation.interactor");
 const { GetRecordOperationInteractor } = await import("../get-record-operation.interactor");
@@ -871,7 +872,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const input = { typeId: source.typeId, filters: [], relationships: [], sort: [] };
     const query = vi.spyOn(f.repo, "query");
     try {
-      query.mockRejectedValueOnce(new RecordWriteError(CustomErrorCode.recordCalculationBudget));
+      query.mockRejectedValueOnce(unwindFailure(CustomErrorCode.recordCalculationBudget));
       const rejected = await f.run(() => exporter.invoke(input));
       expect(rejected).toMatchObject({ ok: false });
       expect(rejected).not.toHaveProperty("data");
@@ -2992,7 +2993,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           expectedSchemaRevision: revision,
         }),
       );
-    await expect(reenable(null)).rejects.toMatchObject({ code: CustomErrorCode.webhookTriggerRequired });
+    await expect(reenable(null)).rejects.toMatchObject({ cause: { code: CustomErrorCode.webhookTriggerRequired } });
     expect(
       await reenable({ query: { typeId: f.id("service"), filters: [], relationships: [] }, changedFieldIds: [] }),
     ).toMatchObject({ enabled: true, pausedReason: null });
@@ -5583,7 +5584,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       data: { systemActions: [] },
     });
     await expect(f.run(() => getMembershipTaskService().registered(foreign.member.id))).rejects.toMatchObject({
-      code: "userNotFound",
+      cause: { code: "userNotFound", failureKind: "not_found" },
     });
   });
 
@@ -6833,8 +6834,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     expect(await f.run(() => f.repo.getIdentityOwnersCompanyWide(keys.slice(0, 1)))).toHaveLength(21);
     await expect(f.run(() => f.repo.getIdentityOwnersCompanyWide(keys))).rejects.toMatchObject({
-      code: CustomErrorCode.recordCalculationBudget,
-      kind: "conflict",
+      cause: { code: CustomErrorCode.recordCalculationBudget, failureKind: "conflict" },
     });
     expect(await f.run(() => f.repo.getIdentityOwnersCompanyWide(keys, [f.id("service")]))).toEqual([]);
   });
@@ -6866,8 +6866,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         ),
       );
       await expect(f.run(() => f.repo.getIdentityOwnersCompanyWide([key]))).rejects.toMatchObject({
-        code: CustomErrorCode.recordCalculationBudget,
-        kind: "conflict",
+        cause: { code: CustomErrorCode.recordCalculationBudget, failureKind: "conflict" },
       });
       const reader = new RecordIdentityReader(f.repo, f.policy);
       const lookup = { provider: "mail" as const, value: "Heavily-Shared@example.test" };
@@ -6875,7 +6874,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       expect(display.records).toHaveLength(IDENTITY_MATCH_DISPLAY_LIMIT);
       expect(display.moreRecords).toBe(true);
       await expect(f.run(() => reader.resolve([lookup], undefined, { complete: true }))).rejects.toMatchObject({
-        code: CustomErrorCode.recordCalculationBudget,
+        cause: { code: CustomErrorCode.recordCalculationBudget },
       });
       const memberAccess = (await f.run(() => f.policy.load(), f.member)).access([typeId]);
       expect(

@@ -2,7 +2,7 @@ import type { NextRequest } from "next/server";
 
 import { NextResponse } from "next/server";
 
-import { handleError, interactorFailureResponse } from "@/core/api/interactor-handler";
+import { handleError, interactorFailureResponse } from "@/core/api/structured-interactor-handler";
 import { getGetMessageAttachmentInteractor } from "@/core/di";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import {

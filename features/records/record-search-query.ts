@@ -1,10 +1,10 @@
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { Prisma } from "@/generated/prisma";
 import type { RecordModel, RecordRef } from "./record-model.schema";
 import type { RecordAccessMap } from "./record-query.schema";
 import type { RecordSearch } from "./record-search.schema";
 import { RecordQuerySchema } from "./record-query.schema";
 import { compileRecordQuery, fieldReadPredicate, recordReadPredicate } from "./record-query";
-import { RecordWriteError } from "./record-write.service";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
 export type RecordSearchRow = {
@@ -107,6 +107,6 @@ export function compileRecordSearch(
     FROM (${Prisma.join(branches, " UNION ALL ")}) records WHERE ${after}
     ORDER BY ${similarTerm !== null ? Prisma.sql`COALESCE(word_similarity(${similarTerm}, title), 0) DESC,` : Prisma.empty} "createdAt" DESC, "typeId" ASC, "recordId" ASC LIMIT ${"search" in request ? request.search.limit + 1 : request.refs.length}`;
   if (sql.values.length > 12000 || sql.sql.length > 1500000)
-    throw new RecordWriteError(CustomErrorCode.recordCalculationBudget);
+    throw unwindFailure(CustomErrorCode.recordCalculationBudget);
   return sql;
 }
