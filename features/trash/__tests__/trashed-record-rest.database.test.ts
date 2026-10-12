@@ -15,9 +15,9 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
 }));
 
-const { createRestRouteWorkspace, postAs } = await import("@/tests/helpers/rest-route-workspace");
+const { createRestRouteWorkspace, postAs, restRoute } = await import("@/tests/helpers/rest-route-workspace");
 const { TrashedRecordSchema } = await import("../trash.schema");
-const read = (await import("@/app/api/v1/trash/read/route")).POST;
+const read = await restRoute("/v1/trash/read");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const cleanups: Array<() => Promise<unknown>> = [];

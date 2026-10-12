@@ -20,13 +20,13 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
 }));
 
-const { createRestRouteWorkspace, postAs } = await import("@/tests/helpers/rest-route-workspace");
+const { createRestRouteWorkspace, postAs, restRoute } = await import("@/tests/helpers/rest-route-workspace");
 const routes = {
-  save: (await import("@/app/api/v1/widgets/save/route")).POST,
-  list: (await import("@/app/api/v1/widgets/list/route")).POST,
-  remove: (await import("@/app/api/v1/widgets/delete/route")).POST,
-  layout: (await import("@/app/api/v1/widgets/layout/route")).POST,
-  createView: (await import("@/app/api/v1/data-views/create/route")).POST,
+  save: await restRoute("/v1/widgets/save"),
+  list: await restRoute("/v1/widgets/list"),
+  remove: await restRoute("/v1/widgets/delete"),
+  layout: await restRoute("/v1/widgets/layout"),
+  createView: await restRoute("/v1/data-views/create"),
 };
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;

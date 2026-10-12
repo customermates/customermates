@@ -52,10 +52,10 @@ export const AuditDetail = observer(({ entry }: Props) => {
   const changes = entry.changes.map((change) => ({
     key: change.field,
     field: change.label ?? fieldLabel(change.field),
-    previous: change.snapshot && removal ? change.current : change.previous,
-    current: change.snapshot && removal ? undefined : change.current,
+    previous: "snapshot" in change ? (removal ? change.current : undefined) : change.previous,
+    current: "snapshot" in change && removal ? undefined : change.current,
     value: change.current,
-    snapshot: change.snapshot === true,
+    snapshot: "snapshot" in change,
   }));
 
   function renderChangeRow(change: (typeof changes)[number]): ReactNode {

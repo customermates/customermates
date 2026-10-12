@@ -32,36 +32,42 @@ import { valueResult } from "@/features/records/calculation";
 type ImportRow = ImportRecordsInput["document"]["records"][number];
 type Assignment = { fieldId: string; value: RecordScalar | null };
 
-function inputAssignments(
-  row: ImportRow,
-  fields: RecordField[],
-): { assignments: Assignment[]; captured: Array<{ field: RecordField; result: CalculatedValue }> } | null {
+type RowAssignments =
+  | { ok: true; assignments: Assignment[]; captured: Array<{ field: RecordField; result: CalculatedValue }> }
+  | { ok: false; path: Array<string | number> };
+
+function inputAssignments(row: ImportRow, fields: RecordField[], mode: ImportRecordsInput["mode"]): RowAssignments {
   const definitions = new Map(fields.map((field) => [field.id, field]));
   const assignments: Assignment[] = [];
   const captured: Array<{ field: RecordField; result: CalculatedValue }> = [];
   const seen = new Set<string>();
-  for (const entry of row.fields) {
+  for (const [index, entry] of row.fields.entries()) {
     const field = definitions.get(entry.fieldId);
-    if (!field || field.archived || field.valueType === "channels" || seen.has(field.id)) return null;
+    if (!field || field.archived || field.valueType === "channels" || seen.has(field.id))
+      return { ok: false, path: ["fields", index, "fieldId"] };
     seen.add(field.id);
+    const unreadable = entry.result.state === "restricted" || entry.result.state === "error";
     if (field.behavior.kind === "snapshot") {
-      if (entry.result.state === "restricted" || entry.result.state === "error") return null;
+      if (unreadable) return { ok: false, path: ["fields", index, "result"] };
       if (entry.result.state === "value") {
         if (field.behavior.allowManualOverride) assignments.push({ fieldId: field.id, value: entry.result.value });
+        else if (mode === "create") return { ok: false, path: ["fields", index, "result"] };
         else captured.push({ field, result: entry.result });
       }
       continue;
     }
     if (field.behavior.kind !== "input") continue;
-    if (entry.result.state === "restricted" || entry.result.state === "error") return null;
+    if (unreadable) return { ok: false, path: ["fields", index, "result"] };
     assignments.push({
       fieldId: field.id,
       value: entry.result.state === "value" ? entry.result.value : null,
     });
   }
-  if (fields.some((field) => field.behavior.kind === "input" && field.valueType !== "channels" && !seen.has(field.id)))
-    return null;
-  return { assignments, captured };
+  const missing = fields.find(
+    (field) => field.behavior.kind === "input" && field.valueType !== "channels" && !seen.has(field.id),
+  );
+  if (missing) return { ok: false, path: ["fields", missing.id] };
+  return { ok: true, assignments, captured };
 }
 
 function storedResult(record: StoredRecord, field: RecordField): CalculatedValue {
@@ -126,19 +132,19 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
         const assignments = new Map<string, Assignment[]>();
         const captured = new Map<string, Array<{ field: RecordField; result: CalculatedValue }>>();
         const rows = new Map<string, ImportRow>();
-        for (const row of document.records) {
-          if (
-            depth(row.ref.typeId) === null ||
-            row.schemaRevision !== model.revision ||
-            (row.protectedKind && input.mode === "create")
-          )
-            return fail(CustomErrorCode.recordValueInvalid);
+        for (const [index, row] of document.records.entries()) {
+          const rowPath = ["document", "records", index];
+          if (depth(row.ref.typeId) === null)
+            return fail(CustomErrorCode.recordValueInvalid, [...rowPath, "ref", "typeId"]);
+          if (row.schemaRevision !== model.revision)
+            return fail(CustomErrorCode.recordValueInvalid, [...rowPath, "schemaRevision"]);
+          if (row.protectedKind && input.mode === "create")
+            return fail(CustomErrorCode.recordValueInvalid, [...rowPath, "protectedKind"]);
           const key = recordKey(row.ref);
-          if (assignments.has(key)) return fail(CustomErrorCode.recordValueInvalid);
+          if (assignments.has(key)) return fail(CustomErrorCode.recordValueInvalid, [...rowPath, "ref", "recordId"]);
           const fields = model.fields.filter((field) => field.typeId === row.ref.typeId && !field.archived);
-          const values = inputAssignments(row, fields);
-          if (!values || (values.captured.length && input.mode === "create"))
-            return fail(CustomErrorCode.recordValueInvalid);
+          const values = inputAssignments(row, fields, input.mode);
+          if (!values.ok) return fail(CustomErrorCode.recordValueInvalid, [...rowPath, ...values.path]);
           assignments.set(key, values.assignments);
           captured.set(key, values.captured);
           rows.set(key, row);

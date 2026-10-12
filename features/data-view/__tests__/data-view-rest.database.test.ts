@@ -15,17 +15,17 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
 }));
 
-const { createRestRouteWorkspace, postAs } = await import("@/tests/helpers/rest-route-workspace");
+const { createRestRouteWorkspace, postAs, restRoute } = await import("@/tests/helpers/rest-route-workspace");
 const routes = {
-  surfaces: (await import("@/app/api/v1/data-views/surfaces/route")).POST,
-  config: (await import("@/app/api/v1/data-views/config/route")).POST,
-  list: (await import("@/app/api/v1/data-views/list/route")).POST,
-  read: (await import("@/app/api/v1/data-views/read/route")).POST,
-  create: (await import("@/app/api/v1/data-views/create/route")).POST,
-  update: (await import("@/app/api/v1/data-views/update/route")).POST,
-  select: (await import("@/app/api/v1/data-views/select/route")).POST,
-  reset: (await import("@/app/api/v1/data-views/reset/route")).POST,
-  remove: (await import("@/app/api/v1/data-views/delete/route")).POST,
+  surfaces: await restRoute("/v1/data-views/surfaces"),
+  config: await restRoute("/v1/data-views/config"),
+  list: await restRoute("/v1/data-views/list"),
+  read: await restRoute("/v1/data-views/read"),
+  create: await restRoute("/v1/data-views/create"),
+  update: await restRoute("/v1/data-views/update"),
+  select: await restRoute("/v1/data-views/select"),
+  reset: await restRoute("/v1/data-views/reset"),
+  remove: await restRoute("/v1/data-views/delete"),
 };
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;

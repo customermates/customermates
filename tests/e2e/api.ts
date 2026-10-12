@@ -3,11 +3,14 @@ import type { Client } from "pg";
 
 import { expect } from "@playwright/test";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
+import { assertPublishedResponse } from "../helpers/openapi-validator";
 
 export async function postOk(page: Page, path: string, data: unknown) {
   const response = await page.request.post(path, { data });
   expect(response.status(), await response.text()).toBe(200);
-  return response.json();
+  const body = await response.json();
+  if (path.startsWith("/api/v1/")) assertPublishedResponse(path.slice("/api".length), "post", 200, body);
+  return body;
 }
 
 export async function readModel(database: Client, companyId: string) {
