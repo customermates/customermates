@@ -61,6 +61,7 @@ const AUTHENTICATION_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.n
 const AUTHORIZATION_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.userInactive,
   CustomErrorCode.permissionDenied,
+  CustomErrorCode.insufficientPermissions,
   CustomErrorCode.demoMode,
   CustomErrorCode.roleSelfEditForbidden,
 ]);

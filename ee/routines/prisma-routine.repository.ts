@@ -229,11 +229,12 @@ export class PrismaRoutineRepo
     return this.scopedCompanyId ?? super.companyId;
   }
 
-  private async withRecordTriggers(rows: RoutineDto[], companyId: string): Promise<RoutineDto[]> {
-    const subscriptions = await this.subscriptions.findUnscoped(
-      companyId,
-      rows.map((row) => row.id),
-    );
+  private async withRecordTriggers(rows: RoutineDto[], companyId: string, readable = false): Promise<RoutineDto[]> {
+    const ids = rows.map((row) => row.id);
+    const subscriptions =
+      readable && this.scopedCompanyId === undefined
+        ? await this.subscriptions.findReadable(ids)
+        : await this.subscriptions.findUnscoped(companyId, ids);
     const byId = new Map(subscriptions.filter((row) => row.kind === "routine").map((row) => [row.id, row]));
     return rows.map((row) => {
       const subscription = byId.get(row.id);
@@ -341,7 +342,7 @@ export class PrismaRoutineRepo
       params,
       map: routineDto,
     });
-    return this.withRecordTriggers(rows, this.companyId);
+    return this.withRecordTriggers(rows, this.companyId, true);
   }
 
   async getCount(params: GetQueryParams) {
@@ -434,7 +435,7 @@ export class PrismaRoutineRepo
       select: ROUTINE_SELECT,
     });
 
-    return routine ? (await this.withRecordTriggers([routineDto(routine)], this.companyId))[0] : null;
+    return routine ? (await this.withRecordTriggers([routineDto(routine)], this.companyId, true))[0] : null;
   }
 
   async getRoutineByIdOrThrow(id: string): Promise<RoutineDto> {
@@ -443,7 +444,7 @@ export class PrismaRoutineRepo
       select: ROUTINE_SELECT,
     });
 
-    return (await this.withRecordTriggers([routineDto(routine)], this.companyId))[0];
+    return (await this.withRecordTriggers([routineDto(routine)], this.companyId, true))[0];
   }
 
   async isEligibleRoutineOwner(userId: string): Promise<boolean> {

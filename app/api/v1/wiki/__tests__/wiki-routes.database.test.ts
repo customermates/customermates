@@ -81,8 +81,8 @@ describeDatabase("Knowledge Base REST routes", () => {
       [managerRoleId, "REST Wiki manager", companyId, readerRoleId, "REST Wiki reader"],
     );
     await client.query(
-      'INSERT INTO "RolePermission" ("id", "roleId", "companyId", "resource", "action") VALUES ($1, $2, $3, \'wiki\', \'readAll\')',
-      [randomUUID(), readerRoleId, companyId],
+      'INSERT INTO "RolePermission" ("id", "roleId", "companyId", "resource", "action") VALUES ($1, $2, $3, \'wiki\', \'readAll\'), ($4, $2, $3, \'api\', \'readAll\')',
+      [randomUUID(), readerRoleId, companyId, randomUUID()],
     );
     await client.query(
       'INSERT INTO "User" ("id", "email", "firstName", "lastName", "companyId", "roleId", "status", "updatedAt") VALUES ($1, $2, \'Wiki\', \'Manager\', $3, $4, \'active\', CURRENT_TIMESTAMP), ($5, $6, \'Wiki\', \'Reader\', $3, $7, \'active\', CURRENT_TIMESTAMP)',

@@ -14,6 +14,7 @@ import { normalizeRecordInput, scalarMatchesType } from "./record-model-validati
 
 const EXAMPLE_LENGTH = 40;
 const DECIMAL_TEXT = /^[+-]?\d+(?:\.\d+)?$/;
+const LIVE_DERIVED_KINDS = new Set<RecordField["behavior"]["kind"]>(["formula", "lookup", "rollup"]);
 
 export function fieldValueDefinition(field: RecordField | undefined): string {
   if (!field) return "";
@@ -24,6 +25,7 @@ export function fieldValueDefinition(field: RecordField | undefined): string {
     archived: field.archived,
     publishedSummary: field.publishedSummary,
     currency: field.valueType === "currency" ? (field.format?.currency ?? null) : null,
+    decimalPlaces: LIVE_DERIVED_KINDS.has(field.behavior.kind) ? (field.format?.decimalPlaces ?? null) : null,
     behavior: field.behavior,
     options: field.options
       .map(({ id, attributes }) => ({ id, attributes }))

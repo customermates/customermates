@@ -87,9 +87,9 @@ A **Standard API key** expires only if you pick a date under **Expires in**; the
 
 On [API keys](app:settings/api-keys), click the key's card and choose **Delete**; after you confirm, the key stops working immediately. Deleting needs **Delete** on **API & Webhooks**. There is no separate rotate or revoke action: to rotate, create a new key, update every client that used the old one, then delete the old key.
 
-Rotate when a device that held the key is lost or compromised, when a teammate with access leaves, or when you suspect the key leaked. One key per client lets you delete a single client without breaking the others. It does not separate them in the audit log, which names the user a key belongs to, not the key. Keep keys in an environment variable or a password manager, never in a config file you commit.
+Rotate when a device that held the key is lost or compromised, when a teammate with access leaves, or when you suspect the key leaked. One key per client lets you delete one client without breaking the others; the audit log still names the user, not the key. Keep keys in an environment variable or a password manager, never in a config file you commit.
 
-Only the owner can delete a key. To stop the keys of a member who leaves, open [Members](app:settings/members), open the member, set **Status** to **Inactive** and click **Save**. This needs **Edit** and read access **All** on **Users & Roles**; you cannot deactivate yourself, and the last active member with the **Admin** role cannot be deactivated. Every call with that member's keys that reads or changes workspace data is then refused. Taking **API & Webhooks** away from their role is not enough: it hides the page and stops their MCP connections, but keys they already hold keep working for REST calls.
+Only the owner can delete a key. To stop the keys of a member who leaves, open [Members](app:settings/members), open the member, set **Status** to **Inactive** and click **Save**. This needs **Edit** and read access **All** on **Users & Roles**; you cannot deactivate yourself or the last active **Admin**. Every call with that member's keys that reads or changes workspace data is then refused. Taking **Read access** **All** on **API & Webhooks** away from their role also stops their keys, for MCP and REST alike; see [What permissions does a key have](#what-permissions-does-a-key-have).
 
 ## What is the key format, and how long can a key name be? [#what-is-the-key-format]
 
@@ -98,6 +98,8 @@ A key's **Name** is 1 to 255 characters long. Keys are 64 characters of ASCII le
 ## What permissions does a key have, and can I restrict its scope to read-only? [#what-permissions-does-a-key-have]
 
 Everything its owner can do, and nothing more. There is no per-key permission scoping, so a key cannot be limited to read-only access. Every call is checked against the owner's current role, so a change to that role, for example moving the member from the **Admin** role to a custom role with fewer rights, applies to their keys on the next call. If the owner's **Status** is **Inactive**, every call with their keys that reads or changes workspace data is refused.
+
+A key also works only while its owner's role has **Read access** **All** on **API & Webhooks**, checked on every call. Without it, MCP answers `403` with `error: insufficient_permissions`, and REST answers `403` with `kind` `authorization` and `customCode` `insufficientPermissions`. Signed-in use of the web app is not affected.
 
 ## Next [#next]
 

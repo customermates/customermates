@@ -60,4 +60,32 @@ describe("compact record mutation contract", () => {
   ])("enforces action-specific requirements despite the compact wire schema", (input) => {
     expect(RecordMutationSchema.safeParse(input).success).toBe(false);
   });
+
+  it("names the missing currency of a decimal value instead of a field update union failure", () => {
+    const fieldId = "10000000-0000-4000-8000-000000000004";
+    const parsed = RecordMutationSchema.safeParse({
+      action: "update",
+      ref,
+      expectedVersion: 1,
+      fields: [
+        { fieldId, append: "Note" },
+        { fieldId, value: { kind: "decimal", value: "3" } },
+      ],
+    });
+    expect(parsed.success).toBe(false);
+    expect(parsed.error?.issues).toEqual([
+      expect.objectContaining({ code: "invalid_type", path: ["fields", 1, "value", "currency"] }),
+    ]);
+    expect(
+      RecordMutationSchema.parse({
+        action: "update",
+        ref,
+        expectedVersion: 1,
+        fields: [
+          { fieldId, append: "Note" },
+          { fieldId, value: { kind: "decimal", value: "3", currency: null } },
+        ],
+      }),
+    ).toMatchObject({ fields: [{ append: "Note" }, { value: { currency: null } }] });
+  });
 });

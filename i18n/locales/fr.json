@@ -1084,6 +1084,7 @@
       "generic": "Une erreur est survenue.",
       "inmailSignatureRequired": "Ajoutez une signature pour l'InMail Recruiter.",
       "inmailSubjectRequired": "Ajoutez un objet pour l'InMail.",
+      "insufficientPermissions": "L’utilisation des clés API nécessite l’accès en lecture Tout sur API & Webhooks pour votre rôle. Demandez-le à un administrateur de l’espace de travail.",
       "invalidCallbackUrl": "Le lien de connexion n’est pas valide. Veuillez réessayer.",
       "invalidChannelValue": "Ce n'est pas une adresse e-mail, un numéro de téléphone ou un identifiant valide.",
       "invalidCredentials": "Adresse e-mail ou mot de passe invalide.",

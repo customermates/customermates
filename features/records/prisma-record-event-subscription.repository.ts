@@ -28,6 +28,30 @@ function deliveryDefinition(subscription: RecordEventSubscriptionDefinition) {
   });
 }
 
+function readableSubscription(
+  subscription: RecordEventSubscriptionDefinition,
+  canReadType: (typeId: string) => boolean,
+): RecordEventSubscriptionDefinition {
+  const sources = subscription.sources?.filter((source) => canReadType(source.query.typeId));
+  const triggerHidden = subscription.typeId !== null && !canReadType(subscription.typeId);
+  return {
+    ...subscription,
+    ...(subscription.sources ? { sources: sources?.length ? sources : null } : {}),
+    ...(triggerHidden ? { typeId: null, query: null, changedFieldIds: [] } : {}),
+  };
+}
+
+function unreadableListPath(
+  subscription: RecordEventSubscriptionDefinition,
+  canReadType: (typeId: string) => boolean,
+): Array<string | number> | null {
+  const sourceIndex = (subscription.sources ?? []).findIndex((source) => !canReadType(source.query.typeId));
+  if (sourceIndex >= 0) return ["recordSources", sourceIndex, "query", "typeId"];
+  return subscription.typeId !== null && !canReadType(subscription.typeId)
+    ? ["recordTrigger", "query", "typeId"]
+    : null;
+}
+
 export class PrismaRecordEventSubscriptionRepo
   extends TenantRepository
   implements RecordEventSubscriptionRepo, RecordSubscriptionConfigurationRepo
@@ -50,13 +74,13 @@ export class PrismaRecordEventSubscriptionRepo
     return rows.map(({ companyId: _companyId, ...row }) => RecordEventSubscriptionSchema.parse(row));
   }
 
-  @Transaction
-  async save(
-    definition: Omit<RecordEventSubscriptionDefinition, "revision">,
-    action: "create" | "update",
-    expectedSchemaRevision?: number,
-  ) {
-    const input = RecordEventSubscriptionSchema.parse({ ...definition, revision: 1 });
+  async findReadable(ids: string[]) {
+    if (!ids.length) return [];
+    const [rows, { policy }] = await Promise.all([this.findUnscoped(this.companyId, ids), this.actorAccess()]);
+    return rows.map((row) => readableSubscription(row, policy.canReadType));
+  }
+
+  private async actorAccess() {
     const records = this.records;
     const companyId = this.companyId;
     const actor = await this.prisma.user.findFirst({
@@ -76,6 +100,18 @@ export class PrismaRecordEventSubscriptionRepo
     });
     const [model, grants, state] = await Promise.all([records.getModel(), records.getGrants(), records.getState()]);
     const policy = recordAccessForActor({ actor, model, grants, records, companyId, userId: this.userId });
+    return { model, state, policy };
+  }
+
+  @Transaction
+  async save(
+    definition: Omit<RecordEventSubscriptionDefinition, "revision">,
+    action: "create" | "update",
+    expectedSchemaRevision?: number,
+  ) {
+    const input = RecordEventSubscriptionSchema.parse({ ...definition, revision: 1 });
+    const companyId = this.companyId;
+    const { model, state, policy } = await this.actorAccess();
     if (
       !policy.allowedSystem(input.kind === "routine" ? "routines" : "api", action) ||
       (!policy.isAdmin && input.ownerUserId !== this.userId)
@@ -88,6 +124,8 @@ export class PrismaRecordEventSubscriptionRepo
     if (expectedSchemaRevision !== undefined && expectedSchemaRevision !== model.revision)
       throw unwindFailure(CustomErrorCode.recordSchemaChanged, "conflict");
     if (!recordEventSubscriptionIsValid(input, model)) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
+    const unreadablePath = definitionChanged ? unreadableListPath(input, policy.canReadType) : null;
+    if (unreadablePath) throw unwindFailure(CustomErrorCode.permissionDenied, "authorization", unreadablePath);
     const owner = await this.prisma.user.findFirst({
       where: { companyId, id: input.ownerUserId, status: "active" },
       select: { id: true },
