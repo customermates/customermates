@@ -1,7 +1,11 @@
 import type { ZodOpenApiOperationObject } from "zod-openapi";
 
-import { CommonApiResponses } from "@/core/api/interactor-handler";
+import { StructuredApiResponses } from "@/core/api/structured-interactor-handler";
 import { UserDetailsDtoSchema } from "@/features/user/get/get-user-details.interactor";
+
+const OwnProfileResponses = Object.fromEntries(
+  Object.entries(StructuredApiResponses).filter(([status]) => status !== "404"),
+);
 
 export const getUserDetailsOperation: ZodOpenApiOperationObject = {
   operationId: "getUserProfile",
@@ -18,6 +22,6 @@ export const getUserDetailsOperation: ZodOpenApiOperationObject = {
         },
       },
     },
-    ...CommonApiResponses,
+    ...OwnProfileResponses,
   },
 };
