@@ -129,10 +129,11 @@ describe("synthetic dashboards", () => {
       for (const [breakpoint, count] of Object.entries(columns)) {
         const rects = items.map((item) => ({
           kind: item.kind,
+          displayType: (item.displayOptions as { displayType?: DisplayType }).displayType,
           rect: (item.layout as Record<string, { i: string; x: number; y: number; w: number; h: number }>)[breakpoint],
         }));
-        for (const { kind, rect } of rects) {
-          const minimum = widgetMinimumSize(kind);
+        for (const { kind, displayType, rect } of rects) {
+          const minimum = widgetMinimumSize(kind, displayType);
           expect(rect.x + rect.w, `${breakpoint} ${rect.i}`).toBeLessThanOrEqual(count);
           expect(rect.w).toBeGreaterThanOrEqual(Math.min(minimum.w, count));
           expect(rect.h).toBeGreaterThanOrEqual(minimum.h);

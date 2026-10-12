@@ -7,7 +7,12 @@ import { useTranslations } from "next-intl";
 
 import { cn } from "@/core/utils/cn";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./tooltip";
-import { OVERLAY_CLOSE_CLASS, OVERLAY_CLOSE_POSITION_CLASS, OVERLAY_HEADER_ALIGNMENT_CLASS } from "./overlay-contract";
+import {
+  OVERLAY_CLOSE_CLASS,
+  OVERLAY_CLOSE_POSITION_CLASS,
+  OVERLAY_HEADER_ALIGNMENT_CLASS,
+  overlayIconControlClass,
+} from "./overlay-contract";
 import { Button } from "@/components/ui/button";
 
 function Dialog({ ...props }: React.ComponentProps<typeof DialogPrimitive.Root>) {
@@ -24,6 +29,34 @@ function DialogPortal({ ...props }: React.ComponentProps<typeof DialogPrimitive.
 
 function DialogClose({ ...props }: React.ComponentProps<typeof DialogPrimitive.Close>) {
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
+}
+
+function DialogCloseButton({
+  className,
+  inline = false,
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Close> & { inline?: boolean }) {
+  const t = useTranslations();
+
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <DialogPrimitive.Close
+            className={cn(inline && overlayIconControlClass(), className)}
+            data-slot="dialog-close"
+            {...props}
+          >
+            <XIcon />
+
+            <span className="sr-only">{t("Common.actions.close")}</span>
+          </DialogPrimitive.Close>
+        </TooltipTrigger>
+
+        <TooltipContent>{t("Common.actions.close")}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
 }
 
 function DialogOverlay({ className, ...props }: React.ComponentProps<typeof DialogPrimitive.Overlay>) {
@@ -49,8 +82,6 @@ function DialogContent({
   overlayClassName?: string;
   showCloseButton?: boolean;
 }) {
-  const t = useTranslations();
-
   return (
     <DialogPortal data-slot="dialog-portal">
       <DialogOverlay className={overlayClassName} />
@@ -67,24 +98,7 @@ function DialogContent({
       >
         {children}
 
-        {showCloseButton && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <DialogPrimitive.Close
-                  className={cn(OVERLAY_CLOSE_CLASS, OVERLAY_CLOSE_POSITION_CLASS)}
-                  data-slot="dialog-close"
-                >
-                  <XIcon />
-
-                  <span className="sr-only">{t("Common.actions.close")}</span>
-                </DialogPrimitive.Close>
-              </TooltipTrigger>
-
-              <TooltipContent>{t("Common.actions.close")}</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        )}
+        {showCloseButton && <DialogCloseButton className={cn(OVERLAY_CLOSE_CLASS, OVERLAY_CLOSE_POSITION_CLASS)} />}
       </DialogPrimitive.Content>
     </DialogPortal>
   );
@@ -150,6 +164,7 @@ function DialogDescription({ className, ...props }: React.ComponentProps<typeof 
 export {
   Dialog,
   DialogClose,
+  DialogCloseButton,
   DialogContent,
   DialogDescription,
   DialogFooter,

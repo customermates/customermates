@@ -230,16 +230,29 @@ function KanbanColumnLabel({
 }) {
   if (color) {
     return (
-      <AppChip className={vertical ? "h-auto w-[22px] px-0.5 py-1.5" : undefined} size="sm" variant={color}>
+      <AppChip
+        className={vertical ? "h-auto w-[22px] px-0.5 py-1.5" : undefined}
+        data-kanban-column-label=""
+        size="sm"
+        variant={color}
+      >
         {label}
       </AppChip>
     );
   }
-  if (!tooltip) return <span className="min-w-0 truncate text-sm font-medium">{label}</span>;
+  if (!tooltip) {
+    return (
+      <span className="min-w-0 truncate text-sm font-medium" data-kanban-column-label="">
+        {label}
+      </span>
+    );
+  }
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <span className="min-w-0 truncate text-sm font-medium">{label}</span>
+        <span className="min-w-0 truncate text-sm font-medium" data-kanban-column-label="">
+          {label}
+        </span>
       </TooltipTrigger>
 
       <TooltipContent>{label}</TooltipContent>
