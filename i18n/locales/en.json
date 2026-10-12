@@ -1931,9 +1931,10 @@
   },
   "DataTransfer": {
     "export": {
-      "action": "Export",
+      "action": "Export as JSON",
       "failed": "The records could not be exported. Check your filters and permissions.",
-      "success": "{count, plural, one {# record exported} other {# records exported}}."
+      "success": "{count, plural, one {# record exported} other {# records exported}}.",
+      "xlsxAction": "Export as Excel (.xlsx)"
     },
     "import": {
       "action": "Add from file",
@@ -3640,6 +3641,7 @@
     "rangeStart": "From",
     "record": "Record",
     "recordConflictFields": "Also changed elsewhere: {fields}. Choose which version to keep before saving.",
+    "recordId": "Record ID",
     "recordReload": "Reload record",
     "recordReloadKeepChanges": "Reload and keep my changes",
     "records": "Records",

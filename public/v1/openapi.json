@@ -7790,7 +7790,7 @@
     "/v1/records/export": {
       "post": {
         "operationId": "exportRecords",
-        "summary": "Export accessible records and their embedded children",
+        "summary": "Export accessible records as a JSON document or an Excel workbook",
         "tags": [
           "records"
         ],
@@ -7799,7 +7799,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Exports the selected type's filtered records, readable embedded descendants and readable outbound links from one consistent workspace snapshot. Maximum 5,000 records and 50,000 candidate links. The document carries stable type, field, relationship and record IDs plus the current schema revision; restricted values remain marked restricted. Incoming links from records outside the selection are not included.\n\nRequires: read access to the list.",
+        "description": "Exports the selected type's filtered and sorted records with their readable embedded descendants from one consistent workspace snapshot. Maximum 5,000 records and 50,000 candidate links. format json (default) returns a document with stable type, field, relationship and record IDs, readable outbound links and the current schema revision; restricted values remain marked restricted, and import accepts it. format xlsx returns an Excel workbook with one sheet per exported list: readable fields in field order headed by their labels, then relationship columns with linked record names, assignees, timestamps and a hidden record ID. Dates are spreadsheet dates, numbers and money are numbers with the currency in the header, multiple choice and links are comma-separated names, and formatted text is plain text. A field the caller cannot read on any exported record is left out. Incoming links from records outside the selection are not included.\n\nRequires: read access to the list.",
         "requestBody": {
           "required": true,
           "content": {
@@ -8485,19 +8485,55 @@
                       ],
                       "additionalProperties": false
                     }
+                  },
+                  "format": {
+                    "type": "string",
+                    "enum": [
+                      "json",
+                      "xlsx"
+                    ],
+                    "description": "json (default) returns the schema-aware record document that import accepts; xlsx returns an Excel workbook with one sheet per list."
                   }
                 },
                 "required": [
                   "typeId"
                 ],
                 "additionalProperties": false
+              },
+              "examples": {
+                "workbook": {
+                  "summary": "Export a sorted list as an Excel workbook",
+                  "value": {
+                    "typeId": "0b6f3c1e-8a52-4c39-9d7e-2f4a6b8c1d01",
+                    "search": "Acme",
+                    "filters": [],
+                    "relationships": [],
+                    "sort": [
+                      {
+                        "fieldId": "9a4c2e61-3b5d-4f7a-8c9e-1d2b3a4c5e21",
+                        "direction": "asc"
+                      }
+                    ],
+                    "format": "xlsx"
+                  }
+                },
+                "document": {
+                  "summary": "Export a list as a JSON document for import",
+                  "value": {
+                    "typeId": "0b6f3c1e-8a52-4c39-9d7e-2f4a6b8c1d01",
+                    "filters": [],
+                    "relationships": [],
+                    "sort": [],
+                    "format": "json"
+                  }
+                }
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "The requested data.",
+            "description": "The JSON export document, or the XLSX workbook when format is xlsx.",
             "content": {
               "application/json": {
                 "schema": {
@@ -9960,6 +9996,12 @@
                     "links"
                   ],
                   "additionalProperties": false
+                }
+              },
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }
