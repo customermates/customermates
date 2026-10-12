@@ -29,7 +29,7 @@ export const GroupingSchema = z.object({
     .array(z.string().min(1).max(256))
     .max(MAX_AXIS_GROUPS)
     .optional()
-    .describe("Group keys the board hides (value:<optionId> or __empty__); Display options lists them to show again."),
+    .describe("Group keys the board hides (value:<optionId> or __empty__); Appearance lists them to show again."),
   hideEmpty: z.boolean().optional().describe("The board hides columns without records."),
   summaries: z
     .array(GroupSummaryDefinitionSchema)
