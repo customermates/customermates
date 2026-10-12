@@ -14,10 +14,11 @@ function operationsById(): Map<string, Operation> {
   return operations;
 }
 
-const NULL_ON_MISSING = ["getWebhook", "getCalendarById", "getCalendarEventById"];
+const NULL_ON_MISSING = ["getCalendarById", "getCalendarEventById"];
 
 const NOT_FOUND_ON_MISSING = [
   "readRecord",
+  "getWebhook",
   "mutateRecord",
   "queryRecords",
   "createWebhook",

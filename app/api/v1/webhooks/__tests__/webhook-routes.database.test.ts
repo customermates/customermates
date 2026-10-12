@@ -23,7 +23,7 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { GET as listWebhooks } from "../route";
-import { PATCH as updateWebhook } from "../[id]/route";
+import { GET as readWebhook, PATCH as updateWebhook } from "../[id]/route";
 import { GET as listDeliveries } from "../[id]/deliveries/route";
 import { POST as resendDelivery } from "../[id]/deliveries/[deliveryId]/resend/route";
 
@@ -110,6 +110,28 @@ describeDatabase("webhook REST routes over API keys", () => {
     expect(text).not.toContain("foreign.example.com");
     expect(text).not.toContain("fixture-secret-value");
     expect(text).not.toContain("fixture-header-value");
+  });
+
+  it("reads the caller's webhook and answers 404 for an unknown or foreign id", async () => {
+    const own = await read(
+      await readWebhook(request(`/${ownWebhookId}`, "GET", admin.apiKey), {
+        params: Promise.resolve({ id: ownWebhookId }),
+      }),
+    );
+    expect(own.status).toBe(200);
+    expect(own.body).toMatchObject({ id: ownWebhookId, hasSecret: true, headerNames: ["Authorization"] });
+    expect(JSON.stringify(own.body)).not.toContain("fixture-secret-value");
+
+    for (const id of [foreignWebhookId, randomUUID()]) {
+      const missing = await read(
+        await readWebhook(request(`/${id}`, "GET", admin.apiKey), { params: Promise.resolve({ id }) }),
+      );
+      expect(missing.status).toBe(404);
+      expect(missing.body).toMatchObject({
+        error: { kind: "not_found", issues: [expect.objectContaining({ customCode: "webhookNotFound" })] },
+      });
+      expect(JSON.stringify(missing.body)).not.toContain("foreign.example.com");
+    }
   });
 
   it("lists one webhook's deliveries and answers 404 for another workspace's webhook", async () => {
