@@ -12,15 +12,15 @@ export type RankedTableRow = {
   formattedValue: string;
   share: number | null;
   barWidth: number;
+  color: string;
 };
 
 type Props = {
-  color: string;
   hiddenCount: number;
   rows: RankedTableRow[];
 };
 
-export function RankedTable({ color, hiddenCount, rows }: Props) {
+export function RankedTable({ hiddenCount, rows }: Props) {
   const t = useTranslations();
   const valueFormat = useRecordValueFormat();
 
@@ -58,7 +58,7 @@ export function RankedTable({ color, hiddenCount, rows }: Props) {
                 <span aria-hidden className="mt-0.5 block h-1 overflow-hidden rounded-full bg-muted">
                   <span
                     className="block h-full rounded-full"
-                    style={{ backgroundColor: color, width: `${Math.round(row.barWidth * 1000) / 10}%` }}
+                    style={{ backgroundColor: row.color, width: `${Math.round(row.barWidth * 1000) / 10}%` }}
                   />
                 </span>
               </th>

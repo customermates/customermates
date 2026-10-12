@@ -42,6 +42,13 @@ const columns = northwindColumns(SEED_IDS.company, C);
 const LISTS = ["contact", "organization", "deal", "service", "task", ...NORTHWIND_CUSTOM_TYPE_KEYS] as const;
 
 describe("synthetic personalization fixtures", () => {
+  it("keeps every list All state unfiltered, so All shows every record", () => {
+    const fixtures = buildSyntheticP13nFixtures({ ids: SEED_IDS }, customFields);
+    const lists = fixtures.filter(({ p13nId }) => p13nId.startsWith("records:"));
+    expect(lists).toHaveLength(LISTS.length);
+    for (const fixture of lists) expect(fixture.filters, fixture.p13nId).toEqual([]);
+  });
+
   it("seeds list and record-detail personalization with deterministic field, option and user IDs", () => {
     const fixtures = buildSyntheticP13nFixtures({ ids: SEED_IDS }, customFields);
     const byP13nId = new Map(fixtures.map((fixture) => [fixture.p13nId, fixture]));
@@ -109,14 +116,14 @@ describe("synthetic personalization fixtures", () => {
         id("capability.identity"),
       ],
       columnWidths: { [f.contact.jobTitle]: 220 },
-      filters: [{ field: "system:assignedTo", operator: "in", value: [SEED_IDS.user] }],
+      filters: [],
       pagination: { pageSize: 100 },
       sortDescriptor: { direction: "asc", field: id("contact.name") },
       viewMode: "table",
     });
     expect(byP13nId.get(surface("task"))).toMatchObject({
       columnOrder: [f.task.dueDate, C.taskPriority, relationship("task.deals", "outgoing")],
-      filters: [{ field: "system:assignedTo", operator: "in", value: [SEED_IDS.user] }],
+      filters: [],
       groupingColumnId: C.taskStatus,
       viewMode: "card",
     });

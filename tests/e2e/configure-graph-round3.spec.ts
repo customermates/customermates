@@ -1,8 +1,17 @@
 import type { Locator, Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
-import { configureTopBar, openConfigure, openConfigureRow, openDrawerTab } from "./configure";
-import { calculationChip, calculationFlow, pickOption } from "./calculation-flow";
+import {
+  configureTopBar,
+  openConfigure,
+  openConfigureRow,
+  openDrawerTab,
+} from "./configure";
+import {
+  calculationChip,
+  calculationFlow,
+  pickOption,
+} from "./calculation-flow";
 import { expect, test, collectPageErrors } from "./fixtures";
 
 async function savedLayout(database: Client, companyId: string) {
@@ -10,7 +19,9 @@ async function savedLayout(database: Client, companyId: string) {
     `SELECT settings FROM "P13n" WHERE "companyId" = $1 AND "p13nId" = 'configure-graph'`,
     [companyId],
   );
-  return (result.rows[0]?.settings ?? null) as { positions: Record<string, { x: number; y: number }> } | null;
+  return (result.rows[0]?.settings ?? null) as {
+    positions: Record<string, { x: number; y: number }>;
+  } | null;
 }
 
 function flowNode(page: Page, typeId: string) {
@@ -21,16 +32,55 @@ async function transformOf(node: Locator) {
   return node.evaluate((element) => (element as HTMLElement).style.transform);
 }
 
-test("moves graph lists, keeps the layout per person and resets it", async ({ page, database, companyId }, testInfo) => {
+async function nodesOutsideCanvas(page: Page) {
+  return page
+    .locator("[data-configure-graph] .react-flow")
+    .evaluate((canvas) => {
+      const pane = canvas.getBoundingClientRect();
+      return [...canvas.querySelectorAll<HTMLElement>(".react-flow__node")]
+        .filter((node) => {
+          const box = node.getBoundingClientRect();
+          return (
+            box.left < pane.left - 1 ||
+            box.top < pane.top - 1 ||
+            box.right > pane.right + 1 ||
+            box.bottom > pane.bottom + 1
+          );
+        })
+        .map((node) => node.dataset.id);
+    });
+}
+
+test("opens the graph with every list inside the canvas", async ({ page }) => {
+  const errors = collectPageErrors(page);
+  await openConfigure(page);
+  await expect(page.locator(".react-flow__node").first()).toBeVisible();
+  await expect
+    .poll(() => page.locator(".react-flow__node").count())
+    .toBeGreaterThan(3);
+  await expect.poll(() => nodesOutsideCanvas(page)).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
+test("moves graph lists, keeps the layout per person and resets it", async ({
+  page,
+  database,
+  companyId,
+}, testInfo) => {
   const errors = collectPageErrors(page);
   const dealId = presetId(companyId, "deal");
   await openConfigure(page);
   const graph = page.locator("[data-configure-graph]");
   const deal = flowNode(page, dealId);
-  const reset = graph.getByRole("button", { name: "Reset layout", exact: true });
+  const reset = graph.getByRole("button", {
+    name: "Reset layout",
+    exact: true,
+  });
   await expect(deal).toBeVisible();
   await expect(reset).toBeDisabled();
-  await expect(graph.getByText(/drag from the dot/i).filter({ visible: true })).toHaveCount(0);
+  await expect(
+    graph.getByText(/drag from the dot/i).filter({ visible: true }),
+  ).toHaveCount(0);
   const header = deal.getByRole("button", { name: "Deals", exact: true });
   await expect(header.locator("svg").first()).toBeVisible();
   await expect(deal.locator(".bg-primary\\/15")).toHaveCount(0);
@@ -56,7 +106,11 @@ test("moves graph lists, keeps the layout per person and resets it", async ({ pa
   await page.mouse.up();
   await expect.poll(() => transformOf(deal)).not.toBe(original);
   await expect(page).not.toHaveURL(/typeId=/);
-  await expect.poll(async () => (await savedLayout(database, companyId))?.positions[dealId]).toBeTruthy();
+  await expect
+    .poll(
+      async () => (await savedLayout(database, companyId))?.positions[dealId],
+    )
+    .toBeTruthy();
   const moved = await transformOf(deal);
   await expect(reset).toBeEnabled();
 
@@ -87,7 +141,10 @@ test("moves graph lists, keeps the layout per person and resets it", async ({ pa
   expect(errors).toEqual([]);
 });
 
-test("shows the calculation as a node flow in the Calculation section", async ({ page, companyId }) => {
+test("shows the calculation as a node flow in the Calculation section", async ({
+  page,
+  companyId,
+}) => {
   const errors = collectPageErrors(page);
   await openConfigure(page, presetId(companyId, "deal"));
   await openConfigureRow(page, "Fields", "Value");
@@ -95,14 +152,26 @@ test("shows the calculation as a node flow in the Calculation section", async ({
   const dialog = page.getByRole("dialog");
   const flow = calculationFlow(page);
   await expect(flow).toHaveAttribute("data-calculation-flow", "rollup");
-  await expect(flow.locator('[data-calculation-node="list"]')).toContainText("Deals");
-  await expect(calculationChip(page, "relationship")).toHaveText("Line items · One to many");
-  await expect(flow.locator('[data-calculation-node="linked"]')).toContainText("Line items");
+  await expect(flow.locator('[data-calculation-node="list"]')).toContainText(
+    "Deals",
+  );
+  await expect(calculationChip(page, "relationship")).toHaveText(
+    "Line items · One to many",
+  );
+  await expect(flow.locator('[data-calculation-node="linked"]')).toContainText(
+    "Line items",
+  );
   await expect(calculationChip(page, "aggregate")).toHaveText("Sum");
   await expect(calculationChip(page, "value")).toHaveText("Amount");
-  await expect(flow.locator('[data-calculation-node="result"]')).toContainText("Money");
-  await expect(flow.locator("[data-calculation-sentence]")).toHaveText("Value adds up the Amount of all linked Line items.");
-  await expect(flow.locator('[data-calculation-node="list"] svg').first()).toBeVisible();
+  await expect(flow.locator('[data-calculation-node="result"]')).toContainText(
+    "Money",
+  );
+  await expect(flow.locator("[data-calculation-sentence]")).toHaveText(
+    "Value adds up the Amount of all linked Line items.",
+  );
+  await expect(
+    flow.locator('[data-calculation-node="list"] svg').first(),
+  ).toBeVisible();
 
   await pickOption(page, calculationChip(page, "aggregate"), "Average");
   await expect(calculationChip(page, "aggregate")).toHaveText("Average");
@@ -111,11 +180,17 @@ test("shows the calculation as a node flow in the Calculation section", async ({
   );
 
   await calculationChip(page, "relationship").click();
-  const relationshipOption = page.getByRole("option", { name: "Line items · One to many", exact: true });
+  const relationshipOption = page.getByRole("option", {
+    name: "Line items · One to many",
+    exact: true,
+  });
   await expect(relationshipOption.locator("svg").first()).toBeVisible();
   await page.keyboard.press("Escape");
   await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
-  await page.getByRole("alertdialog").getByRole("button", { name: "Discard", exact: true }).click();
+  await page
+    .getByRole("alertdialog")
+    .getByRole("button", { name: "Discard", exact: true })
+    .click();
   await expect(dialog).not.toBeVisible();
   expect(errors).toEqual([]);
 });
@@ -123,17 +198,33 @@ test("shows the calculation as a node flow in the Calculation section", async ({
 test("suggests the plural list name until it is edited", async ({ page }) => {
   const errors = collectPageErrors(page);
   await openConfigure(page);
-  await configureTopBar(page).getByRole("button", { name: "Add", exact: true }).click();
+  await configureTopBar(page)
+    .getByRole("button", { name: "Add", exact: true })
+    .click();
   const dialog = page.getByRole("dialog");
-  await expect(dialog.getByRole("textbox", { name: "Navigation label" })).toHaveCount(0);
-  await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill("Project");
-  const plural = dialog.getByRole("textbox", { name: "Plural name", exact: true });
+  await expect(
+    dialog.getByRole("textbox", { name: "Navigation label" }),
+  ).toHaveCount(0);
+  await dialog
+    .getByRole("textbox", { name: "Name", exact: false })
+    .first()
+    .fill("Project");
+  const plural = dialog.getByRole("textbox", {
+    name: "Plural name",
+    exact: true,
+  });
   await expect(plural).toHaveValue("Projects");
   await plural.fill("Portfolio");
-  await dialog.getByRole("textbox", { name: "Name", exact: false }).first().fill("Programme");
+  await dialog
+    .getByRole("textbox", { name: "Name", exact: false })
+    .first()
+    .fill("Programme");
   await expect(plural).toHaveValue("Portfolio");
   await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
-  await page.getByRole("alertdialog").getByRole("button", { name: "Discard", exact: true }).click();
+  await page
+    .getByRole("alertdialog")
+    .getByRole("button", { name: "Discard", exact: true })
+    .click();
   await expect(dialog).not.toBeVisible();
   expect(errors).toEqual([]);
 });

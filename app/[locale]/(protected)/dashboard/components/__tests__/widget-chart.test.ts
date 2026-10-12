@@ -53,6 +53,8 @@ vi.mock("@/constants/chart-colors", () => {
     getChartColors: () => palette("fill"),
     getChartStrokeColors: () => palette("stroke"),
     getChartTextColors: () => palette("text"),
+    getChartRankShades: (color: string, _theme: string, values: number[]) =>
+      values.map((value) => `shade-${color}-${value}`),
   };
 });
 
@@ -217,10 +219,42 @@ describe("WidgetChart", () => {
     });
 
     expect((call.props.chartData as Array<{ fill: string }>).map(({ fill }) => fill)).toEqual([
+      "shade-primary1-200",
+      "shade-primary1-100",
+    ]);
+    expect(call.props.colors).toEqual(["shade-primary1-200", "shade-primary1-100"]);
+  });
+
+  it.each([DisplayType.horizontalBarChartWithLabels, DisplayType.funnelChart, DisplayType.doughnutChart])(
+    "shades a single-color %s by rank",
+    (displayType) => {
+      const call = renderChart(displayType, {
+        displayOptions: { barColors: [ChartColor.secondary1], displayType, useGroupColors: false },
+      });
+      expect((call.props.chartData as Array<{ fill: string }>).map(({ fill }) => fill)).toEqual([
+        "shade-secondary1-200",
+        "shade-secondary1-100",
+      ]);
+    },
+  );
+
+  it("keeps time series and multi-color charts off the shade ramp", () => {
+    const time = renderChart(DisplayType.verticalBarChart, {
+      shadeByRank: false,
+      displayOptions: {
+        barColors: [ChartColor.primary1],
+        displayType: DisplayType.verticalBarChart,
+        useGroupColors: false,
+      },
+    });
+    expect((time.props.chartData as Array<{ fill: string }>).map(({ fill }) => fill)).toEqual([
       "fill-primary1",
       "fill-primary1",
     ]);
-    expect(call.props.colors).toEqual(["fill-primary1"]);
+    const area = renderChart(DisplayType.areaChart, {
+      displayOptions: { barColors: [ChartColor.primary1], displayType: DisplayType.areaChart, useGroupColors: false },
+    });
+    expect(area.props.colors).toEqual(["fill-primary1"]);
   });
 
   it("keeps legacy widgets without display options on the vertical primary-color default", () => {

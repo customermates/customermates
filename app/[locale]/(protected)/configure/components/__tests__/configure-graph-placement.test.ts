@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { configureEdgeGeometry, configureGraphPlacement } from "../configure-graph-layout";
+import { configureEdgeGeometry, configureGraphPlacement, configureGraphViewport } from "../configure-graph-layout";
 
 const box = (x: number, y: number) => ({ x, y, width: 300, height: 200 });
 
@@ -79,5 +79,27 @@ describe("Configure edge geometry", () => {
     const first = configureEdgeGeometry(route, anchors, box(0, 0), box(600, 0), -0.5);
     const second = configureEdgeGeometry(route, anchors, box(0, 0), box(600, 0), 0.5);
     expect(first.label.y).not.toBe(second.label.y);
+  });
+});
+
+describe("configureGraphViewport", () => {
+  it("fits every list into the canvas on open", () => {
+    const positions = new Map([
+      ["a", { x: 0, y: 0, width: 300, height: 400 }],
+      ["b", { x: 2400, y: 0, width: 300, height: 400 }],
+      ["c", { x: 0, y: 1800, width: 300, height: 600 }],
+    ]);
+    for (const [width, height] of [
+      [1440, 900],
+      [390, 700],
+    ]) {
+      const { x, y, zoom } = configureGraphViewport(positions, width, height);
+      for (const position of positions.values()) {
+        expect(x + position.x * zoom).toBeGreaterThanOrEqual(0);
+        expect(y + position.y * zoom).toBeGreaterThanOrEqual(0);
+        expect(x + (position.x + position.width) * zoom).toBeLessThanOrEqual(width);
+        expect(y + (position.y + position.height) * zoom).toBeLessThanOrEqual(height);
+      }
+    }
   });
 });

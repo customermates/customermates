@@ -9,7 +9,7 @@ import { ChartNoAxesColumn } from "lucide-react";
 import { useTheme } from "next-themes";
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 import { toChipColor } from "@/constants/chip-colors";
-import { getChartColors } from "@/constants/chart-colors";
+import { getChartRankShades } from "@/constants/chart-colors";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { useRecordValueFormat } from "@/components/records/record-value";
 import { hasRecordMeasureGroupFilter } from "@/features/records/record-measure.schema";
@@ -255,16 +255,22 @@ export function RecordWidgetChart({
     const ranked = rankByValue(rows, locale);
     const widest = Math.max(0, ...ranked.map((row) => row.value ?? 0));
     const shares = fillsWithZero;
+    const visible = ranked.slice(0, RANKED_TABLE_ROW_LIMIT);
+    const shades = getChartRankShades(
+      displayOptions.barColors?.[0] ?? ChartColor.primary1,
+      resolvedTheme,
+      visible.map((row) => row.value ?? 0),
+    );
     content = (
       <RankedTable
-        color={getChartColors(resolvedTheme)[displayOptions.barColors?.[0] ?? ChartColor.primary1]}
         hiddenCount={Math.max(0, ranked.length - RANKED_TABLE_ROW_LIMIT)}
-        rows={ranked.slice(0, RANKED_TABLE_ROW_LIMIT).map((row, index) => ({
+        rows={visible.map((row, index) => ({
           key: `${index}:${row.label}`,
           label: row.label,
           formattedValue: row.formatted,
           share: shares ? shareOfTotal(row.value, totalValue) : null,
           barWidth: widest > 0 && row.value !== null && row.value > 0 ? row.value / widest : 0,
+          color: shades[index],
         }))}
       />
     );
@@ -369,6 +375,7 @@ export function RecordWidgetChart({
                 ).map((entry) => entry.value),
               ))
           }
+          shadeByRank={!interval}
         />
       </div>
     );

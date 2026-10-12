@@ -74,3 +74,30 @@ export function getChartTextColors(theme: string | undefined) {
 export function getChartStrokeColors(theme: string | undefined) {
   return pick(theme, "stroke");
 }
+
+const SHADE_STEPS = 7;
+const SHADE_REACH = 0.75;
+
+function mixHex(from: string, to: string, amount: number) {
+  const channel = (hex: string, offset: number) => parseInt(hex.slice(offset, offset + 2), 16);
+  return `#${[1, 3, 5]
+    .map((offset) =>
+      Math.round(channel(from, offset) + (channel(to, offset) - channel(from, offset)) * amount)
+        .toString(16)
+        .padStart(2, "0"),
+    )
+    .join("")}`;
+}
+
+export function getChartRankShades(color: ChartColor, theme: string | undefined, values: number[]): string[] {
+  const hue = color.replace(/\d$/, "") as Hue;
+  const ramp = (RAMPS[hue] ?? RAMPS.primary)[theme === "dark" ? "dark" : "light"];
+  const order = values.map((value, index) => ({ value, index })).sort((left, right) => right.value - left.value);
+  const ranks = new Map(order.map(({ index }, rank) => [index, rank]));
+  const span = Math.min(SHADE_STEPS - 1, (values.length - 1) * 2);
+  return values.map((_, index) => {
+    const rank = ranks.get(index) ?? 0;
+    const step = values.length > 1 ? Math.round((rank / (values.length - 1)) * span) : 0;
+    return mixHex(ramp[0], ramp[2], (step / (SHADE_STEPS - 1)) * SHADE_REACH);
+  });
+}

@@ -105,6 +105,10 @@ describe("synthetic data view fixtures", () => {
       expect(count, type).toBeLessThanOrEqual(4);
     }
 
+    const myTasks = own().find(({ id }) => id === SYNTHETIC_DATA_VIEW_IDS.myTasks);
+    expect(myTasks?.name).toBe("My tasks");
+    expect(myTasks?.state.filters).toEqual([{ field: "system:assignedTo", operator: "in", value: [SEED_IDS.user] }]);
+
     const personal = views().filter(({ userId }) => userId !== SEED_IDS.user);
     expect(new Set(personal.map(({ userId }) => userId))).toEqual(
       new Set([

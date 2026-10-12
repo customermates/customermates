@@ -456,6 +456,20 @@ export function buildSyntheticDataViewFixtures(
         sortDescriptor: sorted(f.task.dueDate, "asc"),
       },
     },
+    {
+      id: SYNTHETIC_DATA_VIEW_IDS.myTasks,
+      surfaceKey: surface("task"),
+      name: "My tasks",
+      state: {
+        ...board("task", customFieldIds.taskStatus, [
+          f.task.dueDate,
+          customFieldIds.taskPriority,
+          rel("task.deals", "outgoing"),
+        ]),
+        filters: [assignedTo(me)],
+        sortDescriptor: sorted(f.task.dueDate, "asc"),
+      },
+    },
 
     // Subscriptions
     {
