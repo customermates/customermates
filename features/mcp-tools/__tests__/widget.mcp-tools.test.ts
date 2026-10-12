@@ -407,7 +407,7 @@ describe("manage_widgets read and delete", () => {
           kind: WidgetKind.chart,
           version: 1,
           viewId: null,
-          layout: { x: 0, y: 0, w: 4, h: 4 },
+          layout: { x: 0, y: 0, w: 4, h: 8 },
         },
         {
           id: RECORD_ID,
@@ -415,7 +415,7 @@ describe("manage_widgets read and delete", () => {
           kind: WidgetKind.activityTimeline,
           version: 1,
           viewId: null,
-          layout: { x: 4, y: 0, w: 6, h: 4 },
+          layout: { x: 4, y: 0, w: 6, h: 8 },
         },
       ],
       total: 2,
@@ -455,7 +455,10 @@ describe("manage_widgets read and delete", () => {
     spies.getWidgetById.mockResolvedValue({ ok: true, data: activityWidget() });
     spies.deleteWidget.mockResolvedValue({
       ok: true,
-      data: { id: WIDGET_ID, trashBatchId: "40000000-0000-4000-8000-0000000000b1" },
+      data: {
+        id: WIDGET_ID,
+        trashBatchId: "40000000-0000-4000-8000-0000000000b1",
+      },
     });
 
     expect(decode(await run({ action: "delete", id: WIDGET_ID }))).toEqual({

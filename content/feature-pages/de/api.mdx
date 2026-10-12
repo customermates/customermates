@@ -40,7 +40,7 @@ Eine gute CRM API ist gut dokumentiert, versioniert, vorhersagbar und gibt Ihnen
 
 Customermates bietet eine versionierte REST API für dokumentierte CRM-Ressourcen und Operationen. API-Zugang ist in veröffentlichten Preisstufen ab [[commercial.price.starter.monthly]] pro Nutzer und Monat enthalten, ohne separate Entwickler-Stufe.
 
-**REST-Architektur mit vorhersagbaren Endpoints.** Die API folgt Standard-REST-Konventionen mit vorhersagbaren URL-Strukturen, Standard-HTTP-Methoden (GET, POST, PUT, PATCH, DELETE) und JSON-Request- und Response-Bodies. Endpoints folgen einem konsistenten Muster: `/api/v1/{resource}` für Sammlungen und `/api/v1/{resource}/{id}` für einzelne Datensätze.
+**Aktions-Endpunkte mit JSON-Bodies.** Jede Datensatz-Operation ist ein `POST` an eine benannte Aktion unter `/api/v1` mit JSON-Request- und Response-Body: `/api/v1/records/query` listet Datensätze, `/api/v1/records/read` liest einen, `/api/v1/records/mutate` legt an, ändert, löscht, verknüpft oder entfernt Verknüpfungen, und `/api/v1/model/discover` liefert Listen, Felder und Beziehungen mit ihren stabilen IDs. Datensätze werden nicht über die URL adressiert; eine Datensatzreferenz ist ein JSON-Objekt mit der `typeId` der Liste und der `recordId` des Datensatzes, sodass dieselben Routen für die Startlisten und jede Liste dienen, die Ihr Workspace hinzufügt. Fehler liefern ein strukturiertes `error`-Objekt, dessen `kind` zum HTTP-Status passt.
 
 **Dokumentierte Operationen je Ressource.** Erstellen, lesen, aktualisieren oder löschen Sie nur dort, wo das aktuelle OpenAPI-Dokument die Operation ausweist. Die Verfügbarkeit unterscheidet sich je Ressource; vollständige UI/API-Feature-Parität ist nicht zugesichert.
 
@@ -56,7 +56,7 @@ Customermates bietet eine versionierte REST API für dokumentierte CRM-Ressource
 
 **Unterstützter Zugriff auf eigene Felder.** Lesen oder schreiben Sie Werte nur dort, wo die dokumentierten Ressourcen und Operationen dies ausweisen. Das aktuelle OpenAPI-Dokument, Feldtypen und Validierungsantworten bilden den Integrationsvertrag.
 
-**Große Datenoperationen über Integrationen.** In der App lässt sich jeder Datensatztyp als XLSX-Arbeitsmappe importieren und exportieren, im Rahmen von Berechtigungen und aktueller Ansicht und mit Zeilenlimit; CSV und einen generischen Batch-Endpunkt gibt es nicht. Für größere oder wiederkehrende Datenmengen kann eine kundenseitige Integration unterstützte Datensätze über dokumentierte API-Aufrufe anlegen oder aktualisieren und übernimmt Batching, Validierung, Zuordnung, Deduplizierung und Retries.
+**Große Datenoperationen über Integrationen.** In der App lässt sich jeder Datensatztyp als XLSX-Arbeitsmappe importieren und exportieren, im Rahmen von Berechtigungen und aktueller Ansicht und mit Zeilenlimit; CSV gibt es nicht. Die API nimmt bis zu 100 Datensätze pro Anfrage über `updateMany`, `deleteMany` oder `/api/v1/records/import` an. Für größere oder wiederkehrende Datenmengen kann eine kundenseitige Integration unterstützte Datensätze über dokumentierte API-Aufrufe anlegen oder aktualisieren und übernimmt Batching, Validierung, Zuordnung, Deduplizierung und Retries.
 
 **Endpoint-Verhalten.** Planen Sie Durchsatz und Retries anhand der aktuellen API-Dokumentation und Antworten. Customermates veröffentlicht für diese API-Oberfläche keine generische Anwendungsquote oder Rate-Limit-Header.
 

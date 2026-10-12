@@ -294,7 +294,6 @@ const COLOR_EXEMPTIONS: Allowlist = {
   "features/messaging/email-frame.tsx": "styles the sandboxed email document, which cannot read app tokens",
   "ee/messaging/email-settings.ts": "outgoing email HTML, rendered by mail clients without app tokens",
   "ee/messaging/email-styles.ts": "outgoing email HTML, rendered by mail clients without app tokens",
-  "features/messaging/message-body.tsx": "renders email bodies on white paper, as mail clients do",
   "components/ai-connection/ai-client-logo.tsx": "third-party brand mark in its own brand color",
   "app/layout.tsx": "browser theme-color metadata, which cannot reference CSS tokens",
 };

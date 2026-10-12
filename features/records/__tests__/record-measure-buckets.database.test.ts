@@ -704,18 +704,18 @@ describeDatabase("time-bucketed record measures", () => {
         } as Parameters<typeof f.widgets.invoke>[0]),
       );
     const first = await save("Auto placed");
-    expect(first.ok && first.data.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 2 });
+    expect(first.ok && first.data.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 3 });
     const second = await save("Auto placed beside");
-    expect(second.ok && second.data.layout?.lg).toMatchObject({ x: 3, y: 0, w: 3, h: 2 });
-    const placed = await save("Requested", { layout: { x: 0, y: 2, w: 12, h: 3 } });
+    expect(second.ok && second.data.layout?.lg).toMatchObject({ x: 3, y: 0, w: 3, h: 3 });
+    const placed = await save("Requested", { layout: { x: 0, y: 3, w: 12, h: 3 } });
     expect(placed.ok && placed.data.layout?.lg).toEqual({
       i: placed.ok ? placed.data.id : "",
       x: 0,
-      y: 2,
+      y: 3,
       w: 12,
       h: 3,
     });
-    const overlap = await save("Overlap", { layout: { x: 2, y: 1, w: 4, h: 2 } });
+    const overlap = await save("Overlap", { layout: { x: 2, y: 1, w: 4, h: 3 } });
     expect(overlap.ok).toBe(false);
     if (!overlap.ok) expect(JSON.stringify(overlap.error)).toContain(CustomErrorCode.widgetLayoutOverlap);
 
@@ -732,7 +732,7 @@ describeDatabase("time-bucketed record measures", () => {
         displayOptions: first.data.displayOptions,
       }),
     );
-    expect(rename.ok && rename.data.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 2 });
+    expect(rename.ok && rename.data.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 3 });
     if (!rename.ok) return;
     const moved = await f.run(async () =>
       f.widgets.invoke({
@@ -744,10 +744,10 @@ describeDatabase("time-bucketed record measures", () => {
         isTemplate: false,
         measure: first.data.measure,
         displayOptions: first.data.displayOptions,
-        layout: { x: 6, y: 0, w: 6, h: 2 },
+        layout: { x: 6, y: 0, w: 6, h: 3 },
       }),
     );
-    expect(moved.ok && moved.data.layout?.lg).toMatchObject({ x: 6, y: 0, w: 6, h: 2 });
+    expect(moved.ok && moved.data.layout?.lg).toMatchObject({ x: 6, y: 0, w: 6, h: 3 });
     const stored = await runWithoutTenant(() => prisma.widget.count({ where: { companyId: f.company.id } }));
     expect(stored).toBe(3);
   }, 120_000);

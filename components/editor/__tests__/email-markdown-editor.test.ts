@@ -18,6 +18,18 @@ const roots = new Set<Root>();
 
 beforeEach(() => {
   (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
+  if (!("getClientRects" in Range.prototype)) {
+    Object.defineProperty(Range.prototype, "getClientRects", {
+      configurable: true,
+      value: () => document.createElement("div").getClientRects(),
+    });
+  }
+  if (!("getBoundingClientRect" in Range.prototype)) {
+    Object.defineProperty(Range.prototype, "getBoundingClientRect", {
+      configurable: true,
+      value: () => new DOMRect(),
+    });
+  }
 });
 
 afterEach(async () => {

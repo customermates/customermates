@@ -62,7 +62,7 @@ Die Gegenrichtung läuft über die REST API oder MCP, wieder gesteuert von Ihrem
 
 **Datensätze aus Slack aktualisieren.** Senden Sie eine Aktualisieren-Mutation mit der aktuellen Datensatzversion an `POST /api/v1/records/mutate`. Beziehungen ändern Sie mit einer Verknüpfen- oder Trennen-Mutation. Das entsprechende MCP-Tool ist `mutate_crm_record`.
 
-**Notizen aus Slack schreiben.** Aktualisieren Sie das konfigurierte Notizenfeld des Datensatzes über dieselbe Mutations-API oder das MCP-Tool `mutate_crm_record`.
+**Notizen aus Slack schreiben.** Fügen Sie die Nachricht einem beliebigen Feld vom Typ Formatierter Text des Datensatzes hinzu, mit einer Änderungs-Mutation, deren Feldeintrag `{ fieldId, append }` lautet, über dieselbe Mutations-API oder das MCP-Tool `mutate_crm_record`. Der Text wird hinter den aktuellen Wert gesetzt, und eine Änderung, die nur anhängt, kollidiert nie mit einer neueren Version.
 
 **Einen Agenten machen lassen.** Statt jeden Aufruf von Hand zu bauen, richten Sie einen MCP-fähigen Agenten auf `/api/v1/mcp` und lassen ihn die Slack-Nachricht interpretieren. Das ist dieselbe Oberfläche aus [[derived.mcp.tools.total]] Tools, die Claude, ChatGPT und Gemini nutzen.
 

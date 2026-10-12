@@ -44,5 +44,5 @@ export function recordValueTypeIcon(valueType: RecordValueType): LucideIcon {
 
 export function RecordValueTypeIcon({ valueType, className }: { valueType: RecordValueType; className?: string }) {
   const Icon = recordValueTypeIcon(valueType);
-  return <Icon aria-hidden className={cn("size-3 shrink-0 text-muted-foreground", className)} />;
+  return <Icon aria-hidden className={cn("size-3 shrink-0 text-muted-foreground", className)} data-chip-part="" />;
 }

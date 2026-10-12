@@ -4,30 +4,48 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { RecordPresentationResult } from "@/features/records/get-record-presentation.interactor";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import type { RecordGroupSummaryResult } from "@/features/records/record-grouping.schema";
+import type { RecordColumn } from "@/features/records/record-columns";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { RecordFieldSaveOutcome } from "./record-field-value-editor";
 
 import { action, makeObservable, observable } from "mobx";
 
+import { getP13nAction, upsertP13nAction } from "@/app/actions";
 import { ViewMode } from "@/core/base/base-query-builder";
+import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { readSublistColumns, sublistColumnsP13nId } from "@/features/p13n/sublist-columns.schema";
 import { parseRelationshipColumnKey, relationshipColumnKey } from "@/features/records/record-column.schema";
-import { recordDefaults } from "@/features/records/record-presentation";
+import { defaultHiddenColumns } from "@/features/records/record-columns";
 import { RecordQuerySchema } from "@/features/records/record-query.schema";
 import { mutateRecordAction, queryRecordsAction } from "../../actions";
 import { RecordsStore } from "./records.store";
 
 export const EMBEDDED_PAGE_SIZE = 10;
 
-export function embeddedColumnLayout(
-  typeId: string,
-  fields: RecordPresentationResult["model"]["fields"],
-  parentColumnId: string,
-): { columnOrder: string[]; hiddenColumns: string[] } {
-  const defaults = recordDefaults(typeId, fields);
-  return {
-    columnOrder: defaults.columnOrder ?? [],
-    hiddenColumns: [...(defaults.hiddenColumns ?? []), parentColumnId],
-  };
+export function embeddedColumnLayout({
+  columns,
+  primaryColumnId,
+  parentColumnId,
+  defaultHidden,
+  chosen,
+}: {
+  columns: Pick<RecordColumn, "id" | "kind">[];
+  primaryColumnId: string;
+  parentColumnId: string;
+  defaultHidden: string[];
+  chosen: string[] | null;
+}): { columnOrder: string[]; hiddenColumns: string[] } {
+  const choosable = columns.filter((column) => column.id !== primaryColumnId && column.id !== parentColumnId);
+  const available = new Set(choosable.map((column) => column.id));
+  const quiet = new Set(defaultHidden);
+  const unhidden = choosable.filter((column) => !quiet.has(column.id));
+  const own = unhidden.filter((column) => column.kind !== "system");
+  const shown = chosen
+    ? [...new Set(chosen)].filter((id) => available.has(id))
+    : (own.length ? own : unhidden).map((column) => column.id);
+  const visible = new Set(shown);
+  const rest = choosable.filter((column) => !visible.has(column.id)).map((column) => column.id);
+  return { columnOrder: [...shown, ...rest], hiddenColumns: [...rest, parentColumnId] };
 }
 
 export function embeddedPresentation(
@@ -54,6 +72,9 @@ export class EmbeddedRecordsStore extends RecordsStore {
   totals: RecordGroupSummaryResult[] = [];
   total = 0;
   loadFailed = false;
+  columnChoice: string[] | null = null;
+  private choiceRequest: Promise<void> | null = null;
+  private choiceSaving: Promise<unknown> = Promise.resolve();
   constructor(
     rootStore: RootStore,
     presentation: RecordPresentationResult,
@@ -67,6 +88,7 @@ export class EmbeddedRecordsStore extends RecordsStore {
       totals: observable.ref,
       total: observable,
       loadFailed: observable,
+      columnChoice: observable.ref,
       setParent: action,
       setTotals: action,
       setLoadFailed: action,
@@ -112,8 +134,64 @@ export class EmbeddedRecordsStore extends RecordsStore {
     this.total = total;
   };
   private get layout() {
-    return embeddedColumnLayout(this.presentation.typeId, this.presentation.model.fields, this.parentColumnId);
+    return embeddedColumnLayout({
+      columns: this.recordColumns,
+      primaryColumnId: this.primaryColumnId,
+      parentColumnId: this.parentColumnId,
+      defaultHidden: defaultHiddenColumns(this.presentation.typeId, this.presentation.model.fields),
+      chosen: this.columnChoice,
+    });
   }
+  private get columnChoiceP13nId() {
+    return sublistColumnsP13nId(this.presentation.typeId);
+  }
+  private applyColumnChoice = action((columns: string[] | null) => {
+    this.columnChoice = columns;
+    const { columnOrder, hiddenColumns } = this.layout;
+    this.columnOrder = columnOrder;
+    this.hiddenColumns = hiddenColumns;
+    if (this.savedAppearance) this.savedAppearance = { ...this.savedAppearance, columnOrder, hiddenColumns };
+  });
+  private loadColumnChoice() {
+    this.choiceRequest ??= getP13nAction({ p13nId: this.columnChoiceP13nId })
+      .then((result) => {
+        if (result.ok) this.applyColumnChoice(readSublistColumns(result.data?.settings)?.columns ?? null);
+        else this.choiceRequest = null;
+      })
+      .catch(() => {
+        this.choiceRequest = null;
+      });
+    return this.choiceRequest;
+  }
+  setColumnChoice = (columns: string[] | null) => {
+    const previous = this.columnChoice;
+    const fetched = () =>
+      new Set(
+        this.shownColumns.flatMap((column) =>
+          column.kind === "relationship" || column.kind === "relationshipPath" ? [column.id] : [],
+        ),
+      );
+    const before = fetched();
+    this.applyColumnChoice(columns);
+    const needsRows = [...fetched()].some((id) => !before.has(id));
+    const saved = this.choiceSaving.then(async () => {
+      const result = await upsertP13nAction({
+        p13nId: this.columnChoiceP13nId,
+        settings: columns ? { columns } : null,
+      });
+      if (!result.ok) {
+        this.applyColumnChoice(previous);
+        toastZodErrorTree(result.error);
+        return;
+      }
+      if (needsRows && this.parent) await this.refresh();
+    });
+    this.choiceSaving = saved.catch(() => undefined);
+    return saved.catch((error: unknown) => {
+      this.applyColumnChoice(previous);
+      throw error;
+    });
+  };
   private get shownColumns() {
     const hidden = new Set(this.layout.hiddenColumns);
     return this.recordColumns.filter((column) => !hidden.has(column.id));
@@ -154,6 +232,7 @@ export class EmbeddedRecordsStore extends RecordsStore {
         { relationId: this.parentRelationId, direction: "outgoing", operator: "any", recordIds: [parent.recordId] },
       ],
     };
+    await this.loadColumnChoice();
     const layout = this.layout;
     const shown = this.shownColumns;
     const page = params?.pagination?.page ?? params?.page ?? 1;
