@@ -101,7 +101,13 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
             return failNotFound(CustomErrorCode.recordNotFound);
         }
         const availableSources: ActivityKind[] = [];
-        if (policy.allowedSystem("auditLog", "readAll")) availableSources.push(...CHANGE_ACTIVITY_KINDS);
+        if (policy.allowedSystem("auditLog", "readAll")) {
+          availableSources.push(
+            ...CHANGE_ACTIVITY_KINDS.filter(
+              (kind) => kind !== "configuration" || policy.canManageSchema || policy.canManageRoles,
+            ),
+          );
+        }
         if (policy.canReadSystem("inboxMessages") && !(await this.entitlements.require("messaging")))
           availableSources.push("message", "activity", "calendar_event");
         const access = policy.access(model.types.map((type) => type.id));

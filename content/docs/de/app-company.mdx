@@ -48,7 +48,7 @@ Jedes Speichern wird in [Aktivität](app:settings/activity) festgehalten.
 
 ## Rollen [#roles-tab]
 
-Eine Rolle ist ein Satz von Berechtigungen, den jedes Mitglied mit dieser Rolle erhält. [Rollen](app:settings/roles) listet sie mit **Name**, **Typ** (**System** für die eingebaute Rolle **Admin**, **Benutzerdefiniert** für alle anderen) und **Beschreibung**. Anlegen erfordert **Benutzer & Rollen** **Erstellen**, Bearbeiten **Bearbeiten**, Löschen **Löschen**.
+Eine Rolle ist ein Satz von Berechtigungen, den jedes Mitglied mit dieser Rolle erhält. [Rollen](app:settings/roles) listet sie mit **Name**, **Typ** (**System** für die eingebaute Rolle **Admin**, **Benutzerdefiniert** für alle anderen) und **Beschreibung**. Anlegen erfordert **Benutzer & Rollen** **Erstellen**, Bearbeiten **Bearbeiten**, Löschen **Löschen**. Ohne **Benutzer & Rollen** **Bearbeiten** listet die Seite nur Ihre eigene Rolle, und deren Datensatzzugriff zeigt nur die Listen, die Sie lesen dürfen.
 
 ### Wie lege ich eine eigene Rolle an, etwa um ein Mitglied auf zugewiesene Datensätze zu beschränken? [#how-does-the-role-editor-work]
 
@@ -171,7 +171,7 @@ Bei Starter zeigen der [Posteingang](app:inbox) und [Kanäle](app:settings/chann
 
 - **Datensatzänderungen**: Anlegen, Ändern und Löschen von Datensätzen mit Feldwerten.
 - **Verwaltung und System**: Mitglieder, Rollen, Webhooks, Routinen, verbundene Konten, Seiten der Wissensdatenbank, rechtliche Hinweise und Exporte. Webhook-Secrets und Header-Werte werden unkenntlich gemacht.
-- **Konfiguration**: Listen, Felder, Verknüpfungen und Datensatzzugriff je Rolle.
+- **Konfiguration**: Listen, Felder, Verknüpfungen und Datensatzzugriff je Rolle. Nur Rollen mit **Datenmodell** **Bearbeiten** oder **Benutzer & Rollen** **Bearbeiten** sehen diese Einträge.
 
 Lesen erfordert **Audit-Log** mit Leserecht **Alle**. Datensatzänderungen folgen Ihrem Datensatzzugriff, und Einträge der Wissensdatenbank erfordern Leserecht auf die Wissensdatenbank. Klicken Sie auf einen Eintrag für Details; persönliche Ansichten speichern Sie wie bei Listen. Einträge werden unbegrenzt aufbewahrt, Nachrichten erscheinen hier nie, und der Verlauf beginnt mit dem Upgrade auf konfigurierbare Datensätze. Verfügbar in jedem Tarif und selbst gehostet.
 
