@@ -2,7 +2,7 @@ import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger, fitWrappedTooltip } from "../tooltip";
 
 Reflect.set(globalThis, "IS_REACT_ACT_ENVIRONMENT", true);
 vi.stubGlobal(
@@ -68,6 +68,10 @@ describe("TooltipContent", () => {
     const classes = document.querySelector('[data-slot="tooltip-content"]')?.className ?? "";
     expect(classes).not.toMatch(/animate-out|fade-out|zoom-out/);
     expect(classes).toContain("motion-reduce:animate-none");
+    expect(classes.split(" ")).not.toContain("light");
+    expect(classes).toContain("border-border");
+    expect(classes).toContain("bg-tooltip");
+    expect(classes).toContain("text-tooltip-foreground");
     act(() => root.unmount());
   });
 
@@ -155,5 +159,39 @@ describe("TooltipContent", () => {
       [...document.querySelectorAll('[data-slot="tooltip-content"]')].map((content) => content.firstChild?.textContent),
     ).toEqual(["Not verified yet"]);
     act(() => root.unmount());
+  });
+});
+
+describe("fitWrappedTooltip", () => {
+  function rect(left: number, top: number, width: number, height = 16) {
+    return new DOMRect(left, top, width, height);
+  }
+
+  function tooltip(lines: DOMRect[], textHeight: number) {
+    const content = document.createElement("div");
+    content.style.lineHeight = "16px";
+    content.style.paddingLeft = "10px";
+    content.style.paddingRight = "10px";
+    const text = document.createElement("span");
+    text.textContent = "Calculated: largest Discount % among linked Line items";
+    content.append(text);
+    document.body.append(content);
+    vi.spyOn(content, "getBoundingClientRect").mockReturnValue(rect(0, 0, 320, textHeight));
+    vi.spyOn(text, "getBoundingClientRect").mockReturnValue(rect(10, 0, 300, textHeight));
+    Object.assign(Range.prototype, { getClientRects: () => lines });
+    return content;
+  }
+
+  it("shrinks a wrapped tooltip to its longest line plus padding", () => {
+    const content = tooltip([rect(10, 0, 120), rect(130, 0, 60), rect(10, 16, 170)], 32);
+    fitWrappedTooltip(content, content.firstElementChild as HTMLElement);
+    const width = Number.parseFloat(content.style.width);
+    expect(Math.abs(width - (180 + 20))).toBeLessThanOrEqual(8);
+  });
+
+  it("leaves a single-line tooltip at its natural width", () => {
+    const content = tooltip([rect(10, 0, 200)], 16);
+    fitWrappedTooltip(content, content.firstElementChild as HTMLElement);
+    expect(content.style.width).toBe("");
   });
 });

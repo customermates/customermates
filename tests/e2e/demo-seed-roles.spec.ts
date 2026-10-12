@@ -72,8 +72,9 @@ async function expectEditable(page: Page, typeKey: string, recordId: string) {
 async function expectReadOnly(page: Page, typeKey: string, recordId: string) {
   const name = await openRecord(page, typeKey, recordId);
   await expect(name, `${typeKey} name is read-only`).toHaveAttribute("readonly", "");
-  await name.focus();
-  await expect(page.getByRole("tooltip", { name: "You can't edit this field", exact: true })).toBeVisible();
+  await name.hover();
+  await expect(name).toHaveCSS("cursor", "not-allowed");
+  await expect(page.getByRole("tooltip")).toHaveCount(0);
 }
 
 test("the sales lead sees every deal, campaigns and partners, and reads subscriptions", async ({

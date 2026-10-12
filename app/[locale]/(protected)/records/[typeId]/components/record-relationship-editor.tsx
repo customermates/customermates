@@ -31,7 +31,7 @@ import { relationshipColumnKey } from "@/features/records/record-column.schema";
 
 export const RECORD_LINK_FRAME_CLASS =
   "flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border px-3 py-1.5 text-sm";
-export const RECORD_LINK_FRAME_READ_ONLY_CLASS = "border-border bg-background";
+export const RECORD_LINK_FRAME_READ_ONLY_CLASS = "border-input bg-input-background shadow-xs";
 
 export function useRecordChoices(input: RecordChoicesInput, enabled: boolean, attempt: number) {
   const key = enabled ? JSON.stringify([input, attempt]) : null;
@@ -143,7 +143,7 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
       fieldId={relationshipColumnKey(relationship.id, direction)}
       inputId={id}
       label={label}
-      readOnlyHint={store.isPermissionReadOnly}
+      locked={store.isPermissionReadOnly}
     >
       {linked.failed ? (
         error(() => setAttempt((value) => value + 1))
@@ -158,7 +158,6 @@ export const RecordRelationshipEditor = observer(function RecordRelationshipEdit
                 store.isReadOnly
                   ? RECORD_LINK_FRAME_READ_ONLY_CLASS
                   : "border-input bg-input-background shadow-xs focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50",
-                !store.isReadOnly && !editable && "bg-background",
               )}
               data-relationship-field=""
             >
