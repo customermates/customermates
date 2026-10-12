@@ -12,6 +12,7 @@ import { RoutineTriggerKind } from "@/generated/prisma";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { describeRoutineSchedule, scheduleHasClockTime } from "@/ee/routines/routine-schedule-preset";
 import { orderedRoutineTriggerGuidance } from "@/ee/routines/routine-trigger-guidance";
+import { eventLabel } from "@/features/event/event-label";
 
 function actionCopy(
   action: RoutineTriggerGuidanceAction,
@@ -137,7 +138,7 @@ export const RoutineEmptyState = observer(({ store }: { store: RoutineModalStore
 
           return (
             <li key={event} className="rounded-lg border px-3 py-2.5">
-              <p className="text-sm font-medium">{t(`Common.events.${event}`)}</p>
+              <p className="text-sm font-medium">{eventLabel(t, event)}</p>
 
               <p className="text-subdued mt-0.5 text-xs">{actionCopy(guidance.action, entity, t)}</p>
             </li>

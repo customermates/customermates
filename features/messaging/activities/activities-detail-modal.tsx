@@ -34,6 +34,7 @@ import { calendarEventTitle } from "./activity-labels";
 import { DetailHeader, IdentityAvatar, TypeBadge } from "./activities-row";
 import { hasLoadableRemoteImages, MessageBody } from "../message-body";
 import { MessageSurface } from "../message-surface";
+import { eventLabel } from "@/features/event/event-label";
 
 const RESPONSE_LABEL_KEYS: Record<string, string> = {
   yes: "ContactHistory.calendarResponseYes",
@@ -269,7 +270,7 @@ export const TimelineDetailModal = observer(() => {
         ? calendarEventTitle(entry.event.title, t("ContactHistory.calendarNoTitle"))
         : entry.kind === "audit" || entry.kind === "configuration" || entry.kind === "record"
           ? t("AuditLogModal.eventAt", {
-              event: t(`Common.events.${entry.event}`),
+              event: eventLabel(t, entry.event),
               date: intlStore.formatNumericalShortDateTime(entry.at),
             })
           : t("ContactHistory.linkedinConnectionAccepted");

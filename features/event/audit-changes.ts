@@ -16,13 +16,25 @@ export function isEmpty(value: unknown): boolean {
   return value == null || value === "" || (Array.isArray(value) && value.length === 0);
 }
 
-export const AuditChangeSchema = z.object({
-  field: z.string(),
-  label: z.string().optional(),
-  snapshot: z.boolean().optional(),
-  previous: z.unknown(),
-  current: z.unknown(),
-});
+const AuditSnapshotChangeSchema = z
+  .object({
+    field: z.string(),
+    label: z.string().optional(),
+    snapshot: z.literal(true),
+    current: z.unknown(),
+  })
+  .describe("A value captured when the item was created or removed; it has no previous value.");
+
+const AuditValueChangeSchema = z
+  .object({
+    field: z.string(),
+    label: z.string().optional(),
+    previous: z.unknown(),
+    current: z.unknown(),
+  })
+  .describe("A value that changed from previous to current; null stands for an empty value.");
+
+export const AuditChangeSchema = z.union([AuditSnapshotChangeSchema, AuditValueChangeSchema]);
 
 export type AuditChange = Data<typeof AuditChangeSchema>;
 
@@ -58,7 +70,11 @@ export function extractAuditChanges(payload: unknown): AuditChange[] {
   for (const [field, value] of Object.entries(changes)) {
     if (IGNORED_FIELDS.has(field) || REDACTED_FIELDS.has(field)) continue;
 
-    result.push({ field, ...(isSnapshot && { snapshot: true }), previous: value.previous, current: value.current });
+    result.push(
+      isSnapshot
+        ? { field, snapshot: true, current: value.current }
+        : { field, previous: value.previous ?? null, current: value.current ?? null },
+    );
   }
 
   return result

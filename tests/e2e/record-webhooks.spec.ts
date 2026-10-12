@@ -117,3 +117,23 @@ test("persists a webhook for a customer-created type with an explicit owner and 
   expect(matches.rows).toEqual([{ kind: "record.updated", typeId }]);
   expect(errors).toEqual([]);
 });
+
+test("labels migrated legacy webhook deliveries without missing translations", async ({ page, database, companyId }) => {
+  const errors = collectPageErrors(page);
+  const url = `http://127.0.0.1:49998/legacy-${randomUUID()}`;
+  await database.query(
+    `INSERT INTO "WebhookDelivery" (id, url, "companyId", event, "requestBody", "nextAttemptAt", "statusCode", success, status, "deliveredAt", "createdAt") VALUES ($1, $2, $3, 'contact.created', '{}'::jsonb, NULL, 200, true, 'success', NOW(), NOW()), ($4, $2, $3, 'acme.widget.synced', '{}'::jsonb, NULL, 200, true, 'success', NOW(), NOW() - INTERVAL '1 minute')`,
+    [randomUUID(), url, companyId, randomUUID()],
+  );
+  await page.goto("/en/settings/webhook-deliveries");
+  const legacyRow = page.getByRole("row").filter({ hasText: "Contact created (legacy)" });
+  await expect(legacyRow).toHaveCount(1);
+  await expect(page.getByRole("row").filter({ hasText: "acme.widget.synced" })).toHaveCount(1);
+  await expect(page.getByText(/Common\.events\./)).toHaveCount(0);
+  await legacyRow.getByRole("button", { name: url, exact: true }).click();
+  const modal = page.getByRole("dialog");
+  await expect(modal.getByText("Contact created (legacy)", { exact: true })).toBeVisible();
+  await expect(modal.getByText(/Common\.events\./)).toHaveCount(0);
+  expect(errors).toEqual([]);
+  await page.close();
+});

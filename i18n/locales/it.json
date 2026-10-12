@@ -1135,6 +1135,7 @@
       "recordWritePaused": "Il modello dati è in fase di aggiornamento. La bozza viene conservata; riprova al termine.",
       "roleAccessPresetInUse": "Questo ruolo è usato da un modello di accesso. Aggiorna il modello prima di eliminare il ruolo.",
       "roleAssignedCannotDelete": "Un ruolo assegnato agli utenti non può essere eliminato.",
+      "roleNameTaken": "Esiste già un ruolo con questo nome.",
       "roleNotFound": "ID ruolo non trovato o non accessibile.",
       "roleSelfEditForbidden": "Non puoi modificare i permessi del ruolo che ti è assegnato.",
       "roleSystemImmutable": "I ruoli di sistema non possono essere modificati.",
@@ -1447,6 +1448,41 @@
       "userIds": "Assegnato a"
     },
     "language": "Lingua",
+    "legacyEvents": {
+      "company": {
+        "updated": "Azienda aggiornata (precedente)"
+      },
+      "contact": {
+        "created": "Contatto creato (precedente)",
+        "deleted": "Contatto eliminato (precedente)",
+        "updated": "Contatto aggiornato (precedente)"
+      },
+      "custom_column": {
+        "created": "Colonna personalizzata creata (precedente)",
+        "deleted": "Colonna personalizzata eliminata (precedente)",
+        "updated": "Colonna personalizzata aggiornata (precedente)"
+      },
+      "deal": {
+        "created": "Trattativa creata (precedente)",
+        "deleted": "Trattativa eliminata (precedente)",
+        "updated": "Trattativa aggiornata (precedente)"
+      },
+      "organization": {
+        "created": "Organizzazione creata (precedente)",
+        "deleted": "Organizzazione eliminata (precedente)",
+        "updated": "Organizzazione aggiornata (precedente)"
+      },
+      "service": {
+        "created": "Servizio creato (precedente)",
+        "deleted": "Servizio eliminato (precedente)",
+        "updated": "Servizio aggiornato (precedente)"
+      },
+      "task": {
+        "created": "Attività creata (precedente)",
+        "deleted": "Attività eliminata (precedente)",
+        "updated": "Attività aggiornata (precedente)"
+      }
+    },
     "locales": {
       "de": "Tedesco",
       "en": "Inglese",
