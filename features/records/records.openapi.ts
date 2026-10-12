@@ -284,7 +284,8 @@ export const recordApiPaths = {
       {
         tag: "roles",
         read: true,
-        requires: "role management (edit access to users), or read or create access to users.",
+        requires:
+          "role management (edit access to users), or read or create access to users. Without role management only the caller's own role is readable, and record types and grants are limited to the types the caller can read.",
       },
     ),
   },

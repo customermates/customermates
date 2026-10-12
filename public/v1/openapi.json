@@ -1021,7 +1021,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Reads change nothing and return only what the caller may read.\n\nRequires: role management (edit access to users), or read or create access to users.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Reads change nothing and return only what the caller may read.\n\nRequires: role management (edit access to users), or read or create access to users. Without role management only the caller's own role is readable, and record types and grants are limited to the types the caller can read.",
         "requestBody": {
           "required": true,
           "content": {

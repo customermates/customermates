@@ -48,7 +48,7 @@ Every save is recorded in [Activity](app:settings/activity).
 
 ## Roles [#roles-tab]
 
-A role is a set of permissions every member with that role gets. [Roles](app:settings/roles) lists them with **Name**, **Type** (**System** for the built-in **Admin**, **Custom** for all others) and **Description**. Creating needs **Users & Roles** **Create**, editing **Edit**, deleting **Delete**.
+A role is a set of permissions every member with that role gets. [Roles](app:settings/roles) lists them with **Name**, **Type** (**System** for the built-in **Admin**, **Custom** for all others) and **Description**. Creating needs **Users & Roles** **Create**, editing **Edit**, deleting **Delete**. Without **Users & Roles** **Edit**, the page lists only your own role, and its record access shows only the lists you can read.
 
 ### How do I create a custom role, for example to restrict a member to assigned records? [#how-does-the-role-editor-work]
 
@@ -171,7 +171,7 @@ On Starter, the [Inbox](app:inbox) and [Channels](app:settings/channels) show **
 
 - **Record changes**: creates, updates and deletes of records with field values.
 - **Admin and system**: members, roles, webhooks, routines, connected accounts, Knowledge Base pages, legal notices and exports. Webhook secrets and header values are redacted.
-- **Configuration**: lists, fields, relationships and record access by role.
+- **Configuration**: lists, fields, relationships and record access by role. Only roles with **Data model** **Edit** or **Users & Roles** **Edit** see these entries.
 
 Reading it needs **Audit Log** read access **All**. Record changes follow your record access, and Knowledge Base entries need Knowledge Base read access. Click an entry for details; save personal views as on lists. Entries are kept indefinitely, messages never appear here, and history starts at the upgrade to configurable records. Available on every plan and self-hosted.
 
