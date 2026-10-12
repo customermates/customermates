@@ -22,8 +22,8 @@ import {
   type McpToolResult,
 } from "./mcp-tool";
 import {
+  containsUntrustedText,
   UNTRUSTED_RECORD_TEXT_HANDLING,
-  UNTRUSTED_RECORD_TEXT_OPEN,
   withUntrustedRecordText,
 } from "./untrusted-record-content";
 
@@ -200,56 +200,6 @@ export const FILTER_OPERATOR_GROUPS = {
 
 export const FILTER_OPERATORS: readonly FilterOperatorKey[] = Object.values(FILTER_OPERATOR_GROUPS).flat();
 
-export const FILTER_SYNTAX = {
-  rule: "{field, operator, value?}, AND-combined",
-  operators: {
-    singleValue: FILTER_OPERATOR_GROUPS.singleValue,
-    multiValue: FILTER_OPERATOR_GROUPS.multiValue,
-    relativeWindow: FILTER_OPERATOR_GROUPS.relativeWindow,
-    noValue: FILTER_OPERATOR_GROUPS.noValue,
-  },
-  values: {
-    singleValue: "one string",
-    multiValue: "string array; between takes two",
-    relativeWindow: "positive integer number of days",
-    noValue: "omit value",
-  },
-  examples: [
-    { field: "<single-select-custom-column-uuid>", operator: "in", value: ["<option-uuid>"] },
-    { field: "createdAt", operator: "inLastDays", value: 30 },
-    { field: "email", operator: "isNotNull" },
-  ],
-};
-
-export const SORT_SYNTAX = {
-  shape: { field: "string", direction: "asc | desc" },
-  fieldKinds: {
-    builtin: "Built-in field name (e.g. name, totalValue, createdAt). See sortableFields entries without columnType.",
-    customColumn: "Custom column UUID. See sortableFields entries with columnType.",
-    manual:
-      "system:manual on record lists: the list's manual order (asc only), set by moving records with an update placement.",
-  },
-  comparison: {
-    currency: "numeric",
-    date: "chronological",
-    dateTime: "chronological",
-    dateRange: "chronological by start date, then by end date",
-    dateTimeRange: "chronological by start datetime, then by end datetime",
-    plain: "locale-aware string",
-    email: "locale-aware string",
-    phone: "locale-aware string",
-    link: "locale-aware string",
-    singleSelect:
-      "by option order, as listed in the column's options (desc reverses it); a stored value that is no longer an option sorts after the known options in either direction",
-  },
-  nullHandling: "rows missing the value sort last regardless of direction",
-  examples: [
-    { field: "name", direction: "asc" },
-    { field: "createdAt", direction: "desc" },
-    { field: "<custom-column-uuid>", direction: "asc" },
-  ],
-};
-
 export const filtersDescription = (filterableFields: string) =>
   "Array of filter rules, AND-combined. Each rule is { field, operator, value? }. " +
   "Use only the operators listed in each field's hint; value-less operators take no value. " +
@@ -307,14 +257,21 @@ export function toonResult(payload: Record<string, unknown>): McpToolResult {
   return { text: encodeToToon(payload), structuredContent: payload };
 }
 
+export function untrustedToonResult(marked: Record<string, unknown>): {
+  text: string;
+  structuredContent: Record<string, unknown>;
+} {
+  const text = encodeToToon(marked);
+  if (!containsUntrustedText(text)) return { text, structuredContent: marked };
+  return {
+    text: `${UNTRUSTED_RECORD_TEXT_HANDLING}\n\n${text}`,
+    structuredContent: { ...marked, untrustedTextHandling: UNTRUSTED_RECORD_TEXT_HANDLING },
+  };
+}
+
 export function recordToonResult(payload: Record<string, unknown>): {
   text: string;
   structuredContent: Record<string, unknown>;
 } {
-  const marked = withUntrustedRecordText(payload) as Record<string, unknown>;
-  const text = encodeToToon(marked);
-  return {
-    text: text.includes(UNTRUSTED_RECORD_TEXT_OPEN) ? `${UNTRUSTED_RECORD_TEXT_HANDLING}\n\n${text}` : text,
-    structuredContent: payload,
-  };
+  return untrustedToonResult(withUntrustedRecordText(payload) as Record<string, unknown>);
 }

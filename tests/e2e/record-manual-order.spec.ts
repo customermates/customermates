@@ -15,7 +15,7 @@ async function post(page: Page, path: string, data: unknown) {
 }
 
 async function mutate(page: Page, mutation: unknown) {
-  const model = RecordModelSchema.parse(await post(page, "/api/v1/model/discover", {}));
+  const model = RecordModelSchema.parse(await post(page, "/api/v1/model/read", {}));
   return RecordOperationResultSchema.parse(
     await post(page, "/api/v1/records/mutate", {
       expectedRevision: model.revision,

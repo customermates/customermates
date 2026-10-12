@@ -1,5 +1,7 @@
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordWriteError } from "@/features/records/record-write.service";
+import type { RecordRepo } from "@/features/records/record.repo";
+import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { MessagingProvider } from "@/generated/prisma";
 import { compileMessagingRecordQuery } from "./messaging-record-query";
 
@@ -41,13 +43,7 @@ import type { UpdateThreadRepo } from "../thread-state/update-thread.repo";
 
 import { QueryRepository } from "@/core/base/query-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
-import {
-  getConnectedAccountRepo,
-  getProviderAvatarService,
-  getRecordAccessPolicy,
-  getRecordIdentityReader,
-  getRecordRepo,
-} from "@/core/di";
+import { getConnectedAccountRepo, getProviderAvatarService, getRecordIdentityReader } from "@/core/di";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import type { PreviewKind } from "../attachment-kind";
@@ -110,6 +106,13 @@ export class PrismaMessagingRepo
     GetMessageAttachmentMetaRepo,
     FindThreadsByIdsRepo
 {
+  constructor(
+    private readonly inboxRecords?: Pick<RecordRepo, "getModel">,
+    private readonly inboxPolicy?: Pick<RecordAccessPolicy, "load">,
+  ) {
+    super();
+  }
+
   async searchChannelCandidates(query: RepoArgs<SearchChannelCandidatesRepo, "searchChannelCandidates">) {
     const rows = await this.prisma.messagingThreadParticipant.findMany({
       where: {
@@ -364,7 +367,8 @@ export class PrismaMessagingRepo
   }
 
   private async recordInboxQuery(params: GetQueryParams) {
-    const [model, policy] = await Promise.all([getRecordRepo().getModel(), getRecordAccessPolicy().load()]);
+    if (!this.inboxRecords || !this.inboxPolicy) throw new Error("Messaging inbox record access is not configured");
+    const [model, policy] = await Promise.all([this.inboxRecords.getModel(), this.inboxPolicy.load()]);
     if (!policy.actor) throw new RecordWriteError(CustomErrorCode.permissionDenied);
     return compileMessagingRecordQuery(
       this.companyId,

@@ -1596,7 +1596,7 @@ describe("agent tools", () => {
     ["save_message_draft", {}],
     ["discard_message_draft", {}],
     ["update_messaging_thread", {}],
-    ["update_workspace_settings", {}],
+    ["update_my_profile", {}],
     ["manage_team", { action: "update_member" }],
     ["connect_messaging_account", {}],
     ["configure_record_model", { action: "preview" }],

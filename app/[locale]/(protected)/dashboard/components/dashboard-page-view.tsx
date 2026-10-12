@@ -74,6 +74,20 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
   useLayoutEffect(() => widgetsStore.setItems(dashboard), [dashboard, widgetsStore]);
   useEffect(() => connectDataViewUrlSync(widgetsStore), [widgetsStore]);
 
+  const gridHost = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const host = gridHost.current;
+    if (!host || typeof ResizeObserver === "undefined") return;
+    let width = host.clientWidth;
+    const observer = new ResizeObserver(() => {
+      if (host.clientWidth === width) return;
+      width = host.clientWidth;
+      window.dispatchEvent(new Event("resize"));
+    });
+    observer.observe(host);
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => {
     if (typeof window === "undefined" || items.length === 0) return;
     const first = requestAnimationFrame(() => {
@@ -245,7 +259,9 @@ const DashboardPageViewContent = observer(function DashboardPageView({ dashboard
         store={widgetsStore}
       />
 
-      <div className="relative flex min-h-0 w-full flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">{body}</div>
+      <div ref={gridHost} className="relative flex min-h-0 w-full flex-1 flex-col gap-4 p-4 md:gap-6 md:p-6">
+        {body}
+      </div>
 
       <WidgetModal />
     </>

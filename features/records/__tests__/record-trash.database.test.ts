@@ -84,13 +84,24 @@ async function fixture() {
   const repo = new PrismaRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const writer = new RecordWriteService(repo, policy, new RecordCalculationService(repo));
-  const mutate = new MutateRecordInteractor(repo, policy, writer, { dispatch: () => Promise.resolve() });
+  const mutate = new MutateRecordInteractor(
+    repo,
+    policy,
+    writer,
+    { dispatch: () => Promise.resolve() },
+    new RecordTrashService(repo),
+  );
   const read = new GetRecordInteractor(repo, policy);
   const query = new QueryRecordsInteractor(repo, policy);
   const search = new SearchRecordsInteractor(repo, policy);
   const measure = new QueryRecordMeasureInteractor(repo, policy);
   const trashRepo = new PrismaTrashRepo();
-  const handler = new RecordTrashHandler(repo, policy, { dispatch: () => Promise.resolve() });
+  const handler = new RecordTrashHandler(
+    repo,
+    policy,
+    { dispatch: () => Promise.resolve() },
+    new RecordTrashService(repo),
+  );
   const handlers = [handler];
   const worker = new RecordOperationService(
     repo,
@@ -323,6 +334,33 @@ describeDatabase("record trash", () => {
     expect(await f.field(deal, f.id("deal.totalQuantity"))).toMatchObject({ value: { value: "4" } });
     await runWithTenant(f.admin, () => f.trash.restore.invoke({ batchId: deleted.trashBatchId } as never));
     expect(await f.field(deal, f.id("deal.totalQuantity"))).toMatchObject({ value: { value: "10" } });
+  }, 180_000);
+
+  it("counts an embedded record whose only parent link is in Trash as missing its parent", async () => {
+    const f = await fixture();
+    const deal = await f.created({
+      action: "create",
+      typeId: f.id("deal"),
+      fields: [{ fieldId: f.id("deal.name"), value: text("Parent") }],
+    });
+    const line = await f.created({
+      action: "create",
+      typeId: f.id("lineItem"),
+      fields: [{ fieldId: f.id("lineItem.quantity"), value: decimal("1") }],
+      links: [{ relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal }],
+    });
+    const model = await runWithTenant(f.admin, () => f.repo.getModel());
+    expect(model.types.find((type) => type.id === f.id("lineItem"))?.parentRelationshipId).toBe(f.id("lineItem.deal"));
+    expect(await runWithTenant(f.admin, () => f.repo.validateRelationshipCardinality(model))).toEqual([]);
+    await runWithoutTenant(() =>
+      prisma.recordLink.updateMany({
+        where: { companyId: f.seed.company.id, relationId: f.id("lineItem.deal"), sourceId: line.recordId },
+        data: { deletedAt: new Date() },
+      }),
+    );
+    expect(await runWithTenant(f.admin, () => f.repo.validateRelationshipCardinality(model))).toEqual([
+      f.id("lineItem.deal"),
+    ]);
   }, 180_000);
 
   it("drops a link whose single side was taken while the record was in Trash and reports it", async () => {

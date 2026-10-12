@@ -20,7 +20,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 
 import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
-import { useRecordValueFormat } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
+import { useRecordValueFormat } from "@/components/records/record-value";
 import { AppForm } from "@/components/forms/form-context";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { FormInput } from "@/components/forms/form-input";
@@ -144,7 +144,7 @@ const AttributeColumnPopover = observer(function AttributeColumnPopover({
                       close();
                     }}
                   >
-                    <Plus aria-hidden className="size-4" />
+                    <Plus aria-hidden />
 
                     {t("RecordModel.probability")}
                   </Button>
@@ -341,7 +341,7 @@ const OptionRow = observer(function OptionRow({
         <DragHandle
           attributes={sortable.attributes}
           className={cn("mt-1 [grid-area:drag]", WIDE_PLACEMENT[step], store.isDisabled && "invisible")}
-          label={`${t("DataView.dragToReorder")}: ${name}`}
+          label={t("DataView.dragToReorderNamed", { name })}
           listeners={sortable.listeners}
           setActivatorNodeRef={sortable.setActivatorNodeRef}
         />

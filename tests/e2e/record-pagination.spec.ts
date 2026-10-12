@@ -23,7 +23,7 @@ test("returns to a valid relationship, path and embedded page after deleting its
     expect(response.ok(), await response.text()).toBe(true);
     return response.json();
   };
-  const modelResponse = await page.request.post("/api/v1/model/discover", { data: {} });
+  const modelResponse = await page.request.post("/api/v1/model/read", { data: {} });
   expect(modelResponse.ok()).toBe(true);
   const model = RecordModelSchema.parse(await modelResponse.json());
   const type = model.types.find((candidate) => candidate.id === id("deal"));

@@ -1,5 +1,5 @@
 import type { GetResult } from "@/core/base/base-get.interactor";
-import { action, computed, makeObservable, observable } from "mobx";
+import { action, comparer, computed, makeObservable, observable } from "mobx";
 import deepEqual from "fast-deep-equal/es6";
 
 import type { GetQueryParams } from "@/core/base/base-get.schema";
@@ -7,7 +7,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { RecordPresentationResult } from "@/features/records/get-record-presentation.interactor";
 import type { RecordRow } from "@/features/records/record-presentation";
 import type { MutateRecordInput, RecordLinkChange } from "@/features/records/record-query.schema";
-import type { RecordScalar } from "@/features/records/record-model.schema";
+import type { RecordFieldView, RecordScalar } from "@/features/records/record-model.schema";
 import type { RecordFieldSaveOutcome } from "./record-field-value-editor";
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";
@@ -15,6 +15,7 @@ import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { reportApplicationError } from "@/core/errors/report-application-error";
 import { recordColumns } from "@/features/records/record-columns";
+import { withFormulaReferences } from "@/features/records/formula-references";
 import { recordSummaryFields } from "@/features/records/record-grouping";
 import { MANUAL_ORDER_SORT_KEY } from "@/features/records/record-column.schema";
 import { recordColumnPresentation, recordDefaults } from "@/features/records/record-presentation";
@@ -23,6 +24,7 @@ import { movedToTrashOr, movingToTrash } from "@/features/trash/moved-to-trash";
 import { focusHref } from "@/components/focus/focus-href";
 
 export const UNTITLED_COLUMN_ID = "record:title";
+export const NUMBER_VALUE_TYPES: RecordFieldView["valueType"][] = ["number", "currency"];
 
 export class RecordsStore extends BaseDataViewStore<RecordRow> {
   presentation: RecordPresentationResult;
@@ -50,6 +52,9 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       type: computed,
       differsFromDefaultLayout: computed,
       recordColumns: computed,
+      columnHeaders: computed({ equals: comparer.structural }),
+      firstNumberColumnId: computed,
+      formulaModel: computed,
       setPresentation: action,
       moveItemBetweenGroups: action.bound,
       pendingBoardOperation: observable,
@@ -402,6 +407,20 @@ export class RecordsStore extends BaseDataViewStore<RecordRow> {
       !deepEqual(grouping(this.grouping), grouping(defaults.grouping)) ||
       !deepEqual(sort(this.sortDescriptor), sort(defaults.sortDescriptor))
     );
+  }
+  get columnHeaders(): [id: string, label: string][] {
+    return this.recordColumns.map((column) => [column.id, column.label]);
+  }
+  get firstNumberColumnId() {
+    const numeric = new Set(
+      this.recordColumns
+        .filter((column) => column.kind === "field" && NUMBER_VALUE_TYPES.includes(column.field.valueType))
+        .map((column) => column.id),
+    );
+    return this.visibleColumns.find((column) => numeric.has(column.uid))?.uid ?? null;
+  }
+  get formulaModel() {
+    return withFormulaReferences(this.presentation.model, this.presentation.formulaReferences);
   }
   get primaryColumnId() {
     return this.type ? (this.type.primaryFieldId ?? UNTITLED_COLUMN_ID) : super.primaryColumnId;

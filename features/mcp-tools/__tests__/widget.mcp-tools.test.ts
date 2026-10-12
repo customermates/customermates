@@ -1,4 +1,8 @@
 import type { RecordActivityWidgetDto } from "@/features/widget/record-activity-widget.schema";
+import type * as RecordActivityWidgetModule from "@/features/widget/record-activity-widget.schema";
+import type * as RecordWidgetModule from "@/features/widget/record-widget.schema";
+import type * as SaveWidgetModule from "@/features/widget/save-widget.interactor";
+import type { ZodType } from "zod";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { decode } from "@toon-format/toon";
@@ -25,23 +29,49 @@ vi.mock("next-intl/server", () => ({
 }));
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
-vi.mock("@/core/di", () => ({
-  ...createMockDiModule(() => mockUser),
-  getDeleteWidgetInteractor: () => ({ invoke: spies.deleteWidget }),
-  getGetWidgetByIdInteractor: () => ({ invoke: spies.getWidgetById }),
-  getGetWidgetsInteractor: () => ({ invoke: spies.getWidgets }),
-  getUpsertWidgetInteractor: () => ({ invoke: spies.upsertWidget }),
-  getUpsertRecordWidgetInteractor: () => ({ invoke: spies.upsertRecordWidget }),
-  getUpsertRecordActivityWidgetInteractor: () => ({
-    invoke: spies.upsertRecordActivityWidget,
-  }),
-}));
+vi.mock("@/core/di", async () => {
+  const { SaveWidgetInteractor } = await vi.importActual<typeof SaveWidgetModule>(
+    "@/features/widget/save-widget.interactor",
+  );
+  const { RecordWidgetInputSchema } = await vi.importActual<typeof RecordWidgetModule>(
+    "@/features/widget/record-widget.schema",
+  );
+  const { RecordActivityWidgetInputSchema } = await vi.importActual<typeof RecordActivityWidgetModule>(
+    "@/features/widget/record-activity-widget.schema",
+  );
+  const validated = (schema: ZodType, spy: (input: unknown) => unknown) => ({
+    invoke: (input: unknown) => {
+      const parsed = schema.safeParse(input);
+      return parsed.success ? spy(parsed.data) : Promise.resolve({ ok: false, error: parsed.error });
+    },
+  });
+  return {
+    ...createMockDiModule(() => mockUser),
+    getSaveWidgetInteractor: () =>
+      new SaveWidgetInteractor(
+        {
+          findOwnedWidgetKind: async (id: string) => {
+            const found = (await spies.getWidgetById({ id })) as
+              | { ok: boolean; data?: { kind: "chart" | "activityTimeline" } | null }
+              | undefined;
+            return found?.ok && found.data ? found.data.kind : null;
+          },
+        },
+        validated(RecordWidgetInputSchema, spies.upsertRecordWidget) as never,
+        validated(RecordActivityWidgetInputSchema, spies.upsertRecordActivityWidget) as never,
+      ),
+    getDeleteWidgetInteractor: () => ({ invoke: spies.deleteWidget }),
+    getGetWidgetByIdInteractor: () => ({ invoke: spies.getWidgetById }),
+    getGetWidgetsInteractor: () => ({ invoke: spies.getWidgets }),
+  };
+});
 
 import { WidgetKind } from "@/generated/prisma";
 import type { RecordWidgetDto } from "@/features/widget/record-widget.schema";
 import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
 import { DisplayType } from "@/features/widget/widget.schema";
 
+import { runWithTenant } from "@/core/decorators/tenant-context";
 import { manageWidgetsTool } from "../widget.mcp-tools";
 import { mcpToolResultText } from "../mcp-tool";
 import { formatDatesInResponse } from "../utils";
@@ -128,7 +158,7 @@ function activityWidget(overrides: Partial<RecordActivityWidgetDto> = {}): Recor
 }
 
 async function run(args: Record<string, unknown>) {
-  return mcpToolResultText(await manageWidgetsTool.execute(args));
+  return mcpToolResultText(await runWithTenant(mockUser, () => manageWidgetsTool.execute(args)));
 }
 
 const chartCreate = {
@@ -152,12 +182,12 @@ describe("manage_widgets create", () => {
     });
     const result = await run(chartCreate);
     expect(spies.upsertRecordWidget).toHaveBeenCalledWith({
+      kind: "chart",
       name: "Deals",
       measure: chartCreate.measure,
       displayOptions: chartCreate.displayOptions,
       expectedRevision: 3,
       idempotencyKey: "widget-retry-key",
-      isTemplate: false,
     });
     expect(spies.upsertWidget).not.toHaveBeenCalled();
     expect(decode(result)).toEqual({
@@ -202,11 +232,11 @@ describe("manage_widgets create", () => {
       showFilters: false,
     });
     expect(spies.upsertRecordActivityWidget).toHaveBeenCalledWith({
+      kind: "activityTimeline",
       name: "Recent activity",
       activityQuery,
       ...activityPreconditions,
       displayOptions: { showFilters: false },
-      isTemplate: false,
     });
     expect(spies.upsertWidget).not.toHaveBeenCalled();
     expect(decode(result)).toEqual({
@@ -283,7 +313,7 @@ describe("manage_widgets create", () => {
 });
 
 describe("manage_widgets update", () => {
-  it("preserves omitted chart fields and forwards the caller's concurrency preconditions", async () => {
+  it("forwards only the changed chart fields and the caller's concurrency preconditions to the stored kind", async () => {
     const stored = chartWidget();
     spies.getWidgetById.mockResolvedValue({ ok: true, data: stored });
     spies.upsertRecordWidget.mockResolvedValue({
@@ -299,14 +329,12 @@ describe("manage_widgets update", () => {
       idempotencyKey: "update-retry-key",
     });
     expect(spies.upsertRecordWidget).toHaveBeenCalledWith({
+      kind: stored.kind,
       id: WIDGET_ID,
       name: "Renamed",
       expectedRevision: 3,
       expectedVersion: 1,
       idempotencyKey: "update-retry-key",
-      measure: stored.measure,
-      displayOptions: stored.displayOptions,
-      isTemplate: false,
     });
     expect(decode(result)).toMatchObject({
       kind: "chart",
@@ -315,7 +343,7 @@ describe("manage_widgets update", () => {
     });
   });
 
-  it("preserves omitted timeline configuration with explicit concurrency preconditions", async () => {
+  it("forwards a timeline rename without its omitted configuration", async () => {
     spies.getWidgetById.mockResolvedValue({ ok: true, data: activityWidget() });
     spies.upsertRecordActivityWidget.mockResolvedValue({
       ok: true,
@@ -329,13 +357,11 @@ describe("manage_widgets update", () => {
       ...activityPreconditions,
     });
     expect(spies.upsertRecordActivityWidget).toHaveBeenCalledWith({
+      kind: "activityTimeline",
       id: WIDGET_ID,
       name: "Renamed",
       expectedVersion: 1,
       ...activityPreconditions,
-      activityQuery,
-      displayOptions: { showFilters: false },
-      isTemplate: false,
     });
     expect(decode(result)).toMatchObject({
       kind: "activityTimeline",

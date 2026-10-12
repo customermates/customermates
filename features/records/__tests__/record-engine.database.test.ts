@@ -67,6 +67,7 @@ const { RecordOperationService } = await import("../record-operation.service");
 const { CancelRecordOperationInteractor } = await import("../cancel-record-operation.interactor");
 const { GetRecordOperationInteractor } = await import("../get-record-operation.interactor");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
+const { RecordTrashService } = await import("../record-trash.service");
 const { QueryRecordsInteractor } = await import("../query-records.interactor");
 const { GetRecordInteractor } = await import("../get-record.interactor");
 const { GetRecordEditorInteractor } = await import("../get-record-editor.interactor");
@@ -95,6 +96,7 @@ const { RecordRevisionChangeSchema } = await import("../record-revision.schema")
 const { RecordHistoryReader } = await import("../record-history-reader");
 const { createTestRecordRecipientReader, createTestRoutineRepo } = await import("@/tests/helpers/record-delivery");
 const { WebhookAdmission } = await import("@/features/webhook/webhook-admission");
+const { PrismaWebhookAdmissionRepo } = await import("@/features/webhook/prisma-webhook-admission.repository");
 const { DeliverWebhookInteractor } = await import("@/features/webhook/deliver-webhook.interactor");
 const { PrismaWebhookDeliveryQueueRepo } = await import("@/features/webhook/prisma-webhook-delivery-queue.repository");
 const { PrismaWebhookDeliveryRepo } = await import("@/features/webhook/prisma-webhook-delivery.repository");
@@ -103,7 +105,7 @@ const { ValidateWebhookDeliveryIdsInteractor } = await import(
   "@/core/validation/validators/validate-webhook-delivery-ids.interactor"
 );
 const { RoutineAdmission } = await import("@/ee/routines/routine-admission");
-const { PrismaRoutineEventAccess } = await import("@/ee/routines/prisma-routine-event-access");
+const { PrismaRoutineEventAccess } = await import("@/ee/routines/prisma-routine-event-access.repository");
 const { ProcessEventInteractor } = await import("@/features/event/process-event.interactor");
 const { ProcessDueEventsInteractor } = await import("@/features/event/process-due-events.interactor");
 const { PrismaEventOutboxRepo } = await import("@/features/event/prisma-event-outbox.repository");
@@ -132,8 +134,11 @@ const {
   getDeleteWebhookInteractor,
   getGetRecordModelInteractor,
   getQueryTrashInteractor,
+  getRecordAccessPolicy,
+  getRecordRepo,
 } = await import("@/core/di");
 const { manageWebhooksTool } = await import("@/features/mcp-tools/webhook.mcp-tools");
+const { manageRoutinesTool } = await import("@/features/mcp-tools/routine.mcp-tools");
 const { manageRolesTool } = await import("@/features/mcp-tools/role.mcp-tools");
 const { RoleManagementService } = await import("@/features/role/role-management.service");
 const { PrismaRoleRepo } = await import("@/features/role/prisma-role.repository");
@@ -143,6 +148,7 @@ const { PrismaCompanyRepo } = await import("@/features/company/prisma-company.re
 const { InitializeRecordModelService } = await import("../initialize-record-model.service");
 const { DomainEvent } = await import("@/features/event/domain-events");
 const { PrismaWidgetRepo } = await import("@/features/widget/prisma-widget.repository");
+const { SaveWidgetInteractor } = await import("@/features/widget/save-widget.interactor");
 const { UpdateWidgetLayoutsInteractor } = await import("@/features/widget/update-widget-layouts.interactor");
 const { executeMcpTool } = await import("@/features/mcp-tools/mcp-tool");
 const { manageDataViewsTool } = await import("@/features/mcp-tools/data-view.mcp-tools");
@@ -220,6 +226,7 @@ async function fixture() {
     policy,
     new RecordWriteService(repo, policy, calculations),
     background,
+    new RecordTrashService(repo),
   );
   const read = new GetRecordInteractor(repo, policy);
   const personalization = new PrismaP13nRepo();
@@ -547,7 +554,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const dave = await contact("Dave", [{ provider: "mail", value: "shared@batch.example.test" }]);
     const eve = await contact("Eve", [{ provider: "mail", value: "eve@batch.example.test" }]);
     await f.update(bob, [["contact.lastName", textValue("Moved")]]);
-    const lookup = new ResolveRecordIdentitiesInteractor(f.repo, f.policy);
+    const lookup = new ResolveRecordIdentitiesInteractor(f.policy, new RecordIdentityReader(f.repo, f.policy));
     const resolve = async (identifiers: Array<{ provider: "mail" | "linkedin"; value: string }>, as = f.admin) => {
       const result = await f.run(() => lookup.invoke({ identifiers }), as);
       if (!result.ok) throw new Error(JSON.stringify(result.error));
@@ -1518,14 +1525,16 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       eventId: matchedEvent.id,
       subscriptionId: subscription.id,
     };
-    expect(await reader.readEvent(request)).toMatchObject({
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toMatchObject({
       id: matchedEvent.id,
     });
     expect(
-      await reader.readEvent({
-        ...request,
-        eventId: recordInvariant(captured[0]).id,
-      }),
+      await runWithoutTenant(() =>
+        reader.readEvent({
+          ...request,
+          eventId: recordInvariant(captured[0]).id,
+        }),
+      ),
     ).toBeNull();
     await f.run(() =>
       prisma.recordEventSubscription.update({
@@ -1536,7 +1545,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         data: { revision: { increment: 1 } },
       }),
     );
-    expect(await reader.readEvent(request)).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toBeNull();
     expect((await events()).map((event) => event.matches.length)).toEqual([0, 1, 0]);
   });
 
@@ -1604,11 +1613,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       subscriptionId: subscription.id,
       recheckSubscriptionSources: true,
     };
-    expect(await reader.readEvent(delivery)).toMatchObject({
+    expect(await runWithoutTenant(() => reader.readEvent(delivery))).toMatchObject({
       id: matchedServiceUpdate.eventId,
     });
     expect(await f.update(service, [["service.amount", decimal("0")]])).toMatchObject({ ok: true });
-    expect(await reader.readEvent(delivery)).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent(delivery))).toBeNull();
   });
 
   it("creates a generic record routine through the application interactor and durably admits its matched event once", async () => {
@@ -1857,6 +1866,74 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toBe(0);
   });
 
+  it("fires a filtered record routine created through the MCP tool only for matching records", async () => {
+    const f = await fixture();
+    await f.run(() =>
+      prisma.subscription.create({
+        data: { companyId: f.company.id, status: "active", plan: "enterprise" },
+      }),
+    );
+    expect(manageRoutinesTool.inputSchema.shape).not.toHaveProperty("triggerFilters");
+    const created = await f.run(() =>
+      executeMcpTool(manageRoutinesTool, [
+        manageRoutinesTool.inputSchema.parse({
+          action: "create",
+          name: "Large catalog items",
+          prompt: "Inspect this record. Do not change it.",
+          triggerKind: "event",
+          triggerEvents: ["record.created"],
+          recordTrigger: {
+            query: {
+              typeId: f.id("service"),
+              filters: [{ fieldId: f.id("service.amount"), operator: "gt", value: decimal("10") }],
+              relationships: [],
+            },
+            changedFieldIds: [],
+          },
+          expectedSchemaRevision: 1,
+          debounceSeconds: 0,
+        }),
+      ]),
+    );
+    expect(created).toMatchObject({ ok: true });
+    const routine = recordInvariant(
+      await f.run(() => prisma.routine.findFirst({ where: { companyId: f.company.id } })),
+    );
+    const small = await f.create("service", "Small item", [["service.amount", decimal("5")]]);
+    const large = await f.create("service", "Large item", [["service.amount", decimal("20")]]);
+    const matches = await f.run(() =>
+      prisma.recordEventMatch.findMany({
+        where: { companyId: f.company.id, subscriptionId: routine.id },
+        include: { event: true },
+      }),
+    );
+    expect(matches.map((match) => match.event.subjectId)).toEqual([large.recordId]);
+    const events = await f.run(() =>
+      prisma.eventLog.findMany({
+        where: { companyId: f.company.id, subjectId: { in: [small.recordId, large.recordId] } },
+        orderBy: { createdAt: "asc" },
+      }),
+    );
+    expect(events.length).toBeGreaterThanOrEqual(2);
+    const dispatch = vi.fn().mockResolvedValue(undefined);
+    const process = new ProcessEventInteractor(
+      new PrismaEventOutboxRepo(),
+      new RoutineAdmission(createTestRoutineRepo(), { dispatch } as never, createTestRecordRecipientReader()),
+    );
+    for (const event of events) await process.invoke({ companyId: f.company.id, eventId: event.id });
+    const runs = await f.run(() =>
+      prisma.routineRun.findMany({
+        where: { companyId: f.company.id, routineId: routine.id },
+      }),
+    );
+    expect(runs).toHaveLength(1);
+    expect(runs[0]).toMatchObject({
+      triggerEvent: "record.created",
+      triggerPayload: { data: { record: { ref: large } } },
+    });
+    expect(dispatch).toHaveBeenCalledOnce();
+  });
+
   it("durably admits a record webhook once and rechecks its owner's access before a retry", async () => {
     const f = await fixture();
     await f.run(() =>
@@ -1887,7 +1964,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const reader = createTestRecordRecipientReader();
     const process = new ProcessEventInteractor(
       new PrismaEventOutboxRepo(),
-      new WebhookAdmission(reader, { dispatch } as never),
+      new WebhookAdmission(reader, { dispatch } as never, new PrismaWebhookAdmissionRepo()),
     );
     expect(await process.invoke({ companyId: f.company.id, eventId: event.id })).toEqual({ status: "delivered" });
     expect(await process.invoke({ companyId: f.company.id, eventId: event.id })).toEqual({ status: "delivered" });
@@ -2086,9 +2163,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     await new ProcessEventInteractor(
       new PrismaEventOutboxRepo(),
-      new WebhookAdmission(createTestRecordRecipientReader(), {
-        dispatch: vi.fn(),
-      } as never),
+      new WebhookAdmission(
+        createTestRecordRecipientReader(),
+        {
+          dispatch: vi.fn(),
+        } as never,
+        new PrismaWebhookAdmissionRepo(),
+      ),
     ).invoke({ companyId: f.company.id, eventId: event.id });
     const original = recordInvariant(
       await f.run(() =>
@@ -2211,9 +2292,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const reader = createTestRecordRecipientReader();
     const process = new ProcessEventInteractor(
       new PrismaEventOutboxRepo(),
-      new WebhookAdmission(reader, {
-        dispatch: vi.fn().mockResolvedValue(undefined),
-      } as never),
+      new WebhookAdmission(
+        reader,
+        {
+          dispatch: vi.fn().mockResolvedValue(undefined),
+        } as never,
+        new PrismaWebhookAdmissionRepo(),
+      ),
     );
     await process.invoke({ companyId: f.company.id, eventId: event.id });
     const delivery = recordInvariant(
@@ -2612,15 +2697,17 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       subscriptionId: member.id,
     };
     const reader = createTestRecordRecipientReader();
-    expect(await reader.readEvent(request)).not.toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent(request))).not.toBeNull();
     await f.run(() => runInTransaction(() => f.repo.setGrants(service.typeId, [])));
-    expect(await reader.readEvent(request)).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toBeNull();
     expect(
-      await reader.readEvent({
-        ...request,
-        companyId: foreign.company.id,
-        userId: foreign.admin.id,
-      }),
+      await runWithoutTenant(() =>
+        reader.readEvent({
+          ...request,
+          companyId: foreign.company.id,
+          userId: foreign.admin.id,
+        }),
+      ),
     ).toBeNull();
     await expect(
       f.run(() =>
@@ -3275,12 +3362,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       recheckSubscriptionSources: true,
     };
     const reader = createTestRecordRecipientReader();
-    expect(await reader.readEvent(request)).toMatchObject({
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toMatchObject({
       event: "record.deleted",
       data: { record: { ref: services[0] } },
     });
     await f.run(() => runInTransaction(() => f.repo.setGrants(f.id("service"), [])));
-    expect(await reader.readEvent(request)).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toBeNull();
   });
 
   it(
@@ -3441,12 +3528,14 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       expect(await matches()).toEqual(accepted);
       const first = recordInvariant(accepted[0]);
       expect(
-        await createTestRecordRecipientReader().readEvent({
-          companyId: f.company.id,
-          userId: f.admin.id,
-          eventId: first.eventId,
-          subscriptionId: subscription.id,
-        }),
+        await runWithoutTenant(() =>
+          createTestRecordRecipientReader().readEvent({
+            companyId: f.company.id,
+            userId: f.admin.id,
+            eventId: first.eventId,
+            subscriptionId: subscription.id,
+          }),
+        ),
       ).toMatchObject({ event: "record.deleted" });
     },
   );
@@ -3668,12 +3757,14 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     const reader = createTestRecordRecipientReader();
     expect(
-      await reader.readEvent({
-        companyId: f.company.id,
-        userId: f.member.id,
-        eventId: match.eventId,
-        subscriptionId: subscription.id,
-      }),
+      await runWithoutTenant(() =>
+        reader.readEvent({
+          companyId: f.company.id,
+          userId: f.member.id,
+          eventId: match.eventId,
+          subscriptionId: subscription.id,
+        }),
+      ),
     ).toMatchObject({ event: "record.deleted", data: { record: { ref: service } } });
     expect(
       await f.run(
@@ -3926,24 +4017,26 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       userId: f.member.id,
       eventId: event.id,
     };
-    expect(await reader.readEvent(request)).toBeNull();
-    expect(await reader.readEvent({ ...request, userId: f.admin.id })).toMatchObject({
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent({ ...request, userId: f.admin.id }))).toMatchObject({
       id: event.id,
       event: "record.created",
       data: { record: { ref: service } },
     });
     expect(
-      await reader.readEvent({
-        ...request,
-        companyId: other.company.id,
-        userId: other.admin.id,
-      }),
+      await runWithoutTenant(() =>
+        reader.readEvent({
+          ...request,
+          companyId: other.company.id,
+          userId: other.admin.id,
+        }),
+      ),
     ).toBeNull();
-    expect(await reader.readEvent({ ...request, userId: other.admin.id })).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent({ ...request, userId: other.admin.id }))).toBeNull();
     await f.run(() =>
       runInTransaction(() => f.repo.setGrants(service.typeId, [{ roleId: f.memberRole.id, actions: ["readOwn"] }])),
     );
-    expect(await reader.readEvent(request)).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toBeNull();
     expect(
       await f.mutation({
         action: "update",
@@ -3953,7 +4046,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         assignedUserIds: [f.member.id],
       }),
     ).toMatchObject({ ok: true });
-    expect(await reader.readEvent(request)).toMatchObject({
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toMatchObject({
       data: { record: { ref: service } },
     });
     const query = RecordQuerySchema.parse({
@@ -3966,34 +4059,38 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       ],
     });
-    expect(await reader.readEvent({ ...request, query })).toMatchObject({
+    expect(await runWithoutTenant(() => reader.readEvent({ ...request, query }))).toMatchObject({
       data: { record: { ref: service } },
     });
     expect(
-      await reader.readEvent({
-        ...request,
-        query: {
-          ...query,
-          filters: [
-            {
-              ...recordInvariant(query.filters[0]),
-              value: textValue("Different"),
-            },
-          ],
-        },
-      }),
+      await runWithoutTenant(() =>
+        reader.readEvent({
+          ...request,
+          query: {
+            ...query,
+            filters: [
+              {
+                ...recordInvariant(query.filters[0]),
+                value: textValue("Different"),
+              },
+            ],
+          },
+        }),
+      ),
     ).toBeNull();
     expect(
-      await reader.readEvent({
-        ...request,
-        query: { ...query, typeId: other.id("service") },
-      }),
+      await runWithoutTenant(() =>
+        reader.readEvent({
+          ...request,
+          query: { ...query, typeId: other.id("service") },
+        }),
+      ),
     ).toBeNull();
     const foreign = await other.create("service", "Foreign");
     const foreignRow = recordInvariant(await other.run(() => other.repo.getRecordCompanyWide(foreign)));
     expect(await (await f.run(() => f.policy.load())).canRead(foreignRow)).toBe(false);
     await f.run(() => runInTransaction(() => f.repo.setGrants(service.typeId, [])));
-    expect(await reader.readEvent(request)).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toBeNull();
     await f.run(() =>
       runInTransaction(() => f.repo.setGrants(service.typeId, [{ roleId: f.memberRole.id, actions: ["readAll"] }])),
     );
@@ -4003,7 +4100,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         data: { status: "inactive" },
       }),
     );
-    expect(await reader.readEvent(request)).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent(request))).toBeNull();
   });
 
   it("redacts restricted calculation dependencies from delivery payloads and filter matches", async () => {
@@ -4049,7 +4146,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       userId: f.member.id,
       eventId: event.id,
     };
-    const restricted = await reader.readEvent(request);
+    const restricted = await runWithoutTenant(() => reader.readEvent(request));
     expect(restricted?.data.record.fields.find((field) => field.fieldId === f.id("deal.totalValue"))).toMatchObject({
       after: { value: { state: "restricted" } },
     });
@@ -4065,7 +4162,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       ],
     });
-    expect(await reader.readEvent({ ...request, query })).toBeNull();
+    expect(await runWithoutTenant(() => reader.readEvent({ ...request, query }))).toBeNull();
     const subscription = await subscribeRecordEvents(f, {
       ownerUserId: f.member.id,
       typeId: deal.typeId,
@@ -4100,7 +4197,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       ),
     ).toBe(1);
-    const readable = await reader.readEvent({ ...request, query });
+    const readable = await runWithoutTenant(() => reader.readEvent({ ...request, query }));
     expect(readable?.data.record.fields.find((field) => field.fieldId === f.id("deal.totalValue"))).toMatchObject({
       after: { value: { state: "value", value: decimal("34") } },
     });
@@ -6798,9 +6895,9 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     const identity = recordInvariant((await f.run(() => f.repo.getIdentitiesCompanyWide(second)))[0]);
     const versions = [(await f.readRecord(first)).version, (await f.readRecord(second)).version];
-    const channels = new StartChatRecordChannelRepo(f.repo, f.policy, undefined as never);
+    const channels = new StartChatRecordChannelRepo(f.repo);
     const save = (messagingId: string, displayName: string | null, profileUrl: string | null) =>
-      f.run(() => channels.saveResolvedContactChannel({ id: identity.id, messagingId, displayName, profileUrl }));
+      f.run(() => channels.setIdentityResolutionCompanyWide(identity.id, { messagingId, displayName, profileUrl }));
     const current = async () => recordInvariant((await f.run(() => f.repo.getIdentitiesCompanyWide(first)))[0]);
     await save("urn:resolved-chat", "Provider name", "https://example.test/resolved");
     expect(await current()).toMatchObject({
@@ -7372,9 +7469,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     if (!result.ok || result.data.status !== "completed") throw new Error("Fixture person failed");
     const ref = recordInvariant(result.data.refs[0]);
+    const resolverPolicy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo);
     const resolver = new ResolveRecordIdentitiesInteractor(
-      f.repo,
-      new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo),
+      resolverPolicy,
+      new RecordIdentityReader(f.repo, resolverPolicy),
     );
     const resolve = () =>
       resolver.invoke({
@@ -7512,7 +7610,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       }),
     );
-    const inbox = new PrismaMessagingRepo();
+    const inbox = new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
     const lookup = new GetIdentityRecordChoicesInteractor(
       f.repo,
       new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo),
@@ -7707,7 +7805,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       }),
     );
-    const inbox = new PrismaMessagingRepo();
+    const inbox = new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
     const names = async () => {
       const threads = await f.run(() => inbox.getItems({ pagination: { page: 1, pageSize: 10 } }), f.member);
       const selected = recordInvariant(threads.find((thread) => thread.id === target.id));
@@ -7836,7 +7934,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       );
     }
-    const inbox = new PrismaMessagingRepo();
+    const inbox = new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
     const params: GetQueryParams = {
       filters: [
         {
@@ -7942,7 +8040,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           },
         }),
       );
-      const inbox = new PrismaMessagingRepo();
+      const inbox = new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
       await inbox.upsertThreadParticipantsUnscoped({
         companyId: f.company.id,
         messagingThreadId: thread.id,
@@ -13349,11 +13447,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         (await f.readRecord(summary, retainedReader)).fields.find((field) => field.fieldId === total.id)?.result,
       ).toEqual({ state: "value", value: decimal("37") });
       expect(
-        await createTestRecordRecipientReader().readEvent({
-          companyId: f.company.id,
-          userId: retainedReader.id,
-          eventId: deletedSourceEvent.id,
-        }),
+        await runWithoutTenant(() =>
+          createTestRecordRecipientReader().readEvent({
+            companyId: f.company.id,
+            userId: retainedReader.id,
+            eventId: deletedSourceEvent.id,
+          }),
+        ),
       ).not.toBeNull();
       const originalEvent = recordInvariant(
         await f.run(() =>
@@ -13611,17 +13711,21 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         ),
       ).toBe(false);
       expect(
-        await recipient.readEvent({
+        await runWithoutTenant(() =>
+          recipient.readEvent({
+            companyId: f.company.id,
+            userId: retainedReader.id,
+            eventId: deletedSourceEvent.id,
+          }),
+        ),
+      ).toBeNull();
+      const envelope = await runWithoutTenant(() =>
+        recipient.readEvent({
           companyId: f.company.id,
           userId: retainedReader.id,
-          eventId: deletedSourceEvent.id,
+          eventId: originalEvent.id,
         }),
-      ).toBeNull();
-      const envelope = await recipient.readEvent({
-        companyId: f.company.id,
-        userId: retainedReader.id,
-        eventId: originalEvent.id,
-      });
+      );
       expect(envelope).not.toBeNull();
       for (const field of [total, memo]) {
         expect(envelope?.data.record.fields.find((entry) => entry.fieldId === field.id)?.after?.value).toEqual({
@@ -13633,12 +13737,14 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         filters: [{ fieldId: total.id, operator: "eq", value: decimal("37") }],
       });
       expect(
-        await recipient.readEvent({
-          companyId: f.company.id,
-          userId: retainedReader.id,
-          eventId: originalEvent.id,
-          query,
-        }),
+        await runWithoutTenant(() =>
+          recipient.readEvent({
+            companyId: f.company.id,
+            userId: retainedReader.id,
+            eventId: originalEvent.id,
+            query,
+          }),
+        ),
       ).toBeNull();
       const subscription = await subscribeRecordEvents(f, {
         ownerUserId: retainedReader.id,
@@ -13707,11 +13813,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         value: decimal("37"),
       });
       expect(
-        await recipient.readEvent({
-          companyId: f.company.id,
-          userId: retainedReader.id,
-          eventId: deletedSourceEvent.id,
-        }),
+        await runWithoutTenant(() =>
+          recipient.readEvent({
+            companyId: f.company.id,
+            userId: retainedReader.id,
+            eventId: deletedSourceEvent.id,
+          }),
+        ),
       ).not.toBeNull();
     },
   );
@@ -14697,6 +14805,98 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
   });
 
+  it("merges partial widget updates in the interactors and keeps each saved widget's kind", async () => {
+    const f = await fixture();
+    const save = new SaveWidgetInteractor(new PrismaWidgetRepo(), f.writeWidget, f.writeActivityWidget);
+    const measure = RecordMeasureSchema.parse({
+      source: { typeId: f.id("service") },
+      aggregation: "count",
+      valueFieldId: null,
+      groupBy: null,
+    });
+    const chart = await f.run(() =>
+      save.invoke({
+        expectedRevision: 1,
+        idempotencyKey: randomUUID(),
+        name: "Service count",
+        measure,
+        displayOptions: { displayType: DisplayType.verticalBarChart },
+      }),
+    );
+    expect(chart).toMatchObject({ ok: true, data: { kind: "chart", isTemplate: false, version: 1 } });
+    if (!chart.ok) throw new Error("Chart creation failed");
+    const renamed = await f.run(() =>
+      save.invoke({
+        id: chart.data.id,
+        expectedVersion: 1,
+        expectedRevision: 1,
+        idempotencyKey: randomUUID(),
+        name: "Renamed count",
+      }),
+    );
+    expect(renamed).toMatchObject({
+      ok: true,
+      data: {
+        kind: "chart",
+        name: "Renamed count",
+        version: 2,
+        measure,
+        displayOptions: { displayType: DisplayType.verticalBarChart },
+        isTemplate: false,
+      },
+    });
+    const kindChange = await f.run(() =>
+      save.invoke({
+        id: chart.data.id,
+        kind: "activityTimeline",
+        expectedVersion: 2,
+        expectedRevision: 1,
+        idempotencyKey: randomUUID(),
+        name: "Timeline",
+      }),
+    );
+    expect(kindChange).toMatchObject({ ok: false });
+    if (kindChange.ok) throw new Error("A kind change must fail");
+    expect(kindChange.error.issues[0]).toMatchObject({ path: ["kind"] });
+    expect(
+      await f.run(() => save.invoke({ expectedRevision: 1, idempotencyKey: randomUUID(), name: "Missing measure" })),
+    ).toMatchObject({ ok: false });
+    const activityQuery = RecordActivityQuerySchema.parse({ scope: { typeIds: [f.id("service")], records: [] } });
+    const timeline = await f.run(() =>
+      save.invoke({
+        kind: "activityTimeline",
+        expectedRevision: 1,
+        idempotencyKey: randomUUID(),
+        name: "Service history",
+        activityQuery,
+      }),
+    );
+    expect(timeline).toMatchObject({
+      ok: true,
+      data: { kind: "activityTimeline", displayOptions: { showFilters: true }, isTemplate: false },
+    });
+    if (!timeline.ok) throw new Error("Timeline creation failed");
+    expect(
+      await f.run(() =>
+        save.invoke({
+          id: timeline.data.id,
+          expectedVersion: 1,
+          expectedRevision: 1,
+          idempotencyKey: randomUUID(),
+          displayOptions: { showFilters: false },
+        }),
+      ),
+    ).toMatchObject({
+      ok: true,
+      data: {
+        kind: "activityTimeline",
+        name: "Service history",
+        activityQuery,
+        displayOptions: { showFilters: false },
+      },
+    });
+  });
+
   it("versions saved widget positions, returns authoritative layouts and isolates owners and workspaces", async () => {
     const f = await fixture();
     const other = await fixture();
@@ -14754,25 +14954,29 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       }),
     );
-    const layouts = {
-      xs: [],
-      sm: [],
-      md: [],
-      lg: [
-        ...[created.data.id, foreign.data.id, member.id].map((id) => ({ i: id, x: 2, y: 1, w: 3, h: 2 })),
-        untouchedPosition,
-      ],
-    };
+    const position = { i: created.data.id, x: 0, y: 0, w: 3, h: 2 };
+    const layouts = { xs: [], sm: [], md: [], lg: [position, untouchedPosition] };
+    const versions = { [created.data.id]: 1, [untouchedId]: 1 };
     const writer = new UpdateWidgetLayoutsInteractor(new PrismaWidgetRepo());
-    expect(await f.run(() => writer.invoke({ layouts }))).toEqual({
+    const failure = (result: { ok: boolean; error?: unknown }) => (result.ok ? null : JSON.stringify(result.error));
+    for (const id of [foreign.data.id, member.id]) {
+      const rejected = await f.run(() =>
+        writer.invoke({
+          layouts: { ...layouts, lg: [...layouts.lg, { ...position, i: id, x: 8 }] },
+          expectedVersions: { ...versions, [id]: 1 },
+        }),
+      );
+      expect(failure(rejected)).toContain(CustomErrorCode.widgetLayoutChanged);
+    }
+    expect(await f.run(() => writer.invoke({ layouts, expectedVersions: versions }))).toEqual({
       ok: true,
       data: [
-        { id: created.data.id, version: 2, layout: { xs: undefined, sm: undefined, md: undefined, lg: layouts.lg[0] } },
+        { id: created.data.id, version: 2, layout: { xs: undefined, sm: undefined, md: undefined, lg: position } },
       ],
     });
     expect(await f.run(() => f.widgets.findOwned(created.data.id))).toMatchObject({
       version: 2,
-      layout: { lg: layouts.lg[0] },
+      layout: { lg: position },
     });
     expect(await other.run(() => other.widgets.findOwned(foreign.data.id))).toMatchObject({
       version: 1,
@@ -14799,15 +15003,32 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       ),
     ).toMatchObject({ ok: false });
-    expect(await f.run(() => writer.invoke({ layouts }))).toEqual({ ok: true, data: [] });
+    const stale = await f.run(() =>
+      writer.invoke({ layouts: { ...layouts, lg: [{ ...position, x: 1 }] }, expectedVersions: versions }),
+    );
+    expect(failure(stale)).toContain(CustomErrorCode.widgetLayoutChanged);
+    const current = { ...versions, [created.data.id]: 2 };
+    const overlap = await f.run(() =>
+      writer.invoke({ layouts: { ...layouts, lg: [{ ...position, x: 3, y: 1 }] }, expectedVersions: current }),
+    );
+    expect(failure(overlap)).toContain(CustomErrorCode.widgetLayoutOverlap);
+    for (const invalid of [
+      { ...position, x: 10 },
+      { ...position, w: 0 },
+      { ...position, h: 1.5 },
+      { ...position, y: -1 },
+    ]) {
+      expect(
+        (await f.run(() => writer.invoke({ layouts: { ...layouts, lg: [invalid] }, expectedVersions: current }))).ok,
+      ).toBe(false);
+    }
+    expect(
+      (await f.run(() => writer.invoke({ layouts: { ...layouts, lg: [position] }, expectedVersions: {} }))).ok,
+    ).toBe(false);
+    expect(await f.run(() => writer.invoke({ layouts, expectedVersions: current }))).toEqual({ ok: true, data: [] });
     expect(
       await f.run(() =>
-        writer.invoke({
-          layouts: {
-            ...layouts,
-            lg: layouts.lg.map((item) => (item.i === created.data.id ? { ...item, x: 3 } : item)),
-          },
-        }),
+        writer.invoke({ layouts: { ...layouts, lg: [{ ...position, x: 1 }] }, expectedVersions: current }),
       ),
     ).toMatchObject({
       ok: true,
@@ -15977,7 +16198,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const reader = createTestRecordRecipientReader();
     await new ProcessEventInteractor(
       new PrismaEventOutboxRepo(),
-      new WebhookAdmission(reader, { dispatch: vi.fn().mockResolvedValue(undefined) } as never),
+      new WebhookAdmission(
+        reader,
+        { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
+        new PrismaWebhookAdmissionRepo(),
+      ),
     ).invoke({ companyId: f.company.id, eventId: event.id });
     const delivery = recordInvariant(
       await f.run(() => prisma.webhookDelivery.findFirst({ where: { companyId: f.company.id, eventId: event.id } })),
@@ -16686,7 +16911,9 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
     const service = new ProviderAvatarService(new PrismaRecordRepo(f.company.id), f.company.id, background);
     const original = await f.readRecord(organization);
-    await service.synchronize("google", "filtered-avatar@example.test", "https://example.test/updated.png");
+    await runWithoutTenant(() =>
+      service.synchronize("google", "filtered-avatar@example.test", "https://example.test/updated.png"),
+    );
     expect((await f.readRecord(organization)).version).toBe(original.version);
     expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
     expect(background.dispatch).not.toHaveBeenCalled();
@@ -16722,7 +16949,9 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         return f.repo.getIdentityOwnerRefsPageCompanyWide(identity.id, undefined, 1001, [person.typeId]);
       }),
     ).toEqual([]);
-    await service.synchronize("google", "filtered-avatar@example.test", "https://example.test/updated.png");
+    await runWithoutTenant(() =>
+      service.synchronize("google", "filtered-avatar@example.test", "https://example.test/updated.png"),
+    );
     expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
     expect(background.dispatch).not.toHaveBeenCalled();
     await f.run(() =>
@@ -16735,7 +16964,9 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         });
       }),
     );
-    await service.synchronize("google", "filtered-avatar@example.test", "https://example.test/updated.png");
+    await runWithoutTenant(() =>
+      service.synchronize("google", "filtered-avatar@example.test", "https://example.test/updated.png"),
+    );
     expect(await f.value(person, "contact.avatarUrl")).toEqual({
       state: "value",
       value: textValue("https://example.test/updated.png"),
@@ -16943,7 +17174,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         .mockRejectedValue(new Error("Transient Workflow start failure"));
       try {
         const ingested = await runWithoutTenant(() =>
-          new PrismaMessagingRepo().ingestMessageUnscoped({
+          new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy()).ingestMessageUnscoped({
             companyId: f.company.id,
             connectedAccountId: account.id,
             backfill: false,
@@ -17020,7 +17251,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         ),
       ).toBe(1001);
       let done = false;
-      for (let i = 0; i < 1000 && !done; i++) done = (await service.advance(operationId)).done;
+      for (let i = 0; i < 1000 && !done; i++) done = (await runWithoutTenant(() => service.advance(operationId))).done;
       expect(done).toBe(true);
       expect(
         await f.run(() =>
@@ -17084,7 +17315,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
           }),
         ),
       ).toBe(0);
-      expect(await service.advance(operationId)).toEqual({ done: true });
+      expect(await runWithoutTenant(() => service.advance(operationId))).toEqual({ done: true });
       expect(
         await f.run(() =>
           prisma.eventLog.count({
@@ -17115,7 +17346,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         .mockRejectedValue(new Error("Transient Workflow start failure"));
       try {
         const ingested = await runWithoutTenant(() =>
-          new PrismaMessagingRepo().ingestMessageUnscoped({
+          new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy()).ingestMessageUnscoped({
             companyId: f.company.id,
             connectedAccountId: account.id,
             backfill: false,
@@ -17156,7 +17387,8 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       const noChangeOperationId = recordInvariant((await f.run(() => f.repo.getState()))?.activeOperationId);
       expect(noChangeOperationId).not.toBe(operationId);
       let noChangeDone = false;
-      for (let i = 0; i < 100 && !noChangeDone; i++) noChangeDone = (await service.advance(noChangeOperationId)).done;
+      for (let i = 0; i < 100 && !noChangeDone; i++)
+        noChangeDone = (await runWithoutTenant(() => service.advance(noChangeOperationId))).done;
       expect(noChangeDone).toBe(true);
       expect((await f.run(() => f.repo.getState()))?.activeOperationId).toBeNull();
       expect(
@@ -17212,10 +17444,14 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
     const service = new ProviderAvatarService(new PrismaRecordRepo(f.company.id), f.company.id, background);
     const avatar = (ref: RecordRef) => f.value(ref, "contact.avatarUrl");
-    await service.synchronize("google", "shared-avatar@example.test", "https://example.test/provider.png");
+    await runWithoutTenant(() =>
+      service.synchronize("google", "shared-avatar@example.test", "https://example.test/provider.png"),
+    );
     expect(await avatar(entered)).toEqual({ state: "value", value: textValue("https://example.test/entered.png") });
     expect(await avatar(empty)).toEqual({ state: "value", value: textValue("https://example.test/provider.png") });
-    await service.synchronize("google", "shared-avatar@example.test", "https://example.test/rotated.png");
+    await runWithoutTenant(() =>
+      service.synchronize("google", "shared-avatar@example.test", "https://example.test/rotated.png"),
+    );
     expect(await avatar(entered)).toEqual({ state: "value", value: textValue("https://example.test/entered.png") });
     expect(await avatar(empty)).toEqual({ state: "value", value: textValue("https://example.test/rotated.png") });
     expect(
@@ -17226,7 +17462,9 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         fields: [{ fieldId: f.id("contact.avatarUrl"), value: textValue("https://example.test/chosen.png") }],
       }),
     ).toMatchObject({ ok: true });
-    await service.synchronize("google", "shared-avatar@example.test", "https://example.test/later.png");
+    await runWithoutTenant(() =>
+      service.synchronize("google", "shared-avatar@example.test", "https://example.test/later.png"),
+    );
     expect(await avatar(empty)).toEqual({ state: "value", value: textValue("https://example.test/chosen.png") });
     expect(background.dispatch).not.toHaveBeenCalled();
   });
@@ -17264,14 +17502,18 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
     const ref = recordInvariant(result.data.refs.find((ref) => ref.typeId === type.id));
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
     const service = new ProviderAvatarService(new PrismaRecordRepo(f.company.id), f.company.id, background);
-    await service.synchronize("outlook", " AVATAR@example.test ", "https://example.test/avatar.png");
+    await runWithoutTenant(() =>
+      service.synchronize("outlook", " AVATAR@example.test ", "https://example.test/avatar.png"),
+    );
     expect(await f.value(ref, "contact.avatarUrl")).toEqual({
       state: "value",
       value: textValue("https://example.test/avatar.png"),
     });
     const version = (await f.readRecord(ref)).version;
-    await service.synchronize("google", "avatar@example.test", "https://example.test/avatar.png");
-    await service.synchronize("google", "unknown@example.test", "https://example.test/new.png");
+    await runWithoutTenant(() =>
+      service.synchronize("google", "avatar@example.test", "https://example.test/avatar.png"),
+    );
+    await runWithoutTenant(() => service.synchronize("google", "unknown@example.test", "https://example.test/new.png"));
     expect((await f.readRecord(ref)).version).toBe(version);
     expect(background.dispatch).not.toHaveBeenCalled();
     const operations = await f.run(() =>
@@ -17418,32 +17660,38 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
           ),
         ).toBe(501);
       };
-      await service().synchronize("outlook", "many@example.test", "https://example.test/new.png");
+      await runWithoutTenant(() =>
+        service().synchronize("outlook", "many@example.test", "https://example.test/new.png"),
+      );
       const cancelledId = await activeId();
       expect(background.dispatch).toHaveBeenCalledWith("provider-avatar-operation", {
         companyId: f.company.id,
         operationId: cancelledId,
       });
       await old();
-      await service().advance(cancelledId);
+      await runWithoutTenant(() => service().advance(cancelledId));
       await old();
       expect(await f.run(() => f.cancel.invoke({ operationId: cancelledId }))).toMatchObject({
         ok: true,
         data: { cancelled: true },
       });
-      expect(await service().advance(cancelledId)).toEqual({ done: true });
+      expect(await runWithoutTenant(() => service().advance(cancelledId))).toEqual({ done: true });
       await old();
-      await service().synchronize("google", "many@example.test", "https://example.test/new.png");
+      await runWithoutTenant(() =>
+        service().synchronize("google", "many@example.test", "https://example.test/new.png"),
+      );
       const operationId = await activeId();
       await expect(
-        new ProviderAvatarService(new PrismaRecordRepo(foreign.company.id), foreign.company.id, background).advance(
-          operationId,
+        runWithoutTenant(() =>
+          new ProviderAvatarService(new PrismaRecordRepo(foreign.company.id), foreign.company.id, background).advance(
+            operationId,
+          ),
         ),
       ).rejects.toThrow("Invalid avatar operation");
       await expect(
-        service().synchronize("google", "many@example.test", "https://example.test/later.png"),
+        runWithoutTenant(() => service().synchronize("google", "many@example.test", "https://example.test/later.png")),
       ).rejects.toThrow("waits for the workspace change");
-      await service().advance(operationId);
+      await runWithoutTenant(() => service().advance(operationId));
       await f.run(() =>
         prisma.recordOperation.updateMany({
           where: { companyId: f.company.id, id: operationId },
@@ -17456,7 +17704,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       let done = false;
       for (let i = 0; i < 100 && !done; i++) {
         await old();
-        done = (await service().advance(operationId)).done;
+        done = (await runWithoutTenant(() => service().advance(operationId))).done;
       }
       expect(done).toBe(true);
       expect(await f.value(ref, "contact.avatarUrl")).toEqual({

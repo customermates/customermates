@@ -23,7 +23,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { ChevronRight, GripVertical, Plus } from "lucide-react";
+import { ChevronRight, Plus } from "lucide-react";
 
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { AppForm } from "@/components/forms/form-context";
@@ -32,6 +32,8 @@ import { usePreviewBlockers } from "./use-preview-blockers";
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { Button } from "@/components/ui/button";
+import { DragHandle } from "@/components/shared/drag-handle";
+import { ITEM_REVEAL_GROUP_CLASS } from "@/components/ui/item-actions";
 import { cn } from "@/core/utils/cn";
 import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
 import { useSearchParams } from "next/navigation";
@@ -153,22 +155,20 @@ function SortableField({
   return (
     <li
       ref={sortable.setNodeRef}
-      className={cn("group relative bg-card", sortable.isDragging && "z-10 shadow-md")}
+      className={cn(ITEM_REVEAL_GROUP_CLASS, "relative bg-card", sortable.isDragging && "z-10 shadow-md")}
       data-configure-field={id}
       data-focus-target={`field:${id}`}
       style={{ transform: CSS.Translate.toString(sortable.transform), transition: sortable.transition }}
     >
       {enabled && (
-        <button
-          ref={sortable.setActivatorNodeRef}
-          {...sortable.attributes}
-          {...sortable.listeners}
-          aria-label={`${t("DataView.dragToReorder")}: ${label}`}
-          className="absolute top-1/2 left-1 z-10 flex size-7 -translate-y-1/2 cursor-grab touch-none items-center justify-center rounded text-muted-foreground hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none active:cursor-grabbing sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
-          type="button"
-        >
-          <GripVertical aria-hidden="true" className="size-3.5" />
-        </button>
+        <DragHandle
+          reveal
+          attributes={sortable.attributes}
+          className="absolute top-1/2 left-1 z-10 -translate-y-1/2"
+          label={t("DataView.dragToReorderNamed", { name: label })}
+          listeners={sortable.listeners}
+          setActivatorNodeRef={sortable.setActivatorNodeRef}
+        />
       )}
 
       {children}
@@ -266,7 +266,7 @@ export const ConfigureListPane = observer(function ConfigureListPane({
 
       {canManage && (
         <Button disabled={!interactive} size="sm" type="button" variant="secondary" onClick={onAddRelationship}>
-          <Plus aria-hidden="true" className="size-4" />
+          <Plus aria-hidden="true" />
 
           {t("RecordModel.addRelationship")}
         </Button>

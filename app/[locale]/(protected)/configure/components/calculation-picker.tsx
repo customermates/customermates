@@ -3,10 +3,11 @@
 import type { ReactNode } from "react";
 
 import { useState } from "react";
-import { Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
+import { OverlayBackTitle } from "@/components/shared/overlay-back-title";
 import { cn } from "@/core/utils/cn";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 
@@ -56,11 +57,7 @@ export function CalculationPicker({
       popoverClassName="w-[min(22rem,var(--radix-popover-content-available-width))]"
       title={
         stack.length ? (
-          <button className="flex items-center gap-1.5" type="button" onClick={() => setStack(stack.slice(0, -1))}>
-            <ChevronLeft aria-hidden className="size-3.5" />
-
-            {current.title}
-          </button>
+          <OverlayBackTitle onBack={() => setStack(stack.slice(0, -1))}>{current.title}</OverlayBackTitle>
         ) : (
           current.title
         )

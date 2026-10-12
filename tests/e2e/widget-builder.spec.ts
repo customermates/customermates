@@ -9,7 +9,7 @@ import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { openFilterPalette } from "./filter-palette";
 
 async function revision(page: Page) {
-  const response = await page.request.post("/api/v1/model/discover", {
+  const response = await page.request.post("/api/v1/model/read", {
     data: {},
   });
   expect(response.status()).toBe(200);
@@ -65,7 +65,7 @@ test("starts from a recommended starter, previews it live at dashboard size and 
     Number(element.getAttribute("data-preview-width")),
     Number(element.getAttribute("data-preview-height")),
   ]);
-  expect(real[1]).toBe(3 * 54 + 2 * 16);
+  expect(real[1]).toBe(2 * 54 + 12);
   expect(
     size && Math.abs(size.height - (real[1] * size.width) / real[0]),
   ).toBeLessThan(2);
@@ -86,7 +86,7 @@ test("starts from a recommended starter, previews it live at dashboard size and 
     'SELECT layout FROM "Widget" WHERE "companyId"=$1 AND name=$2',
     [companyId, "Open value overview"],
   );
-  expect(saved.rows[0]?.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 3 });
+  expect(saved.rows[0]?.layout?.lg).toMatchObject({ x: 0, y: 0, w: 3, h: 2 });
 
   const measure = {
     source: {
@@ -113,15 +113,17 @@ test("starts from a recommended starter, previews it live at dashboard size and 
         },
       }),
     );
-  const placed = await create("Placed by the API", { x: 6, y: 0, w: 6, h: 3 });
+  const tooShort = await create("Too short", { x: 6, y: 0, w: 6, h: 1 });
+  expect(tooShort.status()).toBe(400);
+  const placed = await create("Placed by the API", { x: 6, y: 0, w: 6, h: 2 });
   expect(placed.status(), await placed.text()).toBe(200);
   expect((await placed.json()).layout.lg).toMatchObject({
     x: 6,
     y: 0,
     w: 6,
-    h: 3,
+    h: 2,
   });
-  const overlapping = await create("Overlapping", { x: 2, y: 0, w: 6, h: 3 });
+  const overlapping = await create("Overlapping", { x: 2, y: 0, w: 6, h: 2 });
   expect(overlapping.status()).toBe(400);
   expect(await overlapping.text()).toContain(
     englishMessages.Common.errors.widgetLayoutOverlap,

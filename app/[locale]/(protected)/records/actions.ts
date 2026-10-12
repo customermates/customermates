@@ -13,6 +13,7 @@ import type { RecordActivityPresentationInput } from "@/ee/messaging/activities/
 import type { SaveRecordDetailLayoutInput } from "@/features/records/record-detail-layout.schema";
 import type { CheckRecordIdentityInput } from "@/features/records/check-record-identity.interactor";
 import type { SearchChannelCandidatesData } from "@/ee/messaging/inbox/search-channel-candidates.interactor";
+import type { ImportRecordsInput } from "@/features/data-transfer/record-transfer.schema";
 
 import {
   getGetRecordPresentationInteractor,
@@ -38,6 +39,7 @@ import {
   getSaveRecordDetailLayoutInteractor,
   getCheckRecordIdentityInteractor,
   getSearchChannelCandidatesInteractor,
+  getImportRecordsInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
 import { redirect } from "next/navigation";
@@ -118,6 +120,9 @@ export async function getRecordEditorAction(input: { typeId: string; recordId?: 
 }
 export async function queryRecordsAction(input: RecordQuery) {
   return serializeResult(getQueryRecordsInteractor().invoke(input));
+}
+export async function importRecordsAction(input: ImportRecordsInput) {
+  return serializeResult(getImportRecordsInteractor().invoke(input));
 }
 export async function getRecordChoicesAction(input: RecordChoicesInput) {
   return serializeResult(getGetRecordChoicesInteractor().invoke(input));

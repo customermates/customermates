@@ -2,7 +2,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 
 import { z } from "zod";
 
-import { CommonApiResponses, NotFoundApiResponse } from "@/core/api/interactor-handler";
+import { StructuredApiResponses } from "@/core/api/structured-interactor-handler";
 
 export const deleteWebhookOperation: ZodOpenApiOperationObject = {
   operationId: "deleteWebhook",
@@ -20,7 +20,6 @@ export const deleteWebhookOperation: ZodOpenApiOperationObject = {
         },
       },
     },
-    ...CommonApiResponses,
-    ...NotFoundApiResponse,
+    ...StructuredApiResponses,
   },
 };

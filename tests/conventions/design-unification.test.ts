@@ -335,7 +335,7 @@ const VALUE_SURFACES = [
   "components/data-view/",
   "components/chip/",
   "app/[locale]/(protected)/records/[typeId]/components/record-cell.tsx",
-  "app/[locale]/(protected)/records/[typeId]/components/record-value.tsx",
+  "components/records/record-value.tsx",
   "app/[locale]/(protected)/records/[typeId]/components/record-inline-field.tsx",
   "app/[locale]/(protected)/records/[typeId]/components/records-page-view.tsx",
 ];

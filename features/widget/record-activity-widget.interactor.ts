@@ -7,6 +7,8 @@ import type {
   RecordActivityWidgetInput,
   RecordActivityWidgetDto,
   RecordActivityWidgetRepo,
+  SavedRecordActivityWidgetInput,
+  StoredRecordActivityWidget,
 } from "./record-activity-widget.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -15,10 +17,26 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { fail, failAuthorization, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { recordRequestHash } from "@/features/records/mutate-record.interactor";
+import { recordRequestHash } from "@/features/records/record-request-hash";
 import { RecordActivityWidgetInputSchema } from "./record-activity-widget.schema";
 import { resolveDashboardView, resolveWidgetLayout } from "./widget-placement";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
+
+function completeTimeline(
+  input: RecordActivityWidgetInput,
+  current: StoredRecordActivityWidget | null,
+): SavedRecordActivityWidgetInput | null {
+  const name = input.name ?? current?.name;
+  const activityQuery = input.activityQuery ?? current?.activityQuery;
+  if (name === undefined || activityQuery === undefined) return null;
+  return {
+    ...input,
+    name,
+    activityQuery,
+    displayOptions: input.displayOptions ?? current?.displayOptions ?? { showFilters: true },
+    isTemplate: input.isTemplate ?? current?.isTemplate ?? false,
+  };
+}
 
 @TenantInteractor()
 export class UpsertRecordActivityWidgetInteractor extends AuthenticatedInteractor<
@@ -58,7 +76,9 @@ export class UpsertRecordActivityWidgetInteractor extends AuthenticatedInteracto
           if (!current) return failNotFound(CustomErrorCode.widgetNotFound);
           if (current.version !== input.expectedVersion) return failConflict(CustomErrorCode.recordVersionChanged);
         }
-        const result = await this.activities.invoke({ ...input.activityQuery, cursor: null, limit: 25 });
+        const widget = completeTimeline(input, current);
+        if (!widget) return fail(CustomErrorCode.widgetNotFound, ["id"]);
+        const result = await this.activities.invoke({ ...widget.activityQuery, cursor: null, limit: 25 });
         if (!result.ok) return result;
         const id = input.id ?? randomUUID();
         const view = await resolveDashboardView(this.views, input.viewId, current ? current.viewId : undefined);
@@ -71,7 +91,7 @@ export class UpsertRecordActivityWidgetInteractor extends AuthenticatedInteracto
           widgets: await this.widgets.listPlacements(view.viewId),
         });
         if (!placement.ok) return fail(placement.code, ["layout"]);
-        const row = await this.widgets.save(input, id, view.viewId, placement.layout);
+        const row = await this.widgets.save(widget, id, view.viewId, placement.layout);
         await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, { widgetId: row.id });
         return {
           ok: true as const,

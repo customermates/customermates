@@ -5,6 +5,9 @@ import type { WidgetLayout } from "./widget-display.schema";
 import { DisplayType } from "./widget-display.schema";
 
 export const WIDGET_GRID_COLUMNS = 12;
+export const WIDGET_GRID_BREAKPOINT_COLUMNS = { xs: 2, sm: 4, md: 8, lg: WIDGET_GRID_COLUMNS } as const;
+export const WIDGET_GRID_ROW_HEIGHT = 54;
+export const WIDGET_GRID_MARGIN = 12;
 export const WIDGET_GRID_MAX_HEIGHT = 24;
 export const WIDGET_GRID_MAX_ROW = 1000;
 
@@ -32,7 +35,9 @@ export const WidgetPlacementSchema = z
       .int()
       .min(1)
       .max(WIDGET_GRID_MAX_HEIGHT)
-      .describe("Height in rows of 54 px with 16 px gaps, 1 to 24."),
+      .describe(
+        `Height in rows of ${WIDGET_GRID_ROW_HEIGHT} px with ${WIDGET_GRID_MARGIN} px gaps, 1 to ${WIDGET_GRID_MAX_HEIGHT}.`,
+      ),
   })
   .strict()
   .refine((value) => value.x + value.w <= WIDGET_GRID_COLUMNS, {
@@ -44,9 +49,8 @@ export const WidgetPlacementSchema = z
   );
 export type WidgetPlacement = z.infer<typeof WidgetPlacementSchema>;
 
-export function widgetMinimumSize(kind: WidgetKindName, displayType?: DisplayType): { w: number; h: number } {
-  if (kind === "activityTimeline") return { w: 2, h: 6 };
-  return displayType === DisplayType.number ? { w: 1, h: 3 } : { w: 1, h: 2 };
+export function widgetMinimumSize(kind: WidgetKindName, _displayType?: DisplayType): { w: number; h: number } {
+  return kind === "activityTimeline" ? { w: 2, h: 6 } : { w: 1, h: 2 };
 }
 
 export type WidgetLayoutGeometry = { w: number; h: number; minW?: number; minH?: number };
@@ -73,7 +77,7 @@ export function widgetDefaultSize(kind: WidgetKindName, displayType?: DisplayTyp
   if (kind === "activityTimeline") return { w: 6, h: 8 };
   switch (displayType) {
     case DisplayType.number:
-      return { w: 3, h: 3 };
+      return { w: 3, h: 2 };
     case DisplayType.areaChart:
       return { w: 6, h: 6 };
     case DisplayType.doughnutChart:
@@ -164,6 +168,51 @@ export function placeWidget(args: {
   }
   const size = widgetDefaultSize(args.kind, args.displayType);
   return { ok: true, placement: { ...firstFreeSpot(others, WIDGET_GRID_COLUMNS, size.w, size.h), ...size } };
+}
+
+export type BreakpointItem = { id: string; lg: GridRect; compact: boolean };
+
+export const WIDGET_COMPACT_SPAN: Record<number, number> = { 8: 4, 4: 2, 2: 2 };
+
+function narrowSpan(item: BreakpointItem, cols: number): number {
+  if (cols >= WIDGET_GRID_COLUMNS) return Math.min(item.lg.w, cols);
+  if (item.compact) return WIDGET_COMPACT_SPAN[cols] ?? Math.max(1, Math.round(cols / 2));
+  return cols >= 8 && item.lg.w <= WIDGET_GRID_COLUMNS / 2 ? cols / 2 : cols;
+}
+
+function stretchRow(row: Array<{ id: string; w: number; h: number }>, cols: number, y: number): PlacedRect[] {
+  const height = Math.max(...row.map((item) => item.h));
+  const base = Math.floor(cols / row.length);
+  const exact = row.every((item) => item.w === row[0].w) && row[0].w * row.length === cols;
+  let x = 0;
+  return row.map((item, index) => {
+    const w = exact ? item.w : index === row.length - 1 ? cols - x : base;
+    const rect = { id: item.id, x, y, w, h: height };
+    x += w;
+    return rect;
+  });
+}
+
+export function packBreakpointLayout(items: BreakpointItem[], cols: number, startY = 0): PlacedRect[] {
+  const ordered = [...items].sort((left, right) => left.lg.y - right.lg.y || left.lg.x - right.lg.x);
+  const placed: PlacedRect[] = [];
+  let row: Array<{ id: string; w: number; h: number; compact: boolean }> = [];
+  let y = startY;
+  const flush = () => {
+    if (row.length === 0) return;
+    const rects = stretchRow(row, cols, y);
+    placed.push(...rects);
+    y += rects[0].h;
+    row = [];
+  };
+  for (const item of ordered) {
+    const w = Math.min(narrowSpan(item, cols), cols);
+    const used = row.reduce((sum, entry) => sum + entry.w, 0);
+    if (row.length > 0 && (used + w > cols || row[0].compact !== item.compact)) flush();
+    row.push({ id: item.id, w, h: item.lg.h, compact: item.compact });
+  }
+  flush();
+  return placed;
 }
 
 export function withLargePlacement(id: string, layout: WidgetLayout | null, placement: GridRect): WidgetLayout {

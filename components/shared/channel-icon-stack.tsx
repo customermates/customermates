@@ -1,5 +1,7 @@
 "use client";
 
+import { observer } from "mobx-react-lite";
+import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import type { RecordIdentity } from "@/features/records/record-identity.schema";
 
 import type { ContactClickAction } from "@/components/records/contact-value";
@@ -25,8 +27,14 @@ type Props = {
   className?: string;
 };
 
-export function ChannelIconStack({ identifiers, action = "open", maxVisible = 3, className }: Props) {
+export const ChannelIconStack = observer(function ChannelIconStack({
+  identifiers,
+  action = "open",
+  maxVisible = 3,
+  className,
+}: Props) {
   const t = useTranslations();
+  const intl = useHydratedIntlStore();
   const copy = useCopyToClipboard();
   const channels = [...new Map(identifiers.map((id) => [channelLabelKey(id.provider), id.provider])).values()];
 
@@ -53,7 +61,7 @@ export function ChannelIconStack({ identifiers, action = "open", maxVisible = 3,
       }}
       renderOverflow={(count) => (
         <span className="bg-foreground/10 text-foreground/70 flex size-6 items-center justify-center rounded-full text-[10px]">
-          +{count}
+          +{intl.formatNumber(count)}
         </span>
       )}
       renderRow={(id, close) => {
@@ -96,7 +104,7 @@ export function ChannelIconStack({ identifiers, action = "open", maxVisible = 3,
       }}
       rowKey={(id) => id.id}
       rows={identifiers}
-      triggerLabel={channels.map((provider) => t(`Common.providers.${channelLabelKey(provider)}`)).join(", ")}
+      triggerLabel={intl.formatList(channels.map((provider) => t(`Common.providers.${channelLabelKey(provider)}`)))}
     />
   );
-}
+});

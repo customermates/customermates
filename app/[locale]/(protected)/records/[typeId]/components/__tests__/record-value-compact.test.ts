@@ -9,7 +9,7 @@ vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({ formattingLocale: "en-US", formatNumber: (value: number) => String(value) }),
 }));
 
-import { RecordValue } from "../record-value";
+import { RecordValue } from "@/components/records/record-value";
 
 const money = { id: "value", label: "Value", valueType: "currency", options: [] } as unknown as RecordFieldView;
 const number = { id: "quantity", label: "Quantity", valueType: "number", options: [] } as unknown as RecordFieldView;

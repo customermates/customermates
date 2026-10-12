@@ -1,6 +1,5 @@
-import { RecordIdentityReader } from "./record-identity-reader";
+import type { RecordIdentityReader } from "./record-identity-reader";
 import { z } from "zod";
-import type { RecordRepo } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";
 import { RecordIdentityReferenceSchema } from "./record-identity-reference.schema";
 import type { Validated } from "@/core/validation/validation.utils";
@@ -12,7 +11,7 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { failAuthorization } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordIdentityInputSchema } from "./record-identity.schema";
-import { recordWriteFailure } from "./mutate-record.interactor";
+import { recordWriteFailure } from "./record-write-failure";
 
 export const ResolveRecordIdentitiesSchema = z
   .object({
@@ -57,8 +56,8 @@ type Output = z.infer<typeof ResolveRecordIdentitiesResultSchema>;
 @TenantInteractor()
 export class ResolveRecordIdentitiesInteractor extends AuthenticatedInteractor<Input, Output> {
   constructor(
-    private records: RecordRepo,
     private policy: RecordAccessPolicy,
+    private identities: RecordIdentityReader,
   ) {
     super();
   }
@@ -72,10 +71,7 @@ export class ResolveRecordIdentitiesInteractor extends AuthenticatedInteractor<I
         try {
           return {
             ok: true,
-            data: await new RecordIdentityReader(this.records, this.policy).resolveForUpdate(
-              input.identifiers,
-              input.typeIds,
-            ),
+            data: await this.identities.resolveForUpdate(input.identifiers, input.typeIds),
           };
         } catch (error) {
           return recordWriteFailure(error);

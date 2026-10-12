@@ -13,8 +13,6 @@ import {
   getDeleteWidgetInteractor,
   getDiscoverRecordTypesInteractor,
   getGetCompanyWidgetsInteractor,
-  getGetRecordWidgetInteractor,
-  getGetRecordWidgetsInteractor,
   getGetWidgetByIdInteractor,
   getGetWidgetsInteractor,
   getPreviewRecordWidgetInteractor,
@@ -53,12 +51,6 @@ export async function updatePreferencesAction(data: UpdateUserDetailsData) {
 
 export async function upsertRecordWidgetAction(input: RecordWidgetInput) {
   return serializeResult(getUpsertRecordWidgetInteractor().invoke(input));
-}
-export async function getRecordWidgetsAction() {
-  return serializeResult(getGetRecordWidgetsInteractor().invoke());
-}
-export async function getRecordWidgetAction(id: string) {
-  return serializeResult(getGetRecordWidgetInteractor().invoke({ id }));
 }
 
 export async function discoverWidgetRecordTypesAction(params: { searchTerm?: string }) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, type ReactNode } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import type { RecordRef } from "@/features/records/record-model.schema";
@@ -10,8 +10,7 @@ import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-acti
 import { FormAutocomplete } from "@/components/forms/form-autocomplete";
 import { FormAutocompleteItem } from "@/components/forms/form-autocomplete-item";
 import { recordDisplayName } from "@/features/records/record-display-name";
-import { getRecordChoicesAction, getRecordModelAction } from "../../records/actions";
-import { resolveSearchReferencesAction } from "../../search/actions";
+import { getRecordChoicesAction } from "../../records/actions";
 import { discoverWidgetRecordTypesAction } from "../actions";
 import { isRecordActivityWidgetForm } from "./record-widget-form";
 import {
@@ -26,6 +25,7 @@ import { WidgetPreviewFrame } from "./widget-preview-frame";
 import { RecordActivityWidgetCard } from "./record-activity-widget-card";
 import { ActivityTimelineSkeleton } from "@/features/messaging/activities/activity-timeline-skeleton";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
+import { useRootStore } from "@/core/stores/root-store.provider";
 import { RecordActivityFilters, useActivitySourceChoices } from "@/components/records/record-activity-filters";
 
 const PREVIEW_DELAY_MS = 600;
@@ -34,41 +34,23 @@ type Choice = { id: string; label: string };
 const selectedIds = (value: string | string[] | undefined) =>
   value === undefined ? [] : Array.isArray(value) ? value : [value];
 
-function RecordSelection({
+const RecordSelection = observer(function RecordSelection({
+  store,
   id,
   typeId,
   value,
   onChange,
 }: {
+  store: WidgetModalStore;
   id: string;
   typeId: string;
   value: string[];
   onChange?: (ids: string[]) => void;
 }) {
   const t = useTranslations();
-  const [choices, setChoices] = useState<Choice[]>([]);
-  const key = JSON.stringify([typeId, value]);
-  useEffect(() => {
-    let active = true;
-    const [typeId, ids] = JSON.parse(key) as [string, string[]];
-    if (typeId && ids.length) {
-      void resolveSearchReferencesAction({ refs: ids.map((recordId) => ({ typeId, recordId })) })
-        .then((result) => {
-          if (active && result.ok) {
-            setChoices(
-              result.data.results.map((record) => ({
-                id: record.ref.recordId,
-                label: recordDisplayName(record.title, record.typeLabel, t),
-              })),
-            );
-          }
-        })
-        .catch(() => undefined);
-    }
-    return () => {
-      active = false;
-    };
-  }, [key, t]);
+  const choices: Choice[] = store.scopeRecordHits
+    .filter((record) => record.ref.typeId === typeId)
+    .map((record) => ({ id: record.ref.recordId, label: recordDisplayName(record.title, record.typeLabel, t) }));
   const getItems = useCallback(
     async ({ searchTerm }: { searchTerm?: string }) => {
       const result = await getRecordChoicesAction({ typeId, search: searchTerm, page: 1, pageSize: 50 });
@@ -100,7 +82,7 @@ function RecordSelection({
       {(item) => <FormAutocompleteItem textValue={item.label}>{item.label}</FormAutocompleteItem>}
     </FormAutocomplete>
   );
-}
+});
 
 export const RecordActivityWidgetEditor = observer(
   ({
@@ -117,23 +99,11 @@ export const RecordActivityWidgetEditor = observer(
     const t = useTranslations();
     const sources = useActivitySourceChoices();
     const form = store.form;
-    const [typeNames, setTypeNames] = useState<Array<{ id: string; pluralLabel: string }>>([]);
+    const { recordWorkspaceStore } = useRootStore();
+    const typeNames = recordWorkspaceStore.navigation?.types ?? [];
     const query = isRecordActivityWidgetForm(form) ? form.activityQuery : null;
     const validQuery = query && RecordActivityQuerySchema.safeParse(query).success ? JSON.stringify(query) : null;
     const previewQuery = useDebouncedValue(validQuery, PREVIEW_DELAY_MS);
-    const isOpen = store.isOpen;
-    useEffect(() => {
-      if (!isOpen) return;
-      let active = true;
-      void getRecordModelAction()
-        .then((model) => {
-          if (active) setTypeNames(model.types.map(({ id, pluralLabel }) => ({ id, pluralLabel })));
-        })
-        .catch(() => undefined);
-      return () => {
-        active = false;
-      };
-    }, [isOpen]);
     if (!isRecordActivityWidgetForm(form) || !query) return null;
     const multi = (id: string, label: string, choices: Choice[]) => (
       <FormAutocomplete<Choice>
@@ -210,6 +180,7 @@ export const RecordActivityWidgetEditor = observer(
 
             <RecordSelection
               id={`activity-scope-${typeId}`}
+              store={store}
               typeId={typeId}
               value={query.scope.records.filter((ref) => ref.typeId === typeId).map((ref) => ref.recordId)}
               onChange={(ids) =>

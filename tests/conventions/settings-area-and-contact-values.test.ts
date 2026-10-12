@@ -146,7 +146,7 @@ function handBuiltContactLinkFindings(sources: SourceFile[]) {
   return findings;
 }
 const CONTACT_VALUE_SURFACES = [
-  "app/[locale]/(protected)/records/[typeId]/components/record-value.tsx",
+  "components/records/record-value.tsx",
   "app/[locale]/(protected)/records/[typeId]/components/record-channels.tsx",
 ];
 

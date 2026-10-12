@@ -89,10 +89,12 @@ export const VerticalBarChartWithLabels = observer(
                 const { x, width, y, height, index } = props;
                 const entry = chartData[index as number];
                 if (!entry) return null;
-                const full = entry.formattedValue ?? formatValue(entry.value);
                 const room = Number(width) / 0.76 - 2;
-                const compact = formatValue(entry.value, true);
-                const text = estimateTextWidth(full) <= room ? full : compact;
+                const full = entry.formattedValue ?? formatValue(entry.value);
+                const allFit = chartData.every(
+                  (other) => estimateTextWidth(other.formattedValue ?? formatValue(other.value)) <= room,
+                );
+                const text = allFit ? full : formatValue(entry.value, true);
                 if (estimateTextWidth(text) > room) return null;
                 const top = reverseYAxis ? Number(y) + Number(height) + 6 : Number(y) - 6;
                 const half = estimateTextWidth(text) * 0.55 + 2;

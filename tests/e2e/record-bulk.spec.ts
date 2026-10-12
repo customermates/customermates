@@ -47,7 +47,7 @@ test("selects records, bulk-edits exact decimals, previews cascades, and deletes
   await page.locator("[data-record-mass-actions]").getByRole("button", { name: "Edit", exact: true }).click();
   await page
     .getByRole("dialog", { name: "Edit", exact: true })
-    .getByRole("button", { name: "Price", exact: true })
+    .getByRole("option", { name: "Price", exact: true })
     .click();
   await page.getByRole("textbox", { name: "Price", exact: false }).fill("17.125");
   await page
@@ -130,7 +130,7 @@ test("shows a conflict and leaves every selected record unchanged when another t
   await page.locator("[data-record-mass-actions]").getByRole("button", { name: "Edit", exact: true }).click();
   await page
     .getByRole("dialog", { name: "Edit", exact: true })
-    .getByRole("button", { name: "Price", exact: true })
+    .getByRole("option", { name: "Price", exact: true })
     .click();
   await page.getByRole("textbox", { name: "Price", exact: false }).fill("50");
   await page
@@ -171,7 +171,7 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
     expect(response.status(), await response.text()).toBe(200);
     return response.json();
   };
-  const model = RecordModelSchema.parse(await post("/api/v1/model/discover", {}));
+  const model = RecordModelSchema.parse(await post("/api/v1/model/read", {}));
   await post("/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
@@ -260,7 +260,7 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
   await selection.getByRole("button", { name: "Edit", exact: true }).click();
   await page
     .getByRole("dialog", { name: "Edit", exact: true })
-    .getByRole("button", { name: "Optional discount", exact: true })
+    .getByRole("option", { name: "Optional discount", exact: true })
     .click();
   await page.getByRole("button", { name: "Clear field", exact: true }).click();
   await expect(selection).not.toBeVisible();

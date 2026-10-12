@@ -33,6 +33,7 @@ import { ClickableChip } from "@/components/chip/clickable-chip";
 import { RecordTypeGlyph } from "@/components/records/record-type-glyph";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { Button } from "@/components/ui/button";
+import { ITEM_REVEAL_CLASS, ITEM_REVEAL_GROUP_CLASS } from "@/components/ui/item-actions";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -46,7 +47,7 @@ import { reportApplicationError, runUserAction } from "@/core/errors/report-appl
 import { previewCalculationAction } from "@/app/[locale]/(protected)/records/actions";
 import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
 import { ConfirmationSentenceView, referenceSentence } from "@/components/modal/confirmation-sentence";
-import { RecordValue, useRecordValueFormat } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
+import { RecordValue, useRecordValueFormat } from "@/components/records/record-value";
 
 import {
   AGGREGATES,
@@ -882,7 +883,7 @@ function FormulaFlow({
     const chipKey = position === 0 ? key : `${key}:${position}`;
     return (
       <FlowChip
-        ariaLabel={`${t("RecordModel.operation")}: ${operatorLabel(step.operator)}`}
+        ariaLabel={t("RecordModel.operationNamed", { operation: operatorLabel(step.operator) })}
         data-calculation-chip="operation"
         disabled={disabled}
         label={symbols[step.operator]}
@@ -950,7 +951,7 @@ function FormulaFlow({
             return (
               <span
                 key={input.path.join(".")}
-                className="group/input relative flex max-w-full min-w-0 items-center"
+                className={cn(ITEM_REVEAL_GROUP_CLASS, "relative flex max-w-full min-w-0 items-center")}
                 data-calculation-input=""
               >
                 {leafChip(input.path, input.expression, inputType ? typeLabel(inputType) : undefined)}
@@ -960,7 +961,10 @@ function FormulaFlow({
                     aria-label={t("RecordModel.calculationFlow.removeInputNamed", {
                       input: leafLabel(input.expression),
                     })}
-                    className="absolute -end-1.5 -top-1.5 size-4 rounded-full border border-border bg-background opacity-0 transition-opacity group-focus-within/input:opacity-100 group-hover/input:opacity-100 hover:bg-accent focus-visible:opacity-100 any-pointer-coarse:opacity-100 [&_svg]:size-2.5"
+                    className={cn(
+                      "absolute -end-2.5 -top-2.5 rounded-full border border-border bg-background",
+                      ITEM_REVEAL_CLASS,
+                    )}
                     data-calculation-remove-input=""
                     size="icon-xs"
                     type="button"
@@ -975,16 +979,18 @@ function FormulaFlow({
           })}
 
           {!disabled && (
-            <button
-              className="inline-flex h-[22px] items-center gap-1 rounded-md px-1.5 text-xs text-muted-foreground outline-none hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+            <Button
+              className="text-muted-foreground"
               data-calculation-add-input=""
+              size="xs"
               type="button"
+              variant="ghost"
               onClick={() => onChange(addInput(expression, defaultOperator([])))}
             >
-              <Plus aria-hidden className="size-3" />
+              <Plus aria-hidden />
 
               {t("RecordModel.addInput")}
-            </button>
+            </Button>
           )}
         </FlowRow>
       </FlowNode>
@@ -999,7 +1005,7 @@ function FormulaFlow({
         return (
           <div key={`${key}:${step.operator}`}>
             <FlowNode
-              className="group/step"
+              className={ITEM_REVEAL_GROUP_CLASS}
               data-calculation-node="step"
               error={issueMessage({ node: "step", path: step.path, operator: step.operator })}
               invalid={invalid}
@@ -1040,7 +1046,7 @@ function FormulaFlow({
                     <TooltipTrigger asChild>
                       <Button
                         aria-label={extendLabel}
-                        className="size-[22px] opacity-0 transition-opacity group-focus-within/step:opacity-100 group-hover/step:opacity-100 focus-visible:opacity-100 any-pointer-coarse:size-5 any-pointer-coarse:opacity-100"
+                        className={ITEM_REVEAL_CLASS}
                         data-calculation-extend-step=""
                         size="icon-xs"
                         type="button"

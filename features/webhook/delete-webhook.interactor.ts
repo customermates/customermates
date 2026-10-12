@@ -14,7 +14,7 @@ import { type Validated } from "@/core/validation/validation.utils";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { RecordWriteError } from "@/features/records/record-write.service";
-import { recordWriteFailure } from "@/features/records/mutate-record.interactor";
+import { recordWriteFailure } from "@/features/records/record-write-failure";
 
 const Schema = z.object({
   id: z.uuid(),
