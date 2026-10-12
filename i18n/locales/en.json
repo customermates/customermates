@@ -1944,6 +1944,7 @@
       "create": "Create with exported IDs",
       "failed": "The records could not be imported. Check the file and permissions.",
       "fileHint": "Choose a Customermates JSON export for this list.",
+      "mode": "Import mode",
       "ready": "{count, plural, one {# record} other {# records}} and {links, plural, one {# link} other {# links}} are ready to import.",
       "schemaMismatch": "The list structure has changed since this file was exported.",
       "submit": "Import records",
@@ -1969,7 +1970,7 @@
     "boardPickedUp": "Record picked up.",
     "collapseColumn": "Collapse column",
     "collapseGroup": "Collapse group {group}",
-    "dragToReorder": "Drag to reorder",
+    "dragToReorderNamed": "Drag to reorder: {name}",
     "editOption": "Edit option",
     "expandColumn": "Expand {name}",
     "expandGroup": "Expand group {group}",
@@ -2158,6 +2159,7 @@
     "fieldPickedUp": "Picked up {field}.",
     "hideField": "Hide {field} from details",
     "overview": "Overview",
+    "panelSwitcher": "Detail panels",
     "personalize": "Customize",
     "pinField": "Pin {field} to the overview",
     "pinMore": "Pin or unpin fields",
@@ -3525,6 +3527,7 @@
     "operation": "Calculation",
     "operationCancelled": "The change was cancelled.",
     "operationFailed": "The change failed. The previous complete state is still active.",
+    "operationNamed": "Calculation: {operation}",
     "operationPending": "Changes are being prepared. Existing data remains available.",
     "operationProgress": "{processed} of {total} prepared",
     "operators": {
@@ -3810,6 +3813,7 @@
   },
   "RoutineDetail": {
     "credits": "Credits",
+    "creditsAmount": "Credits: {amount}",
     "empty": {
       "event": {
         "actions": {

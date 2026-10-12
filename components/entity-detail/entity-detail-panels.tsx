@@ -121,7 +121,7 @@ export function EntityDetailPanels({
                 label: panel.label,
                 controls: `${id}-${panel.key}-panel`,
               }))}
-              label={t("EntityDetail.overview")}
+              label={t("EntityDetail.panelSwitcher")}
               listClassName="mx-4 my-2 w-auto"
               value={selectedPanel}
               onValueChange={(value) => setActivePanel(value)}

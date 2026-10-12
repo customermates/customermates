@@ -33,7 +33,7 @@ vi.mock("../activities-row", () => ({
   IdentityAvatar: () => null,
   TypeBadge: () => null,
 }));
-vi.mock("@/app/[locale]/(protected)/records/[typeId]/components/record-value", () => ({
+vi.mock("@/components/records/record-value", () => ({
   RecordValue: ({ result }: { result: { state: string; value?: { text?: string; value?: unknown } } }) =>
     result.state === "value" ? String(result.value?.text ?? result.value?.value ?? "rich") : result.state,
 }));

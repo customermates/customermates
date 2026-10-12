@@ -2,7 +2,6 @@
 
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { GetResult } from "@/core/base/base-get.interactor";
-import type { PaginationResponse } from "@/core/base/base-get.schema";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import type {
   DeleteTrashPermanentlyData,
@@ -23,24 +22,11 @@ import {
 import { serializeResult } from "@/core/utils/action-result";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
-import { TRASH_FILTERABLE_FIELDS, toTrashQuery } from "./components/trash-page-model";
+import { toTrashQuery, toTrashResult } from "./components/trash-page-model";
 
 export async function getTrashAction(params?: GetQueryParams): Promise<GetResult<TrashItemDto>> {
   const query = toTrashQuery(params);
-  const page = await unwrapValidated(getQueryTrashInteractor().invoke(query));
-  return {
-    items: page.items,
-    filters: params?.filters,
-    searchTerm: params?.searchTerm,
-    sortDescriptor: query.sortDescriptor,
-    pagination: {
-      page: query.page,
-      pageSize: query.pageSize,
-      totalPages: Math.max(1, Math.ceil(page.total / query.pageSize)),
-      total: page.total,
-    } as PaginationResponse,
-    filterableFields: TRASH_FILTERABLE_FIELDS,
-  };
+  return toTrashResult(params, query, await unwrapValidated(getQueryTrashInteractor().invoke(query)));
 }
 
 export async function restoreTrashAction(data: RestoreTrashData) {

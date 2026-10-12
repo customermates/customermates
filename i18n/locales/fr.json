@@ -1944,6 +1944,7 @@
       "create": "Créer avec les ID exportés",
       "failed": "Les fiches n'ont pas pu être importées. Vérifiez le fichier et les autorisations.",
       "fileHint": "Choisissez un export JSON Customermates pour cette liste.",
+      "mode": "Mode d’importation",
       "ready": "{count, plural, one {# fiche} other {# fiches}} et {links, plural, one {# lien} other {# liens}} sont prêts à être importés.",
       "schemaMismatch": "La structure de la liste a changé depuis l'export.",
       "submit": "Importer des fiches",
@@ -1969,7 +1970,7 @@
     "boardPickedUp": "Enregistrement saisi.",
     "collapseColumn": "Réduire la colonne",
     "collapseGroup": "Réduire le groupe {group}",
-    "dragToReorder": "Faire glisser pour réorganiser",
+    "dragToReorderNamed": "Faire glisser pour réorganiser : {name}",
     "editOption": "Modifier l’option",
     "expandColumn": "Développer {name}",
     "expandGroup": "Développer le groupe {group}",
@@ -2158,6 +2159,7 @@
     "fieldPickedUp": "Champ {field} saisi.",
     "hideField": "Masquer {field} dans les détails",
     "overview": "Vue d’ensemble",
+    "panelSwitcher": "Panneaux de détail",
     "personalize": "Personnaliser",
     "pinField": "Épingler {field} dans l’aperçu",
     "pinMore": "Épingler ou détacher des champs",
@@ -3525,6 +3527,7 @@
     "operation": "Calcul",
     "operationCancelled": "La modification a été annulée.",
     "operationFailed": "La modification a échoué. L’état complet précédent reste actif.",
+    "operationNamed": "Calcul : {operation}",
     "operationPending": "Les modifications sont en préparation. Les données existantes restent disponibles.",
     "operationProgress": "{processed} sur {total} préparés",
     "operators": {
@@ -3810,6 +3813,7 @@
   },
   "RoutineDetail": {
     "credits": "Crédits",
+    "creditsAmount": "Crédits : {amount}",
     "empty": {
       "event": {
         "actions": {
