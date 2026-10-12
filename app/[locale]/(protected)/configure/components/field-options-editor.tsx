@@ -19,7 +19,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 
-import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
+import { RowActions } from "@/components/data-view/row-actions";
 import { useRecordValueFormat } from "@/components/records/record-value";
 import { AppForm } from "@/components/forms/form-context";
 import { FormFooterActions } from "@/components/forms/form-footer-actions";
@@ -383,7 +383,7 @@ const OptionRow = observer(function OptionRow({
         )}
 
         <div className={cn("mt-1 [grid-area:menu]", WIDE_PLACEMENT[step])}>
-          {!store.isDisabled && <RecordRowActions name={name} onDelete={onDelete} />}
+          {!store.isDisabled && <RowActions name={name} onDelete={onDelete} />}
         </div>
       </li>
     </ItemActions>

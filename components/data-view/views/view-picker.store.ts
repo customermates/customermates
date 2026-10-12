@@ -4,9 +4,9 @@ import { action, makeObservable, observable } from "mobx";
 
 import { BaseModalStore } from "@/core/base/base-modal.store";
 
-export type ViewPickerOption = { id: string; name: string };
+type ViewPickerOption = { id: string; name: string };
 
-export type ViewPickerSurface = {
+type ViewPickerSurface = {
   options: () => readonly ViewPickerOption[];
   activeViewKey: () => string;
   select: (viewKey: string) => void;

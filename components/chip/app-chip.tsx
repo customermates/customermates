@@ -6,7 +6,7 @@ import { isValidElement, useRef } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useIsTruncated } from "@/core/utils/use-is-truncated";
 import { cn } from "@/core/utils/cn";
 
@@ -87,12 +87,10 @@ export function AppChip({
   );
 
   return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>{chip}</TooltipTrigger>
+    <Tooltip>
+      <TooltipTrigger asChild>{chip}</TooltipTrigger>
 
-        {showTooltip && <TooltipContent className="max-w-xs">{addsInformation ? tooltip : label}</TooltipContent>}
-      </Tooltip>
-    </TooltipProvider>
+      {showTooltip && <TooltipContent className="max-w-xs">{addsInformation ? tooltip : label}</TooltipContent>}
+    </Tooltip>
   );
 }

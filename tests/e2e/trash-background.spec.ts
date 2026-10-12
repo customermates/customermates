@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { presetId } from "../../features/records/crm-preset";
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { recordItem, runNamedRowAction } from "./record-rows";
 
 const SERVICE = "Shared live catalogue price";
@@ -29,13 +29,7 @@ test("moves a high fan-out delete to Trash in the background with one toast that
   companyId,
 }) => {
   test.setTimeout(600000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   await page.goto(`/en/records/${id("service")}`);
   await page.locator("#records-add").click();

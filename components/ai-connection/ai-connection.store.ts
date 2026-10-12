@@ -14,9 +14,9 @@ export type AiConnectionProvider = (typeof AI_CONNECTION_PROVIDERS)[number];
 export type AiConnectionClaudeMethod = "account" | "local";
 export type AiConnectionClaudeClient = Extract<McpTool, "claudeCode" | "claudeDesktop">;
 export type AiConnectionOpenAiMethod = "chatgpt" | "codex";
-export type AiConnectionDirectProvider = Exclude<AiConnectionProvider, "claude" | "openai">;
+type AiConnectionDirectProvider = Exclude<AiConnectionProvider, "claude" | "openai">;
 
-export type AiConnectionRoute =
+type AiConnectionRoute =
   | { screen: "providers" }
   | { screen: "claude" }
   | { screen: "openai" }

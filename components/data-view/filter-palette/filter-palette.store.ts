@@ -18,12 +18,12 @@ export const FILTER_AUTO_APPLY_DELAY_MS = 300;
 
 export const MAX_APPLIED_FILTERS = 50;
 
-export type FilterPalettePage =
+type FilterPalettePage =
   | { kind: "root"; group?: FilterTargetGroup }
   | { kind: "value"; field: string; editIndex?: number }
   | { kind: "dateInput"; field: string; operator: FilterOperatorKey; editIndex?: number };
 
-export type PaletteDraft = {
+type PaletteDraft = {
   field: string;
   operator: FilterOperatorKey | undefined;
   value: unknown;

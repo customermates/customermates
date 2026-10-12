@@ -30,7 +30,12 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ItemActions, ItemActionsTrigger } from "@/components/ui/item-actions";
+import {
+  ITEM_REVEAL_CLASS,
+  ITEM_REVEAL_GROUP_CLASS,
+  ItemActions,
+  ItemActionsTrigger,
+} from "@/components/ui/item-actions";
 import { AppLink } from "@/components/shared/app-link";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
 import { useRootStore } from "@/core/stores/root-store.provider";
@@ -134,7 +139,7 @@ type ItemProps = {
   dropsClick: () => boolean;
 };
 
-export function itemPosition(resolved: ResolvedSidebar, item: string, isShown: (item: string) => boolean) {
+function itemPosition(resolved: ResolvedSidebar, item: string, isShown: (item: string) => boolean) {
   const container = containerOf(resolved, item);
   const siblings =
     container === null
@@ -412,7 +417,7 @@ function NavSection({
             <SidebarGroupLabel
               ref={droppable.setNodeRef}
               asChild
-              className={cn("group/section-label cursor-pointer pr-7", droppable.isOver && "bg-sidebar-accent")}
+              className={cn(ITEM_REVEAL_GROUP_CLASS, "cursor-pointer pr-7", droppable.isOver && "bg-sidebar-accent")}
             >
               <button
                 aria-expanded={!collapsed}
@@ -423,10 +428,7 @@ function NavSection({
 
                 <ChevronDown
                   aria-hidden
-                  className={cn(
-                    "ml-1 size-3 transition-transform",
-                    collapsed ? "-rotate-90" : "opacity-0 group-hover/section-label:opacity-100",
-                  )}
+                  className={cn("ml-1 size-3 transition-transform", collapsed ? "-rotate-90" : ITEM_REVEAL_CLASS)}
                 />
               </button>
             </SidebarGroupLabel>

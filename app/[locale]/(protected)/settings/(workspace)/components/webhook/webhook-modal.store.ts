@@ -17,7 +17,7 @@ import { parseWebhookHeaderLines } from "@/features/webhook/webhook-headers";
 import { WebhookCurrentEventSchema } from "@/features/webhook/webhook.schema";
 import { omit } from "lodash";
 
-export type WebhookFormData = Omit<UpsertWebhookData, "headers" | "events"> & {
+type WebhookFormData = Omit<UpsertWebhookData, "headers" | "events"> & {
   headers?: string;
   events?: WebhookDto["events"];
   pausedReason?: WebhookDto["pausedReason"];

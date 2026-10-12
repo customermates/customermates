@@ -62,7 +62,7 @@ export function detectKeyboardPlatform(
   return /mac|iphone|ipad|ipod/i.test(platform) ? "mac" : "other";
 }
 
-export function isComposingKeyPress(event: KeyPress): boolean {
+function isComposingKeyPress(event: KeyPress): boolean {
   return event.isComposing === true || event.keyCode === IME_PROCESS_KEY_CODE || event.key === "Process";
 }
 
@@ -109,11 +109,11 @@ export function isTypingTarget(target: EventTarget | null): boolean {
   return element.closest(TEXT_ENTRY_SELECTOR) !== null;
 }
 
-export function isInsideTypeaheadWidget(target: EventTarget | null): boolean {
+function isInsideTypeaheadWidget(target: EventTarget | null): boolean {
   return asElement(target)?.closest(TYPEAHEAD_WIDGET_SELECTOR) != null;
 }
 
-export function isInsideAssistantSurface(target: EventTarget | null): boolean {
+function isInsideAssistantSurface(target: EventTarget | null): boolean {
   return asElement(target)?.closest(ASSISTANT_SURFACE_SELECTOR) != null;
 }
 

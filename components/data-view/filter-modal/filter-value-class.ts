@@ -17,7 +17,7 @@ export type FilterValueClass =
   | "isoRange"
   | "daysCount";
 
-export type FilterDateGranularity = "day" | "minute";
+type FilterDateGranularity = "day" | "minute";
 
 const DAY_GRANULARITY_COLUMN_TYPES = ["date", "dateRange"];
 

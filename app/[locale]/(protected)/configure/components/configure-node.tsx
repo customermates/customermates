@@ -141,21 +141,6 @@ export function ConfigureNodeRow({
   );
 }
 
-export function ConfigureNodeStaticRow({
-  marker,
-  name,
-  detail,
-  kind,
-  className,
-  ...props
-}: Omit<ComponentProps<"div">, "children"> & RowContent) {
-  return (
-    <div className={cn(ROW_LAYOUT, className)} {...props}>
-      <ConfigureNodeRowContent detail={detail} kind={kind} marker={marker} name={name} />
-    </div>
-  );
-}
-
 export function ConfigureNodeMore({
   expanded,
   label,

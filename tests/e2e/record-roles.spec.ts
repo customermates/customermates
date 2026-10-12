@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { addFromConfigure, openConfigure, saveGeneral } from "./configure";
-import { test, expect, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 
 test("configures a role for a new type, preserves granular rights after rename and deletes the unused role", async ({
   page,
@@ -8,10 +8,7 @@ test("configures a role for a new type, preserves granular rights after rename a
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
+  const errors = collectPageErrors(page, { console: false });
   await openConfigure(page);
   await addFromConfigure(page, "List");
   const creation = page.getByRole("dialog");

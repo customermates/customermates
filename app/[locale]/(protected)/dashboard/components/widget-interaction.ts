@@ -6,13 +6,11 @@ export const WIDGET_CLICK_MOVEMENT_TOLERANCE = 8;
 
 type WidgetEditorStore = {
   loadById: (id: string) => Promise<void> | void;
-  setExpandedFilterField: (field: string | undefined) => void;
   setExpandedSection: (section: string) => void;
 };
 
 export function openWidgetEditor(store: WidgetEditorStore, id: string): Promise<void> {
   store.setExpandedSection("config");
-  store.setExpandedFilterField(undefined);
   return Promise.resolve(store.loadById(id));
 }
 

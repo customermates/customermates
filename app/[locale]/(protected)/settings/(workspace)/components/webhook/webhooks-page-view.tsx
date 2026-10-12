@@ -20,7 +20,7 @@ import { PageState } from "@/components/page-state/page-state";
 import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
-import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
+import { RowActions } from "@/components/data-view/row-actions";
 import { Action } from "@/generated/prisma";
 import { Send } from "lucide-react";
 import { WEBHOOK_DELIVERIES_HREF } from "@/app/components/navigation/settings-routes";
@@ -94,7 +94,7 @@ const WebhooksPageViewContent = observer(function WebhooksPageView({ initialWebh
   const canDeleteWebhooks = webhookModalStore.allows(Action.delete);
   const rowActions = useCallback(
     (item: (typeof webhooksStore.items)[number]) => (
-      <RecordRowActions
+      <RowActions
         contextAction={{
           label: t("WebhooksCard.showDeliveries"),
           icon: Send,

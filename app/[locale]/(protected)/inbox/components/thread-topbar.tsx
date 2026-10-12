@@ -9,7 +9,6 @@ import { Action, Resource } from "@/generated/prisma";
 import type { MessagingThread } from "@/ee/messaging/messaging.schema";
 
 import { TopBarActionButtons } from "@/components/shared/top-bar-action-buttons";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { deriveThreadDisplay } from "@/ee/messaging/thread-display";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { useSetTopBarActionsOverride } from "@/app/components/topbar-actions-context";
@@ -45,35 +44,33 @@ export const ThreadTopBar = observer(({ thread }: Props) => {
 
   const actions = useMemo(
     () => (
-      <TooltipProvider>
-        <div className="flex items-center gap-1">
-          <ThreadFolderMenu />
+      <div className="flex items-center gap-1">
+        <ThreadFolderMenu />
 
-          {canUpdate && (
-            <TopBarActionButtons
-              actions={[
-                {
-                  id: "resync",
-                  icon: RefreshCw,
-                  label: t("Inbox.resyncThread"),
-                  onClick: () => store.resyncThread(),
-                },
-              ]}
-            />
-          )}
-
-          <ThreadSettings
-            accountShared={thread.accountShared}
-            isOwner={thread.isOwner}
-            participants={thread.participants}
-            provider={thread.provider}
-            sharedToCrm={thread.sharedToCrm}
-            threadId={thread.id}
+        {canUpdate && (
+          <TopBarActionButtons
+            actions={[
+              {
+                id: "resync",
+                icon: RefreshCw,
+                label: t("Inbox.resyncThread"),
+                onClick: () => store.resyncThread(),
+              },
+            ]}
           />
+        )}
 
-          <ThreadStatePicker state={thread.state} />
-        </div>
-      </TooltipProvider>
+        <ThreadSettings
+          accountShared={thread.accountShared}
+          isOwner={thread.isOwner}
+          participants={thread.participants}
+          provider={thread.provider}
+          sharedToCrm={thread.sharedToCrm}
+          threadId={thread.id}
+        />
+
+        <ThreadStatePicker state={thread.state} />
+      </div>
     ),
     [
       canUpdate,

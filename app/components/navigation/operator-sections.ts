@@ -2,7 +2,7 @@ import type { LucideIcon } from "lucide-react";
 
 import { Building, LayoutGrid, ScrollText, Users } from "lucide-react";
 
-export type OperatorSubroute = { slug: string; labelKey: string; icon: LucideIcon };
+type OperatorSubroute = { slug: string; labelKey: string; icon: LucideIcon };
 
 export const OPERATOR_SUBROUTES: readonly OperatorSubroute[] = [
   { slug: "overview", labelKey: "OperatorOverview.navigation", icon: LayoutGrid },

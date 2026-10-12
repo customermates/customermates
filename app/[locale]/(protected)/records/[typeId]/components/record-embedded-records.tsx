@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import type { RecordDto, RecordRef, RecordType } from "@/features/records/record-model.schema";
 import type { RecordRow } from "@/features/records/record-presentation";
+import type { EmbeddedSublistPage } from "@/features/records/embedded-sublist";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { observer } from "mobx-react-lite";
@@ -21,11 +22,12 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { relationshipColumnKey } from "@/features/records/record-column.schema";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { getRecordEditorAction } from "../../actions";
-import { EMBEDDED_PAGE_SIZE, EmbeddedRecordsStore, embeddedPresentation } from "./embedded-records.store";
-import { RecordDetailField } from "./record-detail-field";
+import { EMBEDDED_PAGE_SIZE } from "@/features/records/embedded-sublist";
+import { EmbeddedRecordsStore, embeddedPresentation } from "./embedded-records.store";
+import { EntityDetailFieldShell } from "@/components/entity-detail/entity-detail-field-shell";
 import { RecordEmbeddedColumns } from "./record-embedded-columns";
 import { RecordEditorStore } from "./record-editor.store";
-import { RecordRowActions } from "./record-row-actions";
+import { RowActions } from "@/components/data-view/row-actions";
 import { useRecordCardRenderer, useRecordTableColumns } from "./record-table-columns";
 import { useRecordDeletion } from "./use-record-deletion";
 
@@ -154,6 +156,14 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
     parent && store.isOpen
       ? JSON.stringify([parent.ref, parent.version, store.presentation.model.revision, store.relatedRevision])
       : null;
+  const firstPage = store.presentation.embedded?.[type.id];
+  const applied = useRef<{ key: string; page: EmbeddedSublistPage | undefined } | null>(null);
+  if (key && firstPage && applied.current === null && !list.isReady) {
+    applied.current = { key, page: firstPage };
+    list.setPresentation(listPresentation());
+    list.setParent(parent?.ref ?? null);
+    list.hydrate(firstPage);
+  }
   useEffect(() => {
     store.rootStore.registerModalStore(child);
     return () => store.rootStore.unregisterModalStore(child);
@@ -161,8 +171,12 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
   useEffect(() => {
     list.setPresentation(listPresentation());
     list.setParent(key ? (JSON.parse(key)[0] as RecordRef) : null);
-    if (key) void list.load().catch(reportApplicationError);
-  }, [key, list, store.presentation, type.id]);
+    if (!key || (applied.current?.key === key && applied.current.page === firstPage)) return;
+    const fresh = firstPage && applied.current?.page !== firstPage;
+    applied.current = { key, page: firstPage };
+    if (fresh) list.hydrate(firstPage);
+    else void list.load().catch(reportApplicationError);
+  }, [key, list, store.presentation, type.id, firstPage]);
   const parentType = store.presentation.model.types.find((candidate) => candidate.id === parent?.ref.typeId);
   const editable = parentEditable();
   const canDelete = editable && list.presentation.permittedActions.includes("delete");
@@ -205,11 +219,19 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
   );
   return (
     <section aria-label={type.pluralLabel}>
-      <RecordDetailField
+      <EntityDetailFieldShell
         action={
           list.total > 0 ? (
             <>
-              <ItemCount count={list.total} data-embedded-count="" />
+              <ItemCount
+                aria-label={t("DataView.kanbanCount", {
+                  count: list.total,
+                  singular: type.label,
+                  plural: type.pluralLabel,
+                })}
+                count={list.total}
+                data-embedded-count=""
+              />
 
               <RecordEmbeddedColumns label={type.pluralLabel} list={list} />
             </>
@@ -248,7 +270,7 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
               footer={footer}
               renderCard={renderCard}
               rowActions={(record) => (
-                <RecordRowActions
+                <RowActions
                   name={recordName(record)}
                   onDelete={
                     canDelete && !deletion.isPreviewing
@@ -270,7 +292,7 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
         </div>
 
         {renderEditor(child)}
-      </RecordDetailField>
+      </EntityDetailFieldShell>
     </section>
   );
 });

@@ -9,9 +9,8 @@ import { Camera, Link2, Sigma } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { RecordEditorStore } from "./record-editor.store";
 import type { RecordField, RecordFieldView } from "@/features/records/record-model.schema";
-import { EntityDetailStaticField } from "@/components/entity-detail/entity-detail-static-field";
+import { EntityDetailFieldShell } from "@/components/entity-detail/entity-detail-field-shell";
 import { RecordValue, useRecordValueFormat } from "@/components/records/record-value";
-import { RecordDetailField } from "./record-detail-field";
 import { RecordInputField } from "./record-input-field";
 import { FormattedTextField } from "@/components/editor/formatted-text-field";
 import { ConfirmationSentenceView, referenceSentence } from "@/components/modal/confirmation-sentence";
@@ -21,7 +20,6 @@ import type { RecordValueSourceKind } from "@/features/records/record-value-sour
 import { EntityDetailDerivation } from "@/components/entity-detail/entity-detail-derivation";
 import type { DerivationContext } from "@/components/entity-detail/entity-detail-derivation";
 import { focusHref } from "@/components/focus/focus-href";
-import { FieldDerivationView } from "./field-derivation-view";
 import { CalculationFlowView } from "@/app/[locale]/(protected)/configure/components/calculation-flow-editor";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { runUserAction } from "@/core/errors/report-application-error";
@@ -72,9 +70,9 @@ export const RecordEditorField = observer(function RecordEditorField({
     if (!store.record) return null;
     if (result?.state === "value" && result.value.kind === "richText") {
       return (
-        <RecordDetailField action={captureAction} fieldId={field.id} label={field.label}>
+        <EntityDetailFieldShell action={captureAction} fieldId={field.id} label={field.label}>
           <FormattedTextField readOnly data={JSON.parse(result.value.documentJson) as object} label={field.label} />
-        </RecordDetailField>
+        </EntityDetailFieldShell>
       );
     }
     const model = withFormulaReferences(store.presentation.model, store.presentation.formulaReferences);
@@ -104,7 +102,7 @@ export const RecordEditorField = observer(function RecordEditorField({
           : null,
       );
     return (
-      <EntityDetailStaticField
+      <EntityDetailFieldShell
         action={restricted ? null : captureAction}
         derivation={
           source ? (
@@ -117,22 +115,15 @@ export const RecordEditorField = observer(function RecordEditorField({
               icon={DERIVATION_ICONS[source.kind]}
               label={derivationLabel(source.kind)}
             >
-              {(context) =>
-                source.kind === "calculation" ? (
-                  <FieldDerivationView
-                    diagram={
-                      field.behavior.kind !== "input" && field.behavior.expression ? (
-                        <CalculationFlowView field={field as RecordField} model={store.presentation.model} />
-                      ) : undefined
-                    }
-                    field={field}
-                    model={model}
-                    sentence={sentence(context)}
-                  />
-                ) : (
-                  <ConfirmationSentenceView sentence={sentence(context)} />
-                )
-              }
+              {(context) => (
+                <div data-field-derivation-view={field.id}>
+                  {source.kind === "calculation" && field.behavior.kind !== "input" && field.behavior.expression ? (
+                    <CalculationFlowView field={field as RecordField} model={store.presentation.model} />
+                  ) : (
+                    <ConfirmationSentenceView sentence={sentence(context)} />
+                  )}
+                </div>
+              )}
             </EntityDetailDerivation>
           ) : undefined
         }
@@ -144,7 +135,7 @@ export const RecordEditorField = observer(function RecordEditorField({
     );
   }
   return (
-    <RecordDetailField
+    <EntityDetailFieldShell
       action={captureAction}
       fieldId={field.id}
       inputId={field.valueType === "richText" ? undefined : inputId}
@@ -153,6 +144,6 @@ export const RecordEditorField = observer(function RecordEditorField({
       required={field.required}
     >
       <RecordInputField field={field} id={id} inputId={inputId} label={null} members={store.record?.memberUsers} />
-    </RecordDetailField>
+    </EntityDetailFieldShell>
   );
 });

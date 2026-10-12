@@ -13,7 +13,7 @@ import { RecordDetailLayoutStore, type RecordDetailLayoutNotifications } from ".
 import { toast } from "sonner";
 import { handOffSheet } from "@/components/ui/overlay-contract";
 
-export type RecordDraftHandoff = {
+type RecordDraftHandoff = {
   presentation: RecordEditorContext;
   record: RecordDto;
   savedState: RecordDraft;

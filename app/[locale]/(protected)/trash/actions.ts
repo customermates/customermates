@@ -2,7 +2,6 @@
 
 import type { GetQueryParams } from "@/core/base/base-get.schema";
 import type { GetResult } from "@/core/base/base-get.interactor";
-import type { RecordRef } from "@/features/records/record-model.schema";
 import type {
   DeleteTrashPermanentlyData,
   EmptyTrashData,
@@ -14,7 +13,6 @@ import type {
 import {
   getDeleteTrashPermanentlyInteractor,
   getEmptyTrashInteractor,
-  getGetTrashedRecordInteractor,
   getPreviewTrashDeletionInteractor,
   getQueryTrashInteractor,
   getRestoreTrashInteractor,
@@ -43,8 +41,4 @@ export async function deleteTrashPermanentlyAction(data: DeleteTrashPermanentlyD
 
 export async function emptyTrashAction(data: EmptyTrashData) {
   return serializeResult(getEmptyTrashInteractor().invoke(data));
-}
-
-export async function getTrashedRecordAction(ref: RecordRef) {
-  return serializeResult(getGetTrashedRecordInteractor().invoke(ref));
 }

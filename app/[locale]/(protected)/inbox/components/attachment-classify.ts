@@ -11,17 +11,9 @@ export type { AttachmentKind };
 export type AttachmentMeta = MessagingMessageDto["attachmentsMeta"][number];
 export type InboxT = (key: string, values?: Record<string, string | number>) => string;
 
-export function formatDuration(seconds: number | null | undefined): string | null {
-  if (typeof seconds !== "number" || !Number.isFinite(seconds) || seconds < 0) return null;
-  const total = Math.round(seconds);
-  const m = Math.floor(total / 60);
-  const s = total % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
-}
-
 const BYTE_UNITS = ["B", "KB", "MB", "GB", "TB"];
 
-export type FormatNumber = (value: number | undefined, options?: { maximumFractionDigits?: number }) => string;
+type FormatNumber = (value: number | undefined, options?: { maximumFractionDigits?: number }) => string;
 
 export function formatBytes(size: number | null | undefined, formatNumber?: FormatNumber): string | null {
   if (typeof size !== "number" || !Number.isFinite(size) || size <= 0) return null;

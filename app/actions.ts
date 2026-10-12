@@ -2,7 +2,6 @@
 
 import type {
   DeleteDataViewData,
-  GetDataViewsData,
   SaveDataViewStateData,
   SelectDataViewData,
   UpsertDataViewData,
@@ -12,7 +11,6 @@ import type { UpsertP13nData } from "@/features/p13n/upsert-p13n.interactor";
 
 import {
   getDeleteDataViewInteractor,
-  getGetDataViewsInteractor,
   getGetP13nInteractor,
   getSaveDataViewStateInteractor,
   getSelectDataViewInteractor,
@@ -27,10 +25,6 @@ export async function upsertP13nAction(data: UpsertP13nData) {
 
 export async function getP13nAction(data: GetP13nData) {
   return serializeResult(getGetP13nInteractor().invoke(data));
-}
-
-export async function getDataViewsAction(data: GetDataViewsData) {
-  return serializeResult(getGetDataViewsInteractor().invoke(data));
 }
 
 export async function upsertDataViewAction(data: UpsertDataViewData) {

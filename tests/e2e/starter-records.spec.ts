@@ -1,4 +1,4 @@
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
 
@@ -9,13 +9,7 @@ test("creates, edits, connects, assigns, reloads, and deletes all five starter t
   workspace,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const dialog = page.getByRole("dialog");
   const navigateToType = async (typeId: string) => {
     const href = `/en/records/${typeId}`;

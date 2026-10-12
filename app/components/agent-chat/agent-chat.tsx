@@ -10,7 +10,6 @@ import { AgentTourOverlay } from "./agent-tour-overlay";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Button } from "@/components/ui/button";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { IconContainer } from "@/components/shared/icon-container";
 import { assistantSurfaceProps, claimEscapeForAssistant } from "@/components/modal/assistant-surface";
 import { OVERLAY_RAISED_PANEL_LAYER_CLASS, OVERLAY_SCROLL_REGION } from "@/components/ui/overlay-contract";
@@ -129,11 +128,7 @@ export const AgentChat = observer(function AgentChat() {
     <>
       <AgentRouteReloadBridge />
 
-      {store.isOpen && (
-        <TooltipProvider>
-          <AgentChatPanel onFocusEnter={rememberPageOverlayFocus} />
-        </TooltipProvider>
-      )}
+      {store.isOpen && <AgentChatPanel onFocusEnter={rememberPageOverlayFocus} />}
 
       <AgentStatusAnnouncer />
 

@@ -11,7 +11,7 @@ import {
   saveDrawer,
   saveGeneral,
 } from "./configure";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { expect, test, collectPageErrors } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
 import type { Client } from "pg";
 
@@ -21,17 +21,6 @@ async function readModel(database: Client, companyId: string) {
     [companyId],
   );
   return RecordModelSchema.parse(result.rows[0].snapshot);
-}
-
-function captureErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
-  return errors;
 }
 
 async function center(locator: ReturnType<Page["locator"]>) {
@@ -51,7 +40,7 @@ async function dragBetween(page: Page, from: { x: number; y: number }, to: { x: 
 
 test("drags the Channels field in Configure and renames it like any field", async ({ page, database, companyId }) => {
   test.setTimeout(180000);
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const channelsId = id("capability.identity");
   const order = async () =>
@@ -110,7 +99,7 @@ test("drags the Channels field in Configure and renames it like any field", asyn
 
 test("edits Channels inline on a record, pins it and copies on click", async ({ page, database, companyId }) => {
   test.setTimeout(180000);
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const channelsId = id("capability.identity");
   await page.goto(`/en/records/${id("contact")}`);

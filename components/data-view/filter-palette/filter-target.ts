@@ -1,7 +1,7 @@
 import type { Filter, FilterableField } from "@/core/base/base-get.schema";
 import type { ColumnPresentation } from "@/core/data-view/column-presentation.schema";
 
-export type FilterTargetUpdate = {
+type FilterTargetUpdate = {
   filters: Filter[];
   forceRefresh?: boolean;
   refreshMode?: "background";

@@ -42,6 +42,7 @@ vi.mock("@/core/stores/root-store.provider", () => ({
 vi.mock("@/core/stores/use-hydrated-intl-store", () => ({
   useHydratedIntlStore: () => ({
     formatCurrency: (amount: number) => `eur:${amount}`,
+    formatNumber: (value: number) => String(value),
     formatMonthYear: () => "",
     formatDescriptiveShortDate: () => "",
   }),

@@ -1,20 +1,9 @@
 import type { Page } from "@playwright/test";
 
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import { recordItem, runRowAction } from "./record-rows";
 import { openSidebar } from "./sidebar";
-
-function collectErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
-  return errors;
-}
 
 async function addServices(page: Page, typeId: string, names: string[]) {
   await page.goto(`/en/records/${typeId}`);
@@ -42,7 +31,7 @@ function trashRow(page: Page, name: string) {
 }
 
 test("undoes a record delete from the toast", async ({ page, companyId }, testInfo) => {
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "service");
   await addServices(page, typeId, ["Undo Service"]);
   await deleteFromRow(page, "Undo Service");
@@ -60,7 +49,7 @@ test("restores a deleted record from Trash and shows a trashed record read only"
   page,
   companyId,
 }, testInfo) => {
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "service");
   await addServices(page, typeId, ["Restore Service"]);
   await deleteFromRow(page, "Restore Service");
@@ -108,6 +97,13 @@ test("restores a deleted record from Trash and shows a trashed record read only"
   await expect(page.getByText("Something went wrong")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Ask AI", exact: true })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Customize", exact: true })).toHaveCount(0);
+  const history = page.locator('main [data-detail-panel="activities"]');
+  if (!(await history.isVisible())) await page.getByRole("tab", { name: "Activities", exact: true }).click();
+  const activities = history.locator("[data-record-activities-read-only]");
+  await expect(activities.locator("ol > li").first()).toBeVisible();
+  expect(await activities.locator("ol > li").count()).toBeGreaterThanOrEqual(2);
+  await expect(history.getByText("Activity could not be loaded.")).toHaveCount(0);
+  await expect(history.getByRole("navigation", { name: "Saved views", exact: true })).toHaveCount(0);
   await page.getByRole("button", { name: "Restore", exact: true }).click();
   await expect(banner).not.toBeVisible();
 
@@ -119,7 +115,7 @@ test("restores a deleted record from Trash and shows a trashed record read only"
 });
 
 test("deletes a record permanently after confirming what disappears", async ({ page, companyId, database }) => {
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "service");
   await addServices(page, typeId, ["Gone Service"]);
   await deleteFromRow(page, "Gone Service");
@@ -142,7 +138,7 @@ test("deletes a record permanently after confirming what disappears", async ({ p
 });
 
 test("restores and deletes permanently in bulk and empties the trash", async ({ page, companyId }, testInfo) => {
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "service");
   const names = ["Bulk One", "Bulk Two", "Bulk Three", "Bulk Four"];
   await addServices(page, typeId, names);

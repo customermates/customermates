@@ -1,4 +1,4 @@
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import { openSidebar } from "./sidebar";
 
@@ -8,13 +8,7 @@ test("keeps filter changes temporary until saved to the view, resets them and ke
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "deal");
   const members = await database.query(
     'SELECT id FROM "User" WHERE "companyId"=$1',
@@ -127,13 +121,7 @@ test("keeps an Activities rail filter temporary with the modified dot, Reset and
   workspace,
 }) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "service");
   const name = "Rail filter service";
   await page.goto(`/en/records/${typeId}`);
@@ -201,13 +189,7 @@ test("opens an assistant proposal in the modified state and saves it as an updat
   workspace,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "deal");
   const surfaceKey = `records:${typeId}`;
   const members = await database.query('SELECT id FROM "User" WHERE "companyId"=$1', [companyId]);
@@ -303,13 +285,7 @@ test("keeps appearance changes temporary until saved to the view, with Save and 
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "deal");
   const stage = presetId(companyId, "deal.stage");
   const storedGrouping = async () =>

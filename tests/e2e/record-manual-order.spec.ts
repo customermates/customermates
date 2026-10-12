@@ -2,22 +2,17 @@ import { randomUUID } from "node:crypto";
 
 import type { Page } from "@playwright/test";
 
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
+import { postOk } from "./api";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 
-async function post(page: Page, path: string, data: unknown) {
-  const response = await page.request.post(path, { data });
-  expect(response.status(), await response.text()).toBe(200);
-  return response.json();
-}
-
 async function mutate(page: Page, mutation: unknown) {
-  const model = RecordModelSchema.parse(await post(page, "/api/v1/model/read", {}));
+  const model = RecordModelSchema.parse(await postOk(page, "/api/v1/model/read", {}));
   return RecordOperationResultSchema.parse(
-    await post(page, "/api/v1/records/mutate", {
+    await postOk(page, "/api/v1/records/mutate", {
       expectedRevision: model.revision,
       idempotencyKey: randomUUID(),
       mutation,
@@ -31,13 +26,7 @@ test("sorts a list in manual order from display options and follows placements",
   companyId,
 }, testInfo) => {
   test.setTimeout(180000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const typeId = id("deal");
   await page.goto(`/en/records/${typeId}`);
@@ -135,7 +124,7 @@ test("sorts a list in manual order from display options and follows placements",
       })
     ).status,
   ).toBe("completed");
-  const queried = await post(page, "/api/v1/records/query", {
+  const queried = await postOk(page, "/api/v1/records/query", {
     typeId,
     sort: [{ fieldId: "system:manual", direction: "asc" }],
   });

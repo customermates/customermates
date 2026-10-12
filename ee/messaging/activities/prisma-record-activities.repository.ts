@@ -25,7 +25,13 @@ export class PrismaRecordActivitiesRepo extends TenantRepository implements Reco
     super();
   }
 
-  index(input: RecordActivitiesInput, model: RecordModel, access: RecordAccessMap, available: ActivityKind[]) {
+  index(
+    input: RecordActivitiesInput,
+    model: RecordModel,
+    access: RecordAccessMap,
+    available: ActivityKind[],
+    trashed: RecordRef[] = [],
+  ) {
     return this.prisma.$queryRaw<RecordActivityIndexRow[]>(
       compileRecordActivityIndex(
         this.companyId,
@@ -35,6 +41,7 @@ export class PrismaRecordActivitiesRepo extends TenantRepository implements Reco
         access,
         available,
         this.permissions.has(Resource.wiki, Action.readAll),
+        trashed,
       ),
     );
   }
@@ -179,11 +186,12 @@ export class PrismaRecordActivitiesRepo extends TenantRepository implements Reco
     input: RecordActivitiesInput,
     model: RecordModel,
     access: RecordAccessMap,
+    trashed: RecordRef[] = [],
   ) {
     const records = index.filter((row) => row.kind === "record");
     const messageIds = index.filter((row) => row.kind === "message").map((row) => row.id);
     if (!records.length && !messageIds.length) return [];
-    const scope = compileRecordActivityScope(this.companyId, this.userId, input, model, access);
+    const scope = compileRecordActivityScope(this.companyId, this.userId, input, model, access, trashed);
     const history = compileRecordHistoryScope(this.companyId, input, model, access);
     const recordIds = records.map((row) => row.id);
     const readableTypes = model.types

@@ -57,7 +57,6 @@ export const RecordActivityWidgetCard = observer(
       loadError: timeline.error,
       ready: timeline.loaded || timeline.error,
       requestedSources: requested,
-      scopeTruncated: false,
     });
     return (
       <AppCard className="h-full cursor-pointer overflow-hidden">

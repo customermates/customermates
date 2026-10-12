@@ -37,7 +37,7 @@ type Props = SharedProps &
     | { arrayMode?: false; value?: string; onValueChange?: (value: string | undefined) => void }
   );
 
-export function splitChipValue(value: unknown): string[] {
+function splitChipValue(value: unknown): string[] {
   return typeof value === "string" ? value.split(",").filter((item) => item.trim() !== "") : [];
 }
 

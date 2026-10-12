@@ -9,7 +9,7 @@ import type { AppMode } from "@/core/config/environment";
 
 export type SettingsSection = "account" | "workspace";
 
-export type SettingsSubroute = {
+type SettingsSubroute = {
   slug: SettingsSlug;
   labelKey: string;
   icon: LucideIcon;

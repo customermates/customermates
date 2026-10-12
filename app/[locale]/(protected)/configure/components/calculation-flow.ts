@@ -232,7 +232,7 @@ export function removeStep(expression: CalculationExpression, path: ExpressionPa
   return replaceExpression(expression, path, step.arguments[0] ?? UNSET);
 }
 
-export type FormulaStep = {
+type FormulaStep = {
   path: ExpressionPath;
   operator: Operator;
   arguments: Array<{ path: ExpressionPath; expression: CalculationExpression; step: number | null }>;

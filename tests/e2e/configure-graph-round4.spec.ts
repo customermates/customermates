@@ -1,28 +1,9 @@
 import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
-import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { configureDrawer, openConfigure, openConfigureTab } from "./configure";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
-
-function captureErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
-  return errors;
-}
-
-async function readModel(database: Client, companyId: string) {
-  const result = await database.query(
-    'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1 ORDER BY revision DESC LIMIT 1',
-    [companyId],
-  );
-  return RecordModelSchema.parse(result.rows[0]?.snapshot);
-}
+import { expect, test, collectPageErrors } from "./fixtures";
+import { readModel } from "./api";
 
 async function savedExpanded(database: Client, companyId: string) {
   const result = await database.query(
@@ -37,7 +18,7 @@ test("graph nodes share one structure with an Add menu and in-place expansion", 
   database,
   companyId,
 }) => {
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   const dealId = presetId(companyId, "deal");
   await openConfigure(page);
   const deal = page.locator(`[data-configure-node="${dealId}"]`);
@@ -92,7 +73,7 @@ test("creates a sub-list from the parent's Add menu and groups it with the paren
   database,
   companyId,
 }) => {
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   const dealId = presetId(companyId, "deal");
   await openConfigure(page);
   const deal = page.locator(`[data-configure-node="${dealId}"]`);
@@ -152,7 +133,7 @@ test("creates a sub-list from the parent's Add menu and groups it with the paren
 });
 
 test("the Relationships tab uses the Fields row style", async ({ page, companyId }) => {
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   await openConfigure(page, presetId(companyId, "lineItem"));
   await expect(page.locator("[data-configure-sublist-explanation]")).toContainText("Sub-list of Deals");
   await openConfigureTab(page, "Relationships");

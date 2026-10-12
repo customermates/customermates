@@ -18,6 +18,7 @@ import {
   valueResult,
 } from "../calculation";
 import { CalculationExpressionSchema, RecordModelSchema } from "../record-model.schema";
+import { currencyFractionDigits, derivedFractionDigits } from "../derived-value-format";
 import { createCrmPreset, presetId } from "../crm-preset";
 import { validateRecordModel } from "../record-model-validation";
 
@@ -152,7 +153,9 @@ describe("deterministic record calculations", () => {
       decimalResult("33.3"),
     );
     const share = await evaluateCalculation(operation("divide", literal("100", "EUR"), literal("3")), ref, empty);
-    expect(fieldPrecisionResult(share, { valueType: "currency", format: { currency: "EUR" } })).toEqual(share);
+    expect(fieldPrecisionResult(share, { valueType: "currency", format: { currency: "EUR" } })).toEqual(
+      decimalResult("33.33", "EUR"),
+    );
     expect(
       fieldPrecisionResult(share, { valueType: "currency", format: { currency: "EUR", decimalPlaces: 2 } }),
     ).toEqual(decimalResult("33.33", "EUR"));
@@ -166,6 +169,29 @@ describe("deterministic record calculations", () => {
     );
     expect(await evaluateCalculation(product, ref, empty)).toMatchObject({ state: "value" });
     expect(reduceCalculatedValues("sum", [MISSING_VALUE])).toEqual(MISSING_VALUE);
+  });
+
+  it("rounds calculated money to the currency minor units unless the field sets decimal places", () => {
+    const money = (value: string, currency: string) => decimalResult(value, currency);
+    const field = (currency: string, decimalPlaces?: number) => ({
+      valueType: "currency" as const,
+      format: { currency, ...(decimalPlaces === undefined ? {} : { decimalPlaces }) },
+    });
+    expect(fieldPrecisionResult(money("10.005", "EUR"), field("EUR"))).toEqual(money("10.01", "EUR"));
+    expect(fieldPrecisionResult(money("-10.005", "EUR"), field("EUR"))).toEqual(money("-10.01", "EUR"));
+    expect(fieldPrecisionResult(money("1234.5", "JPY"), field("JPY"))).toEqual(money("1235", "JPY"));
+    expect(fieldPrecisionResult(money("1.23456", "KWD"), field("KWD"))).toEqual(money("1.235", "KWD"));
+    expect(fieldPrecisionResult(money("1.23449", "BHD"), field("BHD"))).toEqual(money("1.234", "BHD"));
+    expect(fieldPrecisionResult(money("10.005", "EUR"), field("EUR", 3))).toEqual(money("10.005", "EUR"));
+    expect(fieldPrecisionResult(money("1234.5678", "JPY"), field("JPY", 2))).toEqual(money("1234.57", "JPY"));
+    expect(fieldPrecisionResult(money("10.005", "EUR"), field("EUR", 0))).toEqual(money("10", "EUR"));
+    expect(fieldPrecisionResult(decimalResult("10.005"), { valueType: "number" })).toEqual(decimalResult("10.005"));
+    expect(currencyFractionDigits("EUR")).toBe(2);
+    expect(currencyFractionDigits("JPY")).toBe(0);
+    expect(currencyFractionDigits("KWD")).toBe(3);
+    expect(derivedFractionDigits(null, "JPY")).toBe(0);
+    expect(derivedFractionDigits(4, "JPY")).toBe(4);
+    expect(derivedFractionDigits(null)).toBe(2);
   });
 
   it("compares dateTimes as instants regardless of their offsets", async () => {

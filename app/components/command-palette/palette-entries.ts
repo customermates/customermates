@@ -19,7 +19,7 @@ import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { focusHref } from "@/components/focus/focus-href";
 import { isRecordFieldWritable } from "@/features/records/record-input-value";
 
-export type PaletteRun =
+type PaletteRun =
   | { kind: "href"; href: string }
   | { kind: "action"; action: CommandActionId }
   | { kind: "create"; typeId: string }

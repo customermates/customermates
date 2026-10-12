@@ -17,7 +17,7 @@ import {
   saveDrawer,
   saveGeneral,
 } from "./configure";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { expect, test, collectPageErrors } from "./fixtures";
 import { suggestListPlural } from "../../app/[locale]/(protected)/configure/components/list-plural";
 
 const labels = englishMessages.RecordModel;
@@ -29,17 +29,6 @@ const recovery = {
   latest: labels.staleLoadLatest,
   removed: labels.staleTargetMissing,
 };
-
-function collectErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
-  return errors;
-}
 
 async function model(database: Client, companyId: string): Promise<RecordModel> {
   const result = await database.query(
@@ -147,7 +136,7 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
   companyId,
 }, testInfo) => {
   test.setTimeout(300000);
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   const initialName = `Recovery entries ${randomUUID().slice(0, 8)}`;
   const typeId = await createList(page, initialName);
   await addFromConfigure(page, "Field");
@@ -158,7 +147,7 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
   const originalField = initial.fields.find((field) => field.typeId === typeId && field.label === "Budget");
   if (!originalField) throw new Error("Expected Budget field");
   const other = await context.newPage();
-  const otherErrors = collectErrors(other);
+  const otherErrors = collectPageErrors(other);
   try {
     await configure(other, typeId);
     await editField(page, "Budget");
@@ -279,7 +268,7 @@ test("preserves a stale relationship-path draft and blocks publication after the
   companyId,
 }, testInfo) => {
   test.setTimeout(180000);
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   const name = `Removed path ${randomUUID().slice(0, 8)}`;
   const typeId = await createList(page, name);
   await addFromConfigure(page, "Relationship");
@@ -302,7 +291,7 @@ test("preserves a stale relationship-path draft and blocks publication after the
   const dialog = page.getByRole("dialog");
   await dialog.locator("#sourceLabel").fill("Unsaved overview name");
   const other = await context.newPage();
-  const otherErrors = collectErrors(other);
+  const otherErrors = collectPageErrors(other);
   try {
     await configure(other, typeId);
     await apiConfiguration(other, before, [

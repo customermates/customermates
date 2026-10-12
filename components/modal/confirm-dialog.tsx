@@ -25,7 +25,7 @@ import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return"
 import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
 
-export type ConfirmDialogProps = {
+type ConfirmDialogProps = {
   open: boolean;
   title: ReactNode;
   description: ReactNode;

@@ -45,7 +45,7 @@ import { cn } from "@/core/utils/cn";
 import { calculationResultType } from "@/features/records/record-model-validation";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { previewCalculationAction } from "@/app/[locale]/(protected)/records/actions";
-import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
+import { RowActions } from "@/components/data-view/row-actions";
 import { ConfirmationSentenceView, referenceSentence } from "@/components/modal/confirmation-sentence";
 import { RecordValue, useRecordValueFormat } from "@/components/records/record-value";
 
@@ -686,6 +686,8 @@ export const CalculationFlow = observer(function CalculationFlow({ store }: { st
 });
 
 const NO_CHANGE = () => undefined;
+const NO_ISSUE_MESSAGE = () => "";
+const NO_FIELDS = (): CalculationPickerGroup => ({ heading: "", items: [] });
 
 export function CalculationFlowView({ field, model }: { field: RecordField; model: RecordModelView }) {
   const t = useTranslations();
@@ -706,7 +708,6 @@ export function CalculationFlowView({ field, model }: { field: RecordField; mode
         <FormulaFlow
           disabled
           expression={expression}
-          issueMessage={() => ""}
           leafChip={(_, leaf, tooltip) => (
             <AppChip
               className="text-xs"
@@ -719,30 +720,21 @@ export function CalculationFlowView({ field, model }: { field: RecordField; mode
           leafLabel={(leaf) => (isUnset(leaf) ? t("RecordModel.calculationFlow.pickValue") : describe(leaf, typeId))}
           list={model.types.find((type) => type.id === typeId)}
           operatorLabel={labels.operatorLabel}
-          operatorPicker={null}
-          setOperatorPicker={NO_CHANGE}
-          showIssues={false}
           typeLabel={typeLabel}
           typeOf={(path) => {
             const step = expressionAt(expression, path);
             return step ? calculationResultType(step, typeId, model) : null;
           }}
-          onChange={NO_CHANGE}
         />
       ) : (
         <LinkedFlowView
           disabled
           describe={describe}
-          fieldsGroup={() => ({ heading: "", items: [] })}
           flow={linkedFlow(expression)}
-          issueMessage={() => ""}
-          issues={[]}
           lookup={source === "lookup"}
           model={model}
-          showIssues={false}
           typeId={typeId}
           typeLabel={typeLabel}
-          onChange={NO_CHANGE}
         />
       )}
 
@@ -810,30 +802,30 @@ function FormulaFlow({
   expression,
   list,
   disabled,
-  showIssues,
+  showIssues = false,
   leafChip,
   leafLabel,
   operatorLabel,
   typeLabel,
   typeOf,
-  issueMessage,
-  operatorPicker,
-  setOperatorPicker,
-  onChange,
+  issueMessage = NO_ISSUE_MESSAGE,
+  operatorPicker = null,
+  setOperatorPicker = NO_CHANGE,
+  onChange = NO_CHANGE,
 }: {
   expression: CalculationExpression;
   list: RecordModelView["types"][number] | undefined;
   disabled: boolean;
-  showIssues: boolean;
+  showIssues?: boolean;
   leafChip: (path: ExpressionPath, leaf: CalculationExpression, tooltip?: string) => ReactNode;
   leafLabel: (leaf: CalculationExpression) => string;
   operatorLabel: (operator: Operator) => string;
   typeLabel: (valueType: string) => string;
   typeOf: (path: ExpressionPath) => string | null;
-  issueMessage: (issue: FlowIssue) => string;
-  operatorPicker: string | null;
-  setOperatorPicker: (key: string | null) => void;
-  onChange: (expression: CalculationExpression) => void;
+  issueMessage?: (issue: FlowIssue) => string;
+  operatorPicker?: string | null;
+  setOperatorPicker?: (key: string | null) => void;
+  onChange?: (expression: CalculationExpression) => void;
 }) {
   const t = useTranslations();
   const steps = formulaSteps(expression);
@@ -1014,7 +1006,7 @@ function FormulaFlow({
                 compact
                 action={
                   disabled ? undefined : (
-                    <RecordRowActions
+                    <RowActions
                       contextAction={{
                         label: t("RecordModel.calculationFlow.changeOperation"),
                         icon: Sigma,
@@ -1087,31 +1079,31 @@ function LinkedFlowView({
   model,
   lookup,
   disabled,
-  showIssues,
-  issues,
-  issueMessage,
+  showIssues = false,
+  issues = [],
+  issueMessage = NO_ISSUE_MESSAGE,
   typeLabel,
-  fieldsGroup,
+  fieldsGroup = NO_FIELDS,
   describe,
-  onChange,
+  onChange = NO_CHANGE,
 }: {
   flow: LinkedFlow;
   typeId: string;
   model: RecordModelView;
   lookup: boolean;
   disabled: boolean;
-  showIssues: boolean;
-  issues: FlowIssue[];
-  issueMessage: (issue: FlowIssue) => string;
+  showIssues?: boolean;
+  issues?: FlowIssue[];
+  issueMessage?: (issue: FlowIssue) => string;
   typeLabel: (valueType: string) => string;
   describe: (expression: CalculationExpression, typeId: string) => string;
-  fieldsGroup: (
+  fieldsGroup?: (
     fieldTypeId: string,
     types: ReturnType<typeof operandTypes>,
     current: CalculationExpression,
     pick: (next: CalculationExpression) => void,
   ) => CalculationPickerGroup;
-  onChange: (flow: LinkedFlow) => void;
+  onChange?: (flow: LinkedFlow) => void;
 }) {
   const t = useTranslations();
   const typeIds = linkedTypeIds(flow, typeId, model);
@@ -1305,7 +1297,7 @@ function LinkedFlowView({
                 compact
                 action={
                   index > 0 && !disabled ? (
-                    <RecordRowActions
+                    <RowActions
                       name={target?.pluralLabel ?? ""}
                       onDelete={() =>
                         onChange(withAggregate({ hops: flow.hops.slice(0, index), value: UNSET }, reducer))

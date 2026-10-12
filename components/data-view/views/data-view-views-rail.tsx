@@ -23,7 +23,6 @@ import {
 import { FormSaveMenuItem } from "@/components/forms/form-footer-actions";
 import { OverflowRail } from "@/components/shared/overflow-rail";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
 import type { FocusKind } from "@/components/focus/focus-href";
 import { useFocusTarget } from "@/components/focus/focus-target";
@@ -188,114 +187,112 @@ export const DataViewViewsRail = observer(function DataViewViewsRail<E extends H
       data-joins-top-bar={joinsTopBar ? "" : undefined}
       id="global-data-views"
     >
-      <TooltipProvider>
-        <OverflowRail
-          ariaLabel={t("DataView.views.railLabel")}
-          bleed={false}
-          className="-mt-1 min-w-0 flex-1"
-          focusable={false}
-          observedKey={chips.length}
-          railClassName={cn("items-center gap-1 pe-1 pt-1", joinsTopBar && "pb-4")}
-          railProps={{
-            "aria-label": t("DataView.views.railLabel"),
-            "aria-orientation": "horizontal",
-            "data-data-view-rail-items": "",
-            role: "toolbar",
-          }}
-        >
-          {!store.isReady &&
-            [0, 1, 2].map((index) => <Skeleton key={index} className="h-7 w-20 shrink-0 rounded-full" />)}
+      <OverflowRail
+        ariaLabel={t("DataView.views.railLabel")}
+        bleed={false}
+        className="-mt-1 min-w-0 flex-1"
+        focusable={false}
+        observedKey={chips.length}
+        railClassName={cn("items-center gap-1 pe-1 pt-1", joinsTopBar && "pb-4")}
+        railProps={{
+          "aria-label": t("DataView.views.railLabel"),
+          "aria-orientation": "horizontal",
+          "data-data-view-rail-items": "",
+          role: "toolbar",
+        }}
+      >
+        {!store.isReady &&
+          [0, 1, 2].map((index) => <Skeleton key={index} className="h-7 w-20 shrink-0 rounded-full" />)}
 
-          {store.isReady &&
-            chips.map((chip, index) => {
-              if (chip.kind === "all") {
-                return (
-                  <ViewChip
-                    key={ALL_VIEW_KEY}
-                    href={viewHref(
-                      store.viewPathname ?? pathname,
-                      ALL_VIEW_KEY,
-                      store.viewPathname ? surfaceKeyOf(store) : undefined,
-                    )}
-                    id="global-data-views-all"
-                    isActive={chip.isActive && !proposedName}
-                    isModified={chip.isActive && !proposedName && store.isViewModified}
-                    label={allName}
-                    menu={chipMenu(null)}
-                    modifiedLabel={t("DataView.views.modified")}
-                    preview={previewFor(allName, chip.isActive)}
-                    tabIndex={tabIndexAt(index)}
-                    onKeyDown={onKeyDownAt(index)}
-                    onMenuCloseAutoFocus={focusNameInput}
-                    onSelect={onChipClick(ALL_VIEW_KEY)}
-                  />
-                );
-              }
-
+        {store.isReady &&
+          chips.map((chip, index) => {
+            if (chip.kind === "all") {
               return (
                 <ViewChip
-                  key={chip.view.id}
-                  focusKey={`view:${chip.view.id}`}
+                  key={ALL_VIEW_KEY}
                   href={viewHref(
                     store.viewPathname ?? pathname,
-                    chip.view.id,
+                    ALL_VIEW_KEY,
                     store.viewPathname ? surfaceKeyOf(store) : undefined,
                   )}
+                  id="global-data-views-all"
                   isActive={chip.isActive && !proposedName}
                   isModified={chip.isActive && !proposedName && store.isViewModified}
-                  label={chip.view.name}
-                  menu={chipMenu(chip.view)}
+                  label={allName}
+                  menu={chipMenu(null)}
                   modifiedLabel={t("DataView.views.modified")}
-                  preview={previewFor(chip.view.name, chip.isActive)}
+                  preview={previewFor(allName, chip.isActive)}
                   tabIndex={tabIndexAt(index)}
                   onKeyDown={onKeyDownAt(index)}
                   onMenuCloseAutoFocus={focusNameInput}
-                  onSelect={onChipClick(chip.view.id)}
+                  onSelect={onChipClick(ALL_VIEW_KEY)}
                 />
               );
-            })}
+            }
 
-          {store.isReady && proposedName && (
-            <ViewChip
-              isActive
-              isModified
-              href={store.viewPathname ?? pathname}
-              id="global-data-views-proposed"
-              label={proposedName}
-              modifiedLabel={t("DataView.views.modified")}
-              preview={previewFor(proposedName, true)}
-              tabIndex={-1}
-            />
-          )}
+            return (
+              <ViewChip
+                key={chip.view.id}
+                focusKey={`view:${chip.view.id}`}
+                href={viewHref(
+                  store.viewPathname ?? pathname,
+                  chip.view.id,
+                  store.viewPathname ? surfaceKeyOf(store) : undefined,
+                )}
+                isActive={chip.isActive && !proposedName}
+                isModified={chip.isActive && !proposedName && store.isViewModified}
+                label={chip.view.name}
+                menu={chipMenu(chip.view)}
+                modifiedLabel={t("DataView.views.modified")}
+                preview={previewFor(chip.view.name, chip.isActive)}
+                tabIndex={tabIndexAt(index)}
+                onKeyDown={onKeyDownAt(index)}
+                onMenuCloseAutoFocus={focusNameInput}
+                onSelect={onChipClick(chip.view.id)}
+              />
+            );
+          })}
 
-          {store.isReady && (
-            <ViewMetaOverlay
-              mode={meta?.mode ?? "create"}
-              name={meta?.name ?? ""}
-              open={meta !== null}
-              trigger={
-                <Button
-                  className={cn(
-                    VIEW_TAB_CLASS,
-                    "border-dashed border-input bg-transparent text-muted-foreground shadow-none hover:bg-transparent",
-                  )}
-                  data-view-draft={isDrafting ? "" : undefined}
-                  id="global-data-views-new"
-                  size="sm"
-                  variant="ghost"
-                >
-                  <span className="truncate">{t("DataView.views.createTitle")}</span>
-                </Button>
-              }
-              onAskAi={ai.available ? ai.openCurrent : undefined}
-              onChange={(draft) => setMeta((current) => (current ? { ...current, ...draft } : current))}
-              onCreateWithAi={ai.available ? ai.openCreate : undefined}
-              onOpenChange={(next) => setMeta(next ? { mode: "create", name: "" } : null)}
-              onSubmit={(values) => (meta ? commands.submitMeta(meta, values) : Promise.resolve())}
-            />
-          )}
-        </OverflowRail>
-      </TooltipProvider>
+        {store.isReady && proposedName && (
+          <ViewChip
+            isActive
+            isModified
+            href={store.viewPathname ?? pathname}
+            id="global-data-views-proposed"
+            label={proposedName}
+            modifiedLabel={t("DataView.views.modified")}
+            preview={previewFor(proposedName, true)}
+            tabIndex={-1}
+          />
+        )}
+
+        {store.isReady && (
+          <ViewMetaOverlay
+            mode={meta?.mode ?? "create"}
+            name={meta?.name ?? ""}
+            open={meta !== null}
+            trigger={
+              <Button
+                className={cn(
+                  VIEW_TAB_CLASS,
+                  "border-dashed border-input bg-transparent text-muted-foreground shadow-none hover:bg-transparent",
+                )}
+                data-view-draft={isDrafting ? "" : undefined}
+                id="global-data-views-new"
+                size="sm"
+                variant="ghost"
+              >
+                <span className="truncate">{t("DataView.views.createTitle")}</span>
+              </Button>
+            }
+            onAskAi={ai.available ? ai.openCurrent : undefined}
+            onChange={(draft) => setMeta((current) => (current ? { ...current, ...draft } : current))}
+            onCreateWithAi={ai.available ? ai.openCreate : undefined}
+            onOpenChange={(next) => setMeta(next ? { mode: "create", name: "" } : null)}
+            onSubmit={(values) => (meta ? commands.submitMeta(meta, values) : Promise.resolve())}
+          />
+        )}
+      </OverflowRail>
 
       {actions}
 

@@ -3,7 +3,6 @@ import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 import { restoreFromTrash, deleteFromTrashPermanently, openTrash, trashRow } from "./trash";
 import { randomUUID } from "node:crypto";
-import { RecordModelSchema } from "../../features/records/record-model.schema";
 import {
   addFromConfigure,
   configureDrawer,
@@ -19,14 +18,7 @@ import {
   selectConfigureList,
 } from "./configure";
 import { expect, test } from "./fixtures";
-
-async function readModel(database: Client, companyId: string) {
-  const result = await database.query(
-    'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1 ORDER BY revision DESC LIMIT 1',
-    [companyId],
-  );
-  return RecordModelSchema.parse(result.rows[0]?.snapshot);
-}
+import { readModel } from "./api";
 
 async function addRecord(page: Page, name: string, value: string) {
   await page.locator("#records-add").click();

@@ -83,14 +83,14 @@ export const RecordDetailPersonalization = observer(function RecordDetailPersona
               ...(hasRelatedDraft && channelsFieldId ? [channelsFieldId] : []),
             ],
             fieldOrder: layout.layout.fieldOrder,
-            columnOrder: layout.layout.fieldOrder,
+
             previewFieldValues,
             fieldSettingsHref,
             setIsPersonalizing: (next) => store.runAfterChannelDraft(() => setIsPersonalizing(next)),
             toggleStarredField: (id) => store.runAfterChannelDraft(() => layout.togglePinned(id)),
             toggleFieldVisibility: (id) => store.runAfterChannelDraft(() => layout.toggleHidden(id)),
             reorderFields: (ids) => store.runAfterChannelDraft(() => layout.reorder(ids)),
-            reorderColumns: (ids) => store.runAfterChannelDraft(() => layout.reorder(ids)),
+
             setPreviewFieldValue,
           }
         : null,

@@ -1,22 +1,14 @@
 import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
-import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { openDrawerTab, addFromConfigure, configureTopBar, followConfigureLink, openConfigure, openConfigureRow, saveDrawer, selectConfigureList } from "./configure";
 import { calculationChip, calculationFlow, chooseValueSource, pickOption } from "./calculation-flow";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { expect, test, collectPageErrors } from "./fixtures";
+import { readModel } from "./api";
 import { openRecordDetails, openRecordLink } from "./record-rows";
 
 async function applyConfiguration(page: Page) {
   await saveDrawer(page);
-}
-
-async function readModel(database: Client, companyId: string) {
-  const result = await database.query(
-    'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1 ORDER BY revision DESC LIMIT 1',
-    [companyId],
-  );
-  return RecordModelSchema.parse(result.rows[0]?.snapshot);
 }
 
 async function selectOption(page: Page, label: string, option: string) {
@@ -44,13 +36,7 @@ test("configures lookup, rollup, snapshot and manual values, then builds a weigh
   companyId,
 }, testInfo) => {
   test.setTimeout(360000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const dialog = page.getByRole("dialog");
   const id = (key: string) => presetId(companyId, key);
   const addCalculatedField = async (name: string, source: string) => {

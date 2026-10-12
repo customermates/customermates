@@ -2,7 +2,7 @@ import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { openConfigure, openConfigureRow, saveDrawer } from "./configure";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { expect, test, collectPageErrors } from "./fixtures";
 
 async function fieldCurrency(database: Client, companyId: string, fieldId: string) {
   const result = await database.query(
@@ -39,13 +39,7 @@ test("gives each money field its own currency, with no company settings page", a
   await expect(page.locator("#records-add")).toBeEnabled();
   await expect(page.locator('[id="nav-company-settings"]')).toHaveCount(0);
   await page.waitForLoadState("networkidle");
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
 
   await test.step("an empty deal value starts in the field currency", async () => {
     await page.locator("#records-add").click();

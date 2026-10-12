@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/core/utils/cn";
 
-export type ColumnVisibilityItem = {
+type ColumnVisibilityItem = {
   uid: string;
   label: string;
   isVisible: boolean;

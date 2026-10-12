@@ -1,17 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
-import type { Filter } from "@/core/base/base-get.schema";
 
-import { ACTIVITY_KINDS } from "@/ee/messaging/activities/activities.schema";
-import { FilterFieldKey } from "@/core/types/filter-field-key";
-import { FilterOperatorKey } from "@/core/base/base-query-builder";
-
-import {
-  accountSupportsActivitySources,
-  activityWidgetSourcePlan,
-  requestedActivitySources,
-  resolveActivityWidgetState,
-} from "../activity-widget-state";
+import { accountSupportsActivitySources, resolveActivityWidgetState } from "../activity-widget-state";
 
 const ready = {
   accountsError: false,
@@ -24,73 +14,7 @@ const ready = {
   loadError: false,
   ready: true,
   requestedSources: ["audit", "message", "activity", "calendar_event"] as const,
-  scopeTruncated: false,
 };
-
-function timelineKindFilter(operator: FilterOperatorKey.in | FilterOperatorKey.notIn, value: string[]): Filter {
-  return { field: FilterFieldKey.timelineKind, operator, value } as Filter;
-}
-
-describe("requestedActivitySources", () => {
-  it.each([
-    [[], []],
-    [["audit"], ["audit"]],
-    [["messages"], ["message"]],
-    [["activities"], ["activity", "calendar_event"]],
-    [
-      ["record", "messages"],
-      ["record", "message"],
-    ],
-    [
-      ["configuration", "activities"],
-      ["configuration", "activity", "calendar_event"],
-    ],
-    [
-      ["messages", "activities"],
-      ["message", "activity", "calendar_event"],
-    ],
-    [["record", "audit", "configuration", "messages", "activities"], ACTIVITY_KINDS],
-  ] as const)("maps the activity-type card selection %j to %j", (selected, expected) => {
-    const filter =
-      selected.length === 0
-        ? timelineKindFilter(FilterOperatorKey.notIn, ["record", "audit", "configuration", "messages", "activities"])
-        : timelineKindFilter(FilterOperatorKey.in, [...selected]);
-
-    expect(requestedActivitySources([filter])).toEqual(expected);
-  });
-
-  it("hydrates grouped and raw subtype restrictions with in/notIn semantics", () => {
-    expect(requestedActivitySources(undefined)).toEqual(ACTIVITY_KINDS);
-    expect(requestedActivitySources([timelineKindFilter(FilterOperatorKey.in, [])])).toEqual(ACTIVITY_KINDS);
-    expect(requestedActivitySources([timelineKindFilter(FilterOperatorKey.notIn, [])])).toEqual(ACTIVITY_KINDS);
-    expect(requestedActivitySources([timelineKindFilter(FilterOperatorKey.in, ["audit", "calendar_event"])])).toEqual([
-      "audit",
-      "calendar_event",
-    ]);
-    expect(requestedActivitySources([timelineKindFilter(FilterOperatorKey.notIn, ["activity"])])).toEqual([
-      "record",
-      "audit",
-      "configuration",
-      "message",
-      "calendar_event",
-    ]);
-  });
-
-  it("intersects requested sources with permissions before requiring accounts", () => {
-    expect(
-      activityWidgetSourcePlan([timelineKindFilter(FilterOperatorKey.in, ["record", "audit"])], ACTIVITY_KINDS),
-    ).toEqual({
-      availableRequestedSources: ["record", "audit"],
-      connectedAccountSources: [],
-      requestedSources: ["record", "audit"],
-    });
-    expect(activityWidgetSourcePlan([timelineKindFilter(FilterOperatorKey.in, ["messages"])], ["audit"])).toEqual({
-      availableRequestedSources: [],
-      connectedAccountSources: [],
-      requestedSources: ["message"],
-    });
-  });
-});
 
 describe("accountSupportsActivitySources", () => {
   const messagingAccount = {
@@ -123,7 +47,6 @@ describe("resolveActivityWidgetState", () => {
     [{ ...ready, accountsReady: false }, "loading"],
     [{ ...ready, accountsError: true }, "error"],
     [{ ...ready, itemCount: 0, loadError: true }, "error"],
-    [{ ...ready, itemCount: 0, scopeTruncated: true }, "scopeTooBroad"],
     [{ ...ready, constrained: true, itemCount: 0, requestedSources: [] }, "noMatches"],
     [
       {

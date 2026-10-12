@@ -10,7 +10,7 @@ import { FormLabel } from "@/components/forms/form-label";
 import { AppChip } from "@/components/chip/app-chip";
 import { RecordQueryFilters } from "./record-query-filters";
 
-export type RecordTriggerForm = {
+type RecordTriggerForm = {
   query: NonNullable<RecordEventSubscriptionDefinition["query"]>;
   changedFieldIds: string[];
 };

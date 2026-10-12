@@ -2,23 +2,15 @@ import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 import { restoreFromTrash, deleteFromTrashPermanently } from "./trash";
 import { presetId } from "../../features/records/crm-preset";
-import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { recordChannelsField } from "../../features/records/record-channels";
 import { addChannelsField, addFromConfigure, configureListCard, configureRow, configureTopBar, deleteFromDrawer, deleteSelectedList, followConfigureLink, openConfigure, openConfigureRow, openConfigureTab, openDrawerTab, saveDrawer, saveGeneral, selectConfigureList } from "./configure";
 import { calculationChip, calculationFlow, chooseValueSource, pickFixedValue, pickOption } from "./calculation-flow";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { expect, test, collectPageErrors } from "./fixtures";
+import { readModel } from "./api";
 import { recordItem } from "./record-rows";
 
 async function applyConfiguration(page: Page) {
   await saveDrawer(page);
-}
-
-async function readModel(database: Client, companyId: string) {
-  const result = await database.query(
-    'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1 ORDER BY revision DESC LIMIT 1',
-    [companyId],
-  );
-  return RecordModelSchema.parse(result.rows[0]?.snapshot);
 }
 
 async function openRecordList(page: Page, typeId: string) {
@@ -42,24 +34,13 @@ async function createList(page: Page, name: string) {
   return typeId;
 }
 
-function captureErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
-  return errors;
-}
-
 test("adds Channels as a field, keeps its settings, deletes, restores and permanently deletes it", async ({
   page,
   database,
   companyId,
 }, testInfo) => {
   test.setTimeout(300000);
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   const contactTypeId = presetId(companyId, "contact");
   const dialog = page.getByRole("dialog");
   const confirmation = page.getByRole("alertdialog");
@@ -144,7 +125,7 @@ test("edits a linear calculation and restores deleted fields and a list", async 
   companyId,
 }, testInfo) => {
   test.setTimeout(300000);
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   const name = "Research budgets";
   const typeId = await createList(page, name);
   const dialog = page.getByRole("dialog");

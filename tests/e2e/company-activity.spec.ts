@@ -1,4 +1,4 @@
-import { test, expect, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 
 test("shows admin and configuration history on the workspace activity page and filters it by kind", async ({
   page,
@@ -6,10 +6,7 @@ test("shows admin and configuration history on the workspace activity page and f
   companyId,
 }) => {
   test.setTimeout(180000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
+  const errors = collectPageErrors(page, { console: false });
 
   await page.goto("/en/settings/roles");
   await page.locator("#settings-roles-add").click();

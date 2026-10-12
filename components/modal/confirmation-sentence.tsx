@@ -11,7 +11,7 @@ import { recordTypeIcon } from "@/components/records/record-type-icon";
 import { IntlLink } from "@/i18n/navigation";
 import { sentenceTemplate } from "@/core/utils/sentence-template";
 
-export type ConfirmationChipAction = { label: string; onOpen: (trigger: HTMLElement) => void };
+type ConfirmationChipAction = { label: string; onOpen: (trigger: HTMLElement) => void };
 
 export type ConfirmationChip = {
   label: string;

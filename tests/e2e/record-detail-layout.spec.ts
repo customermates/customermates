@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { test, expect, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails, editFormattedText } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
 
@@ -9,10 +9,7 @@ test("persists personal detail pins, visibility and keyboard order without losin
   companyId,
 }, testInfo) => {
   test.setTimeout(180000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
+  const errors = collectPageErrors(page, { console: false });
   const typeId = presetId(companyId, "organization");
   const nameId = presetId(companyId, "organization.name");
   await page.goto(`/en/records/${typeId}`);
@@ -221,10 +218,7 @@ test("edits header links with the card picker, keeps contact values outside edit
   companyId,
 }) => {
   test.setTimeout(180000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
+  const errors = collectPageErrors(page, { console: false });
   const suffix = randomUUID().slice(0, 6);
   const organization = `Picker org ${suffix}`;
   const firstName = `Picker ${suffix}`;

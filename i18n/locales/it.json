@@ -1818,7 +1818,6 @@
       "noActivity": "Ancora nessuna attività.",
       "noMatches": "Nessuna attività corrisponde ai filtri attuali.",
       "noPermission": "Non hai accesso ad alcuna attività in questo spazio di lavoro.",
-      "scopeTooBroad": "Questi filtri sulle relazioni corrispondono a troppi contatti per un caricamento sicuro. Seleziona meno record.",
       "title": "Attività recenti"
     },
     "addCard": "Aggiungi widget",
@@ -3387,7 +3386,7 @@
     "createSublist": "Nuovo sottoelenco di {list}",
     "currency": "Valuta",
     "decimalPlaces": "Cifre decimali",
-    "decimalPlacesHelp": "Lascia vuoto per usare il formato predefinito. Cambia la visualizzazione dei valori, non il loro calcolo.",
+    "decimalPlacesHelp": "Lascia vuoto per il valore predefinito (gli importi usano l’unità più piccola della valuta). I valori calcolati vengono arrotondati a questi decimali, quelli inseriti vengono mostrati con essi.",
     "defaultValue": "Valore predefinito",
     "deleteRecord": "Elimina {name}",
     "deletion": {

@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { addFromConfigure, openConfigure } from "./configure";
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 
 test("searches custom records across pages, opens generic drawers, and attaches AI context", async ({
@@ -9,13 +9,7 @@ test("searches custom records across pages, opens generic drawers, and attaches 
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   await openConfigure(page);
   await addFromConfigure(page, "List");
   const dialog = page.getByRole("dialog");
