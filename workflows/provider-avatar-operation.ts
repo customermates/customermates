@@ -1,18 +1,26 @@
 import type { WorkflowTenant } from "./workflow-tenant";
-import { getProviderAvatarService } from "@/core/di";
+import { getAdvanceProviderAvatarInteractor } from "@/core/di";
 import { reportFailure, toWorkflowFailure } from "./capture-failure";
 
 export type ProviderAvatarOperationPayload = { companyId: string; operationId: string; tenant?: WorkflowTenant };
 
 async function advance(payload: ProviderAvatarOperationPayload) {
   "use step";
-  return getProviderAvatarService(payload.companyId).advance(payload.operationId);
+  return getAdvanceProviderAvatarInteractor().invoke({
+    companyId: payload.companyId,
+    operationId: payload.operationId,
+    outcome: "advance",
+  });
 }
 advance.maxRetries = 3;
 
 async function fail(payload: ProviderAvatarOperationPayload) {
   "use step";
-  await getProviderAvatarService(payload.companyId).fail(payload.operationId);
+  await getAdvanceProviderAvatarInteractor().invoke({
+    companyId: payload.companyId,
+    operationId: payload.operationId,
+    outcome: "fail",
+  });
 }
 
 export async function providerAvatarOperation(payload: ProviderAvatarOperationPayload) {

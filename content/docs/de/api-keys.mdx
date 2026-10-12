@@ -43,6 +43,17 @@ curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
 
 Der Header `Accept: application/json, text/event-stream` wird vom MCP-Streamable-HTTP-Transport verlangt; ohne ihn liefert der Endpoint `406 Not Acceptable`. Bei MCP-Clients gehört der Key in die Konfiguration des Clients, siehe [CLI- und Editor-Clients](/docs/connect-cli) und [ChatGPT mit einem API-Key](/docs/connect-custom-connector#chatgpt).
 
+Die REST-API nimmt denselben Header. Dieser Aufruf listet die Datensatztypen, auf die Sie zugreifen können:
+
+```bash
+curl -H "x-api-key: $CUSTOMERMATES_API_KEY" \
+     -H "Content-Type: application/json" \
+     <BASE_URL>/api/v1/model/discover \
+     -d '{}'
+```
+
+Alle REST-Operationen mit Request und Response stehen in der [API-Referenz](/docs/openapi).
+
 ## Wie lange ist ein Key gültig, und laufen Keys ab? [#do-keys-expire]
 
 Ein **Standard-API-Key** läuft nur ab, wenn Sie unter **Läuft ab** ein Datum wählen; die Voreinstellung **Läuft nie ab** hält ihn gültig, bis Sie ihn löschen. Ein Datum muss zwischen 1 und 365 Tagen in der Zukunft liegen. Ein Key aus den **Schnellverbindungen** (Schnellverbindungs-Schlüssel), auch aus dem Onboarding-Assistenten, gilt 365 Tage: Er läuft immer 365 Tage nach der Erstellung ab. Das Ablaufdatum lässt sich nicht verlängern: Legen Sie vorher einen neuen Key an und aktualisieren Sie den Client. Jede Key-Karte zeigt **Erstellt am**, **Läuft ab** (**Nie**, wenn kein Datum gesetzt ist) und **Zuletzt verwendet**.

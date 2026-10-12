@@ -1,4 +1,5 @@
 import { TenantRepository } from "@/core/base/tenant-repository";
+import type { RecordSubscriptionConfigurationRepo } from "./record-subscription-configuration.repo";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Prisma } from "@/generated/prisma";
@@ -26,7 +27,10 @@ function deliveryDefinition(subscription: RecordEventSubscriptionDefinition) {
   });
 }
 
-export class PrismaRecordEventSubscriptionRepo extends TenantRepository implements RecordEventSubscriptionRepo {
+export class PrismaRecordEventSubscriptionRepo
+  extends TenantRepository
+  implements RecordEventSubscriptionRepo, RecordSubscriptionConfigurationRepo
+{
   constructor(
     private readonly records: RecordRepo,
     private readonly scopedCompanyId?: string,
@@ -39,7 +43,7 @@ export class PrismaRecordEventSubscriptionRepo extends TenantRepository implemen
   }
 
   @BypassTenantGuard
-  async findCompanyWide(companyId: string, ids: string[]) {
+  async findUnscoped(companyId: string, ids: string[]) {
     if (!ids.length) return [];
     const rows = await this.prisma.recordEventSubscription.findMany({ where: { companyId, id: { in: ids } } });
     return rows.map(({ companyId: _companyId, ...row }) => RecordEventSubscriptionSchema.parse(row));
@@ -76,7 +80,7 @@ export class PrismaRecordEventSubscriptionRepo extends TenantRepository implemen
       (!policy.isAdmin && input.ownerUserId !== this.userId)
     )
       throw new RecordWriteError(CustomErrorCode.permissionDenied, "authorization");
-    const [previous] = await this.findCompanyWide(companyId, [input.id]);
+    const [previous] = await this.findUnscoped(companyId, [input.id]);
     const definitionChanged = !previous || deliveryDefinition(previous) !== deliveryDefinition(input);
     if (state?.activeOperationId && (definitionChanged || (input.enabled && !previous?.enabled)))
       throw new RecordWriteError(CustomErrorCode.recordWritePaused, "conflict");
@@ -117,6 +121,30 @@ export class PrismaRecordEventSubscriptionRepo extends TenantRepository implemen
     await this.prisma.recordEventSubscription.updateMany({
       where: { companyId: this.companyId, id },
       data: { enabled: true, revision: { increment: 1 } },
+    });
+  }
+
+  async getPageCompanyWide(companyId: string, afterId?: string) {
+    return this.prisma.recordEventSubscription.findMany({
+      where: { companyId, ...(afterId ? { id: { gt: afterId } } : {}) },
+      orderBy: { id: "asc" },
+      take: 200,
+    });
+  }
+
+  async rewriteCompanyWide(companyId: string, subscription: RecordEventSubscriptionDefinition): Promise<void> {
+    const { id, typeId, events, changedFieldIds, query, sources, enabled } = subscription;
+    await this.prisma.recordEventSubscription.updateMany({
+      where: { companyId, id },
+      data: {
+        typeId,
+        events,
+        changedFieldIds,
+        query: query === null ? Prisma.DbNull : (query as Prisma.InputJsonValue),
+        sources: sources?.length ? (sources as Prisma.InputJsonValue) : Prisma.DbNull,
+        enabled,
+        revision: { increment: 1 },
+      },
     });
   }
 }

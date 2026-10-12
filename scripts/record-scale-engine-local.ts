@@ -58,7 +58,7 @@ const [
 ] = await Promise.all([
   import("../prisma/db"),
   import("../core/decorators/tenant-context"),
-  import("../features/records/prisma-record.repository"),
+  import("../tests/helpers/record-repository"),
   import("../features/user/prisma-user.repository"),
   import("../features/records/record-access"),
   import("../features/records/record-calculation.service"),
@@ -93,17 +93,24 @@ try {
   );
   const user = TenantUserSchema.parse(actor);
   const run = <T>(work: () => Promise<T>) => context.runWithTenant(user, work);
-  const repo = new repository.PrismaRecordRepo();
+  const repo = repository.createTestRecordRepo();
   const { PermissionService } = await import("../core/base/permission.service");
   const { WebhookPauseNotifier } = await import("../features/webhook/webhook-pause-notifier");
   const policy = new access.RecordAccessPolicy(new users.PrismaUserRepo(new PermissionService()), repo);
   const calculator = new calculations.RecordCalculationService(repo);
   const writer = new writes.RecordWriteService(repo, policy, calculator);
-  const mutate = new mutations.MutateRecordInteractor(repo, policy, writer, {
-    dispatch: () => {
-      throw new Error("Ordinary scale writes unexpectedly require background execution");
+  const { RecordTrashService } = await import("../features/records/record-trash.service");
+  const mutate = new mutations.MutateRecordInteractor(
+    repo,
+    policy,
+    writer,
+    {
+      dispatch: () => {
+        throw new Error("Ordinary scale writes unexpectedly require background execution");
+      },
     },
-  });
+    new RecordTrashService(repo),
+  );
   const query = new queries.QueryRecordsInteractor(repo, policy);
   const { GetRecordInteractor } = await import("../features/records/get-record.interactor");
   const read = new GetRecordInteractor(repo, policy);
@@ -348,7 +355,14 @@ try {
     const targetType = configuredModel.types.find((type) => type.label === targetLabel);
     if (!sourceType || !targetType) throw new Error("Benchmark types are missing");
     const background = { dispatch: async () => {} };
-    const stagedMutate = new mutations.MutateRecordInteractor(repo, policy, writer, background);
+    const { RecordTrashService } = await import("../features/records/record-trash.service");
+    const stagedMutate = new mutations.MutateRecordInteractor(
+      repo,
+      policy,
+      writer,
+      background,
+      new RecordTrashService(repo),
+    );
     const source = unwrap(
       await run(() =>
         stagedMutate.invoke({

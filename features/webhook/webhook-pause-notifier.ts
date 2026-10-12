@@ -8,18 +8,23 @@ export class WebhookPauseNotifier {
   constructor(
     private webhooks: Pick<UpsertWebhookRepo, "getWebhookByIdOrThrow">,
     private events: Pick<EventService, "publish">,
+    private systemCompanyId?: string,
   ) {}
 
   async notify(ids: string[]) {
     for (const id of ids) {
       const webhook = await this.webhooks.getWebhookByIdOrThrow(id);
-      await this.events.publish(DomainEvent.WEBHOOK_UPDATED, {
-        entityId: id,
-        payload: {
-          webhook: toWebhookEventPayload(webhook),
-          changes: calculateWebhookChanges({ ...webhook, enabled: true, pausedReason: null }, webhook),
+      await this.events.publish(
+        DomainEvent.WEBHOOK_UPDATED,
+        {
+          entityId: id,
+          payload: {
+            webhook: toWebhookEventPayload(webhook),
+            changes: calculateWebhookChanges({ ...webhook, enabled: true, pausedReason: null }, webhook),
+          },
         },
-      });
+        this.systemCompanyId === undefined ? undefined : { systemCompanyId: this.systemCompanyId },
+      );
     }
   }
 }

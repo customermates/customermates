@@ -24,18 +24,19 @@ const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { WebhookPauseNotifier } = await import("@/features/webhook/webhook-pause-notifier");
-const { PrismaRecordRepo } = await import("../prisma-record.repository");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
 const { RecordWriteService } = await import("../record-write.service");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
+const { RecordTrashService } = await import("../record-trash.service");
 const { QueryRecordsInteractor } = await import("../query-records.interactor");
 const { ApplyRecordConfigurationInteractor } = await import("../configure-records.interactor");
 const { RecordConfigurationService } = await import("../configuration.service");
 const { RecordConfigurationWriter } = await import("../record-configuration-writer");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 const { serializeJSONToMarkdown } = await import("@/components/editor/editor.utils");
+const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -60,7 +61,7 @@ async function fixture() {
     return { company, role, user };
   });
   const admin = createMockUser({ ...seed.user, role: { ...seed.role, permissions: [] } });
-  const repo = new PrismaRecordRepo();
+  const repo = createTestRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const calculations = new RecordCalculationService(repo);
   const background = { dispatch: () => Promise.resolve() };
@@ -69,6 +70,7 @@ async function fixture() {
     policy,
     new RecordWriteService(repo, policy, calculations),
     background,
+    new RecordTrashService(repo),
   );
   const query = new QueryRecordsInteractor(repo, policy);
   const configure = new ApplyRecordConfigurationInteractor(
@@ -342,7 +344,7 @@ describeDatabase("record field append", () => {
       }),
     );
     expect(result).toMatchObject({ ok: true });
-    const model = await f.run(() => new PrismaRecordRepo().getModel());
+    const model = await f.run(() => createTestRecordRepo().getModel());
     const type = model.types.find((candidate) => candidate.label === "Project");
     expect(model.fields.filter((field) => field.typeId === type?.id).map((field) => field.valueType)).toEqual(["text"]);
   });

@@ -1,4 +1,5 @@
 import { RECORD_EVENT_KINDS, type RecordEventKind } from "@/features/records/record-event.schema";
+import type { RecordWebhookConfigurationRepo } from "./record-webhook-configuration.repo";
 import type { PermissionService } from "@/core/base/permission.service";
 import type { RecordEventSubscriptionRepo } from "@/features/records/record-event-subscription.repo";
 import {
@@ -27,18 +28,29 @@ import { WEBHOOK_MASKED_VALUE } from "./webhook.schema";
 
 export class PrismaWebhookRepo
   extends QueryRepository<Prisma.WebhookWhereInput>
-  implements GetWebhooksRepo, UpsertWebhookRepo, DeleteWebhookRepo, FindWebhooksByIdsRepo, GetWebhookByIdRepo
+  implements
+    GetWebhooksRepo,
+    UpsertWebhookRepo,
+    DeleteWebhookRepo,
+    FindWebhooksByIdsRepo,
+    GetWebhookByIdRepo,
+    RecordWebhookConfigurationRepo
 {
   constructor(
     private readonly subscriptions: RecordEventSubscriptionRepo,
     private readonly permissions: PermissionService,
+    private readonly scopedCompanyId?: string,
   ) {
     super();
   }
 
+  override get companyId(): string {
+    return this.scopedCompanyId ?? super.companyId;
+  }
+
   private async withRecordSubscriptions(rows: WebhookDto[]): Promise<WebhookDto[]> {
     const ids = rows.filter((row) => row.events.some((event) => event.startsWith("record."))).map((row) => row.id);
-    const subscriptions = await this.subscriptions.findCompanyWide(this.companyId, ids);
+    const subscriptions = await this.subscriptions.findUnscoped(this.companyId, ids);
     const byId = new Map(subscriptions.filter((row) => row.kind === "webhook").map((row) => [row.id, row]));
     return rows.map((row) => {
       const subscription = byId.get(row.id);
@@ -157,7 +169,7 @@ export class PrismaWebhookRepo
     const headers = parseStoredWebhookHeaders(row.headers);
     const webhook = { ...row, headers: Object.keys(headers).length > 0 ? headers : null } as WebhookDto;
 
-    if (this.permissions.has(Resource.api, Action.update)) return webhook;
+    if (this.scopedCompanyId === undefined && this.permissions.has(Resource.api, Action.update)) return webhook;
 
     return {
       ...webhook,
@@ -275,7 +287,7 @@ export class PrismaWebhookRepo
   }
 
   async getWebhookByIdOrThrow(id: string) {
-    const { companyId } = this.user;
+    const companyId = this.companyId;
 
     const webhook = await this.prisma.webhook.findFirstOrThrow({
       where: { id, companyId },
@@ -307,5 +319,30 @@ export class PrismaWebhookRepo
     });
 
     return new Set(webhooks.map((webhook) => webhook.id));
+  }
+
+  async getLabelsCompanyWide(companyId: string, ids: string[]) {
+    return this.prisma.webhook.findMany({
+      where: { companyId, id: { in: ids } },
+      select: { id: true, url: true, description: true },
+    });
+  }
+
+  async replaceRecordEventsCompanyWide(companyId: string, id: string, events: string[], pause: boolean) {
+    const webhook = await this.prisma.webhook.findFirst({
+      where: { companyId, id },
+      select: { events: true, enabled: true },
+    });
+    if (!webhook) return null;
+    const paused = pause && webhook.enabled;
+    const kept = webhook.events.filter((event) => !(RECORD_EVENT_KINDS as readonly string[]).includes(event));
+    await this.prisma.webhook.updateMany({
+      where: { companyId, id },
+      data: {
+        events: [...kept, ...events],
+        ...(paused ? { enabled: false, pausedReason: "triggerFieldDeleted" } : {}),
+      },
+    });
+    return { paused };
   }
 }

@@ -25,7 +25,8 @@ import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/edito
 import { scalarMatchesType, selectedOptionIds } from "./record-model-validation";
 import { valueResult } from "./calculation";
 import { decodeRecordValue } from "./record-storage";
-import { RecordCalculationService, recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
+import type { RecordCalculationService } from "./record-calculation.service";
+import { recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import type { RecordIdentityInput } from "./record-identity.schema";
 import { identityKeys, normalizedIdentity, normalizedIdentityAssociation } from "./record-identity";
 import { channelClass } from "@/ee/messaging/provider";
@@ -143,7 +144,7 @@ export class RecordWriteService {
   ) {}
 
   withRepository(records: RecordRepo): RecordWriteService {
-    return new RecordWriteService(records, this.policy, new RecordCalculationService(records));
+    return new RecordWriteService(records, this.policy, this.calculations.withRepository(records));
   }
 
   async planDeletion(

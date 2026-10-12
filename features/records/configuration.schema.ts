@@ -105,66 +105,64 @@ type ConfigurationExpression =
         | "daysBetween";
       arguments: ConfigurationExpression[];
     };
-const ExpressionSchema: z.ZodType<ConfigurationExpression> = z
-  .lazy(() =>
-    z.discriminatedUnion("kind", [
-      z
-        .object({
-          kind: z.literal("literal"),
-          value: RecordScalarSchema.nullable(),
-        })
-        .strict(),
-      z
-        .object({
-          kind: z.literal("field"),
-          fieldId: ConfigurationReferenceSchema,
-        })
-        .strict(),
-      z
-        .object({
-          kind: z.literal("optionAttribute"),
-          fieldId: ConfigurationReferenceSchema,
-          attribute: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]{0,63}$/),
-        })
-        .strict(),
-      z
-        .object({
-          kind: z.literal("related"),
-          relationId: ConfigurationReferenceSchema,
-          direction: z.enum(["outgoing", "incoming"]),
-          expression: ExpressionSchema,
-          reducer: z.enum(["one", "sum", "count", "average", "min", "max"]),
-        })
-        .strict(),
-      z
-        .object({
-          kind: z.literal("operation"),
-          operator: z.enum([
-            "add",
-            "subtract",
-            "multiply",
-            "divide",
-            "equal",
-            "lessThan",
-            "greaterThan",
-            "and",
-            "or",
-            "not",
-            "if",
-            "coalesce",
-            "concat",
-            "lower",
-            "upper",
-            "trim",
-            "daysBetween",
-          ]),
-          arguments: z.array(ExpressionSchema).min(1).max(32),
-        })
-        .strict(),
-    ]),
-  )
-  .meta({ id: "CalculationExpressionInput" });
-const BoundedExpressionSchema = ExpressionBudgetSchema.pipe(ExpressionSchema);
+export const CalculationExpressionInputSchema: z.ZodType<ConfigurationExpression> = z.lazy(() =>
+  z.discriminatedUnion("kind", [
+    z
+      .object({
+        kind: z.literal("literal"),
+        value: RecordScalarSchema.nullable(),
+      })
+      .strict(),
+    z
+      .object({
+        kind: z.literal("field"),
+        fieldId: ConfigurationReferenceSchema,
+      })
+      .strict(),
+    z
+      .object({
+        kind: z.literal("optionAttribute"),
+        fieldId: ConfigurationReferenceSchema,
+        attribute: z.string().regex(/^[a-zA-Z][a-zA-Z0-9_]{0,63}$/),
+      })
+      .strict(),
+    z
+      .object({
+        kind: z.literal("related"),
+        relationId: ConfigurationReferenceSchema,
+        direction: z.enum(["outgoing", "incoming"]),
+        expression: CalculationExpressionInputSchema,
+        reducer: z.enum(["one", "sum", "count", "average", "min", "max"]),
+      })
+      .strict(),
+    z
+      .object({
+        kind: z.literal("operation"),
+        operator: z.enum([
+          "add",
+          "subtract",
+          "multiply",
+          "divide",
+          "equal",
+          "lessThan",
+          "greaterThan",
+          "and",
+          "or",
+          "not",
+          "if",
+          "coalesce",
+          "concat",
+          "lower",
+          "upper",
+          "trim",
+          "daysBetween",
+        ]),
+        arguments: z.array(CalculationExpressionInputSchema).min(1).max(32),
+      })
+      .strict(),
+  ]),
+);
+const BoundedExpressionSchema = ExpressionBudgetSchema.pipe(CalculationExpressionInputSchema);
 export function configurationSchemaWithExpression<T extends z.ZodType>(expressionSchema: T, trashOperations = false) {
   const ValidatedBehaviorSchema = z.discriminatedUnion("kind", [
     z
@@ -340,7 +338,7 @@ export function configurationSchemaWithExpression<T extends z.ZodType>(expressio
 }
 export const ConfigurationChangeSchema = configurationSchemaWithExpression(BoundedExpressionSchema, true);
 export const PublicConfigurationChangeSchema = configurationSchemaWithExpression(BoundedExpressionSchema);
-export const ConfigurationContractSchema = configurationSchemaWithExpression(ExpressionSchema);
+export const ConfigurationContractSchema = configurationSchemaWithExpression(CalculationExpressionInputSchema);
 export type ConfigurationChange = z.infer<typeof ConfigurationChangeSchema>;
 export const ConfigurationPreviewSchema = z
   .object({

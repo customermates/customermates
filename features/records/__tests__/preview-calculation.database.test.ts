@@ -26,14 +26,15 @@ const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { PermissionService } = await import("@/core/base/permission.service");
-const { PrismaRecordRepo } = await import("../prisma-record.repository");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
 const { RecordWriteService } = await import("../record-write.service");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
+const { RecordTrashService } = await import("../record-trash.service");
 const { PreviewCalculationInteractor } = await import("../preview-calculation.interactor");
 const { createCrmPreset, presetId } = await import("../crm-preset");
+const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 
@@ -41,13 +42,19 @@ describeDatabase("Calculation preview", { timeout: 240_000 }, () => {
   let companyId = "";
   const id = (key: string) => presetId(companyId, key);
   const actors: Record<"admin" | "schema" | "reader", TenantUser> = {} as never;
-  const repo = new PrismaRecordRepo();
+  const repo = createTestRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const calculations = new RecordCalculationService(repo);
   const preview = new PreviewCalculationInteractor(repo, policy, calculations);
-  const mutate = new MutateRecordInteractor(repo, policy, new RecordWriteService(repo, policy, calculations), {
-    dispatch: () => Promise.resolve(),
-  });
+  const mutate = new MutateRecordInteractor(
+    repo,
+    policy,
+    new RecordWriteService(repo, policy, calculations),
+    {
+      dispatch: () => Promise.resolve(),
+    },
+    new RecordTrashService(repo),
+  );
   const recordIds: string[] = [];
 
   beforeAll(async () => {

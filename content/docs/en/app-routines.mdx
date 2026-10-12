@@ -34,7 +34,7 @@ Each user has their own allowance: Starter includes [[commercial.entitlement.sta
 | Consecutive failed runs | 3 | The routine pauses itself and shows the reason; the owner switches it back on after fixing the cause |
 | Shortest schedule interval | 15 minutes | A more frequent schedule is rejected on save |
 | Run history | 90 days | Older runs are removed |
-| Event debounce | 300 seconds by default, 0 to 86,400, set only through Mate or MCP | Further matching events within the window after a run starts are ignored |
+| Event debounce | 300 seconds by default, 0 to 86,400, set only through Mate, MCP or the REST API | Further matching events within the window after a run starts are ignored |
 
 Skipped runs do not count against the hourly cap.
 
@@ -42,11 +42,11 @@ Skipped runs do not count against the hourly cap.
 
 In [Routines](app:routines), open a routine or click [Add](app:routines?focus=add), then under **Repeats** choose **Every 15 minutes**, **Every 30 minutes**, **Every hour**, **Every day**, **Every week** or **Every month**, plus the weekday, day of the month (1 to 28) or time in five-minute steps where needed. The default is every day at 09:00. For hourly and longer presets the schedule is spelled out underneath, followed by **Times are shown in** and the time zone, which comes from the browser the routine was created in (UTC if unknown).
 
-A schedule that fits no preset, for example weekdays only, and a different time zone can be set only through Mate or an MCP client; the dialog then shows **This routine uses a custom schedule** with **Switch to a preset**. The scheduler checks every five minutes, so a run may start a few minutes late, and a run still queued after two minutes is dispatched again.
+A schedule that fits no preset, for example weekdays only, and a different time zone can be set only through Mate, an MCP client or the REST API; the dialog then shows **This routine uses a custom schedule** with **Switch to a preset**. The scheduler checks every five minutes, so a run may start a few minutes late, and a run still queued after two minutes is dispatched again.
 
 ## How do event triggers work, for example to run a routine when a deal changes? [#how-do-event-triggers-work]
 
-Under **Events**, pick one or more events: every record and messaging event a [webhook](/docs/webhooks#which-events-exist) can subscribe to, except Email Deleted and Chat Deleted. Changes made in the app, in a Mate chat, over the API or over MCP trigger routines; changes a routine run makes never do, so routines cannot chain or loop.
+Under **Events**, pick one or more events: every record and messaging event a [webhook](/docs/webhooks#which-events-exist) can subscribe to, except Record deleted permanently, Email Deleted and Chat Deleted. Changes made in the app, in a Mate chat, over the API or over MCP trigger routines; changes a routine run makes never do, so routines cannot chain or loop.
 
 Two optional controls keep a routine from spending credits on cases you do not care about:
 
@@ -89,4 +89,4 @@ In a chat, Mate can list routines, read run history, create, update and pause ro
 
 ## For agents [#tips-for-agents]
 
-Use `manage_routines`. A custom schedule is a five-field cron expression, for example `0 9 * * 1-5`. Run statuses come back as `queued`, `running`, `succeeded`, `partial`, `failed`, `skipped` and `blocked`. The `pause` action needs the **Admin** role even on your own routine; an owner without it pauses by updating with `enabled: false`. Event names are the webhook event names, without `messaging.email.deleted` and `messaging.chat.deleted`.
+Use `manage_routines`. A custom schedule is a five-field cron expression, for example `0 9 * * 1-5`. Run statuses come back as `queued`, `running`, `succeeded`, `partial`, `failed`, `skipped` and `blocked`. The `pause` action needs the **Admin** role even on your own routine; an owner without it pauses by updating with `enabled: false`. Event names are the webhook event names, without `record.deletedPermanently`, `messaging.email.deleted` and `messaging.chat.deleted`. Record filters go in `recordTrigger.query.filters`; a routine that follows several lists uses `recordSources` instead, up to 50 sources, each with its own `query`, `changedFieldIds` and `events`, and cannot combine it with `recordTrigger`. The former `triggerFilters` setting no longer exists. Over REST, routines live under `/api/v1/routines/`: `list`, `read`, `runs`, `create`, `update`, `pause`, `resume`, `run` and `delete`.

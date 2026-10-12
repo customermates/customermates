@@ -5,7 +5,7 @@ import { randomUUID } from "node:crypto";
 import { valueResult } from "./calculation";
 import type { MembershipTaskRepo } from "./membership-task.repo";
 import type { RecordAccessPolicy } from "./record-access";
-import { RecordCalculationService, recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
+import { recordKey, SYNCHRONOUS_RECORD_LIMIT, type RecordCalculationService } from "./record-calculation.service";
 import { recordInvariant } from "./record-invariant";
 import { RecordJournal } from "./record-journal";
 import type { RecordRef } from "./record-model.schema";
@@ -17,6 +17,7 @@ export class MembershipTaskService extends UserAccessor {
     private records: RecordRepo,
     private tasks: MembershipTaskRepo,
     private policy: RecordAccessPolicy,
+    private calculations: RecordCalculationService,
   ) {
     super();
   }
@@ -104,7 +105,9 @@ export class MembershipTaskService extends UserAccessor {
         seeds.set(recordKey(ref), ref);
         await records.delete(ref);
       }
-      const calculated = await new RecordCalculationService(records).recalculate(model, [...seeds.values()], captures);
+      const calculated = await this.calculations
+        .withRepository(records)
+        .recalculate(model, [...seeds.values()], captures);
       if (!calculated.complete) throw new RecordWriteError(CustomErrorCode.recordCalculationBudget, "conflict");
       const deleted = new Set((remove ? existing : []).map(recordKey));
       for (const ref of calculated.changed) seeds.set(recordKey(ref), ref);

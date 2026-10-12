@@ -43,8 +43,6 @@ const ALLOWLIST: Record<string, string> = {
     "Transaction control: catalog sync advisory lock keyed by the workspace companyId; its writes use scopeFilter",
   "features/command-palette/prisma-search-catalog.repository.ts:PrismaSearchCatalogRepo.semanticIndexAvailable":
     "information_schema probe for an optional column; reads no tenant rows",
-  "features/command-palette/prisma-search-catalog.repository.ts:PrismaSearchCatalogRepo.storedStaticEntries":
-    "Static search catalog: rows with companyId IS NULL shared by every workspace",
   "features/command-palette/prisma-search-catalog.repository.ts:PrismaSearchCatalogRepo.writeStaticCatalog":
     "Static search catalog: global sync lock and companyId IS NULL rows shared by every workspace",
   "features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.pendingEmbeddings":
@@ -81,7 +79,7 @@ const ALLOWLIST: Record<string, string> = {
   "prisma/seeds/run.ts:runSyntheticSeed":
     "Seed scheduler fix-up: resets the global AgentMessage sequence after inserting fixtures",
 };
-const ALLOWLIST_CEILING = 31;
+const ALLOWLIST_CEILING = 30;
 
 type RawCall = { site: string; line: number; evidence: string };
 

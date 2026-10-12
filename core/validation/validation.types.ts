@@ -62,6 +62,7 @@ export enum CustomErrorCode {
   customFieldInvalidDate = "customFieldInvalidDate",
   widgetKindImmutable = "widgetKindImmutable",
   widgetDisplayTypeUnsupported = "widgetDisplayTypeUnsupported",
+  widgetLayoutChanged = "widgetLayoutChanged",
   widgetLayoutOverlap = "widgetLayoutOverlap",
   widgetLayoutTooSmall = "widgetLayoutTooSmall",
   userNotFound = "userNotFound",

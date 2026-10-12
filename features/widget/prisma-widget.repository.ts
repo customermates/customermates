@@ -1,7 +1,6 @@
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import deepEqual from "fast-deep-equal";
 import { recordJson } from "@/features/records/record-storage";
-import type { RepoArgs } from "@/core/utils/types";
 import type { DeleteWidgetRepo } from "./delete-widget.repo";
 import type { FindWidgetsByIdsRepo } from "./find-widgets-by-ids.repo";
 import type { GetCompanyWidgetsRepo } from "./get-company-widgets.interactor";
@@ -10,13 +9,18 @@ import type { GetWidgetsRepo } from "./get-widgets.repo";
 import type { FindOwnedWidgetKindRepo } from "./find-owned-widget-kind.repo";
 import { RecordActivityWidgetDtoSchema } from "./record-activity-widget.schema";
 import { RecordWidgetDtoSchema } from "./record-widget.schema";
-import type { UpdateWidgetLayoutsRepo } from "./update-widget-layouts.repo";
-import type { WidgetDto, WidgetLayout } from "./widget.schema";
+import type { UpdateWidgetLayoutsRepo, WidgetLayoutTarget, WidgetLayoutWrite } from "./update-widget-layouts.repo";
+import type { SavedWidgetLayout } from "./update-widget-layouts.interactor";
+import type { WidgetPlacementRow } from "./widget-placement";
+import { listWidgetPlacements } from "./widget-placement";
+import { WidgetLayoutSchema } from "./widget-display.schema";
+import type { WidgetDto } from "./widget.schema";
+import type { RecordWidgetConfigurationRepo, RecordWidgetConfigurationRow } from "./record-widget-configuration.repo";
+import type { OwnedWidgetWrite, OwnedWidgetWriteRepo } from "./owned-widget-write.repo";
+import type { ViewWidgetPurgeRepo } from "./view-widget-purge.repo";
 
-import type { Prisma } from "@/generated/prisma";
-import { WidgetKind } from "@/generated/prisma";
+import { Prisma, WidgetKind } from "@/generated/prisma";
 
-import { BREAKPOINTS } from "@/constants/breakpoints";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { getRecordActivityWidgetReader, getRecordWidgetReader } from "@/core/di";
@@ -31,6 +35,9 @@ export class PrismaWidgetRepo
     GetWidgetByIdRepo,
     UpdateWidgetLayoutsRepo,
     FindWidgetsByIdsRepo,
+    RecordWidgetConfigurationRepo,
+    OwnedWidgetWriteRepo,
+    ViewWidgetPurgeRepo,
     FindOwnedWidgetKindRepo
 {
   constructor(private readonly scopedCompanyId?: string) {
@@ -189,16 +196,6 @@ export class PrismaWidgetRepo
     }));
   }
 
-  async getWidgetKind(id: string) {
-    const { id: userId, companyId } = this.user;
-    const widget = await this.prisma.widget.findFirst({
-      where: { id, companyId, OR: [{ userId }, { isTemplate: true }], ...LIVE_WIDGET },
-      select: { kind: true },
-    });
-
-    return widget?.kind ?? null;
-  }
-
   async findOwnedWidgetKind(id: string): Promise<WidgetKind | null> {
     const row = await this.prisma.widget.findFirst({
       where: { id, companyId: this.companyId, userId: this.user.id, ...LIVE_WIDGET },
@@ -229,40 +226,78 @@ export class PrismaWidgetRepo
   }
 
   @Transaction
-  async updateWidgetLayouts(args: RepoArgs<UpdateWidgetLayoutsRepo, "updateWidgetLayouts">) {
+  async findLayoutTargets(ids: string[]): Promise<WidgetLayoutTarget[]> {
+    if (!ids.length) return [];
     const { id: userId, companyId } = this.user;
-    const widgetIds = new Set<string>();
-
-    BREAKPOINTS.forEach((breakpoint) => args.layouts[breakpoint].forEach((layoutItem) => widgetIds.add(layoutItem.i)));
-
-    const widgets = await this.prisma.widget.findMany({
-      where: {
-        id: { in: Array.from(widgetIds) },
-        companyId,
-        userId,
-        ...LIVE_WIDGET,
-      },
-      select: { id: true, layout: true },
+    const rows = await this.prisma.widget.findMany({
+      where: { companyId, userId, id: { in: ids }, ...LIVE_WIDGET },
+      select: { id: true, kind: true, layout: true, version: true, viewId: true },
     });
+    return rows.map((row) => {
+      const layout = WidgetLayoutSchema.safeParse(row.layout);
+      return { ...row, layout: layout.success ? layout.data : null };
+    });
+  }
 
-    const results = await Promise.all(
-      widgets.map(async (widget) => {
-        const layout: WidgetLayout = {
-          xs: args.layouts.xs.find((l) => l.i === widget.id),
-          sm: args.layouts.sm.find((l) => l.i === widget.id),
-          md: args.layouts.md.find((l) => l.i === widget.id),
-          lg: args.layouts.lg.find((l) => l.i === widget.id),
-        };
-        if (deepEqual(widget.layout, recordJson(layout))) return null;
+  listLayoutPlacements(viewId: string | null): Promise<WidgetPlacementRow[]> {
+    const { id: userId, companyId } = this.user;
+    return listWidgetPlacements(this.prisma, companyId, userId, viewId);
+  }
 
-        const saved = await this.prisma.widget.update({
-          where: { id: widget.id, companyId, userId, deletedAt: null },
-          data: { layout, version: { increment: 1 } },
-          select: { id: true, version: true },
-        });
-        return { ...saved, layout };
-      }),
-    );
-    return results.filter((result) => result !== null);
+  async saveWidgetLayouts(writes: WidgetLayoutWrite[]): Promise<SavedWidgetLayout[] | null> {
+    const { id: userId, companyId } = this.user;
+    const saved: SavedWidgetLayout[] = [];
+    for (const write of writes) {
+      if (deepEqual(write.current, recordJson(write.layout))) continue;
+      const { count } = await this.prisma.widget.updateMany({
+        where: { companyId, id: write.id, userId, version: write.expectedVersion, ...LIVE_WIDGET },
+        data: { layout: write.layout, version: { increment: 1 } },
+      });
+      if (count === 0) return null;
+      saved.push({ id: write.id, version: write.expectedVersion + 1, layout: write.layout });
+    }
+    return saved;
+  }
+
+  async saveOwnedWidget({ companyId, userId, id, update, data }: OwnedWidgetWrite) {
+    return update
+      ? this.prisma.widget.update({
+          where: { id, companyId, userId, version: update.expectedVersion, deletedAt: null },
+          data: { ...data, version: { increment: 1 } },
+        })
+      : this.prisma.widget.create({ data: { ...data, id, companyId, userId } });
+  }
+
+  async purgeOnTrashedViewsCompanyWide(companyId: string, viewIds: string[]): Promise<void> {
+    await this.prisma.widget.deleteMany({
+      where: { companyId, viewId: { in: viewIds }, view: { is: { deletedAt: { not: null } } } },
+    });
+  }
+
+  async getActivityQueriesCompanyWide(companyId: string, afterId?: string): Promise<RecordWidgetConfigurationRow[]> {
+    const rows = await this.prisma.widget.findMany({
+      where: { companyId, activityQuery: { not: Prisma.AnyNull }, ...(afterId ? { id: { gt: afterId } } : {}) },
+      select: { id: true, name: true, activityQuery: true, deletedAt: true, view: { select: { deletedAt: true } } },
+      orderBy: { id: "asc" },
+      take: 200,
+    });
+    return rows.map(({ activityQuery, ...row }) => ({ ...row, definition: activityQuery }));
+  }
+
+  async getMeasuresCompanyWide(companyId: string, afterId?: string): Promise<RecordWidgetConfigurationRow[]> {
+    const rows = await this.prisma.widget.findMany({
+      where: { companyId, measure: { not: Prisma.AnyNull }, ...(afterId ? { id: { gt: afterId } } : {}) },
+      select: { id: true, name: true, measure: true, deletedAt: true, view: { select: { deletedAt: true } } },
+      orderBy: { id: "asc" },
+      take: 200,
+    });
+    return rows.map(({ measure, ...row }) => ({ ...row, definition: measure }));
+  }
+
+  async rewriteMeasureCompanyWide(companyId: string, id: string, measure: Prisma.InputJsonValue): Promise<void> {
+    await this.prisma.widget.updateMany({
+      where: { companyId, id },
+      data: { measure, version: { increment: 1 } },
+    });
   }
 }

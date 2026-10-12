@@ -88,6 +88,7 @@ describeDatabase("widget REST routes on PostgreSQL", () => {
       { id: berlin, viewId },
     ]);
     expect(widgets.every((widget) => widget.layout?.lg)).toBe(true);
+    const versions = Object.fromEntries(widgets.map((widget) => [widget.id, widget.version]));
 
     const moved = await postAs(w, w.admin, routes.layout, {
       layouts: {
@@ -99,6 +100,7 @@ describeDatabase("widget REST routes on PostgreSQL", () => {
           { i: berlin, x: 0, y: 0, w: 6, h: 3 },
         ],
       },
+      expectedVersions: versions,
     });
     expect(moved.status).toBe(200);
     expect(moved.body.map((saved: { id: string }) => saved.id).sort()).toEqual([main, berlin].sort());
@@ -110,8 +112,15 @@ describeDatabase("widget REST routes on PostgreSQL", () => {
 
     const overflowing = await postAs(w, w.admin, routes.layout, {
       layouts: { xs: [], sm: [], md: [], lg: [{ i: main, x: 8, y: 0, w: 6, h: 2 }] },
+      expectedVersions: { [main]: (versions[main] ?? 0) + 1 },
     });
     expect(overflowing).toMatchObject({ status: 400, body: { error: { kind: "validation" } } });
+
+    const stale = await postAs(w, w.admin, routes.layout, {
+      layouts: { xs: [], sm: [], md: [], lg: [{ i: main, x: 0, y: 0, w: 6, h: 2 }] },
+      expectedVersions: { [main]: versions[main] },
+    });
+    expect(stale).toMatchObject({ status: 409, body: { error: { kind: "conflict" } } });
 
     const removed = await postAs(w, w.admin, routes.remove, { id: berlin });
     expect(removed).toMatchObject({ status: 200, body: { id: berlin, trashBatchId: expect.any(String) } });
@@ -134,8 +143,9 @@ describeDatabase("widget REST routes on PostgreSQL", () => {
       expect(removed.body.error.kind).toBe("not_found");
       const moved = await postAs(tenant, user, routes.layout, {
         layouts: everywhere(owned, { x: 6, y: 9, w: 6, h: 2 }),
+        expectedVersions: { [owned]: before.version },
       });
-      expect(moved).toEqual({ status: 200, body: [] });
+      expect(moved).toMatchObject({ status: 409, body: { error: { kind: "conflict" } } });
     }
 
     expect(await listed(w, w.admin)).toEqual([

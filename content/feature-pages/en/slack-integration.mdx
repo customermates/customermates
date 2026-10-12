@@ -58,7 +58,7 @@ The pattern is always the same: Customermates fires a webhook, your automation t
 
 The reverse direction runs through the REST API or MCP, again driven by your automation tool.
 
-**Create records from Slack.** A Slack shortcut or slash command triggers your workflow, which discovers the type and field IDs with `POST /api/v1/model/discover`, then calls `POST /api/v1/records/mutate` with a create mutation and an `x-api-key` header. The same contract works for the five starter types and customer-created types.
+**Create records from Slack.** A Slack shortcut or slash command triggers your workflow, which finds the type with `POST /api/v1/model/discover` and its field IDs with `POST /api/v1/model/read`, then calls `POST /api/v1/records/mutate` with a create mutation and an `x-api-key` header. The same contract works for the five starter types and customer-created types.
 
 **Update records from Slack.** Call `POST /api/v1/records/mutate` with an update mutation and the record's current version. Use its link or unlink mutation to change a relationship. The MCP equivalent is `mutate_crm_record`.
 

@@ -1,4 +1,5 @@
 import type { PermissionService } from "@/core/base/permission.service";
+import type { RecordMemberRepo } from "./record-member.repo";
 import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import type { RepoArgs } from "@/core/utils/types";
 import type { GetOnboardingWizardProgressRepo } from "@/features/onboarding-wizard/get-onboarding-wizard-progress.repo";
@@ -64,7 +65,8 @@ export class PrismaUserRepo
     WebhookUserRepo,
     SendLegalDocumentNoticesRepo,
     ExpireAdAttributionRepo,
-    WithdrawAdAttributionRepo
+    WithdrawAdAttributionRepo,
+    RecordMemberRepo
 {
   constructor(private readonly permissions: PermissionService) {
     super();
@@ -749,5 +751,12 @@ export class PrismaUserRepo
       select: { id: true },
     });
     return users.map((user) => user.id);
+  }
+
+  async getRecordMembersCompanyWide(companyId: string, userIds: string[]) {
+    return this.prisma.user.findMany({
+      where: { companyId, id: { in: [...new Set(userIds)] } },
+      select: { id: true, firstName: true, lastName: true, avatarUrl: true },
+    });
   }
 }

@@ -92,7 +92,7 @@ test("keeps separate widget sets per dashboard view and targets a view through t
           },
           displayOptions: { displayType: "number" },
           viewId: target,
-          layout: { x: 6, y: 0, w: 3, h: 3 },
+          layout: { x: 6, y: 0, w: 3, h: 2 },
         },
       }),
     );
@@ -100,7 +100,7 @@ test("keeps separate widget sets per dashboard view and targets a view through t
   expect(placed.status(), await placed.text()).toBe(200);
   expect(await placed.json()).toMatchObject({
     viewId,
-    layout: { lg: { x: 6, y: 0, w: 3, h: 3 } },
+    layout: { lg: { x: 6, y: 0, w: 3, h: 2 } },
   });
   const unknown = await save("Nowhere", randomUUID());
   expect(unknown.status()).toBe(404);

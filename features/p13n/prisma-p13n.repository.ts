@@ -4,6 +4,10 @@ import type { ViewMode } from "@/core/base/base-query-builder";
 import type { Grouping } from "@/core/base/grouping/grouping.schema";
 import type { UpsertP13nRepo } from "./upsert-p13n.repo";
 import type { GetP13nRepo } from "./get-p13n.interactor";
+import type { RecordPersonalizationRepo } from "./record-personalization.repo";
+import type { SurfaceStateResetRepo } from "./surface-state-reset.repo";
+import type { DataViewState } from "@/core/data-view/data-view-state.schema";
+import type { RecordDetailLayout } from "@/features/records/record-detail-layout.schema";
 
 import { DATA_VIEW_STATE_FIELDS } from "@/core/data-view/data-view-state.schema";
 import { readStoredPersonalizationState, writePersonalizationState } from "@/features/data-view/data-view-row-mapping";
@@ -46,7 +50,24 @@ function normalizeDetailOptions(value: unknown): EntityDetailOptions | undefined
   return parsed.success ? parsed.data : undefined;
 }
 
-export class PrismaP13nRepo extends TenantRepository implements GetP13nRepo, UpsertP13nRepo {
+type StateField = (typeof DATA_VIEW_STATE_FIELDS)[number];
+
+function resetPersonalizationColumns(fields: StateField[]): Prisma.P13nUpdateManyMutationInput {
+  const data: Prisma.P13nUpdateManyMutationInput = {};
+  for (const field of fields) {
+    if (field === "pageSize") data.pagination = Prisma.DbNull;
+    else if (field === "columnOrder" || field === "hiddenColumns") data[field] = [];
+    else if (field === "searchTerm" || field === "viewMode") data[field] = null;
+    else data[field] = Prisma.DbNull;
+    if (field === "grouping") data.groupingColumnId = null;
+  }
+  return data;
+}
+
+export class PrismaP13nRepo
+  extends TenantRepository
+  implements GetP13nRepo, UpsertP13nRepo, RecordPersonalizationRepo, SurfaceStateResetRepo
+{
   async getP13n(p13nId: string): Promise<P13nEntry | undefined> {
     const { companyId, id: userId } = this.user;
 
@@ -201,5 +222,89 @@ export class PrismaP13nRepo extends TenantRepository implements GetP13nRepo, Ups
       DATA_VIEW_STATE_FIELDS.map((key) => [key === "pageSize" ? "pagination" : key, undefined]),
     );
     return { ...cleared, ...writePersonalizationState(readStoredPersonalizationState(row)) };
+  }
+
+  async resetSurfaceState(companyId: string, userId: string, surfaceKey: string, fields: StateField[]) {
+    const current = await this.prisma.p13n.findUnique({
+      where: { companyId, companyId_userId_p13nId: { companyId, userId, p13nId: surfaceKey } },
+    });
+    if (!current) return;
+    const keys = Array.isArray(current.viewStateKeys)
+      ? current.viewStateKeys
+      : Object.keys(readStoredPersonalizationState(current));
+    const remaining = keys.filter((key) => typeof key === "string" && !fields.includes(key as StateField));
+    await this.prisma.p13n.updateMany({
+      where: { companyId, userId, p13nId: surfaceKey },
+      data: { ...resetPersonalizationColumns(fields), viewStateKeys: remaining as Prisma.InputJsonValue },
+    });
+  }
+
+  async getDetailOptionsCompanyWide(companyId: string, p13nIds: string[], afterId?: string) {
+    return this.prisma.p13n.findMany({
+      where: {
+        companyId,
+        p13nId: { in: p13nIds },
+        detailOptions: { not: Prisma.AnyNull },
+        ...(afterId ? { id: { gt: afterId } } : {}),
+      },
+      select: { id: true, p13nId: true, detailOptions: true, columnOrder: true },
+      orderBy: { id: "asc" },
+      take: 200,
+    });
+  }
+
+  async getPersonalizationsCompanyWide(companyId: string, p13nIds: string[], afterId: string, take: number) {
+    return this.prisma.p13n.findMany({
+      where: { companyId, p13nId: { in: p13nIds }, ...(afterId ? { id: { gt: afterId } } : {}) },
+      orderBy: { id: "asc" },
+      take,
+    });
+  }
+
+  async countPersonalizationsCompanyWide(companyId: string, p13nIds: string[]) {
+    return this.prisma.p13n.count({ where: { companyId, p13nId: { in: p13nIds } } });
+  }
+
+  async deletePersonalizationsCompanyWide(companyId: string, p13nIds: string[]): Promise<void> {
+    await this.prisma.p13n.deleteMany({ where: { companyId, p13nId: { in: p13nIds } } });
+  }
+
+  async rewritePersonalizationStateCompanyWide(companyId: string, id: string, state: DataViewState): Promise<void> {
+    const write = writePersonalizationState(state);
+    await this.prisma.p13n.updateMany({
+      where: { companyId, id },
+      data: {
+        ...(write.filters !== undefined ? { filters: write.filters as Prisma.InputJsonValue } : {}),
+        ...(write.sortDescriptor !== undefined
+          ? { sortDescriptor: (write.sortDescriptor ?? {}) as Prisma.InputJsonValue }
+          : {}),
+        ...(write.grouping !== undefined
+          ? {
+              grouping: write.grouping === null ? Prisma.DbNull : (write.grouping as Prisma.InputJsonValue),
+              groupingColumnId: write.grouping === null ? null : groupingShadowColumnId(write.grouping),
+            }
+          : {}),
+        ...(write.columnOrder !== undefined ? { columnOrder: write.columnOrder } : {}),
+        ...(write.columnWidths !== undefined ? { columnWidths: write.columnWidths } : {}),
+        ...(write.hiddenColumns !== undefined ? { hiddenColumns: write.hiddenColumns } : {}),
+      },
+    });
+  }
+
+  async rewriteDetailLayoutCompanyWide(companyId: string, id: string, layout: RecordDetailLayout): Promise<void> {
+    const row = await this.prisma.p13n.findFirst({ where: { companyId, id } });
+    if (!row) return;
+    const options = EntityDetailOptionsSchema.parse(row.detailOptions);
+    await this.prisma.p13n.updateMany({
+      where: { companyId, id },
+      data: {
+        detailOptions: {
+          ...options,
+          starredFieldIds: layout.pinnedFields,
+          hiddenFieldIds: layout.hiddenFields,
+          fieldOrder: layout.fieldOrder,
+        },
+      },
+    });
   }
 }

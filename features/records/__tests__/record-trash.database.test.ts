@@ -26,7 +26,6 @@ const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { WebhookPauseNotifier } = await import("@/features/webhook/webhook-pause-notifier");
-const { PrismaRecordRepo } = await import("../prisma-record.repository");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
@@ -49,6 +48,7 @@ const { RecordOperationService } = await import("../record-operation.service");
 const { RecordTrashService } = await import("../record-trash.service");
 const { RecordJournal } = await import("../record-journal");
 const { applyConfigurationLifecycle } = await import("../configuration-lifecycle");
+const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -81,16 +81,27 @@ async function fixture() {
   });
   const admin = createMockUser({ ...seed.admin, role: { ...seed.adminRole, permissions: [] } });
   const member = createMockUser({ ...seed.member, role: { ...seed.memberRole, permissions: [] } });
-  const repo = new PrismaRecordRepo();
+  const repo = createTestRecordRepo();
   const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
   const writer = new RecordWriteService(repo, policy, new RecordCalculationService(repo));
-  const mutate = new MutateRecordInteractor(repo, policy, writer, { dispatch: () => Promise.resolve() });
+  const mutate = new MutateRecordInteractor(
+    repo,
+    policy,
+    writer,
+    { dispatch: () => Promise.resolve() },
+    new RecordTrashService(repo),
+  );
   const read = new GetRecordInteractor(repo, policy);
   const query = new QueryRecordsInteractor(repo, policy);
   const search = new SearchRecordsInteractor(repo, policy);
   const measure = new QueryRecordMeasureInteractor(repo, policy);
   const trashRepo = new PrismaTrashRepo();
-  const handler = new RecordTrashHandler(repo, policy, { dispatch: () => Promise.resolve() });
+  const handler = new RecordTrashHandler(
+    repo,
+    policy,
+    { dispatch: () => Promise.resolve() },
+    new RecordTrashService(repo),
+  );
   const handlers = [handler];
   const worker = new RecordOperationService(
     repo,

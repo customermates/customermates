@@ -2,6 +2,8 @@ import type { BackgroundTaskService } from "@/core/utils/background-task.service
 import type { LegalAuditRecord } from "@/features/legal/legal-audit.schema";
 import type { LegalAuditRepo } from "@/features/legal/legal-audit.repo";
 import type { EventLogEntry, EventLogRepo } from "./event-log.repo";
+import type { RecordEventLogRepo, RecordEventWrite } from "./record-event-log.repo";
+import type { RecordRef } from "@/features/records/record-model.schema";
 
 import { Prisma, RoutineTriggerKind } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
@@ -11,7 +13,7 @@ import { DomainEvent } from "./domain-events";
 import { subjectKindOf } from "./event-envelope";
 import { wakeEventOutbox } from "./event-outbox.repo";
 
-export class PrismaEventLogRepo extends TenantRepository implements EventLogRepo, LegalAuditRepo {
+export class PrismaEventLogRepo extends TenantRepository implements EventLogRepo, LegalAuditRepo, RecordEventLogRepo {
   constructor(private readonly background: Pick<BackgroundTaskService, "dispatch">) {
     super();
   }
@@ -72,5 +74,72 @@ export class PrismaEventLogRepo extends TenantRepository implements EventLogRepo
       const payload = LegalAcceptanceAuditPayloadSchema.safeParse(row.payload);
       return { ...base, event: DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, payload: payload.success ? payload.data : null };
     });
+  }
+
+  async getLastFieldWritersCompanyWide(companyId: string, targets: Array<{ ref: RecordRef; fieldId: string }>) {
+    const writers = new Map<string, string>();
+    if (!targets.length) return writers;
+    const rows = await this.prisma.$queryRaw<
+      Array<{ typeId: string; recordId: string; fieldId: string; actorId: string }>
+    >(Prisma.sql`
+      SELECT target."typeId", target."recordId", target."fieldId", writer."actorId"
+      FROM (VALUES ${Prisma.join(
+        targets.map(
+          (target) => Prisma.sql`(${target.ref.typeId}::text, ${target.ref.recordId}::text, ${target.fieldId}::text)`,
+        ),
+      )}) AS target("typeId", "recordId", "fieldId")
+      CROSS JOIN LATERAL (
+        SELECT event."actorId" FROM "EventLog" event
+        WHERE event."companyId" = ${companyId} AND event."subjectKind" = 'record' AND event."subjectTypeId" = target."typeId" AND event."subjectId" = target."recordId"
+          AND event.payload->'changedFieldIds' @> jsonb_build_array(target."fieldId")
+        ORDER BY event."createdAt" DESC, event.id DESC
+        LIMIT 1
+      ) writer
+    `);
+    for (const row of rows) writers.set(`${row.typeId}:${row.recordId}:${row.fieldId}`, row.actorId);
+    return writers;
+  }
+
+  async hasRecordHistoryCompanyWide(companyId: string, ref: RecordRef): Promise<boolean> {
+    const event = await this.prisma.eventLog.findFirst({
+      where: { companyId, subjectKind: "record", subjectTypeId: ref.typeId, subjectId: ref.recordId },
+      select: { id: true },
+    });
+    return Boolean(event);
+  }
+
+  async appendRecordEventCompanyWide(companyId: string, event: RecordEventWrite): Promise<void> {
+    await this.prisma.eventLog.create({
+      data: {
+        companyId,
+        id: event.id,
+        subjectKind: "record",
+        subjectTypeId: event.ref.typeId,
+        subjectId: event.ref.recordId,
+        actorId: event.actorId,
+        causeId: event.causeId,
+        kind: event.kind,
+        payload: event.payload,
+      },
+    });
+  }
+
+  async eraseTrashedRecordPayloadsCompanyWide(companyId: string, trashItemIds: string[]): Promise<void> {
+    await this.prisma.$executeRaw(Prisma.sql`
+      UPDATE "EventLog" event SET payload = jsonb_set(jsonb_set(event.payload, '{fields}', '[]'::jsonb), '{identities}', 'null'::jsonb)
+      FROM "CrmRecord" record
+      WHERE event."companyId" = ${companyId} AND event."subjectKind" = 'record'
+        AND record."companyId" = ${companyId} AND record."trashItemId" = ANY(${trashItemIds}::text[]) AND record."deletedAt" IS NOT NULL
+        AND event."subjectTypeId" = record."typeId" AND event."subjectId" = record.id
+        AND jsonb_typeof(event.payload->'fields') = 'array'`);
+  }
+
+  async publishStagedRecordEventsCompanyWide(companyId: string, operationId: string): Promise<void> {
+    await this.prisma.$executeRaw(Prisma.sql`
+      INSERT INTO "EventLog" ("companyId", id, "subjectKind", "subjectTypeId", "subjectId", "actorId", "causeId", kind, payload, "createdAt", attempts, "nextAttemptAt")
+      SELECT ${companyId}, stage.payload->>'id', 'record', stage.payload->'ref'->>'typeId', stage.payload->'ref'->>'recordId',
+        stage.payload->>'actorId', stage.payload->>'causeId', stage.payload->>'kind', stage.payload->'payload', NOW(), 0, NOW()
+      FROM "RecordStageRow" stage WHERE stage."companyId" = ${companyId} AND stage."operationId" = ${operationId} AND stage.kind = 'event'
+    `);
   }
 }
