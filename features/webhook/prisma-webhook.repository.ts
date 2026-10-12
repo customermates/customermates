@@ -162,7 +162,7 @@ export class PrismaWebhookRepo
     const headers = parseStoredWebhookHeaders(row.headers);
     const webhook = { ...row, headers: Object.keys(headers).length > 0 ? headers : null } as WebhookDto;
 
-    if (this.permissions.has(Resource.api, Action.update)) return webhook;
+    if (this.scopedCompanyId === undefined && this.permissions.has(Resource.api, Action.update)) return webhook;
 
     return {
       ...webhook,
