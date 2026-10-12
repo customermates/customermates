@@ -17,7 +17,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RoutineDtoSchema } from "./routine.schema";
 import type { PauseRoutineRepo } from "./pause-routine.repo";
 
-export const PauseRoutineSchema = z.object({ routineId: z.uuid() });
+export const PauseRoutineSchema = z.object({ id: z.uuid() });
 
 export type PauseRoutineData = Data<typeof PauseRoutineSchema>;
 
@@ -35,8 +35,8 @@ export class PauseRoutineInteractor extends AuthenticatedInteractor<PauseRoutine
     if (!this.user.role?.isSystemRole || !(await this.repo.isActiveSystemAdministrator(this.user.id)))
       return failAuthorization(CustomErrorCode.routineAdminRequired);
 
-    const previous = await this.repo.getRoutineByIdOrThrow(data.routineId);
-    const routine = await this.repo.pauseRoutineOrThrow(data.routineId, new Date());
+    const previous = await this.repo.getRoutineByIdOrThrow(data.id);
+    const routine = await this.repo.pauseRoutineOrThrow(data.id, new Date());
 
     await this.eventService.publish(DomainEvent.ROUTINE_UPDATED, {
       entityId: routine.id,

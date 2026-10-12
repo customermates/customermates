@@ -12,7 +12,7 @@ const routineActions = vi.hoisted(() => ({
   deleteRoutineAction: vi.fn(),
   getRoutineFilterFieldsAction: vi.fn(),
   getRoutineRunsAction: vi.fn<
-    (input: { routineId: string; cursor?: string }) => Promise<{ runs: RoutineRunDto[]; nextCursor: string | null }>
+    (input: { id: string; cursor?: string }) => Promise<{ runs: RoutineRunDto[]; nextCursor: string | null }>
   >(() => Promise.resolve({ runs: [], nextCursor: null })),
   pauseRoutineAction: vi.fn(),
   runRoutineNowAction: vi.fn(),
@@ -565,7 +565,7 @@ describe("RoutineModalStore", () => {
     await expect(store.pause()).resolves.toBe(true);
 
     expect(routineActions.pauseRoutineAction).toHaveBeenCalledWith({
-      routineId: paused.id,
+      id: paused.id,
     });
     expect(store.form.enabled).toBe(false);
     expect(store.disabledReason).toBe("adminPaused");
@@ -749,8 +749,8 @@ describe("RoutineModalStore", () => {
       id: "50000000-0000-4000-8000-000000000002",
       routineId: secondRoutine.id,
     });
-    routineActions.getRoutineRunsAction.mockImplementation(({ routineId }: { routineId: string }) =>
-      routineId === firstRoutine.id ? first.promise : second.promise,
+    routineActions.getRoutineRunsAction.mockImplementation(({ id }: { id: string }) =>
+      id === firstRoutine.id ? first.promise : second.promise,
     );
     const store = makeStore();
 

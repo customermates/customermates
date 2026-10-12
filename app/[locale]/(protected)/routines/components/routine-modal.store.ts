@@ -353,7 +353,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     const key = `${generation}:${routineId}`;
     if (this.firstPageRequest?.key === key) return this.firstPageRequest.promise;
 
-    const promise = getRoutineRunsAction({ routineId });
+    const promise = getRoutineRunsAction({ id: routineId });
     this.firstPageRequest = { key, promise };
 
     try {
@@ -439,7 +439,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
     try {
       const page = await getRoutineRunsAction({
-        routineId,
+        id: routineId,
         cursor,
       });
       if (!this.ownsRunsSession(generation, routineId) || this.runsNextCursor !== cursor) return;
@@ -547,7 +547,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
     this.isStartingRun = true;
 
     try {
-      const res = await runRoutineNowAction({ routineId });
+      const res = await runRoutineNowAction({ id: routineId });
       if (!this.ownsRunsSession(generation, routineId)) return;
       if (!res.ok) {
         toastZodErrorTree(res.error);
@@ -606,7 +606,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
 
     this.setIsLoading(true);
     try {
-      const res = await pauseRoutineAction({ routineId: this.form.id });
+      const res = await pauseRoutineAction({ id: this.form.id });
       if (!res.ok) {
         toastZodErrorTree(res.error);
         return false;

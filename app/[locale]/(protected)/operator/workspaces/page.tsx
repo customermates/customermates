@@ -7,7 +7,7 @@ import { appErrorDetails } from "@/core/errors/app-errors";
 import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { PageContainer } from "@/components/shared/page-container";
-import { unwrapValidated } from "@/core/validation/validation.utils";
+import { unwrapPage } from "@/core/validation/next/unwrap-page";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -17,7 +17,7 @@ export default async function OperatorWorkspacesPage({ searchParams }: Props) {
   const workspaceParams = await readSurfaceParams(SURFACE.operatorWorkspaces, searchParams);
 
   try {
-    const workspaces = await unwrapValidated(getGetOperatorWorkspacesInteractor().invoke(workspaceParams));
+    const workspaces = await unwrapPage(getGetOperatorWorkspacesInteractor().invoke(workspaceParams));
 
     return (
       <PageContainer padded={false}>

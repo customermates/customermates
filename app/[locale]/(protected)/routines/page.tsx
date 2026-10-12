@@ -10,7 +10,7 @@ import { requireAccess } from "@/features/auth/next/require";
 import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { PageContainer } from "@/components/shared/page-container";
-import { unwrapValidated } from "@/core/validation/validation.utils";
+import { unwrapPage } from "@/core/validation/next/unwrap-page";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -22,7 +22,7 @@ export default async function RoutinesPage({ searchParams }: Props) {
 
   const routineParams = await readSurfaceParams(SURFACE.routines, searchParams);
 
-  const routines = await unwrapValidated(getGetRoutinesInteractor().invoke(routineParams));
+  const routines = await unwrapPage(getGetRoutinesInteractor().invoke(routineParams));
 
   return (
     <PageContainer padded={false}>

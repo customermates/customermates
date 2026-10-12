@@ -195,7 +195,7 @@ describeDatabase("a routine change leaves an audit trail in a real database", { 
   it("writes a routine.updated row when an administrator pauses a routine", async () => {
     const routine = await createRoutine();
 
-    const paused = await getPauseRoutineInteractor().invoke({ routineId: routine.id });
+    const paused = await getPauseRoutineInteractor().invoke({ id: routine.id });
 
     expect(paused.ok).toBe(true);
 

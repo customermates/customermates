@@ -241,7 +241,7 @@ describe("routine administration", () => {
     };
 
     const result = await new PauseRoutineInteractor(repo as never, eventServiceStub().service).invoke({
-      routineId: ROUTINE_ID,
+      id: ROUTINE_ID,
     });
 
     expect(result.ok).toBe(true);
@@ -258,7 +258,7 @@ describe("routine administration", () => {
 
     const { publish, service } = eventServiceStub();
     const result = await new PauseRoutineInteractor(repo as never, service).invoke({
-      routineId: ROUTINE_ID,
+      id: ROUTINE_ID,
     });
 
     expectAuthorizationFailure(result as never, CustomErrorCode.routineAdminRequired);
@@ -274,7 +274,7 @@ describe("routine administration", () => {
     };
 
     const result = await new PauseRoutineInteractor(repo as never, eventServiceStub().service).invoke({
-      routineId: ROUTINE_ID,
+      id: ROUTINE_ID,
     });
 
     expectAuthorizationFailure(result as never, CustomErrorCode.routineAdminRequired);

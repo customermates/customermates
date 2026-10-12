@@ -7,7 +7,7 @@ import { requireAccess } from "@/features/auth/next/require";
 import { readSurfaceParams } from "@/core/data-view/next/read-surface-params";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { PageContainer } from "@/components/shared/page-container";
-import { unwrapValidated } from "@/core/validation/validation.utils";
+import { unwrapPage } from "@/core/validation/next/unwrap-page";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -18,7 +18,7 @@ export default async function CompanyWebhookDeliveriesPage({ searchParams }: Pro
 
   const deliveryParams = await readSurfaceParams(SURFACE.webhookDeliveries, searchParams);
 
-  const deliveries = await unwrapValidated(getGetWebhookDeliveriesInteractor().invoke(deliveryParams));
+  const deliveries = await unwrapPage(getGetWebhookDeliveriesInteractor().invoke(deliveryParams));
 
   return (
     <PageContainer padded={false}>

@@ -147,7 +147,7 @@ export const manageRoutinesTool = {
       if (!parsed.success) return mcpValidationFailure(parsed.error);
 
       return runInteractor(
-        getGetRoutineRunsInteractor().invoke({ routineId: parsed.data.id, cursor: params.cursor }),
+        getGetRoutineRunsInteractor().invoke({ id: parsed.data.id, cursor: params.cursor }),
         (data) => toonResult({ nextCursor: data.nextCursor, items: data.runs }),
       );
     }
@@ -181,13 +181,13 @@ export const manageRoutinesTool = {
     if (!parsed.success) return mcpValidationFailure(parsed.error);
 
     if (params.action === "pause") {
-      return runInteractor(getPauseRoutineInteractor().invoke({ routineId: parsed.data.id }), (routine) =>
+      return runInteractor(getPauseRoutineInteractor().invoke({ id: parsed.data.id }), (routine) =>
         toonResult({ id: routine.id, name: routine.name, enabled: routine.enabled }),
       );
     }
 
     if (params.action === "run_now") {
-      return runInteractor(getRunRoutineNowInteractor().invoke({ routineId: parsed.data.id }), () =>
+      return runInteractor(getRunRoutineNowInteractor().invoke({ id: parsed.data.id }), () =>
         toonResult({ id: parsed.data.id, started: true }),
       );
     }
