@@ -13,7 +13,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const result = await getGetWebhookByIdInteractor().invoke({ id });
 
     if (!result.ok) return interactorFailureResponse(result.error);
-    if (!result.data) return NextResponse.json(null, { status: 200 });
 
     return NextResponse.json(toPublicWebhook(result.data), { status: 200 });
   } catch (error) {

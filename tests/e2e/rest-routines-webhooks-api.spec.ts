@@ -380,6 +380,25 @@ test("drives routines and webhooks through the public REST API with an API key a
       description: "REST parity receiver",
       url: receiverUrl,
     });
+    const webhookRead = await call(
+      api,
+      "get",
+      "/v1/webhooks/{id}",
+      webhookPath,
+      200,
+    );
+    expect(webhookRead).toMatchObject({
+      id: webhook.id,
+      description: "REST parity receiver",
+    });
+    const missing = await call(
+      api,
+      "get",
+      "/v1/webhooks/{id}",
+      `/v1/webhooks/${randomUUID()}`,
+      404,
+    );
+    expect(missing).toMatchObject({ error: { kind: "not_found" } });
 
     const created = await api.post("/api/v1/records/mutate", {
       data: {

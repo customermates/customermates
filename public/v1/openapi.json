@@ -86199,7 +86199,7 @@
       "get": {
         "operationId": "getWebhook",
         "summary": "Get a webhook subscription",
-        "description": "Returns one webhook subscription by ID, or null when no webhook with this id is accessible. The signing secret itself is never returned.",
+        "description": "Returns one webhook subscription by ID. An id that does not exist or belongs to another workspace answers 404 not_found. The signing secret itself is never returned.",
         "tags": [
           "webhooks"
         ],
@@ -86222,18 +86222,11 @@
         ],
         "responses": {
           "200": {
-            "description": "The webhook subscription, or null when no webhook with this id is accessible.",
+            "description": "The webhook subscription.",
             "content": {
               "application/json": {
                 "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/WebhookPublicDtoSchema"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/WebhookPublicDtoSchema"
                 }
               }
             }
@@ -86260,6 +86253,16 @@
           },
           "403": {
             "description": "Not authorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StructuredErrorResponseSchema"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not found",
             "content": {
               "application/json": {
                 "schema": {

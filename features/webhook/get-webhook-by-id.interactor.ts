@@ -11,6 +11,8 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { type Validated } from "@/core/validation/validation.utils";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { GetWebhookByIdRepo } from "./get-webhook-by-id.repo";
 
 const Schema = z.object({
@@ -19,15 +21,16 @@ const Schema = z.object({
 type GetWebhookByIdData = Data<typeof Schema>;
 
 @TenantInteractor({ resource: Resource.api, read: "all" })
-export class GetWebhookByIdInteractor extends AuthenticatedInteractor<GetWebhookByIdData, WebhookDto | null> {
+export class GetWebhookByIdInteractor extends AuthenticatedInteractor<GetWebhookByIdData, WebhookDto> {
   constructor(private repo: GetWebhookByIdRepo) {
     super();
   }
 
   @Validate(Schema)
-  @ValidateOutput(WebhookDtoSchema.nullable())
-  async invoke(data: GetWebhookByIdData): Validated<WebhookDto | null> {
+  @ValidateOutput(WebhookDtoSchema)
+  async invoke(data: GetWebhookByIdData): Validated<WebhookDto> {
     const webhook = await this.repo.getWebhookById(data.id);
+    if (!webhook) return failNotFound(CustomErrorCode.webhookNotFound, ["id"]);
     return { ok: true as const, data: webhook };
   }
 }

@@ -28,7 +28,7 @@ To change a webhook, click its row, edit and click **Save**. To remove it, click
 
 Use an HTTPS endpoint. Plain `http://` is accepted for any host only while the webhook has no custom headers. With custom headers the URL must use `https://`, or `http://` on `localhost`, `127.0.0.1` or `::1`, because headers usually carry a credential. This is checked when you save and again before every delivery.
 
-Through MCP, use `manage_webhooks` with `action: "create"`, plus `url`, `events[]` and optional `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. Over REST, `POST /api/v1/webhooks` creates one with the same fields and `GET /api/v1/webhooks` lists them; `GET`, `PATCH` and `DELETE /api/v1/webhooks/{id}` read, update and delete one, and an update changes only the fields you send.
+Through MCP, use `manage_webhooks` with `action: "create"`, plus `url`, `events[]` and optional `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. Over REST, `POST /api/v1/webhooks` creates one with the same fields and `GET /api/v1/webhooks` lists them; `GET`, `PATCH` and `DELETE /api/v1/webhooks/{id}` read, update and delete one, and an update changes only the fields you send. An id that does not exist or belongs to another workspace answers 404 with the structured `not_found` error.
 
 ## Which records trigger a webhook, and whose access does a delivery use? [#record-event-sources]
 

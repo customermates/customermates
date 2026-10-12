@@ -28,7 +28,7 @@ Um einen Webhook zu ändern, klicken Sie auf seine Zeile, bearbeiten ihn und kli
 
 Verwenden Sie einen HTTPS-Endpunkt. Reines `http://` wird für jeden Host nur akzeptiert, solange der Webhook keine eigenen Header hat. Mit eigenen Headern muss die URL `https://` verwenden oder `http://` auf `localhost`, `127.0.0.1` oder `::1`, da Header in der Regel ein Credential tragen. Das wird beim Speichern und erneut vor jeder Zustellung geprüft.
 
-Über MCP nutzen Sie `manage_webhooks` mit `action: "create"`, dazu `url`, `events[]` und optional `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. Über REST legt `POST /api/v1/webhooks` einen Webhook mit denselben Feldern an, und `GET /api/v1/webhooks` listet sie; `GET`, `PATCH` und `DELETE /api/v1/webhooks/{id}` lesen, ändern und löschen einen, und eine Änderung betrifft nur die Felder, die Sie senden.
+Über MCP nutzen Sie `manage_webhooks` mit `action: "create"`, dazu `url`, `events[]` und optional `description`, `secret`, `headers`, `bodyTemplate`, `enabled`. Über REST legt `POST /api/v1/webhooks` einen Webhook mit denselben Feldern an, und `GET /api/v1/webhooks` listet sie; `GET`, `PATCH` und `DELETE /api/v1/webhooks/{id}` lesen, ändern und löschen einen, und eine Änderung betrifft nur die Felder, die Sie senden. Eine ID, die nicht existiert oder zu einem anderen Workspace gehört, beantwortet die API mit 404 und dem strukturierten Fehler `not_found`.
 
 ## Welche Datensätze lösen einen Webhook aus, und mit wessen Zugriff wird zugestellt? [#record-event-sources]
 
