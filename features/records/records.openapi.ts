@@ -34,8 +34,7 @@ import { z } from "zod";
 import { StructuredApiResponses } from "@/core/api/structured-interactor-handler";
 import { GenericRecordWidgetInputSchema, GenericRecordWidgetDtoSchema } from "@/features/widget/record-widget.schema";
 import { RecordWidgetReadSchema } from "@/features/widget/get-record-widgets.interactor";
-import { RecordModelViewSchema, RecordDtoSchema } from "./record-model.schema";
-import { GetModelSchema } from "./configure-records.interactor";
+import { RecordDtoSchema } from "./record-model.schema";
 import { ConfigurationContractSchema, ConfigurationPreviewSchema } from "./configuration.schema";
 import {
   RecordQuerySchema,
@@ -208,22 +207,6 @@ export const recordApiPaths = {
       "Read a widget with current authorized results",
       RecordWidgetReadSchema,
       GenericRecordWidgetDtoSchema,
-    ),
-  },
-  "/v1/widgets/list": {
-    post: operation(
-      "listRecordWidgets",
-      "Read personal widgets",
-      z.object({}).strict(),
-      z.object({ widgets: z.array(GenericRecordWidgetDtoSchema) }),
-    ),
-  },
-  "/v1/model/discover": {
-    post: operation(
-      "discoverRecordModel",
-      "Discover record types and their configuration",
-      GetModelSchema,
-      RecordModelViewSchema,
     ),
   },
   "/v1/model/preview": {

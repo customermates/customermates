@@ -171,7 +171,7 @@ test("retains off-view selections, keeps visible rows, clears selection and clea
     expect(response.status(), await response.text()).toBe(200);
     return response.json();
   };
-  const model = RecordModelSchema.parse(await post("/api/v1/model/discover", {}));
+  const model = RecordModelSchema.parse(await post("/api/v1/model/read", {}));
   await post("/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),

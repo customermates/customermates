@@ -19,7 +19,7 @@ test("shares an indexed identifier across lists, unlinks one association and lin
     expect(response.status(), await response.text()).toBe(200);
     return response.json();
   };
-  let model = await post("/api/v1/model/discover", {});
+  let model = await post("/api/v1/model/read", {});
   await post("/api/v1/model/apply", {
     expectedRevision: model.revision, idempotencyKey: randomUUID(),
     operations: [{ operation: "putField", field: {
@@ -27,7 +27,7 @@ test("shares an indexed identifier across lists, unlinks one association and lin
       behavior: { kind: "input" }, required: false, options: [], position: 99,
     } }],
   });
-  model = await post("/api/v1/model/discover", {});
+  model = await post("/api/v1/model/read", {});
   const email = "shared-person@example.test";
   const create = async (kind: string, fields: Array<[string, string]>, identities?: unknown[]) => {
     const result = await post("/api/v1/records/mutate", {

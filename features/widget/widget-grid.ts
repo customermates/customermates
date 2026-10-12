@@ -5,6 +5,7 @@ import type { WidgetLayout } from "./widget-display.schema";
 import { DisplayType } from "./widget-display.schema";
 
 export const WIDGET_GRID_COLUMNS = 12;
+export const WIDGET_GRID_BREAKPOINT_COLUMNS = { xs: 2, sm: 4, md: 8, lg: WIDGET_GRID_COLUMNS } as const;
 export const WIDGET_GRID_MAX_HEIGHT = 12;
 export const WIDGET_GRID_MAX_ROW = 1000;
 

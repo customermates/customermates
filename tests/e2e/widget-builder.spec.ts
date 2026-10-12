@@ -9,7 +9,7 @@ import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
 import { openFilterPalette } from "./filter-palette";
 
 async function revision(page: Page) {
-  const response = await page.request.post("/api/v1/model/discover", { data: {} });
+  const response = await page.request.post("/api/v1/model/read", { data: {} });
   expect(response.status()).toBe(200);
   return RecordModelSchema.parse(await response.json()).revision;
 }

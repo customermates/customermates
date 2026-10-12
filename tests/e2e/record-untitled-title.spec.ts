@@ -29,7 +29,7 @@ test("shows Untitled on board cards after the only name field is deleted", async
   await openConfigureRow(page, "Fields", "Name");
   await deleteFromDrawer(page, "Delete field");
 
-  const discover = await page.request.post("/api/v1/model/discover", { data: {} });
+  const discover = await page.request.post("/api/v1/model/read", { data: {} });
   expect(discover.ok()).toBe(true);
   const model = await discover.json();
   const created = await page.request.post("/api/v1/records/mutate", {
