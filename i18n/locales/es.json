@@ -1932,9 +1932,10 @@
   },
   "DataTransfer": {
     "export": {
-      "action": "Exportar",
+      "action": "Exportar como JSON",
       "failed": "No se pudieron exportar los registros. Comprueba tus filtros y permisos.",
-      "success": "Se exportaron {count, plural, one {# registro} other {# registros}}."
+      "success": "Se exportaron {count, plural, one {# registro} other {# registros}}.",
+      "xlsxAction": "Exportar como Excel (.xlsx)"
     },
     "import": {
       "action": "Añadir desde archivo",
@@ -3570,6 +3571,7 @@
     "rangeStart": "Desde",
     "record": "Registro",
     "recordConflictFields": "También se modificó en otro lugar: {fields}. Elige qué versión conservar antes de guardar.",
+    "recordId": "ID del registro",
     "recordReload": "Volver a cargar el registro",
     "recordReloadKeepChanges": "Volver a cargar y conservar mis cambios",
     "records": "Registros",
