@@ -101945,8 +101945,8 @@
     "record.created": {
       "post": {
         "operationId": "record_created",
-        "summary": "record.created",
-        "description": "A record event. The payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it. record.deleted means the record moved to Trash and record.restored that it came back; deleted events do not apply record-query filters. record.deletedPermanently carries only the reference because the values are erased.",
+        "summary": "Record Created",
+        "description": "Sent when a record that matches the webhook's record source is created, with its values after the change.\n\nThe payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it.",
         "tags": [
           "webhooks"
         ],
@@ -103291,8 +103291,8 @@
     "record.updated": {
       "post": {
         "operationId": "record_updated",
-        "summary": "record.updated",
-        "description": "A record event. The payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it. record.deleted means the record moved to Trash and record.restored that it came back; deleted events do not apply record-query filters. record.deletedPermanently carries only the reference because the values are erased.",
+        "summary": "Record Updated",
+        "description": "Sent when a field, assignment, identity or link of a matching record changes, with the values before and after the change.\n\nThe payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it.",
         "tags": [
           "webhooks"
         ],
@@ -104637,8 +104637,8 @@
     "record.deleted": {
       "post": {
         "operationId": "record_deleted",
-        "summary": "record.deleted",
-        "description": "A record event. The payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it. record.deleted means the record moved to Trash and record.restored that it came back; deleted events do not apply record-query filters. record.deletedPermanently carries only the reference because the values are erased.",
+        "summary": "Record Moved to Trash",
+        "description": "Sent when a matching record moves to Trash, with its values before the delete; record-query filters match the record just before the move.\n\nThe payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it.",
         "tags": [
           "webhooks"
         ],
@@ -105983,8 +105983,8 @@
     "record.restored": {
       "post": {
         "operationId": "record_restored",
-        "summary": "record.restored",
-        "description": "A record event. The payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it. record.deleted means the record moved to Trash and record.restored that it came back; deleted events do not apply record-query filters. record.deletedPermanently carries only the reference because the values are erased.",
+        "summary": "Record Restored",
+        "description": "Sent when a matching record comes back from Trash, with its restored values.\n\nThe payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it.",
         "tags": [
           "webhooks"
         ],
@@ -107329,8 +107329,8 @@
     "record.deletedPermanently": {
       "post": {
         "operationId": "record_deletedPermanently",
-        "summary": "record.deletedPermanently",
-        "description": "A record event. The payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it. record.deleted means the record moved to Trash and record.restored that it came back; deleted events do not apply record-query filters. record.deletedPermanently carries only the reference because the values are erased.",
+        "summary": "Record Deleted Permanently",
+        "description": "Sent when a record is deleted permanently, by hand or 30 days after it moved to Trash; it carries only the record reference because the values are erased.\n\nThe payload uses stable type and record references, field IDs and the accepted schema revision. Values are redacted using the subscription owner's current access before delivery. Retries retain the event ID; receivers must deduplicate it.",
         "tags": [
           "webhooks"
         ],
