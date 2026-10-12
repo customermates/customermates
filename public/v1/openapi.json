@@ -73502,7 +73502,7 @@
       "post": {
         "operationId": "updateRecordWidgetLayouts",
         "summary": "Move and resize widgets in one batch",
-        "description": "Saves the position and size of several widgets at once, as dragging and resizing on the dashboard does. Each breakpoint (xs, sm, md, lg) lists placements in grid units: i is the widget id, x and w count columns (12 on lg, 8 on md, 4 on sm, 2 on xs, and x + w must fit), and y and h count rows of 54 px. A widget named in any breakpoint has its whole stored layout replaced by the placements sent for it, so send all four breakpoints for every widget you move; a breakpoint it is missing from loses its stored position and is placed automatically. Layouts are per dashboard view because a widget belongs to one view. Overlaps are not rejected here: the dashboard floats widgets up into empty rows and pushes overlapping widgets down when it renders. Widgets the caller does not own, and unchanged placements, are ignored. Read positions with /v1/widgets/list first.\n\nRequires: ownership of the widgets; the list holds only the caller's own widgets and their results stay filtered by read access to the widgets' lists.",
+        "description": "Saves the position and size of several widgets at once, as dragging and resizing on the dashboard does. Each breakpoint (xs, sm, md, lg) lists placements in grid units: i is the widget id, x and w count columns (12 on lg, 8 on md, 4 on sm, 2 on xs, and x + w must fit), and y and h count rows of 54 px. A widget named in any breakpoint has its whole stored layout replaced by the placements sent for it, so send all four breakpoints for every widget you move; a breakpoint it is missing from loses its stored position and is placed automatically. Layouts are per dashboard view because a widget belongs to one view. expectedVersions must name the version you last read for every widget in layouts; when a widget changed, was deleted or is not yours, nothing is saved and the request fails with 409 widgetLayoutChanged, so read again and retry. A large-breakpoint (lg) placement that overlaps another widget of the same dashboard view fails with 400 widgetLayoutOverlap. Unchanged placements are omitted from the result. Read positions and versions with /v1/widgets/list first.\n\nRequires: ownership of the widgets; the list holds only the caller's own widgets and their results stay filtered by read access to the widgets' lists.",
         "tags": [
           "widgets"
         ],
@@ -73581,6 +73581,10 @@
                       "h": 3
                     }
                   ]
+                },
+                "expectedVersions": {
+                  "3a4b5c6d-7e8f-4a1b-9c2d-3e4f5a6b7c8d": 1,
+                  "4b5c6d7e-8f9a-4b2c-8d3e-4f5a6b7c8d9e": 1
                 }
               },
               "schema": {
@@ -73785,10 +73789,25 @@
                       "lg"
                     ],
                     "additionalProperties": false
+                  },
+                  "expectedVersions": {
+                    "type": "object",
+                    "propertyNames": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "additionalProperties": {
+                      "type": "integer",
+                      "exclusiveMinimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "description": "The version you last read for every widget named in layouts, keyed by widget id."
                   }
                 },
                 "required": [
-                  "layouts"
+                  "layouts",
+                  "expectedVersions"
                 ],
                 "additionalProperties": false
               }
