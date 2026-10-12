@@ -43,7 +43,7 @@ const exporterModule = (await import(
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
-const { PrismaRecordRepo } = await import("@/features/records/prisma-record.repository");
+const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 const { RecordTrashService } = await import("@/features/records/record-trash.service");
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RecordAccessPolicy } = await import("@/features/records/record-access");
@@ -100,7 +100,7 @@ describeRoundTrip("XLSX export and import round trip", () => {
       return { company, role, owner, other };
     });
     const admin = createMockUser({ ...seed.owner, role: { ...seed.role, permissions: [] } });
-    const repo = new PrismaRecordRepo();
+    const repo = createTestRecordRepo();
     const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
     const writer = new RecordWriteService(repo, policy, new RecordCalculationService(repo));
     const mutate = new MutateRecordInteractor(
