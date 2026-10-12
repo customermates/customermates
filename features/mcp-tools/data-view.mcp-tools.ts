@@ -23,6 +23,10 @@ import {
 import { mcpInteractorFailure, mcpValidationFailure } from "./mcp-tool";
 import { toonResult } from "./utils";
 
+function isExternalMcpRequest(transport: unknown): boolean {
+  return typeof transport === "object" && transport !== null && "requestId" in transport;
+}
+
 function withAbsoluteLink<T extends { link?: string | null }>(result: T): T {
   return result.link ? { ...result, link: new URL(result.link, env.BASE_URL).toString() } : result;
 }
@@ -96,12 +100,12 @@ export const manageDataViewsTool = {
   },
   inputSchema: ManageDataViewsToolSchema,
   outputSchema: ManageDataViewsResultSchema,
-  execute: async (params: unknown) => {
+  execute: async (params: unknown, transport?: unknown) => {
     const parsed = await ManageDataViewsSchema.safeParseAsync(params, await getZodParseContext());
     if (!parsed.success) return mcpValidationFailure(parsed.error);
     const result = await getManageDataViewsInteractor().invoke(parsed.data);
     if (!result.ok) return mcpInteractorFailure(result.error);
-    return toonResult(withAbsoluteLink(result.data));
+    return toonResult(isExternalMcpRequest(transport) ? withAbsoluteLink(result.data) : result.data);
   },
 } satisfies McpTool;
 
