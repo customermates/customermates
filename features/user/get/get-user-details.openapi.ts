@@ -3,6 +3,10 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { StructuredApiResponses } from "@/core/api/structured-interactor-handler";
 import { UserDetailsDtoSchema } from "@/features/user/get/get-user-details.interactor";
 
+const OwnProfileResponses = Object.fromEntries(
+  Object.entries(StructuredApiResponses).filter(([status]) => status !== "404"),
+);
+
 export const getUserDetailsOperation: ZodOpenApiOperationObject = {
   operationId: "getUserProfile",
   summary: "Get own user profile",
@@ -18,6 +22,6 @@ export const getUserDetailsOperation: ZodOpenApiOperationObject = {
         },
       },
     },
-    ...StructuredApiResponses,
+    ...OwnProfileResponses,
   },
 };

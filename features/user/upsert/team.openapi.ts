@@ -29,7 +29,7 @@ export const updateUserProfileOperation: ZodOpenApiOperationObject = {
       description: "The saved profile.",
       content: { "application/json": { schema: UserProfileSchema } },
     },
-    ...StructuredApiResponses,
+    ...Object.fromEntries(Object.entries(StructuredApiResponses).filter(([status]) => status !== "404")),
   },
 };
 

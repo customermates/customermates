@@ -35,7 +35,10 @@ describe("Knowledge Base, member and profile OpenAPI operations", () => {
       expect(operation.security).toEqual([{ apiKeyAuth: [] }]);
       expect(operation.requestBody?.required).toBe(true);
       expect(operation.requestBody?.content?.["application/json"]?.examples?.default?.value).toBeDefined();
-      expect(Object.keys(operation.responses ?? {})).toEqual(["200", "400", "401", "403", "404", "409", "500"]);
+      const statuses = Object.keys(operation.responses ?? {});
+      expect(statuses).toEqual(expect.arrayContaining(["200", "400", "401", "403", "409", "500"]));
+      if (path === "/v1/users/me") expect(statuses).not.toContain("404");
+      else expect(statuses).toContain("404");
       expect(JSON.stringify(operation.responses?.["403"])).toContain("StructuredErrorResponseSchema");
     },
   );
