@@ -18,7 +18,7 @@ import type { SetConnectedAccountSignatureRepo } from "./set-connected-account-s
 
 const Schema = ConnectedAccountEmailSchema.extend({
   id: z.uuid(),
-});
+}).strict();
 export type SetConnectedAccountSignatureData = Data<typeof Schema>;
 
 @TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })

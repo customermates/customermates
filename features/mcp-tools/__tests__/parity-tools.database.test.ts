@@ -156,6 +156,73 @@ describeDatabase("MCP parity tools against a real database", { timeout: 120_000 
     expect(replay).toMatchObject({ ok: true, structuredContent: { created: 1 } });
   });
 
+  it("round-trips an export with marked Formatted text back through import_crm_records unchanged", async () => {
+    const typeId = seed.id("deal");
+    const base = await call(seed, exportCrmRecordsTool, { typeId });
+    const empty = (base.ok ? base.structuredContent : {}) as unknown as RecordExport;
+    const model = await runWithTenant(seed.admin, () =>
+      runInTransaction(() => createTestRecordRepo().getModel(), { readOnly: true }),
+    );
+    const inputFields = model.fields.filter(
+      (field) =>
+        field.typeId === typeId && !field.archived && field.behavior.kind === "input" && field.valueType !== "channels",
+    );
+    const nameField = inputFields.find((field) => field.valueType === "text")?.id;
+    const notesField = inputFields.find((field) => field.valueType === "richText")?.id;
+    expect(notesField).toEqual(expect.any(String));
+    const recordId = randomUUID();
+    const now = new Date().toISOString();
+    const documentJson = JSON.stringify({
+      type: "doc",
+      content: [{ type: "paragraph", content: [{ type: "text", text: "Kept through the round trip" }] }],
+    });
+    const created = await call(seed, importCrmRecordsTool, {
+      document: {
+        ...empty,
+        records: [
+          {
+            ref: { typeId, recordId },
+            version: 1,
+            schemaRevision: empty.schemaRevision,
+            createdAt: now,
+            updatedAt: now,
+            fields: inputFields.map((field) => ({
+              fieldId: field.id,
+              result:
+                field.id === nameField
+                  ? { state: "value" as const, value: { kind: "text" as const, value: "Round trip deal" } }
+                  : field.id === notesField
+                    ? { state: "value" as const, value: { kind: "richText" as const, documentJson } }
+                    : { state: "missing" as const },
+            })),
+            assignedUserIds: [],
+          },
+        ],
+        links: [],
+      },
+      mode: "create",
+      idempotencyKey: `w106-create-${recordId}`,
+    });
+    expect(created).toMatchObject({ ok: true, structuredContent: { created: 1 } });
+
+    const exported = await call(seed, exportCrmRecordsTool, { typeId, search: "Round trip deal" });
+    expect(exported.ok && exported.structuredContent).toHaveProperty("untrustedTextHandling");
+
+    const reimported = await call(seed, importCrmRecordsTool, {
+      document: exported.ok ? exported.structuredContent : {},
+      mode: "update",
+      idempotencyKey: `w106-update-${recordId}`,
+    });
+
+    expect(reimported).toMatchObject({ ok: true, structuredContent: { created: 0, updated: 1 } });
+    const after = await runWithTenant(seed.admin, () =>
+      runInTransaction(() => createTestRecordRepo().getRecordCompanyWide({ typeId, recordId }), { readOnly: true }),
+    );
+    expect(after?.values.find((value) => value.fieldId === notesField)).toBeTruthy();
+    const reread = await call(seed, exportCrmRecordsTool, { typeId, search: "Round trip deal" });
+    expect(reread.ok && reread.result).toContain("Kept through the round trip");
+  });
+
   it("rejects an import from an older schema revision without writing", async () => {
     const typeId = seed.id("contact");
     const exported = await call(seed, exportCrmRecordsTool, { typeId });
@@ -208,6 +275,28 @@ describeDatabase("MCP parity tools against a real database", { timeout: 120_000 
       prisma.connectedAccount.findUniqueOrThrow({ where: { id: seed.account.id } }),
     );
     expect(stored).toMatchObject({ shared: true, selectedFolderIds: ["ARCHIVE", "INBOX"] });
+  });
+
+  it("completes a disconnect when the messaging provider cannot be reached", async () => {
+    const account = await runWithoutTenant(() =>
+      prisma.connectedAccount.create({
+        data: {
+          companyId: seed.company.id,
+          userId: seed.user.id,
+          unipileAccountId: `w106-${randomUUID()}`,
+          provider: "google",
+          status: "ok",
+          hasMessaging: true,
+          emailAddress: "disconnect@example.test",
+        },
+      }),
+    );
+
+    const result = await call(seed, manageConnectedAccountsTool, { action: "disconnect", id: account.id });
+
+    expect(result).toMatchObject({ ok: true, structuredContent: { id: account.id, disconnected: true } });
+    const remaining = await runWithoutTenant(() => prisma.connectedAccount.findUnique({ where: { id: account.id } }));
+    expect(remaining).toBeNull();
   });
 
   it("refuses settings changes on an account id the caller does not own", async () => {

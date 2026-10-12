@@ -151,7 +151,7 @@ Customermates bietet [[derived.mcp.tools.total]] MCP-Tools, standardmäßig alle
 {/* mcp-catalog:flags */}
 **Nur lesend:** `discover_record_types`, `get_record_model`, `query_crm_records`, `search_crm_records`, `resolve_record_identifiers`, `read_crm_record`, `preview_crm_deletion`, `query_crm_measure`, `read_crm_operation`, `read_trash`, `export_crm_records`, `get_workspace_context`, `list_users`, `get_messaging_threads`, `get_activities`, `get_calendars`, `get_social_posts`, `get_social_post_engagement`, `get_social_profile`, `linkedin_search_sales_leads`, `linkedin_search_sales_companies`, `linkedin_get_sales_search_parameters`, `search_docs`, `get_docs_page`, `search`, `fetch`
 
-**Kann Daten löschen:** `mutate_crm_record`, `manage_trash`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
+**Kann Daten löschen:** `mutate_crm_record`, `manage_trash`, `import_crm_records`, `manage_data_views`, `manage_wiki_pages`, `discard_message_draft`, `manage_connected_accounts`, `configure_record_model`, `manage_widgets`, `manage_routines`, `manage_webhooks`, `manage_roles`
 {/* /mcp-catalog */}
 
 Das volle JSON-Schema jedes Tools liegt live an `POST /api/v1/mcp` mit `method: "tools/list"`.
@@ -261,7 +261,7 @@ Exportiert eine Liste als JSON-Dokument wie Als JSON exportieren auf der Listens
 
 Erstellt oder aktualisiert bis zu 100 Datensätze und 500 Verknüpfungen einer Liste aus einem Export-Dokument in einem atomaren Aufruf (mode create oder update), geprüft gegen die aktuelle Schema-Revision. Eine ungültige Zeile weist das ganze Dokument ab. Braucht Erstellen- oder Bearbeiten-Rechte auf der Liste.
 
-Pflicht: `document`, `mode`, `idempotencyKey`.
+**Kann Daten löschen.** Pflicht: `document`, `mode`, `idempotencyKey`.
 {/* /mcp-catalog */}
 
 ### Stapel-Update über Kanalkennungen [#batch-identifier-update]

@@ -40,7 +40,7 @@ export const connectedAccountSettingsApiPaths = {
     delete: {
       operationId: "disconnectConnectedAccount",
       summary: "Disconnect a connected account",
-      description: `Disconnects one of your connected accounts: it is removed from the workspace and from the messaging provider, and its synced conversations disappear. This cannot be undone; connecting the account again starts a new sync. ${OWNER_ONLY} Requires: Inbox messages Delete.`,
+      description: `Disconnects one of your connected accounts: it is removed from the workspace and from the messaging provider, and its synced conversations disappear. If the provider cannot be reached, the workspace removal still completes and a daily cleanup removes the provider account later. This cannot be undone; connecting the account again starts a new sync. ${OWNER_ONLY} Requires: Inbox messages Delete.`,
       tags: ["messaging"],
       security: [{ apiKeyAuth: [] }],
       requestParams: AccountPath,
