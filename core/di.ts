@@ -702,7 +702,12 @@ export const getRecordEventSubscriptionRepo = (companyId?: string) =>
 export const getRoutineAdmission = () =>
   new RoutineAdmission(getRoutineRepo(), getBackgroundTaskService(), getRecordRecipientReader());
 export const getWebhookAdmission = () =>
-  new WebhookAdmission(getRecordRecipientReader(), getBackgroundTaskService(), new PrismaWebhookAdmissionRepo());
+  new WebhookAdmission(
+    getRecordRecipientReader(),
+    getBackgroundTaskService(),
+    new PrismaWebhookAdmissionRepo(),
+    getWebhookDeliveryRepo(),
+  );
 export const getProcessEventInteractor = (
   admission: EventAdmission = new EventAdmissionGroup([getWebhookAdmission(), getRoutineAdmission()]),
 ) => new ProcessEventInteractor(new PrismaEventOutboxRepo(), admission);

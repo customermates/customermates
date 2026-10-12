@@ -2,14 +2,16 @@ import type { GetWebhookDeliveriesRepo } from "@/features/webhook/get-webhook-de
 import type { GetWebhookDeliveryByIdRepo } from "./get-webhook-delivery-by-id.repo";
 import type { FindWebhookDeliveriesByIdsRepo } from "./find-webhook-deliveries-by-ids.repo";
 import type { RecordRecipientReader } from "@/features/records/record-recipient-reader";
+import type { WebhookDeliveryAdmissionRepo } from "./webhook-delivery-admission.repo";
 
 import { WebhookDeliveryStatus } from "@/generated/prisma";
 
-import type { EventLog, Prisma } from "@/generated/prisma";
+import type { EventLog, Prisma, Webhook } from "@/generated/prisma";
 
 import { type WebhookDeliveryDto } from "./get-webhook-deliveries.interactor";
 
 import { QueryRepository } from "@/core/base/query-repository";
+import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
@@ -17,7 +19,11 @@ import { eventEnvelope, type EventEnvelope } from "@/features/event/event-envelo
 
 export class PrismaWebhookDeliveryRepo
   extends QueryRepository<Prisma.WebhookDeliveryWhereInput>
-  implements GetWebhookDeliveriesRepo, GetWebhookDeliveryByIdRepo, FindWebhookDeliveriesByIdsRepo
+  implements
+    GetWebhookDeliveriesRepo,
+    GetWebhookDeliveryByIdRepo,
+    FindWebhookDeliveriesByIdsRepo,
+    WebhookDeliveryAdmissionRepo
 {
   constructor(private readonly recordReader: RecordRecipientReader) {
     super();
@@ -166,5 +172,34 @@ export class PrismaWebhookDeliveryRepo
     });
 
     return new Set(deliveries.map((delivery) => delivery.id));
+  }
+
+  @BypassTenantGuard
+  async admitDeliveryOrThrowUnscoped(args: {
+    event: Pick<EventLog, "companyId" | "id" | "kind">;
+    webhook: Pick<Webhook, "id" | "url">;
+    subscriptionRevision: number | null;
+  }): Promise<{ id: string; nextAttemptAt: Date | null }> {
+    const { event, webhook, subscriptionRevision } = args;
+    const admissionKey = `${webhook.id}:${event.id}`;
+    await this.prisma.webhookDelivery.createMany({
+      data: [
+        {
+          companyId: event.companyId,
+          webhookId: webhook.id,
+          eventId: event.id,
+          admissionKey,
+          subscriptionRevision,
+          url: webhook.url,
+          event: event.kind,
+          requestBody: { eventId: event.id },
+        },
+      ],
+      skipDuplicates: true,
+    });
+    return this.prisma.webhookDelivery.findFirstOrThrow({
+      where: { companyId: event.companyId, admissionKey },
+      select: { id: true, nextAttemptAt: true },
+    });
   }
 }

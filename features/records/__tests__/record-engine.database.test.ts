@@ -1894,7 +1894,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const reader = createTestRecordRecipientReader();
     const process = new ProcessEventInteractor(
       new PrismaEventOutboxRepo(),
-      new WebhookAdmission(reader, { dispatch } as never, new PrismaWebhookAdmissionRepo()),
+      new WebhookAdmission(
+        reader,
+        { dispatch } as never,
+        new PrismaWebhookAdmissionRepo(),
+        new PrismaWebhookDeliveryRepo(reader),
+      ),
     );
     expect(await process.invoke({ companyId: f.company.id, eventId: event.id })).toEqual({ status: "delivered" });
     expect(await process.invoke({ companyId: f.company.id, eventId: event.id })).toEqual({ status: "delivered" });
@@ -2098,6 +2103,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         {
           dispatch: vi.fn(),
         } as never,
+        new PrismaWebhookDeliveryRepo(createTestRecordRecipientReader()),
         new PrismaWebhookAdmissionRepo(),
       ),
     ).invoke({ companyId: f.company.id, eventId: event.id });
@@ -2227,6 +2233,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         {
           dispatch: vi.fn().mockResolvedValue(undefined),
         } as never,
+        new PrismaWebhookDeliveryRepo(reader),
         new PrismaWebhookAdmissionRepo(),
       ),
     );
@@ -16039,6 +16046,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       new WebhookAdmission(
         reader,
         { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
+        new PrismaWebhookDeliveryRepo(reader),
         new PrismaWebhookAdmissionRepo(),
       ),
     ).invoke({ companyId: f.company.id, eventId: event.id });
