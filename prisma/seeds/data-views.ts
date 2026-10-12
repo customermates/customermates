@@ -28,7 +28,9 @@ export type SyntheticDataViewFixture = {
   state: DataViewState;
 };
 
-type ViewDraft = Omit<SyntheticDataViewFixture, "position" | "userId"> & { userId?: string };
+type ViewDraft = Omit<SyntheticDataViewFixture, "position" | "userId"> & {
+  userId?: string;
+};
 
 /**
  * The saved views of the Northwind Labs demo: two to four per list for the demo user, plus personal views that
@@ -36,6 +38,10 @@ type ViewDraft = Omit<SyntheticDataViewFixture, "position" | "userId"> & { userI
  * choice, member, relationship and date buckets with group totals, choice, member, boolean, relative date,
  * relationship and related-field filters, sorts including manual order, ordered, sized and hidden columns, and
  * Formatted text columns as excerpts. Seeded views are saved state, so they open unmodified.
+ *
+ * Every view is curated for an overview: a board card shows three to five chips (what it is, how big, who owns
+ * it, when), a table shows the name plus four to six columns for that view's purpose, and a grouping totals at
+ * most two values. Everything else stays available but hidden.
  */
 export function buildSyntheticDataViewFixtures(
   context: Pick<SeedContext, "ids">,
@@ -50,15 +56,39 @@ export function buildSyntheticDataViewFixtures(
   const me = context.ids.user;
 
   const surface = (type: keyof typeof types) => `records:${types[type]}`;
-  const sum = (fieldId: string): GroupSummaryDefinition => ({ fieldId, aggregation: "sum" });
-  const average = (fieldId: string): GroupSummaryDefinition => ({ fieldId, aggregation: "average" });
-  const min = (fieldId: string): GroupSummaryDefinition => ({ fieldId, aggregation: "min" });
-  const max = (fieldId: string): GroupSummaryDefinition => ({ fieldId, aggregation: "max" });
+  const sum = (fieldId: string): GroupSummaryDefinition => ({
+    fieldId,
+    aggregation: "sum",
+  });
+  const average = (fieldId: string): GroupSummaryDefinition => ({
+    fieldId,
+    aggregation: "average",
+  });
+  const min = (fieldId: string): GroupSummaryDefinition => ({
+    fieldId,
+    aggregation: "min",
+  });
+  const max = (fieldId: string): GroupSummaryDefinition => ({
+    fieldId,
+    aggregation: "max",
+  });
   const sorted = (field: string, direction: "asc" | "desc"): DataViewState["sortDescriptor"] => ({ field, direction });
   const manual = sorted(MANUAL_ORDER_SORT_KEY, "asc");
-  const anyOf = (field: string, value: string[]): Filter => ({ field, operator: FilterOperatorKey.in, value });
-  const noneOf = (field: string, value: string[]): Filter => ({ field, operator: FilterOperatorKey.notIn, value });
-  const hasAny = (field: string, value: string[]): Filter => ({ field, operator: FilterOperatorKey.hasAnyOf, value });
+  const anyOf = (field: string, value: string[]): Filter => ({
+    field,
+    operator: FilterOperatorKey.in,
+    value,
+  });
+  const noneOf = (field: string, value: string[]): Filter => ({
+    field,
+    operator: FilterOperatorKey.notIn,
+    value,
+  });
+  const hasAny = (field: string, value: string[]): Filter => ({
+    field,
+    operator: FilterOperatorKey.hasAnyOf,
+    value,
+  });
   const since = (field: string, days: number): Filter => ({
     field,
     operator: FilterOperatorKey.inLastDays,
@@ -69,7 +99,10 @@ export function buildSyntheticDataViewFixtures(
     operator: FilterOperatorKey.notInLastDays,
     value: days,
   });
-  const linked = (field: string): Filter => ({ field, operator: FilterOperatorKey.hasSome });
+  const linked = (field: string): Filter => ({
+    field,
+    operator: FilterOperatorKey.hasSome,
+  });
   const assignedTo = (userId: string) => anyOf("system:assignedTo", [userId]);
 
   /** A board grouped by `field`: the card shows `visible`, every other column is hidden. */
@@ -88,7 +121,11 @@ export function buildSyntheticDataViewFixtures(
   const table = (
     type: Parameters<typeof columns.showOnly>[0],
     visible: string[],
-    grouping?: { field: string; bucket?: DateBucket; summaries?: GroupSummaryDefinition[] },
+    grouping?: {
+      field: string;
+      bucket?: DateBucket;
+      summaries?: GroupSummaryDefinition[];
+    },
   ): DataViewState => ({
     viewMode: ViewMode.table,
     ...(grouping ? { grouping } : {}),
@@ -101,11 +138,11 @@ export function buildSyntheticDataViewFixtures(
   const closedTasks = [customOptionIds.taskStatus.done, customOptionIds.taskStatus.archived];
   const dealOrganization = rel("deal.organizations", "outgoing");
   const myOpenDealsBoard = (userId: string): DataViewState => ({
-    ...board("deal", f.deal.stage, [model.starter.dealTotalValue, f.deal.closeDate, dealOrganization], {
-      summaries: [sum(model.starter.dealTotalValue), sum(model.starter.dealWeightedValue)],
+    ...board("deal", f.deal.stage, [model.starter.dealTotalValue, dealOrganization, f.deal.openedOn], {
+      summaries: [sum(model.starter.dealTotalValue)],
     }),
     filters: [assignedTo(userId), anyOf(f.deal.stage, openStages)],
-    sortDescriptor: sorted(f.deal.closeDate, "asc"),
+    sortDescriptor: sorted(f.deal.openedOn, "asc"),
   });
 
   const drafts: ViewDraft[] = [
@@ -118,15 +155,9 @@ export function buildSyntheticDataViewFixtures(
         ...board(
           "deal",
           f.deal.stage,
-          [
-            model.starter.dealTotalValue,
-            model.starter.dealWeightedValue,
-            f.deal.closeDate,
-            dealOrganization,
-            "system:assignedTo",
-          ],
+          [model.starter.dealTotalValue, dealOrganization, "system:assignedTo", f.deal.openedOn],
           {
-            summaries: [sum(model.starter.dealTotalValue), sum(model.starter.dealWeightedValue)],
+            summaries: [sum(model.starter.dealTotalValue)],
             hidden: [`value:${o["deal.stage"].lost}`],
           },
         ),
@@ -142,7 +173,7 @@ export function buildSyntheticDataViewFixtures(
           "deal",
           [
             f.deal.stage,
-            f.deal.closeDate,
+            f.deal.openedOn,
             model.starter.dealTotalValue,
             model.starter.dealWeightedValue,
             dealOrganization,
@@ -150,17 +181,16 @@ export function buildSyntheticDataViewFixtures(
           ],
           {
             field: f.deal.stage,
-            summaries: [
-              sum(model.starter.dealTotalValue),
-              sum(model.starter.dealWeightedValue),
-              max(model.starter.dealTotalValue),
-            ],
+            summaries: [sum(model.starter.dealTotalValue), sum(model.starter.dealWeightedValue)],
           },
         ),
         filters: [anyOf(f.deal.stage, openStages), since(f.deal.closeDate, 1)],
-        sortDescriptor: sorted(f.deal.closeDate, "asc"),
+        sortDescriptor: sorted(f.deal.openedOn, "asc"),
         pageSize: 25,
-        columnWidths: { [model.starter.dealTotalValue]: 160, [model.starter.dealWeightedValue]: 180 },
+        columnWidths: {
+          [model.starter.dealTotalValue]: 160,
+          [model.starter.dealWeightedValue]: 180,
+        },
       },
     },
     {
@@ -173,18 +203,17 @@ export function buildSyntheticDataViewFixtures(
           [
             f.deal.stage,
             model.starter.dealTotalValue,
-            model.starter.dealWeightedValue,
-            f.deal.closeDate,
+            f.deal.openedOn,
             dealOrganization,
             rel("deal.contacts", "outgoing"),
           ],
           {
             field: "system:assignedTo",
-            summaries: [sum(model.starter.dealTotalValue), sum(model.starter.dealWeightedValue)],
+            summaries: [sum(model.starter.dealTotalValue)],
           },
         ),
         filters: [anyOf(f.deal.stage, openStages)],
-        sortDescriptor: sorted(model.starter.dealWeightedValue, "desc"),
+        sortDescriptor: sorted(model.starter.dealTotalValue, "desc"),
       },
     },
     {
@@ -196,16 +225,14 @@ export function buildSyntheticDataViewFixtures(
           "deal",
           [
             f.deal.contractValue,
-            f.deal.listValue,
             f.deal.discountPercent,
-            f.deal.daysToClose,
             f.deal.closeDate,
             dealOrganization,
             rel("deal.campaign", "outgoing"),
           ],
           {
             field: "system:assignedTo",
-            summaries: [sum(f.deal.contractValue), average(f.deal.discountPercent), average(f.deal.daysToClose)],
+            summaries: [sum(f.deal.contractValue)],
           },
         ),
         filters: [anyOf(f.deal.stage, [o["deal.stage"].won]), since(f.deal.closeDate, 365)],
@@ -235,7 +262,6 @@ export function buildSyntheticDataViewFixtures(
       state: {
         ...table("contact", [
           f.contact.jobTitle,
-          f.contact.dealRole,
           rel("contact.organizations", "outgoing"),
           model.starter.contactChannels,
           "system:assignedTo",
@@ -278,10 +304,14 @@ export function buildSyntheticDataViewFixtures(
       surfaceKey: surface("contact"),
       name: "Added by month",
       state: {
-        ...table("contact", [f.contact.jobTitle, rel("contact.organizations", "outgoing"), "system:createdAt"], {
-          field: "system:createdAt",
-          bucket: "month",
-        }),
+        ...table(
+          "contact",
+          [f.contact.jobTitle, rel("contact.organizations", "outgoing"), f.contact.leadSource, "system:createdAt"],
+          {
+            field: "system:createdAt",
+            bucket: "month",
+          },
+        ),
         sortDescriptor: sorted("system:createdAt", "desc"),
         pageSize: 25,
       },
@@ -295,17 +325,18 @@ export function buildSyntheticDataViewFixtures(
       state: {
         ...table("organization", [
           f.organization.arr,
-          f.organization.licensedSeats,
           f.organization.segment,
           f.organization.industry,
           f.organization.openPipeline,
-          path("organization.tickets.path"),
           "system:assignedTo",
         ]),
         filters: [linked(rel("subscription.organization", "incoming"))],
         sortDescriptor: sorted(f.organization.arr, "desc"),
         pageSize: 25,
-        columnWidths: { [columns.id("organization.name")]: 260, [f.organization.arr]: 150 },
+        columnWidths: {
+          [columns.id("organization.name")]: 260,
+          [f.organization.arr]: 150,
+        },
       },
     },
     {
@@ -320,11 +351,11 @@ export function buildSyntheticDataViewFixtures(
             f.organization.companySize,
             f.organization.arr,
             f.organization.openPipeline,
-            customFieldIds.organizationWebsite,
+            path("organization.tickets.path"),
           ],
           {
             field: f.organization.industry,
-            summaries: [sum(f.organization.arr), sum(f.organization.openPipeline), average(f.organization.companySize)],
+            summaries: [sum(f.organization.arr), sum(f.organization.openPipeline)],
           },
         ),
         sortDescriptor: sorted(f.organization.arr, "desc"),
@@ -338,9 +369,9 @@ export function buildSyntheticDataViewFixtures(
         ...board(
           "organization",
           f.organization.segment,
-          [f.organization.industry, f.organization.arr, f.organization.licensedSeats],
+          [f.organization.industry, f.organization.arr, "system:assignedTo"],
           {
-            summaries: [sum(f.organization.arr), max(f.organization.arr), sum(f.organization.licensedSeats)],
+            summaries: [sum(f.organization.arr)],
             hideEmpty: true,
           },
         ),
@@ -355,11 +386,7 @@ export function buildSyntheticDataViewFixtures(
       name: "Catalogue by pricing",
       state: {
         ...board("service", customFieldIds.servicePricing, [model.starter.serviceAmount, customFieldIds.serviceType], {
-          summaries: [
-            average(model.starter.serviceAmount),
-            min(model.starter.serviceAmount),
-            max(model.starter.serviceAmount),
-          ],
+          summaries: [average(model.starter.serviceAmount)],
         }),
         sortDescriptor: sorted(model.starter.serviceAmount, "desc"),
       },
@@ -422,7 +449,6 @@ export function buildSyntheticDataViewFixtures(
           f.task.dueDate,
           f.task.team,
           customFieldIds.taskPriority,
-          rel("task.organizations", "outgoing"),
           rel("task.deals", "outgoing"),
           "system:assignedTo",
         ]),
@@ -442,14 +468,13 @@ export function buildSyntheticDataViewFixtures(
           [
             rel("subscription.organization", "outgoing"),
             f.subscription.plan,
-            f.subscription.seats,
             f.subscription.arr,
             f.subscription.renewalDate,
             "system:assignedTo",
           ],
           {
             field: f.subscription.health,
-            summaries: [sum(f.subscription.arr), sum(f.subscription.seats)],
+            summaries: [sum(f.subscription.arr)],
           },
         ),
         filters: [since(f.subscription.renewalDate, 1)],
@@ -485,11 +510,11 @@ export function buildSyntheticDataViewFixtures(
           [
             rel("subscription.organization", "outgoing"),
             f.subscription.arr,
-            f.subscription.seats,
             f.subscription.health,
+            f.subscription.renewalDate,
           ],
           {
-            summaries: [sum(f.subscription.arr), sum(f.subscription.seats), average(f.subscription.arr)],
+            summaries: [sum(f.subscription.arr)],
           },
         ),
         sortDescriptor: sorted(f.subscription.arr, "desc"),
@@ -544,7 +569,6 @@ export function buildSyntheticDataViewFixtures(
           "onboarding",
           [
             f.onboarding.phase,
-            f.onboarding.owner,
             f.onboarding.timeline,
             f.onboarding.progress,
             rel("onboarding.deal", "outgoing"),
@@ -572,7 +596,7 @@ export function buildSyntheticDataViewFixtures(
           f.ticket.priority,
           [f.ticket.status, f.ticket.assignee, f.ticket.slaDue, rel("ticket.subscription", "outgoing")],
           {
-            summaries: [max(f.ticket.daysOverSla), average(f.ticket.daysOverSla)],
+            summaries: [max(f.ticket.daysOverSla)],
           },
         ),
         filters: [anyOf(f.ticket.status, openTickets)],
@@ -590,7 +614,6 @@ export function buildSyntheticDataViewFixtures(
           f.ticket.assignee,
           f.ticket.slaDue,
           f.ticket.daysOverSla,
-          rel("ticket.subscription", "outgoing"),
           f.ticket.notes,
         ]),
         filters: [anyOf(f.ticket.overdue, ["true"])],
@@ -603,14 +626,10 @@ export function buildSyntheticDataViewFixtures(
       surfaceKey: surface("ticket"),
       name: "Opened by week",
       state: {
-        ...table(
-          "ticket",
-          [f.ticket.category, f.ticket.priority, f.ticket.status, f.ticket.openedOn, f.ticket.resolvedOn],
-          {
-            field: f.ticket.openedOn,
-            bucket: "week",
-          },
-        ),
+        ...table("ticket", [f.ticket.category, f.ticket.priority, f.ticket.status, f.ticket.resolvedOn], {
+          field: f.ticket.openedOn,
+          bucket: "week",
+        }),
         sortDescriptor: sorted(f.ticket.openedOn, "desc"),
         pageSize: 25,
       },
@@ -641,15 +660,16 @@ export function buildSyntheticDataViewFixtures(
       state: {
         ...table("campaign", [
           f.campaign.channel,
-          f.campaign.period,
           f.campaign.budget,
           f.campaign.dealsSourced,
           f.campaign.pipelineSourced,
           f.campaign.wonRevenue,
-          f.campaign.costPerDeal,
         ]),
         sortDescriptor: sorted(f.campaign.pipelineSourced, "desc"),
-        columnWidths: { [f.campaign.pipelineSourced]: 170, [f.campaign.wonRevenue]: 150 },
+        columnWidths: {
+          [f.campaign.pipelineSourced]: 170,
+          [f.campaign.wonRevenue]: 150,
+        },
       },
     },
     {
@@ -668,12 +688,7 @@ export function buildSyntheticDataViewFixtures(
           ],
           {
             field: f.campaign.channel,
-            summaries: [
-              sum(f.campaign.budget),
-              sum(f.campaign.pipelineSourced),
-              sum(f.campaign.wonRevenue),
-              average(f.campaign.costPerDeal),
-            ],
+            summaries: [sum(f.campaign.pipelineSourced), sum(f.campaign.wonRevenue)],
           },
         ),
         sortDescriptor: sorted(f.campaign.pipelineSourced, "desc"),
@@ -689,13 +704,9 @@ export function buildSyntheticDataViewFixtures(
         ...board(
           "partner",
           f.partner.tier,
-          [f.partner.region, f.partner.referredPipeline, f.partner.revenueInfluenced, f.partner.commissionDue],
+          [f.partner.region, f.partner.referredPipeline, f.partner.revenueInfluenced],
           {
-            summaries: [
-              sum(f.partner.referredPipeline),
-              sum(f.partner.revenueInfluenced),
-              sum(f.partner.commissionDue),
-            ],
+            summaries: [sum(f.partner.referredPipeline)],
           },
         ),
         sortDescriptor: sorted(f.partner.revenueInfluenced, "desc"),
@@ -711,14 +722,13 @@ export function buildSyntheticDataViewFixtures(
           [
             f.partner.tier,
             f.partner.commissionRate,
-            f.partner.annualFee,
             f.partner.referredPipeline,
             f.partner.revenueInfluenced,
-            f.partner.website,
+            f.partner.commissionDue,
           ],
           {
             field: f.partner.region,
-            summaries: [sum(f.partner.revenueInfluenced), average(f.partner.commissionRate)],
+            summaries: [sum(f.partner.revenueInfluenced)],
           },
         ),
         sortDescriptor: sorted(f.partner.revenueInfluenced, "desc"),
@@ -734,9 +744,9 @@ export function buildSyntheticDataViewFixtures(
         ...board(
           "openRole",
           f.openRole.department,
-          [f.openRole.status, f.openRole.hiringManager, f.openRole.candidateCount, f.openRole.salaryBudget],
+          [f.openRole.status, f.openRole.hiringManager, f.openRole.targetStart, f.openRole.candidateCount],
           {
-            summaries: [sum(f.openRole.salaryBudget), sum(f.openRole.candidateCount)],
+            summaries: [sum(f.openRole.candidateCount)],
             hideEmpty: true,
           },
         ),
@@ -796,7 +806,7 @@ export function buildSyntheticDataViewFixtures(
           ],
           {
             field: f.candidate.department,
-            summaries: [average(f.candidate.salaryExpectation), max(f.candidate.salaryExpectation)],
+            summaries: [average(f.candidate.salaryExpectation)],
           },
         ),
         filters: [
@@ -841,13 +851,19 @@ export function buildSyntheticDataViewFixtures(
       id: SYNTHETIC_DATA_VIEW_IDS.inboxUnread,
       surfaceKey: SURFACE.messagingThreads,
       name: "Unread",
-      state: { filters: [anyOf(FilterFieldKey.state, [MessagingThreadState.unread])], viewMode: ViewMode.table },
+      state: {
+        filters: [anyOf(FilterFieldKey.state, [MessagingThreadState.unread])],
+        viewMode: ViewMode.table,
+      },
     },
     {
       id: SYNTHETIC_DATA_VIEW_IDS.inboxWhatsApp,
       surfaceKey: SURFACE.messagingThreads,
       name: "WhatsApp",
-      state: { filters: [anyOf(FilterFieldKey.provider, [MessagingProvider.whatsapp])], viewMode: ViewMode.table },
+      state: {
+        filters: [anyOf(FilterFieldKey.provider, [MessagingProvider.whatsapp])],
+        viewMode: ViewMode.table,
+      },
     },
   ];
 
@@ -869,7 +885,11 @@ export async function persistSyntheticDataViewFixtures(
   for (const view of views) {
     const { id, state, ...rest } = view;
     const data = { companyId, ...rest, ...writeStoredState(state) };
-    await prisma.dataView.upsert({ where: { id }, update: data, create: { id, ...data } });
+    await prisma.dataView.upsert({
+      where: { id },
+      update: data,
+      create: { id, ...data },
+    });
   }
 
   await prisma.dataView.deleteMany({

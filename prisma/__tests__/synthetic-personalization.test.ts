@@ -17,7 +17,8 @@ import {
   type CustomFieldSeedData,
 } from "../seeds/custom-fields";
 import { fixtureId } from "../seeds/helpers";
-import { northwindModelIds } from "../seeds/northwind-model";
+import { northwindColumns } from "../seeds/northwind-columns";
+import { NORTHWIND_CUSTOM_TYPE_KEYS, northwindModelIds } from "../seeds/northwind-model";
 import { syntheticRecordKeys } from "../seeds/record-keys";
 import {
   buildSyntheticP13nFixtures,
@@ -35,14 +36,17 @@ const customFields: CustomFieldSeedData = {
 };
 const { id, surface, relationship, path } = syntheticRecordKeys(SEED_IDS.company);
 const C = SYNTHETIC_CUSTOM_FIELD_IDS;
-const dealStage = northwindModelIds(SEED_IDS.company).fields.deal.stage;
+const { fields: f } = northwindModelIds(SEED_IDS.company);
+const dealStage = f.deal.stage;
+const columns = northwindColumns(SEED_IDS.company, C);
+const LISTS = ["contact", "organization", "deal", "service", "task", ...NORTHWIND_CUSTOM_TYPE_KEYS] as const;
 
 describe("synthetic personalization fixtures", () => {
   it("seeds list and record-detail personalization with deterministic field, option and user IDs", () => {
     const fixtures = buildSyntheticP13nFixtures({ ids: SEED_IDS }, customFields);
     const byP13nId = new Map(fixtures.map((fixture) => [fixture.p13nId, fixture]));
 
-    expect(fixtures).toHaveLength(16);
+    expect(fixtures).toHaveLength(30);
     expect(fixtures.map(({ p13nId }) => p13nId)).toEqual([
       surface("contact"),
       "users-card-store",
@@ -55,7 +59,8 @@ describe("synthetic personalization fixtures", () => {
       surface("organization"),
       "dashboard",
       "routines-card-store",
-      ...["contact", "organization", "deal", "service", "task"].map((type) => `record-detail:${id(type)}`),
+      ...NORTHWIND_CUSTOM_TYPE_KEYS.map((type) => surface(type)),
+      ...LISTS.map((type) => `record-detail:${id(type)}`),
     ]);
     expect(new Set(fixtures.map(({ id }) => id))).toEqual(new Set(Object.values(SYNTHETIC_P13N_IDS)));
     expect(fixtures.every(({ companyId, userId }) => companyId === SEED_IDS.company && userId === SEED_IDS.user)).toBe(
@@ -65,6 +70,7 @@ describe("synthetic personalization fixtures", () => {
       if (fixture.filters !== undefined) expect(z.array(FilterSchema).safeParse(fixture.filters).success).toBe(true);
       if (fixture.sortDescriptor !== undefined)
         expect(SortDescriptorSchema.safeParse(fixture.sortDescriptor).success).toBe(true);
+
       if (fixture.pagination !== undefined) {
         expect(PaginationRequestSchema.pick({ pageSize: true }).strict().safeParse(fixture.pagination).success).toBe(
           true,
@@ -97,66 +103,53 @@ describe("synthetic personalization fixtures", () => {
 
     expect(byP13nId.get(surface("contact"))).toMatchObject({
       columnOrder: [
+        f.contact.jobTitle,
         relationship("contact.organizations", "outgoing"),
-        relationship("task.contacts", "incoming"),
-        relationship("deal.contacts", "incoming"),
         C.contactSalesPipeline,
-        C.contactPhone,
         id("capability.identity"),
-        "system:updatedAt",
-        "system:createdAt",
-        "system:assignedTo",
       ],
-      columnWidths: { [relationship("task.contacts", "incoming")]: 133 },
+      columnWidths: { [f.contact.jobTitle]: 220 },
       filters: [{ field: "system:assignedTo", operator: "in", value: [SEED_IDS.user] }],
       pagination: { pageSize: 100 },
       sortDescriptor: { direction: "asc", field: id("contact.name") },
       viewMode: "table",
     });
     expect(byP13nId.get(surface("task"))).toMatchObject({
-      columnOrder: [C.taskPriority, C.taskStatus, "system:updatedAt", "system:createdAt", "system:assignedTo"],
+      columnOrder: [f.task.dueDate, C.taskPriority, relationship("task.deals", "outgoing")],
       filters: [{ field: "system:assignedTo", operator: "in", value: [SEED_IDS.user] }],
       groupingColumnId: C.taskStatus,
       viewMode: "card",
     });
     expect(byP13nId.get(surface("deal"))).toMatchObject({
       columnOrder: [
-        dealStage,
         id("deal.totalValue"),
-        id("deal.weightedValue"),
-        relationship("task.deals", "incoming"),
-        id("deal.totalQuantity"),
-        C.dealProjectPeriod,
-        relationship("deal.contacts", "outgoing"),
         relationship("deal.organizations", "outgoing"),
-        path("deal.services.path"),
         "system:assignedTo",
-        "system:updatedAt",
-        "system:createdAt",
+        f.deal.openedOn,
       ],
       groupingColumnId: dealStage,
+      grouping: {
+        field: dealStage,
+        summaries: [{ fieldId: id("deal.totalValue"), aggregation: "sum" }],
+      },
       viewMode: "card",
     });
-    expect(byP13nId.get("dashboard")).toMatchObject({ activeViewKey: ALL_VIEW_KEY });
+    expect(byP13nId.get("dashboard")).toMatchObject({
+      activeViewKey: ALL_VIEW_KEY,
+    });
     expect(byP13nId.get(surface("service"))).toMatchObject({
-      columnOrder: [
-        C.serviceType,
-        id("service.amount"),
-        C.servicePricing,
-        path("service.deals.path"),
-        relationship("task.services", "incoming"),
-        "system:updatedAt",
-        "system:createdAt",
-        "system:assignedTo",
-      ],
+      columnOrder: [C.serviceType, id("service.amount"), C.servicePricing, path("service.deals.path")],
       viewMode: "table",
     });
     expect(byP13nId.get(surface("organization"))).toMatchObject({
-      columnWidths: {
-        [relationship("deal.organizations", "incoming")]: 227,
-        [relationship("task.organizations", "incoming")]: 191,
-      },
-      hiddenColumns: ["system:createdAt"],
+      columnOrder: [
+        C.organizationType,
+        f.organization.industry,
+        f.organization.segment,
+        f.organization.arr,
+        "system:assignedTo",
+      ],
+      columnWidths: { [id("organization.name")]: 260 },
       viewMode: "table",
     });
     expect(byP13nId.get("routines-card-store")).toMatchObject({
@@ -192,7 +185,7 @@ describe("synthetic personalization fixtures", () => {
       viewMode: null,
     });
 
-    for (const type of ["contact", "organization", "deal", "service", "task"]) {
+    for (const type of ["contact", "organization", "deal", "service", "task"] as const) {
       const entry = byP13nId.get(`record-detail:${id(type)}`);
       const options = EntityDetailOptionsSchema.parse(entry?.detailOptions);
       expect(entry).toMatchObject({ hiddenColumns: [], viewMode: null });
@@ -210,9 +203,10 @@ describe("synthetic personalization fixtures", () => {
       detailOptions: {
         starredFieldIds: [
           id("deal.totalValue"),
-          id("deal.totalQuantity"),
+          dealStage,
+          f.deal.openedOn,
           relationship("deal.organizations", "outgoing"),
-          C.dealStatus,
+          "system:assignedTo",
         ],
         hiddenFieldIds: [
           id("deal.weightedValue"),
@@ -224,6 +218,34 @@ describe("synthetic personalization fixtures", () => {
       },
     });
     expect(byP13nId.get(`record-detail:${id("task")}`)?.columnOrder).toEqual([C.taskPriority, C.taskStatus]);
+  });
+
+  it("curates every list's All view and record page for an overview", () => {
+    const fixtures = buildSyntheticP13nFixtures({ ids: SEED_IDS }, customFields);
+    const byP13nId = new Map(fixtures.map((fixture) => [fixture.p13nId, fixture]));
+
+    for (const type of LISTS) {
+      const list = byP13nId.get(surface(type));
+      const visible = z.array(z.string()).parse(list?.columnOrder);
+      const hidden = z.array(z.string()).parse(list?.hiddenColumns);
+      // A card shows three to five chips; a table the name plus four to six columns (three for the smallest lists).
+      expect(visible.length, type).toBeGreaterThanOrEqual(3);
+      expect(visible.length, type).toBeLessThanOrEqual(list?.viewMode === "card" ? 5 : 6);
+      expect(
+        visible.filter((column) => hidden.includes(column)),
+        type,
+      ).toEqual([]);
+      expect(new Set([...visible, ...hidden]), type).toEqual(new Set(columns.all(type)));
+      if (list?.groupingColumnId) expect(hidden, type).toContain(list.groupingColumnId);
+      expect(GroupingSchema.safeParse(list?.grouping).data?.summaries?.length ?? 0, type).toBeLessThanOrEqual(2);
+
+      const pins = EntityDetailOptionsSchema.parse(byP13nId.get(`record-detail:${id(type)}`)?.detailOptions);
+      expect(pins.starredFieldIds.length, type).toBeGreaterThanOrEqual(3);
+      expect(pins.starredFieldIds.length, type).toBeLessThanOrEqual(5);
+      expect(new Set(pins.starredFieldIds).size, type).toBe(pins.starredFieldIds.length);
+      for (const field of pins.starredFieldIds)
+        expect([...columns.all(type), id(`${type}.name`)], type).toContain(field);
+    }
   });
 
   it("upserts by the tenant-user-view key and removes only stale deterministic rows", async () => {
@@ -304,12 +326,12 @@ describe("synthetic personalization fixtures", () => {
     await persistSyntheticP13nFixtures(prisma, SEED_IDS.company, SEED_IDS.user, fixtures);
     await persistSyntheticP13nFixtures(prisma, SEED_IDS.company, SEED_IDS.user, fixtures);
 
-    expect(rows).toHaveLength(17);
+    expect(rows).toHaveLength(31);
     expect(rows.has("unrelated-p13n-row")).toBe(true);
     expect(rows.has(fixtureId(SYNTHETIC_P13N_ID_PREFIX, 999))).toBe(false);
 
     await persistSyntheticP13nFixtures(prisma, SEED_IDS.company, SEED_IDS.user, fixtures.slice(0, -1));
-    expect(rows).toHaveLength(16);
+    expect(rows).toHaveLength(30);
     expect(rows.has(fixtures.at(-1)?.id ?? "")).toBe(false);
     expect(rows.has("unrelated-p13n-row")).toBe(true);
   });

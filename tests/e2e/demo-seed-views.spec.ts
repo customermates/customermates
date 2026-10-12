@@ -1,6 +1,6 @@
 import type { Page } from "@playwright/test";
 
-import { DEMO_COMPANY_ID, DEMO_MEMBERS, type DemoMember, expect, memberPage, settle, test } from "./demo-seed";
+import { DEMO_COMPANY_ID, DEMO_MEMBERS, type DemoMember, demoId, expect, memberPage, settle, test } from "./demo-seed";
 
 type SeededView = {
   id: string;
@@ -121,4 +121,57 @@ test("members open their personal seeded views with records", async ({ browser, 
       await member.close();
     }
   }
+});
+
+test("seeded views and pins stay curated for an overview: at most five card chips and five pins", async ({
+  page,
+  database,
+  errors,
+}, testInfo) => {
+  const deals = demoId("deal");
+  const { rows: pipeline } = await database.query<{ id: string }>(
+    `SELECT id FROM "DataView" WHERE "companyId"=$1 AND "surfaceKey"=$2 AND name='Pipeline' AND "userId"=$3`,
+    [DEMO_COMPANY_ID, `records:${deals}`, DEMO_MEMBERS.maxBergmann.userId],
+  );
+  await page.goto(`/en/records/${deals}?view=${pipeline[0]?.id}`);
+  const card = page.locator("[data-item-id], [data-row-id]").first();
+  await expect(card).toBeVisible();
+  await expect(card.locator("[data-chip-column]").first()).toBeVisible();
+  const chips = await card.locator("[data-chip-column]").count();
+  expect(chips, "a Deals board card shows at most five chips").toBeLessThanOrEqual(5);
+  // The when-chip shows the date the deal was opened (open deals have no close date yet).
+  await expect(card.locator(`[data-chip-column="${demoId("deal.openedOn")}"]`)).toContainText(/\d/);
+  await page.screenshot({ path: testInfo.outputPath("deals-board.png") });
+
+  await settle(page);
+  const { rows: forecast } = await database.query<{ id: string }>(
+    `SELECT id FROM "DataView" WHERE "companyId"=$1 AND "surfaceKey"=$2 AND name='Forecast'`,
+    [DEMO_COMPANY_ID, `records:${deals}`],
+  );
+  await page.goto(`/en/records/${deals}?view=${forecast[0]?.id}`);
+  await expect(page.locator("[data-row-id]").first()).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath("deals-forecast-table.png") });
+
+  const { rows: pins } = await database.query<{ p13nId: string; pinned: number }>(
+    `SELECT "p13nId", jsonb_array_length("detailOptions"->'starredFieldIds')::int AS pinned FROM "P13n"
+     WHERE "companyId"=$1 AND "userId"=$2 AND "p13nId" LIKE 'record-detail:%'`,
+    [DEMO_COMPANY_ID, DEMO_MEMBERS.maxBergmann.userId],
+  );
+  expect(pins.length, "every list pins fields on its record page").toBe(LISTS.length);
+  for (const { p13nId, pinned } of pins) expect(pinned, `${p13nId} pins at most five fields`).toBeLessThanOrEqual(5);
+
+  await settle(page);
+  const { rows: record } = await database.query<{ id: string }>(
+    `SELECT "recordId" AS id FROM "RecordValue" WHERE "companyId"=$1 AND "fieldId"=$2 ORDER BY "recordId" LIMIT 1`,
+    [DEMO_COMPANY_ID, demoId("deal.closeDate")],
+  );
+  await page.goto(`/en/records/${deals}/${record[0]?.id}`);
+  // Pinned fields show even when empty, so the band settles on exactly the deal pins.
+  const dealPins = pins.find(({ p13nId }) => p13nId === `record-detail:${deals}`)?.pinned ?? 0;
+  expect(dealPins, "a deal pins three to five fields").toBeGreaterThanOrEqual(3);
+  await expect(page.locator("[data-record-chip-row] [data-chip-column]")).toHaveCount(dealPins);
+  const openedOn = page.locator(`[data-record-chip-row] [data-chip-column="${demoId("deal.openedOn")}"]`);
+  await expect(openedOn).toContainText(/\d/);
+  await page.screenshot({ path: testInfo.outputPath("deal-record.png") });
+  expect(errors).toEqual([]);
 });
