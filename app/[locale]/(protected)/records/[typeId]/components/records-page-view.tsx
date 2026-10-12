@@ -36,7 +36,8 @@ const END_ALIGNED_TYPES: RecordFieldView["valueType"][] = [
   "dateTimeRange",
 ];
 
-import { RecordRowActions, recordRowName } from "./record-row-actions";
+import { RowActions } from "@/components/data-view/row-actions";
+import { recordDisplayName } from "@/features/records/record-display-name";
 import { useRecordDeletion } from "./use-record-deletion";
 import { useRecordRouteReady } from "@/components/records/use-record-route-ready";
 import { RecordOperationProgress } from "@/components/records/record-operation-progress";
@@ -44,6 +45,11 @@ import { useRecordExport } from "@/features/data-transfer/export/use-record-expo
 import { RecordImportDialog } from "./record-import-dialog";
 import { RecordMassActions } from "./record-mass-actions";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+
+function recordRowName(store: RecordsStore, record: RecordRow, t: ReturnType<typeof useTranslations>) {
+  const title = record.fields.find((field) => field.fieldId === store.type?.primaryFieldId)?.result;
+  return recordDisplayName(title, store.type?.label, t);
+}
 
 const RecordsPageViewContent = observer(function RecordsPageView({
   presentation,
@@ -128,7 +134,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
       const name = recordRowName(store, record, t);
       const canDelete = store.presentation.permittedActions.includes("delete") && !record.protectedKind;
       return (
-        <RecordRowActions
+        <RowActions
           name={name}
           onDelete={
             canDelete ? () => deletion.requestDeletion(record, store.presentation.model.revision, name) : undefined

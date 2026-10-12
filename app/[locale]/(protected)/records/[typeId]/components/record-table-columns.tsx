@@ -26,7 +26,7 @@ import {
 
 const FILL_EDIT_TARGET_CLASS = "flex min-w-0 [&_[data-edit-target]]:w-full";
 
-export function recordAvatarFieldId(store: RecordsStore) {
+function recordAvatarFieldId(store: RecordsStore) {
   return store.presentation.model.capabilities
     .find((binding) => binding.kind === "avatar" && binding.typeId === store.presentation.typeId)
     ?.fields.find((field) => field.role === "image")?.fieldId;

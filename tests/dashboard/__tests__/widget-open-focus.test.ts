@@ -27,7 +27,7 @@ vi.mock("next/dynamic", () => ({
 }));
 vi.mock("@/app/components/topbar-actions-context", () => ({ useSetTopBarActions: vi.fn() }));
 vi.mock("@/app/components/agent-chat/suggested-questions", () => ({ AgentStarterActions: () => null }));
-vi.mock("@/core/utils/use-is-touch-device", () => ({ useIsTouchDevice: () => false }));
+vi.mock("@/hooks/use-touch-input", () => ({ useTouchInput: () => false }));
 vi.mock("@/app/[locale]/(protected)/dashboard/components/chart-widget-card", () => ({
   ChartWidgetCard: ({ widget }: { widget: WidgetDto }) =>
     createElement("div", { "data-chart": widget.id }, widget.name),
@@ -54,7 +54,6 @@ vi.mock("@/core/stores/root-store.provider", () => {
       harness.focusedAtOpen = document.activeElement;
       harness.loadById(id);
     },
-    setExpandedFilterField: vi.fn(),
     setExpandedSection: vi.fn(),
   };
   const widgetsStore = {

@@ -509,7 +509,7 @@ const AGENT_CREDIT_BLOCKED_KEYS = [
 const DYNAMIC_TEMPLATE_CONSUMERS = new Map<string, readonly string[]>([
   [
     "Dashboard.activityWidget.${*}",
-    ["error", "noPermission", "noMatches", "noActivity", "noAccount", "scopeTooBroad"].map(
+    ["error", "noPermission", "noMatches", "noActivity", "noAccount"].map(
       (state) => `Dashboard.activityWidget.${state}`,
     ),
   ],
@@ -797,7 +797,6 @@ export const DYNAMIC_KEY_SITES = [
   "components/ai-connection/ai-connection-openai-setup.tsx :: t :: OnboardingWizard.ai.openai.methods.${candidate}.note",
   "components/ai-connection/ai-connection-openai-setup.tsx :: t :: OnboardingWizard.ai.openai.methods.${candidate}.title",
   "components/ai-connection/ai-connection-provider-grid.tsx :: t :: OnboardingWizard.ai.choices.${provider}",
-  "components/data-view/filter-modal/filter-field.tsx :: t :: Common.filters.operators.${key}",
   "components/data-view/filter-modal/inputs/filter-input-iso-date-range.tsx :: t :: Common.datePresets.${key}",
   "components/data-view/filter-modal/inputs/filter-input-iso-date.tsx :: t :: Common.datePresets.${preset.key}",
   "components/data-view/filter-modal/inputs/use-filter-select-items.tsx :: t :: Common.events.${event}",

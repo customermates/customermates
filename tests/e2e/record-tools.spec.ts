@@ -10,7 +10,7 @@ import { RecordMeasureResultSchema } from "../../features/records/record-measure
 import { ConfigurationPreviewSchema } from "../../features/records/configuration.schema";
 import { ManageDataViewsResultSchema } from "../../features/data-view/manage-data-views.schema";
 import { localE2eEnvironment } from "./local-environment";
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { invokesServerAction, serverActionIds } from "./server-actions";
 
 const DiscoverySchema = z.object({
@@ -41,13 +41,7 @@ test("configures a type, formula, saved view and widget over authenticated MCP a
     expect(result.structuredContent, `${name} omitted structured content`).toBeDefined();
     return result.structuredContent;
   };
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   try {
     await client.connect(transport);
     const catalog = await client.listTools();

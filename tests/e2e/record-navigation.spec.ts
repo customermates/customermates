@@ -1,6 +1,6 @@
 import { presetId } from "../../features/records/crm-preset";
 import { followConfigureLink, saveGeneral } from "./configure";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { expect, test, collectPageErrors } from "./fixtures";
 
 test("answers the removed fixed-entity routes with not found", async ({ page, companyId }) => {
   for (const path of ["contacts", "organizations", "deals", "services", "tasks"]) {
@@ -14,13 +14,7 @@ test("uses configured navigation, quick creation, rename-safe routes, and hidden
   database,
   companyId,
 }, testInfo) => {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const serviceId = presetId(companyId, "service");
   await page.goto(`/en/records/${serviceId}`);
   const openSidebar = async () => {

@@ -17,7 +17,7 @@ import { recordLinkColor } from "@/features/records/record-presentation";
 import { cn } from "@/core/utils/cn";
 import { RECORD_LINK_FRAME_CLASS, RECORD_LINK_FRAME_READ_ONLY_CLASS } from "./record-relationship-editor";
 import { useRecordChoices } from "@/components/records/use-record-choices";
-import { RecordDetailField } from "./record-detail-field";
+import { EntityDetailFieldShell } from "@/components/entity-detail/entity-detail-field-shell";
 import { EmptyValue } from "@/components/shared/empty-value";
 import { relationshipPathColumnKey } from "@/features/records/record-column.schema";
 import { EntityDetailDerivation } from "@/components/entity-detail/entity-detail-derivation";
@@ -63,7 +63,7 @@ export const RecordPathRecords = observer(function RecordPathRecords({
   );
   return (
     <section aria-label={path.label} className="space-y-1.5">
-      <RecordDetailField fieldId={relationshipPathColumnKey(path.id)} label={path.label}>
+      <EntityDetailFieldShell fieldId={relationshipPathColumnKey(path.id)} label={path.label}>
         {result.failed ? (
           <div className="flex items-center gap-2 text-sm" role="alert">
             <span>{t("Common.notifications.unexpectedError")}</span>
@@ -137,7 +137,7 @@ export const RecordPathRecords = observer(function RecordPathRecords({
             </Button>
           </div>
         )}
-      </RecordDetailField>
+      </EntityDetailFieldShell>
     </section>
   );
 });

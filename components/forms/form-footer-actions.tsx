@@ -22,7 +22,7 @@ import { focusFirstInvalidField } from "./focus-first-invalid-field";
 import { useAppForm } from "./form-context";
 import { shortcutScope, useFormFooterKeyboard } from "./use-form-footer-keyboard";
 
-export type FormFooterReset = {
+type FormFooterReset = {
   differs: boolean;
   onReset: () => void;
 };

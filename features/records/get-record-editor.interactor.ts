@@ -28,6 +28,8 @@ import {
 } from "./record-presentation";
 import type { RecordDetailLayoutReader } from "./record-detail-layout-reader";
 import type { RecordDetailLayoutResult } from "./record-detail-layout.schema";
+import type { EmbeddedSublistPage } from "./embedded-sublist";
+import type { EmbeddedSublistReader } from "./embedded-sublist-reader";
 
 const GetRecordEditorSchema = z.object({ typeId: z.uuid(), recordId: z.uuid().optional() }).strict();
 export type RecordEditorContext = {
@@ -41,6 +43,7 @@ export type RecordEditorContext = {
   systemActions?: Array<"manageMembership">;
   detailLayout?: RecordDetailLayoutResult;
   formulaReferences?: FormulaReferences;
+  embedded?: Record<string, EmbeddedSublistPage>;
 };
 export type RecordEditorResult = RecordEditorContext & { record: RecordDto | null };
 
@@ -54,6 +57,7 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
     private layouts: RecordDetailLayoutReader,
+    private sublists: EmbeddedSublistReader,
   ) {
     super();
   }
@@ -144,12 +148,17 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
         }
         if (record && recordChannelsEnabled(model, type.id))
           record.identities = await this.records.getIdentitiesCompanyWide(record.ref);
+        const embedded =
+          record && !options.includeTrash
+            ? await this.sublists.read(record.ref, { types, fields, relationships })
+            : undefined;
         return {
           ok: true,
           data: {
             typeId: type.id,
             record,
             detailLayout: layout.data,
+            embedded,
             canManageSchema: policy.canManageSchema,
             linkColors: recordLinkColors(model.types, relationships),
             linkIcons: recordLinkIcons(model.types, relationships),

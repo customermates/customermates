@@ -11,12 +11,12 @@ import {
   type OverlayIconControlVariant,
 } from "@/components/ui/overlay-contract";
 import { AskAiAction } from "@/components/ui/ask-ai-action";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 export type AppModalActionVariant = OverlayIconControlVariant;
 
-export type AppModalActionKind = "assistant" | "customize" | "other" | "destructive" | "navigate";
+type AppModalActionKind = "assistant" | "customize" | "other" | "destructive" | "navigate";
 
 const ACTION_KIND_ORDER: Record<AppModalActionKind, number> = {
   assistant: 0,
@@ -173,15 +173,10 @@ export function AppModalActionRail({
 }) {
   if (actions.length === 0) return null;
   return (
-    <TooltipProvider>
-      <div
-        className={cn("flex min-h-8 shrink-0 items-center gap-2 self-start", className)}
-        data-slot="app-modal-actions"
-      >
-        {orderAppModalActions(actions).map((action) => (
-          <AppModalAction key={action.id} {...action} />
-        ))}
-      </div>
-    </TooltipProvider>
+    <div className={cn("flex min-h-8 shrink-0 items-center gap-2 self-start", className)} data-slot="app-modal-actions">
+      {orderAppModalActions(actions).map((action) => (
+        <AppModalAction key={action.id} {...action} />
+      ))}
+    </div>
   );
 }

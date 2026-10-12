@@ -1,4 +1,3 @@
-import type { FilterableField } from "@/core/base/base-get.schema";
 import type { RootStore } from "@/core/stores/root.store";
 import { ACTIVITY_KINDS } from "@/ee/messaging/activities/activities.schema";
 import { recordActivityFilterCount } from "@/ee/messaging/activities/record-activity-sources";
@@ -56,10 +55,8 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
   private recordSubmission: { payload: string; key: string } | null = null;
   public companyWideWidgets: CompanyWidget[] = [];
   public expandedSection: WidgetModalSection = "config";
-  public expandedFilterField: string | undefined = undefined;
   public creationStep: WidgetCreationStep = "choose";
   public isHydrating = false;
-  public activityFilterableFields: FilterableField[] = [];
   private skipReactions = false;
   private loadGeneration = 0;
   private sessionGeneration = 0;
@@ -96,10 +93,8 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       setRecordTypes: action,
       companyWideWidgets: observable,
       expandedSection: observable,
-      expandedFilterField: observable,
       creationStep: observable,
       isHydrating: observable,
-      activityFilterableFields: observable,
       recordModel: observable.ref,
       recordPreview: observable.ref,
       recordPreviewLoading: observable,
@@ -116,9 +111,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
       loadById: action,
       loadTemplate: action,
       fetchCompanyWidgets: action,
-      setActivityFilterableFields: action,
       setExpandedSection: action,
-      setExpandedFilterField: action,
       setCreationStep: action,
       startFromKind: action,
       openWithFilter: action,
@@ -305,7 +298,6 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     this.invalidateLoads();
     this.withSuppressedReactions(() => {
       this.expandedSection = "config";
-      this.expandedFilterField = undefined;
       const form = this.buildNewForm(kind, options.activityName);
       this.replaceForm(
         isRecordWidgetForm(form) && options.displayType
@@ -320,24 +312,18 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
     this.expandedSection = (section as WidgetModalSection) || "config";
   };
 
-  setExpandedFilterField = (field: string | undefined) => {
-    this.expandedFilterField = field;
-  };
-
   setCreationStep = (step: WidgetCreationStep) => {
     if (this.form.id) return;
     this.creationStep = step;
   };
 
-  openWithFilter = (id: string, section: WidgetModalSection, field?: string) => {
+  openWithFilter = (id: string, section: WidgetModalSection) => {
     this.expandedSection = section;
-    this.expandedFilterField = field;
     return this.loadById(id);
   };
 
   add = (defaultActivityName?: string) => {
     this.expandedSection = "config";
-    this.expandedFilterField = undefined;
     this.creationStep = "choose";
 
     const defaultKind = this.availableKinds[0];
@@ -458,10 +444,6 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
 
   setRecordTypes = (types: DiscoveredRecordTypes) => {
     this.recordTypes = types;
-  };
-
-  setActivityFilterableFields = (filterableFields: FilterableField[]) => {
-    this.activityFilterableFields = filterableFields;
   };
 
   private submissionKey(input: object) {

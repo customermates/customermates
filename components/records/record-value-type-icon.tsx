@@ -38,7 +38,7 @@ const VALUE_TYPE_ICONS: Record<RecordValueType, LucideIcon> = {
   channels: AtSign,
 };
 
-export function recordValueTypeIcon(valueType: RecordValueType): LucideIcon {
+function recordValueTypeIcon(valueType: RecordValueType): LucideIcon {
   return VALUE_TYPE_ICONS[valueType];
 }
 

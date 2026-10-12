@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { expect, test, collectPageErrors } from "./fixtures";
 import { recordRowName, recordRows, runNamedRowAction } from "./record-rows";
 
 test("returns to a valid relationship, path and embedded page after deleting its last row", async ({
@@ -11,13 +11,7 @@ test("returns to a valid relationship, path and embedded page after deleting its
 }, testInfo) => {
   test.setTimeout(240000);
   const id = (key: string) => presetId(companyId, key);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const post = async (path: string, data: unknown) => {
     const response = await page.request.post(path, { data });
     expect(response.ok(), await response.text()).toBe(true);

@@ -81,5 +81,3 @@ export function IconButton({
     </Tooltip>
   );
 }
-
-export { fieldActionButtonClass, fieldActionIconClass, iconButtonClass, iconButtonIconClass };

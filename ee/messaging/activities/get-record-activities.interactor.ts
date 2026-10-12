@@ -13,6 +13,7 @@ import type {
   ActivityRecordContextDto,
 } from "./activities.schema";
 import type { RecordRef } from "@/features/records/record-model.schema";
+import type { TrashedRecordAccess } from "@/features/trash/trashed-record-access";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -31,6 +32,8 @@ import { isSystemActivityAuditEvent, systemActivityChanges } from "./system-audi
 import { configurationActivity } from "./configuration-activity";
 import { CHANGE_ACTIVITY_KINDS } from "./activities.schema";
 
+const sameRef = (left: RecordRef, right: RecordRef) => left.typeId === right.typeId && left.recordId === right.recordId;
+
 @AllowInDemoMode
 @TenantInteractor()
 export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
@@ -44,12 +47,17 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
     private identities: RecordIdentityReader,
     private history: RecordHistoryReader,
     private entitlements: Pick<EntitlementService, "require">,
+    private trash: Pick<TrashedRecordAccess, "find">,
   ) {
     super();
   }
 
   @Validate(RecordActivitiesInputSchema)
   async invoke(input: RecordActivitiesInput): Validated<RecordActivitiesResult> {
+    return this.read(input);
+  }
+
+  read(input: RecordActivitiesInput, options: { includeTrashed?: boolean } = {}): Validated<RecordActivitiesResult> {
     return runInTransaction(
       async () => {
         const [model, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
@@ -63,6 +71,7 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
           )
         )
           return failNotFound(CustomErrorCode.recordTypeNotFound);
+        const trashed: RecordRef[] = [];
         for (const ref of [
           ...input.scope.records,
           ...recordFilters.flatMap((filter) =>
@@ -73,6 +82,13 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
           ),
         ]) {
           const row = await this.records.getRecordCompanyWide(ref);
+          if (!row && options.includeTrashed && input.scope.records.some((scoped) => sameRef(scoped, ref))) {
+            const visible = await this.trash.find(ref);
+            if (visible && (await policy.canRead(visible.record))) {
+              trashed.push(ref);
+              continue;
+            }
+          }
           if (
             row
               ? !(await policy.canRead(row))
@@ -89,7 +105,7 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
         if (policy.canReadSystem("inboxMessages") && !(await this.entitlements.require("messaging")))
           availableSources.push("message", "activity", "calendar_event");
         const access = policy.access(model.types.map((type) => type.id));
-        const index = await this.activities.index(input, model, access, availableSources);
+        const index = await this.activities.index(input, model, access, availableSources, trashed);
         const page = index.slice(0, input.limit);
         const ids = (kind: string) => page.filter((row) => row.kind === kind).map((row) => row.id);
         const [events, messages, activities, calendar, eventRefs, configurations] = await Promise.all([
@@ -97,7 +113,7 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
           this.activities.messagesCompanyWide(ids("message")),
           this.activities.activitiesCompanyWide(ids("activity")),
           this.activities.calendarEventsCompanyWide(ids("calendar_event")),
-          this.activities.relatedRecords(page, input, model, access),
+          this.activities.relatedRecords(page, input, model, access, trashed),
           this.activities.configurationsCompanyWide(ids("configuration")),
         ]);
         await hydrateMessageRecordIdentities(
@@ -203,7 +219,7 @@ export class GetRecordActivitiesInteractor extends AuthenticatedInteractor<
         for (const event of events.filter((event) => event.subjectKind === "record")) {
           const parsed = RecordEventPayloadSchema.safeParse(event.payload);
           if (!parsed.success) continue;
-          const changes = await this.history.redact(parsed.data, model, policy);
+          const changes = await this.history.redact(parsed.data, model, policy, "history", trashed);
           if (!changes || !["record.created", "record.updated", "record.deleted"].includes(event.kind)) continue;
           recordChanges.push({ event, changes });
         }

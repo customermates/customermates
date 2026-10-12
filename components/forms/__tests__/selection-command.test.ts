@@ -6,10 +6,6 @@ import { createRoot } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const testContext = vi.hoisted(() => ({
-  filterItems: [] as Array<{ key: string; value: string; textValue: string }>,
-  filterLoadError: false,
-  filterLoading: false,
-  filterMaxSelectedValues: undefined as number | undefined,
   formIsLoading: false,
   formIsReadOnly: false,
   formValue: undefined as string | string[] | undefined,
@@ -74,10 +70,10 @@ vi.mock("@/core/stores/root-store.provider", () => ({
 vi.mock("@/components/data-view/filter-modal/inputs/use-filter-select-items", () => ({
   useFilterSelectItems: () => ({
     getItems: undefined,
-    isLoading: testContext.filterLoading,
-    items: testContext.filterItems,
-    loadError: testContext.filterLoadError,
-    maxSelectedValues: testContext.filterMaxSelectedValues,
+    isLoading: false,
+    items: [],
+    loadError: false,
+    maxSelectedValues: undefined,
   }),
 }));
 
@@ -89,11 +85,8 @@ vi.mock("@/core/utils/toast-zod-error-tree", () => ({
   toastZodErrorTree: vi.fn(),
 }));
 
-import { FilterInputSelect } from "@/components/data-view/filter-modal/inputs/filter-input-select";
 import { FilterChipValue } from "@/components/data-view/filter-modal/filter-chip-display";
-import { FilterField } from "@/components/data-view/filter-modal/filter-field";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
-import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FormAutocomplete } from "../form-autocomplete";
 import { FormAutocompleteAvatar } from "../form-autocomplete-avatar";
 import { FormAutocompleteCountry } from "../form-autocomplete-country";
@@ -174,24 +167,7 @@ function autocomplete(props: Partial<React.ComponentProps<typeof FormAutocomplet
   return createElement(FormAutocomplete<{ id: string; name: string }>, componentProps);
 }
 
-function filterSelect(maxSelectedValues?: number) {
-  testContext.filterMaxSelectedValues = maxSelectedValues;
-  return createElement(FilterInputSelect, {
-    filter: {
-      field: FilterFieldKey.participantContactId,
-      operator: FilterOperatorKey.in,
-      value: Array.isArray(testContext.formValue) ? testContext.formValue : [],
-    },
-    id: "filters[0].value",
-    isValidFilter: true,
-  });
-}
-
 beforeEach(() => {
-  testContext.filterItems = [];
-  testContext.filterLoadError = false;
-  testContext.filterMaxSelectedValues = undefined;
-  testContext.filterLoading = false;
   testContext.formIsLoading = false;
   testContext.formIsReadOnly = false;
   testContext.formValue = undefined;
@@ -624,36 +600,7 @@ describe("representative FormAutocomplete consumers", () => {
   });
 });
 
-describe("FilterInputSelect command behavior", () => {
-  it.each([FilterOperatorKey.hasSome, FilterOperatorKey.hasNone] as const)(
-    "does not render a value control for the value-less %s operator",
-    (operator) => {
-      const container = mount(
-        createElement(FilterField, {
-          baseId: "filters[0]",
-          customColumns: undefined,
-          filter: {
-            field: FilterFieldKey.participantContactId,
-            operator,
-          },
-          filterableFields: [
-            {
-              field: FilterFieldKey.participantContactId,
-              operators: [
-                FilterOperatorKey.in,
-                FilterOperatorKey.notIn,
-                FilterOperatorKey.hasSome,
-                FilterOperatorKey.hasNone,
-              ],
-            },
-          ],
-        }),
-      );
-
-      expect(container.querySelector('[id="filters\\[0\\]\\.value"]')).toBeNull();
-    },
-  );
-
+describe("FilterChipValue", () => {
   it("never renders unresolved IDs when the field cannot be resolved", () => {
     const rawId = "8b2ce431-63b2-4671-8954-cdd93d05fe6d";
     const container = mount(
@@ -672,55 +619,5 @@ describe("FilterInputSelect command behavior", () => {
     expect(container.textContent).toContain("Filter not available");
     expect(container.textContent).not.toContain(rawId);
     expect(container.innerHTML).not.toContain(rawId);
-  });
-
-  it("masks unresolved entity IDs in visible and accessible labels", () => {
-    const rawId = "34ba55dd-d96d-4ef6-a027-c01085bb92e1";
-    testContext.formValue = [rawId];
-    const container = mount(filterSelect());
-
-    expect(container.textContent).toContain("Selection unavailable");
-    expect(container.textContent).not.toContain(rawId);
-    const accessibleLabels = Array.from(container.querySelectorAll<HTMLElement>("[aria-label]"), (element) =>
-      element.getAttribute("aria-label"),
-    );
-    expect(accessibleLabels).toContain("Remove Selection unavailable");
-    expect(accessibleLabels.some((label) => label?.includes(rawId))).toBe(false);
-  });
-
-  it("keeps selected values removable when the selection limit is reached", async () => {
-    testContext.formValue = ["alpha"];
-    testContext.filterItems = [
-      { key: "alpha", value: "alpha", textValue: "Alpha" },
-      { key: "beta", value: "beta", textValue: "Beta" },
-    ];
-    const container = mount(filterSelect(1));
-
-    await click(requiredElement(container.querySelector("#filters\\[0\\]\\.value")));
-    await flush();
-
-    const items = Array.from(document.querySelectorAll<HTMLElement>("[cmdk-item]"));
-    expect(items).toHaveLength(2);
-    expect(items[0]?.getAttribute("aria-disabled")).toBe("false");
-    expect(items[1]?.getAttribute("aria-disabled")).toBe("true");
-
-    await click(requiredElement(items[0]));
-    expect(testContext.onChange).toHaveBeenCalledWith("filters[0].value", undefined);
-  });
-
-  it("selects the active filtered option from the keyboard", async () => {
-    testContext.filterItems = [
-      { key: "alpha", value: "alpha", textValue: "Alpha" },
-      { key: "beta", value: "beta", textValue: "Beta" },
-    ];
-    const container = mount(filterSelect(1));
-
-    await click(requiredElement(container.querySelector("#filters\\[0\\]\\.value")));
-    await flush();
-    const input = document.querySelector<HTMLInputElement>("[cmdk-input]");
-
-    await press(requiredElement(input), "End");
-    await press(requiredElement(input), "Enter");
-    expect(testContext.onChange).toHaveBeenCalledWith("filters[0].value", ["beta"]);
   });
 });

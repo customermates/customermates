@@ -9,7 +9,7 @@ import { useTranslations } from "next-intl";
 
 import { AppChip } from "@/components/chip/app-chip";
 import { Button } from "@/components/ui/button";
-import { ItemActions } from "@/components/ui/item-actions";
+import { ITEM_REVEAL_GROUP_CLASS, ItemActions } from "@/components/ui/item-actions";
 import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 import { cn } from "@/core/utils/cn";
 
@@ -52,7 +52,10 @@ export const DataPhoneRows = observer(function DataPhoneRows<E extends HasId>({
     return (
       <ItemActions key={item.id} href={href}>
         <li
-          className="group/row relative px-4 py-3 transition-colors hover:bg-accent has-[>a:focus-visible]:bg-accent has-[>button:focus-visible]:bg-accent"
+          className={cn(
+            ITEM_REVEAL_GROUP_CLASS,
+            "group/row relative px-4 py-3 transition-colors hover:bg-accent has-[>a:focus-visible]:bg-accent has-[>button:focus-visible]:bg-accent",
+          )}
           data-focus-target={rowFocusKey?.(item)}
           data-row-id={item.id}
         >

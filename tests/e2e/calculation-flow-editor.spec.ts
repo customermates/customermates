@@ -1,29 +1,10 @@
 import type { Locator, Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
-import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { calculationChip, calculationFlow, chooseValueSource, pickOption } from "./calculation-flow";
 import { addFromConfigure, openConfigure, openConfigureRow, openDrawerTab, saveDrawer } from "./configure";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
-
-function captureErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
-  return errors;
-}
-
-async function readModel(database: Client, companyId: string) {
-  const result = await database.query(
-    'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1 ORDER BY revision DESC LIMIT 1',
-    [companyId],
-  );
-  return RecordModelSchema.parse(result.rows[0]?.snapshot);
-}
+import { expect, test, collectPageErrors } from "./fixtures";
+import { readModel } from "./api";
 
 async function selectOption(page: Page, label: string, option: string) {
   await page.getByRole("dialog").getByRole("combobox", { name: label, exact: true }).click();
@@ -35,7 +16,7 @@ test("edits an existing snapshot as a lookup with an Updates mode and keeps its 
   database,
   companyId,
 }) => {
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const dialog = page.getByRole("dialog");
   await openConfigure(page, id("lineItem"));
@@ -108,7 +89,7 @@ test("edits an existing snapshot as a lookup with an Updates mode and keeps its 
 });
 
 test("names what is missing and refuses to save an incomplete flow", async ({ page, database, companyId }) => {
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   const dialog = page.getByRole("dialog");
   await openConfigure(page, presetId(companyId, "deal"));
   await addFromConfigure(page, "Calculated field");
@@ -149,7 +130,7 @@ test("names what is missing and refuses to save an incomplete flow", async ({ pa
 });
 
 test("fits the flow and its picker to a phone screen", async ({ page, companyId }) => {
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await openConfigure(page, presetId(companyId, "deal"));
   await openConfigureRow(page, "Fields", "Weighted value");
@@ -174,7 +155,7 @@ test("fits the flow and its picker to a phone screen", async ({ page, companyId 
 });
 
 test("reads each step as one line and inserts steps from the connectors", async ({ page, companyId }, testInfo) => {
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   await page.setViewportSize({ width: 1280, height: 900 });
   await openConfigure(page, presetId(companyId, "deal"));
   await openConfigureRow(page, "Fields", "Weighted value");
@@ -279,7 +260,7 @@ async function expectAligned(node: Locator) {
 }
 
 test("lines up formula, lookup and rollup flows the same way", async ({ page, companyId }, testInfo) => {
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   page.on("dialog", (dialog) => void dialog.accept());
   const flows: Array<{ name: string; list: string; field?: string; node: string }> = [
     { name: "formula", list: "deal", field: "Weighted value", node: "inputs" },
@@ -324,7 +305,7 @@ test("lines up formula, lookup and rollup flows the same way", async ({ page, co
 });
 
 test("hides the composer and keeps the flow unchanged when drafting isn't available", async ({ page, companyId }) => {
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   const dialog = page.getByRole("dialog");
   await openConfigure(page, presetId(companyId, "deal"));
   await openConfigureRow(page, "Fields", "Weighted value");

@@ -4,7 +4,7 @@ import { formattingTagFor } from "../../i18n/locale-registry";
 import { nextCronOccurrence, parseCronExpression } from "../../ee/routines/routine-schedule";
 import { setPaletteText, expectPaletteText } from "./filter-palette";
 import { addFromConfigure, openConfigure } from "./configure";
-import { test, expect, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
 
 test("persists a routine for a customer-created type and matches only its configured record changes", async ({
@@ -13,10 +13,7 @@ test("persists a routine for a customer-created type and matches only its config
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
+  const errors = collectPageErrors(page, { console: false });
   await openConfigure(page);
   await addFromConfigure(page, "List");
   const creation = page.getByRole("dialog");

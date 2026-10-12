@@ -16,7 +16,7 @@ import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { IconButton } from "@/components/ui/icon-button";
-import { ItemActions } from "@/components/ui/item-actions";
+import { ITEM_REVEAL_GROUP_CLASS, ItemActions } from "@/components/ui/item-actions";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/core/utils/cn";
 import type { Prisma } from "@/generated/prisma";
@@ -176,6 +176,7 @@ export const DataTable = observer(function DataTable<E extends HasId>({
       <ItemActions key={row.id} href={onRowHref?.(row.original)}>
         <TableRow
           className={cn(
+            ITEM_REVEAL_GROUP_CLASS,
             "group/row [--row-tint:transparent] hover:[--row-tint:var(--accent)] has-aria-expanded:[--row-tint:var(--selected)] data-[state=selected]:[--row-tint:var(--selected)]",
             (onRowClick || onRowHref) && "cursor-pointer",
           )}

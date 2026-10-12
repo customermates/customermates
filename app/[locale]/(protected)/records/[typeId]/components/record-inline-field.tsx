@@ -29,7 +29,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ResponsiveOverlay } from "@/components/modal/responsive-overlay";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { AppForm } from "@/components/forms/form-context";
@@ -39,11 +40,12 @@ import { isInteractiveClick } from "@/components/data-view/is-interactive-click"
 import { useDataViewItemLayout } from "@/components/data-view/data-view-item-layout";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { cn } from "@/core/utils/cn";
+import { ITEM_REVEAL_CLASS } from "@/components/ui/item-actions";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
-import { useRecordValueFormat } from "./record-value";
+import { useRecordValueFormat } from "@/components/records/record-value";
 import { isRecordFieldWritable, recordDraftValue } from "@/features/records/record-input-value";
 import type { SentenceValueFormat } from "@/features/records/calculation-sentence";
 import type { SentenceModel } from "@/features/records/formula-references";
@@ -51,7 +53,7 @@ import type { SentenceModel } from "@/features/records/formula-references";
 import { expressionResolves, expressionSegments, sentenceText } from "@/features/records/calculation-sentence";
 import { RecordFieldValueEditor, RecordFieldValueStore } from "./record-field-value-editor";
 import { RecordInputField } from "./record-input-field";
-import { useRecordChoices } from "./record-relationship-editor";
+import { useRecordChoices } from "@/components/records/use-record-choices";
 import { isEmptyResult } from "./record-chip-row-model";
 
 const EDIT_TARGET_SELECTOR = "[data-edit-target]";
@@ -149,7 +151,10 @@ function nextEditTarget(from: HTMLElement | null, backwards: boolean) {
 function EmptyValueTarget({ member = false }: { member?: boolean }) {
   return (
     <span
-      className="inline-flex items-center text-muted-foreground/60 opacity-0 transition-opacity group-hover/row:opacity-100 group-hover/card:opacity-100 group-focus-visible/edit:opacity-100 group-data-[state=open]/edit:opacity-100 any-pointer-coarse:opacity-100"
+      className={cn(
+        ITEM_REVEAL_CLASS,
+        "inline-flex items-center text-muted-foreground/60 group-focus-visible/edit:opacity-100 group-data-[state=open]/edit:opacity-100",
+      )}
       data-empty-target=""
     >
       <EmptyValue />
@@ -457,57 +462,51 @@ const PopoverField = observer(function PopoverField({
   const empty = isEmptyResult(fieldResult(record, field));
   const contact = CONTACT_VALUE_TYPES.includes(field.valueType) && !empty;
   const label = t("RecordModel.editValue", { field: field.label });
+  const trigger = (
+    <button
+      aria-label={label}
+      className={contact ? EDIT_SPACE_BUTTON_CLASS : EDIT_TARGET_CLASS}
+      data-edit-target=""
+      data-inline-edit={field.id}
+      type="button"
+      {...selectionHandlers(records, record)}
+    >
+      {contact ? t("RecordModel.edit") : empty ? <EmptyValueTarget member={field.valueType === "member"} /> : children}
+    </button>
+  );
   return (
-    <Popover modal open={open} onOpenChange={setOpen}>
-      {contact ? (
-        <PopoverAnchor asChild>
-          <span
-            className={cn("flex min-w-0 items-center", layout === "row" && "-mx-3 -my-2 cursor-text px-3 py-2")}
-            data-inline-edit-space={layout === "row" ? field.id : undefined}
-            role="presentation"
-            onClick={(event: MouseEvent<HTMLSpanElement>) => {
-              if (layout !== "row" || records.selectedIds.size > 0 || isInteractiveClick(event)) return;
-              event.stopPropagation();
-              setOpen(true);
-            }}
-          >
-            <span className="min-w-0 truncate">{children}</span>
-
-            <PopoverTrigger asChild>
-              <button
-                aria-label={label}
-                className={EDIT_SPACE_BUTTON_CLASS}
-                data-edit-target=""
-                data-inline-edit={field.id}
-                type="button"
-                {...selectionHandlers(records, record)}
+    <ResponsiveOverlay
+      anchor={
+        contact
+          ? (editTrigger) => (
+              <span
+                className={cn("flex min-w-0 items-center", layout === "row" && "-mx-3 -my-2 cursor-text px-3 py-2")}
+                data-inline-edit-space={layout === "row" ? field.id : undefined}
+                role="presentation"
+                onClick={(event: MouseEvent<HTMLSpanElement>) => {
+                  if (layout !== "row" || records.selectedIds.size > 0 || isInteractiveClick(event)) return;
+                  event.stopPropagation();
+                  setOpen(true);
+                }}
               >
-                {t("RecordModel.edit")}
-              </button>
-            </PopoverTrigger>
-          </span>
-        </PopoverAnchor>
-      ) : (
-        <PopoverTrigger asChild>
-          <button
-            aria-label={label}
-            className={EDIT_TARGET_CLASS}
-            data-edit-target=""
-            data-inline-edit={field.id}
-            type="button"
-            {...selectionHandlers(records, record)}
-          >
-            {empty ? <EmptyValueTarget member={field.valueType === "member"} /> : children}
-          </button>
-        </PopoverTrigger>
-      )}
+                <span className="min-w-0 truncate">{children}</span>
 
-      <PopoverContent align="start" className="w-80 space-y-2 p-3" onOpenAutoFocus={focusFirstControl}>
-        <p className="text-xs font-medium text-muted-foreground">{field.label}</p>
-
+                {editTrigger}
+              </span>
+            )
+          : undefined
+      }
+      open={open}
+      popoverClassName="w-80"
+      title={field.label}
+      trigger={trigger}
+      onOpenAutoFocus={focusFirstControl}
+      onOpenChange={setOpen}
+    >
+      <div className="space-y-2 px-3 pb-3 max-md:px-4">
         {open && <InlineFieldForm field={field} record={record} records={records} onDone={() => setOpen(false)} />}
-      </PopoverContent>
-    </Popover>
+      </div>
+    </ResponsiveOverlay>
   );
 });
 

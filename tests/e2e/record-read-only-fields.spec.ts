@@ -5,14 +5,9 @@ import type { Locator, Page } from "@playwright/test";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RoleApiMutationResultSchema } from "../../features/role/role-management.schema";
 import { presetId } from "../../features/records/crm-preset";
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
+import { postOk } from "./api";
 import { secondUser } from "./second-user";
-
-async function post(page: Page, path: string, data: unknown): Promise<unknown> {
-  const response = await page.request.post(path, { data });
-  expect(response.status(), await response.text()).toBe(200);
-  return response.json();
-}
 
 function surface(locator: Locator) {
   return locator.evaluate((element) => getComputedStyle(element).backgroundColor);
@@ -30,13 +25,7 @@ test("renders every record detail field in the input box and explains calculated
   companyId,
 }, testInfo) => {
   test.setTimeout(180000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const typeId = (key: string) => presetId(companyId, key);
   const dialogs = page.getByRole("dialog");
   await page.goto(`/en/records/${typeId("deal")}`);
@@ -222,9 +211,9 @@ test("renders every record detail field in the input box and explains calculated
   }
   await page.emulateMedia({ colorScheme: "light" });
 
-  const discovered = RecordModelSchema.parse(await post(page, "/api/v1/model/read", {}));
+  const discovered = RecordModelSchema.parse(await postOk(page, "/api/v1/model/read", {}));
   const saved = RoleApiMutationResultSchema.parse(
-    await post(page, "/api/v1/roles/save", {
+    await postOk(page, "/api/v1/roles/save", {
       name: "Deal readers",
       description: "Read deals without changing them or their configuration",
       permissions: [{ resource: "company", actions: [] }],

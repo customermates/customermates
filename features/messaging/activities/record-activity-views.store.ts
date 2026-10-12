@@ -15,6 +15,7 @@ import { ALL_VIEW_KEY, SURFACE } from "@/core/data-view/data-view-keys";
 import {
   getRecordActivityPresentationAction,
   getRecordActivitiesAction,
+  getTrashedRecordActivitiesAction,
 } from "@/app/[locale]/(protected)/records/actions";
 import { activityViewFilters } from "@/ee/messaging/activities/record-activity-view";
 import { activityEntryKey } from "./activity-entry-key";
@@ -36,6 +37,7 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
     viewPathname?: string,
     viewSyncToUrl = false,
     initialView?: string,
+    private includeTrashed = false,
   ) {
     super(root);
     this.initialView = initialView;
@@ -83,6 +85,7 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
     return getRecordActivityPresentationAction({
       record: this.record,
       params: { ...params, viewId: params?.viewId ?? this.initialView },
+      includeTrashed: this.includeTrashed,
     });
   }
   load = async (older = false) => {
@@ -97,7 +100,8 @@ export class RecordActivityViewsStore extends BaseDataViewStore<ActivityEntryDto
         if (!this.disposed) this.restoreQueryDraft();
         return;
       }
-      const result = await getRecordActivitiesAction({
+      const read = this.includeTrashed ? getTrashedRecordActivitiesAction : getRecordActivitiesAction;
+      const result = await read({
         scope: { records: this.record ? [this.record] : [], typeIds: [] },
         kinds: [...(this.record ? ACTIVITY_KINDS : CHANGE_ACTIVITY_KINDS)],
         filters: activityViewFilters(toJS(this.filters ?? [])),

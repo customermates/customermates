@@ -16,7 +16,7 @@ import { ActivitiesList, TimelineEmptyState, TimelineNotice } from "./activities
 import { ActivityTimelineSkeleton } from "./activity-timeline-skeleton";
 import { RecordActivityViewsStore } from "./record-activity-views.store";
 
-export function useRecordActivityViews(record: RecordRef | null, viewSyncToUrl: boolean) {
+export function useRecordActivityViews(record: RecordRef | null, viewSyncToUrl: boolean, includeTrashed = false) {
   const locale = useLocale();
   const root = useRootStore();
   const params = useSearchParams();
@@ -26,7 +26,15 @@ export function useRecordActivityViews(record: RecordRef | null, viewSyncToUrl: 
   const requestedView =
     viewSyncToUrl && params.get("viewSurface") === SURFACE.entityTimeline ? params.get("view") : null;
   const [store] = useState(
-    () => new RecordActivityViewsStore(root, record, viewPathname, viewSyncToUrl, requestedView ?? undefined),
+    () =>
+      new RecordActivityViewsStore(
+        root,
+        record,
+        viewPathname,
+        viewSyncToUrl,
+        requestedView ?? undefined,
+        includeTrashed,
+      ),
   );
   const appliedView = useRef(requestedView);
   useEffect(() => {
@@ -85,12 +93,21 @@ export const ActivitiesFeed = observer(function ActivitiesFeed({ store }: { stor
 export const RecordActivitiesPanel = observer(function RecordActivitiesPanel({
   record,
   viewSyncToUrl = false,
+  trashed = false,
 }: {
   record: RecordRef;
   viewSyncToUrl?: boolean;
+  trashed?: boolean;
 }) {
   const t = useTranslations();
-  const store = useRecordActivityViews(record, viewSyncToUrl);
+  const store = useRecordActivityViews(record, viewSyncToUrl && !trashed, trashed);
+  if (trashed) {
+    return (
+      <div className="space-y-3" data-record-activities-read-only="">
+        <ActivitiesFeed store={store} />
+      </div>
+    );
+  }
   return (
     <div className="space-y-3">
       <DataViewViewsRail

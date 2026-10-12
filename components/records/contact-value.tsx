@@ -6,6 +6,7 @@ import { Copy, ExternalLink, Mail, Phone } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { IconButton } from "@/components/ui/icon-button";
+import { ITEM_REVEAL_CLASS, ITEM_REVEAL_GROUP_CLASS } from "@/components/ui/item-actions";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { cn } from "@/core/utils/cn";
@@ -36,7 +37,11 @@ export function ContactValue({ value, kind, action = "open", label, className, w
 
   return (
     <span
-      className={cn("group/contact-value inline-flex min-w-0 max-w-full items-center gap-1 align-baseline", className)}
+      className={cn(
+        ITEM_REVEAL_GROUP_CLASS,
+        "inline-flex min-w-0 max-w-full items-center gap-1 align-baseline",
+        className,
+      )}
       data-contact-action={action}
       data-slot="contact-value"
     >
@@ -77,7 +82,10 @@ export function ContactValue({ value, kind, action = "open", label, className, w
         <TooltipTrigger asChild>
           <button
             aria-label={t(`RecordModel.clickActions.${kind}.copy`)}
-            className="inline-flex size-5 shrink-0 items-center justify-center rounded-xs text-muted-foreground opacity-0 outline-none transition-opacity group-hover/contact-value:opacity-100 group-focus-within/contact-value:opacity-100 hover:text-foreground focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/50 any-pointer-coarse:opacity-100"
+            className={cn(
+              ITEM_REVEAL_CLASS,
+              "inline-flex size-5 shrink-0 items-center justify-center rounded-xs text-muted-foreground outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/50",
+            )}
             type="button"
             onClick={(event) => {
               event.stopPropagation();

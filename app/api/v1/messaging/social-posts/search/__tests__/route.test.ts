@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
+import { StructuredErrorResponseSchema } from "@/core/api/structured-interactor-handler";
 const interactors = vi.hoisted(() => ({
   getPost: vi.fn(),
   listPosts: vi.fn(),
@@ -61,7 +62,10 @@ describe("social-post search route", () => {
     const response = await POST(nextRequest);
 
     expect(response.status).toBe(400);
-    expect(await response.json()).toContain("Post ID is required");
+    expect(StructuredErrorResponseSchema.parse(await response.json()).error).toMatchObject({
+      kind: "validation",
+      issues: [{ path: ["postId"], message: "Post ID is required" }],
+    });
     expect(interactors.getPost).toHaveBeenCalledExactlyOnceWith(body);
     expect(interactors.listPosts).not.toHaveBeenCalled();
   });
@@ -76,6 +80,9 @@ describe("social-post search route", () => {
     const response = await POST(nextRequest);
 
     expect(response.status).toBe(400);
-    expect(await response.json()).toContain("Invalid continuation");
+    expect(StructuredErrorResponseSchema.parse(await response.json()).error).toMatchObject({
+      kind: "validation",
+      issues: [{ path: ["cursor"], message: "Invalid continuation" }],
+    });
   });
 });

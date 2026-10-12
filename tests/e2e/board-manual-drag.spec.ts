@@ -2,17 +2,12 @@ import { randomUUID } from "node:crypto";
 
 import type { Locator, Page, TestInfo } from "@playwright/test";
 
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
+import { postOk } from "./api";
 import { secondUser } from "./second-user";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
-
-async function post(page: Page, path: string, data: unknown) {
-  const response = await page.request.post(path, { data });
-  expect(response.status(), await response.text()).toBe(200);
-  return response.json();
-}
 
 async function dragCard(page: Page, source: Locator, target: Locator, side: "above" | "below") {
   const saved = page.waitForResponse(
@@ -52,21 +47,15 @@ test("reorders board cards by dragging within and across columns in manual order
 }, testInfo) => {
   test.skip(testInfo.project.name === "mobile", "Pointer dragging is covered on desktop; touch uses a long press");
   test.setTimeout(240000);
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const typeId = id("deal");
   await page.goto(`/en/records/${typeId}`);
   const names = new Map<string, string>();
   const deal = async (name: string, stage: string) => {
-    const model = RecordModelSchema.parse(await post(page, "/api/v1/model/read", {}));
+    const model = RecordModelSchema.parse(await postOk(page, "/api/v1/model/read", {}));
     const result = RecordOperationResultSchema.parse(
-      await post(page, "/api/v1/records/mutate", {
+      await postOk(page, "/api/v1/records/mutate", {
         expectedRevision: model.revision,
         idempotencyKey: randomUUID(),
         mutation: {

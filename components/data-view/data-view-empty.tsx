@@ -11,9 +11,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { PageState } from "@/components/page-state/page-state";
 
-import { DataViewEmptyState } from "./data-view-empty-state";
-
-export type EmptyStateDescriptor = {
+type EmptyStateDescriptor = {
   title: string;
   body?: string;
   icon?: LucideIcon;
@@ -56,17 +54,19 @@ export const DataViewEmpty = observer(function DataViewEmpty<E extends HasId>({
 
   if (reason === "filtered") {
     return (
-      <DataViewEmptyState
-        body={
+      <PageState
+        action={
+          <Button size="sm" variant="secondary" onClick={() => store.setQueryOptions({ filters: [], searchTerm: "" })}>
+            {t("Common.emptyState.clearFilters")}
+          </Button>
+        }
+        description={
           labels
             ? t("Common.emptyState.filteredBody", { plural: pluralLabel })
             : t("Common.emptyState.genericFilteredBody")
         }
         icon={Icon}
-        secondaryAction={{
-          label: t("Common.emptyState.clearFilters"),
-          onClick: () => store.setQueryOptions({ filters: [], searchTerm: "" }),
-        }}
+        state="empty"
         title={t("Common.emptyState.filteredTitle")}
       />
     );

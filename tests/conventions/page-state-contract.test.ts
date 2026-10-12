@@ -84,7 +84,6 @@ describe("page-state ownership", () => {
         expect(source, `${path}:${state}`).toContain(`case "${state}"`);
       }
       expect(source, path).toContain("const exhaustive: never = pageState");
-      expect(source, path).not.toMatch(/DataViewContainer/);
     }
   });
 

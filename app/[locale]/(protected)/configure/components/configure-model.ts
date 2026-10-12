@@ -11,7 +11,7 @@ import type {
 import type { ConfigurationChange } from "@/features/records/configuration.schema";
 import { compareRecordKey } from "@/features/records/record-json";
 
-export type ConfigureFieldSource =
+type ConfigureFieldSource =
   | { kind: "input" | "formula" | "snapshot" }
   | { kind: "lookup" | "rollup"; list: string | null };
 
@@ -99,7 +99,7 @@ export function typeDefinition(type: RecordType) {
   };
 }
 
-export function fieldDefinition(field: RecordField) {
+function fieldDefinition(field: RecordField) {
   return omit(field, "archived", "publishedSummary");
 }
 

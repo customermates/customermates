@@ -20,19 +20,10 @@ import type { ConfigureGraphPosition, ConfigureGraphRoute } from "./configure-gr
 import type { ConfigureGraphLayout } from "@/features/p13n/p13n-settings.schema";
 import type { ConfigureListAddKind } from "./configure-add-menu";
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { createContext, useCallback, useContext, useEffect, useId, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
+import { useTouchInput } from "@/hooks/use-touch-input";
 import {
   Background,
   BackgroundVariant,
@@ -550,22 +541,6 @@ const focusView = () => ({
 
 const REVEAL_MARGIN = 16;
 
-const COARSE_POINTER = "(pointer: coarse)";
-
-function subscribeCoarsePointer(onChange: () => void) {
-  const query = window.matchMedia(COARSE_POINTER);
-  query.addEventListener("change", onChange);
-  return () => query.removeEventListener("change", onChange);
-}
-
-function useCoarsePointer() {
-  return useSyncExternalStore(
-    subscribeCoarsePointer,
-    () => window.matchMedia(COARSE_POINTER).matches,
-    () => false,
-  );
-}
-
 async function saveGraphLayout(layout: ConfigureGraphLayout | null) {
   const result = await upsertP13nAction({ p13nId: CONFIGURE_GRAPH_P13N_ID, settings: layout });
   if (!result.ok) toastZodErrorTree(result.error);
@@ -630,7 +605,7 @@ function ConfigureGraphCanvas({
   const { resolvedTheme } = useTheme();
   const locale = useLocale();
   const connectPrompt = accounts.state !== "unavailable";
-  const coarsePointer = useCoarsePointer();
+  const touchInput = useTouchInput();
   const help = canManage ? t("RecordModel.graph.help") : t("RecordModel.graph.helpReadOnly");
   const container = useRef<HTMLDivElement>(null);
   const [direction, setDirection] = useState<"TB" | "LR" | null>(null);
@@ -927,7 +902,7 @@ function ConfigureGraphCanvas({
           nodeTypes={nodeTypes}
           nodes={displayNodes}
           nodesConnectable={canManage && !disabled}
-          nodesDraggable={!disabled && !coarsePointer}
+          nodesDraggable={!disabled && !touchInput}
           nodesFocusable={false}
           proOptions={{ hideAttribution: true }}
           zoomOnScroll={false}

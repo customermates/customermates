@@ -30,7 +30,7 @@ export type Spotlight = {
   totalSteps: number;
 };
 
-export type AgentNavigationOutcome = "navigated" | "blocked" | "timeout";
+type AgentNavigationOutcome = "navigated" | "blocked" | "timeout";
 
 function resolveAgentNavigationRoute(input: Record<string, unknown>): { path: string; done: string } | null {
   const record = NavigateRecordTargetSchema.safeParse(input);

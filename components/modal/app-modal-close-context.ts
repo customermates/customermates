@@ -2,7 +2,7 @@
 
 import { createContext, useContext } from "react";
 
-export type AppModalClose = {
+type AppModalClose = {
   requestClose: () => void;
   guardsUnsavedChanges: boolean;
 };

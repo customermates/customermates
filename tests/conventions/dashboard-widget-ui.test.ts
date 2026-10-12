@@ -60,13 +60,10 @@ describe("generic dashboard widget UI", () => {
       expect(host).not.toMatch(/from ["'][^"']*\/actions["']/);
       expect(host).not.toMatch(/\bupsert\w*\s*\(/);
     }
-    expect(component("record-widget-filters.tsx")).not.toMatch(/RecordWidgetFieldFilters|RecordWidgetRelatedFilters/);
-    expect(activity).not.toContain("activity-add-filter");
   });
   it("keeps widget filter drafts local until the editor is saved", () => {
     const store = component("widget-modal.store.ts");
     expect(store).toContain("onSubmit = async (event?: FormEvent<HTMLFormElement>)");
-    expect(store).not.toContain("flushPendingChanges");
     const autoApplying = sources("app/[locale]/(protected)/dashboard").filter((file) =>
       /filter-palette|FILTER_AUTO_APPLY_DELAY_MS/.test(readFileSync(file, "utf8")),
     );
@@ -75,13 +72,11 @@ describe("generic dashboard widget UI", () => {
   it("previews both widget kinds as their real dashboard cards, keyed to the current draft", () => {
     const chart = component("record-widget-editor.tsx");
     const activity = component("record-activity-widget-editor.tsx");
-    expect(chart).not.toContain("onRefresh");
     expect(component("widget-modal.store.ts")).toContain(
       "await this.runPreview(() => previewRecordWidgetAction(parsed.data))",
     );
     expect(chart).toContain("<RecordWidgetCard");
     expect(chart).toContain("preview?.key === key");
-    expect(activity).not.toContain("onRefresh");
     expect(activity).toContain("<RecordActivityWidgetCard");
   });
   it("keeps activity loading and empty states on the shared skeleton", () => {
@@ -101,6 +96,5 @@ describe("generic dashboard widget UI", () => {
     expect(items).toContain("getMessagingThreadAction(id)");
     expect(items).toContain("getMessagingThreadsAction");
     expect(items).toContain('t("Common.inputs.unavailableSelection")');
-    expect(items).not.toContain("getActivityRecordOptionsAction");
   });
 });

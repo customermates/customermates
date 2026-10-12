@@ -26,11 +26,11 @@ vi.mock("@/components/ui/tooltip", () => ({
     createElement("span", { "data-slot": "tooltip-content" }, children),
 }));
 
-import { EntityDetailStaticField } from "../entity-detail-static-field";
+import { EntityDetailFieldShell } from "../entity-detail-field-shell";
 
 function renderField(value: ReactNode, help?: ReactNode) {
   return renderToStaticMarkup(
-    createElement(EntityDetailStaticField, {
+    createElement(EntityDetailFieldShell, {
       fieldId: "totalValue",
       help,
       label: "Deal value",
@@ -39,10 +39,10 @@ function renderField(value: ReactNode, help?: ReactNode) {
   );
 }
 
-describe("EntityDetailStaticField", () => {
+describe("EntityDetailFieldShell", () => {
   it("shows the value in the bordered input box with the derivation control at its end and no source line", () => {
     const markup = renderToStaticMarkup(
-      createElement(EntityDetailStaticField, {
+      createElement(EntityDetailFieldShell, {
         fieldId: "totalValue",
         label: "Deal value",
         value: "€12,500",
@@ -67,7 +67,7 @@ describe("EntityDetailStaticField", () => {
 
   it("marks a permission-restricted value as locked without a tooltip or derivation control", () => {
     const markup = renderToStaticMarkup(
-      createElement(EntityDetailStaticField, {
+      createElement(EntityDetailFieldShell, {
         fieldId: "totalValue",
         label: "Deal value",
         value: null,

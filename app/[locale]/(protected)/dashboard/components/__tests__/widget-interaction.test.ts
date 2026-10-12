@@ -41,14 +41,12 @@ describe("openWidgetEditor", () => {
   it("resets the editor destination before loading the selected widget", async () => {
     const store = {
       loadById: vi.fn(),
-      setExpandedFilterField: vi.fn(),
       setExpandedSection: vi.fn(),
     };
 
     await openWidgetEditor(store, "widget-1");
 
     expect(store.setExpandedSection).toHaveBeenCalledWith("config");
-    expect(store.setExpandedFilterField).toHaveBeenCalledWith(undefined);
     expect(store.loadById).toHaveBeenCalledWith("widget-1");
   });
 });

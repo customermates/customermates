@@ -4,7 +4,7 @@ import { OPERATOR_SUBROUTES } from "./navigation/operator-sections";
 import { SETTINGS_SECTIONS, settingsSectionOf } from "./navigation/settings-sections";
 import { SETTINGS_ENTRY_HREF } from "./navigation/settings-routes";
 
-export type AppTopbarCrumb = {
+type AppTopbarCrumb = {
   label: string;
   href?: string;
   pictureUrl?: string | null;

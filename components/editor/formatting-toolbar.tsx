@@ -52,7 +52,7 @@ function currentHeadingLevel(editor: Editor): HeadingLevel | null {
   return HEADING_LEVELS.find((level) => editor.isActive("heading", { level })) ?? null;
 }
 
-export function cycleHeading(editor: Editor) {
+function cycleHeading(editor: Editor) {
   const level = currentHeadingLevel(editor);
   const chain = editor.chain().focus();
   if (level === 3) chain.setParagraph().run();

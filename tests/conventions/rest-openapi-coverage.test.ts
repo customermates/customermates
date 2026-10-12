@@ -457,9 +457,7 @@ function inspectRouteSource(path: string, text: string): Map<string, RouteOperat
 
   const source = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
   const file = path.slice(REPO_ROOT.length + 1);
-  const hasExactHandleErrorImport = ["@/core/api/interactor-handler", "@/core/api/structured-interactor-handler"].some(
-    (errorBoundary) => hasExactValueImport(source, errorBoundary, "handleError"),
-  );
+  const hasExactHandleErrorImport = hasExactValueImport(source, "@/core/api/structured-interactor-handler", "handleError");
   const hasExactMapperImport = hasExactValueImport(source, "@/core/api/request-json-error", "mapRequestJsonError");
   const setOperation = (name: string, node: ts.Node, operation: RouteOperation) => {
     if (!HTTP_HANDLER_NAMES.has(name)) return;
@@ -690,7 +688,7 @@ function jsonContractViolations(
 
 const SYNTHETIC_ROUTE_FILE = join(REPO_ROOT, "app", "api", "v1", "__route_analyzer_probe__", "route.ts");
 const SYNTHETIC_SPEC_PATH = "/v1/__route_analyzer_probe__";
-const HANDLE_ERROR_IMPORT = `import { handleError } from "@/core/api/interactor-handler";`;
+const HANDLE_ERROR_IMPORT = `import { handleError } from "@/core/api/structured-interactor-handler";`;
 const MAPPER_IMPORT = `import { mapRequestJsonError } from "@/core/api/request-json-error";`;
 const ROUTE_IMPORTS = `${HANDLE_ERROR_IMPORT}\n${MAPPER_IMPORT}`;
 
@@ -781,7 +779,7 @@ describe("REST route analyzer self-tests", () => {
     {
       name: "an exact boundary import grouped with another legitimate export",
       source:
-        `import { CommonApiResponses, handleError } from "@/core/api/interactor-handler";` +
+        `import { CommonApiResponses, handleError } from "@/core/api/structured-interactor-handler";` +
         MAPPER_IMPORT +
         canonicalHandler("POST"),
       specs: { post: "json" } as const,

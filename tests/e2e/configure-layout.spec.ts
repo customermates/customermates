@@ -2,28 +2,9 @@ import type { Locator, Page } from "@playwright/test";
 import type { Client } from "pg";
 import { restoreFromTrash } from "./trash";
 import { presetId } from "../../features/records/crm-preset";
-import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { addFromConfigure, backToConfigureGraph, openConfigureTab, configureDrawer, configureListCard, configureRow, configureTopBar, createConfiguredList, deleteSelectedList, openConfigure, openConfigureRow, saveDrawer, saveGeneral } from "./configure";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
-
-async function readModel(database: Client, companyId: string) {
-  const result = await database.query(
-    'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1 ORDER BY revision DESC LIMIT 1',
-    [companyId],
-  );
-  return RecordModelSchema.parse(result.rows[0]?.snapshot);
-}
-
-function captureErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
-  return errors;
-}
+import { expect, test, collectPageErrors } from "./fixtures";
+import { readModel } from "./api";
 
 const typeIdInUrl = (page: Page) => new URL(page.url()).searchParams.get("typeId");
 
@@ -48,7 +29,7 @@ test("edits General in place, guards unsaved edits and saves from the top bar an
   database,
   companyId,
 }) => {
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   await openConfigure(page, id("deal"));
   const pane = page.locator("[data-configure-list-pane]");
@@ -118,7 +99,7 @@ test("adds and edits definitions in a side drawer and reorders fields with drag 
   database,
   companyId,
 }) => {
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const dialog = configureDrawer(page);
   await openConfigure(page, id("deal"));
@@ -208,7 +189,7 @@ test("deletes and restores a list from the list actions and labels hidden lists"
   database,
   companyId,
 }) => {
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   await openConfigure(page, id("task"));
   const general = page.getByRole("region", { name: "General", exact: true });
@@ -242,7 +223,7 @@ test("shows the data model graph and edits lists, fields and relationships from 
   database,
   companyId,
 }) => {
-  const errors = captureErrors(page);
+  const errors = collectPageErrors(page);
   const id = (key: string) => presetId(companyId, key);
   const dialog = configureDrawer(page);
   const graph = page.locator("[data-configure-graph]");

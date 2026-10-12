@@ -2,6 +2,8 @@ import { Resource } from "@/generated/prisma";
 import { GetRecordActivityPresentationInteractor } from "@/ee/messaging/activities/get-record-activity-presentation.interactor";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { GetRecordActivitiesInteractor } from "@/ee/messaging/activities/get-record-activities.interactor";
+import { GetTrashedRecordActivitiesInteractor } from "@/ee/messaging/activities/get-trashed-record-activities.interactor";
+import { TrashedRecordAccess } from "@/features/trash/trashed-record-access";
 import { PrismaRecordActivitiesRepo } from "@/ee/messaging/activities/prisma-record-activities.repository";
 import { SearchChannelCandidatesInteractor } from "@/ee/messaging/inbox/search-channel-candidates.interactor";
 import { RoutineAdmission } from "@/ee/routines/routine-admission";
@@ -109,6 +111,7 @@ import { GetRecordModelInteractor } from "@/features/records/get-record-model.in
 import { DiscoverRecordTypesInteractor } from "@/features/records/discover-record-types.interactor";
 import { GetRecordChoicesInteractor } from "@/features/records/get-record-choices.interactor";
 import { GetRecordEditorInteractor } from "@/features/records/get-record-editor.interactor";
+import { EmbeddedSublistReader } from "@/features/records/embedded-sublist-reader";
 import { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
 import { MembershipTaskService } from "@/features/records/membership-task.service";
 import { MutateRecordInteractor } from "@/features/records/mutate-record.interactor";
@@ -475,7 +478,10 @@ export const getGetRecordActivitiesInteractor = () =>
     getRecordIdentityReader(),
     getRecordHistoryReader(),
     getEntitlementService(),
+    new TrashedRecordAccess(getRecordRepo(), getTrashRepo(), getTrashKindHandlers()),
   );
+export const getGetTrashedRecordActivitiesInteractor = () =>
+  new GetTrashedRecordActivitiesInteractor(getGetRecordActivitiesInteractor());
 export const getGetIdentityRecordChoicesInteractor = () =>
   new GetIdentityRecordChoicesInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getRecordIdentityReader = () => new RecordIdentityReader(getRecordRepo(), getRecordAccessPolicy());
@@ -520,8 +526,14 @@ export const getExportRecordWorkbookInteractor = () =>
 export const getImportRecordsInteractor = () =>
   new ImportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordWriteService());
 export const getGetRecordInteractor = () => new GetRecordInteractor(getRecordRepo(), getRecordAccessPolicy());
+export const getEmbeddedSublistReader = () => new EmbeddedSublistReader(getQueryRecordsInteractor(), getP13nRepo());
 export const getGetRecordEditorInteractor = () =>
-  new GetRecordEditorInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordDetailLayoutReader());
+  new GetRecordEditorInteractor(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordDetailLayoutReader(),
+    getEmbeddedSublistReader(),
+  );
 export const getRecordDetailLayoutReader = () => new RecordDetailLayoutReader(getP13nRepo());
 export const getReadRecordDetailLayoutInteractor = () =>
   new ReadRecordDetailLayoutInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordDetailLayoutReader());

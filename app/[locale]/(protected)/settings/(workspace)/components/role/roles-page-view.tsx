@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/button";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { useDeleteConfirmation } from "@/components/modal/hooks/use-delete-confirmation";
-import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
+import { RowActions } from "@/components/data-view/row-actions";
 import { Action } from "@/generated/prisma";
 
 import { RoleModal } from "./role-modal";
@@ -39,7 +39,7 @@ const RolesPageViewContent = observer(function RolesPageView({ initialRoles }: P
   const canDeleteRoles = roleModalStore.allows(Action.delete);
   const rowActions = useCallback(
     (role: RoleDto) => (
-      <RecordRowActions
+      <RowActions
         name={role.name}
         onDelete={
           canDeleteRoles && !role.isSystemRole && !role.hasUsersAssigned

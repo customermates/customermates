@@ -8,9 +8,9 @@ import { cn } from "@/core/utils/cn";
 
 import { FormFooterActions } from "./form-footer-actions";
 
-export type UnsavedChangesMode = "footer" | "bar" | "none";
+type UnsavedChangesMode = "footer" | "bar" | "none";
 
-export const UNSAVED_CHANGES_BAR_SPACE = "--unsaved-changes-bar-space";
+const UNSAVED_CHANGES_BAR_SPACE = "--unsaved-changes-bar-space";
 
 export function unsavedChangesMode({
   creating = false,

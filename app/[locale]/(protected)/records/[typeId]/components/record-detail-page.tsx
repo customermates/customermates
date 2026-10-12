@@ -83,7 +83,7 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
   }, [initial.typeId, root, type?.pluralLabel, recordId, name, pictureUrl, avatar]);
   const panelLayout = {
     initial: panelLayoutInitial,
-    p13nId: root.appMode === "demo" ? undefined : recordPanelsP13nId(initial.typeId),
+    p13nId: recordPanelsP13nId(initial.typeId),
     persistenceScope: root.userStore?.user?.id ?? "anonymous",
   };
   const content = (

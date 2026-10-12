@@ -77,7 +77,7 @@ export function RecordWidgetChart({
   const { resolvedTheme } = useTheme();
   const interval = measure.groupBy?.dateInterval;
   const formatDecimal = (value: string, currency: string | null) =>
-    valueFormat.decimal(value, { currency, maximumFractionDigits: derivedFractionDigits(decimalPlaces) });
+    valueFormat.decimal(value, { currency, maximumFractionDigits: derivedFractionDigits(decimalPlaces, currency) });
   const bucketYears = new Set(
     (data?.groups ?? []).flatMap((group) =>
       group.label.state === "value" && group.label.value.kind === "date"
@@ -156,7 +156,7 @@ export function RecordWidgetChart({
   if (displayType === DisplayType.number && !widgetDisplayTypeIssue(displayType, measure, null)) {
     const count = data.total.count ?? 0;
     const numeric = total.state === "value" && total.value.kind === "decimal" ? String(total.value.value) : null;
-    const options = { currency, fractionDigits: derivedFractionDigits(decimalPlaces) };
+    const options = { currency, fractionDigits: derivedFractionDigits(decimalPlaces, currency) };
     const headline =
       numeric !== null
         ? formatWidgetNumber(numeric, { ...options, integer: measure.aggregation === "count" }, valueFormat.decimal)

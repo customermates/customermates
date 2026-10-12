@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 
-export type GroupLabelResolver = (group: DataViewGroup) => string;
+type GroupLabelResolver = (group: DataViewGroup) => string;
 
 export function useDateBucketLabel(): (bucket: DateBucket) => string {
   const t = useTranslations();

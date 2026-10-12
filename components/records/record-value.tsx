@@ -16,6 +16,7 @@ import { EmptyValue } from "@/components/shared/empty-value";
 import { toChipColor } from "@/constants/chip-colors";
 import { CONTACT_VALUE_TYPES } from "@/features/records/record-model-validation";
 import { cn } from "@/core/utils/cn";
+import { currencyFractionDigits } from "@/features/records/derived-value-format";
 
 type FormattedTextNode = { type?: string; text?: string; content?: FormattedTextNode[] };
 
@@ -147,7 +148,8 @@ export const RecordValue = observer(function RecordValue({
               }
             : {
                 currency: value.currency,
-                maximumFractionDigits: field.format?.decimalPlaces ?? (value.currency ? 2 : 10),
+                maximumFractionDigits:
+                  field.format?.decimalPlaces ?? (value.currency ? currencyFractionDigits(value.currency) : 10),
               },
         )}
       </span>

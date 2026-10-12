@@ -3,7 +3,7 @@ import type { Page } from "@playwright/test";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
-import { expect, isAppConsoleError, isBenignPageError, test } from "./fixtures";
+import { expect, test, collectPageErrors } from "./fixtures";
 import { openItemMenu } from "./item-actions";
 import {
   openRecordDetails,
@@ -111,17 +111,6 @@ async function createLabList(page: Page, contactTypeId: string) {
   return type.id;
 }
 
-function trackErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
-  return errors;
-}
-
 test("rows and cards open the record page and keep only Open details and Delete as row actions", async ({
   page,
   companyId,
@@ -135,7 +124,7 @@ test("rows and cards open the record page and keep only Open details and Delete 
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   await page.waitForLoadState("networkidle");
-  const errors = trackErrors(page);
+  const errors = collectPageErrors(page);
 
   const row = recordItem(page, name);
   expect(await rowActionLabels(page, row, name)).toEqual(["Open in new tab", "Open details", "Delete"]);
@@ -172,7 +161,7 @@ test("record drawer shows an unsaved-changes bar only while edits are pending an
   await drawer.getByRole("button", { name: "Save", exact: true }).click();
   await expect(drawer).not.toBeVisible();
   await page.waitForLoadState("networkidle");
-  const errors = trackErrors(page);
+  const errors = collectPageErrors(page);
   const moreActions = rowActionFocusTarget(recordItem(page, name), name);
 
   await openRecordDetails(page, name);
@@ -281,7 +270,7 @@ test("edits every field type inline in rows and on board cards, with validation,
   await page.goto(`/en/records/${typeId}`);
   await expect(page.locator("#records-add")).toBeEnabled();
   await page.waitForLoadState("networkidle");
-  const errors = trackErrors(page);
+  const errors = collectPageErrors(page);
   const row = page.getByRole("row").filter({ has: page.getByRole("link", { name: "Lab one", exact: true }) });
   const inPlace = row.locator("[data-in-place-editor]");
   const openInPlace = async (label: string) => {
@@ -433,7 +422,7 @@ test("board cards show one chip row with icons, hide empty and grouped values an
     },
   });
   await page.goto(`/en/records/${typeId}?viewMode=card&groupBy=${choice.id}`);
-  const errors = trackErrors(page);
+  const errors = collectPageErrors(page);
   const card = page.locator("[data-item-id]").filter({ hasText: "Lab card" });
   await expect(card).toBeVisible();
   await expect(page.locator("#records-add")).toBeEnabled();
@@ -453,7 +442,9 @@ test("board cards show one chip row with icons, hide empty and grouped values an
   await chip("Double").hover();
   await expect(page.getByRole("tooltip", { name: "Calculated: Number × 2", exact: true })).toBeVisible();
 
-  const editor = page.locator('[data-slot="popover-content"][data-state="open"]').last();
+  const editor = page
+    .locator('[data-slot="popover-content"][data-state="open"], [data-slot="drawer-content"][data-state="open"]')
+    .last();
   await chip("Money").getByRole("button", { name: "Edit Money", exact: true }).click();
   await expect(editor).toContainText("Money");
   await expect(editor.locator("input").first()).toHaveValue(/342,?000/);
@@ -495,7 +486,7 @@ test("rows keep the row click on calculated values, toggle in selection mode and
   await page.goto(`/en/records/${typeId}`);
   await expect(page.locator("#records-add")).toBeEnabled();
   await page.waitForLoadState("networkidle");
-  const errors = trackErrors(page);
+  const errors = collectPageErrors(page);
   const row = (name: string) => page.getByRole("row").filter({ has: page.getByRole("link", { name, exact: true }) });
   const selectAll = page.getByRole("checkbox", { name: "Select all rows", exact: true });
 

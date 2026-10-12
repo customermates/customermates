@@ -15,6 +15,7 @@ export interface RecordActivitiesRepo {
     model: RecordModel,
     access: RecordAccessMap,
     available: ActivityKind[],
+    trashed?: RecordRef[],
   ): Promise<RecordActivityIndexRow[]>;
   eventsCompanyWide(ids: string[]): Promise<Array<EventLog & { actor: RecordActivityActor }>>;
   configurationsCompanyWide(ids: string[]): Promise<{
@@ -47,5 +48,6 @@ export interface RecordActivitiesRepo {
     input: RecordActivitiesInput,
     model: RecordModel,
     access: RecordAccessMap,
+    trashed?: RecordRef[],
   ): Promise<Array<{ kind: string; id: string; ref: RecordRef }>>;
 }

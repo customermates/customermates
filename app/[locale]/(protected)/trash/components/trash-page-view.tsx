@@ -24,7 +24,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
 import { useRouter } from "@/i18n/navigation";
-import { RecordRowActions } from "@/app/[locale]/(protected)/records/[typeId]/components/record-row-actions";
+import { RowActions } from "@/components/data-view/row-actions";
 
 import { useFocusTarget } from "@/components/focus/focus-target";
 import { focusKey, type FocusKind } from "@/components/focus/focus-href";
@@ -58,7 +58,7 @@ const TrashPageViewContent = observer(function TrashPageView({ initialTrash }: P
   );
   const rowActions = useCallback(
     (item: TrashItemDto) => (
-      <RecordRowActions
+      <RowActions
         contextAction={{
           icon: RotateCcw,
           label: t("Trash.restore"),

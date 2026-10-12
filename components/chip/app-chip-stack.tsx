@@ -5,7 +5,7 @@ import type { ComponentProps, ReactNode } from "react";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { StackDropdownItem } from "@/components/shared/stack-dropdown-item";
 import { useNavigateToHref } from "@/components/shared/use-navigate-to-href";
 
@@ -266,71 +266,69 @@ export function AppChipStack<T extends ChipStackItem>({
         </div>
       )}
 
-      <TooltipProvider>
-        {items.slice(0, ensuredVisibleCount).map((item) => {
-          const style: React.CSSProperties =
-            isSingleVisibleWithOverflow && singleVisibleMaxWidth != null
-              ? { maxWidth: `${singleVisibleMaxWidth}px` }
-              : {};
-          const href = chipHref?.(item);
-          const actionable = Boolean(onChipClick || href);
-          const chip = (
-            <AppChip
-              className={cn("max-w-full min-w-0 shrink", actionable && "cursor-pointer")}
-              interactive={actionable}
-              size={size}
-              startContent={item.startContent}
-              style={style}
-              variant={item.variant ?? variant}
-            >
-              <span className="truncate whitespace-nowrap">{item.label}</span>
-            </AppChip>
-          );
+      {items.slice(0, ensuredVisibleCount).map((item) => {
+        const style: React.CSSProperties =
+          isSingleVisibleWithOverflow && singleVisibleMaxWidth != null
+            ? { maxWidth: `${singleVisibleMaxWidth}px` }
+            : {};
+        const href = chipHref?.(item);
+        const actionable = Boolean(onChipClick || href);
+        const chip = (
+          <AppChip
+            className={cn("max-w-full min-w-0 shrink", actionable && "cursor-pointer")}
+            interactive={actionable}
+            size={size}
+            startContent={item.startContent}
+            style={style}
+            variant={item.variant ?? variant}
+          >
+            <span className="truncate whitespace-nowrap">{item.label}</span>
+          </AppChip>
+        );
 
-          return (
-            <Tooltip key={item.id}>
-              <TooltipTrigger asChild>
-                {href ? (
-                  <a
-                    aria-label={chipLabel?.(item)}
-                    className="relative inline-flex min-w-0 shrink"
-                    data-chip-id={item.id}
-                    href={href}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
-                      e.preventDefault();
-                      if (onChipClick) onChipClick(item, e.currentTarget);
-                      else navigateToHref(href);
-                    }}
-                  >
-                    {chip}
-                  </a>
-                ) : !actionable ? (
-                  <span className="relative inline-flex min-w-0 shrink" data-chip-id={item.id}>
-                    {chip}
-                  </span>
-                ) : (
-                  <button
-                    aria-label={chipLabel?.(item)}
-                    className="relative inline-flex min-w-0 shrink"
-                    data-chip-id={item.id}
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onChipClick?.(item, e.currentTarget);
-                    }}
-                  >
-                    {chip}
-                  </button>
-                )}
-              </TooltipTrigger>
+        return (
+          <Tooltip key={item.id}>
+            <TooltipTrigger asChild>
+              {href ? (
+                <a
+                  aria-label={chipLabel?.(item)}
+                  className="relative inline-flex min-w-0 shrink"
+                  data-chip-id={item.id}
+                  href={href}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+                    e.preventDefault();
+                    if (onChipClick) onChipClick(item, e.currentTarget);
+                    else navigateToHref(href);
+                  }}
+                >
+                  {chip}
+                </a>
+              ) : !actionable ? (
+                <span className="relative inline-flex min-w-0 shrink" data-chip-id={item.id}>
+                  {chip}
+                </span>
+              ) : (
+                <button
+                  aria-label={chipLabel?.(item)}
+                  className="relative inline-flex min-w-0 shrink"
+                  data-chip-id={item.id}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onChipClick?.(item, e.currentTarget);
+                  }}
+                >
+                  {chip}
+                </button>
+              )}
+            </TooltipTrigger>
 
-              <TooltipContent>{item.label}</TooltipContent>
-            </Tooltip>
-          );
-        })}
-      </TooltipProvider>
+            <TooltipContent>{item.label}</TooltipContent>
+          </Tooltip>
+        );
+      })}
 
       {hiddenCount > 0 && onMoreClick && extraCount > 0 && (
         <button
