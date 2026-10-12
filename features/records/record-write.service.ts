@@ -35,7 +35,6 @@ import { canonicalRecordJson, compareRecordKey } from "./record-json";
 import { recordTrashLabel } from "./record-trash-label";
 
 type Policy = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
-export { RecordWriteError } from "./record-write-error";
 function reject(
   code: CustomErrorCode,
   kind: InteractorFailureKind = "validation",

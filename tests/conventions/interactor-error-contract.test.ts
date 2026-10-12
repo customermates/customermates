@@ -20,7 +20,6 @@ const ACCESS_ERROR_OWNER_FILES = new Set([
 ]);
 const FEATURE_ERROR_ROOTS = ["app", "components", "ee", "features", "workflows"];
 const FEATURE_ERROR_SUBCLASS_ALLOWLIST = new Map([
-  ["features/records/record-write-error.ts", "RecordWriteError"],
   ["ee/routines/routine-run-limits.ts", "RoutineLimitExceededError"],
   ["ee/messaging/unipile-request-error.ts", "UnipileRequestError"],
 ]);
