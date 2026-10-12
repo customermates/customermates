@@ -4,10 +4,16 @@ import * as React from "react";
 
 import { cn } from "@/core/utils/cn";
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+function Table({ className, footer, ...props }: React.ComponentProps<"table"> & { footer?: React.ReactNode }) {
   return (
     <div className="relative w-full overflow-x-auto" data-slot="table-container">
       <table className={cn("w-max min-w-full caption-bottom text-[13px]", className)} data-slot="table" {...props} />
+
+      {footer ? (
+        <div className="sticky left-0" data-slot="table-container-footer">
+          {footer}
+        </div>
+      ) : null}
     </div>
   );
 }
