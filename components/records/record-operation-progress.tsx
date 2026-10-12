@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import type { z } from "zod";
 import type { RecordOperationStatusSchema } from "@/features/records/record-operation.interactor";
 import { Button } from "@/components/ui/button";
-import { runUserAction } from "@/core/errors/report-application-error";
+import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import {
   cancelRecordOperationAction,
   getRecordOperationAction,
@@ -29,6 +29,11 @@ export function RecordOperationProgress({
   useEffect(() => {
     let cancelled = false;
     let timer: ReturnType<typeof setTimeout> | undefined;
+    const fail = (error: unknown) => {
+      if (cancelled) return;
+      reportApplicationError(error);
+      setFailed(true);
+    };
     const poll = async () => {
       try {
         const result = await getRecordOperationAction(operationId);
@@ -45,14 +50,14 @@ export function RecordOperationProgress({
         }
         if (result.data.state === "pending" || result.data.state === "staging") {
           timer = setTimeout(() => {
-            void poll().catch(() => setFailed(true));
+            void poll().catch(fail);
           }, 2000);
         }
-      } catch {
-        if (!cancelled) setFailed(true);
+      } catch (error) {
+        fail(error);
       }
     };
-    void poll().catch(() => setFailed(true));
+    void poll().catch(fail);
     return () => {
       cancelled = true;
       if (timer) clearTimeout(timer);
@@ -69,7 +74,8 @@ export function RecordOperationProgress({
         return;
       }
       setRetry((value) => value + 1);
-    } catch {
+    } catch (error) {
+      reportApplicationError(error);
       setFailed(true);
     } finally {
       setBusy(false);

@@ -5,7 +5,12 @@ import { RecordExportSchema } from "@/features/data-transfer/record-transfer.sch
 
 vi.mock("next-intl", () => ({ useTranslations: () => (key: string) => key }));
 vi.mock("sonner", () => ({ toast: { success: vi.fn() } }));
-vi.mock("@/core/errors/report-application-error", () => ({ runUserAction: (run: () => Promise<void>) => void run() }));
+vi.mock("@/core/errors/report-application-error", () => ({
+  runUserAction: (run: () => Promise<void>) => void run(),
+  reportApplicationError: vi.fn(),
+}));
+vi.mock("@/core/stores/root-store.provider", () => ({ useRootStore: () => ({ navigationGuard: {} }) }));
+vi.mock("../../../actions", () => ({ importRecordsAction: (...args: unknown[]) => importMock(...args) }));
 vi.mock("@/components/modal", async () => {
   const React = await import("react");
   return {
@@ -25,7 +30,7 @@ import { RecordImportDialog } from "../record-import-dialog";
 const typeId = "10000000-0000-4000-8000-000000000001";
 let root: Root;
 let container: HTMLElement;
-const fetchMock = vi.fn();
+const importMock = vi.hoisted(() => vi.fn());
 const onImported = vi.fn();
 function deferred<T>() {
   let resolve!: (value: T) => void;
@@ -84,11 +89,10 @@ async function select(name: string, contents: Promise<string>) {
 }
 beforeEach(() => {
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
-  fetchMock.mockReset();
-  fetchMock.mockResolvedValue({ ok: true, json: () => Promise.resolve({ created: 1, updated: 0 }) });
+  importMock.mockReset();
+  importMock.mockResolvedValue({ ok: true, data: { created: 1, updated: 0 } });
   onImported.mockReset();
   onImported.mockResolvedValue(undefined);
-  vi.stubGlobal("fetch", fetchMock);
   container = window.document.createElement("div");
   window.document.body.append(container);
   root = createRoot(container);
@@ -97,7 +101,6 @@ beforeEach(() => {
 afterEach(() => {
   act(() => root.unmount());
   container.remove();
-  vi.unstubAllGlobals();
 });
 
 describe("record import selection ownership", () => {
@@ -117,7 +120,7 @@ describe("record import selection ownership", () => {
       button("DataTransfer.recordImport.submit").click();
       await Promise.resolve();
     });
-    expect(JSON.parse(fetchMock.mock.calls[0][1].body).document).toEqual(b);
+    expect(importMock.mock.calls[0][0].document).toEqual(b);
   });
 
   it("does not restore a file or enable import after its modal closes and reopens", async () => {
@@ -131,6 +134,6 @@ describe("record import selection ownership", () => {
     });
     expect(container.textContent).not.toContain("Earlier.json");
     expect(button("DataTransfer.recordImport.submit").disabled).toBe(true);
-    expect(fetchMock).not.toHaveBeenCalled();
+    expect(importMock).not.toHaveBeenCalled();
   });
 });

@@ -3,6 +3,7 @@
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { Alert } from "@/components/shared/alert";
 import { runUserAction } from "@/core/errors/report-application-error";
 
 type RecoveryStore = {
@@ -19,40 +20,42 @@ export const ModelChangeRecovery = observer(function ModelChangeRecovery({ store
   const t = useTranslations();
   if (!store.refreshRequired && !store.refreshFailed && !store.targetMissing && !store.conflicts.length) return null;
   return (
-    <div className="space-y-2 rounded-md border border-border bg-muted/50 p-3 text-sm" role="status">
-      {store.targetMissing ? <p>{t("RecordModel.staleTargetMissing")}</p> : null}
+    <Alert color="warning" role="status">
+      <div className="space-y-2">
+        {store.targetMissing ? <p>{t("RecordModel.staleTargetMissing")}</p> : null}
 
-      {store.refreshRequired && !store.targetMissing ? (
-        <>
-          <p>{store.refreshFailed ? t("RecordModel.staleRefreshFailed") : t("RecordModel.staleRefreshRequired")}</p>
+        {store.refreshRequired && !store.targetMissing ? (
+          <>
+            <p>{store.refreshFailed ? t("RecordModel.staleRefreshFailed") : t("RecordModel.staleRefreshRequired")}</p>
 
-          <Button
-            disabled={store.isLoading}
-            size="sm"
-            type="button"
-            variant="secondary"
-            onClick={() => runUserAction(() => store.refreshModel())}
-          >
-            {t("RecordModel.staleRefresh")}
-          </Button>
-        </>
-      ) : null}
-
-      {store.conflicts.length ? (
-        <>
-          <p>{t("RecordModel.staleControlConflict")}</p>
-
-          <div className="flex flex-wrap gap-2">
-            <Button size="sm" type="button" variant="secondary" onClick={() => store.resolveConflicts("draft")}>
-              {t("RecordModel.staleKeepDraft")}
+            <Button
+              disabled={store.isLoading}
+              size="sm"
+              type="button"
+              variant="secondary"
+              onClick={() => runUserAction(() => store.refreshModel())}
+            >
+              {t("RecordModel.staleRefresh")}
             </Button>
+          </>
+        ) : null}
 
-            <Button size="sm" type="button" variant="secondary" onClick={() => store.resolveConflicts("latest")}>
-              {t("RecordModel.staleLoadLatest")}
-            </Button>
-          </div>
-        </>
-      ) : null}
-    </div>
+        {store.conflicts.length ? (
+          <>
+            <p>{t("RecordModel.staleControlConflict")}</p>
+
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" type="button" variant="secondary" onClick={() => store.resolveConflicts("draft")}>
+                {t("RecordModel.staleKeepDraft")}
+              </Button>
+
+              <Button size="sm" type="button" variant="secondary" onClick={() => store.resolveConflicts("latest")}>
+                {t("RecordModel.staleLoadLatest")}
+              </Button>
+            </div>
+          </>
+        ) : null}
+      </div>
+    </Alert>
   );
 });

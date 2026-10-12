@@ -11,7 +11,7 @@ import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 import { toChipColor } from "@/constants/chip-colors";
 import { getChartColors } from "@/constants/chart-colors";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
-import { useRecordValueFormat } from "@/app/[locale]/(protected)/records/[typeId]/components/record-value";
+import { useRecordValueFormat } from "@/components/records/record-value";
 import { hasRecordMeasureGroupFilter } from "@/features/records/record-measure.schema";
 import { derivedFractionDigits } from "@/features/records/derived-value-format";
 import { widgetDisplayTypeIssue } from "@/features/widget/widget-display-rules";

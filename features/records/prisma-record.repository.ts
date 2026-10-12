@@ -771,7 +771,8 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo, Pr
           WHERE record."companyId" = ${this.companyId} AND record."typeId" = ${type.id} AND record."deletedAt" IS NULL
             AND NOT EXISTS (SELECT 1 FROM "RecordLink" link
               WHERE link."companyId" = record."companyId" AND link."relationId" = ${type.parentRelationshipId}
-                AND link."sourceTypeId" = record."typeId" AND link."sourceId" = record.id)) AS invalid`);
+                AND link."sourceTypeId" = record."typeId" AND link."sourceId" = record.id
+                AND link."deletedAt" IS NULL)) AS invalid`);
       if (rows[0]?.invalid) invalid.push(type.parentRelationshipId);
     }
     return [...new Set(invalid)];

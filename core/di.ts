@@ -48,6 +48,7 @@ import { PrismaRecordWidgetRepo } from "@/features/widget/prisma-record-widget.r
 import { UpsertRecordActivityWidgetInteractor } from "@/features/widget/record-activity-widget.interactor";
 import { RecordActivityWidgetReader } from "@/features/widget/record-activity-widget-reader";
 import { UpsertRecordWidgetInteractor } from "@/features/widget/record-widget.interactor";
+import { SaveWidgetInteractor } from "@/features/widget/save-widget.interactor";
 import { RecordWidgetReader } from "@/features/widget/record-widget-reader";
 import { PreviewRecordWidgetInteractor } from "@/features/widget/preview-record-widget.interactor";
 import { wikiWebsiteNetwork } from "@/ee/wiki-crawl/wiki-website-network";
@@ -208,6 +209,7 @@ import { ResolveUserOptionsInteractor } from "@/features/user/get/resolve-user-o
 import { RegisterOnboardingProfileInteractor } from "@/features/user/register/register-onboarding-profile.interactor";
 import { RegisterUserInteractor } from "@/features/user/register/register-user.interactor";
 import { AdminUpdateUserDetailsInteractor } from "@/features/user/upsert/admin-update-user-details.interactor";
+import { UpdateTeamMemberInteractor } from "@/features/user/upsert/update-team-member.interactor";
 import { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-user-details.interactor";
 // Auth interactors
 import { ContinueWithSocialsInteractor } from "@/features/auth/continue-with-socials.interactor";
@@ -926,6 +928,9 @@ export const getGetUserByIdInteractor = () => new GetUserByIdInteractor(getUserR
 export const getResolveUserOptionsInteractor = () => new ResolveUserOptionsInteractor(getUserRepo());
 
 export const getGetTeamMemberInteractor = () => new GetTeamMemberInteractor(getUserRepo());
+
+export const getUpdateTeamMemberInteractor = () =>
+  new UpdateTeamMemberInteractor(getUserRepo(), getAdminUpdateUserDetailsInteractor());
 
 export const getAdminUpdateUserDetailsInteractor = () =>
   new AdminUpdateUserDetailsInteractor(
@@ -1805,6 +1810,13 @@ export const getUpsertRecordActivityWidgetInteractor = () =>
     getGetRecordActivitiesInteractor(),
     getRecordActivityWidgetReader(),
     getDataViewStateRepo(),
+  );
+
+export const getSaveWidgetInteractor = () =>
+  new SaveWidgetInteractor(
+    getWidgetRepo(),
+    getUpsertRecordWidgetInteractor(),
+    getUpsertRecordActivityWidgetInteractor(),
   );
 
 export const getManageDataViewsInteractor = () =>

@@ -173,7 +173,7 @@ const TrashPageViewContent = observer(function TrashPageView({ initialTrash }: P
           variant="secondary"
           onClick={() => runUserAction(() => store.restoreItems(store.selectedItemIds))}
         >
-          <RotateCcw className="size-4" />
+          <RotateCcw aria-hidden />
 
           {t("Trash.restore")}
         </Button>
@@ -185,7 +185,7 @@ const TrashPageViewContent = observer(function TrashPageView({ initialTrash }: P
           variant="destructiveOutline"
           onClick={() => runUserAction(() => store.requestPermanentDelete(store.selectedItemIds))}
         >
-          <Trash2 className="size-4" />
+          <Trash2 aria-hidden />
 
           {t("Trash.deletePermanently")}
         </Button>

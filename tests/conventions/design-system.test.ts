@@ -266,7 +266,7 @@ describe("rules 5, 6 and 58: top-bar actions and view chips through their shared
 const VALUE_FORMAT =
   /\bIntl\.(?:DateTimeFormat(?!\(\)\.resolvedOptions)|NumberFormat|RelativeTimeFormat)\b|\.toLocale(?:Date|Time)?String\(|\buseFormatter\(\)|\bformat\.(?:dateTime|number|relativeTime)\(/;
 
-const VALUE_RENDERER_OWNERS = new Set(["app/[locale]/(protected)/records/[typeId]/components/record-value.tsx"]);
+const VALUE_RENDERER_OWNERS = new Set(["components/records/record-value.tsx"]);
 
 const VALUE_RENDERER_ALLOWLIST: Allowlist = {};
 

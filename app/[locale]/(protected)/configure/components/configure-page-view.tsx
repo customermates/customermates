@@ -83,12 +83,11 @@ const ConfigurePageViewContent = observer(function ConfigurePageView({
   const generalFormId = useId();
   const [store] = useState(() => new DataModelStore(initialModel));
   const [graphLayout, setGraphLayout] = useState(savedLayout);
-  const authoritative = useRef(initialModel);
-  useEffect(() => {
-    if (authoritative.current === initialModel) return;
-    authoritative.current = initialModel;
+  const [authoritative, setAuthoritative] = useState(initialModel);
+  if (authoritative !== initialModel) {
+    setAuthoritative(initialModel);
     store.hydrate(initialModel);
-  }, [initialModel, store]);
+  }
   const model = store.model;
   const refresh = store.refresh;
   const [typeModal] = useState(

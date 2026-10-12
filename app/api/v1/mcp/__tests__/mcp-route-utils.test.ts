@@ -154,7 +154,15 @@ describe("public MCP execution boundary", () => {
       },
       sessionId,
     );
-    expect(unexpected.data?.result).toMatchObject({ isError: true });
+    expect(unexpected.data?.result).toMatchObject({
+      isError: true,
+      _meta: {
+        failure: {
+          kind: "unavailable",
+          issues: [{ code: "custom", path: [], message: expect.stringContaining("unexpected server error") }],
+        },
+      },
+    });
     expect(unexpected.text).toContain("The operation could not be completed");
     expect(unexpected.text).not.toContain("db-password");
     expect(sentry.captureException).toHaveBeenCalledTimes(1);

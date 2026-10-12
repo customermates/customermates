@@ -89,6 +89,13 @@ export class IntlStore {
     });
   }
 
+  formatList(items: readonly string[]): string {
+    return new Intl.ListFormat(appLocaleOrDefault(this.rootStore.localeStore.locale), {
+      style: "long",
+      type: "conjunction",
+    }).format(items);
+  }
+
   formatAgentCredits(credits: number): AgentCreditDisplay {
     const localeStore = this.rootStore.localeStore;
     return agentCreditDisplay(

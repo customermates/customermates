@@ -10,7 +10,6 @@ import { useTranslations } from "next-intl";
 import { Sigma } from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { withFormulaReferences } from "@/features/records/formula-references";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { RecordCell } from "./record-cell";
 import { RecordCardContent } from "./record-chip-row";
@@ -40,7 +39,7 @@ export function useRecordTableColumns(
 ) {
   const t = useTranslations();
   const avatarFieldId = recordAvatarFieldId(store);
-  const columnHeaders = JSON.stringify(store.recordColumns.map((column) => [column.id, column.label]));
+  const columnHeaders = store.columnHeaders;
   const untitledHeader = store.type && !store.type.primaryFieldId ? store.type.label : null;
   return useMemo<ColumnDef<RecordRow>[]>(
     () => [
@@ -53,7 +52,7 @@ export function useRecordTableColumns(
             },
           ]
         : []),
-      ...(JSON.parse(columnHeaders) as [string, string][]).map(([id, label]): ColumnDef<RecordRow> => {
+      ...columnHeaders.map(([id, label]): ColumnDef<RecordRow> => {
         const definition = store.recordColumns.find((candidate) => candidate.id === id);
         const calculated =
           markCalculated && definition?.kind === "field" && isCalculatedField(store, definition.field)
@@ -73,10 +72,7 @@ export function useRecordTableColumns(
                   </TooltipTrigger>
 
                   <TooltipContent>
-                    <CalculatedFieldText
-                      field={calculated}
-                      model={withFormulaReferences(store.presentation.model, store.presentation.formulaReferences)}
-                    />
+                    <CalculatedFieldText field={calculated} model={store.formulaModel} />
                   </TooltipContent>
                 </Tooltip>
               )
@@ -128,10 +124,7 @@ export function useRecordTableColumns(
               );
             }
             return isCalculatedField(store, column.field) ? (
-              <RecordCalculatedValue
-                field={column.field}
-                model={withFormulaReferences(store.presentation.model, store.presentation.formulaReferences)}
-              >
+              <RecordCalculatedValue field={column.field} model={store.formulaModel}>
                 {calculated ? <span className="text-muted-foreground">{renderCell(false)}</span> : renderCell(false)}
               </RecordCalculatedValue>
             ) : (

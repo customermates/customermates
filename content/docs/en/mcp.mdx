@@ -226,6 +226,18 @@ Read a durable operation by operationId until it completes, fails or is cancelle
 
 **Read-only.** Required: `operationId`.
 
+#### `cancel_crm_operation`
+
+Cancel an operation before publication and keep the previous complete CRM state. Completed operations cannot be cancelled. Cancellation is authorized on the backend and is not a rollback of already published data.
+
+Required: `operationId`.
+
+#### `resume_crm_operation`
+
+Resume an owned pending operation after its worker lease expires. The worker reuses staged progress and rechecks publication preconditions; repeating a resume does not duplicate record changes.
+
+Required: `operationId`.
+
 #### `read_trash`
 
 List deleted items in Trash, newest first, with who deleted them, when, and the days left before they are deleted permanently. Filter by kind, list and name. Only items you could see and delete are listed; administrators see all.
@@ -234,7 +246,7 @@ List deleted items in Trash, newest first, with who deleted them, when, and the 
 
 #### `manage_trash`
 
-Restore Trash items (or every item of one delete by its batchId), preview exactly what a permanent deletion removes, delete items permanently, or empty Trash as an administrator. Permanent deletion cannot be undone and erases the deleted records' values from history.
+Restore Trash items (or every item of one delete by its batchId), preview exactly what a permanent deletion removes, delete items permanently, or empty Trash as an administrator. Deleting items permanently needs delete access to each of them. Permanent deletion cannot be undone and erases the deleted records' values from history.
 
 **Can delete data.** Required: `action`. Optional: `itemIds`, `batchId`, `all`, `expectedImpactHash`.
 {/* /mcp-catalog */}
@@ -337,9 +349,9 @@ Required: `typeId`, `action`. Optional: `expectedRevision`, `idempotencyKey`, `l
 {/* mcp-catalog:wiki */}
 #### `manage_wiki_pages`
 
-List, search, read, create, update, or delete (move to Trash) Knowledge Base pages, each a knowledge page, a procedure with a when-to-use trigger, or the one Operating Guide. Updates and deletes require the latest updatedAt value; create can atomically require an empty Knowledge Base.
+List, search, read, create, update, reorder (move before or after another page) or delete (move to Trash) Knowledge Base pages, each a knowledge page, a procedure with a when-to-use trigger, or the one Operating Guide. Updates and deletes require the latest updatedAt value; create can atomically require an empty Knowledge Base.
 
-**Can delete data.** Required: `action`. Optional: `id`, `query`, `offset`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `title`, `markdown`, `kind`, `whenToUse`.
+**Can delete data.** Required: `action`. Optional: `id`, `query`, `offset`, `page`, `pages`, `requireEmpty`, `expectedUpdatedAt`, `targetId`, `placement`, `title`, `markdown`, `kind`, `whenToUse`.
 {/* /mcp-catalog */}
 
 ### Messaging
@@ -547,18 +559,6 @@ A pending result returns an operation id. Read its progress until it completes; 
 Preview or apply a typed configuration bundle containing types, fields, relationships, calculations and access presets. Preserve the same expectedRevision, idempotencyKey and operations between preview and apply. Temporary $client references connect new definitions atomically. Calculations use a bounded node program, never executable code. Schema management is separate from record access; role grants and published summaries require their own authority. Use delete to move a list, field or relationship to Trash; restore it or delete it permanently with manage_trash.
 
 **Can delete data.** Required: `action`, `change`.
-
-#### `cancel_crm_operation`
-
-Cancel an operation before publication and keep the previous complete CRM state. Completed operations cannot be cancelled. Cancellation is authorized on the backend and is not a rollback of already published data.
-
-Required: `operationId`.
-
-#### `resume_crm_operation`
-
-Resume an owned pending operation after its worker lease expires. The worker reuses staged progress and rechecks publication preconditions; repeating a resume does not duplicate record changes.
-
-Required: `operationId`.
 {/* /mcp-catalog */}
 
 ### Widgets
@@ -582,7 +582,7 @@ List or read widgets; create, update or delete chart and activity configurations
 
 One tool with an `action` switch: list, runs, create, update, pause, run_now, delete. A routine is saved instructions the assistant runs on a cron schedule or when a CRM event fires. Omitting `enabled` on create produces a LIVE routine, so pass `enabled: false` to draft one; the hosted assistant must state `enabled` explicitly and drafts unless the user asked to activate. A change of `triggerKind` must arrive with that kind's schedule or events. pause disables the routine and settles its queued runs to skipped, which re-enabling does not undo; only an active system administrator may pause or delete a routine. run_now applies to scheduled routines only, and only to an enabled routine the caller owns. Runs are paginated by `cursor` and carry status, summary and trigger. delete moves the routine to Trash, where it stops running until manage_trash restores it.
 
-**Can delete data.** Required: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `triggerFilters`, `recordTrigger`, `expectedSchemaRevision`, `debounceSeconds`.
+**Can delete data.** Required: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `recordTrigger`, `recordSources`, `expectedSchemaRevision`, `debounceSeconds`.
 {/* /mcp-catalog */}
 
 ### Webhooks
@@ -592,17 +592,17 @@ One tool with an `action` switch: list, runs, create, update, pause, run_now, de
 
 One tool with an `action` switch: list, get, create, update, delete, plus the delivery log (action list_deliveries, scoped to one webhook's current url when you pass its `id`) and re-delivery (action resend_delivery). Reads need API & Webhooks read access All; create and resend_delivery need Create, update needs Edit and delete needs Delete on API & Webhooks.
 
-**Can delete data.** Required: `action`. Optional: `recordTrigger`, `recordOwnerUserId`, `expectedSchemaRevision`, `id`, `url`, `description`, `events`, `secret`, `headers`, `bodyTemplate`, `enabled`, `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
+**Can delete data.** Required: `action`. Optional: `recordTrigger`, `recordSources`, `recordOwnerUserId`, `expectedSchemaRevision`, `id`, `url`, `description`, `events`, `secret`, `headers`, `bodyTemplate`, `enabled`, `searchTerm`, `filters`, `sortDescriptor`, `page`, `pageSize`.
 {/* /mcp-catalog */}
 
 ### Admin and team
 
 {/* mcp-catalog:admin */}
-#### `update_workspace_settings`
+#### `update_my_profile`
 
-Changes your own name, country and avatar. Money fields carry their own currency: change it, or rename record types, through configure_record_model.
+Changes your own name, country, avatar, theme, display language and formatting locale.
 
-Optional: `firstName`, `lastName`, `country`, `avatarUrl`.
+Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `theme`, `displayLanguage`, `formattingLocale`.
 
 #### `manage_team`
 

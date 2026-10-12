@@ -1,4 +1,4 @@
-import type { RecordWidgetRepo, RecordWidgetInput, StoredRecordWidget } from "./record-widget.schema";
+import type { RecordWidgetRepo, SavedRecordWidgetInput, StoredRecordWidget } from "./record-widget.schema";
 import { RecordWidgetDtoSchema } from "./record-widget.schema";
 import { Prisma } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
@@ -49,7 +49,7 @@ export class PrismaRecordWidgetRepo extends TenantRepository implements RecordWi
     return listWidgetPlacements(this.prisma, this.companyId, this.userId, viewId);
   }
   async save(
-    input: RecordWidgetInput,
+    input: SavedRecordWidgetInput,
     id: string,
     viewId: string | null,
     layout?: WidgetLayout,

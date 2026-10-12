@@ -11,6 +11,7 @@ import { readThreadRecordsAction, mutateThreadRecordsAction } from "../actions";
 import { globalSearchAction } from "../../search/actions";
 import { Debouncer } from "@/core/utils/debounce";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { reportApplicationError } from "@/core/errors/report-application-error";
 
 export class ThreadRecordsStore extends BaseStore {
   detail: ThreadRecordsResult | null = null;
@@ -89,7 +90,8 @@ export class ThreadRecordsStore extends BaseStore {
           this.error = true;
         }
       });
-    } catch {
+    } catch (error) {
+      reportApplicationError(error);
       runInAction(() => {
         if (threadId === this.threadId && generation === this.generation) this.error = true;
       });
@@ -154,7 +156,8 @@ export class ThreadRecordsStore extends BaseStore {
           );
         } else this.searchError = true;
       });
-    } catch {
+    } catch (error) {
+      reportApplicationError(error);
       runInAction(() => {
         if (generation === this.searchGeneration) this.searchError = true;
       });
@@ -203,7 +206,8 @@ export class ThreadRecordsStore extends BaseStore {
       });
       await this.reload();
       await this.rootStore.recordWorkspaceStore.invalidate();
-    } catch {
+    } catch (error) {
+      reportApplicationError(error);
       runInAction(() => {
         if (this.threadId === threadId) this.error = true;
       });

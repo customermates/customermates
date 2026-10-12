@@ -49,7 +49,7 @@ export const manageTrashTool = {
   name: "manage_trash",
   title: "Restore or permanently delete Trash items",
   description:
-    "restore brings items back with their values, links and sub-list rows; links to records deleted permanently in the meantime are dropped and counted in droppedLinks, and blocked lists items that need their list or parent restored first. preview shows exactly what a permanent deletion removes without changing anything. delete_permanently and empty (administrators only) cannot be undone: they remove the items and erase the deleted records' values from history, keeping only who changed what when. Always preview, show the user the result and get explicit confirmation before delete_permanently or empty.",
+    "restore brings items back with their values, links and sub-list rows; links to records deleted permanently in the meantime are dropped and counted in droppedLinks, and blocked lists items that need their list or parent restored first. preview shows exactly what a permanent deletion removes without changing anything. delete_permanently needs delete access to every listed item; empty is for administrators only. Both cannot be undone: they remove the items and erase the deleted records' values from history, keeping only who changed what when. Always preview, show the user the result and get explicit confirmation before delete_permanently or empty.",
   inputSchema: ManageTrashSchema,
   outputSchema: z
     .object({

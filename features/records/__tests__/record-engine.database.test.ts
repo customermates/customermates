@@ -137,6 +137,7 @@ const {
   getRecordRepo,
 } = await import("@/core/di");
 const { manageWebhooksTool } = await import("@/features/mcp-tools/webhook.mcp-tools");
+const { manageRoutinesTool } = await import("@/features/mcp-tools/routine.mcp-tools");
 const { manageRolesTool } = await import("@/features/mcp-tools/role.mcp-tools");
 const { RoleManagementService } = await import("@/features/role/role-management.service");
 const { PrismaRoleRepo } = await import("@/features/role/prisma-role.repository");
@@ -146,6 +147,7 @@ const { PrismaCompanyRepo } = await import("@/features/company/prisma-company.re
 const { InitializeRecordModelService } = await import("../initialize-record-model.service");
 const { DomainEvent } = await import("@/features/event/domain-events");
 const { PrismaWidgetRepo } = await import("@/features/widget/prisma-widget.repository");
+const { SaveWidgetInteractor } = await import("@/features/widget/save-widget.interactor");
 const { UpdateWidgetLayoutsInteractor } = await import("@/features/widget/update-widget-layouts.interactor");
 const { executeMcpTool } = await import("@/features/mcp-tools/mcp-tool");
 const { manageDataViewsTool } = await import("@/features/mcp-tools/data-view.mcp-tools");
@@ -1861,6 +1863,74 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       ),
     ).toBe(0);
+  });
+
+  it("fires a filtered record routine created through the MCP tool only for matching records", async () => {
+    const f = await fixture();
+    await f.run(() =>
+      prisma.subscription.create({
+        data: { companyId: f.company.id, status: "active", plan: "enterprise" },
+      }),
+    );
+    expect(manageRoutinesTool.inputSchema.shape).not.toHaveProperty("triggerFilters");
+    const created = await f.run(() =>
+      executeMcpTool(manageRoutinesTool, [
+        manageRoutinesTool.inputSchema.parse({
+          action: "create",
+          name: "Large catalog items",
+          prompt: "Inspect this record. Do not change it.",
+          triggerKind: "event",
+          triggerEvents: ["record.created"],
+          recordTrigger: {
+            query: {
+              typeId: f.id("service"),
+              filters: [{ fieldId: f.id("service.amount"), operator: "gt", value: decimal("10") }],
+              relationships: [],
+            },
+            changedFieldIds: [],
+          },
+          expectedSchemaRevision: 1,
+          debounceSeconds: 0,
+        }),
+      ]),
+    );
+    expect(created).toMatchObject({ ok: true });
+    const routine = recordInvariant(
+      await f.run(() => prisma.routine.findFirst({ where: { companyId: f.company.id } })),
+    );
+    const small = await f.create("service", "Small item", [["service.amount", decimal("5")]]);
+    const large = await f.create("service", "Large item", [["service.amount", decimal("20")]]);
+    const matches = await f.run(() =>
+      prisma.recordEventMatch.findMany({
+        where: { companyId: f.company.id, subscriptionId: routine.id },
+        include: { event: true },
+      }),
+    );
+    expect(matches.map((match) => match.event.subjectId)).toEqual([large.recordId]);
+    const events = await f.run(() =>
+      prisma.eventLog.findMany({
+        where: { companyId: f.company.id, subjectId: { in: [small.recordId, large.recordId] } },
+        orderBy: { createdAt: "asc" },
+      }),
+    );
+    expect(events.length).toBeGreaterThanOrEqual(2);
+    const dispatch = vi.fn().mockResolvedValue(undefined);
+    const process = new ProcessEventInteractor(
+      new PrismaEventOutboxRepo(),
+      new RoutineAdmission(createTestRoutineRepo(), { dispatch } as never, createTestRecordRecipientReader()),
+    );
+    for (const event of events) await process.invoke({ companyId: f.company.id, eventId: event.id });
+    const runs = await f.run(() =>
+      prisma.routineRun.findMany({
+        where: { companyId: f.company.id, routineId: routine.id },
+      }),
+    );
+    expect(runs).toHaveLength(1);
+    expect(runs[0]).toMatchObject({
+      triggerEvent: "record.created",
+      triggerPayload: { data: { record: { ref: large } } },
+    });
+    expect(dispatch).toHaveBeenCalledOnce();
   });
 
   it("durably admits a record webhook once and rechecks its owner's access before a retry", async () => {
@@ -14738,6 +14808,98 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     expect(await other.run(() => other.writeWidget.invoke({ ...input, idempotencyKey: randomUUID() }))).toMatchObject({
       ok: false,
+    });
+  });
+
+  it("merges partial widget updates in the interactors and keeps each saved widget's kind", async () => {
+    const f = await fixture();
+    const save = new SaveWidgetInteractor(new PrismaWidgetRepo(), f.writeWidget, f.writeActivityWidget);
+    const measure = RecordMeasureSchema.parse({
+      source: { typeId: f.id("service") },
+      aggregation: "count",
+      valueFieldId: null,
+      groupBy: null,
+    });
+    const chart = await f.run(() =>
+      save.invoke({
+        expectedRevision: 1,
+        idempotencyKey: randomUUID(),
+        name: "Service count",
+        measure,
+        displayOptions: { displayType: DisplayType.verticalBarChart },
+      }),
+    );
+    expect(chart).toMatchObject({ ok: true, data: { kind: "chart", isTemplate: false, version: 1 } });
+    if (!chart.ok) throw new Error("Chart creation failed");
+    const renamed = await f.run(() =>
+      save.invoke({
+        id: chart.data.id,
+        expectedVersion: 1,
+        expectedRevision: 1,
+        idempotencyKey: randomUUID(),
+        name: "Renamed count",
+      }),
+    );
+    expect(renamed).toMatchObject({
+      ok: true,
+      data: {
+        kind: "chart",
+        name: "Renamed count",
+        version: 2,
+        measure,
+        displayOptions: { displayType: DisplayType.verticalBarChart },
+        isTemplate: false,
+      },
+    });
+    const kindChange = await f.run(() =>
+      save.invoke({
+        id: chart.data.id,
+        kind: "activityTimeline",
+        expectedVersion: 2,
+        expectedRevision: 1,
+        idempotencyKey: randomUUID(),
+        name: "Timeline",
+      }),
+    );
+    expect(kindChange).toMatchObject({ ok: false });
+    if (kindChange.ok) throw new Error("A kind change must fail");
+    expect(kindChange.error.issues[0]).toMatchObject({ path: ["kind"] });
+    expect(
+      await f.run(() => save.invoke({ expectedRevision: 1, idempotencyKey: randomUUID(), name: "Missing measure" })),
+    ).toMatchObject({ ok: false });
+    const activityQuery = RecordActivityQuerySchema.parse({ scope: { typeIds: [f.id("service")], records: [] } });
+    const timeline = await f.run(() =>
+      save.invoke({
+        kind: "activityTimeline",
+        expectedRevision: 1,
+        idempotencyKey: randomUUID(),
+        name: "Service history",
+        activityQuery,
+      }),
+    );
+    expect(timeline).toMatchObject({
+      ok: true,
+      data: { kind: "activityTimeline", displayOptions: { showFilters: true }, isTemplate: false },
+    });
+    if (!timeline.ok) throw new Error("Timeline creation failed");
+    expect(
+      await f.run(() =>
+        save.invoke({
+          id: timeline.data.id,
+          expectedVersion: 1,
+          expectedRevision: 1,
+          idempotencyKey: randomUUID(),
+          displayOptions: { showFilters: false },
+        }),
+      ),
+    ).toMatchObject({
+      ok: true,
+      data: {
+        kind: "activityTimeline",
+        name: "Service history",
+        activityQuery,
+        displayOptions: { showFilters: false },
+      },
     });
   });
 

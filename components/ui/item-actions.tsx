@@ -48,6 +48,11 @@ const LONG_PRESS_CLICK_MS = 1000;
 export const ITEM_ACTIONS_TRIGGER_CLASS =
   "opacity-0 transition-opacity focus-visible:opacity-100 data-[state=open]:opacity-100 fine-hover:group-hover/item-actions:opacity-100 fine-hover:group-focus-within/item-actions:opacity-100 touch-input:not-focus-visible:not-data-[state=open]:sr-only";
 
+export const ITEM_REVEAL_GROUP_CLASS = "group/reveal";
+
+export const ITEM_REVEAL_CLASS =
+  "fine-hover:opacity-0 fine-hover:transition-opacity fine-hover:group-hover/reveal:opacity-100 fine-hover:group-focus-within/reveal:opacity-100 fine-hover:focus-visible:opacity-100 touch-input:opacity-100";
+
 const DEFAULT_TRIGGER_CLASS =
   "inline-flex size-7 shrink-0 items-center justify-center rounded-md text-muted-foreground outline-none hover:bg-accent hover:text-accent-foreground focus-visible:ring-2 focus-visible:ring-ring/70 disabled:pointer-events-none disabled:opacity-50 data-[state=open]:bg-accent [&_svg]:size-4";
 

@@ -5,11 +5,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import { Check, ChevronsUpDown, X } from "lucide-react";
 
-import type {
-  RecordChoicesInput,
-  RecordChoicesResult,
-  RecordChoice,
-} from "@/features/records/get-record-choices.interactor";
+import type { RecordChoice } from "@/features/records/get-record-choices.interactor";
 import type { RecordRelationship } from "@/features/records/record-model.schema";
 import type { RecordEditorStore } from "./record-editor.store";
 
@@ -24,36 +20,16 @@ import { cn } from "@/core/utils/cn";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { useDebouncedValue } from "@/core/utils/use-debounced-value";
-import { getRecordChoicesAction } from "../../actions";
+import { useRecordChoices } from "@/components/records/use-record-choices";
 import { RecordDetailField } from "./record-detail-field";
 import { EmptyValue } from "@/components/shared/empty-value";
 import { relationshipColumnKey } from "@/features/records/record-column.schema";
 
+export { useRecordChoices } from "@/components/records/use-record-choices";
+
 export const RECORD_LINK_FRAME_CLASS =
   "flex min-h-9 w-full flex-wrap items-center gap-1 rounded-md border px-3 py-1.5 text-sm";
 export const RECORD_LINK_FRAME_READ_ONLY_CLASS = "border-input bg-input-background shadow-xs";
-
-export function useRecordChoices(input: RecordChoicesInput, enabled: boolean, attempt: number) {
-  const key = enabled ? JSON.stringify([input, attempt]) : null;
-  const [state, setState] = useState<{ key: string; data: RecordChoicesResult | null; failed: boolean } | null>(null);
-  useEffect(() => {
-    if (!key) return;
-    let active = true;
-    const [request] = JSON.parse(key) as [RecordChoicesInput, number];
-    void getRecordChoicesAction(request)
-      .then((result) => {
-        if (active) setState({ key, data: result.ok ? result.data : null, failed: !result.ok });
-      })
-      .catch(() => {
-        if (active) setState({ key, data: null, failed: true });
-      });
-    return () => {
-      active = false;
-    };
-  }, [key]);
-  const current = state?.key === key ? state : null;
-  return { data: current?.data, failed: current?.failed ?? false, loading: key !== null && current === null };
-}
 
 export const RecordRelationshipEditor = observer(function RecordRelationshipEditor({
   store,
