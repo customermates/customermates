@@ -4,10 +4,12 @@ import type { RecordMutation } from "@/features/records/record-query.schema";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
+import { join } from "node:path";
 
 import { NextRequest } from "next/server";
 
 import { createMockUser } from "./mock-user";
+import { assertPublishedResponse } from "./openapi-validator";
 
 type RouteHandler = (request: NextRequest) => Promise<Response>;
 
@@ -189,7 +191,20 @@ export type RestRouteWorkspace = Awaited<
   ReturnType<typeof createRestRouteWorkspace>
 >;
 
-/** Calls a REST route handler as the given tenant with a JSON body and returns its status and parsed body. */
+const routePaths = new WeakMap<RouteHandler, string>();
+
+/** Loads the POST handler of a public REST operation, such as `/v1/widgets/list`, so postAs can check its responses. */
+export async function restRoute(path: string): Promise<RouteHandler> {
+  const route = (await import(join(process.cwd(), "app", "api", path, "route.ts"))) as { POST?: RouteHandler };
+  if (!route.POST) throw new Error(`No POST handler for ${path}`);
+  routePaths.set(route.POST, path);
+  return route.POST;
+}
+
+/**
+ * Calls a REST route handler as the given tenant with a JSON body and returns its status and parsed body. The
+ * response must match the operation in public/v1/openapi.json, so load handlers with restRoute.
+ */
 export async function postAs(
   workspace: Pick<RestRouteWorkspace, "as">,
   user: TenantUser,
@@ -205,5 +220,9 @@ export async function postAs(
       }),
     ),
   );
-  return { status: response.status, body: await response.json() };
+  const path = routePaths.get(handler);
+  if (!path) throw new Error("Load REST handlers with restRoute(path) so postAs can validate their responses");
+  const result = { status: response.status, body: await response.json() };
+  assertPublishedResponse(path, "post", result.status, result.body);
+  return result;
 }

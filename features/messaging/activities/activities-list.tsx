@@ -245,7 +245,7 @@ export const ActivitiesList = observer(({ hasMore, items, loading, onLoadOlder }
             resolveActorName(entry.actor.firstName, entry.actor.lastName, entry.actor.email) ||
             t("RecordModel.systemActor");
           const isRecordSnapshot =
-            entry.kind === "audit" && !entry.event.endsWith(".created") && entry.changes.some((c) => c.snapshot);
+            entry.kind === "audit" && !entry.event.endsWith(".created") && entry.changes.some((c) => "snapshot" in c);
           const fields = isRecordSnapshot
             ? ""
             : formatFieldList(
