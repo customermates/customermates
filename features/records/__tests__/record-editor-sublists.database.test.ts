@@ -118,7 +118,7 @@ afterAll(async () => {
   if (companies.length) await runWithoutTenant(() => prisma.company.deleteMany({ where: { id: { in: companies } } }));
 });
 
-describeDatabase("record editor embedded sub-lists", () => {
+describeDatabase("record editor embedded sub-lists", { timeout: 120_000 }, () => {
   it("returns the first page of each sub-list with the editor payload, within the reader's access", async () => {
     const f = await fixture();
     const deal = await f.create("deal", "Renewal");

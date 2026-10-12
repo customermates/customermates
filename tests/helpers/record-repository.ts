@@ -19,7 +19,8 @@ import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
 
 const idleBackground: Pick<BackgroundTaskService, "dispatch"> = { dispatch: () => Promise.resolve() };
 
-const widgetRepo = async () => new (await import("@/features/widget/prisma-widget.repository")).PrismaWidgetRepo();
+const { PrismaWidgetRepo } = await import("@/features/widget/prisma-widget.repository");
+const widgetRepo = async () => new PrismaWidgetRepo();
 
 const widgets: RecordWidgetConfigurationRepo & ViewWidgetPurgeRepo = {
   getActivityQueriesCompanyWide: async (companyId, afterId) =>
