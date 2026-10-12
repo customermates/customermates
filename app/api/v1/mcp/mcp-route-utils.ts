@@ -6,6 +6,7 @@ import * as Sentry from "@sentry/nextjs";
 import { redactUnexpectedError } from "@/core/errors/redact-unexpected-error";
 import { executeMcpTool, type McpTool } from "@/features/mcp-tools/mcp-tool";
 import { buildMcpServerInstructions, GET_STARTED_PROMPT } from "@/features/mcp-tools/server-instructions";
+import { mcpToolsForToolsets } from "@/features/mcp-tools/toolsets";
 import { env } from "@/env";
 import type { SerializedInteractorFailure } from "@/core/validation/validation.utils";
 
@@ -140,7 +141,7 @@ export function createMcpRoute(
     if (existing) return existing;
 
     const activeKeys = toolsetKey === "" ? knownKeys : toolsetKey.split(",");
-    const tools = [...activeKeys.flatMap((key) => toolGroups[key]), ...alwaysOn];
+    const tools = mcpToolsForToolsets(toolGroups, activeKeys, alwaysOn);
     const handler = createMcpHandler(
       (server) => {
         registerAllTools(server, tools);

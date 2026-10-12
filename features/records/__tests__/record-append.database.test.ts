@@ -2,7 +2,7 @@ import type { RecordMutation } from "../record-query.schema";
 
 import { PermissionService } from "@/core/base/permission.service";
 import { randomUUID } from "node:crypto";
-import { afterAll, describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
@@ -36,7 +36,7 @@ const { RecordConfigurationService } = await import("../configuration.service");
 const { RecordConfigurationWriter } = await import("../record-configuration-writer");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 const { serializeJSONToMarkdown } = await import("@/components/editor/editor.utils");
-const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+const { createTestRecordRepo, preloadTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -118,6 +118,8 @@ async function fixture() {
 }
 
 describeDatabase("record field append", () => {
+  beforeAll(() => preloadTestRecordRepo(), 120_000);
+
   afterAll(async () => {
     await runWithoutTenant(() => prisma.company.deleteMany({ where: { id: { in: companies } } }));
   });

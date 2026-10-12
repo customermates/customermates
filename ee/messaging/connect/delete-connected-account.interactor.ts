@@ -1,13 +1,13 @@
 import type { MessagingService } from "../messaging.service";
 import type { EventService } from "@/features/event/event.service";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
 import { Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { DomainEvent } from "@/features/event/domain-events";
 import type { DeleteConnectedAccountRepo } from "./delete-connected-account.repo";
@@ -25,8 +25,8 @@ export class DeleteConnectedAccountInteractor extends AuthenticatedInteractor<De
     super();
   }
 
-  @Enforce(Schema)
-  async invoke(data: DeleteConnectedAccountData): Promise<{ ok: true; data: null }> {
+  @Validate(Schema)
+  async invoke(data: DeleteConnectedAccountData): Validated<null> {
     const existing = await this.repo.findAccountByIdOrThrow(data.id);
 
     await this.repo.deleteAccount(data.id);

@@ -3,6 +3,7 @@ import { z } from "zod";
 import { mcpValidationFailure, runInteractor, toonResult } from "./utils";
 
 import {
+  getGetInvitationLinkInteractor,
   getInviteUsersByEmailInteractor,
   getUpdateTeamMemberInteractor,
   getUpdateUserDetailsInteractor,
@@ -48,12 +49,16 @@ const UpdateMyProfileOutputSchema = z.looseObject({ message: z.string() });
 const ManageTeamOutputSchema = z
   .looseObject({
     sent: z.number().optional(),
+    link: z.string().optional(),
+    expiresAt: z.string().optional(),
     email: z.string().optional(),
     roleId: z.string().nullable().optional(),
     status: z.string().optional(),
     message: z.string(),
   })
-  .describe("action invite returns sent and message; update_member returns email, roleId, status and message.");
+  .describe(
+    "action invite returns sent and message; invite_link returns link, expiresAt and message; update_member returns email, roleId, status and message.",
+  );
 
 export const updateMyProfileTool = {
   name: "update_my_profile",
@@ -86,9 +91,9 @@ export const updateMyProfileTool = {
 
 const ManageTeamSchema = z.object({
   action: z
-    .enum(["invite", "update_member"])
+    .enum(["invite", "invite_link", "update_member"])
     .describe(
-      "invite = send invitation emails (emails); update_member = change an existing member's role or status (userId plus roleId and/or status).",
+      "invite = send invitation emails (emails); invite_link = return the workspace invitation link to share yourself; update_member = change an existing member's role or status (userId plus roleId and/or status).",
     ),
   emails: InviteUsersByEmailSchema.shape.emails
     .optional()
@@ -110,10 +115,11 @@ export const manageTeamTool = {
   description:
     "Use this when administering team members. " +
     "action invite SENDS REAL INVITATION EMAILS to the given addresses (up to 20 per call). " +
+    "action invite_link returns the workspace invitation link and its expiresAt, as the Invite modal shows it, creating one valid for 7 days when none is active; anyone who opens it can request to join, so hand it only to the people the user names. " +
     "action update_member changes an existing member's role or status: pass userId from list_users.items[].id plus roleId from get_workspace_context.roles[].id and/or status, omitted fields keep their current values; " +
     "a member who has no role assigned yet (e.g. a still pending invite) has no role to keep, so you must pass roleId together with the change or the call is rejected. " +
     "last-admin protection is enforced server-side, the workspace can never lose its last active admin. " +
-    "invite requires create permission on users; update_member requires update permission and read access to all users (Manage and read All on Users & Roles).",
+    "invite requires create permission on users, as does invite_link; update_member requires update permission and read access to all users (Manage and read All on Users & Roles).",
   annotations: {
     readOnlyHint: false,
     destructiveHint: false,
@@ -123,6 +129,11 @@ export const manageTeamTool = {
   inputSchema: ManageTeamSchema,
   outputSchema: ManageTeamOutputSchema,
   execute: async (params: z.infer<typeof ManageTeamSchema>) => {
+    if (params.action === "invite_link") {
+      return runInteractor(getGetInvitationLinkInteractor().invoke({}), (data) =>
+        toonResult({ link: data.link, expiresAt: data.expiresAt.toISOString(), message: "Invitation link ready" }),
+      );
+    }
     if (params.action === "invite") {
       const parsed = InviteUsersByEmailSchema.safeParse(params);
       if (!parsed.success) return mcpValidationFailure(parsed.error);

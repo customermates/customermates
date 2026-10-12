@@ -26,6 +26,8 @@ import { manageWidgetsTool } from "@/features/mcp-tools/widget.mcp-tools";
 import { manageRoutinesTool } from "@/features/mcp-tools/routine.mcp-tools";
 import { requestSupportTool } from "@/features/mcp-tools/support.mcp-tools";
 import { manageWikiPagesTool } from "@/features/mcp-tools/wiki.mcp-tools";
+import { exportCrmRecordsTool, importCrmRecordsTool } from "@/features/mcp-tools/data-transfer.mcp-tools";
+import { manageConnectedAccountsTool } from "@/features/mcp-tools/connected-account.mcp-tools";
 import {
   connectMessagingAccountTool,
   discardMessageDraftTool,
@@ -70,6 +72,8 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
     resumeRecordOperationV2Tool,
     readTrashTool,
     manageTrashTool,
+    exportCrmRecordsTool,
+    importCrmRecordsTool,
   ],
   "record-model": [configureRecordModelV2Tool],
   workspace: [getWorkspaceContextTool, listUsersTool],
@@ -87,6 +91,7 @@ export const MCP_TOOL_GROUPS: Record<string, McpTool[]> = {
     moveEmailThreadTool,
     manageConversationRecordsTool,
     connectMessagingAccountTool,
+    manageConnectedAccountsTool,
   ],
   social: [
     getSocialPostsTool,

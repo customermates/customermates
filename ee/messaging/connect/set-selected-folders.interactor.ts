@@ -12,16 +12,16 @@ import { toConnectedAccountDto } from "./connected-account-dto";
 import { isSkippedEmailFolder } from "../email-folders";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import type { SetSelectedFoldersRepo } from "./set-selected-folders.repo";
 
-const Schema = z.object({
+export const SetSelectedFoldersSchema = z.object({
   id: z.uuid(),
   selectedFolderIds: z.array(z.string()),
 });
-type SetSelectedFoldersData = Data<typeof Schema>;
+type SetSelectedFoldersData = Data<typeof SetSelectedFoldersSchema>;
 
 @TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class SetSelectedFoldersInteractor extends AuthenticatedInteractor<SetSelectedFoldersData, ConnectedAccountDto> {
@@ -33,7 +33,7 @@ export class SetSelectedFoldersInteractor extends AuthenticatedInteractor<SetSel
     super();
   }
 
-  @Enforce(Schema)
+  @Validate(SetSelectedFoldersSchema)
   @ValidateOutput(ConnectedAccountAppDtoSchema)
   async invoke(data: SetSelectedFoldersData): Validated<ConnectedAccountDto> {
     const denied = await this.entitlements.require("messaging");
