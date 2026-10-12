@@ -65,18 +65,18 @@ describe("EntityDetailStaticField", () => {
     expect(markup).toContain('aria-label="How Deal value is calculated"');
   });
 
-  it("wraps a permission-restricted value in the read-only hint without a derivation control", () => {
+  it("marks a permission-restricted value as locked without a tooltip or derivation control", () => {
     const markup = renderToStaticMarkup(
       createElement(EntityDetailStaticField, {
         fieldId: "totalValue",
         label: "Deal value",
         value: null,
-        readOnlyHint: true,
+        locked: true,
       }),
     );
 
-    expect(markup).toContain("data-read-only-hint");
-    expect(markup).toContain("Common.readOnlyField");
+    expect(markup).toContain('class="w-full min-w-0 cursor-not-allowed" data-field-locked=""');
+    expect(markup).not.toContain('data-slot="tooltip');
     expect(markup).not.toContain("data-form-control-end");
     expect(markup).not.toContain("pr-9");
   });

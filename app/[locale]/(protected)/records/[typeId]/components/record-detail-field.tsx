@@ -3,7 +3,6 @@
 import type { ReactNode } from "react";
 import { FormLabel } from "@/components/forms/form-label";
 import { FormControlRow } from "@/components/forms/form-control-row";
-import { ReadOnlyHint } from "@/components/forms/read-only-hint";
 import { EntityDetailField } from "@/components/entity-detail/entity-detail-field";
 import { EntityDetailFieldActions } from "@/components/entity-detail/entity-detail-field-actions";
 import { EntityDetailFieldDragHandle } from "@/components/entity-detail/entity-detail-fields";
@@ -14,7 +13,7 @@ export function RecordDetailField({
   label,
   required,
   action,
-  readOnlyHint,
+  locked,
   children,
 }: {
   fieldId: string;
@@ -22,7 +21,7 @@ export function RecordDetailField({
   label: string;
   required?: boolean;
   action?: ReactNode;
-  readOnlyHint?: boolean;
+  locked?: boolean;
   children: ReactNode;
 }) {
   return (
@@ -41,7 +40,13 @@ export function RecordDetailField({
         </div>
 
         <FormControlRow startAddon={<EntityDetailFieldDragHandle label={label} />}>
-          {readOnlyHint ? <ReadOnlyHint>{children}</ReadOnlyHint> : children}
+          {locked ? (
+            <div className="w-full min-w-0 cursor-not-allowed" data-field-locked="">
+              {children}
+            </div>
+          ) : (
+            children
+          )}
         </FormControlRow>
       </div>
     </EntityDetailField>

@@ -33,6 +33,8 @@ type Props = {
   autoFocus?: boolean;
   toolbar?: boolean;
   toolbarClassName?: string;
+  contentClassName?: string;
+  onToolbarActivate?: () => void;
 };
 
 function findEnclosingTableStart($pos: ResolvedPos): number | null {
@@ -51,6 +53,8 @@ export function Editor({
   autoFocus = false,
   toolbar = false,
   toolbarClassName,
+  contentClassName,
+  onToolbarActivate,
 }: Props) {
   const t = useTranslations();
   const [showSlashMenu, setShowSlashMenu] = useState(false);
@@ -288,9 +292,23 @@ export function Editor({
         <SlashMenu anchorRect={slashAnchorRect} editor={editor} onClose={() => setShowSlashMenu(false)} />
       )}
 
-      {toolbar && !readOnly && <FormattingToolbar className={toolbarClassName} editor={editor} />}
+      {toolbar && (!readOnly || onToolbarActivate) && (
+        <div
+          role="presentation"
+          onKeyDownCapture={(event) => {
+            if (readOnly && (event.key === "Enter" || event.key === " ")) onToolbarActivate?.();
+          }}
+          onPointerDownCapture={() => {
+            if (readOnly) onToolbarActivate?.();
+          }}
+        >
+          <FormattingToolbar className={toolbarClassName} editor={editor} />
+        </div>
+      )}
 
-      <EditorContent editor={editor} />
+      <div className={contentClassName} data-editor-content="">
+        <EditorContent editor={editor} />
+      </div>
     </div>
   );
 }
