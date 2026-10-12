@@ -53,20 +53,25 @@ export class RoleManagementService extends UserAccessor {
         )
           return failAuthorization(CustomErrorCode.permissionDenied);
         const model = await this.records.getModel();
-        if (typeIds?.some((id) => !model.types.some((type) => type.id === id && !type.embedded)))
+        const visible = (typeId: string) => policy.canManageRoles || policy.canReadType(typeId);
+        if (typeIds?.some((id) => !model.types.some((type) => type.id === id && !type.embedded && visible(id))))
           return failNotFound(CustomErrorCode.recordTypeNotFound);
-        const role = id ? await this.roles.findRoleById(id) : null;
-        if (id && !role) return failNotFound(CustomErrorCode.roleNotFound);
+        const found =
+          id && (policy.canManageRoles || id === policy.actor.role?.id) ? await this.roles.findRoleById(id) : null;
+        if (id && !found) return failNotFound(CustomErrorCode.roleNotFound);
+        const role = found && {
+          ...found,
+          recordGrants: found.recordGrants?.filter(
+            (grant) => visible(grant.typeId) && (!typeIds || typeIds.includes(grant.typeId)),
+          ),
+        };
         const mutable = !role || (!role.isSystemRole && role.id !== policy.actor.role?.id);
         const usedByPreset = model.accessPresets.some((preset) => preset.grants.some((grant) => grant.roleId === id));
         return {
           ok: true as const,
           data: {
             schemaRevision: model.revision,
-            role:
-              role && typeIds
-                ? { ...role, recordGrants: role.recordGrants?.filter((grant) => typeIds.includes(grant.typeId)) }
-                : role,
+            role,
             canEdit: mutable && policy.allowedSystem("users", role ? "update" : "create"),
             canDelete: Boolean(
               role &&
@@ -76,7 +81,10 @@ export class RoleManagementService extends UserAccessor {
                 !(await this.roles.hasUsersAssigned(role.id)),
             ),
             types: model.types
-              .filter((type) => !type.embedded && !type.archived && (!typeIds || typeIds.includes(type.id)))
+              .filter(
+                (type) =>
+                  !type.embedded && !type.archived && visible(type.id) && (!typeIds || typeIds.includes(type.id)),
+              )
               .map((type) => ({ id: type.id, label: type.pluralLabel })),
           },
         };

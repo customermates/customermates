@@ -59,7 +59,7 @@ const ListUsersOutputSchema = z.object({
 
 const WORKSPACE_CONTEXT_FIELDS_DESCRIPTION =
   "Discover accessible types and their editable labels with discover_record_types; get_record_model returns their current fields and permissions. " +
-  "Each role carries its full permission list; match roleId values from list_users against it. " +
+  "Each role carries its full permission list; without role management only your own role is listed. Match roleId values from list_users against it. " +
   "Each connected account includes { id, provider, status, emailAddress, displayName, shared, isOwner, lastSyncedAt, linkedinProducts }; " +
   "use the id as connectedAccountId for send_email and send_chat_message and check status before sending. " +
   "For LinkedIn, linkedinProducts lists which products the account can send from (classic, sales_navigator, recruiter); only pass a linkedinProduct that appears there.";

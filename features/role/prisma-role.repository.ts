@@ -6,11 +6,12 @@ import type { DeleteRoleRepo } from "./delete-role.repo";
 import type { UpdateUserRoleRepo } from "@/features/user/upsert/update-user-role.repo";
 import type { FindRolesByIdsRepo } from "./find-roles-by-ids.repo";
 
-import { Action } from "@/generated/prisma";
+import { Action, Resource } from "@/generated/prisma";
 
 import type { Prisma } from "@/generated/prisma";
 
 import { QueryRepository } from "@/core/base/query-repository";
+import { rolePermits } from "@/core/base/permission.service";
 import { MANAGE_ACTIONS, manageImpliesReadAll, RESOURCE_ACCESS } from "@/features/role/resource-access";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
@@ -63,6 +64,13 @@ export class PrismaRoleRepo
     } as const;
   }
 
+  private get visibleRolesWhere() {
+    const { companyId, role, roleId } = this.user;
+    return rolePermits(role, Resource.users, Action.update)
+      ? { companyId }
+      : { companyId, id: { in: roleId ? [roleId] : [] } };
+  }
+
   getSortableFields() {
     return [{ field: "type", resolvedFields: ["isSystemRole", "name"], collate: true }];
   }
@@ -70,7 +78,7 @@ export class PrismaRoleRepo
   async getItems(params: GetQueryParams) {
     return this.list({
       model: "userRole",
-      baseWhere: { companyId: this.companyId },
+      baseWhere: this.visibleRolesWhere,
       select: this.withAssignmentsSelect,
       params,
       map: (role: Prisma.UserRoleGetPayload<{ select: PrismaRoleRepo["withAssignmentsSelect"] }>) =>
@@ -79,7 +87,7 @@ export class PrismaRoleRepo
   }
 
   async getCount() {
-    return await this.prisma.userRole.count({ where: { companyId: this.companyId } });
+    return await this.prisma.userRole.count({ where: this.visibleRolesWhere });
   }
 
   async isRoleNameTaken(name: string, exceptId?: string) {

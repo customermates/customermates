@@ -39,6 +39,16 @@ describeDatabase("built-in text sorts on PostgreSQL follow the user's locale", (
     displayLanguage: Locale.de,
     formattingLocale: Locale.de,
   };
+  const roleManager: TenantUser = {
+    ...createMockUserWithPermissions([
+      { resource: Resource.users, action: Action.readAll },
+      { resource: Resource.users, action: Action.update },
+    ]),
+    id: viewerId,
+    companyId,
+    displayLanguage: Locale.de,
+    formattingLocale: Locale.de,
+  };
   const scheduled = new Map([
     ["Umzug", new Date("2026-10-01T08:00:00.000Z")],
     ["Zahlung", new Date("2026-10-02T08:00:00.000Z")],
@@ -97,7 +107,7 @@ describeDatabase("built-in text sorts on PostgreSQL follow the user's locale", (
     const routines = await read(() => createTestRoutineRepo().getItems(params));
     const members = await read(() => new PrismaUserRepo(new PermissionService()).getItems(params));
     const webhooks = await read(() => createTestWebhookRepo().getItems(params));
-    const roles = await read(() =>
+    const roles = await runWithTenant(roleManager, () =>
       new PrismaRoleRepo().getItems({ sortDescriptor: { field: "type", direction: "asc" } }),
     );
 

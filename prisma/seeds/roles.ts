@@ -101,7 +101,7 @@ const accountExecutiveRecordGrants = [
 ] as const satisfies readonly RecordGrant[];
 
 const accountExecutiveGrants = [
-  [Resource.inboxMessages, [Action.create, Action.readOwn, Action.update]],
+  [Resource.inboxMessages, [Action.create, Action.readAll, Action.update]],
   [Resource.users, [Action.readOwn]],
   [Resource.wiki, [Action.readAll]],
   [Resource.company, companyVisibility],
@@ -131,7 +131,7 @@ const peopleOperationsRecordGrants = [
 ] as const satisfies readonly RecordGrant[];
 
 const peopleOperationsGrants = [
-  [Resource.inboxMessages, [Action.create, Action.readOwn, Action.update]],
+  [Resource.inboxMessages, [Action.create, Action.readAll, Action.update]],
   [Resource.users, [Action.readAll]],
   [Resource.wiki, manageAll],
   [Resource.company, companyVisibility],
