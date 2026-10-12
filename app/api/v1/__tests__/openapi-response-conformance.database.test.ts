@@ -130,6 +130,11 @@ describeDatabase("public REST responses match public/v1/openapi.json", () => {
 
       const users = await call("/v1/users/search", { pagination: { page: 1, pageSize: 5 } });
       expect(users.items.length).toBeGreaterThan(0);
+      const nobody = await call("/v1/users/search", {
+        searchTerm: "no member matches this search",
+        pagination: { page: 1, pageSize: 5 },
+      });
+      expect(nobody).toMatchObject({ items: [], pagination: { total: 0, totalPages: 1 } });
       await call("/v1/records/search", { searchTerm: "Conformance", typeIds: [deal.typeId], limit: 3 });
       await call("/v1/records/query", { typeId: deal.typeId, pageSize: 5 });
       await call("/v1/records/read", deal);

@@ -110,8 +110,8 @@ export const PaginationRequestSchema = z.object({
 export type PaginationRequest = Data<typeof PaginationRequestSchema>;
 
 export const PaginationResponseSchema = PaginationRequestSchema.extend({
-  totalPages: z.number().positive(),
-  total: z.number().positive(),
+  totalPages: z.number().int().min(1),
+  total: z.number().int().min(0),
 });
 export type PaginationResponse = Data<typeof PaginationResponseSchema>;
 
@@ -158,8 +158,8 @@ export const GetResultSchema = z.object({
   searchTerm: z.string().optional(),
   sortDescriptor: SortDescriptorSchema.optional(),
   pagination: PaginationRequestSchema.extend({
-    totalPages: z.number().positive().optional(),
-    total: z.number().positive().optional(),
+    totalPages: z.number().int().min(1).optional(),
+    total: z.number().int().min(0).optional(),
   }).optional(),
   filterableFields: z.array(FilterableFieldSchema).optional(),
 });

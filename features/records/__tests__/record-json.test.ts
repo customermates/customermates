@@ -44,4 +44,23 @@ describe("record configuration fingerprints", () => {
     const field = recordInvariant(createCrmPreset("workspace").fields.find((field) => field.valueType === "currency"));
     expect(fieldValueDefinition(field)).not.toBe(fieldValueDefinition({ ...field, format: { currency: "CHF" } }));
   });
+
+  it("recalculates derived values when their decimal places change and keeps input values as stored", () => {
+    const fields = createCrmPreset("workspace").fields;
+    const formula = recordInvariant(fields.find((field) => field.behavior.kind === "formula"));
+    const rollup = recordInvariant(fields.find((field) => field.behavior.kind === "rollup"));
+    if (rollup.behavior.kind !== "rollup") throw new Error("The preset rollup is missing");
+    const lookup: typeof rollup = { ...rollup, behavior: { kind: "lookup", expression: rollup.behavior.expression } };
+    for (const field of [formula, lookup, rollup]) {
+      expect(fieldValueDefinition(field)).not.toBe(
+        fieldValueDefinition({ ...field, format: { ...field.format, decimalPlaces: 3 } }),
+      );
+    }
+    const input = recordInvariant(
+      fields.find((field) => field.behavior.kind === "input" && field.valueType === "currency"),
+    );
+    expect(fieldValueDefinition(input)).toBe(
+      fieldValueDefinition({ ...input, format: { ...input.format, decimalPlaces: 3 } }),
+    );
+  });
 });
