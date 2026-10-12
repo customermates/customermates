@@ -23,6 +23,7 @@ import { isRecordFieldWritable } from "@/features/records/record-input-value";
 import { getRecordEditorAction } from "../../actions";
 import { EMBEDDED_PAGE_SIZE, EmbeddedRecordsStore, embeddedPresentation } from "./embedded-records.store";
 import { RecordDetailField } from "./record-detail-field";
+import { RecordEmbeddedColumns } from "./record-embedded-columns";
 import { RecordEditorStore } from "./record-editor.store";
 import { RecordRowActions } from "./record-row-actions";
 import { useRecordCardRenderer, useRecordTableColumns } from "./record-table-columns";
@@ -198,7 +199,15 @@ export const RecordEmbeddedRecords = observer(function RecordEmbeddedRecords({
   return (
     <section aria-label={type.pluralLabel}>
       <RecordDetailField
-        action={list.total > 0 ? <ItemCount count={list.total} data-embedded-count="" /> : undefined}
+        action={
+          list.total > 0 ? (
+            <>
+              <ItemCount count={list.total} data-embedded-count="" />
+
+              <RecordEmbeddedColumns label={type.pluralLabel} list={list} />
+            </>
+          ) : undefined
+        }
         fieldId={relationshipColumnKey(parentRelationId, "incoming")}
         label={type.pluralLabel}
       >
