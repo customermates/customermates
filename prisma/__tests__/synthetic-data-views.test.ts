@@ -45,7 +45,12 @@ const DRAFT_FIELD: string = FilterFieldKey.draft;
 const views = () => buildSyntheticDataViewFixtures({ ids: SEED_IDS }, customFields);
 const own = () => views().filter(({ userId }) => userId === SEED_IDS.user);
 
-type StoredRow = { id: string; companyId: string; userId?: string; surfaceKey?: string };
+type StoredRow = {
+  id: string;
+  companyId: string;
+  userId?: string;
+  surfaceKey?: string;
+};
 
 function createViewRecorder() {
   const rows = new Map<string, StoredRow>();
@@ -147,10 +152,7 @@ describe("synthetic data view fixtures", () => {
     expect(new Set(summaries.map(({ aggregation }) => aggregation))).toEqual(new Set(["sum", "average", "min", "max"]));
     expect(views().find(({ id }) => id === SYNTHETIC_DATA_VIEW_IDS.dealPipeline)?.state.grouping).toMatchObject({
       field: model.fields.deal.stage,
-      summaries: [
-        { fieldId: model.starter.dealTotalValue, aggregation: "sum" },
-        { fieldId: model.starter.dealWeightedValue, aggregation: "sum" },
-      ],
+      summaries: [{ fieldId: model.starter.dealTotalValue, aggregation: "sum" }],
     });
   });
 
@@ -205,11 +207,41 @@ describe("synthetic data view fixtures", () => {
     }
   });
 
+  it("keeps boards, tables and group totals small enough for an overview", () => {
+    for (const view of views().filter(({ surfaceKey }) => surfaceKey !== INBOX)) {
+      const visible = view.state.columnOrder ?? [];
+      // A card shows three to five chips (the smallest list, services, shows two); a table four to six columns.
+      if (view.state.viewMode === ViewMode.card) {
+        expect(visible.length, view.name).toBeGreaterThanOrEqual(2);
+        expect(visible.length, view.name).toBeLessThanOrEqual(5);
+      } else {
+        expect(visible.length, view.name).toBeGreaterThanOrEqual(4);
+        expect(visible.length, view.name).toBeLessThanOrEqual(6);
+      }
+      expect((view.state.grouping?.summaries ?? []).length, view.name).toBeLessThanOrEqual(2);
+    }
+
+    expect(views().find(({ id }) => id === SYNTHETIC_DATA_VIEW_IDS.dealPipeline)?.state).toMatchObject({
+      columnOrder: [
+        model.starter.dealTotalValue,
+        syntheticRecordKeys(SEED_IDS.company).relationship("deal.organizations", "outgoing"),
+        "system:assignedTo",
+        model.fields.deal.openedOn,
+      ],
+      grouping: {
+        summaries: [{ fieldId: model.starter.dealTotalValue, aggregation: "sum" }],
+      },
+    });
+  });
+
   it("converges on a second run and removes only stale deterministic rows", async () => {
     const fixtures = views();
     const recorder = createViewRecorder();
 
-    recorder.rows.set("unrelated-data-view", { companyId: SEED_IDS.company, id: "unrelated-data-view" });
+    recorder.rows.set("unrelated-data-view", {
+      companyId: SEED_IDS.company,
+      id: "unrelated-data-view",
+    });
     recorder.rows.set(fixtureId(SYNTHETIC_DATA_VIEW_ID_PREFIX, 999), {
       companyId: SEED_IDS.company,
       id: fixtureId(SYNTHETIC_DATA_VIEW_ID_PREFIX, 999),
