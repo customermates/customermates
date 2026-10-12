@@ -1931,7 +1931,8 @@
   },
   "DataTransfer": {
     "export": {
-      "action": "Export",
+      "action": "Export as JSON",
+      "xlsxAction": "Export as Excel (.xlsx)",
       "failed": "The records could not be exported. Check your filters and permissions.",
       "success": "{count, plural, one {# record exported} other {# records exported}}."
     },
@@ -3567,6 +3568,7 @@
     "progressUnavailable": "Could not load progress. Your draft is retained.",
     "rangeEnd": "Until",
     "rangeStart": "From",
+    "recordId": "Record ID",
     "record": "Record",
     "recordConflictFields": "Also changed elsewhere: {fields}. Choose which version to keep before saving.",
     "recordReload": "Reload record",

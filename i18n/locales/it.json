@@ -1931,7 +1931,8 @@
   },
   "DataTransfer": {
     "export": {
-      "action": "Esporta",
+      "action": "Esporta come JSON",
+      "xlsxAction": "Esporta come Excel (.xlsx)",
       "failed": "Non è stato possibile esportare i record. Controlla i filtri e le autorizzazioni.",
       "success": "{count, plural, one {# record esportato} other {# record esportati}}."
     },
@@ -3567,6 +3568,7 @@
     "progressUnavailable": "Impossibile caricare l’avanzamento. La bozza viene conservata.",
     "rangeEnd": "A",
     "rangeStart": "Da",
+    "recordId": "ID record",
     "record": "Record",
     "recordConflictFields": "Modificato anche altrove: {fields}. Scegli quale versione mantenere prima di salvare.",
     "recordReload": "Ricarica il record",

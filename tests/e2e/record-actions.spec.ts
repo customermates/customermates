@@ -43,7 +43,7 @@ test("records list top bar orders Filter, Appearance and More actions before Add
   await expect(page.getByRole("tooltip", { name: "More actions" })).toBeVisible();
   await more.click();
   const menu = page.getByRole("menu");
-  await expect(menu.getByRole("menuitem", { name: "Export", exact: true })).toBeVisible();
+  await expect(menu.getByRole("menuitem", { name: "Export as JSON", exact: true })).toBeVisible();
   await expect(menu.getByRole("menuitem", { name: "Configure Contacts", exact: true })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(menu).toHaveCount(0);

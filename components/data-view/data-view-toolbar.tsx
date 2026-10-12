@@ -2,7 +2,7 @@
 
 import type { BaseDataViewStore, HasId } from "@/core/base/base-data-view.store";
 
-import { ArrowDownToLine, ArrowUpFromLine, MoreHorizontal } from "lucide-react";
+import { ArrowDownToLine, ArrowUpFromLine, FileSpreadsheet, MoreHorizontal } from "lucide-react";
 import type { ReactNode } from "react";
 
 import { observer } from "mobx-react-lite";
@@ -21,6 +21,7 @@ type Props<E extends HasId> = {
   store: BaseDataViewStore<E>;
   onAdd?: () => void;
   onExport?: () => Promise<void> | void;
+  onExportWorkbook?: () => Promise<void> | void;
   onImport?: () => void;
   searchLabel?: string;
   showDisplayOptions?: boolean;
@@ -33,6 +34,7 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
   store,
   onAdd,
   onExport,
+  onExportWorkbook,
   onImport,
   searchLabel,
   showDisplayOptions = true,
@@ -75,6 +77,14 @@ export const DataViewToolbar = observer(function DataViewToolbar<E extends HasId
           icon={MoreHorizontal}
           label={t("DataView.moreActions")}
         >
+          {canExport && onExportWorkbook && (
+            <DropdownMenuItem onSelect={() => runUserAction(() => onExportWorkbook())}>
+              <FileSpreadsheet className="size-4" />
+
+              {t("DataTransfer.export.xlsxAction")}
+            </DropdownMenuItem>
+          )}
+
           {canExport && (
             <DropdownMenuItem onSelect={() => runUserAction(() => onExport?.())}>
               <ArrowDownToLine className="size-4" />

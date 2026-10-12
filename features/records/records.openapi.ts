@@ -105,6 +105,27 @@ function operation(
   };
 }
 
+const SPREADSHEET_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+function withWorkbookResponse(operation: ZodOpenApiOperationObject): ZodOpenApiOperationObject {
+  const ok = operation.responses?.["200"];
+  if (!ok || !("content" in ok)) return operation;
+  return {
+    ...operation,
+    responses: {
+      ...operation.responses,
+      "200": {
+        ...ok,
+        description: "The JSON export document, or the XLSX workbook when format is xlsx.",
+        content: {
+          ...ok.content,
+          [SPREADSHEET_CONTENT_TYPE]: { schema: z.string().meta({ format: "binary" }) },
+        },
+      },
+    },
+  };
+}
+
 const TYPE_ID = "0b6f3c1e-8a52-4c39-9d7e-2f4a6b8c1d01";
 const RECORD_ID = "5d2e9a47-1c3b-4f6a-8e0d-7b9c2a4f6e11";
 const NAME_FIELD_ID = "9a4c2e61-3b5d-4f7a-8c9e-1d2b3a4c5e21";
@@ -113,6 +134,23 @@ const TRASH_ITEM_ID = "e3b5c7d9-4f6a-4b8c-9d0e-1a2b3c4d5e41";
 const TRASH_BATCH_ID = "f4c6d8e0-5a7b-4c9d-8e1f-2a3b4c5d6e51";
 
 export const recordApiExamples = {
+  export: {
+    workbook: {
+      summary: "Export a sorted list as an Excel workbook",
+      value: {
+        typeId: TYPE_ID,
+        search: "Acme",
+        filters: [],
+        relationships: [],
+        sort: [{ fieldId: NAME_FIELD_ID, direction: "asc" }],
+        format: "xlsx",
+      },
+    },
+    document: {
+      summary: "Export a list as a JSON document for import",
+      value: { typeId: TYPE_ID, filters: [], relationships: [], sort: [], format: "json" },
+    },
+  },
   query: {
     filtered: {
       summary: "Query records with a filter and sort",
@@ -308,17 +346,20 @@ export const recordApiPaths = {
     }),
   },
   "/v1/records/export": {
-    post: operation(
-      "exportRecords",
-      "Export accessible records and their embedded children",
-      ExportRecordsSchema,
-      RecordExportSchema,
-      {
-        read: true,
-        requires: "read access to the list.",
-        description:
-          "Exports the selected type's filtered records, readable embedded descendants and readable outbound links from one consistent workspace snapshot. Maximum 5,000 records and 50,000 candidate links. The document carries stable type, field, relationship and record IDs plus the current schema revision; restricted values remain marked restricted. Incoming links from records outside the selection are not included.",
-      },
+    post: withWorkbookResponse(
+      operation(
+        "exportRecords",
+        "Export accessible records as a JSON document or an Excel workbook",
+        ExportRecordsSchema,
+        RecordExportSchema,
+        {
+          read: true,
+          requires: "read access to the list.",
+          description:
+            "Exports the selected type's filtered and sorted records with their readable embedded descendants from one consistent workspace snapshot. Maximum 5,000 records and 50,000 candidate links. format json (default) returns a document with stable type, field, relationship and record IDs, readable outbound links and the current schema revision; restricted values remain marked restricted, and import accepts it. format xlsx returns an Excel workbook with one sheet per exported list: readable fields in field order headed by their labels, then relationship columns with linked record names, assignees, timestamps and a hidden record ID. Dates are spreadsheet dates, numbers and money are numbers with the currency in the header, multiple choice and links are comma-separated names, and formatted text is plain text. A field the caller cannot read on any exported record is left out. Incoming links from records outside the selection are not included.",
+          examples: recordApiExamples.export,
+        },
+      ),
     ),
   },
   "/v1/records/import": {

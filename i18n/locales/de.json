@@ -1931,7 +1931,8 @@
   },
   "DataTransfer": {
     "export": {
-      "action": "Exportieren",
+      "action": "Als JSON exportieren",
+      "xlsxAction": "Als Excel exportieren (.xlsx)",
       "failed": "Die Datensätze konnten nicht exportiert werden. Prüfen Sie Ihre Filter und Berechtigungen.",
       "success": "{count, plural, one {# Datensatz exportiert} other {# Datensätze exportiert}}."
     },
@@ -3567,6 +3568,7 @@
     "progressUnavailable": "Fortschritt konnte nicht geladen werden. Dein Entwurf bleibt erhalten.",
     "rangeEnd": "Bis",
     "rangeStart": "Von",
+    "recordId": "Datensatz-ID",
     "record": "Datensatz",
     "recordConflictFields": "Auch an anderer Stelle geändert: {fields}. Wähle vor dem Speichern, welche Version gelten soll.",
     "recordReload": "Datensatz neu laden",

@@ -1931,7 +1931,8 @@
   },
   "DataTransfer": {
     "export": {
-      "action": "Exportar",
+      "action": "Exportar como JSON",
+      "xlsxAction": "Exportar como Excel (.xlsx)",
       "failed": "No se pudieron exportar los registros. Comprueba tus filtros y permisos.",
       "success": "Se exportaron {count, plural, one {# registro} other {# registros}}."
     },
@@ -3567,6 +3568,7 @@
     "progressUnavailable": "No se pudo cargar el progreso. Tu borrador se conserva.",
     "rangeEnd": "Hasta",
     "rangeStart": "Desde",
+    "recordId": "ID del registro",
     "record": "Registro",
     "recordConflictFields": "También se modificó en otro lugar: {fields}. Elige qué versión conservar antes de guardar.",
     "recordReload": "Volver a cargar el registro",

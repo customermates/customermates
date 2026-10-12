@@ -63,7 +63,8 @@ const RETIRED_CLAIMS: readonly RetiredClaim[] = [
       /\b(?:CSV|TSV|ODS|XML|Google[ -]?(?:Sheets?|Tabellen))[ -]?(?:import(?:er|s)?|export(?:er|s)?|upload|download|Import\w*|Export\w*|Upload|Download|Feldzuordnung)\b|\b(?:import|export|upload|download|importier\w*|exportier\w*|hochlad\w*|herunterlad\w*)[^.!?;|]{0,28}\b(?:CSV|TSV|ODS|XML|Google[ -]?(?:Sheets?|Tabellen))\b|\b(?:CSV|TSV|ODS|XML|Google[ -]?(?:Sheets?|Tabellen))[^.!?;|]{0,28}\b(?:import|export|upload|download|importier\w*|exportier\w*|hochlad\w*|herunterlad\w*)/iu,
     permittedContext: [...NO_OR_EXTERNAL, CONTRASTED],
     why: "Records transfer as XLSX workbooks or schema-aware JSON bundles; CSV, TSV, ODS, XML, and Google Sheets are unsupported",
-    authority: "features/data-transfer/import/import-records.interactor.ts, features/data-transfer/export/export-records.interactor.ts",
+    authority:
+      "app/api/v1/records/export/route.ts, features/data-transfer/export/export-record-workbook.interactor.ts, features/data-transfer/export/record-workbook.ts, features/data-transfer/export/export-records.interactor.ts, features/data-transfer/import/import-records.interactor.ts",
   },
   {
     id: "whole-account-data-export",

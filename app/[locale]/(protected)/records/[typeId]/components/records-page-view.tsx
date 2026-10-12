@@ -141,6 +141,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
   );
   const handleAdd = useCallback(() => openEditor({ typeId: store.presentation.typeId }), [openEditor, store]);
   const handleExport = useRecordExport(store.presentation);
+  const handleExportWorkbook = useRecordExport(store.presentation, "xlsx");
   const handleImport = useCallback(() => setImportOpen(true), []);
   const configureLabel = t("RecordModel.configureList", { list: store.type?.pluralLabel ?? t("RecordModel.records") });
   const toolbar = useMemo(
@@ -162,6 +163,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
         store={store}
         onAdd={handleAdd}
         onExport={handleExport}
+        onExportWorkbook={handleExportWorkbook}
         onImport={handleImport}
       />
     ),
@@ -170,6 +172,7 @@ const RecordsPageViewContent = observer(function RecordsPageView({
       store.presentation.canManageSchema,
       handleAdd,
       handleExport,
+      handleExportWorkbook,
       handleImport,
       presentation.typeId,
       configureLabel,
