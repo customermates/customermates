@@ -12,6 +12,11 @@ type Ramp = { light: [string, string, string]; dark: [string, string, string]; t
  * instead of toward white, so the second and third shades recede in both themes.
  */
 const RAMPS: Record<Hue, Ramp> = {
+  default: {
+    light: ["#6b6b76", "#a3a3ad", "#d0d0d6"],
+    dark: ["#a1a1aa", "#71717a", "#4a4a52"],
+    text: { light: "#27272a", dark: "#f4f4f5" },
+  },
   primary: {
     light: ["#5e4ae3", "#8f82ee", "#c3bcf6"],
     dark: ["#7c6df2", "#5a4fb8", "#3d3780"],
@@ -36,11 +41,6 @@ const RAMPS: Record<Hue, Ramp> = {
     light: ["#d5534e", "#e68d89", "#f1c1be"],
     dark: ["#e8706b", "#ad524e", "#723835"],
     text: { light: "#6e211e", dark: "#fbdcda" },
-  },
-  default: {
-    light: ["#6b6b76", "#a3a3ad", "#d0d0d6"],
-    dark: ["#a1a1aa", "#71717a", "#4a4a52"],
-    text: { light: "#27272a", dark: "#f4f4f5" },
   },
 };
 

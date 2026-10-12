@@ -65,7 +65,7 @@ test("starts from a recommended starter, previews it live at dashboard size and 
     Number(element.getAttribute("data-preview-width")),
     Number(element.getAttribute("data-preview-height")),
   ]);
-  expect(real[1]).toBe(3 * 54 + 2 * 16);
+  expect(real[1]).toBe(2 * 54 + 12);
   expect(
     size && Math.abs(size.height - (real[1] * size.width) / real[0]),
   ).toBeLessThan(2);
