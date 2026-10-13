@@ -24,7 +24,13 @@ Verify the signature, then use the event ID and the stable `typeId`/`recordId` r
 </Step>
 </Steps>
 
+With the [Customermates community node](https://github.com/customermates/n8n-nodes-crm), its **Customermates Trigger** creates this webhook subscription for you when the workflow is activated (published).
+
 [Webhooks](/docs/webhooks) documents payloads, retries and signature verification. Deliveries can arrive out of order or repeat; deduplicate by event ID.
+
+## When does a trigger start receiving events? [#when-does-a-trigger-start-receiving-events]
+
+Since n8n 2.x, activation returns before n8n has finished setting up the trigger. The subscription usually exists within a second, and changes made before then are not delivered later. If something activates a workflow and immediately creates records, first wait until n8n's `GET /rest/workflows/{id}/publication-status` reports `published`, or until the subscription appears under [Webhooks](app:settings/webhooks). Self-hosted n8n can restore waiting activation with `N8N_USE_WORKFLOW_PUBLICATION_SERVICE=false`.
 
 ## How do I create, read, update or delete records from n8n? [#how-do-i-write-to-customermates-from-n8n]
 
