@@ -30,6 +30,7 @@ function assertAdmitted<T>(result: T | OperatorRefusal): asserts result is T {
 
 const { prisma } = await import("@/prisma/db");
 const { createTestOperatorRepo } = await import("@/tests/helpers/prisma-operator-repo");
+const { PrismaCompanyRepo } = await import("@/features/company/prisma-company.repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 
@@ -205,6 +206,64 @@ describeDatabase("operator workspace deletion against a real database", { timeou
         clearedAuthIdentityCompanyCount: 1,
         workspaceLabel: "doomed.invalid",
       });
+    });
+  });
+
+  it("rolls every owner write back when a later deletion step fails", async () => {
+    const repo = createTestOperatorRepo();
+    const { companyId, members } = await createWorkspace({ domain: "rollback.invalid", members: 1 });
+    const [owner] = members;
+    await runWithoutTenant(async () => {
+      await prisma.inviteToken.create({
+        data: {
+          token: `rollback-${randomUUID()}`,
+          companyId,
+          createdById: owner.userId,
+          expiresAt: new Date("2027-01-01T00:00:00.000Z"),
+        },
+      });
+      await prisma.messagingInboundEvent.create({
+        data: { companyId, source: "webhook", payload: { probe: "rollback" } },
+      });
+      await prisma.authVerification.create({
+        data: {
+          id: randomUUID(),
+          identifier: owner.email,
+          value: `pending-${randomUUID()}`,
+          expiresAt: new Date("2027-01-01T00:00:00.000Z"),
+        },
+      });
+      await prisma.apikey.create({
+        data: {
+          id: randomUUID(),
+          key: `hashed-${randomUUID()}`,
+          referenceId: owner.authUserId,
+          createdAt: new Date("2026-01-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+        },
+      });
+    });
+    const failure = vi
+      .spyOn(PrismaCompanyRepo.prototype, "deleteCompanyUnscoped")
+      .mockRejectedValueOnce(new Error("injected company deletion failure"));
+
+    try {
+      await expect(
+        runWithOperator(operatorActor(), () =>
+          repo.deleteWorkspaceUnscoped({ companyId, confirmWorkspaceLabel: "rollback.invalid", reason: "Rollback" }),
+        ),
+      ).rejects.toThrow("injected company deletion failure");
+    } finally {
+      failure.mockRestore();
+    }
+
+    await runWithoutTenant(async () => {
+      expect(await prisma.company.count({ where: { id: companyId } })).toBe(1);
+      expect(await prisma.inviteToken.count({ where: { createdById: owner.userId } })).toBe(1);
+      expect(await prisma.messagingInboundEvent.count({ where: { companyId } })).toBe(1);
+      expect(await prisma.authVerification.count({ where: { identifier: owner.email } })).toBe(1);
+      expect(await prisma.apikey.count({ where: { referenceId: owner.authUserId } })).toBe(1);
+      expect(await prisma.authUser.count({ where: { id: owner.authUserId } })).toBe(1);
     });
   });
 
