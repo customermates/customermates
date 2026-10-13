@@ -583,8 +583,15 @@ describeDatabase("record trash", () => {
     expect(await runWithoutTenant(() => prisma.crmRecord.count({ where: { companyId: f.seed.company.id } }))).toBe(0);
   }, 180_000);
 
-  it("lets a member open a trashed line item whose deal went to Trash after it", async () => {
+  it("lets a member who reads every deal open a trashed line item whose deal went to Trash after it", async () => {
     const f = await fixture();
+    await runWithTenant(f.admin, () =>
+      runInTransaction(
+        () =>
+          f.repo.setGrants(f.id("deal"), [{ roleId: f.seed.memberRole.id, actions: ["readAll", "create", "delete"] }]),
+        { timeout: 30000 },
+      ),
+    );
     const deal = await f.created(
       {
         action: "create",
