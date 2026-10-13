@@ -1156,6 +1156,7 @@
       "routineDeleteHasRunningRun": "Attendez la fin de l’exécution active avant de supprimer cette routine.",
       "routineEditNotOwner": "Seul le propriétaire peut modifier la configuration ou l’activation de cette routine.",
       "routineLimitReached": "Votre forfait inclut {limit} routines par utilisateur. Changez de forfait pour augmenter cette limite.",
+      "routineNotFound": "ID de routine introuvable ou inaccessible.",
       "routineOwnerIneligible": "Le propriétaire de la routine doit être un membre actif de cette entreprise.",
       "routineRunNotOwner": "Seule la personne qui possède cette routine peut l'exécuter, car elle consomme ses crédits IA.",
       "routineRunNowRequiresSchedule": "Seules les routines planifiées peuvent être testées manuellement.",

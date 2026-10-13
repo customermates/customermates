@@ -101,6 +101,7 @@ export enum CustomErrorCode {
   calendarNotFound = "calendarNotFound",
   connectedAccountNotFound = "connectedAccountNotFound",
   roleNotFound = "roleNotFound",
+  routineNotFound = "routineNotFound",
   roleAssignedCannotDelete = "roleAssignedCannotDelete",
   roleNameTaken = "roleNameTaken",
   roleSelfEditForbidden = "roleSelfEditForbidden",

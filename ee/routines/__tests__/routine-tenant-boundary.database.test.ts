@@ -22,6 +22,7 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
 import { DeleteRoutineInteractor } from "../delete-routine.interactor";
 import { FailRoutineRunInteractor } from "../fail-routine-run.interactor";
+import { GetRoutineByIdInteractor } from "../get-routine-by-id.interactor";
 import { PauseRoutineInteractor } from "../pause-routine.interactor";
 import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
 import { ReconcileRoutineRunsInteractor } from "../reconcile-routine-runs.interactor";
@@ -236,6 +237,45 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
     await expect(
       runWithTenant(tenant(ownerId), () => createTestRoutineRepo().getRoutineByIdOrThrow(otherRoutineId)),
     ).rejects.toThrow();
+  });
+
+  it("answers not found when a readOwn member reads another user's routine by id", async () => {
+    const ownerRoutineId = randomUUID();
+    await insertRoutine(ownerRoutineId);
+    const readOwn = createMockUser({
+      id: teammateId,
+      companyId,
+      role: {
+        id: memberRoleId,
+        name: "Routine member role",
+        description: null,
+        isSystemRole: false,
+        createdAt: new Date(0),
+        updatedAt: new Date(0),
+        permissions: [{ id: randomUUID(), resource: "routines", action: "readOwn" }],
+      },
+    });
+
+    const denied = await runWithTenant(readOwn, () =>
+      new GetRoutineByIdInteractor(createTestRoutineRepo()).invoke({ id: ownerRoutineId }),
+    );
+    const unknown = await runWithTenant(readOwn, () =>
+      new GetRoutineByIdInteractor(createTestRoutineRepo()).invoke({ id: randomUUID() }),
+    );
+    const own = await runWithTenant(tenant(ownerId), () =>
+      new GetRoutineByIdInteractor(createTestRoutineRepo()).invoke({ id: ownerRoutineId }),
+    );
+
+    for (const result of [denied, unknown]) {
+      expect(result.ok).toBe(false);
+      if (!result.ok) {
+        expect(result.error.issues[0]).toMatchObject({
+          path: ["id"],
+          params: { error: "routineNotFound", kind: "not_found" },
+        });
+      }
+    }
+    expect(own).toMatchObject({ ok: true, data: { id: ownerRoutineId } });
   });
 
   it("lists only the caller's company when finding event routines", async () => {
