@@ -14,7 +14,9 @@ const { PrismaEventLogRepo } = await import("@/features/event/prisma-event-log.r
 const { PrismaWebhookDeliveryRepo } = await import("@/features/webhook/prisma-webhook-delivery.repository");
 const { PrismaConnectedAccountRepo } = await import("@/ee/messaging/persistence/prisma-connected-account.repository");
 const { PrismaUnipileWebhookRepo } = await import("@/ee/messaging/persistence/prisma-unipile-webhook.repository");
-const { createTestRecordRecipientReader } = await import("@/tests/helpers/record-delivery");
+const { createTestRecordRecipientReader, createTestRoutineRepo } = await import("@/tests/helpers/record-delivery");
+const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
+const { prismaAgentChatRepoDependencies } = await import("@/tests/helpers/prisma-agent-chat-repo");
 const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
@@ -67,12 +69,42 @@ async function activeOperation(companyId: string) {
   return id;
 }
 
+async function runningRoutineRun(companyId: string) {
+  return runWithoutTenant(async () => {
+    const user = await prisma.user.create({
+      data: { companyId, email: `${randomUUID()}@owner-ports.invalid`, firstName: "Owner", lastName: "Ports" },
+    });
+    const routine = await prisma.routine.create({
+      data: { companyId, name: "Owner ports", prompt: "Check", triggerKind: "schedule", ownerUserId: user.id },
+    });
+    const run = await prisma.routineRun.create({
+      data: {
+        companyId,
+        routineId: routine.id,
+        executedByUserId: user.id,
+        executedByName: "Owner Ports",
+        triggerKind: "schedule",
+        scheduledFor: new Date(),
+        status: "running",
+      },
+    });
+    const conversation = await prisma.agentConversation.create({
+      data: { companyId, userId: user.id, origin: "routine" },
+    });
+    return { userId: user.id, runId: run.id, conversationId: conversation.id };
+  });
+}
+
 const deliveryRepo = () => new PrismaWebhookDeliveryRepo(createTestRecordRecipientReader());
 
 describeDatabase("owner write ports", () => {
   afterAll(async () => {
     await runWithoutTenant(async () => {
       await prisma.messagingInboundEvent.deleteMany({ where: { companyId: { in: companyIds } } });
+      await prisma.routineRun.deleteMany({ where: { companyId: { in: companyIds } } });
+      await prisma.routine.deleteMany({ where: { companyId: { in: companyIds } } });
+      await prisma.agentConversation.deleteMany({ where: { companyId: { in: companyIds } } });
+      await prisma.user.deleteMany({ where: { companyId: { in: companyIds } } });
       await prisma.webhookDelivery.deleteMany({ where: { companyId: { in: companyIds } } });
       await prisma.webhook.deleteMany({ where: { companyId: { in: companyIds } } });
       await prisma.recordSchemaState.deleteMany({ where: { companyId: { in: companyIds } } });
@@ -215,5 +247,72 @@ describeDatabase("owner write ports", () => {
     );
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ companyId: first, source: "backfill", unipileMessageId: "kept", processed: false });
+  });
+
+  it("links a routine run to its conversation once, only in its own company, and rolls a release back", async () => {
+    const [first, second] = [await company(), await company()];
+    const own = await runningRoutineRun(first);
+    const routines = createTestRoutineRepo();
+    const link = { routineRunId: own.runId, executedByUserId: own.userId, conversationId: own.conversationId };
+
+    expect(await runWithoutTenant(() => routines.linkConversationCompanyWide({ ...link, companyId: second }))).toBe(
+      false,
+    );
+    const attempts = await Promise.all([
+      runWithoutTenant(() => routines.linkConversationCompanyWide({ ...link, companyId: first })),
+      runWithoutTenant(() => routines.linkConversationCompanyWide({ ...link, companyId: first })),
+    ]);
+    expect(attempts.filter(Boolean)).toHaveLength(1);
+
+    await expect(
+      runWithoutTenant(() =>
+        runInTransaction(async () => {
+          expect(await routines.releaseUnstartedConversationCompanyWide({ ...link, companyId: first })).toBe(true);
+          throw new Rollback();
+        }),
+      ),
+    ).rejects.toBeInstanceOf(Rollback);
+    expect(
+      await runWithoutTenant(() => prisma.routineRun.findUniqueOrThrow({ where: { id: own.runId } })),
+    ).toMatchObject({
+      status: "running",
+      conversationId: own.conversationId,
+    });
+
+    const turnRequestId = randomUUID();
+    expect(
+      await runWithoutTenant(() =>
+        routines.linkAdmittedTurnCompanyWide({ ...link, companyId: first, turnRequestId, startedAt: new Date() }),
+      ),
+    ).toBe(true);
+    expect(
+      await runWithoutTenant(() => routines.releaseUnstartedConversationCompanyWide({ ...link, companyId: first })),
+    ).toBe(false);
+  });
+
+  it("purges only unlinked routine conversations of the named company", async () => {
+    const [first, second] = [await company(), await company()];
+    const linked = await runningRoutineRun(first);
+    const unlinked = await runningRoutineRun(first);
+    const foreign = await runningRoutineRun(second);
+    await runWithoutTenant(() =>
+      prisma.routineRun.update({ where: { id: linked.runId }, data: { conversationId: linked.conversationId } }),
+    );
+    const conversations = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
+
+    await runWithoutTenant(() =>
+      conversations.deleteUnlinkedRoutineConversationsCompanyWide(first, [
+        linked.conversationId,
+        unlinked.conversationId,
+        foreign.conversationId,
+      ]),
+    );
+    const remaining = await runWithoutTenant(() =>
+      prisma.agentConversation.findMany({
+        where: { id: { in: [linked.conversationId, unlinked.conversationId, foreign.conversationId] } },
+        select: { id: true },
+      }),
+    );
+    expect(remaining.map((row) => row.id).sort()).toEqual([linked.conversationId, foreign.conversationId].sort());
   });
 });
