@@ -113162,6 +113162,8 @@
                         "widgetNotFound",
                         "webhookNotFound",
                         "webhookDeliveryNotFound",
+                        "webhookDeliveryInProgress",
+                        "webhookDisabled",
                         "wikiPageNotFound",
                         "wikiPageConflict",
                         "wikiNotEmpty",

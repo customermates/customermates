@@ -132,13 +132,9 @@ export const manageConnectedAccountsTool = {
           accountResult,
         );
       case "resync":
-        return runInteractor(getResyncConnectedAccountInteractor().invoke({ id }), () =>
-          toonResult({ id, resyncStarted: true }),
-        );
+        return runInteractor(getResyncConnectedAccountInteractor().invoke({ id }), (data) => toonResult(data));
       case "disconnect":
-        return runInteractor(getDeleteConnectedAccountInteractor().invoke({ id }), () =>
-          toonResult({ id, disconnected: true }),
-        );
+        return runInteractor(getDeleteConnectedAccountInteractor().invoke({ id }), (data) => toonResult(data));
     }
   },
 };

@@ -240,8 +240,8 @@ describe("manage_connected_accounts", () => {
   });
 
   it("resyncs and disconnects one account", async () => {
-    spies.resync.mockResolvedValue({ ok: true, data: null });
-    spies.disconnect.mockResolvedValue({ ok: true, data: null });
+    spies.resync.mockResolvedValue({ ok: true, data: { id: ACCOUNT_ID, resyncStarted: true } });
+    spies.disconnect.mockResolvedValue({ ok: true, data: { id: ACCOUNT_ID, disconnected: true } });
 
     const resync = await run({ action: "resync", id: ACCOUNT_ID });
     const disconnect = await run({ action: "disconnect", id: ACCOUNT_ID });

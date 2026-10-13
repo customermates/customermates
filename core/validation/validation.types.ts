@@ -85,6 +85,8 @@ export enum CustomErrorCode {
   widgetNotFound = "widgetNotFound",
   webhookNotFound = "webhookNotFound",
   webhookDeliveryNotFound = "webhookDeliveryNotFound",
+  webhookDeliveryInProgress = "webhookDeliveryInProgress",
+  webhookDisabled = "webhookDisabled",
   wikiPageNotFound = "wikiPageNotFound",
   wikiPageConflict = "wikiPageConflict",
   wikiNotEmpty = "wikiNotEmpty",

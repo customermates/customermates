@@ -99,7 +99,7 @@ const ManageRoutinesOutputSchema = z
     started: z.boolean().optional(),
   })
   .describe(
-    "list returns items, total, page and pageSize; runs returns items and nextCursor; create and update return the routine; pause returns the routine with enabled false; run_now returns started; delete returns deleted and id.",
+    "list returns items, total, page and pageSize; runs returns items and nextCursor; create, update and pause return the routine's id, name and enabled (false after pause); run_now returns started; delete returns deleted and id.",
   );
 
 const IdSchema = z.object({ id: z.uuid() });

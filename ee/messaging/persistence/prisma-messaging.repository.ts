@@ -110,8 +110,8 @@ export class PrismaMessagingRepo
     FindThreadsByIdsRepo
 {
   constructor(
-    private readonly inboxRecords?: Pick<RecordRepo, "getModel">,
-    private readonly inboxPolicy?: Pick<RecordAccessPolicy, "load">,
+    private readonly inboxRecords: Pick<RecordRepo, "getModel">,
+    private readonly inboxPolicy: Pick<RecordAccessPolicy, "load">,
   ) {
     super();
   }
@@ -370,7 +370,6 @@ export class PrismaMessagingRepo
   }
 
   private async recordInboxQuery(params: GetQueryParams) {
-    if (!this.inboxRecords || !this.inboxPolicy) throw new Error("Messaging inbox record access is not configured");
     const [model, policy] = await Promise.all([this.inboxRecords.getModel(), this.inboxPolicy.load()]);
     if (!policy.actor) throw unwindFailure(CustomErrorCode.permissionDenied);
     return compileMessagingRecordQuery(

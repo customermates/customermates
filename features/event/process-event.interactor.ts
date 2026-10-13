@@ -12,11 +12,7 @@ const ProcessEventSchema = z.object({ companyId: z.uuid(), eventId: z.uuid() }).
 type ProcessEventInput = z.infer<typeof ProcessEventSchema>;
 type ProcessEventResult = { status: "delivered" | "deferred" | "abandoned" | "not_found" };
 
-class EventAdmissionRaced extends Error {
-  constructor() {
-    super("Another worker settled the event during its admission");
-  }
-}
+const ADMISSION_RACED = new Error("Another worker settled the event during its admission");
 
 @SystemInteractor
 export class ProcessEventInteractor {
@@ -39,7 +35,7 @@ export class ProcessEventInteractor {
           if (status || !event) return { status: status ?? "not_found" };
           attempt.event = event;
           await this.admission.admit(event);
-          if (!(await this.outbox.markDeliveredUnscoped(event, now))) throw new EventAdmissionRaced();
+          if (!(await this.outbox.markDeliveredUnscoped(event, now))) throw ADMISSION_RACED;
           return { status: "delivered" } as const;
         },
         { companyId: input.companyId, timeout: 30000 },
@@ -48,7 +44,7 @@ export class ProcessEventInteractor {
       if (!attempt.event) throw error;
       const event = attempt.event;
       const abandon = event.attempts + 1 >= EVENT_ADMISSION_MAX_ATTEMPTS;
-      if (!(error instanceof EventAdmissionRaced)) {
+      if (error !== ADMISSION_RACED) {
         Sentry.captureException(error, {
           level: abandon ? "error" : "warning",
           tags: {

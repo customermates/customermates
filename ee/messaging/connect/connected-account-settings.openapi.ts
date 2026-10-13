@@ -5,6 +5,8 @@ import { z } from "zod";
 import { StructuredApiResponses } from "@/core/api/structured-interactor-handler";
 import { SetConnectedAccountSignatureFieldsSchema } from "@/ee/messaging/connect/set-connected-account-signature.interactor";
 import { ConnectedAccountAppDtoSchema } from "@/ee/messaging/messaging.schema";
+import { ConnectedAccountDisconnectedSchema } from "@/ee/messaging/connect/delete-connected-account.interactor";
+import { ConnectedAccountResyncStartedSchema } from "@/ee/messaging/connect/resync-connected-account.interactor";
 import { SetSelectedFoldersSchema } from "@/ee/messaging/connect/set-selected-folders.interactor";
 import { SetConnectedAccountVisibilitySchema } from "@/ee/messaging/connect/set-connected-account-visibility.interactor";
 
@@ -48,7 +50,7 @@ export const connectedAccountSettingsApiPaths = {
         "200": {
           description: "The account was disconnected.",
           content: {
-            "application/json": { schema: z.object({ id: z.uuid(), disconnected: z.literal(true) }) },
+            "application/json": { schema: ConnectedAccountDisconnectedSchema },
           },
         },
         ...StructuredApiResponses,
@@ -95,7 +97,7 @@ export const connectedAccountSettingsApiPaths = {
         "200": {
           description: "The resync started.",
           content: {
-            "application/json": { schema: z.object({ id: z.uuid(), resyncStarted: z.literal(true) }) },
+            "application/json": { schema: ConnectedAccountResyncStartedSchema },
           },
         },
         ...StructuredApiResponses,

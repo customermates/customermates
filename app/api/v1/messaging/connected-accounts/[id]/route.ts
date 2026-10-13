@@ -10,7 +10,7 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
     const { id } = await params;
     const result = await getDeleteConnectedAccountInteractor().invoke({ id });
     if (!result.ok) return interactorFailureResponse(result.error);
-    return NextResponse.json({ id, disconnected: true });
+    return NextResponse.json(result.data);
   } catch (error) {
     return handleError(error);
   }

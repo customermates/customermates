@@ -5,6 +5,8 @@ export abstract class GetWebhookDeliveryByIdRepo {
   ): Promise<
     | { status: "created"; id: string }
     | { status: "missing" }
+    | { status: "in_progress" }
+    | { status: "webhook_disabled" }
     | { status: "unavailable" }
     | { status: "stale" }
     | { status: "forbidden" }
