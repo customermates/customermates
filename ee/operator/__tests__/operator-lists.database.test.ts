@@ -145,6 +145,7 @@ afterAll(async () => {
   await runWithoutTenant(async () => {
     for (const companyId of companyIds) {
       await prisma.user.deleteMany({ where: { companyId } });
+      await prisma.userRole.deleteMany({ where: { companyId } });
       await prisma.subscription.deleteMany({ where: { companyId } });
       await prisma.company.deleteMany({ where: { id: companyId } });
     }
@@ -542,6 +543,56 @@ describeDatabase("operator workspace list against a real database", { timeout: 1
     );
     expect(searched).toHaveLength(1);
     expect(searched[0]?.id).toBe(beta.companyId);
+  });
+
+  it("ranks the workspace owner by its own system role, never by another workspace's role", async () => {
+    const marker = randomUUID().slice(0, 8);
+    const home = await seedWorkspace({
+      domain: `ws-home-${marker}.invalid`,
+      plan: "pro",
+      status: "active",
+      members: [],
+    });
+    const foreign = await seedWorkspace({
+      domain: `ws-foreign-${marker}.invalid`,
+      plan: "pro",
+      status: "active",
+      members: [],
+    });
+    const [first, second] = [`first-${marker}@ws-home-${marker}.invalid`, `second-${marker}@ws-home-${marker}.invalid`];
+    await runWithoutTenant(async () => {
+      const foreignRole = await prisma.userRole.create({
+        data: { companyId: foreign.companyId, name: "Admin", isSystemRole: true },
+      });
+      await prisma.user.create({
+        data: {
+          companyId: home.companyId,
+          email: first,
+          firstName: "First",
+          lastName: "Member",
+          status: "active",
+          createdAt: new Date("2026-01-01T00:00:00.000Z"),
+        },
+      });
+      await prisma.user.create({
+        data: {
+          companyId: home.companyId,
+          email: second,
+          firstName: "Second",
+          lastName: "Member",
+          status: "active",
+          roleId: foreignRole.id,
+          createdAt: new Date("2026-02-01T00:00:00.000Z"),
+        },
+      });
+    });
+
+    const rows = await runWithoutTenant(() =>
+      new PrismaOperatorWorkspacesRepo().getItems({
+        filters: [inFilter(FilterFieldKey.workspaceId, [home.companyId])],
+      }),
+    );
+    expect(rows[0]?.ownerEmail).toBe(first);
   });
 });
 
