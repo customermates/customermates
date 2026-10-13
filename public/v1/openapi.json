@@ -63616,8 +63616,7 @@
                 },
                 "required": [
                   "surfaceKey",
-                  "viewKey",
-                  "name"
+                  "viewKey"
                 ],
                 "additionalProperties": false
               }
