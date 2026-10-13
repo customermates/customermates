@@ -37,14 +37,13 @@ const { RecordTrashService } = await import("../record-trash.service");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 const { ProcessDueEventsInteractor } = await import("@/features/event/process-due-events.interactor");
 const { ProcessEventInteractor } = await import("@/features/event/process-event.interactor");
-const { PrismaEventOutboxRepo } = await import("@/features/event/prisma-event-outbox.repository");
 const { WebhookAdmission } = await import("@/features/webhook/webhook-admission");
 const { PrismaWebhookAdmissionRepo } = await import("@/features/webhook/prisma-webhook-admission.repository");
 const { PrismaWebhookDeliveryRepo } = await import("@/features/webhook/prisma-webhook-delivery.repository");
 const { DeliverWebhookInteractor } = await import("@/features/webhook/deliver-webhook.interactor");
-const { PrismaWebhookDeliveryQueueRepo } = await import("@/features/webhook/prisma-webhook-delivery-queue.repository");
 const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 const { createTestRecordRecipientReader } = await import("@/tests/helpers/record-delivery");
+const { PrismaEventLogRepo } = await import("@/features/event/prisma-event-log.repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -75,7 +74,7 @@ function backgroundWorkers() {
     },
   };
   const process = new ProcessEventInteractor(
-    new PrismaEventOutboxRepo(),
+    new PrismaEventLogRepo({ dispatch: () => Promise.resolve() }),
     new WebhookAdmission(
       reader,
       background as never,
@@ -94,8 +93,16 @@ function backgroundWorkers() {
       }
     },
   } as unknown as ProcessEventInteractorType;
-  const drainer = new ProcessDueEventsInteractor(new PrismaEventOutboxRepo(), countedProcess, background as never);
-  const deliverer = new DeliverWebhookInteractor(new PrismaWebhookDeliveryQueueRepo(), reader, { post });
+  const drainer = new ProcessDueEventsInteractor(
+    new PrismaEventLogRepo({ dispatch: () => Promise.resolve() }),
+    countedProcess,
+    background as never,
+  );
+  const deliverer = new DeliverWebhookInteractor(
+    new PrismaWebhookDeliveryRepo(createTestRecordRecipientReader()),
+    reader,
+    { post },
+  );
 
   async function drainEvents(companyId: string) {
     await drainer.invoke({ companyId });

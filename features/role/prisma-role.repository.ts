@@ -1,5 +1,6 @@
 import type { RepoArgs } from "@/core/utils/types";
 import type { RecordRoleRepo } from "./record-role.repo";
+import type { RegisterUserRoleRepo } from "@/features/user/register/register-user-role.repo";
 import type { UpsertRoleRepo } from "@/features/role/upsert-role.repo";
 import type { GetRolesRepo } from "@/features/role/get-roles.repo";
 import type { DeleteRoleRepo } from "./delete-role.repo";
@@ -34,8 +35,27 @@ export function mapRoleWithAssignments<T extends { _count: { users: number } }>(
 
 export class PrismaRoleRepo
   extends QueryRepository
-  implements UpsertRoleRepo, GetRolesRepo, DeleteRoleRepo, UpdateUserRoleRepo, FindRolesByIdsRepo, RecordRoleRepo
+  implements
+    UpsertRoleRepo,
+    GetRolesRepo,
+    DeleteRoleRepo,
+    UpdateUserRoleRepo,
+    FindRolesByIdsRepo,
+    RecordRoleRepo,
+    RegisterUserRoleRepo
 {
+  async createAdminRole(companyId: string) {
+    const role = await this.prisma.userRole.create({
+      data: {
+        name: "Admin",
+        description: "Full access to all features and settings",
+        isSystemRole: true,
+        companyId,
+      },
+    });
+    return role.id;
+  }
+
   private get baseSelect() {
     return {
       id: true,

@@ -15,7 +15,10 @@ import { PrismaP13nRepo } from "@/features/p13n/prisma-p13n.repository";
 import { PrismaTrashRepo } from "@/features/trash/prisma-trash.repository";
 import { PrismaEventLogRepo } from "@/features/event/prisma-event-log.repository";
 import { PrismaWebhookRepo } from "@/features/webhook/prisma-webhook.repository";
+import { PrismaWebhookDeliveryRepo } from "@/features/webhook/prisma-webhook-delivery.repository";
 import { PrismaRoutineRepo } from "@/ee/routines/prisma-routine.repository";
+import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
+import { PrismaWikiPageRepo } from "@/features/wiki/prisma-wiki-page.repository";
 import { PrismaRoutineEventAccess } from "@/ee/routines/prisma-routine-event-access.repository";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
@@ -66,14 +69,20 @@ export function createTestRecordRepoOwners(): RecordRepoOwners {
     (companyId) => createTestRecordRepo(companyId),
     new PrismaRecordRecipientRepo(new PrismaUserRepo(new PermissionService())),
   );
+  const routines: PrismaRoutineRepo = new PrismaRoutineRepo(
+    new PrismaRoutineEventAccess(reader),
+    subscriptions,
+    new PermissionService(),
+    () => new PrismaAgentChatRepo(new PrismaWikiPageRepo(new PermissionService()), new PermissionService(), routines),
+  );
   return {
     widgets,
     views: createTestDataViewRepo(),
     personalizations: new PrismaP13nRepo(),
     trash: new PrismaTrashRepo(),
     events: new PrismaEventLogRepo(idleBackground),
-    webhooks: new PrismaWebhookRepo(subscriptions, new PermissionService()),
-    routines: new PrismaRoutineRepo(new PrismaRoutineEventAccess(reader), subscriptions, new PermissionService()),
+    webhooks: new PrismaWebhookRepo(subscriptions, new PermissionService(), new PrismaWebhookDeliveryRepo(reader)),
+    routines,
     members: new PrismaUserRepo(new PermissionService()),
     roles: new PrismaRoleRepo(),
     subscriptions,

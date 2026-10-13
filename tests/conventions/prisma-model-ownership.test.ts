@@ -97,46 +97,8 @@ const OWNERS: Record<string, string> = {
   WikiWebsiteCrawl: "ee/wiki-crawl/prisma-wiki-website-crawl.repository.ts",
 };
 
-const OPERATOR_DELETION =
-  "Operator console workspace deletion and account administration remove or rewrite rows across a workspace";
-const REGISTRATION = "Registration creates the company, its system role, subscription and first user in one transaction";
-
-const ALLOWLIST: Record<string, string> = {
-  "AgentConversation ee/routines/prisma-routine.repository.ts":
-    "Routine purge and run-conversation linking remove routine-owned agent conversations in the routine transaction",
-  "Apikey ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "AuthUser ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "AuthVerification ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "Company ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "Company features/user/prisma-user.repository.ts": REGISTRATION,
-  "ConversionEvent features/user/prisma-user.repository.ts": REGISTRATION,
-  "CrmRecord ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "EventLog features/event/prisma-event-outbox.repository.ts":
-    "The event outbox worker owns the delivery bookkeeping columns of EventLog rows",
-  "InviteToken ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "MessagingInboundEvent ee/messaging/persistence/prisma-connected-account.repository.ts":
-    "Connected-account backfill records an unusable provider item as an inbound event for diagnosis",
-  "MessagingInboundEvent ee/messaging/persistence/prisma-messaging.repository.ts":
-    "Thread resync records an unusable provider item as an inbound event for diagnosis",
-  "MessagingInboundEvent ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "OauthConsent core/auth/better-auth.ts": "The authentication adapter revokes unproven access: sessions, keys, tokens and consents together",
-  "RecordEventMatch features/records/record-event-capture.ts":
-    "Set-based match capture runs on the record repository's transaction client from appendEvent and publishStage",
-  "RecordOperation features/records/prisma-record-operation-queue.repository.ts":
-    "The record operation sweep leases due operations across workspaces with one set-based FOR UPDATE SKIP LOCKED claim",
-  "RoutineRun ee/agent-chat/prisma-agent-chat.repository.ts":
-    "Agent turn admission and retry release link or unlink the routine run to its conversation in the turn transaction",
-  "Subscription ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "Subscription features/user/prisma-user.repository.ts": REGISTRATION,
-  "User core/auth/better-auth.ts": "The authentication session-creation hook stamps lastActiveAt on the signed-in user row",
-  "User ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "UserRole features/user/prisma-user.repository.ts": REGISTRATION,
-  "WebhookDelivery features/webhook/prisma-webhook-delivery-queue.repository.ts":
-    "The webhook delivery worker owns claim, attempt and result bookkeeping of queued deliveries",
-  "WebhookDelivery features/webhook/prisma-webhook.repository.ts":
-    "Deleting a webhook detaches and cancels its pending deliveries in the webhook deletion transaction",
-};
-const ALLOWLIST_CEILING = 24;
+const ALLOWLIST: Record<string, string> = {};
+const ALLOWLIST_CEILING = 0;
 
 type WriteSite = { model: string; file: string; line: number; operation: string };
 

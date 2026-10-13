@@ -27,6 +27,8 @@ import type {
 } from "./agent-usage.service";
 import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
 import type { GetWikiSuggestionSignalRepo } from "@/features/wiki/get-wiki-suggestion-signal.repo";
+import type { RoutineConversationPurgeRepo } from "@/ee/routines/routine-conversation-purge.repo";
+import type { RoutineRunLinkRepo } from "./routine-run-link.repo";
 import { AGENT_CONVERSATION_PAGE_SIZE, AGENT_MESSAGE_PAGE_SIZE, type AgentConversationPage } from "./agent-history";
 import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "./agent-run-limits";
 import { clientSafeAgentMessageParts, hasRenderableAgentMessageParts, partsToText } from "./agent-chat.schema";
@@ -222,10 +224,11 @@ export type AgentUsageReservationExtension =
   | { disposition: "hosted_ai_unavailable" }
   | { disposition: "turn_error" };
 
-export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageRepo {
+export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageRepo, RoutineConversationPurgeRepo {
   constructor(
     private readonly wikiSuggestions: GetWikiSuggestionSignalRepo,
     private readonly permissions: PermissionService,
+    private readonly routineRuns: RoutineRunLinkRepo,
   ) {
     super();
   }
@@ -539,21 +542,15 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
         if (args.turn.clientRequestId !== args.routineRunId)
           throw new Error("Routine run admission does not match its client request.");
 
-        const linkedRun = await this.prisma.routineRun.updateMany({
-          where: {
-            id: args.routineRunId,
-            companyId,
-            executedByUserId: userId,
-            status: RoutineRunStatus.running,
-            conversationId,
-            turnRequestId: null,
-          },
-          data: {
-            turnRequestId: args.turn.turnRequestId,
-            startedAt: admittedAt,
-          },
+        const linkedRun = await this.routineRuns.linkAdmittedTurnCompanyWide({
+          companyId,
+          routineRunId: args.routineRunId,
+          executedByUserId: userId,
+          conversationId,
+          turnRequestId: args.turn.turnRequestId,
+          startedAt: admittedAt,
         });
-        if (linkedRun.count !== 1) throw new Error("Routine run changed before agent admission.");
+        if (!linkedRun) throw new Error("Routine run changed before agent admission.");
       }
 
       if (args.turn.kind === "retry") {
@@ -1414,18 +1411,13 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
         creditCeilingMicrocents: args.creditCeilingMicrocents,
       });
 
-      const linked = await this.prisma.routineRun.updateMany({
-        where: {
-          id: args.routineRunId,
-          companyId,
-          executedByUserId: userId,
-          status: RoutineRunStatus.running,
-          conversationId: null,
-          turnRequestId: null,
-        },
-        data: { conversationId: args.conversationId },
+      const linked = await this.routineRuns.linkConversationCompanyWide({
+        companyId,
+        routineRunId: args.routineRunId,
+        executedByUserId: userId,
+        conversationId: args.conversationId,
       });
-      if (linked.count !== 1) throw new Error("Routine run changed before its conversation could be linked.");
+      if (!linked) throw new Error("Routine run changed before its conversation could be linked.");
     });
   }
 
@@ -1433,22 +1425,13 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
     const companyId = this.companyId;
     const userId = this.userId;
     await this.withCompanyTransaction(companyId, async () => {
-      const released = await this.prisma.routineRun.updateMany({
-        where: {
-          id: args.routineRunId,
-          companyId,
-          executedByUserId: userId,
-          status: RoutineRunStatus.running,
-          conversationId: args.conversationId,
-          turnRequestId: null,
-        },
-        data: {
-          status: RoutineRunStatus.queued,
-          conversationId: null,
-          startedAt: null,
-        },
+      const released = await this.routineRuns.releaseUnstartedConversationCompanyWide({
+        companyId,
+        routineRunId: args.routineRunId,
+        executedByUserId: userId,
+        conversationId: args.conversationId,
       });
-      if (released.count !== 1) throw new Error("Routine run changed before capacity retry could be scheduled.");
+      if (!released) throw new Error("Routine run changed before capacity retry could be scheduled.");
 
       const deleted = await this.prisma.agentConversation.deleteMany({
         where: {
@@ -1461,6 +1444,17 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
         },
       });
       if (deleted.count !== 1) throw new Error("Unused Routine conversation could not be released for retry.");
+    });
+  }
+
+  async deleteUnlinkedRoutineConversationsCompanyWide(companyId: string, conversationIds: string[]) {
+    await this.prisma.agentConversation.deleteMany({
+      where: {
+        id: { in: conversationIds },
+        companyId,
+        origin: AgentConversationOrigin.routine,
+        routineRuns: { none: {} },
+      },
     });
   }
 

@@ -101,7 +101,6 @@ const { createTestRecordRecipientReader, createTestRoutineRepo } = await import(
 const { WebhookAdmission } = await import("@/features/webhook/webhook-admission");
 const { PrismaWebhookAdmissionRepo } = await import("@/features/webhook/prisma-webhook-admission.repository");
 const { DeliverWebhookInteractor } = await import("@/features/webhook/deliver-webhook.interactor");
-const { PrismaWebhookDeliveryQueueRepo } = await import("@/features/webhook/prisma-webhook-delivery-queue.repository");
 const { PrismaWebhookDeliveryRepo } = await import("@/features/webhook/prisma-webhook-delivery.repository");
 const { ResendWebhookDeliveryInteractor } = await import("@/features/webhook/resend-webhook-delivery.interactor");
 const { ValidateWebhookDeliveryIdsInteractor } = await import(
@@ -111,7 +110,6 @@ const { RoutineAdmission } = await import("@/ee/routines/routine-admission");
 const { PrismaRoutineEventAccess } = await import("@/ee/routines/prisma-routine-event-access.repository");
 const { ProcessEventInteractor } = await import("@/features/event/process-event.interactor");
 const { ProcessDueEventsInteractor } = await import("@/features/event/process-due-events.interactor");
-const { PrismaEventOutboxRepo } = await import("@/features/event/prisma-event-outbox.repository");
 const { PrismaEventLogRepo } = await import("@/features/event/prisma-event-log.repository");
 const { runInRoutineContext } = await import("@/core/decorators/routine-context");
 const { RecordIdentityReader, IDENTITY_MATCH_DISPLAY_LIMIT } = await import("../record-identity-reader");
@@ -171,6 +169,7 @@ const { RecordWidgetReader } = await import("@/features/widget/record-widget-rea
 const { UpsertRecordActivityWidgetInteractor } = await import("@/features/widget/record-activity-widget.interactor");
 const { RecordActivityWidgetReader } = await import("@/features/widget/record-activity-widget-reader");
 const { RecordActivityQuerySchema } = await import("@/ee/messaging/activities/record-activities.schema");
+const { createTestWorkspaceRegistration } = await import("@/tests/helpers/workspace-registration");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -1726,7 +1725,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     const dispatch = vi.fn().mockResolvedValue(undefined);
     const process = new ProcessEventInteractor(
-      new PrismaEventOutboxRepo(),
+      new PrismaEventLogRepo({ dispatch: () => Promise.resolve() }),
       new RoutineAdmission(createTestRoutineRepo(), { dispatch } as never, createTestRecordRecipientReader()),
     );
     expect(await process.invoke({ companyId: f.company.id, eventId: match.eventId })).toEqual({ status: "delivered" });
@@ -1972,7 +1971,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(events.length).toBeGreaterThanOrEqual(2);
     const dispatch = vi.fn().mockResolvedValue(undefined);
     const process = new ProcessEventInteractor(
-      new PrismaEventOutboxRepo(),
+      new PrismaEventLogRepo({ dispatch: () => Promise.resolve() }),
       new RoutineAdmission(createTestRoutineRepo(), { dispatch } as never, createTestRecordRecipientReader()),
     );
     for (const event of events) await process.invoke({ companyId: f.company.id, eventId: event.id });
@@ -2018,7 +2017,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const dispatch = vi.fn().mockResolvedValue(undefined);
     const reader = createTestRecordRecipientReader();
     const process = new ProcessEventInteractor(
-      new PrismaEventOutboxRepo(),
+      new PrismaEventLogRepo({ dispatch: () => Promise.resolve() }),
       new WebhookAdmission(
         reader,
         { dispatch } as never,
@@ -2045,7 +2044,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       statusCode: 503,
       responseMessage: "HTTP 503",
     });
-    const deliver = new DeliverWebhookInteractor(new PrismaWebhookDeliveryQueueRepo(), reader, { post });
+    const deliver = new DeliverWebhookInteractor(
+      new PrismaWebhookDeliveryRepo(createTestRecordRecipientReader()),
+      reader,
+      { post },
+    );
     expect(
       await deliver.invoke({
         deliveryId: delivery.id,
@@ -2197,9 +2200,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     });
     const post = vi.fn().mockResolvedValue({ success: true, statusCode: 200, responseMessage: "OK" });
     expect(
-      await new DeliverWebhookInteractor(new PrismaWebhookDeliveryQueueRepo(), createTestRecordRecipientReader(), {
-        post,
-      }).invoke({ companyId: f.company.id, deliveryId: response.data }),
+      await new DeliverWebhookInteractor(
+        new PrismaWebhookDeliveryRepo(createTestRecordRecipientReader()),
+        createTestRecordRecipientReader(),
+        {
+          post,
+        },
+      ).invoke({ companyId: f.company.id, deliveryId: response.data }),
     ).toMatchObject({ status: "success" });
     expect(post).toHaveBeenCalledWith(expect.objectContaining({ requestBody: body }));
     expect(await f.run(() => resend.invoke({ id: retired.id }))).toMatchObject({ ok: false });
@@ -2235,7 +2242,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ),
     );
     await new ProcessEventInteractor(
-      new PrismaEventOutboxRepo(),
+      new PrismaEventLogRepo({ dispatch: () => Promise.resolve() }),
       new WebhookAdmission(
         createTestRecordRecipientReader(),
         {
@@ -2297,9 +2304,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(restrictedForOwner.requestBody).toBeNull();
     const post = vi.fn();
     expect(
-      await new DeliverWebhookInteractor(new PrismaWebhookDeliveryQueueRepo(), createTestRecordRecipientReader(), {
-        post,
-      }).invoke({ companyId: f.company.id, deliveryId: retry.id }),
+      await new DeliverWebhookInteractor(
+        new PrismaWebhookDeliveryRepo(createTestRecordRecipientReader()),
+        createTestRecordRecipientReader(),
+        {
+          post,
+        },
+      ).invoke({ companyId: f.company.id, deliveryId: retry.id }),
     ).toMatchObject({ status: "failed", statusCode: 422 });
     expect(post).not.toHaveBeenCalled();
     expect(
@@ -2365,7 +2376,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     const reader = createTestRecordRecipientReader();
     const process = new ProcessEventInteractor(
-      new PrismaEventOutboxRepo(),
+      new PrismaEventLogRepo({ dispatch: () => Promise.resolve() }),
       new WebhookAdmission(
         reader,
         {
@@ -2392,7 +2403,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ),
     ).toMatchObject({ ok: true });
     const post = vi.fn();
-    const deliver = new DeliverWebhookInteractor(new PrismaWebhookDeliveryQueueRepo(), reader, { post });
+    const deliver = new DeliverWebhookInteractor(
+      new PrismaWebhookDeliveryRepo(createTestRecordRecipientReader()),
+      reader,
+      { post },
+    );
     expect(
       await deliver.invoke({
         deliveryId: delivery.id,
@@ -4044,7 +4059,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       ),
     );
-    const outbox = new PrismaEventOutboxRepo();
+    const outbox = new PrismaEventLogRepo({ dispatch: () => Promise.resolve() });
     let fail = true;
     const admission = {
       admit: vi.fn(async () => {
@@ -4153,7 +4168,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       ),
     );
-    const outbox = new PrismaEventOutboxRepo();
+    const outbox = new PrismaEventLogRepo({ dispatch: () => Promise.resolve() });
     const admit = vi.fn(() => Promise.resolve());
     const dispatch = vi.fn().mockResolvedValue(undefined);
     const batch = new ProcessDueEventsInteractor(outbox, new ProcessEventInteractor(outbox, { admit }), { dispatch });
@@ -4171,7 +4186,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const first = await f.create("service", "First outbox record");
     const second = await f.create("service", "Second outbox record");
     const foreign = await other.create("service", "Foreign outbox record");
-    const outbox = new PrismaEventOutboxRepo();
+    const outbox = new PrismaEventLogRepo({ dispatch: () => Promise.resolve() });
     const firstEvent = recordInvariant(
       await f.run(() =>
         prisma.eventLog.findFirst({
@@ -5499,6 +5514,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       } as never,
       new PrismaCompanyRepo(),
       new InitializeRecordModelService(f.repo),
+      createTestWorkspaceRegistration(),
     );
     const data = {
       email,
@@ -16751,7 +16767,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     const reader = createTestRecordRecipientReader();
     await new ProcessEventInteractor(
-      new PrismaEventOutboxRepo(),
+      new PrismaEventLogRepo({ dispatch: () => Promise.resolve() }),
       new WebhookAdmission(
         reader,
         { dispatch: vi.fn().mockResolvedValue(undefined) } as never,
@@ -16776,7 +16792,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     }
     expect(await subscription()).toMatchObject({ revision: 1, enabled: true });
     const post = vi.fn().mockResolvedValue({ success: true, statusCode: 200, responseMessage: "OK" });
-    const deliver = new DeliverWebhookInteractor(new PrismaWebhookDeliveryQueueRepo(), reader, { post });
+    const deliver = new DeliverWebhookInteractor(
+      new PrismaWebhookDeliveryRepo(createTestRecordRecipientReader()),
+      reader,
+      { post },
+    );
     expect(await deliver.invoke({ deliveryId: delivery.id, companyId: f.company.id })).toMatchObject({
       status: "success",
     });
@@ -16882,7 +16902,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     );
     const dispatch = vi.fn().mockResolvedValue(undefined);
     await new ProcessEventInteractor(
-      new PrismaEventOutboxRepo(),
+      new PrismaEventLogRepo({ dispatch: () => Promise.resolve() }),
       new RoutineAdmission(createTestRoutineRepo(), { dispatch } as never, createTestRecordRecipientReader()),
     ).invoke({ companyId: f.company.id, eventId: match.eventId });
     expect(await f.run(() => prisma.routineRun.count({ where: { companyId: f.company.id, routineId } }))).toBe(1);
@@ -17736,7 +17756,6 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         await synchronizeInboundAvatar(getProviderAvatarService, args.companyId, ingested);
         return ingested;
       };
-      const { PrismaRecordOperationQueueRepo } = await import("../prisma-record-operation-queue.repository");
       const account = await f.run(() =>
         prisma.connectedAccount.create({
           data: {
@@ -17804,7 +17823,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         ),
       ).toBe(1);
       const operationId = recordInvariant((await f.run(() => f.repo.getState()))?.activeOperationId);
-      const queue = new PrismaRecordOperationQueueRepo();
+      const queue = createTestRecordRepo();
       const now = new Date();
       const claimed = await runWithoutTenant(() => queue.claimDueUnscoped(now, new Date(now.getTime() + 60000), 100));
       expect(claimed).toContainEqual({

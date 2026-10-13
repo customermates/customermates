@@ -343,7 +343,7 @@ export async function resolveWorkspaceOwners(
       u."companyId" AS "companyId",
       u."email" AS "owner"
     FROM "User" AS u
-    LEFT JOIN "UserRole" AS r ON r."id" = u."roleId"
+    LEFT JOIN "UserRole" AS r ON r."id" = u."roleId" AND r."companyId" = u."companyId"
     WHERE u."companyId" = ANY(${companyIds}::text[])
     ORDER BY
       u."companyId" ASC,

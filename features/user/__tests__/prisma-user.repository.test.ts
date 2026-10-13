@@ -44,6 +44,16 @@ vi.mock("@/env", () => ({
 }));
 
 const { PrismaUserRepo } = await import("../prisma-user.repository");
+const { PrismaCompanyRepo } = await import("@/features/company/prisma-company.repository");
+const { PrismaRoleRepo } = await import("@/features/role/prisma-role.repository");
+const { WorkspaceRegistrationService } = await import("../register/workspace-registration.service");
+
+const registration = () =>
+  new WorkspaceRegistrationService(
+    new PrismaCompanyRepo(),
+    new PrismaRoleRepo(),
+    new PrismaUserRepo(new PermissionService()),
+  );
 
 const registerArgs = {
   email: "owner@example.com",
@@ -52,15 +62,15 @@ const registerArgs = {
   country: "de",
   agreeToTerms: true,
   avatarUrl: null,
-} as Parameters<InstanceType<typeof PrismaUserRepo>["createCompanyAndUser"]>[0];
+} as Parameters<InstanceType<typeof WorkspaceRegistrationService>["createCompanyAndUser"]>[0];
 
-describe("PrismaUserRepo.createCompanyAndUser", () => {
+describe("WorkspaceRegistrationService.createCompanyAndUser", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("creates membership, role, subscription, and workspace infrastructure", async () => {
-    await new PrismaUserRepo(new PermissionService()).createCompanyAndUser(registerArgs);
+    await registration().createCompanyAndUser(registerArgs);
     expect(prismaMock.company.create).toHaveBeenCalledOnce();
     expect(prismaMock.userRole.create).toHaveBeenCalledOnce();
     expect(prismaMock.user.create).toHaveBeenCalledOnce();
@@ -94,7 +104,7 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
       },
     ];
 
-    await new PrismaUserRepo(new PermissionService()).createCompanyAndUser({ ...registerArgs, adAttribution });
+    await registration().createCompanyAndUser({ ...registerArgs, adAttribution });
 
     expect(prismaMock.adAttribution.create).toHaveBeenCalledTimes(2);
     expect(prismaMock.adAttribution.create).toHaveBeenCalledWith({
@@ -114,7 +124,7 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
   });
 
   it("records no attribution or conversion for an unattributed registration", async () => {
-    await new PrismaUserRepo(new PermissionService()).createCompanyAndUser({ ...registerArgs, adAttribution: [] });
+    await registration().createCompanyAndUser({ ...registerArgs, adAttribution: [] });
 
     expect(prismaMock.adAttribution.create).not.toHaveBeenCalled();
     expect(prismaMock.conversionEvent.create).not.toHaveBeenCalled();
@@ -148,7 +158,7 @@ describe("PrismaUserRepo.createCompanyAndUser", () => {
   it("creates the catalog-owned Pro cloud trial", async () => {
     const before = new Date();
     before.setDate(before.getDate() + CLOUD_TRIAL.days);
-    await new PrismaUserRepo(new PermissionService()).createCompanyAndUser(registerArgs);
+    await registration().createCompanyAndUser(registerArgs);
     const after = new Date();
     after.setDate(after.getDate() + CLOUD_TRIAL.days);
 

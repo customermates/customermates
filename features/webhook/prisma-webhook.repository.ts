@@ -1,6 +1,7 @@
 import { unwindFailure } from "@/core/validation/failure-unwind";
 import { RECORD_EVENT_KINDS, type RecordEventKind } from "@/features/records/record-event.schema";
 import type { RecordWebhookConfigurationRepo } from "./record-webhook-configuration.repo";
+import type { WebhookDeliveryDetachRepo } from "./webhook-delivery-detach.repo";
 import type { PermissionService } from "@/core/base/permission.service";
 import type { RecordEventSubscriptionRepo } from "@/features/records/record-event-subscription.repo";
 import {
@@ -39,6 +40,7 @@ export class PrismaWebhookRepo
   constructor(
     private readonly subscriptions: RecordEventSubscriptionRepo,
     private readonly permissions: PermissionService,
+    private readonly deliveries: WebhookDeliveryDetachRepo,
     private readonly scopedCompanyId?: string,
   ) {
     super();
@@ -278,10 +280,7 @@ export class PrismaWebhookRepo
     const dto = (await this.withRecordSubscriptions([this.toWebhookDto(webhook)]))[0];
     await this.assertWriter("delete", dto.recordOwnerUserId);
     await this.subscriptions.remove(id);
-    await this.prisma.webhookDelivery.updateMany({
-      where: { companyId, webhookId: id },
-      data: { webhookId: null, nextAttemptAt: null, leaseToken: null, leaseExpiresAt: null },
-    });
+    await this.deliveries.detachWebhookDeliveries(companyId, id);
     await this.prisma.webhook.delete({
       where: { id, companyId },
     });

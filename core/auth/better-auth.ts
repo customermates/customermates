@@ -8,6 +8,7 @@ import * as Sentry from "@sentry/nextjs";
 
 import { prisma } from "@/prisma/db";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
+import { getTransactionClient } from "@/core/decorators/transaction-context";
 import { env } from "@/env";
 import { callbackUrlSchema } from "@/features/auth/callback-url.schema";
 import { onboardingIntentFromPath, pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
@@ -139,12 +140,8 @@ export const auth = betterAuth({
           try {
             const authUser = await prisma.authUser.findUnique({ where: { id: session.userId } });
             if (authUser) {
-              await runWithoutTenant(() =>
-                prisma.user.updateMany({
-                  where: { email: authUser.email },
-                  data: { lastActiveAt: new Date() },
-                }),
-              );
+              const { getUserRepo } = await import("@/core/di");
+              await getUserRepo().markActiveByEmailUnscoped(authUser.email);
             }
           } catch (error) {
             Sentry.captureException(error);
@@ -278,12 +275,19 @@ export const auth = betterAuth({
   ],
 });
 
+export async function deleteApiKeysForIdentities(identityIds: string[]): Promise<void> {
+  await (getTransactionClient<typeof prisma>() ?? prisma).apikey.deleteMany({
+    where: { referenceId: { in: identityIds } },
+  });
+}
+
 async function revokeUnprovenAccess(userId: string, options: { removeAccounts: boolean }): Promise<number> {
   const accounts = options.removeAccounts ? await prisma.authAccount.deleteMany({ where: { userId } }) : { count: 0 };
   const sessions = await prisma.authSession.deleteMany({ where: { userId } });
   const apiKeys = await prisma.apikey.deleteMany({ where: { referenceId: userId } });
   const tokens = await prisma.oauthAccessToken.deleteMany({ where: { userId } });
-  const consents = await prisma.oauthConsent.deleteMany({ where: { userId } });
+  const { getAuthService } = await import("@/core/di");
+  const consents = await getAuthService().revokeOauthConsents(userId);
 
-  return accounts.count + sessions.count + apiKeys.count + tokens.count + consents.count;
+  return accounts.count + sessions.count + apiKeys.count + tokens.count + consents;
 }

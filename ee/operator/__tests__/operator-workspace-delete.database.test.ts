@@ -1,4 +1,3 @@
-import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-chat-repo";
 import { randomUUID } from "node:crypto";
 
 import { afterAll, describe, expect, it, vi } from "vitest";
@@ -13,6 +12,7 @@ vi.mock("@/env", () => ({
   env: {
     APP_MODE: "cloud",
     DATABASE_URL: process.env.DATABASE_URL,
+    BASE_URL: "http://localhost:4000",
     HOSTED_AI_OPERATOR_CONTROLS_ENABLED: true,
     NODE_ENV: "test",
   },
@@ -20,8 +20,6 @@ vi.mock("@/env", () => ({
 
 import type { OperatorRefusal } from "../operator.repo";
 import { OPERATOR_AUDIT_ACTION } from "../operator.schema";
-import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
-import { PrismaOperatorRepo } from "../prisma-operator.repository";
 
 const OPERATOR_REFUSALS: OperatorRefusal[] = ["conflict", "notFound", "unavailable"];
 
@@ -31,6 +29,8 @@ function assertAdmitted<T>(result: T | OperatorRefusal): asserts result is T {
 }
 
 const { prisma } = await import("@/prisma/db");
+const { createTestOperatorRepo } = await import("@/tests/helpers/prisma-operator-repo");
+const { PrismaCompanyRepo } = await import("@/features/company/prisma-company.repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 
@@ -151,7 +151,7 @@ afterAll(async () => {
 
 describeDatabase("operator workspace deletion against a real database", { timeout: 120_000 }, () => {
   it("removes the workspace, its members and their sign-in identities, and keeps the audit event", async () => {
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const repo = createTestOperatorRepo();
     const { companyId, members } = await createWorkspace({ domain: "doomed.invalid", members: 2 });
     const survivor = await createWorkspace({ domain: "safe.invalid", members: 1 });
     const rawBoundIdentity = await createRawBoundIdentity(companyId);
@@ -209,8 +209,66 @@ describeDatabase("operator workspace deletion against a real database", { timeou
     });
   });
 
+  it("rolls every owner write back when a later deletion step fails", async () => {
+    const repo = createTestOperatorRepo();
+    const { companyId, members } = await createWorkspace({ domain: "rollback.invalid", members: 1 });
+    const [owner] = members;
+    await runWithoutTenant(async () => {
+      await prisma.inviteToken.create({
+        data: {
+          token: `rollback-${randomUUID()}`,
+          companyId,
+          createdById: owner.userId,
+          expiresAt: new Date("2027-01-01T00:00:00.000Z"),
+        },
+      });
+      await prisma.messagingInboundEvent.create({
+        data: { companyId, source: "webhook", payload: { probe: "rollback" } },
+      });
+      await prisma.authVerification.create({
+        data: {
+          id: randomUUID(),
+          identifier: owner.email,
+          value: `pending-${randomUUID()}`,
+          expiresAt: new Date("2027-01-01T00:00:00.000Z"),
+        },
+      });
+      await prisma.apikey.create({
+        data: {
+          id: randomUUID(),
+          key: `hashed-${randomUUID()}`,
+          referenceId: owner.authUserId,
+          createdAt: new Date("2026-01-01T00:00:00.000Z"),
+          updatedAt: new Date("2026-01-01T00:00:00.000Z"),
+        },
+      });
+    });
+    const failure = vi
+      .spyOn(PrismaCompanyRepo.prototype, "deleteCompanyUnscoped")
+      .mockRejectedValueOnce(new Error("injected company deletion failure"));
+
+    try {
+      await expect(
+        runWithOperator(operatorActor(), () =>
+          repo.deleteWorkspaceUnscoped({ companyId, confirmWorkspaceLabel: "rollback.invalid", reason: "Rollback" }),
+        ),
+      ).rejects.toThrow("injected company deletion failure");
+    } finally {
+      failure.mockRestore();
+    }
+
+    await runWithoutTenant(async () => {
+      expect(await prisma.company.count({ where: { id: companyId } })).toBe(1);
+      expect(await prisma.inviteToken.count({ where: { createdById: owner.userId } })).toBe(1);
+      expect(await prisma.messagingInboundEvent.count({ where: { companyId } })).toBe(1);
+      expect(await prisma.authVerification.count({ where: { identifier: owner.email } })).toBe(1);
+      expect(await prisma.apikey.count({ where: { referenceId: owner.authUserId } })).toBe(1);
+      expect(await prisma.authUser.count({ where: { id: owner.authUserId } })).toBe(1);
+    });
+  });
+
   it("succeeds when a member created an invite token", async () => {
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const repo = createTestOperatorRepo();
     const { companyId, members } = await createWorkspace({ domain: "invited.invalid", members: 1 });
 
     await runWithoutTenant(() =>
@@ -240,7 +298,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
   });
 
   it("refuses a mismatched confirmation label and leaves the workspace intact", async () => {
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const repo = createTestOperatorRepo();
     const { companyId } = await createWorkspace({ domain: "typo.invalid", members: 1 });
     const rawBoundIdentity = await createRawBoundIdentity(companyId);
 
@@ -266,7 +324,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
   });
 
   it("refuses to delete the acting operator's own workspace", async () => {
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const repo = createTestOperatorRepo();
     const { companyId } = await createWorkspace({ domain: "mine.invalid", members: 1 });
 
     const result = await runWithOperator(operatorActor(companyId), () =>
@@ -284,7 +342,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
   });
 
   it("refuses a workspace that still holds an active platform operator", async () => {
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const repo = createTestOperatorRepo();
     const { companyId } = await createWorkspace({
       domain: "staff.invalid",
       members: 1,
@@ -306,7 +364,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
   });
 
   it("reports notFound for an unknown workspace and for a repeated deletion", async () => {
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const repo = createTestOperatorRepo();
     const { companyId } = await createWorkspace({ domain: "once.invalid", members: 1 });
 
     const first = await runWithOperator(operatorActor(), () =>
@@ -338,7 +396,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
   });
 
   it("leaves no row behind in any table that carries a companyId", async () => {
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const repo = createTestOperatorRepo();
     const { companyId, members } = await createWorkspace({ domain: "sweep.invalid", members: 2 });
 
     await runWithoutTenant(async () => {
@@ -433,7 +491,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
   });
 
   it("refuses while the workspace still has a live connected messaging account", async () => {
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const repo = createTestOperatorRepo();
     const { companyId, members } = await createWorkspace({ domain: "connected.invalid", members: 1 });
 
     const accountId = randomUUID();
@@ -481,7 +539,7 @@ describeDatabase("operator workspace deletion against a real database", { timeou
   it("purges background workflow runs and their child rows for the deleted workspace", async (context) => {
     if (!(await workflowSchemaInstalled())) return context.skip();
 
-    const repo = new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies()));
+    const repo = createTestOperatorRepo();
     const { companyId } = await createWorkspace({ domain: "workflows.invalid", members: 1 });
     const survivor = await createWorkspace({ domain: "keepruns.invalid", members: 1 });
     const doomedRun = `run-${randomUUID()}`;

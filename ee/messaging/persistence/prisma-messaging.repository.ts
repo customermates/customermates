@@ -762,20 +762,6 @@ export class PrismaMessagingRepo
     };
   }
 
-  @BypassTenantGuard
-  async recordUnusableItemUnscoped(args: RepoArgs<ResyncThreadRepo, "recordUnusableItemUnscoped">) {
-    await this.prisma.messagingInboundEvent.create({
-      data: {
-        source: "backfill",
-        companyId: args.companyId,
-        connectedAccountId: args.connectedAccountId,
-        payload: args.payload as Prisma.InputJsonValue,
-        unipileMessageId: args.unipileMessageId ?? null,
-        processed: false,
-      },
-    });
-  }
-
   async findThreadIds(ids: Set<string>) {
     if (ids.size === 0) return new Set<string>();
 

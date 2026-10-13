@@ -13,7 +13,6 @@ const { prisma } = await import("@/prisma/db");
 const { DomainEvent } = await import("../domain-events");
 const { EventService } = await import("../event.service");
 const { PrismaEventLogRepo } = await import("../prisma-event-log.repository");
-const { PrismaEventOutboxRepo } = await import("../prisma-event-outbox.repository");
 const { ProcessEventInteractor } = await import("../process-event.interactor");
 const { EVENT_ADMISSION_MAX_ATTEMPTS } = await import("../event-outbox.repo");
 const { EventAdmissionGroup } = await import("../event-admission-group");
@@ -95,7 +94,7 @@ describeDatabase("event outbox for messaging events", () => {
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
     const reader = createTestRecordRecipientReader();
     const process = new ProcessEventInteractor(
-      new PrismaEventOutboxRepo(),
+      new PrismaEventLogRepo({ dispatch: () => Promise.resolve() }),
       new EventAdmissionGroup([
         new WebhookAdmission(
           reader,
@@ -140,7 +139,7 @@ describeDatabase("event outbox for messaging events", () => {
     const companyId = await workspace([DomainEvent.MESSAGING_MESSAGE_RECEIVED]);
     const failure = new Error("admission failed");
     const admit = vi.fn().mockRejectedValue(failure);
-    const outbox = new PrismaEventOutboxRepo();
+    const outbox = new PrismaEventLogRepo({ dispatch: () => Promise.resolve() });
     const process = new ProcessEventInteractor(outbox, { admit });
     const create = (attempts: number) =>
       runWithoutTenant(() =>

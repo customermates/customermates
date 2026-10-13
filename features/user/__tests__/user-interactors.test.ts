@@ -41,6 +41,7 @@ describe("RegisterUserInteractor", () => {
   let mockEventService: any;
   let mockRouteGuardService: any;
   let mockCompanyRepo: any;
+  let mockRegistration: any;
   let mockRecordModel: { initialize: ReturnType<typeof vi.fn<() => Promise<void>>> };
 
   beforeEach(() => {
@@ -55,7 +56,6 @@ describe("RegisterUserInteractor", () => {
       findCurrentUserUnscoped: vi.fn().mockResolvedValue(null),
       findAuthUserCompanyIdForUpdateUnscoped: vi.fn().mockResolvedValue(null),
       findAuthUserCompanyIdUnscoped: vi.fn().mockResolvedValue(null),
-      createCompanyAndUser: vi.fn().mockResolvedValue(mockTenantUser),
       registerExistingCompany: vi.fn().mockResolvedValue(mockTenantUser),
     };
     mockEventService = {
@@ -78,6 +78,7 @@ describe("RegisterUserInteractor", () => {
     };
     mockRecordModel = { initialize: vi.fn<() => Promise<void>>().mockResolvedValue(undefined) };
     mockCompanyRepo = { existsUnscoped: vi.fn().mockResolvedValue(true) };
+    mockRegistration = { createCompanyAndUser: vi.fn().mockResolvedValue(mockTenantUser) };
   });
 
   function createInteractor() {
@@ -88,6 +89,7 @@ describe("RegisterUserInteractor", () => {
       mockRouteGuardService,
       mockCompanyRepo,
       mockRecordModel,
+      mockRegistration,
     );
   }
 
@@ -138,7 +140,7 @@ describe("RegisterUserInteractor", () => {
       { target: { type: "createCompany" } },
     );
 
-    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: true }));
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: true }));
     expect(mockEventService.publish).toHaveBeenNthCalledWith(
       1,
       DomainEvent.LEGAL_DOCUMENTS_ACCEPTED,
@@ -187,7 +189,7 @@ describe("RegisterUserInteractor", () => {
     };
 
     await createInteractor().invoke(data, { adAttribution, target: { type: "createCompany" } });
-    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ adAttribution }));
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ adAttribution }));
 
     vi.clearAllMocks();
     mockRepo.findAuthUserCompanyIdForUpdateUnscoped.mockResolvedValue("existing-company-id");
@@ -230,7 +232,7 @@ describe("RegisterUserInteractor", () => {
       },
     );
 
-    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ adAttribution: [] }));
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ adAttribution: [] }));
   });
 
   it("rejects an unchecked new cloud company before creating records", async () => {
@@ -249,7 +251,7 @@ describe("RegisterUserInteractor", () => {
     );
 
     expect("ok" in result && result.ok).toBe(false);
-    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
     expect(mockRecordModel.initialize).not.toHaveBeenCalled();
     expect(mockEventService.publish).not.toHaveBeenCalled();
   });
@@ -349,7 +351,9 @@ describe("RegisterUserInteractor", () => {
       { target: { type: "createCompany" } },
     );
 
-    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: false }));
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
+      expect.objectContaining({ agreeToTerms: false }),
+    );
     expect(mockEventService.publish).not.toHaveBeenCalledWith(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, expect.anything());
   });
 
@@ -366,7 +370,7 @@ describe("RegisterUserInteractor", () => {
       { target: { type: "createCompany" } },
     );
 
-    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: true }));
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ agreeToTerms: true }));
     expect(mockEventService.publish).not.toHaveBeenCalledWith(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, expect.anything());
   });
 
@@ -387,7 +391,7 @@ describe("RegisterUserInteractor", () => {
       ),
     ).toThrow(DemoModeError);
 
-    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
     expect(mockEventService.publish).not.toHaveBeenCalledWith(DomainEvent.LEGAL_DOCUMENTS_ACCEPTED, expect.anything());
   });
 
@@ -443,8 +447,12 @@ describe("RegisterUserInteractor", () => {
     );
 
     expect(result).toMatchObject({ ok: true });
-    expect(mockRepo.createCompanyAndUser).toHaveBeenCalledWith(expect.objectContaining({ email: "jane@example.com" }));
-    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalledWith(expect.objectContaining({ email: "not-an-email" }));
+    expect(mockRegistration.createCompanyAndUser).toHaveBeenCalledWith(
+      expect.objectContaining({ email: "jane@example.com" }),
+    );
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalledWith(
+      expect.objectContaining({ email: "not-an-email" }),
+    );
   });
 
   it("returns the pending destination for an invited user", async () => {
@@ -484,7 +492,7 @@ describe("RegisterUserInteractor", () => {
         { target: { type: "existingAuthUserCompanyBinding" } },
       ),
     ).resolves.toEqual({ redirect: "/onboarding" });
-    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
     expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
     expect(mockEventService.publish).not.toHaveBeenCalled();
     expect(mockAuthService.sendNewUserNotificationEmail).not.toHaveBeenCalled();
@@ -506,7 +514,7 @@ describe("RegisterUserInteractor", () => {
         { target: { type: "invitation", companyId: "invited-company-id" } },
       ),
     ).resolves.toEqual({ redirect: "/auth/signup" });
-    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
     expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
     expect(mockEventService.publish).not.toHaveBeenCalled();
     expect(mockAuthService.sendNewUserNotificationEmail).not.toHaveBeenCalled();
@@ -532,7 +540,7 @@ describe("RegisterUserInteractor", () => {
         { target: { type: "invitation", companyId: "invited-company-id" } },
       ),
     ).resolves.toEqual({ redirect });
-    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
     expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
     expect(mockRepo.bindAuthUserToCompanyOrThrowUnscoped).not.toHaveBeenCalled();
     expect(mockEventService.publish).not.toHaveBeenCalled();
@@ -560,7 +568,7 @@ describe("RegisterUserInteractor", () => {
     expect(mockRepo.registerExistingCompany).toHaveBeenCalledWith(
       expect.objectContaining({ companyId: "current-invited-company-id" }),
     );
-    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
     expect(mockRepo.bindAuthUserToCompanyOrThrowUnscoped).toHaveBeenCalledWith({
       authUserId: USER_ID,
       companyId: mockTenantUser.companyId,
@@ -612,7 +620,7 @@ describe("RegisterUserInteractor", () => {
       ),
     ).resolves.toEqual({ redirect: "/auth/signin" });
     expect(mockRepo.findAuthUserCompanyIdForUpdateUnscoped).not.toHaveBeenCalled();
-    expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+    expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
     expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
     expect(mockEventService.publish).not.toHaveBeenCalled();
     expect(mockAuthService.sendNewUserNotificationEmail).not.toHaveBeenCalled();
@@ -649,7 +657,7 @@ describe("RegisterUserInteractor", () => {
         ),
       ).resolves.toEqual({ redirect: accountStateRedirect(state) ?? "/" });
       expect(mockRepo.findAuthUserCompanyIdForUpdateUnscoped).not.toHaveBeenCalled();
-      expect(mockRepo.createCompanyAndUser).not.toHaveBeenCalled();
+      expect(mockRegistration.createCompanyAndUser).not.toHaveBeenCalled();
       expect(mockRepo.registerExistingCompany).not.toHaveBeenCalled();
       expect(mockEventService.publish).not.toHaveBeenCalled();
       expect(mockAuthService.sendNewUserNotificationEmail).not.toHaveBeenCalled();

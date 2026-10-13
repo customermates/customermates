@@ -10,10 +10,7 @@ import { REPO_ROOT, walkFiles } from "./walk";
 // ReleaseOwnerRoutinesInteractor, so it only holds where an interactor calls it. These two lists are
 // the price of that move: a new way to take a user off active status has to appear here, and has to
 // release the owner's routines, or the invariant silently stops holding.
-const USER_STATUS_WRITERS = [
-  "ee/operator/prisma-operator.repository.ts",
-  "features/user/prisma-user.repository.ts",
-];
+const USER_STATUS_WRITERS = ["features/user/prisma-user.repository.ts"];
 
 const RELEASE_CALLERS = [
   "ee/lifecycle/deactivate-trial-users-and-send-notice.interactor.ts",
