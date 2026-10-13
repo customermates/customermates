@@ -9,7 +9,7 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
-import { PrismaMessagingRepo } from "../prisma-messaging.repository";
+import { createTestMessagingRepo } from "@/tests/helpers/messaging-repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -97,7 +97,7 @@ describeDatabase("draft discard access on PostgreSQL", () => {
     const draftId = await insertDraft();
 
     const result = await runWithTenant(colleague, () =>
-      new PrismaMessagingRepo().deleteDraft({ messageId: draftId, expectedUpdatedAt: revision }),
+      createTestMessagingRepo().deleteDraft({ messageId: draftId, expectedUpdatedAt: revision }),
     );
 
     expect(result).toEqual({ status: "not_found" });
@@ -109,7 +109,7 @@ describeDatabase("draft discard access on PostgreSQL", () => {
     const draftId = await insertDraft();
 
     const result = await runWithTenant(colleague, () =>
-      new PrismaMessagingRepo().deleteDraft({ messageId: draftId, expectedUpdatedAt: revision }),
+      createTestMessagingRepo().deleteDraft({ messageId: draftId, expectedUpdatedAt: revision }),
     );
 
     expect(result).toMatchObject({ status: "deleted", messagingThreadId: threadId });
@@ -121,7 +121,7 @@ describeDatabase("draft discard access on PostgreSQL", () => {
     const draftId = await insertDraft();
 
     await runWithTenant(colleague, () =>
-      new PrismaMessagingRepo().discardDraftAfterSend({ messageId: draftId, expectedUpdatedAt: revision }),
+      createTestMessagingRepo().discardDraftAfterSend({ messageId: draftId, expectedUpdatedAt: revision }),
     );
 
     expect(await draftExists(draftId)).toBe(false);
@@ -130,7 +130,7 @@ describeDatabase("draft discard access on PostgreSQL", () => {
   it("refuses to overwrite the owner's chat draft for a teammate who only reads the shared conversation", async () => {
     const save = (user: typeof owner, bodyText: string) =>
       runWithTenant(user, () =>
-        new PrismaMessagingRepo().upsertThreadDraftOrThrow({
+        createTestMessagingRepo().upsertThreadDraftOrThrow({
           threadId: chatThreadId,
           connectedAccountId: chatAccountId,
           provider: MessagingProvider.linkedin,
@@ -156,7 +156,7 @@ describeDatabase("draft discard access on PostgreSQL", () => {
     const draftId = await insertDraft();
 
     const result = await runWithTenant(owner, () =>
-      new PrismaMessagingRepo().deleteDraft({ messageId: draftId, expectedUpdatedAt: revision }),
+      createTestMessagingRepo().deleteDraft({ messageId: draftId, expectedUpdatedAt: revision }),
     );
 
     expect(result).toMatchObject({ status: "deleted" });

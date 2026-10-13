@@ -158,46 +158,28 @@ describe("import_crm_records", () => {
     expect(structured(result)).toEqual({ created: 1, updated: 0, linked: 0, schemaRevision: 3 });
   });
 
-  it("accepts an export_crm_records result unchanged, restoring stored Formatted text", async () => {
-    const stored = exportDocument();
+  it("passes an export_crm_records result unchanged to the import interactor, which resolves marked text", async () => {
     spies.exportRecords.mockResolvedValue({ ok: true, data: exportDocument() });
-    spies.readRecord.mockResolvedValue({ ok: true, data: stored.records[0] });
     spies.importRecords.mockResolvedValue({ ok: true, data: { created: 0, updated: 1, linked: 0, schemaRevision: 3 } });
     const exported = structured(
       await exportCrmRecordsTool.execute(exportCrmRecordsTool.inputSchema.parse({ typeId: TYPE_ID })),
     );
     expect(exported).toHaveProperty("untrustedTextHandling");
 
-    const result = await executeMcpTool(importCrmRecordsTool, [
-      importCrmRecordsTool.inputSchema.parse({
-        document: exported,
-        mode: "update",
-        idempotencyKey: "import-round-trip",
-      }),
-    ]);
+    const input = importCrmRecordsTool.inputSchema.parse({
+      document: exported,
+      mode: "update",
+      idempotencyKey: "import-round-trip",
+    });
+    const result = await executeMcpTool(importCrmRecordsTool, [input]);
 
     expect(result.ok).toBe(true);
-    expect(spies.readRecord).toHaveBeenCalledWith({ typeId: TYPE_ID, recordId: RECORD_ID });
-    const sent = spies.importRecords.mock.calls[0][0];
-    expect(sent.document).not.toHaveProperty("untrustedTextHandling");
-    expect(sent.document.records[0].fields[0].result).toEqual(stored.records[0].fields[0].result);
+    expect(spies.importRecords).toHaveBeenCalledWith(input);
+    expect(spies.readRecord).not.toHaveBeenCalled();
+    expect(JSON.stringify(spies.importRecords.mock.calls[0][0].document.records[0].fields[0].result)).toContain(
+      "markdown",
+    );
     expect(importCrmRecordsTool.annotations.destructiveHint).toBe(true);
-  });
-
-  it("refuses changed marked Formatted text instead of parsing it", async () => {
-    spies.exportRecords.mockResolvedValue({ ok: true, data: exportDocument() });
-    spies.readRecord.mockResolvedValue({ ok: true, data: exportDocument().records[0] });
-    const exported = structured(
-      await exportCrmRecordsTool.execute(exportCrmRecordsTool.inputSchema.parse({ typeId: TYPE_ID })),
-    ) as { records: Array<{ fields: Array<{ result: { value: { markdown: string } } }> }> };
-    exported.records[0].fields[0].result.value.markdown += " and more";
-
-    const result = await executeMcpTool(importCrmRecordsTool, [
-      importCrmRecordsTool.inputSchema.parse({ document: exported, mode: "update", idempotencyKey: "import-changed" }),
-    ]);
-
-    expect(result.ok).toBe(false);
-    expect(spies.importRecords).not.toHaveBeenCalled();
   });
 
   it("rejects an unknown mode before calling the interactor", () => {
@@ -229,7 +211,6 @@ describe("manage_connected_accounts", () => {
     expect((await run({ action: "disconnect" })).ok).toBe(false);
     expect((await run({ action: "set_folders", id: ACCOUNT_ID })).ok).toBe(false);
     expect((await run({ action: "set_sharing", id: ACCOUNT_ID })).ok).toBe(false);
-    expect((await run({ action: "set_signature", id: ACCOUNT_ID })).ok).toBe(false);
     expect(spies.setFolders).not.toHaveBeenCalled();
     expect(spies.setSharing).not.toHaveBeenCalled();
     expect(spies.disconnect).not.toHaveBeenCalled();
@@ -248,35 +229,19 @@ describe("manage_connected_accounts", () => {
     expect(sharing.ok && sharing.structuredContent?.account).toMatchObject({ shared: true });
   });
 
-  it("keeps the current settings when only the signature text changes", async () => {
-    spies.listAccounts.mockResolvedValue({ ok: true, data: [account()] });
+  it("forwards only the signature fields given, leaving the merge to the interactor", async () => {
     spies.setSignature.mockResolvedValue({ ok: true, data: account({ signature: "Cheers, Ada" }) });
 
     const result = await run({ action: "set_signature", id: ACCOUNT_ID, signature: "Cheers, Ada" });
 
     expect(result.ok).toBe(true);
-    expect(spies.setSignature).toHaveBeenCalledWith({
-      id: ACCOUNT_ID,
-      signature: "Cheers, Ada",
-      settings: defaultEmailSettings(),
-    });
-  });
-
-  it("refuses a signature change on an account the caller does not own", async () => {
-    spies.listAccounts.mockResolvedValue({ ok: true, data: [account({ isOwner: false })] });
-
-    const result = await run({ action: "set_signature", id: ACCOUNT_ID, signature: "Hi" });
-
-    expect(result).toMatchObject({
-      ok: false,
-      failure: { kind: "not_found", issues: [{ path: ["id"], customCode: "connectedAccountNotFound" }] },
-    });
-    expect(spies.setSignature).not.toHaveBeenCalled();
+    expect(spies.setSignature).toHaveBeenCalledWith({ id: ACCOUNT_ID, signature: "Cheers, Ada", settings: undefined });
+    expect(spies.listAccounts).not.toHaveBeenCalled();
   });
 
   it("resyncs and disconnects one account", async () => {
-    spies.resync.mockResolvedValue({ ok: true, data: null });
-    spies.disconnect.mockResolvedValue({ ok: true, data: null });
+    spies.resync.mockResolvedValue({ ok: true, data: { id: ACCOUNT_ID, resyncStarted: true } });
+    spies.disconnect.mockResolvedValue({ ok: true, data: { id: ACCOUNT_ID, disconnected: true } });
 
     const resync = await run({ action: "resync", id: ACCOUNT_ID });
     const disconnect = await run({ action: "disconnect", id: ACCOUNT_ID });
@@ -322,7 +287,7 @@ describe("toolsets", () => {
     expect(instructions).toContain("API keys and billing are managed only in the web app");
   });
 
-  it("brings the discovery tools widgets and routines depend on, once each", () => {
+  it("brings the discovery tools widgets, routines, webhooks and the record model depend on, once each", () => {
     const names = mcpToolsForToolsets(MCP_TOOL_GROUPS, ["widgets", "routines"], MCP_ALWAYS_ON_TOOLS).map(
       (tool) => tool.name,
     );
@@ -331,6 +296,14 @@ describe("toolsets", () => {
       expect.arrayContaining(["manage_widgets", "manage_routines", "discover_record_types", "get_record_model"]),
     );
     expect(new Set(names).size).toBe(names.length);
+    const recordModel = mcpToolsForToolsets(MCP_TOOL_GROUPS, ["record-model"], MCP_ALWAYS_ON_TOOLS).map(
+      (tool) => tool.name,
+    );
+    expect(recordModel).toEqual(
+      expect.arrayContaining(["configure_record_model", "get_record_model", "read_crm_operation"]),
+    );
+    const webhooks = mcpToolsForToolsets(MCP_TOOL_GROUPS, ["webhooks"], MCP_ALWAYS_ON_TOOLS).map((tool) => tool.name);
+    expect(webhooks).toEqual(expect.arrayContaining(["manage_webhooks", "discover_record_types", "get_record_model"]));
     const all = mcpToolsForToolsets(MCP_TOOL_GROUPS, Object.keys(MCP_TOOL_GROUPS), MCP_ALWAYS_ON_TOOLS);
     expect(all).toHaveLength(Object.values(MCP_TOOL_GROUPS).flat().length + MCP_ALWAYS_ON_TOOLS.length);
   });

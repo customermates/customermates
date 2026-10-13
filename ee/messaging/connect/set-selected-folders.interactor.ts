@@ -13,6 +13,7 @@ import { isSkippedEmailFolder } from "../email-folders";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import type { SetSelectedFoldersRepo } from "./set-selected-folders.repo";
@@ -41,25 +42,24 @@ export class SetSelectedFoldersInteractor extends AuthenticatedInteractor<SetSel
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
-    const ctx = await this.repo.getAccountFolderContextOrThrow(data.id);
-    const byId = new Map(ctx.folders.map((folder) => [folder.id, folder]));
+    const { updated, connectedAccountId, newlyEnabled } = await runInTransaction(async () => {
+      const ctx = await this.repo.getAccountFolderContextOrThrow(data.id);
+      const byId = new Map(ctx.folders.map((folder) => [folder.id, folder]));
+      const selectedFolderIds = [...new Set(data.selectedFolderIds)].filter((id) => byId.has(id)).sort();
+      const enabled = selectedFolderIds.filter(
+        (id) => !ctx.selectedFolderIds.includes(id) && isSkippedEmailFolder(byId.get(id) ?? {}),
+      );
+      const saved = await this.repo.setSelectedFoldersOrThrow({ id: data.id, selectedFolderIds });
+      return { updated: saved, connectedAccountId: ctx.id, newlyEnabled: enabled };
+    });
 
-    const selectedFolderIds = [...new Set(data.selectedFolderIds)].filter((id) => byId.has(id)).sort();
-
-    const newlyEnabled = selectedFolderIds.filter(
-      (id) => !ctx.selectedFolderIds.includes(id) && isSkippedEmailFolder(byId.get(id) ?? {}),
-    );
     if (newlyEnabled.length > 0) {
       await this.backgroundTaskService.dispatch("backfill-connected-account", {
-        connectedAccountId: ctx.id,
+        connectedAccountId,
         sourceFilter: newlyEnabled,
       });
     }
 
-    const updated = await this.repo.setSelectedFoldersOrThrow({
-      id: data.id,
-      selectedFolderIds,
-    });
     return { ok: true as const, data: toConnectedAccountDto(updated) };
   }
 }

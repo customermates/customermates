@@ -5,26 +5,24 @@ import { test as base, expect } from "@playwright/test";
 import { Client } from "pg";
 import { localE2eEnvironment } from "./local-environment";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
-import { collectPageErrors } from "./browser-noise";
+import { BrowserDiagnostics } from "./browser-diagnostics";
 
 type Fixtures = {
-  failOnPageErrors: boolean;
+  diagnostics: BrowserDiagnostics;
   database: Client;
   workspace: Awaited<ReturnType<typeof createBrowserWorkspace>>;
   companyId: string;
   signedIn: void;
 };
 export const test = base.extend<Fixtures>({
-  // A spec opts in with test.use({ failOnPageErrors: true }); every test then fails on a page or console error.
-  failOnPageErrors: [false, { option: true }],
-  page: async ({ page, failOnPageErrors }, use) => {
-    const errors = failOnPageErrors ? collectPageErrors(page) : [];
-    await use(page);
-    // The signedIn fixture aborts every external request, which Chromium logs as ERR_BLOCKED_BY_CLIENT.
-    expect(
-      errors.filter((error) => !error.includes("net::ERR_BLOCKED_BY_CLIENT")),
-      "page and console errors",
-    ).toEqual([]);
+  // Every page of the test context is watched before its first navigation; unexpected errors fail a passing test.
+  context: async ({ context }, use, testInfo) => {
+    const diagnostics = BrowserDiagnostics.of(testInfo).watch(context);
+    await use(context);
+    await diagnostics.verify(testInfo);
+  },
+  diagnostics: async ({ context }, use, testInfo) => {
+    await use(BrowserDiagnostics.of(testInfo).watch(context));
   },
   database: async ({}, use) => {
     const { databaseUrl } = localE2eEnvironment();
@@ -119,5 +117,5 @@ export const test = base.extend<Fixtures>({
     { auto: true, timeout: 180000 },
   ],
 });
-export { collectPageErrors, isAppConsoleError, isBenignPageError } from "./browser-noise";
+export { collectPageErrors } from "./browser-diagnostics";
 export { expect };

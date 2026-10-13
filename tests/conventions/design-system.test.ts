@@ -16,6 +16,7 @@ import {
   tagNameOf,
   visit,
 } from "./design-system-scan";
+import { unreviewedExceptionAdditions } from "./exception-membership";
 
 type Allowlist = Readonly<Record<string, string>>;
 
@@ -49,9 +50,7 @@ describe("rule 57: sections and segments instead of tab bars", () => {
 
 const OVERLAY_PRIMITIVE_OWNER_PREFIXES = ["components/ui/", "components/modal/"];
 
-const OVERLAY_PRIMITIVE_EXEMPTIONS: Allowlist = {
-  "app/components/app-sidebar.tsx": "the mobile sidebar is the navigation shell, not a dialog or drawer",
-};
+const OVERLAY_PRIMITIVE_EXEMPTIONS: Allowlist = {};
 
 const OVERLAY_PRIMITIVE_ALLOWLIST: Allowlist = {};
 
@@ -160,9 +159,7 @@ function destructiveActionFindings(sources: SourceFile[]) {
 
 const DESTRUCTIVE_ALLOWLIST: Allowlist = {};
 
-const DESTRUCTIVE_EXEMPTIONS: Allowlist = {
-  "components/modal/delete-confirmation-modal.tsx": "the shared confirm dialog; each caller sets its confirm variant",
-};
+const DESTRUCTIVE_EXEMPTIONS: Allowlist = {};
 
 describe("rule 54: delete actions use the destructive variant", () => {
   it("marks every delete button, menu item and header action as destructive", () => {
@@ -295,15 +292,25 @@ const COLOR_EXEMPTIONS: Allowlist = {
   "ee/messaging/email-settings.ts": "outgoing email HTML, rendered by mail clients without app tokens",
   "ee/messaging/email-styles.ts": "outgoing email HTML, rendered by mail clients without app tokens",
   "components/ai-connection/ai-client-logo.tsx": "third-party brand mark in its own brand color",
-  "app/layout.tsx": "browser theme-color metadata, which cannot reference CSS tokens",
 };
 
-function stringLiteralFindings(sources: SourceFile[], pattern: RegExp) {
+function isBrowserThemeColor(node: ts.Node) {
+  for (let current = node.parent; current; current = current.parent)
+    if (ts.isPropertyAssignment(current) && current.name.getText() === "themeColor") return true;
+  return false;
+}
+
+function stringLiteralFindings(
+  sources: SourceFile[],
+  pattern: RegExp,
+  applies: (node: ts.Node) => boolean = () => true,
+) {
   const findings: Finding[] = [];
 
   for (const source of sources)
     visit(source.ast, (node) => {
       if (!(ts.isStringLiteralLike(node) || ts.isTemplateLiteralToken(node) || ts.isJsxText(node))) return;
+      if (!applies(node)) return;
       const text = ts.isJsxText(node) ? node.getText(source.ast) : node.text;
       const match = new RegExp(pattern.source, pattern.flags.replace(/[gy]/g, "")).exec(text);
       if (match) findings.push(finding(source, node.getStart(source.ast), match[0]));
@@ -314,15 +321,32 @@ function stringLiteralFindings(sources: SourceFile[], pattern: RegExp) {
 
 const COLOR_ALLOWLIST: Allowlist = {};
 
+const isStyledByAppTokens = (node: ts.Node) => !isBrowserThemeColor(node);
+
 describe("rule 58: colors only through design tokens", () => {
   it("uses no Tailwind palette colors or literal color values outside the token owners", () => {
     const sources = sourcesExcept(COLOR_OWNERS, COLOR_EXEMPTIONS);
     const findings = [
-      ...stringLiteralFindings(sources, PALETTE_COLOR),
-      ...stringLiteralFindings(sources, LITERAL_COLOR),
+      ...stringLiteralFindings(sources, PALETTE_COLOR, isStyledByAppTokens),
+      ...stringLiteralFindings(sources, LITERAL_COLOR, isStyledByAppTokens),
     ];
 
     enforce(findings, COLOR_ALLOWLIST);
+  });
+
+  it("exempts only the browser theme-color metadata, which cannot read CSS tokens", () => {
+    const source = {
+      file: "app/layout.tsx",
+      text: "",
+      ast: ts.createSourceFile(
+        "app/layout.tsx",
+        'export const viewport = { themeColor: [{ color: "#eeeef0" }] };\nconst accent = { color: "#08080b" };',
+        ts.ScriptTarget.Latest,
+        true,
+        ts.ScriptKind.TSX,
+      ),
+    };
+    expect(stringLiteralFindings([source], LITERAL_COLOR, isStyledByAppTokens).map(({ line }) => line)).toEqual([2]);
   });
 });
 
@@ -424,7 +448,8 @@ function insetRowDividerFindings(sources: SourceFile[]) {
       if (!tag || !ROW_CONTAINER_TAGS.has(tag)) return;
       visit(container, (node) => {
         if (!ts.isJsxAttribute(node) || node.name.getText(source.ast) !== "className") return;
-        const expression = node.initializer && ts.isJsxExpression(node.initializer) ? node.initializer.expression : undefined;
+        const expression =
+          node.initializer && ts.isJsxExpression(node.initializer) ? node.initializer.expression : undefined;
         const resolved = expression && ts.isIdentifier(expression) ? constants.get(expression.text) : undefined;
         visit(resolved ?? node, (literal) => {
           if (
@@ -492,5 +517,11 @@ describe("rule 66: chips inside sentences use the inline chip", () => {
 
     expect(scopeCount).toBeGreaterThan(0);
     expect(formatFindings(findings)).toEqual([]);
+  });
+});
+
+describe("exception membership against the review base", () => {
+  it("adds no exception members beyond the review base and the reviewed additions", () => {
+    expect(unreviewedExceptionAdditions("design-system.test.ts")).toEqual([]);
   });
 });

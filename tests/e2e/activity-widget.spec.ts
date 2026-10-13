@@ -1,22 +1,15 @@
 import { addFromConfigure, openConfigure } from "./configure";
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 
 test("creates a custom-type activity widget, previews history, edits it and preserves assistant drafts", async ({
   page,
   database,
   companyId,
 }, testInfo) => {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
+  const errors = collectPageErrors(page);
+  const controlWarnings: string[] = [];
   page.on("console", (message) => {
-    if (
-      isAppConsoleError(message) ||
-      message.text().includes("changing from uncontrolled") ||
-      message.text().includes("changing from controlled")
-    )
-      errors.push(message.text());
+    if (/changing from (?:un)?controlled/.test(message.text())) controlWarnings.push(message.text());
   });
   const dialog = page.getByRole("dialog");
   await openConfigure(page);
@@ -82,4 +75,5 @@ test("creates a custom-type activity widget, previews history, edits it and pres
     animations: "disabled",
   });
   expect(errors).toEqual([]);
+  expect(controlWarnings).toEqual([]);
 });

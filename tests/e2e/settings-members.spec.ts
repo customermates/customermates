@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { collectPageErrors, expect, test } from "./fixtures";
 import { openItemMenu } from "./item-actions";
 import { rowActionLabels, runRowAction } from "./record-rows";
 
@@ -8,14 +8,8 @@ test("the members row menu deletes another member through the guarded deactivati
   database,
   workspace,
 }) => {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message) && !message.text().startsWith("Failed to load resource"))
-      errors.push(message.text());
-  });
+  // The pending member's country flag loads from another origin, which the sandbox blocks; nothing else may fail.
+  const errors = collectPageErrors(page);
   const role = await database.query('SELECT "roleId" FROM "User" WHERE id=$1', [workspace.userId]);
   const memberId = randomUUID();
   await database.query(

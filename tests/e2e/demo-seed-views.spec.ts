@@ -8,7 +8,6 @@ import {
   demoId,
   expect,
   memberPage,
-  settle,
   test,
 } from "./demo-seed";
 import { openSidebar } from "./sidebar";
@@ -38,8 +37,6 @@ async function expectViewShowsData(
   view: SeededView,
   isMobile: boolean,
 ) {
-  // Let the previous view finish loading its lazy chunks, so leaving it does not abort them mid-load.
-  await settle(page);
   await page.goto(`/en/records/${view.typeId}?view=${view.id}`);
   await expect(
     page
@@ -156,7 +153,6 @@ test("the All view of every list shows records for the admin", async ({
     [...LISTS].sort(),
   );
   for (const list of rows) {
-    await settle(page);
     await page.goto(`/en/records/${list.id}?view=${ALL_VIEW_KEY}`);
     await expect(
       page.getByText(/^No records yet$|^No records match/),
@@ -234,7 +230,6 @@ test("seeded views and pins stay curated for an overview: at most five card chip
   ).toContainText(/\d/);
   await page.screenshot({ path: testInfo.outputPath("deals-board.png") });
 
-  await settle(page);
   const { rows: forecast } = await database.query<{ id: string }>(
     `SELECT id FROM "DataView" WHERE "companyId"=$1 AND "surfaceKey"=$2 AND name='Forecast'`,
     [DEMO_COMPANY_ID, `records:${deals}`],
@@ -259,7 +254,6 @@ test("seeded views and pins stay curated for an overview: at most five card chip
   for (const { p13nId, pinned } of pins)
     expect(pinned, `${p13nId} pins at most five fields`).toBeLessThanOrEqual(5);
 
-  await settle(page);
   const { rows: record } = await database.query<{ id: string }>(
     `SELECT "recordId" AS id FROM "RecordValue" WHERE "companyId"=$1 AND "fieldId"=$2 ORDER BY "recordId" LIMIT 1`,
     [DEMO_COMPANY_ID, demoId("deal.closeDate")],
@@ -306,7 +300,6 @@ test("opening a list and switching its views updates no component while another 
   const records = page.locator("[data-row-id], [data-item-id]");
   await expect(records.first()).toBeVisible();
   for (const view of views) {
-    await settle(page);
     const chip = rail
       .locator("a[data-view-chip]", { hasText: view.name })
       .first();
@@ -314,16 +307,20 @@ test("opening a list and switching its views updates no component while another 
     await expect(chip).toHaveAttribute("aria-current", "page");
     await expect(records.first(), `${view.name} shows records`).toBeVisible();
   }
-  await settle(page);
   const all = page.locator("#global-data-views-all");
   await all.click();
   await expect(all).toHaveAttribute("aria-current", "page");
   await expect(records.first()).toBeVisible();
-  await settle(page);
+  // Becoming visible again refreshes the route; wait for that refresh of this list.
+  const refreshed = page.waitForResponse(
+    (response) =>
+      response.request().headers()["rsc"] === "1" &&
+      new URL(response.url()).pathname === `/en/records/${deals}`,
+  );
   await page.evaluate(() =>
     document.dispatchEvent(new Event("visibilitychange")),
   );
-  await settle(page);
+  expect((await refreshed).ok()).toBe(true);
   await expect(records.first()).toBeVisible();
   expect(
     errors.filter((error) => error.includes("Cannot update a component")),

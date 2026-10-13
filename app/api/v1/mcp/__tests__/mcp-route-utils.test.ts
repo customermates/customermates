@@ -215,6 +215,18 @@ describe("public MCP execution boundary", () => {
     });
   });
 
+  it("refuses an inactive member's credential with a structured 403 before any tool is listed", async () => {
+    const handler = createMcpRoute({ test: [expectedFailureTool] });
+    apiKeys.authorize.mockRejectedValueOnce(
+      new ForbiddenError("Your account is currently inactive.", AppErrorCode.inactiveUser),
+    );
+
+    const refused = await rpc(handler, requestBody("initialize", 1));
+
+    expect(refused.response.status).toBe(403);
+    expect(refused.data).toMatchObject({ error: "inactive_user", message: "Your account is currently inactive." });
+  });
+
   it("refuses a valid credential without the API & Webhooks permission with a structured 403", async () => {
     const handler = createMcpRoute({ test: [expectedFailureTool] });
     apiKeys.authorize.mockRejectedValueOnce(

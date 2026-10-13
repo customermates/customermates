@@ -17,12 +17,19 @@ import {
 } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import {
-  ImportRecordsSchema,
+  ImportMarkedRecordsSchema,
   ImportRecordsResultSchema,
   RECORD_IMPORT_LIMIT,
   RECORD_IMPORT_LINK_LIMIT,
 } from "@/features/data-transfer/record-transfer.schema";
-import type { ImportRecordsInput, ImportRecordsResult } from "@/features/data-transfer/record-transfer.schema";
+import type {
+  ImportMarkedRecordsInput,
+  ImportRecordsInput,
+  ImportRecordsResult,
+} from "@/features/data-transfer/record-transfer.schema";
+import type { RecordModel } from "@/features/records/record-model.schema";
+import { recordDto } from "@/features/records/record-dto";
+import { untrustedRecordText } from "@/features/mcp-tools/untrusted-record-content";
 import { recordRequestHash } from "@/features/records/record-request-hash";
 import { RecordJournal } from "@/features/records/record-journal";
 import { decodeRecordValue } from "@/features/records/record-storage";
@@ -30,6 +37,15 @@ import { sameRecordResult } from "@/features/records/record-write.service";
 import { valueResult } from "@/features/records/calculation";
 
 type ImportRow = ImportRecordsInput["document"]["records"][number];
+type MarkedImportRow = ImportMarkedRecordsInput["document"]["records"][number];
+type MarkedResult = MarkedImportRow["fields"][number]["result"];
+type MarkedRichText = { state: "value"; value: { kind: "richText"; markdown: string } };
+
+function isMarkedRichText(result: MarkedResult): result is MarkedRichText {
+  return (
+    result.state === "value" && result.value !== null && typeof result.value === "object" && "markdown" in result.value
+  );
+}
 type Assignment = { fieldId: string; value: RecordScalar | null };
 
 type RowAssignments =
@@ -78,7 +94,7 @@ function storedResult(record: StoredRecord, field: RecordField): CalculatedValue
 }
 
 @TenantInteractor()
-export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecordsInput, ImportRecordsResult> {
+export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportMarkedRecordsInput, ImportRecordsResult> {
   constructor(
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
@@ -87,8 +103,8 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
     super();
   }
 
-  @Validate(ImportRecordsSchema)
-  async invoke(input: ImportRecordsInput): Validated<ImportRecordsResult> {
+  @Validate(ImportMarkedRecordsSchema)
+  async invoke(input: ImportMarkedRecordsInput): Validated<ImportRecordsResult> {
     const hash = recordRequestHash(input);
     return runInTransaction(
       async () => {
@@ -106,8 +122,11 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
         const state = await this.records.getState();
         if (state?.activeOperationId) return failConflict(CustomErrorCode.recordWritePaused);
         const model = await this.records.getModel();
-        const document = input.document;
-        if (model.revision !== document.schemaRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
+        if (model.revision !== input.document.schemaRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
+        const resolved = await this.resolveMarkedText(input.document.records, model, policy);
+        if (!resolved.ok)
+          return fail(CustomErrorCode.recordMarkedTextChanged, ["document", "records", ...resolved.path]);
+        const document = { ...input.document, records: resolved.rows };
         if (document.records.length > RECORD_IMPORT_LIMIT || document.links.length > RECORD_IMPORT_LINK_LIMIT)
           return fail(CustomErrorCode.recordCalculationBudget);
         const type = model.types.find((candidate) => candidate.id === document.typeId && !candidate.archived);
@@ -290,6 +309,47 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
       },
       { timeout: 120_000 },
     ).catch(unwoundFailure);
+  }
+
+  private async resolveMarkedText(
+    rows: MarkedImportRow[],
+    model: RecordModel,
+    policy: Awaited<ReturnType<RecordAccessPolicy["load"]>>,
+  ): Promise<{ ok: true; rows: ImportRow[] } | { ok: false; path: Array<string | number> }> {
+    const resolved: ImportRow[] = [];
+    const access = policy.access(model.types.filter((type) => !type.archived).map((type) => type.id));
+    for (const [rowIndex, row] of rows.entries()) {
+      const marked = row.fields.some((field) => isMarkedRichText(field.result));
+      const existing = marked ? await this.records.getRecordCompanyWide(row.ref) : null;
+      const stored =
+        existing && (await policy.canRead(existing))
+          ? new Map(
+              recordDto(
+                existing,
+                model,
+                await this.records.getVisibleFields(row.ref, model, access),
+                policy.memberScope,
+              ).fields.map((field) => [field.fieldId, field.result] as const),
+            )
+          : new Map<string, CalculatedValue>();
+      const fields: ImportRow["fields"] = [];
+      for (const [fieldIndex, field] of row.fields.entries()) {
+        if (!isMarkedRichText(field.result)) {
+          fields.push({ fieldId: field.fieldId, result: field.result });
+          continue;
+        }
+        const current = stored.get(field.fieldId);
+        if (
+          current?.state !== "value" ||
+          current.value.kind !== "richText" ||
+          untrustedRecordText(current.value.documentJson) !== field.result.value.markdown
+        )
+          return { ok: false, path: [rowIndex, "fields", fieldIndex, "result", "value"] };
+        fields.push({ fieldId: field.fieldId, result: current });
+      }
+      resolved.push({ ...row, fields, relationships: [], relationshipPaths: undefined });
+    }
+    return { ok: true, rows: resolved };
   }
 
   private async unchanged(

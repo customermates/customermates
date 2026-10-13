@@ -34,9 +34,8 @@ import { AppChip } from "@/components/chip/app-chip";
 import { Sidebar, SidebarContent, SidebarFooter, useSidebar } from "@/components/ui/sidebar";
 import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { AppLink } from "@/components/shared/app-link";
-import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { OVERLAY_SIDE_SHEET_CLASS, handOffSheet } from "@/components/ui/overlay-contract";
-import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
+import { handOffSheet } from "@/components/ui/overlay-contract";
+import { AppModal } from "@/components/modal";
 import { Icon } from "@/components/shared/icon";
 import { recordNavigationKey } from "@/features/records/record-navigation.schema";
 import { assistantEntryVisible } from "./navigation/assistant-entry-visibility";
@@ -624,47 +623,43 @@ function AddPickerDrawer({
 }) {
   const t = useTranslations();
   const isHandingOffRef = useRef(false);
-  const focusReturn = useOverlayFocusReturn(open, returnFocusTarget, returnFocusFallback);
 
   function handleCloseAutoFocus(event: Event) {
-    if (isHandingOffRef.current) {
-      isHandingOffRef.current = false;
-      event.preventDefault();
-      return;
-    }
-
-    focusReturn.onCloseAutoFocus(event);
+    if (!isHandingOffRef.current) return;
+    isHandingOffRef.current = false;
+    event.preventDefault();
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className={OVERLAY_SIDE_SHEET_CLASS} {...focusReturn} onCloseAutoFocus={handleCloseAutoFocus}>
-        <SheetHeader className="px-6">
-          <SheetTitle>{t("NavigationBar.addPickerTitle")}</SheetTitle>
+    <AppModal
+      sheet
+      visibleTitle
+      bodyClassName="flex flex-col gap-1 py-4"
+      description={t("NavigationBar.addPickerDescription")}
+      focusReturnFallback={returnFocusFallback}
+      focusReturnTarget={returnFocusTarget}
+      open={open}
+      title={t("NavigationBar.addPickerTitle")}
+      onClose={() => onOpenChange(false)}
+      onCloseAutoFocus={handleCloseAutoFocus}
+    >
+      {items.map((item) => (
+        <button
+          key={item.key}
+          className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+          type="button"
+          onClick={() => {
+            isHandingOffRef.current = true;
+            if (item.typeId) handOffSheet();
+            onPick(item);
+          }}
+        >
+          <span>{item.label}</span>
 
-          <SheetDescription>{t("NavigationBar.addPickerDescription")}</SheetDescription>
-        </SheetHeader>
-
-        <SheetBody className="flex flex-col gap-1 py-4">
-          {items.map((item) => (
-            <button
-              key={item.key}
-              className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
-              type="button"
-              onClick={() => {
-                isHandingOffRef.current = true;
-                if (item.typeId) handOffSheet();
-                onPick(item);
-              }}
-            >
-              <span>{item.label}</span>
-
-              <Icon className="size-3.5 opacity-50" icon={Plus} />
-            </button>
-          ))}
-        </SheetBody>
-      </SheetContent>
-    </Sheet>
+          <Icon className="size-3.5 opacity-50" icon={Plus} />
+        </button>
+      ))}
+    </AppModal>
   );
 }
 

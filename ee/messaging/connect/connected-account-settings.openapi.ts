@@ -3,8 +3,10 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { z } from "zod";
 
 import { StructuredApiResponses } from "@/core/api/structured-interactor-handler";
-import { ConnectedAccountEmailSchema } from "@/ee/messaging/email-settings";
+import { SetConnectedAccountSignatureFieldsSchema } from "@/ee/messaging/connect/set-connected-account-signature.interactor";
 import { ConnectedAccountAppDtoSchema } from "@/ee/messaging/messaging.schema";
+import { ConnectedAccountDisconnectedSchema } from "@/ee/messaging/connect/delete-connected-account.interactor";
+import { ConnectedAccountResyncStartedSchema } from "@/ee/messaging/connect/resync-connected-account.interactor";
 import { SetSelectedFoldersSchema } from "@/ee/messaging/connect/set-selected-folders.interactor";
 import { SetConnectedAccountVisibilitySchema } from "@/ee/messaging/connect/set-connected-account-visibility.interactor";
 
@@ -48,7 +50,7 @@ export const connectedAccountSettingsApiPaths = {
         "200": {
           description: "The account was disconnected.",
           content: {
-            "application/json": { schema: z.object({ id: z.uuid(), disconnected: z.literal(true) }) },
+            "application/json": { schema: ConnectedAccountDisconnectedSchema },
           },
         },
         ...StructuredApiResponses,
@@ -67,8 +69,8 @@ export const connectedAccountSettingsApiPaths = {
     post: accountSettingOperation(
       "setConnectedAccountSignature",
       "Set the email signature and appearance",
-      "Saves the signature text (Markdown, up to 2,000 characters, empty to clear) and the complete email settings (appearance and signature layout), as the account's Email tab does.",
-      ConnectedAccountEmailSchema,
+      "Saves the signature text (Markdown, up to 2,000 characters, empty to clear), the complete email settings (appearance and signature layout), or both, as the account's Email tab does. An omitted field keeps its stored value; send at least one.",
+      SetConnectedAccountSignatureFieldsSchema,
     ),
   },
   "/v1/messaging/connected-accounts/{id}/sharing": {
@@ -95,7 +97,7 @@ export const connectedAccountSettingsApiPaths = {
         "200": {
           description: "The resync started.",
           content: {
-            "application/json": { schema: z.object({ id: z.uuid(), resyncStarted: z.literal(true) }) },
+            "application/json": { schema: ConnectedAccountResyncStartedSchema },
           },
         },
         ...StructuredApiResponses,

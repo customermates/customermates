@@ -262,7 +262,7 @@ test("refreshes the deal from in-place sub-list edits in the drawer and locks th
 }) => {
   test.skip(Boolean(test.info().project.use.isMobile), "In-place sub-list cell edits belong to the desktop table");
   test.setTimeout(240000);
-  const errors = collectPageErrors(page, { console: false });
+  const errors = collectPageErrors(page);
   const dialogs = page.getByRole("dialog");
   const typeId = (key: string) => presetId(companyId, key);
   await page.goto(`/en/records/${typeId("service")}`);

@@ -2,6 +2,9 @@ import type { EventLog } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import type { EventOutboxRepo } from "./event-outbox.repo";
+import { EVENT_ADMISSION_ABANDONED } from "./event-outbox.repo";
+
+const ABANDONED_RETRY_AT = new Date("9999-12-31T00:00:00.000Z");
 
 export class PrismaEventOutboxRepo extends TenantRepository implements EventOutboxRepo {
   @BypassTenantGuard
@@ -10,12 +13,12 @@ export class PrismaEventOutboxRepo extends TenantRepository implements EventOutb
   }
 
   @BypassTenantGuard
-  async markDeliveredUnscoped(event: EventLog, now: Date): Promise<void> {
+  async markDeliveredUnscoped(event: EventLog, now: Date): Promise<boolean> {
     const result = await this.prisma.eventLog.updateMany({
       where: { companyId: event.companyId, id: event.id, deliveredAt: null, attempts: event.attempts },
       data: { deliveredAt: now, attempts: { increment: 1 }, lastFailureCode: null },
     });
-    if (result.count !== 1) throw new Error("Event admission lost its transaction precondition");
+    return result.count === 1;
   }
 
   @BypassTenantGuard
@@ -23,6 +26,19 @@ export class PrismaEventOutboxRepo extends TenantRepository implements EventOutb
     const result = await this.prisma.eventLog.updateMany({
       where: { companyId: event.companyId, id: event.id, deliveredAt: null, attempts: event.attempts },
       data: { attempts: { increment: 1 }, nextAttemptAt, lastFailureCode: "admission_failed" },
+    });
+    return result.count === 1;
+  }
+
+  @BypassTenantGuard
+  async abandonUnscoped(event: EventLog): Promise<boolean> {
+    const result = await this.prisma.eventLog.updateMany({
+      where: { companyId: event.companyId, id: event.id, deliveredAt: null, attempts: event.attempts },
+      data: {
+        attempts: { increment: 1 },
+        nextAttemptAt: ABANDONED_RETRY_AT,
+        lastFailureCode: EVENT_ADMISSION_ABANDONED,
+      },
     });
     return result.count === 1;
   }

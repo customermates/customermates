@@ -1,11 +1,10 @@
 import type { Client } from "pg";
 import type { Page } from "@playwright/test";
 
-import { expect, test } from "./fixtures";
+import { collectPageErrors, expect, test } from "./fixtures";
 import { openItemMenu } from "./item-actions";
 import { moveWithKeyboard } from "./keyboard-drag";
 import {
-  collectErrors,
   itemMenu,
   openCustomize,
   openSidebar,
@@ -36,7 +35,7 @@ test("deleting a personal section asks first and moves its items to the top leve
   database,
   workspace,
 }, testInfo) => {
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   const touch = testInfo.project.name === "mobile";
   await page.goto("/en/dashboard");
   await page.waitForLoadState("networkidle");
@@ -97,7 +96,7 @@ test("the customize dialog reorders, renames and deletes sections with visible h
   database,
   workspace,
 }, testInfo) => {
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   const touch = testInfo.project.name === "mobile";
   await page.goto("/en/dashboard");
   await page.waitForLoadState("networkidle");
@@ -173,7 +172,7 @@ test("items move to the top level and the seeded Data section can be renamed, de
   database,
   workspace,
 }, testInfo) => {
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   await page.goto("/en/dashboard");
   await page.waitForLoadState("networkidle");
   await openSidebar(page);

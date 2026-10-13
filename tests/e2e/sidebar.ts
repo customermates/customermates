@@ -1,31 +1,7 @@
 import type { Page } from "@playwright/test";
 
-import { chunkLoadErrorChunk, webkitCancelledChunk } from "./browser-noise";
-import { expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { expect } from "./fixtures";
 import { openItemMenu } from "./item-actions";
-
-export function collectErrors(page: Page, ignoredResourceOrigins: readonly string[] = []) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    const source = message.location().url;
-    if (isAppConsoleError(message) && !ignoredResourceOrigins.some((origin) => source.startsWith(origin)))
-      errors.push(message.text());
-  });
-  const cancelledChunks = new Set<string>();
-  page.on("requestfailed", (request) => {
-    const chunk = webkitCancelledChunk(request);
-    if (chunk) cancelledChunks.add(chunk);
-  });
-  page.on("domcontentloaded", () => {
-    const left = errors.filter((error) => !cancelledChunks.has(chunkLoadErrorChunk(error) ?? ""));
-    errors.splice(0, errors.length, ...left);
-    cancelledChunks.clear();
-  });
-  return errors;
-}
 
 export async function openSidebar(page: Page) {
   await page.waitForFunction(() =>

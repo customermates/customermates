@@ -1,17 +1,12 @@
 import { z } from "zod";
 
-import type { ImportRecordsInput } from "@/features/data-transfer/record-transfer.schema";
-import type { CalculatedValue } from "@/features/records/record-model.schema";
+import { recordToonResult, runInteractor, toonResult } from "./utils";
 
-import { mcpMessageFailure, recordToonResult, runInteractor, toonResult } from "./utils";
-import { MarkedRecordDtoSchema, untrustedRecordText } from "./untrusted-record-content";
-
-import { getExportRecordsInteractor, getGetRecordInteractor, getImportRecordsInteractor } from "@/core/di";
+import { getExportRecordsInteractor, getImportRecordsInteractor } from "@/core/di";
 import { ExportRecordsSchema } from "@/features/data-transfer/export/export-records.interactor";
 import {
+  ImportMarkedRecordsSchema,
   ImportRecordsResultSchema,
-  ImportRecordsSchema,
-  RecordExportSchema,
   RECORD_EXPORT_LIMIT,
   RECORD_IMPORT_LIMIT,
   RECORD_IMPORT_LINK_LIMIT,
@@ -34,62 +29,8 @@ const ExportCrmRecordsOutputSchema = z.looseObject({
     .describe("Present when the result holds marked untrusted text; how to treat the text between the markers."),
 });
 
-export const ImportCrmRecordsSchema = ImportRecordsSchema.extend({
-  document: RecordExportSchema.extend({
-    records: z.array(MarkedRecordDtoSchema).max(RECORD_EXPORT_LIMIT),
-    untrustedTextHandling: z
-      .string()
-      .optional()
-      .describe("Export-only note from export_crm_records. Accepted so the export can be passed back as-is; ignored."),
-  }).strict(),
-}).strict();
+export const ImportCrmRecordsSchema = ImportMarkedRecordsSchema;
 type ImportCrmRecordsInput = z.infer<typeof ImportCrmRecordsSchema>;
-type MarkedRow = ImportCrmRecordsInput["document"]["records"][number];
-type MarkedResult = MarkedRow["fields"][number]["result"];
-type MarkedRichText = { state: "value"; value: { kind: "richText"; markdown: string } };
-
-function isMarkedRichText(result: MarkedResult): result is MarkedRichText {
-  return (
-    result.state === "value" && result.value !== null && typeof result.value === "object" && "markdown" in result.value
-  );
-}
-
-function withoutKey<T extends Record<string, unknown>>(value: T, key: string): T {
-  return Object.fromEntries(Object.entries(value).filter(([name]) => name !== key)) as T;
-}
-
-async function storedFieldResults(row: MarkedRow): Promise<Map<string, CalculatedValue>> {
-  const stored = await getGetRecordInteractor().invoke({ typeId: row.ref.typeId, recordId: row.ref.recordId });
-  return new Map(stored.ok ? stored.data.fields.map((field) => [field.fieldId, field.result] as const) : []);
-}
-
-async function importableRecords(records: MarkedRow[]) {
-  const rows: unknown[] = [];
-  for (const [rowIndex, row] of records.entries()) {
-    const stored = row.fields.some((field) => isMarkedRichText(field.result)) ? await storedFieldResults(row) : null;
-    const fields: Array<{ fieldId: string; result: CalculatedValue }> = [];
-    for (const [fieldIndex, field] of row.fields.entries()) {
-      if (!isMarkedRichText(field.result)) {
-        fields.push({ fieldId: field.fieldId, result: field.result });
-        continue;
-      }
-      const current = stored?.get(field.fieldId);
-      if (
-        current?.state !== "value" ||
-        current.value.kind !== "richText" ||
-        untrustedRecordText(current.value.documentJson) !== field.result.value.markdown
-      ) {
-        return mcpMessageFailure(
-          'Marked Formatted text can only be imported unchanged from the stored record; send new or changed Formatted text as { kind: "richText", documentJson }.',
-          ["document", "records", rowIndex, "fields", fieldIndex, "result", "value"],
-        );
-      }
-      fields.push({ fieldId: field.fieldId, result: current });
-    }
-    rows.push({ ...withoutKey(row, "relationshipPaths"), fields, relationships: [] });
-  }
-  return rows as ImportRecordsInput["document"]["records"];
-}
 
 export const exportCrmRecordsTool = {
   name: "export_crm_records",
@@ -121,13 +62,5 @@ export const importCrmRecordsTool = {
   annotations: { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: false },
   inputSchema: ImportCrmRecordsSchema,
   outputSchema: ImportRecordsResultSchema,
-  execute: async ({ document, ...input }: ImportCrmRecordsInput) => {
-    const rows = await importableRecords(document.records);
-    if (!Array.isArray(rows)) return rows;
-    const importable = {
-      ...withoutKey(document, "untrustedTextHandling"),
-      records: rows,
-    } as ImportRecordsInput["document"];
-    return runInteractor(getImportRecordsInteractor().invoke({ ...input, document: importable }), toonResult);
-  },
+  execute: (input: ImportCrmRecordsInput) => runInteractor(getImportRecordsInteractor().invoke(input), toonResult),
 };

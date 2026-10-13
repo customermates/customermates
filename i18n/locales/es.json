@@ -1074,6 +1074,7 @@
       "calendarNotFound": "ID de calendario no encontrado o no accesible.",
       "channelAlreadyLinked": "Este canal ya está vinculado a otro contacto.",
       "chatThreadRequired": "Este es un hilo de correo. Responde con un correo en lugar de un mensaje de chat.",
+      "connectedAccountEmailChangeRequired": "Indica una firma, la configuración de correo o ambas.",
       "connectedAccountNotFound": "ID de canal no encontrado o no accesible.",
       "customFieldInvalidDate": "La fecha no es válida. Debe estar en formato ISO 8601 (por ejemplo 2024-01-15) o en formato fecha-hora ISO 8601 (por ejemplo 2024-01-15T00:00:00Z).",
       "dataViewAllNameImmutable": "La vista Todas no se puede renombrar. Omite name y actualiza solo los ajustes solicitados en state. Consulta config para los ajustes compatibles y list para el estado actual antes de reintentar.",
@@ -1143,6 +1144,7 @@
       "recordDependencies": "Actualiza primero los campos, las vistas, los widgets o las asociaciones dependientes.",
       "recordIdempotencyConflict": "Esta clave de solicitud se usó para otro cambio. Inicia una nueva solicitud.",
       "recordIdUnavailable": "Este ID ya perteneció a un registro anterior. Importa el registro con un ID nuevo.",
+      "recordMarkedTextChanged": "El texto con formato marcado solo se puede importar sin cambios desde el registro guardado; envía el texto con formato nuevo o modificado como valor richText con documentJson.",
       "recordMeasureDateIntervalInvalid": "Los intervalos de tiempo requieren agrupar por un campo de fecha, fecha y hora, creación o actualización, y una zona horaria requiere un intervalo de tiempo.",
       "recordNotFound": "Este registro no está disponible.",
       "recordNumberInvalid": "Introduce un número válido.",
@@ -1215,7 +1217,9 @@
       "userSelfAdminUpdateForbidden": "No puedes actualizar tu propia cuenta desde la administración del equipo.",
       "userStatusRequired": "Este miembro está pendiente de aprobación. Elige activo o inactivo junto con el cambio.",
       "webhookBodyTemplateInvalid": "La plantilla del cuerpo debe producir un objeto JSON válido.",
+      "webhookDeliveryInProgress": "Esta entrega aún se está enviando. Reenvíala cuando se haya completado o haya fallado.",
       "webhookDeliveryNotFound": "ID de entrega de webhook no encontrado o no accesible.",
+      "webhookDisabled": "Este webhook está desactivado o ya no está suscrito a este evento. Actívalo o suscríbelo al evento y vuelve a enviarla.",
       "webhookEventsRequired": "Selecciona al menos un evento.",
       "webhookHeaderNameInvalid": "Los nombres de cabecera solo pueden contener letras, dígitos y caracteres de token HTTP.",
       "webhookHeaderNameReserved": "Esta cabecera se establece automáticamente y no se puede sobrescribir.",
@@ -3912,7 +3916,6 @@
   },
   "ResetPasswordForm": {
     "backToSignIn": "¿Recuerdas tu contraseña? <backToSignInLink>Inicia sesión</backToSignInLink>",
-    "resetPasswordCta": "Restablecer",
     "title": "Restablece tu contraseña"
   },
   "ResizablePanels": {
