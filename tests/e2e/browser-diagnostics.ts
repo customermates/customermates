@@ -177,3 +177,13 @@ export class BrowserDiagnostics {
 export function collectPageErrors(page: Page) {
   return BrowserDiagnostics.ofPage(page).view(page);
 }
+
+/** Email bodies render in a sandboxed srcdoc frame without scripts; the browser reports each script it blocks there. */
+export function expectBlockedEmailScripts(page: Page) {
+  return BrowserDiagnostics.ofPage(page).expect({
+    kind: "console",
+    text: /^Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set\.$/,
+    page,
+    limit: Number.POSITIVE_INFINITY,
+  });
+}
