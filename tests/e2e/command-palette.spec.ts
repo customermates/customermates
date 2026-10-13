@@ -5,6 +5,8 @@ import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { test, expect } from "./fixtures";
 import { invokesServerAction, serverActionIds } from "./server-actions";
 
+test.use({ failOnPageErrors: true });
+
 async function api(page: Page, path: string, data: unknown) {
   const response = await page.request.post(path, { data, timeout: 60000 });
   expect(response.ok(), await response.text()).toBe(true);

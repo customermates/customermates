@@ -16,6 +16,8 @@ import { openItemMenu } from "./item-actions";
 import { runNamedRowAction } from "./record-rows";
 import { moveWithKeyboard } from "./keyboard-drag";
 
+test.use({ failOnPageErrors: true });
+
 async function savedOptions(database: Client, companyId: string, label: string) {
   const { rows } = await database.query(
     'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1 ORDER BY revision DESC LIMIT 1',
