@@ -1041,6 +1041,7 @@
       "message": "Vuoi davvero eliminare questo elemento? L'azione non può essere annullata.",
       "messageWithName": "Vuoi davvero eliminare \"{name}\"? L'azione non può essere annullata.",
       "title": "Conferma l'eliminazione",
+      "trashMessageWithName": "Vuoi davvero eliminare \"{name}\"? Viene spostato nel cestino, dove puoi ripristinarlo per 30 giorni.",
       "typeToConfirm": "Digita {name} per confermare"
     },
     "details": "Dettagli",

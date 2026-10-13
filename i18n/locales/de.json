@@ -1041,6 +1041,7 @@
       "message": "Möchtest du dieses Element wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
       "messageWithName": "Möchtest du \"{name}\" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
       "title": "Löschung bestätigen",
+      "trashMessageWithName": "Möchtest du \"{name}\" wirklich löschen? Es wird in den Papierkorb verschoben und kann dort 30 Tage lang wiederhergestellt werden.",
       "typeToConfirm": "Gib {name} ein, um zu bestätigen"
     },
     "details": "Details",

@@ -56,7 +56,7 @@ export function useViewCommands<E extends HasId>(args: {
 }): ViewCommands {
   const { closeMeta, deleteNotice, openMeta, pathname, store, owningRail } = args;
   const t = useTranslations();
-  const { showConfirmation, showDeleteConfirmation } = useDeleteConfirmation();
+  const { showConfirmation, showTrashConfirmation } = useDeleteConfirmation();
 
   function viewById(viewId: string | undefined): DataViewChipDto | undefined {
     return store.views.find((candidate) => candidate.id === viewId);
@@ -108,7 +108,7 @@ export function useViewCommands<E extends HasId>(args: {
           onConfirm,
           onRestored,
         });
-      } else showDeleteConfirmation(onConfirm, view.name, focusAfterConfirm, onRestored);
+      } else showTrashConfirmation(onConfirm, view.name, focusAfterConfirm, onRestored);
     },
 
     select: (viewKey) => runUserAction(() => selectView(store, viewKey, pathname)),

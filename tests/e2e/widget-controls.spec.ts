@@ -28,9 +28,7 @@ test("persists every chart style, appearance, a copied template, resizing and de
   await page.goto("/en/dashboard");
   await page.locator("#dashboard-add-widget").click();
   await dialog.locator("#widget-starter-verticalBarChart").click();
-  await dialog
-    .getByRole("button", { name: englishMessages.Dashboard.widgetEditor.kind.change, exact: true })
-    .click();
+  await dialog.getByRole("button", { name: englishMessages.Dashboard.widgetEditor.kind.change, exact: true }).click();
   await expect(dialog.locator("#widget-modal-kind")).toBeVisible();
   await expect(dialog.getByRole("textbox", { name: "Name", exact: false })).toHaveCount(0);
   await expect(dialog.locator("#widget-starter-verticalBarChart")).toBeFocused();
@@ -199,6 +197,8 @@ test("persists every chart style, appearance, a copied template, resizing and de
   await edit("Edited copied chart");
   await dialog.getByRole("button", { name: "Delete widget Edited copied chart", exact: true }).click();
   const confirmation = page.getByRole("alertdialog");
+  await expect(confirmation).toContainText('Are you sure you want to delete "Edited copied chart"?');
+  await expect(confirmation).toContainText("It moves to Trash, where you can restore it for 30 days.");
   const beforeCancel = await read("Edited copied chart");
   const originalBeforeCancel = await read("Complete chart controls");
   await confirmation.locator("#confirm-delete-cancel").click();
@@ -211,10 +211,10 @@ test("persists every chart style, appearance, a copied template, resizing and de
   await expect(confirmation).not.toBeVisible();
   await expect(dialog).not.toBeVisible();
   expect(await read("Edited copied chart")).toEqual([]);
-  const trashed = await database.query(
-    'SELECT kind FROM "TrashItem" WHERE "companyId"=$1 AND label=$2',
-    [companyId, "Edited copied chart"],
-  );
+  const trashed = await database.query('SELECT kind FROM "TrashItem" WHERE "companyId"=$1 AND label=$2', [
+    companyId,
+    "Edited copied chart",
+  ]);
   expect(trashed.rows).toEqual([{ kind: "widget" }]);
   expect(await read("Complete chart controls")).toHaveLength(1);
   await page.reload();

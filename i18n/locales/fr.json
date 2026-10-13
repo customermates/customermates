@@ -1041,6 +1041,7 @@
       "message": "Voulez-vous vraiment supprimer cet élément ? Cette action est irréversible.",
       "messageWithName": "Voulez-vous vraiment supprimer \"{name}\" ? Cette action est irréversible.",
       "title": "Confirmer la suppression",
+      "trashMessageWithName": "Voulez-vous vraiment supprimer \"{name}\" ? Il est déplacé dans la corbeille, où vous pouvez le restaurer pendant 30 jours.",
       "typeToConfirm": "Saisissez {name} pour confirmer"
     },
     "details": "Détails",

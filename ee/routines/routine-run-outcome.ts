@@ -26,6 +26,7 @@ export const ROUTINE_RUN_REASONS = [
 export const ROUTINE_RUN_ERROR_CODES = [
   "agentConversationNotFound",
   "agentModelUnavailable",
+  "agentServiceUnavailable",
   "agentLimitReached",
   "agentTurnAlreadyRunning",
 ] as const;
