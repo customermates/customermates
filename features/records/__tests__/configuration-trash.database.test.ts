@@ -514,7 +514,7 @@ describeDatabase("configuration trash", () => {
     expect(fieldItem).toBeDefined();
     await f.as(() =>
       prisma.dataView.update({
-        where: { id: viewId },
+        where: { companyId, id: viewId },
         data: { deletedAt: new Date() },
       }),
     );
