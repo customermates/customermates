@@ -18,11 +18,11 @@ vi.mock("@/env", () => ({ env: deliveryEnv }));
 const { prisma } = await import("@/prisma/db");
 const { DeliverWebhookInteractor } = await import("../deliver-webhook.interactor");
 const { createTestRecordRecipientReader } = await import("@/tests/helpers/record-delivery");
-const { PrismaWebhookDeliveryQueueRepo } = await import("../prisma-webhook-delivery-queue.repository");
 const { WebhookTransport } = await import("../webhook-transport.service");
+const { PrismaWebhookDeliveryRepo } = await import("@/features/webhook/prisma-webhook-delivery.repository");
 
 const deliverWebhook = new DeliverWebhookInteractor(
-  new PrismaWebhookDeliveryQueueRepo(),
+  new PrismaWebhookDeliveryRepo(createTestRecordRecipientReader()),
   createTestRecordRecipientReader(),
   new WebhookTransport(),
 );
@@ -324,7 +324,7 @@ describeDatabase("outbound webhook custom headers and body template", () => {
   it("recovers an expired delivery lease without allowing its old worker to settle the new attempt", async () => {
     captured = [];
     const seeded = await seedWebhook({ path: "/recovery" });
-    const queue = new PrismaWebhookDeliveryQueueRepo();
+    const queue = new PrismaWebhookDeliveryRepo(createTestRecordRecipientReader());
     const old = await queue.claimUnscoped(seeded.companyId, seeded.deliveryId, new Date());
     if (old.status !== "claimed") throw new Error("Expected a delivery lease");
     await runWithoutTenant(() =>

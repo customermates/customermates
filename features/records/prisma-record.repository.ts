@@ -1,7 +1,8 @@
 import { unwindFailure } from "@/core/validation/failure-unwind";
 import { channelClass } from "@/ee/messaging/provider";
 import { RecordRevisionChangeSchema, type RecordRevisionChange } from "./record-revision.schema";
-import { captureRecordEventMatches } from "./record-event-capture";
+import { recordAccessForActor } from "./record-access";
+import { invalidRecordQueryPart } from "./record-query-validation";
 import { RecordEventSubscriptionSchema } from "./record-event-subscription.schema";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
 import {
@@ -69,12 +70,17 @@ import { RecordDetailLayoutSchema, recordDetailKey } from "./record-detail-layou
 import { EntityDetailOptionsSchema } from "@/features/p13n/p13n.schema";
 import { configurationTrashBatchId } from "./configuration-trash-batch";
 import type { ProviderAvatarRecordRepo, RecordOperationUpdate } from "./provider-avatar-record.repo";
+import type { DueRecordOperation, RecordOperationQueueRepo } from "./record-operation-queue.repo";
 
 const CONFIGURATION_DELETION_PAGE = 200;
+const STAGED_EVENT_PAGE = 1000;
 const PERSONALIZATION_KEY = "personalization:";
 const VIEW_KEY = "view:";
 
-export class PrismaRecordRepo extends TenantRepository implements RecordRepo, ProviderAvatarRecordRepo {
+export class PrismaRecordRepo
+  extends TenantRepository
+  implements RecordRepo, ProviderAvatarRecordRepo, RecordOperationQueueRepo
+{
   private resolvedOwners?: RecordRepoOwners;
 
   constructor(
@@ -1808,8 +1814,33 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo, Pr
       kind,
       payload: recordJson(payload),
     });
-    await captureRecordEventMatches(this.prisma, this, this.companyId, { eventId: id }, beforeDeletion);
+    await this.captureRecordEventMatches(this.companyId, { eventId: id }, beforeDeletion);
     await this.wakeRecordEvents();
+  }
+
+  @BypassTenantGuard
+  claimDueUnscoped(now: Date, leaseUntil: Date, take: number): Promise<DueRecordOperation[]> {
+    return this.prisma.$queryRaw<DueRecordOperation[]>(Prisma.sql`
+      WITH due AS (
+        SELECT operation."companyId", operation.id
+        FROM "RecordOperation" operation
+        JOIN "RecordSchemaState" state
+          ON state."companyId" = operation."companyId" AND state."activeOperationId" = operation.id
+        WHERE operation.state IN ('pending', 'staging')
+          AND operation.kind IN ('mutation', 'configuration', 'provider-avatar', 'restore')
+          AND (operation."leaseUntil" IS NULL OR operation."leaseUntil" <= ${now})
+        ORDER BY COALESCE(operation."leaseUntil", operation."createdAt"), operation."companyId", operation.id
+        LIMIT ${take}
+        FOR UPDATE OF operation SKIP LOCKED
+      )
+      UPDATE "RecordOperation" operation
+      SET "leaseUntil" = ${leaseUntil}
+      FROM due
+      WHERE operation."companyId" = due."companyId" AND operation.id = due.id
+        AND operation.state IN ('pending', 'staging')
+      RETURNING operation."companyId", operation.id AS "operationId",
+        operation."userId" AS "ownerUserId", operation.kind
+    `);
   }
 
   async createOperation(request: {
@@ -1965,7 +1996,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo, Pr
     const stage = (kind: string) =>
       Prisma.sql`stage."companyId" = ${companyId} AND stage."operationId" = ${operationId} AND stage.kind = ${kind}`;
     await this.owners.events.publishStagedRecordEventsCompanyWide(companyId, operationId);
-    await captureRecordEventMatches(this.prisma, this, companyId, { operationId }, true);
+    await this.captureRecordEventMatches(companyId, { operationId }, true);
     await this.owners.trash.publishStagedRecordItemsCompanyWide(companyId, operationId);
     const detachedIdentities = await this.prisma.$queryRaw<Array<{ identityId: string }>>(Prisma.sql`
       SELECT DISTINCT association."identityId" FROM "RecordIdentityLink" association JOIN "RecordStageRow" stage
@@ -2070,7 +2101,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo, Pr
     await this.prisma.$executeRaw(
       Prisma.sql`UPDATE "CrmRecord" record SET version = record.version + 1, "updatedAt" = NOW() WHERE record."companyId" = ${companyId} AND EXISTS (SELECT 1 FROM "RecordStageRow" stage WHERE (${stage("value")} OR ${stage("dependency")}) AND stage.payload->'ref'->>'typeId' = record."typeId" AND stage.payload->'ref'->>'recordId' = record.id) AND NOT EXISTS (SELECT 1 FROM "RecordStageRow" stage WHERE ${stage("record")} AND stage.key = record."typeId" || ':' || record.id)`,
     );
-    await captureRecordEventMatches(this.prisma, this, companyId, {
+    await this.captureRecordEventMatches(companyId, {
       operationId,
     });
     await this.wakeRecordEvents();
@@ -2169,5 +2200,149 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo, Pr
   @BypassTenantGuard
   async publishStageUnscoped(companyId: string, operationId: string, revision: number): Promise<void> {
     await this.forCompany(companyId).publishStage(operationId, revision);
+  }
+
+  private async capturedEventTypes(
+    companyId: string,
+    selection: { eventId: string } | { operationId: string },
+  ): Promise<Array<{ typeId: string }>> {
+    const typeIds = new Set<string>();
+    const collect = async (eventIds: string[]) => {
+      if (!eventIds.length) return;
+      const rows = await this.prisma.eventLog.findMany({
+        where: { companyId, subjectKind: "record", id: { in: eventIds } },
+        distinct: ["subjectTypeId"],
+        select: { subjectTypeId: true },
+      });
+      for (const row of rows) if (row.subjectTypeId !== null) typeIds.add(row.subjectTypeId);
+    };
+    if ("eventId" in selection) await collect([selection.eventId]);
+    else {
+      let afterKey: string | undefined;
+      for (;;) {
+        const staged = await this.prisma.recordStageRow.findMany({
+          where: {
+            companyId,
+            operationId: selection.operationId,
+            kind: "event",
+            ...(afterKey === undefined ? {} : { key: { gt: afterKey } }),
+          },
+          select: { key: true, payload: true },
+          orderBy: { key: "asc" },
+          take: STAGED_EVENT_PAGE,
+        });
+        await collect(
+          staged.flatMap((row) => {
+            const id = (row.payload as { id?: unknown } | null)?.id;
+            return typeof id === "string" ? [id] : [];
+          }),
+        );
+        if (staged.length < STAGED_EVENT_PAGE) break;
+        afterKey = staged.at(-1)?.key;
+      }
+    }
+    return [...typeIds].map((typeId) => ({ typeId }));
+  }
+
+  private async captureRecordEventMatches(
+    companyId: string,
+    selection: { eventId: string } | { operationId: string },
+    beforeDeletion = false,
+  ): Promise<void> {
+    const rows = await this.prisma.recordEventSubscription.findMany({
+      where: { companyId, enabled: true, owner: { companyId, status: "active", role: { companyId } } },
+      include: {
+        owner: {
+          select: {
+            id: true,
+            status: true,
+            role: {
+              select: {
+                id: true,
+                companyId: true,
+                isSystemRole: true,
+                permissions: { where: { companyId }, select: { resource: true, action: true } },
+              },
+            },
+          },
+        },
+      },
+    });
+    if (!rows.length) return;
+    const selected =
+      "eventId" in selection
+        ? Prisma.sql`event.id = ${selection.eventId}`
+        : Prisma.sql`EXISTS (SELECT 1 FROM "RecordStageRow" stage
+          WHERE stage."companyId" = ${companyId} AND stage."operationId" = ${selection.operationId}
+            AND stage.kind = 'event' AND stage.payload->>'id' = event.id)`;
+    const [model, grants, types] = await Promise.all([
+      this.getModel(),
+      this.getGrants(),
+      this.capturedEventTypes(companyId, selection),
+    ]);
+    for (const { owner, companyId: rowCompanyId, ...stored } of rows) {
+      if (rowCompanyId !== companyId) throw new Error("Foreign record event subscription");
+      const subscription = RecordEventSubscriptionSchema.parse(stored);
+      const policy = recordAccessForActor({ actor: owner, model, grants, records: this, companyId, userId: owner.id });
+      const access = policy.access(model.types.map((item) => item.id));
+      for (const { typeId } of types) {
+        if (!subscription.sources?.length && subscription.typeId && subscription.typeId !== typeId) continue;
+        const type = model.types.find((candidate) => candidate.id === typeId);
+        if (!type || type.archived) continue;
+        const sources = subscription.sources?.length
+          ? subscription.sources.filter((source) => source.query.typeId === typeId)
+          : [
+              {
+                query: subscription.query ?? { typeId },
+                changedFieldIds: subscription.changedFieldIds,
+                events: subscription.events,
+              },
+            ];
+        if (!sources.length) continue;
+        const recursion =
+          subscription.kind === "routine"
+            ? Prisma.sql`NOT (event.payload->'cause' ? 'routineDepth')`
+            : Prisma.sql`TRUE`;
+        for (const source of sources) {
+          const query = RecordQuerySchema.parse(source.query);
+          if (invalidRecordQueryPart(query, model)) continue;
+          const compiled = compileRecordQuery(companyId, query, model, access);
+          const erasable =
+            (access.get(typeId)?.access ?? "none") === "none"
+              ? Prisma.sql`FALSE`
+              : Prisma.sql`event.kind = 'record.deletedPermanently'`;
+          const watched = source.changedFieldIds.flatMap((fieldId) => {
+            const field = model.fields.find(
+              (candidate) => candidate.id === fieldId && candidate.typeId === typeId && !candidate.archived,
+            );
+            return field ? [field] : [];
+          });
+          const watchedRecord = Prisma.raw(`"watched_record"`);
+          const readableChange = watched.length
+            ? Prisma.join(
+                watched.map(
+                  (field) =>
+                    Prisma.sql`((event.payload->'changedFieldIds') ?| ARRAY[${field.id}]::text[] AND ${fieldReadPredicate(companyId, field, model, access, watchedRecord)})`,
+                ),
+                " OR ",
+              )
+            : Prisma.sql`FALSE`;
+          const changed = source.changedFieldIds.length
+            ? Prisma.sql`(event.kind <> 'record.updated' OR EXISTS (SELECT 1 FROM "CrmRecord" ${watchedRecord}
+                WHERE ${watchedRecord}."companyId" = ${companyId} AND ${watchedRecord}."typeId" = event."subjectTypeId"
+                  AND ${watchedRecord}.id = event."subjectId" AND (${readableChange})))`
+            : Prisma.sql`TRUE`;
+          await this.prisma.$executeRaw(Prisma.sql`
+            INSERT INTO "RecordEventMatch" ("companyId", "eventId", "subscriptionId", "subscriptionRevision")
+            SELECT ${companyId}, event.id, ${subscription.id}, ${subscription.revision}
+            FROM "EventLog" event
+            WHERE event."companyId" = ${companyId} AND event."subjectKind" = 'record' AND ${selected} AND event."subjectTypeId" = ${typeId}
+              AND event.kind IN (${Prisma.join(source.events)}) AND ${changed} AND ${recursion}
+              AND ${beforeDeletion ? Prisma.sql`event.kind = 'record.deleted'` : Prisma.sql`event.kind <> 'record.deleted'`}
+              AND (${erasable} OR EXISTS (SELECT 1 FROM (${compiled.matching}) matching WHERE matching.id = event."subjectId"))
+            ON CONFLICT ("companyId", "eventId", "subscriptionId") DO NOTHING`);
+        }
+      }
+    }
   }
 }

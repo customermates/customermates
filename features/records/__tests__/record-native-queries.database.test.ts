@@ -23,9 +23,9 @@ const { prisma } = await import("@/prisma/db");
 const { Prisma } = await import("@/generated/prisma");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
-const { PrismaEventOutboxRepo } = await import("@/features/event/prisma-event-outbox.repository");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+const { PrismaEventLogRepo } = await import("@/features/event/prisma-event-log.repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -377,7 +377,7 @@ describeDatabase("record repository native queries", () => {
       }),
     );
     const now = at("1999-12-31T00:00:00Z");
-    const outbox = new PrismaEventOutboxRepo();
+    const outbox = new PrismaEventLogRepo({ dispatch: () => Promise.resolve() });
     const oracle = (take: number) =>
       runWithoutTenant(() =>
         prisma.$queryRaw<Array<{ companyId: string }>>(

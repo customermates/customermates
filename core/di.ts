@@ -20,8 +20,6 @@ import { SearchCommandCatalogInteractor } from "@/features/command-palette/searc
 import { SearchCatalogIndexDispatcher } from "@/ee/wiki-retrieval/search-catalog-index-dispatcher";
 import { SearchCatalogIndexService } from "@/ee/wiki-retrieval/search-catalog-index.service";
 import { GetRecordPresentationInteractor } from "@/features/records/get-record-presentation.interactor";
-import { PrismaEventOutboxRepo } from "@/features/event/prisma-event-outbox.repository";
-import { PrismaRecordOperationQueueRepo } from "@/features/records/prisma-record-operation-queue.repository";
 import { PrismaRecordEventSubscriptionRepo } from "@/features/records/prisma-record-event-subscription.repository";
 import { ProcessDueEventsInteractor } from "@/features/event/process-due-events.interactor";
 import { ProcessEventInteractor } from "@/features/event/process-event.interactor";
@@ -40,7 +38,6 @@ import { RecordViewPolicy } from "@/features/records/record-view-policy";
 import { ResolveRecordIdentitiesInteractor } from "@/features/records/resolve-record-identities.interactor";
 import { StartChatRecordChannelRepo } from "@/features/records/start-chat-record-channel.repository";
 import { SweepRecordDeliveriesInteractor } from "@/features/records/sweep-record-deliveries.interactor";
-import { PrismaWebhookDeliveryQueueRepo } from "@/features/webhook/prisma-webhook-delivery-queue.repository";
 import { WebhookAdmission } from "@/features/webhook/webhook-admission";
 import { WebhookTransport } from "@/features/webhook/webhook-transport.service";
 import { GetRecordWidgetInteractor } from "@/features/widget/get-record-widget.interactor";
@@ -719,12 +716,18 @@ export const createPrismaDataViewRepo = (companyId?: string) =>
 export const getDataViewRepo = () => createPrismaDataViewRepo();
 export const getDataViewStateRepo = () => createPrismaDataViewRepo();
 export const getWidgetRepo = () => new PrismaWidgetRepo();
-export const getWebhookRepo = () => new PrismaWebhookRepo(getRecordEventSubscriptionRepo(), getPermissionService());
+export const getWebhookRepo = () =>
+  new PrismaWebhookRepo(getRecordEventSubscriptionRepo(), getPermissionService(), getWebhookDeliveryRepo());
 export const getWebhookPauseNotifier = (companyId?: string) =>
   new WebhookPauseNotifier(
     companyId === undefined
       ? getWebhookRepo()
-      : new PrismaWebhookRepo(getRecordEventSubscriptionRepo(companyId), getPermissionService(), companyId),
+      : new PrismaWebhookRepo(
+          getRecordEventSubscriptionRepo(companyId),
+          getPermissionService(),
+          getWebhookDeliveryRepo(),
+          companyId,
+        ),
     getEventService(),
     companyId,
   );
@@ -744,14 +747,14 @@ export const getWebhookAdmission = () =>
   );
 export const getProcessEventInteractor = (
   admission: EventAdmission = new EventAdmissionGroup([getWebhookAdmission(), getRoutineAdmission()]),
-) => new ProcessEventInteractor(new PrismaEventOutboxRepo(), admission);
+) => new ProcessEventInteractor(getEventLogRepo(), admission);
 export const getProcessDueEventsInteractor = () =>
-  new ProcessDueEventsInteractor(new PrismaEventOutboxRepo(), getProcessEventInteractor(), getBackgroundTaskService());
+  new ProcessDueEventsInteractor(getEventLogRepo(), getProcessEventInteractor(), getBackgroundTaskService());
 export const getSweepRecordDeliveriesInteractor = () =>
   new SweepRecordDeliveriesInteractor(
-    new PrismaEventOutboxRepo(),
-    new PrismaWebhookDeliveryQueueRepo(),
-    new PrismaRecordOperationQueueRepo(),
+    getEventLogRepo(),
+    getWebhookDeliveryRepo(),
+    getRecordRepo(),
     getBackgroundTaskService(),
   );
 export const getRoutineRepo = (companyId?: string) =>
@@ -767,7 +770,8 @@ export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo(getRec
 export const getEventLogRepo = () => new PrismaEventLogRepo(getBackgroundTaskService());
 export const getWikiPageRepo = (companyId?: string) => new PrismaWikiPageRepo(getPermissionService(), companyId);
 export const getMessagingRepo = () => new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
-export const getConnectedAccountRepo = () => new PrismaConnectedAccountRepo(getPermissionService());
+export const getConnectedAccountRepo = () =>
+  new PrismaConnectedAccountRepo(getPermissionService(), getUnipileWebhookRepo());
 export const getUnipileWebhookRepo = () => new PrismaUnipileWebhookRepo();
 export const getCalendarRepo = () => new PrismaCalendarRepo();
 export const getCalendarEventsRepo = () => new PrismaCalendarEventsRepo();
@@ -1156,7 +1160,12 @@ export const getDeleteAccountsForPlanInteractor = () =>
   );
 
 export const getResyncThreadInteractor = () =>
-  new ResyncThreadInteractor(getMessagingRepo(), getMessagingService(), getEntitlementService());
+  new ResyncThreadInteractor(
+    getMessagingRepo(),
+    getMessagingService(),
+    getEntitlementService(),
+    getUnipileWebhookRepo(),
+  );
 
 export const getMoveEmailThreadInteractor = () =>
   new MoveEmailThreadInteractor(
@@ -1601,11 +1610,7 @@ export const getAcceptLegalDocumentsInteractor = () =>
 // --- Webhook delivery (workflow task) ---
 
 export const getDeliverWebhookInteractor = () =>
-  new DeliverWebhookInteractor(
-    new PrismaWebhookDeliveryQueueRepo(),
-    getRecordRecipientReader(),
-    new WebhookTransport(),
-  );
+  new DeliverWebhookInteractor(getWebhookDeliveryRepo(), getRecordRecipientReader(), new WebhookTransport());
 
 export const getCreateSupportTicketInteractor = () => new CreateSupportTicketInteractor(getFeedbackCreator());
 

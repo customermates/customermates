@@ -1,6 +1,7 @@
 import type { MessagingService } from "../messaging.service";
 import type { IngestMessage, MessagingAttendee } from "../messaging.schema";
 import type { EntitlementService } from "@/ee/subscription/entitlement.service";
+import type { UnusableProviderItemRepo } from "../ingest/unusable-provider-item.repo";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
@@ -38,6 +39,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
     private repo: ResyncThreadRepo,
     private messagingService: MessagingService,
     private entitlements: EntitlementService,
+    private diagnostics: UnusableProviderItemRepo,
   ) {
     super();
   }
@@ -147,7 +149,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
         const parsed = UnipileMessageSchema.safeParse(raw);
 
         if (!parsed.success) {
-          await this.repo.recordUnusableItemUnscoped({
+          await this.diagnostics.recordUnusableItemUnscoped({
             companyId: thread.companyId,
             connectedAccountId: thread.connectedAccountId,
             payload: raw,
@@ -159,7 +161,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
         const normalized = normalizeChatMessage(parsed.data, thread.provider);
 
         if (!normalized) {
-          await this.repo.recordUnusableItemUnscoped({
+          await this.diagnostics.recordUnusableItemUnscoped({
             companyId: thread.companyId,
             connectedAccountId: thread.connectedAccountId,
             payload: parsed.data,
@@ -188,7 +190,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
       const parsed = UnipileEmailSchema.safeParse(raw);
 
       if (!parsed.success) {
-        await this.repo.recordUnusableItemUnscoped({
+        await this.diagnostics.recordUnusableItemUnscoped({
           companyId: thread.companyId,
           connectedAccountId: thread.connectedAccountId,
           payload: raw,
@@ -204,7 +206,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
       });
 
       if (!normalized) {
-        await this.repo.recordUnusableItemUnscoped({
+        await this.diagnostics.recordUnusableItemUnscoped({
           companyId: thread.companyId,
           connectedAccountId: thread.connectedAccountId,
           payload: parsed.data,
@@ -238,7 +240,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
           connectedAccountId: thread.connectedAccountId,
         },
       });
-      await this.repo.recordUnusableItemUnscoped({
+      await this.diagnostics.recordUnusableItemUnscoped({
         companyId: thread.companyId,
         connectedAccountId: thread.connectedAccountId,
         payload: raw,

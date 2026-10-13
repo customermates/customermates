@@ -11,7 +11,6 @@ const { prisma } = await import("@/prisma/db");
 const { DomainEvent } = await import("../domain-events");
 const { EventService } = await import("../event.service");
 const { PrismaEventLogRepo } = await import("../prisma-event-log.repository");
-const { PrismaEventOutboxRepo } = await import("../prisma-event-outbox.repository");
 const { ProcessEventInteractor } = await import("../process-event.interactor");
 const { EventAdmissionGroup } = await import("../event-admission-group");
 const { WebhookAdmission } = await import("@/features/webhook/webhook-admission");
@@ -92,7 +91,7 @@ describeDatabase("event outbox for messaging events", () => {
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
     const reader = createTestRecordRecipientReader();
     const process = new ProcessEventInteractor(
-      new PrismaEventOutboxRepo(),
+      new PrismaEventLogRepo({ dispatch: () => Promise.resolve() }),
       new EventAdmissionGroup([
         new WebhookAdmission(
           reader,
