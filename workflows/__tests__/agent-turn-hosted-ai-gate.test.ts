@@ -2766,6 +2766,55 @@ describe("agent-turn authoritative tool inputs", () => {
     return { finishReason: "stop", messages: [], steps: [unbilledStopStep()] };
   }
 
+  it("answers a verified absent saved view when repeated reads exhaust the provider context", async () => {
+    define("manage_data_views");
+    state.normalize.mockImplementation((_name, input) => Promise.resolve({ ok: true, input }));
+    state.execute.mockResolvedValue({
+      ok: true,
+      missingView: {
+        query: "PB big proposals",
+        surfaceKey: "records:11111111-1111-4111-8111-111111111111",
+      },
+      result: "No saved view matches PB big proposals.",
+    });
+    state.contextFits.mockReturnValue(false);
+    state.runTools = async ({ executeAndCompleteTool, messages }) => {
+      await executeAndCompleteTool("manage_data_views", { action: "list", query: "PB big proposals" }, "view-1");
+      return {
+        finishReason: "tool-calls",
+        messages,
+        steps: [
+          streamedToolCallStep("manage_data_views", "view-1", {
+            action: "list",
+          }),
+        ],
+      };
+    };
+
+    await runAgentTurn({
+      ...payload,
+      messages: [
+        {
+          role: "user",
+          text: 'Move my saved Deals view "PB big proposals" to Trash.',
+        },
+      ],
+    });
+
+    expect(state.finalize).toHaveBeenCalledWith(
+      expect.objectContaining({
+        terminalCode: "completed",
+        stopReason: null,
+        parts: expect.arrayContaining([
+          expect.objectContaining({
+            type: "text",
+            text: expect.stringContaining("No view was moved to Trash"),
+          }),
+        ]),
+      }),
+    );
+  });
+
   it("uses normalized action values for approval policy", async () => {
     define("manage_widgets");
     const raw = { action: " list " };

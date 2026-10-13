@@ -2496,8 +2496,14 @@ export class AgentChatStore extends BaseStore {
             if (viewHref) activity.activity = { ...activity.activity, viewHref };
             if (event.viewProposed === true) activity.activity = { ...activity.activity, viewProposed: true };
             const proposal = DataViewProposalSchema.safeParse(event.viewProposal);
-            if (activity.status === "done" && proposal.success) this.applyViewProposal(proposal.data);
-            else if (activity.status === "done" && activity.activity.risk !== "read") {
+            if (activity.status === "done" && proposal.success) {
+              activity.activity = {
+                ...activity.activity,
+                viewProposed: true,
+                viewProposal: proposal.data,
+              };
+              this.reviewViewProposal(proposal.data);
+            } else if (activity.status === "done" && activity.activity.risk !== "read") {
               this.activeTurnHasSuccessfulMutation = true;
               this.recordViewChange(activity.activity);
             }
@@ -2678,7 +2684,7 @@ export class AgentChatStore extends BaseStore {
     if (!this.activeTurnStopRequested) this.streamStatus = "working";
   }
 
-  private applyViewProposal(proposal: DataViewProposal) {
+  reviewViewProposal(proposal: DataViewProposal) {
     if (typeof window === "undefined") return;
     if (this.viewContext.propose(window.location.pathname, proposal)) return;
     rememberViewProposal(this.rootStore.userStore.user, proposal);

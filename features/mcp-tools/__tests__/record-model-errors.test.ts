@@ -49,6 +49,28 @@ describe("record MCP error guidance", () => {
     });
   });
 
+  it("points an invalid single-choice filter to its stable option ID", async () => {
+    const typeId = randomUUID();
+    const fieldId = randomUUID();
+    mocks.query.mockResolvedValueOnce({
+      ok: false,
+      error: createZodError("Invalid choice value.", ["filters", 0], {
+        error: CustomErrorCode.recordValueInvalid,
+      }),
+    });
+    const input = queryRecordsV2Tool.inputSchema.parse({
+      typeId,
+      filters: [{ fieldId, operator: "eq", value: { kind: "text", value: "Lost" } }],
+    });
+    const result = await queryRecordsV2Tool.execute(input);
+    expect(result).toMatchObject({
+      text: expect.stringContaining("{kind: 'select', value: optionId}"),
+    });
+    expect(result).toMatchObject({
+      text: expect.stringContaining("get_record_model with this typeId"),
+    });
+  });
+
   it("names an unknown requested field and the accepted fields shape", async () => {
     const fieldId = randomUUID();
     mocks.query.mockResolvedValueOnce({

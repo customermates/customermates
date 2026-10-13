@@ -27,6 +27,7 @@ const recordNavigationHarness = vi.hoisted(() => ({
   }>,
   canManageSchema: false,
 }));
+const operationHarness = vi.hoisted(() => ({ read: vi.fn() }));
 const mockUser = createMockUser();
 const sentryMock = vi.hoisted(() => ({
   captureException: vi.fn(),
@@ -48,6 +49,7 @@ vi.mock("@/core/di", () => ({
         },
       }),
   }),
+  getGetRecordOperationInteractor: () => ({ invoke: operationHarness.read }),
 }));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
@@ -145,6 +147,8 @@ describe("agent tools", () => {
     );
     expect(proposal).toMatchObject({ ok: true, applied: false });
     expect(proposal.result).toContain("Nothing was saved or changed");
+    expect(proposal.result).toContain("No permanent view link exists");
+    expect(proposal.result).not.toContain("link:");
     expect(proposal).toHaveProperty("viewProposal");
 
     const pending = agentToolResult(
@@ -160,6 +164,92 @@ describe("agent tools", () => {
     );
     expect(pending).toMatchObject({ ok: false, applied: false });
     expect(pending.result).toContain("no change has been published yet");
+
+    const completed = agentToolResult(
+      {
+        ok: true,
+        result: "action: apply\nresult:\n  status: completed",
+        structuredContent: {
+          action: "apply",
+          result: { status: "completed", refs: [], schemaRevision: 2 },
+        },
+      },
+      6000,
+      { toolName: "configure_record_model" },
+    );
+    expect(completed).toMatchObject({ ok: true });
+    expect(completed.result).toContain("completed");
+  });
+
+  it("reports a named saved view missing from a complete server search", () => {
+    const result = agentToolResult(
+      {
+        ok: true,
+        result: "action: list\ntotal: 0",
+        structuredContent: {
+          action: "list",
+          surfaceKey: "dashboard",
+          total: 0,
+          items: [],
+        },
+      },
+      6000,
+      {
+        toolName: "manage_data_views",
+        input: { action: "list", query: "PB big proposals" },
+      },
+    );
+    expect(result).toMatchObject({ ok: true });
+    expect(result.result).toContain('No saved view matches "PB big proposals"');
+    expect(result.result).toContain("no view was changed");
+  });
+
+  it("waits for a pending model change and reports the published result", async () => {
+    const mcp = ALL_MCP_TOOLS.find(({ name }) => name === "configure_record_model");
+    if (!mcp) throw new Error("configure_record_model is missing");
+    const operationId = "11111111-1111-4111-8111-111111111111";
+    const executeMcp = vi.spyOn(mcp, "execute").mockResolvedValue({
+      text: `action: apply\nresult:\n  status: pending\n  operationId: ${operationId}`,
+      structuredContent: {
+        action: "apply",
+        result: { status: "pending", operationId, schemaRevision: 1 },
+      },
+    });
+    operationHarness.read.mockResolvedValueOnce({
+      ok: true,
+      data: {
+        state: "completed",
+        result: {
+          status: "completed",
+          refs: [],
+          references: {},
+          schemaRevision: 2,
+        },
+      },
+    });
+    try {
+      const result = (await execute(getAgentAiTools(deps()).configure_record_model, TOOL_CREATE_TYPE)) as {
+        ok: boolean;
+        result: string;
+      };
+      expect(result).toMatchObject({ ok: true });
+      expect(result.result).toContain("completed");
+      expect(result.result).not.toContain("pending");
+      expect(operationHarness.read).toHaveBeenCalledWith({ operationId });
+    } finally {
+      executeMcp.mockRestore();
+      operationHarness.read.mockReset();
+    }
+  });
+
+  it("names valid top-level keys after an invented record-create key", async () => {
+    const parsed = (await schemaOf(getAgentAiTools(deps()).mutate_crm_record).validate?.({
+      ...TOOL_CREATE_RECORD,
+      searchTerm: "Jonas Testmann",
+    })) as { success: boolean; error?: Error } | undefined;
+    expect(parsed).toMatchObject({ success: false });
+    if (!parsed || parsed.success !== false) throw new Error("Expected a validation error.");
+    expect(String(parsed.error)).toContain("Valid top-level keys: expectedRevision, idempotencyKey, mutation");
   });
 
   it("does not report an empty permanent deletion as successful", () => {

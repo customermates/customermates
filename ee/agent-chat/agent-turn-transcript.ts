@@ -2,6 +2,7 @@ import { readAgentToolResultContext, type AgentActivityContext } from "./agent-a
 import type { AgentActivityDescriptor, AgentActivityResource } from "./agent-activity";
 import type { AgentMessagePart } from "./agent-chat.schema";
 
+import { z } from "zod";
 import { AgentVisibleTextStreamSanitizer } from "./agent-output-safety";
 import { agentToolProposalHref, agentToolSavedViewHref, agentToolViewProposal } from "./agent-tool-navigation";
 
@@ -144,7 +145,9 @@ export class AgentTurnTranscript {
     const context = result.status === "done" ? readAgentToolResultContext(result.toolName, result.output) : undefined;
     if (context && toolPart && !toolPart.activity.context) toolPart.activity = { ...toolPart.activity, context };
     if (viewHref && toolPart) toolPart.activity = { ...toolPart.activity, viewHref };
-    if (viewProposal && toolPart) toolPart.activity = { ...toolPart.activity, viewProposed: true };
+    const jsonProposal = viewProposal ? z.record(z.string(), z.json()).safeParse(viewProposal) : null;
+    if (jsonProposal?.success && toolPart)
+      toolPart.activity = { ...toolPart.activity, viewProposed: true, viewProposal: jsonProposal.data };
     this.settleTool(result.toolCallId, result.status);
     this.emit({
       type: "activity_result",

@@ -144,6 +144,7 @@ export const AgentActivityDescriptorSchema = z.preprocess(
       viewKey: ViewKeySchema.optional(),
       viewHref: DataViewNavigationHrefSchema.optional(),
       viewProposed: z.literal(true).optional(),
+      viewProposal: z.record(z.string(), z.json()).optional(),
     })
     .refine((descriptor) => !descriptor.viewHref || descriptor.kind === "views.configure"),
 );

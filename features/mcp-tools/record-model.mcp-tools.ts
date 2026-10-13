@@ -172,7 +172,7 @@ export const queryRecordsV2Tool = {
       ? "values: an array of typed scalars (for a multiple choice field, {kind: 'select', value: optionId} for each option), with value: null"
       : ["empty", "notEmpty"].includes(filter.operator)
         ? "value: null"
-        : "value: one typed scalar matching the field (for a choice, {kind: 'select', value: optionId})";
+        : "value: one typed scalar matching the field (for a choice, {kind: 'select', value: optionId}; get_record_model with this typeId lists the field's option IDs and labels)";
     return {
       ...result,
       text: `Validation error: filters[${index}] on ${filter.fieldId} with ${filter.operator} is invalid. Expected ${shape}.`,

@@ -447,6 +447,17 @@ describe("analyze_records", () => {
     ).resolves.toEqual(tooLarge(30, 29));
   });
 
+  it("truncates a half-megabyte record result with its complete row count", async () => {
+    const { tool } = listTool("list_things", 9, "x".repeat(60_000));
+    const outcome = await analyzeRecords({ reads: [read("list_things")], code: "(data) => data[0].items" }, deps(tool));
+    expect(outcome.ok).toBe(true);
+    expect(outcome.result.length).toBeLessThanOrEqual(6000);
+    expect(JSON.parse(outcome.result)).toMatchObject({
+      rowsRead: 9,
+      result: { totalItems: 9, truncated: true },
+    });
+  });
+
   it.each([
     ["a result of eight million objects", "(data) => Array(8e6).fill({})", 24_000_001],
     [
@@ -575,6 +586,19 @@ describe("analyze_records", () => {
     );
     expect(ANALYZE_RECORDS_DESCRIPTION).toContain("up to 10,000 rows and 8 MB in total");
     expect(AnalyzeRecordsSchema.shape.reads.description).toMatch(/^One to 10 reads/);
+  });
+
+  it("identifies a missing read array when analysis code maps it", async () => {
+    const { tool } = listTool("list_things", 2);
+    const outcome = await analyzeRecords(
+      {
+        reads: [read("list_things")],
+        code: "(data) => data[0].records.map((row) => row.id)",
+      },
+      deps(tool),
+    );
+    expect(outcome).toMatchObject({ ok: false });
+    expect(outcome.result).toContain("data[0].records is undefined");
   });
 
   it("runs async code over the reads and tells the model it may be async with nothing to await", async () => {
