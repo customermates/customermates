@@ -303,6 +303,10 @@ export class PrismaRoutineRepo
     ];
   }
 
+  getNullableFilterFields() {
+    return [FilterFieldKey.ownerUserId];
+  }
+
   getFilterableFields() {
     return Promise.resolve([
       ...(this.permissions.canRead(Resource.users)
@@ -429,9 +433,9 @@ export class PrismaRoutineRepo
     }
   }
 
-  async findRoutineById(id: string): Promise<RoutineDto | null> {
+  async findReadableRoutineById(id: string): Promise<RoutineDto | null> {
     const routine = await this.prisma.routine.findFirst({
-      where: { id, companyId: this.companyId, deletedAt: null },
+      where: { id, companyId: this.companyId, deletedAt: null, AND: [routineAccessWhere(this.permissions)] },
       select: ROUTINE_SELECT,
     });
 

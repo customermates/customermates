@@ -11,7 +11,11 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { fail, failNotFound, failConflict } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordDetailLayoutIsValid } from "./record-detail-layout";
-import { SaveRecordDetailLayoutSchema, recordDetailKey } from "./record-detail-layout.schema";
+import {
+  RecordDetailLayoutResultSchema,
+  SaveRecordDetailLayoutSchema,
+  recordDetailKey,
+} from "./record-detail-layout.schema";
 import { recordRequestHash } from "./record-request-hash";
 
 export type Policy = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
@@ -41,7 +45,7 @@ export class SaveRecordDetailLayoutInteractor extends AuthenticatedInteractor<
       const receipt = await this.records.receipt(input.idempotencyKey, this.userId);
       if (receipt) {
         return receipt.requestHash === hash
-          ? this.reader.read(type.id, model, policy)
+          ? { ok: true as const, data: RecordDetailLayoutResultSchema.parse(receipt.result) }
           : failConflict(CustomErrorCode.recordIdempotencyConflict);
       }
       if (model.revision !== input.expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);

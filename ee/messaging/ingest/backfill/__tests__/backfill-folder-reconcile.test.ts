@@ -64,7 +64,14 @@ function build(listFolderEmails: ReturnType<typeof vi.fn>) {
     findAccountByIdUnscoped: vi.fn().mockResolvedValue(account),
     recordUnusableItemUnscoped: vi.fn().mockResolvedValue(undefined),
   };
-  const interactor = new BackfillEmailsInteractor(repo as never, { listFolderEmails } as never, ingest as never);
+  const interactor = new BackfillEmailsInteractor(
+    repo as never,
+    { listFolderEmails } as never,
+    ingest as never,
+    () => ({
+      synchronize: () => Promise.resolve(),
+    }),
+  );
 
   return { interactor, ingest };
 }

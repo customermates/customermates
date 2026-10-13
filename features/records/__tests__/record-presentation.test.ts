@@ -19,6 +19,7 @@ import { RecordQuerySchema } from "../record-query.schema";
 import { cleanRecordViewState, recordViewStateIsValid } from "../record-view-state";
 import { liveGroupSummaries, recordSummaryFields } from "../record-grouping";
 import { recordInvariant } from "../record-invariant";
+import { failureUnwindCause } from "@/core/validation/failure-unwind";
 import { GroupingSchema } from "@/core/base/grouping/grouping.schema";
 import { scalarMatchesType } from "../record-model-validation";
 import { defaultHiddenColumns, recordColumns } from "../record-columns";
@@ -65,6 +66,25 @@ describe("generic record presentation filters", () => {
         (field) => field.field === channels,
       ),
     ).toBe(false);
+  });
+  it("reports an invalid filter as recordValueInvalid at the index of that filter", () => {
+    const failure = (filters: Filter[]) => {
+      try {
+        presentationQuery(id("deal"), fields, { filters }, model.relationships);
+      } catch (error) {
+        return failureUnwindCause(error);
+      }
+      return null;
+    };
+    const valid: Filter = { field: relationship, operator: Operator.hasSome };
+    expect(failure([valid, { field: randomUUID(), operator: Operator.isNull }])).toMatchObject({
+      code: "recordValueInvalid",
+      failureKind: "validation",
+      path: ["filters", 1],
+    });
+    expect(
+      failure([valid, valid, { field: "system:updatedAt", operator: Operator.equals, value: "not a date" }]),
+    ).toMatchObject({ code: "recordValueInvalid", path: ["filters", 2] });
   });
   it("preserves typed relationship, assignment and relative-date filters in saved views", () => {
     const related = randomUUID();

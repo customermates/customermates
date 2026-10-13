@@ -3,6 +3,8 @@ import type { RoutineDto } from "./routine.schema";
 import type { GetRoutineByIdRepo } from "./get-routine-by-id.repo";
 
 import { Resource } from "@/generated/prisma";
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
 
 import { z } from "zod";
 
@@ -28,6 +30,8 @@ export class GetRoutineByIdInteractor extends AuthenticatedInteractor<GetRoutine
   @Validate(GetRoutineByIdSchema)
   @ValidateOutput(RoutineDtoSchema)
   async invoke(data: GetRoutineByIdData): Validated<RoutineDto> {
-    return { ok: true as const, data: await this.repo.getRoutineByIdOrThrow(data.id) };
+    const routine = await this.repo.findReadableRoutineById(data.id);
+    if (!routine) return failNotFound(CustomErrorCode.routineNotFound, ["id"]);
+    return { ok: true as const, data: routine };
   }
 }

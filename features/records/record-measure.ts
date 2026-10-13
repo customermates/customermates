@@ -110,9 +110,15 @@ export function compileRecordMeasure(
     Prisma.sql`((${instant} AT TIME ZONE 'UTC') AT TIME ZONE ${measure.groupBy?.timeZone ?? "UTC"}::text)`;
   let groupValue = Prisma.sql`NULL::jsonb`;
   let groupState = Prisma.sql`'missing'`;
+  let groupSort = Prisma.sql`NULL::text`;
+  const optionPosition = (option: Prisma.Sql) =>
+    groupField?.options.length
+      ? Prisma.sql`array_position(ARRAY[${Prisma.join(groupField.options.map((candidate) => candidate.id))}]::text[], ${option})`
+      : Prisma.sql`NULL::integer`;
   if (groupField?.valueType === "select" && groupField.multiple) {
     groupValue = Prisma.sql`CASE WHEN ${groupReadable} AND group_option.id IS NOT NULL THEN jsonb_build_object('kind', 'select', 'value', group_option.id) ELSE NULL END`;
     groupState = Prisma.sql`CASE WHEN NOT (${groupReadable}) THEN 'restricted' WHEN group_value.state = 'error' THEN 'error' WHEN group_option.id IS NULL THEN 'missing' ELSE 'value' END`;
+    groupSort = optionPosition(Prisma.sql`group_option.id`);
     joins.push(
       Prisma.sql`LEFT JOIN "RecordValue" group_value ON group_value."companyId" = ${companyId} AND group_value."typeId" = ${typeId} AND group_value."recordId" = ${group}.id AND group_value."fieldId" = ${groupField.id}`,
       Prisma.sql`LEFT JOIN LATERAL unnest(CASE WHEN group_value.state = 'value' THEN group_value."textListValue" ELSE ARRAY[]::text[] END) group_option(id) ON TRUE`,
@@ -126,6 +132,13 @@ export function compileRecordMeasure(
           : scalarJson(groupField, Prisma.sql`group_value`);
     groupValue = Prisma.sql`CASE WHEN ${groupReadable} AND group_value.state = 'value' THEN ${scalar} ELSE NULL END`;
     groupState = Prisma.sql`CASE WHEN NOT (${groupReadable}) THEN 'restricted' ELSE COALESCE(group_value.state, 'missing') END`;
+    if (!interval) {
+      if (groupField.valueType === "select") groupSort = optionPosition(Prisma.sql`group_value."textValue"`);
+      else if (["number", "currency"].includes(groupField.valueType))
+        groupSort = Prisma.sql`group_value."decimalValue"`;
+      else if (["date", "dateTime"].includes(groupField.valueType)) groupSort = Prisma.sql`group_value."instantValue"`;
+      else if (groupField.valueType === "boolean") groupSort = Prisma.sql`group_value."booleanValue"::integer`;
+    }
     joins.push(
       Prisma.sql`LEFT JOIN "RecordValue" group_value ON group_value."companyId" = ${companyId} AND group_value."typeId" = ${typeId} AND group_value."recordId" = ${group}.id AND group_value."fieldId" = ${groupField.id}`,
     );
@@ -170,12 +183,12 @@ export function compileRecordMeasure(
   const aggregate = Prisma.sql`${Prisma.raw(operators[measure.aggregation])}(value)`;
   return Prisma.sql`WITH eligible AS (${eligible}), contributions AS (
     SELECT DISTINCT grain.id, ${groupByRecord ? Prisma.sql`${group}.id` : Prisma.sql`NULL::text`} AS "groupRecordId", ${groupByRecord ? Prisma.sql`${group}."typeId"` : Prisma.sql`NULL::text`} AS "groupTypeId", ${groupField ? Prisma.sql`${groupField.id}::text` : systemField ? Prisma.sql`${systemField}::text` : Prisma.sql`NULL::text`} AS "groupFieldId",
-      ${groupState} AS "groupState", ${groupValue} AS "groupValue", ${amountState} AS state, ${amountValue} AS value, ${amountCurrency} AS currency
+      ${groupState} AS "groupState", ${groupValue} AS "groupValue", ${groupSort} AS "groupSort", ${amountState} AS state, ${amountValue} AS value, ${amountCurrency} AS currency
     FROM eligible JOIN "CrmRecord" grain ON grain."companyId" = ${companyId} AND grain."typeId" = ${measure.source.typeId} AND grain.id = eligible.id ${joins.length ? Prisma.join(joins, " ") : Prisma.empty}
     WHERE ${groupSelection}
   ) SELECT "groupRecordId", "groupTypeId", "groupFieldId", "groupState", "groupValue", COUNT(*)::integer AS count,
     CASE WHEN BOOL_OR(state = 'restricted') THEN 'restricted' WHEN BOOL_OR(state = 'error') THEN 'error' WHEN COUNT(DISTINCT currency) > 1 THEN 'currency_mismatch' WHEN COUNT(value) = 0 THEN 'missing' ELSE 'value' END AS "resultState",
     ${["sum", "count"].includes(measure.aggregation) ? Prisma.sql`COALESCE(${aggregate}, 0)::text` : Prisma.sql`${aggregate}::text`} AS "resultValue",
     ${field?.valueType === "currency" && measure.aggregation !== "count" ? Prisma.sql`COALESCE(MAX(currency), ${recordInvariant(field.format?.currency)})` : Prisma.sql`NULL::text`} AS "resultCurrency"
-    FROM contributions GROUP BY "groupRecordId", "groupTypeId", "groupFieldId", "groupState", "groupValue" ORDER BY "groupValue"::text NULLS LAST, "groupRecordId" NULLS LAST LIMIT ${measure.groupLimit + 1}`;
+    FROM contributions GROUP BY "groupRecordId", "groupTypeId", "groupFieldId", "groupState", "groupValue" ORDER BY CASE WHEN "groupState" = 'value' THEN MIN("groupSort") END NULLS LAST, "groupValue"::text NULLS LAST, "groupRecordId" NULLS LAST LIMIT ${measure.groupLimit + 1}`;
 }

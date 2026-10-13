@@ -4,6 +4,7 @@ import type { RecordScalar } from "../record-model.schema";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
+import { Client } from "pg";
 import { afterAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -51,7 +52,6 @@ const { RecordTrashService } = await import("../record-trash.service");
 const { ApplyRecordConfigurationInteractor } = await import("../configure-records.interactor");
 const { PreviewRecordConfigurationInteractor } = await import("../preview-record-configuration.interactor");
 const { ConfigurationTrashHandler } = await import("../configuration-trash.handler");
-const { RecordOperationService } = await import("../record-operation.service");
 const { RecordTrashHandler } = await import("../record-trash.handler");
 const { PrismaTrashRepo } = await import("@/features/trash/prisma-trash.repository");
 const { QueryTrashInteractor } = await import("@/features/trash/query-trash.interactor");
@@ -72,7 +72,7 @@ const { PurgeCompanyTrashInteractor } = await import("@/features/trash/purge-com
 const { AdvanceSystemRecordOperationInteractor } = await import("../advance-system-record-operation.interactor");
 const { getWebhookPauseNotifier } = await import("@/core/di");
 const { createCrmPreset, presetId } = await import("../crm-preset");
-const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+const { createTestRecordOperationService, createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -137,7 +137,7 @@ async function fixture() {
         scoped,
         scopedPolicy,
         { dispatch: () => Promise.resolve() },
-        new RecordTrashService(scoped),
+        new RecordTrashService(scoped, new RecordCalculationService(scoped)),
       ),
     ];
   };
@@ -156,7 +156,7 @@ async function fixture() {
     policy,
     new RecordWriteService(repo, policy, new RecordCalculationService(repo)),
     { dispatch: () => Promise.resolve() },
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const trashRepo = new PrismaTrashRepo();
   const trash = {
@@ -586,6 +586,30 @@ describeDatabase("configuration trash", () => {
     expect(await f.items()).toEqual([]);
   }, 180_000);
 
+  it("answers a configuration restore during an active record operation with conflict recordWritePaused", async () => {
+    const f = await fixture();
+    const companyId = f.seed.company.id;
+    await f.as(async () =>
+      f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "field", id: f.id("deal.notes") } }])),
+    );
+    const [item] = await f.items();
+    if (!item) throw new Error("The field is not in Trash");
+    await runWithoutTenant(() =>
+      prisma.recordSchemaState.update({ where: { companyId }, data: { activeOperationId: randomUUID() } }),
+    );
+    expect(await f.as(() => f.trash.restore.invoke({ itemIds: [item.id] }))).toMatchObject({
+      ok: false,
+      error: {
+        issues: [
+          expect.objectContaining({
+            params: expect.objectContaining({ error: "recordWritePaused", kind: "conflict" }),
+          }),
+        ],
+      },
+    });
+    expect((await f.items()).map((row) => row.id)).toEqual([item.id]);
+  }, 180_000);
+
   it("skips a failing item so Restore, Delete permanently, Empty trash and the retention job keep working", async () => {
     const f = await fixture();
     const companyId = f.seed.company.id;
@@ -830,7 +854,7 @@ describeDatabase("configuration trash", () => {
     expect(f.systemDispatches).toHaveLength(1);
     const advance = new AdvanceSystemRecordOperationInteractor((scoped) => {
       const records = createTestRecordRepo(scoped);
-      return new RecordOperationService(
+      return createTestRecordOperationService(
         records,
         new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), records),
         new RecordConfigurationService(records),
@@ -838,7 +862,38 @@ describeDatabase("configuration trash", () => {
         scoped,
       );
     });
-    let done = false;
+    const operationState = () =>
+      runWithoutTenant(() =>
+        prisma.recordOperation.findUniqueOrThrow({
+          where: { companyId_id: { companyId, id: operationId } },
+          select: { state: true, processed: true },
+        }),
+      );
+    const before = await operationState();
+    const holder = new Client({ connectionString: process.env.DATABASE_URL });
+    await holder.connect();
+    await holder.query("BEGIN");
+    await holder.query("SELECT pg_advisory_xact_lock(hashtextextended($1, 0))", [companyId]);
+    const firstStep = advance.invoke({ companyId, operationId });
+    const waiting = async () => {
+      const locks = await holder.query<{ waiting: string }>(
+        `SELECT count(*) AS waiting FROM pg_locks
+         WHERE locktype = 'advisory' AND NOT granted
+           AND ((classid::bigint << 32) | objid::bigint) = hashtextextended($1, 0)`,
+        [companyId],
+      );
+      return Number(locks.rows[0]?.waiting ?? 0);
+    };
+    try {
+      for (let poll = 0; poll < 100 && (await waiting()) === 0; poll++)
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      expect(await waiting()).toBe(1);
+      expect(await operationState()).toEqual(before);
+    } finally {
+      await holder.query("ROLLBACK");
+      await holder.end();
+    }
+    let done = (await firstStep).done;
     for (let step = 0; step < 300 && !done; step++) done = (await advance.invoke({ companyId, operationId })).done;
     expect(done).toBe(true);
     expect(

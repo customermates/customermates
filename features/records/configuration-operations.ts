@@ -29,6 +29,18 @@ function upsert<T extends { id: string }>(items: T[], item: T) {
   else items[index] = item;
 }
 
+async function requireKnownRoles(
+  roleIds: string[],
+  validRoles: ConfigurationContext["validRoles"],
+  path: Array<string | number>,
+) {
+  if (await validRoles(roleIds)) return;
+  for (const [index, roleId] of roleIds.entries()) {
+    if (!(await validRoles([roleId])))
+      throw unwindFailure(CustomErrorCode.roleNotFound, "not_found", [...path, index, "roleId"]);
+  }
+}
+
 export async function applyConfigurationOperations(
   model: RecordModel,
   current: RecordModel,
@@ -38,15 +50,18 @@ export async function applyConfigurationOperations(
   const { resolve, resolveDefinition } = references;
   const reorderedTypes = new Set<string>();
   const grants: ConfigurationGrants = [];
-  for (const operation of input.operations) {
+  for (const [position, operation] of input.operations.entries()) {
     if (operation.operation === "putAccessPreset") {
       if (!policy.canManageRoles) throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
-      if (!(await validRoles(operation.preset.grants.map((grant) => grant.roleId))))
-        throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
+      await requireKnownRoles(
+        operation.preset.grants.map((grant) => grant.roleId),
+        validRoles,
+        ["operations", position, "preset", "grants"],
+      );
       upsert(model.accessPresets, { ...operation.preset, id: resolve(operation.preset.id) });
     }
   }
-  for (const operation of input.operations) {
+  for (const [position, operation] of input.operations.entries()) {
     if (operation.operation === "createType") {
       const id = resolve(operation.reference);
       if (model.types.some((type) => type.id === id)) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
@@ -133,10 +148,14 @@ export async function applyConfigurationOperations(
       if (
         grants.some((grant) => grant.typeId === typeId) ||
         new Set(operation.grants.map((grant) => grant.roleId)).size !== operation.grants.length ||
-        operation.grants.some((grant) => new Set(grant.actions).size !== grant.actions.length) ||
-        !(await validRoles(operation.grants.map((grant) => grant.roleId)))
+        operation.grants.some((grant) => new Set(grant.actions).size !== grant.actions.length)
       )
         throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
+      await requireKnownRoles(
+        operation.grants.map((grant) => grant.roleId),
+        validRoles,
+        ["operations", position, "grants"],
+      );
       if (!policy.isAdmin && policy.actor?.role) {
         const previous =
           previousGrants.find((grant) => grant.typeId === typeId && grant.roleId === policy.actor?.role?.id)?.actions ??

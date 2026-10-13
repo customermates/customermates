@@ -722,13 +722,14 @@ export class PrismaWikiPageRepo
         companyId: this.companyId,
         sourceUrl: { not: null },
         sourceFetchedAt: { gte: since },
+        deletedAt: null,
       },
     });
   }
 
   async findImportedPage(sourceUrl: string) {
     return this.prisma.wikiPage.findFirst({
-      where: { companyId: this.companyId, sourceUrl },
+      where: { companyId: this.companyId, sourceUrl, deletedAt: null },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }],
       select: {
         id: true,

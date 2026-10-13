@@ -53,7 +53,10 @@ export async function AppShell({ children, displayLanguage }: Props) {
         (await getGetP13nInteractor().invoke({ p13nId: KEYBOARD_P13N_ID })).data?.settings,
       ),
     subscription: async () => (await getGetSubscriptionInteractor().invoke()).data,
-    systemTaskCount: async () => (await getCountSystemTasksInteractor().invoke()).data,
+    systemTaskCount: async () => {
+      const result = await getCountSystemTasksInteractor().invoke();
+      return result.ok ? result.data : 0;
+    },
     unreadThreadCount: async () => {
       try {
         const result = await getGetUnreadThreadCountInteractor().invoke();

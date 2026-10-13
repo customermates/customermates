@@ -466,6 +466,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     if (isRecordDataViewSurface(surfaceKey)) {
       const invalid =
         (await this.recordViews?.validate(surfaceKey)) ?? (this.recordViews ? null : CustomErrorCode.permissionDenied);
+      if (invalid === CustomErrorCode.recordTypeNotFound) return failNotFound(invalid, ["surfaceKey"]);
       return invalid ? failAuthorization(invalid, ["surfaceKey"]) : null;
     }
     const descriptor = DATA_VIEW_SURFACES[surfaceKey];

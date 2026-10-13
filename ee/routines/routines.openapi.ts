@@ -126,7 +126,8 @@ export const routineApiPaths = {
     post: routineOperation({
       operationId: "readRoutine",
       summary: "Read a routine",
-      description: "Returns one routine with its full configuration. An id outside the workspace answers 404.",
+      description:
+        "Returns one routine with its full configuration. An id outside the workspace or the caller's access answers 404.",
       permission: "read permission on routines",
       input: GetRoutineByIdSchema,
       inputExample: { id: ROUTINE_ID },

@@ -43,7 +43,9 @@ function build(overrides: { chats?: unknown[]; participants?: unknown[] }) {
     findAccountByIdUnscoped: vi.fn().mockResolvedValue(account),
     recordUnusableItemUnscoped: vi.fn().mockResolvedValue(undefined),
   };
-  const interactor = new BackfillChatsInteractor(repo as any, messagingService as any, ingest as any);
+  const interactor = new BackfillChatsInteractor(repo as any, messagingService as any, ingest as any, () => ({
+    synchronize: () => Promise.resolve(),
+  }));
 
   return { interactor, messagingService, ingest, repo };
 }

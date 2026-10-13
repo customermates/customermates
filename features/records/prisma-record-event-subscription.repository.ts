@@ -11,9 +11,9 @@ import {
   type RecordEventSubscriptionDefinition,
 } from "./record-event-subscription.schema";
 import { recordEventSubscriptionIsValid } from "./record-event-subscription-validation";
-import type { RecordRepo } from "./record.repo";
+import type { RecordActorRepo, RecordRepo } from "./record.repo";
+import type { RecordAccessPolicy } from "./record-access";
 import type { RecordEventSubscriptionRepo } from "./record-event-subscription.repo";
-import { recordAccessForActor } from "./record-access";
 import { canonicalRecordJson } from "./record-json";
 
 function deliveryDefinition(subscription: RecordEventSubscriptionDefinition) {
@@ -58,6 +58,8 @@ export class PrismaRecordEventSubscriptionRepo
 {
   constructor(
     private readonly records: RecordRepo,
+    private readonly policy: RecordAccessPolicy,
+    private readonly actors: RecordActorRepo,
     private readonly scopedCompanyId?: string,
   ) {
     super();
@@ -76,30 +78,16 @@ export class PrismaRecordEventSubscriptionRepo
 
   async findReadable(ids: string[]) {
     if (!ids.length) return [];
-    const [rows, { policy }] = await Promise.all([this.findUnscoped(this.companyId, ids), this.actorAccess()]);
+    const [rows, policy] = await Promise.all([this.findUnscoped(this.companyId, ids), this.policy.load()]);
     return rows.map((row) => readableSubscription(row, policy.canReadType));
   }
 
   private async actorAccess() {
-    const records = this.records;
-    const companyId = this.companyId;
-    const actor = await this.prisma.user.findFirst({
-      where: { companyId, id: this.userId, status: "active", role: { companyId } },
-      select: {
-        id: true,
-        status: true,
-        role: {
-          select: {
-            id: true,
-            companyId: true,
-            isSystemRole: true,
-            permissions: { where: { companyId }, select: { resource: true, action: true } },
-          },
-        },
-      },
-    });
-    const [model, grants, state] = await Promise.all([records.getModel(), records.getGrants(), records.getState()]);
-    const policy = recordAccessForActor({ actor, model, grants, records, companyId, userId: this.userId });
+    const [model, state, policy] = await Promise.all([
+      this.records.getModel(),
+      this.records.getState(),
+      this.policy.load(),
+    ]);
     return { model, state, policy };
   }
 
@@ -126,10 +114,7 @@ export class PrismaRecordEventSubscriptionRepo
     if (!recordEventSubscriptionIsValid(input, model)) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
     const unreadablePath = definitionChanged ? unreadableListPath(input, policy.canReadType) : null;
     if (unreadablePath) throw unwindFailure(CustomErrorCode.permissionDenied, "authorization", unreadablePath);
-    const owner = await this.prisma.user.findFirst({
-      where: { companyId, id: input.ownerUserId, status: "active" },
-      select: { id: true },
-    });
+    const [owner] = await this.actors.findRecordAssigneesCompanyWide([input.ownerUserId]);
     if (!owner) throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
     const { id, revision, ...data } = input;
     const stored = {

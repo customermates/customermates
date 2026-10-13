@@ -26,13 +26,12 @@ import { GetQueryParamsSchema } from "@/core/base/base-get.schema";
 import { recordSurfaceKey } from "@/core/data-view/data-view-keys";
 import { selectActiveViewKey } from "@/core/base/base-get.interactor";
 import { resolveDataViewState } from "@/core/data-view/resolve-data-view-state";
-import { fail, failNotFound } from "@/core/validation/interactor-failure-server";
+import { fail, failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import {
   presentationQuery,
   recordDefaults,
   recordFilterableFields,
-  presentationFiltersAreValid,
   recordLinkColors,
   recordLinkIcons,
   recordLinkLabels,
@@ -123,24 +122,17 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
           base: selected?.state ?? viewState.allState,
           defaults: recordDefaults(type.id, fields),
         });
-        if (!presentationFiltersAreValid(state.filters, fields, relationships, type.id, paths))
-          return fail(CustomErrorCode.recordValueInvalid, ["filters"]);
         if (state.grouping && !resolveRecordGrouping(type.id, state.grouping, model)) state.grouping = undefined;
-        let query;
-        try {
-          query = presentationQuery(
-            type.id,
-            fields,
-            {
-              ...state,
-              page: input.params.page ?? input.params.pagination?.page ?? 1,
-            },
-            relationships,
-            paths,
-          );
-        } catch {
-          return fail(CustomErrorCode.recordValueInvalid);
-        }
+        const query = presentationQuery(
+          type.id,
+          fields,
+          {
+            ...state,
+            page: input.params.page ?? input.params.pagination?.page ?? 1,
+          },
+          relationships,
+          paths,
+        );
         const avatarFieldId = model.capabilities
           .find((binding) => binding.kind === "avatar" && binding.typeId === type.id)
           ?.fields.find((field) => field.role === "image")?.fieldId;
@@ -250,6 +242,6 @@ export class GetRecordPresentationInteractor extends AuthenticatedInteractor<
         };
       },
       { readOnly: true, timeout: 30000 },
-    );
+    ).catch(unwoundFailure);
   }
 }
