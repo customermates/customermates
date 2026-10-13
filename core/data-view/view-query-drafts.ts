@@ -71,17 +71,15 @@ export function proposalViewKey(proposal: DataViewProposal): string {
 }
 
 export function mergeProposalDraft(existing: ViewDraft | undefined, proposal: DataViewProposal): ViewDraft {
-  const proposed: DataViewState = { ...proposal.state };
-  delete proposed.searchTerm;
   const state: DataViewState = {
     ...existing?.proposal?.state,
     ...(existing?.filters ? { filters: existing.filters } : {}),
-    ...proposed,
+    ...proposal.state,
   };
   const name = proposal.name ?? existing?.proposal?.name;
   return {
     ...(state.filters ? { filters: state.filters } : {}),
-    searchTerm: existing?.searchTerm,
+    searchTerm: existing?.searchTerm ? existing.searchTerm : (proposal.state.searchTerm ?? existing?.searchTerm),
     proposal: {
       state,
       ...(name ? { name } : {}),
