@@ -61,7 +61,7 @@ Other actions word it differently:
 - **Refresh** in the [Inbox](app:inbox): "Some channels hit their rate limit. Try again in a few minutes."
 - Moving an email to another folder: "Stopped filing into `{folder}` because the provider is rate limiting." with the waiting time for the rest.
 
-The waiting time comes from the `Retry-After` value of the rate-limited response Unipile returns; without one, it falls back to 60 seconds and reads "in 1 minute". Customermates does not retry the action for you: retry once the window has passed. Nothing is lost in the meantime. Over the REST API and MCP the call fails with the same message and waiting time: the REST API answers with HTTP status 429, and MCP returns a failure of kind `rate_limit` whose issue in `_meta.failure` has `customCode: "unipileRateLimit"`.
+The waiting time comes from the `Retry-After` value of the rate-limited response Unipile returns; without one, the message reads "later" instead of a waiting time. Customermates does not retry the action for you: retry once the window has passed. Nothing is lost in the meantime. Over the REST API and MCP the call fails with the same message: the REST API answers with HTTP status 429 and a `Retry-After` header of 30 seconds, and MCP returns a failure of kind `rate_limit` whose issue in `_meta.failure` has `customCode: "unipileRateLimit"`.
 
 ## Does the history import resume by itself? [#does-the-history-import-resume-by-itself]
 

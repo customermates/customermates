@@ -63,7 +63,7 @@ In the connector form set **Authentication: Header**, **Header name: `x-api-key`
 </Step>
 </Steps>
 
-Save. ChatGPT reaches the server and lists every tool. It lists them even when the key is wrong, because Customermates checks the key only when a tool reads or changes workspace data; if every such call then says "Sign in to use this action.", the key is wrong, truncated, expired or deleted, so create a new one. A documentation lookup such as `search_docs` answers even with a wrong key, so it does not prove that the key works.
+Save. ChatGPT reaches the server and lists every tool. Customermates checks the key on every request: with a wrong, truncated, expired or deleted key the server answers HTTP `401` with a `WWW-Authenticate` header and nothing is listed, so create a new key.
 
 ## What does the Authorize access screen show? [#sign-in-and-approve]
 
@@ -117,7 +117,7 @@ Leave every tool that is not read-only on *Ask*. The full list is in the [MCP to
 | Symptom | Cause | Fix |
 |---|---|---|
 | "Couldn't register with the sign-in service" (Claude) or "Connector verification failed" (ChatGPT) | Server URL wrong or unreachable | Confirm it is exactly `<BASE_URL>/api/v1/mcp`, with the address you open Customermates at as `<BASE_URL>` |
-| Tools are listed, but every call that reads or changes workspace data says "Sign in to use this action." (ChatGPT with a header); documentation lookups still answer | The `x-api-key` value is wrong, truncated, expired or deleted | Create a new key under [API keys](app:settings/api-keys) and paste the full 64 characters |
+| The connector lists no tools and the server answers HTTP `401` (ChatGPT with a header) | The `x-api-key` value is wrong, truncated, expired or deleted | Create a new key under [API keys](app:settings/api-keys) and paste the full 64 characters |
 | Every call that reads or changes workspace data says "Your user account is inactive. Contact a workspace administrator." | Your Customermates user was set to **Inactive** | A member with **Edit** on **Users & Roles** sets you back to **Active** under [Members](app:settings/members) |
 | No "Add custom connector" option | Free plan | Custom connectors need a paid Claude or ChatGPT plan. See [the CLI method](/docs/connect-cli) |
 | Approved but nothing connects | You approved from a different account | Sign into the right Customermates account, then retry |
