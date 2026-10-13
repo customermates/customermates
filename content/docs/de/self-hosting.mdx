@@ -196,6 +196,31 @@ docker compose up -d
 
 Testen Sie die Wiederherstellung regelmäßig auf einem separaten Rechner. Auch der Wechsel auf eine neue PostgreSQL-Hauptversion, die die Compose-Datei auf 16 festlegt, braucht einen Dump und eine Wiederherstellung in die neue Version.
 
+## Welche geplanten Aufgaben muss ich ausführen? [#scheduled-jobs]
+
+Die Cloud ruft zwei Wartungs-Endpunkte nach Zeitplan auf; eine Self-Hosted-Instanz führt sie nur aus, wenn Sie sie aufrufen. Ohne den täglichen Aufruf werden Elemente im [Papierkorb](/docs/app-trash) nach ihren 30 Tagen nie endgültig gelöscht.
+
+- `/api/cron/lifecycle`, einmal täglich: löscht Papierkorb-Elemente, deren 30 Tage abgelaufen sind, und erledigt die übrigen täglichen Wartungsaufgaben. Die Aufgaben für Cloud-Testphasen und Abonnements finden auf einer Self-Hosted-Instanz nichts.
+- `/api/cron/record-deliveries`, alle 5 Minuten (optional): startet fällige Webhook-Zustellungen, Ereignisverarbeitung und Hintergrundarbeit an Datensätzen, die kein laufender Job übernommen hat, etwa nach einem Neustart des Containers.
+
+Beide antworten mit HTTP `401`, außer die App hat ein `CRON_SECRET` und die Anfrage sendet es als `Authorization: Bearer <secret>`. Die Compose-Datei reicht `CRON_SECRET` nicht an die App weiter. Ergänzen Sie es daher in einer `docker-compose.override.yml` neben der `docker-compose.yml`, die `docker compose` automatisch liest und die ein Update der Compose-Datei nicht verändert:
+
+```yaml
+services:
+  app:
+    environment:
+      CRON_SECRET: ${CRON_SECRET}
+```
+
+Tragen Sie einen langen Zufallswert, etwa aus `openssl rand -hex 32`, als `CRON_SECRET=...` in die `.env` ein, führen Sie `docker compose up -d` aus und planen Sie die Aufrufe auf dem Host, etwa mit `crontab -e`:
+
+```bash
+0 3 * * * curl -fsS -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:4000/api/cron/lifecycle
+*/5 * * * * curl -fsS -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:4000/api/cron/record-deliveries
+```
+
+Setzen Sie statt `4000` Ihren `APP_PORT` ein. Ein erfolgreicher Aufruf antwortet mit `{"ok":true,...}`.
+
 ## Wie setze ich alle Daten zurück? [#how-do-i-reset-all-data]
 
 ```bash

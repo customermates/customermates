@@ -183,7 +183,7 @@ Click [Add](app:settings/webhooks?focus=add), or a row to edit. The **Webhook** 
 
 ### Where do I see webhook deliveries? [#deliveries-tab]
 
-[Deliveries](app:settings/webhook-deliveries), directly below **Webhooks** in the settings navigation, lists one row per delivery, newest first, with **URL**, **Event**, **Element**, **Status**, **Status Code** and **Created at**. Click a row for **Event Details**: status (**Pending**, then **Delivered** or **Failed**), status code, response message and payload. Payloads cover every record, including records your role cannot open. **Resend** (delivered or failed deliveries, **API & Webhooks** **Create**) sends the stored payload again as a new delivery with the current secret, headers and body template.
+[Deliveries](app:settings/webhook-deliveries), directly below **Webhooks** in the settings navigation, lists one row per delivery, newest first, with **URL**, **Event**, **Element**, **Status**, **Status Code** and **Created at**. Click a row for **Event Details**: status (**Pending**, **Sending**, **Delivered** or **Failed**), status code, response message and payload. A record event's payload is read again with your current access: values you cannot read appear as restricted, and the payload stays empty when you cannot read the record. **Resend** (delivered or failed deliveries, **API & Webhooks** **Create**) creates a new delivery with the webhook's current URL, secret, headers and body template. A record event is read again with the webhook owner's current access, and only that owner or an administrator can resend it; details are on [Webhooks](/docs/webhooks#how-do-i-resend-a-delivery).
 
 ## Where is the currency set? [#where-is-the-currency-set]
 
