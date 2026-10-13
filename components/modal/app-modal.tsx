@@ -10,7 +10,7 @@ import { VisuallyHidden } from "radix-ui";
 
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerDescription, DrawerTitle } from "@/components/ui/drawer";
-import { Sheet, SheetBody, SheetContent, SheetDescription, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetBody, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { OVERLAY_SIDE_SHEET_CLASS, OVERLAY_TOPMOST_LAYER_CLASS } from "@/components/ui/overlay-contract";
 import { useOverlayFocusReturn } from "@/components/ui/use-overlay-focus-return";
 import { cn } from "@/core/utils/cn";
@@ -67,6 +67,7 @@ type SharedProps = {
   bodyClassName?: string;
   focusContentOnOpen?: boolean;
   titleInContent?: boolean;
+  visibleTitle?: boolean;
   guardsUnsavedChanges?: boolean;
 };
 
@@ -176,11 +177,19 @@ export const AppModal = observer((props: Props) => {
             onCloseAutoFocus={handleCloseAutoFocus}
             onOpenAutoFocus={handleOpenAutoFocus}
           >
-            <VisuallyHidden.Root>
-              {props.titleInContent ? null : <SheetTitle>{title}</SheetTitle>}
+            {props.visibleTitle ? (
+              <SheetHeader className="px-6">
+                <SheetTitle>{title}</SheetTitle>
 
-              {description ? <SheetDescription>{description}</SheetDescription> : null}
-            </VisuallyHidden.Root>
+                {description ? <SheetDescription>{description}</SheetDescription> : null}
+              </SheetHeader>
+            ) : (
+              <VisuallyHidden.Root>
+                {props.titleInContent ? null : <SheetTitle>{title}</SheetTitle>}
+
+                {description ? <SheetDescription>{description}</SheetDescription> : null}
+              </VisuallyHidden.Root>
+            )}
 
             <AppModalActionRail actions={actions} className={APP_MODAL_ACTION_RAIL_CLASS} />
 

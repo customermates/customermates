@@ -4,6 +4,7 @@ import { join, relative } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, walkFiles } from "./walk";
+import { unreviewedExceptionAdditions } from "./exception-membership";
 
 type Rule =
   | "save-label"
@@ -54,106 +55,38 @@ const RULE_OWNERS: Record<Rule, ReadonlySet<string>> = {
 
 const RENDERS_SHARED_FOOTER = /<FormFooterActions\b/;
 
+const EDITOR_RULES = new Set<Rule>(["footer-primitive", "submit-button", "overlay-footer"]);
+const SAVE_LIKE_LABEL = /^(?:Save|Update|Apply)(?: \S+){0,2}$/;
+const EDITOR_LABEL = /^(?:Cancel|Discard)$/;
+const EDITOR_STATE = /\bhasUnsavedChanges\b|["'`]Common\.actions\.(?:save|cancel|discard)["'`]/;
+const TRANSLATION_KEY = /\bt\(\s*["'`]([\w.]+)["'`]/g;
+
+function flattenMessages(value: unknown, prefix = ""): [string, string][] {
+  if (typeof value === "string") return [[prefix, value]];
+  if (Array.isArray(value) || typeof value !== "object" || value === null) return [];
+  return Object.entries(value).flatMap(([key, child]) => flattenMessages(child, prefix ? `${prefix}.${key}` : key));
+}
+
+const ENGLISH = new Map(
+  flattenMessages(JSON.parse(readFileSync(join(REPO_ROOT, "i18n", "locales", "en.json"), "utf8")) as unknown),
+);
+
+function isSaveCancelEditor(source: string, messages: ReadonlyMap<string, string> = ENGLISH) {
+  if (EDITOR_STATE.test(source)) return true;
+  return [...source.matchAll(TRANSLATION_KEY)].some(([, key]) => {
+    const label = messages.get(key);
+    return label !== undefined && (SAVE_LIKE_LABEL.test(label) || EDITOR_LABEL.test(label));
+  });
+}
+
 const EXEMPT: Record<string, { rules: Rule[]; reason: string }> = {
-  "app/[locale]/(public)/auth/signin/sign-in-form.tsx": {
-    rules: ["footer-primitive", "submit-button"],
-    reason: "auth page card whose only action is the sign-in call to action, not a save form",
-  },
-  "app/[locale]/(public)/auth/signup/sign-up-form.tsx": {
-    rules: ["footer-primitive", "submit-button"],
-    reason: "auth page card whose only action is the sign-up call to action, not a save form",
-  },
-  "app/[locale]/(public)/auth/forgot-password/forgot-password-form.tsx": {
-    rules: ["footer-primitive", "submit-button"],
-    reason: "auth page card that sends a reset link, not a save form",
-  },
-  "app/[locale]/(public)/auth/reset-password/reset-password-form.tsx": {
-    rules: ["footer-primitive", "submit-button"],
-    reason: "auth page card that sets a new password and signs in, not a save form",
-  },
-  "app/[locale]/(public)/auth/invitation/invitation-card.tsx": {
-    rules: ["footer-primitive"],
-    reason: "auth page card with join and sign-out calls to action",
-  },
-  "app/[locale]/(public)/auth/mcp-consent/mcp-consent-card.tsx": {
-    rules: ["footer-primitive"],
-    reason: "OAuth consent card with deny and approve decisions",
-  },
-  "app/[locale]/(public)/auth/pending/pending-card.tsx": {
-    rules: ["footer-primitive"],
-    reason: "auth status card with refresh and sign-out calls to action",
-  },
-  "app/[locale]/(public)/auth/verify-email/verify-email-card.tsx": {
-    rules: ["footer-primitive"],
-    reason: "auth status card with a single call to action",
-  },
-  "app/[locale]/(static)/contact/contact-form.tsx": {
-    rules: ["footer-primitive", "submit-button"],
-    reason: "public website contact form that sends a message",
-  },
-  "app/[locale]/(protected)/legal-update/components/legal-update-view.tsx": {
-    rules: ["footer-primitive"],
-    reason: "blocking legal acceptance page with accept and retry calls to action",
-  },
-  "app/[locale]/(protected)/subscription-expired/components/subscription-expired-view.tsx": {
-    rules: ["footer-primitive"],
-    reason: "blocking status page with contact and retry calls to action",
-  },
-  "app/[locale]/(protected)/onboarding/join/join-workspace-card.tsx": {
-    rules: ["footer-primitive"],
-    reason: "onboarding step card with a back call to action",
-  },
-  "app/[locale]/(protected)/onboarding/onboarding-choice-card.tsx": {
-    rules: ["submit-button"],
-    reason: "onboarding choice tiles that each submit one decision",
-  },
-  "app/[locale]/(protected)/onboarding/wizard/components/onboarding-wizard.tsx": {
-    rules: ["footer-primitive"],
-    reason: "onboarding wizard step navigation (Back, Next), not a save form",
-  },
-  "app/[locale]/(protected)/onboarding/wizard/components/step-ai.tsx": {
-    rules: ["footer-primitive"],
-    reason: "onboarding wizard step navigation (Back, Finish), not a save form",
-  },
-  "app/[locale]/(protected)/onboarding/wizard/components/step-profile.tsx": {
-    rules: ["submit-button"],
-    reason: "onboarding wizard step that continues to the next step",
-  },
-  "components/wiki/wiki-homepage-setup.tsx": {
-    rules: ["submit-button"],
-    reason: "onboarding knowledge base setup that starts a generation run",
-  },
-  "components/shared/error-page-view.tsx": {
-    rules: ["footer-primitive"],
-    reason: "error page card with recovery links",
-  },
-  "components/shared/not-found-page-view.tsx": {
-    rules: ["footer-primitive"],
-    reason: "not-found page card with recovery links",
-  },
-  "components/shared/locked-feature-overlay.tsx": {
-    rules: ["footer-primitive"],
-    reason: "upgrade card with a single call to action",
-  },
-  "components/ai-elements/message.tsx": {
-    rules: ["footer-primitive"],
-    reason: "chat message bubble footer, not a form",
-  },
   "app/[locale]/(protected)/test/overlays/overlay-gallery.tsx": {
-    rules: ["footer-primitive", "overlay-footer", "confirm-primitive"],
+    rules: ["confirm-primitive"],
     reason: "test-only gallery that renders the raw overlay primitives",
-  },
-  "app/[locale]/(protected)/settings/(workspace)/components/company-invite/invite-by-email-form.tsx": {
-    rules: ["submit-button"],
-    reason: "sends invitations, an action form without saved state",
   },
   "app/[locale]/(protected)/inbox/components/thread-reply-composer.tsx": {
     rules: ["submit-button"],
     reason: "message composer whose submit sends the message",
-  },
-  "components/data-view/filter-palette/filter-target-popover.tsx": {
-    rules: ["overlay-footer"],
-    reason: "filters apply immediately; the footer only holds Clear",
   },
   "app/[locale]/(protected)/settings/(account)/components/connect-upsell-modal.tsx": {
     rules: ["footer-primitive", "cancel-label"],
@@ -169,9 +102,11 @@ function scannedFiles(): string[] {
   ).filter((path) => !relative(REPO_ROOT, path).startsWith("components/ui/"));
 }
 
-function violatedRules(file: string, source: string): Rule[] {
+function violatedRules(file: string, source: string, messages: ReadonlyMap<string, string> = ENGLISH): Rule[] {
+  const editor = isSaveCancelEditor(source, messages);
   return (Object.keys(RULE_PATTERNS) as Rule[]).filter((rule) => {
     if (RULE_OWNERS[rule].has(file)) return false;
+    if (EDITOR_RULES.has(rule) && !editor) return false;
     if (!RULE_PATTERNS[rule].test(source)) return false;
     if (rule === "overlay-footer") return !RENDERS_SHARED_FOOTER.test(source);
     return true;
@@ -192,13 +127,6 @@ function isAllowed(file: string, rule: Rule) {
   return Boolean(EXEMPT[file]?.rules.includes(rule) || NOT_YET_MIGRATED[file]?.includes(rule));
 }
 
-function flattenMessages(value: unknown, prefix = ""): [string, string][] {
-  if (typeof value === "string") return [[prefix, value]];
-  if (Array.isArray(value) || typeof value !== "object" || value === null) return [];
-  return Object.entries(value).flatMap(([key, child]) => flattenMessages(child, prefix ? `${prefix}.${key}` : key));
-}
-
-const SAVE_LIKE_LABEL = /^(?:Save|Update|Apply)(?: \S+){0,2}$/;
 const SAVE_LIKE_KEY_EXEMPT: Record<string, string> = {
   "Inbox.compose.saveDraft": "keeps a message as a draft instead of sending it, a different action than Save",
   "Inbox.compose.updateDraft": "keeps a message as a draft instead of sending it, a different action than Save",
@@ -250,5 +178,29 @@ describe("footer actions follow one shared component (design rules 30, 31, 35)",
       (key) => !messages.some(([candidate, value]) => candidate === key && SAVE_LIKE_LABEL.test(value)),
     );
     expect(stale).toEqual([]);
+  });
+
+  it("applies the footer rules to save and cancel editors, not to call-to-action cards", () => {
+    const messages = new Map([
+      ["Auth.signIn", "Sign in"],
+      ["Profile.update", "Update profile"],
+      ["Filters.clear", "Clear"],
+    ]);
+    const card = '<AppCardFooter><Button type="submit">{t("Auth.signIn")}</Button></AppCardFooter>';
+    const editor = '<AppCardFooter><Button type="submit">{t("Profile.update")}</Button></AppCardFooter>';
+    const guarded = 'const dirty = store.hasUnsavedChanges;\n<DialogFooter>{t("Filters.clear")}</DialogFooter>';
+    const cancelling = '<SheetFooter><Button>{t("Common.actions.cancel")}</Button></SheetFooter>';
+    const confirm = 'import { AlertDialog } from "@/components/ui/alert-dialog";';
+    expect(violatedRules("card.tsx", card, messages)).toEqual([]);
+    expect(violatedRules("editor.tsx", editor, messages)).toEqual(["footer-primitive", "submit-button"]);
+    expect(violatedRules("guarded.tsx", guarded, messages)).toEqual(["footer-primitive"]);
+    expect(violatedRules("cancelling.tsx", cancelling, messages)).toEqual(["cancel-label", "footer-primitive"]);
+    expect(violatedRules("confirm.tsx", confirm, messages)).toEqual(["confirm-primitive"]);
+  });
+});
+
+describe("exception membership against the review base", () => {
+  it("adds no exception members beyond the review base and the reviewed additions", () => {
+    expect(unreviewedExceptionAdditions("form-footer-actions.test.ts")).toEqual([]);
   });
 });

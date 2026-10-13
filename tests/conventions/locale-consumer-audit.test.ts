@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import ts from "typescript";
 
 import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, parseSource, readSourceText, walkFiles } from "./walk";
+import { unreviewedExceptionAdditions } from "./exception-membership";
 
 import { REGISTERED_LOCALES } from "@/i18n/locale-registry";
 
@@ -81,7 +82,6 @@ const ALLOWED_VISIBLE_COPY_SITES = new Map<string, VisibleCopyException>([
   ...reviewedVisibleCopy("Terminal and keyboard tokens have invariant external meaning.", [
     'app/[locale]/(static)/components/homepage-clip-terminal.tsx :: jsx-text :: "~/agent"',
     'app/[locale]/(static)/components/homepage-clip-terminal.tsx :: jsx-text :: "tool"',
-    'app/components/global-search-modal.tsx :: jsx-text :: "Tab"',
   ]),
   ...reviewedVisibleCopy("Reciprocal directory labels are externally defined and locale-invariant.", [
     'app/components/footer-content.tsx :: jsx-text :: "Viesearch - The Human-curated Search Engine"',
@@ -722,5 +722,11 @@ describe("locale consumer audit", () => {
     }
 
     expect(problems, `locale consumers bound to the wrong domain:\n${problems.join("\n")}`).toEqual([]);
+  });
+});
+
+describe("exception membership against the review base", () => {
+  it("adds no exception members beyond the review base and the reviewed additions", () => {
+    expect(unreviewedExceptionAdditions("locale-consumer-audit.test.ts")).toEqual([]);
   });
 });

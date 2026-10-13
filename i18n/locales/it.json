@@ -3910,7 +3910,6 @@
   },
   "ResetPasswordForm": {
     "backToSignIn": "Ti ricordi la password? <backToSignInLink>Accedi</backToSignInLink>",
-    "resetPasswordCta": "Reimposta",
     "title": "Reimposta la tua password"
   },
   "ResizablePanels": {

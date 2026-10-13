@@ -15,6 +15,7 @@ import { useRootStore } from "@/core/stores/root-store.provider";
 import { PlanPicker } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/plan-picker";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+import { contactHref } from "@/core/utils/contact-href";
 
 const SubscriptionExpiredViewContent = observer(({ recoveryPath }: { recoveryPath: SubscriptionRecoveryPath }) => {
   const t = useTranslations();
@@ -46,7 +47,9 @@ const SubscriptionExpiredViewContent = observer(({ recoveryPath }: { recoveryPat
           className="w-full"
           variant="secondary"
           onClick={() => {
-            window.location.href = `mailto:mail@customermates.com?subject=${encodeURIComponent(t("SubscriptionExpiredView.supportEmailSubject"))}`;
+            const supportHref = contactHref("email", "mail@customermates.com");
+            if (supportHref)
+              window.location.href = `${supportHref}?subject=${encodeURIComponent(t("SubscriptionExpiredView.supportEmailSubject"))}`;
           }}
         >
           {t("SubscriptionExpiredView.contactSupportCta")}

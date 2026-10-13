@@ -5,6 +5,7 @@ import { IntlMessageFormat } from "intl-messageformat";
 import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, walkFiles } from "./walk";
+import { unreviewedExceptionAdditions } from "./exception-membership";
 
 import { APP_LOCALES, CONTENT_LOCALES, DEFAULT_LOCALE, ROUTING_LOCALES } from "@/i18n/locale-registry";
 
@@ -71,49 +72,41 @@ const REQUIRED_TRANSLATION_FRAGMENTS: Record<string, Record<string, readonly str
   },
 };
 
+type MessageElement = {
+  type: number;
+  value?: unknown;
+  options?: Record<string, { value: MessageElement[] }>;
+  children?: MessageElement[];
+};
+
+const LITERAL_ELEMENT = 0;
+
+function messageProse(elements: MessageElement[]): string {
+  return elements
+    .map((element) => {
+      if (element.type === LITERAL_ELEMENT) return String(element.value);
+      if (element.options) return Object.values(element.options).map((option) => messageProse(option.value)).join(" ");
+      if (element.children) return messageProse(element.children);
+      return "";
+    })
+    .join("");
+}
+
+function isLocaleInvariantTemplate(message: string): boolean {
+  const ast = new IntlMessageFormat(message, DEFAULT_LOCALE, undefined, { ignoreTag: false }).getAst();
+  return !/\p{L}/u.test(messageProse(ast as MessageElement[]));
+}
+
 const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   // German dashboards abbreviate quarters with Q, as in English.
   "de:RecordWidgets.quarterLabel",
   // "Configuration" is the French word as well.
   "fr:EntityTimeline.types.configuration",
-  // The board count is pure ICU plural syntax around user-defined record type labels.
-  "de:DataView.kanbanCount",
-  "es:DataView.kanbanCount",
-  "fr:DataView.kanbanCount",
-  "it:DataView.kanbanCount",
-  // The localized view type and name use the same colon syntax in these languages.
-  "de:AgentChat.context.viewLabel",
-  "es:AgentChat.context.viewLabel",
-  "it:AgentChat.context.viewLabel",
   "de:ConnectedAccountsCard.emailLogoPlaceholder",
   "es:ConnectedAccountsCard.emailLogoPlaceholder",
   "fr:ConnectedAccountsCard.emailLogoPlaceholder",
   "it:ConnectedAccountsCard.emailLogoPlaceholder",
-  "de:OperatorUsers.modal.identity",
-  "es:OperatorUsers.modal.identity",
-  "fr:OperatorUsers.modal.identity",
-  "it:OperatorUsers.modal.identity",
-  "de:OperatorWorkspaces.modal.identity",
-  "es:OperatorWorkspaces.modal.identity",
-  "fr:OperatorWorkspaces.modal.identity",
-  "it:OperatorWorkspaces.modal.identity",
   "fr:OperatorWorkspaces.stats.threads",
-  "de:AgentChat.activity.contextual",
-  "es:AgentChat.activity.contextual",
-  "fr:AgentChat.activity.contextual",
-  "it:AgentChat.activity.contextual",
-  "de:AgentChat.activity.contextMore",
-  "es:AgentChat.activity.contextMore",
-  "fr:AgentChat.activity.contextMore",
-  "it:AgentChat.activity.contextMore",
-  "de:AgentChat.activity.countedResource",
-  "es:AgentChat.activity.countedResource",
-  "fr:AgentChat.activity.countedResource",
-  "it:AgentChat.activity.countedResource",
-  "de:AgentChat.activity.countedSingular",
-  "es:AgentChat.activity.countedSingular",
-  "fr:AgentChat.activity.countedSingular",
-  "it:AgentChat.activity.countedSingular",
   "it:AgentChat.activity.countedRecordInResource",
   "fr:AgentChat.activity.resource.messages",
   "fr:AgentChat.activity.resourceSingular.messages",
@@ -131,7 +124,6 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "de:OnboardingWizard.ai.choices.claudeDesktop",
   "de:OnboardingWizard.ai.choices.openai",
   "de:RoleModal.resources.api",
-  "de:Subscription.planStatusLabel",
   "fr:AgplGithubBadge.label",
   "fr:RoutineDetail.triggerThread",
   "fr:Common.defaultData.deal.options.qualification",
@@ -143,19 +135,16 @@ const ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS = new Set([
   "fr:NavigationBar.docs",
   "fr:OnboardingWizard.ai.choices.claudeDesktop",
   "fr:OnboardingWizard.ai.choices.openai",
-  "fr:Subscription.planStatusLabel",
   "fr:UserAvatar.documentation",
   "it:AgplGithubBadge.label",
   "it:ConnectedAccountsCard.channels.linkedinClassic",
   "it:DocsSidebar.openapi",
   "it:OnboardingWizard.ai.choices.claudeDesktop",
   "it:OnboardingWizard.ai.choices.openai",
-  "it:Subscription.planStatusLabel",
   "es:ConnectedAccountsCard.channels.linkedinClassic",
   "es:DocsSidebar.openapi",
   "es:OnboardingWizard.ai.choices.claudeDesktop",
   "es:OnboardingWizard.ai.choices.openai",
-  "es:Subscription.planStatusLabel",
 ]);
 
 type IcuElement = {
@@ -426,6 +415,7 @@ describe("i18n parity", () => {
         const leaves = loadLocaleLeaves(locale);
         for (const [key, referenceValue] of referenceLeaves) {
           if (referenceValue.length < 12 || leaves.get(key) !== referenceValue) continue;
+          if (isLocaleInvariantTemplate(referenceValue)) continue;
           if (!ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS.has(`${locale}:${key}`)) unreviewed.push(`${locale}:${key}`);
         }
       }
@@ -442,6 +432,7 @@ describe("i18n parity", () => {
         const referenceValue = referenceLeaves.get(key);
         if (!reviewedSourceIdenticalLocales.has(locale) || referenceValue === undefined || referenceValue.length < 12)
           return true;
+        if (isLocaleInvariantTemplate(referenceValue)) return true;
 
         return loadLocaleLeaves(locale).get(key) !== referenceValue;
       });
@@ -504,5 +495,22 @@ describe("i18n parity", () => {
     }
 
     expect(problems, `content tree locale mismatches:\n${problems.join("\n")}`).toEqual([]);
+  });
+});
+
+describe("locale-invariant message templates", () => {
+  it("treats only messages without translatable letters outside ICU syntax as invariant", () => {
+    expect(isLocaleInvariantTemplate("{count, plural, one {# {singular}} other {# {plural}}}")).toBe(true);
+    expect(isLocaleInvariantTemplate("{type}: {name} <b>{detail}</b>")).toBe(true);
+    expect(isLocaleInvariantTemplate("{count, plural, one {# record} other {# records}}")).toBe(false);
+    expect(isLocaleInvariantTemplate("Q{quarter} {year}")).toBe(false);
+    expect(isLocaleInvariantTemplate("{name} <b>was added</b>")).toBe(false);
+    expect(isLocaleInvariantTemplate("{state, select, open {Open} other {{state}}}")).toBe(false);
+  });
+});
+
+describe("exception membership against the review base", () => {
+  it("adds no exception members beyond the review base and the reviewed additions", () => {
+    expect(unreviewedExceptionAdditions("i18n-parity.test.ts")).toEqual([]);
   });
 });

@@ -131,15 +131,20 @@ export function singleKeyShortcutBlocked(event: KeyPress & { target: EventTarget
   );
 }
 
-const MAC_KEY_SYMBOLS: Record<string, string> = { Enter: "↵", Escape: "Esc" };
+const MAC_KEY_SYMBOLS: Record<string, string> = { Enter: "↵", Escape: "Esc", Tab: "Tab" };
 const OTHER_KEY_NAMES: Record<string, string> = {
   Enter: "Enter",
   Escape: "Esc",
+  Tab: "Tab",
 };
 
-export function chordLabel(chord: KeyChord, platform: KeyboardPlatform): string {
+export function keyLabel(key: string, platform: KeyboardPlatform): string {
   const names = platform === "mac" ? MAC_KEY_SYMBOLS : OTHER_KEY_NAMES;
-  const key = names[chord.key] ?? chord.key.toUpperCase();
+  return names[key] ?? key.toUpperCase();
+}
+
+export function chordLabel(chord: KeyChord, platform: KeyboardPlatform): string {
+  const key = keyLabel(chord.key, platform);
   if (!chord.mod) return key;
   return platform === "mac" ? `⌘${key}` : `Ctrl+${key}`;
 }
