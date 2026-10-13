@@ -29,6 +29,23 @@ export function useDeleteConfirmation() {
     deleteConfirmationModalStore.open();
   }
 
+  function showTrashConfirmation(
+    onConfirm: DeleteConfirmationData["onConfirm"],
+    entityName: string,
+    focusAfterConfirm?: () => boolean,
+    onRestored?: () => unknown,
+  ) {
+    deleteConfirmationModalStore.onInitOrRefresh({
+      title: t("Common.deleteConfirmation.title"),
+      message: t("Common.deleteConfirmation.trashMessageWithName", { name: entityName }),
+      entityName,
+      focusAfterConfirm,
+      onConfirm,
+      onRestored,
+    });
+    deleteConfirmationModalStore.open();
+  }
+
   function showConfirmation(data: Omit<DeleteConfirmationData, "entityName">) {
     deleteConfirmationModalStore.onInitOrRefresh({
       ...data,
@@ -38,5 +55,5 @@ export function useDeleteConfirmation() {
     deleteConfirmationModalStore.open();
   }
 
-  return { showConfirmation, showDeleteConfirmation };
+  return { showConfirmation, showDeleteConfirmation, showTrashConfirmation };
 }

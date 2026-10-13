@@ -39,7 +39,7 @@ const RoutinesPageViewContent = observer(function RoutinesPageView({ initialRout
   useDataViewSync(routinesStore, initialRoutines);
   const columns = useRoutineColumns();
   const t = useTranslations();
-  const { showDeleteConfirmation } = useDeleteConfirmation();
+  const { showTrashConfirmation } = useDeleteConfirmation();
   const canDelete = routineModalStore.isAdmin;
   const rowActions = useCallback(
     (routine: RoutineDto) => (
@@ -48,7 +48,7 @@ const RoutinesPageViewContent = observer(function RoutinesPageView({ initialRout
         onDelete={
           canDelete
             ? () =>
-                showDeleteConfirmation(
+                showTrashConfirmation(
                   () => routineModalStore.deleteById(routine.id),
                   routine.name,
                   undefined,
@@ -59,7 +59,7 @@ const RoutinesPageViewContent = observer(function RoutinesPageView({ initialRout
         onOpen={() => runUserAction(() => routineModalStore.openForEdit(routine))}
       />
     ),
-    [canDelete, routineModalStore, routinesStore, showDeleteConfirmation],
+    [canDelete, routineModalStore, routinesStore, showTrashConfirmation],
   );
   const view = resolveDataViewView(routinesStore.viewMode, routinesStore.canBoard);
   const pageState = resolveDataViewPageState({

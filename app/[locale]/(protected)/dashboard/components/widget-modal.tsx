@@ -69,7 +69,7 @@ function WidgetModalSkeleton() {
 export const WidgetModal = observer(() => {
   const t = useTranslations();
   const { widgetModalStore } = useRootStore();
-  const { showDeleteConfirmation } = useDeleteConfirmation();
+  const { showTrashConfirmation } = useDeleteConfirmation();
   const { form, canManage, isDisabled, companyWideWidgets } = widgetModalStore;
   const askAction = useRecordAiAction({
     context: { reference: { kind: "widget", widgetId: form.id ?? "" }, label: form.name },
@@ -92,7 +92,7 @@ export const WidgetModal = observer(() => {
         variant: "destructive",
         disabled: isDisabled,
         onClick: () =>
-          showDeleteConfirmation(
+          showTrashConfirmation(
             () => widgetModalStore.delete(),
             form.name,
             undefined,

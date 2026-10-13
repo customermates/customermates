@@ -32,7 +32,7 @@ export const RoutineModal = observer(() => {
   const router = useRouter();
   const { routineModalStore, routineRunChatStore } = useRootStore();
   const { form } = routineModalStore;
-  const { showConfirmation, showDeleteConfirmation } = useDeleteConfirmation();
+  const { showConfirmation, showTrashConfirmation } = useDeleteConfirmation();
   const runScrollRef = useRef<HTMLDivElement>(null);
   const [isRefreshPending, startRefreshTransition] = useTransition();
   const wide = useIsWiderThan("lg");
@@ -68,9 +68,9 @@ export const RoutineModal = observer(() => {
     variant: "destructive",
     disabled: routineModalStore.isLoading,
     onClick: () =>
-      showDeleteConfirmation(
+      showTrashConfirmation(
         () => routineModalStore.delete(),
-        form.name,
+        form.name ?? "",
         undefined,
         () => routineModalStore.rootStore.routinesStore.refresh(),
       ),
