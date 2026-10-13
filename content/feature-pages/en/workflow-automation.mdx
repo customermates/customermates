@@ -52,11 +52,11 @@ Customermates does not ship an automation engine. It ships the surfaces one need
 
 **Data transformation.** Move data between systems without worrying about format mismatches. n8n includes built-in tools for mapping fields, transforming data types, merging records, and splitting arrays. Your data arrives in the right format at the right destination every time.
 
-**External AI clients alongside your workflows.** A separate n8n instance handles scheduled, rule-based automation. Supported external clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools for permitted CRM operations and individual drafts. You bring and pay for that client; only the hosted Mate assistant in the cloud is included with your plan's AI credits.
+**External AI clients alongside your workflows.** A separate n8n instance handles rule-based workflows and email sequences. Supported external clients such as Claude, ChatGPT, or Gemini can use [[derived.mcp.tools.total]] MCP tools for permitted CRM operations and individual drafts. You bring and pay for that client; only the hosted Mate assistant in the cloud is included with your plan's AI credits.
 
 ## Common Workflow Automation Examples
 
-**Timed follow-ups in an external tool.** Customermates has no email sequences or built-in scheduler. When a new contact or deal enters your [pipeline](/features/pipeline), a type-filtered `record.created` webhook can start an n8n workflow that sends an introduction email through your own email provider, creates a call task in Customermates through REST, and checks a week later whether the record has changed. The timing and delivery run in n8n, not in Customermates.
+**Timed follow-ups in an external tool.** Customermates has no email sequences or workflow builder; its cloud routines run Mate on a schedule, but they do not send a sequence of emails. When a new contact or deal enters your [pipeline](/features/pipeline), a type-filtered `record.created` webhook can start an n8n workflow that sends an introduction email through your own email provider, creates a call task in Customermates through REST, and checks a week later whether the record has changed. The timing and delivery run in n8n, not in Customermates.
 
 **Deal stage notifications.** When a deal progresses to a new stage, notify the relevant team members automatically. Message the account manager when a deal reaches negotiation. Tell finance when a deal is marked as won. Send a summary to the sales director when a deal exceeds a certain value. The messages go out through the channels your workflow connects, since Customermates has no built-in notifications.
 
