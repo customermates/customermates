@@ -20,6 +20,7 @@ import { isEmailProvider } from "../provider";
 import { isUnipileRateLimit, getRetryAfterSeconds } from "../messaging.service";
 import { retryAfterPhrase } from "../retry-after.server";
 import type { ResyncThread, ResyncThreadRepo } from "./resync-thread.repo";
+import { synchronizeInboundAvatar, type ProviderAvatars } from "../ingest/inbound-avatar";
 
 const Schema = z.object({ threadId: z.uuid() });
 type ResyncThreadData = Data<typeof Schema>;
@@ -38,6 +39,7 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
     private repo: ResyncThreadRepo,
     private messagingService: MessagingService,
     private entitlements: EntitlementService,
+    private avatars: ProviderAvatars,
   ) {
     super();
   }
@@ -222,12 +224,13 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
 
   private async ingestSafely(thread: ResyncThread, message: IngestMessage, raw: unknown): Promise<boolean> {
     try {
-      await this.repo.ingestMessageUnscoped({
+      const ingested = await this.repo.ingestMessageUnscoped({
         companyId: thread.companyId,
         connectedAccountId: thread.connectedAccountId,
         message,
         backfill: true,
       });
+      await synchronizeInboundAvatar(this.avatars, thread.companyId, ingested);
 
       return true;
     } catch (err) {

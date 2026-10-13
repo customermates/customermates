@@ -76,7 +76,7 @@ async function workspace() {
     policy,
     new RecordWriteService(repo, policy, new RecordCalculationService(repo)),
     { dispatch: () => Promise.resolve() },
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const exporter = new ExportRecordWorkbookInteractor(repo, policy);
   await runWithTenant(admin, () =>

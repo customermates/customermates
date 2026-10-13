@@ -1,5 +1,6 @@
 import type { EventLog } from "@/generated/prisma";
 import type { RecordActor } from "./record.repo";
+import type { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import type { RecordEventMatchWithSubscription, RecordQueryMatch, RecordRecipientRepo } from "./record-recipient.repo";
 import { compileRecordQuery } from "./record-query";
 
@@ -8,23 +9,13 @@ import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 
 export class PrismaRecordRecipientRepo extends TenantRepository implements RecordRecipientRepo {
+  constructor(private actors: Pick<PrismaUserRepo, "findRecordActorUnscoped">) {
+    super();
+  }
+
   @BypassTenantGuard
   findRecipientActorUnscoped(companyId: string, userId: string): Promise<RecordActor | null> {
-    return this.prisma.user.findFirst({
-      where: { companyId, id: userId, status: "active", role: { companyId } },
-      select: {
-        id: true,
-        status: true,
-        role: {
-          select: {
-            id: true,
-            companyId: true,
-            isSystemRole: true,
-            permissions: { where: { companyId }, select: { resource: true, action: true } },
-          },
-        },
-      },
-    });
+    return this.actors.findRecordActorUnscoped(companyId, userId);
   }
 
   @BypassTenantGuard

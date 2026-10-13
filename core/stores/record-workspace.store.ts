@@ -8,6 +8,7 @@ import { RecordEditorStore } from "@/app/[locale]/(protected)/records/[typeId]/c
 import { getRecordEditorAction, getRecordNavigationAction } from "@/app/[locale]/(protected)/records/actions";
 import { reportApplicationError, runUserAction } from "@/core/errors/report-application-error";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { RecordDetailLayoutResult } from "@/features/records/record-detail-layout.schema";
 import { RecordDetailLayoutStore, type RecordDetailLayoutNotifications } from "./record-detail-layout.store";
 import { toast } from "sonner";
@@ -27,6 +28,7 @@ export class RecordWorkspaceStore {
   navigationRefreshFailed = false;
   editor: RecordEditorStore | null = null;
   isOpening = false;
+  accessDenied = false;
   private opening = 0;
   private navigationRequest = 0;
   private listeners = new Set<() => Promise<void>>();
@@ -44,6 +46,7 @@ export class RecordWorkspaceStore {
       navigationRefreshFailed: observable,
       editor: observable.ref,
       isOpening: observable,
+      accessDenied: observable,
       setNavigation: action,
       setEditor: action,
       setOpening: action,
@@ -238,6 +241,7 @@ export class RecordWorkspaceStore {
 
   close = () => {
     this.opening += 1;
+    this.accessDenied = false;
     this.setOpening(false);
     this.editor?.close();
   };
@@ -251,6 +255,9 @@ export class RecordWorkspaceStore {
       runUserAction(async () => {
         const scope = this.actorScope;
         const opening = ++this.opening;
+        runInAction(() => {
+          this.accessDenied = false;
+        });
         this.setOpening(true);
         try {
           const result = await getRecordEditorAction({
@@ -259,7 +266,11 @@ export class RecordWorkspaceStore {
           });
           if (opening !== this.opening || scope !== this.actorScope) return;
           if (!result.ok) {
-            toastZodErrorTree(result.error);
+            if (input.recordId && result.code === CustomErrorCode.permissionDenied) {
+              runInAction(() => {
+                this.accessDenied = true;
+              });
+            } else toastZodErrorTree(result.error);
             return;
           }
           const editor = new RecordEditorStore(this.root, result.data, this.invalidate);

@@ -93,96 +93,158 @@ export const RULE_PARAMETER_CONSTANTS: Readonly<Record<string, string>> = {
   "walk.ts#SKIPPED_DIRECTORIES": "dependencies, build output and run artifacts that are not repository sources",
 };
 
-export const REVIEWED_EXCEPTION_ALLOWLIST = new Set<string>([
-  "design-system.test.ts#COLOR_EXEMPTIONS: components/ai-connection/ai-client-logo.tsx",
-  "design-system.test.ts#COLOR_EXEMPTIONS: ee/messaging/email-settings.ts",
-  "design-system.test.ts#COLOR_EXEMPTIONS: ee/messaging/email-styles.ts",
-  "design-system.test.ts#COLOR_EXEMPTIONS: features/messaging/email-frame.tsx",
-  "design-system.test.ts#INLINE_SVG_EXEMPTIONS: app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx",
-  "design-system.test.ts#INLINE_SVG_EXEMPTIONS: app/[locale]/(protected)/onboarding/wizard/components/onboarding-artwork.tsx",
-  "design-system.test.ts#INLINE_SVG_EXEMPTIONS: app/components/agent-chat/usage-ring.tsx",
-  "design-system.test.ts#INLINE_SVG_EXEMPTIONS: components/ai-connection/ai-client-logo.tsx",
-  "design-system.test.ts#NATIVE_TITLE_EXEMPTIONS: components/shared/locale-menu.tsx",
-  "design-unification.test.ts#TABLE_ROW_MENU_EXEMPTIONS: app/[locale]/(protected)/operator/components/users/operator-users-page-view.tsx",
-  "design-unification.test.ts#TABLE_ROW_MENU_EXEMPTIONS: app/[locale]/(protected)/operator/components/workspaces/operator-workspaces-page-view.tsx",
-  "design-unification.test.ts#NON_STANDARD_CHIP_ALLOWLIST: app/[locale]/(protected)/inbox/components/thread-settings.tsx",
-  "design-unification.test.ts#HAND_BUILT_REVEAL_ALLOWLIST: components/data-view/column-resize-handle.tsx",
-  "design-unification.test.ts#HAND_BUILT_REVEAL_ALLOWLIST: components/data-view/row-actions.tsx",
-  "design-unification.test.ts#HAND_BUILT_REVEAL_ALLOWLIST: components/layout/resizable-panels.tsx",
-  "form-footer-actions.test.ts#EXEMPT: app/[locale]/(protected)/inbox/components/thread-reply-composer.tsx [rules: submit-button]",
-  "form-footer-actions.test.ts#EXEMPT: app/[locale]/(protected)/settings/(account)/components/connect-upsell-modal.tsx [rules: cancel-label]",
-  "form-footer-actions.test.ts#EXEMPT: app/[locale]/(protected)/settings/(account)/components/connect-upsell-modal.tsx [rules: footer-primitive]",
-  "form-footer-actions.test.ts#EXEMPT: app/[locale]/(protected)/test/overlays/overlay-gallery.tsx [rules: confirm-primitive]",
-  "form-footer-actions.test.ts#SAVE_LIKE_KEY_EXEMPT: DataTransfer.recordImport.update",
-  "form-footer-actions.test.ts#SAVE_LIKE_KEY_EXEMPT: Editor.confirm",
-  "form-footer-actions.test.ts#SAVE_LIKE_KEY_EXEMPT: Inbox.compose.saveDraft",
-  "form-footer-actions.test.ts#SAVE_LIKE_KEY_EXEMPT: Inbox.compose.updateDraft",
-  "interactor-error-contract.test.ts#FEATURE_ERROR_SUBCLASS_ALLOWLIST: ee/messaging/unipile-request-error.ts -> UnipileRequestError",
-  "interactor-error-contract.test.ts#FEATURE_ERROR_SUBCLASS_ALLOWLIST: ee/routines/routine-run-limits.ts -> RoutineLimitExceededError",
-  "prisma-model-ownership.test.ts#ALLOWLIST: AgentConversation ee/routines/prisma-routine.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: Apikey ee/operator/prisma-operator.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: AuthUser ee/operator/prisma-operator.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: AuthVerification ee/operator/prisma-operator.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: Company ee/operator/prisma-operator.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: Company features/user/prisma-user.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: ConversionEvent features/user/prisma-user.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: CrmRecord ee/operator/prisma-operator.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: EventLog features/event/prisma-event-outbox.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: InviteToken ee/operator/prisma-operator.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: MessagingInboundEvent ee/messaging/persistence/prisma-connected-account.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: MessagingInboundEvent ee/messaging/persistence/prisma-messaging.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: MessagingInboundEvent ee/operator/prisma-operator.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: OauthConsent core/auth/better-auth.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: RecordEventMatch features/records/record-event-capture.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: RecordOperation features/records/prisma-record-operation-queue.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: RoutineRun ee/agent-chat/prisma-agent-chat.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: Subscription ee/operator/prisma-operator.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: Subscription features/user/prisma-user.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: User core/auth/better-auth.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: User ee/operator/prisma-operator.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: UserRole features/user/prisma-user.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: WebhookDelivery features/webhook/prisma-webhook-delivery-queue.repository.ts",
-  "prisma-model-ownership.test.ts#ALLOWLIST: WebhookDelivery features/webhook/prisma-webhook.repository.ts",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: core/decorators/transaction-runner.ts:runInSavepoint",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: core/decorators/transaction-runner.ts:runInTransaction",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/agent-chat/prisma-agent-chat.repository.ts:PrismaAgentChatRepo.admitsHostedAiGlobalSpend",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/agent-chat/prisma-agent-chat.repository.ts:PrismaAgentChatRepo.releaseStaleRetrievalReservations",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/agent-chat/prisma-agent-chat.repository.ts:PrismaAgentChatRepo.settlePlatformUsageUnscoped",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/agent-chat/prisma-agent-chat.repository.ts:PrismaAgentChatRepo.settleStalePlatformReservationsUnscoped",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.deleteWorkspaceUnscoped",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.getUserSummaryUnscoped",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.listWorkspaceTagsUnscoped",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.lockPlatformOperatorInvariant",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/command-palette/prisma-search-catalog.repository.ts:PrismaSearchCatalogRepo.replaceWorkspaceCatalog",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/command-palette/prisma-search-catalog.repository.ts:PrismaSearchCatalogRepo.semanticIndexAvailable",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/command-palette/prisma-search-catalog.repository.ts:PrismaSearchCatalogRepo.writeStaticCatalog",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.pendingEmbeddings",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.rankedFullTextSections",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.semanticIndexAvailable",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.semanticIndexComplete",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.semanticSections",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.storeEmbeddings",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.typoCorrections",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.writeCorpus",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/records/prisma-record.repository.ts:PrismaRecordRepo.searchRecords",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/user/prisma-user.repository.ts:PrismaUserRepo.findAuthUserCompanyIdForUpdateUnscoped",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/wiki/prisma-wiki-page.repository.ts:PrismaWikiPageRepo.rankPageSections",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/wiki/prisma-wiki-page.repository.ts:PrismaWikiPageRepo.sectionHeadlines",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/wiki/prisma-wiki-page.repository.ts:PrismaWikiPageRepo.semanticIndexAvailable",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: prisma/seeds/records.ts:calculateSyntheticRecords",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: prisma/seeds/records.ts:seedRecordFixtures",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: prisma/seeds/relationships.ts:seedRelationships",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: prisma/seeds/run.ts:runSyntheticSeed",
-  "ui-wording.test.ts#SHARED_ACTION_WORD_EXEMPTIONS: AgentChat.approval.rejectAction",
-  "ui-wording.test.ts#SHARED_ACTION_WORD_EXEMPTIONS: ResetPasswordForm.resetPasswordCta",
-  "ui-wording.test.ts#GERMAN_TERM_EXEMPTIONS: Cancelled",
-  "ui-wording.test.ts#GERMAN_TERM_EXEMPTIONS: Contact",
-  "ui-wording.test.ts#GERMAN_TERM_EXEMPTIONS: Layout",
-  "ui-wording.test.ts#GERMAN_TERM_EXEMPTIONS: Number",
-  "ui-wording.test.ts#GERMAN_TERM_EXEMPTIONS: Services",
-  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: de:RecordWidgets.quarterLabel",
-  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: fr:EntityTimeline.types.configuration",
-]);
+export const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
+  "design-system.test.ts#COLOR_EXEMPTIONS: components/ai-connection/ai-client-logo.tsx":
+    "unresolved C01: third-party brand mark in its own brand colors",
+  "design-system.test.ts#COLOR_EXEMPTIONS: ee/messaging/email-settings.ts":
+    "unresolved C01: email documents render without the app color tokens",
+  "design-system.test.ts#COLOR_EXEMPTIONS: ee/messaging/email-styles.ts":
+    "unresolved C01: email documents render without the app color tokens",
+  "design-system.test.ts#COLOR_EXEMPTIONS: features/messaging/email-frame.tsx":
+    "unresolved C01: email documents render without the app color tokens",
+  "design-system.test.ts#INLINE_SVG_EXEMPTIONS: app/[locale]/(protected)/dashboard/components/widget-display-type-picker.tsx":
+    "unresolved C01: data graphic or illustration, not an icon",
+  "design-system.test.ts#INLINE_SVG_EXEMPTIONS: app/[locale]/(protected)/onboarding/wizard/components/onboarding-artwork.tsx":
+    "unresolved C01: data graphic or illustration, not an icon",
+  "design-system.test.ts#INLINE_SVG_EXEMPTIONS: app/components/agent-chat/usage-ring.tsx":
+    "unresolved C01: data graphic or illustration, not an icon",
+  "design-system.test.ts#INLINE_SVG_EXEMPTIONS: components/ai-connection/ai-client-logo.tsx":
+    "unresolved C01: third-party brand mark in its own brand colors",
+  "design-system.test.ts#NATIVE_TITLE_EXEMPTIONS: components/shared/locale-menu.tsx":
+    "unresolved C01: no-JS language menu on public pages, outside the product UI",
+  "design-unification.test.ts#TABLE_ROW_MENU_EXEMPTIONS: app/[locale]/(protected)/operator/components/users/operator-users-page-view.tsx":
+    "unresolved C02: owner decides the operator row menu for guarded deletion",
+  "design-unification.test.ts#TABLE_ROW_MENU_EXEMPTIONS: app/[locale]/(protected)/operator/components/workspaces/operator-workspaces-page-view.tsx":
+    "unresolved C02: owner decides the operator row menu for guarded deletion",
+  "design-unification.test.ts#NON_STANDARD_CHIP_ALLOWLIST: app/[locale]/(protected)/inbox/components/thread-settings.tsx":
+    "unresolved C02: owner decides chip or Button; a fix changes the toolbar look",
+  "design-unification.test.ts#HAND_BUILT_REVEAL_ALLOWLIST: components/data-view/column-resize-handle.tsx":
+    "unresolved C02: resize and row-menu reveals need active-drag and coarse-pointer states",
+  "design-unification.test.ts#HAND_BUILT_REVEAL_ALLOWLIST: components/data-view/row-actions.tsx":
+    "unresolved C02: resize and row-menu reveals need active-drag and coarse-pointer states",
+  "design-unification.test.ts#HAND_BUILT_REVEAL_ALLOWLIST: components/layout/resizable-panels.tsx":
+    "unresolved C02: resize and row-menu reveals need active-drag and coarse-pointer states",
+  "form-footer-actions.test.ts#EXEMPT: app/[locale]/(protected)/inbox/components/thread-reply-composer.tsx [rules: submit-button]":
+    "unresolved C03: message composer whose submit sends the message",
+  "form-footer-actions.test.ts#EXEMPT: app/[locale]/(protected)/settings/(account)/components/connect-upsell-modal.tsx [rules: cancel-label]":
+    "unresolved C03: upgrade prompt; ConfirmDialog would replace its mobile drawer",
+  "form-footer-actions.test.ts#EXEMPT: app/[locale]/(protected)/settings/(account)/components/connect-upsell-modal.tsx [rules: footer-primitive]":
+    "unresolved C03: upgrade prompt; ConfirmDialog would replace its mobile drawer",
+  "form-footer-actions.test.ts#EXEMPT: app/[locale]/(protected)/test/overlays/overlay-gallery.tsx [rules: confirm-primitive]":
+    "unresolved C03: test gallery that renders the raw confirm primitive",
+  "form-footer-actions.test.ts#SAVE_LIKE_KEY_EXEMPT: DataTransfer.recordImport.update":
+    "unresolved C03: labels a different action than Save",
+  "form-footer-actions.test.ts#SAVE_LIKE_KEY_EXEMPT: Editor.confirm":
+    "unresolved C03: labels a different action than Save",
+  "form-footer-actions.test.ts#SAVE_LIKE_KEY_EXEMPT: Inbox.compose.saveDraft":
+    "unresolved C03: labels a different action than Save",
+  "form-footer-actions.test.ts#SAVE_LIKE_KEY_EXEMPT: Inbox.compose.updateDraft":
+    "unresolved C03: labels a different action than Save",
+  "interactor-error-contract.test.ts#FEATURE_ERROR_SUBCLASS_ALLOWLIST: ee/messaging/unipile-request-error.ts -> UnipileRequestError":
+    "I146 (C04)",
+  "interactor-error-contract.test.ts#FEATURE_ERROR_SUBCLASS_ALLOWLIST: ee/routines/routine-run-limits.ts -> RoutineLimitExceededError":
+    "I146 (C04)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: AgentConversation ee/routines/prisma-routine.repository.ts": "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: Apikey ee/operator/prisma-operator.repository.ts": "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: AuthUser ee/operator/prisma-operator.repository.ts": "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: AuthVerification ee/operator/prisma-operator.repository.ts": "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: Company ee/operator/prisma-operator.repository.ts": "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: Company features/user/prisma-user.repository.ts": "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: ConversionEvent features/user/prisma-user.repository.ts": "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: CrmRecord ee/operator/prisma-operator.repository.ts": "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: EventLog features/event/prisma-event-outbox.repository.ts": "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: InviteToken ee/operator/prisma-operator.repository.ts": "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: MessagingInboundEvent ee/messaging/persistence/prisma-connected-account.repository.ts":
+    "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: MessagingInboundEvent ee/messaging/persistence/prisma-messaging.repository.ts":
+    "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: MessagingInboundEvent ee/operator/prisma-operator.repository.ts":
+    "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: OauthConsent core/auth/better-auth.ts": "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: RecordEventMatch features/records/record-event-capture.ts": "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: RecordOperation features/records/prisma-record-operation-queue.repository.ts":
+    "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: RoutineRun ee/agent-chat/prisma-agent-chat.repository.ts": "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: Subscription ee/operator/prisma-operator.repository.ts": "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: Subscription features/user/prisma-user.repository.ts": "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: User core/auth/better-auth.ts": "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: User ee/operator/prisma-operator.repository.ts": "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: UserRole features/user/prisma-user.repository.ts": "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: WebhookDelivery features/webhook/prisma-webhook-delivery-queue.repository.ts":
+    "I147 (C05)",
+  "prisma-model-ownership.test.ts#ALLOWLIST: WebhookDelivery features/webhook/prisma-webhook.repository.ts":
+    "I147 (C05)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: core/decorators/transaction-runner.ts:runInSavepoint": "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: core/decorators/transaction-runner.ts:runInTransaction": "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/agent-chat/prisma-agent-chat.repository.ts:PrismaAgentChatRepo.admitsHostedAiGlobalSpend":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/agent-chat/prisma-agent-chat.repository.ts:PrismaAgentChatRepo.releaseStaleRetrievalReservations":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/agent-chat/prisma-agent-chat.repository.ts:PrismaAgentChatRepo.settlePlatformUsageUnscoped":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/agent-chat/prisma-agent-chat.repository.ts:PrismaAgentChatRepo.settleStalePlatformReservationsUnscoped":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.deleteWorkspaceUnscoped":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.getUserSummaryUnscoped":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.listWorkspaceTagsUnscoped":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.lockPlatformOperatorInvariant":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/command-palette/prisma-search-catalog.repository.ts:PrismaSearchCatalogRepo.replaceWorkspaceCatalog":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/command-palette/prisma-search-catalog.repository.ts:PrismaSearchCatalogRepo.semanticIndexAvailable":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/command-palette/prisma-search-catalog.repository.ts:PrismaSearchCatalogRepo.writeStaticCatalog":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.pendingEmbeddings":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.rankedFullTextSections":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.semanticIndexAvailable":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.semanticIndexComplete":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.semanticSections":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.storeEmbeddings":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.typoCorrections":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.writeCorpus":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/records/prisma-record.repository.ts:PrismaRecordRepo.searchRecords":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/user/prisma-user.repository.ts:PrismaUserRepo.findAuthUserCompanyIdForUpdateUnscoped":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/wiki/prisma-wiki-page.repository.ts:PrismaWikiPageRepo.rankPageSections":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/wiki/prisma-wiki-page.repository.ts:PrismaWikiPageRepo.sectionHeadlines":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/wiki/prisma-wiki-page.repository.ts:PrismaWikiPageRepo.semanticIndexAvailable":
+    "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: prisma/seeds/records.ts:calculateSyntheticRecords": "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: prisma/seeds/records.ts:seedRecordFixtures": "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: prisma/seeds/relationships.ts:seedRelationships": "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: prisma/seeds/run.ts:runSyntheticSeed": "I148 (C06)",
+  "ui-wording.test.ts#SHARED_ACTION_WORD_EXEMPTIONS: AgentChat.approval.rejectAction": "I145 (C08)",
+  "ui-wording.test.ts#SHARED_ACTION_WORD_EXEMPTIONS: ResetPasswordForm.resetPasswordCta": "I145 (C08)",
+  "ui-wording.test.ts#GERMAN_TERM_EXEMPTIONS: Cancelled":
+    "unresolved C08: German-only homonym the other locales do not distinguish",
+  "ui-wording.test.ts#GERMAN_TERM_EXEMPTIONS: Contact":
+    "unresolved C08: German-only homonym the other locales do not distinguish",
+  "ui-wording.test.ts#GERMAN_TERM_EXEMPTIONS: Layout":
+    "unresolved C08: German-only homonym the other locales do not distinguish",
+  "ui-wording.test.ts#GERMAN_TERM_EXEMPTIONS: Number":
+    "unresolved C08: German-only homonym the other locales do not distinguish",
+  "ui-wording.test.ts#GERMAN_TERM_EXEMPTIONS: Services":
+    "unresolved C08: German-only homonym the other locales do not distinguish",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: de:RecordWidgets.quarterLabel":
+    "unresolved C09: valid cognate identical to English (policy conflict)",
+  "i18n-parity.test.ts#ALLOWED_SOURCE_IDENTICAL_TRANSLATIONS: fr:EntityTimeline.types.configuration":
+    "unresolved C09: valid cognate identical to English (policy conflict)",
+};
 
 const git = (...args: string[]) =>
   execFileSync("git", args, {
@@ -251,12 +313,12 @@ export function registryAdditions(file: string): string[] {
 }
 
 export function unreviewedExceptionAdditions(file: string): string[] {
-  return registryAdditions(file).filter((addition) => !REVIEWED_EXCEPTION_ALLOWLIST.has(addition));
+  return registryAdditions(file).filter((addition) => !(addition in REVIEWED_EXCEPTION_ALLOWLIST));
 }
 
 export function staleReviewedAdditions(): string[] {
   const additions = new Set(Object.keys(REGISTRY_FILES).flatMap(registryAdditions));
-  return [...REVIEWED_EXCEPTION_ALLOWLIST].filter((addition) => !additions.has(addition));
+  return Object.keys(REVIEWED_EXCEPTION_ALLOWLIST).filter((addition) => !additions.has(addition));
 }
 
 export function unclassifiedRegistryConstants(): string[] {
@@ -279,4 +341,12 @@ export function staleRuleParameterConstants(): string[] {
       return true;
     }
   });
+}
+
+const FOLLOW_UP = /^(?:I\d+ \(C\d{2}\)|unresolved C\d{2}: .+)$/;
+
+export function reviewedAdditionsWithoutFollowUp(): string[] {
+  return Object.entries(REVIEWED_EXCEPTION_ALLOWLIST)
+    .filter(([, followUp]) => !FOLLOW_UP.test(followUp))
+    .map(([addition]) => addition);
 }

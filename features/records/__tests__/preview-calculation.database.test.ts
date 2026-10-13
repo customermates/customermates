@@ -53,7 +53,7 @@ describeDatabase("Calculation preview", { timeout: 240_000 }, () => {
     {
       dispatch: () => Promise.resolve(),
     },
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const recordIds: string[] = [];
 

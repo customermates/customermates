@@ -24,10 +24,7 @@ export class StartChatRecordChannelRepo extends TenantRepository implements Star
   }
 
   findIdentityCompanyWide(id: string): Promise<{ provider: MessagingProvider; value: string } | null> {
-    return this.prisma.recordIdentity.findUnique({
-      where: { companyId: this.companyId, companyId_id: { companyId: this.companyId, id } },
-      select: { provider: true, value: true },
-    });
+    return this.records.getIdentityProviderValueCompanyWide(id);
   }
 
   async isRecordWritePaused(): Promise<boolean> {

@@ -39,7 +39,17 @@ const UnavailableApiResponse = {
   "422": failureResponse("Unavailable: the request is valid but cannot be served right now (error.kind unavailable)"),
 } as const;
 
-const RateLimitApiResponse = { "429": failureResponse("Rate limited: retry later (error.kind rate_limit)") } as const;
+const RateLimitApiResponse = {
+  "429": {
+    ...failureResponse("Rate limited: retry later (error.kind rate_limit)"),
+    headers: {
+      "Retry-After": {
+        description: "Seconds to wait before retrying",
+        schema: { type: "integer", minimum: 1 },
+      },
+    },
+  },
+} as const;
 
 export const MessagingProviderApiResponses = {
   "409": failureResponse("Conflict, such as a provider rejection or a disconnected or restricted channel"),

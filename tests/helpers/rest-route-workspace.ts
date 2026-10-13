@@ -104,7 +104,7 @@ export async function createRestRouteWorkspace() {
     {
       dispatch: () => Promise.resolve(),
     },
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const read = new GetRecordInteractor(repo, policy);
   const id = (key: string) => presetId(companyId, key);

@@ -4,6 +4,7 @@ import {
   REGISTRY_FILES,
   membershipAdditions,
   registrySourceAdditions,
+  reviewedAdditionsWithoutFollowUp,
   staleReviewedAdditions,
   staleRuleParameterConstants,
   unclassifiedRegistryConstants,
@@ -34,53 +35,53 @@ describe("exception registries are read from their syntax, never executed", () =
     const source = `
       const REASON = "shared reason";
       const KEY = "via-constant.tsx";
-      const A_ALLOWLIST: Allowlist = { "a.tsx": "reason", b: REASON, [KEY]: "reason" };
-      const B_ALLOWLIST = new Set<string>(["x", "y"]);
-      const C_EXEMPT = ["z"] as const;
-      const D_ALLOWED = new Map([["m.ts", "reason"]]);
+      const KEYED_FIXTURE: Allowlist = { "a.tsx": "reason", b: REASON, [KEY]: "reason" };
+      const SET_FIXTURE = new Set<string>(["x", "y"]);
+      const ARRAY_FIXTURE = ["z"] as const;
+      const MAP_FIXTURE = new Map([["m.ts", "reason"]]);
     `;
-    expect(members(source, "A_ALLOWLIST")).toEqual(["a.tsx", "b", "via-constant.tsx"]);
-    expect(members(source, "B_ALLOWLIST")).toEqual(["x", "y"]);
-    expect(members(source, "C_EXEMPT")).toEqual(["z"]);
-    expect(members(source, "D_ALLOWED")).toEqual(["m.ts"]);
+    expect(members(source, "KEYED_FIXTURE")).toEqual(["a.tsx", "b", "via-constant.tsx"]);
+    expect(members(source, "SET_FIXTURE")).toEqual(["x", "y"]);
+    expect(members(source, "ARRAY_FIXTURE")).toEqual(["z"]);
+    expect(members(source, "MAP_FIXTURE")).toEqual(["m.ts"]);
     expect(members(source, "MISSING")).toBeUndefined();
   });
 
   it("keeps semantic values, rule lists and repeated entries as members but ignores reasons", () => {
     const source = `
-      const RULES_EXEMPT = { "a.tsx": { rules: ["footer", "submit"], reason: "why" } };
-      const CALLS_ALLOWED = new Map([["a.ts", ["log", "log"]]]);
-      const CLASS_ALLOWLIST = new Map([["a.ts", "AError"]]);
-      const COUNTED_ALLOWED = new Map([["site", { count: 2, reason: "why" }]]);
+      const RULES_FIXTURE = { "a.tsx": { rules: ["footer", "submit"], reason: "why" } };
+      const CALLS_FIXTURE = new Map([["a.ts", ["log", "log"]]]);
+      const CLASS_FIXTURE = new Map([["a.ts", "AError"]]);
+      const COUNTEMAP_FIXTURE = new Map([["site", { count: 2, reason: "why" }]]);
     `;
-    expect(members(source, "RULES_EXEMPT")).toEqual(["a.tsx [rules: footer]", "a.tsx [rules: submit]"]);
-    expect(members(source, "CALLS_ALLOWED")).toEqual(["a.ts [log]", "a.ts [log] #2"]);
-    expect(members(source, "CLASS_ALLOWLIST", true)).toEqual(["a.ts -> AError"]);
-    expect(members(source, "COUNTED_ALLOWED")).toEqual(["site [count=2]"]);
+    expect(members(source, "RULES_FIXTURE")).toEqual(["a.tsx [rules: footer]", "a.tsx [rules: submit]"]);
+    expect(members(source, "CALLS_FIXTURE")).toEqual(["a.ts [log]", "a.ts [log] #2"]);
+    expect(members(source, "CLASS_FIXTURE", true)).toEqual(["a.ts -> AError"]);
+    expect(members(source, "COUNTEMAP_FIXTURE")).toEqual(["site [count=2]"]);
   });
 
   it("expands spreads of literal helper calls and of other literal constants", () => {
     const source = `
       const reviewed = (reason: string, sites: readonly string[]) => sites.map((site) => [site, { count: 1, reason }]);
-      const BASE_ALLOWED = ["one"];
-      const SITES_ALLOWED = new Map([...reviewed("why", ["s1", "s2"]), ["s3", "why"]]);
-      const ALL_ALLOWED = new Set([...BASE_ALLOWED, "two"]);
+      const BASE_FIXTURE = ["one"];
+      const SITES_FIXTURE = new Map([...reviewed("why", ["s1", "s2"]), ["s3", "why"]]);
+      const ALL_FIXTURE = new Set([...BASE_FIXTURE, "two"]);
     `;
-    expect(members(source, "SITES_ALLOWED")).toEqual(["s1", "s2", "s3"]);
-    expect(members(source, "ALL_ALLOWED")).toEqual(["one", "two"]);
+    expect(members(source, "SITES_FIXTURE")).toEqual(["s1", "s2", "s3"]);
+    expect(members(source, "ALL_FIXTURE")).toEqual(["one", "two"]);
   });
 
   it("rejects registries it cannot read statically", () => {
-    expect(() => members("const A_ALLOWLIST = new Set(LIST.map((x) => x));", "A_ALLOWLIST")).toThrow(
+    expect(() => members("const KEYED_FIXTURE = new Set(LIST.map((x) => x));", "KEYED_FIXTURE")).toThrow(
       /unsupported exception registry construction/,
     );
-    expect(() => members("const A_ALLOWLIST = { [key()]: 'why' };", "A_ALLOWLIST")).toThrow(
+    expect(() => members("const KEYED_FIXTURE = { [key()]: 'why' };", "KEYED_FIXTURE")).toThrow(
       /unsupported exception registry construction/,
     );
-    expect(() => members("const A_ALLOWLIST = new Set([...load()]);", "A_ALLOWLIST")).toThrow(
+    expect(() => members("const KEYED_FIXTURE = new Set([...load()]);", "KEYED_FIXTURE")).toThrow(
       /unsupported exception registry construction/,
     );
-    expect(() => members("const A_ALLOWLIST = new Map([[path, 'why']]);", "A_ALLOWLIST")).toThrow(
+    expect(() => members("const KEYED_FIXTURE = new Map([[path, 'why']]);", "KEYED_FIXTURE")).toThrow(
       /unsupported exception registry construction/,
     );
   });
@@ -89,20 +90,20 @@ describe("exception registries are read from their syntax, never executed", () =
     const source = `
       const SKIPPED_FILES = [];
       const knownViolations = new Set();
-      const FOO_ALLOWED_SITES = new Map();
+      const FOO_EXCEPTIONS = new Map();
       const OWNERS = new Set();
-      function f() { const LOCAL_ALLOWLIST = {}; }
+      function f() { const LOCAL_WAIVERS = {}; }
     `;
     expect(exceptionNamedConstants("fixture.ts", source)).toEqual([
       "SKIPPED_FILES",
       "knownViolations",
-      "FOO_ALLOWED_SITES",
+      "FOO_EXCEPTIONS",
     ]);
   });
 });
 
 describe("exception membership compares the head against the review base", () => {
-  const registry = { name: "A_ALLOWLIST" };
+  const registry = { name: "KEYED_FIXTURE" };
 
   it("reports added members, including a replacement that keeps the size", () => {
     expect(membershipAdditions(["a", "b"], ["a", "b"])).toEqual([]);
@@ -111,26 +112,26 @@ describe("exception membership compares the head against the review base", () =>
   });
 
   it("treats every member of a new or renamed registry as an addition", () => {
-    const head = 'const B_ALLOWLIST = { "a.tsx": "why" };';
-    const base = 'const A_ALLOWLIST = { "a.tsx": "why" };';
-    expect(registrySourceAdditions("x.test.ts", { name: "B_ALLOWLIST" }, head, base)).toEqual([
-      "x.test.ts#B_ALLOWLIST: a.tsx",
+    const head = 'const SET_FIXTURE = { "a.tsx": "why" };';
+    const base = 'const KEYED_FIXTURE = { "a.tsx": "why" };';
+    expect(registrySourceAdditions("x.test.ts", { name: "SET_FIXTURE" }, head, base)).toEqual([
+      "x.test.ts#SET_FIXTURE: a.tsx",
     ]);
-    expect(registrySourceAdditions("x.test.ts", registry, base, undefined)).toEqual(["x.test.ts#A_ALLOWLIST: a.tsx"]);
+    expect(registrySourceAdditions("x.test.ts", registry, base, undefined)).toEqual(["x.test.ts#KEYED_FIXTURE: a.tsx"]);
   });
 
   it("compares a moved registry with its base location", () => {
-    const head = 'const B_ALLOWLIST = { "a.tsx": "why", "b.tsx": "why" };';
-    const base = 'const A_ALLOWLIST = { "a.tsx": "why" };';
-    const moved = { name: "B_ALLOWLIST", base: { file: "old.test.ts", name: "A_ALLOWLIST" } };
-    expect(registrySourceAdditions("x.test.ts", moved, head, base)).toEqual(["x.test.ts#B_ALLOWLIST: b.tsx"]);
+    const head = 'const SET_FIXTURE = { "a.tsx": "why", "b.tsx": "why" };';
+    const base = 'const KEYED_FIXTURE = { "a.tsx": "why" };';
+    const moved = { name: "SET_FIXTURE", base: { file: "old.test.ts", name: "KEYED_FIXTURE" } };
+    expect(registrySourceAdditions("x.test.ts", moved, head, base)).toEqual(["x.test.ts#SET_FIXTURE: b.tsx"]);
   });
 
   it("counts a new rule on an existing exception key as an addition", () => {
-    const head = 'const A_ALLOWLIST = { "a.tsx": { rules: ["footer", "submit"], reason: "why" } };';
-    const base = 'const A_ALLOWLIST = { "a.tsx": { rules: ["footer"], reason: "other reason" } };';
+    const head = 'const KEYED_FIXTURE = { "a.tsx": { rules: ["footer", "submit"], reason: "why" } };';
+    const base = 'const KEYED_FIXTURE = { "a.tsx": { rules: ["footer"], reason: "other reason" } };';
     expect(registrySourceAdditions("x.test.ts", registry, head, base)).toEqual([
-      "x.test.ts#A_ALLOWLIST: a.tsx [rules: submit]",
+      "x.test.ts#KEYED_FIXTURE: a.tsx [rules: submit]",
     ]);
   });
 
@@ -189,6 +190,10 @@ describe("exception membership may only shrink (owner 2026-10-08)", () => {
     },
     REPO_SCAN_TIMEOUT_MS,
   );
+
+  it("names the follow-up item or the unresolved policy reason of every reviewed addition", () => {
+    expect(reviewedAdditionsWithoutFollowUp()).toEqual([]);
+  });
 
   it(
     "keeps no reviewed addition that is no longer an addition",

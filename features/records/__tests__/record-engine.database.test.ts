@@ -36,6 +36,9 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
 }));
 
+const failureStatus = (result: { ok: true } | { ok: false; error: Parameters<typeof interactorFailureStatus>[0] }) =>
+  result.ok ? 200 : interactorFailureStatus(result.error);
+
 function channelsFieldOperation(typeId: string, id: string = randomUUID(), providerAvatar = false) {
   return {
     operation: "putField" as const,
@@ -63,7 +66,6 @@ const { RecordAccessPolicy } = await import("../record-access");
 const { RecordCalculationService } = await import("../record-calculation.service");
 const { RecordWriteService } = await import("../record-write.service");
 const { unwindFailure } = await import("@/core/validation/failure-unwind");
-const { RecordOperationService } = await import("../record-operation.service");
 const { CancelRecordOperationInteractor } = await import("../cancel-record-operation.interactor");
 const { GetRecordOperationInteractor } = await import("../get-record-operation.interactor");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
@@ -135,6 +137,7 @@ const {
   getDeleteWebhookInteractor,
   getGetRecordModelInteractor,
   getQueryTrashInteractor,
+  getProviderAvatarService,
   getRecordAccessPolicy,
   getRecordRepo,
   getRoutineRepo,
@@ -156,7 +159,9 @@ const { executeMcpTool } = await import("@/features/mcp-tools/mcp-tool");
 const { manageDataViewsTool } = await import("@/features/mcp-tools/data-view.mcp-tools");
 const { manageRecordDetailLayoutV2Tool } = await import("@/features/mcp-tools/record-model.mcp-tools");
 
-const { createTestRecordRepo, createTestDataViewRepo } = await import("@/tests/helpers/record-repository");
+const { createTestRecordOperationService, createTestRecordRepo, createTestDataViewRepo } = await import(
+  "@/tests/helpers/record-repository"
+);
 const { UpsertRecordWidgetInteractor } = await import("@/features/widget/record-widget.interactor");
 const { RecordWidgetReader } = await import("@/features/widget/record-widget-reader");
 
@@ -226,7 +231,7 @@ async function fixture() {
     policy,
     new RecordWriteService(repo, policy, calculations),
     background,
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const read = new GetRecordInteractor(repo, policy);
   const personalization = new PrismaP13nRepo();
@@ -312,7 +317,7 @@ async function fixture() {
       expectedVersion: (await readRecord(ref)).version,
       fields: values.map(([key, value]) => ({ fieldId: id(key), value })),
     });
-  const worker = () => new RecordOperationService(repo, policy, configurations, getWebhookPauseNotifier());
+  const worker = () => createTestRecordOperationService(repo, policy, configurations, getWebhookPauseNotifier());
   const activities = new GetRecordActivitiesInteractor(
     new PrismaRecordActivitiesRepo(new PermissionService()),
     repo,
@@ -7270,6 +7275,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       ok: true,
       data: { schemaRevision: 3, layout },
     });
+    expect(await f.run(() => f.saveLayout.invoke(request), f.member)).toEqual(saved);
     expect(
       await f.run(() => f.saveLayout.invoke({ ...request, idempotencyKey: randomUUID() }), f.member),
     ).toMatchObject({ ok: false });
@@ -7729,9 +7735,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         f.repo.setGrants(ref.typeId, [{ roleId: f.memberRole.id, actions: ["readOwn", "create", "update"] }]),
       ),
     );
-    expect(await f.run(() => checker.invoke({ ...input, recordId: ref.recordId }), f.member)).toMatchObject({
-      ok: false,
-    });
+    expect(failureStatus(await f.run(() => checker.invoke({ ...input, recordId: ref.recordId }), f.member))).toBe(403);
+    expect(failureStatus(await f.run(() => checker.invoke({ ...input, recordId: randomUUID() }), f.member))).toBe(404);
     expect(await f.run(() => checker.invoke(input), f.member)).toMatchObject({
       ok: true,
     });
@@ -12792,8 +12797,19 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         ],
       },
     });
-    expect(await f.run(() => f.choices.invoke(choiceInput), f.member)).toMatchObject({ ok: false });
-    expect(await foreign.run(() => foreign.choices.invoke(choiceInput))).toMatchObject({ ok: false });
+    expect(failureStatus(await f.run(() => f.choices.invoke(choiceInput), f.member))).toBe(403);
+    expect(failureStatus(await foreign.run(() => foreign.choices.invoke(choiceInput)))).toBe(404);
+    const missingSource = { ...deal, recordId: randomUUID() };
+    expect(
+      failureStatus(
+        await f.run(() =>
+          f.choices.invoke({
+            ...choiceInput,
+            linkedTo: { ...recordInvariant(choiceInput.linkedTo), ref: missingSource },
+          }),
+        ),
+      ),
+    ).toBe(404);
     const before = await f.readRecord(deal);
     expect(
       await replace(
@@ -16832,7 +16848,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(await f.run(() => prisma.routineRun.count({ where: { companyId: f.company.id, routineId } }))).toBe(1);
     expect(dispatch).toHaveBeenCalledTimes(1);
   });
-  it("reports unreadable record types as not found for queries, reports and single reads alike", async () => {
+  it("reports unreadable record types as not found for queries and reports, and an existing unreadable record as access denied", async () => {
     const f = await fixture();
     const service = await f.create("service", "Hidden catalog", [["service.amount", decimal("5")]]);
     const failure = async (
@@ -16841,7 +16857,14 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       const resolved = await result;
       return resolved.ok ? 200 : interactorFailureStatus(resolved.error);
     };
-    expect(await failure(f.run(() => f.read.invoke(service), f.member))).toBe(404);
+    expect(await failure(f.run(() => f.read.invoke(service), f.member))).toBe(403);
+    expect(await failure(f.run(() => f.editor.invoke(service), f.member))).toBe(403);
+    const missing = { typeId: service.typeId, recordId: randomUUID() };
+    expect(await failure(f.run(() => f.read.invoke(missing), f.member))).toBe(404);
+    expect(await failure(f.run(() => f.editor.invoke(missing), f.member))).toBe(404);
+    const foreign = await fixture();
+    expect(await failure(foreign.run(() => foreign.read.invoke(service)))).toBe(404);
+    expect(await failure(foreign.run(() => foreign.editor.invoke(service)))).toBe(404);
     expect(
       await failure(f.run(() => f.query.invoke(RecordQuerySchema.parse({ typeId: service.typeId })), f.member)),
     ).toBe(404);
@@ -17408,7 +17431,12 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       ),
     );
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
-    const service = new ProviderAvatarService(createTestRecordRepo(f.company.id), f.company.id, background);
+    const service = new ProviderAvatarService(
+      createTestRecordRepo(f.company.id),
+      f.company.id,
+      background,
+      new RecordCalculationService(createTestRecordRepo(f.company.id)),
+    );
     const original = await f.readRecord(organization);
     await runWithoutTenant(() =>
       service.synchronize("google", "filtered-avatar@example.test", "https://example.test/updated.png"),
@@ -17445,7 +17473,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
     expect(
       await f.run(async () => {
         const identity = recordInvariant((await f.repo.getIdentitiesCompanyWide(organization))[0]);
-        return f.repo.getIdentityOwnerRefsPageCompanyWide(identity.id, undefined, 1001, [person.typeId]);
+        return f.repo.getIdentityOwnerRefsPageUnscoped(f.company.id, identity.id, undefined, 1001, [person.typeId]);
       }),
     ).toEqual([]);
     await runWithoutTenant(() =>
@@ -17655,6 +17683,16 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       );
       const { PrismaMessagingRepo } = await import("@/ee/messaging/persistence/prisma-messaging.repository");
       const { BackgroundTaskService } = await import("@/core/utils/background-task.service");
+      const { synchronizeInboundAvatar } = await import("@/ee/messaging/ingest/inbound-avatar");
+      const ingestInbound = async (
+        args: Parameters<InstanceType<typeof PrismaMessagingRepo>["ingestMessageUnscoped"]>[0],
+      ) => {
+        const ingested = await new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy()).ingestMessageUnscoped(
+          args,
+        );
+        await synchronizeInboundAvatar(getProviderAvatarService, args.companyId, ingested);
+        return ingested;
+      };
       const { PrismaRecordOperationQueueRepo } = await import("../prisma-record-operation-queue.repository");
       const account = await f.run(() =>
         prisma.connectedAccount.create({
@@ -17673,7 +17711,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         .mockRejectedValue(new Error("Transient Workflow start failure"));
       try {
         const ingested = await runWithoutTenant(() =>
-          new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy()).ingestMessageUnscoped({
+          ingestInbound({
             companyId: f.company.id,
             connectedAccountId: account.id,
             backfill: false,
@@ -17737,7 +17775,12 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       );
       expect(liveLease.some((candidate) => candidate.operationId === operationId)).toBe(false);
       const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
-      const service = new ProviderAvatarService(createTestRecordRepo(f.company.id), f.company.id, background);
+      const service = new ProviderAvatarService(
+        createTestRecordRepo(f.company.id),
+        f.company.id,
+        background,
+        new RecordCalculationService(createTestRecordRepo(f.company.id)),
+      );
       expect(
         await f.run(() =>
           prisma.recordValue.count({
@@ -17845,7 +17888,7 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         .mockRejectedValue(new Error("Transient Workflow start failure"));
       try {
         const ingested = await runWithoutTenant(() =>
-          new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy()).ingestMessageUnscoped({
+          ingestInbound({
             companyId: f.company.id,
             connectedAccountId: account.id,
             backfill: false,
@@ -17941,7 +17984,12 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
     const entered = await create("https://example.test/entered.png");
     const empty = await create();
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
-    const service = new ProviderAvatarService(createTestRecordRepo(f.company.id), f.company.id, background);
+    const service = new ProviderAvatarService(
+      createTestRecordRepo(f.company.id),
+      f.company.id,
+      background,
+      new RecordCalculationService(createTestRecordRepo(f.company.id)),
+    );
     const avatar = (ref: RecordRef) => f.value(ref, "contact.avatarUrl");
     await runWithoutTenant(() =>
       service.synchronize("google", "shared-avatar@example.test", "https://example.test/provider.png"),
@@ -18000,7 +18048,12 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
     if (!result.ok || result.data.status !== "completed") throw new Error("Avatar fixture failed");
     const ref = recordInvariant(result.data.refs.find((ref) => ref.typeId === type.id));
     const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
-    const service = new ProviderAvatarService(createTestRecordRepo(f.company.id), f.company.id, background);
+    const service = new ProviderAvatarService(
+      createTestRecordRepo(f.company.id),
+      f.company.id,
+      background,
+      new RecordCalculationService(createTestRecordRepo(f.company.id)),
+    );
     await runWithoutTenant(() =>
       service.synchronize("outlook", " AVATAR@example.test ", "https://example.test/avatar.png"),
     );
@@ -18140,7 +18193,13 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
         }),
       );
       const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
-      const service = () => new ProviderAvatarService(createTestRecordRepo(f.company.id), f.company.id, background);
+      const service = () =>
+        new ProviderAvatarService(
+          createTestRecordRepo(f.company.id),
+          f.company.id,
+          background,
+          new RecordCalculationService(createTestRecordRepo(f.company.id)),
+        );
       const activeId = async () => recordInvariant((await f.run(() => f.repo.getState()))?.activeOperationId);
       const old = async () => {
         expect(await f.value(ref, "contact.avatarUrl")).toEqual({
@@ -18182,9 +18241,12 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       const operationId = await activeId();
       await expect(
         runWithoutTenant(() =>
-          new ProviderAvatarService(createTestRecordRepo(foreign.company.id), foreign.company.id, background).advance(
-            operationId,
-          ),
+          new ProviderAvatarService(
+            createTestRecordRepo(foreign.company.id),
+            foreign.company.id,
+            background,
+            new RecordCalculationService(createTestRecordRepo(foreign.company.id)),
+          ).advance(operationId),
         ),
       ).rejects.toThrow("Invalid avatar operation");
       await expect(
