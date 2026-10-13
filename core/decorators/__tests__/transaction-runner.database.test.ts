@@ -17,6 +17,7 @@ const { prisma } = await import("@/prisma/db");
 const { runWithoutTenant } = await import("../tenant-context");
 const { getTransactionClient } = await import("../transaction-context");
 const { runInTransaction } = await import("../transaction-runner");
+const { prismaClientError } = await import("@/core/errors/prisma-client-error");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const fixtureIds: string[] = [];
@@ -58,6 +59,38 @@ describeDatabase("structured interactor rollback against PostgreSQL", { timeout:
     await expect(
       runWithoutTenant(() => runInTransaction(() => Promise.resolve("free"), { companyId, timeout: 2000 })),
     ).resolves.toBe("free");
+  });
+
+  it("bounds the wait for a busy company lock separately and reports it as a busy service", async () => {
+    const companyId = randomUUID();
+    const holder = new Client({ connectionString: process.env.DATABASE_URL });
+    await holder.connect();
+    try {
+      await holder.query("BEGIN");
+      await holder.query("SELECT pg_advisory_xact_lock(hashtextextended($1, 0))", [companyId]);
+      const startedAt = Date.now();
+      const error = await runWithoutTenant(() =>
+        runInTransaction(() => Promise.resolve("blocked"), { companyId, timeout: 20_000, companyLockWait: 1000 }),
+      ).catch((caught: unknown) => caught);
+      expect(Date.now() - startedAt).toBeLessThan(8000);
+      expect(prismaClientError(error)).toMatchObject({ status: 429, kind: "rate_limit" });
+    } finally {
+      await holder.query("ROLLBACK");
+      await holder.end();
+    }
+    await expect(
+      runWithoutTenant(() =>
+        runInTransaction(
+          async () => {
+            const tx = getTransactionClient<typeof prisma>();
+            if (!tx) throw new Error("Missing transaction client");
+            const rows = await tx.$queryRaw<Array<{ value: string }>>`SELECT current_setting('lock_timeout') AS value`;
+            return rows[0]?.value;
+          },
+          { companyId, timeout: 20_000, companyLockWait: 1000 },
+        ),
+      ),
+    ).resolves.toBe("20s");
   });
 
   it("returns clean connections after a timed-out transaction that issued concurrent queries", async () => {

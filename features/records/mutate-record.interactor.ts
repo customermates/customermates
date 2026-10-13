@@ -8,7 +8,7 @@ import type { BackgroundTaskService } from "@/core/utils/background-task.service
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
-import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { INTERACTIVE_COMPANY_LOCK_WAIT_MS, runInTransaction } from "@/core/decorators/transaction-runner";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { failAuthorization, failConflict, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -88,7 +88,7 @@ export class MutateRecordInteractor extends AuthenticatedInteractor<MutateRecord
         await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);
         return { ok: true, data };
       },
-      { timeout: 20000 },
+      { timeout: 20000, companyLockWait: INTERACTIVE_COMPANY_LOCK_WAIT_MS },
     ).catch(unwoundFailure);
     if (
       result.ok ||

@@ -8,6 +8,7 @@ import { Prisma } from "@/generated/prisma";
 import { isInteractorFailure, type InteractorOutcome } from "@/core/validation/validation.utils";
 
 const DEFAULT_TRANSACTION_TIMEOUT_MS = 5000;
+export const INTERACTIVE_COMPANY_LOCK_WAIT_MS = 5000;
 
 class InteractorFailureRollback extends Error {
   constructor(public readonly failure: Extract<InteractorOutcome<never>, { ok: false }>) {
@@ -22,6 +23,7 @@ export async function runInTransaction<T>(
     timeout?: number;
     maxWait?: number;
     readOnly?: boolean;
+    companyLockWait?: number;
   },
 ): Promise<T> {
   const client = getTransactionClient<AppPrismaClient>() ?? prisma;
@@ -41,15 +43,20 @@ export async function runInTransaction<T>(
       : undefined;
 
   const lockTimeout = String(options?.timeout ?? DEFAULT_TRANSACTION_TIMEOUT_MS);
+  const companyLockWait = String(Math.min(Number(lockTimeout), options?.companyLockWait ?? Number(lockTimeout)));
   let result: T;
   try {
     result = await client.$transaction(async (tx: any) => {
       const store = tenantStorage.getStore();
       const companyId = options?.companyId ?? (store?.bypass || !store?.user ? undefined : store.user.companyId);
       if (options?.readOnly) await tx.$executeRaw`SET TRANSACTION READ ONLY`;
-      await tx.$executeRaw`SELECT set_config('lock_timeout', ${lockTimeout}, true)`;
-      if (!options?.readOnly && companyId)
+      const locksCompany = !options?.readOnly && Boolean(companyId);
+      await tx.$executeRaw`SELECT set_config('lock_timeout', ${locksCompany ? companyLockWait : lockTimeout}, true)`;
+      if (locksCompany) {
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${companyId}, 0))`;
+        if (companyLockWait !== lockTimeout)
+          await tx.$executeRaw`SELECT set_config('lock_timeout', ${lockTimeout}, true)`;
+      }
 
       return await transactionStorage.run(
         {

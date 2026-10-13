@@ -7,6 +7,7 @@ import {
   occupiedGrid,
   packBreakpointLayout,
   placeWidget,
+  placeWidgets,
   rectsOverlap,
   widgetDefaultSize,
   withLargePlacement,
@@ -108,6 +109,18 @@ describe("placing a widget", () => {
     ).toEqual({ ok: false, reason: "tooSmall" });
   });
 
+  it("ignores the stored position of the widget it moves", () => {
+    const stacked = [
+      chart("a", { x: 0, y: 0, w: 12, h: 2 }),
+      chart("b", { x: 0, y: 2, w: 12, h: 2 }),
+      chart("c", { x: 0, y: 4, w: 12, h: 2 }),
+    ];
+    expect(placeWidget({ id: "a", kind: "chart", requested: { x: 0, y: 4, w: 12, h: 2 }, widgets: stacked })).toEqual({
+      ok: true,
+      placement: { x: 0, y: 4, w: 12, h: 2 },
+    });
+  });
+
   it("enforces the number widget minimum height of two rows", () => {
     const requested = { x: 0, y: 6, w: 3, h: 1 };
     expect(placeWidget({ id: "new", kind: "chart", displayType: DisplayType.number, requested, widgets })).toEqual({
@@ -195,5 +208,48 @@ describe("deriving a narrower breakpoint", () => {
 
   it("starts below widgets that keep a stored position", () => {
     expect(packBreakpointLayout([panel("a", 0, 0, 12)], 4, 5)).toEqual([{ id: "a", x: 0, y: 5, w: 4, h: 7 }]);
+  });
+});
+
+describe("placing several widgets at once", () => {
+  const full = (id: string, y: number) => ({ id, kind: "chart" as const, placement: { x: 0, y, w: 12, h: 2 } });
+  const stored = [
+    chart("a", { x: 0, y: 0, w: 12, h: 2 }),
+    chart("b", { x: 0, y: 2, w: 12, h: 2 }),
+    chart("c", { x: 0, y: 4, w: 12, h: 2 }),
+  ];
+
+  it("accepts empty rows between the widgets it moves", () => {
+    expect(placeWidgets({ widgets: stored, requested: [full("a", 0), full("b", 4), full("c", 8)] })).toEqual({
+      ok: true,
+    });
+    expect(placeWidgets({ widgets: stored, requested: [full("a", 0), full("b", 2), full("c", 4)] })).toEqual({
+      ok: true,
+    });
+  });
+
+  it("refuses widgets it moves onto each other", () => {
+    expect(placeWidgets({ widgets: stored, requested: [full("a", 0), full("b", 1), full("c", 8)] })).toEqual({
+      ok: false,
+      reason: "overlap",
+      conflictId: "b",
+    });
+  });
+
+  it("refuses a move onto a widget it leaves where it is, as the dashboard shows it", () => {
+    expect(placeWidgets({ widgets: stored, requested: [full("a", 6), full("b", 1)] })).toEqual({
+      ok: false,
+      reason: "overlap",
+      conflictId: "c",
+    });
+  });
+
+  it("refuses a widget below its minimum size", () => {
+    expect(
+      placeWidgets({
+        widgets: stored,
+        requested: [{ id: "a", kind: "chart", placement: { x: 0, y: 0, w: 12, h: 1 } }],
+      }),
+    ).toEqual({ ok: false, reason: "tooSmall" });
   });
 });

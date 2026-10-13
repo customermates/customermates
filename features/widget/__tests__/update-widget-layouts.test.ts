@@ -99,6 +99,26 @@ describe("widget layout batch contract", () => {
     expect(short.repo.saveWidgetLayouts).not.toHaveBeenCalled();
   });
 
+  it("saves full-width widgets with empty rows between them and refuses overlapping ones", async () => {
+    const save = (rows: number[]) => {
+      const repo = repository(valid.expectedVersions);
+      const placements = (width: number) =>
+        [FIRST, SECOND].map((i, index) => ({ i, x: 0, y: rows[index], w: width, h: 2 }));
+      const layouts = { xs: placements(2), sm: placements(4), md: placements(8), lg: placements(12) };
+      return runWithTenant(createMockUser(), () =>
+        new UpdateWidgetLayoutsInteractor(repo).invoke({ ...valid, layouts }),
+      ).then((result) => ({ result, repo }));
+    };
+    const gapped = await save([0, 4]);
+    expect(gapped.result.ok).toBe(true);
+    expect(gapped.repo.saveWidgetLayouts).toHaveBeenCalledOnce();
+    const overlapping = await save([0, 1]);
+    expect(!overlapping.result.ok && JSON.stringify(overlapping.result.error)).toContain(
+      CustomErrorCode.widgetLayoutOverlap,
+    );
+    expect(overlapping.repo.saveWidgetLayouts).not.toHaveBeenCalled();
+  });
+
   it("refuses a stale widget version as a conflict without writing", async () => {
     const repo = repository({ [FIRST]: 2, [SECOND]: 4 });
     const result = await runWithTenant(createMockUser(), () => new UpdateWidgetLayoutsInteractor(repo).invoke(valid));

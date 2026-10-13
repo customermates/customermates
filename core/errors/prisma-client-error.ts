@@ -18,7 +18,29 @@ const PRISMA_CLIENT_ERRORS: Record<string, PrismaClientFailure> = {
   P2028: BUSY,
 };
 
+const BUSY_DATABASE_CODES = new Set(["55P03"]);
+
+type ErrorChainLink = {
+  code?: unknown;
+  originalCode?: unknown;
+  cause?: unknown;
+  meta?: { driverAdapterError?: unknown };
+};
+
+function busyDatabaseError(source: unknown, depth = 0): boolean {
+  if (!source || typeof source !== "object" || depth > 4) return false;
+  const link = source as ErrorChainLink;
+  if ([link.code, link.originalCode].some((code) => typeof code === "string" && BUSY_DATABASE_CODES.has(code)))
+    return true;
+  return busyDatabaseError(link.cause, depth + 1) || busyDatabaseError(link.meta?.driverAdapterError, depth + 1);
+}
+
 export function prismaClientError(source: unknown): PrismaClientFailure | null {
+  if (busyDatabaseError(source)) return BUSY;
   const code = (source as { code?: unknown } | null | undefined)?.code;
   return typeof code === "string" ? (PRISMA_CLIENT_ERRORS[code] ?? null) : null;
+}
+
+export function isBusyDatabaseError(source: unknown): boolean {
+  return prismaClientError(source) === BUSY;
 }

@@ -2,7 +2,6 @@ import { RecordIdentityReferenceSchema } from "@/features/records/record-identit
 import { z } from "zod";
 
 import {
-  customMcpFailure,
   fetchMcpPage,
   filtersDescription,
   formatDatesInResponse,
@@ -19,7 +18,6 @@ import {
 } from "./utils";
 import { untrustedText, withUntrustedRecordText } from "./untrusted-record-content";
 
-import { CustomErrorCode } from "@/core/validation/validation.types";
 import { threadFolder } from "./thread-folder";
 import { MoveEmailThreadSchema } from "@/ee/messaging/inbox/move-email-thread.interactor";
 
@@ -449,7 +447,6 @@ export const getCalendarsTool = {
         id: eventId,
       });
       if (!result.ok) return mcpInteractorFailure(result.error);
-      if (!result.data) return customMcpFailure(CustomErrorCode.calendarEventNotFound);
 
       return toonResult({ ...formatDatesInResponse(result.data) });
     }

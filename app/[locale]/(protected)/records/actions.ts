@@ -42,7 +42,7 @@ import {
   getSearchChannelCandidatesInteractor,
   getImportRecordsInteractor,
 } from "@/core/di";
-import { serializeResult } from "@/core/utils/action-result";
+import { serializeResult, settleActionResult } from "@/core/utils/action-result";
 import { redirect } from "next/navigation";
 import { isRedirect, type Redirect } from "@/features/auth/auth-outcome";
 import { z } from "zod";
@@ -92,7 +92,7 @@ export async function getRecordModelAction(typeIds?: string[]) {
   return unwrapValidated(getGetRecordModelInteractor().invoke({ typeIds }));
 }
 async function serializeResultWithFailure<T>(result: Validated<T> | Promise<Awaited<Validated<T>> | Redirect>) {
-  const resolved = await result;
+  const resolved = await settleActionResult(result);
   if (isRedirect(resolved)) redirect(resolved.redirect);
   return resolved.ok
     ? resolved

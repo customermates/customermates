@@ -62,6 +62,26 @@ describe("handleError", () => {
     expect(result).toEqual({ status, error: { kind, issues: [{ code: "custom", path: [], message }] } });
   });
 
+  it.each([
+    [
+      "a raw query",
+      Object.assign(new Error("raw"), {
+        code: "P2010",
+        meta: { driverAdapterError: { cause: { originalCode: "55P03" } } },
+      }),
+    ],
+    ["a model query", Object.assign(new Error("adapter"), { cause: { originalCode: "55P03", kind: "postgres" } })],
+    ["the database driver", Object.assign(new Error("lock timeout"), { code: "55P03" })],
+  ])("maps a lock timeout raised by %s to a structured HTTP 429", (_source, error) => {
+    expect(structured(handleError(error))).toEqual({
+      status: 429,
+      error: {
+        kind: "rate_limit",
+        issues: [{ code: "custom", path: [], message: "The service is busy. Retry the request shortly." }],
+      },
+    });
+  });
+
   it("re-throws a regular Error without a known Prisma code", () => {
     expect(() => handleError(new Error("unexpected"))).toThrow("unexpected");
   });

@@ -9,6 +9,9 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { isRedirect } from "@/features/auth/auth-outcome";
+import { isBusyDatabaseError } from "@/core/errors/prisma-client-error";
+import { failRateLimit } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { interactorFailureCodes, isRetryableFailure, serializeInteractorFailure } from "../validation/validation.utils";
 
 type ActionResult<T> =
@@ -17,18 +20,25 @@ type ActionResult<T> =
 
 type TypedActionResult<T> = { ok: true; data: T } | { ok: false; failure: SerializedInteractorFailure };
 
-export async function serializeTypedResult<T>(
-  result: Validated<T> | Awaited<Validated<T>> | Promise<Awaited<Validated<T>> | Redirect> | Redirect,
-): Promise<TypedActionResult<T>> {
-  const resolved = await result;
+type ActionInput<T> = Validated<T> | Awaited<Validated<T>> | Promise<Awaited<Validated<T>> | Redirect> | Redirect;
+
+export async function settleActionResult<T>(result: ActionInput<T>): Promise<Awaited<Validated<T>> | Redirect> {
+  try {
+    return await result;
+  } catch (error) {
+    if (isBusyDatabaseError(error)) return failRateLimit(CustomErrorCode.serviceBusy);
+    throw error;
+  }
+}
+
+export async function serializeTypedResult<T>(result: ActionInput<T>): Promise<TypedActionResult<T>> {
+  const resolved = await settleActionResult(result);
   if (isRedirect(resolved)) redirect(resolved.redirect);
   return resolved.ok ? resolved : { ok: false, failure: serializeInteractorFailure(resolved.error) };
 }
 
-export async function serializeResult<T>(
-  result: Validated<T> | Awaited<Validated<T>> | Promise<Awaited<Validated<T>> | Redirect> | Redirect,
-): Promise<ActionResult<T>> {
-  const resolved = await result;
+export async function serializeResult<T>(result: ActionInput<T>): Promise<ActionResult<T>> {
+  const resolved = await settleActionResult(result);
   if (isRedirect(resolved)) redirect(resolved.redirect);
   if (resolved.ok) return resolved;
 
