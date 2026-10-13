@@ -7,7 +7,7 @@ import { type PermissionRole, roleCanRead, rolePermits } from "@/core/base/permi
 import { runWithTenant, tenantStorage } from "@/core/decorators/tenant-context";
 import { resolveActiveTenantUser } from "@/core/decorators/resolve-tenant-user";
 import { env } from "@/env";
-import { DemoModeError, ForbiddenError } from "@/core/errors/app-errors";
+import { AppErrorCode, DemoModeError, ForbiddenError } from "@/core/errors/app-errors";
 
 type Read = true | "all";
 type Manage<R extends Resource> = ManageActionOf<R> | "upsert";
@@ -52,6 +52,7 @@ export function TenantInteractor<T extends { new (...args: any[]): object }>(req
           const required = [...(requirement.read === true ? ["read"] : []), ...actions];
           throw new ForbiddenError(
             `Access denied. Required permissions: ${required.map((action) => `${action} on ${requirement.resource}`).join(" AND ")}`,
+            AppErrorCode.permissionDenied,
           );
         }
       }

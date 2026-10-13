@@ -3,6 +3,7 @@ import type { Data } from "@/core/validation/validation.utils";
 import { z } from "zod";
 
 import { zx } from "@/core/validation/validation.utils";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import {
   RecordTriggerDefinitionSchema,
   RecordTriggerSourceSchema,
@@ -12,6 +13,26 @@ import { WEBHOOK_EVENTS } from "./webhook-event-registry";
 export const WebhookEventSchema = z.enum(WEBHOOK_EVENTS);
 
 export const WEBHOOK_MASKED_VALUE = "********";
+
+export function isWebhookEndpointUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return (
+      (url.protocol === "http:" || url.protocol === "https:") && Boolean(url.hostname) && !url.username && !url.password
+    );
+  } catch {
+    return false;
+  }
+}
+
+export const WebhookEndpointSchema = zx
+  .secureUrl()
+  .superRefine((value, ctx) => {
+    if (!z.url({ protocol: /^(https?|mailto|tel)$/ }).safeParse(value).success) return;
+    if (!isWebhookEndpointUrl(value))
+      ctx.addIssue({ code: "custom", params: { error: CustomErrorCode.webhookEndpointInvalid } });
+  })
+  .describe("HTTP or HTTPS endpoint with a valid host and no username or password");
 
 const WEBHOOK_PAUSE_REASONS = ["triggerFieldDeleted"] as const;
 

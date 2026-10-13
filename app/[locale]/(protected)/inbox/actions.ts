@@ -30,7 +30,7 @@ import {
   getReadThreadRecordsInteractor,
   getMutateThreadRecordsInteractor,
 } from "@/core/di";
-import { serializeResult } from "@/core/utils/action-result";
+import { serializeResult, serializeTypedResult } from "@/core/utils/action-result";
 import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function getMessagingThreadsAction(params?: GetQueryParams) {
@@ -63,7 +63,7 @@ export async function mutateThreadRecordsAction(input: MutateThreadRecordsInput)
 }
 
 export async function updateThreadAction(data: UpdateThreadData) {
-  return serializeResult(getUpdateThreadInteractor().invoke(data));
+  return serializeTypedResult(getUpdateThreadInteractor().invoke(data));
 }
 
 export async function resyncThreadAction(threadId: string) {

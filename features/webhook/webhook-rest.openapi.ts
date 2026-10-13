@@ -88,7 +88,7 @@ export const updateWebhookOperation: ZodOpenApiOperationObject = {
   operationId: "updateWebhook",
   summary: "Update a webhook subscription",
   description:
-    "Changes the supplied fields of one webhook subscription and leaves the rest unchanged. The example disables a webhook and replaces its events. An id outside the workspace answers 404. Requires: update permission on the API.",
+    "Changes the supplied fields of one webhook subscription and leaves the rest unchanged. The endpoint must use HTTP or HTTPS, have a valid host, and contain no username or password. The example disables a webhook and replaces its events. An id outside the workspace answers 404. Requires: update permission on the API.",
   tags: ["webhooks"],
   security: [{ apiKeyAuth: [] }],
   requestParams: { path: WebhookPathParamsSchema },

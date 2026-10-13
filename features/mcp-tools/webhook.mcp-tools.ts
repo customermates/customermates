@@ -80,7 +80,7 @@ const recordWebhookFields = {
 
 const CreateWebhookSchema = z.object({
   ...recordWebhookFields,
-  url: zx.secureUrl().describe("Endpoint that will receive event POST requests (https recommended)"),
+  url: zx.secureUrl().describe("HTTP or HTTPS endpoint that receives event POST requests; no username or password"),
   description: z.string().optional().describe("Human-readable note about what this webhook does"),
   events: z.array(WebhookEventSchema).min(1).describe("Event types to subscribe to."),
   secret: z.string().optional().describe("Shared secret used to sign outgoing requests"),
@@ -104,7 +104,7 @@ const CreateWebhookSchema = z.object({
 const UpdateWebhookSchema = z.object({
   ...recordWebhookFields,
   id: z.uuid(),
-  url: zx.secureUrl().optional(),
+  url: zx.secureUrl().optional().describe("HTTP or HTTPS endpoint with a valid host and no username or password"),
   description: z.string().optional(),
   events: z.array(WebhookEventSchema).min(1).optional().describe("REPLACES the subscribed events."),
   secret: z

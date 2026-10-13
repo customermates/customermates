@@ -1,5 +1,6 @@
 import { renderWebhookBody } from "./webhook-body-template";
 import { allowsCredentialedHeaders } from "./webhook-headers";
+import { isWebhookEndpointUrl } from "./webhook.schema";
 
 export type WebhookTransportResult = { success: boolean; statusCode: number | null; responseMessage: string };
 export const WEBHOOK_PREFLIGHT_FAILURE_STATUS = 422;
@@ -19,12 +20,7 @@ export class WebhookTransport {
       statusCode: WEBHOOK_PREFLIGHT_FAILURE_STATUS,
       responseMessage,
     });
-    try {
-      if (!["http:", "https:"].includes(new URL(input.url).protocol))
-        return invalid("Webhook endpoints require HTTP or HTTPS");
-    } catch {
-      return invalid("Invalid webhook endpoint");
-    }
+    if (!isWebhookEndpointUrl(input.url)) return invalid("Webhook endpoints require HTTP or HTTPS without user info");
     if (Object.keys(input.headers).length && !allowsCredentialedHeaders(input.url))
       return invalid("Custom headers require an HTTPS endpoint");
     const rendered = input.bodyTemplate ? renderWebhookBody(input.bodyTemplate, input.requestBody) : null;

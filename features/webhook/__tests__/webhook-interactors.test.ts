@@ -69,6 +69,35 @@ describe("UpsertWebhookSchema", () => {
     ).toBe(true);
   });
 
+  it.each([
+    "mailto:ops@example.com",
+    "tel:+491234567",
+    "http://user:pass@example.com/hook",
+    "https://user@example.com/hook",
+  ])("rejects undeliverable endpoint %s on create and update", (url) => {
+    for (const input of [
+      { url, events: ["messaging.message.received"] },
+      { id: WEBHOOK_ID, url },
+    ]) {
+      const result = UpsertWebhookSchema.safeParse(input);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ path: ["url"], params: { error: CustomErrorCode.webhookEndpointInvalid } }),
+          ]),
+        );
+      }
+    }
+  });
+
+  it("accepts a plain loopback HTTP endpoint", () => {
+    expect(
+      UpsertWebhookSchema.safeParse({ url: "http://127.0.0.1:4697/control", events: ["messaging.message.received"] })
+        .success,
+    ).toBe(true);
+  });
+
   it("rejects retired type-specific record events for new subscriptions", () => {
     expect(
       UpsertWebhookSchema.safeParse({ url: "https://example.com/webhook", events: ["contact.created"] }).success,
