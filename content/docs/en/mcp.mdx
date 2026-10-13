@@ -166,7 +166,6 @@ Every record reference carries both `typeId` and `recordId`. `query_crm_records`
 `read_crm_record` returns the current record version and schema revision. Change input fields through typed assignments in `mutate_crm_record` and relationships through its link and unlink actions. To add to a Formatted text or Text field without rewriting it, send `{ fieldId, append }` in an update: the text goes after the current value with a blank line in between, and an update that only appends never conflicts with someone else's newer change. Any list can have a Channels field; its emails, phones and profiles are indexed identity associations, while an ordinary email field never becomes a matching key. Replacing `identities` keeps only the channels in the array; omitting it leaves them unchanged.
 
 {/* mcp-catalog:records */}
-
 #### `discover_record_types`
 
 Find accessible record types by name or stable type IDs. Results include schemaRevision, permitted actions and whether you may edit the data model. Use page and pageSize to continue; includeEmbedded reveals types such as line items.
@@ -361,7 +360,6 @@ The patch applies to every target atomically; a large recalculation can return `
 ### Workspace
 
 {/* mcp-catalog:workspace */}
-
 #### `get_workspace_context`
 
 Read the current user, company, role catalog with permissions, accessible connected messaging accounts, and the Knowledge Base's Operating Guide, its procedure index with when-to-use triggers, and a permission-filtered list of knowledge pages (pass `wikiPage` for more; omitted without Knowledge Base Read) in one call. The natural first call of a session. Discover record-type labels separately with discover_record_types and fetch the relevant configuration with get_record_model.
@@ -378,7 +376,6 @@ Team members with id, name, email, roleId, and status. When the caller's role ha
 ### Saved views
 
 {/* mcp-catalog:views */}
-
 #### `manage_data_views`
 
 Discover, inspect, create, update, select, reset and delete personal saved views. Discover the surfaceKey first; generic record surfaces use stable type IDs. Updates patch only supplied settings; a grouping can carry up to 8 summaries (sum, average, min or max of a number or currency field). Reset removes your overrides so the list shows every field in its configured order as an ungrouped table, without changing records. Deleting a view moves it to Trash (a dashboard view takes its widgets along), never its records. Configuration and view lists are paginated and searchable.
@@ -395,7 +392,6 @@ Required: `typeId`, `action`. Optional: `expectedRevision`, `idempotencyKey`, `l
 ### Knowledge Base [#workspace-wiki]
 
 {/* mcp-catalog:wiki */}
-
 #### `manage_wiki_pages`
 
 List, search, read, create, update, reorder (move before or after another page) or delete (move to Trash) Knowledge Base pages, each a knowledge page, a procedure with a when-to-use trigger, or the one Operating Guide. Updates and deletes require the latest updatedAt value; create can atomically require an empty Knowledge Base.
@@ -410,7 +406,6 @@ Messaging-backed tools need a plan with messaging: Pro or higher, cloud only; St
 `connect_messaging_account` also needs **Create** on **Inbox messages** and a free account slot: Pro allows [[commercial.entitlement.pro.includedAccountsPerUser]] connected account per user, Business [[commercial.entitlement.business.includedAccountsPerUser]] and Enterprise [[commercial.entitlement.enterprise.includedAccountsPerUser]].
 
 {/* mcp-catalog:messaging */}
-
 #### `get_messaging_threads`
 
 Without threadId, filter and paginate accessible inbox threads; with threadId, read one thread and a page of messages. Participant record references carry typeId, recordId, title, avatarUrl and canEdit after current record-access checks. New participantContactId filter values are typeId:recordId; legacy contact UUID filters remain decodable. Message and account permissions apply independently.
@@ -489,7 +484,6 @@ List your connected accounts with folders and email settings, and change one you
 Like messaging, these tools need a plan with messaging (Pro or higher, cloud only) and a connected LinkedIn or Instagram account. The `linkedin_*` tools also need that LinkedIn account's Sales Navigator subscription.
 
 {/* mcp-catalog:social */}
-
 #### `get_social_posts`
 
 Posts on LinkedIn or Instagram, read through a connected account. Use `authorIdentifier=me` for the account owner. For another person, use `get_social_profile.id`, `get_social_posts.items[].author.id` (list mode), `get_social_posts.author.id` (single-post mode), `get_social_post_engagement.items[].author.id` (comments), `get_social_post_engagement.items[].sender.id` (reactions), or `manage_social_relations.items[].user.id`. Resolve `get_messaging_threads.items[].participants[].identifier` (list mode) or `get_messaging_threads.thread.participants[].identifier` (detail mode) through `get_social_profile` first; do not pass a thread participant identifier directly. Pass `get_social_posts.items[].id` as `postId` to fetch one post. On continuation, repeat the same account, author, and limit with next_cursor.
@@ -577,7 +571,6 @@ For a company, call `get_social_profile` with `profileType=company` and an `iden
 ### Documentation and deep research
 
 {/* mcp-catalog:docs */}
-
 #### `search_docs`
 
 Search over the docs; defaults to the product guides (source=docs); pass source=api or all to include the REST API reference. Matches the query's words in full text and, when you have AI credits, also by meaning. Returns up to 5 pages, each with slug, source, title, url, its best-matching section and anchor, and a snippet, plus the total. Links into the app are full URLs on this instance (its configured `BASE_URL`) and open the reader's own workspace.
@@ -612,7 +605,6 @@ Read the relevant model, preview the bundle, inspect dependencies and permission
 A pending result returns an operation id. Read its progress until it completes; the last complete state stays readable while CRM writes pause, and failed or cancelled work publishes no partial values. After a stale revision, read the current configuration and preview again.
 
 {/* mcp-catalog:record-model */}
-
 #### `configure_record_model`
 
 Preview or apply a typed configuration bundle containing types, fields, relationships, calculations and access presets. Preserve the same expectedRevision, idempotencyKey and operations between preview and apply. Temporary $client references connect new definitions atomically. Calculations use a bounded node program, never executable code. Schema management is separate from record access; role grants and published summaries require their own authority. Use delete to move a list, field or relationship to Trash; restore it or delete it permanently with manage_trash.
@@ -627,7 +619,6 @@ A chart measure picks its source type, filters, aggregation, value field and gro
 The source sets the aggregation grain. Deal reporting counts each matching deal once in the overall total; a deal linked to two organizations counts fully in both organization groups, so their sum can exceed the distinct total. Service contributions and quantities use line items as the source. Equal amounts on different records both count. Restricted inputs stay restricted in widget results, and mixed currencies are never silently added.
 
 {/* mcp-catalog:widgets */}
-
 #### `manage_widgets`
 
 List or read widgets; create, update or delete chart and activity configurations. Charts use measure and displayOptions; timelines use activityQuery and showFilters. Both require expectedRevision and idempotencyKey for writes, plus expectedVersion for updates. Supplied measure, activityQuery or displayOptions replaces that complete value. Timeline scopes and typed filters use stable record/type references, with inclusion, exclusion, account and conversation filters. Shared templates enforce each reader’s data access. Writes accept an optional layout `{x, y, w, h}` on the 12-column grid that is saved in the same call; without it a new widget takes the first free spot and an updated one stays put, and overlapping positions are refused. list returns each widget’s current layout. viewId places a widget on a dashboard view (a saved view of manage_data_views surface dashboard); without it a new widget goes to the caller’s current dashboard view. Delete moves the widget configuration to Trash, never its source records.
@@ -638,7 +629,6 @@ List or read widgets; create, update or delete chart and activity configurations
 ### Routines
 
 {/* mcp-catalog:routines */}
-
 #### `manage_routines`
 
 One tool with an `action` switch: list, runs, create, update, pause, run_now, delete. A routine is saved instructions the assistant runs on a cron schedule or when a CRM event fires. Omitting `enabled` on create produces a LIVE routine, so pass `enabled: false` to draft one; the hosted assistant must state `enabled` explicitly and drafts unless the user asked to activate. A change of `triggerKind` must arrive with that kind's schedule or events. pause disables the routine and settles its queued runs to skipped, which re-enabling does not undo; only an active system administrator may pause or delete a routine. run_now applies to scheduled routines only, and only to an enabled routine the caller owns. Runs are paginated by `cursor` and carry status, summary and trigger. delete moves the routine to Trash, where it stops running until manage_trash restores it. list returns compact name, owner, trigger and enabled summaries by default. Pass includePrompts: true for full configurations including prompts, or owner: "mine" for routines you own.
@@ -649,7 +639,6 @@ One tool with an `action` switch: list, runs, create, update, pause, run_now, de
 ### Webhooks
 
 {/* mcp-catalog:webhooks */}
-
 #### `manage_webhooks`
 
 One tool with an `action` switch: list, get, create, update, delete, plus the delivery log (action list_deliveries, scoped to one webhook's current url when you pass its `id`) and re-delivery (action resend_delivery). Reads need API & Webhooks read access All; create and resend_delivery need Create, update needs Edit and delete needs Delete on API & Webhooks.
@@ -660,7 +649,6 @@ One tool with an `action` switch: list, get, create, update, delete, plus the de
 ### Admin and team
 
 {/* mcp-catalog:admin */}
-
 #### `update_my_profile`
 
 Changes your own name, country, avatar, theme, display language and formatting locale.
@@ -685,7 +673,6 @@ No tool reads the subscription, plan, seats or billing, or changes the plan, and
 ### Support
 
 {/* mcp-catalog:support */}
-
 #### `request_support`
 
 Send a support request to the Customermates team (subject plus description). The team replies by email. Returns only that the request was accepted for delivery.
