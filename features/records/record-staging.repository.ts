@@ -260,7 +260,7 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
     }
     return [...edges.values()].slice(0, take);
   };
-  overrides.appendEvent = (ref, actorId, causeId, kind, payload) =>
+  overrides.appendEvent = (ref, actorId, causeId, kind, payload, _beforeDeletion, publish = true) =>
     base.stageRow(operationId, "event", `${recordKey(ref)}:${kind}`, {
       id: randomUUID(),
       ref,
@@ -268,6 +268,7 @@ export function createRecordStagingRepo(base: RecordRepo, operationId: string, c
       causeId,
       kind,
       payload,
+      publish,
     });
   return staged;
 }

@@ -2295,7 +2295,8 @@ export class PrismaRecordRepo
         ? Prisma.sql`event.id = ${selection.eventId}`
         : Prisma.sql`EXISTS (SELECT 1 FROM "RecordStageRow" stage
           WHERE stage."companyId" = ${companyId} AND stage."operationId" = ${selection.operationId}
-            AND stage.kind = 'event' AND stage.payload->>'id' = event.id)`;
+            AND stage.kind = 'event' AND stage.payload->>'id' = event.id
+            AND COALESCE((stage.payload->>'publish')::boolean, TRUE))`;
     const [model, grants, types] = await Promise.all([
       this.getModel(),
       this.getGrants(),

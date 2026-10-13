@@ -495,23 +495,19 @@ describeDatabase("configuration trash", () => {
     const preview = await f.as(() =>
       new PreviewRecordConfigurationInteractor(repo, policy, new RecordConfigurationService(repo)).invoke(change),
     );
-    expect(preview).toMatchObject({
-      ok: true,
-      data: {
-        valid: true,
-        deletion: {
-          cleaned: expect.arrayContaining([expect.objectContaining({ consumer: { kind: "view", id: viewId } })]),
-        },
-      },
-    });
+    if (!preview.ok || !preview.data.valid) throw new Error(JSON.stringify(preview));
+    expect(preview.data.deletion?.cleaned).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ consumer: expect.objectContaining({ kind: "view", id: viewId }) }),
+      ]),
+    );
     const deleted = await f.as(() => f.apply.invoke(change));
-    expect(deleted).toMatchObject({
-      ok: true,
-      data: {
-        status: "completed",
-        deletionCleaned: expect.arrayContaining([expect.objectContaining({ consumer: { kind: "view", id: viewId } })]),
-      },
-    });
+    if (!deleted.ok || deleted.data.status !== "completed") throw new Error(JSON.stringify(deleted));
+    expect(deleted.data.deletionCleaned).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ consumer: expect.objectContaining({ kind: "view", id: viewId }) }),
+      ]),
+    );
     const stored = await f.as(() => views.getRecordViewStatesByIds([viewId]));
     expect(stored[0]?.state).toMatchObject({ filters: [], columnOrder: [] });
     const [fieldItem] = (await f.items()).filter((item) => item.kind === "field" && item.targetId === fieldId);
