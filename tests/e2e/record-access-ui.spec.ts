@@ -17,6 +17,7 @@ import {
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
 import { RecordMeasureResultSchema } from "../../features/records/record-measure.schema";
 import { presetId } from "../../features/records/crm-preset";
+import { decodeSharedView } from "../../core/data-view/shared-view-link";
 import { localE2eEnvironment } from "./local-environment";
 import {
   addFromConfigure,
@@ -2425,7 +2426,12 @@ test("keeps personal views separate from the list layout, groups and summarises 
     );
     expect(copied.origin).toBe(localE2eEnvironment().baseUrl);
     expect(copied.pathname).toBe(`/en/records/${type.id}`);
-    expect([...copied.searchParams]).toEqual([["view", duplicateId]]);
+    expect([...copied.searchParams.keys()]).toEqual(["view", "viewShare"]);
+    expect(copied.searchParams.get("view")).toBe(duplicateId);
+    expect(decodeSharedView(copied.searchParams.get("viewShare"))).toMatchObject({
+      name: "My renamed table",
+      surfaceKey: `records:${type.id}`,
+    });
   }
   await presentationAppearanceUi(page);
   await page.locator("#records-layout-board").click();
