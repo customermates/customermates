@@ -17,7 +17,7 @@ vi.mock("@/core/di", () => ({
   getUpsertWebhookInteractor: () => ({ invoke: interactors.upsert }),
   getGetWebhookByIdInteractor: () => ({ invoke: vi.fn() }),
   getDeleteWebhookInteractor: () => ({ invoke: vi.fn() }),
-  getGetWebhookDeliveriesApiInteractor: () => ({ invoke: interactors.deliveries }),
+  getGetWebhookDeliveriesByWebhookInteractor: () => ({ invoke: interactors.deliveries }),
   getResendWebhookDeliveryInteractor: () => ({ invoke: interactors.resend }),
 }));
 
@@ -117,18 +117,29 @@ describe("webhook REST routes", () => {
     expect(StructuredErrorResponseSchema.parse(await response.json()).error.kind).toBe("not_found");
   });
 
-  it("lists one webhook's deliveries by filtering on its id", async () => {
+  it("lists one webhook's deliveries through the webhook-scoped interactor", async () => {
     interactors.deliveries.mockResolvedValue({ ok: true, data: { items: [] } });
 
     const response = await listDeliveries(request(`/${ID}/deliveries?searchTerm=record`, "GET"), {
       params: Promise.resolve({ id: ID }),
     });
 
-    expect(interactors.deliveries).toHaveBeenCalledExactlyOnceWith({
-      searchTerm: "record",
-      filters: [{ field: "webhookId", operator: "in", value: [ID] }],
-    });
+    expect(interactors.deliveries).toHaveBeenCalledExactlyOnceWith({ searchTerm: "record", webhookId: ID });
     expect(response.status).toBe(200);
+  });
+
+  it("answers 404 when the webhook is unknown or belongs to another workspace", async () => {
+    interactors.deliveries.mockResolvedValue({
+      ok: false,
+      error: createZodError("Webhook not found", ["webhookId"], { error: CustomErrorCode.webhookNotFound }),
+    });
+
+    const response = await listDeliveries(request(`/${ID}/deliveries`, "GET"), {
+      params: Promise.resolve({ id: ID }),
+    });
+
+    expect(response.status).toBe(404);
+    expect(StructuredErrorResponseSchema.parse(await response.json()).error.kind).toBe("not_found");
   });
 
   it("resends a delivery scoped to its webhook and reports the new delivery", async () => {

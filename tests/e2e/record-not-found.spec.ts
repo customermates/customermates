@@ -11,6 +11,7 @@ import {
   openConfigure,
 } from "./configure";
 import { secondUser } from "./second-user";
+import { postOk } from "./api";
 
 const NOT_FOUND_DOCUMENT =
   /Failed to load resource: the server responded with a status of 404/;
@@ -127,7 +128,7 @@ test("falls back to the All view and drops an unknown or foreign view id from th
   expect(errors).toEqual([]);
 });
 
-test("shows a trashed list as In Trash with restore for schema managers and as not found for a member without access", async ({
+test("shows a trashed list as In Trash with restore for schema managers, as not found for a member without access, and a record of that list as access denied", async ({
   page,
   browser,
   database,
@@ -170,6 +171,43 @@ test("shows a trashed list as In Trash with restore for schema managers and as n
     await expect(
       member.page.getByText(englishMessages.ErrorCard.title),
     ).toHaveCount(0);
+
+    const created = (await postOk(page, "/api/v1/records/mutate", {
+      expectedRevision: (
+        (await postOk(page, "/api/v1/model/read", {})) as { revision: number }
+      ).revision,
+      idempotencyKey: randomUUID(),
+      mutation: {
+        action: "create",
+        typeId: dealTypeId,
+        fields: [
+          {
+            fieldId: presetId(companyId, "deal.name"),
+            value: { kind: "text", value: "Hidden partner deal" },
+          },
+        ],
+      },
+    })) as { refs: Array<{ typeId: string; recordId: string }> };
+    const hidden = created.refs.find((ref) => ref.typeId === dealTypeId);
+    if (!hidden) throw new Error("The deal fixture is missing");
+    await member.page.goto(`/en/records/${dealTypeId}/${hidden.recordId}`);
+    await expect(
+      member.page.getByText(englishMessages.AccessDeniedPage.title, {
+        exact: true,
+      }),
+    ).toBeVisible();
+    await expect(
+      member.page.getByText(englishMessages.NotFoundPage.title, {
+        exact: true,
+      }),
+    ).toHaveCount(0);
+    await expect(member.page.getByText("Hidden partner deal")).toHaveCount(0);
+    await member.page.goto(`/en/records/${dealTypeId}/${randomUUID()}`);
+    await expect(
+      member.page.getByText(englishMessages.NotFoundPage.title, {
+        exact: true,
+      }),
+    ).toBeVisible();
 
     const name = `Partners ${randomUUID().slice(0, 6)}`;
     const typeId = await createConfiguredList(page, name);

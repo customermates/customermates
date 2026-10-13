@@ -44,6 +44,36 @@ export function messageVisibilityWhere(states: MessagingFolderVisibilityState[])
   };
 }
 
+export function canViewAccountMessages(account: { userId: string; shared: boolean }, userId: string): boolean {
+  return account.userId === userId || account.shared;
+}
+
+export function limitMessageFolderIds<T extends { folderIds: string[] }>(
+  rows: T[],
+  canViewAllFolders: boolean,
+  folderStates: { visibleSet: string[] }[],
+): T[] {
+  if (canViewAllFolders || folderStates.length === 0) return rows;
+
+  const visible = new Set(folderStates[0].visibleSet);
+  return rows.map((row) => ({ ...row, folderIds: row.folderIds.filter((id) => visible.has(id)) }));
+}
+
+export function redactMessageBcc<T extends { recipients: unknown; direction: string }>(
+  rows: T[],
+  canViewBcc: boolean,
+): T[] {
+  return rows.map((row) => {
+    if (row.direction === "outbound" && canViewBcc) return row;
+
+    const recipients = row.recipients;
+    if (recipients && typeof recipients === "object" && "bcc" in recipients)
+      return { ...row, recipients: { ...recipients, bcc: [] } };
+
+    return row;
+  });
+}
+
 export function threadFolderMembershipWhere(
   states: MessagingFolderVisibilityState[],
 ): Prisma.MessagingThreadWhereInput | null {

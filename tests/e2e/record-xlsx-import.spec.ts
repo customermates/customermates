@@ -3,6 +3,8 @@ import ExcelJS from "exceljs";
 import { test, expect } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 
+test.use({ failOnPageErrors: true });
+
 async function workbook(rows: unknown[][]): Promise<Buffer> {
   const book = new ExcelJS.Workbook();
   const sheet = book.addWorksheet("Deals");

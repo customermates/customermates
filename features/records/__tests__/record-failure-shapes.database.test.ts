@@ -24,7 +24,7 @@ await import("@/core/di");
 await import("@/features/mcp-tools/tool-registry");
 const { createRestRouteWorkspace, postAs, restRoute } = await import("@/tests/helpers/rest-route-workspace");
 const { executeMcpTool } = await import("@/features/mcp-tools/mcp-tool");
-const { mutateRecordV2Tool } = await import("@/features/mcp-tools/record-model.mcp-tools");
+const { mutateRecordV2Tool, readRecordV2Tool } = await import("@/features/mcp-tools/record-model.mcp-tools");
 const { manageRolesTool } = await import("@/features/mcp-tools/role.mcp-tools");
 const { RecordCalculationService } = await import("../record-calculation.service");
 const { createCrmPreset } = await import("../crm-preset");
@@ -33,6 +33,7 @@ const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const recordActions = await import("@/app/[locale]/(protected)/records/actions");
 const settingsActions = await import("@/app/[locale]/(protected)/settings/(workspace)/actions");
 const mutateRoute = await restRoute("/v1/records/mutate");
+const readRoute = await restRoute("/v1/records/read");
 const applyRoute = await restRoute("/v1/model/apply");
 const saveRoleRoute = await restRoute("/v1/roles/save");
 const deleteRoleRoute = await restRoute("/v1/roles/delete");
@@ -82,7 +83,7 @@ async function expectRest(
 async function expectMcp(
   w: Workspace,
   user: Workspace["admin"],
-  tool: typeof mutateRecordV2Tool | typeof manageRolesTool,
+  tool: typeof mutateRecordV2Tool | typeof readRecordV2Tool | typeof manageRolesTool,
   input: unknown,
   expected: ReturnType<typeof failure>,
 ) {
@@ -171,6 +172,28 @@ describeDatabase("record write failure shapes across REST, MCP and UI", () => {
       await w.as(w.admin, async () => recordActions.mutateRecordAction((await contact("not a url")) as never)),
     ).toMatchObject({ ok: false, failure: invalidUrl });
   }, 180_000);
+
+  it("answers access denied for an existing unreadable record and not found for a missing one", async () => {
+    const w = await workspace();
+    const deal = await w.create("deal", "deal.name", "Hidden deal");
+    await w.grant("deal", ["readOwn"]);
+    const denied = failure("authorization", "permissionDenied");
+    await expectRest(w, w.member, readRoute, deal, denied);
+    await expectMcp(w, w.member, readRecordV2Tool, deal, denied);
+    expect(await w.as(w.member, () => recordActions.getRecordEditorAction(deal))).toMatchObject({
+      ok: false,
+      code: "permissionDenied",
+    });
+
+    const missing = { typeId: deal.typeId, recordId: randomUUID() };
+    const notFound = failure("not_found", "recordNotFound");
+    await expectRest(w, w.member, readRoute, missing, notFound);
+    await expectMcp(w, w.member, readRecordV2Tool, missing, notFound);
+    expect(await w.as(w.member, () => recordActions.getRecordEditorAction(missing))).toMatchObject({
+      ok: false,
+      code: "recordNotFound",
+    });
+  });
 
   it("pins permission, not found and conflict failures of role management", async () => {
     const w = await workspace();

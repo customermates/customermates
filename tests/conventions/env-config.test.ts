@@ -331,6 +331,12 @@ describe("self-hosted configuration", () => {
     }
   });
 
+  it("hands the cron secret to the app so a self-hosted instance can run its scheduled jobs", () => {
+    expect(templateVariables).toContain("CRON_SECRET");
+    expect(activeTemplateVariables).not.toContain("CRON_SECRET");
+    expect(compose).toMatch(/^\s+CRON_SECRET: \$\{CRON_SECRET:-\}$/mu);
+  });
+
   it("requires only variables the template sets during setup", () => {
     const required = /REQUIRED_VARS=\(([^)]*)\)/u.exec(setupScript)?.[1].trim().split(/\s+/u) ?? [];
 

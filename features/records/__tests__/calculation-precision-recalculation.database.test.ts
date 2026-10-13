@@ -31,13 +31,12 @@ const { RecordCalculationService, SYNCHRONOUS_RECORD_LIMIT } = await import("../
 const { RecordWriteService } = await import("../record-write.service");
 const { RecordConfigurationService } = await import("../configuration.service");
 const { RecordConfigurationWriter } = await import("../record-configuration-writer");
-const { RecordOperationService } = await import("../record-operation.service");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
 const { RecordTrashService } = await import("../record-trash.service");
 const { GetRecordInteractor } = await import("../get-record.interactor");
 const { ApplyRecordConfigurationInteractor } = await import("../configure-records.interactor");
 const { createCrmPreset, presetId } = await import("../crm-preset");
-const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+const { createTestRecordOperationService, createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -89,10 +88,10 @@ async function fixture() {
     policy,
     new RecordWriteService(repo, policy, new RecordCalculationService(repo)),
     { dispatch: () => Promise.resolve() },
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const read = new GetRecordInteractor(repo, policy);
-  const worker = new RecordOperationService(repo, policy, new RecordConfigurationService(repo), noWebhooks);
+  const worker = createTestRecordOperationService(repo, policy, new RecordConfigurationService(repo), noWebhooks);
   const id = (key: string) => presetId(seed.company.id, key);
   const dealTypeId = id("deal");
   const organizationTypeId = id("organization");

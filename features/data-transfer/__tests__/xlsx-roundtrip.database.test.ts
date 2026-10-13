@@ -1,7 +1,6 @@
 import { PermissionService } from "@/core/base/permission.service";
 import type { CalculatedValue, RecordField, RecordRef, RecordScalar } from "@/features/records/record-model.schema";
 import type { RecordMutation } from "@/features/records/record-query.schema";
-import type { ExportRecordsInput } from "@/features/data-transfer/export/export-records.interactor";
 import type { XlsxWizardPorts } from "@/app/[locale]/(protected)/records/[typeId]/components/xlsx-import-wizard.store";
 
 import { randomUUID } from "node:crypto";
@@ -32,14 +31,6 @@ vi.mock("next-intl/server", () => {
   };
 });
 
-type WorkbookExporter = new (...dependencies: unknown[]) => {
-  invoke: (input: ExportRecordsInput) => Promise<{ ok: true; data: { workbook: Buffer } } | { ok: false }>;
-};
-
-const exporterModule = (await import(
-  new URL("../export/export-record-workbook.interactor.ts", import.meta.url).pathname
-).catch(() => null)) as { ExportRecordWorkbookInteractor: WorkbookExporter } | null;
-
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
@@ -54,12 +45,15 @@ const { QueryRecordsInteractor } = await import("@/features/records/query-record
 const { GetRecordInteractor } = await import("@/features/records/get-record.interactor");
 const { GetRecordChoicesInteractor } = await import("@/features/records/get-record-choices.interactor");
 const { ImportRecordsInteractor } = await import("@/features/data-transfer/import/import-records.interactor");
+const { ExportRecordWorkbookInteractor } = await import(
+  "@/features/data-transfer/export/export-record-workbook.interactor"
+);
 const { createCrmPreset, presetId } = await import("@/features/records/crm-preset");
 const { XlsxImportWizardStore } = await import(
   "@/app/[locale]/(protected)/records/[typeId]/components/xlsx-import-wizard.store"
 );
 
-const describeRoundTrip = getLocalDatabaseTestUrl() && exporterModule ? describe : describe.skip;
+const describeRoundTrip = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
 const text = (value: string): RecordScalar => ({ kind: "text", value });
 
@@ -108,7 +102,7 @@ describeRoundTrip("XLSX export and import round trip", () => {
       policy,
       writer,
       { dispatch: () => Promise.resolve() },
-      new RecordTrashService(repo),
+      new RecordTrashService(repo, new RecordCalculationService(repo)),
     );
     const query = new QueryRecordsInteractor(repo, policy);
     const read = new GetRecordInteractor(repo, policy);
@@ -211,10 +205,8 @@ describeRoundTrip("XLSX export and import round trip", () => {
     });
     const before = await record(original);
 
-    const Exporter = exporterModule?.ExportRecordWorkbookInteractor;
-    if (!Exporter) throw new Error("The workbook exporter is missing");
     const exported = await runWithTenant(admin, () =>
-      new Exporter(repo, policy).invoke({
+      new ExportRecordWorkbookInteractor(repo, policy).invoke({
         typeId: deal,
         filters: [],
         relationships: [],

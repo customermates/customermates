@@ -459,10 +459,10 @@
   --input-background: var(--card);
   --ring: #5e4ae3;
   --chart-1: #5e4ae3;
-  --chart-2: #129490;
-  --chart-3: #34c759;
-  --chart-4: #ff9500;
-  --chart-5: #ff3b30;
+  --chart-2: #14918c;
+  --chart-3: #2f9e6a;
+  --chart-4: #d8901f;
+  --chart-5: #d5534e;
 
   --color-fd-background: #fafafa;
   --color-fd-foreground: #000000;
@@ -525,6 +525,11 @@
   --input: rgb(255 255 255 / 11.2%);
   --input-background: var(--card);
   --ring: #7c6df2;
+  --chart-1: #7c6df2;
+  --chart-2: #2bb3ad;
+  --chart-3: #3fbf85;
+  --chart-4: #e8a83c;
+  --chart-5: #e8706b;
 
   --color-fd-background: #0e0e10;
   --color-fd-foreground: #ffffff;

@@ -18,6 +18,7 @@ import { UnipileEmailSchema } from "../../unipile.schema";
 
 import { BACKFILL_EMAIL_TIMEOUT_MS, backfillSince, paginateStep, UNIPILE_EMAIL_MAX_LIMIT } from "./paginate";
 import { ACCOUNT_WIDE_SOURCE } from "./prepare-backfill.interactor";
+import { synchronizeInboundAvatar, type ProviderAvatars } from "../inbound-avatar";
 
 const Schema = z.object({
   connectedAccountId: z.uuid(),
@@ -32,6 +33,7 @@ export class BackfillEmailsInteractor {
     private repo: BackfillConnectedAccountRepo,
     private messagingService: MessagingService,
     private ingest: MessagingIngestRepo,
+    private avatars: ProviderAvatars,
   ) {}
 
   @Enforce(Schema)
@@ -116,12 +118,13 @@ export class BackfillEmailsInteractor {
     }
 
     try {
-      await this.ingest.ingestMessageUnscoped({
+      const ingested = await this.ingest.ingestMessageUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
         message: normalized,
         backfill: true,
       });
+      await synchronizeInboundAvatar(this.avatars, account.companyId, ingested);
     } catch (err) {
       Sentry.captureException(err, {
         tags: {

@@ -1,14 +1,16 @@
 import type { MembershipTaskRepo } from "./membership-task.repo";
 import type { RecordRef } from "./record-model.schema";
 import type { RecordReadScope } from "./record-query.schema";
+import type { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { TenantRepository } from "@/core/base/tenant-repository";
 
 export class PrismaMembershipTaskRepo extends TenantRepository implements MembershipTaskRepo {
+  constructor(private members: Pick<PrismaUserRepo, "getRecordMemberCompanyWide">) {
+    super();
+  }
+
   getMemberCompanyWide(userId: string) {
-    return this.prisma.user.findFirst({
-      where: { companyId: this.companyId, id: userId },
-      select: { id: true, email: true, status: true },
-    });
+    return this.members.getRecordMemberCompanyWide(userId);
   }
 
   async findCompanyWide(typeId: string, userId: string, take: number): Promise<RecordRef[]> {

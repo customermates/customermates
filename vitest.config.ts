@@ -12,7 +12,12 @@ const testEnvironment = {
   BASE_URL: "http://localhost:4000",
   BETTER_AUTH_SECRET: "vitest-secret",
 };
-const domTestFiles = [
+export const nodeTestInclude = [
+  "**/__tests__/**/*.test.ts",
+  "**/__tests__/**/*.test.tsx",
+  "tests/conventions/*.test.ts",
+];
+export const domTestFiles = [
   "components/data-view/filter-palette/__tests__/use-filter-palette.dom.test.ts",
   "components/ui/__tests__/segmented-control.dom.test.tsx",
   "components/forms/__tests__/form-footer-actions.dom.test.ts",
@@ -73,7 +78,6 @@ const domTestFiles = [
   "components/data-view/filter-palette/__tests__/filter-palette-keyboard.test.tsx",
   "components/data-view/filter-palette/__tests__/filter-palette-pages.test.tsx",
   "components/entity-detail/__tests__/entity-detail-personalization.test.ts",
-  "components/entity-detail/__tests__/entity-detail-summary.test.ts",
   "components/entity-detail/__tests__/entity-detail-visibility.test.tsx",
   "components/entity-detail/__tests__/entity-detail-panels.dom.test.ts",
   "components/marketing/__tests__/browser-frame.test.tsx",
@@ -125,7 +129,7 @@ export default defineConfig({
     globals: true,
     maxWorkers: 4,
     environment: "node",
-    include: ["**/__tests__/**/*.test.ts", "tests/conventions/*.test.ts"],
+    include: nodeTestInclude,
     exclude: ["node_modules", ".next", "generated"],
     projects: [
       {
@@ -135,7 +139,7 @@ export default defineConfig({
           globals: true,
           environment: "node",
           env: testEnvironment,
-          include: ["**/__tests__/**/*.test.ts", "tests/conventions/*.test.ts"],
+          include: nodeTestInclude,
           exclude: ["node_modules", ".next", "generated", ...domTestFiles],
           server: { deps: { inline: [/next-intl/] } },
         },

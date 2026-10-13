@@ -7,6 +7,7 @@ import { RecordRefSchema } from "@/features/records/record-model.schema";
 import { getGetRecordEditorInteractor, getGetTrashedRecordInteractor } from "@/core/di";
 import { requireAccess } from "@/features/auth/next/require";
 import { PageContainer } from "@/components/shared/page-container";
+import { RecordAccessDeniedPage } from "@/components/records/record-access-denied";
 import { getOptionalP13n } from "@/features/p13n/next/get-optional-p13n";
 import { RecordDetailPage } from "../components/record-detail-page";
 import { recordDetailKey } from "@/features/records/record-detail-layout.schema";
@@ -15,11 +16,13 @@ import { recordPanelsP13nId, recordPanelWidths } from "../components/record-pane
 async function recordOrTrashed(
   editor: InteractorOutcome<RecordEditorResult>,
   ref: RecordRef,
-): Promise<RecordEditorResult & { trash?: TrashedRecordInfo }> {
+): Promise<(RecordEditorResult & { trash?: TrashedRecordInfo }) | "denied"> {
   if (editor.ok) return editor.data;
   const trashed = await getGetTrashedRecordInteractor().invoke(ref);
   if (trashed.ok) return trashed.data;
-  if (["not_found", "authorization"].includes(interactorFailureKind(editor.error))) notFound();
+  const kinds = [editor.error, trashed.error].map(interactorFailureKind);
+  if (kinds.includes("authorization")) return "denied";
+  if (kinds[0] === "not_found") notFound();
   throw editor.error;
 }
 
@@ -33,7 +36,9 @@ export default async function RecordPage({ params }: { params: Promise<{ typeId:
     getOptionalP13n(recordPanelsP13nId(parsed.data.typeId)),
     getOptionalP13n(recordDetailKey(parsed.data.typeId)),
   ]);
-  const { trash, ...initial } = await recordOrTrashed(editor, parsed.data);
+  const loaded = await recordOrTrashed(editor, parsed.data);
+  if (loaded === "denied") return <RecordAccessDeniedPage />;
+  const { trash, ...initial } = loaded;
   return (
     <PageContainer padded={false}>
       <RecordDetailPage

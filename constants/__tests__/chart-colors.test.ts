@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import { getChartColors, getChartRankShades } from "@/constants/chart-colors";
@@ -25,5 +28,22 @@ describe("getChartRankShades", () => {
     expect(getChartRankShades(ChartColor.secondary2, "dark", [1])).toEqual([
       getChartColors("dark")[ChartColor.secondary1],
     ]);
+  });
+});
+
+describe("chart tokens", () => {
+  it("match the strongest step of each chart hue in both themes", () => {
+    const css = readFileSync(join(process.cwd(), "styles/globals.css"), "utf8");
+    const tokens = [...css.matchAll(/--chart-([1-5]): (#[0-9a-f]{6});/g)].map(([, index, value]) => ({ index, value }));
+    const hues = [
+      ChartColor.primary1,
+      ChartColor.secondary1,
+      ChartColor.success1,
+      ChartColor.warning1,
+      ChartColor.danger1,
+    ];
+    const expected = (theme: string) =>
+      hues.map((hue, index) => ({ index: String(index + 1), value: getChartColors(theme)[hue] }));
+    expect(tokens).toEqual([...expected("light"), ...expected("dark")]);
   });
 });
