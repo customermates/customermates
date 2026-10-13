@@ -307,6 +307,27 @@ vi.mock("@/core/di", () => ({
   getUserService: () => ({
     hasPermission: state.wikiCreatePermission,
   }),
+  getGetRecordModelInteractor: () => ({
+    invoke: () =>
+      Promise.resolve({
+        ok: true,
+        data: {
+          types: [
+            { id: "contact", label: "Contact", primaryFieldId: "name" },
+            { id: "deal", label: "Deal", primaryFieldId: "name" },
+          ],
+        },
+      }),
+  }),
+  getGetRecordInteractor: () => ({
+    invoke: () =>
+      Promise.resolve({
+        ok: true,
+        data: {
+          fields: [{ fieldId: "name", result: { state: "value", value: { kind: "text", value: "Ada Lovelace" } } }],
+        },
+      }),
+  }),
   getWikiWebsiteCrawlRepo: () => ({
     findLatestCrawl: () => Promise.resolve(state.latestCrawl),
   }),

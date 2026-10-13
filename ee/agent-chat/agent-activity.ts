@@ -332,7 +332,11 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
           : {}),
       };
     }
-    return descriptor("generic", undefined, action === "preview" ? "read" : "write");
+    return descriptor(
+      "generic",
+      undefined,
+      action === "preview" ? "read" : action === "restore" ? "write" : "sensitive",
+    );
   }
   if (toolName === "manage_widgets") {
     const action = actionValue(details);
