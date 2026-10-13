@@ -66,7 +66,7 @@ vi.mock("@/app/actions", () => ({
 }));
 vi.mock("@/components/modal/hooks/use-delete-confirmation", () => ({
   useDeleteConfirmation: () => ({
-    showDeleteConfirmation: (
+    showTrashConfirmation: (
       onConfirm: () => Promise<boolean>,
       entityName?: string,
       focusAfterConfirm?: () => boolean,

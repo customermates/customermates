@@ -43,6 +43,12 @@ describe("routineRunDetail", () => {
     expect(routineRunDetail(run, t)).toBe("Common.errors.agentLimitReached");
   });
 
+  it("explains a blocked run when hosted AI is unavailable", () => {
+    expect(
+      routineRunDetail({ status: RoutineRunStatus.blocked, summary: null, error: "agentServiceUnavailable" }, t),
+    ).toBe("Common.errors.agentServiceUnavailable");
+  });
+
   it("never shows a stored token it does not recognise", () => {
     const run = {
       status: RoutineRunStatus.skipped,

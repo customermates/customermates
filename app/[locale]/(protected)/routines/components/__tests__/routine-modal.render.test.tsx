@@ -35,7 +35,7 @@ vi.mock("@/app/components/agent-chat/agent-route-reload", () => ({
   AgentRouteReloadBridge: () => null,
 }));
 vi.mock("@/components/modal/hooks/use-delete-confirmation", () => ({
-  useDeleteConfirmation: () => ({ showConfirmation: vi.fn(), showDeleteConfirmation: vi.fn() }),
+  useDeleteConfirmation: () => ({ showConfirmation: vi.fn(), showTrashConfirmation: vi.fn() }),
 }));
 vi.mock("@/components/modal", () => ({
   AppModal: ({

@@ -1041,6 +1041,7 @@
       "message": "¿Seguro que quieres eliminar este elemento? Esta acción no se puede deshacer.",
       "messageWithName": "¿Seguro que quieres eliminar \"{name}\"? Esta acción no se puede deshacer.",
       "title": "Confirmar la eliminación",
+      "trashMessageWithName": "¿Seguro que quieres eliminar \"{name}\"? Se mueve a la papelera, donde puedes restaurarlo durante 30 días.",
       "typeToConfirm": "Escribe {name} para confirmar"
     },
     "details": "Detalles",

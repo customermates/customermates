@@ -1041,6 +1041,7 @@
       "message": "Are you sure you want to delete this item? This action cannot be undone.",
       "messageWithName": "Are you sure you want to delete \"{name}\"? This action cannot be undone.",
       "title": "Confirm Deletion",
+      "trashMessageWithName": "Are you sure you want to delete \"{name}\"? It moves to Trash, where you can restore it for 30 days.",
       "typeToConfirm": "Type {name} to confirm"
     },
     "details": "Details",
