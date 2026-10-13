@@ -1225,6 +1225,7 @@
       "webhookDeliveryInProgress": "Cette livraison est encore en cours d'envoi. Renvoyez-la une fois qu'elle a réussi ou échoué.",
       "webhookDeliveryNotFound": "ID de livraison de webhook introuvable ou inaccessible.",
       "webhookDisabled": "Ce webhook est désactivé ou n'est plus abonné à cet événement. Activez-le ou abonnez-le à l'événement, puis renvoyez.",
+      "webhookEndpointInvalid": "Saisissez une URL de webhook HTTP ou HTTPS avec un hôte valide, sans nom d’utilisateur ni mot de passe.",
       "webhookEventsRequired": "Sélectionnez au moins un évènement.",
       "webhookHeaderNameInvalid": "Les noms d'en-tête ne peuvent contenir que des lettres, des chiffres et des caractères de jeton HTTP.",
       "webhookHeaderNameReserved": "Cet en-tête est défini automatiquement et ne peut pas être remplacé.",
@@ -2580,6 +2581,7 @@
       "visibilityTitle": "Paramètres de visibilité"
     },
     "shareToCrmActive": "Partagée vers le CRM, visible par toute votre équipe",
+    "shareToCrmPermissionDenied": "Votre autorisation pour la boîte de réception a changé. Vous ne pouvez plus modifier la visibilité de cette conversation.",
     "shareToCrmPrivate": "Conversation privée",
     "shareToCrmPrivateToast": "La conversation est désormais privée",
     "shareToCrmShared": "Conversation partagée",

@@ -13,14 +13,14 @@ import type { z as zType } from "zod";
 import z from "zod";
 import { Resource } from "@/generated/prisma";
 
-import { WebhookEventSchema, WebhookDtoSchema } from "./webhook.schema";
+import { WebhookEventSchema, WebhookDtoSchema, WebhookEndpointSchema, isWebhookEndpointUrl } from "./webhook.schema";
 import { WebhookHeadersSchema, allowsCredentialedHeaders } from "./webhook-headers";
 import { calculateWebhookChanges, toWebhookEventPayload } from "./webhook-event-payload";
 import { WEBHOOK_BODY_TEMPLATE_MAX_CHARS, isRenderableWebhookBodyTemplate } from "./webhook-body-template";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { zx, type Validated } from "@/core/validation/validation.utils";
+import { type Validated } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -28,7 +28,7 @@ import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 export const UpsertWebhookSchema = z
   .object({
     id: z.uuid().optional(),
-    url: zx.secureUrl().optional(),
+    url: WebhookEndpointSchema.optional(),
     description: z.string().max(500).nullable().optional(),
     events: z
       .array(WebhookEventSchema)
@@ -155,6 +155,9 @@ export class UpsertWebhookInteractor extends AuthenticatedInteractor<UpsertWebho
     const existing = data.id ? await this.repo.getWebhookById(data.id) : null;
     const url = data.url ?? existing?.url;
     const headers = data.headers === undefined ? existing?.headers : data.headers;
+
+    if (url && !isWebhookEndpointUrl(url))
+      ctx.addIssue({ code: "custom", path: ["url"], params: { error: CustomErrorCode.webhookEndpointInvalid } });
 
     if (url && headers && Object.keys(headers).length > 0 && !allowsCredentialedHeaders(url)) {
       ctx.addIssue({

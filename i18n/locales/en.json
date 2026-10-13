@@ -1225,6 +1225,7 @@
       "webhookDeliveryInProgress": "This delivery is still being sent. Resend it once it has succeeded or failed.",
       "webhookDeliveryNotFound": "Webhook delivery ID not found or not accessible.",
       "webhookDisabled": "This webhook is turned off or no longer subscribes to this event. Turn it on or subscribe to the event, then resend.",
+      "webhookEndpointInvalid": "Enter an HTTP or HTTPS webhook URL with a valid host and no username or password.",
       "webhookEventsRequired": "Select at least one event.",
       "webhookHeaderNameInvalid": "Header names may only contain letters, digits and HTTP token characters.",
       "webhookHeaderNameReserved": "This header is set automatically and cannot be overridden.",
@@ -2580,6 +2581,7 @@
       "visibilityTitle": "Visibility Settings"
     },
     "shareToCrmActive": "Shared to CRM, visible to your whole team",
+    "shareToCrmPermissionDenied": "Your Inbox permission changed. You can no longer change this conversation's visibility.",
     "shareToCrmPrivate": "Private Thread",
     "shareToCrmPrivateToast": "Conversation is now private",
     "shareToCrmShared": "Shared Thread",

@@ -16,6 +16,28 @@ async function revision(page: Page) {
   return RecordModelSchema.parse(await response.json()).revision;
 }
 
+async function editWidgetName(page: Page, value: string) {
+  const name = page.locator("#name");
+  await name.fill("");
+  await name.pressSequentially(value);
+  await expect(name).toHaveValue(value);
+  await expect(page.locator("#widget-modal-save")).toBeEnabled();
+}
+
+async function openWidgetForEdit(page: Page, name: string, id: string) {
+  const widgetLoaded = page.waitForResponse(
+    (response) =>
+      response.url().includes("/en/dashboard") &&
+      response.request().method() === "POST" &&
+      Boolean(response.request().postData()?.includes(id)),
+  );
+  await page.getByRole("heading", { name, exact: true }).click();
+  await widgetLoaded;
+  await expect(page.locator("#name")).toBeEnabled();
+  await expect(page.locator("#name")).toHaveValue(name);
+  await expect(page.locator('[data-preview-current="true"]')).toBeVisible();
+}
+
 test("starts from a recommended starter, previews it live at dashboard size and arranges widgets through the API", async ({
   page,
   database,
@@ -131,12 +153,19 @@ test("starts from a recommended starter, previews it live at dashboard size and 
     .locator(".react-grid-item")
     .filter({ hasText: "Placed by the API" });
   await expect(second).toBeVisible();
-  const [left, right] = [await first.boundingBox(), await second.boundingBox()];
-  expect(left && right).toBeTruthy();
-  if (!left || !right) return;
-  expect(Math.abs(left.y - right.y)).toBeLessThan(2);
-  expect(right.x).toBeGreaterThan(left.x + left.width);
-  expect(right.width).toBeGreaterThan(left.width * 1.8);
+  await expect
+    .poll(async () => {
+      const [left, right] = [
+        await first.boundingBox(),
+        await second.boundingBox(),
+      ];
+      return {
+        sameRow: Boolean(left && right && Math.abs(left.y - right.y) < 2),
+        separated: Boolean(left && right && right.x > left.x + left.width),
+        wider: Boolean(left && right && right.width > left.width * 1.8),
+      };
+    })
+    .toEqual({ sameRow: true, separated: true, wider: true });
   expect(errors).toEqual([]);
 });
 
@@ -179,10 +208,12 @@ for (const action of ["outside", "save", "cancel"] as const) {
         isTemplate: false,
       },
     });
-    expect(response.status(), await response.text()).toBe(200);
+    const widget = await response.json();
+    expect(response.status(), JSON.stringify(widget)).toBe(200);
+    expect(widget.id).toEqual(expect.any(String));
     await page.goto("/en/dashboard");
-    await page.getByRole("heading", { name, exact: true }).click();
-    await page.locator("#name").fill(name + " changed");
+    await openWidgetForEdit(page, name, widget.id);
+    await editWidgetName(page, name + " changed");
     await page.locator("#widget-config-filters").click();
     await openFilterPalette(page, "widget-source-filters");
     await page.locator('[data-filter-index="0"]').click();
@@ -267,10 +298,12 @@ for (const valueKind of ["decimal", "dateTime"] as const) {
           isTemplate: false,
         },
       });
-      expect(response.status(), await response.text()).toBe(200);
+      const widget = await response.json();
+      expect(response.status(), JSON.stringify(widget)).toBe(200);
+      expect(widget.id).toEqual(expect.any(String));
       await page.goto("/en/dashboard");
-      await page.getByRole("heading", { name, exact: true }).click();
-      await page.locator("#name").fill(name + " changed");
+      await openWidgetForEdit(page, name, widget.id);
+      await editWidgetName(page, name + " changed");
       await page.locator("#widget-config-filters").click();
       await openFilterPalette(page, "widget-source-filters");
       await page.locator('[data-filter-index="0"]').click();
@@ -279,6 +312,7 @@ for (const valueKind of ["decimal", "dateTime"] as const) {
         .fill(
           valueKind === "decimal" ? "not-a-number" : "2026-02-30T00:00:00Z",
         );
+      await expect(page.locator("#name")).toHaveValue(name + " changed");
       if (action === "outside") await page.locator("#name").click();
       if (action === "cancel") {
         await page.locator("#widget-modal-cancel").click();
@@ -299,13 +333,22 @@ for (const valueKind of ["decimal", "dateTime"] as const) {
       expect((await query(savedName)).source.filters[0].values).toEqual([
         initial,
       ]);
-      await page.getByRole("heading", { name: savedName, exact: true }).click();
-      await page.locator("#name").fill(name + " corrected");
+      await openWidgetForEdit(page, savedName, widget.id);
+      await editWidgetName(page, name + " corrected");
       await page.locator("#widget-config-filters").click();
       await openFilterPalette(page, "widget-source-filters");
       await page.locator('[data-filter-index="0"]').click();
       await page.locator('[id="draft.value"]').fill(corrected.value);
+      await page.locator('[id="draft.value"]').press("Enter");
+      await expect(page.locator('[id="draft.value"]')).toHaveValue("");
+      await expect(
+        page
+          .locator('[data-slot="badge"]')
+          .filter({ hasText: corrected.value }),
+      ).toBeVisible();
       if (action === "outside") await page.locator("#name").click();
+      await expect(page.locator("#name")).toHaveValue(name + " corrected");
+      await expect(page.locator("#widget-modal-save")).toBeEnabled();
       await page.locator("#widget-modal-save").click();
       await expect(page.getByRole("dialog")).toHaveCount(0);
       expect(

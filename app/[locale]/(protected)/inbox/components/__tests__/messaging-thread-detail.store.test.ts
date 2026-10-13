@@ -2,6 +2,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { ThreadDetail } from "../messaging-thread-detail.store";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MessagingProvider } from "@/generated/prisma";
+import { toast } from "sonner";
 
 const actions = vi.hoisted(() => ({
   moveEmailThreadAction: vi.fn(),
@@ -13,6 +14,7 @@ vi.mock("../../actions", () => actions);
 vi.mock("@/core/utils/toast-zod-error-tree", () => ({
   toastZodErrorTree: vi.fn(),
 }));
+vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 import { MessagingThreadDetailStore } from "../messaging-thread-detail.store";
 
 function detail(id = "thread", messages = [{ id: "message" }]): ThreadDetail {
@@ -360,6 +362,19 @@ describe("inbox reconciliation", () => {
     actions.getMessagingThreadAction.mockResolvedValue(detail());
     await store.refresh(true);
     expect(actions.getMessagingThreadAction).toHaveBeenCalledOnce();
+  });
+  it("rolls back sharing and explains a revoked Inbox permission", async () => {
+    const { store } = setup();
+    store.hydrate({ ...detail(), thread: { ...detail().thread, sharedToCrm: false } });
+    actions.updateThreadAction.mockResolvedValue({
+      ok: false,
+      failure: { kind: "authorization", issues: [{ code: "custom", path: [], message: "Permission denied" }] },
+    });
+
+    await store.toggleSharing(true);
+
+    expect(store.thread?.sharedToCrm).toBe(false);
+    expect(toast.error).toHaveBeenCalledWith("Inbox.shareToCrmPermissionDenied", expect.any(Object));
   });
   it("invalidates older reads when a participant record is linked", async () => {
     const { store } = setup();

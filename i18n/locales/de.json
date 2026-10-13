@@ -1225,6 +1225,7 @@
       "webhookDeliveryInProgress": "Diese Zustellung wird noch gesendet. Senden Sie sie erneut, sobald sie erfolgreich war oder fehlgeschlagen ist.",
       "webhookDeliveryNotFound": "Webhook-Zustellungs-ID nicht gefunden oder nicht zugänglich.",
       "webhookDisabled": "Dieser Webhook ist ausgeschaltet oder abonniert dieses Ereignis nicht mehr. Schalten Sie ihn ein oder abonnieren Sie das Ereignis und senden Sie dann erneut.",
+      "webhookEndpointInvalid": "Gib eine HTTP- oder HTTPS-Webhook-URL mit gültigem Host und ohne Benutzername oder Passwort ein.",
       "webhookEventsRequired": "Wähle mindestens ein Ereignis aus.",
       "webhookHeaderNameInvalid": "Header-Namen dürfen nur Buchstaben, Ziffern und HTTP-Token-Zeichen enthalten.",
       "webhookHeaderNameReserved": "Dieser Header wird automatisch gesetzt und kann nicht überschrieben werden.",
@@ -2580,6 +2581,7 @@
       "visibilityTitle": "Sichtbarkeitseinstellungen"
     },
     "shareToCrmActive": "Im CRM geteilt, für dein ganzes Team sichtbar",
+    "shareToCrmPermissionDenied": "Deine Posteingang-Berechtigung hat sich geändert. Du kannst die Sichtbarkeit dieser Konversation nicht mehr ändern.",
     "shareToCrmPrivate": "Private Konversation",
     "shareToCrmPrivateToast": "Die Konversation ist jetzt privat",
     "shareToCrmShared": "Geteilte Konversation",

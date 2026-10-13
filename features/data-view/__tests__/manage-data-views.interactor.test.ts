@@ -911,6 +911,13 @@ describe("agent saved-view management", () => {
     expect(subject.remove.invoke).not.toHaveBeenCalled();
   });
 
+  it("deletes a view over REST by viewKey alone, without a name", async () => {
+    const subject = setup();
+    const result = await subject.run({ action: "delete", surfaceKey: SURFACE.users, viewKey: VIEW_ID });
+    expect(result.ok).toBe(true);
+    expect(subject.remove.invoke).toHaveBeenCalledWith({ id: VIEW_ID });
+  });
+
   it("refuses a record list grouping by a multiple choice field and names the fields that can group it", async () => {
     const surfaceKey = "records:10000000-0000-4000-8000-000000000001";
     const roleId = "20000000-0000-4000-8000-000000000001";

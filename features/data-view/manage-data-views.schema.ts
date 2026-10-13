@@ -83,7 +83,7 @@ export const CreateDataViewRequestSchema = z
 export const UpdateDataViewRequestSchema = z.object(update).strict().superRefine(requireUpdateChange);
 export const SelectDataViewRequestSchema = z.object({ ...surface, viewKey: ViewKeySchema }).strict();
 export const DeleteDataViewRequestSchema = z
-  .object({ ...surface, viewKey: z.uuid(), name: z.string().trim().min(1).max(DATA_VIEW_NAME_MAX_LENGTH) })
+  .object({ ...surface, viewKey: z.uuid(), name: z.string().trim().min(1).max(DATA_VIEW_NAME_MAX_LENGTH).optional() })
   .strict();
 
 export const ManageDataViewsSchema = z.discriminatedUnion("action", [

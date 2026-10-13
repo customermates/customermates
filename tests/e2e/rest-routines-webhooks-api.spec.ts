@@ -4,6 +4,8 @@ import type { AddressInfo } from "node:net";
 
 import type { APIRequestContext } from "@playwright/test";
 import { z } from "zod";
+import { Client as McpClient } from "@modelcontextprotocol/sdk/client/index.js";
+import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import {
@@ -467,5 +469,72 @@ test("drives routines and webhooks through the public REST API with an API key a
     await api.dispose();
     await anonymous.dispose();
     await new Promise<void>((resolve) => receiver.close(() => resolve()));
+  }
+});
+
+test("rejects undeliverable webhook endpoints through REST and MCP", async ({
+  context,
+  playwright,
+  database,
+  companyId,
+}) => {
+  const { baseUrl } = localE2eEnvironment();
+  const keyResponse = await context.request.post(`${baseUrl}/api/auth/api-key/create`, {
+    headers: { origin: baseUrl },
+    data: { name: "Webhook endpoint validation", expiresIn: 86400 },
+  });
+  expect(keyResponse.status()).toBe(200);
+  const { key } = z.object({ key: z.string() }).parse(await keyResponse.json());
+  const api = await playwright.request.newContext({ baseURL: baseUrl, extraHTTPHeaders: { "x-api-key": key } });
+  const client = new McpClient({ name: "webhook-endpoint-validation", version: "1.0.0" });
+  const transport = new StreamableHTTPClientTransport(new URL(`${baseUrl}/api/v1/mcp`), {
+    requestInit: { headers: { "x-api-key": key } },
+  });
+  const invalidUrls = [
+    "mailto:ops@example.invalid",
+    "tel:+491234567",
+    "http://user:pass@example.invalid/hook",
+    "https://user@example.invalid/hook",
+  ];
+
+  try {
+    const valid = await api.post("/api/v1/webhooks", {
+      data: { url: "http://127.0.0.1:49999/control", events: ["messaging.message.received"] },
+    });
+    expect(valid.status(), await valid.text()).toBe(201);
+    const { id } = z.object({ id: z.uuid() }).parse(await valid.json());
+
+    await client.connect(transport);
+    await client.listTools();
+
+    for (const url of invalidUrls) {
+      const restCreate = await api.post("/api/v1/webhooks", {
+        data: { url, events: ["messaging.message.received"] },
+      });
+      expect(restCreate.status(), `${url}: ${await restCreate.text()}`).toBe(400);
+      expect(await restCreate.json()).toMatchObject({
+        error: { kind: "validation", issues: [{ path: ["url"], customCode: "webhookEndpointInvalid" }] },
+      });
+      const restUpdate = await api.patch(`/api/v1/webhooks/${id}`, { data: { url } });
+      expect(restUpdate.status(), `${url}: ${await restUpdate.text()}`).toBe(400);
+      expect(await restUpdate.json()).toMatchObject({
+        error: { kind: "validation", issues: [{ path: ["url"], customCode: "webhookEndpointInvalid" }] },
+      });
+
+      for (const arguments_ of [
+        { action: "create", url, events: ["messaging.message.received"] },
+        { action: "update", id, url },
+      ]) {
+        const mcp = await client.callTool({ name: "manage_webhooks", arguments: arguments_ });
+        expect(mcp.isError).toBe(true);
+        expect(JSON.stringify(mcp)).toContain("HTTP or HTTPS webhook URL");
+      }
+    }
+
+    const saved = await database.query('SELECT url FROM "Webhook" WHERE "companyId"=$1', [companyId]);
+    expect(saved.rows).toEqual([{ url: "http://127.0.0.1:49999/control" }]);
+  } finally {
+    await client.close();
+    await api.dispose();
   }
 });

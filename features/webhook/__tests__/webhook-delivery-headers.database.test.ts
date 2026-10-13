@@ -81,13 +81,14 @@ function signature(body: string): string {
 
 async function seedWebhook(args: {
   path: string;
+  storedUrl?: string;
   headers?: Record<string, string> | null;
   bodyTemplate?: string | null;
   secret?: string | null;
 }) {
   const companyId = randomUUID();
   const deliveryId = randomUUID();
-  const url = `${baseUrl}${args.path}`;
+  const url = args.storedUrl ?? `${baseUrl}${args.path}`;
 
   companyIds.push(companyId);
 
@@ -237,6 +238,25 @@ describeDatabase("outbound webhook custom headers and body template", () => {
     expect(stored.status).toBe("failed");
     expect(stored.responseMessage).toContain("invalidJson");
   });
+
+  it.each(["mailto:ops@example.invalid", "tel:+491234567", "http://user:pass@127.0.0.1:4697/hook"])(
+    "records a visible failure for a previously stored invalid endpoint %s",
+    async (storedUrl) => {
+      captured = [];
+      const seeded = await seedWebhook({ path: "/stored-invalid", storedUrl });
+
+      const outcome = await deliver(seeded);
+      const stored = await runWithoutTenant(() =>
+        prisma.webhookDelivery.findUniqueOrThrow({ where: { id: seeded.deliveryId } }),
+      );
+
+      expect(outcome.status).toBe("failed");
+      expect(outcome.statusCode).toBe(422);
+      expect(stored.status).toBe("failed");
+      expect(stored.responseMessage).toContain("Webhook endpoints require HTTP or HTTPS");
+      expect(captured).toHaveLength(0);
+    },
+  );
 
   it("refuses to send custom headers to a cleartext endpoint", async () => {
     captured = [];
