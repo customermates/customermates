@@ -120,7 +120,7 @@ A real record change also carries assignments, identities, link changes and rela
 
 `data.record.fields` lists changed fields with `before` and `after` values; `data.record.links`, `data.record.assignments` and `data.record.identities` describe other changed connections. `data.record.beforeVersion` and `data.record.afterVersion` identify the record versions. A missing or restricted field is not the same as zero.
 
-Updates that change nothing produce no `record.updated` event. The payload is redacted by the webhook owner's current record and calculated-field access at delivery time.
+Updates that change nothing produce no `record.updated` event. Data model changes may recalculate stored values on many records; those configuration backfills remain in record history but do not produce per-record webhook deliveries or trigger event routines. A later user or API edit to a record produces its usual event. The payload is redacted by the webhook owner's current record and calculated-field access at delivery time.
 
 ## Custom headers and body templates [#custom-headers-and-body-templates]
 

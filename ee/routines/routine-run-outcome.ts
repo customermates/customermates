@@ -8,6 +8,7 @@ export const ROUTINE_SUMMARY_MAX_CHARS = 280;
 
 export const ROUTINE_RUN_REASONS = [
   "adminPaused",
+  "platformPaused",
   "routineDisabled",
   "ownerPaused",
   "ownerUnavailable",

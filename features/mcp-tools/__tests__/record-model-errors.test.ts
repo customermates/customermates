@@ -5,7 +5,11 @@ import { MOCK_ENV_MODULE } from "@/tests/helpers/interactor-test-setup";
 import { createZodError } from "@/core/validation/validation.utils";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 
-const mocks = vi.hoisted(() => ({ query: vi.fn(), mutate: vi.fn(), read: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  query: vi.fn(),
+  mutate: vi.fn(),
+  read: vi.fn(),
+}));
 vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => ({
   getQueryRecordsInteractor: () => ({ invoke: mocks.query }),
@@ -28,14 +32,42 @@ describe("record MCP error guidance", () => {
       typeId: randomUUID(),
       filters: [
         { fieldId: randomUUID(), operator: "empty", value: null },
-        { fieldId, operator: "in", value: null, values: [{ kind: "selectList", value: [randomUUID()] }] },
+        {
+          fieldId,
+          operator: "in",
+          value: null,
+          values: [{ kind: "selectList", value: [randomUUID()] }],
+        },
       ],
     });
     const result = await queryRecordsV2Tool.execute(input);
     expect(result).toMatchObject({
       text: expect.stringContaining(`filters[1] on ${fieldId} with in is invalid`),
     });
-    expect(result).toMatchObject({ text: expect.stringContaining("values: an array of typed scalars") });
+    expect(result).toMatchObject({
+      text: expect.stringContaining("values: an array of typed scalars"),
+    });
+  });
+
+  it("names an unknown requested field and the accepted fields shape", async () => {
+    const fieldId = randomUUID();
+    mocks.query.mockResolvedValueOnce({
+      ok: false,
+      error: createZodError(
+        `Field ${fieldId} is unknown or not yet published for this list. Pass fields as an array of live field IDs from the current record model.`,
+        ["fields"],
+        { error: CustomErrorCode.recordQueryFieldUnknown },
+      ),
+    });
+    const input = queryRecordsV2Tool.inputSchema.parse({
+      typeId: randomUUID(),
+      fields: [fieldId],
+    });
+    const result = await queryRecordsV2Tool.execute(input);
+    expect(result).toMatchObject({ text: expect.stringContaining(fieldId) });
+    expect(result).toMatchObject({
+      text: expect.stringContaining("fields as an array"),
+    });
   });
 
   it("re-reads the current version for a mutation conflict", async () => {
@@ -54,8 +86,12 @@ describe("record MCP error guidance", () => {
       mutation: { action: "update", ref, expectedVersion: 1, fields: [] },
     });
     const result = await mutateRecordV2Tool.execute(input);
-    expect(result).toMatchObject({ text: expect.stringContaining("Read the record again and retry") });
-    expect(result).toMatchObject({ text: expect.stringContaining('"expectedVersion":4') });
+    expect(result).toMatchObject({
+      text: expect.stringContaining("Read the record again and retry"),
+    });
+    expect(result).toMatchObject({
+      text: expect.stringContaining('"expectedVersion":4'),
+    });
     expect(mocks.read).toHaveBeenCalledWith(ref);
   });
 

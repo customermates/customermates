@@ -118,7 +118,13 @@ export const TrashRestoreResultSchema = z.discriminatedUnion("status", [
       droppedViewReferences: z.array(DroppedViewReferencesSchema).optional(),
     })
     .strict(),
-  z.object({ status: z.literal("pending"), operationId: z.uuid() }).strict(),
+  z
+    .object({
+      status: z.literal("pending"),
+      operationId: z.uuid(),
+      droppedViewReferences: z.array(DroppedViewReferencesSchema).optional(),
+    })
+    .strict(),
 ]);
 export type TrashRestoreResult = z.infer<typeof TrashRestoreResultSchema>;
 

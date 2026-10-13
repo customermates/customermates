@@ -97,7 +97,11 @@ export function recordEventChanges(
   const order = new Map(model.fields.map((field) => [field.id, field.position]));
   const fields = [...new Set([...previous.keys(), ...current.keys()])]
     .sort((a, b) => (order.get(a) ?? 0) - (order.get(b) ?? 0) || compareRecordKey(a, b))
-    .map((fieldId) => ({ fieldId, before: previous.get(fieldId) ?? null, after: current.get(fieldId) ?? null }))
+    .map((fieldId) => ({
+      fieldId,
+      before: previous.get(fieldId) ?? null,
+      after: current.get(fieldId) ?? null,
+    }))
     .filter((change) => {
       if (
         (!change.before || change.before.value.state === "missing") &&
@@ -110,7 +114,10 @@ export function recordEventChanges(
     before: before?.assignedUserIds ?? [],
     after: after?.assignedUserIds ?? [],
   };
-  const identities = { before: before?.identities ?? [], after: after?.identities ?? [] };
+  const identities = {
+    before: before?.identities ?? [],
+    after: after?.identities ?? [],
+  };
   const links = entry.links.filter((link) => link.before !== link.after);
   const assignmentsChanged = JSON.stringify(assignments.before) !== JSON.stringify(assignments.after);
   const identitiesChanged = JSON.stringify(identities.before) !== JSON.stringify(identities.after);
@@ -251,7 +258,11 @@ export class RecordJournal {
     const saved = this.staging ? await this.staging.base.getStageRow(this.staging.operationId, "journal", key) : null;
     const entry = saved
       ? RecordJournalEntrySchema.parse(saved)
-      : { ref, before: await snapshot(this.records, ref, this.previous), links: [] };
+      : {
+          ref,
+          before: await snapshot(this.records, ref, this.previous),
+          links: [],
+        };
     this.entries.set(key, entry);
     if (!saved) this.markDirty(entry);
     return entry;
@@ -328,6 +339,7 @@ export class RecordJournal {
     const rows = await this.staging.base.getStageRowsPage(this.staging.operationId, "journal", afterKey, take);
     for (const row of rows)
       await this.emit(RecordJournalEntrySchema.parse(row.payload), model, actorId, causeId, cause);
+
     return { count: rows.length, afterKey: rows.at(-1)?.key };
   }
 
@@ -345,6 +357,14 @@ export class RecordJournal {
     if (event.kind === "record.created" && this.restored.has(recordKey(entry.ref))) event.kind = "record.restored";
     if (this.staging && entry.before && after && after.version <= entry.before.version)
       event.payload.afterVersion = entry.before.version + 1;
-    await this.records.appendEvent(entry.ref, actorId, causeId, event.kind, event.payload);
+    await this.records.appendEvent(
+      entry.ref,
+      actorId,
+      causeId,
+      event.kind,
+      event.payload,
+      false,
+      event.kind !== "record.updated" || cause.kind !== "configuration",
+    );
   }
 }

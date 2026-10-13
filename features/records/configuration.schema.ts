@@ -50,7 +50,7 @@ export const DeletionBlockerSchema = z
   })
   .strict();
 export type DeletionBlocker = z.infer<typeof DeletionBlockerSchema>;
-const DeletionCleanupSchema = z
+export const DeletionCleanupSchema = z
   .object({
     consumer: DeletionReferenceSchema,
     target: DeletionReferenceSchema,

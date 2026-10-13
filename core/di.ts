@@ -614,6 +614,7 @@ const entityTrashHandlers = (companyId?: string) => {
   const viewBlockers = new ViewTrashBlockers(
     createPrismaRecordRepo(companyId, getBackgroundTaskService()),
     createPrismaDataViewRepo(companyId),
+    trash,
   );
   return [
     new EntityTrashHandler(

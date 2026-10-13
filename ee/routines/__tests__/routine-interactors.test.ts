@@ -632,10 +632,10 @@ describe("StartRoutineRunInteractor", () => {
 
     expect(await interactor.invoke({ routineRunId: RUN_ID })).toEqual({
       ok: true,
-      data: { started: false, reason: "adminPaused" },
+      data: { started: false, reason: "platformPaused" },
     });
     expect(repo.settleRoutineRunUnscoped).toHaveBeenCalledWith(
-      expect.objectContaining({ status: "blocked", error: "adminPaused" }),
+      expect.objectContaining({ status: "blocked", error: "platformPaused" }),
     );
     expect(conversations.createAndLinkRoutineConversationForRun).not.toHaveBeenCalled();
     expect(sendAgentMessage.invokeRoutine).not.toHaveBeenCalled();

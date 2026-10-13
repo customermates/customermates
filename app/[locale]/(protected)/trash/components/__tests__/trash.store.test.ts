@@ -274,6 +274,36 @@ describe("TrashStore", () => {
     }
   });
 
+  it("reports saved view references after a background field restore completes", async () => {
+    vi.useFakeTimers();
+    try {
+      const { store } = makeStore();
+      trashActions.restoreTrashAction.mockResolvedValue({
+        ok: true,
+        data: {
+          status: "pending",
+          operationId: BATCH_ID,
+          droppedViewReferences: [{ viewId: ITEM_ID, filters: 1, columns: 0, sort: false, grouping: false }],
+        },
+      });
+      recordActions.getRecordOperationAction.mockResolvedValue({
+        ok: true,
+        data: { state: "completed", result: { status: "completed", refs: [], schemaRevision: 1 } },
+      });
+
+      expect(await store.restore({ itemIds: [ITEM_ID] })).toBe("pending");
+      await vi.advanceTimersByTimeAsync(2500);
+      await vi.waitFor(() =>
+        expect(sonner.toast.success).toHaveBeenCalledWith(
+          'Trash.restoredWithDroppedViewReferences:{"filters":1,"columns":0,"sorts":0,"groupings":0}',
+          expect.anything(),
+        ),
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("queues a second restore behind a running one instead of dropping it", async () => {
     const { store } = makeStore();
     let finishFirst = (_value: unknown) => {};

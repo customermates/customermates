@@ -13,6 +13,14 @@ export const RecordOperationStatusSchema = z
     total: z.number().int(),
     errorCode: z.string().nullable(),
     result: RecordOperationResultSchema.nullable(),
+    retryAfterMs: z
+      .number()
+      .int()
+      .positive()
+      .nullable()
+      .describe(
+        "Wait this many milliseconds before polling a pending or staging operation again; null for a terminal state.",
+      ),
   })
   .strict();
 export type RecordOperationStatus = z.infer<typeof RecordOperationStatusSchema>;

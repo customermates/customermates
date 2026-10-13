@@ -572,7 +572,7 @@ export const recordApiPaths = {
   "/v1/operations/status": {
     post: operation(
       "readRecordOperation",
-      "Read the status of a staged operation",
+      "Read the status of a staged operation and its recommended retryAfterMs polling interval",
       RecordOperationInputSchema,
       RecordOperationStatusSchema,
       {

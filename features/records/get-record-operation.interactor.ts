@@ -32,6 +32,7 @@ export class GetRecordOperationInteractor extends OwnedRecordOperationInteractor
             total: operation.total,
             errorCode: operation.errorCode,
             result: operation.result,
+            retryAfterMs: operation.state === "pending" || operation.state === "staging" ? 5000 : null,
           }),
         };
       },

@@ -251,7 +251,7 @@ export const readRecordOperationV2Tool = {
   name: "read_crm_operation",
   title: "Read operation progress",
   description:
-    "Read progress or the completed result of a durable configuration or record operation. Poll with backoff until completed, failed or cancelled. A pending response does not confirm publication. Reads retain the previous complete state while workspace CRM writes are paused.",
+    "Read progress or the completed result of a durable configuration or record operation. For pending or staging, wait at least retryAfterMs before polling again; stop at completed, failed or cancelled. A pending response does not confirm publication. Reads retain the previous complete state while workspace CRM writes are paused.",
   inputSchema: RecordOperationInputSchema,
   outputSchema: RecordOperationStatusSchema,
   annotations: read,

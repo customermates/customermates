@@ -2,6 +2,7 @@ import type { DeletionBlocker, DeletionCleanup, DeletionReference } from "./conf
 import type { ModelIssue } from "./record-model-validation";
 import type { RecordModel } from "./record-model.schema";
 import type { ConfigurationConsumerCleanup, RecordRepo } from "./record.repo";
+import type { DroppedViewReferences } from "@/features/trash/trash.schema";
 
 import { cleanRecordDetailLayout, recordDetailLayoutIsValid } from "./record-detail-layout";
 import { cleanRecordEventSubscription, recordEventSubscriptionIsValid } from "./record-event-subscription-validation";
@@ -33,6 +34,7 @@ type ConfigurationImpact = {
   blockers: DeletionBlocker[];
   cleaned: DeletionCleanup[];
   cleanups: ConfigurationConsumerCleanup[];
+  droppedViewReferences: DroppedViewReferences[];
 };
 
 export async function* recordPages<T>(
@@ -145,7 +147,7 @@ export async function collectConsumerImpact(
   impact: ConfigurationImpact,
 ): Promise<void> {
   const { viewTypes, deletedTypeIds, cause } = change;
-  const { issues, blockers, cleaned, cleanups } = impact;
+  const { issues, blockers, cleaned, cleanups, droppedViewReferences } = impact;
   if (viewTypes.size) {
     const blockedLayouts = new Set<string>();
     for await (const entry of consumers.detailLayouts) {
@@ -188,6 +190,28 @@ export async function collectConsumerImpact(
       const state = cause && validBefore ? cleanRecordViewState(consumer.typeId, consumer.state, model) : null;
       if (cause && state) {
         cleanups.push({ kind, id, state });
+        if (kind === "view") {
+          const restored = { ...consumer.state, ...state };
+          const columns = new Set([
+            ...(consumer.state.columnOrder ?? []),
+            ...(consumer.state.hiddenColumns ?? []),
+            ...Object.keys(consumer.state.columnWidths ?? {}),
+          ]);
+          const kept = new Set([
+            ...(restored.columnOrder ?? []),
+            ...(restored.hiddenColumns ?? []),
+            ...Object.keys(restored.columnWidths ?? {}),
+          ]);
+          droppedViewReferences.push({
+            viewId: id,
+            filters: Math.max(0, (consumer.state.filters?.length ?? 0) - (restored.filters?.length ?? 0)),
+            columns: [...columns].filter((column) => !kept.has(column)).length,
+            sort: Boolean(consumer.state.sortDescriptor && !restored.sortDescriptor),
+            grouping: Boolean(
+              consumer.state.grouping && JSON.stringify(consumer.state.grouping) !== JSON.stringify(restored.grouping),
+            ),
+          });
+        }
         cleaned.push({
           consumer: {
             kind,

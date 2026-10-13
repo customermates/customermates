@@ -7,6 +7,7 @@ import type { ConfigurationChange, ConfigurationPreview } from "./configuration.
 import type { RecordField, RecordModel } from "./record-model.schema";
 import type { ConfigurationConsumerCleanup, RecordDefinitionDeletion, RecordRepo } from "./record.repo";
 import type { RecordAccessPolicy } from "./record-access";
+import type { DroppedViewReferences } from "@/features/trash/trash.schema";
 
 import {
   applyConfigurationLifecycle,
@@ -241,6 +242,7 @@ export class RecordConfigurationService extends UserAccessor {
       lifecycle?.removed?.channelTypeIds,
       validation.issues,
     );
+    const droppedViewReferences: DroppedViewReferences[] = [];
     await collectConsumerImpact(
       current,
       model,
@@ -267,7 +269,7 @@ export class RecordConfigurationService extends UserAccessor {
           (subscription) => subscription.id,
         ),
       },
-      { issues: validation.issues, blockers, cleaned, cleanups },
+      { issues: validation.issues, blockers, cleaned, cleanups, droppedViewReferences },
     );
     const affectedRecords = await this.records.countRecordsCompanyWide([...changedTypes]);
     const affectedReadable = [...changedTypes].every(readsFully);
@@ -335,7 +337,14 @@ export class RecordConfigurationService extends UserAccessor {
         causeId: input.idempotencyKey,
         expectedRevision: current.revision,
         configuration: input,
-        ...(lifecycle?.deletions.length ? { deletions: lifecycle.deletions } : {}),
+        ...(lifecycle?.deletions.length
+          ? {
+              deletions: lifecycle.deletions.map((deletion) => ({
+                ...deletion,
+                ...(droppedViewReferences.length ? { droppedViewReferences } : {}),
+              })),
+            }
+          : {}),
         references: [...references.references].map(([reference, id]) => ({
           reference,
           id,

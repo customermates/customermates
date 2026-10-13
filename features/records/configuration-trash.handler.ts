@@ -12,6 +12,7 @@ import type { ConfigurationSystemPurge } from "./configuration-system-purge";
 
 import { Prisma } from "@/generated/prisma";
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { DroppedViewReferencesSchema } from "@/features/trash/trash.schema";
 
 const CONFIGURATION_KINDS = ["list", "field", "relationship"] as const;
 const ORDER: Record<string, number> = { list: 0, relationship: 1, field: 2 };
@@ -65,7 +66,12 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
   async restore(items: TrashItem[]): Promise<TrashKindRestore> {
     if ((await this.records.getState())?.activeOperationId)
       throw unwindFailure(CustomErrorCode.recordWritePaused, "conflict");
-    const result: TrashKindRestore = { restoredItemIds: [], blocked: [], restoredRecords: 0, droppedLinks: 0 };
+    const result: TrashKindRestore = {
+      restoredItemIds: [],
+      blocked: [],
+      restoredRecords: 0,
+      droppedLinks: 0,
+    };
     for (const item of [...items].sort((left, right) => ORDER[left.kind] - ORDER[right.kind])) {
       const change = await this.change(item, "restore");
       const preview = await this.preview.run(change);
@@ -75,6 +81,16 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
       }
       const applied = await this.apply.run(change);
       if (!applied.ok) throw unwindInteractorFailure(applied);
+      if (item.payload && typeof item.payload === "object" && !Array.isArray(item.payload)) {
+        const payload = item.payload as Record<string, unknown>;
+        if (Array.isArray(payload.droppedViewReferences)) {
+          const dropped = payload.droppedViewReferences.flatMap((entry) => {
+            const parsed = DroppedViewReferencesSchema.safeParse(entry);
+            return parsed.success ? [parsed.data] : [];
+          });
+          if (dropped.length) result.droppedViewReferences = [...(result.droppedViewReferences ?? []), ...dropped];
+        }
+      }
       if (applied.data.status === "pending") {
         result.operationId = applied.data.operationId;
         break;
@@ -86,7 +102,10 @@ export class ConfigurationTrashHandler implements TrashKindHandler {
 
   private blocker(
     item: TrashItem,
-    preview: { issues: Array<{ code: string }>; deletion?: { blockers: Array<{ reason: string }> } } | null,
+    preview: {
+      issues: Array<{ code: string }>;
+      deletion?: { blockers: Array<{ reason: string }> };
+    } | null,
   ): TrashRestoreBlocker {
     const reason = preview?.deletion?.blockers.some((blocker) => blocker.reason === "requiresRestore")
       ? "requiresRestore"

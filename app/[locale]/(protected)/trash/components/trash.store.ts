@@ -4,6 +4,7 @@ import type { RootStore } from "@/core/stores/root.store";
 import type { ConfirmationSentence } from "@/components/modal/confirmation-sentence";
 import type { MovedToTrash } from "@/features/trash/moved-to-trash";
 import type {
+  DroppedViewReferences,
   RestoreTrashData,
   TrashDeletionPreview,
   TrashDeletionResult,
@@ -188,7 +189,12 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
       }
       const outcome = result.data;
       if (outcome.status === "pending") {
-        this.awaitBackgroundRestore(outcome.operationId, "itemIds" in data ? data.itemIds : [], onRestored);
+        this.awaitBackgroundRestore(
+          outcome.operationId,
+          "itemIds" in data ? data.itemIds : [],
+          onRestored,
+          outcome.droppedViewReferences ?? [],
+        );
         return "pending";
       }
       const restoredCount = outcome.restoredItemIds.length;
@@ -202,16 +208,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
           values: { count: restoredCount },
         });
       }
-      if (viewReferences.length) {
-        this.toastSuccess("Trash.restoredWithDroppedViewReferences", {
-          values: {
-            filters: viewReferences.reduce((count, entry) => count + entry.filters, 0),
-            columns: viewReferences.reduce((count, entry) => count + entry.columns, 0),
-            sorts: viewReferences.filter((entry) => entry.sort).length,
-            groupings: viewReferences.filter((entry) => entry.grouping).length,
-          },
-        });
-      }
+      if (viewReferences.length) this.showDroppedViewReferences(viewReferences);
       for (const [reason, count] of countBy(outcome.blocked.map((blocker) => blocker.reason)))
         this.toastError(RESTORE_BLOCKED_KEYS[reason], { values: { count } });
       if (restoredCount === 0 && outcome.blocked.length === 0) this.toastError("Trash.restoreFailed");
@@ -224,7 +221,23 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
     }
   };
 
-  private awaitBackgroundRestore(operationId: string, itemIds: string[], onRestored?: () => unknown) {
+  private showDroppedViewReferences(viewReferences: DroppedViewReferences[]) {
+    this.toastSuccess("Trash.restoredWithDroppedViewReferences", {
+      values: {
+        filters: viewReferences.reduce((count, entry) => count + entry.filters, 0),
+        columns: viewReferences.reduce((count, entry) => count + entry.columns, 0),
+        sorts: viewReferences.filter((entry) => entry.sort).length,
+        groupings: viewReferences.filter((entry) => entry.grouping).length,
+      },
+    });
+  }
+
+  private awaitBackgroundRestore(
+    operationId: string,
+    itemIds: string[],
+    onRestored?: () => unknown,
+    viewReferences: DroppedViewReferences[] = [],
+  ) {
     this.setRestoring(itemIds, true);
     const toastId = toast.loading(this.t("Trash.restoring"));
     this.finishedOperation(operationId)
@@ -235,6 +248,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
           return;
         }
         toast.success(this.t("Trash.restoredInBackground"), { id: toastId });
+        if (viewReferences.length) this.showDroppedViewReferences(viewReferences);
         await this.afterRestore();
         await onRestored?.();
       })

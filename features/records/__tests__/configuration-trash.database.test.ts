@@ -4,6 +4,7 @@ import type { RecordScalar } from "../record-model.schema";
 import type { TenantUser } from "@/features/user/user.schema";
 
 import { randomUUID } from "node:crypto";
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { Client } from "pg";
 import { afterAll, describe, expect, it, vi } from "vitest";
 
@@ -73,6 +74,8 @@ const { AdvanceSystemRecordOperationInteractor } = await import("../advance-syst
 const { getWebhookPauseNotifier } = await import("@/core/di");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 const { createTestRecordOperationService, createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+const { PrismaDataViewRepo } = await import("@/features/data-view/prisma-data-view.repository");
+const { ViewTrashBlockers } = await import("@/features/data-view/view-trash-blockers");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -316,6 +319,23 @@ describeDatabase("configuration trash", () => {
         },
       },
     };
+    const webhookId = randomUUID();
+    await f.as(async () => {
+      await prisma.webhook.create({
+        data: { id: webhookId, companyId, url: "https://hooks.example.test/configuration", events: ["record.updated"] },
+      });
+      await prisma.recordEventSubscription.create({
+        data: {
+          id: webhookId,
+          companyId,
+          kind: "webhook",
+          ownerUserId: f.admin.id,
+          typeId,
+          events: ["record.updated"],
+          changedFieldIds: [],
+        },
+      });
+    });
     const complete = async (operationId: string) => {
       let done = false;
       for (let step = 0; step < 250 && !done; step++) done = (await f.as(() => f.worker.advance(operationId))).done;
@@ -333,6 +353,10 @@ describeDatabase("configuration trash", () => {
     const values = () => runWithoutTenant(() => prisma.recordValue.findMany({ where: { companyId, typeId, fieldId } }));
     expect(await values()).toHaveLength(recordIds.length);
     expect((await values()).every((value) => value.decimalValue?.toString() === "50")).toBe(true);
+    const webhookMatches = () =>
+      runWithoutTenant(() => prisma.recordEventMatch.count({ where: { companyId, subscriptionId: webhookId } }));
+    expect(await webhookMatches()).toBe(0);
+    expect(await runWithoutTenant(() => prisma.webhookDelivery.count({ where: { companyId, webhookId } }))).toBe(0);
 
     const beforeDelete = await runWithoutTenant(() =>
       prisma.crmRecord.findUniqueOrThrow({
@@ -373,6 +397,8 @@ describeDatabase("configuration trash", () => {
     await complete(restored.data.operationId);
     const restoreFinishedMs = Date.now() - restoreStarted;
     expect((await values()).every((value) => value.decimalValue?.toString() === "60")).toBe(true);
+    expect(await webhookMatches()).toBe(0);
+    expect(await runWithoutTenant(() => prisma.webhookDelivery.count({ where: { companyId, webhookId } }))).toBe(0);
     expect(
       (await f.as(() => createTestRecordRepo().getModel())).fields.find((field) => field.id === fieldId)?.archived,
     ).toBe(false);
@@ -436,6 +462,82 @@ describeDatabase("configuration trash", () => {
     expect(await f.items()).toEqual([]);
     const model = await f.as(() => createTestRecordRepo().getModel());
     expect(model.fields.find((field) => field.id === fieldId)?.archived).toBe(false);
+  }, 180_000);
+
+  it("reports saved-view references removed by field deletion and again on restore", async () => {
+    const f = await fixture();
+    const companyId = f.seed.company.id;
+    const fieldId = f.id("deal.notes");
+    const viewId = randomUUID();
+    const views = new PrismaDataViewRepo({} as never, companyId);
+    await f.as(() =>
+      prisma.dataView.create({
+        data: {
+          id: viewId,
+          companyId,
+          userId: f.admin.id,
+          surfaceKey: `records:${f.id("deal")}`,
+          name: "Urgent deals",
+          filters: [
+            {
+              field: fieldId,
+              operator: FilterOperatorKey.contains,
+              value: "urgent",
+            },
+          ],
+          columnOrder: [fieldId],
+        },
+      }),
+    );
+    const change = await f.change([{ operation: "delete", target: { kind: "field", id: fieldId } }]);
+    const repo = createTestRecordRepo();
+    const policy = new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), repo);
+    const preview = await f.as(() =>
+      new PreviewRecordConfigurationInteractor(repo, policy, new RecordConfigurationService(repo)).invoke(change),
+    );
+    expect(preview).toMatchObject({
+      ok: true,
+      data: {
+        valid: true,
+        deletion: {
+          cleaned: expect.arrayContaining([expect.objectContaining({ consumer: { kind: "view", id: viewId } })]),
+        },
+      },
+    });
+    const deleted = await f.as(() => f.apply.invoke(change));
+    expect(deleted).toMatchObject({
+      ok: true,
+      data: {
+        status: "completed",
+        deletionCleaned: expect.arrayContaining([expect.objectContaining({ consumer: { kind: "view", id: viewId } })]),
+      },
+    });
+    const stored = await f.as(() => views.getRecordViewStatesByIds([viewId]));
+    expect(stored[0]?.state).toMatchObject({ filters: [], columnOrder: [] });
+    const [fieldItem] = (await f.items()).filter((item) => item.kind === "field" && item.targetId === fieldId);
+    expect(fieldItem).toBeDefined();
+    await f.as(() =>
+      prisma.dataView.update({
+        where: { id: viewId },
+        data: { deletedAt: new Date() },
+      }),
+    );
+    await f.as(() => views.restoreTrashed([viewId]));
+    const blockers = new ViewTrashBlockers(repo, views, new PrismaTrashRepo(companyId));
+    expect(await f.as(() => blockers.restoreReferences([viewId]))).toEqual([
+      { viewId, filters: 1, columns: 1, sort: false, grouping: false },
+    ]);
+    expect(await f.as(() => f.trash.restore.invoke({ itemIds: [fieldItem?.id ?? ""] }))).toMatchObject({
+      ok: true,
+      data: {
+        status: "completed",
+        droppedViewReferences: [{ viewId, filters: 1, columns: 1, sort: false, grouping: false }],
+      },
+    });
+    expect((await f.as(() => views.getRecordViewStatesByIds([viewId])))[0]?.state).toMatchObject({
+      filters: [],
+      columnOrder: [],
+    });
   }, 180_000);
 
   it("restores a trashed input field at once on a workspace with two thousand records, without rewriting them", async () => {

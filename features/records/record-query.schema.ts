@@ -12,6 +12,7 @@ import { RecordFieldKeySchema, RecordRelationshipSelectionSchema, RecordSortKeyS
 import { RecordIdentityInputsSchema } from "./record-identity.schema";
 import { RecordPathSelectionSchema } from "./record-relationship-path.schema";
 import { GroupingSchema, GroupPageRequestSchema } from "@/core/base/grouping/grouping.schema";
+import { DeletionCleanupSchema } from "./configuration.schema";
 
 const RecordFilterSchema = z
   .object({
@@ -338,6 +339,10 @@ export const RecordOperationResultSchema = z.discriminatedUnion("status", [
         .describe("Data model changes only: the id created or resolved for each reference in the change."),
       schemaRevision: z.number().int(),
       trashBatchId: z.uuid().optional(),
+      deletionCleaned: z
+        .array(DeletionCleanupSchema)
+        .optional()
+        .describe("Data model deletion only: views, layouts and widgets changed automatically."),
       restore: RestoreSummarySchema.optional(),
     })
     .strict(),
@@ -346,6 +351,7 @@ export const RecordOperationResultSchema = z.discriminatedUnion("status", [
       status: z.literal("pending"),
       operationId: z.uuid(),
       schemaRevision: z.number().int(),
+      deletionCleaned: z.array(DeletionCleanupSchema).optional(),
     })
     .strict(),
 ]);
