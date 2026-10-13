@@ -40,6 +40,7 @@
     "activity": {
       "approval": {
         "generic": "Prêt à effectuer une modification qui nécessite votre approbation",
+        "genericPermanent": "Prêt à supprimer définitivement {target}. Cette action est irréversible.",
         "messages": {
           "discard": "Prêt à supprimer le brouillon",
           "draft": "Prêt à enregistrer un brouillon",
@@ -471,7 +472,8 @@
       "policyBreach": "Le fournisseur d’IA a dépassé le budget de crédits réservé ; l’exécution a donc été arrêtée. Aucun autre traitement du fournisseur n’a été lancé.",
       "providerError": "Le fournisseur d'IA a renvoyé une erreur avant que je puisse terminer. Rien d'autre n'a été modifié. Veuillez réessayer.",
       "sourcesHeading": "Sources",
-      "turnError": "Je n'ai pas pu traiter cette demande. Veuillez réessayer."
+      "turnError": "Je n'ai pas pu traiter cette demande. Veuillez réessayer.",
+      "turnErrorWithTool": "Je n'ai pas pu traiter cette demande. La dernière action a échoué : {reason}"
     },
     "send": "Envoyer",
     "stop": "Arrêter",

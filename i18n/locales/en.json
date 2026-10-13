@@ -40,6 +40,7 @@
     "activity": {
       "approval": {
         "generic": "Ready to make a change that needs your approval",
+        "genericPermanent": "Ready to permanently delete {target}. This cannot be undone.",
         "messages": {
           "discard": "Ready to discard the draft",
           "draft": "Ready to save a draft",
@@ -471,7 +472,8 @@
       "policyBreach": "The AI provider exceeded the reserved credit budget, so the run was stopped. No further provider work was started.",
       "providerError": "The AI provider returned an error before I could finish. Nothing further was changed. Please try again.",
       "sourcesHeading": "Sources",
-      "turnError": "I couldn't complete that request. Please try again."
+      "turnError": "I couldn't complete that request. Please try again.",
+      "turnErrorWithTool": "I couldn't complete that request. The last action failed: {reason}"
     },
     "send": "Send",
     "stop": "Stop",

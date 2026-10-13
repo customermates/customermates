@@ -243,7 +243,7 @@ Pflicht: `operationId`.
 
 Gelöschte Elemente im Papierkorb auflisten, neueste zuerst, mit Angabe, wer sie wann gelöscht hat und wie viele Tage bleiben, bis sie endgültig gelöscht werden. Nach Art, Liste und Name filtern. Aufgelistet wird nur, was Sie sehen und löschen könnten; Administratoren sehen alles außer den gespeicherten Ansichten und Widgets anderer Mitglieder, die persönlich bleiben.
 
-**Nur lesend.** Optional: `kinds`, `typeIds`, `search`, `sortDescriptor`, `page`, `pageSize`.
+**Nur lesend.** Optional: `kinds`, `itemIds`, `typeIds`, `search`, `sortDescriptor`, `page`, `pageSize`.
 
 #### `manage_trash`
 
@@ -346,7 +346,7 @@ Teammitglieder mit ID, Name, E-Mail, roleId und Status. Hat die Rolle des Aufruf
 {/* mcp-catalog:views */}
 #### `manage_data_views`
 
-Persönliche gespeicherte Ansichten entdecken, prüfen, erstellen, ändern, auswählen, zurücksetzen und löschen. Zuerst surfaceKey ermitteln; generische Datensatzansichten verwenden stabile Typ-IDs. Änderungen ersetzen nur übergebene Einstellungen; eine Gruppierung kann bis zu 8 Übersichten tragen (Summe, Durchschnitt, Minimum oder Maximum eines Zahlen- oder Währungsfelds). Reset entfernt Ihre Anpassungen, sodass die Liste alle Felder in ihrer konfigurierten Reihenfolge als ungruppierte Tabelle zeigt. Löschen verschiebt die Ansicht in den Papierkorb (eine Dashboard-Ansicht samt ihren Widgets), nie ihre Datensätze. Konfiguration und Ansichtslisten sind durchsuchbar und paginiert.
+Persönliche gespeicherte Ansichten entdecken, prüfen, erstellen, ändern, auswählen, zurücksetzen und löschen. Zuerst surfaceKey ermitteln; generische Datensatzansichten verwenden stabile Typ-IDs. Änderungen ersetzen nur übergebene Einstellungen; eine Gruppierung kann bis zu 8 Übersichten tragen (Summe, Durchschnitt, Minimum oder Maximum eines Zahlen- oder Währungsfelds). Reset entfernt Ihre Anpassungen, sodass die Liste alle Felder in ihrer konfigurierten Reihenfolge als ungruppierte Tabelle zeigt. Zum Löschen sind der genaue aktuelle Name und die ID der Ansicht nötig; bei Abweichung ändert sich nichts. Löschen verschiebt sie in den Papierkorb (eine Dashboard-Ansicht samt ihren Widgets), nie ihre Datensätze. Konfiguration und Ansichtslisten sind durchsuchbar und paginiert.
 
 **Kann Daten löschen.** Pflicht: `action`. Optional: `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `fields`, `state`.
 

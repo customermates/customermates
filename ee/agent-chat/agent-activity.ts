@@ -135,7 +135,7 @@ export const AgentActivityDescriptorSchema = z.preprocess(
       resource: z.enum(AGENT_ACTIVITY_RESOURCES).optional(),
       affectedResources: z.array(z.enum(AGENT_ACTIVITY_RESOURCES)).max(8),
       risk: z.enum(["read", "write", "sensitive"]),
-      count: z.number().int().min(1).max(100).optional(),
+      count: z.number().int().min(1).max(500).optional(),
       consequence: AgentActivityConsequenceSchema.optional(),
       permanent: z.literal(true).optional(),
       context: AgentActivityContextSchema.optional(),
@@ -201,7 +201,7 @@ function safeStringList(value: unknown, maxItems = 3) {
 }
 
 function boundedCount(value: unknown) {
-  return Array.isArray(value) ? Math.min(value.length, 100) : undefined;
+  return Array.isArray(value) ? Math.min(value.length, 500) : undefined;
 }
 
 function actionValue(input: Record<string, unknown>) {
@@ -320,6 +320,19 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
       ...(action.success ? { viewAction: action.data } : {}),
       ...(view.success ? { viewKey: view.data } : {}),
     };
+  }
+  if (toolName === "manage_trash") {
+    const action = actionValue(details);
+    if (action === "delete_permanently" || action === "empty") {
+      return {
+        ...descriptor("generic", undefined, "sensitive", [], { action: "records.delete" }),
+        permanent: true,
+        ...(action === "delete_permanently" && boundedCount(details.itemIds)
+          ? { count: boundedCount(details.itemIds) }
+          : {}),
+      };
+    }
+    return descriptor("generic", undefined, action === "preview" ? "read" : "write");
   }
   if (toolName === "manage_widgets") {
     const action = actionValue(details);
@@ -676,17 +689,20 @@ export function agentActivityCopy(activity: AgentActivityDescriptor, t: AgentTra
       target: mutationTarget,
     });
 
-  const approval = AGENT_APPROVAL_COPY_KINDS.includes(copyKind)
-    ? t(`AgentChat.activity.approval.${copyKind}`, {
-        count: activity.count ?? 0,
-        resource: resource ?? t("AgentChat.activity.yourRecords"),
-        target: mutationTarget,
-      })
-    : state("running");
+  const approval =
+    activity.permanent && activity.kind === "generic"
+      ? t("AgentChat.activity.approval.genericPermanent", { target: context ?? mutationTarget })
+      : AGENT_APPROVAL_COPY_KINDS.includes(copyKind)
+        ? t(`AgentChat.activity.approval.${copyKind}`, {
+            count: activity.count ?? 0,
+            resource: resource ?? t("AgentChat.activity.yourRecords"),
+            target: mutationTarget,
+          })
+        : state("running");
 
   return {
     running: contextual(state("running")),
-    approval: contextual(approval),
+    approval: activity.permanent && activity.kind === "generic" ? approval : contextual(approval),
     done: contextual(state("done")),
     error: contextual(state("error")),
     cancelled: contextual(t("AgentChat.activity.cancelled")),

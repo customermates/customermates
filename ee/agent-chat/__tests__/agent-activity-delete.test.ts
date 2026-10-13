@@ -101,6 +101,35 @@ describe("agentActivityCopy deletes", () => {
     expect(`${copy.approval} ${copy.detail}`).not.toContain("Trash");
   });
 
+  it("names a saved view in its Trash approval and makes Trash purge irreversible in every locale", () => {
+    for (const locale of Object.keys(LOCALES) as Array<keyof typeof LOCALES>) {
+      const t = translatorFor(locale);
+      const view = agentActivityCopy(
+        describeInternalTool("manage_data_views", {
+          action: "delete",
+          surfaceKey: "dashboard",
+          viewKey: "00000000-0000-4000-8000-000000000001",
+          name: "PB big proposals",
+        }),
+        t,
+      );
+      expect(view.approval).toContain("PB big proposals");
+      const purge = agentActivityCopy(
+        {
+          ...describeInternalTool("manage_trash", {
+            action: "delete_permanently",
+            itemIds: ["00000000-0000-4000-8000-000000000001"],
+          }),
+          context: { labels: ["view: Q1 pipeline (old)"] },
+        },
+        t,
+      );
+      expect(purge.approval).toContain("Q1 pipeline (old)");
+      expect(purge.approval).not.toBe(t("AgentChat.activity.approval.generic"));
+      expect(purge.detail).toBe(t("AgentChat.activity.consequence.recordsDeletePermanent"));
+    }
+  });
+
   it("has distinct Trash and permanent copy in every locale", () => {
     for (const locale of Object.keys(LOCALES) as Array<keyof typeof LOCALES>) {
       const t = translatorFor(locale);

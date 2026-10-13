@@ -40,6 +40,7 @@
     "activity": {
       "approval": {
         "generic": "Bereit für eine Änderung, die deine Freigabe braucht",
+        "genericPermanent": "Bereit, {target} endgültig zu löschen. Das kann nicht rückgängig gemacht werden.",
         "messages": {
           "discard": "Bereit, den Entwurf zu verwerfen",
           "draft": "Bereit, einen Entwurf zu speichern",
@@ -471,7 +472,8 @@
       "policyBreach": "Der KI-Anbieter hat das reservierte Credit-Budget überschritten, daher wurde der Lauf gestoppt. Es wurde keine weitere Anbieterarbeit gestartet.",
       "providerError": "Der KI-Anbieter hat einen Fehler zurückgegeben, bevor ich fertig war. Es wurde nichts weiter geändert. Bitte versuche es erneut.",
       "sourcesHeading": "Quellen",
-      "turnError": "Ich konnte diese Anfrage nicht abschließen. Bitte versuche es erneut."
+      "turnError": "Ich konnte diese Anfrage nicht abschließen. Bitte versuche es erneut.",
+      "turnErrorWithTool": "Ich konnte diese Anfrage nicht abschließen. Die letzte Aktion ist fehlgeschlagen: {reason}"
     },
     "send": "Senden",
     "stop": "Stopp",
