@@ -130,10 +130,11 @@ export class PrismaWebhookDeliveryRepo
       (original.status !== WebhookDeliveryStatus.success && original.status !== WebhookDeliveryStatus.failed) ||
       original.nextAttemptAt
     )
-      return { status: "unavailable" };
+      return { status: "in_progress" };
     if (!original.webhookId) return { status: "unavailable" };
     const webhook = await this.prisma.webhook.findFirst({ where: { companyId, id: original.webhookId } });
-    if (!webhook?.enabled || !webhook.events.includes(original.event)) return { status: "unavailable" };
+    if (!webhook) return { status: "unavailable" };
+    if (!webhook.enabled || !webhook.events.includes(original.event)) return { status: "webhook_disabled" };
     if (!original.eventId) return { status: "unavailable" };
     if (!original.subscriptionRevision) {
       const retry = await this.prisma.webhookDelivery.create({

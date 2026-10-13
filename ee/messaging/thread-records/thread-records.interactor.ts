@@ -10,7 +10,12 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { failAuthorization, failConflict, failNotFound } from "@/core/validation/interactor-failure-server";
+import {
+  failAuthorization,
+  failConflict,
+  failNotFound,
+  unwoundFailure,
+} from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordRequestHash } from "@/features/records/record-request-hash";
 import { MutateThreadRecordsSchema, ThreadRecordMutationResultSchema } from "./thread-records.schema";
@@ -75,6 +80,6 @@ export class MutateThreadRecordsInteractor extends AuthenticatedInteractor<
       const data = { ref: input.ref, linked: input.action === "link", schemaRevision: model.revision };
       await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);
       return { ok: true as const, data };
-    });
+    }).catch(unwoundFailure);
   }
 }

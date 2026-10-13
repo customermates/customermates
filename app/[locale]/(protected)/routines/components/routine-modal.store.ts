@@ -138,6 +138,7 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
       canAdministerOtherRoutine: computed,
 
       delete: action,
+      deleteById: action,
       onSubmit: action,
       loadFilterFields: action,
       useSchedulePreset: action,
@@ -693,23 +694,29 @@ export class RoutineModalStore extends BaseModalStore<RoutineModalForm> {
   }
 
   delete = async (): Promise<boolean | MovedToTrash> => {
-    if (!this.form.id || !this.isAdmin) return false;
+    if (!this.form.id) return false;
 
     this.setIsLoading(true);
     try {
-      const res = await deleteRoutineAction({ id: this.form.id });
-      if (!res.ok) {
-        toastZodErrorTree(res.error);
-        return false;
-      }
-
-      await this.rootStore.routinesStore.removeItem(res.data.id);
-      this.close();
-      await this.refreshRoutineList();
-      return { trashBatchId: res.data.trashBatchId };
+      return await this.deleteById(this.form.id);
     } finally {
       this.setIsLoading(false);
     }
+  };
+
+  deleteById = async (id: string): Promise<boolean | MovedToTrash> => {
+    if (!this.isAdmin) return false;
+
+    const res = await deleteRoutineAction({ id });
+    if (!res.ok) {
+      toastZodErrorTree(res.error);
+      return false;
+    }
+
+    await this.rootStore.routinesStore.removeItem(res.data.id);
+    if (this.form.id === id) this.close();
+    await this.refreshRoutineList();
+    return { trashBatchId: res.data.trashBatchId };
   };
 
   onSubmit = async (event?: FormEvent<HTMLFormElement>) => {

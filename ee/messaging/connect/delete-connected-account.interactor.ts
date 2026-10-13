@@ -9,15 +9,21 @@ import { Resource } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { DomainEvent } from "@/features/event/domain-events";
 import type { DeleteConnectedAccountRepo } from "./delete-connected-account.repo";
 
 const Schema = z.object({ id: z.uuid() }).strict();
 type DeleteConnectedAccountData = Data<typeof Schema>;
+export const ConnectedAccountDisconnectedSchema = z.object({ id: z.uuid(), disconnected: z.literal(true) });
+type ConnectedAccountDisconnected = z.infer<typeof ConnectedAccountDisconnectedSchema>;
 
 @TenantInteractor({ resource: Resource.inboxMessages, manage: "delete" })
-export class DeleteConnectedAccountInteractor extends AuthenticatedInteractor<DeleteConnectedAccountData, null> {
+export class DeleteConnectedAccountInteractor extends AuthenticatedInteractor<
+  DeleteConnectedAccountData,
+  ConnectedAccountDisconnected
+> {
   constructor(
     private repo: DeleteConnectedAccountRepo,
     private messagingService: MessagingService,
@@ -27,7 +33,8 @@ export class DeleteConnectedAccountInteractor extends AuthenticatedInteractor<De
   }
 
   @Validate(Schema)
-  async invoke(data: DeleteConnectedAccountData): Validated<null> {
+  @ValidateOutput(ConnectedAccountDisconnectedSchema)
+  async invoke(data: DeleteConnectedAccountData): Validated<ConnectedAccountDisconnected> {
     const existing = await this.repo.findAccountByIdOrThrow(data.id);
 
     await this.repo.deleteAccount(data.id);
@@ -45,6 +52,6 @@ export class DeleteConnectedAccountInteractor extends AuthenticatedInteractor<De
       Sentry.captureException(error, { tags: { kind: "unipile-account-removal-deferred" } });
     });
 
-    return { ok: true as const, data: null };
+    return { ok: true as const, data: { id: existing.id, disconnected: true as const } };
   }
 }

@@ -5,7 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
-import { PrismaMessagingRepo } from "../prisma-messaging.repository";
+import { createTestMessagingRepo } from "@/tests/helpers/messaging-repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -63,7 +63,7 @@ describeDatabase("outbound chat echo reconciliation under tenant bypass", () => 
   });
 
   it("reconciles the provider echo onto the locally sent row without reading tenant context", async () => {
-    const repo = new PrismaMessagingRepo() as unknown as {
+    const repo = createTestMessagingRepo() as unknown as {
       reconcileOutboundChatEcho(args: {
         messagingThreadId: string;
         connectedAccountId: string;

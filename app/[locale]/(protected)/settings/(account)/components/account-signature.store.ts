@@ -1,7 +1,7 @@
 import type { FormEvent } from "react";
 import type { RootStore } from "@/core/stores/root.store";
 import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
-import type { SetConnectedAccountSignatureData } from "@/ee/messaging/connect/set-connected-account-signature.interactor";
+import type { ConnectedAccountEmail } from "@/ee/messaging/email-settings";
 
 import { action, makeObservable, observable, override as mobxOverride, toJS } from "mobx";
 import { cloneDeep } from "lodash";
@@ -12,7 +12,7 @@ import { Action, Resource } from "@/generated/prisma";
 
 import { setConnectedAccountSignatureAction } from "../channels/actions";
 
-type AccountSignatureForm = Omit<SetConnectedAccountSignatureData, "id">;
+type AccountSignatureForm = ConnectedAccountEmail;
 
 export class AccountSignatureStore extends BaseFormStore<AccountSignatureForm> {
   accountId = "";

@@ -10,7 +10,9 @@ import * as Sentry from "@sentry/node";
 import { Resource, MessagingThreadType } from "@/generated/prisma";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 
 import { UNIPILE_MAX_LIMIT, paginateStep } from "../ingest/backfill/paginate";
@@ -46,12 +48,13 @@ export class ResyncThreadInteractor extends AuthenticatedInteractor<ResyncThread
     super();
   }
 
-  @Enforce(Schema)
+  @Validate(Schema)
   async invoke(data: ResyncThreadData): Validated<ResyncThreadResult> {
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
-    const thread = await this.repo.findThreadForResyncOrThrow(data.threadId);
+    const thread = await this.repo.findThreadForResync(data.threadId);
+    if (!thread) return failNotFound(CustomErrorCode.threadNotFound, ["threadId"]);
 
     try {
       const participantCount =

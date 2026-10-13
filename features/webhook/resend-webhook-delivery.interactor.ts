@@ -36,6 +36,8 @@ export class ResendWebhookDeliveryInteractor extends AuthenticatedInteractor<Res
   async invoke(data: ResendWebhookDeliveryData): Validated<string> {
     const result = await this.deliveryRepo.createRetryById(data.id, data.webhookId);
     if (result.status === "missing") return failNotFound(CustomErrorCode.webhookDeliveryNotFound);
+    if (result.status === "in_progress") return failConflict(CustomErrorCode.webhookDeliveryInProgress, ["id"]);
+    if (result.status === "webhook_disabled") return failConflict(CustomErrorCode.webhookDisabled, ["id"]);
     if (result.status === "unavailable") return failConflict(CustomErrorCode.webhookNotFound);
     if (result.status === "stale") return failConflict(CustomErrorCode.recordSchemaChanged);
     if (result.status === "forbidden") return failAuthorization(CustomErrorCode.permissionDenied);

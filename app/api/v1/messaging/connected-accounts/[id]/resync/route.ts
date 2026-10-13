@@ -12,7 +12,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const data = await request.json().catch(mapRequestJsonError);
     const result = await getResyncConnectedAccountInteractor().invoke({ ...data, id });
     if (!result.ok) return interactorFailureResponse(result.error);
-    return NextResponse.json({ id, resyncStarted: true });
+    return NextResponse.json(result.data);
   } catch (error) {
     return handleError(error);
   }

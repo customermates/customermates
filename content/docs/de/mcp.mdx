@@ -658,7 +658,7 @@ Alle [[derived.mcp.tools.total]] Tools sind standardmäßig an. Um nur einen Tei
 
 Keys: records, workspace, views, wiki, messaging, social, docs, record-model, widgets, routines, webhooks, admin, support. Kein Parameter heißt alles; ein unbekannter Key liefert HTTP `400` mit `error: invalid_toolsets`, den unbekannten und den gültigen Keys. `records` enthält auch die Operations-Tools (`read_crm_operation`, `cancel_crm_operation`, `resume_crm_operation`) und die Papierkorb-Tools; `record-model` enthält nur `configure_record_model`. `search` und `fetch` sind immer an, damit Deep-Research-Connectors auch auf einer eingegrenzten Oberfläche funktionieren.
 
-`widgets` und `routines` enthalten auch `discover_record_types` und `get_record_model`, die ihre Tools für Typ- und Feld-IDs brauchen. API-Keys und Abrechnung bleiben bewusst in der Web-App; kein Tool liest oder ändert sie.
+`widgets`, `routines` und `webhooks` enthalten auch `discover_record_types` und `get_record_model`, die ihre Tools für Typ- und Feld-IDs und die aktuelle Schema-Revision brauchen; `record-model` enthält beide und dazu `read_crm_operation` für noch laufende Änderungen. API-Keys und Abrechnung bleiben bewusst in der Web-App; kein Tool liest oder ändert sie.
 
 ### Wenn ein Aufruf abgelehnt wird [#when-a-call-is-refused]
 
