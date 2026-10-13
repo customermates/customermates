@@ -708,7 +708,7 @@ Plans refuse the same way. Messaging, calendar and social tools need a plan with
 
 <Faq>
 <FaqItem question="How do I authenticate against the MCP endpoint?">
-Send your 64-character API key in the `x-api-key` header, or connect through OAuth where the client supports it. Create keys under [API keys](app:settings/api-keys) with [Add](app:settings/api-keys?focus=generate). Every key carries your own permissions, so a client can never do more than you can.
+Send your 64-character API key in the `x-api-key` header, or connect through OAuth where the client supports it. Create keys under [API keys](app:settings/api-keys) with [Add](app:settings/api-keys?focus=generate). Every key carries your own permissions, so a client can never do more than you can. Keys and OAuth tokens need **Read access** **All** on **API & Webhooks**; without it, MCP and the REST API answer `403`, also for a refreshed token.
 </FaqItem>
 <FaqItem question="Which AI clients can connect?">
 Claude on web, mobile and desktop, ChatGPT, Claude Code, Codex, Cursor and the Gemini CLI have documented connection paths under [Connect a client](#connect-a-client). Another client may work if it supports MCP over streamable HTTP and the required authentication; verify its compatibility and instruction handling before use.

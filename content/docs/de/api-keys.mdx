@@ -99,7 +99,7 @@ Der **Name** eines Keys ist 1 bis 255 Zeichen lang. Keys bestehen aus 64 ASCII-B
 
 Alles, was sein Besitzer darf, und nicht mehr. Ein Berechtigungs-Scoping pro Key gibt es nicht, ein Key lässt sich also nicht auf Lesezugriff beschränken. Jeder Aufruf wird gegen die aktuelle Rolle des Besitzers geprüft. Eine Änderung dieser Rolle, etwa wenn das Mitglied von der Rolle **Admin** in eine eigene Rolle mit weniger Rechten wechselt, gilt für seine Keys also ab dem nächsten Aufruf. Steht der **Status** des Besitzers auf **Inaktiv**, wird jeder Aufruf mit seinen Keys abgelehnt, der Workspace-Daten liest oder ändert.
 
-Ein Key funktioniert außerdem nur, solange die Rolle seines Besitzers **Lesen** **Alle** auf **API & Webhooks** hat; das wird bei jedem Aufruf geprüft. Ohne diese Berechtigung antwortet MCP mit `403` und `error: insufficient_permissions`, REST mit `403`, `kind` `authorization` und `customCode` `insufficientPermissions`. Die angemeldete Nutzung der Web-App bleibt davon unberührt.
+Ein Key funktioniert, wie ein MCP-OAuth-Token, außerdem nur, solange die Rolle seines Besitzers **Lesen** **Alle** auf **API & Webhooks** hat; das wird bei jedem Aufruf geprüft, auch für später erneuerte Tokens. Ohne diese Berechtigung antwortet MCP mit `403` und `error: insufficient_permissions`, REST mit `403`, `kind` `authorization` und `customCode` `insufficientPermissions`. Die angemeldete Nutzung der Web-App bleibt davon unberührt.
 
 ## Weiter [#next]
 

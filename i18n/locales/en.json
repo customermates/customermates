@@ -1084,7 +1084,7 @@
       "generic": "An error occurred.",
       "inmailSignatureRequired": "Add a signature for the Recruiter InMail.",
       "inmailSubjectRequired": "Add a subject for the InMail.",
-      "insufficientPermissions": "Using API keys requires Read access All on API & Webhooks for your role. Ask a workspace administrator to grant it.",
+      "insufficientPermissions": "Using API keys or MCP connections requires Read access All on API & Webhooks for your role. Ask a workspace administrator to grant it.",
       "invalidCallbackUrl": "The sign-in link is invalid. Please try again.",
       "invalidChannelValue": "This isn't a valid email address, phone number, or handle.",
       "invalidCredentials": "Invalid email or password.",

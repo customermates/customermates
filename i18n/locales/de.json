@@ -1084,7 +1084,7 @@
       "generic": "Ein Fehler ist aufgetreten.",
       "inmailSignatureRequired": "Füge eine Signatur für die Recruiter-InMail hinzu.",
       "inmailSubjectRequired": "Füge einen Betreff für die InMail hinzu.",
-      "insufficientPermissions": "API-Schlüssel brauchen für deine Rolle Lesen Alle bei API & Webhooks. Bitte eine Person mit Admin-Rechten, sie dir zu geben.",
+      "insufficientPermissions": "API-Schlüssel und MCP-Verbindungen brauchen für deine Rolle Lesen Alle bei API & Webhooks. Bitte eine Person mit Admin-Rechten, sie dir zu geben.",
       "invalidCallbackUrl": "Der Anmeldelink ist ungültig. Bitte versuche es erneut.",
       "invalidChannelValue": "Das ist keine gültige E-Mail-Adresse, keine Telefonnummer und kein gültiges Handle.",
       "invalidCredentials": "Ungültige E-Mail-Adresse oder ungültiges Passwort.",

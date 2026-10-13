@@ -94,6 +94,19 @@ describe("role permission rule", () => {
     );
   });
 
+  it("lets every role read the company and the data model without stored rows, but not change them", () => {
+    const role = { isSystemRole: false, permissions: [] };
+
+    expect(roleCanRead(role, "company")).toBe(true);
+    expect(roleCanRead(role, "dataModel")).toBe(true);
+    expect(rolePermits(role, "company", "readOwn")).toBe(true);
+    expect(rolePermits(role, "dataModel", "readAll")).toBe(true);
+    expect(rolePermits(role, "company", "update")).toBe(false);
+    expect(rolePermits(role, "dataModel", "update")).toBe(false);
+    expect(roleCanRead(role, "api")).toBe(false);
+    expect(rolePermits(null, "company", "readAll")).toBe(false);
+  });
+
   it("answers for the tenant user through the injected service", async () => {
     const result = await runWithTenant(
       createMockUserWithPermissions([{ resource: Resource.wiki, action: Action.readOwn }]),

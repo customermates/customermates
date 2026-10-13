@@ -708,7 +708,7 @@ Tarife lehnen auf demselben Weg ab. Messaging-, Kalender- und Social-Tools brauc
 
 <Faq>
 <FaqItem question="Wie authentifiziere ich mich am MCP-Endpoint?">
-Den 64-stelligen API-Key im Header `x-api-key` senden, oder per OAuth verbinden, wo der Client das unterstützt. Keys legen Sie unter [API-Schlüssel](app:settings/api-keys) mit [Hinzufügen](app:settings/api-keys?focus=generate) an. Jeder Key trägt Ihre eigenen Rechte, ein Client kann also nie mehr als Sie selbst.
+Den 64-stelligen API-Key im Header `x-api-key` senden, oder per OAuth verbinden, wo der Client das unterstützt. Keys legen Sie unter [API-Schlüssel](app:settings/api-keys) mit [Hinzufügen](app:settings/api-keys?focus=generate) an. Jeder Key trägt Ihre eigenen Rechte, ein Client kann also nie mehr als Sie selbst. Keys und OAuth-Tokens brauchen **Lesen** **Alle** auf **API & Webhooks**; ohne sie antworten MCP und die REST-API mit `403`, auch für ein erneuertes Token.
 </FaqItem>
 <FaqItem question="Welche AI-Clients können sich verbinden?">
 Für Claude im Web, mobil und als Desktop-App, ChatGPT, Claude Code, Codex, Cursor und die Gemini CLI sind unter [Client verbinden](#connect-a-client) Verbindungswege dokumentiert. Ein anderer Client kann funktionieren, wenn er MCP über Streamable HTTP und die benötigte Authentifizierung unterstützt; prüfen Sie vor der Nutzung Kompatibilität und Umgang mit Anweisungen.

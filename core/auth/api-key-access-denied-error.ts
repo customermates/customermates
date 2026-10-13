@@ -3,7 +3,7 @@ import { ForbiddenError } from "@/core/errors/app-errors";
 const API_KEY_ACCESS_DENIED_BRAND = Symbol.for("customermates.apiKeyAccessDenied");
 
 export const API_KEY_ACCESS_DENIED_MESSAGE =
-  "Using API keys requires Read access All on API & Webhooks for your role. Ask a workspace administrator to grant it.";
+  "Using API keys or MCP connections requires Read access All on API & Webhooks for your role. Ask a workspace administrator to grant it.";
 
 export class ApiKeyAccessDeniedError extends ForbiddenError {
   constructor() {
