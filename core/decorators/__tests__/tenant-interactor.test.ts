@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 import { ForbiddenError } from "@/core/errors/app-errors";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const mockGetActiveUserOrThrow = vi.fn();
 
@@ -9,6 +10,9 @@ vi.mock("@/core/di", () => ({
 }));
 
 vi.mock("@/env", () => ({ env: { APP_MODE: "self-hosted", BASE_URL: "http://localhost:4000" } }));
+vi.mock("next-intl/server", () => ({
+  getTranslations: () => Promise.resolve({ raw: () => "Permission denied" }),
+}));
 
 const { TenantInteractor } = await import("../tenant-interactor.decorator");
 const { AllowInDemoMode, isAllowedInDemoMode } = await import("../allow-in-demo-mode.decorator");
@@ -54,6 +58,19 @@ describe("TenantInteractor", () => {
 
     await expect(guarded({ resource: "routines", manage: "create" }).invoke()).rejects.toThrow(ForbiddenError);
     await expect(guarded({ resource: "routines", manage: "create" }).invoke()).rejects.toThrow("create on routines");
+  });
+
+  it("returns an authorization failure when a write opts into a typed refusal", async () => {
+    signIn([]);
+    const result = await guarded({
+      resource: "inboxMessages",
+      manage: "update",
+      permissionDeniedAsResult: true,
+    }).invoke();
+    expect(result).toMatchObject({
+      ok: false,
+      error: { issues: [{ params: { error: CustomErrorCode.permissionDenied, kind: "authorization" } }] },
+    });
   });
 
   it.each(["create", "update", "delete"] as const)("allows exactly the declared %s action", async (action) => {

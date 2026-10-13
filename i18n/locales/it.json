@@ -1221,6 +1221,7 @@
       "webhookDeliveryInProgress": "Questa consegna è ancora in fase di invio. Inviala di nuovo quando è riuscita o non è riuscita.",
       "webhookDeliveryNotFound": "ID consegna del webhook non trovato o non accessibile.",
       "webhookDisabled": "Questo webhook è disattivato o non è più iscritto a questo evento. Attivalo o iscrivilo all'evento, poi invia di nuovo.",
+      "webhookEndpointInvalid": "Inserisci un URL webhook HTTP o HTTPS con un host valido, senza nome utente o password.",
       "webhookEventsRequired": "Seleziona almeno un evento.",
       "webhookHeaderNameInvalid": "I nomi delle intestazioni possono contenere solo lettere, cifre e caratteri token HTTP.",
       "webhookHeaderNameReserved": "Questa intestazione viene impostata automaticamente e non può essere sovrascritta.",
@@ -2576,6 +2577,7 @@
       "visibilityTitle": "Impostazioni di visibilità"
     },
     "shareToCrmActive": "Condivisa con il CRM, visibile a tutto il team",
+    "shareToCrmPermissionDenied": "La tua autorizzazione per la Posta in arrivo è cambiata. Non puoi più modificare la visibilità di questa conversazione.",
     "shareToCrmPrivate": "Conversazione privata",
     "shareToCrmPrivateToast": "La conversazione è ora privata",
     "shareToCrmShared": "Conversazione condivisa",

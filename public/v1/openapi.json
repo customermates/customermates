@@ -87368,7 +87368,7 @@
       "post": {
         "operationId": "createWebhook",
         "summary": "Create or update a webhook subscription",
-        "description": "Subscribes an endpoint to the given events (url and events are required). Deliveries are signed with HMAC-SHA-256 in the X-Webhook-Signature header when a secret is set. The signing secret is never returned. Optional headers are sent with every delivery for endpoints that require their own authentication; their values are never returned, the response reports headerNames instead, Content-Type, Host and X-Webhook-Signature cannot be overridden, and an endpoint carrying headers must use HTTPS. An optional bodyTemplate replaces the standard envelope for endpoints that expect a fixed shape, and the signature is computed over the rendered body. Providing an existing id updates that subscription instead; omitted fields keep their stored values. Both creating and updating answer 201 with the saved subscription.",
+        "description": "Subscribes an endpoint to the given events (url and events are required). The endpoint must use HTTP or HTTPS, have a valid host, and contain no username or password. Deliveries are signed with HMAC-SHA-256 in the X-Webhook-Signature header when a secret is set. The signing secret is never returned. Optional headers are sent with every delivery for endpoints that require their own authentication; their values are never returned, the response reports headerNames instead, Content-Type, Host and X-Webhook-Signature cannot be overridden, and an endpoint carrying headers must use HTTPS. An optional bodyTemplate replaces the standard envelope for endpoints that expect a fixed shape, and the signature is computed over the rendered body. Providing an existing id updates that subscription instead; omitted fields keep their stored values. Both creating and updating answer 201 with the saved subscription.",
         "tags": [
           "webhooks"
         ],
@@ -87390,6 +87390,7 @@
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                   },
                   "url": {
+                    "description": "HTTP or HTTPS endpoint with a valid host and no username or password",
                     "type": "string",
                     "format": "uri"
                   },
@@ -89023,7 +89024,7 @@
       "patch": {
         "operationId": "updateWebhook",
         "summary": "Update a webhook subscription",
-        "description": "Changes the supplied fields of one webhook subscription and leaves the rest unchanged. The example disables a webhook and replaces its events. An id outside the workspace answers 404. Requires: update permission on the API.",
+        "description": "Changes the supplied fields of one webhook subscription and leaves the rest unchanged. The endpoint must use HTTP or HTTPS, have a valid host, and contain no username or password. The example disables a webhook and replaces its events. An id outside the workspace answers 404. Requires: update permission on the API.",
         "tags": [
           "webhooks"
         ],
@@ -89060,6 +89061,7 @@
                 "type": "object",
                 "properties": {
                   "url": {
+                    "description": "HTTP or HTTPS endpoint with a valid host and no username or password",
                     "type": "string",
                     "format": "uri"
                   },
@@ -114063,6 +114065,7 @@
                         "webhookHeadersTooLarge",
                         "webhookBodyTemplateInvalid",
                         "webhookHeadersRequireHttps",
+                        "webhookEndpointInvalid",
                         "messageContentRequired",
                         "sendEmailTargetRequired",
                         "emailRecipientsRequired",

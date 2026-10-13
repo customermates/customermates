@@ -49,6 +49,8 @@ const SearchOutputSchema = z.object({
         .string()
         .optional()
         .describe("Knowledge Base excerpt around the matched terms, which are wrapped in **"),
+      kind: z.enum(["guide", "procedure"]).optional().describe("Knowledge Base guide or procedure result"),
+      whenToUse: z.string().optional().describe("When to follow this Knowledge Base guide or procedure"),
       section: z.string().optional().describe("Heading path of the matched Knowledge Base section"),
       offset: z
         .number()

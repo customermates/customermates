@@ -8,12 +8,14 @@ import { runWithTenant, tenantStorage } from "@/core/decorators/tenant-context";
 import { resolveActiveTenantUser } from "@/core/decorators/resolve-tenant-user";
 import { env } from "@/env";
 import { DemoModeError, ForbiddenError } from "@/core/errors/app-errors";
+import { failAuthorization } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 type Read = true | "all";
 type Manage<R extends Resource> = ManageActionOf<R> | "upsert";
 type PermissionRequirement = {
   [R in Resource]: { resource: R; read: Read; manage?: Manage<R> } | { resource: R; read?: never; manage: Manage<R> };
-}[Resource];
+}[Resource] & { permissionDeniedAsResult?: true };
 
 function requiredActions(requirement: PermissionRequirement, input: unknown): string[] {
   const manage =
@@ -49,6 +51,7 @@ export function TenantInteractor<T extends { new (...args: any[]): object }>(req
       if (requirement) {
         const actions = requiredActions(requirement, args[0]);
         if (!satisfies(user.role, requirement, actions)) {
+          if (requirement.permissionDeniedAsResult) return failAuthorization(CustomErrorCode.permissionDenied);
           const required = [...(requirement.read === true ? ["read"] : []), ...actions];
           throw new ForbiddenError(
             `Access denied. Required permissions: ${required.map((action) => `${action} on ${requirement.resource}`).join(" AND ")}`,

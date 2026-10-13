@@ -11,6 +11,7 @@ import { getMessagingThreadAction, updateThreadAction, resyncThreadAction, moveE
 import { isDraftThreadId, isEmailProvider } from "@/ee/messaging/provider";
 import { MESSAGING_RATE_LIMITS_DOCS_PATH } from "./lazy-media";
 import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
+import { serializedFailureErrorTree } from "@/core/validation/validation.utils";
 
 export type ThreadDetail = {
   thread: MessagingThread;
@@ -159,7 +160,7 @@ export class MessagingThreadDetailStore extends BaseStore {
         state: next,
       });
       if (!result.ok) {
-        toastZodErrorTree(result.error);
+        toastZodErrorTree(serializedFailureErrorTree(result.failure));
         return;
       }
 
@@ -261,7 +262,11 @@ export class MessagingThreadDetailStore extends BaseStore {
           if (this.thread?.id === thread.id) this.thread.sharedToCrm = result.ok ? shared : previous;
         });
         if (!result.ok) {
-          this.toastError("Inbox.shareToCrmUpdateFailed");
+          this.toastError(
+            result.failure.kind === "authorization"
+              ? "Inbox.shareToCrmPermissionDenied"
+              : "Inbox.shareToCrmUpdateFailed",
+          );
           return;
         }
         this.toastSuccess(shared ? "Inbox.shareToCrmSharedToast" : "Inbox.shareToCrmPrivateToast");

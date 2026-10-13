@@ -7,6 +7,7 @@ vi.mock("next-intl/server", () => ({
 }));
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
+import { ForbiddenError } from "@/core/errors/app-errors";
 import { createZodError, serializeInteractorFailure } from "@/core/validation/validation.utils";
 
 import { serializeResult, serializeTypedResult } from "../action-result";
@@ -51,6 +52,13 @@ describe("serializeResult", () => {
       failure: { kind: "rate_limit", retryable: true, issues: [{ customCode: CustomErrorCode.serviceBusy }] },
     });
     await expect(serializeResult(Promise.reject(new Error("unexpected")))).rejects.toThrow("unexpected");
+  });
+
+  it("serializes a permission refusal as a typed authorization failure", async () => {
+    expect(await serializeTypedResult(Promise.reject(new ForbiddenError()))).toMatchObject({
+      ok: false,
+      failure: { kind: "authorization", issues: [{ customCode: CustomErrorCode.permissionDenied }] },
+    });
   });
 
   it("leaves a plain validation failure without a code", async () => {
