@@ -40,14 +40,15 @@
           "triage": "Prêt à modifier l’état de la conversation"
         },
         "records": {
-          "delete": "{count, plural, one {Prêt à supprimer définitivement {target}} other {Prêt à supprimer définitivement {target}}}"
+          "delete": "{count, plural, one {Prêt à déplacer {target} dans la Corbeille} other {Prêt à déplacer {target} dans la Corbeille}}",
+          "deletePermanent": "{count, plural, one {Prêt à supprimer définitivement {target}} other {Prêt à supprimer définitivement {target}}}"
         },
         "roles": {
           "manage": "Approuver cette modification de rôle"
         },
         "routines": {
           "configure": "Prêt à mettre la routine en pause ou à l’exécuter",
-          "delete": "Prêt à supprimer la routine et son historique"
+          "delete": "Prêt à déplacer la routine et son historique dans la Corbeille"
         },
         "support": {
           "escalate": "Prêt à envoyer votre demande à l’assistance par e-mail"
@@ -57,14 +58,14 @@
         },
         "views": {
           "configure": "Prêt à modifier la vue enregistrée",
-          "delete": "Vue enregistrée prête à être supprimée définitivement"
+          "delete": "Prêt à déplacer la vue enregistrée dans la Corbeille"
         },
         "webhooks": {
           "manage": "Prêt à modifier l’envoi des webhooks"
         },
         "widgets": {
           "configure": "Prêt à modifier les widgets du tableau de bord",
-          "delete": "Prêt à supprimer définitivement un widget du tableau de bord"
+          "delete": "Prêt à déplacer un widget du tableau de bord dans la Corbeille"
         },
         "workspace": {
           "configure": "Prêt à modifier le modèle de données de l’espace de travail"
@@ -79,10 +80,11 @@
         "draftSave": "Enregistrer un brouillon dans la conversation sélectionnée",
         "emailSend": "Envoyer un e-mail aux destinataires sélectionnés",
         "externalManage": "Modifier des données dans le compte externe connecté",
-        "recordsDelete": "Cette action est irréversible.",
+        "recordsDelete": "{count, plural, one {Vous pouvez le restaurer depuis la Corbeille pendant 30 jours.} other {Vous pouvez les restaurer depuis la Corbeille pendant 30 jours.}}",
+        "recordsDeletePermanent": "Cette action est irréversible.",
         "roleDelete": "Supprimer le rôle sélectionné",
         "roleSave": "Enregistrer le rôle et ses accès aux fiches",
-        "routineDelete": "Supprimer définitivement la routine sélectionnée et son historique",
+        "routineDelete": "Déplacer la routine sélectionnée et son historique dans la Corbeille, où vous pouvez la restaurer pendant 30 jours",
         "routinePause": "Mettre en pause la routine sélectionnée",
         "routineRun": "Exécuter maintenant la routine sélectionnée",
         "salesListSave": "Ajouter le prospect sélectionné à une liste Sales Navigator",
@@ -227,9 +229,14 @@
             "running": "{count, plural, one {{target} en cours de création} other {{target} en cours de création}}"
           },
           "delete": {
-            "done": "{count, plural, one {Suppression de {target} terminée} other {Suppression de {target} terminée}}",
-            "error": "{count, plural, one {Impossible de supprimer {target}} other {Impossible de supprimer {target}}}",
-            "running": "{count, plural, one {{target} en cours de suppression} other {{target} en cours de suppression}}"
+            "done": "{count, plural, one {Déplacement de {target} vers la Corbeille terminé} other {Déplacement de {target} vers la Corbeille terminé}}",
+            "error": "{count, plural, one {Impossible de déplacer {target} dans la Corbeille} other {Impossible de déplacer {target} dans la Corbeille}}",
+            "running": "{count, plural, one {Déplacement de {target} vers la Corbeille} other {Déplacement de {target} vers la Corbeille}}"
+          },
+          "deletePermanent": {
+            "done": "{count, plural, one {Suppression définitive de {target} terminée} other {Suppression définitive de {target} terminée}}",
+            "error": "{count, plural, one {Impossible de supprimer définitivement {target}} other {Impossible de supprimer définitivement {target}}}",
+            "running": "{count, plural, one {Suppression définitive de {target} en cours} other {Suppression définitive de {target} en cours}}"
           },
           "link": {
             "done": "Enregistrements liés",

@@ -129,6 +129,7 @@ export const AgentActivityDescriptorSchema = z.preprocess(
       risk: z.enum(["read", "write", "sensitive"]),
       count: z.number().int().min(1).max(100).optional(),
       consequence: AgentActivityConsequenceSchema.optional(),
+      permanent: z.literal(true).optional(),
       context: AgentActivityContextSchema.optional(),
       viewSurfaceKey: SurfaceKeySchema.optional(),
       viewAction: ViewMutationActionSchema.optional(),
@@ -240,7 +241,12 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
               : action === "link" || action === "unlink"
                 ? "records.link"
                 : "generic";
-      return descriptor(kind, undefined, recordRisk);
+      if (kind !== "records.delete") return descriptor(kind, undefined, recordRisk);
+      const count = action === "deleteMany" ? boundedCount(mutation.targets) : 1;
+      return {
+        ...descriptor(kind, undefined, recordRisk, [], { action: "records.delete", ...(count ? { count } : {}) }),
+        ...(mutation.permanent === true ? { permanent: true as const } : {}),
+      };
     }
     return descriptor(recordRisk === "read" ? "records.read" : "workspace.configure", undefined, recordRisk);
   }
@@ -301,6 +307,8 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
         read ? "views.read" : details.action === "delete" ? "views.delete" : "views.configure",
         undefined,
         read ? "read" : multiplexedRisk(toolName, details),
+        [],
+        details.action === "delete" ? { action: "records.delete", count: 1 } : undefined,
       ),
       ...(surface.success ? { viewSurfaceKey: surface.data } : {}),
       ...(action.success ? { viewAction: action.data } : {}),
@@ -323,6 +331,8 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
       kind,
       "widgets",
       isMultiplexedRead(toolName, details) ? "read" : multiplexedRisk(toolName, details),
+      ["widgets"],
+      action === "delete" ? { action: "records.delete", count: 1 } : undefined,
     );
   }
   if (toolName === "manage_routines") {
@@ -525,7 +535,7 @@ function countedResourceCopy(
   return t("AgentChat.activity.countedResource", { count, resource: fallback });
 }
 
-function agentConsequenceDetail(activity: AgentActivityDescriptor, t: AgentTranslator, resource: string | undefined) {
+function agentConsequenceDetail(activity: AgentActivityDescriptor, t: AgentTranslator) {
   const consequence = activity.consequence;
   if (!consequence) return undefined;
 
@@ -590,13 +600,10 @@ function agentConsequenceDetail(activity: AgentActivityDescriptor, t: AgentTrans
       return t("AgentChat.activity.consequence.webhookResend");
     case "webhook.inspect":
       return t("AgentChat.activity.consequence.webhookInspect");
-    case "records.delete": {
-      if (count === undefined) return undefined;
-
-      return t("AgentChat.activity.consequence.recordsDelete", {
-        target: countedResourceCopy(count, activity.resource, t, resource),
-      });
-    }
+    case "records.delete":
+      return activity.permanent
+        ? t("AgentChat.activity.consequence.recordsDeletePermanent")
+        : t("AgentChat.activity.consequence.recordsDelete", { count: count ?? 1 });
     case "workspace.configure":
       return consequence.state;
     case "account.connect":
@@ -642,7 +649,7 @@ export function agentActivityCopy(activity: AgentActivityDescriptor, t: AgentTra
   const resource = activity.resource ? t(`AgentChat.activity.resource.${activity.resource}`) : undefined;
   const mutationTarget = countedResourceCopy(activity.count, activity.resource, t, resource);
   const detail =
-    agentConsequenceDetail(activity, t, resource) ??
+    agentConsequenceDetail(activity, t) ??
     (resource ? resource.charAt(0).toUpperCase() + resource.slice(1) : undefined);
   const context = activity.context
     ? activity.context.additionalCount
@@ -653,15 +660,17 @@ export function agentActivityCopy(activity: AgentActivityDescriptor, t: AgentTra
       : activity.context.labels.join(", ")
     : undefined;
   const contextual = (action: string) => (context ? t("AgentChat.activity.contextual", { action, context }) : action);
+  // Deletes move to Trash; only an explicit permanent record delete uses the irreversible copy.
+  const copyKind = activity.permanent && activity.kind === "records.delete" ? "records.deletePermanent" : activity.kind;
   const state = (name: "running" | "done" | "error") =>
-    t(`AgentChat.activity.state.${activity.kind}.${name}`, {
+    t(`AgentChat.activity.state.${copyKind}.${name}`, {
       count: activity.count ?? 0,
       resource: resource ?? t("AgentChat.activity.yourRecords"),
       target: mutationTarget,
     });
 
   const approval = AGENT_APPROVAL_COPY_KINDS.includes(activity.kind)
-    ? t(`AgentChat.activity.approval.${activity.kind}`, {
+    ? t(`AgentChat.activity.approval.${copyKind}`, {
         count: activity.count ?? 0,
         resource: resource ?? t("AgentChat.activity.yourRecords"),
         target: mutationTarget,
