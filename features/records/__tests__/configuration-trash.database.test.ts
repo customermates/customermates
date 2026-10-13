@@ -52,7 +52,6 @@ const { RecordTrashService } = await import("../record-trash.service");
 const { ApplyRecordConfigurationInteractor } = await import("../configure-records.interactor");
 const { PreviewRecordConfigurationInteractor } = await import("../preview-record-configuration.interactor");
 const { ConfigurationTrashHandler } = await import("../configuration-trash.handler");
-const { RecordOperationService } = await import("../record-operation.service");
 const { RecordTrashHandler } = await import("../record-trash.handler");
 const { PrismaTrashRepo } = await import("@/features/trash/prisma-trash.repository");
 const { QueryTrashInteractor } = await import("@/features/trash/query-trash.interactor");
@@ -73,7 +72,7 @@ const { PurgeCompanyTrashInteractor } = await import("@/features/trash/purge-com
 const { AdvanceSystemRecordOperationInteractor } = await import("../advance-system-record-operation.interactor");
 const { getWebhookPauseNotifier } = await import("@/core/di");
 const { createCrmPreset, presetId } = await import("../crm-preset");
-const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+const { createTestRecordOperationService, createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -138,7 +137,7 @@ async function fixture() {
         scoped,
         scopedPolicy,
         { dispatch: () => Promise.resolve() },
-        new RecordTrashService(scoped),
+        new RecordTrashService(scoped, new RecordCalculationService(scoped)),
       ),
     ];
   };
@@ -157,7 +156,7 @@ async function fixture() {
     policy,
     new RecordWriteService(repo, policy, new RecordCalculationService(repo)),
     { dispatch: () => Promise.resolve() },
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const trashRepo = new PrismaTrashRepo();
   const trash = {
@@ -855,7 +854,7 @@ describeDatabase("configuration trash", () => {
     expect(f.systemDispatches).toHaveLength(1);
     const advance = new AdvanceSystemRecordOperationInteractor((scoped) => {
       const records = createTestRecordRepo(scoped);
-      return new RecordOperationService(
+      return createTestRecordOperationService(
         records,
         new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), records),
         new RecordConfigurationService(records),

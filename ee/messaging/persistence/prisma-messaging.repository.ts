@@ -43,7 +43,7 @@ import type { UpdateThreadRepo } from "../thread-state/update-thread.repo";
 
 import { QueryRepository } from "@/core/base/query-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
-import { getConnectedAccountRepo, getProviderAvatarService, getRecordIdentityReader } from "@/core/di";
+import { getConnectedAccountRepo, getRecordIdentityReader } from "@/core/di";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import type { PreviewKind } from "../attachment-kind";
@@ -1860,15 +1860,16 @@ export class PrismaMessagingRepo
       settledAttachmentsMeta: existing?.attachmentsMeta,
     });
 
-    if (isInbound && safeMessage.sender.pictureUrl) {
-      await getProviderAvatarService(companyId).synchronize(
-        safeMessage.provider,
-        safeMessage.sender.identifier,
-        safeMessage.sender.pictureUrl,
-      );
-    }
+    const inboundSender =
+      isInbound && safeMessage.sender.pictureUrl
+        ? {
+            provider: safeMessage.provider,
+            identifier: safeMessage.sender.identifier,
+            pictureUrl: safeMessage.sender.pictureUrl,
+          }
+        : undefined;
 
-    return { isEcho: false as const, message: upserted };
+    return { isEcho: false as const, message: upserted, ...(inboundSender ? { inboundSender } : {}) };
   }
 
   @BypassTenantGuard

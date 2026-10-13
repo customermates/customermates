@@ -20,6 +20,7 @@ import { UnipileChatSchema, UnipileMessageSchema } from "../../unipile.schema";
 import { ACCOUNT_WIDE_SOURCE } from "./prepare-backfill.interactor";
 
 import { BACKFILL_MESSAGE_PAGE_BUDGET, UNIPILE_MAX_LIMIT, paginateStep } from "./paginate";
+import { synchronizeInboundAvatar, type ProviderAvatars } from "../inbound-avatar";
 import { isUnipileRateLimit, isUnipileTimeout } from "../../messaging.service";
 
 const BACKFILL_MESSAGE_TIMEOUT_MS = 10_000;
@@ -52,6 +53,7 @@ export class BackfillChatsInteractor {
     private repo: BackfillConnectedAccountRepo,
     private messagingService: MessagingService,
     private ingest: MessagingIngestRepo,
+    private avatars: ProviderAvatars,
   ) {}
 
   @Enforce(Schema)
@@ -249,12 +251,13 @@ export class BackfillChatsInteractor {
     raw: UnipileMessage,
   ): Promise<void> {
     try {
-      await this.ingest.ingestMessageUnscoped({
+      const ingested = await this.ingest.ingestMessageUnscoped({
         companyId: account.companyId,
         connectedAccountId: account.id,
         message,
         backfill: true,
       });
+      await synchronizeInboundAvatar(this.avatars, account.companyId, ingested);
     } catch (err) {
       Sentry.captureException(err, {
         tags: {

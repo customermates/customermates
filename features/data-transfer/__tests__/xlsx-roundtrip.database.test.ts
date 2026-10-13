@@ -108,7 +108,7 @@ describeRoundTrip("XLSX export and import round trip", () => {
       policy,
       writer,
       { dispatch: () => Promise.resolve() },
-      new RecordTrashService(repo),
+      new RecordTrashService(repo, new RecordCalculationService(repo)),
     );
     const query = new QueryRecordsInteractor(repo, policy);
     const read = new GetRecordInteractor(repo, policy);

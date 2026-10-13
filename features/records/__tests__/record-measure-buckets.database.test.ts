@@ -80,7 +80,7 @@ async function fixture(preset: Preset = "crm") {
     policy,
     new RecordWriteService(repo, policy, new RecordCalculationService(repo)),
     { dispatch: () => Promise.resolve() },
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const measure = new QueryRecordMeasureInteractor(repo, policy);
   const reader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
@@ -577,7 +577,7 @@ describeDatabase("time-bucketed record measures", () => {
           new RecordCalculationService(restricted.repo),
         ),
         { dispatch: () => Promise.resolve() },
-        new RecordTrashService(restricted.repo),
+        new RecordTrashService(restricted.repo, new RecordCalculationService(restricted.repo)),
       ).invoke({
         expectedRevision: await restricted.revision(),
         idempotencyKey: randomUUID(),
@@ -602,7 +602,7 @@ describeDatabase("time-bucketed record measures", () => {
           new RecordCalculationService(restricted.repo),
         ),
         { dispatch: () => Promise.resolve() },
-        new RecordTrashService(restricted.repo),
+        new RecordTrashService(restricted.repo, new RecordCalculationService(restricted.repo)),
       ).invoke({
         expectedRevision: await restricted.revision(),
         idempotencyKey: randomUUID(),
