@@ -6,7 +6,10 @@ import {
   InviteUsersByEmailSchema,
 } from "@/features/company/invite-users-by-email.interactor";
 import { InvitationLinkRequestSchema, InvitationLinkSchema } from "@/features/company/invitation-link";
-import { AdminUpdateUserDetailsSchema } from "@/features/user/upsert/admin-update-user-details.interactor";
+import {
+  AdminUpdateUserDetailsSchema,
+  UpdateMemberSchema,
+} from "@/features/user/upsert/admin-update-user-details.interactor";
 import { UpdateUserDetailsSchema, UserProfileSchema } from "@/features/user/upsert/update-user-details.interactor";
 
 export const updateUserProfileOperation: ZodOpenApiOperationObject = {
@@ -87,24 +90,24 @@ export const memberApiPaths = {
       operationId: "updateMember",
       summary: "Change a member's role or status",
       description:
-        "Saves another member's profile, role and status in one call, as the members settings page does. Read the member from POST /v1/users/search, send every field, and change roleId and/or status: status inactive deactivates the member and frees their seat, active reactivates them. The member is identified by email. You cannot update your own membership, a platform operator cannot be deactivated, and the workspace always keeps an active member with a system role. Requires: Users & Roles Edit.",
+        "Saves another member's profile, role and status in one call, as the members settings page and the MCP update_member action do. Name the member by userId or email (both must match when you send both) and send the fields to change; omitted fields keep their current values. status inactive deactivates the member and frees their seat, active reactivates them; a member waiting for approval needs a status, and a member without a role needs a roleId. An unknown member or roleId answers 404. You cannot update your own membership, a platform operator cannot be deactivated, and the workspace always keeps an active member with a system role (roleSystemRequired). Requires: Users & Roles Edit.",
       tags: ["members"],
       security: [{ apiKeyAuth: [] }],
       requestBody: {
         required: true,
         content: {
           "application/json": {
-            schema: AdminUpdateUserDetailsSchema,
+            schema: UpdateMemberSchema,
             examples: {
               default: {
+                value: { userId: "00000000-0000-4000-8000-000000000002", status: "inactive" },
+              },
+              byEmail: {
                 value: {
                   email: "new.colleague@example.com",
                   firstName: "Grace",
                   lastName: "Hopper",
-                  country: "us",
-                  avatarUrl: null,
                   roleId: "00000000-0000-4000-8000-000000000003",
-                  status: "inactive",
                 },
               },
             },

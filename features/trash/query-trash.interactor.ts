@@ -2,6 +2,7 @@ import type { RecordRepo } from "@/features/records/record.repo";
 import type { Validated } from "@/core/validation/validation.utils";
 import type { TrashRepo } from "./trash.repo";
 import type { TrashKindHandler } from "./trash-kind-handler";
+import type { FindUserSummariesRepo } from "@/features/user/find-user-summaries.repo";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
@@ -19,6 +20,7 @@ export class QueryTrashInteractor extends AuthenticatedInteractor<QueryTrashData
     private trash: TrashRepo,
     private records: RecordRepo,
     private handlers: TrashKindHandler[],
+    private users: FindUserSummariesRepo,
   ) {
     super();
   }
@@ -29,7 +31,7 @@ export class QueryTrashInteractor extends AuthenticatedInteractor<QueryTrashData
       async () => {
         const [model, visibility] = await Promise.all([this.records.getModel(), trashVisibility(this.handlers)]);
         const page = await this.trash.list({ ...input, visibility });
-        const deletedBy = await this.trash.deletedBy(
+        const deletedBy = await this.users.findUserSummaries(
           page.items.flatMap((item) => (item.deletedById ? [item.deletedById] : [])),
         );
         return {

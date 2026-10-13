@@ -366,7 +366,7 @@ describe("Wiki document editing", () => {
   });
 
   it("shows unavailable when the page disappeared before reload", async () => {
-    actions.get.mockResolvedValue({ ok: true, data: null });
+    actions.get.mockResolvedValue({ ok: false, error: { errors: [] }, code: "wikiPageNotFound" });
     const store = new WikiPageStore(rootStore(), page, vi.fn());
     await store.reload();
     expect(store.unavailable).toBe(true);

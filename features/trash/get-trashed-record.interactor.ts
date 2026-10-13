@@ -3,8 +3,7 @@ import type { RecordRepo } from "@/features/records/record.repo";
 import type { RecordAccessPolicy } from "@/features/records/record-access";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import type { GetRecordEditorInteractor, RecordEditorResult } from "@/features/records/get-record-editor.interactor";
-import type { TrashRepo } from "./trash.repo";
-import type { TrashKindHandler } from "./trash-kind-handler";
+import type { FindUserSummariesRepo } from "@/features/user/find-user-summaries.repo";
 import type { TrashedRecordInfo } from "./trash.schema";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -16,7 +15,7 @@ import { failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordRefSchema } from "@/features/records/record-model.schema";
 import type { RecordTrashService } from "@/features/records/record-trash.service";
-import { TrashedRecordAccess } from "./trashed-record-access";
+import type { TrashedRecordAccess } from "./trashed-record-access";
 import { trashDaysLeft } from "./trash-retention";
 
 type TrashedRecordEditor = RecordEditorResult & { trash: TrashedRecordInfo };
@@ -28,8 +27,8 @@ export class GetTrashedRecordInteractor extends AuthenticatedInteractor<RecordRe
     private records: RecordRepo,
     private policy: RecordAccessPolicy,
     private editor: GetRecordEditorInteractor,
-    private trash: TrashRepo,
-    private handlers: TrashKindHandler[],
+    private trashedRecords: TrashedRecordAccess,
+    private users: FindUserSummariesRepo,
     private recordTrash: RecordTrashService,
   ) {
     super();
@@ -39,7 +38,7 @@ export class GetTrashedRecordInteractor extends AuthenticatedInteractor<RecordRe
   async invoke(ref: RecordRef): Validated<TrashedRecordEditor> {
     return runInTransaction(
       async (): Validated<TrashedRecordEditor> => {
-        const trashed = await new TrashedRecordAccess(this.records, this.trash, this.handlers).find(ref);
+        const trashed = await this.trashedRecords.find(ref);
         if (!trashed) return failNotFound(CustomErrorCode.recordNotFound);
         const { item } = trashed;
         const editor = await this.editor.read(ref, { includeTrash: true });
@@ -75,7 +74,7 @@ export class GetTrashedRecordInteractor extends AuthenticatedInteractor<RecordRe
           : [];
         const service = this.recordTrash;
         const deletedBy = item.deletedById
-          ? ((await this.trash.deletedBy([item.deletedById])).get(item.deletedById) ?? null)
+          ? ((await this.users.findUserSummaries([item.deletedById])).get(item.deletedById) ?? null)
           : null;
         return {
           ok: true as const,

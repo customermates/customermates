@@ -5,6 +5,7 @@ import type { WidgetPlacementRow } from "./widget-placement";
 
 export type RecordWidgetKind = "chart" | "activityTimeline";
 export type StoredRecordWidgetOf = { chart: StoredRecordWidget; activityTimeline: StoredRecordActivityWidget };
+export type StoredWidget = { [K in RecordWidgetKind]: { kind: K; widget: StoredRecordWidgetOf[K] } }[RecordWidgetKind];
 export type SavedRecordWidgetOf = { chart: SavedRecordWidgetInput; activityTimeline: SavedRecordActivityWidgetInput };
 
 export interface RecordWidgetStoreRepo {

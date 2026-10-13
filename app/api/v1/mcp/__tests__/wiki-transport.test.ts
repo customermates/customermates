@@ -1,3 +1,5 @@
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { createZodError } from "@/core/validation/validation.utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const calls = vi.hoisted(() => ({
@@ -347,7 +349,13 @@ describe("Wiki MCP transport", () => {
 
   it("returns a generic missing-page error without reporting an expected stale link", async () => {
     const { handler, sessionId } = await initializedHandler();
-    calls.get.mockResolvedValue({ ok: true, data: null });
+    calls.get.mockResolvedValue({
+      ok: false,
+      error: createZodError(CustomErrorCode.wikiPageNotFound, ["id"], {
+        error: CustomErrorCode.wikiPageNotFound,
+        kind: "not_found",
+      }),
+    });
 
     const result = await rpc(
       handler,

@@ -17,7 +17,7 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/core/di", () => ({
   ...createMockDiModule(() => mockUser),
-  getUpdateTeamMemberInteractor: () => ({ invoke: spies.updateTeamMember }),
+  getAdminUpdateUserDetailsInteractor: () => ({ invoke: spies.updateTeamMember }),
   getInviteUsersByEmailInteractor: vi.fn(),
   getUpdateUserDetailsInteractor: () => ({ invoke: spies.updateUserDetails }),
 }));

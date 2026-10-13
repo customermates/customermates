@@ -139,7 +139,6 @@ const {
   getRecordAccessPolicy,
   getRecordRepo,
   getRoutineRepo,
-  getWidgetDtoReaders,
   getRecordIdentityReader,
   getConnectedAccountRepo,
 } = await import("@/core/di");
@@ -257,7 +256,7 @@ async function fixture() {
   );
   const choices = new GetRecordChoicesInteractor(repo, policy, query);
   const measure = new QueryRecordMeasureInteractor(repo, policy);
-  const widgets = new PrismaWidgetRepo(getWidgetDtoReaders);
+  const widgets = new PrismaWidgetRepo();
   const widgetReader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
   const writeWidget = new UpsertRecordWidgetInteractor(
     widgets,
@@ -329,7 +328,7 @@ async function fixture() {
     { require: () => Promise.resolve(null) },
     { find: () => Promise.resolve(null) },
   );
-  const activityWidgets = new PrismaWidgetRepo(getWidgetDtoReaders);
+  const activityWidgets = new PrismaWidgetRepo();
   const activityWidgetReader = new RecordActivityWidgetReader(repo, activities);
   const writeActivityWidget = new UpsertRecordActivityWidgetInteractor(
     activityWidgets,
@@ -15372,11 +15371,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
 
   it("merges partial widget updates in the interactors and keeps each saved widget's kind", async () => {
     const f = await fixture();
-    const save = new SaveWidgetInteractor(
-      new PrismaWidgetRepo(getWidgetDtoReaders),
-      f.writeWidget,
-      f.writeActivityWidget,
-    );
+    const save = new SaveWidgetInteractor(new PrismaWidgetRepo(), f.writeWidget, f.writeActivityWidget);
     const measure = RecordMeasureSchema.parse({
       source: { typeId: f.id("service") },
       aggregation: "count",
@@ -15526,7 +15521,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const position = { i: created.data.id, x: 0, y: 0, w: 3, h: 2 };
     const layouts = { xs: [], sm: [], md: [], lg: [position, untouchedPosition] };
     const versions = { [created.data.id]: 1, [untouchedId]: 1 };
-    const writer = new UpdateWidgetLayoutsInteractor(new PrismaWidgetRepo(getWidgetDtoReaders));
+    const writer = new UpdateWidgetLayoutsInteractor(new PrismaWidgetRepo());
     const failure = (result: { ok: boolean; error?: unknown }) => (result.ok ? null : JSON.stringify(result.error));
     for (const id of [foreign.data.id, member.id]) {
       const rejected = await f.run(() =>

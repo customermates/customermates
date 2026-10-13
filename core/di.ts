@@ -46,6 +46,7 @@ import { RecordActivityWidgetReader } from "@/features/widget/record-activity-wi
 import { UpsertRecordWidgetInteractor } from "@/features/widget/record-widget.interactor";
 import { SaveWidgetInteractor } from "@/features/widget/save-widget.interactor";
 import { RecordWidgetReader } from "@/features/widget/record-widget-reader";
+import { WidgetDtoReader } from "@/features/widget/widget-dto-reader";
 import { PreviewRecordWidgetInteractor } from "@/features/widget/preview-record-widget.interactor";
 import { wikiWebsiteNetwork } from "@/ee/wiki-crawl/wiki-website-network";
 /**
@@ -210,7 +211,6 @@ import { RegisterOnboardingProfileInteractor } from "@/features/user/register/re
 import { WorkspaceRegistrationService } from "@/features/user/register/workspace-registration.service";
 import { RegisterUserInteractor } from "@/features/user/register/register-user.interactor";
 import { AdminUpdateUserDetailsInteractor } from "@/features/user/upsert/admin-update-user-details.interactor";
-import { UpdateTeamMemberInteractor } from "@/features/user/upsert/update-team-member.interactor";
 import { UpdateUserDetailsInteractor } from "@/features/user/upsert/update-user-details.interactor";
 // Auth interactors
 import { ContinueWithSocialsInteractor } from "@/features/auth/continue-with-socials.interactor";
@@ -343,7 +343,6 @@ import { ResolveRecordSearchInteractor } from "@/features/records/resolve-record
 import { SearchRecordsInteractor } from "@/features/records/search-records.interactor";
 // P13n interactors
 import { DeleteDataViewInteractor } from "@/features/data-view/delete-data-view.interactor";
-import { GetDataViewsInteractor } from "@/features/data-view/get-data-views.interactor";
 import { SaveDataViewStateInteractor } from "@/features/data-view/save-data-view-state.interactor";
 import { SelectDataViewInteractor } from "@/features/data-view/select-data-view.interactor";
 import { UpsertDataViewInteractor } from "@/features/data-view/upsert-data-view.interactor";
@@ -485,8 +484,10 @@ export const getGetRecordActivitiesInteractor = () =>
     getRecordIdentityReader(),
     getRecordHistoryReader(),
     getEntitlementService(),
-    new TrashedRecordAccess(getRecordRepo(), getTrashRepo(), getTrashKindHandlers()),
+    getTrashedRecordAccess(),
   );
+export const getTrashedRecordAccess = () =>
+  new TrashedRecordAccess(getRecordRepo(), getTrashRepo(), getTrashKindHandlers());
 export const getGetTrashedRecordActivitiesInteractor = () =>
   new GetTrashedRecordActivitiesInteractor(getGetRecordActivitiesInteractor());
 export const getGetIdentityRecordChoicesInteractor = () =>
@@ -608,7 +609,7 @@ const entityTrashHandlers = (companyId?: string) => {
   const visibility = new EntityTrashVisibility();
   const events = getEventService();
   const trash = getTrashRepo(companyId);
-  const widgets = new PrismaWidgetRepo(getWidgetDtoReaders, companyId);
+  const widgets = new PrismaWidgetRepo(companyId);
   const wikiPages = getWikiPageRepo(companyId);
   return [
     new EntityTrashHandler(
@@ -675,7 +676,7 @@ export const getPurgeExpiredTrashInteractor = () =>
   new PurgeExpiredTrashInteractor(getTrashRepo(), getBackgroundTaskService());
 export const getPurgeCompanyTrashInteractor = () => new PurgeCompanyTrashInteractor(getTrashRepo, getTrashKindHandlers);
 export const getQueryTrashInteractor = () =>
-  new QueryTrashInteractor(getTrashRepo(), getRecordRepo(), getTrashKindHandlers());
+  new QueryTrashInteractor(getTrashRepo(), getRecordRepo(), getTrashKindHandlers(), getUserRepo());
 export const getRestoreTrashInteractor = () => new RestoreTrashInteractor(getTrashRepo(), getTrashKindHandlers());
 export const getPreviewTrashDeletionInteractor = () =>
   new PreviewTrashDeletionInteractor(getTrashRepo(), getTrashKindHandlers());
@@ -688,8 +689,8 @@ export const getGetTrashedRecordInteractor = () =>
     getRecordRepo(),
     getRecordAccessPolicy(),
     getGetRecordEditorInteractor(),
-    getTrashRepo(),
-    getTrashKindHandlers(),
+    getTrashedRecordAccess(),
+    getUserRepo(),
     getRecordTrashService(),
   );
 export const getFailRecordOperationInteractor = () => new FailRecordOperationInteractor(getRecordRepo());
@@ -739,7 +740,7 @@ export const getWidgetDtoReaders = (): WidgetDtoReaders => ({
   chart: getRecordWidgetReader(),
   activityTimeline: getRecordActivityWidgetReader(),
 });
-export const getWidgetRepo = () => new PrismaWidgetRepo(getWidgetDtoReaders);
+export const getWidgetRepo = () => new PrismaWidgetRepo();
 export const getWebhookRepo = () =>
   new PrismaWebhookRepo(getRecordEventSubscriptionRepo(), getPermissionService(), getWebhookDeliveryRepo());
 export const getWebhookPauseNotifier = (companyId?: string) =>
@@ -990,9 +991,6 @@ export const getGetUserDetailsInteractor = () => new GetUserDetailsInteractor();
 export const getGetUserByIdInteractor = () => new GetUserByIdInteractor(getUserRepo());
 export const getResolveUserOptionsInteractor = () => new ResolveUserOptionsInteractor(getUserRepo());
 
-export const getUpdateTeamMemberInteractor = () =>
-  new UpdateTeamMemberInteractor(getUserRepo(), getAdminUpdateUserDetailsInteractor());
-
 export const getAdminUpdateUserDetailsInteractor = () =>
   new AdminUpdateUserDetailsInteractor(
     getUserRepo(),
@@ -1084,7 +1082,8 @@ export const getDeleteRoleInteractor = () => new DeleteRoleInteractor(getRoleMan
 
 // --- Widget ---
 
-export const getGetWidgetsInteractor = () => new GetWidgetsInteractor(getWidgetRepo(), getDataViewStateRepo());
+export const getGetWidgetsInteractor = () =>
+  new GetWidgetsInteractor(getWidgetRepo(), getDataViewStateRepo(), getWidgetDtoReader());
 
 export const getDeleteWidgetInteractor = () =>
   new DeleteWidgetInteractor(getWidgetRepo(), getWidgetIdsValidator(), getTrashRepo());
@@ -1093,7 +1092,7 @@ export const getUpdateWidgetLayoutsInteractor = () => new UpdateWidgetLayoutsInt
 
 export const getGetCompanyWidgetsInteractor = () => new GetCompanyWidgetsInteractor(getWidgetRepo());
 
-export const getGetWidgetByIdInteractor = () => new GetWidgetByIdInteractor(getWidgetRepo());
+export const getGetWidgetByIdInteractor = () => new GetWidgetByIdInteractor(getWidgetRepo(), getWidgetDtoReader());
 
 export const getGetWikiPagesInteractor = () => new GetWikiPagesInteractor(getWikiPageRepo());
 export const getGetWikiCatalogInteractor = () => new GetWikiCatalogInteractor(getWikiPageRepo());
@@ -1576,8 +1575,6 @@ export const getGetP13nInteractor = () => new GetP13nInteractor(getP13nRepo());
 
 export const getRecordViewPolicy = () => new RecordViewPolicy(getRecordRepo(), getRecordAccessPolicy());
 
-export const getGetDataViewsInteractor = () => new GetDataViewsInteractor(getDataViewRepo(), getRecordViewPolicy());
-
 export const getUpsertDataViewInteractor = () =>
   new UpsertDataViewInteractor(getDataViewRepo(), getP13nRepo(), getRecordViewPolicy());
 
@@ -1879,6 +1876,7 @@ export const getGetRecordWidgetInteractor = () =>
     getRecordActivityWidgetReader(),
   );
 
+export const getWidgetDtoReader = () => new WidgetDtoReader(getWidgetDtoReaders);
 export const getRecordActivityWidgetReader = () =>
   new RecordActivityWidgetReader(getRecordRepo(), getGetRecordActivitiesInteractor());
 export const getUpsertRecordActivityWidgetInteractor = () =>

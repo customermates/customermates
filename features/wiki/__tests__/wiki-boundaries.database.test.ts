@@ -153,7 +153,7 @@ describeDatabase("Workspace Wiki public boundaries on PostgreSQL", () => {
       data: { total: 1, items: [{ id: local.data[0].id }] },
     });
     expect(searched).toMatchObject({ ok: true, data: { total: 0, items: [] } });
-    expect(loaded).toEqual({ ok: true, data: null });
+    expect(customCode(loaded)).toBe(CustomErrorCode.wikiPageNotFound);
 
     const foreignUpdate = await update(user, {
       id: foreignPage.id,

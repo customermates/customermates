@@ -1,11 +1,10 @@
-import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { CONFIGURATION_CONSUMER_PAGE } from "@/features/records/record.repo";
 import deepEqual from "fast-deep-equal";
 import { recordJson } from "@/features/records/record-storage";
 import type { DeleteWidgetRepo } from "./delete-widget.repo";
 import type { FindWidgetsByIdsRepo } from "./find-widgets-by-ids.repo";
 import type { GetCompanyWidgetsRepo } from "./get-company-widgets.interactor";
-import type { GetWidgetByIdRepo } from "./get-widget-by-id.interactor";
+import type { GetWidgetByIdRepo } from "./get-widget-by-id.repo";
 import type { GetWidgetsRepo } from "./get-widgets.repo";
 import type { FindOwnedWidgetKindRepo } from "./find-owned-widget-kind.repo";
 import { RecordActivityWidgetDtoSchema } from "./record-activity-widget.schema";
@@ -15,10 +14,7 @@ import type { SavedWidgetLayout } from "./update-widget-layouts.interactor";
 import type { WidgetPlacementRow } from "./widget-placement";
 import { listWidgetPlacements } from "./widget-placement";
 import { WidgetLayoutSchema } from "./widget-display.schema";
-import type { WidgetDto } from "./widget.schema";
-import type { WidgetDtoReaders } from "./widget-dto-readers";
 import type { RecordWidgetConfigurationRepo, RecordWidgetConfigurationRow } from "./record-widget-configuration.repo";
-import type { OwnedWidgetWrite, OwnedWidgetWriteRepo } from "./owned-widget-write.repo";
 import type { ViewWidgetPurgeRepo } from "./view-widget-purge.repo";
 import type { SavedRecordActivityWidgetInput } from "./record-activity-widget.schema";
 import type { SavedRecordWidgetInput } from "./record-widget.schema";
@@ -28,6 +24,7 @@ import type {
   RecordWidgetStoreRepo,
   SavedRecordWidgetOf,
   StoredRecordWidgetOf,
+  StoredWidget,
 } from "./record-widget-store.repo";
 
 import { Prisma, WidgetKind } from "@/generated/prisma";
@@ -35,6 +32,21 @@ import { Prisma, WidgetKind } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { LIVE_WIDGET } from "./live-widget";
+
+type OwnedWidgetWrite = {
+  id: string;
+  update: { expectedVersion: number | undefined } | null;
+  data: {
+    name: string;
+    kind: WidgetKind;
+    measure?: Prisma.InputJsonValue;
+    activityQuery?: Prisma.InputJsonValue;
+    displayOptions: Prisma.InputJsonValue;
+    isTemplate: boolean;
+    viewId: string | null;
+    layout?: Prisma.InputJsonValue;
+  };
+};
 
 const STORED_RECORD_WIDGET = {
   chart: RecordWidgetDtoSchema.omit({ data: true, status: true, groupOptions: true, decimalPlaces: true }).strip(),
@@ -56,15 +68,11 @@ export class PrismaWidgetRepo
     UpdateWidgetLayoutsRepo,
     FindWidgetsByIdsRepo,
     RecordWidgetConfigurationRepo,
-    OwnedWidgetWriteRepo,
     ViewWidgetPurgeRepo,
     FindOwnedWidgetKindRepo,
     RecordWidgetStoreRepo
 {
-  constructor(
-    private readonly readers: () => WidgetDtoReaders,
-    private readonly scopedCompanyId?: string,
-  ) {
+  constructor(private readonly scopedCompanyId?: string) {
     super();
   }
 
@@ -91,37 +99,27 @@ export class PrismaWidgetRepo
     } as const;
   }
 
-  private async toDto(
-    row: Prisma.WidgetGetPayload<{ select: PrismaWidgetRepo["dtoSelect"] }>,
-  ): Promise<WidgetDto | null> {
+  private storedWidget(row: Prisma.WidgetGetPayload<{ select: PrismaWidgetRepo["dtoSelect"] }>): StoredWidget {
     if (row.kind === WidgetKind.activityTimeline && row.activityQuery)
-      return this.readers().activityTimeline.read(this.storedRecordWidget("activityTimeline", row));
+      return { kind: "activityTimeline", widget: this.storedRecordWidget("activityTimeline", row) };
     if (row.measure !== null && row.measure !== undefined)
-      return this.readers().chart.read(this.storedRecordWidget("chart", row));
+      return { kind: "chart", widget: this.storedRecordWidget("chart", row) };
     throw new Error(`Widget ${row.id} has no record definition`);
   }
 
   async getWidgets(viewId?: string | null) {
-    return runInTransaction(
-      async () => {
-        const { id: userId, companyId } = this.user;
-
-        const rows = await this.prisma.widget.findMany({
-          where: {
-            userId,
-            companyId,
-            ...(viewId === undefined ? {} : { viewId }),
-            ...LIVE_WIDGET,
-          },
-          select: this.dtoSelect,
-          orderBy: [{ createdAt: "asc" }, { id: "asc" }],
-        });
-
-        const widgets = await Promise.all(rows.map((row) => this.toDto(row)));
-        return widgets.filter((widget): widget is WidgetDto => widget !== null);
+    const { id: userId, companyId } = this.user;
+    const rows = await this.prisma.widget.findMany({
+      where: {
+        userId,
+        companyId,
+        ...(viewId === undefined ? {} : { viewId }),
+        ...LIVE_WIDGET,
       },
-      { readOnly: true, timeout: 30000 },
-    );
+      select: this.dtoSelect,
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+    });
+    return rows.map((row) => this.storedWidget(row));
   }
 
   @Transaction
@@ -218,24 +216,17 @@ export class PrismaWidgetRepo
   }
 
   async getWidgetById(id: string) {
-    return runInTransaction(
-      async () => {
-        const { id: userId, companyId } = this.user;
-
-        const row = await this.prisma.widget.findFirst({
-          where: {
-            id,
-            companyId,
-            OR: [{ userId }, { isTemplate: true }],
-            ...LIVE_WIDGET,
-          },
-          select: this.dtoSelect,
-        });
-
-        return row ? this.toDto(row) : null;
+    const { id: userId, companyId } = this.user;
+    const row = await this.prisma.widget.findFirst({
+      where: {
+        id,
+        companyId,
+        OR: [{ userId }, { isTemplate: true }],
+        ...LIVE_WIDGET,
       },
-      { readOnly: true, timeout: 30000 },
-    );
+      select: this.dtoSelect,
+    });
+    return row ? this.storedWidget(row) : null;
   }
 
   @Transaction
@@ -317,8 +308,6 @@ export class PrismaWidgetRepo
             activityQuery: recordJson((input as SavedRecordActivityWidgetInput).activityQuery),
           };
     const row = await this.saveOwnedWidget({
-      companyId: this.companyId,
-      userId: this.userId,
       id,
       update: input.id ? { expectedVersion: input.expectedVersion } : null,
       data: {
@@ -333,7 +322,8 @@ export class PrismaWidgetRepo
     return this.storedRecordWidget(kind, row);
   }
 
-  async saveOwnedWidget({ companyId, userId, id, update, data }: OwnedWidgetWrite) {
+  private async saveOwnedWidget({ id, update, data }: OwnedWidgetWrite) {
+    const { companyId, userId } = this;
     return update
       ? this.prisma.widget.update({
           where: { id, companyId, userId, version: update.expectedVersion, deletedAt: null },

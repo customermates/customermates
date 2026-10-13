@@ -22,7 +22,6 @@ import { MoveWikiPageSchema } from "@/features/wiki/move-wiki-page.interactor";
 import { env } from "@/env";
 
 import {
-  customMcpFailure,
   formatDatesInResponse,
   mcpInteractorFailure,
   mcpMessageFailure,
@@ -346,7 +345,6 @@ export const manageWikiPagesTool = {
         id: parsed.data.id,
       });
       if (!outcome.ok) return mcpInteractorFailure(outcome.error);
-      if (!outcome.data) return customMcpFailure(CustomErrorCode.wikiPageNotFound, undefined, ["id"]);
 
       const chunk = wikiPageChunk(outcome.data, parsed.data.offset);
       return chunk ? toonResult(chunk) : mcpMessageFailure(WIKI_CHUNK_SIZE_FAILURE);

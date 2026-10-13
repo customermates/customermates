@@ -28,6 +28,7 @@ const { PrismaTrashRepo } = await import("../prisma-trash.repository");
 const { EntityTrashHandler } = await import("../entity-trash.handler");
 const { EntityTrashVisibility } = await import("../entity-trash-visibility");
 const { QueryTrashInteractor } = await import("../query-trash.interactor");
+const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RestoreTrashInteractor } = await import("../restore-trash.interactor");
 const { DeleteTrashPermanentlyInteractor } = await import("../delete-trash-permanently.interactor");
 const { EmptyTrashInteractor } = await import("../empty-trash.interactor");
@@ -43,7 +44,7 @@ const { DeleteWidgetInteractor } = await import("@/features/widget/delete-widget
 const { ValidateWidgetIdsInteractor } = await import("@/core/validation/validators/validate-widget-ids.interactor");
 const { PrismaWikiPageRepo } = await import("@/features/wiki/prisma-wiki-page.repository");
 const { DeleteWikiPageInteractor } = await import("@/features/wiki/delete-wiki-page.interactor");
-const { getRoutineRepo, getTrashKindHandlers, getWidgetDtoReaders } = await import("@/core/di");
+const { getRoutineRepo, getTrashKindHandlers } = await import("@/core/di");
 const { DeleteRoutineInteractor } = await import("@/ee/routines/delete-routine.interactor");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
@@ -78,7 +79,7 @@ async function fixture() {
   const member = createMockUser({ ...seed.member, role: { ...seed.memberRole, permissions: [] } });
   const trashRepo = new PrismaTrashRepo();
   const visibility = new EntityTrashVisibility();
-  const widgets = new PrismaWidgetRepo(getWidgetDtoReaders);
+  const widgets = new PrismaWidgetRepo();
   const wiki = new PrismaWikiPageRepo(new PermissionService());
   const handlers: TrashKindHandler[] = [
     new EntityTrashHandler(
@@ -106,7 +107,12 @@ async function fixture() {
     ),
   ];
   const trash = {
-    query: new QueryTrashInteractor(trashRepo, createTestRecordRepo(), handlers),
+    query: new QueryTrashInteractor(
+      trashRepo,
+      createTestRecordRepo(),
+      handlers,
+      new PrismaUserRepo(new PermissionService()),
+    ),
     restore: new RestoreTrashInteractor(trashRepo, handlers),
     preview: new PreviewTrashDeletionInteractor(trashRepo, handlers),
     remove: new DeleteTrashPermanentlyInteractor(trashRepo, handlers),

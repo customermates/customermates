@@ -10,6 +10,7 @@ import { randomUUID } from "node:crypto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { PrismaWidgetRepo } from "../prisma-widget.repository";
 import { LIVE_WIDGET } from "../live-widget";
+import { WidgetDtoReader } from "../widget-dto-reader";
 
 const user = createMockUser();
 const mocks = vi.hoisted(() => ({
@@ -59,8 +60,7 @@ const row = (overrides: Record<string, unknown> = {}) => ({
   ...overrides,
 });
 const readers = () => ({ chart: { read: mocks.chart }, activityTimeline: { read: mocks.activity } });
-const scoped = <T>(fn: (repo: PrismaWidgetRepo) => Promise<T>) =>
-  runWithTenant(user, () => fn(new PrismaWidgetRepo(readers)));
+const scoped = <T>(fn: (repo: PrismaWidgetRepo) => Promise<T>) => runWithTenant(user, () => fn(new PrismaWidgetRepo()));
 
 describe("generic widget repository", () => {
   beforeEach(() => {
@@ -82,34 +82,28 @@ describe("generic widget repository", () => {
       }),
     );
   });
-  it("reads generic chart definitions through the authoritative reader", async () => {
+  it("returns stored chart definitions for the reader without calculating them", async () => {
     const stored = row();
     mocks.findMany.mockResolvedValue([stored]);
     const widgets = await scoped((repo) => repo.getWidgets());
-    expect(mocks.chart).toHaveBeenCalledWith(
-      expect.objectContaining({
-        id: stored.id,
-        measure: expect.objectContaining({ ...stored.measure, source: expect.objectContaining(stored.measure.source) }),
-      }),
-    );
-    expect(widgets).toEqual([expect.objectContaining({ id: stored.id, status: "unavailable" })]);
+    expect(widgets).toEqual([
+      {
+        kind: "chart",
+        widget: expect.objectContaining({
+          id: stored.id,
+          measure: expect.objectContaining({
+            ...stored.measure,
+            source: expect.objectContaining(stored.measure.source),
+          }),
+        }),
+      },
+    ]);
+    expect(mocks.chart).not.toHaveBeenCalled();
     expect(mocks.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { userId: user.id, companyId: user.companyId, ...LIVE_WIDGET } }),
     );
   });
-  it("resolves its record widget readers only when it reads a widget", async () => {
-    const stored = row();
-    mocks.findMany.mockResolvedValue([stored]);
-    const lazyReaders = vi.fn(readers);
-    const repo = new PrismaWidgetRepo(lazyReaders);
-    expect(lazyReaders).not.toHaveBeenCalled();
-
-    await runWithTenant(user, () => repo.getWidgets());
-
-    expect(lazyReaders).toHaveBeenCalledTimes(1);
-    expect(mocks.chart).toHaveBeenCalledTimes(1);
-  });
-  it("reads generic activity definitions without crossing into chart calculations", async () => {
+  it("returns stored activity definitions as timelines", async () => {
     const stored = row({
       kind: "activityTimeline",
       measure: null,
@@ -118,9 +112,11 @@ describe("generic widget repository", () => {
     });
     mocks.findFirst.mockResolvedValue(stored);
     const result = await scoped((repo) => repo.getWidgetById(stored.id));
-    expect(mocks.activity).toHaveBeenCalledWith(expect.objectContaining({ activityQuery: stored.activityQuery }));
-    expect(mocks.chart).not.toHaveBeenCalled();
-    expect(result).toMatchObject({ schemaRevision: 2, kind: "activityTimeline" });
+    expect(result).toEqual({
+      kind: "activityTimeline",
+      widget: expect.objectContaining({ id: stored.id, activityQuery: stored.activityQuery }),
+    });
+    expect(mocks.activity).not.toHaveBeenCalled();
   });
   it("includes only owned records or shared templates in a single read", async () => {
     mocks.findFirst.mockResolvedValue(null);
@@ -135,12 +131,29 @@ describe("generic widget repository", () => {
   it("refuses a widget without a record definition instead of guessing one", async () => {
     mocks.findMany.mockResolvedValue([row({ measure: null })]);
     await expect(scoped((repo) => repo.getWidgets())).rejects.toThrow("has no record definition");
-    expect(mocks.chart).not.toHaveBeenCalled();
   });
   it("uses validated structured definitions", async () => {
     mocks.findMany.mockResolvedValue([row({ measure: { sourceTypeId: "invalid" } })]);
     await expect(scoped((repo) => repo.getWidgets())).rejects.toThrow();
-    expect(mocks.chart).not.toHaveBeenCalled();
+  });
+  it("resolves its record widget readers only when it reads a widget", async () => {
+    const lazyReaders = vi.fn(readers);
+    const reader = new WidgetDtoReader(lazyReaders);
+    expect(lazyReaders).not.toHaveBeenCalled();
+
+    await reader.read({ kind: "chart", widget: { id: "chart" } as never });
+
+    expect(lazyReaders).toHaveBeenCalledTimes(1);
+    expect(mocks.chart).toHaveBeenCalledTimes(1);
+  });
+  it("reads each stored kind through its authoritative reader only", async () => {
+    const reader = new WidgetDtoReader(readers);
+    const chart = { kind: "chart" as const, widget: { id: "chart" } as never };
+    const timeline = { kind: "activityTimeline" as const, widget: { id: "timeline" } as never };
+    await expect(reader.read(chart)).resolves.toMatchObject({ id: "chart", status: "unavailable" });
+    await expect(reader.read(timeline)).resolves.toMatchObject({ id: "timeline", schemaRevision: 2 });
+    expect(mocks.chart).toHaveBeenCalledExactlyOnceWith({ id: "chart" });
+    expect(mocks.activity).toHaveBeenCalledExactlyOnceWith({ id: "timeline" });
   });
   it("moves only a live widget of the owner and tenant to Trash", async () => {
     const id = randomUUID();

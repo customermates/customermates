@@ -205,8 +205,8 @@ export class WikiPageStore extends BaseFormStore<WikiPageForm> {
     try {
       const result = await getWikiPageAction(this.form.id);
       if (generation !== this.viewGeneration) return;
-      if (!result.ok) this.setError(result.error);
-      else if (!result.data) this.setUnavailable();
+      if (!result.ok && result.code === CustomErrorCode.wikiPageNotFound) this.setUnavailable();
+      else if (!result.ok) this.setError(result.error);
       else {
         this.load(result.data);
         this.onChanged(result.data.id);

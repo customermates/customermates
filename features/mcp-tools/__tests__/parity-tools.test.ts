@@ -35,7 +35,7 @@ vi.mock("@/core/di", () => ({
   getDeleteConnectedAccountInteractor: () => ({ invoke: spies.disconnect }),
   getGetInvitationLinkInteractor: () => ({ invoke: spies.invitationLink }),
   getInviteUsersByEmailInteractor: vi.fn(),
-  getUpdateTeamMemberInteractor: vi.fn(),
+  getAdminUpdateUserDetailsInteractor: vi.fn(),
   getUpdateUserDetailsInteractor: vi.fn(),
 }));
 
