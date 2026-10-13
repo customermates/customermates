@@ -625,9 +625,9 @@ Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `theme`, `displayLang
 
 #### `manage_team`
 
-Invite members by email (action invite, up to 20, sends real invitation emails), return the invitation link (invite_link), or change a member's role and status (update_member). invite and invite_link need Create on Users & Roles; update_member needs Edit, like REST.
+Invite members by email (action invite, up to 20, sends real invitation emails), return the invitation link (invite_link), or change a member's role and status (update_member). For update_member, identify the member by userId or email; if you provide both, they must match. invite and invite_link need Create on Users & Roles; update_member needs Edit, like REST.
 
-Required: `action`. Optional: `emails`, `userId`, `roleId`, `status`.
+Required: `action`. Optional: `emails`, `userId`, `email`, `roleId`, `status`.
 
 #### `manage_roles`
 

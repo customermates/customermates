@@ -625,9 +625,9 @@ Optional: `firstName`, `lastName`, `country`, `avatarUrl`, `theme`, `displayLang
 
 #### `manage_team`
 
-Mitglieder per E-Mail einladen (Action invite, bis 20, verschickt echte Einladungs-E-Mails), den Einladungslink abrufen (invite_link) oder Rolle und Status eines Mitglieds ändern (update_member). invite und invite_link brauchen Erstellen auf Benutzer & Rollen, update_member Bearbeiten, wie REST.
+Mitglieder per E-Mail einladen (Action invite, bis 20, verschickt echte Einladungs-E-Mails), den Einladungslink abrufen (invite_link) oder Rolle und Status eines Mitglieds ändern (update_member). Bei update_member nennen Sie das Mitglied per userId oder email; wenn Sie beide angeben, müssen sie übereinstimmen. invite und invite_link brauchen Erstellen auf Benutzer & Rollen, update_member Bearbeiten, wie REST.
 
-Pflicht: `action`. Optional: `emails`, `userId`, `roleId`, `status`.
+Pflicht: `action`. Optional: `emails`, `userId`, `email`, `roleId`, `status`.
 
 #### `manage_roles`
 

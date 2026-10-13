@@ -3905,7 +3905,10 @@ test("names another member in a member field on the record page and shows access
       [randomUUID(), englishMessages.NotFoundPage.title, englishMessages.AccessDeniedPage.title],
     ]) {
       await member.page.goto(`/en/records/${dealTypeId}/${recordId}`);
-      await expect(member.page.getByText(title, { exact: true })).toBeVisible();
+      await expect(member.page.getByRole("heading", { name: title, exact: true })).toBeVisible();
+      const breadcrumb = member.page.getByRole("navigation", { name: "Breadcrumb" });
+      await expect(breadcrumb.getByText(title, { exact: true })).toBeVisible();
+      await expect(breadcrumb.locator("[data-entity-crumb-loading]")).toHaveCount(0);
       await expect(member.page.getByText(hidden, { exact: true })).toHaveCount(0);
       await expect(member.page.getByText("Another rep deal")).toHaveCount(0);
       await expect(member.page.getByText(englishMessages.ErrorCard.title)).toHaveCount(0);
