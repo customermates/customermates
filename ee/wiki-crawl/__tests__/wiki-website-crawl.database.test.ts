@@ -615,6 +615,23 @@ describeDatabase("Wiki website crawl on PostgreSQL", () => {
     expect(pages.rows.find(({ id }) => id === edited.rows[0].id)?.markdown).toBe("Our own pricing notes");
   }, 30_000);
 
+  it("ignores trashed imported pages when counting and re-importing sources", async () => {
+    await runCrawl(await startCrawl());
+    await client.query(`UPDATE "WikiPage" SET "deletedAt" = now() WHERE "companyId" = $1`, [companyId]);
+    const repo = new PrismaWikiPageRepo(new PermissionService());
+    await runWithTenant(user, async () => {
+      expect(await repo.countImportedPages(new Date(0))).toBe(0);
+      expect(await repo.findImportedPage("https://example.com/pricing")).toBeNull();
+    });
+
+    await runCrawl(await startCrawl());
+    const active = await client.query(
+      `SELECT "title" FROM "WikiPage" WHERE "companyId" = $1 AND "deletedAt" IS NULL ORDER BY "title"`,
+      [companyId],
+    );
+    expect(active.rows).toEqual([{ title: "Pricing" }, { title: "Refund policy" }]);
+  }, 30_000);
+
   it("allows only one workflow to own a crawl, including replay of the winning claim", async () => {
     const crawlId = await startCrawl();
     await runWithTenant(user, async () => {

@@ -11,12 +11,8 @@ import type { ProviderAvatarRecordRepo } from "./provider-avatar-record.repo";
 import type { RecordModel, RecordRef } from "./record-model.schema";
 import { RecordRefSchema } from "./record-model.schema";
 import { RecordJournal } from "./record-journal";
-import {
-  RecordCalculationService,
-  calculationSources,
-  isCalculationBudgetExceeded,
-  recordKey,
-} from "./record-calculation.service";
+import type { RecordCalculationService } from "./record-calculation.service";
+import { calculationSources, isCalculationBudgetExceeded, recordKey } from "./record-calculation.service";
 import { createRecordStagingRepo } from "./record-staging.repository";
 import { decodeRecordValue } from "./record-storage";
 import { validateRecordModel } from "./record-model-validation";
@@ -120,6 +116,7 @@ export class ProviderAvatarService {
     private records: RecordRepo & ProviderAvatarRecordRepo,
     private companyId: string,
     private background: Pick<BackgroundTaskService, "dispatch">,
+    private calculations: RecordCalculationService,
   ) {}
 
   synchronize(provider: MessagingProvider, identifier: string | null, pictureUrl: string | null | undefined) {
@@ -229,7 +226,7 @@ export class ProviderAvatarService {
           );
           await journal.repository.touch(target.ref);
         }
-        const calculated = await new RecordCalculationService(journal.repository).recalculate(
+        const calculated = await this.calculations.withRepository(journal.repository).recalculate(
           model,
           targets.map((target) => target.ref),
         );
@@ -385,7 +382,7 @@ export class ProviderAvatarService {
             }
             const refs = await journal.repository.getRecordRefsCompanyWide(field.typeId, cursor.afterId, BATCH);
             if (field.behavior.kind !== "snapshot") {
-              const calculator = new RecordCalculationService(journal.repository);
+              const calculator = this.calculations.withRepository(journal.repository);
               for (const ref of refs) await calculator.calculateField(model, ref, field.id, LIMIT);
             }
             await journal.persist();

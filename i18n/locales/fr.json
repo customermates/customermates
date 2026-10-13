@@ -1134,6 +1134,8 @@
       "recordNotFound": "Cet enregistrement est indisponible.",
       "recordNumberInvalid": "Saisissez un nombre valide.",
       "recordOperationFailed": "L'opération en arrière-plan a échoué. Réessaie.",
+      "recordOperationNotFound": "Cette opération en arrière-plan est indisponible.",
+      "recordOperationSettled": "Cette opération en arrière-plan n’est plus en cours.",
       "recordOptionInvalid": "« {value} » n'est pas une option de {field} ({fieldId}). Utilisez l'un de ces ID d'option : {validValues}.",
       "recordProtected": "Cet enregistrement est géré par un processus système.",
       "recordReadOnlyField": "Ce champ est calculé. Modifie sa définition pour saisir des valeurs manuellement.",

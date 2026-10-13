@@ -23,8 +23,9 @@ export class ResumeRecordOperationInteractor extends OwnedRecordOperationInterac
   @Write({ input: RecordOperationInputSchema })
   async invoke(input: RecordOperationInput): Validated<{ resumed: boolean }> {
     const operation = await this.ownedOperation(input.operationId, (owned) => owned.kind === "provider-avatar");
-    if (!operation) return failNotFound(CustomErrorCode.recordNotFound);
-    if (!["pending", "staging"].includes(operation.state)) return failConflict(CustomErrorCode.recordVersionChanged);
+    if (!operation) return failNotFound(CustomErrorCode.recordOperationNotFound, ["operationId"]);
+    if (!["pending", "staging"].includes(operation.state))
+      return failConflict(CustomErrorCode.recordOperationSettled, ["operationId"]);
     if (operation.leaseUntil && operation.leaseUntil > new Date()) return { ok: true, data: { resumed: false } };
     if (operation.kind === "provider-avatar") {
       await this.background.dispatch("provider-avatar-operation", {

@@ -1798,7 +1798,7 @@ BEGIN
   IF v_summary IS NOT NULL THEN
     RAISE EXCEPTION 'Configurable record upgrade refused (% workspaces affected): %',
       (SELECT count(DISTINCT company_id) FROM crm_upgrade_issue), v_summary
-      USING ERRCODE = 'CRM01', HINT = 'Nothing was changed. Fix the reported legacy rows, run prisma migrate resolve --rolled-back 20261004000000_configurable_records, then prisma migrate deploy.';
+      USING ERRCODE = 'CRM01', HINT = 'Nothing was changed. Fix the reported legacy rows, run prisma migrate resolve --rolled-back 20261010000000_dynamic_record_model, then prisma migrate deploy.';
   END IF;
 END
 $refuse$;
@@ -2132,17 +2132,18 @@ CREATE TABLE "RecordEventMatch" (
 );
 
 -- Webhook deliveries bound to events, with leases, retries and explicit resends. Existing
--- delivery history stays intact; completed deliveries are never replayed automatically.
+-- delivery history stays intact: legacy rows (any status) get no next attempt, so the worker never
+-- claims them; only new deliveries default to an immediate attempt.
 ALTER TABLE "WebhookDelivery"
   ADD COLUMN "webhookId" TEXT,
   ADD COLUMN "eventId" TEXT,
   ADD COLUMN "subscriptionRevision" INTEGER,
   ADD COLUMN "attempts" INTEGER NOT NULL DEFAULT 0,
-  ADD COLUMN "nextAttemptAt" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
+  ADD COLUMN "nextAttemptAt" TIMESTAMP(3),
   ADD COLUMN "leaseToken" TEXT,
   ADD COLUMN "leaseExpiresAt" TIMESTAMP(3),
   ADD COLUMN "admissionKey" TEXT;
-UPDATE "WebhookDelivery" SET "nextAttemptAt" = NULL WHERE status IN ('success', 'failed');
+ALTER TABLE "WebhookDelivery" ALTER COLUMN "nextAttemptAt" SET DEFAULT CURRENT_TIMESTAMP;
 CREATE UNIQUE INDEX "WebhookDelivery_companyId_admissionKey_key" ON "WebhookDelivery"("companyId", "admissionKey");
 CREATE INDEX "WebhookDelivery_companyId_webhookId_createdAt_idx" ON "WebhookDelivery"("companyId", "webhookId", "createdAt");
 CREATE INDEX "WebhookDelivery_companyId_eventId_idx" ON "WebhookDelivery"("companyId", "eventId");
@@ -2168,10 +2169,13 @@ SELECT w.company_id, t.value ->> 'id',
   t.value, now(), now()
 FROM crm_upgrade_workspace w, jsonb_array_elements(w.model -> 'types') AS t(value);
 
+-- Built-in fields date from their workspace, so they are older than every custom column and keep their
+-- name when section 6 renames a custom column with the same name.
 INSERT INTO "RecordFieldDefinition" ("companyId", "typeId", id, "valueType", behavior, archived, definition, "createdAt", "updatedAt")
 SELECT w.company_id, f.value ->> 'typeId', f.value ->> 'id', f.value ->> 'valueType', f.value #>> '{behavior,kind}', (f.value ->> 'archived')::boolean, f.value,
-  COALESCE(c."createdAt", now()), COALESCE(c."updatedAt", now())
+  COALESCE(c."createdAt", company."createdAt"), COALESCE(c."updatedAt", now())
 FROM crm_upgrade_workspace w
+JOIN "Company" company ON company.id = w.company_id
 CROSS JOIN jsonb_array_elements(w.model -> 'fields') AS f(value)
 LEFT JOIN "CustomColumn" c ON c."companyId" = w.company_id AND c.id = f.value ->> 'id';
 
@@ -2513,7 +2517,7 @@ BEGIN
   SELECT count(*) INTO v_failures FROM crm_upgrade_calculated WHERE failed;
   IF v_failures > 0 THEN
     RAISE EXCEPTION 'Configurable record upgrade refused: % calculated values are out of range (|x| >= 1e35 or more than 30 decimals)', v_failures
-      USING HINT = 'Nothing was changed. Correct the legacy prices or quantities, run prisma migrate resolve --rolled-back 20261004000000_configurable_records, then prisma migrate deploy.';
+      USING HINT = 'Nothing was changed. Correct the legacy prices or quantities, run prisma migrate resolve --rolled-back 20261010000000_dynamic_record_model, then prisma migrate deploy.';
   END IF;
 END
 $$;

@@ -7,7 +7,7 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { RecordCalculationService } from "./record-calculation.service";
 import { SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import { configurationInputFields, configurationInputValue } from "./record-configuration-values";
-import { RecordTrashService } from "./record-trash.service";
+import { purgeRecordTrashItems } from "./record-trash.service";
 import { RECORD_SYSTEM_ACTOR } from "./record-system-actor";
 
 export async function purgeTrashOfDeletedLists(
@@ -17,7 +17,8 @@ export async function purgeTrashOfDeletedLists(
 ) {
   if (!prepared.deletion?.typeIds.length) return;
   const items = await records.getRecordTrashItemsCompanyWide({ typeIds: prepared.deletion.typeIds });
-  await new RecordTrashService(records).purge(
+  await purgeRecordTrashItems(
+    records,
     items.map((item) => item.id),
     prepared.model,
     userId,

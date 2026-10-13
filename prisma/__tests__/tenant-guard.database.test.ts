@@ -70,6 +70,40 @@ describeDatabase("prisma tenant guard on PostgreSQL", () => {
     ).rejects.toThrow(/companyId must be set in data/);
   });
 
+  it("checks createManyAndReturn rows like createMany and accepts owned rows", async () => {
+    await expect(
+      asTenant(() =>
+        prisma.user.createManyAndReturn({
+          data: [
+            { firstName: "Foreign", lastName: "Row", email: "foreign@example.invalid", companyId: foreignCompanyId },
+          ],
+        }),
+      ),
+    ).rejects.toThrow(/companyId does not match tenant in data/);
+    const id = randomUUID();
+    const [created] = await asTenant(() =>
+      prisma.user.createManyAndReturn({
+        data: [{ id, firstName: "Owned", lastName: "Row", email: `owned-${id}@example.invalid`, companyId }],
+        select: { id: true },
+      }),
+    );
+    expect(created).toEqual({ id });
+  });
+
+  it("checks updateManyAndReturn like updateMany", async () => {
+    await expect(
+      asTenant(() => prisma.user.updateManyAndReturn({ where: { id: contactId }, data: { firstName: "Nope" } })),
+    ).rejects.toThrow(/companyId must be set in where/);
+    await expect(
+      asTenant(() =>
+        prisma.user.updateManyAndReturn({
+          where: { id: contactId, companyId },
+          data: { companyId: foreignCompanyId },
+        }),
+      ),
+    ).rejects.toThrow(/does not match tenant/);
+  });
+
   it("accepts an update scoped by the tenant column", async () => {
     await asTenant(() =>
       prisma.user.updateMany({ where: { id: contactId, companyId }, data: { firstName: "Allowed" } }),

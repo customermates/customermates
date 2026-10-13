@@ -12,17 +12,19 @@ import { failureUnwindCause, unwindFailure } from "@/core/validation/failure-unw
 import { RecordRefSchema } from "./record-model.schema";
 import { ConfigurationChangeSchema } from "./configuration.schema";
 import type { RecordConfigurationService } from "./configuration.service";
-import { purgeTrashOfDeletedLists, RecordConfigurationWriter } from "./record-configuration-writer";
+import type { RecordConfigurationWriter } from "./record-configuration-writer";
+import { purgeTrashOfDeletedLists } from "./record-configuration-writer";
 import { MutateRecordSchema } from "./record-query.schema";
-import { RecordWriteService } from "./record-write.service";
-import { RecordCalculationService, calculationSources, recordKey } from "./record-calculation.service";
+import type { RecordWriteService } from "./record-write.service";
+import type { RecordCalculationService } from "./record-calculation.service";
+import { calculationSources, recordKey } from "./record-calculation.service";
 import { createRecordStagingRepo } from "./record-staging.repository";
 import { validateRecordModel } from "./record-model-validation";
 import { deterministicId } from "./crm-preset";
 import { RecordJournal } from "./record-journal";
 import { RecordEventPayloadSchema } from "./record-event.schema";
 import { DeletionCursorSchema, RecordDeletionStaging } from "./record-deletion-staging";
-import { RecordTrashService } from "./record-trash.service";
+import type { RecordTrashService } from "./record-trash.service";
 import { configurationTrashBatchId } from "./configuration-trash-batch";
 import type { RecordModel } from "./record-model.schema";
 import type { WebhookPauseNotifier } from "@/features/webhook/webhook-pause-notifier";
@@ -67,6 +69,10 @@ export class RecordOperationService extends UserAccessor {
     private policy: RecordAccessPolicy,
     private configurations: RecordConfigurationService,
     private webhooks: WebhookPauseNotifier,
+    private calculations: RecordCalculationService,
+    private writes: RecordWriteService,
+    private writer: RecordConfigurationWriter,
+    private trash: RecordTrashService,
     private systemCompanyId?: string,
   ) {
     super();
@@ -108,7 +114,7 @@ export class RecordOperationService extends UserAccessor {
             operationId,
           });
           const staged = journal.repository;
-          const calculations = new RecordCalculationService(staged);
+          const calculations = this.calculations.withRepository(staged);
           const prepared =
             operation.kind === "configuration"
               ? await this.configurations.prepare(ConfigurationChangeSchema.parse(operation.request), current, policy)
@@ -139,7 +145,7 @@ export class RecordOperationService extends UserAccessor {
               });
             } else {
               const request = MutateRecordSchema.parse(operation.request);
-              const writer = new RecordWriteService(staged, this.policy, calculations);
+              const writer = this.writes.withRepository(staged);
               if (request.mutation.action === "delete" || request.mutation.action === "deleteMany") {
                 await writer.validateAccess(request.mutation, policy);
                 const refs =
@@ -250,7 +256,7 @@ export class RecordOperationService extends UserAccessor {
             const refs = await staged.getRecordRefsCompanyWide(typeId, cursor.afterId, BATCH_SIZE, {
               includeTrash: true,
             });
-            const writer = new RecordConfigurationWriter(staged, calculations, this.webhooks);
+            const writer = this.writer.withRepository(staged);
             for (const ref of refs) await writer.initializeRecord(ref, prepared, current, BACKGROUND_FANOUT_LIMIT);
             await journal.persist();
             await this.records.updateOperation(operationId, {
@@ -338,11 +344,7 @@ export class RecordOperationService extends UserAccessor {
             for (const grant of prepared.grants) await this.records.setGrants(grant.typeId, grant.grants);
           } else {
             const mutation = MutateRecordSchema.parse(operation.request).mutation;
-            await new RecordWriteService(
-              this.records,
-              this.policy,
-              new RecordCalculationService(this.records),
-            ).validateAccess(mutation, policy);
+            await this.writes.validateAccess(mutation, policy);
             if (mutation.action === "delete" || mutation.action === "deleteMany") {
               const typeIds = current.types.filter((type) => policy.allowed(type.id, "delete")).map((type) => type.id);
               if (!(await this.records.validateStagedDeletionAccess(operationId, policy.access(typeIds))))
@@ -356,7 +358,7 @@ export class RecordOperationService extends UserAccessor {
           if (permanent) {
             const items = await this.records.getRecordTrashItemsCompanyWide({ batchId: operationId });
             const request = z.object({ idempotencyKey: z.string() }).parse(operation.request);
-            await new RecordTrashService(this.records).purge(
+            await this.trash.purge(
               items.map((item) => item.id),
               model,
               operator.eventActorId,
@@ -386,7 +388,7 @@ export class RecordOperationService extends UserAccessor {
           await this.records.clearOperationLock(operationId);
           return { done: true };
         },
-        { timeout: 60000 },
+        { timeout: 60000, companyId: this.systemCompanyId },
       );
     } catch (error) {
       const cause = failureUnwindCause(error);
@@ -476,7 +478,7 @@ export class RecordOperationService extends UserAccessor {
       await this.records.clearOperationLock(operation.id);
       return { done: true };
     }
-    const service = new RecordTrashService(this.records);
+    const service = this.trash;
     const [item] = await this.records.getRecordTrashItemsCompanyWide({ ids: [itemId] });
     const blocker = item && !cursor.started ? await service.accessible(item, model, policy) : null;
     const next = { ...cursor, index: cursor.index + 1, started: false };
@@ -510,20 +512,23 @@ export class RecordOperationService extends UserAccessor {
   }
 
   async fail(operationId: string, errorCode: CustomErrorCode): Promise<void> {
-    await runInTransaction(async () => {
-      const operation = await this.records.getOperation(operationId);
-      if (
-        !operation ||
-        operation.userId !== this.operator.userId ||
-        ["completed", "cancelled", "failed"].includes(operation.state)
-      )
-        return;
-      await this.records.updateOperation(operationId, {
-        state: "failed",
-        errorCode,
-        leaseUntil: null,
-      });
-      await this.records.clearOperationLock(operationId);
-    });
+    await runInTransaction(
+      async () => {
+        const operation = await this.records.getOperation(operationId);
+        if (
+          !operation ||
+          operation.userId !== this.operator.userId ||
+          ["completed", "cancelled", "failed"].includes(operation.state)
+        )
+          return;
+        await this.records.updateOperation(operationId, {
+          state: "failed",
+          errorCode,
+          leaseUntil: null,
+        });
+        await this.records.clearOperationLock(operationId);
+      },
+      { companyId: this.systemCompanyId },
+    );
   }
 }

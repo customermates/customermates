@@ -1134,6 +1134,8 @@
       "recordNotFound": "Questo record non è disponibile.",
       "recordNumberInvalid": "Inserisci un numero valido.",
       "recordOperationFailed": "L'operazione in background non è riuscita. Riprova.",
+      "recordOperationNotFound": "Questa operazione in background non è disponibile.",
+      "recordOperationSettled": "Questa operazione in background è già terminata.",
       "recordOptionInvalid": "\"{value}\" non è un'opzione di {field} ({fieldId}). Usa uno di questi ID opzione: {validValues}.",
       "recordProtected": "Questo record è gestito da un processo di sistema.",
       "recordReadOnlyField": "Questo campo è calcolato. Modifica la definizione per inserire valori manualmente.",

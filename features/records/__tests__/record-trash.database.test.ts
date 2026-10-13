@@ -44,7 +44,6 @@ const { DeleteTrashPermanentlyInteractor } = await import("@/features/trash/dele
 const { EmptyTrashInteractor } = await import("@/features/trash/empty-trash.interactor");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 const { RecordConfigurationService } = await import("../configuration.service");
-const { RecordOperationService } = await import("../record-operation.service");
 const { RecordTrashService } = await import("../record-trash.service");
 const { RecordJournal } = await import("../record-journal");
 const { applyConfigurationLifecycle } = await import("../configuration-lifecycle");
@@ -58,7 +57,7 @@ const { GetTrashedRecordActivitiesInteractor } = await import(
 );
 const { RecordActivitiesInputSchema } = await import("@/ee/messaging/activities/record-activities.schema");
 const { interactorFailureKind } = await import("@/core/validation/validation.utils");
-const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+const { createTestRecordOperationService, createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -99,7 +98,7 @@ async function fixture() {
     policy,
     writer,
     { dispatch: () => Promise.resolve() },
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const read = new GetRecordInteractor(repo, policy);
   const query = new QueryRecordsInteractor(repo, policy);
@@ -110,10 +109,10 @@ async function fixture() {
     repo,
     policy,
     { dispatch: () => Promise.resolve() },
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const handlers = [handler];
-  const worker = new RecordOperationService(
+  const worker = createTestRecordOperationService(
     repo,
     policy,
     new RecordConfigurationService(repo),
@@ -583,6 +582,57 @@ describeDatabase("record trash", () => {
     expect(await runWithoutTenant(() => prisma.crmRecord.count({ where: { companyId: f.seed.company.id } }))).toBe(0);
   }, 180_000);
 
+  it("lets a member who reads every deal open a trashed line item whose deal went to Trash after it", async () => {
+    const f = await fixture();
+    await runWithTenant(f.admin, () =>
+      runInTransaction(
+        () =>
+          f.repo.setGrants(f.id("deal"), [{ roleId: f.seed.memberRole.id, actions: ["readAll", "create", "delete"] }]),
+        { timeout: 30000 },
+      ),
+    );
+    const deal = await f.created(
+      {
+        action: "create",
+        typeId: f.id("deal"),
+        fields: [{ fieldId: f.id("deal.name"), value: text("Owned pitch") }],
+        assignedUserIds: [f.member.id],
+      },
+      f.member,
+    );
+    const item = await f.created({
+      action: "create",
+      typeId: f.id("lineItem"),
+      fields: [{ fieldId: f.id("lineItem.quantity"), value: decimal("2") }],
+      links: [{ relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal }],
+    });
+    await f.remove(item);
+    await f.remove(deal, f.member);
+    expect((await f.rows(item))?.deletedAt).not.toBeNull();
+    expect((await f.rows(deal))?.deletedAt).not.toBeNull();
+    const activities = new GetRecordActivitiesInteractor(
+      new PrismaRecordActivitiesRepo(new PermissionService()),
+      f.repo,
+      f.policy,
+      new RecordIdentityReader(f.repo, f.policy),
+      new RecordHistoryReader(f.repo),
+      { require: () => Promise.resolve(null) },
+      new TrashedRecordAccess(f.repo, new PrismaTrashRepo(), [f.handler]),
+    );
+    const trashed = await runWithTenant(f.member, () =>
+      new GetTrashedRecordActivitiesInteractor(activities).invoke(
+        RecordActivitiesInputSchema.parse({ scope: { records: [item], typeIds: [] } }),
+      ),
+    );
+    expect(trashed).toMatchObject({ ok: true });
+    expect(
+      await runWithTenant(f.member, async () => {
+        const stored = await f.repo.getRecordCompanyWide(item, { includeTrash: true });
+        return stored ? (await f.policy.load()).canRead(stored) : null;
+      }),
+    ).toBe(true);
+  }, 180_000);
+
   it("restores a deal and a line item deleted together, whatever their order", async () => {
     const f = await fixture();
     const deal = await f.created({
@@ -693,7 +743,7 @@ describeDatabase("record trash", () => {
         const ordered = [item, deal, organization].map(
           (ref) => stored.find((entry) => entry.targetId === ref.recordId) as (typeof stored)[number],
         );
-        return new RecordTrashService(f.repo).restore(
+        return new RecordTrashService(f.repo, new RecordCalculationService(f.repo)).restore(
           ordered,
           archived,
           await f.policy.load(),

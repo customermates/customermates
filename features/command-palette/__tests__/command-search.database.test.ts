@@ -162,7 +162,7 @@ async function workspace(viewName: string) {
     policy,
     new RecordWriteService(repo, policy, new RecordCalculationService(repo)),
     { dispatch: () => Promise.resolve() },
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const createOrganization = async (name: string) => {
     const mutation: RecordMutation = {

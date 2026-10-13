@@ -70,7 +70,7 @@ async function fixture() {
     policy,
     new RecordWriteService(repo, policy, calculations),
     background,
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const query = new QueryRecordsInteractor(repo, policy);
   const configure = new ApplyRecordConfigurationInteractor(

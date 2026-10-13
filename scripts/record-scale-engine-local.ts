@@ -109,7 +109,7 @@ try {
         throw new Error("Ordinary scale writes unexpectedly require background execution");
       },
     },
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, calculator),
   );
   const query = new queries.QueryRecordsInteractor(repo, policy);
   const { GetRecordInteractor } = await import("../features/records/get-record.interactor");
@@ -255,7 +255,6 @@ try {
     const { ApplyRecordConfigurationInteractor } = await import("../features/records/configure-records.interactor");
     const { RecordConfigurationWriter } = await import("../features/records/record-configuration-writer");
     const { ConfigurationChangeSchema } = await import("../features/records/configuration.schema");
-    const { RecordOperationService } = await import("../features/records/record-operation.service");
     const configurations = new RecordConfigurationService(repo);
     const configure = new ApplyRecordConfigurationInteractor(
       repo,
@@ -361,7 +360,7 @@ try {
       policy,
       writer,
       background,
-      new RecordTrashService(repo),
+      new RecordTrashService(repo, calculator),
     );
     const source = unwrap(
       await run(() =>
@@ -450,7 +449,7 @@ try {
     for (; advances < 1000; advances += 1) {
       await assertValues("10");
       const step = await run(() =>
-        new RecordOperationService(repo, policy, configurations, new WebhookPauseNotifier({ getWebhookByIdOrThrow: () => Promise.reject(new Error("No webhook expected")) }, { publish: () => Promise.resolve() })).advance(pending.operationId),
+        repository.createTestRecordOperationService(repo, policy, configurations, new WebhookPauseNotifier({ getWebhookByIdOrThrow: () => Promise.reject(new Error("No webhook expected")) }, { publish: () => Promise.resolve() })).advance(pending.operationId),
       );
       if (step.done) break;
     }
