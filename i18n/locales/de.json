@@ -1,9 +1,9 @@
 {
   "AccessDeniedPage": {
-    "body": "Diesen Datensatz gibt es, aber Ihre Rolle erlaubt Ihnen nicht, ihn zu lesen. Bitten Sie eine Admin-Person Ihres Workspace um Zugriff.",
+    "body": "Diesen Datensatz gibt es, aber deine Rolle erlaubt dir nicht, ihn zu lesen. Bitte eine Admin-Person deines Workspace um Zugriff.",
     "ctaLabel": "Zurück zur Startseite",
     "documentTitle": "Kein Zugriff | Customermates",
-    "subtitle": "Ihre Rolle kann ihn nicht öffnen",
+    "subtitle": "Deine Rolle kann ihn nicht öffnen",
     "title": "Kein Zugriff auf diesen Datensatz"
   },
   "AccountAccessRevoked": {
@@ -871,8 +871,8 @@
       "deleteNamed": "{name} löschen"
     },
     "resolve": "Zu „{query}“ springen",
-    "resolveNoCredits": "Sie haben keine KI-Guthaben mehr, deshalb kann diese Anfrage nicht aufgelöst werden.",
-    "resolveUnavailable": "Anfragen aufzulösen ist gerade nicht möglich. Wählen Sie ein Ergebnis oder versuchen Sie es später erneut.",
+    "resolveNoCredits": "Du hast keine KI-Guthaben mehr, deshalb kann diese Anfrage nicht aufgelöst werden.",
+    "resolveUnavailable": "Anfragen aufzulösen ist gerade nicht möglich. Wähle ein Ergebnis oder versuche es später erneut.",
     "resolving": "Passendes Ziel wird gesucht…",
     "synonyms": {
       "action": {
@@ -1081,7 +1081,7 @@
       "dataViewUpdateEmpty": "Gib einen Namen oder mindestens eine Ansichtseinstellung an, die aktualisiert werden soll.",
       "demoMode": "Diese Aktion ist im Demo-Modus nicht verfügbar. Melde dich an, um alle Funktionen zu nutzen.",
       "draftMessageNotFound": "Dieser Entwurf wurde nicht gefunden. Möglicherweise wurde er bereits gesendet oder verworfen.",
-      "draftThreadNotSent": "Dieser Entwurf hat noch keine Unterhaltung. Senden Sie ihn über den Posteingang.",
+      "draftThreadNotSent": "Dieser Entwurf hat noch keine Unterhaltung. Sende ihn über den Posteingang.",
       "draftToRecipientsLocked": "Eine gespeicherte neue Nachricht behält ihre An-Empfänger. Verwirf den Entwurf und beginne eine neue Nachricht, um jemand anderen anzuschreiben.",
       "duplicateOutboundSuppressed": "Eine identische Nachricht wurde gerade eben in dieser Konversation gesendet. Ändere den Text oder warte eine Minute, bevor du es erneut versuchst.",
       "duplicateWebhookEvents": "Doppelte Ereignisse sind nicht erlaubt.",
@@ -1222,7 +1222,7 @@
       "webhookHeadersTooMany": "Zu viele Header.",
       "webhookHeaderValueInvalid": "Header-Werte dürfen nur Latin-1-Text ohne Zeilenumbrüche oder Steuerzeichen enthalten.",
       "webhookNotFound": "Webhook-ID nicht gefunden oder nicht zugänglich.",
-      "webhookTriggerRequired": "Wählen Sie, welche Feldänderungen oder Bedingungen diesen Webhook auslösen, bevor Sie ihn wieder einschalten.",
+      "webhookTriggerRequired": "Wähle, welche Feldänderungen oder Bedingungen diesen Webhook auslösen, bevor du ihn wieder einschaltest.",
       "widgetDisplayTypeUnsupported": "Dieser Diagrammstil passt nicht zur gewählten Gruppierung. Wähle einen anderen Stil oder ändere die Gruppierung.",
       "widgetKindImmutable": "Der Typ eines Widgets kann nach dem Erstellen nicht geändert werden.",
       "widgetLayoutChanged": "Das Dashboard wurde zwischenzeitlich geändert. Es wurde neu geladen, ordne die Widgets bitte erneut an.",
@@ -2465,10 +2465,10 @@
       "ccBccToggle": "Cc/Bcc",
       "ccLabel": "Cc",
       "createContact": "„{query}“ erstellen",
-      "draftAttachmentsUnsupported": "Entfernen Sie Anhänge, bevor Sie diesen Entwurf speichern.",
+      "draftAttachmentsUnsupported": "Entferne Anhänge, bevor du diesen Entwurf speicherst.",
       "draftDiscardFailed": "Entwurf konnte nicht verworfen werden",
       "draftEdit": "Bearbeiten",
-      "draftSaved": "Entwurf gespeichert. Sie finden ihn im Posteingang.",
+      "draftSaved": "Entwurf gespeichert. Du findest ihn im Posteingang.",
       "draftSendNow": "Entwurf senden",
       "emailContent": "E-Mail-Inhalt",
       "emojiPicker": "Emoji einfügen",
@@ -3424,7 +3424,7 @@
         "nameFieldNone": "In {consumers} kann kein Feld mehr die Datensätze benennen, sie erscheinen daher als „{singular} ohne Namen“.",
         "personalLayouts": "{target} wird aus {count, plural, one {# persönlichen Layout} other {# persönlichen Layouts}} entfernt.",
         "view": "{count, plural, one {{target} wird aus der Ansicht {consumers} entfernt.} other {{target} wird aus # Ansichten entfernt: {consumers}.}}",
-        "webhookPaused": "{count, plural, one {Der Webhook {consumers} wird pausiert, weil {target} sein einziger Auslöser war. Wählen Sie einen neuen Auslöser, bevor Sie ihn wieder einschalten.} other {# Webhooks werden pausiert, weil {target} ihr einziger Auslöser war: {consumers}. Wählen Sie einen neuen Auslöser, bevor Sie sie wieder einschalten.}}",
+        "webhookPaused": "{count, plural, one {Der Webhook {consumers} wird pausiert, weil {target} sein einziger Auslöser war. Wähle einen neuen Auslöser, bevor du ihn wieder einschaltest.} other {# Webhooks werden pausiert, weil {target} ihr einziger Auslöser war: {consumers}. Wähle einen neuen Auslöser, bevor du sie wieder einschaltest.}}",
         "webhookTrigger": "{count, plural, one {{target} wird aus dem Auslöser des Webhooks {consumers} entfernt.} other {{target} wird aus dem Auslöser von # Webhooks entfernt: {consumers}.}}",
         "widget": "{count, plural, one {{target} wird aus den Filtern oder der Gruppierung des Widgets {consumers} entfernt.} other {{target} wird aus den Filtern oder der Gruppierung von # Widgets entfernt: {consumers}.}}",
         "widgetCount": "{count, plural, one {Das Widget {consumers} zählt Datensätze, statt {target} auszuwerten.} other {# Widgets zählen Datensätze, statt {target} auszuwerten: {consumers}.}}"
@@ -3443,7 +3443,7 @@
         "detailLayout": "Persönliche Datensatzlayouts verwenden noch {subject}.",
         "existingValues": "Einige vorhandene Werte von {subject} passen nicht zur Änderung.",
         "existingValuesDetail": "{count, plural, one {# Datensatz hat einen Wert} other {# Datensätze haben Werte}} in {subject}, die nicht zur Änderung passen, zum Beispiel {examples}. Korrigiere oder leere sie zuerst.",
-        "readAll": "{subject} enthält noch Datensätze, die Sie nicht sehen können. Endgültig löschen kann nur, wer alle Datensätze lesen darf, oder ein Admin.",
+        "readAll": "{subject} enthält noch Datensätze, die du nicht sehen kannst. Endgültig löschen kann nur, wer alle Datensätze lesen darf, oder ein Admin.",
         "savedView": "Gespeicherte Ansichten oder persönliche Layouts verwenden noch {subject}.",
         "savedViewColumn": "Die gespeicherte Ansicht {view} verwendet noch {column}.",
         "summaryApproval": "{subject} braucht eine erneute Freigabe der Zusammenfassung."
@@ -3697,10 +3697,10 @@
     "option": "Option",
     "optionCount": "{count, plural, =0 {Keine Optionen} one {# Option} other {# Optionen}}",
     "options": "Optionen",
-    "pluralDescription": "Wird in der Navigation und in Listentiteln angezeigt. Wird aus dem Namen vorgeschlagen, bis Sie ihn ändern.",
+    "pluralDescription": "Wird in der Navigation und in Listentiteln angezeigt. Wird aus dem Namen vorgeschlagen, bis du ihn änderst.",
     "pluralName": "Pluralname",
     "previewReady": "Bereit zum Anwenden. {count} Datensätze werden geprüft.",
-    "previewReadyHidden": "Bereit zum Anwenden. Die Änderung betrifft auch Datensätze, die Sie nicht sehen können.",
+    "previewReadyHidden": "Bereit zum Anwenden. Die Änderung betrifft auch Datensätze, die du nicht sehen kannst.",
     "priceModes": {
       "live": "Aktueller Preis",
       "saved": "Gespeicherter Preis"
@@ -4419,7 +4419,7 @@
     "enabled": "Aktiviert",
     "headersDescription": "Optionale Header, die bei jeder Zustellung mitgesendet werden, einer pro Zeile als Name: Wert. Nutze sie für Empfänger, die eine eigene Authentifizierung verlangen. Content-Type und der Signatur-Header lassen sich nicht überschreiben.",
     "paused": "Pausiert",
-    "pausedTriggerFieldDeleted": "Dieser Webhook wurde pausiert, weil das Feld gelöscht wurde, das ihn ausgelöst hat. Wählen Sie einen neuen Auslöser und schalten Sie ihn dann wieder ein.",
+    "pausedTriggerFieldDeleted": "Dieser Webhook wurde pausiert, weil das Feld gelöscht wurde, das ihn ausgelöst hat. Wähle einen neuen Auslöser und schalte ihn dann wieder ein.",
     "recordOwner": "Zugriffsberechtigtes Mitglied",
     "recordOwnerHelp": "Datensatzereignisse werden mit den aktuellen Berechtigungen dieses Mitglieds zugestellt. Nur Administratoren können ein anderes Mitglied wählen. Filter gelten zum Zeitpunkt der Änderung, nicht beim Löschen.",
     "secretDescription": "Optionales Geheimnis zur Generierung einer HMAC-SHA256-Signatur, die im X-Webhook-Signature-Header gesendet wird. Zur Überprüfung den Request-Body mit diesem Geheimnis mittels HMAC-SHA256 hashen und mit dem Header-Wert vergleichen.",
