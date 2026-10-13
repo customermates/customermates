@@ -8,6 +8,12 @@ const BUSY: PrismaClientFailure = {
   message: "The service is busy. Retry the request shortly.",
 };
 
+const TRANSACTION_ENDED: PrismaClientFailure = {
+  status: 422,
+  kind: "unavailable",
+  message: "The transaction ended before the operation could finish. No changes were saved.",
+};
+
 const PRISMA_CLIENT_ERRORS: Record<string, PrismaClientFailure> = {
   P2025: { status: 404, kind: "not_found", message: "The requested record was not found" },
   P2003: { status: 400, kind: "validation", message: "A referenced record was not found" },
@@ -15,7 +21,7 @@ const PRISMA_CLIENT_ERRORS: Record<string, PrismaClientFailure> = {
   P2023: { status: 400, kind: "validation", message: "Invalid identifier" },
   P2009: { status: 400, kind: "validation", message: "Invalid identifier" },
   P2024: BUSY,
-  P2028: BUSY,
+  P2028: TRANSACTION_ENDED,
 };
 
 const BUSY_DATABASE_CODES = new Set(["55P03"]);

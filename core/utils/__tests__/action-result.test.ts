@@ -61,6 +61,24 @@ describe("serializeResult", () => {
     });
   });
 
+  it("reports an expired transaction as unavailable without a retry hint", async () => {
+    const expired = Object.assign(new Error("transaction expired"), {
+      code: "P2028",
+    });
+    expect(await serializeResult(Promise.reject(expired))).toMatchObject({
+      ok: false,
+      code: CustomErrorCode.recordTransactionEnded,
+    });
+    expect(await serializeTypedResult(Promise.reject(expired))).toMatchObject({
+      ok: false,
+      failure: {
+        kind: "unavailable",
+        issues: [{ customCode: CustomErrorCode.recordTransactionEnded }],
+      },
+    });
+    expect(await serializeResult(Promise.reject(expired))).not.toHaveProperty("retryable");
+  });
+
   it("leaves a plain validation failure without a code", async () => {
     const result = await serializeResult({ ok: false, error: createZodError("Required", ["to"]) });
 

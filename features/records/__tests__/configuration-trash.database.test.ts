@@ -151,6 +151,7 @@ async function fixture() {
     new RecordConfigurationWriter(repo, new RecordCalculationService(repo), noWebhooks),
     { dispatch: () => Promise.resolve() },
   );
+  const worker = createTestRecordOperationService(repo, policy, configurations, noWebhooks);
   const mutate = new MutateRecordInteractor(
     repo,
     policy,
@@ -233,6 +234,7 @@ async function fixture() {
     id,
     employer,
     apply,
+    worker,
     mutate,
     trash,
     change,
@@ -250,6 +252,139 @@ afterAll(async () => {
 });
 
 describeDatabase("configuration trash", () => {
+  it("creates, trashes and restores a calculated field on 2,100 records without a transaction timeout", async () => {
+    const f = await fixture();
+    const companyId = f.seed.company.id;
+    const typeId = f.id("service");
+    const fieldId = randomUUID();
+    const recordIds = Array.from({ length: 2100 }, () => randomUUID());
+    for (let offset = 0; offset < recordIds.length; offset += 500) {
+      const page = recordIds.slice(offset, offset + 500);
+      await runWithoutTenant(() =>
+        runInTransaction(async () => {
+          await prisma.crmRecord.createMany({
+            data: page.map((id) => ({ companyId, typeId, id })),
+          });
+          await prisma.recordValue.createMany({
+            data: page.flatMap((recordId, index) => [
+              {
+                companyId,
+                typeId,
+                recordId,
+                fieldId: f.id("service.name"),
+                state: "value",
+                textValue: `Service ${offset + index}`,
+                schemaRevision: 1,
+              },
+              {
+                companyId,
+                typeId,
+                recordId,
+                fieldId: f.id("service.amount"),
+                state: "value",
+                decimalValue: 100,
+                currency: "EUR",
+                schemaRevision: 1,
+              },
+            ]),
+          });
+        }),
+      );
+    }
+    const calculated = {
+      id: fieldId,
+      typeId,
+      label: "Half price",
+      valueType: "currency" as const,
+      required: false,
+      archived: false,
+      options: [],
+      position: 99,
+      format: { currency: "EUR" },
+      behavior: {
+        kind: "formula" as const,
+        expression: {
+          kind: "operation" as const,
+          operator: "divide" as const,
+          arguments: [
+            { kind: "field" as const, fieldId: f.id("service.amount") },
+            {
+              kind: "literal" as const,
+              value: { kind: "decimal" as const, value: "2", currency: null },
+            },
+          ],
+        },
+      },
+    };
+    const complete = async (operationId: string) => {
+      let done = false;
+      for (let step = 0; step < 250 && !done; step++) done = (await f.as(() => f.worker.advance(operationId))).done;
+      expect(done).toBe(true);
+      expect((await f.as(() => createTestRecordRepo().getOperation(operationId)))?.state).toBe("completed");
+    };
+    const createStarted = Date.now();
+    const created = await f.as(async () =>
+      f.apply.invoke(await f.change([{ operation: "putField", field: calculated }])),
+    );
+    if (!created.ok || created.data.status !== "pending") throw new Error(JSON.stringify(created));
+    const createAcceptedMs = Date.now() - createStarted;
+    await complete(created.data.operationId);
+    const createFinishedMs = Date.now() - createStarted;
+    const values = () => runWithoutTenant(() => prisma.recordValue.findMany({ where: { companyId, typeId, fieldId } }));
+    expect(await values()).toHaveLength(recordIds.length);
+    expect((await values()).every((value) => value.decimalValue?.toString() === "50")).toBe(true);
+
+    const beforeDelete = await runWithoutTenant(() =>
+      prisma.crmRecord.findUniqueOrThrow({
+        where: { companyId_typeId_id: { companyId, typeId, id: recordIds[0] } },
+        select: { version: true },
+      }),
+    );
+    const deleteStarted = Date.now();
+    const deleted = await f.as(async () =>
+      f.apply.invoke(await f.change([{ operation: "delete", target: { kind: "field", id: fieldId } }])),
+    );
+    if (!deleted.ok || deleted.data.status !== "completed" || !deleted.data.trashBatchId)
+      throw new Error(JSON.stringify(deleted));
+    const deleteFinishedMs = Date.now() - deleteStarted;
+    const { trashBatchId } = deleted.data;
+    expect(await values()).toHaveLength(recordIds.length);
+    expect(
+      await runWithoutTenant(() =>
+        prisma.crmRecord.findUniqueOrThrow({
+          where: {
+            companyId_typeId_id: { companyId, typeId, id: recordIds[0] },
+          },
+          select: { version: true },
+        }),
+      ),
+    ).toEqual(beforeDelete);
+
+    await runWithoutTenant(() =>
+      prisma.recordValue.updateMany({
+        where: { companyId, typeId, fieldId: f.id("service.amount") },
+        data: { decimalValue: 120 },
+      }),
+    );
+    const restoreStarted = Date.now();
+    const restored = await f.as(() => f.trash.restore.invoke({ batchId: trashBatchId } as never));
+    if (!restored.ok || restored.data.status !== "pending") throw new Error(JSON.stringify(restored));
+    const restoreAcceptedMs = Date.now() - restoreStarted;
+    await complete(restored.data.operationId);
+    const restoreFinishedMs = Date.now() - restoreStarted;
+    expect((await values()).every((value) => value.decimalValue?.toString() === "60")).toBe(true);
+    expect(
+      (await f.as(() => createTestRecordRepo().getModel())).fields.find((field) => field.id === fieldId)?.archived,
+    ).toBe(false);
+    console.info("calculated-field-2100-ms", {
+      createAcceptedMs,
+      createFinishedMs,
+      deleteFinishedMs,
+      restoreAcceptedMs,
+      restoreFinishedMs,
+    });
+  }, 600_000);
+
   it("moves an unreferenced input field to Trash and back without rewriting the records of its list", async () => {
     const f = await fixture();
     const companyId = f.seed.company.id;

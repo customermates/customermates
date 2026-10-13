@@ -113945,6 +113945,7 @@
                         "recordOperationFailed",
                         "recordOperationNotFound",
                         "recordOperationSettled",
+                        "recordTransactionEnded",
                         "recordProtected",
                         "recordMeasureDateIntervalInvalid",
                         "trashItemNotFound",

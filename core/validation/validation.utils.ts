@@ -102,6 +102,7 @@ const RATE_LIMIT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.unipileRateLimit,
 ]);
 const UNAVAILABLE_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.recordTransactionEnded,
   CustomErrorCode.unipileProviderError,
   CustomErrorCode.unipileRequestTimeout,
   CustomErrorCode.unipileServiceUnavailable,

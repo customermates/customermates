@@ -40,6 +40,8 @@ import { canonicalRecordJson } from "./record-json";
 import { duplicateNameIssues } from "./record-names";
 import { nestedSublistIssues } from "./record-sublist-nesting";
 
+export const CONFIGURATION_SYNCHRONOUS_RECORD_LIMIT = 50;
+
 export function calculationDependencyHash(field: RecordField, model: RecordModel): string {
   const visited = new Set<string>();
   const fingerprint = (definition: RecordField): unknown => {
@@ -355,7 +357,7 @@ export class RecordConfigurationService extends UserAccessor {
         expectedRevision: current.revision,
         nextRevision: model.revision,
         valid: !validation.issues.length && !blockers.length,
-        execution: affectedRecords > SYNCHRONOUS_RECORD_LIMIT ? "background" : "synchronous",
+        execution: affectedRecords > CONFIGURATION_SYNCHRONOUS_RECORD_LIMIT ? "background" : "synchronous",
         dataValidation,
         affectedRecords: affectedReadable || affectedRecords === 0 ? affectedRecords : null,
         hiddenRecords: (!affectedReadable && affectedRecords > 0) || hiddenDeletion,

@@ -1159,6 +1159,7 @@
       "recordSavedViewIncompatible": "Die gespeicherte Ansicht \"{viewName}\" ({viewId}) verwendet noch \"{columnLabel}\" ({columnId}). Passe die Ansicht an oder lösche sie und versuche es dann erneut.",
       "recordSchemaChanged": "Das Datenmodell wurde geändert. Lade die Seite neu und versuche es erneut.",
       "recordSublistNested": "Eine Unterliste kann keine eigenen Unterlisten haben. Verknüpfe die Liste stattdessen mit der übergeordneten Liste der Unterliste.",
+      "recordTransactionEnded": "Die Änderung hat zu lange gedauert und wurde nicht gespeichert. Versuche eine kleinere Änderung oder wende dich an den Support.",
       "recordTypeNotFound": "Dieser Datensatztyp ist nicht verfügbar.",
       "recordValueInvalid": "Prüfe die markierten Werte des Datensatzes.",
       "recordValueRequired": "{field} braucht einen Wert.",
