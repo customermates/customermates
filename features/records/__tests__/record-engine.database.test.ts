@@ -7136,8 +7136,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           { timeout: 60000 },
         ),
       );
-      // Production tables carry planner statistics from autovacuum; refresh them after this raw bulk seed so the
-      // deadline below measures the product query plan, not whether autovacuum has analyzed the new rows yet.
       await prisma.$executeRaw`ANALYZE "CrmRecord", "RecordIdentityLink", "RecordAssignment"`;
       await expect(f.run(() => f.repo.getIdentityOwnersCompanyWide([key]))).rejects.toMatchObject({
         cause: { code: CustomErrorCode.recordCalculationBudget, failureKind: "conflict" },
@@ -15918,8 +15916,6 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           { timeout: 30000 },
         ),
       );
-      // Production tables carry planner statistics from autovacuum; refresh them after this raw bulk seed so the
-      // deadline below measures the product query plan, not whether autovacuum has analyzed the new rows yet.
       await prisma.$executeRaw`ANALYZE "CrmRecord", "RecordValue", "RecordIdentityLink"`;
       await f.run(() =>
         runInTransaction(
