@@ -208,11 +208,25 @@ const ROW_MENU_ALLOWLIST: Allowlist = {};
 
 const TABLE_TAG = "DataViewContent";
 
-function tablesWithoutRowMenuFindings(sources: SourceFile[]) {
+const DELETE_CAPABILITY = /\bdelete[A-Z]\w*|\buseDeleteConfirmation\b|["'`]Common\.actions\.delete["'`]/;
+
+function surfaceStem(file: string) {
+  const name = file.slice(file.lastIndexOf("/") + 1).replace(/-page-view\.tsx$/, "");
+  return `${file.slice(0, file.lastIndexOf("/") + 1)}${name.replace(/(?:ies|s)$/, "")}`;
+}
+
+function surfaceOffersDeletion(source: SourceFile, sources: SourceFile[]) {
+  const stem = surfaceStem(source.file);
+  return sources.some(
+    ({ file, text }) => (file === source.file || file.startsWith(stem)) && DELETE_CAPABILITY.test(text),
+  );
+}
+
+function tablesWithoutRowMenuFindings(sources: SourceFile[], surfaces: SourceFile[] = sources) {
   const findings: Finding[] = [];
 
   for (const source of sources) {
-    if (source.file.startsWith(ROW_MENU_PLUMBING)) continue;
+    if (source.file.startsWith(ROW_MENU_PLUMBING) || !surfaceOffersDeletion(source, surfaces)) continue;
     visit(source.ast, (node) => {
       if (tagNameOf(node) !== TABLE_TAG || !(ts.isJsxElement(node) || ts.isJsxSelfClosingElement(node))) return;
       const hasRowMenu = attributesOf(node).properties.some(
@@ -226,10 +240,6 @@ function tablesWithoutRowMenuFindings(sources: SourceFile[]) {
 }
 
 const TABLE_ROW_MENU_EXEMPTIONS: Allowlist = {
-  "app/[locale]/(protected)/settings/(workspace)/components/webhook/webhook-deliveries-page-view.tsx":
-    "webhook deliveries are a read-only log: no delete, so a row menu would only repeat the row click",
-  "app/[locale]/(protected)/operator/components/audit/operator-audit-page-view.tsx":
-    "the operator audit is a read-only log: no delete, so a row menu would only repeat the row click",
   "app/[locale]/(protected)/operator/components/users/operator-users-page-view.tsx":
     "internal back-office surface with its own guarded flows, not customer UI",
   "app/[locale]/(protected)/operator/components/workspaces/operator-workspaces-page-view.tsx":
@@ -267,9 +277,24 @@ describe("I2 round 3 and rule 59: row click opens, every table has the row menu 
   it("recognizes a table without a row menu", () => {
     const source = sourceFromText(
       "settings.tsx",
-      "const a = <DataViewContent columns={columns} />;\nconst b = <DataViewContent rowActions={menu} />;",
+      'const a = <DataViewContent columns={columns} />;\nconst b = <DataViewContent rowActions={menu} />;\nt("Common.actions.delete");',
     );
     expect(tablesWithoutRowMenuFindings([source]).map(({ line }) => line)).toEqual([1]);
+  });
+
+  it("requires the row menu only on surfaces that delete rows", () => {
+    const table = "const a = <DataViewContent columns={columns} />;";
+    const readOnlyLog = sourceFromText("x/audit/audit-log-page-view.tsx", table);
+    const logModal = sourceFromText("x/audit/audit-log-modal.tsx", "const close = () => store.close();");
+    const deletable = sourceFromText("x/users/team-users-page-view.tsx", table);
+    const userModal = sourceFromText(
+      "x/users/team-user-modal.tsx",
+      "const { showConfirmation } = useDeleteConfirmation();",
+    );
+    const surfaces = [readOnlyLog, logModal, deletable, userModal];
+    expect(tablesWithoutRowMenuFindings([readOnlyLog, deletable], surfaces).map(({ file }) => file)).toEqual([
+      "x/users/team-users-page-view.tsx",
+    ]);
   });
 });
 
@@ -289,7 +314,8 @@ function nonStandardChipFindings(sources: SourceFile[]) {
   for (const source of sources) {
     if (source.file.startsWith(CHIP_OWNER_DIRECTORY)) continue;
     visit(source.ast, (node) => {
-      if ((!ts.isJsxElement(node) && !ts.isJsxSelfClosingElement(node)) || !CHIP_TAGS.has(tagNameOf(node) ?? "")) return;
+      if ((!ts.isJsxElement(node) && !ts.isJsxSelfClosingElement(node)) || !CHIP_TAGS.has(tagNameOf(node) ?? ""))
+        return;
       const size = chipAttribute(node, "size");
       const sizeValue = size?.initializer;
       const customSize = size && !(sizeValue && ts.isStringLiteral(sizeValue) && sizeValue.text === "sm");
@@ -380,7 +406,8 @@ describe("rule 64: values are the edit target, without reserved hint slots", () 
 });
 
 const REVEAL_OWNER = "components/ui/item-actions.tsx";
-const HAND_BUILT_REVEAL = /["'`][^"'`]*\bopacity-0\b[^"'`]*\bgroup-(?:hover|focus-within)\/[\w-]+:opacity-100\b[^"'`]*["'`]/;
+const HAND_BUILT_REVEAL =
+  /["'`][^"'`]*\bopacity-0\b[^"'`]*\bgroup-(?:hover|focus-within)\/[\w-]+:opacity-100\b[^"'`]*["'`]/;
 const HAND_BUILT_REVEAL_ALLOWLIST: Allowlist = {
   "components/data-view/column-resize-handle.tsx": "a resize handle widens and stays visible for coarse pointers",
   "components/data-view/row-actions.tsx": "the table row menu surface follows the item-actions group",
