@@ -24,7 +24,7 @@ async function dragBetween(page: Page, from: { x: number; y: number }, to: { x: 
   await page.mouse.up();
 }
 
-test("edits General in place, guards unsaved edits and saves from the top bar and the bottom", async ({
+test("edits General in place, guards unsaved edits and saves from the top bar only", async ({
   page,
   database,
   companyId,
@@ -50,8 +50,9 @@ test("edits General in place, guards unsaved edits and saves from the top bar an
   await general.getByRole("textbox", { name: "Description", exact: true }).fill("Open opportunities");
   await expect(configureTopBar(page).getByRole("button", { name: "Reset", exact: true })).toBeVisible();
   await expect(configureTopBar(page).getByRole("button", { name: "Save", exact: true })).toBeVisible();
-  await expect(pane.getByRole("button", { name: "Save", exact: true })).toBeVisible();
-  await expect(pane.getByRole("button", { name: "Reset", exact: true })).toBeVisible();
+  await expect(pane.getByRole("button", { name: "Save", exact: true })).toHaveCount(0);
+  await expect(pane.getByRole("button", { name: "Reset", exact: true })).toHaveCount(0);
+  await expect(pane.locator("[data-slot='form-footer-actions']")).toHaveCount(0);
 
   const leaveDeals = () => configureTopBar(page).getByRole("link", { name: "Configure", exact: true }).click();
   await leaveDeals();
@@ -69,14 +70,7 @@ test("edits General in place, guards unsaved edits and saves from the top bar an
     .toBe("Open opportunities");
 
   await general.getByRole("textbox", { name: "Plural name", exact: true }).fill("Opportunities");
-  const paneSave = pane.getByRole("button", { name: "Save", exact: true });
-  const paneReset = pane.getByRole("button", { name: "Reset", exact: true });
-  const ready = pane.getByRole("status").filter({ hasText: "Ready to apply" });
-  await paneSave.click();
-  await expect
-    .poll(async () => ((await ready.isVisible()) && (await paneSave.isEnabled())) || !(await paneReset.isVisible()))
-    .toBe(true);
-  if (await paneReset.isVisible()) await paneSave.click();
+  await saveGeneral(page);
   await expect(page.getByRole("heading", { level: 1, name: "Opportunities", exact: true })).toBeVisible();
   expect((await readModel(database, companyId)).types.find((type) => type.id === id("deal"))).toMatchObject({
     pluralLabel: "Opportunities",

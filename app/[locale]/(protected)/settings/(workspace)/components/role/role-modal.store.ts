@@ -66,6 +66,7 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
       loadFailed: observable,
       add: action,
       editRole: action,
+      openForDelete: action,
       delete: action,
       setRole: action,
       onSubmit: action,
@@ -116,13 +117,20 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
     this.open();
     void this.loadContext();
   };
+  openForDelete = async (role: RoleDto): Promise<boolean> => {
+    this.setRole(role);
+    this.open();
+    const loaded = await this.loadContext();
+    return loaded && this.isOpen && this.form.id === role.id && this.canDeleteRole;
+  };
+
   protected override prepareToClose() {
     this.sessionGeneration += 1;
     this.loadSequence += 1;
     return true;
   }
 
-  loadContext = async () => {
+  loadContext = async (): Promise<boolean> => {
     const sequence = ++this.loadSequence;
     const id = this.form.id;
     this.setIsLoading(true);
@@ -131,13 +139,13 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
     });
     try {
       const result = await getRoleEditorAction({ id });
-      if (sequence !== this.loadSequence || this.form.id !== id || !this.isOpen) return;
+      if (sequence !== this.loadSequence || this.form.id !== id || !this.isOpen) return false;
       if (!result.ok) {
         toastZodErrorTree(result.error);
         runInAction(() => {
           this.loadFailed = true;
         });
-        return;
+        return false;
       }
       runInAction(() => {
         const form = roleForm(result.data.role);
@@ -150,6 +158,7 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
         this.context = result.data;
         this.onInitOrRefresh(form);
       });
+      return true;
     } catch (error) {
       if (sequence === this.loadSequence) {
         runInAction(() => {
@@ -157,6 +166,7 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
         });
       }
       reportApplicationError(error);
+      return false;
     } finally {
       if (sequence === this.loadSequence) this.setIsLoading(false);
     }
@@ -168,8 +178,8 @@ export class RoleModalStore extends BaseModalStore<RoleForm> {
     return this.lastSubmission.key;
   }
 
-  delete = async (): Promise<boolean> => {
-    if (!this.isOpen || !this.form.id || !this.context || !this.canDeleteRole) return false;
+  delete = async (roleId = this.form.id): Promise<boolean> => {
+    if (!this.isOpen || !this.form.id || this.form.id !== roleId || !this.context || !this.canDeleteRole) return false;
     const session = this.sessionGeneration;
     const isCurrent = () => session === this.sessionGeneration && this.isOpen;
     this.setIsLoading(true);

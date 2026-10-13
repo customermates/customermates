@@ -36,6 +36,9 @@ vi.mock("next-intl/server", () => ({
   getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
 }));
 
+const failureStatus = (result: { ok: true } | { ok: false; error: Parameters<typeof interactorFailureStatus>[0] }) =>
+  result.ok ? 200 : interactorFailureStatus(result.error);
+
 function channelsFieldOperation(typeId: string, id: string = randomUUID(), providerAvatar = false) {
   return {
     operation: "putField" as const,
@@ -7728,9 +7731,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         f.repo.setGrants(ref.typeId, [{ roleId: f.memberRole.id, actions: ["readOwn", "create", "update"] }]),
       ),
     );
-    expect(await f.run(() => checker.invoke({ ...input, recordId: ref.recordId }), f.member)).toMatchObject({
-      ok: false,
-    });
+    expect(failureStatus(await f.run(() => checker.invoke({ ...input, recordId: ref.recordId }), f.member))).toBe(403);
+    expect(failureStatus(await f.run(() => checker.invoke({ ...input, recordId: randomUUID() }), f.member))).toBe(404);
     expect(await f.run(() => checker.invoke(input), f.member)).toMatchObject({
       ok: true,
     });
@@ -12791,8 +12793,19 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         ],
       },
     });
-    expect(await f.run(() => f.choices.invoke(choiceInput), f.member)).toMatchObject({ ok: false });
-    expect(await foreign.run(() => foreign.choices.invoke(choiceInput))).toMatchObject({ ok: false });
+    expect(failureStatus(await f.run(() => f.choices.invoke(choiceInput), f.member))).toBe(403);
+    expect(failureStatus(await foreign.run(() => foreign.choices.invoke(choiceInput)))).toBe(404);
+    const missingSource = { ...deal, recordId: randomUUID() };
+    expect(
+      failureStatus(
+        await f.run(() =>
+          f.choices.invoke({
+            ...choiceInput,
+            linkedTo: { ...recordInvariant(choiceInput.linkedTo), ref: missingSource },
+          }),
+        ),
+      ),
+    ).toBe(404);
     const before = await f.readRecord(deal);
     expect(
       await replace(
@@ -16830,7 +16843,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     expect(await f.run(() => prisma.routineRun.count({ where: { companyId: f.company.id, routineId } }))).toBe(1);
     expect(dispatch).toHaveBeenCalledTimes(1);
   });
-  it("reports unreadable record types as not found for queries, reports and single reads alike", async () => {
+  it("reports unreadable record types as not found for queries and reports, and an existing unreadable record as access denied", async () => {
     const f = await fixture();
     const service = await f.create("service", "Hidden catalog", [["service.amount", decimal("5")]]);
     const failure = async (
@@ -16839,7 +16852,14 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       const resolved = await result;
       return resolved.ok ? 200 : interactorFailureStatus(resolved.error);
     };
-    expect(await failure(f.run(() => f.read.invoke(service), f.member))).toBe(404);
+    expect(await failure(f.run(() => f.read.invoke(service), f.member))).toBe(403);
+    expect(await failure(f.run(() => f.editor.invoke(service), f.member))).toBe(403);
+    const missing = { typeId: service.typeId, recordId: randomUUID() };
+    expect(await failure(f.run(() => f.read.invoke(missing), f.member))).toBe(404);
+    expect(await failure(f.run(() => f.editor.invoke(missing), f.member))).toBe(404);
+    const foreign = await fixture();
+    expect(await failure(foreign.run(() => foreign.read.invoke(service)))).toBe(404);
+    expect(await failure(foreign.run(() => foreign.editor.invoke(service)))).toBe(404);
     expect(
       await failure(f.run(() => f.query.invoke(RecordQuerySchema.parse({ typeId: service.typeId })), f.member)),
     ).toBe(404);

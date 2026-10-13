@@ -1,3 +1,4 @@
+import { interactorFailureKind } from "@/core/validation/validation.utils";
 import type { RecordRef } from "../record-model.schema";
 import type { RecordMutation } from "../record-query.schema";
 
@@ -151,7 +152,8 @@ describeDatabase("record editor embedded sub-lists", { timeout: 120_000 }, () =>
       ),
     ).toBe(true);
 
-    expect(await f.run(() => f.editor.invoke(deal), f.member)).toMatchObject({ ok: false });
+    const denied = await f.run(() => f.editor.invoke(deal), f.member);
+    expect(!denied.ok && interactorFailureKind(denied.error)).toBe("authorization");
 
     await f.run(() =>
       runInTransaction(() => f.repo.setGrants(f.id("deal"), [{ roleId: f.memberRole.id, actions: ["readAll"] }])),

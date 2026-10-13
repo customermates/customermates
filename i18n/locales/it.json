@@ -1,4 +1,11 @@
 {
+  "AccessDeniedPage": {
+    "body": "Questo record esiste, ma il tuo ruolo non ti consente di leggerlo. Chiedi l'accesso a un amministratore dello spazio di lavoro.",
+    "ctaLabel": "Torna alla home",
+    "documentTitle": "Accesso negato | Customermates",
+    "subtitle": "Il tuo ruolo non può aprirlo",
+    "title": "Non hai accesso a questo record"
+  },
   "AccountAccessRevoked": {
     "body": "Hai appena effettuato l'accesso senza password, e questo conferma che questo indirizzo e-mail è tuo. Fino a ora non era mai stato confermato, quindi non potevamo sapere con certezza chi avesse creato questo account. Per sicurezza abbiamo rimosso la vecchia password e tutto il resto che poteva aprire l'account, come app collegate o chiavi. I tuoi dati non sono cambiati e puoi continuare ad accedere esattamente come hai appena fatto.",
     "cta": "Imposta una nuova password",

@@ -165,6 +165,22 @@ describe("workspace record navigation and drawers", () => {
     expect(mocks.getRecordEditorAction).toHaveBeenCalledOnce();
   });
 
+  it("shows access denied for an existing record the actor cannot read and clears it on close", async () => {
+    const f = fixture();
+    const recordId = randomUUID();
+    mocks.getRecordEditorAction.mockResolvedValueOnce({ ok: false, error: {}, code: "permissionDenied" });
+    f.store.open({ typeId: f.context.typeId, recordId });
+    await vi.waitFor(() => expect(f.store.accessDenied).toBe(true));
+    expect(f.store.isOpening).toBe(false);
+    expect(f.store.editor).toBeNull();
+    f.store.close();
+    expect(f.store.accessDenied).toBe(false);
+    mocks.getRecordEditorAction.mockResolvedValueOnce({ ok: false, error: {}, code: "recordNotFound" });
+    f.store.open({ typeId: f.context.typeId, recordId });
+    await vi.waitFor(() => expect(f.store.isOpening).toBe(false));
+    expect(f.store.accessDenied).toBe(false);
+  });
+
   it("opens the newest record only and notifies active views after a saved record", async () => {
     const f = fixture();
     const first = Promise.withResolvers<unknown>();

@@ -1,4 +1,11 @@
 {
+  "AccessDeniedPage": {
+    "body": "Diesen Datensatz gibt es, aber Ihre Rolle erlaubt Ihnen nicht, ihn zu lesen. Bitten Sie eine Admin-Person Ihres Workspace um Zugriff.",
+    "ctaLabel": "Zurück zur Startseite",
+    "documentTitle": "Kein Zugriff | Customermates",
+    "subtitle": "Ihre Rolle kann ihn nicht öffnen",
+    "title": "Kein Zugriff auf diesen Datensatz"
+  },
   "AccountAccessRevoked": {
     "body": "Du hast dich gerade ohne Passwort angemeldet, und damit ist bestätigt, dass diese E-Mail-Adresse dir gehört. Bis jetzt war sie nie bestätigt, deshalb konnten wir nicht sicher sein, wer dieses Konto angelegt hat. Zur Sicherheit haben wir das alte Passwort entfernt und alles andere, womit man das Konto öffnen könnte, etwa verbundene Apps oder Schlüssel. Deine Daten sind unverändert, und du kannst dich weiterhin genau so anmelden wie gerade eben.",
     "cta": "Neues Passwort festlegen",

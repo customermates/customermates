@@ -43,6 +43,7 @@ type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   align?: "start" | "center" | "end";
+  drawerDirection?: "bottom" | "left";
   popoverClassName?: string;
   onEscapeKeyDown?: (event: KeyboardEvent) => void;
   onOpenAutoFocus?: (event: Event) => void;
@@ -59,6 +60,7 @@ export function ResponsiveOverlay({
   open,
   onOpenChange,
   align = "start",
+  drawerDirection = "bottom",
   popoverClassName,
   onEscapeKeyDown,
   onOpenAutoFocus = focusOverlayContent,
@@ -121,7 +123,7 @@ export function ResponsiveOverlay({
       </PopoverContent>
     </Popover>
   ) : (
-    <Drawer open={open} repositionInputs={false} onOpenChange={handleOpenChange}>
+    <Drawer direction={drawerDirection} open={open} repositionInputs={false} onOpenChange={handleOpenChange}>
       {anchor ? anchor(drawerTrigger) : drawerTrigger}
 
       <DrawerContent

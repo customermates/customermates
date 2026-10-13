@@ -306,7 +306,7 @@ test("admits an assigned-record writer and separately delegates schema configura
           data: unassigned,
         })
       ).status(),
-    ).toBe(404);
+    ).toBe(403);
     const assignees = async () =>
       (
         await database.query(
@@ -395,7 +395,7 @@ test("admits an assigned-record writer and separately delegates schema configura
           data: unassigned,
         })
       ).status(),
-    ).toBe(404);
+    ).toBe(403);
     await openConfigure(member.page, type.id);
     await expect(
       member.page.getByRole("heading", { name: "Projects", exact: true }),
@@ -643,7 +643,7 @@ test("admits an assigned-record writer and separately delegates schema configura
           data: foreign,
         })
       ).status(),
-    ).toBe(404);
+    ).toBe(403);
     const readable = await postOk(member.page, "/api/v1/records/query", {
       typeId: approved.id,
     });
@@ -1012,7 +1012,7 @@ test("keeps shared Inbox participants permission-scoped across genuine readers a
           data: contact,
         })
       ).status(),
-    ).toBe(404);
+    ).toBe(403);
     for (const member of [noAccess, reader])
       expect(
         (
@@ -2903,19 +2903,19 @@ test("keeps retained values restricted after a delegated manager converts fields
           data: source,
         })
       ).status(),
-    ).toBe(404);
+    ).toBe(403);
     expect(
       (
         await manager.page.request.post("/api/v1/records/read", {
           data: summary,
         })
       ).status(),
-    ).toBe(404);
+    ).toBe(403);
     expect(
       (
         await reader.page.request.post("/api/v1/records/read", { data: source })
       ).status(),
-    ).toBe(404);
+    ).toBe(403);
     for (const type of model.types.filter((type) => type.embedded)) {
       expect(
         (
@@ -3268,7 +3268,7 @@ test("publishes and withdraws a private-input summary through the field UI witho
     const response = await member.page.request.post("/api/v1/records/read", {
       data: service,
     });
-    expect(response.status(), await response.text()).toBe(404);
+    expect(response.status(), await response.text()).toBe(403);
     expect(
       (
         await database.query(
@@ -3849,7 +3849,7 @@ test("lets a read-only member pin and unpin header fields with the pin menu", as
   }
 });
 
-test("names another member in a member field on the record page and shows the not-found page for a record the member cannot read", async ({
+test("names another member in a member field on the record page and shows access denied for a record the member cannot read", async ({
   page,
   browser,
   database,
@@ -3906,12 +3906,45 @@ test("names another member in a member field on the record page and shows the no
     await expect(page.getByText("Secondary Browser User").first()).toBeVisible();
     await expect(page.getByText(englishMessages.Common.inputs.unavailableSelection)).toHaveCount(0);
 
-    for (const recordId of [other.recordId, randomUUID()]) {
+    for (const [recordId, title, hidden] of [
+      [other.recordId, englishMessages.AccessDeniedPage.title, englishMessages.NotFoundPage.title],
+      [randomUUID(), englishMessages.NotFoundPage.title, englishMessages.AccessDeniedPage.title],
+    ]) {
       await member.page.goto(`/en/records/${dealTypeId}/${recordId}`);
-      await expect(member.page.getByText(englishMessages.NotFoundPage.title, { exact: true })).toBeVisible();
+      await expect(member.page.getByText(title, { exact: true })).toBeVisible();
+      await expect(member.page.getByText(hidden, { exact: true })).toHaveCount(0);
       await expect(member.page.getByText("Another rep deal")).toHaveCount(0);
       await expect(member.page.getByText(englishMessages.ErrorCard.title)).toHaveCount(0);
     }
+
+    const reassigned = await mutate(page, {
+      action: "create",
+      typeId: dealTypeId,
+      fields: [{ fieldId: recordInvariant(deal.primaryFieldId), value: { kind: "text", value: "Reassigned rep deal" } }],
+      assignedUserIds: [member.userId],
+    });
+    await member.page.goto(`/en/records/${dealTypeId}`);
+    await expect(recordItem(member.page, "Reassigned rep deal")).toBeVisible();
+    await postOk(page, "/api/v1/records/mutate", {
+      expectedRevision: (await readModel(page)).revision,
+      idempotencyKey: randomUUID(),
+      mutation: {
+        action: "update",
+        ref: { typeId: dealTypeId, recordId: reassigned.recordId },
+        expectedVersion: RecordDtoSchema.parse(
+          await postOk(page, "/api/v1/records/read", { typeId: dealTypeId, recordId: reassigned.recordId }),
+        ).version,
+        fields: [],
+        assignedUserIds: [workspace.userId],
+      },
+    });
+    await openRecordDetails(member.page, "Reassigned rep deal");
+    const denied = member.page.getByRole("dialog", { name: englishMessages.AccessDeniedPage.title, exact: true });
+    await expect(denied).toBeVisible();
+    await expect(denied.getByText(englishMessages.AccessDeniedPage.body, { exact: true })).toBeVisible();
+    await expect(member.page.getByText(englishMessages.Common.errors.recordNotFound)).toHaveCount(0);
+    await member.page.keyboard.press("Escape");
+    await expect(denied).not.toBeVisible();
   } finally {
     await member.close();
   }
