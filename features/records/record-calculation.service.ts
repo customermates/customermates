@@ -6,7 +6,7 @@ import type { CalculationContext } from "./calculation";
 import type { CalculatedValue, CalculationExpression, RecordModel, RecordRef } from "./record-model.schema";
 import type { RecordRepo } from "./record.repo";
 
-import { evaluateCalculation, fieldPrecisionResult, MISSING_VALUE, valueResult } from "./calculation";
+import { evaluateCalculation, fieldPrecisionResult, valueResult } from "./calculation";
 import { scalarMatchesType, validateRecordModel } from "./record-model-validation";
 import { decodeRecordValue } from "./record-storage";
 
@@ -285,26 +285,6 @@ export class RecordCalculationService {
       await this.records.setValue(ref, fieldId, result, model.revision);
     if (dependenciesChanged) await this.records.setValueDependencies(ref, fieldId, sources);
     return valueChanged || dependenciesChanged;
-  }
-
-  async explain(
-    model: RecordModel,
-    ref: RecordRef,
-    fieldId: string,
-  ): Promise<{
-    definition: RecordModel["fields"][number] | null;
-    value: CalculatedValue;
-  }> {
-    const definition = model.fields.find((field) => field.id === fieldId && field.typeId === ref.typeId) ?? null;
-    if (!definition) return { definition: null, value: MISSING_VALUE };
-    const row = await this.records.getRecordCompanyWide(ref);
-    return {
-      definition,
-      value: decodeRecordValue(
-        row?.values.find((value) => value.fieldId === fieldId),
-        definition,
-      ),
-    };
   }
 
   async calculateField(model: RecordModel, ref: RecordRef, fieldId: string, limit: number): Promise<void> {

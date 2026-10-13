@@ -38,13 +38,22 @@ export class ConfigureRecordsProviderInteractor extends AuthenticatedInteractor<
     input: z.infer<typeof ConfigureRecordsProviderSchema>,
   ): Validated<ConfigurationPreview | RecordOperationResult> {
     const operations = [];
-    for (const operation of input.change.operations) {
+    for (const [index, operation] of input.change.operations.entries()) {
       if (operation.operation !== "putField" || operation.field.behavior.kind === "input") {
         operations.push(operation);
         continue;
       }
       const expression = decodeCalculationProgram(operation.field.behavior.expression);
-      if (!expression) return fail(CustomErrorCode.recordConfigurationInvalid);
+      if (!expression) {
+        return fail(CustomErrorCode.recordConfigurationInvalid, [
+          "change",
+          "operations",
+          index,
+          "field",
+          "behavior",
+          "expression",
+        ]);
+      }
       operations.push({
         ...operation,
         field: {

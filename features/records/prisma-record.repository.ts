@@ -1011,7 +1011,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo, Pr
         ),
     };
     if (query.grouping) return this.queryGroups(query, model, access, memberScope);
-    const sql = compileRecordQuery(this.companyId, query, model, access);
+    const sql = compileRecordQuery(this.companyId, query, model, access, memberScope);
     const [ids, count] = await Promise.all([
       this.prisma.$queryRaw<Array<{ id: string }>>(sql.ids),
       this.prisma.$queryRaw<Array<{ count: number }>>(sql.count),

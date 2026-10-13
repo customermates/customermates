@@ -34,6 +34,7 @@ const { RecordWriteService } = await import("../record-write.service");
 const { MutateRecordInteractor } = await import("../mutate-record.interactor");
 const { RecordTrashService } = await import("../record-trash.service");
 const { QueryRecordMeasureInteractor } = await import("../query-record-measure.interactor");
+const { QueryRecordsInteractor } = await import("../query-records.interactor");
 const { RecordMeasureSchema } = await import("../record-measure.schema");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 const { createWorkspaceRecordPreset } = await import("../workspace-record-preset");
@@ -115,6 +116,7 @@ async function fixture(preset: Preset = "crm") {
   const closedAt = field("Closed at", "dateTime");
   const amount = field("Amount", "currency");
   const score = field("Score", "number");
+  const owner = field("Owner", "member");
   await runWithTenant(admin, () => runInTransaction(() => repo.saveModel(model, admin.id), { timeout: 30000 }));
   const run = <T>(fn: () => Promise<T>, as = admin) => runWithTenant(as, fn);
   const revision = async () =>
@@ -179,6 +181,8 @@ async function fixture(preset: Preset = "crm") {
     closedAt,
     amount,
     score,
+    owner,
+    policy,
     run,
     revision,
     createDeal,
@@ -207,6 +211,57 @@ afterAll(async () => {
 });
 
 describeDatabase("time-bucketed record measures", () => {
+  it("orders number groups numerically, not by their text", async () => {
+    const f = await fixture();
+    for (const value of ["9", "10", "9", "100"])
+      await f.createDeal([[f.score, { kind: "decimal", value, currency: null }]]);
+    const grouped = await f.buckets({ groupBy: { path: [], fieldId: f.score.id } as never });
+    expect(grouped.groups.map((group) => [text(group.label), group.count])).toEqual([
+      ["9", 2],
+      ["10", 1],
+      ["100", 1],
+    ]);
+  }, 180_000);
+
+  it("sorts a member field by the member's name, not by the user id", async () => {
+    const f = await fixture();
+    const people = await runWithoutTenant(() =>
+      Promise.all(
+        [
+          { prefix: "00000000", firstName: "Zoe" },
+          { prefix: "ffffffff", firstName: "Anna" },
+        ].map(({ prefix, firstName }) =>
+          prisma.user.create({
+            data: {
+              id: `${prefix}${randomUUID().slice(8)}`,
+              companyId: f.company.id,
+              roleId: f.memberRole.id,
+              firstName,
+              lastName: "Owner",
+              email: `${randomUUID()}@example.test`,
+              status: "active",
+            },
+          }),
+        ),
+      ),
+    );
+    const [zoe, anna] = people;
+    const zoeDeal = await f.createDeal([[f.owner, { kind: "member", value: zoe.id }]]);
+    const annaDeal = await f.createDeal([[f.owner, { kind: "member", value: anna.id }]]);
+    const query = new QueryRecordsInteractor(f.repo, f.policy);
+    const order = async (direction: "asc" | "desc") => {
+      const result = await f.run(() =>
+        query.invoke({ typeId: f.deal, sort: [{ fieldId: f.owner.id, direction }], pageSize: 100 } as never),
+      );
+      if (!result.ok) throw new Error(JSON.stringify(result.error.issues));
+      return result.data.records
+        .map((record) => record.ref.recordId)
+        .filter((recordId) => [zoeDeal.recordId, annaDeal.recordId].includes(recordId));
+    };
+    expect(await order("asc")).toEqual([annaDeal.recordId, zoeDeal.recordId]);
+    expect(await order("desc")).toEqual([zoeDeal.recordId, annaDeal.recordId]);
+  }, 180_000);
+
   it("buckets date fields by day, ISO week, month, quarter and year in chronological order", async () => {
     const f = await fixture();
     for (const value of [

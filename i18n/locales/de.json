@@ -1139,6 +1139,8 @@
       "recordNotFound": "Dieser Datensatz ist nicht verfügbar.",
       "recordNumberInvalid": "Gib eine gültige Zahl ein.",
       "recordOperationFailed": "Der Vorgang im Hintergrund ist fehlgeschlagen. Versuche es erneut.",
+      "recordOperationNotFound": "Dieser Vorgang im Hintergrund ist nicht verfügbar.",
+      "recordOperationSettled": "Dieser Vorgang im Hintergrund ist bereits abgeschlossen.",
       "recordOptionInvalid": "\"{value}\" ist keine Option von {field} ({fieldId}). Verwende eine dieser Options-IDs: {validValues}.",
       "recordProtected": "Dieser Datensatz wird durch einen Systemablauf verwaltet.",
       "recordReadOnlyField": "Dieses Feld wird berechnet. Ändere seine Definition, um Werte manuell einzugeben.",
