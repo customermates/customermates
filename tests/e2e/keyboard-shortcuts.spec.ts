@@ -3,18 +3,7 @@ import type { Page } from "@playwright/test";
 
 import { SHORTCUT_SEQUENCE_TIMEOUT_MS } from "@/components/keyboard/shortcut-registry";
 
-import { expect, isAppConsoleError, isBenignPageError, test } from "./fixtures";
-
-function collectErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message) && !message.text().includes("ERR_BLOCKED_BY_CLIENT")) errors.push(message.text());
-  });
-  return errors;
-}
+import { collectPageErrors, expect, test } from "./fixtures";
 
 async function openApp(page: Page, path: string) {
   await page.goto(path);
@@ -55,7 +44,7 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
   workspace,
 }, testInfo) => {
   test.skip(testInfo.project.name === "mobile", "Desktop keyboard journey");
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   await page.clock.install();
   await openApp(page, "/en/dashboard");
   const mod = await modifierKey(page);
@@ -207,7 +196,7 @@ test("Cmd/Ctrl+\\ toggles the sidebar and the sidebar trigger tooltip names it",
 
 test("touch layouts show no key hints and keys do not break the page", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "mobile", "Touch journey");
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   await openApp(page, "/en/dashboard");
   await page.locator("#sidebar-trigger").click();
   await expect(page.locator("#nav-add")).toBeVisible();

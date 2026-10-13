@@ -1,7 +1,6 @@
 import { presetId } from "../../features/records/crm-preset";
 import { expect, test } from "./fixtures";
 
-test.use({ failOnPageErrors: true });
 
 test("opens a docs app link in the reader's own workspace", async ({ page, companyId }) => {
   const contacts = presetId(companyId, "contact");

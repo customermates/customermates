@@ -10,7 +10,7 @@ test("shares an indexed identifier across lists, unlinks one association and lin
   page, context, database, companyId, workspace,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors = collectPageErrors(page, { console: false });
+  const errors = collectPageErrors(page);
   const typeId = (key: string) => presetId(companyId, key);
   let model = await postOk(page, "/api/v1/model/read", {});
   await postOk(page, "/api/v1/model/apply", {

@@ -10,7 +10,8 @@ import {
   saveDrawer,
   confirmDeletion,
 } from "./configure";
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { BrowserDiagnostics, type ExpectedDiagnostic } from "./browser-diagnostics";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 import { openRecordDetails, openRecordLink, recordRows } from "./record-rows";
 import { invokesServerAction, serverActionIds } from "./server-actions";
@@ -405,41 +406,38 @@ function nextArguments(request: Request): unknown[] | null {
   }
 }
 function transportEvidence(page: Page) {
-  const unexpected: string[] = [];
-  const expectedTransport: string[] = [];
-  const faults: Array<{ label: string; pathname: string; resourceErrorAccepted: boolean }> = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) unexpected.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (!isAppConsoleError(message)) return;
-    let pathname: string | null = null;
-    try {
-      pathname = new URL(message.location().url).pathname;
-    } catch {}
-    const ownedFault = faults.find((fault) => fault.pathname === pathname && !fault.resourceErrorAccepted);
-    if (
-      ownedFault &&
-      /^Failed to load resource:/.test(message.text()) &&
-      /ERR_FAILED|network connection was lost|Load failed|cancelled|canceled/.test(message.text())
-    ) {
-      ownedFault.resourceErrorAccepted = true;
-      expectedTransport.push(message.text());
-    } else unexpected.push(message.text());
-  });
+  const diagnostics = BrowserDiagnostics.ofPage(page);
+  const unexpected = collectPageErrors(page);
+  const faults: Array<{ label: string; pathname: string; resourceError: ExpectedDiagnostic }> = [];
   return {
     faults,
     async failResponse(route: Route, label: string) {
       const response = await route.fetch();
       expect(response.status()).toBe(200);
-      faults.push({ label, pathname: new URL(route.request().url()).pathname, resourceErrorAccepted: false });
+      const { pathname } = new URL(route.request().url());
+      faults.push({
+        label,
+        pathname,
+        resourceError: diagnostics.expect({
+          kind: "console",
+          text: /^Failed to load resource:.*(?:ERR_FAILED|network connection was lost|Load failed|cancelled|canceled)/,
+          source: (url) => url.pathname === pathname,
+          page,
+        }),
+      });
       await route.abort("failed");
     },
     async verify(testInfo: TestInfo, labels: string[]) {
       expect(faults.map((fault) => fault.label).sort()).toEqual([...labels].sort());
       expect(unexpected).toEqual([]);
       await testInfo.attach("owned-transport-recovery", {
-        body: JSON.stringify({ faults, expectedTransport }),
+        body: JSON.stringify({
+          faults: faults.map(({ label, pathname, resourceError }) => ({
+            label,
+            pathname,
+            resourceErrors: resourceError.events.map(({ text }) => text),
+          })),
+        }),
         contentType: "application/json",
       });
     },

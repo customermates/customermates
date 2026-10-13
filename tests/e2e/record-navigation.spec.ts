@@ -1,12 +1,17 @@
 import { presetId } from "../../features/records/crm-preset";
 import { followConfigureLink, saveGeneral } from "./configure";
+import { expectNotFoundDocuments } from "./browser-diagnostics";
 import { expect, test, collectPageErrors } from "./fixtures";
 
 test("answers the removed fixed-entity routes with not found", async ({ page, companyId }) => {
+  const notFound = expectNotFoundDocuments(page);
+  const errors = collectPageErrors(page);
   for (const path of ["contacts", "organizations", "deals", "services", "tasks"]) {
     const response = await page.goto(`/en/${path}/${presetId(companyId, "contact")}`);
     expect(response?.status(), path).toBe(404);
   }
+  expect(errors).toEqual([]);
+  if (test.info().project.name === "chromium") await expect.poll(() => notFound.events.length).toBe(5);
 });
 
 test("uses configured navigation, quick creation, rename-safe routes, and hidden types", async ({

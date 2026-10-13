@@ -1,6 +1,7 @@
 import type { Locator } from "@playwright/test";
 
-import { DEMO_COMPANY_ID, expect, settle, test } from "./demo-seed";
+import { expectBlockedEmailScripts } from "./browser-diagnostics";
+import { DEMO_COMPANY_ID, expect, paintedFrames, test } from "./demo-seed";
 
 /** The seeded workspace beyond records: webhooks and deliveries, the inbox, the Knowledge Base and routines. */
 const HEALTHY_URL = "https://erp-bridge.northwind-labs.example/hooks/crm";
@@ -38,8 +39,6 @@ test("webhooks show the healthy ERP bridge with successful deliveries and the pa
   await expect(paused).toContainText("Ticket alerts for the on-call tool (paused while the receiver is down)");
   await expect(paused).toContainText(/Disabled|Paused/);
 
-  // Let the page finish loading its lazy chunks before leaving it.
-  await settle(page);
   await page.goto("/en/settings/webhook-deliveries");
   const rows = page.getByRole("row");
   await expect(rows.filter({ hasText: HEALTHY_URL }).first()).toBeVisible();
@@ -60,6 +59,7 @@ test("inbox threads are listed and linked to their deals, tickets and candidates
   database,
   errors,
 }) => {
+  expectBlockedEmailScripts(page);
   const { rows: threads } = await database.query<{ id: string; title: string }>(
     `SELECT id, coalesce(nullif(subject, ''), name) AS title FROM "MessagingThread" WHERE "companyId"=$1
      ORDER BY "lastMessageAt" DESC NULLS LAST LIMIT 5`,
@@ -78,7 +78,6 @@ test("inbox threads are listed and linked to their deals, tickets and candidates
   );
   expect([...new Set(links.map(({ list }) => list))].sort()).toEqual(["Candidate", "Deal", "Ticket"]);
   for (const threadId of [...new Set(links.map((link) => link.threadId))]) {
-    await settle(page);
     await page.goto(`/en/inbox?threadId=${threadId}`);
     const settings = page
       .getByRole("button", { name: "Thread settings", exact: true })
@@ -96,7 +95,7 @@ test("inbox threads are listed and linked to their deals, tickets and candidates
     await page.keyboard.press("Escape");
   }
   // Email bodies render in a sandboxed frame without scripts; Chromium reports that block, which is expected.
-  expect(errors.filter((error) => !error.startsWith("Blocked script execution in 'about:srcdoc'"))).toEqual([]);
+  expect(errors).toEqual([]);
 });
 
 async function emailBodyColors(frame: Locator) {
@@ -118,6 +117,7 @@ test("email bodies follow the app theme, adaptive emails switch, and other exter
   database,
   errors,
 }, testInfo) => {
+  expectBlockedEmailScripts(page);
   const { rows: threads } = await database.query<{ id: string; subject: string }>(
     `SELECT id, subject FROM "MessagingThread" WHERE "companyId"=$1 AND subject = ANY($2)`,
     [DEMO_COMPANY_ID, ["Service report baseline", "Order form review: Northwind Field Enterprise"]],
@@ -125,7 +125,6 @@ test("email bodies follow the app theme, adaptive emails switch, and other exter
   const threadId = (subject: string) => threads.find((thread) => thread.subject === subject)?.id;
   for (const scheme of ["light", "dark"] as const) {
     await page.emulateMedia({ colorScheme: scheme });
-    await settle(page);
     await page.goto(`/en/inbox?threadId=${threadId("Service report baseline")}`);
     const own = page.locator('iframe[data-email-tone="own"]').first();
     const adaptive = page.locator('iframe[data-email-tone="adaptive"]').first();
@@ -149,7 +148,7 @@ test("email bodies follow the app theme, adaptive emails switch, and other exter
     const ownContent = await own.contentFrame().locator("body").evaluate((body) => body.scrollHeight);
     expect(ownHeight).toBeGreaterThanOrEqual(ownContent);
     await adaptive.scrollIntoViewIfNeeded();
-    await settle(page);
+    await paintedFrames(page);
     await page.screenshot({ path: testInfo.outputPath(`email-thread-${scheme}.png`), animations: "disabled" });
 
     await page.goto(`/en/inbox?threadId=${threadId("Order form review: Northwind Field Enterprise")}`);
@@ -158,11 +157,11 @@ test("email bodies follow the app theme, adaptive emails switch, and other exter
     await expect(paper).toHaveCSS("color-scheme", "light");
     expect((await emailBodyColors(paper)).background).toBeGreaterThan(0.9);
     await paper.scrollIntoViewIfNeeded();
-    await settle(page);
+    await paintedFrames(page);
     await page.screenshot({ path: testInfo.outputPath(`email-paper-${scheme}.png`), animations: "disabled" });
   }
   await page.emulateMedia({ colorScheme: "light" });
-  expect(errors.filter((error) => !error.startsWith("Blocked script execution in 'about:srcdoc'"))).toEqual([]);
+  expect(errors).toEqual([]);
 });
 
 test("the Knowledge Base lists the Operating Guide and the procedures, and a procedure opens", async ({

@@ -5,8 +5,6 @@ import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { collectPageErrors, test, expect } from "./fixtures";
 import { invokesServerAction, serverActionIds } from "./server-actions";
 
-test.use({ failOnPageErrors: true });
-
 async function api(page: Page, path: string, data: unknown) {
   const response = await page.request.post(path, { data, timeout: 60000 });
   expect(response.ok(), await response.text()).toBe(true);
@@ -197,9 +195,11 @@ async function answerResolver(route: Route, resolution: unknown) {
 }
 
 test.describe("Ask Mate fallback", () => {
-  test.use({ failOnPageErrors: false });
-
-  test("resolves a request with conditions to a filtered list and falls back to Ask Mate", async ({ page, companyId }) => {
+  test("resolves a request with conditions to a filtered list and falls back to Ask Mate", async ({
+    page,
+    companyId,
+    diagnostics,
+  }) => {
     test.setTimeout(180000);
     const id = (key: string) => presetId(companyId, key);
     const model = RecordModelSchema.parse(await api(page, "/api/v1/model/read", {}));
@@ -231,6 +231,12 @@ test.describe("Ask Mate fallback", () => {
     });
 
     const errors = collectPageErrors(page);
+    const offlineMate = diagnostics.expect({
+      kind: "console",
+      text: /^Failed to load resource: the server responded with a status of 422/,
+      source: (url) => url.pathname === "/api/agent/messages",
+      page,
+    });
     await page.goto("/en/dashboard");
     const dialog = page.getByRole("dialog");
     const input = await openPalette(page);
@@ -260,11 +266,9 @@ test.describe("Ask Mate fallback", () => {
     const mateResponse = await mateRequest;
     expect(mateResponse.request().postDataJSON()).toMatchObject({ text: "something nobody configured here" });
     // The offline e2e server has no hosted AI, so Mate answers the handed-over question with a 422.
-    const offlineMate = "Failed to load resource: the server responded with a status of 422 (Unprocessable Entity)";
-    const unexpected = [...errors];
-    const offlineIndex = mateResponse.status() === 422 ? unexpected.indexOf(offlineMate) : -1;
-    if (offlineIndex >= 0) unexpected.splice(offlineIndex, 1);
-    expect(unexpected.filter((error) => !error.includes("net::ERR_BLOCKED_BY_CLIENT"))).toEqual([]);
+    expect(mateResponse.status()).toBe(422);
+    await expect.poll(() => offlineMate.events.length).toBe(1);
+    expect(errors).toEqual([]);
   });
 });
 

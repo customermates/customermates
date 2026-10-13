@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import type { Page, Locator } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
-import { RecordModelSchema, type RecordModel } from "../../features/records/record-model.schema";
+import type { RecordModel } from "../../features/records/record-model.schema";
 import {
   MutateRecordSchema,
   RecordOperationResultSchema,
@@ -12,14 +12,7 @@ import {
 import type { RecordActivityQuery } from "../../ee/messaging/activities/record-activities.schema";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { test, expect, collectPageErrors } from "./fixtures";
-
-async function model(database: Client, companyId: string): Promise<RecordModel> {
-  const result = await database.query(
-    'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1 ORDER BY revision DESC LIMIT 1',
-    [companyId],
-  );
-  return RecordModelSchema.parse(result.rows[0]?.snapshot);
-}
+import { readModel } from "./api";
 
 async function mutation(page: Page, current: RecordModel, change: RecordMutation) {
   const response = await page.request.post("/api/v1/records/mutate", {
@@ -36,7 +29,7 @@ async function mutation(page: Page, current: RecordModel, change: RecordMutation
 }
 
 async function showContactMessagesOnOrganizations(page: Page, database: Client, companyId: string, shown: boolean) {
-  const current = await model(database, companyId);
+  const current = await readModel(database, companyId);
   const relationship = current.relationships.find(
     (relationship) => relationship.id === presetId(companyId, "contact.organizations"),
   );
@@ -50,7 +43,7 @@ async function showContactMessagesOnOrganizations(page: Page, database: Client, 
   });
   expect(response.status(), await response.text()).toBe(200);
   expect(
-    (await model(database, companyId)).relationships.find((candidate) => candidate.id === relationship.id),
+    (await readModel(database, companyId)).relationships.find((candidate) => candidate.id === relationship.id),
   ).toMatchObject({ messagesOnSource: false, messagesOnTarget: shown });
 }
 
@@ -121,7 +114,7 @@ test("shows contact messages on organizations and applies provider, channel, con
   const dialog = page.locator(
     ':is([data-overlay-surface="dialog"],[data-overlay-surface="drawer"],[data-overlay-surface="sheet"])[role="dialog"]',
   );
-  const current = await model(database, companyId);
+  const current = await readModel(database, companyId);
   expect(
     current.relationships.find((relationship) => relationship.id === presetId(companyId, "contact.organizations")),
   ).toMatchObject({ messagesOnSource: false, messagesOnTarget: true });
