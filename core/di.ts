@@ -763,6 +763,7 @@ export const getRoutineRepo = (companyId?: string) =>
     getRoutineEventAccess(),
     getRecordEventSubscriptionRepo(companyId),
     getPermissionService(),
+    () => getAgentChatRepo(),
     companyId,
   );
 
@@ -777,7 +778,7 @@ export const getUnipileWebhookRepo = () => new PrismaUnipileWebhookRepo();
 export const getCalendarRepo = () => new PrismaCalendarRepo();
 export const getCalendarEventsRepo = () => new PrismaCalendarEventsRepo();
 export const getAgentChatRepo = (): PrismaAgentChatRepo =>
-  new PrismaAgentChatRepo(getWikiPageRepo(), getPermissionService());
+  new PrismaAgentChatRepo(getWikiPageRepo(), getPermissionService(), getRoutineRepo());
 export const getOperatorRepo = () => new PrismaOperatorRepo(getAgentChatRepo());
 export const getOperatorAccessRepo = () => new PrismaOperatorAccessRepo();
 

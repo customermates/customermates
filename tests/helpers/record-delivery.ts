@@ -6,17 +6,22 @@ import { PrismaRecordEventSubscriptionRepo } from "@/features/records/prisma-rec
 import { RecordRecipientReader } from "@/features/records/record-recipient-reader";
 import { PrismaRecordRecipientRepo } from "@/features/records/prisma-record-recipient.repository";
 import { PrismaRoutineRepo } from "@/ee/routines/prisma-routine.repository";
+import { PrismaAgentChatRepo } from "@/ee/agent-chat/prisma-agent-chat.repository";
+import { PrismaWikiPageRepo } from "@/features/wiki/prisma-wiki-page.repository";
 import { type RoutineEventAccess } from "@/ee/routines/routine-event-access";
 import { PrismaRoutineEventAccess } from "@/ee/routines/prisma-routine-event-access.repository";
 
 export const createTestRecordRecipientReader = () =>
   new RecordRecipientReader((companyId) => createTestRecordRepo(companyId), new PrismaRecordRecipientRepo());
-export const createTestRoutineRepo = (access?: RoutineEventAccess) =>
-  new PrismaRoutineRepo(
+export const createTestRoutineRepo = (access?: RoutineEventAccess): PrismaRoutineRepo => {
+  const routines: PrismaRoutineRepo = new PrismaRoutineRepo(
     access ?? new PrismaRoutineEventAccess(createTestRecordRecipientReader()),
     new PrismaRecordEventSubscriptionRepo(createTestRecordRepo()),
     new PermissionService(),
+    () => new PrismaAgentChatRepo(new PrismaWikiPageRepo(new PermissionService()), new PermissionService(), routines),
   );
+  return routines;
+};
 
 export const createTestWebhookRepo = () =>
   new PrismaWebhookRepo(

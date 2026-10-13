@@ -101,8 +101,6 @@ const OPERATOR_DELETION =
   "Operator console workspace deletion and account administration remove or rewrite rows across a workspace";
 
 const ALLOWLIST: Record<string, string> = {
-  "AgentConversation ee/routines/prisma-routine.repository.ts":
-    "Routine purge and run-conversation linking remove routine-owned agent conversations in the routine transaction",
   "Apikey ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
   "AuthUser ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
   "AuthVerification ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
@@ -110,12 +108,10 @@ const ALLOWLIST: Record<string, string> = {
   "CrmRecord ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
   "InviteToken ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
   "MessagingInboundEvent ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "RoutineRun ee/agent-chat/prisma-agent-chat.repository.ts":
-    "Agent turn admission and retry release link or unlink the routine run to its conversation in the turn transaction",
   "Subscription ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
   "User ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
 };
-const ALLOWLIST_CEILING = 11;
+const ALLOWLIST_CEILING = 9;
 
 type WriteSite = { model: string; file: string; line: number; operation: string };
 
