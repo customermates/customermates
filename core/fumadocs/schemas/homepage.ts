@@ -121,7 +121,6 @@ export const homepageStorySchema = z.object({
     )
     .length(2),
   description: z.string(),
-  disclosure: z.string(),
   eyebrow: z.string(),
   points: z.array(z.string()).length(3),
   title: z.string(),

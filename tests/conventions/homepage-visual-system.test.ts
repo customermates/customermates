@@ -247,7 +247,7 @@ describe("homepage visual-system adoption", () => {
     }
   });
 
-  it("localizes the stage, alt texts and disclosure in both locales", () => {
+  it("localizes the stage and alt texts in both locales", () => {
     const expected = [
       "homepage-inbox",
       "homepage-record",
@@ -258,11 +258,8 @@ describe("homepage visual-system adoption", () => {
 
     expect(stageCaptures(englishHomepage)).toEqual(expected);
     expect(stageCaptures(germanHomepage)).toEqual(expected);
-    expect(englishHomepage).not.toContain("People, companies and numbers are sample data.");
-    expect(germanHomepage).not.toContain("Personen, Unternehmen und Zahlen sind Beispieldaten.");
-    expect(englishHomepage).toContain("  disclosure: Sample data from the Customermates demo workspace.");
-    expect(germanHomepage).toContain("  disclosure: Beispieldaten aus dem Demo-Arbeitsbereich von Customermates.");
-    expect(readComponent("homepage-pipeline.tsx")).toContain("{story.disclosure}");
+    expect(englishHomepage).not.toMatch(/^\s*disclosure:/mu);
+    expect(germanHomepage).not.toMatch(/^\s*disclosure:/mu);
     expect(altTexts(englishHomepage)).toHaveLength(11);
     expect(altTexts(germanHomepage)).toHaveLength(11);
     for (const alt of altTexts(englishHomepage)) expect(alt).toMatch(/, using demo data$/u);

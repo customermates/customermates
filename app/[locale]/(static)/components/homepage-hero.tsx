@@ -26,7 +26,7 @@ export function HomepageHero({ heroSection, locale }: Props) {
 
       <HomepageHeroMarks />
 
-      <MarketingContainer className="relative z-10 pt-14 pb-6 sm:pt-20 lg:pt-24">
+      <MarketingContainer className="relative z-10 pt-28 pb-6 sm:pt-32 lg:pt-24">
         <div
           className="mx-auto flex max-w-[60rem] flex-col items-center text-center"
           data-homepage-hero-layout="centered"

@@ -73,8 +73,6 @@ export function HomepagePipeline({ liveLabel, locale, story }: Props) {
           </figure>
         ))}
       </div>
-
-      <p className="text-meta mt-6 text-xs">{story.disclosure}</p>
     </MarketingSection>
   );
 }
