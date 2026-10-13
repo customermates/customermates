@@ -58,9 +58,9 @@ MCP requests use the same authentication and authorization path:
 
 The MCP surface adds input guardrails:
 
-- A write changes one typed record or relationship at a time. Each reference contains both a type ID and a record ID; link and unlink name the relationship definition. Omitted fields are unchanged, while `null` explicitly clears an optional input field. Calculated fields cannot be written directly.
+- A write changes one typed record or relationship, or up to 100 named records at once through `updateMany` (one shared patch) and `deleteMany`, each applied atomically. Each reference contains both a type ID and a record ID; link and unlink name the relationship definition. Omitted fields are unchanged, while `null` explicitly clears an optional input field. Calculated fields cannot be written directly.
 - The backend checks the type, workspace, record permissions, version and configuration revision during the write transaction. A reference to another type or workspace cannot redirect an update.
-- Deletion requires a record reference and a current impact preview hash; there is no delete-by-filter shortcut.
+- Deletion, including `deleteMany`, names every record by reference and current version; there is no delete-by-filter shortcut. An optional impact preview hash makes the delete fail when its cascading effects changed since the preview.
 
 See the [MCP tool catalog](/docs/mcp#tool-catalog) for the full list.
 

@@ -63,7 +63,7 @@ Im Connector-Formular **Authentication: Header**, **Header name: `x-api-key`**, 
 </Step>
 </Steps>
 
-Speichern. ChatGPT erreicht den Server und listet jedes Tool. Das geschieht auch mit einem falschen Key, weil Customermates den Key erst prüft, wenn ein Tool Workspace-Daten liest oder ändert; meldet danach jeder solche Aufruf „Sign in to use this action.“ (die Meldung kommt auf Englisch), ist der Key falsch, abgeschnitten, abgelaufen oder gelöscht, und Sie legen einen neuen an. Eine Doku-Abfrage wie `search_docs` antwortet auch mit einem falschen Key und beweist deshalb nicht, dass der Key funktioniert.
+Speichern. ChatGPT erreicht den Server und listet jedes Tool. Customermates prüft den Key bei jeder Anfrage: Mit einem falschen, abgeschnittenen, abgelaufenen oder gelöschten Key antwortet der Server mit HTTP `401` und einem `WWW-Authenticate`-Header, und nichts wird gelistet; legen Sie dann einen neuen Key an.
 
 ## Was zeigt der Screen Zugriff autorisieren? [#sign-in-and-approve]
 
@@ -117,7 +117,7 @@ Lassen Sie jedes Tool, das nicht read-only ist, auf *Ask*. Die vollständige Lis
 | Symptom | Ursache | Lösung |
 |---|---|---|
 | "Couldn't register with the sign-in service" (Claude) oder "Connector verification failed" (ChatGPT) | URL falsch oder nicht erreichbar | Prüfen Sie, dass sie exakt `<BASE_URL>/api/v1/mcp` lautet, mit der Adresse, unter der Sie Customermates öffnen, als `<BASE_URL>` |
-| Die Tools werden gelistet, aber jeder Aufruf, der Workspace-Daten liest oder ändert, meldet „Sign in to use this action.“ (ChatGPT mit Header); Doku-Abfragen antworten weiter | Der Wert von `x-api-key` ist falsch, abgeschnitten, abgelaufen oder gelöscht | Unter [API-Schlüssel](app:settings/api-keys) einen neuen Key anlegen und die vollständigen 64 Zeichen einfügen |
+| Der Connector listet keine Tools, und der Server antwortet mit HTTP `401` (ChatGPT mit Header) | Der Wert von `x-api-key` ist falsch, abgeschnitten, abgelaufen oder gelöscht | Unter [API-Schlüssel](app:settings/api-keys) einen neuen Key anlegen und die vollständigen 64 Zeichen einfügen |
 | Jeder Aufruf, der Workspace-Daten liest oder ändert, meldet „Your user account is inactive. Contact a workspace administrator.“ | Ihr Customermates-User steht auf **Inaktiv** | Ein Mitglied mit **Bearbeiten** auf **Benutzer & Rollen** setzt Sie unter [Mitglieder](app:settings/members) wieder auf **Aktiv** |
 | Kein "Add custom connector"-Eintrag | Free-Plan | Custom Connectors brauchen einen bezahlten Claude- oder ChatGPT-Plan. Siehe [die CLI-Methode](/docs/connect-cli) |
 | Freigegeben, aber nichts verbindet | Sie haben aus einem anderen Konto freigegeben | Ins richtige Customermates-Konto anmelden, dann erneut versuchen |

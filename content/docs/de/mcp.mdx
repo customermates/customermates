@@ -60,7 +60,7 @@ Den Client nach seinen Tools fragen. Alle [[derived.mcp.tools.total]] sollten er
 
 ## Server-Instructions, Prompts und Toolsets [#server-instructions-prompts-and-toolsets]
 
-Beim Verbinden sendet der Server Hinweise zum Ablauf: zuerst das Schema lesen, IDs vor dem Schreiben suchen, Datensätze und Beziehungen über `mutate_crm_record` ändern und vor dem Löschen oder Senden die Bestätigung der Nutzerin oder des Nutzers einholen und dabei die genauen Datensätze oder Empfänger nennen. Diese Hinweise sind keine serverseitig erzwungene Freigabe, und ob ein Client sie an das Modell weitergibt, hängt vom Client ab. Prüfen Sie, wie Ihr Client Anweisungen und Freigaben behandelt, bevor Sie Schreib-, Lösch- oder Messaging-Zugriff gewähren. Clients mit MCP-Prompt-Unterstützung können den eingebauten `get-started`-Prompt ausführen, der den Workspace für einen personalisierten Einstieg zusammenfasst; er wird angeboten, wenn die Toolsets `workspace` und `records` beide aktiv sind.
+Beim Verbinden sendet der Server Hinweise zum Ablauf: zuerst das Schema lesen, IDs vor dem Schreiben suchen, Datensätze und Beziehungen über `mutate_crm_record` ändern und vor dem Löschen oder Senden die Bestätigung der Nutzerin oder des Nutzers einholen und dabei die genauen Datensätze oder Empfänger nennen. Diese Hinweise sind keine serverseitig erzwungene Freigabe, und ob ein Client sie an das Modell weitergibt, hängt vom Client ab. Prüfen Sie, wie Ihr Client Anweisungen und Freigaben behandelt, bevor Sie Schreib-, Lösch- oder Messaging-Zugriff gewähren. Clients mit MCP-Prompt-Unterstützung können den eingebauten `get-started`-Prompt ausführen, der den Workspace für einen personalisierten Einstieg zusammenfasst; er wird angeboten, wenn die Toolsets `workspace` und `records` beide aktiv sind, wie ohne `toolsets` in der URL.
 
 Die volle [[derived.mcp.tools.total]]-Tool-Oberfläche ist der Standard. Hängen Sie `?toolsets=` an die Endpoint-URL, um sie einzugrenzen, zum Beispiel `/api/v1/mcp?toolsets=records,messaging`; siehe [Eingrenzen mit ?toolsets=](/docs/mcp#narrowing-with-toolsets).
 
@@ -241,7 +241,7 @@ Pflicht: `operationId`.
 
 #### `read_trash`
 
-Gelöschte Elemente im Papierkorb auflisten, neueste zuerst, mit wer sie gelöscht hat, wann, und wie viele Tage bleiben, bis sie endgültig gelöscht werden. Nach Art, Liste und Name filtern. Aufgelistet wird nur, was du sehen und löschen könntest; Administratoren sehen alles.
+Gelöschte Elemente im Papierkorb auflisten, neueste zuerst, mit Angabe, wer sie wann gelöscht hat und wie viele Tage bleiben, bis sie endgültig gelöscht werden. Nach Art, Liste und Name filtern. Aufgelistet wird nur, was Sie sehen und löschen könnten; Administratoren sehen alles außer den gespeicherten Ansichten und Widgets anderer Mitglieder, die persönlich bleiben.
 
 **Nur lesend.** Optional: `kinds`, `typeIds`, `search`, `sortDescriptor`, `page`, `pageSize`.
 
