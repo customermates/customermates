@@ -69,6 +69,7 @@ Registrieren Sie sich, wählen Sie **Neuen Workspace erstellen** und schließen 
 - `APP_PORT`: der Host-Port, unter dem die App veröffentlicht wird, standardmäßig `4000`.
 - `RESEND_API_KEY`, `RESEND_OPERATOR_EMAIL`: E-Mail-Versand; `RESEND_API_KEY` darf nicht leer sein. Siehe [Wie richte ich E-Mail mit Resend ein?](#how-do-i-set-up-email-with-resend-and-can-i-use-smtp).
 - `APP_MODE`: bleibt `self-hosted`; die Compose-Datei setzt diesen Wert für die App selbst.
+- `CRON_SECRET`: optional und in der Vorlage auskommentiert; das Secret für die geplanten Wartungsaufrufe, siehe [Welche geplanten Aufgaben muss ich ausführen?](#scheduled-jobs).
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AZURE_AD_CLIENT_ID`, `AZURE_AD_CLIENT_SECRET`: optional und in der Vorlage auskommentiert, siehe [Können sich Nutzer mit Google oder Microsoft anmelden?](#can-users-sign-in-with-google-or-microsoft).
 
 Halten Sie `.env` aus der Versionsverwaltung heraus. Änderungen wenden Sie mit `docker compose up -d` an.
@@ -203,16 +204,7 @@ Die Cloud ruft zwei Wartungs-Endpunkte nach Zeitplan auf; eine Self-Hosted-Insta
 - `/api/cron/lifecycle`, einmal täglich: löscht Papierkorb-Elemente, deren 30 Tage abgelaufen sind, und erledigt die übrigen täglichen Wartungsaufgaben. Die Aufgaben für Cloud-Testphasen und Abonnements finden auf einer Self-Hosted-Instanz nichts.
 - `/api/cron/record-deliveries`, alle 5 Minuten (optional): startet fällige Webhook-Zustellungen, Ereignisverarbeitung und Hintergrundarbeit an Datensätzen, die kein laufender Job übernommen hat, etwa nach einem Neustart des Containers.
 
-Beide antworten mit HTTP `401`, außer die App hat ein `CRON_SECRET` und die Anfrage sendet es als `Authorization: Bearer <secret>`. Die Compose-Datei reicht `CRON_SECRET` nicht an die App weiter. Ergänzen Sie es daher in einer `docker-compose.override.yml` neben der `docker-compose.yml`, die `docker compose` automatisch liest und die ein Update der Compose-Datei nicht verändert:
-
-```yaml
-services:
-  app:
-    environment:
-      CRON_SECRET: ${CRON_SECRET}
-```
-
-Tragen Sie einen langen Zufallswert, etwa aus `openssl rand -hex 32`, als `CRON_SECRET=...` in die `.env` ein, führen Sie `docker compose up -d` aus und planen Sie die Aufrufe auf dem Host, etwa mit `crontab -e`:
+Beide antworten mit HTTP `401`, außer die App hat ein `CRON_SECRET` und die Anfrage sendet es als `Authorization: Bearer <secret>`. Die Vorlage enthält neben `BETTER_AUTH_SECRET` eine auskommentierte Zeile `CRON_SECRET`, und die Compose-Datei reicht den Wert an die App weiter; listet Ihre `docker-compose.yml` `CRON_SECRET` noch nicht auf, holen Sie die Datei erneut mit dem `curl`-Befehl aus den Installationsschritten. Entfernen Sie das Kommentarzeichen oder ergänzen Sie die Zeile in einer älteren `.env`, setzen Sie einen langen Zufallswert, etwa aus `openssl rand -hex 32`, führen Sie `docker compose up -d` aus und planen Sie die Aufrufe auf dem Host, etwa mit `crontab -e`:
 
 ```bash
 0 3 * * * curl -fsS -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:4000/api/cron/lifecycle
