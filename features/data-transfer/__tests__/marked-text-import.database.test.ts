@@ -101,7 +101,7 @@ describeDatabase("import of exported records with marked Formatted text", () => 
       policy,
       writer,
       { dispatch: () => Promise.resolve() },
-      new RecordTrashService(repo),
+      new RecordTrashService(repo, new RecordCalculationService(repo)),
     );
     await runWithTenant(admin, () =>
       runInTransaction(() => repo.saveModel(createCrmPreset(companyId), admin.id), { timeout: 30000 }),
