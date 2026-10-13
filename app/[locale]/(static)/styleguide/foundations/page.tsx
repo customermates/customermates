@@ -165,6 +165,10 @@ const SURFACE_RULES = [
     "floating-panel",
     "Menus and popovers that can cross light and dark sections: solid popover fill with the same rim.",
   ],
+  [
+    "mark-glow",
+    "The lit glass tile: a tinted highlight from the top left, a rim and a soft shadow. It carries the hero marks and the selected state of the stage tabs and the navigation, tinted with primary.",
+  ],
   ["Never", "Glass over content that switches between light and dark sections, or on resting content panels."],
   [
     "Section edges",
@@ -212,7 +216,7 @@ const MOTION_RULES = [
 const FORBIDDEN = [
   [
     "No shadow on a new resting surface",
-    "Elevation is a rung, not a distance. Only floating layers carry shadow: product windows, floating panels and glass controls.",
+    "Elevation is a rung, not a distance. Only floating layers carry shadow: product windows, floating panels, glass controls and lit marks.",
   ],
   [
     "No glass across a section change",

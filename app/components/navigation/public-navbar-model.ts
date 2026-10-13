@@ -330,3 +330,6 @@ export function resolvePublicNavGroups(t: ReturnType<typeof useTranslations>): P
     },
   ];
 }
+
+export const PUBLIC_NAV_SELECTED_CLASS_NAME =
+  "mark-glow text-foreground [--tint:color-mix(in_oklab,var(--primary)_32%,transparent)]";

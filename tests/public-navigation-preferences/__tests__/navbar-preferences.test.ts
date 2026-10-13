@@ -281,11 +281,12 @@ describe("public navigation preferences", () => {
     expect(menu).toContain('data-public-nav-icon="true"');
     expect(menu).toContain('<span className="min-w-0 truncate">{link.title}</span>');
     expect(menu).not.toContain("group.featured");
-    expect(menu).toContain(
-      '"overflow-hidden rounded-lg border border-border bg-popover shadow-md"',
-    );
-    expect(menu).toContain('"grid gap-px bg-border"');
-    expect(menu).toContain('"flex h-full min-h-11 items-center gap-2.5 bg-popover');
+    expect(menu).toContain('"floating-panel overflow-hidden rounded-2xl p-1.5"');
+    expect(menu).toContain('"grid gap-0.5"');
+    expect(menu).toContain('"flex h-full min-h-11 items-center gap-2.5 rounded-xl');
+    expect(menu).toContain("linkActive && PUBLIC_NAV_SELECTED_CLASS_NAME");
+    expect(mobile).toContain('"floating-panel flex flex-col gap-0.5 rounded-2xl p-1.5"');
+    expect(mobile).toContain("linkActive && PUBLIC_NAV_SELECTED_CLASS_NAME");
     expect(menu).toContain('href="/docs"');
 
     expect(mobile.match(/mobileOverviewRowClassName/gu)).toHaveLength(2);

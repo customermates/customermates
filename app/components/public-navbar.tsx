@@ -24,7 +24,11 @@ import {
 } from "@/components/ui/sheet";
 import { ThemeSwitcher } from "@/components/shared/theme-switcher";
 import { cn } from "@/core/utils/cn";
-import { resolvePublicNavbarActions, resolvePublicNavGroups } from "./navigation/public-navbar-model";
+import {
+  PUBLIC_NAV_SELECTED_CLASS_NAME,
+  resolvePublicNavbarActions,
+  resolvePublicNavGroups,
+} from "./navigation/public-navbar-model";
 import { PublicNavbarAccountMenu } from "./navigation/public-navbar-account-menu";
 import { PublicNavbarSignOutButton } from "./navigation/public-navbar-sign-out-button";
 import {
@@ -254,8 +258,8 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
                         />
                       </summary>
 
-                      <div className="pb-2">
-                        <div className="flex flex-col gap-1 pt-1">
+                      <div className="pb-3">
+                        <div className="floating-panel flex flex-col gap-0.5 rounded-2xl p-1.5">
                           {group.links.map((link) => {
                             const linkActive =
                               isNavItemActive(link.href) && isPrimaryPublicNavLink(publicNavGroups, link);
@@ -265,8 +269,8 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
                                 key={`${link.href}-${link.title}`}
                                 aria-current={linkActive ? "page" : undefined}
                                 className={cn(
-                                  "flex min-h-10 items-center gap-2.5 rounded-md p-2 text-sm",
-                                  !linkActive && "text-subdued",
+                                  "flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-foreground transition-colors duration-200 hover:bg-foreground/[0.07] focus-visible:bg-foreground/[0.07] motion-reduce:transition-none",
+                                  linkActive && PUBLIC_NAV_SELECTED_CLASS_NAME,
                                 )}
                                 href={link.href}
                                 onNavigate={closeMenu}
@@ -289,7 +293,11 @@ export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, 
                   <AppLink
                     appearance="unstyled"
                     aria-current={isNavItemActive("/pricing") ? "page" : undefined}
-                    className={cn(mobileOverviewRowClassName, isNavItemActive("/pricing") && "bg-accent")}
+                    className={cn(
+                      mobileOverviewRowClassName,
+                      isNavItemActive("/pricing") &&
+                        cn("-mx-3 w-[calc(100%+1.5rem)] rounded-xl px-3", PUBLIC_NAV_SELECTED_CLASS_NAME),
+                    )}
                     href="/pricing"
                     onNavigate={closeMenu}
                   >
