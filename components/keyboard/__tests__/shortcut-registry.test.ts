@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { chordLabel, chordMatches, detectKeyboardPlatform, type KeyPress } from "../key-matching";
+import { chordLabel, chordMatches, detectKeyboardPlatform, keyLabel, type KeyPress } from "../key-matching";
 import {
   GO_PREFIX,
   SHORTCUTS,
@@ -201,5 +201,7 @@ describe("labels", () => {
     expect(shortcutKeyLabels("goList", "mac")).toEqual(["G", "1–9"]);
     expect(shortcutKeyLabels("shortcuts", "mac")).toEqual(["?"]);
     expect(chordLabel(shortcut("add").sequence[0], "mac")).toBe("C");
+    expect(keyLabel("Tab", "mac")).toBe("Tab");
+    expect(keyLabel("Tab", "other")).toBe("Tab");
   });
 });
