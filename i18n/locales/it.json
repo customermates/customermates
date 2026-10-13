@@ -1174,6 +1174,7 @@
       "routineLimitReached": "Il tuo piano include {limit} routine per utente. Passa a un piano con un limite più alto.",
       "routineNotFound": "ID routine non trovato o non accessibile.",
       "routineOwnerIneligible": "Il proprietario della routine deve essere un membro attivo di questa azienda.",
+      "routineRunCursorInvalid": "Questo link di pagina della cronologia delle esecuzioni non è più valido. Ricarica la cronologia e riprova.",
       "routineRunNotOwner": "Solo chi possiede questa routine può eseguirla, perché consuma i suoi crediti IA.",
       "routineRunNowRequiresSchedule": "Solo le routine pianificate possono essere testate manualmente.",
       "routineScheduleInvalid": "Questa pianificazione non è un'espressione cron valida.",

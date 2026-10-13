@@ -6,12 +6,15 @@ import { Resource } from "@/generated/prisma";
 import { z } from "zod";
 
 import { ROUTINE_RUN_PAGE_SIZE, RoutineRunPageSchema } from "./routine-history";
+import { decodeRoutineRunCursor } from "./routine-run-cursor";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
+import { fail } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import type { GetRoutineRunsRepo } from "./get-routine-runs.repo";
 
 export const GetRoutineRunsSchema = z.object({
@@ -32,9 +35,12 @@ export class GetRoutineRunsInteractor extends AuthenticatedInteractor<GetRoutine
   @ValidateOutput(RoutineRunPageSchema)
   async invoke(data: GetRoutineRunsData): Validated<RoutineRunPage> {
     await this.repo.assertReadableRoutineOrThrow(data.id);
+    const decoded = decodeRoutineRunCursor(data.cursor);
+    if (!decoded.valid) return fail(CustomErrorCode.routineRunCursorInvalid, ["cursor"]);
+
     return {
       ok: true as const,
-      data: await this.repo.getRoutineRuns(data.id, ROUTINE_RUN_PAGE_SIZE, data.cursor),
+      data: await this.repo.getRoutineRuns(data.id, ROUTINE_RUN_PAGE_SIZE, decoded.cursor),
     };
   }
 }

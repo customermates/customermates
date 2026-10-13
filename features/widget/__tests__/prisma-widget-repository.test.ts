@@ -21,11 +21,7 @@ const mocks = vi.hoisted(() => ({
   activity: vi.fn(),
 }));
 vi.mock("@/env", () => MOCK_ENV_MODULE);
-vi.mock("@/core/di", () => ({
-  ...createMockDiModule(() => user),
-  getRecordWidgetReader: () => ({ read: mocks.chart }),
-  getRecordActivityWidgetReader: () => ({ read: mocks.activity }),
-}));
+vi.mock("@/core/di", () => createMockDiModule(() => user));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => {
   const tx = {
@@ -62,7 +58,9 @@ const row = (overrides: Record<string, unknown> = {}) => ({
   updatedAt: new Date(0),
   ...overrides,
 });
-const scoped = <T>(fn: (repo: PrismaWidgetRepo) => Promise<T>) => runWithTenant(user, () => fn(new PrismaWidgetRepo()));
+const readers = () => ({ chart: { read: mocks.chart }, activityTimeline: { read: mocks.activity } });
+const scoped = <T>(fn: (repo: PrismaWidgetRepo) => Promise<T>) =>
+  runWithTenant(user, () => fn(new PrismaWidgetRepo(readers)));
 
 describe("generic widget repository", () => {
   beforeEach(() => {
@@ -98,6 +96,18 @@ describe("generic widget repository", () => {
     expect(mocks.findMany).toHaveBeenCalledWith(
       expect.objectContaining({ where: { userId: user.id, companyId: user.companyId, ...LIVE_WIDGET } }),
     );
+  });
+  it("resolves its record widget readers only when it reads a widget", async () => {
+    const stored = row();
+    mocks.findMany.mockResolvedValue([stored]);
+    const lazyReaders = vi.fn(readers);
+    const repo = new PrismaWidgetRepo(lazyReaders);
+    expect(lazyReaders).not.toHaveBeenCalled();
+
+    await runWithTenant(user, () => repo.getWidgets());
+
+    expect(lazyReaders).toHaveBeenCalledTimes(1);
+    expect(mocks.chart).toHaveBeenCalledTimes(1);
   });
   it("reads generic activity definitions without crossing into chart calculations", async () => {
     const stored = row({

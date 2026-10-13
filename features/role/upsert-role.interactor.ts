@@ -6,6 +6,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { unwoundFailure } from "@/core/validation/interactor-failure-server";
 
 export type { UpsertRoleData } from "./role-management.schema";
 
@@ -18,6 +19,9 @@ export class UpsertRoleInteractor extends AuthenticatedInteractor<UpsertRoleData
   @Validate(UpsertRoleSchema)
   @ValidateOutput(RoleMutationResultSchema)
   invoke(data: UpsertRoleData): Validated<RoleMutationResult> {
-    return this.roles.upsert(data);
+    return this.roles
+      .upsert(data)
+      .then((result) => ({ ok: true as const, data: result }))
+      .catch(unwoundFailure);
   }
 }

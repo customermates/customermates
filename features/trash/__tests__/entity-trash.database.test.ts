@@ -43,7 +43,7 @@ const { DeleteWidgetInteractor } = await import("@/features/widget/delete-widget
 const { ValidateWidgetIdsInteractor } = await import("@/core/validation/validators/validate-widget-ids.interactor");
 const { PrismaWikiPageRepo } = await import("@/features/wiki/prisma-wiki-page.repository");
 const { DeleteWikiPageInteractor } = await import("@/features/wiki/delete-wiki-page.interactor");
-const { getRoutineRepo, getTrashKindHandlers } = await import("@/core/di");
+const { getRoutineRepo, getTrashKindHandlers, getWidgetDtoReaders } = await import("@/core/di");
 const { DeleteRoutineInteractor } = await import("@/ee/routines/delete-routine.interactor");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
@@ -78,7 +78,7 @@ async function fixture() {
   const member = createMockUser({ ...seed.member, role: { ...seed.memberRole, permissions: [] } });
   const trashRepo = new PrismaTrashRepo();
   const visibility = new EntityTrashVisibility();
-  const widgets = new PrismaWidgetRepo();
+  const widgets = new PrismaWidgetRepo(getWidgetDtoReaders);
   const wiki = new PrismaWikiPageRepo(new PermissionService());
   const handlers: TrashKindHandler[] = [
     new EntityTrashHandler(

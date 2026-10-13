@@ -1174,6 +1174,7 @@
       "routineLimitReached": "Dein Tarif enthält {limit} Routinen pro Nutzer. Wechsle deinen Tarif für ein höheres Kontingent.",
       "routineNotFound": "Routine-ID nicht gefunden oder nicht zugänglich.",
       "routineOwnerIneligible": "Die Eigentümerin oder der Eigentümer der Routine muss ein aktives Mitglied dieses Unternehmens sein.",
+      "routineRunCursorInvalid": "Dieser Link zur Seite des Ausführungsverlaufs ist nicht mehr gültig. Lade den Verlauf neu und versuche es noch einmal.",
       "routineRunNotOwner": "Nur wer diese Routine besitzt, kann sie ausführen, da sie dessen KI-Guthaben verbraucht.",
       "routineRunNowRequiresSchedule": "Nur geplante Routinen können manuell getestet werden.",
       "routineScheduleInvalid": "Dieser Zeitplan ist kein gültiger Cron-Ausdruck.",
