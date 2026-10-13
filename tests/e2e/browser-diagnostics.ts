@@ -187,3 +187,21 @@ export function expectBlockedEmailScripts(page: Page) {
     limit: Number.POSITIVE_INFINITY,
   });
 }
+
+/**
+ * The browser reports a document answered with 404 as a failed resource load. Only documents `page` navigated to that
+ * answered 404 are expected; any other failed load, an API call or a chunk included, stays unexpected.
+ */
+export function expectNotFoundDocuments(page: Page) {
+  const documents = new Set<string>();
+  page.on("response", (response) => {
+    if (response.status() === 404 && response.request().isNavigationRequest()) documents.add(response.url());
+  });
+  return BrowserDiagnostics.ofPage(page).expect({
+    kind: "console",
+    text: /^Failed to load resource: the server responded with a status of 404/,
+    source: (url) => documents.has(url.href),
+    page,
+    limit: Number.POSITIVE_INFINITY,
+  });
+}

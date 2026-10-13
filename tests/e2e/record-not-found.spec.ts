@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { presetId } from "../../features/records/crm-preset";
-import { BrowserDiagnostics } from "./browser-diagnostics";
+import { expectNotFoundDocuments } from "./browser-diagnostics";
 import { collectPageErrors, expect, test } from "./fixtures";
 import {
   createConfiguredList,
@@ -14,22 +14,8 @@ import {
 import { secondUser } from "./second-user";
 import { postOk } from "./api";
 
-/**
- * The browser reports a 404 document as a failed resource load. Only the documents this page navigated to and that
- * answered 404 are expected; any other failed load, an API call or a chunk included, stays unexpected.
- */
 function allowNotFoundDocuments(page: Page) {
-  const documents = new Set<string>();
-  page.on("response", (response) => {
-    if (response.status() === 404 && response.request().isNavigationRequest()) documents.add(response.url());
-  });
-  BrowserDiagnostics.ofPage(page).expect({
-    kind: "console",
-    text: /^Failed to load resource: the server responded with a status of 404/,
-    source: (url) => documents.has(url.href),
-    page,
-    limit: Number.POSITIVE_INFINITY,
-  });
+  expectNotFoundDocuments(page);
   return collectPageErrors(page);
 }
 
