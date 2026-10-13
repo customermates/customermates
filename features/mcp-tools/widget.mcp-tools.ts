@@ -3,7 +3,7 @@ import { WidgetKind } from "@/generated/prisma";
 import {
   getSaveWidgetInteractor,
   getGetWidgetsInteractor,
-  getGetWidgetByIdInteractor,
+  getGetRecordWidgetInteractor,
   getDeleteWidgetInteractor,
 } from "@/core/di";
 import { RecordMeasureSchema } from "@/features/records/record-measure.schema";
@@ -11,14 +11,12 @@ import { WidgetDisplayOptionsSchema } from "@/features/widget/widget.schema";
 import { WidgetPlacementSchema, occupiedGrid } from "@/features/widget/widget-grid";
 import { desktopPlacement } from "@/features/widget/widget-placement";
 import { RecordActivityQuerySchema } from "@/ee/messaging/activities/record-activities.schema";
-import { CustomErrorCode } from "@/core/validation/validation.types";
 import {
   formatDatesInResponse,
   mcpInteractorFailure,
   mcpMessageFailure,
   mcpValidationFailure,
   nestedValidationErrorText,
-  nestedCustomErrorText,
   toonResult,
 } from "./utils";
 
@@ -125,9 +123,8 @@ export const manageWidgetsTool = {
       if (!valid.success) return mcpValidationFailure(valid.error);
       const items = await Promise.all(
         valid.data.ids.map(async (id) => {
-          const result = await getGetWidgetByIdInteractor().invoke({ id });
-          if (!result.ok) return { id, error: nestedValidationErrorText(result.error) };
-          return result.data ?? { id, error: await nestedCustomErrorText(CustomErrorCode.widgetNotFound) };
+          const result = await getGetRecordWidgetInteractor().invoke({ id });
+          return result.ok ? result.data : { id, error: nestedValidationErrorText(result.error) };
         }),
       );
       return toonResult({ items: formatDatesInResponse(items) });

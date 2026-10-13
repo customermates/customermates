@@ -153,6 +153,21 @@ describe("gated-tools", () => {
       expect(approvalNeeded(toolByName(name), { action })).toBe(true);
   });
 
+  it("gates a member's role or status change while a profile-only member update stays approval-free", () => {
+    const tool = toolByName("manage_team");
+    const userId = "00000000-0000-4000-8000-000000000001";
+    for (const input of [
+      { action: "update_member", userId, roleId: "00000000-0000-4000-8000-000000000002" },
+      { action: "update_member", userId, roleId: null },
+      { action: "update_member", userId, status: "inactive" },
+    ]) {
+      expect(approvalNeeded(tool, input), JSON.stringify(input)).toBe(true);
+      expect(describeInternalTool(tool.name, input).risk).toBe("sensitive");
+    }
+    expect(approvalNeeded(tool, { action: "update_member", userId })).toBe(false);
+    expect(describeInternalTool(tool.name, { action: "update_member", userId }).risk).toBe("write");
+  });
+
   it("starts a website import without approval, with an accurate label", () => {
     const setup = importWebsiteTool("en");
     const input = { url: "https://example.com/" };

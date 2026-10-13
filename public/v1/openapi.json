@@ -79264,7 +79264,7 @@
       "post": {
         "operationId": "setConnectedAccountSignature",
         "summary": "Set the email signature and appearance",
-        "description": "Saves the signature text (Markdown, up to 2,000 characters, empty to clear) and the complete email settings (appearance and signature layout), as the account's Email tab does. Only the account owner can change it; another member's account answers 404. Returns the saved account. Requires: Inbox messages Edit.",
+        "description": "Saves the signature text (Markdown, up to 2,000 characters, empty to clear), the complete email settings (appearance and signature layout), or both, as the account's Email tab does. An omitted field keeps its stored value; send at least one. Only the account owner can change it; another member's account answers 404. Returns the saved account. Requires: Inbox messages Edit.",
         "tags": [
           "messaging"
         ],
@@ -79395,10 +79395,7 @@
                     ]
                   }
                 },
-                "required": [
-                  "signature",
-                  "settings"
-                ]
+                "additionalProperties": false
               }
             }
           }
@@ -113926,6 +113923,7 @@
                         "chatThreadRequired",
                         "webhookTriggerRequired",
                         "recordValueInvalid",
+                        "recordMarkedTextChanged",
                         "recordSublistNested",
                         "serviceBusy",
                         "recordValueRequired",
@@ -114003,6 +114001,8 @@
                         "widgetNotFound",
                         "webhookNotFound",
                         "webhookDeliveryNotFound",
+                        "webhookDeliveryInProgress",
+                        "webhookDisabled",
                         "wikiPageNotFound",
                         "wikiPageConflict",
                         "wikiNotEmpty",
@@ -114019,6 +114019,7 @@
                         "calendarEventNotFound",
                         "calendarNotFound",
                         "connectedAccountNotFound",
+                        "connectedAccountEmailChangeRequired",
                         "roleNotFound",
                         "routineNotFound",
                         "roleAssignedCannotDelete",

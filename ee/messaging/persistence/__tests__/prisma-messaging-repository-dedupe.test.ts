@@ -110,7 +110,7 @@ const { fakeDb } = vi.hoisted(() => {
 
 vi.mock("@/prisma/db", () => ({ prisma: fakeDb.prisma }));
 
-import { PrismaMessagingRepo } from "../prisma-messaging.repository";
+import { createTestMessagingRepo } from "@/tests/helpers/messaging-repository";
 
 const CONNECTED_ACCOUNT_ID = "acc-1";
 const COMPANY_ID = "company-1";
@@ -159,7 +159,7 @@ describe("PrismaMessagingRepo message dedupe on providerMessageId", () => {
       sender: { attendeeId: "", displayName: null, identifier: "me@company.com" },
     });
 
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
 
     const result = await repo.ingestMessageUnscoped({
       companyId: COMPANY_ID,
@@ -174,7 +174,7 @@ describe("PrismaMessagingRepo message dedupe on providerMessageId", () => {
   });
 
   it("inserts a new row when no message with that providerMessageId exists yet", async () => {
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
 
     await repo.ingestMessageUnscoped({
       companyId: COMPANY_ID,
@@ -206,7 +206,7 @@ describe("PrismaMessagingRepo thread dedupe on unipileThreadAltId", () => {
       lastMessageIsSender: null,
     });
 
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
 
     const result = await repo.upsertChatThreadUnscoped({
       companyId: COMPANY_ID,
@@ -239,7 +239,7 @@ describe("PrismaMessagingRepo thread dedupe on unipileThreadAltId", () => {
       lastMessageIsSender: null,
     });
 
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
 
     const result = await repo.upsertChatThreadUnscoped({
       companyId: COMPANY_ID,
@@ -278,7 +278,7 @@ describe("PrismaMessagingRepo recovery after a folder move", () => {
   it("makes a message visible again once its folders come back", async () => {
     hiddenAfterMissedMove();
 
-    await new PrismaMessagingRepo().ingestMessageUnscoped({
+    await createTestMessagingRepo().ingestMessageUnscoped({
       companyId: COMPANY_ID,
       connectedAccountId: CONNECTED_ACCOUNT_ID,
       message: outboundEmail({ unipileMessageId: "id-while-in-archive", folderIds: ["archive"] }) as never,
@@ -293,7 +293,7 @@ describe("PrismaMessagingRepo recovery after a folder move", () => {
   it("adopts the identifier the provider re-issued, rather than keeping a dangling one", async () => {
     hiddenAfterMissedMove();
 
-    await new PrismaMessagingRepo().ingestMessageUnscoped({
+    await createTestMessagingRepo().ingestMessageUnscoped({
       companyId: COMPANY_ID,
       connectedAccountId: CONNECTED_ACCOUNT_ID,
       message: outboundEmail({ unipileMessageId: "id-while-in-archive", folderIds: ["archive"] }) as never,
@@ -319,7 +319,7 @@ describe("PrismaMessagingRepo recovery after a folder move", () => {
       sender: { attendeeId: "", displayName: null, identifier: "me@company.com" },
     });
 
-    await new PrismaMessagingRepo().ingestMessageUnscoped({
+    await createTestMessagingRepo().ingestMessageUnscoped({
       companyId: COMPANY_ID,
       connectedAccountId: CONNECTED_ACCOUNT_ID,
       message: outboundEmail({ unipileMessageId: "id-in-archive", folderIds: ["archive"] }) as never,
@@ -347,7 +347,7 @@ describe("PrismaMessagingRepo recovery after a folder move", () => {
       sender: { attendeeId: "", displayName: null, identifier: "me@company.com" },
     });
 
-    await new PrismaMessagingRepo().ingestMessageUnscoped({
+    await createTestMessagingRepo().ingestMessageUnscoped({
       companyId: COMPANY_ID,
       connectedAccountId: CONNECTED_ACCOUNT_ID,
       message: outboundEmail({ unipileMessageId: "id-seen-in-sent", folderIds: ["sent"] }) as never,
@@ -361,7 +361,7 @@ describe("PrismaMessagingRepo recovery after a folder move", () => {
   it("leaves a message hidden when it still belongs to no folder", async () => {
     hiddenAfterMissedMove();
 
-    await new PrismaMessagingRepo().ingestMessageUnscoped({
+    await createTestMessagingRepo().ingestMessageUnscoped({
       companyId: COMPANY_ID,
       connectedAccountId: CONNECTED_ACCOUNT_ID,
       message: outboundEmail({ unipileMessageId: "id-still-nowhere", folderIds: [] }) as never,

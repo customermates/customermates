@@ -251,6 +251,34 @@ describe("RoutineModalStore", () => {
     }
   });
 
+  it("deletes a row's routine by id without opening the editor or touching another open routine", async () => {
+    const routinesStore = {
+      upsertItem: vi.fn(() => Promise.resolve()),
+      removeItem: vi.fn(() => Promise.resolve()),
+      refresh: vi.fn(() => Promise.resolve()),
+    };
+    const store = makeStore(undefined, { admin: true, routinesStore });
+    const open = makeRoutine();
+    const other = "30000000-0000-4000-8000-000000000002";
+    routineActions.deleteRoutineAction.mockImplementation(({ id }: { id: string }) =>
+      Promise.resolve({ ok: true, data: { id, trashBatchId: "40000000-0000-4000-8000-000000000001" } }),
+    );
+
+    expect(await store.deleteById(other)).toEqual({ trashBatchId: "40000000-0000-4000-8000-000000000001" });
+    expect(routineActions.deleteRoutineAction).toHaveBeenLastCalledWith({ id: other });
+    expect(store.isOpen).toBe(false);
+
+    await store.openForEdit(open);
+    await store.deleteById(other);
+    expect(store.isOpen).toBe(true);
+    expect(store.payload.id).toBe(open.id);
+
+    await store.deleteById(open.id);
+    expect(routineActions.deleteRoutineAction).toHaveBeenLastCalledWith({ id: open.id });
+    expect(routinesStore.removeItem).toHaveBeenCalledWith(open.id);
+    expect(store.isOpen).toBe(false);
+  });
+
   it("does not carry the edited routine's id into the next create", async () => {
     const store = makeStore();
 

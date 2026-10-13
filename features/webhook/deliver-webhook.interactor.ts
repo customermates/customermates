@@ -5,10 +5,9 @@ import { runInTransaction } from "@/core/decorators/transaction-runner";
 import type { RecordRecipientReader } from "@/features/records/record-recipient-reader";
 import type { WebhookDeliveryQueueRepo } from "./webhook-delivery-queue.repo";
 import type { WebhookTransport, WebhookTransportResult } from "./webhook-transport.service";
+import { WEBHOOK_PREFLIGHT_FAILURE_STATUS } from "./webhook-transport.service";
 import { eventEnvelope, type EventEnvelope } from "@/features/event/event-envelope";
 import { parseStoredWebhookHeaders } from "./webhook-headers";
-
-export { WEBHOOK_PREFLIGHT_FAILURE_STATUS } from "./webhook-transport.service";
 
 const Schema = z.object({ deliveryId: z.uuid(), companyId: z.uuid() });
 export type DeliverWebhookPayload = z.infer<typeof Schema>;
@@ -84,7 +83,7 @@ export class DeliverWebhookInteractor {
       ? await this.transport.post(prepared)
       : {
           success: false,
-          statusCode: 422,
+          statusCode: WEBHOOK_PREFLIGHT_FAILURE_STATUS,
           responseMessage: "Webhook configuration or current record access is unavailable",
         };
     const retryable = result.statusCode === null || result.statusCode >= 500 || RETRYABLE_4XX.has(result.statusCode);

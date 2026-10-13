@@ -15,8 +15,10 @@ export const MCP_TOOLSET_KEYS = [
 ] as const;
 
 export const MCP_TOOLSET_DISCOVERY_TOOL_NAMES: Record<string, readonly string[]> = {
+  "record-model": ["discover_record_types", "get_record_model", "read_crm_operation"],
   widgets: ["discover_record_types", "get_record_model"],
   routines: ["discover_record_types", "get_record_model"],
+  webhooks: ["discover_record_types", "get_record_model"],
 };
 
 export function mcpToolsForToolsets<T extends { name: string }>(

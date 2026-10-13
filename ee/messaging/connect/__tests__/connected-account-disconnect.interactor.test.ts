@@ -60,7 +60,7 @@ describe("DeleteConnectedAccountInteractor", () => {
 
     const result = await interactor.invoke({ id: ACCOUNT_ID });
 
-    expect(result).toEqual({ ok: true, data: null });
+    expect(result).toEqual({ ok: true, data: { id: ACCOUNT_ID, disconnected: true } });
     expect(repo.deleteAccount).toHaveBeenCalledWith(ACCOUNT_ID);
     expect(eventService.publish).toHaveBeenCalledTimes(1);
     expect(messagingService.deleteAccount).toHaveBeenCalledWith({ accountId: "provider-account-1" });
@@ -72,7 +72,10 @@ describe("DeleteConnectedAccountInteractor", () => {
   it("removes the provider account right away when the provider answers", async () => {
     const { interactor, messagingService } = disconnect(() => Promise.resolve());
 
-    expect(await interactor.invoke({ id: ACCOUNT_ID })).toEqual({ ok: true, data: null });
+    expect(await interactor.invoke({ id: ACCOUNT_ID })).toEqual({
+      ok: true,
+      data: { id: ACCOUNT_ID, disconnected: true },
+    });
     expect(messagingService.deleteAccount).toHaveBeenCalledTimes(1);
     expect(sentry.captureException).not.toHaveBeenCalled();
   });
@@ -102,5 +105,22 @@ describe("ResyncConnectedAccountInteractor", () => {
 
     expect(result.ok).toBe(false);
     expect(background.dispatch).not.toHaveBeenCalled();
+  });
+
+  it("returns the resync receipt after dispatching the backfill", async () => {
+    const repo = { findAccountByIdOrThrow: vi.fn().mockResolvedValue(account) };
+    const background = { dispatch: vi.fn().mockResolvedValue(undefined) };
+    const interactor = new ResyncConnectedAccountInteractor(
+      repo as never,
+      background as never,
+      { publish: vi.fn().mockResolvedValue(undefined) } as never,
+      { require: vi.fn().mockResolvedValue(null) } as never,
+    );
+
+    expect(await interactor.invoke({ id: ACCOUNT_ID })).toEqual({
+      ok: true,
+      data: { id: ACCOUNT_ID, resyncStarted: true },
+    });
+    expect(background.dispatch).toHaveBeenCalledWith("backfill-connected-account", { connectedAccountId: ACCOUNT_ID });
   });
 });

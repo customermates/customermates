@@ -1,4 +1,5 @@
 import { runInTransaction } from "@/core/decorators/transaction-runner";
+import { unwoundFailure } from "@/core/validation/interactor-failure-server";
 import type { GetMessagingThreadsRepo } from "./get-messaging-threads.repo";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
 import type { QueryParamsPrecheckInteractor } from "@/core/base/query-params-precheck.interactor";
@@ -37,6 +38,6 @@ export class GetMessagingThreadsInteractor extends BaseGetInteractor<MessagingTh
     const denied = await this.entitlements.require("messaging");
     if (denied) return denied;
 
-    return runInTransaction(() => super.invoke(params), { readOnly: true });
+    return runInTransaction(() => super.invoke(params), { readOnly: true }).catch(unwoundFailure);
   }
 }
