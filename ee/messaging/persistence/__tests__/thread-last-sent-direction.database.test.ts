@@ -11,7 +11,7 @@ import { MessagingProvider } from "@/generated/prisma";
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
-import { getRecordAccessPolicy, getRecordRepo } from "@/core/di";
+import { getConnectedAccountRepo, getRecordAccessPolicy, getRecordIdentityReader, getRecordRepo } from "@/core/di";
 import { PrismaMessagingRepo } from "../prisma-messaging.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
@@ -40,7 +40,12 @@ describeDatabase("the latest sent message of a thread on PostgreSQL", () => {
   const ownerEmail = `last-sent-owner-${ownerId}@example.invalid`;
   const customerEmail = `last-sent-customer-${ownerId}@example.invalid`;
   const tenant = createMockUser({ id: ownerId, companyId, email: ownerEmail }) satisfies TenantUser;
-  const repo = new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
+  const repo = new PrismaMessagingRepo(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordIdentityReader(),
+    getConnectedAccountRepo(),
+  );
 
   beforeAll(async () => {
     await client.connect();

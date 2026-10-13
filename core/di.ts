@@ -796,7 +796,13 @@ export const getRoutineEventAccess = () => new PrismaRoutineEventAccess(getRecor
 export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo(getRecordRecipientReader());
 export const getEventLogRepo = () => new PrismaEventLogRepo(getBackgroundTaskService());
 export const getWikiPageRepo = (companyId?: string) => new PrismaWikiPageRepo(getPermissionService(), companyId);
-export const getMessagingRepo = () => new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
+export const getMessagingRepo = () =>
+  new PrismaMessagingRepo(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordIdentityReader(),
+    getConnectedAccountRepo(),
+  );
 export const getConnectedAccountRepo = () => new PrismaConnectedAccountRepo(getPermissionService());
 export const getUnipileWebhookRepo = () => new PrismaUnipileWebhookRepo();
 export const getCalendarRepo = () => new PrismaCalendarRepo();

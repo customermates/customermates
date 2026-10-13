@@ -12,6 +12,7 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 import { draftThreadProviderId } from "../../draft-thread-id";
+import { getRecordIdentityReader } from "@/core/di";
 import { PrismaMessagingRepo } from "../prisma-messaging.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
@@ -195,7 +196,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
   });
 
   it("keeps Bcc-only cold draft targets separate and never creates public Bcc participants", async () => {
-    const repo = new PrismaMessagingRepo();
+    const repo = new PrismaMessagingRepo(undefined, undefined, getRecordIdentityReader());
     const hidden = `private-${randomUUID()}@example.invalid`;
     const create = (cc: string[], bcc: string[]) =>
       runWithTenant(tenant, () =>
@@ -244,7 +245,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
   it.each(["address", "role"])(
     "updates an empty-To draft identity atomically after a secondary %s edit",
     async (change) => {
-      const repo = new PrismaMessagingRepo();
+      const repo = new PrismaMessagingRepo(undefined, undefined, getRecordIdentityReader());
       const initialAddress = `initial-${randomUUID()}@example.invalid`;
       const editedAddress = change === "role" ? initialAddress : `edited-${randomUUID()}@example.invalid`;
       const initial = { cc: [] as string[], bcc: [initialAddress] };
@@ -300,7 +301,7 @@ describeDatabase("draft lifecycle persistence on PostgreSQL", () => {
   );
 
   it("rolls back content and private identity when an edited cold target already has another draft", async () => {
-    const repo = new PrismaMessagingRepo();
+    const repo = new PrismaMessagingRepo(undefined, undefined, getRecordIdentityReader());
     const firstAddress = `first-${randomUUID()}@example.invalid`;
     const secondAddress = `second-${randomUUID()}@example.invalid`;
     const create = (address: string) =>
