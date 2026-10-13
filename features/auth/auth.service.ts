@@ -53,6 +53,11 @@ type McpConsentValue = {
 export class AuthService {
   constructor(private emailService: EmailService) {}
 
+  async revokeOauthConsents(userId: string): Promise<number> {
+    const consents = await prisma.oauthConsent.deleteMany({ where: { userId } });
+    return consents.count;
+  }
+
   async getSession() {
     const headersList = await headers();
 

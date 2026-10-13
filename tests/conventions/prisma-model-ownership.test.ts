@@ -110,14 +110,12 @@ const ALLOWLIST: Record<string, string> = {
   "CrmRecord ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
   "InviteToken ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
   "MessagingInboundEvent ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "OauthConsent core/auth/better-auth.ts": "The authentication adapter revokes unproven access: sessions, keys, tokens and consents together",
   "RoutineRun ee/agent-chat/prisma-agent-chat.repository.ts":
     "Agent turn admission and retry release link or unlink the routine run to its conversation in the turn transaction",
   "Subscription ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "User core/auth/better-auth.ts": "The authentication session-creation hook stamps lastActiveAt on the signed-in user row",
   "User ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
 };
-const ALLOWLIST_CEILING = 13;
+const ALLOWLIST_CEILING = 11;
 
 type WriteSite = { model: string; file: string; line: number; operation: string };
 

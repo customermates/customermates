@@ -139,12 +139,8 @@ export const auth = betterAuth({
           try {
             const authUser = await prisma.authUser.findUnique({ where: { id: session.userId } });
             if (authUser) {
-              await runWithoutTenant(() =>
-                prisma.user.updateMany({
-                  where: { email: authUser.email },
-                  data: { lastActiveAt: new Date() },
-                }),
-              );
+              const { getUserRepo } = await import("@/core/di");
+              await getUserRepo().markActiveByEmailUnscoped(authUser.email);
             }
           } catch (error) {
             Sentry.captureException(error);
@@ -283,7 +279,8 @@ async function revokeUnprovenAccess(userId: string, options: { removeAccounts: b
   const sessions = await prisma.authSession.deleteMany({ where: { userId } });
   const apiKeys = await prisma.apikey.deleteMany({ where: { referenceId: userId } });
   const tokens = await prisma.oauthAccessToken.deleteMany({ where: { userId } });
-  const consents = await prisma.oauthConsent.deleteMany({ where: { userId } });
+  const { getAuthService } = await import("@/core/di");
+  const consents = await getAuthService().revokeOauthConsents(userId);
 
-  return accounts.count + sessions.count + apiKeys.count + tokens.count + consents.count;
+  return accounts.count + sessions.count + apiKeys.count + tokens.count + consents;
 }
