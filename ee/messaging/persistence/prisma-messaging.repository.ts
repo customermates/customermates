@@ -111,8 +111,8 @@ export class PrismaMessagingRepo
     FindThreadsByIdsRepo
 {
   constructor(
-    private readonly inboxRecords?: Pick<RecordRepo, "getModel">,
-    private readonly inboxPolicy?: Pick<RecordAccessPolicy, "load">,
+    private readonly inboxRecords: Pick<RecordRepo, "getModel">,
+    private readonly inboxPolicy: Pick<RecordAccessPolicy, "load">,
     private readonly identities?: Pick<RecordIdentityReader, "resolve">,
     private readonly filterOptions?: MessagingFilterOptionsRepo,
   ) {
@@ -374,7 +374,6 @@ export class PrismaMessagingRepo
   }
 
   private async recordInboxQuery(params: GetQueryParams) {
-    if (!this.inboxRecords || !this.inboxPolicy) throw new Error("Messaging inbox record access is not configured");
     const [model, policy] = await Promise.all([this.inboxRecords.getModel(), this.inboxPolicy.load()]);
     if (!policy.actor) throw unwindFailure(CustomErrorCode.permissionDenied);
     return compileMessagingRecordQuery(
@@ -728,11 +727,12 @@ export class PrismaMessagingRepo
     return hydrated;
   }
 
-  async findThreadForResyncOrThrow(threadId: string) {
-    const row = await this.prisma.messagingThread.findFirstOrThrow({
+  async findThreadForResync(threadId: string) {
+    const row = await this.prisma.messagingThread.findFirst({
       where: {
         id: threadId,
         ...threadAccessWhere(this.companyId, this.userId),
+        connectedAccount: { is: accessibleConnectedAccountWhere(this.companyId, this.userId) },
       },
       select: {
         id: true,
@@ -751,6 +751,7 @@ export class PrismaMessagingRepo
       },
     });
 
+    if (!row) return null;
     const { connectedAccount, ...rest } = row;
 
     return {

@@ -1,4 +1,4 @@
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 import { APP_LOCALES } from "../../i18n/locale-registry";
 import { APP_LOCALE_COOKIE_NAME } from "../../i18n/locale-preference";
@@ -25,14 +25,7 @@ test("renders the configurable record surface in all application locales and bot
       const page = await context.newPage();
       await page.bringToFront();
       await page.addInitScript((preference) => window.localStorage.setItem("theme", preference), theme);
-      const errors: string[] = [];
-      page.on("pageerror", (error) => {
-        if (!isBenignPageError(error.message))
-          errors.push(error.message);
-      });
-      page.on("console", (message) => {
-        if (isAppConsoleError(message)) errors.push(message.text());
-      });
+      const errors = collectPageErrors(page);
       await page.goto(`/${locale}/records/${typeId}`);
       await expect(page.locator("html")).toHaveAttribute("lang", locale);
       await expect(page.locator("html")).toHaveClass(new RegExp(`(?:^|\\s)${theme}(?:\\s|$)`));

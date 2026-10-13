@@ -13,7 +13,7 @@ test("persists a routine for a customer-created type and matches only its config
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors = collectPageErrors(page, { console: false });
+  const errors = collectPageErrors(page);
   await openConfigure(page);
   await addFromConfigure(page, "List");
   const creation = page.getByRole("dialog");

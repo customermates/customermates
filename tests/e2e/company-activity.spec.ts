@@ -6,7 +6,7 @@ test("shows admin and configuration history on the workspace activity page and f
   companyId,
 }) => {
   test.setTimeout(180000);
-  const errors = collectPageErrors(page, { console: false });
+  const errors = collectPageErrors(page);
 
   await page.goto("/en/settings/roles");
   await page.locator("#settings-roles-add").click();

@@ -12,7 +12,9 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { LegalAcceptanceAuditPayloadSchema, LegalNoticeAuditPayloadSchema } from "@/features/legal/legal-audit.schema";
 import { DomainEvent } from "./domain-events";
 import { subjectKindOf } from "./event-envelope";
-import { wakeEventOutbox } from "./event-outbox.repo";
+import { EVENT_ADMISSION_ABANDONED, wakeEventOutbox } from "./event-outbox.repo";
+
+const ABANDONED_RETRY_AT = new Date("9999-12-31T00:00:00.000Z");
 
 export class PrismaEventLogRepo
   extends TenantRepository
@@ -153,12 +155,12 @@ export class PrismaEventLogRepo
   }
 
   @BypassTenantGuard
-  async markDeliveredUnscoped(event: EventLog, now: Date): Promise<void> {
+  async markDeliveredUnscoped(event: EventLog, now: Date): Promise<boolean> {
     const result = await this.prisma.eventLog.updateMany({
       where: { companyId: event.companyId, id: event.id, deliveredAt: null, attempts: event.attempts },
       data: { deliveredAt: now, attempts: { increment: 1 }, lastFailureCode: null },
     });
-    if (result.count !== 1) throw new Error("Event admission lost its transaction precondition");
+    return result.count === 1;
   }
 
   @BypassTenantGuard
@@ -166,6 +168,19 @@ export class PrismaEventLogRepo
     const result = await this.prisma.eventLog.updateMany({
       where: { companyId: event.companyId, id: event.id, deliveredAt: null, attempts: event.attempts },
       data: { attempts: { increment: 1 }, nextAttemptAt, lastFailureCode: "admission_failed" },
+    });
+    return result.count === 1;
+  }
+
+  @BypassTenantGuard
+  async abandonUnscoped(event: EventLog): Promise<boolean> {
+    const result = await this.prisma.eventLog.updateMany({
+      where: { companyId: event.companyId, id: event.id, deliveredAt: null, attempts: event.attempts },
+      data: {
+        attempts: { increment: 1 },
+        nextAttemptAt: ABANDONED_RETRY_AT,
+        lastFailureCode: EVENT_ADMISSION_ABANDONED,
+      },
     });
     return result.count === 1;
   }

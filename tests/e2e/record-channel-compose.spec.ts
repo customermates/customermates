@@ -5,7 +5,8 @@ import { presetId } from "../../features/records/crm-preset";
 import { isDraftThreadId } from "../../ee/messaging/provider";
 import { decodeGetParams } from "../../core/utils/get-params";
 import type { RecordRef } from "../../features/records/record-model.schema";
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { expectBlockedEmailScripts } from "./browser-diagnostics";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 import { openRecordDetails, openRecordLink, recordItem } from "./record-rows";
 
@@ -17,22 +18,8 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   workspace,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
-  const browserDiagnostics: string[] = [];
-  const captureError = (message: string) => {
-    if (
-      message ===
-      "Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set."
-    )
-      browserDiagnostics.push(message);
-    else errors.push(message);
-  };
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) captureError(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) captureError(message.text());
-  });
+  const errors = collectPageErrors(page);
+  const sandboxedEmail = expectBlockedEmailScripts(page);
   let model = await postOk(page, "/api/v1/model/read", {});
   const typeId = presetId(companyId, "organization");
   const channelsFieldId = randomUUID();
@@ -620,7 +607,7 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
     fullPage: true,
   });
   await testInfo.attach("expected-email-sandbox-diagnostics", {
-    body: Buffer.from(JSON.stringify(browserDiagnostics)),
+    body: Buffer.from(JSON.stringify(sandboxedEmail.events.map(({ text }) => text))),
     contentType: "application/json",
   });
   expect(errors).toEqual([]);

@@ -186,7 +186,7 @@ export class PrismaWebhookRepo
   }
 
   getSearchableFields() {
-    return [{ field: "url" }];
+    return [{ field: "url" }, { field: "description" }];
   }
 
   getSortableFields() {

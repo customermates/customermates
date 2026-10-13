@@ -6,7 +6,7 @@ import {
   ConfigurationPreviewSchema,
   type ConfigurationChange,
 } from "../../features/records/configuration.schema";
-import { RecordModelSchema, type RecordModel } from "../../features/records/record-model.schema";
+import type { RecordModel } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import {
@@ -18,6 +18,7 @@ import {
   saveGeneral,
 } from "./configure";
 import { expect, test, collectPageErrors } from "./fixtures";
+import { readModel } from "./api";
 import { suggestListPlural } from "../../app/[locale]/(protected)/configure/components/list-plural";
 
 const labels = englishMessages.RecordModel;
@@ -29,14 +30,6 @@ const recovery = {
   latest: labels.staleLoadLatest,
   removed: labels.staleTargetMissing,
 };
-
-async function model(database: Client, companyId: string): Promise<RecordModel> {
-  const result = await database.query(
-    'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1 ORDER BY revision DESC LIMIT 1',
-    [companyId],
-  );
-  return RecordModelSchema.parse(result.rows[0]?.snapshot);
-}
 
 function type(model: RecordModel, typeId: string) {
   const found = model.types.find((candidate) => candidate.id === typeId);
@@ -143,7 +136,7 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
   await page.getByRole("dialog").locator("#label").fill("Budget");
   await select(page, "valueType", labels.types.number);
   await apply(page);
-  const initial = await model(database, companyId);
+  const initial = await readModel(database, companyId);
   const originalField = initial.fields.find((field) => field.typeId === typeId && field.label === "Budget");
   if (!originalField) throw new Error("Expected Budget field");
   const other = await context.newPage();
@@ -155,7 +148,7 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
     await page.getByRole("dialog").locator("#label").fill("Working budget");
     await other.getByRole("dialog").locator("#required").check();
     await apply(other);
-    const remoteFieldModel = await model(database, companyId);
+    const remoteFieldModel = await readModel(database, companyId);
     expect(remoteFieldModel.revision).toBe(initial.revision + 1);
     expect(remoteFieldModel.fields.find((field) => field.id === originalField.id)).toMatchObject({
       label: "Budget",
@@ -166,14 +159,14 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
     await expect(page.getByRole("dialog").locator("#label")).not.toHaveAttribute("readonly", "");
     await expect(page.getByRole("dialog").getByRole("button", { name: recovery.keep, exact: true })).toHaveCount(0);
     await preview(page);
-    expect((await model(database, companyId)).revision).toBe(remoteFieldModel.revision);
+    expect((await readModel(database, companyId)).revision).toBe(remoteFieldModel.revision);
     await page
       .getByRole("dialog")
       .getByRole("button", { name: englishMessages.Common.actions.save, exact: true })
       .first()
       .click();
     await expect(page.getByRole("dialog")).not.toBeVisible();
-    const merged = await model(database, companyId);
+    const merged = await readModel(database, companyId);
     expect(merged.revision).toBe(remoteFieldModel.revision + 1);
     expect(merged.fields.find((field) => field.id === originalField.id)).toMatchObject({
       id: originalField.id,
@@ -189,7 +182,7 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
       await test.step(scenario.choice, async () => {
         await configure(page, typeId);
         await configure(other, typeId);
-        const before = await model(database, companyId);
+        const before = await readModel(database, companyId);
         const localName = `${initialName} ${scenario.keepLocal ? "local" : "discarded"}`;
         const remoteName = `${initialName} ${scenario.keepLocal ? "remote first" : "remote last"}`;
         const localDescription = `${scenario.choice}: retain my separate description`;
@@ -203,7 +196,7 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
           .click();
         await expect(generalControl(other, "icon")).toContainText(scenario.iconLabel);
         await saveGeneral(other);
-        const remote = await model(database, companyId);
+        const remote = await readModel(database, companyId);
         expect(remote.revision).toBe(before.revision + 1);
         expect(type(remote, typeId)).toMatchObject({ label: remoteName, icon: scenario.icon });
         const save = configureTopBar(page).getByRole("button", {
@@ -230,13 +223,13 @@ test("recovers concurrent configuration drafts and resolves each same-control ch
         await expect(generalControl(page, "name")).toHaveValue(expectedName);
         await expect(generalControl(page, "description")).toHaveValue(localDescription);
         await expect(generalControl(page, "name")).not.toHaveAttribute("readonly", "");
-        expect((await model(database, companyId)).revision).toBe(remote.revision);
+        expect((await readModel(database, companyId)).revision).toBe(remote.revision);
         await page.screenshot({
           path: testInfo.outputPath(`stale-${scenario.keepLocal ? "keep" : "latest"}.png`),
           fullPage: true,
         });
         await saveGeneral(page);
-        const committed = await model(database, companyId);
+        const committed = await readModel(database, companyId);
         expect(committed.revision).toBe(remote.revision + 1);
         expect(type(committed, typeId)).toMatchObject({
           id: typeId,
@@ -282,7 +275,7 @@ test("preserves a stale relationship-path draft and blocks publication after the
   await page.getByRole("dialog").getByRole("combobox", { name: labels.addPathStep, exact: true }).click();
   await page.getByRole("option", { name: "Related entries", exact: true }).click();
   await apply(page);
-  const before = await model(database, companyId);
+  const before = await readModel(database, companyId);
   const path = type(before, typeId).relationshipPaths?.find((candidate) => candidate.label === "Related overview");
   if (!path) throw new Error("Expected UI-created relationship path");
   const relation = before.relationships.find((candidate) => candidate.id === path.path[0]?.relationId);
@@ -300,7 +293,7 @@ test("preserves a stale relationship-path draft and blocks publication after the
         type: { ...type(before, typeId), relationshipPaths: [] },
       },
     ]);
-    const removed = await model(database, companyId);
+    const removed = await readModel(database, companyId);
     expect(type(removed, typeId).relationshipPaths).toEqual([]);
     expect(removed.relationships.find((candidate) => candidate.id === relation.id)).toEqual(relation);
     await stalePreview(page, "sourceLabel", "Unsaved overview name");
@@ -312,7 +305,7 @@ test("preserves a stale relationship-path draft and blocks publication after the
     await expect(dialog.getByRole("button", { name: recovery.keep, exact: true })).toHaveCount(0);
     await expect(dialog.getByRole("status").filter({ hasText: "Ready to apply" })).toHaveCount(0);
     await page.screenshot({ path: testInfo.outputPath("stale-removed-path-draft.png"), fullPage: true });
-    const unchanged = await model(database, companyId);
+    const unchanged = await readModel(database, companyId);
     expect(unchanged.revision).toBe(removed.revision);
     expect(type(unchanged, typeId).relationshipPaths).toEqual([]);
     expect(unchanged.relationships.find((candidate) => candidate.id === relation.id)).toEqual(relation);

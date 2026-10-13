@@ -3,6 +3,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { copyGenericWorkspace } from "../helpers/copy-generic-workspace";
 import { applyConfigurableRecordsMigration, createLegacyMigrationDatabase } from "../helpers/legacy-migration-database";
 import { legacyRecordFixture } from "../helpers/legacy-record-fixture";
+import { expectNotFoundDocuments } from "./browser-diagnostics";
 import { test as base, expect, collectPageErrors } from "./fixtures";
 import { removeBrowserWorkspace } from "./workspace";
 import { openRecordDetails, openRecordLink } from "./record-rows";
@@ -51,7 +52,8 @@ test("opens upgraded records with persisted values, totals and links", async ({
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors = collectPageErrors(page, { console: false });
+  const retiredRoute = expectNotFoundDocuments(page);
+  const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "deal");
   await page.goto(`/en/records/${typeId}`);
   await expect(page.locator("header")).toContainText("Deals");
@@ -84,6 +86,7 @@ test("opens upgraded records with persisted values, totals and links", async ({
   const personType = presetId(companyId, "contact");
   const retiredContacts = await page.goto("/en/contacts");
   expect(retiredContacts?.status()).toBe(404);
+  if (testInfo.project.name === "chromium") await expect.poll(() => retiredRoute.events.length).toBe(1);
   const contacts = await page.goto(`/en/records/${personType}`);
   expect(contacts?.status()).toBe(200);
   await expect(page).toHaveURL(new RegExp(`/en/records/${personType}$`));

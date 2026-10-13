@@ -212,6 +212,7 @@ export const ConnectedAccountEmailSchema = z.object({
   signature: z.string().max(2_000),
   settings: EmailSettingsSchema,
 });
+export type ConnectedAccountEmail = z.infer<typeof ConnectedAccountEmailSchema>;
 
 export function defaultEmailSettings(): EmailSettings {
   return {

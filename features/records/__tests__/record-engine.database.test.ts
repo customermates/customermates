@@ -2192,6 +2192,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       deliveryId: response.data,
       companyId: f.company.id,
     });
+    expect(await f.run(() => resend.invoke({ id: response.data }))).toMatchObject({
+      ok: false,
+      error: {
+        issues: [expect.objectContaining({ params: expect.objectContaining({ error: "webhookDeliveryInProgress" }) })],
+      },
+    });
     const post = vi.fn().mockResolvedValue({ success: true, statusCode: 200, responseMessage: "OK" });
     expect(
       await new DeliverWebhookInteractor(
@@ -2204,6 +2210,13 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     ).toMatchObject({ status: "success" });
     expect(post).toHaveBeenCalledWith(expect.objectContaining({ requestBody: body }));
     expect(await f.run(() => resend.invoke({ id: retired.id }))).toMatchObject({ ok: false });
+    expect(await f.run(() => getUpsertWebhookInteractor().invoke({ id: hook.data.id, enabled: false }))).toMatchObject({
+      ok: true,
+    });
+    expect(await f.run(() => resend.invoke({ id: messaging.id }))).toMatchObject({
+      ok: false,
+      error: { issues: [expect.objectContaining({ params: expect.objectContaining({ error: "webhookDisabled" }) })] },
+    });
   });
 
   it("resends a record event as a separate delivery without copying the old authorized body", async () => {

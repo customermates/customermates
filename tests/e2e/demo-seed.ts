@@ -7,7 +7,7 @@ import { Client } from "pg";
 
 import { presetId } from "../../features/records/crm-preset";
 import { localE2eEnvironment } from "./local-environment";
-import { collectErrors } from "./sidebar";
+import { BrowserDiagnostics, collectPageErrors } from "./browser-diagnostics";
 
 /**
  * Helpers for the demo seed specs: they read the seeded Northwind Labs workspace (`npx prisma db seed` runs before
@@ -116,12 +116,12 @@ export async function memberPage(browser: Browser, database: Client, member: Dem
     locale: "en-GB",
     reducedMotion: "reduce",
   });
+  BrowserDiagnostics.of(testInfo).watch(context);
   const signOut = await signInMember(context, database, member);
   const page = await context.newPage();
-  trackRequests(page);
   return {
     page,
-    errors: collectErrors(page),
+    errors: collectPageErrors(page),
     close: async () => {
       await context.close();
       await signOut();
@@ -129,36 +129,12 @@ export async function memberPage(browser: Browser, database: Client, member: Dem
   };
 }
 
-const requestActivity = new WeakMap<Page, { inflight: number; last: number }>();
-
-/** Counts the requests the page has in flight, so `settle` can wait until it is quiet. */
-function trackRequests(page: Page) {
-  const activity = { inflight: 0, last: Date.now() };
-  requestActivity.set(page, activity);
-  const started = () => {
-    activity.inflight += 1;
-    activity.last = Date.now();
-  };
-  const ended = () => {
-    activity.inflight = Math.max(0, activity.inflight - 1);
-    activity.last = Date.now();
-  };
-  page.on("request", started);
-  page.on("requestfinished", ended);
-  page.on("requestfailed", ended);
-}
-
-/**
- * Waits until the page had no request in flight for half a second (at most ten seconds), so leaving it does not
- * abort lazy chunks it is still loading. A page that keeps a request open continues after the bound.
- */
-export async function settle(page: Page) {
-  const activity = requestActivity.get(page);
-  if (!activity) return;
-  await expect
-    .poll(() => activity.inflight === 0 && Date.now() - activity.last > 500, { timeout: 10000, intervals: [100] })
-    .toBe(true)
-    .catch(() => undefined);
+/** Waits until the fonts are loaded and two frames are painted, so a screenshot shows the settled layout. */
+export async function paintedFrames(page: Page) {
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  });
 }
 
 type Fixtures = { database: Client; errors: string[] };
@@ -174,7 +150,8 @@ export const test = base.extend<Fixtures>({
       await client.end();
     }
   },
-  context: async ({ context, database }, use) => {
+  context: async ({ context, database }, use, testInfo) => {
+    const diagnostics = BrowserDiagnostics.of(testInfo).watch(context);
     const signOut = await signInMember(context, database, "maxBergmann");
     try {
       await use(context);
@@ -182,13 +159,10 @@ export const test = base.extend<Fixtures>({
       await Promise.all(context.pages().map((page) => page.close()));
       await signOut();
     }
-  },
-  page: async ({ page }, use) => {
-    trackRequests(page);
-    await use(page);
+    await diagnostics.verify(testInfo);
   },
   errors: async ({ page }, use) => {
-    await use(collectErrors(page));
+    await use(collectPageErrors(page));
   },
 });
 export { expect };

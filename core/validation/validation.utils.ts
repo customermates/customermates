@@ -91,6 +91,8 @@ const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.unipileAccountRestricted,
   CustomErrorCode.unipileFeatureUnavailable,
   CustomErrorCode.unipileUnknown,
+  CustomErrorCode.webhookDeliveryInProgress,
+  CustomErrorCode.webhookDisabled,
   CustomErrorCode.wikiGuideExists,
   CustomErrorCode.wikiNotEmpty,
   CustomErrorCode.wikiPageConflict,

@@ -32,22 +32,15 @@ import {
   deleteFromDrawer,
   deleteSelectedList,
 } from "./configure";
+import { BrowserDiagnostics } from "./browser-diagnostics";
 import { expect, test, collectPageErrors } from "./fixtures";
-import { postOk } from "./api";
+import { postOk, readModel as readStoredModel } from "./api";
 import { saveViewChanges } from "./view-changes";
 import { openRecordDetails, recordItem, runRowAction } from "./record-rows";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { RecordIdentityReferenceSchema } from "../../features/records/record-identity-reference.schema";
 import { recordInvariant } from "../../features/records/record-invariant";
-
-async function storedModel(database: Client, companyId: string) {
-  const result = await database.query(
-    'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1 ORDER BY revision DESC LIMIT 1',
-    [companyId],
-  );
-  return RecordModelSchema.parse(result.rows[0]?.snapshot);
-}
 
 async function readModel(page: Page) {
   return RecordModelSchema.parse(
@@ -127,6 +120,7 @@ async function secondaryUser(
     locale: "en-GB",
     reducedMotion: "reduce",
   });
+  BrowserDiagnostics.of(testInfo).watch(context);
   await context.addCookies([
     {
       name: "app.session_token",
@@ -1702,7 +1696,7 @@ test("configures self-type singular and many relationships, edits from both ends
   await relationshipEditUi(page, type.id, related.sourceLabel);
   await deleteFromDrawer(page, "Delete relationship");
   expect(
-    (await storedModel(database, companyId)).relationships.find(
+    (await readStoredModel(database, companyId)).relationships.find(
       (relation) => relation.id === related.id,
     )?.archived,
   ).toBe(true);
@@ -1719,7 +1713,7 @@ test("configures self-type singular and many relationships, edits from both ends
   await relationshipCloseRecordUi(page, type.label);
   await restoreFromTrash(page, `${type.pluralLabel} → ${type.pluralLabel}`);
   expect(
-    (await storedModel(database, companyId)).relationships.find(
+    (await readStoredModel(database, companyId)).relationships.find(
       (relation) => relation.id === related.id,
     )?.archived,
   ).toBe(false);
@@ -3107,7 +3101,7 @@ test("keeps retained values restricted after a delegated manager converts fields
     await assertRestricted();
     await openConfigure(manager.page, sourceType.id);
     await deleteSelectedList(manager.page);
-    model = await storedModel(database, companyId);
+    model = await readStoredModel(database, companyId);
     expect(
       model.types.find((type) => type.id === sourceType.id)?.archived,
     ).toBe(true);

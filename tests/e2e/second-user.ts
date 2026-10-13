@@ -4,7 +4,7 @@ import type { Browser, TestInfo } from "@playwright/test";
 import type { Client } from "pg";
 
 import { localE2eEnvironment } from "./local-environment";
-import { collectErrors } from "./sidebar";
+import { BrowserDiagnostics, collectPageErrors } from "./browser-diagnostics";
 
 export async function secondUser(
   browser: Browser,
@@ -47,6 +47,7 @@ export async function secondUser(
     locale: "en-GB",
     reducedMotion: "reduce",
   });
+  BrowserDiagnostics.of(testInfo).watch(context);
   await context.addCookies([
     {
       name: "app.session_token",
@@ -63,7 +64,7 @@ export async function secondUser(
   const page = await context.newPage();
   return {
     page,
-    errors: collectErrors(page),
+    errors: collectPageErrors(page),
     close: async () => {
       await context.close();
       await database.query('DELETE FROM "AuthUser" WHERE id=$1 AND "companyId"=$2', [authUserId, companyId]);

@@ -208,14 +208,12 @@ describeDatabase("owner write ports", () => {
 
     expect(await runWithoutTenant(() => repo.deferUnscoped(event, new Date()))).toBe(true);
     expect(await runWithoutTenant(() => repo.deferUnscoped(event, new Date()))).toBe(false);
-    await expect(runWithoutTenant(() => repo.markDeliveredUnscoped(event, new Date()))).rejects.toThrow(
-      "Event admission lost its transaction precondition",
-    );
+    expect(await runWithoutTenant(() => repo.markDeliveredUnscoped(event, new Date()))).toBe(false);
     const current = await runWithoutTenant(() =>
       prisma.eventLog.findFirstOrThrow({ where: { companyId, id: event.id } }),
     );
     expect(current).toMatchObject({ attempts: 1, deliveredAt: null, lastFailureCode: "admission_failed" });
-    await runWithoutTenant(() => repo.markDeliveredUnscoped(current, new Date()));
+    expect(await runWithoutTenant(() => repo.markDeliveredUnscoped(current, new Date()))).toBe(true);
     expect(await runWithoutTenant(() => repo.findUnscoped(companyId, event.id))).toMatchObject({
       attempts: 2,
       lastFailureCode: null,

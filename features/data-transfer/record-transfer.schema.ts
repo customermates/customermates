@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { RecordDtoSchema, RecordRefSchema } from "@/features/records/record-model.schema";
+import { MarkedRecordDtoSchema } from "@/features/mcp-tools/untrusted-record-content";
 
 export const RECORD_EXPORT_LIMIT = 5_000;
 export const RECORD_EXPORT_LINK_LIMIT = 50_000;
@@ -32,6 +33,16 @@ export const ImportRecordsSchema = z
   })
   .strict();
 export type ImportRecordsInput = z.infer<typeof ImportRecordsSchema>;
+export const ImportMarkedRecordsSchema = ImportRecordsSchema.extend({
+  document: RecordExportSchema.extend({
+    records: z.array(MarkedRecordDtoSchema).max(RECORD_EXPORT_LIMIT),
+    untrustedTextHandling: z
+      .string()
+      .optional()
+      .describe("Export-only note from export_crm_records. Accepted so the export can be passed back as-is; ignored."),
+  }).strict(),
+}).strict();
+export type ImportMarkedRecordsInput = z.infer<typeof ImportMarkedRecordsSchema>;
 export const ImportRecordsResultSchema = z
   .object({
     created: z.number().int().nonnegative(),

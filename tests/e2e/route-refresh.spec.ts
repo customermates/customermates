@@ -3,7 +3,6 @@ import { presetId } from "../../features/records/crm-preset";
 import { addFromConfigure, configureDrawer, openConfigure } from "./configure";
 import { expect, test } from "./fixtures";
 
-test.use({ failOnPageErrors: true });
 
 async function refreshRoute(page: Page) {
   const refreshed = page.waitForResponse(

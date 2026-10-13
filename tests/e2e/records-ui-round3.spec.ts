@@ -4,6 +4,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { RecordOperationResultSchema } from "../../features/records/record-query.schema";
 import { expect, test, collectPageErrors } from "./fixtures";
+import { postOk } from "./api";
 import { openItemMenu } from "./item-actions";
 import {
   openRecordDetails,
@@ -14,14 +15,8 @@ import {
   runRowAction,
 } from "./record-rows";
 
-async function api(page: Page, path: string, data: unknown) {
-  const response = await page.request.post(path, { data });
-  expect(response.ok(), await response.text()).toBe(true);
-  return response.json();
-}
-
 async function readModel(page: Page) {
-  return RecordModelSchema.parse(await api(page, "/api/v1/model/read", {}));
+  return RecordModelSchema.parse(await postOk(page, "/api/v1/model/read", {}));
 }
 
 async function createLabList(page: Page, contactTypeId: string) {
@@ -31,7 +26,7 @@ async function createLabList(page: Page, contactTypeId: string) {
     operation: "putField",
     field: { id, typeId: "$lab", label, valueType, position, required: false, archived: false, options: [], behavior: input, ...extra },
   });
-  await api(page, "/api/v1/model/apply", {
+  await postOk(page, "/api/v1/model/apply", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     operations: [
@@ -86,7 +81,7 @@ async function createLabList(page: Page, contactTypeId: string) {
   const type = next.types.find((candidate) => candidate.pluralLabel === "Lab items");
   if (!type) throw new Error("The lab list is missing");
   const result = RecordOperationResultSchema.parse(
-    await api(page, "/api/v1/records/mutate", {
+    await postOk(page, "/api/v1/records/mutate", {
       expectedRevision: next.revision,
       idempotencyKey: randomUUID(),
       mutation: {
@@ -99,7 +94,7 @@ async function createLabList(page: Page, contactTypeId: string) {
   if (result.status !== "completed") throw new Error("The lab record must be created synchronously");
   const firstName = next.fields.find((field) => field.typeId === contactTypeId && field.label === "First name");
   if (!firstName) throw new Error("The contact first name field is missing");
-  await api(page, "/api/v1/records/mutate", {
+  await postOk(page, "/api/v1/records/mutate", {
     expectedRevision: next.revision,
     idempotencyKey: randomUUID(),
     mutation: {
@@ -407,7 +402,7 @@ test("board cards show one chip row with icons, hide empty and grouped values an
   };
   const type = model.types.find((candidate) => candidate.id === typeId)!;
   const choice = labField("Choice");
-  await api(page, "/api/v1/records/mutate", {
+  await postOk(page, "/api/v1/records/mutate", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     mutation: {
@@ -478,7 +473,7 @@ test("rows keep the row click on calculated values, toggle in selection mode and
   const typeId = await createLabList(page, presetId(companyId, "contact"));
   const model = await readModel(page);
   const type = model.types.find((candidate) => candidate.id === typeId)!;
-  await api(page, "/api/v1/records/mutate", {
+  await postOk(page, "/api/v1/records/mutate", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     mutation: { action: "create", typeId, fields: [{ fieldId: type.primaryFieldId, value: { kind: "text", value: "Lab two" } }] },
@@ -539,7 +534,7 @@ test("grouped tables show a quiet group band that adds into the group and hide t
   const model = await readModel(page);
   const type = model.types.find((candidate) => candidate.id === typeId)!;
   const choice = model.fields.find((field) => field.typeId === typeId && field.label === "Choice")!;
-  await api(page, "/api/v1/records/mutate", {
+  await postOk(page, "/api/v1/records/mutate", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     mutation: {
@@ -573,7 +568,7 @@ test("phone rows show the title and the card chip row instead of table columns",
   const model = await readModel(page);
   const type = model.types.find((candidate) => candidate.id === typeId)!;
   const money = model.fields.find((field) => field.typeId === typeId && field.label === "Money")!;
-  await api(page, "/api/v1/records/mutate", {
+  await postOk(page, "/api/v1/records/mutate", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     mutation: {
@@ -608,7 +603,7 @@ test("board columns keep a one-line header, one fixed width and collapse into st
   const model = await readModel(page);
   const deal = model.types.find((type) => type.id === typeId);
   if (!deal) throw new Error("The deal list is missing");
-  await api(page, "/api/v1/records/mutate", {
+  await postOk(page, "/api/v1/records/mutate", {
     expectedRevision: model.revision,
     idempotencyKey: randomUUID(),
     mutation: {

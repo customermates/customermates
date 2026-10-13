@@ -5,7 +5,6 @@ import ExcelJS from "exceljs";
 import { test, expect } from "./fixtures";
 import { presetId } from "../../features/records/crm-preset";
 
-test.use({ failOnPageErrors: true });
 
 const SPREADSHEET =
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";

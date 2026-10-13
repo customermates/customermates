@@ -4,7 +4,7 @@ import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { RecordExportSchema, type RecordExport } from "../../features/data-transfer/record-transfer.schema";
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 
 function isImportCall(body: string | null) {
   return Boolean(body?.includes('"idempotencyKey"') && body.includes('"customermates-records"'));
@@ -24,17 +24,11 @@ test("rejects malformed and invalid typed imports without partial records and ac
   companyId,
 }, testInfo) => {
   test.setTimeout(180000);
-  const errors: string[] = [];
+  const errors = collectPageErrors(page);
   const importRequests: string[] = [];
   page.on("request", (request) => {
     if (request.method() === "POST" && request.headers()["next-action"] && isImportCall(request.postData()))
       importRequests.push(request.url());
-  });
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
   });
   const typeId = presetId(companyId, "service");
   const titleId = presetId(companyId, "service.name");

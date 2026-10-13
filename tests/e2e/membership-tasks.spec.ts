@@ -29,7 +29,7 @@ test("resolves a protected task through member approval and rejects ordinary rec
     'INSERT INTO "RecordValue" ("companyId","typeId","recordId","fieldId",state,"textValue","schemaRevision","updatedAt") VALUES ($1,$2,$3,$4,\'value\',$5,1,NOW())',
     [companyId, typeId, recordId, presetId(companyId, "task.name"), title],
   );
-  const errors = collectPageErrors(page, { console: false });
+  const errors = collectPageErrors(page);
   await page.goto(`/en/records/${typeId}`);
   await openRecordDetails(page, title);
   const task = page.getByRole("dialog", { name: "Task", exact: true });
