@@ -41,7 +41,9 @@ function build(emails: unknown[]) {
     findAccountByIdUnscoped: vi.fn().mockResolvedValue(account),
     recordUnusableItemUnscoped: vi.fn().mockResolvedValue(undefined),
   };
-  const interactor = new BackfillEmailsInteractor(repo as any, messagingService as any, ingest as any);
+  const interactor = new BackfillEmailsInteractor(repo as any, messagingService as any, ingest as any, () => ({
+    synchronize: () => Promise.resolve(),
+  }));
 
   return { interactor, messagingService, ingest, repo };
 }

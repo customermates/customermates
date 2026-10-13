@@ -72,7 +72,7 @@ async function fixture(withRollup: boolean) {
     policy,
     writer,
     { dispatch: () => Promise.resolve() },
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const importer = new ImportRecordsInteractor(repo, policy, writer);
   const id = (key: string) => presetId(seed.company.id, key);
