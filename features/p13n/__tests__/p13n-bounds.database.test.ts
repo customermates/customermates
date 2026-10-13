@@ -5,7 +5,6 @@ import { randomUUID } from "node:crypto";
 import { Client } from "pg";
 import { createTranslator } from "next-intl";
 import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
-import { ZodError } from "zod";
 
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 
@@ -76,11 +75,11 @@ describeDatabase("bounded P13n writes", () => {
   it("caps saved filters at fifty otherwise valid filters", async () => {
     const filter = { field: "name", operator: FilterOperatorKey.contains, value: "acme" };
     expect((await upsert({ p13nId: panels, filters: Array.from({ length: 50 }, () => filter) })).ok).toBe(true);
-    const refused = await upsert({ p13nId: panels, filters: Array.from({ length: 51 }, () => filter) }).catch(
-      (error: unknown) => error,
-    );
-    expect(refused).toBeInstanceOf(ZodError);
-    expect((refused as ZodError).issues).toEqual([expect.objectContaining({ code: "too_big", path: ["filters"] })]);
+    const refused = await upsert({ p13nId: panels, filters: Array.from({ length: 51 }, () => filter) });
+    expect(refused.ok).toBe(false);
+    expect(refused.ok ? [] : refused.error.issues).toEqual([
+      expect.objectContaining({ code: "too_big", path: ["filters"] }),
+    ]);
   });
 
   it("refuses unknown ids, oversized ids and unbounded layout state", async () => {

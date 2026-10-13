@@ -134,7 +134,10 @@ describeDatabase("member update on PostgreSQL", { timeout: 120_000 }, () => {
 
     const result = await pending;
 
-    expect(result).toMatchObject({ ok: true, data: { firstName: "Thomas", roleId: salesRole } });
+    expect(result, JSON.stringify(result)).toMatchObject({
+      ok: true,
+      data: { firstName: "Thomas", roleId: salesRole },
+    });
     const stored = await runWithoutTenant(() => prisma.user.findUniqueOrThrow({ where: { id: teammate } }));
     expect(stored).toMatchObject({ firstName: "Thomas", lastName: "Member", roleId: salesRole, status: "active" });
   });
