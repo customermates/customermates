@@ -958,6 +958,30 @@ describe("StartRoutineRunInteractor", () => {
     );
   });
 
+  it("preserves the hosted AI unavailable code on a blocked run", async () => {
+    const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
+    sendAgentMessage.invokeRoutine.mockResolvedValue({
+      ok: false,
+      error: {
+        issues: [{ code: "custom", params: { error: CustomErrorCode.agentServiceUnavailable } }],
+      },
+    });
+    const interactor = new StartRoutineRunInteractor(
+      repo as never,
+      conversations as never,
+      sendAgentMessage as never,
+      filterMatcher as never,
+    );
+
+    expect(await interactor.invoke({ routineRunId: RUN_ID })).toEqual({
+      ok: true,
+      data: { started: false, reason: "agentServiceUnavailable" },
+    });
+    expect(repo.settleRoutineRunUnscoped).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "blocked", error: "agentServiceUnavailable" }),
+    );
+  });
+
   it("never stores a rendered sentence when the failure carries no code", async () => {
     const { repo, conversations, sendAgentMessage, filterMatcher } = startFixtures();
     sendAgentMessage.invokeRoutine.mockResolvedValue({

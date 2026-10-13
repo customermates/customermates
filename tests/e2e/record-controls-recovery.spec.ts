@@ -297,6 +297,9 @@ test("paginates and retries record and widget history, restores a personal timel
   );
   await drawerHistory.locator("#global-data-views-menu").click();
   await page.getByRole("menuitem", { name: english.DataView.views.delete, exact: true }).click();
+  await expect(page.getByRole("alertdialog")).toContainText(
+    'Are you sure you want to delete "Drawer history copy"? It moves to Trash, where you can restore it for 30 days.',
+  );
   await page.getByRole("alertdialog").locator("#confirm-delete").click();
   await expect(page.getByRole("alertdialog")).toHaveCount(0);
   await expect(drawerHistory.locator("#global-data-views-all")).toHaveAttribute("aria-current", "page");

@@ -112,7 +112,7 @@ vi.mock("@/components/ui/sheet", () => ({
   SheetBody: () => null,
 }));
 vi.mock("@/components/modal/hooks/use-delete-confirmation", () => ({
-  useDeleteConfirmation: () => ({ showDeleteConfirmation: vi.fn() }),
+  useDeleteConfirmation: () => ({ showTrashConfirmation: vi.fn() }),
 }));
 vi.mock("@/components/editor/editor", () => ({
   Editor: (props: { readOnly?: boolean; data?: object; onChange?: (value: object) => void }) => {

@@ -30,7 +30,7 @@ export const WikiPageActions = observer((props: Props) => {
   const { canManage, canCreate, store, formId, hasDocument, onCancelCreate, onCreate, onReload } = props;
   const t = useTranslations();
   const copyToClipboard = useCopyToClipboard();
-  const { showDeleteConfirmation } = useDeleteConfirmation();
+  const { showTrashConfirmation } = useDeleteConfirmation();
 
   return (
     <div className="flex items-center gap-1">
@@ -57,7 +57,7 @@ export const WikiPageActions = observer((props: Props) => {
               variant="destructive"
               onSelect={() => {
                 const pageId = store.form.id;
-                showDeleteConfirmation(
+                showTrashConfirmation(
                   () => store.delete(),
                   store.form.title,
                   undefined,
