@@ -35,6 +35,7 @@ async function openWidgetForEdit(page: Page, name: string, id: string) {
   await widgetLoaded;
   await expect(page.locator("#name")).toBeEnabled();
   await expect(page.locator("#name")).toHaveValue(name);
+  await expect(page.locator('[data-preview-current="true"]')).toBeVisible();
 }
 
 test("starts from a recommended starter, previews it live at dashboard size and arranges widgets through the API", async ({
