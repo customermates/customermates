@@ -66,7 +66,7 @@ import {
   configureEdgeGeometry,
   configureGraphLayout,
   configureGraphPlacement,
-  CONFIGURE_GRAPH_MIN_ZOOM,
+  configureGraphMinimumZoom,
   configureGraphViewport,
   GRAPH_VISIBLE_ACCOUNTS,
   GRAPH_VISIBLE_FIELDS,
@@ -899,7 +899,7 @@ function ConfigureGraphCanvas({
             listIds.has(connection.source) && listIds.has(connection.target) && connection.source !== connection.target
           }
           maxZoom={1.5}
-          minZoom={CONFIGURE_GRAPH_MIN_ZOOM}
+          minZoom={configureGraphMinimumZoom(displayNodes.length)}
           nodeTypes={nodeTypes}
           nodes={displayNodes}
           nodesConnectable={canManage && !disabled}
