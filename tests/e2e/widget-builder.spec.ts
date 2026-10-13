@@ -24,6 +24,19 @@ async function editWidgetName(page: Page, value: string) {
   await expect(page.locator("#widget-modal-save")).toBeEnabled();
 }
 
+async function openWidgetForEdit(page: Page, name: string, id: string) {
+  const widgetLoaded = page.waitForResponse(
+    (response) =>
+      response.url().includes("/en/dashboard") &&
+      response.request().method() === "POST" &&
+      Boolean(response.request().postData()?.includes(id)),
+  );
+  await page.getByRole("heading", { name, exact: true }).click();
+  await widgetLoaded;
+  await expect(page.locator("#name")).toBeEnabled();
+  await expect(page.locator("#name")).toHaveValue(name);
+}
+
 test("starts from a recommended starter, previews it live at dashboard size and arranges widgets through the API", async ({
   page,
   database,
@@ -194,10 +207,12 @@ for (const action of ["outside", "save", "cancel"] as const) {
         isTemplate: false,
       },
     });
-    expect(response.status(), await response.text()).toBe(200);
+    const widget = await response.json();
+    expect(response.status(), JSON.stringify(widget)).toBe(200);
+    expect(widget.id).toEqual(expect.any(String));
     await page.goto("/en/dashboard");
-    await page.getByRole("heading", { name, exact: true }).click();
-    await page.locator("#name").fill(name + " changed");
+    await openWidgetForEdit(page, name, widget.id);
+    await editWidgetName(page, name + " changed");
     await page.locator("#widget-config-filters").click();
     await openFilterPalette(page, "widget-source-filters");
     await page.locator('[data-filter-index="0"]').click();
@@ -282,9 +297,11 @@ for (const valueKind of ["decimal", "dateTime"] as const) {
           isTemplate: false,
         },
       });
-      expect(response.status(), await response.text()).toBe(200);
+      const widget = await response.json();
+      expect(response.status(), JSON.stringify(widget)).toBe(200);
+      expect(widget.id).toEqual(expect.any(String));
       await page.goto("/en/dashboard");
-      await page.getByRole("heading", { name, exact: true }).click();
+      await openWidgetForEdit(page, name, widget.id);
       await editWidgetName(page, name + " changed");
       await page.locator("#widget-config-filters").click();
       await openFilterPalette(page, "widget-source-filters");
@@ -315,8 +332,7 @@ for (const valueKind of ["decimal", "dateTime"] as const) {
       expect((await query(savedName)).source.filters[0].values).toEqual([
         initial,
       ]);
-      await page.getByRole("heading", { name: savedName, exact: true }).click();
-      await expect(page.locator("#name")).toHaveValue(savedName);
+      await openWidgetForEdit(page, savedName, widget.id);
       await editWidgetName(page, name + " corrected");
       await page.locator("#widget-config-filters").click();
       await openFilterPalette(page, "widget-source-filters");
