@@ -122,6 +122,7 @@ import { PrismaMembershipTaskRepo } from "@/features/records/prisma-membership-t
 import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
 import type { RecordRepo } from "@/features/records/record.repo";
 import type { RecordRepoOwners } from "@/features/records/record.repo";
+import type { WidgetDtoReaders } from "@/features/widget/widget-dto-readers";
 import { EntityTrashHandler } from "@/features/trash/entity-trash.handler";
 import { EntityTrashVisibility } from "@/features/trash/entity-trash-visibility";
 import { RecordTrashHandler } from "@/features/records/record-trash.handler";
@@ -737,6 +738,10 @@ export const createPrismaDataViewRepo = (companyId?: string) =>
   new PrismaDataViewRepo({ widgets: getWidgetRepo(), personalizations: getP13nRepo() }, companyId);
 export const getDataViewRepo = () => createPrismaDataViewRepo();
 export const getDataViewStateRepo = () => createPrismaDataViewRepo();
+export const getWidgetDtoReaders = (): WidgetDtoReaders => ({
+  chart: getRecordWidgetReader(),
+  activityTimeline: getRecordActivityWidgetReader(),
+});
 export const getWidgetRepo = () => new PrismaWidgetRepo();
 export const getWebhookRepo = () => new PrismaWebhookRepo(getRecordEventSubscriptionRepo(), getPermissionService());
 export const getWebhookPauseNotifier = (companyId?: string) =>
@@ -792,7 +797,13 @@ export const getRoutineEventAccess = () => new PrismaRoutineEventAccess(getRecor
 export const getWebhookDeliveryRepo = () => new PrismaWebhookDeliveryRepo(getRecordRecipientReader());
 export const getEventLogRepo = () => new PrismaEventLogRepo(getBackgroundTaskService());
 export const getWikiPageRepo = (companyId?: string) => new PrismaWikiPageRepo(getPermissionService(), companyId);
-export const getMessagingRepo = () => new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
+export const getMessagingRepo = () =>
+  new PrismaMessagingRepo(
+    getRecordRepo(),
+    getRecordAccessPolicy(),
+    getRecordIdentityReader(),
+    getConnectedAccountRepo(),
+  );
 export const getConnectedAccountRepo = () => new PrismaConnectedAccountRepo(getPermissionService());
 export const getUnipileWebhookRepo = () => new PrismaUnipileWebhookRepo();
 export const getCalendarRepo = () => new PrismaCalendarRepo();
@@ -1853,7 +1864,7 @@ export const getGetRecordWidgetInteractor = () =>
     getRecordActivityWidgetReader(),
   );
 
-export const getWidgetDtoReader = () => new WidgetDtoReader(getRecordWidgetReader(), getRecordActivityWidgetReader());
+export const getWidgetDtoReader = () => new WidgetDtoReader(getWidgetDtoReaders);
 export const getRecordActivityWidgetReader = () =>
   new RecordActivityWidgetReader(getRecordRepo(), getGetRecordActivitiesInteractor());
 export const getUpsertRecordActivityWidgetInteractor = () =>

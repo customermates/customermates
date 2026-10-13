@@ -7,17 +7,18 @@ import { requireAccess } from "@/features/auth/next/require";
 import { redirect } from "next/navigation";
 import { PageContainer } from "@/components/shared/page-container";
 import { env } from "@/env";
+import { unwrapPage } from "@/core/validation/next/unwrap-page";
 
 export default async function CompanySubscriptionPage() {
   await requireAccess({ resource: Resource.company });
 
   if (env.APP_MODE === "self-hosted") redirect("/dashboard");
 
-  const subscriptionResult = await getGetSubscriptionInteractor().invoke();
+  const subscription = await unwrapPage(getGetSubscriptionInteractor().invoke());
 
   return (
     <PageContainer>
-      <SubscriptionView initialSubscription={subscriptionResult.data} />
+      <SubscriptionView initialSubscription={subscription} />
     </PageContainer>
   );
 }

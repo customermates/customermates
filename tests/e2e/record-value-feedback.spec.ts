@@ -3,6 +3,8 @@ import { presetId } from "../../features/records/crm-preset";
 import { addFromConfigure, openConfigure, saveDrawer } from "./configure";
 import { test, expect } from "./fixtures";
 
+test.use({ failOnPageErrors: true });
+
 test("marks invalid values on their field, normalises phone numbers and keeps table switches compact", async ({
   page,
   companyId,

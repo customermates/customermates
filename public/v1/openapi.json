@@ -35678,7 +35678,7 @@
             "apiKeyAuth": []
           }
         ],
-        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Reads change nothing and return only what the caller may read.\n\nRequires: read access to the list and to the record.",
+        "description": "Configurable CRM record contract. Record references contain both typeId and recordId. Workspace scope comes from authentication. Decimal values are strings. Reads change nothing and return only what the caller may read.\n\nRequires: read access to the list and to the record. A missing or foreign record answers 404; a record of the workspace you cannot read answers 403.",
         "requestBody": {
           "required": true,
           "content": {
@@ -114032,6 +114032,7 @@
                         "routineDeleteHasRunningRun",
                         "routineEditNotOwner",
                         "routineOwnerIneligible",
+                        "routineRunCursorInvalid",
                         "routineRunNotOwner",
                         "routineRunNowRequiresSchedule",
                         "routineTestRequiresEnabled",

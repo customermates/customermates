@@ -6,7 +6,6 @@ import type { RoleDto } from "@/features/role/get-roles.interactor";
 
 import { observer } from "mobx-react-lite";
 import { useCallback, useLayoutEffect, useMemo } from "react";
-import { when } from "mobx";
 import { useTranslations } from "next-intl";
 
 import { useSetTopBarActions } from "@/app/components/topbar-actions-context";
@@ -44,9 +43,8 @@ const RolesPageViewContent = observer(function RolesPageView({ initialRoles }: P
         onDelete={
           canDeleteRoles && !role.isSystemRole && !role.hasUsersAssigned
             ? async () => {
-                roleModalStore.editRole(role);
-                await when(() => roleModalStore.context !== null || roleModalStore.loadFailed);
-                if (roleModalStore.canDeleteRole) showDeleteConfirmation(() => roleModalStore.delete(), role.name);
+                if (await roleModalStore.openForDelete(role))
+                  showDeleteConfirmation(() => roleModalStore.delete(role.id), role.name);
               }
             : undefined
         }

@@ -59,6 +59,7 @@ const row = (overrides: Record<string, unknown> = {}) => ({
   updatedAt: new Date(0),
   ...overrides,
 });
+const readers = () => ({ chart: { read: mocks.chart }, activityTimeline: { read: mocks.activity } });
 const scoped = <T>(fn: (repo: PrismaWidgetRepo) => Promise<T>) => runWithTenant(user, () => fn(new PrismaWidgetRepo()));
 
 describe("generic widget repository", () => {
@@ -135,8 +136,18 @@ describe("generic widget repository", () => {
     mocks.findMany.mockResolvedValue([row({ measure: { sourceTypeId: "invalid" } })]);
     await expect(scoped((repo) => repo.getWidgets())).rejects.toThrow();
   });
+  it("resolves its record widget readers only when it reads a widget", async () => {
+    const lazyReaders = vi.fn(readers);
+    const reader = new WidgetDtoReader(lazyReaders);
+    expect(lazyReaders).not.toHaveBeenCalled();
+
+    await reader.read({ kind: "chart", widget: { id: "chart" } as never });
+
+    expect(lazyReaders).toHaveBeenCalledTimes(1);
+    expect(mocks.chart).toHaveBeenCalledTimes(1);
+  });
   it("reads each stored kind through its authoritative reader only", async () => {
-    const reader = new WidgetDtoReader({ read: mocks.chart } as never, { read: mocks.activity } as never);
+    const reader = new WidgetDtoReader(readers);
     const chart = { kind: "chart" as const, widget: { id: "chart" } as never };
     const timeline = { kind: "activityTimeline" as const, widget: { id: "timeline" } as never };
     await expect(reader.read(chart)).resolves.toMatchObject({ id: "chart", status: "unavailable" });

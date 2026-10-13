@@ -9,7 +9,7 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 import { draftThreadProviderId } from "../../draft-thread-id";
 import { isDraftThreadId } from "../../provider";
 
-import { getRecordAccessPolicy, getRecordRepo } from "@/core/di";
+import { getConnectedAccountRepo, getRecordAccessPolicy, getRecordIdentityReader, getRecordRepo } from "@/core/di";
 import { PrismaMessagingRepo } from "../prisma-messaging.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
@@ -103,7 +103,12 @@ describeDatabase("Bcc visibility on PostgreSQL", () => {
       await client.query('UPDATE "ConnectedAccount" SET "shared" = FALSE WHERE "id" = $1', [accountId]);
       const read = (user: typeof owner) =>
         runWithTenant(user, () =>
-          new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy()).listMessagesForThread(threadId, opts),
+          new PrismaMessagingRepo(
+            getRecordRepo(),
+            getRecordAccessPolicy(),
+            getRecordIdentityReader(),
+            getConnectedAccountRepo(),
+          ).listMessagesForThread(threadId, opts),
         );
       const owned = await read(owner);
       expect(owned.total).toBe(2);
@@ -137,7 +142,12 @@ describeDatabase("Bcc visibility on PostgreSQL", () => {
     await client.query('UPDATE "ConnectedAccount" SET "shared" = FALSE, "hasMessaging" = TRUE WHERE "id" = $1', [
       accountId,
     ]);
-    const repo = new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
+    const repo = new PrismaMessagingRepo(
+      getRecordRepo(),
+      getRecordAccessPolicy(),
+      getRecordIdentityReader(),
+      getConnectedAccountRepo(),
+    );
     const hidden = "private-draft@example.invalid";
     const cold = await runWithTenant(owner, () =>
       repo.findOrCreateDraftThread({

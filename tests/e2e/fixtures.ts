@@ -5,14 +5,27 @@ import { test as base, expect } from "@playwright/test";
 import { Client } from "pg";
 import { localE2eEnvironment } from "./local-environment";
 import { createBrowserWorkspace, removeBrowserWorkspace } from "./workspace";
+import { collectPageErrors } from "./browser-noise";
 
 type Fixtures = {
+  failOnPageErrors: boolean;
   database: Client;
   workspace: Awaited<ReturnType<typeof createBrowserWorkspace>>;
   companyId: string;
   signedIn: void;
 };
 export const test = base.extend<Fixtures>({
+  // A spec opts in with test.use({ failOnPageErrors: true }); every test then fails on a page or console error.
+  failOnPageErrors: [false, { option: true }],
+  page: async ({ page, failOnPageErrors }, use) => {
+    const errors = failOnPageErrors ? collectPageErrors(page) : [];
+    await use(page);
+    // The signedIn fixture aborts every external request, which Chromium logs as ERR_BLOCKED_BY_CLIENT.
+    expect(
+      errors.filter((error) => !error.includes("net::ERR_BLOCKED_BY_CLIENT")),
+      "page and console errors",
+    ).toEqual([]);
+  },
   database: async ({}, use) => {
     const { databaseUrl } = localE2eEnvironment();
     const client = new Client({ connectionString: databaseUrl });

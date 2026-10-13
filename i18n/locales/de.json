@@ -1,4 +1,11 @@
 {
+  "AccessDeniedPage": {
+    "body": "Diesen Datensatz gibt es, aber deine Rolle erlaubt dir nicht, ihn zu lesen. Bitte eine Admin-Person deines Workspace um Zugriff.",
+    "ctaLabel": "Zurück zur Startseite",
+    "documentTitle": "Kein Zugriff | Customermates",
+    "subtitle": "Deine Rolle kann ihn nicht öffnen",
+    "title": "Kein Zugriff auf diesen Datensatz"
+  },
   "AccountAccessRevoked": {
     "body": "Du hast dich gerade ohne Passwort angemeldet, und damit ist bestätigt, dass diese E-Mail-Adresse dir gehört. Bis jetzt war sie nie bestätigt, deshalb konnten wir nicht sicher sein, wer dieses Konto angelegt hat. Zur Sicherheit haben wir das alte Passwort entfernt und alles andere, womit man das Konto öffnen könnte, etwa verbundene Apps oder Schlüssel. Deine Daten sind unverändert, und du kannst dich weiterhin genau so anmelden wie gerade eben.",
     "cta": "Neues Passwort festlegen",
@@ -40,14 +47,15 @@
           "triage": "Bereit, den Unterhaltungsstatus zu ändern"
         },
         "records": {
-          "delete": "{count, plural, one {Bereit, {target} endgültig zu löschen} other {Bereit, {target} endgültig zu löschen}}"
+          "delete": "{count, plural, one {Bereit, {target} in den Papierkorb zu verschieben} other {Bereit, {target} in den Papierkorb zu verschieben}}",
+          "deletePermanent": "{count, plural, one {Bereit, {target} endgültig zu löschen} other {Bereit, {target} endgültig zu löschen}}"
         },
         "roles": {
           "manage": "Diese Rollenänderung bestätigen"
         },
         "routines": {
           "configure": "Bereit, die Routine zu pausieren oder auszuführen",
-          "delete": "Bereit, die Routine samt Verlauf zu löschen"
+          "delete": "Bereit, die Routine samt Verlauf in den Papierkorb zu verschieben"
         },
         "support": {
           "escalate": "Bereit, deine Anfrage an den Support zu senden"
@@ -57,14 +65,14 @@
         },
         "views": {
           "configure": "Bereit, die gespeicherte Ansicht zu ändern",
-          "delete": "Gespeicherte Ansicht ist zum endgültigen Löschen bereit"
+          "delete": "Bereit, die gespeicherte Ansicht in den Papierkorb zu verschieben"
         },
         "webhooks": {
           "manage": "Bereit, die Webhook-Zustellung zu ändern"
         },
         "widgets": {
           "configure": "Bereit, Dashboard-Widgets zu ändern",
-          "delete": "Bereit, ein Dashboard-Widget endgültig zu löschen"
+          "delete": "Bereit, ein Dashboard-Widget in den Papierkorb zu verschieben"
         },
         "workspace": {
           "configure": "Bereit, das Datenmodell des Arbeitsbereichs zu ändern"
@@ -79,10 +87,11 @@
         "draftSave": "Entwurf in der ausgewählten Unterhaltung speichern",
         "emailSend": "E-Mail an die ausgewählten Empfänger senden",
         "externalManage": "Daten im verbundenen externen Konto ändern",
-        "recordsDelete": "Das kann nicht rückgängig gemacht werden.",
+        "recordsDelete": "{count, plural, one {Wiederherstellen ist 30 Tage lang im Papierkorb möglich.} other {Wiederherstellen ist 30 Tage lang im Papierkorb möglich.}}",
+        "recordsDeletePermanent": "Das kann nicht rückgängig gemacht werden.",
         "roleDelete": "Ausgewählte Rolle löschen",
         "roleSave": "Rolle und Datensatzzugriff speichern",
-        "routineDelete": "Die ausgewählte Routine samt Verlauf endgültig löschen",
+        "routineDelete": "Die ausgewählte Routine samt Verlauf in den Papierkorb verschieben, wo du sie 30 Tage lang wiederherstellen kannst",
         "routinePause": "Die ausgewählte Routine pausieren",
         "routineRun": "Die ausgewählte Routine jetzt ausführen",
         "salesListSave": "Den ausgewählten Interessenten zu einer Sales-Navigator-Liste hinzufügen",
@@ -227,9 +236,14 @@
             "running": "{count, plural, one {{target} wird erstellt} other {{target} werden erstellt}}"
           },
           "delete": {
-            "done": "{count, plural, one {{target} wurde entfernt} other {{target} wurden entfernt}}",
-            "error": "{count, plural, one {{target} konnte nicht entfernt werden} other {{target} konnten nicht entfernt werden}}",
-            "running": "{count, plural, one {{target} wird entfernt} other {{target} werden entfernt}}"
+            "done": "{count, plural, one {{target} wurde in den Papierkorb verschoben} other {{target} wurden in den Papierkorb verschoben}}",
+            "error": "{count, plural, one {{target} konnte nicht in den Papierkorb verschoben werden} other {{target} konnten nicht in den Papierkorb verschoben werden}}",
+            "running": "{count, plural, one {{target} wird in den Papierkorb verschoben} other {{target} werden in den Papierkorb verschoben}}"
+          },
+          "deletePermanent": {
+            "done": "{count, plural, one {{target} wurde endgültig gelöscht} other {{target} wurden endgültig gelöscht}}",
+            "error": "{count, plural, one {{target} konnte nicht endgültig gelöscht werden} other {{target} konnten nicht endgültig gelöscht werden}}",
+            "running": "{count, plural, one {{target} wird endgültig gelöscht} other {{target} werden endgültig gelöscht}}"
           },
           "link": {
             "done": "Datensätze wurden verknüpft",
@@ -857,8 +871,8 @@
       "deleteNamed": "{name} löschen"
     },
     "resolve": "Zu „{query}“ springen",
-    "resolveNoCredits": "Sie haben keine KI-Guthaben mehr, deshalb kann diese Anfrage nicht aufgelöst werden.",
-    "resolveUnavailable": "Anfragen aufzulösen ist gerade nicht möglich. Wählen Sie ein Ergebnis oder versuchen Sie es später erneut.",
+    "resolveNoCredits": "Du hast keine KI-Guthaben mehr, deshalb kann diese Anfrage nicht aufgelöst werden.",
+    "resolveUnavailable": "Anfragen aufzulösen ist gerade nicht möglich. Wähle ein Ergebnis oder versuche es später erneut.",
     "resolving": "Passendes Ziel wird gesucht…",
     "synonyms": {
       "action": {
@@ -1067,7 +1081,7 @@
       "dataViewUpdateEmpty": "Gib einen Namen oder mindestens eine Ansichtseinstellung an, die aktualisiert werden soll.",
       "demoMode": "Diese Aktion ist im Demo-Modus nicht verfügbar. Melde dich an, um alle Funktionen zu nutzen.",
       "draftMessageNotFound": "Dieser Entwurf wurde nicht gefunden. Möglicherweise wurde er bereits gesendet oder verworfen.",
-      "draftThreadNotSent": "Dieser Entwurf hat noch keine Unterhaltung. Senden Sie ihn über den Posteingang.",
+      "draftThreadNotSent": "Dieser Entwurf hat noch keine Unterhaltung. Sende ihn über den Posteingang.",
       "draftToRecipientsLocked": "Eine gespeicherte neue Nachricht behält ihre An-Empfänger. Verwirf den Entwurf und beginne eine neue Nachricht, um jemand anderen anzuschreiben.",
       "duplicateOutboundSuppressed": "Eine identische Nachricht wurde gerade eben in dieser Konversation gesendet. Ändere den Text oder warte eine Minute, bevor du es erneut versuchst.",
       "duplicateWebhookEvents": "Doppelte Ereignisse sind nicht erlaubt.",
@@ -1141,7 +1155,7 @@
       "recordRelationConflict": "Diese Verknüpfung entspricht nicht den festgelegten Regeln.",
       "recordSavedViewIncompatible": "Die gespeicherte Ansicht \"{viewName}\" ({viewId}) verwendet noch \"{columnLabel}\" ({columnId}). Passe die Ansicht an oder lösche sie und versuche es dann erneut.",
       "recordSchemaChanged": "Das Datenmodell wurde geändert. Lade die Seite neu und versuche es erneut.",
-      "recordSublistNested": "Eine Unterliste kann keine eigenen Unterlisten haben. Verknüpfen Sie die Liste stattdessen mit der übergeordneten Liste der Unterliste.",
+      "recordSublistNested": "Eine Unterliste kann keine eigenen Unterlisten haben. Verknüpfe die Liste stattdessen mit der übergeordneten Liste der Unterliste.",
       "recordTypeNotFound": "Dieser Datensatztyp ist nicht verfügbar.",
       "recordValueInvalid": "Prüfe die markierten Werte des Datensatzes.",
       "recordValueRequired": "{field} braucht einen Wert.",
@@ -1161,6 +1175,7 @@
       "routineLimitReached": "Dein Tarif enthält {limit} Routinen pro Nutzer. Wechsle deinen Tarif für ein höheres Kontingent.",
       "routineNotFound": "Routine-ID nicht gefunden oder nicht zugänglich.",
       "routineOwnerIneligible": "Die Eigentümerin oder der Eigentümer der Routine muss ein aktives Mitglied dieses Unternehmens sein.",
+      "routineRunCursorInvalid": "Dieser Link zur Seite des Ausführungsverlaufs ist nicht mehr gültig. Lade den Verlauf neu und versuche es noch einmal.",
       "routineRunNotOwner": "Nur wer diese Routine besitzt, kann sie ausführen, da sie dessen KI-Guthaben verbraucht.",
       "routineRunNowRequiresSchedule": "Nur geplante Routinen können manuell getestet werden.",
       "routineScheduleInvalid": "Dieser Zeitplan ist kein gültiger Cron-Ausdruck.",
@@ -1172,7 +1187,7 @@
       "salesNavigatorNotAvailable": "Dieses LinkedIn-Konto hat Sales Navigator nicht verbunden.",
       "salesNavigatorRequiresLinkedin": "Sales Navigator braucht ein verbundenes LinkedIn-Konto, dieses Konto ist aber {provider}.",
       "sendEmailTargetRequired": "Wähle eine Konversation oder ein Konto zum Senden aus.",
-      "serviceBusy": "Der Workspace ist gerade mit einer anderen Änderung beschäftigt, etwa einem Import. Versuchen Sie es gleich noch einmal.",
+      "serviceBusy": "Der Workspace ist gerade mit einer anderen Änderung beschäftigt, etwa einem Import. Versuche es gleich noch einmal.",
       "socialActionRequiresSocialAccount": "Diese Aktion braucht ein verbundenes LinkedIn- oder Instagram-Konto, dieses Konto ist aber {provider}.",
       "socialPostsRequireSocialAccount": "Für Social-Posts brauchst du ein verbundenes LinkedIn- oder Instagram-Konto, dieses Konto ist aber {provider}.",
       "subjectRequired": "Bitte einen Betreff hinzufügen.",
@@ -1209,7 +1224,7 @@
       "webhookHeadersTooMany": "Zu viele Header.",
       "webhookHeaderValueInvalid": "Header-Werte dürfen nur Latin-1-Text ohne Zeilenumbrüche oder Steuerzeichen enthalten.",
       "webhookNotFound": "Webhook-ID nicht gefunden oder nicht zugänglich.",
-      "webhookTriggerRequired": "Wählen Sie, welche Feldänderungen oder Bedingungen diesen Webhook auslösen, bevor Sie ihn wieder einschalten.",
+      "webhookTriggerRequired": "Wähle, welche Feldänderungen oder Bedingungen diesen Webhook auslösen, bevor du ihn wieder einschaltest.",
       "widgetDisplayTypeUnsupported": "Dieser Diagrammstil passt nicht zur gewählten Gruppierung. Wähle einen anderen Stil oder ändere die Gruppierung.",
       "widgetKindImmutable": "Der Typ eines Widgets kann nach dem Erstellen nicht geändert werden.",
       "widgetLayoutChanged": "Das Dashboard wurde zwischenzeitlich geändert. Es wurde neu geladen, ordne die Widgets bitte erneut an.",
@@ -1910,12 +1925,12 @@
       "kind": {
         "activityTimelineDescription": "Verfolge Datensatzänderungen, Nachrichten sowie Konto- und Kalenderaktivitäten chronologisch.",
         "change": "Anderes Widget wählen",
-        "description": "Wählen Sie ein Format und legen Sie die Daten selbst fest.",
+        "description": "Wähle ein Format und lege die Daten selbst fest.",
         "scratchTitle": "Von Grund auf neu",
         "title": "Widget auswählen"
       },
       "preview": {
-        "incomplete": "Vervollständigen Sie die Dateneinstellungen, um eine Vorschau zu sehen.",
+        "incomplete": "Vervollständige die Dateneinstellungen, um eine Vorschau zu sehen.",
         "live": "Live-Vorschau",
         "size": "Dashboard-Größe {w} × {h}",
         "untitled": "Unbenanntes Widget"
@@ -1964,7 +1979,7 @@
         }
       },
       "steps": {
-        "chooseDescription": "Starten Sie mit einer Empfehlung, einem leeren Format oder einer in Ihrem Workspace geteilten Vorlage.",
+        "chooseDescription": "Starte mit einer Empfehlung, einem leeren Format oder einer in deinem Workspace geteilten Vorlage.",
         "configureDescription": "Lege fest, welche Daten dieses Widget zeigt und wie es aussieht."
       },
       "tabs": {
@@ -1985,7 +2000,7 @@
   "DataTransfer": {
     "export": {
       "action": "Als JSON exportieren",
-      "failed": "Die Datensätze konnten nicht exportiert werden. Prüfen Sie Ihre Filter und Berechtigungen.",
+      "failed": "Die Datensätze konnten nicht exportiert werden. Prüfe deine Filter und Berechtigungen.",
       "success": "{count, plural, one {# Datensatz exportiert} other {# Datensätze exportiert}}.",
       "xlsxAction": "Als Excel exportieren (.xlsx)"
     },
@@ -2135,7 +2150,7 @@
       "moveRight": "Nach rechts verschieben",
       "name": "Name",
       "namePlaceholder": "Name der Ansicht",
-      "nameRequired": "Geben Sie einen Namen für die Ansicht ein.",
+      "nameRequired": "Gib einen Namen für die Ansicht ein.",
       "pickerEmpty": "Keine passende Ansicht",
       "pickerPlaceholder": "Ansicht suchen …",
       "pickerTitle": "Ansicht wechseln",
@@ -2452,10 +2467,10 @@
       "ccBccToggle": "Cc/Bcc",
       "ccLabel": "Cc",
       "createContact": "„{query}“ erstellen",
-      "draftAttachmentsUnsupported": "Entfernen Sie Anhänge, bevor Sie diesen Entwurf speichern.",
+      "draftAttachmentsUnsupported": "Entferne Anhänge, bevor du diesen Entwurf speicherst.",
       "draftDiscardFailed": "Entwurf konnte nicht verworfen werden",
       "draftEdit": "Bearbeiten",
-      "draftSaved": "Entwurf gespeichert. Sie finden ihn im Posteingang.",
+      "draftSaved": "Entwurf gespeichert. Du findest ihn im Posteingang.",
       "draftSendNow": "Entwurf senden",
       "emailContent": "E-Mail-Inhalt",
       "emojiPicker": "Emoji einfügen",
@@ -2465,7 +2480,7 @@
       "loadRemoteImages": "Externe Bilder laden",
       "messageSent": "Nachricht gesendet.",
       "moreSendOptions": "Weitere Sendeoptionen",
-      "noContacts": "Keine Einträge.",
+      "noContacts": "Keine Datensätze.",
       "retry": "Erneut versuchen",
       "saveDraft": "Als Entwurf speichern",
       "send": "Senden",
@@ -2521,7 +2536,7 @@
       "conversationRecordsHint": "Verknüpfe diese Unterhaltung mit einem Datensatz, ohne andere Unterhaltungen dieser Person zu verknüpfen.",
       "link": "Verknüpfen",
       "linkRecord": "Datensatz verknüpfen",
-      "linkUpdateFailed": "Eintragsverknüpfung konnte nicht aktualisiert werden",
+      "linkUpdateFailed": "Datensatzverknüpfung konnte nicht aktualisiert werden",
       "noRecords": "Keine verknüpften Datensätze",
       "openRecordNamed": "Datensatz öffnen: {name}",
       "unlinkRecord": "Datensatzverknüpfung entfernen",
@@ -2572,7 +2587,7 @@
       "spam": "Spam",
       "unread": "Ungelesen"
     },
-    "unlinkedParticipants": "Einige Teilnehmer haben keinen verknüpften Datensatz, den Sie lesen dürfen",
+    "unlinkedParticipants": "Einige Teilnehmer haben keinen verknüpften Datensatz, den du lesen darfst",
     "voice": {
       "pause": "Pausieren",
       "play": "Abspielen",
@@ -2622,7 +2637,7 @@
       "goDashboard": "Dashboard",
       "goInbox": "Posteingang",
       "goKnowledgeBase": "Wissensdatenbank",
-      "goList": "Listen nach ihrer Position in Ihrer Seitenleiste",
+      "goList": "Listen nach ihrer Position in deiner Seitenleiste",
       "goRoutines": "Routinen",
       "goSettings": "Einstellungen",
       "openFilters": "Filter einer Liste öffnen",
@@ -2640,13 +2655,13 @@
       "listsAndViews": "Listen und Ansichten",
       "navigation": "Navigation"
     },
-    "noMatches": "Kein Kürzel passt zu Ihrer Suche.",
+    "noMatches": "Kein Kürzel passt zu deiner Suche.",
     "or": "oder",
     "pendingGo": "Gehe zu … Buchstaben oder Listennummer drücken",
     "searchLabel": "Kürzel durchsuchen",
     "searchPlaceholder": "Kürzel durchsuchen …",
     "singleKey": {
-      "description": "C, /, V, ? und die G-Folgen. Schalten Sie sie aus, wenn Sie Spracheingabe nutzen oder versehentlich Tasten drücken.",
+      "description": "C, /, V, ? und die G-Folgen. Schalte sie aus, wenn du Spracheingabe nutzt oder versehentlich Tasten drückst.",
       "label": "Einzeltasten-Kürzel"
     },
     "then": "dann",
@@ -3411,7 +3426,7 @@
         "nameFieldNone": "In {consumers} kann kein Feld mehr die Datensätze benennen, sie erscheinen daher als „{singular} ohne Namen“.",
         "personalLayouts": "{target} wird aus {count, plural, one {# persönlichen Layout} other {# persönlichen Layouts}} entfernt.",
         "view": "{count, plural, one {{target} wird aus der Ansicht {consumers} entfernt.} other {{target} wird aus # Ansichten entfernt: {consumers}.}}",
-        "webhookPaused": "{count, plural, one {Der Webhook {consumers} wird pausiert, weil {target} sein einziger Auslöser war. Wählen Sie einen neuen Auslöser, bevor Sie ihn wieder einschalten.} other {# Webhooks werden pausiert, weil {target} ihr einziger Auslöser war: {consumers}. Wählen Sie einen neuen Auslöser, bevor Sie sie wieder einschalten.}}",
+        "webhookPaused": "{count, plural, one {Der Webhook {consumers} wird pausiert, weil {target} sein einziger Auslöser war. Wähle einen neuen Auslöser, bevor du ihn wieder einschaltest.} other {# Webhooks werden pausiert, weil {target} ihr einziger Auslöser war: {consumers}. Wähle einen neuen Auslöser, bevor du sie wieder einschaltest.}}",
         "webhookTrigger": "{count, plural, one {{target} wird aus dem Auslöser des Webhooks {consumers} entfernt.} other {{target} wird aus dem Auslöser von # Webhooks entfernt: {consumers}.}}",
         "widget": "{count, plural, one {{target} wird aus den Filtern oder der Gruppierung des Widgets {consumers} entfernt.} other {{target} wird aus den Filtern oder der Gruppierung von # Widgets entfernt: {consumers}.}}",
         "widgetCount": "{count, plural, one {Das Widget {consumers} zählt Datensätze, statt {target} auszuwerten.} other {# Widgets zählen Datensätze, statt {target} auszuwerten: {consumers}.}}"
@@ -3430,7 +3445,7 @@
         "detailLayout": "Persönliche Datensatzlayouts verwenden noch {subject}.",
         "existingValues": "Einige vorhandene Werte von {subject} passen nicht zur Änderung.",
         "existingValuesDetail": "{count, plural, one {# Datensatz hat einen Wert} other {# Datensätze haben Werte}} in {subject}, die nicht zur Änderung passen, zum Beispiel {examples}. Korrigiere oder leere sie zuerst.",
-        "readAll": "{subject} enthält noch Datensätze, die Sie nicht sehen können. Endgültig löschen kann nur, wer alle Datensätze lesen darf, oder ein Admin.",
+        "readAll": "{subject} enthält noch Datensätze, die du nicht sehen kannst. Endgültig löschen kann nur, wer alle Datensätze lesen darf, oder ein Admin.",
         "savedView": "Gespeicherte Ansichten oder persönliche Layouts verwenden noch {subject}.",
         "savedViewColumn": "Die gespeicherte Ansicht {view} verwendet noch {column}.",
         "summaryApproval": "{subject} braucht eine erneute Freigabe der Zusammenfassung."
@@ -3498,13 +3513,13 @@
       "addTo": "Zu {list} hinzufügen",
       "calculatedFrom": "aus {sources}",
       "calculationEdge": "Aus dieser Liste berechnet: {fields}",
-      "connectDescription": "Verbinden Sie Gmail, Outlook oder einen anderen Kanal, um Unterhaltungen in Ihre Listen zu holen.",
+      "connectDescription": "Verbinde Gmail, Outlook oder einen anderen Kanal, um Unterhaltungen in deine Listen zu holen.",
       "connectTitle": "E-Mail und Kalender verbinden",
       "controls": "Grafiksteuerung",
       "fitView": "Alles anzeigen",
       "handle": "Verbindungspunkt",
-      "help": "Wählen Sie eine Liste oder ein Feld zum Bearbeiten, den Chip auf einer Linie zum Bearbeiten einer Beziehung, oder ziehen Sie vom Punkt einer Liste zu einer anderen, um sie zu verbinden.",
-      "helpReadOnly": "Wählen Sie eine Liste, um sie zu öffnen. Linien zeigen, wie Listen zusammenhängen und woher berechnete Werte stammen.",
+      "help": "Wähle eine Liste oder ein Feld zum Bearbeiten, den Chip auf einer Linie zum Bearbeiten einer Beziehung, oder ziehe vom Punkt einer Liste zu einer anderen, um sie zu verbinden.",
+      "helpReadOnly": "Wähle eine Liste, um sie zu öffnen. Linien zeigen, wie Listen zusammenhängen und woher berechnete Werte stammen.",
       "label": "Grafik der Listen, Felder und verbundenen Konten",
       "moreAccounts": "{count, plural, one {# weiteres Konto} other {# weitere Konten}}",
       "moreFields": "{count, plural, one {# weiteres Feld} other {# weitere Felder}}",
@@ -3638,7 +3653,7 @@
     "linkRecord": "Datensatz verknüpfen",
     "listActions": "Listenaktionen",
     "listCounts": "{fields, plural, one {# Feld} other {# Felder}} · {relationships, plural, one {# Beziehung} other {# Beziehungen}}",
-    "listUnavailable": "Diese Liste ist nicht verfügbar. Wählen Sie eine andere Liste.",
+    "listUnavailable": "Diese Liste ist nicht verfügbar. Wähle eine andere Liste.",
     "member": "Mitglied",
     "missing": "Kein Wert",
     "moreActions": "Weitere Aktionen für {name}",
@@ -3684,10 +3699,10 @@
     "option": "Option",
     "optionCount": "{count, plural, =0 {Keine Optionen} one {# Option} other {# Optionen}}",
     "options": "Optionen",
-    "pluralDescription": "Wird in der Navigation und in Listentiteln angezeigt. Wird aus dem Namen vorgeschlagen, bis Sie ihn ändern.",
+    "pluralDescription": "Wird in der Navigation und in Listentiteln angezeigt. Wird aus dem Namen vorgeschlagen, bis du ihn änderst.",
     "pluralName": "Pluralname",
     "previewReady": "Bereit zum Anwenden. {count} Datensätze werden geprüft.",
-    "previewReadyHidden": "Bereit zum Anwenden. Die Änderung betrifft auch Datensätze, die Sie nicht sehen können.",
+    "previewReadyHidden": "Bereit zum Anwenden. Die Änderung betrifft auch Datensätze, die du nicht sehen kannst.",
     "priceModes": {
       "live": "Aktueller Preis",
       "saved": "Gespeicherter Preis"
@@ -3730,7 +3745,7 @@
     "relationshipPath": "Über verknüpfte Datensätze",
     "relationshipPathHelp": "Zeige Datensätze über bestehende Beziehungen an. Bearbeite die zugrunde liegenden Verknüpfungen, um diese Datensätze zu ändern.",
     "relationships": "Beziehungen",
-    "relationshipsEmpty": "Noch keine Beziehungen. Verknüpfen Sie diese Liste mit einer anderen, um zusammengehörige Einträge gemeinsam zu sehen.",
+    "relationshipsEmpty": "Noch keine Beziehungen. Verknüpfe diese Liste mit einer anderen, um zusammengehörige Datensätze gemeinsam zu sehen.",
     "reloadLists": "Listen neu laden",
     "removeGroupSummary": "Übersicht entfernen",
     "removeInput": "Eingabe entfernen",
@@ -4293,11 +4308,11 @@
     "permanentRecords": "{list}: {count, plural, one {# Datensatz} other {# Datensätze}}",
     "restore": "Wiederherstellen",
     "restoreBlocked": {
-      "listDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ihre Liste im Papierkorb liegt. Stellen Sie zuerst die Liste wieder her.",
+      "listDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ihre Liste im Papierkorb liegt. Stelle zuerst die Liste wieder her.",
       "nameTaken": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ein anderes Element jetzt ihren Namen oder Platz hat.",
       "notFound": "{count, plural, one {# Element existiert} other {# Elemente existieren}} nicht mehr und wurden aus dem Papierkorb entfernt.",
-      "parentDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil das, wozu sie gehören, im Papierkorb liegt. Stellen Sie das zuerst wieder her.",
-      "requiresRestore": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil etwas, das sie brauchen, im Papierkorb liegt. Stellen Sie das zuerst wieder her.",
+      "parentDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil das, wozu sie gehören, im Papierkorb liegt. Stelle das zuerst wieder her.",
+      "requiresRestore": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil etwas, das sie brauchen, im Papierkorb liegt. Stelle das zuerst wieder her.",
       "routineLimitReached": "{count, plural, one {# Routine bleibt} other {# Routinen bleiben}} im Papierkorb, weil die Person bereits alle Routinen ihres Tarifs nutzt."
     },
     "restored": "{count, plural, one {# Element wiederhergestellt} other {# Elemente wiederhergestellt}}",
@@ -4406,7 +4421,7 @@
     "enabled": "Aktiviert",
     "headersDescription": "Optionale Header, die bei jeder Zustellung mitgesendet werden, einer pro Zeile als Name: Wert. Nutze sie für Empfänger, die eine eigene Authentifizierung verlangen. Content-Type und der Signatur-Header lassen sich nicht überschreiben.",
     "paused": "Pausiert",
-    "pausedTriggerFieldDeleted": "Dieser Webhook wurde pausiert, weil das Feld gelöscht wurde, das ihn ausgelöst hat. Wählen Sie einen neuen Auslöser und schalten Sie ihn dann wieder ein.",
+    "pausedTriggerFieldDeleted": "Dieser Webhook wurde pausiert, weil das Feld gelöscht wurde, das ihn ausgelöst hat. Wähle einen neuen Auslöser und schalte ihn dann wieder ein.",
     "recordOwner": "Zugriffsberechtigtes Mitglied",
     "recordOwnerHelp": "Datensatzereignisse werden mit den aktuellen Berechtigungen dieses Mitglieds zugestellt. Nur Administratoren können ein anderes Mitglied wählen. Filter gelten zum Zeitpunkt der Änderung, nicht beim Löschen.",
     "secretDescription": "Optionales Geheimnis zur Generierung einer HMAC-SHA256-Signatur, die im X-Webhook-Signature-Header gesendet wird. Zur Überprüfung den Request-Body mit diesem Geheimnis mittels HMAC-SHA256 hashen und mit dem Header-Wert vergleichen.",

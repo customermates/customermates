@@ -1,4 +1,11 @@
 {
+  "AccessDeniedPage": {
+    "body": "Questo record esiste, ma il tuo ruolo non ti consente di leggerlo. Chiedi l'accesso a un amministratore dello spazio di lavoro.",
+    "ctaLabel": "Torna alla home",
+    "documentTitle": "Accesso negato | Customermates",
+    "subtitle": "Il tuo ruolo non può aprirlo",
+    "title": "Non hai accesso a questo record"
+  },
   "AccountAccessRevoked": {
     "body": "Hai appena effettuato l'accesso senza password, e questo conferma che questo indirizzo e-mail è tuo. Fino a ora non era mai stato confermato, quindi non potevamo sapere con certezza chi avesse creato questo account. Per sicurezza abbiamo rimosso la vecchia password e tutto il resto che poteva aprire l'account, come app collegate o chiavi. I tuoi dati non sono cambiati e puoi continuare ad accedere esattamente come hai appena fatto.",
     "cta": "Imposta una nuova password",
@@ -40,14 +47,15 @@
           "triage": "Pronto a cambiare lo stato della conversazione"
         },
         "records": {
-          "delete": "{count, plural, one {Pronto a eliminare definitivamente {target}} other {Pronto a eliminare definitivamente {target}}}"
+          "delete": "{count, plural, one {Pronto a spostare {target} nel Cestino} other {Pronto a spostare {target} nel Cestino}}",
+          "deletePermanent": "{count, plural, one {Pronto a eliminare definitivamente {target}} other {Pronto a eliminare definitivamente {target}}}"
         },
         "roles": {
           "manage": "Approva questa modifica del ruolo"
         },
         "routines": {
           "configure": "Pronto a mettere in pausa o eseguire la routine",
-          "delete": "Pronto a eliminare la routine e la sua cronologia"
+          "delete": "Pronto a spostare la routine e la sua cronologia nel Cestino"
         },
         "support": {
           "escalate": "Pronto a inviare la tua richiesta all’assistenza via e-mail"
@@ -57,14 +65,14 @@
         },
         "views": {
           "configure": "Pronto a modificare la vista salvata",
-          "delete": "Pronto a eliminare definitivamente la vista salvata"
+          "delete": "Pronto a spostare la vista salvata nel Cestino"
         },
         "webhooks": {
           "manage": "Pronto a modificare la consegna dei webhook"
         },
         "widgets": {
           "configure": "Pronto a modificare i widget della dashboard",
-          "delete": "Pronto a eliminare definitivamente un widget della dashboard"
+          "delete": "Pronto a spostare un widget della dashboard nel Cestino"
         },
         "workspace": {
           "configure": "Pronto a modificare il modello dati dell’area di lavoro"
@@ -79,10 +87,11 @@
         "draftSave": "Salvare una bozza nella conversazione selezionata",
         "emailSend": "Inviare un’email ai destinatari selezionati",
         "externalManage": "Modificare i dati nell'account esterno collegato",
-        "recordsDelete": "Questa azione non può essere annullata.",
+        "recordsDelete": "{count, plural, one {Puoi ripristinarlo dal Cestino per 30 giorni.} other {Puoi ripristinarli dal Cestino per 30 giorni.}}",
+        "recordsDeletePermanent": "Questa azione non può essere annullata.",
         "roleDelete": "Elimina il ruolo selezionato",
         "roleSave": "Salva il ruolo e il suo accesso ai record",
-        "routineDelete": "Eliminare definitivamente la routine selezionata e la sua cronologia",
+        "routineDelete": "Spostare la routine selezionata e la sua cronologia nel Cestino, da cui puoi ripristinarla per 30 giorni",
         "routinePause": "Mettere in pausa la routine selezionata",
         "routineRun": "Eseguire ora la routine selezionata",
         "salesListSave": "Aggiungere il potenziale cliente selezionato a un elenco Sales Navigator",
@@ -227,9 +236,14 @@
             "running": "{count, plural, one {Creazione di {target}} other {Creazione di {target}}}"
           },
           "delete": {
-            "done": "{count, plural, one {Rimozione di {target} completata} other {Rimozione di {target} completata}}",
-            "error": "{count, plural, one {Impossibile rimuovere {target}} other {Impossibile rimuovere {target}}}",
-            "running": "{count, plural, one {Rimozione di {target}} other {Rimozione di {target}}}"
+            "done": "{count, plural, one {Spostamento di {target} nel Cestino completato} other {Spostamento di {target} nel Cestino completato}}",
+            "error": "{count, plural, one {Impossibile spostare {target} nel Cestino} other {Impossibile spostare {target} nel Cestino}}",
+            "running": "{count, plural, one {Spostamento di {target} nel Cestino} other {Spostamento di {target} nel Cestino}}"
+          },
+          "deletePermanent": {
+            "done": "{count, plural, one {Eliminazione definitiva di {target} completata} other {Eliminazione definitiva di {target} completata}}",
+            "error": "{count, plural, one {Impossibile eliminare definitivamente {target}} other {Impossibile eliminare definitivamente {target}}}",
+            "running": "{count, plural, one {Eliminazione definitiva di {target}} other {Eliminazione definitiva di {target}}}"
           },
           "link": {
             "done": "Record correlati collegati",
@@ -1161,6 +1175,7 @@
       "routineLimitReached": "Il tuo piano include {limit} routine per utente. Passa a un piano con un limite più alto.",
       "routineNotFound": "ID routine non trovato o non accessibile.",
       "routineOwnerIneligible": "Il proprietario della routine deve essere un membro attivo di questa azienda.",
+      "routineRunCursorInvalid": "Questo link di pagina della cronologia delle esecuzioni non è più valido. Ricarica la cronologia e riprova.",
       "routineRunNotOwner": "Solo chi possiede questa routine può eseguirla, perché consuma i suoi crediti IA.",
       "routineRunNowRequiresSchedule": "Solo le routine pianificate possono essere testate manualmente.",
       "routineScheduleInvalid": "Questa pianificazione non è un'espressione cron valida.",

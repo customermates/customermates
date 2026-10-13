@@ -165,6 +165,22 @@ describe("workspace record navigation and drawers", () => {
     expect(mocks.getRecordEditorAction).toHaveBeenCalledOnce();
   });
 
+  it("shows access denied for an existing record the actor cannot read and clears it on close", async () => {
+    const f = fixture();
+    const recordId = randomUUID();
+    mocks.getRecordEditorAction.mockResolvedValueOnce({ ok: false, error: {}, code: "permissionDenied" });
+    f.store.open({ typeId: f.context.typeId, recordId });
+    await vi.waitFor(() => expect(f.store.accessDenied).toBe(true));
+    expect(f.store.isOpening).toBe(false);
+    expect(f.store.editor).toBeNull();
+    f.store.close();
+    expect(f.store.accessDenied).toBe(false);
+    mocks.getRecordEditorAction.mockResolvedValueOnce({ ok: false, error: {}, code: "recordNotFound" });
+    f.store.open({ typeId: f.context.typeId, recordId });
+    await vi.waitFor(() => expect(f.store.isOpening).toBe(false));
+    expect(f.store.accessDenied).toBe(false);
+  });
+
   it("opens the newest record only and notifies active views after a saved record", async () => {
     const f = fixture();
     const first = Promise.withResolvers<unknown>();
@@ -238,7 +254,7 @@ describe("record draft handoff", () => {
     expect(f.page.record?.version).toBe(2);
     expect(f.page.form.values[f.fieldId]).toBe("Updated");
     expect(f.page.hasUnsavedChanges).toBe(false);
-    expect(f.store.takeDraftHandoff(f.ref)).toBeNull();
+    expect(f.store.peekDraftHandoff(f.ref).queued).toBeNull();
   });
 
   it.each([false, true])("uses fresh drawer access and layout at equal revisions (drawer dirty: %s)", (dirtyDrawer) => {
@@ -268,7 +284,7 @@ describe("record draft handoff", () => {
     expect(f.page.hasUnsavedChanges).toBe(dirtyDrawer);
     expect(f.page.record?.version).toBe(1);
     expect(f.page.presentation.model.revision).toBe(1);
-    expect(f.store.takeDraftHandoff(f.ref)).toBeNull();
+    expect(f.store.peekDraftHandoff(f.ref).queued).toBeNull();
   });
 
   it("transfers a same-record drawer draft and rebases it onto a newer mounted page", () => {
@@ -287,7 +303,7 @@ describe("record draft handoff", () => {
     expect(f.page.savedState.values[f.fieldId]).toBe("Updated elsewhere");
     expect(f.page.conflicts).toEqual([f.fieldId]);
     expect(f.page.hasUnsavedChanges).toBe(true);
-    expect(f.store.takeDraftHandoff(f.ref)).toBeNull();
+    expect(f.store.peekDraftHandoff(f.ref).queued).toBeNull();
     expect(f.drawer.form.values[f.fieldId]).toBe("Drawer draft");
   });
 
@@ -302,7 +318,7 @@ describe("record draft handoff", () => {
     expect(f.page.record?.version).toBe(1);
     expect(f.drawer.staleChange).toBe(true);
     expect(f.drawer.form.values[f.fieldId]).toBe("Drawer draft");
-    expect(f.store.takeDraftHandoff(f.ref)).toBeNull();
+    expect(f.store.peekDraftHandoff(f.ref).queued).toBeNull();
   });
 
   it.each([false, true])(
@@ -320,7 +336,7 @@ describe("record draft handoff", () => {
       expect(f.page.savedState.values[f.fieldId]).toBe("Updated elsewhere");
       expect(f.page.form.values[f.fieldId]).toBe(dirtyDrawer ? "Drawer draft" : "Updated elsewhere");
       expect(f.page.hasUnsavedChanges).toBe(dirtyDrawer);
-      expect(f.store.takeDraftHandoff(f.ref)).toBeNull();
+      expect(f.store.peekDraftHandoff(f.ref).queued).toBeNull();
     },
   );
 
@@ -352,7 +368,7 @@ describe("record draft handoff", () => {
     expect(f.page.isOpen).toBe(true);
     expect(f.page.hasUnsavedChanges).toBe(true);
     expect(f.page.form.values[f.fieldId]).toBe("Drawer draft");
-    expect(f.store.takeDraftHandoff(f.ref)).toBeNull();
+    expect(f.store.peekDraftHandoff(f.ref).queued).toBeNull();
   });
 
   it("preserves busy editors and discards only the accepted page-owned channel draft", () => {
@@ -408,10 +424,10 @@ describe("record draft handoff", () => {
     });
     expect(f.store.handOffDraft(f.drawer)).toBe(true);
     expect(f.page.form.values[f.fieldId]).toBe("Saved");
-    expect(f.store.takeDraftHandoff(f.ref)?.form.values[f.fieldId]).toBe("Drawer draft");
+    expect(f.store.peekDraftHandoff(f.ref).draft?.form.values[f.fieldId]).toBe("Drawer draft");
   });
 
-  it("hands a dirty drawer draft to the page for the same record exactly once", () => {
+  it("keeps a queued drawer draft until the page that read it acknowledges it", () => {
     const f = fixture();
     const ref = { typeId: f.context.typeId, recordId: randomUUID() };
     const editor = {
@@ -422,17 +438,63 @@ describe("record draft handoff", () => {
       form: { values: { a: "draft" } },
     } as unknown as RecordEditorStore;
     f.store.handOffDraft(editor);
-    expect(f.store.takeDraftHandoff({ ...ref, recordId: randomUUID() })).toBeNull();
-    f.store.handOffDraft(editor);
-    expect(f.store.takeDraftHandoff(ref)).toMatchObject({
-      form: { values: { a: "draft" } },
-      record: { version: 3 },
-    });
-    expect(f.store.takeDraftHandoff(ref)).toBeNull();
+    const wrongRef = f.store.peekDraftHandoff({ ...ref, recordId: randomUUID() });
+    expect(wrongRef.draft).toBeNull();
+    expect(f.store.peekDraftHandoff(undefined).draft).toBeNull();
+    const first = f.store.peekDraftHandoff(ref);
+    const repeated = f.store.peekDraftHandoff(ref);
+    expect(first.draft).toMatchObject({ form: { values: { a: "draft" } }, record: { version: 3 } });
+    expect(repeated.queued).toBe(first.queued);
+    expect(repeated.draft).toEqual(first.draft);
+    f.store.acknowledgeDraftHandoff(null);
+    expect(f.store.peekDraftHandoff(ref).queued).toBe(first.queued);
+    f.store.acknowledgeDraftHandoff(first.queued);
+    expect(f.store.peekDraftHandoff(ref).queued).toBeNull();
     f.store.handOffDraft({
       ...editor,
       hasUnsavedChanges: false,
     } as unknown as RecordEditorStore);
-    expect(f.store.takeDraftHandoff(ref)).toBeNull();
+    expect(f.store.peekDraftHandoff(ref).queued).toBeNull();
+  });
+
+  it("lets an old acknowledgement leave a replacement draft queued", () => {
+    const f = fixture();
+    const ref = { typeId: f.context.typeId, recordId: randomUUID() };
+    const editor = (value: string) =>
+      ({
+        record: { ref, version: 3 },
+        presentation: f.context,
+        hasUnsavedChanges: true,
+        savedState: { values: { a: "saved" } },
+        form: { values: { a: value } },
+      }) as unknown as RecordEditorStore;
+    f.store.handOffDraft(editor("first"));
+    const old = f.store.peekDraftHandoff(ref).queued;
+    f.store.handOffDraft(editor("replacement"));
+    f.store.acknowledgeDraftHandoff(old);
+    expect(f.store.peekDraftHandoff(ref).draft?.form).toEqual({ values: { a: "replacement" } });
+  });
+
+  it("drops a queued draft for another actor and ignores its acknowledgement after the switch", () => {
+    const f = fixture();
+    const ref = { typeId: f.context.typeId, recordId: randomUUID() };
+    const editor = {
+      record: { ref, version: 3 },
+      presentation: f.context,
+      hasUnsavedChanges: true,
+      savedState: { values: { a: "saved" } },
+      form: { values: { a: "draft" } },
+    } as unknown as RecordEditorStore;
+    f.store.handOffDraft(editor);
+    const previous = f.store.peekDraftHandoff(ref).queued;
+    runInAction(() => {
+      f.userStore.user = { id: randomUUID(), companyId: randomUUID() };
+    });
+    expect(f.store.peekDraftHandoff(ref).queued).toBeNull();
+    f.store.handOffDraft(editor);
+    const current = f.store.peekDraftHandoff(ref).queued;
+    f.store.acknowledgeDraftHandoff(previous);
+    expect(f.store.peekDraftHandoff(ref).queued).toBe(current);
+    expect(current?.actorScope).toBe(`${f.userStore.user.companyId}:${f.userStore.user.id}`);
   });
 });
