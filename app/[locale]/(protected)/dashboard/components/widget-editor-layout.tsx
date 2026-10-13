@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { useAppForm } from "@/components/forms/form-context";
 import { SegmentedControl, SegmentedControlPanel } from "@/components/ui/segmented-control";
 import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/core/utils/cn";
 
 type WidgetEditorSegment = "data" | "appearance";
 
@@ -34,7 +35,7 @@ export function WidgetPreviewSkeleton() {
 
       <div className="flex min-h-0 flex-1 items-end gap-3">
         {["h-2/5", "h-4/5", "h-3/5", "h-full", "h-1/2"].map((height) => (
-          <Skeleton key={height} className={`${height} flex-1 rounded-md`} />
+          <Skeleton key={height} className={cn(height, "flex-1 rounded-md")} />
         ))}
       </div>
     </div>

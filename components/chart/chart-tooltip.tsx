@@ -7,6 +7,7 @@ import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 
 import { useRecordValueFormat } from "@/components/records/record-value";
+import { cn } from "@/core/utils/cn";
 
 type TooltipContentProps = {
   active?: boolean;
@@ -64,7 +65,7 @@ const TooltipContent = observer((props: TooltipContentProps) => {
   const total = payload.reduce((sum, entry) => sum + (typeof entry.value === "number" ? entry.value : 0), 0);
 
   return (
-    <div className={`${BASE_CLASS} min-w-[180px]`}>
+    <div className={cn(BASE_CLASS, "min-w-[180px]")}>
       {label && <div className="mb-2 text-sm font-semibold">{String(label)}</div>}
 
       <div className="flex flex-col gap-1.5">

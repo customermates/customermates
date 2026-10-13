@@ -648,8 +648,7 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
   ];
   await expect.poll(fills).toHaveLength(2);
   const groupFills = await fills();
-  const theme = await page.evaluate(() => (document.documentElement.classList.contains("dark") ? "dark" : "light"));
-  const rankShades = getChartRankShades(ChartColor.primary1, theme, [5, 12.5]);
+  const rankShades = getChartRankShades(ChartColor.primary1, [5, 12.5]);
   expect(new Set(rankShades).size).toBe(2);
   expect(rankShades).not.toEqual(groupFills);
   await dialog
@@ -659,6 +658,18 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
     })
     .uncheck();
   await expect.poll(fills).toEqual(rankShades);
+  const paintedFills = (theme: "light" | "dark") =>
+    dialog.locator(".recharts-bar-rectangle path").evaluateAll((paths, selected) => {
+      const root = document.documentElement;
+      const previous = root.className;
+      root.classList.remove("light", "dark");
+      root.classList.add(selected);
+      const painted = paths.map((path) => getComputedStyle(path).fill);
+      root.className = previous;
+      return [...new Set(painted)];
+    }, theme);
+  expect(await paintedFills("light")).toEqual(["rgb(119, 103, 232)", "rgb(94, 74, 227)"]);
+  expect(await paintedFills("dark")).toEqual(["rgb(108, 96, 214)", "rgb(124, 109, 242)"]);
   await dialog
     .getByRole("switch", {
       name: english.Common.inputs.displayOptions.useGroupColors,
