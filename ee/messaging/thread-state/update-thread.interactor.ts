@@ -19,7 +19,7 @@ export const UpdateThreadSchema = z.object({
 });
 export type UpdateThreadData = Data<typeof UpdateThreadSchema>;
 
-@TenantInteractor({ resource: Resource.inboxMessages, manage: "update", permissionDeniedAsResult: true })
+@TenantInteractor({ resource: Resource.inboxMessages, manage: "update" })
 export class UpdateThreadInteractor extends AuthenticatedInteractor<UpdateThreadData, null> {
   constructor(
     private repo: UpdateThreadRepo,
