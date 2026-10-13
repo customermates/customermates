@@ -7,6 +7,7 @@ import {
   getPauseRoutineInteractor,
   getRunRoutineNowInteractor,
   getUpsertRoutineInteractor,
+  getUserService,
 } from "@/core/di";
 import { MIN_ROUTINE_INTERVAL_MINUTES } from "@/ee/routines/routine-schedule";
 import {
@@ -16,6 +17,10 @@ import {
   RoutineRecordTriggerSchema,
 } from "@/ee/routines/routine.schema";
 import { RecordTriggerSourceSchema } from "@/features/records/record-event-subscription.schema";
+import { tenantStorage } from "@/core/decorators/tenant-context";
+import { resolveActiveTenantUser } from "@/core/decorators/resolve-tenant-user";
+import { FilterFieldKey } from "@/core/types/filter-field-key";
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
 
 import {
   fetchMcpPage,
@@ -31,13 +36,18 @@ const ManageRoutinesSchema = z.object({
   action: z
     .enum(["list", "runs", "create", "update", "pause", "run_now", "delete"])
     .describe(
-      "list = every routine with its full configuration (optional page, pageSize, searchTerm); runs = one routine's run history (id, optional cursor); create = name, prompt, triggerKind, enabled, plus cronExpression and timezone for a schedule or triggerEvents for an event (record events also need recordTrigger or recordSources; optional debounceSeconds); update = id plus the fields to change; pause, run_now and delete = id.",
+      "list = compact routine summaries by default (optional page, pageSize, searchTerm, owner, includePrompts); runs = one routine's run history (id, optional cursor); create = name, prompt, triggerKind, enabled, plus cronExpression and timezone for a schedule or triggerEvents for an event (record events also need recordTrigger or recordSources; optional debounceSeconds); update = id plus the fields to change; pause, run_now and delete = id.",
     ),
   id: z.uuid().optional().describe("Routine id. Required for update, pause, run_now and delete."),
   cursor: z.string().max(500).nullable().optional().describe("runs only. Page cursor from a previous runs call."),
   page: mcpPage(),
   pageSize: mcpPageSize(25, `list only. ${MCP_PAGE_SIZE_DESCRIPTION} Default 25.`),
   searchTerm: z.string().optional().describe("list only. Free-text match against the routine name."),
+  owner: z.enum(["all", "mine"]).default("all").describe("list only. mine returns routines owned by the caller."),
+  includePrompts: z
+    .boolean()
+    .default(false)
+    .describe("list only. Include the full routine configurations and prompts; false returns compact summaries."),
   name: z.string().min(1).max(ROUTINE_NAME_MAX_CHARS).optional().describe("Required on create."),
   prompt: z
     .string()
@@ -99,7 +109,7 @@ const ManageRoutinesOutputSchema = z
     started: z.boolean().optional(),
   })
   .describe(
-    "list returns items, total, page and pageSize; runs returns items with status, triggerKind and error block reason, plus nextCursor; create, update and pause return the routine's id, name and enabled (false after pause); run_now returns started on success or a specific failure before queuing; delete returns deleted and id.",
+    "list returns items, total, page and pageSize; each item is a compact id, name, owner, trigger and enabled summary unless includePrompts is true. owner: mine limits the list to the caller. runs returns items with status, triggerKind and error block reason, plus nextCursor; create, update and pause return the routine's id, name and enabled (false after pause); run_now returns started on success or a specific failure before queuing; delete returns deleted and id.",
   );
 
 const IdSchema = z.object({ id: z.uuid() });
@@ -109,7 +119,7 @@ export const manageRoutinesTool = {
   title: "Manage routines",
   description:
     "Use this to read, create, change or remove routines: saved instructions the assistant runs on a schedule or when a CRM event fires. " +
-    "action list returns every routine with its prompt and trigger, and takes page, pageSize and searchTerm for pagination. " +
+    "action list returns compact summaries (id, name, owner, trigger, enabled) by default; pass includePrompts: true for full configurations including prompts. Pass owner: 'mine' to limit results to routines you own; page, pageSize and searchTerm paginate and search. " +
     "action runs returns one routine's run history newest first, paginated by cursor, each with its status, summary, triggerKind and error block reason. " +
     "action create needs name, prompt and triggerKind, plus cronExpression for a schedule, or triggerEvents for an event. Record events (record.created, record.updated, record.deleted) also need recordTrigger for one list or recordSources for several lists; the query filters decide which records fire the routine, and record events can be combined with messaging events in one routine. " +
     "Omitting enabled on create produces a routine that is immediately LIVE and will start running, so pass enabled false to draft one. " +
@@ -128,12 +138,30 @@ export const manageRoutinesTool = {
   outputSchema: ManageRoutinesOutputSchema,
   execute: async (params: z.infer<typeof ManageRoutinesSchema>) => {
     if (params.action === "list") {
+      const ownerUserId =
+        params.owner === "mine"
+          ? (
+              tenantStorage.getStore()?.user ??
+              (await resolveActiveTenantUser(() => getUserService().getActiveUserOrThrow()))
+            ).id
+          : null;
       return runInteractor(
         fetchMcpPage({ page: params.page, pageSize: params.pageSize }, ({ page, pageSize }) =>
           getGetRoutinesApiInteractor().invoke({
             page,
             pageSize,
             searchTerm: params.searchTerm,
+            ...(ownerUserId
+              ? {
+                  filters: [
+                    {
+                      field: FilterFieldKey.ownerUserId,
+                      operator: FilterOperatorKey.equals,
+                      value: ownerUserId,
+                    },
+                  ],
+                }
+              : {}),
           }),
         ),
         (data) =>
@@ -141,7 +169,25 @@ export const manageRoutinesTool = {
             total: data.pagination?.total ?? data.items.length,
             page: params.page,
             pageSize: params.pageSize,
-            items: data.items,
+            items: params.includePrompts
+              ? data.items
+              : data.items.map((routine) => ({
+                  id: routine.id,
+                  name: routine.name,
+                  owner: routine.owner
+                    ? {
+                        id: routine.owner.id,
+                        name: `${routine.owner.firstName} ${routine.owner.lastName}`.trim(),
+                      }
+                    : null,
+                  trigger: {
+                    kind: routine.triggerKind,
+                    cronExpression: routine.cronExpression,
+                    timezone: routine.timezone,
+                    events: routine.triggerEvents,
+                  },
+                  enabled: routine.enabled,
+                })),
           }),
       );
     }

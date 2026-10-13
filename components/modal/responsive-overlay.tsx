@@ -135,7 +135,10 @@ export function ResponsiveOverlay({
         onInteractOutside={keepOpenForAssistantSurface}
         onOpenAutoFocus={onOpenAutoFocus}
       >
-        <DrawerHeader actions={headerAction}>
+        <DrawerHeader
+          actions={headerAction}
+          className="group-data-[vaul-drawer-direction=left]/drawer-content:flex-row group-data-[vaul-drawer-direction=left]/drawer-content:items-center group-data-[vaul-drawer-direction=left]/drawer-content:py-3 group-data-[vaul-drawer-direction=left]/drawer-content:pr-12"
+        >
           <DrawerTitle className={cn("min-w-0 truncate", headerAction && "flex-1")}>{title}</DrawerTitle>
         </DrawerHeader>
 

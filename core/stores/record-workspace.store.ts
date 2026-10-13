@@ -209,8 +209,16 @@ export class RecordWorkspaceStore {
     return { queued, draft };
   };
 
+  clearDraftHandoff = () => {
+    this.draftHandoff = null;
+  };
+
   acknowledgeDraftHandoff = (queued: QueuedRecordDraftHandoff | null) => {
-    if (queued && this.draftHandoff === queued && queued.actorScope === this.actorScope) this.draftHandoff = null;
+    if (queued && this.draftHandoff === queued && queued.actorScope === this.actorScope) {
+      this.draftHandoff = null;
+      this.editor?.resetForm();
+      this.close();
+    }
   };
 
   invalidate = async () => {

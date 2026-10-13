@@ -67,8 +67,13 @@ export function configurationTypeChanges(
     );
   for (const field of model.fields) {
     const before = current.fields.find((candidate) => candidate.id === field.id);
-    if (before && (before.valueType === "channels") !== (field.valueType === "channels"))
-      issues.push({ code: "channels_type_change", fieldId: field.id, typeId: field.typeId });
+    if (before && (before.valueType === "channels") !== (field.valueType === "channels")) {
+      issues.push({
+        code: "channels_type_change",
+        fieldId: field.id,
+        typeId: field.typeId,
+      });
+    }
     if (fieldValueDefinition(before) === fieldValueDefinition(field)) continue;
     if (field.valueType === "channels") {
       channelTypes.add(field.typeId);
@@ -131,7 +136,11 @@ export function configurationTypeChanges(
 export async function collectConsumerImpact(
   current: RecordModel,
   model: RecordModel,
-  change: { viewTypes: Set<string>; deletedTypeIds: Set<string>; cause: DeletionReference | null },
+  change: {
+    viewTypes: Set<string>;
+    deletedTypeIds: Set<string>;
+    cause: DeletionReference | null;
+  },
   consumers: ConfigurationConsumers,
   impact: ConfigurationImpact,
 ): Promise<void> {
@@ -148,7 +157,12 @@ export async function collectConsumerImpact(
       if (cause && layout) {
         cleanups.push({ kind: "detailLayout", id: entry.id, layout });
         cleaned.push({
-          consumer: { kind: "detailLayout", id: entry.id, typeId: entry.typeId, label: "" },
+          consumer: {
+            kind: "detailLayout",
+            id: entry.id,
+            typeId: entry.typeId,
+            label: "",
+          },
           target: cause,
         });
         continue;
@@ -158,6 +172,7 @@ export async function collectConsumerImpact(
       issues.push({ code: "detail_layout_incompatible", typeId: entry.typeId });
     }
     for await (const consumer of consumers.viewStates) {
+      if (consumer.trashed) continue;
       if (deletedTypeIds.has(consumer.typeId) || recordViewStateIsValid(consumer.typeId, consumer.state, model))
         continue;
       const kind = consumer.key.startsWith("view:") ? "view" : "personalLayout";
@@ -173,11 +188,17 @@ export async function collectConsumerImpact(
       const state = cause && validBefore ? cleanRecordViewState(consumer.typeId, consumer.state, model) : null;
       if (cause && state) {
         cleanups.push({ kind, id, state });
-        if (!consumer.trashed)
-          cleaned.push({ consumer: { kind, id, typeId: consumer.typeId, label: consumer.name ?? "" }, target: cause });
+        cleaned.push({
+          consumer: {
+            kind,
+            id,
+            typeId: consumer.typeId,
+            label: consumer.name ?? "",
+          },
+          target: cause,
+        });
         continue;
       }
-      if (consumer.trashed) continue;
       issues.push({
         code: "saved_view_incompatible",
         typeId: consumer.typeId,
@@ -192,17 +213,29 @@ export async function collectConsumerImpact(
     if (recordMeasureIsValid(widget.measure, model)) continue;
     if (cause && recordMeasureIsValid(widget.measure, current)) {
       const measure = cleanRecordMeasure(widget.measure, model);
-      const consumer = { kind: "widget" as const, id: widget.id, label: widget.name };
+      const consumer = {
+        kind: "widget" as const,
+        id: widget.id,
+        label: widget.name,
+      };
       if (measure) {
         cleanups.push({ kind: "widget", id: widget.id, measure });
         const counts = measure.aggregation === "count" && widget.measure.aggregation !== "count";
-        if (!widget.trashed)
-          cleaned.push({ consumer, target: cause, ...(counts ? { effect: "countsRecords" as const } : {}) });
+        if (!widget.trashed) {
+          cleaned.push({
+            consumer,
+            target: cause,
+            ...(counts ? { effect: "countsRecords" as const } : {}),
+          });
+        }
       } else if (!widget.trashed) blockers.push({ reason: "widget", source: consumer, target: cause });
       continue;
     }
     if (widget.trashed) continue;
-    issues.push({ code: "widget_incompatible", typeId: widget.measure.source.typeId });
+    issues.push({
+      code: "widget_incompatible",
+      typeId: widget.measure.source.typeId,
+    });
   }
   for await (const { id, name, query, trashed } of consumers.activityWidgets) {
     if (trashed) continue;
@@ -213,28 +246,51 @@ export async function collectConsumerImpact(
     ];
     for (const typeId of new Set(typeIds)) {
       if (model.types.some((type) => type.id === typeId && !type.archived)) continue;
-      if (cause && deletedTypeIds.has(typeId))
-        blockers.push({ reason: "widget", source: { kind: "widget", id, label: name }, target: cause });
-      else issues.push({ code: "widget_incompatible", typeId });
+      if (cause && deletedTypeIds.has(typeId)) {
+        blockers.push({
+          reason: "widget",
+          source: { kind: "widget", id, label: name },
+          target: cause,
+        });
+      } else issues.push({ code: "widget_incompatible", typeId });
     }
   }
   for await (const subscription of consumers.eventSubscriptions) {
     if (recordEventSubscriptionIsValid(subscription, model)) continue;
     if (cause && recordEventSubscriptionIsValid(subscription, current) && subscription.kind === "webhook") {
-      const consumer = { kind: "webhook" as const, id: subscription.id, label: subscription.label };
+      const consumer = {
+        kind: "webhook" as const,
+        id: subscription.id,
+        label: subscription.label,
+      };
       const { subscription: kept, paused } = cleanRecordEventSubscription(subscription, model);
-      cleanups.push({ kind: "webhookSubscription", subscription: kept, paused });
-      cleaned.push({ consumer, target: cause, effect: paused ? "webhookPaused" : "triggerChanged" });
+      cleanups.push({
+        kind: "webhookSubscription",
+        subscription: kept,
+        paused,
+      });
+      cleaned.push({
+        consumer,
+        target: cause,
+        effect: paused ? "webhookPaused" : "triggerChanged",
+      });
       continue;
     }
     if (cause && recordEventSubscriptionIsValid(subscription, current)) {
       blockers.push({
         reason: subscription.kind,
-        source: { kind: subscription.kind, id: subscription.id, label: subscription.label },
+        source: {
+          kind: subscription.kind,
+          id: subscription.id,
+          label: subscription.label,
+        },
         target: cause,
       });
       continue;
     }
-    issues.push({ code: "event_subscription_incompatible", typeId: subscription.typeId ?? undefined });
+    issues.push({
+      code: "event_subscription_incompatible",
+      typeId: subscription.typeId ?? undefined,
+    });
   }
 }

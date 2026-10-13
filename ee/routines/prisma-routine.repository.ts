@@ -294,14 +294,10 @@ export class PrismaRoutineRepo
 
   getFilterableFields() {
     return Promise.resolve([
-      ...(this.permissions.canRead(Resource.users)
-        ? [
-            {
-              field: FilterFieldKey.ownerUserId,
-              operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.ownerUserId],
-            },
-          ]
-        : []),
+      {
+        field: FilterFieldKey.ownerUserId,
+        operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.ownerUserId],
+      },
       {
         field: FilterFieldKey.createdAt,
         operators: FILTER_FIELD_DEFAULT_OPERATORS[FilterFieldKey.createdAt],

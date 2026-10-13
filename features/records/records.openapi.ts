@@ -93,7 +93,12 @@ function operation(
     description: `${description ?? (read ? READ_DESCRIPTION : WRITE_DESCRIPTION)}\n\nRequires: ${requires}`,
     requestBody: {
       required: true,
-      content: { "application/json": { schema: input, ...(examples ? { examples } : {}) } },
+      content: {
+        "application/json": {
+          schema: input,
+          ...(examples ? { examples } : {}),
+        },
+      },
     },
     responses: {
       "200": {
@@ -119,7 +124,9 @@ function withWorkbookResponse(operation: ZodOpenApiOperationObject): ZodOpenApiO
         description: "The JSON export document, or the XLSX workbook when format is xlsx.",
         content: {
           ...ok.content,
-          [SPREADSHEET_CONTENT_TYPE]: { schema: z.string().meta({ format: "binary" }) },
+          [SPREADSHEET_CONTENT_TYPE]: {
+            schema: z.string().meta({ format: "binary" }),
+          },
         },
       },
     },
@@ -148,7 +155,13 @@ export const recordApiExamples = {
     },
     document: {
       summary: "Export a list as a JSON document for import",
-      value: { typeId: TYPE_ID, filters: [], relationships: [], sort: [], format: "json" },
+      value: {
+        typeId: TYPE_ID,
+        filters: [],
+        relationships: [],
+        sort: [],
+        format: "json",
+      },
     },
   },
   query: {
@@ -157,7 +170,13 @@ export const recordApiExamples = {
       value: {
         typeId: TYPE_ID,
         fields: [NAME_FIELD_ID, AMOUNT_FIELD_ID],
-        filters: [{ fieldId: NAME_FIELD_ID, operator: "contains", value: { kind: "text", value: "Acme" } }],
+        filters: [
+          {
+            fieldId: NAME_FIELD_ID,
+            operator: "contains",
+            value: { kind: "text", value: "Acme" },
+          },
+        ],
         sort: [{ fieldId: "system:updatedAt", direction: "desc" }],
         page: 1,
         pageSize: 25,
@@ -174,8 +193,14 @@ export const recordApiExamples = {
           action: "create",
           typeId: TYPE_ID,
           fields: [
-            { fieldId: NAME_FIELD_ID, value: { kind: "text", value: "Acme renewal" } },
-            { fieldId: AMOUNT_FIELD_ID, value: { kind: "decimal", value: "12000.00", currency: "EUR" } },
+            {
+              fieldId: NAME_FIELD_ID,
+              value: { kind: "text", value: "Acme renewal" },
+            },
+            {
+              fieldId: AMOUNT_FIELD_ID,
+              value: { kind: "decimal", value: "12000.00", currency: "EUR" },
+            },
           ],
         },
       },
@@ -189,7 +214,12 @@ export const recordApiExamples = {
           action: "update",
           ref: { typeId: TYPE_ID, recordId: RECORD_ID },
           expectedVersion: 3,
-          fields: [{ fieldId: AMOUNT_FIELD_ID, value: { kind: "decimal", value: "15000.00", currency: "EUR" } }],
+          fields: [
+            {
+              fieldId: AMOUNT_FIELD_ID,
+              value: { kind: "decimal", value: "15000.00", currency: "EUR" },
+            },
+          ],
         },
       },
     },
@@ -208,7 +238,10 @@ export const recordApiExamples = {
   },
   discover: {
     all: { summary: "Discover every readable list", value: {} },
-    selected: { summary: "Discover selected lists", value: { typeIds: [TYPE_ID] } },
+    selected: {
+      summary: "Discover selected lists",
+      value: { typeIds: [TYPE_ID] },
+    },
   },
   apply: {
     createList: {
@@ -232,8 +265,14 @@ export const recordApiExamples = {
     },
   },
   restore: {
-    items: { summary: "Restore Trash items", value: { itemIds: [TRASH_ITEM_ID] } },
-    batch: { summary: "Restore everything one delete moved to Trash", value: { batchId: TRASH_BATCH_ID } },
+    items: {
+      summary: "Restore Trash items",
+      value: { itemIds: [TRASH_ITEM_ID] },
+    },
+    batch: {
+      summary: "Restore everything one delete moved to Trash",
+      value: { batchId: TRASH_BATCH_ID },
+    },
   },
 };
 
@@ -272,7 +311,10 @@ export const recordApiPaths = {
       "Resolve exact channel identifiers to every accessible linked record",
       ResolveRecordIdentitiesSchema,
       ResolveRecordIdentitiesResultSchema,
-      { read: true, requires: "read access to the lists; records the caller cannot read are omitted." },
+      {
+        read: true,
+        requires: "read access to the lists; records the caller cannot read are omitted.",
+      },
     ),
   },
   "/v1/roles/read": {
@@ -325,7 +367,9 @@ export const recordApiPaths = {
       "Save or reset personal record detail layout",
       SaveRecordDetailLayoutSchema,
       RecordDetailLayoutResultSchema,
-      { requires: "read access to the list; the layout applies only to the caller." },
+      {
+        requires: "read access to the list; the layout applies only to the caller.",
+      },
     ),
   },
   "/v1/records/activities": {
@@ -391,7 +435,10 @@ export const recordApiPaths = {
       "Save a schema-aware widget",
       GenericRecordWidgetInputSchema,
       GenericRecordWidgetDtoSchema,
-      { tag: "widgets", requires: "an active workspace member; widgets are personal and show only readable values." },
+      {
+        tag: "widgets",
+        requires: "an active workspace member; widgets are personal and show only readable values.",
+      },
     ),
   },
   "/v1/widgets/read": {
@@ -400,7 +447,11 @@ export const recordApiPaths = {
       "Read a widget with current authorized results",
       RecordWidgetReadSchema,
       GenericRecordWidgetDtoSchema,
-      { tag: "widgets", read: true, requires: "read access to the widget's lists; restricted values stay hidden." },
+      {
+        tag: "widgets",
+        read: true,
+        requires: "read access to the widget's lists; restricted values stay hidden.",
+      },
     ),
   },
   "/v1/model/preview": {
@@ -462,16 +513,24 @@ export const recordApiPaths = {
       "List items in Trash (deleted records, lists, fields, relationships, views, widgets, routines, Knowledge Base pages)",
       QueryTrashSchema,
       TrashPageSchema,
-      { tag: "trash", read: true, requires: `${TRASH_ACCESS} Items without access are not listed.` },
+      {
+        tag: "trash",
+        read: true,
+        requires: `${TRASH_ACCESS} Items without access are not listed.`,
+      },
     ),
   },
   "/v1/trash/restore": {
     post: operation(
       "restoreTrash",
-      "Restore Trash items, or every item of one delete by batchId",
+      "Restore Trash items, or every item of one delete by batchId. For restored saved views, droppedViewReferences lists filters, columns, sort and grouping removed because a referenced field remains in Trash; restore the field first to preserve them.",
       RestoreTrashSchema,
       TrashRestoreResultSchema,
-      { tag: "trash", requires: TRASH_ACCESS, examples: recordApiExamples.restore },
+      {
+        tag: "trash",
+        requires: TRASH_ACCESS,
+        examples: recordApiExamples.restore,
+      },
     ),
   },
   "/v1/trash/preview": {
@@ -504,7 +563,10 @@ export const recordApiPaths = {
       "Aggregate record values at an explicit grain",
       RecordMeasureSchema,
       RecordMeasureResultSchema,
-      { read: true, requires: "read access to the source list; restricted inputs are hidden." },
+      {
+        read: true,
+        requires: "read access to the source list; restricted inputs are hidden.",
+      },
     ),
   },
   "/v1/operations/status": {
@@ -513,7 +575,11 @@ export const recordApiPaths = {
       "Read the status of a staged operation",
       RecordOperationInputSchema,
       RecordOperationStatusSchema,
-      { tag: "operations", read: true, requires: "the user who started the operation, or an administrator." },
+      {
+        tag: "operations",
+        read: true,
+        requires: "the user who started the operation, or an administrator.",
+      },
     ),
   },
   "/v1/operations/cancel": {
@@ -522,7 +588,10 @@ export const recordApiPaths = {
       "Cancel an operation before publication",
       RecordOperationInputSchema,
       z.object({ cancelled: z.boolean() }),
-      { tag: "operations", requires: "the user who started the operation, or an administrator." },
+      {
+        tag: "operations",
+        requires: "the user who started the operation, or an administrator.",
+      },
     ),
   },
   "/v1/operations/resume": {

@@ -48,7 +48,10 @@ export function normalizeRecordScalar(
   field: RecordField,
   path: Array<string | number> = [],
 ): RecordScalar | null {
-  const required = () => reject(CustomErrorCode.recordValueRequired, "validation", path, { field: field.label });
+  const required = () =>
+    reject(CustomErrorCode.recordValueRequired, "validation", path, {
+      field: field.label,
+    });
   if (!input) {
     if (field.required) required();
     return null;
@@ -81,7 +84,10 @@ function appendedRecordValue(field: RecordField, current: CalculatedValue, appen
     existing?.kind === "richText" ? (JSON.parse(existing.documentJson) as { content?: unknown[] }) : null;
   const before = document && serializeJSONToMarkdown(document).trim() ? (document.content ?? []) : [];
   const added = parseMarkdownToJSON(append) as { content?: unknown[] };
-  const documentJson = JSON.stringify({ type: "doc", content: [...before, ...(added.content ?? [])] });
+  const documentJson = JSON.stringify({
+    type: "doc",
+    content: [...before, ...(added.content ?? [])],
+  });
   if (documentJson.length > MAX_RICH_TEXT_JSON_SIZE)
     reject(CustomErrorCode.notesExceedsMaxLength, "validation", ["fields"]);
   return { kind: "richText", documentJson };
@@ -118,7 +124,12 @@ function comparableResult(result: CalculatedValue): unknown {
   if (result.state !== "value") return result;
   const value = result.value;
   if (value.kind === "decimal") return { ...value, value: new Decimal(value.value).toFixed() };
-  if (value.kind === "richText") return { kind: value.kind, document: JSON.parse(value.documentJson) as unknown };
+  if (value.kind === "richText") {
+    return {
+      kind: value.kind,
+      document: JSON.parse(value.documentJson) as unknown,
+    };
+  }
   return value;
 }
 
@@ -277,8 +288,11 @@ export class RecordWriteService {
         (mutation.action === "delete" ||
           (mutation.action === "update" && !isAppendOnlyUpdate(mutation) && !isOrderOnlyUpdate(mutation))) &&
         row.version !== mutation.expectedVersion
-      )
-        reject(CustomErrorCode.recordVersionChanged, "conflict");
+      ) {
+        reject(CustomErrorCode.recordVersionChanged, "conflict", [], {
+          currentVersion: row.version,
+        });
+      }
     }
     if (mutation.action === "link" || mutation.action === "unlink") {
       const row = await this.records.getRecordCompanyWide(mutation.target);
@@ -398,7 +412,10 @@ export class RecordWriteService {
       const known = aliases.length
         ? await this.records.getIdentityChannelsCompanyWide(
             aliases.flatMap((input) =>
-              identityKeys(input).map((value) => ({ channelClass: channelClass(input.provider), value })),
+              identityKeys(input).map((value) => ({
+                channelClass: channelClass(input.provider),
+                value,
+              })),
             ),
           )
         : [];
@@ -581,8 +598,11 @@ export class RecordWriteService {
       }
     } else if (mutation.action === "update") {
       const row = await editable(mutation.ref);
-      if (!isAppendOnlyUpdate(mutation) && !isOrderOnlyUpdate(mutation) && row.version !== mutation.expectedVersion)
-        reject(CustomErrorCode.recordVersionChanged, "conflict");
+      if (!isAppendOnlyUpdate(mutation) && !isOrderOnlyUpdate(mutation) && row.version !== mutation.expectedVersion) {
+        reject(CustomErrorCode.recordVersionChanged, "conflict", [], {
+          currentVersion: row.version,
+        });
+      }
       if (mutation.assignedUserIds && type(mutation.ref.typeId).parentRelationshipId) {
         if (mutation.assignedUserIds.length)
           reject(CustomErrorCode.recordValueInvalid, "validation", ["assignedUserIds"]);
@@ -602,7 +622,10 @@ export class RecordWriteService {
             row.values.find((value) => value.fieldId === field.id),
             field,
           );
-          return { fieldId: update.fieldId, value: appendedRecordValue(field, current, update.append) };
+          return {
+            fieldId: update.fieldId,
+            value: appendedRecordValue(field, current, update.append),
+          };
         }),
         false,
         row,
@@ -641,7 +664,10 @@ export class RecordWriteService {
           reject(CustomErrorCode.recordValueInvalid, "validation", ["placement", "groupFieldId"]);
         for (const anchor of [placement.afterRecordId, placement.beforeRecordId]) {
           if (!anchor) continue;
-          const row = await this.records.getRecordCompanyWide({ typeId: mutation.ref.typeId, recordId: anchor });
+          const row = await this.records.getRecordCompanyWide({
+            typeId: mutation.ref.typeId,
+            recordId: anchor,
+          });
           if (!row || !(await policy.canRead(row))) reject(CustomErrorCode.recordNotFound, "not_found", ["placement"]);
         }
         if (!(await this.records.placeRecord(mutation.ref, placement, groupFieldId ?? null)))

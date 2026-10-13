@@ -65,9 +65,21 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
     return [
       { uid: "name", sortable: false },
       { uid: "kind", sortable: false, label: this.t("Trash.columns.kind") },
-      { uid: "deletedBy", sortable: false, label: this.t("Trash.columns.deletedBy") },
-      { uid: "deletedAt", sortable: true, label: this.t("Trash.columns.deletedAt") },
-      { uid: "expiresAt", sortable: false, label: this.t("Trash.columns.expiresAt") },
+      {
+        uid: "deletedBy",
+        sortable: false,
+        label: this.t("Trash.columns.deletedBy"),
+      },
+      {
+        uid: "deletedAt",
+        sortable: true,
+        label: this.t("Trash.columns.deletedAt"),
+      },
+      {
+        uid: "expiresAt",
+        sortable: false,
+        label: this.t("Trash.columns.expiresAt"),
+      },
     ];
   }
 
@@ -180,9 +192,26 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
         return "pending";
       }
       const restoredCount = outcome.restoredItemIds.length;
-      if (restoredCount > 0 && outcome.droppedLinks > 0)
-        this.toastSuccess("Trash.restoredWithDroppedLinks", { values: { count: outcome.droppedLinks } });
-      else if (restoredCount > 0) this.toastSuccess("Trash.restored", { values: { count: restoredCount } });
+      const viewReferences = outcome.droppedViewReferences ?? [];
+      if (restoredCount > 0 && outcome.droppedLinks > 0) {
+        this.toastSuccess("Trash.restoredWithDroppedLinks", {
+          values: { count: outcome.droppedLinks },
+        });
+      } else if (restoredCount > 0) {
+        this.toastSuccess("Trash.restored", {
+          values: { count: restoredCount },
+        });
+      }
+      if (viewReferences.length) {
+        this.toastSuccess("Trash.restoredWithDroppedViewReferences", {
+          values: {
+            filters: viewReferences.reduce((count, entry) => count + entry.filters, 0),
+            columns: viewReferences.reduce((count, entry) => count + entry.columns, 0),
+            sorts: viewReferences.filter((entry) => entry.sort).length,
+            groupings: viewReferences.filter((entry) => entry.grouping).length,
+          },
+        });
+      }
       for (const [reason, count] of countBy(outcome.blocked.map((blocker) => blocker.reason)))
         this.toastError(RESTORE_BLOCKED_KEYS[reason], { values: { count } });
       if (restoredCount === 0 && outcome.blocked.length === 0) this.toastError("Trash.restoreFailed");
@@ -218,13 +247,20 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
   private previewSentences(preview: TrashDeletionPreview): Array<string | ConfirmationSentence> {
     return [
       ...preview.removedRecords.map((list) =>
-        this.t("Trash.permanentRecords", { list: list.label, count: list.count }),
+        this.t("Trash.permanentRecords", {
+          list: list.label,
+          count: list.count,
+        }),
       ),
       ...(preview.items.some((item) => item.kind === "view") ? [this.t("Trash.permanentViewWidgets")] : []),
       ...(preview.removedLinks === null
         ? [this.t("RecordModel.deletionRestrictedLinks")]
         : preview.removedLinks > 0
-          ? [this.t("RecordModel.deletionLinks", { count: preview.removedLinks })]
+          ? [
+              this.t("RecordModel.deletionLinks", {
+                count: preview.removedLinks,
+              }),
+            ]
           : []),
       this.t("Trash.permanentIrreversible"),
     ];
@@ -239,7 +275,9 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
     const store = this.rootStore.deleteConfirmationModalStore;
     store.onInitOrRefresh({
       title,
-      message: this.t("Trash.permanentMessage", { count: preview.items.length }),
+      message: this.t("Trash.permanentMessage", {
+        count: preview.items.length,
+      }),
       details: this.previewSentences(preview),
       confirmLabel: this.t("Trash.deletePermanently"),
       confirmVariant: "destructive",
@@ -314,7 +352,9 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
       preview,
       this.t("Trash.emptyTitle"),
       async () => {
-        const emptied = await emptyTrashAction({ expectedImpactHash: preview.impactHash });
+        const emptied = await emptyTrashAction({
+          expectedImpactHash: preview.impactHash,
+        });
         if (!emptied.ok) {
           toastZodErrorTree(emptied.error);
           return false;

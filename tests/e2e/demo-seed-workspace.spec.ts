@@ -99,17 +99,21 @@ test("inbox threads are listed and linked to their deals, tickets and candidates
 });
 
 async function emailBodyColors(frame: Locator) {
-  return frame.contentFrame().locator("body").evaluate((body) => {
-    const luminance = (color: string) => {
-      const [red = 0, green = 0, blue = 0] = (color.match(/[\d.]+/g) ?? []).map(Number);
-      return (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
-    };
-    const style = getComputedStyle(body);
-    const painted = [style.backgroundColor, getComputedStyle(body.ownerDocument.documentElement).backgroundColor].find(
-      (color) => !/^rgba\(.*,\s*0\)$|^transparent$/.test(color),
-    );
-    return { background: luminance(painted ?? ""), text: luminance(style.color) };
-  });
+  return frame
+    .contentFrame()
+    .locator("body")
+    .evaluate((body) => {
+      const luminance = (color: string) => {
+        const [red = 0, green = 0, blue = 0] = (color.match(/[\d.]+/g) ?? []).map(Number);
+        return (0.2126 * red + 0.7152 * green + 0.0722 * blue) / 255;
+      };
+      const style = getComputedStyle(body);
+      const painted = [
+        style.backgroundColor,
+        getComputedStyle(body.ownerDocument.documentElement).backgroundColor,
+      ].find((color) => !/^rgba\(.*,\s*0\)$|^transparent$/.test(color));
+      return { background: luminance(painted ?? ""), text: luminance(style.color) };
+    });
 }
 
 test("email bodies follow the app theme, adaptive emails switch, and other external HTML stays on paper", async ({
@@ -145,7 +149,10 @@ test("email bodies follow the app theme, adaptive emails switch, and other exter
       expect(adaptiveColors.background).toBeGreaterThan(0.9);
     }
     const ownHeight = await own.evaluate((frame) => frame.getBoundingClientRect().height);
-    const ownContent = await own.contentFrame().locator("body").evaluate((body) => body.scrollHeight);
+    const ownContent = await own
+      .contentFrame()
+      .locator("body")
+      .evaluate((body) => body.scrollHeight);
     expect(ownHeight).toBeGreaterThanOrEqual(ownContent);
     await adaptive.scrollIntoViewIfNeeded();
     await paintedFrames(page);
@@ -188,6 +195,13 @@ test("the Knowledge Base lists the Operating Guide and the procedures, and a pro
     await expect
       .poll(async () => (await sheet.boundingBox())?.height ?? 0)
       .toBeGreaterThan((page.viewportSize()?.height ?? 0) * 0.9);
+    const title = await sheet.locator('[data-slot="drawer-title"]').boundingBox();
+    const close = await sheet.locator('[data-slot="drawer-close"]').boundingBox();
+    expect(title).not.toBeNull();
+    expect(close).not.toBeNull();
+    expect(
+      Math.abs((title?.y ?? 0) + (title?.height ?? 0) / 2 - (close?.y ?? 0) - (close?.height ?? 0) / 2),
+    ).toBeLessThanOrEqual(2);
     await sheet.getByText(procedure.title, { exact: true }).first().click();
     await expect(sheet).not.toBeVisible();
   } else {

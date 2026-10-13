@@ -1,12 +1,13 @@
 import type { Prisma } from "@/generated/prisma";
 import type { TrashItem } from "./trash.repo";
-import type { TrashKind, TrashRestoreBlocker } from "./trash.schema";
+import type { DroppedViewReferences, TrashKind, TrashRestoreBlocker } from "./trash.schema";
 
 export type TrashKindRestore = {
   restoredItemIds: string[];
   blocked: TrashRestoreBlocker[];
   restoredRecords: number;
   droppedLinks: number;
+  droppedViewReferences?: DroppedViewReferences[];
   operationId?: string;
 };
 export type TrashKindImpact = {

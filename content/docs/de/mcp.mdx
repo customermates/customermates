@@ -34,6 +34,8 @@ Der Endpoint und API-Keys stehen in jedem Tarif und auf selbst gehosteten Instan
 
 ## Client verbinden [#connect-a-client]
 
+Um einen Client mit API-Key zu verbinden, beginnen Sie bei [API-Schlüsseln](app:settings/api-keys). OAuth-Clients können den Anleitungen unten ohne eigenen Key folgen.
+
 <Steps>
 <Step title="API-Key erstellen">
 Öffnen Sie in den Einstellungen [API-Schlüssel](app:settings/api-keys) und klicken Sie auf [Hinzufügen](app:settings/api-keys?focus=generate). Wählen Sie **Schnellverbindungen** für das geführte Setup von Claude, ChatGPT & Codex, Cursor oder Gemini, oder **Standard-API-Key** (**Name**, optional **Läuft ab**) für die eigene Integration. Der Key wird nur einmal angezeigt, also vor dem Schließen des Dialogs kopieren. Zum Anlegen braucht Ihre Rolle **Erstellen** in der Zeile **API & Webhooks**, und die Seite braucht **Lesen** **Alle** in dieser Zeile; die eingebaute Rolle **Admin** hat beides. Siehe [API-Keys](/docs/api-keys).
@@ -181,7 +183,7 @@ Felder, stabile Options-IDs, Beziehungen, Systembindungen und Konfigurationsrevi
 
 #### `query_crm_records`
 
-Datensätze eines konfigurierten Typs in PostgreSQL filtern, sortieren und seitenweise lesen. Zuerst das Schema lesen. Ergebnisse unterscheiden Werte, fehlende Eingaben, gesperrte Berechnungen und Fehler; Dezimalwerte sind Strings. query_crm_measure liefert Summen über alle Treffer.
+Datensätze eines konfigurierten Typs in PostgreSQL filtern, sortieren und seitenweise lesen. Zuerst das Schema lesen. Ergebnisse unterscheiden Werte, fehlende Eingaben, gesperrte Berechnungen und Fehler; Dezimalwerte sind Strings. query_crm_measure liefert Summen über alle Treffer. Ein Filter nennt fieldId und operator. Operatoren mit einem Wert nutzen value mit einem typisierten Skalar; in, notIn, all und between nutzen values mit typisierten Skalaren und value: null. Mehrfachauswahlfilter nutzen je Option einen Skalar `{kind: "select", value: optionId}`, nicht selectList. Bei ungültigen Filtern nennt die Fehlermeldung Index und Feld.
 
 **Nur lesend.** Pflicht: `typeId`. Optional: `locale`, `fields`, `includeRelationships`, `includePaths`, `includeIdentities`, `search`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`, `grouping`, `groupPage`, `groupSummaries`.
 
@@ -205,7 +207,7 @@ Einen Datensatz über typeId und recordId lesen, einschließlich typisierter Wer
 
 #### `mutate_crm_record`
 
-Datensätze erstellen, ändern, löschen, verknüpfen oder entknüpfen. expectedRevision und idempotencyKey sind erforderlich; Änderungen und Löschungen benötigen auch die aktuelle Datensatzversion. Feldwerte als typisierte Zuweisungen übergeben; `{ fieldId, append }` hängt Markdown nach einer Leerzeile an ein Feld vom Typ Formatierter Text oder Text an, und eine Änderung, die nur anhängt, kollidiert nie mit einer neueren Datensatzversion. Weggelassene Eingaben bleiben erhalten; null leert ein optionales Eingabefeld. Berechnete Felder sind schreibgeschützt. Eine Löschung vorher prüfen und expectedImpactHash übergeben. Ausstehende Vorgänge liefern eine Vorgangs-ID. Löschen verschiebt Datensätze, ihre Unterlisten-Zeilen und kaskadierende Datensätze für 30 Tage in den Papierkorb und gibt eine trashBatchId zum Wiederherstellen zurück; permanent: true löscht sie sofort endgültig.
+Datensätze erstellen, ändern, löschen, verknüpfen oder entknüpfen. expectedRevision und idempotencyKey sind erforderlich; Änderungen und Löschungen benötigen auch die aktuelle Datensatzversion. Feldwerte als typisierte Zuweisungen übergeben; `{ fieldId, append }` hängt Markdown nach einer Leerzeile an ein Feld vom Typ Formatierter Text oder Text an, und eine Änderung, die nur anhängt, kollidiert nie mit einer neueren Datensatzversion. Weggelassene Eingaben bleiben erhalten; null leert ein optionales Eingabefeld. Berechnete Felder sind schreibgeschützt. Eine Löschung vorher prüfen und expectedImpactHash übergeben. Ausstehende Vorgänge liefern eine Vorgangs-ID. Löschen verschiebt Datensätze, ihre Unterlisten-Zeilen und kaskadierende Datensätze für 30 Tage in den Papierkorb und gibt eine trashBatchId zum Wiederherstellen zurück; permanent: true löscht sie sofort endgültig. Zum vollständigen Ersetzen von Formatiertem Text senden Sie `{kind: "richText", documentJson: "<ProseMirror-Dokument als JSON-String>"}`; Markdown kommt beim Lesen zurück, ist aber kein Eingabeformat für vollständigen Ersatz. Lesen Sie bei einem Versionskonflikt erneut und wiederholen Sie den Versuch mit dem aktuellen expectedVersion; die MCP-Fehlermeldung nennt lesbare aktuelle Versionen.
 
 **Kann Daten löschen.** Pflicht: `expectedRevision`, `idempotencyKey`, `mutation`.
 
@@ -247,7 +249,7 @@ Gelöschte Elemente im Papierkorb auflisten, neueste zuerst, mit Angabe, wer sie
 
 #### `manage_trash`
 
-Elemente aus dem Papierkorb wiederherstellen (oder alle Elemente eines Löschvorgangs über seine batchId), genau ansehen, was eine endgültige Löschung entfernt, Elemente endgültig löschen oder als Administrator den Papierkorb leeren. Endgültiges Löschen braucht Löschrechte für jedes Element. Endgültiges Löschen lässt sich nicht rückgängig machen und entfernt die Werte der gelöschten Datensätze aus dem Verlauf.
+Elemente aus dem Papierkorb wiederherstellen (oder alle Elemente eines Löschvorgangs über seine batchId), genau ansehen, was eine endgültige Löschung entfernt, Elemente endgültig löschen oder als Administrator den Papierkorb leeren. Endgültiges Löschen braucht Löschrechte für jedes Element. Endgültiges Löschen lässt sich nicht rückgängig machen und entfernt die Werte der gelöschten Datensätze aus dem Verlauf. Wenn beim Wiederherstellen einer gespeicherten Ansicht ein verwendetes Feld noch im Papierkorb liegt, werden ungültige Filter, Spalten, Sortierung und Gruppierung entfernt; droppedViewReferences nennt die Änderungen je Ansicht. Stellen Sie zuerst das Feld wieder her, um die Einstellungen zu behalten.
 
 **Kann Daten löschen.** Pflicht: `action`. Optional: `itemIds`, `batchId`, `all`, `expectedImpactHash`.
 
@@ -599,9 +601,9 @@ Widgets auflisten und lesen sowie Diagramm- und Aktivitätskonfigurationen erste
 {/* mcp-catalog:routines */}
 #### `manage_routines`
 
-Ein Tool mit einem `action`-Schalter: list, runs, create, update, pause, run_now, delete. Eine Routine sind gespeicherte Anweisungen, die der Assistent nach Zeitplan oder bei einem CRM-Ereignis ausführt. Ohne `enabled` erzeugt create eine LIVE-Routine; für einen Entwurf `enabled: false` übergeben; der gehostete Assistent muss `enabled` ausdrücklich angeben und speichert einen Entwurf, sofern der Nutzer nicht die Aktivierung verlangt hat. Ein Wechsel von `triggerKind` muss den Zeitplan oder die Ereignisse der neuen Art mitbringen. pause deaktiviert die Routine und setzt wartende Läufe auf übersprungen, was ein erneutes Aktivieren nicht rückgängig macht; nur aktive Systemadministratoren dürfen eine Routine pausieren oder löschen. run_now gilt nur für geplante Routinen und nur für eine aktivierte Routine, die der Aufrufer besitzt. Pausierte KI-Arbeit, inaktive Eigentümer und aufgebrauchte Credits werden vor dem Einreihen abgelehnt; manuelle Testläufe nutzen weiterhin `triggerKind: schedule`. Läufe werden über `cursor` paginiert und enthalten Status, Zusammenfassung, Auslöser und den Blockiergrund in `error`. delete verschiebt die Routine in den Papierkorb, wo sie nicht läuft, bis manage_trash sie wiederherstellt.
+Ein Tool mit einem `action`-Schalter: list, runs, create, update, pause, run_now, delete. Eine Routine sind gespeicherte Anweisungen, die der Assistent nach Zeitplan oder bei einem CRM-Ereignis ausführt. Ohne `enabled` erzeugt create eine LIVE-Routine; für einen Entwurf `enabled: false` übergeben; der gehostete Assistent muss `enabled` ausdrücklich angeben und speichert einen Entwurf, sofern der Nutzer nicht die Aktivierung verlangt hat. Ein Wechsel von `triggerKind` muss den Zeitplan oder die Ereignisse der neuen Art mitbringen. pause deaktiviert die Routine und setzt wartende Läufe auf übersprungen, was ein erneutes Aktivieren nicht rückgängig macht; nur aktive Systemadministratoren dürfen eine Routine pausieren oder löschen. run_now gilt nur für geplante Routinen und nur für eine aktivierte Routine, die der Aufrufer besitzt. Pausierte KI-Arbeit, inaktive Eigentümer und aufgebrauchte Credits werden vor dem Einreihen abgelehnt; manuelle Testläufe nutzen weiterhin `triggerKind: schedule`. Läufe werden über `cursor` paginiert und enthalten Status, Zusammenfassung, Auslöser und den Blockiergrund in `error`. delete verschiebt die Routine in den Papierkorb, wo sie nicht läuft, bis manage_trash sie wiederherstellt. list liefert standardmäßig knappe Angaben zu Name, Eigentümer, Auslöser und Aktivierung. Mit includePrompts: true erhalten Sie die vollständige Konfiguration samt Anweisungen; owner: "mine" beschränkt die Liste auf Ihre Routinen.
 
-**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `recordTrigger`, `recordSources`, `expectedSchemaRevision`, `debounceSeconds`.
+**Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `owner`, `includePrompts`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `recordTrigger`, `recordSources`, `expectedSchemaRevision`, `debounceSeconds`.
 {/* /mcp-catalog */}
 
 ### Webhooks [#webhooks]

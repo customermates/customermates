@@ -49,7 +49,10 @@ export const QueryTrashSchema = z
     typeIds: z.array(z.uuid()).max(200).optional(),
     search: z.string().trim().max(200).optional(),
     sortDescriptor: z
-      .object({ field: z.literal("deletedAt"), direction: z.enum(["asc", "desc"]) })
+      .object({
+        field: z.literal("deletedAt"),
+        direction: z.enum(["asc", "desc"]),
+      })
       .strict()
       .optional()
       .describe("Order by deletion time; newest first when omitted."),
@@ -96,6 +99,14 @@ const TrashRestoreBlockerSchema = z
   })
   .strict();
 export type TrashRestoreBlocker = z.infer<typeof TrashRestoreBlockerSchema>;
+export const DroppedViewReferencesSchema = z.object({
+  viewId: z.uuid(),
+  filters: z.number().int().nonnegative(),
+  columns: z.number().int().nonnegative(),
+  sort: z.boolean(),
+  grouping: z.boolean(),
+});
+export type DroppedViewReferences = z.infer<typeof DroppedViewReferencesSchema>;
 export const TrashRestoreResultSchema = z.discriminatedUnion("status", [
   z
     .object({
@@ -104,6 +115,7 @@ export const TrashRestoreResultSchema = z.discriminatedUnion("status", [
       blocked: z.array(TrashRestoreBlockerSchema),
       restoredRecords: z.number().int(),
       droppedLinks: z.number().int(),
+      droppedViewReferences: z.array(DroppedViewReferencesSchema).optional(),
     })
     .strict(),
   z.object({ status: z.literal("pending"), operationId: z.uuid() }).strict(),
@@ -118,7 +130,15 @@ export type PreviewTrashDeletionData = z.infer<typeof PreviewTrashDeletionSchema
 export const TrashDeletionPreviewSchema = z
   .object({
     items: z.array(z.object({ itemId: z.uuid(), kind: TrashKindSchema, label: z.string() }).strict()),
-    removedRecords: z.array(z.object({ typeId: z.uuid(), label: z.string(), count: z.number().int() }).strict()),
+    removedRecords: z.array(
+      z
+        .object({
+          typeId: z.uuid(),
+          label: z.string(),
+          count: z.number().int(),
+        })
+        .strict(),
+    ),
     removedLinks: z.number().int().nullable(),
     impactHash: z.string(),
   })
@@ -188,7 +208,14 @@ export const TrashedRecordSchema = z
             .strict(),
         ),
         types: z.array(
-          z.object({ id: z.uuid(), label: z.string(), pluralLabel: z.string(), icon: z.string() }).strict(),
+          z
+            .object({
+              id: z.uuid(),
+              label: z.string(),
+              pluralLabel: z.string(),
+              icon: z.string(),
+            })
+            .strict(),
         ),
         relationships: RecordModelViewSchema.shape.relationships,
       })

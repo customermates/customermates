@@ -24,6 +24,8 @@ Everyone finds **Trash** in the sidebar. You see the items you could see and del
 
 Open [Trash](app:trash), hover the row and click **Restore**, or select several rows and click **Restore** in the selection bar. Restoring needs the same access as deleting did. A restored record comes back with its values, links and sub-list rows. A link to a record that was deleted permanently in the meantime cannot come back; the message after restoring says how many links were dropped. A large restore runs in the background: the record shows **Restoring…** until it is done. A record whose list is itself in Trash can be restored only after its list, and a routine stays in Trash while its owner already has all the routines their plan includes.
 
+If you restore a saved view while one of its fields remains in Trash, the restore removes filters, columns, sort and grouping settings that use that field. The result reports each removed kind in `droppedViewReferences`; the Trash message shows their counts. Restore the field before the view to keep those settings.
+
 Opening a deleted record from Trash shows it read only with the banner **In Trash** and a **Restore** button; its **Activities** can be read there too, but not changed. Over REST, `POST /api/v1/trash/query` lists Trash items and `POST /api/v1/trash/read` returns the same read-only view of a deleted record.
 
 ## What happens when I open a link to a deleted list or view? [#links-to-deleted-items]

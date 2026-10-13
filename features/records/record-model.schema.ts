@@ -83,7 +83,12 @@ const ValidatedRecordScalarSchema = z.discriminatedUnion("kind", [
   z
     .object({
       kind: z.literal("richText"),
-      documentJson: z.string().max(1000000),
+      documentJson: z
+        .string()
+        .max(1000000)
+        .describe(
+          "Full Formatted text replacement as a ProseMirror document JSON string. Markdown is returned on read but cannot be sent here; use append for Markdown additions.",
+        ),
     })
     .strict(),
 ]);
@@ -114,7 +119,7 @@ export const RecordScalarSchema = z
   })
   .strict()
   .describe(
-    "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none.",
+    "Typed CRM value; only the fields for the selected kind are allowed. A decimal always sends currency, null when it has none. For richText writes send documentJson as a ProseMirror document JSON string, not the Markdown returned on read.",
   )
   .pipe(ValidatedRecordScalarSchema);
 export type RecordScalar = z.infer<typeof RecordScalarSchema>;
@@ -442,7 +447,9 @@ const RecordFieldViewSchema = RecordFieldSchema.extend({
   ),
 });
 export type RecordFieldView = z.infer<typeof RecordFieldViewSchema>;
-export const RecordModelViewSchema = RecordModelSchema.extend({ fields: z.array(RecordFieldViewSchema) });
+export const RecordModelViewSchema = RecordModelSchema.extend({
+  fields: z.array(RecordFieldViewSchema),
+});
 export type RecordModelView = z.infer<typeof RecordModelViewSchema>;
 
 export const RecordFieldAssignmentSchema = z

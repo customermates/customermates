@@ -34,6 +34,8 @@ The endpoint and API keys are available on every plan and on self-hosted instanc
 
 ## Connect a client
 
+To connect a client with an API key, start at [API keys](app:settings/api-keys). OAuth clients can use the guides below without creating a key.
+
 <Steps>
 <Step title="Create an API key">
 Open [API keys](app:settings/api-keys) in Settings and click [Add](app:settings/api-keys?focus=generate). Choose **Quick connections** for guided setup of Claude, ChatGPT & Codex, Cursor or Gemini, or **Standard API key** (**Name**, optional **Expires in**) for your own integration. The key is shown once, so copy it before closing the dialog. Creating a key needs **Create** on the **API & Webhooks** row of your role, and the page needs **Read access** **All** on that row; the built-in **Admin** role has both. See [API keys](/docs/api-keys).
@@ -181,7 +183,7 @@ Read fields, stable select-option IDs, relationships, capabilities and configura
 
 #### `query_crm_records`
 
-Filter, sort and paginate records of one configured type in PostgreSQL. Read its schema first. Results distinguish values, missing inputs, restricted calculations and errors; decimals are strings. Use query_crm_measure for totals across all matches.
+Filter, sort and paginate records of one configured type in PostgreSQL. Read its schema first. Results distinguish values, missing inputs, restricted calculations and errors; decimals are strings. Use query_crm_measure for totals across all matches. A filter names fieldId and operator. Single-value operators use value with one typed scalar; in, notIn, all and between use values with typed scalars and value: null. Multiple choice filters use one `{kind: "select", value: optionId}` scalar per option, not selectList. Invalid-filter errors name the index and field.
 
 **Read-only.** Required: `typeId`. Optional: `locale`, `fields`, `includeRelationships`, `includePaths`, `includeIdentities`, `search`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`, `grouping`, `groupPage`, `groupSummaries`.
 
@@ -205,7 +207,7 @@ Read one record by typeId and recordId, including typed values, formatted text, 
 
 #### `mutate_crm_record`
 
-Create, update, delete, link or unlink through one validated operation. Supply expectedRevision and an idempotencyKey; updates and deletions also require the current record version. Use typed field-assignment arrays; `{ fieldId, append }` adds markdown after a blank line to a Formatted text or Text field, and an update that only appends never conflicts with a newer record version. Omitted inputs stay unchanged; null clears an optional input. Calculated fields are read-only. Preview a delete first and pass expectedImpactHash. Pending results carry an operation ID. Delete moves records, their sub-list rows and cascading records to Trash for 30 days and returns a trashBatchId for restoring them; permanent: true deletes them permanently right away.
+Create, update, delete, link or unlink through one validated operation. Supply expectedRevision and an idempotencyKey; updates and deletions also require the current record version. Use typed field-assignment arrays; `{ fieldId, append }` adds markdown after a blank line to a Formatted text or Text field, and an update that only appends never conflicts with a newer record version. Omitted inputs stay unchanged; null clears an optional input. Calculated fields are read-only. Preview a delete first and pass expectedImpactHash. Pending results carry an operation ID. Delete moves records, their sub-list rows and cascading records to Trash for 30 days and returns a trashBatchId for restoring them; permanent: true deletes them permanently right away. Full Formatted text replacement requires `{kind: "richText", documentJson: "<ProseMirror document JSON string>"}`; Markdown is returned on read but is not a full-replacement input. On a version conflict, read again and retry with the current expectedVersion; the MCP error includes readable current versions.
 
 **Can delete data.** Required: `expectedRevision`, `idempotencyKey`, `mutation`.
 
@@ -247,7 +249,7 @@ List deleted items in Trash, newest first, with who deleted them, when, and the 
 
 #### `manage_trash`
 
-Restore Trash items (or every item of one delete by its batchId), preview exactly what a permanent deletion removes, delete items permanently, or empty Trash as an administrator. Deleting items permanently needs delete access to each of them. Permanent deletion cannot be undone and erases the deleted records' values from history.
+Restore Trash items (or every item of one delete by its batchId), preview exactly what a permanent deletion removes, delete items permanently, or empty Trash as an administrator. Deleting items permanently needs delete access to each of them. Permanent deletion cannot be undone and erases the deleted records' values from history. Restoring a saved view while a referenced field remains in Trash removes its invalid filters, columns, sort and grouping; droppedViewReferences lists the changes per view. Restore the field first to keep those settings.
 
 **Can delete data.** Required: `action`. Optional: `itemIds`, `batchId`, `all`, `expectedImpactHash`.
 
@@ -599,9 +601,9 @@ List or read widgets; create, update or delete chart and activity configurations
 {/* mcp-catalog:routines */}
 #### `manage_routines`
 
-One tool with an `action` switch: list, runs, create, update, pause, run_now, delete. A routine is saved instructions the assistant runs on a cron schedule or when a CRM event fires. Omitting `enabled` on create produces a LIVE routine, so pass `enabled: false` to draft one; the hosted assistant must state `enabled` explicitly and drafts unless the user asked to activate. A change of `triggerKind` must arrive with that kind's schedule or events. pause disables the routine and settles its queued runs to skipped, which re-enabling does not undo; only an active system administrator may pause or delete a routine. run_now applies to scheduled routines only, and only to an enabled routine the caller owns. It refuses paused AI work, inactive owners and exhausted credits before queuing; manual test runs still use `triggerKind: schedule`. Runs are paginated by `cursor` and carry status, summary, trigger and the `error` block reason. delete moves the routine to Trash, where it stops running until manage_trash restores it.
+One tool with an `action` switch: list, runs, create, update, pause, run_now, delete. A routine is saved instructions the assistant runs on a cron schedule or when a CRM event fires. Omitting `enabled` on create produces a LIVE routine, so pass `enabled: false` to draft one; the hosted assistant must state `enabled` explicitly and drafts unless the user asked to activate. A change of `triggerKind` must arrive with that kind's schedule or events. pause disables the routine and settles its queued runs to skipped, which re-enabling does not undo; only an active system administrator may pause or delete a routine. run_now applies to scheduled routines only, and only to an enabled routine the caller owns. It refuses paused AI work, inactive owners and exhausted credits before queuing; manual test runs still use `triggerKind: schedule`. Runs are paginated by `cursor` and carry status, summary, trigger and the `error` block reason. delete moves the routine to Trash, where it stops running until manage_trash restores it. list returns compact name, owner, trigger and enabled summaries by default. Pass includePrompts: true for full configurations including prompts, or owner: "mine" for routines you own.
 
-**Can delete data.** Required: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `recordTrigger`, `recordSources`, `expectedSchemaRevision`, `debounceSeconds`.
+**Can delete data.** Required: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `owner`, `includePrompts`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `recordTrigger`, `recordSources`, `expectedSchemaRevision`, `debounceSeconds`.
 {/* /mcp-catalog */}
 
 ### Webhooks
