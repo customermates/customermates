@@ -21,7 +21,7 @@ test("edits two formatted text fields inline in the overview, collapses long tex
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors = collectPageErrors(page, { console: false });
+  const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "organization");
   await page.goto(`/en/records/${typeId}`);
   const current = await post(page, "/api/v1/model/read", {});
@@ -198,7 +198,7 @@ test("keeps a bulk-edited formatted text on Escape and follows links in display 
     "Bulk selection uses the desktop table's row checkboxes; phone rows have no selection",
   );
   test.setTimeout(240000);
-  const errors = collectPageErrors(page, { console: false });
+  const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "organization");
   await page.goto(`/en/records/${typeId}`);
   const suffix = randomUUID().slice(0, 6);
@@ -322,7 +322,7 @@ test("shows the formatting toolbar at rest and formats from it without leaving e
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors = collectPageErrors(page, { console: false });
+  const errors = collectPageErrors(page);
   const dealTypeId = presetId(companyId, "deal");
   await page.goto(`/en/records/${dealTypeId}`);
   const current = await post(page, "/api/v1/model/read", {});

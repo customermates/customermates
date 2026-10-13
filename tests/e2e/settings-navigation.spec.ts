@@ -1,14 +1,12 @@
 import { presetId } from "../../features/records/crm-preset";
-import { expect, test } from "./fixtures";
-import { collectErrors, openMenu, openSidebar } from "./sidebar";
-
-const COUNTRY_FLAG_ORIGIN = "https://flagcdn.com/";
+import { collectPageErrors, expect, test } from "./fixtures";
+import { openMenu, openSidebar } from "./sidebar";
 
 test("settings live in one area reached from the workspace menu, with Back to the work page", async ({
   page,
   companyId,
 }) => {
-  const errors = collectErrors(page, [COUNTRY_FLAG_ORIGIN]);
+  const errors = collectPageErrors(page);
   const deals = `/en/records/${presetId(companyId, "deal")}`;
   await page.goto(deals);
   await page.waitForLoadState("networkidle");
@@ -95,7 +93,7 @@ test("the personal menu holds profile, theme, language, docs, feedback and custo
   database,
   workspace,
 }) => {
-  const errors = collectErrors(page, [COUNTRY_FLAG_ORIGIN]);
+  const errors = collectPageErrors(page);
   await page.goto("/en/dashboard");
   await page.waitForLoadState("networkidle");
 
@@ -151,7 +149,7 @@ test("the personal menu holds profile, theme, language, docs, feedback and custo
 });
 
 test("profile settings show the unsaved-changes bar only while edits are pending", async ({ page }) => {
-  const errors = collectErrors(page, [COUNTRY_FLAG_ORIGIN]);
+  const errors = collectPageErrors(page);
   await page.goto("/en/settings/profile");
   await page.waitForLoadState("networkidle");
   const firstName = page.locator("#settings-profile-first-name");

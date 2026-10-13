@@ -51,7 +51,7 @@ test("opens upgraded records with persisted values, totals and links", async ({
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors = collectPageErrors(page, { console: false });
+  const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "deal");
   await page.goto(`/en/records/${typeId}`);
   await expect(page.locator("header")).toContainText("Deals");

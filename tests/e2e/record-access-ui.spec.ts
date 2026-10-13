@@ -32,6 +32,7 @@ import {
   deleteFromDrawer,
   deleteSelectedList,
 } from "./configure";
+import { BrowserDiagnostics } from "./browser-diagnostics";
 import { expect, test, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 import { saveViewChanges } from "./view-changes";
@@ -127,6 +128,7 @@ async function secondaryUser(
     locale: "en-GB",
     reducedMotion: "reduce",
   });
+  BrowserDiagnostics.of(testInfo).watch(context);
   await context.addCookies([
     {
       name: "app.session_token",

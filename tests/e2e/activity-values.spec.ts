@@ -28,7 +28,7 @@ test("renders change values with the shared value renderers on every activity su
   companyId,
 }, testInfo) => {
   test.setTimeout(300000);
-  const errors = collectPageErrors(page, { console: false });
+  const errors = collectPageErrors(page);
   const memberId = randomUUID();
   const roleId = randomUUID();
   await database.query('INSERT INTO "UserRole" (id,"companyId",name,"updatedAt") VALUES ($1,$2,\'Field team\',NOW())', [

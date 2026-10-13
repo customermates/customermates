@@ -8,7 +8,7 @@ import {
   saveDrawer,
   saveGeneral,
 } from "./configure";
-import { test, expect, isAppConsoleError, isBenignPageError, collectPageErrors } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { saveViewChanges } from "./view-changes";
 import { openRecordDetails, recordItem } from "./record-rows";
 import { openFilterPalette } from "./filter-palette";
@@ -19,15 +19,11 @@ test("creates a custom list and field through the UI, then persists a decimal re
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
+  const errors = collectPageErrors(page);
   const resizeNotices: string[] = [];
   page.on("pageerror", (error) => {
     if (error.message === "ResizeObserver loop completed with undelivered notifications.")
       resizeNotices.push(page.url());
-    else if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
   });
   const name = `Projects ${randomUUID().slice(0, 8)}`;
   const recordName = `Office expansion ${name.slice(-8)}`;

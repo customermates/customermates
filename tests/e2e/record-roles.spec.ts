@@ -8,7 +8,7 @@ test("configures a role for a new type, preserves granular rights after rename a
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors = collectPageErrors(page, { console: false });
+  const errors = collectPageErrors(page);
   await openConfigure(page);
   await addFromConfigure(page, "List");
   const creation = page.getByRole("dialog");

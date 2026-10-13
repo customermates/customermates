@@ -7,7 +7,7 @@ import { Client } from "pg";
 
 import { presetId } from "../../features/records/crm-preset";
 import { localE2eEnvironment } from "./local-environment";
-import { collectErrors } from "./sidebar";
+import { BrowserDiagnostics, collectPageErrors } from "./browser-diagnostics";
 
 /**
  * Helpers for the demo seed specs: they read the seeded Northwind Labs workspace (`npx prisma db seed` runs before
@@ -116,12 +116,13 @@ export async function memberPage(browser: Browser, database: Client, member: Dem
     locale: "en-GB",
     reducedMotion: "reduce",
   });
+  BrowserDiagnostics.of(testInfo).watch(context);
   const signOut = await signInMember(context, database, member);
   const page = await context.newPage();
   trackRequests(page);
   return {
     page,
-    errors: collectErrors(page),
+    errors: collectPageErrors(page),
     close: async () => {
       await context.close();
       await signOut();
@@ -174,7 +175,8 @@ export const test = base.extend<Fixtures>({
       await client.end();
     }
   },
-  context: async ({ context, database }, use) => {
+  context: async ({ context, database }, use, testInfo) => {
+    const diagnostics = BrowserDiagnostics.of(testInfo).watch(context);
     const signOut = await signInMember(context, database, "maxBergmann");
     try {
       await use(context);
@@ -182,13 +184,14 @@ export const test = base.extend<Fixtures>({
       await Promise.all(context.pages().map((page) => page.close()));
       await signOut();
     }
+    await diagnostics.verify(testInfo);
   },
   page: async ({ page }, use) => {
     trackRequests(page);
     await use(page);
   },
   errors: async ({ page }, use) => {
-    await use(collectErrors(page));
+    await use(collectPageErrors(page));
   },
 });
 export { expect };
