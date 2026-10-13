@@ -2,9 +2,10 @@ import { describe, it, expect, vi } from "vitest";
 
 vi.mock("next/server", () => ({
   NextResponse: {
-    json: vi.fn((body: unknown, init?: { status?: number }) => ({
+    json: vi.fn((body: unknown, init?: { status?: number; headers?: Record<string, string> }) => ({
       body,
       status: init?.status ?? 200,
+      headers: init?.headers ?? {},
     })),
   },
 }));
@@ -21,7 +22,7 @@ import { AuthError, DemoModeError, ForbiddenError, InvalidJsonBodyError } from "
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { createZodError, serializeInteractorFailure } from "@/core/validation/validation.utils";
 
-type Result = { body: unknown; status: number };
+type Result = { body: unknown; status: number; headers: Record<string, string> };
 
 function structured(result: unknown) {
   const { body, status } = result as Result;
@@ -82,6 +83,19 @@ describe("handleError", () => {
     });
   });
 
+  it.each([
+    ["a pool timeout", Object.assign(new Error("prisma"), { code: "P2024" })],
+    ["a lock timeout", Object.assign(new Error("lock timeout"), { code: "55P03" })],
+  ])("tells the client when to retry %s", (_source, error) => {
+    expect((handleError(error) as unknown as Result).headers).toEqual({ "retry-after": "2" });
+  });
+
+  it("sends no retry hint on a failure that is not rate limited", () => {
+    expect((handleError(Object.assign(new Error("prisma"), { code: "P2025" })) as unknown as Result).headers).toEqual(
+      {},
+    );
+  });
+
   it("re-throws a regular Error without a known Prisma code", () => {
     expect(() => handleError(new Error("unexpected"))).toThrow("unexpected");
   });
@@ -116,6 +130,15 @@ describe("interactorFailureResponse", () => {
     expect(result.status).toBe(status);
     expect(result.error).toEqual(serializeInteractorFailure(error));
     expect(result.error.issues[0]?.customCode).toBe(customCode);
+  });
+
+  it.each([
+    [CustomErrorCode.serviceBusy, "2"],
+    [CustomErrorCode.unipileRateLimit, "30"],
+    [CustomErrorCode.agentLimitReached, "3600"],
+  ])("sends a Retry-After of the %s cause", (customCode, seconds) => {
+    const error = createZodError("Expected failure", [], { error: customCode, kind: "rate_limit" });
+    expect((interactorFailureResponse(error) as unknown as Result).headers).toEqual({ "retry-after": seconds });
   });
 
   it.each([

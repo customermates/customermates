@@ -20,6 +20,8 @@ export function isCalculationBudgetExceeded(error: unknown): boolean {
 
 type PathStep = { relationId: string; direction: "outgoing" | "incoming" };
 type Source = { typeId: string; fieldId: string | null; path: PathStep[] };
+export type CalculationLinkChange = { relationId: string; source: RecordRef; target: RecordRef };
+export type CalculationSeeds = { links?: CalculationLinkChange[]; unchanged?: ReadonlySet<string> };
 export type CalculationRecordRepo = Pick<
   RecordRepo,
   "getRecordCompanyWide" | "getValueDependencies" | "linkedRecordsCompanyWide" | "setValue" | "setValueDependencies"
@@ -58,9 +60,10 @@ export class RecordCalculationService {
     seeds: RecordRef[],
     capture: Map<string, Set<string>> = new Map(),
     limit = SYNCHRONOUS_RECORD_LIMIT,
+    changes: CalculationSeeds = {},
   ): Promise<{ complete: boolean; changed: RecordRef[] }> {
     try {
-      return await this.calculate(model, seeds, capture, limit);
+      return await this.calculate(model, seeds, capture, limit, changes);
     } catch (error) {
       if (isCalculationBudgetExceeded(error)) return { complete: false, changed: [] };
       throw error;
@@ -72,26 +75,30 @@ export class RecordCalculationService {
     seeds: RecordRef[],
     capture: Map<string, Set<string>>,
     limit: number,
+    { links = [], unchanged = new Set<string>() }: CalculationSeeds,
   ): Promise<{ complete: boolean; changed: RecordRef[] }> {
     const validation = validateRecordModel(model);
     if (validation.issues.length) throw new Error("Stored record model must satisfy calculation invariants");
     const fields = new Map(model.fields.map((field) => [field.id, field]));
-    const dirty = new Map(seeds.map((ref) => [recordKey(ref), ref]));
+    const own = new Map(
+      [...seeds, ...links.flatMap((link) => [link.source, link.target])].map((ref) => [recordKey(ref), ref]),
+    );
+    const dirty = new Map(seeds.filter((ref) => !unchanged.has(recordKey(ref))).map((ref) => [recordKey(ref), ref]));
     const changed = new Map<string, RecordRef>();
     const { context, values, row } = this.context(model, limit);
 
     for (const fieldId of validation.calculationOrder) {
       const definition = recordInvariant(fields.get(fieldId));
       if (definition.behavior.kind === "input") continue;
-      const targets = new Map([...dirty].filter(([, ref]) => ref.typeId === definition.typeId));
+      const targets = new Map([...own, ...dirty].filter(([, ref]) => ref.typeId === definition.typeId));
       const walks = new Map(
         calculationSources(definition.behavior.expression, definition.typeId, model)
           .filter((source) => source.path.length)
           .map((source) => [JSON.stringify([source.typeId, source.path]), source] as const),
       );
-      for (const source of walks.values()) {
-        let frontier = [...dirty.values()].filter((ref) => ref.typeId === source.typeId);
-        for (const step of [...source.path].reverse()) {
+      const reach = async (start: RecordRef[], path: PathStep[]) => {
+        let frontier = start;
+        for (const step of [...path].reverse()) {
           const next = new Map<string, RecordRef>();
           for (const ref of frontier) {
             const parents = await context.related(
@@ -100,11 +107,26 @@ export class RecordCalculationService {
               step.direction === "outgoing" ? "incoming" : "outgoing",
             );
             for (const parent of parents) next.set(recordKey(parent), parent);
-            if (next.size > limit) return { complete: false, changed: [] };
+            if (next.size > limit) return null;
           }
           frontier = [...next.values()];
         }
-        for (const target of frontier) targets.set(recordKey(target), target);
+        return frontier;
+      };
+      for (const source of walks.values()) {
+        const last = recordInvariant(source.path.at(-1));
+        const crossed = links
+          .filter((link) => link.relationId === last.relationId)
+          .map((link) => (last.direction === "outgoing" ? link.source : link.target));
+        for (const [start, path] of [
+          [[...dirty.values()].filter((ref) => ref.typeId === source.typeId), source.path],
+          [crossed, source.path.slice(0, -1)],
+        ] as const) {
+          if (!start.length) continue;
+          const frontier = await reach(start, path);
+          if (!frontier) return { complete: false, changed: [] };
+          for (const target of frontier) targets.set(recordKey(target), target);
+        }
       }
       if (new Set([...targets.keys(), ...changed.keys()]).size > limit) return { complete: false, changed: [] };
       for (const [key, ref] of targets) {
