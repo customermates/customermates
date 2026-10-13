@@ -1,11 +1,18 @@
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
+import type { AgentUsageService } from "@/ee/agent-chat/agent-usage.service";
 import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
-import { Resource, RoutineTriggerKind } from "@/generated/prisma";
+import { Resource, RoutineTriggerKind, Status } from "@/generated/prisma";
+import { env } from "@/env";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { failAuthorization, failConflict } from "@/core/validation/interactor-failure-server";
+import {
+  failAuthorization,
+  failConflict,
+  failRateLimit,
+  failUnavailable,
+} from "@/core/validation/interactor-failure-server";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -21,6 +28,7 @@ export class RunRoutineNowInteractor extends AuthenticatedInteractor<RunRoutineN
   constructor(
     private repo: RunRoutineNowRepo,
     private backgroundTaskService: BackgroundTaskService,
+    private usageService: AgentUsageService,
   ) {
     super();
   }
@@ -32,6 +40,13 @@ export class RunRoutineNowInteractor extends AuthenticatedInteractor<RunRoutineN
     if (routine.triggerKind !== RoutineTriggerKind.schedule)
       return failConflict(CustomErrorCode.routineRunNowRequiresSchedule, ["id"]);
     if (!routine.enabled) return failConflict(CustomErrorCode.routineTestRequiresEnabled, ["id"]);
+    if (routine.owner?.status !== Status.active) return failConflict(CustomErrorCode.routineOwnerIneligible, ["id"]);
+    if (env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED && env.HOSTED_AI_PROVIDER_WORK_PAUSED)
+      return failUnavailable(CustomErrorCode.routineAiWorkPaused, ["id"]);
+
+    const usage = await this.usageService.getUsageSummary(this.user.id);
+    if (usage.blockedReason === "credits_exhausted") return failRateLimit(CustomErrorCode.agentLimitReached, ["id"]);
+    if (usage.blockedReason) return failUnavailable(CustomErrorCode.agentServiceUnavailable, ["id"]);
 
     const run = await this.repo.createManualRoutineRunOrThrow(routine.id, this.user.id, new Date());
 

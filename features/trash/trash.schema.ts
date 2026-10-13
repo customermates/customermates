@@ -45,6 +45,7 @@ export type TrashItemDto = z.infer<typeof TrashItemDtoSchema>;
 export const QueryTrashSchema = z
   .object({
     kinds: z.array(TrashKindSchema).max(TRASH_KINDS.length).optional(),
+    itemIds: z.array(z.uuid()).min(1).max(500).optional(),
     typeIds: z.array(z.uuid()).max(200).optional(),
     search: z.string().trim().max(200).optional(),
     sortDescriptor: z

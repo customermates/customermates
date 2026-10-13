@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { configureEdgeGeometry, configureGraphPlacement, configureGraphViewport } from "../configure-graph-layout";
+import {
+  configureEdgeGeometry,
+  configureGraphLayout,
+  configureGraphMinimumZoom,
+  configureGraphPlacement,
+  configureGraphViewport,
+} from "../configure-graph-layout";
 
 const box = (x: number, y: number) => ({ x, y, width: 300, height: 200 });
 
@@ -83,6 +89,28 @@ describe("Configure edge geometry", () => {
 });
 
 describe("configureGraphViewport", () => {
+  it("fits a 74-list model at desktop and phone widths while retaining the small-model minimum", () => {
+    const data = {
+      lists: Array.from({ length: 74 }, (_, index) => ({ type: { id: `list-${index}` }, fields: [] })),
+      sources: [],
+      edges: [],
+    };
+    const { positions } = configureGraphLayout(data as never, true, false);
+    expect(positions.size).toBe(74);
+    expect(configureGraphMinimumZoom(6)).toBe(0.1);
+    for (const width of [1200, 390]) {
+      const height = 820;
+      const { x, y, zoom } = configureGraphViewport(positions, width, height);
+      expect(zoom).toBeLessThan(0.1);
+      for (const position of positions.values()) {
+        expect(x + position.x * zoom).toBeGreaterThanOrEqual(-1);
+        expect(y + position.y * zoom).toBeGreaterThanOrEqual(-1);
+        expect(x + (position.x + position.width) * zoom).toBeLessThanOrEqual(width + 1);
+        expect(y + (position.y + position.height) * zoom).toBeLessThanOrEqual(height + 1);
+      }
+    }
+  });
+
   it("fits every list into the canvas on open", () => {
     const positions = new Map([
       ["a", { x: 0, y: 0, width: 300, height: 400 }],

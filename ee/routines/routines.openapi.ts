@@ -31,7 +31,9 @@ const UpdateRoutineApiSchema = routineFields
     "Changes only the supplied fields of a routine the caller owns. Changing triggerKind must arrive with that kind's schedule or events. Supplying recordSources replaces recordTrigger and the reverse.",
   );
 
-const ResumeRoutineApiSchema = z.object({ id: z.uuid().describe("The routine to re-enable.") });
+const ResumeRoutineApiSchema = z.object({
+  id: z.uuid().describe("The routine to re-enable."),
+});
 
 const RoutineListResultSchema = createGetResultSchema(RoutineDtoSchema);
 
@@ -56,7 +58,13 @@ const exampleRoutine = {
   recordTrigger: {
     query: {
       typeId: TYPE_ID,
-      filters: [{ fieldId: FIELD_ID, operator: "eq", value: { kind: "text", value: "Enterprise" } }],
+      filters: [
+        {
+          fieldId: FIELD_ID,
+          operator: "eq",
+          value: { kind: "text", value: "Enterprise" },
+        },
+      ],
       relationships: [],
     },
     changedFieldIds: [],
@@ -91,12 +99,19 @@ function routineOperation(args: {
     security: [{ apiKeyAuth: [] }],
     requestBody: {
       required: true,
-      content: { "application/json": { schema: args.input, example: args.inputExample } },
+      content: {
+        "application/json": { schema: args.input, example: args.inputExample },
+      },
     },
     responses: {
       [args.status ?? "200"]: {
         description: args.statusDescription,
-        content: { "application/json": { schema: args.output, example: args.outputExample } },
+        content: {
+          "application/json": {
+            schema: args.output,
+            example: args.outputExample,
+          },
+        },
       },
       ...StructuredApiResponses,
     },
@@ -112,7 +127,10 @@ export const routineApiPaths = {
         "Lists the workspace's routines newest first, each with its prompt, trigger and last run. Supports searchTerm against the name, filters on ownerUserId, createdAt and updatedAt, sortDescriptor and pagination. Send an empty object for the first page.",
       permission: "read permission on routines",
       input: GetQueryParamsApiSchema,
-      inputExample: { searchTerm: "deal", pagination: { page: 1, pageSize: 25 } },
+      inputExample: {
+        searchTerm: "deal",
+        pagination: { page: 1, pageSize: 25 },
+      },
       output: RoutineListResultSchema,
       outputExample: {
         items: [exampleRoutine],
@@ -166,7 +184,13 @@ export const routineApiPaths = {
         recordTrigger: {
           query: {
             typeId: TYPE_ID,
-            filters: [{ fieldId: FIELD_ID, operator: "eq", value: { kind: "text", value: "Enterprise" } }],
+            filters: [
+              {
+                fieldId: FIELD_ID,
+                operator: "eq",
+                value: { kind: "text", value: "Enterprise" },
+              },
+            ],
           },
           changedFieldIds: [],
         },
@@ -238,7 +262,7 @@ export const routineApiPaths = {
       operationId: "runRoutine",
       summary: "Run a routine now",
       description:
-        "Starts an enabled schedule routine the caller owns immediately and returns the id of the queued run. Event routines and disabled routines answer 409; another owner's routine answers 403.",
+        "Starts an enabled schedule routine the caller owns immediately and returns the id of the queued run. Manual test runs use triggerKind schedule. Event routines, disabled routines and inactive owners answer 409; another owner's routine answers 403. Paused AI work answers 422 and exhausted credits answer 429 before a run is queued. Run history includes the error block reason when a queued run cannot start.",
       permission: "update permission on routines",
       input: RunRoutineNowSchema,
       inputExample: { id: ROUTINE_ID },
@@ -258,7 +282,10 @@ export const routineApiPaths = {
       input: DeleteRoutineSchema,
       inputExample: { id: ROUTINE_ID },
       output: DeleteRoutineResultSchema,
-      outputExample: { id: ROUTINE_ID, trashBatchId: "7d6c5b4a-3f2e-4d1c-8b0a-9f8e7d6c5b4a" },
+      outputExample: {
+        id: ROUTINE_ID,
+        trashBatchId: "7d6c5b4a-3f2e-4d1c-8b0a-9f8e7d6c5b4a",
+      },
       statusDescription: "The routine was moved to Trash.",
     }),
   },

@@ -94,6 +94,7 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo, Expi
     const item = TRASH_ITEM_ALIAS;
     const conditions = [Prisma.sql`${item}."companyId" = ${this.companyId}`, Prisma.sql`(${visibility})`];
     if (query.kinds?.length) conditions.push(Prisma.sql`${item}.kind::text IN (${Prisma.join(query.kinds)})`);
+    if (query.itemIds?.length) conditions.push(Prisma.sql`${item}.id IN (${Prisma.join(query.itemIds)})`);
     if (query.typeIds?.length) conditions.push(Prisma.sql`${item}."typeId" IN (${Prisma.join(query.typeIds)})`);
     if (query.search)
       conditions.push(Prisma.sql`${item}.label ILIKE ${`%${query.search.replace(/[\\%_]/g, "\\$&")}%`}`);

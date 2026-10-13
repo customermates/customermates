@@ -45,6 +45,7 @@ export class AgentTurnTranscript {
   private readonly affected = new Set<AgentActivityResource>();
   private sanitizer: AgentVisibleTextStreamSanitizer;
   private text = "";
+  private failedToolMessage: string | null = null;
 
   constructor(
     private readonly emit: AgentTranscriptEmit,
@@ -59,6 +60,10 @@ export class AgentTurnTranscript {
 
   get replyText() {
     return this.text;
+  }
+
+  get lastFailedToolMessage() {
+    return this.failedToolMessage;
   }
 
   get affectedResources() {
@@ -123,6 +128,11 @@ export class AgentTurnTranscript {
     failed: boolean;
     output?: unknown;
   }) {
+    const output = result.output;
+    if (result.failed && output && typeof output === "object" && !Array.isArray(output)) {
+      const message = (output as { result?: unknown }).result;
+      if (typeof message === "string" && message.trim()) this.failedToolMessage = message.trim().slice(0, 300);
+    }
     if (result.failed && result.toolName) this.retryableFailureByTool.set(result.toolName, result.toolCallId);
     const viewHref = result.status === "done" ? agentToolSavedViewHref(result.toolName, result.output) : null;
     const viewProposal = result.status === "done" ? agentToolViewProposal(result.toolName, result.output) : null;

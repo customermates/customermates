@@ -68,7 +68,8 @@ describe("saved view REST routes", () => {
   ] as const)("calls the manage_data_views interactor with action %s and returns its result", async (action, route) => {
     interactors.manageDataViews.mockResolvedValue({ ok: true, data: { action } });
 
-    const response = await route(request({ surfaceKey: "dashboard", viewKey: ID, action: "delete" }));
+    const name = action === "delete" ? { name: "Private" } : {};
+    const response = await route(request({ surfaceKey: "dashboard", viewKey: ID, action: "delete", ...name }));
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ action });
@@ -76,6 +77,7 @@ describe("saved view REST routes", () => {
       surfaceKey: "dashboard",
       viewKey: ID,
       action,
+      ...name,
     });
   });
 

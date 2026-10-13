@@ -40,6 +40,7 @@
     "activity": {
       "approval": {
         "generic": "Prêt à effectuer une modification qui nécessite votre approbation",
+        "genericPermanent": "Prêt à supprimer définitivement {target}. Cette action est irréversible.",
         "messages": {
           "discard": "Prêt à supprimer le brouillon",
           "draft": "Prêt à enregistrer un brouillon",
@@ -471,7 +472,8 @@
       "policyBreach": "Le fournisseur d’IA a dépassé le budget de crédits réservé ; l’exécution a donc été arrêtée. Aucun autre traitement du fournisseur n’a été lancé.",
       "providerError": "Le fournisseur d'IA a renvoyé une erreur avant que je puisse terminer. Rien d'autre n'a été modifié. Veuillez réessayer.",
       "sourcesHeading": "Sources",
-      "turnError": "Je n'ai pas pu traiter cette demande. Veuillez réessayer."
+      "turnError": "Je n'ai pas pu traiter cette demande. Veuillez réessayer.",
+      "turnErrorWithTool": "Je n'ai pas pu traiter cette demande. La dernière action a échoué : {reason}"
     },
     "send": "Envoyer",
     "stop": "Arrêter",
@@ -1159,6 +1161,7 @@
       "recordSavedViewIncompatible": "La vue enregistrée « {viewName} » ({viewId}) utilise encore « {columnLabel} » ({columnId}). Modifiez ou supprimez cette vue, puis réessayez.",
       "recordSchemaChanged": "Le modèle de données a changé. Actualise la page et réessaie.",
       "recordSublistNested": "Une sous-liste ne peut pas avoir ses propres sous-listes. Reliez plutôt la liste à la liste parente de la sous-liste.",
+      "recordTransactionEnded": "La modification a pris trop de temps et n’a pas été enregistrée. Essaie une modification plus petite ou contacte l’assistance.",
       "recordTypeNotFound": "Ce type d’enregistrement est indisponible.",
       "recordValueInvalid": "Vérifie les valeurs signalées de l’enregistrement.",
       "recordValueRequired": "{field} doit avoir une valeur.",
@@ -1173,6 +1176,7 @@
       "roleSystemImmutable": "Les rôles système ne peuvent pas être modifiés.",
       "roleSystemRequired": "Au moins un utilisateur doit être administrateur système.",
       "routineAdminRequired": "Seul un administrateur de l’entreprise peut suspendre ou supprimer des routines.",
+      "routineAiWorkPaused": "Le travail de l’IA est suspendu par un administrateur. Réessayez après sa reprise.",
       "routineDeleteHasRunningRun": "Attendez la fin de l’exécution active avant de supprimer cette routine.",
       "routineEditNotOwner": "Seul le propriétaire peut modifier la configuration ou l’activation de cette routine.",
       "routineLimitReached": "Votre forfait inclut {limit} routines par utilisateur. Changez de forfait pour augmenter cette limite.",
@@ -4050,7 +4054,7 @@
     "useSchedulePreset": "Utiliser une fréquence prédéfinie"
   },
   "RoutineRunReason": {
-    "adminPaused": "Un administrateur de l’entreprise a suspendu la routine",
+    "adminPaused": "Un administrateur de l’entreprise a suspendu la routine ou le travail de l’IA",
     "agentAlreadyCompleted": "Cette exécution était déjà terminée",
     "agentAlreadyRunning": "L’assistant était déjà occupé par une autre exécution",
     "agentTurnConflict": "Une autre exécution a mobilisé l’assistant en premier",

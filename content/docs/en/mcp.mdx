@@ -243,7 +243,7 @@ Required: `operationId`.
 
 List deleted items in Trash, newest first, with who deleted them, when, and the days left before they are deleted permanently. Filter by kind, list and name. Only items you could see and delete are listed; administrators see everything except other members' saved views and widgets, which stay personal.
 
-**Read-only.** Optional: `kinds`, `typeIds`, `search`, `sortDescriptor`, `page`, `pageSize`.
+**Read-only.** Optional: `kinds`, `itemIds`, `typeIds`, `search`, `sortDescriptor`, `page`, `pageSize`.
 
 #### `manage_trash`
 
@@ -346,7 +346,7 @@ Team members with id, name, email, roleId, and status. When the caller's role ha
 {/* mcp-catalog:views */}
 #### `manage_data_views`
 
-Discover, inspect, create, update, select, reset and delete personal saved views. Discover the surfaceKey first; generic record surfaces use stable type IDs. Updates patch only supplied settings; a grouping can carry up to 8 summaries (sum, average, min or max of a number or currency field). Reset removes your overrides so the list shows every field in its configured order as an ungrouped table, without changing records. Deleting a view moves it to Trash (a dashboard view takes its widgets along), never its records. Configuration and view lists are paginated and searchable.
+Discover, inspect, create, update, select, reset and delete personal saved views. Discover the surfaceKey first; generic record surfaces use stable type IDs. Updates patch only supplied settings; a grouping can carry up to 8 summaries (sum, average, min or max of a number or currency field). Reset removes your overrides so the list shows every field in its configured order as an ungrouped table, without changing records. Deleting a view requires its exact current name and ID; a mismatch changes nothing. Deletion moves it to Trash (a dashboard view takes its widgets along), never its records. Configuration and view lists are paginated and searchable.
 
 **Can delete data.** Required: `action`. Optional: `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `fields`, `state`.
 
@@ -599,7 +599,7 @@ List or read widgets; create, update or delete chart and activity configurations
 {/* mcp-catalog:routines */}
 #### `manage_routines`
 
-One tool with an `action` switch: list, runs, create, update, pause, run_now, delete. A routine is saved instructions the assistant runs on a cron schedule or when a CRM event fires. Omitting `enabled` on create produces a LIVE routine, so pass `enabled: false` to draft one; the hosted assistant must state `enabled` explicitly and drafts unless the user asked to activate. A change of `triggerKind` must arrive with that kind's schedule or events. pause disables the routine and settles its queued runs to skipped, which re-enabling does not undo; only an active system administrator may pause or delete a routine. run_now applies to scheduled routines only, and only to an enabled routine the caller owns. Runs are paginated by `cursor` and carry status, summary and trigger. delete moves the routine to Trash, where it stops running until manage_trash restores it.
+One tool with an `action` switch: list, runs, create, update, pause, run_now, delete. A routine is saved instructions the assistant runs on a cron schedule or when a CRM event fires. Omitting `enabled` on create produces a LIVE routine, so pass `enabled: false` to draft one; the hosted assistant must state `enabled` explicitly and drafts unless the user asked to activate. A change of `triggerKind` must arrive with that kind's schedule or events. pause disables the routine and settles its queued runs to skipped, which re-enabling does not undo; only an active system administrator may pause or delete a routine. run_now applies to scheduled routines only, and only to an enabled routine the caller owns. It refuses paused AI work, inactive owners and exhausted credits before queuing; manual test runs still use `triggerKind: schedule`. Runs are paginated by `cursor` and carry status, summary, trigger and the `error` block reason. delete moves the routine to Trash, where it stops running until manage_trash restores it.
 
 **Can delete data.** Required: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `recordTrigger`, `recordSources`, `expectedSchemaRevision`, `debounceSeconds`.
 {/* /mcp-catalog */}

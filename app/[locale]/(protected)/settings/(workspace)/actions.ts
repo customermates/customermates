@@ -32,6 +32,7 @@ import {
   getGetSubscriptionInteractor,
   getGetBillingPortalUrlInteractor,
   getGetWebhooksInteractor,
+  getGetWebhookByIdInteractor,
   getUpsertWebhookInteractor,
   getDeleteWebhookInteractor,
   getGetWebhookDeliveriesInteractor,
@@ -114,6 +115,25 @@ export async function deleteWebhookAction(data: DeleteWebhookData) {
 
 export async function getWebhooksAction(params?: GetQueryParams) {
   return unwrapValidated(getGetWebhooksInteractor().invoke(params));
+}
+
+export async function resolveWebhookOptionsAction(ids: string[]) {
+  const selected = z
+    .array(z.uuid())
+    .max(100)
+    .parse([...new Set(ids)]);
+  const results = await Promise.all(selected.map((id) => getGetWebhookByIdInteractor().invoke({ id })));
+  return results.flatMap((result) =>
+    result.ok
+      ? [
+          {
+            id: result.data.id,
+            url: result.data.url,
+            description: result.data.description,
+          },
+        ]
+      : [],
+  );
 }
 
 export async function getWebhookDeliveriesAction(params?: GetQueryParams) {

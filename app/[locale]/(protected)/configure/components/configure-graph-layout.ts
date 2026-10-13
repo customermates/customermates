@@ -235,6 +235,7 @@ const VIEWPORT_PADDING = 16;
 const VIEWPORT_TOP = 64;
 const HINT_WIDTH = 1024;
 export const CONFIGURE_GRAPH_MIN_ZOOM = 0.1;
+export const configureGraphMinimumZoom = (nodeCount: number) => (nodeCount > 10 ? 0.01 : CONFIGURE_GRAPH_MIN_ZOOM);
 
 export function configureGraphViewport(positions: Map<string, ConfigureGraphPosition>, width: number, height: number) {
   const boxes = [...positions.values()];
@@ -246,7 +247,7 @@ export function configureGraphViewport(positions: Map<string, ConfigureGraphPosi
   const fitWidth = (width - VIEWPORT_PADDING * 2) / graphWidth;
   const top = width >= HINT_WIDTH ? VIEWPORT_TOP : VIEWPORT_PADDING;
   const fitAll = Math.min(fitWidth, (height - top - VIEWPORT_PADDING) / graphHeight);
-  const zoom = Math.min(1, Math.max(CONFIGURE_GRAPH_MIN_ZOOM, fitAll));
+  const zoom = Math.min(1, Math.max(configureGraphMinimumZoom(positions.size), fitAll));
   return {
     x: Math.max(VIEWPORT_PADDING, (width - graphWidth * zoom) / 2) - minX * zoom,
     y: top - minY * zoom,

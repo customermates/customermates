@@ -83,6 +83,7 @@ import {
   hasNonTransactionalEffect,
   getAgentAiToolDefinitions,
   getAgentAiTools,
+  agentToolResult,
   normalizeAgentAiToolInput,
   isAgentToolCancellation,
   type AgentToolDeps,
@@ -121,6 +122,53 @@ function execute(tool: unknown, input: unknown, toolCallId = "call-1") {
 }
 
 describe("agent tools", () => {
+  it("identifies view proposals and pending writes as changes that have not been saved", () => {
+    const proposal = agentToolResult(
+      {
+        ok: true,
+        result: "action: create\nproposed: true",
+        structuredContent: {
+          action: "create",
+          surfaceKey: "dashboard",
+          viewKey: "__all__",
+          name: "PB big proposals",
+          state: {},
+          proposed: true,
+        },
+      },
+      6000,
+      { toolName: "manage_data_views" },
+    );
+    expect(proposal).toMatchObject({ ok: true, applied: false });
+    expect(proposal.result).toContain("Nothing was saved or changed");
+    expect(proposal).toHaveProperty("viewProposal");
+
+    const pending = agentToolResult(
+      {
+        ok: true,
+        result: "result: pending",
+        structuredContent: { result: { status: "pending", operationId: "operation-1" } },
+      },
+      6000,
+      { toolName: "mutate_crm_record" },
+    );
+    expect(pending).toMatchObject({ ok: false, applied: false });
+    expect(pending.result).toContain("no change has been published yet");
+  });
+
+  it("does not report an empty permanent deletion as successful", () => {
+    const result = agentToolResult(
+      {
+        ok: true,
+        result: "deletedItemIds: []",
+        structuredContent: { action: "delete_permanently", result: { deletedItemIds: [] } },
+      },
+      6000,
+      { toolName: "manage_trash" },
+    );
+    expect(result).toMatchObject({ ok: false, applied: false });
+    expect(result.result).toContain("0 deleted, 0 pending, 0 failed");
+  });
   it("enrolls a mutation in an exactly-once receipt but never an effect it cannot roll back", async () => {
     const enrolled: string[] = [];
     const runExactlyOnce = <T>(toolCallId: string, toolName: string, run: () => Promise<T>) => {
@@ -626,6 +674,7 @@ describe("agent tools", () => {
       action: "delete",
       surfaceKey: "records:10000000-0000-4000-8000-000000000101",
       viewKey: "00000000-0000-4000-8000-000000000001",
+      name: "Other view",
     },
   ])("rejects a different target before approval or execution: $action $surfaceKey", async (input) => {
     const mcp = ALL_MCP_TOOLS.find(({ name }) => name === "manage_data_views");
