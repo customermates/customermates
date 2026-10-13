@@ -90,7 +90,6 @@ export function HomepageHero({ heroSection, locale }: Props) {
 
         <HomepageProductStage
           demoBaseUrl={homepageDemoBaseUrl()}
-          disclosure={heroSection.stage.disclosure}
           label={heroSection.stage.label}
           live={heroSection.stage.live}
           locale={locale}

@@ -47,7 +47,6 @@ describe("hero headings", () => {
           buttonRightHref: "#demo",
           buttonRightText: "Watch",
           stage: {
-            disclosure: "Sample data.",
             label: "Product areas",
             live: { prompt: "Try it live" },
             tabs: [

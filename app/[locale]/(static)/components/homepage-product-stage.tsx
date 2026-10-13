@@ -59,7 +59,6 @@ const STAGE_MIN_SCALE = 0.94;
 
 type Props = {
   demoBaseUrl: string;
-  disclosure: string;
   label: string;
   live: { prompt: string };
   locale: ContentLocale;
@@ -87,7 +86,7 @@ function StageProgressRing() {
   );
 }
 
-export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liveCopy, locale, tabs }: Props) {
+export function HomepageProductStage({ demoBaseUrl, label, live: liveCopy, locale, tabs }: Props) {
   const { ref, shouldAnimate, shouldReduceMotion } = useHomepageMotion<HTMLDivElement>();
   const frameRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -416,17 +415,11 @@ export function HomepageProductStage({ demoBaseUrl, disclosure, label, live: liv
       <motion.p
         key={activeTab.capture}
         animate={{ opacity: 1, y: 0 }}
-        className="mt-4 flex flex-wrap justify-center text-center text-sm text-muted-foreground"
+        className="mt-4 text-center text-sm text-muted-foreground"
         initial={shouldReduceMotion ? false : { opacity: 0, y: 4 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
       >
-        <span>{activeTab.caption}</span>
-
-        <span aria-hidden className="mx-1.5 text-muted-foreground/40">
-          ·
-        </span>
-
-        <span className="text-muted-foreground/60">{disclosure}</span>
+        {activeTab.caption}
       </motion.p>
     </div>
   );

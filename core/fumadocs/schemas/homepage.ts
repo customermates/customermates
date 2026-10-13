@@ -54,7 +54,6 @@ export const heroSchema = z.object({
   buttonRightHref: z.string(),
   buttonRightText: z.string(),
   stage: z.object({
-    disclosure: z.string(),
     label: z.string(),
     live: z.object({
       prompt: z.string(),

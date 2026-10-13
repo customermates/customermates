@@ -258,8 +258,8 @@ describe("homepage visual-system adoption", () => {
 
     expect(stageCaptures(englishHomepage)).toEqual(expected);
     expect(stageCaptures(germanHomepage)).toEqual(expected);
-    expect(englishHomepage).toContain("People, companies and numbers are sample data.");
-    expect(germanHomepage).toContain("Personen, Unternehmen und Zahlen sind Beispieldaten.");
+    expect(englishHomepage).not.toContain("People, companies and numbers are sample data.");
+    expect(germanHomepage).not.toContain("Personen, Unternehmen und Zahlen sind Beispieldaten.");
     expect(englishHomepage).toContain("  disclosure: Sample data from the Customermates demo workspace.");
     expect(germanHomepage).toContain("  disclosure: Beispieldaten aus dem Demo-Arbeitsbereich von Customermates.");
     expect(readComponent("homepage-pipeline.tsx")).toContain("{story.disclosure}");
