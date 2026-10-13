@@ -6,7 +6,8 @@ test("browser Back guards a record drawer draft and an immediate Open page hando
   const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "service");
   await page.goto("/en/dashboard");
-  await page.goto(`/en/records/${typeId}`);
+  await page.locator(`[id="nav-records:${typeId}"]`).click();
+  await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}$`));
   await page.locator("#records-add").click();
   const drawer = page.getByRole("dialog");
   await drawer.getByRole("textbox", { name: "Name", exact: false }).fill("Back guard service");
@@ -22,6 +23,7 @@ test("browser Back guards a record drawer draft and an immediate Open page hando
   await expect(drawer.getByRole("textbox", { name: "Name", exact: false })).toHaveValue("Back guard draft");
 
   await drawer.getByRole("link", { name: "Open page", exact: true }).click();
+  await page.waitForTimeout(40);
   await page.evaluate(() => history.back());
   await expect(guard).toBeVisible();
   await guard.getByRole("button", { name: "Cancel", exact: true }).click();
