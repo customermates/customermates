@@ -287,7 +287,7 @@ export function HomepageProductStage({ demoBaseUrl, label, live: liveCopy, local
       <div className="relative [perspective:2400px]">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-1/3 -bottom-20 -z-10 bg-[radial-gradient(45%_55%_at_50%_100%,color-mix(in_oklab,var(--primary)_30%,transparent),transparent)] blur-2xl"
+          className="pointer-events-none absolute inset-x-0 top-1/3 -bottom-20 -z-10 bg-[radial-gradient(40%_45%_at_50%_100%,color-mix(in_oklab,var(--primary)_14%,transparent),transparent)] blur-2xl"
         />
 
         <div
@@ -393,7 +393,7 @@ export function HomepageProductStage({ demoBaseUrl, label, live: liveCopy, local
               {isActive ? (
                 <motion.span
                   aria-hidden
-                  className="absolute inset-0 -z-10 rounded-full bg-foreground/[0.09] shadow-[inset_0_1px_0_0_rgb(255_255_255/0.14),0_1px_3px_rgb(0_0_0/0.2)] ring-1 ring-foreground/15"
+                  className="mark-glow absolute inset-0 -z-10 rounded-full [--tint:color-mix(in_oklab,var(--primary)_32%,transparent)]"
                   data-homepage-stage-progress={autoAdvance && !shouldReduceMotion ? undefined : "static"}
                   layoutId={`${baseId}-thumb`}
                   transition={{ duration: shouldReduceMotion ? 0 : 0.45, ease: [0.22, 1, 0.36, 1] }}

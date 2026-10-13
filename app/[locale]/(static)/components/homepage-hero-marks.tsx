@@ -92,7 +92,7 @@ export function HomepageHeroMarks() {
     >
       {MARKS.map((mark) => (
         <span key={mark.key} className="hero-mark" data-hero-mark={mark.key}>
-          <span className="hero-mark-card">
+          <span className="hero-mark-card mark-glow">
             <Image alt="" className={mark.className} draggable={false} height={64} src={mark.src} width={64} />
           </span>
         </span>
