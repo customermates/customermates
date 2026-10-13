@@ -3,29 +3,23 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl", () => ({
-  useTranslations:
-    () => (key: string, values?: Record<string, string | number>) =>
-      key === "AgentChat.activity.contextual"
-        ? `${values?.action} · ${values?.context}`
-        : values?.target
-          ? `${key}:${values.target}`
-          : key,
+  useTranslations: () => (key: string, values?: Record<string, string | number>) =>
+    key === "AgentChat.activity.contextual"
+      ? `${values?.action} · ${values?.context}`
+      : values?.target
+        ? `${key}:${values.target}`
+        : key,
 }));
 vi.mock("@/components/shared/app-link", async () => {
   const { createElement } = await import("react");
   return {
-    AppLink: ({ children, href }: { children?: ReactNode; href: string }) =>
-      createElement("a", { href }, children),
+    AppLink: ({ children, href }: { children?: ReactNode; href: string }) => createElement("a", { href }, children),
   };
 });
 
 import type { AgentChatItem } from "../agent-chat.store";
 
-import {
-  AgentActivity,
-  compactActivityItems,
-  isWorkingActivityGroup,
-} from "../agent-chat-items";
+import { AgentActivity, compactActivityItems, isWorkingActivityGroup } from "../agent-chat-items";
 
 const failedRead = {
   kind: "activity" as const,
@@ -64,9 +58,7 @@ describe("AgentActivity", () => {
 
     expect(html).toContain('href="/settings/webhooks?view=__all__"');
     expect(html).toContain("AgentChat.openSavedView");
-    expect(
-      html.match(/AgentChat\.activity\.state\.views\.configure\.done/g),
-    ).toHaveLength(1);
+    expect(html.match(/AgentChat\.activity\.state\.views\.configure\.done/g)).toHaveLength(1);
     expect(html).not.toContain('data-slot="collapsible-trigger"');
     expect(html).not.toContain('data-slot="collapsible-content"');
     expect(html).not.toMatch(/<button[^>]*>[^<]*<a/);
@@ -148,9 +140,7 @@ describe("AgentActivity", () => {
       }),
     );
 
-    expect(
-      html.split("AgentChat.activity.state.records.read.error"),
-    ).toHaveLength(2);
+    expect(html.split("AgentChat.activity.state.records.read.error")).toHaveLength(2);
     expect(html).not.toContain("<details");
   });
 

@@ -1,8 +1,6 @@
 import { isBusyDatabaseError } from "@/core/errors/prisma-client-error";
 
-export async function retryAgentFinalization<T>(
-  commit: () => Promise<T>,
-): Promise<T> {
+export async function retryAgentFinalization<T>(commit: () => Promise<T>): Promise<T> {
   for (let attempt = 0; ; attempt += 1) {
     try {
       return await commit();

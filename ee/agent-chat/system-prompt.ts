@@ -7,10 +7,7 @@ import {
 } from "@/features/mcp-tools/server-instructions";
 import { routineTriggerGuide } from "@/ee/routines/routine-trigger-doc";
 import { isUnattendedSurface } from "./agent-surface-policy";
-import {
-  joinAgentSystemPrompt,
-  type AgentSystemPromptParts,
-} from "./agent-wiki-context";
+import { joinAgentSystemPrompt, type AgentSystemPromptParts } from "./agent-wiki-context";
 import { toolsetIndexSentence } from "./agent-toolset-routing";
 import { agentWebSearchCallLimit } from "./agent-web-search";
 import { WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
@@ -26,21 +23,16 @@ export type SystemPromptContext = {
   schemaDigest?: string | null;
 };
 
-const ROUTINE_TRIGGER_EVENT_PATTERN =
-  /^(?:\uFEFF)?[ \t]*<routine_trigger\b[^>]*\bevent="([^"\r\n]{1,80})"/;
+const ROUTINE_TRIGGER_EVENT_PATTERN = /^(?:\uFEFF)?[ \t]*<routine_trigger\b[^>]*\bevent="([^"\r\n]{1,80})"/;
 
-export function routineTriggerEventOf(
-  text: string | null | undefined,
-): string | null {
+export function routineTriggerEventOf(text: string | null | undefined): string | null {
   const match = text ? ROUTINE_TRIGGER_EVENT_PATTERN.exec(text) : null;
   return match?.[1] ?? null;
 }
 
 function languageName(locale: string) {
   try {
-    return (
-      new Intl.DisplayNames(["en"], { type: "language" }).of(locale) ?? locale
-    );
+    return new Intl.DisplayNames(["en"], { type: "language" }).of(locale) ?? locale;
   } catch {
     return locale;
   }
@@ -101,22 +93,14 @@ function wikiWebsiteSetupParagraph(locale: string) {
   return `Website import: ask for the site's URL unless the user already wrote it, then call ${WIKI_WEBSITE_IMPORT_TOOL_NAME} once with that exact address. It reads politely in the background, uses one Knowledge Base language, imports matching-language help, pricing and policy pages verbatim, and translates or summarizes other sources. Initial setup then writes the Knowledge Base pages and an Operating Guide in the background; help-centre additions create knowledge pages only. Tell the user in ${languageName(locale)} that it started; saved pages are immediately available to Mate and connected AI tools. For an import's listed external help centre, call ${WIKI_WEBSITE_IMPORT_TOOL_NAME} with the address the user names. Never guess an address.`;
 }
 
-export function agentSystemPromptParts(
-  context: SystemPromptContext,
-): AgentSystemPromptParts {
+export function agentSystemPromptParts(context: SystemPromptContext): AgentSystemPromptParts {
   const [identity, ...rest] = STATIC_PARAGRAPHS;
   const stable = [
     identity,
-    ...rest.map((paragraph) =>
-      paragraph === CRM_INVARIANTS_PLACEHOLDER
-        ? invariantsParagraph()
-        : paragraph,
-    ),
+    ...rest.map((paragraph) => (paragraph === CRM_INVARIANTS_PLACEHOLDER ? invariantsParagraph() : paragraph)),
     "",
     HOSTED_WORKSPACE_WIKI_INSTRUCTION,
-    ...(context.wikiWebsiteSetup && context.surface === "chat"
-      ? [wikiWebsiteSetupParagraph(context.locale)]
-      : []),
+    ...(context.wikiWebsiteSetup && context.surface === "chat" ? [wikiWebsiteSetupParagraph(context.locale)] : []),
     "",
     `${context.webSearchEnabled ? webSearchSentence(context.surface) : "General web search is not available; do not claim to have searched."} Keep replies concise and grounded in tool results, and never invent CRM data.`,
     ...(context.surface === "routine"

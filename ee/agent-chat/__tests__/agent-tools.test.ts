@@ -1,9 +1,4 @@
-import {
-  TOOL_TYPE_ID,
-  TOOL_RECORD_ID,
-  TOOL_CREATE_RECORD,
-  TOOL_CREATE_TYPE,
-} from "@/tests/helpers/record-tools";
+import { TOOL_TYPE_ID, TOOL_RECORD_ID, TOOL_CREATE_RECORD, TOOL_CREATE_TYPE } from "@/tests/helpers/record-tools";
 import { describe, expect, it, vi } from "vitest";
 import { generateText, stepCountIs, tool } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
@@ -67,14 +62,8 @@ vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
 }));
 
-import {
-  getDocsPageTool,
-  searchDocsTool,
-} from "@/features/mcp-tools/docs.mcp-tools";
-import {
-  ALL_MCP_TOOLS,
-  MCP_ALWAYS_ON_TOOLS,
-} from "@/features/mcp-tools/tool-registry";
+import { getDocsPageTool, searchDocsTool } from "@/features/mcp-tools/docs.mcp-tools";
+import { ALL_MCP_TOOLS, MCP_ALWAYS_ON_TOOLS } from "@/features/mcp-tools/tool-registry";
 
 import {
   AGENT_TOOL_RESULT_TRUNCATED_MARK,
@@ -86,11 +75,7 @@ import { SendAgentMessageSchema } from "../agent-chat.schema";
 import { conservativeAgentInitialContextBytes } from "../agent-provider-context";
 import { toolsetsForRequest } from "../agent-toolset-routing";
 import { ANALYZE_RECORDS_TOOL_NAME } from "../agent-toolset-routing";
-import {
-  WIKI_REFERENCE_MAX_BYTES,
-  agentWikiReferenceBytes,
-  serializeAgentWikiCatalog,
-} from "../agent-wiki-context";
+import { WIKI_REFERENCE_MAX_BYTES, agentWikiReferenceBytes, serializeAgentWikiCatalog } from "../agent-wiki-context";
 import { SHIPPED_AGENT_MODEL } from "../model-catalog";
 import { buildAgentSystemPrompt } from "../system-prompt";
 import { AGENT_UI_TARGETS, unopenedUiPrerequisite } from "../ui-targets";
@@ -110,23 +95,11 @@ import {
 
 function deps(overrides: Partial<AgentToolDeps> = {}): AgentToolDeps {
   return {
-    runUiCommand: vi
-      .fn()
-      .mockResolvedValue({ ok: true, result: "browser result" }),
+    runUiCommand: vi.fn().mockResolvedValue({ ok: true, result: "browser result" }),
     requestApproval: vi.fn().mockResolvedValue("approve"),
-    resolveApprovalContext: vi
-      .fn()
-      .mockImplementation((_toolName, input) =>
-        Promise.resolve({ ok: true, input }),
-      ),
-    createSupportTicket: vi
-      .fn()
-      .mockResolvedValue({ ok: true, result: "created" }),
-    runExactlyOnce: <T>(
-      _toolCallId: string,
-      _toolName: string,
-      run: () => Promise<T>,
-    ) => run(),
+    resolveApprovalContext: vi.fn().mockImplementation((_toolName, input) => Promise.resolve({ ok: true, input })),
+    createSupportTicket: vi.fn().mockResolvedValue({ ok: true, result: "created" }),
+    runExactlyOnce: <T>(_toolCallId: string, _toolName: string, run: () => Promise<T>) => run(),
     runInCallerContext: (run) => run(),
     resultMaxChars: 6000,
     ...overrides,
@@ -245,42 +218,25 @@ describe("agent tools", () => {
   });
   it("enrolls a mutation in an exactly-once receipt but never an effect it cannot roll back", async () => {
     const enrolled: string[] = [];
-    const runExactlyOnce = <T>(
-      toolCallId: string,
-      toolName: string,
-      run: () => Promise<T>,
-    ) => {
+    const runExactlyOnce = <T>(toolCallId: string, toolName: string, run: () => Promise<T>) => {
       enrolled.push(`${toolName}:${toolCallId}`);
       return run();
     };
-    const tools = getAgentAiTools(
-      deps({ runExactlyOnce }),
-    ) as unknown as Record<
+    const tools = getAgentAiTools(deps({ runExactlyOnce })) as unknown as Record<
       string,
       {
-        execute: (
-          input: unknown,
-          options: { toolCallId: string },
-        ) => Promise<unknown>;
+        execute: (input: unknown, options: { toolCallId: string }) => Promise<unknown>;
       }
     >;
-    const ignoringOutcome = (call: Promise<unknown>) =>
-      call.catch(() => undefined);
+    const ignoringOutcome = (call: Promise<unknown>) => call.catch(() => undefined);
 
     await ignoringOutcome(
       tools.mutate_crm_record.execute(TOOL_CREATE_RECORD, {
         toolCallId: "call-write",
       }),
     );
-    await ignoringOutcome(
-      tools.send_email.execute({}, { toolCallId: "call-email" }),
-    );
-    await ignoringOutcome(
-      tools.query_crm_records.execute(
-        { typeId: TOOL_TYPE_ID },
-        { toolCallId: "call-read" },
-      ),
-    );
+    await ignoringOutcome(tools.send_email.execute({}, { toolCallId: "call-email" }));
+    await ignoringOutcome(tools.query_crm_records.execute({ typeId: TOOL_TYPE_ID }, { toolCallId: "call-read" }));
 
     expect(enrolled).toEqual(["mutate_crm_record:call-write"]);
   });
@@ -295,32 +251,20 @@ describe("agent tools", () => {
         entered.push("exit");
       }
     };
-    const tools = getAgentAiTools(
-      deps({ runInCallerContext }),
-    ) as unknown as Record<
+    const tools = getAgentAiTools(deps({ runInCallerContext })) as unknown as Record<
       string,
       {
-        execute?: (
-          input: unknown,
-          options: { toolCallId: string },
-        ) => Promise<unknown>;
+        execute?: (input: unknown, options: { toolCallId: string }) => Promise<unknown>;
       }
     >;
 
-    const executable = Object.entries(tools).filter(
-      ([, agentTool]) => typeof agentTool.execute === "function",
-    );
+    const executable = Object.entries(tools).filter(([, agentTool]) => typeof agentTool.execute === "function");
     expect(executable.length).toBeGreaterThanOrEqual(46);
 
     for (const [name, agentTool] of executable) {
       entered.length = 0;
-      await agentTool
-        .execute?.({}, { toolCallId: `call-${name}` })
-        .catch(() => undefined);
-      expect(entered, `${name} executed outside the caller context`).toEqual([
-        "enter",
-        "exit",
-      ]);
+      await agentTool.execute?.({}, { toolCallId: `call-${name}` }).catch(() => undefined);
+      expect(entered, `${name} executed outside the caller context`).toEqual(["enter", "exit"]);
     }
   });
 
@@ -335,23 +279,15 @@ describe("agent tools", () => {
     ])
       expect(hasNonTransactionalEffect(name), name).toBe(true);
 
-    for (const name of [
-      "mutate_crm_record",
-      "configure_record_model",
-      "manage_widgets",
-    ])
+    for (const name of ["mutate_crm_record", "configure_record_model", "manage_widgets"])
       expect(hasNonTransactionalEffect(name), name).toBe(false);
   });
 
   it("exposes the MCP registry without the deep-research pair, plus the interface tools, load_toolset and analyze_records", () => {
     const names = Object.keys(getAgentAiTools(deps()));
-    const deepResearch = new Set(
-      MCP_ALWAYS_ON_TOOLS.map((agentTool) => agentTool.name),
-    );
+    const deepResearch = new Set(MCP_ALWAYS_ON_TOOLS.map((agentTool) => agentTool.name));
     const expected = new Set([
-      ...ALL_MCP_TOOLS.filter(
-        (agentTool) => !deepResearch.has(agentTool.name),
-      ).map((agentTool) => agentTool.name),
+      ...ALL_MCP_TOOLS.filter((agentTool) => !deepResearch.has(agentTool.name)).map((agentTool) => agentTool.name),
       ...AGENT_UI_TOOL_NAMES,
       "load_toolset",
       ANALYZE_RECORDS_TOOL_NAME,
@@ -363,12 +299,7 @@ describe("agent tools", () => {
     expect(names).toContain("load_toolset");
     expect(names).not.toContain("click_ui_target");
     expect(names.filter((name) => name === "request_support")).toHaveLength(1);
-    expect(
-      names.every(
-        (name) =>
-          !name.startsWith("discover_") || name === "discover_record_types",
-      ),
-    ).toBe(true);
+    expect(names.every((name) => !name.startsWith("discover_") || name === "discover_record_types")).toBe(true);
   });
 
   it("completes more than sixteen sequential tool rounds inside the extended turn", async () => {
@@ -377,9 +308,7 @@ describe("agent tools", () => {
     const provider = createOpenAI({
       apiKey: "test-key",
       fetch: vi.fn((_input, init) => {
-        requestBodies.push(
-          JSON.parse(String(init?.body)) as Record<string, unknown>,
-        );
+        requestBodies.push(JSON.parse(String(init?.body)) as Record<string, unknown>);
         const round = requestBodies.length;
         const output =
           round <= 18
@@ -498,18 +427,14 @@ describe("agent tools", () => {
       ),
     ).toBeLessThan(contextLimitBytes);
     const contextHeadroomFloorBytes = 20_000;
-    expect(contextLimitBytes - (requiredContextBytes ?? 0)).toBeGreaterThan(
-      contextHeadroomFloorBytes,
-    );
+    expect(contextLimitBytes - (requiredContextBytes ?? 0)).toBeGreaterThan(contextHeadroomFloorBytes);
     const funded = resolveAgentTurnBudget({
       model,
       availableMicrocents: agentRoundWorstCaseMicrocents(model),
       requiredContextBytes: requiredContextBytes ?? 0,
     });
     expect(funded).not.toBeNull();
-    expect(funded?.maxContextBytes).toBeGreaterThanOrEqual(
-      requiredContextBytes ?? Number.POSITIVE_INFINITY,
-    );
+    expect(funded?.maxContextBytes).toBeGreaterThanOrEqual(requiredContextBytes ?? Number.POSITIVE_INFINITY);
     expect(funded?.maxOutputTokens).toBe(model.maxOutputTokens);
   });
 
@@ -555,12 +480,8 @@ describe("agent tools", () => {
         nextPage: 2,
         truncated: true,
       });
-      expect(agentWikiReferenceBytes(catalog)).toBeGreaterThan(
-        WIKI_REFERENCE_MAX_BYTES - 500,
-      );
-      expect(agentWikiReferenceBytes(catalog)).toBeLessThanOrEqual(
-        WIKI_REFERENCE_MAX_BYTES,
-      );
+      expect(agentWikiReferenceBytes(catalog)).toBeGreaterThan(WIKI_REFERENCE_MAX_BYTES - 500);
+      expect(agentWikiReferenceBytes(catalog)).toBeLessThanOrEqual(WIKI_REFERENCE_MAX_BYTES);
       const states = [
         { wikiCatalog: catalog, wikiWebsiteSetup: false },
         { wikiCatalog: null, wikiWebsiteSetup: true },
@@ -568,17 +489,12 @@ describe("agent tools", () => {
       for (const model of [SHIPPED_AGENT_MODEL]) {
         for (const { wikiCatalog, wikiWebsiteSetup } of states) {
           const label = `${model.modelId} catalog=${Boolean(wikiCatalog)} website=${wikiWebsiteSetup}`;
-          const toolDefinitions = getAgentAiToolDefinitions(
-            model.servingProvider,
-            {
-              surface,
-              webSearchEnabled,
-              wikiWebsiteSetup,
-            },
-          );
-          expect(
-            toolDefinitions.some(({ name }) => name === "web_search"),
-          ).toBe(webSearchEnabled);
+          const toolDefinitions = getAgentAiToolDefinitions(model.servingProvider, {
+            surface,
+            webSearchEnabled,
+            wikiWebsiteSetup,
+          });
+          expect(toolDefinitions.some(({ name }) => name === "web_search")).toBe(webSearchEnabled);
           expect(
             toolDefinitions.some(({ name }) => name === "import_website"),
             label,
@@ -606,8 +522,7 @@ describe("agent tools", () => {
           });
           expect(requiredContextBytes, label).not.toBeNull();
           const fits =
-            (requiredContextBytes ?? Number.POSITIVE_INFINITY) <=
-              agentContextTokensToBytes(model.maxContextTokens) &&
+            (requiredContextBytes ?? Number.POSITIVE_INFINITY) <= agentContextTokensToBytes(model.maxContextTokens) &&
             resolveAgentTurnBudget({
               model,
               availableMicrocents: agentRoundWorstCaseMicrocents(model),
@@ -620,46 +535,27 @@ describe("agent tools", () => {
   );
 
   it("rejects a tool name outside the catalog without running it", async () => {
-    expect(
-      await normalizeAgentAiToolInput("unknown_tool", {}, 6000),
-    ).toMatchObject({
+    expect(await normalizeAgentAiToolInput("unknown_tool", {}, 6000)).toMatchObject({
       ok: false,
       result: expect.stringContaining("The requested tool is not available."),
     });
   });
 
   it("publishes fresh-state and minimal-patch instructions for saved-view updates", () => {
-    const definition = getAgentAiToolDefinitions().find(
-      ({ name }) => name === "manage_data_views",
-    );
-    const schema = definition?.inputSchema as
-      | { properties?: Record<string, unknown> }
-      | undefined;
-    const state = schema?.properties?.state as
-      | { description?: string }
-      | undefined;
+    const definition = getAgentAiToolDefinitions().find(({ name }) => name === "manage_data_views");
+    const schema = definition?.inputSchema as { properties?: Record<string, unknown> } | undefined;
+    const state = schema?.properties?.state as { description?: string } | undefined;
 
-    expect(state?.description).toContain(
-      "call list immediately before every update",
-    );
-    expect(state?.description).toContain(
-      "include only keys the user asked to change",
-    );
-    expect(state?.description).toContain(
-      "Never copy old conversation/full state",
-    );
+    expect(state?.description).toContain("call list immediately before every update");
+    expect(state?.description).toContain("include only keys the user asked to change");
+    expect(state?.description).toContain("Never copy old conversation/full state");
     expect(definition?.description).toContain(
       "never create a custom column to manufacture a missing saved-view filter",
     );
-    expect(
-      getAgentAiToolDefinitions().find(
-        ({ name }) => name === "configure_record_model",
-      )?.description,
-    ).toContain(
+    expect(getAgentAiToolDefinitions().find(({ name }) => name === "configure_record_model")?.description).toContain(
       "Do not create or change a field only to manufacture an unsupported saved-view filter",
     );
-    for (const field of ["section", "page", "pageSize", "query"])
-      expect(schema?.properties).toHaveProperty(field);
+    for (const field of ["section", "page", "pageSize", "query"]) expect(schema?.properties).toHaveProperty(field);
     expect(JSON.stringify(schema)).not.toContain("operator-users");
     expect(JSON.stringify(schema)).not.toContain("operator-workspaces");
     expect(JSON.stringify(schema)).not.toContain("operator-audit");
@@ -688,20 +584,17 @@ describe("agent tools", () => {
       surfaceKey: "operator-users",
       viewKey: "00000000-0000-4000-8000-000000000001",
     },
-  ])(
-    "rejects unsupported saved-view input during authoritative normalization: %j",
-    async (input) => {
-      await expect(
-        normalizeAgentAiToolInput("manage_data_views", input, 6000, {
-          pageRoute:
-            "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
-        }),
-      ).resolves.toMatchObject({
-        ok: false,
-        result: expect.stringContaining("Validation error"),
-      });
-    },
-  );
+  ])("rejects unsupported saved-view input during authoritative normalization: %j", async (input) => {
+    await expect(
+      normalizeAgentAiToolInput("manage_data_views", input, 6000, {
+        pageRoute:
+          "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
+      }),
+    ).resolves.toMatchObject({
+      ok: false,
+      result: expect.stringContaining("Validation error"),
+    });
+  });
 
   it("gives the hosted agent a record-specific link for a timeline view created on a detail page", async () => {
     const viewKey = "00000000-0000-4000-8000-000000000001";
@@ -867,43 +760,33 @@ describe("agent tools", () => {
       viewKey: "00000000-0000-4000-8000-000000000001",
       name: "Other view",
     },
-  ])(
-    "rejects a different target before approval or execution: $action $surfaceKey",
-    async (input) => {
-      const mcp = ALL_MCP_TOOLS.find(
-        ({ name }) => name === "manage_data_views",
-      );
-      if (!mcp) throw new Error("manage_data_views is missing");
-      const executeMcp = vi.spyOn(mcp, "execute");
-      const dependencies = deps({
-        pageRoute:
-          "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
-        runExactlyOnce: vi.fn(),
+  ])("rejects a different target before approval or execution: $action $surfaceKey", async (input) => {
+    const mcp = ALL_MCP_TOOLS.find(({ name }) => name === "manage_data_views");
+    if (!mcp) throw new Error("manage_data_views is missing");
+    const executeMcp = vi.spyOn(mcp, "execute");
+    const dependencies = deps({
+      pageRoute:
+        "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
+      runExactlyOnce: vi.fn(),
+    });
+    try {
+      const result = await execute(getAgentAiTools(dependencies).manage_data_views, input);
+      expect(result).toMatchObject({
+        ok: false,
+        result: expect.stringContaining("surfaceKey=records:10000000-0000-4000-8000-000000000101"),
       });
-      try {
-        const result = await execute(
-          getAgentAiTools(dependencies).manage_data_views,
-          input,
-        );
-        expect(result).toMatchObject({
-          ok: false,
-          result: expect.stringContaining(
-            "surfaceKey=records:10000000-0000-4000-8000-000000000101",
-          ),
-        });
-        expect(executeMcp).not.toHaveBeenCalled();
-        expect(dependencies.runExactlyOnce).not.toHaveBeenCalled();
-        expect(dependencies.resolveApprovalContext).not.toHaveBeenCalled();
-        await expect(
-          normalizeAgentAiToolInput("manage_data_views", input, 6000, {
-            pageRoute: dependencies.pageRoute,
-          }),
-        ).resolves.toEqual(result);
-      } finally {
-        executeMcp.mockRestore();
-      }
-    },
-  );
+      expect(executeMcp).not.toHaveBeenCalled();
+      expect(dependencies.runExactlyOnce).not.toHaveBeenCalled();
+      expect(dependencies.resolveApprovalContext).not.toHaveBeenCalled();
+      await expect(
+        normalizeAgentAiToolInput("manage_data_views", input, 6000, {
+          pageRoute: dependencies.pageRoute,
+        }),
+      ).resolves.toEqual(result);
+    } finally {
+      executeMcp.mockRestore();
+    }
+  });
 
   it.each([
     [
@@ -951,33 +834,21 @@ describe("agent tools", () => {
       },
       null,
     ],
-  ] as const)(
-    "keeps valid $0.action requests on the existing MCP execution path",
-    async (input, pageRoute) => {
-      const mcp = ALL_MCP_TOOLS.find(
-        ({ name }) => name === "manage_data_views",
-      );
-      if (!mcp) throw new Error("manage_data_views is missing");
-      const executeMcp = vi
-        .spyOn(mcp, "execute")
-        .mockResolvedValue({ text: "Saved view operation completed." });
-      try {
-        const result = await execute(
-          getAgentAiTools(deps({ pageRoute })).manage_data_views,
-          input,
-        );
-        expect(result).toMatchObject({ ok: true });
-        expect(executeMcp).toHaveBeenCalledOnce();
-      } finally {
-        executeMcp.mockRestore();
-      }
-    },
-  );
+  ] as const)("keeps valid $0.action requests on the existing MCP execution path", async (input, pageRoute) => {
+    const mcp = ALL_MCP_TOOLS.find(({ name }) => name === "manage_data_views");
+    if (!mcp) throw new Error("manage_data_views is missing");
+    const executeMcp = vi.spyOn(mcp, "execute").mockResolvedValue({ text: "Saved view operation completed." });
+    try {
+      const result = await execute(getAgentAiTools(deps({ pageRoute })).manage_data_views, input);
+      expect(result).toMatchObject({ ok: true });
+      expect(executeMcp).toHaveBeenCalledOnce();
+    } finally {
+      executeMcp.mockRestore();
+    }
+  });
 
   it("rejects a custom-field mutation from an Ask AI view request before approval or execution", async () => {
-    const mcp = ALL_MCP_TOOLS.find(
-      ({ name }) => name === "configure_record_model",
-    );
+    const mcp = ALL_MCP_TOOLS.find(({ name }) => name === "configure_record_model");
     if (!mcp) throw new Error("configure_record_model is missing");
     const executeMcp = vi.spyOn(mcp, "execute");
     const input = TOOL_CREATE_TYPE;
@@ -987,15 +858,10 @@ describe("agent tools", () => {
       runExactlyOnce: vi.fn(),
     });
     try {
-      const result = await execute(
-        getAgentAiTools(dependencies).configure_record_model,
-        input,
-      );
+      const result = await execute(getAgentAiTools(dependencies).configure_record_model, input);
       expect(result).toMatchObject({
         ok: false,
-        result: expect.stringContaining(
-          "Use only filter fields returned by manage_data_views config",
-        ),
+        result: expect.stringContaining("Use only filter fields returned by manage_data_views config"),
       });
       expect(executeMcp).not.toHaveBeenCalled();
       expect(dependencies.runExactlyOnce).not.toHaveBeenCalled();
@@ -1024,10 +890,11 @@ describe("agent tools", () => {
       "https://example.com",
       "//example.com",
       "/records/10000000-0000-4000-8000-000000000101",
-    ])
+    ]) {
       expect(await validate?.({ targetId }), targetId).toMatchObject({
         success: false,
       });
+    }
   });
 
   it("opens an existing record's page through navigate and rejects drawer, path and URL forms", async () => {
@@ -1046,19 +913,16 @@ describe("agent tools", () => {
       "https://example.com",
       "abc",
       "1234",
-    ])
+    ]) {
       expect(await validate?.({ typeId, recordId: bad }), bad).toMatchObject({
         success: false,
       });
-    expect(
-      await validate?.({ typeId: "not-a-type-id", recordId }),
-    ).toMatchObject({ success: false });
+    }
+    expect(await validate?.({ typeId: "not-a-type-id", recordId })).toMatchObject({ success: false });
     expect(await validate?.({ typeId })).toMatchObject({ success: false });
     expect(await validate?.({ recordId })).toMatchObject({ success: false });
     expect(await validate?.({})).toMatchObject({ success: false });
-    expect(
-      await validate?.({ targetId: "nav-deals", typeId, recordId }),
-    ).toMatchObject({ success: false });
+    expect(await validate?.({ targetId: "nav-deals", typeId, recordId })).toMatchObject({ success: false });
     expect("open_record" in tools).toBe(false);
   });
 
@@ -1076,22 +940,16 @@ describe("agent tools", () => {
     ];
     try {
       const tools = getAgentAiTools(deps());
-      const first = String(
-        await execute(tools.list_ui_targets, { query: "Projects" }),
-      );
+      const first = String(await execute(tools.list_ui_targets, { query: "Projects" }));
       expect(first).toContain(`nav-records:${typeId}|/records/${typeId}`);
       expect(first).toContain(`records:${typeId}:filter`);
       expect(first).not.toContain(`records:${typeId}:add`);
       expect(first).not.toContain(`records:${typeId}:configure`);
       recordNavigationHarness.types[0].pluralLabel = "Engagements";
-      const renamed = String(
-        await execute(tools.list_ui_targets, { query: "Engagements" }),
-      );
+      const renamed = String(await execute(tools.list_ui_targets, { query: "Engagements" }));
       expect(renamed).toContain(`nav-records:${typeId}`);
       recordNavigationHarness.types = [];
-      expect(
-        String(await execute(tools.list_ui_targets, { query: "Engagements" })),
-      ).not.toContain(typeId);
+      expect(String(await execute(tools.list_ui_targets, { query: "Engagements" }))).not.toContain(typeId);
     } finally {
       recordNavigationHarness.types = [];
     }
@@ -1102,12 +960,7 @@ describe("agent tools", () => {
     const pages: string[] = [];
     let cursor: number | undefined;
     for (let page = 0; page < AGENT_UI_TARGETS.length; page += 1) {
-      const result = String(
-        await execute(
-          tools.list_ui_targets,
-          cursor === undefined ? {} : { cursor },
-        ),
-      );
+      const result = String(await execute(tools.list_ui_targets, cursor === undefined ? {} : { cursor }));
       pages.push(result);
       const match = /\nnextCursor=(\d+);total=(\d+)$/.exec(result);
       if (!match) break;
@@ -1134,9 +987,7 @@ describe("agent tools", () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 512 }));
 
     for (const target of AGENT_UI_TARGETS) {
-      const result = String(
-        await execute(tools.list_ui_targets, { query: target.id }),
-      );
+      const result = String(await execute(tools.list_ui_targets, { query: target.id }));
       expect(result.length).toBeLessThanOrEqual(512);
       expect(result).toContain(target.id);
       expect(result).toContain("\nend");
@@ -1168,12 +1019,7 @@ describe("agent tools", () => {
     const seen: string[] = [];
     let cursor: number | undefined;
     for (let page = 0; page < AGENT_UI_TARGETS.length; page += 1) {
-      const result = String(
-        await execute(
-          tools.list_ui_targets,
-          cursor === undefined ? {} : { cursor },
-        ),
-      );
+      const result = String(await execute(tools.list_ui_targets, cursor === undefined ? {} : { cursor }));
       expect(result.length).toBeLessThanOrEqual(512);
       seen.push(
         ...result
@@ -1196,38 +1042,20 @@ describe("agent tools", () => {
         .split("\n")
         .find((line) => line.startsWith(`${id}|`));
 
-    expect(await lineOf("member-modal-role")).toBe(
-      "member-modal-role|/settings/members|nh|>a member row",
-    );
+    expect(await lineOf("member-modal-role")).toBe("member-modal-role|/settings/members|nh|>a member row");
     expect(await lineOf("member-modal-save")).toContain("|>a member row");
     expect(await lineOf("webhook-modal-delete")).toContain("|>a webhook row");
     expect(await lineOf("role-modal-delete")).toContain("|>a role row");
     expect(await lineOf("api-key-delete")).toContain("|>an API key card");
-    expect(await lineOf("webhook-delivery-modal-resend")).toContain(
-      "|>a delivery row",
-    );
-    expect(await lineOf("connected-account-disconnect")).toContain(
-      "|>a channel card",
-    );
-    expect(await lineOf("connected-account-signature")).toContain(
-      "|>connected-account-tab-email",
-    );
-    expect(await lineOf("widget-modal-save")).toBe(
-      "widget-modal-save|/dashboard|nh|>widget-modal-kind",
-    );
-    expect(await lineOf("widget-modal-kind")).toBe(
-      "widget-modal-kind|/dashboard|nh|>dashboard-add-widget",
-    );
-    expect(await lineOf("nav-settings-members")).toBe(
-      "nav-settings-members|/settings/members|nh",
-    );
-    expect(await lineOf("nav-settings-api-keys")).toBe(
-      "nav-settings-api-keys|/settings/api-keys|nh",
-    );
+    expect(await lineOf("webhook-delivery-modal-resend")).toContain("|>a delivery row");
+    expect(await lineOf("connected-account-disconnect")).toContain("|>a channel card");
+    expect(await lineOf("connected-account-signature")).toContain("|>connected-account-tab-email");
+    expect(await lineOf("widget-modal-save")).toBe("widget-modal-save|/dashboard|nh|>widget-modal-kind");
+    expect(await lineOf("widget-modal-kind")).toBe("widget-modal-kind|/dashboard|nh|>dashboard-add-widget");
+    expect(await lineOf("nav-settings-members")).toBe("nav-settings-members|/settings/members|nh");
+    expect(await lineOf("nav-settings-api-keys")).toBe("nav-settings-api-keys|/settings/api-keys|nh");
     expect(await lineOf("widget-modal-reset")).toContain("|>a widget card");
-    expect(await lineOf("webhook-modal-url")).toContain(
-      "|>settings-webhooks-add",
-    );
+    expect(await lineOf("webhook-modal-url")).toContain("|>settings-webhooks-add");
   });
 
   it("answers one query that spans several pages, because the prompt asks for a single focused query", async () => {
@@ -1268,9 +1096,7 @@ describe("agent tools", () => {
 
   it("answers an unmatched query with an explicit miss and id prefixes instead of the whole catalog", async () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 4096 }));
-    const result = String(
-      await execute(tools.list_ui_targets, { query: "zzzz" }),
-    );
+    const result = String(await execute(tools.list_ui_targets, { query: "zzzz" }));
 
     expect(result).toContain('No interface target matches "zzzz"');
     expect(result).toContain("Target names are English");
@@ -1291,32 +1117,17 @@ describe("agent tools", () => {
       },
     ];
     const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
-    const invite = String(
-      await execute(tools.list_ui_targets, { query: "Mitglieder einladen" }),
-    );
-    const inbox = String(
-      await execute(tools.list_ui_targets, { query: "Posteingang" }),
-    );
-    const tasks = String(
-      await execute(tools.list_ui_targets, { query: "Aufgaben" }),
-    );
+    const invite = String(await execute(tools.list_ui_targets, { query: "Mitglieder einladen" }));
+    const inbox = String(await execute(tools.list_ui_targets, { query: "Posteingang" }));
+    const tasks = String(await execute(tools.list_ui_targets, { query: "Aufgaben" }));
 
     expect(invite).not.toContain("No interface target matches");
-    for (const id of [
-      "nav-settings-members",
-      "settings-members-add",
-      "invite-modal-tab-email",
-      "invite-modal-send",
-    ])
+    for (const id of ["nav-settings-members", "settings-members-add", "invite-modal-tab-email", "invite-modal-send"])
       expect(invite, id).toContain(`${id}|`);
     expect(invite).not.toContain("nav-deals|");
     expect(inbox).toContain("nav-inbox|/inbox|nh");
-    expect(tasks).toContain(
-      `nav-records:${TOOL_TYPE_ID}|/records/${TOOL_TYPE_ID}|nh`,
-    );
-    expect(tasks).toContain(
-      `records:${TOOL_TYPE_ID}:add|/records/${TOOL_TYPE_ID}|nh`,
-    );
+    expect(tasks).toContain(`nav-records:${TOOL_TYPE_ID}|/records/${TOOL_TYPE_ID}|nh`);
+    expect(tasks).toContain(`records:${TOOL_TYPE_ID}:add|/records/${TOOL_TYPE_ID}|nh`);
     recordNavigationHarness.types = [];
   });
 
@@ -1334,15 +1145,12 @@ describe("agent tools", () => {
     ["Cerca", "nav-search"],
     ["Menú personal", "nav-personal-menu"],
     ["Menu personnel", "nav-personal-menu"],
-  ])(
-    "matches the localized sidebar name %s of a group or utility entry",
-    async (query, id) => {
-      const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
-      const result = String(await execute(tools.list_ui_targets, { query }));
+  ])("matches the localized sidebar name %s of a group or utility entry", async (query, id) => {
+    const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
+    const result = String(await execute(tools.list_ui_targets, { query }));
 
-      expect(result).toContain(`\n${id}|`);
-    },
-  );
+    expect(result).toContain(`\n${id}|`);
+  });
 
   it.each([
     ["leads", "add"],
@@ -1353,27 +1161,24 @@ describe("agent tools", () => {
     ["To-dos", "add"],
     ["Aufträge", "filter"],
     ["Cuentas", "filter"],
-  ])(
-    "matches the renamed record type %s to its page",
-    async (query, control) => {
-      recordNavigationHarness.types = [
-        {
-          id: TOOL_TYPE_ID,
-          label: query,
-          pluralLabel: query,
-          icon: "folder",
-          canCreate: true,
-          hasAuthorizationTasks: false,
-        },
-      ];
-      const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
-      const result = String(await execute(tools.list_ui_targets, { query }));
+  ])("matches the renamed record type %s to its page", async (query, control) => {
+    recordNavigationHarness.types = [
+      {
+        id: TOOL_TYPE_ID,
+        label: query,
+        pluralLabel: query,
+        icon: "folder",
+        canCreate: true,
+        hasAuthorizationTasks: false,
+      },
+    ];
+    const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
+    const result = String(await execute(tools.list_ui_targets, { query }));
 
-      expect(result).toContain(`\nnav-records:${TOOL_TYPE_ID}|`);
-      expect(result).toContain(`\nrecords:${TOOL_TYPE_ID}:${control}|`);
-      recordNavigationHarness.types = [];
-    },
-  );
+    expect(result).toContain(`\nnav-records:${TOOL_TYPE_ID}|`);
+    expect(result).toContain(`\nrecords:${TOOL_TYPE_ID}:${control}|`);
+    recordNavigationHarness.types = [];
+  });
 
   it.each([
     ["Posta in arrivo", "nav-inbox"],
@@ -1384,35 +1189,28 @@ describe("agent tools", () => {
     ["Chiavi API", "nav-settings-api-keys"],
     ["Clés API", "nav-settings-api-keys"],
     ["Menu del workspace", "nav-workspace-menu"],
-  ])(
-    "answers the multi-word page name %s with that page instead of most of the catalog",
-    async (query, id) => {
-      const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
-      const result = String(await execute(tools.list_ui_targets, { query }));
-      const ids = result.split("\n").filter((line) => line.includes("|"));
+  ])("answers the multi-word page name %s with that page instead of most of the catalog", async (query, id) => {
+    const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
+    const result = String(await execute(tools.list_ui_targets, { query }));
+    const ids = result.split("\n").filter((line) => line.includes("|"));
 
-      expect(result).toContain(`\n${id}|`);
-      expect(ids.length).toBeLessThanOrEqual(10);
-    },
-  );
+    expect(result).toContain(`\n${id}|`);
+    expect(ids.length).toBeLessThanOrEqual(10);
+  });
 
   it("lists an exact id first and still lists the targets it prefixes", async () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 6000 }));
-    const lines = String(
-      await execute(tools.list_ui_targets, { query: "nav-settings-webhooks" }),
-    )
+    const lines = String(await execute(tools.list_ui_targets, { query: "nav-settings-webhooks" }))
       .split("\n")
       .filter((line) => line.includes("|"))
       .map((line) => line.split("|")[0]);
-    const prefixed = String(
-      await execute(tools.list_ui_targets, { query: "nav-settings-" }),
-    )
+    const prefixed = String(await execute(tools.list_ui_targets, { query: "nav-settings-" }))
       .split("\n")
       .filter((line) => line.includes("|"))
       .map((line) => line.split("|")[0]);
-    const subLinks = AGENT_UI_TARGETS.filter((target) =>
-      target.id.startsWith("nav-settings-"),
-    ).map((target) => target.id);
+    const subLinks = AGENT_UI_TARGETS.filter((target) => target.id.startsWith("nav-settings-")).map(
+      (target) => target.id,
+    );
 
     expect(lines[0]).toBe("nav-settings-webhooks");
     expect(prefixed).toEqual(subLinks);
@@ -1441,12 +1239,8 @@ describe("agent tools", () => {
 
   it("discovers the connected-account destination and walkthrough control together", async () => {
     const tools = getAgentAiTools(deps({ resultMaxChars: 512 }));
-    const workflow = String(
-      await execute(tools.list_ui_targets, { query: "connected accounts" }),
-    );
-    const provider = String(
-      await execute(tools.list_ui_targets, { query: "WhatsApp" }),
-    );
+    const workflow = String(await execute(tools.list_ui_targets, { query: "connected accounts" }));
+    const provider = String(await execute(tools.list_ui_targets, { query: "WhatsApp" }));
 
     expect(workflow).toContain("nav-settings-channels");
     expect(workflow).toContain("settings-channels-connect");
@@ -1475,22 +1269,17 @@ describe("agent tools", () => {
       },
       "tour failed",
     ],
-  ] as const)(
-    "awaits the browser's exact result for %s",
-    async (name, input, result) => {
-      const outcome = { ok: false, result };
-      const runUiCommand = vi.fn().mockResolvedValue(outcome);
-      const tools = getAgentAiTools(deps({ runUiCommand }));
+  ] as const)("awaits the browser's exact result for %s", async (name, input, result) => {
+    const outcome = { ok: false, result };
+    const runUiCommand = vi.fn().mockResolvedValue(outcome);
+    const tools = getAgentAiTools(deps({ runUiCommand }));
 
-      await expect(execute(tools[name], input)).resolves.toEqual(outcome);
-      expect(runUiCommand).toHaveBeenCalledWith("call-1", name, input);
-    },
-  );
+    await expect(execute(tools[name], input)).resolves.toEqual(outcome);
+    expect(runUiCommand).toHaveBeenCalledWith("call-1", name, input);
+  });
 
   it("refuses a highlight or tour that skips a target's opener, and passes one that goes through it", async () => {
-    const runUiCommand = vi
-      .fn()
-      .mockResolvedValue({ ok: true, result: "shown" });
+    const runUiCommand = vi.fn().mockResolvedValue({ ok: true, result: "shown" });
     const tools = getAgentAiTools(deps({ runUiCommand }));
     const refusal =
       "settings-webhooks-layout-board is inside settings-webhooks-display-options, which the user must open first, so nothing was shown. Highlight settings-webhooks-display-options and tell the user to open it, or run start_tour with settings-webhooks-display-options as the step before settings-webhooks-layout-board.";
@@ -1542,20 +1331,14 @@ describe("agent tools", () => {
     });
     const namedRow = AGENT_UI_TARGETS.find(
       (target) =>
-        target.prerequisite !== undefined &&
-        !AGENT_UI_TARGETS.some((other) => other.id === target.prerequisite),
+        target.prerequisite !== undefined && !AGENT_UI_TARGETS.some((other) => other.id === target.prerequisite),
     );
-    if (!namedRow)
-      throw new Error("expected a target whose opener is a named row");
-    await expect(
-      execute(tools.highlight_element, { targetId: namedRow.id }),
-    ).resolves.toEqual({
+    if (!namedRow) throw new Error("expected a target whose opener is a named row");
+    await expect(execute(tools.highlight_element, { targetId: namedRow.id })).resolves.toEqual({
       ok: true,
       result: "shown",
     });
-    expect(
-      runUiCommand.mock.calls.map(([, name, input]) => [name, input]),
-    ).toEqual([
+    expect(runUiCommand.mock.calls.map(([, name, input]) => [name, input])).toEqual([
       ["highlight_element", { targetId: "settings-webhooks-display-options" }],
       ["start_tour", throughOpener],
       ["highlight_element", { targetId: namedRow.id }],
@@ -1563,12 +1346,8 @@ describe("agent tools", () => {
   });
 
   it("requires every opener in a chain, in order, before the target inside it", () => {
-    for (const target of AGENT_UI_TARGETS.filter(
-      (candidate) => candidate.prerequisite,
-    )) {
-      const opener = AGENT_UI_TARGETS.find(
-        (candidate) => candidate.id === target.prerequisite,
-      );
+    for (const target of AGENT_UI_TARGETS.filter((candidate) => candidate.prerequisite)) {
+      const opener = AGENT_UI_TARGETS.find((candidate) => candidate.id === target.prerequisite);
       if (!opener) {
         expect(unopenedUiPrerequisite(target.id)).toBeNull();
         continue;
@@ -1580,9 +1359,7 @@ describe("agent tools", () => {
   });
 
   it("caps browser command results to the admitted per-tool context budget and says it truncated", async () => {
-    const runUiCommand = vi
-      .fn()
-      .mockResolvedValue({ ok: true, result: "x".repeat(1000) });
+    const runUiCommand = vi.fn().mockResolvedValue({ ok: true, result: "x".repeat(1000) });
     const tools = getAgentAiTools(deps({ runUiCommand, resultMaxChars: 512 }));
 
     const outcome = (await execute(tools.navigate, {
@@ -1595,9 +1372,7 @@ describe("agent tools", () => {
   });
 
   it("preserves Zod defaults while sending a provider-safe JSON schema", async () => {
-    const result = await schemaOf(
-      getAgentAiTools(deps()).search_docs,
-    ).validate?.({ query: "contacts" });
+    const result = await schemaOf(getAgentAiTools(deps()).search_docs).validate?.({ query: "contacts" });
 
     expect(result).toEqual({
       success: true,
@@ -1606,54 +1381,31 @@ describe("agent tools", () => {
   });
 
   it.each([
-    [
-      "list_users",
-      { searchTerm: "Sofia" },
-      { searchTerm: "Sofia", page: 1, pageSize: 25 },
-    ],
-    [
-      "list_users",
-      { searchTerm: "Sofia", pageSize: " 12 " },
-      { searchTerm: "Sofia", page: 1, pageSize: 12 },
-    ],
+    ["list_users", { searchTerm: "Sofia" }, { searchTerm: "Sofia", page: 1, pageSize: 25 }],
+    ["list_users", { searchTerm: "Sofia", pageSize: " 12 " }, { searchTerm: "Sofia", page: 1, pageSize: 12 }],
     [
       "list_users",
       { searchTerm: "Sofia", page: "2", pageSize: " 10 " },
       { searchTerm: "Sofia", page: 2, pageSize: 10 },
     ],
-    [
-      "search_crm_records",
-      { searchTerm: "Project" },
-      { searchTerm: "Project", limit: 40, cursor: null },
-    ],
+    ["search_crm_records", { searchTerm: "Project" }, { searchTerm: "Project", limit: 40, cursor: null }],
     [
       "read_crm_record",
       { typeId: TOOL_TYPE_ID, recordId: TOOL_RECORD_ID },
       { typeId: TOOL_TYPE_ID, recordId: TOOL_RECORD_ID },
     ],
-    [
-      "search_docs",
-      { query: "contacts" },
-      { query: "contacts", locale: "en", source: "docs" },
-    ],
-  ])(
-    "restores authoritative defaults and coercions for durable %s input",
-    async (name, input, expected) => {
-      const serialized = JSON.parse(JSON.stringify(input));
-      await expect(
-        normalizeAgentAiToolInput(name, serialized, 6000),
-      ).resolves.toEqual({
-        ok: true,
-        input: expected,
-      });
-      expect(serialized).toEqual(input);
-    },
-  );
+    ["search_docs", { query: "contacts" }, { query: "contacts", locale: "en", source: "docs" }],
+  ])("restores authoritative defaults and coercions for durable %s input", async (name, input, expected) => {
+    const serialized = JSON.parse(JSON.stringify(input));
+    await expect(normalizeAgentAiToolInput(name, serialized, 6000)).resolves.toEqual({
+      ok: true,
+      input: expected,
+    });
+    expect(serialized).toEqual(input);
+  });
 
   it("applies panel refinements and transforms before a command can be emitted", async () => {
-    await expect(
-      normalizeAgentAiToolInput("navigate", {}, 6000),
-    ).resolves.toMatchObject({ ok: false });
+    await expect(normalizeAgentAiToolInput("navigate", {}, 6000)).resolves.toMatchObject({ ok: false });
     await expect(
       normalizeAgentAiToolInput(
         "start_tour",
@@ -1688,27 +1440,18 @@ describe("agent tools", () => {
     ).resolves.toMatchObject({ ok: false });
   });
 
-  it.each(["not-a-tool", "__proto__", "constructor"])(
-    "rejects unknown tool identity %s",
-    async (name) => {
-      await expect(normalizeAgentAiToolInput(name, {}, 6000)).resolves.toEqual({
-        ok: false,
-        result: "The requested tool is not available.",
-      });
-    },
-  );
+  it.each(["not-a-tool", "__proto__", "constructor"])("rejects unknown tool identity %s", async (name) => {
+    await expect(normalizeAgentAiToolInput(name, {}, 6000)).resolves.toEqual({
+      ok: false,
+      result: "The requested tool is not available.",
+    });
+  });
 
   it("returns bounded validation failures without executing a mutation", async () => {
-    const target = ALL_MCP_TOOLS.find(
-      (item) => item.name === "mutate_crm_record",
-    );
+    const target = ALL_MCP_TOOLS.find((item) => item.name === "mutate_crm_record");
     if (!target) throw new Error("Missing mutate_crm_record tool.");
     const mutation = vi.spyOn(target, "execute");
-    const result = await normalizeAgentAiToolInput(
-      "mutate_crm_record",
-      { mutation: { action: "create" } },
-      32,
-    );
+    const result = await normalizeAgentAiToolInput("mutate_crm_record", { mutation: { action: "create" } }, 32);
 
     expect(result).toMatchObject({ ok: false });
     if (result.ok) throw new Error("Invalid tool input passed.");
@@ -1756,8 +1499,7 @@ describe("agent tools", () => {
         excerpt: true,
       },
     });
-    const query =
-      "Walk me through connecting WhatsApp to the Customermates inbox.";
+    const query = "Walk me through connecting WhatsApp to the Customermates inbox.";
     const searchResult = (await execute(tools.search_docs, {
       query,
       locale: "en",
@@ -1785,9 +1527,7 @@ describe("agent tools", () => {
   });
 
   it("hands Mate docs app links as paths into the reader's own workspace", async () => {
-    const tools = getAgentAiTools(
-      deps({ runInCallerContext: (run) => runWithTenant(mockUser, run) }),
-    );
+    const tools = getAgentAiTools(deps({ runInCallerContext: (run) => runWithTenant(mockUser, run) }));
     const markdown = resolvePublicAppLinks(
       "To add a contact, open [Contacts](app:records/contact) and click [Add](app:records/contact?focus=add).",
       "http://localhost:4000",
@@ -1818,9 +1558,7 @@ describe("agent tools", () => {
   });
 
   it("keeps runtime validation for sanitized CRM schemas", async () => {
-    const result = await schemaOf(
-      getAgentAiTools(deps()).mutate_crm_record,
-    ).validate?.({
+    const result = await schemaOf(getAgentAiTools(deps()).mutate_crm_record).validate?.({
       mutation: { action: "create" },
     });
 
@@ -1855,9 +1593,7 @@ describe("agent tools", () => {
   });
 
   it("returns a structured failure for validation errors instead of marking the activity done", async () => {
-    vi.spyOn(searchDocsTool, "execute").mockResolvedValueOnce(
-      "Validation error: invalid docs query" as never,
-    );
+    vi.spyOn(searchDocsTool, "execute").mockResolvedValueOnce("Validation error: invalid docs query" as never);
     const tools = getAgentAiTools(deps());
 
     await expect(
@@ -1882,29 +1618,15 @@ describe("agent tools", () => {
       body: "Please connect me with a human.",
     };
     const requestApproval = vi.fn().mockResolvedValue("approve");
-    const createSupportTicket = vi
-      .fn()
-      .mockResolvedValue({ ok: true, result: "request emailed" });
-    const tools = getAgentAiTools(
-      deps({ requestApproval, createSupportTicket }),
-    );
+    const createSupportTicket = vi.fn().mockResolvedValue({ ok: true, result: "request emailed" });
+    const tools = getAgentAiTools(deps({ requestApproval, createSupportTicket }));
 
-    await expect(
-      execute(tools.request_support, input, "support-1"),
-    ).resolves.toEqual({
+    await expect(execute(tools.request_support, input, "support-1")).resolves.toEqual({
       ok: true,
       result: "request emailed",
     });
-    expect(requestApproval).toHaveBeenCalledWith(
-      "support-1",
-      "request_support",
-      input,
-    );
-    expect(createSupportTicket).toHaveBeenCalledWith(
-      "support-1",
-      input.subject,
-      input.body,
-    );
+    expect(requestApproval).toHaveBeenCalledWith("support-1", "request_support", input);
+    expect(createSupportTicket).toHaveBeenCalledWith("support-1", input.subject, input.body);
   });
 
   it.each([
@@ -1929,17 +1651,11 @@ describe("agent tools", () => {
       const requestApproval = vi.fn().mockResolvedValue("reject");
       const tools = getAgentAiTools(deps({ requestApproval }));
 
-      await expect(
-        execute(tools[toolName], input, `sensitive-${toolName}`),
-      ).resolves.toMatchObject({
+      await expect(execute(tools[toolName], input, `sensitive-${toolName}`)).resolves.toMatchObject({
         agentToolStatus: "cancelled",
         reason: "rejected",
       });
-      expect(requestApproval).toHaveBeenCalledWith(
-        `sensitive-${toolName}`,
-        toolName,
-        input,
-      );
+      expect(requestApproval).toHaveBeenCalledWith(`sensitive-${toolName}`, toolName, input);
     },
   );
 
@@ -1954,18 +1670,11 @@ describe("agent tools", () => {
       input: { ...input, targetLabel: "Ada Lovelace" },
     });
     const requestApproval = vi.fn().mockResolvedValue("reject");
-    const tools = getAgentAiTools(
-      deps({ requestApproval, resolveApprovalContext }),
-    );
+    const tools = getAgentAiTools(deps({ requestApproval, resolveApprovalContext }));
 
-    await Promise.resolve(
-      execute(tools.manage_social_relations, input, "social-approval"),
-    ).catch(() => undefined);
+    await Promise.resolve(execute(tools.manage_social_relations, input, "social-approval")).catch(() => undefined);
 
-    expect(resolveApprovalContext).toHaveBeenCalledWith(
-      "manage_social_relations",
-      input,
-    );
+    expect(resolveApprovalContext).toHaveBeenCalledWith("manage_social_relations", input);
     expect(requestApproval).not.toHaveBeenCalled();
   });
 
@@ -1975,9 +1684,7 @@ describe("agent tools", () => {
       result: "The external target could not be verified.",
     });
     const requestApproval = vi.fn().mockResolvedValue("approve");
-    const tools = getAgentAiTools(
-      deps({ requestApproval, resolveApprovalContext }),
-    );
+    const tools = getAgentAiTools(deps({ requestApproval, resolveApprovalContext }));
 
     await expect(
       execute(
@@ -1998,19 +1705,14 @@ describe("agent tools", () => {
   });
 
   it("returns approval-context permission failures as bounded tool results without capturing Sentry", async () => {
-    const accessError = new ForbiddenError(
-      "inactive raw detail",
-      AppErrorCode.inactiveUser,
-    );
+    const accessError = new ForbiddenError("inactive raw detail", AppErrorCode.inactiveUser);
     const resolveApprovalContext = vi.fn().mockRejectedValue(
       new Error("outer approval adapter", {
         cause: new Error("inner approval adapter", { cause: accessError }),
       }),
     );
     const requestApproval = vi.fn().mockResolvedValue("approve");
-    const tools = getAgentAiTools(
-      deps({ requestApproval, resolveApprovalContext, resultMaxChars: 512 }),
-    );
+    const tools = getAgentAiTools(deps({ requestApproval, resolveApprovalContext, resultMaxChars: 512 }));
 
     await expect(
       execute(
@@ -2118,61 +1820,41 @@ describe("agent tools", () => {
       const requestApproval = vi.fn().mockResolvedValue("reject");
       const tools = getAgentAiTools(deps({ requestApproval }));
 
-      await Promise.resolve(
-        execute(tools[toolName], input, `free-${toolName}`),
-      ).catch(() => undefined);
+      await Promise.resolve(execute(tools[toolName], input, `free-${toolName}`)).catch(() => undefined);
 
       expect(requestApproval).not.toHaveBeenCalled();
     },
   );
 
-  it.each(["reject", "timeout"] as const)(
-    "does not email support when escalation resolves to %s",
-    async (decision) => {
-      const requestApproval = vi.fn().mockResolvedValue(decision);
-      const createSupportTicket = vi
-        .fn()
-        .mockResolvedValue({ ok: true, result: "request emailed" });
-      const tools = getAgentAiTools(
-        deps({ requestApproval, createSupportTicket }),
-      );
+  it.each(["reject", "timeout"] as const)("does not email support when escalation resolves to %s", async (decision) => {
+    const requestApproval = vi.fn().mockResolvedValue(decision);
+    const createSupportTicket = vi.fn().mockResolvedValue({ ok: true, result: "request emailed" });
+    const tools = getAgentAiTools(deps({ requestApproval, createSupportTicket }));
 
-      const result = await execute(
-        tools.request_support,
-        { subject: "Need help", body: "Human please" },
-        "support-2",
-      );
+    const result = await execute(tools.request_support, { subject: "Need help", body: "Human please" }, "support-2");
 
-      expect(isAgentToolCancellation(result)).toBe(true);
-      expect(result).toMatchObject({
-        agentToolStatus: "cancelled",
-        reason: decision === "reject" ? "rejected" : "timeout",
-      });
-      expect(createSupportTicket).not.toHaveBeenCalled();
-    },
-  );
+    expect(isAgentToolCancellation(result)).toBe(true);
+    expect(result).toMatchObject({
+      agentToolStatus: "cancelled",
+      reason: decision === "reject" ? "rejected" : "timeout",
+    });
+    expect(createSupportTicket).not.toHaveBeenCalled();
+  });
 
   it.each([
     ["chat", "got no answer in time"],
     ["routine", "Nobody is watching this run"],
-  ] as const)(
-    "words an unanswered approval for the %s surface",
-    async (surface, wording) => {
-      const requestApproval = vi.fn().mockResolvedValue("timeout");
-      const tools = getAgentAiTools(deps({ requestApproval }), { surface });
+  ] as const)("words an unanswered approval for the %s surface", async (surface, wording) => {
+    const requestApproval = vi.fn().mockResolvedValue("timeout");
+    const tools = getAgentAiTools(deps({ requestApproval }), { surface });
 
-      const result = await execute(
-        tools.request_support,
-        { subject: "Need help", body: "Human please" },
-        "support-3",
-      );
+    const result = await execute(tools.request_support, { subject: "Need help", body: "Human please" }, "support-3");
 
-      expect(result).toMatchObject({
-        agentToolStatus: "cancelled",
-        message: expect.stringContaining(wording),
-      });
-    },
-  );
+    expect(result).toMatchObject({
+      agentToolStatus: "cancelled",
+      message: expect.stringContaining(wording),
+    });
+  });
 
   it("gives the model truthful, neutral capability and approval instructions", () => {
     const prompt = buildAgentSystemPrompt({
@@ -2188,58 +1870,38 @@ describe("agent tools", () => {
     expect(prompt).toContain(
       "Authorization, entitlements, connected-account state, and approval are enforced when a tool runs",
     );
-    expect(prompt).toContain(
-      "current page is context, never a capability boundary",
-    );
+    expect(prompt).toContain("current page is context, never a capability boundary");
     expect(prompt).toContain("Never infer that a capability is unavailable");
     expect(prompt).toContain("Ordinary CRM work also runs immediately");
-    expect(prompt).toContain(
-      "require a fresh explicit approval every time; there is no standing permission to offer",
-    );
+    expect(prompt).toContain("require a fresh explicit approval every time; there is no standing permission to offer");
     expect(prompt).toContain("Destructive actions");
     expect(prompt).toContain("team invitations");
     expect(prompt).toContain("workspace settings, custom fields");
     expect(prompt).toContain("webhook delivery resends");
-    expect(prompt).toContain(
-      "If an approval is declined or times out, nothing changed",
-    );
-    expect(prompt).toContain(
-      "A support email is sent only after that approval is granted",
-    );
+    expect(prompt).toContain("If an approval is declined or times out, nothing changed");
+    expect(prompt).toContain("A support email is sent only after that approval is granted");
     expect(prompt).toContain("use the available tools directly");
     expect(prompt).toContain("connected definitions in one atomic bundle");
     expect(prompt).toContain("one focused search_docs call");
-    expect(prompt).toContain(
-      "using its nonempty returned anchor as anchor and the original question as query",
-    );
+    expect(prompt).toContain("using its nonempty returned anchor as anchor and the original question as query");
     expect(prompt).toContain("omit anchor and query when its anchor is empty");
-    expect(prompt).toContain(
-      "For a different detail, omit anchor and pass that exact detail as query",
-    );
+    expect(prompt).toContain("For a different detail, omit anchor and pass that exact detail as query");
     expect(prompt).toContain("Make one focused list_ui_targets query");
     expect(prompt).toContain("A tour navigates to each step itself");
     expect(prompt).toContain("never click or activate interface controls");
-    expect(prompt).toContain(
-      "asks to walk them through or show them how to connect an account",
-    );
+    expect(prompt).toContain("asks to walk them through or show them how to connect an account");
     expect(prompt).toContain("configure_record_model");
     expect(prompt).toContain("stable relationship ids");
     expect(prompt).toContain("page_context includes requestedAction");
     expect(prompt).toContain("linked-record filters never change that target");
     expect(prompt).toContain("follow the user's explicit named-view action");
-    expect(prompt).toContain(
-      "create from All only when they ask for a new view",
-    );
+    expect(prompt).toContain("create from All only when they ask for a new view");
     expect(prompt).toContain("do not repeat or construct their URLs in prose");
     expect(prompt).toContain("On stale revision, read and preview again");
     expect(prompt).toContain("Never print or imitate tool-call syntax as text");
     expect(prompt).toContain("keep working while credits remain");
-    expect(prompt).toContain(
-      "a credit limit, provider error, content filter, hosted-AI unavailability",
-    );
-    expect(prompt).not.toContain(
-      "time, approval, output, or no-progress bound",
-    );
+    expect(prompt).toContain("a credit limit, provider error, content filter, hosted-AI unavailability");
+    expect(prompt).not.toContain("time, approval, output, or no-progress bound");
   });
 });
 
@@ -2258,8 +1920,6 @@ describe("system prompt reply language", () => {
 
     expect(german).toContain("Write every reply in German");
     expect(english).toContain("Write every reply in English");
-    expect(english).toContain(
-      "whatever language the workspace data happens to be in",
-    );
+    expect(english).toContain("whatever language the workspace data happens to be in");
   });
 });

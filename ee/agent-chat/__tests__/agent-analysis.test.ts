@@ -4,11 +4,7 @@ import { z } from "zod";
 import type { McpTool } from "@/features/mcp-tools/mcp-tool";
 
 import { createMockUser } from "@/tests/helpers/mock-user";
-import {
-  MOCK_ENV_MODULE,
-  MOCK_ZOD_MODULE,
-  createMockDiModule,
-} from "@/tests/helpers/interactor-test-setup";
+import { MOCK_ENV_MODULE, MOCK_ZOD_MODULE, createMockDiModule } from "@/tests/helpers/interactor-test-setup";
 
 const mockUser = createMockUser();
 const listed = vi.hoisted(() => ({ query: vi.fn(), reactions: vi.fn() }));
@@ -46,10 +42,7 @@ function tooLarge(chars: number, resultMaxChars: number) {
 }
 
 function longest(texts: unknown[]): number {
-  return Math.max(
-    0,
-    ...texts.map((text) => (typeof text === "string" ? text.length : 0)),
-  );
+  return Math.max(0, ...texts.map((text) => (typeof text === "string" ? text.length : 0)));
 }
 
 function listTool(name: string, rows: number, text?: string) {
@@ -58,13 +51,11 @@ function listTool(name: string, rows: number, text?: string) {
     value: index + 1,
     ...(text === undefined ? {} : { text }),
   }));
-  const execute = vi.fn(
-    ({ page, pageSize }: { page: number; pageSize: number }) => {
-      const items = all.slice((page - 1) * pageSize, page * pageSize);
-      const payload = { total: rows, page, pageSize, items };
-      return { text: JSON.stringify(payload), structuredContent: payload };
-    },
-  );
+  const execute = vi.fn(({ page, pageSize }: { page: number; pageSize: number }) => {
+    const items = all.slice((page - 1) * pageSize, page * pageSize);
+    const payload = { total: rows, page, pageSize, items };
+    return { text: JSON.stringify(payload), structuredContent: payload };
+  });
   const tool: McpTool = {
     name,
     title: name,
@@ -120,12 +111,7 @@ type QueryRelationship = {
   hasMore: boolean;
 };
 
-function record(
-  typeId: string,
-  recordId: string,
-  fields: QueryField[],
-  relationships: QueryRelationship[] = [],
-) {
+function record(typeId: string, recordId: string, fields: QueryField[], relationships: QueryRelationship[] = []) {
   return {
     ref: { typeId, recordId },
     version: 1,
@@ -187,9 +173,7 @@ describe("analyze_records", () => {
         result: { rows: 250, total: 250, sum: 31_375 },
       }),
     });
-    expect(
-      execute.mock.calls.map(([input]) => [input.page, input.pageSize]),
-    ).toEqual([
+    expect(execute.mock.calls.map(([input]) => [input.page, input.pageSize])).toEqual([
       [1, 100],
       [2, 100],
       [3, 100],
@@ -262,12 +246,9 @@ describe("analyze_records", () => {
       execute: (({ page, pageSize }: { page: number; pageSize: number }) => {
         const payload = {
           thread: { id: "thread-1", participants: [{ displayName: "Ada" }] },
-          messages: Array.from(
-            { length: Math.min(messages, pageSize) },
-            (_, index) => ({
-              id: `message-${index + 1}`,
-            }),
-          ),
+          messages: Array.from({ length: Math.min(messages, pageSize) }, (_, index) => ({
+            id: `message-${index + 1}`,
+          })),
           total: messages,
           page,
           pageSize,
@@ -280,13 +261,11 @@ describe("analyze_records", () => {
       code: "(data) => data[0].messages.length",
     };
 
-    await expect(analyzeRecords(input, deps(threadTool(250)))).resolves.toEqual(
-      {
-        ok: false,
-        result:
-          "get_messaging_threads returned 100 of 250 rows, so the analysis did not run on a partial set. The analysis code was not run.",
-      },
-    );
+    await expect(analyzeRecords(input, deps(threadTool(250)))).resolves.toEqual({
+      ok: false,
+      result:
+        "get_messaging_threads returned 100 of 250 rows, so the analysis did not run on a partial set. The analysis code was not run.",
+    });
     await expect(analyzeRecords(input, deps(threadTool(40)))).resolves.toEqual({
       ok: true,
       result: JSON.stringify({ rowsRead: 0, result: 40 }),
@@ -301,9 +280,7 @@ describe("analyze_records", () => {
         deps(tool, writer),
       );
       expect(outcome.ok).toBe(false);
-      expect(outcome.result).toContain(
-        `${name} is not a read-only workspace tool`,
-      );
+      expect(outcome.result).toContain(`${name} is not a read-only workspace tool`);
       expect(outcome.result).toContain("Readable tools: list_things.");
     }
     expect(execute).not.toHaveBeenCalled();
@@ -328,9 +305,7 @@ describe("analyze_records", () => {
         deps(tool, outside, unannotated),
       );
       expect(outcome.ok).toBe(false);
-      expect(outcome.result).toContain(
-        `${name} is not a read-only workspace tool`,
-      );
+      expect(outcome.result).toContain(`${name} is not a read-only workspace tool`);
       expect(outcome.result).toContain("Readable tools: list_things.");
     }
     expect(execute).not.toHaveBeenCalled();
@@ -364,11 +339,7 @@ describe("analyze_records", () => {
   });
 
   it("stops paging as soon as the data read passes 8 MB instead of holding every page first", async () => {
-    const { tool, execute } = listTool(
-      "list_things",
-      1_000,
-      "x".repeat(20_000),
-    );
+    const { tool, execute } = listTool("list_things", 1_000, "x".repeat(20_000));
     const pageChars = JSON.stringify(
       Array.from({ length: 100 }, (_, index) => ({
         id: `row-${index + 1}`,
@@ -389,10 +360,7 @@ describe("analyze_records", () => {
   });
 
   const large = "x".repeat(3_000_000);
-  const pagedRead = (
-    name: string,
-    content: Record<string, unknown>,
-  ): McpTool => ({
+  const pagedRead = (name: string, content: Record<string, unknown>): McpTool => ({
     name,
     title: name,
     description: name,
@@ -427,29 +395,18 @@ describe("analyze_records", () => {
       }),
       read("get_messaging_threads"),
     ],
-    [
-      "a grouped list",
-      pagedRead("list_grouped", { groups: [{ label: large, count: 1 }] }),
-      read("list_grouped"),
-    ],
-  ])(
-    "counts the data of %s toward the same 8 MB as the reads after it",
-    async (_, first, firstRead) => {
-      const { tool, execute } = listTool(
-        "list_things",
-        1_000,
-        "x".repeat(20_000),
-      );
+    ["a grouped list", pagedRead("list_grouped", { groups: [{ label: large, count: 1 }] }), read("list_grouped")],
+  ])("counts the data of %s toward the same 8 MB as the reads after it", async (_, first, firstRead) => {
+    const { tool, execute } = listTool("list_things", 1_000, "x".repeat(20_000));
 
-      const outcome = await analyzeRecords(
-        { reads: [firstRead, read("list_things")], code: "() => 1" },
-        deps(tool, first),
-      );
+    const outcome = await analyzeRecords(
+      { reads: [firstRead, read("list_things")], code: "() => 1" },
+      deps(tool, first),
+    );
 
-      expect(outcome).toEqual({ ok: false, result: TOO_MUCH_DATA });
-      expect(execute).toHaveBeenCalledTimes(3);
-    },
-  );
+    expect(outcome).toEqual({ ok: false, result: TOO_MUCH_DATA });
+    expect(execute).toHaveBeenCalledTimes(3);
+  });
 
   it("returns a bounded, explicitly paged summary when a row result exceeds one tool result", async () => {
     const { tool } = listTool("list_things", 250);
@@ -462,9 +419,7 @@ describe("analyze_records", () => {
       code: "(data) => data[0].items",
     };
     const whole = JSON.stringify({ rowsRead: 250, result: rows });
-    await expect(
-      analyzeRecords(input, { tools: [tool], resultMaxChars: whole.length }),
-    ).resolves.toEqual({
+    await expect(analyzeRecords(input, { tools: [tool], resultMaxChars: whole.length })).resolves.toEqual({
       ok: true,
       result: whole,
     });
@@ -493,11 +448,7 @@ describe("analyze_records", () => {
   });
 
   it.each([
-    [
-      "a result of eight million objects",
-      "(data) => Array(8e6).fill({})",
-      24_000_001,
-    ],
+    ["a result of eight million objects", "(data) => Array(8e6).fill({})", 24_000_001],
     [
       "a replaced JSON.stringify",
       "(data) => { JSON.stringify = () => '[' + '{},'.repeat(2e7) + '{}]'; return 0; }",
@@ -517,16 +468,10 @@ describe("analyze_records", () => {
         );
         const heapGrowth = process.memoryUsage().heapUsed - heapBefore;
 
-        expect(outcome).toEqual(
-          tooLarge('{"rowsRead":1,"result":}'.length + serializedChars, 6_000),
-        );
+        expect(outcome).toEqual(tooLarge('{"rowsRead":1,"result":}'.length + serializedChars, 6_000));
         expect(heapGrowth).toBeLessThan(16 * 1024 * 1024);
-        expect(longest(parse.mock.calls.map(([text]) => text))).toBeLessThan(
-          6_000,
-        );
-        expect(
-          longest(stringify.mock.results.map((result) => result.value)),
-        ).toBeLessThan(6_000);
+        expect(longest(parse.mock.calls.map(([text]) => text))).toBeLessThan(6_000);
+        expect(longest(stringify.mock.results.map((result) => result.value))).toBeLessThan(6_000);
       } finally {
         parse.mockRestore();
         stringify.mockRestore();
@@ -547,8 +492,7 @@ describe("analyze_records", () => {
       ),
     ).resolves.toEqual({
       ok: false,
-      result:
-        "The analysis code replaced JSON.stringify, so its result is not valid JSON.",
+      result: "The analysis code replaced JSON.stringify, so its result is not valid JSON.",
     });
     await expect(
       analyzeRecords(
@@ -571,16 +515,11 @@ describe("analyze_records", () => {
       code: "(data) => data[0].items.reduce((prev, row) => ({ id: row.id, prev }), null)",
     };
     let chain = "null";
-    for (let index = 1; index <= 10_000; index += 1)
-      chain = `{"id":"row-${index}","prev":${chain}}`;
+    for (let index = 1; index <= 10_000; index += 1) chain = `{"id":"row-${index}","prev":${chain}}`;
     const whole = `{"rowsRead":10000,"result":${chain}}`;
 
-    await expect(analyzeRecords(input, deps(tool))).resolves.toEqual(
-      tooLarge(whole.length, 6_000),
-    );
-    await expect(
-      analyzeRecords(input, { tools: [tool], resultMaxChars: whole.length }),
-    ).resolves.toEqual({
+    await expect(analyzeRecords(input, deps(tool))).resolves.toEqual(tooLarge(whole.length, 6_000));
+    await expect(analyzeRecords(input, { tools: [tool], resultMaxChars: whole.length })).resolves.toEqual({
       ok: true,
       result: whole,
     });
@@ -592,9 +531,7 @@ describe("analyze_records", () => {
       items: [{ id: "row-1" }],
       notes: "x".repeat(ANALYSIS_MAX_BYTES),
     });
-    expect(JSON.stringify([{ id: "row-1" }]).length).toBeLessThan(
-      ANALYSIS_MAX_BYTES,
-    );
+    expect(JSON.stringify([{ id: "row-1" }]).length).toBeLessThan(ANALYSIS_MAX_BYTES);
 
     await expect(
       analyzeRecords(
@@ -614,9 +551,7 @@ describe("analyze_records", () => {
     };
     const serialized = JSON.stringify(response);
     expect(serialized.length).toBeLessThan(ANALYSIS_MAX_BYTES);
-    expect(Buffer.byteLength(serialized, "utf8")).toBeGreaterThan(
-      ANALYSIS_MAX_BYTES,
-    );
+    expect(Buffer.byteLength(serialized, "utf8")).toBeGreaterThan(ANALYSIS_MAX_BYTES);
     const tool = pagedRead("list_things", response);
     await expect(
       analyzeRecords(
@@ -630,27 +565,16 @@ describe("analyze_records", () => {
   });
 
   it("accepts up to ten reads and states the limits it enforces", () => {
-    const reads = (count: number) =>
-      Array.from({ length: count }, () => read("list_things"));
-    expect(
-      AnalyzeRecordsSchema.safeParse({ reads: reads(10), code: "() => 1" })
-        .success,
-    ).toBe(true);
-    expect(
-      AnalyzeRecordsSchema.safeParse({ reads: reads(11), code: "() => 1" })
-        .success,
-    ).toBe(false);
+    const reads = (count: number) => Array.from({ length: count }, () => read("list_things"));
+    expect(AnalyzeRecordsSchema.safeParse({ reads: reads(10), code: "() => 1" }).success).toBe(true);
+    expect(AnalyzeRecordsSchema.safeParse({ reads: reads(11), code: "() => 1" }).success).toBe(false);
     expect(ANALYSIS_MAX_READS).toBe(10);
     expect(ANALYSIS_MAX_ROWS).toBe(10_000);
     expect(ANALYZE_RECORDS_DESCRIPTION).toContain(
       "up to 10 read-only workspace tool calls (never LinkedIn or social provider tools)",
     );
-    expect(ANALYZE_RECORDS_DESCRIPTION).toContain(
-      "up to 10,000 rows and 8 MB in total",
-    );
-    expect(AnalyzeRecordsSchema.shape.reads.description).toMatch(
-      /^One to 10 reads/,
-    );
+    expect(ANALYZE_RECORDS_DESCRIPTION).toContain("up to 10,000 rows and 8 MB in total");
+    expect(AnalyzeRecordsSchema.shape.reads.description).toMatch(/^One to 10 reads/);
   });
 
   it("runs async code over the reads and tells the model it may be async with nothing to await", async () => {
@@ -667,10 +591,7 @@ describe("analyze_records", () => {
       ok: true,
       result: JSON.stringify({ rowsRead: 3, result: [1, 2, 3] }),
     });
-    for (const text of [
-      ANALYZE_RECORDS_DESCRIPTION,
-      AnalyzeRecordsSchema.shape.code.description,
-    ]) {
+    for (const text of [ANALYZE_RECORDS_DESCRIPTION, AnalyzeRecordsSchema.shape.code.description]) {
       expect(text).not.toMatch(/synchronous|without async/);
       expect(text).toContain(
         "may be async, but there is nothing to await: tools cannot be called from the code, so every read goes in reads.",
@@ -681,23 +602,14 @@ describe("analyze_records", () => {
   it("stops on an unreadable input or a failed read, and reports a failing function", async () => {
     const { tool } = listTool("list_things", 3);
     await expect(
-      analyzeRecords(
-        { reads: [{ tool: "list_things", input: "{nope" }], code: "() => 1" },
-        deps(tool),
-      ),
+      analyzeRecords({ reads: [{ tool: "list_things", input: "{nope" }], code: "() => 1" }, deps(tool)),
     ).resolves.toEqual({
       ok: false,
-      result:
-        "The input for list_things is not valid JSON. The analysis code was not run.",
+      result: "The input for list_things is not valid JSON. The analysis code was not run.",
     });
-    const invalid = await analyzeRecords(
-      { reads: [read("get_detail", {})], code: "() => 1" },
-      deps(detail),
-    );
+    const invalid = await analyzeRecords({ reads: [read("get_detail", {})], code: "() => 1" }, deps(detail));
     expect(invalid.ok).toBe(false);
-    expect(invalid.result).toMatch(
-      /^get_detail: Validation error:.*The analysis code was not run\.$/s,
-    );
+    expect(invalid.result).toMatch(/^get_detail: Validation error:.*The analysis code was not run\.$/s);
     const failing = await analyzeRecords(
       { reads: [read("list_things")], code: "(data) => data.missing.length" },
       deps(tool),
@@ -778,11 +690,7 @@ describe("analyze_records", () => {
     listed.query.mockReset();
     const typeId = "00000000-0000-4000-8000-0000000000a1";
     const rows = Array.from({ length: 750 }, (_, index) =>
-      record(
-        typeId,
-        `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`,
-        [],
-      ),
+      record(typeId, `00000000-0000-4000-8000-${String(index).padStart(12, "0")}`, []),
     );
     listed.query.mockImplementation(pagedQuery(rows));
     const outcome = await analyzeRecords(
@@ -796,13 +704,7 @@ describe("analyze_records", () => {
       ok: true,
       result: JSON.stringify({ rowsRead: 750, result: [750, 750] }),
     });
-    expect(
-      listed.query.mock.calls.map(([input]) => [
-        input.page,
-        input.pageSize,
-        input.includeRelationships,
-      ]),
-    ).toEqual([
+    expect(listed.query.mock.calls.map(([input]) => [input.page, input.pageSize, input.includeRelationships])).toEqual([
       [1, 500, undefined],
       [2, 500, undefined],
     ]);
@@ -816,8 +718,7 @@ describe("analyze_records", () => {
     const taskStatus = "1336405e-b7d6-5f21-a683-4af722371c89";
     const open = "1171e71e-4f98-5ac3-9364-11fd1730c223";
     const done = "5d2c6f0e-3a51-5b8e-9c47-8e1f0a6b2d93";
-    const id = (prefix: string, index: number) =>
-      `00000000-0000-4000-${prefix}-${String(index).padStart(12, "0")}`;
+    const id = (prefix: string, index: number) => `00000000-0000-4000-${prefix}-${String(index).padStart(12, "0")}`;
     const tasks = Array.from({ length: 34 }, (_, index) =>
       record(taskType, id("8001", index + 1), [
         {
@@ -871,17 +772,14 @@ describe("analyze_records", () => {
         ],
       ),
     );
-    listed.query.mockImplementation(
-      (input: { typeId: string; page: number; pageSize: number }) =>
-        pagedQuery(input.typeId === dealType ? deals : tasks)(input),
+    listed.query.mockImplementation((input: { typeId: string; page: number; pageSize: number }) =>
+      pagedQuery(input.typeId === dealType ? deals : tasks)(input),
     );
     const reads = [
       read("query_crm_records", {
         typeId: dealType,
         fields: [amount],
-        includeRelationships: [
-          { relationId: dealTasks, direction: "outgoing", limit: 25 },
-        ],
+        includeRelationships: [{ relationId: dealTasks, direction: "outgoing", limit: 25 }],
       }),
       read("query_crm_records", { typeId: taskType, fields: [taskStatus] }),
     ];
@@ -898,9 +796,7 @@ describe("analyze_records", () => {
       "  return { unblockedCount, blockedCount, unblockedTotal };",
       "}",
     ].join("\n");
-    await expect(
-      analyzeRecords({ reads, code }, deps(queryRecordsV2Tool as McpTool)),
-    ).resolves.toEqual({
+    await expect(analyzeRecords({ reads, code }, deps(queryRecordsV2Tool as McpTool))).resolves.toEqual({
       ok: true,
       result: JSON.stringify({
         rowsRead: 94,
@@ -961,9 +857,7 @@ describe("analyze_records", () => {
       "hasMore is true holds only part of its links",
     ])
       expect(ANALYZE_RECORDS_DESCRIPTION).toContain(text);
-    expect(ANALYZE_RECORDS_DESCRIPTION).not.toMatch(
-      /list_records|get_record_schema|customFieldValues/,
-    );
+    expect(ANALYZE_RECORDS_DESCRIPTION).not.toMatch(/list_records|get_record_schema|customFieldValues/);
   });
 
   it("tells the code that Date is undefined and dates are ISO strings, and names only the months groupBy groups by", async () => {
@@ -973,15 +867,9 @@ describe("analyze_records", () => {
       expect(text).toContain("ISO strings to compare or slice as text");
       expect(text).toContain("value.slice(0, 7) for the month");
     }
-    expect(ANALYZE_RECORDS_DESCRIPTION).toContain(
-      "createdAt, updatedAt and date values are ISO strings",
-    );
-    expect(ANALYZE_RECORDS_DESCRIPTION).not.toContain(
-      "per status, owner or month",
-    );
-    expect(ANALYZE_RECORDS_DESCRIPTION).toContain(
-      "per status, owner, or created or updated month",
-    );
+    expect(ANALYZE_RECORDS_DESCRIPTION).toContain("createdAt, updatedAt and date values are ISO strings");
+    expect(ANALYZE_RECORDS_DESCRIPTION).not.toContain("per status, owner or month");
+    expect(ANALYZE_RECORDS_DESCRIPTION).toContain("per status, owner, or created or updated month");
 
     const dated = pagedRead("list_things", {
       total: 1,
@@ -1011,10 +899,7 @@ describe("analyze_records", () => {
       ["null", "must be a JSON object"],
     ]) {
       await expect(
-        analyzeRecords(
-          { reads: [{ tool: "list_things", input }], code: "() => 1" },
-          deps(tool),
-        ),
+        analyzeRecords({ reads: [{ tool: "list_things", input }], code: "() => 1" }, deps(tool)),
       ).resolves.toEqual({
         ok: false,
         result: `The input for list_things ${problem}. The analysis code was not run.`,
@@ -1027,25 +912,15 @@ describe("analyze_records", () => {
         reads: [{ tool: "list_things", input }],
         code: "() => 1",
       }).success;
-    expect(
-      [{ prefix: "A" }, '{"prefix":"A"}', undefined].map((input) =>
-        parses(input),
-      ),
-    ).toEqual([true, true, true]);
-    expect(
-      [[{ prefix: "A" }], 42, null, true].map((input) => parses(input)),
-    ).toEqual([false, false, false, false]);
+    expect([{ prefix: "A" }, '{"prefix":"A"}', undefined].map((input) => parses(input))).toEqual([true, true, true]);
+    expect([[{ prefix: "A" }], 42, null, true].map((input) => parses(input))).toEqual([false, false, false, false]);
   });
 });
 
 describe("analyze_records on a read that holds only part of its rows", () => {
   const NOT_RUN = "The analysis code was not run.";
 
-  function fixedRead(
-    name: string,
-    shape: z.ZodRawShape,
-    content: Record<string, unknown>,
-  ) {
+  function fixedRead(name: string, shape: z.ZodRawShape, content: Record<string, unknown>) {
     const execute = vi.fn(() => ({
       text: JSON.stringify(content),
       structuredContent: content,
@@ -1068,8 +943,7 @@ describe("analyze_records on a read that holds only part of its rows", () => {
       offset: z.number().optional(),
       limit: z.number().optional(),
     };
-    const comments = (count: number) =>
-      Array.from({ length: count }, (_, index) => ({ id: `comment-${index}` }));
+    const comments = (count: number) => Array.from({ length: count }, (_, index) => ({ id: `comment-${index}` }));
     const analyze = (tool: McpTool, input: Record<string, unknown>) =>
       analyzeRecords(
         {
@@ -1086,19 +960,10 @@ describe("analyze_records on a read that holds only part of its rows", () => {
       ok: false,
       result: `${name} returned ${rows} rows and more may follow, so the analysis did not run on a partial set. Call ${name} directly and page through it. ${NOT_RUN}`,
     });
-    function cappedRead(
-      name: string,
-      shape: z.ZodRawShape,
-      rows: number,
-      pageCap: number,
-    ) {
+    function cappedRead(name: string, shape: z.ZodRawShape, rows: number, pageCap: number) {
       const all = comments(rows);
       const capped = fixedRead(name, shape, {});
-      capped.execute.mockImplementation((({
-        offset = 0,
-      }: {
-        offset?: number;
-      }) => {
+      capped.execute.mockImplementation((({ offset = 0 }: { offset?: number }) => {
         const content = {
           next_cursor: null,
           items: all.slice(offset, offset + pageCap),
@@ -1129,15 +994,11 @@ describe("analyze_records on a read that holds only part of its rows", () => {
         items: comments(100),
       });
 
-      await expect(
-        analyze(engagement.tool, { postId: "post-1", limit: 100 }),
-      ).resolves.toEqual({
+      await expect(analyze(engagement.tool, { postId: "post-1", limit: 100 })).resolves.toEqual({
         ok: true,
         result: JSON.stringify({ rowsRead: 0, result: 12 }),
       });
-      await expect(
-        analyze(counted.tool, { postId: "post-1", limit: 100 }),
-      ).resolves.toEqual({
+      await expect(analyze(counted.tool, { postId: "post-1", limit: 100 })).resolves.toEqual({
         ok: true,
         result: JSON.stringify({ rowsRead: 0, result: 100 }),
       });
@@ -1163,29 +1024,23 @@ describe("analyze_records on a read that holds only part of its rows", () => {
         next_cursor: null,
         items: comments(100),
       });
-      const defaultLimit = fixedRead(
-        "linkedin_search_sales_leads",
-        cursorShape,
-        {
-          next_offset: 10,
-          items: comments(10),
-        },
-      );
+      const defaultLimit = fixedRead("linkedin_search_sales_leads", cursorShape, {
+        next_offset: 10,
+        items: comments(10),
+      });
       const counted = fixedRead("get_social_posts", cursorShape, {
         total: 40,
         next_cursor: null,
         items: comments(7),
       });
 
-      await expect(
-        analyze(cursored.tool, { postId: "post-1", limit: 100 }),
-      ).resolves.toEqual(pageThrough("get_social_post_engagement", 12));
-      await expect(
-        analyze(full.tool, { postId: "post-1", limit: 100 }),
-      ).resolves.toEqual(pageThrough("get_social_post_engagement", 100));
-      await expect(analyze(defaultLimit.tool, {})).resolves.toEqual(
-        morePossible("linkedin_search_sales_leads", 10),
+      await expect(analyze(cursored.tool, { postId: "post-1", limit: 100 })).resolves.toEqual(
+        pageThrough("get_social_post_engagement", 12),
       );
+      await expect(analyze(full.tool, { postId: "post-1", limit: 100 })).resolves.toEqual(
+        pageThrough("get_social_post_engagement", 100),
+      );
+      await expect(analyze(defaultLimit.tool, {})).resolves.toEqual(morePossible("linkedin_search_sales_leads", 10));
       expect(full.execute).toHaveBeenLastCalledWith({
         postId: "post-1",
         offset: 100,
@@ -1202,24 +1057,9 @@ describe("analyze_records on a read that holds only part of its rows", () => {
     });
 
     it("reads past a short page without a total, and runs only when that read comes back empty", async () => {
-      const whole = cappedRead(
-        "get_social_post_engagement",
-        cursorShape,
-        50,
-        50,
-      );
-      const capped = cappedRead(
-        "get_social_post_engagement",
-        cursorShape,
-        180,
-        50,
-      );
-      const empty = cappedRead(
-        "get_social_post_engagement",
-        cursorShape,
-        0,
-        50,
-      );
+      const whole = cappedRead("get_social_post_engagement", cursorShape, 50, 50);
+      const capped = cappedRead("get_social_post_engagement", cursorShape, 180, 50);
+      const empty = cappedRead("get_social_post_engagement", cursorShape, 0, 50);
       const totalled = {
         code: "(data) => ({ total: data[0].total, rows: data[0].items.length })",
       };
@@ -1243,14 +1083,11 @@ describe("analyze_records on a read that holds only part of its rows", () => {
         [{ postId: "post-1", limit: 100 }],
         [{ postId: "post-1", offset: 50, limit: 100 }],
       ]);
+      await expect(analyze(capped.tool, { postId: "post-1", limit: 100 })).resolves.toEqual(
+        pageThrough("get_social_post_engagement", 50),
+      );
       await expect(
-        analyze(capped.tool, { postId: "post-1", limit: 100 }),
-      ).resolves.toEqual(pageThrough("get_social_post_engagement", 50));
-      await expect(
-        analyzeRecords(
-          { reads: [read(empty.tool.name, { postId: "post-1" })], ...totalled },
-          deps(empty.tool),
-        ),
+        analyzeRecords({ reads: [read(empty.tool.name, { postId: "post-1" })], ...totalled }, deps(empty.tool)),
       ).resolves.toEqual({
         ok: true,
         result: JSON.stringify({ rowsRead: 0, result: { total: 0, rows: 0 } }),
@@ -1278,9 +1115,9 @@ describe("analyze_records on a read that holds only part of its rows", () => {
             }
           : "Validation error: authorIdentifier is required with offset.") as never);
 
-      await expect(
-        analyze(cursorOnly.tool, { postId: "post-1", limit: 100 }),
-      ).resolves.toEqual(pageThrough("get_social_post_engagement", 50));
+      await expect(analyze(cursorOnly.tool, { postId: "post-1", limit: 100 })).resolves.toEqual(
+        pageThrough("get_social_post_engagement", 50),
+      );
       expect(cursorOnly.execute).toHaveBeenCalledOnce();
       await expect(analyze(failing.tool, { limit: 100 })).resolves.toEqual({
         ok: false,
@@ -1302,9 +1139,7 @@ describe("analyze_records on a read that holds only part of its rows", () => {
       };
 
       expect(getSocialPostEngagementTool.annotations.openWorldHint).toBe(true);
-      await expect(
-        analyzeRecords(engagement, deps(getSocialPostEngagementTool)),
-      ).resolves.toEqual({
+      await expect(analyzeRecords(engagement, deps(getSocialPostEngagementTool))).resolves.toEqual({
         ok: false,
         result: `${getSocialPostEngagementTool.name} is not a read-only workspace tool this analysis can call. Nothing was run. Readable tools: .`,
       });
@@ -1312,15 +1147,11 @@ describe("analyze_records on a read that holds only part of its rows", () => {
     });
 
     it("refuses a read that starts past the first page before it runs", async () => {
-      const { tool, execute } = fixedRead(
-        "get_social_post_engagement",
-        cursorShape,
-        {
-          total: 3,
-          next_cursor: null,
-          items: comments(3),
-        },
-      );
+      const { tool, execute } = fixedRead("get_social_post_engagement", cursorShape, {
+        total: 3,
+        next_cursor: null,
+        items: comments(3),
+      });
 
       for (const [input, name] of [
         [{ postId: "post-1", cursor: "cursor-2" }, "cursor"],
@@ -1366,26 +1197,18 @@ describe("analyze_records on a read that holds only part of its rows", () => {
       { searchTerm: z.string().optional() },
       {
         searchTerm: "Atlas",
-        results: [
-          { entity: "deal", total: 2, items: [{ id: "a" }, { id: "b" }] },
-        ],
+        results: [{ entity: "deal", total: 2, items: [{ id: "a" }, { id: "b" }] }],
       },
     );
 
+    await expect(analyzeRecords({ reads: [read("get_things")], code: "(data) => 1" }, deps(top.tool))).resolves.toEqual(
+      {
+        ok: false,
+        result: `get_things returned 10 of 2500 rows, so the analysis did not run on a partial set. ${NOT_RUN}`,
+      },
+    );
     await expect(
-      analyzeRecords(
-        { reads: [read("get_things")], code: "(data) => 1" },
-        deps(top.tool),
-      ),
-    ).resolves.toEqual({
-      ok: false,
-      result: `get_things returned 10 of 2500 rows, so the analysis did not run on a partial set. ${NOT_RUN}`,
-    });
-    await expect(
-      analyzeRecords(
-        { reads: [read("search_records")], code: "(data) => 1" },
-        deps(nested.tool),
-      ),
+      analyzeRecords({ reads: [read("search_records")], code: "(data) => 1" }, deps(nested.tool)),
     ).resolves.toEqual({
       ok: false,
       result: `search_records returned 5 of 300 rows, so the analysis did not run on a partial set. ${NOT_RUN}`,
@@ -1407,10 +1230,7 @@ describe("analyze_records on a read that holds only part of its rows", () => {
   it("refuses a grouped query_crm_records read that holds only part of some groups, and takes a complete one", async () => {
     listed.query.mockReset();
     const typeId = "00000000-0000-4000-8000-0000000000d3";
-    const group = (
-      index: number,
-      partial: { hasMore?: boolean; materialised?: boolean } = {},
-    ) => ({
+    const group = (index: number, partial: { hasMore?: boolean; materialised?: boolean } = {}) => ({
       key: `value:${index}`,
       count: 3,
       labelKind: "value",
@@ -1472,22 +1292,20 @@ describe("analyze_records on a read that holds only part of its rows", () => {
   });
 
   it("refuses an activity read that left out every contact source because its scope reached too many contacts", async () => {
-    const execute = vi.fn(
-      ({ page, pageSize }: { page: number; pageSize: number }) => {
-        const payload = {
-          total: 30,
-          page,
-          pageSize,
-          items: Array.from({ length: 30 }, (_, index) => ({
-            id: `audit-${index}`,
-            kind: "audit",
-          })),
-          pageLimitReached: false,
-          scopeTruncated: true,
-        };
-        return { text: JSON.stringify(payload), structuredContent: payload };
-      },
-    );
+    const execute = vi.fn(({ page, pageSize }: { page: number; pageSize: number }) => {
+      const payload = {
+        total: 30,
+        page,
+        pageSize,
+        items: Array.from({ length: 30 }, (_, index) => ({
+          id: `audit-${index}`,
+          kind: "audit",
+        })),
+        pageLimitReached: false,
+        scopeTruncated: true,
+      };
+      return { text: JSON.stringify(payload), structuredContent: payload };
+    });
     const activities: McpTool = {
       name: "get_activities",
       title: "activities",
@@ -1559,20 +1377,18 @@ describe("analyze_records on a read that holds only part of its rows", () => {
   });
 
   it("refuses a read that reports its page limit on a later page", async () => {
-    const execute = vi.fn(
-      ({ page, pageSize }: { page: number; pageSize: number }) => {
-        const payload = {
-          total: 300,
-          page,
-          pageSize,
-          items: Array.from({ length: pageSize }, (_, index) => ({
-            id: `${page}-${index}`,
-          })),
-          pageLimitReached: page >= 2,
-        };
-        return { text: JSON.stringify(payload), structuredContent: payload };
-      },
-    );
+    const execute = vi.fn(({ page, pageSize }: { page: number; pageSize: number }) => {
+      const payload = {
+        total: 300,
+        page,
+        pageSize,
+        items: Array.from({ length: pageSize }, (_, index) => ({
+          id: `${page}-${index}`,
+        })),
+        pageLimitReached: page >= 2,
+      };
+      return { text: JSON.stringify(payload), structuredContent: payload };
+    });
     const tool: McpTool = {
       name: "get_activities",
       title: "activities",
@@ -1585,12 +1401,7 @@ describe("analyze_records on a read that holds only part of its rows", () => {
       execute: execute as never,
     };
 
-    await expect(
-      analyzeRecords(
-        { reads: [read("get_activities")], code: "() => 1" },
-        deps(tool),
-      ),
-    ).resolves.toEqual({
+    await expect(analyzeRecords({ reads: [read("get_activities")], code: "() => 1" }, deps(tool))).resolves.toEqual({
       ok: false,
       result: `get_activities stopped at its page limit before every row was read. Narrow its filters. ${NOT_RUN}`,
     });
@@ -1598,8 +1409,6 @@ describe("analyze_records on a read that holds only part of its rows", () => {
   });
 
   it("tells the code that calculated, restricted, missing and failed values are distinct states", () => {
-    expect(ANALYZE_RECORDS_DESCRIPTION).toContain(
-      "or a missing, restricted or error state",
-    );
+    expect(ANALYZE_RECORDS_DESCRIPTION).toContain("or a missing, restricted or error state");
   });
 });

@@ -6,45 +6,23 @@ import { Check, ChevronDown, Copy, Loader2, Square, X } from "lucide-react";
 
 import type { AgentChatItem } from "./agent-chat.store";
 
-import {
-  agentActivityCopy,
-  agentActivityGroupSummary,
-} from "@/ee/agent-chat/agent-activity";
+import { agentActivityCopy, agentActivityGroupSummary } from "@/ee/agent-chat/agent-activity";
 
 import { useActivityGroupState } from "./use-activity-group-state";
 import { useSteadyLabel } from "./use-steady-label";
-import {
-  useAgentChatStore,
-  useAgentChatUiTargets,
-} from "./agent-chat-store-context";
+import { useAgentChatStore, useAgentChatUiTargets } from "./agent-chat-store-context";
 import { useCopyToClipboard } from "@/core/utils/use-copy-to-clipboard";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { Alert } from "@/components/shared/alert";
 import { Button } from "@/components/ui/button";
 import { AppLink } from "@/components/shared/app-link";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { MessageResponse } from "@/components/ai-elements/message";
-import {
-  agentMessageComponents,
-  agentMessageRehypePlugins,
-} from "./agent-message-links";
+import { agentMessageComponents, agentMessageRehypePlugins } from "./agent-message-links";
 import { cn } from "@/core/utils/cn";
-import {
-  ITEM_REVEAL_CLASS,
-  ITEM_REVEAL_GROUP_CLASS,
-} from "@/components/ui/item-actions";
+import { ITEM_REVEAL_CLASS, ITEM_REVEAL_GROUP_CLASS } from "@/components/ui/item-actions";
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
-import {
-  ActionTooltip,
-  ItemTime,
-  TypingDots,
-  chatUiCopy,
-  focusAgentComposer,
-} from "./chat-ui";
+import { ActionTooltip, ItemTime, TypingDots, chatUiCopy, focusAgentComposer } from "./chat-ui";
 import { AgentComposerContexts } from "./agent-composer-contexts";
 
 export const AgentChatItemView = observer(function AgentChatItemView({
@@ -65,20 +43,14 @@ export const AgentChatItemView = observer(function AgentChatItemView({
     decision: "approve" | "reject",
   ) => {
     await store.respondToApproval(approval, decision);
-    if (approval.submittedDecision || approval.resolution)
-      focusAgentComposer(uiTargets);
+    if (approval.submittedDecision || approval.resolution) focusAgentComposer(uiTargets);
   };
 
   if (item.kind === "user") {
     return (
-      <article
-        aria-label={userLabel ?? t("Inbox.senderYou")}
-        className="flex justify-end"
-      >
+      <article aria-label={userLabel ?? t("Inbox.senderYou")} className="flex justify-end">
         <div className="flex max-w-[85%] flex-col items-end gap-1">
-          {userLabel && (
-            <span className="text-subdued text-xs">{userLabel}</span>
-          )}
+          {userLabel && <span className="text-subdued text-xs">{userLabel}</span>}
 
           <div className="w-fit min-w-16 max-w-full rounded-xl rounded-br-md bg-muted px-3.5 py-2 text-sm leading-5 shadow-xs dark:bg-accent/60">
             <AgentComposerContexts contexts={item.contexts ?? []} />
@@ -94,10 +66,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
 
   if (item.kind === "assistant") {
     return (
-      <article
-        aria-label={t("AgentChat.title")}
-        className={cn(ITEM_REVEAL_GROUP_CLASS, "flex flex-col gap-1.5")}
-      >
+      <article aria-label={t("AgentChat.title")} className={cn(ITEM_REVEAL_GROUP_CLASS, "flex flex-col gap-1.5")}>
         <div className="flex min-w-0 flex-col items-start gap-1.5">
           <div className="w-full text-sm leading-relaxed [&_pre]:overflow-x-auto">
             <MessageResponse
@@ -114,10 +83,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
             <ActionTooltip label={t("Common.actions.copy")}>
               <Button
                 aria-label={t("Common.actions.copy")}
-                className={cn(
-                  ITEM_REVEAL_CLASS,
-                  "size-7 text-muted-foreground",
-                )}
+                className={cn(ITEM_REVEAL_CLASS, "size-7 text-muted-foreground")}
                 size="icon"
                 variant="ghost"
                 onClick={() => runUserAction(() => copyToClipboard(item.text))}
@@ -135,11 +101,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
 
   if (item.kind === "turn_interrupted") {
     return (
-      <Alert
-        color="warning"
-        data-testid="agent-turn-interrupted"
-        description={t("AgentChat.ui.turnInterrupted")}
-      />
+      <Alert color="warning" data-testid="agent-turn-interrupted" description={t("AgentChat.ui.turnInterrupted")} />
     );
   }
 
@@ -150,11 +112,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
         {!readOnly && (
           <Button
             className="mt-2"
-            disabled={
-              store.isWorking ||
-              Boolean(store.usage?.blockedReason) ||
-              !store.canRetryFailedTurn(item)
-            }
+            disabled={store.isWorking || Boolean(store.usage?.blockedReason) || !store.canRetryFailedTurn(item)}
             size="sm"
             variant="secondary"
             onClick={() => {
@@ -172,24 +130,15 @@ export const AgentChatItemView = observer(function AgentChatItemView({
   const copy = agentActivityCopy(item.activity, t);
 
   return (
-    <div
-      className="rounded-2xl border px-4 py-3.5 text-sm"
-      data-testid="agent-approval"
-    >
-      <p className="text-xs font-medium text-muted-foreground">
-        {t("AgentChat.approval.title")}
-      </p>
+    <div className="rounded-2xl border px-4 py-3.5 text-sm" data-testid="agent-approval">
+      <p className="text-xs font-medium text-muted-foreground">{t("AgentChat.approval.title")}</p>
 
       <p className="mt-1 font-medium">{copy.approval}</p>
 
-      {item.activity.consequence && copy.detail && (
-        <p className="mt-1 text-xs text-muted-foreground">{copy.detail}</p>
-      )}
+      {item.activity.consequence && copy.detail && <p className="mt-1 text-xs text-muted-foreground">{copy.detail}</p>}
 
       {item.resolution ? (
-        <p className="mt-3 text-xs text-muted-foreground">
-          {t(`AgentChat.approval.${item.resolution}`)}
-        </p>
+        <p className="mt-3 text-xs text-muted-foreground">{t(`AgentChat.approval.${item.resolution}`)}</p>
       ) : item.submittedDecision ? (
         <p className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
           <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
@@ -198,45 +147,28 @@ export const AgentChatItemView = observer(function AgentChatItemView({
         </p>
       ) : readOnly ? null : (
         <div className="mt-3 space-y-2">
-          {item.retryDecision && (
-            <p className="text-xs text-muted-foreground">
-              {t("AgentChat.approval.retryResume")}
-            </p>
-          )}
+          {item.retryDecision && <p className="text-xs text-muted-foreground">{t("AgentChat.approval.retryResume")}</p>}
 
           <div className="flex flex-wrap items-center gap-2">
             <Button
               aria-busy={item.pendingDecision === "approve"}
-              disabled={
-                Boolean(item.pendingDecision) || item.retryDecision === "reject"
-              }
+              disabled={Boolean(item.pendingDecision) || item.retryDecision === "reject"}
               size="sm"
-              onClick={() =>
-                runUserAction(() => decideApproval(item, "approve"))
-              }
+              onClick={() => runUserAction(() => decideApproval(item, "approve"))}
             >
-              {item.pendingDecision === "approve" && (
-                <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
-              )}
+              {item.pendingDecision === "approve" && <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />}
 
               {t("AgentChat.approval.approveOnceAction")}
             </Button>
 
             <Button
               aria-busy={item.pendingDecision === "reject"}
-              disabled={
-                Boolean(item.pendingDecision) ||
-                item.retryDecision === "approve"
-              }
+              disabled={Boolean(item.pendingDecision) || item.retryDecision === "approve"}
               size="sm"
               variant="ghost"
-              onClick={() =>
-                runUserAction(() => decideApproval(item, "reject"))
-              }
+              onClick={() => runUserAction(() => decideApproval(item, "reject"))}
             >
-              {item.pendingDecision === "reject" && (
-                <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />
-              )}
+              {item.pendingDecision === "reject" && <Loader2 aria-hidden="true" className="size-3.5 animate-spin" />}
 
               {t("AgentChat.approval.rejectAction")}
             </Button>
@@ -247,10 +179,7 @@ export const AgentChatItemView = observer(function AgentChatItemView({
   );
 });
 
-export function consecutiveActivityItems(
-  items: AgentChatItem[],
-  start: number,
-) {
+export function consecutiveActivityItems(items: AgentChatItem[], start: number) {
   const activities: Extract<AgentChatItem, { kind: "activity" }>[] = [];
   for (let index = start; index < items.length; index += 1) {
     const item = items[index];
@@ -260,11 +189,7 @@ export function consecutiveActivityItems(
   return activities;
 }
 
-export function isWorkingActivityGroup(
-  items: AgentChatItem[],
-  start: number,
-  isWorking: boolean,
-) {
+export function isWorkingActivityGroup(items: AgentChatItem[], start: number, isWorking: boolean) {
   if (!isWorking) return false;
   return start > items.findLastIndex((item) => item.kind === "user");
 }
@@ -343,29 +268,20 @@ export const AgentActivity = observer(function AgentActivity({
           rows.map((item) => item.status),
           t,
         );
-  const runningItem = items.findLast(
-    (item) =>
-      item.status === "running" || (isRecovering && item.status === "error"),
-  );
-  const runningLabel = runningItem
-    ? agentActivityCopy(runningItem.activity, t).running
-    : uiCopy.thinking;
+  const runningItem = items.findLast((item) => item.status === "running" || (isRecovering && item.status === "error"));
+  const runningLabel = runningItem ? agentActivityCopy(runningItem.activity, t).running : uiCopy.thinking;
   const liveSummary =
     hasDetails && !hasError && !hasCancelled && elapsedSeconds !== null
       ? uiCopy.stepsTook(rows.length, elapsedSeconds)
       : settledSummary;
   const summary = useSteadyLabel(isActive ? runningLabel : liveSummary);
   const viewActivity = items.findLast((item) => {
-    if (item.status !== "done" || item.activity.kind !== "views.configure")
-      return false;
+    if (item.status !== "done" || item.activity.kind !== "views.configure") return false;
     return dataViewNavigationHref(item.activity.viewHref) !== null;
   })?.activity;
   const viewHref = viewActivity?.viewHref;
   const statusIcon = isActive ? (
-    <Loader2
-      aria-hidden="true"
-      className="size-3.5 animate-spin motion-reduce:animate-none"
-    />
+    <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" />
   ) : hasError ? (
     <X aria-hidden="true" className="size-3.5 text-destructive" />
   ) : hasCancelled ? (
@@ -375,13 +291,7 @@ export const AgentActivity = observer(function AgentActivity({
   );
 
   return (
-    <Collapsible
-      aria-live="off"
-      className="group py-1"
-      data-testid="agent-activity"
-      open={open}
-      onOpenChange={setOpen}
-    >
+    <Collapsible aria-live="off" className="group py-1" data-testid="agent-activity" open={open} onOpenChange={setOpen}>
       <div className="flex items-center gap-1">
         {hasDetails ? (
           <CollapsibleTrigger asChild>
@@ -391,9 +301,7 @@ export const AgentActivity = observer(function AgentActivity({
             >
               {statusIcon}
 
-              <span className="min-w-0 flex-1 text-left [overflow-wrap:anywhere]">
-                {summary}
-              </span>
+              <span className="min-w-0 flex-1 text-left [overflow-wrap:anywhere]">{summary}</span>
 
               <ChevronDown
                 aria-hidden="true"
@@ -410,18 +318,14 @@ export const AgentActivity = observer(function AgentActivity({
           >
             {statusIcon}
 
-            <span className="min-w-0 flex-1 text-left [overflow-wrap:anywhere]">
-              {summary}
-            </span>
+            <span className="min-w-0 flex-1 text-left [overflow-wrap:anywhere]">{summary}</span>
           </div>
         )}
 
         {viewHref && (
           <Button asChild size="xs" variant="ghost">
             <AppLink appearance="unstyled" href={viewHref}>
-              {viewActivity?.viewProposed
-                ? t("AgentChat.reviewProposal")
-                : t("AgentChat.openSavedView")}
+              {viewActivity?.viewProposed ? t("AgentChat.reviewProposal") : t("AgentChat.openSavedView")}
             </AppLink>
           </Button>
         )}
@@ -431,8 +335,7 @@ export const AgentActivity = observer(function AgentActivity({
         <CollapsibleContent className="mt-3 space-y-3 pl-4 [&>*]:fade-in-0 [&>*]:slide-in-from-top-2 [&>*]:animate-in [&>*]:duration-300 [&>*]:motion-reduce:animate-none">
           {rows.map((item) => {
             const copy = activityCopy(item);
-            const status =
-              isRecovering && item.status === "error" ? "running" : item.status;
+            const status = isRecovering && item.status === "error" ? "running" : item.status;
             const label =
               status === "running"
                 ? copy.running
@@ -461,20 +364,12 @@ export const AgentActivity = observer(function AgentActivity({
                 ) : status === "error" ? (
                   <X aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
                 ) : status === "cancelled" ? (
-                  <Square
-                    aria-hidden="true"
-                    className="mt-0.5 size-3.5 shrink-0"
-                  />
+                  <Square aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
                 ) : (
-                  <Check
-                    aria-hidden="true"
-                    className="mt-0.5 size-3.5 shrink-0"
-                  />
+                  <Check aria-hidden="true" className="mt-0.5 size-3.5 shrink-0" />
                 )}
 
-                <span className="min-w-0 [overflow-wrap:anywhere]">
-                  {label}
-                </span>
+                <span className="min-w-0 [overflow-wrap:anywhere]">{label}</span>
               </div>
             );
           })}

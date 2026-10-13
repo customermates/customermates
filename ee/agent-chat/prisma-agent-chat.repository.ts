@@ -29,28 +29,16 @@ import type { AgentUsageRepo } from "@/ee/agent-chat/agent-usage.repo";
 import type { GetWikiSuggestionSignalRepo } from "@/features/wiki/get-wiki-suggestion-signal.repo";
 import type { RoutineConversationPurgeRepo } from "@/ee/routines/routine-conversation-purge.repo";
 import type { RoutineRunLinkRepo } from "./routine-run-link.repo";
-import {
-  AGENT_CONVERSATION_PAGE_SIZE,
-  AGENT_MESSAGE_PAGE_SIZE,
-  type AgentConversationPage,
-} from "./agent-history";
+import { AGENT_CONVERSATION_PAGE_SIZE, AGENT_MESSAGE_PAGE_SIZE, type AgentConversationPage } from "./agent-history";
 import { AGENT_MAX_CONCURRENT_RUNS_PER_USER } from "./agent-run-limits";
-import {
-  clientSafeAgentMessageParts,
-  hasRenderableAgentMessageParts,
-  partsToText,
-} from "./agent-chat.schema";
+import { clientSafeAgentMessageParts, hasRenderableAgentMessageParts, partsToText } from "./agent-chat.schema";
 import type { AgentContextAttachment } from "./agent-context";
 import {
   isPendingAgentApprovalToolName,
   parsePendingAgentApprovalToolName,
   pendingAgentApprovalToolName,
 } from "./agent-approval";
-import {
-  agentPlainTextPreview,
-  sanitizeAgentConversationTitle,
-  sanitizeAgentVisibleText,
-} from "./agent-output-safety";
+import { agentPlainTextPreview, sanitizeAgentConversationTitle, sanitizeAgentVisibleText } from "./agent-output-safety";
 import {
   areAgentTurnAffectedResources,
   AGENT_RUN_LEASE_MS,
@@ -70,10 +58,7 @@ import {
   resolveAgentCreditEntitlement,
   workspaceIndexingShareMicrocents,
 } from "./agent-credit-policy";
-import {
-  isAgentTurnClassifierTrace,
-  type AgentTurnClassifierTrace,
-} from "./agent-classifier-trace";
+import { isAgentTurnClassifierTrace, type AgentTurnClassifierTrace } from "./agent-classifier-trace";
 import { LIVE_WIDGET } from "@/features/widget/live-widget";
 
 type StoredAgentTurnRow = {
@@ -160,12 +145,7 @@ type AgentTurnAdmissionArgs = {
       };
 };
 
-const TURN_STATUSES = new Set<AgentTurnRequestStatus>([
-  "running",
-  "completed",
-  "failed",
-  "uncertain",
-]);
+const TURN_STATUSES = new Set<AgentTurnRequestStatus>(["running", "completed", "failed", "uncertain"]);
 const TERMINAL_ROUTINE_RUN_STATUSES = [
   RoutineRunStatus.succeeded,
   RoutineRunStatus.partial,
@@ -175,28 +155,17 @@ const TERMINAL_ROUTINE_RUN_STATUSES = [
 ] as const;
 
 function encodeConversationCursor(updatedAt: Date, id: string) {
-  return Buffer.from(
-    JSON.stringify({ updatedAt: updatedAt.toISOString(), id }),
-    "utf8",
-  ).toString("base64url");
+  return Buffer.from(JSON.stringify({ updatedAt: updatedAt.toISOString(), id }), "utf8").toString("base64url");
 }
 
 function decodeConversationCursor(cursor: string) {
   try {
-    const value = JSON.parse(
-      Buffer.from(cursor, "base64url").toString("utf8"),
-    ) as {
+    const value = JSON.parse(Buffer.from(cursor, "base64url").toString("utf8")) as {
       updatedAt?: unknown;
       id?: unknown;
     };
-    const updatedAt =
-      typeof value.updatedAt === "string" ? new Date(value.updatedAt) : null;
-    if (
-      !updatedAt ||
-      !Number.isFinite(updatedAt.getTime()) ||
-      typeof value.id !== "string" ||
-      !value.id
-    )
+    const updatedAt = typeof value.updatedAt === "string" ? new Date(value.updatedAt) : null;
+    if (!updatedAt || !Number.isFinite(updatedAt.getTime()) || typeof value.id !== "string" || !value.id)
       throw new Error();
     return { updatedAt, id: value.id };
   } catch {
@@ -205,16 +174,12 @@ function decodeConversationCursor(cursor: string) {
 }
 
 function turnStatus(value: string): AgentTurnRequestStatus {
-  if (!TURN_STATUSES.has(value as AgentTurnRequestStatus))
-    throw new Error("Stored agent turn status is invalid.");
+  if (!TURN_STATUSES.has(value as AgentTurnRequestStatus)) throw new Error("Stored agent turn status is invalid.");
   return value as AgentTurnRequestStatus;
 }
 
 function assertTurnDate(value: Date | null, description: string) {
-  if (
-    value !== null &&
-    (!(value instanceof Date) || !Number.isFinite(value.getTime()))
-  )
+  if (value !== null && (!(value instanceof Date) || !Number.isFinite(value.getTime())))
     throw new Error(`${description} is invalid.`);
 }
 
@@ -235,33 +200,20 @@ function sumCommittedAgentMicrocents(
   for (const event of events) {
     const microcents =
       event.state === "reserved" || event.state === "retained"
-        ? agentMicrocentsFromStorage(
-            event.reservedMicrocents,
-            "Stored AI credit usage",
-          )
-        : agentMicrocentsFromStorage(
-            event.chargedMicrocents,
-            "Stored AI credit usage",
-          );
+        ? agentMicrocentsFromStorage(event.reservedMicrocents, "Stored AI credit usage")
+        : agentMicrocentsFromStorage(event.chargedMicrocents, "Stored AI credit usage");
     if (microcents < 0) throw new Error("Stored AI credit usage is invalid.");
     total += microcents;
-    if (!Number.isSafeInteger(total))
-      throw new Error("Stored AI credit usage total is invalid.");
+    if (!Number.isSafeInteger(total)) throw new Error("Stored AI credit usage total is invalid.");
   }
   return total;
 }
 
-function sumAdjustmentMicrocents(
-  rows: Array<{ deltaMicrocents: bigint }>,
-): number {
+function sumAdjustmentMicrocents(rows: Array<{ deltaMicrocents: bigint }>): number {
   let total = 0;
   for (const row of rows) {
-    total += agentMicrocentsFromStorage(
-      row.deltaMicrocents,
-      "Stored AI credit adjustment",
-    );
-    if (!Number.isSafeInteger(total))
-      throw new Error("Stored AI credit adjustment total is invalid.");
+    total += agentMicrocentsFromStorage(row.deltaMicrocents, "Stored AI credit adjustment");
+    if (!Number.isSafeInteger(total)) throw new Error("Stored AI credit adjustment total is invalid.");
   }
   return total;
 }
@@ -272,10 +224,7 @@ export type AgentUsageReservationExtension =
   | { disposition: "hosted_ai_unavailable" }
   | { disposition: "turn_error" };
 
-export class PrismaAgentChatRepo
-  extends TenantRepository
-  implements AgentUsageRepo, RoutineConversationPurgeRepo
-{
+export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageRepo, RoutineConversationPurgeRepo {
   constructor(
     private readonly wikiSuggestions: GetWikiSuggestionSignalRepo,
     private readonly permissions: PermissionService,
@@ -284,10 +233,7 @@ export class PrismaAgentChatRepo
     super();
   }
 
-  private async resolveCurrentAgentCreditEntitlement(
-    user: AgentUsageUser,
-    now: Date,
-  ) {
+  private async resolveCurrentAgentCreditEntitlement(user: AgentUsageUser, now: Date) {
     if (!user.subscription) return null;
 
     const input = {
@@ -295,8 +241,7 @@ export class PrismaAgentChatRepo
       plan: user.subscription.plan,
       status: user.subscription.status,
       trialEndDate: user.subscription.trialEndDate,
-      creditAnchorAt:
-        user.subscription.agentCreditAnchorAt ?? user.subscription.createdAt,
+      creditAnchorAt: user.subscription.agentCreditAnchorAt ?? user.subscription.createdAt,
       enterpriseCreditsPerUser: user.subscription.enterpriseAgentCreditsPerUser,
       activeSeatAt: user.agentCreditActivatedAt,
       now,
@@ -320,14 +265,10 @@ export class PrismaAgentChatRepo
     if (!env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED) return true;
 
     const additionalReservedMicrocents = args.additionalReservedMicrocents ?? 0;
-    if (
-      !Number.isSafeInteger(additionalReservedMicrocents) ||
-      additionalReservedMicrocents < 0
-    )
+    if (!Number.isSafeInteger(additionalReservedMicrocents) || additionalReservedMicrocents < 0)
       throw new Error("Hosted AI global reservation amount is invalid.");
 
-    const monthlySpendCapMicrocents =
-      env.HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS;
+    const monthlySpendCapMicrocents = env.HOSTED_AI_MONTHLY_SPEND_CAP_MICROCENTS;
     if (monthlySpendCapMicrocents === null) return false;
     if (env.HOSTED_AI_PROVIDER_WORK_PAUSED) return false;
 
@@ -335,18 +276,12 @@ export class PrismaAgentChatRepo
       .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended('customermates:hosted-ai-global-admission', 0))`;
 
     await this.settleStalePlatformReservations({
-      reservedBefore: new Date(
-        args.now.getTime() - AGENT_RETRIEVAL_RESERVATION_TTL_MS,
-      ),
+      reservedBefore: new Date(args.now.getTime() - AGENT_RETRIEVAL_RESERVATION_TTL_MS),
       now: args.now,
     });
 
-    const monthStart = new Date(
-      Date.UTC(args.now.getUTCFullYear(), args.now.getUTCMonth(), 1),
-    );
-    const monthEnd = new Date(
-      Date.UTC(args.now.getUTCFullYear(), args.now.getUTCMonth() + 1, 1),
-    );
+    const monthStart = new Date(Date.UTC(args.now.getUTCFullYear(), args.now.getUTCMonth(), 1));
+    const monthEnd = new Date(Date.UTC(args.now.getUTCFullYear(), args.now.getUTCMonth() + 1, 1));
     const excludeReservationId = args.excludeReservationId ?? null;
     const commitments = await this.prisma.$queryRaw<HostedAiGlobalCommitment[]>`
       SELECT
@@ -381,15 +316,11 @@ export class PrismaAgentChatRepo
         OR "state" IN ('reserved', 'retained')
     `;
     const commitment = commitments[0];
-    if (!commitment)
-      throw new Error("Hosted AI global commitment could not be read.");
-    if (commitment.settledCostMicrocents < 0n)
-      throw new Error("Hosted AI global settled-cost total is invalid.");
-    if (commitment.activeReservedMicrocents < 0n)
-      throw new Error("Hosted AI global reserved-credit total is invalid.");
+    if (!commitment) throw new Error("Hosted AI global commitment could not be read.");
+    if (commitment.settledCostMicrocents < 0n) throw new Error("Hosted AI global settled-cost total is invalid.");
+    if (commitment.activeReservedMicrocents < 0n) throw new Error("Hosted AI global reserved-credit total is invalid.");
     const platformCostMicrocents = commitment.platformCostMicrocents ?? 0n;
-    if (platformCostMicrocents < 0n)
-      throw new Error("Hosted AI platform cost total is invalid.");
+    if (platformCostMicrocents < 0n) throw new Error("Hosted AI platform cost total is invalid.");
 
     const committedMicrocents =
       commitment.settledCostMicrocents +
@@ -400,10 +331,7 @@ export class PrismaAgentChatRepo
     return committedMicrocents <= monthlySpendCapMicrocents;
   }
 
-  private turnSnapshot(
-    row: StoredAgentTurnRow,
-    hasLaterMessages: boolean,
-  ): AgentTurnRequestSnapshot {
+  private turnSnapshot(row: StoredAgentTurnRow, hasLaterMessages: boolean): AgentTurnRequestSnapshot {
     const status = turnStatus(row.status);
     assertTurnDate(row.providerStartedAt, "Agent provider-start timestamp");
     if (!Number.isSafeInteger(row.attemptCount) || row.attemptCount < 1)
@@ -488,9 +416,7 @@ export class PrismaAgentChatRepo
             },
           },
         ],
-        ...(retryTurnRequestId
-          ? { routineRuns: { none: { turnRequestId: retryTurnRequestId } } }
-          : {}),
+        ...(retryTurnRequestId ? { routineRuns: { none: { turnRequestId: retryTurnRequestId } } } : {}),
       },
     });
   }
@@ -514,18 +440,12 @@ export class PrismaAgentChatRepo
     cursor?: string | null;
     limit?: number;
   }): Promise<AgentConversationPage> {
-    const limit = Math.min(
-      AGENT_CONVERSATION_PAGE_SIZE,
-      Math.max(1, args.limit ?? AGENT_CONVERSATION_PAGE_SIZE),
-    );
+    const limit = Math.min(AGENT_CONVERSATION_PAGE_SIZE, Math.max(1, args.limit ?? AGENT_CONVERSATION_PAGE_SIZE));
     const cursor = args.cursor ? decodeConversationCursor(args.cursor) : null;
     const filters: Prisma.AgentConversationWhereInput[] = [];
     if (cursor) {
       filters.push({
-        OR: [
-          { updatedAt: { lt: cursor.updatedAt } },
-          { updatedAt: cursor.updatedAt, id: { lt: cursor.id } },
-        ],
+        OR: [{ updatedAt: { lt: cursor.updatedAt } }, { updatedAt: cursor.updatedAt, id: { lt: cursor.id } }],
       });
     }
     const rows = await this.prisma.agentConversation.findMany({
@@ -559,9 +479,7 @@ export class PrismaAgentChatRepo
         id: row.id,
         title: sanitizeAgentConversationTitle(row.title),
         preview: agentPlainTextPreview(
-          latest?.role === AgentMessageRole.user
-            ? latestText
-            : sanitizeAgentVisibleText(latestText, env.BASE_URL),
+          latest?.role === AgentMessageRole.user ? latestText : sanitizeAgentVisibleText(latestText, env.BASE_URL),
           140,
         ),
         updatedAt: row.updatedAt,
@@ -571,10 +489,7 @@ export class PrismaAgentChatRepo
     const last = pageRows.at(-1);
     return {
       conversations,
-      nextCursor:
-        rows.length > limit && last
-          ? encodeConversationCursor(last.updatedAt, last.id)
-          : null,
+      nextCursor: rows.length > limit && last ? encodeConversationCursor(last.updatedAt, last.id) : null,
     };
   }
 
@@ -586,8 +501,7 @@ export class PrismaAgentChatRepo
       const activeUser = await this.prisma.user.count({
         where: { id: userId, companyId, status: Status.active },
       });
-      if (activeUser !== 1)
-        throw new Error("Agent user is inactive before admission.");
+      if (activeUser !== 1) throw new Error("Agent user is inactive before admission.");
 
       const renewedLease = await this.prisma.agentRunLease.updateMany({
         where: {
@@ -600,8 +514,7 @@ export class PrismaAgentChatRepo
           expiresAt: new Date(admittedAt.getTime() + AGENT_RUN_LEASE_MS),
         },
       });
-      if (renewedLease.count !== 1)
-        throw new Error("Agent run lease expired before admission.");
+      if (renewedLease.count !== 1) throw new Error("Agent run lease expired before admission.");
 
       const reservation = await this.prisma.agentUsageEvent.findFirst({
         where: {
@@ -613,8 +526,7 @@ export class PrismaAgentChatRepo
         },
         select: { id: true },
       });
-      if (!reservation)
-        throw new Error("Agent usage reservation is missing before admission.");
+      if (!reservation) throw new Error("Agent usage reservation is missing before admission.");
 
       const conversationId = args.conversationId;
       const conversation = await this.prisma.agentConversation.findFirst({
@@ -624,18 +536,11 @@ export class PrismaAgentChatRepo
       if (!conversation) throw new Error("Conversation not found.");
 
       if (args.routineRunId) {
-        if (
-          conversation.origin !== AgentConversationOrigin.routine ||
-          args.turn.kind !== "create"
-        )
-          throw new Error(
-            "Routine run admission requires a new turn in a routine conversation.",
-          );
+        if (conversation.origin !== AgentConversationOrigin.routine || args.turn.kind !== "create")
+          throw new Error("Routine run admission requires a new turn in a routine conversation.");
 
         if (args.turn.clientRequestId !== args.routineRunId)
-          throw new Error(
-            "Routine run admission does not match its client request.",
-          );
+          throw new Error("Routine run admission does not match its client request.");
 
         const linkedRun = await this.routineRuns.linkAdmittedTurnCompanyWide({
           companyId,
@@ -645,8 +550,7 @@ export class PrismaAgentChatRepo
           turnRequestId: args.turn.turnRequestId,
           startedAt: admittedAt,
         });
-        if (!linkedRun)
-          throw new Error("Routine run changed before agent admission.");
+        if (!linkedRun) throw new Error("Routine run changed before agent admission.");
       }
 
       if (args.turn.kind === "retry") {
@@ -677,8 +581,7 @@ export class PrismaAgentChatRepo
             affectedResources: [],
           },
         });
-        if (retried.count !== 1)
-          throw new Error("The assistant retry could not be started.");
+        if (retried.count !== 1) throw new Error("The assistant retry could not be started.");
       } else {
         await this.prisma.agentTurnRequest.create({
           data: {
@@ -720,10 +623,7 @@ export class PrismaAgentChatRepo
         where: { id: args.reservationId, companyId, userId, state: "reserved" },
         data: { turnRequestId: args.turn.turnRequestId },
       });
-      if (boundReservation.count !== 1)
-        throw new Error(
-          "Agent usage reservation could not be bound to the turn.",
-        );
+      if (boundReservation.count !== 1) throw new Error("Agent usage reservation could not be bound to the turn.");
 
       const touched = await this.prisma.agentConversation.updateMany({
         where: { id: conversationId, companyId, userId, archivedAt: null },
@@ -921,10 +821,7 @@ export class PrismaAgentChatRepo
 
     return {
       messages: pageRows.reverse(),
-      nextCursor:
-        rows.length > AGENT_MESSAGE_PAGE_SIZE && oldest
-          ? oldest.sequence.toString()
-          : null,
+      nextCursor: rows.length > AGENT_MESSAGE_PAGE_SIZE && oldest ? oldest.sequence.toString() : null,
     };
   }
 
@@ -946,8 +843,7 @@ export class PrismaAgentChatRepo
       },
       select: { id: true },
     });
-    if (!conversation)
-      throw new Error("Conversation not found for agent approval.");
+    if (!conversation) throw new Error("Conversation not found for agent approval.");
 
     await this.prisma.agentApproval.createMany({
       data: [
@@ -981,16 +877,10 @@ export class PrismaAgentChatRepo
       },
       select: { id: true, toolName: true, decision: true },
     });
-    const parsed = pending
-      ? parsePendingAgentApprovalToolName(pending.toolName)
-      : null;
+    const parsed = pending ? parsePendingAgentApprovalToolName(pending.toolName) : null;
     if (!pending) return null;
     if (!parsed) {
-      if (
-        isPendingAgentApprovalToolName(pending.toolName) ||
-        pending.decision !== args.decision
-      )
-        return null;
+      if (isPendingAgentApprovalToolName(pending.toolName) || pending.decision !== args.decision) return null;
       return { toolName: pending.toolName, resolved: true as const };
     }
 
@@ -1013,8 +903,7 @@ export class PrismaAgentChatRepo
       },
       data: { decision: args.decision, toolName: parsed.toolName },
     });
-    if (resolved.count === 1)
-      return { toolName: parsed.toolName, resolved: true as const };
+    if (resolved.count === 1) return { toolName: parsed.toolName, resolved: true as const };
 
     const concurrentlyResolved = await this.prisma.agentApproval.findFirst({
       where: {
@@ -1082,9 +971,7 @@ export class PrismaAgentChatRepo
       },
       select: { decision: true, toolName: true },
     });
-    return approval && !isPendingAgentApprovalToolName(approval.toolName)
-      ? approval
-      : null;
+    return approval && !isPendingAgentApprovalToolName(approval.toolName) ? approval : null;
   }
 
   async recordUiCommandResult(args: {
@@ -1177,8 +1064,7 @@ export class PrismaAgentChatRepo
         },
         select: { id: true, reservedMicrocents: true },
       });
-      if (!reservation)
-        throw new Error("Interrupted agent usage reservation is missing.");
+      if (!reservation) throw new Error("Interrupted agent usage reservation is missing.");
       const retainedMicrocents = agentMicrocentsFromStorage(
         reservation.reservedMicrocents,
         "Interrupted agent usage reservation",
@@ -1200,10 +1086,7 @@ export class PrismaAgentChatRepo
           settledAt: now,
         },
       });
-      if (settled.count !== 1)
-        throw new Error(
-          "Interrupted agent usage reservation could not be settled.",
-        );
+      if (settled.count !== 1) throw new Error("Interrupted agent usage reservation could not be settled.");
     } else {
       const released = await this.prisma.agentUsageEvent.updateMany({
         where: {
@@ -1219,10 +1102,7 @@ export class PrismaAgentChatRepo
           settledAt: now,
         },
       });
-      if (released.count !== 1)
-        throw new Error(
-          "Interrupted agent usage reservation could not be released.",
-        );
+      if (released.count !== 1) throw new Error("Interrupted agent usage reservation could not be released.");
     }
 
     const updated = await this.prisma.agentTurnRequest.updateMany({
@@ -1242,8 +1122,7 @@ export class PrismaAgentChatRepo
         affectedResources: [],
       },
     });
-    if (updated.count !== 1)
-      throw new Error("Interrupted agent turn could not be reconciled.");
+    if (updated.count !== 1) throw new Error("Interrupted agent turn could not be reconciled.");
 
     const deleted = await this.prisma.agentRunLease.deleteMany({
       where: {
@@ -1253,8 +1132,7 @@ export class PrismaAgentChatRepo
         runId: row.runId,
       },
     });
-    if (requireLease && deleted.count !== 1)
-      throw new Error("Interrupted agent run lease could not be reconciled.");
+    if (requireLease && deleted.count !== 1) throw new Error("Interrupted agent run lease could not be reconciled.");
     return nextStatus;
   }
 
@@ -1283,21 +1161,12 @@ export class PrismaAgentChatRepo
       });
       if (!turn) return { reconciled: false };
 
-      const status = await this.settleInterruptedTurn(
-        turn,
-        new Date(),
-        turn.modelSpec ?? "unknown",
-        false,
-        args,
-      );
+      const status = await this.settleInterruptedTurn(turn, new Date(), turn.modelSpec ?? "unknown", false, args);
       if (args.failureMessage) {
-        const parts = clientSafeAgentMessageParts(
-          [{ type: "text", text: args.failureMessage }],
-          {
-            sanitizeText: true,
-            wikiBaseUrl: env.BASE_URL,
-          },
-        );
+        const parts = clientSafeAgentMessageParts([{ type: "text", text: args.failureMessage }], {
+          sanitizeText: true,
+          wikiBaseUrl: env.BASE_URL,
+        });
         const assistantMessage = await this.prisma.agentMessage.create({
           data: {
             id: randomUUID(),
@@ -1319,15 +1188,10 @@ export class PrismaAgentChatRepo
 
   async normalizeExpiredAgentRunLease(now: Date, model: string) {
     const companyId = this.companyId;
-    return this.withCompanyTransaction(companyId, () =>
-      this.normalizeExpiredAgentRunLeaseInTransaction(now, model),
-    );
+    return this.withCompanyTransaction(companyId, () => this.normalizeExpiredAgentRunLeaseInTransaction(now, model));
   }
 
-  private async normalizeExpiredAgentRunLeaseInTransaction(
-    now: Date,
-    model: string,
-  ) {
+  private async normalizeExpiredAgentRunLeaseInTransaction(now: Date, model: string) {
     const expired = await this.prisma.agentRunLease.findMany({
       where: {
         companyId: this.companyId,
@@ -1337,15 +1201,10 @@ export class PrismaAgentChatRepo
       select: { runId: true, expiresAt: true },
     });
 
-    for (const lease of expired)
-      await this.reconcileExpiredLease(lease, now, model);
+    for (const lease of expired) await this.reconcileExpiredLease(lease, now, model);
   }
 
-  private async reconcileExpiredLease(
-    lease: { runId: string },
-    now: Date,
-    model: string,
-  ) {
+  private async reconcileExpiredLease(lease: { runId: string }, now: Date, model: string) {
     const turn = await this.prisma.agentTurnRequest.findFirst({
       where: {
         companyId: this.companyId,
@@ -1381,8 +1240,7 @@ export class PrismaAgentChatRepo
         runId: lease.runId,
       },
     });
-    if (deleted.count !== 1)
-      throw new Error("Expired agent run lease could not be reconciled.");
+    if (deleted.count !== 1) throw new Error("Expired agent run lease could not be reconciled.");
   }
 
   async findAgentTurnRequestForAdmission(
@@ -1392,11 +1250,7 @@ export class PrismaAgentChatRepo
   ): Promise<AgentTurnReplay | null> {
     const companyId = this.companyId;
     return this.withCompanyTransaction(companyId, () =>
-      this.findAgentTurnRequestForAdmissionInTransaction(
-        clientRequestId,
-        now,
-        model,
-      ),
+      this.findAgentTurnRequestForAdmissionInTransaction(clientRequestId, now, model),
     );
   }
 
@@ -1433,8 +1287,7 @@ export class PrismaAgentChatRepo
         turnRequestId: true,
       },
     });
-    if (!userMessage)
-      throw new Error("Stored agent turn user message is missing.");
+    if (!userMessage) throw new Error("Stored agent turn user message is missing.");
 
     const laterMessage = await this.prisma.agentMessage.findFirst({
       where: {
@@ -1498,12 +1351,8 @@ export class PrismaAgentChatRepo
           wikiBaseUrl: env.BASE_URL,
         }),
       );
-    const completedIsReplayable =
-      assistantMessageIsRenderable && reconciledRow.terminalCode !== null;
-    if (
-      turnStatus(reconciledRow.status) === "completed" &&
-      !completedIsReplayable
-    ) {
+    const completedIsReplayable = assistantMessageIsRenderable && reconciledRow.terminalCode !== null;
+    if (turnStatus(reconciledRow.status) === "completed" && !completedIsReplayable) {
       const repaired = await this.prisma.agentTurnRequest.updateMany({
         where: {
           id: reconciledRow.id,
@@ -1514,25 +1363,18 @@ export class PrismaAgentChatRepo
         },
         data: {
           status: "uncertain",
-          assistantMessageId: assistantMessageIsRenderable
-            ? reconciledRow.assistantMessageId
-            : null,
+          assistantMessageId: assistantMessageIsRenderable ? reconciledRow.assistantMessageId : null,
           terminalCode: null,
           stopReason: "turn_error",
           affectedResources: [],
           terminalAt: now,
         },
       });
-      if (repaired.count !== 1)
-        throw new Error(
-          "Incomplete completed agent turn could not be reconciled.",
-        );
+      if (repaired.count !== 1) throw new Error("Incomplete completed agent turn could not be reconciled.");
       reconciledRow = {
         ...reconciledRow,
         status: "uncertain",
-        assistantMessageId: assistantMessageIsRenderable
-          ? reconciledRow.assistantMessageId
-          : null,
+        assistantMessageId: assistantMessageIsRenderable ? reconciledRow.assistantMessageId : null,
         terminalCode: null,
         stopReason: "turn_error",
         affectedResources: [],
@@ -1599,31 +1441,21 @@ export class PrismaAgentChatRepo
         executedByUserId: userId,
         conversationId: args.conversationId,
       });
-      if (!linked)
-        throw new Error(
-          "Routine run changed before its conversation could be linked.",
-        );
+      if (!linked) throw new Error("Routine run changed before its conversation could be linked.");
     });
   }
 
-  async releaseUnstartedRoutineConversationForRetry(args: {
-    routineRunId: string;
-    conversationId: string;
-  }) {
+  async releaseUnstartedRoutineConversationForRetry(args: { routineRunId: string; conversationId: string }) {
     const companyId = this.companyId;
     const userId = this.userId;
     await this.withCompanyTransaction(companyId, async () => {
-      const released =
-        await this.routineRuns.releaseUnstartedConversationCompanyWide({
-          companyId,
-          routineRunId: args.routineRunId,
-          executedByUserId: userId,
-          conversationId: args.conversationId,
-        });
-      if (!released)
-        throw new Error(
-          "Routine run changed before capacity retry could be scheduled.",
-        );
+      const released = await this.routineRuns.releaseUnstartedConversationCompanyWide({
+        companyId,
+        routineRunId: args.routineRunId,
+        executedByUserId: userId,
+        conversationId: args.conversationId,
+      });
+      if (!released) throw new Error("Routine run changed before capacity retry could be scheduled.");
 
       const deleted = await this.prisma.agentConversation.deleteMany({
         where: {
@@ -1635,17 +1467,11 @@ export class PrismaAgentChatRepo
           turnRequests: { none: {} },
         },
       });
-      if (deleted.count !== 1)
-        throw new Error(
-          "Unused Routine conversation could not be released for retry.",
-        );
+      if (deleted.count !== 1) throw new Error("Unused Routine conversation could not be released for retry.");
     });
   }
 
-  async deleteUnlinkedRoutineConversationsCompanyWide(
-    companyId: string,
-    conversationIds: string[],
-  ) {
+  async deleteUnlinkedRoutineConversationsCompanyWide(companyId: string, conversationIds: string[]) {
     await this.prisma.agentConversation.deleteMany({
       where: {
         id: { in: conversationIds },
@@ -1679,12 +1505,7 @@ export class PrismaAgentChatRepo
     return active >= AGENT_MAX_CONCURRENT_RUNS_PER_USER;
   }
 
-  async claimAgentRunLease(args: {
-    conversationId: string;
-    runId: string;
-    expiresAt: Date;
-    now: Date;
-  }) {
+  async claimAgentRunLease(args: { conversationId: string; runId: string; expiresAt: Date; now: Date }) {
     if (await this.isAtAgentRunLimit(args.now)) return "atUserLimit" as const;
 
     const claimed = await this.prisma.agentRunLease.createMany({
@@ -1699,9 +1520,7 @@ export class PrismaAgentChatRepo
       ],
       skipDuplicates: true,
     });
-    return claimed.count === 1
-      ? ("claimed" as const)
-      : ("conversationBusy" as const);
+    return claimed.count === 1 ? ("claimed" as const) : ("conversationBusy" as const);
   }
 
   @BypassTenantGuard
@@ -1710,9 +1529,7 @@ export class PrismaAgentChatRepo
     companyId: string;
     toolCallId: string;
     toolName: string;
-  }): Promise<
-    { state: "claimed" } | { state: "settled"; resultJson: unknown }
-  > {
+  }): Promise<{ state: "claimed" } | { state: "settled"; resultJson: unknown }> {
     const existing = await this.prisma.agentToolReceipt.findUnique({
       where: {
         turnRequestId_toolCallId: {
@@ -1722,8 +1539,7 @@ export class PrismaAgentChatRepo
       },
       select: { state: true, resultJson: true },
     });
-    if (existing?.state === "settled")
-      return { state: "settled", resultJson: existing.resultJson };
+    if (existing?.state === "settled") return { state: "settled", resultJson: existing.resultJson };
     if (existing) return { state: "claimed" };
 
     await this.prisma.agentToolReceipt.create({
@@ -1757,8 +1573,7 @@ export class PrismaAgentChatRepo
         settledAt: new Date(),
       },
     });
-    if (settled.count !== 1)
-      throw new Error("Agent tool receipt could not be settled.");
+    if (settled.count !== 1) throw new Error("Agent tool receipt could not be settled.");
   }
 
   @BypassTenantGuard
@@ -1841,9 +1656,7 @@ export class PrismaAgentChatRepo
     });
   }
 
-  async requestAgentTurnCancellation(args: {
-    conversationId: string;
-  }): Promise<boolean> {
+  async requestAgentTurnCancellation(args: { conversationId: string }): Promise<boolean> {
     const requested = await this.prisma.agentTurnRequest.updateMany({
       where: {
         conversationId: args.conversationId,
@@ -1870,10 +1683,7 @@ export class PrismaAgentChatRepo
   }
 
   @BypassTenantGuard
-  async isAgentTurnCancellationRequestedUnscoped(args: {
-    turnRequestId: string;
-    companyId: string;
-  }): Promise<boolean> {
+  async isAgentTurnCancellationRequestedUnscoped(args: { turnRequestId: string; companyId: string }): Promise<boolean> {
     const turn = await this.prisma.agentTurnRequest.findFirst({
       where: { id: args.turnRequestId, companyId: args.companyId },
       select: { cancellationRequestedAt: true },
@@ -1881,11 +1691,7 @@ export class PrismaAgentChatRepo
     return Boolean(turn?.cancellationRequestedAt);
   }
 
-  async recordAgentTurnExternalRun(
-    turnRequestId: string,
-    runId: string,
-    externalRunId: string,
-  ): Promise<void> {
+  async recordAgentTurnExternalRun(turnRequestId: string, runId: string, externalRunId: string): Promise<void> {
     await this.prisma.agentTurnRequest.updateMany({
       where: {
         id: turnRequestId,
@@ -1898,9 +1704,7 @@ export class PrismaAgentChatRepo
     });
   }
 
-  async findAgentTurnExternalRun(
-    conversationId: string,
-  ): Promise<string | null> {
+  async findAgentTurnExternalRun(conversationId: string): Promise<string | null> {
     const turn = await this.prisma.agentTurnRequest.findFirst({
       where: {
         conversationId,
@@ -1983,31 +1787,15 @@ export class PrismaAgentChatRepo
         },
         data: { expiresAt: new Date(startedAt.getTime() + AGENT_RUN_LEASE_MS) },
       });
-      if (renewedLease.count !== 1)
-        throw new Error("Agent run lease expired before the provider started.");
+      if (renewedLease.count !== 1) throw new Error("Agent run lease expired before the provider started.");
 
       const user = await this.findUserForUsageUnscoped(args.userId);
       if (!user || user.companyId !== args.companyId) return false;
-      if (!user?.subscription)
-        throw new Error(
-          "Agent credit subscription is unavailable at provider start.",
-        );
-      if (user.status !== Status.active)
-        throw new Error(
-          "Agent credit user is not an active seat at provider start.",
-        );
-      const entitlement = await this.resolveCurrentAgentCreditEntitlement(
-        user,
-        startedAt,
-      );
-      if (!entitlement)
-        throw new Error(
-          "Agent credit entitlement is unavailable at provider start.",
-        );
-      if (entitlement.blockedReason)
-        throw new Error(
-          `Agent credits are blocked: ${entitlement.blockedReason}.`,
-        );
+      if (!user?.subscription) throw new Error("Agent credit subscription is unavailable at provider start.");
+      if (user.status !== Status.active) throw new Error("Agent credit user is not an active seat at provider start.");
+      const entitlement = await this.resolveCurrentAgentCreditEntitlement(user, startedAt);
+      if (!entitlement) throw new Error("Agent credit entitlement is unavailable at provider start.");
+      if (entitlement.blockedReason) throw new Error(`Agent credits are blocked: ${entitlement.blockedReason}.`);
       const reservation = await this.prisma.agentUsageEvent.findFirst({
         where: {
           turnRequestId: args.turnRequestId,
@@ -2017,10 +1805,7 @@ export class PrismaAgentChatRepo
         },
         select: { id: true, reservedMicrocents: true },
       });
-      if (!reservation)
-        throw new Error(
-          "Agent usage reservation is missing at provider start.",
-        );
+      if (!reservation) throw new Error("Agent usage reservation is missing at provider start.");
       const currentEvents = await this.prisma.agentUsageEvent.findMany({
         where: {
           id: { not: reservation.id },
@@ -2033,17 +1818,11 @@ export class PrismaAgentChatRepo
         select: committedUsageSelect,
       });
       const usedMicrocents = sumCommittedAgentMicrocents(currentEvents);
-      const reservedMicrocents = agentMicrocentsFromStorage(
-        reservation.reservedMicrocents,
-        "Agent usage reservation",
-      );
+      const reservedMicrocents = agentMicrocentsFromStorage(reservation.reservedMicrocents, "Agent usage reservation");
       if (usedMicrocents + reservedMicrocents > entitlement.limitMicrocents)
-        throw new Error(
-          "Agent credit reservation exceeds the current allowance at provider start.",
-        );
+        throw new Error("Agent credit reservation exceeds the current allowance at provider start.");
 
-      if (!(await this.admitsHostedAiGlobalSpend({ now: startedAt })))
-        return false;
+      if (!(await this.admitsHostedAiGlobalSpend({ now: startedAt }))) return false;
 
       const updated = await this.prisma.agentTurnRequest.updateMany({
         where: {
@@ -2057,8 +1836,7 @@ export class PrismaAgentChatRepo
         },
         data: { providerStartedAt: startedAt },
       });
-      if (updated.count !== 1)
-        throw new Error("Agent turn could not be marked as provider-started.");
+      if (updated.count !== 1) throw new Error("Agent turn could not be marked as provider-started.");
 
       const usage = await this.prisma.agentUsageEvent.updateMany({
         where: {
@@ -2077,10 +1855,7 @@ export class PrismaAgentChatRepo
           periodEnd: entitlement.resetAt,
         },
       });
-      if (usage.count !== 1)
-        throw new Error(
-          "Agent usage reservation could not be marked as provider-started.",
-        );
+      if (usage.count !== 1) throw new Error("Agent usage reservation could not be marked as provider-started.");
 
       return true;
     });
@@ -2095,18 +1870,10 @@ export class PrismaAgentChatRepo
     return this.withCompanyTransaction(args.companyId, async () => {
       const now = new Date();
       const user = await this.findUserForUsageUnscoped(args.userId);
-      if (
-        !user ||
-        user.companyId !== args.companyId ||
-        user.status !== Status.active ||
-        !user.subscription
-      )
+      if (!user || user.companyId !== args.companyId || user.status !== Status.active || !user.subscription)
         return false;
 
-      const entitlement = await this.resolveCurrentAgentCreditEntitlement(
-        user,
-        now,
-      );
+      const entitlement = await this.resolveCurrentAgentCreditEntitlement(user, now);
       if (!entitlement || entitlement.blockedReason) return false;
 
       const reservation = await this.prisma.agentUsageEvent.findFirst({
@@ -2144,11 +1911,7 @@ export class PrismaAgentChatRepo
       });
       const committedElsewhere = sumCommittedAgentMicrocents(others);
       if (
-        committedElsewhere +
-          agentMicrocentsFromStorage(
-            reservation.reservedMicrocents,
-            "Agent usage reservation",
-          ) >
+        committedElsewhere + agentMicrocentsFromStorage(reservation.reservedMicrocents, "Agent usage reservation") >
         entitlement.limitMicrocents
       )
         return false;
@@ -2173,8 +1936,7 @@ export class PrismaAgentChatRepo
     usageSettlement: AgentUsageSettlement | null;
     classifierTrace?: AgentTurnClassifierTrace | null;
   }): Promise<FinalizedAgentTurn> {
-    if (!isAgentTurnTerminalCode(args.terminalCode))
-      throw new Error("Agent turn terminal code is invalid.");
+    if (!isAgentTurnTerminalCode(args.terminalCode)) throw new Error("Agent turn terminal code is invalid.");
     if (args.stopReason !== null && !isAgentTurnStopReason(args.stopReason))
       throw new Error("Agent turn stop reason is invalid.");
     if (args.terminalCode === "completed" && args.stopReason !== null)
@@ -2182,31 +1944,19 @@ export class PrismaAgentChatRepo
     if (args.terminalCode !== "completed" && args.stopReason === null)
       throw new Error("A non-completed agent turn requires a stop reason.");
     if (args.terminalCode === "cancelled" && args.stopReason !== "cancelled")
-      throw new Error(
-        "A cancelled agent turn requires the cancelled stop reason.",
-      );
+      throw new Error("A cancelled agent turn requires the cancelled stop reason.");
 
-    if (
-      args.terminalCode === "policyBreach" &&
-      args.stopReason !== "policy_breach"
-    )
-      throw new Error(
-        "A policy-breach agent turn requires the policy-breach stop reason.",
-      );
+    if (args.terminalCode === "policyBreach" && args.stopReason !== "policy_breach")
+      throw new Error("A policy-breach agent turn requires the policy-breach stop reason.");
 
-    if (!areAgentTurnAffectedResources(args.affectedResources))
-      throw new Error("Agent turn resources are invalid.");
-    if (
-      args.classifierTrace &&
-      !isAgentTurnClassifierTrace(args.classifierTrace)
-    )
+    if (!areAgentTurnAffectedResources(args.affectedResources)) throw new Error("Agent turn resources are invalid.");
+    if (args.classifierTrace && !isAgentTurnClassifierTrace(args.classifierTrace))
       throw new Error("Agent turn classifier trace is invalid.");
     const safeParts = clientSafeAgentMessageParts(args.parts, {
       sanitizeText: true,
       wikiBaseUrl: env.BASE_URL,
     });
-    if (!hasRenderableAgentMessageParts(safeParts))
-      throw new Error("Agent turn canonical reply is not renderable.");
+    if (!hasRenderableAgentMessageParts(safeParts)) throw new Error("Agent turn canonical reply is not renderable.");
 
     const settlement = args.usageSettlement;
     if (
@@ -2246,9 +1996,7 @@ export class PrismaAgentChatRepo
       });
       if (!turn) throw new Error("Agent turn is no longer active.");
       if (Boolean(turn.providerStartedAt) !== Boolean(settlement))
-        throw new Error(
-          "Agent usage settlement does not match provider-start evidence.",
-        );
+        throw new Error("Agent usage settlement does not match provider-start evidence.");
 
       const lease = await this.prisma.agentRunLease.findFirst({
         where: {
@@ -2270,9 +2018,7 @@ export class PrismaAgentChatRepo
         select: { updatedAt: true },
       });
       if (!conversationRow) throw new Error("Conversation not found.");
-      const committedAt = new Date(
-        Math.max(Date.now(), conversationRow.updatedAt.getTime()),
-      );
+      const committedAt = new Date(Math.max(Date.now(), conversationRow.updatedAt.getTime()));
 
       if (settlement) {
         const settled = await this.prisma.agentUsageEvent.updateMany({
@@ -2297,8 +2043,7 @@ export class PrismaAgentChatRepo
             settledAt: committedAt,
           },
         });
-        if (settled.count !== 1)
-          throw new Error("Agent usage reservation could not be settled.");
+        if (settled.count !== 1) throw new Error("Agent usage reservation could not be settled.");
       } else {
         const released = await this.prisma.agentUsageEvent.updateMany({
           where: {
@@ -2313,16 +2058,11 @@ export class PrismaAgentChatRepo
             settledAt: committedAt,
           },
         });
-        if (released.count !== 1)
-          throw new Error("Agent usage reservation could not be released.");
+        if (released.count !== 1) throw new Error("Agent usage reservation could not be released.");
       }
 
-      const terminalCode = settlement?.policyBreach
-        ? "policyBreach"
-        : args.terminalCode;
-      const stopReason = settlement?.policyBreach
-        ? "policy_breach"
-        : args.stopReason;
+      const terminalCode = settlement?.policyBreach ? "policyBreach" : args.terminalCode;
+      const stopReason = settlement?.policyBreach ? "policy_breach" : args.stopReason;
       const assistantMessage = await this.prisma.agentMessage.create({
         data: {
           id: randomUUID(),
@@ -2369,8 +2109,7 @@ export class PrismaAgentChatRepo
             : {}),
         },
       });
-      if (completed.count !== 1)
-        throw new Error("Agent turn could not be completed.");
+      if (completed.count !== 1) throw new Error("Agent turn could not be completed.");
 
       const released = await this.prisma.agentRunLease.deleteMany({
         where: {
@@ -2379,8 +2118,7 @@ export class PrismaAgentChatRepo
           runId: args.runId,
         },
       });
-      if (released.count !== 1)
-        throw new Error("Agent run lease could not be released.");
+      if (released.count !== 1) throw new Error("Agent run lease could not be released.");
 
       return {
         assistantMessage,
@@ -2419,13 +2157,8 @@ export class PrismaAgentChatRepo
         },
         select: { state: true, providerStartedAt: true },
       });
-      if (
-        usage &&
-        (usage.state === "settled" || usage.providerStartedAt !== null)
-      )
-        throw new Error(
-          "Agent usage has provider-start evidence and cannot be released.",
-        );
+      if (usage && (usage.state === "settled" || usage.providerStartedAt !== null))
+        throw new Error("Agent usage has provider-start evidence and cannot be released.");
 
       if (usage?.state === "reserved") {
         const released = await this.prisma.agentUsageEvent.updateMany({
@@ -2442,8 +2175,7 @@ export class PrismaAgentChatRepo
             settledAt: new Date(),
           },
         });
-        if (released.count !== 1)
-          throw new Error("Agent usage reservation could not be released.");
+        if (released.count !== 1) throw new Error("Agent usage reservation could not be released.");
       }
 
       await this.prisma.agentRunLease.deleteMany({
@@ -2490,12 +2222,7 @@ export class PrismaAgentChatRepo
   }
 
   @BypassTenantGuard
-  async getUserCreditUsageUnscoped(
-    companyId: string,
-    userId: string,
-    periodStart: Date,
-    periodEnd: Date,
-  ) {
+  async getUserCreditUsageUnscoped(companyId: string, userId: string, periodStart: Date, periodEnd: Date) {
     const [events, recent] = await Promise.all([
       this.prisma.agentUsageEvent.findMany({
         where: {
@@ -2524,21 +2251,13 @@ export class PrismaAgentChatRepo
     return {
       usedMicrocents: sumCommittedAgentMicrocents(events),
       recentTurnMicrocents: recent
-        ? agentMicrocentsFromStorage(
-            recent.chargedMicrocents,
-            "Recent AI turn usage",
-          )
+        ? agentMicrocentsFromStorage(recent.chargedMicrocents, "Recent AI turn usage")
         : null,
     };
   }
 
   @BypassTenantGuard
-  async getUserCreditAdjustmentUnscoped(
-    companyId: string,
-    userId: string,
-    periodStart: Date,
-    periodEnd: Date,
-  ) {
+  async getUserCreditAdjustmentUnscoped(companyId: string, userId: string, periodStart: Date, periodEnd: Date) {
     const rows = await this.prisma.agentCreditAdjustment.findMany({
       where: { companyId, userId, periodStart, periodEnd },
       select: { deltaMicrocents: true },
@@ -2548,9 +2267,7 @@ export class PrismaAgentChatRepo
   }
 
   @BypassTenantGuard
-  async findUserForUsageUnscoped(
-    userId: string,
-  ): Promise<AgentUsageUser | null> {
+  async findUserForUsageUnscoped(userId: string): Promise<AgentUsageUser | null> {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -2594,10 +2311,7 @@ export class PrismaAgentChatRepo
   }
 
   @BypassTenantGuard
-  async getWorkspaceCreditPoolUnscoped(
-    companyId: string,
-    now: Date,
-  ): Promise<AgentWorkspaceCreditPool | null> {
+  async getWorkspaceCreditPoolUnscoped(companyId: string, now: Date): Promise<AgentWorkspaceCreditPool | null> {
     const company = await this.prisma.company.findUnique({
       where: { id: companyId },
       select: {
@@ -2623,9 +2337,7 @@ export class PrismaAgentChatRepo
     const anchor = subscription.agentCreditAnchorAt ?? subscription.createdAt;
     if (anchor.getTime() > now.getTime()) return null;
     const period = agentCreditPeriodForAnchor(anchor, now);
-    const adjustments = await this.prisma.$queryRaw<
-      Array<{ userId: string; deltaMicrocents: bigint }>
-    >`
+    const adjustments = await this.prisma.$queryRaw<Array<{ userId: string; deltaMicrocents: bigint }>>`
       SELECT "userId", COALESCE(SUM("deltaMicrocents"), 0)::bigint AS "deltaMicrocents"
       FROM "AgentCreditAdjustment"
       WHERE "companyId" = ${companyId} AND "periodStart" = ${period.start} AND "periodEnd" = ${period.resetAt}
@@ -2634,10 +2346,7 @@ export class PrismaAgentChatRepo
     const adjustmentByUser = new Map<string, number>();
     for (const row of adjustments) {
       const microcents = Number(row.deltaMicrocents);
-      if (
-        !Number.isSafeInteger(microcents) ||
-        BigInt(microcents) !== row.deltaMicrocents
-      )
+      if (!Number.isSafeInteger(microcents) || BigInt(microcents) !== row.deltaMicrocents)
         throw new Error("Stored AI credit adjustment total is invalid.");
       adjustmentByUser.set(row.userId, microcents);
     }
@@ -2661,8 +2370,7 @@ export class PrismaAgentChatRepo
       usable = true;
       memberLimitMicrocents[user.id] = entitlement.limitMicrocents;
       limitMicrocents += entitlement.limitMicrocents;
-      if (!Number.isSafeInteger(limitMicrocents))
-        throw new Error("Workspace AI credit allowance is invalid.");
+      if (!Number.isSafeInteger(limitMicrocents)) throw new Error("Workspace AI credit allowance is invalid.");
     }
     const usage = await this.workspacePoolUsage(
       companyId,
@@ -2684,17 +2392,10 @@ export class PrismaAgentChatRepo
     };
   }
 
-  private async workspacePoolUsage(
-    companyId: string,
-    periodStart: Date,
-    periodEnd: Date,
-    memberIds: string[],
-  ) {
+  private async workspacePoolUsage(companyId: string, periodStart: Date, periodEnd: Date, memberIds: string[]) {
     const committed = Prisma.sql`CASE WHEN "state" IN ('reserved', 'retained')
       THEN "reservedMicrocents" ELSE "chargedMicrocents" END`;
-    const rows = await this.prisma.$queryRaw<
-      Array<{ memberMicrocents: bigint; workspaceMicrocents: bigint }>
-    >`
+    const rows = await this.prisma.$queryRaw<Array<{ memberMicrocents: bigint; workspaceMicrocents: bigint }>>`
       SELECT
         COALESCE(SUM(${committed}) FILTER (WHERE "userId" IS NOT NULL), 0)::bigint AS "memberMicrocents",
         COALESCE(SUM(${committed}) FILTER (WHERE "userId" IS NULL), 0)::bigint AS "workspaceMicrocents"
@@ -2707,20 +2408,10 @@ export class PrismaAgentChatRepo
     `;
     const row = rows[0];
     if (!row) throw new Error("Workspace AI credit usage could not be read.");
-    const memberMicrocents = agentMicrocentsFromStorage(
-      row.memberMicrocents,
-      "Workspace AI credit usage",
-    );
-    const unassignedMicrocents = agentMicrocentsFromStorage(
-      row.workspaceMicrocents,
-      "Workspace AI credit usage",
-    );
+    const memberMicrocents = agentMicrocentsFromStorage(row.memberMicrocents, "Workspace AI credit usage");
+    const unassignedMicrocents = agentMicrocentsFromStorage(row.workspaceMicrocents, "Workspace AI credit usage");
     const usedMicrocents = memberMicrocents + unassignedMicrocents;
-    if (
-      memberMicrocents < 0 ||
-      unassignedMicrocents < 0 ||
-      !Number.isSafeInteger(usedMicrocents)
-    )
+    if (memberMicrocents < 0 || unassignedMicrocents < 0 || !Number.isSafeInteger(usedMicrocents))
       throw new Error("Workspace AI credit usage is invalid.");
     return { usedMicrocents, unassignedMicrocents };
   }
@@ -2736,10 +2427,7 @@ export class PrismaAgentChatRepo
     periodEnd: Date;
     now: Date;
   }): Promise<boolean> {
-    const pool = await this.getWorkspaceCreditPoolUnscoped(
-      args.companyId,
-      args.now,
-    );
+    const pool = await this.getWorkspaceCreditPoolUnscoped(args.companyId, args.now);
     if (
       !pool ||
       pool.periodStart.getTime() !== args.periodStart.getTime() ||
@@ -2752,10 +2440,8 @@ export class PrismaAgentChatRepo
       poolLimitMicrocents: pool.limitMicrocents,
     });
     return (
-      args.ownCommittedMicrocents + share + args.requiredMicrocents <=
-        args.memberLimitMicrocents &&
-      pool.usedMicrocents - args.replacedMicrocents + args.requiredMicrocents <=
-        pool.limitMicrocents
+      args.ownCommittedMicrocents + share + args.requiredMicrocents <= args.memberLimitMicrocents &&
+      pool.usedMicrocents - args.replacedMicrocents + args.requiredMicrocents <= pool.limitMicrocents
     );
   }
 
@@ -2767,10 +2453,7 @@ export class PrismaAgentChatRepo
     reservedMicrocents: number;
     now: Date;
   }): Promise<string | null> {
-    if (
-      !Number.isSafeInteger(args.reservedMicrocents) ||
-      args.reservedMicrocents < 1
-    )
+    if (!Number.isSafeInteger(args.reservedMicrocents) || args.reservedMicrocents < 1)
       throw new Error("Platform AI reservation is invalid.");
     if (
       !(await this.admitsHostedAiGlobalSpend({
@@ -2802,20 +2485,17 @@ export class PrismaAgentChatRepo
   }): Promise<void> {
     await this.prisma
       .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended('customermates:hosted-ai-global-admission', 0))`;
-    const reservation =
-      await this.prisma.hostedAiPlatformReservation.findUnique({
-        where: { id: args.reservationId },
-        select: { purpose: true, model: true },
-      });
+    const reservation = await this.prisma.hostedAiPlatformReservation.findUnique({
+      where: { id: args.reservationId },
+      select: { purpose: true, model: true },
+    });
     if (!reservation) return;
     const released = await this.prisma.hostedAiPlatformReservation.deleteMany({
       where: { id: args.reservationId },
     });
-    if (released.count !== 1)
-      throw new Error("Platform AI reservation changed before settlement.");
+    if (released.count !== 1) throw new Error("Platform AI reservation changed before settlement.");
     if (!args.charge) return;
-    if (reservation.model !== args.charge.model)
-      throw new Error("Platform AI settlement model does not match.");
+    if (reservation.model !== args.charge.model) throw new Error("Platform AI settlement model does not match.");
     await this.accruePlatformUsageUnscoped({
       purpose: reservation.purpose,
       charge: args.charge,
@@ -2825,31 +2505,23 @@ export class PrismaAgentChatRepo
 
   @BypassTenantGuard
   @Transaction
-  async settleStalePlatformReservationsUnscoped(args: {
-    reservedBefore: Date;
-    now: Date;
-  }): Promise<number> {
+  async settleStalePlatformReservationsUnscoped(args: { reservedBefore: Date; now: Date }): Promise<number> {
     await this.prisma
       .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended('customermates:hosted-ai-global-admission', 0))`;
     return this.settleStalePlatformReservations(args);
   }
 
-  private async settleStalePlatformReservations(args: {
-    reservedBefore: Date;
-    now: Date;
-  }): Promise<number> {
-    const reservations = await this.prisma.hostedAiPlatformReservation.findMany(
-      {
-        where: { createdAt: { lt: args.reservedBefore } },
-        select: {
-          id: true,
-          purpose: true,
-          model: true,
-          reservedMicrocents: true,
-          createdAt: true,
-        },
+  private async settleStalePlatformReservations(args: { reservedBefore: Date; now: Date }): Promise<number> {
+    const reservations = await this.prisma.hostedAiPlatformReservation.findMany({
+      where: { createdAt: { lt: args.reservedBefore } },
+      select: {
+        id: true,
+        purpose: true,
+        model: true,
+        reservedMicrocents: true,
+        createdAt: true,
       },
-    );
+    });
     if (reservations.length === 0) return 0;
     const released = await this.prisma.hostedAiPlatformReservation.deleteMany({
       where: {
@@ -2858,19 +2530,15 @@ export class PrismaAgentChatRepo
       },
     });
     if (released.count !== reservations.length)
-      throw new Error(
-        "Platform AI reservations changed before stale settlement.",
-      );
+      throw new Error("Platform AI reservations changed before stale settlement.");
+
     for (const reservation of reservations) {
       await this.accruePlatformUsageUnscoped({
         purpose: reservation.purpose,
         charge: {
           model: reservation.model,
           inputTokens: 0,
-          costMicrocents: agentMicrocentsFromStorage(
-            reservation.reservedMicrocents,
-            "Platform AI reservation",
-          ),
+          costMicrocents: agentMicrocentsFromStorage(reservation.reservedMicrocents, "Platform AI reservation"),
           costSource: "estimated",
         },
         now: reservation.createdAt,
@@ -2880,11 +2548,7 @@ export class PrismaAgentChatRepo
   }
 
   @BypassTenantGuard
-  async accruePlatformUsageUnscoped(args: {
-    purpose: string;
-    charge: AgentRetrievalCharge;
-    now: Date;
-  }) {
+  async accruePlatformUsageUnscoped(args: { purpose: string; charge: AgentRetrievalCharge; now: Date }) {
     const { purpose, charge, now } = args;
     const accrualMonth = this.retrievalAccrualMonth(now);
     await this.prisma.hostedAiPlatformUsage.upsert({
@@ -2910,9 +2574,7 @@ export class PrismaAgentChatRepo
   }
 
   private retrievalAccrualMonth(reservedAt: Date) {
-    return new Date(
-      Date.UTC(reservedAt.getUTCFullYear(), reservedAt.getUTCMonth(), 1),
-    );
+    return new Date(Date.UTC(reservedAt.getUTCFullYear(), reservedAt.getUTCMonth(), 1));
   }
 
   private retrievalConflictTarget(grant: AgentRetrievalGrant) {
@@ -2935,15 +2597,10 @@ export class PrismaAgentChatRepo
     return this.withCompanyTransaction(grant.companyId, async () => {
       await this.releaseStaleRetrievalReservations({
         companyId: grant.companyId,
-        reservedBefore: new Date(
-          now.getTime() - AGENT_RETRIEVAL_RESERVATION_TTL_MS,
-        ),
+        reservedBefore: new Date(now.getTime() - AGENT_RETRIEVAL_RESERVATION_TTL_MS),
         now,
       });
-      const pool = await this.getWorkspaceCreditPoolUnscoped(
-        grant.companyId,
-        now,
-      );
+      const pool = await this.getWorkspaceCreditPoolUnscoped(grant.companyId, now);
       if (
         !pool?.usable ||
         pool.periodStart.getTime() !== grant.periodStart.getTime() ||
@@ -2953,8 +2610,7 @@ export class PrismaAgentChatRepo
         return null;
 
       if (grant.userId !== null) {
-        const memberLimitMicrocents =
-          pool.memberLimitMicrocents[grant.userId] ?? 0;
+        const memberLimitMicrocents = pool.memberLimitMicrocents[grant.userId] ?? 0;
         const own = await this.prisma.agentUsageEvent.findMany({
           where: {
             companyId: grant.companyId,
@@ -2970,11 +2626,7 @@ export class PrismaAgentChatRepo
           memberLimitMicrocents,
           poolLimitMicrocents: pool.limitMicrocents,
         });
-        if (
-          sumCommittedAgentMicrocents(own) + share + reservedMicrocents >
-          memberLimitMicrocents
-        )
-          return null;
+        if (sumCommittedAgentMicrocents(own) + share + reservedMicrocents > memberLimitMicrocents) return null;
       }
 
       if (
@@ -3031,8 +2683,7 @@ export class PrismaAgentChatRepo
           reservedMicrocents: args.reservedMicrocents,
         },
       });
-      if (held.count !== 1)
-        throw new Error("Retrieval credit reservation could not be settled.");
+      if (held.count !== 1) throw new Error("Retrieval credit reservation could not be settled.");
       if (!charge) return;
       if (args.payer === "platform") {
         await this.accruePlatformUsageUnscoped({
@@ -3043,10 +2694,7 @@ export class PrismaAgentChatRepo
         return;
       }
 
-      const chargedMicrocents = Math.min(
-        charge.costMicrocents,
-        args.reservedMicrocents,
-      );
+      const chargedMicrocents = Math.min(charge.costMicrocents, args.reservedMicrocents);
       await this.prisma.$executeRaw`
         INSERT INTO "AgentUsageEvent" (
           "id", "companyId", "userId", "state", "model", "inputTokens", "costMicrocents", "costSource",
@@ -3079,19 +2727,11 @@ export class PrismaAgentChatRepo
 
   @BypassTenantGuard
   @Transaction
-  async releaseStaleRetrievalReservationsUnscoped(args: {
-    companyId?: string;
-    reservedBefore: Date;
-    now: Date;
-  }) {
+  async releaseStaleRetrievalReservationsUnscoped(args: { companyId?: string; reservedBefore: Date; now: Date }) {
     return this.releaseStaleRetrievalReservations(args);
   }
 
-  private async releaseStaleRetrievalReservations(args: {
-    companyId?: string;
-    reservedBefore: Date;
-    now: Date;
-  }) {
+  private async releaseStaleRetrievalReservations(args: { companyId?: string; reservedBefore: Date; now: Date }) {
     await this.prisma
       .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended('customermates:hosted-ai-global-admission', 0))`;
     const released = await this.prisma.$queryRaw<
@@ -3116,10 +2756,7 @@ export class PrismaAgentChatRepo
         charge: {
           model: reservation.model ?? "unknown",
           inputTokens: 0,
-          costMicrocents: agentMicrocentsFromStorage(
-            reservation.reservedMicrocents,
-            "Retrieval AI reservation",
-          ),
+          costMicrocents: agentMicrocentsFromStorage(reservation.reservedMicrocents, "Retrieval AI reservation"),
           costSource: "estimated",
         },
         now: reservation.createdAt,
@@ -3141,33 +2778,18 @@ export class PrismaAgentChatRepo
     periodStart: Date;
     periodEnd: Date;
   }) {
-    if (
-      !Number.isSafeInteger(event.reservedMicrocents) ||
-      event.reservedMicrocents < 1
-    )
+    if (!Number.isSafeInteger(event.reservedMicrocents) || event.reservedMicrocents < 1)
       throw new Error("Agent credit reservation is invalid.");
 
     return this.withCompanyTransaction(event.companyId, async () => {
       const reservedAt = new Date();
       const user = await this.findUserForUsageUnscoped(event.userId);
-      if (
-        !user ||
-        user.companyId !== event.companyId ||
-        user.status !== Status.active ||
-        !user.subscription
-      )
+      if (!user || user.companyId !== event.companyId || user.status !== Status.active || !user.subscription)
         throw new Error("Agent credit seat is unavailable.");
 
-      const entitlement = await this.resolveCurrentAgentCreditEntitlement(
-        user,
-        reservedAt,
-      );
-      if (!entitlement)
-        throw new Error("Agent credit entitlement is unavailable.");
-      if (entitlement.blockedReason)
-        throw new Error(
-          `Agent credits are blocked: ${entitlement.blockedReason}.`,
-        );
+      const entitlement = await this.resolveCurrentAgentCreditEntitlement(user, reservedAt);
+      if (!entitlement) throw new Error("Agent credit entitlement is unavailable.");
+      if (entitlement.blockedReason) throw new Error(`Agent credits are blocked: ${entitlement.blockedReason}.`);
 
       const existing = await this.prisma.agentUsageEvent.findMany({
         where: {
@@ -3194,9 +2816,7 @@ export class PrismaAgentChatRepo
           now: reservedAt,
         }))
       )
-        throw new Error(
-          "Agent credit reservation exceeds the current allowance.",
-        );
+        throw new Error("Agent credit reservation exceeds the current allowance.");
 
       if (
         !(await this.admitsHostedAiGlobalSpend({
@@ -3231,10 +2851,7 @@ export class PrismaAgentChatRepo
     userId: string;
     requiredMicrocents: number;
   }): Promise<AgentUsageReservationExtension> {
-    if (
-      !Number.isSafeInteger(args.requiredMicrocents) ||
-      args.requiredMicrocents < 1
-    )
+    if (!Number.isSafeInteger(args.requiredMicrocents) || args.requiredMicrocents < 1)
       throw new Error("Agent credit reservation extension is invalid.");
 
     return this.withCompanyTransaction(args.companyId, async () => {
@@ -3269,23 +2886,16 @@ export class PrismaAgentChatRepo
       if (!reservation) return { disposition: "turn_error" };
       if (!reservation.turnRequest) return { disposition: "turn_error" };
       const conversation = reservation.turnRequest.conversation;
-      const reservedMicrocents = agentMicrocentsFromStorage(
-        reservation.reservedMicrocents,
-        "Agent usage reservation",
-      );
+      const reservedMicrocents = agentMicrocentsFromStorage(reservation.reservedMicrocents, "Agent usage reservation");
       const ceilingMicrocents =
         conversation.routineRuns.length > 0
           ? conversation.creditCeilingMicrocents === null
             ? null
-            : agentMicrocentsFromStorage(
-                conversation.creditCeilingMicrocents,
-                "Routine run credit ceiling",
-              )
+            : agentMicrocentsFromStorage(conversation.creditCeilingMicrocents, "Routine run credit ceiling")
           : null;
       if (
         ceilingMicrocents !== null &&
-        (reservedMicrocents > ceilingMicrocents ||
-          args.requiredMicrocents > ceilingMicrocents)
+        (reservedMicrocents > ceilingMicrocents || args.requiredMicrocents > ceilingMicrocents)
       )
         return { disposition: "credit_limit" };
       if (reservedMicrocents >= args.requiredMicrocents) {
@@ -3297,17 +2907,9 @@ export class PrismaAgentChatRepo
 
       const now = new Date();
       const user = await this.findUserForUsageUnscoped(args.userId);
-      if (
-        !user ||
-        user.companyId !== args.companyId ||
-        user.status !== Status.active ||
-        !user.subscription
-      )
+      if (!user || user.companyId !== args.companyId || user.status !== Status.active || !user.subscription)
         return { disposition: "hosted_ai_unavailable" };
-      const entitlement = await this.resolveCurrentAgentCreditEntitlement(
-        user,
-        now,
-      );
+      const entitlement = await this.resolveCurrentAgentCreditEntitlement(user, now);
       if (
         !entitlement ||
         entitlement.blockedReason ||
@@ -3329,8 +2931,7 @@ export class PrismaAgentChatRepo
       });
       const committedElsewhere = sumCommittedAgentMicrocents(others);
       if (
-        committedElsewhere + args.requiredMicrocents >
-          entitlement.limitMicrocents ||
+        committedElsewhere + args.requiredMicrocents > entitlement.limitMicrocents ||
         !(await this.admitsMemberCreditCommitment({
           companyId: args.companyId,
           userId: args.userId,
@@ -3377,12 +2978,7 @@ export class PrismaAgentChatRepo
   }
 
   @BypassTenantGuard
-  async releaseUsageReservationUnscoped(args: {
-    id: string;
-    companyId: string;
-    userId: string;
-    releasedAt: Date;
-  }) {
+  async releaseUsageReservationUnscoped(args: { id: string; companyId: string; userId: string; releasedAt: Date }) {
     const { releasedAt, ...where } = args;
     await this.prisma.agentUsageEvent.updateMany({
       where: { ...where, state: "reserved" },

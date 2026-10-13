@@ -4224,10 +4224,7 @@
       "connectedAccountsPerUser": "{accounts, plural, one {# cuenta conectada por usuario} other {# cuentas conectadas por usuario}}",
       "creditNote": "Los créditos de IA alojada se renuevan cada mes; los créditos no utilizados no se acumulan. Cada consulta se cobra por su coste exacto del proveedor y se muestra con un decimal. Los clientes MCP externos facturan el uso del modelo a través de tu propio proveedor de IA. Las búsquedas semánticas del servidor pueden consumir créditos de IA alojada.",
       "features": {
-        "business": [
-          "Todo lo de Pro",
-          "Cuentas compartidas y soporte prioritario"
-        ],
+        "business": ["Todo lo de Pro", "Cuentas compartidas y soporte prioritario"],
         "pro": ["Todo lo de Starter", "Bandeja de entrada unificada"],
         "starter": [
           "CRM completo: contactos, oportunidades, organizaciones y tareas",

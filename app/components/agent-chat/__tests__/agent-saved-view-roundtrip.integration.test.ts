@@ -52,10 +52,7 @@ vi.mock("@sentry/nextjs", () => ({
 }));
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
-  getTranslations: () =>
-    Promise.resolve(
-      Object.assign((key: string) => key, { raw: (key: string) => key }),
-    ),
+  getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
 }));
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
@@ -73,38 +70,33 @@ vi.mock("@/core/stores/root-store.provider", () => ({
   }),
 }));
 vi.mock("@/i18n/navigation", () => ({
-  IntlLink: ({ children, href }: { children?: ReactNode; href: string }) =>
-    createElement("a", { href }, children),
+  IntlLink: ({ children, href }: { children?: ReactNode; href: string }) => createElement("a", { href }, children),
   usePathname: () => "/records/10000000-0000-4000-8000-000000000101",
 }));
 vi.mock("@/components/shared/app-link", () => {
-  const MockAppLink = forwardRef<
-    HTMLAnchorElement,
-    ComponentProps<"a"> & { appearance?: string }
-  >(({ appearance: _appearance, children, href, onClick, ...props }, ref) =>
-    createElement(
-      "a",
-      {
-        ...props,
-        href,
-        ref,
-        onClick: (event: MouseEvent) => {
-          event.preventDefault();
-          if (typeof href === "string") harness.navigatedTo.push(href);
-          onClick?.(event as never);
+  const MockAppLink = forwardRef<HTMLAnchorElement, ComponentProps<"a"> & { appearance?: string }>(
+    ({ appearance: _appearance, children, href, onClick, ...props }, ref) =>
+      createElement(
+        "a",
+        {
+          ...props,
+          href,
+          ref,
+          onClick: (event: MouseEvent) => {
+            event.preventDefault();
+            if (typeof href === "string") harness.navigatedTo.push(href);
+            onClick?.(event as never);
+          },
         },
-      },
-      children,
-    ),
+        children,
+      ),
   );
   MockAppLink.displayName = "MockAppLink";
   return { AppLink: MockAppLink };
 });
 vi.mock("../actions", () => ({
   archiveAgentConversationAction: vi.fn(),
-  cancelAgentTurnAction: vi
-    .fn()
-    .mockResolvedValue({ ok: true, data: { cancelling: true } }),
+  cancelAgentTurnAction: vi.fn().mockResolvedValue({ ok: true, data: { cancelling: true } }),
   deleteAgentConversationAction: vi.fn(),
   getAgentConfigAction: harness.getAgentConfigAction,
   getAgentConversationAction: harness.getAgentConversationAction,
@@ -118,15 +110,9 @@ vi.mock("../actions", () => ({
 import { POST } from "@/app/api/agent/messages/route";
 import { SURFACE } from "@/core/data-view/data-view-keys";
 import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
-import {
-  SendAgentMessageSchema,
-  type AgentMessagePart,
-} from "@/ee/agent-chat/agent-chat.schema";
+import { SendAgentMessageSchema, type AgentMessagePart } from "@/ee/agent-chat/agent-chat.schema";
 import { sse } from "@/ee/agent-chat/agent-stream-utils";
-import {
-  getAgentAiTools,
-  type AgentToolDeps,
-} from "@/ee/agent-chat/agent-tools";
+import { getAgentAiTools, type AgentToolDeps } from "@/ee/agent-chat/agent-tools";
 import type { AgentTranscriptEvent } from "@/ee/agent-chat/agent-turn-transcript";
 import { AgentTurnTranscript } from "@/ee/agent-chat/agent-turn-transcript";
 import { internalToolIdentity } from "@/ee/agent-chat/tool-identity";
@@ -226,18 +212,10 @@ function rootStore() {
 
 function toolDeps(pageRoute: string): AgentToolDeps {
   return {
-    runUiCommand: vi
-      .fn()
-      .mockResolvedValue({ ok: true, result: "browser result" }),
+    runUiCommand: vi.fn().mockResolvedValue({ ok: true, result: "browser result" }),
     requestApproval: vi.fn().mockResolvedValue("approve"),
-    resolveApprovalContext: vi
-      .fn()
-      .mockImplementation((_toolName, input) =>
-        Promise.resolve({ ok: true, input }),
-      ),
-    createSupportTicket: vi
-      .fn()
-      .mockResolvedValue({ ok: true, result: "created" }),
+    resolveApprovalContext: vi.fn().mockImplementation((_toolName, input) => Promise.resolve({ ok: true, input })),
+    createSupportTicket: vi.fn().mockResolvedValue({ ok: true, result: "created" }),
     runExactlyOnce: (_toolCallId, _toolName, run) => run(),
     runInCallerContext: (run) => run(),
     resultMaxChars: 6000,
@@ -248,10 +226,7 @@ function toolDeps(pageRoute: string): AgentToolDeps {
 function executeTool(tool: unknown, input: unknown) {
   return (
     tool as {
-      execute: (
-        value: unknown,
-        options: { toolCallId: string },
-      ) => Promise<unknown>;
+      execute: (value: unknown, options: { toolCallId: string }) => Promise<unknown>;
     }
   ).execute(input, { toolCallId: TOOL_CALL_ID });
 }
@@ -278,9 +253,7 @@ function stream(events: readonly AgentTranscriptEvent[]) {
   ];
   return new ReadableStream<Uint8Array>({
     start(controller) {
-      terminalEvents.forEach((event, index) =>
-        controller.enqueue(sse(index, event.type, event.payload)),
-      );
+      terminalEvents.forEach((event, index) => controller.enqueue(sse(index, event.type, event.payload)));
       controller.close();
     },
   });
@@ -292,9 +265,7 @@ describe("saved-view Assistant round trip", () => {
   let storedMessages: StoredMessage[];
 
   beforeEach(() => {
-    (
-      globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }
-    ).IS_REACT_ACT_ENVIRONMENT = true;
+    (globalThis as typeof globalThis & { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
     container = document.createElement("div");
     document.body.append(container);
     reactRoot = createRoot(container);
@@ -336,112 +307,93 @@ describe("saved-view Assistant round trip", () => {
   });
 
   it("streams a contextual view mutation, persists it, reloads it, and renders its navigation", async () => {
-    harness.sendAgentMessageInvoke.mockImplementation(
-      async (input: unknown) => {
-        const request = SendAgentMessageSchema.parse(input);
-        expect(request).toMatchObject({
-          text: "Show this view as cards",
-          contexts: [VIEW_CONTEXT],
-          pageContext: { route: VIEW_ROUTE },
-          locale: "en",
-          retry: false,
-        });
+    harness.sendAgentMessageInvoke.mockImplementation(async (input: unknown) => {
+      const request = SendAgentMessageSchema.parse(input);
+      expect(request).toMatchObject({
+        text: "Show this view as cards",
+        contexts: [VIEW_CONTEXT],
+        pageContext: { route: VIEW_ROUTE },
+        locale: "en",
+        retry: false,
+      });
 
-        const pageRoute = request.pageContext?.route;
-        if (!pageRoute)
-          throw new Error(
-            "The contextual view request must retain its page route.",
-          );
-        const agentTool = getAgentAiTools(
-          toolDeps(pageRoute),
-        ).manage_data_views;
-        const output = await executeTool(agentTool, TOOL_INPUT);
-        expect(harness.manageDataViewsInvoke).toHaveBeenCalledWith(TOOL_INPUT);
-        expect(output).toMatchObject({
-          ok: true,
-          navigation: { kind: "saved-view", href: VIEW_HREF },
-        });
+      const pageRoute = request.pageContext?.route;
+      if (!pageRoute) throw new Error("The contextual view request must retain its page route.");
+      const agentTool = getAgentAiTools(toolDeps(pageRoute)).manage_data_views;
+      const output = await executeTool(agentTool, TOOL_INPUT);
+      expect(harness.manageDataViewsInvoke).toHaveBeenCalledWith(TOOL_INPUT);
+      expect(output).toMatchObject({
+        ok: true,
+        navigation: { kind: "saved-view", href: VIEW_HREF },
+      });
 
-        const transcriptEvents: AgentTranscriptEvent[] = [];
-        const transcript = new AgentTurnTranscript((event) =>
-          transcriptEvents.push(event),
-        );
-        transcript.beginToolCall({
-          toolCallId: TOOL_CALL_ID,
-          toolName: "manage_data_views",
-          activity: describeAgentTool(
-            internalToolIdentity("manage_data_views"),
-            TOOL_INPUT,
-          ),
-        });
-        transcript.completeToolCall({
-          toolCallId: TOOL_CALL_ID,
-          toolName: "manage_data_views",
-          status: "done",
-          failed: false,
-          output: { type: "json", value: output },
-        });
+      const transcriptEvents: AgentTranscriptEvent[] = [];
+      const transcript = new AgentTurnTranscript((event) => transcriptEvents.push(event));
+      transcript.beginToolCall({
+        toolCallId: TOOL_CALL_ID,
+        toolName: "manage_data_views",
+        activity: describeAgentTool(internalToolIdentity("manage_data_views"), TOOL_INPUT),
+      });
+      transcript.completeToolCall({
+        toolCallId: TOOL_CALL_ID,
+        toolName: "manage_data_views",
+        status: "done",
+        failed: false,
+        output: { type: "json", value: output },
+      });
 
-        storedMessages = [
-          {
-            id: USER_MESSAGE_ID,
-            role: "user",
-            parts: [
-              {
-                type: "context",
-                context: request.contexts?.[0] ?? VIEW_CONTEXT,
-              },
-              { type: "text", text: request.text },
-            ],
-            createdAt: new Date("2026-09-24T10:00:00.000Z"),
-            turn: {
-              clientRequestId: request.clientRequestId,
-              status: "completed",
-              assistantMessageId: ASSISTANT_MESSAGE_ID,
-              terminalCode: "completed",
-              stopReason: null,
+      storedMessages = [
+        {
+          id: USER_MESSAGE_ID,
+          role: "user",
+          parts: [
+            {
+              type: "context",
+              context: request.contexts?.[0] ?? VIEW_CONTEXT,
             },
-          },
-          {
-            id: ASSISTANT_MESSAGE_ID,
-            role: "assistant",
-            parts: transcript.replyParts,
-            createdAt: new Date("2026-09-24T10:00:01.000Z"),
-            turn: null,
-          },
-        ];
-        harness.agentTurnSseStream.mockReturnValueOnce(
-          stream(transcriptEvents),
-        );
-
-        return {
-          ok: true,
-          data: {
-            disposition: "run",
-            externalRunId: "wrun_saved_view_roundtrip",
-            conversationId: CONVERSATION_ID,
-            userMessageId: USER_MESSAGE_ID,
+            { type: "text", text: request.text },
+          ],
+          createdAt: new Date("2026-09-24T10:00:00.000Z"),
+          turn: {
             clientRequestId: request.clientRequestId,
+            status: "completed",
+            assistantMessageId: ASSISTANT_MESSAGE_ID,
+            terminalCode: "completed",
+            stopReason: null,
           },
-        };
-      },
-    );
+        },
+        {
+          id: ASSISTANT_MESSAGE_ID,
+          role: "assistant",
+          parts: transcript.replyParts,
+          createdAt: new Date("2026-09-24T10:00:01.000Z"),
+          turn: null,
+        },
+      ];
+      harness.agentTurnSseStream.mockReturnValueOnce(stream(transcriptEvents));
 
-    const fetchMock = vi.fn(
-      async (input: RequestInfo | URL, init?: RequestInit) => {
-        expect(input).toBe("/api/agent/messages");
-        const response = await POST(
-          new Request(
-            `http://localhost:4000${String(input)}`,
-            init,
-          ) as Parameters<typeof POST>[0],
-        );
-        expect(response.status).toBe(200);
-        expect(response.headers.get("content-type")).toBe("text/event-stream");
-        expect(response.headers.get("x-conversation-id")).toBe(CONVERSATION_ID);
-        return response;
-      },
-    );
+      return {
+        ok: true,
+        data: {
+          disposition: "run",
+          externalRunId: "wrun_saved_view_roundtrip",
+          conversationId: CONVERSATION_ID,
+          userMessageId: USER_MESSAGE_ID,
+          clientRequestId: request.clientRequestId,
+        },
+      };
+    });
+
+    const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      expect(input).toBe("/api/agent/messages");
+      const response = await POST(
+        new Request(`http://localhost:4000${String(input)}`, init) as Parameters<typeof POST>[0],
+      );
+      expect(response.status).toBe(200);
+      expect(response.headers.get("content-type")).toBe("text/event-stream");
+      expect(response.headers.get("x-conversation-id")).toBe(CONVERSATION_ID);
+      return response;
+    });
     vi.stubGlobal("fetch", fetchMock);
 
     const liveStore = new AgentChatStore(rootStore() as never);
@@ -454,15 +406,10 @@ describe("saved-view Assistant round trip", () => {
 
     await vi.waitFor(() => {
       expect(liveStore.isWorking).toBe(false);
-      expect(harness.getAgentConversationAction).toHaveBeenCalledWith(
-        CONVERSATION_ID,
-      );
+      expect(harness.getAgentConversationAction).toHaveBeenCalledWith(CONVERSATION_ID);
       expect(
         liveStore.items.some(
-          (item) =>
-            item.kind === "activity" &&
-            item.status === "done" &&
-            item.activity.viewHref === VIEW_HREF,
+          (item) => item.kind === "activity" && item.status === "done" && item.activity.viewHref === VIEW_HREF,
         ),
       ).toBe(true);
     });
@@ -489,15 +436,13 @@ describe("saved-view Assistant round trip", () => {
       }),
     );
     const activity = reloadedStore.items.find(
-      (item): item is Extract<AgentChatItem, { kind: "activity" }> =>
-        item.kind === "activity",
+      (item): item is Extract<AgentChatItem, { kind: "activity" }> => item.kind === "activity",
     );
     expect(activity).toMatchObject({
       status: "done",
       activity: { viewHref: VIEW_HREF },
     });
-    if (!activity)
-      throw new Error("The persisted saved-view activity was not restored.");
+    if (!activity) throw new Error("The persisted saved-view activity was not restored.");
 
     act(() => {
       reactRoot.render(
@@ -509,9 +454,7 @@ describe("saved-view Assistant round trip", () => {
       );
     });
 
-    const link = container.querySelector<HTMLAnchorElement>(
-      `a[href="${VIEW_HREF}"]`,
-    );
+    const link = container.querySelector<HTMLAnchorElement>(`a[href="${VIEW_HREF}"]`);
     expect(link?.textContent).toBe("AgentChat.openSavedView");
     expect(container.textContent).not.toContain(VIEW_HREF);
     act(() => link?.click());
@@ -538,76 +481,58 @@ describe("saved-view Assistant round trip", () => {
       viewKey: "__all__",
       state: { viewMode: "card" },
     };
-    harness.sendAgentMessageInvoke.mockImplementation(
-      async (input: unknown) => {
-        const request = SendAgentMessageSchema.parse(input);
-        const pageRoute = request.pageContext?.route;
-        if (!pageRoute)
-          throw new Error(
-            "The contextual view request must retain its page route.",
-          );
-        const output = await executeTool(
-          getAgentAiTools(toolDeps(pageRoute), { surface: "chat" })
-            .manage_data_views,
-          TOOL_INPUT,
-        );
-        expect(harness.manageDataViewsPropose).toHaveBeenCalledWith(TOOL_INPUT);
-        expect(harness.manageDataViewsInvoke).not.toHaveBeenCalled();
-        expect(output).toMatchObject({ ok: true, viewProposal: proposal });
+    harness.sendAgentMessageInvoke.mockImplementation(async (input: unknown) => {
+      const request = SendAgentMessageSchema.parse(input);
+      const pageRoute = request.pageContext?.route;
+      if (!pageRoute) throw new Error("The contextual view request must retain its page route.");
+      const output = await executeTool(
+        getAgentAiTools(toolDeps(pageRoute), { surface: "chat" }).manage_data_views,
+        TOOL_INPUT,
+      );
+      expect(harness.manageDataViewsPropose).toHaveBeenCalledWith(TOOL_INPUT);
+      expect(harness.manageDataViewsInvoke).not.toHaveBeenCalled();
+      expect(output).toMatchObject({ ok: true, viewProposal: proposal });
 
-        const transcriptEvents: AgentTranscriptEvent[] = [];
-        const transcript = new AgentTurnTranscript((event) =>
-          transcriptEvents.push(event),
-        );
-        transcript.beginToolCall({
-          toolCallId: TOOL_CALL_ID,
-          toolName: "manage_data_views",
-          activity: describeAgentTool(
-            internalToolIdentity("manage_data_views"),
-            TOOL_INPUT,
-          ),
-        });
-        transcript.completeToolCall({
-          toolCallId: TOOL_CALL_ID,
-          toolName: "manage_data_views",
-          status: "done",
-          failed: false,
-          output: { type: "json", value: output },
-        });
-        expect(transcriptEvents).toContainEqual(
-          expect.objectContaining({
-            type: "activity_result",
-            payload: expect.objectContaining({
-              viewProposal: proposal,
-              viewProposed: true,
-              viewHref: "/settings/members?view=__all__",
-            }),
+      const transcriptEvents: AgentTranscriptEvent[] = [];
+      const transcript = new AgentTurnTranscript((event) => transcriptEvents.push(event));
+      transcript.beginToolCall({
+        toolCallId: TOOL_CALL_ID,
+        toolName: "manage_data_views",
+        activity: describeAgentTool(internalToolIdentity("manage_data_views"), TOOL_INPUT),
+      });
+      transcript.completeToolCall({
+        toolCallId: TOOL_CALL_ID,
+        toolName: "manage_data_views",
+        status: "done",
+        failed: false,
+        output: { type: "json", value: output },
+      });
+      expect(transcriptEvents).toContainEqual(
+        expect.objectContaining({
+          type: "activity_result",
+          payload: expect.objectContaining({
+            viewProposal: proposal,
+            viewProposed: true,
+            viewHref: "/settings/members?view=__all__",
           }),
-        );
-        harness.agentTurnSseStream.mockReturnValueOnce(
-          stream(transcriptEvents),
-        );
-        return {
-          ok: true,
-          data: {
-            disposition: "run",
-            externalRunId: "wrun_view_proposal",
-            conversationId: CONVERSATION_ID,
-            userMessageId: USER_MESSAGE_ID,
-            clientRequestId: request.clientRequestId,
-          },
-        };
-      },
-    );
+        }),
+      );
+      harness.agentTurnSseStream.mockReturnValueOnce(stream(transcriptEvents));
+      return {
+        ok: true,
+        data: {
+          disposition: "run",
+          externalRunId: "wrun_view_proposal",
+          conversationId: CONVERSATION_ID,
+          userMessageId: USER_MESSAGE_ID,
+          clientRequestId: request.clientRequestId,
+        },
+      };
+    });
     vi.stubGlobal(
       "fetch",
       vi.fn((input: RequestInfo | URL, init?: RequestInit) =>
-        POST(
-          new Request(
-            `http://localhost:4000${String(input)}`,
-            init,
-          ) as Parameters<typeof POST>[0],
-        ),
+        POST(new Request(`http://localhost:4000${String(input)}`, init) as Parameters<typeof POST>[0]),
       ),
     );
     window.history.replaceState(null, "", "/en/settings/members");
@@ -628,8 +553,6 @@ describe("saved-view Assistant round trip", () => {
     });
     liveStore.submitDraft();
 
-    await vi.waitFor(() =>
-      expect(propose).toHaveBeenCalledExactlyOnceWith(proposal),
-    );
+    await vi.waitFor(() => expect(propose).toHaveBeenCalledExactlyOnceWith(proposal));
   });
 });

@@ -37,10 +37,7 @@ describe("resolved agent approval targets", () => {
       viewKey: itemId,
       name: "PB big proposals",
     };
-    const wrong = await resolvedAgentApprovalActivity(
-      "manage_data_views",
-      input,
-    );
+    const wrong = await resolvedAgentApprovalActivity("manage_data_views", input);
     expect(wrong.context).toBeUndefined();
     const exact = await resolvedAgentApprovalActivity("manage_data_views", {
       ...input,

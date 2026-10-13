@@ -4224,14 +4224,8 @@
       "connectedAccountsPerUser": "{accounts, plural, one {# compte connecté par utilisateur} other {# comptes connectés par utilisateur}}",
       "creditNote": "Les crédits IA hébergés sont renouvelés chaque mois ; les crédits non utilisés ne sont pas reportés. Chaque demande est facturée à son coût exact chez le fournisseur, affiché avec une décimale. Les clients MCP externes facturent les modèles via votre propre fournisseur d'IA. Les recherches sémantiques côté serveur peuvent consommer des crédits IA hébergés.",
       "features": {
-        "business": [
-          "Tout ce qui est inclus dans Pro",
-          "Comptes partagés et assistance prioritaire"
-        ],
-        "pro": [
-          "Tout ce qui est inclus dans Starter",
-          "Boîte de réception unifiée"
-        ],
+        "business": ["Tout ce qui est inclus dans Pro", "Comptes partagés et assistance prioritaire"],
+        "pro": ["Tout ce qui est inclus dans Starter", "Boîte de réception unifiée"],
         "starter": [
           "CRM complet : contacts, affaires, organisations, tâches",
           "Journal d'audit",

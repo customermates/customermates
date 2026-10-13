@@ -11,9 +11,7 @@ const input = {
   mutation: {
     action: "update",
     ref,
-    fields: [
-      { fieldId: stageId, value: { kind: "select", value: "proposal" } },
-    ],
+    fields: [{ fieldId: stageId, value: { kind: "select", value: "proposal" } }],
   },
 };
 const result = { result: { status: "completed", refs: [ref] } };
@@ -31,9 +29,7 @@ describe("agent record write verification", () => {
         ],
       },
     });
-    await expect(
-      verifyAgentRecordUpdate(input, result, read),
-    ).resolves.toContain("did not match");
+    await expect(verifyAgentRecordUpdate(input, result, read)).resolves.toContain("did not match");
     expect(read).toHaveBeenCalledWith(ref);
   });
 
@@ -52,19 +48,13 @@ describe("agent record write verification", () => {
         ],
       },
     });
-    await expect(
-      verifyAgentRecordUpdate(input, result, read),
-    ).resolves.toBeNull();
+    await expect(verifyAgentRecordUpdate(input, result, read)).resolves.toBeNull();
   });
 
   it("refuses a completed result that contains no requested target", async () => {
     const read = vi.fn();
     await expect(
-      verifyAgentRecordUpdate(
-        input,
-        { result: { status: "completed", refs: [] } },
-        read,
-      ),
+      verifyAgentRecordUpdate(input, { result: { status: "completed", refs: [] } }, read),
     ).resolves.toContain("absent");
     expect(read).not.toHaveBeenCalled();
   });

@@ -17,45 +17,23 @@ describe("agent destructive approval guard", () => {
   };
 
   it("refuses an absent Trash target before the first card", () => {
-    expect(
-      approvalTargetRefusal(
-        request,
-        { ...activity, context: undefined },
-        new Set(),
-        null,
-      ),
-    ).toContain("could not be found");
+    expect(approvalTargetRefusal(request, { ...activity, context: undefined }, new Set(), null)).toContain(
+      "could not be found",
+    );
   });
 
   it("refuses a different exact title before the first card", () => {
     expect(
-      approvalTargetRefusal(
-        request,
-        activity,
-        new Set(),
-        'Purge the trashed deal "Lowell renewal 2026".',
-      ),
+      approvalTargetRefusal(request, activity, new Set(), 'Purge the trashed deal "Lowell renewal 2026".'),
     ).toContain('"Lowell renewal 2026" was not found');
   });
 
   it("opens only one approval for repeat calls against the same target", () => {
     const seen = new Set<string>();
-    expect(
-      approvalTargetRefusal(
-        request,
-        activity,
-        seen,
-        'Purge the trashed deal "Lowell renewal".',
-      ),
-    ).toBeNull();
-    expect(
-      approvalTargetRefusal(
-        request,
-        activity,
-        seen,
-        'Purge the trashed deal "Lowell renewal".',
-      ),
-    ).toContain("already submitted");
+    expect(approvalTargetRefusal(request, activity, seen, 'Purge the trashed deal "Lowell renewal".')).toBeNull();
+    expect(approvalTargetRefusal(request, activity, seen, 'Purge the trashed deal "Lowell renewal".')).toContain(
+      "already submitted",
+    );
   });
 
   it("accepts an exact saved-view name without a kind prefix", () => {
@@ -64,19 +42,9 @@ describe("agent destructive approval guard", () => {
       input: { action: "delete", surfaceKey: "dashboard", viewKey: itemId },
     };
     const viewActivity = {
-      ...describeAgentTool(
-        internalToolIdentity("manage_data_views"),
-        viewRequest.input,
-      ),
+      ...describeAgentTool(internalToolIdentity("manage_data_views"), viewRequest.input),
       context: { labels: ["Q1 pipeline (old)"] },
     };
-    expect(
-      approvalTargetRefusal(
-        viewRequest,
-        viewActivity,
-        new Set(),
-        'Delete "Q1 pipeline (old)".',
-      ),
-    ).toBeNull();
+    expect(approvalTargetRefusal(viewRequest, viewActivity, new Set(), 'Delete "Q1 pipeline (old)".')).toBeNull();
   });
 });

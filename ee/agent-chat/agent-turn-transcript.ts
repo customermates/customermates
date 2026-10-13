@@ -1,26 +1,12 @@
-import {
-  readAgentToolResultContext,
-  type AgentActivityContext,
-} from "./agent-activity-context";
-import type {
-  AgentActivityDescriptor,
-  AgentActivityResource,
-} from "./agent-activity";
+import { readAgentToolResultContext, type AgentActivityContext } from "./agent-activity-context";
+import type { AgentActivityDescriptor, AgentActivityResource } from "./agent-activity";
 import type { AgentMessagePart } from "./agent-chat.schema";
 
 import { AgentVisibleTextStreamSanitizer } from "./agent-output-safety";
-import {
-  agentToolProposalHref,
-  agentToolSavedViewHref,
-  agentToolViewProposal,
-} from "./agent-tool-navigation";
+import { agentToolProposalHref, agentToolSavedViewHref, agentToolViewProposal } from "./agent-tool-navigation";
 
 export type AgentActivityStatus = "done" | "error" | "cancelled";
-export type AgentApprovalStatus =
-  | "approved"
-  | "rejected"
-  | "timeout"
-  | "cancelled";
+export type AgentApprovalStatus = "approved" | "rejected" | "timeout" | "cancelled";
 
 export type AgentTranscriptEvent =
   | { type: "delta"; payload: { text: string } }
@@ -53,14 +39,8 @@ export type AgentTranscriptEmit = (event: AgentTranscriptEvent) => void;
 
 export class AgentTurnTranscript {
   private readonly parts: AgentMessagePart[] = [];
-  private readonly toolParts = new Map<
-    string,
-    Extract<AgentMessagePart, { type: "activity" }>
-  >();
-  private readonly approvalParts = new Map<
-    string,
-    Extract<AgentMessagePart, { type: "approval" }>
-  >();
+  private readonly toolParts = new Map<string, Extract<AgentMessagePart, { type: "activity" }>>();
+  private readonly approvalParts = new Map<string, Extract<AgentMessagePart, { type: "approval" }>>();
   private readonly retryableFailureByTool = new Map<string, string>();
   private readonly affected = new Set<AgentActivityResource>();
   private sanitizer: AgentVisibleTextStreamSanitizer;
@@ -92,10 +72,7 @@ export class AgentTurnTranscript {
 
   get hasSuccessfulMutation() {
     return this.parts.some(
-      (part) =>
-        part.type === "activity" &&
-        part.status === "done" &&
-        part.activity.risk !== "read",
+      (part) => part.type === "activity" && part.status === "done" && part.activity.risk !== "read",
     );
   }
 
@@ -117,11 +94,7 @@ export class AgentTurnTranscript {
     this.sanitizer = new AgentVisibleTextStreamSanitizer(this.appBaseUrl);
   }
 
-  beginToolCall(call: {
-    toolCallId: string;
-    toolName: string;
-    activity: AgentActivityDescriptor;
-  }) {
+  beginToolCall(call: { toolCallId: string; toolName: string; activity: AgentActivityDescriptor }) {
     this.finishTextSegment();
 
     const supersededId = this.retryableFailureByTool.get(call.toolName);
@@ -156,38 +129,22 @@ export class AgentTurnTranscript {
     output?: unknown;
   }) {
     const output = result.output;
-    if (
-      result.failed &&
-      output &&
-      typeof output === "object" &&
-      !Array.isArray(output)
-    ) {
+    if (result.failed && output && typeof output === "object" && !Array.isArray(output)) {
       const message = (output as { result?: unknown }).result;
-      if (typeof message === "string" && message.trim())
-        this.failedToolMessage = message.trim().slice(0, 300);
+      if (typeof message === "string" && message.trim()) this.failedToolMessage = message.trim().slice(0, 300);
     }
-    if (result.failed && result.toolName)
-      this.retryableFailureByTool.set(result.toolName, result.toolCallId);
+    if (result.failed && result.toolName) this.retryableFailureByTool.set(result.toolName, result.toolCallId);
     const viewHref =
       result.status === "done"
         ? (agentToolSavedViewHref(result.toolName, result.output) ??
           agentToolProposalHref(result.toolName, result.output))
         : null;
-    const viewProposal =
-      result.status === "done"
-        ? agentToolViewProposal(result.toolName, result.output)
-        : null;
+    const viewProposal = result.status === "done" ? agentToolViewProposal(result.toolName, result.output) : null;
     const toolPart = this.toolParts.get(result.toolCallId);
-    const context =
-      result.status === "done"
-        ? readAgentToolResultContext(result.toolName, result.output)
-        : undefined;
-    if (context && toolPart && !toolPart.activity.context)
-      toolPart.activity = { ...toolPart.activity, context };
-    if (viewHref && toolPart)
-      toolPart.activity = { ...toolPart.activity, viewHref };
-    if (viewProposal && toolPart)
-      toolPart.activity = { ...toolPart.activity, viewProposed: true };
+    const context = result.status === "done" ? readAgentToolResultContext(result.toolName, result.output) : undefined;
+    if (context && toolPart && !toolPart.activity.context) toolPart.activity = { ...toolPart.activity, context };
+    if (viewHref && toolPart) toolPart.activity = { ...toolPart.activity, viewHref };
+    if (viewProposal && toolPart) toolPart.activity = { ...toolPart.activity, viewProposed: true };
     this.settleTool(result.toolCallId, result.status);
     this.emit({
       type: "activity_result",
@@ -211,10 +168,7 @@ export class AgentTurnTranscript {
     });
   }
 
-  failUnfinishedTools(
-    status: Extract<AgentActivityStatus, "error" | "cancelled">,
-    shouldEmit: boolean,
-  ) {
+  failUnfinishedTools(status: Extract<AgentActivityStatus, "error" | "cancelled">, shouldEmit: boolean) {
     for (const [id, toolPart] of this.toolParts) {
       if (toolPart.status !== "running") continue;
       this.settleTool(id, status);
@@ -239,11 +193,7 @@ export class AgentTurnTranscript {
     this.emit({ type: "approval_request", payload: { requestId, activity } });
   }
 
-  resolveApproval(
-    requestId: string,
-    status: AgentApprovalStatus,
-    decision: string,
-  ) {
+  resolveApproval(requestId: string, status: AgentApprovalStatus, decision: string) {
     const approvalPart = this.approvalParts.get(requestId);
     if (approvalPart) approvalPart.status = status;
     this.emit({ type: "approval_resolved", payload: { requestId, decision } });
@@ -254,8 +204,6 @@ export class AgentTurnTranscript {
     if (!toolPart) return;
     toolPart.status = status;
     if (status === "done" && toolPart.activity.risk !== "read")
-      toolPart.activity.affectedResources.forEach((resource) =>
-        this.affected.add(resource),
-      );
+      toolPart.activity.affectedResources.forEach((resource) => this.affected.add(resource));
   }
 }
