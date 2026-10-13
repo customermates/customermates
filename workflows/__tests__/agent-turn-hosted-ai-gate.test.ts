@@ -2701,6 +2701,7 @@ describe("agent-turn outer failure compensation", () => {
       companyId: payload.companyId,
       userId: payload.userId,
       runId: payload.runId,
+      failureMessage: "localized:AgentChat.runner.interruptedTurn",
     });
     expect(state.finalize).not.toHaveBeenCalled();
     expect(state.providerCalls).toBe(0);

@@ -60,6 +60,9 @@ import { agentMicrocentsToCredits } from "@/core/commercial/agent-credits";
 import { createAgentSupportTicket } from "@/ee/agent-chat/agent-support-ticket";
 import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
 import { resolvedAgentApprovalActivity } from "@/ee/agent-chat/agent-approval-targets";
+import { approvalTargetRefusal } from "@/ee/agent-chat/agent-approval-guard";
+import { retryAgentFinalization } from "@/ee/agent-chat/agent-finalize-retry";
+import { agentTurnFailureMessageKind } from "@/ee/agent-chat/agent-failure-message";
 import { shouldRetryAgentStreamFailure } from "@/ee/agent-chat/agent-stream-retry";
 import {
   agentToolOutcomeStatus,
@@ -408,7 +411,11 @@ async function executeAgentTool(
     } = await collectRetrievalTimings(() =>
       collectClassifierCharges(() => execute(input, { toolCallId, messages: [] })),
     );
-    return { output: value, classifierCharges: charges, retrievalTimings: timings };
+    return {
+      output: value,
+      classifierCharges: charges,
+      retrievalTimings: timings,
+    };
   };
   return run();
 }
@@ -586,21 +593,6 @@ async function readApprovalActivities(payload: AgentTurnWorkflowPayload, request
 }
 readApprovalActivities.maxRetries = 0;
 
-function requiresResolvedApprovalTarget(request: PendingApproval) {
-  if (!request.input || typeof request.input !== "object" || Array.isArray(request.input)) return false;
-  const input = request.input as Record<string, unknown>;
-  if (request.toolName === "manage_data_views") return input.action === "delete";
-  if (request.toolName === "manage_trash") return input.action === "delete_permanently" || input.action === "empty";
-  if (request.toolName !== "mutate_crm_record") return false;
-  const mutation = input.mutation;
-  return (
-    mutation !== null &&
-    typeof mutation === "object" &&
-    (mutation as { action?: unknown }).action !== undefined &&
-    ["delete", "deleteMany"].includes(String((mutation as { action: unknown }).action))
-  );
-}
-
 async function publishAssistantText(text: string): Promise<void> {
   "use step";
   const writer = getWritable<{
@@ -643,6 +635,9 @@ type AgentRunnerMessageKind =
   | "hostedAiUnavailable"
   | "policyBreach"
   | "turnError"
+  | "contextLimit"
+  | "streamInterrupted"
+  | "interruptedTurn"
   | "emptyReply"
   | "sourcesHeading";
 
@@ -656,6 +651,9 @@ async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind
   if (kind === "creditLimitNoWrite") return t("AgentChat.runner.creditLimitNoWrite");
   if (kind === "hostedAiUnavailable") return t("AgentChat.runner.hostedAiUnavailable");
   if (kind === "turnError") return t("AgentChat.runner.turnError");
+  if (kind === "contextLimit") return t("AgentChat.runner.contextLimit");
+  if (kind === "streamInterrupted") return t("AgentChat.runner.streamInterrupted");
+  if (kind === "interruptedTurn") return t("AgentChat.runner.interruptedTurn");
   if (kind === "providerError") return t("AgentChat.runner.providerError");
   if (kind === "contentFilter") return t("AgentChat.runner.contentFilter");
   if (kind === "policyBreach") return t("AgentChat.runner.policyBreach");
@@ -866,13 +864,20 @@ closeTurnStreamAfterFailure.maxRetries = 0;
 
 async function reconcileFailedTurn(payload: AgentTurnWorkflowPayload): Promise<void> {
   "use step";
-  await getAgentChatRepo().reconcileInterruptedAgentTurnUnscoped({
-    turnRequestId: payload.turnRequestId,
-    conversationId: payload.conversationId,
-    companyId: payload.companyId,
-    userId: payload.userId,
-    runId: payload.runId,
-  });
+  const { getTranslator } = await import("@/i18n/get-translator");
+  const { appLocaleOrDefault } = await import("@/i18n/locale-registry");
+  const t = await getTranslator(appLocaleOrDefault(payload.locale));
+  const failureMessage = t("AgentChat.runner.interruptedTurn");
+  await retryAgentFinalization(() =>
+    getAgentChatRepo().reconcileInterruptedAgentTurnUnscoped({
+      turnRequestId: payload.turnRequestId,
+      conversationId: payload.conversationId,
+      companyId: payload.companyId,
+      userId: payload.userId,
+      runId: payload.runId,
+      failureMessage,
+    }),
+  );
 }
 
 async function settleRoutineRunStep(ownerUserId: string): Promise<void> {
@@ -886,20 +891,22 @@ settleRoutineRunStep.maxRetries = 0;
 async function finalizeTurn(payload: AgentTurnWorkflowPayload, outcome: AgentTurnFinalizationOutcome): Promise<void> {
   "use step";
 
-  const committed = await runAsBackgroundTenant(payload.userId, () =>
-    getAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
-      turnRequestId: payload.turnRequestId,
-      conversationId: payload.conversationId,
-      companyId: payload.companyId,
-      userId: payload.userId,
-      runId: payload.runId,
-      parts: outcome.parts as Prisma.InputJsonValue,
-      terminalCode: outcome.terminalCode,
-      stopReason: outcome.stopReason,
-      affectedResources: outcome.affectedResources,
-      usageSettlement: usageSettlementForTurn(payload, outcome),
-      classifierTrace: buildAgentTurnClassifierTrace(outcome.auxiliaryCharges ?? [], outcome.retrievalTimings ?? []),
-    }),
+  const committed = await retryAgentFinalization(() =>
+    runAsBackgroundTenant(payload.userId, () =>
+      getAgentChatRepo().finalizeAgentTurnOrThrowUnscoped({
+        turnRequestId: payload.turnRequestId,
+        conversationId: payload.conversationId,
+        companyId: payload.companyId,
+        userId: payload.userId,
+        runId: payload.runId,
+        parts: outcome.parts as Prisma.InputJsonValue,
+        terminalCode: outcome.terminalCode,
+        stopReason: outcome.stopReason,
+        affectedResources: outcome.affectedResources,
+        usageSettlement: usageSettlementForTurn(payload, outcome),
+        classifierTrace: buildAgentTurnClassifierTrace(outcome.auxiliaryCharges ?? [], outcome.retrievalTimings ?? []),
+      }),
+    ),
   );
 
   const writer = getWritable<AgentTranscriptEvent | AgentTurnTerminalEvent>().getWriter();
@@ -1030,6 +1037,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     let reservedMicrocents = payload.turnBudget.reservedMicrocents;
     let roundFailure: WorkflowFailure | null = null;
     const settledToolCallIds = new Set<string>();
+    const seenDestructiveApprovals = new Set<string>();
 
     const recordContinuationRound = (step: AgentRoundResult, outcomes: AgentToolOutcome[]) => {
       continuationSteps.push(toAgentContinuationStep(step, outcomes));
@@ -1057,7 +1065,11 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     const settleToolOutcome = (toolCallId: string, toolName: string | undefined, output: unknown) => {
       if (settledToolCallIds.has(toolCallId)) return;
       settledToolCallIds.add(toolCallId);
-      recordBenchmarkToolOutput({ toolCallId, toolName: toolName ?? "", output });
+      recordBenchmarkToolOutput({
+        toolCallId,
+        toolName: toolName ?? "",
+        output,
+      });
 
       const outcome = agentToolOutcomeStatus(output);
       transcript.completeToolCall({
@@ -1084,13 +1096,26 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           content?: unknown;
         };
         if (role !== "tool" || !Array.isArray(content)) continue;
-        const part = (content as { type?: string; toolName?: string; toolCallId?: string; output?: unknown }[]).find(
+        const part = (
+          content as {
+            type?: string;
+            toolName?: string;
+            toolCallId?: string;
+            output?: unknown;
+          }[]
+        ).find(
           (candidate) =>
             candidate.type === "tool-result" &&
             candidate.toolCallId === toolCallId &&
             (!requireToolName || candidate.toolName === toolName),
         );
-        if (part) return { toolCallId, toolName, output: unwrapToolOutput(part.output) };
+        if (part) {
+          return {
+            toolCallId,
+            toolName,
+            output: unwrapToolOutput(part.output),
+          };
+        }
       }
       return undefined;
     };
@@ -1128,6 +1153,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     ) => {
       const prepared = await resolveToolInput(shell.name, toolCallId, input);
       if (!prepared.ok) return prepared;
+      // prettier-ignore
       const readOnly = isReadOnlyAgentToolCall(shell.name, shell, prepared.input);
       let executionInput = prepared.input;
       if (payload.wikiWebsiteSetup && shell.name === WIKI_WEBSITE_IMPORT_TOOL_NAME) {
@@ -1358,7 +1384,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
               : undefined;
 
         tokens = addTokens(tokens, roundTokens);
-        ledger.push({ tokens: roundTokens, costMicrocents, measured, unreadableReason });
+        ledger.push({
+          tokens: roundTokens,
+          costMicrocents,
+          measured,
+          unreadableReason,
+        });
         unreportedProviderRounds = Math.max(0, unreportedProviderRounds - 1);
 
         const roundOutcome = await persistRound(payload, {
@@ -1412,7 +1443,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         for (const [toolCallId, toolName] of unrun) {
           if (settledToolCallIds.has(toolCallId)) continue;
           settledToolCallIds.add(toolCallId);
-          transcript.completeToolCall({ toolCallId, toolName, status: "cancelled", failed: false });
+          transcript.completeToolCall({
+            toolCallId,
+            toolName,
+            status: "cancelled",
+            failed: false,
+          });
         }
 
         recordContinuationRound(
@@ -1543,12 +1579,22 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                           const { toolCallId } = options;
                           try {
                             const output = await runShellTool(shell, input, toolCallId, options.messages);
-                            if (approvedCalls.has(toolCallId))
-                              approvedOutcomes.set(toolCallId, { toolCallId, toolName: shell.name, output });
+                            if (approvedCalls.has(toolCallId)) {
+                              approvedOutcomes.set(toolCallId, {
+                                toolCallId,
+                                toolName: shell.name,
+                                output,
+                              });
+                            }
                             return output;
                           } catch (error) {
-                            if (approvedCalls.has(toolCallId))
-                              approvedOutcomes.set(toolCallId, { toolCallId, toolName: shell.name, threw: true });
+                            if (approvedCalls.has(toolCallId)) {
+                              approvedOutcomes.set(toolCallId, {
+                                toolCallId,
+                                toolName: shell.name,
+                                threw: true,
+                              });
+                            }
                             throw error;
                           }
                         },
@@ -1765,7 +1811,15 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         })),
       );
       const invalidResults = preparedPending.flatMap(({ call, prepared }) =>
-        prepared.ok ? [] : [{ toolCallId: call.toolCallId, toolName: call.toolName, output: prepared }],
+        prepared.ok
+          ? []
+          : [
+              {
+                toolCallId: call.toolCallId,
+                toolName: call.toolName,
+                output: prepared,
+              },
+            ],
       );
       let resumableMessages = withToolResults(result.messages, invalidResults);
       for (const outcome of invalidResults) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
@@ -1826,21 +1880,24 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       }));
 
       let approvalActivities: AgentActivityDescriptor[] = await readApprovalActivities(payload, requests);
-      const unverified = requests.flatMap((request, index) =>
-        requiresResolvedApprovalTarget(request) && !approvalActivities[index]?.context
-          ? [
-              {
-                toolCallId: request.toolCallId,
-                toolName: request.toolName,
-                output: {
-                  ok: false,
-                  result:
-                    "The exact deletion target could not be verified. Nothing was changed. Read the target again and use its exact name and ID.",
-                },
-              },
-            ]
-          : [],
-      );
+      const unverified = requests.flatMap((request, index) => {
+        const reason = approvalTargetRefusal(
+          request,
+          approvalActivities[index],
+          seenDestructiveApprovals,
+          payload.messages.findLast((message) => message.role === "user")?.text ?? null,
+        );
+        if (reason) {
+          return [
+            {
+              toolCallId: request.toolCallId,
+              toolName: request.toolName,
+              output: { ok: false, result: reason },
+            },
+          ];
+        }
+        return [];
+      });
       if (unverified.length > 0) {
         for (const outcome of unverified) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
         appendDeferredOutcomes(unverified);
@@ -1981,7 +2038,12 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
       const message =
         stopKind === "turnError" && transcript.lastFailedToolMessage
           ? await resolveFailedToolRunnerMessage(payload.locale, transcript.lastFailedToolMessage)
-          : await resolveRunnerMessage(payload.locale, stopKind);
+          : stopKind === "turnError"
+            ? await resolveRunnerMessage(
+                payload.locale,
+                agentTurnFailureMessageKind(roundFailure?.message, transcript.lastFailedToolMessage),
+              )
+            : await resolveRunnerMessage(payload.locale, stopKind);
       const trailing = transcript.replyText.trim() ? `\n\n${message}` : message;
       transcript.appendText(trailing);
       await publishAssistantText(trailing);

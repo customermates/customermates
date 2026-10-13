@@ -1,4 +1,7 @@
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
+import { dataViewPath } from "@/core/data-view/data-view-paths";
+import { ALL_VIEW_KEY } from "@/core/data-view/data-view-keys";
+import { DataViewProposalSchema } from "@/core/data-view/data-view-proposal.schema";
 
 function unwrapToolOutput(output: unknown) {
   return output && typeof output === "object" && !Array.isArray(output) && "value" in output
@@ -27,4 +30,11 @@ export function agentToolViewProposal(toolName: string | undefined, output: unkn
   return proposal && typeof proposal === "object" && !Array.isArray(proposal)
     ? (proposal as Record<string, unknown>)
     : null;
+}
+
+export function agentToolProposalHref(toolName: string | undefined, output: unknown): string | null {
+  const proposal = DataViewProposalSchema.safeParse(agentToolViewProposal(toolName, output));
+  if (!proposal.success) return null;
+  const path = dataViewPath(proposal.data.surfaceKey);
+  return path ? dataViewNavigationHref(`${path}?view=${proposal.data.viewKey ?? ALL_VIEW_KEY}`) : null;
 }

@@ -39,7 +39,9 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
     );
     expect(await asTenant(() => repo.requestAgentTurnCancellation({ conversationId }))).toBe(true);
     expect(await repo.heartbeatAgentRunUnscoped(prior)).toBe(true);
-    expect(await repo.reconcileInterruptedAgentTurnUnscoped(prior)).toEqual({ reconciled: true });
+    expect(await repo.reconcileInterruptedAgentTurnUnscoped(prior)).toEqual({
+      reconciled: true,
+    });
 
     const runId = randomUUID();
     const reservationId = randomUUID();
@@ -212,6 +214,34 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
     });
   });
 
+  it("persists a visible assistant explanation when a running turn is interrupted", async () => {
+    const turn = await seed(true);
+    const failureMessage = "This turn stopped before I could confirm its outcome.";
+
+    expect(
+      await repo.reconcileInterruptedAgentTurnUnscoped({
+        ...turn,
+        failureMessage,
+      }),
+    ).toEqual({ reconciled: true });
+    const result = await client.query(
+      `SELECT t."assistantMessageId", m.parts FROM "AgentTurnRequest" t
+       JOIN "AgentMessage" m ON m.id = t."assistantMessageId"
+       WHERE t.id = $1`,
+      [turn.turnRequestId],
+    );
+    expect(result.rows[0].assistantMessageId).toBeTruthy();
+    expect(result.rows[0].parts).toEqual([{ type: "text", text: failureMessage }]);
+    expect(
+      await repo.reconcileInterruptedAgentTurnUnscoped({
+        ...turn,
+        failureMessage,
+      }),
+    ).toEqual({
+      reconciled: false,
+    });
+  });
+
   it("is idempotent under concurrent compensation and does not move settlement timestamps", async () => {
     const turn = await seed(true);
     const results = await Promise.all([
@@ -372,7 +402,11 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
       'SELECT state, "chargedMicrocents"::int AS "chargedMicrocents", "settledAt" FROM "AgentUsageEvent" WHERE id = $1 AND "companyId" = $2',
       [reservationId, companyId],
     );
-    expect(reservation.rows[0]).toEqual({ state: "reserved", chargedMicrocents: 0, settledAt: null });
+    expect(reservation.rows[0]).toEqual({
+      state: "reserved",
+      chargedMicrocents: 0,
+      settledAt: null,
+    });
     const lease = await client.query(
       'SELECT "runId" FROM "AgentRunLease" WHERE "conversationId" = $1 AND "companyId" = $2',
       [conversationId, companyId],

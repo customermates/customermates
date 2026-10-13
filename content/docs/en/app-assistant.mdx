@@ -19,23 +19,23 @@ Ordinary CRM work runs as soon as you ask: creating and updating records, links 
 
 Deletions, imports, changes to who can access data, actions that leave your workspace, and renaming lists for everyone stop for your approval every single time. Approval does not mean a change is final: deleted records, Knowledge Base pages, views, widgets and routines wait in [Trash](/docs/app-trash) for 30 days, where you restore them. Only a permanent delete, emptying Trash, and deleting a webhook or role, which skip Trash, cannot be taken back.
 
-| Always asks | Why |
-| --- | --- |
-| Deleting records | Moves the records and the cascades shown in the preview to Trash for 30 days; a permanent delete (`permanent: true`) removes them at once |
-| Deleting or moving a Knowledge Base page | Deleting moves the page to Trash for 30 days; moving changes where it sits for everyone |
-| Deleting a saved view or dashboard view | Moves the view to Trash for 30 days; a dashboard view takes its widgets with it |
-| Deleting items from Trash permanently or emptying Trash | Removes them at once; they cannot be restored |
-| Importing records | Creates or updates many records in one step |
-| Destructive data model changes, access changes, or replacing an existing field or relationship | The preview shows affected definitions, records and dependencies; a replaced field can overwrite stored values |
-| Saving or deleting a role | Saving can widen what the role may read and change; deleting a role no member holds removes it at once |
-| Changing a member's role or status | Can widen a member's access, or lock them out of the workspace |
-| Sharing or disconnecting a connected account | Changes who sees the account's conversations, or removes the channel |
-| Deleting a widget | Moves the dashboard widget to Trash for 30 days |
-| Deleting a webhook or resending a delivery | Destroys configuration, or sends a new external request |
-| Deleting a routine | Moves the routine to Trash for 30 days, where it stops running; its run history is removed only when it is deleted permanently |
-| Renaming lists | Changes the names every member sees |
-| Inviting members | Sends real invitation emails |
-| Sending a support request | Emails the Customermates team with your recent conversation |
+| Always asks                                                                                    | Why                                                                                                                                       |
+| ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Deleting records                                                                               | Moves the records and the cascades shown in the preview to Trash for 30 days; a permanent delete (`permanent: true`) removes them at once |
+| Deleting or moving a Knowledge Base page                                                       | Deleting moves the page to Trash for 30 days; moving changes where it sits for everyone                                                   |
+| Deleting a saved view or dashboard view                                                        | Moves the view to Trash for 30 days; a dashboard view takes its widgets with it                                                           |
+| Deleting items from Trash permanently or emptying Trash                                        | Removes them at once; they cannot be restored                                                                                             |
+| Importing records                                                                              | Creates or updates many records in one step                                                                                               |
+| Destructive data model changes, access changes, or replacing an existing field or relationship | The preview shows affected definitions, records and dependencies; a replaced field can overwrite stored values                            |
+| Saving or deleting a role                                                                      | Saving can widen what the role may read and change; deleting a role no member holds removes it at once                                    |
+| Changing a member's role or status                                                             | Can widen a member's access, or lock them out of the workspace                                                                            |
+| Sharing or disconnecting a connected account                                                   | Changes who sees the account's conversations, or removes the channel                                                                      |
+| Deleting a widget                                                                              | Moves the dashboard widget to Trash for 30 days                                                                                           |
+| Deleting a webhook or resending a delivery                                                     | Destroys configuration, or sends a new external request                                                                                   |
+| Deleting a routine                                                                             | Moves the routine to Trash for 30 days, where it stops running; its run history is removed only when it is deleted permanently            |
+| Renaming lists                                                                                 | Changes the names every member sees                                                                                                       |
+| Inviting members                                                                               | Sends real invitation emails                                                                                                              |
+| Sending a support request                                                                      | Emails the Customermates team with your recent conversation                                                                               |
 
 The approval card names the action, the exact target and its consequence, including the item count for bulk deletes. A Trash move is recoverable; a permanent deletion says explicitly that it cannot be undone. The card offers **Approve once** or **Cancel**; nothing happens until you answer. Cancel and nothing has changed. An unanswered card times out after 30 minutes and the request is discarded. There is no standing permission: the next time, Mate asks again.
 
@@ -69,7 +69,7 @@ The match by meaning costs a small fraction of a credit, charged to the person w
 
 ## How does Mate operate the interface, and can it click buttons for me? [#how-does-mate-operate-the-interface]
 
-Mate does not click buttons, type into forms or submit anything. It opens pages and points at controls, and **you** open, type, select and save; your unsaved edits are never overwritten. In chat, a request to create or change a saved view produces a proposal for you to review and save; Mate must not report it as saved before you do. Other data changes run through their tools, which report whether the change completed or is still pending. A record always opens on its page, never in the drawer. To add a record, Mate highlights [Add](app:records/contact?focus=add) on the list and you fill in the form. A control inside a panel, such as the board layout in **Appearance**, is shown after the panel's button. A board needs a field to group by; without one, Mate explains that first.
+Mate does not click buttons, type into forms or submit anything. It opens pages and points at controls, and **you** open, type, select and save; your unsaved edits are never overwritten. In chat, a request to create or change a saved view produces a proposal. Use **Review and save view** in Mate to open the target page, then use **Save** there to apply it. Until you save, the view and a permanent link to it do not exist. Other data changes run through their tools, which report whether the change completed or is still pending. A record always opens on its page, never in the drawer. To add a record, Mate highlights [Add](app:records/contact?focus=add) on the list and you fill in the form. A control inside a panel, such as the board layout in **Appearance**, is shown after the panel's button. A board needs a field to group by; without one, Mate explains that first.
 
 Mate can point at the sidebar entries, the toolbars of your lists, [Routines](app:routines), Members, Roles and Webhooks (Add, Filter, which also holds the search, and Appearance; on lists also More actions, which holds import and export), [Add widget](app:dashboard?focus=add-widget) on the Dashboard, and the main controls of the settings pages, such as the plan cards, **Manage with Lemon Squeezy** and **Refresh** on Billing where your role shows them. Inside dialogs it can point at **Save**, **Cancel** and **Reset**, every field of the member and webhook dialogs, the invitation, API key and channel dialogs, and the **Start from scratch** cards on step 1 of **Add widget**, one per chart style plus **Activity timeline**. The fields of the role, widget and routine dialogs are not targets, so Mate names them. For a dialog, Mate first points at the control that opens it, or names the row or card to click.
 
@@ -87,12 +87,12 @@ Long requests continue on their own through a bounded number of steps, keeping a
 
 Each active user gets a monthly allowance of hosted AI credits; one credit is one US cent of measured provider cost.
 
-| Plan | Price per seat and month | Hosted AI credits per active user and month | Routines per user |
-| --- | --- | --- | --- |
-| Starter | [[commercial.price.starter.monthly]] | 200 | [[commercial.entitlement.starter.includedRoutinesPerUser]] |
-| Pro | [[commercial.price.pro.monthly]] | 500 | [[commercial.entitlement.pro.includedRoutinesPerUser]] |
-| Business | [[commercial.price.business.monthly]] | 1,200 | [[commercial.entitlement.business.includedRoutinesPerUser]] |
-| Enterprise | On request | As contracted | [[commercial.entitlement.enterprise.includedRoutinesPerUser]] |
+| Plan       | Price per seat and month              | Hosted AI credits per active user and month | Routines per user                                             |
+| ---------- | ------------------------------------- | ------------------------------------------- | ------------------------------------------------------------- |
+| Starter    | [[commercial.price.starter.monthly]]  | 200                                         | [[commercial.entitlement.starter.includedRoutinesPerUser]]    |
+| Pro        | [[commercial.price.pro.monthly]]      | 500                                         | [[commercial.entitlement.pro.includedRoutinesPerUser]]        |
+| Business   | [[commercial.price.business.monthly]] | 1,200                                       | [[commercial.entitlement.business.includedRoutinesPerUser]]   |
+| Enterprise | On request                            | As contracted                               | [[commercial.entitlement.enterprise.includedRoutinesPerUser]] |
 
 The free trial runs for [[commercial.trial.days]] days with Pro features and 500 credits per active user. The allowance period starts at the moment the workspace was created and repeats monthly at that day and time in UTC (the last day in a shorter month), whatever your billing date; paid allowances reset monthly, and unused credits do not roll over. Only members with status **Active** count as seats and receive credits; a seat activated mid-period on a paid plan gets an exact prorated share. Routines spend their owner's credits. External MCP clients bill model use through your own AI provider, although search by meaning can still use hosted credits.
 

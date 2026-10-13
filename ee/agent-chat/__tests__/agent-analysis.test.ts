@@ -77,7 +77,10 @@ const detail: McpTool = {
   description: "detail",
   annotations: { readOnlyHint: true, openWorldHint: false },
   inputSchema: z.object({ id: z.string() }),
-  execute: (({ id }: { id: string }) => ({ text: id, structuredContent: { id, notes: "kept" } })) as never,
+  execute: (({ id }: { id: string }) => ({
+    text: id,
+    structuredContent: { id, notes: "kept" },
+  })) as never,
 };
 
 const writeExecute = vi.fn();
@@ -90,7 +93,10 @@ const writer: McpTool = {
   execute: writeExecute as never,
 };
 
-const read = (tool: string, input: Record<string, unknown> = {}) => ({ tool, input: JSON.stringify(input) });
+const read = (tool: string, input: Record<string, unknown> = {}) => ({
+  tool,
+  input: JSON.stringify(input),
+});
 
 function deps(...tools: McpTool[]): AnalysisDeps {
   return { tools, resultMaxChars: 6_000 };
@@ -137,7 +143,10 @@ describe("analyze_records", () => {
   it("refuses code that does not parse before it runs any read", async () => {
     const { tool, execute } = listTool("list_things", 5);
     const outcome = await analyzeRecords(
-      { reads: [{ tool: "list_things", input: {} }], code: "function count(d) { return d.length; } count(data)" },
+      {
+        reads: [{ tool: "list_things", input: {} }],
+        code: "function count(d) { return d.length; } count(data)",
+      },
       deps(tool),
     );
     expect(outcome.ok).toBe(false);
@@ -159,7 +168,10 @@ describe("analyze_records", () => {
 
     expect(outcome).toEqual({
       ok: true,
-      result: JSON.stringify({ rowsRead: 250, result: { rows: 250, total: 250, sum: 31_375 } }),
+      result: JSON.stringify({
+        rowsRead: 250,
+        result: { rows: 250, total: 250, sum: 31_375 },
+      }),
     });
     expect(execute.mock.calls.map(([input]) => [input.page, input.pageSize])).toEqual([
       [1, 100],
@@ -177,12 +189,21 @@ describe("analyze_records", () => {
       },
       deps(tool, detail),
     );
-    expect(outcome).toEqual({ ok: true, result: JSON.stringify({ rowsRead: 3, result: ["kept", 3] }) });
+    expect(outcome).toEqual({
+      ok: true,
+      result: JSON.stringify({ rowsRead: 3, result: ["kept", 3] }),
+    });
   });
 
   it("takes a grouped list as complete in one read instead of paging for items it never returns", async () => {
     const execute = vi.fn(() => {
-      const payload = { total: 40, page: 1, pageSize: 100, groups: [{ key: "a", label: "Ada", count: 40 }], items: [] };
+      const payload = {
+        total: 40,
+        page: 1,
+        pageSize: 100,
+        groups: [{ key: "a", label: "Ada", count: 40 }],
+        items: [],
+      };
       return { text: JSON.stringify(payload), structuredContent: payload };
     });
     const grouped: McpTool = {
@@ -198,10 +219,16 @@ describe("analyze_records", () => {
       execute: execute as never,
     };
     const outcome = await analyzeRecords(
-      { reads: [read("list_grouped", { groupBy: { field: "userIds" } })], code: "(data) => data[0].groups[0].count" },
+      {
+        reads: [read("list_grouped", { groupBy: { field: "userIds" } })],
+        code: "(data) => data[0].groups[0].count",
+      },
       deps(grouped),
     );
-    expect(outcome).toEqual({ ok: true, result: JSON.stringify({ rowsRead: 0, result: 40 }) });
+    expect(outcome).toEqual({
+      ok: true,
+      result: JSON.stringify({ rowsRead: 0, result: 40 }),
+    });
     expect(execute).toHaveBeenCalledTimes(1);
   });
 
@@ -267,7 +294,11 @@ describe("analyze_records", () => {
       name: "linkedin_search_sales_leads",
       annotations: { readOnlyHint: true, openWorldHint: true },
     };
-    const unannotated: McpTool = { ...tool, name: "get_unmarked", annotations: { readOnlyHint: true } };
+    const unannotated: McpTool = {
+      ...tool,
+      name: "get_unmarked",
+      annotations: { readOnlyHint: true },
+    };
     for (const name of [outside.name, unannotated.name]) {
       const outcome = await analyzeRecords(
         { reads: [read("list_things"), read(name)], code: "() => 1" },
@@ -334,7 +365,10 @@ describe("analyze_records", () => {
     title: name,
     description: name,
     annotations: { readOnlyHint: true, openWorldHint: false },
-    inputSchema: z.object({ page: z.number().default(1), pageSize: z.number().default(25) }),
+    inputSchema: z.object({
+      page: z.number().default(1),
+      pageSize: z.number().default(25),
+    }),
     execute: (({ page, pageSize }: { page: number; pageSize: number }) => {
       const payload = { ...content, page, pageSize };
       return { text: "large", structuredContent: payload };
@@ -344,12 +378,21 @@ describe("analyze_records", () => {
   it.each([
     [
       "a read that takes no pages",
-      { ...detail, execute: (() => ({ text: "large", structuredContent: { notes: large } })) as never },
+      {
+        ...detail,
+        execute: (() => ({
+          text: "large",
+          structuredContent: { notes: large },
+        })) as never,
+      },
       read("get_detail", { id: "x" }),
     ],
     [
       "a paged read with no items",
-      pagedRead("get_messaging_threads", { total: 1, messages: [{ body: large }] }),
+      pagedRead("get_messaging_threads", {
+        total: 1,
+        messages: [{ body: large }],
+      }),
       read("get_messaging_threads"),
     ],
     ["a grouped list", pagedRead("list_grouped", { groups: [{ label: large, count: 1 }] }), read("list_grouped")],
@@ -365,24 +408,43 @@ describe("analyze_records", () => {
     expect(execute).toHaveBeenCalledTimes(3);
   });
 
-  it("refuses a result longer than one tool result can hold instead of returning it cut", async () => {
+  it("returns a bounded, explicitly paged summary when a row result exceeds one tool result", async () => {
     const { tool } = listTool("list_things", 250);
-    const rows = Array.from({ length: 250 }, (_, index) => ({ id: `row-${index + 1}`, value: index + 1 }));
-    for (const [code, value] of [
-      ["(data) => data[0].items", rows],
-      ["() => undefined", null],
-    ] as const) {
-      const input = { reads: [read("list_things")], code };
-      const whole = JSON.stringify({ rowsRead: 250, result: value });
-
-      await expect(analyzeRecords(input, { tools: [tool], resultMaxChars: whole.length })).resolves.toEqual({
-        ok: true,
-        result: whole,
-      });
-      await expect(analyzeRecords(input, { tools: [tool], resultMaxChars: whole.length - 1 })).resolves.toEqual(
-        tooLarge(whole.length, whole.length - 1),
-      );
-    }
+    const rows = Array.from({ length: 250 }, (_, index) => ({
+      id: `row-${index + 1}`,
+      value: index + 1,
+    }));
+    const input = {
+      reads: [read("list_things")],
+      code: "(data) => data[0].items",
+    };
+    const whole = JSON.stringify({ rowsRead: 250, result: rows });
+    await expect(analyzeRecords(input, { tools: [tool], resultMaxChars: whole.length })).resolves.toEqual({
+      ok: true,
+      result: whole,
+    });
+    const bounded = await analyzeRecords(input, {
+      tools: [tool],
+      resultMaxChars: 6000,
+    });
+    expect(bounded.ok).toBe(true);
+    expect(bounded.result.length).toBeLessThanOrEqual(6000);
+    const summary = JSON.parse(bounded.result);
+    expect(summary).toMatchObject({
+      rowsRead: 250,
+      result: { totalItems: 250, truncated: true },
+    });
+    expect(summary.result.items[0]).toEqual(rows[0]);
+    expect(summary.result.items.length).toBeLessThan(rows.length);
+    await expect(
+      analyzeRecords(
+        { reads: [read("list_things")], code: "() => undefined" },
+        {
+          tools: [tool],
+          resultMaxChars: 29,
+        },
+      ),
+    ).resolves.toEqual(tooLarge(30, 29));
   });
 
   it.each([
@@ -434,10 +496,16 @@ describe("analyze_records", () => {
     });
     await expect(
       analyzeRecords(
-        { reads: [read("list_things")], code: `() => { JSON.stringify = () => '{"rowsRead":10000}'; return 0; }` },
+        {
+          reads: [read("list_things")],
+          code: `() => { JSON.stringify = () => '{"rowsRead":10000}'; return 0; }`,
+        },
         deps(tool),
       ),
-    ).resolves.toEqual({ ok: true, result: '{"rowsRead":3,"result":{"rowsRead":10000}}' });
+    ).resolves.toEqual({
+      ok: true,
+      result: '{"rowsRead":3,"result":{"rowsRead":10000}}',
+    });
   });
 
   it("returns or refuses a result nested 10,000 deep by its size instead of failing to serialize it", async () => {
@@ -466,18 +534,33 @@ describe("analyze_records", () => {
     expect(JSON.stringify([{ id: "row-1" }]).length).toBeLessThan(ANALYSIS_MAX_BYTES);
 
     await expect(
-      analyzeRecords({ reads: [read("list_things")], code: "(data) => data[0].items.length" }, deps(tool)),
+      analyzeRecords(
+        {
+          reads: [read("list_things")],
+          code: "(data) => data[0].items.length",
+        },
+        deps(tool),
+      ),
     ).resolves.toEqual({ ok: false, result: TOO_MUCH_DATA });
   });
 
   it("applies the 8 MB data cap to UTF-8 bytes before running analysis", async () => {
-    const response = { total: 1, items: [{ id: "row-1", notes: "😀".repeat(ANALYSIS_MAX_BYTES / 4) }] };
+    const response = {
+      total: 1,
+      items: [{ id: "row-1", notes: "😀".repeat(ANALYSIS_MAX_BYTES / 4) }],
+    };
     const serialized = JSON.stringify(response);
     expect(serialized.length).toBeLessThan(ANALYSIS_MAX_BYTES);
     expect(Buffer.byteLength(serialized, "utf8")).toBeGreaterThan(ANALYSIS_MAX_BYTES);
     const tool = pagedRead("list_things", response);
     await expect(
-      analyzeRecords({ reads: [read("list_things")], code: "(data) => data[0].items.length" }, deps(tool)),
+      analyzeRecords(
+        {
+          reads: [read("list_things")],
+          code: "(data) => data[0].items.length",
+        },
+        deps(tool),
+      ),
     ).resolves.toEqual({ ok: false, result: TOO_MUCH_DATA });
   });
 
@@ -498,10 +581,16 @@ describe("analyze_records", () => {
     const { tool } = listTool("list_things", 3);
     await expect(
       analyzeRecords(
-        { reads: [read("list_things")], code: "async (data) => data[0].items.map((row) => row.value)" },
+        {
+          reads: [read("list_things")],
+          code: "async (data) => data[0].items.map((row) => row.value)",
+        },
         deps(tool),
       ),
-    ).resolves.toEqual({ ok: true, result: JSON.stringify({ rowsRead: 3, result: [1, 2, 3] }) });
+    ).resolves.toEqual({
+      ok: true,
+      result: JSON.stringify({ rowsRead: 3, result: [1, 2, 3] }),
+    });
     for (const text of [ANALYZE_RECORDS_DESCRIPTION, AnalyzeRecordsSchema.shape.code.description]) {
       expect(text).not.toMatch(/synchronous|without async/);
       expect(text).toContain(
@@ -533,7 +622,10 @@ describe("analyze_records", () => {
     const run = async (input?: Record<string, unknown> | string) => {
       const { tool, execute } = listTool("list_things", 150);
       const outcome = await analyzeRecords(
-        { reads: [{ tool: "list_things", input }], code: "(data) => data[0].items.length" },
+        {
+          reads: [{ tool: "list_things", input }],
+          code: "(data) => data[0].items.length",
+        },
         deps(tool),
       );
       return { outcome, calls: execute.mock.calls.map(([call]) => call) };
@@ -542,7 +634,10 @@ describe("analyze_records", () => {
     const asObject = await run({ prefix: "A" });
     expect(await run(JSON.stringify({ prefix: "A" }))).toEqual(asObject);
     expect(asObject).toEqual({
-      outcome: { ok: true, result: JSON.stringify({ rowsRead: 150, result: 150 }) },
+      outcome: {
+        ok: true,
+        result: JSON.stringify({ rowsRead: 150, result: 150 }),
+      },
       calls: [
         { prefix: "A", page: 1, pageSize: 100 },
         { prefix: "A", page: 2, pageSize: 100 },
@@ -559,14 +654,20 @@ describe("analyze_records", () => {
 
   it("runs an omitted input on a read that takes no pages as {}, like an empty object or string", async () => {
     const run = async (input?: Record<string, unknown> | string) => {
-      const execute = vi.fn((args: Record<string, unknown>) => ({ text: "args", structuredContent: { args } }));
+      const execute = vi.fn((args: Record<string, unknown>) => ({
+        text: "args",
+        structuredContent: { args },
+      }));
       const single: McpTool = {
         ...detail,
         inputSchema: z.object({ id: z.string().optional() }).strict(),
         execute: execute as never,
       };
       const outcome = await analyzeRecords(
-        { reads: [{ tool: "get_detail", input }], code: "(data) => data[0].args" },
+        {
+          reads: [{ tool: "get_detail", input }],
+          code: "(data) => data[0].args",
+        },
         deps(single),
       );
       return { outcome, calls: execute.mock.calls.map(([call]) => call) };
@@ -574,7 +675,10 @@ describe("analyze_records", () => {
 
     const omitted = await run();
     expect(omitted).toEqual({
-      outcome: { ok: true, result: JSON.stringify({ rowsRead: 0, result: {} }) },
+      outcome: {
+        ok: true,
+        result: JSON.stringify({ rowsRead: 0, result: {} }),
+      },
       calls: [{}],
     });
     expect(await run({})).toEqual(omitted);
@@ -590,10 +694,16 @@ describe("analyze_records", () => {
     );
     listed.query.mockImplementation(pagedQuery(rows));
     const outcome = await analyzeRecords(
-      { reads: [read("query_crm_records", { typeId })], code: "(data) => [data[0].records.length, data[0].total]" },
+      {
+        reads: [read("query_crm_records", { typeId })],
+        code: "(data) => [data[0].records.length, data[0].total]",
+      },
       deps(queryRecordsV2Tool as McpTool),
     );
-    expect(outcome).toEqual({ ok: true, result: JSON.stringify({ rowsRead: 750, result: [750, 750] }) });
+    expect(outcome).toEqual({
+      ok: true,
+      result: JSON.stringify({ rowsRead: 750, result: [750, 750] }),
+    });
     expect(listed.query.mock.calls.map(([input]) => [input.page, input.pageSize, input.includeRelationships])).toEqual([
       [1, 500, undefined],
       [2, 500, undefined],
@@ -613,7 +723,13 @@ describe("analyze_records", () => {
       record(taskType, id("8001", index + 1), [
         {
           fieldId: taskStatus,
-          result: { state: "value", value: { kind: "select", value: index < 15 || index >= 30 ? open : done } },
+          result: {
+            state: "value",
+            value: {
+              kind: "select",
+              value: index < 15 || index >= 30 ? open : done,
+            },
+          },
         },
       ]),
     );
@@ -624,7 +740,14 @@ describe("analyze_records", () => {
         [
           {
             fieldId: amount,
-            result: { state: "value", value: { kind: "decimal", value: `${100 * (index + 1)}.00`, currency: "EUR" } },
+            result: {
+              state: "value",
+              value: {
+                kind: "decimal",
+                value: `${100 * (index + 1)}.00`,
+                currency: "EUR",
+              },
+            },
           },
         ],
         [
@@ -633,7 +756,15 @@ describe("analyze_records", () => {
             direction: "outgoing",
             records:
               index < 30
-                ? [{ ref: { typeId: taskType, recordId: id("8001", index + 1) }, title: { state: "missing" } }]
+                ? [
+                    {
+                      ref: {
+                        typeId: taskType,
+                        recordId: id("8001", index + 1),
+                      },
+                      title: { state: "missing" },
+                    },
+                  ]
                 : [],
             readableCount: index < 30 ? 1 : 0,
             hasMore: false,
@@ -669,7 +800,11 @@ describe("analyze_records", () => {
       ok: true,
       result: JSON.stringify({
         rowsRead: 94,
-        result: { unblockedCount: 45, blockedCount: 15, unblockedTotal: 171_000 },
+        result: {
+          unblockedCount: 45,
+          blockedCount: 15,
+          unblockedTotal: 171_000,
+        },
       }),
     });
   });
@@ -696,7 +831,10 @@ describe("analyze_records", () => {
     );
     await expect(
       analyzeRecords(
-        { reads: [read("query_crm_records", { typeId })], code: "(data) => data[0].records.length" },
+        {
+          reads: [read("query_crm_records", { typeId })],
+          code: "(data) => data[0].records.length",
+        },
         deps(queryRecordsV2Tool as McpTool),
       ),
     ).resolves.toEqual({
@@ -739,10 +877,16 @@ describe("analyze_records", () => {
     });
     await expect(
       analyzeRecords(
-        { reads: [read("list_things")], code: "(data) => [typeof Date, data[0].items[0].createdAt.slice(0, 7)]" },
+        {
+          reads: [read("list_things")],
+          code: "(data) => [typeof Date, data[0].items[0].createdAt.slice(0, 7)]",
+        },
         deps(dated),
       ),
-    ).resolves.toEqual({ ok: true, result: JSON.stringify({ rowsRead: 1, result: ["undefined", "2026-03"] }) });
+    ).resolves.toEqual({
+      ok: true,
+      result: JSON.stringify({ rowsRead: 1, result: ["undefined", "2026-03"] }),
+    });
   });
 
   it("keeps refusing a string that is not a JSON object, and the schema refuses every other shape", async () => {
@@ -764,7 +908,10 @@ describe("analyze_records", () => {
     expect(execute).not.toHaveBeenCalled();
 
     const parses = (input: unknown) =>
-      AnalyzeRecordsSchema.safeParse({ reads: [{ tool: "list_things", input }], code: "() => 1" }).success;
+      AnalyzeRecordsSchema.safeParse({
+        reads: [{ tool: "list_things", input }],
+        code: "() => 1",
+      }).success;
     expect([{ prefix: "A" }, '{"prefix":"A"}', undefined].map((input) => parses(input))).toEqual([true, true, true]);
     expect([[{ prefix: "A" }], 42, null, true].map((input) => parses(input))).toEqual([false, false, false, false]);
   });
@@ -774,7 +921,10 @@ describe("analyze_records on a read that holds only part of its rows", () => {
   const NOT_RUN = "The analysis code was not run.";
 
   function fixedRead(name: string, shape: z.ZodRawShape, content: Record<string, unknown>) {
-    const execute = vi.fn(() => ({ text: JSON.stringify(content), structuredContent: content }));
+    const execute = vi.fn(() => ({
+      text: JSON.stringify(content),
+      structuredContent: content,
+    }));
     const tool: McpTool = {
       name,
       title: name,
@@ -796,7 +946,10 @@ describe("analyze_records on a read that holds only part of its rows", () => {
     const comments = (count: number) => Array.from({ length: count }, (_, index) => ({ id: `comment-${index}` }));
     const analyze = (tool: McpTool, input: Record<string, unknown>) =>
       analyzeRecords(
-        { reads: [read(tool.name, input)], code: "(data) => data[0].items ? data[0].items.length : data[0].id" },
+        {
+          reads: [read(tool.name, input)],
+          code: "(data) => data[0].items ? data[0].items.length : data[0].id",
+        },
         deps(tool),
       );
     const morePossible = (name: string, rows: number) => ({
@@ -811,7 +964,10 @@ describe("analyze_records on a read that holds only part of its rows", () => {
       const all = comments(rows);
       const capped = fixedRead(name, shape, {});
       capped.execute.mockImplementation((({ offset = 0 }: { offset?: number }) => {
-        const content = { next_cursor: null, items: all.slice(offset, offset + pageCap) };
+        const content = {
+          next_cursor: null,
+          items: all.slice(offset, offset + pageCap),
+        };
         return { text: JSON.stringify(content), structuredContent: content };
       }) as never);
       return capped;
@@ -823,7 +979,10 @@ describe("analyze_records on a read that holds only part of its rows", () => {
         next_cursor: null,
         items: comments(12),
       });
-      const post = fixedRead("get_social_posts", cursorShape, { id: "post-1", text: "Launch" });
+      const post = fixedRead("get_social_posts", cursorShape, {
+        id: "post-1",
+        text: "Launch",
+      });
       const leads = fixedRead("linkedin_search_sales_leads", cursorShape, {
         total: 7,
         next_offset: 7,
@@ -861,12 +1020,19 @@ describe("analyze_records on a read that holds only part of its rows", () => {
         next_cursor: "cursor-2",
         items: comments(12),
       });
-      const full = fixedRead("get_social_post_engagement", cursorShape, { next_cursor: null, items: comments(100) });
+      const full = fixedRead("get_social_post_engagement", cursorShape, {
+        next_cursor: null,
+        items: comments(100),
+      });
       const defaultLimit = fixedRead("linkedin_search_sales_leads", cursorShape, {
         next_offset: 10,
         items: comments(10),
       });
-      const counted = fixedRead("get_social_posts", cursorShape, { total: 40, next_cursor: null, items: comments(7) });
+      const counted = fixedRead("get_social_posts", cursorShape, {
+        total: 40,
+        next_cursor: null,
+        items: comments(7),
+      });
 
       await expect(analyze(cursored.tool, { postId: "post-1", limit: 100 })).resolves.toEqual(
         pageThrough("get_social_post_engagement", 12),
@@ -875,8 +1041,15 @@ describe("analyze_records on a read that holds only part of its rows", () => {
         pageThrough("get_social_post_engagement", 100),
       );
       await expect(analyze(defaultLimit.tool, {})).resolves.toEqual(morePossible("linkedin_search_sales_leads", 10));
-      expect(full.execute).toHaveBeenLastCalledWith({ postId: "post-1", offset: 100, limit: 100 });
-      expect(defaultLimit.execute).toHaveBeenLastCalledWith({ offset: 10, limit: 10 });
+      expect(full.execute).toHaveBeenLastCalledWith({
+        postId: "post-1",
+        offset: 100,
+        limit: 100,
+      });
+      expect(defaultLimit.execute).toHaveBeenLastCalledWith({
+        offset: 10,
+        limit: 10,
+      });
       await expect(analyze(counted.tool, { limit: 100 })).resolves.toEqual({
         ok: false,
         result: `get_social_posts returned 7 of 40 rows, so the analysis did not run on a partial set. ${NOT_RUN}`,
@@ -887,14 +1060,25 @@ describe("analyze_records on a read that holds only part of its rows", () => {
       const whole = cappedRead("get_social_post_engagement", cursorShape, 50, 50);
       const capped = cappedRead("get_social_post_engagement", cursorShape, 180, 50);
       const empty = cappedRead("get_social_post_engagement", cursorShape, 0, 50);
-      const totalled = { code: "(data) => ({ total: data[0].total, rows: data[0].items.length })" };
+      const totalled = {
+        code: "(data) => ({ total: data[0].total, rows: data[0].items.length })",
+      };
 
       await expect(
         analyzeRecords(
-          { reads: [read(whole.tool.name, { postId: "post-1", limit: 100 })], ...totalled },
+          {
+            reads: [read(whole.tool.name, { postId: "post-1", limit: 100 })],
+            ...totalled,
+          },
           deps(whole.tool),
         ),
-      ).resolves.toEqual({ ok: true, result: JSON.stringify({ rowsRead: 0, result: { total: 50, rows: 50 } }) });
+      ).resolves.toEqual({
+        ok: true,
+        result: JSON.stringify({
+          rowsRead: 0,
+          result: { total: 50, rows: 50 },
+        }),
+      });
       expect(whole.execute.mock.calls).toEqual([
         [{ postId: "post-1", limit: 100 }],
         [{ postId: "post-1", offset: 50, limit: 100 }],
@@ -904,21 +1088,31 @@ describe("analyze_records on a read that holds only part of its rows", () => {
       );
       await expect(
         analyzeRecords({ reads: [read(empty.tool.name, { postId: "post-1" })], ...totalled }, deps(empty.tool)),
-      ).resolves.toEqual({ ok: true, result: JSON.stringify({ rowsRead: 0, result: { total: 0, rows: 0 } }) });
+      ).resolves.toEqual({
+        ok: true,
+        result: JSON.stringify({ rowsRead: 0, result: { total: 0, rows: 0 } }),
+      });
       expect(empty.execute).toHaveBeenCalledOnce();
     });
 
     it("refuses a short page without a total when the tool takes no offset or the read past it fails", async () => {
       const cursorOnly = cappedRead(
         "get_social_post_engagement",
-        { postId: z.string().optional(), cursor: z.string().optional(), limit: z.number().optional() },
+        {
+          postId: z.string().optional(),
+          cursor: z.string().optional(),
+          limit: z.number().optional(),
+        },
         50,
         50,
       );
       const failing = fixedRead("get_social_posts", cursorShape, {});
       failing.execute.mockImplementation(((input: { offset?: number }) =>
         input.offset === undefined
-          ? { text: "posts", structuredContent: { next_cursor: null, items: comments(20) } }
+          ? {
+              text: "posts",
+              structuredContent: { next_cursor: null, items: comments(20) },
+            }
           : "Validation error: authorIdentifier is required with offset.") as never);
 
       await expect(analyze(cursorOnly.tool, { postId: "post-1", limit: 100 })).resolves.toEqual(
@@ -988,7 +1182,13 @@ describe("analyze_records on a read that holds only part of its rows", () => {
         searchTerm: "Atlas",
         results: [
           { entity: "contact", total: 1, items: [{ id: "c" }] },
-          { entity: "deal", total: 300, items: Array.from({ length: 5 }, (_, index) => ({ id: `${index}` })) },
+          {
+            entity: "deal",
+            total: 300,
+            items: Array.from({ length: 5 }, (_, index) => ({
+              id: `${index}`,
+            })),
+          },
         ],
       },
     );
@@ -1015,10 +1215,16 @@ describe("analyze_records on a read that holds only part of its rows", () => {
     });
     await expect(
       analyzeRecords(
-        { reads: [read("search_records")], code: "(data) => data[0].results[0].items.length" },
+        {
+          reads: [read("search_records")],
+          code: "(data) => data[0].results[0].items.length",
+        },
         deps(whole.tool),
       ),
-    ).resolves.toEqual({ ok: true, result: JSON.stringify({ rowsRead: 0, result: 2 }) });
+    ).resolves.toEqual({
+      ok: true,
+      result: JSON.stringify({ rowsRead: 0, result: 2 }),
+    });
   });
 
   it("refuses a grouped query_crm_records read that holds only part of some groups, and takes a complete one", async () => {
@@ -1056,7 +1262,12 @@ describe("analyze_records on a read that holds only part of its rows", () => {
     const analyze = () =>
       analyzeRecords(
         {
-          reads: [read("query_crm_records", { typeId, grouping: { field: "00000000-0000-4000-8000-0000000000c3" } })],
+          reads: [
+            read("query_crm_records", {
+              typeId,
+              grouping: { field: "00000000-0000-4000-8000-0000000000c3" },
+            }),
+          ],
           code: "(data) => data[0].grouping.groups.length",
         },
         deps(queryRecordsV2Tool as McpTool),
@@ -1073,7 +1284,10 @@ describe("analyze_records on a read that holds only part of its rows", () => {
     grouped([group(1)], true);
     await expect(analyze()).resolves.toEqual(refused);
     grouped([group(1), group(2)]);
-    await expect(analyze()).resolves.toEqual({ ok: true, result: JSON.stringify({ rowsRead: 0, result: 2 }) });
+    await expect(analyze()).resolves.toEqual({
+      ok: true,
+      result: JSON.stringify({ rowsRead: 0, result: 2 }),
+    });
     expect(listed.query).toHaveBeenCalledTimes(4);
   });
 
@@ -1083,7 +1297,10 @@ describe("analyze_records on a read that holds only part of its rows", () => {
         total: 30,
         page,
         pageSize,
-        items: Array.from({ length: 30 }, (_, index) => ({ id: `audit-${index}`, kind: "audit" })),
+        items: Array.from({ length: 30 }, (_, index) => ({
+          id: `audit-${index}`,
+          kind: "audit",
+        })),
         pageLimitReached: false,
         scopeTruncated: true,
       };
@@ -1094,12 +1311,21 @@ describe("analyze_records on a read that holds only part of its rows", () => {
       title: "activities",
       description: "activities",
       annotations: { readOnlyHint: true, openWorldHint: false },
-      inputSchema: z.object({ page: z.number().default(1), pageSize: z.number().default(25) }),
+      inputSchema: z.object({
+        page: z.number().default(1),
+        pageSize: z.number().default(25),
+      }),
       execute: execute as never,
     };
 
     await expect(
-      analyzeRecords({ reads: [read("get_activities")], code: "(data) => data[0].items.length" }, deps(activities)),
+      analyzeRecords(
+        {
+          reads: [read("get_activities")],
+          code: "(data) => data[0].items.length",
+        },
+        deps(activities),
+      ),
     ).resolves.toEqual({
       ok: false,
       result: `get_activities left out every message, activity and calendar event because its filters or scope reach too many contacts. Narrow them. ${NOT_RUN}`,
@@ -1121,7 +1347,13 @@ describe("analyze_records on a read that holds only part of its rows", () => {
     };
     const over = capped(4_500);
     await expect(
-      analyzeRecords({ reads: [read("get_activities")], code: "(data) => data[0].items.length" }, deps(over.tool)),
+      analyzeRecords(
+        {
+          reads: [read("get_activities")],
+          code: "(data) => data[0].items.length",
+        },
+        deps(over.tool),
+      ),
     ).resolves.toEqual({
       ok: false,
       result: `get_activities matched 4500 rows, more than the 4000 its page limit lets one analysis read. Narrow its filters. ${NOT_RUN}`,
@@ -1130,8 +1362,17 @@ describe("analyze_records on a read that holds only part of its rows", () => {
 
     const within = capped(4_000);
     await expect(
-      analyzeRecords({ reads: [read("get_activities")], code: "(data) => data[0].items.length" }, deps(within.tool)),
-    ).resolves.toEqual({ ok: true, result: JSON.stringify({ rowsRead: 4_000, result: 4_000 }) });
+      analyzeRecords(
+        {
+          reads: [read("get_activities")],
+          code: "(data) => data[0].items.length",
+        },
+        deps(within.tool),
+      ),
+    ).resolves.toEqual({
+      ok: true,
+      result: JSON.stringify({ rowsRead: 4_000, result: 4_000 }),
+    });
     expect(within.execute).toHaveBeenCalledTimes(40);
   });
 
@@ -1141,7 +1382,9 @@ describe("analyze_records on a read that holds only part of its rows", () => {
         total: 300,
         page,
         pageSize,
-        items: Array.from({ length: pageSize }, (_, index) => ({ id: `${page}-${index}` })),
+        items: Array.from({ length: pageSize }, (_, index) => ({
+          id: `${page}-${index}`,
+        })),
         pageLimitReached: page >= 2,
       };
       return { text: JSON.stringify(payload), structuredContent: payload };
@@ -1151,7 +1394,10 @@ describe("analyze_records on a read that holds only part of its rows", () => {
       title: "activities",
       description: "activities",
       annotations: { readOnlyHint: true, openWorldHint: false },
-      inputSchema: z.object({ page: z.number().default(1), pageSize: z.number().default(25) }),
+      inputSchema: z.object({
+        page: z.number().default(1),
+        pageSize: z.number().default(25),
+      }),
       execute: execute as never,
     };
 

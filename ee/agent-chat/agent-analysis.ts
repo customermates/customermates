@@ -55,7 +55,11 @@ export const ANALYZE_RECORDS_DESCRIPTION =
   "So a join, such as the deals that have an open task, is two query reads and one function. A single-select value is the option id and a multiple-choice value an array of option ids, not labels: get_record_model maps option ids to labels. Date is undefined in the sandbox: createdAt, updatedAt and date values are ISO strings to compare or slice as text, for example value.slice(0, 7) for the month. " +
   "When the answer is a count or total per status, owner, or created or updated month, prefer query_crm_measure or query_crm_records grouping with groupSummaries, and report figures exactly as the result states them.";
 
-export type AnalysisDeps = { tools: readonly McpTool[]; resultMaxChars: number; limits?: AnalysisLimits };
+export type AnalysisDeps = {
+  tools: readonly McpTool[];
+  resultMaxChars: number;
+  limits?: AnalysisLimits;
+};
 
 type Read = AnalyzeRecordsInput["reads"][number];
 type TooMuchData = { ok: false; tooMuchData: true };
@@ -71,6 +75,40 @@ function resultTooLarge(chars: number, resultMaxChars: number): { ok: false; res
     ok: false,
     result: `The analysis result is ${chars} characters, more than the ${resultMaxChars} one tool result can hold, so it was not returned. Return an aggregate, a top N or a count instead of whole rows.`,
   };
+}
+
+function boundedAnalysisSummary(serialized: string, rowsRead: number, maxChars: number): string | null {
+  const value: unknown = JSON.parse(serialized);
+  const list = Array.isArray(value)
+    ? value
+    : value && typeof value === "object"
+      ? Object.entries(value).find(
+          ([key, entry]) => ["items", "records", "deals", "rows"].includes(key) && Array.isArray(entry),
+        )?.[1]
+      : null;
+  if (!Array.isArray(list)) return null;
+  const key = Array.isArray(value) ? "items" : Object.entries(value as object).find(([, entry]) => entry === list)?.[0];
+  if (!key) return null;
+  let low = 0;
+  let high = list.length;
+  let best: string | null = null;
+  while (low <= high) {
+    const count = Math.floor((low + high) / 2);
+    const summary = JSON.stringify({
+      rowsRead,
+      result: {
+        ...(Array.isArray(value) ? {} : (value as Record<string, unknown>)),
+        [key]: list.slice(0, count),
+        totalItems: list.length,
+        truncated: count < list.length,
+      },
+    });
+    if (summary.length <= maxChars) {
+      best = summary;
+      low = count + 1;
+    } else high = count - 1;
+  }
+  return best;
 }
 
 function withinDataCap(usage: DataUsage, value: unknown): boolean {
@@ -121,10 +159,16 @@ function listKey(content: Record<string, unknown>): (typeof LIST_KEYS)[number] |
 
 function incompleteGrouping(grouping: unknown): boolean {
   if (!grouping || typeof grouping !== "object") return false;
-  const { partial, groups } = grouping as { partial?: unknown; groups?: unknown };
+  const { partial, groups } = grouping as {
+    partial?: unknown;
+    groups?: unknown;
+  };
   if (partial === true || !Array.isArray(groups)) return true;
   return groups.some((group) => {
-    const { hasMore, materialised } = (group ?? {}) as { hasMore?: unknown; materialised?: unknown };
+    const { hasMore, materialised } = (group ?? {}) as {
+      hasMore?: unknown;
+      materialised?: unknown;
+    };
     return hasMore === true || materialised === false;
   });
 }
@@ -165,13 +209,22 @@ function partialList(entry: unknown): { returned: number; total: number } | null
 function unpagedResult(mcp: McpTool, content: Record<string, unknown>): ReadResult {
   const arrays = Object.values(content).filter((value): value is unknown[] => Array.isArray(value));
   const total = content.total;
-  if (typeof total === "number" && arrays.length > 0 && arrays.every((array) => array.length < total))
-    return { ok: false, error: partialSetError(mcp, Math.max(...arrays.map((array) => array.length)), total) };
+  if (typeof total === "number" && arrays.length > 0 && arrays.every((array) => array.length < total)) {
+    return {
+      ok: false,
+      error: partialSetError(mcp, Math.max(...arrays.map((array) => array.length)), total),
+    };
+  }
   const nested = arrays
     .flat()
     .map(partialList)
     .find((partial) => partial !== null);
-  if (nested) return { ok: false, error: partialSetError(mcp, nested.returned, nested.total) };
+  if (nested) {
+    return {
+      ok: false,
+      error: partialSetError(mcp, nested.returned, nested.total),
+    };
+  }
   return { ok: true, data: content, rows: 0 };
 }
 
@@ -179,10 +232,20 @@ async function runPage(
   mcp: McpTool,
   input: Record<string, unknown>,
 ): Promise<
-  { ok: true; input: Record<string, unknown>; content: Record<string, unknown> } | { ok: false; error: string }
+  | {
+      ok: true;
+      input: Record<string, unknown>;
+      content: Record<string, unknown>;
+    }
+  | { ok: false; error: string }
 > {
   const parsed = mcp.inputSchema.safeParse(input);
-  if (!parsed.success) return { ok: false, error: `${mcp.name}: ${validationError(parsed.error)}` };
+  if (!parsed.success) {
+    return {
+      ok: false,
+      error: `${mcp.name}: ${validationError(parsed.error)}`,
+    };
+  }
   const outcome = await executeMcpTool(mcp, [parsed.data]);
   if (!outcome.ok) return { ok: false, error: `${mcp.name}: ${outcome.result}` };
   return {
@@ -319,7 +382,11 @@ async function runRead(mcp: McpTool, read: Read, rowBudget: number, usage: DataU
       error: `${mcp.name} returned a relationship that lists only part of its linked records, so the analysis did not run on a partial set. Read the linked type and join from its side instead.`,
     };
   }
-  return { ok: true, data: { ...firstContent, [key ?? "items"]: items }, rows: items.length };
+  return {
+    ok: true,
+    data: { ...firstContent, [key ?? "items"]: items },
+    rows: items.length,
+  };
 }
 
 async function readAll(
@@ -381,6 +448,13 @@ export async function analyzeRecords(
   );
   if (!analysis.ok) {
     if ("error" in analysis) return { ok: false, result: analysis.error };
+    if (analysis.resultChars <= 64_000) {
+      const expanded = await runAnalysisCode(input.code, collected.input, 64_000, deps.limits);
+      if (expanded.ok && expanded.serialized) {
+        const summary = boundedAnalysisSummary(expanded.serialized, collected.rows, deps.resultMaxChars);
+        if (summary) return { ok: true, result: summary };
+      }
+    }
     return resultTooLarge(opening.length + analysis.resultChars + 1, deps.resultMaxChars);
   }
   const result = `${opening}${analysis.serialized ?? "null"}}`;
