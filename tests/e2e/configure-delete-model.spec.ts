@@ -20,6 +20,8 @@ import {
 import { expect, test } from "./fixtures";
 import { readModel } from "./api";
 
+test.use({ failOnPageErrors: true });
+
 async function addRecord(page: Page, name: string, value: string) {
   await page.locator("#records-add").click();
   const dialog = configureDrawer(page);
