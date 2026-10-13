@@ -27,11 +27,13 @@ describe("drawer side placement", () => {
     expect(source).not.toContain('side="right"');
   });
 
-  it("keeps the public marketing navbar menu on the right", () => {
+  it("opens the public marketing navbar menu full screen from the top", () => {
     if (!ENFORCED) return;
     const source = read("app/components/public-navbar.tsx");
 
-    expect(source).toContain('side="right"');
+    expect(source).toContain('side="top"');
+    expect(source).toContain("inset-0 h-dvh max-h-none");
+    expect(source).not.toContain('side="right"');
   });
 
   it("keeps both sides available on the shared Sheet primitive", () => {

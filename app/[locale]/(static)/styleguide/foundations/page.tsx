@@ -167,7 +167,7 @@ const SURFACE_RULES = [
   ],
   [
     "mark-glow",
-    "The lit glass tile: a tinted highlight from the top left, a rim and a soft shadow. It carries the hero marks and the selected state of the stage tabs and the navigation, tinted with primary.",
+    "The lit glass tile: a tinted highlight from the top left, a rim and a soft shadow. It carries the hero marks and, tinted with primary, the selected stage tab. Navigation selection stays a neutral pill.",
   ],
   ["Never", "Glass over content that switches between light and dark sections, or on resting content panels."],
   [
