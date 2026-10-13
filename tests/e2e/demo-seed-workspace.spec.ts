@@ -188,8 +188,13 @@ test("the Knowledge Base lists the Operating Guide and the procedures, and a pro
   const procedure = procedures.find(({ title }) => title === "Support SLA and Escalation") ?? procedures[0];
   if (testInfo.project.use.isMobile) {
     await page.goto("/en/wiki");
-    await page.locator("#wiki-document-panel button[aria-expanded]").first().click();
+    const trigger = page.locator("#wiki-document-panel button[aria-expanded]").first();
     const sheet = page.getByRole("dialog", { name: "Knowledge Base pages" });
+    // A click before hydration can leave the trigger closed on mobile.
+    await expect(async () => {
+      if (!(await sheet.isVisible())) await trigger.click();
+      await expect(sheet).toBeVisible({ timeout: 1000 });
+    }).toPass();
     await expect(sheet).toHaveAttribute("data-vaul-drawer-direction", "left");
     await expect.poll(async () => Math.round((await sheet.boundingBox())?.x ?? -1)).toBe(0);
     await expect
