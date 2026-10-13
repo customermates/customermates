@@ -151,11 +151,7 @@ const CONTACT_VALUE_SURFACES = [
   "app/[locale]/(protected)/records/[typeId]/components/record-channels.tsx",
 ];
 
-const CONTACT_LINK_EXEMPTIONS: Allowlist = {
-  "app/components/agent-chat/credit-blocked-notice.tsx": "fixed support address, not a contact value",
-  "app/[locale]/(protected)/subscription-expired/components/subscription-expired-view.tsx":
-    "fixed support address, not a contact value",
-};
+const CONTACT_LINK_EXEMPTIONS: Allowlist = {};
 
 const CONTACT_LINK_ALLOWLIST: Allowlist = {};
 

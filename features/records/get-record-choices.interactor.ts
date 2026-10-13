@@ -11,7 +11,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { failNotFound } from "@/core/validation/interactor-failure-server";
+import { failAuthorization, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordRefSchema } from "./record-model.schema";
 import { RecordQuerySchema } from "./record-query.schema";
@@ -72,8 +72,9 @@ export class GetRecordChoicesInteractor extends AuthenticatedInteractor<RecordCh
             .find((type) => type.id === input.throughPath?.ref.typeId && !type.archived)
             ?.relationshipPaths?.find((path) => path.id === input.throughPath?.pathId && !path.archived);
           const steps = definition && resolveRecordPath(input.throughPath.ref.typeId, definition.path, model);
-          if (!source || !(await policy.canRead(source)) || !steps || steps.at(-1)?.typeId !== type.id)
+          if (!source || !steps || steps.at(-1)?.typeId !== type.id)
             return failNotFound(CustomErrorCode.recordNotFound);
+          if (!(await policy.canRead(source))) return failAuthorization(CustomErrorCode.permissionDenied);
           path = steps.toReversed().map((step) => ({
             relationId: step.relationId,
             direction: step.direction === "outgoing" ? "incoming" : "outgoing",
@@ -87,12 +88,12 @@ export class GetRecordChoicesInteractor extends AuthenticatedInteractor<RecordCh
           const outgoing = input.linkedTo.direction === "outgoing";
           if (
             !source ||
-            !(await policy.canRead(source)) ||
             !relation ||
             (outgoing ? relation.sourceTypeId : relation.targetTypeId) !== source.typeId ||
             (outgoing ? relation.targetTypeId : relation.sourceTypeId) !== type.id
           )
             return failNotFound(CustomErrorCode.recordNotFound);
+          if (!(await policy.canRead(source))) return failAuthorization(CustomErrorCode.permissionDenied);
         }
         const result = await this.query.invoke(
           RecordQuerySchema.parse({

@@ -15,7 +15,8 @@ import { useEffect, useRef, useState } from "react";
 import { recordSearchKey } from "@/features/records/record-search.schema";
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { recordTypeIcon } from "@/components/records/record-type-icon";
-import { Kbd, ShortcutKeys } from "@/components/keyboard/shortcut-keys";
+import { Kbd, ShortcutKeys, useKeyboardPlatform } from "@/components/keyboard/shortcut-keys";
+import { keyLabel } from "@/components/keyboard/key-matching";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { useRootStore } from "@/core/stores/root-store.provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -87,6 +88,7 @@ function applyStableOrder(sections: PaletteSection[], previous: OrderSnapshot): 
 
 export const GlobalSearchModal = observer(() => {
   const t = useTranslations();
+  const tabKey = keyLabel("Tab", useKeyboardPlatform());
   const translate: PaletteTranslator = (key, values) => t(key, values);
   const rootStore = useRootStore();
   const {
@@ -546,7 +548,7 @@ export const GlobalSearchModal = observer(() => {
                 {query ? t("GlobalSearch.askMateWith", { question: query }) : t("AgentChat.askAi")}
               </span>
 
-              {query ? <Kbd>Tab</Kbd> : <ShortcutKeys id="askMate" />}
+              {query ? <Kbd>{tabKey}</Kbd> : <ShortcutKeys id="askMate" />}
             </CommandItem>
           </CommandGroup>
         )}
@@ -559,7 +561,7 @@ export const GlobalSearchModal = observer(() => {
 
         {level && <Hint label={t("Common.actions.back")} symbol="Esc" />}
 
-        {mateAvailable && query && !level && <Hint label={t("GlobalSearch.hintAskMate")} symbol="Tab" />}
+        {mateAvailable && query && !level && <Hint label={t("GlobalSearch.hintAskMate")} symbol={tabKey} />}
       </div>
     </CommandDialog>
   );

@@ -146,7 +146,7 @@ async function fixture(background: { dispatch: (id: string, payload: Dispatched)
     policy,
     new RecordWriteService(repo, policy, new RecordCalculationService(repo)),
     background as never,
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   await runWithTenant(admin, () =>
     runInTransaction(() => repo.saveModel(createCrmPreset(seed.company.id), admin.id), { timeout: 30000 }),

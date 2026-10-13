@@ -2,6 +2,7 @@ import { SkeletonShape as Shape } from "@/components/page-state/skeleton-shape";
 
 import { DASHBOARD_GRID_MARGIN, DASHBOARD_ROW_HEIGHT } from "./grid.constants";
 import { WIDGET_CARD_BODY_CLASS, WIDGET_CARD_HEADER_CLASS } from "./widget-card-frame";
+import { cn } from "@/core/utils/cn";
 
 type Props = { animated?: boolean };
 
@@ -33,16 +34,16 @@ export function DashboardPageSkeleton({ animated = true }: Props) {
       {NUMBER_CARDS.map((card) => (
         <div
           key={card}
-          className={`${CARD_CLASS} lg:col-span-3`}
+          className={cn(CARD_CLASS, "lg:col-span-3")}
           data-dashboard-card={card}
           data-skeleton-group={card}
           style={{ height: cardHeight(NUMBER_ROWS) }}
         >
-          <div className={`flex ${WIDGET_CARD_HEADER_CLASS}`}>
+          <div className={cn("flex", WIDGET_CARD_HEADER_CLASS)}>
             <Shape breathe animated={animated} className="h-3.5 w-28" />
           </div>
 
-          <div className={`flex flex-1 items-end ${WIDGET_CARD_BODY_CLASS}`}>
+          <div className={cn("flex flex-1 items-end", WIDGET_CARD_BODY_CLASS)}>
             <Shape animated={animated} className="h-7 w-24" motionPhase={1} />
           </div>
         </div>
@@ -51,18 +52,18 @@ export function DashboardPageSkeleton({ animated = true }: Props) {
       {CHART_CARDS.map((card) => (
         <div
           key={card.id}
-          className={`${CARD_CLASS} col-span-2 ${card.span}`}
+          className={cn(CARD_CLASS, "col-span-2", card.span)}
           data-dashboard-card={card.id}
           data-skeleton-group={card.id}
           style={{ height: cardHeight(CHART_ROWS) }}
         >
-          <div className={`flex ${WIDGET_CARD_HEADER_CLASS}`}>
+          <div className={cn("flex", WIDGET_CARD_HEADER_CLASS)}>
             <Shape breathe animated={animated} className="h-3.5 w-36" />
 
             <Shape animated={animated} className="h-2.5 w-20" motionPhase={1} />
           </div>
 
-          <div className={`flex min-h-0 flex-1 items-end gap-3 ${WIDGET_CARD_BODY_CLASS}`}>
+          <div className={cn("flex min-h-0 flex-1 items-end gap-3", WIDGET_CARD_BODY_CLASS)}>
             {card.bars.map((height, index) => (
               <Shape
                 key={index}

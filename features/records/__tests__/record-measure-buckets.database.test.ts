@@ -39,6 +39,7 @@ const { RecordMeasureSchema } = await import("../record-measure.schema");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 const { createWorkspaceRecordPreset } = await import("../workspace-record-preset");
 const { createTestRecordRepo, createTestDataViewRepo } = await import("@/tests/helpers/record-repository");
+const { getWidgetDtoReaders } = await import("@/core/di");
 const { PrismaWidgetRepo } = await import("@/features/widget/prisma-widget.repository");
 const { GetWidgetsInteractor } = await import("@/features/widget/get-widgets.interactor");
 const { RecordWidgetReader } = await import("@/features/widget/record-widget-reader");
@@ -79,12 +80,12 @@ async function fixture(preset: Preset = "crm") {
     policy,
     new RecordWriteService(repo, policy, new RecordCalculationService(repo)),
     { dispatch: () => Promise.resolve() },
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const measure = new QueryRecordMeasureInteractor(repo, policy);
   const reader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
   const widgets = new UpsertRecordWidgetInteractor(
-    new PrismaWidgetRepo(),
+    new PrismaWidgetRepo(getWidgetDtoReaders),
     repo,
     policy,
     measure,
@@ -576,7 +577,7 @@ describeDatabase("time-bucketed record measures", () => {
           new RecordCalculationService(restricted.repo),
         ),
         { dispatch: () => Promise.resolve() },
-        new RecordTrashService(restricted.repo),
+        new RecordTrashService(restricted.repo, new RecordCalculationService(restricted.repo)),
       ).invoke({
         expectedRevision: await restricted.revision(),
         idempotencyKey: randomUUID(),
@@ -601,7 +602,7 @@ describeDatabase("time-bucketed record measures", () => {
           new RecordCalculationService(restricted.repo),
         ),
         { dispatch: () => Promise.resolve() },
-        new RecordTrashService(restricted.repo),
+        new RecordTrashService(restricted.repo, new RecordCalculationService(restricted.repo)),
       ).invoke({
         expectedRevision: await restricted.revision(),
         idempotencyKey: randomUUID(),
@@ -906,7 +907,10 @@ describeDatabase("time-bucketed record measures", () => {
     );
     expect(back.ok && back.data).toMatchObject({ viewId: null, layout: { lg: { x: 3, y: 0 } } });
     if (!back.ok) return;
-    const shared = await f.run(() => new PrismaWidgetRepo().findReadableRecordWidget("chart", back.data.id), f.member);
+    const shared = await f.run(
+      () => new PrismaWidgetRepo(getWidgetDtoReaders).findReadableRecordWidget("chart", back.data.id),
+      f.member,
+    );
     expect(shared?.viewId).toBeNull();
     await f.run(async () =>
       f.widgets.invoke({
@@ -922,14 +926,17 @@ describeDatabase("time-bucketed record measures", () => {
       }),
     );
     const sharedOnView = await f.run(
-      () => new PrismaWidgetRepo().findReadableRecordWidget("chart", back.data.id),
+      () => new PrismaWidgetRepo(getWidgetDtoReaders).findReadableRecordWidget("chart", back.data.id),
       f.member,
     );
     expect(sharedOnView?.viewId).toBeNull();
 
     const read = (viewId?: string, allViews?: boolean) =>
       f.run(() =>
-        new GetWidgetsInteractor(new PrismaWidgetRepo(), createTestDataViewRepo()).invoke({ viewId, allViews }),
+        new GetWidgetsInteractor(new PrismaWidgetRepo(getWidgetDtoReaders), createTestDataViewRepo()).invoke({
+          viewId,
+          allViews,
+        }),
       );
     const supportView = await read(support.id);
     expect(supportView.data).toMatchObject({ p13nId: SURFACE.dashboard, activeViewKey: support.id });

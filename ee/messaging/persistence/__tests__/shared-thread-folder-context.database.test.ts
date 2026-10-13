@@ -10,6 +10,7 @@ import { createMockUser } from "@/tests/helpers/mock-user";
 
 import { PrismaConnectedAccountRepo } from "../prisma-connected-account.repository";
 import { PrismaUnipileWebhookRepo } from "../prisma-unipile-webhook.repository";
+import { getRecordIdentityReader } from "@/core/di";
 import { PrismaMessagingRepo } from "../prisma-messaging.repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
@@ -117,8 +118,12 @@ describeDatabase("shared-thread folder context on PostgreSQL", () => {
 
   it("shows a shared reader only the visible folders of each message", async () => {
     const [shared, own] = await Promise.all([
-      runWithTenant(colleague, () => new PrismaMessagingRepo().listMessagesForThread(sharedThreadId)),
-      runWithTenant(owner, () => new PrismaMessagingRepo().listMessagesForThread(sharedThreadId)),
+      runWithTenant(colleague, () =>
+        new PrismaMessagingRepo(undefined, undefined, getRecordIdentityReader()).listMessagesForThread(sharedThreadId),
+      ),
+      runWithTenant(owner, () =>
+        new PrismaMessagingRepo(undefined, undefined, getRecordIdentityReader()).listMessagesForThread(sharedThreadId),
+      ),
     ]);
 
     expect(shared.messages.map((message) => message.folderIds)).toEqual([["archive"]]);

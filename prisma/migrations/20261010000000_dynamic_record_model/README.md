@@ -92,7 +92,7 @@ It runs on PostgreSQL 16 and 17. It requires the `pg_trgm` extension (created if
 | Contacts, organizations, deals, services, tasks | Records of the five starter types with their IDs, `createdAt` and `updatedAt`. One ID may exist in several types. |
 | Pending membership authorisation tasks | Protected tasks (`protectedKind = membershipAuthorization`) that keep their related member |
 | Names, contact name parts, avatars, notes, service prices | Typed values; notes keep their document, prices their exact decimal |
-| Custom columns and their values | Fields of their type with the same IDs, trimmed labels, options, default option, format and currency; values with exact decimals, dates with their lexical form and ranges with both endpoints |
+| Custom columns and their values | Fields of their type with the same IDs, trimmed labels, options, default option, format and currency; values with exact decimals, dates with their lexical form and ranges with both endpoints. Starter fields date from their workspace, so a custom column with the same name as a starter field of its type gets the " (2)" suffix in section 6 |
 | Links between records | Record links with their IDs and timestamps |
 | Deal services (`ServiceDeal`) | Embedded line items with the same IDs, their exact quantity and live pricing (no saved price) |
 | Assignees | Record assignments with their creation time |
@@ -110,7 +110,7 @@ Every workspace gets the starter record model with deterministic preset IDs as c
 - Legacy record event triggers. Every webhook and every event-triggered routine is disabled. Legacy record events (`contact.created` and so on) are removed from every webhook and routine, and a routine that had such events also loses its filters. Watched fields (`Routine.changedFields`) only applied to legacy events and are dropped from every routine. Scheduled routines keep their schedule and enabled state; a schedule never read their leftover events. Past routine runs triggered by a legacy event keep their outcome and charge but lose the legacy trigger event, record ID and payload. No routine or webhook subscribes to record events after the upgrade; re-enable them after choosing record triggers again.
 - Entity terminology presets: types keep their starter labels.
 
-No record events are written, so no routine run or webhook delivery is emitted. Existing webhook delivery rows stay with their status, code and time, but they are not bound to an event: their stored legacy body is no longer shown and they cannot be resent, and completed deliveries are never replayed.
+No record events are written, so no routine run or webhook delivery is emitted. Existing webhook delivery rows stay with their status, code and time, but they are not bound to an event: their stored legacy body is no longer shown and they cannot be resent, and none of them is delivered again: deliveries still pending or processing keep that status and are never picked up by the delivery worker.
 
 ### What the sections do
 

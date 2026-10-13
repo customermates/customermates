@@ -69,6 +69,7 @@ Register, choose **Create a new workspace** and complete the wizard; your accoun
 - `APP_PORT`: the host port the app is published on, `4000` by default.
 - `RESEND_API_KEY`, `RESEND_OPERATOR_EMAIL`: email delivery; `RESEND_API_KEY` must not be empty. See [How do I set up email with Resend?](#how-do-i-set-up-email-with-resend-and-can-i-use-smtp).
 - `APP_MODE`: leave it at `self-hosted`; the Compose file sets this value for the app itself.
+- `CRON_SECRET`: optional, commented out in the template; the secret for the scheduled maintenance calls, see [Which scheduled jobs must I run?](#scheduled-jobs).
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `AZURE_AD_CLIENT_ID`, `AZURE_AD_CLIENT_SECRET`: optional, commented out in the template, see [Can users sign in with Google or Microsoft?](#can-users-sign-in-with-google-or-microsoft).
 
 Keep `.env` out of source control. Apply changes with `docker compose up -d`.
@@ -203,16 +204,7 @@ The cloud calls two maintenance endpoints on a schedule; a self-hosted instance 
 - `/api/cron/lifecycle`, once a day: deletes Trash items whose 30 days have passed and runs the other daily housekeeping. Its jobs for cloud trials and subscriptions find nothing on a self-hosted instance.
 - `/api/cron/record-deliveries`, every 5 minutes (optional): starts due webhook deliveries, event processing and background record work that no running job picked up, for example after a container restart.
 
-Both answer HTTP `401` unless the app has a `CRON_SECRET` and the request sends it as `Authorization: Bearer <secret>`. The Compose file does not pass `CRON_SECRET` to the app, so add it in a `docker-compose.override.yml` next to `docker-compose.yml`, which `docker compose` reads automatically and which an update of the Compose file leaves alone:
-
-```yaml
-services:
-  app:
-    environment:
-      CRON_SECRET: ${CRON_SECRET}
-```
-
-Put a long random value into `.env`, for example from `openssl rand -hex 32`, as `CRON_SECRET=...`, run `docker compose up -d`, and schedule the calls on the host, for example with `crontab -e`:
+Both answer HTTP `401` unless the app has a `CRON_SECRET` and the request sends it as `Authorization: Bearer <secret>`. The template has a commented `CRON_SECRET` line next to `BETTER_AUTH_SECRET`, and the Compose file passes it to the app; if your `docker-compose.yml` does not list `CRON_SECRET` yet, download it again with the `curl` command from the installation steps. Uncomment the line, or add it to an `.env` created before it existed, set a long random value, for example from `openssl rand -hex 32`, run `docker compose up -d`, and schedule the calls on the host, for example with `crontab -e`:
 
 ```bash
 0 3 * * * curl -fsS -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:4000/api/cron/lifecycle

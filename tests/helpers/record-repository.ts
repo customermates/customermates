@@ -1,5 +1,8 @@
 import type { BackgroundTaskService } from "@/core/utils/background-task.service";
-import type { RecordRepoOwners } from "@/features/records/record.repo";
+import type { RecordRepo, RecordRepoOwners } from "@/features/records/record.repo";
+import { RecordAccessPolicy } from "@/features/records/record-access";
+import type { RecordConfigurationService } from "@/features/records/configuration.service";
+import type { WebhookPauseNotifier } from "@/features/webhook/webhook-pause-notifier";
 import type { RecordWidgetConfigurationRepo } from "@/features/widget/record-widget-configuration.repo";
 import type { ViewWidgetPurgeRepo } from "@/features/widget/view-widget-purge.repo";
 import { PermissionService } from "@/core/base/permission.service";
@@ -19,12 +22,20 @@ import { PrismaWikiPageRepo } from "@/features/wiki/prisma-wiki-page.repository"
 import { PrismaRoutineEventAccess } from "@/ee/routines/prisma-routine-event-access.repository";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
 import { PrismaRoleRepo } from "@/features/role/prisma-role.repository";
+import { RecordCalculationService } from "@/features/records/record-calculation.service";
+import { RecordConfigurationWriter } from "@/features/records/record-configuration-writer";
+import { RecordOperationService } from "@/features/records/record-operation.service";
+import { RecordTrashService } from "@/features/records/record-trash.service";
+import { RecordWriteService } from "@/features/records/record-write.service";
 
 const idleBackground: Pick<BackgroundTaskService, "dispatch"> = { dispatch: () => Promise.resolve() };
 
 let widgetModule: Promise<typeof import("@/features/widget/prisma-widget.repository")> | undefined;
 const loadWidgetModule = () => (widgetModule ??= import("@/features/widget/prisma-widget.repository"));
-const widgetRepo = async () => new (await loadWidgetModule()).PrismaWidgetRepo();
+const noWidgetDtoReaders = (): never => {
+  throw new Error("The test record repository only rewrites widget configurations and never reads widget DTOs");
+};
+const widgetRepo = async () => new (await loadWidgetModule()).PrismaWidgetRepo(noWidgetDtoReaders);
 
 export async function preloadTestRecordRepo(): Promise<void> {
   await loadWidgetModule();
@@ -46,9 +57,18 @@ export const createTestRecordRepo = (companyId?: string, background?: Pick<Backg
 export const createTestDataViewRepo = (companyId?: string) =>
   new PrismaDataViewRepo({ widgets, personalizations: new PrismaP13nRepo() }, companyId);
 
+export const createTestRecordEventSubscriptionRepo = (companyId?: string) => {
+  const records = createTestRecordRepo(companyId);
+  const users = new PrismaUserRepo(new PermissionService());
+  return new PrismaRecordEventSubscriptionRepo(records, new RecordAccessPolicy(users, records), users, companyId);
+};
+
 export function createTestRecordRepoOwners(): RecordRepoOwners {
-  const subscriptions = new PrismaRecordEventSubscriptionRepo(createTestRecordRepo());
-  const reader = new RecordRecipientReader((companyId) => createTestRecordRepo(companyId), new PrismaRecordRecipientRepo());
+  const subscriptions = createTestRecordEventSubscriptionRepo();
+  const reader = new RecordRecipientReader(
+    (companyId) => createTestRecordRepo(companyId),
+    new PrismaRecordRecipientRepo(new PrismaUserRepo(new PermissionService())),
+  );
   const routines: PrismaRoutineRepo = new PrismaRoutineRepo(
     new PrismaRoutineEventAccess(reader),
     subscriptions,
@@ -68,3 +88,22 @@ export function createTestRecordRepoOwners(): RecordRepoOwners {
     subscriptions,
   };
 }
+
+export const createTestRecordOperationService = (
+  records: RecordRepo,
+  policy: RecordAccessPolicy,
+  configurations: RecordConfigurationService,
+  webhooks: WebhookPauseNotifier,
+  systemCompanyId?: string,
+) =>
+  new RecordOperationService(
+    records,
+    policy,
+    configurations,
+    webhooks,
+    new RecordCalculationService(records),
+    new RecordWriteService(records, policy, new RecordCalculationService(records)),
+    new RecordConfigurationWriter(records, new RecordCalculationService(records), webhooks),
+    new RecordTrashService(records, new RecordCalculationService(records)),
+    systemCompanyId,
+  );

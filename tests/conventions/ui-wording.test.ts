@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 import { REPO_ROOT, walkFiles } from "./walk";
 import { unreviewedExceptionAdditions } from "./exception-membership";
 
-import { CONTENT_LOCALES } from "@/i18n/locale-registry";
+import { APP_LOCALES, CONTENT_LOCALES } from "@/i18n/locale-registry";
 
 type Allowlist = Readonly<Record<string, string>>;
 type Messages = Readonly<Record<string, string>>;
@@ -24,6 +24,17 @@ function messagesOf(locale: string): Messages {
 
 const EN = messagesOf("en");
 const DE = messagesOf("de");
+const TRANSLATIONS = APP_LOCALES.filter((locale) => locale !== "en").map(messagesOf);
+const NON_GERMAN_TRANSLATIONS = APP_LOCALES.filter((locale) => locale !== "en" && locale !== "de").map(messagesOf);
+
+function distinguishedInEveryLocale(a: string, b: string, translations: readonly Messages[]) {
+  return (
+    translations.length > 0 &&
+    translations.every(
+      (messages) => messages[a] !== undefined && messages[b] !== undefined && messages[a] !== messages[b],
+    )
+  );
+}
 
 function enforce(violations: string[], allowlist: Allowlist, exemptions: Allowlist = {}) {
   const current = violations.filter((violation) => !(violation in exemptions));
@@ -47,10 +58,15 @@ const SHARED_ACTION_KEYS = [
   "Common.actions.save",
 ];
 
-function sharedActionWordViolations(messages: Messages) {
-  const sharedWords = new Set(SHARED_ACTION_KEYS.map((key) => messages[key]).filter(Boolean));
+function sharedActionWordViolations(messages: Messages, translations: readonly Messages[] = []) {
   return Object.entries(messages)
-    .filter(([key, value]) => !SHARED_ACTION_KEYS.includes(key) && sharedWords.has(value))
+    .filter(
+      ([key, value]) =>
+        !SHARED_ACTION_KEYS.includes(key) &&
+        SHARED_ACTION_KEYS.some(
+          (shared) => messages[shared] === value && !distinguishedInEveryLocale(key, shared, translations),
+        ),
+    )
     .map(([key]) => key)
     .sort();
 }
@@ -58,15 +74,13 @@ function sharedActionWordViolations(messages: Messages) {
 const SHARED_ACTION_WORD_EXEMPTIONS: Allowlist = {
   "AgentChat.approval.rejectAction":
     "Mate rejecting a proposed action is its own decision, not the shared footer Cancel; single consumer, so no new Common key",
-  "RecordModel.operators.add": "the arithmetic operator Add in calculations, not the Add action",
-  "ResetPasswordForm.resetPasswordCta": "public sign-in page call to action that sets a new password",
 };
 
 const SHARED_ACTION_WORD_ALLOWLIST: Allowlist = {};
 
 describe("rules 30 and 58: shared action words come from one key", () => {
   it("labels the shared action words only through their Common.actions key", () => {
-    enforce(sharedActionWordViolations(EN), SHARED_ACTION_WORD_ALLOWLIST, SHARED_ACTION_WORD_EXEMPTIONS);
+    enforce(sharedActionWordViolations(EN, TRANSLATIONS), SHARED_ACTION_WORD_ALLOWLIST, SHARED_ACTION_WORD_EXEMPTIONS);
   });
 
   it("recognizes a duplicated action word", () => {
@@ -77,32 +91,40 @@ describe("rules 30 and 58: shared action words come from one key", () => {
       }),
     ).toEqual(["Role.delete"]);
   });
+
+  it("treats a repeated English word as another concept only when every translation tells them apart", () => {
+    const english = { "Common.actions.add": "Add", "Operators.add": "Add", "Toolbar.add": "Add" };
+    const translations = [
+      { "Common.actions.add": "Hinzufügen", "Operators.add": "Addieren", "Toolbar.add": "Hinzufügen" },
+      { "Common.actions.add": "Añadir", "Operators.add": "Sumar", "Toolbar.add": "Agregar" },
+    ];
+    expect(sharedActionWordViolations(english, translations)).toEqual(["Toolbar.add"]);
+  });
 });
 
 const SHORT_LABEL_WORDS = 3;
 
-function divergentGermanLabels(english: Messages, german: Messages) {
+function divergentGermanLabels(english: Messages, german: Messages, otherTranslations: readonly Messages[] = []) {
   const keysByLabel = new Map<string, string[]>();
   for (const [key, value] of Object.entries(english)) {
     if (value.split(" ").length > SHORT_LABEL_WORDS) continue;
     keysByLabel.set(value, [...(keysByLabel.get(value) ?? []), key]);
   }
   return [...keysByLabel.entries()]
-    .filter(([, keys]) => new Set(keys.map((key) => german[key])).size > 1)
+    .filter(([, keys]) =>
+      keys.some((a) =>
+        keys.some((b) => german[a] !== german[b] && !distinguishedInEveryLocale(a, b, otherTranslations)),
+      ),
+    )
     .map(([label]) => label)
     .sort();
 }
 
 const GERMAN_TERM_EXEMPTIONS: Allowlist = {
-  Add: "the Add action (Hinzufügen) and the arithmetic operator (Addieren)",
   Cancelled: "an aborted Mate action, a cancelled meeting and a terminated subscription",
   Contact: "the Contact list and the Contacted stage of a contact",
-  Done: "the Done button (Fertig) and the done task status (Erledigt)",
   Layout: "the table layout and an email signature template",
-  Link: "the link noun and the verb that links a participant to a record",
   Number: "the Number field type and the single-number widget display",
-  Open: "the Open action (Öffnen) and the open status (Offen)",
-  Pricing: "the pricing page and a line item's pricing mode",
   Services: "the Services starter list and the operator's service statistics",
 };
 
@@ -110,13 +132,23 @@ const GERMAN_TERM_ALLOWLIST: Allowlist = {};
 
 describe("one German term per concept (owner 2026-10-08)", () => {
   it("translates each short English label with one German label", () => {
-    enforce(divergentGermanLabels(EN, DE), GERMAN_TERM_ALLOWLIST, GERMAN_TERM_EXEMPTIONS);
+    enforce(divergentGermanLabels(EN, DE, NON_GERMAN_TRANSLATIONS), GERMAN_TERM_ALLOWLIST, GERMAN_TERM_EXEMPTIONS);
   });
 
   it("recognizes a concept translated two ways", () => {
     expect(
       divergentGermanLabels({ a: "Owner", b: "Owner", c: "Save" }, { a: "Inhaber", b: "Besitzer", c: "Speichern" }),
     ).toEqual(["Owner"]);
+  });
+
+  it("accepts a German split only when every other translation draws the same distinction", () => {
+    const english = { a: "Open", b: "Open", c: "Owner", d: "Owner" };
+    const german = { a: "Öffnen", b: "Offen", c: "Inhaber", d: "Besitzer" };
+    const others = [
+      { a: "Abrir", b: "Abierto", c: "Propietario", d: "Propietario" },
+      { a: "Ouvrir", b: "Ouvert", c: "Propriétaire", d: "Détenteur" },
+    ];
+    expect(divergentGermanLabels(english, german, others)).toEqual(["Owner"]);
   });
 });
 

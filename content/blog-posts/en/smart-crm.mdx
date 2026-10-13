@@ -143,7 +143,7 @@ To make the argument concrete: a smart CRM should let you point your AI assistan
 
 **Write to the CRM.** "Create a contact for Jane Smith at Acme, Director of Sales, link to the Acme organization, and add a follow-up task for me." `mutate_crm_record` creates the contact, links it to the organization, and adds the task in one turn. Tasks have no due dates or reminders, so put the date in the task title or a custom date column.
 
-**Run a workflow.** "For every meeting on my calendar tomorrow, pull the linked CRM record and draft a one-page brief." Claude orchestrates over MCP, reading the connected calendar (read-only, from Pro) and the records. Customermates does not schedule or send anything at a set time; for that you use a cloud routine or an external scheduler.
+**Run a workflow.** "For every meeting on my calendar tomorrow, pull the linked CRM record and draft a one-page brief." Claude orchestrates over MCP, reading the connected calendar (read-only, from Pro) and the records. In chat, nothing runs at a set time. To repeat a request on a schedule, save it as a [routine](/docs/app-routines) in the managed cloud, where Mate runs it on its own with the owner's AI credits; self-hosted installs use an external scheduler such as n8n instead.
 
 **Maintain dashboards.** "Show me a widget of pipeline value by stage, filtered to the EU region, and pin it to my dashboard." `manage_widgets` directly from chat.
 

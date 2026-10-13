@@ -20,8 +20,8 @@ export default async function ConnectedAccountsPage() {
 
   if (env.APP_MODE === "self-hosted") redirect("/dashboard");
 
-  const subscriptionResult = await getGetSubscriptionInteractor().invoke();
-  const locked = !getEntitlements(subscriptionResult.data.plan).messaging;
+  const subscription = await unwrapPage(getGetSubscriptionInteractor().invoke());
+  const locked = !getEntitlements(subscription.plan).messaging;
 
   const accounts = locked ? [] : await unwrapPage(getGetMyConnectedAccountsInteractor().invoke());
 

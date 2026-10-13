@@ -384,6 +384,7 @@ const WikiPageViewContent = observer(function WikiPageView({
           <div className="flex min-w-0 items-center border-b border-border px-4 py-2 lg:hidden">
             <ResponsiveOverlay
               align="start"
+              drawerDirection="left"
               open={mobileOpen}
               popoverClassName="flex h-96 w-80 flex-col p-0"
               title={t("Wiki.pagesLabel")}

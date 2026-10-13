@@ -7,10 +7,7 @@ vi.mock("sonner", () => ({ toast: { error: vi.fn(), success: vi.fn() } }));
 vi.mock("@/app/actions", () => ({
   saveDataViewStateAction: vi.fn(),
   selectDataViewAction: vi.fn(),
-  bulkDeleteEntitiesAction: vi.fn(),
-  bulkUpdateCustomFieldValuesAction: vi.fn(),
-  getCustomColumnsByEntityTypeAction: vi.fn(),
-  updateEntityCustomFieldValueAction: vi.fn(),
+  upsertDataViewAction: vi.fn(),
 }));
 
 import { BaseDataViewStore } from "@/core/base/base-data-view.store";

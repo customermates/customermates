@@ -43,7 +43,8 @@ import type { UpdateThreadRepo } from "../thread-state/update-thread.repo";
 
 import { QueryRepository } from "@/core/base/query-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
-import { getConnectedAccountRepo, getProviderAvatarService, getRecordIdentityReader } from "@/core/di";
+import type { RecordIdentityReader } from "@/features/records/record-identity-reader";
+import type { MessagingFilterOptionsRepo } from "../inbox/messaging-filter-options.repo";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import type { PreviewKind } from "../attachment-kind";
@@ -56,9 +57,12 @@ import { htmlToPlainText } from "../email-body-text";
 import { identityLookupValue } from "../identity-lookup";
 import {
   accessibleFolderStatesWhere,
+  canViewAccountMessages,
   inboxThreadVisibilityWhere,
+  limitMessageFolderIds,
   messageVisibilityWhere,
   accessibleConnectedAccountWhere,
+  redactMessageBcc,
   threadAccessWhere,
 } from "../messaging-access";
 import { channelClass, DRAFT_THREAD_PREFIX, isDraftThreadId, isEmailProvider, isHandleProvider } from "../provider";
@@ -109,6 +113,8 @@ export class PrismaMessagingRepo
   constructor(
     private readonly inboxRecords?: Pick<RecordRepo, "getModel">,
     private readonly inboxPolicy?: Pick<RecordAccessPolicy, "load">,
+    private readonly identities?: Pick<RecordIdentityReader, "resolve">,
+    private readonly filterOptions?: MessagingFilterOptionsRepo,
   ) {
     super();
   }
@@ -231,7 +237,8 @@ export class PrismaMessagingRepo
   }
 
   async getFilterableFields() {
-    const options = await getConnectedAccountRepo().listInboxFilterOptions();
+    if (!this.filterOptions) throw new Error("Messaging inbox filter options are not configured");
+    const options = await this.filterOptions.listInboxFilterOptions();
     return [
       {
         field: FilterFieldKey.state,
@@ -1592,7 +1599,7 @@ export class PrismaMessagingRepo
     if (!accessibleThread) return { messages: [] as MessagingMessage[], total: 0 };
 
     const account = accessibleThread.connectedAccount;
-    const canViewBcc = account.userId === this.userId || account.shared;
+    const canViewBcc = canViewAccountMessages(account, this.userId);
     const folderStates =
       account.foldersSyncedAt !== null
         ? [
@@ -1615,8 +1622,8 @@ export class PrismaMessagingRepo
         where,
         orderBy: { sentAt: "asc" },
       });
-      const messages = this.redactBcc(
-        this.limitFolderIds(rows, canViewBcc, folderStates),
+      const messages = redactMessageBcc(
+        limitMessageFolderIds(rows, canViewBcc, folderStates),
         canViewBcc,
       ) as unknown as MessagingMessage[];
       await this.hydrateMessageSenderContacts(messages, accessibleThread);
@@ -1634,7 +1641,10 @@ export class PrismaMessagingRepo
     });
 
     const messages = (
-      this.redactBcc(this.limitFolderIds(rows, canViewBcc, folderStates), canViewBcc) as unknown as MessagingMessage[]
+      redactMessageBcc(
+        limitMessageFolderIds(rows, canViewBcc, folderStates),
+        canViewBcc,
+      ) as unknown as MessagingMessage[]
     ).reverse();
     await this.hydrateMessageSenderContacts(messages, accessibleThread);
 
@@ -1685,36 +1695,11 @@ export class PrismaMessagingRepo
     });
   }
 
-  private limitFolderIds<T extends { folderIds: string[] }>(
-    rows: T[],
-    canViewAllFolders: boolean,
-    folderStates: { visibleSet: string[] }[],
-  ): T[] {
-    if (canViewAllFolders || folderStates.length === 0) return rows;
-
-    const visible = new Set(folderStates[0].visibleSet);
-    return rows.map((row) => ({ ...row, folderIds: row.folderIds.filter((id) => visible.has(id)) }));
-  }
-
-  private redactBcc<T extends { recipients: unknown; direction: MessagingMessageDirection }>(
-    rows: T[],
-    canViewBcc: boolean,
-  ): T[] {
-    return rows.map((row) => {
-      if (row.direction === MessagingMessageDirection.outbound && canViewBcc) return row;
-
-      const recipients = row.recipients;
-      if (recipients && typeof recipients === "object" && "bcc" in recipients)
-        return { ...row, recipients: { ...recipients, bcc: [] } };
-
-      return row;
-    });
-  }
-
   private async resolveContactsByIdentifiers(
     pairs: { provider: MessagingProvider; value: string }[],
   ): Promise<Map<string, RecordIdentityReference[]>> {
-    const matches = await getRecordIdentityReader().resolve(pairs);
+    if (!this.identities) throw new Error("Messaging record identities are not configured");
+    const matches = await this.identities.resolve(pairs);
     return new Map(matches.map((match) => [identifierKey(match.provider, match.value), match.records]));
   }
 
@@ -1846,15 +1831,16 @@ export class PrismaMessagingRepo
       settledAttachmentsMeta: existing?.attachmentsMeta,
     });
 
-    if (isInbound && safeMessage.sender.pictureUrl) {
-      await getProviderAvatarService(companyId).synchronize(
-        safeMessage.provider,
-        safeMessage.sender.identifier,
-        safeMessage.sender.pictureUrl,
-      );
-    }
+    const inboundSender =
+      isInbound && safeMessage.sender.pictureUrl
+        ? {
+            provider: safeMessage.provider,
+            identifier: safeMessage.sender.identifier,
+            pictureUrl: safeMessage.sender.pictureUrl,
+          }
+        : undefined;
 
-    return { isEcho: false as const, message: upserted };
+    return { isEcho: false as const, message: upserted, ...(inboundSender ? { inboundSender } : {}) };
   }
 
   @BypassTenantGuard

@@ -15,6 +15,7 @@ import {
   type RecordActivityIndexRow,
 } from "./record-activity-query";
 import { formatChannelIdentifier, threadCounterpart } from "../thread-display";
+import { canViewAccountMessages, limitMessageFolderIds, redactMessageBcc } from "../messaging-access";
 import type { RecordRef } from "@/features/records/record-model.schema";
 import { WIKI_PAGE_AUDIT_EVENTS } from "@/features/wiki/wiki-audit-events";
 import { RecordRevisionChangeSchema } from "@/features/records/record-revision.schema";
@@ -131,10 +132,14 @@ export class PrismaRecordActivitiesRepo extends TenantRepository implements Reco
       where: { companyId: this.companyId, id: { in: ids } },
       include: {
         thread: { include: { participants: true } },
-        connectedAccount: { select: { userId: true } },
+        connectedAccount: { select: { userId: true, shared: true, selectedFolderIds: true, foldersSyncedAt: true } },
       },
     });
-    return rows.map(({ thread, connectedAccount, ...message }) => {
+    return rows.map(({ thread, connectedAccount, ...row }) => {
+      const canView = canViewAccountMessages(connectedAccount, this.userId);
+      const folderStates =
+        connectedAccount.foldersSyncedAt !== null ? [{ visibleSet: connectedAccount.selectedFolderIds }] : [];
+      const [message] = redactMessageBcc(limitMessageFolderIds([row], canView, folderStates), canView);
       const participant = threadCounterpart(thread.participants);
       const name =
         participant?.displayName?.trim() || formatChannelIdentifier(thread.provider, participant?.identifier) || "";

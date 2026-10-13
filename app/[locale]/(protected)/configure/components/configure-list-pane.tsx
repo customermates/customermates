@@ -25,7 +25,6 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { ChevronRight, Plus } from "lucide-react";
 
-import { FormFooterActions } from "@/components/forms/form-footer-actions";
 import { AppForm } from "@/components/forms/form-context";
 import { RecordConfigurationPreview } from "@/components/records/record-configuration-preview";
 import { usePreviewBlockers } from "./use-preview-blockers";
@@ -279,17 +278,13 @@ export const ConfigureListPane = observer(function ConfigureListPane({
       id: "general",
       label: t("RecordModel.general"),
       content: (
-        <>
-          <ConfigureGroup framed={!editingGeneral} title={t("RecordModel.general")}>
-            {editingGeneral ? (
-              <TypeSettingsFields idPrefix="configure-general" store={general} />
-            ) : (
-              <GeneralSummary type={selected} />
-            )}
-          </ConfigureGroup>
-
-          {editingGeneral && <FormFooterActions formId={generalFormId} store={general} />}
-        </>
+        <ConfigureGroup framed={!editingGeneral} title={t("RecordModel.general")}>
+          {editingGeneral ? (
+            <TypeSettingsFields idPrefix="configure-general" store={general} />
+          ) : (
+            <GeneralSummary type={selected} />
+          )}
+        </ConfigureGroup>
       ),
     },
     {

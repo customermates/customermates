@@ -4,6 +4,7 @@ import type { RoleManagementService } from "./role-management.service";
 import type { RoleEditorContext } from "./role-management.schema";
 import { GetRoleEditorSchema, RoleEditorContextSchema } from "./role-management.schema";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
+import { unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -22,6 +23,9 @@ export class GetRoleEditorInteractor extends AuthenticatedInteractor<
   @Validate(GetRoleEditorSchema)
   @ValidateOutput(RoleEditorContextSchema)
   invoke(input: z.infer<typeof GetRoleEditorSchema>): Validated<RoleEditorContext> {
-    return this.roles.read(input.id, input.typeIds);
+    return this.roles
+      .read(input.id, input.typeIds)
+      .then((data) => ({ ok: true as const, data }))
+      .catch(unwoundFailure);
   }
 }

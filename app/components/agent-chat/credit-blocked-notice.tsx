@@ -8,6 +8,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useHydratedIntlStore } from "@/core/stores/use-hydrated-intl-store";
 import { Button } from "@/components/ui/button";
 import { settingsHref } from "@/app/components/navigation/settings-routes";
+import { contactHref } from "@/core/utils/contact-href";
 
 export function CreditBlockedNotice({ usage }: { usage: AgentUsageSummary }) {
   const intlStore = useHydratedIntlStore();
@@ -26,7 +27,8 @@ export function CreditBlockedNotice({ usage }: { usage: AgentUsageSummary }) {
         size="sm"
         variant="secondary"
         onClick={() => {
-          if (contact) window.location.assign("mailto:support@customermates.com?subject=Hosted%20Assistant%20credits");
+          const supportHref = contact ? contactHref("email", "support@customermates.com") : null;
+          if (supportHref) window.location.assign(`${supportHref}?subject=Hosted%20Assistant%20credits`);
           else router.push(settingsHref("billing"));
         }}
       >

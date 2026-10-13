@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
 import type { RecordEditorResult } from "@/features/records/get-record-editor.interactor";
@@ -15,6 +15,7 @@ import { useRecordRouteReady } from "@/components/records/use-record-route-ready
 import { recordDisplayName } from "@/features/records/record-display-name";
 import { recordPanelsP13nId } from "./record-panels-personalization";
 import { serverRenderedClient } from "@/core/utils/server-rendered-client";
+import { useApplyOnChange } from "@/hooks/use-apply-on-change";
 
 const RecordDetailPageContent = observer(function RecordDetailPage({
   initial,
@@ -29,7 +30,7 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
   const root = useRootStore();
   const t = useTranslations();
   const router = useRouter();
-  const [store] = useState(() => {
+  const [{ store, handoff }] = useState(() => {
     const editor = new RecordEditorStore(
       root,
       initial,
@@ -42,22 +43,18 @@ const RecordDetailPageContent = observer(function RecordDetailPage({
     );
     editor.edit(initial, initial.record);
     editor.setTrash(trash ?? null);
-    const handoff = root.recordWorkspaceStore.takeDraftHandoff(initial.record?.ref);
-    if (handoff && initial.record) editor.restoreDraft(handoff, initial, initial.record);
-    return editor;
+    const handoff = root.recordWorkspaceStore.peekDraftHandoff(initial.record?.ref);
+    if (handoff.draft && initial.record) editor.restoreDraft(handoff.draft, initial, initial.record);
+    return { store: editor, handoff: handoff.queued };
   });
-  const applied = useRef(initial);
+  useEffect(() => root.recordWorkspaceStore.acknowledgeDraftHandoff(handoff), [root, handoff]);
   useEffect(
     () => root.recordWorkspaceStore.registerPageEditor(store),
     [root, store, root.userStore.user?.companyId, root.userStore.user?.id],
   );
   useEffect(() => root.recordWorkspaceStore.subscribe(store.refreshRecord), [root, store]);
   useEffect(() => store.setTrash(trash ?? null), [store, trash]);
-  useEffect(() => {
-    if (applied.current === initial) return;
-    applied.current = initial;
-    store.receiveLatest(initial);
-  }, [initial, store]);
+  useApplyOnChange(initial, store.receiveLatest);
   const type = store.presentation.model.types.find((type) => type.id === store.presentation.typeId);
   const title = store.record?.fields.find((field) => field.fieldId === type?.primaryFieldId)?.result;
   const name = store.record ? recordDisplayName(title, type?.label, t) : (type?.label ?? t("RecordModel.record"));

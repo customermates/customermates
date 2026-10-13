@@ -1,4 +1,11 @@
 {
+  "AccessDeniedPage": {
+    "body": "Este registro existe, pero tu rol no te permite leerlo. Pide acceso a un administrador del espacio de trabajo.",
+    "ctaLabel": "Volver al inicio",
+    "documentTitle": "Sin acceso | Customermates",
+    "subtitle": "Tu rol no puede abrirlo",
+    "title": "No tienes acceso a este registro"
+  },
   "AccountAccessRevoked": {
     "body": "Acabas de iniciar sesión sin contraseña, y eso confirma que esta dirección de correo es tuya. Hasta ahora nunca se había confirmado, así que no podíamos estar seguros de quién creó esta cuenta. Por seguridad hemos eliminado la contraseña anterior y todo lo demás que pudiera abrir la cuenta, como aplicaciones conectadas o claves. Tus datos no han cambiado y puedes seguir iniciando sesión igual que acabas de hacerlo.",
     "cta": "Establecer una nueva contraseña",
@@ -40,14 +47,15 @@
           "triage": "Listo para cambiar el estado de la conversación"
         },
         "records": {
-          "delete": "{count, plural, one {Listo para eliminar de forma permanente {target}} other {Listo para eliminar de forma permanente {target}}}"
+          "delete": "{count, plural, one {Listo para mover {target} a la Papelera} other {Listo para mover {target} a la Papelera}}",
+          "deletePermanent": "{count, plural, one {Listo para eliminar de forma permanente {target}} other {Listo para eliminar de forma permanente {target}}}"
         },
         "roles": {
           "manage": "Aprobar este cambio de rol"
         },
         "routines": {
           "configure": "Listo para pausar o ejecutar la rutina",
-          "delete": "Listo para eliminar la rutina y su historial"
+          "delete": "Listo para mover la rutina y su historial a la Papelera"
         },
         "support": {
           "escalate": "Listo para enviar tu solicitud al soporte por correo"
@@ -57,14 +65,14 @@
         },
         "views": {
           "configure": "Listo para cambiar la vista guardada",
-          "delete": "Listo para eliminar permanentemente la vista guardada"
+          "delete": "Listo para mover la vista guardada a la Papelera"
         },
         "webhooks": {
           "manage": "Listo para cambiar la entrega del webhook"
         },
         "widgets": {
           "configure": "Listo para cambiar los widgets del panel",
-          "delete": "Listo para eliminar de forma permanente un widget del panel"
+          "delete": "Listo para mover un widget del panel a la Papelera"
         },
         "workspace": {
           "configure": "Listo para cambiar el modelo de datos del espacio de trabajo"
@@ -79,10 +87,11 @@
         "draftSave": "Guardar un borrador en la conversación seleccionada",
         "emailSend": "Enviar un correo a los destinatarios seleccionados",
         "externalManage": "Cambiar datos en la cuenta externa conectada",
-        "recordsDelete": "Esta acción no se puede deshacer.",
+        "recordsDelete": "{count, plural, one {Puedes restaurarlo desde la Papelera durante 30 días.} other {Puedes restaurarlos desde la Papelera durante 30 días.}}",
+        "recordsDeletePermanent": "Esta acción no se puede deshacer.",
         "roleDelete": "Eliminar el rol seleccionado",
         "roleSave": "Guardar el rol y su acceso a registros",
-        "routineDelete": "Eliminar definitivamente la rutina seleccionada y su historial",
+        "routineDelete": "Mover la rutina seleccionada y su historial a la Papelera, donde puedes restaurarla durante 30 días",
         "routinePause": "Pausar la rutina seleccionada",
         "routineRun": "Ejecutar ahora la rutina seleccionada",
         "salesListSave": "Añadir el prospecto seleccionado a una lista de Sales Navigator",
@@ -227,9 +236,14 @@
             "running": "{count, plural, one {Creando {target}} other {Creando {target}}}"
           },
           "delete": {
-            "done": "{count, plural, one {Eliminación de {target} completada} other {Eliminación de {target} completada}}",
-            "error": "{count, plural, one {Error al eliminar {target}} other {Error al eliminar {target}}}",
-            "running": "{count, plural, one {Eliminando {target}} other {Eliminando {target}}}"
+            "done": "{count, plural, one {Traslado de {target} a la Papelera completado} other {Traslado de {target} a la Papelera completado}}",
+            "error": "{count, plural, one {Error al mover {target} a la Papelera} other {Error al mover {target} a la Papelera}}",
+            "running": "{count, plural, one {Moviendo {target} a la Papelera} other {Moviendo {target} a la Papelera}}"
+          },
+          "deletePermanent": {
+            "done": "{count, plural, one {Eliminación permanente de {target} completada} other {Eliminación permanente de {target} completada}}",
+            "error": "{count, plural, one {Error al eliminar {target} de forma permanente} other {Error al eliminar {target} de forma permanente}}",
+            "running": "{count, plural, one {Eliminando {target} de forma permanente} other {Eliminando {target} de forma permanente}}"
           },
           "link": {
             "done": "Registros relacionados vinculados",
@@ -1158,7 +1172,9 @@
       "routineDeleteHasRunningRun": "Espera a que termine la ejecución activa antes de eliminar esta rutina.",
       "routineEditNotOwner": "Solo el propietario puede cambiar la configuración o activación de esta rutina.",
       "routineLimitReached": "Tu plan incluye {limit} rutinas por usuario. Cambia de plan para obtener un límite mayor.",
+      "routineNotFound": "ID de rutina no encontrado o no accesible.",
       "routineOwnerIneligible": "El propietario de la rutina debe ser un miembro activo de esta empresa.",
+      "routineRunCursorInvalid": "Ese enlace de página del historial de ejecuciones ya no es válido. Vuelve a cargar el historial e inténtalo de nuevo.",
       "routineRunNotOwner": "Solo quien posee esta rutina puede ejecutarla, porque consume sus créditos de IA.",
       "routineRunNowRequiresSchedule": "Solo las rutinas programadas se pueden probar manualmente.",
       "routineScheduleInvalid": "Esa programación no es una expresión cron válida.",
@@ -3894,7 +3910,6 @@
   },
   "ResetPasswordForm": {
     "backToSignIn": "¿Recuerdas tu contraseña? <backToSignInLink>Inicia sesión</backToSignInLink>",
-    "resetPasswordCta": "Restablecer",
     "title": "Restablece tu contraseña"
   },
   "ResizablePanels": {

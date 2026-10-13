@@ -12,7 +12,7 @@ import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator"
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
-import { failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
+import { failAuthorization, failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { recordDto, withMemberUsers } from "./record-dto";
 import { resolveRecordPath } from "./record-relationship-path";
@@ -73,11 +73,16 @@ export class GetRecordEditorInteractor extends AuthenticatedInteractor<
         const [storedModel, policy] = await Promise.all([this.records.getModel(), this.policy.load()]);
         const model = liveRecordModel(storedModel);
         const type = model.types.find((type) => type.id === input.typeId && !type.archived);
-        if (!type || !policy.actor || !policy.canReadType(type.id))
-          return failNotFound(CustomErrorCode.recordTypeNotFound);
+        if (!type || !policy.actor) return failNotFound(CustomErrorCode.recordTypeNotFound);
         const ref = input.recordId ? { typeId: type.id, recordId: input.recordId } : null;
         const stored = ref ? await this.records.getRecordCompanyWide(ref, options) : null;
-        if (ref && (!stored || !(await policy.canRead(stored)))) return failNotFound(CustomErrorCode.recordNotFound);
+        if (ref && !stored) return failNotFound(CustomErrorCode.recordNotFound);
+        if (!policy.canReadType(type.id)) {
+          return stored
+            ? failAuthorization(CustomErrorCode.permissionDenied)
+            : failNotFound(CustomErrorCode.recordTypeNotFound);
+        }
+        if (stored && !(await policy.canRead(stored))) return failAuthorization(CustomErrorCode.permissionDenied);
         const accessible = new Set(
           model.types.filter((type) => !type.archived && policy.canReadType(type.id)).map((type) => type.id),
         );

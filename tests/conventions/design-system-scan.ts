@@ -5,7 +5,7 @@ import ts from "typescript";
 
 import { REPO_ROOT, walkFiles } from "./walk";
 
-const PRODUCT_DIRECTORIES = ["app", "components", "features", "ee"];
+const PRODUCT_DIRECTORIES = ["app", "components", "constants", "features", "ee"];
 
 const NON_PRODUCT_PREFIXES = [
   "app/[locale]/(static)/",

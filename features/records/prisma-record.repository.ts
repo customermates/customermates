@@ -159,6 +159,13 @@ export class PrismaRecordRepo
     return (await this.getRecordIdentitiesCompanyWide(ref.typeId, [ref.recordId])).get(ref.recordId) ?? [];
   }
 
+  getIdentityProviderValueCompanyWide(id: string) {
+    return this.prisma.recordIdentity.findUnique({
+      where: { companyId: this.companyId, companyId_id: { companyId: this.companyId, id } },
+      select: { provider: true, value: true },
+    });
+  }
+
   async getIdentityChannelsCompanyWide(keys: Array<{ channelClass: string; value: string }>) {
     if (!keys.length) return [];
     const rows = await this.prisma.recordIdentity.findMany({
@@ -275,7 +282,7 @@ export class PrismaRecordRepo
     return rows.map(({ typeId, recordId, ...key }) => ({ ...key, ref: { typeId, recordId } }));
   }
 
-  async getIdentityOwnerRefsPageCompanyWide(
+  private async getIdentityOwnerRefsPageCompanyWide(
     identityId: string,
     after: RecordRef | undefined,
     take: number,

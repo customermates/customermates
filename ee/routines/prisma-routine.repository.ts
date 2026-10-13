@@ -14,6 +14,7 @@ import type { PauseRoutineRepo } from "./pause-routine.repo";
 import type { ReconcileRoutineRunsRepo } from "./reconcile-routine-runs.repo";
 import type { ReleaseOwnerRoutinesRepo } from "./release-owner-routines.interactor";
 import type { RoutineRunPage } from "./routine-history";
+import { encodeRoutineRunCursor, type RoutineRunCursor } from "./routine-run-cursor";
 import type { RoutineDto, RoutineRunDto } from "./routine.schema";
 import type { RunRoutineNowRepo } from "./run-routine-now.repo";
 import type { StartRoutineRunRepo } from "./start-routine-run.repo";
@@ -179,26 +180,6 @@ function resolveNextRunAt(
   }
 
   return null;
-}
-
-function encodeRoutineRunCursor(createdAt: Date, id: string) {
-  return Buffer.from(JSON.stringify({ createdAt: createdAt.toISOString(), id }), "utf8").toString("base64url");
-}
-
-function decodeRoutineRunCursor(cursor: string) {
-  try {
-    const value = JSON.parse(Buffer.from(cursor, "base64url").toString("utf8")) as {
-      createdAt?: unknown;
-      id?: unknown;
-    };
-    const createdAt = typeof value.createdAt === "string" ? new Date(value.createdAt) : null;
-    if (!createdAt || !Number.isFinite(createdAt.getTime()) || typeof value.id !== "string" || !value.id)
-      throw new Error();
-
-    return { createdAt, id: value.id };
-  } catch {
-    throw new Error("Routine run cursor is invalid.");
-  }
 }
 
 export class PrismaRoutineRepo
@@ -437,9 +418,9 @@ export class PrismaRoutineRepo
     }
   }
 
-  async findRoutineById(id: string): Promise<RoutineDto | null> {
+  async findReadableRoutineById(id: string): Promise<RoutineDto | null> {
     const routine = await this.prisma.routine.findFirst({
-      where: { id, companyId: this.companyId, deletedAt: null },
+      where: { id, companyId: this.companyId, deletedAt: null, AND: [routineAccessWhere(this.permissions)] },
       select: ROUTINE_SELECT,
     });
 
@@ -483,8 +464,7 @@ export class PrismaRoutineRepo
     });
   }
 
-  async getRoutineRuns(routineId: string, limit: number, cursor?: string | null): Promise<RoutineRunPage> {
-    const decoded = cursor ? decodeRoutineRunCursor(cursor) : null;
+  async getRoutineRuns(routineId: string, limit: number, decoded: RoutineRunCursor | null): Promise<RoutineRunPage> {
     const rows = await this.prisma.routineRun.findMany({
       where: {
         routineId,
@@ -526,7 +506,8 @@ export class PrismaRoutineRepo
 
     return {
       runs,
-      nextCursor: rows.length > limit && last ? encodeRoutineRunCursor(last.createdAt, last.id) : null,
+      nextCursor:
+        rows.length > limit && last ? encodeRoutineRunCursor({ createdAt: last.createdAt, id: last.id }) : null,
     };
   }
 

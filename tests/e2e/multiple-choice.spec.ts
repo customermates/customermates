@@ -4,6 +4,8 @@ import { RecordModelSchema } from "../../features/records/record-model.schema";
 import { addFromConfigure, openConfigure, openDrawerTab, saveDrawer } from "./configure";
 import { test, expect } from "./fixtures";
 
+test.use({ failOnPageErrors: true });
+
 test("creates a multiple choice field and edits, filters, bulk edits and groups its values", async ({
   page,
   companyId,
