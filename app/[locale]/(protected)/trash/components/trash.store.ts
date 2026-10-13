@@ -220,6 +220,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
       ...preview.removedRecords.map((list) =>
         this.t("Trash.permanentRecords", { list: list.label, count: list.count }),
       ),
+      ...(preview.items.some((item) => item.kind === "view") ? [this.t("Trash.permanentViewWidgets")] : []),
       ...(preview.removedLinks === null
         ? [this.t("RecordModel.deletionRestrictedLinks")]
         : preview.removedLinks > 0

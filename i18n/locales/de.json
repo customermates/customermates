@@ -4311,6 +4311,7 @@
     "permanentIrreversible": "Das kann nicht rückgängig gemacht werden.",
     "permanentMessage": "{count, plural, one {Dieses Element wird} other {Diese # Elemente werden}} endgültig gelöscht.",
     "permanentRecords": "{list}: {count, plural, one {# Datensatz} other {# Datensätze}}",
+    "permanentViewWidgets": "Bei einer Dashboard-Ansicht werden auch ihre Widgets endgültig gelöscht.",
     "restore": "Wiederherstellen",
     "restoreBlocked": {
       "listDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ihre Liste im Papierkorb liegt. Stelle zuerst die Liste wieder her.",

@@ -6,12 +6,15 @@ import { CardHeroHeader } from "@/components/card/card-hero-header";
 import { AppLink } from "@/components/shared/app-link";
 import { CenteredCardPage } from "@/components/shared/centered-card-page";
 import { Button } from "@/components/ui/button";
+import { RecordUnavailableBreadcrumb } from "./record-unavailable-breadcrumb";
 
 export function RecordAccessDeniedPage() {
   const t = useTranslations();
 
   return (
     <CenteredCardPage>
+      <RecordUnavailableBreadcrumb kind="denied" />
+
       <title>{t("AccessDeniedPage.documentTitle")}</title>
 
       <AppCard className="max-w-md" data-access-denied="">
