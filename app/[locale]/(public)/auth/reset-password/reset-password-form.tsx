@@ -80,7 +80,7 @@ const ResetPasswordFormContent = observer(({ inviterName, onboardingIntent }: Pr
 
         <AppCardFooter>
           <Button className="w-full" disabled={isLoading} type="submit">
-            {t("ResetPasswordForm.resetPasswordCta")}
+            {t("Common.actions.reset")}
           </Button>
         </AppCardFooter>
       </AppCard>

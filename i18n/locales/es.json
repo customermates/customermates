@@ -3909,7 +3909,6 @@
   },
   "ResetPasswordForm": {
     "backToSignIn": "¿Recuerdas tu contraseña? <backToSignInLink>Inicia sesión</backToSignInLink>",
-    "resetPasswordCta": "Restablecer",
     "title": "Restablece tu contraseña"
   },
   "ResizablePanels": {

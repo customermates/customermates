@@ -228,8 +228,8 @@ export const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
   "raw-sql-tenancy.test.ts#ALLOWLIST: prisma/seeds/records.ts:seedRecordFixtures": "I148 (C06)",
   "raw-sql-tenancy.test.ts#ALLOWLIST: prisma/seeds/relationships.ts:seedRelationships": "I148 (C06)",
   "raw-sql-tenancy.test.ts#ALLOWLIST: prisma/seeds/run.ts:runSyntheticSeed": "I148 (C06)",
-  "ui-wording.test.ts#SHARED_ACTION_WORD_EXEMPTIONS: AgentChat.approval.rejectAction": "I145 (C08)",
-  "ui-wording.test.ts#SHARED_ACTION_WORD_EXEMPTIONS: ResetPasswordForm.resetPasswordCta": "I145 (C08)",
+  "ui-wording.test.ts#SHARED_ACTION_WORD_EXEMPTIONS: AgentChat.approval.rejectAction":
+    "unresolved C08: the cancel-label footer rule reserves Common.actions.cancel for the shared footer",
   "ui-wording.test.ts#GERMAN_TERM_EXEMPTIONS: Cancelled":
     "unresolved C08: German-only homonym the other locales do not distinguish",
   "ui-wording.test.ts#GERMAN_TERM_EXEMPTIONS: Contact":

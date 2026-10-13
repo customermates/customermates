@@ -74,7 +74,6 @@ function sharedActionWordViolations(messages: Messages, translations: readonly M
 const SHARED_ACTION_WORD_EXEMPTIONS: Allowlist = {
   "AgentChat.approval.rejectAction":
     "Mate rejecting a proposed action is its own decision, not the shared footer Cancel; single consumer, so no new Common key",
-  "ResetPasswordForm.resetPasswordCta": "public sign-in page call to action that sets a new password",
 };
 
 const SHARED_ACTION_WORD_ALLOWLIST: Allowlist = {};

@@ -3909,7 +3909,6 @@
   },
   "ResetPasswordForm": {
     "backToSignIn": "Passwort wieder eingefallen? <backToSignInLink>Anmelden</backToSignInLink>",
-    "resetPasswordCta": "Zurücksetzen",
     "title": "Passwort zurücksetzen"
   },
   "ResizablePanels": {
