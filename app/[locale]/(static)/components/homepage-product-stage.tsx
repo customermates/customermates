@@ -77,7 +77,7 @@ function StageProgressRing() {
         fill="none"
         initial={{ pathLength: 0 }}
         r="6"
-        stroke="var(--color-primary)"
+        stroke="var(--primary)"
         strokeLinecap="round"
         strokeWidth="2"
         transition={{ duration: PRODUCT_STAGE_INTERVAL_MS / 1000, ease: "linear" }}
@@ -287,7 +287,7 @@ export function HomepageProductStage({ demoBaseUrl, label, live: liveCopy, local
       <div className="relative [perspective:2400px]">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-1/3 -bottom-20 -z-10 bg-[radial-gradient(45%_55%_at_50%_100%,color-mix(in_oklab,var(--color-primary)_30%,transparent),transparent)] blur-2xl"
+          className="pointer-events-none absolute inset-x-0 top-1/3 -bottom-20 -z-10 bg-[radial-gradient(45%_55%_at_50%_100%,color-mix(in_oklab,var(--primary)_30%,transparent),transparent)] blur-2xl"
         />
 
         <div

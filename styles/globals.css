@@ -789,8 +789,8 @@ path:focus {
   .text-display-gradient {
     background-image: linear-gradient(
       to bottom,
-      var(--color-foreground),
-      color-mix(in oklab, var(--color-foreground) 65%, transparent)
+      var(--foreground),
+      color-mix(in oklab, var(--foreground) 65%, transparent)
     );
     background-clip: text;
     color: transparent;
@@ -888,6 +888,7 @@ path:focus {
   width: var(--s);
   height: var(--s);
   margin-left: calc(var(--s) / -2);
+  opacity: 0.72;
   translate: calc(var(--px) * var(--depth)) calc(var(--py) * var(--depth));
   transition: translate 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
@@ -899,14 +900,14 @@ path:focus {
   height: 100%;
   border-radius: 25%;
   border: 1px solid
-    color-mix(in oklab, var(--color-foreground) 10%, transparent);
+    color-mix(in oklab, var(--foreground) 10%, transparent);
   background: radial-gradient(
     circle at 30% 25%,
-    var(--tint, color-mix(in oklab, var(--color-foreground) 6%, transparent)),
-    color-mix(in oklab, var(--color-background) 88%, transparent) 65%
+    var(--tint, color-mix(in oklab, var(--foreground) 6%, transparent)),
+    color-mix(in oklab, var(--background) 88%, transparent) 65%
   );
   box-shadow:
-    0 20px 48px -18px rgb(0 0 0 / 0.22),
+    0 14px 32px -16px rgb(0 0 0 / 0.14),
     inset 0 1px 0 0 rgb(255 255 255 / 0.7);
   backdrop-filter: blur(12px) saturate(160%);
   animation:
@@ -916,7 +917,7 @@ path:focus {
 
   @variant dark {
     box-shadow:
-      0 20px 48px -16px rgb(0 0 0 / 0.65),
+      0 14px 32px -14px rgb(0 0 0 / 0.5),
       inset 0 1px 0 0 rgb(255 255 255 / 0.05);
   }
 }
@@ -926,15 +927,15 @@ path:focus {
 }
 
 .hero-mark-card img {
-  width: 54%;
-  height: 54%;
+  width: 48%;
+  height: 48%;
   object-fit: contain;
 }
 
 [data-hero-mark="claude"] {
   --x: max(-36rem, -42vw);
   --y: 10rem;
-  --s: 6rem;
+  --s: 4.5rem;
   --rot: -8deg;
   --depth: 1.2;
   --d: 380ms;
@@ -944,13 +945,13 @@ path:focus {
   --wob: -2deg;
   --fx: -160px;
   --fy: -40px;
-  --tint: rgb(217 119 87 / 0.22);
+  --tint: rgb(217 119 87 / 0.14);
 }
 
 [data-hero-mark="gmail"] {
   --x: max(-22rem, -26vw);
   --y: 5.5rem;
-  --s: 4rem;
+  --s: 3rem;
   --rot: 6deg;
   --depth: 0.6;
   --d: 620ms;
@@ -965,7 +966,7 @@ path:focus {
 [data-hero-mark="linkedin"] {
   --x: min(22rem, 26vw);
   --y: 5.5rem;
-  --s: 4rem;
+  --s: 3rem;
   --rot: -5deg;
   --depth: 0.6;
   --d: 580ms;
@@ -975,13 +976,13 @@ path:focus {
   --wob: -3deg;
   --fx: 40px;
   --fy: -80px;
-  --tint: rgb(10 102 194 / 0.16);
+  --tint: rgb(10 102 194 / 0.1);
 }
 
 [data-hero-mark="openai"] {
   --x: min(36rem, 42vw);
   --y: 10rem;
-  --s: 6rem;
+  --s: 4.5rem;
   --rot: 7deg;
   --depth: 1.2;
   --d: 460ms;
@@ -996,7 +997,7 @@ path:focus {
 [data-hero-mark="telegram"] {
   --x: max(-30rem, -36vw);
   --y: 33rem;
-  --s: 5rem;
+  --s: 3.75rem;
   --rot: 4deg;
   --depth: 0.9;
   --d: 540ms;
@@ -1006,13 +1007,13 @@ path:focus {
   --wob: -3deg;
   --fx: -120px;
   --fy: 80px;
-  --tint: rgb(42 171 238 / 0.16);
+  --tint: rgb(42 171 238 / 0.1);
 }
 
 [data-hero-mark="n8n"] {
   --x: min(30rem, 36vw);
   --y: 33rem;
-  --s: 5rem;
+  --s: 3.75rem;
   --rot: -5deg;
   --depth: 0.9;
   --d: 700ms;
@@ -1022,13 +1023,13 @@ path:focus {
   --wob: 3deg;
   --fx: 120px;
   --fy: 80px;
-  --tint: rgb(234 75 113 / 0.16);
+  --tint: rgb(234 75 113 / 0.1);
 }
 
 @media (width < 64rem) {
   [data-hero-mark] {
     --y: 1.25rem;
-    --s: 3.5rem;
+    --s: 2.75rem;
     --depth: 0.5;
   }
 
@@ -1062,7 +1063,7 @@ path:focus {
 
 @media (40rem <= width < 64rem) {
   [data-hero-mark] {
-    --s: 4rem;
+    --s: 3rem;
   }
 }
 
@@ -1103,10 +1104,10 @@ path:focus {
 
 @utility glass-surface {
   border: 1px solid
-    color-mix(in oklab, var(--color-foreground) 12%, transparent);
+    color-mix(in oklab, var(--foreground) 12%, transparent);
   background-color: color-mix(
     in oklab,
-    var(--color-background) 55%,
+    var(--background) 55%,
     transparent
   );
   box-shadow:
@@ -1117,8 +1118,8 @@ path:focus {
 
 @utility floating-panel {
   border: 1px solid
-    color-mix(in oklab, var(--color-foreground) 12%, transparent);
-  background-color: var(--color-popover);
+    color-mix(in oklab, var(--foreground) 12%, transparent);
+  background-color: var(--popover);
   box-shadow:
     inset 0 1px 0 0 rgb(255 255 255 / 0.6),
     0 24px 48px -20px rgb(0 0 0 / 0.18);
@@ -1142,9 +1143,9 @@ path:focus {
 
 @keyframes step-progress-on {
   to {
-    border-color: var(--color-primary);
-    background-color: var(--color-primary);
-    color: var(--color-primary-foreground);
+    border-color: var(--primary);
+    background-color: var(--primary);
+    color: var(--primary-foreground);
   }
 }
 
@@ -1156,7 +1157,7 @@ path:focus {
       width: 1px;
       inset-block: 0;
       inset-inline-start: -1px;
-      background-color: var(--color-primary);
+      background-color: var(--primary);
       content: "";
       transform-origin: top;
       animation: step-progress-fill linear both;
@@ -1175,8 +1176,8 @@ path:focus {
 
 @utility product-card {
   border: 1px solid
-    color-mix(in oklab, var(--color-foreground) 10%, transparent);
-  background-color: var(--color-card);
+    color-mix(in oklab, var(--foreground) 10%, transparent);
+  background-color: var(--card);
   box-shadow:
     inset 0 1px 0 0 rgb(255 255 255 / 0.5),
     0 2px 6px -2px rgb(0 0 0 / 0.08),
@@ -1202,12 +1203,12 @@ path:focus {
 [data-marketing-flow="continuous"]
   :not([data-marketing-tone="canvas"], [data-marketing-tone="inverse"])
   + [data-marketing-tone="canvas"] {
-  --section-fade-top: var(--color-background);
+  --section-fade-top: var(--background);
 }
 
 [data-marketing-flow="continuous"]
   [data-marketing-tone="canvas"]:has(
     + :not([data-marketing-tone="canvas"], [data-marketing-tone="inverse"])
   ) {
-  --section-fade-bottom: var(--color-background);
+  --section-fade-bottom: var(--background);
 }

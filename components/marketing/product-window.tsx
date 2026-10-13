@@ -35,7 +35,7 @@ export function ProductPanel({ children, className }: FrameProps) {
     >
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(85%_65%_at_15%_0%,color-mix(in_oklab,var(--color-primary)_14%,transparent),transparent_70%)]"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(85%_65%_at_15%_0%,color-mix(in_oklab,var(--primary)_14%,transparent),transparent_70%)]"
       />
 
       {children}

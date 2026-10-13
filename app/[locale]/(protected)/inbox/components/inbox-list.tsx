@@ -150,8 +150,14 @@ export const InboxList = observer(({ canConnect, threads, selectedThreadId, lock
     didAutoScrollToThread = true;
     if (!selectedThreadId) return;
 
-    const row = listRef.current?.querySelector<HTMLElement>(`[data-thread-id="${selectedThreadId}"]`);
-    requestAnimationFrame(() => row?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    const list = listRef.current;
+    const row = list?.querySelector<HTMLElement>(`[data-thread-id="${selectedThreadId}"]`);
+    if (!list || !row) return;
+
+    requestAnimationFrame(() => {
+      const top = list.scrollTop + row.getBoundingClientRect().top - list.getBoundingClientRect().top;
+      list.scrollTo({ behavior: "smooth", top });
+    });
   }, [items.length, selectedThreadId]);
 
   let listBody: ReactNode;

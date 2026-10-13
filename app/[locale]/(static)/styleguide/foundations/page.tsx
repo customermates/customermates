@@ -443,7 +443,7 @@ export default async function FoundationsPage({ params }: StaticLocaleProps) {
           <div className="relative isolate flex min-h-64 flex-col items-center justify-center gap-6 overflow-hidden rounded-card border border-border bg-sidebar p-8">
             <div
               aria-hidden
-              className="absolute inset-0 -z-10 bg-[radial-gradient(60%_70%_at_50%_100%,color-mix(in_oklab,var(--color-primary)_30%,transparent),transparent)]"
+              className="absolute inset-0 -z-10 bg-[radial-gradient(60%_70%_at_50%_100%,color-mix(in_oklab,var(--primary)_30%,transparent),transparent)]"
             />
 
             <div className="glass-surface flex gap-0.5 rounded-full p-1 text-sm font-medium">

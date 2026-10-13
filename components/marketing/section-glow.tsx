@@ -3,7 +3,7 @@ export function SectionGlow() {
     <>
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-1/3 -bottom-1/2 -z-10 bg-[radial-gradient(50%_60%_at_50%_100%,color-mix(in_oklab,var(--color-primary)_24%,transparent),transparent)]"
+        className="pointer-events-none absolute inset-x-0 top-1/3 -bottom-1/2 -z-10 bg-[radial-gradient(50%_60%_at_50%_100%,color-mix(in_oklab,var(--primary)_24%,transparent),transparent)]"
       />
 
       <div
