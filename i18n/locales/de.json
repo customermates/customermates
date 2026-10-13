@@ -4051,7 +4051,7 @@
     "useSchedulePreset": "Zu einem Muster wechseln"
   },
   "RoutineRunReason": {
-    "adminPaused": "Ein Unternehmensadmin hat die Routine pausiert",
+    "adminPaused": "Ein Unternehmensadmin hat die Routine oder KI-Arbeit pausiert",
     "agentAlreadyCompleted": "Dieser Lauf war bereits abgeschlossen",
     "agentAlreadyRunning": "Der Assistent war bereits mit einem anderen Lauf beschäftigt",
     "agentTurnConflict": "Ein anderer Lauf hat den Assistenten zuerst belegt",

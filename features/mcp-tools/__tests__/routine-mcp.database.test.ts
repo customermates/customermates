@@ -9,7 +9,8 @@ import messages from "@/i18n/locales/en.json";
 
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
-  getTranslations: () => Promise.resolve(createTranslator({ locale: "en", messages })),
+  getTranslations: (namespace?: string) =>
+    Promise.resolve(createTranslator({ locale: "en", messages, namespace: namespace as never })),
 }));
 vi.mock("@/env", () => ({
   env: {

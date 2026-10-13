@@ -4051,7 +4051,7 @@
     "useSchedulePreset": "Switch to a preset"
   },
   "RoutineRunReason": {
-    "adminPaused": "A company administrator paused the routine",
+    "adminPaused": "A company administrator paused the routine or AI work",
     "agentAlreadyCompleted": "This run had already finished",
     "agentAlreadyRunning": "The assistant was already busy with another run",
     "agentTurnConflict": "Another run claimed the assistant first",

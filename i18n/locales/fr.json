@@ -4051,7 +4051,7 @@
     "useSchedulePreset": "Utiliser une fréquence prédéfinie"
   },
   "RoutineRunReason": {
-    "adminPaused": "Un administrateur de l’entreprise a suspendu la routine",
+    "adminPaused": "Un administrateur de l’entreprise a suspendu la routine ou le travail de l’IA",
     "agentAlreadyCompleted": "Cette exécution était déjà terminée",
     "agentAlreadyRunning": "L’assistant était déjà occupé par une autre exécution",
     "agentTurnConflict": "Une autre exécution a mobilisé l’assistant en premier",
