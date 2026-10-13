@@ -8,7 +8,6 @@ import type { RecordConfigurationService } from "@/features/records/configuratio
 import type { RecordConfigurationWriter } from "@/features/records/record-configuration-writer";
 import type { ConfigurationChange } from "@/features/records/configuration.schema";
 import type { EventService } from "@/features/event/event.service";
-import type { InteractorFailure, Validated } from "@/core/validation/validation.utils";
 import type { RecordModel } from "@/features/records/record-model.schema";
 import type { UpsertRoleData, DeleteRoleData, RoleMutationResult, RoleEditorContext } from "./role-management.schema";
 import { RoleMutationResultSchema } from "./role-management.schema";
@@ -16,13 +15,7 @@ import { RolePermissionsDtoSchema } from "./role.schema";
 import { UserAccessor } from "@/core/base/user-accessor";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import {
-  fail,
-  failAuthorization,
-  failConflict,
-  failNotFound,
-  unwoundFailure,
-} from "@/core/validation/interactor-failure-server";
+import { unwindFailure } from "@/core/validation/failure-unwind";
 import { recordRequestHash } from "@/features/records/record-request-hash";
 import { DomainEvent } from "@/features/event/domain-events";
 import { calculateChanges } from "@/core/utils/calculate-changes";
@@ -43,7 +36,7 @@ export class RoleManagementService extends UserAccessor {
     super();
   }
 
-  read(id?: string, typeIds?: string[]): Validated<RoleEditorContext> {
+  read(id?: string, typeIds?: string[]): Promise<RoleEditorContext> {
     return runInTransaction(
       async () => {
         const policy = await this.policy.load();
@@ -51,14 +44,14 @@ export class RoleManagementService extends UserAccessor {
           !policy.actor ||
           !(policy.canManageRoles || policy.canReadSystem("users") || policy.allowedSystem("users", "create"))
         )
-          return failAuthorization(CustomErrorCode.permissionDenied);
+          throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
         const model = await this.records.getModel();
         const visible = (typeId: string) => policy.canManageRoles || policy.canReadType(typeId);
         if (typeIds?.some((id) => !model.types.some((type) => type.id === id && !type.embedded && visible(id))))
-          return failNotFound(CustomErrorCode.recordTypeNotFound);
+          throw unwindFailure(CustomErrorCode.recordTypeNotFound, "not_found");
         const found =
           id && (policy.canManageRoles || id === policy.actor.role?.id) ? await this.roles.findRoleById(id) : null;
-        if (id && !found) return failNotFound(CustomErrorCode.roleNotFound);
+        if (id && !found) throw unwindFailure(CustomErrorCode.roleNotFound, "not_found");
         const role = found && {
           ...found,
           recordGrants: found.recordGrants?.filter(
@@ -68,59 +61,54 @@ export class RoleManagementService extends UserAccessor {
         const mutable = !role || (!role.isSystemRole && role.id !== policy.actor.role?.id);
         const usedByPreset = model.accessPresets.some((preset) => preset.grants.some((grant) => grant.roleId === id));
         return {
-          ok: true as const,
-          data: {
-            schemaRevision: model.revision,
-            role,
-            canEdit: mutable && policy.allowedSystem("users", role ? "update" : "create"),
-            canDelete: Boolean(
-              role &&
-                mutable &&
-                policy.allowedSystem("users", "delete") &&
-                !usedByPreset &&
-                !(await this.roles.hasUsersAssigned(role.id)),
-            ),
-            types: model.types
-              .filter(
-                (type) =>
-                  !type.embedded && !type.archived && visible(type.id) && (!typeIds || typeIds.includes(type.id)),
-              )
-              .map((type) => ({ id: type.id, label: type.pluralLabel })),
-          },
+          schemaRevision: model.revision,
+          role,
+          canEdit: mutable && policy.allowedSystem("users", role ? "update" : "create"),
+          canDelete: Boolean(
+            role &&
+              mutable &&
+              policy.allowedSystem("users", "delete") &&
+              !usedByPreset &&
+              !(await this.roles.hasUsersAssigned(role.id)),
+          ),
+          types: model.types
+            .filter(
+              (type) => !type.embedded && !type.archived && visible(type.id) && (!typeIds || typeIds.includes(type.id)),
+            )
+            .map((type) => ({ id: type.id, label: type.pluralLabel })),
         };
       },
       { readOnly: true },
-    ).catch(unwoundFailure);
+    );
   }
 
-  upsert(input: UpsertRoleData): Validated<RoleMutationResult> {
+  upsert(input: UpsertRoleData): Promise<RoleMutationResult> {
     return runInTransaction(
-      async (): Validated<RoleMutationResult> => {
+      async (): Promise<RoleMutationResult> => {
         const policy = await this.policy.load();
         if (!policy.actor || !policy.allowedSystem("users", input.id ? "update" : "create"))
-          return failAuthorization(CustomErrorCode.permissionDenied);
+          throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
         const hash = recordRequestHash({ kind: "roleUpsert", input });
         const receipt = await this.records.receipt(input.idempotencyKey, this.userId);
         if (receipt) {
-          if (receipt.requestHash !== hash) return failConflict(CustomErrorCode.recordIdempotencyConflict);
-          return { ok: true, data: storedResult.parse(receipt.result) };
+          if (receipt.requestHash !== hash) throw unwindFailure(CustomErrorCode.recordIdempotencyConflict, "conflict");
+          return storedResult.parse(receipt.result);
         }
         const model = await this.currentModel(input.expectedRevision);
-        if ("ok" in model) return model;
         const previous = input.id ? await this.roles.findRoleById(input.id) : null;
-        if (input.id && !previous) return failNotFound(CustomErrorCode.roleNotFound);
-        if (input.id === policy.actor.role?.id) return failAuthorization(CustomErrorCode.roleSelfEditForbidden);
-        if (previous?.isSystemRole) return failConflict(CustomErrorCode.roleSystemImmutable);
+        if (input.id && !previous) throw unwindFailure(CustomErrorCode.roleNotFound, "not_found");
+        if (input.id === policy.actor.role?.id)
+          throw unwindFailure(CustomErrorCode.roleSelfEditForbidden, "authorization");
+        if (previous?.isSystemRole) throw unwindFailure(CustomErrorCode.roleSystemImmutable, "conflict");
         if (input.recordGrants.some((grant) => !model.types.some((type) => type.id === grant.typeId && !type.embedded)))
-          return fail(CustomErrorCode.recordConfigurationInvalid);
+          throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
         if (await this.roles.isRoleNameTaken(input.name, input.id))
-          return failConflict(CustomErrorCode.roleNameTaken, ["name"]);
+          throw unwindFailure(CustomErrorCode.roleNameTaken, "conflict", ["name"]);
         const saved = await this.roles.upsertRoleOrThrow(input).catch((error: unknown) => {
           if ((error as { code?: unknown } | null)?.code === "P2002")
-            return failConflict(CustomErrorCode.roleNameTaken, ["name"]);
+            throw unwindFailure(CustomErrorCode.roleNameTaken, "conflict", ["name"]);
           throw error;
         });
-        if ("ok" in saved) return saved;
         const currentGrants = await this.records.getGrants();
         const operations: ConfigurationChange["operations"] = [];
         for (const { typeId, actions } of input.recordGrants) {
@@ -164,33 +152,34 @@ export class RoleManagementService extends UserAccessor {
         } else await this.events.publish(DomainEvent.ROLE_CREATED, { entityId: role.id, payload: role });
         const data = { role, schemaRevision: model.revision + 1 };
         await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, data);
-        return { ok: true, data };
+        return data;
       },
       { timeout: 30000 },
-    ).catch(unwoundFailure);
+    );
   }
 
-  delete(input: DeleteRoleData): Validated<string> {
+  delete(input: DeleteRoleData): Promise<string> {
     return runInTransaction(
-      async (): Validated<string> => {
+      async (): Promise<string> => {
         const policy = await this.policy.load();
         if (!policy.actor || !policy.allowedSystem("users", "delete"))
-          return failAuthorization(CustomErrorCode.permissionDenied);
+          throw unwindFailure(CustomErrorCode.permissionDenied, "authorization");
         const hash = recordRequestHash({ kind: "roleDelete", input });
         const receipt = await this.records.receipt(input.idempotencyKey, this.userId);
         if (receipt) {
-          if (receipt.requestHash !== hash) return failConflict(CustomErrorCode.recordIdempotencyConflict);
-          return { ok: true, data: z.string().parse(receipt.result) };
+          if (receipt.requestHash !== hash) throw unwindFailure(CustomErrorCode.recordIdempotencyConflict, "conflict");
+          return z.string().parse(receipt.result);
         }
         const model = await this.currentModel(input.expectedRevision);
-        if ("ok" in model) return model;
         const role = await this.roles.findRoleById(input.id);
-        if (!role) return failNotFound(CustomErrorCode.roleNotFound);
-        if (role.id === policy.actor.role?.id) return failAuthorization(CustomErrorCode.roleSelfEditForbidden);
-        if (role.isSystemRole) return failConflict(CustomErrorCode.roleSystemImmutable);
-        if (await this.roles.hasUsersAssigned(role.id)) return failConflict(CustomErrorCode.roleAssignedCannotDelete);
+        if (!role) throw unwindFailure(CustomErrorCode.roleNotFound, "not_found");
+        if (role.id === policy.actor.role?.id)
+          throw unwindFailure(CustomErrorCode.roleSelfEditForbidden, "authorization");
+        if (role.isSystemRole) throw unwindFailure(CustomErrorCode.roleSystemImmutable, "conflict");
+        if (await this.roles.hasUsersAssigned(role.id))
+          throw unwindFailure(CustomErrorCode.roleAssignedCannotDelete, "conflict");
         if (model.accessPresets.some((preset) => preset.grants.some((grant) => grant.roleId === role.id)))
-          return failConflict(CustomErrorCode.roleAccessPresetInUse);
+          throw unwindFailure(CustomErrorCode.roleAccessPresetInUse, "conflict");
         const previousGrants = await this.records.getGrants();
         const typeIds = new Set(
           previousGrants.filter((grant) => grant.roleId === role.id).map((grant) => grant.typeId),
@@ -211,17 +200,18 @@ export class RoleManagementService extends UserAccessor {
         });
         await this.events.publish(DomainEvent.ROLE_DELETED, { entityId: role.id, payload: role });
         await this.records.saveReceipt(input.idempotencyKey, this.userId, hash, role.id);
-        return { ok: true, data: role.id };
+        return role.id;
       },
       { timeout: 30000 },
-    ).catch(unwoundFailure);
+    );
   }
 
-  private async currentModel(expectedRevision: number): Promise<RecordModel | InteractorFailure> {
-    if ((await this.records.getState())?.activeOperationId) return failConflict(CustomErrorCode.recordWritePaused);
+  private async currentModel(expectedRevision: number): Promise<RecordModel> {
+    if ((await this.records.getState())?.activeOperationId)
+      throw unwindFailure(CustomErrorCode.recordWritePaused, "conflict");
     const model = await this.records.getModel();
-    if (!model.revision) return fail(CustomErrorCode.recordConfigurationInvalid);
-    if (model.revision !== expectedRevision) return failConflict(CustomErrorCode.recordSchemaChanged);
+    if (!model.revision) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
+    if (model.revision !== expectedRevision) throw unwindFailure(CustomErrorCode.recordSchemaChanged, "conflict");
     return model;
   }
 }
