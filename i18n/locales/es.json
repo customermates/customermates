@@ -1159,6 +1159,7 @@
       "routineEditNotOwner": "Solo el propietario puede cambiar la configuración o activación de esta rutina.",
       "routineLimitReached": "Tu plan incluye {limit} rutinas por usuario. Cambia de plan para obtener un límite mayor.",
       "routineOwnerIneligible": "El propietario de la rutina debe ser un miembro activo de esta empresa.",
+      "routineRunCursorInvalid": "Ese enlace de página del historial de ejecuciones ya no es válido. Vuelve a cargar el historial e inténtalo de nuevo.",
       "routineRunNotOwner": "Solo quien posee esta rutina puede ejecutarla, porque consume sus créditos de IA.",
       "routineRunNowRequiresSchedule": "Solo las rutinas programadas se pueden probar manualmente.",
       "routineScheduleInvalid": "Esa programación no es una expresión cron válida.",
