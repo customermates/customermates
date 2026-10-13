@@ -7,7 +7,6 @@ import type { ChartDataPoint } from "./chart.types";
 import dynamic from "next/dynamic";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useTheme } from "next-themes";
 
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 import { getChartColors, getChartRankShades, getChartStrokeColors, getChartTextColors } from "@/constants/chart-colors";
@@ -87,19 +86,17 @@ type Props = {
 export const WidgetChart = observer(
   ({ data, displayOptions, currency, integerValues = false, shadeByRank = true }: Props) => {
     const t = useTranslations();
-    const { resolvedTheme } = useTheme();
     const configuredBarColors = displayOptions?.barColors?.length ? displayOptions.barColors : [ChartColor.primary1];
     const useGroupColors = displayOptions?.useGroupColors !== false;
-    const chartColors = getChartColors(resolvedTheme);
-    const chartTextColors = getChartTextColors(resolvedTheme);
-    const chartStrokeColors = getChartStrokeColors(resolvedTheme);
+    const chartColors = getChartColors();
+    const chartTextColors = getChartTextColors();
+    const chartStrokeColors = getChartStrokeColors();
     const displayType = displayOptions?.displayType ?? DisplayType.verticalBarChart;
     const singleColor = configuredBarColors.length === 1 && !(useGroupColors && data.some((item) => item.optionColor));
     const shades =
       shadeByRank && singleColor && RANK_SHADED_TYPES.has(displayType)
         ? getChartRankShades(
             configuredBarColors[0],
-            resolvedTheme,
             data.map((item) => item.value),
           )
         : null;

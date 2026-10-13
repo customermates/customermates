@@ -648,8 +648,7 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
   ];
   await expect.poll(fills).toHaveLength(2);
   const groupFills = await fills();
-  const theme = await page.evaluate(() => (document.documentElement.classList.contains("dark") ? "dark" : "light"));
-  const rankShades = getChartRankShades(ChartColor.primary1, theme, [5, 12.5]);
+  const rankShades = getChartRankShades(ChartColor.primary1, [5, 12.5]);
   expect(new Set(rankShades).size).toBe(2);
   expect(rankShades).not.toEqual(groupFills);
   await dialog
@@ -659,6 +658,11 @@ test("uses Average, Minimum and Maximum at record grain, groups through relation
     })
     .uncheck();
   await expect.poll(fills).toEqual(rankShades);
+  const paintedFills = await dialog
+    .locator(".recharts-bar-rectangle path")
+    .evaluateAll((paths) => [...new Set(paths.map((path) => getComputedStyle(path).fill))]);
+  expect(paintedFills).toHaveLength(2);
+  for (const fill of paintedFills) expect(fill).toMatch(/^rgb\(/);
   await dialog
     .getByRole("switch", {
       name: english.Common.inputs.displayOptions.useGroupColors,

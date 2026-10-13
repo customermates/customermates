@@ -36,10 +36,6 @@ vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => (key === "Diagrams.noGroup" ? "No group" : key),
 }));
 
-vi.mock("next-themes", () => ({
-  useTheme: () => ({ resolvedTheme: "dark" }),
-}));
-
 vi.mock("@/constants/chart-colors", () => {
   const palette = (prefix: string) => ({
     [ChartColor.primary1]: `${prefix}-primary1`,
@@ -53,8 +49,7 @@ vi.mock("@/constants/chart-colors", () => {
     getChartColors: () => palette("fill"),
     getChartStrokeColors: () => palette("stroke"),
     getChartTextColors: () => palette("text"),
-    getChartRankShades: (color: string, _theme: string, values: number[]) =>
-      values.map((value) => `shade-${color}-${value}`),
+    getChartRankShades: (color: string, values: number[]) => values.map((value) => `shade-${color}-${value}`),
   };
 });
 

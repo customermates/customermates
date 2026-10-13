@@ -6,7 +6,6 @@ import type { ChipColor } from "@/constants/chip-colors";
 import type { ReactNode } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ChartNoAxesColumn } from "lucide-react";
-import { useTheme } from "next-themes";
 import { ChartColor, DisplayType } from "@/features/widget/widget.schema";
 import { toChipColor } from "@/constants/chip-colors";
 import { getChartRankShades } from "@/constants/chart-colors";
@@ -74,7 +73,6 @@ export function RecordWidgetChart({
   const language = useLocale();
   const locale = useHydratedIntlStore().formattingLocale;
   const valueFormat = useRecordValueFormat();
-  const { resolvedTheme } = useTheme();
   const interval = measure.groupBy?.dateInterval;
   const formatDecimal = (value: string, currency: string | null) =>
     valueFormat.decimal(value, { currency, maximumFractionDigits: derivedFractionDigits(decimalPlaces, currency) });
@@ -258,7 +256,6 @@ export function RecordWidgetChart({
     const visible = ranked.slice(0, RANKED_TABLE_ROW_LIMIT);
     const shades = getChartRankShades(
       displayOptions.barColors?.[0] ?? ChartColor.primary1,
-      resolvedTheme,
       visible.map((row) => row.value ?? 0),
     );
     content = (
