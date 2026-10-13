@@ -20,7 +20,9 @@ vi.mock("next-intl/server", () => ({
 const { prisma } = await import("@/prisma/db");
 const { runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { createRestRouteWorkspace, postAs, restRoute } = await import("@/tests/helpers/rest-route-workspace");
-const { getDataViewStateRepo, getEntitlementService, getQueryParamsPrecheck } = await import("@/core/di");
+const { getDataViewStateRepo, getEntitlementService, getMessagingRepo, getQueryParamsPrecheck } = await import(
+  "@/core/di"
+);
 const { GetMessagingThreadsInteractor } = await import("../get-messaging-threads.interactor");
 const { getMessagingThreadsTool } = await import("@/features/mcp-tools/messaging.mcp-tools");
 const { executeMcpTool } = await import("@/features/mcp-tools/mcp-tool");
@@ -70,15 +72,10 @@ describeDatabase("messaging thread query budget at the interactor boundary", () 
 
   it("lets an unexpected repository error escape instead of converting it", async () => {
     const failure = new Error("database went away");
-    const repo = {
-      getItems: vi.fn().mockRejectedValue(failure),
-      getCount: vi.fn().mockRejectedValue(failure),
-      getFilterableFields: vi.fn().mockResolvedValue([]),
-      getSortableFields: vi.fn().mockReturnValue([]),
-      getSearchableFields: vi.fn().mockReturnValue([]),
-    };
+    const repo = getMessagingRepo();
+    vi.spyOn(repo, "getItems").mockRejectedValue(failure);
     const interactor = new GetMessagingThreadsInteractor(
-      repo as never,
+      repo,
       getDataViewStateRepo(),
       "api",
       getQueryParamsPrecheck(),
