@@ -139,6 +139,8 @@ const {
   getRecordRepo,
   getRoutineRepo,
   getWidgetDtoReaders,
+  getRecordIdentityReader,
+  getConnectedAccountRepo,
 } = await import("@/core/di");
 const { manageWebhooksTool } = await import("@/features/mcp-tools/webhook.mcp-tools");
 const { manageRoutinesTool } = await import("@/features/mcp-tools/routine.mcp-tools");
@@ -7898,7 +7900,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       }),
     );
-    const inbox = new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
+    const inbox = new PrismaMessagingRepo(
+      getRecordRepo(),
+      getRecordAccessPolicy(),
+      getRecordIdentityReader(),
+      getConnectedAccountRepo(),
+    );
     const lookup = new GetIdentityRecordChoicesInteractor(
       f.repo,
       new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo),
@@ -8093,7 +8100,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       }),
     );
-    const inbox = new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
+    const inbox = new PrismaMessagingRepo(
+      getRecordRepo(),
+      getRecordAccessPolicy(),
+      getRecordIdentityReader(),
+      getConnectedAccountRepo(),
+    );
     const names = async () => {
       const threads = await f.run(() => inbox.getItems({ pagination: { page: 1, pageSize: 10 } }), f.member);
       const selected = recordInvariant(threads.find((thread) => thread.id === target.id));
@@ -8222,7 +8234,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       );
     }
-    const inbox = new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
+    const inbox = new PrismaMessagingRepo(
+      getRecordRepo(),
+      getRecordAccessPolicy(),
+      getRecordIdentityReader(),
+      getConnectedAccountRepo(),
+    );
     const params: GetQueryParams = {
       filters: [
         {
@@ -8328,7 +8345,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           },
         }),
       );
-      const inbox = new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
+      const inbox = new PrismaMessagingRepo(
+        getRecordRepo(),
+        getRecordAccessPolicy(),
+        getRecordIdentityReader(),
+        getConnectedAccountRepo(),
+      );
       await inbox.upsertThreadParticipantsUnscoped({
         companyId: f.company.id,
         messagingThreadId: thread.id,
@@ -17672,9 +17694,12 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       const ingestInbound = async (
         args: Parameters<InstanceType<typeof PrismaMessagingRepo>["ingestMessageUnscoped"]>[0],
       ) => {
-        const ingested = await new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy()).ingestMessageUnscoped(
-          args,
-        );
+        const ingested = await new PrismaMessagingRepo(
+          getRecordRepo(),
+          getRecordAccessPolicy(),
+          getRecordIdentityReader(),
+          getConnectedAccountRepo(),
+        ).ingestMessageUnscoped(args);
         await synchronizeInboundAvatar(getProviderAvatarService, args.companyId, ingested);
         return ingested;
       };
