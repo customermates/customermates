@@ -49,7 +49,7 @@ test("persists a webhook for a customer-created type with an explicit owner and 
   workspace,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors = collectPageErrors(page, { console: false });
+  const errors = collectPageErrors(page);
   await openConfigure(page);
   await addFromConfigure(page, "List");
   const creation = page.getByRole("dialog");

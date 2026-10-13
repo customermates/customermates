@@ -1,4 +1,4 @@
-import type { ConsoleMessage, Page, Request } from "@playwright/test";
+import type { ConsoleMessage, Request } from "@playwright/test";
 
 const WEBKIT_IGNORED_VIEWPORT_KEY = 'Viewport argument key "interactive-widget" not recognized and ignored.';
 const WEBKIT_CANCELLED_PAGE_FETCH =
@@ -27,16 +27,4 @@ export function isBenignPageError(message: string): boolean {
     message === "ResizeObserver loop completed with undelivered notifications." ||
     WEBKIT_CANCELLED_PAGE_FETCH.test(message)
   );
-}
-
-export function collectPageErrors(page: Page, { console = true }: { console?: boolean } = {}) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  if (console)
-    page.on("console", (message) => {
-      if (isAppConsoleError(message)) errors.push(message.text());
-    });
-  return errors;
 }

@@ -1,7 +1,8 @@
 import { writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { presetId } from "../../features/records/crm-preset";
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import type { ExpectedDiagnostic } from "./browser-diagnostics";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { openRecordDetails } from "./record-rows";
 import { RecordQueryResultSchema } from "../../features/records/record-query-result.schema";
 
@@ -10,6 +11,7 @@ test("keeps complete application reads, History and a blocked form draft while a
   context,
   database,
   companyId,
+  diagnostics,
 }, testInfo) => {
   test.setTimeout(300000);
   const id = (key: string) => presetId(companyId, key);
@@ -100,25 +102,10 @@ test("keeps complete application reads, History and a blocked form draft while a
   const name = draft.getByRole("main").getByRole("textbox", { name: "Name", exact: false });
   await name.fill("Retained during recalculation");
   await expect(draft.getByRole("main").getByRole("button", { name: "Save", exact: true })).toBeEnabled();
-  const errors: string[] = [];
-  const expectedTransportErrors: string[] = [];
+  const pageErrors = collectPageErrors(page);
+  const draftErrors = collectPageErrors(draft);
   let transportFaults = 0;
-  for (const browserPage of [page, draft]) {
-    browserPage.on("pageerror", (error) => {
-      if (!isBenignPageError(error.message)) errors.push(error.message);
-    });
-    browserPage.on("console", (message) => {
-      if (!isAppConsoleError(message)) return;
-      if (
-        browserPage === page &&
-        transportFaults === 1 &&
-        /^Failed to load resource:/.test(message.text()) &&
-        /ERR_FAILED|network connection was lost|Load failed/.test(message.text())
-      )
-        expectedTransportErrors.push(message.text());
-      else errors.push(message.text());
-    });
-  }
+  const transportErrors: ExpectedDiagnostic[] = [];
   await openRecordDetails(page, "Shared live catalogue price");
   await editor.getByRole("textbox", { name: "Price", exact: false }).fill("20");
   await editor.getByRole("button", { name: "Save", exact: true }).click();
@@ -138,6 +125,15 @@ test("keeps complete application reads, History and a blocked form draft while a
       const response = await route.fetch();
       expect(response.status()).toBe(200);
       transportFaults += 1;
+      // The aborted progress read is reported by the browser as a failed load of exactly this request, at most once.
+      transportErrors.push(
+        diagnostics.expect({
+        kind: "console",
+        text: /^Failed to load resource:.*(?:ERR_FAILED|network connection was lost|Load failed)/,
+        source: (url) => url.href === request.url(),
+        page,
+      }),
+      );
       await route.abort("failed");
     } else await route.continue();
   });
@@ -185,12 +181,7 @@ test("keeps complete application reads, History and a blocked form draft while a
   await expect(name).toHaveValue("Retained during recalculation");
   await draft.screenshot({ path: testInfo.outputPath("draft-during-recalculation.png"), animations: "disabled" });
   const readPage = await context.newPage();
-  readPage.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  readPage.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
+  const readErrors = collectPageErrors(readPage);
   const readMain = readPage.getByRole("main");
   const history = readMain.locator('[data-detail-panel="activities"]');
   let completeReads = 0;
@@ -343,7 +334,7 @@ test("keeps complete application reads, History and a blocked form draft while a
           elapsedMs: applicationReadTimings,
           uiReads: uiReadTimings,
           transportFaults,
-          expectedTransportErrors,
+          expectedTransportErrors: transportErrors.flatMap(({ events }) => events.map(({ text }) => text)),
         },
         null,
         2,
@@ -361,8 +352,9 @@ test("keeps complete application reads, History and a blocked form draft while a
     companyId,
   ]);
   expect(operation.rows).toEqual([{ state: "cancelled" }, { state: "completed" }]);
-  expect(errors).toEqual([]);
-  expect(expectedTransportErrors.length).toBeLessThanOrEqual(1);
+  expect([...pageErrors, ...draftErrors, ...readErrors]).toEqual([]);
+  if (testInfo.project.name === "chromium")
+    expect(transportErrors.flatMap(({ events }) => events.map(({ source }) => source))).toEqual([expect.stringContaining("/en/records/")]);
   await readPage.close();
   await draft.close();
 });

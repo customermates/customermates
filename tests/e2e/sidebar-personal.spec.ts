@@ -4,8 +4,8 @@ import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
 import { openConfigure, saveGeneral } from "./configure";
 import { secondUser } from "./second-user";
-import { expect, test } from "./fixtures";
-import { collectErrors, itemMenu, openCustomize, openSidebar, sectionMenu, sidebarItem, sidebarOrder } from "./sidebar";
+import { collectPageErrors, expect, test } from "./fixtures";
+import { itemMenu, openCustomize, openSidebar, sectionMenu, sidebarItem, sidebarOrder } from "./sidebar";
 
 async function dragOnto(page: Page, source: Locator, target: Locator) {
   const from = await source.boundingBox();
@@ -36,7 +36,7 @@ test("each person customizes their own sidebar and others keep the default", asy
   workspace,
   companyId,
 }, testInfo) => {
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   const touch = testInfo.project.name === "mobile";
   await page.goto("/en/dashboard");
   await page.waitForLoadState("networkidle");
@@ -132,7 +132,7 @@ test("each person customizes their own sidebar and others keep the default", asy
 });
 
 test("the list icon picker offers a searchable grid", async ({ page, database, companyId }) => {
-  const errors = collectErrors(page);
+  const errors = collectPageErrors(page);
   const taskId = presetId(companyId, "task");
   await openConfigure(page, taskId);
   await page.locator("#configure-general-icon").click();

@@ -4,7 +4,8 @@ import { randomUUID } from "node:crypto";
 
 import englishMessages from "../../i18n/locales/en.json" with { type: "json" };
 import { presetId } from "../../features/records/crm-preset";
-import { expect, test, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { expectNotFoundDocuments } from "./browser-diagnostics";
+import { collectPageErrors, expect, test } from "./fixtures";
 import {
   createConfiguredList,
   deleteSelectedList,
@@ -13,19 +14,9 @@ import {
 import { secondUser } from "./second-user";
 import { postOk } from "./api";
 
-const NOT_FOUND_DOCUMENT =
-  /Failed to load resource: the server responded with a status of 404/;
-
-function collectErrors(page: Page) {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message) && !NOT_FOUND_DOCUMENT.test(message.text()))
-      errors.push(message.text());
-  });
-  return errors;
+function allowNotFoundDocuments(page: Page) {
+  expectNotFoundDocuments(page);
+  return collectPageErrors(page);
 }
 
 async function createView(
@@ -52,7 +43,7 @@ test("shows the not-found page for an unknown or foreign list instead of the err
   page,
 }) => {
   test.setTimeout(120000);
-  const errors = collectErrors(page);
+  const errors = allowNotFoundDocuments(page);
 
   for (const typeId of [randomUUID(), presetId(randomUUID(), "deal")]) {
     await page.goto(`/en/records/${typeId}`);
@@ -70,7 +61,7 @@ test("falls back to the All view and drops an unknown or foreign view id from th
   companyId,
 }) => {
   test.setTimeout(120000);
-  const errors = collectErrors(page);
+  const errors = allowNotFoundDocuments(page);
   const dealTypeId = presetId(companyId, "deal");
   const contactTypeId = presetId(companyId, "contact");
   const ownView = await createView(
@@ -135,7 +126,7 @@ test("shows a trashed list as In Trash with restore for schema managers, as not 
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors = collectErrors(page);
+  const errors = allowNotFoundDocuments(page);
   const model = await page.request.post("/api/v1/model/read", { data: {} });
   expect(model.status()).toBe(200);
   const { revision } = (await model.json()) as { revision: number };
@@ -160,6 +151,7 @@ test("shows a trashed list as In Trash with restore for schema managers, as not 
     testInfo,
     roleId,
   );
+  const memberErrors = allowNotFoundDocuments(member.page);
   try {
     const dealTypeId = presetId(companyId, "deal");
     await member.page.goto(`/en/records/${dealTypeId}`);
@@ -239,4 +231,5 @@ test("shows a trashed list as In Trash with restore for schema managers, as not 
   }
 
   expect(errors).toEqual([]);
+  expect(memberErrors).toEqual([]);
 });

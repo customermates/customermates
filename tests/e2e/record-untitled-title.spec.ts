@@ -4,7 +4,6 @@ import { deleteFromDrawer, openConfigure, openConfigureRow } from "./configure";
 import { expect, test } from "./fixtures";
 import { openRecordLink } from "./record-rows";
 
-test.use({ failOnPageErrors: true });
 
 test("keeps an Untitled title column that opens the record after the only name field is deleted", async ({
   page,

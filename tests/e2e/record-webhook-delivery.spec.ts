@@ -28,7 +28,7 @@ test("delivers a custom-record event to a loopback receiver and retries a transi
   });
   await new Promise<void>((resolve) => receiver.listen(0, "127.0.0.1", resolve));
   const receiverUrl = `http://127.0.0.1:${(receiver.address() as AddressInfo).port}/project-events`;
-  const errors = collectPageErrors(page, { console: false });
+  const errors = collectPageErrors(page);
   try {
     await openConfigure(page);
     await addFromConfigure(page, "List");
@@ -153,7 +153,7 @@ test("delivers only deleted records that matched the webhook filter before remov
   });
   await new Promise<void>((resolve) => receiver.listen(0, "127.0.0.1", resolve));
   const receiverUrl = `http://127.0.0.1:${(receiver.address() as AddressInfo).port}/deleted-projects`;
-  const errors = collectPageErrors(page, { console: false });
+  const errors = collectPageErrors(page);
   try {
     await openConfigure(page);
     await addFromConfigure(page, "List");

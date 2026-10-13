@@ -8,7 +8,7 @@ test("edits identity channels in the generic drawer and searches persisted chann
   companyId,
 }, testInfo) => {
   test.setTimeout(180000);
-  const errors = collectPageErrors(page, { console: false });
+  const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "contact");
   await page.goto(`/en/records/${typeId}`);
   await page.locator("#records-add").click();

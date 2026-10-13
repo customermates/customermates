@@ -3,7 +3,7 @@ import type { Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 
 import { presetId } from "../../features/records/crm-preset";
-import { expect, test } from "./fixtures";
+import { collectPageErrors, expect, test } from "./fixtures";
 import {
   expectTriggerVisuallyHidden,
   FINE_HOVER,
@@ -13,7 +13,7 @@ import {
   usesTouch,
 } from "./item-actions";
 import { recordItem } from "./record-rows";
-import { collectErrors, openSidebar, sidebarItem } from "./sidebar";
+import { openSidebar, sidebarItem } from "./sidebar";
 
 async function createRecord(page: Page, companyId: string) {
   const name = `Menu pattern ${randomUUID().slice(0, 8)}`;
@@ -31,7 +31,7 @@ test.describe("item menus on a fine pointer", () => {
   test.skip(() => usesTouch(), "Right-click and the hover trigger belong to fine pointers; touch is covered below");
 
   test("right-click on a record row opens the same items as its More actions trigger", async ({ page, companyId }) => {
-    const errors = collectErrors(page);
+    const errors = collectPageErrors(page);
     const name = await createRecord(page, companyId);
     const row = recordItem(page, name);
     const more = row.getByRole("button", { name: `More actions for ${name}`, exact: true });
@@ -68,7 +68,7 @@ test.describe("item menus on a fine pointer", () => {
   });
 
   test("right-click on a sidebar item opens the same items as its options trigger", async ({ page }) => {
-    const errors = collectErrors(page);
+    const errors = collectPageErrors(page);
     await page.goto("/en/dashboard");
     await page.waitForLoadState("networkidle");
     await openSidebar(page);
@@ -95,7 +95,7 @@ test.describe("item menus on touch", () => {
     page,
     companyId,
   }) => {
-    const errors = collectErrors(page);
+    const errors = collectPageErrors(page);
     await page.goto("/en/dashboard");
     const media = await page.evaluate(
       (queries) => Object.fromEntries(queries.map((query) => [query, window.matchMedia(query).matches])),

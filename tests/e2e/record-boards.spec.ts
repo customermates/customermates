@@ -1,4 +1,4 @@
-import { test, expect, isAppConsoleError, isBenignPageError } from "./fixtures";
+import { test, expect, collectPageErrors } from "./fixtures";
 import { saveViewChanges } from "./view-changes";
 import { openItemMenu } from "./item-actions";
 import type { Request } from "@playwright/test";
@@ -12,19 +12,13 @@ test("moves a board card with the keyboard and restores relationship and date gr
   companyId,
 }, testInfo) => {
   test.setTimeout(240000);
-  const errors: string[] = [];
+  const errors = collectPageErrors(page);
   const pending = new Set<Request>();
   page.on("request", (request) => {
     if (request.method() === "POST" && new URL(request.url()).pathname.startsWith("/en/records/")) pending.add(request);
   });
   page.on("requestfinished", (request) => pending.delete(request));
   page.on("requestfailed", (request) => pending.delete(request));
-  page.on("pageerror", (error) => {
-    if (!isBenignPageError(error.message)) errors.push(error.message);
-  });
-  page.on("console", (message) => {
-    if (isAppConsoleError(message)) errors.push(message.text());
-  });
   const id = (key: string) => presetId(companyId, key);
   const closeAppearance = async () => {
     if (testInfo.project.name === "mobile") await page.locator('[data-slot="drawer-close"]').click();
