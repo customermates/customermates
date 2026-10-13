@@ -42,8 +42,8 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   manage_trash: { approvalFreeActions: ["restore", "preview"], readOnlyActions: ["preview"] },
   manage_widgets: { approvalFreeActions: ["list", "get", "create", "update"], readOnlyActions: ["list", "get"] },
   manage_data_views: {
-    approvalFreeActions: ["surfaces", "list", "config", "create", "update", "select", "reset"],
-    readOnlyActions: ["surfaces", "list", "config"],
+    approvalFreeActions: ["surfaces", "list", "read", "config", "create", "update", "select", "reset"],
+    readOnlyActions: ["surfaces", "list", "read", "config"],
   },
   manage_record_detail_layout: {
     approvalFreeActions: ["read", "save", "reset"],
