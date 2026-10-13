@@ -322,6 +322,7 @@ import { ProcessRelationWebhookInteractor } from "@/ee/messaging/webhooks/relati
 import { DeleteWebhookInteractor } from "@/features/webhook/delete-webhook.interactor";
 import { GetWebhookByIdInteractor } from "@/features/webhook/get-webhook-by-id.interactor";
 import { GetWebhookDeliveriesInteractor } from "@/features/webhook/get-webhook-deliveries.interactor";
+import { GetWebhookDeliveriesByWebhookInteractor } from "@/features/webhook/get-webhook-deliveries-by-webhook.interactor";
 import { GetWebhooksInteractor } from "@/features/webhook/get-webhooks.interactor";
 import { ResendWebhookDeliveryInteractor } from "@/features/webhook/resend-webhook-delivery.interactor";
 import { UpsertWebhookInteractor } from "@/features/webhook/upsert-webhook.interactor";
@@ -1101,6 +1102,8 @@ export const getGetWebhookDeliveriesInteractor = () =>
   );
 export const getGetWebhookDeliveriesApiInteractor = () =>
   new GetWebhookDeliveriesInteractor(getWebhookDeliveryRepo(), getDataViewStateRepo(), "api", getQueryParamsPrecheck());
+export const getGetWebhookDeliveriesByWebhookInteractor = () =>
+  new GetWebhookDeliveriesByWebhookInteractor(getWebhookRepo(), getGetWebhookDeliveriesApiInteractor());
 
 export const getResendWebhookDeliveryInteractor = () =>
   new ResendWebhookDeliveryInteractor(
