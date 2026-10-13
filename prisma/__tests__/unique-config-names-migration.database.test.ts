@@ -192,4 +192,32 @@ describeDatabase("unique configuration names migration", { timeout: 240000 }, ()
       await client.query(await readMigration(migration));
     expect(RecordModelSchema.safeParse(await currentModel(client, companyId)).success).toBe(true);
   });
+
+  it("keeps the built-in field name and renames a legacy custom column with the same name", async () => {
+    const database = await createLegacyMigrationDatabase(databaseUrl);
+    databases.push(database);
+    const { client } = database;
+    const workspace = await populateLegacyWorkspace(client);
+    const { companyId } = workspace;
+    const column = await workspace.db.customColumn.create({
+      data: {
+        companyId,
+        entityType: "contact",
+        type: "plain",
+        label: "First name",
+        options: null,
+        createdAt: new Date("2025-06-01T00:00:00.000Z"),
+        updatedAt: new Date("2025-06-01T00:00:00.000Z"),
+      },
+    });
+    for (const migration of await migrationNames(
+      (entry) => entry >= CONFIGURABLE_RECORDS_MIGRATION && entry <= UNIQUE_NAMES_MIGRATION,
+    ))
+      await client.query(await readMigration(migration));
+
+    const fields = (await currentModel(client, companyId)).fields;
+    const label = (id: string) => fields.find((field) => field.id === id)?.label;
+    expect(label(presetId(companyId, "contact.firstName"))).toBe("First name");
+    expect(label(column.id)).toBe("First name (2)");
+  });
 });
