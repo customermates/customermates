@@ -77,7 +77,7 @@ The HTTP status follows `error.kind`: `validation` 400, `authentication` 401, `a
 
 `rate_limit` (HTTP `429`) means the call could not run now and can succeed later unchanged. A messaging channel at its provider's limit answers with `customCode` `unipileRateLimit` and says when to try again ([messaging rate limits](/docs/messaging-rate-limits)). When Customermates itself is overloaded, for example when a database transaction or the connection pool times out, or a write waits more than a few seconds behind another change to the workspace such as a large import, the call answers `429` without a `customCode` and with the message `The service is busy. Retry the request shortly.`. MCP tools return the same `rate_limit` kind in `_meta.failure`, and the app shows that the workspace is busy so you can try again.
 
-Retry after a pause that grows with each attempt, for example 1, 2, 4 and 8 seconds plus a little random jitter, and give up after a few attempts. Do not retry in a tight loop or send more calls in parallel, which keeps the service busy. Send a write again with the same `idempotencyKey`, so a change that went through is not applied twice.
+A REST `429` carries a `Retry-After` header with the seconds to wait: honour it first and retry no earlier. Without one, retry after a pause that grows with each attempt, for example 1, 2, 4 and 8 seconds plus a little random jitter, and give up after a few attempts. Do not retry in a tight loop or send more calls in parallel, which keeps the service busy. Send a write again with the same `idempotencyKey`, so a change that went through is not applied twice.
 
 ## How long does a key last, and do keys expire? [#do-keys-expire]
 

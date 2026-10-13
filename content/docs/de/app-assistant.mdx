@@ -21,14 +21,14 @@ Aktionen, die sich nicht rückgängig machen lassen, Zugriffe auf Daten ändern,
 
 | Fragt immer | Warum |
 | --- | --- |
-| Datensätze löschen | Endgültige Löschung einschließlich der in der Vorschau gezeigten Kaskaden |
-| Wissensdatenbank-Seite löschen | Entfernt das Dokument endgültig |
-| Gespeicherte Ansicht löschen | Entfernt die gespeicherte Ansicht |
+| Datensätze löschen | Verschiebt die Datensätze und die in der Vorschau gezeigten Kaskaden für 30 Tage in den Papierkorb; eine endgültige Löschung (`permanent: true`) entfernt sie sofort |
+| Wissensdatenbank-Seite löschen | Verschiebt die Seite für 30 Tage in den Papierkorb |
+| Gespeicherte Ansicht löschen | Verschiebt die gespeicherte Ansicht für 30 Tage in den Papierkorb |
 | Destruktive Datenmodelländerungen, Zugriffsänderungen oder Ersetzen eines bestehenden Felds oder einer Beziehung | Die Vorschau zeigt betroffene Definitionen, Datensätze und Abhängigkeiten; ein ersetztes Feld kann gespeicherte Werte überschreiben |
 | Rolle speichern | Kann erweitern, was die Rolle lesen und ändern darf |
-| Widget löschen | Entfernt das Dashboard-Widget |
+| Widget löschen | Verschiebt das Dashboard-Widget für 30 Tage in den Papierkorb |
 | Webhook löschen oder Zustellung erneut senden | Zerstört Konfiguration oder sendet eine neue externe Anfrage |
-| Routine löschen | Entfernt die Routine und ihren Laufverlauf |
+| Routine löschen | Verschiebt die Routine für 30 Tage in den Papierkorb, wo sie nicht mehr läuft; ihr Laufverlauf wird erst bei endgültiger Löschung entfernt |
 | Listen umbenennen | Ändert die Namen, die jedes Mitglied sieht |
 | Mitglieder einladen | Sendet echte Einladungs-E-Mails |
 | Support-Anfrage senden | Sendet eine E-Mail mit Ihrem jüngsten Gesprächsverlauf an das Customermates-Team |
@@ -116,4 +116,4 @@ Jeder Cloud-Tarif enthält die Mate-Berechtigung; ob Mate live verfügbar ist, h
 
 ## Für Agenten [#for-agents]
 
-Mate nutzt denselben MCP-Tool-Katalog wie externe KI-Clients, ohne die Deep-Research-Stubs search und fetch, dafür mit vier Oberflächen-Tools, `load_toolset` und `analyze_records`, die nur Mate hat. Die Oberflächen-Tools sind `list_ui_targets` (stabile Ziele), `navigate` (ein Ziel, ein App-Link aus dieser Dokumentation als href oder die Seite eines Datensatzes per `typeId` und `recordId`), `highlight_element` (auf ein Control zeigen) und `start_tour` (2 bis 20 Stationen). `analyze_records` beantwortet Fragen, die Rechnen über viele Datensätze verlangen. Es führt bis zu zehn Lesezugriffe mit lesenden Workspace-Tools aus, nie mit einem Tool, das LinkedIn oder einen anderen externen Anbieter abfragt, sammelt jede Seite, insgesamt bis zu 10.000 Zeilen und 8 MB über alle Lesezugriffe, und übergibt sie an eine JavaScript-Funktion in einer Sandbox ohne Netzwerk, Uhr und Tools; ein Lesezugriff, der nur einen Teil seiner Zeilen liefern würde, wird abgelehnt. Eine Freigabe entsteht durch den Aufruf eines freigabepflichtigen Tools, und das Panel selbst ist kein Hervorhebungsziel.
+Mate nutzt denselben MCP-Tool-Katalog wie externe KI-Clients, ohne die Deep-Research-Stubs search und fetch, dafür mit vier Oberflächen-Tools, `load_toolset` und `analyze_records`, die nur Mate hat. Sein `request_support` fragt nach Ihrer Freigabe, `web_search` kommt hinzu, solange eine Runde [im Web suchen](#web-search) darf, und ein Routinenlauf erhält keine Oberflächen-Tools. Katalog-Gruppen wie Ansichten, Widgets, Messaging, Webhooks, Routinen und Admin-Tools lädt Mate bei Bedarf mit `load_toolset`. Die Oberflächen-Tools sind `list_ui_targets` (stabile Ziele), `navigate` (ein Ziel, ein App-Link aus dieser Dokumentation als href oder die Seite eines Datensatzes per `typeId` und `recordId`), `highlight_element` (auf ein Control zeigen) und `start_tour` (2 bis 20 Stationen). `analyze_records` beantwortet Fragen, die Rechnen über viele Datensätze verlangen. Es führt bis zu zehn Lesezugriffe mit lesenden Workspace-Tools aus, nie mit einem Tool, das LinkedIn oder einen anderen externen Anbieter abfragt, sammelt jede Seite, insgesamt bis zu 10.000 Zeilen und 8 MB über alle Lesezugriffe, und übergibt sie an eine JavaScript-Funktion in einer Sandbox ohne Netzwerk, Uhr und Tools; ein Lesezugriff, der nur einen Teil seiner Zeilen liefern würde, wird abgelehnt. Eine Freigabe entsteht durch den Aufruf eines freigabepflichtigen Tools, und das Panel selbst ist kein Hervorhebungsziel.

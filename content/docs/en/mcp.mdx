@@ -60,7 +60,7 @@ Ask the client to list its tools. All [[derived.mcp.tools.total]] should appear.
 
 ## Server instructions, prompts, and toolsets
 
-When a client connects, the server sends workflow guidance: read the schema first, find ids before writing, change records and relations through `mutate_crm_record`, and get the user's confirmation, naming the exact records or recipients, before deleting or sending. This guidance is not a server-enforced confirmation gate, and whether a client passes it to the model depends on the client. Check how your client handles instructions and approvals before granting write, delete or messaging access. Clients that support MCP prompts can run the built-in `get-started` prompt, which summarizes the workspace for a personalized start; it is offered when both the `workspace` and `records` toolsets are active.
+When a client connects, the server sends workflow guidance: read the schema first, find ids before writing, change records and relations through `mutate_crm_record`, and get the user's confirmation, naming the exact records or recipients, before deleting or sending. This guidance is not a server-enforced confirmation gate, and whether a client passes it to the model depends on the client. Check how your client handles instructions and approvals before granting write, delete or messaging access. Clients that support MCP prompts can run the built-in `get-started` prompt, which summarizes the workspace for a personalized start; it is offered when both the `workspace` and `records` toolsets are active, as they are when the URL selects no `toolsets`.
 
 The full [[derived.mcp.tools.total]]-tool surface is the default. Append `?toolsets=` to the endpoint URL to narrow it, for example `/api/v1/mcp?toolsets=records,messaging`; see [Narrowing with ?toolsets=](/docs/mcp#narrowing-with-toolsets).
 
@@ -241,7 +241,7 @@ Required: `operationId`.
 
 #### `read_trash`
 
-List deleted items in Trash, newest first, with who deleted them, when, and the days left before they are deleted permanently. Filter by kind, list and name. Only items you could see and delete are listed; administrators see all.
+List deleted items in Trash, newest first, with who deleted them, when, and the days left before they are deleted permanently. Filter by kind, list and name. Only items you could see and delete are listed; administrators see everything except other members' saved views and widgets, which stay personal.
 
 **Read-only.** Optional: `kinds`, `typeIds`, `search`, `sortDescriptor`, `page`, `pageSize`.
 

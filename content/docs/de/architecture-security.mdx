@@ -58,9 +58,9 @@ MCP-Anfragen nutzen denselben Authentifizierungs- und Autorisierungspfad:
 
 Die MCP-Oberfläche ergänzt Eingabe-Schutzregeln:
 
-- Ein Schreibvorgang ändert jeweils einen typisierten Datensatz oder eine Verknüpfung. Jede Referenz enthält Typ-ID und Datensatz-ID; Verknüpfen und Lösen nennen zusätzlich die Beziehungsdefinition. Ausgelassene Felder bleiben unverändert, `null` leert ein optionales Eingabefeld ausdrücklich. Berechnete Felder sind nicht direkt beschreibbar.
+- Ein Schreibvorgang ändert einen typisierten Datensatz oder eine Verknüpfung, oder über `updateMany` (eine gemeinsame Änderung) und `deleteMany` bis zu 100 benannte Datensätze auf einmal, jeweils atomar. Jede Referenz enthält Typ-ID und Datensatz-ID; Verknüpfen und Lösen nennen zusätzlich die Beziehungsdefinition. Ausgelassene Felder bleiben unverändert, `null` leert ein optionales Eingabefeld ausdrücklich. Berechnete Felder sind nicht direkt beschreibbar.
 - Das Backend prüft Typ, Workspace, Datensatzrechte, Version und Konfigurationsrevision während der Schreibtransaktion. Eine Referenz auf einen anderen Typ oder Workspace kann ein Update nicht umleiten.
-- Zum Löschen sind eine Datensatzreferenz und ein aktueller Hash der Auswirkungs-Vorschau erforderlich; ein Löschen per Filter gibt es nicht.
+- Auch beim Löschen, einschließlich `deleteMany`, wird jeder Datensatz per Referenz und aktueller Version benannt; ein Löschen per Filter gibt es nicht. Ein optionaler Hash der Auswirkungs-Vorschau lässt das Löschen scheitern, wenn sich die Kaskadenwirkung seit der Vorschau geändert hat.
 
 Die vollständige Liste finden Sie im [MCP-Tool-Katalog](/docs/mcp#tool-catalog).
 

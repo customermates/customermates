@@ -61,7 +61,7 @@ Andere Aktionen formulieren es anders:
 - **Aktualisieren** im [Posteingang](app:inbox): „Einige Kanäle haben ihr Rate-Limit erreicht. Bitte in ein paar Minuten erneut versuchen.“
 - Eine E-Mail in einen anderen Ordner verschieben: „Ablegen in `{folder}` gestoppt, weil der Anbieter die Rate begrenzt.“ mit der Wartezeit für den Rest.
 
-Die Wartezeit stammt aus dem `Retry-After`-Wert der Rate-Limit-Antwort, die Unipile zurückgibt; fehlt er, gelten ersatzweise 60 Sekunden, und die Meldung lautet „in 1 Minute“. Customermates wiederholt die Aktion nicht selbst: Versuchen Sie es erneut, sobald das Fenster vorbei ist. Es geht nichts verloren. Über die REST-API und MCP schlägt der Aufruf mit derselben Meldung und Wartezeit fehl: Die REST-API antwortet mit HTTP-Status 429, und MCP liefert einen Fehler der Art `rate_limit`, dessen Eintrag in `_meta.failure` `customCode: "unipileRateLimit"` trägt.
+Die Wartezeit stammt aus dem `Retry-After`-Wert der Rate-Limit-Antwort, die Unipile zurückgibt; fehlt er, nennt die Meldung statt einer Wartezeit „später“. Customermates wiederholt die Aktion nicht selbst: Versuchen Sie es erneut, sobald das Fenster vorbei ist. Es geht nichts verloren. Über die REST-API und MCP schlägt der Aufruf mit derselben Meldung fehl: Die REST-API antwortet mit HTTP-Status 429 und einem `Retry-After`-Header von 30 Sekunden, und MCP liefert einen Fehler der Art `rate_limit`, dessen Eintrag in `_meta.failure` `customCode: "unipileRateLimit"` trägt.
 
 ## Setzt der Verlaufsimport von selbst fort? [#does-the-history-import-resume-by-itself]
 
