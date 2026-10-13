@@ -4,6 +4,7 @@ import ts from "typescript";
 import { describe, expect, it } from "vitest";
 
 import { REPO_ROOT, REPO_SCAN_TIMEOUT_MS, parseSource, readSourceText, walkFiles } from "./walk";
+import { unreviewedExceptionAdditions } from "./exception-membership";
 
 const RAW_METHODS = new Set(["$queryRaw", "$executeRaw", "$queryRawUnsafe", "$executeRawUnsafe"]);
 const EXCLUDED = [join("prisma", "migrations"), "scripts", "tests", "generated", "node_modules", ".next", ".runs"];
@@ -188,4 +189,10 @@ describe("raw SQL tenancy", () => {
     },
     REPO_SCAN_TIMEOUT_MS,
   );
+});
+
+describe("exception membership against the review base", () => {
+  it("adds no exception members beyond the review base and the reviewed additions", () => {
+    expect(unreviewedExceptionAdditions("raw-sql-tenancy.test.ts")).toEqual([]);
+  });
 });
