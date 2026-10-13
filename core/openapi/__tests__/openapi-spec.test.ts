@@ -57,4 +57,13 @@ describe("OpenAPI spec", () => {
     expect(responses["422"]?.content).toBeDefined();
     expect(responses["429"]?.content).toBeDefined();
   });
+
+  it("declares the Retry-After header on every rate-limited response", () => {
+    const limited = Object.values(spec.paths)
+      .flatMap((methods) => Object.values(methods as Record<string, Operation>))
+      .flatMap((operation) => (operation.responses?.["429"] ? [operation.responses["429"]] : []));
+    expect(limited.length).toBeGreaterThan(0);
+    for (const response of limited)
+      expect(response).toMatchObject({ headers: { "Retry-After": { schema: { type: "integer", minimum: 1 } } } });
+  });
 });

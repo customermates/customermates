@@ -79,7 +79,7 @@ async function fixture() {
     policy,
     writer,
     { dispatch: () => Promise.resolve() },
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const query = new QueryRecordsInteractor(repo, policy);
   const importer = new ImportRecordsInteractor(repo, policy, writer);

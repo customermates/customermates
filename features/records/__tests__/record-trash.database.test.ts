@@ -44,7 +44,6 @@ const { DeleteTrashPermanentlyInteractor } = await import("@/features/trash/dele
 const { EmptyTrashInteractor } = await import("@/features/trash/empty-trash.interactor");
 const { createCrmPreset, presetId } = await import("../crm-preset");
 const { RecordConfigurationService } = await import("../configuration.service");
-const { RecordOperationService } = await import("../record-operation.service");
 const { RecordTrashService } = await import("../record-trash.service");
 const { RecordJournal } = await import("../record-journal");
 const { applyConfigurationLifecycle } = await import("../configuration-lifecycle");
@@ -58,7 +57,7 @@ const { GetTrashedRecordActivitiesInteractor } = await import(
 );
 const { RecordActivitiesInputSchema } = await import("@/ee/messaging/activities/record-activities.schema");
 const { interactorFailureKind } = await import("@/core/validation/validation.utils");
-const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+const { createTestRecordOperationService, createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -99,7 +98,7 @@ async function fixture() {
     policy,
     writer,
     { dispatch: () => Promise.resolve() },
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const read = new GetRecordInteractor(repo, policy);
   const query = new QueryRecordsInteractor(repo, policy);
@@ -110,10 +109,10 @@ async function fixture() {
     repo,
     policy,
     { dispatch: () => Promise.resolve() },
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const handlers = [handler];
-  const worker = new RecordOperationService(
+  const worker = createTestRecordOperationService(
     repo,
     policy,
     new RecordConfigurationService(repo),
@@ -744,7 +743,7 @@ describeDatabase("record trash", () => {
         const ordered = [item, deal, organization].map(
           (ref) => stored.find((entry) => entry.targetId === ref.recordId) as (typeof stored)[number],
         );
-        return new RecordTrashService(f.repo).restore(
+        return new RecordTrashService(f.repo, new RecordCalculationService(f.repo)).restore(
           ordered,
           archived,
           await f.policy.load(),

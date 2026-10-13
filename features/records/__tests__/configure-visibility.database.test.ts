@@ -79,7 +79,7 @@ describeDatabase("Configure visibility per role", { timeout: 240_000 }, () => {
     policy,
     new RecordWriteService(repo, policy, calculations),
     background,
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
 
   const rename = (expectedRevision: number): ConfigurationChange => ({

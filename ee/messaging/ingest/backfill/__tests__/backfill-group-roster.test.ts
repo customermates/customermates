@@ -52,7 +52,9 @@ function build(listChatParticipants: ReturnType<typeof vi.fn>) {
   };
 
   return {
-    interactor: new BackfillChatsInteractor(repo as never, messagingService as never, ingest as never),
+    interactor: new BackfillChatsInteractor(repo as never, messagingService as never, ingest as never, () => ({
+      synchronize: () => Promise.resolve(),
+    })),
     messagingService,
     ingest,
   };

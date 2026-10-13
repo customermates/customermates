@@ -119,6 +119,7 @@ import { MutateRecordInteractor } from "@/features/records/mutate-record.interac
 import { PreviewRecordDeletionInteractor } from "@/features/records/preview-record-deletion.interactor";
 import { PrismaMembershipTaskRepo } from "@/features/records/prisma-membership-task.repository";
 import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
+import type { RecordRepo } from "@/features/records/record.repo";
 import type { RecordRepoOwners } from "@/features/records/record.repo";
 import { EntityTrashHandler } from "@/features/trash/entity-trash.handler";
 import { EntityTrashVisibility } from "@/features/trash/entity-trash-visibility";
@@ -436,12 +437,15 @@ import { WikiSemanticQueryEmbedder } from "@/ee/wiki-retrieval/wiki-query-embedd
 import { WikiSemanticIndexService } from "@/ee/wiki-retrieval/wiki-semantic-index.service";
 import { WikiSemanticIndexDispatcher } from "@/ee/wiki-retrieval/wiki-semantic-index-scheduler";
 import { WikiSemanticIndexListener } from "@/ee/wiki-retrieval/wiki-semantic-index-listener";
-export const getProviderAvatarService = (companyId: string) =>
-  new ProviderAvatarService(
-    createPrismaRecordRepo(companyId, getBackgroundTaskService()),
+export const getProviderAvatarService = (companyId: string) => {
+  const records = createPrismaRecordRepo(companyId, getBackgroundTaskService());
+  return new ProviderAvatarService(
+    records,
     companyId,
     getBackgroundTaskService(),
+    getRecordCalculationService(records),
   );
+};
 export const getAdvanceProviderAvatarInteractor = () => new AdvanceProviderAvatarInteractor(getProviderAvatarService);
 export const getResolveRecordIdentitiesInteractor = () =>
   new ResolveRecordIdentitiesInteractor(getRecordAccessPolicy(), getRecordIdentityReader());
@@ -514,13 +518,18 @@ export const getQueryRecordMeasureInteractor = () =>
 export const getRecordAccessPolicy = () => new RecordAccessPolicy(getUserRepo(), getRecordRepo());
 export const getPreviewRecordDeletionInteractor = () =>
   new PreviewRecordDeletionInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordWriteService());
-export const getRecordCalculationService = () => new RecordCalculationService(getRecordRepo());
-export const getRecordTrashService = () => new RecordTrashService(getRecordRepo());
+export const getRecordCalculationService = (records: RecordRepo = getRecordRepo()) =>
+  new RecordCalculationService(records);
+export const getRecordTrashService = (records: RecordRepo = getRecordRepo()) =>
+  new RecordTrashService(records, getRecordCalculationService(records));
 export const getPreviewCalculationInteractor = () =>
   new PreviewCalculationInteractor(getRecordRepo(), getRecordAccessPolicy(), getRecordCalculationService());
-export const getRecordWriteService = () =>
-  new RecordWriteService(getRecordRepo(), getRecordAccessPolicy(), getRecordCalculationService());
-export const getRecordConfigurationService = () => new RecordConfigurationService(getRecordRepo());
+export const getRecordWriteService = (records: RecordRepo = getRecordRepo()) =>
+  new RecordWriteService(records, getRecordAccessPolicy(), getRecordCalculationService(records));
+export const getRecordConfigurationService = (records: RecordRepo = getRecordRepo()) =>
+  new RecordConfigurationService(records);
+export const getRecordConfigurationWriter = (records: RecordRepo = getRecordRepo(), companyId?: string) =>
+  new RecordConfigurationWriter(records, getRecordCalculationService(records), getWebhookPauseNotifier(companyId));
 export const getGetRecordModelInteractor = () => new GetRecordModelInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getQueryRecordsInteractor = () => new QueryRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
 export const getExportRecordsInteractor = () => new ExportRecordsInteractor(getRecordRepo(), getRecordAccessPolicy());
@@ -564,7 +573,7 @@ export const getApplyRecordConfigurationInteractor = () =>
     getRecordRepo(),
     getRecordAccessPolicy(),
     getRecordConfigurationService(),
-    new RecordConfigurationWriter(getRecordRepo(), getRecordCalculationService(), getWebhookPauseNotifier()),
+    getRecordConfigurationWriter(),
     getBackgroundTaskService(),
   );
 export const getTrashRepo = (companyId?: string) => new PrismaTrashRepo(companyId);
@@ -572,8 +581,8 @@ const getConfigurationSystemPurge = (companyId?: string) => {
   const records = createPrismaRecordRepo(companyId, getBackgroundTaskService());
   return new ConfigurationSystemPurge(
     records,
-    new RecordConfigurationService(records),
-    new RecordConfigurationWriter(records, new RecordCalculationService(records), getWebhookPauseNotifier(companyId)),
+    getRecordConfigurationService(records),
+    getRecordConfigurationWriter(records, companyId),
     getTrashRepo(companyId),
     getBackgroundTaskService(),
   );
@@ -591,7 +600,7 @@ export const getTrashKindHandlers = (companyId?: string): TrashKindHandler[] => 
     createPrismaRecordRepo(companyId, getBackgroundTaskService()),
     getRecordAccessPolicy(),
     getBackgroundTaskService(),
-    new RecordTrashService(createPrismaRecordRepo(companyId, getBackgroundTaskService())),
+    getRecordTrashService(createPrismaRecordRepo(companyId, getBackgroundTaskService())),
   ),
   ...entityTrashHandlers(companyId),
 ];
@@ -689,8 +698,12 @@ export const getSystemRecordOperationService = (companyId: string) => {
   return new RecordOperationService(
     records,
     getRecordAccessPolicy(),
-    new RecordConfigurationService(records),
+    getRecordConfigurationService(records),
     getWebhookPauseNotifier(companyId),
+    getRecordCalculationService(records),
+    getRecordWriteService(records),
+    getRecordConfigurationWriter(records, companyId),
+    getRecordTrashService(records),
     companyId,
   );
 };
@@ -702,6 +715,10 @@ export const getRecordOperationService = () =>
     getRecordAccessPolicy(),
     getRecordConfigurationService(),
     getWebhookPauseNotifier(),
+    getRecordCalculationService(),
+    getRecordWriteService(),
+    getRecordConfigurationWriter(),
+    getRecordTrashService(),
   );
 export const getGetRecordOperationInteractor = () =>
   new GetRecordOperationInteractor(getRecordRepo(), getRecordAccessPolicy());
@@ -730,28 +747,35 @@ export const getWebhookPauseNotifier = (companyId?: string) =>
   );
 
 export const getRecordRecipientReader = () =>
-  new RecordRecipientReader((companyId) => createPrismaRecordRepo(companyId), new PrismaRecordRecipientRepo());
+  new RecordRecipientReader((companyId) => createPrismaRecordRepo(companyId), getRecordRecipientRepo());
+export const getRecordRecipientRepo = () => new PrismaRecordRecipientRepo(getUserRepo());
+export const getWebhookAdmissionRepo = () => new PrismaWebhookAdmissionRepo();
+export const getEventOutboxRepo = () => new PrismaEventOutboxRepo();
+export const getWebhookDeliveryQueueRepo = () => new PrismaWebhookDeliveryQueueRepo();
+export const getRecordOperationQueueRepo = () => new PrismaRecordOperationQueueRepo();
+export const getThreadRecordsRepo = () => new PrismaThreadRecordsRepo();
+export const getWebhookTransport = () => new WebhookTransport();
 export const getRecordEventSubscriptionRepo = (companyId?: string) =>
-  new PrismaRecordEventSubscriptionRepo(getRecordRepo(), companyId);
+  new PrismaRecordEventSubscriptionRepo(getRecordRepo(), getRecordAccessPolicy(), getUserRepo(), companyId);
 export const getRoutineAdmission = () =>
   new RoutineAdmission(getRoutineRepo(), getBackgroundTaskService(), getRecordRecipientReader());
 export const getWebhookAdmission = () =>
   new WebhookAdmission(
     getRecordRecipientReader(),
     getBackgroundTaskService(),
-    new PrismaWebhookAdmissionRepo(),
+    getWebhookAdmissionRepo(),
     getWebhookDeliveryRepo(),
   );
 export const getProcessEventInteractor = (
   admission: EventAdmission = new EventAdmissionGroup([getWebhookAdmission(), getRoutineAdmission()]),
-) => new ProcessEventInteractor(new PrismaEventOutboxRepo(), admission);
+) => new ProcessEventInteractor(getEventOutboxRepo(), admission);
 export const getProcessDueEventsInteractor = () =>
-  new ProcessDueEventsInteractor(new PrismaEventOutboxRepo(), getProcessEventInteractor(), getBackgroundTaskService());
+  new ProcessDueEventsInteractor(getEventOutboxRepo(), getProcessEventInteractor(), getBackgroundTaskService());
 export const getSweepRecordDeliveriesInteractor = () =>
   new SweepRecordDeliveriesInteractor(
-    new PrismaEventOutboxRepo(),
-    new PrismaWebhookDeliveryQueueRepo(),
-    new PrismaRecordOperationQueueRepo(),
+    getEventOutboxRepo(),
+    getWebhookDeliveryQueueRepo(),
+    getRecordOperationQueueRepo(),
     getBackgroundTaskService(),
   );
 export const getRoutineRepo = (companyId?: string) =>
@@ -788,10 +812,11 @@ export const getBackgroundTaskService = () => new BackgroundTaskService();
 export const getInviteTokenCookieRepo = () => new NextInviteTokenCookieRepo();
 export const getOnboardingIntentService = () =>
   new OnboardingIntentService(getInviteTokenValidationInteractor(), env.BETTER_AUTH_SECRET);
+export const getMembershipTaskRepo = () => new PrismaMembershipTaskRepo(getUserRepo());
 export const getMembershipTaskService = () =>
   new MembershipTaskService(
     getRecordRepo(),
-    new PrismaMembershipTaskRepo(),
+    getMembershipTaskRepo(),
     getRecordAccessPolicy(),
     getRecordCalculationService(),
   );
@@ -892,6 +917,7 @@ export const getConnectedAccountIdsValidator = () =>
 
 // --- User ---
 
+export const getInitializeRecordModelService = () => new InitializeRecordModelService(getRecordRepo());
 export const getRegisterUserInteractor = () =>
   new RegisterUserInteractor(
     getAuthService(),
@@ -899,7 +925,7 @@ export const getRegisterUserInteractor = () =>
     getEventService(),
     getRouteGuardService(),
     getCompanyRepo(),
-    new InitializeRecordModelService(getRecordRepo()),
+    getInitializeRecordModelService(),
   );
 
 export const getRegisterOnboardingProfileInteractor = () =>
@@ -1017,8 +1043,8 @@ export const getRoleManagementService = () => {
     getRoleRepo(),
     records,
     getRecordAccessPolicy(),
-    new RecordConfigurationService(records),
-    new RecordConfigurationWriter(records, new RecordCalculationService(records), getWebhookPauseNotifier()),
+    getRecordConfigurationService(records),
+    getRecordConfigurationWriter(records),
     getEventService(),
   );
 };
@@ -1156,7 +1182,12 @@ export const getDeleteAccountsForPlanInteractor = () =>
   );
 
 export const getResyncThreadInteractor = () =>
-  new ResyncThreadInteractor(getMessagingRepo(), getMessagingService(), getEntitlementService());
+  new ResyncThreadInteractor(
+    getMessagingRepo(),
+    getMessagingService(),
+    getEntitlementService(),
+    getProviderAvatarService,
+  );
 
 export const getMoveEmailThreadInteractor = () =>
   new MoveEmailThreadInteractor(
@@ -1173,10 +1204,20 @@ export const getSetSelectedFoldersInteractor = () =>
   new SetSelectedFoldersInteractor(getConnectedAccountRepo(), getBackgroundTaskService(), getEntitlementService());
 
 export const getBackfillEmailsInteractor = () =>
-  new BackfillEmailsInteractor(getConnectedAccountRepo(), getMessagingService(), getMessagingRepo());
+  new BackfillEmailsInteractor(
+    getConnectedAccountRepo(),
+    getMessagingService(),
+    getMessagingRepo(),
+    getProviderAvatarService,
+  );
 
 export const getBackfillChatsInteractor = () =>
-  new BackfillChatsInteractor(getConnectedAccountRepo(), getMessagingService(), getMessagingRepo());
+  new BackfillChatsInteractor(
+    getConnectedAccountRepo(),
+    getMessagingService(),
+    getMessagingRepo(),
+    getProviderAvatarService,
+  );
 
 export const getBackfillCalendarsInteractor = () =>
   new BackfillCalendarsInteractor(getConnectedAccountRepo(), getMessagingService(), getCalendarRepo());
@@ -1197,13 +1238,23 @@ export const getRefreshInboxInteractor = () =>
   );
 
 export const getProcessMessageNewWebhookInteractor = () =>
-  new ProcessMessageNewWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEventService());
+  new ProcessMessageNewWebhookInteractor(
+    getMessagingRepo(),
+    getConnectedAccountRepo(),
+    getEventService(),
+    getProviderAvatarService,
+  );
 export const getProcessMessageDeleteWebhookInteractor = () =>
   new ProcessMessageDeleteWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEventService());
 export const getProcessMessageReactionWebhookInteractor = () =>
   new ProcessMessageReactionWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEventService());
 export const getProcessEmailNewWebhookInteractor = () =>
-  new ProcessEmailNewWebhookInteractor(getMessagingRepo(), getConnectedAccountRepo(), getEventService());
+  new ProcessEmailNewWebhookInteractor(
+    getMessagingRepo(),
+    getConnectedAccountRepo(),
+    getEventService(),
+    getProviderAvatarService,
+  );
 export const getProcessEmailDeleteWebhookInteractor = () =>
   new ProcessEmailDeleteWebhookInteractor(
     getMessagingRepo(),
@@ -1399,7 +1450,7 @@ export const getGetMessagingThreadsApiInteractor = () =>
 
 export const getReadThreadRecordsInteractor = () =>
   new ReadThreadRecordsInteractor(
-    new PrismaThreadRecordsRepo(),
+    getThreadRecordsRepo(),
     getRecordRepo(),
     getRecordAccessPolicy(),
     getEntitlementService(),
@@ -1407,7 +1458,7 @@ export const getReadThreadRecordsInteractor = () =>
 
 export const getMutateThreadRecordsInteractor = () =>
   new MutateThreadRecordsInteractor(
-    new PrismaThreadRecordsRepo(),
+    getThreadRecordsRepo(),
     getRecordRepo(),
     getRecordAccessPolicy(),
     getEntitlementService(),
@@ -1601,11 +1652,7 @@ export const getAcceptLegalDocumentsInteractor = () =>
 // --- Webhook delivery (workflow task) ---
 
 export const getDeliverWebhookInteractor = () =>
-  new DeliverWebhookInteractor(
-    new PrismaWebhookDeliveryQueueRepo(),
-    getRecordRecipientReader(),
-    new WebhookTransport(),
-  );
+  new DeliverWebhookInteractor(getWebhookDeliveryQueueRepo(), getRecordRecipientReader(), getWebhookTransport());
 
 export const getCreateSupportTicketInteractor = () => new CreateSupportTicketInteractor(getFeedbackCreator());
 
