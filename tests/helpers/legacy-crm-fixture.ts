@@ -530,6 +530,25 @@ export async function populateLegacyWorkspace(client: ClientBase, { currency = "
       },
     })
   ).id;
+  // Deliveries still open at the upgrade keep their status, code and time and are never claimed by the new worker.
+  const openDeliveries = await Promise.all(
+    (["pending", "processing"] as const).map(async (status, index) => {
+      const statusCode = index === 0 ? null : 503;
+      const createdAt = new Date(`2025-07-0${index + 1}T08:00:00.000Z`);
+      const row = await db.webhookDelivery.create({
+        data: {
+          companyId,
+          url: "https://receiver.example.test/legacy",
+          event: "contact.updated",
+          requestBody: {},
+          status,
+          statusCode,
+          createdAt,
+        },
+      });
+      return { id: row.id, status, statusCode, createdAt };
+    }),
+  );
 
   return {
     companyId,
@@ -559,6 +578,7 @@ export async function populateLegacyWorkspace(client: ClientBase, { currency = "
     legal,
     channels,
     delivery,
+    openDeliveries,
     db,
   };
 }

@@ -1158,6 +1158,7 @@
       "routineDeleteHasRunningRun": "Wait for the active run to finish before deleting this routine.",
       "routineEditNotOwner": "Only the routine owner can change its setup or activation.",
       "routineLimitReached": "Your plan includes {limit} routines per user. Upgrade your plan for a higher allowance.",
+      "routineNotFound": "Routine ID not found or not accessible.",
       "routineOwnerIneligible": "The routine owner must be an active member of this company.",
       "routineRunCursorInvalid": "That page link for the run history is no longer valid. Reload the history and try again.",
       "routineRunNotOwner": "Only the person who owns this routine can run it, because it spends their AI credits.",

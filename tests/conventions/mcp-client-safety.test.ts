@@ -73,8 +73,9 @@ describe("what an external MCP client is told", () => {
     expect(MCP_UNTRUSTED_CONTENT_INSTRUCTION).toContain(UNTRUSTED_RECORD_TEXT_OPEN);
     expect(MCP_UNTRUSTED_CONTENT_INSTRUCTION).toContain(UNTRUSTED_RECORD_TEXT_CLOSE);
     expect(MCP_UNTRUSTED_CONTENT_INSTRUCTION).toContain("message subjects, bodies and previews");
+    expect(MCP_UNTRUSTED_CONTENT_INSTRUCTION).toContain("calendar event titles, descriptions and locations");
     expect(MCP_UNTRUSTED_CONTENT_INSTRUCTION).toContain("structured results");
-    const markedTools = ["get_messaging_threads", "get_activities"];
+    const markedTools = ["get_messaging_threads", "get_activities", "get_calendars"];
     for (const name of markedTools) {
       const tool = ALL_MCP_TOOLS.find((candidate) => candidate.name === name);
       expect(tool?.description, name).toMatch(/untrusted-content markers/);

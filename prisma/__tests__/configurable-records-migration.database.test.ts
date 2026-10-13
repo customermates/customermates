@@ -728,6 +728,23 @@ describeDatabase("configurable records migration", { timeout: 240000 }, () => {
     expect(
       await rows(client, 'SELECT "nextAttemptAt", "eventId" FROM "WebhookDelivery" WHERE id=$1', [f.delivery]),
     ).toEqual([{ nextAttemptAt: null, eventId: null }]);
+    // Deliveries still pending or processing keep their status, code and time and are not due for the worker.
+    expect(
+      await rows(
+        client,
+        'SELECT id, status::text AS status, "statusCode", "createdAt", "nextAttemptAt", "eventId" FROM "WebhookDelivery" WHERE id = ANY($1) ORDER BY "createdAt"',
+        [f.openDeliveries.map(({ id }) => id)],
+      ),
+    ).toEqual(
+      f.openDeliveries.map(({ id, status, statusCode, createdAt }) => ({
+        id,
+        status,
+        statusCode,
+        createdAt,
+        nextAttemptAt: null,
+        eventId: null,
+      })),
+    );
     expect(
       await rows(
         client,

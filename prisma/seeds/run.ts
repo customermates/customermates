@@ -2,7 +2,12 @@ import type { ContactSeedData } from "./contacts";
 import type { SeedContext } from "./context";
 import type { DealSeedData } from "./deals";
 import type { OrganizationSeedData } from "./organizations";
-import { calculateSyntheticRecords, seedRecordFixtures } from "./records";
+import {
+  calculateSyntheticRecords,
+  resetOutdatedSyntheticWorkspace,
+  seedRecordFixtures,
+  syntheticRecordModel,
+} from "./records";
 import type { ServiceSeedData } from "./services";
 import type { TaskSeedData } from "./tasks";
 
@@ -39,11 +44,6 @@ export async function runSyntheticSeed(
   context: SeedContext,
   options: { includeLocalOperatorAccess?: boolean } = {},
 ): Promise<SyntheticSeedData> {
-  await seedIdentity(context);
-  await seedHostedAiOperatorFixtures(context);
-  if (options.includeLocalOperatorAccess) await seedLocalHostedAiOperatorAccess(context);
-  await seedHostedAiOperatorUserTableFixtures(context, options);
-
   const organizationData = await seedOrganizations(context);
   const contactData = await seedContacts(context, organizationData.organizations);
   const serviceData = await seedServices(context);
@@ -56,8 +56,14 @@ export async function runSyntheticSeed(
     ...serviceData,
     ...taskData,
   };
-
   const customFieldData = seedCustomFields(context, entities);
+  await resetOutdatedSyntheticWorkspace(context, syntheticRecordModel(context, customFieldData));
+
+  await seedIdentity(context);
+  await seedHostedAiOperatorFixtures(context);
+  if (options.includeLocalOperatorAccess) await seedLocalHostedAiOperatorAccess(context);
+  await seedHostedAiOperatorUserTableFixtures(context, options);
+
   await seedRecordFixtures(context, entities, customFieldData);
   await seedRelationships(context, entities);
   await calculateSyntheticRecords(context.prisma, context.ids.company);
