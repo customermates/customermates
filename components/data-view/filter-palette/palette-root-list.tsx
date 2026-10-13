@@ -11,6 +11,7 @@ import { useTranslations } from "next-intl";
 import { FormSelect } from "@/components/forms/form-select";
 import { runUserAction } from "@/core/errors/report-application-error";
 import { ClickableChip } from "@/components/chip/clickable-chip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { CommandEmpty, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { FilterChipValue } from "@/components/data-view/filter-modal/filter-chip-display";
 import { useFilterFieldLabel } from "@/components/data-view/use-filter-field-label";
@@ -142,12 +143,14 @@ export const PaletteRootList = observer(function PaletteRootList({
           className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] items-center gap-2 px-2 pb-2"
           data-palette-group={group.id}
         >
-          <ClickableChip
-            className="min-w-0 max-w-full justify-self-start"
-            title={group.label}
-            onClick={() => onPickGroup(group)}
-          >
-            <span className="truncate">{group.label}</span>
+          <ClickableChip className="min-w-0 max-w-full justify-self-start" onClick={() => onPickGroup(group)}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="truncate">{group.label}</span>
+              </TooltipTrigger>
+
+              <TooltipContent>{group.label}</TooltipContent>
+            </Tooltip>
           </ClickableChip>
 
           {group.modes.length > 0 && (

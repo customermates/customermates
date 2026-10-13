@@ -168,11 +168,6 @@ describe("gated-tools", () => {
     expect(describeInternalTool(tool.name, { action: "update_member", userId }).risk).toBe("write");
   });
 
-  it("lets the assistant reorder Knowledge Base pages like it creates and updates them", () => {
-    expect(approvalNeeded(toolByName("manage_wiki_pages"), { action: "move" })).toBe(false);
-    expect(approvalNeeded(toolByName("manage_wiki_pages"), { action: "delete" })).toBe(true);
-  });
-
   it("starts a website import without approval, with an accurate label", () => {
     const setup = importWebsiteTool("en");
     const input = { url: "https://example.com/" };

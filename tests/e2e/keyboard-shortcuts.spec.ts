@@ -1,6 +1,8 @@
 import type { Client } from "pg";
 import type { Page } from "@playwright/test";
 
+import { SHORTCUT_SEQUENCE_TIMEOUT_MS } from "@/components/keyboard/shortcut-registry";
+
 import { expect, isAppConsoleError, isBenignPageError, test } from "./fixtures";
 
 function collectErrors(page: Page) {
@@ -45,6 +47,7 @@ async function storedPreference(database: Client, userId: string) {
 const addPicker = (page: Page) => page.getByRole("dialog", { name: "Create new…" });
 const viewPicker = (page: Page) => page.getByRole("dialog", { name: "Switch view" });
 const shortcutsDialog = (page: Page) => page.getByRole("dialog", { name: "Keyboard shortcuts" });
+const pendingGoHint = (page: Page) => page.getByText("Go to… press a letter or a list number");
 
 test("global shortcuts, G navigation, the shortcuts dialog and the single-key preference", async ({
   page,
@@ -53,6 +56,7 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
 }, testInfo) => {
   test.skip(testInfo.project.name === "mobile", "Desktop keyboard journey");
   const errors = collectErrors(page);
+  await page.clock.install();
   await openApp(page, "/en/dashboard");
   const mod = await modifierKey(page);
 
@@ -116,10 +120,21 @@ test("global shortcuts, G navigation, the shortcuts dialog and the single-key pr
   await page.keyboard.press("d");
   await expect(page).toHaveURL(/\/dashboard$/);
 
+  const navigations: string[] = [];
+  page.on("framenavigated", (frame) => {
+    if (frame === page.mainFrame()) navigations.push(frame.url());
+  });
   await page.keyboard.press("g");
-  await page.waitForTimeout(1200);
+  await expect(pendingGoHint(page)).toBeVisible();
+  await page.clock.runFor(SHORTCUT_SEQUENCE_TIMEOUT_MS + 1);
+  await expect(pendingGoHint(page)).toBeHidden();
   await page.keyboard.press("s");
+  await page.keyboard.press("?");
+  await expect(shortcutsDialog(page)).toBeVisible();
+  expect(navigations).toEqual([]);
   await expect(page).toHaveURL(/\/dashboard$/);
+  await page.keyboard.press("Escape");
+  await expect(shortcutsDialog(page)).toHaveCount(0);
 
   await page.keyboard.press("g");
   await page.keyboard.press("s");

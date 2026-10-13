@@ -106,6 +106,8 @@ Required `.env` values:
 
 Optional: uncomment `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`, or `AZURE_AD_CLIENT_ID` and `AZURE_AD_CLIENT_SECRET`, to offer sign-in with Google or Microsoft. See [Can users sign in with Google or Microsoft?](https://customermates.com/docs/self-hosting#can-users-sign-in-with-google-or-microsoft).
 
+Set `CRON_SECRET` (`openssl rand -hex 32`) and call `/api/cron/lifecycle` daily with it, or Trash is never emptied after 30 days. See [Which scheduled jobs must I run?](https://customermates.com/docs/self-hosting#scheduled-jobs).
+
 First boot takes ~1 minute while Prisma applies migrations. Watch with `docker compose logs -f app`, then open `<BASE_URL>/auth/signup`.
 
 ### Day-to-day

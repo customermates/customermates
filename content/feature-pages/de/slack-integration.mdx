@@ -44,7 +44,7 @@ Das schreiben wir lieber auf, als die Seite ein Produkt andeuten zu lassen, das 
 
 ## Benachrichtigungen vom CRM nach Slack
 
-Das Muster ist immer dasselbe: Customermates feuert einen Webhook, Ihr Automatisierungstool empfängt ihn, formatiert eine Nachricht und postet sie nach Slack. Legen Sie den Webhook unter **Unternehmen → Webhooks → Neu** an und wählen Sie die Events, die Sie brauchen. Die Payload-Struktur ist unter [Webhooks](/docs/webhooks) dokumentiert.
+Das Muster ist immer dasselbe: Customermates feuert einen Webhook, Ihr Automatisierungstool empfängt ihn, formatiert eine Nachricht und postet sie nach Slack. Legen Sie den Webhook unter **Einstellungen → Webhooks → Hinzufügen** an und wählen Sie die Events, die Sie brauchen. Die Payload-Struktur ist unter [Webhooks](/docs/webhooks) dokumentiert.
 
 **Benachrichtigungen bei Deal-Änderungen.** Abonnieren Sie `record.created` und `record.updated` für den Datensatztyp Deals und posten Sie in einen Kanal, wenn sich ein Deal ändert. Die Phase ist ein konfiguriertes Auswahlfeld; Ihr Workflow liest den Feldwert aus der Datensatz-Payload und verzweigt darauf. Das funktioniert auch für selbst angelegte Datensatztypen.
 
@@ -114,4 +114,4 @@ Sie steht nicht als zugesagter Punkt auf der Roadmap, und wir führen sie hier n
 
 ## Loslegen
 
-Lesen Sie [Webhooks](/docs/webhooks) für die Event-Payloads und [n8n](/docs/n8n) für die Verdrahtungsmuster. Legen Sie unter **Unternehmen → Webhooks** einen Webhook an, filtern Sie `record.updated` auf den Typ Deals, richten Sie ihn auf Ihr Automatisierungstool und schicken Sie die erste Deal-Änderung in einen Slack-Kanal. Dasselbe Muster funktioniert für weitere Datensatztypen und Events.
+Lesen Sie [Webhooks](/docs/webhooks) für die Event-Payloads und [n8n](/docs/n8n) für die Verdrahtungsmuster. Legen Sie unter **Einstellungen → Webhooks → Hinzufügen** einen Webhook an, filtern Sie `record.updated` auf den Typ Deals, richten Sie ihn auf Ihr Automatisierungstool und schicken Sie die erste Deal-Änderung in einen Slack-Kanal. Dasselbe Muster funktioniert für weitere Datensatztypen und Events.

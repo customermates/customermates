@@ -6,6 +6,8 @@ import { test, expect } from "./fixtures";
 import { openItemMenu } from "./item-actions";
 import { openRecordDetails, rowActionLabels } from "./record-rows";
 
+test.use({ failOnPageErrors: true });
+
 async function api(page: Page, path: string, data: unknown) {
   const response = await page.request.post(path, { data });
   expect(response.ok(), await response.text()).toBe(true);

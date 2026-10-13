@@ -5,12 +5,6 @@ type ChartColorTheme = { light: ChartColorSet; dark: ChartColorSet };
 type Hue = "default" | "primary" | "secondary" | "success" | "warning" | "danger";
 type Ramp = { light: [string, string, string]; dark: [string, string, string]; text: { light: string; dark: string } };
 
-/**
- * One restrained chart palette. The brand violet is the accent and leads every chart; teal is its quiet companion,
- * the semantic hues are desaturated so a status split never reads as a rainbow, and the greys carry everything that
- * is context rather than signal. Each hue steps from strong to soft, and the dark ramp steps toward the surface
- * instead of toward white, so the second and third shades recede in both themes.
- */
 const RAMPS: Record<Hue, Ramp> = {
   default: {
     light: ["#6b6b76", "#a3a3ad", "#d0d0d6"],

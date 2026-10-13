@@ -5,6 +5,8 @@ import { test, expect } from "./fixtures";
 import { openRecordDetails, openRecordLink } from "./record-rows";
 import { presetId } from "../../features/records/crm-preset";
 
+test.use({ failOnPageErrors: true });
+
 test("downloads generic records from the shared table with persisted typed values", async ({
   page,
   database,

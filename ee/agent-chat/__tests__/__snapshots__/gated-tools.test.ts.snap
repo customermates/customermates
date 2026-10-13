@@ -144,7 +144,6 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
     "get",
     "create",
     "update",
-    "move",
   ],
 }
 `;
