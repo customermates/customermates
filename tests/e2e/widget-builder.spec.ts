@@ -16,6 +16,14 @@ async function revision(page: Page) {
   return RecordModelSchema.parse(await response.json()).revision;
 }
 
+async function editWidgetName(page: Page, value: string) {
+  const name = page.locator("#name");
+  await name.fill("");
+  await name.pressSequentially(value);
+  await expect(name).toHaveValue(value);
+  await expect(page.locator("#widget-modal-save")).toBeEnabled();
+}
+
 test("starts from a recommended starter, previews it live at dashboard size and arranges widgets through the API", async ({
   page,
   database,
@@ -277,7 +285,7 @@ for (const valueKind of ["decimal", "dateTime"] as const) {
       expect(response.status(), await response.text()).toBe(200);
       await page.goto("/en/dashboard");
       await page.getByRole("heading", { name, exact: true }).click();
-      await page.locator("#name").fill(name + " changed");
+      await editWidgetName(page, name + " changed");
       await page.locator("#widget-config-filters").click();
       await openFilterPalette(page, "widget-source-filters");
       await page.locator('[data-filter-index="0"]').click();
@@ -309,7 +317,7 @@ for (const valueKind of ["decimal", "dateTime"] as const) {
       ]);
       await page.getByRole("heading", { name: savedName, exact: true }).click();
       await expect(page.locator("#name")).toHaveValue(savedName);
-      await page.locator("#name").fill(name + " corrected");
+      await editWidgetName(page, name + " corrected");
       await page.locator("#widget-config-filters").click();
       await openFilterPalette(page, "widget-source-filters");
       await page.locator('[data-filter-index="0"]').click();

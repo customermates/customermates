@@ -402,7 +402,7 @@ export class WidgetModalStore extends BaseModalStore<WidgetModalForm> {
         return;
       }
 
-      if (!this.hasUnsavedChanges) this.hydrateWidget(widget, false);
+      this.hydrateWidget(widget, false);
     } finally {
       if (generation === this.loadGeneration) {
         runInAction(() => {

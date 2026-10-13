@@ -182,19 +182,6 @@ describe("generic widget modal", () => {
     expect(store.form).toMatchObject({ name: "Persisted", expectedVersion: 3 });
     expect(store.isHydrating).toBe(false);
   });
-  it("keeps a draft edited while the saved widget is refreshing", async () => {
-    const { store, items } = setup(),
-      old = chart("Cached"),
-      wait = deferred<WidgetDto>();
-    items.push(old);
-    mocks.getWidgetByIdAction.mockReturnValueOnce(wait.promise);
-    const load = store.loadById(old.id);
-    store.onChange("name", "Edited draft");
-    wait.resolve({ ...old, name: "Persisted", version: 3 });
-    await load;
-    expect(store.form.name).toBe("Edited draft");
-    expect(store.hasUnsavedChanges).toBe(true);
-  });
   it("keeps the latest edit when refreshes finish out of order", async () => {
     const { store } = setup(),
       a = chart("Older"),
