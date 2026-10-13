@@ -7136,6 +7136,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           { timeout: 60000 },
         ),
       );
+      await prisma.$executeRaw`ANALYZE "CrmRecord", "RecordIdentityLink", "RecordAssignment"`;
       await expect(f.run(() => f.repo.getIdentityOwnersCompanyWide([key]))).rejects.toMatchObject({
         cause: { code: CustomErrorCode.recordCalculationBudget, failureKind: "conflict" },
       });
@@ -15915,6 +15916,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           { timeout: 30000 },
         ),
       );
+      await prisma.$executeRaw`ANALYZE "CrmRecord", "RecordValue", "RecordIdentityLink"`;
       await f.run(() =>
         runInTransaction(
           async () => {
