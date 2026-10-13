@@ -1060,6 +1060,7 @@
       "calendarNotFound": "Kalender-ID nicht gefunden oder nicht zugänglich.",
       "channelAlreadyLinked": "Dieser Kanal ist bereits mit einem anderen Kontakt verknüpft.",
       "chatThreadRequired": "Dies ist ein E-Mail-Verlauf. Antworte darauf mit einer E-Mail statt mit einer Chatnachricht.",
+      "connectedAccountEmailChangeRequired": "Übergeben Sie eine Signatur, E-Mail-Einstellungen oder beides.",
       "connectedAccountNotFound": "Kanal-ID nicht gefunden oder nicht zugänglich.",
       "customFieldInvalidDate": "Der Datumswert ist ungültig. Muss im ISO 8601 Datumsformat sein (z.B. 2024-01-15) oder im ISO 8601 Datums-/Zeitformat (z.B. 2024-01-15T00:00:00Z).",
       "dataViewAllNameImmutable": "Die Ansicht Alle kann nicht umbenannt werden. Lasse name weg und ändere nur die angeforderten Einstellungen in state. Lies vor einem erneuten Versuch config für unterstützte Einstellungen und list für den aktuellen Zustand.",

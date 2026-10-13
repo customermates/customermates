@@ -47,15 +47,13 @@ const RoutinesPageViewContent = observer(function RoutinesPageView({ initialRout
         name={routine.name}
         onDelete={
           canDelete
-            ? async () => {
-                await routineModalStore.openForEdit(routine);
+            ? () =>
                 showDeleteConfirmation(
-                  () => routineModalStore.delete(),
+                  () => routineModalStore.deleteById(routine.id),
                   routine.name,
                   undefined,
                   () => routinesStore.refresh(),
-                );
-              }
+                )
             : undefined
         }
         onOpen={() => runUserAction(() => routineModalStore.openForEdit(routine))}

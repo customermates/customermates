@@ -211,7 +211,6 @@ describe("manage_connected_accounts", () => {
     expect((await run({ action: "disconnect" })).ok).toBe(false);
     expect((await run({ action: "set_folders", id: ACCOUNT_ID })).ok).toBe(false);
     expect((await run({ action: "set_sharing", id: ACCOUNT_ID })).ok).toBe(false);
-    expect((await run({ action: "set_signature", id: ACCOUNT_ID })).ok).toBe(false);
     expect(spies.setFolders).not.toHaveBeenCalled();
     expect(spies.setSharing).not.toHaveBeenCalled();
     expect(spies.disconnect).not.toHaveBeenCalled();
@@ -230,30 +229,14 @@ describe("manage_connected_accounts", () => {
     expect(sharing.ok && sharing.structuredContent?.account).toMatchObject({ shared: true });
   });
 
-  it("keeps the current settings when only the signature text changes", async () => {
-    spies.listAccounts.mockResolvedValue({ ok: true, data: [account()] });
+  it("forwards only the signature fields given, leaving the merge to the interactor", async () => {
     spies.setSignature.mockResolvedValue({ ok: true, data: account({ signature: "Cheers, Ada" }) });
 
     const result = await run({ action: "set_signature", id: ACCOUNT_ID, signature: "Cheers, Ada" });
 
     expect(result.ok).toBe(true);
-    expect(spies.setSignature).toHaveBeenCalledWith({
-      id: ACCOUNT_ID,
-      signature: "Cheers, Ada",
-      settings: defaultEmailSettings(),
-    });
-  });
-
-  it("refuses a signature change on an account the caller does not own", async () => {
-    spies.listAccounts.mockResolvedValue({ ok: true, data: [account({ isOwner: false })] });
-
-    const result = await run({ action: "set_signature", id: ACCOUNT_ID, signature: "Hi" });
-
-    expect(result).toMatchObject({
-      ok: false,
-      failure: { kind: "not_found", issues: [{ path: ["id"], customCode: "connectedAccountNotFound" }] },
-    });
-    expect(spies.setSignature).not.toHaveBeenCalled();
+    expect(spies.setSignature).toHaveBeenCalledWith({ id: ACCOUNT_ID, signature: "Cheers, Ada", settings: undefined });
+    expect(spies.listAccounts).not.toHaveBeenCalled();
   });
 
   it("resyncs and disconnects one account", async () => {

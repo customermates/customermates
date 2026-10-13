@@ -724,11 +724,12 @@ export class PrismaMessagingRepo
     return hydrated;
   }
 
-  async findThreadForResyncOrThrow(threadId: string) {
-    const row = await this.prisma.messagingThread.findFirstOrThrow({
+  async findThreadForResync(threadId: string) {
+    const row = await this.prisma.messagingThread.findFirst({
       where: {
         id: threadId,
         ...threadAccessWhere(this.companyId, this.userId),
+        connectedAccount: { is: accessibleConnectedAccountWhere(this.companyId, this.userId) },
       },
       select: {
         id: true,
@@ -747,6 +748,7 @@ export class PrismaMessagingRepo
       },
     });
 
+    if (!row) return null;
     const { connectedAccount, ...rest } = row;
 
     return {

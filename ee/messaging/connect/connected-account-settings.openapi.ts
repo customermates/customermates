@@ -3,7 +3,7 @@ import type { ZodOpenApiOperationObject } from "zod-openapi";
 import { z } from "zod";
 
 import { StructuredApiResponses } from "@/core/api/structured-interactor-handler";
-import { ConnectedAccountEmailSchema } from "@/ee/messaging/email-settings";
+import { SetConnectedAccountSignatureFieldsSchema } from "@/ee/messaging/connect/set-connected-account-signature.interactor";
 import { ConnectedAccountAppDtoSchema } from "@/ee/messaging/messaging.schema";
 import { SetSelectedFoldersSchema } from "@/ee/messaging/connect/set-selected-folders.interactor";
 import { SetConnectedAccountVisibilitySchema } from "@/ee/messaging/connect/set-connected-account-visibility.interactor";
@@ -67,8 +67,8 @@ export const connectedAccountSettingsApiPaths = {
     post: accountSettingOperation(
       "setConnectedAccountSignature",
       "Set the email signature and appearance",
-      "Saves the signature text (Markdown, up to 2,000 characters, empty to clear) and the complete email settings (appearance and signature layout), as the account's Email tab does.",
-      ConnectedAccountEmailSchema,
+      "Saves the signature text (Markdown, up to 2,000 characters, empty to clear), the complete email settings (appearance and signature layout), or both, as the account's Email tab does. An omitted field keeps its stored value; send at least one.",
+      SetConnectedAccountSignatureFieldsSchema,
     ),
   },
   "/v1/messaging/connected-accounts/{id}/sharing": {

@@ -1060,6 +1060,7 @@
       "calendarNotFound": "Calendar ID not found or not accessible.",
       "channelAlreadyLinked": "This channel is already linked to another contact.",
       "chatThreadRequired": "This is an email thread. Send an email to reply to it instead of a chat message.",
+      "connectedAccountEmailChangeRequired": "Pass a signature, email settings or both.",
       "connectedAccountNotFound": "Channel ID not found or not accessible.",
       "customFieldInvalidDate": "The date value is invalid. Must be in ISO 8601 date format (e.g., 2024-01-15) or ISO 8601 datetime format (e.g., 2024-01-15T00:00:00Z).",
       "dataViewAllNameImmutable": "The All view cannot be renamed. Omit name and update only the requested state settings. Read config for supported settings and list for the current state before retrying.",

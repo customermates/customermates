@@ -1060,6 +1060,7 @@
       "calendarNotFound": "ID d'agenda introuvable ou inaccessible.",
       "channelAlreadyLinked": "Ce canal est déjà lié à un autre contact.",
       "chatThreadRequired": "Ceci est un fil d'e-mails. Répondez par e-mail plutôt que par un message de chat.",
+      "connectedAccountEmailChangeRequired": "Indiquez une signature, des paramètres d'e-mail ou les deux.",
       "connectedAccountNotFound": "ID de canal introuvable ou inaccessible.",
       "customFieldInvalidDate": "La date est invalide. Elle doit être au format ISO 8601 (par exemple 2024-01-15) ou au format date-heure ISO 8601 (par exemple 2024-01-15T00:00:00Z).",
       "dataViewAllNameImmutable": "La vue Toutes ne peut pas être renommée. Omettez name et modifiez uniquement les paramètres demandés dans state. Consultez config pour les paramètres pris en charge et list pour l’état actuel avant de réessayer.",

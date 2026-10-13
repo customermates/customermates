@@ -26,7 +26,7 @@ vi.mock("next/headers", () => ({
   headers: () => new Headers({ origin: request.origin }),
 }));
 vi.mock("next-intl/server", () => ({
-  getTranslations: () => Promise.resolve((key: string) => key),
+  getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
   getLocale: () => Promise.resolve("en"),
 }));
 
@@ -41,7 +41,7 @@ describe("ReconnectConnectedAccountInteractor", () => {
 
   it("returns from hosted auth to the validated Preview vanity origin", async () => {
     const repo = {
-      findAccountByIdOrThrow: vi.fn().mockResolvedValue({
+      findOwnedAccountById: vi.fn().mockResolvedValue({
         id: "10000000-0000-4000-8000-000000000001",
         unipileAccountId: "provider-account-1",
         provider: "google",
@@ -67,5 +67,30 @@ describe("ReconnectConnectedAccountInteractor", () => {
         redirectUri: "https://feat-inbox.customermates.com/settings/channels",
       }),
     );
+  });
+
+  it("answers a missing or foreign account and a malformed id as failures instead of throwing", async () => {
+    const repo = { findOwnedAccountById: vi.fn().mockResolvedValue(null) };
+    const messagingService = { createReconnectAuthLink: vi.fn() };
+    const entitlements = { require: vi.fn().mockResolvedValue(null) };
+    const interactor = new ReconnectConnectedAccountInteractor(
+      repo as never,
+      messagingService as never,
+      entitlements as never,
+    );
+
+    const missing = await interactor.invoke({ id: "10000000-0000-4000-8000-000000000001" });
+    expect(missing).toMatchObject({ ok: false });
+    if ("error" in missing) {
+      expect(missing.error.issues[0]).toMatchObject({
+        path: ["id"],
+        params: { error: "connectedAccountNotFound", kind: "not_found" },
+      });
+    }
+
+    const malformed = await interactor.invoke({ id: "not-a-uuid" });
+    expect(malformed).toMatchObject({ ok: false });
+    expect(repo.findOwnedAccountById).toHaveBeenCalledOnce();
+    expect(messagingService.createReconnectAuthLink).not.toHaveBeenCalled();
   });
 });
