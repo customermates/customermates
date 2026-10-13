@@ -241,7 +241,13 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
 
   it("answers not found when a readOwn member reads another user's routine by id", async () => {
     const ownerRoutineId = randomUUID();
-    await insertRoutine(ownerRoutineId);
+    await client.query(
+      `INSERT INTO "Routine" ("id", "companyId", "ownerUserId", "name", "prompt", "triggerKind", "cronExpression", "timezone",
+         "triggerEvents", "updatedAt")
+       VALUES ($1, $2, $3, 'Private routine', 'Do something', 'schedule', '0 9 * * *', 'UTC', ARRAY[]::TEXT[],
+         CURRENT_TIMESTAMP)`,
+      [ownerRoutineId, companyId, ownerId],
+    );
     const readOwn = createMockUser({
       id: teammateId,
       companyId,
@@ -276,6 +282,7 @@ describeDatabase("PrismaRoutineRepo tenant boundaries", () => {
       }
     }
     expect(own).toMatchObject({ ok: true, data: { id: ownerRoutineId } });
+    await client.query('DELETE FROM "Routine" WHERE "id" = $1', [ownerRoutineId]);
   });
 
   it("lists only the caller's company when finding event routines", async () => {
