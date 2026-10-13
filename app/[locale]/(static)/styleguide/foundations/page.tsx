@@ -181,7 +181,7 @@ const FRAMING_RULES = [
     "ProductPanel",
     "A tinted, primary-lit well the window bleeds out of, so a section shows a readable crop of one area.",
   ],
-  ["PhoneFrame", "A dark device bezel for phone captures, layered over a desktop window when both appear."],
+  ["PhoneFrame", "The window frame in phone proportions, layered over a desktop window when both appear."],
   [
     "product-card",
     "The raised card surface for illustration cards, diagram cards and floating forms: hairline rim, inner highlight, theme-aware deep shadow.",

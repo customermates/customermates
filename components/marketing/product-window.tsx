@@ -48,11 +48,13 @@ export function PhoneFrame({ children, className }: FrameProps) {
     <div
       data-homepage-phone
       className={cn(
-        "rounded-[1.9rem] bg-neutral-950 p-[0.35rem] shadow-[0_36px_80px_-24px_rgb(0_0_0/0.6)] ring-1 ring-foreground/15",
+        "relative rounded-[1.9rem] bg-background/70 p-1.5 shadow-[0_2px_8px_-2px_rgb(0_0_0/0.08),0_32px_80px_-32px_rgb(0_0_0/0.35)] ring-1 ring-foreground/10 backdrop-blur-xl dark:shadow-[0_2px_8px_-2px_rgb(0_0_0/0.5),0_40px_110px_-36px_rgb(0_0_0/0.9)]",
         className,
       )}
     >
-      <div className="overflow-hidden rounded-[1.6rem]">{children}</div>
+      <div className="relative overflow-hidden rounded-[1.55rem] bg-sidebar ring-1 ring-foreground/[0.08]">
+        {children}
+      </div>
     </div>
   );
 }
