@@ -24,7 +24,13 @@ Prüfen Sie die Signatur und verwenden Sie in weiteren Schritten die Ereignis-ID
 </Step>
 </Steps>
 
+Mit dem [Customermates Community Node](https://github.com/customermates/n8n-nodes-crm) legt dessen **Customermates Trigger** dieses Webhook-Abonnement beim Aktivieren (Veröffentlichen) des Workflows selbst an.
+
 [Webhooks](/docs/webhooks) beschreibt Payloads, Wiederholungen und Signaturprüfung. Zustellungen können mehrfach oder in anderer Reihenfolge eintreffen; deduplizieren Sie anhand der Ereignis-ID.
+
+## Ab wann empfängt ein Trigger Ereignisse? [#when-does-a-trigger-start-receiving-events]
+
+Seit n8n 2.x kehrt die Aktivierung zurück, bevor n8n den Trigger fertig eingerichtet hat. Das Abonnement besteht meist innerhalb einer Sekunde; Änderungen davor werden auch später nicht zugestellt. Wenn ein Ablauf einen Workflow aktiviert und sofort Datensätze anlegt, sollte er zuerst warten, bis n8ns `GET /rest/workflows/{id}/publication-status` `published` meldet oder das Abonnement unter [Webhooks](app:settings/webhooks) erscheint. Selbst gehostetes n8n stellt mit `N8N_USE_WORKFLOW_PUBLICATION_SERVICE=false` das wartende Aktivieren wieder her.
 
 ## Wie kann ich aus n8n Datensätze anlegen, lesen, ändern oder löschen? [#how-do-i-write-to-customermates-from-n8n]
 
