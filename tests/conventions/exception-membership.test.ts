@@ -18,7 +18,6 @@ const TEN_REGISTRY_FILES = [
   "design-system.test.ts",
   "design-unification.test.ts",
   "form-footer-actions.test.ts",
-  "interactor-error-contract.test.ts",
   "prisma-model-ownership.test.ts",
   "raw-sql-tenancy.test.ts",
   "settings-area-and-contact-values.test.ts",
