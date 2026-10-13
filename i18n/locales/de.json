@@ -1173,6 +1173,7 @@
       "roleSystemImmutable": "Systemrollen können nicht bearbeitet werden.",
       "roleSystemRequired": "Mindestens ein Nutzer muss Systemadministrator sein.",
       "routineAdminRequired": "Nur ein Unternehmensadmin kann Routinen pausieren oder löschen.",
+      "routineAiWorkPaused": "KI-Arbeit wurde von einem Administrator pausiert. Versuchen Sie es nach der Freigabe erneut.",
       "routineDeleteHasRunningRun": "Warte, bis der aktive Lauf beendet ist, bevor du diese Routine löschst.",
       "routineEditNotOwner": "Nur die Eigentümerin oder der Eigentümer kann Einrichtung und Aktivierung dieser Routine ändern.",
       "routineLimitReached": "Dein Tarif enthält {limit} Routinen pro Nutzer. Wechsle deinen Tarif für ein höheres Kontingent.",

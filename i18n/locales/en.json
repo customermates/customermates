@@ -1173,6 +1173,7 @@
       "roleSystemImmutable": "System roles cannot be edited.",
       "roleSystemRequired": "At least one user must be a system administrator.",
       "routineAdminRequired": "Only a company administrator can pause or delete routines.",
+      "routineAiWorkPaused": "AI work is paused by an administrator. Try again after it resumes.",
       "routineDeleteHasRunningRun": "Wait for the active run to finish before deleting this routine.",
       "routineEditNotOwner": "Only the routine owner can change its setup or activation.",
       "routineLimitReached": "Your plan includes {limit} routines per user. Upgrade your plan for a higher allowance.",

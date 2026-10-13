@@ -1173,6 +1173,7 @@
       "roleSystemImmutable": "I ruoli di sistema non possono essere modificati.",
       "roleSystemRequired": "Almeno un utente deve essere amministratore di sistema.",
       "routineAdminRequired": "Solo un amministratore aziendale può sospendere o eliminare le routine.",
+      "routineAiWorkPaused": "Il lavoro dell’IA è stato sospeso da un amministratore. Riprova quando riprende.",
       "routineDeleteHasRunningRun": "Attendi il completamento dell’esecuzione attiva prima di eliminare questa routine.",
       "routineEditNotOwner": "Solo il proprietario può modificare la configurazione o l’attivazione di questa routine.",
       "routineLimitReached": "Il tuo piano include {limit} routine per utente. Passa a un piano con un limite più alto.",
