@@ -120,6 +120,7 @@ import { PreviewRecordDeletionInteractor } from "@/features/records/preview-reco
 import { PrismaMembershipTaskRepo } from "@/features/records/prisma-membership-task.repository";
 import { PrismaRecordRepo } from "@/features/records/prisma-record.repository";
 import type { RecordRepoOwners } from "@/features/records/record.repo";
+import type { WidgetDtoReaders } from "@/features/widget/widget-dto-readers";
 import { EntityTrashHandler } from "@/features/trash/entity-trash.handler";
 import { EntityTrashVisibility } from "@/features/trash/entity-trash-visibility";
 import { RecordTrashHandler } from "@/features/records/record-trash.handler";
@@ -599,7 +600,7 @@ const entityTrashHandlers = (companyId?: string) => {
   const visibility = new EntityTrashVisibility();
   const events = getEventService();
   const trash = getTrashRepo(companyId);
-  const widgets = new PrismaWidgetRepo(companyId);
+  const widgets = new PrismaWidgetRepo(getWidgetDtoReaders, companyId);
   const wikiPages = getWikiPageRepo(companyId);
   return [
     new EntityTrashHandler(
@@ -718,7 +719,11 @@ export const createPrismaDataViewRepo = (companyId?: string) =>
   new PrismaDataViewRepo({ widgets: getWidgetRepo(), personalizations: getP13nRepo() }, companyId);
 export const getDataViewRepo = () => createPrismaDataViewRepo();
 export const getDataViewStateRepo = () => createPrismaDataViewRepo();
-export const getWidgetRepo = () => new PrismaWidgetRepo();
+export const getWidgetDtoReaders = (): WidgetDtoReaders => ({
+  chart: getRecordWidgetReader(),
+  activityTimeline: getRecordActivityWidgetReader(),
+});
+export const getWidgetRepo = () => new PrismaWidgetRepo(getWidgetDtoReaders);
 export const getWebhookRepo = () => new PrismaWebhookRepo(getRecordEventSubscriptionRepo(), getPermissionService());
 export const getWebhookPauseNotifier = (companyId?: string) =>
   new WebhookPauseNotifier(
