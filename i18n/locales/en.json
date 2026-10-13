@@ -40,6 +40,7 @@
     "activity": {
       "approval": {
         "generic": "Ready to make a change that needs your approval",
+        "genericPermanent": "Ready to permanently delete {target}. This cannot be undone.",
         "messages": {
           "discard": "Ready to discard the draft",
           "draft": "Ready to save a draft",
@@ -471,7 +472,8 @@
       "policyBreach": "The AI provider exceeded the reserved credit budget, so the run was stopped. No further provider work was started.",
       "providerError": "The AI provider returned an error before I could finish. Nothing further was changed. Please try again.",
       "sourcesHeading": "Sources",
-      "turnError": "I couldn't complete that request. Please try again."
+      "turnError": "I couldn't complete that request. Please try again.",
+      "turnErrorWithTool": "I couldn't complete that request. The last action failed: {reason}"
     },
     "send": "Send",
     "stop": "Stop",
@@ -1159,6 +1161,7 @@
       "recordSavedViewIncompatible": "The saved view \"{viewName}\" ({viewId}) still uses \"{columnLabel}\" ({columnId}). Update or delete that view, then try again.",
       "recordSchemaChanged": "The data model changed. Refresh and try again.",
       "recordSublistNested": "A sub-list cannot have sub-lists of its own. Link the list to the sub-list's parent instead.",
+      "recordTransactionEnded": "The change took too long and was not saved. Try a smaller change or contact support.",
       "recordTypeNotFound": "This record type is unavailable.",
       "recordValueInvalid": "Review the highlighted record values.",
       "recordValueRequired": "{field} needs a value.",
@@ -1173,6 +1176,7 @@
       "roleSystemImmutable": "System roles cannot be edited.",
       "roleSystemRequired": "At least one user must be a system administrator.",
       "routineAdminRequired": "Only a company administrator can pause or delete routines.",
+      "routineAiWorkPaused": "AI work is paused by an administrator. Try again after it resumes.",
       "routineDeleteHasRunningRun": "Wait for the active run to finish before deleting this routine.",
       "routineEditNotOwner": "Only the routine owner can change its setup or activation.",
       "routineLimitReached": "Your plan includes {limit} routines per user. Upgrade your plan for a higher allowance.",
@@ -4050,7 +4054,7 @@
     "useSchedulePreset": "Switch to a preset"
   },
   "RoutineRunReason": {
-    "adminPaused": "A company administrator paused the routine",
+    "adminPaused": "A company administrator paused the routine or AI work",
     "agentAlreadyCompleted": "This run had already finished",
     "agentAlreadyRunning": "The assistant was already busy with another run",
     "agentTurnConflict": "Another run claimed the assistant first",

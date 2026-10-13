@@ -48,16 +48,17 @@ Den Client nach seinen Tools fragen. Alle [[derived.mcp.tools.total]] sollten er
 </Step>
 </Steps>
 
-| Client                | Methode                           | Guide                                                                                        |
-| --------------------- | --------------------------------- | -------------------------------------------------------------------------------------------- |
-| Claude Web & Mobile   | Custom Connector (OAuth)          | [Mit einem Custom Connector verbinden](/docs/connect-custom-connector)                       |
-| Claude Desktop        | Connector (OAuth) oder Config-Key | [Claude Desktop verbinden](/docs/connect-custom-connector#claude)                            |
-| ChatGPT               | Connector (OAuth) oder Key-Header | [ChatGPT verbinden](/docs/connect-custom-connector#chatgpt)                                  |
-| Claude Code           | API-Key                           | [Claude Code verbinden](/docs/connect-cli#claude-code)                                       |
-| Codex                 | API-Key                           | [Codex verbinden](/docs/connect-cli#codex)                                                   |
-| Cursor                | API-Key                           | [Cursor verbinden](/docs/connect-cli#cursor)                                                 |
-| Gemini CLI            | API-Key                           | [Gemini verbinden](/docs/connect-cli#gemini-cli)                                             |
-| Beliebiger MCP-Client | Key-Header                        | Endpoint und Header aus [Wie lautet die URL des MCP-Server-Endpoints?](#the-endpoint) nutzen |
+
+| Client | Methode | Guide |
+| --- | --- | --- |
+| Claude Web & Mobile | Custom Connector (OAuth) | [Mit einem Custom Connector verbinden](/docs/connect-custom-connector) |
+| Claude Desktop | Connector (OAuth) oder Config-Key | [Claude Desktop verbinden](/docs/connect-custom-connector#claude) |
+| ChatGPT | Connector (OAuth) oder Key-Header | [ChatGPT verbinden](/docs/connect-custom-connector#chatgpt) |
+| Claude Code | API-Key | [Claude Code verbinden](/docs/connect-cli#claude-code) |
+| Codex | API-Key | [Codex verbinden](/docs/connect-cli#codex) |
+| Cursor | API-Key | [Cursor verbinden](/docs/connect-cli#cursor) |
+| Gemini CLI | API-Key | [Gemini verbinden](/docs/connect-cli#gemini-cli) |
+| Beliebiger MCP-Client | Key-Header | Endpoint und Header aus [Wie lautet die URL des MCP-Server-Endpoints?](#the-endpoint) nutzen |
 
 ## Server-Instructions, Prompts und Toolsets [#server-instructions-prompts-and-toolsets]
 
@@ -244,7 +245,7 @@ Pflicht: `operationId`.
 
 Gelöschte Elemente im Papierkorb auflisten, neueste zuerst, mit Angabe, wer sie wann gelöscht hat und wie viele Tage bleiben, bis sie endgültig gelöscht werden. Nach Art, Liste und Name filtern. Aufgelistet wird nur, was Sie sehen und löschen könnten; Administratoren sehen alles außer den gespeicherten Ansichten und Widgets anderer Mitglieder, die persönlich bleiben.
 
-**Nur lesend.** Optional: `kinds`, `typeIds`, `search`, `sortDescriptor`, `page`, `pageSize`.
+**Nur lesend.** Optional: `kinds`, `itemIds`, `typeIds`, `search`, `sortDescriptor`, `page`, `pageSize`.
 
 #### `manage_trash`
 
@@ -292,10 +293,7 @@ Zwei Aufrufe aktualisieren Datensätze, die Sie nur über E-Mail-Adressen oder P
          "value": "ada@example.com",
          "records": [
            {
-             "ref": {
-               "typeId": "<contact typeId>",
-               "recordId": "<ada recordId>"
-             },
+             "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" },
              "identityId": "<identityId>",
              "typeLabel": "Contact",
              "typePluralLabel": "Contacts",
@@ -306,25 +304,8 @@ Zwei Aufrufe aktualisieren Datensätze, die Sie nur über E-Mail-Adressen oder P
            }
          ]
        },
-       {
-         "provider": "linkedin",
-         "value": "ada-lovelace",
-         "records": [
-           {
-             "ref": {
-               "typeId": "<contact typeId>",
-               "recordId": "<ada recordId>"
-             },
-             "version": 4,
-             "...": "..."
-           }
-         ]
-       },
-       {
-         "provider": "mail",
-         "value": "team@example.com",
-         "records": [{ "...": "record A" }, { "...": "record B" }]
-       }
+       { "provider": "linkedin", "value": "ada-lovelace", "records": [{ "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" }, "version": 4, "...": "..." }] },
+       { "provider": "mail", "value": "team@example.com", "records": [{ "...": "record A" }, { "...": "record B" }] }
      ]
    }
    ```
@@ -338,21 +319,8 @@ Zwei Aufrufe aktualisieren Datensätze, die Sie nur über E-Mail-Adressen oder P
      "idempotencyKey": "segment-update-2026-10-06",
      "mutation": {
        "action": "updateMany",
-       "targets": [
-         {
-           "ref": {
-             "typeId": "<contact typeId>",
-             "recordId": "<ada recordId>"
-           },
-           "expectedVersion": 4
-         }
-       ],
-       "fields": [
-         {
-           "fieldId": "<field id>",
-           "value": { "kind": "text", "value": "Webinar 2026" }
-         }
-       ]
+       "targets": [{ "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" }, "expectedVersion": 4 }],
+       "fields": [{ "fieldId": "<field id>", "value": { "kind": "text", "value": "Webinar 2026" } }]
      }
    }
    ```
@@ -380,7 +348,7 @@ Teammitglieder mit ID, Name, E-Mail, roleId und Status. Hat die Rolle des Aufruf
 {/* mcp-catalog:views */}
 #### `manage_data_views`
 
-Persönliche gespeicherte Ansichten entdecken, prüfen, erstellen, ändern, auswählen, zurücksetzen und löschen. Zuerst surfaceKey ermitteln; generische Datensatzansichten verwenden stabile Typ-IDs. Änderungen ersetzen nur übergebene Einstellungen; eine Gruppierung kann bis zu 8 Übersichten tragen (Summe, Durchschnitt, Minimum oder Maximum eines Zahlen- oder Währungsfelds). Reset entfernt Ihre Anpassungen, sodass die Liste alle Felder in ihrer konfigurierten Reihenfolge als ungruppierte Tabelle zeigt. Löschen verschiebt die Ansicht in den Papierkorb (eine Dashboard-Ansicht samt ihren Widgets), nie ihre Datensätze. Konfiguration und Ansichtslisten sind durchsuchbar und paginiert.
+Persönliche gespeicherte Ansichten entdecken, prüfen, erstellen, ändern, auswählen, zurücksetzen und löschen. Zuerst surfaceKey ermitteln; generische Datensatzansichten verwenden stabile Typ-IDs. Änderungen ersetzen nur übergebene Einstellungen; eine Gruppierung kann bis zu 8 Übersichten tragen (Summe, Durchschnitt, Minimum oder Maximum eines Zahlen- oder Währungsfelds). Reset entfernt Ihre Anpassungen, sodass die Liste alle Felder in ihrer konfigurierten Reihenfolge als ungruppierte Tabelle zeigt. Zum Löschen sind der genaue aktuelle Name und die ID der Ansicht nötig; bei Abweichung ändert sich nichts. Löschen verschiebt sie in den Papierkorb (eine Dashboard-Ansicht samt ihren Widgets), nie ihre Datensätze. Konfiguration und Ansichtslisten sind durchsuchbar und paginiert.
 
 **Kann Daten löschen.** Pflicht: `action`. Optional: `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `fields`, `state`.
 
@@ -633,7 +601,7 @@ Widgets auflisten und lesen sowie Diagramm- und Aktivitätskonfigurationen erste
 {/* mcp-catalog:routines */}
 #### `manage_routines`
 
-Ein Tool mit einem `action`-Schalter: list, runs, create, update, pause, run_now, delete. Eine Routine sind gespeicherte Anweisungen, die der Assistent nach Zeitplan oder bei einem CRM-Ereignis ausführt. Ohne `enabled` erzeugt create eine LIVE-Routine; für einen Entwurf `enabled: false` übergeben; der gehostete Assistent muss `enabled` ausdrücklich angeben und speichert einen Entwurf, sofern der Nutzer nicht die Aktivierung verlangt hat. Ein Wechsel von `triggerKind` muss den Zeitplan oder die Ereignisse der neuen Art mitbringen. pause deaktiviert die Routine und setzt wartende Läufe auf übersprungen, was ein erneutes Aktivieren nicht rückgängig macht; nur aktive Systemadministratoren dürfen eine Routine pausieren oder löschen. run_now gilt nur für geplante Routinen und nur für eine aktivierte Routine, die der Aufrufer besitzt. Läufe werden über `cursor` paginiert und enthalten Status, Zusammenfassung und Auslöser. delete verschiebt die Routine in den Papierkorb, wo sie nicht läuft, bis manage_trash sie wiederherstellt. list liefert standardmäßig knappe Angaben zu Name, Eigentümer, Auslöser und Aktivierung. Mit includePrompts: true erhalten Sie die vollständige Konfiguration samt Anweisungen; owner: "mine" beschränkt die Liste auf Ihre Routinen.
+Ein Tool mit einem `action`-Schalter: list, runs, create, update, pause, run_now, delete. Eine Routine sind gespeicherte Anweisungen, die der Assistent nach Zeitplan oder bei einem CRM-Ereignis ausführt. Ohne `enabled` erzeugt create eine LIVE-Routine; für einen Entwurf `enabled: false` übergeben; der gehostete Assistent muss `enabled` ausdrücklich angeben und speichert einen Entwurf, sofern der Nutzer nicht die Aktivierung verlangt hat. Ein Wechsel von `triggerKind` muss den Zeitplan oder die Ereignisse der neuen Art mitbringen. pause deaktiviert die Routine und setzt wartende Läufe auf übersprungen, was ein erneutes Aktivieren nicht rückgängig macht; nur aktive Systemadministratoren dürfen eine Routine pausieren oder löschen. run_now gilt nur für geplante Routinen und nur für eine aktivierte Routine, die der Aufrufer besitzt. Pausierte KI-Arbeit, inaktive Eigentümer und aufgebrauchte Credits werden vor dem Einreihen abgelehnt; manuelle Testläufe nutzen weiterhin `triggerKind: schedule`. Läufe werden über `cursor` paginiert und enthalten Status, Zusammenfassung, Auslöser und den Blockiergrund in `error`. delete verschiebt die Routine in den Papierkorb, wo sie nicht läuft, bis manage_trash sie wiederherstellt. list liefert standardmäßig knappe Angaben zu Name, Eigentümer, Auslöser und Aktivierung. Mit includePrompts: true erhalten Sie die vollständige Konfiguration samt Anweisungen; owner: "mine" beschränkt die Liste auf Ihre Routinen.
 
 **Kann Daten löschen.** Pflicht: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `owner`, `includePrompts`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `recordTrigger`, `recordSources`, `expectedSchemaRevision`, `debounceSeconds`.
 {/* /mcp-catalog */}
@@ -705,14 +673,7 @@ Eine Ablehnung ist Datum, kein Absturz. Das Ergebnis trägt `isError: true`, ein
   "_meta": {
     "failure": {
       "kind": "not_found",
-      "issues": [
-        {
-          "code": "custom",
-          "path": [],
-          "message": "Webhook ID not found or not accessible.",
-          "customCode": "webhookNotFound"
-        }
-      ]
+      "issues": [{ "code": "custom", "path": [], "message": "Webhook ID not found or not accessible.", "customCode": "webhookNotFound" }]
     }
   }
 }

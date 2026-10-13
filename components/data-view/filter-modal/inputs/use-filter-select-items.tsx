@@ -29,10 +29,12 @@ import {
   getCalendarsAction,
   getConnectedAccountsAction,
   getMessagingFilterOptionsAction,
+  resolveCalendarOptionsAction,
 } from "@/app/[locale]/(protected)/actions";
 import {
   getUsersAction,
   getWebhooksAction,
+  resolveWebhookOptionsAction,
   resolveUserOptionsAction,
 } from "@/app/[locale]/(protected)/settings/(workspace)/actions";
 import { SUBSCRIPTION_STATUS_COLOR_MAP } from "@/app/[locale]/(protected)/settings/(workspace)/components/subscription/subscription-panel";
@@ -81,7 +83,7 @@ type ActivityQueryRef = { current: ReturnType<typeof useActivityQuery> };
 export const NO_FILTER_OPTIONS = null;
 
 export type FilterOptionSource =
-  | { getItems: GetItemsFunction }
+  | { getItems: GetItemsFunction; resolveItems?: ResolveItemsFunction }
   | { items: () => FilterSelectItem[] }
   | typeof NO_FILTER_OPTIONS;
 
@@ -104,7 +106,11 @@ function scopedOptionItems(options: FilterOption[], field: string, t: Translate)
       value: option.value,
       textValue: option.groupLabel ? `${label} · ${option.groupLabel}` : label,
       ...(field === FilterFieldKey.emailFolder.toString() && option.groupKey
-        ? { optionLabel: label, groupKey: option.groupKey, groupLabel: option.groupLabel || providerLabel }
+        ? {
+            optionLabel: label,
+            groupKey: option.groupKey,
+            groupLabel: option.groupLabel || providerLabel,
+          }
         : {}),
       startContent: option.provider ? renderProviderIcon(option.provider, providerLabel) : undefined,
     };
@@ -147,6 +153,20 @@ export function filterOptionSources(
             };
           }),
         })),
+      resolveItems: async (ids) => {
+        const result = await resolveUserOptionsAction({
+          ids: [...new Set(ids)],
+        });
+        return result.users.map((user) => {
+          const name = `${user.firstName} ${user.lastName}`.trim();
+          return {
+            key: user.id,
+            value: user.id,
+            textValue: name,
+            startContent: renderAvatar(name, user.avatarUrl),
+          };
+        });
+      },
     },
     [FilterFieldKey.participantContactId]: {
       getItems: async (params) => {
@@ -206,6 +226,14 @@ export function filterOptionSources(
             textValue: webhook.description?.trim() ? `${webhook.url} · ${webhook.description.trim()}` : webhook.url,
           })),
         };
+      },
+      resolveItems: async (ids) => {
+        const webhooks = await resolveWebhookOptionsAction([...ids]);
+        return webhooks.map((webhook) => ({
+          key: webhook.id,
+          value: webhook.id,
+          textValue: webhook.description?.trim() ? `${webhook.url} · ${webhook.description.trim()}` : webhook.url,
+        }));
       },
     },
     [FilterFieldKey.name]: NO_FILTER_OPTIONS,
@@ -286,6 +314,18 @@ export function filterOptionSources(
             };
           }),
         })),
+      resolveItems: async (ids) => {
+        const calendars = await resolveCalendarOptionsAction([...ids]);
+        return calendars.map((calendar) => {
+          const { provider } = calendar;
+          return {
+            key: calendar.id,
+            value: calendar.id,
+            textValue: calendar.name,
+            startContent: renderProviderIcon(provider, t(`Common.providers.${provider}`)),
+          };
+        });
+      },
     },
     [FilterFieldKey.startsAt]: NO_FILTER_OPTIONS,
     [FilterFieldKey.plan]: {
@@ -361,7 +401,12 @@ export function filterOptionSources(
         })),
     },
     [FilterFieldKey.trashKind]: {
-      items: () => TRASH_KINDS.map((kind) => ({ key: kind, value: kind, textValue: t(`Trash.kinds.${kind}`) })),
+      items: () =>
+        TRASH_KINDS.map((kind) => ({
+          key: kind,
+          value: kind,
+          textValue: t(`Trash.kinds.${kind}`),
+        })),
     },
     [FilterFieldKey.trashList]: {
       getItems: () =>
@@ -488,19 +533,7 @@ export function useFilterSelectItems(
         return items;
       };
     }
-    if (presentationType === "member") {
-      return async (ids) => {
-        const result = await resolveUserOptionsAction({
-          ids: [...new Set(ids)],
-        });
-        return result.users.map((user) => ({
-          key: user.id,
-          value: user.id,
-          textValue: `${user.firstName} ${user.lastName}`.trim(),
-          startContent: renderAvatar(`${user.firstName} ${user.lastName}`.trim(), user.avatarUrl),
-        }));
-      };
-    }
+    if (source && "resolveItems" in source && source.resolveItems) return source.resolveItems;
     if (fieldKey === FilterFieldKey.participantContactId) {
       return async (ids) => {
         const refs = ids.flatMap<RecordRef | string>((id) => {
@@ -548,7 +581,7 @@ export function useFilterSelectItems(
     }
     if (!hasActivityQuery) return undefined;
     return undefined;
-  }, [hasActivityQuery, field, referenceTypeId, presentationType, t]);
+  }, [hasActivityQuery, field, referenceTypeId, presentationType, source, t]);
 
   const resolveItems = useMemo<ResolveItemsFunction | undefined>(() => {
     if (getSelectedItems) return getSelectedItems;

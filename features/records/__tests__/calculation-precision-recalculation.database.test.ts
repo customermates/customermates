@@ -27,7 +27,7 @@ const { runInTransaction } = await import("@/core/decorators/transaction-runner"
 const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { WebhookPauseNotifier } = await import("@/features/webhook/webhook-pause-notifier");
 const { RecordAccessPolicy } = await import("../record-access");
-const { RecordCalculationService, SYNCHRONOUS_RECORD_LIMIT } = await import("../record-calculation.service");
+const { RecordCalculationService } = await import("../record-calculation.service");
 const { RecordWriteService } = await import("../record-write.service");
 const { RecordConfigurationService } = await import("../configuration.service");
 const { RecordConfigurationWriter } = await import("../record-configuration-writer");
@@ -81,7 +81,7 @@ async function fixture() {
       { dispatch: () => Promise.resolve() },
     );
   const large = Object.assign(Object.create(repo) as typeof repo, {
-    countRecordsCompanyWide: () => Promise.resolve(SYNCHRONOUS_RECORD_LIMIT + 1),
+    countRecordsCompanyWide: () => Promise.resolve(459),
   });
   const mutate = new MutateRecordInteractor(
     repo,
@@ -341,7 +341,7 @@ describeDatabase("changing calculation precision recalculates stored results", (
     expect(await f.value(order, f.gross)).toEqual(money("0.35"));
   }, 180_000);
 
-  it("recalculates a large list through the background record operation", async () => {
+  it("routes 459 affected records through the background record operation", async () => {
     const f = await fixture();
     const customer = await f.organization();
     const order = await f.order(customer);

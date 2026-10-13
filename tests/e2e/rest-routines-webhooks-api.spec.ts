@@ -277,16 +277,19 @@ test("drives routines and webhooks through the public REST API with an API key a
     );
     expect(resumed).toMatchObject({ enabled: true });
 
-    const runId = await call(
+    const refusedRun = await call(
       api,
       "post",
       "/v1/routines/run",
       "/v1/routines/run",
-      202,
+      422,
       {
         id: scheduleRoutine.id,
       },
     );
+    expect(refusedRun).toMatchObject({
+      error: { kind: "unavailable", issues: [{ customCode: "routineAiWorkPaused" }] },
+    });
     const runs = await call(
       api,
       "post",
@@ -297,9 +300,7 @@ test("drives routines and webhooks through the public REST API with an API key a
         id: scheduleRoutine.id,
       },
     );
-    expect((runs.runs as Array<{ id: string }>).map(({ id }) => id)).toContain(
-      runId,
-    );
+    expect(runs.runs).toEqual([]);
 
     const paused = await call(
       api,

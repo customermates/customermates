@@ -48,16 +48,17 @@ Ask the client to list its tools. All [[derived.mcp.tools.total]] should appear.
 </Step>
 </Steps>
 
-| Client              | Method                          | Guide                                                                                  |
-| ------------------- | ------------------------------- | -------------------------------------------------------------------------------------- |
-| Claude web & mobile | Custom connector (OAuth)        | [Connect with a custom connector](/docs/connect-custom-connector)                      |
-| Claude Desktop      | Connector (OAuth) or config key | [Connect Claude Desktop](/docs/connect-custom-connector#claude)                        |
-| ChatGPT             | Connector (OAuth) or key header | [Connect ChatGPT](/docs/connect-custom-connector#chatgpt)                              |
-| Claude Code         | API key                         | [Connect Claude Code](/docs/connect-cli#claude-code)                                   |
-| Codex               | API key                         | [Connect Codex](/docs/connect-cli#codex)                                               |
-| Cursor              | API key                         | [Connect Cursor](/docs/connect-cli#cursor)                                             |
-| Gemini CLI          | API key                         | [Connect Gemini](/docs/connect-cli#gemini-cli)                                         |
-| Any MCP client      | Key header                      | Use the endpoint and header from [What is the MCP server endpoint URL?](#the-endpoint) |
+
+| Client | Method | Guide |
+| --- | --- | --- |
+| Claude web & mobile | Custom connector (OAuth) | [Connect with a custom connector](/docs/connect-custom-connector) |
+| Claude Desktop | Connector (OAuth) or config key | [Connect Claude Desktop](/docs/connect-custom-connector#claude) |
+| ChatGPT | Connector (OAuth) or key header | [Connect ChatGPT](/docs/connect-custom-connector#chatgpt) |
+| Claude Code | API key | [Connect Claude Code](/docs/connect-cli#claude-code) |
+| Codex | API key | [Connect Codex](/docs/connect-cli#codex) |
+| Cursor | API key | [Connect Cursor](/docs/connect-cli#cursor) |
+| Gemini CLI | API key | [Connect Gemini](/docs/connect-cli#gemini-cli) |
+| Any MCP client | Key header | Use the endpoint and header from [What is the MCP server endpoint URL?](#the-endpoint) |
 
 ## Server instructions, prompts, and toolsets
 
@@ -244,7 +245,7 @@ Required: `operationId`.
 
 List deleted items in Trash, newest first, with who deleted them, when, and the days left before they are deleted permanently. Filter by kind, list and name. Only items you could see and delete are listed; administrators see everything except other members' saved views and widgets, which stay personal.
 
-**Read-only.** Optional: `kinds`, `typeIds`, `search`, `sortDescriptor`, `page`, `pageSize`.
+**Read-only.** Optional: `kinds`, `itemIds`, `typeIds`, `search`, `sortDescriptor`, `page`, `pageSize`.
 
 #### `manage_trash`
 
@@ -292,10 +293,7 @@ Two calls update records you know only by email addresses or profile identifiers
          "value": "ada@example.com",
          "records": [
            {
-             "ref": {
-               "typeId": "<contact typeId>",
-               "recordId": "<ada recordId>"
-             },
+             "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" },
              "identityId": "<identityId>",
              "typeLabel": "Contact",
              "typePluralLabel": "Contacts",
@@ -306,25 +304,8 @@ Two calls update records you know only by email addresses or profile identifiers
            }
          ]
        },
-       {
-         "provider": "linkedin",
-         "value": "ada-lovelace",
-         "records": [
-           {
-             "ref": {
-               "typeId": "<contact typeId>",
-               "recordId": "<ada recordId>"
-             },
-             "version": 4,
-             "...": "..."
-           }
-         ]
-       },
-       {
-         "provider": "mail",
-         "value": "team@example.com",
-         "records": [{ "...": "record A" }, { "...": "record B" }]
-       }
+       { "provider": "linkedin", "value": "ada-lovelace", "records": [{ "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" }, "version": 4, "...": "..." }] },
+       { "provider": "mail", "value": "team@example.com", "records": [{ "...": "record A" }, { "...": "record B" }] }
      ]
    }
    ```
@@ -338,21 +319,8 @@ Two calls update records you know only by email addresses or profile identifiers
      "idempotencyKey": "segment-update-2026-10-06",
      "mutation": {
        "action": "updateMany",
-       "targets": [
-         {
-           "ref": {
-             "typeId": "<contact typeId>",
-             "recordId": "<ada recordId>"
-           },
-           "expectedVersion": 4
-         }
-       ],
-       "fields": [
-         {
-           "fieldId": "<field id>",
-           "value": { "kind": "text", "value": "Webinar 2026" }
-         }
-       ]
+       "targets": [{ "ref": { "typeId": "<contact typeId>", "recordId": "<ada recordId>" }, "expectedVersion": 4 }],
+       "fields": [{ "fieldId": "<field id>", "value": { "kind": "text", "value": "Webinar 2026" } }]
      }
    }
    ```
@@ -380,7 +348,7 @@ Team members with id, name, email, roleId, and status. When the caller's role ha
 {/* mcp-catalog:views */}
 #### `manage_data_views`
 
-Discover, inspect, create, update, select, reset and delete personal saved views. Discover the surfaceKey first; generic record surfaces use stable type IDs. Updates patch only supplied settings; a grouping can carry up to 8 summaries (sum, average, min or max of a number or currency field). Reset removes your overrides so the list shows every field in its configured order as an ungrouped table, without changing records. Deleting a view moves it to Trash (a dashboard view takes its widgets along), never its records. Configuration and view lists are paginated and searchable.
+Discover, inspect, create, update, select, reset and delete personal saved views. Discover the surfaceKey first; generic record surfaces use stable type IDs. Updates patch only supplied settings; a grouping can carry up to 8 summaries (sum, average, min or max of a number or currency field). Reset removes your overrides so the list shows every field in its configured order as an ungrouped table, without changing records. Deleting a view requires its exact current name and ID; a mismatch changes nothing. Deletion moves it to Trash (a dashboard view takes its widgets along), never its records. Configuration and view lists are paginated and searchable.
 
 **Can delete data.** Required: `action`. Optional: `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `fields`, `state`.
 
@@ -633,7 +601,7 @@ List or read widgets; create, update or delete chart and activity configurations
 {/* mcp-catalog:routines */}
 #### `manage_routines`
 
-One tool with an `action` switch: list, runs, create, update, pause, run_now, delete. A routine is saved instructions the assistant runs on a cron schedule or when a CRM event fires. Omitting `enabled` on create produces a LIVE routine, so pass `enabled: false` to draft one; the hosted assistant must state `enabled` explicitly and drafts unless the user asked to activate. A change of `triggerKind` must arrive with that kind's schedule or events. pause disables the routine and settles its queued runs to skipped, which re-enabling does not undo; only an active system administrator may pause or delete a routine. run_now applies to scheduled routines only, and only to an enabled routine the caller owns. Runs are paginated by `cursor` and carry status, summary and trigger. delete moves the routine to Trash, where it stops running until manage_trash restores it. list returns compact name, owner, trigger and enabled summaries by default. Pass includePrompts: true for full configurations including prompts, or owner: "mine" for routines you own.
+One tool with an `action` switch: list, runs, create, update, pause, run_now, delete. A routine is saved instructions the assistant runs on a cron schedule or when a CRM event fires. Omitting `enabled` on create produces a LIVE routine, so pass `enabled: false` to draft one; the hosted assistant must state `enabled` explicitly and drafts unless the user asked to activate. A change of `triggerKind` must arrive with that kind's schedule or events. pause disables the routine and settles its queued runs to skipped, which re-enabling does not undo; only an active system administrator may pause or delete a routine. run_now applies to scheduled routines only, and only to an enabled routine the caller owns. It refuses paused AI work, inactive owners and exhausted credits before queuing; manual test runs still use `triggerKind: schedule`. Runs are paginated by `cursor` and carry status, summary, trigger and the `error` block reason. delete moves the routine to Trash, where it stops running until manage_trash restores it. list returns compact name, owner, trigger and enabled summaries by default. Pass includePrompts: true for full configurations including prompts, or owner: "mine" for routines you own.
 
 **Can delete data.** Required: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `owner`, `includePrompts`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `recordTrigger`, `recordSources`, `expectedSchemaRevision`, `debounceSeconds`.
 {/* /mcp-catalog */}
@@ -705,14 +673,7 @@ A refusal is data, not a crash. The result carries `isError: true`, a human-read
   "_meta": {
     "failure": {
       "kind": "not_found",
-      "issues": [
-        {
-          "code": "custom",
-          "path": [],
-          "message": "Webhook ID not found or not accessible.",
-          "customCode": "webhookNotFound"
-        }
-      ]
+      "issues": [{ "code": "custom", "path": [], "message": "Webhook ID not found or not accessible.", "customCode": "webhookNotFound" }]
     }
   }
 }

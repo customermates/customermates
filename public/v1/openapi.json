@@ -41732,6 +41732,16 @@
                       ]
                     }
                   },
+                  "itemIds": {
+                    "minItems": 1,
+                    "maxItems": 500,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    }
+                  },
                   "typeIds": {
                     "maxItems": 200,
                     "type": "array",
@@ -63686,11 +63696,17 @@
                     "type": "string",
                     "format": "uuid",
                     "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60
                   }
                 },
                 "required": [
                   "surfaceKey",
-                  "viewKey"
+                  "viewKey",
+                  "name"
                 ],
                 "additionalProperties": false
               }
@@ -86873,7 +86889,7 @@
       "post": {
         "operationId": "runRoutine",
         "summary": "Run a routine now",
-        "description": "Starts an enabled schedule routine the caller owns immediately and returns the id of the queued run. Event routines and disabled routines answer 409; another owner's routine answers 403. Requires: update permission on routines.",
+        "description": "Starts an enabled schedule routine the caller owns immediately and returns the id of the queued run. Manual test runs use triggerKind schedule. Event routines, disabled routines and inactive owners answer 409; another owner's routine answers 403. Paused AI work answers 422 and exhausted credits answer 429 before a run is queued. Run history includes the error block reason when a queued run cannot start. Requires: update permission on routines.",
         "tags": [
           "routines"
         ],
@@ -114053,6 +114069,7 @@
                         "recordOperationFailed",
                         "recordOperationNotFound",
                         "recordOperationSettled",
+                        "recordTransactionEnded",
                         "recordProtected",
                         "recordMeasureDateIntervalInvalid",
                         "trashItemNotFound",
@@ -114061,6 +114078,7 @@
                         "agentConversationNotFound",
                         "agentLimitReached",
                         "agentServiceUnavailable",
+                        "routineAiWorkPaused",
                         "agentModelUnavailable",
                         "agentTurnAlreadyRunning",
                         "notAuthenticated",

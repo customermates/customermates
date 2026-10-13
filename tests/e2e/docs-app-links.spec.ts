@@ -1,6 +1,6 @@
 import { presetId } from "../../features/records/crm-preset";
+import { CONTENT_LOCALES } from "../../i18n/locale-registry";
 import { expect, test } from "./fixtures";
-
 
 test("opens a docs app link in the reader's own workspace", async ({ page, companyId }) => {
   const contacts = presetId(companyId, "contact");
@@ -14,6 +14,18 @@ test("opens a docs app link in the reader's own workspace", async ({ page, compa
     "data-focus-highlight",
     "",
   );
+});
+
+test("rendered Configure Deals links in both languages open and highlight the list", async ({ page, companyId }) => {
+  const dealId = presetId(companyId, "deal");
+  for (const locale of CONTENT_LOCALES) {
+    await page.goto(`/${locale}/docs/app-records`);
+    const link = page.locator(`a[href="/open/configure/deal"]`).first();
+    await expect(link).toBeVisible();
+    await link.click();
+    await expect(page).toHaveURL(/\/[a-z]{2}\/configure(?:\?|$)/);
+    await expect(page.locator(`[data-focus-target="list:${dealId}"]`)).toHaveAttribute("data-focus-highlight", "");
+  }
 });
 
 test("shows not found for an app link the resolver does not know", async ({ page }) => {

@@ -40,6 +40,7 @@
     "activity": {
       "approval": {
         "generic": "Pronto a eseguire una modifica che richiede la tua approvazione",
+        "genericPermanent": "Pronto a eliminare definitivamente {target}. L'azione è irreversibile.",
         "messages": {
           "discard": "Pronto a scartare la bozza",
           "draft": "Pronto a salvare una bozza",
@@ -471,7 +472,8 @@
       "policyBreach": "Il fornitore di IA ha superato il budget di crediti riservato, quindi l’esecuzione è stata interrotta. Non è stato avviato altro lavoro del provider.",
       "providerError": "Il fornitore di IA ha restituito un errore prima che potessi finire. Non è stato modificato altro. Riprova.",
       "sourcesHeading": "Fonti",
-      "turnError": "Non sono riuscito a completare la richiesta. Riprova."
+      "turnError": "Non sono riuscito a completare la richiesta. Riprova.",
+      "turnErrorWithTool": "Non sono riuscito a completare la richiesta. L'ultima azione non è riuscita: {reason}"
     },
     "send": "Invia",
     "stop": "Interrompi",
@@ -1159,6 +1161,7 @@
       "recordSavedViewIncompatible": "La vista salvata \"{viewName}\" ({viewId}) usa ancora \"{columnLabel}\" ({columnId}). Aggiorna o elimina quella vista, poi riprova.",
       "recordSchemaChanged": "Il modello dati è cambiato. Aggiorna la pagina e riprova.",
       "recordSublistNested": "Un sottoelenco non può avere sottoelenchi propri. Collega invece l'elenco all'elenco principale del sottoelenco.",
+      "recordTransactionEnded": "La modifica ha richiesto troppo tempo e non è stata salvata. Prova una modifica più piccola o contatta l'assistenza.",
       "recordTypeNotFound": "Questo tipo di record non è disponibile.",
       "recordValueInvalid": "Controlla i valori evidenziati del record.",
       "recordValueRequired": "{field} richiede un valore.",
@@ -1173,6 +1176,7 @@
       "roleSystemImmutable": "I ruoli di sistema non possono essere modificati.",
       "roleSystemRequired": "Almeno un utente deve essere amministratore di sistema.",
       "routineAdminRequired": "Solo un amministratore aziendale può sospendere o eliminare le routine.",
+      "routineAiWorkPaused": "Il lavoro dell’IA è stato sospeso da un amministratore. Riprova quando riprende.",
       "routineDeleteHasRunningRun": "Attendi il completamento dell’esecuzione attiva prima di eliminare questa routine.",
       "routineEditNotOwner": "Solo il proprietario può modificare la configurazione o l’attivazione di questa routine.",
       "routineLimitReached": "Il tuo piano include {limit} routine per utente. Passa a un piano con un limite più alto.",
@@ -4050,7 +4054,7 @@
     "useSchedulePreset": "Passa a una frequenza predefinita"
   },
   "RoutineRunReason": {
-    "adminPaused": "Un amministratore aziendale ha sospeso la routine",
+    "adminPaused": "Un amministratore aziendale ha sospeso la routine o il lavoro dell’IA",
     "agentAlreadyCompleted": "Questa esecuzione era già terminata",
     "agentAlreadyRunning": "L’assistente era già impegnato con un’altra esecuzione",
     "agentTurnConflict": "Un’altra esecuzione ha occupato per prima l’assistente",

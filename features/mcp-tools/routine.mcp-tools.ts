@@ -109,7 +109,7 @@ const ManageRoutinesOutputSchema = z
     started: z.boolean().optional(),
   })
   .describe(
-    "list returns items, total, page and pageSize; each item is a compact id, name, owner, trigger and enabled summary unless includePrompts is true. owner: mine limits the list to the caller. runs returns items and nextCursor; create, update and pause return the routine's id, name and enabled (false after pause); run_now returns started; delete returns deleted and id.",
+    "list returns items, total, page and pageSize; each item is a compact id, name, owner, trigger and enabled summary unless includePrompts is true. owner: mine limits the list to the caller. runs returns items with status, triggerKind and error block reason, plus nextCursor; create, update and pause return the routine's id, name and enabled (false after pause); run_now returns started on success or a specific failure before queuing; delete returns deleted and id.",
   );
 
 const IdSchema = z.object({ id: z.uuid() });
@@ -120,12 +120,12 @@ export const manageRoutinesTool = {
   description:
     "Use this to read, create, change or remove routines: saved instructions the assistant runs on a schedule or when a CRM event fires. " +
     "action list returns compact summaries (id, name, owner, trigger, enabled) by default; pass includePrompts: true for full configurations including prompts. Pass owner: 'mine' to limit results to routines you own; page, pageSize and searchTerm paginate and search. " +
-    "action runs returns one routine's run history newest first, paginated by cursor, each with its status, summary and trigger. " +
+    "action runs returns one routine's run history newest first, paginated by cursor, each with its status, summary, triggerKind and error block reason. " +
     "action create needs name, prompt and triggerKind, plus cronExpression for a schedule, or triggerEvents for an event. Record events (record.created, record.updated, record.deleted) also need recordTrigger for one list or recordSources for several lists; the query filters decide which records fire the routine, and record events can be combined with messaging events in one routine. " +
     "Omitting enabled on create produces a routine that is immediately LIVE and will start running, so pass enabled false to draft one. " +
     "action update changes only the fields supplied, but a change of triggerKind must arrive with that kind's schedule or events or validation fails. " +
     "action pause disables a routine and settles its queued runs to skipped; re-enabling restores the schedule but never those runs. Only an active system administrator may pause. " +
-    "action run_now starts a scheduled routine immediately; it is rejected for an event routine, for a routine the caller does not own, and for one that is not enabled. " +
+    "action run_now starts a scheduled routine immediately. Manual test runs still have triggerKind schedule. It refuses an event routine, another owner's routine, a disabled routine, paused AI work, an inactive owner or exhausted credits before queuing and reports the reason. " +
     "action delete moves the routine to Trash, where it stops running; restore it with manage_trash and the returned trashBatchId, and only deleting it permanently removes its history. " +
     "A routine whose owner has been deactivated cannot be enabled, and creating one may be refused when the owner has used their plan's per-user routine allowance.",
   annotations: {

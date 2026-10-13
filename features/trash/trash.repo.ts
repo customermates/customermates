@@ -23,6 +23,7 @@ export type TrashItemInput = Omit<TrashItem, "deletedAt" | "expiresAt" | "payloa
 export type TrashListQuery = {
   visibility: Prisma.Sql;
   kinds?: TrashKind[];
+  itemIds?: string[];
   typeIds?: string[];
   search?: string;
   sortDescriptor?: { field: "deletedAt"; direction: "asc" | "desc" };

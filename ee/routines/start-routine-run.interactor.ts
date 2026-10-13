@@ -9,6 +9,7 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 
 import { Resource, RoutineRunStatus } from "@/generated/prisma";
+import { env } from "@/env";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
@@ -59,7 +60,10 @@ function startFailureReason(error: z.ZodError): RoutineRunErrorCode | "startFail
 
 type StartRoutineRunData = Data<typeof Schema>;
 
-type StartRoutineRunOutcome = { started: boolean; reason?: StartRoutineRunReason };
+type StartRoutineRunOutcome = {
+  started: boolean;
+  reason?: StartRoutineRunReason;
+};
 
 @TenantInteractor({ resource: Resource.routines, read: true })
 export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRoutineRunData, StartRoutineRunOutcome> {
@@ -122,6 +126,22 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
 
     const routine = claim.routine;
 
+    if (env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED && env.HOSTED_AI_PROVIDER_WORK_PAUSED) {
+      await this.repo.settleRoutineRunUnscoped({
+        routineRunId: run.id,
+        routineId: routine.id,
+        expectedStatus: RoutineRunStatus.running,
+        status: RoutineRunStatus.blocked,
+        error: "adminPaused",
+        now,
+      });
+
+      return {
+        ok: true as const,
+        data: { started: false, reason: "adminPaused" },
+      };
+    }
+
     const blocked = await this.resolveBlockReason(routine, now);
     if (blocked) {
       await this.repo.settleRoutineRunUnscoped({
@@ -183,7 +203,13 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
 
     if (!sent.ok) {
       await this.conversations.deleteUnusedAgentConversation(conversationId);
-      const reason = startFailureReason(sent.error);
+      const failureReason = startFailureReason(sent.error);
+      const reason =
+        env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED &&
+        env.HOSTED_AI_PROVIDER_WORK_PAUSED &&
+        failureReason === "agentServiceUnavailable"
+          ? "adminPaused"
+          : failureReason;
       await this.repo.settleRoutineRunUnscoped({
         routineRunId: run.id,
         routineId: routine.id,
@@ -201,7 +227,10 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
         routineRunId: run.id,
         conversationId,
       });
-      return { ok: true as const, data: { started: false, reason: "agentAtCapacity" } };
+      return {
+        ok: true as const,
+        data: { started: false, reason: "agentAtCapacity" },
+      };
     }
 
     if (sent.data.disposition !== "run") {

@@ -69,9 +69,9 @@ Open a routine to see its **Runs**, newest first: next to the configuration on a
 | **Partial** | Stopped early, for example at the 10-credit cap or when a policy declined an action |
 | **Failed** | Ended with an error or without a usable result |
 | **Skipped** | Queued but not started: the routine was paused, the hourly cap was reached, the record no longer matched the filters or the owner's access, the trigger changed, the run was stopped, or the assistant was busy with another run |
-| **Blocked** | Mate could not start, for example because the owner is out of credits or no longer active |
+| **Blocked** | Mate could not start because AI work was paused by an administrator, the owner was out of credits or inactive, or another admission check failed. The run includes an `error` reason such as `adminPaused` or `agentLimitReached`. |
 
-**Test trigger** starts a real run immediately. It is available to the owner of an active scheduled routine without unsaved changes, uses AI credits and may change data. Event routines need a real matching event, so it is disabled for them.
+**Test trigger** starts a real run immediately. It is available to the owner of an active scheduled routine without unsaved changes, uses AI credits and may change data. Manual test runs have `triggerKind: schedule`, the kind of the routine they test. A test is refused before a run is queued when AI work is paused, the owner is inactive, or the owner has no credits left. Event routines need a real matching event, so it is disabled for them.
 
 ## What a routine may do without approval [#what-a-routine-may-do-without-approval]
 

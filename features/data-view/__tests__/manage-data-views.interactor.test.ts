@@ -737,8 +737,8 @@ describe("agent saved-view management", () => {
         action,
         surfaceKey: SURFACE.users,
         viewKey: MISSING_ID,
-        ...(action === "update" ? { name: "Missing" } : {}),
-      });
+        ...(action === "update" || action === "delete" ? { name: "Missing" } : {}),
+      } as never);
       expect(result.ok).toBe(false);
       if (!result.ok) expect(interactorFailureKind(result.error)).toBe("not_found");
       expect(subject.upsert.invoke).not.toHaveBeenCalled();
@@ -888,6 +888,7 @@ describe("agent saved-view management", () => {
       action: "delete",
       surfaceKey: SURFACE.users,
       viewKey: VIEW_ID,
+      name: "Existing",
     });
     expect(result.ok && result.data).toMatchObject({
       deleted: true,
@@ -895,6 +896,19 @@ describe("agent saved-view management", () => {
     });
     expect(subject.remove.invoke).toHaveBeenCalledWith({ id: VIEW_ID });
     expect(subject.select.invoke).not.toHaveBeenCalled();
+  });
+
+  it("refuses to delete a view when the supplied name belongs to a different view", async () => {
+    const subject = setup();
+    const result = await subject.run({
+      action: "delete",
+      surfaceKey: SURFACE.users,
+      viewKey: VIEW_ID,
+      name: "PB big proposals",
+    });
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(interactorFailureKind(result.error)).toBe("not_found");
+    expect(subject.remove.invoke).not.toHaveBeenCalled();
   });
 
   it("refuses a record list grouping by a multiple choice field and names the fields that can group it", async () => {
