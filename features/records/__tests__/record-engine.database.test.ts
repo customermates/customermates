@@ -161,6 +161,7 @@ const { RecordWidgetReader } = await import("@/features/widget/record-widget-rea
 const { UpsertRecordActivityWidgetInteractor } = await import("@/features/widget/record-activity-widget.interactor");
 const { RecordActivityWidgetReader } = await import("@/features/widget/record-activity-widget-reader");
 const { RecordActivityQuerySchema } = await import("@/ee/messaging/activities/record-activities.schema");
+const { createTestWorkspaceRegistration } = await import("@/tests/helpers/workspace-registration");
 
 const describeDatabase = getLocalDatabaseTestUrl() ? describe : describe.skip;
 const companies: string[] = [];
@@ -5492,6 +5493,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       } as never,
       new PrismaCompanyRepo(),
       new InitializeRecordModelService(f.repo),
+      createTestWorkspaceRegistration(),
     );
     const data = {
       email,

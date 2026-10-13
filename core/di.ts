@@ -205,6 +205,7 @@ import { GetUserDetailsInteractor } from "@/features/user/get/get-user-details.i
 import { GetUsersInteractor } from "@/features/user/get/get-users.interactor";
 import { ResolveUserOptionsInteractor } from "@/features/user/get/resolve-user-options.interactor";
 import { RegisterOnboardingProfileInteractor } from "@/features/user/register/register-onboarding-profile.interactor";
+import { WorkspaceRegistrationService } from "@/features/user/register/workspace-registration.service";
 import { RegisterUserInteractor } from "@/features/user/register/register-user.interactor";
 import { AdminUpdateUserDetailsInteractor } from "@/features/user/upsert/admin-update-user-details.interactor";
 import { UpdateTeamMemberInteractor } from "@/features/user/upsert/update-team-member.interactor";
@@ -904,6 +905,7 @@ export const getRegisterUserInteractor = () =>
     getRouteGuardService(),
     getCompanyRepo(),
     new InitializeRecordModelService(getRecordRepo()),
+    new WorkspaceRegistrationService(getCompanyRepo(), getRoleRepo(), getUserRepo()),
   );
 
 export const getRegisterOnboardingProfileInteractor = () =>

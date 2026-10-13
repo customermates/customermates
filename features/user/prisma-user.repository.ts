@@ -1,6 +1,5 @@
 import type { PermissionService } from "@/core/base/permission.service";
 import type { RecordMemberRepo } from "./record-member.repo";
-import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import type { RepoArgs } from "@/core/utils/types";
 import type { GetOnboardingWizardProgressRepo } from "@/features/onboarding-wizard/get-onboarding-wizard-progress.repo";
 import type { SaveOnboardingWizardProgressRepo } from "@/features/onboarding-wizard/save-onboarding-wizard-progress.repo";
@@ -27,7 +26,7 @@ import type { CountActiveUsersRepo } from "./count-active-users.repo";
 import type { ResolveUserOptionsRepo } from "./get/resolve-user-options.repo";
 import type { FindUserRepo } from "./find-user.repo";
 
-import { ConversionEventType, Status, SubscriptionStatus } from "@/generated/prisma";
+import { Status, SubscriptionStatus } from "@/generated/prisma";
 
 import { type UserDto } from "./user.schema";
 
@@ -38,7 +37,6 @@ import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
-import { env } from "@/env";
 
 export class PrismaUserRepo
   extends QueryRepository
@@ -312,41 +310,8 @@ export class PrismaUserRepo
     });
   }
 
-  @Transaction
-  async createCompanyAndUser(args: RepoArgs<RegisterUserRepo, "createCompanyAndUser">) {
+  async createCompanyOwnerOrThrow(args: RepoArgs<RegisterUserRepo, "createCompanyOwnerOrThrow">) {
     if (await this.prisma.user.findFirst({ where: { email: args.email } })) throw new Error("User already exists.");
-
-    const company = await this.prisma.company.create({ data: {} });
-
-    const adminRole = await this.prisma.userRole.create({
-      data: {
-        name: "Admin",
-        description: "Full access to all features and settings",
-        isSystemRole: true,
-        companyId: company.id,
-      },
-    });
-
-    const trialEndDate = new Date();
-    trialEndDate.setDate(trialEndDate.getDate() + CLOUD_TRIAL.days);
-
-    await this.prisma.subscription.create({
-      data:
-        env.APP_MODE !== "self-hosted"
-          ? {
-              companyId: company.id,
-              status: SubscriptionStatus.trial,
-              plan: CLOUD_TRIAL.plan,
-              trialEndDate,
-              agentCreditAnchorAt: new Date(),
-            }
-          : {
-              companyId: company.id,
-              status: SubscriptionStatus.active,
-              trialEndDate: null,
-              agentCreditAnchorAt: new Date(),
-            },
-    });
 
     const user = await this.prisma.user.create({
       data: {
@@ -357,19 +322,17 @@ export class PrismaUserRepo
         avatarUrl: args.avatarUrl,
         country: args.country,
         status: Status.active,
-        companyId: company.id,
-        roleId: adminRole.id,
+        companyId: args.companyId,
+        roleId: args.roleId,
         lastActiveAt: new Date(),
         agentCreditActivatedAt: new Date(),
       },
     });
 
-    const attributions = args.adAttribution ?? [];
-
-    for (const attribution of attributions) {
+    for (const attribution of args.adAttribution ?? []) {
       await this.prisma.adAttribution.create({
         data: {
-          companyId: company.id,
+          companyId: args.companyId,
           userId: user.id,
           provider: attribution.provider,
           identifierKind: attribution.identifierKind,
@@ -383,18 +346,12 @@ export class PrismaUserRepo
       });
     }
 
-    if (attributions.length > 0) {
-      await this.prisma.conversionEvent.create({
-        data: { companyId: company.id, type: ConversionEventType.signup, occurredAt: user.createdAt },
-      });
-    }
-
     const tenantUser = await this.prisma.user.findUniqueOrThrow({
       where: { id: user.id },
       select: this.tenantUserSelect,
     });
 
-    return tenantUser;
+    return { user: tenantUser, createdAt: user.createdAt };
   }
 
   async clearAdAttributionForUser(args: { userId: string }) {

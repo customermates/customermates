@@ -16,6 +16,9 @@ import type { GetOrCreateInviteTokenRepo } from "./get-or-create-invite-token.re
 
 import { ConversionEventType, SubscriptionStatus } from "@/generated/prisma";
 
+import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
+import { env } from "@/env";
+
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
@@ -154,6 +157,39 @@ export class PrismaCompanyRepo
     });
 
     return subscription;
+  }
+
+  async createRegisteredCompany() {
+    const company = await this.prisma.company.create({ data: {} });
+
+    const trialEndDate = new Date();
+    trialEndDate.setDate(trialEndDate.getDate() + CLOUD_TRIAL.days);
+
+    await this.prisma.subscription.create({
+      data:
+        env.APP_MODE !== "self-hosted"
+          ? {
+              companyId: company.id,
+              status: SubscriptionStatus.trial,
+              plan: CLOUD_TRIAL.plan,
+              trialEndDate,
+              agentCreditAnchorAt: new Date(),
+            }
+          : {
+              companyId: company.id,
+              status: SubscriptionStatus.active,
+              trialEndDate: null,
+              agentCreditAnchorAt: new Date(),
+            },
+    });
+
+    return company.id;
+  }
+
+  async recordSignupConversion(companyId: string, occurredAt: Date) {
+    await this.prisma.conversionEvent.create({
+      data: { companyId, type: ConversionEventType.signup, occurredAt },
+    });
   }
 
   @BypassTenantGuard

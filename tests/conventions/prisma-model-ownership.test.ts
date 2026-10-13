@@ -99,7 +99,6 @@ const OWNERS: Record<string, string> = {
 
 const OPERATOR_DELETION =
   "Operator console workspace deletion and account administration remove or rewrite rows across a workspace";
-const REGISTRATION = "Registration creates the company, its system role, subscription and first user in one transaction";
 
 const ALLOWLIST: Record<string, string> = {
   "AgentConversation ee/routines/prisma-routine.repository.ts":
@@ -108,8 +107,6 @@ const ALLOWLIST: Record<string, string> = {
   "AuthUser ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
   "AuthVerification ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
   "Company ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "Company features/user/prisma-user.repository.ts": REGISTRATION,
-  "ConversionEvent features/user/prisma-user.repository.ts": REGISTRATION,
   "CrmRecord ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
   "InviteToken ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
   "MessagingInboundEvent ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
@@ -117,12 +114,10 @@ const ALLOWLIST: Record<string, string> = {
   "RoutineRun ee/agent-chat/prisma-agent-chat.repository.ts":
     "Agent turn admission and retry release link or unlink the routine run to its conversation in the turn transaction",
   "Subscription ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "Subscription features/user/prisma-user.repository.ts": REGISTRATION,
   "User core/auth/better-auth.ts": "The authentication session-creation hook stamps lastActiveAt on the signed-in user row",
   "User ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "UserRole features/user/prisma-user.repository.ts": REGISTRATION,
 };
-const ALLOWLIST_CEILING = 17;
+const ALLOWLIST_CEILING = 13;
 
 type WriteSite = { model: string; file: string; line: number; operation: string };
 
