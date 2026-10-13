@@ -128,6 +128,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
 
     if (!isAiManageableDataViewSurface(data.surfaceKey))
       return failAuthorization(CustomErrorCode.permissionDenied, ["surfaceKey"]);
+
     const denied = await this.accessDenied(data.surfaceKey);
     if (denied) return denied;
     const descriptor: SurfaceDescriptor = isRecordDataViewSurface(data.surfaceKey)
@@ -167,7 +168,11 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
                 ? Object.values(DomainEvent)
                 : undefined);
         const description = filterFieldAgentNote(field.field);
-        return { ...field, ...(values ? { values } : {}), ...(description ? { description } : {}) };
+        return {
+          ...field,
+          ...(values ? { values } : {}),
+          ...(description ? { description } : {}),
+        };
       });
       const sortableFields = [...config.sortableFields.map(({ field }) => ({ field }))];
       const groupableFields = config.groupableDtos;
@@ -356,8 +361,9 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
       };
     }
     if (data.action === "delete") {
-      if (!owned || (data.name !== undefined && owned.name !== data.name))
-        return failNotFound(CustomErrorCode.dataViewNotFound, ["name"]);
+      if (!owned) return failNotFound(CustomErrorCode.dataViewNotFound, ["viewKey"]);
+      if (data.name !== undefined && owned.name !== data.name)
+        return fail(CustomErrorCode.dataViewNameMismatch, ["name"]);
       const result = await this.remove.invoke({ id: data.viewKey });
       if (!result.ok) return result;
       return {
@@ -442,6 +448,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
     const savedAllState = result.data;
     if (!("state" in savedAllState))
       throw new Error("SaveDataViewStateInteractor returned a named-view result while saving the All view");
+
     return {
       ok: true,
       data: {
@@ -504,8 +511,16 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
         sortableFields: [
           ...columns
             .filter((column) => column.sortable)
-            .map((column) => ({ field: column.id, resolvedFields: [column.id], label: column.label })),
-          { field: MANUAL_ORDER_SORT_KEY, resolvedFields: [MANUAL_ORDER_SORT_KEY], label: "Manual" },
+            .map((column) => ({
+              field: column.id,
+              resolvedFields: [column.id],
+              label: column.label,
+            })),
+          {
+            field: MANUAL_ORDER_SORT_KEY,
+            resolvedFields: [MANUAL_ORDER_SORT_KEY],
+            label: "Manual",
+          },
         ],
         groupableFields: [] as GroupableFieldSpec[],
         groupableDtos: fields
@@ -587,6 +602,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           : null;
       if (groupable)
         return fail(CustomErrorCode.invalidGroupingField, ["state", "grouping"], { validValues: groupable.join(", ") });
+
       const invalid =
         (await this.recordViews?.validate(surfaceKey, state)) ??
         (this.recordViews ? null : CustomErrorCode.permissionDenied);
@@ -637,7 +653,10 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           ctx.addIssue({
             code: "custom",
             path: [key],
-            params: { error: CustomErrorCode.invalidFilterField, validValues: [...columnIds].join(", ") },
+            params: {
+              error: CustomErrorCode.invalidFilterField,
+              validValues: [...columnIds].join(", "),
+            },
           });
         }
       }

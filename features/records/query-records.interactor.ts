@@ -45,6 +45,14 @@ export class QueryRecordsInteractor extends AuthenticatedInteractor<RecordQuery,
           );
           return fail(CustomErrorCode.recordValueInvalid, index < 0 ? [invalid] : [invalid, index]);
         }
+        if (invalid === "fields") {
+          const fieldId = query.fields?.find(
+            (id) => !model.fields.some((field) => field.id === id && field.typeId === query.typeId && !field.archived),
+          );
+          return fail(CustomErrorCode.recordQueryFieldUnknown, ["fields"], {
+            fieldId: fieldId ?? "",
+          });
+        }
         if (invalid) return fail(CustomErrorCode.recordValueInvalid, [invalid]);
         const result = await this.records.query(query, model, access, policy.memberScope);
         const identities =

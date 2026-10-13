@@ -295,6 +295,7 @@ export interface RecordRepo {
     kind: string,
     payload: unknown,
     beforeDeletion?: boolean,
+    publish?: boolean,
   ): Promise<void>;
   createOperation(request: {
     id: string;

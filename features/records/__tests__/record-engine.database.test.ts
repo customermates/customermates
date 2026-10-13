@@ -421,6 +421,31 @@ async function subscribeRecordEvents(
 }
 
 describeDatabase("configurable record engine", { timeout: 30000 }, () => {
+  it("names an unknown requested field in a record query", async () => {
+    const f = await fixture();
+    const fieldId = randomUUID();
+    const result = await f.run(() =>
+      f.query.invoke(
+        RecordQuerySchema.parse({
+          typeId: f.id("deal"),
+          fields: [fieldId],
+          filters: [],
+        }),
+      ),
+    );
+    expect(result).toMatchObject({
+      ok: false,
+      error: {
+        issues: [
+          expect.objectContaining({
+            path: ["fields"],
+            params: { error: CustomErrorCode.recordQueryFieldUnknown, fieldId },
+          }),
+        ],
+      },
+    });
+  });
+
   it("atomically bulk-updates live prices, recalculates a shared deal once, and retries without duplicate events", async () => {
     const f = await fixture();
     const a = await f.create("service", "A", [["service.amount", decimal("100")]]);
@@ -4548,6 +4573,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             where: { companyId: f.company.id, subscriptionId: subscription.id },
           }),
         );
+      const historyEvents = (causeId: string) =>
+        f.run(() =>
+          prisma.eventLog.count({
+            where: { companyId: f.company.id, causeId, subjectKind: "record", kind: "record.updated" },
+          }),
+        );
       const recordIds = Array.from({ length: 501 }, () => randomUUID());
       await f.run(() =>
         runInTransaction(async () => {
@@ -4684,7 +4715,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       );
       expect(values).toHaveLength(501);
-      expect(await matches()).toBe(501);
+      expect(await historyEvents(retried.idempotencyKey)).toBe(501);
+      expect(await matches()).toBe(0);
       expect(
         values.every(
           (value) => value.decimalValue?.toString() === "3" && value.currency === "EUR" && value.schemaRevision === 2,
@@ -4694,7 +4726,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         done: true,
       });
       expect(await revisions()).toEqual(acceptedRevisions);
-      expect(await matches()).toBe(501);
+      expect(await historyEvents(retried.idempotencyKey)).toBe(501);
+      expect(await matches()).toBe(0);
     },
   );
 
@@ -15087,6 +15120,10 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       );
       if (!accepted.ok || accepted.data.status !== "pending") throw new Error("Configuration was not staged");
       const operationId = accepted.data.operationId;
+      expect(await f.run(() => f.status.invoke({ operationId }))).toMatchObject({
+        ok: true,
+        data: { state: "pending", retryAfterMs: 5000 },
+      });
       let done = false;
       let processed = 0;
       for (let step = 0; step < 200 && !done; step++) {
@@ -15103,6 +15140,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
       const status = await f.run(() => f.status.invoke({ operationId }));
       if (!status.ok) throw new Error("Operation status failed");
       expect(status.data.state).toBe("completed");
+      expect(status.data.retryAfterMs).toBeNull();
       expect(status.data.total).toBe(status.data.processed);
       const field = recordInvariant(
         (await f.run(() => f.repo.getModel())).fields.find((entry) => entry.label === "Replay label"),

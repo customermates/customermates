@@ -132,13 +132,13 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
         routineId: routine.id,
         expectedStatus: RoutineRunStatus.running,
         status: RoutineRunStatus.blocked,
-        error: "adminPaused",
+        error: "platformPaused",
         now,
       });
 
       return {
         ok: true as const,
-        data: { started: false, reason: "adminPaused" },
+        data: { started: false, reason: "platformPaused" },
       };
     }
 
@@ -208,7 +208,7 @@ export class StartRoutineRunInteractor extends AuthenticatedInteractor<StartRout
         env.HOSTED_AI_OPERATOR_CONTROLS_ENABLED &&
         env.HOSTED_AI_PROVIDER_WORK_PAUSED &&
         failureReason === "agentServiceUnavailable"
-          ? "adminPaused"
+          ? "platformPaused"
           : failureReason;
       await this.repo.settleRoutineRunUnscoped({
         routineRunId: run.id,

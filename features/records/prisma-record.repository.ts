@@ -884,7 +884,7 @@ export class PrismaRecordRepo
     const kinds = { type: "list", field: "field", relationship: "relationship" } as const;
     await this.owners.trash.addItemsCompanyWide(
       this.companyId,
-      change.deletions.map(({ target }) => {
+      change.deletions.map(({ target, droppedViewReferences }) => {
         const reference = deletionReference(model, target);
         return {
           id: randomUUID(),
@@ -894,6 +894,7 @@ export class PrismaRecordRepo
           label: reference.label,
           batchId,
           deletedById: actorId,
+          ...(droppedViewReferences?.length ? { payload: { droppedViewReferences } } : {}),
         };
       }),
     );
@@ -1811,6 +1812,7 @@ export class PrismaRecordRepo
     kind: string,
     payload: unknown,
     beforeDeletion = false,
+    publish = true,
   ): Promise<void> {
     const id = randomUUID();
     await this.owners.events.appendRecordEventCompanyWide(this.companyId, {
@@ -1821,8 +1823,10 @@ export class PrismaRecordRepo
       kind,
       payload: recordJson(payload),
     });
-    await this.captureRecordEventMatches(this.companyId, { eventId: id }, beforeDeletion);
-    await this.wakeRecordEvents();
+    if (publish) {
+      await this.captureRecordEventMatches(this.companyId, { eventId: id }, beforeDeletion);
+      await this.wakeRecordEvents();
+    }
   }
 
   async deleteMembershipAuthorizationTasksCompanyWide(companyId: string, relatedUserId: string): Promise<void> {
@@ -2291,7 +2295,8 @@ export class PrismaRecordRepo
         ? Prisma.sql`event.id = ${selection.eventId}`
         : Prisma.sql`EXISTS (SELECT 1 FROM "RecordStageRow" stage
           WHERE stage."companyId" = ${companyId} AND stage."operationId" = ${selection.operationId}
-            AND stage.kind = 'event' AND stage.payload->>'id' = event.id)`;
+            AND stage.kind = 'event' AND stage.payload->>'id' = event.id
+            AND COALESCE((stage.payload->>'publish')::boolean, TRUE))`;
     const [model, grants, types] = await Promise.all([
       this.getModel(),
       this.getGrants(),

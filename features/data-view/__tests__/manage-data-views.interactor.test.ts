@@ -907,7 +907,12 @@ describe("agent saved-view management", () => {
       name: "PB big proposals",
     });
     expect(result.ok).toBe(false);
-    if (!result.ok) expect(interactorFailureKind(result.error)).toBe("not_found");
+    if (!result.ok) {
+      expect(interactorFailureKind(result.error)).toBe("validation");
+      expect(result.error.issues).toEqual(
+        expect.arrayContaining([expect.objectContaining({ params: { error: CustomErrorCode.dataViewNameMismatch } })]),
+      );
+    }
     expect(subject.remove.invoke).not.toHaveBeenCalled();
   });
 

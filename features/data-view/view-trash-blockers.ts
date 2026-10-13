@@ -4,6 +4,7 @@ import type { TrashItem } from "@/features/trash/trash.repo";
 import type { TrashRestoreBlocker } from "@/features/trash/trash.schema";
 import type { TrashRestoreBlockerSource } from "@/features/trash/trash-restore-blocker-source";
 import type { DroppedViewReferences } from "@/features/trash/trash.schema";
+import type { TrashRepo } from "@/features/trash/trash.repo";
 
 import { getTenantUser } from "@/core/decorators/tenant-context";
 import { cleanRecordViewState } from "@/features/records/record-view-state";
@@ -12,6 +13,7 @@ export class ViewTrashBlockers implements TrashRestoreBlockerSource {
   constructor(
     private records: Pick<RecordRepo, "getModel">,
     private views: Pick<RecordViewConfigurationRepo, "getRecordViewStatesByIds" | "rewriteViewStateCompanyWide">,
+    private trash?: Pick<TrashRepo, "droppedViewReferences">,
   ) {}
 
   async restoreReferences(ids: string[]): Promise<DroppedViewReferences[]> {
@@ -42,7 +44,25 @@ export class ViewTrashBlockers implements TrashRestoreBlockerSource {
         ),
       });
     }
-    return dropped.filter((entry) => entry.filters || entry.columns || entry.sort || entry.grouping);
+    const prior = (await this.trash?.droppedViewReferences(ids)) ?? [];
+    const byView = new Map<string, DroppedViewReferences>();
+    for (const entry of [...dropped, ...prior]) {
+      if (!entry.filters && !entry.columns && !entry.sort && !entry.grouping) continue;
+      const previous = byView.get(entry.viewId);
+      byView.set(
+        entry.viewId,
+        previous
+          ? {
+              viewId: entry.viewId,
+              filters: previous.filters + entry.filters,
+              columns: previous.columns + entry.columns,
+              sort: previous.sort || entry.sort,
+              grouping: previous.grouping || entry.grouping,
+            }
+          : entry,
+      );
+    }
+    return [...byView.values()];
   }
 
   async blockers(items: TrashItem[]): Promise<TrashRestoreBlocker[]> {

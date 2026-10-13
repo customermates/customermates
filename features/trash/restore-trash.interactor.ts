@@ -39,14 +39,23 @@ export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrash
           await trashVisibility(this.handlers),
         );
         let operationId: string | null = null;
+        const droppedViewReferences: NonNullable<TrashRestoreResult["droppedViewReferences"]> = [];
         for (const group of itemsByHandler(this.handlers, items)) {
           if (group.handler.restoreInBackground) operationId = await group.handler.restoreInBackground(group.items);
-          else operationId = (await group.handler.restore(group.items)).operationId ?? operationId;
+          else {
+            const restored = await group.handler.restore(group.items);
+            operationId = restored.operationId ?? operationId;
+            droppedViewReferences.push(...(restored.droppedViewReferences ?? []));
+          }
         }
         if (!operationId) return result;
         return {
           ok: true as const,
-          data: { status: "pending" as const, operationId },
+          data: {
+            status: "pending" as const,
+            operationId,
+            ...(droppedViewReferences.length ? { droppedViewReferences } : {}),
+          },
         };
       },
       { timeout: RESTORE_TIMEOUT_MS },
@@ -77,6 +86,9 @@ export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrash
               data: {
                 status: "pending" as const,
                 operationId: restored.operationId,
+                ...(restored.droppedViewReferences?.length
+                  ? { droppedViewReferences: restored.droppedViewReferences }
+                  : {}),
               },
             };
           }

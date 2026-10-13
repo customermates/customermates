@@ -87,6 +87,9 @@ export class ApplyRecordConfigurationInteractor extends AuthenticatedInteractor<
             status: "pending",
             operationId,
             schemaRevision: current.revision,
+            ...(prepared.preview.deletion?.cleaned.length
+              ? { deletionCleaned: prepared.preview.deletion.cleaned }
+              : {}),
           };
         } else {
           const journal = new RecordJournal(this.records, current);
@@ -100,8 +103,13 @@ export class ApplyRecordConfigurationInteractor extends AuthenticatedInteractor<
             refs: [],
             references: prepared.preview.references,
             schemaRevision: prepared.model.revision,
+            ...(prepared.preview.deletion?.cleaned.length
+              ? { deletionCleaned: prepared.preview.deletion.cleaned }
+              : {}),
             ...(prepared.change.deletions?.length
-              ? { trashBatchId: configurationTrashBatchId(this.companyId, input.idempotencyKey) }
+              ? {
+                  trashBatchId: configurationTrashBatchId(this.companyId, input.idempotencyKey),
+                }
               : {}),
           };
         }

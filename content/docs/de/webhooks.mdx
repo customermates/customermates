@@ -120,7 +120,7 @@ Eine echte Datensatzänderung enthält außerdem Zuweisungen, Identitäten, Änd
 
 `data.record.fields` listet geänderte Felder mit Werten für `before` und `after`; `data.record.links`, `data.record.assignments` und `data.record.identities` beschreiben weitere geänderte Verbindungen. `data.record.beforeVersion` und `data.record.afterVersion` bezeichnen die Datensatzversionen. Ein fehlender oder eingeschränkter Wert ist nicht dasselbe wie 0.
 
-Änderungen ohne Wirkung erzeugen kein `record.updated`-Ereignis. Der Payload wird bei der Zustellung gemäß den aktuellen Datensatz- und Berechnungsfeldrechten des Webhook-Eigentümers redigiert.
+Änderungen ohne Wirkung erzeugen kein `record.updated`-Ereignis. Änderungen am Datenmodell können gespeicherte Werte vieler Datensätze neu berechnen. Diese Konfigurationsänderungen bleiben im Datensatzverlauf, erzeugen aber keine Webhook-Zustellung je Datensatz und lösen keine Ereignisroutine aus. Eine spätere Änderung durch einen Benutzer oder die API erzeugt ihr übliches Ereignis. Der Payload wird bei der Zustellung gemäß den aktuellen Datensatz- und Berechnungsfeldrechten des Webhook-Eigentümers redigiert.
 
 ## Eigene Header und Body-Vorlagen [#custom-headers-and-body-templates]
 

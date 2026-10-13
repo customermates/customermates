@@ -10,7 +10,13 @@ import messages from "@/i18n/locales/en.json";
 vi.mock("next-intl/server", () => ({
   getLocale: () => Promise.resolve("en"),
   getTranslations: (namespace?: string) =>
-    Promise.resolve(createTranslator({ locale: "en", messages, namespace: namespace as never })),
+    Promise.resolve(
+      createTranslator({
+        locale: "en",
+        messages,
+        namespace: namespace as never,
+      }),
+    ),
 }));
 vi.mock("@/env", () => ({
   env: {
@@ -214,7 +220,7 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
 
     expect(await getStartRoutineRunInteractor().invoke({ routineRunId: queuedId })).toEqual({
       ok: true,
-      data: { started: false, reason: "adminPaused" },
+      data: { started: false, reason: "platformPaused" },
     });
     expect(
       await runWithoutTenant(() =>
@@ -223,10 +229,10 @@ describeDatabase("manage_routines against a real database", { timeout: 120_000 }
           select: { status: true, error: true },
         }),
       ),
-    ).toMatchObject({ status: "blocked", error: "adminPaused" });
+    ).toMatchObject({ status: "blocked", error: "platformPaused" });
     const runs = await run({ action: "runs", id });
     expect(runs.structured.items).toEqual(
-      expect.arrayContaining([expect.objectContaining({ id: queuedId, error: "adminPaused" })]),
+      expect.arrayContaining([expect.objectContaining({ id: queuedId, error: "platformPaused" })]),
     );
 
     Object.assign(env, {

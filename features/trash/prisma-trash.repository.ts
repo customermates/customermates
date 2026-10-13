@@ -14,6 +14,7 @@ import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { TRASH_RETENTION_DAYS } from "./trash-retention";
 import { TRASH_ITEM_ALIAS } from "./trash-item-alias";
+import { DroppedViewReferencesSchema, type DroppedViewReferences } from "./trash.schema";
 
 type TrashItemRow = Omit<TrashItem, "payload"> & { payload: Prisma.JsonValue };
 
@@ -64,7 +65,9 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo, Expi
 
   async removeItemsCompanyWide(companyId: string, ids: string[]): Promise<void> {
     if (!ids.length) return;
-    await this.prisma.trashItem.deleteMany({ where: { companyId, id: { in: ids } } });
+    await this.prisma.trashItem.deleteMany({
+      where: { companyId, id: { in: ids } },
+    });
   }
 
   async findItemsCompanyWide(companyId: string, filter: TrashItemFilter) {
@@ -98,6 +101,7 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo, Expi
     if (query.typeIds?.length) conditions.push(Prisma.sql`${item}."typeId" IN (${Prisma.join(query.typeIds)})`);
     if (query.search)
       conditions.push(Prisma.sql`${item}.label ILIKE ${`%${query.search.replace(/[\\%_]/g, "\\$&")}%`}`);
+
     return Prisma.join(conditions, " AND ");
   }
 
@@ -156,7 +160,10 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo, Expi
   @BypassTenantGuard
   async findExpiredTrashCompaniesUnscoped(now: Date, after: string | null, limit: number): Promise<string[]> {
     const due = await this.prisma.trashItem.findMany({
-      where: { expiresAt: { lte: now }, ...(after ? { companyId: { gt: after } } : {}) },
+      where: {
+        expiresAt: { lte: now },
+        ...(after ? { companyId: { gt: after } } : {}),
+      },
       distinct: ["companyId"],
       orderBy: { companyId: "asc" },
       take: limit,
@@ -177,5 +184,42 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo, Expi
       where: { companyId: this.companyId, id },
       data: { payload: { ...payload, purgeOperationId: operationId } },
     });
+  }
+
+  async droppedViewReferences(viewIds: string[]): Promise<DroppedViewReferences[]> {
+    if (!viewIds.length) return [];
+    const rows = await this.prisma.trashItem.findMany({
+      where: {
+        companyId: this.companyId,
+        kind: { in: ["field", "list", "relationship"] },
+        payload: { not: Prisma.DbNull },
+      },
+      select: { payload: true },
+    });
+    const wanted = new Set(viewIds);
+    const dropped = new Map<string, DroppedViewReferences>();
+    for (const row of rows) {
+      if (!row.payload || typeof row.payload !== "object" || Array.isArray(row.payload)) continue;
+      const payload = row.payload as Record<string, unknown>;
+      if (!Array.isArray(payload.droppedViewReferences)) continue;
+      for (const candidate of payload.droppedViewReferences) {
+        const parsed = DroppedViewReferencesSchema.safeParse(candidate);
+        if (!parsed.success || !wanted.has(parsed.data.viewId)) continue;
+        const previous = dropped.get(parsed.data.viewId);
+        dropped.set(
+          parsed.data.viewId,
+          previous
+            ? {
+                viewId: parsed.data.viewId,
+                filters: previous.filters + parsed.data.filters,
+                columns: previous.columns + parsed.data.columns,
+                sort: previous.sort || parsed.data.sort,
+                grouping: previous.grouping || parsed.data.grouping,
+              }
+            : parsed.data,
+        );
+      }
+    }
+    return [...dropped.values()];
   }
 }

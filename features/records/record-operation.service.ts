@@ -373,6 +373,9 @@ export class RecordOperationService extends UserAccessor {
               status: "completed",
               refs: [],
               schemaRevision: model.revision,
+              ...(prepared?.preview.deletion?.cleaned.length
+                ? { deletionCleaned: prepared.preview.deletion.cleaned }
+                : {}),
               ...(trashed && !permanent ? { trashBatchId: operationId } : {}),
               ...(prepared?.change.deletions?.length
                 ? {

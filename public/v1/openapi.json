@@ -35499,6 +35499,147 @@
                           "format": "uuid",
                           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                         },
+                        "deletionCleaned": {
+                          "description": "Data model deletion only: views, layouts and widgets changed automatically.",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "consumer": {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "type",
+                                      "field",
+                                      "relationship",
+                                      "routine",
+                                      "webhook",
+                                      "widget",
+                                      "view",
+                                      "personalLayout",
+                                      "detailLayout"
+                                    ]
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "typeId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "id",
+                                  "label"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "target": {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "type",
+                                      "field",
+                                      "relationship",
+                                      "routine",
+                                      "webhook",
+                                      "widget",
+                                      "view",
+                                      "personalLayout",
+                                      "detailLayout"
+                                    ]
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "typeId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "id",
+                                  "label"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "replacement": {
+                                "description": "For a deleted name field: the field that now names the records, or null when none is left.",
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": {
+                                        "type": "string",
+                                        "enum": [
+                                          "type",
+                                          "field",
+                                          "relationship",
+                                          "routine",
+                                          "webhook",
+                                          "widget",
+                                          "view",
+                                          "personalLayout",
+                                          "detailLayout"
+                                        ]
+                                      },
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "typeId": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      },
+                                      "label": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "kind",
+                                      "id",
+                                      "label"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "effect": {
+                                "description": "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
+                                "type": "string",
+                                "enum": [
+                                  "countsRecords",
+                                  "triggerChanged",
+                                  "webhookPaused",
+                                  "avatar",
+                                  "calendar"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "consumer",
+                              "target"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
                         "restore": {
                           "type": "object",
                           "properties": {
@@ -35605,6 +35746,146 @@
                           "type": "integer",
                           "minimum": -9007199254740991,
                           "maximum": 9007199254740991
+                        },
+                        "deletionCleaned": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "consumer": {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "type",
+                                      "field",
+                                      "relationship",
+                                      "routine",
+                                      "webhook",
+                                      "widget",
+                                      "view",
+                                      "personalLayout",
+                                      "detailLayout"
+                                    ]
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "typeId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "id",
+                                  "label"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "target": {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "type",
+                                      "field",
+                                      "relationship",
+                                      "routine",
+                                      "webhook",
+                                      "widget",
+                                      "view",
+                                      "personalLayout",
+                                      "detailLayout"
+                                    ]
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "typeId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "id",
+                                  "label"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "replacement": {
+                                "description": "For a deleted name field: the field that now names the records, or null when none is left.",
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": {
+                                        "type": "string",
+                                        "enum": [
+                                          "type",
+                                          "field",
+                                          "relationship",
+                                          "routine",
+                                          "webhook",
+                                          "widget",
+                                          "view",
+                                          "personalLayout",
+                                          "detailLayout"
+                                        ]
+                                      },
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "typeId": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      },
+                                      "label": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "kind",
+                                      "id",
+                                      "label"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "effect": {
+                                "description": "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
+                                "type": "string",
+                                "enum": [
+                                  "countsRecords",
+                                  "triggerChanged",
+                                  "webhookPaused",
+                                  "avatar",
+                                  "calendar"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "consumer",
+                              "target"
+                            ],
+                            "additionalProperties": false
+                          }
                         }
                       },
                       "required": [
@@ -41489,6 +41770,147 @@
                           "format": "uuid",
                           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                         },
+                        "deletionCleaned": {
+                          "description": "Data model deletion only: views, layouts and widgets changed automatically.",
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "consumer": {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "type",
+                                      "field",
+                                      "relationship",
+                                      "routine",
+                                      "webhook",
+                                      "widget",
+                                      "view",
+                                      "personalLayout",
+                                      "detailLayout"
+                                    ]
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "typeId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "id",
+                                  "label"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "target": {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "type",
+                                      "field",
+                                      "relationship",
+                                      "routine",
+                                      "webhook",
+                                      "widget",
+                                      "view",
+                                      "personalLayout",
+                                      "detailLayout"
+                                    ]
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "typeId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "id",
+                                  "label"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "replacement": {
+                                "description": "For a deleted name field: the field that now names the records, or null when none is left.",
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": {
+                                        "type": "string",
+                                        "enum": [
+                                          "type",
+                                          "field",
+                                          "relationship",
+                                          "routine",
+                                          "webhook",
+                                          "widget",
+                                          "view",
+                                          "personalLayout",
+                                          "detailLayout"
+                                        ]
+                                      },
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "typeId": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      },
+                                      "label": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "kind",
+                                      "id",
+                                      "label"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "effect": {
+                                "description": "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
+                                "type": "string",
+                                "enum": [
+                                  "countsRecords",
+                                  "triggerChanged",
+                                  "webhookPaused",
+                                  "avatar",
+                                  "calendar"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "consumer",
+                              "target"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
                         "restore": {
                           "type": "object",
                           "properties": {
@@ -41595,6 +42017,146 @@
                           "type": "integer",
                           "minimum": -9007199254740991,
                           "maximum": 9007199254740991
+                        },
+                        "deletionCleaned": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "consumer": {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "type",
+                                      "field",
+                                      "relationship",
+                                      "routine",
+                                      "webhook",
+                                      "widget",
+                                      "view",
+                                      "personalLayout",
+                                      "detailLayout"
+                                    ]
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "typeId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "id",
+                                  "label"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "target": {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "enum": [
+                                      "type",
+                                      "field",
+                                      "relationship",
+                                      "routine",
+                                      "webhook",
+                                      "widget",
+                                      "view",
+                                      "personalLayout",
+                                      "detailLayout"
+                                    ]
+                                  },
+                                  "id": {
+                                    "type": "string"
+                                  },
+                                  "typeId": {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "id",
+                                  "label"
+                                ],
+                                "additionalProperties": false
+                              },
+                              "replacement": {
+                                "description": "For a deleted name field: the field that now names the records, or null when none is left.",
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {
+                                      "kind": {
+                                        "type": "string",
+                                        "enum": [
+                                          "type",
+                                          "field",
+                                          "relationship",
+                                          "routine",
+                                          "webhook",
+                                          "widget",
+                                          "view",
+                                          "personalLayout",
+                                          "detailLayout"
+                                        ]
+                                      },
+                                      "id": {
+                                        "type": "string"
+                                      },
+                                      "typeId": {
+                                        "type": "string",
+                                        "format": "uuid",
+                                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                      },
+                                      "label": {
+                                        "type": "string"
+                                      }
+                                    },
+                                    "required": [
+                                      "kind",
+                                      "id",
+                                      "label"
+                                    ],
+                                    "additionalProperties": false
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
+                              "effect": {
+                                "description": "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
+                                "type": "string",
+                                "enum": [
+                                  "countsRecords",
+                                  "triggerChanged",
+                                  "webhookPaused",
+                                  "avatar",
+                                  "calendar"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "consumer",
+                              "target"
+                            ],
+                            "additionalProperties": false
+                          }
                         }
                       },
                       "required": [
@@ -42075,7 +42637,7 @@
     "/v1/trash/restore": {
       "post": {
         "operationId": "restoreTrash",
-        "summary": "Restore Trash items, or every item of one delete by batchId. For restored saved views, droppedViewReferences lists filters, columns, sort and grouping removed because a referenced field remains in Trash; restore the field first to preserve them.",
+        "summary": "Restore Trash items, or every item of one delete by batchId. Restoring a field or saved view reports filters, columns, sort and grouping removed when the field was deleted in droppedViewReferences; restoring the field does not recreate those settings.",
         "tags": [
           "trash"
         ],
@@ -42288,6 +42850,43 @@
                           "type": "string",
                           "format": "uuid",
                           "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                        },
+                        "droppedViewReferences": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "viewId": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "filters": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "columns": {
+                                "type": "integer",
+                                "minimum": 0,
+                                "maximum": 9007199254740991
+                              },
+                              "sort": {
+                                "type": "boolean"
+                              },
+                              "grouping": {
+                                "type": "boolean"
+                              }
+                            },
+                            "required": [
+                              "viewId",
+                              "filters",
+                              "columns",
+                              "sort",
+                              "grouping"
+                            ],
+                            "additionalProperties": false
+                          }
                         }
                       },
                       "required": [
@@ -45589,7 +46188,7 @@
     "/v1/operations/status": {
       "post": {
         "operationId": "readRecordOperation",
-        "summary": "Read the status of a staged operation",
+        "summary": "Read the status of a staged operation and its recommended retryAfterMs polling interval",
         "tags": [
           "operations"
         ],
@@ -45729,6 +46328,147 @@
                                   "format": "uuid",
                                   "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
                                 },
+                                "deletionCleaned": {
+                                  "description": "Data model deletion only: views, layouts and widgets changed automatically.",
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "consumer": {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": {
+                                            "type": "string",
+                                            "enum": [
+                                              "type",
+                                              "field",
+                                              "relationship",
+                                              "routine",
+                                              "webhook",
+                                              "widget",
+                                              "view",
+                                              "personalLayout",
+                                              "detailLayout"
+                                            ]
+                                          },
+                                          "id": {
+                                            "type": "string"
+                                          },
+                                          "typeId": {
+                                            "type": "string",
+                                            "format": "uuid",
+                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                          },
+                                          "label": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "kind",
+                                          "id",
+                                          "label"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      "target": {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": {
+                                            "type": "string",
+                                            "enum": [
+                                              "type",
+                                              "field",
+                                              "relationship",
+                                              "routine",
+                                              "webhook",
+                                              "widget",
+                                              "view",
+                                              "personalLayout",
+                                              "detailLayout"
+                                            ]
+                                          },
+                                          "id": {
+                                            "type": "string"
+                                          },
+                                          "typeId": {
+                                            "type": "string",
+                                            "format": "uuid",
+                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                          },
+                                          "label": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "kind",
+                                          "id",
+                                          "label"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      "replacement": {
+                                        "description": "For a deleted name field: the field that now names the records, or null when none is left.",
+                                        "anyOf": [
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "type",
+                                                  "field",
+                                                  "relationship",
+                                                  "routine",
+                                                  "webhook",
+                                                  "widget",
+                                                  "view",
+                                                  "personalLayout",
+                                                  "detailLayout"
+                                                ]
+                                              },
+                                              "id": {
+                                                "type": "string"
+                                              },
+                                              "typeId": {
+                                                "type": "string",
+                                                "format": "uuid",
+                                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                              },
+                                              "label": {
+                                                "type": "string"
+                                              }
+                                            },
+                                            "required": [
+                                              "kind",
+                                              "id",
+                                              "label"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "effect": {
+                                        "description": "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
+                                        "type": "string",
+                                        "enum": [
+                                          "countsRecords",
+                                          "triggerChanged",
+                                          "webhookPaused",
+                                          "avatar",
+                                          "calendar"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "consumer",
+                                      "target"
+                                    ],
+                                    "additionalProperties": false
+                                  }
+                                },
                                 "restore": {
                                   "type": "object",
                                   "properties": {
@@ -45835,6 +46575,146 @@
                                   "type": "integer",
                                   "minimum": -9007199254740991,
                                   "maximum": 9007199254740991
+                                },
+                                "deletionCleaned": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "consumer": {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": {
+                                            "type": "string",
+                                            "enum": [
+                                              "type",
+                                              "field",
+                                              "relationship",
+                                              "routine",
+                                              "webhook",
+                                              "widget",
+                                              "view",
+                                              "personalLayout",
+                                              "detailLayout"
+                                            ]
+                                          },
+                                          "id": {
+                                            "type": "string"
+                                          },
+                                          "typeId": {
+                                            "type": "string",
+                                            "format": "uuid",
+                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                          },
+                                          "label": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "kind",
+                                          "id",
+                                          "label"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      "target": {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": {
+                                            "type": "string",
+                                            "enum": [
+                                              "type",
+                                              "field",
+                                              "relationship",
+                                              "routine",
+                                              "webhook",
+                                              "widget",
+                                              "view",
+                                              "personalLayout",
+                                              "detailLayout"
+                                            ]
+                                          },
+                                          "id": {
+                                            "type": "string"
+                                          },
+                                          "typeId": {
+                                            "type": "string",
+                                            "format": "uuid",
+                                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                          },
+                                          "label": {
+                                            "type": "string"
+                                          }
+                                        },
+                                        "required": [
+                                          "kind",
+                                          "id",
+                                          "label"
+                                        ],
+                                        "additionalProperties": false
+                                      },
+                                      "replacement": {
+                                        "description": "For a deleted name field: the field that now names the records, or null when none is left.",
+                                        "anyOf": [
+                                          {
+                                            "type": "object",
+                                            "properties": {
+                                              "kind": {
+                                                "type": "string",
+                                                "enum": [
+                                                  "type",
+                                                  "field",
+                                                  "relationship",
+                                                  "routine",
+                                                  "webhook",
+                                                  "widget",
+                                                  "view",
+                                                  "personalLayout",
+                                                  "detailLayout"
+                                                ]
+                                              },
+                                              "id": {
+                                                "type": "string"
+                                              },
+                                              "typeId": {
+                                                "type": "string",
+                                                "format": "uuid",
+                                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                              },
+                                              "label": {
+                                                "type": "string"
+                                              }
+                                            },
+                                            "required": [
+                                              "kind",
+                                              "id",
+                                              "label"
+                                            ],
+                                            "additionalProperties": false
+                                          },
+                                          {
+                                            "type": "null"
+                                          }
+                                        ]
+                                      },
+                                      "effect": {
+                                        "description": "How the consumer changed: a widget now counts records, a webhook trigger lost the field or was removed, or the field left the avatar or calendar setting.",
+                                        "type": "string",
+                                        "enum": [
+                                          "countsRecords",
+                                          "triggerChanged",
+                                          "webhookPaused",
+                                          "avatar",
+                                          "calendar"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "consumer",
+                                      "target"
+                                    ],
+                                    "additionalProperties": false
+                                  }
                                 }
                               },
                               "required": [
@@ -45851,6 +46731,19 @@
                           "type": "null"
                         }
                       ]
+                    },
+                    "retryAfterMs": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "maximum": 9007199254740991
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "description": "Wait this many milliseconds before polling a pending or staging operation again; null for a terminal state."
                     }
                   },
                   "required": [
@@ -45859,7 +46752,8 @@
                     "processed",
                     "total",
                     "errorCode",
-                    "result"
+                    "result",
+                    "retryAfterMs"
                   ],
                   "additionalProperties": false
                 }
@@ -114049,6 +114943,7 @@
                         "chatThreadRequired",
                         "webhookTriggerRequired",
                         "recordValueInvalid",
+                        "recordQueryFieldUnknown",
                         "recordMarkedTextChanged",
                         "recordSublistNested",
                         "serviceBusy",
@@ -114096,6 +114991,7 @@
                         "passwordMismatch",
                         "passwordInvalid",
                         "dataViewNotFound",
+                        "dataViewNameMismatch",
                         "dataViewAllNameImmutable",
                         "dataViewUpdateEmpty",
                         "emailNotVerified",

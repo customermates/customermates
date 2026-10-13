@@ -1,5 +1,6 @@
 import type { Prisma } from "@/generated/prisma";
 import type { TrashKind } from "./trash.schema";
+import type { DroppedViewReferences } from "./trash.schema";
 
 export type TrashItem = {
   id: string;
@@ -39,6 +40,7 @@ export interface TrashRepo {
   find(selection: TrashSelection, visibility: Prisma.Sql): Promise<TrashItem[]>;
   findExpired(now: Date, take: number, after?: TrashExpiryCursor): Promise<TrashItem[]>;
   markPurgePending(id: string, operationId: string): Promise<void>;
+  droppedViewReferences(viewIds: string[]): Promise<DroppedViewReferences[]>;
 }
 
 export type TrashExpiryCursor = { expiresAt: string; id: string };

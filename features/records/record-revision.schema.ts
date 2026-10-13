@@ -5,6 +5,7 @@ import {
   ConfigurationTargetSchema,
 } from "./configuration.schema";
 import { RecordGrantSchema } from "./record-model.schema";
+import { DroppedViewReferencesSchema } from "@/features/trash/trash.schema";
 
 export const RecordRevisionChangeSchema = z
   .object({
@@ -27,6 +28,7 @@ export const RecordRevisionChangeSchema = z
             bindings: z
               .array(z.object({ bindingId: z.uuid(), role: z.string(), fieldId: z.uuid() }).strict())
               .optional(),
+            droppedViewReferences: z.array(DroppedViewReferencesSchema).optional(),
           })
           .strict(),
       )

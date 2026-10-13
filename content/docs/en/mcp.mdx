@@ -183,7 +183,7 @@ Read fields, stable select-option IDs, relationships, capabilities and configura
 
 #### `query_crm_records`
 
-Filter, sort and paginate records of one configured type in PostgreSQL. Read its schema first. Results distinguish values, missing inputs, restricted calculations and errors; decimals are strings. Use query_crm_measure for totals across all matches. A filter names fieldId and operator. Single-value operators use value with one typed scalar; in, notIn, all and between use values with typed scalars and value: null. Multiple choice filters use one `{kind: "select", value: optionId}` scalar per option, not selectList. Invalid-filter errors name the index and field.
+Filter, sort and paginate records of one configured type in PostgreSQL. Read its schema first. Results distinguish values, missing inputs, restricted calculations and errors; decimals are strings. Use query_crm_measure for totals across all matches. A filter names fieldId and operator. Single-value operators use value with one typed scalar; in, notIn, all and between use values with typed scalars and value: null. Multiple choice filters use one `{kind: "select", value: optionId}` scalar per option, not selectList. Invalid-filter errors name the index and field. fields accepts live field IDs from the current record model; an unknown or unpublished ID is named in the error.
 
 **Read-only.** Required: `typeId`. Optional: `locale`, `fields`, `includeRelationships`, `includePaths`, `includeIdentities`, `search`, `filters`, `relatedFilters`, `relationships`, `sort`, `page`, `pageSize`, `grouping`, `groupPage`, `groupSummaries`.
 
@@ -225,7 +225,7 @@ Count or aggregate once per source record at an explicit grain. Specify a source
 
 #### `read_crm_operation`
 
-Read a durable operation by operationId until it completes, fails or is cancelled. Poll with backoff. While staging runs, previous complete data remains readable and workspace CRM writes are paused. A pending response does not mean publication succeeded.
+Read a durable operation by operationId until it completes, fails or is cancelled. Poll with backoff. While staging runs, previous complete data remains readable and workspace CRM writes are paused. A pending response does not mean publication succeeded. Pending and staging status includes retryAfterMs; wait at least that long before polling again.
 
 **Read-only.** Required: `operationId`.
 
@@ -249,7 +249,7 @@ List deleted items in Trash, newest first, with who deleted them, when, and the 
 
 #### `manage_trash`
 
-Restore Trash items (or every item of one delete by its batchId), preview exactly what a permanent deletion removes, delete items permanently, or empty Trash as an administrator. Deleting items permanently needs delete access to each of them. Permanent deletion cannot be undone and erases the deleted records' values from history. Restoring a saved view while a referenced field remains in Trash removes its invalid filters, columns, sort and grouping; droppedViewReferences lists the changes per view. Restore the field first to keep those settings.
+Restore Trash items (or every item of one delete by its batchId), preview exactly what a permanent deletion removes, delete items permanently, or empty Trash as an administrator. Deleting items permanently needs delete access to each of them. Permanent deletion cannot be undone and erases the deleted records' values from history. Field deletion removes invalid saved-view filters, columns, sort and grouping; its preview and result list affected views and widgets. Restoring the field does not recreate those settings. A later field or view restore reports removed view settings in droppedViewReferences.
 
 **Can delete data.** Required: `action`. Optional: `itemIds`, `batchId`, `all`, `expectedImpactHash`.
 
@@ -348,7 +348,7 @@ Team members with id, name, email, roleId, and status. When the caller's role ha
 {/* mcp-catalog:views */}
 #### `manage_data_views`
 
-Discover, inspect, create, update, select, reset and delete personal saved views. Discover the surfaceKey first; generic record surfaces use stable type IDs. Updates patch only supplied settings; a grouping can carry up to 8 summaries (sum, average, min or max of a number or currency field). Reset removes your overrides so the list shows every field in its configured order as an ungrouped table, without changing records. Deleting a view requires its exact current name and ID; a mismatch changes nothing. Deletion moves it to Trash (a dashboard view takes its widgets along), never its records. Configuration and view lists are paginated and searchable.
+Discover, inspect, create, update, select, reset and delete personal saved views. Discover the surfaceKey first; generic record surfaces use stable type IDs. Updates patch only supplied settings; a grouping can carry up to 8 summaries (sum, average, min or max of a number or currency field). Reset removes your overrides so the list shows every field in its configured order as an ungrouped table, without changing records. Deleting a view requires its exact current name and ID; a mismatch returns a specific error, while an unknown ID returns not found. Deletion moves it to Trash (a dashboard view takes its widgets along), never its records. Configuration and view lists are paginated and searchable.
 
 **Can delete data.** Required: `action`. Optional: `surfaceKey`, `viewKey`, `section`, `page`, `pageSize`, `query`, `name`, `fields`, `state`.
 
@@ -577,7 +577,7 @@ A pending result returns an operation id. Read its progress until it completes; 
 {/* mcp-catalog:record-model */}
 #### `configure_record_model`
 
-Preview or apply a typed configuration bundle containing types, fields, relationships, calculations and access presets. Preserve the same expectedRevision, idempotencyKey and operations between preview and apply. Temporary $client references connect new definitions atomically. Calculations use a bounded node program, never executable code. Schema management is separate from record access; role grants and published summaries require their own authority. Use delete to move a list, field or relationship to Trash; restore it or delete it permanently with manage_trash.
+Preview or apply a typed configuration bundle containing types, fields, relationships, calculations and access presets. Preserve the same expectedRevision, idempotencyKey and operations between preview and apply. Temporary $client references connect new definitions atomically. Calculations use a bounded node program, never executable code. Schema management is separate from record access; role grants and published summaries require their own authority. Use delete to move a list, field or relationship to Trash; restore it or delete it permanently with manage_trash. For field deletion, preview.deletion.cleaned and the apply result's deletionCleaned name the views, layouts and widgets changed automatically; references lists newly resolved IDs, not consumers. A pending operation status gives retryAfterMs as the minimum wait before polling again.
 
 **Can delete data.** Required: `action`, `change`.
 {/* /mcp-catalog */}
@@ -601,7 +601,7 @@ List or read widgets; create, update or delete chart and activity configurations
 {/* mcp-catalog:routines */}
 #### `manage_routines`
 
-One tool with an `action` switch: list, runs, create, update, pause, run_now, delete. A routine is saved instructions the assistant runs on a cron schedule or when a CRM event fires. Omitting `enabled` on create produces a LIVE routine, so pass `enabled: false` to draft one; the hosted assistant must state `enabled` explicitly and drafts unless the user asked to activate. A change of `triggerKind` must arrive with that kind's schedule or events. pause disables the routine and settles its queued runs to skipped, which re-enabling does not undo; only an active system administrator may pause or delete a routine. run_now applies to scheduled routines only, and only to an enabled routine the caller owns. It refuses paused AI work, inactive owners and exhausted credits before queuing; manual test runs still use `triggerKind: schedule`. Runs are paginated by `cursor` and carry status, summary, trigger and the `error` block reason. delete moves the routine to Trash, where it stops running until manage_trash restores it. list returns compact name, owner, trigger and enabled summaries by default. Pass includePrompts: true for full configurations including prompts, or owner: "mine" for routines you own.
+One tool with an `action` switch: list, runs, create, update, pause, run_now, delete. A routine is saved instructions the assistant runs on a cron schedule or when a CRM event fires. Omitting `enabled` on create produces a LIVE routine, so pass `enabled: false` to draft one; the hosted assistant must state `enabled` explicitly and drafts unless the user asked to activate. A change of `triggerKind` must arrive with that kind's schedule or events. pause disables the routine and settles its queued runs to skipped, which re-enabling does not undo; only an active system administrator may pause or delete a routine. run_now applies to scheduled routines only, and only to an enabled routine the caller owns. It refuses paused AI work, inactive owners and exhausted credits before queuing. A Customermates platform pause returns `platformPaused`; workspace admins cannot lift it. A routine paused by a workspace administrator uses `adminPaused`; manual test runs still use `triggerKind: schedule`. Runs are paginated by `cursor` and carry status, summary, trigger and the `error` block reason. delete moves the routine to Trash, where it stops running until manage_trash restores it. list returns compact name, owner, trigger and enabled summaries by default. Pass includePrompts: true for full configurations including prompts, or owner: "mine" for routines you own.
 
 **Can delete data.** Required: `action`. Optional: `id`, `cursor`, `page`, `pageSize`, `searchTerm`, `owner`, `includePrompts`, `name`, `prompt`, `enabled`, `triggerKind`, `cronExpression`, `timezone`, `triggerEvents`, `recordTrigger`, `recordSources`, `expectedSchemaRevision`, `debounceSeconds`.
 {/* /mcp-catalog */}

@@ -523,7 +523,7 @@ export const recordApiPaths = {
   "/v1/trash/restore": {
     post: operation(
       "restoreTrash",
-      "Restore Trash items, or every item of one delete by batchId. For restored saved views, droppedViewReferences lists filters, columns, sort and grouping removed because a referenced field remains in Trash; restore the field first to preserve them.",
+      "Restore Trash items, or every item of one delete by batchId. Restoring a field or saved view reports filters, columns, sort and grouping removed when the field was deleted in droppedViewReferences; restoring the field does not recreate those settings.",
       RestoreTrashSchema,
       TrashRestoreResultSchema,
       {
@@ -572,7 +572,7 @@ export const recordApiPaths = {
   "/v1/operations/status": {
     post: operation(
       "readRecordOperation",
-      "Read the status of a staged operation",
+      "Read the status of a staged operation and its recommended retryAfterMs polling interval",
       RecordOperationInputSchema,
       RecordOperationStatusSchema,
       {
