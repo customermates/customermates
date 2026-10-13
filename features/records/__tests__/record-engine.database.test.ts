@@ -4834,14 +4834,19 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         actions: ["readAll"],
       }),
     ]);
-    expect(
-      await f.run(() =>
-        prisma.rolePermission.findMany({
-          where: { companyId: f.company.id, roleId: f.memberRole.id },
-          select: { resource: true, action: true },
-        }),
-      ),
-    ).toEqual([{ resource: "users", action: "update" }]);
+    const stored = await f.run(() =>
+      prisma.rolePermission.findMany({
+        where: { companyId: f.company.id, roleId: f.memberRole.id },
+        select: { resource: true, action: true },
+      }),
+    );
+    expect(stored.map(({ resource, action }) => `${resource}:${action}`).sort()).toEqual([
+      "company:readAll",
+      "company:readOwn",
+      "dataModel:readAll",
+      "dataModel:readOwn",
+      "users:update",
+    ]);
   });
 
   it("role management separates grant administration from schema and record access", async () => {
