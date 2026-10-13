@@ -193,15 +193,16 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
       }
       const restoredCount = outcome.restoredItemIds.length;
       const viewReferences = outcome.droppedViewReferences ?? [];
-      if (restoredCount > 0 && outcome.droppedLinks > 0)
+      if (restoredCount > 0 && outcome.droppedLinks > 0) {
         this.toastSuccess("Trash.restoredWithDroppedLinks", {
           values: { count: outcome.droppedLinks },
         });
-      else if (restoredCount > 0)
+      } else if (restoredCount > 0) {
         this.toastSuccess("Trash.restored", {
           values: { count: restoredCount },
         });
-      if (viewReferences.length)
+      }
+      if (viewReferences.length) {
         this.toastSuccess("Trash.restoredWithDroppedViewReferences", {
           values: {
             filters: viewReferences.reduce((count, entry) => count + entry.filters, 0),
@@ -210,6 +211,7 @@ export class TrashStore extends BaseDataViewStore<TrashItemDto> {
             groupings: viewReferences.filter((entry) => entry.grouping).length,
           },
         });
+      }
       for (const [reason, count] of countBy(outcome.blocked.map((blocker) => blocker.reason)))
         this.toastError(RESTORE_BLOCKED_KEYS[reason], { values: { count } });
       if (restoredCount === 0 && outcome.blocked.length === 0) this.toastError("Trash.restoreFailed");

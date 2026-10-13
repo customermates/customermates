@@ -71,7 +71,7 @@ export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrash
         };
         for (const group of itemsByHandler(this.handlers, items)) {
           const restored = await group.handler.restore(group.items);
-          if (restored.operationId)
+          if (restored.operationId) {
             return {
               ok: true as const,
               data: {
@@ -79,6 +79,7 @@ export class RestoreTrashInteractor extends AuthenticatedInteractor<RestoreTrash
                 operationId: restored.operationId,
               },
             };
+          }
           result.restoredItemIds.push(...restored.restoredItemIds);
           result.blocked.push(...restored.blocked);
           result.restoredRecords += restored.restoredRecords;

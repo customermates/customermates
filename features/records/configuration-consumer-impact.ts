@@ -67,12 +67,13 @@ export function configurationTypeChanges(
     );
   for (const field of model.fields) {
     const before = current.fields.find((candidate) => candidate.id === field.id);
-    if (before && (before.valueType === "channels") !== (field.valueType === "channels"))
+    if (before && (before.valueType === "channels") !== (field.valueType === "channels")) {
       issues.push({
         code: "channels_type_change",
         fieldId: field.id,
         typeId: field.typeId,
       });
+    }
     if (fieldValueDefinition(before) === fieldValueDefinition(field)) continue;
     if (field.valueType === "channels") {
       channelTypes.add(field.typeId);
@@ -220,12 +221,13 @@ export async function collectConsumerImpact(
       if (measure) {
         cleanups.push({ kind: "widget", id: widget.id, measure });
         const counts = measure.aggregation === "count" && widget.measure.aggregation !== "count";
-        if (!widget.trashed)
+        if (!widget.trashed) {
           cleaned.push({
             consumer,
             target: cause,
             ...(counts ? { effect: "countsRecords" as const } : {}),
           });
+        }
       } else if (!widget.trashed) blockers.push({ reason: "widget", source: consumer, target: cause });
       continue;
     }
@@ -244,13 +246,13 @@ export async function collectConsumerImpact(
     ];
     for (const typeId of new Set(typeIds)) {
       if (model.types.some((type) => type.id === typeId && !type.archived)) continue;
-      if (cause && deletedTypeIds.has(typeId))
+      if (cause && deletedTypeIds.has(typeId)) {
         blockers.push({
           reason: "widget",
           source: { kind: "widget", id, label: name },
           target: cause,
         });
-      else issues.push({ code: "widget_incompatible", typeId });
+      } else issues.push({ code: "widget_incompatible", typeId });
     }
   }
   for await (const subscription of consumers.eventSubscriptions) {

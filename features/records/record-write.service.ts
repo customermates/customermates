@@ -124,11 +124,12 @@ function comparableResult(result: CalculatedValue): unknown {
   if (result.state !== "value") return result;
   const value = result.value;
   if (value.kind === "decimal") return { ...value, value: new Decimal(value.value).toFixed() };
-  if (value.kind === "richText")
+  if (value.kind === "richText") {
     return {
       kind: value.kind,
       document: JSON.parse(value.documentJson) as unknown,
     };
+  }
   return value;
 }
 
@@ -287,10 +288,11 @@ export class RecordWriteService {
         (mutation.action === "delete" ||
           (mutation.action === "update" && !isAppendOnlyUpdate(mutation) && !isOrderOnlyUpdate(mutation))) &&
         row.version !== mutation.expectedVersion
-      )
+      ) {
         reject(CustomErrorCode.recordVersionChanged, "conflict", [], {
           currentVersion: row.version,
         });
+      }
     }
     if (mutation.action === "link" || mutation.action === "unlink") {
       const row = await this.records.getRecordCompanyWide(mutation.target);
@@ -596,10 +598,11 @@ export class RecordWriteService {
       }
     } else if (mutation.action === "update") {
       const row = await editable(mutation.ref);
-      if (!isAppendOnlyUpdate(mutation) && !isOrderOnlyUpdate(mutation) && row.version !== mutation.expectedVersion)
+      if (!isAppendOnlyUpdate(mutation) && !isOrderOnlyUpdate(mutation) && row.version !== mutation.expectedVersion) {
         reject(CustomErrorCode.recordVersionChanged, "conflict", [], {
           currentVersion: row.version,
         });
+      }
       if (mutation.assignedUserIds && type(mutation.ref.typeId).parentRelationshipId) {
         if (mutation.assignedUserIds.length)
           reject(CustomErrorCode.recordValueInvalid, "validation", ["assignedUserIds"]);
