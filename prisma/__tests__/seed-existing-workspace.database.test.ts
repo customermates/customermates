@@ -79,15 +79,23 @@ async function workspaceState(fixture: Fixture, company: string) {
   return { counts, model: revision?.snapshot ?? null, records };
 }
 
-/** Every tenant row of the synthetic company apart from its timestamps, for a repeated seed on the same database. */
+/**
+ * Every tenant row of the synthetic company apart from its timestamps, for a repeated seed on the same database.
+ * Routine runs and agent conversations are anchored to the time of the seed run, so timestamps move on every run.
+ */
 async function workspaceContent(fixture: Fixture) {
   const content: Record<string, string> = {};
   for (const table of await tenantTables(fixture.client)) {
+    const { rows: timestamps } = await fixture.client.query<{ column: string }>(
+      `SELECT column_name AS column FROM information_schema.columns
+       WHERE table_schema = current_schema() AND table_name = $1 AND data_type LIKE 'timestamp%'`,
+      [table],
+    );
     const { rows } = await fixture.client.query<{ digest: string | null }>(
       `SELECT md5(string_agg(row, ',' ORDER BY row)) AS digest FROM (
-         SELECT (to_jsonb(t) - 'createdAt' - 'updatedAt')::text AS row FROM "${table}" t WHERE "companyId" = $1
+         SELECT (to_jsonb(t) - $2::text[])::text AS row FROM "${table}" t WHERE "companyId" = $1
        ) rows`,
-      [companyId],
+      [companyId, timestamps.map((row) => row.column)],
     );
     content[table] = rows[0].digest ?? "";
   }
