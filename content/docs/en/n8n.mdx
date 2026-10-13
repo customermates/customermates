@@ -17,7 +17,7 @@ n8n fits when your team prefers visual flows over code, when record events need 
 Copy the URL it generates.
 </Step>
 <Step title="Subscribe in Customermates">
-Open [Webhooks](app:settings/webhooks), click [Add](app:settings/webhooks?focus=add) and paste the URL. Under **Events**, select **Record created**, **Record updated** or **Record deleted**, then choose the list and optional filters to watch. Add a **Secret** and click **Save**. Creating a webhook needs **Create** on **API & Webhooks**.
+Open [Webhooks](app:settings/webhooks), click [Add](app:settings/webhooks?focus=add) and paste the URL. Under **Events**, select **Record created**, **Record updated** or **Record moved to Trash**, then choose the list and optional filters to watch. Add a **Secret** and click **Save**. Creating a webhook needs **Create** on **API & Webhooks**.
 </Step>
 <Step title="Handle the payload">
 Verify the signature, then use the event ID and the stable `typeId`/`recordId` reference from the record event payload in downstream steps.

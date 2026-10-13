@@ -21,14 +21,14 @@ Actions that cannot be taken back, change who can access data, leave your worksp
 
 | Always asks | Why |
 | --- | --- |
-| Deleting records | Hard delete, including the cascades shown in the preview |
-| Deleting a Knowledge Base page | Permanently removes the document |
-| Deleting a saved view | Removes the saved view |
+| Deleting records | Moves the records and the cascades shown in the preview to Trash for 30 days; a permanent delete (`permanent: true`) removes them at once |
+| Deleting a Knowledge Base page | Moves the page to Trash for 30 days |
+| Deleting a saved view | Moves the saved view to Trash for 30 days |
 | Destructive data model changes, access changes, or replacing an existing field or relationship | The preview shows affected definitions, records and dependencies; a replaced field can overwrite stored values |
 | Saving a role | Can widen what the role may read and change |
-| Deleting a widget | Removes the dashboard widget |
+| Deleting a widget | Moves the dashboard widget to Trash for 30 days |
 | Deleting a webhook or resending a delivery | Destroys configuration, or sends a new external request |
-| Deleting a routine | Removes the routine and its run history |
+| Deleting a routine | Moves the routine to Trash for 30 days, where it stops running; its run history is removed only when it is deleted permanently |
 | Renaming lists | Changes the names every member sees |
 | Inviting members | Sends real invitation emails |
 | Sending a support request | Emails the Customermates team with your recent conversation |
@@ -116,4 +116,4 @@ Every cloud plan includes the Mate entitlement; whether the assistant is live de
 
 ## For agents [#for-agents]
 
-Mate uses the same MCP tool catalog as external AI clients, without the deep-research search and fetch stubs, plus four interface tools, `load_toolset` and `analyze_records`, which only Mate has. The interface tools are `list_ui_targets` (stable targets), `navigate` (a target, an app link from these docs passed as href, or one record's page by `typeId` and `recordId`), `highlight_element` (point at a control) and `start_tour` (2 to 20 stops). `analyze_records` answers questions that need arithmetic over many records. It runs up to ten reads of read-only workspace tools, never one that reaches LinkedIn or another outside provider, collects every page, up to 10,000 rows and 8 MB across all reads together, and passes them to one JavaScript function in a sandbox with no network, clock or tools; a read that would return only part of its rows is refused. Approval is raised by calling a gated tool, and the panel itself is not a highlight target.
+Mate uses the same MCP tool catalog as external AI clients, without the deep-research search and fetch stubs, plus four interface tools, `load_toolset` and `analyze_records`, which only Mate has. Its `request_support` asks for your approval, `web_search` is added while a round may [search the web](#web-search), and a routine run gets no interface tools. Catalog groups such as views, widgets, messaging, webhooks, routines and admin tools are loaded on demand with `load_toolset`. The interface tools are `list_ui_targets` (stable targets), `navigate` (a target, an app link from these docs passed as href, or one record's page by `typeId` and `recordId`), `highlight_element` (point at a control) and `start_tour` (2 to 20 stops). `analyze_records` answers questions that need arithmetic over many records. It runs up to ten reads of read-only workspace tools, never one that reaches LinkedIn or another outside provider, collects every page, up to 10,000 rows and 8 MB across all reads together, and passes them to one JavaScript function in a sandbox with no network, clock or tools; a read that would return only part of its rows is refused. Approval is raised by calling a gated tool, and the panel itself is not a highlight target.
