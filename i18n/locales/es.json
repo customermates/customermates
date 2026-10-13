@@ -1128,6 +1128,7 @@
       "recordDependencies": "Actualiza primero los campos, las vistas, los widgets o las asociaciones dependientes.",
       "recordIdempotencyConflict": "Esta clave de solicitud se usó para otro cambio. Inicia una nueva solicitud.",
       "recordIdUnavailable": "Este ID ya perteneció a un registro anterior. Importa el registro con un ID nuevo.",
+      "recordMarkedTextChanged": "El texto con formato marcado solo se puede importar sin cambios desde el registro guardado; envía el texto con formato nuevo o modificado como valor richText con documentJson.",
       "recordMeasureDateIntervalInvalid": "Los intervalos de tiempo requieren agrupar por un campo de fecha, fecha y hora, creación o actualización, y una zona horaria requiere un intervalo de tiempo.",
       "recordNotFound": "Este registro no está disponible.",
       "recordNumberInvalid": "Introduce un número válido.",

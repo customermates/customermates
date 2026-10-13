@@ -8,6 +8,7 @@ export enum CustomErrorCode {
   chatThreadRequired = "chatThreadRequired",
   webhookTriggerRequired = "webhookTriggerRequired",
   recordValueInvalid = "recordValueInvalid",
+  recordMarkedTextChanged = "recordMarkedTextChanged",
   recordSublistNested = "recordSublistNested",
   serviceBusy = "serviceBusy",
   recordValueRequired = "recordValueRequired",

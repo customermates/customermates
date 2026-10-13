@@ -658,7 +658,7 @@ All [[derived.mcp.tools.total]] tools are on by default. To expose only part of 
 
 Keys: records, workspace, views, wiki, messaging, social, docs, record-model, widgets, routines, webhooks, admin, support. No parameter means everything; an unknown key returns HTTP `400` with `error: invalid_toolsets`, the unknown keys and the valid ones. `records` also holds the operation tools (`read_crm_operation`, `cancel_crm_operation`, `resume_crm_operation`) and the Trash tools; `record-model` holds only `configure_record_model`. `search` and `fetch` are always on so deep-research connectors keep working on any narrowed surface.
 
-`widgets` and `routines` also include `discover_record_types` and `get_record_model`, which their tools need for type and field ids. API keys and billing stay in the web app by design; no tool reads or changes them.
+`widgets`, `routines` and `webhooks` also include `discover_record_types` and `get_record_model`, which their tools need for type and field ids and the current schema revision; `record-model` includes both plus `read_crm_operation` for applies that are still pending. API keys and billing stay in the web app by design; no tool reads or changes them.
 
 ### When a call is refused
 

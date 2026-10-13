@@ -17,6 +17,7 @@ const mockUser = createMockUser();
 const spies = vi.hoisted(() => ({
   deleteWidget: vi.fn(),
   getWidgetById: vi.fn(),
+  getRecordWidget: vi.fn(),
   getWidgets: vi.fn(),
   upsertWidget: vi.fn(),
   upsertRecordWidget: vi.fn(),
@@ -62,6 +63,7 @@ vi.mock("@/core/di", async () => {
       ),
     getDeleteWidgetInteractor: () => ({ invoke: spies.deleteWidget }),
     getGetWidgetByIdInteractor: () => ({ invoke: spies.getWidgetById }),
+    getGetRecordWidgetInteractor: () => ({ invoke: spies.getRecordWidget }),
     getGetWidgetsInteractor: () => ({ invoke: spies.getWidgets }),
   };
 });
@@ -75,6 +77,8 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { manageWidgetsTool } from "../widget.mcp-tools";
 import { mcpToolResultText } from "../mcp-tool";
 import { formatDatesInResponse } from "../utils";
+import { failNotFound } from "@/core/validation/interactor-failure-server";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const WIDGET_ID = "16000000-0000-4000-8000-000000000001";
 const RECORD_ID = "16000000-0000-4000-8000-000000000002";
@@ -447,7 +451,7 @@ describe("manage_widgets read and delete", () => {
       total: 2,
     });
 
-    spies.getWidgetById.mockResolvedValueOnce({ ok: true, data: chartWidget() }).mockResolvedValueOnce({
+    spies.getRecordWidget.mockResolvedValueOnce({ ok: true, data: chartWidget() }).mockResolvedValueOnce({
       ok: true,
       data: activityWidget({ id: RECORD_ID }),
     });
@@ -458,9 +462,9 @@ describe("manage_widgets read and delete", () => {
   });
 
   it("answers a missing id with an id-keyed error that fits the output schema and keeps the found widgets", async () => {
-    spies.getWidgetById
+    spies.getRecordWidget
       .mockResolvedValueOnce({ ok: true, data: chartWidget() })
-      .mockResolvedValueOnce({ ok: true, data: null });
+      .mockResolvedValueOnce(failNotFound(CustomErrorCode.widgetNotFound));
 
     const output = await manageWidgetsTool.execute(
       manageWidgetsTool.inputSchema.parse({
@@ -473,7 +477,10 @@ describe("manage_widgets read and delete", () => {
       throw new Error("Expected a structured MCP result");
     expect(manageWidgetsTool.outputSchema.safeParse(output.structuredContent).success).toBe(true);
     expect(decode(output.text)).toEqual({
-      items: formatDatesInResponse([chartWidget(), { id: RECORD_ID, error: "Widget ID not found or not accessible." }]),
+      items: formatDatesInResponse([
+        chartWidget(),
+        { id: RECORD_ID, error: "✖ Widget ID not found or not accessible." },
+      ]),
     });
   });
 

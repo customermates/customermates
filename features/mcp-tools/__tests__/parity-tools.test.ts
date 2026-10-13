@@ -158,46 +158,28 @@ describe("import_crm_records", () => {
     expect(structured(result)).toEqual({ created: 1, updated: 0, linked: 0, schemaRevision: 3 });
   });
 
-  it("accepts an export_crm_records result unchanged, restoring stored Formatted text", async () => {
-    const stored = exportDocument();
+  it("passes an export_crm_records result unchanged to the import interactor, which resolves marked text", async () => {
     spies.exportRecords.mockResolvedValue({ ok: true, data: exportDocument() });
-    spies.readRecord.mockResolvedValue({ ok: true, data: stored.records[0] });
     spies.importRecords.mockResolvedValue({ ok: true, data: { created: 0, updated: 1, linked: 0, schemaRevision: 3 } });
     const exported = structured(
       await exportCrmRecordsTool.execute(exportCrmRecordsTool.inputSchema.parse({ typeId: TYPE_ID })),
     );
     expect(exported).toHaveProperty("untrustedTextHandling");
 
-    const result = await executeMcpTool(importCrmRecordsTool, [
-      importCrmRecordsTool.inputSchema.parse({
-        document: exported,
-        mode: "update",
-        idempotencyKey: "import-round-trip",
-      }),
-    ]);
+    const input = importCrmRecordsTool.inputSchema.parse({
+      document: exported,
+      mode: "update",
+      idempotencyKey: "import-round-trip",
+    });
+    const result = await executeMcpTool(importCrmRecordsTool, [input]);
 
     expect(result.ok).toBe(true);
-    expect(spies.readRecord).toHaveBeenCalledWith({ typeId: TYPE_ID, recordId: RECORD_ID });
-    const sent = spies.importRecords.mock.calls[0][0];
-    expect(sent.document).not.toHaveProperty("untrustedTextHandling");
-    expect(sent.document.records[0].fields[0].result).toEqual(stored.records[0].fields[0].result);
+    expect(spies.importRecords).toHaveBeenCalledWith(input);
+    expect(spies.readRecord).not.toHaveBeenCalled();
+    expect(JSON.stringify(spies.importRecords.mock.calls[0][0].document.records[0].fields[0].result)).toContain(
+      "markdown",
+    );
     expect(importCrmRecordsTool.annotations.destructiveHint).toBe(true);
-  });
-
-  it("refuses changed marked Formatted text instead of parsing it", async () => {
-    spies.exportRecords.mockResolvedValue({ ok: true, data: exportDocument() });
-    spies.readRecord.mockResolvedValue({ ok: true, data: exportDocument().records[0] });
-    const exported = structured(
-      await exportCrmRecordsTool.execute(exportCrmRecordsTool.inputSchema.parse({ typeId: TYPE_ID })),
-    ) as { records: Array<{ fields: Array<{ result: { value: { markdown: string } } }> }> };
-    exported.records[0].fields[0].result.value.markdown += " and more";
-
-    const result = await executeMcpTool(importCrmRecordsTool, [
-      importCrmRecordsTool.inputSchema.parse({ document: exported, mode: "update", idempotencyKey: "import-changed" }),
-    ]);
-
-    expect(result.ok).toBe(false);
-    expect(spies.importRecords).not.toHaveBeenCalled();
   });
 
   it("rejects an unknown mode before calling the interactor", () => {
@@ -322,7 +304,7 @@ describe("toolsets", () => {
     expect(instructions).toContain("API keys and billing are managed only in the web app");
   });
 
-  it("brings the discovery tools widgets and routines depend on, once each", () => {
+  it("brings the discovery tools widgets, routines, webhooks and the record model depend on, once each", () => {
     const names = mcpToolsForToolsets(MCP_TOOL_GROUPS, ["widgets", "routines"], MCP_ALWAYS_ON_TOOLS).map(
       (tool) => tool.name,
     );
@@ -331,6 +313,14 @@ describe("toolsets", () => {
       expect.arrayContaining(["manage_widgets", "manage_routines", "discover_record_types", "get_record_model"]),
     );
     expect(new Set(names).size).toBe(names.length);
+    const recordModel = mcpToolsForToolsets(MCP_TOOL_GROUPS, ["record-model"], MCP_ALWAYS_ON_TOOLS).map(
+      (tool) => tool.name,
+    );
+    expect(recordModel).toEqual(
+      expect.arrayContaining(["configure_record_model", "get_record_model", "read_crm_operation"]),
+    );
+    const webhooks = mcpToolsForToolsets(MCP_TOOL_GROUPS, ["webhooks"], MCP_ALWAYS_ON_TOOLS).map((tool) => tool.name);
+    expect(webhooks).toEqual(expect.arrayContaining(["manage_webhooks", "discover_record_types", "get_record_model"]));
     const all = mcpToolsForToolsets(MCP_TOOL_GROUPS, Object.keys(MCP_TOOL_GROUPS), MCP_ALWAYS_ON_TOOLS);
     expect(all).toHaveLength(Object.values(MCP_TOOL_GROUPS).flat().length + MCP_ALWAYS_ON_TOOLS.length);
   });

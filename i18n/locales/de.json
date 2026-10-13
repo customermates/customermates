@@ -1128,6 +1128,7 @@
       "recordDependencies": "Aktualisiere zuerst die abhängigen Felder, Ansichten, Widgets oder Zuordnungen.",
       "recordIdempotencyConflict": "Dieser Anfrageschlüssel wurde für eine andere Änderung verwendet. Starte eine neue Anfrage.",
       "recordIdUnavailable": "Diese Datensatz-ID gehörte bereits zu einem früheren Datensatz. Importiere den Datensatz mit einer neuen ID.",
+      "recordMarkedTextChanged": "Markierter formatierter Text lässt sich nur unverändert aus dem gespeicherten Datensatz importieren; senden Sie neuen oder geänderten formatierten Text als richText-Wert mit documentJson.",
       "recordMeasureDateIntervalInvalid": "Zeitintervalle brauchen ein Datums-, Datums- und Uhrzeit-, Erstellt- oder Geändert-Feld zum Gruppieren, und eine Zeitzone braucht ein Zeitintervall.",
       "recordNotFound": "Dieser Datensatz ist nicht verfügbar.",
       "recordNumberInvalid": "Gib eine gültige Zahl ein.",

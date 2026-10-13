@@ -11,7 +11,11 @@ export function isReadOnlyTool(tool: { annotations?: Record<string, boolean> }) 
 type AgentApprovalPolicy =
   | { approvalFree: true }
   | { inputRisk: (input: unknown) => "read" | "write" | "sensitive" | null }
-  | { approvalFreeActions: readonly string[]; readOnlyActions?: readonly string[] };
+  | {
+      approvalFreeActions: readonly string[];
+      readOnlyActions?: readonly string[];
+      gatedFields?: Readonly<Record<string, readonly string[]>>;
+    };
 
 const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   configure_record_model: { inputRisk: (input) => recordToolRisk("configure_record_model", input) },
@@ -26,7 +30,7 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
     readOnlyActions: ["list"],
   },
   manage_roles: { approvalFreeActions: ["read"], readOnlyActions: ["read"] },
-  manage_team: { approvalFreeActions: ["update_member"] },
+  manage_team: { approvalFreeActions: ["update_member"], gatedFields: { update_member: ["roleId", "status"] } },
   manage_connected_accounts: {
     approvalFreeActions: ["list", "set_folders", "set_signature", "resync"],
     readOnlyActions: ["list"],
@@ -38,8 +42,8 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
   manage_trash: { approvalFreeActions: ["restore", "preview"], readOnlyActions: ["preview"] },
   manage_widgets: { approvalFreeActions: ["list", "get", "create", "update"], readOnlyActions: ["list", "get"] },
   manage_data_views: {
-    approvalFreeActions: ["surfaces", "list", "read", "config", "create", "update", "select", "reset"],
-    readOnlyActions: ["surfaces", "list", "read", "config"],
+    approvalFreeActions: ["surfaces", "list", "config", "create", "update", "select", "reset"],
+    readOnlyActions: ["surfaces", "list", "config"],
   },
   manage_record_detail_layout: {
     approvalFreeActions: ["read", "save", "reset"],
@@ -54,7 +58,7 @@ const INTERNAL_APPROVAL_POLICY: Record<string, AgentApprovalPolicy> = {
     readOnlyActions: ["list", "runs"],
   },
   manage_wiki_pages: {
-    approvalFreeActions: ["list", "search", "get", "create", "update"],
+    approvalFreeActions: ["list", "search", "get", "create", "update", "move"],
     readOnlyActions: ["list", "search", "get"],
   },
   move_email_thread: { approvalFree: true },
@@ -95,6 +99,19 @@ export function readOnlyActionsForTool(identity: AgentToolIdentity): readonly st
   return policy && "readOnlyActions" in policy ? (policy.readOnlyActions ?? null) : null;
 }
 
+function inputFields(input: unknown): Record<string, unknown> {
+  return input && typeof input === "object" && !Array.isArray(input) ? (input as Record<string, unknown>) : {};
+}
+
+export function isApprovalFreeActionCall(identity: AgentToolIdentity, input: unknown): boolean {
+  const policy = policyFor(identity);
+  if (!policy || !("approvalFreeActions" in policy)) return false;
+  const fields = inputFields(input);
+  const action = fields.action;
+  if (typeof action !== "string" || !policy.approvalFreeActions.includes(action)) return false;
+  return !(policy.gatedFields?.[action] ?? []).some((field) => fields[field] !== undefined);
+}
+
 export function isReadOnlyAgentToolCall(name: string, tool: { annotations?: Record<string, boolean> }, input: unknown) {
   if (isReadOnlyTool(tool) || name === "web_search" || name === "list_ui_targets" || name === LOAD_TOOLSET_TOOL_NAME)
     return true;
@@ -116,9 +133,7 @@ export function requiresApproval(
   const policy = policyFor(identity);
   if (!policy) return true;
   if ("approvalFree" in policy) return false;
-  const fields = input && typeof input === "object" && !Array.isArray(input) ? (input as Record<string, unknown>) : {};
   if ("inputRisk" in policy) return !["read", "write"].includes(policy.inputRisk(input) ?? "sensitive");
 
-  const action = fields.action;
-  return typeof action !== "string" || !policy.approvalFreeActions.includes(action);
+  return !isApprovalFreeActionCall(identity, input);
 }

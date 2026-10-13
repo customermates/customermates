@@ -89,7 +89,6 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
   "manage_data_views": [
     "surfaces",
     "list",
-    "read",
     "config",
     "create",
     "update",
@@ -144,6 +143,7 @@ exports[`gated-tools > snapshots the surface so new tools and actions force a co
     "get",
     "create",
     "update",
+    "move",
   ],
 }
 `;

@@ -3,7 +3,7 @@ import { AgentActivityContextSchema, agentToolInputContext } from "./agent-activ
 import { SurfaceKeySchema, ViewKeySchema } from "@/core/data-view/data-view-identity.schema";
 import { dataViewNavigationHref } from "@/core/data-view/data-view-links";
 
-import { approvalFreeActionsForTool, readOnlyActionsForTool } from "./gated-tools";
+import { isApprovalFreeActionCall, readOnlyActionsForTool } from "./gated-tools";
 import { recordToolRisk } from "./record-tool-risk";
 import type { AgentToolIdentity } from "./tool-identity";
 import { internalToolIdentity, isInternalToolIdentity, WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
@@ -205,9 +205,7 @@ function isMultiplexedRead(toolName: string, details: Record<string, unknown>): 
 }
 
 function multiplexedRisk(toolName: string, details: Record<string, unknown>): "write" | "sensitive" {
-  const approvalFree = approvalFreeActionsForTool(internalToolIdentity(toolName));
-  const action = actionValue(details);
-  return approvalFree && action && approvalFree.includes(action) ? "write" : "sensitive";
+  return isApprovalFreeActionCall(internalToolIdentity(toolName), details) ? "write" : "sensitive";
 }
 
 export function describeAgentTool(identity: AgentToolIdentity, input: unknown): AgentActivityDescriptor {

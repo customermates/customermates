@@ -1128,6 +1128,7 @@
       "recordDependencies": "Mets d’abord à jour les champs, vues, widgets ou associations dépendants.",
       "recordIdempotencyConflict": "Cette clé de requête a été utilisée pour une autre modification. Crée une nouvelle requête.",
       "recordIdUnavailable": "Cet identifiant appartenait déjà à un enregistrement précédent. Importe l’enregistrement avec un nouvel identifiant.",
+      "recordMarkedTextChanged": "Le texte formaté marqué ne peut être importé que sans modification depuis l'enregistrement stocké ; envoyez le texte formaté nouveau ou modifié comme valeur richText avec documentJson.",
       "recordMeasureDateIntervalInvalid": "Les intervalles de temps nécessitent un regroupement par un champ de date, de date et heure, de création ou de modification, et un fuseau horaire nécessite un intervalle de temps.",
       "recordNotFound": "Cet enregistrement est indisponible.",
       "recordNumberInvalid": "Saisissez un nombre valide.",

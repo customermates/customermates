@@ -1128,6 +1128,7 @@
       "recordDependencies": "Update the dependent fields, views, widgets, or bindings first.",
       "recordIdempotencyConflict": "This request key was used for another change. Start a new request.",
       "recordIdUnavailable": "This record ID belongs to an earlier record. Import the record with a new ID.",
+      "recordMarkedTextChanged": "Marked Formatted text can only be imported unchanged from the stored record; send new or changed Formatted text as a richText value with documentJson.",
       "recordMeasureDateIntervalInvalid": "Time intervals need a date, date-and-time, created or updated grouping field, and a time zone needs a time interval.",
       "recordNotFound": "This record is unavailable.",
       "recordNumberInvalid": "Enter a valid number.",
