@@ -779,7 +779,14 @@ export const getCalendarRepo = () => new PrismaCalendarRepo();
 export const getCalendarEventsRepo = () => new PrismaCalendarEventsRepo();
 export const getAgentChatRepo = (): PrismaAgentChatRepo =>
   new PrismaAgentChatRepo(getWikiPageRepo(), getPermissionService(), getRoutineRepo());
-export const getOperatorRepo = () => new PrismaOperatorRepo(getAgentChatRepo());
+export const getOperatorRepo = () =>
+  new PrismaOperatorRepo(getAgentChatRepo(), {
+    users: getUserRepo(),
+    records: getRecordRepo(),
+    companies: getCompanyRepo(),
+    identities: getAuthService(),
+    inboundEvents: getUnipileWebhookRepo(),
+  });
 export const getOperatorAccessRepo = () => new PrismaOperatorAccessRepo();
 
 // ─── Section 3: Services ────────────────────────────────────────────────────

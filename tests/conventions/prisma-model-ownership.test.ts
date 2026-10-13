@@ -97,21 +97,8 @@ const OWNERS: Record<string, string> = {
   WikiWebsiteCrawl: "ee/wiki-crawl/prisma-wiki-website-crawl.repository.ts",
 };
 
-const OPERATOR_DELETION =
-  "Operator console workspace deletion and account administration remove or rewrite rows across a workspace";
-
-const ALLOWLIST: Record<string, string> = {
-  "Apikey ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "AuthUser ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "AuthVerification ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "Company ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "CrmRecord ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "InviteToken ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "MessagingInboundEvent ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "Subscription ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-  "User ee/operator/prisma-operator.repository.ts": OPERATOR_DELETION,
-};
-const ALLOWLIST_CEILING = 9;
+const ALLOWLIST: Record<string, string> = {};
+const ALLOWLIST_CEILING = 0;
 
 type WriteSite = { model: string; file: string; line: number; operation: string };
 

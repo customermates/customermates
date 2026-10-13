@@ -89,6 +89,11 @@ export class PrismaUnipileWebhookRepo extends TenantRepository implements Webhoo
   }
 
   @BypassTenantGuard
+  async deleteCompanyInboundEventsUnscoped(companyId: string): Promise<void> {
+    await this.prisma.messagingInboundEvent.deleteMany({ where: { companyId } });
+  }
+
+  @BypassTenantGuard
   async recordUnusableItemUnscoped(args: RepoArgs<UnusableProviderItemRepo, "recordUnusableItemUnscoped">) {
     await this.prisma.messagingInboundEvent.create({
       data: {

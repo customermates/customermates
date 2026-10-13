@@ -1818,6 +1818,16 @@ export class PrismaRecordRepo
     await this.wakeRecordEvents();
   }
 
+  async deleteMembershipAuthorizationTasksCompanyWide(companyId: string, relatedUserId: string): Promise<void> {
+    await this.prisma.crmRecord.deleteMany({
+      where: {
+        companyId,
+        protectedKind: "membershipAuthorization",
+        systemData: { path: ["relatedUserId"], equals: relatedUserId },
+      },
+    });
+  }
+
   @BypassTenantGuard
   claimDueUnscoped(now: Date, leaseUntil: Date, take: number): Promise<DueRecordOperation[]> {
     return this.prisma.$queryRaw<DueRecordOperation[]>(Prisma.sql`

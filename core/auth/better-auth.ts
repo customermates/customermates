@@ -8,6 +8,7 @@ import * as Sentry from "@sentry/nextjs";
 
 import { prisma } from "@/prisma/db";
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
+import { getTransactionClient } from "@/core/decorators/transaction-context";
 import { env } from "@/env";
 import { callbackUrlSchema } from "@/features/auth/callback-url.schema";
 import { onboardingIntentFromPath, pathWithOnboardingIntent } from "@/features/company/onboarding-intent-url";
@@ -273,6 +274,12 @@ export const auth = betterAuth({
     nextCookies(),
   ],
 });
+
+export async function deleteApiKeysForIdentities(identityIds: string[]): Promise<void> {
+  await (getTransactionClient<typeof prisma>() ?? prisma).apikey.deleteMany({
+    where: { referenceId: { in: identityIds } },
+  });
+}
 
 async function revokeUnprovenAccess(userId: string, options: { removeAccounts: boolean }): Promise<number> {
   const accounts = options.removeAccounts ? await prisma.authAccount.deleteMany({ where: { userId } }) : { count: 0 };

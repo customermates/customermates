@@ -1,4 +1,5 @@
 import { presetId } from "@/features/records/crm-preset";
+import type { OperatorWriteOwners } from "./operator-write-owners";
 import type { Prisma } from "@/generated/prisma";
 import { ConnectedAccountStatus, Status, SubscriptionPlan, SubscriptionStatus } from "@/generated/prisma";
 
@@ -214,7 +215,10 @@ function toUsageTotals(input: {
 const PLATFORM_OPERATOR_INVARIANT_LOCK = "customermates:platform-operator-invariant";
 
 export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo {
-  constructor(private readonly agentRepo: AgentUsageRepo) {
+  constructor(
+    private readonly agentRepo: AgentUsageRepo,
+    private readonly owners: OperatorWriteOwners,
+  ) {
     super();
   }
 
@@ -724,25 +728,14 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         }
 
         const enteringActive = target.status !== Status.active && data.status === Status.active;
-        await this.prisma.user.update({
-          where: { id: data.userId, companyId },
-          data: {
-            status: data.status,
-            ...(enteringActive ? { agentCreditActivatedAt: now } : {}),
-            ...(leavingActive ? { agentCreditActivatedAt: null } : {}),
-          },
-        });
-        if (leavingPending) {
-          if (protectedTasks.length) {
-            await this.prisma.crmRecord.deleteMany({
-              where: {
-                companyId,
-                protectedKind: "membershipAuthorization",
-                systemData: { path: ["relatedUserId"], equals: data.userId },
-              },
-            });
-          }
-        }
+        await this.owners.users.setOperatorStatusCompanyWide(
+          companyId,
+          data.userId,
+          data.status,
+          enteringActive ? now : leavingActive ? null : undefined,
+        );
+        if (leavingPending && protectedTasks.length)
+          await this.owners.records.deleteMembershipAuthorizationTasksCompanyWide(companyId, data.userId);
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.userStatusUpdate,
           targetCompanyId: companyId,
@@ -804,10 +797,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
           if ((await this.otherActiveOperatorCount(data.userId)) === 0) return "conflict";
         }
 
-        await this.prisma.user.update({
-          where: { id: data.userId, companyId },
-          data: { isPlatformOperator: data.isPlatformOperator },
-        });
+        await this.owners.users.setPlatformOperatorCompanyWide(companyId, data.userId, data.isPlatformOperator);
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.userPlatformAccessUpdate,
           targetCompanyId: companyId,
@@ -857,10 +847,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         };
         const billingProviderManaged = subscription.lemonSqueezyId !== null;
 
-        await this.prisma.subscription.update({
-          where: { companyId },
-          data: next,
-        });
+        await this.owners.companies.correctSubscriptionSnapshotUnscoped(companyId, next);
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.subscriptionSnapshotCorrect,
           targetCompanyId: companyId,
@@ -893,10 +880,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         if (!subscription) return "notFound";
         if (subscription.plan !== SubscriptionPlan.enterprise) return "conflict";
 
-        await this.prisma.subscription.update({
-          where: { companyId: data.companyId },
-          data: { enterpriseAgentCreditsPerUser: data.creditsPerUser },
-        });
+        await this.owners.companies.setEnterpriseAgentCreditsUnscoped(data.companyId, data.creditsPerUser);
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.enterpriseAllowanceUpdate,
           targetCompanyId: data.companyId,
@@ -1171,27 +1155,17 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         const memberIds = company.users.map((member) => member.id);
         const memberEmails = company.users.map((member) => member.email);
 
-        await this.prisma.inviteToken.deleteMany({
-          where: { createdById: { in: memberIds } },
-        });
+        await this.owners.companies.deleteInviteTokensByCreatorsUnscoped(memberIds);
 
         const identities = await this.prisma.authUser.findMany({
           where: { email: { in: memberEmails, mode: "insensitive" } },
           select: { id: true },
         });
         const identityIds = identities.map((identity) => identity.id);
-        await this.prisma.apikey.deleteMany({
-          where: { referenceId: { in: identityIds } },
-        });
-        await this.prisma.authVerification.deleteMany({
-          where: { identifier: { in: memberEmails, mode: "insensitive" } },
-        });
-        await this.prisma.authUser.deleteMany({
-          where: { id: { in: identityIds } },
-        });
-        await this.prisma.messagingInboundEvent.deleteMany({
-          where: { companyId: data.companyId },
-        });
+        await this.owners.identities.deleteApiKeysForIdentities(identityIds);
+        await this.owners.identities.deleteVerificationsForEmails(memberEmails);
+        await this.owners.users.deleteAuthIdentitiesUnscoped(identityIds);
+        await this.owners.inboundEvents.deleteCompanyInboundEventsUnscoped(data.companyId);
 
         const [workflowSchema] = await this.prisma.$queryRaw<Array<{ installed: boolean }>>`
           SELECT to_regclass('workflow.workflow_runs') IS NOT NULL AS installed
@@ -1219,11 +1193,10 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
           }
         }
 
-        await this.prisma.company.delete({ where: { id: data.companyId } });
-        const clearedAuthIdentityCompanies = await this.prisma.authUser.updateMany({
-          where: { companyId: data.companyId },
-          data: { companyId: null },
-        });
+        await this.owners.companies.deleteCompanyUnscoped(data.companyId);
+        const clearedAuthIdentityCompanies = await this.owners.users.detachAuthIdentitiesFromCompanyUnscoped(
+          data.companyId,
+        );
 
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.workspaceDelete,
@@ -1233,7 +1206,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
             workspaceLabel,
             deletedMemberCount: memberIds.length,
             deletedAuthIdentityCount: identityIds.length,
-            clearedAuthIdentityCompanyCount: clearedAuthIdentityCompanies.count,
+            clearedAuthIdentityCompanyCount: clearedAuthIdentityCompanies,
             deletedWorkflowRunCount: workflowRunIds.length,
             plan: company.subscription?.plan ?? null,
             subscriptionStatus: company.subscription?.status ?? null,
@@ -1278,13 +1251,9 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
           lemonSqueezyId: data.lemonSqueezyId,
         };
 
-        await this.prisma.subscription.update({
-          where: { companyId: data.companyId },
-          data: {
-            trialEndDate,
-            lemonSqueezyId: data.lemonSqueezyId,
-            ...(data.lemonSqueezyId === null ? { lemonSqueezyVariantId: null } : {}),
-          },
+        await this.owners.companies.setSubscriptionTermsUnscoped(data.companyId, {
+          trialEndDate,
+          lemonSqueezyId: data.lemonSqueezyId,
         });
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.subscriptionTermsUpdate,
@@ -1367,10 +1336,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
         const previous = normalizeWorkspaceTags(company.tags);
         const next = normalizeWorkspaceTags(data.tags);
 
-        await this.prisma.company.update({
-          where: { id: data.companyId },
-          data: { tags: next },
-        });
+        await this.owners.companies.setWorkspaceTagsUnscoped(data.companyId, next);
         await this.createAudit({
           action: OPERATOR_AUDIT_ACTION.workspaceTagsUpdate,
           targetCompanyId: data.companyId,

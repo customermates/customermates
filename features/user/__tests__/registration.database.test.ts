@@ -24,6 +24,7 @@ vi.mock("@/env", () => ({
   env: {
     APP_MODE: "cloud",
     DATABASE_URL: process.env.DATABASE_URL,
+    BASE_URL: "http://localhost:4000",
     NODE_ENV: "test",
   },
 }));
@@ -50,11 +51,9 @@ const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { runWithOperator } = await import("@/core/decorators/operator-context");
-const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
-const { prismaAgentChatRepoDependencies } = await import("@/tests/helpers/prisma-agent-chat-repo");
-const { PrismaOperatorRepo } = await import("@/ee/operator/prisma-operator.repository");
 const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 const { createTestWorkspaceRegistration } = await import("@/tests/helpers/workspace-registration");
+const { createTestOperatorRepo } = await import("@/tests/helpers/prisma-operator-repo");
 
 const email = `real-db-check-${Date.now()}@example.com`;
 const companyIds: string[] = [];
@@ -991,7 +990,7 @@ describeDatabase("registration against a real database", () => {
     };
     operatorActorIds.push(actor.userId);
     const deletion = runWithOperator(actor, () =>
-      new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies())).deleteWorkspaceUnscoped({
+      createTestOperatorRepo().deleteWorkspaceUnscoped({
         companyId: deletedWorkspaceAdmin.companyId,
         confirmWorkspaceLabel: "race-source.invalid",
         reason: "Concurrency regression",

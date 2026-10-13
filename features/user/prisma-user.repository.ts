@@ -70,6 +70,33 @@ export class PrismaUserRepo
     super();
   }
 
+  async setOperatorStatusCompanyWide(
+    companyId: string,
+    userId: string,
+    status: Status,
+    agentCreditActivatedAt?: Date | null,
+  ): Promise<void> {
+    await this.prisma.user.update({
+      where: { id: userId, companyId },
+      data: { status, ...(agentCreditActivatedAt === undefined ? {} : { agentCreditActivatedAt }) },
+    });
+  }
+
+  async setPlatformOperatorCompanyWide(companyId: string, userId: string, isPlatformOperator: boolean): Promise<void> {
+    await this.prisma.user.update({ where: { id: userId, companyId }, data: { isPlatformOperator } });
+  }
+
+  @BypassTenantGuard
+  async deleteAuthIdentitiesUnscoped(identityIds: string[]): Promise<void> {
+    await this.prisma.authUser.deleteMany({ where: { id: { in: identityIds } } });
+  }
+
+  @BypassTenantGuard
+  async detachAuthIdentitiesFromCompanyUnscoped(companyId: string): Promise<number> {
+    const cleared = await this.prisma.authUser.updateMany({ where: { companyId }, data: { companyId: null } });
+    return cleared.count;
+  }
+
   @BypassTenantGuard
   async markActiveByEmailUnscoped(email: string): Promise<void> {
     await this.prisma.user.updateMany({ where: { email }, data: { lastActiveAt: new Date() } });

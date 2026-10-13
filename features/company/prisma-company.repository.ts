@@ -14,7 +14,7 @@ import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/adm
 import type { GetCompanyRepo } from "./get-company.repo";
 import type { GetOrCreateInviteTokenRepo } from "./get-or-create-invite-token.repo";
 
-import { ConversionEventType, SubscriptionStatus } from "@/generated/prisma";
+import { ConversionEventType, SubscriptionStatus, type Subscription } from "@/generated/prisma";
 
 import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
 import { env } from "@/env";
@@ -157,6 +157,52 @@ export class PrismaCompanyRepo
     });
 
     return subscription;
+  }
+
+  @BypassTenantGuard
+  async correctSubscriptionSnapshotUnscoped(
+    companyId: string,
+    next: Pick<Subscription, "plan" | "status" | "quantity">,
+  ): Promise<void> {
+    await this.prisma.subscription.update({ where: { companyId }, data: next });
+  }
+
+  @BypassTenantGuard
+  async setEnterpriseAgentCreditsUnscoped(companyId: string, creditsPerUser: number | null): Promise<void> {
+    await this.prisma.subscription.update({
+      where: { companyId },
+      data: { enterpriseAgentCreditsPerUser: creditsPerUser },
+    });
+  }
+
+  @BypassTenantGuard
+  async setSubscriptionTermsUnscoped(
+    companyId: string,
+    terms: { trialEndDate: Date | null; lemonSqueezyId: string | null },
+  ): Promise<void> {
+    await this.prisma.subscription.update({
+      where: { companyId },
+      data: {
+        trialEndDate: terms.trialEndDate,
+        lemonSqueezyId: terms.lemonSqueezyId,
+        ...(terms.lemonSqueezyId === null ? { lemonSqueezyVariantId: null } : {}),
+      },
+    });
+  }
+
+  @BypassTenantGuard
+  async setWorkspaceTagsUnscoped(companyId: string, tags: string[]): Promise<void> {
+    await this.prisma.company.update({ where: { id: companyId }, data: { tags } });
+  }
+
+  @BypassTenantGuard
+  async deleteInviteTokensByCreatorsUnscoped(creatorIds: string[]): Promise<void> {
+    await this.prisma.inviteToken.deleteMany({ where: { createdById: { in: creatorIds } } });
+  }
+
+  @BypassTenantGuard
+  async deleteCompanyUnscoped(companyId: string): Promise<void> {
+    await this.prisma.company.delete({ where: { id: companyId } });
   }
 
   async createRegisteredCompany() {
