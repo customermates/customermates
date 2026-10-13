@@ -1159,6 +1159,7 @@
       "recordSavedViewIncompatible": "La vue enregistrée « {viewName} » ({viewId}) utilise encore « {columnLabel} » ({columnId}). Modifiez ou supprimez cette vue, puis réessayez.",
       "recordSchemaChanged": "Le modèle de données a changé. Actualise la page et réessaie.",
       "recordSublistNested": "Une sous-liste ne peut pas avoir ses propres sous-listes. Reliez plutôt la liste à la liste parente de la sous-liste.",
+      "recordTransactionEnded": "La modification a pris trop de temps et n’a pas été enregistrée. Essaie une modification plus petite ou contacte l’assistance.",
       "recordTypeNotFound": "Ce type d’enregistrement est indisponible.",
       "recordValueInvalid": "Vérifie les valeurs signalées de l’enregistrement.",
       "recordValueRequired": "{field} doit avoir une valeur.",

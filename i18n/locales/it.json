@@ -1159,6 +1159,7 @@
       "recordSavedViewIncompatible": "La vista salvata \"{viewName}\" ({viewId}) usa ancora \"{columnLabel}\" ({columnId}). Aggiorna o elimina quella vista, poi riprova.",
       "recordSchemaChanged": "Il modello dati è cambiato. Aggiorna la pagina e riprova.",
       "recordSublistNested": "Un sottoelenco non può avere sottoelenchi propri. Collega invece l'elenco all'elenco principale del sottoelenco.",
+      "recordTransactionEnded": "La modifica ha richiesto troppo tempo e non è stata salvata. Prova una modifica più piccola o contatta l'assistenza.",
       "recordTypeNotFound": "Questo tipo di record non è disponibile.",
       "recordValueInvalid": "Controlla i valori evidenziati del record.",
       "recordValueRequired": "{field} richiede un valore.",
