@@ -14,7 +14,10 @@ import type { AdminUpdateUserSubscriptionRepo } from "@/features/user/upsert/adm
 import type { GetCompanyRepo } from "./get-company.repo";
 import type { GetOrCreateInviteTokenRepo } from "./get-or-create-invite-token.repo";
 
-import { ConversionEventType, SubscriptionStatus } from "@/generated/prisma";
+import { ConversionEventType, SubscriptionStatus, type Subscription } from "@/generated/prisma";
+
+import { CLOUD_TRIAL } from "@/core/commercial/plan-catalog";
+import { env } from "@/env";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
@@ -154,6 +157,85 @@ export class PrismaCompanyRepo
     });
 
     return subscription;
+  }
+
+  @BypassTenantGuard
+  async correctSubscriptionSnapshotUnscoped(
+    companyId: string,
+    next: Pick<Subscription, "plan" | "status" | "quantity">,
+  ): Promise<void> {
+    await this.prisma.subscription.update({ where: { companyId }, data: next });
+  }
+
+  @BypassTenantGuard
+  async setEnterpriseAgentCreditsUnscoped(companyId: string, creditsPerUser: number | null): Promise<void> {
+    await this.prisma.subscription.update({
+      where: { companyId },
+      data: { enterpriseAgentCreditsPerUser: creditsPerUser },
+    });
+  }
+
+  @BypassTenantGuard
+  async setSubscriptionTermsUnscoped(
+    companyId: string,
+    terms: { trialEndDate: Date | null; lemonSqueezyId: string | null },
+  ): Promise<void> {
+    await this.prisma.subscription.update({
+      where: { companyId },
+      data: {
+        trialEndDate: terms.trialEndDate,
+        lemonSqueezyId: terms.lemonSqueezyId,
+        ...(terms.lemonSqueezyId === null ? { lemonSqueezyVariantId: null } : {}),
+      },
+    });
+  }
+
+  @BypassTenantGuard
+  async setWorkspaceTagsUnscoped(companyId: string, tags: string[]): Promise<void> {
+    await this.prisma.company.update({ where: { id: companyId }, data: { tags } });
+  }
+
+  @BypassTenantGuard
+  async deleteInviteTokensByCreatorsUnscoped(creatorIds: string[]): Promise<void> {
+    await this.prisma.inviteToken.deleteMany({ where: { createdById: { in: creatorIds } } });
+  }
+
+  @BypassTenantGuard
+  async deleteCompanyUnscoped(companyId: string): Promise<void> {
+    await this.prisma.company.delete({ where: { id: companyId } });
+  }
+
+  async createRegisteredCompany() {
+    const company = await this.prisma.company.create({ data: {} });
+
+    const trialEndDate = new Date();
+    trialEndDate.setDate(trialEndDate.getDate() + CLOUD_TRIAL.days);
+
+    await this.prisma.subscription.create({
+      data:
+        env.APP_MODE !== "self-hosted"
+          ? {
+              companyId: company.id,
+              status: SubscriptionStatus.trial,
+              plan: CLOUD_TRIAL.plan,
+              trialEndDate,
+              agentCreditAnchorAt: new Date(),
+            }
+          : {
+              companyId: company.id,
+              status: SubscriptionStatus.active,
+              trialEndDate: null,
+              agentCreditAnchorAt: new Date(),
+            },
+    });
+
+    return company.id;
+  }
+
+  async recordSignupConversion(companyId: string, occurredAt: Date) {
+    await this.prisma.conversionEvent.create({
+      data: { companyId, type: ConversionEventType.signup, occurredAt },
+    });
   }
 
   @BypassTenantGuard

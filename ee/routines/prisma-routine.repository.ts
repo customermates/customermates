@@ -1,5 +1,7 @@
 import { unwindFailure } from "@/core/validation/failure-unwind";
 import { RECORD_EVENT_KINDS, type RecordEventKind } from "@/features/records/record-event.schema";
+import type { RoutineRunLinkArgs, RoutineRunLinkRepo } from "@/ee/agent-chat/routine-run-link.repo";
+import type { RoutineConversationPurgeRepo } from "./routine-conversation-purge.repo";
 import type { RoutineLabelRepo } from "./routine-label.repo";
 import type { PermissionService } from "@/core/base/permission.service";
 import type { RepoArgs } from "@/core/utils/types";
@@ -195,12 +197,14 @@ export class PrismaRoutineRepo
     ReconcileRoutineRunsRepo,
     ReleaseOwnerRoutinesRepo,
     TriggerRoutinesRepo,
-    RoutineLabelRepo
+    RoutineLabelRepo,
+    RoutineRunLinkRepo
 {
   constructor(
     private readonly routineEventAccess: RoutineEventAccess,
     private readonly subscriptions: RecordEventSubscriptionRepo,
     private readonly permissions: PermissionService,
+    private readonly conversations: () => RoutineConversationPurgeRepo,
     private readonly scopedCompanyId?: string,
   ) {
     super();
@@ -709,6 +713,53 @@ export class PrismaRoutineRepo
     return routines.map((routine) => routine.id);
   }
 
+  async linkAdmittedTurnCompanyWide(
+    args: RoutineRunLinkArgs & { turnRequestId: string; startedAt: Date },
+  ): Promise<boolean> {
+    const linked = await this.prisma.routineRun.updateMany({
+      where: {
+        id: args.routineRunId,
+        companyId: args.companyId,
+        executedByUserId: args.executedByUserId,
+        status: RoutineRunStatus.running,
+        conversationId: args.conversationId,
+        turnRequestId: null,
+      },
+      data: { turnRequestId: args.turnRequestId, startedAt: args.startedAt },
+    });
+    return linked.count === 1;
+  }
+
+  async linkConversationCompanyWide(args: RoutineRunLinkArgs): Promise<boolean> {
+    const linked = await this.prisma.routineRun.updateMany({
+      where: {
+        id: args.routineRunId,
+        companyId: args.companyId,
+        executedByUserId: args.executedByUserId,
+        status: RoutineRunStatus.running,
+        conversationId: null,
+        turnRequestId: null,
+      },
+      data: { conversationId: args.conversationId },
+    });
+    return linked.count === 1;
+  }
+
+  async releaseUnstartedConversationCompanyWide(args: RoutineRunLinkArgs): Promise<boolean> {
+    const released = await this.prisma.routineRun.updateMany({
+      where: {
+        id: args.routineRunId,
+        companyId: args.companyId,
+        executedByUserId: args.executedByUserId,
+        status: RoutineRunStatus.running,
+        conversationId: args.conversationId,
+        turnRequestId: null,
+      },
+      data: { status: RoutineRunStatus.queued, conversationId: null, startedAt: null },
+    });
+    return released.count === 1;
+  }
+
   async purgeTrashed(ids: string[]): Promise<void> {
     const routines = await this.prisma.routine.findMany({
       where: { id: { in: ids }, companyId: this.companyId, deletedAt: { not: null } },
@@ -723,16 +774,8 @@ export class PrismaRoutineRepo
       const conversationIds = [...new Set([...conversationsByRun.values()].flatMap((runIds) => [...runIds]))];
       await this.prisma.routine.delete({ where: { id, companyId: this.companyId } });
       await this.subscriptions.remove(id);
-      if (conversationIds.length > 0) {
-        await this.prisma.agentConversation.deleteMany({
-          where: {
-            id: { in: conversationIds },
-            companyId: this.companyId,
-            origin: AgentConversationOrigin.routine,
-            routineRuns: { none: {} },
-          },
-        });
-      }
+      if (conversationIds.length > 0)
+        await this.conversations().deleteUnlinkedRoutineConversationsCompanyWide(this.companyId, conversationIds);
     }
   }
 
@@ -1420,16 +1463,8 @@ export class PrismaRoutineRepo
           },
         });
 
-        if (safeConversationIds.length > 0) {
-          await this.prisma.agentConversation.deleteMany({
-            where: {
-              id: { in: safeConversationIds },
-              companyId,
-              origin: AgentConversationOrigin.routine,
-              routineRuns: { none: {} },
-            },
-          });
-        }
+        if (safeConversationIds.length > 0)
+          await this.conversations().deleteUnlinkedRoutineConversationsCompanyWide(companyId, safeConversationIds);
 
         return removed.count;
       });

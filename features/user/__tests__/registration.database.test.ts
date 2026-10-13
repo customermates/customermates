@@ -24,6 +24,7 @@ vi.mock("@/env", () => ({
   env: {
     APP_MODE: "cloud",
     DATABASE_URL: process.env.DATABASE_URL,
+    BASE_URL: "http://localhost:4000",
     NODE_ENV: "test",
   },
 }));
@@ -50,10 +51,9 @@ const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
 const { runInTransaction } = await import("@/core/decorators/transaction-runner");
 const { runWithOperator } = await import("@/core/decorators/operator-context");
-const { PrismaAgentChatRepo } = await import("@/ee/agent-chat/prisma-agent-chat.repository");
-const { prismaAgentChatRepoDependencies } = await import("@/tests/helpers/prisma-agent-chat-repo");
-const { PrismaOperatorRepo } = await import("@/ee/operator/prisma-operator.repository");
 const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
+const { createTestWorkspaceRegistration } = await import("@/tests/helpers/workspace-registration");
+const { createTestOperatorRepo } = await import("@/tests/helpers/prisma-operator-repo");
 
 const email = `real-db-check-${Date.now()}@example.com`;
 const companyIds: string[] = [];
@@ -119,9 +119,8 @@ const describeDatabase = databaseUrl ? describe : describe.skip;
 
 describeDatabase("registration against a real database", () => {
   it("creates membership infrastructure before the record template is initialized", async () => {
-    const repo = new PrismaUserRepo(new PermissionService());
     const user = await runWithoutTenant(() =>
-      repo.createCompanyAndUser({
+      createTestWorkspaceRegistration().createCompanyAndUser({
         email,
         firstName: "Real",
         lastName: "Check",
@@ -154,7 +153,7 @@ describeDatabase("registration against a real database", () => {
     const googleExpiresAt = new Date("2026-11-28T10:00:00.000Z");
     const openAiExpiresAt = new Date("2026-09-30T10:00:00.000Z");
     const owner = await runWithoutTenant(() =>
-      repo.createCompanyAndUser({
+      createTestWorkspaceRegistration().createCompanyAndUser({
         email: `ad-click-${Date.now()}@example.com`,
         firstName: "Ad",
         lastName: "Click",
@@ -277,6 +276,7 @@ describeDatabase("registration against a real database", () => {
       unregisteredRouteGuardService(authUserId, registrationEmail) as never,
       new PrismaCompanyRepo(),
       new InitializeRecordModelService(createTestRecordRepo()),
+      createTestWorkspaceRegistration(),
     );
 
     const result = await interactor.invoke(
@@ -397,7 +397,7 @@ describeDatabase("registration against a real database", () => {
     const suffix = Date.now();
     const repo = new PrismaUserRepo(new PermissionService());
     const administrator = await runWithoutTenant(() =>
-      repo.createCompanyAndUser({
+      createTestWorkspaceRegistration().createCompanyAndUser({
         email: `invite-admin-${suffix}@example.com`,
         firstName: "Invite",
         lastName: "Admin",
@@ -435,6 +435,7 @@ describeDatabase("registration against a real database", () => {
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
       new InitializeRecordModelService(createTestRecordRepo()),
+      createTestWorkspaceRegistration(),
     );
 
     const result = await interactor.invoke(
@@ -477,7 +478,7 @@ describeDatabase("registration against a real database", () => {
     const suffix = `${Date.now()}-cookie`;
     const repo = new PrismaUserRepo(new PermissionService());
     const inviter = await runWithoutTenant(() =>
-      repo.createCompanyAndUser({
+      createTestWorkspaceRegistration().createCompanyAndUser({
         email: `cookie-admin-${suffix}@example.com`,
         firstName: "Cookie",
         lastName: "Admin",
@@ -504,6 +505,7 @@ describeDatabase("registration against a real database", () => {
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
       new InitializeRecordModelService(createTestRecordRepo()),
+      createTestWorkspaceRegistration(),
     );
 
     const result = await interactor.invoke(
@@ -544,7 +546,7 @@ describeDatabase("registration against a real database", () => {
     const suffix = `${Date.now()}-stale`;
     const repo = new PrismaUserRepo(new PermissionService());
     const inviter = await runWithoutTenant(() =>
-      repo.createCompanyAndUser({
+      createTestWorkspaceRegistration().createCompanyAndUser({
         email: `stale-admin-${suffix}@example.com`,
         firstName: "Stale",
         lastName: "Admin",
@@ -576,6 +578,7 @@ describeDatabase("registration against a real database", () => {
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
       new InitializeRecordModelService(createTestRecordRepo()),
+      createTestWorkspaceRegistration(),
     );
 
     const result = await interactor.invoke(
@@ -622,6 +625,7 @@ describeDatabase("registration against a real database", () => {
       unregisteredRouteGuardService(authUserId, registrationEmail) as never,
       new PrismaCompanyRepo(),
       new InitializeRecordModelService(createTestRecordRepo()),
+      createTestWorkspaceRegistration(),
     );
 
     await expect(
@@ -663,6 +667,7 @@ describeDatabase("registration against a real database", () => {
       unregisteredRouteGuardService(authUserId, registrationEmail) as never,
       new PrismaCompanyRepo(),
       new InitializeRecordModelService(createTestRecordRepo()),
+      createTestWorkspaceRegistration(),
     );
 
     const result = await interactor.invoke(
@@ -685,7 +690,7 @@ describeDatabase("registration against a real database", () => {
     const suffix = `${Date.now()}-deleted-identity`;
     const repo = new PrismaUserRepo(new PermissionService());
     const inviter = await runWithoutTenant(() =>
-      repo.createCompanyAndUser({
+      createTestWorkspaceRegistration().createCompanyAndUser({
         email: `deleted-identity-admin-${suffix}@example.com`,
         firstName: "Deleted Identity",
         lastName: "Admin",
@@ -705,6 +710,7 @@ describeDatabase("registration against a real database", () => {
       unregisteredRouteGuardService(missingAuthUserId, registrationEmail) as never,
       new PrismaCompanyRepo(),
       new InitializeRecordModelService(createTestRecordRepo()),
+      createTestWorkspaceRegistration(),
     );
 
     const result = await interactor.invoke(
@@ -727,7 +733,7 @@ describeDatabase("registration against a real database", () => {
     const suffix = `${Date.now()}-invite-precedence`;
     const repo = new PrismaUserRepo(new PermissionService());
     const olderWorkspaceAdmin = await runWithoutTenant(() =>
-      repo.createCompanyAndUser({
+      createTestWorkspaceRegistration().createCompanyAndUser({
         email: `older-admin-${suffix}@example.com`,
         firstName: "Older",
         lastName: "Admin",
@@ -737,7 +743,7 @@ describeDatabase("registration against a real database", () => {
       }),
     );
     const currentWorkspaceAdmin = await runWithoutTenant(() =>
-      repo.createCompanyAndUser({
+      createTestWorkspaceRegistration().createCompanyAndUser({
         email: `current-admin-${suffix}@example.com`,
         firstName: "Current",
         lastName: "Admin",
@@ -769,6 +775,7 @@ describeDatabase("registration against a real database", () => {
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
       new InitializeRecordModelService(createTestRecordRepo()),
+      createTestWorkspaceRegistration(),
     );
 
     const result = await interactor.invoke(
@@ -854,6 +861,7 @@ describeDatabase("registration against a real database", () => {
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
       new InitializeRecordModelService(createTestRecordRepo()),
+      createTestWorkspaceRegistration(),
     ).invoke(registrationData, registrationTarget);
 
     const blockerPid = await authUserLocked;
@@ -864,6 +872,7 @@ describeDatabase("registration against a real database", () => {
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
       new InitializeRecordModelService(createTestRecordRepo()),
+      createTestWorkspaceRegistration(),
     ).invoke(registrationData, registrationTarget);
 
     const secondRegistrationBlocked = await waitForBlockedDatabaseSession(blockerPid);
@@ -891,9 +900,8 @@ describeDatabase("registration against a real database", () => {
 
   it("keeps the invited workspace binding when operator deletion races with registration", async () => {
     const suffix = randomUUID();
-    const setupRepo = new PrismaUserRepo(new PermissionService());
     const deletedWorkspaceAdmin = await runWithoutTenant(() =>
-      setupRepo.createCompanyAndUser({
+      createTestWorkspaceRegistration().createCompanyAndUser({
         email: `race-source-${suffix}@race-source.invalid`,
         firstName: "Race",
         lastName: "Source",
@@ -903,7 +911,7 @@ describeDatabase("registration against a real database", () => {
       }),
     );
     const invitedWorkspaceAdmin = await runWithoutTenant(() =>
-      setupRepo.createCompanyAndUser({
+      createTestWorkspaceRegistration().createCompanyAndUser({
         email: `race-target-${suffix}@race-target.invalid`,
         firstName: "Race",
         lastName: "Target",
@@ -960,6 +968,7 @@ describeDatabase("registration against a real database", () => {
       unregisteredRouteGuardService(authUserId, invitedEmail) as never,
       new PrismaCompanyRepo(),
       new InitializeRecordModelService(createTestRecordRepo()),
+      createTestWorkspaceRegistration(),
     ).invoke(
       {
         email: invitedEmail,
@@ -981,7 +990,7 @@ describeDatabase("registration against a real database", () => {
     };
     operatorActorIds.push(actor.userId);
     const deletion = runWithOperator(actor, () =>
-      new PrismaOperatorRepo(new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies())).deleteWorkspaceUnscoped({
+      createTestOperatorRepo().deleteWorkspaceUnscoped({
         companyId: deletedWorkspaceAdmin.companyId,
         confirmWorkspaceLabel: "race-source.invalid",
         reason: "Concurrency regression",
@@ -1017,7 +1026,7 @@ describeDatabase("registration against a real database", () => {
     const suffix = Date.now();
     const repo = new PrismaUserRepo(new PermissionService());
     const admin = await runWithoutTenant(() =>
-      repo.createCompanyAndUser({
+      createTestWorkspaceRegistration().createCompanyAndUser({
         email: `legal-admin-${suffix}@example.com`,
         firstName: "Legal",
         lastName: "Admin",
@@ -1149,6 +1158,7 @@ describeDatabase("registration against a real database", () => {
       unregisteredRouteGuardService(authUserId, rollbackEmail) as never,
       new PrismaCompanyRepo(),
       new InitializeRecordModelService(createTestRecordRepo()),
+      createTestWorkspaceRegistration(),
     );
 
     await expect(

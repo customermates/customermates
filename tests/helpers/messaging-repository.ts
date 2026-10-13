@@ -1,6 +1,7 @@
 import { PermissionService } from "@/core/base/permission.service";
 import { PrismaConnectedAccountRepo } from "@/ee/messaging/persistence/prisma-connected-account.repository";
 import { PrismaMessagingRepo } from "@/ee/messaging/persistence/prisma-messaging.repository";
+import { PrismaUnipileWebhookRepo } from "@/ee/messaging/persistence/prisma-unipile-webhook.repository";
 import { RecordAccessPolicy } from "@/features/records/record-access";
 import { RecordIdentityReader } from "@/features/records/record-identity-reader";
 import { PrismaUserRepo } from "@/features/user/prisma-user.repository";
@@ -16,6 +17,6 @@ export function createTestMessagingRepo(): PrismaMessagingRepo {
     records,
     policy,
     new RecordIdentityReader(records, policy),
-    new PrismaConnectedAccountRepo(new PermissionService()),
+    new PrismaConnectedAccountRepo(new PermissionService(), new PrismaUnipileWebhookRepo()),
   );
 }

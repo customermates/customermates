@@ -7,10 +7,12 @@ export abstract class RegisterUserRepo {
   abstract findAuthUserCompanyIdForUpdateUnscoped(userId: string): Promise<string | null | undefined>;
   abstract findCurrentUserUnscoped(email: string): Promise<TenantUser | null>;
   abstract bindAuthUserToCompanyOrThrowUnscoped(args: { authUserId: string; companyId: string }): Promise<void>;
-  abstract createCompanyAndUser(
+  abstract createCompanyOwnerOrThrow(
     args: RegisterUserData & {
+      companyId: string;
+      roleId: string;
       adAttribution?: RegistrationAdAttribution[];
     },
-  ): Promise<TenantUser>;
+  ): Promise<{ user: TenantUser; createdAt: Date }>;
   abstract registerExistingCompany(args: RegisterUserData & { companyId: string }): Promise<TenantUser>;
 }

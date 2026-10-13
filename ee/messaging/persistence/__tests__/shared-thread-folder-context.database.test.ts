@@ -9,6 +9,7 @@ import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 import { createMockUser } from "@/tests/helpers/mock-user";
 
 import { PrismaConnectedAccountRepo } from "../prisma-connected-account.repository";
+import { PrismaUnipileWebhookRepo } from "../prisma-unipile-webhook.repository";
 import { createTestMessagingRepo } from "@/tests/helpers/messaging-repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
@@ -105,10 +106,10 @@ describeDatabase("shared-thread folder context on PostgreSQL", () => {
 
   it("names only the visible folders the shared conversation sits in", async () => {
     const context = await runWithTenant(colleague, () =>
-      new PrismaConnectedAccountRepo(new PermissionService()).findSharedThreadFolderContext(sharedThreadId, [
-        "archive",
-        "hidden",
-      ]),
+      new PrismaConnectedAccountRepo(
+        new PermissionService(),
+        new PrismaUnipileWebhookRepo(),
+      ).findSharedThreadFolderContext(sharedThreadId, ["archive", "hidden"]),
     );
 
     expect(context).toEqual({ folders: [folder("archive", "Archive", "ARCHIVE")], selectedFolderIds: ["archive"] });
@@ -127,7 +128,9 @@ describeDatabase("shared-thread folder context on PostgreSQL", () => {
   it("keeps the whole-account catalog private from a colleague", async () => {
     expect(
       await runWithTenant(colleague, () =>
-        new PrismaConnectedAccountRepo(new PermissionService()).findFolderContextById(accountId),
+        new PrismaConnectedAccountRepo(new PermissionService(), new PrismaUnipileWebhookRepo()).findFolderContextById(
+          accountId,
+        ),
       ),
     ).toBeNull();
   });
@@ -135,9 +138,10 @@ describeDatabase("shared-thread folder context on PostgreSQL", () => {
   it("reveals nothing for a conversation that is not shared", async () => {
     expect(
       await runWithTenant(colleague, () =>
-        new PrismaConnectedAccountRepo(new PermissionService()).findSharedThreadFolderContext(privateThreadId, [
-          "inbox",
-        ]),
+        new PrismaConnectedAccountRepo(
+          new PermissionService(),
+          new PrismaUnipileWebhookRepo(),
+        ).findSharedThreadFolderContext(privateThreadId, ["inbox"]),
       ),
     ).toBeNull();
   });
@@ -145,9 +149,10 @@ describeDatabase("shared-thread folder context on PostgreSQL", () => {
   it("reveals nothing across workspaces", async () => {
     expect(
       await runWithTenant(outsider, () =>
-        new PrismaConnectedAccountRepo(new PermissionService()).findSharedThreadFolderContext(sharedThreadId, [
-          "inbox",
-        ]),
+        new PrismaConnectedAccountRepo(
+          new PermissionService(),
+          new PrismaUnipileWebhookRepo(),
+        ).findSharedThreadFolderContext(sharedThreadId, ["inbox"]),
       ),
     ).toBeNull();
   });

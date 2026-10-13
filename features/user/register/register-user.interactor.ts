@@ -7,6 +7,7 @@ import type { EventService } from "@/features/event/event.service";
 import type { RouteGuardService } from "@/features/auth/route-guard.service";
 import type { Redirect } from "@/features/auth/auth-outcome";
 import type { InitializeRecordModelService } from "@/features/records/initialize-record-model.service";
+import type { WorkspaceRegistrationService } from "./workspace-registration.service";
 
 import { z } from "zod";
 import { CountryCode, Status } from "@/generated/prisma";
@@ -83,6 +84,7 @@ export class RegisterUserInteractor {
     private routeGuardService: RouteGuardService,
     private companyRepo: RegisterUserCompanyRepo,
     private recordModel: Pick<InitializeRecordModelService, "initialize">,
+    private registration: Pick<WorkspaceRegistrationService, "createCompanyAndUser">,
   ) {}
 
   async invoke(
@@ -160,7 +162,7 @@ export class RegisterUserInteractor {
           ...registrationData,
           companyId,
         })
-      : await this.repo.createCompanyAndUser({
+      : await this.registration.createCompanyAndUser({
           ...registrationData,
           adAttribution: eligibleAdAttribution,
         });

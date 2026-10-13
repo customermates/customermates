@@ -2,18 +2,24 @@ import type { BackgroundTaskService } from "@/core/utils/background-task.service
 import type { LegalAuditRecord } from "@/features/legal/legal-audit.schema";
 import type { LegalAuditRepo } from "@/features/legal/legal-audit.repo";
 import type { EventLogEntry, EventLogRepo } from "./event-log.repo";
+import type { EventOutboxRepo } from "./event-outbox.repo";
 import type { RecordEventLogRepo, RecordEventWrite } from "./record-event-log.repo";
 import type { RecordRef } from "@/features/records/record-model.schema";
 
-import { Prisma, RoutineTriggerKind } from "@/generated/prisma";
+import { type EventLog, Prisma, RoutineTriggerKind } from "@/generated/prisma";
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
 import { LegalAcceptanceAuditPayloadSchema, LegalNoticeAuditPayloadSchema } from "@/features/legal/legal-audit.schema";
 import { DomainEvent } from "./domain-events";
 import { subjectKindOf } from "./event-envelope";
-import { wakeEventOutbox } from "./event-outbox.repo";
+import { EVENT_ADMISSION_ABANDONED, wakeEventOutbox } from "./event-outbox.repo";
 
-export class PrismaEventLogRepo extends TenantRepository implements EventLogRepo, LegalAuditRepo, RecordEventLogRepo {
+const ABANDONED_RETRY_AT = new Date("9999-12-31T00:00:00.000Z");
+
+export class PrismaEventLogRepo
+  extends TenantRepository
+  implements EventLogRepo, EventOutboxRepo, LegalAuditRepo, RecordEventLogRepo
+{
   constructor(private readonly background: Pick<BackgroundTaskService, "dispatch">) {
     super();
   }
@@ -141,5 +147,64 @@ export class PrismaEventLogRepo extends TenantRepository implements EventLogRepo
         stage.payload->>'actorId', stage.payload->>'causeId', stage.payload->>'kind', stage.payload->'payload', NOW(), 0, NOW()
       FROM "RecordStageRow" stage WHERE stage."companyId" = ${companyId} AND stage."operationId" = ${operationId} AND stage.kind = 'event'
     `);
+  }
+
+  @BypassTenantGuard
+  findUnscoped(companyId: string, eventId: string): Promise<EventLog | null> {
+    return this.prisma.eventLog.findFirst({ where: { companyId, id: eventId } });
+  }
+
+  @BypassTenantGuard
+  async markDeliveredUnscoped(event: EventLog, now: Date): Promise<boolean> {
+    const result = await this.prisma.eventLog.updateMany({
+      where: { companyId: event.companyId, id: event.id, deliveredAt: null, attempts: event.attempts },
+      data: { deliveredAt: now, attempts: { increment: 1 }, lastFailureCode: null },
+    });
+    return result.count === 1;
+  }
+
+  @BypassTenantGuard
+  async deferUnscoped(event: EventLog, nextAttemptAt: Date): Promise<boolean> {
+    const result = await this.prisma.eventLog.updateMany({
+      where: { companyId: event.companyId, id: event.id, deliveredAt: null, attempts: event.attempts },
+      data: { attempts: { increment: 1 }, nextAttemptAt, lastFailureCode: "admission_failed" },
+    });
+    return result.count === 1;
+  }
+
+  @BypassTenantGuard
+  async abandonUnscoped(event: EventLog): Promise<boolean> {
+    const result = await this.prisma.eventLog.updateMany({
+      where: { companyId: event.companyId, id: event.id, deliveredAt: null, attempts: event.attempts },
+      data: {
+        attempts: { increment: 1 },
+        nextAttemptAt: ABANDONED_RETRY_AT,
+        lastFailureCode: EVENT_ADMISSION_ABANDONED,
+      },
+    });
+    return result.count === 1;
+  }
+
+  @BypassTenantGuard
+  async dueCompaniesUnscoped(now: Date, take: number): Promise<string[]> {
+    const rows = await this.prisma.eventLog.groupBy({
+      by: ["companyId"],
+      where: { deliveredAt: null, nextAttemptAt: { lte: now } },
+      _min: { nextAttemptAt: true },
+      orderBy: [{ _min: { nextAttemptAt: "asc" } }, { companyId: "asc" }],
+      take,
+    });
+    return rows.map((row) => row.companyId);
+  }
+
+  @BypassTenantGuard
+  async dueEventsUnscoped(companyId: string, now: Date, take: number): Promise<string[]> {
+    const rows = await this.prisma.eventLog.findMany({
+      where: { companyId, deliveredAt: null, nextAttemptAt: { lte: now } },
+      select: { id: true },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }],
+      take,
+    });
+    return rows.map((row) => row.id);
   }
 }

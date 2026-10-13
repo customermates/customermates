@@ -27,10 +27,4 @@ export abstract class ResyncThreadRepo {
     message: IngestMessage;
     backfill?: boolean;
   }): Promise<unknown>;
-  abstract recordUnusableItemUnscoped(args: {
-    companyId: string;
-    connectedAccountId: string;
-    payload: unknown;
-    unipileMessageId?: string | null;
-  }): Promise<void>;
 }

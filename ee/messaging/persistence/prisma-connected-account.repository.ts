@@ -19,6 +19,7 @@ import { resolveStoredEmailSettings } from "../email-settings";
 
 import { type EmailFolder, EmailFolderSchema } from "../email-folders";
 import type { BackfillConnectedAccountRepo } from "../ingest/backfill/backfill.repo";
+import type { UnusableProviderItemRepo } from "../ingest/unusable-provider-item.repo";
 import type { ClaimBackfillRepo } from "../ingest/claim-backfill.interactor";
 import type { ReleaseBackfillClaimRepo } from "../ingest/release-backfill-claim.interactor";
 import type { FindUsableAccountRepo } from "./find-usable-account.repo";
@@ -77,7 +78,10 @@ export class PrismaConnectedAccountRepo
     FindConnectedAccountsByIdsRepo,
     MessagingFilterOptionsRepo
 {
-  constructor(private readonly permissions: PermissionService) {
+  constructor(
+    private readonly permissions: PermissionService,
+    private readonly diagnostics: UnusableProviderItemRepo,
+  ) {
     super();
   }
 
@@ -253,17 +257,8 @@ export class PrismaConnectedAccountRepo
   }
 
   @BypassTenantGuard
-  async recordUnusableItemUnscoped(args: RepoArgs<BackfillConnectedAccountRepo, "recordUnusableItemUnscoped">) {
-    await this.prisma.messagingInboundEvent.create({
-      data: {
-        source: "backfill",
-        companyId: args.companyId,
-        connectedAccountId: args.connectedAccountId,
-        payload: args.payload as Prisma.InputJsonValue,
-        unipileMessageId: args.unipileMessageId ?? null,
-        processed: false,
-      },
-    });
+  recordUnusableItemUnscoped(args: RepoArgs<BackfillConnectedAccountRepo, "recordUnusableItemUnscoped">) {
+    return this.diagnostics.recordUnusableItemUnscoped(args);
   }
 
   @BypassTenantGuard
