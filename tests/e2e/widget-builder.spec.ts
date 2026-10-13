@@ -131,12 +131,19 @@ test("starts from a recommended starter, previews it live at dashboard size and 
     .locator(".react-grid-item")
     .filter({ hasText: "Placed by the API" });
   await expect(second).toBeVisible();
-  const [left, right] = [await first.boundingBox(), await second.boundingBox()];
-  expect(left && right).toBeTruthy();
-  if (!left || !right) return;
-  expect(Math.abs(left.y - right.y)).toBeLessThan(2);
-  expect(right.x).toBeGreaterThan(left.x + left.width);
-  expect(right.width).toBeGreaterThan(left.width * 1.8);
+  await expect
+    .poll(async () => {
+      const [left, right] = [
+        await first.boundingBox(),
+        await second.boundingBox(),
+      ];
+      return {
+        sameRow: Boolean(left && right && Math.abs(left.y - right.y) < 2),
+        separated: Boolean(left && right && right.x > left.x + left.width),
+        wider: Boolean(left && right && right.width > left.width * 1.8),
+      };
+    })
+    .toEqual({ sameRow: true, separated: true, wider: true });
   expect(errors).toEqual([]);
 });
 
@@ -300,12 +307,21 @@ for (const valueKind of ["decimal", "dateTime"] as const) {
         initial,
       ]);
       await page.getByRole("heading", { name: savedName, exact: true }).click();
+      await expect(page.locator("#name")).toHaveValue(savedName);
       await page.locator("#name").fill(name + " corrected");
       await page.locator("#widget-config-filters").click();
       await openFilterPalette(page, "widget-source-filters");
       await page.locator('[data-filter-index="0"]').click();
       await page.locator('[id="draft.value"]').fill(corrected.value);
+      await page.locator('[id="draft.value"]').press("Enter");
+      await expect(page.locator('[id="draft.value"]')).toHaveValue("");
+      await expect(
+        page
+          .locator('[data-slot="badge"]')
+          .filter({ hasText: corrected.value }),
+      ).toBeVisible();
       if (action === "outside") await page.locator("#name").click();
+      await expect(page.locator("#widget-modal-save")).toBeEnabled();
       await page.locator("#widget-modal-save").click();
       await expect(page.getByRole("dialog")).toHaveCount(0);
       expect(
