@@ -22,6 +22,7 @@ import {
   getUpsertRecordWidgetInteractor,
 } from "@/core/di";
 import { serializeResult } from "@/core/utils/action-result";
+import { unwrapValidated } from "@/core/validation/validation.utils";
 
 export async function deleteWidgetAction(data: DeleteWidgetData) {
   return serializeResult(getDeleteWidgetInteractor().invoke(data));
@@ -41,8 +42,7 @@ export async function updateWidgetLayoutsAction(data: UpdateWidgetLayoutsData) {
 }
 
 export async function refreshWidgetsAction(viewId?: string) {
-  const result = await getGetWidgetsInteractor().invoke({ viewId });
-  return result.data;
+  return unwrapValidated(getGetWidgetsInteractor().invoke({ viewId }));
 }
 
 export async function updatePreferencesAction(data: UpdateUserDetailsData) {
@@ -54,20 +54,22 @@ export async function upsertRecordWidgetAction(input: RecordWidgetInput) {
 }
 
 export async function discoverWidgetRecordTypesAction(params: { searchTerm?: string }) {
-  const result = await getDiscoverRecordTypesInteractor().invoke({
-    search: params.searchTerm,
-    includeEmbedded: true,
-    page: 1,
-    pageSize: 100,
-  });
-  if (!result.ok) return { items: [], total: 0 };
+  const data = await unwrapValidated(
+    getDiscoverRecordTypesInteractor().invoke({
+      search: params.searchTerm,
+      includeEmbedded: true,
+      page: 1,
+      pageSize: 100,
+    }),
+  );
   return {
-    items: result.data.types.filter((type) =>
+    items: data.types.filter((type) =>
       type.permittedActions.some((action) => action === "readOwn" || action === "readAll"),
     ),
-    total: result.data.total,
+    total: data.total,
   };
 }
+
 export async function previewRecordWidgetAction(measure: RecordMeasure) {
   return serializeResult(getPreviewRecordWidgetInteractor().invoke(measure));
 }

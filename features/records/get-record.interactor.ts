@@ -9,7 +9,7 @@ import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator"
 import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { fail, failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
+import { fail, failAuthorization, failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { RecordQuerySchema, RecordReadSchema } from "./record-query.schema";
 import { invalidRecordQueryPart } from "./record-query-validation";
@@ -35,12 +35,9 @@ export class GetRecordInteractor extends AuthenticatedInteractor<RecordRead, Rec
           this.policy.load(),
           this.records.getRecordCompanyWide(ref),
         ]);
-        if (
-          !record ||
-          !(await policy.canRead(record)) ||
-          !model.types.some((type) => type.id === ref.typeId && !type.archived)
-        )
+        if (!record || !model.types.some((type) => type.id === ref.typeId && !type.archived))
           return failNotFound(CustomErrorCode.recordNotFound);
+        if (!(await policy.canRead(record))) return failAuthorization(CustomErrorCode.permissionDenied);
         const selection = RecordQuerySchema.parse({
           typeId: ref.typeId,
           includeRelationships: input.includeRelationships,

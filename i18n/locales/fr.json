@@ -1,4 +1,11 @@
 {
+  "AccessDeniedPage": {
+    "body": "Cet enregistrement existe, mais votre rôle ne vous permet pas de le lire. Demandez l'accès à un administrateur de l'espace de travail.",
+    "ctaLabel": "Retour à l'accueil",
+    "documentTitle": "Accès refusé | Customermates",
+    "subtitle": "Votre rôle ne permet pas de l'ouvrir",
+    "title": "Vous n'avez pas accès à cet enregistrement"
+  },
   "AccountAccessRevoked": {
     "body": "Vous venez de vous connecter sans mot de passe, ce qui confirme que cette adresse e-mail est bien la vôtre. Jusqu'à présent elle n'avait jamais été confirmée, nous ne pouvions donc pas savoir avec certitude qui avait créé ce compte. Par sécurité, nous avons supprimé l'ancien mot de passe ainsi que tout ce qui pouvait ouvrir le compte, comme les applications connectées ou les clés. Vos données n'ont pas changé et vous pouvez continuer à vous connecter exactement comme vous venez de le faire.",
     "cta": "Définir un nouveau mot de passe",

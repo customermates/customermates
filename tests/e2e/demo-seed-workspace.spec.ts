@@ -181,8 +181,16 @@ test("the Knowledge Base lists the Operating Guide and the procedures, and a pro
 
   const procedure = procedures.find(({ title }) => title === "Support SLA and Escalation") ?? procedures[0];
   if (testInfo.project.use.isMobile) {
-    // Phones show one pane at a time: open the procedure by its link.
-    await page.goto(`/en/wiki?page=${procedure.id}`);
+    await page.goto("/en/wiki");
+    await page.locator("#wiki-document-panel button[aria-expanded]").first().click();
+    const sheet = page.getByRole("dialog", { name: "Knowledge Base pages" });
+    await expect(sheet).toHaveAttribute("data-vaul-drawer-direction", "left");
+    await expect.poll(async () => Math.round((await sheet.boundingBox())?.x ?? -1)).toBe(0);
+    await expect
+      .poll(async () => (await sheet.boundingBox())?.height ?? 0)
+      .toBeGreaterThan((page.viewportSize()?.height ?? 0) * 0.9);
+    await sheet.getByText(procedure.title, { exact: true }).first().click();
+    await expect(sheet).not.toBeVisible();
   } else {
     await page.goto("/en/wiki");
     const list = page

@@ -1,4 +1,11 @@
 {
+  "AccessDeniedPage": {
+    "body": "Este registro existe, pero tu rol no te permite leerlo. Pide acceso a un administrador del espacio de trabajo.",
+    "ctaLabel": "Volver al inicio",
+    "documentTitle": "Sin acceso | Customermates",
+    "subtitle": "Tu rol no puede abrirlo",
+    "title": "No tienes acceso a este registro"
+  },
   "AccountAccessRevoked": {
     "body": "Acabas de iniciar sesión sin contraseña, y eso confirma que esta dirección de correo es tuya. Hasta ahora nunca se había confirmado, así que no podíamos estar seguros de quién creó esta cuenta. Por seguridad hemos eliminado la contraseña anterior y todo lo demás que pudiera abrir la cuenta, como aplicaciones conectadas o claves. Tus datos no han cambiado y puedes seguir iniciando sesión igual que acabas de hacerlo.",
     "cta": "Establecer una nueva contraseña",

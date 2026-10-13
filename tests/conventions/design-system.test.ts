@@ -366,6 +366,8 @@ const NATIVE_TITLE_HOSTS = new Set([
   "CommandItem",
   "SelectItem",
   "DropdownMenuSubTrigger",
+  "ClickableChip",
+  "AppChip",
 ]);
 const TITLE_EXEMPT_TAGS = new Set(["iframe", "title", "svg"]);
 

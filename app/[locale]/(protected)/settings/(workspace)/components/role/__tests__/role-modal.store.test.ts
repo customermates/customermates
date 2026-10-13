@@ -381,3 +381,50 @@ describe("RoleModalStore unified system permissions", () => {
     expect(permissions).toHaveLength(8);
   });
 });
+
+describe("RoleModalStore row delete", () => {
+  it("confirms only the role whose context finished loading", async () => {
+    const first = makeRole();
+    const second = makeRole({ id: UNHELD_ROLE_ID, name: "Later role" });
+    const store = makeStore(first);
+    const firstLoad = Promise.withResolvers<unknown>();
+    companyActions.getRoleEditorAction.mockReturnValueOnce(firstLoad.promise).mockResolvedValueOnce({
+      ok: true,
+      data: { role: second, schemaRevision: 2, types: [], canEdit: true, canDelete: true },
+    });
+    const pending = store.openForDelete(first);
+    store.editRole(second);
+    await vi.waitFor(() => expect(store.isLoading).toBe(false));
+    firstLoad.resolve({
+      ok: true,
+      data: { role: first, schemaRevision: 2, types: [], canEdit: true, canDelete: true },
+    });
+    expect(await pending).toBe(false);
+    expect(await store.delete(first.id)).toBe(false);
+    expect(companyActions.deleteRoleAction).not.toHaveBeenCalled();
+  });
+
+  it("settles instead of waiting forever when the drawer closes during the load", async () => {
+    const role = makeRole();
+    const store = makeStore(role);
+    const load = Promise.withResolvers<unknown>();
+    companyActions.getRoleEditorAction.mockReturnValueOnce(load.promise);
+    const pending = store.openForDelete(role);
+    store.close();
+    load.resolve({ ok: true, data: { role, schemaRevision: 2, types: [], canEdit: true, canDelete: true } });
+    expect(await pending).toBe(false);
+  });
+
+  it("opens the confirmation for a deletable role and deletes that role", async () => {
+    const role = makeRole();
+    const store = makeStore(role);
+    companyActions.getRoleEditorAction.mockResolvedValueOnce({
+      ok: true,
+      data: { role, schemaRevision: 2, types: [], canEdit: true, canDelete: true },
+    });
+    companyActions.deleteRoleAction.mockResolvedValueOnce({ ok: true, data: {} });
+    expect(await store.openForDelete(role)).toBe(true);
+    expect(await store.delete(role.id)).toBe(true);
+    expect(companyActions.deleteRoleAction).toHaveBeenCalledWith(expect.objectContaining({ id: role.id }));
+  });
+});

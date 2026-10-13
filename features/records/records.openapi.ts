@@ -432,7 +432,8 @@ export const recordApiPaths = {
   "/v1/records/read": {
     post: operation("readRecord", "Read one record", RecordReadSchema, RecordDtoSchema, {
       read: true,
-      requires: "read access to the list and to the record.",
+      requires:
+        "read access to the list and to the record. A missing or foreign record answers 404; a record of the workspace you cannot read answers 403.",
     }),
   },
   "/v1/records/query": {

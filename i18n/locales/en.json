@@ -1,4 +1,11 @@
 {
+  "AccessDeniedPage": {
+    "body": "This record exists, but your role doesn't allow you to read it. Ask a workspace admin for access.",
+    "ctaLabel": "Back to home",
+    "documentTitle": "No access | Customermates",
+    "subtitle": "Your role can't open it",
+    "title": "You don't have access to this record"
+  },
   "AccountAccessRevoked": {
     "body": "You just signed in without a password, and that confirmed this email address is yours. Until now it had never been confirmed, so we could not be certain who created this account. To keep it safe we removed the old password, along with anything else that could open the account, such as connected apps or keys. Your data is untouched, and you can carry on signing in exactly as you just did.",
     "cta": "Set a new password",
