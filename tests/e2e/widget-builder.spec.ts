@@ -286,6 +286,7 @@ for (const valueKind of ["decimal", "dateTime"] as const) {
         .fill(
           valueKind === "decimal" ? "not-a-number" : "2026-02-30T00:00:00Z",
         );
+      await expect(page.locator("#name")).toHaveValue(name + " changed");
       if (action === "outside") await page.locator("#name").click();
       if (action === "cancel") {
         await page.locator("#widget-modal-cancel").click();
@@ -321,6 +322,7 @@ for (const valueKind of ["decimal", "dateTime"] as const) {
           .filter({ hasText: corrected.value }),
       ).toBeVisible();
       if (action === "outside") await page.locator("#name").click();
+      await expect(page.locator("#name")).toHaveValue(name + " corrected");
       await expect(page.locator("#widget-modal-save")).toBeEnabled();
       await page.locator("#widget-modal-save").click();
       await expect(page.getByRole("dialog")).toHaveCount(0);

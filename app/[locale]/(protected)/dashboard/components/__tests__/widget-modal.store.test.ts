@@ -2,7 +2,11 @@ import type { RootStore } from "@/core/stores/root.store";
 import { createCrmPreset } from "@/features/records/crm-preset";
 import { RecordWidgetDtoSchema } from "@/features/widget/record-widget.schema";
 import { RecordActivityWidgetDtoSchema } from "@/features/widget/record-activity-widget.schema";
-import { ChartColor, DisplayType, type WidgetDto } from "@/features/widget/widget.schema";
+import {
+  ChartColor,
+  DisplayType,
+  type WidgetDto,
+} from "@/features/widget/widget.schema";
 import { WidgetKind } from "@/generated/prisma";
 import { randomUUID } from "node:crypto";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -17,7 +21,9 @@ const mocks = vi.hoisted(() => ({
   upsertRecordActivityWidgetAction: vi.fn(),
 }));
 vi.mock("../../actions", () => mocks);
-vi.mock("../../../records/actions", () => ({ getRecordModelAction: vi.fn(() => new Promise(() => undefined)) }));
+vi.mock("../../../records/actions", () => ({
+  getRecordModelAction: vi.fn(() => new Promise(() => undefined)),
+}));
 vi.mock("../../../search/actions", () => ({
   resolveSearchReferencesAction: vi.fn(() => new Promise(() => undefined)),
 }));
@@ -95,7 +101,10 @@ function start(store: WidgetModalStore) {
 }
 beforeEach(() => {
   vi.clearAllMocks();
-  mocks.getCompanyWidgetsAction.mockResolvedValue({ ok: true, data: { widgets: [] } });
+  mocks.getCompanyWidgetsAction.mockResolvedValue({
+    ok: true,
+    data: { widgets: [] },
+  });
   mocks.getWidgetByIdAction.mockResolvedValue(null);
 });
 
@@ -103,9 +112,13 @@ describe("generic widget modal", () => {
   it("refreshes an accepted earlier activity widget without replacing a newer chart draft", async () => {
     const { store, refresh } = setup();
     store.add();
-    store.startFromKind(WidgetKind.activityTimeline, { activityName: "Earlier activity" });
+    store.startFromKind(WidgetKind.activityTimeline, {
+      activityName: "Earlier activity",
+    });
     const response = deferred<{ ok: true; data: WidgetDto }>();
-    mocks.upsertRecordActivityWidgetAction.mockReturnValueOnce(response.promise);
+    mocks.upsertRecordActivityWidgetAction.mockReturnValueOnce(
+      response.promise,
+    );
     const save = store.onSubmit();
     store.close();
     start(store);
@@ -119,7 +132,11 @@ describe("generic widget modal", () => {
         userId: "member",
         companyId: "company",
         name: "Earlier activity",
-        activityQuery: { scope: { typeIds: [], records: [] }, kinds: ["audit"], filters: [] },
+        activityQuery: {
+          scope: { typeIds: [], records: [] },
+          kinds: ["audit"],
+          filters: [],
+        },
         displayOptions: { showFilters: true },
         layout: null,
         viewId: null,
@@ -133,7 +150,10 @@ describe("generic widget modal", () => {
     });
     await save;
     expect(refresh).toHaveBeenCalledOnce();
-    expect(store.form).toMatchObject({ name: "Later chart draft", kind: "chart" });
+    expect(store.form).toMatchObject({
+      name: "Later chart draft",
+      kind: "chart",
+    });
     expect(store.isOpen).toBe(true);
     expect(store.isLoading).toBe(false);
   });
@@ -152,7 +172,10 @@ describe("generic widget modal", () => {
     expect(store.form).toMatchObject({
       expectedRevision: 1,
       kind: "chart",
-      measure: { aggregation: "count", source: { typeId: discovery.types[0].id } },
+      measure: {
+        aggregation: "count",
+        source: { typeId: discovery.types[0].id },
+      },
     });
   });
   it("resets filters and measures when the source type changes", () => {
@@ -182,12 +205,27 @@ describe("generic widget modal", () => {
     expect(store.form).toMatchObject({ name: "Persisted", expectedVersion: 3 });
     expect(store.isHydrating).toBe(false);
   });
+  it("keeps a draft edited while the saved widget is refreshing", async () => {
+    const { store, items } = setup(),
+      old = chart("Cached"),
+      wait = deferred<WidgetDto>();
+    items.push(old);
+    mocks.getWidgetByIdAction.mockReturnValueOnce(wait.promise);
+    const load = store.loadById(old.id);
+    store.onChange("name", "Edited draft");
+    wait.resolve({ ...old, name: "Persisted", version: 3 });
+    await load;
+    expect(store.form.name).toBe("Edited draft");
+    expect(store.hasUnsavedChanges).toBe(true);
+  });
   it("keeps the latest edit when refreshes finish out of order", async () => {
     const { store } = setup(),
       a = chart("Older"),
       b = chart("Newest"),
       wait = deferred<WidgetDto>();
-    mocks.getWidgetByIdAction.mockReturnValueOnce(wait.promise).mockResolvedValueOnce(b);
+    mocks.getWidgetByIdAction
+      .mockReturnValueOnce(wait.promise)
+      .mockResolvedValueOnce(b);
     const load = store.loadById(a.id);
     await store.loadById(b.id);
     wait.resolve(a);
@@ -222,7 +260,10 @@ describe("generic widget modal", () => {
     const { store } = setup(),
       old = chart();
     start(store);
-    mocks.getWidgetByIdAction.mockResolvedValueOnce({ ...old, isTemplate: true });
+    mocks.getWidgetByIdAction.mockResolvedValueOnce({
+      ...old,
+      isTemplate: true,
+    });
     expect(await store.loadTemplate(old.id)).toBe(true);
     expect(store.form).toMatchObject({ name: "Value", isTemplate: false });
     expect(store.form.id).toBeUndefined();
@@ -276,22 +317,25 @@ describe("generic widget modal", () => {
     await expect(store.onSubmit()).rejects.toThrow();
     store.onChange("name", "Changed");
     await store.onSubmit();
-    expect(mocks.upsertRecordWidgetAction.mock.calls[0][0].idempotencyKey).not.toBe(
-      mocks.upsertRecordWidgetAction.mock.calls[1][0].idempotencyKey,
-    );
+    expect(
+      mocks.upsertRecordWidgetAction.mock.calls[0][0].idempotencyKey,
+    ).not.toBe(mocks.upsertRecordWidgetAction.mock.calls[1][0].idempotencyKey);
   });
   it("starts a new idempotency key when the same widget is created again after reopening", async () => {
     const { store } = setup();
-    mocks.upsertRecordWidgetAction.mockResolvedValue({ ok: true, data: chart("Pipeline") });
+    mocks.upsertRecordWidgetAction.mockResolvedValue({
+      ok: true,
+      data: chart("Pipeline"),
+    });
     start(store);
     await store.onSubmit();
     expect(store.isOpen).toBe(false);
     start(store);
     await store.onSubmit();
     expect(mocks.upsertRecordWidgetAction).toHaveBeenCalledTimes(2);
-    expect(mocks.upsertRecordWidgetAction.mock.calls[0][0].idempotencyKey).not.toBe(
-      mocks.upsertRecordWidgetAction.mock.calls[1][0].idempotencyKey,
-    );
+    expect(
+      mocks.upsertRecordWidgetAction.mock.calls[0][0].idempotencyKey,
+    ).not.toBe(mocks.upsertRecordWidgetAction.mock.calls[1][0].idempotencyKey);
   });
   it("changes the retry key when the target dashboard view changes", async () => {
     const { store, root } = setup();
@@ -302,19 +346,27 @@ describe("generic widget modal", () => {
     await expect(store.onSubmit()).rejects.toThrow();
     Object.assign(root.widgetsStore, { activeViewKey: randomUUID() });
     await store.onSubmit();
-    expect(mocks.upsertRecordWidgetAction.mock.calls[1][0].viewId).toBe(root.widgetsStore.activeViewKey);
-    expect(mocks.upsertRecordWidgetAction.mock.calls[0][0].idempotencyKey).not.toBe(
-      mocks.upsertRecordWidgetAction.mock.calls[1][0].idempotencyKey,
+    expect(mocks.upsertRecordWidgetAction.mock.calls[1][0].viewId).toBe(
+      root.widgetsStore.activeViewKey,
     );
+    expect(
+      mocks.upsertRecordWidgetAction.mock.calls[0][0].idempotencyKey,
+    ).not.toBe(mocks.upsertRecordWidgetAction.mock.calls[1][0].idempotencyKey);
   });
   it("retains the persisted version if refresh fails after save", async () => {
     const { store, refresh } = setup(),
       saved = chart("Pipeline");
     start(store);
-    mocks.upsertRecordWidgetAction.mockResolvedValueOnce({ ok: true, data: saved });
+    mocks.upsertRecordWidgetAction.mockResolvedValueOnce({
+      ok: true,
+      data: saved,
+    });
     refresh.mockRejectedValueOnce(new Error("refresh failed"));
     await expect(store.onSubmit()).rejects.toThrow("refresh failed");
-    expect(store.form).toMatchObject({ id: saved.id, expectedVersion: saved.version });
+    expect(store.form).toMatchObject({
+      id: saved.id,
+      expectedVersion: saved.version,
+    });
     expect(store.isLoading).toBe(false);
   });
   it("does not let a closed session's save replace a new draft", async () => {
@@ -335,7 +387,10 @@ describe("generic widget modal", () => {
   it("synchronizes an accepted earlier deletion while preserving the new widget draft", async () => {
     const { store, removeItem } = setup();
     const old = chart("Earlier saved widget");
-    const response = deferred<{ ok: true; data: { id: string; trashBatchId: string } }>();
+    const response = deferred<{
+      ok: true;
+      data: { id: string; trashBatchId: string };
+    }>();
     mocks.getWidgetByIdAction.mockResolvedValueOnce(old);
     await store.loadById(old.id);
     mocks.deleteWidgetAction.mockReturnValueOnce(response.promise);
@@ -343,8 +398,16 @@ describe("generic widget modal", () => {
     store.close();
     start(store);
     store.onChange("name", "Later unsaved widget");
-    response.resolve({ ok: true, data: { id: old.id, trashBatchId: "40000000-0000-4000-8000-0000000000b1" } });
-    expect(await deletion).toEqual({ trashBatchId: "40000000-0000-4000-8000-0000000000b1" });
+    response.resolve({
+      ok: true,
+      data: {
+        id: old.id,
+        trashBatchId: "40000000-0000-4000-8000-0000000000b1",
+      },
+    });
+    expect(await deletion).toEqual({
+      trashBatchId: "40000000-0000-4000-8000-0000000000b1",
+    });
     expect(removeItem).toHaveBeenCalledWith(old.id);
     expect(store.form.name).toBe("Later unsaved widget");
     expect(store.isOpen).toBe(true);
@@ -357,9 +420,14 @@ describe("generic widget modal", () => {
     await store.loadById(old.id);
     mocks.deleteWidgetAction.mockResolvedValueOnce({
       ok: true,
-      data: { id: old.id, trashBatchId: "40000000-0000-4000-8000-0000000000b1" },
+      data: {
+        id: old.id,
+        trashBatchId: "40000000-0000-4000-8000-0000000000b1",
+      },
     });
-    expect(await store.delete()).toEqual({ trashBatchId: "40000000-0000-4000-8000-0000000000b1" });
+    expect(await store.delete()).toEqual({
+      trashBatchId: "40000000-0000-4000-8000-0000000000b1",
+    });
     expect(mocks.deleteWidgetAction).toHaveBeenCalledWith({ id: old.id });
     expect(removeItem).toHaveBeenCalledWith(old.id);
     expect(store.isOpen).toBe(false);
@@ -367,7 +435,9 @@ describe("generic widget modal", () => {
   it("builds activity drafts from the same generic scope and shared activity kinds", () => {
     const { store } = setup();
     store.add();
-    store.startFromKind(WidgetKind.activityTimeline, { activityName: "Recent activity" });
+    store.startFromKind(WidgetKind.activityTimeline, {
+      activityName: "Recent activity",
+    });
     expect(store.form).toMatchObject({
       kind: "activityTimeline",
       name: "Recent activity",
@@ -377,9 +447,15 @@ describe("generic widget modal", () => {
   it("initializes a grouping filter without erasing existing source filters", () => {
     const { store } = setup();
     start(store);
-    store.onChange("measure.groupBy", { kind: "field", fieldId: model.types[0].primaryFieldId });
+    store.onChange("measure.groupBy", {
+      kind: "field",
+      fieldId: model.types[0].primaryFieldId,
+    });
     if (!isRecordWidgetForm(store.form)) throw new Error("chart expected");
-    expect(store.form.measure.groupBy?.filter).toEqual({ filters: [], relationships: [] });
+    expect(store.form.measure.groupBy?.filter).toEqual({
+      filters: [],
+      relationships: [],
+    });
   });
 });
 
@@ -406,7 +482,9 @@ describe("widget preview ownership", () => {
     const previous = store.runPreview(() => wait.promise);
     store.onChange("measure.aggregation", "sum");
     store.onChange("measure.aggregation", "count");
-    expect(await store.runPreview(() => Promise.resolve("Current count"))).toBe("Current count");
+    expect(await store.runPreview(() => Promise.resolve("Current count"))).toBe(
+      "Current count",
+    );
     wait.resolve("Old count");
     expect(await previous).toBeUndefined();
   });
@@ -425,9 +503,9 @@ describe("widget preview ownership", () => {
     start(store);
     reject(new Error("Old query failed"));
     expect(await previous).toBeUndefined();
-    await expect(store.runPreview(() => Promise.reject(new Error("Current query failed")))).rejects.toThrow(
-      "Current query failed",
-    );
+    await expect(
+      store.runPreview(() => Promise.reject(new Error("Current query failed"))),
+    ).rejects.toThrow("Current query failed");
   });
 
   it("keeps a valid preview when appearance changes without changing its data query", async () => {
@@ -443,7 +521,9 @@ describe("widget preview ownership", () => {
   it("applies the same ownership guard to activity query changes", async () => {
     const { store } = setup();
     store.add();
-    store.startFromKind(WidgetKind.activityTimeline, { activityName: "History" });
+    store.startFromKind(WidgetKind.activityTimeline, {
+      activityName: "History",
+    });
     const wait = deferred<string>();
     const preview = store.runPreview(() => wait.promise);
     store.onChange("activityQuery.kinds", ["audit"]);
@@ -456,13 +536,19 @@ describe("display type starters", () => {
   it("starts a chart draft with the chosen display type and the default data", () => {
     const { store } = setup();
     store.add();
-    store.startFromKind(WidgetKind.chart, { displayType: DisplayType.funnelChart });
+    store.startFromKind(WidgetKind.chart, {
+      displayType: DisplayType.funnelChart,
+    });
     expect(store.creationStep).toBe("configure");
     expect(store.expandedSection).toBe("config");
     expect(store.form).toMatchObject({
       kind: "chart",
       displayOptions: { displayType: DisplayType.funnelChart },
-      measure: { aggregation: "count", groupBy: null, source: { typeId: discovery.types[0].id } },
+      measure: {
+        aggregation: "count",
+        groupBy: null,
+        source: { typeId: discovery.types[0].id },
+      },
     });
     expect(store.hasUnsavedChanges).toBe(false);
   });
@@ -470,7 +556,13 @@ describe("display type starters", () => {
   it("ignores a display type for an activity timeline", () => {
     const { store } = setup();
     store.add();
-    store.startFromKind(WidgetKind.activityTimeline, { activityName: "Activity", displayType: DisplayType.number });
-    expect(store.form).toMatchObject({ kind: "activityTimeline", name: "Activity" });
+    store.startFromKind(WidgetKind.activityTimeline, {
+      activityName: "Activity",
+      displayType: DisplayType.number,
+    });
+    expect(store.form).toMatchObject({
+      kind: "activityTimeline",
+      name: "Activity",
+    });
   });
 });
