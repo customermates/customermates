@@ -331,7 +331,10 @@ export const AgentActivity = observer(function AgentActivity({
               href={viewHref}
               onClick={() => {
                 const proposal = DataViewProposalSchema.safeParse(viewActivity?.viewProposal);
-                if (proposal.success) runUserAction(() => store.reviewViewProposal(proposal.data));
+                if (proposal.success) {
+                  runUserAction(() => store.reviewViewProposal(proposal.data));
+                  store.close();
+                }
               }}
             >
               {viewActivity?.viewProposed ? t("AgentChat.reviewProposal") : t("AgentChat.openSavedView")}
