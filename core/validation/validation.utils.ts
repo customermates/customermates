@@ -67,6 +67,7 @@ const AUTHORIZATION_FAILURE_CODES = new Set<CustomErrorCode>([
 ]);
 const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.calendarEventNotFound,
+  CustomErrorCode.calendarNotFound,
   CustomErrorCode.connectedAccountNotFound,
   CustomErrorCode.roleNotFound,
   CustomErrorCode.threadNotFound,
@@ -93,7 +94,10 @@ const CONFLICT_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.wikiNotEmpty,
   CustomErrorCode.wikiPageConflict,
 ]);
-const RATE_LIMIT_FAILURE_CODES = new Set<CustomErrorCode>([CustomErrorCode.unipileRateLimit]);
+const RATE_LIMIT_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.serviceBusy,
+  CustomErrorCode.unipileRateLimit,
+]);
 const UNAVAILABLE_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.unipileProviderError,
   CustomErrorCode.unipileRequestTimeout,
@@ -102,6 +106,7 @@ const UNAVAILABLE_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.unipileSendOutcomeUnknown,
 ]);
 const RETRYABLE_FAILURE_CODES = new Set<CustomErrorCode>([
+  CustomErrorCode.serviceBusy,
   CustomErrorCode.unipileRateLimit,
   CustomErrorCode.unipileProviderError,
   CustomErrorCode.unipileServiceUnavailable,

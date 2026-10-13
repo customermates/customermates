@@ -59,7 +59,7 @@ export function normalizeRecordScalar(
   if (field.required && value.kind === "text" && !value.value.trim()) required();
   if (value.kind === "richText") {
     const document = validateRichTextDocument(value.documentJson);
-    if (!document) reject(CustomErrorCode.notesInvalidFormat);
+    if (!document) reject(CustomErrorCode.notesInvalidFormat, "validation", path);
     return { kind: "richText", documentJson: JSON.stringify(document) };
   }
   return value;

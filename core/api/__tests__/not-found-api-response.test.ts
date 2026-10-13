@@ -14,9 +14,9 @@ function operationsById(): Map<string, Operation> {
   return operations;
 }
 
-const NULL_ON_MISSING = ["getCalendarById", "getCalendarEventById"];
-
 const NOT_FOUND_ON_MISSING = [
+  "getCalendarById",
+  "getCalendarEventById",
   "readRecord",
   "getWebhook",
   "mutateRecord",
@@ -32,13 +32,6 @@ const NEVER_NOT_FOUND = ["getUserProfile", "getUsers", "getConnectedAccounts"];
 
 describe("documented 404 responses", () => {
   const operations = operationsById();
-
-  it.each(NULL_ON_MISSING)("documents %s as answering null for a missing id, not 404", (operationId) => {
-    const operation = operations.get(operationId);
-    expect(operation, operationId).toBeDefined();
-    expect(Object.keys(operation?.responses ?? {})).not.toContain("404");
-    expect(operation?.description).toMatch(/null/);
-  });
 
   it.each(NOT_FOUND_ON_MISSING)("documents 404 on %s, whose handler can answer not found", (operationId) => {
     expect(Object.keys(operations.get(operationId)?.responses ?? {})).toContain("404");

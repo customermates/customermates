@@ -267,7 +267,10 @@ describe("manage_connected_accounts", () => {
 
     const result = await run({ action: "set_signature", id: ACCOUNT_ID, signature: "Hi" });
 
-    expect(result.ok).toBe(false);
+    expect(result).toMatchObject({
+      ok: false,
+      failure: { kind: "not_found", issues: [{ path: ["id"], customCode: "connectedAccountNotFound" }] },
+    });
     expect(spies.setSignature).not.toHaveBeenCalled();
   });
 

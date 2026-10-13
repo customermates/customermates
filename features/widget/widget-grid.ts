@@ -157,7 +157,7 @@ export function placeWidget(args: {
   requested?: WidgetPlacement;
   widgets: StoredWidget[];
 }): PlacementResult {
-  const others = occupiedGrid(args.widgets).filter((rect) => rect.id !== args.id);
+  const others = occupiedGrid(args.widgets.filter((widget) => widget.id !== args.id));
   if (args.requested) {
     const minimum = widgetMinimumSize(args.kind, args.displayType);
     if (args.requested.w < minimum.w || args.requested.h < minimum.h) return { ok: false, reason: "tooSmall" };
@@ -168,6 +168,26 @@ export function placeWidget(args: {
   }
   const size = widgetDefaultSize(args.kind, args.displayType);
   return { ok: true, placement: { ...firstFreeSpot(others, WIDGET_GRID_COLUMNS, size.w, size.h), ...size } };
+}
+
+export function placeWidgets(args: {
+  widgets: StoredWidget[];
+  requested: Array<{ id: string; kind: WidgetKindName; placement: GridRect }>;
+}): { ok: true } | { ok: false; reason: "tooSmall" | "overlap"; conflictId?: string } {
+  for (const { kind, placement } of args.requested) {
+    const minimum = widgetMinimumSize(kind);
+    if (placement.w < minimum.w || placement.h < minimum.h) return { ok: false, reason: "tooSmall" };
+  }
+  const moving = new Set(args.requested.map((item) => item.id));
+  const others = occupiedGrid(args.widgets.filter((widget) => !moving.has(widget.id)));
+  for (const [index, item] of args.requested.entries()) {
+    const conflict = [
+      ...others,
+      ...args.requested.slice(index + 1).map(({ id, placement }) => ({ id, ...placement })),
+    ].find((rect) => rectsOverlap(rect, item.placement));
+    if (conflict) return { ok: false, reason: "overlap", conflictId: conflict.id };
+  }
+  return { ok: true };
 }
 
 type BreakpointItem = { id: string; lg: GridRect; compact: boolean };

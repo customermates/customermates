@@ -9,8 +9,8 @@ import {
   WIDGET_GRID_MARGIN,
   WIDGET_GRID_MAX_ROW,
   WIDGET_GRID_ROW_HEIGHT,
+  placeWidgets,
 } from "./widget-grid";
-import { resolveWidgetLayout } from "./widget-placement";
 
 import { BREAKPOINTS } from "@/constants/breakpoints";
 import { Validate } from "@/core/decorators/validate.decorator";
@@ -122,21 +122,18 @@ export class UpdateWidgetLayoutsInteractor extends AuthenticatedInteractor<
         return failConflict(CustomErrorCode.widgetLayoutChanged);
       const large = new Map(data.layouts.lg.map((item) => [item.i, item]));
       for (const viewId of new Set(targets.map((target) => target.viewId))) {
-        const widgets = (await this.repo.listLayoutPlacements(viewId)).map((widget) => {
-          const requested = large.get(widget.id);
-          return requested ? { ...widget, layout: { ...(widget.layout ?? {}), lg: requested } } : widget;
+        const requested = targets.flatMap((target) => {
+          const item = target.viewId === viewId ? large.get(target.id) : undefined;
+          return item
+            ? [{ id: target.id, kind: target.kind, placement: { x: item.x, y: item.y, w: item.w, h: item.h } }]
+            : [];
         });
-        for (const target of targets.filter((candidate) => candidate.viewId === viewId)) {
-          const requested = large.get(target.id);
-          if (!requested) continue;
-          const resolved = resolveWidgetLayout({
-            id: target.id,
-            kind: target.kind,
-            requested: { x: requested.x, y: requested.y, w: requested.w, h: requested.h },
-            needsPlacement: false,
-            widgets,
-          });
-          if (!resolved.ok) return fail(resolved.code, ["layouts", "lg"]);
+        const placed = placeWidgets({ widgets: await this.repo.listLayoutPlacements(viewId), requested });
+        if (!placed.ok) {
+          return fail(
+            placed.reason === "overlap" ? CustomErrorCode.widgetLayoutOverlap : CustomErrorCode.widgetLayoutTooSmall,
+            ["layouts", "lg"],
+          );
         }
       }
       const saved = await this.repo.saveWidgetLayouts(

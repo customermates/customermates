@@ -38,6 +38,7 @@ import {
 } from "./record-configuration-values";
 import { canonicalRecordJson } from "./record-json";
 import { duplicateNameIssues } from "./record-names";
+import { nestedSublistIssues } from "./record-sublist-nesting";
 
 export function calculationDependencyHash(field: RecordField, model: RecordModel): string {
   const visited = new Set<string>();
@@ -161,7 +162,7 @@ export class RecordConfigurationService extends UserAccessor {
     assignMissingNameFields(model);
     if (!RecordModelSchema.safeParse(model).success) throw unwindFailure(CustomErrorCode.recordConfigurationInvalid);
     const validation = validateRecordModel(model);
-    validation.issues.push(...duplicateNameIssues(model, current));
+    validation.issues.push(...duplicateNameIssues(model, current), ...nestedSublistIssues(model, current));
     const removed = lifecycle?.removed ? { deletion: lifecycle.removed } : null;
     const readsFully = (typeId: string) =>
       policy.isAdmin || !current.types.some((type) => type.id === typeId) || policy.readScope(typeId) === "all";

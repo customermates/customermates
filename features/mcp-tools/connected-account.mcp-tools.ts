@@ -3,6 +3,7 @@ import type { ConnectedAccountDto } from "@/ee/messaging/messaging.schema";
 import { z } from "zod";
 
 import {
+  customMcpFailure,
   formatDatesInResponse,
   mcpInteractorFailure,
   mcpMessageFailure,
@@ -20,6 +21,7 @@ import {
   getSetSelectedFoldersInteractor,
 } from "@/core/di";
 import { ConnectedAccountEmailSchema, EmailSettingsSchema } from "@/ee/messaging/email-settings";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 
 const CONNECTED_ACCOUNT_ACTIONS = [
   "list",
@@ -101,7 +103,7 @@ async function setSignature(id: string, input: ManageConnectedAccountsInput) {
     return mcpMessageFailure("set_signature needs signature, settings or both.", ["signature"]);
   const current = await ownedAccount(id);
   if (!current.ok) return mcpInteractorFailure(current.error);
-  if (!current.data) return mcpMessageFailure("No connected account you own has this id.", ["id"]);
+  if (!current.data) return customMcpFailure(CustomErrorCode.connectedAccountNotFound, undefined, ["id"]);
   return runInteractor(
     getSetConnectedAccountSignatureInteractor().invoke({
       id,
