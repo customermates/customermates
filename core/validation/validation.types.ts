@@ -39,6 +39,7 @@ export enum CustomErrorCode {
   agentConversationNotFound = "agentConversationNotFound",
   agentLimitReached = "agentLimitReached",
   agentServiceUnavailable = "agentServiceUnavailable",
+  routineAiWorkPaused = "routineAiWorkPaused",
   agentModelUnavailable = "agentModelUnavailable",
   agentTurnAlreadyRunning = "agentTurnAlreadyRunning",
   notAuthenticated = "notAuthenticated",

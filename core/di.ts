@@ -1721,7 +1721,7 @@ export const getDeleteRoutineInteractor = () =>
 export const getPauseRoutineInteractor = () => new PauseRoutineInteractor(getRoutineRepo(), getEventService());
 
 export const getRunRoutineNowInteractor = () =>
-  new RunRoutineNowInteractor(getRoutineRepo(), getBackgroundTaskService());
+  new RunRoutineNowInteractor(getRoutineRepo(), getBackgroundTaskService(), getAgentUsageService());
 
 export const getStartRoutineRunInteractor = () =>
   new StartRoutineRunInteractor(

@@ -86779,7 +86779,7 @@
       "post": {
         "operationId": "runRoutine",
         "summary": "Run a routine now",
-        "description": "Starts an enabled schedule routine the caller owns immediately and returns the id of the queued run. Event routines and disabled routines answer 409; another owner's routine answers 403. Requires: update permission on routines.",
+        "description": "Starts an enabled schedule routine the caller owns immediately and returns the id of the queued run. Manual test runs use triggerKind schedule. Event routines, disabled routines and inactive owners answer 409; another owner's routine answers 403. Paused AI work answers 422 and exhausted credits answer 429 before a run is queued. Run history includes the error block reason when a queued run cannot start. Requires: update permission on routines.",
         "tags": [
           "routines"
         ],
@@ -113968,6 +113968,7 @@
                         "agentConversationNotFound",
                         "agentLimitReached",
                         "agentServiceUnavailable",
+                        "routineAiWorkPaused",
                         "agentModelUnavailable",
                         "agentTurnAlreadyRunning",
                         "notAuthenticated",
