@@ -8,40 +8,7 @@ import { z } from "zod";
 import { presetId } from "../../features/records/crm-preset";
 import { localE2eEnvironment } from "./local-environment";
 import { expect, test } from "./fixtures";
-
-type OpenApiDocument = {
-  paths: Record<
-    string,
-    {
-      post?: {
-        responses: Record<
-          string,
-          { content?: Record<string, { schema: unknown }> }
-        >;
-      };
-    }
-  >;
-  components: { schemas: Record<string, unknown> };
-};
-
-const localRefs = (value: unknown) =>
-  JSON.parse(
-    JSON.stringify(value).replaceAll('"#/components/schemas/', '"#/$defs/'),
-  ) as Record<string, unknown>;
-
-function responseSchema(spec: OpenApiDocument, path: string, status: string) {
-  const schema =
-    spec.paths[path]?.post?.responses[status]?.content?.["application/json"]
-      ?.schema;
-  if (!schema)
-    throw new Error(
-      `The OpenAPI document has no ${status} response for POST ${path}`,
-    );
-  return z.fromJSONSchema({
-    ...localRefs(schema),
-    $defs: localRefs(spec.components.schemas),
-  } as Parameters<typeof z.fromJSONSchema>[0]);
-}
+import { createOpenApiValidator, type OpenApiDocument } from "../helpers/openapi-validator";
 
 test("serves saved views, widgets, model discovery and Trash reads over an API key as the OpenAPI document declares", async ({
   context,
@@ -69,7 +36,7 @@ test("serves saved views, widgets, model discovery and Trash reads over an API k
   try {
     const specResponse = await api.get("/api/v1/openapi");
     expect(specResponse.status()).toBe(200);
-    const spec = (await specResponse.json()) as OpenApiDocument;
+    const validator = createOpenApiValidator((await specResponse.json()) as OpenApiDocument);
     const checked = new Set<string>();
 
     const call = async (path: string, body: unknown, status = 200) => {
@@ -79,13 +46,7 @@ test("serves saved views, widgets, model discovery and Trash reads over an API k
         response.status(),
         `POST ${path}: ${JSON.stringify(payload)}`,
       ).toBe(status);
-      const parsed = responseSchema(spec, path, String(status)).safeParse(
-        payload,
-      );
-      expect(
-        parsed.success,
-        `POST ${path} response does not match its OpenAPI schema: ${parsed.error?.message}`,
-      ).toBe(true);
+      expect(validator.response(path, "post", status, payload), `POST ${path} ${status} response`).toEqual([]);
       checked.add(`${path} ${status}`);
       return payload as any;
     };

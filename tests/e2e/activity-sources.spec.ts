@@ -2,26 +2,19 @@ import { randomUUID } from "node:crypto";
 import type { Page } from "@playwright/test";
 import type { Client } from "pg";
 import { presetId } from "../../features/records/crm-preset";
-import { RecordModelSchema, type RecordModel, type RecordRef } from "../../features/records/record-model.schema";
+import type { RecordRef } from "../../features/records/record-model.schema";
 import {
   MutateRecordSchema,
   RecordOperationResultSchema,
   type RecordMutation,
 } from "../../features/records/record-query.schema";
 import { test, expect, collectPageErrors } from "./fixtures";
-
-async function model(database: Client, companyId: string): Promise<RecordModel> {
-  const result = await database.query(
-    'SELECT snapshot FROM "RecordSchemaRevision" WHERE "companyId"=$1 ORDER BY revision DESC LIMIT 1',
-    [companyId],
-  );
-  return RecordModelSchema.parse(result.rows[0]?.snapshot);
-}
+import { readModel } from "./api";
 
 async function mutation(page: Page, database: Client, companyId: string, change: RecordMutation) {
   const response = await page.request.post("/api/v1/records/mutate", {
     data: MutateRecordSchema.parse({
-      expectedRevision: (await model(database, companyId)).revision,
+      expectedRevision: (await readModel(database, companyId)).revision,
       idempotencyKey: randomUUID(),
       mutation: change,
     }),
@@ -125,7 +118,7 @@ test("shows contacts' messages on organizations and deals but not tasks, followi
   await expect(taskHistory.locator("ol > li").first()).toBeVisible();
   await expect(taskHistory.getByText(body, { exact: true })).toHaveCount(0);
 
-  const current = await model(database, companyId);
+  const current = await readModel(database, companyId);
   const dealContacts = current.relationships.find(
     (relationship) => relationship.id === presetId(companyId, "deal.contacts"),
   );

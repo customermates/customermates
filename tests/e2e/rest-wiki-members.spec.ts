@@ -3,61 +3,14 @@ import type { APIResponse } from "@playwright/test";
 import { z } from "zod";
 import { localE2eEnvironment } from "./local-environment";
 import { test, expect } from "./fixtures";
+import { createOpenApiValidator, type OpenApiDocument } from "../helpers/openapi-validator";
 
-type JsonSchema = Record<string, unknown>;
-type Spec = {
-  paths: Record<
-    string,
-    Record<
-      string,
-      {
-        responses: Record<
-          string,
-          { content: Record<string, { schema: unknown }> }
-        >;
-      }
-    >
-  >;
-  components: { schemas: Record<string, unknown> };
-};
-
-function responseValidator(spec: Spec) {
-  const resolve = (node: unknown): unknown => {
-    if (Array.isArray(node)) return node.map(resolve);
-    if (!node || typeof node !== "object") return node;
-    const schema = node as JsonSchema;
-    if (typeof schema.$ref === "string")
-      return resolve(
-        spec.components.schemas[schema.$ref.split("/").at(-1) ?? ""],
-      );
-    return Object.fromEntries(
-      Object.entries(schema).map(([key, value]) => [key, resolve(value)]),
-    );
-  };
-  return async (
-    response: APIResponse,
-    path: string,
-    verb: string,
-    status: number,
-  ) => {
+function responseValidator(spec: OpenApiDocument) {
+  const validator = createOpenApiValidator(spec);
+  return async (response: APIResponse, path: string, verb: string, status: number) => {
     const body: unknown = await response.json();
-    expect(response.status(), `${verb} ${path}: ${JSON.stringify(body)}`).toBe(
-      status,
-    );
-    const documented =
-      spec.paths[path]?.[verb]?.responses[String(status)]?.content[
-        "application/json"
-      ]?.schema;
-    expect(documented, `${verb} ${path} documents ${status}`).toBeDefined();
-    const parsed = z
-      .fromJSONSchema(
-        resolve(documented) as Parameters<typeof z.fromJSONSchema>[0],
-      )
-      .safeParse(body);
-    expect(
-      parsed.success,
-      `${verb} ${path} ${status} matches the OpenAPI schema: ${parsed.error?.message}`,
-    ).toBe(true);
+    expect(response.status(), `${verb} ${path}: ${JSON.stringify(body)}`).toBe(status);
+    expect(validator.response(path, verb, status, body), `${verb} ${path} ${status} response`).toEqual([]);
     return body as Record<string, unknown>;
   };
 }
@@ -92,7 +45,7 @@ test("serves the Knowledge Base, member and profile REST endpoints to an API key
   try {
     const specResponse = await api.get("/api/v1/openapi");
     expect(specResponse.ok()).toBe(true);
-    const validate = responseValidator((await specResponse.json()) as Spec);
+    const validate = responseValidator((await specResponse.json()) as OpenApiDocument);
     const post = async (path: string, data: unknown, status = 200) =>
       validate(await api.post(`/api${path}`, { data }), path, "post", status);
 

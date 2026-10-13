@@ -292,10 +292,7 @@ test("configures a type, formula, saved view and widget over authenticated MCP a
       displayOptions: { displayType: "verticalBarChart", showLegend: true },
     });
     const pendingActions = new Set<Request>();
-    let lastActionChange = Date.now();
-    const settleAction = (request: Request) => {
-      if (pendingActions.delete(request)) lastActionChange = Date.now();
-    };
+    const settleAction = (request: Request) => pendingActions.delete(request);
     page.on("request", (request) => {
       if (
         request.method() !== "POST" ||
@@ -303,7 +300,6 @@ test("configures a type, formula, saved view and widget over authenticated MCP a
       )
         return;
       pendingActions.add(request);
-      lastActionChange = Date.now();
     });
     page.on("requestfinished", settleAction);
     page.on("requestfailed", settleAction);
@@ -336,13 +332,7 @@ test("configures a type, formula, saved view and widget over authenticated MCP a
       animations: "disabled",
     });
     await hydrated;
-    await expect
-      .poll(
-        () =>
-          pendingActions.size === 0 && Date.now() - lastActionChange >= 1000,
-        { timeout: 30000 },
-      )
-      .toBe(true);
+    await expect.poll(() => pendingActions.size, { timeout: 30000 }).toBe(0);
     await page.goto("/en/dashboard");
     const widget = page
       .locator('[data-uid="app-card"]')
