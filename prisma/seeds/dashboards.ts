@@ -530,7 +530,7 @@ export function buildSyntheticDashboards(
       3,
     ),
     kpi("Tasks created in 30 days", measure(source("task", [days("system:createdAt", 30)]), "count", null), 6),
-    kpi("Deals touched in 7 days", measure(source("deal", [days("system:updatedAt", 7)]), "count", null), 9),
+    kpi("Deals touched in 14 days", measure(source("deal", [days("system:updatedAt", 14)]), "count", null), 9),
     chart(
       "Open tasks per member",
       DisplayType.horizontalBarChartWithLabels,

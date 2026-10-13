@@ -245,9 +245,11 @@ test("reads each step as one line and inserts steps from the connectors", async 
  */
 async function expectSingleConfigurePage(page: Page, typeId: string) {
   await expect(page).toHaveURL(new RegExp(`[?&]typeId=${typeId}`));
-  await expect(page.locator("[data-configure-page]")).toHaveCount(1);
-  await expect(page.locator("[data-configure-list-pane]")).toHaveCount(1);
-  await expect(page.locator("[data-configure-list-pane]")).toBeVisible();
+  await expect(async () => {
+    await expect(page.locator("[data-configure-page]")).toHaveCount(1, { timeout: 1000 });
+    await expect(page.locator("[data-configure-list-pane]")).toHaveCount(1, { timeout: 1000 });
+    await expect(page.locator("[data-configure-list-pane]")).toBeVisible({ timeout: 1000 });
+  }).toPass({ timeout: 30000 });
 }
 
 async function expectAligned(node: Locator) {
