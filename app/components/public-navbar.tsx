@@ -44,7 +44,12 @@ const mobileOverviewRowClassName =
 export function PublicNavbar({ accountState, hasValidSession, onboardingIntent, onSignedOut, profile }: Props) {
   const t = useTranslations();
   const pathname = usePathname();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuOpenedAt, setMenuOpenedAt] = useState<string | null>(null);
+  const isMenuOpen = menuOpenedAt === pathname;
+
+  function setIsMenuOpen(open: boolean) {
+    setMenuOpenedAt(open ? pathname : null);
+  }
 
   function closeMenu() {
     setIsMenuOpen(false);
