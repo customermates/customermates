@@ -51,7 +51,7 @@ export function HomepagePipeline({ liveLabel, locale, story }: Props) {
         {story.captures.map((capture) => (
           <figure key={capture.capture} className="m-0">
             <ProductPanel className="aspect-[4/5] sm:aspect-[4/3]">
-              <ProductWindow className="absolute top-8 left-8 w-[calc(100%-4rem)] sm:top-10 sm:left-10 sm:w-[150%]">
+              <ProductWindow className="absolute top-6 left-6 w-[110%] sm:top-10 sm:left-10 sm:w-[150%]">
                 <HomepageStageLink area={STAGE_AREAS[capture.capture]} label={liveLabel}>
                   <HomepageCaptureImage
                     alt={capture.alt}

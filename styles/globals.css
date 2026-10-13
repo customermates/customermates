@@ -517,6 +517,12 @@
     --fd-layout-width: 1600px;
   }
 
+  :is(h1, h2, h3) {
+    overflow-wrap: break-word;
+    hyphens: auto;
+    hyphenate-limit-chars: 14 7 7;
+  }
+
   * {
     @apply border-border;
     scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);

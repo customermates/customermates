@@ -36,7 +36,7 @@ export function HomepageHowItWorks({ eyebrow, handoff, liveLabel, locale, steps,
                   <div className="overflow-hidden">
                     <HomepageCaptureImage
                       alt={handoff.alt}
-                      className="-mt-[0.7%]"
+                      className="-mt-[0.7%] max-sm:-ml-[19%] max-sm:w-[118%] max-sm:max-w-none"
                       locale={locale}
                       name="homepage-draft"
                       sizes="(min-width: 1024px) 50vw, 92vw"
