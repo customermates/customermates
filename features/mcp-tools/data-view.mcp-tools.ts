@@ -83,6 +83,8 @@ const ManageDataViewsToolSchema = z
   })
   .strict()
   .superRefine((data, ctx) => {
+    if (data.action === "delete" && data.name === undefined)
+      ctx.addIssue({ code: "custom", path: ["name"], message: "Delete requires the exact current view name." });
     const parsed = ManageDataViewsSchema.safeParse(data);
     if (parsed.success) return;
     for (const issue of parsed.error.issues) ctx.addIssue(withoutRenderedMessage(issue));
