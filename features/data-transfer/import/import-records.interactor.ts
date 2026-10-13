@@ -1,6 +1,6 @@
 import type { RecordRepo, StoredRecord } from "@/features/records/record.repo";
 import type { RecordAccessPolicy } from "@/features/records/record-access";
-import type { RecordWriteService } from "@/features/records/record-write.service";
+import type { RecordWrite, RecordWriteService } from "@/features/records/record-write.service";
 import type { CalculatedValue, RecordField, RecordScalar } from "@/features/records/record-model.schema";
 import type { Validated } from "@/core/validation/validation.utils";
 
@@ -185,6 +185,7 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
         const journal = new RecordJournal(this.records, model);
         const writer = this.writer.withRepository(journal.repository);
         let skipped = 0;
+        const writes: RecordWrite[] = [];
         for (const row of orderedRows) {
           const existing = await this.records.getRecordCompanyWide(row.ref);
           const parent = parentLinks.get(recordKey(row.ref));
@@ -199,7 +200,7 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
                 "recordId",
               ]);
             }
-            await writer.apply(
+            const write = await writer.apply(
               {
                 action: "create",
                 typeId: row.ref.typeId,
@@ -221,8 +222,9 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
               model,
               policy,
               undefined,
-              { createRecordId: row.ref.recordId },
+              { createRecordId: row.ref.recordId, skipCalculations: true },
             );
+            writes.push(write);
           } else {
             if (!existing || !(await policy.canRead(existing))) return failNotFound(CustomErrorCode.recordNotFound);
             const key = recordKey(row.ref);
@@ -238,7 +240,7 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
               skipped += 1;
               continue;
             }
-            await writer.apply(
+            const write = await writer.apply(
               {
                 action: "update",
                 ref: row.ref,
@@ -255,7 +257,10 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
               },
               model,
               policy,
+              undefined,
+              { skipCalculations: true },
             );
+            writes.push(write);
           }
         }
         let linked = 0;
@@ -265,9 +270,12 @@ export class ImportRecordsInteractor extends AuthenticatedInteractor<ImportRecor
             existing.some((target) => target.typeId === link.target.typeId && target.recordId === link.target.recordId)
           )
             continue;
-          await writer.apply({ action: "link", ...link }, model, policy);
+          writes.push(
+            await writer.apply({ action: "link", ...link }, model, policy, undefined, { skipCalculations: true }),
+          );
           linked += 1;
         }
+        await writer.recalculateWrites(model, writes);
         await journal.flush(model, this.userId, input.idempotencyKey, {
           kind: "mutation",
         });

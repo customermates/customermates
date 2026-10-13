@@ -25,7 +25,7 @@ import { parseMarkdownToJSON, serializeJSONToMarkdown } from "@/components/edito
 import { normalizeRecordInput, recordValueIssue, recordValueIssueValues } from "./record-model-validation";
 import { valueResult } from "./calculation";
 import { decodeRecordValue } from "./record-storage";
-import type { RecordCalculationService } from "./record-calculation.service";
+import type { CalculationLinkChange, RecordCalculationService } from "./record-calculation.service";
 import { recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import type { RecordIdentityInput } from "./record-identity.schema";
 import { identityKeys, normalizedIdentity, normalizedIdentityAssociation } from "./record-identity";
@@ -126,6 +126,15 @@ export function sameRecordResult(left: CalculatedValue, right: CalculatedValue):
   return canonicalRecordJson(comparableResult(left)) === canonicalRecordJson(comparableResult(right));
 }
 
+export type RecordWrite = {
+  refs: RecordRef[];
+  changedFieldIds: string[];
+  captures: Array<{ ref: RecordRef; fieldIds: string[] }>;
+  links: CalculationLinkChange[];
+  unchanged: string[];
+  trashBatchId?: string;
+};
+
 export class RecordWriteService {
   constructor(
     private records: RecordRepo,
@@ -135,6 +144,36 @@ export class RecordWriteService {
 
   withRepository(records: RecordRepo): RecordWriteService {
     return new RecordWriteService(records, this.policy, this.calculations.withRepository(records));
+  }
+
+  async recalculateWrites(
+    model: RecordModel,
+    writes: Array<Pick<RecordWrite, "refs" | "captures" | "links" | "unchanged">>,
+    limit = SYNCHRONOUS_RECORD_LIMIT,
+  ): Promise<void> {
+    const seeds = new Map<string, RecordRef>();
+    const propagating = new Set<string>();
+    const captures = new Map<string, Set<string>>();
+    const links: CalculationLinkChange[] = [];
+    for (const write of writes) {
+      const unchanged = new Set(write.unchanged);
+      for (const ref of write.refs) {
+        seeds.set(recordKey(ref), ref);
+        if (!unchanged.has(recordKey(ref))) propagating.add(recordKey(ref));
+      }
+      links.push(...write.links);
+      for (const capture of write.captures) {
+        const fields = captures.get(recordKey(capture.ref)) ?? new Set<string>();
+        capture.fieldIds.forEach((id) => fields.add(id));
+        captures.set(recordKey(capture.ref), fields);
+      }
+    }
+    const result = await this.calculations.recalculate(model, [...seeds.values()], captures, limit, {
+      links,
+      unchanged: new Set([...seeds.keys()].filter((key) => !propagating.has(key))),
+    });
+    if (!result.complete) reject(CustomErrorCode.recordCalculationBudget, "conflict");
+    for (const ref of result.changed) if (!seeds.has(recordKey(ref))) await this.records.touch(ref);
   }
 
   async planDeletion(
@@ -273,12 +312,7 @@ export class RecordWriteService {
       trashBatchId?: string;
       beforeDeletion?: (refs: RecordRef[]) => Promise<void>;
     } = {},
-  ): Promise<{
-    refs: RecordRef[];
-    changedFieldIds: string[];
-    captures: Array<{ ref: RecordRef; fieldIds: string[] }>;
-    trashBatchId?: string;
-  }> {
+  ): Promise<RecordWrite> {
     if (!policy.actor) reject(CustomErrorCode.permissionDenied, "authorization");
     const locked =
       mutation.action === "update" || mutation.action === "delete"
@@ -293,6 +327,8 @@ export class RecordWriteService {
       const seeds = new Map<string, RecordRef>();
       const changedFields = new Set<string>();
       const captures = new Map<string, Set<string>>();
+      const links: CalculationLinkChange[] = [];
+      const propagating = new Set<string>();
       for (const target of mutation.targets) {
         const result = await this.apply(
           {
@@ -308,6 +344,9 @@ export class RecordWriteService {
           { skipCalculations: true, skipTouches: true },
         );
         for (const ref of result.refs) seeds.set(recordKey(ref), ref);
+        const unchanged = new Set(result.unchanged);
+        for (const ref of result.refs) if (!unchanged.has(recordKey(ref))) propagating.add(recordKey(ref));
+        links.push(...result.links);
         for (const fieldId of result.changedFieldIds) changedFields.add(fieldId);
         for (const capture of result.captures) {
           const key = recordKey(capture.ref);
@@ -318,9 +357,15 @@ export class RecordWriteService {
         if (seeds.size > limit) reject(CustomErrorCode.recordCalculationBudget, "conflict");
       }
       if (!options.skipCalculations) {
-        const result = await this.calculations.recalculate(model, [...seeds.values()], captures, limit);
+        const result = await this.calculations.recalculate(model, [...seeds.values()], captures, limit, {
+          links,
+          unchanged: new Set([...seeds.keys()].filter((key) => !propagating.has(key))),
+        });
         if (!result.complete) reject(CustomErrorCode.recordCalculationBudget, "conflict");
-        for (const ref of result.changed) seeds.set(recordKey(ref), ref);
+        for (const ref of result.changed) {
+          seeds.set(recordKey(ref), ref);
+          propagating.add(recordKey(ref));
+        }
         if (seeds.size > limit) reject(CustomErrorCode.recordCalculationBudget, "conflict");
       }
       if (!options.skipTouches) for (const ref of seeds.values()) await this.records.touch(ref);
@@ -331,10 +376,14 @@ export class RecordWriteService {
           ref: recordInvariant(seeds.get(key)),
           fieldIds: [...fields],
         })),
+        links,
+        unchanged: [...seeds.keys()].filter((key) => !propagating.has(key)),
       };
     }
     const fields = new Map(model.fields.filter((field) => !field.archived).map((field) => [field.id, field]));
     const seeds = new Map<string, RecordRef>();
+    const propagating = new Set<string>();
+    const links: CalculationLinkChange[] = [];
     const changedFields = new Set<string>();
     const captures = new Map<string, Set<string>>();
     const deleted = new Set<string>();
@@ -361,8 +410,9 @@ export class RecordWriteService {
       }
       await this.records.setIdentities(ref, normalized);
     };
-    const addSeed = (ref: RecordRef) => {
+    const addSeed = (ref: RecordRef, propagate = true) => {
       seeds.set(recordKey(ref), ref);
+      if (propagate) propagating.add(recordKey(ref));
       if (seeds.size > limit) reject(CustomErrorCode.recordCalculationBudget, "conflict");
     };
     const type = (id: string) => {
@@ -394,7 +444,10 @@ export class RecordWriteService {
       const existing = await this.records.linkedRecordsCompanyWide(source, relationId, "outgoing", limit + 1);
       const contains = existing.some((ref) => recordKey(ref) === recordKey(target));
       if (remove) {
-        if (contains) await this.records.unlink(relationId, source, target);
+        if (contains) {
+          await this.records.unlink(relationId, source, target);
+          links.push({ relationId, source, target });
+        }
       } else if (!contains) {
         if (relation.sourceCardinality === "one" && existing.length)
           reject(CustomErrorCode.recordRelationConflict, "conflict");
@@ -404,9 +457,10 @@ export class RecordWriteService {
         )
           reject(CustomErrorCode.recordRelationConflict, "conflict");
         await this.records.link(relationId, source, target);
+        links.push({ relationId, source, target });
       }
-      addSeed(source);
-      addSeed(target);
+      addSeed(source, false);
+      addSeed(target, false);
     };
     const assignFields = async (
       ref: RecordRef,
@@ -594,7 +648,7 @@ export class RecordWriteService {
           reject(CustomErrorCode.recordNotFound, "not_found", ["placement"]);
       }
       if (isOrderOnlyUpdate(mutation)) captures.delete(recordKey(mutation.ref));
-      else addSeed(mutation.ref);
+      else addSeed(mutation.ref, changedFields.size > 0);
     } else if (mutation.action === "delete" || mutation.action === "deleteMany") {
       const plan = await this.planDeletion(mutation, model, policy, limit);
       for (const key of plan.deleted.keys()) deleted.add(key);
@@ -633,7 +687,10 @@ export class RecordWriteService {
 
     const recalculated = options.skipCalculations
       ? { complete: true, changed: [] }
-      : await this.calculations.recalculate(model, [...seeds.values()], captures, limit);
+      : await this.calculations.recalculate(model, [...seeds.values()], captures, limit, {
+          links,
+          unchanged: new Set([...seeds.keys()].filter((key) => !propagating.has(key))),
+        });
     if (!recalculated.complete) reject(CustomErrorCode.recordCalculationBudget, "conflict");
     for (const ref of recalculated.changed) addSeed(ref);
     if (!options.skipTouches)
@@ -646,6 +703,8 @@ export class RecordWriteService {
         ref: recordInvariant(seeds.get(key)),
         fieldIds: [...fieldIds],
       })),
+      links,
+      unchanged: [...seeds.keys()].filter((key) => !propagating.has(key)),
       ...(trashBatchId ? { trashBatchId } : {}),
     };
   }

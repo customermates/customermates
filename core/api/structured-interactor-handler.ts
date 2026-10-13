@@ -63,8 +63,25 @@ const APP_ERROR_FAILURES: Record<AppErrorCode, [InteractorFailureKind, CustomErr
   [AppErrorCode.invalidJsonBody]: ["validation", CustomErrorCode.invalidJsonBody],
 };
 
+const BUSY_RETRY_AFTER_SECONDS = 2;
+const RETRY_AFTER_SECONDS: Partial<Record<CustomErrorCode, number>> = {
+  [CustomErrorCode.serviceBusy]: BUSY_RETRY_AFTER_SECONDS,
+  [CustomErrorCode.unipileRateLimit]: 30,
+  [CustomErrorCode.agentLimitReached]: 3600,
+};
+
+function retryAfterSeconds(error: SerializedInteractorFailure): number {
+  return Math.max(
+    BUSY_RETRY_AFTER_SECONDS,
+    ...error.issues.map((issue) => (issue.customCode ? (RETRY_AFTER_SECONDS[issue.customCode] ?? 0) : 0)),
+  );
+}
+
 function failure(error: SerializedInteractorFailure, status: number): NextResponse {
-  return NextResponse.json({ error }, { status });
+  return NextResponse.json(
+    { error },
+    status === 429 ? { status, headers: { "retry-after": String(retryAfterSeconds(error)) } } : { status },
+  );
 }
 
 export function interactorFailureResponse(error: z.ZodError): NextResponse {
