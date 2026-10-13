@@ -89,20 +89,28 @@ export const updateMyProfileTool = {
   },
 };
 
-const ManageTeamMemberSchema = UpdateMemberSchema.pick({ roleId: true, status: true }).extend({
-  userId: z.uuid(),
-});
+const ManageTeamMemberSchema = UpdateMemberSchema.pick({
+  userId: true,
+  email: true,
+  roleId: true,
+  status: true,
+}).refine(({ userId, email }) => Boolean(userId || email), { path: ["userId"], message: "Provide userId or email" });
 
 const ManageTeamSchema = z.object({
   action: z
     .enum(["invite", "invite_link", "update_member"])
     .describe(
-      "invite = send invitation emails (emails); invite_link = return the workspace invitation link to share yourself; update_member = change an existing member's role or status (userId plus roleId and/or status).",
+      "invite = send invitation emails (emails); invite_link = return the workspace invitation link to share yourself; update_member = change an existing member's role or status (userId or email plus roleId and/or status).",
     ),
   emails: InviteUsersByEmailSchema.shape.emails
     .optional()
     .describe("invite action: required, 1 to 20 email addresses, each receives a real invitation email"),
-  userId: UpdateMemberSchema.shape.userId.describe("update_member action: required, user id from list_users"),
+  userId: UpdateMemberSchema.shape.userId.describe(
+    "update_member action: user id from list_users; provide userId or email",
+  ),
+  email: UpdateMemberSchema.shape.email.describe(
+    "update_member action: member email; provide email or userId, and both must match when supplied",
+  ),
   roleId: UpdateMemberSchema.shape.roleId.describe(
     "update_member action: new role id from get_workspace_context roles. Omit to keep the current role.",
   ),
@@ -118,7 +126,7 @@ export const manageTeamTool = {
     "Use this when administering team members. " +
     "action invite SENDS REAL INVITATION EMAILS to the given addresses (up to 20 per call). " +
     "action invite_link returns the workspace invitation link and its expiresAt, as the Invite modal shows it, creating one valid for 7 days when none is active; anyone who opens it can request to join, so hand it only to the people the user names. " +
-    "action update_member changes an existing member's role or status: pass userId from list_users.items[].id plus roleId from get_workspace_context.roles[].id and/or status, omitted fields keep their current values; " +
+    "action update_member changes an existing member's role or status: identify the member by userId from list_users.items[].id or email (both must match if supplied), plus roleId from get_workspace_context.roles[].id and/or status; omitted fields keep their current values; " +
     "a member who has no role assigned yet (e.g. a still pending invite) has no role to keep, so you must pass roleId together with the change or the call is rejected. " +
     "last-admin protection is enforced server-side, the workspace can never lose its last active admin. " +
     "invite requires create permission on users, as does invite_link; update_member requires update permission on users (Edit on Users & Roles), the same check as REST POST /v1/members/update.",

@@ -4310,6 +4310,7 @@
     "permanentIrreversible": "Questa operazione non può essere annullata.",
     "permanentMessage": "{count, plural, one {Questo elemento viene eliminato} other {Questi # elementi vengono eliminati}} definitivamente.",
     "permanentRecords": "{list}: {count, plural, one {# record} other {# record}}",
+    "permanentViewWidgets": "Per una vista dashboard, anche i suoi widget vengono eliminati definitivamente.",
     "restore": "Ripristina",
     "restoreBlocked": {
       "listDeleted": "{count, plural, one {# elemento resta} other {# elementi restano}} nel cestino perché la loro lista è nel cestino. Ripristina prima la lista.",

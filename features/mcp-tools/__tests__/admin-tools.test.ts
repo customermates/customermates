@@ -161,6 +161,23 @@ describe("manage_team update_member", () => {
     expect(outcome).toMatchObject({ ok: true, structuredContent: { status: "inactive", message: "Member updated" } });
   });
 
+  it.each([{ email: "member@example.test" }, { userId: MEMBER_ID, email: "member@example.test" }])(
+    "accepts a member email and delegates matching both identifiers to the interactor",
+    async (reference) => {
+      spies.updateTeamMember.mockResolvedValue({
+        ok: true,
+        data: { email: "member@example.test", roleId: "30000000-0000-4000-8000-000000000003", status: "active" },
+      });
+
+      const outcome = await executeMcpTool(manageTeamTool, [
+        manageTeamTool.inputSchema.parse({ action: "update_member", ...reference, status: "active" }),
+      ]);
+
+      expect(spies.updateTeamMember).toHaveBeenCalledWith({ ...reference, status: "active" });
+      expect(outcome).toMatchObject({ ok: true, structuredContent: { email: "member@example.test" } });
+    },
+  );
+
   it("reports a caller who may not manage members as an authorization failure", async () => {
     spies.updateTeamMember.mockRejectedValue(
       new ForbiddenError("Access denied. Required permissions: update on users"),
@@ -173,7 +190,7 @@ describe("manage_team update_member", () => {
     expect(outcome).toMatchObject({ ok: false, failure: { kind: "authorization" } });
   });
 
-  it("rejects an update_member call without userId before reaching the interactor", async () => {
+  it("rejects an update_member call without userId or email before reaching the interactor", async () => {
     const outcome = await executeMcpTool(manageTeamTool, [
       manageTeamTool.inputSchema.parse({ action: "update_member", status: "active" }),
     ]);

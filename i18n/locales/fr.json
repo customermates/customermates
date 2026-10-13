@@ -4310,6 +4310,7 @@
     "permanentIrreversible": "Cette action est irréversible.",
     "permanentMessage": "{count, plural, one {Cet élément est supprimé} other {Ces # éléments sont supprimés}} définitivement.",
     "permanentRecords": "{list} : {count, plural, one {# enregistrement} other {# enregistrements}}",
+    "permanentViewWidgets": "Pour une vue de tableau de bord, ses widgets sont aussi supprimés définitivement.",
     "restore": "Restaurer",
     "restoreBlocked": {
       "listDeleted": "{count, plural, one {# élément reste} other {# éléments restent}} dans la corbeille car leur liste est dans la corbeille. Restaurez d'abord la liste.",
