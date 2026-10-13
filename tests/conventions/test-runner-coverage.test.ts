@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { join, matchesGlob, relative, sep } from "node:path";
+import { join, relative, sep } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
@@ -9,8 +9,16 @@ import { domTestFiles, nodeTestInclude } from "@/vitest.config";
 
 const TEST_FILE = /\.test\.(?:[cm]?[jt]s|[jt]sx)$/;
 
-// Vitest also resolves an include entry that is a literal path, even when it holds glob characters such as [locale].
-const matchesPattern = (file: string, pattern: string) => file === pattern || matchesGlob(file, pattern);
+// The vitest include lists use only ** and *; other characters, such as the brackets in [locale], are literal there.
+function globPattern(pattern: string) {
+  const source = pattern
+    .split(/(\*\*\/|\*)/)
+    .map((part) => (part === "**/" ? "(?:.*/)?" : part === "*" ? "[^/]*" : part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")))
+    .join("");
+  return new RegExp(`^${source}$`);
+}
+
+const matchesPattern = (file: string, pattern: string) => globPattern(pattern).test(file);
 
 function packageScripts(): string[] {
   const manifest = JSON.parse(readFileSync(join(REPO_ROOT, "package.json"), "utf8")) as {
