@@ -5,7 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
-import { PrismaMessagingRepo } from "../prisma-messaging.repository";
+import { createTestMessagingRepo } from "@/tests/helpers/messaging-repository";
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -64,7 +64,7 @@ describeDatabase("a misrouted message.update cannot move a message or rewrite it
   });
 
   it("keeps the message in its original chat and preserves its sender", async () => {
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
     const counterpart = attendee("Carla", "+491000000001", false);
     const owner = attendee("You", "+491000000002", true);
 
@@ -162,7 +162,7 @@ describeDatabase("a provider echo keeps the filename recorded at send time", () 
   });
 
   it("keeps our filename and size when the echo reports neither", async () => {
-    const repo = new PrismaMessagingRepo();
+    const repo = createTestMessagingRepo();
 
     await runWithoutTenant(() =>
       repo.ingestMessageUnscoped({

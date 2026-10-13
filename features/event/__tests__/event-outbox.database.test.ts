@@ -6,12 +6,15 @@ import { runWithoutTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
 
 vi.mock("@/env", () => ({ env: { APP_MODE: "cloud", DATABASE_URL: process.env.DATABASE_URL, NODE_ENV: "test" } }));
+const sentry = vi.hoisted(() => ({ captureException: vi.fn() }));
+vi.mock("@sentry/nextjs", () => sentry);
 
 const { prisma } = await import("@/prisma/db");
 const { DomainEvent } = await import("../domain-events");
 const { EventService } = await import("../event.service");
 const { PrismaEventLogRepo } = await import("../prisma-event-log.repository");
 const { ProcessEventInteractor } = await import("../process-event.interactor");
+const { EVENT_ADMISSION_MAX_ATTEMPTS } = await import("../event-outbox.repo");
 const { EventAdmissionGroup } = await import("../event-admission-group");
 const { WebhookAdmission } = await import("@/features/webhook/webhook-admission");
 const { PrismaWebhookAdmissionRepo } = await import("@/features/webhook/prisma-webhook-admission.repository");
@@ -130,5 +133,64 @@ describeDatabase("event outbox for messaging events", () => {
         },
       }),
     );
+  });
+
+  it("reports a failing admission, defers it, and abandons it after the attempt cap", async () => {
+    const companyId = await workspace([DomainEvent.MESSAGING_MESSAGE_RECEIVED]);
+    const failure = new Error("admission failed");
+    const admit = vi.fn().mockRejectedValue(failure);
+    const outbox = new PrismaEventLogRepo({ dispatch: () => Promise.resolve() });
+    const process = new ProcessEventInteractor(outbox, { admit });
+    const create = (attempts: number) =>
+      runWithoutTenant(() =>
+        prisma.eventLog.create({
+          data: {
+            companyId,
+            subjectKind: "messaging",
+            subjectId: randomUUID(),
+            kind: DomainEvent.MESSAGING_MESSAGE_RECEIVED,
+            payload: MESSAGE,
+            attempts,
+          },
+        }),
+      );
+    const deferred = await create(0);
+    const exhausted = await create(EVENT_ADMISSION_MAX_ATTEMPTS - 1);
+
+    expect(await process.invoke({ companyId, eventId: deferred.id })).toEqual({ status: "deferred" });
+    expect(await process.invoke({ companyId, eventId: exhausted.id })).toEqual({ status: "abandoned" });
+
+    expect(sentry.captureException).toHaveBeenCalledWith(
+      failure,
+      expect.objectContaining({
+        level: "warning",
+        tags: expect.objectContaining({ companyId, eventId: deferred.id, outcome: "admission_failed" }),
+      }),
+    );
+    expect(sentry.captureException).toHaveBeenCalledWith(
+      failure,
+      expect.objectContaining({
+        level: "error",
+        tags: expect.objectContaining({ companyId, eventId: exhausted.id, outcome: "admission_abandoned" }),
+      }),
+    );
+    const rows = await runWithoutTenant(() =>
+      prisma.eventLog.findMany({ where: { companyId, id: { in: [deferred.id, exhausted.id] } } }),
+    );
+    expect(rows.find((row) => row.id === deferred.id)).toMatchObject({
+      attempts: 1,
+      deliveredAt: null,
+      lastFailureCode: "admission_failed",
+    });
+    expect(rows.find((row) => row.id === exhausted.id)).toMatchObject({
+      attempts: EVENT_ADMISSION_MAX_ATTEMPTS,
+      deliveredAt: null,
+      lastFailureCode: "admission_abandoned",
+    });
+    const farFuture = new Date("9000-01-01T00:00:00Z");
+    expect(await outbox.dueEventsUnscoped(companyId, farFuture, 10)).toEqual([deferred.id]);
+    admit.mockClear();
+    expect(await process.invoke({ companyId, eventId: exhausted.id })).toEqual({ status: "abandoned" });
+    expect(admit).not.toHaveBeenCalled();
   });
 });

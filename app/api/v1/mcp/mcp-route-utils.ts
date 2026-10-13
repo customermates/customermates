@@ -130,6 +130,13 @@ function insufficientPermissions() {
   );
 }
 
+function inactiveUser(message: string) {
+  return new Response(JSON.stringify({ error: "inactive_user", message }), {
+    status: 403,
+    headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+  });
+}
+
 async function mcpAccessRefusal(): Promise<Response | null> {
   const { getAuthorizeMcpConnectionInteractor } = await import("@/core/di");
   try {
@@ -139,7 +146,7 @@ async function mcpAccessRefusal(): Promise<Response | null> {
     if (error instanceof AuthError) return unauthorizedChallenge();
     if (error instanceof ForbiddenError && error.code === AppErrorCode.permissionDenied)
       return insufficientPermissions();
-    if (error instanceof ForbiddenError) return null;
+    if (error instanceof ForbiddenError && error.code === AppErrorCode.inactiveUser) return inactiveUser(error.message);
     throw error;
   }
 }

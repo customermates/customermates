@@ -12,6 +12,7 @@ import { toConnectedAccountDto } from "./connected-account-dto";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { DomainEvent } from "@/features/event/domain-events";
@@ -41,35 +42,36 @@ export class SetConnectedAccountVisibilityInteractor extends AuthenticatedIntera
   @Validate(SetConnectedAccountVisibilitySchema)
   @ValidateOutput(ConnectedAccountAppDtoSchema)
   async invoke(data: SetConnectedAccountVisibilityData): Validated<ConnectedAccountDto> {
-    const existing = await this.repo.getAccountByIdOrThrow(data.id);
+    return runInTransaction(async () => {
+      const existing = await this.repo.getAccountByIdOrThrow(data.id);
+      const denied = await this.entitlements.require("sharedAccounts");
+      if (denied) return denied;
 
-    const denied = await this.entitlements.require("sharedAccounts");
-    if (denied) return denied;
+      if (existing.shared === data.shared) return { ok: true as const, data: toConnectedAccountDto(existing) };
 
-    if (existing.shared === data.shared) return { ok: true as const, data: toConnectedAccountDto(existing) };
+      const updated = await this.repo.setAccountSharedOrThrow({
+        id: data.id,
+        shared: data.shared,
+      });
 
-    const updated = await this.repo.setAccountSharedOrThrow({
-      id: data.id,
-      shared: data.shared,
-    });
-
-    await this.eventService.publish(DomainEvent.CONNECTED_ACCOUNT_UPDATED, {
-      entityId: data.id,
-      payload: {
-        connectedAccount: {
-          provider: updated.provider,
-          displayName: updated.displayName,
-          emailAddress: updated.emailAddress,
-        },
-        changes: {
-          visibility: {
-            previous: existing.shared ? "shared" : "private",
-            current: data.shared ? "shared" : "private",
+      await this.eventService.publish(DomainEvent.CONNECTED_ACCOUNT_UPDATED, {
+        entityId: data.id,
+        payload: {
+          connectedAccount: {
+            provider: updated.provider,
+            displayName: updated.displayName,
+            emailAddress: updated.emailAddress,
+          },
+          changes: {
+            visibility: {
+              previous: existing.shared ? "shared" : "private",
+              current: data.shared ? "shared" : "private",
+            },
           },
         },
-      },
-    });
+      });
 
-    return { ok: true as const, data: toConnectedAccountDto(updated) };
+      return { ok: true as const, data: toConnectedAccountDto(updated) };
+    });
   }
 }

@@ -15,6 +15,7 @@ import type { AccountWebhookRepo } from "../webhooks/account/account-webhook.rep
 import type { WebhookActivityRepo } from "../webhooks/relation/relation-webhook.repo";
 import type { ConnectedAccountRecord } from "../messaging.schema";
 import type { EmailSettings } from "../email-settings";
+import { resolveStoredEmailSettings } from "../email-settings";
 
 import { type EmailFolder, EmailFolderSchema } from "../email-folders";
 import type { BackfillConnectedAccountRepo } from "../ingest/backfill/backfill.repo";
@@ -616,6 +617,12 @@ export class PrismaConnectedAccountRepo
     });
   }
 
+  async findOwnedAccountById(id: string) {
+    return this.prisma.connectedAccount.findFirst({
+      where: { id, companyId: this.companyId, userId: this.userId },
+    });
+  }
+
   async getAccountByIdOrThrow(id: string) {
     const row = await this.prisma.connectedAccount.findFirstOrThrow({
       where: { id, companyId: this.companyId, userId: this.userId },
@@ -664,6 +671,16 @@ export class PrismaConnectedAccountRepo
     });
 
     return this.getAccountByIdOrThrow(args.id);
+  }
+
+  async findOwnedAccountEmail(id: string) {
+    const row = await this.prisma.connectedAccount.findFirst({
+      where: { id, companyId: this.companyId, userId: this.userId },
+      select: { signature: true, signatureFields: true },
+    });
+    return row
+      ? { signature: row.signature, settings: resolveStoredEmailSettings(row.signature, row.signatureFields).settings }
+      : null;
   }
 
   async setAccountSignatureOrThrow(args: { id: string; signature: string | null; settings: EmailSettings }) {

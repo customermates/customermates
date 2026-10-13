@@ -23,6 +23,7 @@ test("moves a routine to Trash, stops listing it and restores it from Trash", as
     await runNamedRowAction(page, row, "Weekly digest", englishMessages.Common.actions.delete);
     await expect(confirmation).toBeVisible({ timeout: 3000 });
   }).toPass({ timeout: 30000 });
+  await expect(page.getByRole("dialog")).toHaveCount(0);
   await confirmation.getByRole("button", { name: englishMessages.Common.actions.delete, exact: true }).click();
   await expect(row).toHaveCount(0);
   await expect(page.locator("[data-sonner-toast]").filter({ hasText: englishMessages.Trash.movedToTrash })).toBeVisible();

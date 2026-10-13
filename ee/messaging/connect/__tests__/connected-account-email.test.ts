@@ -16,6 +16,9 @@ vi.mock("@/env", () => MOCK_ENV_MODULE);
 vi.mock("@/core/di", () => createMockDiModule(() => mockUser));
 vi.mock("@/core/validation/zod-error-map-server", () => MOCK_ZOD_MODULE);
 vi.mock("@/prisma/db", () => MOCK_PRISMA_DB_MODULE);
+vi.mock("next-intl/server", () => ({
+  getTranslations: () => Promise.resolve(Object.assign((key: string) => key, { raw: (key: string) => key })),
+}));
 
 import { defaultEmailSettings } from "../../email-settings";
 import { CustomErrorCode } from "@/core/validation/validation.types";
@@ -129,7 +132,7 @@ describe("connected-account email presentation at the interactor boundary", () =
   });
 
   it("validates the shared form contract before persistence and returns an expected failure", async () => {
-    const repo = { setAccountSignatureOrThrow: vi.fn() };
+    const repo = { findOwnedAccountEmail: vi.fn(), setAccountSignatureOrThrow: vi.fn() };
     const settings = defaultEmailSettings();
     settings.signature.enabled = true;
     settings.signature.logoUrl = "https://localhost/logo.png";
@@ -156,6 +159,7 @@ describe("connected-account email presentation at the interactor boundary", () =
     settings.signature.enabled = true;
     record.signatureFields = settings;
     const repo = {
+      findOwnedAccountEmail: vi.fn().mockResolvedValue({ signature: "Old", settings: defaultEmailSettings() }),
       setAccountSignatureOrThrow: vi.fn().mockResolvedValue(record),
     };
     const result = await new SetConnectedAccountSignatureInteractor(repo, mockEntitlementService()).invoke({
@@ -173,5 +177,49 @@ describe("connected-account email presentation at the interactor boundary", () =
     if (!result.ok) return;
     expect(result.data.signatureHtml).toContain("<strong>Saved footer</strong>");
     expect(result.data).not.toHaveProperty("signatureFields");
+  });
+
+  it("keeps the stored settings when only the signature text changes, and the text when only settings change", async () => {
+    const stored = defaultEmailSettings();
+    stored.signature.enabled = true;
+    const record = account();
+    const repo = {
+      findOwnedAccountEmail: vi.fn().mockResolvedValue({ signature: "**Saved footer**", settings: stored }),
+      setAccountSignatureOrThrow: vi.fn().mockResolvedValue(record),
+    };
+    const interactor = new SetConnectedAccountSignatureInteractor(repo, mockEntitlementService());
+
+    expect((await interactor.invoke({ id: record.id, signature: "Cheers" })).ok).toBe(true);
+    const changed = defaultEmailSettings();
+    expect((await interactor.invoke({ id: record.id, settings: changed })).ok).toBe(true);
+
+    expect(repo.setAccountSignatureOrThrow.mock.calls).toEqual([
+      [{ id: record.id, signature: "Cheers", settings: stored }],
+      [{ id: record.id, signature: "**Saved footer**", settings: changed }],
+    ]);
+  });
+
+  it("requires a signature or settings and answers not found for an account the caller does not own", async () => {
+    const repo = { findOwnedAccountEmail: vi.fn().mockResolvedValue(null), setAccountSignatureOrThrow: vi.fn() };
+    const interactor = new SetConnectedAccountSignatureInteractor(repo, mockEntitlementService());
+
+    const empty = await interactor.invoke({ id: account().id });
+    expect(empty.ok).toBe(false);
+    if (!empty.ok) {
+      expect(empty.error.issues[0]).toMatchObject({
+        path: ["signature"],
+        params: { error: CustomErrorCode.connectedAccountEmailChangeRequired },
+      });
+    }
+
+    const foreign = await interactor.invoke({ id: account().id, signature: "Hi" });
+    expect(foreign.ok).toBe(false);
+    if (!foreign.ok) {
+      expect(foreign.error.issues[0]).toMatchObject({
+        path: ["id"],
+        params: { error: CustomErrorCode.connectedAccountNotFound, kind: "not_found" },
+      });
+    }
+    expect(repo.setAccountSignatureOrThrow).not.toHaveBeenCalled();
   });
 });
