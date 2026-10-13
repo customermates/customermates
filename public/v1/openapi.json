@@ -82573,7 +82573,7 @@
       "post": {
         "operationId": "readRoutine",
         "summary": "Read a routine",
-        "description": "Returns one routine with its full configuration. An id outside the workspace answers 404. Requires: read permission on routines.",
+        "description": "Returns one routine with its full configuration. An id outside the workspace or the caller's access answers 404. Requires: read permission on routines.",
         "tags": [
           "routines"
         ],
@@ -114020,6 +114020,7 @@
                         "calendarNotFound",
                         "connectedAccountNotFound",
                         "roleNotFound",
+                        "routineNotFound",
                         "roleAssignedCannotDelete",
                         "roleNameTaken",
                         "roleSelfEditForbidden",

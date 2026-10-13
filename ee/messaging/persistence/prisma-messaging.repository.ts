@@ -56,9 +56,12 @@ import { htmlToPlainText } from "../email-body-text";
 import { identityLookupValue } from "../identity-lookup";
 import {
   accessibleFolderStatesWhere,
+  canViewAccountMessages,
   inboxThreadVisibilityWhere,
+  limitMessageFolderIds,
   messageVisibilityWhere,
   accessibleConnectedAccountWhere,
+  redactMessageBcc,
   threadAccessWhere,
 } from "../messaging-access";
 import { channelClass, DRAFT_THREAD_PREFIX, isDraftThreadId, isEmailProvider, isHandleProvider } from "../provider";
@@ -1606,7 +1609,7 @@ export class PrismaMessagingRepo
     if (!accessibleThread) return { messages: [] as MessagingMessage[], total: 0 };
 
     const account = accessibleThread.connectedAccount;
-    const canViewBcc = account.userId === this.userId || account.shared;
+    const canViewBcc = canViewAccountMessages(account, this.userId);
     const folderStates =
       account.foldersSyncedAt !== null
         ? [
@@ -1629,8 +1632,8 @@ export class PrismaMessagingRepo
         where,
         orderBy: { sentAt: "asc" },
       });
-      const messages = this.redactBcc(
-        this.limitFolderIds(rows, canViewBcc, folderStates),
+      const messages = redactMessageBcc(
+        limitMessageFolderIds(rows, canViewBcc, folderStates),
         canViewBcc,
       ) as unknown as MessagingMessage[];
       await this.hydrateMessageSenderContacts(messages, accessibleThread);
@@ -1648,7 +1651,10 @@ export class PrismaMessagingRepo
     });
 
     const messages = (
-      this.redactBcc(this.limitFolderIds(rows, canViewBcc, folderStates), canViewBcc) as unknown as MessagingMessage[]
+      redactMessageBcc(
+        limitMessageFolderIds(rows, canViewBcc, folderStates),
+        canViewBcc,
+      ) as unknown as MessagingMessage[]
     ).reverse();
     await this.hydrateMessageSenderContacts(messages, accessibleThread);
 
@@ -1696,32 +1702,6 @@ export class PrismaMessagingRepo
         bestName.get(JSON.stringify([provider, message.sender.attendeeId])) ||
         (single && hasLetter(thread.name) ? thread.name : "");
       if (better) message.sender.displayName = better;
-    });
-  }
-
-  private limitFolderIds<T extends { folderIds: string[] }>(
-    rows: T[],
-    canViewAllFolders: boolean,
-    folderStates: { visibleSet: string[] }[],
-  ): T[] {
-    if (canViewAllFolders || folderStates.length === 0) return rows;
-
-    const visible = new Set(folderStates[0].visibleSet);
-    return rows.map((row) => ({ ...row, folderIds: row.folderIds.filter((id) => visible.has(id)) }));
-  }
-
-  private redactBcc<T extends { recipients: unknown; direction: MessagingMessageDirection }>(
-    rows: T[],
-    canViewBcc: boolean,
-  ): T[] {
-    return rows.map((row) => {
-      if (row.direction === MessagingMessageDirection.outbound && canViewBcc) return row;
-
-      const recipients = row.recipients;
-      if (recipients && typeof recipients === "object" && "bcc" in recipients)
-        return { ...row, recipients: { ...recipients, bcc: [] } };
-
-      return row;
     });
   }
 

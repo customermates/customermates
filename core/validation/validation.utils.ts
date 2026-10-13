@@ -70,6 +70,7 @@ const NOT_FOUND_FAILURE_CODES = new Set<CustomErrorCode>([
   CustomErrorCode.calendarNotFound,
   CustomErrorCode.connectedAccountNotFound,
   CustomErrorCode.roleNotFound,
+  CustomErrorCode.routineNotFound,
   CustomErrorCode.threadNotFound,
   CustomErrorCode.messageNotFound,
   CustomErrorCode.unipileResourceNotFound,
