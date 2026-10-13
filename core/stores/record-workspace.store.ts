@@ -21,6 +21,8 @@ type RecordDraftHandoff = {
   form: RecordDraft;
 };
 
+export type QueuedRecordDraftHandoff = { key: string; actorScope: string | null; draft: RecordDraftHandoff };
+
 const recordKey = (ref: RecordRef) => `${ref.typeId}:${ref.recordId}`;
 
 export class RecordWorkspaceStore {
@@ -34,7 +36,7 @@ export class RecordWorkspaceStore {
   private listeners = new Set<() => Promise<void>>();
   private readyRoutes = observable.map<string, number>();
   private detailLayouts = new Map<string, RecordDetailLayoutStore>();
-  private draftHandoff: { key: string; draft: RecordDraftHandoff } | null = null;
+  private draftHandoff: QueuedRecordDraftHandoff | null = null;
   private pageEditor: {
     editor: RecordEditorStore;
     actorScope: string | null;
@@ -155,6 +157,7 @@ export class RecordWorkspaceStore {
       editor.record && editor.hasUnsavedChanges
         ? {
             key: recordKey(editor.record.ref),
+            actorScope: this.actorScope,
             draft: {
               presentation: editor.presentation,
               record: editor.record,
@@ -199,10 +202,15 @@ export class RecordWorkspaceStore {
     return true;
   };
 
-  takeDraftHandoff = (ref: RecordRef | undefined) => {
-    const handoff = this.draftHandoff;
-    this.draftHandoff = null;
-    return handoff && ref && handoff.key === recordKey(ref) ? handoff.draft : null;
+  peekDraftHandoff = (ref: RecordRef | undefined) => {
+    const queued = this.draftHandoff;
+    const draft =
+      queued && ref && queued.actorScope === this.actorScope && queued.key === recordKey(ref) ? queued.draft : null;
+    return { queued, draft };
+  };
+
+  acknowledgeDraftHandoff = (queued: QueuedRecordDraftHandoff | null) => {
+    if (queued && this.draftHandoff === queued && queued.actorScope === this.actorScope) this.draftHandoff = null;
   };
 
   invalidate = async () => {

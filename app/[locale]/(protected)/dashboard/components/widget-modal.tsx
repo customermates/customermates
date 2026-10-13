@@ -7,7 +7,6 @@ import { WidgetKind } from "@/generated/prisma";
 import { ArrowLeft, ChevronsUpDownIcon, Trash2 } from "lucide-react";
 import { observer } from "mobx-react-lite";
 import { useTranslations } from "next-intl";
-import { useTheme } from "next-themes";
 
 import { AppCard } from "@/components/card/app-card";
 import { AppCardBody } from "@/components/card/app-card-body";
@@ -43,12 +42,13 @@ import { RecordWidgetEditor } from "./record-widget-editor";
 import { WidgetDisplayTypePicker } from "./widget-display-type-picker";
 import { WIDGET_EDITOR_GRID_CLASS } from "./widget-editor-layout";
 import { WidgetStarterPicker } from "./widget-starter-picker";
+import { cn } from "@/core/utils/cn";
 
 function WidgetModalSkeleton() {
   const t = useTranslations();
 
   return (
-    <div className={`${WIDGET_EDITOR_GRID_CLASS} min-h-96`} role="status">
+    <div className={cn(WIDGET_EDITOR_GRID_CLASS, "min-h-96")} role="status">
       <span className="sr-only">{t("Loading.text")}</span>
 
       <div className="space-y-4">
@@ -70,13 +70,12 @@ export const WidgetModal = observer(() => {
   const t = useTranslations();
   const { widgetModalStore } = useRootStore();
   const { showDeleteConfirmation } = useDeleteConfirmation();
-  const { resolvedTheme } = useTheme();
   const { form, canManage, isDisabled, companyWideWidgets } = widgetModalStore;
   const askAction = useRecordAiAction({
     context: { reference: { kind: "widget", widgetId: form.id ?? "" }, label: form.name },
     active: widgetModalStore.isOpen && Boolean(form.id),
   });
-  const chartColors = getChartColors(resolvedTheme);
+  const chartColors = getChartColors();
   const isCreate = !form.id;
   const canDeleteWidget = !isCreate && canManage && Boolean(form.id);
   const isChooseStep = isCreate && widgetModalStore.creationStep === "choose";

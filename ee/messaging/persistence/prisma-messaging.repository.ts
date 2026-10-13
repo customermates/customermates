@@ -43,7 +43,8 @@ import type { UpdateThreadRepo } from "../thread-state/update-thread.repo";
 
 import { QueryRepository } from "@/core/base/query-repository";
 import { BypassTenantGuard } from "@/core/decorators/bypass-tenant.decorator";
-import { getConnectedAccountRepo, getRecordIdentityReader } from "@/core/di";
+import type { RecordIdentityReader } from "@/features/records/record-identity-reader";
+import type { MessagingFilterOptionsRepo } from "../inbox/messaging-filter-options.repo";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import type { PreviewKind } from "../attachment-kind";
@@ -112,6 +113,8 @@ export class PrismaMessagingRepo
   constructor(
     private readonly inboxRecords: Pick<RecordRepo, "getModel">,
     private readonly inboxPolicy: Pick<RecordAccessPolicy, "load">,
+    private readonly identities?: Pick<RecordIdentityReader, "resolve">,
+    private readonly filterOptions?: MessagingFilterOptionsRepo,
   ) {
     super();
   }
@@ -234,7 +237,8 @@ export class PrismaMessagingRepo
   }
 
   async getFilterableFields() {
-    const options = await getConnectedAccountRepo().listInboxFilterOptions();
+    if (!this.filterOptions) throw new Error("Messaging inbox filter options are not configured");
+    const options = await this.filterOptions.listInboxFilterOptions();
     return [
       {
         field: FilterFieldKey.state,
@@ -1709,7 +1713,8 @@ export class PrismaMessagingRepo
   private async resolveContactsByIdentifiers(
     pairs: { provider: MessagingProvider; value: string }[],
   ): Promise<Map<string, RecordIdentityReference[]>> {
-    const matches = await getRecordIdentityReader().resolve(pairs);
+    if (!this.identities) throw new Error("Messaging record identities are not configured");
+    const matches = await this.identities.resolve(pairs);
     return new Map(matches.map((match) => [identifierKey(match.provider, match.value), match.records]));
   }
 

@@ -7,6 +7,7 @@ import { RecordEditor } from "@/app/[locale]/(protected)/records/[typeId]/compon
 import { AppModal } from "@/components/modal/app-modal";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RecordAccessDeniedNotice } from "@/components/records/record-access-denied";
+import { cn } from "@/core/utils/cn";
 
 const SKELETON_FIELDS = ["w-24", "w-20", "w-28", "w-24", "w-16"];
 
@@ -54,7 +55,7 @@ export const WorkspaceRecordEditor = observer(function WorkspaceRecordEditor() {
             <div className="flex flex-col gap-5 px-6 py-4">
               {SKELETON_FIELDS.map((width, index) => (
                 <div key={index} className="flex flex-col gap-2">
-                  <Skeleton className={`h-4 ${width}`} />
+                  <Skeleton className={cn("h-4", width)} />
 
                   <Skeleton className="h-9 w-full rounded-md" />
                 </div>

@@ -108,7 +108,7 @@ describeDatabase("routine run projection on PostgreSQL", () => {
   });
 
   async function runs() {
-    return runWithTenant(viewer, () => createTestRoutineRepo().getRoutineRuns(routineId, 10));
+    return runWithTenant(viewer, () => createTestRoutineRepo().getRoutineRuns(routineId, 10, null));
   }
 
   it("never puts the raw event envelope on the wire", async () => {

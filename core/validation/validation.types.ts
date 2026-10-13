@@ -117,6 +117,7 @@ export enum CustomErrorCode {
   routineDeleteHasRunningRun = "routineDeleteHasRunningRun",
   routineEditNotOwner = "routineEditNotOwner",
   routineOwnerIneligible = "routineOwnerIneligible",
+  routineRunCursorInvalid = "routineRunCursorInvalid",
   routineRunNotOwner = "routineRunNotOwner",
   routineRunNowRequiresSchedule = "routineRunNowRequiresSchedule",
   routineTestRequiresEnabled = "routineTestRequiresEnabled",

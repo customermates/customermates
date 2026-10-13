@@ -16,6 +16,7 @@ import type { WidgetPlacementRow } from "./widget-placement";
 import { listWidgetPlacements } from "./widget-placement";
 import { WidgetLayoutSchema } from "./widget-display.schema";
 import type { WidgetDto } from "./widget.schema";
+import type { WidgetDtoReaders } from "./widget-dto-readers";
 import type { RecordWidgetConfigurationRepo, RecordWidgetConfigurationRow } from "./record-widget-configuration.repo";
 import type { OwnedWidgetWrite, OwnedWidgetWriteRepo } from "./owned-widget-write.repo";
 import type { ViewWidgetPurgeRepo } from "./view-widget-purge.repo";
@@ -33,7 +34,6 @@ import { Prisma, WidgetKind } from "@/generated/prisma";
 
 import { TenantRepository } from "@/core/base/tenant-repository";
 import { Transaction } from "@/core/decorators/transaction.decorator";
-import { getRecordActivityWidgetReader, getRecordWidgetReader } from "@/core/di";
 import { LIVE_WIDGET } from "./live-widget";
 
 const STORED_RECORD_WIDGET = {
@@ -61,7 +61,10 @@ export class PrismaWidgetRepo
     FindOwnedWidgetKindRepo,
     RecordWidgetStoreRepo
 {
-  constructor(private readonly scopedCompanyId?: string) {
+  constructor(
+    private readonly readers: () => WidgetDtoReaders,
+    private readonly scopedCompanyId?: string,
+  ) {
     super();
   }
 
@@ -92,9 +95,9 @@ export class PrismaWidgetRepo
     row: Prisma.WidgetGetPayload<{ select: PrismaWidgetRepo["dtoSelect"] }>,
   ): Promise<WidgetDto | null> {
     if (row.kind === WidgetKind.activityTimeline && row.activityQuery)
-      return getRecordActivityWidgetReader().read(this.storedRecordWidget("activityTimeline", row));
+      return this.readers().activityTimeline.read(this.storedRecordWidget("activityTimeline", row));
     if (row.measure !== null && row.measure !== undefined)
-      return getRecordWidgetReader().read(this.storedRecordWidget("chart", row));
+      return this.readers().chart.read(this.storedRecordWidget("chart", row));
     throw new Error(`Widget ${row.id} has no record definition`);
   }
 

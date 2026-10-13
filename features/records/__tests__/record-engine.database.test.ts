@@ -141,6 +141,9 @@ const {
   getRecordAccessPolicy,
   getRecordRepo,
   getRoutineRepo,
+  getWidgetDtoReaders,
+  getRecordIdentityReader,
+  getConnectedAccountRepo,
 } = await import("@/core/di");
 const { manageWebhooksTool } = await import("@/features/mcp-tools/webhook.mcp-tools");
 const { manageRoutinesTool } = await import("@/features/mcp-tools/routine.mcp-tools");
@@ -255,7 +258,7 @@ async function fixture() {
   );
   const choices = new GetRecordChoicesInteractor(repo, policy, query);
   const measure = new QueryRecordMeasureInteractor(repo, policy);
-  const widgets = new PrismaWidgetRepo();
+  const widgets = new PrismaWidgetRepo(getWidgetDtoReaders);
   const widgetReader = new RecordWidgetReader(repo, measure, new PrismaUserRepo(new PermissionService()));
   const writeWidget = new UpsertRecordWidgetInteractor(
     widgets,
@@ -327,7 +330,7 @@ async function fixture() {
     { require: () => Promise.resolve(null) },
     { find: () => Promise.resolve(null) },
   );
-  const activityWidgets = new PrismaWidgetRepo();
+  const activityWidgets = new PrismaWidgetRepo(getWidgetDtoReaders);
   const activityWidgetReader = new RecordActivityWidgetReader(repo, activities);
   const writeActivityWidget = new UpsertRecordActivityWidgetInteractor(
     activityWidgets,
@@ -7912,7 +7915,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       }),
     );
-    const inbox = new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
+    const inbox = new PrismaMessagingRepo(
+      getRecordRepo(),
+      getRecordAccessPolicy(),
+      getRecordIdentityReader(),
+      getConnectedAccountRepo(),
+    );
     const lookup = new GetIdentityRecordChoicesInteractor(
       f.repo,
       new RecordAccessPolicy(new PrismaUserRepo(new PermissionService()), f.repo),
@@ -8107,7 +8115,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         },
       }),
     );
-    const inbox = new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
+    const inbox = new PrismaMessagingRepo(
+      getRecordRepo(),
+      getRecordAccessPolicy(),
+      getRecordIdentityReader(),
+      getConnectedAccountRepo(),
+    );
     const names = async () => {
       const threads = await f.run(() => inbox.getItems({ pagination: { page: 1, pageSize: 10 } }), f.member);
       const selected = recordInvariant(threads.find((thread) => thread.id === target.id));
@@ -8236,7 +8249,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       );
     }
-    const inbox = new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
+    const inbox = new PrismaMessagingRepo(
+      getRecordRepo(),
+      getRecordAccessPolicy(),
+      getRecordIdentityReader(),
+      getConnectedAccountRepo(),
+    );
     const params: GetQueryParams = {
       filters: [
         {
@@ -8342,7 +8360,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
           },
         }),
       );
-      const inbox = new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy());
+      const inbox = new PrismaMessagingRepo(
+        getRecordRepo(),
+        getRecordAccessPolicy(),
+        getRecordIdentityReader(),
+        getConnectedAccountRepo(),
+      );
       await inbox.upsertThreadParticipantsUnscoped({
         companyId: f.company.id,
         messagingThreadId: thread.id,
@@ -15333,7 +15356,11 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
 
   it("merges partial widget updates in the interactors and keeps each saved widget's kind", async () => {
     const f = await fixture();
-    const save = new SaveWidgetInteractor(new PrismaWidgetRepo(), f.writeWidget, f.writeActivityWidget);
+    const save = new SaveWidgetInteractor(
+      new PrismaWidgetRepo(getWidgetDtoReaders),
+      f.writeWidget,
+      f.writeActivityWidget,
+    );
     const measure = RecordMeasureSchema.parse({
       source: { typeId: f.id("service") },
       aggregation: "count",
@@ -15483,7 +15510,7 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
     const position = { i: created.data.id, x: 0, y: 0, w: 3, h: 2 };
     const layouts = { xs: [], sm: [], md: [], lg: [position, untouchedPosition] };
     const versions = { [created.data.id]: 1, [untouchedId]: 1 };
-    const writer = new UpdateWidgetLayoutsInteractor(new PrismaWidgetRepo());
+    const writer = new UpdateWidgetLayoutsInteractor(new PrismaWidgetRepo(getWidgetDtoReaders));
     const failure = (result: { ok: boolean; error?: unknown }) => (result.ok ? null : JSON.stringify(result.error));
     for (const id of [foreign.data.id, member.id]) {
       const rejected = await f.run(() =>
@@ -17700,9 +17727,12 @@ describeDatabase("provider avatar updates through the generic engine", { timeout
       const ingestInbound = async (
         args: Parameters<InstanceType<typeof PrismaMessagingRepo>["ingestMessageUnscoped"]>[0],
       ) => {
-        const ingested = await new PrismaMessagingRepo(getRecordRepo(), getRecordAccessPolicy()).ingestMessageUnscoped(
-          args,
-        );
+        const ingested = await new PrismaMessagingRepo(
+          getRecordRepo(),
+          getRecordAccessPolicy(),
+          getRecordIdentityReader(),
+          getConnectedAccountRepo(),
+        ).ingestMessageUnscoped(args);
         await synchronizeInboundAvatar(getProviderAvatarService, args.companyId, ingested);
         return ingested;
       };

@@ -7,6 +7,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import { serializeJSONToMarkdown } from "@/components/editor/editor.utils";
+import { cn } from "@/core/utils/cn";
 
 const CONTEXT_LINES = 2;
 
@@ -127,10 +128,10 @@ export function NotesDiff({ previous, current }: Props) {
         const gutter = segment.kind === "added" ? "+" : segment.kind === "removed" ? "−" : " ";
 
         return (
-          <div key={key} className={`p-2 leading-6 ${rowClass}`}>
+          <div key={key} className={cn("p-2 leading-6", rowClass)}>
             {segment.lines.map((line, lineIndex) => (
               <div key={`${key}-${lineIndex}`} className="flex gap-1.5">
-                <span aria-hidden className={`w-2 shrink-0 select-none text-center ${gutterColor}`}>
+                <span aria-hidden className={cn("w-2 shrink-0 select-none text-center", gutterColor)}>
                   {gutter}
                 </span>
 
