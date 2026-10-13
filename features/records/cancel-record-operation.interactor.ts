@@ -12,9 +12,9 @@ export class CancelRecordOperationInteractor extends OwnedRecordOperationInterac
   @Write({ input: RecordOperationInputSchema })
   async invoke(input: RecordOperationInput): Validated<{ cancelled: boolean }> {
     const operation = await this.ownedOperation(input.operationId, () => true);
-    if (!operation) return failNotFound(CustomErrorCode.recordNotFound);
+    if (!operation) return failNotFound(CustomErrorCode.recordOperationNotFound, ["operationId"]);
     if (operation.state === "completed" || operation.state === "failed")
-      return failConflict(CustomErrorCode.recordVersionChanged);
+      return failConflict(CustomErrorCode.recordOperationSettled, ["operationId"]);
     if (operation.state !== "cancelled") {
       await this.records.updateOperation(operation.id, {
         state: "cancelled",

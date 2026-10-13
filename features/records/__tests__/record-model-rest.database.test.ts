@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { afterAll, describe, expect, it, vi } from "vitest";
 
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -88,8 +90,13 @@ describeDatabase("record model REST routes on PostgreSQL", () => {
       (await postAs(other, other.admin, discover, { typeIds: foreign })).body,
     );
     expect(discovered).toMatchObject({ total: 0, types: [] });
-    const model = RecordModelViewSchema.parse((await postAs(other, other.admin, read, { typeIds: foreign })).body);
-    expect(model.types).toEqual([]);
-    expect(model.fields).toEqual([]);
+    expect(await postAs(other, other.admin, read, { typeIds: foreign })).toMatchObject({
+      status: 404,
+      body: { error: { kind: "not_found", issues: [{ path: ["typeIds", 0], customCode: "recordTypeNotFound" }] } },
+    });
+    expect(await postAs(other, other.admin, read, { typeIds: [other.id("deal"), randomUUID()] })).toMatchObject({
+      status: 404,
+      body: { error: { kind: "not_found", issues: [{ path: ["typeIds", 1], customCode: "recordTypeNotFound" }] } },
+    });
   }, 180_000);
 });

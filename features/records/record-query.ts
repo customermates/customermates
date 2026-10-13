@@ -57,7 +57,7 @@ export function fieldReadPredicate(
         !scope.protectedHidden &&
         (!scope.parent || fullyReadable(scope.parent.scope, depth + 1)),
     );
-  if (model.types.every((type) => fullyReadable(access.get(type.id)))) return Prisma.sql`TRUE`;
+  if (model.types.every((type) => type.archived || fullyReadable(access.get(type.id)))) return Prisma.sql`TRUE`;
   const fields = new Map(model.fields.map((definition) => [definition.id, definition]));
   const relations = new Map(model.relationships.map((definition) => [definition.id, definition]));
   let sequence = 0;
@@ -207,6 +207,7 @@ export function compileRecordQuery(
   query: RecordQuery,
   model: RecordModel,
   access: RecordAccessMap,
+  memberScope: RecordReadScope = { userId: "", access: "none" },
 ): { ids: Prisma.Sql; count: Prisma.Sql; matching: Prisma.Sql; ordered: Prisma.Sql } {
   const record = alias(0);
   const fields = new Map(
@@ -480,10 +481,19 @@ export function compileRecordQuery(
     const collation = ["text", "email", "phone", "url", "select", "member"].includes(field.valueType)
       ? Prisma.sql`COLLATE ${recordCollation(query.locale)}`
       : Prisma.empty;
+    const visibleMember =
+      memberScope.access === "all"
+        ? Prisma.sql`TRUE`
+        : memberScope.access === "own"
+          ? Prisma.sql`member.id = ${memberScope.userId}`
+          : Prisma.sql`FALSE`;
     const expression =
       field.valueType === "select"
         ? Prisma.sql`array_position(ARRAY[${field.options.length ? Prisma.join(field.options.map((option) => option.id)) : Prisma.empty}]::text[], ${scalar(field)})`
-        : scalar(field);
+        : field.valueType === "member"
+          ? Prisma.sql`(SELECT NULLIF(TRIM(CONCAT_WS(' ', member."firstName", member."lastName")), '') FROM "User" member
+            WHERE member."companyId" = ${companyId} AND member.id = ${scalar(field)} AND ${visibleMember})`
+          : scalar(field);
     return Prisma.sql`CASE WHEN ${fieldReadPredicate(companyId, field, model, access, record)} THEN ${expression} ELSE NULL END ${field.valueType === "select" ? Prisma.empty : collation} ${Prisma.raw(sort.direction === "asc" ? "ASC" : "DESC")} NULLS LAST`;
   });
   ordering.push(Prisma.sql`${record}."createdAt" DESC`, Prisma.sql`${record}."id" ASC`);

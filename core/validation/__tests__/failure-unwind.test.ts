@@ -8,8 +8,8 @@ vi.mock("next-intl/server", () => ({
     Promise.resolve(createTranslator({ locale: "en", messages, namespace: namespace as never })),
 }));
 
-const { failureUnwindCause, unwindFailure } = await import("../failure-unwind");
-const { unwoundFailure } = await import("../interactor-failure-server");
+const { failureUnwindCause, unwindFailure, unwindInteractorFailure } = await import("../failure-unwind");
+const { failConflict, unwoundFailure } = await import("../interactor-failure-server");
 const { CustomErrorCode } = await import("../validation.types");
 const { interactorFailureStatus, serializeInteractorFailure } = await import("../validation.utils");
 
@@ -38,6 +38,17 @@ describe("failure unwind", () => {
     expect(serializeInteractorFailure(failure.error)).toEqual({
       kind,
       issues: [{ code: "custom", path: ["fields", 0], message: messages.Common.errors[code], customCode: code }],
+    });
+  });
+
+  it("unwinds a returned failure again with its own code, kind, path and values", async () => {
+    const returned = await failConflict(CustomErrorCode.recordWritePaused, ["operations", 1], { count: 2 });
+    expect(failureUnwindCause(unwindInteractorFailure(returned))).toEqual({
+      kind: "interactorFailure",
+      code: CustomErrorCode.recordWritePaused,
+      failureKind: "conflict",
+      path: ["operations", 1],
+      values: { count: 2 },
     });
   });
 

@@ -121,7 +121,9 @@ export function recordAccessForActor({
       const parentRef = record.deletedAt
         ? await records.getTrashedParentCompanyWide(ref, parent.id)
         : (await records.linkedRecordsCompanyWide(ref, parent.id, "outgoing", 1))[0];
-      const row = parentRef ? await records.getRecordCompanyWide(parentRef) : null;
+      const row = parentRef
+        ? await records.getRecordCompanyWide(parentRef, { includeTrash: Boolean(record.deletedAt) })
+        : null;
       return row !== null && canRead(row, depth + 1);
     }
     const scope = readScope(record.typeId);

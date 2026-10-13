@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Action, Resource } from "@/generated/prisma";
+import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { createMockUserWithPermissions } from "@/tests/helpers/mock-user";
 
 const prismaMock = vi.hoisted(() => ({ routine: { findMany: vi.fn() } }));
@@ -12,6 +13,34 @@ import { runWithTenant } from "@/core/decorators/tenant-context";
 import { createTestRoutineRepo } from "@/tests/helpers/record-delivery";
 
 const reader = createMockUserWithPermissions([{ resource: Resource.routines, action: Action.readAll }]);
+
+describe("PrismaRoutineRepo owner filters", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    prismaMock.routine.findMany.mockResolvedValue([]);
+  });
+
+  const ownerReader = createMockUserWithPermissions([
+    { resource: Resource.routines, action: Action.readAll },
+    { resource: Resource.users, action: Action.readAll },
+  ]);
+  const whereFor = async (operator: FilterOperatorKey.in | FilterOperatorKey.notIn) => {
+    await runWithTenant(ownerReader, () =>
+      createTestRoutineRepo().getItems({ filters: [{ field: "ownerUserId", operator, value: ["user-1"] }] }),
+    );
+    return prismaMock.routine.findMany.mock.calls[0][0].where;
+  };
+
+  it("keeps ownerless routines when excluding owners", async () => {
+    expect((await whereFor(FilterOperatorKey.notIn)).AND).toContainEqual({
+      OR: [{ ownerUserId: { notIn: ["user-1"] } }, { ownerUserId: null }],
+    });
+  });
+
+  it("matches only the selected owners when including owners", async () => {
+    expect((await whereFor(FilterOperatorKey.in)).AND).toContainEqual({ ownerUserId: { in: ["user-1"] } });
+  });
+});
 
 describe("PrismaRoutineRepo sorting", () => {
   beforeEach(() => {

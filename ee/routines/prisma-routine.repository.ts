@@ -303,6 +303,10 @@ export class PrismaRoutineRepo
     ];
   }
 
+  getNullableFilterFields() {
+    return [FilterFieldKey.ownerUserId];
+  }
+
   getFilterableFields() {
     return Promise.resolve([
       ...(this.permissions.canRead(Resource.users)

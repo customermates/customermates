@@ -386,7 +386,7 @@ export class RecordOperationService extends UserAccessor {
           await this.records.clearOperationLock(operationId);
           return { done: true };
         },
-        { timeout: 60000 },
+        { timeout: 60000, companyId: this.systemCompanyId },
       );
     } catch (error) {
       const cause = failureUnwindCause(error);
@@ -510,20 +510,23 @@ export class RecordOperationService extends UserAccessor {
   }
 
   async fail(operationId: string, errorCode: CustomErrorCode): Promise<void> {
-    await runInTransaction(async () => {
-      const operation = await this.records.getOperation(operationId);
-      if (
-        !operation ||
-        operation.userId !== this.operator.userId ||
-        ["completed", "cancelled", "failed"].includes(operation.state)
-      )
-        return;
-      await this.records.updateOperation(operationId, {
-        state: "failed",
-        errorCode,
-        leaseUntil: null,
-      });
-      await this.records.clearOperationLock(operationId);
-    });
+    await runInTransaction(
+      async () => {
+        const operation = await this.records.getOperation(operationId);
+        if (
+          !operation ||
+          operation.userId !== this.operator.userId ||
+          ["completed", "cancelled", "failed"].includes(operation.state)
+        )
+          return;
+        await this.records.updateOperation(operationId, {
+          state: "failed",
+          errorCode,
+          leaseUntil: null,
+        });
+        await this.records.clearOperationLock(operationId);
+      },
+      { companyId: this.systemCompanyId },
+    );
   }
 }
