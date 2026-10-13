@@ -462,16 +462,20 @@
     },
     "openSavedView": "Gespeicherte Ansicht öffnen",
     "placeholder": "Frag dein CRM…",
+    "reviewProposal": "Ansicht prüfen und speichern",
     "runner": {
       "cancelled": "Diese Antwort wurde gestoppt.",
       "contentFilter": "Der KI-Anbieter hat einen Teil dieser Antwort blockiert. Es wurde nichts weiter geändert. Formuliere die Anfrage anders.",
+      "contextLimit": "Ich musste stoppen, weil diese Unterhaltung die Kontextgrenze des Modells überschritten hat. Es wurde nichts Weiteres geändert; prüfe die Aktivitäten oben, bevor du es erneut versuchst.",
       "creditLimit": "Ich habe einen Teil dieser Anfrage erledigt, dann aber gestoppt, weil deine Assistant-Credits aufgebraucht sind. Erledigte Arbeit bleibt bestehen; die Credits werden zu Beginn deiner nächsten Periode zurückgesetzt.",
       "creditLimitNoWrite": "Ich habe gestoppt, bevor etwas geändert wurde, weil deine Assistant-Credits aufgebraucht sind. Es wurde nichts erstellt, geändert oder gesendet. Die Credits werden zu Beginn deiner nächsten Periode zurückgesetzt.",
       "emptyReply": "Ich konnte keine Antwort erstellen. Bitte versuche es erneut.",
       "hostedAiUnavailable": "Die gehostete KI ist vorübergehend nicht verfügbar. Bitte versuche es später erneut.",
+      "interruptedTurn": "Dieser Durchlauf wurde beendet, bevor ich das Ergebnis bestätigen konnte. Prüfe die Aktivitäten oben und die aktuellen Datensätze, bevor du es erneut versuchst.",
       "policyBreach": "Der KI-Anbieter hat das reservierte Credit-Budget überschritten, daher wurde der Lauf gestoppt. Es wurde keine weitere Anbieterarbeit gestartet.",
       "providerError": "Der KI-Anbieter hat einen Fehler zurückgegeben, bevor ich fertig war. Es wurde nichts weiter geändert. Bitte versuche es erneut.",
       "sourcesHeading": "Quellen",
+      "streamInterrupted": "Ich musste stoppen, weil die Modellantwort unterbrochen wurde. Es wurde nichts Weiteres geändert; prüfe die Aktivitäten oben, bevor du es erneut versuchst.",
       "turnError": "Ich konnte diese Anfrage nicht abschließen. Bitte versuche es erneut.",
       "turnErrorWithTool": "Ich konnte diese Anfrage nicht abschließen. Die letzte Aktion ist fehlgeschlagen: {reason}"
     },
@@ -4220,7 +4224,10 @@
       "connectedAccountsPerUser": "{accounts, plural, one {# verbundenes Konto pro Nutzer} other {# verbundene Konten pro Nutzer}}",
       "creditNote": "Credits für den gehosteten KI-Assistenten werden monatlich erneuert; nicht genutzte Credits werden nicht übertragen. Jede Anfrage wird mit ihren genauen Anbieterkosten berechnet und auf eine Nachkommastelle angezeigt. Externe MCP-Clients rechnen die Modellnutzung über deinen eigenen KI-Anbieter ab. Serverseitige semantische Suchen können gehostete KI-Credits verbrauchen.",
       "features": {
-        "business": ["Alles aus Pro", "Geteilte Konten und priorisierter Support"],
+        "business": [
+          "Alles aus Pro",
+          "Geteilte Konten und priorisierter Support"
+        ],
         "pro": ["Alles aus Starter", "Einheitlicher Posteingang"],
         "starter": [
           "Vollständiges CRM: Kontakte, Deals, Organisationen, Aufgaben",

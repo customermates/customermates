@@ -1,11 +1,21 @@
 import { readAgentToolResultContext } from "./agent-activity-context";
-import { describeAgentTool, type AgentActivityResource } from "./agent-activity";
-import type { AgentTurnStopReason, AgentTurnTerminalCode } from "./agent-turn-request";
+import {
+  describeAgentTool,
+  type AgentActivityResource,
+} from "./agent-activity";
+import type {
+  AgentTurnStopReason,
+  AgentTurnTerminalCode,
+} from "./agent-turn-request";
 import type { AgentActivityStatus } from "./agent-turn-transcript";
 
 import { internalToolIdentity } from "./tool-identity";
 import { isAgentToolCancellation } from "./agent-tool-cancellation";
-import { agentToolSavedViewHref, agentToolViewProposal } from "./agent-tool-navigation";
+import {
+  agentToolProposalHref,
+  agentToolSavedViewHref,
+  agentToolViewProposal,
+} from "./agent-tool-navigation";
 
 export const AGENT_TRANSCRIPT_FORWARDED_EVENTS = [
   "activity_superseded",
@@ -28,10 +38,14 @@ export type AgentClientEvent = {
   payload: Record<string, unknown>;
 };
 
-const TOOL_ERROR_OUTPUT_TYPES: ReadonlySet<string> = new Set(["error-text", "error-json"]);
+const TOOL_ERROR_OUTPUT_TYPES: ReadonlySet<string> = new Set([
+  "error-text",
+  "error-json",
+]);
 
 export function isAgentToolErrorOutput(output: unknown): boolean {
-  if (!output || typeof output !== "object" || Array.isArray(output)) return false;
+  if (!output || typeof output !== "object" || Array.isArray(output))
+    return false;
   const type = (output as { type?: unknown }).type;
   return typeof type === "string" && TOOL_ERROR_OUTPUT_TYPES.has(type);
 }
@@ -44,16 +58,24 @@ export function agentToolOutcomeStatus(output: unknown): {
   const unwrapped = unwrapToolOutput(output);
   if (
     isAgentToolCancellation(unwrapped) ||
-    (unwrapped && typeof unwrapped === "object" && (unwrapped as { type?: unknown }).type === "execution-denied")
+    (unwrapped &&
+      typeof unwrapped === "object" &&
+      (unwrapped as { type?: unknown }).type === "execution-denied")
   )
     return { status: "cancelled", failed: false };
-  const failed = Boolean(unwrapped && typeof unwrapped === "object" && (unwrapped as { ok?: unknown }).ok === false);
+  const failed = Boolean(
+    unwrapped &&
+      typeof unwrapped === "object" &&
+      (unwrapped as { ok?: unknown }).ok === false,
+  );
   return { status: failed ? "error" : "done", failed };
 }
 
 export function unwrapToolOutput(output: unknown) {
   if (isAgentToolErrorOutput(output)) return output;
-  return output && typeof output === "object" && "value" in output ? (output as { value: unknown }).value : output;
+  return output && typeof output === "object" && "value" in output
+    ? (output as { value: unknown }).value
+    : output;
 }
 
 export class AgentDurableStreamReader {
@@ -69,34 +91,58 @@ export class AgentDurableStreamReader {
       payload?: Record<string, unknown>;
     };
 
-    if (part.type && (AGENT_CLIENT_PASSTHROUGH_EVENTS as readonly string[]).includes(part.type) && part.payload)
+    if (
+      part.type &&
+      (AGENT_CLIENT_PASSTHROUGH_EVENTS as readonly string[]).includes(
+        part.type,
+      ) &&
+      part.payload
+    )
       return { type: part.type, payload: part.payload ?? {} };
 
-    if (part.type === "reset-step") return { type: "stream_step_reset", payload: {} };
+    if (part.type === "reset-step")
+      return { type: "stream_step_reset", payload: {} };
 
-    if (part.type === "start-step") return { type: "stream_step_start", payload: {} };
+    if (part.type === "start-step")
+      return { type: "stream_step_start", payload: {} };
 
-    if (part.type === "text-delta" && part.text) return { type: "delta", payload: { text: part.text } };
+    if (part.type === "text-delta" && part.text)
+      return { type: "delta", payload: { text: part.text } };
 
-    if (part.type === "model-call-start") return { type: "progress", payload: { phase: "working" } };
+    if (part.type === "model-call-start")
+      return { type: "progress", payload: { phase: "working" } };
 
-    if (part.type === "tool-input-start") return { type: "progress", payload: { phase: "preparing_action" } };
+    if (part.type === "tool-input-start")
+      return { type: "progress", payload: { phase: "preparing_action" } };
 
     if (part.type === "tool-call" && part.toolCallId && part.toolName) {
       return {
         type: "activity",
         payload: {
           id: part.toolCallId,
-          activity: describeAgentTool(internalToolIdentity(part.toolName), part.input),
+          activity: describeAgentTool(
+            internalToolIdentity(part.toolName),
+            part.input,
+          ),
         },
       };
     }
 
     if (part.type === "tool-result" && part.toolCallId) {
       const { status, failed } = agentToolOutcomeStatus(part.output);
-      const viewHref = status === "done" ? agentToolSavedViewHref(part.toolName, part.output) : null;
-      const viewProposal = status === "done" ? agentToolViewProposal(part.toolName, part.output) : null;
-      const context = status === "done" ? readAgentToolResultContext(part.toolName, part.output) : undefined;
+      const viewHref =
+        status === "done"
+          ? (agentToolSavedViewHref(part.toolName, part.output) ??
+            agentToolProposalHref(part.toolName, part.output))
+          : null;
+      const viewProposal =
+        status === "done"
+          ? agentToolViewProposal(part.toolName, part.output)
+          : null;
+      const context =
+        status === "done"
+          ? readAgentToolResultContext(part.toolName, part.output)
+          : undefined;
       return {
         type: "activity_result",
         payload: {
@@ -105,6 +151,7 @@ export class AgentDurableStreamReader {
           status,
           ...(viewHref ? { viewHref } : {}),
           ...(viewProposal ? { viewProposal } : {}),
+          ...(viewProposal ? { viewProposed: true } : {}),
           ...(context ? { context } : {}),
         },
       };

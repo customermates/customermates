@@ -2,7 +2,15 @@ import { prismaAgentChatRepoDependencies } from "@/tests/helpers/prisma-agent-ch
 import { randomUUID } from "node:crypto";
 
 import { Client } from "pg";
-import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterAll,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
 
 import { runWithTenant } from "@/core/decorators/tenant-context";
 import { getLocalDatabaseTestUrl } from "@/tests/helpers/database-test";
@@ -28,18 +36,25 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
 
   async function retryTerminatedAttempt() {
     const prior = await seed(false);
-    const stored = await client.query('SELECT "userMessageId" FROM "AgentTurnRequest" WHERE id = $1', [
-      prior.turnRequestId,
-    ]);
+    const stored = await client.query(
+      'SELECT "userMessageId" FROM "AgentTurnRequest" WHERE id = $1',
+      [prior.turnRequestId],
+    );
     const userMessageId: string = stored.rows[0].userMessageId;
     await client.query(
       `INSERT INTO "AgentMessage" ("id","companyId","conversationId","turnRequestId","role","parts")
        VALUES ($1,$2,$3,$4,'user','[{"type":"text","text":"synthetic retry fixture"}]'::jsonb)`,
       [userMessageId, companyId, conversationId, prior.turnRequestId],
     );
-    expect(await asTenant(() => repo.requestAgentTurnCancellation({ conversationId }))).toBe(true);
+    expect(
+      await asTenant(() =>
+        repo.requestAgentTurnCancellation({ conversationId }),
+      ),
+    ).toBe(true);
     expect(await repo.heartbeatAgentRunUnscoped(prior)).toBe(true);
-    expect(await repo.reconcileInterruptedAgentTurnUnscoped(prior)).toEqual({ reconciled: true });
+    expect(await repo.reconcileInterruptedAgentTurnUnscoped(prior)).toEqual({
+      reconciled: true,
+    });
 
     const runId = randomUUID();
     const reservationId = randomUUID();
@@ -149,10 +164,15 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
   }
 
   beforeAll(async () => {
-    const { PrismaAgentChatRepo } = await import("../prisma-agent-chat.repository");
+    const { PrismaAgentChatRepo } = await import(
+      "../prisma-agent-chat.repository"
+    );
     repo = new PrismaAgentChatRepo(...prismaAgentChatRepoDependencies());
     await client.connect();
-    await client.query('INSERT INTO "Company" ("id","updatedAt") VALUES ($1,CURRENT_TIMESTAMP)', [companyId]);
+    await client.query(
+      'INSERT INTO "Company" ("id","updatedAt") VALUES ($1,CURRENT_TIMESTAMP)',
+      [companyId],
+    );
     await client.query(
       `INSERT INTO "User" ("id","email","firstName","lastName","companyId","status","updatedAt")
        VALUES ($1,$2,'Interruption','Fixture',$3,'active',CURRENT_TIMESTAMP)`,
@@ -166,10 +186,19 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
   });
 
   beforeEach(async () => {
-    await client.query('DELETE FROM "AgentMessage" WHERE "companyId" = $1', [companyId]);
-    await client.query('DELETE FROM "AgentUsageEvent" WHERE "companyId" = $1', [companyId]);
-    await client.query('DELETE FROM "AgentRunLease" WHERE "companyId" = $1', [companyId]);
-    await client.query('DELETE FROM "AgentTurnRequest" WHERE "companyId" = $1', [companyId]);
+    await client.query('DELETE FROM "AgentMessage" WHERE "companyId" = $1', [
+      companyId,
+    ]);
+    await client.query('DELETE FROM "AgentUsageEvent" WHERE "companyId" = $1', [
+      companyId,
+    ]);
+    await client.query('DELETE FROM "AgentRunLease" WHERE "companyId" = $1', [
+      companyId,
+    ]);
+    await client.query(
+      'DELETE FROM "AgentTurnRequest" WHERE "companyId" = $1',
+      [companyId],
+    );
   });
 
   afterAll(async () => {
@@ -212,6 +241,37 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
     });
   });
 
+  it("persists a visible assistant explanation when a running turn is interrupted", async () => {
+    const turn = await seed(true);
+    const failureMessage =
+      "This turn stopped before I could confirm its outcome.";
+
+    expect(
+      await repo.reconcileInterruptedAgentTurnUnscoped({
+        ...turn,
+        failureMessage,
+      }),
+    ).toEqual({ reconciled: true });
+    const result = await client.query(
+      `SELECT t."assistantMessageId", m.parts FROM "AgentTurnRequest" t
+       JOIN "AgentMessage" m ON m.id = t."assistantMessageId"
+       WHERE t.id = $1`,
+      [turn.turnRequestId],
+    );
+    expect(result.rows[0].assistantMessageId).toBeTruthy();
+    expect(result.rows[0].parts).toEqual([
+      { type: "text", text: failureMessage },
+    ]);
+    expect(
+      await repo.reconcileInterruptedAgentTurnUnscoped({
+        ...turn,
+        failureMessage,
+      }),
+    ).toEqual({
+      reconciled: false,
+    });
+  });
+
   it("is idempotent under concurrent compensation and does not move settlement timestamps", async () => {
     const turn = await seed(true);
     const results = await Promise.all([
@@ -227,7 +287,14 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
     expect(await snapshot(turn.turnRequestId)).toEqual(settled);
   });
 
-  it.each(["turnRequestId", "conversationId", "companyId", "userId", "runId", "externalRunId"] as const)(
+  it.each([
+    "turnRequestId",
+    "conversationId",
+    "companyId",
+    "userId",
+    "runId",
+    "externalRunId",
+  ] as const)(
     "does not change an attempt with a mismatched %s",
     async (key) => {
       const turn = await seed(true);
@@ -246,14 +313,14 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
   it("fences a stale catch after a replacement attempt took over the same turn", async () => {
     const stale = await seed(false);
     const replacementRunId = randomUUID();
-    await client.query('UPDATE "AgentTurnRequest" SET "runId" = $1 WHERE id = $2', [
-      replacementRunId,
-      stale.turnRequestId,
-    ]);
-    await client.query('UPDATE "AgentRunLease" SET "runId" = $1 WHERE "conversationId" = $2', [
-      replacementRunId,
-      conversationId,
-    ]);
+    await client.query(
+      'UPDATE "AgentTurnRequest" SET "runId" = $1 WHERE id = $2',
+      [replacementRunId, stale.turnRequestId],
+    );
+    await client.query(
+      'UPDATE "AgentRunLease" SET "runId" = $1 WHERE "conversationId" = $2',
+      [replacementRunId, conversationId],
+    );
     const before = await snapshot(stale.turnRequestId);
 
     expect(await repo.reconcileInterruptedAgentTurnUnscoped(stale)).toEqual({
@@ -276,7 +343,10 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
        "settledAt" = CURRENT_TIMESTAMP WHERE "turnRequestId" = $1`,
       [turn.turnRequestId],
     );
-    await client.query('DELETE FROM "AgentRunLease" WHERE "conversationId" = $1', [conversationId]);
+    await client.query(
+      'DELETE FROM "AgentRunLease" WHERE "conversationId" = $1',
+      [conversationId],
+    );
     const before = await snapshot(turn.turnRequestId);
 
     expect(await repo.reconcileInterruptedAgentTurnUnscoped(turn)).toEqual({
@@ -299,7 +369,9 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
     );
     const before = await snapshot(turn.turnRequestId);
 
-    await expect(repo.reconcileInterruptedAgentTurnUnscoped(turn)).rejects.toThrow("could not be released");
+    await expect(
+      repo.reconcileInterruptedAgentTurnUnscoped(turn),
+    ).rejects.toThrow("could not be released");
     expect(await snapshot(turn.turnRequestId)).toEqual(before);
     expect(before).toMatchObject({
       status: "running",
@@ -319,11 +391,21 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
       status: "running",
       attemptCount: 2,
     });
-    expect(await asTenant(() => repo.findAgentTurnExternalRun(conversationId))).toBeNull();
-    expect(await asTenant(() => repo.findRunningAgentTurnForCancellation(conversationId))).toBeNull();
-    expect(await repo.isAgentTurnCancellationRequestedUnscoped(prior)).toBe(false);
+    expect(
+      await asTenant(() => repo.findAgentTurnExternalRun(conversationId)),
+    ).toBeNull();
+    expect(
+      await asTenant(() =>
+        repo.findRunningAgentTurnForCancellation(conversationId),
+      ),
+    ).toBeNull();
+    expect(await repo.isAgentTurnCancellationRequestedUnscoped(prior)).toBe(
+      false,
+    );
 
-    expect(await repo.reconcileInterruptedAgentTurnUnscoped({ ...prior, runId })).toEqual({ reconciled: false });
+    expect(
+      await repo.reconcileInterruptedAgentTurnUnscoped({ ...prior, runId }),
+    ).toEqual({ reconciled: false });
     expect((await attemptIdentity(prior.turnRequestId)).status).toBe("running");
   });
 
@@ -331,33 +413,69 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
     const { prior, runId } = await retryTerminatedAttempt();
     const workflowB = `wrun_fixture_${randomUUID()}`;
 
-    await asTenant(() => repo.recordAgentTurnExternalRun(prior.turnRequestId, prior.runId, prior.externalRunId));
-    expect((await attemptIdentity(prior.turnRequestId)).externalRunId).toBeNull();
+    await asTenant(() =>
+      repo.recordAgentTurnExternalRun(
+        prior.turnRequestId,
+        prior.runId,
+        prior.externalRunId,
+      ),
+    );
+    expect(
+      (await attemptIdentity(prior.turnRequestId)).externalRunId,
+    ).toBeNull();
 
-    await asTenant(() => repo.recordAgentTurnExternalRun(prior.turnRequestId, runId, workflowB));
-    expect(await asTenant(() => repo.findAgentTurnExternalRun(conversationId))).toBe(workflowB);
+    await asTenant(() =>
+      repo.recordAgentTurnExternalRun(prior.turnRequestId, runId, workflowB),
+    );
+    expect(
+      await asTenant(() => repo.findAgentTurnExternalRun(conversationId)),
+    ).toBe(workflowB);
 
-    await asTenant(() => repo.recordAgentTurnExternalRun(prior.turnRequestId, prior.runId, prior.externalRunId));
-    await asTenant(() => repo.recordAgentTurnExternalRun(prior.turnRequestId, runId, "wrun_conflicting_duplicate"));
-    expect((await attemptIdentity(prior.turnRequestId)).externalRunId).toBe(workflowB);
+    await asTenant(() =>
+      repo.recordAgentTurnExternalRun(
+        prior.turnRequestId,
+        prior.runId,
+        prior.externalRunId,
+      ),
+    );
+    await asTenant(() =>
+      repo.recordAgentTurnExternalRun(
+        prior.turnRequestId,
+        runId,
+        "wrun_conflicting_duplicate",
+      ),
+    );
+    expect((await attemptIdentity(prior.turnRequestId)).externalRunId).toBe(
+      workflowB,
+    );
   });
 
   it("normal Stop before B linkage only requests cancellation and does not compensate B using A", async () => {
     const { prior, runId, reservationId } = await retryTerminatedAttempt();
-    const { CancelAgentTurnInteractor } = await import("../cancel-agent-turn.interactor");
+    const { CancelAgentTurnInteractor } = await import(
+      "../cancel-agent-turn.interactor"
+    );
     const backgroundTasks = {
       isWorkflowTerminal: vi.fn().mockResolvedValue(true),
       resume: vi.fn().mockResolvedValue(true),
     };
     const entitlements = { require: vi.fn().mockResolvedValue(null) };
     const result = await asTenant(() =>
-      new CancelAgentTurnInteractor(repo, entitlements as never, backgroundTasks as never).invoke({ conversationId }),
+      new CancelAgentTurnInteractor(
+        repo,
+        entitlements as never,
+        backgroundTasks as never,
+      ).invoke({ conversationId }),
     );
 
     expect(result.ok && result.data.cancelling).toBe(true);
     expect(backgroundTasks.isWorkflowTerminal).not.toHaveBeenCalled();
     expect(backgroundTasks.resume).toHaveBeenCalledTimes(1);
-    expect(await asTenant(() => repo.findRunningAgentTurnForCancellation(conversationId))).toMatchObject({
+    expect(
+      await asTenant(() =>
+        repo.findRunningAgentTurnForCancellation(conversationId),
+      ),
+    ).toMatchObject({
       id: prior.turnRequestId,
       runId,
       externalRunId: null,
@@ -372,7 +490,11 @@ describeDatabase("interrupted agent attempts against PostgreSQL", () => {
       'SELECT state, "chargedMicrocents"::int AS "chargedMicrocents", "settledAt" FROM "AgentUsageEvent" WHERE id = $1 AND "companyId" = $2',
       [reservationId, companyId],
     );
-    expect(reservation.rows[0]).toEqual({ state: "reserved", chargedMicrocents: 0, settledAt: null });
+    expect(reservation.rows[0]).toEqual({
+      state: "reserved",
+      chargedMicrocents: 0,
+      settledAt: null,
+    });
     const lease = await client.query(
       'SELECT "runId" FROM "AgentRunLease" WHERE "conversationId" = $1 AND "companyId" = $2',
       [conversationId, companyId],

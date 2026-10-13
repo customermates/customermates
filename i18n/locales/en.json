@@ -462,16 +462,20 @@
     },
     "openSavedView": "Open saved view",
     "placeholder": "Ask your CRM…",
+    "reviewProposal": "Review and save view",
     "runner": {
       "cancelled": "This response was stopped.",
       "contentFilter": "The AI provider blocked part of this response. Nothing further was changed. Try rephrasing the request.",
+      "contextLimit": "I had to stop because this conversation grew beyond the model's context limit. No further action was taken; check the activity above before trying again.",
       "creditLimit": "I completed part of this request, but stopped because your Assistant credits ran out. Completed work remains in place; credits reset at the start of your next period.",
       "creditLimitNoWrite": "I stopped before making any changes because your Assistant credits ran out. Nothing was created, updated, or sent. Credits reset at the start of your next period.",
       "emptyReply": "I couldn't produce a response. Please try again.",
       "hostedAiUnavailable": "Hosted AI is temporarily unavailable. Please try again later.",
+      "interruptedTurn": "This turn stopped before I could confirm its outcome. Check the activity above and the current records before trying again.",
       "policyBreach": "The AI provider exceeded the reserved credit budget, so the run was stopped. No further provider work was started.",
       "providerError": "The AI provider returned an error before I could finish. Nothing further was changed. Please try again.",
       "sourcesHeading": "Sources",
+      "streamInterrupted": "I had to stop because the model stream was interrupted. No further action was taken; check the activity above before trying again.",
       "turnError": "I couldn't complete that request. Please try again.",
       "turnErrorWithTool": "I couldn't complete that request. The last action failed: {reason}"
     },
@@ -4220,7 +4224,10 @@
       "connectedAccountsPerUser": "{accounts, plural, one {# connected account per user} other {# connected accounts per user}}",
       "creditNote": "Hosted AI credits refresh monthly; unused credits do not roll over. Each request is charged its exact provider cost, shown to one decimal. External MCP clients bill model use through your own AI provider. Server-side semantic searches can consume hosted AI credits.",
       "features": {
-        "business": ["Everything in Pro", "Shared accounts and priority support"],
+        "business": [
+          "Everything in Pro",
+          "Shared accounts and priority support"
+        ],
         "pro": ["Everything in Starter", "Unified inbox"],
         "starter": [
           "Full CRM: contacts, deals, organizations, tasks",

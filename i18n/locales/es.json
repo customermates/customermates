@@ -462,16 +462,20 @@
     },
     "openSavedView": "Abrir vista guardada",
     "placeholder": "Pregunte a su CRM…",
+    "reviewProposal": "Revisar y guardar vista",
     "runner": {
       "cancelled": "Esta respuesta se ha detenido.",
       "contentFilter": "El proveedor de IA bloqueó parte de esta respuesta. No se cambió nada más. Prueba a reformular la solicitud.",
+      "contextLimit": "Tuve que detenerme porque esta conversación superó el límite de contexto del modelo. No se hizo ninguna otra acción; revisa la actividad anterior antes de volver a intentarlo.",
       "creditLimit": "He completado parte de esta solicitud, pero me he detenido porque se han agotado tus créditos del Asistente. El trabajo completado se mantiene; los créditos se restablecen al inicio de tu siguiente periodo.",
       "creditLimitNoWrite": "Me he detenido antes de hacer ningún cambio porque tus créditos de Assistant se han agotado. No se ha creado, actualizado ni enviado nada. Los créditos se restablecen al inicio de tu siguiente periodo.",
       "emptyReply": "No he podido generar una respuesta. Inténtalo de nuevo.",
       "hostedAiUnavailable": "La IA alojada no está disponible temporalmente. Inténtalo de nuevo más tarde.",
+      "interruptedTurn": "Este turno terminó antes de que pudiera confirmar el resultado. Revisa la actividad anterior y los registros actuales antes de volver a intentarlo.",
       "policyBreach": "El proveedor de IA superó el presupuesto de créditos reservado, por lo que se detuvo la ejecución. No se inició ningún trabajo adicional del proveedor.",
       "providerError": "El proveedor de IA devolvió un error antes de que pudiera terminar. No se cambió nada más. Inténtalo de nuevo.",
       "sourcesHeading": "Fuentes",
+      "streamInterrupted": "Tuve que detenerme porque se interrumpió la respuesta del modelo. No se hizo ninguna otra acción; revisa la actividad anterior antes de volver a intentarlo.",
       "turnError": "No he podido completar esa solicitud. Inténtalo de nuevo.",
       "turnErrorWithTool": "No he podido completar esa solicitud. La última acción falló: {reason}"
     },
@@ -4220,7 +4224,10 @@
       "connectedAccountsPerUser": "{accounts, plural, one {# cuenta conectada por usuario} other {# cuentas conectadas por usuario}}",
       "creditNote": "Los créditos de IA alojada se renuevan cada mes; los créditos no utilizados no se acumulan. Cada consulta se cobra por su coste exacto del proveedor y se muestra con un decimal. Los clientes MCP externos facturan el uso del modelo a través de tu propio proveedor de IA. Las búsquedas semánticas del servidor pueden consumir créditos de IA alojada.",
       "features": {
-        "business": ["Todo lo de Pro", "Cuentas compartidas y soporte prioritario"],
+        "business": [
+          "Todo lo de Pro",
+          "Cuentas compartidas y soporte prioritario"
+        ],
         "pro": ["Todo lo de Starter", "Bandeja de entrada unificada"],
         "starter": [
           "CRM completo: contactos, oportunidades, organizaciones y tareas",

@@ -7,7 +7,10 @@ import {
 } from "@/features/mcp-tools/server-instructions";
 import { routineTriggerGuide } from "@/ee/routines/routine-trigger-doc";
 import { isUnattendedSurface } from "./agent-surface-policy";
-import { joinAgentSystemPrompt, type AgentSystemPromptParts } from "./agent-wiki-context";
+import {
+  joinAgentSystemPrompt,
+  type AgentSystemPromptParts,
+} from "./agent-wiki-context";
 import { toolsetIndexSentence } from "./agent-toolset-routing";
 import { agentWebSearchCallLimit } from "./agent-web-search";
 import { WIKI_WEBSITE_IMPORT_TOOL_NAME } from "./tool-identity";
@@ -23,16 +26,21 @@ export type SystemPromptContext = {
   schemaDigest?: string | null;
 };
 
-const ROUTINE_TRIGGER_EVENT_PATTERN = /^(?:\uFEFF)?[ \t]*<routine_trigger\b[^>]*\bevent="([^"\r\n]{1,80})"/;
+const ROUTINE_TRIGGER_EVENT_PATTERN =
+  /^(?:\uFEFF)?[ \t]*<routine_trigger\b[^>]*\bevent="([^"\r\n]{1,80})"/;
 
-export function routineTriggerEventOf(text: string | null | undefined): string | null {
+export function routineTriggerEventOf(
+  text: string | null | undefined,
+): string | null {
   const match = text ? ROUTINE_TRIGGER_EVENT_PATTERN.exec(text) : null;
   return match?.[1] ?? null;
 }
 
 function languageName(locale: string) {
   try {
-    return new Intl.DisplayNames(["en"], { type: "language" }).of(locale) ?? locale;
+    return (
+      new Intl.DisplayNames(["en"], { type: "language" }).of(locale) ?? locale
+    );
   } catch {
     return locale;
   }
@@ -71,7 +79,7 @@ const STATIC_PARAGRAPHS = [
 ] as const;
 
 const INTERFACE_PARAGRAPH =
-  "Interface control: navigate opens app areas; highlight_element points at controls; start_tour walks the user through. Make one focused list_ui_targets query with the workflow or page phrase, reuse all relevant ids it returns, and repeat only when nextCursor is present. Compose tours from those stable ids with your own note per step in the user's language, depth over breadth. A tour navigates to each step itself, so do not call navigate before start_tour. Use exact target ids, never selectors or invented ids. navigate also opens one existing record's page when you pass its typeId and recordId after query_crm_records or search_crm_records found the reference; records never open in the drawer, and for a new record highlight the matching add control so the user fills in the form. A link into the app in a docs result opens that place for this user and highlights the control it names: pass it unchanged as href to navigate. You never click or activate interface controls or type into forms. Each selected_context block is exact context the user selected; use its canonical identifiers and requestedAction, and never reproduce the markup. Use manage_data_views for saved-view sorting, grouping, filters and layouts; the search box is the person's own session search, never part of a view or proposal. Use only filter fields returned by its config action; never create or change a custom field to make a saved-view request possible. If a requested field is absent, say it is unavailable and leave the view unchanged. When page_context includes requestedAction, its surfaceKey and, for updates, viewKey are authoritative; linked-record filters never change that target. Without requestedAction, follow the user's explicit named-view action; create from All only when they ask for a new view, and update All only when they explicitly ask to change All. In the app, manage_data_views create and update return proposed: true; the person reviews the change on the page and saves or resets it, so say the change is ready to review rather than saved. A tool result with applied: false or status: pending is not a completed write, even if ok is true; verify the final state before claiming success. The app presents saved-view destinations, so do not repeat or construct their URLs in prose. Use manage_record_detail_layout to read, save or reset personal record-detail pins, hidden fields and field order. Read immediately before changing it, preserve unrequested choices and use the returned schema revision. For other interface settings, highlight the relevant stable control and tell the user what to choose; when a listed target has a >prerequisite, highlight that prerequisite first and ask the user to open it, or put it in a tour before the target; a direct highlight of the target is refused. To change CRM data, use the matching MCP write tool and report what changed. If the browser is not connected, interface tools fail gracefully; explain in text instead.";
+  "Interface control: navigate opens app areas; highlight_element points at controls; start_tour walks the user through. Make one focused list_ui_targets query with the workflow or page phrase, reuse all relevant ids it returns, and repeat only when nextCursor is present. Compose tours from those stable ids with your own note per step in the user's language, depth over breadth. A tour navigates to each step itself, so do not call navigate before start_tour. Use exact target ids, never selectors or invented ids. navigate also opens one existing record's page when you pass its typeId and recordId after query_crm_records or search_crm_records found the reference; records never open in the drawer, and for a new record highlight the matching add control so the user fills in the form. A link into the app in a docs result opens that place for this user and highlights the control it names: pass it unchanged as href to navigate. You never click or activate interface controls or type into forms. Each selected_context block is exact context the user selected; use its canonical identifiers and requestedAction, and never reproduce the markup. Use manage_data_views for saved-view sorting, grouping, filters and layouts; the search box is the person's own session search, never part of a view or proposal. Use only filter fields returned by its config action; never create or change a custom field to make a saved-view request possible. If a requested field is absent, say it is unavailable and leave the view unchanged. When page_context includes requestedAction, its surfaceKey and, for updates, viewKey are authoritative; linked-record filters never change that target. Without requestedAction, follow the user's explicit named-view action; create from All only when they ask for a new view, and update All only when they explicitly ask to change All. In the app, manage_data_views create and update return proposed: true; the person opens the Review and save view action in Mate, reviews the proposal on the target page, then saves or resets it. Say explicitly that no saved view or permanent link exists until the person saves it. A tool result with applied: false or status: pending is not a completed write, even if ok is true; verify the final state before claiming success. The app presents saved-view destinations, so do not repeat or construct their URLs in prose. Use manage_record_detail_layout to read, save or reset personal record-detail pins, hidden fields and field order. Read immediately before changing it, preserve unrequested choices and use the returned schema revision. For other interface settings, highlight the relevant stable control and tell the user what to choose; when a listed target has a >prerequisite, highlight that prerequisite first and ask the user to open it, or put it in a tour before the target; a direct highlight of the target is refused. To change CRM data, use the matching MCP write tool and report what changed. If the browser is not connected, interface tools fail gracefully; explain in text instead.";
 
 const UNATTENDED_PARAGRAPH =
   "Unattended run: nobody is watching this turn, so an action that needs approval will be declined automatically rather than granted. Interface tools are not available. Do the work that runs without approval, and when a step would need one, stop and report exactly what remains and why, instead of asking a question no one will read.";
@@ -93,14 +101,22 @@ function wikiWebsiteSetupParagraph(locale: string) {
   return `Website import: ask for the site's URL unless the user already wrote it, then call ${WIKI_WEBSITE_IMPORT_TOOL_NAME} once with that exact address. It reads politely in the background, uses one Knowledge Base language, imports matching-language help, pricing and policy pages verbatim, and translates or summarizes other sources. Initial setup then writes the Knowledge Base pages and an Operating Guide in the background; help-centre additions create knowledge pages only. Tell the user in ${languageName(locale)} that it started; saved pages are immediately available to Mate and connected AI tools. For an import's listed external help centre, call ${WIKI_WEBSITE_IMPORT_TOOL_NAME} with the address the user names. Never guess an address.`;
 }
 
-export function agentSystemPromptParts(context: SystemPromptContext): AgentSystemPromptParts {
+export function agentSystemPromptParts(
+  context: SystemPromptContext,
+): AgentSystemPromptParts {
   const [identity, ...rest] = STATIC_PARAGRAPHS;
   const stable = [
     identity,
-    ...rest.map((paragraph) => (paragraph === CRM_INVARIANTS_PLACEHOLDER ? invariantsParagraph() : paragraph)),
+    ...rest.map((paragraph) =>
+      paragraph === CRM_INVARIANTS_PLACEHOLDER
+        ? invariantsParagraph()
+        : paragraph,
+    ),
     "",
     HOSTED_WORKSPACE_WIKI_INSTRUCTION,
-    ...(context.wikiWebsiteSetup && context.surface === "chat" ? [wikiWebsiteSetupParagraph(context.locale)] : []),
+    ...(context.wikiWebsiteSetup && context.surface === "chat"
+      ? [wikiWebsiteSetupParagraph(context.locale)]
+      : []),
     "",
     `${context.webSearchEnabled ? webSearchSentence(context.surface) : "General web search is not available; do not claim to have searched."} Keep replies concise and grounded in tool results, and never invent CRM data.`,
     ...(context.surface === "routine"
