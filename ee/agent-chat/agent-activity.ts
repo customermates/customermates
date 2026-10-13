@@ -67,6 +67,14 @@ export const AGENT_ACTIVITY_KINDS = [
 
 export type AgentActivityKind = (typeof AGENT_ACTIVITY_KINDS)[number];
 
+const PERMANENT_RECORDS_DELETE_COPY = "records.deletePermanent";
+type AgentActivityCopyKind = AgentActivityKind | typeof PERMANENT_RECORDS_DELETE_COPY;
+
+export const AGENT_ACTIVITY_COPY_KINDS: readonly AgentActivityCopyKind[] = [
+  ...AGENT_ACTIVITY_KINDS,
+  PERMANENT_RECORDS_DELETE_COPY,
+];
+
 export const AGENT_ACTIVITY_RESOURCES = ["widgets", "messages", "wiki"] as const;
 
 export type AgentActivityResource = (typeof AGENT_ACTIVITY_RESOURCES)[number];
@@ -496,9 +504,10 @@ type ActivityCopy = {
   detail?: string;
 };
 
-export const AGENT_APPROVAL_COPY_KINDS: readonly AgentActivityKind[] = [
+export const AGENT_APPROVAL_COPY_KINDS: readonly AgentActivityCopyKind[] = [
   "generic",
   "records.delete",
+  PERMANENT_RECORDS_DELETE_COPY,
   "widgets.configure",
   "widgets.delete",
   "support.escalate",
@@ -660,8 +669,8 @@ export function agentActivityCopy(activity: AgentActivityDescriptor, t: AgentTra
       : activity.context.labels.join(", ")
     : undefined;
   const contextual = (action: string) => (context ? t("AgentChat.activity.contextual", { action, context }) : action);
-  // Deletes move to Trash; only an explicit permanent record delete uses the irreversible copy.
-  const copyKind = activity.permanent && activity.kind === "records.delete" ? "records.deletePermanent" : activity.kind;
+  const copyKind: AgentActivityCopyKind =
+    activity.permanent && activity.kind === "records.delete" ? PERMANENT_RECORDS_DELETE_COPY : activity.kind;
   const state = (name: "running" | "done" | "error") =>
     t(`AgentChat.activity.state.${copyKind}.${name}`, {
       count: activity.count ?? 0,
@@ -669,7 +678,7 @@ export function agentActivityCopy(activity: AgentActivityDescriptor, t: AgentTra
       target: mutationTarget,
     });
 
-  const approval = AGENT_APPROVAL_COPY_KINDS.includes(activity.kind)
+  const approval = AGENT_APPROVAL_COPY_KINDS.includes(copyKind)
     ? t(`AgentChat.activity.approval.${copyKind}`, {
         count: activity.count ?? 0,
         resource: resource ?? t("AgentChat.activity.yourRecords"),
