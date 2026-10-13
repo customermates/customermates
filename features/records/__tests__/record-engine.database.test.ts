@@ -4573,6 +4573,12 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
             where: { companyId: f.company.id, subscriptionId: subscription.id },
           }),
         );
+      const historyEvents = (causeId: string) =>
+        f.run(() =>
+          prisma.eventLog.count({
+            where: { companyId: f.company.id, causeId, subjectKind: "record", kind: "record.updated" },
+          }),
+        );
       const recordIds = Array.from({ length: 501 }, () => randomUUID());
       await f.run(() =>
         runInTransaction(async () => {
@@ -4709,7 +4715,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         }),
       );
       expect(values).toHaveLength(501);
-      expect(await matches()).toBe(501);
+      expect(await historyEvents(retried.idempotencyKey)).toBe(501);
+      expect(await matches()).toBe(0);
       expect(
         values.every(
           (value) => value.decimalValue?.toString() === "3" && value.currency === "EUR" && value.schemaRevision === 2,
@@ -4719,7 +4726,8 @@ describeDatabase("configurable record engine", { timeout: 30000 }, () => {
         done: true,
       });
       expect(await revisions()).toEqual(acceptedRevisions);
-      expect(await matches()).toBe(501);
+      expect(await historyEvents(retried.idempotencyKey)).toBe(501);
+      expect(await matches()).toBe(0);
     },
   );
 
