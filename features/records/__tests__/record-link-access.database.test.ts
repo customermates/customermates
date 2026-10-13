@@ -75,7 +75,7 @@ async function fixture() {
     {
       dispatch: () => Promise.resolve(),
     },
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const read = new GetRecordInteractor(repo, policy);
   const query = new QueryRecordsInteractor(repo, policy);

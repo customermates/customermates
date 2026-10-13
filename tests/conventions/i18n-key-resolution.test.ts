@@ -13,7 +13,7 @@ import { ALL_LEGAL_DOCUMENTS } from "@/constants/legal-documents";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { AGENT_ACTIVITY_KINDS, AGENT_APPROVAL_COPY_KINDS } from "@/ee/agent-chat/agent-activity";
+import { AGENT_ACTIVITY_COPY_KINDS, AGENT_APPROVAL_COPY_KINDS } from "@/ee/agent-chat/agent-activity";
 import { ACCOUNT_REMOVAL_REASONS } from "@/ee/messaging/connect/account-removal-reason";
 import { SignatureTemplate } from "@/ee/messaging/email-settings";
 import { OPERATOR_AUDIT_ACTION } from "@/ee/operator/operator.schema";
@@ -458,7 +458,7 @@ const AGENT_ACTIVITY_RESOURCE_SINGULAR_KEYS = [
   "AgentChat.activity.resourceSingular.widgets",
   "AgentChat.activity.resourceSingular.wiki",
 ];
-const AGENT_ACTIVITY_STATE_KEYS = AGENT_ACTIVITY_KINDS.flatMap((kind) =>
+const AGENT_ACTIVITY_STATE_KEYS = AGENT_ACTIVITY_COPY_KINDS.flatMap((kind) =>
   (["done", "error", "running"] as const).map((state) => `AgentChat.activity.state.${kind}.${state}`),
 );
 const AGENT_ACTIVITY_APPROVAL_KEYS = AGENT_APPROVAL_COPY_KINDS.map((kind) => `AgentChat.activity.approval.${kind}`);
@@ -837,11 +837,11 @@ export const DYNAMIC_KEY_SITES = [
   "components/shared/locale-menu.tsx :: t :: Common.locales.${locale}",
   "components/wiki/wiki-homepage-setup.tsx :: t :: Common.locales.${locale}",
   "core/validation/zod-error-map-server.ts :: t.raw :: Common.errors.${code}",
-  "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.approval.${activity.kind}",
+  "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.approval.${copyKind}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.label.${name}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resource.${activity.resource}",
   "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.resourceSingular.${resourceKey}",
-  "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.state.${activity.kind}.${name}",
+  "ee/agent-chat/agent-activity.ts :: t :: AgentChat.activity.state.${copyKind}.${name}",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.label",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.pages.${page}.${state}.${id}.prompt",
   "ee/agent-chat/agent-page-actions.ts :: t :: AgentChat.suggestions.readOnly.${id}.label",

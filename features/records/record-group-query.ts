@@ -215,7 +215,7 @@ export function compileRecordGroups(
   const selected = page?.only ? Prisma.sql`axis.key = ${page.only}` : Prisma.sql`NOT (${collapsed})`;
   const take = Prisma.sql`COALESCE((${JSON.stringify(page?.overrides ?? {})}::jsonb ->> axis.key)::integer, ${page?.perGroup ?? GROUP_PAGE_SIZE_DEFAULT})`;
   return Prisma.sql`WITH ${dateCtes}
-    source AS MATERIALIZED (${compileRecordQuery(companyId, query, model, access).ordered}),
+    source AS MATERIALIZED (${compileRecordQuery(companyId, query, model, access, memberScope).ordered}),
     seeds AS (${seedSql} ${dateSeeds}),
     members AS MATERIALIZED (
       SELECT DISTINCT ${root}.id, ${root}."typeId", ${root}.ordinal, ${actualKey} AS key,

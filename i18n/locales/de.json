@@ -47,14 +47,15 @@
           "triage": "Bereit, den Unterhaltungsstatus zu ändern"
         },
         "records": {
-          "delete": "{count, plural, one {Bereit, {target} endgültig zu löschen} other {Bereit, {target} endgültig zu löschen}}"
+          "delete": "{count, plural, one {Bereit, {target} in den Papierkorb zu verschieben} other {Bereit, {target} in den Papierkorb zu verschieben}}",
+          "deletePermanent": "{count, plural, one {Bereit, {target} endgültig zu löschen} other {Bereit, {target} endgültig zu löschen}}"
         },
         "roles": {
           "manage": "Diese Rollenänderung bestätigen"
         },
         "routines": {
           "configure": "Bereit, die Routine zu pausieren oder auszuführen",
-          "delete": "Bereit, die Routine samt Verlauf zu löschen"
+          "delete": "Bereit, die Routine samt Verlauf in den Papierkorb zu verschieben"
         },
         "support": {
           "escalate": "Bereit, deine Anfrage an den Support zu senden"
@@ -64,14 +65,14 @@
         },
         "views": {
           "configure": "Bereit, die gespeicherte Ansicht zu ändern",
-          "delete": "Gespeicherte Ansicht ist zum endgültigen Löschen bereit"
+          "delete": "Bereit, die gespeicherte Ansicht in den Papierkorb zu verschieben"
         },
         "webhooks": {
           "manage": "Bereit, die Webhook-Zustellung zu ändern"
         },
         "widgets": {
           "configure": "Bereit, Dashboard-Widgets zu ändern",
-          "delete": "Bereit, ein Dashboard-Widget endgültig zu löschen"
+          "delete": "Bereit, ein Dashboard-Widget in den Papierkorb zu verschieben"
         },
         "workspace": {
           "configure": "Bereit, das Datenmodell des Arbeitsbereichs zu ändern"
@@ -86,10 +87,11 @@
         "draftSave": "Entwurf in der ausgewählten Unterhaltung speichern",
         "emailSend": "E-Mail an die ausgewählten Empfänger senden",
         "externalManage": "Daten im verbundenen externen Konto ändern",
-        "recordsDelete": "Das kann nicht rückgängig gemacht werden.",
+        "recordsDelete": "{count, plural, one {Wiederherstellen ist 30 Tage lang im Papierkorb möglich.} other {Wiederherstellen ist 30 Tage lang im Papierkorb möglich.}}",
+        "recordsDeletePermanent": "Das kann nicht rückgängig gemacht werden.",
         "roleDelete": "Ausgewählte Rolle löschen",
         "roleSave": "Rolle und Datensatzzugriff speichern",
-        "routineDelete": "Die ausgewählte Routine samt Verlauf endgültig löschen",
+        "routineDelete": "Die ausgewählte Routine samt Verlauf in den Papierkorb verschieben, wo du sie 30 Tage lang wiederherstellen kannst",
         "routinePause": "Die ausgewählte Routine pausieren",
         "routineRun": "Die ausgewählte Routine jetzt ausführen",
         "salesListSave": "Den ausgewählten Interessenten zu einer Sales-Navigator-Liste hinzufügen",
@@ -234,9 +236,14 @@
             "running": "{count, plural, one {{target} wird erstellt} other {{target} werden erstellt}}"
           },
           "delete": {
-            "done": "{count, plural, one {{target} wurde entfernt} other {{target} wurden entfernt}}",
-            "error": "{count, plural, one {{target} konnte nicht entfernt werden} other {{target} konnten nicht entfernt werden}}",
-            "running": "{count, plural, one {{target} wird entfernt} other {{target} werden entfernt}}"
+            "done": "{count, plural, one {{target} wurde in den Papierkorb verschoben} other {{target} wurden in den Papierkorb verschoben}}",
+            "error": "{count, plural, one {{target} konnte nicht in den Papierkorb verschoben werden} other {{target} konnten nicht in den Papierkorb verschoben werden}}",
+            "running": "{count, plural, one {{target} wird in den Papierkorb verschoben} other {{target} werden in den Papierkorb verschoben}}"
+          },
+          "deletePermanent": {
+            "done": "{count, plural, one {{target} wurde endgültig gelöscht} other {{target} wurden endgültig gelöscht}}",
+            "error": "{count, plural, one {{target} konnte nicht endgültig gelöscht werden} other {{target} konnten nicht endgültig gelöscht werden}}",
+            "running": "{count, plural, one {{target} wird endgültig gelöscht} other {{target} werden endgültig gelöscht}}"
           },
           "link": {
             "done": "Datensätze wurden verknüpft",
@@ -1139,13 +1146,15 @@
       "recordNotFound": "Dieser Datensatz ist nicht verfügbar.",
       "recordNumberInvalid": "Gib eine gültige Zahl ein.",
       "recordOperationFailed": "Der Vorgang im Hintergrund ist fehlgeschlagen. Versuche es erneut.",
+      "recordOperationNotFound": "Dieser Vorgang im Hintergrund ist nicht verfügbar.",
+      "recordOperationSettled": "Dieser Vorgang im Hintergrund ist bereits abgeschlossen.",
       "recordOptionInvalid": "\"{value}\" ist keine Option von {field} ({fieldId}). Verwende eine dieser Options-IDs: {validValues}.",
       "recordProtected": "Dieser Datensatz wird durch einen Systemablauf verwaltet.",
       "recordReadOnlyField": "Dieses Feld wird berechnet. Ändere seine Definition, um Werte manuell einzugeben.",
       "recordRelationConflict": "Diese Verknüpfung entspricht nicht den festgelegten Regeln.",
       "recordSavedViewIncompatible": "Die gespeicherte Ansicht \"{viewName}\" ({viewId}) verwendet noch \"{columnLabel}\" ({columnId}). Passe die Ansicht an oder lösche sie und versuche es dann erneut.",
       "recordSchemaChanged": "Das Datenmodell wurde geändert. Lade die Seite neu und versuche es erneut.",
-      "recordSublistNested": "Eine Unterliste kann keine eigenen Unterlisten haben. Verknüpfen Sie die Liste stattdessen mit der übergeordneten Liste der Unterliste.",
+      "recordSublistNested": "Eine Unterliste kann keine eigenen Unterlisten haben. Verknüpfe die Liste stattdessen mit der übergeordneten Liste der Unterliste.",
       "recordTypeNotFound": "Dieser Datensatztyp ist nicht verfügbar.",
       "recordValueInvalid": "Prüfe die markierten Werte des Datensatzes.",
       "recordValueRequired": "{field} braucht einen Wert.",
@@ -1163,6 +1172,7 @@
       "routineDeleteHasRunningRun": "Warte, bis der aktive Lauf beendet ist, bevor du diese Routine löschst.",
       "routineEditNotOwner": "Nur die Eigentümerin oder der Eigentümer kann Einrichtung und Aktivierung dieser Routine ändern.",
       "routineLimitReached": "Dein Tarif enthält {limit} Routinen pro Nutzer. Wechsle deinen Tarif für ein höheres Kontingent.",
+      "routineNotFound": "Routine-ID nicht gefunden oder nicht zugänglich.",
       "routineOwnerIneligible": "Die Eigentümerin oder der Eigentümer der Routine muss ein aktives Mitglied dieses Unternehmens sein.",
       "routineRunNotOwner": "Nur wer diese Routine besitzt, kann sie ausführen, da sie dessen KI-Guthaben verbraucht.",
       "routineRunNowRequiresSchedule": "Nur geplante Routinen können manuell getestet werden.",
@@ -1175,7 +1185,7 @@
       "salesNavigatorNotAvailable": "Dieses LinkedIn-Konto hat Sales Navigator nicht verbunden.",
       "salesNavigatorRequiresLinkedin": "Sales Navigator braucht ein verbundenes LinkedIn-Konto, dieses Konto ist aber {provider}.",
       "sendEmailTargetRequired": "Wähle eine Konversation oder ein Konto zum Senden aus.",
-      "serviceBusy": "Der Workspace ist gerade mit einer anderen Änderung beschäftigt, etwa einem Import. Versuchen Sie es gleich noch einmal.",
+      "serviceBusy": "Der Workspace ist gerade mit einer anderen Änderung beschäftigt, etwa einem Import. Versuche es gleich noch einmal.",
       "socialActionRequiresSocialAccount": "Diese Aktion braucht ein verbundenes LinkedIn- oder Instagram-Konto, dieses Konto ist aber {provider}.",
       "socialPostsRequireSocialAccount": "Für Social-Posts brauchst du ein verbundenes LinkedIn- oder Instagram-Konto, dieses Konto ist aber {provider}.",
       "subjectRequired": "Bitte einen Betreff hinzufügen.",
@@ -1912,12 +1922,12 @@
       "kind": {
         "activityTimelineDescription": "Verfolge Datensatzänderungen, Nachrichten sowie Konto- und Kalenderaktivitäten chronologisch.",
         "change": "Anderes Widget wählen",
-        "description": "Wählen Sie ein Format und legen Sie die Daten selbst fest.",
+        "description": "Wähle ein Format und lege die Daten selbst fest.",
         "scratchTitle": "Von Grund auf neu",
         "title": "Widget auswählen"
       },
       "preview": {
-        "incomplete": "Vervollständigen Sie die Dateneinstellungen, um eine Vorschau zu sehen.",
+        "incomplete": "Vervollständige die Dateneinstellungen, um eine Vorschau zu sehen.",
         "live": "Live-Vorschau",
         "size": "Dashboard-Größe {w} × {h}",
         "untitled": "Unbenanntes Widget"
@@ -1966,7 +1976,7 @@
         }
       },
       "steps": {
-        "chooseDescription": "Starten Sie mit einer Empfehlung, einem leeren Format oder einer in Ihrem Workspace geteilten Vorlage.",
+        "chooseDescription": "Starte mit einer Empfehlung, einem leeren Format oder einer in deinem Workspace geteilten Vorlage.",
         "configureDescription": "Lege fest, welche Daten dieses Widget zeigt und wie es aussieht."
       },
       "tabs": {
@@ -1987,7 +1997,7 @@
   "DataTransfer": {
     "export": {
       "action": "Als JSON exportieren",
-      "failed": "Die Datensätze konnten nicht exportiert werden. Prüfen Sie Ihre Filter und Berechtigungen.",
+      "failed": "Die Datensätze konnten nicht exportiert werden. Prüfe deine Filter und Berechtigungen.",
       "success": "{count, plural, one {# Datensatz exportiert} other {# Datensätze exportiert}}.",
       "xlsxAction": "Als Excel exportieren (.xlsx)"
     },
@@ -2137,7 +2147,7 @@
       "moveRight": "Nach rechts verschieben",
       "name": "Name",
       "namePlaceholder": "Name der Ansicht",
-      "nameRequired": "Geben Sie einen Namen für die Ansicht ein.",
+      "nameRequired": "Gib einen Namen für die Ansicht ein.",
       "pickerEmpty": "Keine passende Ansicht",
       "pickerPlaceholder": "Ansicht suchen …",
       "pickerTitle": "Ansicht wechseln",
@@ -2467,7 +2477,7 @@
       "loadRemoteImages": "Externe Bilder laden",
       "messageSent": "Nachricht gesendet.",
       "moreSendOptions": "Weitere Sendeoptionen",
-      "noContacts": "Keine Einträge.",
+      "noContacts": "Keine Datensätze.",
       "retry": "Erneut versuchen",
       "saveDraft": "Als Entwurf speichern",
       "send": "Senden",
@@ -2523,7 +2533,7 @@
       "conversationRecordsHint": "Verknüpfe diese Unterhaltung mit einem Datensatz, ohne andere Unterhaltungen dieser Person zu verknüpfen.",
       "link": "Verknüpfen",
       "linkRecord": "Datensatz verknüpfen",
-      "linkUpdateFailed": "Eintragsverknüpfung konnte nicht aktualisiert werden",
+      "linkUpdateFailed": "Datensatzverknüpfung konnte nicht aktualisiert werden",
       "noRecords": "Keine verknüpften Datensätze",
       "openRecordNamed": "Datensatz öffnen: {name}",
       "unlinkRecord": "Datensatzverknüpfung entfernen",
@@ -2574,7 +2584,7 @@
       "spam": "Spam",
       "unread": "Ungelesen"
     },
-    "unlinkedParticipants": "Einige Teilnehmer haben keinen verknüpften Datensatz, den Sie lesen dürfen",
+    "unlinkedParticipants": "Einige Teilnehmer haben keinen verknüpften Datensatz, den du lesen darfst",
     "voice": {
       "pause": "Pausieren",
       "play": "Abspielen",
@@ -2624,7 +2634,7 @@
       "goDashboard": "Dashboard",
       "goInbox": "Posteingang",
       "goKnowledgeBase": "Wissensdatenbank",
-      "goList": "Listen nach ihrer Position in Ihrer Seitenleiste",
+      "goList": "Listen nach ihrer Position in deiner Seitenleiste",
       "goRoutines": "Routinen",
       "goSettings": "Einstellungen",
       "openFilters": "Filter einer Liste öffnen",
@@ -2642,13 +2652,13 @@
       "listsAndViews": "Listen und Ansichten",
       "navigation": "Navigation"
     },
-    "noMatches": "Kein Kürzel passt zu Ihrer Suche.",
+    "noMatches": "Kein Kürzel passt zu deiner Suche.",
     "or": "oder",
     "pendingGo": "Gehe zu … Buchstaben oder Listennummer drücken",
     "searchLabel": "Kürzel durchsuchen",
     "searchPlaceholder": "Kürzel durchsuchen …",
     "singleKey": {
-      "description": "C, /, V, ? und die G-Folgen. Schalten Sie sie aus, wenn Sie Spracheingabe nutzen oder versehentlich Tasten drücken.",
+      "description": "C, /, V, ? und die G-Folgen. Schalte sie aus, wenn du Spracheingabe nutzt oder versehentlich Tasten drückst.",
       "label": "Einzeltasten-Kürzel"
     },
     "then": "dann",
@@ -3500,13 +3510,13 @@
       "addTo": "Zu {list} hinzufügen",
       "calculatedFrom": "aus {sources}",
       "calculationEdge": "Aus dieser Liste berechnet: {fields}",
-      "connectDescription": "Verbinden Sie Gmail, Outlook oder einen anderen Kanal, um Unterhaltungen in Ihre Listen zu holen.",
+      "connectDescription": "Verbinde Gmail, Outlook oder einen anderen Kanal, um Unterhaltungen in deine Listen zu holen.",
       "connectTitle": "E-Mail und Kalender verbinden",
       "controls": "Grafiksteuerung",
       "fitView": "Alles anzeigen",
       "handle": "Verbindungspunkt",
-      "help": "Wählen Sie eine Liste oder ein Feld zum Bearbeiten, den Chip auf einer Linie zum Bearbeiten einer Beziehung, oder ziehen Sie vom Punkt einer Liste zu einer anderen, um sie zu verbinden.",
-      "helpReadOnly": "Wählen Sie eine Liste, um sie zu öffnen. Linien zeigen, wie Listen zusammenhängen und woher berechnete Werte stammen.",
+      "help": "Wähle eine Liste oder ein Feld zum Bearbeiten, den Chip auf einer Linie zum Bearbeiten einer Beziehung, oder ziehe vom Punkt einer Liste zu einer anderen, um sie zu verbinden.",
+      "helpReadOnly": "Wähle eine Liste, um sie zu öffnen. Linien zeigen, wie Listen zusammenhängen und woher berechnete Werte stammen.",
       "label": "Grafik der Listen, Felder und verbundenen Konten",
       "moreAccounts": "{count, plural, one {# weiteres Konto} other {# weitere Konten}}",
       "moreFields": "{count, plural, one {# weiteres Feld} other {# weitere Felder}}",
@@ -3640,7 +3650,7 @@
     "linkRecord": "Datensatz verknüpfen",
     "listActions": "Listenaktionen",
     "listCounts": "{fields, plural, one {# Feld} other {# Felder}} · {relationships, plural, one {# Beziehung} other {# Beziehungen}}",
-    "listUnavailable": "Diese Liste ist nicht verfügbar. Wählen Sie eine andere Liste.",
+    "listUnavailable": "Diese Liste ist nicht verfügbar. Wähle eine andere Liste.",
     "member": "Mitglied",
     "missing": "Kein Wert",
     "moreActions": "Weitere Aktionen für {name}",
@@ -3732,7 +3742,7 @@
     "relationshipPath": "Über verknüpfte Datensätze",
     "relationshipPathHelp": "Zeige Datensätze über bestehende Beziehungen an. Bearbeite die zugrunde liegenden Verknüpfungen, um diese Datensätze zu ändern.",
     "relationships": "Beziehungen",
-    "relationshipsEmpty": "Noch keine Beziehungen. Verknüpfen Sie diese Liste mit einer anderen, um zusammengehörige Einträge gemeinsam zu sehen.",
+    "relationshipsEmpty": "Noch keine Beziehungen. Verknüpfe diese Liste mit einer anderen, um zusammengehörige Datensätze gemeinsam zu sehen.",
     "reloadLists": "Listen neu laden",
     "removeGroupSummary": "Übersicht entfernen",
     "removeInput": "Eingabe entfernen",
@@ -4295,11 +4305,11 @@
     "permanentRecords": "{list}: {count, plural, one {# Datensatz} other {# Datensätze}}",
     "restore": "Wiederherstellen",
     "restoreBlocked": {
-      "listDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ihre Liste im Papierkorb liegt. Stellen Sie zuerst die Liste wieder her.",
+      "listDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ihre Liste im Papierkorb liegt. Stelle zuerst die Liste wieder her.",
       "nameTaken": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil ein anderes Element jetzt ihren Namen oder Platz hat.",
       "notFound": "{count, plural, one {# Element existiert} other {# Elemente existieren}} nicht mehr und wurden aus dem Papierkorb entfernt.",
-      "parentDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil das, wozu sie gehören, im Papierkorb liegt. Stellen Sie das zuerst wieder her.",
-      "requiresRestore": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil etwas, das sie brauchen, im Papierkorb liegt. Stellen Sie das zuerst wieder her.",
+      "parentDeleted": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil das, wozu sie gehören, im Papierkorb liegt. Stelle das zuerst wieder her.",
+      "requiresRestore": "{count, plural, one {# Element bleibt} other {# Elemente bleiben}} im Papierkorb, weil etwas, das sie brauchen, im Papierkorb liegt. Stelle das zuerst wieder her.",
       "routineLimitReached": "{count, plural, one {# Routine bleibt} other {# Routinen bleiben}} im Papierkorb, weil die Person bereits alle Routinen ihres Tarifs nutzt."
     },
     "restored": "{count, plural, one {# Element wiederhergestellt} other {# Elemente wiederhergestellt}}",

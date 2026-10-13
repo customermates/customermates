@@ -27,6 +27,8 @@ import {
 import { defaultHiddenColumns } from "./record-columns";
 import { recordFilterOperators } from "./record-filter";
 import { RecordQuerySchema } from "./record-query.schema";
+import { unwindFailure } from "@/core/validation/failure-unwind";
+import { CustomErrorCode } from "@/core/validation/validation.types";
 import { selectedOptionIds } from "./record-model-validation";
 import type { RecordRelationshipPath } from "./record-relationship-path.schema";
 
@@ -143,7 +145,11 @@ export function recordDefaults(typeId: string, fields: RecordFieldView[]): DataV
     sortDescriptor: null,
   };
 }
-export function filterScalar(raw: string, field: Pick<RecordField, "valueType" | "format">): RecordScalar {
+export function filterScalar(
+  raw: string,
+  field: Pick<RecordField, "valueType" | "format">,
+  path: Array<string | number> = [],
+): RecordScalar {
   if (field.valueType === "select") return { kind: "select", value: raw };
   if (field.valueType === "number" || field.valueType === "currency") {
     return {
@@ -155,7 +161,7 @@ export function filterScalar(raw: string, field: Pick<RecordField, "valueType" |
   if (["date", "dateTime", "dateRange", "dateTimeRange"].includes(field.valueType))
     return { kind: field.valueType === "date" || field.valueType === "dateRange" ? "date" : "dateTime", value: raw };
   if (field.valueType === "boolean") {
-    if (raw !== "true" && raw !== "false") throw new Error("Boolean filter requires true or false");
+    if (raw !== "true" && raw !== "false") throw unwindFailure(CustomErrorCode.recordValueInvalid, "validation", path);
     return { kind: "boolean", value: raw === "true" };
   }
   if (field.valueType === "member") return { kind: "member", value: raw };
@@ -171,8 +177,11 @@ export function presentationQuery(
   const filters: RecordQuery["filters"] = [];
   const relationships: RecordQuery["relationships"] = [];
   const relatedFilters: NonNullable<RecordQuery["relatedFilters"]> = [];
-  if (!presentationFiltersAreValid(params.filters ?? [], fields, relations, typeId, paths))
-    throw new Error("Invalid presentation filter");
+  const origins = { filters: [] as number[], relationships: [] as number[], relatedFilters: [] as number[] };
+  const invalid = (params.filters ?? []).findIndex(
+    (filter) => !presentationFiltersAreValid([filter], fields, relations, typeId, paths),
+  );
+  if (invalid >= 0) throw unwindFailure(CustomErrorCode.recordValueInvalid, "validation", ["filters", invalid]);
   const operators = {
     equals: "eq",
     notEquals: "ne",
@@ -183,11 +192,13 @@ export function presentationQuery(
     lt: "lt",
     lte: "lte",
   } as const;
-  for (const filter of params.filters ?? []) {
+  for (const [index, filter] of (params.filters ?? []).entries()) {
+    const at = ["filters", index];
     const pathId = parseRelationshipPathColumnKey(filter.field);
     if (pathId) {
       const definition = paths.find((path) => path.id === pathId && !path.archived);
-      if (!definition) throw new Error("Unknown relationship path");
+      if (!definition) throw unwindFailure(CustomErrorCode.recordValueInvalid, "validation", at);
+      origins.relatedFilters.push(index);
       relatedFilters.push({
         path: definition.path,
         operator: [FilterOperatorKey.notIn, FilterOperatorKey.hasNone].includes(filter.operator) ? "none" : "any",
@@ -201,6 +212,7 @@ export function presentationQuery(
     }
     const relationship = parseRelationshipColumnKey(filter.field);
     if (relationship) {
+      origins.relationships.push(index);
       relationships.push({
         relationId: relationship.relationId,
         direction: relationship.direction,
@@ -217,7 +229,8 @@ export function presentationQuery(
         : filter.field === "system:assignedTo"
           ? { id: filter.field, valueType: "member" as const }
           : undefined);
-    if (!field) throw new Error("Unknown presentation filter field");
+    if (!field) throw unwindFailure(CustomErrorCode.recordValueInvalid, "validation", at);
+    origins.filters.push(index);
     if (
       [
         FilterOperatorKey.isNull,
@@ -256,7 +269,7 @@ export function presentationQuery(
               ? "notIn"
               : "in",
         value: null,
-        values: filter.value.map((value) => filterScalar(value, field)),
+        values: filter.value.map((value) => filterScalar(value, field, at)),
       });
     } else if (
       filter.operator === FilterOperatorKey.in ||
@@ -267,17 +280,17 @@ export function presentationQuery(
         fieldId: field.id,
         operator: filter.operator,
         value: null,
-        values: filter.value.map((value) => filterScalar(value, field)),
+        values: filter.value.map((value) => filterScalar(value, field, at)),
       });
     } else if (filter.operator in operators && "value" in filter && typeof filter.value === "string") {
       filters.push({
         fieldId: field.id,
         operator: operators[filter.operator as keyof typeof operators],
-        value: filterScalar(filter.value, field),
+        value: filterScalar(filter.value, field, at),
       });
-    } else throw new Error("Unsupported presentation filter");
+    } else throw unwindFailure(CustomErrorCode.recordValueInvalid, "validation", at);
   }
-  return RecordQuerySchema.parse({
+  const parsed = RecordQuerySchema.safeParse({
     typeId,
     filters,
     relationships,
@@ -294,6 +307,17 @@ export function presentationQuery(
     page: params.page ?? params.pagination?.page ?? 1,
     pageSize: params.pageSize ?? params.pagination?.pageSize ?? 25,
   });
+  if (parsed.success) return parsed.data;
+  const [part, position] = parsed.error.issues[0]?.path ?? [];
+  const origin =
+    (part === "filters" || part === "relationships" || part === "relatedFilters") && typeof position === "number"
+      ? origins[part][position]
+      : undefined;
+  throw unwindFailure(
+    CustomErrorCode.recordValueInvalid,
+    "validation",
+    origin === undefined ? (typeof part === "string" ? [part] : []) : ["filters", origin],
+  );
 }
 export function presentationFiltersAreValid(
   filters: Filter[],

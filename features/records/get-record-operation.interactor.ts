@@ -22,7 +22,7 @@ export class GetRecordOperationInteractor extends OwnedRecordOperationInteractor
     return runInTransaction(
       async () => {
         const operation = await this.ownedOperation(input.operationId, () => true);
-        if (!operation) return failNotFound(CustomErrorCode.recordNotFound);
+        if (!operation) return failNotFound(CustomErrorCode.recordOperationNotFound, ["operationId"]);
         return {
           ok: true as const,
           data: RecordOperationStatusSchema.parse({

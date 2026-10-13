@@ -6,7 +6,8 @@ import type { RecordJournal } from "./record-journal";
 import type { RecordEventPayload } from "./record-event.schema";
 
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { RecordCalculationService, recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
+import type { RecordCalculationService } from "./record-calculation.service";
+import { recordKey, SYNCHRONOUS_RECORD_LIMIT } from "./record-calculation.service";
 import { recordInvariant } from "./record-invariant";
 
 type Policy = Awaited<ReturnType<RecordAccessPolicy["load"]>>;
@@ -44,7 +45,10 @@ function deletedPermanentlyPayload(
 }
 
 export class RecordTrashService {
-  constructor(private records: RecordRepo) {}
+  constructor(
+    private records: RecordRepo,
+    private calculations: RecordCalculationService,
+  ) {}
 
   async accessible(item: RecordTrashItem, model: RecordModel, policy: Policy): Promise<RecordRestoreBlocker | null> {
     const type = model.types.find((candidate) => candidate.id === item.typeId);
@@ -149,35 +153,43 @@ export class RecordTrashService {
       seeds.set(recordKey(link.target), link.target);
       if (seeds.size > limit) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
     }
-    const recalculated = await new RecordCalculationService(records).recalculate(
-      model,
-      [...seeds.values()],
-      new Map(),
-      limit,
-    );
+    const recalculated = await this.calculations
+      .withRepository(records)
+      .recalculate(model, [...seeds.values()], new Map(), limit);
     if (!recalculated.complete) throw unwindFailure(CustomErrorCode.recordCalculationBudget, "conflict");
     for (const ref of recalculated.changed) seeds.set(recordKey(ref), ref);
     for (const [key, ref] of seeds) if (!restored.has(key)) await records.touch(ref);
     return droppedLinks;
   }
 
-  async purge(
+  purge(
     itemIds: string[],
     model: RecordModel,
     actorId: string | null,
     causeId: string,
     cause: RecordEventPayload["cause"],
   ): Promise<RecordRef[]> {
-    const refs = await this.records.purgeTrashItems(itemIds);
-    for (const ref of refs) {
-      await this.records.appendEvent(
-        ref,
-        actorId,
-        causeId,
-        "record.deletedPermanently",
-        deletedPermanentlyPayload(ref, model, cause),
-      );
-    }
-    return refs;
+    return purgeRecordTrashItems(this.records, itemIds, model, actorId, causeId, cause);
   }
+}
+
+export async function purgeRecordTrashItems(
+  records: RecordRepo,
+  itemIds: string[],
+  model: RecordModel,
+  actorId: string | null,
+  causeId: string,
+  cause: RecordEventPayload["cause"],
+): Promise<RecordRef[]> {
+  const refs = await records.purgeTrashItems(itemIds);
+  for (const ref of refs) {
+    await records.appendEvent(
+      ref,
+      actorId,
+      causeId,
+      "record.deletedPermanently",
+      deletedPermanentlyPayload(ref, model, cause),
+    );
+  }
+  return refs;
 }

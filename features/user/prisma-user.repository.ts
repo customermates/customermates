@@ -40,6 +40,21 @@ import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FILTER_FIELD_DEFAULT_OPERATORS } from "@/core/types/filter-field-operators";
 import { env } from "@/env";
 
+function recordActorSelect(companyId: string) {
+  return {
+    id: true,
+    status: true,
+    role: {
+      select: {
+        id: true,
+        companyId: true,
+        isSystemRole: true,
+        permissions: { where: { companyId }, select: { resource: true, action: true } },
+      },
+    },
+  } as const;
+}
+
 export class PrismaUserRepo
   extends QueryRepository
   implements
@@ -730,18 +745,22 @@ export class PrismaUserRepo
   async getCurrentRecordActorCompanyWide() {
     return this.prisma.user.findFirst({
       where: { companyId: this.companyId, id: this.user.id },
-      select: {
-        id: true,
-        status: true,
-        role: {
-          select: {
-            id: true,
-            companyId: true,
-            isSystemRole: true,
-            permissions: { where: { companyId: this.companyId }, select: { resource: true, action: true } },
-          },
-        },
-      },
+      select: recordActorSelect(this.companyId),
+    });
+  }
+
+  @BypassTenantGuard
+  async findRecordActorUnscoped(companyId: string, userId: string) {
+    return this.prisma.user.findFirst({
+      where: { companyId, id: userId, status: Status.active, role: { companyId } },
+      select: recordActorSelect(companyId),
+    });
+  }
+
+  async getRecordMemberCompanyWide(userId: string) {
+    return this.prisma.user.findFirst({
+      where: { companyId: this.companyId, id: userId },
+      select: { id: true, email: true, status: true },
     });
   }
 

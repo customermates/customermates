@@ -37,6 +37,9 @@ const readRoute = await restRoute("/v1/records/read");
 const applyRoute = await restRoute("/v1/model/apply");
 const saveRoleRoute = await restRoute("/v1/roles/save");
 const deleteRoleRoute = await restRoute("/v1/roles/delete");
+const operationStatusRoute = await restRoute("/v1/operations/status");
+const cancelOperationRoute = await restRoute("/v1/operations/cancel");
+const resumeOperationRoute = await restRoute("/v1/operations/resume");
 
 type Workspace = Awaited<ReturnType<typeof createRestRouteWorkspace>>;
 type Kind = "validation" | "authorization" | "not_found" | "conflict";
@@ -300,5 +303,47 @@ describeDatabase("record write failure shapes across REST, MCP and UI", () => {
     } finally {
       recalculate.mockRestore();
     }
+  }, 180_000);
+
+  it("answers an unknown or foreign role id in a configuration change with roleNotFound at its grant", async () => {
+    const w = await workspace();
+    const foreign = await workspace();
+    const grants = (roleId: string) => [
+      { roleId: w.member.roleId ?? "", actions: ["readOwn"] },
+      { roleId, actions: ["readAll"] },
+    ];
+    const change = async (operations: unknown[]) => ({
+      expectedRevision: await w.revision(),
+      idempotencyKey: randomUUID(),
+      operations,
+    });
+    for (const roleId of [randomUUID(), foreign.member.roleId ?? ""]) {
+      await expectRest(
+        w,
+        w.admin,
+        applyRoute,
+        await change([{ operation: "setTypeGrants", typeId: w.id("deal"), grants: grants(roleId) }]),
+        failure("not_found", "roleNotFound", ["operations", 0, "grants", 1, "roleId"]),
+      );
+      await expectRest(
+        w,
+        w.admin,
+        applyRoute,
+        await change([
+          {
+            operation: "putAccessPreset",
+            preset: { id: randomUUID(), label: "Partners", grants: grants(roleId), archived: false },
+          },
+        ]),
+        failure("not_found", "roleNotFound", ["operations", 0, "preset", "grants", 1, "roleId"]),
+      );
+    }
+  }, 180_000);
+
+  it("answers an unknown background operation with recordOperationNotFound at operationId", async () => {
+    const w = await workspace();
+    const missing = failure("not_found", "recordOperationNotFound", ["operationId"]);
+    for (const route of [operationStatusRoute, cancelOperationRoute, resumeOperationRoute])
+      await expectRest(w, w.admin, route, { operationId: randomUUID() }, missing);
   }, 180_000);
 });

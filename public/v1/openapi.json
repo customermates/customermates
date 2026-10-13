@@ -524,6 +524,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -722,6 +731,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -995,6 +1013,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1288,6 +1315,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1637,6 +1673,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -1782,6 +1827,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -2081,6 +2135,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -2511,6 +2574,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -7193,6 +7265,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -7829,6 +7910,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -10127,6 +10217,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -11222,6 +11321,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -11561,6 +11669,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -22795,6 +22912,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -32065,6 +32191,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -33938,6 +34073,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -35499,6 +35643,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -37043,6 +37196,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -40030,6 +40192,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -41455,6 +41626,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -41813,6 +41993,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -42082,6 +42271,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -42311,6 +42509,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -42477,6 +42684,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -42632,6 +42848,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -45242,6 +45467,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -45598,6 +45832,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -45728,6 +45971,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -45858,6 +46110,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -46087,6 +46348,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -46349,6 +46619,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -46523,6 +46802,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -46739,6 +47027,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -46938,6 +47235,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -47082,6 +47388,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -47267,6 +47582,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -47410,6 +47734,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -47541,6 +47874,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -48173,6 +48515,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -48429,6 +48780,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -50015,6 +50375,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -51513,6 +51882,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -53067,6 +53445,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -54610,6 +54997,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -56151,6 +56547,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -58073,6 +58478,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -60005,6 +60419,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -61546,6 +61969,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -63093,6 +63525,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -63111,7 +63552,7 @@
       "post": {
         "operationId": "deleteDataView",
         "summary": "Delete a saved view",
-        "description": "Moves a named view to Trash; when it was the active view, the surface falls back to All. It is deleted permanently after 30 days unless /v1/trash/restore restores it with the returned trashBatchId. Records are never deleted, and the All view cannot be deleted.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
+        "description": "Moves a named view to Trash; when it was the active view, the surface falls back to All. Deleting a dashboard view moves its widgets to Trash with it, and restoring the view brings them back. The view is deleted permanently after 30 days unless /v1/trash/restore restores it with the returned trashBatchId. Records are never deleted, and the All view cannot be deleted.\n\nRequires: read access to the surface's page: read access to the record type for a `records:<typeId>` surface, read on users for Members and Roles, read all on api for Webhooks, read all on auditLog for Activity, read on routines for Routines, and read on inboxMessages plus the messaging entitlement for Inbox. Dashboard and record timeline views need no extra permission. Saved views are personal: only the caller's own views are listed or changed.",
         "tags": [
           "data-views"
         ],
@@ -64626,6 +65067,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -73900,6 +74350,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -74041,6 +74500,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -74655,6 +75123,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -78118,6 +78595,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -78246,6 +78732,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -78742,6 +79237,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -79334,6 +79838,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -79827,6 +80340,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -79972,6 +80494,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -80807,6 +81338,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -81432,6 +81972,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -81997,6 +82546,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -82015,7 +82573,7 @@
       "post": {
         "operationId": "readRoutine",
         "summary": "Read a routine",
-        "description": "Returns one routine with its full configuration. An id outside the workspace answers 404. Requires: read permission on routines.",
+        "description": "Returns one routine with its full configuration. An id outside the workspace or the caller's access answers 404. Requires: read permission on routines.",
         "tags": [
           "routines"
         ],
@@ -82166,6 +82724,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -82606,6 +83173,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -84216,6 +84792,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -85798,6 +86383,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -85967,6 +86561,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -86137,6 +86740,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -86264,6 +86876,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -86408,6 +87029,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -86717,6 +87347,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -88281,6 +88920,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -89963,6 +90611,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -90073,6 +90730,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -90464,6 +91130,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -90626,6 +91301,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -92256,6 +92940,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -95466,6 +96159,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -95594,6 +96296,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -98711,6 +99422,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -99498,6 +100218,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -100062,6 +100791,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -100551,6 +101289,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -101572,6 +102319,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -102222,6 +102978,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -102423,6 +103188,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -102657,6 +103431,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -103154,6 +103937,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -103305,6 +104097,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -103737,6 +104538,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -103889,6 +104699,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -104037,6 +104856,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -104185,6 +105013,15 @@
           },
           "429": {
             "description": "Rate limited: retry later (error.kind rate_limit)",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds to wait before retrying",
+                "schema": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
@@ -113107,6 +113944,8 @@
                         "recordDependencies",
                         "recordCalculationBudget",
                         "recordOperationFailed",
+                        "recordOperationNotFound",
+                        "recordOperationSettled",
                         "recordProtected",
                         "recordMeasureDateIntervalInvalid",
                         "trashItemNotFound",
@@ -113181,6 +114020,7 @@
                         "calendarNotFound",
                         "connectedAccountNotFound",
                         "roleNotFound",
+                        "routineNotFound",
                         "roleAssignedCannotDelete",
                         "roleNameTaken",
                         "roleSelfEditForbidden",

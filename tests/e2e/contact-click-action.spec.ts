@@ -3,6 +3,8 @@ import { presetId } from "../../features/records/crm-preset";
 import { addFromConfigure, openConfigure, saveDrawer } from "./configure";
 import { test, expect } from "./fixtures";
 
+test.use({ failOnPageErrors: true });
+
 test("opens or copies contact values and edits them from empty cell space", async ({
   page,
   context,

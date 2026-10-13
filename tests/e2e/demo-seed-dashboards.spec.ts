@@ -242,7 +242,11 @@ for (const width of [1440, 390]) {
             ),
           );
         await page.setViewportSize({ width, height: Math.ceil(bottom + 24) });
-        await page.waitForTimeout(500);
+        await expect(page.locator("[data-page-skeleton-loading]")).toHaveCount(0);
+        await page.evaluate(async () => {
+          await document.fonts.ready;
+          await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        });
         for (const scheme of ["light", "dark"] as const) {
           await page.emulateMedia({ colorScheme: scheme });
           await page.screenshot({

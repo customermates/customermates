@@ -1,3 +1,5 @@
+import { isDeepStrictEqual } from "node:util";
+
 import { SYNTHETIC_HOSTED_AI_OPERATOR_USER_DEFINITIONS } from "./hosted-ai-operator";
 import { Prisma, type PrismaClient } from "@/generated/prisma";
 import { createCrmPreset, presetId } from "@/features/records/crm-preset";
@@ -33,6 +35,34 @@ export function syntheticRecordModel(context: Pick<SeedContext, "ids">, fields: 
   const issues = validateRecordModel(parsed).issues;
   if (issues.length) throw new Error(`Invalid synthetic record configuration: ${JSON.stringify(issues)}`);
   return parsed;
+}
+
+/**
+ * The seed builds the synthetic workspace on its exact record model. A workspace stored on another model (an older
+ * seed, or an older synthetic company converted by the release migration) lacks the later types, fields and
+ * relationships its fixtures need, so the synthetic company is removed (cascading only to its own rows) and seeded
+ * fresh. A workspace already on the current model is left alone, which keeps a repeated seed a no-op.
+ */
+export async function resetOutdatedSyntheticWorkspace(context: SeedContext, proposed: RecordModel): Promise<boolean> {
+  const companyId = context.ids.company;
+  return context.prisma.$transaction(
+    async (prisma) => {
+      const state = await prisma.recordSchemaState.findUnique({ where: { companyId } });
+      if (!state) return false;
+      if (state.activeOperationId) throw new Error("Cannot seed records while a CRM operation is active");
+      const revision = await prisma.recordSchemaRevision.findUnique({
+        where: { companyId_revision: { companyId, revision: state.revision } },
+      });
+      const stored = revision && RecordModelSchema.safeParse(revision.snapshot);
+      if (stored?.success && isDeepStrictEqual(stored.data, RecordModelSchema.parse(recordJson(proposed))))
+        return false;
+      // Record event subscriptions restrict deleting their record type, so they go before the company cascade.
+      await prisma.recordEventSubscription.deleteMany({ where: { companyId } });
+      await prisma.company.delete({ where: { id: companyId } });
+      return true;
+    },
+    { maxWait: 60000, timeout: 600000 },
+  );
 }
 
 async function initialize(

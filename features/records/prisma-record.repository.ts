@@ -153,6 +153,13 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo, Pr
     return (await this.getRecordIdentitiesCompanyWide(ref.typeId, [ref.recordId])).get(ref.recordId) ?? [];
   }
 
+  getIdentityProviderValueCompanyWide(id: string) {
+    return this.prisma.recordIdentity.findUnique({
+      where: { companyId: this.companyId, companyId_id: { companyId: this.companyId, id } },
+      select: { provider: true, value: true },
+    });
+  }
+
   async getIdentityChannelsCompanyWide(keys: Array<{ channelClass: string; value: string }>) {
     if (!keys.length) return [];
     const rows = await this.prisma.recordIdentity.findMany({
@@ -269,7 +276,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo, Pr
     return rows.map(({ typeId, recordId, ...key }) => ({ ...key, ref: { typeId, recordId } }));
   }
 
-  async getIdentityOwnerRefsPageCompanyWide(
+  private async getIdentityOwnerRefsPageCompanyWide(
     identityId: string,
     after: RecordRef | undefined,
     take: number,
@@ -1011,7 +1018,7 @@ export class PrismaRecordRepo extends TenantRepository implements RecordRepo, Pr
         ),
     };
     if (query.grouping) return this.queryGroups(query, model, access, memberScope);
-    const sql = compileRecordQuery(this.companyId, query, model, access);
+    const sql = compileRecordQuery(this.companyId, query, model, access, memberScope);
     const [ids, count] = await Promise.all([
       this.prisma.$queryRaw<Array<{ id: string }>>(sql.ids),
       this.prisma.$queryRaw<Array<{ count: number }>>(sql.count),

@@ -126,7 +126,7 @@ export const dataViewApiPaths = {
     "/v1/data-views/delete",
     "deleteDataView",
     "Delete a saved view",
-    "Moves a named view to Trash; when it was the active view, the surface falls back to All. It is deleted permanently after 30 days unless /v1/trash/restore restores it with the returned trashBatchId. Records are never deleted, and the All view cannot be deleted.",
+    "Moves a named view to Trash; when it was the active view, the surface falls back to All. Deleting a dashboard view moves its widgets to Trash with it, and restoring the view brings them back. The view is deleted permanently after 30 days unless /v1/trash/restore restores it with the returned trashBatchId. Records are never deleted, and the All view cannot be deleted.",
     DeleteDataViewRequestSchema,
     { surfaceKey: "dashboard", viewKey: VIEW_ID },
     "action delete, surfaceKey, viewKey, deleted true and trashBatchId.",

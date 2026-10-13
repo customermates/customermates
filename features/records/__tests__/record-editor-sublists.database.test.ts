@@ -80,7 +80,7 @@ async function fixture() {
     policy,
     new RecordWriteService(repo, policy, calculations),
     { dispatch: () => Promise.resolve() },
-    new RecordTrashService(repo),
+    new RecordTrashService(repo, new RecordCalculationService(repo)),
   );
   const personalization = new PrismaP13nRepo();
   const editor = new GetRecordEditorInteractor(

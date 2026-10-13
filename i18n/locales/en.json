@@ -47,14 +47,15 @@
           "triage": "Ready to change the conversation state"
         },
         "records": {
-          "delete": "{count, plural, one {Ready to permanently delete {target}} other {Ready to permanently delete {target}}}"
+          "delete": "{count, plural, one {Ready to move {target} to Trash} other {Ready to move {target} to Trash}}",
+          "deletePermanent": "{count, plural, one {Ready to permanently delete {target}} other {Ready to permanently delete {target}}}"
         },
         "roles": {
           "manage": "Approve this role change"
         },
         "routines": {
           "configure": "Ready to pause or run the routine",
-          "delete": "Ready to delete the routine and its history"
+          "delete": "Ready to move the routine and its history to Trash"
         },
         "support": {
           "escalate": "Ready to email your request to support"
@@ -64,14 +65,14 @@
         },
         "views": {
           "configure": "Ready to change the saved view",
-          "delete": "Ready to permanently delete the saved view"
+          "delete": "Ready to move the saved view to Trash"
         },
         "webhooks": {
           "manage": "Ready to change webhook delivery"
         },
         "widgets": {
           "configure": "Ready to change dashboard widgets",
-          "delete": "Ready to permanently delete a dashboard widget"
+          "delete": "Ready to move a dashboard widget to Trash"
         },
         "workspace": {
           "configure": "Ready to change the workspace data model"
@@ -86,10 +87,11 @@
         "draftSave": "Save a draft in the selected conversation",
         "emailSend": "Send an email to the selected recipients",
         "externalManage": "Change data in the connected external account",
-        "recordsDelete": "This cannot be undone.",
+        "recordsDelete": "{count, plural, one {You can restore it from Trash for 30 days.} other {You can restore them from Trash for 30 days.}}",
+        "recordsDeletePermanent": "This cannot be undone.",
         "roleDelete": "Delete the selected role",
         "roleSave": "Save the role and its record access",
-        "routineDelete": "Permanently delete the selected routine and its run history",
+        "routineDelete": "Move the selected routine and its run history to Trash, where you can restore it for 30 days",
         "routinePause": "Pause the selected routine",
         "routineRun": "Run the selected routine now",
         "salesListSave": "Add the selected prospect to a Sales Navigator list",
@@ -234,9 +236,14 @@
             "running": "{count, plural, one {Creating {target}} other {Creating {target}}}"
           },
           "delete": {
-            "done": "{count, plural, one {Removed {target}} other {Removed {target}}}",
-            "error": "{count, plural, one {Couldn’t remove {target}} other {Couldn’t remove {target}}}",
-            "running": "{count, plural, one {Removing {target}} other {Removing {target}}}"
+            "done": "{count, plural, one {Moved {target} to Trash} other {Moved {target} to Trash}}",
+            "error": "{count, plural, one {Couldn’t move {target} to Trash} other {Couldn’t move {target} to Trash}}",
+            "running": "{count, plural, one {Moving {target} to Trash} other {Moving {target} to Trash}}"
+          },
+          "deletePermanent": {
+            "done": "{count, plural, one {Permanently deleted {target}} other {Permanently deleted {target}}}",
+            "error": "{count, plural, one {Couldn’t permanently delete {target}} other {Couldn’t permanently delete {target}}}",
+            "running": "{count, plural, one {Permanently deleting {target}} other {Permanently deleting {target}}}"
           },
           "link": {
             "done": "Connected related records",
@@ -1139,6 +1146,8 @@
       "recordNotFound": "This record is unavailable.",
       "recordNumberInvalid": "Enter a valid number.",
       "recordOperationFailed": "The background operation failed. Try again.",
+      "recordOperationNotFound": "This background operation is unavailable.",
+      "recordOperationSettled": "This background operation already finished.",
       "recordOptionInvalid": "\"{value}\" is not an option of {field} ({fieldId}). Use one of these option IDs: {validValues}.",
       "recordProtected": "This record is managed by a system workflow.",
       "recordReadOnlyField": "This field is calculated. Change its definition to enter values manually.",
@@ -1163,6 +1172,7 @@
       "routineDeleteHasRunningRun": "Wait for the active run to finish before deleting this routine.",
       "routineEditNotOwner": "Only the routine owner can change its setup or activation.",
       "routineLimitReached": "Your plan includes {limit} routines per user. Upgrade your plan for a higher allowance.",
+      "routineNotFound": "Routine ID not found or not accessible.",
       "routineOwnerIneligible": "The routine owner must be an active member of this company.",
       "routineRunNotOwner": "Only the person who owns this routine can run it, because it spends their AI credits.",
       "routineRunNowRequiresSchedule": "Only scheduled routines can be tested manually.",
