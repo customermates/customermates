@@ -21,6 +21,19 @@ export const RESOURCE_ACCESS = {
   [Resource.routines]: { manage: ALL_MANAGE, read: READ_SCOPED },
 } as const satisfies Record<Resource, ResourceAccess>;
 
+export const IMPLICIT_READ_ACTIONS = [Action.readOwn, Action.readAll] as const;
+
+export const IMPLICIT_READ_RESOURCES = Object.values(Resource).filter(
+  (resource) => RESOURCE_ACCESS[resource].read.length === 0,
+);
+
+export function isImplicitRead(resource: string, action: string): boolean {
+  return (
+    IMPLICIT_READ_RESOURCES.some((implicit) => implicit === resource) &&
+    IMPLICIT_READ_ACTIONS.some((implicit) => implicit === action)
+  );
+}
+
 export const RECORD_TYPE_ACCESS: ResourceAccess = { manage: ALL_MANAGE, read: READ_SCOPED };
 
 export type ManageActionOf<R extends Resource> = (typeof RESOURCE_ACCESS)[R]["manage"][number];

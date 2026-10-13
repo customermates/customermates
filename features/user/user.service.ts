@@ -36,7 +36,8 @@ export class UserService {
 
     if (user.status !== Status.active) throw new ForbiddenError("User is not active", AppErrorCode.inactiveUser);
 
-    if (!canUseApiKeys(user.role) && (await this.authService.isApiKeyRequest())) throw new ApiKeyAccessDeniedError();
+    if (!canUseApiKeys(user.role) && (await this.authService.isIntegrationCredentialRequest()))
+      throw new ApiKeyAccessDeniedError();
 
     return user;
   }

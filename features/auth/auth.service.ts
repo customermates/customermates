@@ -419,9 +419,9 @@ export class AuthService {
     return (headersList.get("authorization") ?? "").toLowerCase().startsWith("bearer ");
   }
 
-  async isApiKeyRequest(): Promise<boolean> {
+  async isIntegrationCredentialRequest(): Promise<boolean> {
     const headersList = await headers();
-    return headersList.has("x-api-key") && !this.hasBearerToken(headersList);
+    return headersList.has("x-api-key") || this.hasBearerToken(headersList);
   }
 
   async isMcpApiKeyValid(headersList: Headers): Promise<boolean> {

@@ -12,7 +12,12 @@ import type { Prisma } from "@/generated/prisma";
 
 import { QueryRepository } from "@/core/base/query-repository";
 import { rolePermits } from "@/core/base/permission.service";
-import { MANAGE_ACTIONS, manageImpliesReadAll, RESOURCE_ACCESS } from "@/features/role/resource-access";
+import {
+  IMPLICIT_READ_ACTIONS,
+  IMPLICIT_READ_RESOURCES,
+  MANAGE_ACTIONS,
+  manageImpliesReadAll,
+} from "@/features/role/resource-access";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { type GetQueryParams } from "@/core/base/base-get.schema";
 
@@ -127,12 +132,18 @@ export class PrismaRoleRepo
       const stored = new Set(actions);
       if (manageImpliesReadAll(resource) && MANAGE_ACTIONS.some((action) => stored.has(action)))
         stored.add(Action.readAll);
-      if (RESOURCE_ACCESS[resource].read.length === 0) stored.add(Action.readOwn).add(Action.readAll);
       await this.prisma.rolePermission.deleteMany({ where: { companyId, roleId: savedRole.id, resource } });
       await this.prisma.rolePermission.createMany({
         data: [...stored].map((action) => ({ roleId: savedRole.id, companyId, resource, action })),
       });
     }
+
+    await this.prisma.rolePermission.createMany({
+      data: IMPLICIT_READ_RESOURCES.flatMap((resource) =>
+        IMPLICIT_READ_ACTIONS.map((action) => ({ roleId: savedRole.id, companyId, resource, action })),
+      ),
+      skipDuplicates: true,
+    });
 
     const role = await this.prisma.userRole.findFirstOrThrow({
       where: { id: savedRole.id, companyId },

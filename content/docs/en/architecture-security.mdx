@@ -29,7 +29,7 @@ A self-hosted instance can hold several workspaces side by side with the same is
 
 Three ways, all resolving to the same user and company context:
 
-- **Session cookie** (browser): signed, http-only, `Secure` under HTTPS. People sign in with email and password, or with Google or Microsoft where the instance has those providers configured. A new account can be used for 24 hours before its email address must be confirmed.
+- **Session cookie** (browser): signed, http-only, `Secure` under HTTPS. People sign in with email and password, or with Google or Microsoft where the instance has those providers configured. A new account can be used for 24 hours before its email address must be confirmed. Every request checks the session in the database, so after sign-out, a revoked session or an **Inactive** status the cookie stops working at once.
 - **API key**: 64-character token of ASCII letters (`a-z`, `A-Z`) issued by the better-auth API key plugin, stored only as a hash, tied to a user, optionally expiring. Sent in the `x-api-key` header. See [API keys](/docs/api-keys).
 - **OAuth 2.1** (MCP): remote MCP clients authorize through better-auth with PKCE and send a Bearer token instead of an API key. Access tokens live one hour, refresh tokens thirty days.
 
@@ -43,7 +43,7 @@ A role in [Roles](app:settings/roles) grants **Create**, **Edit**, **Delete** an
 
 ## How do I stop the API keys of a former member? [#how-do-i-stop-the-api-keys-of-a-former-member]
 
-The **API & Webhooks** permission controls the [API keys](app:settings/api-keys), [Webhooks](app:settings/webhooks) and [Deliveries](app:settings/webhook-deliveries) pages and the key and webhook operations behind them. MCP connections, with a key or over OAuth, and every REST call with a key also need its **Read access** **All**; signed-in use of the web app does not. Each call is checked against the owner's permissions on the records it touches. Removing **API & Webhooks** from a role therefore hides its members' keys and stops them for MCP and REST alike.
+The **API & Webhooks** permission controls the [API keys](app:settings/api-keys), [Webhooks](app:settings/webhooks) and [Deliveries](app:settings/webhook-deliveries) pages and the key and webhook operations behind them. MCP connections and REST calls, with a key or an OAuth token, also need its **Read access** **All**; signed-in use of the web app does not. Each call is checked against the owner's permissions on the records it touches. Removing **API & Webhooks** from a role therefore hides its members' keys and stops them for MCP and REST alike.
 
 To stop a member's keys, open the member in [Members](app:settings/members), set **Status** to **Inactive** and click **Save**. This needs **Edit** and **Read access** **All** on **Users & Roles**; you cannot deactivate yourself, and the last active member with the **Admin** role cannot be deactivated. Every call with an inactive member's keys that reads or changes workspace data is refused. Nobody can list or delete another member's keys.
 

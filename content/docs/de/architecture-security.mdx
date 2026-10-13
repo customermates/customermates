@@ -29,7 +29,7 @@ Eine Self-Hosted-Instanz kann mehrere Workspaces nebeneinander mit derselben Tre
 
 Drei Wege, die alle auf denselben Nutzer- und Unternehmenskontext auflösen:
 
-- **Session-Cookie** (Browser): signiert, http-only, `Secure` unter HTTPS. Angemeldet wird mit E-Mail und Passwort oder mit Google oder Microsoft, sofern die Instanz diese Anbieter eingerichtet hat. Ein neues Konto ist 24 Stunden nutzbar, bevor die E-Mail-Adresse bestätigt werden muss.
+- **Session-Cookie** (Browser): signiert, http-only, `Secure` unter HTTPS. Angemeldet wird mit E-Mail und Passwort oder mit Google oder Microsoft, sofern die Instanz diese Anbieter eingerichtet hat. Ein neues Konto ist 24 Stunden nutzbar, bevor die E-Mail-Adresse bestätigt werden muss. Jede Anfrage prüft die Session in der Datenbank, daher wirkt das Cookie nach dem Abmelden, einer widerrufenen Session oder dem Status **Inaktiv** sofort nicht mehr.
 - **API-Key**: 64 Zeichen langes Token aus ASCII-Buchstaben (`a-z`, `A-Z`), ausgestellt vom better-auth-API-Key-Plugin, nur als Hash gespeichert, an einen Nutzer gebunden, optional mit Ablaufdatum. Wird im Header `x-api-key` gesendet. Siehe [API-Keys](/docs/api-keys).
 - **OAuth 2.1** (MCP): Remote-MCP-Clients autorisieren sich über better-auth mit PKCE und senden statt eines API-Keys ein Bearer-Token. Access-Tokens gelten eine Stunde, Refresh-Tokens dreißig Tage.
 
@@ -43,7 +43,7 @@ Eine Rolle unter [Rollen](app:settings/roles) vergibt **Erstellen**, **Bearbeite
 
 ## Wie stoppe ich die API-Keys eines ehemaligen Mitglieds? [#how-do-i-stop-the-api-keys-of-a-former-member]
 
-Die Berechtigung **API & Webhooks** steuert die Seiten [API-Schlüssel](app:settings/api-keys), [Webhooks](app:settings/webhooks) und [Zustellungen](app:settings/webhook-deliveries) und die Key- und Webhook-Operationen dahinter. MCP-Verbindungen, per Key oder über OAuth, und jeder REST-Aufruf mit einem Key brauchen außerdem ihr **Lesen** **Alle**; die angemeldete Nutzung der Web-App nicht. Jeder Aufruf wird gegen die Berechtigungen des Besitzers auf den betroffenen Datensätzen geprüft. Entziehen Sie einer Rolle **API & Webhooks**, sehen ihre Mitglieder ihre Keys also nicht mehr, und die Keys funktionieren weder für MCP noch für REST.
+Die Berechtigung **API & Webhooks** steuert die Seiten [API-Schlüssel](app:settings/api-keys), [Webhooks](app:settings/webhooks) und [Zustellungen](app:settings/webhook-deliveries) und die Key- und Webhook-Operationen dahinter. MCP-Verbindungen und REST-Aufrufe, per Key oder OAuth-Token, brauchen außerdem ihr **Lesen** **Alle**; die angemeldete Nutzung der Web-App nicht. Jeder Aufruf wird gegen die Berechtigungen des Besitzers auf den betroffenen Datensätzen geprüft. Entziehen Sie einer Rolle **API & Webhooks**, sehen ihre Mitglieder ihre Keys also nicht mehr, und die Keys funktionieren weder für MCP noch für REST.
 
 Um die Keys eines Mitglieds zu stoppen, öffnen Sie das Mitglied unter [Mitglieder](app:settings/members), setzen **Status** auf **Inaktiv** und klicken auf **Speichern**. Dafür braucht Ihre Rolle **Bearbeiten** und **Lesen** **Alle** bei **Benutzer & Rollen**; sich selbst können Sie nicht deaktivieren, und das letzte aktive Mitglied mit der Rolle **Admin** lässt sich nicht deaktivieren. Jeder Aufruf mit den Keys eines inaktiven Mitglieds, der Workspace-Daten liest oder ändert, wird abgelehnt. Niemand kann die Keys eines anderen Mitglieds auflisten oder löschen.
 

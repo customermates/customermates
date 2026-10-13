@@ -14,6 +14,7 @@ import { toastZodErrorTree } from "@/core/utils/toast-zod-error-tree";
 import { normalizeStoredDisplayLanguage, normalizeStoredFormattingLocale } from "@/i18n/user-locale";
 import { appLocaleCookie, displayLanguageNavigationTarget, expiredAppLocaleCookie } from "@/i18n/locale-preference";
 import { forgetOtherViewQueryDrafts, viewQueryDraftOwner } from "@/core/data-view/view-query-drafts";
+import { isImplicitRead } from "@/features/role/resource-access";
 
 export class UserStore extends BaseStore {
   public user: TenantUser | null = null;
@@ -138,7 +139,7 @@ export class UserStore extends BaseStore {
   private hasPermission(user: TenantUser, resource: Resource, action: Action): boolean {
     if (!user.role) return false;
 
-    if (user.role?.isSystemRole) return true;
+    if (user.role?.isSystemRole || isImplicitRead(resource, action)) return true;
 
     const { permissions } = user.role;
 

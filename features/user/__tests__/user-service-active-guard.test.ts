@@ -22,7 +22,7 @@ function serviceFor(status: Status, options: { apiKey?: boolean; role?: TestRole
   } as unknown as TenantUser;
   const authService = {
     getSession: () => Promise.resolve({ user: { email: user.email } }),
-    isApiKeyRequest: () => Promise.resolve(options.apiKey ?? false),
+    isIntegrationCredentialRequest: () => Promise.resolve(options.apiKey ?? false),
   } as unknown as AuthService;
   const repo = {
     findCurrentUserUnscoped: () => Promise.resolve(user),

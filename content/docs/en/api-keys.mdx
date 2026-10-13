@@ -99,7 +99,7 @@ A key's **Name** is 1 to 255 characters long. Keys are 64 characters of ASCII le
 
 Everything its owner can do, and nothing more. There is no per-key permission scoping, so a key cannot be limited to read-only access. Every call is checked against the owner's current role, so a change to that role, for example moving the member from the **Admin** role to a custom role with fewer rights, applies to their keys on the next call. If the owner's **Status** is **Inactive**, every call with their keys that reads or changes workspace data is refused.
 
-A key also works only while its owner's role has **Read access** **All** on **API & Webhooks**, checked on every call. Without it, MCP answers `403` with `error: insufficient_permissions`, and REST answers `403` with `kind` `authorization` and `customCode` `insufficientPermissions`. Signed-in use of the web app is not affected.
+A key, like an MCP OAuth token, also works only while its owner's role has **Read access** **All** on **API & Webhooks**, checked on every call, including for tokens refreshed later. Without it, MCP answers `403` with `error: insufficient_permissions`, and REST answers `403` with `kind` `authorization` and `customCode` `insufficientPermissions`. Signed-in use of the web app is not affected.
 
 ## Next [#next]
 

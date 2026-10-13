@@ -2,6 +2,8 @@ import type { Action, Resource } from "@/generated/prisma";
 
 import { UserAccessor } from "./user-accessor";
 
+import { isImplicitRead } from "@/features/role/resource-access";
+
 export type PermissionRole = {
   isSystemRole: boolean;
   permissions: ReadonlyArray<{ resource: string; action: string }>;
@@ -16,7 +18,7 @@ export interface ScopedResource<TWhere> {
 
 export function rolePermits(role: PermissionRole | null | undefined, resource: string, action: string): boolean {
   if (!role) return false;
-  if (role.isSystemRole) return true;
+  if (role.isSystemRole || isImplicitRead(resource, action)) return true;
   return role.permissions.some((permission) => permission.resource === resource && permission.action === action);
 }
 

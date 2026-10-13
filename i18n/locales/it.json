@@ -1085,7 +1085,7 @@
       "generic": "Si è verificato un errore.",
       "inmailSignatureRequired": "Aggiungi una firma per l'InMail di Recruiter.",
       "inmailSubjectRequired": "Aggiungi un oggetto per l'InMail.",
-      "insufficientPermissions": "Per usare le chiavi API il tuo ruolo richiede l’accesso in lettura Tutto su API e Webhook. Chiedilo a un amministratore dello spazio di lavoro.",
+      "insufficientPermissions": "Per usare le chiavi API o le connessioni MCP il tuo ruolo richiede l’accesso in lettura Tutto su API e Webhook. Chiedilo a un amministratore dello spazio di lavoro.",
       "invalidCallbackUrl": "Il link di accesso non è valido. Riprova.",
       "invalidChannelValue": "Questo non è un indirizzo e-mail, un numero di telefono o un identificativo valido.",
       "invalidCredentials": "E-mail o password non validi.",
