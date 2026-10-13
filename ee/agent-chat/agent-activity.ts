@@ -143,6 +143,7 @@ export const AgentActivityDescriptorSchema = z.preprocess(
       viewAction: ViewMutationActionSchema.optional(),
       viewKey: ViewKeySchema.optional(),
       viewHref: DataViewNavigationHrefSchema.optional(),
+      viewProposed: z.literal(true).optional(),
     })
     .refine((descriptor) => !descriptor.viewHref || descriptor.kind === "views.configure"),
 );
@@ -250,7 +251,10 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
       if (kind !== "records.delete") return descriptor(kind, undefined, recordRisk);
       const count = action === "deleteMany" ? boundedCount(mutation.targets) : 1;
       return {
-        ...descriptor(kind, undefined, recordRisk, [], { action: "records.delete", ...(count ? { count } : {}) }),
+        ...descriptor(kind, undefined, recordRisk, [], {
+          action: "records.delete",
+          ...(count ? { count } : {}),
+        }),
         ...(mutation.permanent === true ? { permanent: true as const } : {}),
       };
     }
@@ -325,7 +329,9 @@ function describeAgentToolAction(identity: AgentToolIdentity, input: unknown): A
     const action = actionValue(details);
     if (action === "delete_permanently" || action === "empty") {
       return {
-        ...descriptor("generic", undefined, "sensitive", [], { action: "records.delete" }),
+        ...descriptor("generic", undefined, "sensitive", [], {
+          action: "records.delete",
+        }),
         permanent: true,
         ...(action === "delete_permanently" && boundedCount(details.itemIds)
           ? { count: boundedCount(details.itemIds) }
@@ -627,7 +633,9 @@ function agentConsequenceDetail(activity: AgentActivityDescriptor, t: AgentTrans
     case "records.delete":
       return activity.permanent
         ? t("AgentChat.activity.consequence.recordsDeletePermanent")
-        : t("AgentChat.activity.consequence.recordsDelete", { count: count ?? 1 });
+        : t("AgentChat.activity.consequence.recordsDelete", {
+            count: count ?? 1,
+          });
     case "workspace.configure":
       return consequence.state;
     case "account.connect":
@@ -695,7 +703,9 @@ export function agentActivityCopy(activity: AgentActivityDescriptor, t: AgentTra
 
   const approval =
     activity.permanent && activity.kind === "generic"
-      ? t("AgentChat.activity.approval.genericPermanent", { target: context ?? mutationTarget })
+      ? t("AgentChat.activity.approval.genericPermanent", {
+          target: context ?? mutationTarget,
+        })
       : AGENT_APPROVAL_COPY_KINDS.includes(copyKind)
         ? t(`AgentChat.activity.approval.${copyKind}`, {
             count: activity.count ?? 0,

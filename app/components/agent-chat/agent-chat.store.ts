@@ -2494,6 +2494,7 @@ export class AgentChatStore extends BaseStore {
             }
             const viewHref = activity.status === "done" ? dataViewNavigationHref(event.viewHref) : null;
             if (viewHref) activity.activity = { ...activity.activity, viewHref };
+            if (event.viewProposed === true) activity.activity = { ...activity.activity, viewProposed: true };
             const proposal = DataViewProposalSchema.safeParse(event.viewProposal);
             if (activity.status === "done" && proposal.success) this.applyViewProposal(proposal.data);
             else if (activity.status === "done" && activity.activity.risk !== "read") {
@@ -2595,6 +2596,7 @@ export class AgentChatStore extends BaseStore {
           );
           if (assistantMessageId && !this.replayedAssistantMessageIds.has(assistantMessageId))
             this.reconcileTerminalAssistant(assistantMessageId, event.terminalCode);
+
           if (event.isError && event.errorMessage && event.terminalCode !== "partial")
             this.toastError("AgentChat.errors.turnFailed");
           this.activeTurnStepCheckpoint = null;

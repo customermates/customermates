@@ -64,7 +64,10 @@ vi.mock("@/core/errors/report-application-error", () => ({
   runUserAction: (run: () => unknown) => run(),
 }));
 vi.mock("@/core/stores/root-store.provider", () => ({
-  useRootStore: () => ({ agentChatStore: { enabled: true, isOpen: true }, agentUiControlStore: { active: null } }),
+  useRootStore: () => ({
+    agentChatStore: { enabled: true, isOpen: true },
+    agentUiControlStore: { active: null },
+  }),
 }));
 vi.mock("@/i18n/navigation", () => ({
   IntlLink: ({ children, href }: { children?: ReactNode; href: string }) => createElement("a", { href }, children),
@@ -473,7 +476,11 @@ describe("saved-view Assistant round trip", () => {
         },
       }),
     );
-    const proposal = { surfaceKey: SURFACE.users, viewKey: "__all__", state: { viewMode: "card" } };
+    const proposal = {
+      surfaceKey: SURFACE.users,
+      viewKey: "__all__",
+      state: { viewMode: "card" },
+    };
     harness.sendAgentMessageInvoke.mockImplementation(async (input: unknown) => {
       const request = SendAgentMessageSchema.parse(input);
       const pageRoute = request.pageContext?.route;
@@ -503,7 +510,11 @@ describe("saved-view Assistant round trip", () => {
       expect(transcriptEvents).toContainEqual(
         expect.objectContaining({
           type: "activity_result",
-          payload: expect.objectContaining({ viewProposal: proposal }),
+          payload: expect.objectContaining({
+            viewProposal: proposal,
+            viewProposed: true,
+            viewHref: "/settings/members?view=__all__",
+          }),
         }),
       );
       harness.agentTurnSseStream.mockReturnValueOnce(stream(transcriptEvents));
@@ -535,7 +546,11 @@ describe("saved-view Assistant round trip", () => {
       undefined,
       propose,
     );
-    liveStore.openWithContextDraft({ context: VIEW_CONTEXT, draft: "Show this view as cards", pageRoute: VIEW_ROUTE });
+    liveStore.openWithContextDraft({
+      context: VIEW_CONTEXT,
+      draft: "Show this view as cards",
+      pageRoute: VIEW_ROUTE,
+    });
     liveStore.submitDraft();
 
     await vi.waitFor(() => expect(propose).toHaveBeenCalledExactlyOnceWith(proposal));

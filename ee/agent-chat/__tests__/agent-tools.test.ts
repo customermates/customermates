@@ -41,7 +41,11 @@ vi.mock("@/core/di", () => ({
     invoke: () =>
       Promise.resolve({
         ok: true,
-        data: { companyId: mockUser.companyId, schemaRevision: 1, ...recordNavigationHarness },
+        data: {
+          companyId: mockUser.companyId,
+          schemaRevision: 1,
+          ...recordNavigationHarness,
+        },
       }),
   }),
 }));
@@ -147,7 +151,9 @@ describe("agent tools", () => {
       {
         ok: true,
         result: "result: pending",
-        structuredContent: { result: { status: "pending", operationId: "operation-1" } },
+        structuredContent: {
+          result: { status: "pending", operationId: "operation-1" },
+        },
       },
       6000,
       { toolName: "mutate_crm_record" },
@@ -161,13 +167,54 @@ describe("agent tools", () => {
       {
         ok: true,
         result: "deletedItemIds: []",
-        structuredContent: { action: "delete_permanently", result: { deletedItemIds: [] } },
+        structuredContent: {
+          action: "delete_permanently",
+          result: { deletedItemIds: [] },
+        },
       },
       6000,
       { toolName: "manage_trash" },
     );
     expect(result).toMatchObject({ ok: false, applied: false });
     expect(result.result).toContain("0 deleted, 0 pending, 0 failed");
+  });
+  it("does not report a partial purge or a completed update with no affected record as successful", () => {
+    const purge = agentToolResult(
+      {
+        ok: true,
+        result: "deletedItemIds: [one]",
+        structuredContent: {
+          action: "delete_permanently",
+          result: {
+            deletedItemIds: ["one"],
+            pendingItemIds: [],
+            failedItemIds: [],
+          },
+        },
+      },
+      6000,
+      {
+        toolName: "manage_trash",
+        input: { action: "delete_permanently", itemIds: ["one", "two"] },
+      },
+    );
+    expect(purge).toMatchObject({ ok: false, applied: false });
+    expect(purge.result).toContain("requested deletion was incomplete");
+
+    const update = agentToolResult(
+      {
+        ok: true,
+        result: "status: completed",
+        structuredContent: { result: { status: "completed", refs: [] } },
+      },
+      6000,
+      {
+        toolName: "mutate_crm_record",
+        input: { mutation: { action: "update" } },
+      },
+    );
+    expect(update).toMatchObject({ ok: false, applied: false });
+    expect(update.result).toContain("no readable affected records");
   });
   it("enrolls a mutation in an exactly-once receipt but never an effect it cannot roll back", async () => {
     const enrolled: string[] = [];
@@ -183,7 +230,11 @@ describe("agent tools", () => {
     >;
     const ignoringOutcome = (call: Promise<unknown>) => call.catch(() => undefined);
 
-    await ignoringOutcome(tools.mutate_crm_record.execute(TOOL_CREATE_RECORD, { toolCallId: "call-write" }));
+    await ignoringOutcome(
+      tools.mutate_crm_record.execute(TOOL_CREATE_RECORD, {
+        toolCallId: "call-write",
+      }),
+    );
     await ignoringOutcome(tools.send_email.execute({}, { toolCallId: "call-email" }));
     await ignoringOutcome(tools.query_crm_records.execute({ typeId: TOOL_TYPE_ID }, { toolCallId: "call-read" }));
 
@@ -341,7 +392,10 @@ describe("agent tools", () => {
     const definitions = getAgentAiToolDefinitions();
     expect(definitions).toEqual(describeAgentAiTools(getAgentAiTools(deps())));
     const toolDefinitions = agentToolDefinitionsForToolsets(
-      agentToolDefinitionsForTurn({ servingProvider: model.servingProvider, surface: "chat" }),
+      agentToolDefinitionsForTurn({
+        servingProvider: model.servingProvider,
+        surface: "chat",
+      }),
       [
         ...toolsetsForRequest({
           text: "Create Projects with calculated budget",
@@ -365,7 +419,10 @@ describe("agent tools", () => {
       requiredContextBytes,
       JSON.stringify(
         toolDefinitions
-          .map(({ name, inputSchema }) => ({ name, bytes: JSON.stringify(inputSchema).length }))
+          .map(({ name, inputSchema }) => ({
+            name,
+            bytes: JSON.stringify(inputSchema).length,
+          }))
           .sort((a, b) => b.bytes - a.bytes),
       ),
     ).toBeLessThan(contextLimitBytes);
@@ -505,9 +562,23 @@ describe("agent tools", () => {
   });
 
   it.each([
-    { action: "update", surfaceKey: "records:10000000-0000-4000-8000-000000000101", viewKey: "__all__" },
-    { action: "update", surfaceKey: "records:10000000-0000-4000-8000-000000000101", viewKey: "__all__", state: {} },
-    { action: "create", surfaceKey: "operator-users", name: "Operator", state: {} },
+    {
+      action: "update",
+      surfaceKey: "records:10000000-0000-4000-8000-000000000101",
+      viewKey: "__all__",
+    },
+    {
+      action: "update",
+      surfaceKey: "records:10000000-0000-4000-8000-000000000101",
+      viewKey: "__all__",
+      state: {},
+    },
+    {
+      action: "create",
+      surfaceKey: "operator-users",
+      name: "Operator",
+      state: {},
+    },
     {
       action: "delete",
       surfaceKey: "operator-users",
@@ -548,7 +619,12 @@ describe("agent tools", () => {
             pageRoute: `/en/records/10000000-0000-4000-8000-000000000101/${recordId}?view=__all__&viewSurface=entity-timeline`,
           }),
         ).manage_data_views,
-        { action: "create", surfaceKey: "entity-timeline", name: "Contact created", state: {} },
+        {
+          action: "create",
+          surfaceKey: "entity-timeline",
+          name: "Contact created",
+          state: {},
+        },
       );
 
       expect(result).toMatchObject({ ok: true });
@@ -599,7 +675,10 @@ describe("agent tools", () => {
 
       expect(result).toMatchObject({
         ok: true,
-        navigation: { kind: "saved-view", href: "/records/10000000-0000-4000-8000-000000000101?view=__all__" },
+        navigation: {
+          kind: "saved-view",
+          href: "/records/10000000-0000-4000-8000-000000000101?view=__all__",
+        },
       });
     } finally {
       executeMcp.mockRestore();
@@ -651,7 +730,12 @@ describe("agent tools", () => {
   });
 
   it.each([
-    { action: "create", surfaceKey: "records:10000000-0000-4000-8000-000000000103", name: "Linked deals", state: {} },
+    {
+      action: "create",
+      surfaceKey: "records:10000000-0000-4000-8000-000000000103",
+      name: "Linked deals",
+      state: {},
+    },
     {
       action: "update",
       surfaceKey: "records:10000000-0000-4000-8000-000000000103",
@@ -715,15 +799,26 @@ describe("agent tools", () => {
       "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
     ],
     [
-      { action: "create", surfaceKey: "entity-timeline", name: "My view", state: {} },
+      {
+        action: "create",
+        surfaceKey: "entity-timeline",
+        name: "My view",
+        state: {},
+      },
       "/en/records/10000000-0000-4000-8000-000000000101/00000000-0000-4000-8000-000000000001?view=__all__&viewSurface=entity-timeline&viewAction=create",
     ],
     [
-      { action: "config", surfaceKey: "records:10000000-0000-4000-8000-000000000101" },
+      {
+        action: "config",
+        surfaceKey: "records:10000000-0000-4000-8000-000000000101",
+      },
       "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
     ],
     [
-      { action: "list", surfaceKey: "records:10000000-0000-4000-8000-000000000101" },
+      {
+        action: "list",
+        surfaceKey: "records:10000000-0000-4000-8000-000000000101",
+      },
       "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
     ],
     [
@@ -731,7 +826,12 @@ describe("agent tools", () => {
       "/en/records/10000000-0000-4000-8000-000000000101?view=__all__&viewSurface=records:10000000-0000-4000-8000-000000000101&viewAction=update",
     ],
     [
-      { action: "create", surfaceKey: "records:10000000-0000-4000-8000-000000000103", name: "My view", state: {} },
+      {
+        action: "create",
+        surfaceKey: "records:10000000-0000-4000-8000-000000000103",
+        name: "My view",
+        state: {},
+      },
       null,
     ],
   ] as const)("keeps valid $0.action requests on the existing MCP execution path", async (input, pageRoute) => {
@@ -767,7 +867,9 @@ describe("agent tools", () => {
       expect(dependencies.runExactlyOnce).not.toHaveBeenCalled();
       expect(dependencies.resolveApprovalContext).not.toHaveBeenCalled();
       await expect(
-        normalizeAgentAiToolInput("configure_record_model", input, 6000, { pageRoute: dependencies.pageRoute }),
+        normalizeAgentAiToolInput("configure_record_model", input, 6000, {
+          pageRoute: dependencies.pageRoute,
+        }),
       ).resolves.toEqual(result);
     } finally {
       executeMcp.mockRestore();
@@ -778,7 +880,9 @@ describe("agent tools", () => {
     const tools = getAgentAiTools(deps());
     const validate = schemaOf(tools.navigate).validate;
 
-    expect(await validate?.({ targetId: "nav-dashboard" })).toMatchObject({ success: true });
+    expect(await validate?.({ targetId: "nav-dashboard" })).toMatchObject({
+      success: true,
+    });
     for (const targetId of [
       "nav-contacts",
       "nav-deals",
@@ -786,8 +890,11 @@ describe("agent tools", () => {
       "https://example.com",
       "//example.com",
       "/records/10000000-0000-4000-8000-000000000101",
-    ])
-      expect(await validate?.({ targetId }), targetId).toMatchObject({ success: false });
+    ]) {
+      expect(await validate?.({ targetId }), targetId).toMatchObject({
+        success: false,
+      });
+    }
   });
 
   it("opens an existing record's page through navigate and rejects drawer, path and URL forms", async () => {
@@ -796,7 +903,9 @@ describe("agent tools", () => {
     const typeId = "10000000-0000-4000-8000-000000000001";
     const recordId = "00000000-0000-4000-8000-000000000001";
 
-    expect(await validate?.({ typeId, recordId })).toMatchObject({ success: true });
+    expect(await validate?.({ typeId, recordId })).toMatchObject({
+      success: true,
+    });
     for (const bad of [
       "new",
       "/records/10000000-0000-4000-8000-000000000103/abc",
@@ -804,8 +913,11 @@ describe("agent tools", () => {
       "https://example.com",
       "abc",
       "1234",
-    ])
-      expect(await validate?.({ typeId, recordId: bad }), bad).toMatchObject({ success: false });
+    ]) {
+      expect(await validate?.({ typeId, recordId: bad }), bad).toMatchObject({
+        success: false,
+      });
+    }
     expect(await validate?.({ typeId: "not-a-type-id", recordId })).toMatchObject({ success: false });
     expect(await validate?.({ typeId })).toMatchObject({ success: false });
     expect(await validate?.({ recordId })).toMatchObject({ success: false });
@@ -891,7 +1003,11 @@ describe("agent tools", () => {
         hasAuthorizationTasks: false,
       },
     ];
-    const layout = String(await execute(tools.list_ui_targets, { query: `records:${TOOL_TYPE_ID}:layout-board` }));
+    const layout = String(
+      await execute(tools.list_ui_targets, {
+        query: `records:${TOOL_TYPE_ID}:layout-board`,
+      }),
+    );
     expect(layout).toContain(
       `records:${TOOL_TYPE_ID}:layout-board|/records/${TOOL_TYPE_ID}|nh|>records:${TOOL_TYPE_ID}:display-options`,
     );
@@ -1109,7 +1225,11 @@ describe("agent tools", () => {
         hasAuthorizationTasks: false,
       },
     ];
-    const layout = String(await execute(tools.list_ui_targets, { query: `records:${TOOL_TYPE_ID}:layout-table` }))
+    const layout = String(
+      await execute(tools.list_ui_targets, {
+        query: `records:${TOOL_TYPE_ID}:layout-table`,
+      }),
+    )
       .split("\n")
       .filter((line) => line.includes("|"))
       .map((line) => line.split("|")[0]);
@@ -1164,7 +1284,11 @@ describe("agent tools", () => {
     const refusal =
       "settings-webhooks-layout-board is inside settings-webhooks-display-options, which the user must open first, so nothing was shown. Highlight settings-webhooks-display-options and tell the user to open it, or run start_tour with settings-webhooks-display-options as the step before settings-webhooks-layout-board.";
 
-    await expect(execute(tools.highlight_element, { targetId: "settings-webhooks-layout-board" })).resolves.toEqual({
+    await expect(
+      execute(tools.highlight_element, {
+        targetId: "settings-webhooks-layout-board",
+      }),
+    ).resolves.toEqual({
       ok: false,
       result: refusal,
     });
@@ -1172,7 +1296,10 @@ describe("agent tools", () => {
       execute(tools.start_tour, {
         steps: [
           { targetId: "nav-settings-webhooks", note: "Open webhooks." },
-          { targetId: "settings-webhooks-layout-board", note: "Switch to the board." },
+          {
+            targetId: "settings-webhooks-layout-board",
+            note: "Switch to the board.",
+          },
         ],
       }),
     ).resolves.toEqual({ ok: false, result: refusal });
@@ -1184,10 +1311,17 @@ describe("agent tools", () => {
           targetId: "settings-webhooks-display-options",
           note: "Open the display options.",
         },
-        { targetId: "settings-webhooks-layout-board", note: "Switch to the board." },
+        {
+          targetId: "settings-webhooks-layout-board",
+          note: "Switch to the board.",
+        },
       ],
     };
-    await expect(execute(tools.highlight_element, { targetId: "settings-webhooks-display-options" })).resolves.toEqual({
+    await expect(
+      execute(tools.highlight_element, {
+        targetId: "settings-webhooks-display-options",
+      }),
+    ).resolves.toEqual({
       ok: true,
       result: "shown",
     });
@@ -1334,7 +1468,12 @@ describe("agent tools", () => {
           ...TOOL_CREATE_RECORD,
           mutation: {
             ...TOOL_CREATE_RECORD.mutation,
-            fields: [{ fieldId: TOOL_TYPE_ID, value: { kind: "decimal", value: "NaN", currency: "EUR" } }],
+            fields: [
+              {
+                fieldId: TOOL_TYPE_ID,
+                value: { kind: "decimal", value: "NaN", currency: "EUR" },
+              },
+            ],
           },
         },
         6000,
@@ -1404,7 +1543,11 @@ describe("agent tools", () => {
     });
     const contacts = presetId(mockUser.companyId, "contact");
 
-    const result = (await execute(tools.get_docs_page, { slug: "app-records", locale: "en", source: "docs" })) as {
+    const result = (await execute(tools.get_docs_page, {
+      slug: "app-records",
+      locale: "en",
+      source: "docs",
+    })) as {
       ok: boolean;
       result: string;
     };
@@ -1488,7 +1631,13 @@ describe("agent tools", () => {
 
   it.each([
     ["mutate_crm_record", { mutation: { action: "delete" } }],
-    ["configure_record_model", { action: "apply", change: { operations: [{ operation: "publishSummary" }] } }],
+    [
+      "configure_record_model",
+      {
+        action: "apply",
+        change: { operations: [{ operation: "publishSummary" }] },
+      },
+    ],
     ["manage_widgets", { action: "delete" }],
     ["manage_webhooks", { action: "delete" }],
     ["manage_team", { action: "invite" }],
@@ -1580,7 +1729,14 @@ describe("agent tools", () => {
       result: "localized:userInactive",
       failure: {
         kind: "authorization",
-        issues: [{ code: "custom", path: [], message: "localized:userInactive", customCode: "userInactive" }],
+        issues: [
+          {
+            code: "custom",
+            path: [],
+            message: "localized:userInactive",
+            customCode: "userInactive",
+          },
+        ],
       },
     });
     expect(requestApproval).not.toHaveBeenCalled();

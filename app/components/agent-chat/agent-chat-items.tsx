@@ -275,10 +275,11 @@ export const AgentActivity = observer(function AgentActivity({
       ? uiCopy.stepsTook(rows.length, elapsedSeconds)
       : settledSummary;
   const summary = useSteadyLabel(isActive ? runningLabel : liveSummary);
-  const viewHref = items.findLast((item) => {
+  const viewActivity = items.findLast((item) => {
     if (item.status !== "done" || item.activity.kind !== "views.configure") return false;
     return dataViewNavigationHref(item.activity.viewHref) !== null;
-  })?.activity.viewHref;
+  })?.activity;
+  const viewHref = viewActivity?.viewHref;
   const statusIcon = isActive ? (
     <Loader2 aria-hidden="true" className="size-3.5 animate-spin motion-reduce:animate-none" />
   ) : hasError ? (
@@ -324,7 +325,7 @@ export const AgentActivity = observer(function AgentActivity({
         {viewHref && (
           <Button asChild size="xs" variant="ghost">
             <AppLink appearance="unstyled" href={viewHref}>
-              {t("AgentChat.openSavedView")}
+              {viewActivity?.viewProposed ? t("AgentChat.reviewProposal") : t("AgentChat.openSavedView")}
             </AppLink>
           </Button>
         )}

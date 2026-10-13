@@ -3,7 +3,7 @@ import type { AgentActivityDescriptor, AgentActivityResource } from "./agent-act
 import type { AgentMessagePart } from "./agent-chat.schema";
 
 import { AgentVisibleTextStreamSanitizer } from "./agent-output-safety";
-import { agentToolSavedViewHref, agentToolViewProposal } from "./agent-tool-navigation";
+import { agentToolProposalHref, agentToolSavedViewHref, agentToolViewProposal } from "./agent-tool-navigation";
 
 export type AgentActivityStatus = "done" | "error" | "cancelled";
 export type AgentApprovalStatus = "approved" | "rejected" | "timeout" | "cancelled";
@@ -134,12 +134,17 @@ export class AgentTurnTranscript {
       if (typeof message === "string" && message.trim()) this.failedToolMessage = message.trim().slice(0, 300);
     }
     if (result.failed && result.toolName) this.retryableFailureByTool.set(result.toolName, result.toolCallId);
-    const viewHref = result.status === "done" ? agentToolSavedViewHref(result.toolName, result.output) : null;
+    const viewHref =
+      result.status === "done"
+        ? (agentToolSavedViewHref(result.toolName, result.output) ??
+          agentToolProposalHref(result.toolName, result.output))
+        : null;
     const viewProposal = result.status === "done" ? agentToolViewProposal(result.toolName, result.output) : null;
     const toolPart = this.toolParts.get(result.toolCallId);
     const context = result.status === "done" ? readAgentToolResultContext(result.toolName, result.output) : undefined;
     if (context && toolPart && !toolPart.activity.context) toolPart.activity = { ...toolPart.activity, context };
     if (viewHref && toolPart) toolPart.activity = { ...toolPart.activity, viewHref };
+    if (viewProposal && toolPart) toolPart.activity = { ...toolPart.activity, viewProposed: true };
     this.settleTool(result.toolCallId, result.status);
     this.emit({
       type: "activity_result",
@@ -149,6 +154,7 @@ export class AgentTurnTranscript {
         status: result.status,
         ...(viewHref ? { viewHref } : {}),
         ...(viewProposal ? { viewProposal } : {}),
+        ...(viewProposal ? { viewProposed: true } : {}),
         ...(context ? { context } : {}),
       },
     });

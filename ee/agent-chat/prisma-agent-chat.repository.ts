@@ -845,14 +845,17 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
     });
     if (!conversation) throw new Error("Conversation not found for agent approval.");
 
-    await this.prisma.agentApproval.create({
-      data: {
-        conversationId: args.conversationId,
-        companyId: args.companyId,
-        requestId: args.requestId,
-        toolName: pendingAgentApprovalToolName(args.toolName, args.expiresAt),
-        decision: AgentApprovalDecision.reject,
-      },
+    await this.prisma.agentApproval.createMany({
+      data: [
+        {
+          conversationId: args.conversationId,
+          companyId: args.companyId,
+          requestId: args.requestId,
+          toolName: pendingAgentApprovalToolName(args.toolName, args.expiresAt),
+          decision: AgentApprovalDecision.reject,
+        },
+      ],
+      skipDuplicates: true,
     });
   }
 
@@ -1141,6 +1144,7 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
     userId: string;
     runId: string;
     externalRunId?: string;
+    failureMessage?: string;
   }): Promise<{ reconciled: boolean }> {
     return this.withCompanyTransaction(args.companyId, async () => {
       const turn = await this.prisma.agentTurnRequest.findFirst({
@@ -1157,7 +1161,27 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
       });
       if (!turn) return { reconciled: false };
 
-      await this.settleInterruptedTurn(turn, new Date(), turn.modelSpec ?? "unknown", false, args);
+      const status = await this.settleInterruptedTurn(turn, new Date(), turn.modelSpec ?? "unknown", false, args);
+      if (args.failureMessage) {
+        const parts = clientSafeAgentMessageParts([{ type: "text", text: args.failureMessage }], {
+          sanitizeText: true,
+          wikiBaseUrl: env.BASE_URL,
+        });
+        const assistantMessage = await this.prisma.agentMessage.create({
+          data: {
+            id: randomUUID(),
+            conversationId: args.conversationId,
+            companyId: args.companyId,
+            turnRequestId: args.turnRequestId,
+            role: AgentMessageRole.assistant,
+            parts: parts as Prisma.InputJsonValue,
+          },
+        });
+        await this.prisma.agentTurnRequest.updateMany({
+          where: { id: args.turnRequestId, status, assistantMessageId: null },
+          data: { assistantMessageId: assistantMessage.id },
+        });
+      }
       return { reconciled: true };
     });
   }
@@ -2490,14 +2514,24 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
   private async settleStalePlatformReservations(args: { reservedBefore: Date; now: Date }): Promise<number> {
     const reservations = await this.prisma.hostedAiPlatformReservation.findMany({
       where: { createdAt: { lt: args.reservedBefore } },
-      select: { id: true, purpose: true, model: true, reservedMicrocents: true, createdAt: true },
+      select: {
+        id: true,
+        purpose: true,
+        model: true,
+        reservedMicrocents: true,
+        createdAt: true,
+      },
     });
     if (reservations.length === 0) return 0;
     const released = await this.prisma.hostedAiPlatformReservation.deleteMany({
-      where: { id: { in: reservations.map(({ id }) => id) }, createdAt: { lt: args.reservedBefore } },
+      where: {
+        id: { in: reservations.map(({ id }) => id) },
+        createdAt: { lt: args.reservedBefore },
+      },
     });
     if (released.count !== reservations.length)
       throw new Error("Platform AI reservations changed before stale settlement.");
+
     for (const reservation of reservations) {
       await this.accruePlatformUsageUnscoped({
         purpose: reservation.purpose,
@@ -2701,7 +2735,12 @@ export class PrismaAgentChatRepo extends TenantRepository implements AgentUsageR
     await this.prisma
       .$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended('customermates:hosted-ai-global-admission', 0))`;
     const released = await this.prisma.$queryRaw<
-      Array<{ model: string | null; reservedMicrocents: bigint; providerStartedAt: Date | null; createdAt: Date }>
+      Array<{
+        model: string | null;
+        reservedMicrocents: bigint;
+        providerStartedAt: Date | null;
+        createdAt: Date;
+      }>
     >`
       UPDATE "AgentUsageEvent" SET "state" = 'released', "chargedMicrocents" = 0,
         "settledAt" = ${args.now}

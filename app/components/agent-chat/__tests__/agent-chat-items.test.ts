@@ -64,6 +64,30 @@ describe("AgentActivity", () => {
     expect(html).not.toMatch(/<button[^>]*>[^<]*<a/);
   });
 
+  it("shows the review and save action for a proposed view instead of a saved-view link", () => {
+    const html = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        isTrailing: true,
+        isWorking: false,
+        items: [
+          {
+            ...failedRead,
+            activity: {
+              kind: "views.configure",
+              affectedResources: [],
+              risk: "write",
+              viewHref: "/settings/webhooks?view=__all__",
+              viewProposed: true,
+            },
+            status: "done",
+          },
+        ],
+      }),
+    );
+    expect(html).toContain("AgentChat.reviewProposal");
+    expect(html).not.toContain("AgentChat.openSavedView");
+  });
+
   it("keeps an intermediate tool failure visually working while the agent can recover", () => {
     const html = renderToStaticMarkup(
       createElement(AgentActivity, {
@@ -109,7 +133,11 @@ describe("AgentActivity", () => {
 
   it("renders a single failed step once without an empty disclosure", () => {
     const html = renderToStaticMarkup(
-      createElement(AgentActivity, { isTrailing: true, isWorking: false, items: [failedRead] }),
+      createElement(AgentActivity, {
+        isTrailing: true,
+        isWorking: false,
+        items: [failedRead],
+      }),
     );
 
     expect(html.split("AgentChat.activity.state.records.read.error")).toHaveLength(2);
@@ -195,15 +223,28 @@ describe("repeated read activity compaction", () => {
   it("compacts identical legacy read-only rows without guessing what an unknown tool did", () => {
     const items = Array.from({ length: 30 }, (_, index) => ({
       ...read(String(index)),
-      activity: { kind: "generic" as const, risk: "read" as const, affectedResources: [] },
+      activity: {
+        kind: "generic" as const,
+        risk: "read" as const,
+        affectedResources: [],
+      },
     }));
-    const html = renderToStaticMarkup(createElement(AgentActivity, { items, isWorking: false, isTrailing: true }));
+    const html = renderToStaticMarkup(
+      createElement(AgentActivity, {
+        items,
+        isWorking: false,
+        isTrailing: true,
+      }),
+    );
     expect(compactActivityItems(items)).toHaveLength(1);
     expect(html).toContain("AgentChat.ui.activityComplete");
     expect(html).not.toContain("AgentChat.activity.state.generic.done");
     expect(
       compactActivityItems(
-        items.map((item) => ({ ...item, activity: { ...item.activity, risk: "sensitive" as const } })),
+        items.map((item) => ({
+          ...item,
+          activity: { ...item.activity, risk: "sensitive" as const },
+        })),
       ),
     ).toHaveLength(30);
   });

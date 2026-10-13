@@ -1,4 +1,4 @@
-import { getGetRecordNavigationInteractor } from "@/core/di";
+import { getGetRecordInteractor, getGetRecordNavigationInteractor } from "@/core/di";
 import { asSchema, jsonSchema, tool, type ToolSet } from "ai";
 import { agentToolOutputContext } from "./agent-activity-context";
 import { boundedAgentToolFailure } from "./agent-tool-failure";
@@ -70,6 +70,7 @@ import { UserAccessor } from "@/core/base/user-accessor";
 import { hostedSectionRankers } from "./docs-rerank";
 import { DataViewProposalSchema } from "@/core/data-view/data-view-proposal.schema";
 import { proposingManageDataViewsTool } from "@/features/mcp-tools/data-view.mcp-tools";
+import { verifyAgentRecordUpdate } from "./agent-write-verification";
 
 export type AgentToolOptions = {
   locale?: string;
@@ -199,7 +200,11 @@ function localizeAgentAppLinks(text: string) {
 export function agentToolResult(
   outcome: McpToolExecutionResult,
   maxChars: number,
-  context: { toolName?: string; pageRoute?: string | null; input?: unknown } = {},
+  context: {
+    toolName?: string;
+    pageRoute?: string | null;
+    input?: unknown;
+  } = {},
 ) {
   const input =
     context.input && typeof context.input === "object" && !Array.isArray(context.input)
@@ -245,6 +250,23 @@ export function agentToolResult(
     outcome.ok &&
     context.toolName === "mutate_crm_record" &&
     operationResult?.status === "completed" &&
+    (mutation.action === "update" || mutation.action === "updateMany") &&
+    Array.isArray(operationResult.refs) &&
+    operationResult.refs.length === 0
+  ) {
+    return {
+      ok: false as const,
+      applied: false,
+      result: agentToolResultText(
+        "The record update returned no readable affected records. Verify the target and its current values before reporting success.",
+        maxChars,
+      ),
+    };
+  }
+  if (
+    outcome.ok &&
+    context.toolName === "mutate_crm_record" &&
+    operationResult?.status === "completed" &&
     (mutation.action === "delete" || mutation.action === "deleteMany") &&
     mutation.permanent !== true &&
     operationResult.trashBatchId === undefined
@@ -263,14 +285,22 @@ export function agentToolResult(
     Array.isArray(operationResult.deletedItemIds)
   ) {
     const deleted = operationResult.deletedItemIds.length;
+    const requested = Array.isArray(input.itemIds)
+      ? new Set(input.itemIds.filter((id): id is string => typeof id === "string")).size
+      : null;
     const pending = Array.isArray(operationResult.pendingItemIds) ? operationResult.pendingItemIds.length : 0;
     const failed = Array.isArray(operationResult.failedItemIds) ? operationResult.failedItemIds.length : 0;
-    if (deleted === 0 || pending > 0 || failed > 0) {
+    if (
+      deleted === 0 ||
+      pending > 0 ||
+      failed > 0 ||
+      (content?.action === "delete_permanently" && requested !== deleted)
+    ) {
       return {
-        ok: deleted > 0,
-        applied: deleted > 0,
+        ok: false as const,
+        applied: false,
         result: agentToolResultText(
-          `Permanent deletion result: ${deleted} deleted, ${pending} pending, ${failed} failed. Do not report pending or failed items as deleted. ${outcome.result}`,
+          `Permanent deletion result: ${deleted} deleted, ${pending} pending, ${failed} failed. The requested deletion was incomplete; report only verified deleted items. ${outcome.result}`,
           maxChars,
         ),
       };
@@ -504,6 +534,18 @@ function crmTool(
         const outcome = await executeMcpTool(hostedMcpTool(proposes ? proposingManageDataViewsTool : mcp, rankers), [
           input,
         ]);
+        if (mcp.name === "mutate_crm_record" && outcome.ok) {
+          const failure = await verifyAgentRecordUpdate(input, outcome.structuredContent, (ref) =>
+            getGetRecordInteractor().invoke(ref),
+          );
+          if (failure) {
+            return {
+              ok: false as const,
+              applied: false,
+              result: agentToolResultText(failure, resultMaxChars),
+            };
+          }
+        }
         return agentToolResult(outcome, resultMaxChars, {
           toolName: mcp.name,
           pageRoute: deps.pageRoute,
