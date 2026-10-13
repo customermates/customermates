@@ -876,6 +876,96 @@ path:focus {
   }
 }
 
+.hero-marks {
+  --px: 0px;
+  --py: 0px;
+}
+
+.hero-mark {
+  position: absolute;
+  left: calc(50% + var(--x));
+  top: var(--y);
+  width: var(--s);
+  height: var(--s);
+  margin-left: calc(var(--s) / -2);
+  translate: calc(var(--px) * var(--depth)) calc(var(--py) * var(--depth));
+  transition: translate 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.hero-mark-card {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 25%;
+  border: 1px solid
+    color-mix(in oklab, var(--color-foreground) 10%, transparent);
+  background: radial-gradient(
+    circle at 30% 25%,
+    var(--tint, color-mix(in oklab, var(--color-foreground) 6%, transparent)),
+    color-mix(in oklab, var(--color-background) 88%, transparent) 65%
+  );
+  box-shadow:
+    0 20px 48px -18px rgb(0 0 0 / 0.22),
+    inset 0 1px 0 0 rgb(255 255 255 / 0.7);
+  backdrop-filter: blur(12px) saturate(160%);
+  animation:
+    hero-mark-in 1s cubic-bezier(0.2, 0.7, 0.2, 1) var(--d) both,
+    hero-mark-drift var(--dur) ease-in-out calc(var(--d) + 1s) infinite;
+  animation-play-state: running, paused;
+
+  @variant dark {
+    box-shadow:
+      0 20px 48px -16px rgb(0 0 0 / 0.65),
+      inset 0 1px 0 0 rgb(255 255 255 / 0.05);
+  }
+}
+
+.hero-marks[data-motion="running"] .hero-mark-card {
+  animation-play-state: running, running;
+}
+
+.hero-mark-card img {
+  width: 54%;
+  height: 54%;
+  object-fit: contain;
+}
+
+@keyframes hero-mark-in {
+  from {
+    opacity: 0;
+    transform: translate(var(--fx), var(--fy)) rotate(calc(var(--rot) + 24deg))
+      scale(0.6);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0) rotate(var(--rot)) scale(1);
+  }
+}
+
+@keyframes hero-mark-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(var(--rot));
+  }
+  50% {
+    transform: translate(var(--dx), var(--dy))
+      rotate(calc(var(--rot) + var(--wob)));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-mark-card {
+    animation: none;
+    transform: rotate(var(--rot));
+  }
+
+  .hero-mark {
+    translate: none;
+    transition: none;
+  }
+}
+
 @utility glass-surface {
   border: 1px solid
     color-mix(in oklab, var(--color-foreground) 12%, transparent);

@@ -10,6 +10,7 @@ import { GridPattern } from "@/components/shared/grid-pattern";
 import { Button } from "@/components/ui/button";
 
 import { homepageDemoBaseUrl } from "./homepage-demo-url";
+import { HomepageHeroMarks } from "./homepage-hero-marks";
 import { HomepageProductStage } from "./homepage-product-stage";
 import { RotatingAccent } from "./rotating-accent";
 
@@ -22,6 +23,8 @@ export function HomepageHero({ heroSection, locale }: Props) {
   return (
     <section className="relative isolate w-full overflow-hidden" data-homepage-section="hero">
       <GridPattern className="z-0" fade="bottom" />
+
+      <HomepageHeroMarks />
 
       <MarketingContainer className="relative z-10 pt-14 pb-6 sm:pt-20 lg:pt-24">
         <div
