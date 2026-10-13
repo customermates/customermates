@@ -1404,7 +1404,7 @@ export class PrismaOperatorRepo extends TenantRepository implements OperatorRepo
                ) AS ended,
                (MAX(e."createdAt") FILTER (WHERE e.name = 'connected_account.deleted')) IS NULL
                  AND (c."id" IS NULL OR c."status" = 'deleted') AS approx
-        FROM ev e LEFT JOIN "ConnectedAccount" c ON c."id" = e.acct
+        FROM ev e LEFT JOIN "ConnectedAccount" c ON c."id" = e.acct AND c."companyId" = ${companyId}
         GROUP BY e.acct, c."id", c."status", c."updatedAt"
       ),
       bounded AS (SELECT * FROM iv WHERE started IS NOT NULL),

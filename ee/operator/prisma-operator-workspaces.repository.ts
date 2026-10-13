@@ -100,7 +100,8 @@ export class PrismaOperatorWorkspacesRepo
         (
           SELECT owner_user."email"
           FROM "User" AS owner_user
-          LEFT JOIN "UserRole" AS owner_role ON owner_role."id" = owner_user."roleId"
+          LEFT JOIN "UserRole" AS owner_role
+            ON owner_role."id" = owner_user."roleId" AND owner_role."companyId" = owner_user."companyId"
           WHERE owner_user."companyId" = c."id"
           ORDER BY
             (owner_user."status"::text = 'active') DESC,
@@ -111,7 +112,8 @@ export class PrismaOperatorWorkspacesRepo
         (
           SELECT owner_user."id"::text
           FROM "User" AS owner_user
-          LEFT JOIN "UserRole" AS owner_role ON owner_role."id" = owner_user."roleId"
+          LEFT JOIN "UserRole" AS owner_role
+            ON owner_role."id" = owner_user."roleId" AND owner_role."companyId" = owner_user."companyId"
           WHERE owner_user."companyId" = c."id"
           ORDER BY
             (owner_user."status"::text = 'active') DESC,

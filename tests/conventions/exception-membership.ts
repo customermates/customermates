@@ -139,60 +139,22 @@ export const REVIEWED_EXCEPTION_ALLOWLIST: Readonly<Record<string, string>> = {
     "unresolved C03: labels a different action than Save",
   "form-footer-actions.test.ts#SAVE_LIKE_KEY_EXEMPT: Inbox.compose.updateDraft":
     "unresolved C03: labels a different action than Save",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: core/decorators/transaction-runner.ts:runInSavepoint": "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: core/decorators/transaction-runner.ts:runInTransaction": "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/agent-chat/prisma-agent-chat.repository.ts:PrismaAgentChatRepo.admitsHostedAiGlobalSpend":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/agent-chat/prisma-agent-chat.repository.ts:PrismaAgentChatRepo.releaseStaleRetrievalReservations":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/agent-chat/prisma-agent-chat.repository.ts:PrismaAgentChatRepo.settlePlatformUsageUnscoped":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/agent-chat/prisma-agent-chat.repository.ts:PrismaAgentChatRepo.settleStalePlatformReservationsUnscoped":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.deleteWorkspaceUnscoped":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.getUserSummaryUnscoped":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.listWorkspaceTagsUnscoped":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.lockPlatformOperatorInvariant":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/command-palette/prisma-search-catalog.repository.ts:PrismaSearchCatalogRepo.replaceWorkspaceCatalog":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/command-palette/prisma-search-catalog.repository.ts:PrismaSearchCatalogRepo.semanticIndexAvailable":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/command-palette/prisma-search-catalog.repository.ts:PrismaSearchCatalogRepo.writeStaticCatalog":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.pendingEmbeddings":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.rankedFullTextSections":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.semanticIndexAvailable":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.semanticIndexComplete":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.semanticSections":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.storeEmbeddings":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.typoCorrections":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/mcp-tools/prisma-docs-chunk.repository.ts:PrismaDocsChunkRepo.writeCorpus":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/records/prisma-record.repository.ts:PrismaRecordRepo.searchRecords":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/user/prisma-user.repository.ts:PrismaUserRepo.findAuthUserCompanyIdForUpdateUnscoped":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/wiki/prisma-wiki-page.repository.ts:PrismaWikiPageRepo.rankPageSections":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/wiki/prisma-wiki-page.repository.ts:PrismaWikiPageRepo.sectionHeadlines":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: features/wiki/prisma-wiki-page.repository.ts:PrismaWikiPageRepo.semanticIndexAvailable":
-    "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: prisma/seeds/records.ts:calculateSyntheticRecords": "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: prisma/seeds/records.ts:seedRecordFixtures": "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: prisma/seeds/relationships.ts:seedRelationships": "I148 (C06)",
-  "raw-sql-tenancy.test.ts#ALLOWLIST: prisma/seeds/run.ts:runSyntheticSeed": "I148 (C06)",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/agent-chat/prisma-agent-chat.repository.ts:PrismaAgentChatRepo.admitsHostedAiGlobalSpend on AgentUsageEvent":
+    "unresolved C06: platform-wide hosted AI spend admission sums every workspace's reservations under the global admission lock",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/agent-chat/prisma-agent-chat.repository.ts:PrismaAgentChatRepo.releaseStaleRetrievalReservations on AgentUsageEvent":
+    "unresolved C06: the stale retrieval sweep releases expired reservations of every workspace when no companyId is given",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.deleteWorkspaceUnscoped on workflow.${table}, workflow.workflow_runs":
+    "unresolved C06: operator workspace deletion removes workflow engine runs whose input names the deleted companyId",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.getUserSummaryUnscoped on AuthUser, User":
+    "unresolved C06: operator console platform summary counts verified members across all workspaces",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: ee/operator/prisma-operator.repository.ts:PrismaOperatorRepo.listWorkspaceTagsUnscoped on Company":
+    "unresolved C06: operator console lists the distinct workspace tags of all companies",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/records/prisma-record.repository.ts:PrismaRecordRepo.claimDueUnscoped on RecordOperation, RecordSchemaState":
+    "unresolved C06: the record operation sweep leases due operations across workspaces with one FOR UPDATE SKIP LOCKED claim",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: features/user/prisma-user.repository.ts:PrismaUserRepo.findAuthUserCompanyIdForUpdateUnscoped on AuthUser":
+    "unresolved C06: pre-tenant registration locks the signed-in AuthUser row by id to learn which workspace it is bound to",
+  "raw-sql-tenancy.test.ts#ALLOWLIST: prisma/seeds/run.ts:runSyntheticSeed on AgentMessage":
+    "unresolved C06: seed fix-up resets the global AgentMessage sequence to the highest seeded value",
   "ui-wording.test.ts#SHARED_ACTION_WORD_EXEMPTIONS: AgentChat.approval.rejectAction":
     "unresolved C08: the cancel-label footer rule reserves Common.actions.cancel for the shared footer",
   "ui-wording.test.ts#GERMAN_TERM_EXEMPTIONS: Cancelled":

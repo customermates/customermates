@@ -202,7 +202,8 @@ export class PrismaWikiPageRepo
         WITH distances AS MATERIALIZED (
           SELECT c."pageId", c."offset", c."ordinal", c."embedding" <=> ${embedding}::vector AS "distance"
           FROM "WikiPageChunk" c
-          JOIN "WikiPage" p ON p."id" = c."pageId" AND p."updatedAt" = c."pageUpdatedAt" AND p."deletedAt" IS NULL
+          JOIN "WikiPage" p ON p."id" = c."pageId" AND p."companyId" = c."companyId" AND p."updatedAt" = c."pageUpdatedAt"
+            AND p."deletedAt" IS NULL
           WHERE c."companyId" = ${this.companyId} AND c."model" = ${model} AND c."embedding" IS NOT NULL
         ),
         pages AS (
