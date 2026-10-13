@@ -67,7 +67,7 @@ describe("PrismaRoutineRepo run projection", () => {
       },
     ]);
 
-    const result = await runWithTenant(user, () => createTestRoutineRepo().getRoutineRuns("routine-1", 2));
+    const result = await runWithTenant(user, () => createTestRoutineRepo().getRoutineRuns("routine-1", 2, null));
 
     const routineRunQuery = prismaMock.routineRun.findMany.mock.calls[0]?.[0];
     expect(routineRunQuery?.select).not.toHaveProperty("conversation");
@@ -104,7 +104,7 @@ describe("PrismaRoutineRepo run projection", () => {
       },
     ]);
 
-    const result = await runWithTenant(user, () => createTestRoutineRepo().getRoutineRuns("routine-1", 10));
+    const result = await runWithTenant(user, () => createTestRoutineRepo().getRoutineRuns("routine-1", 10, null));
 
     expect(result.runs[0]?.stopReason).toBeNull();
   });

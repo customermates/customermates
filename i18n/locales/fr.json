@@ -1174,6 +1174,7 @@
       "routineLimitReached": "Votre forfait inclut {limit} routines par utilisateur. Changez de forfait pour augmenter cette limite.",
       "routineNotFound": "ID de routine introuvable ou inaccessible.",
       "routineOwnerIneligible": "Le propriétaire de la routine doit être un membre actif de cette entreprise.",
+      "routineRunCursorInvalid": "Ce lien de page de l'historique des exécutions n'est plus valide. Rechargez l'historique et réessayez.",
       "routineRunNotOwner": "Seule la personne qui possède cette routine peut l'exécuter, car elle consomme ses crédits IA.",
       "routineRunNowRequiresSchedule": "Seules les routines planifiées peuvent être testées manuellement.",
       "routineScheduleInvalid": "Cette planification n'est pas une expression cron valide.",

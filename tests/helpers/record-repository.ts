@@ -29,7 +29,10 @@ const idleBackground: Pick<BackgroundTaskService, "dispatch"> = { dispatch: () =
 
 let widgetModule: Promise<typeof import("@/features/widget/prisma-widget.repository")> | undefined;
 const loadWidgetModule = () => (widgetModule ??= import("@/features/widget/prisma-widget.repository"));
-const widgetRepo = async () => new (await loadWidgetModule()).PrismaWidgetRepo();
+const noWidgetDtoReaders = (): never => {
+  throw new Error("The test record repository only rewrites widget configurations and never reads widget DTOs");
+};
+const widgetRepo = async () => new (await loadWidgetModule()).PrismaWidgetRepo(noWidgetDtoReaders);
 
 export async function preloadTestRecordRepo(): Promise<void> {
   await loadWidgetModule();
