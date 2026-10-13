@@ -196,11 +196,86 @@ function localizeAgentAppLinks(text: string) {
   });
 }
 
-function agentToolResult(
+export function agentToolResult(
   outcome: McpToolExecutionResult,
   maxChars: number,
-  context: { toolName?: string; pageRoute?: string | null } = {},
+  context: { toolName?: string; pageRoute?: string | null; input?: unknown } = {},
 ) {
+  const input =
+    context.input && typeof context.input === "object" && !Array.isArray(context.input)
+      ? (context.input as Record<string, unknown>)
+      : {};
+  const mutation =
+    input.mutation && typeof input.mutation === "object" && !Array.isArray(input.mutation)
+      ? (input.mutation as Record<string, unknown>)
+      : {};
+  const content = outcome.ok ? outcome.structuredContent : undefined;
+  const operation = content?.result;
+  const operationResult =
+    operation && typeof operation === "object" && !Array.isArray(operation)
+      ? (operation as Record<string, unknown>)
+      : null;
+  if (outcome.ok && content?.proposed === true) {
+    const viewProposal = agentToolViewProposal(context.toolName, outcome);
+    return {
+      ok: true as const,
+      applied: false,
+      result: agentToolResultText(
+        `PROPOSAL ONLY. Nothing was saved or changed. The user must review and save this view in the app. ${outcome.result}`,
+        maxChars,
+      ),
+      ...(viewProposal ? { viewProposal } : {}),
+    };
+  }
+  if (
+    outcome.ok &&
+    (context.toolName === "mutate_crm_record" || context.toolName === "configure_record_model") &&
+    (operationResult?.status === "pending" || content?.status === "pending")
+  ) {
+    return {
+      ok: false as const,
+      applied: false,
+      result: agentToolResultText(
+        `The write is pending; no change has been published yet. Check read_crm_operation with operationId before reporting success. ${outcome.result}`,
+        maxChars,
+      ),
+    };
+  }
+  if (
+    outcome.ok &&
+    context.toolName === "mutate_crm_record" &&
+    operationResult?.status === "completed" &&
+    (mutation.action === "delete" || mutation.action === "deleteMany") &&
+    mutation.permanent !== true &&
+    operationResult.trashBatchId === undefined
+  ) {
+    return {
+      ok: false as const,
+      applied: false,
+      result: agentToolResultText("No record was moved to Trash. Verify the target and try again.", maxChars),
+    };
+  }
+  if (
+    outcome.ok &&
+    context.toolName === "manage_trash" &&
+    (content?.action === "delete_permanently" || content?.action === "empty") &&
+    operationResult &&
+    Array.isArray(operationResult.deletedItemIds)
+  ) {
+    const deleted = operationResult.deletedItemIds.length;
+    const pending = Array.isArray(operationResult.pendingItemIds) ? operationResult.pendingItemIds.length : 0;
+    const failed = Array.isArray(operationResult.failedItemIds) ? operationResult.failedItemIds.length : 0;
+    if (deleted === 0 || pending > 0 || failed > 0) {
+      return {
+        ok: deleted > 0,
+        applied: deleted > 0,
+        result: agentToolResultText(
+          `Permanent deletion result: ${deleted} deleted, ${pending} pending, ${failed} failed. Do not report pending or failed items as deleted. ${outcome.result}`,
+          maxChars,
+        ),
+      };
+    }
+  }
   const text = localizeAgentAppLinks(
     localizeWikiPageUrls(contextualAgentToolResultText(context.toolName, outcome, context.pageRoute), env.BASE_URL),
   );
@@ -432,6 +507,7 @@ function crmTool(
         return agentToolResult(outcome, resultMaxChars, {
           toolName: mcp.name,
           pageRoute: deps.pageRoute,
+          input,
         });
       };
       const enrollable =

@@ -92,7 +92,7 @@ describeDatabase("saved view REST routes on PostgreSQL", () => {
       status: 200,
       body: { selected: true },
     });
-    const removed = await call("remove", { surfaceKey: "dashboard", viewKey: dashboard.body.viewKey });
+    const removed = await call("remove", { surfaceKey: "dashboard", viewKey: dashboard.body.viewKey, name: "Berlin" });
     expect(removed).toMatchObject({ status: 200, body: { deleted: true, trashBatchId: expect.any(String) } });
     expect((await call("list", { surfaceKey: "dashboard" })).body.total).toBe(0);
   }, 180_000);
@@ -167,7 +167,7 @@ describeDatabase("saved view REST routes on PostgreSQL", () => {
         [routes.read, { surfaceKey: "dashboard", viewKey }],
         [routes.update, { surfaceKey: "dashboard", viewKey, name: "Taken" }],
         [routes.select, { surfaceKey: "dashboard", viewKey }],
-        [routes.remove, { surfaceKey: "dashboard", viewKey }],
+        [routes.remove, { surfaceKey: "dashboard", viewKey, name: "Private" }],
       ] as const) {
         const result = await postAs(tenant, user, route, body);
         expect(result.status).toBe(404);

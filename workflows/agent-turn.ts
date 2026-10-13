@@ -1,7 +1,7 @@
 import type { Prisma } from "@/generated/prisma";
 import type { AgentToolDeps } from "@/ee/agent-chat/agent-tools";
 import type { AgentTurnBudget } from "@/ee/agent-chat/agent-budget-policy";
-import type { AgentActivityResource } from "@/ee/agent-chat/agent-activity";
+import type { AgentActivityDescriptor, AgentActivityResource } from "@/ee/agent-chat/agent-activity";
 import type { AgentTranscriptEvent } from "@/ee/agent-chat/agent-turn-transcript";
 import type { AgentTurnTerminalEvent } from "@/ee/agent-chat/agent-durable-stream";
 import type { ReplayMessage } from "@/ee/agent-chat/agent-stream-utils";
@@ -59,6 +59,8 @@ import { computeCostMicrocents } from "@/ee/agent-chat/model-pricing";
 import { agentMicrocentsToCredits } from "@/core/commercial/agent-credits";
 import { createAgentSupportTicket } from "@/ee/agent-chat/agent-support-ticket";
 import { describeAgentTool } from "@/ee/agent-chat/agent-activity";
+import { resolvedAgentApprovalActivity } from "@/ee/agent-chat/agent-approval-targets";
+import { shouldRetryAgentStreamFailure } from "@/ee/agent-chat/agent-stream-retry";
 import {
   agentToolOutcomeStatus,
   unwrapToolOutput,
@@ -570,6 +572,35 @@ async function openApprovalRequests(
 }
 openApprovalRequests.maxRetries = 0;
 
+async function readApprovalActivities(payload: AgentTurnWorkflowPayload, requests: PendingApproval[]) {
+  "use step";
+  return runAsBackgroundTenant(payload.userId, () =>
+    Promise.all(
+      requests.map((request) =>
+        resolvedAgentApprovalActivity(request.toolName, request.input).catch(() =>
+          describeAgentTool(internalToolIdentity(request.toolName), request.input),
+        ),
+      ),
+    ),
+  );
+}
+readApprovalActivities.maxRetries = 0;
+
+function requiresResolvedApprovalTarget(request: PendingApproval) {
+  if (!request.input || typeof request.input !== "object" || Array.isArray(request.input)) return false;
+  const input = request.input as Record<string, unknown>;
+  if (request.toolName === "manage_data_views") return input.action === "delete";
+  if (request.toolName === "manage_trash") return input.action === "delete_permanently" || input.action === "empty";
+  if (request.toolName !== "mutate_crm_record") return false;
+  const mutation = input.mutation;
+  return (
+    mutation !== null &&
+    typeof mutation === "object" &&
+    (mutation as { action?: unknown }).action !== undefined &&
+    ["delete", "deleteMany"].includes(String((mutation as { action: unknown }).action))
+  );
+}
+
 async function publishAssistantText(text: string): Promise<void> {
   "use step";
   const writer = getWritable<{
@@ -599,6 +630,7 @@ function isSuccessfulToolOutcome(outcome: unknown): boolean {
   if (typeof outcome !== "object" || outcome === null) return false;
   const record = outcome as Record<string, unknown>;
   if (record.ok === false) return false;
+  if (record.applied === false) return false;
   return !isAgentToolCancellation(outcome);
 }
 
@@ -632,6 +664,14 @@ async function resolveRunnerMessage(locale: string, kind: AgentRunnerMessageKind
   if (kind === "sourcesHeading") return t("AgentChat.runner.sourcesHeading");
 
   return kind satisfies never;
+}
+
+async function resolveFailedToolRunnerMessage(locale: string, reason: string): Promise<string> {
+  "use step";
+  const { getTranslator } = await import("@/i18n/get-translator");
+  const { appLocaleOrDefault } = await import("@/i18n/locale-registry");
+  const t = await getTranslator(appLocaleOrDefault(locale));
+  return t("AgentChat.runner.turnErrorWithTool", { reason });
 }
 
 async function readCancellation(payload: AgentTurnWorkflowPayload): Promise<boolean> {
@@ -981,6 +1021,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
     } | null = null;
     let providerStop: Extract<AgentTurnStopReason, "provider_error" | "content_filter" | "turn_error"> | null = null;
     let resolvedProviderErrorRetries = 0;
+    let streamFailureRetries = 0;
     let providerFailure: WorkflowFailure | null = null;
     let budgetStop = false;
     let hostedAiStop = false;
@@ -1599,6 +1640,16 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
           sendFinish: false,
         });
       } catch (error) {
+        if (
+          shouldRetryAgentStreamFailure(error, streamFailureRetries, Math.min(2, fundedRetryCount()), {
+            appliedRounds: appliedThisCall,
+            completedTools: completedTools.length,
+            approvedCalls: approvedCalls.size,
+          })
+        ) {
+          streamFailureRetries += 1;
+          continue;
+        }
         settleApprovedCalls([], true);
         if (error === AGENT_LOCAL_TERMINATION_REQUIRED) break;
         if (error === hostedAiPaused) {
@@ -1636,6 +1687,7 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         break;
       }
       await publishStreamCheckpoint();
+      streamFailureRetries = 0;
       finishReason = result.finishReason;
       settleApprovedCalls(result.messages, true);
       for (const source of collectAgentWebSources(result.messages)) webSources.add(source);
@@ -1766,12 +1818,43 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
         appendDeferredOutcomes(resumed);
       }
 
-      const requests: PendingApproval[] = pending.map((call) => ({
+      let requests: PendingApproval[] = pending.map((call) => ({
         requestId: agentApprovalRequestId(payload.turnRequestId, call.toolCallId),
         toolCallId: call.toolCallId,
         toolName: call.toolName,
         input: call.input,
       }));
+
+      let approvalActivities: AgentActivityDescriptor[] = await readApprovalActivities(payload, requests);
+      const unverified = requests.flatMap((request, index) =>
+        requiresResolvedApprovalTarget(request) && !approvalActivities[index]?.context
+          ? [
+              {
+                toolCallId: request.toolCallId,
+                toolName: request.toolName,
+                output: {
+                  ok: false,
+                  result:
+                    "The exact deletion target could not be verified. Nothing was changed. Read the target again and use its exact name and ID.",
+                },
+              },
+            ]
+          : [],
+      );
+      if (unverified.length > 0) {
+        for (const outcome of unverified) settleToolOutcome(outcome.toolCallId, outcome.toolName, outcome.output);
+        appendDeferredOutcomes(unverified);
+        resumableMessages = withToolResults(resumableMessages, unverified);
+        const rejected = new Set(unverified.map((outcome) => outcome.toolCallId));
+        approvalActivities = approvalActivities.filter((_, index) => !rejected.has(requests[index].toolCallId));
+        requests = requests.filter((request) => !rejected.has(request.toolCallId));
+        if (requests.length === 0) {
+          resolveDeferredRound([]);
+          await publishTranscriptEvents(queued.splice(0));
+          messages = resumableMessages;
+          continue;
+        }
+      }
 
       const hook =
         approvalWindowMs > 0
@@ -1780,10 +1863,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
             })
           : null;
       await openApprovalRequests(payload, requests, approvalWindowMs);
-      for (const request of requests) {
+      for (const [index, request] of requests.entries()) {
         transcript.beginApproval(
           request.requestId,
-          describeAgentTool(internalToolIdentity(request.toolName), request.input),
+          approvalActivities[index] ?? describeAgentTool(internalToolIdentity(request.toolName), request.input),
         );
       }
       await publishTranscriptEvents(queued.splice(0));
@@ -1895,7 +1978,10 @@ export async function runAgentTurn(payload: AgentTurnWorkflowPayload): Promise<v
                     ? "policyBreach"
                     : null;
     if (stopKind) {
-      const message = await resolveRunnerMessage(payload.locale, stopKind);
+      const message =
+        stopKind === "turnError" && transcript.lastFailedToolMessage
+          ? await resolveFailedToolRunnerMessage(payload.locale, transcript.lastFailedToolMessage)
+          : await resolveRunnerMessage(payload.locale, stopKind);
       const trailing = transcript.replyText.trim() ? `\n\n${message}` : message;
       transcript.appendText(trailing);
       await publishAssistantText(trailing);

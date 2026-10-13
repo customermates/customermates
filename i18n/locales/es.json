@@ -40,6 +40,7 @@
     "activity": {
       "approval": {
         "generic": "Listo para hacer un cambio que necesita tu aprobación",
+        "genericPermanent": "Listo para eliminar permanentemente {target}. Esta acción no se puede deshacer.",
         "messages": {
           "discard": "Listo para descartar el borrador",
           "draft": "Listo para guardar un borrador",
@@ -471,7 +472,8 @@
       "policyBreach": "El proveedor de IA superó el presupuesto de créditos reservado, por lo que se detuvo la ejecución. No se inició ningún trabajo adicional del proveedor.",
       "providerError": "El proveedor de IA devolvió un error antes de que pudiera terminar. No se cambió nada más. Inténtalo de nuevo.",
       "sourcesHeading": "Fuentes",
-      "turnError": "No he podido completar esa solicitud. Inténtalo de nuevo."
+      "turnError": "No he podido completar esa solicitud. Inténtalo de nuevo.",
+      "turnErrorWithTool": "No he podido completar esa solicitud. La última acción falló: {reason}"
     },
     "send": "Enviar",
     "stop": "Detener",

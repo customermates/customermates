@@ -356,6 +356,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
       };
     }
     if (data.action === "delete") {
+      if (owned?.name !== data.name) return failNotFound(CustomErrorCode.dataViewNotFound, ["name"]);
       const result = await this.remove.invoke({ id: data.viewKey });
       if (!result.ok) return result;
       return {
@@ -364,6 +365,7 @@ export class ManageDataViewsInteractor extends AuthenticatedInteractor<ManageDat
           action: data.action,
           ...location,
           viewKey: data.viewKey,
+          name: owned.name,
           deleted: true,
           trashBatchId: result.data.trashBatchId,
         },

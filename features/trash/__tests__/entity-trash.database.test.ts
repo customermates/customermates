@@ -222,6 +222,14 @@ describeDatabase("views, widgets, routines and knowledge base pages in Trash", (
     const again = await runWithTenant(f.admin, () => remove.invoke({ id: view.id }));
     if (!again.ok) throw new Error(JSON.stringify(again));
     const [item] = await f.items(f.admin);
+    const selected = await runWithTenant(f.admin, () =>
+      f.trash.query.invoke({ itemIds: [item.id], page: 1, pageSize: 100 }),
+    );
+    expect(selected).toMatchObject({ ok: true, data: { total: 1, items: [{ id: item.id, label: "Mine" }] } });
+    const missing = await runWithTenant(f.admin, () =>
+      f.trash.query.invoke({ itemIds: [randomUUID()], page: 1, pageSize: 100 }),
+    );
+    expect(missing).toMatchObject({ ok: true, data: { total: 0, items: [] } });
     expect(await f.purge(f.admin, [item.id])).toMatchObject({ ok: true });
     expect(await runWithoutTenant(() => prisma.dataView.count({ where: { id: view.id } }))).toBe(0);
     expect(await f.items(f.admin)).toEqual([]);

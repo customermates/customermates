@@ -22,6 +22,18 @@ function transcriptWithLog() {
 }
 
 describe("agent turn transcript", () => {
+  it("keeps the last actionable tool failure for a turn that ends early", () => {
+    const { transcript } = transcriptWithLog();
+    transcript.beginToolCall({ toolCallId: "failed", toolName: "mutate_crm_record", activity: activity() });
+    transcript.completeToolCall({
+      toolCallId: "failed",
+      toolName: "mutate_crm_record",
+      status: "error",
+      failed: true,
+      output: { ok: false, result: "The record was not found. Nothing changed." },
+    });
+    expect(transcript.lastFailedToolMessage).toBe("The record was not found. Nothing changed.");
+  });
   it("persists and emits only the validated destination from a successful saved-view result", () => {
     const { events, transcript } = transcriptWithLog();
     transcript.beginToolCall({

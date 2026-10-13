@@ -33,7 +33,7 @@ export const AgentActivityContextSchema = z
       .array(z.string().max(80).transform(label).pipe(z.string().min(1)))
       .min(1)
       .max(3),
-    additionalCount: z.number().int().min(1).max(100).optional(),
+    additionalCount: z.number().int().min(1).max(500).optional(),
   })
   .strict();
 
