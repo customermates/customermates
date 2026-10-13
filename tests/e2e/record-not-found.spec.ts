@@ -34,7 +34,7 @@ async function createView(
 
 async function expectNotFoundPage(page: Page) {
   await expect(
-    page.getByText(englishMessages.NotFoundPage.title, { exact: true }),
+    page.getByRole("heading", { name: englishMessages.NotFoundPage.title, exact: true }),
   ).toBeVisible();
   await expect(page.getByText(englishMessages.ErrorCard.title)).toHaveCount(0);
 }
@@ -51,6 +51,9 @@ test("shows the not-found page for an unknown or foreign list instead of the err
 
     await page.goto(`/en/records/${typeId}/${randomUUID()}`);
     await expectNotFoundPage(page);
+    const breadcrumb = page.getByRole("navigation", { name: "Breadcrumb" });
+    await expect(breadcrumb.getByText(englishMessages.NotFoundPage.title, { exact: true })).toBeVisible();
+    await expect(breadcrumb.locator("[data-entity-crumb-loading]")).toHaveCount(0);
   }
 
   expect(errors).toEqual([]);
@@ -101,7 +104,7 @@ test("falls back to the All view and drops an unknown or foreign view id from th
       0,
     );
     await expect(
-      page.getByText(englishMessages.NotFoundPage.title, { exact: true }),
+      page.getByRole("heading", { name: englishMessages.NotFoundPage.title, exact: true }),
     ).toHaveCount(0);
   }
 
@@ -156,7 +159,7 @@ test("shows a trashed list as In Trash with restore for schema managers, as not 
     const dealTypeId = presetId(companyId, "deal");
     await member.page.goto(`/en/records/${dealTypeId}`);
     await expect(
-      member.page.getByText(englishMessages.NotFoundPage.title, {
+      member.page.getByRole("heading", { name: englishMessages.NotFoundPage.title,
         exact: true,
       }),
     ).toBeVisible();
@@ -184,19 +187,22 @@ test("shows a trashed list as In Trash with restore for schema managers, as not 
     if (!hidden) throw new Error("The deal fixture is missing");
     await member.page.goto(`/en/records/${dealTypeId}/${hidden.recordId}`);
     await expect(
-      member.page.getByText(englishMessages.AccessDeniedPage.title, {
+      member.page.getByRole("heading", { name: englishMessages.AccessDeniedPage.title,
         exact: true,
       }),
     ).toBeVisible();
+    const breadcrumb = member.page.getByRole("navigation", { name: "Breadcrumb" });
+    await expect(breadcrumb.getByText(englishMessages.AccessDeniedPage.title, { exact: true })).toBeVisible();
+    await expect(breadcrumb.locator("[data-entity-crumb-loading]")).toHaveCount(0);
     await expect(
-      member.page.getByText(englishMessages.NotFoundPage.title, {
+      member.page.getByRole("heading", { name: englishMessages.NotFoundPage.title,
         exact: true,
       }),
     ).toHaveCount(0);
     await expect(member.page.getByText("Hidden partner deal")).toHaveCount(0);
     await member.page.goto(`/en/records/${dealTypeId}/${randomUUID()}`);
     await expect(
-      member.page.getByText(englishMessages.NotFoundPage.title, {
+      member.page.getByRole("heading", { name: englishMessages.NotFoundPage.title,
         exact: true,
       }),
     ).toBeVisible();
@@ -217,7 +223,7 @@ test("shows a trashed list as In Trash with restore for schema managers, as not 
 
     await member.page.goto(`/en/records/${typeId}`);
     await expect(
-      member.page.getByText(englishMessages.NotFoundPage.title, {
+      member.page.getByRole("heading", { name: englishMessages.NotFoundPage.title,
         exact: true,
       }),
     ).toBeVisible();
