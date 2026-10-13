@@ -7,6 +7,7 @@ import {
   getPauseRoutineInteractor,
   getRunRoutineNowInteractor,
   getUpsertRoutineInteractor,
+  getUserService,
 } from "@/core/di";
 import { MIN_ROUTINE_INTERVAL_MINUTES } from "@/ee/routines/routine-schedule";
 import {
@@ -16,7 +17,8 @@ import {
   RoutineRecordTriggerSchema,
 } from "@/ee/routines/routine.schema";
 import { RecordTriggerSourceSchema } from "@/features/records/record-event-subscription.schema";
-import { getTenantUser } from "@/core/decorators/tenant-context";
+import { tenantStorage } from "@/core/decorators/tenant-context";
+import { resolveActiveTenantUser } from "@/core/decorators/resolve-tenant-user";
 import { FilterFieldKey } from "@/core/types/filter-field-key";
 import { FilterOperatorKey } from "@/core/base/base-query-builder";
 
@@ -136,19 +138,26 @@ export const manageRoutinesTool = {
   outputSchema: ManageRoutinesOutputSchema,
   execute: async (params: z.infer<typeof ManageRoutinesSchema>) => {
     if (params.action === "list") {
+      const ownerUserId =
+        params.owner === "mine"
+          ? (
+              tenantStorage.getStore()?.user ??
+              (await resolveActiveTenantUser(() => getUserService().getActiveUserOrThrow()))
+            ).id
+          : null;
       return runInteractor(
         fetchMcpPage({ page: params.page, pageSize: params.pageSize }, ({ page, pageSize }) =>
           getGetRoutinesApiInteractor().invoke({
             page,
             pageSize,
             searchTerm: params.searchTerm,
-            ...(params.owner === "mine"
+            ...(ownerUserId
               ? {
                   filters: [
                     {
                       field: FilterFieldKey.ownerUserId,
                       operator: FilterOperatorKey.equals,
-                      value: getTenantUser().id,
+                      value: ownerUserId,
                     },
                   ],
                 }
