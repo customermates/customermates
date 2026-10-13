@@ -17,6 +17,7 @@ import type { WebhookUserRepo } from "@/ee/messaging/webhooks/account/account-we
 import type { WithdrawAdAttributionRepo } from "@/features/acquisition/withdraw-ad-attribution.interactor";
 import type { CompleteOnboardingWizardRepo } from "@/features/onboarding-wizard/complete-onboarding-wizard.interactor";
 import type { FindUsersByIdsRepo } from "@/features/user/find-users-by-ids.repo";
+import type { FindUserSummariesRepo } from "@/features/user/find-user-summaries.repo";
 import type { GetUserByIdRepo } from "@/features/user/get/get-user-by-id.repo";
 import type { GetUsersRepo } from "@/features/user/get/get-users.repo";
 import type { RegisterUserRepo } from "@/features/user/register/register-user.repo";
@@ -46,6 +47,7 @@ export class PrismaUserRepo
     FindUserRepo,
     GetUsersRepo,
     FindUsersByIdsRepo,
+    FindUserSummariesRepo,
     GetUserByIdRepo,
     ResolveUserOptionsRepo,
     RegisterUserRepo,
@@ -452,28 +454,21 @@ export class PrismaUserRepo
     return user?.isPlatformOperator ?? false;
   }
 
-  async findOrThrowCompanyWide(email: string) {
-    const { companyId } = this.user;
-
-    const user = await this.prisma.user.findUniqueOrThrow({
-      where: { email, companyId },
-      select: this.tenantUserSelect,
+  async findUserSummaries(userIds: string[]) {
+    const ids = [...new Set(userIds)];
+    if (!ids.length) return new Map();
+    const users = await this.prisma.user.findMany({
+      where: { companyId: this.user.companyId, id: { in: ids } },
+      select: { id: true, firstName: true, lastName: true, avatarUrl: true },
     });
-
-    return user;
+    return new Map(users.map((user) => [user.id, user]));
   }
 
-  async findExistingEmailsCompanyWide(emails: Set<string>) {
-    if (emails.size === 0) return new Set<string>();
-
-    const { companyId } = this.user;
-
-    const users = await this.prisma.user.findMany({
-      where: { email: { in: Array.from(emails) }, companyId },
-      select: { email: true },
+  async findMemberCompanyWide(reference: { id: string } | { email: string }) {
+    return this.prisma.user.findFirst({
+      where: { ...reference, companyId: this.user.companyId },
+      select: this.tenantUserSelect,
     });
-
-    return new Set(users.map((user) => user.email));
   }
 
   @BypassTenantGuard

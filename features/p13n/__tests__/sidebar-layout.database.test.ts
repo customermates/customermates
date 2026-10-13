@@ -100,7 +100,7 @@ describeDatabase("personal sidebar layout in P13n settings", () => {
       { p13nId: "sidebar", settings: { sections: [{ id: "overview", items: ["inbox"] }], hidden: [] } },
       { p13nId: "contact-detail", settings: layout },
     ];
-    for (const data of invalid) await expect(upsert(secondUserId, data)).rejects.toThrow();
+    for (const data of invalid) await expect(upsert(secondUserId, data)).resolves.toMatchObject({ ok: false });
     expect(await read(secondUserId)).toBeUndefined();
   });
 
@@ -154,19 +154,19 @@ describeDatabase("personal sidebar layout in P13n settings", () => {
       singleKeyShortcuts: false,
     });
     expect(await read(secondUserId, "keyboard")).toBeUndefined();
-    await expect(upsert(secondUserId, { p13nId: "keyboard", settings: layout })).rejects.toThrow();
+    await expect(upsert(secondUserId, { p13nId: "keyboard", settings: layout })).resolves.toMatchObject({ ok: false });
     await expect(
       upsert(secondUserId, {
         p13nId: "sidebar",
         settings: { singleKeyShortcuts: true },
       }),
-    ).rejects.toThrow();
+    ).resolves.toMatchObject({ ok: false });
     await expect(
       upsert(secondUserId, {
         p13nId: "keyboard",
         settings: { singleKeyShortcuts: true, extra: 1 },
       }),
-    ).rejects.toThrow();
+    ).resolves.toMatchObject({ ok: false });
     expect(await read(secondUserId, "keyboard")).toBeUndefined();
   });
 });

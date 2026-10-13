@@ -3,13 +3,13 @@ import { z } from "zod";
 import { mcpValidationFailure, runInteractor, toonResult } from "./utils";
 
 import {
+  getAdminUpdateUserDetailsInteractor,
   getGetInvitationLinkInteractor,
   getInviteUsersByEmailInteractor,
-  getUpdateTeamMemberInteractor,
   getUpdateUserDetailsInteractor,
 } from "@/core/di";
 import { UpdateUserDetailsSchema } from "@/features/user/upsert/update-user-details.interactor";
-import { UpdateTeamMemberSchema } from "@/features/user/upsert/update-team-member.interactor";
+import { UpdateMemberSchema } from "@/features/user/upsert/admin-update-user-details.interactor";
 import { InviteUsersByEmailSchema } from "@/features/company/invite-users-by-email.interactor";
 
 const UpdateMyProfileSchema = z
@@ -89,6 +89,10 @@ export const updateMyProfileTool = {
   },
 };
 
+const ManageTeamMemberSchema = UpdateMemberSchema.pick({ roleId: true, status: true }).extend({
+  userId: z.uuid(),
+});
+
 const ManageTeamSchema = z.object({
   action: z
     .enum(["invite", "invite_link", "update_member"])
@@ -98,13 +102,11 @@ const ManageTeamSchema = z.object({
   emails: InviteUsersByEmailSchema.shape.emails
     .optional()
     .describe("invite action: required, 1 to 20 email addresses, each receives a real invitation email"),
-  userId: UpdateTeamMemberSchema.shape.userId
-    .optional()
-    .describe("update_member action: required, user id from list_users"),
-  roleId: UpdateTeamMemberSchema.shape.roleId.describe(
+  userId: UpdateMemberSchema.shape.userId.describe("update_member action: required, user id from list_users"),
+  roleId: UpdateMemberSchema.shape.roleId.describe(
     "update_member action: new role id from get_workspace_context roles. Omit to keep the current role.",
   ),
-  status: UpdateTeamMemberSchema.shape.status.describe(
+  status: UpdateMemberSchema.shape.status.describe(
     "update_member action: new status. Omit to keep the current status.",
   ),
 });
@@ -119,7 +121,7 @@ export const manageTeamTool = {
     "action update_member changes an existing member's role or status: pass userId from list_users.items[].id plus roleId from get_workspace_context.roles[].id and/or status, omitted fields keep their current values; " +
     "a member who has no role assigned yet (e.g. a still pending invite) has no role to keep, so you must pass roleId together with the change or the call is rejected. " +
     "last-admin protection is enforced server-side, the workspace can never lose its last active admin. " +
-    "invite requires create permission on users, as does invite_link; update_member requires update permission and read access to all users (Manage and read All on Users & Roles).",
+    "invite requires create permission on users, as does invite_link; update_member requires update permission on users (Edit on Users & Roles), the same check as REST POST /v1/members/update.",
   annotations: {
     readOnlyHint: false,
     destructiveHint: false,
@@ -141,9 +143,9 @@ export const manageTeamTool = {
         toonResult({ sent: data.sent, message: "Invitation emails sent" }),
       );
     }
-    const parsed = UpdateTeamMemberSchema.safeParse(params);
+    const parsed = ManageTeamMemberSchema.safeParse(params);
     if (!parsed.success) return mcpValidationFailure(parsed.error);
-    return runInteractor(getUpdateTeamMemberInteractor().invoke(parsed.data), (data) =>
+    return runInteractor(getAdminUpdateUserDetailsInteractor().invoke(parsed.data), (data) =>
       toonResult({ email: data.email, roleId: data.roleId, status: data.status, message: "Member updated" }),
     );
   },

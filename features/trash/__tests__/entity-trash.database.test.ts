@@ -28,6 +28,7 @@ const { PrismaTrashRepo } = await import("../prisma-trash.repository");
 const { EntityTrashHandler } = await import("../entity-trash.handler");
 const { EntityTrashVisibility } = await import("../entity-trash-visibility");
 const { QueryTrashInteractor } = await import("../query-trash.interactor");
+const { PrismaUserRepo } = await import("@/features/user/prisma-user.repository");
 const { RestoreTrashInteractor } = await import("../restore-trash.interactor");
 const { DeleteTrashPermanentlyInteractor } = await import("../delete-trash-permanently.interactor");
 const { EmptyTrashInteractor } = await import("../empty-trash.interactor");
@@ -106,7 +107,12 @@ async function fixture() {
     ),
   ];
   const trash = {
-    query: new QueryTrashInteractor(trashRepo, createTestRecordRepo(), handlers),
+    query: new QueryTrashInteractor(
+      trashRepo,
+      createTestRecordRepo(),
+      handlers,
+      new PrismaUserRepo(new PermissionService()),
+    ),
     restore: new RestoreTrashInteractor(trashRepo, handlers),
     preview: new PreviewTrashDeletionInteractor(trashRepo, handlers),
     remove: new DeleteTrashPermanentlyInteractor(trashRepo, handlers),

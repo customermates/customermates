@@ -167,11 +167,7 @@ const DATE_PRESET_KEYS = [
   "Common.datePresets.thisMonth",
   "Common.datePresets.today",
 ] as const;
-const DIRECT_COMMON_ERROR_KEYS = ["roleSystemRequired"] as const;
-const COMMON_ERROR_KEYS = [
-  ...CUSTOM_ERROR_CODE_KEYS,
-  ...DIRECT_COMMON_ERROR_KEYS.map((code) => `Common.errors.${code}`),
-];
+const COMMON_ERROR_KEYS = CUSTOM_ERROR_CODE_KEYS;
 const ENTITLEMENT_DENIAL_KEYS = [
   "ConnectedAccountsCard.agentChatDisabled",
   "ConnectedAccountsCard.agentChatRequiresCloud",

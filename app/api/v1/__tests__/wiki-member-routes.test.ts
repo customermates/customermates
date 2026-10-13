@@ -145,7 +145,13 @@ describe("Knowledge Base, member and profile REST routes", () => {
   });
 
   it("answers a missing Knowledge Base page with 404", async () => {
-    interactors.readWiki.mockResolvedValue({ ok: true, data: null });
+    interactors.readWiki.mockResolvedValue({
+      ok: false,
+      error: createZodError(CustomErrorCode.wikiPageNotFound, ["id"], {
+        error: CustomErrorCode.wikiPageNotFound,
+        kind: "not_found",
+      }),
+    });
 
     const response = await readWiki(request("wiki/read", { id: ID }));
 

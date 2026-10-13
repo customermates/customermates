@@ -97,7 +97,7 @@ describeDatabase("bounded P13n writes", () => {
       { p13nId: panels, columnWidths: { main: Number.POSITIVE_INFINITY } },
     ];
     const before = await stored();
-    for (const data of invalid) await expect(upsert(data)).rejects.toThrow();
+    for (const data of invalid) await expect(upsert(data)).resolves.toMatchObject({ ok: false });
     expect(await stored()).toEqual(before);
   });
 });

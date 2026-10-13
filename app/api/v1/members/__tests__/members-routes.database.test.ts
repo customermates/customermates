@@ -198,6 +198,24 @@ describeDatabase("member and profile REST routes", () => {
     expect(await memberRow(targetUserId)).toEqual({ roleId: memberRoleId, status: "inactive" });
   });
 
+  it("updates a member named by userId with only the sent fields and answers 404 for an unknown role", async () => {
+    const renamed = await call(updateMember, adminKey, "members/update", {
+      userId: targetUserId,
+      firstName: "Partial",
+    });
+    expect(renamed.status, JSON.stringify(renamed.body)).toBe(200);
+    expect(renamed.body).toMatchObject({ email: target.email, firstName: "Partial", lastName: "Member" });
+
+    const unknownRole = await call(updateMember, adminKey, "members/update", {
+      userId: targetUserId,
+      roleId: randomUUID(),
+    });
+    expect(unknownRole.status).toBe(404);
+    expect(unknownRole.body).toMatchObject({
+      error: { kind: "not_found", issues: [{ path: ["roleId"], customCode: "roleNotFound" }] },
+    });
+  });
+
   it("refuses the caller's own membership and another workspace's member", async () => {
     const self = await call(updateMember, adminKey, "members/update", {
       ...target,

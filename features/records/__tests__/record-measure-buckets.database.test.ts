@@ -40,6 +40,7 @@ const { createWorkspaceRecordPreset } = await import("../workspace-record-preset
 const { createTestRecordRepo, createTestDataViewRepo } = await import("@/tests/helpers/record-repository");
 const { PrismaWidgetRepo } = await import("@/features/widget/prisma-widget.repository");
 const { GetWidgetsInteractor } = await import("@/features/widget/get-widgets.interactor");
+const { getWidgetDtoReader } = await import("@/core/di");
 const { RecordWidgetReader } = await import("@/features/widget/record-widget-reader");
 const { UpsertRecordWidgetInteractor } = await import("@/features/widget/record-widget.interactor");
 
@@ -874,7 +875,10 @@ describeDatabase("time-bucketed record measures", () => {
 
     const read = (viewId?: string, allViews?: boolean) =>
       f.run(() =>
-        new GetWidgetsInteractor(new PrismaWidgetRepo(), createTestDataViewRepo()).invoke({ viewId, allViews }),
+        new GetWidgetsInteractor(new PrismaWidgetRepo(), createTestDataViewRepo(), getWidgetDtoReader()).invoke({
+          viewId,
+          allViews,
+        }),
       );
     const supportView = await read(support.id);
     expect(supportView.data).toMatchObject({ p13nId: SURFACE.dashboard, activeViewKey: support.id });

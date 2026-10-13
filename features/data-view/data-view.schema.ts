@@ -10,9 +10,6 @@ import { CustomErrorCode } from "@/core/validation/validation.types";
 export { SurfaceKeySchema as SurfaceKeyInputSchema } from "@/core/data-view/data-view-identity.schema";
 import { SurfaceKeySchema as SurfaceKeyInputSchema } from "@/core/data-view/data-view-identity.schema";
 
-export const GetDataViewsSchema = z.object({ surfaceKey: SurfaceKeyInputSchema }).strict();
-export type GetDataViewsData = Data<typeof GetDataViewsSchema>;
-
 const DataViewNameSchema = z.string().min(1).max(DATA_VIEW_NAME_MAX_LENGTH);
 const DataViewPositionSchema = z.number().int().min(0);
 

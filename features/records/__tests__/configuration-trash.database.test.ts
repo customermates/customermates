@@ -160,7 +160,7 @@ async function fixture() {
   );
   const trashRepo = new PrismaTrashRepo();
   const trash = {
-    query: new QueryTrashInteractor(trashRepo, repo, handlers()),
+    query: new QueryTrashInteractor(trashRepo, repo, handlers(), new PrismaUserRepo(new PermissionService())),
     restore: new RestoreTrashInteractor(trashRepo, handlers()),
     preview: new PreviewTrashDeletionInteractor(trashRepo, handlers()),
     remove: new DeleteTrashPermanentlyInteractor(trashRepo, handlers()),

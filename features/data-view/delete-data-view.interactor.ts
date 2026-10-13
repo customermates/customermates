@@ -9,7 +9,7 @@ import type { TrashRepo } from "@/features/trash/trash.repo";
 import { randomUUID } from "node:crypto";
 
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
 import { Transaction } from "@/core/decorators/transaction.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -29,7 +29,7 @@ export class DeleteDataViewInteractor extends AuthenticatedInteractor<DeleteData
     super();
   }
 
-  @Enforce(DeleteDataViewSchema)
+  @Validate(DeleteDataViewSchema)
   @Transaction
   @ValidateOutput(DeleteDataViewResultSchema)
   async invoke({ id }: DeleteDataViewData): Validated<DeleteDataViewResult> {

@@ -153,17 +153,6 @@ export class PrismaRoleRepo
     return roleDto(role);
   }
 
-  async isSystemRoleOrThrow(id: string) {
-    const { companyId } = this.user;
-
-    const role = await this.prisma.userRole.findFirstOrThrow({
-      where: { id, companyId },
-      select: { isSystemRole: true },
-    });
-
-    return role.isSystemRole;
-  }
-
   async hasAnotherActiveSystemRoleUser(excludeUserId: string) {
     const { companyId } = this.user;
 
@@ -228,10 +217,6 @@ export class PrismaRoleRepo
       where: { id, companyId },
       select: this.withRecordGrantsSelect,
     });
-
-    if (role.isSystemRole) throw new Error("Cannot delete system roles");
-
-    if (await this.hasUsersAssigned(id)) throw new Error("Cannot delete role that is assigned to users");
 
     await this.prisma.userRole.deleteMany({
       where: { id, companyId },
