@@ -1,11 +1,13 @@
 import { presetId } from "../../features/records/crm-preset";
 import { openRecordDetails } from "./record-rows";
+import { openSidebar } from "./sidebar";
 import { test, expect, collectPageErrors } from "./fixtures";
 
 test("browser Back guards a record drawer draft and an immediate Open page handoff", async ({ page, companyId }) => {
   const errors = collectPageErrors(page);
   const typeId = presetId(companyId, "service");
   await page.goto("/en/dashboard");
+  await openSidebar(page);
   await page.locator(`[id="nav-records:${typeId}"]`).click();
   await expect(page).toHaveURL(new RegExp(`/en/records/${typeId}$`));
   await page.locator("#records-add").click();
