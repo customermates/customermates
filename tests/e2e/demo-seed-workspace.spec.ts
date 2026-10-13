@@ -1,5 +1,6 @@
 import type { Locator } from "@playwright/test";
 
+import { expectBlockedEmailScripts } from "./browser-diagnostics";
 import { DEMO_COMPANY_ID, expect, settle, test } from "./demo-seed";
 
 /** The seeded workspace beyond records: webhooks and deliveries, the inbox, the Knowledge Base and routines. */
@@ -60,6 +61,7 @@ test("inbox threads are listed and linked to their deals, tickets and candidates
   database,
   errors,
 }) => {
+  expectBlockedEmailScripts(page);
   const { rows: threads } = await database.query<{ id: string; title: string }>(
     `SELECT id, coalesce(nullif(subject, ''), name) AS title FROM "MessagingThread" WHERE "companyId"=$1
      ORDER BY "lastMessageAt" DESC NULLS LAST LIMIT 5`,
@@ -96,7 +98,7 @@ test("inbox threads are listed and linked to their deals, tickets and candidates
     await page.keyboard.press("Escape");
   }
   // Email bodies render in a sandboxed frame without scripts; Chromium reports that block, which is expected.
-  expect(errors.filter((error) => !error.startsWith("Blocked script execution in 'about:srcdoc'"))).toEqual([]);
+  expect(errors).toEqual([]);
 });
 
 async function emailBodyColors(frame: Locator) {
@@ -118,6 +120,7 @@ test("email bodies follow the app theme, adaptive emails switch, and other exter
   database,
   errors,
 }, testInfo) => {
+  expectBlockedEmailScripts(page);
   const { rows: threads } = await database.query<{ id: string; subject: string }>(
     `SELECT id, subject FROM "MessagingThread" WHERE "companyId"=$1 AND subject = ANY($2)`,
     [DEMO_COMPANY_ID, ["Service report baseline", "Order form review: Northwind Field Enterprise"]],
@@ -162,7 +165,7 @@ test("email bodies follow the app theme, adaptive emails switch, and other exter
     await page.screenshot({ path: testInfo.outputPath(`email-paper-${scheme}.png`), animations: "disabled" });
   }
   await page.emulateMedia({ colorScheme: "light" });
-  expect(errors.filter((error) => !error.startsWith("Blocked script execution in 'about:srcdoc'"))).toEqual([]);
+  expect(errors).toEqual([]);
 });
 
 test("the Knowledge Base lists the Operating Guide and the procedures, and a procedure opens", async ({

@@ -5,6 +5,7 @@ import { presetId } from "../../features/records/crm-preset";
 import { isDraftThreadId } from "../../ee/messaging/provider";
 import { decodeGetParams } from "../../core/utils/get-params";
 import type { RecordRef } from "../../features/records/record-model.schema";
+import { expectBlockedEmailScripts } from "./browser-diagnostics";
 import { test, expect, collectPageErrors } from "./fixtures";
 import { postOk } from "./api";
 import { openRecordDetails, openRecordLink, recordItem } from "./record-rows";
@@ -15,16 +16,10 @@ test("opens a list-qualified inbox and preserves, saves, edits and sends channel
   database,
   companyId,
   workspace,
-  diagnostics,
 }, testInfo) => {
   test.setTimeout(240000);
   const errors = collectPageErrors(page);
-  const sandboxedEmail = diagnostics.expect({
-    kind: "console",
-    text: /^Blocked script execution in 'about:srcdoc' because the document's frame is sandboxed and the 'allow-scripts' permission is not set\.$/,
-    page,
-    limit: Number.POSITIVE_INFINITY,
-  });
+  const sandboxedEmail = expectBlockedEmailScripts(page);
   let model = await postOk(page, "/api/v1/model/read", {});
   const typeId = presetId(companyId, "organization");
   const channelsFieldId = randomUUID();
