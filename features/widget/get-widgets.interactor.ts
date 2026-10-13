@@ -1,6 +1,7 @@
 import type { GetWidgetsRepo } from "./get-widgets.repo";
 import type { Data } from "@/core/validation/validation.utils";
 import type { DataViewStateRepo } from "@/core/data-view/data-view-state.repo";
+import type { WidgetDtoReader } from "./widget-dto-reader";
 
 import { z } from "zod";
 
@@ -10,6 +11,7 @@ import { env } from "@/env";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { selectActiveViewKey } from "@/core/base/base-get.interactor";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
+import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { AllowInDemoMode } from "@/core/decorators/allow-in-demo-mode.decorator";
 import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
@@ -41,6 +43,7 @@ export class GetWidgetsInteractor extends AuthenticatedInteractor<GetWidgetsData
   constructor(
     private repo: GetWidgetsRepo,
     private views: DataViewStateRepo,
+    private widgets: WidgetDtoReader,
   ) {
     super();
   }
@@ -51,8 +54,14 @@ export class GetWidgetsInteractor extends AuthenticatedInteractor<GetWidgetsData
     const surface = await this.views.loadSurfaceState(SURFACE.dashboard);
     const readable = new Map(surface.views.map((view) => [view.id, view]));
     const activeViewKey = selectActiveViewKey(data?.viewId, surface.activeViewKey, readable);
-    const items = await this.repo.getWidgets(
-      data?.allViews ? undefined : activeViewKey === ALL_VIEW_KEY ? null : activeViewKey,
+    const items = await runInTransaction(
+      async () => {
+        const stored = await this.repo.getWidgets(
+          data?.allViews ? undefined : activeViewKey === ALL_VIEW_KEY ? null : activeViewKey,
+        );
+        return Promise.all(stored.map((widget) => this.widgets.read(widget)));
+      },
+      { readOnly: true, timeout: 30000 },
     );
     return {
       ok: true as const,

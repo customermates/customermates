@@ -96,7 +96,7 @@ describeDatabase("personal sub-list columns in P13n settings", () => {
       { p13nId: "sublist-columns:line-items", settings: { columns: [quantity] } },
       { p13nId: "sidebar", settings: { columns: [quantity] } },
     ];
-    for (const data of invalid) await expect(upsert(secondUserId, data)).rejects.toThrow();
+    for (const data of invalid) await expect(upsert(secondUserId, data)).resolves.toMatchObject({ ok: false });
     expect(await read(secondUserId, lineItems)).toBeUndefined();
   });
 });

@@ -1,3 +1,5 @@
+import { CustomErrorCode } from "@/core/validation/validation.types";
+import { createZodError } from "@/core/validation/validation.utils";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { decode } from "@toon-format/toon";
 
@@ -382,7 +384,13 @@ describe("read-only Wiki search and fetch compatibility", () => {
   });
 
   it("refuses missing and malformed Wiki ids without returning content", async () => {
-    calls.get.mockResolvedValue({ ok: true, data: null });
+    calls.get.mockResolvedValue({
+      ok: false,
+      error: createZodError(CustomErrorCode.wikiPageNotFound, ["id"], {
+        error: CustomErrorCode.wikiPageNotFound,
+        kind: "not_found",
+      }),
+    });
     expect(mcpToolResultText(await fetchTool.execute({ id: `wiki:${id}` }))).not.toContain("Current content");
     calls.get.mockClear();
     await fetchTool.execute({ id: `wiki:${id}:foreign` });

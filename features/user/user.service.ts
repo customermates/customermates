@@ -60,16 +60,6 @@ export class UserService {
     return user;
   }
 
-  async isRegistered() {
-    const session = await this.authService.getSession();
-
-    const email = session?.user?.email;
-
-    if (!email) return false;
-
-    return (await this.repo.findCurrentUserUnscoped(email)) !== null;
-  }
-
   async hasPermission(resource: Resource, action: Action): Promise<boolean> {
     const user = await this.getActiveTenantUserOrThrow();
 

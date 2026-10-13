@@ -9,17 +9,15 @@ import type { CountActiveUsersRepo } from "@/features/user/count-active-users.re
 import { calculateChanges } from "@/core/utils/calculate-changes";
 
 import { z } from "zod";
-import { getTranslations } from "next-intl/server";
 import { CountryCode, Status, Resource, SubscriptionPlan } from "@/generated/prisma";
 
 import { DomainEvent } from "@/features/event/domain-events";
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { createZodError, zx, type Validated } from "@/core/validation/validation.utils";
+import { zx, type Validated } from "@/core/validation/validation.utils";
 import { Write } from "@/core/decorators/write.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
-import { checkIds } from "@/core/validation/validators/check-ids";
 import { CustomErrorCode } from "@/core/validation/validation.types";
-import { failAuthorization, unwoundFailure } from "@/core/validation/interactor-failure-server";
+import { fail, failAuthorization, failNotFound, unwoundFailure } from "@/core/validation/interactor-failure-server";
 
 export const AdminUpdateUserDetailsSchema = z.object({
   email: z.email(),
@@ -32,9 +30,12 @@ export const AdminUpdateUserDetailsSchema = z.object({
 });
 export type AdminUpdateUserDetailsData = Data<typeof AdminUpdateUserDetailsSchema>;
 
+export const UpdateMemberSchema = AdminUpdateUserDetailsSchema.partial().extend({ userId: z.uuid().optional() });
+export type UpdateMemberData = Data<typeof UpdateMemberSchema>;
+
 @TenantInteractor({ resource: Resource.users, manage: "update" })
 export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
-  AdminUpdateUserDetailsData,
+  UpdateMemberData,
   AdminUpdateUserDetailsData
 > {
   constructor(
@@ -49,38 +50,46 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     super();
   }
 
-  @Write({
-    input: AdminUpdateUserDetailsSchema,
-    output: AdminUpdateUserDetailsSchema,
-    precheck: (self, data, ctx) => self.precheck(data, ctx),
-  })
-  async invoke(data: AdminUpdateUserDetailsData): Validated<AdminUpdateUserDetailsData> {
-    const targetUser = await this.userRepo.findOrThrowCompanyWide(data.email);
+  @Write({ input: UpdateMemberSchema, output: AdminUpdateUserDetailsSchema })
+  async invoke({ userId, email, ...change }: UpdateMemberData): Validated<AdminUpdateUserDetailsData> {
+    if (!userId && !email) return fail(CustomErrorCode.memberReferenceRequired, ["userId"]);
+    const targetUser = await this.userRepo.findMemberCompanyWide(userId ? { id: userId } : { email: email ?? "" });
+    if (!targetUser || (userId && email && targetUser.email !== email))
+      return failNotFound(CustomErrorCode.userNotFound, [userId ? "userId" : "email"]);
     const targetUserId = targetUser.id;
 
-    if (targetUserId === this.userId) return failAuthorization(CustomErrorCode.userSelfAdminUpdateForbidden, ["email"]);
+    if (targetUserId === this.userId)
+      return failAuthorization(CustomErrorCode.userSelfAdminUpdateForbidden, [userId ? "userId" : "email"]);
+
+    const roleId = change.roleId ?? targetUser.roleId;
+    if (!roleId) return fail(CustomErrorCode.userRoleRequired, ["roleId"]);
+    const role = roleId === targetUser.roleId ? targetUser.role : await this.roleRepo.findRoleById(roleId);
+    if (!role) return failNotFound(CustomErrorCode.roleNotFound, ["roleId"]);
+
+    const next = {
+      email: targetUser.email,
+      firstName: change.firstName ?? targetUser.firstName,
+      lastName: change.lastName ?? targetUser.lastName,
+      country: change.country ?? targetUser.country,
+      avatarUrl: change.avatarUrl === undefined ? targetUser.avatarUrl : change.avatarUrl,
+      roleId,
+      status: change.status ?? targetUser.status,
+    };
+    if (next.status === Status.pendingAuthorization) return fail(CustomErrorCode.userStatusRequired, ["status"]);
+    const data: AdminUpdateUserDetailsData = { ...next, status: next.status };
 
     const leavingActive = targetUser.status === Status.active && data.status !== Status.active;
     if (leavingActive && (await this.userRepo.isPlatformOperatorCompanyWide(targetUserId)))
       return failAuthorization(CustomErrorCode.userPlatformOperatorStatusForbidden, ["status"]);
 
-    const targetIsSystem = targetUser.roleId ? await this.roleRepo.isSystemRoleOrThrow(targetUser.roleId) : false;
-    const newRoleIsSystemAndActive =
-      (await this.roleRepo.isSystemRoleOrThrow(data.roleId)) && data.status === Status.active;
-
-    if (targetIsSystem && !newRoleIsSystemAndActive) {
-      const hasAnother = await this.roleRepo.hasAnotherActiveSystemRoleUser(targetUserId);
-
-      if (!hasAnother) {
-        const t = await getTranslations();
-        const error = createZodError<AdminUpdateUserDetailsData>(t("Common.errors.roleSystemRequired"), ["roleId"]);
-
-        return {
-          ok: false,
-          error,
-        };
-      }
-    }
+    const targetIsSystem = targetUser.role?.isSystemRole ?? false;
+    const newRoleIsSystemAndActive = role.isSystemRole && data.status === Status.active;
+    if (
+      targetIsSystem &&
+      !newRoleIsSystemAndActive &&
+      !(await this.roleRepo.hasAnotherActiveSystemRoleUser(targetUserId))
+    )
+      return fail(CustomErrorCode.roleSystemRequired, ["roleId"]);
 
     await this.userRepo.adminUpdateDetailsOrThrow({
       userId: targetUserId,
@@ -99,20 +108,21 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     if (leavingActive)
       await this.releaseOwnerRoutines.invoke({ companyId: this.user.companyId, ownerUserId: targetUserId });
 
-    const previousRole = targetUser.role?.name ?? null;
-    const role =
-      data.roleId === targetUser.roleId
-        ? previousRole
-        : ((await this.roleRepo.findRoleById(data.roleId))?.name ?? null);
     const changes = calculateChanges(
       {
         firstName: targetUser.firstName,
         lastName: targetUser.lastName,
         country: targetUser.country,
         status: targetUser.status,
-        role: previousRole,
+        role: targetUser.role?.name ?? null,
       },
-      { firstName: data.firstName, lastName: data.lastName, country: data.country, status: data.status, role },
+      {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        country: data.country,
+        status: data.status,
+        role: role.name,
+      },
     );
     try {
       if (Object.keys(changes).length)
@@ -133,14 +143,5 @@ export class AdminUpdateUserDetailsInteractor extends AuthenticatedInteractor<
     const activeUsersCount = await this.countUsersRepo.countActiveUsers();
 
     await this.subscriptionService.updateSubscriptionQuantityOrThrow(subscription.lemonSqueezyId, activeUsersCount);
-  }
-
-  private async precheck(data: AdminUpdateUserDetailsData, ctx: z.RefinementCtx) {
-    await checkIds(
-      [{ ids: data.email, path: ["email"] }],
-      ctx,
-      (emails) => this.userRepo.findExistingEmailsCompanyWide(emails),
-      CustomErrorCode.userNotFound,
-    );
   }
 }

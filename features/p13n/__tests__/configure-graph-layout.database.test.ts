@@ -95,7 +95,7 @@ describeDatabase("personal Configure graph layout in P13n settings", () => {
       { p13nId: "sidebar", settings: layout },
       { p13nId: "contact-detail", settings: layout },
     ];
-    for (const data of invalid) await expect(upsert(secondUserId, data)).rejects.toThrow();
+    for (const data of invalid) await expect(upsert(secondUserId, data)).resolves.toMatchObject({ ok: false });
     expect(await read(secondUserId)).toBeUndefined();
   });
 });

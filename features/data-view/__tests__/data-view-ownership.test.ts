@@ -97,6 +97,18 @@ describe("data view ownership", () => {
     expect(foreign.personalization.upsertP13n).not.toHaveBeenCalled();
   });
 
+  it("answers malformed client input to delete with a validation failure instead of throwing", async () => {
+    const repo = { findOwnedOrNull: vi.fn(), trashOwned: vi.fn() };
+    const selection = { clearActiveViewKeyIfMatches: vi.fn() };
+
+    const result = await runWithTenant(mockUser, () =>
+      new DeleteDataViewInteractor(repo, selection, trashStub()).invoke({ id: "not-a-view", extra: true } as never),
+    );
+
+    expect(result.ok).toBe(false);
+    expect(repo.findOwnedOrNull).not.toHaveBeenCalled();
+  });
+
   it("refuses a delete of a view the caller does not own and records no write", async () => {
     const repo = {
       findOwnedOrNull: vi.fn().mockResolvedValue(null),

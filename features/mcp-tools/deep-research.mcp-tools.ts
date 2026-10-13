@@ -161,7 +161,6 @@ function fetchDoc(locale: ContentLocale, slug: string) {
 async function fetchWiki(id: string, requestedOffset: number) {
   const result = await getGetWikiPageInteractor().invoke({ id });
   if (!result.ok) return mcpInteractorFailure(result.error);
-  if (!result.data) return customMcpFailure(CustomErrorCode.wikiPageNotFound);
   const page = result.data;
   const links = extractWikiPageLinks(page.markdown, env.BASE_URL, 6);
   const markdown = externalizeWikiPageLinks(page.markdown, env.BASE_URL);

@@ -30,7 +30,6 @@ export type TrashListQuery = {
   pageSize: number;
 };
 export type TrashSelection = { ids: string[] } | { batchId: string } | { all: true };
-export type TrashDeletedBy = { id: string; firstName: string; lastName: string; avatarUrl: string | null };
 
 export interface TrashRepo {
   add(items: TrashItemInput[]): Promise<void>;
@@ -38,7 +37,6 @@ export interface TrashRepo {
   list(query: TrashListQuery): Promise<{ items: TrashItem[]; total: number }>;
   find(selection: TrashSelection, visibility: Prisma.Sql): Promise<TrashItem[]>;
   findExpired(now: Date, take: number, after?: TrashExpiryCursor): Promise<TrashItem[]>;
-  deletedBy(userIds: string[]): Promise<Map<string, TrashDeletedBy>>;
   markPurgePending(id: string, operationId: string): Promise<void>;
 }
 

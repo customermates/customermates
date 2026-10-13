@@ -1,5 +1,5 @@
-import type { WidgetDto } from "./widget.schema";
+import type { StoredWidget } from "./record-widget-store.repo";
 
 export abstract class GetWidgetsRepo {
-  abstract getWidgets(viewId?: string | null): Promise<WidgetDto[]>;
+  abstract getWidgets(viewId?: string | null): Promise<StoredWidget[]>;
 }

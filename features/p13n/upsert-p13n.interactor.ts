@@ -1,11 +1,11 @@
 import type { UpsertP13nRepo } from "./upsert-p13n.repo";
 import type { P13nEntry } from "./prisma-p13n.repository";
-import type { Data } from "@/core/validation/validation.utils";
+import type { Data, Validated } from "@/core/validation/validation.utils";
 
 import { z } from "zod";
 
 import { TenantInteractor } from "@/core/decorators/tenant-interactor.decorator";
-import { Enforce } from "@/core/decorators/enforce.decorator";
+import { Validate } from "@/core/decorators/validate.decorator";
 import { ValidateOutput } from "@/core/decorators/validate-output.decorator";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { FilterSchema, SortDescriptorSchema, PaginationRequestSchema } from "@/core/base/base-get.schema";
@@ -63,9 +63,9 @@ export class UpsertP13nInteractor extends AuthenticatedInteractor<UpsertP13nData
     super();
   }
 
-  @Enforce(Schema)
+  @Validate(Schema)
   @ValidateOutput(P13nEntrySchema)
-  async invoke(data: UpsertP13nData): Promise<{ ok: true; data: P13nEntry }> {
+  async invoke(data: UpsertP13nData): Validated<P13nEntry> {
     return { ok: true as const, data: await this.repo.upsertP13n(data) };
   }
 }

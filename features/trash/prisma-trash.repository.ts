@@ -1,5 +1,4 @@
 import type {
-  TrashDeletedBy,
   TrashItem,
   TrashItemInput,
   TrashListQuery,
@@ -177,15 +176,5 @@ export class PrismaTrashRepo extends TenantRepository implements TrashRepo, Expi
       where: { companyId: this.companyId, id },
       data: { payload: { ...payload, purgeOperationId: operationId } },
     });
-  }
-
-  async deletedBy(userIds: string[]): Promise<Map<string, TrashDeletedBy>> {
-    const ids = [...new Set(userIds)];
-    if (!ids.length) return new Map();
-    const users = await this.prisma.user.findMany({
-      where: { companyId: this.companyId, id: { in: ids } },
-      select: { id: true, firstName: true, lastName: true, avatarUrl: true },
-    });
-    return new Map(users.map((user) => [user.id, user]));
   }
 }
