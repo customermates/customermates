@@ -89,6 +89,7 @@ const domTestFiles = [
   "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-channels.dom.test.ts",
   "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-input-member.dom.test.ts",
   "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-detail-personalization.dom.test.ts",
+  "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-detail-page-handoff.dom.test.ts",
   "app/[locale]/(protected)/records/[typeId]/components/__tests__/record-relationship-editor.dom.test.ts",
   "components/editor/__tests__/editor-link-picker.test.ts",
   "components/wiki/__tests__/wiki-homepage-setup.test.ts",
