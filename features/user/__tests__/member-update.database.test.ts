@@ -30,6 +30,8 @@ vi.mock("@/env", () => ({
 const { getAdminUpdateUserDetailsInteractor } = await import("@/core/di");
 const { prisma } = await import("@/prisma/db");
 const { runWithTenant, runWithoutTenant } = await import("@/core/decorators/tenant-context");
+const { InitializeRecordModelService } = await import("@/features/records/initialize-record-model.service");
+const { createTestRecordRepo } = await import("@/tests/helpers/record-repository");
 
 const databaseUrl = getLocalDatabaseTestUrl();
 const describeDatabase = databaseUrl ? describe : describe.skip;
@@ -109,6 +111,7 @@ describeDatabase("member update on PostgreSQL", { timeout: 120_000 }, () => {
       });
       await prisma.subscription.create({ data: { companyId: company, plan: "enterprise", status: "active" } });
     });
+    await runWithTenant(actingAdmin, () => new InitializeRecordModelService(createTestRecordRepo()).initialize());
   });
 
   afterAll(async () => {
