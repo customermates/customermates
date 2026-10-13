@@ -4309,6 +4309,7 @@
     "permanentIrreversible": "Esto no se puede deshacer.",
     "permanentMessage": "{count, plural, one {Este elemento se elimina} other {Estos # elementos se eliminan}} definitivamente.",
     "permanentRecords": "{list}: {count, plural, one {# registro} other {# registros}}",
+    "permanentViewWidgets": "Para una vista del panel, sus widgets también se eliminan permanentemente.",
     "restore": "Restaurar",
     "restoreBlocked": {
       "listDeleted": "{count, plural, one {# elemento sigue} other {# elementos siguen}} en la papelera porque su lista está en la papelera. Restaura primero la lista.",

@@ -173,6 +173,26 @@ describe("TrashStore", () => {
     expect(deleteConfirmation.form.successKey).toBe("Trash.deletedPermanently");
   });
 
+  it("warns that permanently deleting a view also deletes its widgets", async () => {
+    const { store, deleteConfirmation } = makeStore();
+    trashActions.previewTrashDeletionAction.mockResolvedValue({
+      ok: true,
+      data: {
+        items: [{ itemId: ITEM_ID, kind: "view", label: "Board" }],
+        removedRecords: [],
+        removedLinks: 0,
+        impactHash: "c".repeat(64),
+      },
+    });
+
+    await store.requestPermanentDelete([ITEM_ID], "Board");
+
+    expect(deleteConfirmation.onInitOrRefresh.mock.calls[0][0].details).toEqual([
+      "Trash.permanentViewWidgets",
+      "Trash.permanentIrreversible",
+    ]);
+  });
+
   it("does not report a permanent delete that continues in the background as done", async () => {
     const { store, deleteConfirmation } = makeStore();
     trashActions.previewTrashDeletionAction.mockResolvedValue({
