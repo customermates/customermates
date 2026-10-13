@@ -3,7 +3,7 @@
 import type { HomepageStageTab } from "@/core/fumadocs/schemas/homepage";
 import type { ContentLocale } from "@/i18n/locale-registry";
 
-import { type FocusEvent, type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
+import { type FocusEvent, type KeyboardEvent, useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import { motion } from "framer-motion";
 import { preconnect } from "react-dom";
 import { Inbox, KanbanSquare, LayoutDashboard, Repeat, UserRound } from "lucide-react";
@@ -48,6 +48,20 @@ const STAGE_DEMO_PATHS = {
 } as const satisfies Record<HomepageStageArea, string>;
 
 const LIVE_STAGE_MEDIA = "(min-width: 40rem)";
+
+function subscribeToLiveStageMedia(onChange: () => void) {
+  const media = window.matchMedia?.(LIVE_STAGE_MEDIA);
+  media?.addEventListener?.("change", onChange);
+  return () => media?.removeEventListener?.("change", onChange);
+}
+
+function getLiveStageMediaSnapshot() {
+  return window.matchMedia?.(LIVE_STAGE_MEDIA).matches ?? false;
+}
+
+function getServerLiveStageMediaSnapshot() {
+  return false;
+}
 
 export const LIVE_REVEAL_DELAY_MS = 500;
 
@@ -96,7 +110,13 @@ export function HomepageProductStage({ demoBaseUrl, label, live: liveCopy, local
   const listRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const baseId = useId();
-  const [live, setLive] = useState(false);
+  const [liveRequested, setLive] = useState(false);
+  const liveAllowed = useSyncExternalStore(
+    subscribeToLiveStageMedia,
+    getLiveStageMediaSnapshot,
+    getServerLiveStageMediaSnapshot,
+  );
+  const live = liveRequested && liveAllowed;
   const [liveMounted, setLiveMounted] = useState<ReadonlySet<number>>(() => new Set());
   const [liveShown, setLiveShown] = useState<ReadonlySet<number>>(() => new Set());
   const revealTimers = useRef(new Map<number, number>());
@@ -109,8 +129,8 @@ export function HomepageProductStage({ demoBaseUrl, label, live: liveCopy, local
   preconnect(demoBaseUrl);
 
   useEffect(() => {
-    if (window.matchMedia?.(LIVE_STAGE_MEDIA).matches) setLive(true);
-  }, []);
+    if (liveAllowed) setLive(true);
+  }, [liveAllowed]);
 
   useEffect(() => {
     if (!live) return;

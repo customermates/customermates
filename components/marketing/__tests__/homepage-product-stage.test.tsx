@@ -409,6 +409,31 @@ it("keeps the static captures on a phone-width viewport", () => {
   expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("idle");
 });
 
+it("drops the live iframes when the viewport narrows to phone width", () => {
+  vi.useFakeTimers();
+  let matches = true;
+  const listeners = new Set<() => void>();
+  vi.stubGlobal("matchMedia", (query: string) => ({
+    get matches() {
+      return matches;
+    },
+    media: query,
+    addEventListener: (_type: string, listener: () => void) => listeners.add(listener),
+    removeEventListener: (_type: string, listener: () => void) => listeners.delete(listener),
+  }));
+  const host = render();
+
+  expect(activeIframe(host)).not.toBeNull();
+
+  matches = false;
+  act(() => {
+    for (const listener of listeners) listener();
+  });
+
+  expect(host.querySelector("iframe")).toBeNull();
+  expect(frame(host).getAttribute("data-homepage-stage-live")).toBe("idle");
+});
+
 it("opens the area a capture link names, live on a wide viewport", () => {
   vi.useFakeTimers();
   stubWideViewport(true);
