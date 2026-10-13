@@ -113107,6 +113107,8 @@
                         "recordDependencies",
                         "recordCalculationBudget",
                         "recordOperationFailed",
+                        "recordOperationNotFound",
+                        "recordOperationSettled",
                         "recordProtected",
                         "recordMeasureDateIntervalInvalid",
                         "trashItemNotFound",

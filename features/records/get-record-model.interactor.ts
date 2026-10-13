@@ -9,7 +9,7 @@ import { Validate } from "@/core/decorators/validate.decorator";
 import { runInTransaction } from "@/core/decorators/transaction-runner";
 import { AuthenticatedInteractor } from "@/core/base/authenticated-interactor";
 import { liveRecordModel } from "./record-model-snapshot";
-import { failAuthorization } from "@/core/validation/interactor-failure-server";
+import { failAuthorization, failNotFound } from "@/core/validation/interactor-failure-server";
 import { CustomErrorCode } from "@/core/validation/validation.types";
 import { resolveRecordPath } from "./record-relationship-path";
 import { visibleFormulaFields } from "./record-formula-visibility";
@@ -36,6 +36,8 @@ export class GetRecordModelInteractor extends AuthenticatedInteractor<z.infer<ty
             .filter((type) => policy.canManageSchema || policy.canManageRoles || policy.canReadType(type.id))
             .map((type) => type.id),
         );
+        const unknown = input.typeIds?.findIndex((typeId) => !accessible.has(typeId)) ?? -1;
+        if (unknown >= 0) return failNotFound(CustomErrorCode.recordTypeNotFound, ["typeIds", unknown]);
         const types = model.types
           .filter((type) => accessible.has(type.id) && (!input.typeIds || input.typeIds.includes(type.id)))
           .map((type) => ({

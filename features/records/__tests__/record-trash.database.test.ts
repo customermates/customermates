@@ -583,6 +583,53 @@ describeDatabase("record trash", () => {
     expect(await runWithoutTenant(() => prisma.crmRecord.count({ where: { companyId: f.seed.company.id } }))).toBe(0);
   }, 180_000);
 
+  it("lets a member open a trashed line item whose deal went to Trash after it", async () => {
+    const f = await fixture();
+    const deal = await f.created(
+      {
+        action: "create",
+        typeId: f.id("deal"),
+        fields: [{ fieldId: f.id("deal.name"), value: text("Owned pitch") }],
+        assignedUserIds: [f.member.id],
+      },
+      f.member,
+    );
+    const item = await f.created({
+      action: "create",
+      typeId: f.id("lineItem"),
+      fields: [{ fieldId: f.id("lineItem.quantity"), value: decimal("2") }],
+      links: [{ relationId: f.id("lineItem.deal"), direction: "outgoing", record: deal }],
+    });
+    await f.remove(item);
+    await f.remove(deal, f.member);
+    expect((await f.rows(item))?.deletedAt).not.toBeNull();
+    expect((await f.rows(deal))?.deletedAt).not.toBeNull();
+    const activities = new GetRecordActivitiesInteractor(
+      new PrismaRecordActivitiesRepo(new PermissionService()),
+      f.repo,
+      f.policy,
+      new RecordIdentityReader(f.repo, f.policy),
+      new RecordHistoryReader(f.repo),
+      { require: () => Promise.resolve(null) },
+      new TrashedRecordAccess(f.repo, new PrismaTrashRepo(), [f.handler]),
+    );
+    const trashed = await runWithTenant(f.member, () =>
+      new GetTrashedRecordActivitiesInteractor(activities).invoke(
+        RecordActivitiesInputSchema.parse({ scope: { records: [item], typeIds: [] } }),
+      ),
+    );
+    if (!trashed.ok) throw new Error(JSON.stringify(trashed.error.issues));
+    expect(trashed.data.items.map((entry) => (entry.kind === "record" ? entry.event : entry.kind))).toEqual(
+      expect.arrayContaining(["record.created", "record.deleted"]),
+    );
+    expect(
+      await runWithTenant(f.member, async () => {
+        const stored = await f.repo.getRecordCompanyWide(item, { includeTrash: true });
+        return stored ? (await f.policy.load()).canRead(stored) : null;
+      }),
+    ).toBe(true);
+  }, 180_000);
+
   it("restores a deal and a line item deleted together, whatever their order", async () => {
     const f = await fixture();
     const deal = await f.created({

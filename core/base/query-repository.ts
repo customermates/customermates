@@ -43,6 +43,10 @@ export abstract class QueryRepository<
     return Promise.resolve([]);
   }
 
+  getNullableFilterFields(): ReadonlyArray<string> {
+    return [];
+  }
+
   private memoFilterableFields?: Promise<Array<FilterableField>>;
 
   filterableFieldsOnce(): Promise<Array<FilterableField>> {
@@ -188,8 +192,15 @@ export abstract class QueryRepository<
     filter: Filter,
   ): void {
     const column = FILTER_COLUMN[filter.field] ?? filter.field;
+    const clause = this.createClause(column, this.buildScalarFilterCondition(filter));
+    const keepsNull =
+      [FilterOperatorKey.notEquals, FilterOperatorKey.notIn].includes(filter.operator) &&
+      this.getNullableFilterFields().includes(filter.field);
 
-    where.AND = [...(where.AND ?? []), this.createClause(column, this.buildScalarFilterCondition(filter))];
+    where.AND = [
+      ...(where.AND ?? []),
+      keepsNull ? ({ OR: [clause, this.createClause(column, null)] } as unknown as TWhereInput) : clause,
+    ];
   }
 
   private buildSearchConditions(search: string): Array<TWhereInput> {
